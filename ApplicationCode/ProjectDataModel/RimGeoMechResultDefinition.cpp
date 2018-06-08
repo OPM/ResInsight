@@ -249,6 +249,21 @@ void RimGeoMechResultDefinition::fieldChangedByUi(const caf::PdmFieldHandle* cha
 {
     m_isChangedByField = true;
 
+    if (&m_resultPositionTypeUiField == changedField)
+    {
+        if (m_resultPositionTypeUiField() == RIG_WELLPATH_DERIVED)
+        {
+            m_isTimeLapseResultUiField = false;
+            m_isTimeLapseResultUiField.uiCapability()->setUiReadOnly(true);
+            m_timeLapseBaseTimestepUiField.uiCapability()->setUiReadOnly(true);
+        }
+        else
+        {
+            m_isTimeLapseResultUiField.uiCapability()->setUiReadOnly(false);
+            m_timeLapseBaseTimestepUiField.uiCapability()->setUiReadOnly(false);
+        }
+    }
+
     if(   &m_resultPositionTypeUiField == changedField 
        || &m_isTimeLapseResultUiField == changedField
        || &m_timeLapseBaseTimestepUiField == changedField)
@@ -442,6 +457,8 @@ void RimGeoMechResultDefinition::initAfterRead()
     m_resultVariableUiField = composeFieldCompString(m_resultFieldName(), m_resultComponentName());
     m_isTimeLapseResultUiField = m_isTimeLapseResult;
     m_timeLapseBaseTimestepUiField = m_timeLapseBaseTimestep;
+    m_isTimeLapseResultUiField.uiCapability()->setUiReadOnly(resultPositionType() == RIG_WELLPATH_DERIVED);    
+    m_timeLapseBaseTimestepUiField.uiCapability()->setUiReadOnly(resultPositionType() == RIG_WELLPATH_DERIVED);
     m_compactionRefLayerUiField = m_compactionRefLayer;
 }
 
@@ -562,14 +579,15 @@ void RimGeoMechResultDefinition::setResultAddress( const RigFemResultAddress& re
     m_resultPositionType    = resultAddress.resultPosType;
     m_resultFieldName       = QString::fromStdString(resultAddress.fieldName);
     m_resultComponentName   = QString::fromStdString(resultAddress.componentName);
-    m_isTimeLapseResult     = resultAddress.isTimeLapse();
-
-    m_timeLapseBaseTimestep = m_isTimeLapseResult ? resultAddress.timeLapseBaseFrameIdx: -1;
-    m_compactionRefLayer = resultAddress.refKLayerIndex;
-
     m_resultPositionTypeUiField = m_resultPositionType;
     m_resultVariableUiField = composeFieldCompString(m_resultFieldName(), m_resultComponentName());
+
+    m_isTimeLapseResult     = resultAddress.isTimeLapse();
+    m_timeLapseBaseTimestep = m_isTimeLapseResult ? resultAddress.timeLapseBaseFrameIdx : -1;
+
     m_isTimeLapseResultUiField = m_isTimeLapseResult;
     m_timeLapseBaseTimestepUiField = m_timeLapseBaseTimestep;
+
+    m_compactionRefLayer = resultAddress.refKLayerIndex;
     m_compactionRefLayerUiField = m_compactionRefLayer;
 }
