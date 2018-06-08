@@ -426,6 +426,9 @@ void RiuSummaryCurveDefSelection::setSelectedCurveDefinitions(const std::vector<
             summaryAddress = RifEclipseSummaryAddress::fieldAddress(summaryAddress.quantityName());
         }
 
+        // Ignore ensemble statistics curves
+        if (summaryAddress.category() == RifEclipseSummaryAddress::SUMMARY_ENSEMBLE_STATISTICS) continue;
+
         // Select summary category if not already selected
         auto& selectedCategories = m_selectedSummaryCategories();
 
@@ -605,6 +608,8 @@ QList<caf::PdmOptionItemInfo> RiuSummaryCurveDefSelection::calculateValueOptions
     {
         for (size_t i = 0; i < caf::AppEnum<RifEclipseSummaryAddress::SummaryVarCategory>::size(); ++i)
         {
+            if (caf::AppEnum<RifEclipseSummaryAddress::SummaryVarCategory>::fromIndex(i) == RifEclipseSummaryAddress::SUMMARY_ENSEMBLE_STATISTICS) continue;
+
             options.push_back(caf::PdmOptionItemInfo(caf::AppEnum<RifEclipseSummaryAddress::SummaryVarCategory>::uiTextFromIndex(i),
                                                      caf::AppEnum<RifEclipseSummaryAddress::SummaryVarCategory>::fromIndex(i)));
         }
@@ -1040,7 +1045,8 @@ std::set<RifEclipseSummaryAddress> RiuSummaryCurveDefSelection::buildAddressList
     std::set<RifEclipseSummaryAddress> addressSet;
     for (const auto& category : m_selectedSummaryCategories())
     {
-        if (category == RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_INVALID) continue;
+        if (m_identifierFieldsMap.at(category).size() == 0 ||
+            category == RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_INVALID) continue;
         
         const auto& identifierAndFieldList = m_identifierFieldsMap.at(category);
         std::vector<std::pair<RifEclipseSummaryAddress::SummaryIdentifierType, QString>> selectionStack;
