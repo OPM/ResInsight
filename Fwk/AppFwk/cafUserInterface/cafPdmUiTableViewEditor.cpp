@@ -69,7 +69,7 @@ public:
     }
 
 protected:
-    bool eventFilter(QObject *obj, QEvent *event)
+    bool eventFilter(QObject *obj, QEvent *event) override 
     {
         if (event->type() == QEvent::FocusIn ||
             event->type() == QEvent::FocusOut)
@@ -221,9 +221,8 @@ void PdmUiTableViewEditor::setListField(PdmChildArrayFieldHandle* pdmListField)
 //--------------------------------------------------------------------------------------------------
 void PdmUiTableViewEditor::selectedUiItems(const QModelIndexList& modelIndexList, std::vector<PdmUiItem*>& objects)
 {
-    for (int i = 0; i < modelIndexList.size(); i++)
+    for (const QModelIndex& mi : modelIndexList)
     {
-        QModelIndex mi = modelIndexList[i];
         int row = mi.row();
 
         caf::PdmUiObjectHandle* uiObject = uiObj(m_tableModelPdm->pdmObjectForRow(row));
@@ -246,7 +245,7 @@ void PdmUiTableViewEditor::customMenuRequested(QPoint pos)
     QMenu menu;
     caf::PdmUiCommandSystemProxy::instance()->populateMenuWithDefaultCommands("PdmUiTreeViewEditor", &menu);
 
-    if (menu.actions().size() > 0)
+    if (!menu.actions().empty())
     {
         // Qt doc: QAbstractScrollArea and its subclasses that map the context menu event to coordinates of the viewport().
         QPoint globalPos = m_tableView->viewport()->mapToGlobal(pos);
@@ -340,7 +339,7 @@ void PdmUiTableViewEditor::handleModelSelectionChange()
         {
             PdmObject* pdmObj = dynamic_cast<PdmObject*>(items[0]);
             QItemSelection itemSelection = m_tableModelPdm->modelIndexFromPdmObject(pdmObj);
-            if (itemSelection.size() > 0)
+            if (!itemSelection.empty())
             {
                 m_tableView->selectionModel()->select(itemSelection, QItemSelectionModel::SelectCurrent);
             }
@@ -415,9 +414,8 @@ void PdmUiTableViewEditor::updateSelectionManagerFromTableSelection()
         std::vector<PdmUiItem*> items;
 
         QModelIndexList modelIndexList = m_tableView->selectionModel()->selectedIndexes();
-        for (int i = 0; i < modelIndexList.size(); i++)
+        for (const QModelIndex& mi : modelIndexList)
         {
-            QModelIndex mi = modelIndexList[i];
             PdmFieldHandle* pdmFieldHandle = m_tableModelPdm->getField(mi);
 
             if (pdmFieldHandle && pdmFieldHandle->uiCapability())

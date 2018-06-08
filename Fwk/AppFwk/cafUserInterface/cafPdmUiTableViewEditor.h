@@ -77,7 +77,7 @@ public:
     void            enableHeaderText(bool enable);
     void            setSelectionRole(SelectionManager::SelectionRole role);
 
-    PdmObjectHandle*    pdmObjectFromModelIndex(const QModelIndex& mi);
+    PdmObjectHandle* pdmObjectFromModelIndex(const QModelIndex& mi);
 
     void            setListField(PdmChildArrayFieldHandle* pdmListField);
     QWidget*        createWidget(QWidget* parent);
@@ -85,10 +85,9 @@ public:
     QTableView*     tableView();
 
     void            handleModelSelectionChange();
-    void            updatePersistentEditors() const;
 
 protected:
-    virtual void    configureAndUpdateUi(const QString& uiConfigName);
+    virtual void    configureAndUpdateUi(const QString& uiConfigName) override;
 
 private:
     void            updateContextMenuSignals();
@@ -104,8 +103,6 @@ private slots:
 
 private:
     friend class FocusEventHandler;
-
-    std::map<QString, PdmUiFieldEditorHandle*>  m_fieldViews; 
 
     QPointer<QWidget>       m_mainWidget;
     QLayout*                m_layout;

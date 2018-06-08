@@ -220,14 +220,14 @@ QVariant PdmUiTableViewModel::data(const QModelIndex &index, int role /*= Qt::Di
                 QString displayText;
                 QList<QVariant> valuesSelectedInField = fieldValue.toList();
 
-                if (valuesSelectedInField.size() > 0)
+                if (!valuesSelectedInField.empty())
                 {
                     QList<PdmOptionItemInfo> options;
                     bool useOptionsOnly = true;
                     options = uiFieldHandle->valueOptions(&useOptionsOnly);
                     CAF_ASSERT(useOptionsOnly); // Not supported
 
-                    for (QVariant v : valuesSelectedInField)
+                    for (const QVariant& v : valuesSelectedInField)
                     {
                         int index = v.toInt();
                         if (index != -1)
@@ -336,7 +336,7 @@ void PdmUiTableViewModel::setPdmData(PdmChildArrayFieldHandle* listField, const 
 
     PdmUiOrdering configForFirstObject;
 
-    if (m_pdmList && m_pdmList->size() > 0)
+    if (m_pdmList && !m_pdmList->empty())
     {
         PdmObjectHandle* pdmObjHandle = m_pdmList->at(0);
         PdmUiObjectHandle* uiObject = pdmObjHandle->uiCapability();
@@ -358,14 +358,14 @@ void PdmUiTableViewModel::setPdmData(PdmChildArrayFieldHandle* listField, const 
 
     m_modelColumnIndexToFieldIndex.clear();
 
-    for (size_t i = 0; i < uiItems.size(); ++i)
+    for (auto uiItem : uiItems)
     {
-        if (uiItems[i]->isUiHidden(configName)) continue;
+        if (uiItem->isUiHidden(configName)) continue;
 
-        if (uiItems[i]->isUiGroup()) continue;
+        if (uiItem->isUiGroup()) continue;
 
         {
-            PdmUiFieldHandle* field = dynamic_cast<PdmUiFieldHandle*>(uiItems[i]);
+            PdmUiFieldHandle* field = dynamic_cast<PdmUiFieldHandle*>(uiItem);
             PdmUiFieldEditorHandle* fieldEditor = nullptr;
 
             // Find or create FieldEditor
@@ -415,9 +415,9 @@ void PdmUiTableViewModel::setPdmData(PdmChildArrayFieldHandle* listField, const 
         }
     }
 
-    for (size_t i = 0; i < fvhToRemoveFromMap.size(); ++i)
+    for (const auto& fieldEditorName : fvhToRemoveFromMap)
     {
-        m_fieldEditors.erase(fvhToRemoveFromMap[i]);
+        m_fieldEditors.erase(fieldEditorName);
     }
 
     recreateTableItemEditors();
@@ -519,9 +519,9 @@ void PdmUiTableViewModel::notifyDataChanged(const QModelIndex& topLeft, const QM
 //--------------------------------------------------------------------------------------------------
 void PdmUiTableViewModel::recreateTableItemEditors()
 {
-    for (size_t i = 0; i < m_tableItemEditors.size(); i++)
+    for (auto tableItemEditor : m_tableItemEditors)
     {
-        delete m_tableItemEditors[i];
+        delete tableItemEditor;
     }
     m_tableItemEditors.clear();
 
@@ -634,7 +634,7 @@ QItemSelection PdmUiTableViewModel::modelIndexFromPdmObject(PdmObjectHandle* pdm
 //--------------------------------------------------------------------------------------------------
 int PdmUiTableViewModel::getFieldIndex(PdmFieldHandle* field) const
 {
-    if (m_pdmList && m_pdmList->size() > 0)
+    if (m_pdmList && !m_pdmList->empty())
     {
         PdmObjectHandle* pdmObject = m_pdmList->at(0);
         if (pdmObject)

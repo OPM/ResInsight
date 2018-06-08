@@ -90,13 +90,13 @@ public:
     PdmObjectHandle*        pdmObjectForRow(int row) const;
 
     // Qt overrides
-    virtual int             rowCount( const QModelIndex &parent = QModelIndex( ) ) const;
-    virtual int             columnCount( const QModelIndex &parent = QModelIndex( ) ) const;
-    virtual QVariant        data( const QModelIndex &index, int role = Qt::DisplayRole ) const;
-    virtual QVariant        headerData( int section, Qt::Orientation orientation, int role = Qt::DisplayRole ) const;
+    int                     rowCount( const QModelIndex &parent = QModelIndex( ) ) const override;
+    int                     columnCount( const QModelIndex &parent = QModelIndex( ) ) const override;
+    QVariant                data( const QModelIndex &index, int role = Qt::DisplayRole ) const override;
+    QVariant                headerData( int section, Qt::Orientation orientation, int role = Qt::DisplayRole ) const override;
 
-    virtual Qt::ItemFlags   flags(const QModelIndex &index) const;
-    virtual bool            setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole);
+    Qt::ItemFlags           flags(const QModelIndex &index) const override;
+    bool                    setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole) override;
 
     void                    notifyDataChanged(const QModelIndex& topLeft, const QModelIndex& bottomRight);
 

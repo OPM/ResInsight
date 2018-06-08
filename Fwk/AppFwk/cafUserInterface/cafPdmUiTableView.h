@@ -92,8 +92,8 @@ public:
 
     QTableView* tableView();
 
-    virtual void handleModelNotification(caf::PdmObjectHandle* itemThatChanged);
-    virtual void handleModelSelectionChange();
+    void handleModelNotification(caf::PdmObjectHandle* itemThatChanged) override;
+    void handleModelSelectionChange() override;
 
 private:
     PdmUiTableViewEditor*   m_listViewEditor;
