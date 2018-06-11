@@ -37,6 +37,7 @@
 
 #include "cafPdmUiTableView.h"
 
+#include "cafPdmChildArrayField.h"
 #include "cafPdmObject.h"
 #include "cafPdmUiTableViewEditor.h"
 
@@ -83,11 +84,18 @@ PdmUiTableView::~PdmUiTableView()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void PdmUiTableView::setUiFieldHandle(PdmUiFieldHandle* uiFieldHandle)
+void PdmUiTableView::setChildArrayField(PdmChildArrayFieldHandle* childArrayField)
 {
     CAF_ASSERT(m_listViewEditor);
 
-    m_listViewEditor->setField(uiFieldHandle);
+    if (childArrayField)
+    {
+        m_listViewEditor->setField(childArrayField->uiCapability());
+    }
+    else
+    {
+        m_listViewEditor->setField(nullptr);
+    }
 
     // SIG_CAF_HACK
     m_listViewEditor->updateUi(m_uiConfigName);

@@ -794,7 +794,7 @@ MainWindow::~MainWindow()
     m_pdmUiTreeView->setPdmItem(nullptr);
     m_pdmUiTreeView2->setPdmItem(nullptr);
     m_pdmUiPropertyView->showProperties(nullptr);
-    m_pdmUiTableView->setUiFieldHandle(nullptr);
+    m_pdmUiTableView->setChildArrayField(nullptr);
 
     delete m_pdmUiTreeView;
     delete m_pdmUiTreeView2;
@@ -975,11 +975,12 @@ void MainWindow::slotShowTableView()
             if (!childArrayFieldHandle->hasSameFieldCountForAllObjects())
             {
                 uiFieldHandle = nullptr;
+                childArrayFieldHandle = nullptr;
             }
         }
     }
 
-    m_pdmUiTableView->setUiFieldHandle(uiFieldHandle);
+    m_pdmUiTableView->setChildArrayField(childArrayFieldHandle);
 
     if (uiFieldHandle)
     {

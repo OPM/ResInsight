@@ -84,7 +84,7 @@ public:
     // SIG_CAF_HACK
     void        setUiConfigurationName(QString uiConfigName);
 
-    void        setUiFieldHandle(PdmUiFieldHandle* uiFieldHandle);
+    void        setChildArrayField(PdmChildArrayFieldHandle* childArrayField);
 
     void        enableDefaultContextMenu(bool enable);
     void        enableHeaderText(bool enable);
