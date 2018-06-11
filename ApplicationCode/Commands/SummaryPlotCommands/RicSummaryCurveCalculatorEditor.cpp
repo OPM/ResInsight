@@ -49,7 +49,7 @@ RicSummaryCurveCalculatorEditor::~RicSummaryCurveCalculatorEditor()
 {
     if (m_pdmTableView)
     {
-        m_pdmTableView->setListField(nullptr);
+        m_pdmTableView->setChildArrayField(nullptr);
 
         delete m_pdmTableView;
         m_pdmTableView = nullptr;
@@ -94,10 +94,10 @@ void RicSummaryCurveCalculatorEditor::recursivelyConfigureAndUpdateTopLevelUiIte
 
     if (m_calculator->currentCalculation())
     {
-        m_pdmTableView->setListField(m_calculator->currentCalculation()->variables());
+        m_pdmTableView->setChildArrayField(m_calculator->currentCalculation()->variables());
     }
     else
-        m_pdmTableView->setListField(nullptr);
+        m_pdmTableView->setChildArrayField(nullptr);
 
     m_firstRowRightLayout->insertWidget(layoutItemIndex++, m_pdmTableView);
 
