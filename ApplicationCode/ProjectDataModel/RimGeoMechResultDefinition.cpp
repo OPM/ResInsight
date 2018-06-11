@@ -208,7 +208,7 @@ QList<caf::PdmOptionItemInfo> RimGeoMechResultDefinition::calculateValueOptions(
             std::vector<std::string> stepNames;
             if(m_geomCase->geoMechData())
             {
-                 stepNames = m_geomCase->geoMechData()->femPartResults()->stepNames();
+                 stepNames = m_geomCase->geoMechData()->femPartResults()->filteredStepNames();
             }
 
             for (size_t stepIdx = 0; stepIdx < stepNames.size(); ++stepIdx)
@@ -531,7 +531,16 @@ RigGeoMechCaseData* RimGeoMechResultDefinition::ownerCaseData()
 //--------------------------------------------------------------------------------------------------
 bool RimGeoMechResultDefinition::hasResult()
 {
-    return ownerCaseData()->femPartResults()->assertResultsLoaded(this->resultAddress());
+    RigGeoMechCaseData* caseData = ownerCaseData();
+    if (caseData)
+    {
+        RigFemPartResultsCollection* results = caseData->femPartResults();
+        if (results)
+        {
+            return results->assertResultsLoaded(this->resultAddress());
+        }
+    }
+    return false;
 }
 
 

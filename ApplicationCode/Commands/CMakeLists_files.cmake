@@ -36,6 +36,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RicWellLogsImportFileFeature.h
 
 ${CMAKE_CURRENT_LIST_DIR}/RicTogglePerspectiveViewFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicImportGeoMechCaseFeature.h
+${CMAKE_CURRENT_LIST_DIR}/RicImportGeoMechCaseTimeStepFilterFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicImportSummaryCaseFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicImportSummaryCasesFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicImportObservedDataFeature.h
@@ -106,6 +107,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RicSelectColorResult.cpp
 
 ${CMAKE_CURRENT_LIST_DIR}/RicTogglePerspectiveViewFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicImportGeoMechCaseFeature.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicImportGeoMechCaseTimeStepFilterFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicImportSummaryCaseFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicImportSummaryCasesFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicImportObservedDataFeature.cpp

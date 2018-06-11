@@ -54,6 +54,8 @@ public:
     RigGeoMechCaseData*                     geoMechData();
     const RigGeoMechCaseData*               geoMechData() const;
 
+    void                                    reloadDataAndUpdate();
+
     RimGeoMechView*                         createAndAddReservoirView();
 
     virtual void                            updateFilePathsFromProjectPath(const QString& projectPath, const QString& oldProjectPath);
@@ -74,16 +76,14 @@ public:
     double                                  cohesion() const;
     double                                  frictionAngleDeg() const;
 
+    void                                    setApplyTimeFilter(bool applyTimeFilter);
     // Fields:                                        
     caf::PdmChildArrayField<RimGeoMechView*>  geoMechViews;
 
-
-
-
-
 private:
     virtual cvf::Vec3d                      displayModelOffset() const override;
-    static std::vector<QDateTime>           dateTimeVectorFromTimeStepStrings(const QStringList& timeStepStrings);
+    static std::vector<QDateTime>           vectorOfValidDateTimesFromTimeStepStrings(const QStringList& timeStepStrings);
+    static QDateTime                        dateTimeFromTimeStepString(const QString& timeStepString);
 
     virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
     virtual void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
@@ -109,4 +109,5 @@ private:
     caf::PdmField<std::vector<int> >          m_elementPropertyFileNameIndexUiSelection;
     caf::PdmField<bool>                       m_closeElementPropertyFileCommand;
     caf::PdmField<bool>                       m_reloadElementPropertyFileCommand;
+    bool                                      m_applyTimeFilter;
 };

@@ -90,11 +90,11 @@ RigFemPartResultsCollection::RigFemPartResultsCollection(RifGeoMechReaderInterfa
     m_femParts = femPartCollection;
 
     m_femPartResults.resize(m_femParts->partCount());
-    std::vector<std::string> stepNames = m_readerInterface->stepNames();
+    std::vector<std::string> filteredStepNames = m_readerInterface->filteredStepNames();
     for (auto & femPartResult : m_femPartResults)
     {
         femPartResult = new RigFemPartResults;
-        femPartResult->initResultSteps(stepNames);
+        femPartResult->initResultSteps(filteredStepNames);
     }
 
     m_cohesion = 10.0;
@@ -2150,10 +2150,10 @@ std::vector< RigFemResultAddress> RigFemPartResultsCollection::getResAddrToCompo
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<std::string> RigFemPartResultsCollection::stepNames() const
+std::vector<std::string> RigFemPartResultsCollection::filteredStepNames() const
 {
     CVF_ASSERT(m_readerInterface.notNull());
-    return m_readerInterface->stepNames();
+    return m_readerInterface->filteredStepNames();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -2161,7 +2161,7 @@ std::vector<std::string> RigFemPartResultsCollection::stepNames() const
 //--------------------------------------------------------------------------------------------------
 int RigFemPartResultsCollection::frameCount()
 {
-    return static_cast<int>(stepNames().size());
+    return static_cast<int>(filteredStepNames().size());
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -823,11 +823,12 @@ QStringList RimEclipseCase::timeStepStrings() const
 QString RimEclipseCase::timeStepName(int frameIdx) const
 {
     std::vector<QDateTime> timeStepDates = this->timeStepDates();
-    CVF_ASSERT(frameIdx < static_cast<int>(timeStepDates.size()));
-
-    QDateTime date = timeStepDates.at(frameIdx);
-
-    return date.toString(m_timeStepFormatString);
+    if (frameIdx < static_cast<int>(timeStepDates.size()))
+    {
+        QDateTime date = timeStepDates.at(frameIdx);
+        return date.toString(m_timeStepFormatString);
+    }
+    return QString("");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -929,5 +930,9 @@ void RimEclipseCase::setFormationNames(RimFormationNames* formationNames)
 //--------------------------------------------------------------------------------------------------
 std::vector<QDateTime> RimEclipseCase::timeStepDates() const
 {
-    return results(RiaDefines::MATRIX_MODEL)->timeStepDates();
+    if (results(RiaDefines::MATRIX_MODEL))
+    {
+        return results(RiaDefines::MATRIX_MODEL)->timeStepDates();
+    }
+    return std::vector<QDateTime>();
 }

@@ -120,7 +120,7 @@ public:
 
     bool                openFile(const QString& fileName);
 
-    bool                openOdbCaseFromFile(const QString& fileName);
+    bool                openOdbCaseFromFile(const QString& fileName, bool applyTimeStepFilter = false);
 
     QString             currentProjectPath() const;
     QString             createAbsolutePathFromProjectRelativePath(QString projectRelativePath);

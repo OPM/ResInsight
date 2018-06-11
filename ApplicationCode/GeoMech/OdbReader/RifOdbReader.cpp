@@ -235,6 +235,14 @@ bool RifOdbReader::openFile(const std::string& fileName, std::string* errorMessa
 
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RifOdbReader::isOpen() const
+{
+    return m_odb != NULL;
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void RifOdbReader::assertMetaDataLoaded()
@@ -422,7 +430,7 @@ bool RifOdbReader::readFemParts(RigFemPartCollection* femParts)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<std::string> RifOdbReader::stepNames() const
+std::vector<std::string> RifOdbReader::allStepNames() const
 {
     CVF_ASSERT(m_odb != NULL);
 
@@ -430,9 +438,34 @@ std::vector<std::string> RifOdbReader::stepNames() const
 
     odb_StepRepository stepRepository = m_odb->steps();
     odb_StepRepositoryIT sIter(stepRepository);
-    for (sIter.first(); !sIter.isDone(); sIter.next()) 
+    for (sIter.first(); !sIter.isDone(); sIter.next())
     {
-        stepNames.push_back(stepRepository[sIter.currentKey()].name().CStr());
+        std::string stepName(sIter.currentValue().name().CStr());
+        stepNames.push_back(stepName);
+    }
+
+    return stepNames;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<std::string> RifOdbReader::filteredStepNames() const
+{
+    CVF_ASSERT(m_odb != NULL);
+
+    std::vector<std::string> stepNames;
+
+    odb_StepRepository stepRepository = m_odb->steps();
+    odb_StepRepositoryIT sIter(stepRepository);
+    int stepIndex = 0;
+    for (sIter.first(); !sIter.isDone(); sIter.next()) 
+    {   
+        std::string stepName(sIter.currentValue().name().CStr());
+        if (this->isTimeStepIncludedByFilter(stepIndex++))
+        {
+            stepNames.push_back(stepName);
+        }
     }
 
     return stepNames;
@@ -449,7 +482,10 @@ std::vector<double> RifOdbReader::frameTimes(int stepIndex) const
     odb_StepRepository& stepRepository = m_odb->steps();
 
     odb_StepList stepList = stepRepository.stepList();
-    odb_Step& step = stepList.Get(stepIndex);
+
+    int stepFileIndex = this->timeStepIndexOnFile(stepIndex);
+
+    odb_Step& step = stepList.Get(stepFileIndex);
     
     odb_SequenceFrame& stepFrames = step.frames();
 
@@ -573,7 +609,10 @@ const odb_Frame& RifOdbReader::stepFrame(int stepIndex, int frameIndex) const
 
     const odb_StepRepository& stepRepository = m_odb->steps();
     const odb_StepList& stepList = stepRepository.stepList();
-    const odb_Step& step = stepList.ConstGet(stepIndex);
+
+    int stepFileIndex = this->timeStepIndexOnFile(stepIndex);
+
+    const odb_Step& step = stepList.ConstGet(stepFileIndex);
     const odb_SequenceFrame& stepFrames = step.frames();
 
     return stepFrames.constGet(frameIndex);

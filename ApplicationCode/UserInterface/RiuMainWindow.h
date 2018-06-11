@@ -26,8 +26,9 @@
 #include "cafPdmObjectHandle.h"
 
 #include <QEvent>
-#include <QPointer>
+#include <QLabel>
 #include <QMdiArea>
+#include <QPointer>
 
 #include <memory>
 #include <vector>
@@ -180,7 +181,8 @@ private:
     RiuPvtPlotPanel*                    m_pvtPlotPanel;
 
     QMenu*              m_windowMenu;
-
+    QLabel*             m_memoryUsedStatus;
+    QLabel*             m_memoryAvailableStatus;
 
 // Menu and action slots
 private slots:

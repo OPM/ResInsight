@@ -42,9 +42,10 @@ public:
     virtual ~RifOdbReader();
 
     virtual bool                                                openFile(const std::string& fileName, std::string* errorMessage);
-
+    virtual bool                                                isOpen() const;
     virtual bool                                                readFemParts(RigFemPartCollection* geoMechCase);
-    virtual std::vector<std::string>                            stepNames() const override;
+    virtual std::vector<std::string>                            allStepNames() const override;
+    virtual std::vector<std::string>                            filteredStepNames() const override;
     virtual std::vector<double>                                 frameTimes(int stepIndex) const override;
 
     virtual std::vector<std::string>                            elementSetNames(int partIndex);
@@ -93,7 +94,7 @@ private:
     size_t                                                  resultItemCount(const std::string& fieldName, int partIndex, int stepIndex, int frameIndex);
     size_t                                                  componentsCount(const std::string& fieldName, ResultPosition position);
     const odb_Frame&                                        stepFrame(int stepIndex, int frameIndex) const;
-    odb_Instance*                                            instance(int instanceIndex);
+    odb_Instance*                                           instance(int instanceIndex);
 
     int                                                     componentIndex(const RifOdbResultKey& result, const std::string& componentName);
     std::vector<std::string>                                componentNames(const RifOdbResultKey& result);

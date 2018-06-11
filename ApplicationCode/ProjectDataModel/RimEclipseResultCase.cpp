@@ -159,19 +159,15 @@ bool RimEclipseResultCase::importGridAndResultMetaData(bool showTimeStepFilter)
                 {
                     return false;
                 }
-
-                m_timeStepFilter->clearTimeStepsFromFile();
-
+                m_timeStepFilter->updateFilteredTimeStepsFromUi();
                 // Set cursor in wait state to continue display of progress dialog including
                 // wait cursor
                 QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
             }
-
             readerEclipseOutput->setFileDataAccess(restartDataAccess.p());
         }
-
-        readerEclipseOutput->setTimeStepFilter(m_timeStepFilter->filteredNativeTimeStepIndices());
-
+        readerEclipseOutput->setTimeStepFilter(m_timeStepFilter->filteredTimeSteps());
+        
         cvf::ref<RigEclipseCaseData> eclipseCase = new RigEclipseCaseData(this);
         if (!readerEclipseOutput->open(caseFileName(), eclipseCase.p()))
         {

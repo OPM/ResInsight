@@ -139,6 +139,15 @@ RiuMainWindow::RiuMainWindow()
     // Enabling the line below will activate the undo stack
     // When enableUndoCommandSystem is set false, all commands are executed and deleted immediately
     //caf::CmdExecCommandManager::instance()->enableUndoCommandSystem(true);
+
+    QLabel* memoryDescriptionLabel = new QLabel("Memory usage:");
+    m_memoryUsedStatus = new QLabel("Used: 128 MiB");
+    m_memoryUsedStatus->setStyleSheet("QLabel {color: green; }");
+    m_memoryAvailableStatus = new QLabel("Physical Memory: 32 GiB");
+    
+    statusBar()->addPermanentWidget(memoryDescriptionLabel);
+    statusBar()->addPermanentWidget(m_memoryUsedStatus);
+    statusBar()->addPermanentWidget(m_memoryAvailableStatus);
 }
 
 
@@ -180,7 +189,7 @@ void RiuMainWindow::initializeGuiNewProjectLoaded()
 
     if (statusBar() && !RiaRegressionTestRunner::instance()->isRunningRegressionTests())
     {
-        statusBar()->showMessage("Ready ...");
+        statusBar()->showMessage("Ready ...");        
     }
 }
 
@@ -391,6 +400,7 @@ void RiuMainWindow::createMenus()
     importMenu->addSeparator();
     QMenu* importGeoMechMenu = importMenu->addMenu(QIcon(":/GeoMechCase48x48.png"), "Geo Mechanical Cases");
     importGeoMechMenu->addAction(cmdFeatureMgr->action("RicImportGeoMechCaseFeature"));
+    importGeoMechMenu->addAction(cmdFeatureMgr->action("RicImportGeoMechCaseTimeStepFilterFeature"));
     importGeoMechMenu->addAction(cmdFeatureMgr->action("RicImportElementPropertyFeature"));
     #endif
 

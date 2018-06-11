@@ -19,16 +19,19 @@
 #include "RimTimeStepFilter.h"
 
 #include "RifReaderEclipseOutput.h"
+#include "RigCaseCellResultsData.h"
 
 #include "RimEclipseResultCase.h"
+#include "RimGeoMechCase.h"
 #include "RimReservoirCellResultsStorage.h"
 #include "RimTools.h"
 
+#include "cafPdmUiListEditor.h"
 #include "cafPdmUiPushButtonEditor.h"
-#include "cafPdmUiTextEditor.h"
 
 #include <QDateTime>
-#include "RigCaseCellResultsData.h"
+
+#include <algorithm>
 
 namespace caf {
 
@@ -57,22 +60,24 @@ RimTimeStepFilter::RimTimeStepFilter()
 {
     CAF_PDM_InitObject("Time Step Filter", "", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&m_selectedTimeStepIndices, "TimeStepIndicesToImport", "Values", "", "", ""); 
+    caf::AppEnum< RimTimeStepFilter::TimeStepFilterTypeEnum > filterType = TS_ALL;
+    CAF_PDM_InitField(&m_filterType, "FilterType", filterType, "Filter Type", "", "", "");
 
     CAF_PDM_InitField(&m_firstTimeStep, "FirstTimeStep", 0, "First Time Step", "", "", "");
     CAF_PDM_InitField(&m_lastTimeStep, "LastTimeStep", 0, "Last Time Step", "", "", "");
 
-    caf::AppEnum< RimTimeStepFilter::TimeStepFilterTypeEnum > filterType = TS_ALL;
-    CAF_PDM_InitField(&m_filterType, "FilterType", filterType, "Filter Type", "", "", "");
-
     CAF_PDM_InitField(&m_interval, "Interval", 1, "Interval", "", "", "");
 
-    CAF_PDM_InitField(&m_filteredTimeStepsText, "FilteredTimeSteps", QString(), "Filtered TimeSteps", "", "", "");
-    m_filteredTimeStepsText.uiCapability()->setUiEditorTypeName(caf::PdmUiTextEditor::uiEditorTypeName());
-    m_filteredTimeStepsText.uiCapability()->setUiReadOnly(true);
-    m_filteredTimeStepsText.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
+    CAF_PDM_InitField(&m_timeStepNamesFromFile, "TimeStepsFromFile", std::vector<QString>(), "TimeSteps From File", "", "", "");
+    CAF_PDM_InitField(&m_dateFormat, "DateFormat", QString("yyyy-MM-dd"), "Date Format", "", "", "");
 
-    m_filteredTimeStepsText.xmlCapability()->disableIO();
+    CAF_PDM_InitFieldNoDefault(&m_filteredTimeSteps, "TimeStepIndicesToImport", "Select From Time Steps", "", "", "");
+    m_filteredTimeSteps.uiCapability()->setUiReadOnly(true);
+
+    CAF_PDM_InitFieldNoDefault(&m_filteredTimeStepsUi, "TimeStepIndicesUi", "Select From TimeSteps", "", "", "");
+    m_filteredTimeStepsUi.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::TOP);
+    m_filteredTimeStepsUi.uiCapability()->setUiEditorTypeName(caf::PdmUiListEditor::uiEditorTypeName());
+    m_filteredTimeStepsUi.xmlCapability()->disableIO();
 
     CAF_PDM_InitFieldNoDefault(&m_applyReloadOfCase, "ApplyReloadOfCase", "", "", "", "");
     caf::PdmUiPushButtonEditor::configureEditorForField(&m_applyReloadOfCase);
@@ -83,36 +88,88 @@ RimTimeStepFilter::RimTimeStepFilter()
 //--------------------------------------------------------------------------------------------------
 void RimTimeStepFilter::setTimeStepsFromFile(const std::vector<QDateTime>& timeSteps)
 {
-    m_timeStepsFromFile = timeSteps;
+    m_dateFormat = RimTools::createTimeFormatStringFromDates(timeSteps);
+    std::vector<QString> timeStepStrings;
+    for (const QDateTime& date : timeSteps)
+    {
+        timeStepStrings.push_back(date.toString(m_dateFormat));
+    }
 
+    m_timeStepNamesFromFile = timeStepStrings;
     m_lastTimeStep = static_cast<int>(timeSteps.size()) - 1;
 
-    updateSelectedTimeStepIndices();
-    updateDerivedData();
+    if (m_filteredTimeSteps().empty())
+    {
+        m_filteredTimeSteps = filteredTimeStepIndicesFromUi();        
+    }
+    m_filteredTimeStepsUi = m_filteredTimeSteps;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimTimeStepFilter::clearTimeStepsFromFile()
+void RimTimeStepFilter::setTimeStepsFromFile(const std::vector<std::pair<QString, QDateTime>>& timeSteps)
 {
-    m_timeStepsFromFile.clear();
+    std::vector<QDateTime> validDates;
+    for (auto stringDatePair : timeSteps)
+    {
+        if (stringDatePair.second.isValid())
+        {
+            validDates.push_back(stringDatePair.second);
+        }
+    }
+    m_dateFormat = RimTools::createTimeFormatStringFromDates(validDates);
+    
+    std::vector<QString> timeStepStrings;
+    for (auto stringDatePair : timeSteps)
+    {
+        QString stepString = stringDatePair.first;
+        if (stringDatePair.second.isValid())
+        {
+            stepString = stringDatePair.second.toString(m_dateFormat);
+        }
+        timeStepStrings.push_back(stepString);
+    }
+
+    m_timeStepNamesFromFile = timeStepStrings;
+    m_lastTimeStep = static_cast<int>(timeSteps.size()) - 1;
+
+    if (m_filteredTimeSteps().empty())
+    {
+        m_filteredTimeSteps = filteredTimeStepIndicesFromUi();
+    }
+    m_filteredTimeStepsUi = m_filteredTimeSteps;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<size_t> RimTimeStepFilter::filteredNativeTimeStepIndices() const
+std::vector<size_t> RimTimeStepFilter::filteredTimeSteps() const
 {
     std::vector<size_t> indices;
 
     // Convert vector from int to size_t 
-    for (auto intValue : m_selectedTimeStepIndices.v())
+    for (int index : m_filteredTimeSteps())
     {
-        indices.push_back(intValue); 
+        indices.push_back(static_cast<size_t>(index));
     }
 
     return indices;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimTimeStepFilter::updateFilteredTimeStepsFromUi()
+{
+    std::vector<int> timeSteps = m_filteredTimeStepsUi;
+    std::sort(timeSteps.begin(), timeSteps.end());
+    if (m_filteredTimeSteps() == timeSteps)
+    {
+        return false;
+    }
+    m_filteredTimeSteps = timeSteps;    
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -121,23 +178,40 @@ std::vector<size_t> RimTimeStepFilter::filteredNativeTimeStepIndices() const
 void RimTimeStepFilter::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
     RimEclipseResultCase* rimEclipseResultCase = parentEclipseResultCase();
-
+    RimGeoMechCase* rimGeoMechCase = parentGeoMechCase();
     if (changedField == &m_applyReloadOfCase)
     {
-        if (rimEclipseResultCase)
+        if (updateFilteredTimeStepsFromUi())
         {
-            rimEclipseResultCase->reloadDataAndUpdate();
-        }
 
-        return;
+            if (rimEclipseResultCase)
+            {
+                rimEclipseResultCase->reloadDataAndUpdate();
+            }
+            else if (rimGeoMechCase)
+            {
+                rimGeoMechCase->reloadDataAndUpdate();
+            }
+
+            return;
+        }
     }
 
-    updateSelectedTimeStepIndices();
-    updateDerivedData();
+    if (changedField == &m_filterType ||
+        changedField == &m_firstTimeStep ||
+        changedField == &m_lastTimeStep ||
+        changedField == &m_interval)
+    {
+        m_filteredTimeStepsUi = filteredTimeStepIndicesFromUi();
+    }
 
     if (rimEclipseResultCase)
     {
         rimEclipseResultCase->updateConnectedEditors();
+    }
+    else if (rimGeoMechCase)
+    {
+        rimGeoMechCase->updateConnectedEditors();
     }
 }
 
@@ -151,13 +225,18 @@ QList<caf::PdmOptionItemInfo> RimTimeStepFilter::calculateValueOptions(const caf
     if (fieldNeedingOptions == &m_firstTimeStep ||
         fieldNeedingOptions == &m_lastTimeStep)
     {
-        std::vector<QDateTime> timeSteps = allTimeSteps();
-
-        QString formatString = RimTools::createTimeFormatStringFromDates(timeSteps);
-
-        for (size_t i = 0; i < timeSteps.size(); i++)
+        for (size_t i = 0; i < m_timeStepNamesFromFile().size(); i++)
         {
-            optionItems.push_back(caf::PdmOptionItemInfo(timeSteps[i].toString(formatString), static_cast<int>(i)));
+            optionItems.push_back(caf::PdmOptionItemInfo(m_timeStepNamesFromFile()[i], static_cast<int>(i)));
+        }
+    }
+
+    if (fieldNeedingOptions == &m_filteredTimeStepsUi)
+    {
+        std::vector<int> filteredTimeSteps = filteredTimeStepIndicesFromUi();
+        for (auto filteredIndex : filteredTimeSteps)
+        {
+            optionItems.push_back(caf::PdmOptionItemInfo(m_timeStepNamesFromFile()[filteredIndex], static_cast<int>(filteredIndex)));
         }
     }
 
@@ -182,62 +261,20 @@ void RimTimeStepFilter::defineEditorAttribute(const caf::PdmFieldHandle* field, 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RimTimeStepFilter::filteredTimeStepsAsText() const
+std::vector<std::pair<QString, QDateTime>> RimTimeStepFilter::allTimeSteps() const
 {
-    QString text;
-
-    std::vector<QDateTime> timeSteps = allTimeSteps();
-
-    QString formatString = RimTools::createTimeFormatStringFromDates(timeSteps);
-
-    for (auto selectedIndex : m_selectedTimeStepIndices.v())
+    std::vector<std::pair<QString, QDateTime>> timeSteps;
+    for (const QString& dateString : m_timeStepNamesFromFile())
     {
-        size_t timeStepIndex = static_cast<size_t>(selectedIndex);
-
-        if (timeStepIndex < timeSteps.size())
-        {
-            text += timeSteps[timeStepIndex].toString(formatString);
-            text += "\n";
-        }
+        timeSteps.push_back(std::make_pair(dateString, QDateTime::fromString(dateString, m_dateFormat)));
     }
-
-    return text;
+    return  timeSteps;    
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimTimeStepFilter::updateDerivedData()
-{
-    m_filteredTimeStepsText = filteredTimeStepsAsText();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimTimeStepFilter::updateSelectedTimeStepIndices()
-{
-    m_selectedTimeStepIndices = selectedTimeStepIndicesFromUi();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-std::vector<QDateTime> RimTimeStepFilter::allTimeSteps() const
-{
-    RimEclipseResultCase* rimEclipseResultCase = parentEclipseResultCase();
-    if (rimEclipseResultCase && rimEclipseResultCase->results(RiaDefines::MATRIX_MODEL))
-    {
-        return  rimEclipseResultCase->results(RiaDefines::MATRIX_MODEL)->allTimeStepDatesFromEclipseReader();
-    }
-
-    return m_timeStepsFromFile;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-std::vector<int> RimTimeStepFilter::selectedTimeStepIndicesFromUi() const
+std::vector<int> RimTimeStepFilter::filteredTimeStepIndicesFromUi() const
 {
     std::vector<int> indices;
 
@@ -271,20 +308,32 @@ std::vector<int> RimTimeStepFilter::selectedTimeStepIndicesFromUi() const
 
         int daysToSkip = m_interval * intervalFactor;
 
+        std::vector<std::pair<QString, QDateTime>> timeSteps = allTimeSteps();
 
-        std::vector<QDateTime> timeSteps = allTimeSteps();
-
-        indices.push_back(m_firstTimeStep);
-        QDateTime d = timeSteps[m_firstTimeStep].addDays(daysToSkip);
-
-        for (int i = m_firstTimeStep + 1; i <= m_lastTimeStep; i++)
+        QDateTime d;
+        for (int i = m_firstTimeStep; i <= m_lastTimeStep; i++)
         {
-            if (timeSteps[i] > d)
+            if (!timeSteps[i].second.isValid())
             {
-                d = d.addDays(daysToSkip);
                 indices.push_back(i);
             }
-        }
+            else
+            {
+                if (d.isValid())
+                {
+                    if (timeSteps[i].second > d)
+                    {
+                        d = d.addDays(daysToSkip);
+                        indices.push_back(i);
+                    }                    
+                }
+                else
+                {
+                    d = timeSteps[i].second.addDays(daysToSkip);
+                    indices.push_back(i);
+                }
+            }
+        }      
     }
 
     return indices;
@@ -317,35 +366,48 @@ RimEclipseResultCase* RimTimeStepFilter::parentEclipseResultCase() const
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimGeoMechCase* RimTimeStepFilter::parentGeoMechCase() const
+{
+    RimGeoMechCase* rimGeoMechCase = nullptr;
+    this->firstAncestorOrThisOfType(rimGeoMechCase);
+    return rimGeoMechCase;
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void RimTimeStepFilter::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
+    uiOrdering.add(&m_filterType);
     uiOrdering.add(&m_firstTimeStep);
     uiOrdering.add(&m_lastTimeStep);
-    uiOrdering.add(&m_filterType);
     uiOrdering.add(&m_interval);
+    uiOrdering.add(&m_filteredTimeStepsUi);
+    size_t numberOfFilterOptions = filteredTimeStepIndicesFromUi().size();
+    QString displayUiName = QString("Select From %1 Time Steps:").arg(numberOfFilterOptions);
+    m_filteredTimeStepsUi.uiCapability()->setUiName(displayUiName);
 
-    if (m_timeStepsFromFile.size() == 0)
+    bool caseLoaded = false;
+
+    RimEclipseResultCase* eclipseCase = parentEclipseResultCase();
+    RimGeoMechCase* geoMechCase = parentGeoMechCase();
+
+    if (eclipseCase)
+    {
+        caseLoaded = eclipseCase->eclipseCaseData() != nullptr;
+    }
+    else if (geoMechCase)
+    {
+        caseLoaded = geoMechCase->geoMechData() != nullptr;
+    }
+
+    if (caseLoaded)
     {
         uiOrdering.add(&m_applyReloadOfCase);
     }
 
-    QString displayUiName = QString("Filtered Time Steps (%1)").arg(m_selectedTimeStepIndices().size());
-
-    caf::PdmUiGroup* group = uiOrdering.addNewGroupWithKeyword(displayUiName, "FilteredTimeStepKeyword");
-    group->add(&m_filteredTimeStepsText);
-
-    if (m_timeStepsFromFile.size() == 0)
-    {
-        group->setCollapsedByDefault(true);
-    }
-    else
-    {
-        group->setCollapsedByDefault(false);
-    }
-
-    updateDerivedData();
     updateFieldVisibility();
 
     uiOrdering.skipRemainingFields();
