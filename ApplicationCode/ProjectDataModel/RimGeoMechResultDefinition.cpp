@@ -264,6 +264,19 @@ void RimGeoMechResultDefinition::fieldChangedByUi(const caf::PdmFieldHandle* cha
         }
     }
 
+    if (&m_isTimeLapseResultUiField == changedField)
+    {
+        m_isTimeLapseResult = m_isTimeLapseResultUiField;
+        if (m_isTimeLapseResult())
+        {
+            if (m_timeLapseBaseTimestep() == RigFemResultAddress::NO_TIME_LAPSE)
+            {
+                m_timeLapseBaseTimestep = 0;
+                m_timeLapseBaseTimestepUiField = 0;
+            }
+        }
+    }
+
     if(   &m_resultPositionTypeUiField == changedField 
        || &m_isTimeLapseResultUiField == changedField
        || &m_timeLapseBaseTimestepUiField == changedField)
@@ -583,9 +596,12 @@ void RimGeoMechResultDefinition::setResultAddress( const RigFemResultAddress& re
     m_resultVariableUiField = composeFieldCompString(m_resultFieldName(), m_resultComponentName());
 
     m_isTimeLapseResult     = resultAddress.isTimeLapse();
-    m_timeLapseBaseTimestep = m_isTimeLapseResult ? resultAddress.timeLapseBaseFrameIdx : -1;
-
     m_isTimeLapseResultUiField = m_isTimeLapseResult;
+
+    if (m_isTimeLapseResult)
+    {
+        m_timeLapseBaseTimestep = resultAddress.timeLapseBaseFrameIdx;
+    }
     m_timeLapseBaseTimestepUiField = m_timeLapseBaseTimestep;
 
     m_compactionRefLayer = resultAddress.refKLayerIndex;
