@@ -54,7 +54,7 @@ public:
 
 protected:
 
-    friend class PdmUiTreeViewModel;
+    friend class PdmUiTreeViewQModel;
     friend class PdmUiTreeViewWidget;
 
     // Forwarding from Qt functions in QAbstractItemModel

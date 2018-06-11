@@ -43,7 +43,7 @@
 #include "cafPdmUiDragDropInterface.h"
 #include "cafPdmUiEditorHandle.h"
 #include "cafPdmUiTreeOrdering.h"
-#include "cafPdmUiTreeViewModel.h"
+#include "cafPdmUiTreeViewQModel.h"
 #include "cafSelectionManager.h"
 
 #include <QDragMoveEvent>
@@ -75,7 +75,7 @@ public:
 protected:
     virtual void dragMoveEvent(QDragMoveEvent* event)
     {
-        caf::PdmUiTreeViewModel* treeViewModel = dynamic_cast<caf::PdmUiTreeViewModel*>(model());
+        caf::PdmUiTreeViewQModel* treeViewModel = dynamic_cast<caf::PdmUiTreeViewQModel*>(model());
         if (treeViewModel && treeViewModel->dragDropInterface())
         {
             treeViewModel->dragDropInterface()->onProposedDropActionUpdated(event->proposedAction());
@@ -86,7 +86,7 @@ protected:
 
     virtual void dragLeaveEvent(QDragLeaveEvent* event)
     {
-        caf::PdmUiTreeViewModel* treeViewModel = dynamic_cast<caf::PdmUiTreeViewModel*>(model());
+        caf::PdmUiTreeViewQModel* treeViewModel = dynamic_cast<caf::PdmUiTreeViewQModel*>(model());
         if (treeViewModel && treeViewModel->dragDropInterface())
         {
             treeViewModel->dragDropInterface()->onDragCanceled();
@@ -128,7 +128,7 @@ QWidget* PdmUiTreeViewEditor::createWidget(QWidget* parent)
     m_layout->setContentsMargins(0, 0, 0, 0);
     m_mainWidget->setLayout(m_layout);
 
-    m_treeViewModel = new caf::PdmUiTreeViewModel(this);
+    m_treeViewModel = new caf::PdmUiTreeViewQModel(this);
     m_treeView = new PdmUiTreeViewWidget(m_mainWidget);
     m_treeView->setModel(m_treeViewModel);
     m_treeView->installEventFilter(this);

@@ -58,7 +58,7 @@ class PdmUiCheckBoxDelegate;
 class PdmUiFieldEditorHandle;
 class PdmUiItem;
 class PdmUiTableViewDelegate;
-class PdmUiTableViewModel;
+class PdmUiTableViewQModel;
 
 
 //--------------------------------------------------------------------------------------------------
@@ -110,7 +110,7 @@ private:
     QLabel*                 m_tableHeadingIcon;
 
     QTableView*             m_tableView;
-    PdmUiTableViewModel*    m_tableModelPdm;
+    PdmUiTableViewQModel*   m_tableModelPdm;
 
     PdmChildArrayFieldHandle* m_pdmListField;
     PdmUiTableViewDelegate* m_delegate;

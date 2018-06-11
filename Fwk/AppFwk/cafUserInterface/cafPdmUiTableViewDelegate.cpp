@@ -37,7 +37,7 @@
 #include "cafPdmUiTableViewDelegate.h"
 
 #include "cafPdmUiFieldEditorHandle.h"
-#include "cafPdmUiTableViewModel.h"
+#include "cafPdmUiTableViewQModel.h"
 
 
 
@@ -47,7 +47,7 @@ namespace caf
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-PdmUiTableViewDelegate::PdmUiTableViewDelegate(QObject* parent, PdmUiTableViewModel* model)
+PdmUiTableViewDelegate::PdmUiTableViewDelegate(QObject* parent, PdmUiTableViewQModel* model)
     :   QStyledItemDelegate(parent),
         m_model(model)
 {

@@ -38,7 +38,7 @@
 
 #include "cafPdmObject.h"
 #include "cafPdmUiCommandSystemProxy.h"
-#include "cafPdmUiTreeViewModel.h"
+#include "cafPdmUiTreeViewQModel.h"
 
 #include <QAbstractItemModel>
 #include <QLabel>

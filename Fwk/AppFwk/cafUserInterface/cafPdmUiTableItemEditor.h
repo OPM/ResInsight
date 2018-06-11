@@ -40,7 +40,7 @@
 
 namespace caf
 {
-class PdmUiTableViewModel;
+class PdmUiTableViewQModel;
 class PdmObjectHandle;
 
 
@@ -50,14 +50,14 @@ class PdmObjectHandle;
 class PdmUiTableItemEditor : public PdmUiEditorHandle
 {
 public:
-    PdmUiTableItemEditor(PdmUiTableViewModel* model, caf::PdmObjectHandle* pdmObject, int row);
+    PdmUiTableItemEditor(PdmUiTableViewQModel* model, caf::PdmObjectHandle* pdmObject, int row);
     virtual ~PdmUiTableItemEditor();
 
 protected: // Interface to override:
     virtual void configureAndUpdateUi(const QString& uiConfigName);
 
 private:
-    PdmUiTableViewModel*    m_model;
+    PdmUiTableViewQModel*   m_model;
     int                     m_row;
 };
 

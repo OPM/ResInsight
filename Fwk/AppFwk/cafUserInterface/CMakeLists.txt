@@ -28,11 +28,11 @@ set( QOBJECT_HEADERS
     cafPdmUiTableView.h
     cafPdmUiTableViewDelegate.h
     cafPdmUiTableViewEditor.h
-    cafPdmUiTableViewModel.h
+    cafPdmUiTableViewQModel.h
     cafPdmUiTextEditor.h
     cafPdmUiToolButtonEditor.h
     cafPdmUiTreeView.h
-    cafPdmUiTreeViewModel.h
+    cafPdmUiTreeViewQModel.h
     cafPdmUiTreeViewEditor.h
     cafUiProcess.h
     QMinimizePanel.h
@@ -103,8 +103,8 @@ set( PROJECT_FILES
     cafPdmUiTableViewDelegate.h
     cafPdmUiTableViewEditor.cpp
     cafPdmUiTableViewEditor.h
-    cafPdmUiTableViewModel.cpp
-    cafPdmUiTableViewModel.h
+    cafPdmUiTableViewQModel.cpp
+    cafPdmUiTableViewQModel.h
     cafPdmUiTreeEditorHandle.cpp
     cafPdmUiTreeEditorHandle.h
     cafPdmUiTreeItemEditor.cpp
@@ -113,8 +113,8 @@ set( PROJECT_FILES
     cafPdmUiTreeView.h
     cafPdmUiTreeViewEditor.cpp
     cafPdmUiTreeViewEditor.h
-    cafPdmUiTreeViewModel.cpp
-    cafPdmUiTreeViewModel.h
+    cafPdmUiTreeViewQModel.cpp
+    cafPdmUiTreeViewQModel.h
     cafPdmUiPropertyView.cpp
     cafPdmUiPropertyView.h
     cafPdmUiPropertyViewDialog.cpp

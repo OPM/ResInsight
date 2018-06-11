@@ -77,12 +77,12 @@ private:
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-class PdmUiTableViewModel : public QAbstractTableModel
+class PdmUiTableViewQModel : public QAbstractTableModel
 {
     Q_OBJECT
 
 public:
-    explicit PdmUiTableViewModel(QWidget* parent);
+    explicit PdmUiTableViewQModel(QWidget* parent);
 
     QItemSelection          modelIndexFromPdmObject(PdmObjectHandle* pdmObject);
     PdmFieldHandle*         getField(const QModelIndex &index) const;

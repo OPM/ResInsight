@@ -55,12 +55,12 @@ class PdmUiDragDropInterface;
 // This class is intended to replace UiTreeModelPdm (cafUiTreeModelPdm)
 //
 //==================================================================================================
-class PdmUiTreeViewModel : public QAbstractItemModel
+class PdmUiTreeViewQModel : public QAbstractItemModel
 {
     Q_OBJECT
 
 public:
-    explicit PdmUiTreeViewModel(PdmUiTreeViewEditor* treeViewEditor);
+    explicit PdmUiTreeViewQModel(PdmUiTreeViewEditor* treeViewEditor);
 
     void                    setPdmItemRoot(PdmUiItem* rootItem);
     void                    updateSubTree(PdmUiItem* subTreeRoot);

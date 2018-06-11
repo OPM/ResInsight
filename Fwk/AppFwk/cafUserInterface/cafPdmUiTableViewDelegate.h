@@ -43,7 +43,7 @@
 namespace caf 
 {
 
-class PdmUiTableViewModel;
+class PdmUiTableViewQModel;
 
 
 //--------------------------------------------------------------------------------------------------
@@ -54,7 +54,7 @@ class PdmUiTableViewDelegate : public QStyledItemDelegate
     Q_OBJECT
 
 public:
-    PdmUiTableViewDelegate(QObject* parent, PdmUiTableViewModel* model);
+    PdmUiTableViewDelegate(QObject* parent, PdmUiTableViewQModel* model);
     ~PdmUiTableViewDelegate();
 
     QWidget*    createEditor(QWidget* parent, const QStyleOptionViewItem& option, const QModelIndex& index) const;
@@ -67,7 +67,7 @@ protected slots:
     void        slotEditorDestroyed(QObject* obj);
 
 private:
-    PdmUiTableViewModel* m_model;
+    PdmUiTableViewQModel* m_model;
 
     // Counter for active table cell editors 
     mutable int          m_activeEditorCount;

@@ -39,7 +39,7 @@
 
 #include "cafPdmUiTreeEditorHandle.h"
 #include "cafPdmUiFieldEditorHandle.h"
-#include "cafPdmUiTreeViewModel.h"
+#include "cafPdmUiTreeViewQModel.h"
 
 #include <QAbstractItemModel>
 #include <QPointer>
@@ -61,7 +61,7 @@ namespace caf
 class PdmChildArrayFieldHandle;
 class PdmUiDragDropInterface;
 class PdmUiItem;
-class PdmUiTreeViewModel;
+class PdmUiTreeViewQModel;
 class PdmUiTreeViewWidget;
 
 //--------------------------------------------------------------------------------------------------
@@ -138,7 +138,7 @@ private:
     QVBoxLayout*                    m_layout;
 
     PdmUiTreeViewWidget*            m_treeView;
-    PdmUiTreeViewModel*             m_treeViewModel;
+    PdmUiTreeViewQModel*             m_treeViewModel;
 
     bool                            m_useDefaultContextMenu;
     bool                            m_updateSelectionManager;

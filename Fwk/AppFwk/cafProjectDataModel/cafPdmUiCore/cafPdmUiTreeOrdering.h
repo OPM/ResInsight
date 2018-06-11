@@ -110,7 +110,7 @@ private:
     bool                        containsObject(const PdmObjectHandle* object);
     void                        appendChild( PdmUiTreeOrdering* child);
 
-    friend class PdmUiTreeViewModel;
+    friend class PdmUiTreeViewQModel;
     PdmUiEditorHandle*          editor();
     void                        setEditor(PdmUiEditorHandle* editor);
     void                        insertChild( int position, PdmUiTreeOrdering* child);

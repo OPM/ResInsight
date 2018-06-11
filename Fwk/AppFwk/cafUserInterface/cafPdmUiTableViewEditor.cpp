@@ -44,7 +44,7 @@
 #include "cafPdmUiCommandSystemProxy.h"
 #include "cafPdmUiEditorHandle.h"
 #include "cafPdmUiTableViewDelegate.h"
-#include "cafPdmUiTableViewModel.h"
+#include "cafPdmUiTableViewQModel.h"
 
 #include <QApplication>
 #include <QEvent>
@@ -125,7 +125,7 @@ QWidget* PdmUiTableViewEditor::createWidget(QWidget* parent)
     m_layout->setContentsMargins(0, 0, 0, 0);
     m_mainWidget->setLayout(m_layout);
 
-    m_tableModelPdm = new PdmUiTableViewModel(m_mainWidget);
+    m_tableModelPdm = new PdmUiTableViewQModel(m_mainWidget);
 
     m_delegate = new PdmUiTableViewDelegate(this, m_tableModelPdm);
 

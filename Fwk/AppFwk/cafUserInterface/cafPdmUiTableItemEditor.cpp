@@ -40,7 +40,7 @@
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmUiEditorHandle.h"
-#include "cafPdmUiTableViewModel.h"
+#include "cafPdmUiTableViewQModel.h"
 
 
 namespace caf
@@ -50,7 +50,7 @@ namespace caf
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-PdmUiTableItemEditor::PdmUiTableItemEditor(PdmUiTableViewModel* model, caf::PdmObjectHandle* pdmObject, int row)
+PdmUiTableItemEditor::PdmUiTableItemEditor(PdmUiTableViewQModel* model, caf::PdmObjectHandle* pdmObject, int row)
 {
     m_model = model;
     m_row = row;
