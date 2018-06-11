@@ -65,7 +65,7 @@ class PdmUiTableViewQModel;
 /// 
 //--------------------------------------------------------------------------------------------------
 
-class PdmUiTableViewEditor : public PdmUiEditorHandle
+class PdmUiTableViewEditor : public PdmUiFieldEditorHandle
 {
     Q_OBJECT
 
@@ -79,7 +79,6 @@ public:
 
     PdmObjectHandle* pdmObjectFromModelIndex(const QModelIndex& mi);
 
-    void            setListField(PdmChildArrayFieldHandle* pdmListField);
     QWidget*        createWidget(QWidget* parent);
 
     QTableView*     tableView();
@@ -95,6 +94,8 @@ private:
     bool            isSelectionRoleDefined() const;
     void            tableViewWidgetFocusChanged(QEvent* focusEvent);
     void            updateSelectionManagerFromTableSelection();
+
+    PdmChildArrayFieldHandle* childArrayFieldHandle();
 
 private slots:
     void            customMenuRequested(QPoint pos);
@@ -112,7 +113,6 @@ private:
     QTableView*             m_tableView;
     PdmUiTableViewQModel*   m_tableModelPdm;
 
-    PdmChildArrayFieldHandle* m_pdmListField;
     PdmUiTableViewDelegate* m_delegate;
     PdmUiCheckBoxDelegate*  m_checkboxDelegate;
 

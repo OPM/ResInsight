@@ -792,7 +792,7 @@ MainWindow::~MainWindow()
     m_pdmUiTreeView->setPdmItem(nullptr);
     m_pdmUiTreeView2->setPdmItem(nullptr);
     m_pdmUiPropertyView->showProperties(nullptr);
-    m_pdmUiTableView->setListField(nullptr);
+    m_pdmUiTableView->setUiFieldHandle(nullptr);
 
     delete m_pdmUiTreeView;
     delete m_pdmUiTreeView2;
@@ -955,30 +955,33 @@ void MainWindow::slotShowTableView()
     std::vector<caf::PdmUiItem*> selection;
     m_pdmUiTreeView2->selectedUiItems(selection);
     caf::PdmObjectHandle* obj = nullptr;
-    caf::PdmChildArrayFieldHandle* listField = nullptr;
+    caf::PdmUiFieldHandle* uiFieldHandle = nullptr;
+    caf::PdmChildArrayFieldHandle* childArrayFieldHandle = nullptr;
 
     if (selection.size())
     {
         caf::PdmUiItem* pdmUiItem = selection[0];
 
-        caf::PdmUiFieldHandle* guiField = dynamic_cast<caf::PdmUiFieldHandle*>(pdmUiItem);
-        
-        if (guiField) listField = dynamic_cast<caf::PdmChildArrayFieldHandle*>(guiField->fieldHandle());
-
-        if (listField)
+        uiFieldHandle = dynamic_cast<caf::PdmUiFieldHandle*>(pdmUiItem);
+        if (uiFieldHandle)
         {
-            if (!listField->hasSameFieldCountForAllObjects())
+            childArrayFieldHandle = dynamic_cast<caf::PdmChildArrayFieldHandle*>(uiFieldHandle->fieldHandle());
+        }
+
+        if (childArrayFieldHandle)
+        {
+            if (!childArrayFieldHandle->hasSameFieldCountForAllObjects())
             {
-                listField = nullptr;
+                uiFieldHandle = nullptr;
             }
         }
     }
 
-    m_pdmUiTableView->setListField(listField);
+    m_pdmUiTableView->setUiFieldHandle(uiFieldHandle);
 
-    if (listField)
+    if (uiFieldHandle)
     {
-        listField->uiCapability()->updateConnectedEditors();
+        uiFieldHandle->updateConnectedEditors();
     }
 }
 

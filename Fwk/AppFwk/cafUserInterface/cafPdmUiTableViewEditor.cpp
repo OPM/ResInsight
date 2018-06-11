@@ -96,7 +96,6 @@ PdmUiTableViewEditor::PdmUiTableViewEditor()
     m_tableHeading = nullptr;
     m_tableModelPdm = nullptr;
     m_tableHeadingIcon = nullptr;
-    m_pdmListField = nullptr;
     m_delegate = nullptr;
 
     m_useDefaultContextMenu = false;
@@ -161,7 +160,8 @@ QWidget* PdmUiTableViewEditor::createWidget(QWidget* parent)
 //--------------------------------------------------------------------------------------------------
 void PdmUiTableViewEditor::configureAndUpdateUi(const QString& uiConfigName)
 {
-    m_tableModelPdm->setPdmData(m_pdmListField, uiConfigName);
+    auto childArrayFH = childArrayFieldHandle();
+    m_tableModelPdm->setPdmData(childArrayFH, uiConfigName);
 
     if (m_tableModelPdm->rowCount() > 0)
     {
@@ -178,39 +178,16 @@ void PdmUiTableViewEditor::configureAndUpdateUi(const QString& uiConfigName)
         }
     }
 
-    if (m_pdmListField && m_pdmListField->uiCapability())
+    if (childArrayFH && childArrayFH->uiCapability())
     {
         QString text = "";
-        m_tableHeadingIcon->setPixmap(m_pdmListField->uiCapability()->uiIcon(uiConfigName).pixmap(16, 16));
-        m_tableHeading->setText(m_pdmListField->uiCapability()->uiName(uiConfigName) + QString(" (%1)").arg(m_pdmListField->size()));
+        m_tableHeadingIcon->setPixmap(childArrayFH->uiCapability()->uiIcon(uiConfigName).pixmap(16, 16));
+        m_tableHeading->setText(childArrayFH->uiCapability()->uiName(uiConfigName) + QString(" (%1)").arg(childArrayFH->size()));
 
         m_tableModelPdm->createPersistentPushButtonWidgets(m_tableView);
     }
     else
     {
-        m_tableHeading->setText("");
-        m_tableHeadingIcon->setPixmap(QPixmap());
-    }
-}
-
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void PdmUiTableViewEditor::setListField(PdmChildArrayFieldHandle* pdmListField)
-{
-    m_pdmListField = pdmListField;
-
-    caf::PdmUiFieldHandle* uifield = nullptr;
-    if (m_pdmListField)
-    {
-        uifield = m_pdmListField->uiCapability();
-    }
-    this->bindToPdmItem(uifield);
-
-    if (!m_pdmListField)
-    {
-        m_tableModelPdm->setPdmData(nullptr, "");
         m_tableHeading->setText("");
         m_tableHeadingIcon->setPixmap(QPixmap());
     }
@@ -240,7 +217,8 @@ void PdmUiTableViewEditor::customMenuRequested(QPoint pos)
 {
     // This is function is required to execute before populating the menu
     // Several commands rely on the activeChildArrayFieldHandle in the selection manager
-    SelectionManager::instance()->setActiveChildArrayFieldHandle(m_pdmListField);
+    auto childArrayFH = childArrayFieldHandle();
+    SelectionManager::instance()->setActiveChildArrayFieldHandle(childArrayFH);
 
     QMenu menu;
     caf::PdmUiCommandSystemProxy::instance()->populateMenuWithDefaultCommands("PdmUiTreeViewEditor", &menu);
@@ -433,6 +411,19 @@ void PdmUiTableViewEditor::updateSelectionManagerFromTableSelection()
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+caf::PdmChildArrayFieldHandle* PdmUiTableViewEditor::childArrayFieldHandle()
+{
+    caf::PdmChildArrayFieldHandle* childArrayFieldHandle = nullptr;
+    if (this->field())
+    {
+        childArrayFieldHandle = dynamic_cast<PdmChildArrayFieldHandle*>(this->field()->fieldHandle());
+    }
+
+    return childArrayFieldHandle;
+}
 
 } // end namespace caf
 

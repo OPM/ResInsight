@@ -76,11 +76,11 @@ PdmUiTableView::~PdmUiTableView()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void PdmUiTableView::setListField(PdmChildArrayFieldHandle* listField)
+void PdmUiTableView::setUiFieldHandle(PdmUiFieldHandle* uiFieldHandle)
 {
     CAF_ASSERT(m_listViewEditor);
 
-    m_listViewEditor->setListField(listField);
+    m_listViewEditor->setField(uiFieldHandle);
 
     // SIG_CAF_HACK
     m_listViewEditor->updateUi(m_uiConfigName);
