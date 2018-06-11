@@ -86,6 +86,9 @@ private:
     PdmUiTableViewEditor* m_tableViewEditor;
 };
 
+CAF_PDM_UI_FIELD_EDITOR_SOURCE_INIT(PdmUiTableViewEditor);
+
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -116,7 +119,7 @@ PdmUiTableViewEditor::~PdmUiTableViewEditor()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QWidget* PdmUiTableViewEditor::createWidget(QWidget* parent)
+QWidget* PdmUiTableViewEditor::createEditorWidget(QWidget* parent)
 {
     m_mainWidget = new QWidget(parent);
 
@@ -160,6 +163,8 @@ QWidget* PdmUiTableViewEditor::createWidget(QWidget* parent)
 //--------------------------------------------------------------------------------------------------
 void PdmUiTableViewEditor::configureAndUpdateUi(const QString& uiConfigName)
 {
+    if (!m_tableModelPdm) return;
+
     auto childArrayFH = childArrayFieldHandle();
     m_tableModelPdm->setPdmData(childArrayFH, uiConfigName);
 

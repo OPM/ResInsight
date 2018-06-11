@@ -32,6 +32,7 @@
 #include "cafPdmUiPropertyView.h"
 #include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiTableView.h"
+#include "cafPdmUiTableViewEditor.h"
 #include "cafPdmUiTextEditor.h"
 #include "cafPdmUiTreeSelectionEditor.h"
 #include "cafPdmUiTreeView.h"
@@ -422,6 +423,7 @@ public:
         CAF_PDM_InitFieldNoDefault(&m_multiSelectList, "MultiSelect", "Selection List", "", "List" , "This is a multi selection list"  );
         CAF_PDM_InitFieldNoDefault(&m_objectList, "ObjectList", "Objects list Field", "", "List" , "This is a list of PdmObjects"  );
         CAF_PDM_InitFieldNoDefault(&m_objectListOfSameType, "m_objectListOfSameType", "Same type Objects list Field", "", "Same type List" , "Same type list of PdmObjects"  );
+        m_objectListOfSameType.uiCapability()->setUiEditorTypeName(caf::PdmUiTableViewEditor::uiEditorTypeName());
         CAF_PDM_InitFieldNoDefault(&m_ptrField, "m_ptrField", "PtrField", "", "Same type List", "Same type list of PdmObjects");
 
         m_filePath.capability<caf::PdmUiFieldHandle>()->setUiEditorTypeName(caf::PdmUiFilePathEditor::uiEditorTypeName());

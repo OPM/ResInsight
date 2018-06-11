@@ -61,7 +61,7 @@ PdmUiTableView::PdmUiTableView(QWidget* parent, Qt::WindowFlags f)
 
     m_listViewEditor = new PdmUiTableViewEditor();
 
-    QWidget* widget = m_listViewEditor->createWidget(this);
+    QWidget* widget = m_listViewEditor->createEditorWidget(this);
     layout->addWidget(widget);
 }
 

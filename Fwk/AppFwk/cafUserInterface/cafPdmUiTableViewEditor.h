@@ -68,6 +68,7 @@ class PdmUiTableViewQModel;
 class PdmUiTableViewEditor : public PdmUiFieldEditorHandle
 {
     Q_OBJECT
+    CAF_PDM_UI_FIELD_EDITOR_HEADER_INIT;
 
 public:
     PdmUiTableViewEditor();
@@ -79,7 +80,7 @@ public:
 
     PdmObjectHandle* pdmObjectFromModelIndex(const QModelIndex& mi);
 
-    QWidget*        createWidget(QWidget* parent);
+    QWidget*        createEditorWidget(QWidget * parent) override;
 
     QTableView*     tableView();
 
@@ -87,6 +88,8 @@ public:
 
 protected:
     virtual void    configureAndUpdateUi(const QString& uiConfigName) override;
+
+
 
 private:
     void            updateContextMenuSignals();
