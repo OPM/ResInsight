@@ -81,10 +81,13 @@ void PdmUiTableItemEditor::configureAndUpdateUi(const QString& uiConfigName)
         uiObject->uiOrdering(uiConfigName, dummy);
     }
 
-    QModelIndex miStart = m_model->index(m_row, 0);
-    QModelIndex miEnd = m_model->index(m_row, m_model->columnCount());
+    if (m_model)
+    {
+        QModelIndex miStart = m_model->index(m_row, 0);
+        QModelIndex miEnd = m_model->index(m_row, m_model->columnCount());
 
-    m_model->notifyDataChanged(miStart, miEnd);
+        m_model->notifyDataChanged(miStart, miEnd);
+    }
 }
 
 

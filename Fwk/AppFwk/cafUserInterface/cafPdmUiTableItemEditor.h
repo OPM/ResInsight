@@ -38,6 +38,8 @@
 
 #include "cafPdmUiEditorHandle.h"
 
+#include <QPointer>
+
 namespace caf
 {
 class PdmUiTableViewQModel;
@@ -57,8 +59,8 @@ protected: // Interface to override:
     virtual void configureAndUpdateUi(const QString& uiConfigName);
 
 private:
-    PdmUiTableViewQModel*   m_model;
-    int                     m_row;
+    QPointer<PdmUiTableViewQModel>  m_model;
+    int                             m_row;
 };
 
 
