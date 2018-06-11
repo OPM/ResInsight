@@ -56,6 +56,7 @@ public:
 
     static void         timeSteps(ecl_file_type* ecl_file, std::vector<QDateTime>* timeSteps, std::vector<double>* daysSinceSimulationStart);
 
+    static bool         isValidEclipseFileName(const QString& fileName);
     static bool         findSiblingFilesWithSameBaseName(const QString& fileName, QStringList* fileSet);
 
     static QString      firstFileNameOfType(const QStringList& fileSet, ecl_file_enum fileType);

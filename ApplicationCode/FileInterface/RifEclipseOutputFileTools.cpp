@@ -263,6 +263,14 @@ QStringList RifEclipseOutputFileTools::filterFileNamesOfType(const QStringList& 
     return fileNames;
 }
 
+//-------------------------------------------------------------------------------------------------------
+/// Check if libecl accepts the file name. libecl refuses to open files with mixed case in the file name.
+//-------------------------------------------------------------------------------------------------------
+bool RifEclipseOutputFileTools::isValidEclipseFileName(const QString& fileName)
+{
+    QString fileNameBase = QFileInfo(fileName).completeBaseName();
+    return ecl_util_valid_basename(RiaStringEncodingTools::toNativeEncoded(fileNameBase).data());
+}
 
 //--------------------------------------------------------------------------------------------------
 /// Get set of Eclipse files based on an input file and its path

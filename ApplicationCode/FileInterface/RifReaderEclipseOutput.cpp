@@ -51,6 +51,7 @@
 #include "ert/ecl/ecl_nnc_data.h"
 
 #include <QDateTime>
+#include <QFileInfo>
 
 #include <cmath> // Needed for HUGE_VAL on Linux
 #include <iostream>
@@ -360,6 +361,14 @@ bool RifReaderEclipseOutput::open(const QString& fileName, RigEclipseCaseData* e
     caf::ProgressInfo progInfo(100, "");
 
     progInfo.setProgressDescription("Reading Grid");
+
+    if (!RifEclipseOutputFileTools::isValidEclipseFileName(fileName))
+    {
+        QString errorMessage = QFileInfo(fileName).fileName() + QString(" is not a valid Eclipse file name.\n"
+            "Please make sure the file does not contain a mix of upper and lower case letters.");
+        RiaLogging::error(errorMessage);
+        return false;
+    }
 
     // Get set of files
     QStringList fileSet;
