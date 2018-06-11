@@ -81,6 +81,7 @@ public:
     PdmObjectHandle* pdmObjectFromModelIndex(const QModelIndex& mi);
 
     QWidget*        createEditorWidget(QWidget * parent) override;
+    QWidget*        createLabelWidget(QWidget * parent) override;
 
     QTableView*     tableView();
 
@@ -110,8 +111,9 @@ private:
 
     QPointer<QWidget>       m_mainWidget;
     QLayout*                m_layout;
-    QLabel*                 m_tableHeading;
-    QLabel*                 m_tableHeadingIcon;
+
+    QPointer<QLabel>        m_tableHeading;
+    QPointer<QLabel>        m_tableHeadingIcon;
 
     QTableView*             m_tableView;
     PdmUiTableViewQModel*   m_tableModelPdm;

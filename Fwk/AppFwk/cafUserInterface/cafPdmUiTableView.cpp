@@ -40,7 +40,7 @@
 #include "cafPdmObject.h"
 #include "cafPdmUiTableViewEditor.h"
 
-#include <QHBoxLayout>
+#include <QVBoxLayout>
 
 
 namespace caf
@@ -53,7 +53,7 @@ namespace caf
 PdmUiTableView::PdmUiTableView(QWidget* parent, Qt::WindowFlags f)
     : QWidget (parent, f)
 {
-    QHBoxLayout* layout = new QHBoxLayout(this);
+    QVBoxLayout* layout = new QVBoxLayout(this);
     layout->setContentsMargins(0, 0, 0, 0);
     layout->setSpacing(0);
 
@@ -61,8 +61,15 @@ PdmUiTableView::PdmUiTableView(QWidget* parent, Qt::WindowFlags f)
 
     m_listViewEditor = new PdmUiTableViewEditor();
 
-    QWidget* widget = m_listViewEditor->createEditorWidget(this);
-    layout->addWidget(widget);
+    {
+        QWidget* widget = m_listViewEditor->createLabelWidget(this);
+        layout->addWidget(widget);
+    }
+
+    {
+        QWidget* widget = m_listViewEditor->createEditorWidget(this);
+        layout->addWidget(widget);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

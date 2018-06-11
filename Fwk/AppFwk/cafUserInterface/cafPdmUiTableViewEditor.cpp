@@ -143,19 +143,36 @@ QWidget* PdmUiTableViewEditor::createEditorWidget(QWidget* parent)
 
     updateContextMenuSignals();
 
+    m_layout->addWidget(m_tableView);
+
+    return m_mainWidget;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QWidget* PdmUiTableViewEditor::createLabelWidget(QWidget * parent)
+{
+    if (m_tableHeading.isNull())
+    {
+        m_tableHeading = new QLabel(parent);
+    }
+
+    if (m_tableHeadingIcon.isNull())
+    {
+        m_tableHeadingIcon = new QLabel(parent);
+    }
+
     QHBoxLayout* layoutForIconLabel = new QHBoxLayout();
-    m_tableHeading = new QLabel(m_mainWidget);
-    m_tableHeadingIcon = new QLabel(m_mainWidget);
     layoutForIconLabel->addWidget(m_tableHeadingIcon);
     layoutForIconLabel->addSpacing(5);
     layoutForIconLabel->addWidget(m_tableHeading);
     layoutForIconLabel->addStretch();
+    
+    QWidget* widget = new QWidget(parent);
+    widget->setLayout(layoutForIconLabel);
 
-    m_layout->addItem(layoutForIconLabel);
-
-    m_layout->addWidget(m_tableView);
-
-    return m_mainWidget;
+    return widget;
 }
 
 //--------------------------------------------------------------------------------------------------
