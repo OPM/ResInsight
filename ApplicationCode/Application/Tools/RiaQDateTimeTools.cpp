@@ -21,8 +21,19 @@
 #include <QString>
 #include <QDateTime>
 
+#include <cvfAssert.h>
+
 #include <ctime>
 #include <cmath>
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const DateTimeSpan RiaQDateTimeTools::TIMESPAN_DECADE = DateTimeSpan(10, 0, 0);
+const DateTimeSpan RiaQDateTimeTools::TIMESPAN_YEAR = DateTimeSpan(1, 0, 0);
+const DateTimeSpan RiaQDateTimeTools::TIMESPAN_MONTH = DateTimeSpan(0, 1, 0);
+const DateTimeSpan RiaQDateTimeTools::TIMESPAN_DAY = DateTimeSpan(0, 0, 1);
 
 
 //--------------------------------------------------------------------------------------------------
@@ -75,6 +86,16 @@ QDateTime RiaQDateTimeTools::fromYears(double years)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+QDateTime RiaQDateTimeTools::fromTime_t(time_t t)
+{
+    auto qdt = createUtcDateTime();
+    qdt.setTime_t(t);
+    return qdt;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 QDateTime RiaQDateTimeTools::addMSecs(const QDateTime& dt, double msecs)
 {
     return dt.addMSecs(msecs);
@@ -110,6 +131,25 @@ QDateTime RiaQDateTimeTools::addYears(const QDateTime& dt, double years)
     tmp = tmp.addSecs(fractionPart * RiaQDateTimeTools::secondsInYear());
 
     return tmp;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QDateTime RiaQDateTimeTools::addSpan(const QDateTime& dt, DateTimeSpan span)
+{
+    return createUtcDateTime(dt)
+        .addYears(span.years())
+        .addMonths(span.months())
+        .addDays(span.days());
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QDateTime RiaQDateTimeTools::addPeriod(const QDateTime& dt, DateTimePeriod period)
+{
+    return addSpan(dt, timeSpan(period));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -154,4 +194,91 @@ QDateTime RiaQDateTimeTools::createUtcDateTime(const QDate& date, const QTime& t
 {
     auto qdt = QDateTime(date, time, currentTimeSpec());
     return qdt;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QDateTime RiaQDateTimeTools::createUtcDateTime(const QDateTime& dt)
+{
+    auto qdt = QDateTime(dt);
+    qdt.setTimeSpec(currentTimeSpec());
+    return qdt;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RiaQDateTimeTools::equalTo(const QDateTime& dt1, const QDateTime& dt2)
+{
+    return dt1.secsTo(dt2) == 0;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RiaQDateTimeTools::lessThan(const QDateTime& dt1, const QDateTime& dt2)
+{
+    // dt1 < dt2
+    auto i = dt1.secsTo(dt2);
+    return dt1.secsTo(dt2) > 0;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RiaQDateTimeTools::lessThanOrEqualTo(const QDateTime& dt1, const QDateTime& dt2)
+{
+    // dt1 <= dt2
+    return dt1.secsTo(dt2) >= 0;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RiaQDateTimeTools::biggerThan(const QDateTime& dt1, const QDateTime& dt2)
+{
+    // dt1 > dt2
+    return dt1.secsTo(dt2) < 0;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RiaQDateTimeTools::biggerThanOrEqualTo(const QDateTime& dt1, const QDateTime& dt2)
+{
+    // dt1 >= dt2
+    return dt1.secsTo(dt2) <= 0;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const DateTimeSpan RiaQDateTimeTools::timeSpan(DateTimePeriod period)
+{
+    switch (period)
+    {
+    case DateTimePeriod::DECADE:    return TIMESPAN_DECADE;
+    case DateTimePeriod::YEAR:      return TIMESPAN_YEAR;
+    case DateTimePeriod::MONTH:     return TIMESPAN_MONTH;
+    case DateTimePeriod::DAY:       return TIMESPAN_DAY;
+    }
+    CVF_ASSERT(false);
+    return DateTimeSpan();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QDateTime RiaQDateTimeTools::truncateTime(const QDateTime& dt, DateTimePeriod period)
+{
+    switch (period)
+    {
+    case DateTimePeriod::DECADE:    return createUtcDateTime(QDate((dt.date().year() / 10) * 10, 1, 1));
+    case DateTimePeriod::YEAR:      return createUtcDateTime(QDate(dt.date().year(), 1, 1));
+    case DateTimePeriod::MONTH:     return createUtcDateTime(QDate(dt.date().year(), dt.date().month(), 1));
+    case DateTimePeriod::DAY:       return createUtcDateTime(QDate(dt.date().year(), dt.date().month(), dt.date().day()));
+    }
+    CVF_ASSERT(false);
+    return createUtcDateTime();
 }

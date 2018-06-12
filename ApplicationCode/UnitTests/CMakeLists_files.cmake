@@ -43,6 +43,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RiaTextFileCompare-Test.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RifCaseRealizationParametersReader-Test.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RigWellLogExtractor-Test.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RifEclipseSummaryAddress-Test.cpp
+${CMAKE_CURRENT_LIST_DIR}/RiaTimeHistoryCurveTools-Test.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

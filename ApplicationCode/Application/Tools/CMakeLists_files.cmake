@@ -26,6 +26,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RiaExtractionTools.h
 ${CMAKE_CURRENT_LIST_DIR}/RiaFilePathTools.h
 ${CMAKE_CURRENT_LIST_DIR}/RiaTimeHistoryCurveMerger.h
 ${CMAKE_CURRENT_LIST_DIR}/RiaCurveDataTools.h
+${CMAKE_CURRENT_LIST_DIR}/RiaTimeHistoryCurveResampler.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -55,6 +56,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RiaExtractionTools.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiaFilePathTools.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiaTimeHistoryCurveMerger.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiaCurveDataTools.cpp
+${CMAKE_CURRENT_LIST_DIR}/RiaTimeHistoryCurveResampler.cpp
 )
 
 list(APPEND CODE_HEADER_FILES
