@@ -469,6 +469,7 @@ namespace Opm { namespace SatFunc {
         /// Constructor.
         explicit CritSatVerticalScaling(std::vector<double> sdisp,
                                         std::vector<double> fdisp,
+                                        std::vector<double> smax,
                                         std::vector<double> fmax);
 
         /// Destructor.
@@ -669,9 +670,10 @@ namespace Opm { namespace SatFunc {
             /// \return EPS evaluator for the particular curve defined by
             ///    the input options.
             static std::unique_ptr<EPSEvalInterface>
-            fromECLOutput(const ECLGraph&        G,
-                          const ECLInitFileData& init,
-                          const EPSOptions&      opt);
+            fromECLOutput(const ECLGraph&          G,
+                          const ECLInitFileData&   init,
+                          const EPSOptions&        opt,
+                          const RawTableEndPoints& tep);
 
             /// Extract table end points relevant to a particular horizontal
             /// EPS evaluator from raw tabulated saturation functions.
@@ -692,8 +694,8 @@ namespace Opm { namespace SatFunc {
             ///    \code eval() \endcode of the \code EPSEvalInterface
             ///    \endcode that corresponds to the input options.
             static std::vector<EPSEvalInterface::TableEndPoints>
-            unscaledEndPoints(const RawTableEndPoints& ep,
-                              const EPSOptions&        opt);
+            unscaledEndPoints(const EPSOptions&        opt,
+                              const RawTableEndPoints& ep);
         };
 
         /// Named constructors for vertical (value) scaling of saturation
@@ -762,6 +764,16 @@ namespace Opm { namespace SatFunc {
                                    const SatFuncEvaluator&  evalSF);
         };
     };
+
+    std::vector<double>
+    scaledConnateGas(const ECLGraph&                     G,
+                     const ECLInitFileData&              init,
+                     const CreateEPS::RawTableEndPoints& tep);
+
+    std::vector<double>
+    scaledConnateWater(const ECLGraph&                     G,
+                       const ECLInitFileData&              init,
+                       const CreateEPS::RawTableEndPoints& tep);
 }} // namespace Opm::SatFunc
 
 #endif // OPM_ECLENDPOINTSCALING_HEADER_INCLUDED
