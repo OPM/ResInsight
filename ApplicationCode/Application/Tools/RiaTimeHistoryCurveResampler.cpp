@@ -170,7 +170,7 @@ void RiaTimeHistoryCurveResampler::clearData()
 //--------------------------------------------------------------------------------------------------
 void RiaTimeHistoryCurveResampler::computeResampledTimeSteps(DateTimePeriod period)
 {
-    CVF_ASSERT(m_originalValues.size() > 0);
+    CVF_ASSERT(m_originalValues.second.size() > 0);
 
     auto firstOriginalTimeStep = QDT::fromTime_t(m_originalValues.second.front());
     auto lastOriginalTimeStep = QDT::fromTime_t(m_originalValues.second.back());
