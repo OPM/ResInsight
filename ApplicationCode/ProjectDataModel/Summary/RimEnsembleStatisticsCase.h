@@ -50,10 +50,11 @@ public:
     const RimEnsembleCurveSet*          curveSet() const;
 
     void                                calculate();
-    void                                calculate(const RimSummaryCaseCollection* ensemble, const RifEclipseSummaryAddress& inputAddress);
 
 private:
+    void                                calculate(const std::vector<RimSummaryCase*> sumCases, const RifEclipseSummaryAddress& inputAddress);
     void clearData();
+    std::vector<RimSummaryCase*>        validSummaryCases(const std::vector<RimSummaryCase*> allSumCases, const RifEclipseSummaryAddress& inputAddress);
 
 private:
     std::unique_ptr<RifEnsembleStatisticsReader> m_statisticsReader;

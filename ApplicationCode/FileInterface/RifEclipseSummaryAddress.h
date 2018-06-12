@@ -141,7 +141,7 @@ public:
     static RifEclipseSummaryAddress blockLgrAddress(const std::string& quantityName, const std::string& lgrName, int i, int j, int k);
     static RifEclipseSummaryAddress calculatedAddress(const std::string& quantityName);
     static RifEclipseSummaryAddress importedAddress(const std::string& quantityName);
-    static RifEclipseSummaryAddress ensembleStatisticsAddress(const std::string& quantityName);
+    static RifEclipseSummaryAddress ensembleStatisticsAddress(const std::string& quantityName, const std::string& dataQuantityName);
 
     // Access methods
 
@@ -160,6 +160,8 @@ public:
     int                 cellK() const               { return m_cellK; }
     int                 aquiferNumber() const       { return m_aquiferNumber; }
 
+    const std::string   ensembleStatisticsQuantityName() const;
+
     // Derived properties
 
     std::string     uiText() const;
@@ -174,6 +176,7 @@ public:
 
     void            setAsErrorResult()                                  { m_isErrorResult = true; }
     bool            isErrorResult() const                               { return m_isErrorResult; }
+    bool            hasAccumulatedData() const;
 
 private:
 

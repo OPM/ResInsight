@@ -929,7 +929,7 @@ void RimEnsembleCurveSet::updateStatisticsCurves(bool calculate = true)
     if (calculate)
     {
         // Calculate
-        m_ensembleStatCase->calculate(m_yValuesSummaryGroup, m_yValuesCurveVariable->address());
+        m_ensembleStatCase->calculate();
     }
 
     RimSummaryPlot* plot = nullptr;
@@ -939,10 +939,12 @@ void RimEnsembleCurveSet::updateStatisticsCurves(bool calculate = true)
     std::vector<RifEclipseSummaryAddress> addresses;
     if (m_statistics->isActive())
     {
-        if (m_statistics->showP10Curve()) addresses.push_back(SAddr::ensembleStatisticsAddress(ENSEMBLE_STAT_P10_QUANTITY_NAME));
-        if (m_statistics->showP50Curve()) addresses.push_back(SAddr::ensembleStatisticsAddress(ENSEMBLE_STAT_P50_QUANTITY_NAME));
-        if (m_statistics->showP90Curve()) addresses.push_back(SAddr::ensembleStatisticsAddress(ENSEMBLE_STAT_P90_QUANTITY_NAME));
-        if (m_statistics->showMeanCurve()) addresses.push_back(SAddr::ensembleStatisticsAddress(ENSEMBLE_STAT_MEAN_QUANTITY_NAME));
+        RifEclipseSummaryAddress dataAddress = m_yValuesCurveVariable->address();
+
+        if (m_statistics->showP10Curve()) addresses.push_back(SAddr::ensembleStatisticsAddress(ENSEMBLE_STAT_P10_QUANTITY_NAME, dataAddress.quantityName()));
+        if (m_statistics->showP50Curve()) addresses.push_back(SAddr::ensembleStatisticsAddress(ENSEMBLE_STAT_P50_QUANTITY_NAME, dataAddress.quantityName()));
+        if (m_statistics->showP90Curve()) addresses.push_back(SAddr::ensembleStatisticsAddress(ENSEMBLE_STAT_P90_QUANTITY_NAME, dataAddress.quantityName()));
+        if (m_statistics->showMeanCurve()) addresses.push_back(SAddr::ensembleStatisticsAddress(ENSEMBLE_STAT_MEAN_QUANTITY_NAME, dataAddress.quantityName()));
     }
 
     deleteStatisticsCurves();

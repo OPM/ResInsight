@@ -32,10 +32,10 @@ RifEnsembleStatisticsReader::RifEnsembleStatisticsReader(RimEnsembleStatisticsCa
 
     m_allResultAddresses = std::vector<RifEclipseSummaryAddress>(
         {
-            RifEclipseSummaryAddress::ensembleStatisticsAddress(ENSEMBLE_STAT_P10_QUANTITY_NAME),
-            RifEclipseSummaryAddress::ensembleStatisticsAddress(ENSEMBLE_STAT_P50_QUANTITY_NAME),
-            RifEclipseSummaryAddress::ensembleStatisticsAddress(ENSEMBLE_STAT_P90_QUANTITY_NAME),
-            RifEclipseSummaryAddress::ensembleStatisticsAddress(ENSEMBLE_STAT_MEAN_QUANTITY_NAME)
+            RifEclipseSummaryAddress::ensembleStatisticsAddress(ENSEMBLE_STAT_P10_QUANTITY_NAME, ""),
+            RifEclipseSummaryAddress::ensembleStatisticsAddress(ENSEMBLE_STAT_P50_QUANTITY_NAME, ""),
+            RifEclipseSummaryAddress::ensembleStatisticsAddress(ENSEMBLE_STAT_P90_QUANTITY_NAME, ""),
+            RifEclipseSummaryAddress::ensembleStatisticsAddress(ENSEMBLE_STAT_MEAN_QUANTITY_NAME, "")
         });
 }
 
@@ -55,10 +55,12 @@ bool RifEnsembleStatisticsReader::values(const RifEclipseSummaryAddress& resultA
     if (!validateAddress(resultAddress)) return false;
 
     const std::vector<double>* sourceData = nullptr;
-    if (resultAddress.quantityName() == ENSEMBLE_STAT_P10_QUANTITY_NAME)        sourceData = &m_ensembleStatCase->p10();
-    else if (resultAddress.quantityName() == ENSEMBLE_STAT_P50_QUANTITY_NAME)   sourceData = &m_ensembleStatCase->p50();
-    else if (resultAddress.quantityName() == ENSEMBLE_STAT_P90_QUANTITY_NAME)   sourceData = &m_ensembleStatCase->p90();
-    else if (resultAddress.quantityName() == ENSEMBLE_STAT_MEAN_QUANTITY_NAME)  sourceData = &m_ensembleStatCase->mean();
+    auto quantityName = resultAddress.ensembleStatisticsQuantityName();
+
+    if (quantityName == ENSEMBLE_STAT_P10_QUANTITY_NAME)        sourceData = &m_ensembleStatCase->p10();
+    else if (quantityName == ENSEMBLE_STAT_P50_QUANTITY_NAME)   sourceData = &m_ensembleStatCase->p50();
+    else if (quantityName == ENSEMBLE_STAT_P90_QUANTITY_NAME)   sourceData = &m_ensembleStatCase->p90();
+    else if (quantityName == ENSEMBLE_STAT_MEAN_QUANTITY_NAME)  sourceData = &m_ensembleStatCase->mean();
 
     if (!sourceData) return false;
 

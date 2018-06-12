@@ -478,12 +478,22 @@ RifEclipseSummaryAddress RifEclipseSummaryAddress::importedAddress(const std::st
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RifEclipseSummaryAddress RifEclipseSummaryAddress::ensembleStatisticsAddress(const std::string& quantityName)
+RifEclipseSummaryAddress RifEclipseSummaryAddress::ensembleStatisticsAddress(const std::string& quantityName,
+                                                                             const std::string& dataQuantityName)
 {
     RifEclipseSummaryAddress addr;
     addr.m_variableCategory = SUMMARY_ENSEMBLE_STATISTICS;
-    addr.m_quantityName = quantityName;
+    addr.m_quantityName = quantityName + ":" + dataQuantityName;
     return addr;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const std::string RifEclipseSummaryAddress::ensembleStatisticsQuantityName() const
+{
+    QString qName = QString::fromStdString(m_quantityName);
+    return qName.split(":")[0].toStdString();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -655,6 +665,14 @@ bool RifEclipseSummaryAddress::isValid() const
     }
 
     return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RifEclipseSummaryAddress::hasAccumulatedData() const
+{
+    return QString::fromStdString(m_quantityName).endsWith("T");
 }
 
 //--------------------------------------------------------------------------------------------------
