@@ -94,7 +94,6 @@ CAF_PDM_UI_FIELD_EDITOR_SOURCE_INIT(PdmUiTableViewEditor);
 //--------------------------------------------------------------------------------------------------
 PdmUiTableViewEditor::PdmUiTableViewEditor()
 {
-    m_layout = nullptr;;
     m_tableView = nullptr;
     m_tableHeading = nullptr;
     m_tableModelPdm = nullptr;
@@ -121,17 +120,11 @@ PdmUiTableViewEditor::~PdmUiTableViewEditor()
 //--------------------------------------------------------------------------------------------------
 QWidget* PdmUiTableViewEditor::createEditorWidget(QWidget* parent)
 {
-    m_mainWidget = new QWidget(parent);
-
-    m_layout = new QVBoxLayout();
-    m_layout->setContentsMargins(0, 0, 0, 0);
-    m_mainWidget->setLayout(m_layout);
-
-    m_tableModelPdm = new PdmUiTableViewQModel(m_mainWidget);
+    m_tableModelPdm = new PdmUiTableViewQModel(parent);
 
     m_delegate = new PdmUiTableViewDelegate(this, m_tableModelPdm);
 
-    m_tableView = new QTableView(m_mainWidget);
+    m_tableView = new QTableView(parent);
     m_tableView->setShowGrid(true);
     m_tableView->setModel(m_tableModelPdm);
 
@@ -143,9 +136,7 @@ QWidget* PdmUiTableViewEditor::createEditorWidget(QWidget* parent)
 
     updateContextMenuSignals();
 
-    m_layout->addWidget(m_tableView);
-
-    return m_mainWidget;
+    return m_tableView;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -109,9 +109,6 @@ private slots:
 private:
     friend class FocusEventHandler;
 
-    QPointer<QWidget>       m_mainWidget;
-    QLayout*                m_layout;
-
     QPointer<QLabel>        m_tableHeading;
     QPointer<QLabel>        m_tableHeadingIcon;
 
