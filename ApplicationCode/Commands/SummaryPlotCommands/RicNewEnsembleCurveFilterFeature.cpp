@@ -53,7 +53,7 @@ void RicNewEnsembleCurveFilterFeature::onActionTriggered(bool isChecked)
     {
         auto newFilter = filterColls[0]->addFilter();
         filterColls[0]->updateConnectedEditors();
-        RiuPlotMainWindowTools::selectAsCurrentItem(newFilter);
+        RiuPlotMainWindowTools::selectAsCurrentItem(filterColls.front());
     }
 }
 

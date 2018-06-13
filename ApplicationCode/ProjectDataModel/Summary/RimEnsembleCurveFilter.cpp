@@ -145,17 +145,11 @@ void RimEnsembleCurveFilter::defineUiOrdering(QString uiConfigName, caf::PdmUiOr
 {
     auto eParam = selectedEnsembleParameter();
 
+    uiOrdering.add(&m_active);
     uiOrdering.add(&m_ensembleParameterName);
-
-    if (eParam.isNumeric())
-    {
-        uiOrdering.add(&m_minValue);
-        uiOrdering.add(&m_maxValue);
-    }
-    else if (eParam.isText())
-    {
-        uiOrdering.add(&m_categories);
-    }
+    uiOrdering.add(&m_minValue);
+    uiOrdering.add(&m_maxValue);
+    uiOrdering.add(&m_categories);
 
     uiOrdering.skipRemainingFields(true);
 }

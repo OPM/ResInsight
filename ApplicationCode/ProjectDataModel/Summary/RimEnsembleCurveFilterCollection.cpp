@@ -23,6 +23,9 @@
 #include "RimEnsembleCurveFilter.h"
 #include "RimEnsembleCurveSet.h"
 
+#include <cafPdmUiTableViewEditor.h>
+#include <cafPdmUiTreeOrdering.h>
+
 #include <algorithm>
 
 
@@ -36,10 +39,11 @@ RimEnsembleCurveFilterCollection::RimEnsembleCurveFilterCollection()
     CAF_PDM_InitObject("Curve Filters", ":/SummaryCurveFilter16x16.png", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_active, "Active", "Active", "", "", "");
-    m_active.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&m_filters, "CurveFilters", "", "", "", "");
-    m_filters.uiCapability()->setUiHidden(true);
+    m_filters.uiCapability()->setUiTreeChildrenHidden(true);
+    m_filters.uiCapability()->setUiEditorTypeName(caf::PdmUiTableViewEditor::uiEditorTypeName());
+    m_filters.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -105,6 +109,14 @@ void RimEnsembleCurveFilterCollection::fieldChangedByUi(const caf::PdmFieldHandl
 void RimEnsembleCurveFilterCollection::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
 
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimEnsembleCurveFilterCollection::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /* = "" */)
+{
+    uiTreeOrdering.skipRemainingChildren(true);
 }
 
 //--------------------------------------------------------------------------------------------------
