@@ -599,6 +599,8 @@ std::string RifEclipseSummaryAddress::uiText(RifEclipseSummaryAddress::SummaryId
 //--------------------------------------------------------------------------------------------------
 bool RifEclipseSummaryAddress::isValid() const
 {
+    if (m_quantityName.empty()) return false;
+
     switch (category())
     {
     case SUMMARY_INVALID:
