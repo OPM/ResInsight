@@ -146,7 +146,7 @@ void RiaTimeHistoryCurveResampler::computeWeightedMeanValues(DateTimePeriod peri
 void RiaTimeHistoryCurveResampler::computePeriodEndValues(DateTimePeriod period)
 {
     size_t origDataSize = m_originalValues.second.size();
-    size_t origIndex = 0;
+    size_t oi = 0;
     auto& origTimeSteps = m_originalValues.second;
     auto& origValues = m_originalValues.first;
 
@@ -155,8 +155,19 @@ void RiaTimeHistoryCurveResampler::computePeriodEndValues(DateTimePeriod period)
     m_values.reserve(m_timeSteps.size());
     for (size_t i = 0; i < m_timeSteps.size(); i++)
     {
-        while (origIndex < origDataSize && origTimeSteps[origIndex] < m_timeSteps[i]) origIndex++;
-        m_values.push_back(origValues[origIndex]);
+        while (oi < origDataSize && origTimeSteps[oi] < m_timeSteps[i]) oi++;
+
+        double value;
+        if (oi > 0)
+        {
+            value = interpolatedValue(m_timeSteps[i], origTimeSteps[oi - 1], origValues[oi - 1], origTimeSteps[oi], origValues[oi]);
+        }
+        else
+        {
+            value = origValues[0];
+        }
+
+        m_values.push_back(value);
     }
 }
 
@@ -199,4 +210,17 @@ QDateTime RiaTimeHistoryCurveResampler::firstResampledTimeStep(const QDateTime& 
 
     if (QDT::lessThan(truncatedTime, firstTimeStep)) return QDT::addPeriod(truncatedTime, period);
     return truncatedTime;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+double RiaTimeHistoryCurveResampler::interpolatedValue(time_t t, time_t t1, double v1, time_t t2, double v2)
+{
+    CVF_ASSERT(t2 >= t1);
+
+    if (t <= t1) return v1;
+    if (t >= t2) return v2;
+
+    return (v2 - v1) * (double)(t - t1) / (double)(t2 - t1) + v1;
 }

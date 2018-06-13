@@ -49,6 +49,7 @@ private:
     void            clearData();
     void            computeResampledTimeSteps(DateTimePeriod period);
     QDateTime       firstResampledTimeStep(const QDateTime& firstTimestep, DateTimePeriod period);
+    inline double   interpolatedValue(time_t t, time_t t1, double v1, time_t t2, double v2);
 
 private:
     std::pair<std::vector<double>, std::vector<time_t>> m_originalValues;
