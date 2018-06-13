@@ -60,6 +60,21 @@ class PdmUiItem;
 class PdmUiTableViewDelegate;
 class PdmUiTableViewQModel;
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+class PdmUiTableViewPushButtonEditorAttribute : public PdmUiEditorAttribute
+{
+public:
+    void    registerPushButtonTextForFieldKeyword(const QString& keyword, const QString& text);
+
+    bool    showPushButtonForFieldKeyword(const QString& keyword) const;
+    QString pushButtonText(const QString& keyword) const;
+
+private:
+    std::map<QString, QString> m_fieldKeywordAndPushButtonText;
+};
+
 
 //--------------------------------------------------------------------------------------------------
 /// 

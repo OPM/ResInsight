@@ -338,12 +338,12 @@ void PdmUiTableViewQModel::setPdmData(PdmChildArrayFieldHandle* listField, const
 
     if (m_pdmList && !m_pdmList->empty())
     {
-        PdmObjectHandle* pdmObjHandle = m_pdmList->at(0);
-        PdmUiObjectHandle* uiObject = pdmObjHandle->uiCapability();
-        if (uiObject)
+        PdmObjectHandle* firstObject = m_pdmList->at(0);
+        PdmUiObjectHandle* uiHandleForFirstObject = firstObject->uiCapability();
+        if (uiHandleForFirstObject)
         {
-            uiObject->uiOrdering(configName, configForFirstObject);
-            uiObject->objectEditorAttribute(m_currentConfigName, &m_attributes);
+            uiHandleForFirstObject->uiOrdering(configName, configForFirstObject);
+            uiHandleForFirstObject->objectEditorAttribute(m_currentConfigName, &m_pushButtonEditorAttributes);
         }
     }
 
@@ -570,7 +570,7 @@ bool PdmUiTableViewQModel::isRepresentingBoolean(const QModelIndex &index) const
     PdmFieldHandle* fieldHandle = getField(index);
     if (fieldHandle)
     {
-        if (m_attributes.showPushButtonForFieldKeyword(fieldHandle->keyword()))
+        if (m_pushButtonEditorAttributes.showPushButtonForFieldKeyword(fieldHandle->keyword()))
         {
             return false;
         }
@@ -595,13 +595,13 @@ void PdmUiTableViewQModel::createPersistentPushButtonWidgets(QTableView* tableVi
         for (int col = 0; col < columnCount(); col++)
         {
             PdmFieldHandle* fieldHandle = getField(createIndex(0, col));
-            if (m_attributes.showPushButtonForFieldKeyword(fieldHandle->keyword()))
+            if (m_pushButtonEditorAttributes.showPushButtonForFieldKeyword(fieldHandle->keyword()))
             {
                 for (int row = 0; row < rowCount(); row++)
                 {
                     QModelIndex mi = createIndex(row, col);
 
-                    tableView->setIndexWidget(mi, new TableViewPushButton(getField(mi)->uiCapability(), m_attributes.pushButtonText(fieldHandle->keyword())));
+                    tableView->setIndexWidget(mi, new TableViewPushButton(getField(mi)->uiCapability(), m_pushButtonEditorAttributes.pushButtonText(fieldHandle->keyword())));
                     tableView->openPersistentEditor(mi);
                 }
             }

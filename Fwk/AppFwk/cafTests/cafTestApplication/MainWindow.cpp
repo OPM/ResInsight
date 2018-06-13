@@ -375,7 +375,7 @@ protected:
     //--------------------------------------------------------------------------------------------------
     virtual void defineObjectEditorAttribute(QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override
     {
-        caf::PdmUiTableViewEditorAttribute* attr = dynamic_cast<caf::PdmUiTableViewEditorAttribute*>(attribute);
+        caf::PdmUiTableViewPushButtonEditorAttribute* attr = dynamic_cast<caf::PdmUiTableViewPushButtonEditorAttribute*>(attribute);
         if (attr)
         {
             attr->registerPushButtonTextForFieldKeyword(m_pushButtonField.keyword(), "Edit");

@@ -39,7 +39,7 @@
 #include "cafPdmUiTreeOrdering.h"
 
 #include "cafPdmUiFieldHandle.h"
-#include "cafPdmUiTableView.h"
+#include "cafPdmUiTableViewEditor.h"
 
 #include <QAbstractItemModel>
 #include <QItemSelection>
@@ -122,7 +122,7 @@ private:
 
     std::vector<PdmUiTableItemEditor*>          m_tableItemEditors;
 
-    PdmUiTableViewEditorAttribute               m_attributes;
+    PdmUiTableViewPushButtonEditorAttribute     m_pushButtonEditorAttributes;
 };
 
 
