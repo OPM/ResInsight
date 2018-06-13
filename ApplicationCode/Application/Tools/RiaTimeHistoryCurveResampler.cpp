@@ -16,6 +16,9 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
+#include <cvfConfigCore.h>
+#include <cvfAssert.h>
+
 #include "RiaTimeHistoryCurveResampler.h"
 
 //QString tostring(const QDateTime& dt)
@@ -47,6 +50,7 @@ void RiaTimeHistoryCurveResampler::setCurveData(const std::vector<double>& value
 {
     CVF_ASSERT(values.size() == timeSteps.size());
 
+    clearData();
     m_originalValues = std::make_pair(values, timeSteps);
 }
 

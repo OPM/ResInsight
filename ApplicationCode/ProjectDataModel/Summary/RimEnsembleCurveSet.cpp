@@ -213,7 +213,6 @@ void RimEnsembleCurveSet::loadDataAndUpdate(bool updateParentPlot)
     m_yValuesUiFilterResultSelection = m_yValuesCurveVariable->address();
 
     updateAllCurves();
-    updateStatisticsCurves(true);
 
     if (updateParentPlot)
     {
@@ -407,6 +406,15 @@ EnsembleParameter::Type RimEnsembleCurveSet::currentEnsembleParameterType() cons
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimEnsembleCurveSet::updateAllCurves()
+{
+    updateEnsembleCurves();
+    updateStatisticsCurves(true);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimEnsembleCurveSet::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
     RimSummaryPlot* plot = nullptr;
@@ -432,7 +440,6 @@ void RimEnsembleCurveSet::fieldChangedByUi(const caf::PdmFieldHandle* changedFie
         m_yValuesCurveVariable->setAddress(m_yValuesUiFilterResultSelection());
 
         updateAllCurves();
-        updateStatisticsCurves(true);
         
         updateTextInPlot = true;
     }
@@ -441,7 +448,6 @@ void RimEnsembleCurveSet::fieldChangedByUi(const caf::PdmFieldHandle* changedFie
         // Empty address cache
         m_allAddressesCache.clear();
         updateAllCurves();
-        updateStatisticsCurves(true);
 
         updateTextInPlot = true;
     }
@@ -873,7 +879,7 @@ void RimEnsembleCurveSet::updateQwtPlotAxis()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimEnsembleCurveSet::updateAllCurves()
+void RimEnsembleCurveSet::updateEnsembleCurves()
 {
     RimSummaryPlot* plot = nullptr;
     firstAncestorOrThisOfType(plot);
@@ -881,6 +887,7 @@ void RimEnsembleCurveSet::updateAllCurves()
 
     deleteEnsembleCurves();
     m_qwtPlotCurveForLegendText->detach();
+    deleteStatisticsCurves();
 
     RimSummaryCaseCollection* group = m_yValuesSummaryGroup();
     RimSummaryAddress* addr = m_yValuesCurveVariable();
@@ -929,6 +936,8 @@ void RimEnsembleCurveSet::updateAllCurves()
 void RimEnsembleCurveSet::updateStatisticsCurves(bool calculate = true)
 {
     using SAddr = RifEclipseSummaryAddress;
+
+    if (m_yValuesCurveVariable->address().category() == RifEclipseSummaryAddress::SUMMARY_INVALID) return;
 
     if (calculate)
     {

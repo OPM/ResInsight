@@ -129,6 +129,8 @@ void RimEnsembleStatisticsCase::calculate(const std::vector<RimSummaryCase*> sum
     std::vector<time_t> allTimeSteps;
     std::vector<std::vector<double>> allValues;
 
+    if (!inputAddress.isValid()) return;
+
     allValues.reserve(sumCases.size());
     for (const auto& sumCase : sumCases)
     {

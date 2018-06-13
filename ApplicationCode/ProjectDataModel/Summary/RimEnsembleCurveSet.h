@@ -96,6 +96,7 @@ public:
     EnsembleParameter::Type                 currentEnsembleParameterType() const;
 
     void                                    updateAllCurves();
+    void                                    updateEnsembleCurves();
     void                                    updateStatisticsCurves(bool calculate);
     RimEnsembleCurveSet*                    clone() const;
     void                                    showCurves(bool show);
