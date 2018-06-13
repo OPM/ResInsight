@@ -783,6 +783,8 @@ void RimEnsembleCurveSet::updateCurveColors()
 
                 for (auto& curve : m_curves)
                 {
+                    if (curve->summaryAddressY().category() == RifEclipseSummaryAddress::SUMMARY_ENSEMBLE_STATISTICS) continue;
+
                     RimSummaryCase* rimCase = curve->summaryCaseY();
                     QString tValue = rimCase->hasCaseRealizationParameters() ?
                         rimCase->caseRealizationParameters()->parameterValue(parameterName).textValue() :
@@ -819,6 +821,8 @@ void RimEnsembleCurveSet::updateCurveColors()
 
                 for (auto& curve : m_curves)
                 {
+                    if (curve->summaryAddressY().category() == RifEclipseSummaryAddress::SUMMARY_ENSEMBLE_STATISTICS) continue;
+
                     RimSummaryCase* rimCase = curve->summaryCaseY();
                     double value = rimCase->hasCaseRealizationParameters() ? 
                         rimCase->caseRealizationParameters()->parameterValue(parameterName).numericValue() :
