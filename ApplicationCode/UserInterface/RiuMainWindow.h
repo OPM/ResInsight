@@ -36,6 +36,7 @@
 class QActionGroup;
 class QMdiSubWindow;
 class QSpinBox;
+class QTimer;
 class QUndoView;
 
 class RimCase;
@@ -181,13 +182,18 @@ private:
     RiuPvtPlotPanel*                    m_pvtPlotPanel;
 
     QMenu*              m_windowMenu;
+    QLabel*             m_memoryCriticalWarning;
     QLabel*             m_memoryUsedStatus;
-    QLabel*             m_memoryAvailableStatus;
+    QLabel*             m_memoryTotalStatus;
+    QTimer*             m_memoryRefreshTimer;
 
 // Menu and action slots
 private slots:
 
     friend class RiuMdiSubWindow;
+
+    // Memory update slot
+    void    updateMemoryUsage();
 
     // File slots
     void    slotRefreshFileActions();

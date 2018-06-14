@@ -61,6 +61,7 @@
 #include "cafAnimationToolBar.h"
 #include "cafCmdExecCommandManager.h"
 #include "cafCmdFeatureManager.h"
+#include "cafMemoryInspector.h"
 #include "cafPdmSettings.h"
 #include "cafPdmUiPropertyView.h"
 #include "cafPdmUiPropertyViewDialog.h"
@@ -85,9 +86,12 @@
 #include <QMenuBar>
 #include <QSpinBox>
 #include <QStatusBar>
+#include <QTimer>
 #include <QToolBar>
 #include <QTreeView>
 #include <QUndoStack>
+
+#include <algorithm>
 
 
 //==================================================================================================
@@ -140,14 +144,19 @@ RiuMainWindow::RiuMainWindow()
     // When enableUndoCommandSystem is set false, all commands are executed and deleted immediately
     //caf::CmdExecCommandManager::instance()->enableUndoCommandSystem(true);
 
-    QLabel* memoryDescriptionLabel = new QLabel("Memory usage:");
-    m_memoryUsedStatus = new QLabel("Used: 128 MiB");
-    m_memoryUsedStatus->setStyleSheet("QLabel {color: green; }");
-    m_memoryAvailableStatus = new QLabel("Physical Memory: 32 GiB");
-    
-    statusBar()->addPermanentWidget(memoryDescriptionLabel);
+    m_memoryCriticalWarning = new QLabel("");
+    m_memoryUsedStatus = new QLabel("");
+    m_memoryTotalStatus = new QLabel("");
+
+    statusBar()->addPermanentWidget(m_memoryCriticalWarning);
     statusBar()->addPermanentWidget(m_memoryUsedStatus);
-    statusBar()->addPermanentWidget(m_memoryAvailableStatus);
+    statusBar()->addPermanentWidget(m_memoryTotalStatus);
+
+    updateMemoryUsage();
+
+    m_memoryRefreshTimer = new QTimer(this);
+    connect(m_memoryRefreshTimer, SIGNAL(timeout()), this, SLOT(updateMemoryUsage()));
+    m_memoryRefreshTimer->start(1000);
 }
 
 
@@ -1681,6 +1690,53 @@ void RiuMainWindow::updateUiFieldsFromActiveResult(caf::PdmObjectHandle* objectT
     {
         cellEdgeColors->updateUiFieldsFromActiveResult();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindow::updateMemoryUsage()
+{
+    uint64_t    currentUsage        = caf::MemoryInspector::getApplicationPhysicalMemoryUsageMiB();
+    uint64_t    totalPhysicalMemory = caf::MemoryInspector::getTotalPhysicalMemoryMiB();
+    uint64_t    totalVirtualMemory  = caf::MemoryInspector::getTotalVirtualMemoryMiB();
+    uint64_t    availVirtualMemory  = caf::MemoryInspector::getAvailableVirtualMemoryMiB();
+
+    QColor okColor(0, 150, 0);
+    QColor warningColor(200, 0, 0);
+    QColor criticalColor(255, 100, 0);
+    
+    float currentUsageFraction = 0.0f;
+    float availVirtualFraction = 1.0f;
+    if (currentUsage > 0u && totalPhysicalMemory > 0u)
+    {
+        currentUsageFraction = std::min(1.0f, static_cast<float>(currentUsage) / totalPhysicalMemory);
+    }
+    if (availVirtualMemory > 0u && totalVirtualMemory > 0u)
+    {
+        availVirtualFraction = static_cast<float>(availVirtualMemory) / totalVirtualMemory;
+    }
+
+    QColor usageColor((int)(okColor.red() * (1.0 - currentUsageFraction) + warningColor.red() * currentUsageFraction),
+                      (int)(okColor.green() * (1.0 - currentUsageFraction) + warningColor.green() * currentUsageFraction),
+                      (int)(okColor.blue() * (1.0 - currentUsageFraction) + warningColor.blue() * currentUsageFraction));
+
+    m_memoryCriticalWarning->setText(QString(""));
+    if (availVirtualFraction < 0.175)
+    {
+        m_memoryCriticalWarning->setText(QString("Available System Memory Critically Low!"));
+        m_memoryCriticalWarning->setStyleSheet(QString("QLabel {color: %1; padding: 0px 5px 0px 0px;}").arg(criticalColor.name()));
+    }
+    else
+    {
+        m_memoryCriticalWarning->setText(QString(""));
+    }
+
+    m_memoryUsedStatus->setText(QString("Physical Memory Used: %1 MiB").arg(currentUsage));
+    m_memoryTotalStatus->setText(QString("Total Physical Memory: %1 MiB").arg(totalPhysicalMemory));
+
+    m_memoryUsedStatus->setStyleSheet(QString("QLabel {color: %1; padding: 0px 5px 0px 0px;}").arg(usageColor.name()));    
+    m_memoryTotalStatus->setStyleSheet(QString("QLabel {padding: 0px 5px 0px 0px; }"));
 }
 
 //--------------------------------------------------------------------------------------------------
