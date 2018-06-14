@@ -55,6 +55,7 @@ private:
     void                                calculate(const std::vector<RimSummaryCase*> sumCases, const RifEclipseSummaryAddress& inputAddress);
     void clearData();
     std::vector<RimSummaryCase*>        validSummaryCases(const std::vector<RimSummaryCase*> allSumCases, const RifEclipseSummaryAddress& inputAddress);
+    void                                calculateStatistics(const std::vector<double>& values, double* p10, double* p50, double* p90, double* mean);
 
 private:
     std::unique_ptr<RifEnsembleStatisticsReader> m_statisticsReader;

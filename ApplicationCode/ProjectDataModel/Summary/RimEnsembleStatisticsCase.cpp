@@ -26,6 +26,8 @@
 
 #include "RimEnsembleCurveSet.h"
 
+#include <vector>
+#include <set>
 #include <limits>
 
 //--------------------------------------------------------------------------------------------------
@@ -156,25 +158,16 @@ void RimEnsembleStatisticsCase::calculate(const std::vector<RimSummaryCase*> sum
 
     for (int t = 0; t < (int)allTimeSteps.size(); t++)
     {
-        std::vector<double> valuesForTimeSteps;
-        valuesForTimeSteps.reserve(sumCases.size());
+        std::vector<double> valuesAtTimeStep;
+        valuesAtTimeStep.reserve(sumCases.size());
         
         for (int c = 0; c < sumCases.size(); c++)
         {
-            valuesForTimeSteps.push_back(allValues[c][t]);
+            valuesAtTimeStep.push_back(allValues[c][t]);
         }
 
-        double min, max, range, mean, stdev;
-        RigStatisticsMath::calculateBasicStatistics(valuesForTimeSteps, &min, &max, nullptr, &range, &mean, &stdev);
-
-        std::vector<size_t> histogram;
-        RigHistogramCalculator histCalc(min, max, 100, &histogram);
-        histCalc.addData(valuesForTimeSteps);
-
-        double p10, p50, p90;
-        p10 = histCalc.calculatePercentil(0.1);
-        p50 = histCalc.calculatePercentil(0.5);
-        p90 = histCalc.calculatePercentil(0.9);
+        double p10, p50, p90, mean;
+        calculateStatistics(valuesAtTimeStep, &p10, &p50, &p90, &mean);
 
         m_p10Data.push_back(p10);
         m_p50Data.push_back(p50);
@@ -239,3 +232,61 @@ std::vector<RimSummaryCase*> RimEnsembleStatisticsCase::validSummaryCases(const 
     }
     return validCases;
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimEnsembleStatisticsCase::calculateStatistics(const std::vector<double>& values, double* p10, double* p50, double* p90, double* mean)
+{
+    CVF_ASSERT(p10 && p50 && p90 && mean);
+
+    std::multiset<double> vSet(values.begin(), values.end());
+
+    int count = 0;
+    double total = 0;
+    double p10Count = (double)vSet.size() * 0.1;
+    double p50Count = (double)vSet.size() * 0.5;
+    double p90Count = (double)vSet.size() * 0.9;
+    int p10CountFloor = std::floor(p10Count);
+    int p50CountFloor = std::floor(p50Count);
+    int p90CountFloor = std::floor(p90Count);
+    enum State { P10, P50, P90, DONE } state = P10;
+
+    for (double val : vSet)
+    {
+        count++;
+        total += val;
+        switch (state)
+        {
+        case DONE:
+            break;
+
+        case P10:
+            if (count >= p10CountFloor)
+            {
+                *p10 = val;
+                state = P50;
+            }
+            break;
+
+        case P50:
+            if (count >= p50CountFloor)
+            {
+                *p50 = val;
+                state = P90;
+            }
+            break;
+
+        case P90:
+            if (count >= p90CountFloor)
+            {
+                *p90 = val;
+                state = DONE;
+            }
+            break;
+        }
+    }
+
+    *mean = total / vSet.size();
+}
+
