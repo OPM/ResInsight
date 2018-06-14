@@ -36,6 +36,7 @@
 
 #include <QObject>
 #include <QSslConfiguration>
+#include <QSslSocket>
 #include <QtGui>
 #include <QtNetwork>
 
@@ -320,9 +321,13 @@ void RiuWellImportWizard::startRequest(QUrl url)
     auto request = QNetworkRequest(url);
 
 #ifndef QT_NO_OPENSSL
-    QSslConfiguration config = QSslConfiguration::defaultConfiguration();
-    config.setProtocol(QSsl::TlsV1);
-    request.setSslConfiguration(config);
+    bool supportsSsl = QSslSocket::supportsSsl();
+    if (supportsSsl)
+    {
+        QSslConfiguration config = QSslConfiguration::defaultConfiguration();
+        config.setProtocol(QSsl::TlsV1);
+        request.setSslConfiguration(config);
+    }
 #endif
 
     m_reply = m_networkAccessManager.get(request);
