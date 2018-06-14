@@ -161,7 +161,7 @@ void RimEnsembleStatisticsCase::calculate(const std::vector<RimSummaryCase*> sum
         std::vector<double> valuesAtTimeStep;
         valuesAtTimeStep.reserve(sumCases.size());
         
-        for (int c = 0; c < sumCases.size(); c++)
+        for (int c = 0; c < (int)sumCases.size(); c++)
         {
             valuesAtTimeStep.push_back(allValues[c][t]);
         }

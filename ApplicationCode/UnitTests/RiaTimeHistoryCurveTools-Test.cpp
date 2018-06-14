@@ -43,7 +43,7 @@ TEST(RiaTimeHistoryCurveResampler, Test_Resampling_NoPeriod)
     resampler.setCurveData(dataValues, toTime_tVector(timeStrings));
     resampler.resampleAndComputeWeightedMeanValues(DateTimePeriod::MONTH);
 
-    EXPECT_EQ(0, resampler.resampledTimeSteps().size());
+    EXPECT_EQ(0, (int)resampler.resampledTimeSteps().size());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -69,7 +69,7 @@ TEST(RiaTimeHistoryCurveResampler, Test_WeightedMean_Days)
     resampler.setCurveData(dataValues, toTime_tVector(timeStrings));
     resampler.resampleAndComputeWeightedMeanValues(DateTimePeriod::DAY);
 
-    EXPECT_EQ(5, resampler.resampledTimeSteps().size());
+    EXPECT_EQ(5, (int)resampler.resampledTimeSteps().size());
     EXPECT_EQ(toTime_t("2018-02-03"), resampler.resampledTimeSteps()[0]);
     EXPECT_EQ(toTime_t("2018-02-04"), resampler.resampledTimeSteps()[1]);
     EXPECT_EQ(toTime_t("2018-02-05"), resampler.resampledTimeSteps()[2]);
@@ -108,7 +108,7 @@ TEST(RiaTimeHistoryCurveResampler, Test_WeightedMean_Decade)
     resampler.setCurveData(dataValues, toTime_tVector(timeStrings));
     resampler.resampleAndComputeWeightedMeanValues(DateTimePeriod::DECADE);
 
-    EXPECT_EQ(2, resampler.resampledTimeSteps().size());
+    EXPECT_EQ(2, (int)resampler.resampledTimeSteps().size());
     EXPECT_EQ(toTime_t("2000-01-01"), resampler.resampledTimeSteps()[0]);
     EXPECT_EQ(toTime_t("2010-01-01"), resampler.resampledTimeSteps()[1]);
 
@@ -154,7 +154,7 @@ TEST(RiaTimeHistoryCurveResampler, Test_WeightedMean_SamplesStartBeforePeriod)
     resampler.setCurveData(dataValues, toTime_tVector(timeStrings));
     resampler.resampleAndComputeWeightedMeanValues(DateTimePeriod::MONTH);
 
-    EXPECT_EQ(2, resampler.resampledTimeSteps().size());
+    EXPECT_EQ(2, (int)resampler.resampledTimeSteps().size());
     EXPECT_EQ(toTime_t("2018-02-01"), resampler.resampledTimeSteps().front());
     EXPECT_EQ(toTime_t("2018-03-01"), resampler.resampledTimeSteps().back());
 
@@ -204,7 +204,7 @@ TEST(RiaTimeHistoryCurveResampler, Test_WeightedMean_SamplesStartBeforePeriod_Ti
     resampler.setCurveData(dataValues, toTime_tVector(timeStrings));
     resampler.resampleAndComputeWeightedMeanValues(DateTimePeriod::MONTH);
 
-    EXPECT_EQ(2, resampler.resampledTimeSteps().size());
+    EXPECT_EQ(2, (int)resampler.resampledTimeSteps().size());
     EXPECT_EQ(toTime_t("2018-02-01"), resampler.resampledTimeSteps().front());
     EXPECT_EQ(toTime_t("2018-03-01"), resampler.resampledTimeSteps().back());
 
@@ -248,7 +248,7 @@ TEST(RiaTimeHistoryCurveResampler, Test_WeightedMean_SamplesStartAndEndMatchPeri
     resampler.setCurveData(dataValues, toTime_tVector(timeStrings));
     resampler.resampleAndComputeWeightedMeanValues(DateTimePeriod::MONTH);
 
-    EXPECT_EQ(2, resampler.resampledTimeSteps().size());
+    EXPECT_EQ(2, (int)resampler.resampledTimeSteps().size());
     EXPECT_EQ(toTime_t("2018-02-01"), resampler.resampledTimeSteps().front());
     EXPECT_EQ(toTime_t("2018-03-01"), resampler.resampledTimeSteps().back());
 
@@ -291,7 +291,7 @@ TEST(RiaTimeHistoryCurveResampler, Test_WeightedMean_SamplesStartMatchPeriodStar
     resampler.setCurveData(dataValues, toTime_tVector(timeStrings));
     resampler.resampleAndComputeWeightedMeanValues(DateTimePeriod::MONTH);
 
-    EXPECT_EQ(2, resampler.resampledTimeSteps().size());
+    EXPECT_EQ(2, (int)resampler.resampledTimeSteps().size());
     EXPECT_EQ(toTime_t("2018-02-01"), resampler.resampledTimeSteps().front());
     EXPECT_EQ(toTime_t("2018-03-01"), resampler.resampledTimeSteps().back());
 
@@ -334,12 +334,22 @@ TEST(RiaTimeHistoryCurveResampler, Test_PeriodEndValues_SamplesStartBeforePeriod
     resampler.setCurveData(dataValues, toTime_tVector(timeStrings));
     resampler.resampleAndComputePeriodEndValues(DateTimePeriod::MONTH);
 
-    EXPECT_EQ(2, resampler.resampledTimeSteps().size());
+    time_t t1 = toTime_t("2018-01-30");
+    time_t t2 = toTime_t("2018-02-10");
+    time_t t3 = toTime_t("2018-03-05");
+    time_t t4 = toTime_t("2018-03-02");
+    time_t tp1 = toTime_t("2018-02-01");
+    time_t tp2 = toTime_t("2018-03-01");
+
+    EXPECT_EQ(2, (int)resampler.resampledTimeSteps().size());
     EXPECT_EQ(toTime_t("2018-02-01"), resampler.resampledTimeSteps().front());
     EXPECT_EQ(toTime_t("2018-03-01"), resampler.resampledTimeSteps().back());
 
-    EXPECT_NEAR(5.0, resampler.resampledValues()[0], 1e-12);
-    EXPECT_NEAR(7.0, resampler.resampledValues()[1], 1e-12);
+    double value1 = (5.0 - 3.0) * (tp1 - t1) / (t2 - t1) + 3.0;
+    double value2 = (7.0 - 5.0) * (tp2 - t2) / (t3 - t2) + 5.0;
+
+    EXPECT_NEAR(value1, resampler.resampledValues()[0], 1e-12);
+    EXPECT_NEAR(value2, resampler.resampledValues()[1], 1e-12);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -369,7 +379,7 @@ TEST(RiaTimeHistoryCurveResampler, Test_PeriodEndValues_SamplesStartMatchPeriod)
     resampler.setCurveData(dataValues, toTime_tVector(timeStrings));
     resampler.resampleAndComputePeriodEndValues(DateTimePeriod::MONTH);
 
-    EXPECT_EQ(2, resampler.resampledTimeSteps().size());
+    EXPECT_EQ(2, (int)resampler.resampledTimeSteps().size());
     EXPECT_EQ(toTime_t("2018-02-01"), resampler.resampledTimeSteps().front());
     EXPECT_EQ(toTime_t("2018-03-01"), resampler.resampledTimeSteps().back());
 
@@ -394,8 +404,7 @@ TEST(RiaTimeHistoryCurveResampler, Test_PeriodEndValues_SamplesStartAndEndMatchP
         {
             3.0,
             5.0,
-            7.0,
-            11.0
+            7.0
         }
     );
 
@@ -403,7 +412,7 @@ TEST(RiaTimeHistoryCurveResampler, Test_PeriodEndValues_SamplesStartAndEndMatchP
     resampler.setCurveData(dataValues, toTime_tVector(timeStrings));
     resampler.resampleAndComputePeriodEndValues(DateTimePeriod::MONTH);
 
-    EXPECT_EQ(2, resampler.resampledTimeSteps().size());
+    EXPECT_EQ(2, (int)resampler.resampledTimeSteps().size());
     EXPECT_EQ(toTime_t("2018-02-01"), resampler.resampledTimeSteps().front());
     EXPECT_EQ(toTime_t("2018-03-01"), resampler.resampledTimeSteps().back());
 
