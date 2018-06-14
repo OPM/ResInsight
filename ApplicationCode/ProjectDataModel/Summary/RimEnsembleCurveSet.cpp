@@ -969,6 +969,7 @@ void RimEnsembleCurveSet::updateStatisticsCurves(bool calculate = true)
         m_curves.push_back(curve);
         curve->setSymbol(RimPlotCurve::SYMBOL_ELLIPSE);
         curve->setSymbolSkipDinstance(50);
+        curve->setSymbolLabel(QString::fromStdString(address.ensembleStatisticsQuantityName()));
         curve->setLineStyle(RimPlotCurve::STYLE_SOLID);
         curve->setSummaryCaseY(m_ensembleStatCase.get());
         curve->setSummaryAddressY(address);

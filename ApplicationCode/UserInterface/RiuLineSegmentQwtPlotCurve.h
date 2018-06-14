@@ -19,6 +19,7 @@
 
 #pragma once
 
+#include "qwt_symbol.h"
 #include "qwt_plot_curve.h"
 #include "qwt_plot_intervalcurve.h"
 
@@ -105,4 +106,23 @@ private:
     bool                    m_showErrorBars;
     QwtPlotIntervalCurve*   m_errorBars;
     QwtPlot*                m_attachedToPlot;
+};
+
+//--------------------------------------------------------------------------------------------------
+/// This class overrides renderSymbols to draw symbols and labels.
+/// The label is only visible in the legend, while it is clipped in the plot.
+/// Therefore the method RiuLineSegmentQwtPlotCurve::drawSymbols also draw labels to have labels
+/// in the plot as well.
+//--------------------------------------------------------------------------------------------------
+class RiuCurveQwtSymbol : public QwtSymbol
+{
+public:
+    RiuCurveQwtSymbol(QwtSymbol::Style style, const QString& label);
+
+    virtual void renderSymbols(QPainter *painter, const QPointF *points, int numPoints) const override;
+
+    QString label() const { return m_label; }
+
+private:
+    QString m_label;
 };

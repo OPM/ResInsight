@@ -27,6 +27,7 @@
 #include "RimSummaryPlot.h"
 
 #include "RiuRimQwtPlotCurve.h"
+#include "RiuLineSegmentQwtPlotCurve.h"
 
 #include "cafPdmUiComboBoxEditor.h"
 
@@ -421,7 +422,7 @@ void RimPlotCurve::updateCurveAppearance()
         }
 
         // QwtPlotCurve will take ownership of the symbol
-        symbol = new QwtSymbol(style);
+        symbol = new RiuCurveQwtSymbol(style, m_symbolLabel);
 
         symbol->setSize(6, 6);
         symbol->setColor(curveColor);
@@ -543,6 +544,14 @@ RimPlotCurve::PointSymbolEnum RimPlotCurve::symbol()
 void RimPlotCurve::setSymbolSkipDinstance(float distance)
 {
     m_symbolSkipPixelDistance = distance;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimPlotCurve::setSymbolLabel(const QString& label)
+{
+    m_symbolLabel = label;
 }
 
 //--------------------------------------------------------------------------------------------------

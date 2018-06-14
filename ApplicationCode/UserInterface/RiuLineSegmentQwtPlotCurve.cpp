@@ -179,51 +179,69 @@ void RiuLineSegmentQwtPlotCurve::drawSymbols(QPainter *painter, const QwtSymbol 
                                             const QwtScaleMap &xMap, const QwtScaleMap &yMap, 
                                             const QRectF &canvasRect, int from, int to) const
 {
-    if (m_symbolSkipPixelDistance <= 0)
-    {
-        QwtPlotCurve::drawSymbols(painter, symbol, xMap, yMap, canvasRect, from, to);
-        return;
-    }
-
     QwtPointMapper mapper;
-    mapper.setFlag(QwtPointMapper::RoundPoints,
-                   QwtPainter::roundingAlignment(painter));
-    mapper.setFlag(QwtPointMapper::WeedOutPoints,
-                   testPaintAttribute(QwtPlotCurve::FilterPoints));
-    mapper.setBoundingRect(canvasRect);
+    bool filterSymbols = m_symbolSkipPixelDistance > 0;
 
-    const QPolygonF points = mapper.toPointsF(xMap, yMap,
-                                              data(), from, to);
-    int pointCount = points.size();
-
-    QPolygonF filteredPoints;
-    QPointF lastDrawnSymbolPos;
-
-    if (pointCount > 0) 
+    if (filterSymbols)
     {
-        filteredPoints.push_back(points[0]);
-        lastDrawnSymbolPos = points[0];
+        mapper.setFlag(QwtPointMapper::RoundPoints,
+                       QwtPainter::roundingAlignment(painter));
+        mapper.setFlag(QwtPointMapper::WeedOutPoints,
+                       testPaintAttribute(QwtPlotCurve::FilterPoints));
+        mapper.setBoundingRect(canvasRect);
     }
 
-    float sqSkipDist = m_symbolSkipPixelDistance*m_symbolSkipPixelDistance;
+    const QPolygonF points = mapper.toPointsF(xMap, yMap, data(), from, to);
+    int pointCount = points.size();
+    QPolygonF pointsToDisplay;
 
-    for(int pIdx = 1; pIdx < pointCount -1 ; ++pIdx)
+    if (filterSymbols)
     {
-        QPointF diff = points[pIdx] - lastDrawnSymbolPos;
-        float sqDistBetweenSymbols = diff.x()*diff.x() + diff.y()*diff.y();
+        QPointF lastDrawnSymbolPos;
 
-        if(sqDistBetweenSymbols > sqSkipDist)
+        if (pointCount > 0)
         {
-            filteredPoints.push_back(points[pIdx]);
-            lastDrawnSymbolPos = points[pIdx];
+            pointsToDisplay.push_back(points[0]);
+            lastDrawnSymbolPos = points[0];
+        }
+
+        float sqSkipDist = m_symbolSkipPixelDistance * m_symbolSkipPixelDistance;
+
+        for (int pIdx = 1; pIdx < pointCount - 1; ++pIdx)
+        {
+            QPointF diff = points[pIdx] - lastDrawnSymbolPos;
+            float sqDistBetweenSymbols = diff.x()*diff.x() + diff.y()*diff.y();
+
+            if (sqDistBetweenSymbols > sqSkipDist)
+            {
+                pointsToDisplay.push_back(points[pIdx]);
+                lastDrawnSymbolPos = points[pIdx];
+            }
+        }
+
+        if (pointCount > 1) pointsToDisplay.push_back(points.back());
+    }
+    else
+    {
+        pointsToDisplay = points;
+    }
+
+
+    if (pointsToDisplay.size() > 0)
+    {
+        symbol.drawSymbols(painter, pointsToDisplay);
+
+        const RiuCurveQwtSymbol* sym = dynamic_cast<const RiuCurveQwtSymbol*>(&symbol);
+
+        if (sym && !sym->label().isEmpty())
+        {
+            for (auto& pt : pointsToDisplay)
+            {
+                int width = painter->fontMetrics().width(sym->label());
+                painter->drawText(pt.x() - width / 2, pt.y() - 5, sym->label());
+            }
         }
     }
-
-    if(pointCount > 1) filteredPoints.push_back(points.back());
-
-
-    if(filteredPoints.size() > 0)
-        symbol.drawSymbols(painter, filteredPoints);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -321,4 +339,26 @@ std::vector<double> RiuLineSegmentQwtPlotCurve::fromTime_t(const std::vector<tim
     }
 
     return doubleValues;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Internal class to support labels on symbols
+//--------------------------------------------------------------------------------------------------
+RiuCurveQwtSymbol::RiuCurveQwtSymbol(QwtSymbol::Style style, const QString& label) : QwtSymbol(style), m_label(label)
+{ 
+}
+
+void RiuCurveQwtSymbol::renderSymbols(QPainter *painter, const QPointF *points, int numPoints) const
+{
+    QwtSymbol::renderSymbols(painter, points, numPoints);
+
+    if (!m_label.isEmpty())
+    {
+        for (int i = 0; i < numPoints; i++)
+        {
+            auto pt = points[i];
+            int width = painter->fontMetrics().width(m_label);
+            painter->drawText(pt.x() - width / 2, pt.y() - 5, m_label);
+        }
+    }
 }
