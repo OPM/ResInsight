@@ -446,7 +446,7 @@ void RimEnsembleCurveSet::fieldChangedByUi(const caf::PdmFieldHandle* changedFie
     else if (changedField == &m_yValuesSummaryGroup)
     {
         // Empty address cache
-        m_allAddressesCache.clear();
+        //m_allAddressesCache.clear();
         updateAllCurves();
 
         updateTextInPlot = true;
@@ -720,23 +720,24 @@ void RimEnsembleCurveSet::appendOptionItemsForSummaryAddresses(QList<caf::PdmOpt
 {
     if (!summaryCaseGroup) return;
 
-    if (m_allAddressesCache.empty())
+    std::set<RifEclipseSummaryAddress> addrSet;
+    for (RimSummaryCase* summaryCase : summaryCaseGroup->allSummaryCases())
     {
-        for (RimSummaryCase* summaryCase : summaryCaseGroup->allSummaryCases())
+        RifSummaryReaderInterface* reader = summaryCase->summaryReader();
+        const std::vector<RifEclipseSummaryAddress>& addrs = reader ? reader->allResultAddresses() : std::vector<RifEclipseSummaryAddress>();
+
+        for (auto& addr : addrs)
         {
-            RifSummaryReaderInterface* reader = summaryCase->summaryReader();
-            const std::vector<RifEclipseSummaryAddress> addrs = reader ? reader->allResultAddresses() : std::vector<RifEclipseSummaryAddress>();
-            m_allAddressesCache.insert(addrs.begin(), addrs.end());
+            if (summaryFilter && !summaryFilter->isIncludedByFilter(addr)) continue;
+            addrSet.insert(addr);
         }
     }
 
-    for (auto& address : m_allAddressesCache)
+    for (auto& addr : addrSet)
     {
-        if (summaryFilter && !summaryFilter->isIncludedByFilter(address)) continue;
-
-        std::string name = address.uiText();
+        std::string name = addr.uiText();
         QString s = QString::fromStdString(name);
-        options->push_back(caf::PdmOptionItemInfo(s, QVariant::fromValue(address)));
+        options->push_back(caf::PdmOptionItemInfo(s, QVariant::fromValue(addr)));
     }
 
     options->push_front(caf::PdmOptionItemInfo(RiaDefines::undefinedResultName(), QVariant::fromValue(RifEclipseSummaryAddress())));
