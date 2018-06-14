@@ -131,41 +131,38 @@ bool RimEclipseResultCase::importGridAndResultMetaData(bool showTimeStepFilter)
         cvf::ref<RifReaderEclipseOutput> readerEclipseOutput = new RifReaderEclipseOutput;
         readerEclipseOutput->setFilenamesWithFaults(this->filesContainingFaults());
 
-        if (showTimeStepFilter)
+        cvf::ref<RifEclipseRestartDataAccess> restartDataAccess = RifEclipseOutputFileTools::createDynamicResultAccess(caseFileName());
+        if (restartDataAccess.isNull())
         {
-            cvf::ref<RifEclipseRestartDataAccess> restartDataAccess = RifEclipseOutputFileTools::createDynamicResultAccess(caseFileName());
-            if (restartDataAccess.isNull())
+            return false;
+        }
+
+        {
+            std::vector<QDateTime> timeSteps;
+            std::vector<double> daysSinceSimulationStart;
+
+            restartDataAccess->timeSteps(&timeSteps, &daysSinceSimulationStart);
+            m_timeStepFilter->setTimeStepsFromFile(timeSteps);
+        }
+
+        if (showTimeStepFilter)
+        {                        
+            // Restore cursor as the progress dialog is active
+            QApplication::restoreOverrideCursor();
+
+            caf::PdmUiPropertyViewDialog propertyDialog(nullptr, m_timeStepFilter, "Time Step Filter", "", QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
+            propertyDialog.resize(QSize(400, 400));
+            // Show GUI to select time steps 
+            if (propertyDialog.exec() != QDialog::Accepted)
             {
                 return false;
             }
-
-            {
-                std::vector<QDateTime> timeSteps;
-                std::vector<double> daysSinceSimulationStart;
-
-                restartDataAccess->timeSteps(&timeSteps, &daysSinceSimulationStart);
-
-                // Restore cursor as the progress dialog is active
-                QApplication::restoreOverrideCursor();
-
-                // Show GUI to select time steps 
-
-                m_timeStepFilter->setTimeStepsFromFile(timeSteps);
-
-                caf::PdmUiPropertyViewDialog propertyDialog(nullptr, m_timeStepFilter, "Time Step Filter", "", QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
-                propertyDialog.resize(QSize(400, 400));
-
-                if (propertyDialog.exec() != QDialog::Accepted)
-                {
-                    return false;
-                }
-                m_timeStepFilter->updateFilteredTimeStepsFromUi();
-                // Set cursor in wait state to continue display of progress dialog including
-                // wait cursor
-                QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-            }
-            readerEclipseOutput->setFileDataAccess(restartDataAccess.p());
+            m_timeStepFilter->updateFilteredTimeStepsFromUi();
+            // Set cursor in wait state to continue display of progress dialog including
+            // wait cursor
+            QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
         }
+        readerEclipseOutput->setFileDataAccess(restartDataAccess.p());
         readerEclipseOutput->setTimeStepFilter(m_timeStepFilter->filteredTimeSteps());
         
         cvf::ref<RigEclipseCaseData> eclipseCase = new RigEclipseCaseData(this);

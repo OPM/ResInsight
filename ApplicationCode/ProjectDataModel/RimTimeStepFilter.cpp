@@ -236,7 +236,10 @@ QList<caf::PdmOptionItemInfo> RimTimeStepFilter::calculateValueOptions(const caf
         std::vector<int> filteredTimeSteps = filteredTimeStepIndicesFromUi();
         for (auto filteredIndex : filteredTimeSteps)
         {
-            optionItems.push_back(caf::PdmOptionItemInfo(m_timeStepNamesFromFile()[filteredIndex], static_cast<int>(filteredIndex)));
+            if (filteredIndex < static_cast<int>(m_timeStepNamesFromFile().size()))
+            {
+                optionItems.push_back(caf::PdmOptionItemInfo(m_timeStepNamesFromFile()[filteredIndex], static_cast<int>(filteredIndex)));
+            }
         }
     }
 
