@@ -35,6 +35,7 @@
 #include "cafUtils.h"
 
 #include <QObject>
+#include <QSslConfiguration>
 #include <QtGui>
 #include <QtNetwork>
 
@@ -316,7 +317,15 @@ void RiuWellImportWizard::setUrl(const QString& httpAddress)
 //--------------------------------------------------------------------------------------------------
 void RiuWellImportWizard::startRequest(QUrl url)
 {
-    m_reply = m_networkAccessManager.get(QNetworkRequest(url));
+    auto request = QNetworkRequest(url);
+
+#ifndef QT_NO_OPENSSL
+    QSslConfiguration config = QSslConfiguration::defaultConfiguration();
+    config.setProtocol(QSsl::TlsV1);
+    request.setSslConfiguration(config);
+#endif
+
+    m_reply = m_networkAccessManager.get(request);
     connect(m_reply, SIGNAL(finished()),
         this, SLOT(httpFinished()));
     connect(m_reply, SIGNAL(readyRead()),
