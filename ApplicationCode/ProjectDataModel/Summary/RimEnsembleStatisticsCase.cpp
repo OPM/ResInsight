@@ -234,59 +234,49 @@ std::vector<RimSummaryCase*> RimEnsembleStatisticsCase::validSummaryCases(const 
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+/// Algorithm:
+/// https://en.wikipedia.org/wiki/Percentile#Third_variant,_'%22%60UNIQ--postMath-00000052-QINU%60%22'
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleStatisticsCase::calculateStatistics(const std::vector<double>& values, double* p10, double* p50, double* p90, double* mean)
 {
     CVF_ASSERT(p10 && p50 && p90 && mean);
 
-    std::multiset<double> vSet(values.begin(), values.end());
+    enum PValue { P10, P50, P90 };
 
-    int count = 0;
-    double total = 0;
-    double p10Count = (double)vSet.size() * 0.1;
-    double p50Count = (double)vSet.size() * 0.5;
-    double p90Count = (double)vSet.size() * 0.9;
-    int p10CountFloor = std::floor(p10Count);
-    int p50CountFloor = std::floor(p50Count);
-    int p90CountFloor = std::floor(p90Count);
-    enum State { P10, P50, P90, DONE } state = P10;
+    std::vector<double> sortedValues;
+    double valueSum = 0;
 
-    for (double val : vSet)
     {
-        count++;
-        total += val;
-        switch (state)
+        std::multiset<double> vSet(values.begin(), values.end());
+        for (double v : vSet)
         {
-        case DONE:
-            break;
-
-        case P10:
-            if (count >= p10CountFloor)
-            {
-                *p10 = val;
-                state = P50;
-            }
-            break;
-
-        case P50:
-            if (count >= p50CountFloor)
-            {
-                *p50 = val;
-                state = P90;
-            }
-            break;
-
-        case P90:
-            if (count >= p90CountFloor)
-            {
-                *p90 = val;
-                state = DONE;
-            }
-            break;
+            sortedValues.push_back(v);
+            valueSum += v;
         }
     }
 
-    *mean = total / vSet.size();
+    int valueCount = (int)sortedValues.size();
+    double percentiles[] = { 0.1, 0.5, 0.9 };
+    double pValues[] = { 0, 0, 0 };
+
+    for (int i = P10; i <= P90; i++)
+    {
+        double rank = percentiles[i] * (valueCount + 1) - 1;
+        double rankInt;
+        double rankFrac = std::modf(rank, &rankInt);
+        if (rankInt < valueCount - 1)
+        {
+            pValues[i] = sortedValues[rankInt] + rankFrac * (sortedValues[rankInt + 1] - sortedValues[rankInt]);
+        }
+        else
+        {
+            pValues[i] = sortedValues[rankInt];
+        }
+    }
+
+    *p10 = pValues[P10];
+    *p50 = pValues[P50];
+    *p90 = pValues[P90];
+    *mean = valueSum / valueCount;
 }
 
