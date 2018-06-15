@@ -848,6 +848,8 @@ void RimEnsembleCurveSet::updateCurveColors()
     {
         for (auto& curve : m_curves)
         {
+            if (curve->summaryAddressY().category() == RifEclipseSummaryAddress::SUMMARY_ENSEMBLE_STATISTICS) continue;
+
             curve->setColor(m_color);
             curve->updateCurveAppearance();
         }
