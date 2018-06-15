@@ -958,9 +958,12 @@ void RimEnsembleCurveSet::updateStatisticsCurves(bool calculate = true)
     {
         RifEclipseSummaryAddress dataAddress = m_yValuesCurveVariable->address();
 
-        if (m_statistics->showP10Curve()) addresses.push_back(SAddr::ensembleStatisticsAddress(ENSEMBLE_STAT_P10_QUANTITY_NAME, dataAddress.quantityName()));
-        if (m_statistics->showP50Curve()) addresses.push_back(SAddr::ensembleStatisticsAddress(ENSEMBLE_STAT_P50_QUANTITY_NAME, dataAddress.quantityName()));
-        if (m_statistics->showP90Curve()) addresses.push_back(SAddr::ensembleStatisticsAddress(ENSEMBLE_STAT_P90_QUANTITY_NAME, dataAddress.quantityName()));
+        if (m_statistics->showP10Curve() && m_ensembleStatCase->hasP10Data())
+            addresses.push_back(SAddr::ensembleStatisticsAddress(ENSEMBLE_STAT_P10_QUANTITY_NAME, dataAddress.quantityName()));
+        if (m_statistics->showP50Curve() && m_ensembleStatCase->hasP50Data())
+            addresses.push_back(SAddr::ensembleStatisticsAddress(ENSEMBLE_STAT_P50_QUANTITY_NAME, dataAddress.quantityName()));
+        if (m_statistics->showP90Curve() && m_ensembleStatCase->hasP90Data())
+            addresses.push_back(SAddr::ensembleStatisticsAddress(ENSEMBLE_STAT_P90_QUANTITY_NAME, dataAddress.quantityName()));
         if (m_statistics->showMeanCurve()) addresses.push_back(SAddr::ensembleStatisticsAddress(ENSEMBLE_STAT_MEAN_QUANTITY_NAME, dataAddress.quantityName()));
     }
 
@@ -1075,6 +1078,30 @@ std::vector<RimSummaryCase*> RimEnsembleCurveSet::filterEnsembleCases(const RimS
 void RimEnsembleCurveSet::disableStatisticCurves()
 {
     m_disableStatisticCurves = true;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimEnsembleCurveSet::hasP10Data() const
+{
+    return m_ensembleStatCase->hasP10Data();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimEnsembleCurveSet::hasP50Data() const
+{
+    return m_ensembleStatCase->hasP50Data();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimEnsembleCurveSet::hasP90Data() const
+{
+    return m_ensembleStatCase->hasP90Data();
 }
 
 //--------------------------------------------------------------------------------------------------

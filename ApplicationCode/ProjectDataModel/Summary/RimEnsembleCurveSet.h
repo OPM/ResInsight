@@ -107,6 +107,10 @@ public:
     std::vector<RimSummaryCase*>            filterEnsembleCases(const RimSummaryCaseCollection* ensemble);
     void                                    disableStatisticCurves();
 
+    bool                                    hasP10Data() const;
+    bool                                    hasP50Data() const;
+    bool                                    hasP90Data() const;
+
 private:
     caf::PdmFieldHandle*                    userDescriptionField() override;
     caf::PdmFieldHandle*                    objectToggleField();

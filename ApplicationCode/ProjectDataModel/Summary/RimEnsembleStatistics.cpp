@@ -56,6 +56,38 @@ bool RimEnsembleStatistics::isActive() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimEnsembleStatistics::disableP10Curve(bool disable)
+{
+    m_showP10Curve.uiCapability()->setUiReadOnly(disable);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimEnsembleStatistics::disableP50Curve(bool disable)
+{
+    m_showP50Curve.uiCapability()->setUiReadOnly(disable);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimEnsembleStatistics::disableP90Curve(bool disable)
+{
+    m_showP90Curve.uiCapability()->setUiReadOnly(disable);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimEnsembleStatistics::disableMeanCurve(bool disable)
+{
+    m_showMeanCurve.uiCapability()->setUiReadOnly(disable);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo> RimEnsembleStatistics::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly)
 {
     QList<caf::PdmOptionItemInfo> options;
@@ -90,6 +122,8 @@ void RimEnsembleStatistics::fieldChangedByUi(const caf::PdmFieldHandle* changedF
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleStatistics::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
+    auto curveSet = parentCurveSet();
+
     uiOrdering.add(&m_active);
 
     auto group = uiOrdering.addNewGroup("Curves");
@@ -99,10 +133,10 @@ void RimEnsembleStatistics::defineUiOrdering(QString uiConfigName, caf::PdmUiOrd
     group->add(&m_showMeanCurve);
     group->add(&m_color);
 
-    m_showP10Curve.uiCapability()->setUiReadOnly(!m_active);
-    m_showP50Curve.uiCapability()->setUiReadOnly(!m_active);
-    m_showP90Curve.uiCapability()->setUiReadOnly(!m_active);
-    m_showMeanCurve.uiCapability()->setUiReadOnly(!m_active);
+    disableP10Curve(!m_active || !curveSet->hasP10Data());
+    disableP50Curve(!m_active || !curveSet->hasP50Data());
+    disableP90Curve(!m_active || !curveSet->hasP90Data());
+    disableMeanCurve(!m_active);
     m_color.uiCapability()->setUiReadOnly(!m_active);
 
     uiOrdering.skipRemainingFields(true);

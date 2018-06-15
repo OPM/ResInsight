@@ -41,6 +41,10 @@ public:
     const std::vector<double>&          p90() const;
     const std::vector<double>&          mean() const;
 
+    bool                                hasP10Data() const {return !m_p10Data.empty(); }
+    bool                                hasP50Data() const { return !m_p50Data.empty(); }
+    bool                                hasP90Data() const { return !m_p90Data.empty(); }
+
     virtual QString                     caseName() override;
     virtual void                        createSummaryReaderInterface() override;
     virtual RifSummaryReaderInterface*  summaryReader() override;

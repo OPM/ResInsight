@@ -31,6 +31,11 @@
 #include <limits>
 
 //--------------------------------------------------------------------------------------------------
+/// Internal constants
+//--------------------------------------------------------------------------------------------------
+#define DOUBLE_INF  std::numeric_limits<double>::infinity()
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 RimEnsembleStatisticsCase::RimEnsembleStatisticsCase(RimEnsembleCurveSet* curveSet)
@@ -169,9 +174,9 @@ void RimEnsembleStatisticsCase::calculate(const std::vector<RimSummaryCase*> sum
         double p10, p50, p90, mean;
         calculateStatistics(valuesAtTimeStep, &p10, &p50, &p90, &mean);
 
-        m_p10Data.push_back(p10);
-        m_p50Data.push_back(p50);
-        m_p90Data.push_back(p90);
+        if (p10 != DOUBLE_INF) m_p10Data.push_back(p10);
+        if (p50 != DOUBLE_INF) m_p50Data.push_back(p50);
+        if (p90 != DOUBLE_INF) m_p90Data.push_back(p90);
         m_meanData.push_back(mean);
     }
     m_addressUsedInLastCalculation = inputAddress;
@@ -257,13 +262,17 @@ void RimEnsembleStatisticsCase::calculateStatistics(const std::vector<double>& v
 
     int valueCount = (int)sortedValues.size();
     double percentiles[] = { 0.1, 0.5, 0.9 };
-    double pValues[] = { 0, 0, 0 };
+    double pValues[] = { DOUBLE_INF, DOUBLE_INF, DOUBLE_INF };
 
     for (int i = P10; i <= P90; i++)
     {
+        // Check valid params
+        if ((percentiles[i] < 1.0 / ((double)valueCount + 1)) || (percentiles[i] > (double)valueCount / ((double)valueCount + 1))) continue;
+
         double rank = percentiles[i] * (valueCount + 1) - 1;
         double rankInt;
         double rankFrac = std::modf(rank, &rankInt);
+
         if (rankInt < valueCount - 1)
         {
             pValues[i] = sortedValues[rankInt] + rankFrac * (sortedValues[rankInt + 1] - sortedValues[rankInt]);

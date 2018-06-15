@@ -41,19 +41,24 @@ public:
     RimEnsembleStatistics();
 
     bool                        isActive() const;
-    bool                        showP10Curve() const { return m_showP10Curve; };
-    bool                        showP50Curve() const { return m_showP50Curve; };
-    bool                        showP90Curve() const { return m_showP90Curve; };
-    bool                        showMeanCurve() const { return m_showMeanCurve; };
+    bool                        showP10Curve() const { return m_showP10Curve; }
+    bool                        showP50Curve() const { return m_showP50Curve; }
+    bool                        showP90Curve() const { return m_showP90Curve; }
+    bool                        showMeanCurve() const { return m_showMeanCurve; }
     cvf::Color3f                color() const { return m_color; }
+
+    void                        disableP10Curve(bool disable);
+    void                        disableP50Curve(bool disable);
+    void                        disableP90Curve(bool disable);
+    void                        disableMeanCurve(bool disable);
 
     virtual QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
     virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
     virtual void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
 
+private:
     RimEnsembleCurveSet*        parentCurveSet() const;
 
-private:
     caf::PdmField<bool>         m_active;
     caf::PdmField<bool>         m_showP10Curve;
     caf::PdmField<bool>         m_showP50Curve;
