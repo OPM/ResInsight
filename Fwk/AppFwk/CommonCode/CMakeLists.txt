@@ -42,9 +42,6 @@ add_library( ${PROJECT_NAME}
     cafVecIjk.cpp
     cafVecIjk.h
 
-	cafMemoryInspector.cpp
-	cafMemoryInspector.h
-
     ${MOC_FILES_CPP}
 )
 

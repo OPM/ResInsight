@@ -37,6 +37,7 @@
 
 #include "cafProgressInfo.h"
 #include "cafAssert.h"
+#include "cafMemoryInspector.h"
 #include "cafProgressState.h"
 
 #include <QPointer>
@@ -44,6 +45,8 @@
 #include <QCoreApplication>
 #include <QApplication>
 #include <QThread>
+
+#include <algorithm>
 
 namespace caf {
 
@@ -181,6 +184,30 @@ namespace caf {
     /// 
     //==================================================================================================
 
+
+    //--------------------------------------------------------------------------------------------------
+    /// 
+    //--------------------------------------------------------------------------------------------------
+    QString createMemoryLabelText()
+    {
+        uint64_t    currentUsage = caf::MemoryInspector::getApplicationPhysicalMemoryUsageMiB();
+        uint64_t    totalPhysicalMemory = caf::MemoryInspector::getTotalPhysicalMemoryMiB();
+
+        float currentUsageFraction = 0.0f;
+        float availVirtualFraction = 1.0f;
+        if (currentUsage > 0u && totalPhysicalMemory > 0u)
+        {
+            currentUsageFraction = std::min(1.0f, static_cast<float>(currentUsage) / totalPhysicalMemory);
+        }
+
+        QString labelText("\n   ");
+        if (currentUsageFraction > 0.5)
+        {
+            labelText = QString("Memory Used: %1 MiB, Total Physical Memory: %2 MiB\n").arg(currentUsage).arg(totalPhysicalMemory);
+        }
+        return labelText;
+    }
+
     //--------------------------------------------------------------------------------------------------
     /// 
     //--------------------------------------------------------------------------------------------------
@@ -301,7 +328,7 @@ namespace caf {
             if (!descriptionStack()[i].isEmpty()) labelText += descriptionStack()[i];
             if (!(titleStack()[i].isEmpty() && descriptionStack()[i].isEmpty())) labelText += "\n";
         }
-        labelText += "\n                                                                                                                      ";
+        labelText += createMemoryLabelText();
         return labelText;
 
     }

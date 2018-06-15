@@ -136,6 +136,8 @@ set( PROJECT_FILES
     QMinimizePanel.h
     cafQTreeViewStateSerializer.h
     cafQTreeViewStateSerializer.cpp
+    cafMemoryInspector.h
+    cafMemoryInspector.cpp
 )
 
 add_library( ${PROJECT_NAME}
