@@ -90,11 +90,11 @@ void PdmUiTableView::setChildArrayField(PdmChildArrayFieldHandle* childArrayFiel
 
     if (childArrayField)
     {
-        m_listViewEditor->setField(childArrayField->uiCapability());
+        m_listViewEditor->setUiField(childArrayField->uiCapability());
     }
     else
     {
-        m_listViewEditor->setField(nullptr);
+        m_listViewEditor->setUiField(nullptr);
     }
 
     // SIG_CAF_HACK

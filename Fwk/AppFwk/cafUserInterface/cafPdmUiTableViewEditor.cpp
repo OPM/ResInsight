@@ -442,9 +442,9 @@ void PdmUiTableViewEditor::updateSelectionManagerFromTableSelection()
 caf::PdmChildArrayFieldHandle* PdmUiTableViewEditor::childArrayFieldHandle()
 {
     caf::PdmChildArrayFieldHandle* childArrayFieldHandle = nullptr;
-    if (this->field())
+    if (this->uiField())
     {
-        childArrayFieldHandle = dynamic_cast<PdmChildArrayFieldHandle*>(this->field()->fieldHandle());
+        childArrayFieldHandle = dynamic_cast<PdmChildArrayFieldHandle*>(this->uiField()->fieldHandle());
     }
 
     return childArrayFieldHandle;

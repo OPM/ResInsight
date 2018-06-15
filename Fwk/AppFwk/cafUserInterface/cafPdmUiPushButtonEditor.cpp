@@ -69,17 +69,17 @@ void PdmUiPushButtonEditor::configureAndUpdateUi(const QString& uiConfigName)
     PdmUiFieldEditorHandle::updateLabelFromField(m_label, uiConfigName);
 
     m_pushButton->setCheckable(true);
-    m_pushButton->setEnabled(!field()->isUiReadOnly(uiConfigName));
-    m_pushButton->setToolTip(field()->uiToolTip(uiConfigName));
+    m_pushButton->setEnabled(!uiField()->isUiReadOnly(uiConfigName));
+    m_pushButton->setToolTip(uiField()->uiToolTip(uiConfigName));
 
     PdmUiPushButtonEditorAttribute attributes;
-    caf::PdmUiObjectHandle* uiObject = uiObj(field()->fieldHandle()->ownerObject());
+    caf::PdmUiObjectHandle* uiObject = uiObj(uiField()->fieldHandle()->ownerObject());
     if (uiObject)
     {
-        uiObject->editorAttribute(field()->fieldHandle(), uiConfigName, &attributes);
+        uiObject->editorAttribute(uiField()->fieldHandle(), uiConfigName, &attributes);
     }
 
-    QVariant variantFieldValue = field()->uiValue();
+    QVariant variantFieldValue = uiField()->uiValue();
 
     if (!attributes.m_buttonIcon.isNull())
     {
@@ -108,7 +108,7 @@ void PdmUiPushButtonEditor::configureAndUpdateUi(const QString& uiConfigName)
 
     if (variantFieldValue.type() == QVariant::Bool)
     {
-        m_pushButton->setChecked(field()->uiValue().toBool());
+        m_pushButton->setChecked(uiField()->uiValue().toBool());
     }
 }
 
@@ -166,7 +166,7 @@ QWidget* PdmUiPushButtonEditor::createLabelWidget(QWidget * parent)
 //--------------------------------------------------------------------------------------------------
 void PdmUiPushButtonEditor::slotClicked(bool checked)
 {
-    if (field() && dynamic_cast<PdmField<bool> *> (field()->fieldHandle()))
+    if (uiField() && dynamic_cast<PdmField<bool> *> (uiField()->fieldHandle()))
     {
         QVariant v;
         v = checked;

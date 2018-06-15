@@ -65,16 +65,16 @@ void PdmUiSliderEditor::configureAndUpdateUi(const QString& uiConfigName)
 
     PdmUiFieldEditorHandle::updateLabelFromField(m_label, uiConfigName);
 
-    m_spinBox->setEnabled(!field()->isUiReadOnly(uiConfigName));
-    m_spinBox->setToolTip(field()->uiToolTip(uiConfigName));
+    m_spinBox->setEnabled(!uiField()->isUiReadOnly(uiConfigName));
+    m_spinBox->setToolTip(uiField()->uiToolTip(uiConfigName));
 
-    m_slider->setEnabled(!field()->isUiReadOnly(uiConfigName));
-    m_slider->setToolTip(field()->uiToolTip(uiConfigName));
+    m_slider->setEnabled(!uiField()->isUiReadOnly(uiConfigName));
+    m_slider->setToolTip(uiField()->uiToolTip(uiConfigName));
 
-    caf::PdmUiObjectHandle* uiObject = uiObj(field()->fieldHandle()->ownerObject());
+    caf::PdmUiObjectHandle* uiObject = uiObj(uiField()->fieldHandle()->ownerObject());
     if (uiObject)
     {
-        uiObject->editorAttribute(field()->fieldHandle(), uiConfigName, &m_attributes);
+        uiObject->editorAttribute(uiField()->fieldHandle(), uiConfigName, &m_attributes);
     }
 
     {
@@ -90,7 +90,7 @@ void PdmUiSliderEditor::configureAndUpdateUi(const QString& uiConfigName)
         m_slider->blockSignals(false);
     }
 
-    QString textValue = field()->uiValue().toString();
+    QString textValue = uiField()->uiValue().toString();
     m_spinBox->setValue(textValue.toInt());
 
     updateSliderPosition();

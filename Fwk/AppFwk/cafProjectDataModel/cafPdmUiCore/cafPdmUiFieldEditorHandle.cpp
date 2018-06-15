@@ -74,7 +74,7 @@ PdmUiFieldEditorHandle::~PdmUiFieldEditorHandle()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void PdmUiFieldEditorHandle::setField(PdmUiFieldHandle * field)
+void PdmUiFieldEditorHandle::setUiField(PdmUiFieldHandle * field)
 {
     this->bindToPdmItem(field);
 
@@ -94,7 +94,7 @@ void PdmUiFieldEditorHandle::setField(PdmUiFieldHandle * field)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-PdmUiFieldHandle* PdmUiFieldEditorHandle::field()
+PdmUiFieldHandle* PdmUiFieldEditorHandle::uiField()
 {
     return dynamic_cast<PdmUiFieldHandle*>(pdmItem());
 }
@@ -119,7 +119,7 @@ void PdmUiFieldEditorHandle::createWidgets(QWidget * parent)
 //--------------------------------------------------------------------------------------------------
 void PdmUiFieldEditorHandle::setValueToField(const QVariant& newUiValue)
 {
-    PdmUiCommandSystemProxy::instance()->setUiValueToField(field(), newUiValue);
+    PdmUiCommandSystemProxy::instance()->setUiValueToField(uiField(), newUiValue);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -154,9 +154,9 @@ void PdmUiFieldEditorHandle::updateLabelFromField(QLabel* label, const QString& 
 void PdmUiFieldEditorHandle::customMenuRequested(QPoint pos)
 {
     PdmObjectHandle* objectHandle = nullptr;
-    if (field() && field()->fieldHandle())
+    if (uiField() && uiField()->fieldHandle())
     {
-        objectHandle = field()->fieldHandle()->ownerObject();
+        objectHandle = uiField()->fieldHandle()->ownerObject();
     }
 
     if (!objectHandle)
@@ -182,7 +182,7 @@ void PdmUiFieldEditorHandle::customMenuRequested(QPoint pos)
         }
 
         QMenu menu;
-        objectHandle->uiCapability()->defineCustomContextMenu(field()->fieldHandle(), &menu, widget);
+        objectHandle->uiCapability()->defineCustomContextMenu(uiField()->fieldHandle(), &menu, widget);
 
         if (!menu.actions().empty())
         {

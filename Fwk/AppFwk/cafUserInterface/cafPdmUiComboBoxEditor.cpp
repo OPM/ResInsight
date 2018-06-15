@@ -66,18 +66,18 @@ void PdmUiComboBoxEditor::configureAndUpdateUi(const QString& uiConfigName)
 
     // Handle attributes
     PdmUiComboBoxEditorAttribute attributes;
-    caf::PdmUiObjectHandle* uiObject = uiObj(field()->fieldHandle()->ownerObject());
+    caf::PdmUiObjectHandle* uiObject = uiObj(uiField()->fieldHandle()->ownerObject());
     if (uiObject)
     {
-        uiObject->editorAttribute(field()->fieldHandle(), uiConfigName, &attributes);
+        uiObject->editorAttribute(uiField()->fieldHandle(), uiConfigName, &attributes);
     }
 
     if (!m_comboBox.isNull())
     {
-        m_comboBox->setEnabled(!field()->isUiReadOnly(uiConfigName));
+        m_comboBox->setEnabled(!uiField()->isUiReadOnly(uiConfigName));
 
         bool fromMenuOnly = true;
-        QList<PdmOptionItemInfo> options = field()->valueOptions(&fromMenuOnly);
+        QList<PdmOptionItemInfo> options = uiField()->valueOptions(&fromMenuOnly);
         CAF_ASSERT(fromMenuOnly); // Not supported
 
         m_comboBox->blockSignals(true);
@@ -88,11 +88,11 @@ void PdmUiComboBoxEditor::configureAndUpdateUi(const QString& uiConfigName)
             {
                 m_comboBox->addItem(options[i].icon(), options[i].optionUiText());
             }
-            m_comboBox->setCurrentIndex(field()->uiValue().toInt());
+            m_comboBox->setCurrentIndex(uiField()->uiValue().toInt());
         }
         else
         {
-            m_comboBox->addItem(field()->uiValue().toString());
+            m_comboBox->addItem(uiField()->uiValue().toString());
             m_comboBox->setCurrentIndex(0);
         }
 

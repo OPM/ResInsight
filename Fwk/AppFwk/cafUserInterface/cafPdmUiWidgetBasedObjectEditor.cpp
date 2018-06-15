@@ -108,7 +108,7 @@ void caf::PdmUiWidgetBasedObjectEditor::recursivelyConfigureAndUpdateUiItemsInGr
 
             if (fieldEditor)
             {
-                fieldEditor->setField(field);
+                fieldEditor->setUiField(field);
 
                 // Place the widget(s) into the correct parent and layout
                 QWidget* fieldCombinedWidget = fieldEditor->combinedWidget();
@@ -338,7 +338,7 @@ void caf::PdmUiWidgetBasedObjectEditor::configureAndUpdateUi(const QString& uiCo
     std::map<PdmFieldHandle*, PdmUiFieldEditorHandle*>::iterator it;
     for (it = m_fieldViews.begin(); it != m_fieldViews.end(); ++it)
     {
-        it->second->setField(nullptr);
+        it->second->setUiField(nullptr);
     }
 
     // Set all group Boxes to be unvisited
@@ -352,7 +352,7 @@ void caf::PdmUiWidgetBasedObjectEditor::configureAndUpdateUi(const QString& uiCo
     std::vector< PdmFieldHandle* > fvhToRemoveFromMap;
     for (it = m_fieldViews.begin(); it != m_fieldViews.end(); ++it)
     {
-        if (it->second->field() == nullptr)
+        if (it->second->uiField() == nullptr)
         {
             PdmUiFieldEditorHandle* fvh = it->second;
             delete fvh;

@@ -166,7 +166,7 @@ void PdmUiLineEditor::configureAndUpdateUi(const QString& uiConfigName)
 
     if (!m_lineEdit.isNull())
     {
-        bool isReadOnly = field()->isUiReadOnly(uiConfigName);
+        bool isReadOnly = uiField()->isUiReadOnly(uiConfigName);
         if (isReadOnly)
         {
             m_lineEdit->setReadOnly(true);
@@ -181,14 +181,14 @@ void PdmUiLineEditor::configureAndUpdateUi(const QString& uiConfigName)
             m_lineEdit->setStyleSheet("");
         }
 
-        m_lineEdit->setToolTip(field()->uiToolTip(uiConfigName));
+        m_lineEdit->setToolTip(uiField()->uiToolTip(uiConfigName));
 
         {
             PdmUiLineEditorAttribute leab;
-            caf::PdmUiObjectHandle* uiObject = uiObj(field()->fieldHandle()->ownerObject());
+            caf::PdmUiObjectHandle* uiObject = uiObj(uiField()->fieldHandle()->ownerObject());
             if (uiObject)
             {
-                uiObject->editorAttribute(field()->fieldHandle(), uiConfigName, &leab);
+                uiObject->editorAttribute(uiField()->fieldHandle(), uiConfigName, &leab);
             }
 
             if (leab.useRangeValidator)
@@ -199,30 +199,30 @@ void PdmUiLineEditor::configureAndUpdateUi(const QString& uiConfigName)
 
         {
             PdmUiLineEditorAttributeUniqueValues leab;
-            caf::PdmUiObjectHandle* uiObject = uiObj(field()->fieldHandle()->ownerObject());
+            caf::PdmUiObjectHandle* uiObject = uiObj(uiField()->fieldHandle()->ownerObject());
             if (uiObject)
             {
-                uiObject->editorAttribute(field()->fieldHandle(), uiConfigName, &leab);
+                uiObject->editorAttribute(uiField()->fieldHandle(), uiConfigName, &leab);
             }
             if (leab.usedIds.size() > 0)
             {
-                if (isMultipleFieldsWithSameKeywordSelected(field()->fieldHandle()))
+                if (isMultipleFieldsWithSameKeywordSelected(uiField()->fieldHandle()))
                 {
                     QMessageBox::information(nullptr, "Invalid operation", "The field you are manipulating is defined to have unique values. A selection of multiple fields is detected. Please select a single item.");
                 }
 
-                m_lineEdit->setValidator(new PdmUniqueIdValidator(leab.usedIds, isMultipleFieldsWithSameKeywordSelected(field()->fieldHandle()), leab.errorMessage, this));
+                m_lineEdit->setValidator(new PdmUniqueIdValidator(leab.usedIds, isMultipleFieldsWithSameKeywordSelected(uiField()->fieldHandle()), leab.errorMessage, this));
             }
         }
 
 
         bool fromMenuOnly = true;
-        QList<PdmOptionItemInfo> enumNames = field()->valueOptions(&fromMenuOnly);
+        QList<PdmOptionItemInfo> enumNames = uiField()->valueOptions(&fromMenuOnly);
         CAF_ASSERT(fromMenuOnly); // Not supported
 
         if (!enumNames.isEmpty() && fromMenuOnly == true)
         {
-            int enumValue = field()->uiValue().toInt();
+            int enumValue = uiField()->uiValue().toInt();
 
             if (enumValue < enumNames.size() && enumValue > -1)
             {
@@ -232,16 +232,16 @@ void PdmUiLineEditor::configureAndUpdateUi(const QString& uiConfigName)
         else
         {
             PdmUiLineEditorAttributeUiDisplayString leab;
-            caf::PdmUiObjectHandle* uiObject = uiObj(field()->fieldHandle()->ownerObject());
+            caf::PdmUiObjectHandle* uiObject = uiObj(uiField()->fieldHandle()->ownerObject());
             if (uiObject)
             {
-                uiObject->editorAttribute(field()->fieldHandle(), uiConfigName, &leab);
+                uiObject->editorAttribute(uiField()->fieldHandle(), uiConfigName, &leab);
             }
 
             QString displayString;
             if (leab.m_displayString.isEmpty())
             {
-                displayString = field()->uiValue().toString();
+                displayString = uiField()->uiValue().toString();
             }
             else
             {

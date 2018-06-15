@@ -103,8 +103,8 @@ public:
     PdmUiFieldEditorHandle();
     ~PdmUiFieldEditorHandle();
 
-    PdmUiFieldHandle*   field(); 
-    void                setField(PdmUiFieldHandle * field);
+    PdmUiFieldHandle*   uiField(); 
+    void                setUiField(PdmUiFieldHandle* uiFieldHandle);
 
     void                createWidgets(QWidget * parent);
     QWidget*            combinedWidget()                        { return m_combinedWidget; }

@@ -90,17 +90,17 @@ void PdmUiDoubleSliderEditor::configureAndUpdateUi(const QString& uiConfigName)
 
     PdmUiFieldEditorHandle::updateLabelFromField(m_label, uiConfigName);
 
-    m_lineEdit->setEnabled(!field()->isUiReadOnly(uiConfigName));
-    m_slider->setEnabled(!field()->isUiReadOnly(uiConfigName));
+    m_lineEdit->setEnabled(!uiField()->isUiReadOnly(uiConfigName));
+    m_slider->setEnabled(!uiField()->isUiReadOnly(uiConfigName));
 
-    caf::PdmUiObjectHandle* uiObject = uiObj(field()->fieldHandle()->ownerObject());
+    caf::PdmUiObjectHandle* uiObject = uiObj(uiField()->fieldHandle()->ownerObject());
     if (uiObject)
     {
-        uiObject->editorAttribute(field()->fieldHandle(), uiConfigName, &m_attributes);
+        uiObject->editorAttribute(uiField()->fieldHandle(), uiConfigName, &m_attributes);
     }
     
-    double doubleValue = field()->uiValue().toDouble();
-    QString textValue = field()->uiValue().toString();
+    double doubleValue = uiField()->uiValue().toDouble();
+    QString textValue = uiField()->uiValue().toString();
 
     m_slider->blockSignals(true);
     m_slider->setMaximum(m_attributes.m_sliderTickCount);

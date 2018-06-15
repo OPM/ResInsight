@@ -250,12 +250,12 @@ void PdmUiTreeSelectionEditor::configureAndUpdateUi(const QString& uiConfigName)
     }
 
     bool optionsOnly = true;
-    QList<PdmOptionItemInfo> options = field()->valueOptions(&optionsOnly);
+    QList<PdmOptionItemInfo> options = uiField()->valueOptions(&optionsOnly);
 
     bool itemCountHasChaged = false;
     if (m_model->optionItemCount() != options.size()) itemCountHasChaged = true;
     
-    QVariant fieldValue = field()->uiValue();
+    QVariant fieldValue = uiField()->uiValue();
     m_model->setUiValueCache(&fieldValue);
 
     // TODO: If the count is different between incoming and current list of items,
@@ -274,10 +274,10 @@ void PdmUiTreeSelectionEditor::configureAndUpdateUi(const QString& uiConfigName)
     }
     else if (PdmUiTreeSelectionQModel::isMultipleValueField(fieldValue))
     {
-        caf::PdmUiObjectHandle* uiObject = uiObj(field()->fieldHandle()->ownerObject());
+        caf::PdmUiObjectHandle* uiObject = uiObj(uiField()->fieldHandle()->ownerObject());
         if (uiObject)
         {
-            uiObject->editorAttribute(field()->fieldHandle(), uiConfigName, &m_attributes);
+            uiObject->editorAttribute(uiField()->fieldHandle(), uiConfigName, &m_attributes);
         }
 
         if (m_attributes.singleSelectionMode)

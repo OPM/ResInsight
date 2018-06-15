@@ -158,7 +158,7 @@ void RiuSummaryCurveDefSelectionEditor::configureAndUpdateFields(int widgetStart
 
             if (fieldEditor)
             {
-                fieldEditor->setField(field);
+                fieldEditor->setUiField(field);
 
                 // Place the widget(s) into the correct parent and layout
                 QWidget* fieldCombinedWidget = fieldEditor->combinedWidget();

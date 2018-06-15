@@ -91,11 +91,11 @@ int caf::PdmUiTreeSelectionQModel::optionItemValueRole()
 //--------------------------------------------------------------------------------------------------
 void caf::PdmUiTreeSelectionQModel::setCheckedStateForItems(const QModelIndexList& sourceModelIndices, bool checked)
 {
-    if (!m_uiFieldHandle || !m_uiFieldHandle->field()) return;
+    if (!m_uiFieldHandle || !m_uiFieldHandle->uiField()) return;
 
     std::set<unsigned int> selectedIndices;
     {
-        QVariant fieldValue = m_uiFieldHandle->field()->uiValue();
+        QVariant fieldValue = m_uiFieldHandle->uiField()->uiValue();
         QList<QVariant> fieldValueSelection = fieldValue.toList();
 
         for (auto v : fieldValueSelection)
@@ -125,7 +125,7 @@ void caf::PdmUiTreeSelectionQModel::setCheckedStateForItems(const QModelIndexLis
         fieldValueSelection.push_back(QVariant(v));
     }
 
-    PdmUiCommandSystemProxy::instance()->setUiValueToField(m_uiFieldHandle->field(), fieldValueSelection);
+    PdmUiCommandSystemProxy::instance()->setUiValueToField(m_uiFieldHandle->uiField(), fieldValueSelection);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -326,11 +326,11 @@ QVariant caf::PdmUiTreeSelectionQModel::data(const QModelIndex &index, int role 
         }
         else if (role == Qt::CheckStateRole && !optionItemInfo->isHeading())
         {
-            if (m_uiFieldHandle && m_uiFieldHandle->field())
+            if (m_uiFieldHandle && m_uiFieldHandle->uiField())
             {
                 // Avoid calling the seriously heavy uiValue method if we have a temporary valid cache.
 
-                QVariant fieldValue = m_uiValueCache ? *m_uiValueCache : m_uiFieldHandle->field()->uiValue();
+                QVariant fieldValue = m_uiValueCache ? *m_uiValueCache : m_uiFieldHandle->uiField()->uiValue();
                 if (isSingleValueField(fieldValue))
                 {
                      int row = fieldValue.toInt();
@@ -389,17 +389,17 @@ QVariant caf::PdmUiTreeSelectionQModel::data(const QModelIndex &index, int role 
 //--------------------------------------------------------------------------------------------------
 bool caf::PdmUiTreeSelectionQModel::setData(const QModelIndex &index, const QVariant &value, int role /*= Qt::EditRole*/)
 {
-    if (!m_uiFieldHandle || !m_uiFieldHandle->field()) return false;
+    if (!m_uiFieldHandle || !m_uiFieldHandle->uiField()) return false;
 
     if (role == Qt::CheckStateRole)
     {
-        QVariant fieldValue = m_uiFieldHandle->field()->uiValue();
+        QVariant fieldValue = m_uiFieldHandle->uiField()->uiValue();
         if (isSingleValueField(fieldValue))
         {
             if (value.toBool() == true)
             {
                 QVariant v = static_cast<unsigned int>(optionIndex(index));
-                PdmUiCommandSystemProxy::instance()->setUiValueToField(m_uiFieldHandle->field(), v);
+                PdmUiCommandSystemProxy::instance()->setUiValueToField(m_uiFieldHandle->uiField(), v);
             
                 return true;
             }
@@ -452,7 +452,7 @@ bool caf::PdmUiTreeSelectionQModel::setData(const QModelIndex &index, const QVar
                 fieldValueSelection.push_back(QVariant(v));
             }
 
-            PdmUiCommandSystemProxy::instance()->setUiValueToField(m_uiFieldHandle->field(), fieldValueSelection); 
+            PdmUiCommandSystemProxy::instance()->setUiValueToField(m_uiFieldHandle->uiField(), fieldValueSelection); 
 
             return true;
         }

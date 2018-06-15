@@ -353,7 +353,7 @@ void PdmUiTableViewQModel::setPdmData(PdmChildArrayFieldHandle* listField, const
     std::map<QString, PdmUiFieldEditorHandle*>::iterator it;
     for (it = m_fieldEditors.begin(); it != m_fieldEditors.end(); ++it)
     {
-        it->second->setField(nullptr);
+        it->second->setUiField(nullptr);
     }
 
     m_modelColumnIndexToFieldIndex.clear();
@@ -388,7 +388,7 @@ void PdmUiTableViewQModel::setPdmData(PdmChildArrayFieldHandle* listField, const
 
             if (fieldEditor)
             {
-                fieldEditor->setField(field); 
+                fieldEditor->setUiField(field); 
 
                 //TODO: Create/update is not required at this point, as UI is recreated in getEditorWidgetAndTransferOwnership()
                 // Can be moved, but a move will require changes in PdmUiFieldEditorHandle
@@ -407,7 +407,7 @@ void PdmUiTableViewQModel::setPdmData(PdmChildArrayFieldHandle* listField, const
     std::vector< QString > fvhToRemoveFromMap;
     for (it = m_fieldEditors.begin(); it != m_fieldEditors.end(); ++it)
     {
-        if (it->second->field() == nullptr)
+        if (it->second->uiField() == nullptr)
         {
             PdmUiFieldEditorHandle* fvh = it->second;
             delete fvh;
@@ -477,7 +477,7 @@ PdmUiFieldEditorHandle* PdmUiTableViewQModel::getEditor(const QModelIndex &index
         {
             if (field)
             {
-                editor->setField(field->uiCapability());
+                editor->setUiField(field->uiCapability());
             }
         }
     }

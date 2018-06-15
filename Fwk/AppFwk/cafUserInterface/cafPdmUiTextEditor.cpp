@@ -109,16 +109,16 @@ void PdmUiTextEditor::configureAndUpdateUi(const QString& uiConfigName)
 
     PdmUiFieldEditorHandle::updateLabelFromField(m_label, uiConfigName);
 
-    m_textEdit->setReadOnly(field()->isUiReadOnly(uiConfigName));
+    m_textEdit->setReadOnly(uiField()->isUiReadOnly(uiConfigName));
     //m_textEdit->setEnabled(!field()->isUiReadOnly(uiConfigName)); // Neccesary ?
-    m_textEdit->setToolTip(field()->uiToolTip(uiConfigName));
+    m_textEdit->setToolTip(uiField()->uiToolTip(uiConfigName));
 
     PdmUiTextEditorAttribute leab;
     
-    caf::PdmUiObjectHandle* uiObject = uiObj(field()->fieldHandle()->ownerObject());
+    caf::PdmUiObjectHandle* uiObject = uiObj(uiField()->fieldHandle()->ownerObject());
     if (uiObject)
     {
-        uiObject->editorAttribute(field()->fieldHandle(), uiConfigName, &leab);
+        uiObject->editorAttribute(uiField()->fieldHandle(), uiConfigName, &leab);
     }
     
     m_textMode = leab.textMode;
@@ -138,10 +138,10 @@ void PdmUiTextEditor::configureAndUpdateUi(const QString& uiConfigName)
     switch (leab.textMode)
     {
     case PdmUiTextEditorAttribute::PLAIN:
-        m_textEdit->setPlainText(field()->uiValue().toString());
+        m_textEdit->setPlainText(uiField()->uiValue().toString());
         break;
     case PdmUiTextEditorAttribute::HTML:
-        m_textEdit->setHtml(field()->uiValue().toString());
+        m_textEdit->setHtml(uiField()->uiValue().toString());
         break;
     }
     m_textEdit->blockSignals(false);
