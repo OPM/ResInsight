@@ -45,6 +45,7 @@ public:
     bool                        showP50Curve() const { return m_showP50Curve; };
     bool                        showP90Curve() const { return m_showP90Curve; };
     bool                        showMeanCurve() const { return m_showMeanCurve; };
+    cvf::Color3f                color() const { return m_color; }
 
     virtual QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
     virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
@@ -58,6 +59,8 @@ private:
     caf::PdmField<bool>         m_showP50Curve;
     caf::PdmField<bool>         m_showP90Curve;
     caf::PdmField<bool>         m_showMeanCurve;
+
+    caf::PdmField<cvf::Color3f> m_color;
 
     RimSummaryCaseCollection*   m_ensemble;
 };

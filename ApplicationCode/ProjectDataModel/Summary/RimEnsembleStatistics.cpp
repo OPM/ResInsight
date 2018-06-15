@@ -37,11 +37,12 @@ RimEnsembleStatistics::RimEnsembleStatistics()
 {
     CAF_PDM_InitObject("Ensemble Curve Filter", ":/EnsembleCurveSet16x16.png", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&m_active, "Active", "Active", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_active, "Active", "Show statistics curves", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_showP10Curve, "ShowP10Curve", "P10", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_showP50Curve, "ShowP50Curve", "P50", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_showP90Curve, "ShowP90Curve", "P90", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_showMeanCurve, "ShowPMeanCurve", "Mean", "", "", "");
+    CAF_PDM_InitField(&m_color, "Color", cvf::Color3f(cvf::Color3::BLACK), "Color", "", "", "");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -72,11 +73,15 @@ void RimEnsembleStatistics::fieldChangedByUi(const caf::PdmFieldHandle* changedF
         changedField == &m_showP10Curve ||
         changedField == &m_showP50Curve ||
         changedField == &m_showP90Curve ||
-        changedField == &m_showMeanCurve)
+        changedField == &m_showMeanCurve ||
+        changedField == &m_color)
     {
-        if (!parentCurveSet()) return;
+        auto curveSet = parentCurveSet();
+        if (!curveSet) return;
 
-        parentCurveSet()->updateStatisticsCurves(false);
+        curveSet->updateStatisticsCurves(false);
+
+        if (changedField == &m_active) curveSet->updateConnectedEditors();
     }
 }
 
@@ -86,10 +91,19 @@ void RimEnsembleStatistics::fieldChangedByUi(const caf::PdmFieldHandle* changedF
 void RimEnsembleStatistics::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
     uiOrdering.add(&m_active);
-    uiOrdering.add(&m_showP10Curve);
-    uiOrdering.add(&m_showP50Curve);
-    uiOrdering.add(&m_showP90Curve);
-    uiOrdering.add(&m_showMeanCurve);
+
+    auto group = uiOrdering.addNewGroup("Curves");
+    group->add(&m_showP10Curve);
+    group->add(&m_showP50Curve);
+    group->add(&m_showP90Curve);
+    group->add(&m_showMeanCurve);
+    group->add(&m_color);
+
+    m_showP10Curve.uiCapability()->setUiReadOnly(!m_active);
+    m_showP50Curve.uiCapability()->setUiReadOnly(!m_active);
+    m_showP90Curve.uiCapability()->setUiReadOnly(!m_active);
+    m_showMeanCurve.uiCapability()->setUiReadOnly(!m_active);
+    m_color.uiCapability()->setUiReadOnly(!m_active);
 
     uiOrdering.skipRemainingFields(true);
 }

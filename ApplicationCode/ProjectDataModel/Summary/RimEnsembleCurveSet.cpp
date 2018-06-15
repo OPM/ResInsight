@@ -967,6 +967,7 @@ void RimEnsembleCurveSet::updateStatisticsCurves(bool calculate = true)
         auto curve = new RimSummaryCurve();
         curve->setParentQwtPlotNoReplot(plot->qwtPlot());
         m_curves.push_back(curve);
+        curve->setColor(m_statistics->color());
         curve->setSymbol(RimPlotCurve::SYMBOL_ELLIPSE);
         curve->setSymbolSkipDinstance(50);
         curve->setSymbolLabel(QString::fromStdString(address.ensembleStatisticsQuantityName()));
