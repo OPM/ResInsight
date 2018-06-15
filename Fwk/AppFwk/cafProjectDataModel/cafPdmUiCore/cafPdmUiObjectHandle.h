@@ -3,6 +3,7 @@
 #include "cafPdmUiItem.h"
 #include "cafPdmObjectCapability.h"
 
+class QMenu;
 
 namespace caf
 {
@@ -13,6 +14,7 @@ class PdmObjectHandle;
 class PdmUiOrdering;
 class PdmFieldHandle;
 class PdmUiEditorAttribute;
+
 
 class PdmUiObjectHandle : public PdmUiItem, public PdmObjectCapability
 {
@@ -64,6 +66,7 @@ public: // Virtual
     /// All field editor widgets are supposed to be created when this function is called
     virtual void            onEditorWidgetsCreated() {}
 
+
 protected:
     /// Override to customize the order and grouping of the Gui.
     /// Fill up the uiOrdering object with groups and field references to create the gui structure
@@ -83,6 +86,15 @@ protected:
     /// This method is intended to be used in macros to make compile time errors 
     // if user uses them on wrong type of objects
     bool                    isInheritedFromPdmUiObject() { return true; }
+
+    /// Override used to append actions to a context menu
+    /// To use this method, enable custom context menu by        
+    /// m_myField.uiCapability()->setUseCustomContextMenu(true);
+    friend class PdmUiFieldEditorHandle;
+    virtual void            defineCustomContextMenu(const caf::PdmFieldHandle*  fieldNeedingMenu, 
+                                                    QMenu*                      menu, 
+                                                    QWidget*                    fieldEditorWidget)
+    {}
 
 private:
     /// Helper method for the TreeItem generation stuff

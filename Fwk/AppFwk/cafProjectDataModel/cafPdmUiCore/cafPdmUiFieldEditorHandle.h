@@ -97,6 +97,7 @@ class PdmUiFieldHandle;
 
 class PdmUiFieldEditorHandle : public PdmUiEditorHandle
 {
+    Q_OBJECT
 public:
 
     PdmUiFieldEditorHandle();
@@ -121,6 +122,9 @@ protected: // Virtual interface to override
     void                setValueToField(const QVariant& value);
 
     void                updateLabelFromField(QLabel* label, const QString& uiConfigName = "") const;
+
+private slots:
+    void            customMenuRequested(QPoint pos);
 
 private:
     QPointer<QWidget>   m_combinedWidget;

@@ -10,6 +10,15 @@ include_directories (
     ..
 )
 
+# These headers need to go through Qt's MOC compiler
+set( QOBJECT_HEADERS    
+    cafPdmUiFieldEditorHandle.h
+)
+
+if ( NOT CMAKE_AUTOMOC )
+    qt4_wrap_cpp( MOC_FILES_CPP ${QOBJECT_HEADERS} )
+endif()
+
 set( PROJECT_FILES
 
     cafInternalPdmFieldTypeSpecializations.h
@@ -49,6 +58,7 @@ set( PROJECT_FILES
 
 add_library( ${PROJECT_NAME}
 	${PROJECT_FILES}
+	${MOC_FILES_CPP}
 )
 
 target_link_libraries ( ${PROJECT_NAME}
