@@ -941,7 +941,10 @@ void RimEnsembleCurveSet::updateStatisticsCurves(bool calculate = true)
 {
     using SAddr = RifEclipseSummaryAddress;
 
-    if (m_disableStatisticCurves || m_yValuesCurveVariable->address().category() == RifEclipseSummaryAddress::SUMMARY_INVALID) return;
+    RimSummaryCaseCollection* group = m_yValuesSummaryGroup();
+    RimSummaryAddress* addr = m_yValuesCurveVariable();
+
+    if (m_disableStatisticCurves || !group || addr->address().category() == RifEclipseSummaryAddress::SUMMARY_INVALID) return;
 
     if (calculate)
     {
