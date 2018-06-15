@@ -56,12 +56,12 @@ class PdmUiItemInfo
 {
 public:  
     PdmUiItemInfo()
-        : m_editorTypeName(""), m_isHidden(-1), m_isTreeChildrenHidden(-1), m_isReadOnly(-1), m_labelAlignment(LEFT)
+        : m_editorTypeName(""), m_isHidden(-1), m_isTreeChildrenHidden(-1), m_isReadOnly(-1), m_labelAlignment(LEFT), m_isCustomContextMenuEnabled(-1)
     {}
 
     PdmUiItemInfo(const QString& uiName, QIcon icon = QIcon(), QString toolTip = "", QString whatsThis = "", QString extraDebugText = "")
         : m_uiName(uiName), m_icon(icon), m_toolTip(toolTip), m_whatsThis(whatsThis), m_extraDebugText(extraDebugText),
-          m_editorTypeName(""), m_isHidden(false), m_isTreeChildrenHidden(false), m_isReadOnly(false), m_labelAlignment(LEFT)
+          m_editorTypeName(""), m_isHidden(false), m_isTreeChildrenHidden(false), m_isReadOnly(false), m_labelAlignment(LEFT), m_isCustomContextMenuEnabled(false)
     { }
 
     enum LabelPosType { LEFT, TOP, HIDDEN };
@@ -78,6 +78,7 @@ private:
     int             m_isTreeChildrenHidden; ///< Children of UiItem should be hidden. -1 means not set
     int             m_isReadOnly;           ///< UiItem should be insensitive, or read only. -1 means not set.
     LabelPosType    m_labelAlignment;
+    int             m_isCustomContextMenuEnabled;
 };
 
 //==================================================================================================
@@ -224,6 +225,9 @@ public:
     PdmUiItemInfo::LabelPosType  
                      uiLabelPosition(QString uiConfigName = "") const;
     void             setUiLabelPosition(PdmUiItemInfo::LabelPosType alignment, QString uiConfigName = "") { m_configItemInfos[uiConfigName].m_labelAlignment = alignment; } 
+
+    bool             isCustomContextMenuEnabled(QString uiConfigName = "") const;
+    void             setCustomContextMenuEnabled(bool enableCustomContextMenu, QString uiConfigName = "") { m_configItemInfos[uiConfigName].m_isCustomContextMenuEnabled = enableCustomContextMenu; } 
 
     QString          uiEditorTypeName(const QString& uiConfigName) const;
     void             setUiEditorTypeName(const QString& editorTypeName, QString uiConfigName = "") { m_configItemInfos[uiConfigName].m_editorTypeName = editorTypeName; }

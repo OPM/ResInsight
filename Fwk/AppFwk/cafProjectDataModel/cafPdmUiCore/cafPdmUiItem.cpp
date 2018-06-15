@@ -338,6 +338,22 @@ PdmUiItemInfo::LabelPosType PdmUiItem::uiLabelPosition(QString uiConfigName) con
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+bool PdmUiItem::isCustomContextMenuEnabled(QString uiConfigName /*= ""*/) const
+{
+    const PdmUiItemInfo* conInfo = configInfo(uiConfigName);
+    const PdmUiItemInfo* defInfo = defaultInfo();
+    const PdmUiItemInfo* sttInfo = m_staticItemInfo;
+
+    if (conInfo && (conInfo->m_isCustomContextMenuEnabled != -1)) return conInfo->m_isCustomContextMenuEnabled;
+    if (defInfo && (defInfo->m_isCustomContextMenuEnabled != -1)) return defInfo->m_isCustomContextMenuEnabled;
+    if (sttInfo && (sttInfo->m_isCustomContextMenuEnabled != -1)) return sttInfo->m_isCustomContextMenuEnabled;
+
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 
 const PdmUiItemInfo* PdmUiItem::configInfo(QString uiConfigName) const
 {
