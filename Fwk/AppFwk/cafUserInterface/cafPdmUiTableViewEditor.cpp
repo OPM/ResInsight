@@ -339,6 +339,18 @@ void PdmUiTableViewEditor::handleModelSelectionChange()
 }
 
 //--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void PdmUiTableViewEditor::addActionsToMenu(QMenu* menu, PdmChildArrayFieldHandle* childArrayField)
+{
+    // This is function is required to execute before populating the menu
+    // Several commands rely on the activeChildArrayFieldHandle in the selection manager
+    SelectionManager::instance()->setActiveChildArrayFieldHandle(childArrayField);
+
+    caf::PdmUiCommandSystemProxy::instance()->populateMenuWithDefaultCommands("PdmUiTreeViewEditor", menu);
+}
+
+//--------------------------------------------------------------------------------------------------
 /// NOTE: If no selection role is defined, the selection manager is not changed, the selection in the 
 /// editor is local to the editor
 //--------------------------------------------------------------------------------------------------

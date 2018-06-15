@@ -75,6 +75,8 @@ public:
 
         CAF_PDM_InitField(&m_toggleField, "Toggle", false, "Add Items To Multi Select", "", "Toggle Field tooltip", " Toggle Field whatsthis");
         CAF_PDM_InitField(&m_doubleField, "BigNumber", 0.0, "Big Number", "", "Enter a big number here", "This is a place you can enter a big real value if you want" );
+        m_doubleField.uiCapability()->setCustomContextMenuEnabled(true);
+
         CAF_PDM_InitField(&m_intField, "IntNumber", 0,  "Small Number", "", "Enter some small number here", "This is a place you can enter a small integer value if you want");
         CAF_PDM_InitField(&m_textField, "TextField", QString(""), "Text", "", "Text tooltip", "This is a place you can enter a small integer value if you want");
 
@@ -191,6 +193,18 @@ public:
 
         return options;
 
+    }
+
+
+    //--------------------------------------------------------------------------------------------------
+    /// 
+    //--------------------------------------------------------------------------------------------------
+    virtual void defineCustomContextMenu(const caf::PdmFieldHandle* fieldNeedingMenu,
+                                         QMenu* menu,
+                                         QWidget* fieldEditorWidget) override
+    {
+        menu->addAction("test");
+        menu->addAction("other test <<>>");
     }
 
 private:
@@ -424,6 +438,7 @@ public:
         CAF_PDM_InitFieldNoDefault(&m_objectList, "ObjectList", "Objects list Field", "", "List" , "This is a list of PdmObjects"  );
         CAF_PDM_InitFieldNoDefault(&m_objectListOfSameType, "m_objectListOfSameType", "Same type Objects list Field", "", "Same type List" , "Same type list of PdmObjects"  );
         m_objectListOfSameType.uiCapability()->setUiEditorTypeName(caf::PdmUiTableViewEditor::uiEditorTypeName());
+        m_objectListOfSameType.uiCapability()->setCustomContextMenuEnabled(true);;
         CAF_PDM_InitFieldNoDefault(&m_ptrField, "m_ptrField", "PtrField", "", "Same type List", "Same type list of PdmObjects");
 
         m_filePath.capability<caf::PdmUiFieldHandle>()->setUiEditorTypeName(caf::PdmUiFilePathEditor::uiEditorTypeName());
@@ -439,6 +454,7 @@ public:
     //--------------------------------------------------------------------------------------------------
     virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) 
     {
+        uiOrdering.add(&m_objectListOfSameType);
         uiOrdering.add(&m_ptrField);
         uiOrdering.add(&m_boolField);
         caf::PdmUiGroup* group1 = uiOrdering.addNewGroup("Name1");
@@ -446,10 +462,9 @@ public:
         caf::PdmUiGroup* group2 = uiOrdering.addNewGroup("Name2"); 
         group2->add(&m_intField);
         caf::PdmUiGroup* group3 = group2->addNewGroup("Name3");
-        group3->add(&m_textField);
+        //group3->add(&m_textField);
 
-        //uiConfig->add(&f3);
-        //uiConfig->forgetRemainingFields();
+        uiOrdering.skipRemainingFields();
     }
 
     //--------------------------------------------------------------------------------------------------
@@ -555,6 +570,18 @@ public:
             }
         }
     }
+protected:
+    //--------------------------------------------------------------------------------------------------
+    /// 
+    //--------------------------------------------------------------------------------------------------
+    virtual void defineCustomContextMenu(const caf::PdmFieldHandle* fieldNeedingMenu, QMenu* menu, QWidget* fieldEditorWidget) override
+    {
+        if (fieldNeedingMenu == &m_objectListOfSameType)
+        {
+            caf::PdmUiTableViewEditor::addActionsToMenu(menu, &m_objectListOfSameType);
+        }
+    }
+
 };
 
 CAF_PDM_SOURCE_INIT(DemoPdmObject, "DemoPdmObject");

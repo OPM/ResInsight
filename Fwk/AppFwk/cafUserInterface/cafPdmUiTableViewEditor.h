@@ -102,6 +102,8 @@ public:
 
     void            handleModelSelectionChange();
 
+    static void     addActionsToMenu(QMenu* menu, PdmChildArrayFieldHandle* childArrayField);
+
 protected:
     virtual void    configureAndUpdateUi(const QString& uiConfigName) override;
 
