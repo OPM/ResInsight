@@ -292,6 +292,16 @@ list(APPEND THIRD_PARTY_LIBRARIES
     clipper
 )
 
+################################################################################
+# libslvs
+################################################################################
+
+set(SLVS_BUILD_SHARED OFF CACHE BOOL "Use static linkage for libslvs" FORCE)
+
+add_subdirectory(ThirdParty/libslvs)
+list(APPEND THIRD_PARTY_LIBRARIES
+    libslvs
+)
 
 ################################################################################
 # Thirdparty libraries are put in ThirdParty solution folder
