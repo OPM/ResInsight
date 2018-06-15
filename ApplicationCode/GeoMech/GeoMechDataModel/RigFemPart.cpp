@@ -183,8 +183,8 @@ void RigFemPart::calculateElmNeighbors()
                     // The candidates are sorted from smallest to largest, so we do a linear search to find the 
                     // (two) common cells in the two arrays, and leaving this element out, we have one candidate left
 
-                    int idx1 = 0;
-                    int idx2 = 0;
+                    size_t idx1 = 0;
+                    size_t idx2 = 0;
 
                     while (idx1 < candidates1.size() && idx2 < candidates2.size())
                     {

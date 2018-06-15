@@ -99,7 +99,7 @@ bool RiaStdStringTools::startsWithAlphabetic(const std::string& s)
 {
     if (s.empty()) return false;
 
-    return isalpha(s[0]);
+    return isalpha(s[0]) != 0;
 }
 
 //--------------------------------------------------------------------------------------------------
