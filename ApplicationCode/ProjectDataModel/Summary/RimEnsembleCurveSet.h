@@ -105,6 +105,7 @@ public:
     std::vector<QString>                    ensembleParameterNames() const;
 
     std::vector<RimSummaryCase*>            filterEnsembleCases(const RimSummaryCaseCollection* ensemble);
+    void                                    disableStatisticCurves();
 
 private:
     caf::PdmFieldHandle*                    userDescriptionField() override;
@@ -165,5 +166,7 @@ private:
     QwtPlotCurve*                                   m_qwtPlotCurveForLegendText; 
 
     std::unique_ptr<RimEnsembleStatisticsCase>      m_ensembleStatCase;
+
+    bool                                            m_disableStatisticCurves;
 };
 

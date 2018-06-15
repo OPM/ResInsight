@@ -41,7 +41,7 @@ RimEnsembleStatistics::RimEnsembleStatistics()
     CAF_PDM_InitFieldNoDefault(&m_showP10Curve, "ShowP10Curve", "P10", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_showP50Curve, "ShowP50Curve", "P50", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_showP90Curve, "ShowP90Curve", "P90", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&m_showMeanCurve, "ShowPMeanCurve", "Mean", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_showMeanCurve, "ShowMeanCurve", "Mean", "", "", "");
     CAF_PDM_InitField(&m_color, "Color", cvf::Color3f(cvf::Color3::BLACK), "Color", "", "", "");
 }
 

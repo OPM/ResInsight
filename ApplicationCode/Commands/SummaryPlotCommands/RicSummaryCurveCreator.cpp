@@ -433,6 +433,7 @@ void RicSummaryCurveCreator::updatePreviewCurvesFromCurveDefinitions(
             if (!curveSet)
             {
                 curveSet = new RimEnsembleCurveSet();
+                curveSet->disableStatisticCurves();
                 curveSet->setSummaryCaseCollection(curveDef.ensemble());
                 curveSet->setSummaryAddress(curveDef.summaryAddress());
                 m_previewPlot->ensembleCurveSetCollection()->addCurveSet(curveSet);
@@ -593,6 +594,7 @@ void RicSummaryCurveCreator::populateCurveCreator(const RimSummaryPlot& sourceSu
     for (const auto& curveSet : sourceSummaryPlot.ensembleCurveSetCollection()->curveSets())
     {
         RimEnsembleCurveSet* newCurveSet = curveSet->clone();
+        newCurveSet->disableStatisticCurves();
         previewCurveSetColl->addCurveSet(newCurveSet);
 
         RimSummaryCaseCollection* ensemble = curveSet->summaryCaseCollection();

@@ -166,6 +166,8 @@ RimEnsembleCurveSet::RimEnsembleCurveSet()
 
     m_ensembleStatCase.reset(new RimEnsembleStatisticsCase(this));
     m_ensembleStatCase->createSummaryReaderInterface();
+
+    m_disableStatisticCurves = false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -604,6 +606,7 @@ void RimEnsembleCurveSet::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrd
     {
         uiTreeOrdering.add(m_curveFilters);
     }
+
     uiTreeOrdering.skipRemainingChildren(true);
 }
 
@@ -938,7 +941,7 @@ void RimEnsembleCurveSet::updateStatisticsCurves(bool calculate = true)
 {
     using SAddr = RifEclipseSummaryAddress;
 
-    if (m_yValuesCurveVariable->address().category() == RifEclipseSummaryAddress::SUMMARY_INVALID) return;
+    if (m_disableStatisticCurves || m_yValuesCurveVariable->address().category() == RifEclipseSummaryAddress::SUMMARY_INVALID) return;
 
     if (calculate)
     {
@@ -1064,6 +1067,14 @@ std::vector<RimSummaryCase*> RimEnsembleCurveSet::filterEnsembleCases(const RimS
     }
 
     return sumCases;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimEnsembleCurveSet::disableStatisticCurves()
+{
+    m_disableStatisticCurves = true;
 }
 
 //--------------------------------------------------------------------------------------------------
