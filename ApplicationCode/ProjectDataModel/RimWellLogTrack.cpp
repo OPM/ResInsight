@@ -330,7 +330,7 @@ void RimWellLogTrack::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
         {
             if (m_formationWellPathForSourceCase)
             {
-                m_formationSimWellName = m_formationWellPathForSourceCase->m_simWellName;
+                m_formationSimWellName = m_formationWellPathForSourceCase->associatedSimulationWellName();
             }
         }
 

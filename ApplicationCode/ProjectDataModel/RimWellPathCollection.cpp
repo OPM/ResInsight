@@ -207,7 +207,7 @@ void RimWellPathCollection::addWellPaths( QStringList filePaths )
             if (fi.suffix().compare("json") == 0)
             {
                 RimWellPath* wellPath = new RimWellPath();
-                wellPath->filepath = filePath;
+                wellPath->setFilepath(filePath);
                 wellPathArray.push_back(wellPath);
             }
             else
@@ -217,8 +217,8 @@ void RimWellPathCollection::addWellPaths( QStringList filePaths )
                 for (size_t i = 0; i < wellPathCount; ++i)
                 {
                     RimWellPath* wellPath = new RimWellPath();
-                    wellPath->filepath = filePath;
-                    wellPath->wellPathIndexInFile = static_cast<int>(i);
+                    wellPath->setFilepath(filePath);
+                    wellPath->setWellPathIndexInFile(static_cast<int>(i));
                     wellPathArray.push_back(wellPath);
                 }
             }
@@ -260,8 +260,8 @@ void RimWellPathCollection::readAndAddWellPaths(std::vector<RimWellPath*>& wellP
         RimWellPath* existingWellPath = tryFindMatchingWellPath(wellPath->name());
         if (existingWellPath)
         {
-            existingWellPath->filepath = wellPath->filepath;
-            existingWellPath->wellPathIndexInFile = wellPath->wellPathIndexInFile;
+            existingWellPath->setFilepath(wellPath->filepath());
+            existingWellPath->setWellPathIndexInFile(wellPath->wellPathIndexInFile());
             existingWellPath->readWellPathFile(nullptr, m_wellPathImporter);
 
             // Let name from well path file override name from well log file
@@ -272,7 +272,7 @@ void RimWellPathCollection::readAndAddWellPaths(std::vector<RimWellPath*>& wellP
         }
         else
         {
-            wellPath->wellPathColor = cvf::Color3f(interpolatedWellColors[wpIdx]);
+            wellPath->setWellPathColor(cvf::Color3f(interpolatedWellColors[wpIdx]));
             wellPath->setUnitSystem(findUnitSystemForWellPath(wellPath));
             m_mostRecentlyUpdatedWellPath = wellPath;
             wellPaths.push_back(wellPath);
@@ -531,7 +531,7 @@ void RimWellPathCollection::removeWellPath(RimWellPath* wellPath)
     bool isFilePathUsed = false;
     for (size_t i = 0; i < wellPaths.size(); i++)
     {
-        if (wellPaths[i]->filepath == wellPath->filepath)
+        if (wellPaths[i]->filepath() == wellPath->filepath())
         {
             isFilePathUsed = true;
             break;
@@ -542,7 +542,7 @@ void RimWellPathCollection::removeWellPath(RimWellPath* wellPath)
     {
         // One file can have multiple well paths
         // If no other well paths are referencing the filepath, remove cached data from the file reader
-        m_wellPathImporter->removeFilePath(wellPath->filepath);
+        m_wellPathImporter->removeFilePath(wellPath->filepath());
     }
 }
 
