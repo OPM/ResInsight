@@ -205,9 +205,6 @@ void RimEnsembleCurveFilter::fieldChangedByUi(const caf::PdmFieldHandle* changed
         curveSet->filterCollection()->removeFilter(this);
         curveSet->filterCollection()->updateConnectedEditors();
         curveSet->updateAllCurves();
-
-        // Must be last statement before return
-        delete this;
     }
 }
 

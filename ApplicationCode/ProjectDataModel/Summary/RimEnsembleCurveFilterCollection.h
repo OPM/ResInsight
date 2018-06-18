@@ -48,10 +48,12 @@ private:
     virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
     virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
     virtual void defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /* = "" */);
+    virtual void defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute);
 
     virtual caf::PdmFieldHandle*  objectToggleField();
 
 private:
     caf::PdmField<bool>                               m_active;
     caf::PdmChildArrayField<RimEnsembleCurveFilter*>  m_filters;
+    caf::PdmField<bool>                               m_newFilterButton;
 };

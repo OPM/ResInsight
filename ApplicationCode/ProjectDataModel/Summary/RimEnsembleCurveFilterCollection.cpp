@@ -25,11 +25,19 @@
 
 #include <cafPdmUiTableViewEditor.h>
 #include <cafPdmUiTreeOrdering.h>
+#include <cafPdmUiPushButtonEditor.h>
 
 #include <algorithm>
 
 
 CAF_PDM_SOURCE_INIT(RimEnsembleCurveFilterCollection, "RimEnsembleCurveFilterCollection");
+
+//--------------------------------------------------------------------------------------------------
+/// Internal variables
+//--------------------------------------------------------------------------------------------------
+static std::vector<RimEnsembleCurveFilter*> _removedFilters;
+
+static void garbageCollectFilters();
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -44,6 +52,11 @@ RimEnsembleCurveFilterCollection::RimEnsembleCurveFilterCollection()
     m_filters.uiCapability()->setUiTreeChildrenHidden(true);
     //m_filters.uiCapability()->setUiEditorTypeName(caf::PdmUiTableViewEditor::uiEditorTypeName());
     m_filters.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
+
+    CAF_PDM_InitFieldNoDefault(&m_newFilterButton, "NewEnsembleFilter", "New Filter", "", "", "");
+    m_newFilterButton = false;
+    m_newFilterButton.uiCapability()->setUiEditorTypeName(caf::PdmUiPushButtonEditor::uiEditorTypeName());
+    m_newFilterButton.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -51,6 +64,8 @@ RimEnsembleCurveFilterCollection::RimEnsembleCurveFilterCollection()
 //--------------------------------------------------------------------------------------------------
 RimEnsembleCurveFilter* RimEnsembleCurveFilterCollection::addFilter(const QString& ensembleParameterName)
 {
+    garbageCollectFilters();
+
     auto newFilter = new RimEnsembleCurveFilter(ensembleParameterName);
     m_filters.push_back(newFilter);
     return newFilter;
@@ -61,7 +76,13 @@ RimEnsembleCurveFilter* RimEnsembleCurveFilterCollection::addFilter(const QStrin
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleCurveFilterCollection::removeFilter(RimEnsembleCurveFilter* filter)
 {
+    garbageCollectFilters();
+
+    size_t sizeBefore = m_filters.size();
     m_filters.removeChildObject(filter);
+    size_t sizeAfter = m_filters.size();
+
+    if(sizeAfter < sizeBefore) _removedFilters.push_back(filter);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -95,11 +116,22 @@ QList<caf::PdmOptionItemInfo> RimEnsembleCurveFilterCollection::calculateValueOp
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleCurveFilterCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
+    RimEnsembleCurveSet* curveSet;
+    firstAncestorOrThisOfType(curveSet);
+    if (!curveSet) return;
+
     if (changedField == &m_active)
     {
-        RimEnsembleCurveSet* curveSet;
-        firstAncestorOrThisOfType(curveSet);
-        if (curveSet) curveSet->updateAllCurves();
+        curveSet->updateAllCurves();
+    }
+    else if (changedField == &m_newFilterButton)
+    {
+        m_newFilterButton = false;
+
+        addFilter();
+        updateConnectedEditors();
+        curveSet->updateAllCurves();
+
     }
 }
 
@@ -108,6 +140,8 @@ void RimEnsembleCurveFilterCollection::fieldChangedByUi(const caf::PdmFieldHandl
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleCurveFilterCollection::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
+    uiOrdering.add(&m_newFilterButton);
+
     for (auto& filter : m_filters)
     {
         QString groupTitle;
@@ -152,6 +186,20 @@ void RimEnsembleCurveFilterCollection::defineUiTreeOrdering(caf::PdmUiTreeOrderi
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimEnsembleCurveFilterCollection::defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute)
+{
+    if (field == &m_newFilterButton)
+    {
+        caf::PdmUiPushButtonEditorAttribute* attr = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>(attribute);
+        if (!attr) return;
+
+        attr->m_buttonText = "Add Ensemble Curve Filter";
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimEnsembleCurveFilterCollection::loadDataAndUpdate()
 {
     for (auto& filter : m_filters) filter->loadDataAndUpdate();
@@ -163,4 +211,16 @@ void RimEnsembleCurveFilterCollection::loadDataAndUpdate()
 caf::PdmFieldHandle* RimEnsembleCurveFilterCollection::objectToggleField()
 {
     return &m_active;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void garbageCollectFilters()
+{
+    for (auto filter : _removedFilters)
+    {
+        delete filter;
+    }
+    _removedFilters.clear();
 }
