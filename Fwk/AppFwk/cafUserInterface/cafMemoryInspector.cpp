@@ -143,3 +143,15 @@ uint64_t caf::MemoryInspector::getAvailableVirtualMemoryMiB()
     return 0u;
 #endif
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+float caf::MemoryInspector::getRemainingMemoryCriticalThresholdFraction()
+{
+#ifdef __linux__
+    return 0.175f;
+#else
+    return 0.05f;
+#endif
+}

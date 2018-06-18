@@ -1722,7 +1722,7 @@ void RiuMainWindow::updateMemoryUsage()
                       (int)(okColor.blue() * (1.0 - currentUsageFraction) + warningColor.blue() * currentUsageFraction));
 
     m_memoryCriticalWarning->setText(QString(""));
-    if (availVirtualFraction < 0.175)
+    if (availVirtualFraction < caf::MemoryInspector::getRemainingMemoryCriticalThresholdFraction())
     {
         m_memoryCriticalWarning->setText(QString("Available System Memory Critically Low!"));
         m_memoryCriticalWarning->setStyleSheet(QString("QLabel {color: %1; padding: 0px 5px 0px 0px;}").arg(criticalColor.name()));

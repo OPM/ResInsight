@@ -47,5 +47,6 @@ namespace caf
         uint64_t getTotalVirtualMemoryMiB();
         uint64_t getTotalPhysicalMemoryMiB();
         uint64_t getAvailableVirtualMemoryMiB();
+        float    getRemainingMemoryCriticalThresholdFraction();
     }
 }
