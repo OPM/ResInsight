@@ -89,7 +89,6 @@ public:
     PdmUiTableViewEditor();
     ~PdmUiTableViewEditor();
 
-    void            enableDefaultContextMenu(bool enable);
     void            enableHeaderText(bool enable);
     void            setSelectionRole(SelectionManager::SelectionRole role);
 
@@ -107,10 +106,7 @@ public:
 protected:
     virtual void    configureAndUpdateUi(const QString& uiConfigName) override;
 
-
-
 private:
-    void            updateContextMenuSignals();
     void            selectedUiItems(const QModelIndexList& modelIndexList, std::vector<PdmUiItem*>& objects);
     bool            isSelectionRoleDefined() const;
     void            tableViewWidgetFocusChanged(QEvent* focusEvent);
@@ -119,7 +115,6 @@ private:
     PdmChildArrayFieldHandle* childArrayFieldHandle();
 
 private slots:
-    void            customMenuRequested(QPoint pos);
     void            slotCurrentChanged(const QModelIndex & current, const QModelIndex & previous);
     void            slotSelectionChanged(const QItemSelection & selected, const QItemSelection & deselected);
 

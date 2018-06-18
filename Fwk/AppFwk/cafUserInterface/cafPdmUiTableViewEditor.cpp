@@ -134,8 +134,6 @@ QWidget* PdmUiTableViewEditor::createEditorWidget(QWidget* parent)
     FocusEventHandler* tableViewWidgetFocusEventHandler = new FocusEventHandler(this);
     m_tableView->installEventFilter(tableViewWidgetFocusEventHandler);
 
-    updateContextMenuSignals();
-
     return m_tableView;
 }
 
@@ -226,41 +224,9 @@ void PdmUiTableViewEditor::selectedUiItems(const QModelIndexList& modelIndexList
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void PdmUiTableViewEditor::customMenuRequested(QPoint pos)
-{
-    // This is function is required to execute before populating the menu
-    // Several commands rely on the activeChildArrayFieldHandle in the selection manager
-    auto childArrayFH = childArrayFieldHandle();
-    SelectionManager::instance()->setActiveChildArrayFieldHandle(childArrayFH);
-
-    QMenu menu;
-    caf::PdmUiCommandSystemProxy::instance()->populateMenuWithDefaultCommands("PdmUiTreeViewEditor", &menu);
-
-    if (!menu.actions().empty())
-    {
-        // Qt doc: QAbstractScrollArea and its subclasses that map the context menu event to coordinates of the viewport().
-        QPoint globalPos = m_tableView->viewport()->mapToGlobal(pos);
-
-        menu.exec(globalPos);
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 QTableView* PdmUiTableViewEditor::tableView()
 {
     return m_tableView;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void PdmUiTableViewEditor::enableDefaultContextMenu(bool enable)
-{
-    m_useDefaultContextMenu = enable;
-
-    updateContextMenuSignals();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -270,25 +236,6 @@ void PdmUiTableViewEditor::enableHeaderText(bool enable)
 {
     m_tableHeading->setVisible(enable);
     m_tableHeadingIcon->setVisible(enable);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void PdmUiTableViewEditor::updateContextMenuSignals()
-{
-    if (!m_tableView) return;
-
-    if (m_useDefaultContextMenu)
-    {
-        m_tableView->setContextMenuPolicy(Qt::CustomContextMenu);
-        connect(m_tableView, SIGNAL(customContextMenuRequested(QPoint)), SLOT(customMenuRequested(QPoint)));
-    }
-    else
-    {
-        m_tableView->setContextMenuPolicy(Qt::DefaultContextMenu);
-        disconnect(m_tableView, nullptr, this, nullptr);
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

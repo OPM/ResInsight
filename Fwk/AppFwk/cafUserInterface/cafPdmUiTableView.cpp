@@ -129,14 +129,6 @@ QTableView* PdmUiTableView::tableView()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void PdmUiTableView::enableDefaultContextMenu(bool enable)
-{
-    m_listViewEditor->enableDefaultContextMenu(enable);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 void PdmUiTableView::enableHeaderText(bool enable)
 {
     m_listViewEditor->enableHeaderText(enable);

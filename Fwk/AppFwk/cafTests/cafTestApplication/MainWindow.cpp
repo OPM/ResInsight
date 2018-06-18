@@ -686,7 +686,6 @@ void MainWindow::createDockPanels()
 
         m_pdmUiTableView = new caf::PdmUiTableView(dockWidget);
         m_pdmUiTableView->setSelectionRole(caf::SelectionManager::CURRENT);
-        m_pdmUiTableView->enableDefaultContextMenu(true);
 
         dockWidget->setWidget(m_pdmUiTableView);
 
