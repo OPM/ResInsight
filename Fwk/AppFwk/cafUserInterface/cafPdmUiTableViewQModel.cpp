@@ -42,6 +42,7 @@
 #include "cafPdmObject.h"
 #include "cafPdmUiComboBoxEditor.h"
 #include "cafPdmUiCommandSystemProxy.h"
+#include "cafPdmUiDateEditor.h"
 #include "cafPdmUiFieldEditorHelper.h"
 #include "cafPdmUiLineEditor.h"
 #include "cafPdmUiTableItemEditor.h"
@@ -271,14 +272,34 @@ QVariant PdmUiTableViewQModel::data(const QModelIndex &index, int role /*= Qt::D
                 // TODO: Create a function in pdmObject like this
                 // virtual void            defineDisplayString(const PdmFieldHandle* field, QString uiConfigName) {}
 
-                PdmUiLineEditorAttributeUiDisplayString leab;
-                uiObjForRow->editorAttribute(fieldHandle, m_currentConfigName, &leab);
-
-                if (!leab.m_displayString.isEmpty())
                 {
-                    val = leab.m_displayString;
+                    PdmUiLineEditorAttributeUiDisplayString leab;
+                    uiObjForRow->editorAttribute(fieldHandle, m_currentConfigName, &leab);
+
+                    if (!leab.m_displayString.isEmpty())
+                    {
+                        val = leab.m_displayString;
+                    }
                 }
-                else
+
+                if (val.isNull())
+                {
+                    PdmUiDateEditorAttribute leab;
+                    uiObjForRow->editorAttribute(fieldHandle, m_currentConfigName, &leab);
+
+                    QString dateFormat = leab.dateFormat;
+                    if (!dateFormat.isEmpty())
+                    {
+                        QDate date = uiFieldHandle->uiValue().toDate();
+                        if (date.isValid())
+                        {
+                            QString displayString = date.toString(dateFormat);
+                            val = displayString;
+                        }
+                    }
+                }
+
+                if (val.isNull())
                 {
                     val = uiFieldHandle->uiValue();
                 }
