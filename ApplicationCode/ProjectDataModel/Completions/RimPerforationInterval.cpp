@@ -252,16 +252,12 @@ void RimPerforationInterval::defineUiOrdering(QString uiConfigName, caf::PdmUiOr
     uiOrdering.add(&m_skinFactor);
     
     uiOrdering.add(&m_useCustomStartDate);
-    if (m_useCustomStartDate)
-    {
-        uiOrdering.add(&m_startDate);
-    }
+    uiOrdering.add(&m_startDate);
+    m_startDate.uiCapability()->setUiReadOnly(!m_useCustomStartDate);
 
     uiOrdering.add(&m_useCustomEndDate);
-    if (m_useCustomEndDate)
-    {
-        uiOrdering.add(&m_endDate);
-    }
+    uiOrdering.add(&m_endDate);
+    m_endDate.uiCapability()->setUiReadOnly(!m_useCustomEndDate);
 
     uiOrdering.skipRemainingFields();
 }
