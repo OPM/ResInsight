@@ -91,6 +91,8 @@ public:
     void                                    setSummaryCaseCollection(RimSummaryCaseCollection* sumCaseCollection);
     RimSummaryCaseCollection*               summaryCaseCollection() const;
 
+    RimEnsembleCurveFilterCollection*       filterCollection() const;
+
     ColorMode                               colorMode() const;
     void                                    updateEnsembleLegendItem();
     EnsembleParameter::Type                 currentEnsembleParameterType() const;

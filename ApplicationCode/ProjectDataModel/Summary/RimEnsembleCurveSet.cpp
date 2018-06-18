@@ -381,6 +381,14 @@ RimSummaryCaseCollection* RimEnsembleCurveSet::summaryCaseCollection() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+RimEnsembleCurveFilterCollection* RimEnsembleCurveSet::filterCollection() const
+{
+    return m_curveFilters;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 RimEnsembleCurveSet::ColorMode RimEnsembleCurveSet::colorMode() const
 {
     return m_colorMode();
@@ -587,8 +595,8 @@ void RimEnsembleCurveSet::defineUiOrdering(QString uiConfigName, caf::PdmUiOrder
     }
 
     caf::PdmUiGroup* statGroup = uiOrdering.addNewGroup("Statistics");
-
     m_statistics->defineUiOrdering(uiConfigName, *statGroup);
+
     uiOrdering.skipRemainingFields(true);
 }
 

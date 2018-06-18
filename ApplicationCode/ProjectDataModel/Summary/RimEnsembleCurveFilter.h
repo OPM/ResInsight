@@ -25,6 +25,7 @@
 class EnsembleParameter;
 class RimEnsembleCurveSet;
 class RimSummaryCase;
+class RimEnsembleCurveFilterCollection;
 
 //==================================================================================================
 ///  
@@ -35,9 +36,14 @@ class RimEnsembleCurveFilter : public caf::PdmObject
 
 public:
     RimEnsembleCurveFilter();
+    RimEnsembleCurveFilter(const QString& ensembleParameterName);
 
     bool                    isActive() const;
+    double                  minValue() const;
+    double                  maxValue() const;
     std::set<QString>       categories() const;
+    QString                 ensembleParameterName() const;
+    QString                 filterId() const;
 
     virtual QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
     virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
@@ -47,17 +53,19 @@ public:
     std::vector<RimSummaryCase*>            applyFilter(const std::vector<RimSummaryCase*>& allSumCases);
 
     void                                    loadDataAndUpdate();
+    EnsembleParameter                       selectedEnsembleParameter() const;
 
 protected:
     virtual caf::PdmFieldHandle*  objectToggleField();
 
 private:
     RimEnsembleCurveSet * parentCurveSet() const;
+    RimEnsembleCurveFilterCollection* parentCurveFilterCollection() const;
     void                  setDefaultValues();
-    EnsembleParameter     selectedEnsembleParameter() const;
 
 private:
     caf::PdmField<bool>                 m_active;
+    caf::PdmField<bool>                 m_deleteButton;
     caf::PdmField<QString>              m_ensembleParameterName;
     caf::PdmField<double>               m_minValue;
     caf::PdmField<double>               m_maxValue;

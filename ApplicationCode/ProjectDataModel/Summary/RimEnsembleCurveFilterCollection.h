@@ -36,7 +36,7 @@ class RimEnsembleCurveFilterCollection : public caf::PdmObject
 public:
     RimEnsembleCurveFilterCollection();
 
-    RimEnsembleCurveFilter* addFilter();
+    RimEnsembleCurveFilter* addFilter(const QString& ensembleParameterName = "");
     void                    removeFilter(RimEnsembleCurveFilter* filter);
     std::vector<RimEnsembleCurveFilter*> filters() const;
 

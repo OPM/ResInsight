@@ -42,16 +42,16 @@ RimEnsembleCurveFilterCollection::RimEnsembleCurveFilterCollection()
 
     CAF_PDM_InitFieldNoDefault(&m_filters, "CurveFilters", "", "", "", "");
     m_filters.uiCapability()->setUiTreeChildrenHidden(true);
-    m_filters.uiCapability()->setUiEditorTypeName(caf::PdmUiTableViewEditor::uiEditorTypeName());
+    //m_filters.uiCapability()->setUiEditorTypeName(caf::PdmUiTableViewEditor::uiEditorTypeName());
     m_filters.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimEnsembleCurveFilter* RimEnsembleCurveFilterCollection::addFilter()
+RimEnsembleCurveFilter* RimEnsembleCurveFilterCollection::addFilter(const QString& ensembleParameterName)
 {
-    auto newFilter = new RimEnsembleCurveFilter();
+    auto newFilter = new RimEnsembleCurveFilter(ensembleParameterName);
     m_filters.push_back(newFilter);
     return newFilter;
 }
@@ -61,7 +61,7 @@ RimEnsembleCurveFilter* RimEnsembleCurveFilterCollection::addFilter()
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleCurveFilterCollection::removeFilter(RimEnsembleCurveFilter* filter)
 {
-    std::remove_if(m_filters.begin(), m_filters.end(), [&](RimEnsembleCurveFilter* f) { return f == filter; });
+    m_filters.removeChildObject(filter);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -108,7 +108,37 @@ void RimEnsembleCurveFilterCollection::fieldChangedByUi(const caf::PdmFieldHandl
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleCurveFilterCollection::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
+    for (auto& filter : m_filters)
+    {
+        QString groupTitle;
+        auto selEnsembleParam = filter->selectedEnsembleParameter();
+        if (selEnsembleParam.isNumeric())
+        {
+            if (!filter->isActive()) groupTitle = "DISABLED - ";
+            groupTitle += QString("%1. Min: %2, Max: %3")
+                .arg(filter->ensembleParameterName())
+                .arg(QString::number(filter->minValue()))
+                .arg(QString::number(filter->maxValue()));
+        }
+        else if (selEnsembleParam.isText())
+        {
+            if (!filter->isActive()) groupTitle = "DISABLED - ";
+            groupTitle += QString("%1. Categories: ")
+                .arg(filter->ensembleParameterName());
 
+            bool first = true;
+            for (auto cat : filter->categories())
+            {
+                if (!first) groupTitle += ", ";
+                groupTitle += cat;
+                first = false;
+            }
+        }
+        caf::PdmUiGroup* filterGroup = uiOrdering.addNewGroupWithKeyword(groupTitle, QString("EnsembleFilter_") + filter->filterId());
+        filter->defineUiOrdering(uiConfigName, *filterGroup);
+    }
+
+    uiOrdering.skipRemainingFields(true);
 }
 
 //--------------------------------------------------------------------------------------------------
