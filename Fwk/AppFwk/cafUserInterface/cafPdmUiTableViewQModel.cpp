@@ -423,6 +423,20 @@ void PdmUiTableViewQModel::setPdmData(PdmChildArrayFieldHandle* listField, const
     recreateTableItemEditors();
 
     endResetModel();
+
+    if (m_pdmList)
+    {
+        // Update UI for all cells, as the content potentially has changed
+        // This will probably cause performance issues for large tables
+
+        std::vector<PdmObjectHandle*> objects;
+        m_pdmList->childObjects(&objects);
+
+        for (auto obj : objects)
+        {
+            obj->uiCapability()->updateConnectedEditors();
+        }
+    }
 }
 
 
