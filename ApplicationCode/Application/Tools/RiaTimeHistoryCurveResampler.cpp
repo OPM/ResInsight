@@ -192,10 +192,9 @@ void RiaTimeHistoryCurveResampler::computeResampledTimeSteps(DateTimePeriod peri
 
     clearData();
     auto currTimeStep = firstResampledTimeStep(firstOriginalTimeStep, period);
+
     while (QDT::lessThanOrEqualTo(currTimeStep, lastOriginalTimeStep))
     {
-        auto ss1 = currTimeStep.toString();
-
         m_timeSteps.push_back(currTimeStep.toTime_t());
         currTimeStep = QDT::addPeriod(currTimeStep, period);
     }

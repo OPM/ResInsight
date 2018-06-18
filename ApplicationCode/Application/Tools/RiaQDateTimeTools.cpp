@@ -32,7 +32,10 @@
 //--------------------------------------------------------------------------------------------------
 const DateTimeSpan RiaQDateTimeTools::TIMESPAN_DECADE = DateTimeSpan(10, 0, 0);
 const DateTimeSpan RiaQDateTimeTools::TIMESPAN_YEAR = DateTimeSpan(1, 0, 0);
+const DateTimeSpan RiaQDateTimeTools::TIMESPAN_HALFYEAR = DateTimeSpan(0, 6, 0);
+const DateTimeSpan RiaQDateTimeTools::TIMESPAN_QUARTER = DateTimeSpan(0, 3, 0);
 const DateTimeSpan RiaQDateTimeTools::TIMESPAN_MONTH = DateTimeSpan(0, 1, 0);
+const DateTimeSpan RiaQDateTimeTools::TIMESPAN_WEEK = DateTimeSpan(0, 0, 7);
 const DateTimeSpan RiaQDateTimeTools::TIMESPAN_DAY = DateTimeSpan(0, 0, 1);
 
 
@@ -260,7 +263,10 @@ const DateTimeSpan RiaQDateTimeTools::timeSpan(DateTimePeriod period)
     {
     case DateTimePeriod::DECADE:    return TIMESPAN_DECADE;
     case DateTimePeriod::YEAR:      return TIMESPAN_YEAR;
+    case DateTimePeriod::HALFYEAR:  return TIMESPAN_HALFYEAR;
+    case DateTimePeriod::QUARTER:   return TIMESPAN_QUARTER;
     case DateTimePeriod::MONTH:     return TIMESPAN_MONTH;
+    case DateTimePeriod::WEEK:      return TIMESPAN_WEEK;
     case DateTimePeriod::DAY:       return TIMESPAN_DAY;
     }
     CVF_ASSERT(false);
@@ -272,12 +278,20 @@ const DateTimeSpan RiaQDateTimeTools::timeSpan(DateTimePeriod period)
 //--------------------------------------------------------------------------------------------------
 QDateTime RiaQDateTimeTools::truncateTime(const QDateTime& dt, DateTimePeriod period)
 {
+    int y = dt.date().year();
+    int m = dt.date().month();
+    int d = dt.date().day();
+    int dow = dt.date().dayOfWeek();
+
     switch (period)
     {
-    case DateTimePeriod::DECADE:    return createUtcDateTime(QDate((dt.date().year() / 10) * 10, 1, 1));
-    case DateTimePeriod::YEAR:      return createUtcDateTime(QDate(dt.date().year(), 1, 1));
-    case DateTimePeriod::MONTH:     return createUtcDateTime(QDate(dt.date().year(), dt.date().month(), 1));
-    case DateTimePeriod::DAY:       return createUtcDateTime(QDate(dt.date().year(), dt.date().month(), dt.date().day()));
+    case DateTimePeriod::DECADE:    return createUtcDateTime(QDate((y / 10) * 10, 1, 1));
+    case DateTimePeriod::YEAR:      return createUtcDateTime(QDate(y, 1, 1));
+    case DateTimePeriod::HALFYEAR:  return createUtcDateTime(QDate(y, ((m - 1) / 6) * 6 + 1, 1));
+    case DateTimePeriod::QUARTER:   return createUtcDateTime(QDate(y, ((m - 1) / 3) * 3 + 1, 1));
+    case DateTimePeriod::MONTH:     return createUtcDateTime(QDate(y, m, 1));
+    case DateTimePeriod::WEEK:      return createUtcDateTime(QDate(y, m, d).addDays(-dow + 1));
+    case DateTimePeriod::DAY:       return createUtcDateTime(QDate(y, m, d));
     }
     CVF_ASSERT(false);
     return createUtcDateTime();

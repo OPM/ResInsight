@@ -35,7 +35,10 @@ enum class DateTimePeriod
 {
     DECADE,
     YEAR,
+    HALFYEAR,
+    QUARTER,
     MONTH,
+    WEEK,
     DAY
 };
 
@@ -46,7 +49,10 @@ class RiaQDateTimeTools
 {
     static const DateTimeSpan TIMESPAN_DECADE;
     static const DateTimeSpan TIMESPAN_YEAR;
+    static const DateTimeSpan TIMESPAN_HALFYEAR;
+    static const DateTimeSpan TIMESPAN_QUARTER;
     static const DateTimeSpan TIMESPAN_MONTH;
+    static const DateTimeSpan TIMESPAN_WEEK;
     static const DateTimeSpan TIMESPAN_DAY;
 
 public:

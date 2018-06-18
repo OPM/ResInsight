@@ -49,6 +49,205 @@ TEST(RiaTimeHistoryCurveResampler, Test_Resampling_NoPeriod)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+TEST(RiaTimeHistoryCurveResampler, Test_Resampling_Decade)
+{
+    std::vector<QString> timeStrings(
+        {
+            "1989-02-03",
+            "2005-06-06",
+            "2012-02-07"
+        }
+    );
+
+    std::vector<double> dataValues(
+        {
+            0.0,
+            0.0,
+            0.0
+        }
+    );
+
+    RiaTimeHistoryCurveResampler resampler;
+    resampler.setCurveData(dataValues, toTime_tVector(timeStrings));
+    resampler.resampleAndComputeWeightedMeanValues(DateTimePeriod::DECADE);
+
+    EXPECT_EQ(3, (int)resampler.resampledTimeSteps().size());
+    EXPECT_EQ(toTime_t("1990-01-01"), resampler.resampledTimeSteps()[0]);
+    EXPECT_EQ(toTime_t("2000-01-01"), resampler.resampledTimeSteps()[1]);
+    EXPECT_EQ(toTime_t("2010-01-01"), resampler.resampledTimeSteps()[2]);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+TEST(RiaTimeHistoryCurveResampler, Test_Resampling_Year)
+{
+    std::vector<QString> timeStrings(
+        {
+            "2014-06-06",
+            "2015-12-02",
+            "2018-02-07"
+        }
+    );
+
+    std::vector<double> dataValues(
+        {
+            0.0,
+            0.0,
+            0.0
+        }
+    );
+
+    RiaTimeHistoryCurveResampler resampler;
+    resampler.setCurveData(dataValues, toTime_tVector(timeStrings));
+    resampler.resampleAndComputeWeightedMeanValues(DateTimePeriod::YEAR);
+
+    EXPECT_EQ(4, (int)resampler.resampledTimeSteps().size());
+    EXPECT_EQ(toTime_t("2015-01-01"), resampler.resampledTimeSteps()[0]);
+    EXPECT_EQ(toTime_t("2016-01-01"), resampler.resampledTimeSteps()[1]);
+    EXPECT_EQ(toTime_t("2017-01-01"), resampler.resampledTimeSteps()[2]);
+    EXPECT_EQ(toTime_t("2018-01-01"), resampler.resampledTimeSteps()[3]);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+TEST(RiaTimeHistoryCurveResampler, Test_Resampling_HalfYear)
+{
+    std::vector<QString> timeStrings(
+        {
+            "2016-06-06",
+            "2017-03-02",
+            "2018-02-07"
+        }
+    );
+
+    std::vector<double> dataValues(
+        {
+            0.0,
+            0.0,
+            0.0
+        }
+    );
+
+    RiaTimeHistoryCurveResampler resampler;
+    resampler.setCurveData(dataValues, toTime_tVector(timeStrings));
+    resampler.resampleAndComputeWeightedMeanValues(DateTimePeriod::HALFYEAR);
+
+    EXPECT_EQ(4, (int)resampler.resampledTimeSteps().size());
+    EXPECT_EQ(toTime_t("2016-07-01"), resampler.resampledTimeSteps()[0]);
+    EXPECT_EQ(toTime_t("2017-01-01"), resampler.resampledTimeSteps()[1]);
+    EXPECT_EQ(toTime_t("2017-07-01"), resampler.resampledTimeSteps()[2]);
+    EXPECT_EQ(toTime_t("2018-01-01"), resampler.resampledTimeSteps()[3]);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+TEST(RiaTimeHistoryCurveResampler, Test_Resampling_Quarter)
+{
+    std::vector<QString> timeStrings(
+        {
+            "2016-09-06",
+            "2017-03-02",
+            "2018-02-07"
+        }
+    );
+
+    std::vector<double> dataValues(
+        {
+            0.0,
+            0.0,
+            0.0
+        }
+    );
+
+    RiaTimeHistoryCurveResampler resampler;
+    resampler.setCurveData(dataValues, toTime_tVector(timeStrings));
+    resampler.resampleAndComputeWeightedMeanValues(DateTimePeriod::QUARTER);
+
+    EXPECT_EQ(6, (int)resampler.resampledTimeSteps().size());
+    EXPECT_EQ(toTime_t("2016-10-01"), resampler.resampledTimeSteps()[0]);
+    EXPECT_EQ(toTime_t("2017-01-01"), resampler.resampledTimeSteps()[1]);
+    EXPECT_EQ(toTime_t("2017-04-01"), resampler.resampledTimeSteps()[2]);
+    EXPECT_EQ(toTime_t("2017-07-01"), resampler.resampledTimeSteps()[3]);
+    EXPECT_EQ(toTime_t("2017-10-01"), resampler.resampledTimeSteps()[4]);
+    EXPECT_EQ(toTime_t("2018-01-01"), resampler.resampledTimeSteps()[5]);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+TEST(RiaTimeHistoryCurveResampler, Test_Resampling_Month)
+{
+    std::vector<QString> timeStrings(
+        {
+            "2017-09-06",
+            "2017-12-02",
+            "2018-02-07"
+        }
+    );
+
+    std::vector<double> dataValues(
+        {
+            0.0,
+            0.0,
+            0.0
+        }
+    );
+
+    RiaTimeHistoryCurveResampler resampler;
+    resampler.setCurveData(dataValues, toTime_tVector(timeStrings));
+    resampler.resampleAndComputeWeightedMeanValues(DateTimePeriod::MONTH);
+
+    EXPECT_EQ(5, (int)resampler.resampledTimeSteps().size());
+    EXPECT_EQ(toTime_t("2017-10-01"), resampler.resampledTimeSteps()[0]);
+    EXPECT_EQ(toTime_t("2017-11-01"), resampler.resampledTimeSteps()[1]);
+    EXPECT_EQ(toTime_t("2017-12-01"), resampler.resampledTimeSteps()[2]);
+    EXPECT_EQ(toTime_t("2018-01-01"), resampler.resampledTimeSteps()[3]);
+    EXPECT_EQ(toTime_t("2018-02-01"), resampler.resampledTimeSteps()[4]);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+TEST(RiaTimeHistoryCurveResampler, Test_Resampling_Week)
+{
+    std::vector<QString> timeStrings(
+        {
+            "2017-11-02",
+            "2017-12-24",
+            "2018-01-07"
+        }
+    );
+
+    std::vector<double> dataValues(
+        {
+            0.0,
+            0.0,
+            0.0
+        }
+    );
+
+    RiaTimeHistoryCurveResampler resampler;
+    resampler.setCurveData(dataValues, toTime_tVector(timeStrings));
+    resampler.resampleAndComputeWeightedMeanValues(DateTimePeriod::WEEK);
+
+    EXPECT_EQ(9, (int)resampler.resampledTimeSteps().size());
+    EXPECT_EQ(toTime_t("2017-11-06"), resampler.resampledTimeSteps()[0]);
+    EXPECT_EQ(toTime_t("2017-11-13"), resampler.resampledTimeSteps()[1]);
+    EXPECT_EQ(toTime_t("2017-11-20"), resampler.resampledTimeSteps()[2]);
+    EXPECT_EQ(toTime_t("2017-11-27"), resampler.resampledTimeSteps()[3]);
+    EXPECT_EQ(toTime_t("2017-12-04"), resampler.resampledTimeSteps()[4]);
+    EXPECT_EQ(toTime_t("2017-12-11"), resampler.resampledTimeSteps()[5]);
+    EXPECT_EQ(toTime_t("2017-12-18"), resampler.resampledTimeSteps()[6]);
+    EXPECT_EQ(toTime_t("2017-12-25"), resampler.resampledTimeSteps()[7]);
+    EXPECT_EQ(toTime_t("2018-01-01"), resampler.resampledTimeSteps()[8]);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 TEST(RiaTimeHistoryCurveResampler, Test_WeightedMean_Days)
 {
     std::vector<QString> timeStrings(
