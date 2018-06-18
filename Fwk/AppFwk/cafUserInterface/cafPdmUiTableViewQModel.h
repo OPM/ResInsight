@@ -113,7 +113,11 @@ private:
     QWidget*                getEditorWidgetAndTransferOwnership(QWidget* parent, const QModelIndex &index);
     PdmUiFieldEditorHandle* getEditor(const QModelIndex &index);
 
+    PdmChildArrayFieldHandle*   childArrayFieldHandle() const;
+
 private:
+    // Required to have a PdmPointer to the owner object. Used to guard access to a field inside this object
+    PdmPointer<PdmObjectHandle>                 m_ownerObject;
     PdmChildArrayFieldHandle*                   m_pdmList;
     QString                                     m_currentConfigName;
 

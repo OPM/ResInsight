@@ -71,10 +71,14 @@ PdmUiTableViewQModel::PdmUiTableViewQModel(QWidget* parent)
 //--------------------------------------------------------------------------------------------------
 int PdmUiTableViewQModel::rowCount(const QModelIndex &parent /*= QModelIndex( ) */) const
 {
-    if (!m_pdmList) return 0;
+    auto childArrayField = childArrayFieldHandle();
+    if (childArrayField)
+    {
+        size_t itemCount = childArrayField->size();
+        return static_cast<int>(itemCount);
+    }
 
-    size_t itemCount = m_pdmList->size();
-    return static_cast<int>(itemCount);
+    return 0;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -83,32 +87,7 @@ int PdmUiTableViewQModel::rowCount(const QModelIndex &parent /*= QModelIndex( ) 
 int PdmUiTableViewQModel::columnCount(const QModelIndex &parent /*= QModelIndex( ) */) const
 {
     return static_cast<int>(m_modelColumnIndexToFieldIndex.size());
-
-    // SIG_CAF_HACK
-    // Magne hack to comment out code that crashed
-    /*
-    std::vector<PdmObject*> listObjects;
-    if (m_pdmList)
-    {
-        m_pdmList->childObjects(&listObjects);
-
-        if (listObjects.size() > 0)
-        {
-            PdmObject* pdmObject = listObjects[0];
-            if (pdmObject)
-            {
-                std::vector<PdmFieldHandle*> fields;
-                pdmObject->fields(fields);
-
-                return static_cast<int>(fields.size());
-            }
-        }
-    }
-
-    return 0;
-    */
 }
-
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -352,7 +331,25 @@ void PdmUiTableViewQModel::setPdmData(PdmChildArrayFieldHandle* listField, const
 {
     beginResetModel();
 
-    m_pdmList = listField;
+    {
+        PdmObjectHandle* ownerObject = nullptr;
+        if (listField)
+        {
+            ownerObject = listField->ownerObject();
+        }
+
+        if (ownerObject)
+        {
+            m_pdmList = listField;
+            m_ownerObject = ownerObject;
+        }
+        else
+        {
+            m_ownerObject = nullptr;
+            m_pdmList = nullptr;
+        }
+    }
+
     m_currentConfigName = configName;
 
     PdmUiOrdering configForFirstObject;
@@ -466,9 +463,11 @@ void PdmUiTableViewQModel::setPdmData(PdmChildArrayFieldHandle* listField, const
 //--------------------------------------------------------------------------------------------------
 PdmFieldHandle* PdmUiTableViewQModel::getField(const QModelIndex &index) const
 {
-    if (m_pdmList && index.row() < static_cast<int>(m_pdmList->size()))
+    auto childArrayField = childArrayFieldHandle();
+
+    if (childArrayField && index.row() < static_cast<int>(childArrayField->size()))
     {
-        PdmObjectHandle* pdmObject = m_pdmList->at(index.row());
+        PdmObjectHandle* pdmObject = childArrayField->at(index.row());
         if (pdmObject)
         {
             std::vector<PdmFieldHandle*> fields;
@@ -560,11 +559,12 @@ void PdmUiTableViewQModel::recreateTableItemEditors()
     }
     m_tableItemEditors.clear();
 
-    if (m_pdmList)
+    auto childArrayField = childArrayFieldHandle();
+    if (childArrayField)
     {
-        for (size_t i = 0; i < m_pdmList->size(); i++)
+        for (size_t i = 0; i < childArrayField->size(); i++)
         {
-            PdmObjectHandle* pdmObject = m_pdmList->at(i);
+            PdmObjectHandle* pdmObject = childArrayField->at(i);
             m_tableItemEditors.push_back(new PdmUiTableItemEditor(this, pdmObject, static_cast<int>(i)));
         }
     }
@@ -589,9 +589,10 @@ caf::PdmUiFieldHandle* PdmUiTableViewQModel::getUiFieldHandle(const QModelIndex&
 //--------------------------------------------------------------------------------------------------
 PdmObjectHandle* PdmUiTableViewQModel::pdmObjectForRow(int row) const
 {
-    if (m_pdmList && row < static_cast<int>(m_pdmList->size()))
+    auto childArrayField = childArrayFieldHandle();
+    if (childArrayField && row < static_cast<int>(childArrayField->size()))
     {
-        return m_pdmList->at(row);
+        return childArrayField->at(row);
     }
 
     return nullptr;
@@ -656,7 +657,7 @@ QItemSelection PdmUiTableViewQModel::modelIndexFromPdmObject(PdmObjectHandle* pd
         PdmObjectHandle* obj = this->pdmObjectForRow(i);
         if (obj == pdmObject)
         {
-            // Currently selection only on model index, can be exteded to select whole row
+            // Currently selection only on model index, can be extended to select whole row
             itemSelection.select(this->createIndex(i, 0), this->createIndex(i, 0));
         }
     }
@@ -667,11 +668,29 @@ QItemSelection PdmUiTableViewQModel::modelIndexFromPdmObject(PdmObjectHandle* pd
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+caf::PdmChildArrayFieldHandle* PdmUiTableViewQModel::childArrayFieldHandle() const
+{
+    // Required to have a PdmPointer to the owner object. Used to guard access to a field inside this object. It is not
+    // possible to use a PdmPointer on a field pointer
+    if (m_ownerObject.isNull())
+    {
+        return nullptr;
+    }
+
+    return m_pdmList;
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 int PdmUiTableViewQModel::getFieldIndex(PdmFieldHandle* field) const
 {
-    if (m_pdmList && !m_pdmList->empty())
+    auto childArrayField = childArrayFieldHandle();
+
+    if (childArrayField && !childArrayField->empty())
     {
-        PdmObjectHandle* pdmObject = m_pdmList->at(0);
+        PdmObjectHandle* pdmObject = childArrayField->at(0);
         if (pdmObject)
         {
             std::vector<PdmFieldHandle*> fields;
