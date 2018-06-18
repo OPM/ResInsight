@@ -273,7 +273,7 @@ void RimPerforationInterval::defineEditorAttribute(const caf::PdmFieldHandle* fi
 {
     if (field == &m_startDate || field == &m_endDate)
     {
-        caf::PdmUiDateEditorAttribute* myAttr = static_cast<caf::PdmUiDateEditorAttribute*>(attribute);
+        caf::PdmUiDateEditorAttribute* myAttr = dynamic_cast<caf::PdmUiDateEditorAttribute*>(attribute);
         if (myAttr)
         {
             myAttr->dateFormat = "dd MMM yyyy";

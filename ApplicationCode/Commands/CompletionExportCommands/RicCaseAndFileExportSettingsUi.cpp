@@ -59,7 +59,7 @@ void RicCaseAndFileExportSettingsUi::defineEditorAttribute(const caf::PdmFieldHa
 {
     if (field == &folder)
     {
-        caf::PdmUiFilePathEditorAttribute* myAttr = static_cast<caf::PdmUiFilePathEditorAttribute*>(attribute);
+        caf::PdmUiFilePathEditorAttribute* myAttr = dynamic_cast<caf::PdmUiFilePathEditorAttribute*>(attribute);
         if (myAttr)
         {
             myAttr->m_selectDirectory = true;
