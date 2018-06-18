@@ -1578,8 +1578,8 @@ void RimSummaryPlot::updateNameHelperWithCurveData(RimSummaryPlotNameHelper* nam
 
     nameHelper->clear();
     nameHelper->appendAddresses(addresses);
-    nameHelper->appendSummaryCases(sumCases);
-    nameHelper->appendEnsembleCases(ensembleCases);
+    nameHelper->setSummaryCases(sumCases);
+    nameHelper->setEnsembleCases(ensembleCases);
 }
 
 //--------------------------------------------------------------------------------------------------

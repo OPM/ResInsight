@@ -22,6 +22,8 @@
 
 #include "RifEclipseSummaryAddress.h"
 
+#include "cafPdmPointer.h"
+
 #include <QString>
 
 #include <string>
@@ -42,8 +44,8 @@ public:
     void clear();
 
     void appendAddresses(const std::vector<RifEclipseSummaryAddress>& addresses);
-    void appendSummaryCases(const std::vector<RimSummaryCase*>& summaryCases);
-    void appendEnsembleCases(const std::vector<RimSummaryCaseCollection*>& ensembleCases);
+    void setSummaryCases(const std::vector<RimSummaryCase*>& summaryCases);
+    void setEnsembleCases(const std::vector<RimSummaryCaseCollection*>& ensembleCases);
 
     QString plotTitle() const;
 
@@ -57,11 +59,15 @@ private:
     void clearTitleSubStrings();
     void extractPlotTitleSubStrings();
 
+    std::set<RimSummaryCase*> setOfSummaryCases() const;
+    std::set<RimSummaryCaseCollection*> setOfEnsembleCases() const;
+
+
 private:
     RiaSummaryCurveAnalyzer m_analyzer;
 
-    std::set<RimSummaryCase*>           m_summaryCases;
-    std::set<RimSummaryCaseCollection*> m_ensembleCases;
+    std::vector<caf::PdmPointer<RimSummaryCase>>            m_summaryCases;
+    std::vector<caf::PdmPointer<RimSummaryCaseCollection>>   m_ensembleCases;
 
     std::string m_titleQuantity;
     std::string m_titleWellName;
