@@ -314,15 +314,20 @@ void PdmUiTreeSelectionEditor::configureAndUpdateUi(const QString& uiConfigName)
                 QModelIndexList indices = allVisibleSourceModelIndices();
                 if (indices.size() > 0)
                 {
-                    bool allItemsChecked = true;
+                    size_t editableItems = 0u;
+                    size_t checkedEditableItems = 0u;
                     for (auto mi : indices)
                     {
-                        if (m_model->data(mi, Qt::CheckStateRole).toBool() == false)
+                        if (!m_model->isReadOnly(mi))
                         {
-                            allItemsChecked = false;
+                            editableItems++;
+                            if (m_model->isChecked(mi))
+                            {
+                                checkedEditableItems++;
+                            }
                         }
                     }
-
+                    bool allItemsChecked = (editableItems > 0u && checkedEditableItems == editableItems);
                     m_toggleAllCheckBox->setChecked(allItemsChecked);
                 }
             }

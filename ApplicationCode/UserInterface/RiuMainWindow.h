@@ -35,6 +35,7 @@
 
 class QActionGroup;
 class QMdiSubWindow;
+class QToolButton;
 class QSpinBox;
 class QTimer;
 class QUndoView;
@@ -183,7 +184,7 @@ private:
 
     QMenu*              m_windowMenu;
     QLabel*             m_memoryCriticalWarning;
-    QLabel*             m_memoryUsedStatus;
+    QToolButton*        m_memoryUsedButton;
     QLabel*             m_memoryTotalStatus;
     QTimer*             m_memoryRefreshTimer;
 

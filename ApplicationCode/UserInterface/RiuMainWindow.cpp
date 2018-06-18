@@ -26,6 +26,10 @@
 #include "RiaRegressionTest.h"
 #include "RiaRegressionTestRunner.h"
 
+#include "RigFemPartCollection.h"
+#include "RigFemPartResultsCollection.h"
+#include "RigGeoMechCaseData.h"
+
 #include "Rim2dIntersectionView.h"
 #include "Rim3dView.h"
 #include "RimCellEdgeColors.h"
@@ -54,6 +58,7 @@
 #include "RiuRelativePermeabilityPlotPanel.h"
 #include "RiuResultInfoPanel.h"
 #include "RiuResultQwtPlot.h"
+#include "RiuTextDialog.h"
 #include "RiuToolTipMenu.h"
 #include "RiuTreeViewEventFilter.h"
 #include "RiuViewer.h"
@@ -84,6 +89,7 @@
 #include <QLayout>
 #include <QMdiSubWindow>
 #include <QMenuBar>
+#include <QToolButton>
 #include <QSpinBox>
 #include <QStatusBar>
 #include <QTimer>
@@ -145,12 +151,16 @@ RiuMainWindow::RiuMainWindow()
     //caf::CmdExecCommandManager::instance()->enableUndoCommandSystem(true);
 
     m_memoryCriticalWarning = new QLabel("");
-    m_memoryUsedStatus = new QLabel("");
+    m_memoryUsedButton = new QToolButton(nullptr);
     m_memoryTotalStatus = new QLabel("");
 
+    m_memoryUsedButton->setDefaultAction(caf::CmdFeatureManager::instance()->action("RicShowMemoryCleanupDialogFeature"));
+
     statusBar()->addPermanentWidget(m_memoryCriticalWarning);
-    statusBar()->addPermanentWidget(m_memoryUsedStatus);
+    statusBar()->addPermanentWidget(m_memoryUsedButton);
     statusBar()->addPermanentWidget(m_memoryTotalStatus);
+
+    
 
     updateMemoryUsage();
 
@@ -455,6 +465,8 @@ void RiuMainWindow::createMenus()
     // Edit menu
     QMenu* editMenu = menuBar()->addMenu("&Edit");
     editMenu->addAction(cmdFeatureMgr->action("RicSnapshotViewToClipboardFeature"));
+    editMenu->addSeparator();
+    editMenu->addAction(cmdFeatureMgr->action("RicShowMemoryCleanupDialogFeature"));
     editMenu->addSeparator();
     editMenu->addAction(cmdFeatureMgr->action("RicEditPreferencesFeature"));
 
@@ -1732,10 +1744,10 @@ void RiuMainWindow::updateMemoryUsage()
         m_memoryCriticalWarning->setText(QString(""));
     }
 
-    m_memoryUsedStatus->setText(QString("Physical Memory Used: %1 MiB").arg(currentUsage));
+    m_memoryUsedButton->setText(QString("Memory Used: %1 MiB").arg(currentUsage));
     m_memoryTotalStatus->setText(QString("Total Physical Memory: %1 MiB").arg(totalPhysicalMemory));
 
-    m_memoryUsedStatus->setStyleSheet(QString("QLabel {color: %1; padding: 0px 5px 0px 0px;}").arg(usageColor.name()));    
+    m_memoryUsedButton->setStyleSheet(QString("QLabel {color: %1; padding: 0px 5px 0px 0px;}").arg(usageColor.name()));    
     m_memoryTotalStatus->setStyleSheet(QString("QLabel {padding: 0px 5px 0px 0px; }"));
 }
 

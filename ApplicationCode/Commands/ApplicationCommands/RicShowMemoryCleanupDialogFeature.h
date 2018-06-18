@@ -1,7 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2015-     Statoil ASA
-//  Copyright (C) 2015-     Ceetron Solutions AS
+//  Copyright (C) 2018- Statoil ASA
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -18,35 +17,22 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
-#include "cvfObject.h"
-#include "RigFemResultPosEnum.h"
-#include <string>
-#include <vector>
-#include <map>
 
-#include "RigFemScalarResultFrames.h"
-#include "RigFemResultAddress.h"
+#include "cafCmdFeature.h"
+
 
 //==================================================================================================
 /// 
 //==================================================================================================
-
-class RigFemPartResults : public cvf::Object
+class RicShowMemoryCleanupDialogFeature : public caf::CmdFeature
 {
-public:
-    RigFemPartResults();
-    ~RigFemPartResults();
+    CAF_CMD_HEADER_INIT;
 
-    void initResultSteps(const std::vector<std::string>& stepNames);
-
-    RigFemScalarResultFrames*        createScalarResult(const RigFemResultAddress& resVarAddr);
-    RigFemScalarResultFrames*        findScalarResult(const RigFemResultAddress& resVarAddr);
-    void                             deleteScalarResult(const RigFemResultAddress& resVarAddr);
-    std::vector<RigFemResultAddress> loadedResults() const;
-
-private:
-
-    std::vector<std::string> m_stepNames;
-    std::map<RigFemResultAddress, cvf::ref<RigFemScalarResultFrames> >  resultSets;
+protected:
+    // Overrides
+    virtual bool isCommandEnabled() override;
+    virtual void onActionTriggered( bool isChecked ) override;
+    virtual void setupActionLook( QAction* actionToSetup ) override;
 };
+
 

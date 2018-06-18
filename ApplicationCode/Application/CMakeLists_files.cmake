@@ -9,6 +9,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RiaPorosityModel.h
 ${CMAKE_CURRENT_LIST_DIR}/RiaSummaryCurveDefinition.h
 ${CMAKE_CURRENT_LIST_DIR}/RiaRftPltCurveDefinition.h
 ${CMAKE_CURRENT_LIST_DIR}/RiaViewRedrawScheduler.h
+${CMAKE_CURRENT_LIST_DIR}/RiaMemoryCleanup.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -22,6 +23,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RiaPorosityModel.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiaSummaryCurveDefinition.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiaRftPltCurveDefinition.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiaViewRedrawScheduler.cpp
+${CMAKE_CURRENT_LIST_DIR}/RiaMemoryCleanup.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

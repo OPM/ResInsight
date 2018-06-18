@@ -509,13 +509,45 @@ void RimGeoMechResultDefinition::setAddWellPathDerivedResults(bool addWellPathDe
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RigFemResultAddress RimGeoMechResultDefinition::resultAddress()
+RigFemResultAddress RimGeoMechResultDefinition::resultAddress() const
 {
     return RigFemResultAddress(resultPositionType(),
                                resultFieldName().toStdString(), 
                                resultComponentName().toStdString(),
                                m_isTimeLapseResult() ? m_timeLapseBaseTimestep() : RigFemResultAddress::NO_TIME_LAPSE,
                                resultFieldName().toStdString() == RigFemPartResultsCollection::FIELD_NAME_COMPACTION ? m_compactionRefLayer() : RigFemResultAddress::NO_COMPACTION);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RigFemResultAddress> RimGeoMechResultDefinition::observedResults() const
+{
+    return std::vector<RigFemResultAddress>(1, resultAddress());
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RigFemResultPosEnum RimGeoMechResultDefinition::resultPositionType() const
+{
+    return m_resultPositionType();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimGeoMechResultDefinition::resultFieldName() const
+{
+    return m_resultFieldName();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimGeoMechResultDefinition::resultComponentName() const
+{
+    return m_resultComponentName();
 }
 
 //--------------------------------------------------------------------------------------------------

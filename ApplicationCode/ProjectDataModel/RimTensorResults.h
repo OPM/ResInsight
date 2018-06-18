@@ -22,6 +22,7 @@
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 
+#include "RimFemResultObserver.h"
 #include "RigFemResultPosEnum.h"
 #include "RimRegularLegendConfig.h"
 
@@ -36,7 +37,7 @@ class RimRegularLegendConfig;
 ///  
 ///  
 //==================================================================================================
-class RimTensorResults : public caf::PdmObject
+class RimTensorResults : public RimFemResultObserver
 {
     CAF_PDM_HEADER_INIT;
 
@@ -72,9 +73,10 @@ public:
 
     void                mappingRange(double *min, double* max) const;
 
-    static RigFemResultPosEnum resultPositionType();
-    QString                    resultFieldName() const;
-    static QString             uiFieldName(const QString& fieldName);
+    std::vector<RigFemResultAddress> observedResults() const;
+    static RigFemResultPosEnum       resultPositionType();
+    QString                          resultFieldName() const;
+    static QString                   uiFieldName(const QString& fieldName);
 
     caf::PdmChildField<RimRegularLegendConfig*> arrowColorLegendConfig;
 

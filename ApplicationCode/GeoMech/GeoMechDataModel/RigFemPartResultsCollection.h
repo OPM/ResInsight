@@ -68,6 +68,8 @@ public:
     bool                                             assertResultsLoaded(const RigFemResultAddress& resVarAddr);
     void                                             deleteResult(const RigFemResultAddress& resVarAddr);
 
+    std::vector<RigFemResultAddress>                 loadedResults() const;
+
     const std::vector<float>&                        resultValues(const RigFemResultAddress& resVarAddr, int partIndex, int frameIndex);
     std::vector<caf::Ten3f>                          tensors(const RigFemResultAddress& resVarAddr, int partIndex, int frameIndex);
     int                                              partCount() const;
@@ -92,6 +94,10 @@ public:
     void                                             minMaxScalarValuesOverAllTensorComponents(const RigFemResultAddress& resVarAddr, double* globalMin, double* globalMax);
     void                                             posNegClosestToZeroOverAllTensorComponents(const RigFemResultAddress& resVarAddr, int frameIndex, double* localPosClosestToZero, double* localNegClosestToZero);
     void                                             posNegClosestToZeroOverAllTensorComponents(const RigFemResultAddress& resVarAddr, double* globalPosClosestToZero, double* globalNegClosestToZero);
+
+    static std::vector<RigFemResultAddress>          tensorComponentAddresses(const RigFemResultAddress& resVarAddr);
+    static std::vector<RigFemResultAddress>          tensorPrincipalComponentAdresses(const RigFemResultAddress& resVarAddr);
+
 private:
     RigFemScalarResultFrames*                        findOrLoadScalarResult(int partIndex,
                                                                             const RigFemResultAddress& resVarAddr);
@@ -127,9 +133,7 @@ private:
     RigFemScalarResultFrames*                        calculateST_12_13_23(int partIndex, const RigFemResultAddress &resVarAddr);
     RigFemScalarResultFrames*                        calculateGamma(int partIndex, const RigFemResultAddress &resVarAddr);
     RigFemScalarResultFrames*                        calculateFormationIndices(int partIndex, const RigFemResultAddress &resVarAddr);
-
-    static std::vector<RigFemResultAddress>          tensorPrincipalComponentAdresses(const RigFemResultAddress& resVarAddr);
-
+    
 private:
     cvf::Collection<RigFemPartResults>               m_femPartResults;
     cvf::ref<RifGeoMechReaderInterface>              m_readerInterface;

@@ -92,3 +92,16 @@ void RigFemPartResults::deleteScalarResult(const RigFemResultAddress& resVarAddr
         }
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RigFemResultAddress> RigFemPartResults::loadedResults() const
+{
+    std::vector<RigFemResultAddress> currentResults;
+    for (const auto& result : resultSets)
+    {
+        currentResults.push_back(result.first);
+    }
+    return currentResults;
+}

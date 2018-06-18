@@ -71,6 +71,8 @@ public:
     void                    setOptions(caf::PdmUiFieldEditorHandle* field, const QList<caf::PdmOptionItemInfo>& options);
     void                    setUiValueCache(const QVariant* uiValuesCache );
     void                    resetUiValueCache();
+    bool                    isReadOnly(const QModelIndex& index) const;
+    bool                    isChecked(const QModelIndex& index) const;
 
     virtual Qt::ItemFlags   flags(const QModelIndex &index) const override;
     virtual QModelIndex     index(int row, int column, const QModelIndex &parent = QModelIndex()) const override;

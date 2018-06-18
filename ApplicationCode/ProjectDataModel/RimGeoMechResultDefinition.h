@@ -25,6 +25,7 @@
 #include "cafAppEnum.h"
 #include "RigFemResultPosEnum.h"
 #include "RigFemResultAddress.h"
+#include "RimFemResultObserver.h"
 
 class RimGeoMechView;
 class RimGeoMechPropertyFilter;
@@ -36,7 +37,7 @@ class RimGeoMechCase;
 ///  
 ///  
 //==================================================================================================
-class RimGeoMechResultDefinition : public caf::PdmObject
+class RimGeoMechResultDefinition : public RimFemResultObserver
 {
      CAF_PDM_HEADER_INIT;
 public:
@@ -50,11 +51,12 @@ public:
     void                                              loadResult();
     void                                              setAddWellPathDerivedResults(bool addWellPathDerivedResults);
 
-    RigFemResultAddress                               resultAddress();
+    RigFemResultAddress                               resultAddress() const;
+    virtual std::vector<RigFemResultAddress>          observedResults() const override;
 
-    RigFemResultPosEnum                               resultPositionType()  { return m_resultPositionType();}
-    QString                                           resultFieldName()     { return m_resultFieldName();}
-    QString                                           resultComponentName() { return m_resultComponentName();}
+    RigFemResultPosEnum                               resultPositionType() const;
+    QString                                           resultFieldName() const;
+    QString                                           resultComponentName() const;
     void                                              setResultAddress(const RigFemResultAddress& resultAddress);
 
     QString                                           resultFieldUiName();

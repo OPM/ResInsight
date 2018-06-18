@@ -108,14 +108,22 @@ void caf::PdmUiTreeSelectionQModel::setCheckedStateForItems(const QModelIndexLis
     {
         for (auto mi : sourceModelIndices)
         {
-            selectedIndices.insert(static_cast<unsigned int>(optionIndex(mi)));
+            const caf::PdmOptionItemInfo* optionItemInfo = optionItem(mi);
+            if (!optionItemInfo->isReadOnly())
+            {
+                selectedIndices.insert(static_cast<unsigned int>(optionIndex(mi)));
+            }
         }
     }
     else
     {
         for (auto mi : sourceModelIndices)
         {
-            selectedIndices.erase(static_cast<unsigned int>(optionIndex(mi)));
+            const caf::PdmOptionItemInfo* optionItemInfo = optionItem(mi);
+            if (!optionItemInfo->isReadOnly())
+            {
+                selectedIndices.erase(static_cast<unsigned int>(optionIndex(mi)));
+            }
         }
     }
 
@@ -192,6 +200,22 @@ void caf::PdmUiTreeSelectionQModel::setUiValueCache(const QVariant* uiValuesCach
 void caf::PdmUiTreeSelectionQModel::resetUiValueCache()
 {
     m_uiValueCache = nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool caf::PdmUiTreeSelectionQModel::isReadOnly(const QModelIndex& index) const
+{
+    return optionItem(index)->isReadOnly();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool caf::PdmUiTreeSelectionQModel::isChecked(const QModelIndex& index) const
+{
+    return data(index, Qt::CheckStateRole).toBool();       
 }
 
 //--------------------------------------------------------------------------------------------------

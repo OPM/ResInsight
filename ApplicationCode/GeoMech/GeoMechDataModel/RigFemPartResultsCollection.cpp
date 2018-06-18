@@ -2244,6 +2244,20 @@ void RigFemPartResultsCollection::deleteResult(const RigFemResultAddress& resVar
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RigFemResultAddress> RigFemPartResultsCollection::loadedResults() const
+{
+    std::vector<RigFemResultAddress> currentResults;
+    for (auto & femPartResult : m_femPartResults)
+    {
+        std::vector<RigFemResultAddress> partResults = femPartResult->loadedResults();
+        currentResults.insert(currentResults.end(), partResults.begin(), partResults.end());
+    }
+    return currentResults;
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 const std::vector<float>& RigFemPartResultsCollection::resultValues(const RigFemResultAddress& resVarAddr, int partIndex, int frameIndex)
@@ -2263,40 +2277,19 @@ std::vector<caf::Ten3f> RigFemPartResultsCollection::tensors(const RigFemResultA
 
     std::vector<caf::Ten3f> outputTensors;
 
-    RigFemResultAddress address11(resVarAddr.resultPosType, resVarAddr.fieldName, "");
-    RigFemResultAddress address22(resVarAddr.resultPosType, resVarAddr.fieldName, "");
-    RigFemResultAddress address33(resVarAddr.resultPosType, resVarAddr.fieldName, "");
-    RigFemResultAddress address12(resVarAddr.resultPosType, resVarAddr.fieldName, "");
-    RigFemResultAddress address13(resVarAddr.resultPosType, resVarAddr.fieldName, "");
-    RigFemResultAddress address23(resVarAddr.resultPosType, resVarAddr.fieldName, "");
+    std::vector<RigFemResultAddress> addresses = tensorComponentAddresses(resVarAddr);
 
-    if (resVarAddr.fieldName == "SE" || resVarAddr.fieldName == "ST")
+    if (addresses.empty())
     {
-        address11.componentName = "S11";
-        address22.componentName = "S22";
-        address33.componentName = "S33";
-        address12.componentName = "S12";
-        address13.componentName = "S13";
-        address23.componentName = "S23";
-    }
-    else if (resVarAddr.fieldName == "NE")
-    {
-        address11.componentName = "E11";
-        address22.componentName = "E22";
-        address33.componentName = "E33";
-        address12.componentName = "E12";
-        address13.componentName = "E13";
-        address23.componentName = "E23";
-    }
-    else
         return outputTensors;
+    }
 
-    const std::vector<float>& v11 = resultValues(address11, partIndex, frameIndex);
-    const std::vector<float>& v22 = resultValues(address22, partIndex, frameIndex);
-    const std::vector<float>& v33 = resultValues(address33, partIndex, frameIndex);
-    const std::vector<float>& v12 = resultValues(address12, partIndex, frameIndex);
-    const std::vector<float>& v13 = resultValues(address13, partIndex, frameIndex);
-    const std::vector<float>& v23 = resultValues(address23, partIndex, frameIndex);
+    const std::vector<float>& v11 = resultValues(addresses[caf::Ten3f::SXX], partIndex, frameIndex);
+    const std::vector<float>& v22 = resultValues(addresses[caf::Ten3f::SYY], partIndex, frameIndex);
+    const std::vector<float>& v33 = resultValues(addresses[caf::Ten3f::SZZ], partIndex, frameIndex);
+    const std::vector<float>& v12 = resultValues(addresses[caf::Ten3f::SXY], partIndex, frameIndex);
+    const std::vector<float>& v13 = resultValues(addresses[caf::Ten3f::SZX], partIndex, frameIndex);
+    const std::vector<float>& v23 = resultValues(addresses[caf::Ten3f::SYZ], partIndex, frameIndex);
 
     size_t valCount = v11.size();
     outputTensors.resize(valCount);
@@ -2566,6 +2559,38 @@ void RigFemPartResultsCollection::posNegClosestToZeroOverAllTensorComponents(con
 
     *globalPosClosestToZero = currentPosClosestToZero;
     *globalNegClosestToZero = currentNegClosestToZero;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RigFemResultAddress> RigFemPartResultsCollection::tensorComponentAddresses(const RigFemResultAddress& resVarAddr)
+{
+    std::vector<RigFemResultAddress> addresses(6, RigFemResultAddress(resVarAddr.resultPosType, resVarAddr.fieldName, ""));
+
+    if (resVarAddr.fieldName == "SE" || resVarAddr.fieldName == "ST")
+    {
+        addresses[caf::Ten3f::SXX].componentName = "S11";
+        addresses[caf::Ten3f::SYY].componentName = "S22";
+        addresses[caf::Ten3f::SZZ].componentName = "S33";
+        addresses[caf::Ten3f::SXY].componentName = "S12";
+        addresses[caf::Ten3f::SZX].componentName = "S13";
+        addresses[caf::Ten3f::SYZ].componentName = "S23";
+    }
+    else if (resVarAddr.fieldName == "NE")
+    {
+        addresses[caf::Ten3f::SXX].componentName = "E11";
+        addresses[caf::Ten3f::SYY].componentName = "E22";
+        addresses[caf::Ten3f::SZZ].componentName = "E33";
+        addresses[caf::Ten3f::SXY].componentName = "E12";
+        addresses[caf::Ten3f::SZX].componentName = "E13";
+        addresses[caf::Ten3f::SYZ].componentName = "E23";
+    }
+    else
+    {
+        return std::vector<RigFemResultAddress>();
+    }
+    return addresses;
 }
 
 //--------------------------------------------------------------------------------------------------
