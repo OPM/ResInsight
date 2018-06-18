@@ -25,6 +25,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RimSimWellInView.h
 ${CMAKE_CURRENT_LIST_DIR}/RimSimWellInViewCollection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimWellPath.h
 ${CMAKE_CURRENT_LIST_DIR}/RimWellPathCollection.h
+${CMAKE_CURRENT_LIST_DIR}/RimWellPathTarget.h
 ${CMAKE_CURRENT_LIST_DIR}/RimScriptCollection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimEclipseStatisticsCase.h
 ${CMAKE_CURRENT_LIST_DIR}/RimEclipseStatisticsCaseCollection.h
@@ -134,6 +135,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RimSimWellInView.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimSimWellInViewCollection.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimWellPath.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimWellPathCollection.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimWellPathTarget.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimScriptCollection.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimEclipseStatisticsCase.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimEclipseStatisticsCaseCollection.cpp
