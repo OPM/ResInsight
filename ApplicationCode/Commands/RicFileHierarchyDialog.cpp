@@ -58,6 +58,7 @@
 #define NO_FILES_FOUND_TEXT         "No files found"
 #define SCANNING_DIRS_TEXT          "Scanning Directories"
 #define FINDING_FILES_TEXT          "Finding Files"
+#define FILES_FOUND_TEXT            "Files found"
 
 //--------------------------------------------------------------------------------------------------
 /// Internal variables
@@ -291,6 +292,7 @@ void RicFileHierarchyDialog::clearFileList()
 {
     m_files.clear();
     m_fileList->clear();
+    m_fileListLabel->setText(FILES_FOUND_TEXT);
     setOkButtonEnabled(false);
 }
 
@@ -674,6 +676,10 @@ void RicFileHierarchyDialog::slotFindOrCancelButtonClicked()
         else if(m_files.isEmpty())
         {
             updateStatus(NO_FILES_FOUND);
+        }
+        else
+        {
+            m_fileListLabel->setText(QString("%1\n(%2)").arg(FILES_FOUND_TEXT).arg(m_files.size()));
         }
 
         setOkButtonEnabled(!m_files.isEmpty());
