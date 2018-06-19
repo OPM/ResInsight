@@ -806,12 +806,13 @@ void RicWellPathExportCompletionDataFeatureImpl::exportWpimultTableUsingFormatte
         }
 
         formatter.add(completion.wellName());
-        formatter.add(completion.wpimult());
 
         if (!gridName.isEmpty())
         {
             formatter.add(gridName);
         }
+
+        formatter.add(completion.wpimult());
 
         formatter.addZeroBasedCellIndex(completion.completionDataGridCell().localCellIndexI())
             .addZeroBasedCellIndex(completion.completionDataGridCell().localCellIndexJ())
