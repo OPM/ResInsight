@@ -238,9 +238,9 @@ size_t RigCaseCellResultsData::findScalarResultIndex(RiaDefines::ResultCatType t
     std::vector<RigEclipseResultInfo>::const_iterator it;
     for (it = m_resultInfos.begin(); it != m_resultInfos.end(); ++it)
     {
-        if (it->m_resultType == type && it->m_resultName == resultName)
+        if (it->resultType() == type && it->resultName() == resultName)
         {
-            return it->m_gridScalarResultIndex;
+            return it->gridScalarResultIndex();
         }
     }
 
@@ -301,7 +301,7 @@ size_t RigCaseCellResultsData::findOrCreateScalarResultIndex(RiaDefines::ResultC
 
     scalarResultIndex = this->resultCount();
     m_cellScalarResults.push_back(std::vector<std::vector<double> >());
-    RigEclipseResultInfo resInfo(type, needsToBeStored, false, resultName, scalarResultIndex);
+    RigEclipseResultInfo resInfo(type, resultName, needsToBeStored, false, scalarResultIndex);
     m_resultInfos.push_back(resInfo);
 
     // Create statistics calculator and add statistics cache object
@@ -409,9 +409,9 @@ QStringList RigCaseCellResultsData::resultNames(RiaDefines::ResultCatType resTyp
     std::vector<RigEclipseResultInfo>::const_iterator it;
     for (it = m_resultInfos.begin(); it != m_resultInfos.end(); ++it)
     {
-        if (it->m_resultType == resType )
+        if (it->resultType() == resType )
         {
-            varList.push_back(it->m_resultName);
+            varList.push_back(it->resultName());
         }
     } 
     return varList;
@@ -475,8 +475,8 @@ std::vector<QDateTime> RigCaseCellResultsData::allTimeStepDatesFromEclipseReader
 //--------------------------------------------------------------------------------------------------
 QDateTime RigCaseCellResultsData::timeStepDate(size_t scalarResultIndex, size_t timeStepIndex) const
 {
-    if (scalarResultIndex < m_resultInfos.size() && m_resultInfos[scalarResultIndex].m_timeStepInfos.size() > timeStepIndex)
-        return m_resultInfos[scalarResultIndex].m_timeStepInfos[timeStepIndex].m_date;
+    if (scalarResultIndex < m_resultInfos.size() && m_resultInfos[scalarResultIndex].timeStepInfos().size() > timeStepIndex)
+        return m_resultInfos[scalarResultIndex].timeStepInfos()[timeStepIndex].m_date;
     else
         return QDateTime();
 }
@@ -536,8 +536,8 @@ std::vector<double> RigCaseCellResultsData::daysSinceSimulationStart(size_t scal
 //--------------------------------------------------------------------------------------------------
 int RigCaseCellResultsData::reportStepNumber(size_t scalarResultIndex, size_t timeStepIndex) const
 {
-    if (scalarResultIndex < m_resultInfos.size() && m_resultInfos[scalarResultIndex].m_timeStepInfos.size() > timeStepIndex)
-        return m_resultInfos[scalarResultIndex].m_timeStepInfos[timeStepIndex].m_reportNumber;
+    if (scalarResultIndex < m_resultInfos.size() && m_resultInfos[scalarResultIndex].timeStepInfos().size() > timeStepIndex)
+        return m_resultInfos[scalarResultIndex].timeStepInfos()[timeStepIndex].m_reportNumber;
     else
         return -1;
 }
@@ -559,7 +559,7 @@ std::vector<int> RigCaseCellResultsData::reportStepNumbers(size_t scalarResultIn
 std::vector<RigEclipseTimeStepInfo> RigCaseCellResultsData::timeStepInfos(size_t scalarResultIndex) const
 {
     if (scalarResultIndex < m_resultInfos.size())
-        return m_resultInfos[scalarResultIndex].m_timeStepInfos;
+        return m_resultInfos[scalarResultIndex].timeStepInfos();
     else
         return std::vector<RigEclipseTimeStepInfo>();
 }
@@ -571,7 +571,7 @@ void RigCaseCellResultsData::setTimeStepInfos(size_t scalarResultIndex, const st
 {
     CVF_ASSERT(scalarResultIndex < m_resultInfos.size() );
 
-    m_resultInfos[scalarResultIndex].m_timeStepInfos = timeStepInfos;
+    m_resultInfos[scalarResultIndex].setTimeStepInfos(timeStepInfos);
 
     std::vector< std::vector<double> >& dataValues = this->cellScalarResults(scalarResultIndex);
     dataValues.resize(timeStepInfos.size());
@@ -587,9 +587,9 @@ size_t RigCaseCellResultsData::maxTimeStepCount(size_t* scalarResultIndexWithMos
 
     for (size_t i = 0; i < m_resultInfos.size(); i++)
     {
-        if (m_resultInfos[i].m_timeStepInfos.size() > maxTsCount)
+        if (m_resultInfos[i].timeStepInfos().size() > maxTsCount)
         {
-            maxTsCount = m_resultInfos[i].m_timeStepInfos.size();
+            maxTsCount = m_resultInfos[i].timeStepInfos().size();
             scalarResultIndexWithMaxTsCount = i;
         }
     }
@@ -632,10 +632,19 @@ void RigCaseCellResultsData::clearScalarResult(RiaDefines::ResultCatType type, c
     size_t scalarResultIndex = this->findScalarResultIndex(type, resultName);
     if (scalarResultIndex == cvf::UNDEFINED_SIZE_T) return;
 
-    m_cellScalarResults[scalarResultIndex].clear();
+    std::vector<std::vector<double>> empty;
+    m_cellScalarResults[scalarResultIndex].swap(empty);
     recalculateStatistics(scalarResultIndex);
 
-    //m_resultInfos[scalarResultIndex].m_resultType = RiaDefines::REMOVED;
+    //m_resultInfos[scalarResultIndex].type() = RiaDefines::REMOVED;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigCaseCellResultsData::clearScalarResult(const RigEclipseResultInfo& resultInfo)
+{
+    clearScalarResult(resultInfo.resultType(), resultInfo.resultName());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -688,10 +697,10 @@ bool RigCaseCellResultsData::updateResultName(RiaDefines::ResultCatType resultTy
 
     for (auto& it : m_resultInfos)
     {
-        if (it.m_resultType == resultType && it.m_resultName == oldName)
+        if (it.resultType() == resultType && it.resultName() == oldName)
         {
             anyNameUpdated = true;
-            it.m_resultName = newName;
+            it.setResultName(newName);
         }
     }
 
@@ -742,9 +751,9 @@ bool RigCaseCellResultsData::mustBeCalculated(size_t scalarResultIndex) const
     std::vector<RigEclipseResultInfo>::const_iterator it;
     for (it = m_resultInfos.begin(); it != m_resultInfos.end(); ++it)
     {
-        if (it->m_gridScalarResultIndex == scalarResultIndex)
+        if (it->gridScalarResultIndex() == scalarResultIndex)
         {
-            return it->m_mustBeCalculated;
+            return it->mustBeCalculated();
         }
     }
 
@@ -759,9 +768,9 @@ void RigCaseCellResultsData::setMustBeCalculated(size_t scalarResultIndex)
     std::vector<RigEclipseResultInfo>::iterator it;
     for (it = m_resultInfos.begin(); it != m_resultInfos.end(); ++it)
     {
-        if (it->m_gridScalarResultIndex == scalarResultIndex)
+        if (it->gridScalarResultIndex() == scalarResultIndex)
         {
-            it->m_mustBeCalculated = true;
+            it->setMustBeCalculated(true);
         }
     }
 }
@@ -774,9 +783,9 @@ void RigCaseCellResultsData::eraseAllSourSimData()
     for (size_t i = 0; i < m_resultInfos.size(); i++)
     {
         RigEclipseResultInfo& ri = m_resultInfos[i];
-        if (ri.m_resultType == RiaDefines::SOURSIMRL)
+        if (ri.resultType() == RiaDefines::SOURSIMRL)
         {
-            ri.m_resultType = RiaDefines::REMOVED;
+            ri.setResultType(RiaDefines::REMOVED);
         }
     }
 }
@@ -1102,7 +1111,7 @@ size_t RigCaseCellResultsData::findOrLoadScalarResult(RiaDefines::ResultCatType 
     if (m_readerInterface.notNull())
     {
         // Add one more result to result container
-        size_t timeStepCount = this->infoForEachResultIndex()[scalarResultIndex].m_timeStepInfos.size();
+        size_t timeStepCount = this->infoForEachResultIndex()[scalarResultIndex].timeStepInfos().size();
 
         bool resultLoadingSucess = true;
 
@@ -1145,7 +1154,7 @@ size_t RigCaseCellResultsData::findOrLoadScalarResult(RiaDefines::ResultCatType 
         RifReaderEclipseOutput* eclReader = dynamic_cast<RifReaderEclipseOutput*>(m_readerInterface.p());
         if (eclReader)
         {
-            size_t timeStepCount = this->infoForEachResultIndex()[scalarResultIndex].m_timeStepInfos.size();
+            size_t timeStepCount = this->infoForEachResultIndex()[scalarResultIndex].timeStepInfos().size();
 
             this->cellScalarResults(scalarResultIndex).resize(timeStepCount);
 
@@ -1202,7 +1211,7 @@ size_t RigCaseCellResultsData::findOrLoadScalarResultForTimeStep(RiaDefines::Res
 
     if (m_readerInterface.notNull())
     {
-        size_t timeStepCount = this->infoForEachResultIndex()[scalarResultIndex].m_timeStepInfos.size();
+        size_t timeStepCount = this->infoForEachResultIndex()[scalarResultIndex].timeStepInfos().size();
 
         bool resultLoadingSucess = true;
 
@@ -1244,7 +1253,7 @@ size_t RigCaseCellResultsData::findOrLoadScalarResultForTimeStep(RiaDefines::Res
         RifReaderEclipseOutput* eclReader = dynamic_cast<RifReaderEclipseOutput*>(m_readerInterface.p());
         if (eclReader)
         {
-            size_t timeStepCount = this->infoForEachResultIndex()[scalarResultIndex].m_timeStepInfos.size();
+            size_t timeStepCount = this->infoForEachResultIndex()[scalarResultIndex].timeStepInfos().size();
 
             this->cellScalarResults(scalarResultIndex).resize(timeStepCount);
 
@@ -1289,7 +1298,7 @@ void RigCaseCellResultsData::computeSOILForTimeStep(size_t timeStepIndex)
         if (swatForTimeStep.size() > 0)
         {
             soilResultValueCount = swatForTimeStep.size();
-            soilTimeStepCount = this->infoForEachResultIndex()[scalarIndexSWAT].m_timeStepInfos.size();
+            soilTimeStepCount = this->infoForEachResultIndex()[scalarIndexSWAT].timeStepInfos().size();
         }
     }
 
@@ -1300,7 +1309,7 @@ void RigCaseCellResultsData::computeSOILForTimeStep(size_t timeStepIndex)
         {
             soilResultValueCount = qMax(soilResultValueCount, sgasForTimeStep.size());
 
-            size_t sgasTimeStepCount = this->infoForEachResultIndex()[scalarIndexSGAS].m_timeStepInfos.size();
+            size_t sgasTimeStepCount = this->infoForEachResultIndex()[scalarIndexSGAS].timeStepInfos().size();
             soilTimeStepCount = qMax(soilTimeStepCount, sgasTimeStepCount);
         }
     }
@@ -1409,7 +1418,7 @@ void RigCaseCellResultsData::testAndComputeSgasForTimeStep(size_t timeStepIndex)
         if (swatForTimeStep.size() > 0)
         {
             swatResultValueCount = swatForTimeStep.size();
-            swatTimeStepCount = this->infoForEachResultIndex()[scalarIndexSWAT].m_timeStepInfos.size();
+            swatTimeStepCount = this->infoForEachResultIndex()[scalarIndexSWAT].timeStepInfos().size();
         }
     }
 

@@ -251,10 +251,10 @@ void RimIdenticalGridCaseGroup::loadMainCaseAndActiveCellInfo()
 
             for (size_t resIdx = 0; resIdx < resultInfos.size(); resIdx++)
             {
-                RiaDefines::ResultCatType resultType = resultInfos[resIdx].m_resultType;
-                QString resultName = resultInfos[resIdx].m_resultName;
-                bool needsToBeStored = resultInfos[resIdx].m_needsToBeStored;
-                bool mustBeCalculated = resultInfos[resIdx].m_mustBeCalculated;
+                RiaDefines::ResultCatType resultType = resultInfos[resIdx].resultType();
+                QString resultName = resultInfos[resIdx].resultName();
+                bool needsToBeStored = resultInfos[resIdx].needsToBeStored();
+                bool mustBeCalculated = resultInfos[resIdx].mustBeCalculated();
 
                 size_t scalarResultIndex = cellResultsStorage->findScalarResultIndex(resultType, resultName);
                 if (scalarResultIndex == cvf::UNDEFINED_SIZE_T)

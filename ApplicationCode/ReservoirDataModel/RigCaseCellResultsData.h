@@ -107,6 +107,7 @@ public:
     void                                               computeDepthRelatedResults();
 
     void                                               clearScalarResult(RiaDefines::ResultCatType type, const QString & resultName);
+    void                                               clearScalarResult(const RigEclipseResultInfo& resultInfo);
     void                                               clearAllResults();
     void                                               freeAllocatedResultsData();
 
