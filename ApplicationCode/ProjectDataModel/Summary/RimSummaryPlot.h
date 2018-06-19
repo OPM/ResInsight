@@ -22,6 +22,7 @@
 #include "cafPdmChildArrayField.h"
 
 #include "RiaDefines.h"
+#include "RiaQDateTimeTools.h"
 
 #include "RifEclipseSummaryAddress.h"
 
@@ -102,7 +103,7 @@ public:
 
     virtual QWidget*                                viewWidget() override;
 
-    QString                                         asciiDataForPlotExport() const;
+    QString                                         asciiDataForPlotExport(DateTimePeriod resamplingPeriod = DateTimePeriod::NONE) const;
 
     std::vector<RimSummaryCurve*>                   summaryAndEnsembleCurves() const;
     std::vector<RimSummaryCurve*>                   summaryCurves() const;

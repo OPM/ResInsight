@@ -33,6 +33,7 @@ class DateTimeSpan;
 //==================================================================================================
 enum class DateTimePeriod
 {
+    NONE = -1,
     DECADE,
     YEAR,
     HALFYEAR,
