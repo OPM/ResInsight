@@ -170,7 +170,7 @@ void RimEnsembleCurveFilter::fieldChangedByUi(const caf::PdmFieldHandle* changed
         auto eParam = selectedEnsembleParameter();
         if (eParam.isNumeric())
         {
-            setDefaultValues();
+            setInitialValues(true);
         }
         else if (eParam.isText())
         {
@@ -308,7 +308,7 @@ std::vector<RimSummaryCase*> RimEnsembleCurveFilter::applyFilter(const std::vect
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleCurveFilter::loadDataAndUpdate()
 {
-    setDefaultValues();
+    setInitialValues(false);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -342,13 +342,16 @@ RimEnsembleCurveFilterCollection* RimEnsembleCurveFilter::parentCurveFilterColle
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimEnsembleCurveFilter::setDefaultValues()
+void RimEnsembleCurveFilter::setInitialValues(bool forceDefault)
 {
     auto eParam = selectedEnsembleParameter();
     if (eParam.isValid() && eParam.isNumeric())
     {
-        m_lowerLimit = m_minValue = eParam.minValue;
-        m_upperLimit = m_maxValue = eParam.maxValue;
+        m_lowerLimit = eParam.minValue;
+        m_upperLimit = eParam.maxValue;
+
+        if (forceDefault || !(m_minValue >= m_lowerLimit && m_minValue <= m_upperLimit)) m_minValue = m_lowerLimit;
+        if (forceDefault || !(m_maxValue >= m_lowerLimit && m_maxValue <= m_upperLimit)) m_maxValue = m_upperLimit;
 
         m_minValue.uiCapability()->setUiName(QString("Min (%1)").arg(m_lowerLimit));
         m_maxValue.uiCapability()->setUiName(QString("Max (%1)").arg(m_upperLimit));

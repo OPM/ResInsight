@@ -46,7 +46,7 @@ RimEnsembleCurveFilterCollection::RimEnsembleCurveFilterCollection()
 {
     CAF_PDM_InitObject("Curve Filters", ":/SummaryCurveFilter16x16.png", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&m_active, "Active", "Active", "", "", "");
+    CAF_PDM_InitField(&m_active, "Active", true, "Active", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_filters, "CurveFilters", "", "", "", "");
     m_filters.uiCapability()->setUiTreeChildrenHidden(true);
