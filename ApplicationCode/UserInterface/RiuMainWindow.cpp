@@ -26,10 +26,6 @@
 #include "RiaRegressionTest.h"
 #include "RiaRegressionTestRunner.h"
 
-#include "RigFemPartCollection.h"
-#include "RigFemPartResultsCollection.h"
-#include "RigGeoMechCaseData.h"
-
 #include "Rim2dIntersectionView.h"
 #include "Rim3dView.h"
 #include "RimCellEdgeColors.h"
@@ -58,7 +54,6 @@
 #include "RiuRelativePermeabilityPlotPanel.h"
 #include "RiuResultInfoPanel.h"
 #include "RiuResultQwtPlot.h"
-#include "RiuTextDialog.h"
 #include "RiuToolTipMenu.h"
 #include "RiuTreeViewEventFilter.h"
 #include "RiuViewer.h"
