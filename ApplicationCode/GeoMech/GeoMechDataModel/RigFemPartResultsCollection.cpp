@@ -501,7 +501,8 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateBarConvertedResu
     frameCountProgress.setProgressDescription("Calculating " + QString::fromStdString(convertedResultAddr.fieldName + ": " + convertedResultAddr.componentName));
     frameCountProgress.setNextProgressIncrement(this->frameCount());
 
-    RigFemScalarResultFrames * srcDataFrames = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(convertedResultAddr.resultPosType, fieldNameToConvert, convertedResultAddr.componentName));
+    RigFemResultAddress unconvertedResultAddr(convertedResultAddr.resultPosType, fieldNameToConvert, convertedResultAddr.componentName);
+    RigFemScalarResultFrames * srcDataFrames = this->findOrLoadScalarResult(partIndex, unconvertedResultAddr);
     RigFemScalarResultFrames * dstDataFrames = m_femPartResults[partIndex]->createScalarResult(convertedResultAddr);
 
     frameCountProgress.incrementProgress();
@@ -522,7 +523,7 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateBarConvertedResu
 
         frameCountProgress.incrementProgress();
     }
-
+    this->deleteResult(unconvertedResultAddr);
     return dstDataFrames;
 }
 
@@ -535,7 +536,8 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateEnIpPorBarResult
     frameCountProgress.setProgressDescription("Calculating " + QString::fromStdString(convertedResultAddr.fieldName + ": " + convertedResultAddr.componentName));
     frameCountProgress.setNextProgressIncrement(this->frameCount());
 
-    RigFemScalarResultFrames * srcDataFrames = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(RIG_NODAL, "POR", ""));
+    RigFemResultAddress unconvertedResultAddr(RIG_NODAL, "POR", "");
+    RigFemScalarResultFrames * srcDataFrames = this->findOrLoadScalarResult(partIndex, unconvertedResultAddr);
     RigFemScalarResultFrames * dstDataFrames = m_femPartResults[partIndex]->createScalarResult(convertedResultAddr);
 
     frameCountProgress.incrementProgress();
@@ -576,6 +578,7 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateEnIpPorBarResult
         frameCountProgress.incrementProgress();
     }
 
+    this->deleteResult(unconvertedResultAddr);
     return dstDataFrames;
 }
 
