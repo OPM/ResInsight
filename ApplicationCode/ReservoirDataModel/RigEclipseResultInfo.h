@@ -73,6 +73,7 @@ public:
     std::vector<double>         daysSinceSimulationStarts() const;
     std::vector<int>            reportNumbers() const;
     
+    bool operator<(const RigEclipseResultInfo& rhs) const;
 private:
     RiaDefines::ResultCatType   m_resultType;
     bool                        m_needsToBeStored;

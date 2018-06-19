@@ -110,6 +110,8 @@ public:
     void                                               clearScalarResult(const RigEclipseResultInfo& resultInfo);
     void                                               clearAllResults();
     void                                               freeAllocatedResultsData();
+    bool                                               isResultLoaded(const RigEclipseResultInfo& resultInfo) const;
+
 
     // Access the results data
 

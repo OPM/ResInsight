@@ -632,11 +632,13 @@ void RigCaseCellResultsData::clearScalarResult(RiaDefines::ResultCatType type, c
     size_t scalarResultIndex = this->findScalarResultIndex(type, resultName);
     if (scalarResultIndex == cvf::UNDEFINED_SIZE_T) return;
 
-    std::vector<std::vector<double>> empty;
-    m_cellScalarResults[scalarResultIndex].swap(empty);
+    for (size_t tsIdx = 0; tsIdx < m_cellScalarResults[scalarResultIndex].size(); ++tsIdx)
+    {
+        std::vector<double> empty;
+        m_cellScalarResults[scalarResultIndex][tsIdx].swap(empty);
+    }    
+    
     recalculateStatistics(scalarResultIndex);
-
-    //m_resultInfos[scalarResultIndex].type() = RiaDefines::REMOVED;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -672,6 +674,20 @@ void RigCaseCellResultsData::freeAllocatedResultsData()
             m_cellScalarResults[resultIdx][tsIdx].swap(empty);
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RigCaseCellResultsData::isResultLoaded(const RigEclipseResultInfo& resultInfo) const
+{
+    size_t scalarResultIndex = this->findScalarResultIndex(resultInfo.resultType(), resultInfo.resultName());
+    CVF_TIGHT_ASSERT(scalarResultIndex != cvf::UNDEFINED_SIZE_T);
+    if (scalarResultIndex != cvf::UNDEFINED_SIZE_T)
+    {
+        return isDataPresent(scalarResultIndex);
+    }
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------

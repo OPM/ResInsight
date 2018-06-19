@@ -19,6 +19,7 @@
 #pragma once
 
 #include "RigFemResultAddress.h"
+#include "RigEclipseResultInfo.h"
 
 #include "cafPdmField.h"
 #include "cafPdmChildArrayField.h"
@@ -41,7 +42,9 @@ protected:
     virtual void                          fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
 private:
     std::vector<RigFemResultAddress>      selectedGeoMechResults() const;
+    std::vector<RigEclipseResultInfo>     selectedEclipseResults() const;
     std::set<RigFemResultAddress>         findGeoMechCaseResultsInUse() const;
+    std::set<RigEclipseResultInfo>        findEclipseResultsInUse() const;
 
     virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions,
                                                                 bool*                      useOptionsOnly) override;
@@ -51,5 +54,6 @@ private:
     caf::PdmPtrField<RimCase*>                      m_case;
     caf::PdmField<std::vector<size_t>>              m_resultsToDelete;
     std::vector<RigFemResultAddress>                m_geomResultAddresses;
+    std::vector<RigEclipseResultInfo>               m_eclipseResultAddresses;
     caf::PdmField<bool>                             m_performDelete;
 };

@@ -204,3 +204,19 @@ std::vector<int> RigEclipseResultInfo::reportNumbers() const
 
     return values;
 }
+
+//--------------------------------------------------------------------------------------------------
+/// Ordering operator for set storage. Just the type and name are used to find unique addresses.
+//--------------------------------------------------------------------------------------------------
+bool RigEclipseResultInfo::operator<(const RigEclipseResultInfo& rhs) const
+{
+    if (m_resultType != rhs.resultType())
+    {
+        return m_resultType < rhs.resultType();
+    }
+    if (m_resultName != rhs.resultName())
+    {
+        return m_resultName < rhs.resultName();
+    }
+    return false;
+}
