@@ -137,7 +137,7 @@ void RigGeoMechWellLogExtractor::wellPathDerivedCurveData(const RigFemResultAddr
         double porePressure = trueVerticalDepth * 9.81 / 100.0;
         if (false && !porePressures.empty())
         {
-            float interpolatedPorePressure = interpolateGridResultValue(porBarResAddr.resultPosType, porePressures, intersectionIdx, true);
+            float interpolatedPorePressure = interpolateGridResultValue(porBarResAddr.resultPosType, porePressures, intersectionIdx, false);
             if (interpolatedPorePressure != std::numeric_limits<float>::infinity() &&
                 interpolatedPorePressure != -std::numeric_limits<float>::infinity())
             {
@@ -145,7 +145,7 @@ void RigGeoMechWellLogExtractor::wellPathDerivedCurveData(const RigFemResultAddr
             }
         }
 
-        caf::Ten3d interpolatedStress = interpolateGridResultValue(stressResAddr.resultPosType, vertexStresses, intersectionIdx, true);
+        caf::Ten3d interpolatedStress = interpolateGridResultValue(stressResAddr.resultPosType, vertexStresses, intersectionIdx, false);
         cvf::Vec3d wellPathTangent = calculateWellPathTangent(intersectionIdx);
         caf::Ten3d wellPathStressFloat = transformTensorToWellPathOrientation(wellPathTangent, interpolatedStress);
         caf::Ten3d wellPathStressDouble(wellPathStressFloat);
