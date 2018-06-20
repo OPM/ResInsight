@@ -136,6 +136,37 @@ bool Rim3dWellLogCurve::isShowingCurve() const
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void Rim3dWellLogCurve::curveValuesAndMdsAtTimeStep(std::vector<double>* values, std::vector<double>* measuredDepthValues, int timeStep) const
+{
+    return this->curveValuesAndMds(values, measuredDepthValues);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::pair<double, double> Rim3dWellLogCurve::findCurveValueRange()
+{
+    double foundMinValue = std::numeric_limits<float>::infinity();
+    double foundMaxValue = -std::numeric_limits<float>::infinity();
+
+    std::vector<double> values;
+    std::vector<double> measuredDepths;
+    this->curveValuesAndMds(&values, &measuredDepths);
+
+    for (double value : values)
+    {
+        if (RiaCurveDataTools::isValidValue(value, false))
+        {
+            foundMinValue = std::min(foundMinValue, value);
+            foundMaxValue = std::max(foundMaxValue, value);
+        }
+    }
+    return std::make_pair(foundMinValue, foundMaxValue);
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void Rim3dWellLogCurve::setColor(const cvf::Color3f& color)
@@ -261,22 +292,10 @@ cvf::ref<Riv3dWellLogCurveGeometryGenerator> Rim3dWellLogCurve::geometryGenerato
 //--------------------------------------------------------------------------------------------------
 void Rim3dWellLogCurve::resetMinMaxValues()
 {
-    std::vector<double> values;
-    std::vector<double> measuredDepths;
-    this->curveValuesAndMds(&values, &measuredDepths);
-    double foundMinValue = std::numeric_limits<float>::infinity();
-    double foundMaxValue = -std::numeric_limits<float>::infinity();
-    for (double value : values)
-    {
-        if (RiaCurveDataTools::isValidValue(value, false))
-        {
-            foundMinValue = std::min(foundMinValue, value);
-            foundMaxValue = std::max(foundMaxValue, value);
-        }
-    }
+    std::pair<double, double> valueRange = findCurveValueRange();
 
-    m_minCurveDataValue = foundMinValue;
-    m_maxCurveDataValue = foundMaxValue;
+    m_minCurveDataValue = valueRange.first;
+    m_maxCurveDataValue = valueRange.second;
 
     m_minCurveUIValue = m_minCurveDataValue;
     m_maxCurveUIValue = m_maxCurveDataValue;

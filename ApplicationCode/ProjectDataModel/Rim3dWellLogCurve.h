@@ -66,7 +66,10 @@ public:
     cvf::Color3f    color() const;
     bool            isShowingCurve() const;
 
+    virtual bool    followAnimationTimeStep() const { return false;  }
     virtual void    curveValuesAndMds(std::vector<double>* values, std::vector<double>* measuredDepthValues) const = 0;
+    virtual void    curveValuesAndMdsAtTimeStep(std::vector<double>* values, std::vector<double>* measuredDepthValues, int timeStep) const;
+    virtual std::pair<double,double> findCurveValueRange();
 
     void            setColor(const cvf::Color3f& color);
 

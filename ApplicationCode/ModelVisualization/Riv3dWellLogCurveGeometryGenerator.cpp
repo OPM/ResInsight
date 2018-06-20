@@ -49,7 +49,8 @@ void Riv3dWellLogCurveGeometryGenerator::createCurveDrawables(const caf::Display
                                                               const Rim3dWellLogCurve*          rim3dWellLogCurve,
                                                               double                            planeOffsetFromWellPathCenter,
                                                               double                            planeWidth,
-                                                              const std::vector<cvf::Vec3d>&    drawSurfaceVertices)
+                                                              const std::vector<cvf::Vec3d>&    drawSurfaceVertices,
+                                                              int                               currentTimeStep)
 {
     CVF_ASSERT(rim3dWellLogCurve);
 
@@ -66,7 +67,14 @@ void Riv3dWellLogCurveGeometryGenerator::createCurveDrawables(const caf::Display
 
     std::vector<double> resultValues;
     std::vector<double> resultMds;
-    rim3dWellLogCurve->curveValuesAndMds(&resultValues, &resultMds);
+    if (rim3dWellLogCurve->followAnimationTimeStep())
+    {
+        rim3dWellLogCurve->curveValuesAndMdsAtTimeStep(&resultValues, &resultMds, currentTimeStep);
+    }
+    else
+    {
+        rim3dWellLogCurve->curveValuesAndMds(&resultValues, &resultMds);
+    }
 
     m_planeWidth = planeWidth;
 

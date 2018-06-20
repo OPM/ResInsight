@@ -107,7 +107,8 @@ void Riv3dWellLogPlanePartMgr::append3dWellLogCurveToModel(cvf::ModelBasicList* 
         rim3dWellLogCurve,
         wellPathCenterToPlotStartOffset(rim3dWellLogCurve),
         planeWidth(),
-        drawSurfaceVertices);
+        drawSurfaceVertices,
+        m_gridView->currentTimeStep());
 
     
     cvf::ref<cvf::DrawableGeo> curveDrawable = generator->curveDrawable();

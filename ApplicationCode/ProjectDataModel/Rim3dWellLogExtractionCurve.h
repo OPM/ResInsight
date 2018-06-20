@@ -44,7 +44,11 @@ public:
 
     void            setPropertiesFromView(Rim3dView* view);
     virtual QString resultPropertyString() const override;
+
+    virtual bool    followAnimationTimeStep() const override;
     virtual void    curveValuesAndMds(std::vector<double>* values, std::vector<double>* measuredDepthValues) const override;
+    virtual void    curveValuesAndMdsAtTimeStep(std::vector<double>* values, std::vector<double>* measuredDepthValues, int timeStep) const override;
+    virtual std::pair<double, double> findCurveValueRange() override;
 
     virtual QString name() const override;
     virtual QString createCurveAutoName() const override;

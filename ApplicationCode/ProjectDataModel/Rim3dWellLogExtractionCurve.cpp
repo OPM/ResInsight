@@ -21,6 +21,7 @@
 #include "RigWellLogFile.h"
 
 #include "RiaExtractionTools.h"
+#include "RiaCurveDataTools.h"
 #include "RigEclipseCaseData.h"
 #include "RigGeoMechCaseData.h"
 #include "RigEclipseWellLogExtractor.h"
@@ -68,7 +69,7 @@ Rim3dWellLogExtractionCurve::Rim3dWellLogExtractionCurve()
     m_case.uiCapability()->setUiTreeChildrenHidden(true);
     m_case = nullptr;
 
-    CAF_PDM_InitField(&m_timeStep, "CurveTimeStep", 0, "Time Step", "", "", "");
+    CAF_PDM_InitField(&m_timeStep, "CurveTimeStep", -1, "Time Step", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_eclipseResultDefinition, "CurveEclipseResult", "", "", "", "");
     m_eclipseResultDefinition.uiCapability()->setUiHidden(true);
@@ -114,14 +115,12 @@ void Rim3dWellLogExtractionCurve::setPropertiesFromView(Rim3dView* view)
     if (eclipseView)
     {
         m_eclipseResultDefinition->simpleCopy(eclipseView->cellResult());
-        m_timeStep = eclipseView->currentTimeStep();
     }
 
     RimGeoMechView* geoMechView = dynamic_cast<RimGeoMechView*>(view);
     if (geoMechView)
     {
         m_geomResultDefinition->setResultAddress(geoMechView->cellResultResultDefinition()->resultAddress());
-        m_timeStep = geoMechView->currentTimeStep();
     }
 }
 
@@ -157,7 +156,25 @@ QString Rim3dWellLogExtractionCurve::resultPropertyString() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool Rim3dWellLogExtractionCurve::followAnimationTimeStep() const
+{
+    return m_timeStep() == -1;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void Rim3dWellLogExtractionCurve::curveValuesAndMds(std::vector<double>* values, std::vector<double>* measuredDepthValues) const
+{
+    CVF_ASSERT(m_timeStep() >= 0);
+
+    return this->curveValuesAndMdsAtTimeStep(values, measuredDepthValues, m_timeStep());
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void Rim3dWellLogExtractionCurve::curveValuesAndMdsAtTimeStep(std::vector<double>* values, std::vector<double>* measuredDepthValues, int timeStep) const
 {
     CAF_ASSERT(values != nullptr);
     CAF_ASSERT(measuredDepthValues != nullptr);
@@ -191,7 +208,7 @@ void Rim3dWellLogExtractionCurve::curveValuesAndMds(std::vector<double>* values,
 
         cvf::ref<RigResultAccessor> resAcc = RigResultAccessorFactory::createFromResultDefinition(eclipseCase->eclipseCaseData(),
                                                                                                   0,
-                                                                                                  m_timeStep,
+                                                                                                  timeStep,
                                                                                                   m_eclipseResultDefinition);
         if (resAcc.notNull())
         {
@@ -205,6 +222,32 @@ void Rim3dWellLogExtractionCurve::curveValuesAndMds(std::vector<double>* values,
         geomExtractor->setRkbDiff(rkbDiff());
         geomExtractor->curveData(m_geomResultDefinition->resultAddress(), m_timeStep, values);        
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::pair<double, double> Rim3dWellLogExtractionCurve::findCurveValueRange()
+{
+    double foundMinValue = std::numeric_limits<float>::infinity();
+    double foundMaxValue = -std::numeric_limits<float>::infinity();
+
+    for (size_t i = 0; i < m_case->timeStepStrings().size(); ++i)
+    {
+        std::vector<double> values;
+        std::vector<double> measuredDepths;
+        this->curveValuesAndMdsAtTimeStep(&values, &measuredDepths, int(i));
+
+        for (double value : values)
+        {
+            if (RiaCurveDataTools::isValidValue(value, false))
+            {
+                foundMinValue = std::min(foundMinValue, value);
+                foundMaxValue = std::max(foundMaxValue, value);
+            }
+        }
+    }
+    return std::make_pair(foundMinValue, foundMaxValue);
 }
 
 QString Rim3dWellLogExtractionCurve::name() const
@@ -244,10 +287,12 @@ QString Rim3dWellLogExtractionCurve::createCurveAutoName() const
 
     if (m_nameConfig->addTimeStep() || m_nameConfig->addDate())
     {
+        bool addTimeStep = m_nameConfig->addTimeStep() && m_timeStep() != -1;
         size_t maxTimeStep = 0;
 
         if (eclipseCase)
         {
+            addTimeStep = addTimeStep && m_eclipseResultDefinition->resultType() != RiaDefines::STATIC_NATIVE;
             RigEclipseCaseData* data = eclipseCase->eclipseCaseData();
             if (data)
             {
@@ -272,9 +317,9 @@ QString Rim3dWellLogExtractionCurve::createCurveAutoName() const
             }
         }
 
-        if (m_nameConfig->addTimeStep())
+        if (addTimeStep)
         {
-            generatedCurveName.push_back(QString("[%1/%2]").arg(m_timeStep() + 1).arg(maxTimeStep));
+            generatedCurveName.push_back(QString("[%1/%2]").arg(m_timeStep() + 1).arg(maxTimeStep));            
         }
     }
 
@@ -360,7 +405,7 @@ QList<caf::PdmOptionItemInfo> Rim3dWellLogExtractionCurve::calculateValueOptions
         {
             timeStepNames = m_case->timeStepStrings();
         }
-
+        options.push_back(caf::PdmOptionItemInfo(QString("Follow Animation Time Step"), -1));
         for (int i = 0; i < timeStepNames.size(); i++)
         {
             options.push_back(caf::PdmOptionItemInfo(timeStepNames[i], i));
@@ -416,6 +461,9 @@ void Rim3dWellLogExtractionCurve::initAfterRead()
     m_geomResultDefinition->setGeoMechCase(geomCase);
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 QString Rim3dWellLogExtractionCurve::wellDate() const
 {
     RimGeoMechCase* geomCase = dynamic_cast<RimGeoMechCase*>(m_case.value());
@@ -425,6 +473,10 @@ QString Rim3dWellLogExtractionCurve::wellDate() const
 
     if (eclipseCase)
     {
+        if (m_eclipseResultDefinition->resultType() == RiaDefines::STATIC_NATIVE)
+        {
+            return QString();
+        }
         if (eclipseCase->eclipseCaseData())
         {
             timeStepNames = eclipseCase->timeStepStrings();
@@ -437,6 +489,9 @@ QString Rim3dWellLogExtractionCurve::wellDate() const
             timeStepNames = geomCase->timeStepStrings();
         }
     }
-
+    if (m_timeStep == -1)
+    {
+        return QString("Animation Time Step");
+    }
     return (m_timeStep >= 0 && m_timeStep < timeStepNames.size()) ? timeStepNames[m_timeStep] : "";
 }
