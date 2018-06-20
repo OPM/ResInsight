@@ -1,5 +1,10 @@
 cmake_minimum_required (VERSION 2.8.12)
 
+if (MSVC)
+    # Define this one to tell windows.h to not define min() and max() as macros
+    add_definitions(-DNOMINMAX)
+endif (MSVC)
+
 # Qt
 find_package ( Qt4 COMPONENTS QtCore QtGui QtMain )
 include (${QT_USE_FILE})
