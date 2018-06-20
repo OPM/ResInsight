@@ -200,7 +200,7 @@ namespace caf {
             currentUsageFraction = std::min(1.0f, static_cast<float>(currentUsage) / totalPhysicalMemory);
         }
 
-        QString labelText("\n   ");
+        QString labelText("\n");
         if (currentUsageFraction > 0.5)
         {
             labelText = QString("Memory Used: %1 MiB, Total Physical Memory: %2 MiB\n").arg(currentUsage).arg(totalPhysicalMemory);
@@ -221,6 +221,7 @@ namespace caf {
             progDialog->hide();
             progDialog->setAutoClose(false);
             progDialog->setAutoReset(false);
+            progDialog->setMinimumWidth(400);
         }
         return progDialog;
     }
