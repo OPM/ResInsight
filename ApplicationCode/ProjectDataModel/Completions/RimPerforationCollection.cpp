@@ -19,6 +19,8 @@
 
 #include "RimPerforationCollection.h"
 
+#include "RiaApplication.h"
+
 #include "RimPerforationInterval.h"
 #include "RimProject.h"
 #include "Rim3dView.h"
@@ -82,6 +84,12 @@ void RimPerforationCollection::appendPerforation(RimPerforationInterval* perfora
 
     updateConnectedEditors();
     Riu3DMainWindowTools::selectAsCurrentItem(perforation);
+
+    Rim3dView* activeView = RiaApplication::instance()->activeReservoirView();
+    if (activeView)
+    {
+        activeView->hasUserRequestedAnimation = true;
+    }
 
     RimProject* proj;
     this->firstAncestorOrThisOfTypeAsserted(proj);
