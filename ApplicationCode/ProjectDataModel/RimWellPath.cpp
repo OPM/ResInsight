@@ -55,7 +55,7 @@
 
 #include <regex>
 
-CAF_PDM_SOURCE_INIT(RimWellPath, "WellPath");
+CAF_PDM_SOURCE_INIT(RimWellPath, "WellPathBase");
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -74,30 +74,6 @@ RimWellPath::RimWellPath()
     m_name.xmlCapability()->setIOWritable(false);
     m_name.xmlCapability()->setIOReadable(false);
     m_name.uiCapability()->setUiHidden(true);
-    CAF_PDM_InitFieldNoDefault(&id,                 "WellPathId",                           "Id", "", "", "");
-    id.uiCapability()->setUiReadOnly(true);
-    id.xmlCapability()->setIOWritable(false);
-    id.xmlCapability()->setIOReadable(false);
-    CAF_PDM_InitFieldNoDefault(&sourceSystem,       "SourceSystem",                         "Source System", "", "", "");
-    sourceSystem.uiCapability()->setUiReadOnly(true);
-    sourceSystem.xmlCapability()->setIOWritable(false);
-    sourceSystem.xmlCapability()->setIOReadable(false);
-    CAF_PDM_InitFieldNoDefault(&utmZone,            "UTMZone",                              "UTM Zone", "", "", "");
-    utmZone.uiCapability()->setUiReadOnly(true);
-    utmZone.xmlCapability()->setIOWritable(false);
-    utmZone.xmlCapability()->setIOReadable(false);
-    CAF_PDM_InitFieldNoDefault(&updateDate,         "WellPathUpdateDate",                   "Update Date", "", "", "");
-    updateDate.uiCapability()->setUiReadOnly(true);
-    updateDate.xmlCapability()->setIOWritable(false);
-    updateDate.xmlCapability()->setIOReadable(false);
-    CAF_PDM_InitFieldNoDefault(&updateUser,         "WellPathUpdateUser",                   "Update User", "", "", "");
-    updateUser.uiCapability()->setUiReadOnly(true);
-    updateUser.xmlCapability()->setIOWritable(false);
-    updateUser.xmlCapability()->setIOReadable(false);
-    CAF_PDM_InitFieldNoDefault(&m_surveyType,       "WellPathSurveyType",                   "Survey Type", "", "", "");
-    m_surveyType.uiCapability()->setUiReadOnly(true);
-    m_surveyType.xmlCapability()->setIOWritable(false);
-    m_surveyType.xmlCapability()->setIOReadable(false);
 
     CAF_PDM_InitFieldNoDefault(&m_datumElevation, "DatumElevation", "Datum Elevation", "", "", "");
     m_datumElevation.uiCapability()->setUiReadOnly(true);
@@ -106,11 +82,6 @@ RimWellPath::RimWellPath()
 
     CAF_PDM_InitFieldNoDefault(&m_unitSystem, "UnitSystem", "Unit System", "", "", "");
     m_unitSystem.uiCapability()->setUiReadOnly(true);
-
-    CAF_PDM_InitField(&m_filepath,                    "WellPathFilepath",     QString(""),    "File Path", "", "", "");
-    m_filepath.uiCapability()->setUiReadOnly(true);
-    CAF_PDM_InitField(&m_wellPathIndexInFile,         "WellPathNumberInFile",     -1,    "Well Number in File", "", "", "");
-    m_wellPathIndexInFile.uiCapability()->setUiReadOnly(true);
 
     CAF_PDM_InitField(&m_simWellName, "SimWellName", QString(""), "Well", "", "", "");
     CAF_PDM_InitField(&m_branchIndex, "SimBranchIndex", 0, "Branch", "", "", "");
@@ -190,13 +161,36 @@ caf::PdmFieldHandle* RimWellPath::userDescriptionField()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellPath::setSurveyType(QString surveyType) 
+void RimFileWellPath::setSurveyType(QString surveyType) 
 { 
     m_surveyType = surveyType; 
     if (m_surveyType == "PLAN")
         m_wellPathColor = cvf::Color3f(0.999f, 0.333f, 0.0f);
     else if (m_surveyType == "PROTOTYPE")
         m_wellPathColor = cvf::Color3f(0.0f, 0.333f, 0.999f);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimFileWellPath::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+{
+    RimWellPath::defineUiOrdering(uiConfigName, uiOrdering);
+    
+    // Todo : Insert at correct place
+
+    caf::PdmUiGroup* fileInfoGroup =   uiOrdering.addNewGroup("File");
+    fileInfoGroup->add(&m_filepath);
+    fileInfoGroup->add(&m_wellPathIndexInFile);
+
+    caf::PdmUiGroup* ssihubGroup =  uiOrdering.addNewGroup("Well Info");
+    ssihubGroup->add(&id);
+    ssihubGroup->add(&sourceSystem);
+    ssihubGroup->add(&utmZone);
+    ssihubGroup->add(&updateDate);
+    ssihubGroup->add(&updateUser);
+    ssihubGroup->add(&m_surveyType);
+
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -413,10 +407,58 @@ std::vector<RimWellLogFile*> RimWellPath::wellLogFiles() const
     return std::vector<RimWellLogFile*>(m_wellLogFiles.begin(), m_wellLogFiles.end());
 }
 
+CAF_PDM_SOURCE_INIT(RimFileWellPath, "WellPath");
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RimWellPath::filepath() const
+RimFileWellPath::RimFileWellPath()
+{
+    CAF_PDM_InitFieldNoDefault(&id,                 "WellPathId",                           "Id", "", "", "");
+    id.uiCapability()->setUiReadOnly(true);
+    id.xmlCapability()->setIOWritable(false);
+    id.xmlCapability()->setIOReadable(false);
+    CAF_PDM_InitFieldNoDefault(&sourceSystem,       "SourceSystem",                         "Source System", "", "", "");
+    sourceSystem.uiCapability()->setUiReadOnly(true);
+    sourceSystem.xmlCapability()->setIOWritable(false);
+    sourceSystem.xmlCapability()->setIOReadable(false);
+    CAF_PDM_InitFieldNoDefault(&utmZone,            "UTMZone",                              "UTM Zone", "", "", "");
+    utmZone.uiCapability()->setUiReadOnly(true);
+    utmZone.xmlCapability()->setIOWritable(false);
+    utmZone.xmlCapability()->setIOReadable(false);
+    CAF_PDM_InitFieldNoDefault(&updateDate,         "WellPathUpdateDate",                   "Update Date", "", "", "");
+    updateDate.uiCapability()->setUiReadOnly(true);
+    updateDate.xmlCapability()->setIOWritable(false);
+    updateDate.xmlCapability()->setIOReadable(false);
+    CAF_PDM_InitFieldNoDefault(&updateUser,         "WellPathUpdateUser",                   "Update User", "", "", "");
+    updateUser.uiCapability()->setUiReadOnly(true);
+    updateUser.xmlCapability()->setIOWritable(false);
+    updateUser.xmlCapability()->setIOReadable(false);
+    CAF_PDM_InitFieldNoDefault(&m_surveyType,       "WellPathSurveyType",                   "Survey Type", "", "", "");
+    m_surveyType.uiCapability()->setUiReadOnly(true);
+    m_surveyType.xmlCapability()->setIOWritable(false);
+    m_surveyType.xmlCapability()->setIOReadable(false);
+
+    CAF_PDM_InitField(&m_filepath,                    "WellPathFilepath",     QString(""),    "File Path", "", "", "");
+    m_filepath.uiCapability()->setUiReadOnly(true);
+    CAF_PDM_InitField(&m_wellPathIndexInFile,         "WellPathNumberInFile",     -1,    "Well Number in File", "", "", "");
+    m_wellPathIndexInFile.uiCapability()->setUiReadOnly(true);
+
+
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimFileWellPath::~RimFileWellPath()
+{
+
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RimFileWellPath::filepath() const
 {
     return m_filepath();
 }
@@ -424,7 +466,7 @@ QString RimWellPath::filepath() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellPath::setFilepath(const QString& path)
+void RimFileWellPath::setFilepath(const QString& path)
 {
     m_filepath = path;
 }
@@ -432,7 +474,7 @@ void RimWellPath::setFilepath(const QString& path)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-int RimWellPath::wellPathIndexInFile() const
+int RimFileWellPath::wellPathIndexInFile() const
 {
     return m_wellPathIndexInFile();
 }
@@ -440,7 +482,7 @@ int RimWellPath::wellPathIndexInFile() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellPath::setWellPathIndexInFile(int index)
+void RimFileWellPath::setWellPathIndexInFile(int index)
 {
     m_wellPathIndexInFile = index ;
 }
@@ -488,7 +530,7 @@ caf::PdmFieldHandle* RimWellPath::objectToggleField()
 //--------------------------------------------------------------------------------------------------
 /// Read JSON or ascii file containing well path data
 //--------------------------------------------------------------------------------------------------
-bool RimWellPath::readWellPathFile(QString* errorMessage, RifWellPathImporter* wellPathImporter)
+bool RimFileWellPath::readWellPathFile(QString* errorMessage, RifWellPathImporter* wellPathImporter)
 {
     if (caf::Utils::fileExists(m_filepath()))
     {
@@ -538,9 +580,6 @@ void RimWellPath::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiO
     appGroup->add(&m_wellPathColor);
     appGroup->add(&m_wellPathRadiusScaleFactor); 
 
-    caf::PdmUiGroup* fileInfoGroup =   uiOrdering.addNewGroup("File");
-    fileInfoGroup->add(&m_filepath);
-    fileInfoGroup->add(&m_wellPathIndexInFile);
 
     caf::PdmUiGroup* simWellGroup = uiOrdering.addNewGroup("Simulation Well");
     simWellGroup->add(&m_simWellName);
@@ -551,12 +590,7 @@ void RimWellPath::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiO
     }
 
     caf::PdmUiGroup* ssihubGroup =  uiOrdering.addNewGroup("Well Info");
-    ssihubGroup->add(&id);
-    ssihubGroup->add(&sourceSystem);
-    ssihubGroup->add(&utmZone);
-    ssihubGroup->add(&updateDate);
-    ssihubGroup->add(&updateUser);
-    ssihubGroup->add(&m_surveyType);
+
     ssihubGroup->add(&m_datumElevation);
     ssihubGroup->add(&m_unitSystem);
 
@@ -600,7 +634,7 @@ void RimWellPath::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, Q
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RimWellPath::getCacheDirectoryPath()
+QString RimFileWellPath::getCacheDirectoryPath()
 {
     QString cacheDirPath = RimTools::getCacheRootDirectoryPathFromProject();
     cacheDirPath += "_wellpaths";
@@ -610,7 +644,7 @@ QString RimWellPath::getCacheDirectoryPath()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RimWellPath::getCacheFileName()
+QString RimFileWellPath::getCacheFileName()
 {
     if (m_filepath().isEmpty())
     {
@@ -632,7 +666,7 @@ QString RimWellPath::getCacheFileName()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellPath::setupBeforeSave()
+void RimFileWellPath::setupBeforeSave()
 {
     // SSIHUB is the only source for populating Id, use text in this field to decide if the cache file must be copied to new project cache location
     if (!isStoredInCache())
@@ -676,7 +710,7 @@ size_t RimWellPath::simulationWellBranchCount(const QString& simWellName)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RimWellPath::isStoredInCache()
+bool RimFileWellPath::isStoredInCache()
 {
     // SSIHUB is the only source for populating Id, use text in this field to decide if the cache file must be copied to new project cache location
     return !id().isEmpty();
@@ -685,8 +719,10 @@ bool RimWellPath::isStoredInCache()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellPath::updateFilePathsFromProjectPath(const QString& newProjectPath, const QString& oldProjectPath)
+void RimFileWellPath::updateFilePathsFromProjectPath(const QString& newProjectPath, const QString& oldProjectPath)
 {
+    RimWellPath::updateFilePathsFromProjectPath(newProjectPath, oldProjectPath);
+
     if (isStoredInCache())
     {
         QString newCacheFileName = getCacheFileName();
@@ -700,6 +736,13 @@ void RimWellPath::updateFilePathsFromProjectPath(const QString& newProjectPath, 
     {
         m_filepath = RimTools::relocateFile(m_filepath(), newProjectPath, oldProjectPath, nullptr, nullptr);
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellPath::updateFilePathsFromProjectPath(const QString& newProjectPath, const QString& oldProjectPath)
+{
 
     {
         bool                 foundFile = false;

@@ -193,11 +193,11 @@ bool RimWellLogFile::readFile(QString* errorMessage)
         m_wellLogChannelNames.push_back(wellLog);
     }
 
-    RimWellPath* wellPath;
-    firstAncestorOrThisOfType(wellPath);
+    RimFileWellPath* wellPath;
+    this->firstAncestorOrThisOfType(wellPath);
     if (wellPath)
     {
-        if (wellPath->filepath().isEmpty())
+        if (wellPath->filepath().isEmpty()) // Has dummy wellpath
         {
             wellPath->setName(m_wellName);
         }

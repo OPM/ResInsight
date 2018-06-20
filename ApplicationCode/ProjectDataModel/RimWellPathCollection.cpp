@@ -133,10 +133,13 @@ void RimWellPathCollection::readWellPathFiles()
 
     for (size_t wpIdx = 0; wpIdx < wellPaths.size(); wpIdx++)
     {
-        if (!wellPaths[wpIdx]->filepath().isEmpty())
+        RimFileWellPath* fWPath = dynamic_cast<RimFileWellPath*>(wellPaths[wpIdx]);
+        if (fWPath)
+        {
+        if (!fWPath->filepath().isEmpty())
         {
             QString errorMessage;
-            if (!wellPaths[wpIdx]->readWellPathFile(&errorMessage, m_wellPathImporter))
+            if (!fWPath->readWellPathFile(&errorMessage, m_wellPathImporter))
             {
                 QMessageBox::warning(Riu3DMainWindowTools::mainWindowWidget(),
                                      "File open error",
@@ -144,7 +147,7 @@ void RimWellPathCollection::readWellPathFiles()
             }
         }
 
-        for (RimWellLogFile* const wellLogFile : wellPaths[wpIdx]->wellLogFiles())
+        for (RimWellLogFile* const wellLogFile : fWPath->wellLogFiles())
         {
             if (wellLogFile)
             {
@@ -165,6 +168,7 @@ void RimWellPathCollection::readWellPathFiles()
                 }
             }
         }
+        }
         progress.setProgressDescription(QString("Reading file %1").arg(wellPaths[wpIdx]->name()));
         progress.incrementProgress();
     }
@@ -178,7 +182,7 @@ void RimWellPathCollection::readWellPathFiles()
 //--------------------------------------------------------------------------------------------------
 void RimWellPathCollection::addWellPaths( QStringList filePaths )
 {
-    std::vector<RimWellPath*> wellPathArray;
+    std::vector<RimFileWellPath*> wellPathArray;
 
     for (QString filePath : filePaths)
     {
@@ -186,11 +190,14 @@ void RimWellPathCollection::addWellPaths( QStringList filePaths )
         bool alreadyOpen = false;
         for (size_t wpIdx = 0; wpIdx < wellPaths.size(); wpIdx++)
         {
+            RimFileWellPath* fWPath = dynamic_cast<RimFileWellPath*>(wellPaths[wpIdx]);
+            if (!fWPath) continue;
+
             QFile f1;
             f1.setFileName(filePath);
             QString s1 = f1.fileName();
             QFile f2;
-            f2.setFileName(wellPaths[wpIdx]->filepath());
+            f2.setFileName(fWPath->filepath());
             QString s2 = f2.fileName();
             if (s1 == s2)
             {
@@ -206,7 +213,7 @@ void RimWellPathCollection::addWellPaths( QStringList filePaths )
 
             if (fi.suffix().compare("json") == 0)
             {
-                RimWellPath* wellPath = new RimWellPath();
+                RimFileWellPath* wellPath = new RimFileWellPath();
                 wellPath->setFilepath(filePath);
                 wellPathArray.push_back(wellPath);
             }
@@ -216,7 +223,7 @@ void RimWellPathCollection::addWellPaths( QStringList filePaths )
                 size_t wellPathCount = m_wellPathImporter->wellDataCount(filePath);
                 for (size_t i = 0; i < wellPathCount; ++i)
                 {
-                    RimWellPath* wellPath = new RimWellPath();
+                    RimFileWellPath* wellPath = new RimFileWellPath();
                     wellPath->setFilepath(filePath);
                     wellPath->setWellPathIndexInFile(static_cast<int>(i));
                     wellPathArray.push_back(wellPath);
@@ -236,7 +243,7 @@ void RimWellPathCollection::addWellPaths( QStringList filePaths )
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellPathCollection::readAndAddWellPaths(std::vector<RimWellPath*>& wellPathArray)
+void RimWellPathCollection::readAndAddWellPaths(std::vector<RimFileWellPath*>& wellPathArray)
 {
     caf::ProgressInfo progress(wellPathArray.size(), "Reading well paths from file");
 
@@ -251,13 +258,13 @@ void RimWellPathCollection::readAndAddWellPaths(std::vector<RimWellPath*>& wellP
 
     for (size_t wpIdx = 0; wpIdx < wellPathArray.size(); wpIdx++)
     {
-        RimWellPath* wellPath = wellPathArray[wpIdx];
+        RimFileWellPath* wellPath = wellPathArray[wpIdx];
         wellPath->readWellPathFile(nullptr, m_wellPathImporter);
 
         progress.setProgressDescription(QString("Reading file %1").arg(wellPath->name()));
 
         // If a well path with this name exists already, make it read the well path file
-        RimWellPath* existingWellPath = tryFindMatchingWellPath(wellPath->name());
+        RimFileWellPath* existingWellPath = dynamic_cast< RimFileWellPath*>( tryFindMatchingWellPath(wellPath->name()));
         if (existingWellPath)
         {
             existingWellPath->setFilepath(wellPath->filepath());
@@ -528,21 +535,26 @@ void RimWellPathCollection::removeWellPath(RimWellPath* wellPath)
 {
     wellPaths.removeChildObject(wellPath);
 
-    bool isFilePathUsed = false;
-    for (size_t i = 0; i < wellPaths.size(); i++)
+    RimFileWellPath* fileWellPath = dynamic_cast<RimFileWellPath*>(wellPath);
+    if ( fileWellPath )
     {
-        if (wellPaths[i]->filepath() == wellPath->filepath())
+        bool isFilePathUsed = false;
+        for ( size_t i = 0; i < wellPaths.size(); i++ )
         {
-            isFilePathUsed = true;
-            break;
+            RimFileWellPath* fWPath = dynamic_cast<RimFileWellPath*>(wellPaths[i]);
+            if (fWPath && fWPath->filepath() == fileWellPath->filepath() )
+            {
+                isFilePathUsed = true;
+                break;
+            }
         }
-    }
 
-    if (!isFilePathUsed)
-    {
-        // One file can have multiple well paths
-        // If no other well paths are referencing the filepath, remove cached data from the file reader
-        m_wellPathImporter->removeFilePath(wellPath->filepath());
+        if ( !isFilePathUsed )
+        {
+            // One file can have multiple well paths
+            // If no other well paths are referencing the filepath, remove cached data from the file reader
+            m_wellPathImporter->removeFilePath(fileWellPath->filepath());
+        }
     }
 }
 

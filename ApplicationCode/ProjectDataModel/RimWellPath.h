@@ -77,12 +77,7 @@ public:
     bool                                tryAssociateWithSimulationWell();
     bool                                isAssociatedWithSimulationWell() const;
 
-    QString                             filepath() const;
-    void                                setFilepath(const QString& path);
-    bool                                readWellPathFile(QString * errorMessage, RifWellPathImporter* wellPathImporter);
-    void                                updateFilePathsFromProjectPath(const QString& newProjectPath, const QString& oldProjectPath);
-    int                                 wellPathIndexInFile() const; // -1 means none.
-    void                                setWellPathIndexInFile(int index);
+    virtual void                        updateFilePathsFromProjectPath(const QString& newProjectPath, const QString& oldProjectPath);
 
     void                                setUnitSystem(RiaEclipseUnitTools::UnitSystem unitSystem);
     RiaEclipseUnitTools::UnitSystem     unitSystem() const;
@@ -132,21 +127,15 @@ protected:
     virtual void                        fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
     virtual void                        initAfterRead() override;
+    virtual void                        defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
 private:
 
     void                                setWellPathGeometry(RigWellPath* wellPathModel);
-    QString                             surveyType() { return m_surveyType; }
-    void                                setSurveyType(QString surveyType);
 
-    virtual void                        defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     virtual void                        defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName) override;
 
-    bool                                isStoredInCache();
-    QString                             getCacheFileName();
-    QString                             getCacheDirectoryPath();
 
-    virtual void                        setupBeforeSave() override;
 
     static size_t                       simulationWellBranchCount(const QString& simWellName);
 
@@ -155,27 +144,17 @@ private:
 
     caf::PdmField<QString>              m_name;
 
-    caf::PdmField<QString>              m_filepath;
-    caf::PdmField<int>                  m_wellPathIndexInFile; // -1 means none.
 
     caf::PdmField<QString>              m_simWellName;
     caf::PdmField<int>                  m_branchIndex;
 
     caf::PdmField<RiaEclipseUnitTools::UnitSystemType> m_unitSystem;
-
-    caf::PdmField<QString>              id;
-    caf::PdmField<QString>              sourceSystem;
-    caf::PdmField<QString>              utmZone;
-    caf::PdmField<QString>              updateDate;
-    caf::PdmField<QString>              updateUser;
-    caf::PdmField<QString>              m_surveyType;
     caf::PdmField<double>               m_datumElevation;
  
     
     caf::PdmField<QString>              m_wellPathFormationFilePath;
     caf::PdmField<QString>              m_formationKeyInFile;
     
-    caf::PdmField<cvf::Color3f>         m_wellPathColor;
     
     caf::PdmField<bool>                 m_showWellPath;
     caf::PdmField<bool>                 m_showWellPathLabel;
@@ -188,10 +167,53 @@ private:
 
     // Geometry and data
 
-    cvf::ref<RigWellPath>               m_wellPath;
     cvf::ref<RigWellPathFormations>     m_wellPathFormations;
 
+protected:
+    cvf::ref<RigWellPath>               m_wellPath;
+    caf::PdmField<cvf::Color3f>         m_wellPathColor;
+
+private:
     // Obsolete fields
 
     caf::PdmChildField<RimWellLogFile*> m_wellLogFile_OBSOLETE;
+};
+
+class RimFileWellPath : public RimWellPath
+{
+    CAF_PDM_HEADER_INIT; 
+public:
+
+    RimFileWellPath();
+    ~RimFileWellPath();
+
+    QString                             filepath() const;
+    void                                setFilepath(const QString& path);
+    bool                                readWellPathFile(QString * errorMessage, RifWellPathImporter* wellPathImporter);
+    int                                 wellPathIndexInFile() const; // -1 means none.
+    void                                setWellPathIndexInFile(int index);
+    void                                updateFilePathsFromProjectPath(const QString& newProjectPath, const QString& oldProjectPath) override;
+
+private:
+    QString                             surveyType() { return m_surveyType; }
+    void                                setSurveyType(QString surveyType);
+    bool                                isStoredInCache();
+    QString                             getCacheFileName();
+    QString                             getCacheDirectoryPath();
+
+    virtual void                        setupBeforeSave() override;
+
+    caf::PdmField<QString>              m_filepath;
+    caf::PdmField<int>                  m_wellPathIndexInFile; // -1 means none.
+
+    caf::PdmField<QString>              id;
+    caf::PdmField<QString>              sourceSystem;
+    caf::PdmField<QString>              utmZone;
+    caf::PdmField<QString>              updateDate;
+    caf::PdmField<QString>              updateUser;
+    caf::PdmField<QString>              m_surveyType;
+
+
+    virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+
 };

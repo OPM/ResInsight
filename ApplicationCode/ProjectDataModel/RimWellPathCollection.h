@@ -36,6 +36,7 @@
 
 class RifWellPathImporter;
 class RigWellPath;
+class RimFileWellPath;
 class RimEclipseView;
 class RimProject;
 class RimWellLogFile;
@@ -116,7 +117,7 @@ private:
     virtual void                        defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     virtual caf::PdmFieldHandle*        objectToggleField() override;
 
-    void                                readAndAddWellPaths(std::vector<RimWellPath*>& wellPathArray);
+    void                                readAndAddWellPaths(std::vector<RimFileWellPath*>& wellPathArray);
     void                                sortWellsByName();
 
     RiaEclipseUnitTools::UnitSystemType findUnitSystemForWellPath(const RimWellPath* wellPath);
