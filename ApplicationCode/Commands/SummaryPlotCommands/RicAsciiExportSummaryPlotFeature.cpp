@@ -21,6 +21,8 @@
 #include "RiaApplication.h"
 #include "RiaLogging.h"
 
+#include "RicResampleDialog.h"
+
 #include "RimSummaryPlot.h"
 
 #include "RiuMainWindow.h"
@@ -67,8 +69,9 @@ void RicAsciiExportSummaryPlotFeature::onActionTriggered(bool isChecked)
     caf::SelectionManager::instance()->objectsByType(&selectedSummaryPlots);
     QString defaultDir = RiaApplication::instance()->lastUsedDialogDirectoryWithFallback("PLOT_ASCIIEXPORT_DIR", projectFolder);
 
-    caf::ProgressInfo pi(selectedSummaryPlots.size(), QString("Exporting plot data to ASCII"));
-    size_t progress = 0;
+    // Ask user about resampling
+    auto result = RicResampleDialog::openDialog();
+    if (!result.ok) return;
 
     if (selectedSummaryPlots.size() == 1)
     {
@@ -76,7 +79,11 @@ void RicAsciiExportSummaryPlotFeature::onActionTriggered(bool isChecked)
         QString defaultFileName = defaultDir + "/" + caf::Utils::makeValidFileBasename((summaryPlot->description())) + ".ascii";
         QString fileName = QFileDialog::getSaveFileName(nullptr, "Select File for Summary Plot Export", defaultFileName, "Text File(*.ascii);;All files(*.*)");
         if (fileName.isEmpty()) return;
-        RicAsciiExportSummaryPlotFeature::exportAsciiForSummaryPlot(fileName, summaryPlot); 
+
+        caf::ProgressInfo pi(selectedSummaryPlots.size(), QString("Exporting plot data to ASCII"));
+        size_t progress = 0;
+
+        RicAsciiExportSummaryPlotFeature::exportAsciiForSummaryPlot(fileName, summaryPlot, result.period);
 
         progress++;
         pi.setProgress(progress);
@@ -94,11 +101,14 @@ void RicAsciiExportSummaryPlotFeature::onActionTriggered(bool isChecked)
         bool writeFiles = caf::Utils::getSaveDirectoryAndCheckOverwriteFiles(defaultDir, fileNames, &saveDir);
         if (!writeFiles) return;
 
+        caf::ProgressInfo pi(selectedSummaryPlots.size(), QString("Exporting plot data to ASCII"));
+        size_t progress = 0;
+
         RiaLogging::info(QString("Writing to directory %1").arg(saveDir));
         for (RimSummaryPlot* summaryPlot : selectedSummaryPlots)
         {
             QString fileName = saveDir + "/" + caf::Utils::makeValidFileBasename(summaryPlot->description()) + ".ascii";
-            RicAsciiExportSummaryPlotFeature::exportAsciiForSummaryPlot(fileName, summaryPlot); 
+            RicAsciiExportSummaryPlotFeature::exportAsciiForSummaryPlot(fileName, summaryPlot, result.period); 
             progress++;
             pi.setProgress(progress);
         }
@@ -117,7 +127,9 @@ void RicAsciiExportSummaryPlotFeature::setupActionLook(QAction* actionToSetup)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RicAsciiExportSummaryPlotFeature::exportAsciiForSummaryPlot(const QString& fileName, const RimSummaryPlot* summaryPlot)
+bool RicAsciiExportSummaryPlotFeature::exportAsciiForSummaryPlot(const QString& fileName,
+                                                                 const RimSummaryPlot* summaryPlot,
+                                                                 DateTimePeriod resamplingPeriod)
 {
     QFile file(fileName);
     if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
@@ -130,7 +142,7 @@ bool RicAsciiExportSummaryPlotFeature::exportAsciiForSummaryPlot(const QString& 
     QTextStream out(&file);
     
     out << summaryPlot->description();
-    out << summaryPlot->asciiDataForPlotExport();
+    out << summaryPlot->asciiDataForPlotExport(resamplingPeriod);
     out << "\n\n";
 
     RiaLogging::info(QString("Competed writing values for summary plot(s) to file %1").arg(fileName));

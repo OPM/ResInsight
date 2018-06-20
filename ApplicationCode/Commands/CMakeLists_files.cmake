@@ -70,6 +70,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RicSummaryCaseRestartDialog.h
 ${CMAKE_CURRENT_LIST_DIR}/RicImportEnsembleFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicImportSummaryGroupFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicConvertGroupToEnsembleFeature.h
+${CMAKE_CURRENT_LIST_DIR}/RicResampleDialog.h
 )
 
 
@@ -138,6 +139,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RicSummaryCaseRestartDialog.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicImportEnsembleFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicImportSummaryGroupFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicConvertGroupToEnsembleFeature.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicResampleDialog.cpp
 )
 
 
@@ -153,6 +155,7 @@ list(APPEND QT_MOC_HEADERS
 ${CMAKE_CURRENT_LIST_DIR}/RicGridStatisticsDialog.h
 ${CMAKE_CURRENT_LIST_DIR}/RicFileHierarchyDialog.h
 ${CMAKE_CURRENT_LIST_DIR}/RicSummaryCaseRestartDialog.h
+${CMAKE_CURRENT_LIST_DIR}/RicResampleDialog.h
 )
 
 source_group( "CommandFeature" FILES ${SOURCE_GROUP_HEADER_FILES} ${SOURCE_GROUP_SOURCE_FILES} ${CMAKE_CURRENT_LIST_DIR}/CMakeLists_files.cmake )

@@ -63,8 +63,15 @@
 CAF_PDM_SOURCE_INIT(RimSummaryPlot, "SummaryPlot");
 
 //--------------------------------------------------------------------------------------------------
-/// Internal data
+/// Internal types
 //--------------------------------------------------------------------------------------------------
+enum class ResampleAlgorithm
+{
+    NONE,
+    DATA_DECIDES,
+    PERIOD_END
+};
+
 struct CurveData
 {
     QString                     name;
@@ -75,9 +82,9 @@ struct CurveData
 //--------------------------------------------------------------------------------------------------
 /// Internal functions
 //--------------------------------------------------------------------------------------------------
-void prepareCaseCurvesForExport(DateTimePeriod period,
+void prepareCaseCurvesForExport(DateTimePeriod period, ResampleAlgorithm algorithm,
                            const std::vector<time_t> &timeSteps, const std::vector<CurveData>& curveData,
-                           std::vector<time_t>* resampledTimeSteps, std::vector<CurveData>* resampledValues);
+                           std::vector<time_t>* exportTimeSteps, std::vector<CurveData>* exportValues);
 
 void appendToExportData(QString& out, const std::vector<time_t>& timeSteps, const std::vector<CurveData>& curveData);
 
@@ -315,7 +322,7 @@ QString RimSummaryPlot::asciiDataForPlotExport(DateTimePeriod resamplingPeriod) 
             out += "Case: " + caseNames[i];
             out += "\n";
 
-            prepareCaseCurvesForExport(resamplingPeriod, timeSteps[i], allCurveData[i], &expTimeSteps, &expCurveData);
+            prepareCaseCurvesForExport(resamplingPeriod, ResampleAlgorithm::DATA_DECIDES, timeSteps[i], allCurveData[i], &expTimeSteps, &expCurveData);
             appendToExportData(out, expTimeSteps, expCurveData);
         }
     }
@@ -362,7 +369,7 @@ QString RimSummaryPlot::asciiDataForPlotExport(DateTimePeriod resamplingPeriod) 
             out += "Case: " + caseNames[i];
             out += "\n";
 
-            prepareCaseCurvesForExport(resamplingPeriod, timeSteps[i], allCurveData[i], &expTimeSteps, &expCurveData);
+            prepareCaseCurvesForExport(resamplingPeriod, ResampleAlgorithm::PERIOD_END, timeSteps[i], allCurveData[i], &expTimeSteps, &expCurveData);
             appendToExportData(out, expTimeSteps, expCurveData);
         }
     }
@@ -400,7 +407,7 @@ QString RimSummaryPlot::asciiDataForPlotExport(DateTimePeriod resamplingPeriod) 
 
             out += "\n\n";
 
-            prepareCaseCurvesForExport(resamplingPeriod, timeSteps[i], allCurveData[i], &expTimeSteps, &expCurveData);
+            prepareCaseCurvesForExport(DateTimePeriod::NONE, ResampleAlgorithm::NONE, timeSteps[i], allCurveData[i], &expTimeSteps, &expCurveData);
             appendToExportData(out, expTimeSteps, expCurveData);
         }
     }
@@ -1640,14 +1647,14 @@ void RimSummaryPlot::defineEditorAttribute(const caf::PdmFieldHandle* field, QSt
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void prepareCaseCurvesForExport(DateTimePeriod period,
+void prepareCaseCurvesForExport(DateTimePeriod period, ResampleAlgorithm algorithm,
                            const std::vector<time_t> &timeSteps, const std::vector<CurveData>& curveData,
-                           std::vector<time_t>* resampledTimeSteps, std::vector<CurveData>* resampledCurveData)
+                           std::vector<time_t>* exportTimeSteps, std::vector<CurveData>* exportCurveData)
 {
     RiaTimeHistoryCurveResampler resampler;
 
-    resampledTimeSteps->clear();
-    resampledCurveData->clear();
+    exportTimeSteps->clear();
+    exportCurveData->clear();
 
     if (period != DateTimePeriod::NONE)
     {
@@ -1655,20 +1662,26 @@ void prepareCaseCurvesForExport(DateTimePeriod period,
         {
             resampler.setCurveData(curveDataItem.values, timeSteps);
 
-            if (curveDataItem.address.hasAccumulatedData()) resampler.resampleAndComputePeriodEndValues(period);
-            else                                            resampler.resampleAndComputeWeightedMeanValues(period);
+            if (curveDataItem.address.hasAccumulatedData() || algorithm == ResampleAlgorithm::PERIOD_END)
+            {
+                resampler.resampleAndComputePeriodEndValues(period);
+            }
+            else
+            {
+                resampler.resampleAndComputeWeightedMeanValues(period);
+            }
 
             auto cd = curveDataItem;
             cd.values = resampler.resampledValues();
-            resampledCurveData->push_back(cd);
+            exportCurveData->push_back(cd);
         }
 
-        *resampledTimeSteps = resampler.resampledTimeSteps();
+        *exportTimeSteps = resampler.resampledTimeSteps();
     }
     else
     {
-        *resampledTimeSteps = timeSteps;
-        *resampledCurveData = curveData;
+        *exportTimeSteps = timeSteps;
+        *exportCurveData = curveData;
     }
 }
 

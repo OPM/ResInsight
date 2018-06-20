@@ -296,3 +296,21 @@ QDateTime RiaQDateTimeTools::truncateTime(const QDateTime& dt, DateTimePeriod pe
     CVF_ASSERT(false);
     return createUtcDateTime();
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<DateTimePeriodInfo> RiaQDateTimeTools::dateTimePeriodInfoList()
+{
+    return std::vector<DateTimePeriodInfo>(
+        {
+            { DateTimePeriod::NONE, "None" },
+            { DateTimePeriod::DECADE, "Decade" },
+            { DateTimePeriod::YEAR, "Year" },
+            { DateTimePeriod::HALFYEAR, "Half Year" },
+            { DateTimePeriod::QUARTER, "Quarter" },
+            { DateTimePeriod::MONTH, "Month" },
+            { DateTimePeriod::WEEK, "Week" },
+            { DateTimePeriod::DAY, "Day" },
+        });
+}

@@ -21,12 +21,16 @@
 #include <qglobal.h>
 #include <qnamespace.h>
 
+#include <QString>
+
 #include <string>
+#include <vector>
 
 class QDateTime;
 class QDate;
 class QTime;
 class DateTimeSpan;
+class DateTimePeriodInfo;
 
 //==================================================================================================
 // 
@@ -85,6 +89,8 @@ public:
     static const DateTimeSpan   timeSpan(DateTimePeriod period);
     static QDateTime            truncateTime(const QDateTime& dt, DateTimePeriod period);
 
+    static std::vector<DateTimePeriodInfo> dateTimePeriodInfoList();
+
 private:
     static quint64  secondsInDay();
     static quint64  secondsInYear();
@@ -109,4 +115,14 @@ private:
     int m_years;
     int m_months;
     int m_days;
+};
+
+//==================================================================================================
+/// 
+//==================================================================================================
+class DateTimePeriodInfo
+{
+public:
+    DateTimePeriod  period;
+    QString         name;
 };
