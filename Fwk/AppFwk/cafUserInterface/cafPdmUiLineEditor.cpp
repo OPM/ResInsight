@@ -46,9 +46,9 @@
 #include "cafSelectionManager.h"
 
 #include <QApplication>
+#include <QKeyEvent>
 #include <QIntValidator>
 #include <QLabel>
-#include <QLineEdit>
 #include <QMainWindow>
 #include <QMessageBox>
 #include <QPalette>
@@ -195,6 +195,8 @@ void PdmUiLineEditor::configureAndUpdateUi(const QString& uiConfigName)
             {
                 m_lineEdit->setValidator(new QIntValidator(leab.minValue, leab.maxValue, this));
             }
+
+            m_lineEdit->setAvoidSendingEnterEventToParentWidget(leab.avoidSendingEnterEventToParentWidget);
         }
 
         {
@@ -259,7 +261,7 @@ void PdmUiLineEditor::configureAndUpdateUi(const QString& uiConfigName)
 //--------------------------------------------------------------------------------------------------
 QWidget* PdmUiLineEditor::createEditorWidget(QWidget * parent)
 {
-    m_lineEdit = new QLineEdit(parent);
+    m_lineEdit = new PdmUiLineEdit(parent);
 
     connect(m_lineEdit, SIGNAL(editingFinished()), this, SLOT(slotEditingFinished()));
 
@@ -318,5 +320,38 @@ bool PdmUiLineEditor::isMultipleFieldsWithSameKeywordSelected(PdmFieldHandle* ed
     return false;
 }
 
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+PdmUiLineEdit::PdmUiLineEdit(QWidget* parent)
+    : QLineEdit(parent), m_avoidSendingEnterEvent(false)
+{
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void PdmUiLineEdit::setAvoidSendingEnterEventToParentWidget(bool avoidSendingEnterEvent)
+{
+    m_avoidSendingEnterEvent = avoidSendingEnterEvent;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void PdmUiLineEdit::keyPressEvent(QKeyEvent * event)
+{
+    QLineEdit::keyPressEvent(event);
+    if (m_avoidSendingEnterEvent)
+    {
+        if (event->key() == Qt::Key_Enter || event->key() == Qt::Key_Return)
+        {
+            // accept enter/return events so they won't
+            // be ever propagated to the parent dialog..
+            event->accept();
+        }
+    }
+}
 
 } // end namespace caf

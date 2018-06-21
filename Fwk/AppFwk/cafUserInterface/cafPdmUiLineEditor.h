@@ -58,12 +58,14 @@ class PdmUiLineEditorAttribute : public PdmUiEditorAttribute
 public:
     PdmUiLineEditorAttribute()
     {
+        avoidSendingEnterEventToParentWidget = false;
         useRangeValidator = false;
         minValue = 0;
         maxValue = 0;
     }
 
 public:
+    bool avoidSendingEnterEventToParentWidget;
     bool useRangeValidator;
     int minValue;
     int maxValue;
@@ -97,6 +99,17 @@ public:
     QString m_displayString;
 };
 
+class PdmUiLineEdit : public QLineEdit
+{
+    Q_OBJECT
+public:
+    PdmUiLineEdit(QWidget* parent);
+    void setAvoidSendingEnterEventToParentWidget(bool avoidSendingEnter);
+protected:
+    void keyPressEvent(QKeyEvent* event);
+private:
+    bool m_avoidSendingEnterEvent;
+};
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -122,8 +135,8 @@ private:
     bool                isMultipleFieldsWithSameKeywordSelected(PdmFieldHandle* editorField) const;
 
 private:
-    QPointer<QLineEdit> m_lineEdit;
-    QPointer<QLabel>    m_label;
+    QPointer<PdmUiLineEdit> m_lineEdit;
+    QPointer<QLabel>        m_label;
 
 };
 

@@ -26,6 +26,7 @@
 #include "RimReservoirCellResultsStorage.h"
 #include "RimTools.h"
 
+#include "cafPdmUiLineEditor.h"
 #include "cafPdmUiListEditor.h"
 #include "cafPdmUiPushButtonEditor.h"
 
@@ -67,6 +68,7 @@ RimTimeStepFilter::RimTimeStepFilter()
     CAF_PDM_InitField(&m_lastTimeStep, "LastTimeStep", 0, "Last Time Step", "", "", "");
 
     CAF_PDM_InitField(&m_interval, "Interval", 1, "Interval", "", "", "");
+    m_interval.uiCapability()->setUiEditorTypeName(caf::PdmUiLineEditor::uiEditorTypeName());    
 
     CAF_PDM_InitField(&m_timeStepNamesFromFile, "TimeStepsFromFile", std::vector<QString>(), "TimeSteps From File", "", "", "");
     CAF_PDM_InitField(&m_dateFormat, "DateFormat", QString("yyyy-MM-dd"), "Date Format", "", "", "");
@@ -257,6 +259,14 @@ void RimTimeStepFilter::defineEditorAttribute(const caf::PdmFieldHandle* field, 
         if (attrib)
         {
             attrib->m_buttonText = "Reload Case";
+        }
+    }
+    else if (field == &m_interval)
+    {
+        caf::PdmUiLineEditorAttribute* attrib = dynamic_cast<caf::PdmUiLineEditorAttribute*>(attribute);
+        if (attrib)
+        {
+            attrib->avoidSendingEnterEventToParentWidget = true;
         }
     }
 }
