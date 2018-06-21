@@ -44,12 +44,18 @@ class RimGeoMechCase : public RimCase
      CAF_PDM_HEADER_INIT;
 
 public:
+    enum CaseOpenStatus
+    {
+        CASE_OPEN_OK = 0,
+        CASE_OPEN_CANCELLED,
+        CASE_OPEN_ERROR
+    };
     RimGeoMechCase(void);
     virtual ~RimGeoMechCase(void);
     
     void                                    setFileName(const QString& fileName);
     QString                                 caseFileName() const;
-    bool                                    openGeoMechCase(std::string* errorMessage);
+    CaseOpenStatus                          openGeoMechCase(std::string* errorMessage);
 
     RigGeoMechCaseData*                     geoMechData();
     const RigGeoMechCaseData*               geoMechData() const;

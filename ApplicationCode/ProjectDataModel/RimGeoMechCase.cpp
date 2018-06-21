@@ -149,7 +149,7 @@ void RimGeoMechCase::reloadDataAndUpdate()
     {
         m_geoMechCaseData = nullptr;
         std::string errMsg;
-        if (!this->openGeoMechCase(&errMsg))
+        if (this->openGeoMechCase(&errMsg) == CASE_OPEN_ERROR)
         {
             RiaLogging::error(QString::fromStdString(errMsg));
         }
@@ -179,27 +179,27 @@ RimGeoMechView* RimGeoMechCase::createAndAddReservoirView()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RimGeoMechCase::openGeoMechCase(std::string* errorMessage)
+RimGeoMechCase::CaseOpenStatus RimGeoMechCase::openGeoMechCase(std::string* errorMessage)
 {
     // If read already, return
-    if (this->m_geoMechCaseData.notNull()) return true;
+    if (this->m_geoMechCaseData.notNull()) return CASE_OPEN_OK;
 
     if (!caf::Utils::fileExists(m_caseFileName().path()))
     {
-        return false;
+        return CASE_OPEN_ERROR;
     }
 
     cvf::ref<RigGeoMechCaseData> geoMechCaseData = new RigGeoMechCaseData(m_caseFileName().path().toStdString());
     bool fileOpenSuccess = geoMechCaseData->open(errorMessage);
     if (!fileOpenSuccess)
     {
-        return false;
+        return CASE_OPEN_ERROR;
     }
 
     std::vector<std::string> stepNames;
     if (!geoMechCaseData->readTimeSteps(errorMessage, &stepNames))
     {
-        return false;
+        return CASE_OPEN_ERROR;
     }
 
     std::vector<std::pair<QString, QDateTime>> timeSteps;
@@ -218,21 +218,22 @@ bool RimGeoMechCase::openGeoMechCase(std::string* errorMessage)
         caf::PdmUiPropertyViewDialog propertyDialog(nullptr, m_timeStepFilter, "Time Step Filter", "", QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
         propertyDialog.resize(QSize(400, 400));
 
+        // Push arrow cursor onto the cursor stack so it takes over from the wait cursor.
         QApplication::setOverrideCursor(QCursor(Qt::ArrowCursor));
-        if (propertyDialog.exec() != QDialog::Accepted)
+        int propertyReturnValue = propertyDialog.exec();
+        // Pop arrow cursor off the cursor stack so that the previous (wait) cursor takes over.
+        QApplication::restoreOverrideCursor();
+        if (propertyReturnValue != QDialog::Accepted)
         {
-            return false;
+            return CASE_OPEN_CANCELLED;
         }
         m_timeStepFilter->updateFilteredTimeStepsFromUi();
-        QApplication::restoreOverrideCursor();
     }
 
     // Continue reading the open file
-    fileOpenSuccess = geoMechCaseData->readFemParts(errorMessage, m_timeStepFilter->filteredTimeSteps());
-
-    if (!fileOpenSuccess)
-    {
-        return false;
+    if (!geoMechCaseData->readFemParts(errorMessage, m_timeStepFilter->filteredTimeSteps()))
+    { 
+        return CASE_OPEN_ERROR;
     }
     
     if (activeFormationNames())
@@ -253,7 +254,7 @@ bool RimGeoMechCase::openGeoMechCase(std::string* errorMessage)
 
     m_geoMechCaseData = geoMechCaseData;
 
-    return fileOpenSuccess;
+    return CASE_OPEN_OK;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -122,7 +122,13 @@ void RimGeoMechView::onLoadDataAndUpdate()
     if (m_geomechCase)
     {
         std::string errorMessage;
-        if (!m_geomechCase->openGeoMechCase(&errorMessage))
+        RimGeoMechCase::CaseOpenStatus status = m_geomechCase->openGeoMechCase(&errorMessage);
+        if (status == RimGeoMechCase::CASE_OPEN_CANCELLED)
+        {
+            m_geomechCase = nullptr;
+            return;
+        }
+        else if (status == RimGeoMechCase::CASE_OPEN_ERROR) 
         {
             QString displayMessage = errorMessage.empty() ? "Could not open the Odb file: \n" + m_geomechCase->caseFileName() : QString::fromStdString(errorMessage);
 
