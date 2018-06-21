@@ -213,6 +213,8 @@ void RimEnsembleCurveFilter::fieldChangedByUi(const caf::PdmFieldHandle* changed
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleCurveFilter::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
+    setInitialValues(false);
+
     auto eParam = selectedEnsembleParameter();
 
     uiOrdering.add(&m_active);
@@ -344,6 +346,16 @@ RimEnsembleCurveFilterCollection* RimEnsembleCurveFilter::parentCurveFilterColle
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleCurveFilter::setInitialValues(bool forceDefault)
 {
+    if (!selectedEnsembleParameter().isValid())
+    {
+        auto parameterNames = parentCurveSet()->ensembleParameterNames();
+        if (!parameterNames.empty())
+        {
+            m_ensembleParameterName = parameterNames.front();
+            updateConnectedEditors();
+        }
+    }
+
     auto eParam = selectedEnsembleParameter();
     if (eParam.isValid() && eParam.isNumeric())
     {
