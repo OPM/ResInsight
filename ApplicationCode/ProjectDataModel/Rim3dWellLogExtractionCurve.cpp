@@ -220,7 +220,7 @@ void Rim3dWellLogExtractionCurve::curveValuesAndMdsAtTimeStep(std::vector<double
         *measuredDepthValues = geomExtractor->measuredDepth();
         m_geomResultDefinition->loadResult();
         geomExtractor->setRkbDiff(rkbDiff());
-        geomExtractor->curveData(m_geomResultDefinition->resultAddress(), m_timeStep, values);        
+        geomExtractor->curveData(m_geomResultDefinition->resultAddress(), timeStep, values);
     }
 }
 
