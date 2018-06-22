@@ -62,24 +62,19 @@ public:
     PdmUiOrdering& operator=(const PdmUiOrdering&) = delete;
 
     void                            add(const PdmFieldHandle* field);
-    void                            insert(size_t index, const PdmFieldHandle* field);
     void                            add(const PdmObjectHandle* obj);
+    bool                            insertBeforeGroup(const QString& groupId, const PdmFieldHandle* fieldToInsert);
+    bool                            insertBeforeItem(const PdmUiItem* item,   const PdmFieldHandle* fieldToInsert);
 
     PdmUiGroup*                     addNewGroup(const QString& displayName);
+    PdmUiGroup*                     createGroupBeforeGroup(const QString& groupId, const QString& displayName); 
+    PdmUiGroup*                     createGroupBeforeItem(const PdmUiItem* item,   const QString& displayName); 
+
     PdmUiGroup*                     addNewGroupWithKeyword(const QString& displayName, const QString& groupKeyword);
-    PdmUiGroup*                     insertNewGroup(size_t index, const QString& displayName);
-    PdmUiGroup*                     insertNewGroupWithKeyword(size_t index, const QString& displayName, const QString& groupKeyword);
+    PdmUiGroup*                     createGroupWithIdBeforeGroup(const QString& groupId, const QString& displayName, const QString& newGroupId);
+    PdmUiGroup*                     createGroupWithIdBeforeItem(const PdmUiItem* item,   const QString& displayName, const QString& newGroupId);
 
-    struct FindResult
-    {
-        PdmUiOrdering* parent;
-        size_t indexInParent;
-        PdmUiItem* item();
-        PdmUiGroup* group();
-    };
-
-    FindResult                      findGroup(const QString& groupKeyword) const;
-    FindResult                      findItem(const PdmUiItem* item) const;
+    PdmUiGroup*                     findGroup(const QString& groupId);
 
     void                            skipRemainingFields(bool doSkip = true);
 
@@ -89,7 +84,23 @@ public:
     bool                            contains(const PdmUiItem* item) const;
     bool                            isIncludingRemainingFields() const;
 
+protected:
+
+    struct PositionFound
+    {
+        PdmUiOrdering* parent;
+        size_t indexInParent;
+        PdmUiItem* item();
+        PdmUiGroup* group();
+    };
+
+    PositionFound                   findGroupPosition(const QString& groupKeyword) const;
+    PositionFound                   findItemPosition(const PdmUiItem* item) const;
+
 private:
+    void                            insert(size_t index, const PdmFieldHandle* field);
+    PdmUiGroup*                     insertNewGroupWithKeyword(size_t index, const QString& displayName, const QString& groupKeyword);
+
     std::vector<PdmUiItem*>         m_ordering;            ///< The order of groups and fields
     std::vector<PdmUiGroup*>        m_createdGroups;       ///< Owned PdmUiGroups, for memory management only
     bool                            m_skipRemainingFields;

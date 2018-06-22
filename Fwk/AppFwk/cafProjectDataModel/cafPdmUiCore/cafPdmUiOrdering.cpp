@@ -86,15 +86,88 @@ caf::PdmUiGroup* PdmUiOrdering::addNewGroupWithKeyword(const QString& displayNam
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-caf::PdmUiGroup* PdmUiOrdering::insertNewGroup(size_t index, const QString& displayName)
+bool PdmUiOrdering::insertBeforeGroup(const QString& groupId, const PdmFieldHandle* field)
 {
-    PdmUiGroup* group = new PdmUiGroup;
-    group->setUiName(displayName);
+   PositionFound pos = findGroupPosition(groupId);
+   if (pos.parent)
+   {
+       pos.parent->insert(pos.indexInParent, field);
+       return true;
+   }  
+   else
+   {
+        return false;
+   }
+}
 
-    m_createdGroups.push_back(group);
 
-    m_ordering.insert(m_ordering.begin() + index, group);  
-    return group;
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool PdmUiOrdering::insertBeforeItem(const PdmUiItem* item, const PdmFieldHandle* field)
+{
+    PositionFound pos = findItemPosition(item);
+    if (pos.parent)
+    {
+        pos.parent->insert(pos.indexInParent, field);
+        return true;
+    }  
+    else
+    {
+        return false;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+caf::PdmUiGroup* PdmUiOrdering::createGroupBeforeGroup(const QString& groupId, const QString& displayName)
+{
+    return createGroupWithIdBeforeGroup(groupId, displayName, "");
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+caf::PdmUiGroup* PdmUiOrdering::createGroupBeforeItem(const PdmUiItem* item, const QString& displayName)
+{
+    return createGroupWithIdBeforeItem(item, displayName, "");
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+caf::PdmUiGroup* PdmUiOrdering::createGroupWithIdBeforeGroup(const QString& groupId, const QString& displayName, const QString& newGroupId)
+{
+    PositionFound pos = findGroupPosition(groupId);
+    if (pos.parent)
+    {
+        return pos.parent->insertNewGroupWithKeyword(pos.indexInParent, displayName, newGroupId);
+    }
+
+    return nullptr;         
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+caf::PdmUiGroup* PdmUiOrdering::createGroupWithIdBeforeItem(const PdmUiItem* item, const QString& displayName, const QString& newGroupId)
+{
+    PositionFound pos = findItemPosition(item);
+    if (pos.parent)
+    {
+        return pos.parent->insertNewGroupWithKeyword(pos.indexInParent, displayName, newGroupId);
+    }
+
+    return nullptr;         
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+caf::PdmUiGroup* PdmUiOrdering::findGroup(const QString& groupId)
+{
+    return findGroupPosition(groupId).group();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -104,7 +177,13 @@ caf::PdmUiGroup* PdmUiOrdering::insertNewGroupWithKeyword(size_t index,
                                                           const QString& displayName, 
                                                           const QString& groupKeyword)
 {
-    PdmUiGroup* group = insertNewGroup(index, displayName);
+    PdmUiGroup* group = new PdmUiGroup;
+    group->setUiName(displayName);
+
+    m_createdGroups.push_back(group);
+
+    m_ordering.insert(m_ordering.begin() + index, group);  
+
     group->setKeyword(groupKeyword);
 
     return group;
@@ -115,20 +194,20 @@ caf::PdmUiGroup* PdmUiOrdering::insertNewGroupWithKeyword(size_t index,
 //--------------------------------------------------------------------------------------------------
 bool PdmUiOrdering::contains(const PdmUiItem* item) const
 {
-   return this->findItem(item).parent != nullptr;
+   return this->findItemPosition(item).parent != nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-caf::PdmUiOrdering::FindResult PdmUiOrdering::findItem(const PdmUiItem* item) const
+caf::PdmUiOrdering::PositionFound PdmUiOrdering::findItemPosition(const PdmUiItem* item) const
 {
     for (size_t i = 0; i < m_ordering.size(); ++i)
     {
         if (m_ordering[i] == item) return { const_cast<PdmUiOrdering*>(this), i};
         if (m_ordering[i] && m_ordering[i]->isUiGroup())
         {
-            FindResult result =  static_cast<PdmUiGroup*>(m_ordering[i])->findItem(item);
+            PositionFound result =  static_cast<PdmUiGroup*>(m_ordering[i])->findItemPosition(item);
             if (result.parent ) return result;
         }
     }
@@ -138,14 +217,14 @@ caf::PdmUiOrdering::FindResult PdmUiOrdering::findItem(const PdmUiItem* item) co
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-caf::PdmUiOrdering::FindResult PdmUiOrdering::findGroup(const QString& groupKeyword) const
+caf::PdmUiOrdering::PositionFound PdmUiOrdering::findGroupPosition(const QString& groupKeyword) const
 {
     for (size_t i = 0; i < m_ordering.size(); ++i)
     {
         if (m_ordering[i] && m_ordering[i]->isUiGroup())
         {
             if (static_cast<PdmUiGroup*>(m_ordering[i])->keyword() == groupKeyword)  return { const_cast<PdmUiOrdering*>(this), i};
-            FindResult result =  static_cast<PdmUiGroup*>(m_ordering[i])->findGroup(groupKeyword);
+            PositionFound result =  static_cast<PdmUiGroup*>(m_ordering[i])->findGroupPosition(groupKeyword);
             if (result.parent ) return result;
         }
     }
@@ -217,7 +296,7 @@ const std::vector<PdmUiItem*>& PdmUiOrdering::uiItems() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-caf::PdmUiItem* PdmUiOrdering::FindResult::item()
+caf::PdmUiItem* PdmUiOrdering::PositionFound::item()
 {
     if ( parent ) 
     {
@@ -232,7 +311,7 @@ caf::PdmUiItem* PdmUiOrdering::FindResult::item()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-caf::PdmUiGroup* PdmUiOrdering::FindResult::group()
+caf::PdmUiGroup* PdmUiOrdering::PositionFound::group()
 {
     PdmUiItem* g = item();
     if ( g && g->isUiGroup() )
