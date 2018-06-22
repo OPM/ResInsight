@@ -61,11 +61,25 @@ public:
     PdmUiOrdering(const PdmUiOrdering&) = delete;
     PdmUiOrdering& operator=(const PdmUiOrdering&) = delete;
 
-    PdmUiGroup*                     addNewGroup(const QString& displayName);
-    PdmUiGroup*                     addNewGroupWithKeyword(const QString& displayName, const QString& keyword);
-
     void                            add(const PdmFieldHandle* field);
+    void                            insert(size_t index, const PdmFieldHandle* field);
     void                            add(const PdmObjectHandle* obj);
+
+    PdmUiGroup*                     addNewGroup(const QString& displayName);
+    PdmUiGroup*                     addNewGroupWithKeyword(const QString& displayName, const QString& groupKeyword);
+    PdmUiGroup*                     insertNewGroup(size_t index, const QString& displayName);
+    PdmUiGroup*                     insertNewGroupWithKeyword(size_t index, const QString& displayName, const QString& groupKeyword);
+
+    struct FindResult
+    {
+        PdmUiOrdering* parent;
+        size_t indexInParent;
+        PdmUiItem* item();
+        PdmUiGroup* group();
+    };
+
+    FindResult                      findGroup(const QString& groupKeyword) const;
+    FindResult                      findItem(const PdmUiItem* item) const;
 
     void                            skipRemainingFields(bool doSkip = true);
 
