@@ -135,7 +135,7 @@ void RigGeoMechWellLogExtractor::wellPathDerivedCurveData(const RigFemResultAddr
 
         double trueVerticalDepth = -m_intersections[intersectionIdx].z();
         double porePressure = trueVerticalDepth * 9.81 / 100.0;
-        if (false && !porePressures.empty())
+        if (!porePressures.empty())
         {
             float interpolatedPorePressure = interpolateGridResultValue(porBarResAddr.resultPosType, porePressures, intersectionIdx, false);
             if (interpolatedPorePressure != std::numeric_limits<float>::infinity() &&

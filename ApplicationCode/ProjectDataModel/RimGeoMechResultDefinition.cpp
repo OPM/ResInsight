@@ -174,7 +174,7 @@ QList<caf::PdmOptionItemInfo> RimGeoMechResultDefinition::calculateValueOptions(
         if (&m_resultPositionTypeUiField == fieldNeedingOptions)
         {
             std::vector<RigFemResultPosEnum> optionItems = { RIG_NODAL, RIG_ELEMENT_NODAL, RIG_INTEGRATION_POINT, RIG_ELEMENT_NODAL_FACE, RIG_FORMATION_NAMES, RIG_ELEMENT };
-            if (true || m_addWellPathDerivedResults)
+            if (m_addWellPathDerivedResults)
             {
                 optionItems.push_back(RIG_WELLPATH_DERIVED);
             }
