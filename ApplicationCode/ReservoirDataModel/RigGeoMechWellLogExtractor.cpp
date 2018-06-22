@@ -62,7 +62,12 @@ void RigGeoMechWellLogExtractor::curveData(const RigFemResultAddress& resAddr, i
     {
         if (resAddr.fieldName == "FractureGradient" || resAddr.fieldName == "ShearFailureGradient")
         {
-            wellPathDerivedCurveData(resAddr, frameIndex, values);
+            wellBoreWallCurveData(resAddr, frameIndex, values);
+            return;
+        }
+        else if (resAddr.fieldName == "PP" || resAddr.fieldName == "OBG" || resAddr.fieldName == "SH")
+        {
+            wellPathScaledCurveData(resAddr, frameIndex, values);
             return;
         }
         else if (resAddr.fieldName == "Azimuth" || resAddr.fieldName == "Inclination")
@@ -70,6 +75,7 @@ void RigGeoMechWellLogExtractor::curveData(const RigFemResultAddress& resAddr, i
             wellPathAngles(resAddr, values);
             return;
         }
+
     }
 
     if (!resAddr.isValid()) return;
@@ -142,7 +148,64 @@ void RigGeoMechWellLogExtractor::wellPathAngles(const RigFemResultAddress& resAd
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigGeoMechWellLogExtractor::wellPathDerivedCurveData(const RigFemResultAddress& resAddr, int frameIndex, std::vector<double>* values)
+void RigGeoMechWellLogExtractor::wellPathScaledCurveData(const RigFemResultAddress& resAddr, int frameIndex, std::vector<double>* values)
+{
+    CVF_ASSERT(values);
+
+    const RigFemPart* femPart = m_caseData->femParts()->part(0);
+    const std::vector<cvf::Vec3f>& nodeCoords = femPart->nodes().coordinates;
+    RigFemPartResultsCollection* resultCollection = m_caseData->femPartResults();
+
+    std::string nativeFieldName;
+    std::string nativeCompName;
+    double scalingFactor = 1000 * 9.81 / 1.0e5;
+    if (resAddr.fieldName == "PP")
+    {
+        nativeFieldName = "POR-Bar"; // More likely to be in memory than POR
+    }
+    else if (resAddr.fieldName == "OBG")
+    {
+        nativeFieldName = "ST";
+        nativeCompName = "S33";
+    }
+    else if (resAddr.fieldName == "SH")
+    {
+        nativeFieldName = "ST";
+        nativeCompName = "S3";
+    }
+
+    RigFemResultAddress nativeAddr(RIG_ELEMENT_NODAL, nativeFieldName, nativeCompName);
+    std::vector<float> unscaledResult = resultCollection->resultValues(nativeAddr, 0, frameIndex);
+
+    values->resize(m_intersections.size(), 0.0f);
+
+#pragma omp parallel for
+    for (int64_t intersectionIdx = 0; intersectionIdx < (int64_t)m_intersections.size(); ++intersectionIdx)
+    {
+        size_t elmIdx = m_intersectedCellsGlobIdx[intersectionIdx];
+        RigElementType elmType = femPart->elementType(elmIdx);
+
+        if (!(elmType == HEX8 || elmType == HEX8P)) continue;
+
+        double trueVerticalDepth = -m_intersections[intersectionIdx].z();
+        double effectiveDepth = trueVerticalDepth + m_rkbDiff;
+        double hydroStaticPorePressure = effectiveDepth * 9.81 / 100.0;
+
+        double unscaledValue = static_cast<double>(interpolateGridResultValue<float>(nativeAddr.resultPosType, unscaledResult, intersectionIdx, false));
+        if (resAddr.fieldName == "PP" && (unscaledValue == std::numeric_limits<float>::infinity() ||
+                                          unscaledValue == -std::numeric_limits<float>::infinity()))
+        {
+            unscaledValue = hydroStaticPorePressure;
+        }
+        double scaledValue = unscaledValue / (scalingFactor * effectiveDepth);
+        (*values)[intersectionIdx] = scaledValue;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigGeoMechWellLogExtractor::wellBoreWallCurveData(const RigFemResultAddress& resAddr, int frameIndex, std::vector<double>* values)
 {
     // TODO: Read in these values:
     const double poissonRatio = 0.25; // TODO: Read this in.

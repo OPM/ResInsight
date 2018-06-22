@@ -487,6 +487,9 @@ std::map<std::string, std::vector<std::string> > RigFemPartResultsCollection::sc
             fieldCompNames["Azimuth"];
             fieldCompNames["FractureGradient"];
             fieldCompNames["Inclination"];
+            fieldCompNames["PP"];
+            fieldCompNames["OBG"];
+            fieldCompNames["SH"];
             fieldCompNames["ShearFailureGradient"];
         }
     }

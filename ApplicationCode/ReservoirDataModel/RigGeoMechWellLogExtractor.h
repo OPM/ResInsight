@@ -50,12 +50,13 @@ public:
     RigGeoMechWellLogExtractor(RigGeoMechCaseData* aCase, const RigWellPath* wellpath, const std::string& wellCaseErrorMsgName);
 
     void                         curveData(const RigFemResultAddress& resAddr, int frameIndex, std::vector<double>* values );
-    void                         wellPathAngles(const RigFemResultAddress& resAddr, std::vector<double>* values);
-    void                         wellPathDerivedCurveData(const RigFemResultAddress& resAddr, int frameIndex, std::vector<double>* values);
     const RigGeoMechCaseData*    caseData();
     void                         setRkbDiff(double rkbDiff);
 private:
-  
+    void                         wellPathAngles(const RigFemResultAddress& resAddr, std::vector<double>* values);
+    void                         wellPathScaledCurveData(const RigFemResultAddress& resAddr, int frameIndex, std::vector<double>* values);
+    void                         wellBoreWallCurveData(const RigFemResultAddress& resAddr, int frameIndex, std::vector<double>* values);
+
    
     template<typename T>
     T                            interpolateGridResultValue(RigFemResultPosEnum resultPosType, const std::vector<T>& gridResultValues, int64_t intersectionIdx, bool averageNodeElementResults) const;
