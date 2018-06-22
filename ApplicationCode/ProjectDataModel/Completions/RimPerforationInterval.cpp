@@ -72,11 +72,18 @@ void RimPerforationInterval::setStartAndEndMD(double startMD, double endMD)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimPerforationInterval::setStartDate(const QDate& date)
+void RimPerforationInterval::enableCustomStartDate(bool enable)
+{
+    m_useCustomStartDate = enable;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimPerforationInterval::setCustomStartDate(const QDate& date)
 {
     if (date.isValid())
     {
-        m_useCustomStartDate = true;
         m_startDate = QDateTime(date);
     }
 }
@@ -84,11 +91,18 @@ void RimPerforationInterval::setStartDate(const QDate& date)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimPerforationInterval::setEndDate(const QDate& date)
+void RimPerforationInterval::enableCustomEndDate(bool enable)
+{
+    m_useCustomEndDate = enable;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimPerforationInterval::setCustomEndDate(const QDate& date)
 {
     if (date.isValid())
     {
-        m_useCustomEndDate = true;
         m_endDate = QDateTime(date);
     }
 }

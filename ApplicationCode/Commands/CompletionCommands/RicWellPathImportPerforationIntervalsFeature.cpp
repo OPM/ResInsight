@@ -89,7 +89,8 @@ void RicWellPathImportPerforationIntervalsFeature::onActionTriggered(bool isChec
                 perforationInterval->setSkinFactor(interval.skinFactor);
                 if (!interval.startOfHistory)
                 {
-                    perforationInterval->setStartDate(interval.date);
+                    perforationInterval->setCustomStartDate(interval.date);
+                    perforationInterval->enableCustomStartDate(true);
                 }
                 wellPath->perforationIntervalCollection()->appendPerforation(perforationInterval);
                 lastPerforationInterval = perforationInterval;

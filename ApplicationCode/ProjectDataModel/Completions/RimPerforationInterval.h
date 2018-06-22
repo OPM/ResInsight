@@ -41,8 +41,13 @@ public:
     virtual ~RimPerforationInterval();
 
     void                                setStartAndEndMD(double startMD, double endMD);
-    void                                setStartDate(const QDate& date);
-    void                                setEndDate(const QDate& date);
+
+    void                                enableCustomStartDate(bool enable);
+    void                                setCustomStartDate(const QDate& date);
+
+    void                                enableCustomEndDate(bool enable);
+    void                                setCustomEndDate(const QDate& date);
+
     void                                setDiameter(double diameter);
     void                                setSkinFactor(double skinFactor);
     double                              startMD() const;

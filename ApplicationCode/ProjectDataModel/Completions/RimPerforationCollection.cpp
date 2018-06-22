@@ -21,9 +21,10 @@
 
 #include "RiaApplication.h"
 
+#include "Rim3dView.h"
+#include "RimEclipseCase.h"
 #include "RimPerforationInterval.h"
 #include "RimProject.h"
-#include "Rim3dView.h"
 
 #include "RigWellPath.h"
 
@@ -78,18 +79,43 @@ void RimPerforationCollection::fieldChangedByUi(const caf::PdmFieldHandle* chang
 //--------------------------------------------------------------------------------------------------
 void RimPerforationCollection::appendPerforation(RimPerforationInterval* perforation)
 {
+    QDate firstTimeStepFromCase;
+    QDate lastTimeStepFromCase;
+    Rim3dView* activeView = RiaApplication::instance()->activeReservoirView();
+    if (activeView)
+    {
+        activeView->hasUserRequestedAnimation = true;
+
+        RimEclipseCase* eclipseCase = nullptr;
+        activeView->firstAncestorOrThisOfType(eclipseCase);
+        if (eclipseCase)
+        {
+            auto dates = eclipseCase->timeStepDates();
+            if (!dates.empty())
+            {
+                firstTimeStepFromCase = dates.front().date();
+
+                lastTimeStepFromCase = dates.back().date();
+            }
+        }
+    }
+
+    if (firstTimeStepFromCase.isValid())
+    {
+        perforation->setCustomStartDate(firstTimeStepFromCase);
+    }
+
+    if (lastTimeStepFromCase.isValid())
+    {
+        perforation->setCustomEndDate(lastTimeStepFromCase);
+    }
+
     m_perforations.push_back(perforation);
 
     perforation->setUnitSystemSpecificDefaults();
 
     updateConnectedEditors();
     Riu3DMainWindowTools::selectAsCurrentItem(perforation);
-
-    Rim3dView* activeView = RiaApplication::instance()->activeReservoirView();
-    if (activeView)
-    {
-        activeView->hasUserRequestedAnimation = true;
-    }
 
     RimProject* proj;
     this->firstAncestorOrThisOfTypeAsserted(proj);
@@ -103,7 +129,7 @@ std::vector<const RimPerforationInterval*> RimPerforationCollection::perforation
 {
     std::vector<const RimPerforationInterval*> myPerforations;
 
-    for (auto perforation : m_perforations)
+    for (const auto& perforation : m_perforations)
     {
         myPerforations.push_back(perforation);
     }
