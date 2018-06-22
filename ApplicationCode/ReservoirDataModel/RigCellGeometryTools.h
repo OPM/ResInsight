@@ -39,8 +39,12 @@ public:
     static void findCellLocalXYZ(const std::array<cvf::Vec3d, 8>& hexCorners, cvf::Vec3d &localXdirection, cvf::Vec3d &localYdirection, cvf::Vec3d &localZdirection);
 
     static double polygonLengthInLocalXdirWeightedByArea(std::vector<cvf::Vec3d> polygon2d);
-   
-    static std::vector<std::vector<cvf::Vec3d> >  intersectPolygons(std::vector<cvf::Vec3d> polygon1, std::vector<cvf::Vec3d> polygon2);
+
+    static std::vector<std::vector<cvf::Vec3d>> intersectPolygons(std::vector<cvf::Vec3d> polygon1,
+                                                                  std::vector<cvf::Vec3d> polygon2);
+    
+    static std::vector<std::vector<cvf::Vec3d>> subtractPolygons(const std::vector<cvf::Vec3d>&              sourcePolygon,
+                                                                 const std::vector<std::vector<cvf::Vec3d>>& polygonToSubtract);
 
     enum ZInterpolationType { INTERPOLATE_LINE_Z, USE_HUGEVAL, USE_ZERO};
     static std::vector<std::vector<cvf::Vec3d> >  clipPolylineByPolygon(const std::vector<cvf::Vec3d>& polyLine, 

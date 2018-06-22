@@ -288,6 +288,56 @@ std::vector<std::vector<cvf::Vec3d> > RigCellGeometryTools::intersectPolygons(st
     return clippedPolygons;
 }
 
+//-------------------------------------------------------------------------------------------------- 
+///  
+//--------------------------------------------------------------------------------------------------
+std::vector<std::vector<cvf::Vec3d>>
+    RigCellGeometryTools::subtractPolygons(const std::vector<cvf::Vec3d>&              sourcePolygon,
+                                           const std::vector<std::vector<cvf::Vec3d>>& polygonsToSubtract)
+{
+    ClipperLib::Clipper clpr;
+
+    {
+        // Convert to int for clipper library and store as clipper "path"
+        ClipperLib::Path polygon1path;
+        for (const auto& v : sourcePolygon)
+        {
+            polygon1path.push_back(toClipperPoint(v));
+        }
+        clpr.AddPath(polygon1path, ClipperLib::ptSubject, true);
+    }
+
+    for (const auto& path : polygonsToSubtract)
+    {
+        ClipperLib::Path polygon2path;
+        for (const auto& v : path)
+        {
+            polygon2path.push_back(toClipperPoint(v));
+        }
+
+        clpr.AddPath(polygon2path, ClipperLib::ptClip, true);
+    }
+
+    ClipperLib::Paths solution;
+    clpr.Execute(ClipperLib::ctDifference, solution, ClipperLib::pftEvenOdd, ClipperLib::pftEvenOdd);
+
+    std::vector<std::vector<cvf::Vec3d>> clippedPolygons;
+
+    // Convert back to std::vector<std::vector<cvf::Vec3d> >
+    for (ClipperLib::Path pathInSol : solution)
+    {
+        std::vector<cvf::Vec3d> clippedPolygon;
+        for (ClipperLib::IntPoint IntPosition : pathInSol)
+        {
+            clippedPolygon.push_back(fromClipperPoint(IntPosition));
+        }
+
+        clippedPolygons.push_back(clippedPolygon);
+    }
+
+    return clippedPolygons;
+}
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
