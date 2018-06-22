@@ -35,6 +35,7 @@
 
 #include "cafTensor3.h"
 #include "cvfGeometryTools.h"
+#include "cvfMath.h"
 
 
 
@@ -57,10 +58,18 @@ void RigGeoMechWellLogExtractor::curveData(const RigFemResultAddress& resAddr, i
 {   
     CVF_TIGHT_ASSERT(values);
     
-    if (resAddr.fieldName == "FractureGradient" || resAddr.fieldName == "ShearFailureGradient")
+    if (resAddr.resultPosType == RIG_WELLPATH_DERIVED)
     {
-        wellPathDerivedCurveData(resAddr, frameIndex, values);
-        return;
+        if (resAddr.fieldName == "FractureGradient" || resAddr.fieldName == "ShearFailureGradient")
+        {
+            wellPathDerivedCurveData(resAddr, frameIndex, values);
+            return;
+        }
+        else if (resAddr.fieldName == "Azimuth" || resAddr.fieldName == "Inclination")
+        {
+            wellPathAngles(resAddr, values);
+            return;
+        }
     }
 
     if (!resAddr.isValid()) return;
@@ -91,6 +100,48 @@ void RigGeoMechWellLogExtractor::curveData(const RigFemResultAddress& resAddr, i
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RigGeoMechWellLogExtractor::wellPathAngles(const RigFemResultAddress& resAddr, std::vector<double>* values)
+{
+    CVF_ASSERT(values);
+    CVF_ASSERT(resAddr.fieldName == "Azimuth" || resAddr.fieldName == "Inclination");
+    values->resize(m_intersections.size(), 0.0f);
+    const double epsilon = 1.0e-3;
+
+    for (int64_t intersectionIdx = 0; intersectionIdx < (int64_t)m_intersections.size(); ++intersectionIdx)
+    {
+        size_t elmIdx = m_intersectedCellsGlobIdx[intersectionIdx];
+
+        cvf::Vec3d wellPathTangent = calculateWellPathTangent(intersectionIdx);
+   
+        // Deviation from vertical. Since well path is tending downwards we compare with negative z.
+        double inclination = cvf::Math::toDegrees(std::acos(cvf::Vec3d(0.0, 0.0, -1.0) * wellPathTangent.getNormalized()));       
+
+        if (resAddr.fieldName == "Azimuth")
+        {
+            double azimuth = 0.0;
+            
+            // Azimuth is not defined when well path is vertical. We define the azimuth as 0.0 in this case.
+            if (cvf::Math::valueInRange(inclination, epsilon, 180.0 - epsilon))
+            {
+                cvf::Vec3d projectedTangentXY = wellPathTangent;
+                projectedTangentXY.z() = 0.0;
+
+                // Deviation from "True North" (positive y-direction)
+                azimuth = cvf::Math::toDegrees(std::acos(cvf::Vec3d(0.0, 1.0, 0.0) * projectedTangentXY.getNormalized()));
+            }
+
+            (*values)[intersectionIdx] = azimuth;
+        }
+        else
+        {
+            (*values)[intersectionIdx] = inclination;
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RigGeoMechWellLogExtractor::wellPathDerivedCurveData(const RigFemResultAddress& resAddr, int frameIndex, std::vector<double>* values)
 {
     // TODO: Read in these values:
@@ -99,7 +150,7 @@ void RigGeoMechWellLogExtractor::wellPathDerivedCurveData(const RigFemResultAddr
     // Typical UCS for Shale is 5 - 100 MPa -> 50 - 1000 bar.
     const double uniaxialStrengthInBars = 100.0;
 
-    CVF_TIGHT_ASSERT(values);
+    CVF_ASSERT(values);
     CVF_ASSERT(resAddr.fieldName == "FractureGradient" || resAddr.fieldName == "ShearFailureGradient");
 
     const RigFemPart* femPart = m_caseData->femParts()->part(0);
@@ -398,17 +449,9 @@ cvf::Vec3d RigGeoMechWellLogExtractor::calculateLengthInCell(size_t cellIndex, c
 //--------------------------------------------------------------------------------------------------
 cvf::Vec3d RigGeoMechWellLogExtractor::calculateWellPathTangent(int64_t intersectionIdx) const
 {
-    cvf::Vec3d wellPathTangent;
-    if (intersectionIdx % 2 == 0)
-    {
-        wellPathTangent = m_intersections[intersectionIdx + 1] - m_intersections[intersectionIdx];
-    }
-    else
-    {
-        wellPathTangent = m_intersections[intersectionIdx] - m_intersections[intersectionIdx - 1];
-    }
-    CVF_ASSERT(wellPathTangent.length() > 1.0e-7);
-    return wellPathTangent.getNormalized();
+    cvf::Vec3d segmentStart, segmentEnd;
+    m_wellPath->twoClosestPoints(m_intersections[intersectionIdx], &segmentStart, &segmentEnd);
+    return (segmentEnd - segmentStart).getNormalized();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -484,7 +484,9 @@ std::map<std::string, std::vector<std::string> > RigFemPartResultsCollection::sc
         }
         else if (resPos == RIG_WELLPATH_DERIVED)
         {
+            fieldCompNames["Azimuth"];
             fieldCompNames["FractureGradient"];
+            fieldCompNames["Inclination"];
             fieldCompNames["ShearFailureGradient"];
         }
     }

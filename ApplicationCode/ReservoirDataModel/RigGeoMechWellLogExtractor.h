@@ -50,6 +50,7 @@ public:
     RigGeoMechWellLogExtractor(RigGeoMechCaseData* aCase, const RigWellPath* wellpath, const std::string& wellCaseErrorMsgName);
 
     void                         curveData(const RigFemResultAddress& resAddr, int frameIndex, std::vector<double>* values );
+    void                         wellPathAngles(const RigFemResultAddress& resAddr, std::vector<double>* values);
     void                         wellPathDerivedCurveData(const RigFemResultAddress& resAddr, int frameIndex, std::vector<double>* values);
     const RigGeoMechCaseData*    caseData();
     void                         setRkbDiff(double rkbDiff);
