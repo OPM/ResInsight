@@ -165,9 +165,9 @@ void RimFileWellPath::setSurveyType(QString surveyType)
 { 
     m_surveyType = surveyType; 
     if (m_surveyType == "PLAN")
-        m_wellPathColor = cvf::Color3f(0.999f, 0.333f, 0.0f);
+        setWellPathColor(cvf::Color3f(0.999f, 0.333f, 0.0f));
     else if (m_surveyType == "PROTOTYPE")
-        m_wellPathColor = cvf::Color3f(0.0f, 0.333f, 0.999f);
+        setWellPathColor(cvf::Color3f(0.0f, 0.333f, 0.999f));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -177,20 +177,16 @@ void RimFileWellPath::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering&
 {
     RimWellPath::defineUiOrdering(uiConfigName, uiOrdering);
     
-    // Todo : Insert at correct place
-
-    caf::PdmUiGroup* fileInfoGroup =   uiOrdering.addNewGroup("File");
+    caf::PdmUiGroup* fileInfoGroup =    uiOrdering.createGroupBeforeGroup("Simulation Well", "File");
     fileInfoGroup->add(&m_filepath);
     fileInfoGroup->add(&m_wellPathIndexInFile);
 
-    caf::PdmUiGroup* ssihubGroup =  uiOrdering.addNewGroup("Well Info");
-    ssihubGroup->add(&id);
-    ssihubGroup->add(&sourceSystem);
-    ssihubGroup->add(&utmZone);
-    ssihubGroup->add(&updateDate);
-    ssihubGroup->add(&updateUser);
-    ssihubGroup->add(&m_surveyType);
-
+    if ( !id().isEmpty() )           uiOrdering.insertBeforeItem(m_datumElevation.uiCapability(), &id);
+    if ( !sourceSystem().isEmpty() ) uiOrdering.insertBeforeItem(m_datumElevation.uiCapability(), &sourceSystem);
+    if ( !utmZone().isEmpty() )      uiOrdering.insertBeforeItem(m_datumElevation.uiCapability(), &utmZone);
+    if ( !updateDate().isEmpty() )   uiOrdering.insertBeforeItem(m_datumElevation.uiCapability(), &updateDate);
+    if ( !updateUser().isEmpty() )   uiOrdering.insertBeforeItem(m_datumElevation.uiCapability(), &updateUser);
+    if ( !m_surveyType().isEmpty() ) uiOrdering.insertBeforeItem(m_datumElevation.uiCapability(), &m_surveyType);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -546,7 +542,7 @@ bool RimFileWellPath::readWellPathFile(QString* errorMessage, RifWellPathImporte
         setSurveyType(wellMetaData.m_surveyType);
         updateDate = wellMetaData.m_updateDate.toString("d MMMM yyyy");
 
-        m_wellPath = wellData.m_wellPathGeometry;
+        setWellPathGeometry(wellData.m_wellPathGeometry.p());
         return true;
     }
     else

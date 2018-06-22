@@ -129,51 +129,44 @@ protected:
     virtual void                        initAfterRead() override;
     virtual void                        defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
-private:
-
     void                                setWellPathGeometry(RigWellPath* wellPathModel);
 
-    virtual void                        defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName) override;
-
-
-
-    static size_t                       simulationWellBranchCount(const QString& simWellName);
-
-private:
     // Fields
+protected:
+    caf::PdmField<double>               m_datumElevation;
+private:
 
     caf::PdmField<QString>              m_name;
-
 
     caf::PdmField<QString>              m_simWellName;
     caf::PdmField<int>                  m_branchIndex;
 
     caf::PdmField<RiaEclipseUnitTools::UnitSystemType> m_unitSystem;
-    caf::PdmField<double>               m_datumElevation;
- 
     
     caf::PdmField<QString>              m_wellPathFormationFilePath;
     caf::PdmField<QString>              m_formationKeyInFile;
-    
     
     caf::PdmField<bool>                 m_showWellPath;
     caf::PdmField<bool>                 m_showWellPathLabel;
     
     caf::PdmField<double>               m_wellPathRadiusScaleFactor;
+    caf::PdmField<cvf::Color3f>         m_wellPathColor;
     
     caf::PdmChildArrayField<RimWellLogFile*>         m_wellLogFiles;
     caf::PdmChildField<Rim3dWellLogCurveCollection*> m_3dWellLogCurves;
     caf::PdmChildField<RimWellPathCompletions*>      m_completions;
 
-    // Geometry and data
+private:
 
-    cvf::ref<RigWellPathFormations>     m_wellPathFormations;
-
-protected:
-    cvf::ref<RigWellPath>               m_wellPath;
-    caf::PdmField<cvf::Color3f>         m_wellPathColor;
+    virtual void                        defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName) override;
+    static size_t                       simulationWellBranchCount(const QString& simWellName);
 
 private:
+    // Geometry and data
+
+    cvf::ref<RigWellPath>               m_wellPath;
+    cvf::ref<RigWellPathFormations>     m_wellPathFormations;
+
     // Obsolete fields
 
     caf::PdmChildField<RimWellLogFile*> m_wellLogFile_OBSOLETE;
