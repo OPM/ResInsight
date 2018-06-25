@@ -54,6 +54,7 @@
 
 #include <cmath>
 #include <fstream>
+#include "RimFileWellPath.h"
 
 namespace caf
 {

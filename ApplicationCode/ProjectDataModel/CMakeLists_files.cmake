@@ -24,6 +24,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RimCellEdgeColors.h
 ${CMAKE_CURRENT_LIST_DIR}/RimSimWellInView.h
 ${CMAKE_CURRENT_LIST_DIR}/RimSimWellInViewCollection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimWellPath.h
+${CMAKE_CURRENT_LIST_DIR}/RimFileWellPath.h
 ${CMAKE_CURRENT_LIST_DIR}/RimWellPathCollection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimWellPathTarget.h
 ${CMAKE_CURRENT_LIST_DIR}/RimScriptCollection.h
@@ -134,6 +135,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RimCellEdgeColors.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimSimWellInView.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimSimWellInViewCollection.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimWellPath.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimFileWellPath.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimWellPathCollection.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimWellPathTarget.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimScriptCollection.cpp

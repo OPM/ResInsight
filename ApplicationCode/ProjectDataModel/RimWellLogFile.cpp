@@ -19,7 +19,7 @@
 
 #include "RimWellLogFile.h"
 #include "RimWellLogFileChannel.h"
-#include "RimWellPath.h"
+#include "RimFileWellPath.h"
 #include "RimWellPathCollection.h"
 #include "RimTools.h"
 //#include "RimWellPltPlot.h"
