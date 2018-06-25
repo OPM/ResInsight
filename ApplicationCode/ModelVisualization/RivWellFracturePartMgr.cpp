@@ -189,16 +189,16 @@ void RivWellFracturePartMgr::appendGeometryPartsToModel(cvf::ModelBasicList* mod
         }
     }
 
-    if (m_rimFracture->fractureTemplate()->fractureContainment()->isEnabled())
+    if (m_rimFracture->fractureTemplate())
     {
         // Position the containment mask outside the fracture parts
         // Always duplicate the containment mask parts
 
-        auto originalPart = createContainmentMaskPart(eclView);
-        if (originalPart.notNull())
+        auto maskOfFractureAreasOutsideGrid = createOutsideReservoirMaskPart(eclView);
+        if (maskOfFractureAreasOutsideGrid.notNull())
         {
             double scaleFactor = 0.03;
-            if (m_rimFracture->fractureTemplate() && m_rimFracture->fractureTemplate()->orientationType() == RimFractureTemplate::ALONG_WELL_PATH)
+            if (m_rimFracture->fractureTemplate()->orientationType() == RimFractureTemplate::ALONG_WELL_PATH)
             {
                 scaleFactor = 2 * distanceToCenterLine;
             }
@@ -211,8 +211,8 @@ void RivWellFracturePartMgr::appendGeometryPartsToModel(cvf::ModelBasicList* mod
                 cvf::ref<cvf::Transform> partTransform = new cvf::Transform;
                 partTransform->setLocalTransform(m);
 
-                originalPart->setTransform(partTransform.p());
-                model->addPart(originalPart.p());
+                maskOfFractureAreasOutsideGrid->setTransform(partTransform.p());
+                model->addPart(maskOfFractureAreasOutsideGrid.p());
             }
 
             {
@@ -221,11 +221,51 @@ void RivWellFracturePartMgr::appendGeometryPartsToModel(cvf::ModelBasicList* mod
                 cvf::ref<cvf::Transform> partTransform = new cvf::Transform;
                 partTransform->setLocalTransform(m);
 
-                auto copy = originalPart->shallowCopy();
+                auto copy = maskOfFractureAreasOutsideGrid->shallowCopy();
                 copy->setTransform(partTransform.p());
                 model->addPart(copy.p());
             }
         }
+
+        if (m_rimFracture->fractureTemplate()->fractureContainment()->isEnabled())
+        {
+            // Position the containment mask outside the fracture parts
+            // Always duplicate the containment mask parts
+
+            auto containmentMask = createContainmentMaskPart(eclView);
+            if (containmentMask.notNull())
+            {
+                double scaleFactor = 0.03;
+                if (m_rimFracture->fractureTemplate() && m_rimFracture->fractureTemplate()->orientationType() == RimFractureTemplate::ALONG_WELL_PATH)
+                {
+                    scaleFactor = 2 * distanceToCenterLine;
+                }
+
+                cvf::Vec3d partTranslation = scaleFactor * cvf::Vec3d(fractureMatrix.col(2));
+
+                {
+                    cvf::Mat4d m = cvf::Mat4d::fromTranslation(partTranslation);
+
+                    cvf::ref<cvf::Transform> partTransform = new cvf::Transform;
+                    partTransform->setLocalTransform(m);
+
+                    containmentMask->setTransform(partTransform.p());
+                    model->addPart(containmentMask.p());
+                }
+
+                {
+                    cvf::Mat4d m = cvf::Mat4d::fromTranslation(-partTranslation);
+
+                    cvf::ref<cvf::Transform> partTransform = new cvf::Transform;
+                    partTransform->setLocalTransform(m);
+
+                    auto copy = containmentMask->shallowCopy();
+                    copy->setTransform(partTransform.p());
+                    model->addPart(copy.p());
+                }
+            }
+        }
+
     }
 
     appendFracturePerforationLengthParts(eclView, model);
@@ -756,6 +796,176 @@ cvf::ref<cvf::Part> RivWellFracturePartMgr::createContainmentMaskPart(const RimE
     }
 
     return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Create mask for the parts outside the grid cells of the reservoir
+//--------------------------------------------------------------------------------------------------
+cvf::ref<cvf::Part> RivWellFracturePartMgr::createOutsideReservoirMaskPart(const RimEclipseView& activeView)
+{
+    cvf::Mat4d frMx = m_rimFracture->transformMatrix();
+
+    std::vector<cvf::Vec3f> maskTriangles;
+
+    auto displCoordTrans = activeView.displayCoordTransform();
+
+    for (const auto& visibleFracturePolygon : m_visibleFracturePolygons)
+    {
+        std::vector<cvf::Vec3d> borderOfFractureCellPolygonLocalCsd;
+        cvf::BoundingBox        frBBox;
+        
+        for (const auto& pv : visibleFracturePolygon)
+        {
+            cvf::Vec3d pvd(pv);
+            borderOfFractureCellPolygonLocalCsd.push_back(pvd);
+            pvd.transformPoint(frMx);
+            frBBox.add(pvd);
+        }
+
+        std::vector<std::vector<cvf::Vec3d>> clippedPolygons;
+
+        std::vector<size_t> cellCandidates;
+        activeView.mainGrid()->findIntersectingCells(frBBox, &cellCandidates);
+        if (cellCandidates.empty())
+        {
+            clippedPolygons.push_back(borderOfFractureCellPolygonLocalCsd);
+        }
+        else
+        {
+            // Check if fracture polygon is fully inside the grid
+
+            bool allPointsInsideGrid = true;
+            for (const auto& v : borderOfFractureCellPolygonLocalCsd)
+            {
+                auto         pointInDomainCoords = v.getTransformedPoint(frMx);
+                bool         pointInsideGrid     = false;
+                RigMainGrid* mainGrid            = activeView.mainGrid();
+
+                for (size_t cellIndex : cellCandidates)
+                {
+                    auto       cornerIndices = mainGrid->globalCellArray()[cellIndex].cornerIndices();
+                    cvf::Vec3d vertices[8];
+                    vertices[0] = (mainGrid->nodes()[cornerIndices[0]]);
+                    vertices[1] = (mainGrid->nodes()[cornerIndices[1]]);
+                    vertices[2] = (mainGrid->nodes()[cornerIndices[2]]);
+                    vertices[3] = (mainGrid->nodes()[cornerIndices[3]]);
+                    vertices[4] = (mainGrid->nodes()[cornerIndices[4]]);
+                    vertices[5] = (mainGrid->nodes()[cornerIndices[5]]);
+                    vertices[6] = (mainGrid->nodes()[cornerIndices[6]]);
+                    vertices[7] = (mainGrid->nodes()[cornerIndices[7]]);
+
+                    if (RigHexIntersectionTools::isPointInCell(pointInDomainCoords, vertices))
+                    {
+                        pointInsideGrid = true;
+                        break;
+                    }
+                }
+
+                if (!pointInsideGrid)
+                {
+                    allPointsInsideGrid = false;
+                    break;
+                }
+            }
+
+            if (!allPointsInsideGrid)
+            {
+                std::vector<std::vector<cvf::Vec3d> > allEclCellPolygons;
+                for (size_t resCellIdx : cellCandidates)
+                {
+                    // Calculate Eclipse cell intersection with fracture plane
+
+                    std::array<cvf::Vec3d, 8> corners;
+                    activeView.mainGrid()->cellCornerVertices(resCellIdx, corners.data());
+
+                    std::vector<std::vector<cvf::Vec3d>> eclCellPolygons;
+                    bool hasIntersection = RigHexIntersectionTools::planeHexIntersectionPolygons(corners, frMx, eclCellPolygons);
+
+                    if (!hasIntersection || eclCellPolygons.empty()) continue;
+
+                    // Transform eclCell - plane intersection onto fracture
+
+                    cvf::Mat4d invertedTransformMatrix = frMx.getInverted();
+                    for (std::vector<cvf::Vec3d>& eclCellPolygon : eclCellPolygons)
+                    {
+                        for (cvf::Vec3d& v : eclCellPolygon)
+                        {
+                            v.transformPoint(invertedTransformMatrix);
+                        }
+
+                        allEclCellPolygons.push_back(eclCellPolygon);
+                    }
+                }
+
+                {
+                    std::vector<std::vector<cvf::Vec3d>> polys =
+                        RigCellGeometryTools::subtractPolygons(borderOfFractureCellPolygonLocalCsd, allEclCellPolygons);
+
+                    for (const auto& polygon : polys)
+                    {
+                        clippedPolygons.push_back(polygon);
+                    }
+                }
+            }
+        }
+
+        for (auto& clippedPolygon : clippedPolygons)
+        {
+            for (auto& point : clippedPolygon)
+            {
+                point.transformPoint(frMx);
+            }
+        }
+
+        // Create triangles from the clipped polygons
+        cvf::Vec3d fractureNormal = cvf::Vec3d(frMx.col(2));
+
+        for (const auto& clippedPolygon : clippedPolygons)
+        {
+            cvf::EarClipTesselator tess;
+            tess.setNormal(fractureNormal);
+            cvf::Vec3dArray cvfNodes(clippedPolygon);
+            tess.setGlobalNodeArray(cvfNodes);
+            std::vector<size_t> polyIndexes;
+            for (size_t idx = 0; idx < clippedPolygon.size(); ++idx)
+                polyIndexes.push_back(idx);
+            tess.setPolygonIndices(polyIndexes);
+
+            std::vector<size_t> triangleIndices;
+            tess.calculateTriangles(&triangleIndices);
+
+            for (size_t idx : triangleIndices)
+            {
+                maskTriangles.push_back(cvf::Vec3f(displCoordTrans->transformToDisplayCoord(clippedPolygon[idx])));
+            }
+        }
+    }
+
+    if (maskTriangles.size() >= 3)
+    {
+        cvf::ref<cvf::DrawableGeo> maskTriangleGeo = new cvf::DrawableGeo;
+        maskTriangleGeo->setVertexArray(new cvf::Vec3fArray(maskTriangles));
+
+        cvf::ref<cvf::PrimitiveSetDirect> primitives = new cvf::PrimitiveSetDirect(cvf::PT_TRIANGLES);
+        primitives->setIndexCount(maskTriangles.size());
+        maskTriangleGeo->addPrimitiveSet(primitives.p());
+        maskTriangleGeo->computeNormals();
+
+        cvf::ref<cvf::Part> containmentMaskPart = new cvf::Part(0, "FractureContainmentMaskPart");
+        containmentMaskPart->setDrawable(maskTriangleGeo.p());
+        containmentMaskPart->setSourceInfo(new RivObjectSourceInfo(m_rimFracture));
+
+        cvf::Color4f maskColor = cvf::Color4f(cvf::Color3f(cvf::Color3::GRAY));
+
+        caf::SurfaceEffectGenerator surfaceGen(maskColor, caf::PO_NONE);
+        cvf::ref<cvf::Effect> eff = surfaceGen.generateCachedEffect();
+        containmentMaskPart->setEffect(eff.p());
+
+        return containmentMaskPart;
+    }
+
+    return nullptr;
+
 }
 
 //--------------------------------------------------------------------------------------------------
