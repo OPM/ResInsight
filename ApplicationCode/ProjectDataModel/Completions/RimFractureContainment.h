@@ -39,7 +39,7 @@ public:
     void setTopKLayer(int topKLayer);
     void setBaseKLayer(int baseKLayer);
 
-    double maximumFaultThrow() const; // Negative value means do not test for fault throw
+    double minimumFaultThrow() const; // Negative value means do not test for fault throw
 
 private:
     virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
@@ -51,6 +51,5 @@ private:
     caf::PdmField<int>  m_baseKLayer;
 
     caf::PdmField<bool>     m_truncateAtFaults;
-    caf::PdmField<bool>     m_useFaultThrow;
-    caf::PdmField<float>    m_maximumFaultThrow;
+    caf::PdmField<float>    m_minimumFaultThrow;
 };

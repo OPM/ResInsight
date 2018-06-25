@@ -37,8 +37,7 @@ RimFractureContainment::RimFractureContainment()
     CAF_PDM_InitField(&m_baseKLayer, "BaseKLayer", 0, "  Base Layer", "", "", "");
 
     CAF_PDM_InitField(&m_truncateAtFaults, "TruncateAtFaults", false, "Truncate At Faults", "", "", "");
-    CAF_PDM_InitField(&m_useFaultThrow, "UseFaultThrow", false, "  Use Fault Throw", "", "If Fault Throw is larger than limit, truncate at fault", "");
-    CAF_PDM_InitField(&m_maximumFaultThrow, "FaultThrowValue", 0.0f, "  Maximum Fault Throw", "", "If Fault Throw is larger than limit, truncate at fault", "");
+    CAF_PDM_InitField(&m_minimumFaultThrow, "FaultThrowValue", 0.0f, "  Minimum Fault Throw", "", "If Fault Throw is larger than limit, truncate at fault", "");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -49,11 +48,11 @@ RimFractureContainment::~RimFractureContainment() {}
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RimFractureContainment::maximumFaultThrow() const
+double RimFractureContainment::minimumFaultThrow() const
 {
-    if (m_truncateAtFaults() && m_useFaultThrow())
+    if (m_truncateAtFaults())
     {
-        return m_maximumFaultThrow;
+        return m_minimumFaultThrow;
     }
 
     return -1.0;
@@ -141,19 +140,9 @@ void RimFractureContainment::defineUiOrdering(QString uiConfigName, caf::PdmUiOr
     m_baseKLayer.uiCapability()->setUiReadOnly(!m_useContainment());
 
     uiOrdering.add(&m_truncateAtFaults);
-    uiOrdering.add(&m_useFaultThrow);
-    uiOrdering.add(&m_maximumFaultThrow);
+    uiOrdering.add(&m_minimumFaultThrow);
 
-    m_useFaultThrow.uiCapability()->setUiReadOnly(!m_truncateAtFaults());
-
-    if (m_truncateAtFaults() && m_useFaultThrow())
-    {
-        m_maximumFaultThrow.uiCapability()->setUiReadOnly(false);
-    }
-    else
-    {
-        m_maximumFaultThrow.uiCapability()->setUiReadOnly(true);
-    }
+    m_minimumFaultThrow.uiCapability()->setUiReadOnly(!m_truncateAtFaults());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -172,7 +161,7 @@ void RimFractureContainment::fieldChangedByUi(const caf::PdmFieldHandle* changed
         }
     }
 
-    if (changedField == &m_useFaultThrow || changedField == &m_useContainment || changedField == &m_truncateAtFaults)
+    if (changedField == &m_useContainment || changedField == &m_truncateAtFaults)
     {
         RimFractureTemplate* fractureTemplate = nullptr;
         this->firstAncestorOrThisOfType(fractureTemplate);
