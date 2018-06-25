@@ -153,32 +153,9 @@ void RivWellFracturePartMgr::appendGeometryPartsToModel(cvf::ModelBasicList* mod
     {
         cvf::Vec3d partTranslation = distanceToCenterLine * cvf::Vec3d(fractureMatrix.col(2));
 
+        for (auto& part : parts)
         {
-            cvf::Mat4d m = cvf::Mat4d::fromTranslation(partTranslation);
-
-            cvf::ref<cvf::Transform> partTransform = new cvf::Transform;
-            partTransform->setLocalTransform(m);
-
-            for (auto& part : parts)
-            {
-                part->setTransform(partTransform.p());
-                model->addPart(part.p());
-            }
-        }
-
-        {
-            cvf::Mat4d m = cvf::Mat4d::fromTranslation(-partTranslation);
-
-            cvf::ref<cvf::Transform> partTransform = new cvf::Transform;
-            partTransform->setLocalTransform(m);
-
-            for (const auto& originalPart : parts)
-            {
-                auto part = originalPart->shallowCopy();
-
-                part->setTransform(partTransform.p());
-                model->addPart(part.p());
-            }
+            RivWellFracturePartMgr::addPartAtPositiveAndNegativeTranslation(model, part.p(), partTranslation);
         }
     }
     else
@@ -194,36 +171,19 @@ void RivWellFracturePartMgr::appendGeometryPartsToModel(cvf::ModelBasicList* mod
         // Position the containment mask outside the fracture parts
         // Always duplicate the containment mask parts
 
-        auto maskOfFractureAreasOutsideGrid = createOutsideReservoirMaskPart(eclView);
-        if (maskOfFractureAreasOutsideGrid.notNull())
         {
-            double scaleFactor = 0.03;
-            if (m_rimFracture->fractureTemplate()->orientationType() == RimFractureTemplate::ALONG_WELL_PATH)
+            auto maskOfFractureAreasOutsideGrid = createMaskOfFractureOutsideGrid(eclView);
+            if (maskOfFractureAreasOutsideGrid.notNull())
             {
-                scaleFactor = 2 * distanceToCenterLine;
-            }
+                double scaleFactor = 0.03;
+                if (m_rimFracture->fractureTemplate()->orientationType() == RimFractureTemplate::ALONG_WELL_PATH)
+                {
+                    scaleFactor = 2 * distanceToCenterLine;
+                }
 
-            cvf::Vec3d partTranslation = scaleFactor * cvf::Vec3d(fractureMatrix.col(2));
+                cvf::Vec3d partTranslation = scaleFactor * cvf::Vec3d(fractureMatrix.col(2));
 
-            {
-                cvf::Mat4d m = cvf::Mat4d::fromTranslation(partTranslation);
-
-                cvf::ref<cvf::Transform> partTransform = new cvf::Transform;
-                partTransform->setLocalTransform(m);
-
-                maskOfFractureAreasOutsideGrid->setTransform(partTransform.p());
-                model->addPart(maskOfFractureAreasOutsideGrid.p());
-            }
-
-            {
-                cvf::Mat4d m = cvf::Mat4d::fromTranslation(-partTranslation);
-
-                cvf::ref<cvf::Transform> partTransform = new cvf::Transform;
-                partTransform->setLocalTransform(m);
-
-                auto copy = maskOfFractureAreasOutsideGrid->shallowCopy();
-                copy->setTransform(partTransform.p());
-                model->addPart(copy.p());
+                RivWellFracturePartMgr::addPartAtPositiveAndNegativeTranslation(model, maskOfFractureAreasOutsideGrid.p(), partTranslation);
             }
         }
 
@@ -243,29 +203,9 @@ void RivWellFracturePartMgr::appendGeometryPartsToModel(cvf::ModelBasicList* mod
 
                 cvf::Vec3d partTranslation = scaleFactor * cvf::Vec3d(fractureMatrix.col(2));
 
-                {
-                    cvf::Mat4d m = cvf::Mat4d::fromTranslation(partTranslation);
-
-                    cvf::ref<cvf::Transform> partTransform = new cvf::Transform;
-                    partTransform->setLocalTransform(m);
-
-                    containmentMask->setTransform(partTransform.p());
-                    model->addPart(containmentMask.p());
-                }
-
-                {
-                    cvf::Mat4d m = cvf::Mat4d::fromTranslation(-partTranslation);
-
-                    cvf::ref<cvf::Transform> partTransform = new cvf::Transform;
-                    partTransform->setLocalTransform(m);
-
-                    auto copy = containmentMask->shallowCopy();
-                    copy->setTransform(partTransform.p());
-                    model->addPart(copy.p());
-                }
+                RivWellFracturePartMgr::addPartAtPositiveAndNegativeTranslation(model, containmentMask.p(), partTranslation);
             }
         }
-
     }
 
     appendFracturePerforationLengthParts(eclView, model);
@@ -801,7 +741,7 @@ cvf::ref<cvf::Part> RivWellFracturePartMgr::createContainmentMaskPart(const RimE
 //--------------------------------------------------------------------------------------------------
 /// Create mask for the parts outside the grid cells of the reservoir
 //--------------------------------------------------------------------------------------------------
-cvf::ref<cvf::Part> RivWellFracturePartMgr::createOutsideReservoirMaskPart(const RimEclipseView& activeView)
+cvf::ref<cvf::Part> RivWellFracturePartMgr::createMaskOfFractureOutsideGrid(const RimEclipseView& activeView)
 {
     cvf::Mat4d frMx = m_rimFracture->transformMatrix();
 
@@ -1188,5 +1128,42 @@ cvf::ref<cvf::DrawableGeo> RivWellFracturePartMgr::buildDrawableGeoFromTriangles
     geo->computeNormals();
 
     return geo;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::ref<cvf::Transform> RivWellFracturePartMgr::createLocalTransformFromTranslation(const cvf::Vec3d& translation)
+{
+    cvf::Mat4d m = cvf::Mat4d::fromTranslation(translation);
+
+    cvf::ref<cvf::Transform> partTransform = new cvf::Transform;
+    partTransform->setLocalTransform(m);
+
+    return partTransform;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RivWellFracturePartMgr::addPartAtPositiveAndNegativeTranslation(cvf::ModelBasicList* model, cvf::Part* part, const cvf::Vec3d& translation)
+{
+    {
+        cvf::ref<cvf::Transform> partTransform = RivWellFracturePartMgr::createLocalTransformFromTranslation(translation);
+
+        part->setTransform(partTransform.p());
+        model->addPart(part);
+    }
+
+    {
+        // Create a copy of the part to be able to assign a transformation matrix representing the translation in the opposite
+        // direction
+
+        cvf::ref<cvf::Transform> partTransform = RivWellFracturePartMgr::createLocalTransformFromTranslation(-translation);
+
+        auto copy = part->shallowCopy();
+        copy->setTransform(partTransform.p());
+        model->addPart(copy.p());
+    }
 }
 

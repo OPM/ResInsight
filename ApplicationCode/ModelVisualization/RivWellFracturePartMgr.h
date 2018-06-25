@@ -35,6 +35,7 @@ namespace cvf
     class Part;
     class Color3f;
     class ScalarMapper;
+    class Transform;
 }
 
 namespace caf
@@ -72,7 +73,7 @@ private:
     cvf::ref<cvf::Part>                 createStimPlanElementColorSurfacePart(const RimEclipseView& activeView);
 
     cvf::ref<cvf::Part>                 createContainmentMaskPart(const RimEclipseView& activeView);
-    cvf::ref<cvf::Part>                 createOutsideReservoirMaskPart(const RimEclipseView& activeView);
+    cvf::ref<cvf::Part>                 createMaskOfFractureOutsideGrid(const RimEclipseView& activeView);
     
     void                                appendFracturePerforationLengthParts(const RimEclipseView& activeView, cvf::ModelBasicList* model);
 
@@ -88,6 +89,9 @@ private:
                                                                          const caf::DisplayCoordTransform& displayCoordTransform);
 
     static cvf::ref<cvf::DrawableGeo>   buildDrawableGeoFromTriangles(const std::vector<cvf::uint>& triangleIndices, const std::vector<cvf::Vec3f>& nodeCoords);
+    
+    static cvf::ref<cvf::Transform>     createLocalTransformFromTranslation(const cvf::Vec3d& translation);
+    static void                         addPartAtPositiveAndNegativeTranslation(cvf::ModelBasicList* model, cvf::Part* part, const cvf::Vec3d& translation);
 
 private:
     caf::PdmPointer<RimFracture>                    m_rimFracture;
