@@ -36,19 +36,20 @@ CAF_CMD_SOURCE_INIT(RicCreateSummaryCaseCollectionFeature, "RicCreateSummaryCase
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicCreateSummaryCaseCollectionFeature::groupSummaryCases(std::vector<RimSummaryCase*> cases, const QString& groupName, bool isEnsemble)
+RimSummaryCaseCollection* RicCreateSummaryCaseCollectionFeature::groupSummaryCases(std::vector<RimSummaryCase*> cases, const QString& groupName, bool isEnsemble)
 {
     RimSummaryCaseMainCollection* summaryCaseMainCollection = nullptr;
     if (!cases.empty())
     {
         cases[0]->firstAncestorOrThisOfTypeAsserted(summaryCaseMainCollection);
 
-        summaryCaseMainCollection->addCaseCollection(cases, groupName, isEnsemble);
+        auto newGroup = summaryCaseMainCollection->addCaseCollection(cases, groupName, isEnsemble);
         summaryCaseMainCollection->updateConnectedEditors();
 
         RiuPlotMainWindowTools::showPlotMainWindow();
-        RiuPlotMainWindowTools::selectAsCurrentItem(summaryCaseMainCollection->summaryCaseCollections().back()->allSummaryCases().front());
+        return newGroup;
     }
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

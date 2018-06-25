@@ -29,6 +29,7 @@
 #include "RigStatisticsMath.h"
 #include "RiaTimeHistoryCurveMerger.h"
 
+#include "RimDerivedEnsembleCaseCollection.h"
 #include "RimEnsembleCurveFilter.h"
 #include "RimEnsembleCurveFilterCollection.h"
 #include "RimEnsembleCurveSetCollection.h"
@@ -735,7 +736,7 @@ void RimEnsembleCurveSet::appendOptionItemsForSummaryAddresses(QList<caf::PdmOpt
     for (RimSummaryCase* summaryCase : summaryCaseGroup->allSummaryCases())
     {
         RifSummaryReaderInterface* reader = summaryCase->summaryReader();
-        const std::vector<RifEclipseSummaryAddress>& addrs = reader ? reader->allResultAddresses() : std::vector<RifEclipseSummaryAddress>();
+        const std::set<RifEclipseSummaryAddress>& addrs = reader ? reader->allResultAddresses() : std::set<RifEclipseSummaryAddress>();
 
         for (auto& addr : addrs)
         {

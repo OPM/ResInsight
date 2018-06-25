@@ -441,7 +441,7 @@ void RifReaderEclipseSummary::buildMetaData()
         {
             const smspec_node_type * ertSumVarNode = ecl_smspec_iget_node(m_ecl_SmSpec, i);
             RifEclipseSummaryAddress addr = addressFromErtSmSpecNode(ertSumVarNode);
-            m_allResultAddresses.push_back(addr);
+            m_allResultAddresses.insert(addr);
             m_resultAddressToErtNodeIdx[addr] = i;
         }
     }

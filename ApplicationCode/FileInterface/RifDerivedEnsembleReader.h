@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2017-     Statoil ASA
+//  Copyright (C) 2017- Statoil ASA
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -16,26 +16,27 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
+
 #pragma once
 
-#include "cafCmdFeature.h"
+#include "RifEclipseSummaryAddress.h"
+#include "RifSummaryReaderInterface.h"
 
-#include <vector>
+class RimDerivedEnsembleCase;
 
-class RimSummaryCase;
-class RimSummaryCaseCollection;
 
 //==================================================================================================
-/// 
+///  
 //==================================================================================================
-class RicCreateSummaryCaseCollectionFeature : public caf::CmdFeature
+class RifDerivedEnsembleReader : public RifSummaryReaderInterface
 {
-    CAF_CMD_HEADER_INIT;
+public:
+    RifDerivedEnsembleReader(RimDerivedEnsembleCase* derivedCase);
 
-    static RimSummaryCaseCollection* groupSummaryCases(std::vector<RimSummaryCase*> cases, const QString& groupName, bool isEnsemble = false);
+    virtual const std::vector<time_t>&  timeSteps(const RifEclipseSummaryAddress& resultAddress) const override;
+    virtual bool                        values(const RifEclipseSummaryAddress& resultAddress, std::vector<double>* values) const override;
+    virtual std::string                 unitName(const RifEclipseSummaryAddress& resultAddress) const override;
 
 private:
-    virtual bool isCommandEnabled() override;
-    virtual void onActionTriggered(bool isChecked) override;
-    virtual void setupActionLook(QAction* actionToSetup) override;
+    RimDerivedEnsembleCase* m_derivedCase;
 };

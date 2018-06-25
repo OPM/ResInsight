@@ -167,7 +167,7 @@ QString RifEclipseSummaryTools::findGridCaseFileFromSummaryHeaderFile(const QStr
 //--------------------------------------------------------------------------------------------------
 void RifEclipseSummaryTools::dumpMetaData(RifSummaryReaderInterface* readerEclipseSummary)
 {
-    std::vector<RifEclipseSummaryAddress> addresses = readerEclipseSummary->allResultAddresses();
+    std::set<RifEclipseSummaryAddress> addresses = readerEclipseSummary->allResultAddresses();
 
     for (int category = 0; category < RifEclipseSummaryAddress::SUMMARY_BLOCK_LGR; category++)
     {

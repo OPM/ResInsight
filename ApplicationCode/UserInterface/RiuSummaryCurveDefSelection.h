@@ -76,7 +76,7 @@ private:
                                                                   caf::PdmUiEditorAttribute* attribute) override;
 
 
-    std::set<RifEclipseSummaryAddress>      findPossibleSummaryAddresses(const std::vector<RimSummaryCase*> &selectedCases, 
+    std::set<RifEclipseSummaryAddress>      findPossibleSummaryAddresses(const std::vector<SummarySource*> &selectedSources,
                                                                          const SummaryIdentifierAndField *identifierAndField);
     std::set<RifEclipseSummaryAddress>      findPossibleSummaryAddressesFromSelectedCases(const SummaryIdentifierAndField *identifierAndField);
     std::set<RifEclipseSummaryAddress>      findPossibleSummaryAddressesFromSelectedObservedData(const SummaryIdentifierAndField *identifierAndField);

@@ -65,26 +65,35 @@ public:
     virtual ~RimSummaryCaseCollection();
 
     void                            removeCase(RimSummaryCase* summaryCase);
-    void                            addCase(RimSummaryCase* summaryCase);
-    std::vector<RimSummaryCase*>    allSummaryCases() const;
+    void                            deleteAllCases();
+    void                            addCase(RimSummaryCase* summaryCase, bool updateCurveSets = true);
+    virtual std::vector<RimSummaryCase*> allSummaryCases() const;
     void                            setName(const QString& name);
     QString                         name() const;
     bool                            isEnsemble() const;
     void                            setAsEnsemble(bool isEnsemble);
-    std::set<RifEclipseSummaryAddress> calculateUnionOfSummaryAddresses() const;
+    virtual std::set<RifEclipseSummaryAddress> calculateUnionOfSummaryAddresses() const;
     EnsembleParameter               ensembleParameter(const QString& paramName) const;
+
+    void                            loadDataAndUpdate();
 
 private:
     caf::PdmFieldHandle*            userDescriptionField() override;
-    void                            updateReferringCurveSets() const;
     QString                         nameAndItemCount() const;
     void                            updateIcon();
 
     virtual void                    initAfterRead() override;
     virtual void                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
 
-private:
+protected:
+    virtual void                    onLoadDataAndUpdate();
+    void                            updateReferringCurveSets();
+    virtual void                    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    void                            setNameAsReadOnly();
+
     caf::PdmChildArrayField<RimSummaryCase*> m_cases;
+
+private:
     caf::PdmField<QString>                   m_name;
     caf::PdmProxyValueField<QString>         m_nameAndItemCount;
     caf::PdmField<bool>                      m_isEnsemble; 

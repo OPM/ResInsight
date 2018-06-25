@@ -27,6 +27,7 @@
 
 #include "RifReaderEclipseSummary.h"
 
+#include "RimDerivedEnsembleCaseCollection.h"
 #include "RimEnsembleCurveSet.h"
 #include "RimEnsembleCurveSetCollection.h"
 #include "RimEnsembleCurveSetColorManager.h"
@@ -509,13 +510,13 @@ std::set<std::string> RicSummaryCurveCreator::getAllSummaryWellNames()
 
         if (reader)
         {
-            const std::vector<RifEclipseSummaryAddress> allAddresses = reader->allResultAddresses();
+            const std::set<RifEclipseSummaryAddress> allAddresses = reader->allResultAddresses();
 
-            for (size_t i = 0; i < allAddresses.size(); i++)
+            for(auto& address : allAddresses)
             {
-                if (allAddresses[i].category() == RifEclipseSummaryAddress::SUMMARY_WELL)
+                if (address.category() == RifEclipseSummaryAddress::SUMMARY_WELL)
                 {
-                    summaryWellNames.insert(allAddresses[i].wellName());
+                    summaryWellNames.insert(address.wellName());
                 }
             }
         }

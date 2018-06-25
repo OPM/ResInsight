@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2017-     Statoil ASA
+//  Copyright (C) 2016-     Statoil ASA
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -20,22 +20,20 @@
 
 #include "cafCmdFeature.h"
 
-#include <vector>
-
+class RimSummaryPlotCollection;
 class RimSummaryCase;
-class RimSummaryCaseCollection;
+class RimSummaryPlot;
 
 //==================================================================================================
 /// 
 //==================================================================================================
-class RicCreateSummaryCaseCollectionFeature : public caf::CmdFeature
+class RicNewDerivedEnsembleFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
 
-    static RimSummaryCaseCollection* groupSummaryCases(std::vector<RimSummaryCase*> cases, const QString& groupName, bool isEnsemble = false);
-
-private:
-    virtual bool isCommandEnabled() override;
-    virtual void onActionTriggered(bool isChecked) override;
-    virtual void setupActionLook(QAction* actionToSetup) override;
+protected:
+    // Overrides
+    virtual bool isCommandEnabled();
+    virtual void onActionTriggered( bool isChecked );
+    virtual void setupActionLook(QAction* actionToSetup);
 };

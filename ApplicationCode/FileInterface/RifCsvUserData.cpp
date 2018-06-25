@@ -158,7 +158,7 @@ void RifCsvUserData::buildTimeStepsAndMappings()
         {
             RifEclipseSummaryAddress sumAddress = ci.summaryAddress;
 
-            m_allResultAddresses.push_back(sumAddress);
+            m_allResultAddresses.insert(sumAddress);
             if (sumAddress.isErrorResult())  m_allErrorAddresses.insert(sumAddress);
 
             m_mapFromAddressToTimeStepIndex[sumAddress] = m_timeSteps.size() - 1;

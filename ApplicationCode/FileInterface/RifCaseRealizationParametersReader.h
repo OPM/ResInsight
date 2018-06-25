@@ -56,6 +56,7 @@ private:
     void                            closeDataStream();
     void                            openFile();
     void                            closeFile();
+
 private:
     std::shared_ptr<RigCaseRealizationParameters>  m_parameters;
 

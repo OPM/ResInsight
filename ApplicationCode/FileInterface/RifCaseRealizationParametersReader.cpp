@@ -26,6 +26,7 @@
 #include <QStringList>
 #include <QDir>
 
+#include <functional>
 
 //--------------------------------------------------------------------------------------------------
 /// Constants
@@ -166,8 +167,6 @@ void RifCaseRealizationParametersReader::openFile()
         if (!m_file->open(QIODevice::ReadOnly | QIODevice::Text))
         {
             closeFile();
-            //delete m_file;
-            //m_file = nullptr;
             throw FileParseException(QString("Failed to open %1").arg(m_fileName));
         }
     }

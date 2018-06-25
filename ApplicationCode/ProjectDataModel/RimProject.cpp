@@ -627,6 +627,15 @@ std::vector<RimSummaryCaseCollection*> RimProject::summaryGroups() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+RimSummaryCaseMainCollection* RimProject::firstSummaryCaseMainCollection() const
+{
+    if (oilFields.empty()) return nullptr;
+    return oilFields[0]->summaryCaseMainCollection;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimProject::allNotLinkedViews(std::vector<RimGridView*>& views)
 {
     std::vector<RimCase*> cases;
