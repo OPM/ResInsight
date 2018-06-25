@@ -36,14 +36,6 @@ RifDerivedEnsembleReader::RifDerivedEnsembleReader(RimDerivedEnsembleCase* deriv
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RifDerivedEnsembleReader::RifDerivedEnsembleReader(const RifDerivedEnsembleReader& obj)
-{
-    m_derivedCase = obj.m_derivedCase;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 const std::vector<time_t>& RifDerivedEnsembleReader::timeSteps(const RifEclipseSummaryAddress& resultAddress) const
 {
     if (!resultAddress.isValid()) return EMPTY_TIME_STEPS_VECTOR;

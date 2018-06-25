@@ -48,6 +48,7 @@ class RimDerivedEnsembleCase : public RimSummaryCase
     CAF_PDM_HEADER_INIT;
 public:
     RimDerivedEnsembleCase();
+    ~RimDerivedEnsembleCase();
 
     void                            setInUse(bool inUse);
     bool                            isInUse() const;
