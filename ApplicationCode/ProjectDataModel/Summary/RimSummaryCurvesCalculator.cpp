@@ -208,7 +208,11 @@ QString RimSummaryPlotYAxisFormatter::autoAxisTitle() const
         RifEclipseSummaryAddress sumAddress;
         std::string              unitText;
 
-        if (m_axisProperties->plotAxisType() == RiaDefines::PLOT_AXIS_BOTTOM)
+        if (rimCurve->summaryAddressY().category() == RifEclipseSummaryAddress::SUMMARY_ENSEMBLE_STATISTICS)
+        {
+            continue;
+        }
+        else if (m_axisProperties->plotAxisType() == RiaDefines::PLOT_AXIS_BOTTOM)
         {
             sumAddress = rimCurve->summaryAddressX();
             unitText   = rimCurve->unitNameX();
