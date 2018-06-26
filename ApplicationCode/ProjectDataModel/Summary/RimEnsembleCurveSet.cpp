@@ -992,7 +992,7 @@ void RimEnsembleCurveSet::updateStatisticsCurves(bool calculate = true)
         curve->setColor(m_statistics->color());
         curve->setSymbol(RimPlotCurve::SYMBOL_ELLIPSE);
         curve->setSymbolSkipDinstance(50);
-        curve->setSymbolLabel(RiaStatisticsTools::percentileToPValueText(
+        curve->setSymbolLabel(RiaStatisticsTools::replacePercentileByPValueText(
             QString::fromStdString(address.ensembleStatisticsQuantityName())));
         curve->setLineStyle(RimPlotCurve::STYLE_SOLID);
         curve->setSummaryCaseY(m_ensembleStatCase.get());

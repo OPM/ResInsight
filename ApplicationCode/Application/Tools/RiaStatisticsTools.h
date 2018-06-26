@@ -32,5 +32,5 @@
 class RiaStatisticsTools
 {
 public:
-    static const QString percentileToPValueText(const QString& percentile);
+    static const QString replacePercentileByPValueText(const QString& percentile);
 };

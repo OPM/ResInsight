@@ -25,9 +25,25 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const QString RiaStatisticsTools::percentileToPValueText(const QString& percentile)
+const QString RiaStatisticsTools::replacePercentileByPValueText(const QString& percentile)
 {
-    if (percentile == ENSEMBLE_STAT_P10_QUANTITY_NAME) return "P90";
-    if (percentile == ENSEMBLE_STAT_P90_QUANTITY_NAME) return "P10";
-    return percentile;
+    QString result = percentile;
+
+    if (result == ENSEMBLE_STAT_P10_QUANTITY_NAME)
+    {
+        result = ENSEMBLE_STAT_P90_QUANTITY_NAME;
+    }
+    else if (result == ENSEMBLE_STAT_P90_QUANTITY_NAME)
+    {
+        result = ENSEMBLE_STAT_P10_QUANTITY_NAME;
+    }
+    else if (percentile.contains(QString("%1:").arg(ENSEMBLE_STAT_P10_QUANTITY_NAME)))
+    {
+        result.replace(ENSEMBLE_STAT_P10_QUANTITY_NAME, ENSEMBLE_STAT_P90_QUANTITY_NAME);
+    }
+    else if (percentile.contains(QString("%1:").arg(ENSEMBLE_STAT_P90_QUANTITY_NAME)))
+    {
+        result.replace(ENSEMBLE_STAT_P90_QUANTITY_NAME, ENSEMBLE_STAT_P10_QUANTITY_NAME);
+    }
+    return result;
 }

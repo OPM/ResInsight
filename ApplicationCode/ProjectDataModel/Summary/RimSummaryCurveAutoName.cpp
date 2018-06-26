@@ -18,6 +18,8 @@
 
 #include "RimSummaryCurveAutoName.h"
 
+#include "RiaStatisticsTools.h"
+
 #include "RifEclipseSummaryAddress.h"
 
 #include "RimEnsembleCurveSet.h"
@@ -72,6 +74,11 @@ QString RimSummaryCurveAutoName::curveNameY(const RifEclipseSummaryAddress& summ
         if (!skipSubString)
         {
             text += summaryAddress.quantityName();
+
+            if (summaryAddress.category() == RifEclipseSummaryAddress::SUMMARY_ENSEMBLE_STATISTICS)
+            {
+                text = RiaStatisticsTools::replacePercentileByPValueText(QString::fromStdString(text)).toStdString();
+            }
 
             if (m_unit && summaryCurve && !summaryCurve->unitNameY().empty())
             {
