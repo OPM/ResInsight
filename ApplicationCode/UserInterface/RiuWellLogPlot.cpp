@@ -313,15 +313,12 @@ void RiuWellLogPlot::resizeEvent(QResizeEvent *event)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RiuWellLogPlot::placeChildWidgets(int height, int width)
+std::map<int, int> RiuWellLogPlot::calculateTrackWidths(int frameWidth)
 {
     int trackCount = m_trackPlots.size();
-    CVF_ASSERT(m_legends.size() == trackCount);
-
-    const int trackPadding = 4;
-
+    
     int visibleTrackCount = 0;
     for (int tIdx = 0; tIdx < trackCount; ++tIdx)
     {
@@ -330,12 +327,59 @@ void RiuWellLogPlot::placeChildWidgets(int height, int width)
 
     int scrollBarWidth = 0;
     if (m_scrollBar->isVisible()) scrollBarWidth = m_scrollBar->sizeHint().width();
+    
+    std::map<int, int> trackWidths;
+
+    if (visibleTrackCount)
+    {
+        int totalTrackWidth = (frameWidth - scrollBarWidth);
+        int trackWidthExtra = (frameWidth - scrollBarWidth) % visibleTrackCount;
+
+        int totalWidthWeights = 0;
+        for (int tIdx = 0; tIdx < trackCount; ++tIdx)
+        {
+            if (m_trackPlots[tIdx]->isVisible())
+            {
+                totalWidthWeights += m_trackPlots[tIdx]->widthScaleFactor();
+            }
+        }
+
+        for (int tIdx = 0; tIdx < trackCount; ++tIdx)
+        {
+            if (m_trackPlots[tIdx]->isVisible())
+            {
+                int realTrackWidth = (totalTrackWidth * m_trackPlots[tIdx]->widthScaleFactor()) / totalWidthWeights;
+                if (trackWidthExtra > 0)
+                {
+                    realTrackWidth += 1;
+                    --trackWidthExtra;
+                }
+
+                trackWidths[tIdx] = realTrackWidth;
+            }
+        }
+    }
+
+    return trackWidths;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuWellLogPlot::placeChildWidgets(int height, int width)
+{
+    CVF_ASSERT(m_legends.size() == m_trackPlots.size());
+
+    const int trackPadding = 4;
+
+    std::map<int, int> trackWidths = calculateTrackWidths(width);
+    size_t visibleTrackCount = trackWidths.size();
 
     int maxLegendHeight = 0;
 
     if (m_plotDefinition && m_plotDefinition->isTrackLegendsVisible())
     {
-        for ( int tIdx = 0; tIdx < trackCount; ++tIdx )
+        for ( int tIdx = 0; tIdx < m_trackPlots.size(); ++tIdx )
         {
             if ( m_trackPlots[tIdx]->isVisible() )
             {
@@ -358,7 +402,7 @@ void RiuWellLogPlot::placeChildWidgets(int height, int width)
     {
  
         int maxCanvasOffset = 0;
-        for (int tIdx = 0; tIdx < trackCount; ++tIdx)
+        for (int tIdx = 0; tIdx < m_trackPlots.size(); ++tIdx)
         {
             if (m_trackPlots[tIdx]->isVisible())
             {
@@ -368,20 +412,11 @@ void RiuWellLogPlot::placeChildWidgets(int height, int width)
             }
         }
 
-        int trackWidth = (width - scrollBarWidth)/visibleTrackCount;
-        int trackWidthExtra = (width-scrollBarWidth)%visibleTrackCount;
 
-        for (int tIdx = 0; tIdx < trackCount; ++tIdx)
+        for (int tIdx = 0; tIdx < m_trackPlots.size(); ++tIdx)
         {
             if (m_trackPlots[tIdx]->isVisible())
             {
-				int realTrackWidth = trackWidth;
-                if (trackWidthExtra > 0)
-                {
-                    realTrackWidth += 1;
-                    --trackWidthExtra;
-                }
-
                 int adjustedVerticalPosition = titleHeight + maxLegendHeight + 10;
                 int adjustedTrackHeight = trackHeight;
                 {
@@ -396,7 +431,8 @@ void RiuWellLogPlot::placeChildWidgets(int height, int width)
                     adjustedVerticalPosition += canvasShift - myMargins;
                     adjustedTrackHeight -= canvasShift;
                 }
-                
+
+                int realTrackWidth = trackWidths[tIdx];
                 m_legends[tIdx]->setGeometry(trackX + trackPadding, titleHeight, realTrackWidth - 2 * trackPadding, maxLegendHeight);
                 m_trackPlots[tIdx]->setGeometry(trackX + trackPadding, adjustedVerticalPosition, realTrackWidth - 2 * trackPadding, adjustedTrackHeight);
 
@@ -440,7 +476,7 @@ void RiuWellLogPlot::updateChildrenLayout()
         else
         {
             m_legends[tIdx]->hide();
-        }        
+        }
     }
 
     placeChildWidgets(this->height(), this->width());

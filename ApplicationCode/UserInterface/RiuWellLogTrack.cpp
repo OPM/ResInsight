@@ -275,3 +275,16 @@ void RiuWellLogTrack::enableVerticalAxisLabelsAndTitle(bool enable)
     this->axisScaleDraw(QwtPlot::yLeft)->enableComponent(
         QwtAbstractScaleDraw::Labels, enable);
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RiuWellLogTrack::widthScaleFactor() const
+{
+    if (m_plotTrackDefinition)
+    {
+        return m_plotTrackDefinition->widthScaleFactor();
+    }
+    return 1;
+}
+

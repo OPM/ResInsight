@@ -19,13 +19,15 @@
 
 #pragma once
 
+#include "RiuInterfaceToViewWindow.h"
+
 #include "cafPdmPointer.h"
 
 #include <QList>
 #include <QPointer>
 #include <QWidget>
 
-#include "RiuInterfaceToViewWindow.h"
+#include <map>
 
 class RimWellLogPlot;
 class RiuWellLogTrack;
@@ -71,6 +73,7 @@ protected:
 private:
     void                            updateScrollBar(double minDepth, double maxDepth);
     void                            modifyWidthOfContainingMdiWindow(int widthChange);
+    std::map<int, int>              calculateTrackWidths(int frameWidth);
     void                            placeChildWidgets(int height, int width);
 
 private slots:
@@ -78,11 +81,11 @@ private slots:
     void                            scheduleUpdateChildrenLayout();
 
 private:
-    QLabel*                         m_plotTitle;
-    QScrollBar*                     m_scrollBar;
-    QList<QPointer<QwtLegend> >     m_legends;
+    QLabel*                           m_plotTitle;
+    QScrollBar*                       m_scrollBar;
+    QList<QPointer<QwtLegend> >       m_legends;
     QList<QPointer<RiuWellLogTrack> > m_trackPlots;
-    caf::PdmPointer<RimWellLogPlot> m_plotDefinition;
-    QTimer*                         m_scheduleUpdateChildrenLayoutTimer;
+    caf::PdmPointer<RimWellLogPlot>   m_plotDefinition;
+    QTimer*                           m_scheduleUpdateChildrenLayoutTimer;
 };
 

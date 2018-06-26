@@ -78,10 +78,12 @@ public:
     void takeOutCurve(RimWellLogCurve* curve);
     void deleteAllCurves();
 
-    size_t curveIndex(RimWellLogCurve* curve);
-    size_t curveCount() { return curves.size(); }
-    void setXAxisTitle(const QString& text);
+    size_t  curveIndex(RimWellLogCurve* curve);
+    size_t  curveCount() { return curves.size(); }
+    void    setXAxisTitle(const QString& text);
     QString depthPlotTitle() const;
+    int     widthScaleFactor() const;
+    void    setWidthScaleFactor(int scaleFactor);
 
     void setFormationWellPath(RimWellPath* wellPath);
     void setFormationSimWellName(const QString& simWellName);
@@ -128,6 +130,7 @@ public:
 
 private:
     virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    void         updateParentPlotLayout();
     virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
 
     virtual caf::PdmFieldHandle* objectToggleField() override;
@@ -180,7 +183,7 @@ private:
     caf::PdmField<int>                                                 m_formationBranchIndex;
     caf::PdmField<caf::AppEnum<RigWellPathFormations::FormationLevel>> m_formationLevel;
     caf::PdmField<bool>                                                m_showformationFluids;
-
+    caf::PdmField<int>                                                 m_widthScaleFactor;
     caf::PdmField<bool> m_formationBranchDetection;
 
     bool m_formationsForCaseWithSimWellOnly;

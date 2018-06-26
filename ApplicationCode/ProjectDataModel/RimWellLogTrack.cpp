@@ -155,6 +155,8 @@ RimWellLogTrack::RimWellLogTrack()
 
     CAF_PDM_InitField(&m_showformationFluids, "ShowFormationFluids", false, "Show Fluids", "", "", "");
 
+    CAF_PDM_InitField(&m_widthScaleFactor, "WidthScaleFactor", 1, "Width", "", "Set width of track. ", "");
+
     m_formationsForCaseWithSimWellOnly = false;
 }
 
@@ -221,19 +223,17 @@ void RimWellLogTrack::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
             m_wellLogTrackPlotWidget->setVisible(m_show());
         }
 
-        RimWellLogPlot* wellLogPlot;
-        this->firstAncestorOrThisOfType(wellLogPlot);
-        if (wellLogPlot)
+        updateParentPlotLayout();
+    }
+    else if (changedField == &m_widthScaleFactor)
+    {
+        if (m_widthScaleFactor < 1 && m_widthScaleFactor > 10)
         {
-            wellLogPlot->calculateAvailableDepthRange();
-            wellLogPlot->updateDepthZoom();
-
-            RiuWellLogPlot* wellLogPlotViewer = dynamic_cast<RiuWellLogPlot*>(wellLogPlot->viewWidget());
-            if (wellLogPlotViewer)
-            {
-                wellLogPlotViewer->updateChildrenLayout();
-            }
+            m_widthScaleFactor = cvf::Math::clamp(m_widthScaleFactor(), 1, 10);
+            updateEditors();
         }
+        updateParentPlotLayout();
+        
     }
     else if (changedField == &m_visibleXRangeMin || changedField == &m_visibleXRangeMax)
     {
@@ -241,6 +241,7 @@ void RimWellLogTrack::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
         m_wellLogTrackPlotWidget->replot();
         m_isAutoScaleXEnabled = false;
         updateEditors();
+        updateParentPlotLayout();     
     }
     else if (changedField == &m_isAutoScaleXEnabled)
     {
@@ -354,6 +355,23 @@ void RimWellLogTrack::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
     else if (changedField == &m_showformationFluids)
     {
         loadDataAndUpdate();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogTrack::updateParentPlotLayout()
+{
+    RimWellLogPlot* wellLogPlot;
+    this->firstAncestorOrThisOfType(wellLogPlot);
+    if (wellLogPlot)
+    {
+        RiuWellLogPlot* wellLogPlotViewer = dynamic_cast<RiuWellLogPlot*>(wellLogPlot->viewWidget());
+        if (wellLogPlotViewer)
+        {
+            wellLogPlotViewer->updateChildrenLayout();
+        }
     }
 }
 
@@ -638,6 +656,23 @@ QString RimWellLogTrack::depthPlotTitle() const
     return parent->depthPlotTitle();
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RimWellLogTrack::widthScaleFactor() const
+{
+    return m_widthScaleFactor();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogTrack::setWidthScaleFactor(int scaleFactor)
+{
+    m_widthScaleFactor = scaleFactor;
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void RimWellLogTrack::setFormationWellPath(RimWellPath* wellPath)
@@ -863,7 +898,10 @@ RimWellLogCurve* RimWellLogTrack::curveDefinitionFromCurve(const QwtPlotCurve* c
 void RimWellLogTrack::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
     uiOrdering.add(&m_userName);
-
+    // Hidden option that may still be useful for testing: enables you to control the width of tracks.
+#ifdef ENABLE_WIDTHWEIGHT_GUI
+    uiOrdering.add(&m_widthScaleFactor);
+#endif
     caf::PdmUiGroup* formationGroup = uiOrdering.addNewGroup("Zonation/Formation Names");
     
     formationGroup->add(&m_showFormations);
