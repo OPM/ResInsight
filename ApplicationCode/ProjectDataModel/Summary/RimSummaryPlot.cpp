@@ -79,9 +79,21 @@ struct CurveData
     std::vector<double>         values;
 };
 
+struct CurvesData
+{
+    std::vector<QString>                caseNames;
+    std::vector<std::vector<time_t> >   timeSteps;
+    std::vector<std::vector<CurveData>> allCurveData;
+};
+
+
 //--------------------------------------------------------------------------------------------------
 /// Internal functions
 //--------------------------------------------------------------------------------------------------
+void populateSummaryCurvesData(std::vector<RimSummaryCurve*> curves, CurvesData* curvesData);
+void populateTimeHistoryCurvesData(std::vector<RimGridTimeHistoryCurve*> curves, CurvesData* curvesData);
+void populateAsciiDataCurvesData(std::vector<RimAsciiDataCurve*> curves, CurvesData* curvesData);
+
 void prepareCaseCurvesForExport(DateTimePeriod period, ResampleAlgorithm algorithm,
                            const std::vector<time_t> &timeSteps, const std::vector<CurveData>& curveData,
                            std::vector<time_t>* exportTimeSteps, std::vector<CurveData>* exportValues);
@@ -282,124 +294,60 @@ QString RimSummaryPlot::asciiDataForPlotExport(DateTimePeriod resamplingPeriod) 
         std::vector<RimSummaryCurve*> curves;
         this->descendantsIncludingThisOfType(curves);
 
-        std::vector<QString> caseNames;
-        std::vector<std::vector<time_t> > timeSteps;
-        std::vector<std::vector<CurveData>> allCurveData;
-        // Vector containing cases - curves
+        CurvesData summaryCurvesData;
+        populateSummaryCurvesData(curves, &summaryCurvesData);
 
-        for (RimSummaryCurve* curve : curves)
-        {
-            if (!curve->isCurveVisible()) continue;
-            QString curveCaseName = curve->summaryCaseY()->caseName();
-            
-            size_t casePosInList = cvf::UNDEFINED_SIZE_T;
-            for (size_t i = 0; i < caseNames.size(); i++)
-            {
-                if (curveCaseName == caseNames[i]) casePosInList = i;
-            }
-
-            CurveData curveData = { curve->curveName(), curve->summaryAddressY(), curve->valuesY() };
-
-            if (casePosInList == cvf::UNDEFINED_SIZE_T)
-            {
-                caseNames.push_back(curveCaseName);
-                timeSteps.push_back(curve->timeStepsY());
-                allCurveData.push_back(std::vector<CurveData>({ curveData }));
-            }
-            else
-            {
-                allCurveData[casePosInList].push_back(curveData);
-            }
-        }
-
-        for (size_t i = 0; i < timeSteps.size(); i++) //cases
+        for (size_t i = 0; i < summaryCurvesData.timeSteps.size(); i++) //cases
         {
             // Data for export
             std::vector<time_t> expTimeSteps;
             std::vector<CurveData> expCurveData;
 
             out += "\n\n";
-            out += "Case: " + caseNames[i];
+            out += "Case: " + summaryCurvesData.caseNames[i];
             out += "\n";
 
-            prepareCaseCurvesForExport(resamplingPeriod, ResampleAlgorithm::DATA_DECIDES, timeSteps[i], allCurveData[i], &expTimeSteps, &expCurveData);
+            prepareCaseCurvesForExport(resamplingPeriod,
+                                       ResampleAlgorithm::DATA_DECIDES,
+                                       summaryCurvesData.timeSteps[i],
+                                       summaryCurvesData.allCurveData[i],
+                                       &expTimeSteps,
+                                       &expCurveData);
             appendToExportData(out, expTimeSteps, expCurveData);
         }
     }
 
     // Time history curves (from grid)
     {
-        std::vector<QString> caseNames;
-        std::vector<std::vector<time_t> > timeSteps;
-        std::vector<std::vector<CurveData>> allCurveData;
-        // Vector containing cases - curves
+        CurvesData timeHistoryCurvesData;
+        populateTimeHistoryCurvesData(m_gridTimeHistoryCurves.childObjects(), &timeHistoryCurvesData);
 
-        for (RimGridTimeHistoryCurve* curve : m_gridTimeHistoryCurves)
-        {
-            if (!curve->isCurveVisible()) continue;
-            QString curveCaseName = curve->caseName();
-
-            size_t casePosInList = cvf::UNDEFINED_SIZE_T;
-            for (size_t i = 0; i < caseNames.size(); i++)
-            {
-                if (curveCaseName == caseNames[i]) casePosInList = i;
-            }
-
-            CurveData curveData = { curve->curveName(), RifEclipseSummaryAddress(), curve->yValues() };
-
-            if (casePosInList == cvf::UNDEFINED_SIZE_T)
-            {
-                caseNames.push_back(curveCaseName);
-                timeSteps.push_back(curve->timeStepValues());
-                allCurveData.push_back(std::vector<CurveData>({ curveData }));
-            }
-            else
-            {
-                allCurveData[casePosInList].push_back(curveData);
-            }
-        }
-
-        for (size_t i = 0; i < timeSteps.size(); i++) //cases
+        for (size_t i = 0; i < timeHistoryCurvesData.timeSteps.size(); i++) //cases
         {
             // Data for export
             std::vector<time_t> expTimeSteps;
             std::vector<CurveData> expCurveData;
 
             out += "\n\n";
-            out += "Case: " + caseNames[i];
+            out += "Case: " + timeHistoryCurvesData.caseNames[i];
             out += "\n";
 
-            prepareCaseCurvesForExport(resamplingPeriod, ResampleAlgorithm::PERIOD_END, timeSteps[i], allCurveData[i], &expTimeSteps, &expCurveData);
+            prepareCaseCurvesForExport(resamplingPeriod,
+                                       ResampleAlgorithm::PERIOD_END,
+                                       timeHistoryCurvesData.timeSteps[i],
+                                       timeHistoryCurvesData.allCurveData[i],
+                                       &expTimeSteps,
+                                       &expCurveData);
             appendToExportData(out, expTimeSteps, expCurveData);
         }
     }
 
     // Pasted observed data
     {
-        std::vector<std::vector<time_t> > timeSteps;
-        std::vector<std::vector<CurveData>> allCurveData;
-        // Vector containing cases - curves
+        CurvesData asciiCurvesData;
+        populateAsciiDataCurvesData(m_asciiDataCurves.childObjects(), &asciiCurvesData);
 
-        for (RimAsciiDataCurve* curve : m_asciiDataCurves)
-        {
-            if (!curve->isCurveVisible()) continue;
-
-            size_t casePosInList = cvf::UNDEFINED_SIZE_T;
-
-            CurveData curveData = { curve->curveName(), RifEclipseSummaryAddress(), curve->yValues() };
-
-            if (casePosInList == cvf::UNDEFINED_SIZE_T)
-            {
-                timeSteps.push_back(curve->timeSteps());
-                allCurveData.push_back(std::vector<CurveData>({ curveData }));
-            }
-            else
-            {
-                allCurveData[casePosInList].push_back(curveData);
-            }
-        }
-
-        for (size_t i = 0; i < timeSteps.size(); i++) //cases
+        for (size_t i = 0; i < asciiCurvesData.timeSteps.size(); i++) //cases
         {
             // Data for export
             std::vector<time_t> expTimeSteps;
@@ -407,7 +355,12 @@ QString RimSummaryPlot::asciiDataForPlotExport(DateTimePeriod resamplingPeriod) 
 
             out += "\n\n";
 
-            prepareCaseCurvesForExport(DateTimePeriod::NONE, ResampleAlgorithm::NONE, timeSteps[i], allCurveData[i], &expTimeSteps, &expCurveData);
+            prepareCaseCurvesForExport(DateTimePeriod::NONE,
+                                       ResampleAlgorithm::NONE,
+                                       asciiCurvesData.timeSteps[i],
+                                       asciiCurvesData.allCurveData[i],
+                                       &expTimeSteps,
+                                       &expCurveData);
             appendToExportData(out, expTimeSteps, expCurveData);
         }
     }
@@ -1640,6 +1593,111 @@ void RimSummaryPlot::defineEditorAttribute(const caf::PdmFieldHandle* field, QSt
         if (myAttr)
         {
             myAttr->m_useNativeCheckBoxLabel = true;
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void populateTimeHistoryCurvesData(std::vector<RimGridTimeHistoryCurve*> curves, CurvesData* curvesData)
+{
+    CVF_ASSERT(curvesData);
+
+    curvesData->caseNames.clear();
+    curvesData->timeSteps.clear();
+    curvesData->allCurveData.clear();
+
+    for (RimGridTimeHistoryCurve* curve : curves)
+    {
+        if (!curve->isCurveVisible()) continue;
+        QString curveCaseName = curve->caseName();
+
+        size_t casePosInList = cvf::UNDEFINED_SIZE_T;
+        for (size_t i = 0; i < curvesData->caseNames.size(); i++)
+        {
+            if (curveCaseName == curvesData->caseNames[i]) casePosInList = i;
+        }
+
+        CurveData curveData = { curve->curveName(), RifEclipseSummaryAddress(), curve->yValues() };
+
+        if (casePosInList == cvf::UNDEFINED_SIZE_T)
+        {
+            curvesData->caseNames.push_back(curveCaseName);
+            curvesData->timeSteps.push_back(curve->timeStepValues());
+            curvesData->allCurveData.push_back(std::vector<CurveData>({ curveData }));
+        }
+        else
+        {
+            curvesData->allCurveData[casePosInList].push_back(curveData);
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void populateAsciiDataCurvesData(std::vector<RimAsciiDataCurve*> curves, CurvesData* curvesData)
+{
+    CVF_ASSERT(curvesData);
+
+    curvesData->caseNames.clear();
+    curvesData->timeSteps.clear();
+    curvesData->allCurveData.clear();
+
+    for (RimAsciiDataCurve* curve : curves)
+    {
+        if (!curve->isCurveVisible()) continue;
+
+        size_t casePosInList = cvf::UNDEFINED_SIZE_T;
+
+        CurveData curveData = { curve->curveName(), RifEclipseSummaryAddress(), curve->yValues() };
+
+        if (casePosInList == cvf::UNDEFINED_SIZE_T)
+        {
+            curvesData->timeSteps.push_back(curve->timeSteps());
+            curvesData->allCurveData.push_back(std::vector<CurveData>({ curveData }));
+        }
+        else
+        {
+            curvesData->allCurveData[casePosInList].push_back(curveData);
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void populateSummaryCurvesData(std::vector<RimSummaryCurve*> curves, CurvesData* curvesData)
+{
+    CVF_ASSERT(curvesData);
+
+    curvesData->caseNames.clear();
+    curvesData->timeSteps.clear();
+    curvesData->allCurveData.clear();
+
+    for (RimSummaryCurve* curve : curves)
+    {
+        if (!curve->isCurveVisible()) continue;
+        QString curveCaseName = curve->summaryCaseY()->caseName();
+
+        size_t casePosInList = cvf::UNDEFINED_SIZE_T;
+        for (size_t i = 0; i < curvesData->caseNames.size(); i++)
+        {
+            if (curveCaseName == curvesData->caseNames[i]) casePosInList = i;
+        }
+
+        CurveData curveData = { curve->curveName(), curve->summaryAddressY(), curve->valuesY() };
+
+        if (casePosInList == cvf::UNDEFINED_SIZE_T)
+        {
+            curvesData->caseNames.push_back(curveCaseName);
+            curvesData->timeSteps.push_back(curve->timeStepsY());
+            curvesData->allCurveData.push_back(std::vector<CurveData>({ curveData }));
+        }
+        else
+        {
+            curvesData->allCurveData[casePosInList].push_back(curveData);
         }
     }
 }
