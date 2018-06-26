@@ -104,14 +104,19 @@ void RiuWellLogPlot::insertTrackPlot(RiuWellLogTrack* trackPlot, size_t index)
     m_trackPlots.insert(static_cast<int>(index), trackPlot); 
 
     QwtLegend* legend = new QwtLegend(this);
-    legend->setMaxColumns(1);
+    int legendColumns = 1;
+    if (m_plotDefinition->areTrackLegendsHorizontal())
+    {
+        legendColumns = 0; // unlimited
+    }
+    legend->setMaxColumns(legendColumns);
     legend->connect(trackPlot, SIGNAL(legendDataChanged(const QVariant &, const QList< QwtLegendData > &)), SLOT(updateLegend(const QVariant &, const QList< QwtLegendData > &)));
     legend->contentsWidget()->layout()->setAlignment(Qt::AlignBottom | Qt::AlignHCenter);
     m_legends.insert(static_cast<int>(index), legend);
 
     this->connect(trackPlot,  SIGNAL(legendDataChanged(const QVariant &, const QList< QwtLegendData > &)), SLOT(scheduleUpdateChildrenLayout()));
  
-    if (!m_plotDefinition->isTrackLegendsVisible())
+    if (!m_plotDefinition->areTrackLegendsVisible())
     {
         legend->hide();
     }
@@ -377,13 +382,13 @@ void RiuWellLogPlot::placeChildWidgets(int height, int width)
 
     int maxLegendHeight = 0;
 
-    if (m_plotDefinition && m_plotDefinition->isTrackLegendsVisible())
+    if (m_plotDefinition && m_plotDefinition->areTrackLegendsVisible())
     {
         for ( int tIdx = 0; tIdx < m_trackPlots.size(); ++tIdx )
         {
             if ( m_trackPlots[tIdx]->isVisible() )
             {
-                int legendHeight = m_legends[tIdx]->sizeHint().height();
+                int legendHeight = m_legends[tIdx]->heightForWidth(trackWidths[tIdx] - 2 * trackPadding);
                 if ( legendHeight > maxLegendHeight ) maxLegendHeight = legendHeight;
             }
         }
@@ -469,9 +474,16 @@ void RiuWellLogPlot::updateChildrenLayout()
     {
         if (m_trackPlots[tIdx]->isVisible())
         {
-           m_legends[tIdx]->show();
-           m_trackPlots[tIdx]->enableVerticalAxisLabelsAndTitle(numTracksAlreadyShown == 0);           
-           numTracksAlreadyShown++;
+            int legendColumns = 1;
+            if (m_plotDefinition->areTrackLegendsHorizontal())
+            {
+                legendColumns = 0; // unlimited
+            }
+            m_legends[tIdx]->setMaxColumns(legendColumns);
+            m_legends[tIdx]->show();
+
+            m_trackPlots[tIdx]->enableVerticalAxisLabelsAndTitle(numTracksAlreadyShown == 0);           
+            numTracksAlreadyShown++;
         }
         else
         {

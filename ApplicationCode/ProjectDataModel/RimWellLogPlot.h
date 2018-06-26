@@ -71,8 +71,9 @@ public:
 
     QString                                         depthPlotTitle() const;
     bool                                            isPlotTitleVisible() const;
-    bool                                            isTrackLegendsVisible() const;
+    bool                                            areTrackLegendsVisible() const;
     void                                            setTrackLegendsVisible(bool doShow);
+    bool                                            areTrackLegendsHorizontal() const;
 
     void                                            addTrack(RimWellLogTrack* track);
     void                                            insertTrack(RimWellLogTrack* track, size_t index);
@@ -153,6 +154,7 @@ private:
     caf::PdmField<bool>                             m_isAutoScaleDepthEnabled;
     caf::PdmField<bool>                             m_showTitleInPlot;
     caf::PdmField<bool>                             m_showTrackLegends;
+    caf::PdmField<bool>                             m_trackLegendsHorizontal;
 
     double                                          m_minAvailableDepth;
     double                                          m_maxAvailableDepth;

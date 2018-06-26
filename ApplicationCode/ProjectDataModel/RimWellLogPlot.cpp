@@ -81,6 +81,7 @@ RimWellLogPlot::RimWellLogPlot()
     m_isAutoScaleDepthEnabled.uiCapability()->setUiHidden(true);
     CAF_PDM_InitField(&m_showTitleInPlot, "ShowTitleInPlot", true, "Show Title in Plot", "", "", "");
     CAF_PDM_InitField(&m_showTrackLegends, "ShowTrackLegends", true, "Show Legends", "", "", "");
+    CAF_PDM_InitField(&m_trackLegendsHorizontal, "TrackLegendsHorizontal", false, "Horizontal Legends", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_tracks, "Tracks", "",  "", "", "");
     m_tracks.uiCapability()->setUiHidden(true);
@@ -115,7 +116,8 @@ void RimWellLogPlot::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
         m_isAutoScaleDepthEnabled = false;
     }
     else if (changedField == &m_showTitleInPlot ||
-             changedField == &m_showTrackLegends)
+             changedField == &m_showTrackLegends ||
+             changedField == &m_trackLegendsHorizontal)
     {
         updateTracks();
         if (m_viewer) m_viewer->updateChildrenLayout();
@@ -585,6 +587,7 @@ void RimWellLogPlot::uiOrderingForPlot(caf::PdmUiOrdering& uiOrdering)
 
     uiOrdering.add(&m_showTitleInPlot);
     uiOrdering.add(&m_showTrackLegends);
+    uiOrdering.add(&m_trackLegendsHorizontal);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -846,7 +849,7 @@ bool RimWellLogPlot::isPlotTitleVisible() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RimWellLogPlot::isTrackLegendsVisible() const
+bool RimWellLogPlot::areTrackLegendsVisible() const
 {
     return m_showTrackLegends();
 }
@@ -857,6 +860,14 @@ bool RimWellLogPlot::isTrackLegendsVisible() const
 void RimWellLogPlot::setTrackLegendsVisible(bool doShow)
 {
     m_showTrackLegends = doShow;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimWellLogPlot::areTrackLegendsHorizontal() const
+{
+    return m_trackLegendsHorizontal;
 }
 
 //--------------------------------------------------------------------------------------------------
