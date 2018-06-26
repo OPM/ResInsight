@@ -69,6 +69,7 @@ protected:
     ///////// Interface for the Window controller
     friend class RimMdiWindowController;
 
+    QString                      windowTitle();
     virtual QWidget*             createViewWidget(QWidget* mainWindowParent) = 0; 
     virtual void                 updateViewWidgetAfterCreation() {};
     virtual void                 updateMdiWindowTitle(); // Has real default implementation

@@ -79,6 +79,7 @@ RimWellLogPlot::RimWellLogPlot()
     CAF_PDM_InitField(&m_maxVisibleDepth, "MaximumDepth", 1000.0, "Max", "", "", "");    
     CAF_PDM_InitField(&m_isAutoScaleDepthEnabled, "AutoScaleDepthEnabled", true, "Auto Scale", "", "", "");
     m_isAutoScaleDepthEnabled.uiCapability()->setUiHidden(true);
+    CAF_PDM_InitField(&m_showTitleInPlot, "ShowTitleInPlot", true, "Show Title in Plot", "", "", "");
     CAF_PDM_InitField(&m_showTrackLegends, "ShowTrackLegends", true, "Show Legends", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_tracks, "Tracks", "",  "", "", "");
@@ -113,6 +114,12 @@ void RimWellLogPlot::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
 
         m_isAutoScaleDepthEnabled = false;
     }
+    else if (changedField == &m_showTitleInPlot ||
+             changedField == &m_showTrackLegends)
+    {
+        updateTracks();
+        if (m_viewer) m_viewer->updateChildrenLayout();
+    }
     else if (changedField == &m_isAutoScaleDepthEnabled)
     {
         updateDepthZoom();
@@ -121,8 +128,7 @@ void RimWellLogPlot::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
     {
         updateMdiWindowTitle();
     }
-    
-    if (   changedField == &m_depthType )
+    else if (   changedField == &m_depthType )
     {
         RimWellAllocationPlot* wellAllocPlot;
         firstAncestorOrThisOfType(wellAllocPlot);
@@ -134,16 +140,10 @@ void RimWellLogPlot::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
             updateDepthZoom();
         }
     }
-    if ( changedField == &m_depthUnit)
+    else if ( changedField == &m_depthUnit)
     {
         updateTracks();
         updateDepthZoom();
-    }
-
-    if ( changedField == &m_showTrackLegends)
-    {
-        updateTracks();
-        if (m_viewer) m_viewer->updateChildrenLayout();
     }
 
     RimWellRftPlot* rftPlot(nullptr);
@@ -583,6 +583,7 @@ void RimWellLogPlot::uiOrderingForPlot(caf::PdmUiOrdering& uiOrdering)
         uiOrdering.add(&m_depthUnit);
     }
 
+    uiOrdering.add(&m_showTitleInPlot);
     uiOrdering.add(&m_showTrackLegends);
 }
 
@@ -615,8 +616,8 @@ void RimWellLogPlot::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
 void RimWellLogPlot::onLoadDataAndUpdate()
 {
     updateMdiWindowVisibility();
-
-    updateTracks();
+    updatePlotTitle();
+    updateTracks(); 
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -835,6 +836,14 @@ QString RimWellLogPlot::depthPlotTitle() const
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimWellLogPlot::isPlotTitleVisible() const
+{
+    return m_showTitleInPlot();
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 bool RimWellLogPlot::isTrackLegendsVisible() const
@@ -900,6 +909,17 @@ void RimWellLogPlot::updateDisabledDepthTypes()
     {
         m_disabledDepthTypes.insert(PSEUDO_LENGTH);
         m_disabledDepthTypes.insert(CONNECTION_NUMBER);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogPlot::updatePlotTitle()
+{
+    if (m_viewer)
+    {
+        m_viewer->setPlotTitle(this->windowTitle());
     }
 }
 

@@ -36,9 +36,9 @@
 #include <QFocusEvent>
 #include <QHBoxLayout>
 #include <QMdiSubWindow>
+#include <QMenu>
 #include <QScrollBar>
 #include <QTimer>
-#include <QMenu>
 
 #include <math.h>
 
@@ -57,6 +57,12 @@ RiuWellLogPlot::RiuWellLogPlot(RimWellLogPlot* plotDefinition, QWidget* parent)
 
     setAutoFillBackground(true);
 
+    m_plotTitle = new QLabel("PLOT TITLE HERE", this);
+    QFont font = m_plotTitle->font();
+    font.setPointSize(12);
+    font.setBold(true);
+    m_plotTitle->setFont(font);
+    m_plotTitle->hide();
     m_scrollBar = new QScrollBar(this);
     m_scrollBar->setOrientation(Qt::Vertical);
     m_scrollBar->setVisible(true);
@@ -202,6 +208,16 @@ void RiuWellLogPlot::setDepthZoomAndReplot(double minDepth, double maxDepth)
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuWellLogPlot::setPlotTitle(const QString& plotTitle)
+{
+    m_plotTitle->setText(plotTitle);
+    m_plotTitle->setGeometry(0, 0, m_plotTitle->sizeHint().width(), m_plotTitle->sizeHint().height());
+    this->updateChildrenLayout();
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 QSize RiuWellLogPlot::sizeHint() const
@@ -326,6 +342,12 @@ void RiuWellLogPlot::placeChildWidgets(int height, int width)
         }
     }
 
+    int titleHeight = 0;
+    if (m_plotTitle && m_plotTitle->isVisible())
+    {
+        titleHeight = m_plotTitle->height() + 10;
+    }
+
     int trackHeight = height - maxLegendHeight;
     int trackX = 0;
 
@@ -345,15 +367,18 @@ void RiuWellLogPlot::placeChildWidgets(int height, int width)
                     --trackWidthExtra;
                 }
                 int realLegendWidth = std::max(realTrackWidth, m_legends[tIdx]->sizeHint().width()); 
-                m_legends[tIdx]->setGeometry(trackX, 0, realLegendWidth, maxLegendHeight);
-                m_trackPlots[tIdx]->setGeometry(trackX, maxLegendHeight, realTrackWidth, trackHeight);
+                m_legends[tIdx]->setGeometry(trackX, titleHeight, realLegendWidth, maxLegendHeight);
+                m_trackPlots[tIdx]->setGeometry(trackX, titleHeight + maxLegendHeight, realTrackWidth, trackHeight);
 
                 trackX += realTrackWidth;
             }
         }
     }
 
-    if (m_scrollBar->isVisible()) m_scrollBar->setGeometry(trackX, maxLegendHeight, scrollBarWidth, trackHeight);
+    if (m_scrollBar->isVisible())
+    {
+        m_scrollBar->setGeometry(trackX, titleHeight + maxLegendHeight, m_scrollBar->sizeHint().width(), trackHeight);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -361,6 +386,17 @@ void RiuWellLogPlot::placeChildWidgets(int height, int width)
 //--------------------------------------------------------------------------------------------------
 void RiuWellLogPlot::updateChildrenLayout()
 {
+    if (m_plotDefinition && m_plotDefinition->isPlotTitleVisible())
+    {
+        m_plotTitle->setGeometry(0, 0, m_plotTitle->sizeHint().width(), m_plotTitle->sizeHint().height());
+        m_plotTitle->show();
+    }
+    else
+    {
+        m_plotTitle->hide();
+    }
+
+
     int trackCount = m_trackPlots.size();
     for (int tIdx = 0; tIdx < trackCount; ++tIdx)
     {

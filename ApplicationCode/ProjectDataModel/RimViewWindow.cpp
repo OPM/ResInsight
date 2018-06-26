@@ -66,6 +66,23 @@ void RimViewWindow::removeMdiWindowFromMdiArea()
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimViewWindow::windowTitle()
+{
+    if (this->userDescriptionField())
+    {
+        caf::PdmUiFieldHandle* uiFieldHandle = this->userDescriptionField()->uiCapability();
+        if (uiFieldHandle)
+        {
+            QVariant v = uiFieldHandle->uiValue();
+            return v.toString();
+        }
+    }
+    return QString("");
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void RimViewWindow::handleMdiWindowClosed()
@@ -168,15 +185,7 @@ void RimViewWindow::updateMdiWindowTitle()
 {
     if ( viewWidget() )
     {
-        if ( this->userDescriptionField() )
-        {
-            caf::PdmUiFieldHandle* uiFieldHandle = this->userDescriptionField()->uiCapability();
-            if ( uiFieldHandle )
-            {
-                QVariant v = uiFieldHandle->uiValue();
-                viewWidget()->setWindowTitle(v.toString());
-            }
-        }
+        viewWidget()->setWindowTitle(windowTitle());
     }
 }
 

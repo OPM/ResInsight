@@ -30,9 +30,9 @@
 class RimWellLogPlot;
 class RiuWellLogTrack;
 
-class QHBoxLayout;
-class QScrollBar;
 class QFocusEvent;
+class QLabel;
+class QScrollBar;
 class QwtLegend;
 
 //==================================================================================================
@@ -56,8 +56,9 @@ public:
     void                            removeTrackPlot(RiuWellLogTrack* trackPlot);
 
     void                            setDepthZoomAndReplot(double minDepth, double maxDepth);
+    void                            setPlotTitle(const QString& plotTitle);
 
-    public slots:
+public slots:
     void                            updateChildrenLayout();
 
 protected:
@@ -77,7 +78,7 @@ private slots:
     void                            scheduleUpdateChildrenLayout();
 
 private:
-    QHBoxLayout*                    m_layout;
+    QLabel*                         m_plotTitle;
     QScrollBar*                     m_scrollBar;
     QList<QPointer<QwtLegend> >     m_legends;
     QList<QPointer<RiuWellLogTrack> > m_trackPlots;

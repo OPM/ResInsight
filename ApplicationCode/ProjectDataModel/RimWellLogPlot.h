@@ -70,6 +70,7 @@ public:
 
 
     QString                                         depthPlotTitle() const;
+    bool                                            isPlotTitleVisible() const;
     bool                                            isTrackLegendsVisible() const;
     void                                            setTrackLegendsVisible(bool doShow);
 
@@ -131,7 +132,7 @@ private:
     void                                            detachAllCurves();
 
     void                                            updateDisabledDepthTypes();
-
+    void                                            updatePlotTitle();
 public: // Needed by RiuWellAllocation Plot
     // RimViewWindow overrides
 
@@ -150,6 +151,7 @@ private:
     caf::PdmField<double>                           m_minVisibleDepth;
     caf::PdmField<double>                           m_maxVisibleDepth;
     caf::PdmField<bool>                             m_isAutoScaleDepthEnabled;
+    caf::PdmField<bool>                             m_showTitleInPlot;
     caf::PdmField<bool>                             m_showTrackLegends;
 
     double                                          m_minAvailableDepth;
