@@ -26,8 +26,8 @@
 #include "RimCase.h" 
 #include "RimGridView.h"
 #include "RimMainPlotCollection.h"
-#include "RimOilField.h"
 #include "RimProject.h"
+#include "RimTools.h"
 #include "RimViewController.h"
 #include "RimViewLinker.h"
 #include "RimWellPathCollection.h"
@@ -407,11 +407,7 @@ void Rim3dView::endAnimation()
 //--------------------------------------------------------------------------------------------------
 RimWellPathCollection* Rim3dView::wellPathCollection() const
 {
-    RimProject* proj = nullptr;
-    this->firstAncestorOrThisOfTypeAsserted(proj);
-    CVF_ASSERT(proj && proj->activeOilField() && proj->activeOilField()->wellPathCollection());
-
-    return proj->activeOilField()->wellPathCollection();
+    return RimTools::wellPathCollection();
 }
 
 //--------------------------------------------------------------------------------------------------

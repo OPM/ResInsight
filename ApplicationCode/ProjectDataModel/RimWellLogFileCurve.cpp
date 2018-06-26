@@ -22,16 +22,16 @@
 #include "RigWellLogCurveData.h"
 #include "RigWellPath.h"
 
-#include "RimOilField.h"
 #include "RimProject.h"
+#include "RimTools.h"
 #include "RimWellLogFile.h"
 #include "RimWellLogFileChannel.h"
 #include "RimWellLogPlot.h"
 #include "RimWellLogTrack.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
-#include "RimWellRftPlot.h"
 #include "RimWellPlotTools.h"
+#include "RimWellRftPlot.h"
 
 #include "RiuLineSegmentQwtPlotCurve.h"
 #include "RiuWellLogTrack.h"
@@ -275,10 +275,10 @@ QList<caf::PdmOptionItemInfo> RimWellLogFileCurve::calculateValueOptions(const c
 
     if (fieldNeedingOptions == &m_wellPath)
     {
-        RimProject* proj = RiaApplication::instance()->project();
-        if (proj->activeOilField()->wellPathCollection())
+        auto wellPathColl = RimTools::wellPathCollection();
+        if (wellPathColl)
         {
-            caf::PdmChildArrayField<RimWellPath*>& wellPaths = proj->activeOilField()->wellPathCollection()->wellPaths;
+            caf::PdmChildArrayField<RimWellPath*>& wellPaths = wellPathColl->wellPaths;
 
             for (size_t i = 0; i < wellPaths.size(); i++)
             {

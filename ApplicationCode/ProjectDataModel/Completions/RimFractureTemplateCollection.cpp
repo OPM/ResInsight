@@ -30,11 +30,11 @@
 #include "RimEllipseFractureTemplate.h"
 #include "RimFracture.h"
 #include "RimFractureTemplate.h"
-#include "RimOilField.h"
 #include "RimProject.h"
 #include "RimSimWellInViewCollection.h"
 #include "RimStimPlanColors.h"
 #include "RimStimPlanFractureTemplate.h"
+#include "RimTools.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 #include "RimWellPathFracture.h"
@@ -329,7 +329,7 @@ void RimFractureTemplateCollection::initAfterRead()
         bool setAllShowMeshToFalseOnAllEclipseViews = false;
 
         std::vector<RimWellPathFracture*> wellPathFractures;
-        RimWellPathCollection* wellPathCollection = proj->activeOilField()->wellPathCollection();
+        RimWellPathCollection* wellPathCollection = RimTools::wellPathCollection();
         wellPathCollection->descendantsIncludingThisOfType(wellPathFractures);
 
         for (RimWellPathFracture* fracture : wellPathFractures)

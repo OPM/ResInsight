@@ -19,22 +19,21 @@
 
 #include "RicNewWellLogFileCurveFeature.h"
 
-#include "RicWellLogPlotCurveFeatureImpl.h"
 #include "RicNewWellLogPlotFeatureImpl.h"
+#include "RicWellLogPlotCurveFeatureImpl.h"
+#include "RicWellLogTools.h"
 
 #include "RiaApplication.h"
 
-#include "RimOilField.h"
-#include "RimProject.h"
+#include "RimTools.h"
 #include "RimWellLogFile.h"
 #include "RimWellLogFileChannel.h"
 #include "RimWellLogFileCurve.h"
 #include "RimWellLogTrack.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
-#include "RiuPlotMainWindow.h"
 
-#include "RicWellLogTools.h"
+#include "RiuPlotMainWindow.h"
 
 #include "cafSelectionManager.h"
 
@@ -96,10 +95,10 @@ void RicNewWellLogFileCurveFeature::setupActionLook(QAction* actionToSetup)
 //--------------------------------------------------------------------------------------------------
 bool RicNewWellLogFileCurveFeature::wellLogFilesAvailable()
 {
-    RimProject* project = RiaApplication::instance()->project();
-    if (project->activeOilField()->wellPathCollection())
+    auto wellPathCollection = RimTools::wellPathCollection();
+    if (wellPathCollection)
     {
-        caf::PdmChildArrayField<RimWellPath*>& wellPaths = project->activeOilField()->wellPathCollection()->wellPaths;
+        caf::PdmChildArrayField<RimWellPath*>& wellPaths = wellPathCollection->wellPaths;
 
         for (size_t i = 0; i < wellPaths.size(); i++)
         {

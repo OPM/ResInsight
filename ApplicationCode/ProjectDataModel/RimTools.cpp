@@ -227,10 +227,10 @@ void RimTools::wellPathOptionItems(QList<caf::PdmOptionItemInfo>* options)
     CVF_ASSERT(options);
     if (!options) return;
 
-    RimProject* proj = RiaApplication::instance()->project();
-    if (proj && proj->activeOilField() && proj->activeOilField()->wellPathCollection())
+    auto wellPathColl = RimTools::wellPathCollection();
+    if (wellPathColl)
     {
-        caf::PdmChildArrayField<RimWellPath*>& wellPaths = proj->activeOilField()->wellPathCollection()->wellPaths;
+        caf::PdmChildArrayField<RimWellPath*>& wellPaths = wellPathColl->wellPaths;
 
         QIcon wellIcon(":/Well.png");
         for (RimWellPath* wellPath : wellPaths)
@@ -263,10 +263,10 @@ void RimTools::wellPathWithFormationsOptionItems(QList<caf::PdmOptionItemInfo>* 
 //--------------------------------------------------------------------------------------------------
 void RimTools::wellPathWithFormations(std::vector<RimWellPath*>* wellPaths)
 {
-    RimProject* proj = RiaApplication::instance()->project();
-    if (proj && proj->activeOilField() && proj->activeOilField()->wellPathCollection())
+    auto wellPathColl = RimTools::wellPathCollection();
+    if (wellPathColl)
     {
-        caf::PdmChildArrayField<RimWellPath*>& allWellPaths = proj->activeOilField()->wellPathCollection()->wellPaths;
+        caf::PdmChildArrayField<RimWellPath*>& allWellPaths = wellPathColl->wellPaths;
 
         for (RimWellPath* wellPath : allWellPaths)
         {
@@ -351,4 +351,18 @@ QString RimTools::createTimeFormatStringFromDates(const std::vector<QDateTime>& 
 QString RimTools::dateFormatString()
 {
     return "dd.MMM yyyy";
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimWellPathCollection* RimTools::wellPathCollection()
+{
+    RimProject* proj = RiaApplication::instance()->project();
+    if (proj && proj->activeOilField())
+    {
+        return proj->activeOilField()->wellPathCollection();
+    }
+
+    return nullptr;
 }

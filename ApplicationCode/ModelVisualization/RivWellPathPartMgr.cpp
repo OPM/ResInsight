@@ -606,7 +606,7 @@ void RivWellPathPartMgr::clearAllBranchData()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimWellPathCollection* RivWellPathPartMgr::wellPathCollection()
+RimWellPathCollection* RivWellPathPartMgr::wellPathCollection() const
 {
     if (!m_rimWellPath) return nullptr;
 

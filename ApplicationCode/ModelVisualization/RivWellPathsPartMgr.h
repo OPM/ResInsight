@@ -42,7 +42,6 @@ class DisplayCoordTransform;
 
 class Rim3dView;
 class RivWellPathPartMgr;
-class RimWellPathCollection;
 class RimWellPath;
 
 //--------------------------------------------------------------------------------------------------
@@ -72,7 +71,6 @@ private:
     void                   clearGeometryCache();
     void                   scheduleGeometryRegen();
     void                   createPartManagersIfRequired();
-    RimWellPathCollection* wellPathCollection() const;
     bool                   isWellPathVisible() const;
 
 private:

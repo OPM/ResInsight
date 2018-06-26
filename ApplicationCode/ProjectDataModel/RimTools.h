@@ -33,6 +33,8 @@ namespace caf {
     class PdmOptionItemInfo;
 }
 
+class RimWellPathCollection;
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -51,4 +53,6 @@ public:
     static QString createTimeFormatStringFromDates(const std::vector<QDateTime>& dates);
 
     static QString dateFormatString();
+
+    static RimWellPathCollection* wellPathCollection();
 };
