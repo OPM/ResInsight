@@ -60,7 +60,7 @@ RiuWellLogPlot::RiuWellLogPlot(RimWellLogPlot* plotDefinition, QWidget* parent)
 
     m_plotTitle = new QLabel("PLOT TITLE HERE", this);
     QFont font = m_plotTitle->font();
-    font.setPointSize(12);
+    font.setPointSize(14);
     font.setBold(true);
     m_plotTitle->setFont(font);
     m_plotTitle->hide();
@@ -219,7 +219,6 @@ void RiuWellLogPlot::setDepthZoomAndReplot(double minDepth, double maxDepth)
 void RiuWellLogPlot::setPlotTitle(const QString& plotTitle)
 {
     m_plotTitle->setText(plotTitle);
-    m_plotTitle->setGeometry(0, 0, m_plotTitle->sizeHint().width(), m_plotTitle->sizeHint().height());
     this->updateChildrenLayout();
 }
 
@@ -371,13 +370,15 @@ std::map<int, int> RiuWellLogPlot::calculateTrackWidths(int frameWidth)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuWellLogPlot::placeChildWidgets(int height, int width)
+void RiuWellLogPlot::placeChildWidgets(int frameHeight, int frameWidth)
 {
     CVF_ASSERT(m_legends.size() == m_trackPlots.size());
 
+    positionTitle(frameWidth);
+
     const int trackPadding = 4;
 
-    std::map<int, int> trackWidths = calculateTrackWidths(width);
+    std::map<int, int> trackWidths = calculateTrackWidths(frameWidth);
     size_t visibleTrackCount = trackWidths.size();
 
     int maxLegendHeight = 0;
@@ -400,7 +401,7 @@ void RiuWellLogPlot::placeChildWidgets(int height, int width)
         titleHeight = m_plotTitle->height() + 10;
     }
 
-    int trackHeight = height - maxLegendHeight;
+    int trackHeight = frameHeight - maxLegendHeight;
     int trackX = 0;
 
     if (visibleTrackCount)
@@ -453,21 +454,27 @@ void RiuWellLogPlot::placeChildWidgets(int height, int width)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RiuWellLogPlot::updateChildrenLayout()
+void RiuWellLogPlot::positionTitle(int frameWidth)
 {
     if (m_plotDefinition && m_plotDefinition->isPlotTitleVisible())
     {
-        m_plotTitle->setGeometry(0, 0, m_plotTitle->sizeHint().width(), m_plotTitle->sizeHint().height());
+        int textWidth = m_plotTitle->sizeHint().width();
+        m_plotTitle->setGeometry(frameWidth/2 - textWidth/2, 0, textWidth, m_plotTitle->sizeHint().height());
         m_plotTitle->show();
     }
     else
     {
         m_plotTitle->hide();
     }
+}
 
-
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuWellLogPlot::updateChildrenLayout()
+{ 
     int trackCount = m_trackPlots.size();
     int numTracksAlreadyShown = 0;
     for (int tIdx = 0; tIdx < trackCount; ++tIdx)

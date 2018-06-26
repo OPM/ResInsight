@@ -74,7 +74,8 @@ private:
     void                            updateScrollBar(double minDepth, double maxDepth);
     void                            modifyWidthOfContainingMdiWindow(int widthChange);
     std::map<int, int>              calculateTrackWidths(int frameWidth);
-    void                            placeChildWidgets(int height, int width);
+    void                            placeChildWidgets(int frameHeight, int frameWidth);
+    void                            positionTitle(int frameWidth);
 
 private slots:
     void                            slotSetMinDepth(int value);
