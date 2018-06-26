@@ -674,7 +674,8 @@ bool RifEclipseSummaryAddress::isValid() const
 //--------------------------------------------------------------------------------------------------
 bool RifEclipseSummaryAddress::hasAccumulatedData() const
 {
-    return QString::fromStdString(m_quantityName).endsWith("T");
+    return QString::fromStdString(m_quantityName).endsWith("T") ||
+        QString::fromStdString(m_quantityName).endsWith("TH");
 }
 
 //--------------------------------------------------------------------------------------------------
