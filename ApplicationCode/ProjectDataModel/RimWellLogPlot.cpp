@@ -70,16 +70,16 @@ RimWellLogPlot::RimWellLogPlot()
     CAF_PDM_InitField(&m_userName, "PlotDescription", QString("Well Log Plot"),"Name", "", "", "");
     
     caf::AppEnum< RimWellLogPlot::DepthTypeEnum > depthType = MEASURED_DEPTH;
-    CAF_PDM_InitField(&m_depthType, "DepthType", depthType, "Depth type",   "", "", "");
+    CAF_PDM_InitField(&m_depthType, "DepthType", depthType, "Type",   "", "", "");
 
     caf::AppEnum< RiaDefines::DepthUnitType > depthUnit = RiaDefines::UNIT_METER;
-    CAF_PDM_InitField(&m_depthUnit, "DepthUnit", depthUnit, "Depth unit", "", "", "");
+    CAF_PDM_InitField(&m_depthUnit, "DepthUnit", depthUnit, "Unit", "", "", "");
 
     CAF_PDM_InitField(&m_minVisibleDepth, "MinimumDepth", 0.0, "Min", "", "", "");
     CAF_PDM_InitField(&m_maxVisibleDepth, "MaximumDepth", 1000.0, "Max", "", "", "");    
     CAF_PDM_InitField(&m_isAutoScaleDepthEnabled, "AutoScaleDepthEnabled", true, "Auto Scale", "", "", "");
     m_isAutoScaleDepthEnabled.uiCapability()->setUiHidden(true);
-    CAF_PDM_InitField(&m_showTitleInPlot, "ShowTitleInPlot", true, "Show Title in Plot", "", "", "");
+    CAF_PDM_InitField(&m_showTitleInPlot, "ShowTitleInPlot", false, "Show Title in Plot", "", "", "");
     CAF_PDM_InitField(&m_showTrackLegends, "ShowTrackLegends", true, "Show Legends", "", "", "");
     CAF_PDM_InitField(&m_trackLegendsHorizontal, "TrackLegendsHorizontal", false, "Horizontal Legends", "", "", "");
 
@@ -558,23 +558,14 @@ bool RimWellLogPlot::isPltPlotChild() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellLogPlot::uiOrderingForVisibleDepthRange(caf::PdmUiOrdering& uiOrdering)
+void RimWellLogPlot::uiOrderingForDepthAxis(caf::PdmUiOrdering& uiOrdering)
 {
-    caf::PdmUiGroup* gridGroup = uiOrdering.addNewGroup("Visible Depth Range");
-    gridGroup->add(&m_minVisibleDepth);
-    gridGroup->add(&m_maxVisibleDepth);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimWellLogPlot::uiOrderingForPlot(caf::PdmUiOrdering& uiOrdering)
-{
+    caf::PdmUiGroup* gridGroup = uiOrdering.addNewGroup("Depth Axis");
+    
     RimWellRftPlot* rftp = rftPlot();
-
     if (!(rftp || pltPlot()))
     {
-        uiOrdering.add(&m_depthType);
+        gridGroup->add(&m_depthType);
     }
 
     RimWellAllocationPlot* wap;
@@ -582,12 +573,22 @@ void RimWellLogPlot::uiOrderingForPlot(caf::PdmUiOrdering& uiOrdering)
 
     if (!(wap || rftp))
     {
-        uiOrdering.add(&m_depthUnit);
+        gridGroup->add(&m_depthUnit);
     }
+    gridGroup->add(&m_minVisibleDepth);
+    gridGroup->add(&m_maxVisibleDepth);
+}
 
-    uiOrdering.add(&m_showTitleInPlot);
-    uiOrdering.add(&m_showTrackLegends);
-    uiOrdering.add(&m_trackLegendsHorizontal);
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellLogPlot::uiOrderingForPlotSettings(caf::PdmUiOrdering& uiOrdering)
+{
+    caf::PdmUiGroup* titleAndLegendsGroup = uiOrdering.addNewGroup("Title and Legends");
+    titleAndLegendsGroup->add(&m_showTitleInPlot);
+    titleAndLegendsGroup->add(&m_showTrackLegends);
+    titleAndLegendsGroup->add(&m_trackLegendsHorizontal);
+    
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -606,8 +607,8 @@ void RimWellLogPlot::depthZoomMinMax(double* minimumDepth, double* maximumDepth)
 void RimWellLogPlot::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
     uiOrdering.add(&m_userName);
-    uiOrderingForPlot(uiOrdering);
-    uiOrderingForVisibleDepthRange(uiOrdering);
+    uiOrderingForPlotSettings(uiOrdering);
+    uiOrderingForDepthAxis(uiOrdering);
 
     uiOrdering.skipRemainingFields(true);
 }
