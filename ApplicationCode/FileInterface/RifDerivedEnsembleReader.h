@@ -30,6 +30,8 @@ class RimDerivedEnsembleCase;
 //==================================================================================================
 class RifDerivedEnsembleReader : public RifSummaryReaderInterface
 {
+    static const std::vector<time_t> EMPTY_TIME_STEPS_VECTOR;
+
 public:
     RifDerivedEnsembleReader(RimDerivedEnsembleCase* derivedCase);
 

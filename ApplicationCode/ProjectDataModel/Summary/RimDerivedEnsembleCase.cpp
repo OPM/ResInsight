@@ -40,8 +40,8 @@ CAF_PDM_ABSTRACT_SOURCE_INIT(RimDerivedEnsembleCase, "RimDerivedEnsembleCase");
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-static const std::vector<time_t> EMPTY_TIME_STEPS_VECTOR;
-static const std::vector<double> EMPTY_VALUES_VECTOR;
+const std::vector<time_t> RimDerivedEnsembleCase::EMPTY_TIME_STEPS_VECTOR;
+const std::vector<double> RimDerivedEnsembleCase::EMPTY_VALUES_VECTOR;
 
 //--------------------------------------------------------------------------------------------------
 /// 

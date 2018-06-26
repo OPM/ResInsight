@@ -46,6 +46,10 @@ enum DerivedEnsembleOperator
 class RimDerivedEnsembleCase : public RimSummaryCase
 {
     CAF_PDM_HEADER_INIT;
+
+    static const std::vector<time_t> EMPTY_TIME_STEPS_VECTOR;
+    static const std::vector<double> EMPTY_VALUES_VECTOR;
+
 public:
     RimDerivedEnsembleCase();
     ~RimDerivedEnsembleCase();
