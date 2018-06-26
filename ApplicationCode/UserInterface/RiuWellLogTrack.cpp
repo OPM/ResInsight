@@ -261,3 +261,17 @@ bool RiuWellLogTrack::isRimTrackVisible()
    return false;
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuWellLogTrack::enableVerticalAxisLabelsAndTitle(bool enable)
+{
+    QString depthAxisTitle("");
+    if (enable && m_plotTrackDefinition)
+    {
+        depthAxisTitle = m_plotTrackDefinition->depthPlotTitle();
+    }
+    this->setAxisTitle(QwtPlot::yLeft, depthAxisTitle);
+    this->axisScaleDraw(QwtPlot::yLeft)->enableComponent(
+        QwtAbstractScaleDraw::Labels, enable);
+}

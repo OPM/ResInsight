@@ -81,6 +81,7 @@ public:
     size_t curveIndex(RimWellLogCurve* curve);
     size_t curveCount() { return curves.size(); }
     void setXAxisTitle(const QString& text);
+    QString depthPlotTitle() const;
 
     void setFormationWellPath(RimWellPath* wellPath);
     void setFormationSimWellName(const QString& simWellName);

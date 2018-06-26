@@ -319,6 +319,8 @@ void RiuWellLogPlot::placeChildWidgets(int height, int width)
     int trackCount = m_trackPlots.size();
     CVF_ASSERT(m_legends.size() == trackCount);
 
+    const int trackPadding = 4;
+
     int visibleTrackCount = 0;
     for (int tIdx = 0; tIdx < trackCount; ++tIdx)
     {
@@ -366,9 +368,8 @@ void RiuWellLogPlot::placeChildWidgets(int height, int width)
                     realTrackWidth += 1;
                     --trackWidthExtra;
                 }
-                int realLegendWidth = std::max(realTrackWidth, m_legends[tIdx]->sizeHint().width()); 
-                m_legends[tIdx]->setGeometry(trackX, titleHeight, realLegendWidth, maxLegendHeight);
-                m_trackPlots[tIdx]->setGeometry(trackX, titleHeight + maxLegendHeight, realTrackWidth, trackHeight);
+                m_legends[tIdx]->setGeometry(trackX + trackPadding, titleHeight, realTrackWidth - 2 * trackPadding, maxLegendHeight);
+                m_trackPlots[tIdx]->setGeometry(trackX + trackPadding, titleHeight + maxLegendHeight, realTrackWidth - 2 * trackPadding, trackHeight);
 
                 trackX += realTrackWidth;
             }
@@ -398,16 +399,19 @@ void RiuWellLogPlot::updateChildrenLayout()
 
 
     int trackCount = m_trackPlots.size();
+    int numTracksAlreadyShown = 0;
     for (int tIdx = 0; tIdx < trackCount; ++tIdx)
     {
         if (m_trackPlots[tIdx]->isVisible())
         {
            m_legends[tIdx]->show();
+           m_trackPlots[tIdx]->enableVerticalAxisLabelsAndTitle(numTracksAlreadyShown == 0);           
+           numTracksAlreadyShown++;
         }
         else
         {
             m_legends[tIdx]->hide();
-        }
+        }        
     }
 
     placeChildWidgets(this->height(), this->width());

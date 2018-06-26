@@ -628,6 +628,16 @@ void RimWellLogTrack::setXAxisTitle(const QString& text)
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimWellLogTrack::depthPlotTitle() const
+{
+    RimWellLogPlot* parent;
+    this->firstAncestorOrThisOfTypeAsserted(parent);
+
+    return parent->depthPlotTitle();
+}
+
 /// 
 //--------------------------------------------------------------------------------------------------
 void RimWellLogTrack::setFormationWellPath(RimWellPath* wellPath)
