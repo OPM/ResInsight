@@ -32,6 +32,7 @@
 #include "cvfAssert.h"
 
 #include "qwt_legend.h"
+#include "qwt_plot_layout.h"
 
 #include <QFocusEvent>
 #include <QHBoxLayout>
@@ -355,6 +356,18 @@ void RiuWellLogPlot::placeChildWidgets(int height, int width)
 
     if (visibleTrackCount)
     {
+ 
+        int maxCanvasOffset = 0;
+        for (int tIdx = 0; tIdx < trackCount; ++tIdx)
+        {
+            if (m_trackPlots[tIdx]->isVisible())
+            {
+                // Hack to align QWT plots. See below.
+                QRectF canvasRect = m_trackPlots[tIdx]->plotLayout()->canvasRect();
+                maxCanvasOffset = std::max(maxCanvasOffset, static_cast<int>(canvasRect.top()));
+            }
+        }
+
         int trackWidth = (width - scrollBarWidth)/visibleTrackCount;
         int trackWidthExtra = (width-scrollBarWidth)%visibleTrackCount;
 
@@ -362,14 +375,30 @@ void RiuWellLogPlot::placeChildWidgets(int height, int width)
         {
             if (m_trackPlots[tIdx]->isVisible())
             {
-                int realTrackWidth = trackWidth;
+				int realTrackWidth = trackWidth;
                 if (trackWidthExtra > 0)
                 {
                     realTrackWidth += 1;
                     --trackWidthExtra;
                 }
+
+                int adjustedVerticalPosition = titleHeight + maxLegendHeight + 10;
+                int adjustedTrackHeight = trackHeight;
+                {
+                    // Hack to align QWT plots which doesn't have an x-axis with the other tracks.
+                    // Since they are missing the axis, QWT will shift them upwards.
+                    // So we shift the plot downwards and resize to match the others.
+                    // TODO: Look into subclassing QwtPlotLayout instead.
+                    QRectF canvasRect = m_trackPlots[tIdx]->plotLayout()->canvasRect();
+                    int myCanvasOffset = static_cast<int>(canvasRect.top());
+                    int myMargins = m_trackPlots[tIdx]->plotLayout()->canvasMargin(QwtPlot::xTop);
+                    int canvasShift = std::max(0, maxCanvasOffset - myCanvasOffset);
+                    adjustedVerticalPosition += canvasShift - myMargins;
+                    adjustedTrackHeight -= canvasShift;
+                }
+                
                 m_legends[tIdx]->setGeometry(trackX + trackPadding, titleHeight, realTrackWidth - 2 * trackPadding, maxLegendHeight);
-                m_trackPlots[tIdx]->setGeometry(trackX + trackPadding, titleHeight + maxLegendHeight, realTrackWidth - 2 * trackPadding, trackHeight);
+                m_trackPlots[tIdx]->setGeometry(trackX + trackPadding, adjustedVerticalPosition, realTrackWidth - 2 * trackPadding, adjustedTrackHeight);
 
                 trackX += realTrackWidth;
             }
