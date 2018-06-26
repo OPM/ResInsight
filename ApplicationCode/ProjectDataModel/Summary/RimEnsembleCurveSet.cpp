@@ -20,6 +20,7 @@
 
 #include "RiaApplication.h"
 #include "RiaColorTables.h"
+#include "RiaStatisticsTools.h"
 
 #include "SummaryPlotCommands/RicSummaryCurveCreator.h"
 
@@ -988,9 +989,11 @@ void RimEnsembleCurveSet::updateStatisticsCurves(bool calculate = true)
         curve->setParentQwtPlotNoReplot(plot->qwtPlot());
         m_curves.push_back(curve);
         curve->setColor(m_statistics->color());
+        curve->setColor(m_statistics->color());
         curve->setSymbol(RimPlotCurve::SYMBOL_ELLIPSE);
         curve->setSymbolSkipDinstance(50);
-        curve->setSymbolLabel(QString::fromStdString(address.ensembleStatisticsQuantityName()));
+        curve->setSymbolLabel(RiaStatisticsTools::percentileToPValueText(
+            QString::fromStdString(address.ensembleStatisticsQuantityName())));
         curve->setLineStyle(RimPlotCurve::STYLE_SOLID);
         curve->setSummaryCaseY(m_ensembleStatCase.get());
         curve->setSummaryAddressY(address);
