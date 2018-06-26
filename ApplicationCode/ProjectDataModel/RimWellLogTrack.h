@@ -70,6 +70,7 @@ public:
 
     enum TrajectoryType { WELL_PATH, SIMULATION_WELL };
     enum FormationSource { CASE, WELL_PICK_FILTER };
+    enum WidthScaleFactor { EXTRA_NARROW_TRACK = 2, NARROW_TRACK = 3, NORMAL_TRACK = 4, WIDE_TRACK = 6, EXTRA_WIDE_TRACK = 8};
 
     void setDescription(const QString& description);
     bool isVisible();
@@ -83,7 +84,7 @@ public:
     void    setXAxisTitle(const QString& text);
     QString depthPlotTitle() const;
     int     widthScaleFactor() const;
-    void    setWidthScaleFactor(int scaleFactor);
+    void    setWidthScaleFactor(WidthScaleFactor scaleFactor);
 
     void setFormationWellPath(RimWellPath* wellPath);
     void setFormationSimWellName(const QString& simWellName);
@@ -183,7 +184,7 @@ private:
     caf::PdmField<int>                                                 m_formationBranchIndex;
     caf::PdmField<caf::AppEnum<RigWellPathFormations::FormationLevel>> m_formationLevel;
     caf::PdmField<bool>                                                m_showformationFluids;
-    caf::PdmField<int>                                                 m_widthScaleFactor;
+    caf::PdmField<caf::AppEnum<WidthScaleFactor>>                      m_widthScaleFactor;
     caf::PdmField<bool> m_formationBranchDetection;
 
     bool m_formationsForCaseWithSimWellOnly;

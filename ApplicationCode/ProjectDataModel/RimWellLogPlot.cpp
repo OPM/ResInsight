@@ -33,6 +33,7 @@
 #include "RiuWellLogPlot.h"
 #include "RiuWellLogTrack.h"
 
+#include "cafPdmUiComboBoxEditor.h"
 #include "cvfAssert.h"
 
 #include <math.h>
@@ -79,9 +80,10 @@ RimWellLogPlot::RimWellLogPlot()
     CAF_PDM_InitField(&m_maxVisibleDepth, "MaximumDepth", 1000.0, "Max", "", "", "");    
     CAF_PDM_InitField(&m_isAutoScaleDepthEnabled, "AutoScaleDepthEnabled", true, "Auto Scale", "", "", "");
     m_isAutoScaleDepthEnabled.uiCapability()->setUiHidden(true);
-    CAF_PDM_InitField(&m_showTitleInPlot, "ShowTitleInPlot", false, "Show Title in Plot", "", "", "");
+    CAF_PDM_InitField(&m_showTitleInPlot, "ShowTitleInPlot", false, "Show Title", "", "", "");
     CAF_PDM_InitField(&m_showTrackLegends, "ShowTrackLegends", true, "Show Legends", "", "", "");
-    CAF_PDM_InitField(&m_trackLegendsHorizontal, "TrackLegendsHorizontal", false, "Horizontal Legends", "", "", "");
+    CAF_PDM_InitField(&m_trackLegendsHorizontal, "TrackLegendsHorizontal", false, "Legend Orientation", "", "", "");
+    m_trackLegendsHorizontal.uiCapability()->setUiEditorTypeName(caf::PdmUiComboBoxEditor::uiEditorTypeName());
 
     CAF_PDM_InitFieldNoDefault(&m_tracks, "Tracks", "",  "", "", "");
     m_tracks.uiCapability()->setUiHidden(true);
@@ -190,6 +192,11 @@ QList<caf::PdmOptionItemInfo> RimWellLogPlot::calculateValueOptions(const caf::P
         using UnitAppEnum = caf::AppEnum< RiaDefines::DepthUnitType >;
         options.push_back(caf::PdmOptionItemInfo(UnitAppEnum::uiText(RiaDefines::UNIT_METER), RiaDefines::UNIT_METER));
         options.push_back(caf::PdmOptionItemInfo(UnitAppEnum::uiText(RiaDefines::UNIT_FEET), RiaDefines::UNIT_FEET));
+    }
+    else if (fieldNeedingOptions == &m_trackLegendsHorizontal)
+    {
+        options.push_back(caf::PdmOptionItemInfo("Vertical", false));
+        options.push_back(caf::PdmOptionItemInfo("Horizontal", true));
     }
 
     (*useOptionsOnly) = true;
@@ -607,8 +614,8 @@ void RimWellLogPlot::depthZoomMinMax(double* minimumDepth, double* maximumDepth)
 void RimWellLogPlot::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
     uiOrdering.add(&m_userName);
-    uiOrderingForPlotSettings(uiOrdering);
     uiOrderingForDepthAxis(uiOrdering);
+    uiOrderingForPlotSettings(uiOrdering);
 
     uiOrdering.skipRemainingFields(true);
 }

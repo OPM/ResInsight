@@ -104,6 +104,17 @@ namespace caf
         addItem(RigWellPathFormations::LEVEL10, "LEVEL10", "Formation 10");
         setDefault(RigWellPathFormations::ALL);
     }
+
+    template<>
+    void AppEnum< RimWellLogTrack::WidthScaleFactor >::setUp()
+    {
+        addItem(RimWellLogTrack::EXTRA_NARROW_TRACK, "EXTRA_NARROW_TRACK", "Extra Narrow");
+        addItem(RimWellLogTrack::NARROW_TRACK,       "NARROW_TRACK",       "Narrow");
+        addItem(RimWellLogTrack::NORMAL_TRACK,       "NORMAL_TRACK",       "Normal");
+        addItem(RimWellLogTrack::WIDE_TRACK,         "WIDE_TRACK",         "Wide");
+        addItem(RimWellLogTrack::EXTRA_WIDE_TRACK,    "EXTRA_WIDE_TRACK",  "Extra wide");
+        setDefault(RimWellLogTrack::NORMAL_TRACK);
+    }
 }
 
 
@@ -155,7 +166,7 @@ RimWellLogTrack::RimWellLogTrack()
 
     CAF_PDM_InitField(&m_showformationFluids, "ShowFormationFluids", false, "Show Fluids", "", "", "");
 
-    CAF_PDM_InitField(&m_widthScaleFactor, "WidthScaleFactor", 1, "Width", "", "Set width of track. ", "");
+    CAF_PDM_InitFieldNoDefault(&m_widthScaleFactor, "Width", "Track Width", "", "Set width of track. ", "");
 
     m_formationsForCaseWithSimWellOnly = false;
 }
@@ -227,11 +238,6 @@ void RimWellLogTrack::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
     }
     else if (changedField == &m_widthScaleFactor)
     {
-        if (m_widthScaleFactor < 1 && m_widthScaleFactor > 10)
-        {
-            m_widthScaleFactor = cvf::Math::clamp(m_widthScaleFactor(), 1, 10);
-            updateEditors();
-        }
         updateParentPlotLayout();
         
     }
@@ -661,13 +667,13 @@ QString RimWellLogTrack::depthPlotTitle() const
 //--------------------------------------------------------------------------------------------------
 int RimWellLogTrack::widthScaleFactor() const
 {
-    return m_widthScaleFactor();
+    return static_cast<int>(m_widthScaleFactor());
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellLogTrack::setWidthScaleFactor(int scaleFactor)
+void RimWellLogTrack::setWidthScaleFactor(WidthScaleFactor scaleFactor)
 {
     m_widthScaleFactor = scaleFactor;
 }
@@ -898,10 +904,6 @@ RimWellLogCurve* RimWellLogTrack::curveDefinitionFromCurve(const QwtPlotCurve* c
 void RimWellLogTrack::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
     uiOrdering.add(&m_userName);
-    // Hidden option that may still be useful for testing: enables you to control the width of tracks.
-#ifdef ENABLE_WIDTHWEIGHT_GUI
-    uiOrdering.add(&m_widthScaleFactor);
-#endif
     caf::PdmUiGroup* formationGroup = uiOrdering.addNewGroup("Zonation/Formation Names");
     
     formationGroup->add(&m_showFormations);
@@ -950,6 +952,9 @@ void RimWellLogTrack::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering&
     }
 
     uiOrderingForVisibleXRange(uiOrdering);
+
+    caf::PdmUiGroup* trackSettingsGroup = uiOrdering.addNewGroup("Track Settings");
+    trackSettingsGroup->add(&m_widthScaleFactor);
 
     uiOrdering.skipRemainingFields(true);
 }

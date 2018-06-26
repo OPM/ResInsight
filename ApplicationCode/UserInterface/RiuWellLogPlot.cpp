@@ -324,9 +324,17 @@ std::map<int, int> RiuWellLogPlot::calculateTrackWidths(int frameWidth)
     int trackCount = m_trackPlots.size();
     
     int visibleTrackCount = 0;
+    int firstTrackAxisOffset = 0; // Account for first track having the y-axis labels and markers
     for (int tIdx = 0; tIdx < trackCount; ++tIdx)
     {
-        if (m_trackPlots[tIdx]->isVisible()) ++visibleTrackCount;
+        if (m_trackPlots[tIdx]->isVisible())
+        {
+            if (visibleTrackCount == 0)
+            {
+                firstTrackAxisOffset = static_cast<int>(m_trackPlots[tIdx]->plotLayout()->canvasRect().left());
+            }
+            ++visibleTrackCount;            
+        }
     }
 
     int scrollBarWidth = 0;
@@ -336,8 +344,8 @@ std::map<int, int> RiuWellLogPlot::calculateTrackWidths(int frameWidth)
 
     if (visibleTrackCount)
     {
-        int totalTrackWidth = (frameWidth - scrollBarWidth);
-        int trackWidthExtra = (frameWidth - scrollBarWidth) % visibleTrackCount;
+        int totalTrackWidth = (frameWidth - firstTrackAxisOffset - scrollBarWidth);
+        int trackWidthExtra = (frameWidth - firstTrackAxisOffset - scrollBarWidth) % visibleTrackCount;
 
         int totalWidthWeights = 0;
         for (int tIdx = 0; tIdx < trackCount; ++tIdx)
@@ -348,11 +356,19 @@ std::map<int, int> RiuWellLogPlot::calculateTrackWidths(int frameWidth)
             }
         }
 
+        bool firstVisible = true;
         for (int tIdx = 0; tIdx < trackCount; ++tIdx)
         {
             if (m_trackPlots[tIdx]->isVisible())
             {
                 int realTrackWidth = (totalTrackWidth * m_trackPlots[tIdx]->widthScaleFactor()) / totalWidthWeights;
+                
+                if (firstVisible)
+                {
+                    realTrackWidth += firstTrackAxisOffset;
+                    firstVisible = false;
+                }
+
                 if (trackWidthExtra > 0)
                 {
                     realTrackWidth += 1;
