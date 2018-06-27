@@ -131,6 +131,7 @@ void RimWellLogPlot::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
     else if (changedField == &m_userName)
     {
         updateMdiWindowTitle();
+        updatePlotTitle();
     }
     else if (   changedField == &m_depthType )
     {
