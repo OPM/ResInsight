@@ -72,6 +72,7 @@
 /// Internal functions
 //--------------------------------------------------------------------------------------------------
 RimPlotCurve::PointSymbolEnum statisticsCurveSymbolFromAddress(const RifEclipseSummaryAddress& address);
+int statisticsCurveSymbolSize(RimPlotCurve::PointSymbolEnum symbol);
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -999,7 +1000,10 @@ void RimEnsembleCurveSet::updateStatisticsCurves(bool calculate = true)
         m_curves.push_back(curve);
         curve->setColor(m_statistics->color());
         curve->setColor(m_statistics->color());
-        curve->setSymbol(statisticsCurveSymbolFromAddress(address));
+
+        auto symbol = statisticsCurveSymbolFromAddress(address);
+        curve->setSymbol(symbol);
+        curve->setSymbolSize(statisticsCurveSymbolSize(symbol));
         curve->setSymbolSkipDistance(150);
         if (m_statistics->showCurveLabels())
         {
@@ -1248,4 +1252,15 @@ RimPlotCurve::PointSymbolEnum statisticsCurveSymbolFromAddress(const RifEclipseS
     if (qName.contains(ENSEMBLE_STAT_P90_QUANTITY_NAME)) return RimPlotCurve::SYMBOL_DOWN_TRIANGLE;
     if (qName.contains(ENSEMBLE_STAT_P50_QUANTITY_NAME)) return RimPlotCurve::SYMBOL_DIAMOND;
     return RimPlotCurve::SYMBOL_ELLIPSE;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+int statisticsCurveSymbolSize(RimPlotCurve::PointSymbolEnum symbol)
+{
+    if (symbol == RimPlotCurve::SYMBOL_DIAMOND) return 8;
+    if (symbol == RimPlotCurve::SYMBOL_TRIANGLE) return 7;
+    if (symbol == RimPlotCurve::SYMBOL_DOWN_TRIANGLE) return 7;
+    return 6;
 }

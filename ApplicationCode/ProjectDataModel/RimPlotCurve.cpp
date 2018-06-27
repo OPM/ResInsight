@@ -112,6 +112,8 @@ RimPlotCurve::RimPlotCurve()
 
     CAF_PDM_InitField(&m_showLegend, "ShowLegend", true, "Contribute To Legend", "", "", "");
 
+    CAF_PDM_InitField(&m_symbolSize, "SymbolSize", 6, "Symbol Size", "", "", "");
+
     CAF_PDM_InitField(&m_showErrorBars, "ShowErrorBars", true, "Show Error Bars", "", "", "");
 
     m_qwtPlotCurve = new RiuRimQwtPlotCurve(this);
@@ -427,7 +429,7 @@ void RimPlotCurve::updateCurveAppearance()
         // QwtPlotCurve will take ownership of the symbol
         symbol = new RiuCurveQwtSymbol(style, m_symbolLabel);
 
-        symbol->setSize(6, 6);
+        symbol->setSize(m_symbolSize, m_symbolSize);
         symbol->setColor(curveColor);
     }
 
@@ -555,6 +557,14 @@ void RimPlotCurve::setSymbolSkipDistance(float distance)
 void RimPlotCurve::setSymbolLabel(const QString& label)
 {
     m_symbolLabel = label;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimPlotCurve::setSymbolSize(int sizeInPixels)
+{
+    m_symbolSize = sizeInPixels;
 }
 
 //--------------------------------------------------------------------------------------------------

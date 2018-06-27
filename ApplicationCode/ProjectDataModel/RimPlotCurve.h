@@ -83,6 +83,7 @@ public:
     PointSymbolEnum                 symbol();
     void                            setSymbolSkipDistance(float distance);
     void                            setSymbolLabel(const QString& label);
+    void                            setSymbolSize(int sizeInPixels);
     void                            setLineThickness(int thickness);
     void                            resetAppearance();
 
@@ -134,6 +135,7 @@ protected:
     caf::PdmField<QString>          m_customCurveName;
     caf::PdmField<bool>             m_showLegend;
     QString                         m_symbolLabel;
+    caf::PdmField<int>              m_symbolSize;
 
     caf::PdmField<bool>             m_isUsingAutoName;
     caf::PdmField<cvf::Color3f>     m_curveColor;
