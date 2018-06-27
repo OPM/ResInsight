@@ -88,6 +88,27 @@ const std::vector<double>& RiaTimeHistoryCurveResampler::resampledValues() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+std::vector<time_t> RiaTimeHistoryCurveResampler::timeStepsFromTimeRange(DateTimePeriod period, time_t minTime, time_t maxTime)
+{
+    CVF_ASSERT(minTime <= maxTime);
+
+    auto firstOriginalTimeStep = QDT::fromTime_t(minTime);
+    auto lastOriginalTimeStep = QDT::fromTime_t(maxTime);
+
+    auto currTimeStep = firstResampledTimeStep(firstOriginalTimeStep, period);
+
+    std::vector<time_t> timeSteps;
+    while (QDT::lessThanOrEqualTo(currTimeStep, lastOriginalTimeStep))
+    {
+        timeSteps.push_back(currTimeStep.toTime_t());
+        currTimeStep = QDT::addPeriod(currTimeStep, period);
+    }
+    return timeSteps;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RiaTimeHistoryCurveResampler::computeWeightedMeanValues(DateTimePeriod period)
 {
     size_t origDataSize = m_originalValues.second.size();
