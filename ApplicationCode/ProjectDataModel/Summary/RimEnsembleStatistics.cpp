@@ -38,9 +38,9 @@ RimEnsembleStatistics::RimEnsembleStatistics()
     CAF_PDM_InitObject("Ensemble Curve Filter", ":/EnsembleCurveSet16x16.png", "", "");
 
     CAF_PDM_InitField(&m_active, "Active", true, "Show statistics curves", "", "", "");
-    CAF_PDM_InitField(&m_showP10Curve, "ShowP10Curve", true, "P10", "", "", "");
+    CAF_PDM_InitField(&m_showP10Curve, "ShowP10Curve", true, "P90", "", "", "");    // Yes, P90
     CAF_PDM_InitField(&m_showP50Curve, "ShowP50Curve", true, "P50", "", "", "");
-    CAF_PDM_InitField(&m_showP90Curve, "ShowP90Curve", true, "P90", "", "", "");
+    CAF_PDM_InitField(&m_showP90Curve, "ShowP90Curve", true, "P10", "", "", "");    // Yes, P10
     CAF_PDM_InitField(&m_showMeanCurve, "ShowMeanCurve", true, "Mean", "", "", "");
     CAF_PDM_InitField(&m_showCurveLabels, "ShowCurveLabels", true, "Show Curve Labels", "", "", "");
     CAF_PDM_InitField(&m_color, "Color", cvf::Color3f(cvf::Color3::BLACK), "Color", "", "", "");
@@ -127,20 +127,24 @@ void RimEnsembleStatistics::defineUiOrdering(QString uiConfigName, caf::PdmUiOrd
     auto curveSet = parentCurveSet();
 
     uiOrdering.add(&m_active);
+    uiOrdering.add(&m_showCurveLabels);
+    uiOrdering.add(&m_color);
 
     auto group = uiOrdering.addNewGroup("Curves");
-    group->add(&m_showP10Curve);
-    group->add(&m_showP50Curve);
     group->add(&m_showP90Curve);
+    group->add(&m_showP50Curve);
     group->add(&m_showMeanCurve);
-    group->add(&m_showCurveLabels);
-    group->add(&m_color);
+    group->add(&m_showP10Curve);
 
     disableP10Curve(!m_active || !curveSet->hasP10Data());
     disableP50Curve(!m_active || !curveSet->hasP50Data());
     disableP90Curve(!m_active || !curveSet->hasP90Data());
     disableMeanCurve(!m_active);
+    m_showCurveLabels.uiCapability()->setUiReadOnly(!m_active);
     m_color.uiCapability()->setUiReadOnly(!m_active);
+
+    m_showP10Curve.uiCapability()->setUiName(curveSet->hasP10Data() ? "P90" : "P90 (Needs > 8 curves)");
+    m_showP90Curve.uiCapability()->setUiName(curveSet->hasP90Data() ? "P10" : "P10 (Needs > 8 curves)");
 
     uiOrdering.skipRemainingFields(true);
 }
