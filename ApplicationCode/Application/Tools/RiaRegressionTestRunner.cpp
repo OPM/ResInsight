@@ -137,7 +137,7 @@ void RiaRegressionTestRunner::runRegressionTest(const QString& testRootPath, con
             for (auto s : testFilter)
             {
                 QString trimmed = s.trimmed();
-                if (baseName.contains(trimmed))
+                if (baseName.contains(trimmed, Qt::CaseInsensitive))
                 {
                     subset.push_back(fi);
                 }
