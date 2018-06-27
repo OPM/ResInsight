@@ -421,7 +421,7 @@ void RiuWellLogPlot::placeChildWidgets(int frameHeight, int frameWidth)
         titleHeight = m_plotTitle->height() + 10;
     }
 
-    int trackHeight = frameHeight - maxLegendHeight;
+    int trackHeight = frameHeight - maxLegendHeight - titleHeight;
     int trackX = 0;
 
     if (visibleTrackCount)
