@@ -75,12 +75,28 @@ private:
     std::map<QString, QString> m_fieldKeywordAndPushButtonText;
 };
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+class PdmUiTableViewEditorAttribute : public PdmUiEditorAttribute
+{
+public:
+    PdmUiTableViewEditorAttribute()
+        : selectionRole(SelectionManager::CURRENT)
+        , enableHeaderText(true)
+    {
+    }
+
+    SelectionManager::SelectionRole selectionRole;
+    bool                            enableHeaderText;
+};
+
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 
-class PdmUiTableViewEditor : public PdmUiFieldEditorHandle
+class PdmUiTableViewEditor : public PdmUiFieldEditorHandle, public SelectionChangedReceiver
 {
     Q_OBJECT
     CAF_PDM_UI_FIELD_EDITOR_HEADER_INIT;
@@ -105,6 +121,7 @@ public:
 
 protected:
     virtual void    configureAndUpdateUi(const QString& uiConfigName) override;
+    virtual void    onSelectionManagerSelectionChanged() override;
 
 private:
     void            selectedUiItems(const QModelIndexList& modelIndexList, std::vector<PdmUiItem*>& objects);
@@ -132,6 +149,7 @@ private:
 
     bool                    m_useDefaultContextMenu;
     SelectionManager::SelectionRole m_selectionRole;
+    bool                    m_isBlockingSelectionManagerChanged;
 };
 
 

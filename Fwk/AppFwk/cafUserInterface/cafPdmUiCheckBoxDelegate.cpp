@@ -66,14 +66,16 @@ PdmUiCheckBoxDelegate::~PdmUiCheckBoxDelegate()
 void PdmUiCheckBoxDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
     QStyleOptionViewItemV4 viewItemOption(option);
-
+    
     const int textMargin = QApplication::style()->pixelMetric(QStyle::PM_FocusFrameHMargin) + 1;
-    QRect newRect = QStyle::alignedRect(option.direction, Qt::AlignCenter,
-        QSize(option.decorationSize.width() + 5,option.decorationSize.height()),
-        QRect(option.rect.x() + textMargin, option.rect.y(),
-        option.rect.width() - (2 * textMargin), option.rect.height()));
+    QRect newRect = QStyle::alignedRect(option.direction, 
+                                        Qt::AlignCenter,
+                                        QSize(option.decorationSize.width() + 5, option.rect.height()),
+                                        QRect(option.rect.x(), 
+                                              option.rect.y(),
+                                              option.rect.width() - (2 * textMargin), 
+                                              option.rect.height()));
     viewItemOption.rect = newRect;
-
     QStyledItemDelegate::paint(painter, viewItemOption, index);
 }
 
@@ -81,7 +83,9 @@ void PdmUiCheckBoxDelegate::paint(QPainter *painter, const QStyleOptionViewItem 
 //--------------------------------------------------------------------------------------------------
 /// Returns true to avoid other factories to produce editors for a check box
 //--------------------------------------------------------------------------------------------------
-bool PdmUiCheckBoxDelegate::editorEvent(QEvent *event, QAbstractItemModel *model, const QStyleOptionViewItem &option, const QModelIndex &index)
+bool PdmUiCheckBoxDelegate::editorEvent(QEvent *event, QAbstractItemModel *model, 
+                                        const QStyleOptionViewItem &option, 
+                                        const QModelIndex &index)
 {
     Q_ASSERT(event);
     Q_ASSERT(model);
@@ -100,11 +104,13 @@ bool PdmUiCheckBoxDelegate::editorEvent(QEvent *event, QAbstractItemModel *model
     if (event->type() == QEvent::MouseButtonRelease)
     {
         const int textMargin = QApplication::style()->pixelMetric(QStyle::PM_FocusFrameHMargin) + 1;
-        QRect checkRect = QStyle::alignedRect(option.direction, Qt::AlignCenter,
-            option.decorationSize,
-            QRect(option.rect.x() + (2 * textMargin), option.rect.y(),
-            option.rect.width() - (2 * textMargin),
-            option.rect.height()));
+        QRect checkRect = QStyle::alignedRect(option.direction, 
+                                              Qt::AlignCenter,
+                                              option.decorationSize,
+                                              QRect(option.rect.x() + (2 * textMargin), 
+                                                    option.rect.y(),
+                                                    option.rect.width() - (2 * textMargin),
+                                                    option.rect.height()));
     
         if (!checkRect.contains(static_cast<QMouseEvent*>(event)->pos()))
             return true;
@@ -116,7 +122,7 @@ bool PdmUiCheckBoxDelegate::editorEvent(QEvent *event, QAbstractItemModel *model
     }
     else
     {
-        return true;
+        return false;
     }
 
     Qt::CheckState state = (static_cast<Qt::CheckState>(value.toInt()) == Qt::Checked ? Qt::Unchecked : Qt::Checked);

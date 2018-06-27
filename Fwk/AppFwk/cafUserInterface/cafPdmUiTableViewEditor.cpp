@@ -105,6 +105,7 @@ PdmUiTableViewEditor::PdmUiTableViewEditor()
     m_checkboxDelegate = new PdmUiCheckBoxDelegate(this);
 
     m_selectionRole = SelectionManager::CURRENT;
+    m_isBlockingSelectionManagerChanged = false;
 }
 
 
@@ -172,6 +173,15 @@ void PdmUiTableViewEditor::configureAndUpdateUi(const QString& uiConfigName)
     if (!m_tableModelPdm) return;
 
     auto childArrayFH = childArrayFieldHandle();
+
+    if ( childArrayFH && childArrayFH->ownerObject() && childArrayFH->ownerObject()->uiCapability() )
+    {
+        PdmUiTableViewEditorAttribute editorAttrib;
+        childArrayFH->ownerObject()->uiCapability()->editorAttribute(childArrayFH, uiConfigName, &editorAttrib);
+        this->setSelectionRole(editorAttrib.selectionRole);
+        this->enableHeaderText(editorAttrib.enableHeaderText);
+    }
+
     m_tableModelPdm->setPdmData(childArrayFH, uiConfigName);
 
     if (m_tableModelPdm->rowCount() > 0)
@@ -202,6 +212,16 @@ void PdmUiTableViewEditor::configureAndUpdateUi(const QString& uiConfigName)
         m_tableHeading->setText("");
         m_tableHeadingIcon->setPixmap(QPixmap());
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void PdmUiTableViewEditor::onSelectionManagerSelectionChanged()
+{
+    if (m_isBlockingSelectionManagerChanged) return;
+
+    handleModelSelectionChange();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -251,15 +271,15 @@ void PdmUiTableViewEditor::setSelectionRole(SelectionManager::SelectionRole role
 //--------------------------------------------------------------------------------------------------
 void PdmUiTableViewEditor::slotCurrentChanged(const QModelIndex & current, const QModelIndex & previous)
 {
-    if (isSelectionRoleDefined())
-    {
-        std::vector<PdmUiItem*> items;
-        QModelIndexList list;
-        list.append(current);
-        selectedUiItems(list, items);
-
-        SelectionManager::instance()->setSelectedItems(items, m_selectionRole);
-    }
+    //if (isSelectionRoleDefined())
+    //{
+    //    std::vector<PdmUiItem*> items;
+    //    QModelIndexList list;
+    //    list.append(current);
+    //    selectedUiItems(list, items);
+    //
+    //    SelectionManager::instance()->setSelectedItems(items, m_selectionRole);
+    //}
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -271,7 +291,16 @@ void PdmUiTableViewEditor::handleModelSelectionChange()
     {
         std::vector<PdmUiItem*> items;
         SelectionManager::instance()->selectedItems(items, m_selectionRole);
-
+        #if 1
+        QItemSelection totalSelection;
+        for (auto item: items)
+        {
+            PdmObject* pdmObj = dynamic_cast<PdmObject*>(item);
+            QItemSelection itemSelection = m_tableModelPdm->modelIndexFromPdmObject(pdmObj);
+            totalSelection.merge(itemSelection, QItemSelectionModel::Select);
+        }
+        m_tableView->selectionModel()->select(totalSelection, QItemSelectionModel::SelectCurrent);
+        #else
         // TODO: Handle multiple selection
         if (items.size() == 1)
         {
@@ -282,6 +311,7 @@ void PdmUiTableViewEditor::handleModelSelectionChange()
                 m_tableView->selectionModel()->select(itemSelection, QItemSelectionModel::SelectCurrent);
             }
         }
+        #endif
     }
 }
 
@@ -343,7 +373,7 @@ void PdmUiTableViewEditor::tableViewWidgetFocusChanged(QEvent* focusEvent)
     {
         if (focusEvent->type() == QEvent::FocusIn)
         {
-            updateSelectionManagerFromTableSelection();
+            //updateSelectionManagerFromTableSelection();
         }
         else if (focusEvent->type() == QEvent::FocusOut)
         {
@@ -361,6 +391,7 @@ void PdmUiTableViewEditor::updateSelectionManagerFromTableSelection()
 {
     if (isSelectionRoleDefined())
     {
+        #if 0
         std::vector<PdmUiItem*> items;
 
         QModelIndexList modelIndexList = m_tableView->selectionModel()->selectedIndexes();
@@ -380,6 +411,26 @@ void PdmUiTableViewEditor::updateSelectionManagerFromTableSelection()
             // Multiple selection of fields is handled here
             SelectionManager::instance()->setSelectedItems(items, m_selectionRole);
         }
+        #else
+        std::set<PdmUiItem*> selectedRowObjects;
+        QModelIndexList modelIndexList = m_tableView->selectionModel()->selectedIndexes();
+        for (const QModelIndex& mi : modelIndexList)
+        {
+            PdmObjectHandle* obj = m_tableModelPdm->pdmObjectForRow(mi.row());
+
+            if (obj && obj->uiCapability())
+            {
+                selectedRowObjects.insert(obj->uiCapability());
+            }
+        }
+
+        std::vector<PdmUiItem*> items{selectedRowObjects.begin(), selectedRowObjects.end()};
+        m_isBlockingSelectionManagerChanged = true;
+        SelectionManager::instance()->setSelectedItems(items, m_selectionRole);
+        m_isBlockingSelectionManagerChanged = false;
+
+
+        #endif
     }
 }
 

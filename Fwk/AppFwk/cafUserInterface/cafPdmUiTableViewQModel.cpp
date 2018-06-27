@@ -152,8 +152,6 @@ bool PdmUiTableViewQModel::setData(const QModelIndex &index, const QVariant &val
     {
         if (isRepresentingBoolean(index))
         {
-            // Clear current selection, UI does not behave well for multiple selection
-            SelectionManager::instance()->clear(SelectionManager::CURRENT);
 
             bool toggleOn = (value == Qt::Checked);
 
@@ -657,8 +655,8 @@ QItemSelection PdmUiTableViewQModel::modelIndexFromPdmObject(PdmObjectHandle* pd
         PdmObjectHandle* obj = this->pdmObjectForRow(i);
         if (obj == pdmObject)
         {
-            // Currently selection only on model index, can be extended to select whole row
-            itemSelection.select(this->createIndex(i, 0), this->createIndex(i, 0));
+            // Select whole row
+            itemSelection.select(this->createIndex(i, 0), this->createIndex(i, this->columnCount()));
         }
     }
 
