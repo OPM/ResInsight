@@ -108,6 +108,7 @@ public:
 
     std::vector<RimSummaryCase*>            filterEnsembleCases(const RimSummaryCaseCollection* ensemble);
     void                                    disableStatisticCurves();
+    bool                                    isFiltered() const;
 
     bool                                    hasP10Data() const;
     bool                                    hasP50Data() const;
@@ -174,5 +175,6 @@ private:
     std::unique_ptr<RimEnsembleStatisticsCase>      m_ensembleStatCase;
 
     bool                                            m_disableStatisticCurves;
+    bool                                            m_isCurveSetFiltered;
 };
 

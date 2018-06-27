@@ -52,6 +52,7 @@
 #include "qwt_legend.h"
 #include "qwt_plot_curve.h"
 #include "qwt_plot_renderer.h"
+#include "qwt_plot_textlabel.h"
 
 #include <QDateTime>
 #include <QString>
@@ -185,6 +186,8 @@ RimSummaryPlot::RimSummaryPlot()
     m_isCrossPlot = false;
 
     m_nameHelperAllCurves.reset(new RimSummaryPlotNameHelper);
+
+    setPlotInfoLabel("Filters Active");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -468,6 +471,49 @@ void RimSummaryPlot::updateAll()
         updateAxes();
         updateZoomInQwt();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlot::setPlotInfoLabel(const QString& label)
+{
+    auto qwtText = QwtText(label);
+    qwtText.setRenderFlags(Qt::AlignBottom | Qt::AlignRight);
+
+    QFont font;
+    font.setBold(true);
+    qwtText.setFont(font);
+
+    m_plotInfoLabel.reset(new QwtPlotTextLabel());
+    m_plotInfoLabel->setText(qwtText);
+    m_plotInfoLabel->setMargin(30);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlot::showPlotInfoLabel(bool show)
+{
+    if (show) m_plotInfoLabel->attach(m_qwtPlot);
+    else m_plotInfoLabel->detach();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlot::updatePlotInfoLabel()
+{
+    bool anyCurveSetFiltered = false;
+    for (auto group : m_ensembleCurveSetCollection->curveSets())
+    {
+        if (group->isFiltered())
+        {
+            anyCurveSetFiltered = true;
+            break;
+        }
+    }
+    showPlotInfoLabel(anyCurveSetFiltered);
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -175,6 +175,7 @@ RimEnsembleCurveSet::RimEnsembleCurveSet()
     m_ensembleStatCase->createSummaryReaderInterface();
 
     m_disableStatisticCurves = false;
+    m_isCurveSetFiltered = false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -937,6 +938,8 @@ void RimEnsembleCurveSet::updateEnsembleCurves()
             m_yValuesSummaryFilter->updateFromAddress(addr->address());
 
             if (plot->qwtPlot()) m_qwtPlotCurveForLegendText->attach(plot->qwtPlot());
+
+            m_isCurveSetFiltered = filteredCases.size() < group->allSummaryCases().size();
         }
 
         RimSummaryPlot* plot;
@@ -946,6 +949,7 @@ void RimEnsembleCurveSet::updateEnsembleCurves()
             plot->qwtPlot()->updateLegend();
             plot->qwtPlot()->replot();
             plot->updateAxes();
+            plot->updatePlotInfoLabel();
         }
     }
     updateCurveColors();
@@ -1103,6 +1107,14 @@ std::vector<RimSummaryCase*> RimEnsembleCurveSet::filterEnsembleCases(const RimS
 void RimEnsembleCurveSet::disableStatisticCurves()
 {
     m_disableStatisticCurves = true;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimEnsembleCurveSet::isFiltered() const
+{
+    return m_isCurveSetFiltered;
 }
 
 //--------------------------------------------------------------------------------------------------
