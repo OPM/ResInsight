@@ -416,6 +416,9 @@ void RimPlotCurve::updateCurveAppearance()
             case SYMBOL_XCROSS:
             style = QwtSymbol::XCross;
             break;
+            case SYMBOL_DOWN_TRIANGLE:
+            style = QwtSymbol::DTriangle;
+            break;
 
             default:
             break;

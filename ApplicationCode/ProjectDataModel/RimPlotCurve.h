@@ -53,7 +53,8 @@ public:
         SYMBOL_DIAMOND,
         SYMBOL_TRIANGLE,
         SYMBOL_CROSS,
-        SYMBOL_XCROSS
+        SYMBOL_XCROSS,
+        SYMBOL_DOWN_TRIANGLE
     };
 
     enum CurveInterpolationEnum

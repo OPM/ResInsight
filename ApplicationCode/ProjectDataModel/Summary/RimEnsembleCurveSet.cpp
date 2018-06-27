@@ -69,6 +69,11 @@
 #define DOUBLE_INF  std::numeric_limits<double>::infinity()
 
 //--------------------------------------------------------------------------------------------------
+/// Internal functions
+//--------------------------------------------------------------------------------------------------
+RimPlotCurve::PointSymbolEnum statisticsCurveSymbolFromAddress(const RifEclipseSummaryAddress& address);
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 namespace caf
@@ -990,8 +995,8 @@ void RimEnsembleCurveSet::updateStatisticsCurves(bool calculate = true)
         m_curves.push_back(curve);
         curve->setColor(m_statistics->color());
         curve->setColor(m_statistics->color());
-        curve->setSymbol(RimPlotCurve::SYMBOL_ELLIPSE);
-        curve->setSymbolSkipDinstance(50);
+        curve->setSymbol(statisticsCurveSymbolFromAddress(address));
+        curve->setSymbolSkipDinstance(150);
         curve->setSymbolLabel(RiaStatisticsTools::replacePercentileByPValueText(
             QString::fromStdString(address.ensembleStatisticsQuantityName())));
         curve->setLineStyle(RimPlotCurve::STYLE_SOLID);
@@ -1215,4 +1220,17 @@ void RimEnsembleCurveSet::updateLegendMappingMode()
             m_legendConfig->setMappingMode(RimRegularLegendConfig::MappingType::LINEAR_CONTINUOUS);
         break;
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimPlotCurve::PointSymbolEnum statisticsCurveSymbolFromAddress(const RifEclipseSummaryAddress& address)
+{
+    auto qName = QString::fromStdString(address.quantityName());
+
+    if (qName.contains(ENSEMBLE_STAT_P10_QUANTITY_NAME)) return RimPlotCurve::SYMBOL_TRIANGLE;
+    if (qName.contains(ENSEMBLE_STAT_P90_QUANTITY_NAME)) return RimPlotCurve::SYMBOL_DOWN_TRIANGLE;
+    if (qName.contains(ENSEMBLE_STAT_P50_QUANTITY_NAME)) return RimPlotCurve::SYMBOL_DIAMOND;
+    return RimPlotCurve::SYMBOL_ELLIPSE;
 }
