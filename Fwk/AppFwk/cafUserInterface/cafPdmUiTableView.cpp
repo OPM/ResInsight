@@ -42,6 +42,8 @@
 #include "cafPdmUiTableViewEditor.h"
 
 #include <QVBoxLayout>
+#include "cafPdmUiCommandSystemProxy.h"
+#include <QTableView>
 
 
 namespace caf
@@ -61,14 +63,16 @@ PdmUiTableView::PdmUiTableView(QWidget* parent, Qt::WindowFlags f)
     setLayout(layout);
 
     m_listViewEditor = new PdmUiTableViewEditor();
+    
+    m_listViewEditor->createWidgets(this);
 
     {
-        QWidget* widget = m_listViewEditor->createLabelWidget(this);
+        QWidget* widget = m_listViewEditor->labelWidget();
         layout->addWidget(widget);
     }
 
     {
-        QWidget* widget = m_listViewEditor->createEditorWidget(this);
+        QWidget* widget = m_listViewEditor->editorWidget();
         layout->addWidget(widget);
     }
 }
@@ -90,7 +94,18 @@ void PdmUiTableView::setChildArrayField(PdmChildArrayFieldHandle* childArrayFiel
 
     if (childArrayField)
     {
+        // Keep the possible custom context menu setting from the user of the table view.
+        // setUIField will set it based on the PdmUIItem settings, but turning the custom menu off should not 
+        // be respected when using the field in a separate view. 
+        auto orgContextPolicy = m_listViewEditor->tableView()->contextMenuPolicy();
+        
         m_listViewEditor->setUiField(childArrayField->uiCapability());
+
+        auto newContextPolicy = m_listViewEditor->tableView()->contextMenuPolicy();
+        if (newContextPolicy == Qt::DefaultContextMenu)
+        {
+            m_listViewEditor->tableView()->setContextMenuPolicy(orgContextPolicy);
+        }
     }
     else
     {
@@ -145,25 +160,21 @@ void PdmUiTableView::setSelectionRole(SelectionManager::SelectionRole role)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void PdmUiTableView::handleModelNotification(caf::PdmObjectHandle* itemThatChanged)
-{
-    // Nothing to do for now
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void PdmUiTableView::handleModelSelectionChange()
-{
-    m_listViewEditor->handleModelSelectionChange();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 PdmObjectHandle* PdmUiTableView::pdmObjectFromModelIndex(const QModelIndex& mi)
 {
     return m_listViewEditor->pdmObjectFromModelIndex(mi);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void PdmUiTableView::addActionsToMenu(QMenu* menu, PdmChildArrayFieldHandle* childArrayField)
+{
+    // This is function is required to execute before populating the menu
+    // Several commands rely on the activeChildArrayFieldHandle in the selection manager
+    SelectionManager::instance()->setActiveChildArrayFieldHandle(childArrayField);
+
+    caf::PdmUiCommandSystemProxy::instance()->populateMenuWithDefaultCommands("PdmUiTreeViewEditor", menu);
 }
 
 

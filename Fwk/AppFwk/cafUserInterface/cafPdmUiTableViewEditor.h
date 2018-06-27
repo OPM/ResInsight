@@ -48,7 +48,6 @@
 
 class QItemSelection;
 class QLabel;
-class QMenu;
 class QTableView;
 
 namespace caf 
@@ -109,30 +108,24 @@ public:
     void            setSelectionRole(SelectionManager::SelectionRole role);
 
     PdmObjectHandle* pdmObjectFromModelIndex(const QModelIndex& mi);
+    QTableView*     tableView();
+
 
     QWidget*        createEditorWidget(QWidget * parent) override;
     QWidget*        createLabelWidget(QWidget * parent) override;
-
-    QTableView*     tableView();
-
-    void            handleModelSelectionChange();
-
-    static void     addActionsToMenu(QMenu* menu, PdmChildArrayFieldHandle* childArrayField);
-
 protected:
     virtual void    configureAndUpdateUi(const QString& uiConfigName) override;
+
     virtual void    onSelectionManagerSelectionChanged() override;
 
 private:
     void            selectedUiItems(const QModelIndexList& modelIndexList, std::vector<PdmUiItem*>& objects);
     bool            isSelectionRoleDefined() const;
-    void            tableViewWidgetFocusChanged(QEvent* focusEvent);
     void            updateSelectionManagerFromTableSelection();
 
     PdmChildArrayFieldHandle* childArrayFieldHandle();
 
 private slots:
-    void            slotCurrentChanged(const QModelIndex & current, const QModelIndex & previous);
     void            slotSelectionChanged(const QItemSelection & selected, const QItemSelection & deselected);
 
 private:

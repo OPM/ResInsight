@@ -46,6 +46,7 @@
 #include <QWidget>
 
 class QTableView;
+class QMenu;
 
 namespace caf
 {
@@ -58,27 +59,23 @@ class PdmChildArrayFieldHandle;
 //==================================================================================================
 /// 
 //==================================================================================================
-class PdmUiTableView : public QWidget, public DataModelObserver
+class PdmUiTableView : public QWidget
 {
     Q_OBJECT
 public:
     PdmUiTableView(QWidget* parent = nullptr, Qt::WindowFlags f = nullptr);
     ~PdmUiTableView();
 
+    void              setChildArrayField(PdmChildArrayFieldHandle* childArrayField);
+    void              setUiConfigurationName(QString uiConfigName);
+    void              enableHeaderText(bool enable);
+    void              setSelectionRole(SelectionManager::SelectionRole role);
+
     PdmObjectHandle*  pdmObjectFromModelIndex(const QModelIndex& mi);
 
-    // SIG_CAF_HACK
-    void        setUiConfigurationName(QString uiConfigName);
+    QTableView*       tableView();
 
-    void        setChildArrayField(PdmChildArrayFieldHandle* childArrayField);
-
-    void        enableHeaderText(bool enable);
-    void        setSelectionRole(SelectionManager::SelectionRole role);
-
-    QTableView* tableView();
-
-    void handleModelNotification(caf::PdmObjectHandle* itemThatChanged) override;
-    void handleModelSelectionChange() override;
+    static void       addActionsToMenu(QMenu* menu, PdmChildArrayFieldHandle* childArrayField);
 
 private:
     PdmUiTableViewEditor*   m_listViewEditor;
