@@ -38,7 +38,7 @@
 #pragma once
 
 #include "cafInternalPdmUiCommandSystemInterface.h"
-
+#include <vector>
 
 namespace caf 
 {
@@ -50,7 +50,7 @@ class CmdUiCommandSystemImpl : public PdmUiCommandSystemInterface
 public:
     CmdUiCommandSystemImpl();
 
-    virtual void fieldChangedCommand(PdmFieldHandle* field, const QVariant& newUiValue);
+    virtual void fieldChangedCommand(const std::vector<PdmFieldHandle*>& fieldsToUpdate, const QVariant& newUiValue);
     virtual void populateMenuWithDefaultCommands(const QString& uiConfigName, QMenu* menu);
     
     bool isUndoEnabled();

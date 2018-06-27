@@ -42,6 +42,7 @@
 #include "cafPdmObjectHandle.h"
 #include "cafPdmUiFieldHandle.h"
 #include "cafPdmUiObjectHandle.h"
+#include "cafSelectionManager.h"
 
 #include <cstddef>
 
@@ -83,13 +84,56 @@ void PdmUiCommandSystemProxy::setUiValueToField(PdmUiFieldHandle* uiFieldHandle,
 {
     if (uiFieldHandle)
     {
+        // Handle editing multiple objects when several objects are selected
+        PdmFieldHandle* editorField = uiFieldHandle->fieldHandle();
+        std::vector<PdmFieldHandle*> fieldsToUpdate;
+        fieldsToUpdate.push_back(editorField);
+
+        // For current selection, find all fields with same keyword
+        {
+            std::vector<PdmUiItem*> items;
+            SelectionManager::instance()->selectedItems(items, SelectionManager::CURRENT);
+            SelectionManager::instance()->selectedItems(items, SelectionManager::APPLICATION_GLOBAL);
+
+            for (size_t i = 0; i < items.size(); i++)
+            {
+                PdmObjectHandle* objectHandle = dynamic_cast<PdmObjectHandle*>(items[i]);
+                if (objectHandle)
+                {
+                    // An object is selected, find field with same keyword as the current field being edited
+                    PdmFieldHandle* fieldHandle = objectHandle->findField(editorField->keyword());
+                    if (fieldHandle && fieldHandle != editorField)
+                    {
+                        fieldsToUpdate.push_back(fieldHandle);
+                    }
+                }
+                else
+                {
+                    // Todo Remove when dust has settled. Selection manager is not supposed to select single fields
+                    // A field is selected, check if keywords are identical
+                    PdmUiFieldHandle* uiFieldHandle = dynamic_cast<PdmUiFieldHandle*>(items[i]);
+                    if (uiFieldHandle)
+                    {
+                        PdmFieldHandle* field = uiFieldHandle->fieldHandle();
+                        if (field && field != editorField && field->keyword() == editorField->keyword())
+                        {
+                            fieldsToUpdate.push_back(field);
+                        }
+                    }
+                }
+            }
+        }
+
         if (m_commandInterface)
         {
-            m_commandInterface->fieldChangedCommand(uiFieldHandle->fieldHandle(), newUiValue);
+            m_commandInterface->fieldChangedCommand(fieldsToUpdate, newUiValue);
         }
         else
         {
-            uiFieldHandle->setValueFromUiEditor(newUiValue);
+            for (auto fieldHandle : fieldsToUpdate)
+            {
+                fieldHandle->uiCapability()->setValueFromUiEditor(newUiValue);
+            }
         }
     }
 }
