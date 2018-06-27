@@ -81,7 +81,7 @@ public:
     void                            setLineStyle(LineStyleEnum lineStyle);
     void                            setSymbol(PointSymbolEnum symbolStyle);
     PointSymbolEnum                 symbol();
-    void                            setSymbolSkipDinstance(float distance);
+    void                            setSymbolSkipDistance(float distance);
     void                            setSymbolLabel(const QString& label);
     void                            setLineThickness(int thickness);
     void                            resetAppearance();

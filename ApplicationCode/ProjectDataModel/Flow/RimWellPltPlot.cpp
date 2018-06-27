@@ -733,7 +733,7 @@ void RimWellPltPlot::addStackedCurve(const QString& curveName,
         curve->setSymbol(RimSummaryCurveAppearanceCalculator::cycledSymbol(curveGroupId));
     }
 
-    curve->setSymbolSkipDinstance(10);
+    curve->setSymbolSkipDistance(10);
     plotTrack->addCurve(curve);
 }
 

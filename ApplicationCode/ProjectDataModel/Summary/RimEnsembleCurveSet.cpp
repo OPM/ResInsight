@@ -996,7 +996,7 @@ void RimEnsembleCurveSet::updateStatisticsCurves(bool calculate = true)
         curve->setColor(m_statistics->color());
         curve->setColor(m_statistics->color());
         curve->setSymbol(statisticsCurveSymbolFromAddress(address));
-        curve->setSymbolSkipDinstance(150);
+        curve->setSymbolSkipDistance(150);
         if (m_statistics->showCurveLabels())
         {
             curve->setSymbolLabel(RiaStatisticsTools::replacePercentileByPValueText(
