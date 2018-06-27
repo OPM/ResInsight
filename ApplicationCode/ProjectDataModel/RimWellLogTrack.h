@@ -68,9 +68,10 @@ public:
     RimWellLogTrack();
     virtual ~RimWellLogTrack();
 
-    enum TrajectoryType { WELL_PATH, SIMULATION_WELL };
-    enum FormationSource { CASE, WELL_PICK_FILTER };
+    enum TrajectoryType   { WELL_PATH, SIMULATION_WELL };
+    enum FormationSource  { CASE, WELL_PICK_FILTER };
     enum WidthScaleFactor { EXTRA_NARROW_TRACK = 2, NARROW_TRACK = 3, NORMAL_TRACK = 4, WIDE_TRACK = 6, EXTRA_WIDE_TRACK = 10 };
+    enum GridLines        { GRID_X_NONE, GRID_X_MAJOR, GRID_X_MAJOR_AND_MINOR};
 
     void setDescription(const QString& description);
     bool isVisible();
@@ -125,7 +126,7 @@ public:
     std::vector<RimWellLogCurve* > curvesVector();
 
     void uiOrderingForRftPltFormations(caf::PdmUiOrdering& uiOrdering);
-    void uiOrderingForVisibleXRange(caf::PdmUiOrdering& uiOrdering);
+    void uiOrderingForXAxisSettings(caf::PdmUiOrdering& uiOrdering);
 
     void setFormationsForCaseWithSimWellOnly(bool caseWithSimWellOnly);
 
@@ -174,6 +175,8 @@ private:
     caf::PdmField<double>                                              m_visibleXRangeMax;
     caf::PdmField<bool>                                                m_isAutoScaleXEnabled;
     caf::PdmField<bool>                                                m_isLogarithmicScaleEnabled;
+    caf::PdmField<caf::AppEnum<GridLines>>                             m_showXGridLines;
+
     caf::PdmField<bool>                                                m_showFormations;
     caf::PdmField<caf::AppEnum<FormationSource>>                       m_formationSource;
     caf::PdmPtrField<RimCase*>                                         m_formationCase;

@@ -115,6 +115,15 @@ namespace caf
         addItem(RimWellLogTrack::EXTRA_WIDE_TRACK,    "EXTRA_WIDE_TRACK",  "Extra wide");
         setDefault(RimWellLogTrack::NORMAL_TRACK);
     }
+
+    template<>
+    void AppEnum< RimWellLogTrack::GridLines >::setUp()
+    {
+        addItem(RimWellLogTrack::GRID_X_NONE, "GRID_X_NONE", "No Gridlines");
+        addItem(RimWellLogTrack::GRID_X_MAJOR, "GRID_X_MAJOR", "Major Only");
+        addItem(RimWellLogTrack::GRID_X_MAJOR_AND_MINOR, "GRID_X_MAJOR_AND_MINOR", "Major and Minor");
+        setDefault(RimWellLogTrack::GRID_X_MAJOR);
+    }
 }
 
 
@@ -141,6 +150,8 @@ RimWellLogTrack::RimWellLogTrack()
     m_isAutoScaleXEnabled.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitField(&m_isLogarithmicScaleEnabled, "LogarithmicScaleX", false, "Logarithmic Scale", "", "", "");
+
+    CAF_PDM_InitFieldNoDefault(&m_showXGridLines, "ShowXGridLines", "Show Grid Lines", "", "", "");
 
     CAF_PDM_InitField(&m_showFormations, "ShowFormations", false, "Show", "", "", "");
 
@@ -239,6 +250,11 @@ void RimWellLogTrack::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
     else if (changedField == &m_widthScaleFactor)
     {
         updateParentPlotLayout();
+        updateAxisAndGridTickIntervals();
+        m_wellLogTrackPlotWidget->replot();
+    }
+    else if (changedField == &m_showXGridLines)    
+    {
         updateAxisAndGridTickIntervals();
         m_wellLogTrackPlotWidget->replot();
     }
@@ -417,6 +433,18 @@ void RimWellLogTrack::updateAxisAndGridTickIntervals()
     
     m_wellLogTrackPlotWidget->setAxisMaxMajor(QwtPlot::xTop, xMajorTickIntervals);
     m_wellLogTrackPlotWidget->setAxisMaxMinor(QwtPlot::xTop, xMinorTickIntervals);
+    switch (m_showXGridLines())
+    {
+    case GRID_X_NONE:
+        m_wellLogTrackPlotWidget->enableGridLines(false, false);
+        break;
+    case GRID_X_MAJOR:
+        m_wellLogTrackPlotWidget->enableGridLines(true, false);
+        break;
+    case GRID_X_MAJOR_AND_MINOR:
+        m_wellLogTrackPlotWidget->enableGridLines(true, true);
+        break;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -850,29 +878,43 @@ void RimWellLogTrack::calculateXZoomRange()
     double minValue = HUGE_VAL;
     double maxValue = -HUGE_VAL;
 
+    size_t visibleCurves = 0u;
     for (size_t cIdx = 0; cIdx < curves.size(); cIdx++)
     {
         double minCurveValue = HUGE_VAL;
         double maxCurveValue = -HUGE_VAL;
 
-        if (curves[cIdx]->isCurveVisible() && curves[cIdx]->valueRange(&minCurveValue, &maxCurveValue))
+        if (curves[cIdx]->isCurveVisible())
         {
-            if (minCurveValue < minValue)
+            visibleCurves++;
+            if (curves[cIdx]->valueRange(&minCurveValue, &maxCurveValue))
             {
-                minValue = minCurveValue;
-            }
+                if (minCurveValue < minValue)
+                {
+                    minValue = minCurveValue;
+                }
 
-            if (maxCurveValue > maxValue)
-            {
-                maxValue = maxCurveValue;
+                if (maxCurveValue > maxValue)
+                {
+                    maxValue = maxCurveValue;
+                }
             }
         }
     }
 
     if (minValue == HUGE_VAL)
     {
-        minValue = RI_LOGPLOTTRACK_MINX_DEFAULT;
-        maxValue = RI_LOGPLOTTRACK_MAXX_DEFAULT;
+        if (visibleCurves)
+        {
+            minValue = RI_LOGPLOTTRACK_MINX_DEFAULT;
+            maxValue = RI_LOGPLOTTRACK_MAXX_DEFAULT;
+        }
+        else
+        {
+            // Empty axis when there are no curves
+            minValue = 0;
+            maxValue = 0;
+        }
     }
 
     m_visibleXRangeMin = minValue;
@@ -990,7 +1032,7 @@ void RimWellLogTrack::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering&
         }
     }
 
-    uiOrderingForVisibleXRange(uiOrdering);
+    uiOrderingForXAxisSettings(uiOrdering);
 
     caf::PdmUiGroup* trackSettingsGroup = uiOrdering.addNewGroup("Track Settings");
     trackSettingsGroup->add(&m_widthScaleFactor);
@@ -1142,12 +1184,13 @@ void RimWellLogTrack::uiOrderingForRftPltFormations(caf::PdmUiOrdering& uiOrderi
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellLogTrack::uiOrderingForVisibleXRange(caf::PdmUiOrdering& uiOrdering)
+void RimWellLogTrack::uiOrderingForXAxisSettings(caf::PdmUiOrdering& uiOrdering)
 {
-    caf::PdmUiGroup* gridGroup = uiOrdering.addNewGroup("Visible X Axis Range");
+    caf::PdmUiGroup* gridGroup = uiOrdering.addNewGroup("X Axis Settings");
     gridGroup->add(&m_isLogarithmicScaleEnabled);
     gridGroup->add(&m_visibleXRangeMin);
     gridGroup->add(&m_visibleXRangeMax);
+    gridGroup->add(&m_showXGridLines);
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -288,3 +288,20 @@ int RiuWellLogTrack::widthScaleFactor() const
     return 1;
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuWellLogTrack::enableGridLines(bool majorGridLines, bool minorGridLines)
+{
+    QwtPlotItemList plotItems = this->itemList(QwtPlotItem::Rtti_PlotGrid);
+    for (QwtPlotItem* plotItem : plotItems)
+    {
+        QwtPlotGrid* grid = static_cast<QwtPlotGrid*>(plotItem);
+        grid->setXAxis(QwtPlot::xTop);
+        grid->enableX(majorGridLines);
+        grid->enableXMin(minorGridLines);
+        grid->setMajorPen(Qt::lightGray, 1.0, Qt::SolidLine);
+        grid->setMinorPen(Qt::lightGray, 1.0, Qt::DashLine);
+    }
+}
+

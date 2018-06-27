@@ -1020,7 +1020,7 @@ void RimWellPltPlot::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
 
         m_wellLogPlot->uiOrderingForPlotSettings(*legendAndAxisGroup);
 
-        track->uiOrderingForVisibleXRange(*legendAndAxisGroup);
+        track->uiOrderingForXAxisSettings(*legendAndAxisGroup);
 
         m_wellLogPlot->uiOrderingForDepthAxis(*legendAndAxisGroup);
     }

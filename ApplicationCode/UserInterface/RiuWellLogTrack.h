@@ -54,7 +54,7 @@ public:
     bool                                    isRimTrackVisible();
     void                                    enableVerticalAxisLabelsAndTitle(bool enable);
     int                                     widthScaleFactor() const;
-
+    void                                    enableGridLines(bool majorGridLines, bool minorGridLines);
 protected:
     virtual bool                            eventFilter(QObject* watched, QEvent* event);
     virtual QSize                           sizeHint() const;
