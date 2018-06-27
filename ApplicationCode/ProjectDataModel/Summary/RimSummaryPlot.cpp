@@ -1808,6 +1808,7 @@ void appendToExportData(QString& out, const std::vector<CurvesData>& curvesData)
 
         for (auto timeStep : allTimeSteps)
         {
+            QString tt = QDateTime::fromTime_t(timeStep).toUTC().toString("yyyy-MM-dd hh:mm:ss ");
             out += QDateTime::fromTime_t(timeStep).toUTC().toString("yyyy-MM-dd hh:mm:ss ");
 
             for (size_t i = 0; i < data.caseNames.size(); i++)  // cases
@@ -1825,12 +1826,12 @@ void appendToExportData(QString& out, const std::vector<CurvesData>& curvesData)
                     }
                     else
                     {
-                        valueText = "inf";
+                        valueText = QString::number(DOUBLE_INF);
                     }
                     out += "\t" + valueText;
                 }
 
-                if (currIndex < data.timeSteps[i].size()) currIndex++;
+                if (timeStepExists && currIndex < data.timeSteps[i].size()) currIndex++;
             }
             out += "\n";
         }
