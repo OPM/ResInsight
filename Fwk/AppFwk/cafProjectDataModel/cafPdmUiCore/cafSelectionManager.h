@@ -33,18 +33,16 @@
 //   for more details.
 //
 //##################################################################################################
-
-
 #pragma once
 
-#include "cafPdmPointer.h"
+#include "cafSelectionChangedReceiver.h"
 
+#include "cafPdmPointer.h"
 #include "cafPdmField.h"
 
-#include <vector>
-
 #include <QString>
-
+#include <vector>
+#include <set>
 
 namespace caf 
 {
@@ -102,6 +100,8 @@ public:
             if (obj) typedObjects->push_back(obj);
         }
     }
+    
+    /// Returns the selected objects of the requested type if _all_ the selected objects are of the requested type
 
     template <typename T>
     void objectsByTypeStrict(std::vector<T*>* typedObjects, int role = SelectionManager::APPLICATION_GLOBAL)
@@ -124,12 +124,18 @@ private:
     SelectionManager();
     void notifySelectionChanged();
 
+    friend class SelectionChangedReceiver;
+    void registerSelectionChangedReceiver  ( SelectionChangedReceiver* receiver) { m_selectionReceivers.insert(receiver);}
+    void unregisterSelectionChangedReceiver( SelectionChangedReceiver* receiver) { m_selectionReceivers.erase(receiver);}
+
 private:
     std::vector < std::vector< std::pair<PdmPointer<PdmObjectHandle>, PdmUiItem*> > > m_selectionForRole;
 
     NotificationCenter*         m_notificationCenter;
     PdmChildArrayFieldHandle*   m_activeChildArrayFieldHandle;
     PdmPointer<PdmObjectHandle> m_rootObject;
+
+    std::set< SelectionChangedReceiver*> m_selectionReceivers;
 };
 
 

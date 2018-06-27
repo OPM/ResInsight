@@ -53,6 +53,8 @@ set( PROJECT_FILES
 
     cafSelectionManager.cpp
     cafSelectionManager.h
+    cafSelectionChangedReceiver.h
+    cafSelectionChangedReceiver.cpp
     cafSelectionManagerTools.h
 )
 

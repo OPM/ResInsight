@@ -79,8 +79,7 @@ void SelectionManager::selectedItems(std::vector<PdmUiItem*>& items, int role /*
 void SelectionManager::setSelectedItems(const std::vector<PdmUiItem*>& items, int role /*= SelectionManager::APPLICATION_GLOBAL*/)
 {
     std::vector< std::pair<PdmPointer<PdmObjectHandle>, PdmUiItem*> >& selection = m_selectionForRole[role];
-
-    selection.clear();
+    std::vector< std::pair<PdmPointer<PdmObjectHandle>, PdmUiItem*> > newSelection;
 
     for (size_t i = 0; i < items.size(); i++)
     {
@@ -89,19 +88,23 @@ void SelectionManager::setSelectedItems(const std::vector<PdmUiItem*>& items, in
         {
             PdmObjectHandle* obj = fieldHandle->fieldHandle()->ownerObject();
 
-            selection.push_back(std::make_pair(obj, fieldHandle));
+            newSelection.push_back(std::make_pair(obj, fieldHandle));
         }
         else
         {
             PdmUiObjectHandle* obj = dynamic_cast<PdmUiObjectHandle*>(items[i]);
             if (obj)
             {
-                selection.push_back(std::make_pair(obj->objectHandle(), obj));
+                newSelection.push_back(std::make_pair(obj->objectHandle(), obj));
             }
         }
     }
 
-    notifySelectionChanged();
+    if (newSelection != selection)
+    {
+        selection = newSelection;
+        notifySelectionChanged();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -197,12 +200,17 @@ void SelectionManager::setSelectionFromReferences(const std::vector<QString>& re
 //--------------------------------------------------------------------------------------------------
 void SelectionManager::clearAll()
 {
+    bool isChanged = false;
     for (size_t i = 0; i < m_selectionForRole.size(); i++)
     {
-        m_selectionForRole[i].clear();
+        if ( m_selectionForRole[i].size())
+        {
+            m_selectionForRole[i].clear();
+            isChanged = true;
+        }
     }
 
-    notifySelectionChanged();
+    if (isChanged) notifySelectionChanged();
 }
 
 
@@ -211,9 +219,12 @@ void SelectionManager::clearAll()
 //--------------------------------------------------------------------------------------------------
 void SelectionManager::clear(int role)
 {
-    m_selectionForRole[role].clear();
+    if ( m_selectionForRole[role].size() )
+    {
+        m_selectionForRole[role].clear();
 
-    notifySelectionChanged();
+        notifySelectionChanged();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -224,6 +235,11 @@ void SelectionManager::notifySelectionChanged()
     if (m_notificationCenter)
     {
         m_notificationCenter->notifyObserversOfSelectionChange();
+    }
+
+    for (auto receiver: m_selectionReceivers)
+    {
+        receiver->onSelectionManagerSelectionChanged();
     }
 }
 
