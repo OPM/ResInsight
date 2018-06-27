@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2018 -  equinor
+//  Copyright (C) 2018 -    equinor
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -42,9 +42,10 @@ public:
     double         inclination();
 
 private:
+    caf::PdmField<bool>                          m_isEnabled;
     caf::PdmField<caf::AppEnum<TargetTypeEnum> > m_targetType;
-    caf::PdmField<cvf::Vec3d> m_targetPoint;
-    caf::PdmField<double> m_azimuth;
-    caf::PdmField<double> m_inclination;
+    caf::PdmField<cvf::Vec3d>                    m_targetPoint;
+    caf::PdmField<double>                        m_azimuth;
+    caf::PdmField<double>                        m_inclination;
 };
 

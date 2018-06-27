@@ -22,10 +22,12 @@ RimWellPathTarget::RimWellPathTarget()
     , m_inclination(0.0)
 {
     
+    CAF_PDM_InitField(&m_isEnabled, "IsEnabled", true, "", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_targetType, "TargetType", "Type", "", "", "");
+    m_targetType.uiCapability()->setUiHidden(true);
     CAF_PDM_InitFieldNoDefault(&m_targetPoint, "TargetPoint", "Point", "", "", "");
-    CAF_PDM_InitField(&m_azimuth, "Azimuth", 0.0, "Azimuth", "", "", "");
-    CAF_PDM_InitField(&m_inclination, "Inclination", 0.0, "Inclination", "", "", "");
+    CAF_PDM_InitField(&m_azimuth, "Azimuth", 0.0, "Azi", "", "", "");
+    CAF_PDM_InitField(&m_inclination, "Inclination", 0.0, "Inc", "", "", "");
 }
 
 //--------------------------------------------------------------------------------------------------

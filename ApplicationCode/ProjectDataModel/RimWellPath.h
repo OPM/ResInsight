@@ -128,6 +128,7 @@ protected:
     virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
     virtual void                        initAfterRead() override;
     virtual void                        defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    virtual void                        defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName) override;
 
     void                                setWellPathGeometry(RigWellPath* wellPathModel);
 
@@ -158,7 +159,6 @@ private:
 
 private:
 
-    virtual void                        defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName) override;
     static size_t                       simulationWellBranchCount(const QString& simWellName);
 
 private:
