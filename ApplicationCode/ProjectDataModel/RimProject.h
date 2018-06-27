@@ -48,6 +48,7 @@ class RimOilField;
 class RimScriptCollection;
 class RimSummaryCase;
 class RimSummaryCaseCollection;
+class RimSummaryCaseMainCollection;
 class Rim3dView;
 class RimGridView;
 class RimViewLinker;
@@ -108,7 +109,8 @@ public:
 
     std::vector<RimSummaryCase*>    allSummaryCases() const;
     std::vector<RimSummaryCaseCollection*> summaryGroups() const;
-    
+    RimSummaryCaseMainCollection*   firstSummaryCaseMainCollection() const;
+
     void            allVisibleViews(std::vector<Rim3dView*>& views);
     void            allVisibleGridViews(std::vector<RimGridView*>& views);
     void            allNotLinkedViews(std::vector<RimGridView*>& views);

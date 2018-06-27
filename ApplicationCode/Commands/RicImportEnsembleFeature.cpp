@@ -130,13 +130,12 @@ void RicImportEnsembleFeature::onActionTriggered(bool isChecked)
     validateEnsembleCases(cases);
 
     RicImportSummaryCasesFeature::addSummaryCases(cases);
-    RicCreateSummaryCaseCollectionFeature::groupSummaryCases(cases, ensembleName, true);
+    auto newGroup = RicCreateSummaryCaseCollectionFeature::groupSummaryCases(cases, ensembleName, true);
 
     RiuPlotMainWindow* mainPlotWindow = app->getOrCreateAndShowMainPlotWindow();
-    if (mainPlotWindow && !cases.empty())
+    if (mainPlotWindow && newGroup)
     {
-        mainPlotWindow->selectAsCurrentItem(cases.back());
-
+        mainPlotWindow->selectAsCurrentItem(newGroup);
         mainPlotWindow->updateSummaryPlotToolBar();
     }
 

@@ -59,12 +59,18 @@ public:
         QString     m_textValue;
     };
 
+    RigCaseRealizationParameters() : m_parametersHash(0) { }
+
     void                        addParameter(const QString& name, double value);
     void                        addParameter(const QString& name, const QString& value);
     Value                       parameterValue(const QString& name);
 
     std::map<QString, Value>    parameters() const;
 
+    size_t                      parameterHash(const QString& name) const;
+    size_t                      parametersHash();
+
 private:
     std::map<QString, Value>    m_parameters;
+    size_t                      m_parametersHash;
 };

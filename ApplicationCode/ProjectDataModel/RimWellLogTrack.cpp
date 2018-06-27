@@ -104,6 +104,17 @@ namespace caf
         addItem(RigWellPathFormations::LEVEL10, "LEVEL10", "Formation 10");
         setDefault(RigWellPathFormations::ALL);
     }
+
+    template<>
+    void AppEnum< RimWellLogTrack::WidthScaleFactor >::setUp()
+    {
+        addItem(RimWellLogTrack::EXTRA_NARROW_TRACK, "EXTRA_NARROW_TRACK", "Extra Narrow");
+        addItem(RimWellLogTrack::NARROW_TRACK,       "NARROW_TRACK",       "Narrow");
+        addItem(RimWellLogTrack::NORMAL_TRACK,       "NORMAL_TRACK",       "Normal");
+        addItem(RimWellLogTrack::WIDE_TRACK,         "WIDE_TRACK",         "Wide");
+        addItem(RimWellLogTrack::EXTRA_WIDE_TRACK,    "EXTRA_WIDE_TRACK",  "Extra wide");
+        setDefault(RimWellLogTrack::NORMAL_TRACK);
+    }
 }
 
 
@@ -154,6 +165,8 @@ RimWellLogTrack::RimWellLogTrack()
     CAF_PDM_InitFieldNoDefault(&m_formationLevel, "FormationLevel", "Well Pick Filter", "", "", "");
 
     CAF_PDM_InitField(&m_showformationFluids, "ShowFormationFluids", false, "Show Fluids", "", "", "");
+
+    CAF_PDM_InitFieldNoDefault(&m_widthScaleFactor, "Width", "Track Width", "", "Set width of track. ", "");
 
     m_formationsForCaseWithSimWellOnly = false;
 }
@@ -221,19 +234,12 @@ void RimWellLogTrack::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
             m_wellLogTrackPlotWidget->setVisible(m_show());
         }
 
-        RimWellLogPlot* wellLogPlot;
-        this->firstAncestorOrThisOfType(wellLogPlot);
-        if (wellLogPlot)
-        {
-            wellLogPlot->calculateAvailableDepthRange();
-            wellLogPlot->updateDepthZoom();
-
-            RiuWellLogPlot* wellLogPlotViewer = dynamic_cast<RiuWellLogPlot*>(wellLogPlot->viewWidget());
-            if (wellLogPlotViewer)
-            {
-                wellLogPlotViewer->updateChildrenLayout();
-            }
-        }
+        updateParentPlotLayout();
+    }
+    else if (changedField == &m_widthScaleFactor)
+    {
+        updateParentPlotLayout();
+        
     }
     else if (changedField == &m_visibleXRangeMin || changedField == &m_visibleXRangeMax)
     {
@@ -241,6 +247,7 @@ void RimWellLogTrack::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
         m_wellLogTrackPlotWidget->replot();
         m_isAutoScaleXEnabled = false;
         updateEditors();
+        updateParentPlotLayout();     
     }
     else if (changedField == &m_isAutoScaleXEnabled)
     {
@@ -354,6 +361,23 @@ void RimWellLogTrack::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
     else if (changedField == &m_showformationFluids)
     {
         loadDataAndUpdate();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogTrack::updateParentPlotLayout()
+{
+    RimWellLogPlot* wellLogPlot;
+    this->firstAncestorOrThisOfType(wellLogPlot);
+    if (wellLogPlot)
+    {
+        RiuWellLogPlot* wellLogPlotViewer = dynamic_cast<RiuWellLogPlot*>(wellLogPlot->viewWidget());
+        if (wellLogPlotViewer)
+        {
+            wellLogPlotViewer->updateChildrenLayout();
+        }
     }
 }
 
@@ -628,6 +652,33 @@ void RimWellLogTrack::setXAxisTitle(const QString& text)
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimWellLogTrack::depthPlotTitle() const
+{
+    RimWellLogPlot* parent;
+    this->firstAncestorOrThisOfTypeAsserted(parent);
+
+    return parent->depthPlotTitle();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RimWellLogTrack::widthScaleFactor() const
+{
+    return static_cast<int>(m_widthScaleFactor());
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogTrack::setWidthScaleFactor(WidthScaleFactor scaleFactor)
+{
+    m_widthScaleFactor = scaleFactor;
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void RimWellLogTrack::setFormationWellPath(RimWellPath* wellPath)
@@ -735,6 +786,8 @@ void RimWellLogTrack::calculateXZoomRangeAndUpdateQwt()
 //--------------------------------------------------------------------------------------------------
 void RimWellLogTrack::applyXZoomFromVisibleRange()
 {
+    if (!m_wellLogTrackPlotWidget) return;
+
     m_wellLogTrackPlotWidget->setXRange(m_visibleXRangeMin, m_visibleXRangeMax);
     m_wellLogTrackPlotWidget->replot();
 }
@@ -851,7 +904,6 @@ RimWellLogCurve* RimWellLogTrack::curveDefinitionFromCurve(const QwtPlotCurve* c
 void RimWellLogTrack::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
     uiOrdering.add(&m_userName);
-
     caf::PdmUiGroup* formationGroup = uiOrdering.addNewGroup("Zonation/Formation Names");
     
     formationGroup->add(&m_showFormations);
@@ -900,6 +952,9 @@ void RimWellLogTrack::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering&
     }
 
     uiOrderingForVisibleXRange(uiOrdering);
+
+    caf::PdmUiGroup* trackSettingsGroup = uiOrdering.addNewGroup("Track Settings");
+    trackSettingsGroup->add(&m_widthScaleFactor);
 
     uiOrdering.skipRemainingFields(true);
 }

@@ -53,7 +53,8 @@ public:
         SYMBOL_DIAMOND,
         SYMBOL_TRIANGLE,
         SYMBOL_CROSS,
-        SYMBOL_XCROSS
+        SYMBOL_XCROSS,
+        SYMBOL_DOWN_TRIANGLE
     };
 
     enum CurveInterpolationEnum
@@ -80,8 +81,9 @@ public:
     void                            setLineStyle(LineStyleEnum lineStyle);
     void                            setSymbol(PointSymbolEnum symbolStyle);
     PointSymbolEnum                 symbol();
-    void                            setSymbolSkipDinstance(float distance);
+    void                            setSymbolSkipDistance(float distance);
     void                            setSymbolLabel(const QString& label);
+    void                            setSymbolSize(int sizeInPixels);
     void                            setLineThickness(int thickness);
     void                            resetAppearance();
 
@@ -133,6 +135,7 @@ protected:
     caf::PdmField<QString>          m_customCurveName;
     caf::PdmField<bool>             m_showLegend;
     QString                         m_symbolLabel;
+    caf::PdmField<int>              m_symbolSize;
 
     caf::PdmField<bool>             m_isUsingAutoName;
     caf::PdmField<cvf::Color3f>     m_curveColor;

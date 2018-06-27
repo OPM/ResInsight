@@ -70,8 +70,10 @@ public:
 
 
     QString                                         depthPlotTitle() const;
-    bool                                            isTrackLegendsVisible() const;
+    bool                                            isPlotTitleVisible() const;
+    bool                                            areTrackLegendsVisible() const;
     void                                            setTrackLegendsVisible(bool doShow);
+    bool                                            areTrackLegendsHorizontal() const;
 
     void                                            addTrack(RimWellLogTrack* track);
     void                                            insertTrack(RimWellLogTrack* track, size_t index);
@@ -109,8 +111,8 @@ public:
     RimWellPltPlot*                                 pltPlot() const;
     bool                                            isPltPlotChild() const;
 
-    void                                            uiOrderingForVisibleDepthRange(caf::PdmUiOrdering& uiOrdering);
-    void                                            uiOrderingForPlot(caf::PdmUiOrdering& uiOrdering);
+    void                                            uiOrderingForDepthAxis(caf::PdmUiOrdering& uiOrdering);
+    void                                            uiOrderingForPlotSettings(caf::PdmUiOrdering& uiOrdering);
 
 protected:
 
@@ -131,7 +133,7 @@ private:
     void                                            detachAllCurves();
 
     void                                            updateDisabledDepthTypes();
-
+    void                                            updatePlotTitle();
 public: // Needed by RiuWellAllocation Plot
     // RimViewWindow overrides
 
@@ -150,7 +152,9 @@ private:
     caf::PdmField<double>                           m_minVisibleDepth;
     caf::PdmField<double>                           m_maxVisibleDepth;
     caf::PdmField<bool>                             m_isAutoScaleDepthEnabled;
+    caf::PdmField<bool>                             m_showTitleInPlot;
     caf::PdmField<bool>                             m_showTrackLegends;
+    caf::PdmField<bool>                             m_trackLegendsHorizontal;
 
     double                                          m_minAvailableDepth;
     double                                          m_maxAvailableDepth;

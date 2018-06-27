@@ -25,6 +25,7 @@
 class EnsembleParameter;
 class RimEnsembleCurveSet;
 class RimSummaryCase;
+class RimSummaryPlot;
 class RimEnsembleCurveFilterCollection;
 
 //==================================================================================================

@@ -16,60 +16,60 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RifSummaryReaderInterface.h"
+#include "RifDerivedEnsembleReader.h"
 
-#include <string>
-
-#include <QDateTime>
-
+#include "RimDerivedEnsembleCase.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const std::set<RifEclipseSummaryAddress>& RifSummaryReaderInterface::allResultAddresses() const
+const std::vector<time_t> RifDerivedEnsembleReader::EMPTY_TIME_STEPS_VECTOR;
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RifDerivedEnsembleReader::RifDerivedEnsembleReader(RimDerivedEnsembleCase* derivedCase)
 {
-    return m_allResultAddresses;
+    CVF_ASSERT(derivedCase);
+
+    m_derivedCase = derivedCase;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RifEclipseSummaryAddress RifSummaryReaderInterface::errorAddress(const RifEclipseSummaryAddress& resultAddress) const
+const std::vector<time_t>& RifDerivedEnsembleReader::timeSteps(const RifEclipseSummaryAddress& resultAddress) const
 {
-    RifEclipseSummaryAddress errAddr = resultAddress;
-    errAddr.setAsErrorResult();
-
-    return m_allErrorAddresses.find(errAddr) != m_allErrorAddresses.end() ? errAddr : RifEclipseSummaryAddress();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-std::vector<QDateTime> RifSummaryReaderInterface::fromTimeT(const std::vector<time_t>& timeSteps)
-{
-    std::vector<QDateTime> a;
-
-    for (size_t i = 0; i < timeSteps.size(); i++)
+    if (!resultAddress.isValid()) return EMPTY_TIME_STEPS_VECTOR;
+    if (m_derivedCase->needsCalculation(resultAddress))
     {
-        QDateTime dt = QDateTime::fromTime_t(timeSteps[i]);
-        a.push_back(dt);
+        m_derivedCase->calculate(resultAddress);
     }
-
-    return a;
+    return m_derivedCase->timeSteps(resultAddress);
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RifSummaryReaderInterface::hasAddress(const RifEclipseSummaryAddress& resultAddress) const
+bool RifDerivedEnsembleReader::values(const RifEclipseSummaryAddress& resultAddress, std::vector<double>* values) const
 {
-    for (const RifEclipseSummaryAddress& summaryAddress : m_allResultAddresses)
-    {
-        if (summaryAddress == resultAddress)
-        {
-            return true;
-        }
-    }
+    if (!resultAddress.isValid()) return false;
 
-    return false;
+    if (m_derivedCase->needsCalculation(resultAddress))
+    {
+        m_derivedCase->calculate(resultAddress);
+    }
+    auto dataValues = m_derivedCase->values(resultAddress);
+    values->clear();
+    values->reserve(dataValues.size());
+    for (auto val : dataValues) values->push_back(val);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::string RifDerivedEnsembleReader::unitName(const RifEclipseSummaryAddress& resultAddress) const
+{
+    return "";
 }

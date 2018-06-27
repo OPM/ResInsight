@@ -20,6 +20,7 @@
 
 #include "RiaApplication.h"
 #include "RiaColorTables.h"
+#include "RiaStatisticsTools.h"
 
 #include "SummaryPlotCommands/RicSummaryCurveCreator.h"
 
@@ -29,6 +30,7 @@
 #include "RigStatisticsMath.h"
 #include "RiaTimeHistoryCurveMerger.h"
 
+#include "RimDerivedEnsembleCaseCollection.h"
 #include "RimEnsembleCurveFilter.h"
 #include "RimEnsembleCurveFilterCollection.h"
 #include "RimEnsembleCurveSetCollection.h"
@@ -65,6 +67,12 @@
 /// Internal constants
 //--------------------------------------------------------------------------------------------------
 #define DOUBLE_INF  std::numeric_limits<double>::infinity()
+
+//--------------------------------------------------------------------------------------------------
+/// Internal functions
+//--------------------------------------------------------------------------------------------------
+RimPlotCurve::PointSymbolEnum statisticsCurveSymbolFromAddress(const RifEclipseSummaryAddress& address);
+int statisticsCurveSymbolSize(RimPlotCurve::PointSymbolEnum symbol);
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -168,6 +176,7 @@ RimEnsembleCurveSet::RimEnsembleCurveSet()
     m_ensembleStatCase->createSummaryReaderInterface();
 
     m_disableStatisticCurves = false;
+    m_isCurveSetFiltered = false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -735,7 +744,7 @@ void RimEnsembleCurveSet::appendOptionItemsForSummaryAddresses(QList<caf::PdmOpt
     for (RimSummaryCase* summaryCase : summaryCaseGroup->allSummaryCases())
     {
         RifSummaryReaderInterface* reader = summaryCase->summaryReader();
-        const std::vector<RifEclipseSummaryAddress>& addrs = reader ? reader->allResultAddresses() : std::vector<RifEclipseSummaryAddress>();
+        const std::set<RifEclipseSummaryAddress>& addrs = reader ? reader->allResultAddresses() : std::set<RifEclipseSummaryAddress>();
 
         for (auto& addr : addrs)
         {
@@ -930,6 +939,8 @@ void RimEnsembleCurveSet::updateEnsembleCurves()
             m_yValuesSummaryFilter->updateFromAddress(addr->address());
 
             if (plot->qwtPlot()) m_qwtPlotCurveForLegendText->attach(plot->qwtPlot());
+
+            m_isCurveSetFiltered = filteredCases.size() < group->allSummaryCases().size();
         }
 
         RimSummaryPlot* plot;
@@ -939,6 +950,7 @@ void RimEnsembleCurveSet::updateEnsembleCurves()
             plot->qwtPlot()->updateLegend();
             plot->qwtPlot()->replot();
             plot->updateAxes();
+            plot->updatePlotInfoLabel();
         }
     }
     updateCurveColors();
@@ -987,9 +999,17 @@ void RimEnsembleCurveSet::updateStatisticsCurves(bool calculate = true)
         curve->setParentQwtPlotNoReplot(plot->qwtPlot());
         m_curves.push_back(curve);
         curve->setColor(m_statistics->color());
-        curve->setSymbol(RimPlotCurve::SYMBOL_ELLIPSE);
-        curve->setSymbolSkipDinstance(50);
-        curve->setSymbolLabel(QString::fromStdString(address.ensembleStatisticsQuantityName()));
+        curve->setColor(m_statistics->color());
+
+        auto symbol = statisticsCurveSymbolFromAddress(address);
+        curve->setSymbol(symbol);
+        curve->setSymbolSize(statisticsCurveSymbolSize(symbol));
+        curve->setSymbolSkipDistance(150);
+        if (m_statistics->showCurveLabels())
+        {
+            curve->setSymbolLabel(RiaStatisticsTools::replacePercentileByPValueText(
+                QString::fromStdString(address.ensembleStatisticsQuantityName())));
+        }
         curve->setLineStyle(RimPlotCurve::STYLE_SOLID);
         curve->setSummaryCaseY(m_ensembleStatCase.get());
         curve->setSummaryAddressY(address);
@@ -1091,6 +1111,14 @@ std::vector<RimSummaryCase*> RimEnsembleCurveSet::filterEnsembleCases(const RimS
 void RimEnsembleCurveSet::disableStatisticCurves()
 {
     m_disableStatisticCurves = true;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimEnsembleCurveSet::isFiltered() const
+{
+    return m_isCurveSetFiltered;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1211,4 +1239,28 @@ void RimEnsembleCurveSet::updateLegendMappingMode()
             m_legendConfig->setMappingMode(RimRegularLegendConfig::MappingType::LINEAR_CONTINUOUS);
         break;
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimPlotCurve::PointSymbolEnum statisticsCurveSymbolFromAddress(const RifEclipseSummaryAddress& address)
+{
+    auto qName = QString::fromStdString(address.quantityName());
+
+    if (qName.contains(ENSEMBLE_STAT_P10_QUANTITY_NAME)) return RimPlotCurve::SYMBOL_TRIANGLE;
+    if (qName.contains(ENSEMBLE_STAT_P90_QUANTITY_NAME)) return RimPlotCurve::SYMBOL_DOWN_TRIANGLE;
+    if (qName.contains(ENSEMBLE_STAT_P50_QUANTITY_NAME)) return RimPlotCurve::SYMBOL_DIAMOND;
+    return RimPlotCurve::SYMBOL_ELLIPSE;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+int statisticsCurveSymbolSize(RimPlotCurve::PointSymbolEnum symbol)
+{
+    if (symbol == RimPlotCurve::SYMBOL_DIAMOND) return 8;
+    if (symbol == RimPlotCurve::SYMBOL_TRIANGLE) return 7;
+    if (symbol == RimPlotCurve::SYMBOL_DOWN_TRIANGLE) return 7;
+    return 6;
 }

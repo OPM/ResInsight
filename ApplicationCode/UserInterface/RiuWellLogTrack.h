@@ -52,6 +52,8 @@ public:
     void                                    setXRange(double min, double max);
 
     bool                                    isRimTrackVisible();
+    void                                    enableVerticalAxisLabelsAndTitle(bool enable);
+    int                                     widthScaleFactor() const;
 
 protected:
     virtual bool                            eventFilter(QObject* watched, QEvent* event);

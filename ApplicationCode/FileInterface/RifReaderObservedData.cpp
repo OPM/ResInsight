@@ -79,7 +79,7 @@ bool RifReaderObservedData::open(const QString& headerFileName,
             m_allResultAddresses.clear();
             for (auto s : m_asciiParser->tableData().columnInfos())
             {
-                m_allResultAddresses.push_back(s.summaryAddress);
+                m_allResultAddresses.insert(s.summaryAddress);
             }
         }
 
@@ -95,12 +95,14 @@ bool RifReaderObservedData::values(const RifEclipseSummaryAddress& resultAddress
 {
     size_t columnIndex = m_allResultAddresses.size();
 
-    for (size_t i = 0; i < m_allResultAddresses.size(); i++)
+    int i = 0;
+    for(auto& address : m_allResultAddresses)
     {
-        if (resultAddress == m_allResultAddresses[i])
+        if (address == resultAddress)
         {
             columnIndex = i;
         }
+        i++;
     }
 
     if (columnIndex != m_allResultAddresses.size())

@@ -21,6 +21,7 @@
 #include "cafPdmObject.h"
 
 #include <vector>
+#include <functional>
 
 class RimGridSummaryCase;
 class RimSummaryCase;
@@ -56,7 +57,10 @@ public:
     void                addCase(RimSummaryCase* summaryCase);
     void                removeCase(RimSummaryCase* summaryCase);
 
-    void                addCaseCollection(std::vector<RimSummaryCase*> summaryCases, const QString& coolectionName, bool isEnsemble);
+    RimSummaryCaseCollection* addCaseCollection(std::vector<RimSummaryCase*> summaryCases,
+                                          const QString& coolectionName,
+                                          bool isEnsemble,
+                                          std::function<RimSummaryCaseCollection* ()> allocator = defaultAllocator);
     void                removeCaseCollection(RimSummaryCaseCollection* caseCollection);
 
     void                loadAllSummaryCaseData();
@@ -67,6 +71,7 @@ public:
 
 private:
     static void         loadSummaryCaseData(std::vector<RimSummaryCase*> summaryCases);
+    static RimSummaryCaseCollection* defaultAllocator();
 
 private:
     caf::PdmChildArrayField<RimSummaryCase*> m_cases;

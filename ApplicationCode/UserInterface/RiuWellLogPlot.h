@@ -19,20 +19,22 @@
 
 #pragma once
 
+#include "RiuInterfaceToViewWindow.h"
+
 #include "cafPdmPointer.h"
 
 #include <QList>
 #include <QPointer>
 #include <QWidget>
 
-#include "RiuInterfaceToViewWindow.h"
+#include <map>
 
 class RimWellLogPlot;
 class RiuWellLogTrack;
 
-class QHBoxLayout;
-class QScrollBar;
 class QFocusEvent;
+class QLabel;
+class QScrollBar;
 class QwtLegend;
 
 //==================================================================================================
@@ -56,8 +58,9 @@ public:
     void                            removeTrackPlot(RiuWellLogTrack* trackPlot);
 
     void                            setDepthZoomAndReplot(double minDepth, double maxDepth);
+    void                            setPlotTitle(const QString& plotTitle);
 
-    public slots:
+public slots:
     void                            updateChildrenLayout();
 
 protected:
@@ -70,18 +73,20 @@ protected:
 private:
     void                            updateScrollBar(double minDepth, double maxDepth);
     void                            modifyWidthOfContainingMdiWindow(int widthChange);
-    void                            placeChildWidgets(int height, int width);
+    std::map<int, int>              calculateTrackWidths(int frameWidth);
+    void                            placeChildWidgets(int frameHeight, int frameWidth);
+    void                            positionTitle(int frameWidth);
 
 private slots:
     void                            slotSetMinDepth(int value);
     void                            scheduleUpdateChildrenLayout();
 
 private:
-    QHBoxLayout*                    m_layout;
-    QScrollBar*                     m_scrollBar;
-    QList<QPointer<QwtLegend> >     m_legends;
+    QLabel*                           m_plotTitle;
+    QScrollBar*                       m_scrollBar;
+    QList<QPointer<QwtLegend> >       m_legends;
     QList<QPointer<RiuWellLogTrack> > m_trackPlots;
-    caf::PdmPointer<RimWellLogPlot> m_plotDefinition;
-    QTimer*                         m_scheduleUpdateChildrenLayoutTimer;
+    caf::PdmPointer<RimWellLogPlot>   m_plotDefinition;
+    QTimer*                           m_scheduleUpdateChildrenLayoutTimer;
 };
 

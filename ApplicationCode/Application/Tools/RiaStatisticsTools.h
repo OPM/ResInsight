@@ -1,6 +1,8 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2017-     Statoil ASA
+//  Copyright (C) 2011-     Statoil ASA
+//  Copyright (C) 2013-     Ceetron Solutions AS
+//  Copyright (C) 2011-2012 Ceetron AS
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -18,24 +20,17 @@
 
 #pragma once
 
-#include "cafCmdFeature.h"
-
-#include <vector>
-
-class RimSummaryCase;
-class RimSummaryCaseCollection;
+#include <QString>
+#include <QByteArray>
+#include <string>
 
 //==================================================================================================
-/// 
+//
+// 
+//
 //==================================================================================================
-class RicCreateSummaryCaseCollectionFeature : public caf::CmdFeature
+class RiaStatisticsTools
 {
-    CAF_CMD_HEADER_INIT;
-
-    static RimSummaryCaseCollection* groupSummaryCases(std::vector<RimSummaryCase*> cases, const QString& groupName, bool isEnsemble = false);
-
-private:
-    virtual bool isCommandEnabled() override;
-    virtual void onActionTriggered(bool isChecked) override;
-    virtual void setupActionLook(QAction* actionToSetup) override;
+public:
+    static const QString replacePercentileByPValueText(const QString& percentile);
 };

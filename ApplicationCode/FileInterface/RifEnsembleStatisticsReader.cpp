@@ -32,7 +32,7 @@ RifEnsembleStatisticsReader::RifEnsembleStatisticsReader(RimEnsembleStatisticsCa
 
     m_ensembleStatCase = ensStatCase;
 
-    m_allResultAddresses = std::vector<RifEclipseSummaryAddress>(
+    m_allResultAddresses = std::set<RifEclipseSummaryAddress>(
         {
             RifEclipseSummaryAddress::ensembleStatisticsAddress(ENSEMBLE_STAT_P10_QUANTITY_NAME, ""),
             RifEclipseSummaryAddress::ensembleStatisticsAddress(ENSEMBLE_STAT_P50_QUANTITY_NAME, ""),
@@ -46,7 +46,7 @@ RifEnsembleStatisticsReader::RifEnsembleStatisticsReader(RimEnsembleStatisticsCa
 //--------------------------------------------------------------------------------------------------
 const std::vector<time_t>& RifEnsembleStatisticsReader::timeSteps(const RifEclipseSummaryAddress& resultAddress) const
 {
-    if (!resultAddress.isValid()) return EMPTY_TIME_STEPS_VECTOR;
+    if (!validateAddress(resultAddress)) return EMPTY_TIME_STEPS_VECTOR;
     return m_ensembleStatCase->timeSteps();
 }
 
@@ -78,7 +78,7 @@ bool RifEnsembleStatisticsReader::values(const RifEclipseSummaryAddress& resultA
 //--------------------------------------------------------------------------------------------------
 std::string RifEnsembleStatisticsReader::unitName(const RifEclipseSummaryAddress& resultAddress) const
 {
-    return "(RifEnsembleStatisticsReader::unitName)";
+    return "";
 }
 
 //--------------------------------------------------------------------------------------------------

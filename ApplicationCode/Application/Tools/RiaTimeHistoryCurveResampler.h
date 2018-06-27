@@ -42,13 +42,15 @@ public:
     const std::vector<time_t>&          resampledTimeSteps() const;
     const std::vector<double>&          resampledValues() const;
 
+    static std::vector<time_t>          timeStepsFromTimeRange(DateTimePeriod period, time_t minTime, time_t maxTime);
+
 private:
     void                                computeWeightedMeanValues(DateTimePeriod period);
     void                                computePeriodEndValues(DateTimePeriod period);
 
     void            clearData();
     void            computeResampledTimeSteps(DateTimePeriod period);
-    QDateTime       firstResampledTimeStep(const QDateTime& firstTimestep, DateTimePeriod period);
+    static QDateTime firstResampledTimeStep(const QDateTime& firstTimestep, DateTimePeriod period);
     inline double   interpolatedValue(time_t t, time_t t1, double v1, time_t t2, double v2);
 
 private:

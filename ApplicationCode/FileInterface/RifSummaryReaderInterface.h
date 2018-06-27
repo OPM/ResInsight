@@ -25,6 +25,7 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <set>
 
 
 class QDateTime;
@@ -37,7 +38,7 @@ class RifSummaryReaderInterface : public cvf::Object
 {
 public:
     bool                                            hasAddress(const RifEclipseSummaryAddress& resultAddress) const;
-    const std::vector<RifEclipseSummaryAddress>&    allResultAddresses() const;
+    const std::set<RifEclipseSummaryAddress>&       allResultAddresses() const;
     RifEclipseSummaryAddress                        errorAddress(const RifEclipseSummaryAddress& resultAddress) const;
 
     virtual const std::vector<time_t>&              timeSteps(const RifEclipseSummaryAddress& resultAddress) const = 0;
@@ -51,6 +52,6 @@ public:
     static std::vector<QDateTime>                   fromTimeT(const std::vector<time_t>& timeSteps);
     
 protected:
-    std::vector<RifEclipseSummaryAddress> m_allResultAddresses;     // Result and error addresses
+    std::set<RifEclipseSummaryAddress>    m_allResultAddresses;     // Result and error addresses
     std::set<RifEclipseSummaryAddress>    m_allErrorAddresses;      // Error addresses
 };

@@ -148,26 +148,42 @@ void RimEnsembleCurveFilterCollection::defineUiOrdering(QString uiConfigName, ca
         auto selEnsembleParam = filter->selectedEnsembleParameter();
         if (selEnsembleParam.isNumeric())
         {
-            if (!filter->isActive()) groupTitle = "DISABLED - ";
-            groupTitle += QString("%1. Min: %2, Max: %3")
-                .arg(filter->ensembleParameterName())
-                .arg(QString::number(filter->minValue()))
-                .arg(QString::number(filter->maxValue()));
+            groupTitle = filter->ensembleParameterName();
+
+            if (!filter->isActive())
+            {
+                groupTitle += " - [Disabled]";
+            }
+            else
+            {
+                groupTitle += QString(" [%2 .. %3]")
+                    .arg(QString::number(filter->minValue()))
+                    .arg(QString::number(filter->maxValue()));
+            }
         }
         else if (selEnsembleParam.isText())
         {
-            if (!filter->isActive()) groupTitle = "DISABLED - ";
-            groupTitle += QString("%1. Categories: ")
-                .arg(filter->ensembleParameterName());
+            groupTitle = filter->ensembleParameterName();
 
-            bool first = true;
-            for (auto cat : filter->categories())
+            if (!filter->isActive())
             {
-                if (!first) groupTitle += ", ";
-                groupTitle += cat;
-                first = false;
+                groupTitle += " - [Disabled]";
+            }
+            else
+            {
+                groupTitle += " { ";
+
+                bool first = true;
+                for (auto cat : filter->categories())
+                {
+                    if (!first) groupTitle += ", ";
+                    groupTitle += cat;
+                    first = false;
+                }
+                groupTitle += " }";
             }
         }
+
         caf::PdmUiGroup* filterGroup = uiOrdering.addNewGroupWithKeyword(groupTitle, QString("EnsembleFilter_") + filter->filterId());
         filter->defineUiOrdering(uiConfigName, *filterGroup);
     }

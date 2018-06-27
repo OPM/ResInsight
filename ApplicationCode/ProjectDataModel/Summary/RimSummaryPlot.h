@@ -28,6 +28,7 @@
 
 #include "RimViewWindow.h"
 
+#include "qwt_plot_textlabel.h"
 #include <QPointer>
 
 #include <set>
@@ -121,6 +122,10 @@ public:
 
     void                                            updateAll();
 
+    void                                            setPlotInfoLabel(const QString& label);
+    void                                            showPlotInfoLabel(bool show);
+    void                                            updatePlotInfoLabel();
+
     // RimViewWindow overrides
 public:
     virtual QWidget*                                createViewWidget(QWidget* mainWindowParent) override; 
@@ -183,7 +188,7 @@ private:
     caf::PdmChildField<RimSummaryTimeAxisProperties*>   m_timeAxisProperties;
 
     QPointer<RiuSummaryQwtPlot>                         m_qwtPlot;
-
+    std::unique_ptr<QwtPlotTextLabel>                   m_plotInfoLabel;
 
     bool                                                m_isCrossPlot;
 

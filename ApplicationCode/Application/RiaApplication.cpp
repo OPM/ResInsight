@@ -57,6 +57,7 @@
 #include "RimRftPlotCollection.h"
 #include "RimStimPlanColors.h"
 #include "RimSummaryCase.h"
+#include "RimSummaryCaseCollection.h"
 #include "RimSummaryCaseMainCollection.h"
 #include "RimSummaryCrossPlotCollection.h"
 #include "RimSummaryPlot.h"
@@ -597,6 +598,17 @@ bool RiaApplication::loadProject(const QString& projectFileName, ProjectLoadActi
         cas->intersectionViewCollection()->syncFromExistingIntersections(false);
     }
 
+    // Init summary case groups
+    for (RimOilField* oilField : m_project->oilFields)
+    {
+        auto sumMainCollection = oilField->summaryCaseMainCollection();
+        if(!sumMainCollection) continue;
+
+        for (auto sumCaseGroup : sumMainCollection->summaryCaseCollections())
+        {
+            sumCaseGroup->loadDataAndUpdate();
+        }
+    }
 
     loadAndUpdatePlotData();
 

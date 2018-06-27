@@ -18,6 +18,7 @@
 
 #include "RimSummaryCaseCollection.h"
 
+#include "RimDerivedEnsembleCaseCollection.h"
 #include "RimEnsembleCurveSet.h"
 #include "RimGridSummaryCase.h"
 #include "RimProject.h"
@@ -69,12 +70,33 @@ void RimSummaryCaseCollection::removeCase(RimSummaryCase* summaryCase)
 }
 
 //--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCaseCollection::deleteAllCases()
+{
+    m_cases.deleteAllChildObjects();
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCaseCollection::addCase(RimSummaryCase* summaryCase)
+void RimSummaryCaseCollection::addCase(RimSummaryCase* summaryCase, bool updateCurveSets)
 {
     m_cases.push_back(summaryCase);
-    updateReferringCurveSets();
+
+    // Update derived ensemble cases (if any)
+    std::vector<caf::PdmObjectHandle*> referringObjects;
+    objectsWithReferringPtrFields(referringObjects);
+    for (auto refObj : referringObjects)
+    {
+        auto derEnsemble = dynamic_cast<RimDerivedEnsembleCaseCollection*>(refObj);
+        if (!derEnsemble) continue;
+
+        derEnsemble->updateDerivedEnsembleCases();
+        if (updateCurveSets) derEnsemble->updateReferringCurveSets();
+    }
+
+    if(updateCurveSets) updateReferringCurveSets();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -133,11 +155,9 @@ std::set<RifEclipseSummaryAddress> RimSummaryCaseCollection::calculateUnionOfSum
 
        if ( !reader ) continue;
 
-       const std::vector<RifEclipseSummaryAddress>& readerAddresses = reader->allResultAddresses();
+       const std::set<RifEclipseSummaryAddress>& readerAddresses = reader->allResultAddresses();
        addressUnion.insert(readerAddresses.begin(), readerAddresses.end());
-
     }
-
     return addressUnion;
 }
 
@@ -235,6 +255,14 @@ EnsembleParameter RimSummaryCaseCollection::ensembleParameter(const QString& par
 }
 
 //--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCaseCollection::loadDataAndUpdate()
+{
+    onLoadDataAndUpdate();
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 caf::PdmFieldHandle* RimSummaryCaseCollection::userDescriptionField()
@@ -243,9 +271,17 @@ caf::PdmFieldHandle* RimSummaryCaseCollection::userDescriptionField()
 }
 
 //--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCaseCollection::onLoadDataAndUpdate()
+{
+    // NOP
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCaseCollection::updateReferringCurveSets() const
+void RimSummaryCaseCollection::updateReferringCurveSets()
 {
     // Update curve set referring to this group
     std::vector<PdmObjectHandle*> referringObjects;
@@ -298,4 +334,21 @@ void RimSummaryCaseCollection::fieldChangedByUi(const caf::PdmFieldHandle* chang
     {
         updateIcon();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCaseCollection::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+{
+    uiOrdering.add(&m_name);
+    uiOrdering.skipRemainingFields(true);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCaseCollection::setNameAsReadOnly()
+{
+    m_name.uiCapability()->setUiReadOnly(true);
 }
