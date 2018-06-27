@@ -70,7 +70,7 @@ public:
 
     enum TrajectoryType { WELL_PATH, SIMULATION_WELL };
     enum FormationSource { CASE, WELL_PICK_FILTER };
-    enum WidthScaleFactor { EXTRA_NARROW_TRACK = 2, NARROW_TRACK = 3, NORMAL_TRACK = 4, WIDE_TRACK = 6, EXTRA_WIDE_TRACK = 8};
+    enum WidthScaleFactor { EXTRA_NARROW_TRACK = 2, NARROW_TRACK = 3, NORMAL_TRACK = 4, WIDE_TRACK = 6, EXTRA_WIDE_TRACK = 10 };
 
     void setDescription(const QString& description);
     bool isVisible();
@@ -132,6 +132,7 @@ public:
 private:
     virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
     void         updateParentPlotLayout();
+    void         updateAxisAndGridTickIntervals();
     virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
 
     virtual caf::PdmFieldHandle* objectToggleField() override;
@@ -166,18 +167,17 @@ private:
 private:
     QString m_xAxisTitle;
 
-    caf::PdmField<bool> m_show;
-    caf::PdmField<QString> m_userName;
-    caf::PdmChildArrayField<RimWellLogCurve*> curves;
-    caf::PdmField<double> m_visibleXRangeMin;
-    caf::PdmField<double> m_visibleXRangeMax;
-    caf::PdmField<bool>   m_isAutoScaleXEnabled;
-    caf::PdmField<bool>   m_isLogarithmicScaleEnabled;
-
+    caf::PdmField<bool>                                                m_show;
+    caf::PdmField<QString>                                             m_userName;
+    caf::PdmChildArrayField<RimWellLogCurve*>                          curves;
+    caf::PdmField<double>                                              m_visibleXRangeMin;
+    caf::PdmField<double>                                              m_visibleXRangeMax;
+    caf::PdmField<bool>                                                m_isAutoScaleXEnabled;
+    caf::PdmField<bool>                                                m_isLogarithmicScaleEnabled;
     caf::PdmField<bool>                                                m_showFormations;
-    caf::PdmField<caf::AppEnum<FormationSource> >                      m_formationSource;
+    caf::PdmField<caf::AppEnum<FormationSource>>                       m_formationSource;
     caf::PdmPtrField<RimCase*>                                         m_formationCase;
-    caf::PdmField<caf::AppEnum<TrajectoryType> >                       m_formationTrajectoryType;
+    caf::PdmField<caf::AppEnum<TrajectoryType>>                        m_formationTrajectoryType;
     caf::PdmPtrField<RimWellPath*>                                     m_formationWellPathForSourceCase;
     caf::PdmPtrField<RimWellPath*>                                     m_formationWellPathForSourceWellPath;
     caf::PdmField<QString>                                             m_formationSimWellName;
@@ -185,7 +185,7 @@ private:
     caf::PdmField<caf::AppEnum<RigWellPathFormations::FormationLevel>> m_formationLevel;
     caf::PdmField<bool>                                                m_showformationFluids;
     caf::PdmField<caf::AppEnum<WidthScaleFactor>>                      m_widthScaleFactor;
-    caf::PdmField<bool> m_formationBranchDetection;
+    caf::PdmField<bool>                                                m_formationBranchDetection;
 
     bool m_formationsForCaseWithSimWellOnly;
 

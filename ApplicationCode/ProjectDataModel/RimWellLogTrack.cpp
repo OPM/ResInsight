@@ -63,7 +63,7 @@
 
 #define RI_LOGPLOTTRACK_MINX_DEFAULT    -10.0
 #define RI_LOGPLOTTRACK_MAXX_DEFAULT    100.0
-
+#define RI_LOGPLOTTRACK_MINOR_TICK_DEFAULT 
 
 CAF_PDM_SOURCE_INIT(RimWellLogTrack, "WellLogPlotTrack");
 
@@ -239,7 +239,8 @@ void RimWellLogTrack::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
     else if (changedField == &m_widthScaleFactor)
     {
         updateParentPlotLayout();
-        
+        updateAxisAndGridTickIntervals();
+        m_wellLogTrackPlotWidget->replot();
     }
     else if (changedField == &m_visibleXRangeMin || changedField == &m_visibleXRangeMax)
     {
@@ -379,6 +380,43 @@ void RimWellLogTrack::updateParentPlotLayout()
             wellLogPlotViewer->updateChildrenLayout();
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogTrack::updateAxisAndGridTickIntervals()
+{
+    if (!m_wellLogTrackPlotWidget) return;
+
+    int xMajorTickIntervals = 3;
+    int xMinorTickIntervals = 0;
+    switch (m_widthScaleFactor())
+    {
+    case EXTRA_NARROW_TRACK:
+        xMajorTickIntervals = 3;
+        xMinorTickIntervals = 2;
+        break;
+    case NARROW_TRACK:
+        xMajorTickIntervals = 3;
+        xMinorTickIntervals = 5;
+        break;
+    case NORMAL_TRACK:
+        xMajorTickIntervals = 5;
+        xMinorTickIntervals = 5;
+        break;
+    case WIDE_TRACK:
+        xMajorTickIntervals = 5;
+        xMinorTickIntervals = 10;
+        break;
+    case EXTRA_WIDE_TRACK:
+        xMajorTickIntervals = 10;
+        xMinorTickIntervals = 10;
+        break;
+    }
+    
+    m_wellLogTrackPlotWidget->setAxisMaxMajor(QwtPlot::xTop, xMajorTickIntervals);
+    m_wellLogTrackPlotWidget->setAxisMaxMinor(QwtPlot::xTop, xMinorTickIntervals);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -581,6 +619,7 @@ void RimWellLogTrack::loadDataAndUpdate()
     if ( m_wellLogTrackPlotWidget )
     {
         m_wellLogTrackPlotWidget->updateLegend();
+        this->updateAxisAndGridTickIntervals();
         this->updateAxisScaleEngine();
         this->updateFormationNamesOnPlot();
         this->applyXZoomFromVisibleRange();
