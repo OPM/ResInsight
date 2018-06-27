@@ -45,6 +45,7 @@ public:
     bool                        showP50Curve() const { return m_showP50Curve; }
     bool                        showP90Curve() const { return m_showP90Curve; }
     bool                        showMeanCurve() const { return m_showMeanCurve; }
+    bool                        showCurveLabels() const { return m_showCurveLabels; }
     cvf::Color3f                color() const { return m_color; }
 
     void                        disableP10Curve(bool disable);
@@ -64,6 +65,7 @@ private:
     caf::PdmField<bool>         m_showP50Curve;
     caf::PdmField<bool>         m_showP90Curve;
     caf::PdmField<bool>         m_showMeanCurve;
+    caf::PdmField<bool>         m_showCurveLabels;
 
     caf::PdmField<cvf::Color3f> m_color;
 

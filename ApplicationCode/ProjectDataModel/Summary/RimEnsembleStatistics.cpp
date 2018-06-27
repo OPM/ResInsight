@@ -42,6 +42,7 @@ RimEnsembleStatistics::RimEnsembleStatistics()
     CAF_PDM_InitField(&m_showP50Curve, "ShowP50Curve", true, "P50", "", "", "");
     CAF_PDM_InitField(&m_showP90Curve, "ShowP90Curve", true, "P90", "", "", "");
     CAF_PDM_InitField(&m_showMeanCurve, "ShowMeanCurve", true, "Mean", "", "", "");
+    CAF_PDM_InitField(&m_showCurveLabels, "ShowCurveLabels", true, "Show Curve Labels", "", "", "");
     CAF_PDM_InitField(&m_color, "Color", cvf::Color3f(cvf::Color3::BLACK), "Color", "", "", "");
 }
 
@@ -106,6 +107,7 @@ void RimEnsembleStatistics::fieldChangedByUi(const caf::PdmFieldHandle* changedF
         changedField == &m_showP50Curve ||
         changedField == &m_showP90Curve ||
         changedField == &m_showMeanCurve ||
+        changedField == &m_showCurveLabels ||
         changedField == &m_color)
     {
         auto curveSet = parentCurveSet();
@@ -131,6 +133,7 @@ void RimEnsembleStatistics::defineUiOrdering(QString uiConfigName, caf::PdmUiOrd
     group->add(&m_showP50Curve);
     group->add(&m_showP90Curve);
     group->add(&m_showMeanCurve);
+    group->add(&m_showCurveLabels);
     group->add(&m_color);
 
     disableP10Curve(!m_active || !curveSet->hasP10Data());
