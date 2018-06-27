@@ -110,6 +110,10 @@ void RiuWellLogPlot::insertTrackPlot(RiuWellLogTrack* trackPlot, size_t index)
         legendColumns = 0; // unlimited
     }
     legend->setMaxColumns(legendColumns);
+    
+    legend->horizontalScrollBar()->setVisible(false);
+    legend->verticalScrollBar()->setVisible(false);
+
     legend->connect(trackPlot, SIGNAL(legendDataChanged(const QVariant &, const QList< QwtLegendData > &)), SLOT(updateLegend(const QVariant &, const QList< QwtLegendData > &)));
     legend->contentsWidget()->layout()->setAlignment(Qt::AlignBottom | Qt::AlignHCenter);
     m_legends.insert(static_cast<int>(index), legend);
@@ -505,7 +509,7 @@ void RiuWellLogPlot::updateChildrenLayout()
             m_legends[tIdx]->setMaxColumns(legendColumns);
             m_legends[tIdx]->show();
 
-            m_trackPlots[tIdx]->enableVerticalAxisLabelsAndTitle(numTracksAlreadyShown == 0);           
+            m_trackPlots[tIdx]->enableVerticalAxisLabelsAndTitle(numTracksAlreadyShown == 0);
             numTracksAlreadyShown++;
         }
         else
