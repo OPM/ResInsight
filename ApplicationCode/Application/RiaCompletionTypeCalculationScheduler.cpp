@@ -114,12 +114,15 @@ void RiaCompletionTypeCalculationScheduler::slotRecalculateCompletionType()
 
     for (RimEclipseCase* eclipseCase : uniqueCases)
     {
-        for (const auto& w : eclipseCase->views())
+        if (eclipseCase)
         {
-            RimEclipseView* eclView = dynamic_cast<RimEclipseView*>(w);
-            if (eclView)
+            for (const auto& w : eclipseCase->views())
             {
-                eclView->calculateCompletionTypeAndRedrawIfRequired();
+                RimEclipseView* eclView = dynamic_cast<RimEclipseView*>(w);
+                if (eclView)
+                {
+                    eclView->calculateCompletionTypeAndRedrawIfRequired();
+                }
             }
         }
     }
