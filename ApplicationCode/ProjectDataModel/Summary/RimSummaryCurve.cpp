@@ -26,10 +26,13 @@
 #include "RiaTimeHistoryCurveMerger.h"
 
 #include "RimEclipseResultCase.h"
+#include "RimEnsembleCurveSet.h"
+#include "RimEnsembleCurveSetCollection.h"
 #include "RimProject.h"
 #include "RimSummaryAddress.h"
 #include "RimSummaryCalculationCollection.h"
 #include "RimSummaryCase.h"
+#include "RimSummaryCaseCollection.h"
 #include "RimSummaryCrossPlot.h"
 #include "RimSummaryCurveAutoName.h"
 #include "RimSummaryCurveCollection.h"
@@ -633,6 +636,34 @@ void RimSummaryCurve::updateQwtPlotAxis()
 void RimSummaryCurve::applyCurveAutoNameSettings(const RimSummaryCurveAutoName& autoNameSettings)
 {
     m_curveNameConfig->applySettings(autoNameSettings);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RimSummaryCurve::curveExportDescription() const
+{
+    auto address = m_yValuesCurveVariable->address();
+
+    RimEnsembleCurveSetCollection* coll;
+    firstAncestorOrThisOfType(coll);
+
+    auto curveSet = coll ? coll->findRimCurveSetFromQwtCurve(m_qwtPlotCurve) : nullptr;
+    auto group = curveSet ? curveSet->summaryCaseCollection() : nullptr;
+
+    if (group && group->isEnsemble())
+    {
+        return QString("%1.%2.%3")
+            .arg(QString::fromStdString(address.uiText()))
+            .arg(m_yValuesSummaryCase->caseName())
+            .arg(group->name());
+    }
+    else
+    {
+        return QString("%1.%2")
+            .arg(QString::fromStdString(address.uiText()))
+            .arg(m_yValuesSummaryCase->caseName());
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -1642,7 +1642,7 @@ void populateTimeHistoryCurvesData(std::vector<RimGridTimeHistoryCurve*> curves,
             if (curveCaseName == curvesData->caseNames[i]) casePosInList = i;
         }
 
-        CurveData curveData = { curve->curveName(), RifEclipseSummaryAddress(), curve->yValues() };
+        CurveData curveData = { curve->curveExportDescription(), RifEclipseSummaryAddress(), curve->yValues() };
 
         if (casePosInList == cvf::UNDEFINED_SIZE_T)
         {
@@ -1674,7 +1674,7 @@ void populateAsciiDataCurvesData(std::vector<RimAsciiDataCurve*> curves, CurvesD
 
         size_t casePosInList = cvf::UNDEFINED_SIZE_T;
 
-        CurveData curveData = { curve->curveName(), RifEclipseSummaryAddress(), curve->yValues() };
+        CurveData curveData = { curve->curveExportDescription(), RifEclipseSummaryAddress(), curve->yValues() };
 
         if (casePosInList == cvf::UNDEFINED_SIZE_T)
         {
@@ -1711,7 +1711,7 @@ void populateSummaryCurvesData(std::vector<RimSummaryCurve*> curves, CurvesData*
             if (curveCaseName == curvesData->caseNames[i]) casePosInList = i;
         }
 
-        CurveData curveData = { curve->curveName(), curve->summaryAddressY(), curve->valuesY() };
+        CurveData curveData = { curve->curveExportDescription(), curve->summaryAddressY(), curve->valuesY() };
 
         if (casePosInList == cvf::UNDEFINED_SIZE_T)
         {
@@ -1839,7 +1839,7 @@ void appendToExportData(QString& out, const std::vector<CurvesData>& curvesData)
         {
             for (size_t j = 0; j < data.allCurveData[i].size(); j++)
             {
-                out += "\t" + data.allCurveData[i][j].name + " (" + data.caseNames[i] + ")";
+                out += "\t" + data.allCurveData[i][j].name;
             }
         }
         out += "\n";

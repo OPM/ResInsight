@@ -94,6 +94,7 @@ public:
     void                            updateCurveNameNoLegendUpdate();
 
     QString                         curveName() const { return m_curveName; }
+    virtual QString                 curveExportDescription() const { return m_curveName; }
 
     void                            updateCurveVisibility(bool updateParentPlot);
     void                            updateLegendEntryVisibilityAndPlotLegend();

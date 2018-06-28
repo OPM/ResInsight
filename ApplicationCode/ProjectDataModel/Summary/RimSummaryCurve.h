@@ -74,6 +74,8 @@ public:
     void                                    updateQwtPlotAxis();
     void                                    applyCurveAutoNameSettings(const RimSummaryCurveAutoName& autoNameSettings);
 
+    virtual QString                         curveExportDescription() const override;
+
 protected:
     // RimPlotCurve overrides
     virtual QString                         createCurveAutoName() override;
