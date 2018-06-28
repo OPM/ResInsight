@@ -45,6 +45,7 @@
 #include <QAbstractItemView>
 #include <QMenu>
 #include <QTime>
+#include <QToolTip>
 
 #include <vector>
 #include <time.h>
@@ -572,10 +573,27 @@ void RicFileHierarchyDialog::setOkButtonEnabled(bool enabled)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RicFileHierarchyDialog::warningIfInvalidCharacters()
+{
+    if (m_fileFilter->text().contains(QRegExp("[\\\\/:]")))
+    {
+        QToolTip::showText(m_fileFilter->mapToGlobal(QPoint(0, 0)), "File pattern contains invalid characters");
+        m_effectiveFilter->setText("(Invalid filter)");
+    }
+    else
+    {
+        QToolTip::hideText();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RicFileHierarchyDialog::slotFilterChanged(const QString& text)
 {
     clearFileList();
     updateEffectiveFilter();
+    warningIfInvalidCharacters();
 }
 
 //--------------------------------------------------------------------------------------------------

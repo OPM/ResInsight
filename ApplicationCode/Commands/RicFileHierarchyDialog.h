@@ -87,6 +87,8 @@ private:
 
     void        setOkButtonEnabled(bool enabled);
 
+    void        warningIfInvalidCharacters();
+
 private slots:
     void slotFilterChanged(const QString& text);
     void slotFileListCustomMenuRequested(const QPoint& point);
