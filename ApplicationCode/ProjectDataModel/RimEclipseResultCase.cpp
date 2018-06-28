@@ -132,16 +132,15 @@ bool RimEclipseResultCase::importGridAndResultMetaData(bool showTimeStepFilter)
         readerEclipseOutput->setFilenamesWithFaults(this->filesContainingFaults());
 
         cvf::ref<RifEclipseRestartDataAccess> restartDataAccess = RifEclipseOutputFileTools::createDynamicResultAccess(caseFileName());
-        if (restartDataAccess.isNull())
-        {
-            return false;
-        }
 
         {
             std::vector<QDateTime> timeSteps;
             std::vector<double> daysSinceSimulationStart;
 
-            restartDataAccess->timeSteps(&timeSteps, &daysSinceSimulationStart);
+            if (restartDataAccess.notNull())
+            {
+                restartDataAccess->timeSteps(&timeSteps, &daysSinceSimulationStart);
+            }
             m_timeStepFilter->setTimeStepsFromFile(timeSteps);
         }
 
