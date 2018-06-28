@@ -198,18 +198,19 @@ void RifWellPathImporter::readAllAsciiWellData(const QString& filePath)
     std::vector<RifWellPathImporter::WellData>& fileWellDataArray = m_fileNameToWellDataGroupMap[filePath];
 
     std::ifstream stream(filePath.toLatin1().data());
-    double x(HUGE_VAL), y(HUGE_VAL), tvd(HUGE_VAL), md(HUGE_VAL);
 
     bool hasReadWellPointInCurrentWell = false;
 
     while (stream.good())
     {
+        double x(HUGE_VAL), y(HUGE_VAL), tvd(HUGE_VAL), md(HUGE_VAL);
+
         // First check if we can read a number
         stream >> x;
         if (stream.good()) // If we can, assume this line is a well point entry
         {
             stream >> y >> tvd >> md;
-            if (!stream.good())
+            if (!stream.eof() && !stream.good())
             {
                 // -999 or otherwise to few numbers before some word
                 if (x != -999)
@@ -230,11 +231,6 @@ void RifWellPathImporter::readAllAsciiWellData(const QString& filePath)
                 cvf::Vec3d wellPoint(x, y, -tvd);
                 fileWellDataArray.back().m_wellPathGeometry->m_wellPathPoints.push_back(wellPoint);
                 fileWellDataArray.back().m_wellPathGeometry->m_measuredDepths.push_back(md);
-
-                x = HUGE_VAL;
-                y = HUGE_VAL;
-                tvd = HUGE_VAL;
-                md = HUGE_VAL;
 
                 hasReadWellPointInCurrentWell = true;
             }
