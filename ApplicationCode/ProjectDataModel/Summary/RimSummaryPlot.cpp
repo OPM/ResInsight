@@ -65,11 +65,6 @@
 CAF_PDM_SOURCE_INIT(RimSummaryPlot, "SummaryPlot");
 
 //--------------------------------------------------------------------------------------------------
-/// Internal constants
-//--------------------------------------------------------------------------------------------------
-#define DOUBLE_INF  std::numeric_limits<double>::infinity()
-
-//--------------------------------------------------------------------------------------------------
 /// Internal types
 //--------------------------------------------------------------------------------------------------
 enum class ResampleAlgorithm
@@ -1872,7 +1867,7 @@ void appendToExportData(QString& out, const std::vector<CurvesData>& curvesData)
                     }
                     else
                     {
-                        valueText = QString::number(DOUBLE_INF);
+                        valueText = "NULL";
                     }
                     out += "\t" + valueText;
                 }
