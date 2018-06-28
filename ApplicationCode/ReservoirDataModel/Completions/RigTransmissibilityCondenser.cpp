@@ -79,6 +79,8 @@ void RigTransmissibilityCondenser::calculateCondensedTransmissibilitiesIfNeeded(
 {
     if (m_condensedTransmissibilities.size()) return;
 
+    if (m_neighborTransmissibilities.empty()) return;
+
     // Find all equations, and their total ordering
 
     union
