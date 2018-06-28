@@ -426,7 +426,7 @@ QList<caf::PdmOptionItemInfo> RimFractureTemplate::calculateValueOptions(const c
         options.push_back(caf::PdmOptionItemInfo(caf::AppEnum<WidthEnum>::uiText(USER_DEFINED_WIDTH), USER_DEFINED_WIDTH));
 
         auto widthAndCond = widthAndConductivityAtWellPathIntersection();
-        if (widthAndCond.isValid())
+        if (widthAndCond.isWidthAndPermeabilityDefined())
         {
             options.push_back(caf::PdmOptionItemInfo(caf::AppEnum<WidthEnum>::uiText(WIDTH_FROM_FRACTURE), WIDTH_FROM_FRACTURE));
         }
@@ -490,7 +490,7 @@ void RimFractureTemplate::prepareFieldsForUiDisplay()
     // Non Darcy Flow
 
     auto values = widthAndConductivityAtWellPathIntersection();
-    if (!values.isValid())
+    if (!values.isWidthAndPermeabilityDefined())
     {
         m_fractureWidthType = RimFractureTemplate::USER_DEFINED_WIDTH;
     }
@@ -571,9 +571,21 @@ double RimFractureTemplate::effectivePermeability() const
     }
     else
     {
+        double fracPermeability = 0.0;
         auto values = widthAndConductivityAtWellPathIntersection();
+        if (values.isWidthAndPermeabilityDefined())
+        {
+            fracPermeability = values.m_permeability;
+        }
+        else
+        {
+            auto conductivity = values.m_conductivity;
+            auto width = fractureWidth();
 
-        auto fracPermeability = values.m_permeability;
+            if (fabs(width) < 1e-10) return HUGE_VAL;
+
+            fracPermeability = conductivity / width;
+        }
 
         return fracPermeability * m_relativePermeability;
     }
@@ -621,7 +633,7 @@ double RimFractureTemplate::kh() const
     // conductivity = permeability * h
 
     auto values = widthAndConductivityAtWellPathIntersection();
-    if (values.m_conductivity != HUGE_VAL)
+    if (values.isConductivityDefined())
     {
         // If conductivity is found in stim plan file, use this directly
         return values.m_conductivity;

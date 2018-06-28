@@ -49,12 +49,17 @@ public:
     {
     }
 
-    bool isValid() const
+    bool isWidthAndPermeabilityDefined() const
     {
         if (m_width != 0.0) return true;
         if (m_permeability != 0.0) return true;
 
         return false;
+    }
+
+    bool isConductivityDefined() const
+    {
+        return (m_conductivity != HUGE_VAL);
     }
 
     // Unit : meter or feet
