@@ -108,7 +108,7 @@ RimFractureTemplate::RimFractureTemplate()
     m_nameAndUnit.uiCapability()->setUiHidden(true);
     m_nameAndUnit.xmlCapability()->disableIO();
 
-    CAF_PDM_InitField(&m_fractureTemplateUnit, "UnitSystem", caf::AppEnum<RiaEclipseUnitTools::UnitSystem>(RiaEclipseUnitTools::UNITS_METRIC), "Units System", "", "", "");
+    CAF_PDM_InitField(&m_fractureTemplateUnit, "UnitSystem", caf::AppEnum<RiaEclipseUnitTools::UnitSystem>(RiaEclipseUnitTools::UNITS_UNKNOWN), "Units System", "", "", "");
     m_fractureTemplateUnit.uiCapability()->setUiReadOnly(true);
 
     CAF_PDM_InitField(&m_orientationType,     "Orientation",  caf::AppEnum<FracOrientationEnum>(TRANSVERSE_WELL_PATH), "Fracture Orientation", "", "", "");
