@@ -183,12 +183,14 @@ void RimStimPlanFractureTemplate::setDefaultsBasedOnXMLfile()
 {
     if (m_stimPlanFractureDefinitionData.isNull()) return;
 
-    setDepthOfWellPathAtFracture();
-    setPerforationLength();
-    RiaLogging::info(QString("Setting well/fracture intersection depth at %1").arg(m_wellPathDepthAtFracture));
-    m_activeTimeStepIndex = static_cast<int>(m_stimPlanFractureDefinitionData->totalNumberTimeSteps() - 1);
-    bool polygonPropertySet = setBorderPolygonResultNameToDefault();
+    computeDepthOfWellPathAtFracture();
+    computePerforationLength();
 
+    RiaLogging::info(QString("Setting well/fracture intersection depth at %1").arg(m_wellPathDepthAtFracture));
+    
+    m_activeTimeStepIndex = static_cast<int>(m_stimPlanFractureDefinitionData->totalNumberTimeSteps() - 1);
+    
+    bool polygonPropertySet = setBorderPolygonResultNameToDefault();
     if (polygonPropertySet) RiaLogging::info(QString("Calculating polygon outline based on %1 at timestep %2").arg(m_borderPolygonResultName).arg(m_stimPlanFractureDefinitionData->timeSteps()[m_activeTimeStepIndex]));
     else                    RiaLogging::info(QString("Property for polygon calculation not set."));
 
@@ -318,7 +320,7 @@ QList<caf::PdmOptionItemInfo> RimStimPlanFractureTemplate::calculateValueOptions
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimStimPlanFractureTemplate::setDepthOfWellPathAtFracture()
+void RimStimPlanFractureTemplate::computeDepthOfWellPathAtFracture()
 {
     if (!m_stimPlanFractureDefinitionData.isNull())
     {
@@ -341,7 +343,7 @@ void RimStimPlanFractureTemplate::setDepthOfWellPathAtFracture()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimStimPlanFractureTemplate::setPerforationLength()
+void RimStimPlanFractureTemplate::computePerforationLength()
 {
     if (!m_stimPlanFractureDefinitionData.isNull())
     {

@@ -102,8 +102,8 @@ protected:
 private:
     void                                    setDefaultConductivityResultIfEmpty();
     bool                                    setBorderPolygonResultNameToDefault();
-    void                                    setDepthOfWellPathAtFracture();
-    void                                    setPerforationLength();
+    void                                    computeDepthOfWellPathAtFracture();
+    void                                    computePerforationLength();
     QString                                 getUnitForStimPlanParameter(QString parameterName);
 
 
