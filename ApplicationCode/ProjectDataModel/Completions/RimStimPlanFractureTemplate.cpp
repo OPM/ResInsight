@@ -350,7 +350,7 @@ void RimStimPlanFractureTemplate::setPerforationLength()
 
         if (firstTvd != HUGE_VAL && lastTvd != HUGE_VAL)
         {
-            m_perforationLength = std::round(cvf::Math::abs(firstTvd - lastTvd));
+            m_perforationLength = cvf::Math::abs(firstTvd - lastTvd);
         }
     }
 
