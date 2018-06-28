@@ -21,7 +21,7 @@ CAF_CMD_SOURCE_INIT(RicNewWellPathListTargetFeature, "RicNewWellPathListTargetFe
 
 #include "cafSelectionManager.h"
 #include "RimWellPathTarget.h"
-#include "RimModeledWellpath.h"
+#include "RimModeledWellPath.h"
 #include <QAction>
 
 //--------------------------------------------------------------------------------------------------

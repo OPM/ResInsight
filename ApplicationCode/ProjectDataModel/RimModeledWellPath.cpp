@@ -4,12 +4,12 @@
 #include "cafPdmUiTreeOrdering.h"
 #include "cafCmdFeatureMenuBuilder.h"
 
-CAF_PDM_SOURCE_INIT(RimModeledWellpath, "ModeledWellpath");
+CAF_PDM_SOURCE_INIT(RimModeledWellPath, "ModeledWellPath");
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimModeledWellpath::RimModeledWellpath()
+RimModeledWellPath::RimModeledWellPath()
 {
     CAF_PDM_InitObject("Modeled WellPath", ":/Well.png", "", "");
 
@@ -21,7 +21,7 @@ RimModeledWellpath::RimModeledWellpath()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimModeledWellpath::~RimModeledWellpath()
+RimModeledWellPath::~RimModeledWellPath()
 {
 
 }
@@ -30,7 +30,7 @@ RimModeledWellpath::~RimModeledWellpath()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimModeledWellpath::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName)
+void RimModeledWellPath::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName)
 {
     uiTreeOrdering.add(m_geometryDefinition());
     RimWellPath::defineUiTreeOrdering(uiTreeOrdering, uiConfigName);

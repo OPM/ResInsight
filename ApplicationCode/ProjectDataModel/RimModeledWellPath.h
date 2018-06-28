@@ -29,13 +29,13 @@ class RimWellPathTarget;
 class RimWellPath;
 class RimWellPathGeometryDef;
 
-class RimModeledWellpath: public RimWellPath
+class RimModeledWellPath: public RimWellPath
 {
     CAF_PDM_HEADER_INIT; 
 public:
 
-    RimModeledWellpath();
-    ~RimModeledWellpath();
+    RimModeledWellPath();
+    ~RimModeledWellPath();
 
 private:
    
