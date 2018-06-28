@@ -41,7 +41,9 @@ public:
     RimFractureTemplate*                        fractureTemplate(int id) const;
     std::vector<RimFractureTemplate*>           fractureTemplates() const;
     void                                        addFractureTemplate(RimFractureTemplate* templ);
+
     RiaEclipseUnitTools::UnitSystemType         defaultUnitSystemType() const;
+    void                                        setDefaultUnitSystemBasedOnLoadedCases();
 
     RimFractureTemplate* firstFractureOfUnit(RiaEclipseUnitTools::UnitSystem unitSet) const;
 

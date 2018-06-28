@@ -35,14 +35,15 @@
 #include "RimEclipseResultCase.h"
 #include "RimEclipseView.h"
 #include "RimFileSummaryCase.h"
+#include "RimFractureTemplateCollection.h"
 #include "RimGridSummaryCase.h"
 #include "RimIdenticalGridCaseGroup.h"
 #include "RimMainPlotCollection.h"
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimSummaryCase.h"
-#include "RimSummaryCaseMainCollection.h"
 #include "RimSummaryCaseCollection.h"
+#include "RimSummaryCaseMainCollection.h"
 #include "RimSummaryCurve.h"
 #include "RimSummaryCurveCollection.h"
 #include "RimSummaryCurveFilter.h"
@@ -157,6 +158,8 @@ bool RiaImportEclipseCaseTools::openEclipseCasesFromFile(const QStringList& file
         QString errorMessage = selector.createCombinedErrorMessage();
         RiaLogging::error(errorMessage);
     }
+
+    project->activeOilField()->fractureDefinitionCollection()->setDefaultUnitSystemBasedOnLoadedCases();
 
     RiuPlotMainWindowTools::refreshToolbars();
 

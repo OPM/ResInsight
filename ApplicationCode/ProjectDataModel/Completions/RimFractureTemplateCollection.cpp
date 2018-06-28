@@ -19,10 +19,13 @@
 #include "RimFractureTemplateCollection.h"
 
 #include "RiaLogging.h"
+#include "RiaApplication.h"
 
 #include "RigStatisticsMath.h"
 
+#include "RigEclipseCaseData.h"
 #include "RimCase.h"
+#include "RimEclipseCase.h"
 #include "RimEclipseView.h"
 #include "RimEllipseFractureTemplate.h"
 #include "RimFracture.h"
@@ -111,6 +114,41 @@ void RimFractureTemplateCollection::addFractureTemplate(RimFractureTemplate* tem
 RiaEclipseUnitTools::UnitSystemType RimFractureTemplateCollection::defaultUnitSystemType() const
 {
     return m_defaultUnitsForFracTemplates;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimFractureTemplateCollection::setDefaultUnitSystemBasedOnLoadedCases()
+{
+    RimProject* proj = RiaApplication::instance()->project();
+
+    std::vector<RimCase*> rimCases;
+    proj->allCases(rimCases);
+
+    RiaEclipseUnitTools::UnitSystem commonUnitSystemForAllCases = RiaEclipseUnitTools::UNITS_UNKNOWN;
+
+    for (const auto& c : rimCases)
+    {
+        auto eclipseCase = dynamic_cast<RimEclipseCase*>(c);
+        if (eclipseCase)
+        {
+            if (commonUnitSystemForAllCases == RiaEclipseUnitTools::UNITS_UNKNOWN)
+            {
+                commonUnitSystemForAllCases = eclipseCase->eclipseCaseData()->unitsType();
+            }
+            else if (commonUnitSystemForAllCases != eclipseCase->eclipseCaseData()->unitsType())
+            {
+                commonUnitSystemForAllCases = RiaEclipseUnitTools::UNITS_UNKNOWN;
+                break;
+            }
+        }
+    }
+
+    if (commonUnitSystemForAllCases != RiaEclipseUnitTools::UNITS_UNKNOWN)
+    {
+        m_defaultUnitsForFracTemplates = commonUnitSystemForAllCases;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
