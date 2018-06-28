@@ -219,8 +219,6 @@ std::set<size_t> RimFractureContainmentTools::fracturedCellsTruncatedByFaults(co
             {
                 std::set<size_t> cellsIntersectingFracturePlane = getCellsIntersectingFracturePlane(mainGrid, fracture);
 
-                size_t anchorCellGlobalIndex = fracture->findAnchorEclipseCell(mainGrid);
-
                 // Negative faultThrow disables test on faultThrow
                 double maximumFaultThrow = -1.0;
                 if (fracture && fracture->fractureTemplate())
@@ -228,11 +226,19 @@ std::set<size_t> RimFractureContainmentTools::fracturedCellsTruncatedByFaults(co
                     maximumFaultThrow = fracture->fractureTemplate()->fractureContainment()->minimumFaultThrow();
                 }
 
-                appendNeighborCells(cellsIntersectingFracturePlane,
-                                    mainGrid,
-                                    anchorCellGlobalIndex,
-                                    fracturedCellsContainedByFaults,
-                                    maximumFaultThrow);
+                if (maximumFaultThrow > -1.0)
+                {
+                    size_t anchorCellGlobalIndex = fracture->findAnchorEclipseCell(mainGrid);
+                    appendNeighborCells(cellsIntersectingFracturePlane,
+                                        mainGrid,
+                                        anchorCellGlobalIndex,
+                                        fracturedCellsContainedByFaults,
+                                        maximumFaultThrow);
+                }
+                else
+                {
+                    fracturedCellsContainedByFaults = cellsIntersectingFracturePlane;
+                }
             }
 
             /*
