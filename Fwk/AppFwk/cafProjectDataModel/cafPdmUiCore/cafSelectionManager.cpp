@@ -37,7 +37,6 @@
 
 #include "cafSelectionManager.h"
 
-#include "cafNotificationCenter.h"
 #include "cafPdmReferenceHelper.h"
 #include "cafPdmUiFieldHandle.h"
 #include "cafPdmUiObjectHandle.h"
@@ -55,6 +54,14 @@ SelectionManager* SelectionManager::instance()
 {
     static SelectionManager* singleton = new SelectionManager;
     return singleton;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Obsolete.  Do not use this method.
+//--------------------------------------------------------------------------------------------------
+caf::NotificationCenter* SelectionManager::notificationCenter()
+{
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -143,7 +150,6 @@ SelectionManager::SelectionManager()
 {
     m_selectionForRole.resize(UNDEFINED);
 
-    m_notificationCenter = nullptr;
     m_activeChildArrayFieldHandle = nullptr;
 }
 
@@ -232,31 +238,10 @@ void SelectionManager::clear(int role)
 //--------------------------------------------------------------------------------------------------
 void SelectionManager::notifySelectionChanged()
 {
-    if (m_notificationCenter)
-    {
-        m_notificationCenter->notifyObserversOfSelectionChange();
-    }
-
     for (auto receiver: m_selectionReceivers)
     {
         receiver->onSelectionManagerSelectionChanged();
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void SelectionManager::setNotificationCenter(NotificationCenter* notificationCenter)
-{
-    m_notificationCenter = notificationCenter;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-NotificationCenter* SelectionManager::notificationCenter()
-{
-    return m_notificationCenter;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -110,10 +110,9 @@ public:
     PdmObjectHandle* pdmObjectFromModelIndex(const QModelIndex& mi);
     QTableView*     tableView();
 
-
+protected:
     QWidget*        createEditorWidget(QWidget * parent) override;
     QWidget*        createLabelWidget(QWidget * parent) override;
-protected:
     virtual void    configureAndUpdateUi(const QString& uiConfigName) override;
 
     virtual void    onSelectionManagerSelectionChanged() override;

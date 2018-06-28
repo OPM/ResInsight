@@ -65,29 +65,29 @@ public:
     };
 
 public:
-    static SelectionManager*    instance();
+    static SelectionManager*  instance();
 
-    void                        setNotificationCenter(NotificationCenter* notificationCenter);
-    NotificationCenter*         notificationCenter();
-    
-    void                        setActiveChildArrayFieldHandle(PdmChildArrayFieldHandle* childArray);
-    PdmChildArrayFieldHandle*   activeChildArrayFieldHandle();
+    // OBSOLETE ! Remove when time to refactor the command system 
+    NotificationCenter*       notificationCenter();
 
-    void                        setPdmRootObject(PdmObjectHandle* root);
-    PdmObjectHandle*            pdmRootObject() { return m_rootObject; }
+    void                      setActiveChildArrayFieldHandle(PdmChildArrayFieldHandle* childArray);
+    PdmChildArrayFieldHandle* activeChildArrayFieldHandle();
 
-    PdmUiItem*  selectedItem(int role = SelectionManager::APPLICATION_GLOBAL);
-    void        setSelectedItem(PdmUiItem* item, int role = SelectionManager::APPLICATION_GLOBAL);
+    void                      setPdmRootObject(PdmObjectHandle* root);
+    PdmObjectHandle*          pdmRootObject() { return m_rootObject; }
 
-    void        selectedItems(std::vector<PdmUiItem*>& items, int role = SelectionManager::APPLICATION_GLOBAL);
-    void        setSelectedItems(const std::vector<PdmUiItem*>& items, int role = SelectionManager::APPLICATION_GLOBAL);
+    PdmUiItem*                selectedItem(int role = SelectionManager::APPLICATION_GLOBAL);
+    void                      setSelectedItem(PdmUiItem* item, int role = SelectionManager::APPLICATION_GLOBAL);
 
-    void        selectionAsReferences(std::vector<QString>& referenceList, int role = SelectionManager::APPLICATION_GLOBAL) const;
-    void        setSelectionFromReferences(const std::vector<QString>& referenceList, int role = SelectionManager::APPLICATION_GLOBAL);
+    void                      selectedItems(std::vector<PdmUiItem*>& items, int role = SelectionManager::APPLICATION_GLOBAL);
+    void                      setSelectedItems(const std::vector<PdmUiItem*>& items, int role = SelectionManager::APPLICATION_GLOBAL);
 
-    void        clearAll();
-    void        clear(int role);
-    void        removeObjectFromAllSelections(PdmObjectHandle* pdmObject);
+    void                      selectionAsReferences(std::vector<QString>& referenceList, int role = SelectionManager::APPLICATION_GLOBAL) const;
+    void                      setSelectionFromReferences(const std::vector<QString>& referenceList, int role = SelectionManager::APPLICATION_GLOBAL);
+
+    void                      clearAll();
+    void                      clear(int role);
+    void                      removeObjectFromAllSelections(PdmObjectHandle* pdmObject);
 
     template <typename T>
     void objectsByType(std::vector<T*>* typedObjects, int role = SelectionManager::APPLICATION_GLOBAL)
@@ -122,6 +122,7 @@ public:
 
 private:
     SelectionManager();
+
     void notifySelectionChanged();
 
     friend class SelectionChangedReceiver;
@@ -131,7 +132,6 @@ private:
 private:
     std::vector < std::vector< std::pair<PdmPointer<PdmObjectHandle>, PdmUiItem*> > > m_selectionForRole;
 
-    NotificationCenter*         m_notificationCenter;
     PdmChildArrayFieldHandle*   m_activeChildArrayFieldHandle;
     PdmPointer<PdmObjectHandle> m_rootObject;
 
