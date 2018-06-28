@@ -447,7 +447,14 @@ std::vector<RimSummaryCaseCollection*> RimDerivedEnsembleCaseCollection::allEnse
 
     for (auto group : project->summaryGroups())
     {
-        if (group->isEnsemble()) ensembles.push_back(group);
+        if (group == this) continue;
+
+        if (!group->isEnsemble()) continue;
+
+        auto derivedEnsemble = dynamic_cast<const RimDerivedEnsembleCaseCollection*>(group);
+        if (derivedEnsemble && !derivedEnsemble->isValid()) continue;
+
+        ensembles.push_back(group);
     }
     return ensembles;
 }
