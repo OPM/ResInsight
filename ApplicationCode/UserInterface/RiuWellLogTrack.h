@@ -55,6 +55,10 @@ public:
     void                                    enableVerticalAxisLabelsAndTitle(bool enable);
     int                                     widthScaleFactor() const;
     void                                    enableGridLines(bool majorGridLines, bool minorGridLines);
+    void                                    setMajorAndMinorTickIntervals(double majorTickInterval, double minorTickInterval);
+    void                                    setAutoTickIntervals(int maxMajorTickIntervals, int maxMinorTickIntervals);
+    double                                  getCurrentMajorTickInterval() const;
+    double                                  getCurrentMinorTickInterval() const;
 protected:
     virtual bool                            eventFilter(QObject* watched, QEvent* event);
     virtual QSize                           sizeHint() const;

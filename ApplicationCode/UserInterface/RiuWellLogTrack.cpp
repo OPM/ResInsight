@@ -28,6 +28,8 @@
 #include "RiuPlotMainWindowTools.h"
 #include "RiuQwtCurvePointTracker.h"
 
+#include "RiuQwtLinearScaleEngine.h"
+
 #include "qwt_legend.h"
 #include "qwt_plot_curve.h"
 #include "qwt_plot_grid.h"
@@ -35,7 +37,6 @@
 #include "qwt_plot_marker.h"
 #include "qwt_plot_picker.h"
 #include "qwt_scale_draw.h"
-#include "qwt_scale_engine.h"
 #include "qwt_symbol.h"
 #include "qwt_text.h"
 
@@ -303,5 +304,57 @@ void RiuWellLogTrack::enableGridLines(bool majorGridLines, bool minorGridLines)
         grid->setMajorPen(Qt::lightGray, 1.0, Qt::SolidLine);
         grid->setMinorPen(Qt::lightGray, 1.0, Qt::DashLine);
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuWellLogTrack::setMajorAndMinorTickIntervals(double majorTickInterval, double minorTickInterval)
+{
+    RiuQwtLinearScaleEngine* scaleEngine = dynamic_cast<RiuQwtLinearScaleEngine*>(this->axisScaleEngine(QwtPlot::xTop));
+    if (scaleEngine)
+    {
+        QwtInterval currentRange = this->axisInterval(QwtPlot::xTop);
+        QwtScaleDiv scaleDiv = scaleEngine->divideScale(currentRange.minValue(), currentRange.maxValue(), majorTickInterval, minorTickInterval);
+    
+        this->setAxisScaleDiv(QwtPlot::xTop, scaleDiv);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuWellLogTrack::setAutoTickIntervals(int maxMajorTickIntervals, int maxMinorTickIntervals)
+{
+    this->setAxisMaxMajor(QwtPlot::xTop, maxMajorTickIntervals);
+    this->setAxisMaxMinor(QwtPlot::xTop, maxMinorTickIntervals);
+	// Reapply axis limits to force Qwt to use the tick settings.
+    QwtInterval currentRange = this->axisInterval(QwtPlot::xTop);
+    this->setAxisScale(QwtPlot::xTop, currentRange.minValue(), currentRange.maxValue());
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RiuWellLogTrack::getCurrentMajorTickInterval() const
+{
+    QwtScaleDiv scaleDiv = this->axisScaleDiv(QwtPlot::xTop);
+    QList<double> majorTicks = scaleDiv.ticks(QwtScaleDiv::MajorTick);
+    if (majorTicks.size() < 2) return 0.0;
+
+    return majorTicks.at(1) - majorTicks.at(0);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RiuWellLogTrack::getCurrentMinorTickInterval() const
+{
+    QwtScaleDiv scaleDiv = this->axisScaleDiv(QwtPlot::xTop);
+    QList<double> minorTicks = scaleDiv.ticks(QwtScaleDiv::MinorTick);
+    if (minorTicks.size() < 2) return 0.0;
+
+    return minorTicks.at(1) - minorTicks.at(0);
+
 }
 

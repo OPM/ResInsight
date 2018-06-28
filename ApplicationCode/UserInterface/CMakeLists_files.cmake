@@ -18,6 +18,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RiuProjectPropertyView.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuPropertyViewTabWidget.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuPvtPlotPanel.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuPvtPlotUpdater.h
+${CMAKE_CURRENT_LIST_DIR}/RiuQwtLinearScaleEngine.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuQwtScalePicker.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuQwtCurvePointTracker.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuQwtPlotWheelZoomer.h
@@ -92,6 +93,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RiuProjectPropertyView.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuPropertyViewTabWidget.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuPvtPlotPanel.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuPvtPlotUpdater.cpp
+${CMAKE_CURRENT_LIST_DIR}/RiuQwtLinearScaleEngine.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuQwtScalePicker.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuQwtCurvePointTracker.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuQwtPlotWheelZoomer.cpp

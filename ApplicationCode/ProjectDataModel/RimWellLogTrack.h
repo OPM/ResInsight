@@ -176,6 +176,9 @@ private:
     caf::PdmField<bool>                                                m_isAutoScaleXEnabled;
     caf::PdmField<bool>                                                m_isLogarithmicScaleEnabled;
     caf::PdmField<caf::AppEnum<GridLines>>                             m_showXGridLines;
+    caf::PdmField<bool>                                                m_explicitTickIntervals;
+    caf::PdmField<double>                                              m_majorTickInterval;
+    caf::PdmField<double>                                              m_minorTickInterval;
 
     caf::PdmField<bool>                                                m_showFormations;
     caf::PdmField<caf::AppEnum<FormationSource>>                       m_formationSource;

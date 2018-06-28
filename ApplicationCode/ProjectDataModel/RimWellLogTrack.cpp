@@ -20,6 +20,8 @@
 #include "RimWellLogTrack.h"
 
 #include "RiaApplication.h"
+#include "RiaExtractionTools.h"
+#include "RiaSimWellBranchTools.h"
 
 #include "RigEclipseCaseData.h"
 #include "RigEclipseWellLogExtractor.h"
@@ -55,11 +57,8 @@
 #include "RiuWellLogPlot.h"
 #include "RiuWellLogTrack.h"
 
+#include "RiuQwtLinearScaleEngine.h"
 #include "cvfAssert.h"
-
-#include "qwt_scale_engine.h"
-#include "RiaSimWellBranchTools.h"
-#include "RiaExtractionTools.h"
 
 #define RI_LOGPLOTTRACK_MINX_DEFAULT    -10.0
 #define RI_LOGPLOTTRACK_MAXX_DEFAULT    100.0
@@ -152,6 +151,12 @@ RimWellLogTrack::RimWellLogTrack()
     CAF_PDM_InitField(&m_isLogarithmicScaleEnabled, "LogarithmicScaleX", false, "Logarithmic Scale", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_showXGridLines, "ShowXGridLines", "Show Grid Lines", "", "", "");
+
+    CAF_PDM_InitField(&m_explicitTickIntervals, "ExplicitTickIntervals", false, "Manually Set Tick Intervals", "", "", "");
+    CAF_PDM_InitField(&m_majorTickInterval, "MajorTickIntervals", 0.0, "Major Tick Interval", "", "", "");
+    CAF_PDM_InitField(&m_minorTickInterval, "MinorTickIntervals", 0.0, "Minor Tick Interval", "", "", "");
+    m_majorTickInterval.uiCapability()->setUiHidden(true);
+    m_minorTickInterval.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitField(&m_showFormations, "ShowFormations", false, "Show", "", "", "");
 
@@ -253,7 +258,24 @@ void RimWellLogTrack::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
         updateAxisAndGridTickIntervals();
         m_wellLogTrackPlotWidget->replot();
     }
-    else if (changedField == &m_showXGridLines)    
+    else if (changedField == &m_explicitTickIntervals)
+    {
+        if (m_wellLogTrackPlotWidget)
+        {
+            m_majorTickInterval = m_wellLogTrackPlotWidget->getCurrentMajorTickInterval();
+            m_minorTickInterval = m_wellLogTrackPlotWidget->getCurrentMinorTickInterval();
+        }
+        m_majorTickInterval.uiCapability()->setUiHidden(!m_explicitTickIntervals());
+        m_minorTickInterval.uiCapability()->setUiHidden(!m_explicitTickIntervals());
+        if (!m_explicitTickIntervals())
+        {
+            updateAxisAndGridTickIntervals();
+            m_wellLogTrackPlotWidget->replot();
+        }
+    }
+    else if (changedField == &m_showXGridLines ||
+             changedField == &m_majorTickInterval ||
+             changedField == &m_minorTickInterval)
     {
         updateAxisAndGridTickIntervals();
         m_wellLogTrackPlotWidget->replot();
@@ -261,10 +283,11 @@ void RimWellLogTrack::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
     else if (changedField == &m_visibleXRangeMin || changedField == &m_visibleXRangeMax)
     {
         m_wellLogTrackPlotWidget->setXRange(m_visibleXRangeMin, m_visibleXRangeMax);
-        m_wellLogTrackPlotWidget->replot();
         m_isAutoScaleXEnabled = false;
         updateEditors();
-        updateParentPlotLayout();     
+        updateParentPlotLayout();
+        updateAxisAndGridTickIntervals();
+        m_wellLogTrackPlotWidget->replot();
     }
     else if (changedField == &m_isAutoScaleXEnabled)
     {
@@ -279,6 +302,11 @@ void RimWellLogTrack::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
     else if (changedField == &m_isLogarithmicScaleEnabled)
     {
         updateAxisScaleEngine();
+        if (m_isLogarithmicScaleEnabled())
+        {
+            m_explicitTickIntervals = false;
+        }
+        m_explicitTickIntervals.uiCapability()->setUiHidden(m_isLogarithmicScaleEnabled());
 
         this->calculateXZoomRangeAndUpdateQwt();
         computeAndSetXRangeMinForLogarithmicScale();
@@ -405,34 +433,40 @@ void RimWellLogTrack::updateAxisAndGridTickIntervals()
 {
     if (!m_wellLogTrackPlotWidget) return;
 
-    int xMajorTickIntervals = 3;
-    int xMinorTickIntervals = 0;
-    switch (m_widthScaleFactor())
+    if (m_explicitTickIntervals)
     {
-    case EXTRA_NARROW_TRACK:
-        xMajorTickIntervals = 3;
-        xMinorTickIntervals = 2;
-        break;
-    case NARROW_TRACK:
-        xMajorTickIntervals = 3;
-        xMinorTickIntervals = 5;
-        break;
-    case NORMAL_TRACK:
-        xMajorTickIntervals = 5;
-        xMinorTickIntervals = 5;
-        break;
-    case WIDE_TRACK:
-        xMajorTickIntervals = 5;
-        xMinorTickIntervals = 10;
-        break;
-    case EXTRA_WIDE_TRACK:
-        xMajorTickIntervals = 10;
-        xMinorTickIntervals = 10;
-        break;
+        m_wellLogTrackPlotWidget->setMajorAndMinorTickIntervals(m_majorTickInterval(), m_minorTickInterval());
     }
-    
-    m_wellLogTrackPlotWidget->setAxisMaxMajor(QwtPlot::xTop, xMajorTickIntervals);
-    m_wellLogTrackPlotWidget->setAxisMaxMinor(QwtPlot::xTop, xMinorTickIntervals);
+    else
+    {
+        int xMajorTickIntervals = 3;
+        int xMinorTickIntervals = 0;
+        switch (m_widthScaleFactor())
+        {
+        case EXTRA_NARROW_TRACK:
+            xMajorTickIntervals = 3;
+            xMinorTickIntervals = 2;
+            break;
+        case NARROW_TRACK:
+            xMajorTickIntervals = 3;
+            xMinorTickIntervals = 5;
+            break;
+        case NORMAL_TRACK:
+            xMajorTickIntervals = 5;
+            xMinorTickIntervals = 5;
+            break;
+        case WIDE_TRACK:
+            xMajorTickIntervals = 5;
+            xMinorTickIntervals = 10;
+            break;
+        case EXTRA_WIDE_TRACK:
+            xMajorTickIntervals = 10;
+            xMinorTickIntervals = 10;
+            break;
+        }
+        m_wellLogTrackPlotWidget->setAutoTickIntervals(xMajorTickIntervals, xMinorTickIntervals);
+    }
+
     switch (m_showXGridLines())
     {
     case GRID_X_NONE:
@@ -647,11 +681,14 @@ void RimWellLogTrack::loadDataAndUpdate()
     if ( m_wellLogTrackPlotWidget )
     {
         m_wellLogTrackPlotWidget->updateLegend();
-        this->updateAxisAndGridTickIntervals();
         this->updateAxisScaleEngine();
         this->updateFormationNamesOnPlot();
         this->applyXZoomFromVisibleRange();
+        this->updateAxisAndGridTickIntervals();
     }
+
+    m_majorTickInterval.uiCapability()->setUiHidden(!m_explicitTickIntervals());
+    m_minorTickInterval.uiCapability()->setUiHidden(!m_explicitTickIntervals());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1070,10 +1107,10 @@ void RimWellLogTrack::updateAxisScaleEngine()
     }
     else
     {
-        m_wellLogTrackPlotWidget->setAxisScaleEngine(QwtPlot::xTop, new QwtLinearScaleEngine);
+        m_wellLogTrackPlotWidget->setAxisScaleEngine(QwtPlot::xTop, new RiuQwtLinearScaleEngine);
 
         // NB! Must assign scale engine to bottom in order to make QwtPlotGrid work
-        m_wellLogTrackPlotWidget->setAxisScaleEngine(QwtPlot::xBottom, new QwtLinearScaleEngine);
+        m_wellLogTrackPlotWidget->setAxisScaleEngine(QwtPlot::xBottom, new RiuQwtLinearScaleEngine);
     }
 }
 
@@ -1191,6 +1228,9 @@ void RimWellLogTrack::uiOrderingForXAxisSettings(caf::PdmUiOrdering& uiOrdering)
     gridGroup->add(&m_visibleXRangeMin);
     gridGroup->add(&m_visibleXRangeMax);
     gridGroup->add(&m_showXGridLines);
+    gridGroup->add(&m_explicitTickIntervals);
+    gridGroup->add(&m_majorTickInterval);
+    gridGroup->add(&m_minorTickInterval);
 }
 
 //--------------------------------------------------------------------------------------------------
