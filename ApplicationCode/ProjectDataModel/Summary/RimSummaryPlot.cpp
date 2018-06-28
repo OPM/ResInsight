@@ -1744,7 +1744,7 @@ void prepareCaseCurvesForExport(DateTimePeriod period, ResampleAlgorithm algorit
 
     if (period != DateTimePeriod::NONE)
     {
-        for (int i = 0; i < inputCurvesData.caseNames.size(); i++)
+        for (size_t i = 0; i < inputCurvesData.caseNames.size(); i++)
         {
             // Shortcuts to input data
             auto& caseName = inputCurvesData.caseNames[i];
@@ -1849,7 +1849,7 @@ void appendToExportData(QString& out, const std::vector<CurvesData>& curvesData)
         }
         out += "\n";
 
-        std::vector<int> currIndexes(data.caseNames.size());
+        std::vector<size_t> currIndexes(data.caseNames.size());
         for (auto& i : currIndexes) i = 0;
 
         for (auto timeStep : allTimeSteps)
@@ -1860,7 +1860,7 @@ void appendToExportData(QString& out, const std::vector<CurvesData>& curvesData)
             for (size_t i = 0; i < data.caseNames.size(); i++)  // cases
             {
                 // Check is time step exists in curr case
-                int& currIndex = currIndexes[i];
+                size_t& currIndex = currIndexes[i];
                 bool timeStepExists = currIndex < data.timeSteps[i].size() && timeStep == data.timeSteps[i][currIndex];
 
                 for (size_t j = 0; j < data.allCurveData[i].size(); j++)  // vectors

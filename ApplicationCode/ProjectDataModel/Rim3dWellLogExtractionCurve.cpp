@@ -232,7 +232,7 @@ std::pair<double, double> Rim3dWellLogExtractionCurve::findCurveValueRange()
     double foundMinValue = std::numeric_limits<float>::infinity();
     double foundMaxValue = -std::numeric_limits<float>::infinity();
 
-    for (size_t i = 0; i < m_case->timeStepStrings().size(); ++i)
+    for (int i = 0; i < m_case->timeStepStrings().size(); ++i)
     {
         std::vector<double> values;
         std::vector<double> measuredDepths;
