@@ -19,6 +19,8 @@
 #include "RiaApplication.h"
 #include "RiaTimeHistoryCurveMerger.h"
 
+#include "SummaryPlotCommands/RicNewDerivedEnsembleFeature.h"
+
 #include "RimDerivedEnsembleCaseCollection.h"
 #include "RimDerivedEnsembleCase.h"
 #include "RimProject.h"
@@ -66,7 +68,7 @@ RimDerivedEnsembleCaseCollection::RimDerivedEnsembleCaseCollection()
     m_swapEnsemblesButton.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
     m_swapEnsemblesButton.xmlCapability()->disableIO();
 
-    CAF_PDM_InitField(&m_caseCount, "CaseCount", 0, "Number of Cases", "", "", "");
+    CAF_PDM_InitField(&m_caseCount, "CaseCount", QString(""), "Matching Cases", "", "", "");
     m_caseCount.uiCapability()->setUiReadOnly(true);
 
     // Do not show child cases
@@ -207,7 +209,10 @@ QList<caf::PdmOptionItemInfo> RimDerivedEnsembleCaseCollection::calculateValueOp
     }
     else if (fieldNeedingOptions == &m_caseCount)
     {
-        m_caseCount = (int)m_cases.size();
+        size_t caseCount1 = m_ensemble1 ? m_ensemble1->allSummaryCases().size() : 0;
+        size_t caseCount2 = m_ensemble2 ? m_ensemble2->allSummaryCases().size() : 0;
+
+        m_caseCount = QString("%1 / %2").arg((int)m_cases.size()).arg(std::max(caseCount1, caseCount2));
     }
     return options;
 }
@@ -236,16 +241,19 @@ void RimDerivedEnsembleCaseCollection::fieldChangedByUi(const caf::PdmFieldHandl
     bool doUpdate = false;
     bool doUpdateCases = false;
     bool doClearAllData = false;
+    bool doShowDialog = false;
 
     if (changedField == &m_ensemble1 || changedField == &m_ensemble2)
     {
         doUpdate = true;
         doUpdateCases = true;
+        doShowDialog = true;
     }
     else if (changedField == &m_operator)
     {
         doUpdate = true;
         doUpdateCases = true;
+        doShowDialog = false;
     }
     else if (changedField == &m_swapEnsemblesButton)
     {
@@ -256,17 +264,22 @@ void RimDerivedEnsembleCaseCollection::fieldChangedByUi(const caf::PdmFieldHandl
 
         doUpdate = true;
         doUpdateCases = true;
+        doShowDialog = false;
     }
 
     if (doUpdate)
     {
         updateAutoName();
-        //if (doClearAllData) clearAllData();
 
         if (doUpdateCases)
         {
             updateDerivedEnsembleCases();
             updateConnectedEditors();
+
+            if (doShowDialog && m_ensemble1 != nullptr && m_ensemble2 != nullptr && allSummaryCases().empty())
+            {
+                RicNewDerivedEnsembleFeature::showWarningDialog();
+            }
         }
 
         updateReferringCurveSets();

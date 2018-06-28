@@ -81,5 +81,5 @@ private:
     caf::PdmPtrField<RimSummaryCaseCollection*>             m_ensemble2;
     caf::PdmField<caf::AppEnum<DerivedEnsembleOperator>>    m_operator;
     caf::PdmField<bool>                                     m_swapEnsemblesButton;
-    caf::PdmField<int>                                      m_caseCount;
+    caf::PdmField<QString>                                  m_caseCount;
 };

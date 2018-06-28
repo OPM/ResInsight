@@ -29,11 +29,36 @@
 #include "cafSelectionManagerTools.h"
 
 #include <QAction>
+#include <QMessageBox>
 
 #include <memory>
 
 
 CAF_CMD_SOURCE_INIT(RicNewDerivedEnsembleFeature, "RicNewDerivedEnsembleFeature");
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicNewDerivedEnsembleFeature::showWarningDialog()
+{
+    QMessageBox::warning(nullptr, "Ensemble Matching", "None of the cases in the ensembles match");
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RicNewDerivedEnsembleFeature::showWarningDialogWithQuestion()
+{
+    QMessageBox msgBox;
+    msgBox.setIcon(QMessageBox::Question);
+    msgBox.setWindowTitle("Ensemble Matching");
+    msgBox.setText("None of the cases in the ensembles match");
+    msgBox.setInformativeText("Do you want to keep the derived ensemble?");
+    msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+
+    int ret = msgBox.exec();
+    return ret == QMessageBox::Yes;
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -67,6 +92,14 @@ void RicNewDerivedEnsembleFeature::onActionTriggered(bool isChecked)
             {
                 newEnsemble->setEnsemble2(ensembles[1]);
                 newEnsemble->updateDerivedEnsembleCases();
+
+                if (newEnsemble->allSummaryCases().empty())
+                {
+                    if(!showWarningDialogWithQuestion())
+                    {
+                        mainColl->removeCaseCollection(newEnsemble);
+                    }
+                }
             }
         }
         
