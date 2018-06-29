@@ -193,6 +193,15 @@ caf::PdmFieldHandle* RimPlotCurve::objectToggleField()
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotCurve::setCustomName(const QString& customName)
+{
+    m_isUsingAutoName = false;
+    m_customCurveName = customName;
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void RimPlotCurve::updateCurveVisibility(bool updateParentPlot)
