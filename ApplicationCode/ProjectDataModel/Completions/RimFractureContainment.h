@@ -37,7 +37,10 @@ public:
     bool isEclipseCellWithinContainment(const RigMainGrid* mainGrid, size_t anchorEclipseCell, size_t globalCellIndex, const std::set<size_t>& containmentCells) const;
 
     void setTopKLayer(int topKLayer);
+    int topKLayer() const;
+
     void setBaseKLayer(int baseKLayer);
+    int baseKLayer() const;
 
     double minimumFaultThrow() const; // Negative value means do not test for fault throw
 

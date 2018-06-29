@@ -156,7 +156,8 @@ public:
 
     void                            disconnectAllFracturesAndRedrawViews() const;
     void                            setId(int id);
-    void                            setScaleFactors(double width, double height, double dFactor, double conductivity);
+    void                            setScaleFactors(double widthScale, double heightScale, double dFactorScale, double conductivityScale);
+    void                            scaleFactors(double* widthScale, double* heightScale, double* dFactorScale, double* conductivityScale) const;
     virtual void                    reload() {}
 
     void                            setContainmentTopKLayer(int topKLayer);

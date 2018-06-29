@@ -700,12 +700,25 @@ void RimFractureTemplate::setId(int id)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimFractureTemplate::setScaleFactors(double width, double height, double dFactor, double conductivity)
+void RimFractureTemplate::setScaleFactors(double widthScale, double heightScale, double dFactorScale, double conductivityScale)
 {
-    m_widthScaleFactor = width;
-    m_heightScaleFactor = height;
-    m_dFactorScaleFactor = dFactor;
-    m_conductivityScaleFactor = conductivity;
+    m_widthScaleFactor = widthScale;
+    m_heightScaleFactor = heightScale;
+    m_dFactorScaleFactor = dFactorScale;
+    m_conductivityScaleFactor = conductivityScale;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimFractureTemplate::scaleFactors(double* widthScale, double* heightScale, double* dFactorScale, double* conductivityScale) const
+{
+    CVF_ASSERT(widthScale && heightScale && dFactorScale && conductivityScale);
+
+    *widthScale = m_widthScaleFactor;
+    *heightScale = m_widthScaleFactor;
+    *dFactorScale = m_dFactorScaleFactor;
+    *conductivityScale = m_conductivityScaleFactor;
 }
 
 //--------------------------------------------------------------------------------------------------

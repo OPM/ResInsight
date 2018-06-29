@@ -53,6 +53,10 @@ public:
     const RigFractureGrid*  fractureGrid() const override;
     void                    setDefaultValuesFromUnit();
     double                  conductivity() const;
+
+    double                  halfLength() const;
+    double                  height() const;
+    double                  width() const;
     
     void                    appendDataToResultStatistics(const QString&     uiResultName,
                                                          const QString&     unit,

@@ -290,6 +290,30 @@ double RimEllipseFractureTemplate::conductivity() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+double RimEllipseFractureTemplate::halfLength() const
+{
+    return m_halfLength;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+double RimEllipseFractureTemplate::height() const
+{
+    return m_height;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+double RimEllipseFractureTemplate::width() const
+{
+    return m_width;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimEllipseFractureTemplate::appendDataToResultStatistics(const QString& uiResultName, const QString& unit, MinMaxAccumulator& minMaxAccumulator, PosNegAccumulator& posNegAccumulator) const
 {
     if (uiResultName == RiaDefines::conductivityResultName())
