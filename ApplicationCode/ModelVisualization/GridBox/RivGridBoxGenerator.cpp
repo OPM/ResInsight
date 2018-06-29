@@ -69,13 +69,23 @@ void RivGridBoxGenerator::setDisplayModelOffset(cvf::Vec3d offset)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivGridBoxGenerator::setGridBoxDomainCoordBoundingBox(const cvf::BoundingBox& bb)
+void RivGridBoxGenerator::setGridBoxDomainCoordBoundingBox(const cvf::BoundingBox& incomingBB)
 {
     double expandFactor = 0.05;
     
     // Use ScalarMapperDiscreteLinear to find human readable tick mark positions for grid box sub division coordinate values
     // Expand the range for ScalarMapperDiscreteLinear until the geometry bounding box has a generated tick mark coords
     // both below minimum and above maximum bounding box coords
+
+    cvf::BoundingBox bb;
+    if (incomingBB.isValid())
+    {
+        bb = incomingBB;
+    }
+    else
+    {
+        bb.add(cvf::Vec3d::ZERO);
+    }
 
     cvf::Vec3d min = bb.min();
     cvf::Vec3d max = bb.max();
