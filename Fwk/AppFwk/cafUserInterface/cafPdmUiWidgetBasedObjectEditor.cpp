@@ -390,9 +390,12 @@ void caf::PdmUiWidgetBasedObjectEditor::configureAndUpdateUi(const QString& uiCo
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+/// Unused. Should probably remove
 //--------------------------------------------------------------------------------------------------
-void caf::PdmUiWidgetBasedObjectEditor::recursiveVerifyUniqueNames(const std::vector<PdmUiItem*>& uiItems, const QString& uiConfigName, std::set<QString>* fieldKeywordNames, std::set<QString>* groupNames)
+void caf::PdmUiWidgetBasedObjectEditor::recursiveVerifyUniqueNames(const std::vector<PdmUiItem*>& uiItems, 
+                                                                   const QString& uiConfigName, 
+                                                                   std::set<QString>* fieldKeywordNames, 
+                                                                   std::set<QString>* groupNames)
 {
     for (size_t i = 0; i < uiItems.size(); ++i)
     {

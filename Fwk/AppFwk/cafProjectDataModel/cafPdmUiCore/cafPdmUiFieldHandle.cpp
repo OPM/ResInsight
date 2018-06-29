@@ -24,6 +24,8 @@ PdmUiFieldHandle::PdmUiFieldHandle(PdmFieldHandle* owner, bool giveOwnership):
 //--------------------------------------------------------------------------------------------------
 void PdmUiFieldHandle::notifyFieldChanged(const QVariant& oldFieldValue, const QVariant& newFieldValue)
 {
+    // Todo : Should use a virtual version of isElementEqual. The variant != operation will not work on user types
+
     if (oldFieldValue != newFieldValue)
     {
         PdmFieldHandle* fieldHandle = this->fieldHandle();

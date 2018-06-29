@@ -57,22 +57,15 @@ public:
     virtual ~PdmUiEditorHandle();
 
 public:
+    
+    void        updateUi(const QString& uiConfigName);;
+
+    void        updateUi();;
+
+protected:
+    // Interface to override:
     /// Virtual method to be overridden. Needs to set up the supplied widget
     /// with all signals etc to make it communicate with this object
-    
-    void        updateUi(const QString& uiConfigName)
-    {
-        m_currentConfigName = uiConfigName;
-        this->configureAndUpdateUi(uiConfigName);
-    };
-
-    void        updateUi()
-    {
-        this->configureAndUpdateUi(m_currentConfigName);
-    };
-
-protected: // Interface to override:
-
     /// Supposed to update all parts of the widgets, both visibility, sensitivity, decorations and field data
     virtual void configureAndUpdateUi(const QString& uiConfigName) = 0;
 
@@ -86,6 +79,8 @@ private:
     friend PdmUiItem::~PdmUiItem();
     PdmUiItem*          m_pdmItem;
     QString             m_currentConfigName;
+
+    bool m_isConfiguringUi; 
 };
 
 
