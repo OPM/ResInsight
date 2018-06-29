@@ -50,7 +50,8 @@ public:
     static RimWellPath*                 findWellPathWithLogFileFromSelection();
     static RimWellLogExtractionCurve*   addExtractionCurve(RimWellLogTrack* plotTrack, Rim3dView* view, RimWellPath* wellPath,
                                                          const RimSimWellInView* simWell, int branchIndex,
-                                                         bool useBranchDetection);
-    static RimWellLogRftCurve*          addRftCurve(RimWellLogTrack* plotTrack, const RimSimWellInView* simWell);
-    static RimWellLogFileCurve*         addFileCurve(RimWellLogTrack* plotTrack);
+                                                         bool useBranchDetection,
+                                                         bool showPlotWindow = true);
+    static RimWellLogRftCurve*          addRftCurve(RimWellLogTrack* plotTrack, const RimSimWellInView* simWell, bool showPlotWindow = true);
+    static RimWellLogFileCurve*         addFileCurve(RimWellLogTrack* plotTrack, bool showPlotWindow = true);
 };

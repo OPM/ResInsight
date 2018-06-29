@@ -406,6 +406,7 @@ bool RiaApplication::loadProject(const QString& projectFileName, ProjectLoadActi
         if (!m_mainPlotWindow)
         {
             createMainPlotWindow();
+            m_mainPlotWindow->show();
         }
         else
         {
@@ -1347,6 +1348,18 @@ int RiaApplication::launchUnitTestsWithConsole()
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiuPlotMainWindow* RiaApplication::getOrCreateMainPlotWindow()
+{
+    if (!m_mainPlotWindow)
+    {
+        createMainPlotWindow();
+    }
+    return m_mainPlotWindow;
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void RiaApplication::createMainPlotWindow()
@@ -1358,7 +1371,6 @@ void RiaApplication::createMainPlotWindow()
     m_mainPlotWindow->setWindowTitle("Plots - ResInsight");
     m_mainPlotWindow->setDefaultWindowSize();
     m_mainPlotWindow->loadWinGeoAndDockToolBarLayout();
-    m_mainPlotWindow->showWindow();
 }
 
 //--------------------------------------------------------------------------------------------------

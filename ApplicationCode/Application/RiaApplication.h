@@ -180,6 +180,7 @@ public:
     int                 launchUnitTests();
     int                 launchUnitTestsWithConsole();
 
+    RiuPlotMainWindow*  getOrCreateMainPlotWindow();
     RiuPlotMainWindow*  getOrCreateAndShowMainPlotWindow();
     RiuPlotMainWindow*  mainPlotWindow();
     RiuMainWindowBase*  mainWindowByID(int mainWindowID);
