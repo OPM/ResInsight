@@ -578,7 +578,7 @@ protected:
     {
         if (fieldNeedingMenu == &m_objectListOfSameType)
         {
-            caf::PdmUiTableViewEditor::addActionsToMenu(menu, &m_objectListOfSameType);
+            caf::PdmUiTableView::addActionsToMenu(menu, &m_objectListOfSameType);
         }
     }
 
