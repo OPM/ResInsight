@@ -45,6 +45,7 @@
 #include "cafSelectionManager.h"
 
 #include <cstddef>
+#include <typeinfo>
 
 
 namespace caf {
