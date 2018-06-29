@@ -210,17 +210,8 @@ void RifWellPathImporter::readAllAsciiWellData(const QString& filePath)
         if (stream.good()) // If we can, assume this line is a well point entry
         {
             stream >> y >> tvd >> md;
-            if (!stream.eof() && !stream.good())
-            {
-                // -999 or otherwise to few numbers before some word
-                if (x != -999)
-                {
-                    // Error in file: missing numbers at this line
 
-                }
-                stream.clear();
-            }
-            else
+            if (x != HUGE_VAL && y != HUGE_VAL && tvd != HUGE_VAL && md != HUGE_VAL)
             {
                 if (!fileWellDataArray.size())
                 {
@@ -233,6 +224,17 @@ void RifWellPathImporter::readAllAsciiWellData(const QString& filePath)
                 fileWellDataArray.back().m_wellPathGeometry->m_measuredDepths.push_back(md);
 
                 hasReadWellPointInCurrentWell = true;
+            }
+
+            if (!stream.good())
+            {
+                // -999 or otherwise to few numbers before some word
+                if (x != -999)
+                {
+                    // Error in file: missing numbers at this line
+
+                }
+                stream.clear();
             }
         }
         else
