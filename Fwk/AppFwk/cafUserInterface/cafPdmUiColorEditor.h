@@ -86,7 +86,7 @@ protected slots:
     void                colorSelectionClicked();
 
 private:
-    void                setColor(const QColor& c);
+    void                setColorOnWidget(const QColor& c);
 
 private:
     QPointer<QLabel>    m_label;
