@@ -21,6 +21,7 @@
 
 #include "RiaApplication.h"
 #include "RiaPreferences.h"
+#include "RiaRegressionTestRunner.h"
 
 #include "RigFemPartCollection.h"
 #include "RigFemPartGrid.h"
@@ -130,11 +131,15 @@ void RimGeoMechView::onLoadDataAndUpdate()
         }
         else if (status == RimGeoMechCase::CASE_OPEN_ERROR) 
         {
-            QString displayMessage = errorMessage.empty() ? "Could not open the Odb file: \n" + m_geomechCase->caseFileName() : QString::fromStdString(errorMessage);
+            if (!RiaRegressionTestRunner::instance()->isRunningRegressionTests())
+            {
+                QString displayMessage = errorMessage.empty() ? "Could not open the Odb file: \n" + m_geomechCase->caseFileName() : QString::fromStdString(errorMessage);
 
-            QMessageBox::warning(Riu3DMainWindowTools::mainWindowWidget(), 
-                                 "File open error", 
-                                 displayMessage);
+                QMessageBox::warning(Riu3DMainWindowTools::mainWindowWidget(), 
+                                     "File open error", 
+                                     displayMessage);
+            }
+
             m_geomechCase = nullptr;
             return;
         }
