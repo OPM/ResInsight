@@ -221,6 +221,14 @@ QImage RimWellLogPlot::snapshotWindowContent()
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogPlot::updateViewWidgetAfterCreation()
+{
+    recreateTrackPlots();
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void RimWellLogPlot::addTrack(RimWellLogTrack* track)
@@ -702,6 +710,8 @@ void RimWellLogPlot::applyDepthZoomFromVisibleDepth()
 //--------------------------------------------------------------------------------------------------
 void RimWellLogPlot::applyZoomAllDepths()
 {
+    calculateAvailableDepthRange();
+
     if (hasAvailableDepthRange())
     {
         setDepthZoomMinMax(m_minAvailableDepth, m_maxAvailableDepth + 0.01*(m_maxAvailableDepth - m_minAvailableDepth));
@@ -759,9 +769,6 @@ QString RimWellLogPlot::description() const
 QWidget* RimWellLogPlot::createViewWidget(QWidget* mainWindowParent)
 {
     m_viewer = new RiuWellLogPlot(this, mainWindowParent);
-
-    recreateTrackPlots();
-
     return m_viewer;
 }
 

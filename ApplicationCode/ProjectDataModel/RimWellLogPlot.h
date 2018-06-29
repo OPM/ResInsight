@@ -126,7 +126,7 @@ protected:
     virtual void                                    onLoadDataAndUpdate() override;
 
     virtual QImage                                  snapshotWindowContent() override;
-
+    virtual void                                    updateViewWidgetAfterCreation() override;
 
 private:
     void                                            applyZoomAllDepths();

@@ -283,11 +283,12 @@ void RimWellLogTrack::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
     else if (changedField == &m_visibleXRangeMin || changedField == &m_visibleXRangeMax)
     {
         m_wellLogTrackPlotWidget->setXRange(m_visibleXRangeMin, m_visibleXRangeMax);
+        m_wellLogTrackPlotWidget->replot();
         m_isAutoScaleXEnabled = false;
         updateEditors();
         updateParentPlotLayout();
         updateAxisAndGridTickIntervals();
-        m_wellLogTrackPlotWidget->replot();
+        m_wellLogTrackPlotWidget->replot(); // TODO: See if we can get rid of duplicate replot
     }
     else if (changedField == &m_isAutoScaleXEnabled)
     {
