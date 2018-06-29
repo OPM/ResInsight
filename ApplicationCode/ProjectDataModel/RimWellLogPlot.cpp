@@ -856,6 +856,14 @@ bool RimWellLogPlot::isPlotTitleVisible() const
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogPlot::setPlotTitleVisible(bool visible)
+{
+    m_showTitleInPlot = visible;
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 bool RimWellLogPlot::areTrackLegendsVisible() const
@@ -877,6 +885,14 @@ void RimWellLogPlot::setTrackLegendsVisible(bool doShow)
 bool RimWellLogPlot::areTrackLegendsHorizontal() const
 {
     return m_trackLegendsHorizontal;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogPlot::setTrackLegendsHorizontal(bool horizontal)
+{
+    m_trackLegendsHorizontal = horizontal;
 }
 
 //--------------------------------------------------------------------------------------------------

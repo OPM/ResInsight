@@ -993,6 +993,34 @@ void RimWellLogTrack::updateEditors()
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogTrack::setVisibleXRange(double minValue, double maxValue)
+{
+    this->setAutoScaleXEnabled(false);
+    m_visibleXRangeMin = minValue;
+    m_visibleXRangeMax = maxValue;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogTrack::setTickIntervals(double majorTickInterval, double minorTickInterval)
+{
+    m_explicitTickIntervals = true;
+    m_majorTickInterval = majorTickInterval;
+    m_minorTickInterval = minorTickInterval;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogTrack::enableGridLines(GridLines gridLines)
+{
+    m_showXGridLines = gridLines;
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void RimWellLogTrack::setShowFormations(bool on)

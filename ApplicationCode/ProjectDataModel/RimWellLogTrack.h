@@ -111,7 +111,9 @@ public:
     void applyXZoomFromVisibleRange();
     void calculateXZoomRange();
     void updateEditors();
-
+    void setVisibleXRange(double minValue, double maxValue);
+    void setTickIntervals(double majorTickInterval, double minorTickInterval);
+    void enableGridLines(GridLines gridLines);
     void setShowFormations(bool on);
 
     RiuWellLogTrack* viewer();
