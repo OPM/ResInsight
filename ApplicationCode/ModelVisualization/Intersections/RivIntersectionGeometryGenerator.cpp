@@ -205,6 +205,8 @@ void RivIntersectionGeometryGenerator::calculateArrays()
 {
     if (m_triangleVxes->size()) return;
 
+    if (m_hexGrid.isNull()) return;
+
     m_extrusionDirection.normalize();
     std::vector<cvf::Vec3f> triangleVertices;
     
