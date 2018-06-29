@@ -858,27 +858,8 @@ double RimWellLogExtractionCurve::rkbDiff() const
 {
     if (m_wellPath && m_wellPath->wellPathGeometry())
     {
-        RigWellPath* geo = m_wellPath->wellPathGeometry();
-
-        if (geo->hasDatumElevation())
-        {
-            return geo->datumElevation();
-        }
-
-        // If measured depth is zero, use the z-value of the well path points
-        if (geo->m_wellPathPoints.size() > 0 && geo->m_measuredDepths.size() > 0)
-        {
-            double epsilon = 1e-3;
-
-            if (cvf::Math::abs(geo->m_measuredDepths[0]) < epsilon)
-            {
-                double diff = geo->m_measuredDepths[0] - (-geo->m_wellPathPoints[0].z());
-
-                return diff;
-            }
-        }
+        return m_wellPath->wellPathGeometry()->rkbDiff();
     }
-
     return HUGE_VAL;
 }
 

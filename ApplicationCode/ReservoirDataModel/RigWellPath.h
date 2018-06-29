@@ -44,6 +44,7 @@ public:
     void                        setDatumElevation(double value);
     bool                        hasDatumElevation() const;
     double                      datumElevation() const;
+    double                      rkbDiff() const;
     cvf::Vec3d                  interpolatedVectorAlongWellPath(const std::vector<cvf::Vec3d>& vectors,
                                                                 double measuredDepth,
                                                                 double * horizontalLengthAlongWellToStartClipPoint = nullptr) const;

@@ -57,6 +57,32 @@ double RigWellPath::datumElevation() const
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RigWellPath::rkbDiff() const
+{
+    if (hasDatumElevation())
+    {
+        return datumElevation();
+    }
+
+    // If measured depth is zero, use the z-value of the well path points
+    if (m_wellPathPoints.size() > 0 && m_measuredDepths.size() > 0)
+    {
+        double epsilon = 1e-3;
+
+        if (cvf::Math::abs(m_measuredDepths[0]) < epsilon)
+        {
+            double diff = m_measuredDepths[0] - (-wellPathPoints()[0].z());
+
+            return diff;
+        }
+    }
+    return HUGE_VAL;
+}
+
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 cvf::Vec3d RigWellPath::interpolatedVectorAlongWellPath(const std::vector<cvf::Vec3d>& vectors,
