@@ -19,11 +19,14 @@
 
 #include "RiuWellLogPlot.h"
 
+#include "RiaApplication.h"
+
 #include "RimContextCommandBuilder.h"
 #include "RimWellLogPlot.h"
 #include "RimWellLogTrack.h"
 
 #include "RiuMainWindow.h"
+#include "RiuPlotMainWindow.h"
 #include "RiuWellLogTrack.h"
 
 #include "cafSelectionManager.h"
@@ -166,7 +169,8 @@ void RiuWellLogPlot::removeTrackPlot(RiuWellLogTrack* trackPlot)
 //--------------------------------------------------------------------------------------------------
 void RiuWellLogPlot::modifyWidthOfContainingMdiWindow(int widthChange)
 {
-    QMdiSubWindow* mdiWindow = RiuMainWindow::instance()->findMdiSubWindow(this);
+    RiuPlotMainWindow* plotWindow = RiaApplication::instance()->getOrCreateMainPlotWindow();
+    QMdiSubWindow* mdiWindow = plotWindow->findMdiSubWindow(this);
     if (mdiWindow)
     {
         if (m_trackPlots.size() == 0 && widthChange <= 0) return; // Last track removed. Leave be
