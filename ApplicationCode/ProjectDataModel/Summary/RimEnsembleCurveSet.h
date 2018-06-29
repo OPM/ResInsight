@@ -98,15 +98,15 @@ public:
     EnsembleParameter::Type                 currentEnsembleParameterType() const;
 
     void                                    updateAllCurves();
-    void                                    updateEnsembleCurves();
-    void                                    updateStatisticsCurves(bool calculate);
+    void                                    updateStatisticsCurves();
+
     RimEnsembleCurveSet*                    clone() const;
     void                                    showCurves(bool show);
 
     void                                    updateAllTextInPlot();
     std::vector<QString>                    ensembleParameterNames() const;
 
-    std::vector<RimSummaryCase*>            filterEnsembleCases(const RimSummaryCaseCollection* ensemble);
+    std::vector<RimSummaryCase*>            filterEnsembleCases(const std::vector<RimSummaryCase*>& sumCases);
     void                                    disableStatisticCurves();
     bool                                    isFiltered() const;
 
@@ -115,6 +115,9 @@ public:
     bool                                    hasP90Data() const;
 
 private:
+    void                                    updateEnsembleCurves(const std::vector<RimSummaryCase*>& sumCases);
+    void                                    updateStatisticsCurves(const std::vector<RimSummaryCase*>& sumCases);
+
     caf::PdmFieldHandle*                    userDescriptionField() override;
     caf::PdmFieldHandle*                    objectToggleField();
     virtual void                            defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override;

@@ -38,6 +38,7 @@ RimEnsembleStatistics::RimEnsembleStatistics()
     CAF_PDM_InitObject("Ensemble Curve Filter", ":/EnsembleCurveSet16x16.png", "", "");
 
     CAF_PDM_InitField(&m_active, "Active", true, "Show statistics curves", "", "", "");
+    CAF_PDM_InitField(&m_basedOnFilteredCases, "BasedOnFilteredCases", false, "Based on Filtered Cases", "", "", "");
     CAF_PDM_InitField(&m_showP10Curve, "ShowP10Curve", true, "P90", "", "", "");    // Yes, P90
     CAF_PDM_InitField(&m_showP50Curve, "ShowP50Curve", true, "P50", "", "", "");
     CAF_PDM_InitField(&m_showP90Curve, "ShowP90Curve", true, "P10", "", "", "");    // Yes, P10
@@ -89,20 +90,10 @@ void RimEnsembleStatistics::disableMeanCurve(bool disable)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RimEnsembleStatistics::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly)
-{
-    QList<caf::PdmOptionItemInfo> options;
-
-
-    return options;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 void RimEnsembleStatistics::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
     if (changedField == &m_active ||
+        changedField == &m_basedOnFilteredCases ||
         changedField == &m_showP10Curve ||
         changedField == &m_showP50Curve ||
         changedField == &m_showP90Curve ||
@@ -113,7 +104,7 @@ void RimEnsembleStatistics::fieldChangedByUi(const caf::PdmFieldHandle* changedF
         auto curveSet = parentCurveSet();
         if (!curveSet) return;
 
-        curveSet->updateStatisticsCurves(false);
+        curveSet->updateStatisticsCurves();
 
         if (changedField == &m_active) curveSet->updateConnectedEditors();
     }
@@ -127,6 +118,7 @@ void RimEnsembleStatistics::defineUiOrdering(QString uiConfigName, caf::PdmUiOrd
     auto curveSet = parentCurveSet();
 
     uiOrdering.add(&m_active);
+    uiOrdering.add(&m_basedOnFilteredCases);
     uiOrdering.add(&m_showCurveLabels);
     uiOrdering.add(&m_color);
 

@@ -41,6 +41,7 @@ public:
     RimEnsembleStatistics();
 
     bool                        isActive() const;
+    bool                        basedOnFilteredCases() const { return m_basedOnFilteredCases; }
     bool                        showP10Curve() const { return m_showP10Curve; }
     bool                        showP50Curve() const { return m_showP50Curve; }
     bool                        showP90Curve() const { return m_showP90Curve; }
@@ -53,7 +54,6 @@ public:
     void                        disableP90Curve(bool disable);
     void                        disableMeanCurve(bool disable);
 
-    virtual QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
     virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
     virtual void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
 
@@ -61,6 +61,7 @@ private:
     RimEnsembleCurveSet*        parentCurveSet() const;
 
     caf::PdmField<bool>         m_active;
+    caf::PdmField<bool>         m_basedOnFilteredCases;
     caf::PdmField<bool>         m_showP10Curve;
     caf::PdmField<bool>         m_showP50Curve;
     caf::PdmField<bool>         m_showP90Curve;

@@ -118,13 +118,12 @@ const RimEnsembleCurveSet* RimEnsembleStatisticsCase::curveSet() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimEnsembleStatisticsCase::calculate()
+void RimEnsembleStatisticsCase::calculate(const std::vector<RimSummaryCase*>& sumCases)
 {
     auto inputAddress = m_curveSet->summaryAddress();
-    auto ensemble = m_curveSet->summaryCaseCollection();
-    if (m_statisticsReader && ensemble && inputAddress.isValid())
+    if (m_statisticsReader && inputAddress.isValid())
     {
-        calculate(validSummaryCases(ensemble->allSummaryCases(), inputAddress), inputAddress);
+        calculate(validSummaryCases(sumCases, inputAddress), inputAddress);
     }
 }
 
@@ -211,7 +210,7 @@ std::vector<RimSummaryCase*> RimEnsembleStatisticsCase::validSummaryCases(const 
         const auto& reader = sumCase->summaryReader();
         if (reader)
         {
-            std::vector<time_t> timeSteps = reader->timeSteps(inputAddress);
+            const std::vector<time_t>& timeSteps = reader->timeSteps(inputAddress);
             if (!timeSteps.empty())
             {
                 time_t firstTimeStep = timeSteps.front();

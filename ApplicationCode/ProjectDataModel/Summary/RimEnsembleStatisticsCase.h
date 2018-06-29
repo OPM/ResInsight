@@ -53,7 +53,7 @@ public:
 
     const RimEnsembleCurveSet*          curveSet() const;
 
-    void                                calculate();
+    void                                calculate(const std::vector<RimSummaryCase*>& sumCases);
 
 private:
     void                                calculate(const std::vector<RimSummaryCase*> sumCases, const RifEclipseSummaryAddress& inputAddress);

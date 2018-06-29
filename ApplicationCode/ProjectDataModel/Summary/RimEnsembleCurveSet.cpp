@@ -427,8 +427,19 @@ EnsembleParameter::Type RimEnsembleCurveSet::currentEnsembleParameterType() cons
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleCurveSet::updateAllCurves()
 {
-    updateEnsembleCurves();
-    updateStatisticsCurves(true);
+    RimSummaryCaseCollection* group = m_yValuesSummaryGroup();
+    RimSummaryAddress* addr = m_yValuesCurveVariable();
+
+    if (group && addr->address().category() != RifEclipseSummaryAddress::SUMMARY_INVALID)
+    {
+        std::vector<RimSummaryCase*> allCases = group->allSummaryCases();
+        std::vector<RimSummaryCase*> filteredCases = filterEnsembleCases(allCases);
+
+        m_isCurveSetFiltered = filteredCases.size() < allCases.size();
+
+        updateEnsembleCurves(filteredCases);
+        updateStatisticsCurves(m_statistics->basedOnFilteredCases() ? filteredCases : allCases);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -561,14 +572,16 @@ void RimEnsembleCurveSet::defineUiOrdering(QString uiConfigName, caf::PdmUiOrder
 {
     {
         QString curveDataGroupName = "Summary Vector";
-        caf::PdmUiGroup* curveDataGroup = uiOrdering.addNewGroupWithKeyword(curveDataGroupName, "Summary Vector Y");
+        //caf::PdmUiGroup* curveDataGroup = uiOrdering.addNewGroupWithKeyword(curveDataGroupName, "Summary Vector Y");
+        caf::PdmUiGroup* curveDataGroup = uiOrdering.addNewGroup("Summary Vector Y");
         curveDataGroup->add(&m_yValuesSummaryGroup);
         curveDataGroup->add(&m_yValuesSelectedVariableDisplayField);
         curveDataGroup->add(&m_plotAxis);
         curveDataGroup->add(&m_yPushButtonSelectSummaryAddress);
 
         QString curveVarSelectionGroupName = "Vector Selection Filter Y";
-        caf::PdmUiGroup* curveVarSelectionGroup = curveDataGroup->addNewGroupWithKeyword("Vector Selection Filter", curveVarSelectionGroupName);
+        //caf::PdmUiGroup* curveVarSelectionGroup = curveDataGroup->addNewGroupWithKeyword("Vector Selection Filter", curveVarSelectionGroupName);
+        caf::PdmUiGroup* curveVarSelectionGroup = curveDataGroup->addNewGroup(curveVarSelectionGroupName);
         curveVarSelectionGroup->setCollapsedByDefault(true);
         m_yValuesSummaryFilter->uiOrdering(uiConfigName, *curveVarSelectionGroup);
         curveVarSelectionGroup->add(&m_yValuesUiFilterResultSelection);
@@ -902,7 +915,7 @@ void RimEnsembleCurveSet::updateQwtPlotAxis()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimEnsembleCurveSet::updateEnsembleCurves()
+void RimEnsembleCurveSet::updateEnsembleCurves(const std::vector<RimSummaryCase*>& sumCases)
 {
     RimSummaryPlot* plot = nullptr;
     firstAncestorOrThisOfType(plot);
@@ -912,14 +925,12 @@ void RimEnsembleCurveSet::updateEnsembleCurves()
     m_qwtPlotCurveForLegendText->detach();
     deleteStatisticsCurves();
 
-    RimSummaryCaseCollection* group = m_yValuesSummaryGroup();
     RimSummaryAddress* addr = m_yValuesCurveVariable();
-    if (group && plot && addr->address().category() != RifEclipseSummaryAddress::SUMMARY_INVALID)
+    if (plot && addr->address().category() != RifEclipseSummaryAddress::SUMMARY_INVALID)
     {
         if(m_showCurves)
         {
-            const auto filteredCases = filterEnsembleCases(group);
-            for (auto& sumCase : filteredCases)
+            for (auto& sumCase : sumCases)
             {
                 RimSummaryCurve* curve = new RimSummaryCurve();
                 curve->setSummaryCaseY(sumCase);
@@ -939,8 +950,6 @@ void RimEnsembleCurveSet::updateEnsembleCurves()
             m_yValuesSummaryFilter->updateFromAddress(addr->address());
 
             if (plot->qwtPlot()) m_qwtPlotCurveForLegendText->attach(plot->qwtPlot());
-
-            m_isCurveSetFiltered = filteredCases.size() < group->allSummaryCases().size();
         }
 
         RimSummaryPlot* plot;
@@ -959,7 +968,7 @@ void RimEnsembleCurveSet::updateEnsembleCurves()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimEnsembleCurveSet::updateStatisticsCurves(bool calculate = true)
+void RimEnsembleCurveSet::updateStatisticsCurves(const std::vector<RimSummaryCase*>& sumCases)
 {
     using SAddr = RifEclipseSummaryAddress;
 
@@ -968,10 +977,15 @@ void RimEnsembleCurveSet::updateStatisticsCurves(bool calculate = true)
 
     if (m_disableStatisticCurves || !group || addr->address().category() == RifEclipseSummaryAddress::SUMMARY_INVALID) return;
 
-    if (calculate)
+    // Calculate
     {
-        // Calculate
-        m_ensembleStatCase->calculate();
+        std::vector<RimSummaryCase*> statCases = sumCases;
+        if (statCases.empty())
+        {
+            if (m_statistics->basedOnFilteredCases()) statCases = filterEnsembleCases(group->allSummaryCases());
+            else                                      statCases = group->allSummaryCases();
+        }
+        m_ensembleStatCase->calculate(statCases);
     }
 
     RimSummaryPlot* plot = nullptr;
@@ -1025,6 +1039,14 @@ void RimEnsembleCurveSet::updateStatisticsCurves(bool calculate = true)
         plot->qwtPlot()->replot();
         plot->updateAxes();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimEnsembleCurveSet::updateStatisticsCurves()
+{
+    updateStatisticsCurves(std::vector<RimSummaryCase*>());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1091,18 +1113,15 @@ std::vector<QString> RimEnsembleCurveSet::ensembleParameterNames() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<RimSummaryCase*> RimEnsembleCurveSet::filterEnsembleCases(const RimSummaryCaseCollection* ensemble)
+std::vector<RimSummaryCase*> RimEnsembleCurveSet::filterEnsembleCases(const std::vector<RimSummaryCase*>& sumCases)
 {
-    if (!ensemble) return std::vector<RimSummaryCase*>();
-
-    auto sumCases = ensemble->allSummaryCases();
+    auto filteredCases = sumCases;
 
     for (auto& filter : m_curveFilters->filters())
     {
-        sumCases = filter->applyFilter(sumCases);
+        filteredCases = filter->applyFilter(filteredCases);
     }
-
-    return sumCases;
+    return filteredCases;
 }
 
 //--------------------------------------------------------------------------------------------------
