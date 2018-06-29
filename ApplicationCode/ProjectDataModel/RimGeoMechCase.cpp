@@ -474,7 +474,13 @@ void RimGeoMechCase::setApplyTimeFilter(bool applyTimeFilter)
 //--------------------------------------------------------------------------------------------------
 cvf::Vec3d RimGeoMechCase::displayModelOffset() const
 {
-   return this->allCellsBoundingBox().min();
+    auto bb = this->allCellsBoundingBox();
+    if (bb.isValid())
+    {
+        return this->allCellsBoundingBox().min();
+    }
+
+    return cvf::Vec3d::ZERO;
 }
 
 //--------------------------------------------------------------------------------------------------
