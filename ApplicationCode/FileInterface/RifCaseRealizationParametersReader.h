@@ -34,37 +34,75 @@
 
 class QStringList;
 class QTextStream;
+class QXmlStreamReader;
 class QFile;
 
 //==================================================================================================
 //
 //
 //==================================================================================================
-class RifCaseRealizationParametersReader
+class RifCaseRealizationReader
 {
 public:
-    RifCaseRealizationParametersReader();
-    RifCaseRealizationParametersReader(const QString& fileName);
-    ~RifCaseRealizationParametersReader();
+    RifCaseRealizationReader(const QString& fileName);
+    virtual ~RifCaseRealizationReader();
 
-    void                                                setFileName(const QString& fileName);
-    void                                                parse();
+    virtual void                                        parse() = 0;
     const std::shared_ptr<RigCaseRealizationParameters> parameters() const;
+
+    static std::shared_ptr<RifCaseRealizationReader>    createReaderFromFileName(const QString& fileName);
+
+protected:
+    QFile*                          openFile();
+    void                            closeFile();
+
+    std::shared_ptr<RigCaseRealizationParameters>  m_parameters;
+
+private:
+    QString                                 m_fileName;
+    QFile*                                  m_file;
+};
+
+//==================================================================================================
+//
+//
+//==================================================================================================
+class RifCaseRealizationParametersReader : public RifCaseRealizationReader
+{
+public:
+    RifCaseRealizationParametersReader(const QString& fileName);
+    virtual ~RifCaseRealizationParametersReader();
+
+    virtual void                    parse() override;
 
 private:
     QTextStream*                    openDataStream();
     void                            closeDataStream();
-    void                            openFile();
-    void                            closeFile();
 
 private:
-    std::shared_ptr<RigCaseRealizationParameters>  m_parameters;
-
-    QString                                 m_fileName;
-    QFile*                                  m_file;
-    QTextStream*                            m_textStream;
+    QTextStream*                    m_textStream;
 };
 
+
+//==================================================================================================
+//
+//
+//==================================================================================================
+class RifCaseRealizationRunspecificationReader : public RifCaseRealizationReader
+{
+public:
+    RifCaseRealizationRunspecificationReader(const QString& fileName);
+    virtual ~RifCaseRealizationRunspecificationReader();
+
+    virtual void                    parse() override;
+
+private:
+    QXmlStreamReader *              openDataStream();
+    void                            closeDataStream();
+
+private:
+    QXmlStreamReader*               m_xmlStream;
+};
 
 //==================================================================================================
 //

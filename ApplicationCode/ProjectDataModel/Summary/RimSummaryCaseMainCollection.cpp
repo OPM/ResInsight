@@ -44,15 +44,17 @@ void addCaseRealizationParametersIfFound(RimSummaryCase& sumCase, const QString 
     QString parametersFile = RifCaseRealizationParametersFileLocator::locate(modelFolderOrFile);
     if (!parametersFile.isEmpty())
     {
-        RifCaseRealizationParametersReader reader(parametersFile);
-
-        // Try parse case realization parameters
-        try
+        auto reader = RifCaseRealizationReader::createReaderFromFileName(parametersFile);
+        if (reader)
         {
-            reader.parse();
-            sumCase.setCaseRealizationParameters(reader.parameters());
+            // Try parse case realization parameters
+            try
+            {
+                reader->parse();
+                sumCase.setCaseRealizationParameters(reader->parameters());
+            }
+            catch (...) {}
         }
-        catch (...) {}
     }
 
 }
