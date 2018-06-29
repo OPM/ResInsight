@@ -886,3 +886,11 @@ void RimWellLogExtractionCurve::setEclipseResultVariable(const QString& resVarna
 {
     m_eclipseResultDefinition->setResultVariable(resVarname);
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogExtractionCurve::setGeoMechResultAddress(const RigFemResultAddress& resAddr)
+{
+    m_geomResultDefinition->setResultAddress(resAddr);
+}

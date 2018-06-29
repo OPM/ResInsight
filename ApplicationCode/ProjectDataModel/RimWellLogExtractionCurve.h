@@ -21,6 +21,8 @@
 
 #include "RimWellLogCurve.h"
 
+#include "RigFemResultAddress.h"
+
 #include "cafPdmPtrField.h"
 #include "cafPdmChildField.h"
 
@@ -66,6 +68,7 @@ public:
     void            setCurrentTimeStep(int timeStep);
 
     void            setEclipseResultVariable(const QString& resVarname);
+    void            setGeoMechResultAddress(const RigFemResultAddress& resAddr);
 
 protected:
     virtual QString                                createCurveAutoName() override;
