@@ -153,6 +153,16 @@ namespace caf {
     }
 
     //--------------------------------------------------------------------------------------------------
+    /// Convenience method for incrementing progress and setting step size and description for next step
+    //--------------------------------------------------------------------------------------------------
+    void ProgressInfo::incrementProgressAndUpdateNextStep(size_t nextStepSize, const QString& nextDescription)
+    {
+        incrementProgress();
+        setNextProgressIncrement(nextStepSize);
+        setProgressDescription(nextDescription);
+    }
+
+    //--------------------------------------------------------------------------------------------------
     /// To make a certain operation span more of the progress bar than one tick, 
     /// set the number of progress ticks that you want it to use before calling it.
     /// Eg.
