@@ -1353,7 +1353,10 @@ void RimWellLogTrack::findFormationNamesToPlot(const CurveSamplingPointData&    
 
     for (double nameIdx : curveData.data)
     {
-        formationNameIndicesFromCurve.push_back(round(nameIdx));
+        if (nameIdx != HUGE_VAL)
+        {
+            formationNameIndicesFromCurve.push_back(round(nameIdx));
+        }
     }
 
     if (formationNameIndicesFromCurve.empty()) return;
