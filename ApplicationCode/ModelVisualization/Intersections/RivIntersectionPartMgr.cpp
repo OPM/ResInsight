@@ -1035,9 +1035,10 @@ cvf::ref<RivIntersectionHexGridInterface> RivIntersectionPartMgr::createHexGridI
 
     RimGeoMechView* geoView;
     m_rimCrossSection->firstAncestorOrThisOfType(geoView);
-    if (geoView)
+    if (geoView && geoView->femParts() && geoView->femParts()->partCount())
     {
         RigFemPart* femPart = geoView->femParts()->part(0);
+
         return new RivFemIntersectionGrid(femPart);
     }
 
