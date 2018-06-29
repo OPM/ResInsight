@@ -378,6 +378,7 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
                 menuBuilder.addSeparator();
 
                 menuBuilder << "RicShowWellAllocationPlotFeature";
+                menuBuilder << "RicNewWellBoreStabilityPlotFeature";
 
                 menuBuilder.subMenuEnd();
 
