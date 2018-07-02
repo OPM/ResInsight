@@ -38,7 +38,7 @@
 class AsciiDataParseOptions
 {
 public:
-    AsciiDataParseOptions() : useCustomDateTimeFormat(false) { }
+    AsciiDataParseOptions() : useCustomDateTimeFormat(false), assumeNumericDataColumns(false) { }
 
     QString                 plotTitle;
     QString                 curvePrefix;
@@ -51,6 +51,8 @@ public:
     QString                 dateTimeFormat;
     QString                 cellSeparator;
     QString                 timeSeriesColumnName;
+
+    bool                    assumeNumericDataColumns;
 
     RimPlotCurve::LineStyleEnum   curveLineStyle;
     RimPlotCurve::PointSymbolEnum curveSymbol;

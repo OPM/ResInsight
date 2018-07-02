@@ -211,6 +211,7 @@ const AsciiDataParseOptions RicPasteAsciiDataToSummaryPlotFeatureUi::parseOption
 {
     AsciiDataParseOptions parseOptions;
 
+    parseOptions.assumeNumericDataColumns = true;
     parseOptions.plotTitle = m_plotTitle();
     parseOptions.curvePrefix = m_curvePrefix();
 
