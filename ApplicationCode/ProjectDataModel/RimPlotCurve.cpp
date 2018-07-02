@@ -159,9 +159,21 @@ void RimPlotCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField, con
              || &m_pointSymbol == changedField
              || &m_lineStyle == changedField
              || &m_symbolSkipPixelDistance == changedField
-             || &m_curveInterpolation == changedField)
+             || &m_curveInterpolation == changedField
+             || &m_symbolSize)
     {
         updateCurveAppearance();
+
+        if (&m_pointSymbol == changedField)
+        {
+            m_symbolSize.uiCapability()->setUiReadOnly(m_pointSymbol() == RimPlotCurve::SYMBOL_NONE);
+            m_symbolSkipPixelDistance.uiCapability()->setUiReadOnly(m_pointSymbol() == RimPlotCurve::SYMBOL_NONE);
+        }
+        else if (&m_lineStyle == changedField)
+        {
+            m_curveThickness.uiCapability()->setUiReadOnly(m_lineStyle() == RimPlotCurve::STYLE_NONE);
+            m_curveInterpolation.uiCapability()->setUiReadOnly(m_lineStyle() == RimPlotCurve::STYLE_NONE);
+        }
     }
     else if (changedField == &m_isUsingAutoName)
     {
@@ -231,6 +243,17 @@ void RimPlotCurve::updateCurveVisibility(bool updateParentPlot)
     {
         updateZoomInParentPlot();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotCurve::initAfterRead()
+{
+    m_symbolSize.uiCapability()->setUiReadOnly(m_pointSymbol() == RimPlotCurve::SYMBOL_NONE);
+    m_symbolSkipPixelDistance.uiCapability()->setUiReadOnly(m_pointSymbol() == RimPlotCurve::SYMBOL_NONE);
+    m_curveThickness.uiCapability()->setUiReadOnly(m_lineStyle() == RimPlotCurve::STYLE_NONE);
+    m_curveInterpolation.uiCapability()->setUiReadOnly(m_lineStyle() == RimPlotCurve::STYLE_NONE);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -377,10 +400,12 @@ void RimPlotCurve::appearanceUiOrdering(caf::PdmUiOrdering& uiOrdering)
 {
     uiOrdering.add(&m_curveColor);
     uiOrdering.add(&m_pointSymbol);
+    uiOrdering.add(&m_symbolSize);
     uiOrdering.add(&m_symbolSkipPixelDistance);
-    uiOrdering.add(&m_curveThickness);
     uiOrdering.add(&m_lineStyle);
+    uiOrdering.add(&m_curveThickness);
     uiOrdering.add(&m_curveInterpolation);
+    
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -488,6 +513,22 @@ void RimPlotCurve::updateCurveAppearance()
     m_qwtPlotCurve->setSymbolSkipPixelDistance(m_symbolSkipPixelDistance());
 
     m_qwtPlotCurve->setErrorBarsColor(curveColor);
+
+    // Make sure the legend lines are long enough to distinguish between line types.
+    // Standard width in Qwt is 8 which is too short.
+    // Use 10 and scale this by curve thickness + add space for displaying symbol.
+    QSize legendIconSize = m_qwtPlotCurve->legendIconSize();
+    
+    int symbolWidth = 0;
+    if (symbol)
+    {
+        symbolWidth = symbol->boundingRect().size().width() + 2;
+    }
+
+    int width = std::max(10 * m_curveThickness, (symbolWidth * 3) / 2);
+    
+    legendIconSize.setWidth(width);
+    m_qwtPlotCurve->setLegendIconSize(legendIconSize);
 }
 
 //--------------------------------------------------------------------------------------------------

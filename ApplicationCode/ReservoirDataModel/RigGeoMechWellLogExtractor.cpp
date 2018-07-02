@@ -134,15 +134,16 @@ void RigGeoMechWellLogExtractor::wellPathAngles(const RigFemResultAddress& resAd
                 cvf::Vec3d projectedTangentXY = wellPathTangent;
                 projectedTangentXY.z() = 0.0;
 
-                // Do tangentXY to true north for counter clockwise angles.
+                // Do tangentXY to true north for clockwise angles.
                 double dotProduct = projectedTangentXY * trueNorth;
                 double crossProduct = (projectedTangentXY ^ trueNorth) * up;
                 // http://www.glossary.oilfield.slb.com/Terms/a/azimuth.aspx
                 azimuth = cvf::Math::toDegrees(std::atan2(crossProduct, dotProduct));
                 if (azimuth < 0.0)
                 {
-                    // Straight atan2 gives angle from -PI to PI yielding angles from -180 to 180.
-                    // We want angles from 0 to 360, so add 180 degrees.
+                    // Straight atan2 gives angle from -PI to PI yielding angles from -180 to 180
+                    // where the negative angles are counter clockwise.
+                    // To get all positive clockwise angles, we add 360 degrees to negative angles.
                     azimuth = azimuth + 360.0;
                 }
             }
