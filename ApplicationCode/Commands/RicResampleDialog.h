@@ -50,7 +50,7 @@ public:
                                                              const QString& caption = QString());
 
 private:
-    void            setPeriodOptions(const std::vector<DateTimePeriodInfo>& dateTimePeriodInfos);
+    void            setPeriodOptions(const std::vector<DateTimePeriod>& dateTimePeriods);
     DateTimePeriod  selectedDateTimePeriod() const;
 
 private slots:

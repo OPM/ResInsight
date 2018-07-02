@@ -99,7 +99,7 @@ void PdmUiCommandSystemProxy::setUiValueToField(PdmUiFieldHandle* uiFieldHandle,
         {
             std::vector<PdmUiItem*> items;
             SelectionManager::instance()->selectedItems(items, SelectionManager::CURRENT);
-            SelectionManager::instance()->selectedItems(items, SelectionManager::APPLICATION_GLOBAL);
+            //SelectionManager::instance()->selectedItems(items, SelectionManager::APPLICATION_GLOBAL);
 
             for (size_t i = 0; i < items.size(); i++)
             {

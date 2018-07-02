@@ -18,10 +18,20 @@
 
 #pragma once
 
+#include "RiaQDateTimeTools.h"
+
 #include <QDialog>
 #include <QPlainTextEdit>
 
+#include <functional>
 
+class QTabWidget;
+class RimSummaryPlot;
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 class RiuQPlainTextEdit : public QPlainTextEdit
 {
     Q_OBJECT
@@ -57,4 +67,30 @@ protected:
 
 };
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+class RiuShowTabbedPlotDataDialog : public QDialog
+{
+    Q_OBJECT
+
+public:
+    explicit RiuShowTabbedPlotDataDialog(QWidget* parent = nullptr);
+
+    void setTextProvider(std::function<QString (DateTimePeriod)> textProvider);
+
+private:
+    RiuQPlainTextEdit * currentTextEdit() const;
+    DateTimePeriod      indexToPeriod(int index);
+    void                updateText();
+
+    QTabWidget* m_tabWidget;
+    std::function<QString(DateTimePeriod)> m_textProvider;
+
+private slots:
+    void slotTabChanged(int index);
+
+protected:
+    virtual void contextMenuEvent(QContextMenuEvent *) override;
+};
 

@@ -93,7 +93,7 @@ RicResampleDialogResult RicResampleDialog::openDialog(QWidget *parent /*= 0*/,
     if(!caption.isEmpty())  dialog.setWindowTitle(caption);
     else                    dialog.setWindowTitle(DEFAULT_DIALOG_TITLE);
     
-    dialog.setPeriodOptions(RiaQDateTimeTools::dateTimePeriodInfoList());
+    dialog.setPeriodOptions(RiaQDateTimeTools::dateTimePeriods());
 
     dialog.resize(DEFAULT_DIALOG_WIDTH, DEFAULT_DIALOG_HEIGHT);
     dialog.exec();
@@ -104,13 +104,13 @@ RicResampleDialogResult RicResampleDialog::openDialog(QWidget *parent /*= 0*/,
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicResampleDialog::setPeriodOptions(const std::vector<DateTimePeriodInfo>& dateTimePeriodInfos)
+void RicResampleDialog::setPeriodOptions(const std::vector<DateTimePeriod>& dateTimePeriods)
 {
     QStringList s;
-    for (auto& item : dateTimePeriodInfos)
+    for (auto& period : dateTimePeriods)
     {
-        QString text = item.period != DateTimePeriod::NONE ? item.name : "No Resampling";
-        m_timePeriodCombo->addItem(text, QVariant((int)item.period));
+        QString text = period != DateTimePeriod::NONE ? RiaQDateTimeTools::dateTimePeriodName(period) : "No Resampling";
+        m_timePeriodCombo->addItem(text, QVariant((int)period));
     }
 }
 

@@ -18,9 +18,11 @@
 
 #pragma once
 
+#include "RiaQDateTimeTools.h"
+
 #include "cafCmdFeature.h"
 
-
+#include <functional>
 
 //==================================================================================================
 /// 
@@ -36,7 +38,8 @@ protected:
     virtual void setupActionLook( QAction* actionToSetup );
 
 public:
-    static void showTextWindow(const QString& title, const QString& text);
+    static void showTabbedTextWindow(const QString& title, std::function<QString(DateTimePeriod)> textProvider);
+    static void RicShowPlotDataFeature::showTextWindow(const QString& title, const QString& text);
 };
 
 

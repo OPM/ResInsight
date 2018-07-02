@@ -90,7 +90,7 @@ void RicShowPlotDataFeature::onActionTriggered(bool isChecked)
         QString title = summaryPlot->description();
         QString text = summaryPlot->asciiDataForPlotExport();
 
-        RicShowPlotDataFeature::showTextWindow(title, text);
+        RicShowPlotDataFeature::showTabbedTextWindow(title, [summaryPlot](DateTimePeriod period) { return summaryPlot->asciiDataForPlotExport(period); });
     }
 
     for (RimWellLogPlot* wellLogPlot : wellLogPlots)
@@ -114,6 +114,25 @@ void RicShowPlotDataFeature::setupActionLook(QAction* actionToSetup)
 
 //--------------------------------------------------------------------------------------------------
 /// 
+//--------------------------------------------------------------------------------------------------
+void RicShowPlotDataFeature::showTabbedTextWindow(const QString& title, std::function<QString(DateTimePeriod)> textProvider)
+{
+    RiuPlotMainWindow* plotwindow = RiaApplication::instance()->mainPlotWindow();
+    CVF_ASSERT(plotwindow);
+
+    RiuShowTabbedPlotDataDialog* textWiget = new RiuShowTabbedPlotDataDialog();
+    textWiget->setMinimumSize(800, 600);
+
+    textWiget->setWindowTitle(title);
+    textWiget->setTextProvider(textProvider);
+
+    textWiget->show();
+
+    plotwindow->addToTemporaryWidgets(textWiget);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
 //--------------------------------------------------------------------------------------------------
 void RicShowPlotDataFeature::showTextWindow(const QString& title, const QString& text)
 {

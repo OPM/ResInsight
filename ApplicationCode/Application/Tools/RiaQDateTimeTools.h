@@ -30,7 +30,6 @@ class QDateTime;
 class QDate;
 class QTime;
 class DateTimeSpan;
-class DateTimePeriodInfo;
 
 //==================================================================================================
 // 
@@ -38,13 +37,13 @@ class DateTimePeriodInfo;
 enum class DateTimePeriod
 {
     NONE = -1,
-    DECADE,
-    YEAR,
-    HALFYEAR,
-    QUARTER,
-    MONTH,
+    DAY,
     WEEK,
-    DAY
+    MONTH,
+    QUARTER,
+    HALFYEAR,
+    YEAR,
+    DECADE
 };
 
 //==================================================================================================
@@ -52,15 +51,23 @@ enum class DateTimePeriod
 //==================================================================================================
 class RiaQDateTimeTools
 {
-    static const DateTimeSpan TIMESPAN_DECADE;
-    static const DateTimeSpan TIMESPAN_YEAR;
-    static const DateTimeSpan TIMESPAN_HALFYEAR;
-    static const DateTimeSpan TIMESPAN_QUARTER;
-    static const DateTimeSpan TIMESPAN_MONTH;
-    static const DateTimeSpan TIMESPAN_WEEK;
     static const DateTimeSpan TIMESPAN_DAY;
+    static const DateTimeSpan TIMESPAN_WEEK;
+    static const DateTimeSpan TIMESPAN_MONTH;
+    static const DateTimeSpan TIMESPAN_QUARTER;
+    static const DateTimeSpan TIMESPAN_HALFYEAR;
+    static const DateTimeSpan TIMESPAN_YEAR;
+    static const DateTimeSpan TIMESPAN_DECADE;
 
 public:
+    static const QString TIMESPAN_DAY_NAME;
+    static const QString TIMESPAN_WEEK_NAME;
+    static const QString TIMESPAN_MONTH_NAME;
+    static const QString TIMESPAN_QUARTER_NAME;
+    static const QString TIMESPAN_HALFYEAR_NAME;
+    static const QString TIMESPAN_YEAR_NAME;
+    static const QString TIMESPAN_DECADE_NAME;
+
     static Qt::TimeSpec currentTimeSpec();
 
     static QDateTime fromString(const QString& dateString, const QString& format);
@@ -89,7 +96,8 @@ public:
     static const DateTimeSpan   timeSpan(DateTimePeriod period);
     static QDateTime            truncateTime(const QDateTime& dt, DateTimePeriod period);
 
-    static std::vector<DateTimePeriodInfo> dateTimePeriodInfoList();
+    static std::vector<DateTimePeriod>  dateTimePeriods();
+    static QString                      dateTimePeriodName(DateTimePeriod period);
 
 private:
     static quint64  secondsInDay();
@@ -115,14 +123,4 @@ private:
     int m_years;
     int m_months;
     int m_days;
-};
-
-//==================================================================================================
-/// 
-//==================================================================================================
-class DateTimePeriodInfo
-{
-public:
-    DateTimePeriod  period;
-    QString         name;
 };
