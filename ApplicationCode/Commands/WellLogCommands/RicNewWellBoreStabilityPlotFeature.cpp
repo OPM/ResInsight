@@ -168,13 +168,14 @@ void RicNewWellBoreStabilityPlotFeature::createCasingShoeTrack(RimWellLogPlot* p
             if (channel->name() == "CASING_SIZE")
             {
                 RimWellLogTrack* casingShoeTrack = RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack(false, "Casing Shoe Depth", plot);
-                casingShoeTrack->setWidthScaleFactor(RimWellLogTrack::EXTRA_NARROW_TRACK);
+                casingShoeTrack->setWidthScaleFactor(RimWellLogTrack::NARROW_TRACK);
                 casingShoeTrack->setAutoScaleXEnabled(true);
                 RimWellLogFileCurve* fileCurve = RicWellLogTools::addFileCurve(casingShoeTrack, false);
                 fileCurve->setWellLogFile(logFile);
                 fileCurve->setWellPath(wellPath);
                 fileCurve->setWellLogChannelName(channel->name());
                 fileCurve->setCustomName(QString("Casing size [in]"));
+                fileCurve->setLineThickness(2);
                 fileCurve->loadDataAndUpdate(false);
                 casingShoeTrack->calculateXZoomRangeAndUpdateQwt();
                 break;
@@ -195,13 +196,20 @@ void RicNewWellBoreStabilityPlotFeature::createStabilityCurvesTrack(RimWellLogPl
     stabilityCurvesTrack->enableGridLines(RimWellLogTrack::GRID_X_MAJOR_AND_MINOR);
     std::vector<QString> resultNames = RiaDefines::wellPathStabilityResultNames();
 
-    for (const QString& resultName : resultNames)
+    std::vector<cvf::Color3f> colors = { cvf::Color3f::RED, cvf::Color3f::PURPLE, cvf::Color3f::GREEN, cvf::Color3f::BLUE, cvf::Color3f::ORANGE };
+    std::vector<RimPlotCurve::LineStyleEnum> lineStyles = { RimPlotCurve::STYLE_SOLID, RimPlotCurve::STYLE_DASH, RimPlotCurve::STYLE_DASH_DOT, RimPlotCurve::STYLE_SOLID, RimPlotCurve::STYLE_DASH};
+    
+    for (size_t i = 0; i < resultNames.size(); ++i)
     {
+        const QString& resultName = resultNames[i];
         RigFemResultAddress resAddr(RIG_WELLPATH_DERIVED, resultName.toStdString(), "");
         RimWellLogExtractionCurve* curve = RicWellLogTools::addExtractionCurve(stabilityCurvesTrack, geoMechView, wellPath, nullptr, 0, false, false);
         curve->setGeoMechResultAddress(resAddr);
         curve->setCurrentTimeStep(geoMechView->currentTimeStep());
         curve->setCustomName(resultName);
+        curve->setColor(colors[i % colors.size()]);
+        curve->setLineStyle(lineStyles[i % lineStyles.size()]);
+        curve->setLineThickness(2);
         curve->loadDataAndUpdate(false);
     }
     stabilityCurvesTrack->calculateXZoomRangeAndUpdateQwt();
@@ -218,13 +226,23 @@ void RicNewWellBoreStabilityPlotFeature::createAnglesTrack(RimWellLogPlot* plot,
     const double angleIncrement = 90.0;
     std::vector<QString> resultNames = RiaDefines::wellPathAngleResultNames();
     
-    for (const QString& resultName : resultNames)
+    std::vector<cvf::Color3f> colors = { cvf::Color3f::DARK_RED, cvf::Color3f::BLUE };
+
+    std::vector<RimPlotCurve::LineStyleEnum> lineStyles = { RimPlotCurve::STYLE_SOLID, RimPlotCurve::STYLE_DASH };
+
+    for (size_t i = 0; i < resultNames.size(); ++i)
     {
+        const QString& resultName = resultNames[i];
         RigFemResultAddress resAddr(RIG_WELLPATH_DERIVED, resultName.toStdString(), "");
         RimWellLogExtractionCurve* curve = RicWellLogTools::addExtractionCurve(wellPathAnglesTrack, geoMechView, wellPath, nullptr, 0, false, false);
         curve->setGeoMechResultAddress(resAddr);
         curve->setCurrentTimeStep(geoMechView->currentTimeStep());
         curve->setCustomName(resultName);
+
+        curve->setColor(colors[i % colors.size()]);
+        curve->setLineStyle(lineStyles[i % lineStyles.size()]);
+        curve->setLineThickness(2);
+
         curve->loadDataAndUpdate(false);
         
         double actualMinValue = minValue, actualMaxValue = maxValue;
