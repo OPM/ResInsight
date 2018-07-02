@@ -319,7 +319,7 @@ void RifCaseRealizationRunspecificationReader::closeDataStream()
 //--------------------------------------------------------------------------------------------------
 QString RifCaseRealizationParametersFileLocator::locate(const QString& modelPath)
 {
-    int         MAX_LEVELS_UP = 2;
+    int         MAX_LEVELS_UP = 3;
     int         dirLevel = 0;
 
     QDir        qdir(modelPath);
