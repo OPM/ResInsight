@@ -1408,7 +1408,7 @@ RiuPlotMainWindow* RiaApplication::getOrCreateAndShowMainPlotWindow()
     }
 
     m_mainPlotWindow->raise();
-
+    m_mainPlotWindow->activateWindow();
     return m_mainPlotWindow;
 }
 
