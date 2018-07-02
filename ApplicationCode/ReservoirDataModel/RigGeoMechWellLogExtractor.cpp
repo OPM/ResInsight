@@ -22,6 +22,7 @@
 //==================================================================================================
 #include "RigGeoMechWellLogExtractor.h"
 
+#include "RiaDefines.h"
 #include "RigFemTypes.h"
 #include "RigGeoMechBoreHoleStressCalculator.h"
 #include "RigFemPart.h"
@@ -60,7 +61,7 @@ void RigGeoMechWellLogExtractor::curveData(const RigFemResultAddress& resAddr, i
     
     if (resAddr.resultPosType == RIG_WELLPATH_DERIVED)
     {
-        if (resAddr.fieldName == "FractureGradient" || resAddr.fieldName == "ShearFailureGradient")
+        if (resAddr.fieldName == RiaDefines::wellPathFGResultName().toStdString() || resAddr.fieldName == RiaDefines::wellPathSFGResultName().toStdString())
         {
             wellBoreWallCurveData(resAddr, frameIndex, values);
             return;
@@ -214,7 +215,7 @@ void RigGeoMechWellLogExtractor::wellBoreWallCurveData(const RigFemResultAddress
     const double uniaxialStrengthInBars = 100.0;
 
     CVF_ASSERT(values);
-    CVF_ASSERT(resAddr.fieldName == "FractureGradient" || resAddr.fieldName == "ShearFailureGradient");
+    CVF_ASSERT(resAddr.fieldName == RiaDefines::wellPathFGResultName().toStdString() || resAddr.fieldName == RiaDefines::wellPathSFGResultName().toStdString());
 
     const RigFemPart* femPart = m_caseData->femParts()->part(0);
     const std::vector<cvf::Vec3f>& nodeCoords = femPart->nodes().coordinates;
@@ -266,13 +267,13 @@ void RigGeoMechWellLogExtractor::wellBoreWallCurveData(const RigFemResultAddress
 
         RigGeoMechBoreHoleStressCalculator sigmaCalculator(wellPathStressDouble, porePressure, poissonRatio, uniaxialStrengthInBars, 32);
         double resultValue = 0.0;
-        if (resAddr.fieldName == "FractureGradient")
+        if (resAddr.fieldName == RiaDefines::wellPathFGResultName().toStdString())
         {
             resultValue = sigmaCalculator.solveFractureGradient();
         }
         else
         {
-            CVF_ASSERT(resAddr.fieldName == "ShearFailureGradient");
+            CVF_ASSERT(resAddr.fieldName == RiaDefines::wellPathSFGResultName().toStdString());
             resultValue = sigmaCalculator.solveStassiDalia();
         }
         double effectiveDepth = -m_intersections[intersectionIdx].z() + m_rkbDiff;

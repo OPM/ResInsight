@@ -193,15 +193,15 @@ void RicNewWellBoreStabilityPlotFeature::createStabilityCurvesTrack(RimWellLogPl
     stabilityCurvesTrack->setAutoScaleXEnabled(true);
     stabilityCurvesTrack->setTickIntervals(0.5, 0.05);
     stabilityCurvesTrack->enableGridLines(RimWellLogTrack::GRID_X_MAJOR_AND_MINOR);
-    std::vector<std::string> resultNames = { "PP", "SH", "OGB", "FractureGradient", "ShearFailureGradient" };
+    std::vector<QString> resultNames = RiaDefines::wellPathStabilityResultNames();
 
-    for (std::string& resultName : resultNames)
+    for (const QString& resultName : resultNames)
     {
-        RigFemResultAddress resAddr(RIG_WELLPATH_DERIVED, resultName, "");
+        RigFemResultAddress resAddr(RIG_WELLPATH_DERIVED, resultName.toStdString(), "");
         RimWellLogExtractionCurve* curve = RicWellLogTools::addExtractionCurve(stabilityCurvesTrack, geoMechView, wellPath, nullptr, 0, false, false);
         curve->setGeoMechResultAddress(resAddr);
         curve->setCurrentTimeStep(geoMechView->currentTimeStep());
-        curve->setCustomName(QString::fromStdString(resultName));
+        curve->setCustomName(resultName);
         curve->loadDataAndUpdate(false);
     }
     stabilityCurvesTrack->calculateXZoomRangeAndUpdateQwt();
@@ -216,15 +216,15 @@ void RicNewWellBoreStabilityPlotFeature::createAnglesTrack(RimWellLogPlot* plot,
     double minValue = 360.0, maxValue = 0.0;
     const double epsilon = 1.0e-3;
     const double angleIncrement = 90.0;
-    std::vector<std::string> resultNames = { "Azimuth", "Inclination" };
+    std::vector<QString> resultNames = RiaDefines::wellPathAngleResultNames();
     
-    for (std::string& resultName : resultNames)
+    for (const QString& resultName : resultNames)
     {
-        RigFemResultAddress resAddr(RIG_WELLPATH_DERIVED, resultName, "");
+        RigFemResultAddress resAddr(RIG_WELLPATH_DERIVED, resultName.toStdString(), "");
         RimWellLogExtractionCurve* curve = RicWellLogTools::addExtractionCurve(wellPathAnglesTrack, geoMechView, wellPath, nullptr, 0, false, false);
         curve->setGeoMechResultAddress(resAddr);
         curve->setCurrentTimeStep(geoMechView->currentTimeStep());
-        curve->setCustomName(QString::fromStdString(resultName));
+        curve->setCustomName(resultName);
         curve->loadDataAndUpdate(false);
         
         double actualMinValue = minValue, actualMaxValue = maxValue;

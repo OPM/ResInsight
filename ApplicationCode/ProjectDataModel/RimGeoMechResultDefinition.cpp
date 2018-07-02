@@ -483,8 +483,8 @@ void RimGeoMechResultDefinition::loadResult()
 {
     if (m_geomCase && m_geomCase->geoMechData())
     {
-        if (this->resultAddress().fieldName == "FractureGradient" ||
-            this->resultAddress().fieldName == "ShearFailureGradient")
+        if (this->resultAddress().fieldName == RiaDefines::wellPathFGResultName().toStdString() ||
+            this->resultAddress().fieldName == RiaDefines::wellPathSFGResultName().toStdString())
         {
             RigFemResultAddress stressResAddr(RIG_ELEMENT_NODAL, std::string("ST"), "");
             RigFemResultAddress porBarResAddr(RIG_ELEMENT_NODAL, std::string("POR-Bar"), "");

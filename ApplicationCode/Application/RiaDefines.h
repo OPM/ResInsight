@@ -21,6 +21,7 @@
 #pragma once
 
 #include <QString>
+#include <vector>
 
 namespace RiaDefines
 {
@@ -84,6 +85,22 @@ namespace RiaDefines
     QString mockModelBasicInputCase();
 
     QString activeFormationNamesResultName();
+
+    // Well path derived results
+    QString wellPathAzimuthResultName();
+    QString wellPathInclinationResultName();
+    QString wellPathPPResultName();
+    QString wellPathSHResultName();
+    QString wellPathOBGResultName();
+    QString wellPathFGResultName();
+    QString wellPathSFGResultName();
+
+    // Well path casing shoe size
+    QString wellPathCasingShoeSizeChannelName();
+    
+    // List of well path derived results
+    std::vector<QString> wellPathAngleResultNames();
+    std::vector<QString> wellPathStabilityResultNames();
 
     //Units and conversions
     enum DepthUnitType

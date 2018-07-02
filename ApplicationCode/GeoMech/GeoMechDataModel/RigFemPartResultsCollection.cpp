@@ -484,13 +484,16 @@ std::map<std::string, std::vector<std::string> > RigFemPartResultsCollection::sc
         }
         else if (resPos == RIG_WELLPATH_DERIVED)
         {
-            fieldCompNames["Azimuth"];
-            fieldCompNames["FractureGradient"];
-            fieldCompNames["Inclination"];
-            fieldCompNames["PP"];
-            fieldCompNames["OBG"];
-            fieldCompNames["SH"];
-            fieldCompNames["ShearFailureGradient"];
+            std::vector<QString> angles = RiaDefines::wellPathAngleResultNames();
+            for (QString angle : angles)
+            {
+                fieldCompNames[angle.toStdString()];
+            }
+            std::vector<QString> derivedResults = RiaDefines::wellPathStabilityResultNames();
+            for (QString result : derivedResults)
+            {
+                fieldCompNames[result.toStdString()];
+            }
         }
     }
 
