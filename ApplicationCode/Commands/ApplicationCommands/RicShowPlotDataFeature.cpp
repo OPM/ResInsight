@@ -88,9 +88,16 @@ void RicShowPlotDataFeature::onActionTriggered(bool isChecked)
     for (RimSummaryPlot* summaryPlot : selectedSummaryPlots)
     {
         QString title = summaryPlot->description();
-        QString text = summaryPlot->asciiDataForPlotExport();
 
-        RicShowPlotDataFeature::showTabbedTextWindow(title, [summaryPlot](DateTimePeriod period) { return summaryPlot->asciiDataForPlotExport(period); });
+        if (summaryPlot->containsResamplableCurves())
+        {
+            RicShowPlotDataFeature::showTabbedTextWindow(title, [summaryPlot](DateTimePeriod period) { return summaryPlot->asciiDataForPlotExport(period); });
+        }
+        else
+        {
+            QString text = summaryPlot->asciiDataForPlotExport();
+            RicShowPlotDataFeature::showTextWindow(title, text);
+        }
     }
 
     for (RimWellLogPlot* wellLogPlot : wellLogPlots)

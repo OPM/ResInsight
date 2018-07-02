@@ -514,6 +514,14 @@ void RimSummaryPlot::updatePlotInfoLabel()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+bool RimSummaryPlot::containsResamplableCurves() const
+{
+    return !m_gridTimeHistoryCurves.empty() || !summaryAndEnsembleCurves().empty();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::updateAxis(RiaDefines::PlotAxis plotAxis)
 {
     if (!m_qwtPlot) return;
@@ -1739,6 +1747,9 @@ void prepareCaseCurvesForExport(DateTimePeriod period, ResampleAlgorithm algorit
 
     if (period != DateTimePeriod::NONE)
     {
+        // Prepare result data
+        resultCurvesData->resamplePeriod = period;
+
         for (size_t i = 0; i < inputCurvesData.caseNames.size(); i++)
         {
             // Shortcuts to input data
@@ -1747,8 +1758,6 @@ void prepareCaseCurvesForExport(DateTimePeriod period, ResampleAlgorithm algorit
             auto& caseCurveData = inputCurvesData.allCurveData[i];
 
             // Prepare result data
-            resultCurvesData->resamplePeriod = period;
-            //resultCurvesData->resampleAlgorithm = algorithm;
             resultCurvesData->caseNames.push_back(caseName);
             resultCurvesData->allCurveData.push_back(std::vector<CurveData>());
 

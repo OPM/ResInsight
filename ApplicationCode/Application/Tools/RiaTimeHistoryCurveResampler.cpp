@@ -90,7 +90,7 @@ const std::vector<double>& RiaTimeHistoryCurveResampler::resampledValues() const
 //--------------------------------------------------------------------------------------------------
 std::vector<time_t> RiaTimeHistoryCurveResampler::timeStepsFromTimeRange(DateTimePeriod period, time_t minTime, time_t maxTime)
 {
-    CVF_ASSERT(minTime <= maxTime);
+    if(minTime > maxTime) return std::vector<time_t>();
 
     auto firstOriginalTimeStep = QDT::fromTime_t(minTime);
     auto lastOriginalTimeStep = QDT::fromTime_t(maxTime);

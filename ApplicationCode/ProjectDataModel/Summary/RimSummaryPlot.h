@@ -126,6 +126,8 @@ public:
     void                                            showPlotInfoLabel(bool show);
     void                                            updatePlotInfoLabel();
 
+    bool                                            containsResamplableCurves() const;
+
     // RimViewWindow overrides
 public:
     virtual QWidget*                                createViewWidget(QWidget* mainWindowParent) override; 
