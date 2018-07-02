@@ -39,7 +39,7 @@ protected:
 
 public:
     static void showTabbedTextWindow(const QString& title, std::function<QString(DateTimePeriod)> textProvider);
-    static void RicShowPlotDataFeature::showTextWindow(const QString& title, const QString& text);
+    static void showTextWindow(const QString& title, const QString& text);
 };
 
 
