@@ -285,6 +285,10 @@ void RimWellLogTrack::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
         m_wellLogTrackPlotWidget->setXRange(m_visibleXRangeMin, m_visibleXRangeMax);
         m_wellLogTrackPlotWidget->replot();
         m_isAutoScaleXEnabled = false;
+        bool emptyRange = std::abs(m_visibleXRangeMax() - m_visibleXRangeMin) < 1.0e-6 * std::max(1.0, std::max(m_visibleXRangeMax(), m_visibleXRangeMin()));
+        m_explicitTickIntervals.uiCapability()->setUiReadOnly(emptyRange);
+        m_showXGridLines.uiCapability()->setUiReadOnly(emptyRange);
+
         updateEditors();
         updateParentPlotLayout();
         updateAxisAndGridTickIntervals();
@@ -465,7 +469,7 @@ void RimWellLogTrack::updateAxisAndGridTickIntervals()
             xMinorTickIntervals = 10;
             break;
         }
-        m_wellLogTrackPlotWidget->setAutoTickIntervals(xMajorTickIntervals, xMinorTickIntervals);
+        m_wellLogTrackPlotWidget->setAutoTickIntervalCounts(xMajorTickIntervals, xMinorTickIntervals);
     }
 
     switch (m_showXGridLines())
@@ -685,11 +689,15 @@ void RimWellLogTrack::loadDataAndUpdate()
         this->updateAxisScaleEngine();
         this->updateFormationNamesOnPlot();
         this->applyXZoomFromVisibleRange();
-        this->updateAxisAndGridTickIntervals();
     }
 
+    this->updateAxisAndGridTickIntervals();
     m_majorTickInterval.uiCapability()->setUiHidden(!m_explicitTickIntervals());
     m_minorTickInterval.uiCapability()->setUiHidden(!m_explicitTickIntervals());
+
+    bool emptyRange = std::abs(m_visibleXRangeMax() - m_visibleXRangeMin) < 1.0e-6 * std::max(1.0, std::max(m_visibleXRangeMax(), m_visibleXRangeMin()));
+    m_explicitTickIntervals.uiCapability()->setUiReadOnly(emptyRange);
+    m_showXGridLines.uiCapability()->setUiReadOnly(emptyRange);
 }
 
 //--------------------------------------------------------------------------------------------------

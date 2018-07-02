@@ -196,8 +196,8 @@ QList<caf::PdmOptionItemInfo> RimWellLogPlot::calculateValueOptions(const caf::P
     }
     else if (fieldNeedingOptions == &m_trackLegendsHorizontal)
     {
-        options.push_back(caf::PdmOptionItemInfo("Vertical", false));
-        options.push_back(caf::PdmOptionItemInfo("Horizontal", true));
+        options.push_back(caf::PdmOptionItemInfo("Vertical", QVariant::fromValue(false)));
+        options.push_back(caf::PdmOptionItemInfo("Horizontal", QVariant::fromValue(true)));
     }
 
     (*useOptionsOnly) = true;

@@ -315,7 +315,7 @@ void RiuWellLogTrack::setMajorAndMinorTickIntervals(double majorTickInterval, do
     if (scaleEngine)
     {
         QwtInterval currentRange = this->axisInterval(QwtPlot::xTop);
-        QwtScaleDiv scaleDiv = scaleEngine->divideScale(currentRange.minValue(), currentRange.maxValue(), majorTickInterval, minorTickInterval);
+        QwtScaleDiv scaleDiv = scaleEngine->divideScaleWithExplicitIntervals(currentRange.minValue(), currentRange.maxValue(), majorTickInterval, minorTickInterval);
     
         this->setAxisScaleDiv(QwtPlot::xTop, scaleDiv);
     }
@@ -324,10 +324,10 @@ void RiuWellLogTrack::setMajorAndMinorTickIntervals(double majorTickInterval, do
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuWellLogTrack::setAutoTickIntervals(int maxMajorTickIntervals, int maxMinorTickIntervals)
+void RiuWellLogTrack::setAutoTickIntervalCounts(int maxMajorTickIntervalCount, int maxMinorTickIntervalCount)
 {
-    this->setAxisMaxMajor(QwtPlot::xTop, maxMajorTickIntervals);
-    this->setAxisMaxMinor(QwtPlot::xTop, maxMinorTickIntervals);
+    this->setAxisMaxMajor(QwtPlot::xTop, maxMajorTickIntervalCount);
+    this->setAxisMaxMinor(QwtPlot::xTop, maxMinorTickIntervalCount);
 	// Reapply axis limits to force Qwt to use the tick settings.
     QwtInterval currentRange = this->axisInterval(QwtPlot::xTop);
     this->setAxisScale(QwtPlot::xTop, currentRange.minValue(), currentRange.maxValue());

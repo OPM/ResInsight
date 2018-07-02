@@ -56,7 +56,7 @@ public:
     int                                     widthScaleFactor() const;
     void                                    enableGridLines(bool majorGridLines, bool minorGridLines);
     void                                    setMajorAndMinorTickIntervals(double majorTickInterval, double minorTickInterval);
-    void                                    setAutoTickIntervals(int maxMajorTickIntervals, int maxMinorTickIntervals);
+    void                                    setAutoTickIntervalCounts(int maxMajorTickIntervalCount, int maxMinorTickIntervalCount);
     double                                  getCurrentMajorTickInterval() const;
     double                                  getCurrentMinorTickInterval() const;
 protected:

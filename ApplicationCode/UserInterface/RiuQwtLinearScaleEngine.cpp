@@ -22,7 +22,7 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QwtScaleDiv RiuQwtLinearScaleEngine::divideScale(double x1, double x2, double majorStepInterval, double minorStepInterval)
+QwtScaleDiv RiuQwtLinearScaleEngine::divideScaleWithExplicitIntervals(double x1, double x2, double majorStepInterval, double minorStepInterval)
 {
     QwtInterval interval(x1, x2);
     QwtInterval roundedInterval = this->align(interval, majorStepInterval);
