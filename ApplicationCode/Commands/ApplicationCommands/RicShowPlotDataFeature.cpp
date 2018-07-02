@@ -131,6 +131,7 @@ void RicShowPlotDataFeature::showTabbedTextWindow(const QString& title, std::fun
     textWiget->setMinimumSize(800, 600);
 
     textWiget->setWindowTitle(title);
+    textWiget->setDescription(title);
     textWiget->setTextProvider(textProvider);
 
     textWiget->show();

@@ -44,7 +44,7 @@ protected:
 private slots:
     void slotCopyContentToClipboard();
     void slotSelectAll();
-
+    void slotExportToFile();
 };
 
 
@@ -77,6 +77,8 @@ class RiuShowTabbedPlotDataDialog : public QDialog
 public:
     explicit RiuShowTabbedPlotDataDialog(QWidget* parent = nullptr);
 
+    void setDescription(const QString& description);
+    QString description() const;
     void setTextProvider(std::function<QString (DateTimePeriod)> textProvider);
 
 private:
@@ -85,6 +87,7 @@ private:
     void                updateText();
 
     QTabWidget* m_tabWidget;
+    QString     m_description;
     std::function<QString(DateTimePeriod)> m_textProvider;
 
 private slots:

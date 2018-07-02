@@ -20,7 +20,10 @@
 #include "RiuTextDialog.h"
 #include "RiuTools.h"
 
+#include "RiaApplication.h"
 #include "RiaQDateTimeTools.h"
+
+#include "SummaryPlotCommands/RicAsciiExportSummaryPlotFeature.h"
 
 #include <QAction>
 #include <QApplication>
@@ -90,6 +93,30 @@ void RiuQPlainTextEdit::slotCopyContentToClipboard()
 void RiuQPlainTextEdit::slotSelectAll()
 {
     this->selectAll();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuQPlainTextEdit::slotExportToFile()
+{
+    // Get dialog
+    RiuShowTabbedPlotDataDialog* dialog = nullptr;
+    auto curr = parent();
+    while (dialog == nullptr)
+    {
+        if (!curr) break;
+        dialog = dynamic_cast<RiuShowTabbedPlotDataDialog*>(curr);
+        if (dialog) break;
+        curr = curr->parent();
+    }
+
+    if(dialog)
+    {
+        QString defaultDir = RicAsciiExportSummaryPlotFeature::defaultExportDir();
+        auto fileName = RicAsciiExportSummaryPlotFeature::getFileNameFromUserDialog(dialog->description(), defaultDir);
+        RicAsciiExportSummaryPlotFeature::exportTextToFile(fileName, this->toPlainText());
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -195,6 +222,23 @@ RiuShowTabbedPlotDataDialog::RiuShowTabbedPlotDataDialog(QWidget* parent /*= nul
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RiuShowTabbedPlotDataDialog::setDescription(const QString& description)
+{
+    m_description = description;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RiuShowTabbedPlotDataDialog::description() const
+{
+    if (m_description.isEmpty()) return "Plot Data";
+    return m_description;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RiuShowTabbedPlotDataDialog::setTextProvider(std::function<QString(DateTimePeriod)> textProvider)
 {
     m_textProvider = textProvider;
@@ -275,6 +319,17 @@ void RiuShowTabbedPlotDataDialog::contextMenuEvent(QContextMenuEvent* event)
         actionToSetup->setShortcuts(QKeySequence::SelectAll);
 
         connect(actionToSetup, SIGNAL(triggered()), textEdit, SLOT(slotSelectAll()));
+
+        menu.addAction(actionToSetup);
+    }
+
+    {
+        QAction* actionToSetup = new QAction(this);
+
+        actionToSetup->setText("Export to File...");
+        //actionToSetup->setShortcuts(QKeySequence::);
+
+        connect(actionToSetup, SIGNAL(triggered()), textEdit, SLOT(slotExportToFile()));
 
         menu.addAction(actionToSetup);
     }

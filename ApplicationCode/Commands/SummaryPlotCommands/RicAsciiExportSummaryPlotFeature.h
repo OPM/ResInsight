@@ -31,6 +31,11 @@ class RicAsciiExportSummaryPlotFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
 
+public:
+    static QString defaultExportDir();
+    static QString getFileNameFromUserDialog(const QString& fileNameCandidate, const QString& defaultDir);
+    static bool exportTextToFile(const QString& fileName, const QString& text);
+
 protected:
     virtual bool isCommandEnabled() override;
     virtual void onActionTriggered( bool isChecked ) override;
