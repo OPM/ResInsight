@@ -37,6 +37,8 @@ public:
     RimModeledWellPath();
     ~RimModeledWellPath();
 
+    void updateWellPathVisualization();
+
 private:
    
 
@@ -57,17 +59,22 @@ public:
 
     enum WellStartType { START_AT_FIRST_TARGET, START_AT_SURFACE, START_FROM_OTHER_WELL, START_AT_AUTO_SURFACE };
 
+    cvf::ref<RigWellPath> createWellPathGeometry();
+    
+    void updateWellPathVisualization();
+
     void insertTarget(RimWellPathTarget* targetToInsertBefore, RimWellPathTarget* targetToInsert);
     void deleteTarget(RimWellPathTarget* targetTodelete);
-    virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
 
 private:
+    virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
     virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
     virtual void defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName) override;
 
+    std::vector<cvf::Vec3d> lineArcEndpoints();
 
     caf::PdmField<caf::AppEnum<WellStartType> >      m_wellStartType;
-    caf::PdmField<cvf::Vec3d>                        m_startPos;
+    caf::PdmField<cvf::Vec3d>                        m_referencePoint;
 
     caf::PdmField<double>                            m_kickoffDepthOrMD;
     caf::PdmPtrField<RimWellPath*>                   m_parentWell;
@@ -80,3 +87,4 @@ protected:
                                          QWidget* fieldEditorWidget) override;
 
 };
+

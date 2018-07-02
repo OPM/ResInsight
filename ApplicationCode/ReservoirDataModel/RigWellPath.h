@@ -40,6 +40,9 @@ public:
     std::vector<cvf::Vec3d>     m_wellPathPoints;
     std::vector<double>         m_measuredDepths;
 
+    const std::vector<cvf::Vec3d>&  wellPathPoints() const;
+    const std::vector<double>&      measureDepths() const;
+
     RigWellPath();
     void                        setDatumElevation(double value);
     bool                        hasDatumElevation() const;
@@ -67,9 +70,6 @@ public:
                                                            double maxZ,
                                                            double * horizontalLengthAlongWellToClipPoint,
                                                            size_t * indexToFirstVisibleSegment);
-    const std::vector<cvf::Vec3d>&  wellPathPoints() const;
-    const std::vector<double>&      measureDepths() const;
-
 private:
     bool    m_hasDatumElevation;
     double  m_datumElevation;

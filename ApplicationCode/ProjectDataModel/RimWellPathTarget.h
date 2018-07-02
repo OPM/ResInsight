@@ -32,16 +32,18 @@ public:
     RimWellPathTarget();
     ~RimWellPathTarget();
 
-    void setAsPointTarget(const cvf::Vec3d& point);
+    void setAsPointTargetXYD(const cvf::Vec3d& point);
     void setAsPointAndTangentTarget(const cvf::Vec3d& point, double azimuth, double inclination);
 
     enum TargetTypeEnum { POINT_AND_TANGENT, POINT };
     TargetTypeEnum targetType();
-    cvf::Vec3d     targetPoint();
+    cvf::Vec3d     targetPointXYZ();
     double         azimuth();
     double         inclination();
 
 private:
+    virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+
     caf::PdmField<bool>                          m_isEnabled;
     caf::PdmField<caf::AppEnum<TargetTypeEnum> > m_targetType;
     caf::PdmField<cvf::Vec3d>                    m_targetPoint;

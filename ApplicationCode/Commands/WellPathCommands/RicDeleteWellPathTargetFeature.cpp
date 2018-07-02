@@ -60,6 +60,7 @@ void RicDeleteWellPathTargetFeature::onActionTriggered(bool isChecked)
         }
         
         wellGeomDef->updateConnectedEditors();
+        wellGeomDef->updateWellPathVisualization();
     }
 }
 

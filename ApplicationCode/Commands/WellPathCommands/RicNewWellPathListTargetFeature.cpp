@@ -65,6 +65,7 @@ void RicNewWellPathListTargetFeature::onActionTriggered(bool isChecked)
         
         wellGeomDef->insertTarget(targets[0], new RimWellPathTarget);
         wellGeomDef->updateConnectedEditors();
+        wellGeomDef->updateWellPathVisualization();
         return;
     }
 
@@ -76,6 +77,7 @@ void RicNewWellPathListTargetFeature::onActionTriggered(bool isChecked)
 
         wellGeomDef->insertTarget(nullptr, new RimWellPathTarget);
         wellGeomDef->updateConnectedEditors();
+        wellGeomDef->updateWellPathVisualization();
     }
 }
 

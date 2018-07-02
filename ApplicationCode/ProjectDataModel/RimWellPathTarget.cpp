@@ -1,4 +1,5 @@
 #include "RimWellPathTarget.h"
+#include "RimModeledWellPath.h"
 
 CAF_PDM_SOURCE_INIT(RimWellPathTarget, "WellPathTarget");
 
@@ -41,7 +42,7 @@ RimWellPathTarget::~RimWellPathTarget()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellPathTarget::setAsPointTarget(const cvf::Vec3d& point)
+void RimWellPathTarget::setAsPointTargetXYD(const cvf::Vec3d& point)
 {
     m_targetType =  POINT; 
     m_targetPoint = point; 
@@ -73,9 +74,11 @@ RimWellPathTarget::TargetTypeEnum RimWellPathTarget::targetType()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-cvf::Vec3d RimWellPathTarget::targetPoint()
+cvf::Vec3d RimWellPathTarget::targetPointXYZ()
 {
-    return m_targetPoint();
+    cvf::Vec3d xyzPoint(m_targetPoint());
+    xyzPoint.z() = -xyzPoint.z();
+    return xyzPoint;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -106,4 +109,14 @@ double RimWellPathTarget::inclination()
     {
         return std::numeric_limits<double>::infinity();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellPathTarget::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+{
+    RimModeledWellPath* wellPath;
+    firstAncestorOrThisOfTypeAsserted(wellPath);
+    wellPath->updateWellPathVisualization();
 }
