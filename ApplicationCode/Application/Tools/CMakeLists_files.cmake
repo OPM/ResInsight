@@ -28,6 +28,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RiaTimeHistoryCurveMerger.h
 ${CMAKE_CURRENT_LIST_DIR}/RiaCurveDataTools.h
 ${CMAKE_CURRENT_LIST_DIR}/RiaTimeHistoryCurveResampler.h
 ${CMAKE_CURRENT_LIST_DIR}/RiaStatisticsTools.h
+${CMAKE_CURRENT_LIST_DIR}/RiaPolyArcLineSampler.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -59,6 +60,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RiaTimeHistoryCurveMerger.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiaCurveDataTools.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiaTimeHistoryCurveResampler.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiaStatisticsTools.cpp
+${CMAKE_CURRENT_LIST_DIR}/RiaPolyArcLineSampler.cpp
 )
 
 list(APPEND CODE_HEADER_FILES
