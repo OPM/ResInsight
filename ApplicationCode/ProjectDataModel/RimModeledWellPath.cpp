@@ -36,6 +36,14 @@ RimModeledWellPath::~RimModeledWellPath()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimModeledWellPath::createWellPathGeometry()
+{
+    this->setWellPathGeometry(m_geometryDefinition->createWellPathGeometry().p());
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimModeledWellPath::updateWellPathVisualization()
 {
     this->setWellPathGeometry(m_geometryDefinition->createWellPathGeometry().p());

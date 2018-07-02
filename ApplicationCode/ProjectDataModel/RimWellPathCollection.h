@@ -88,7 +88,7 @@ public:
 
     caf::PdmChildArrayField<RimWellPath*> wellPaths;
    
-    void                                readWellPathFiles();
+    void                                loadDataAndUpdate();
     void                                addWellPaths(QStringList filePaths);
     
     void                                removeWellPath(RimWellPath* wellPath);

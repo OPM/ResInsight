@@ -467,7 +467,7 @@ bool RiaApplication::loadProject(const QString& projectFileName, ProjectLoadActi
 
         if (oilField->wellPathCollection)
         {
-            oilField->wellPathCollection->readWellPathFiles();
+            oilField->wellPathCollection->loadDataAndUpdate();
             oilField->wellPathCollection->readWellPathFormationFiles();
         }
     }

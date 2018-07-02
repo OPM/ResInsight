@@ -37,6 +37,7 @@ public:
     RimModeledWellPath();
     ~RimModeledWellPath();
 
+    void createWellPathGeometry();
     void updateWellPathVisualization();
 
 private:

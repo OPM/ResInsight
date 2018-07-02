@@ -55,6 +55,7 @@
 #include <cmath>
 #include <fstream>
 #include "RimFileWellPath.h"
+#include "RimModeledWellPath.h"
 
 namespace caf
 {
@@ -126,50 +127,56 @@ void RimWellPathCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedF
 
 
 //--------------------------------------------------------------------------------------------------
-/// Read JSON files containing well path data
+/// Read files containing well path data, or create geometry based on the targets
 //--------------------------------------------------------------------------------------------------
-void RimWellPathCollection::readWellPathFiles()
+void RimWellPathCollection::loadDataAndUpdate()
 {
     caf::ProgressInfo progress(wellPaths.size(), "Reading well paths from file");
 
     for (size_t wpIdx = 0; wpIdx < wellPaths.size(); wpIdx++)
     {
         RimFileWellPath* fWPath = dynamic_cast<RimFileWellPath*>(wellPaths[wpIdx]);
+        RimModeledWellPath* mWPath = dynamic_cast<RimModeledWellPath*>(wellPaths[wpIdx]);
         if (fWPath)
         {
-        if (!fWPath->filepath().isEmpty())
-        {
-            QString errorMessage;
-            if (!fWPath->readWellPathFile(&errorMessage, m_wellPathImporter))
-            {
-                QMessageBox::warning(Riu3DMainWindowTools::mainWindowWidget(),
-                                     "File open error",
-                                     errorMessage);
-            }
-        }
-
-        for (RimWellLogFile* const wellLogFile : fWPath->wellLogFiles())
-        {
-            if (wellLogFile)
+            if ( !fWPath->filepath().isEmpty() )
             {
                 QString errorMessage;
-                if (!wellLogFile->readFile(&errorMessage))
+                if ( !fWPath->readWellPathFile(&errorMessage, m_wellPathImporter) )
                 {
-                    QString displayMessage = "Could not open the well log file: \n" + wellLogFile->fileName();
-
-                    if (!errorMessage.isEmpty())
-                    {
-                        displayMessage += "\n\n";
-                        displayMessage += errorMessage;
-                    }
-
                     QMessageBox::warning(Riu3DMainWindowTools::mainWindowWidget(),
                                          "File open error",
-                                         displayMessage);
+                                         errorMessage);
+                }
+            }
+
+            for ( RimWellLogFile* const wellLogFile : fWPath->wellLogFiles() )
+            {
+                if ( wellLogFile )
+                {
+                    QString errorMessage;
+                    if ( !wellLogFile->readFile(&errorMessage) )
+                    {
+                        QString displayMessage = "Could not open the well log file: \n" + wellLogFile->fileName();
+
+                        if ( !errorMessage.isEmpty() )
+                        {
+                            displayMessage += "\n\n";
+                            displayMessage += errorMessage;
+                        }
+
+                        QMessageBox::warning(Riu3DMainWindowTools::mainWindowWidget(),
+                                             "File open error",
+                                             displayMessage);
+                    }
                 }
             }
         }
+        else if (mWPath)
+        {
+            mWPath->createWellPathGeometry();
         }
+
         progress.setProgressDescription(QString("Reading file %1").arg(wellPaths[wpIdx]->name()));
         progress.incrementProgress();
     }
