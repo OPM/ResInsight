@@ -120,8 +120,6 @@ void RiuWellLogPlot::insertTrackPlot(RiuWellLogTrack* trackPlot, size_t index)
     legend->connect(trackPlot, SIGNAL(legendDataChanged(const QVariant &, const QList< QwtLegendData > &)), SLOT(updateLegend(const QVariant &, const QList< QwtLegendData > &)));
     legend->contentsWidget()->layout()->setAlignment(Qt::AlignBottom | Qt::AlignHCenter);
     m_legends.insert(static_cast<int>(index), legend);
-
-    this->connect(trackPlot,  SIGNAL(legendDataChanged(const QVariant &, const QList< QwtLegendData > &)), SLOT(scheduleUpdateChildrenLayout()));
  
     if (!m_plotDefinition->areTrackLegendsVisible())
     {
@@ -138,8 +136,6 @@ void RiuWellLogPlot::insertTrackPlot(RiuWellLogTrack* trackPlot, size_t index)
     {
         trackPlot->hide();
     }
-
-    modifyWidthOfContainingMdiWindow(trackPlot->width());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -148,8 +144,6 @@ void RiuWellLogPlot::insertTrackPlot(RiuWellLogTrack* trackPlot, size_t index)
 void RiuWellLogPlot::removeTrackPlot(RiuWellLogTrack* trackPlot)
 {
     if (!trackPlot) return;
-
-    int windowWidthChange = - trackPlot->width();
 
     int trackIdx = m_trackPlots.indexOf(trackPlot);
     CVF_ASSERT(trackIdx >= 0);
@@ -160,51 +154,6 @@ void RiuWellLogPlot::removeTrackPlot(RiuWellLogTrack* trackPlot)
     QwtLegend* legend = m_legends[trackIdx];
     m_legends.removeAt(trackIdx);
     delete legend;
-
-    modifyWidthOfContainingMdiWindow(windowWidthChange);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiuWellLogPlot::modifyWidthOfContainingMdiWindow(int widthChange)
-{
-    RiuPlotMainWindow* plotWindow = RiaApplication::instance()->getOrCreateMainPlotWindow();
-    QMdiSubWindow* mdiWindow = plotWindow->findMdiSubWindow(this);
-    if (mdiWindow)
-    {
-        if (m_trackPlots.size() == 0 && widthChange <= 0) return; // Last track removed. Leave be
-
-        QSize subWindowSize = mdiWindow->size();
-        int newWidth = 0;
-
-        if (m_trackPlots.size() == 1 && widthChange > 0) // First track added
-        {
-            newWidth = widthChange;
-        }
-        else
-        {
-            newWidth = subWindowSize.width() + widthChange;
-        }
-
-        if (newWidth < 0) newWidth = 100;
-
-        subWindowSize.setWidth(newWidth);
-        mdiWindow->resize(subWindowSize);
-
-        if (mdiWindow->isMaximized())
-        {
-            // Set window temporarily to normal state and back to maximized
-            // to redo layout so the whole window canvas is filled
-            // Tried to activate layout, did not work as expected
-            // Tested code:
-            //   m_layout->activate();
-            //   mdiWindow->layout()->activate();
-
-            mdiWindow->showNormal();
-            mdiWindow->showMaximized();
-        }
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -233,9 +182,24 @@ void RiuWellLogPlot::setPlotTitle(const QString& plotTitle)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QSize RiuWellLogPlot::sizeHint() const
+QSize RiuWellLogPlot::preferredSize() const
 {
-    return QSize(1,1);
+    int titleWidth  = 0;
+    int titleHeight = 0;
+    if (m_plotTitle && m_plotTitle->isVisible())
+    {
+        titleWidth  = m_plotTitle->width();
+        titleHeight = m_plotTitle->height() + 10;
+    }
+
+    int sumTrackWidth = 0;
+    int maxTrackHeight = 0;
+    for (QPointer<RiuWellLogTrack> track : m_trackPlots)
+    {
+        sumTrackWidth += track->width();
+        maxTrackHeight = std::max(maxTrackHeight, track->height());
+    }
+    return QSize(std::max(titleWidth, sumTrackWidth), titleHeight + maxTrackHeight);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -257,6 +221,14 @@ void RiuWellLogPlot::contextMenuEvent(QContextMenuEvent* event)
     {
         menu.exec(event->globalPos());
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QSize RiuWellLogPlot::sizeHint() const
+{
+    return QSize(1, 1);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -327,7 +299,7 @@ void RiuWellLogPlot::resizeEvent(QResizeEvent *event)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::map<int, int> RiuWellLogPlot::calculateTrackWidths(int frameWidth)
+std::map<int, int> RiuWellLogPlot::calculateTrackWidthsToMatchFrame(int frameWidth) const
 {
     int trackCount = m_trackPlots.size();
     
@@ -340,6 +312,12 @@ std::map<int, int> RiuWellLogPlot::calculateTrackWidths(int frameWidth)
             if (visibleTrackCount == 0)
             {
                 firstTrackAxisOffset = static_cast<int>(m_trackPlots[tIdx]->plotLayout()->canvasRect().left());
+            }
+            else if (visibleTrackCount == 1)
+            {
+                // The others axes also have markers, and so we need to subtract for this to get the shift due to labels and title
+                int otherTrackAxisOffset = static_cast<int>(m_trackPlots[tIdx]->plotLayout()->canvasRect().left());
+                firstTrackAxisOffset -= otherTrackAxisOffset;
             }
             ++visibleTrackCount;            
         }
@@ -402,7 +380,7 @@ void RiuWellLogPlot::placeChildWidgets(int frameHeight, int frameWidth)
 
     const int trackPadding = 4;
 
-    std::map<int, int> trackWidths = calculateTrackWidths(frameWidth);
+    std::map<int, int> trackWidths = calculateTrackWidthsToMatchFrame(frameWidth);
     size_t visibleTrackCount = trackWidths.size();
 
     int maxLegendHeight = 0;

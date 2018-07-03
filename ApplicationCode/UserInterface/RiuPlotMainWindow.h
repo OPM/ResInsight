@@ -77,6 +77,7 @@ public:
     QMdiSubWindow*      findMdiSubWindow(QWidget* viewer);
     QList<QMdiSubWindow*> subWindowList(QMdiArea::WindowOrder order);
 
+    void                setWidthOfMdiWindow(QWidget* mdiWindowWidget, int newWidth);
     void                addToTemporaryWidgets(QWidget* widget);
 
     void                updateSummaryPlotToolBar();

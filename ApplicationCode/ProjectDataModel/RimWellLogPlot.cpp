@@ -105,6 +105,22 @@ RimWellLogPlot::~RimWellLogPlot()
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QWidget* RimWellLogPlot::createPlotWidget()
+{
+    return createViewWidget(nullptr);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QWidget* RimWellLogPlot::viewWidget()
+{
+    return m_viewer;
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void RimWellLogPlot::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
@@ -221,14 +237,6 @@ QImage RimWellLogPlot::snapshotWindowContent()
 }
 
 //--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimWellLogPlot::updateViewWidgetAfterCreation()
-{
-    recreateTrackPlots();
-}
-
-//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void RimWellLogPlot::addTrack(RimWellLogTrack* track)
@@ -267,46 +275,6 @@ void RimWellLogPlot::removeTrack(RimWellLogTrack* track)
         if (m_viewer) m_viewer->removeTrackPlot(track->viewer());
         m_tracks.removeChildObject(track);
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimWellLogPlot::removeTrackByIndex(size_t index)
-{
-    CVF_ASSERT(index < m_tracks.size());
-
-    RimWellLogTrack* track = m_tracks[index];
-    this->removeTrack(track);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimWellLogPlot::moveTracks(RimWellLogTrack* insertAfterTrack, const std::vector<RimWellLogTrack*>& tracksToMove)
-{
-    for (size_t tIdx = 0; tIdx < tracksToMove.size(); tIdx++)
-    {
-        RimWellLogTrack* track = tracksToMove[tIdx];
-
-        RimWellLogPlot* wellLogPlot;
-        track->firstAncestorOrThisOfType(wellLogPlot);
-        if (wellLogPlot)
-        {
-            wellLogPlot->removeTrack(track);
-            wellLogPlot->updateTrackNames();
-            wellLogPlot->updateConnectedEditors();
-        }
-    }
-
-    size_t index = m_tracks.index(insertAfterTrack) + 1;
-
-    for (size_t tIdx = 0; tIdx < tracksToMove.size(); tIdx++)
-    {
-        insertTrack(tracksToMove[tIdx], index + tIdx);
-    }
-
-    updateTrackNames();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -420,14 +388,6 @@ void RimWellLogPlot::zoomAll()
     setDepthAutoZoom(true);
     updateDepthZoom();
     updateTracks(true);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-QWidget* RimWellLogPlot::viewWidget()
-{
-    return m_viewer;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -769,6 +729,7 @@ QString RimWellLogPlot::description() const
 QWidget* RimWellLogPlot::createViewWidget(QWidget* mainWindowParent)
 {
     m_viewer = new RiuWellLogPlot(this, mainWindowParent);
+    recreateTrackPlots();
     return m_viewer;
 }
 

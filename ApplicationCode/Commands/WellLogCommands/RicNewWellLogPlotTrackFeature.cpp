@@ -19,12 +19,18 @@
 
 #include "RicNewWellLogPlotTrackFeature.h"
 
+#include "RiaApplication.h"
+#include "RiuPlotMainWindow.h"
+#include "RiuWellLogPlot.h"
+#include "RiuWellLogTrack.h"
+
 #include "RicNewWellLogCurveExtractionFeature.h"
 #include "RicWellLogPlotCurveFeatureImpl.h"
 #include "RicWellLogTools.h"
 
 #include "RimWellLogPlot.h"
 #include "RimWellLogTrack.h"
+
 
 #include "cafSelectionManager.h"
 
@@ -60,9 +66,13 @@ void RicNewWellLogPlotTrackFeature::onActionTriggered(bool isChecked)
          RimWellLogTrack* plotTrack = new RimWellLogTrack;
          wellLogPlot->addTrack(plotTrack);
          plotTrack->setDescription(QString("Track %1").arg(wellLogPlot->trackCount()));
-
-         wellLogPlot->updateConnectedEditors();
+         RiuPlotMainWindow* plotWindow = RiaApplication::instance()->getOrCreateMainPlotWindow();
+         RiuWellLogPlot* viewWidget = dynamic_cast<RiuWellLogPlot*>(wellLogPlot->viewWidget());
          RicWellLogTools::addExtractionCurve(plotTrack, nullptr, nullptr, nullptr, -1, true);
+                  
+         plotWindow->setWidthOfMdiWindow(viewWidget, viewWidget->preferredSize().width());         
+         wellLogPlot->updateConnectedEditors();
+         wellLogPlot->loadDataAndUpdate();
     }
 }
 

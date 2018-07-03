@@ -90,7 +90,7 @@ void RiuWellLogTrack::setDefaults()
     axisScaleEngine(QwtPlot::xTop)->setAttribute(QwtScaleEngine::Floating, true);
     axisScaleEngine(QwtPlot::yLeft)->setAttribute(QwtScaleEngine::Floating, true);
     setAxisScale(QwtPlot::yLeft, 1000, 0);
-    setAxisScale(QwtPlot::xTop, -10, 100);
+    setXRange(0, 100);
 
 }
 
@@ -330,7 +330,7 @@ void RiuWellLogTrack::setAutoTickIntervalCounts(int maxMajorTickIntervalCount, i
     this->setAxisMaxMinor(QwtPlot::xTop, maxMinorTickIntervalCount);
 	// Reapply axis limits to force Qwt to use the tick settings.
     QwtInterval currentRange = this->axisInterval(QwtPlot::xTop);
-    this->setAxisScale(QwtPlot::xTop, currentRange.minValue(), currentRange.maxValue());
+    this->setXRange(currentRange.minValue(), currentRange.maxValue());
 }
 
 //--------------------------------------------------------------------------------------------------

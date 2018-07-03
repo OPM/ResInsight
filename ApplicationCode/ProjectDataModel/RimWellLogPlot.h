@@ -59,6 +59,9 @@ public:
     RimWellLogPlot();
     virtual ~RimWellLogPlot();
 
+    QWidget*                                        createPlotWidget();
+    virtual QWidget*                                viewWidget() override;
+
     void                                            setDescription(const QString& description);
     QString                                         description() const;
 
@@ -80,11 +83,9 @@ public:
     void                                            addTrack(RimWellLogTrack* track);
     void                                            insertTrack(RimWellLogTrack* track, size_t index);
     size_t                                          trackCount() { return m_tracks.size();}
-    void                                            removeTrackByIndex(size_t index);
 
     void                                            removeTrack(RimWellLogTrack* track);
     size_t                                          trackIndex(RimWellLogTrack* track);
-    void                                            moveTracks(RimWellLogTrack* insertAfterTrack, const std::vector<RimWellLogTrack*>& tracksToMove);
 
     RimWellLogTrack*                                trackByIndex(size_t index);
 
@@ -102,7 +103,6 @@ public:
     bool                                            hasAvailableDepthRange() const;
 
     virtual void                                    zoomAll() override;
-    virtual QWidget*                                viewWidget() override;
     void                                            setDepthAutoZoom(bool on);
 
 
@@ -126,7 +126,9 @@ protected:
     virtual void                                    onLoadDataAndUpdate() override;
 
     virtual QImage                                  snapshotWindowContent() override;
-    virtual void                                    updateViewWidgetAfterCreation() override;
+
+    virtual QWidget*                                createViewWidget(QWidget* mainWindowParent) override;
+    virtual void                                    deleteViewWidget() override;
 
 private:
     void                                            applyZoomAllDepths();
@@ -136,11 +138,6 @@ private:
 
     void                                            updateDisabledDepthTypes();
     void                                            updatePlotTitle();
-public: // Needed by RiuWellAllocation Plot
-    // RimViewWindow overrides
-
-    virtual QWidget*                                createViewWidget(QWidget* mainWindowParent) override; 
-    virtual void                                    deleteViewWidget() override; 
 
 private:
     caf::PdmField<QString>                          m_userName;

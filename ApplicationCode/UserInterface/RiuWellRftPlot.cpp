@@ -77,7 +77,7 @@ RiuWellRftPlot::RiuWellRftPlot(RimWellRftPlot* plotDefinition, QWidget* parent)
     mainLayout->addLayout(plotWidgetsLayout);
     plotWidgetsLayout->addLayout(rightColumnLayout);
     
-    QWidget* wellFlowWidget = m_plotDefinition->wellLogPlot()->createViewWidget(this);
+    QWidget* wellFlowWidget = m_plotDefinition->wellLogPlot()->createPlotWidget();
 
     plotWidgetsLayout->addWidget(wellFlowWidget);
 }

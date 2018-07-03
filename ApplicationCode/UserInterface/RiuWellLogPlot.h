@@ -59,7 +59,7 @@ public:
 
     void                            setDepthZoomAndReplot(double minDepth, double maxDepth);
     void                            setPlotTitle(const QString& plotTitle);
-
+    virtual QSize                   preferredSize() const;
 public slots:
     void                            updateChildrenLayout();
 
@@ -67,13 +67,12 @@ protected:
     virtual void                    resizeEvent(QResizeEvent *event);
     virtual void                    showEvent(QShowEvent *);
     virtual void                    changeEvent(QEvent *);
-    virtual QSize                   sizeHint() const override;
     virtual void                    contextMenuEvent(QContextMenuEvent *) override;
+    virtual QSize                   sizeHint() const override;
 
 private:
     void                            updateScrollBar(double minDepth, double maxDepth);
-    void                            modifyWidthOfContainingMdiWindow(int widthChange);
-    std::map<int, int>              calculateTrackWidths(int frameWidth);
+    std::map<int, int>              calculateTrackWidthsToMatchFrame(int frameWidth) const;
     void                            placeChildWidgets(int frameHeight, int frameWidth);
     void                            positionTitle(int frameWidth);
 

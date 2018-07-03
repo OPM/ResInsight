@@ -425,6 +425,35 @@ QList<QMdiSubWindow*> RiuPlotMainWindow::subWindowList(QMdiArea::WindowOrder ord
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RiuPlotMainWindow::setWidthOfMdiWindow(QWidget* mdiWindowWidget, int newWidth)
+{
+    QMdiSubWindow* mdiWindow = findMdiSubWindow(mdiWindowWidget);
+    if (mdiWindow)
+    {
+        QSize subWindowSize = mdiWindow->size();
+        int   currentWidth  = subWindowSize.width();
+
+        subWindowSize.setWidth(std::max(newWidth, 100));
+        mdiWindow->resize(subWindowSize);
+
+        if (mdiWindow->isMaximized())
+        {
+            // Set window temporarily to normal state and back to maximized
+            // to redo layout so the whole window canvas is filled
+            // Tried to activate layout, did not work as expected
+            // Tested code:
+            //   m_layout->activate();
+            //   mdiWindow->layout()->activate();
+
+            mdiWindow->showNormal();
+            mdiWindow->showMaximized();
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiuPlotMainWindow::addToTemporaryWidgets(QWidget* widget)
 {
     CVF_ASSERT(widget);
@@ -498,7 +527,9 @@ void RiuPlotMainWindow::addViewer(QWidget* viewer, const RimMdiWindowGeometry& w
         RiuWellLogPlot* wellLogPlot = dynamic_cast<RiuWellLogPlot*>(subWin->widget());
         if (wellLogPlot)
         {
-            subWindowSize = QSize(275, m_mdiArea->height());
+            QSize preferredSize = wellLogPlot->preferredSize();
+            subWindowSize = 
+                QSize(preferredSize.width(), m_mdiArea->height());
         }
         else
         {
