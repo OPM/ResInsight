@@ -87,13 +87,14 @@ bool RicImportEnsembleFeature::validateEnsembleCases(std::vector<RimSummaryCase*
             }
         }
 
-        errors.append("\n");
-        errors.append("No parameters file (parameters.txt or runspecification.xml) was found in \n");
-        errors.append("the searched folders. ResInsight searches the home folder of the summary \n");
-        errors.append("case file and the three folder levels above that.\n");
 
         if (!errors.isEmpty())
         {
+            errors.append("\n");
+            errors.append("No parameters file (parameters.txt or runspecification.xml) was found in \n");
+            errors.append("the searched folders. ResInsight searches the home folder of the summary \n");
+            errors.append("case file and the three folder levels above that.\n");
+
             throw errors;
         }
         return true;
