@@ -112,8 +112,9 @@ void RigGeoMechWellLogExtractor::wellPathAngles(const RigFemResultAddress& resAd
     CVF_ASSERT(values);
     CVF_ASSERT(resAddr.fieldName == "Azimuth" || resAddr.fieldName == "Inclination");
     values->resize(m_intersections.size(), 0.0f);
-    const double epsilon = 1.0e-3;
-
+    const double epsilon = 1.0e-6 * 360;
+    const cvf::Vec3d trueNorth(0.0, 1.0, 0.0);
+    const cvf::Vec3d up(0.0, 0.0, 1.0);
     for (int64_t intersectionIdx = 0; intersectionIdx < (int64_t)m_intersections.size(); ++intersectionIdx)
     {
         size_t elmIdx = m_intersectedCellsGlobIdx[intersectionIdx];
@@ -125,16 +126,25 @@ void RigGeoMechWellLogExtractor::wellPathAngles(const RigFemResultAddress& resAd
 
         if (resAddr.fieldName == "Azimuth")
         {
-            double azimuth = 0.0;
+            double azimuth = HUGE_VAL;
             
-            // Azimuth is not defined when well path is vertical. We define the azimuth as 0.0 in this case.
+            // Azimuth is not defined when well path is vertical. We define it as infinite to avoid it showing up in the plot.
             if (cvf::Math::valueInRange(inclination, epsilon, 180.0 - epsilon))
             {
                 cvf::Vec3d projectedTangentXY = wellPathTangent;
                 projectedTangentXY.z() = 0.0;
 
-                // Deviation from "True North" (positive y-direction)
-                azimuth = cvf::Math::toDegrees(std::acos(cvf::Vec3d(0.0, 1.0, 0.0) * projectedTangentXY.getNormalized()));
+                // Do tangentXY to true north for counter clockwise angles.
+                double dotProduct = projectedTangentXY * trueNorth;
+                double crossProduct = (projectedTangentXY ^ trueNorth) * up;
+                // http://www.glossary.oilfield.slb.com/Terms/a/azimuth.aspx
+                azimuth = cvf::Math::toDegrees(std::atan2(crossProduct, dotProduct));
+                if (azimuth < 0.0)
+                {
+                    // Straight atan2 gives angle from -PI to PI yielding angles from -180 to 180.
+                    // We want angles from 0 to 360, so add 180 degrees.
+                    azimuth = azimuth + 360.0;
+                }
             }
 
             (*values)[intersectionIdx] = azimuth;
