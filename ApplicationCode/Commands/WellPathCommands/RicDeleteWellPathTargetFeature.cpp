@@ -19,9 +19,10 @@
 
 CAF_CMD_SOURCE_INIT(RicDeleteWellPathTargetFeature, "RicDeleteWellPathTargetFeature");
 
-#include "cafSelectionManager.h"
+#include "RimWellPathGeometryDef.h"
 #include "RimWellPathTarget.h"
 #include "RimModeledWellPath.h"
+#include "cafSelectionManager.h"
 #include <QAction>
 
 //--------------------------------------------------------------------------------------------------
