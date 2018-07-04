@@ -108,14 +108,20 @@ RifEclipseSummaryAddress::RifEclipseSummaryAddress(SummaryVarCategory category,
 //--------------------------------------------------------------------------------------------------
 RifEclipseSummaryAddress RifEclipseSummaryAddress::fromEclipseTextAddress(const std::string& textAddress)
 {
-    QStringList names = QString().fromStdString(textAddress).split(QRegExp("[:,]"));
+    QStringList names = QString().fromStdString(textAddress).split(":");
 
     bool isErrorResult = false;
     
-    if (names.size() > 1 && names[0].trimmed().startsWith("ER", Qt::CaseInsensitive))
+    if (names.size() > 1)
     {
-        isErrorResult = true;
-        names.pop_front();
+        QString name = names[0].trimmed();
+        if (name.compare("ER", Qt::CaseInsensitive) == 0 ||
+            name.compare("ERR", Qt::CaseInsensitive) == 0||
+            name.compare("ERROR", Qt::CaseInsensitive) == 0)
+        {
+            isErrorResult = true;
+            names.pop_front();
+        }
     }
     else if (names.empty())
     {
@@ -176,11 +182,18 @@ RifEclipseSummaryAddress RifEclipseSummaryAddress::fromEclipseTextAddress(const 
         break;
 
     case SUMMARY_WELL_COMPLETION:
-        if (names.size() > 3) address = wellCompletionAddress(quantityName,
-                                                              names[0].toStdString(),
-                                                              RiaStdStringTools::toInt(names[1].toStdString()),
-                                                              RiaStdStringTools::toInt(names[2].toStdString()),
-                                                              RiaStdStringTools::toInt(names[3].toStdString()));
+        if (names.size() > 1)
+        {
+            QStringList ijk = names[1].trimmed().split(",");
+            if (ijk.size() == 3)
+            {
+                address = wellCompletionAddress(quantityName,
+                                                names[0].toStdString(),
+                                                RiaStdStringTools::toInt(ijk[0].toStdString()),
+                                                RiaStdStringTools::toInt(ijk[1].toStdString()),
+                                                RiaStdStringTools::toInt(ijk[2].toStdString()));
+            }
+        }
         break;
 
     case SUMMARY_WELL_LGR:
@@ -190,12 +203,19 @@ RifEclipseSummaryAddress RifEclipseSummaryAddress::fromEclipseTextAddress(const 
         break;
 
     case SUMMARY_WELL_COMPLETION_LGR:
-        if (names.size() > 4) address = wellCompletionLgrAddress(quantityName,
-                                                                 names[0].toStdString(),
-                                                                 names[1].toStdString(),
-                                                                 RiaStdStringTools::toInt(names[2].toStdString()),
-                                                                 RiaStdStringTools::toInt(names[3].toStdString()),
-                                                                 RiaStdStringTools::toInt(names[4].toStdString()));
+        if (names.size() > 2)
+        {
+            QStringList ijk = names[2].trimmed().split(",");
+            if (ijk.size() == 3)
+            {
+                address = wellCompletionLgrAddress(quantityName,
+                                                   names[0].toStdString(),
+                                                   names[1].toStdString(),
+                                                   RiaStdStringTools::toInt(ijk[0].toStdString()),
+                                                   RiaStdStringTools::toInt(ijk[1].toStdString()),
+                                                   RiaStdStringTools::toInt(ijk[2].toStdString()));
+            }
+        }
         break;
 
     case SUMMARY_WELL_SEGMENT:
@@ -205,18 +225,32 @@ RifEclipseSummaryAddress RifEclipseSummaryAddress::fromEclipseTextAddress(const 
         break;
 
     case SUMMARY_BLOCK:
-        if (names.size() > 2) address = blockAddress(quantityName,
-                                                     RiaStdStringTools::toInt(names[0].toStdString()),
-                                                     RiaStdStringTools::toInt(names[1].toStdString()),
-                                                     RiaStdStringTools::toInt(names[2].toStdString()));
+        if (names.size() > 0)
+        {
+            QStringList ijk = names[0].trimmed().split(",");
+            if (ijk.size() == 3)
+            {
+                address = blockAddress(quantityName,
+                                       RiaStdStringTools::toInt(ijk[0].toStdString()),
+                                       RiaStdStringTools::toInt(ijk[1].toStdString()),
+                                       RiaStdStringTools::toInt(ijk[2].toStdString()));
+            }
+        }
         break;
 
     case SUMMARY_BLOCK_LGR:
-        if (names.size() > 3) address = blockLgrAddress(quantityName,
-                                                        names[0].toStdString(),
-                                                        RiaStdStringTools::toInt(names[1].toStdString()),
-                                                        RiaStdStringTools::toInt(names[2].toStdString()),
-                                                        RiaStdStringTools::toInt(names[3].toStdString()));
+        if (names.size() > 1)
+        {
+            QStringList ijk = names[1].trimmed().split(",");
+            if (ijk.size() == 3)
+            {
+                address = blockLgrAddress(quantityName,
+                                          names[0].toStdString(),
+                                          RiaStdStringTools::toInt(ijk[0].toStdString()),
+                                          RiaStdStringTools::toInt(ijk[1].toStdString()),
+                                          RiaStdStringTools::toInt(ijk[2].toStdString()));
+            }
+        }
         break;
 
     case SUMMARY_CALCULATED:
@@ -225,11 +259,17 @@ RifEclipseSummaryAddress RifEclipseSummaryAddress::fromEclipseTextAddress(const 
 
     case SUMMARY_IMPORTED:
     case SUMMARY_INVALID:
-        address = importedAddress(quantityName);
-        break;
-
     default:
         break;
+    }
+
+    if (address.category() == SUMMARY_INVALID || address.category() == SUMMARY_IMPORTED)
+    {
+        // Address category not recognized, use complete text address
+        //QString addr = QString::fromStdString(quantityName) + (!names.empty() ? (":" + names.join(":")) : "");
+        QStringList addr = names;
+        addr.push_front(QString::fromStdString(quantityName));
+        address = importedAddress(addr.join(":").toStdString());
     }
 
     if (isErrorResult) address.setAsErrorResult();
