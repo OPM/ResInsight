@@ -51,6 +51,8 @@
 
 #include <QFileInfo>
 
+#include <set>
+
 //==================================================================================================
 ///
 ///
@@ -232,11 +234,25 @@ std::pair<double, double> Rim3dWellLogExtractionCurve::findCurveValueRange()
     double foundMinValue = std::numeric_limits<float>::infinity();
     double foundMaxValue = -std::numeric_limits<float>::infinity();
 
-    for (int i = 0; i < m_case->timeStepStrings().size(); ++i)
+    std::set<int> timeStepsToCheck;
+    if (followAnimationTimeStep())
+    {
+        // Check all time steps to avoid range changing during animation.
+        for (int i = 0; i < m_case->timeStepStrings().size(); ++i)
+        {
+            timeStepsToCheck.insert(i);
+        }
+    }
+    else
+    {
+        timeStepsToCheck.insert(m_timeStep());
+    }
+
+    for (int timeStep : timeStepsToCheck)
     {
         std::vector<double> values;
         std::vector<double> measuredDepths;
-        this->curveValuesAndMdsAtTimeStep(&values, &measuredDepths, int(i));
+        this->curveValuesAndMdsAtTimeStep(&values, &measuredDepths, timeStep);
 
         for (double value : values)
         {
@@ -245,7 +261,7 @@ std::pair<double, double> Rim3dWellLogExtractionCurve::findCurveValueRange()
                 foundMinValue = std::min(foundMinValue, value);
                 foundMaxValue = std::max(foundMaxValue, value);
             }
-        }
+        }        
     }
     return std::make_pair(foundMinValue, foundMaxValue);
 }
