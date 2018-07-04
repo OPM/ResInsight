@@ -8,7 +8,7 @@ TEST(RiaPolyArcLineSampler, Basic)
 {
     std::vector<cvf::Vec3d> points {  {0,0,0}, {0,0,-10}, {0,10,-20},{0,20,-20}, {0,30, -30} }; 
 
-    RiaPolyArcLineSampler sampler(points);
+    RiaPolyArcLineSampler sampler({0,0,-1}, points);
 
     std::vector<cvf::Vec3d> sampledPoints; 
     std::vector<double> mds;

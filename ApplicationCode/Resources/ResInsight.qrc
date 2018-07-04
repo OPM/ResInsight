@@ -118,6 +118,8 @@
     <file>SplitterV.png</file>
     <file>calculator.png</file>
     <file>statistics.png</file>
+    <file>WellTargetPoint16x16.png</file>
+    <file>WellTargetPointTangent16x16.png</file>
   </qresource>
   <qresource prefix="/Shader/">
     <file>fs_CellFace.glsl</file>

@@ -34,20 +34,27 @@ public:
 
     void setAsPointTargetXYD(const cvf::Vec3d& point);
     void setAsPointAndTangentTarget(const cvf::Vec3d& point, double azimuth, double inclination);
+    void setDerivedTangent(double azimuth, double inclination);
 
     enum TargetTypeEnum { POINT_AND_TANGENT, POINT };
     TargetTypeEnum targetType();
     cvf::Vec3d     targetPointXYZ();
     double         azimuth();
     double         inclination();
+    cvf::Vec3d     tangent();
+
+
+    virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
 
 private:
     virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
 
     caf::PdmField<bool>                          m_isEnabled;
     caf::PdmField<caf::AppEnum<TargetTypeEnum> > m_targetType;
     caf::PdmField<cvf::Vec3d>                    m_targetPoint;
     caf::PdmField<double>                        m_azimuth;
     caf::PdmField<double>                        m_inclination;
+
 };
 

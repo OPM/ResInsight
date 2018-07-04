@@ -25,6 +25,7 @@
 #include "RiaPolyArcLineSampler.h"
 #include "RimWellPathTarget.h"
 #include "RimModeledWellPath.h"
+#include "RiaSCurveCalculator.h"
 
 namespace caf
 {
@@ -83,7 +84,7 @@ cvf::ref<RigWellPath> RimWellPathGeometryDef::createWellPathGeometry()
     
     if (m_wellTargets.size() < 2) return wellPathGeometry;
 
-    RiaPolyArcLineSampler arcLineSampler(lineArcEndpoints());
+    RiaPolyArcLineSampler arcLineSampler(startTangent(),  lineArcEndpoints());
 
     arcLineSampler.sampledPointsAndMDs(30,
                                          false,
@@ -120,6 +121,22 @@ void RimWellPathGeometryDef::deleteTarget(RimWellPathTarget* targetTodelete)
 {
     m_wellTargets.removeChildObject(targetTodelete);
     delete targetTodelete;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QList<caf::PdmOptionItemInfo> RimWellPathGeometryDef::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, 
+                                                                             bool* useOptionsOnly)
+{
+    QList<caf::PdmOptionItemInfo> options;
+
+    if (fieldNeedingOptions == &m_wellStartType)
+    {
+        options.push_back(caf::PdmOptionItemInfo("Start at First Target",RimWellPathGeometryDef::START_AT_FIRST_TARGET  ));
+    }
+
+    return options;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -174,13 +191,56 @@ void RimWellPathGeometryDef::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTree
 //--------------------------------------------------------------------------------------------------
 std::vector<cvf::Vec3d> RimWellPathGeometryDef::lineArcEndpoints()
 {
+    CVF_ASSERT(m_wellTargets.size() > 1);
+
     std::vector<cvf::Vec3d> endPoints;
-    for (RimWellPathTarget* target: m_wellTargets)
+
+    endPoints.push_back(  m_wellTargets[0]->targetPointXYZ() + m_referencePoint() );
+
+    for ( size_t tIdx = 0; tIdx < m_wellTargets.size() - 1; ++tIdx)
     {
-        endPoints.push_back( target->targetPointXYZ() + m_referencePoint() );
+
+        RimWellPathTarget* target1 = m_wellTargets[tIdx];
+        RimWellPathTarget* target2 = m_wellTargets[tIdx+1];
+
+ 
+        if (target1->targetType() == RimWellPathTarget::POINT_AND_TANGENT
+            && target2->targetType() == RimWellPathTarget::POINT_AND_TANGENT)
+        {
+            RiaSCurveCalculator sCurveCalc(target1->targetPointXYZ(),
+                                           target1->azimuth(),
+                                           target1->inclination(),
+                                           50,//30.0/cvf::Math::toRadians(12.0),
+                                           target2->targetPointXYZ(),
+                                           target2->azimuth(),
+                                           target2->inclination(),
+                                           50);//30.0/cvf::Math::toRadians(12.0));
+
+            if (!sCurveCalc.isOk()) std::cout << "SCurve Calculation failed" << std::endl;
+
+            endPoints.push_back( sCurveCalc.firstArcEndpoint() + m_referencePoint() );
+            endPoints.push_back( sCurveCalc.secondArcStartpoint() + m_referencePoint() );
+        }
+
+        endPoints.push_back( target2->targetPointXYZ() + m_referencePoint() );
     }
 
     return endPoints;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::Vec3d RimWellPathGeometryDef::startTangent()
+{
+    if (m_wellTargets[0]->targetType() == RimWellPathTarget::POINT_AND_TANGENT)
+    {
+        return m_wellTargets[0]->tangent();
+    }
+    else
+    {
+        return { 0, 0, -1};
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

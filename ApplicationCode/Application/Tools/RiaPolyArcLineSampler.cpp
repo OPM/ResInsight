@@ -24,15 +24,17 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RiaPolyArcLineSampler::RiaPolyArcLineSampler(const std::vector<cvf::Vec3d>& lineArcEndPoints)
-    : m_lineArcEndPoints(lineArcEndPoints)
+RiaPolyArcLineSampler::RiaPolyArcLineSampler(const cvf::Vec3d& startTangent, 
+                                             const std::vector<cvf::Vec3d>& lineArcEndPoints)
+    : m_startTangent(startTangent)
+    , m_lineArcEndPoints(lineArcEndPoints)
     , m_samplingsInterval(0.15)
     , m_isResamplingLines(true)
     , m_totalMD(0.0)
     , m_points(nullptr)
     , m_meshDs(nullptr)
 {
-    m_lineArcEndPoints = lineArcEndPoints;
+    
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -40,9 +42,9 @@ RiaPolyArcLineSampler::RiaPolyArcLineSampler(const std::vector<cvf::Vec3d>& line
 //--------------------------------------------------------------------------------------------------
 
 void RiaPolyArcLineSampler::sampledPointsAndMDs(double sampleInterval,
-                                                    bool isResamplingLines,
-                                                    std::vector<cvf::Vec3d>* points,
-                                                    std::vector<double>* mds)
+                                                bool isResamplingLines,
+                                                std::vector<cvf::Vec3d>* points,
+                                                std::vector<double>* mds)
 {
     CVF_ASSERT(sampleInterval > 0.0);
 
@@ -65,15 +67,12 @@ void RiaPolyArcLineSampler::sampledPointsAndMDs(double sampleInterval,
     m_points->push_back(p1);
     m_meshDs->push_back(m_totalMD);
 
-    cvf::Vec3d t2; 
+    cvf::Vec3d t2 = m_startTangent; 
 
-    sampleLine(p1, p2, &t2);
-    
-    for (size_t pIdx = 1; pIdx < m_lineArcEndPoints.size() - 1 ; ++pIdx)
+    for (size_t pIdx = 0; pIdx < m_lineArcEndPoints.size() - 1 ; ++pIdx)
     {
         sampleSegment(t2, m_lineArcEndPoints[pIdx], m_lineArcEndPoints[pIdx + 1] , &t2);
     }
-
 
     return ;
 }
@@ -84,7 +83,7 @@ void RiaPolyArcLineSampler::sampledPointsAndMDs(double sampleInterval,
 void RiaPolyArcLineSampler::sampleSegment(cvf::Vec3d t1, cvf::Vec3d p1, cvf::Vec3d p2, cvf::Vec3d* endTangent)
 {
     cvf::Vec3d p1p2 = p2 - p1;
-    if (cvf::GeometryTools::getAngle(t1, p1p2) < 1e-9)
+    if (cvf::GeometryTools::getAngle(t1, p1p2) < 1e-5)
     {
         sampleLine(p1, p2, endTangent);
     } 
@@ -131,6 +130,9 @@ void RiaPolyArcLineSampler::sampleArc(cvf::Vec3d t1, cvf::Vec3d p1, cvf::Vec3d p
     // Find arc CS
     auto CS_rad = calculateArcCSAndRadius(t1, p1, p2);
 
+    double radius = CS_rad.second;
+    
+    //if (radius > 1e)
     // Find sampleLength angle
 
     double angleInc = m_samplingsInterval/ CS_rad.second;
@@ -144,6 +146,10 @@ void RiaPolyArcLineSampler::sampleArc(cvf::Vec3d t1, cvf::Vec3d p1, cvf::Vec3d p
     // Rotate vector an increment, and transform to arc CS
 
     double arcAngle = cvf::GeometryTools::getAngle(N, p1-C, p2-C);
+    if (arcAngle/angleInc > 5000)
+    {
+        angleInc = arcAngle/5000;
+    }
 
     for ( double angle = angleInc; angle < arcAngle; angle += angleInc )
     {

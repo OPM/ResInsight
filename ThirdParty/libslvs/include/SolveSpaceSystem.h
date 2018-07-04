@@ -27,6 +27,7 @@ public:
     ResultStatus solve(Slvs_hGroup groupId, bool reportFailedConstraints = true);
 
     double parameterValue(Slvs_hParam paramId);
+    void   setParameterValue(Slvs_hParam paramId, double value);
 
     std::tuple< std::valarray<double>,
         std::valarray<double>,

@@ -93,6 +93,14 @@ double SolveSpaceSystem::parameterValue(Slvs_hParam paramId)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void SolveSpaceSystem::setParameterValue(Slvs_hParam paramId, double value)
+{
+    (*m_paramsMemory)[paramId-1].val = value;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 std::tuple< std::valarray<double>,
     std::valarray<double>,
     std::valarray<double> > SolveSpaceSystem::orientationMx(Slvs_hEntity normalIn3dEntityId)

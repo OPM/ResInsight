@@ -48,12 +48,21 @@ public:
     void insertTarget(RimWellPathTarget* targetToInsertBefore, RimWellPathTarget* targetToInsert);
     void deleteTarget(RimWellPathTarget* targetTodelete);
 
+
+    virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
+
+protected:
+    virtual void defineCustomContextMenu(const caf::PdmFieldHandle* fieldNeedingMenu, 
+                                         QMenu* menu, 
+                                         QWidget* fieldEditorWidget) override;
+
 private:
     virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
     virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
     virtual void defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName) override;
 
     std::vector<cvf::Vec3d> lineArcEndpoints();
+    cvf::Vec3d              startTangent();
 
     caf::PdmField<caf::AppEnum<WellStartType> >      m_wellStartType;
     caf::PdmField<cvf::Vec3d>                        m_referencePoint;
@@ -63,10 +72,6 @@ private:
 
     caf::PdmChildArrayField<RimWellPathTarget*>      m_wellTargets;
 
-protected:
-    virtual void defineCustomContextMenu(const caf::PdmFieldHandle* fieldNeedingMenu, 
-                                         QMenu* menu, 
-                                         QWidget* fieldEditorWidget) override;
 
 };
 
