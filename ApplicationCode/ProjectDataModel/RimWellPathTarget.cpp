@@ -1,6 +1,8 @@
 #include "RimWellPathTarget.h"
 #include "RimModeledWellPath.h"
 
+#include <cmath>
+
 CAF_PDM_SOURCE_INIT(RimWellPathTarget, "WellPathTarget");
 
 namespace caf
