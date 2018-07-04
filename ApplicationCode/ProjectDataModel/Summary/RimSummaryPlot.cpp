@@ -1200,7 +1200,6 @@ void RimSummaryPlot::onLoadDataAndUpdate()
     if (m_qwtPlot) m_qwtPlot->updateLegend();
     this->updateAxes();
     updateZoomInQwt();
-    if(m_qwtPlot) m_qwtPlot->replot();
 }
 
 //--------------------------------------------------------------------------------------------------
