@@ -63,7 +63,6 @@ RiuLineSegmentQwtPlotCurve::RiuLineSegmentQwtPlotCurve(const QString &title)
 //--------------------------------------------------------------------------------------------------
 RiuLineSegmentQwtPlotCurve::~RiuLineSegmentQwtPlotCurve()
 {
-    delete m_errorBars;
 }
 
 //--------------------------------------------------------------------------------------------------
