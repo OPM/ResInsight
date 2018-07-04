@@ -231,6 +231,9 @@ void RimDerivedEnsembleCaseCollection::defineUiOrdering(QString uiConfigName, ca
     uiOrdering.add(&m_swapEnsemblesButton);
 
     uiOrdering.skipRemainingFields(true);
+
+    updateAutoName();
+    if (!isValid()) m_caseCount = "";
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -76,7 +76,6 @@ void RicConvertGroupToEnsembleFeature::onActionTriggered(bool isChecked)
     {
         if (group->isEnsemble()) continue;
 
-        RicImportEnsembleFeature::validateEnsembleCases(group->allSummaryCases());
         group->setAsEnsemble(true);
     }
 }

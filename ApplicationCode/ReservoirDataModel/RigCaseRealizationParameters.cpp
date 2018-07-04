@@ -118,6 +118,16 @@ std::map<QString, RigCaseRealizationParameters::Value> RigCaseRealizationParamet
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+std::set<QString> RigCaseRealizationParameters::parameterNames() const
+{
+    std::set<QString> names;
+    for (auto& par : parameters()) names.insert(par.first);
+    return names;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 size_t RigCaseRealizationParameters::parameterHash(const QString& name) const
 {
     auto itr = m_parameters.find(name);
@@ -143,16 +153,41 @@ size_t RigCaseRealizationParameters::parameterHash(const QString& name) const
 //--------------------------------------------------------------------------------------------------
 size_t RigCaseRealizationParameters::parametersHash()
 {
-    if (m_parametersHash == 0)
+    if (m_parametersHash == 0) calculateParametersHash();
+    return m_parametersHash;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigCaseRealizationParameters::clearParametersHash()
+{
+    m_parametersHash = 0;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigCaseRealizationParameters::calculateParametersHash(const std::set<QString>& paramNames /*= std::set<QString>()*/)
+{
+    QStringList hashes;
+    
+    if (paramNames.empty())
     {
-        QStringList hashes;
         for (auto param : m_parameters)
         {
             hashes.push_back(QString::number(parameterHash(param.first)));
         }
-
-        std::hash<std::string>  stringHasher;
-        m_parametersHash = stringHasher(hashes.join("").toStdString());
     }
-    return m_parametersHash;
+    else
+    {
+        for (auto paramName : paramNames)
+        {
+            if (m_parameters.find(paramName) == m_parameters.end()) return;
+            hashes.push_back(QString::number(parameterHash(paramName)));
+        }
+    }
+
+    std::hash<std::string>  stringHasher;
+    m_parametersHash = stringHasher(hashes.join("").toStdString());
 }

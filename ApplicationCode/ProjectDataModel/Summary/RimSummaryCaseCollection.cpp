@@ -26,7 +26,11 @@
 
 #include "RifSummaryReaderInterface.h"
 
+#include <QFileDialog>
+#include <QMessageBox>
+
 #include <cmath>
+#include <algorithm>
 
 CAF_PDM_SOURCE_INIT(RimSummaryCaseCollection, "SummaryCaseSubCollection");
 
@@ -65,8 +69,15 @@ RimSummaryCaseCollection::~RimSummaryCaseCollection()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCaseCollection::removeCase(RimSummaryCase* summaryCase)
 {
+    size_t caseCountBeforeRemove = m_cases.size();
     m_cases.removeChildObject(summaryCase);
     updateReferringCurveSets();
+
+    if (m_isEnsemble && m_cases.size() != caseCountBeforeRemove)
+    {
+        if(dynamic_cast<RimDerivedEnsembleCase*>(summaryCase) == nullptr)
+            calculateEnsembleParametersIntersectionHash();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -94,6 +105,12 @@ void RimSummaryCaseCollection::addCase(RimSummaryCase* summaryCase, bool updateC
 
         derEnsemble->updateDerivedEnsembleCases();
         if (updateCurveSets) derEnsemble->updateReferringCurveSets();
+    }
+
+    if (m_isEnsemble)
+    {
+        validateEnsembleCases({ summaryCase });
+        calculateEnsembleParametersIntersectionHash();
     }
 
     if(updateCurveSets) updateReferringCurveSets();
@@ -136,8 +153,17 @@ bool RimSummaryCaseCollection::isEnsemble() const
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCaseCollection::setAsEnsemble(bool isEnsemble)
 {
-    m_isEnsemble = isEnsemble;
-    updateIcon();
+    if (isEnsemble != m_isEnsemble)
+    {
+        m_isEnsemble = isEnsemble;
+        updateIcon();
+
+        if (m_isEnsemble && dynamic_cast<RimDerivedEnsembleCaseCollection*>(this) == nullptr)
+        {
+            validateEnsembleCases(allSummaryCases());
+            calculateEnsembleParametersIntersectionHash();
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -257,9 +283,118 @@ EnsembleParameter RimSummaryCaseCollection::ensembleParameter(const QString& par
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimSummaryCaseCollection::calculateEnsembleParametersIntersectionHash()
+{
+    clearEnsembleParametersHashes();
+
+    // Find ensemble parameters intersection
+    std::set<QString> paramNames;
+    auto sumCases = allSummaryCases();
+
+    for (int i = 0; i < sumCases.size(); i++)
+    {
+        auto crp = sumCases[i]->caseRealizationParameters();
+        if (!crp) continue;
+
+        auto caseParamNames = crp->parameterNames();
+        
+        if (i == 0) paramNames = caseParamNames;
+        else
+        {
+            std::set<QString> newIntersection;
+            std::set_intersection(paramNames.begin(), paramNames.end(),
+                                  caseParamNames.begin(), caseParamNames.end(),
+                                  std::inserter(newIntersection, newIntersection.end()));
+
+            if(paramNames.size() != newIntersection.size()) paramNames = newIntersection;
+        }
+    }
+
+    for (auto sumCase : sumCases)
+    {
+        auto crp = sumCase->caseRealizationParameters();
+        if(crp) crp->calculateParametersHash(paramNames);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCaseCollection::clearEnsembleParametersHashes()
+{
+    for (auto sumCase : allSummaryCases())
+    {
+        auto crp = sumCase->caseRealizationParameters();
+        if (crp) crp->clearParametersHash();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimSummaryCaseCollection::loadDataAndUpdate()
 {
     onLoadDataAndUpdate();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimSummaryCaseCollection::validateEnsembleCases(const std::vector<RimSummaryCase*> cases)
+{
+    // Validate ensemble parameters
+    try
+    {
+        QString errors;
+        std::hash<std::string> paramsHasher;
+        size_t paramsHash = 0;
+
+        for (RimSummaryCase* rimCase : cases)
+        {
+            if (rimCase->caseRealizationParameters() == nullptr || rimCase->caseRealizationParameters()->parameters().empty())
+            {
+                errors.append(QString("The case %1 has no ensemble parameters\n").arg(QFileInfo(rimCase->summaryHeaderFilename()).fileName()));
+            }
+            else
+            {
+                QString paramNames;
+                for (std::pair<QString, RigCaseRealizationParameters::Value> paramPair : rimCase->caseRealizationParameters()->parameters())
+                {
+                    paramNames.append(paramPair.first);
+                }
+
+                size_t currHash = paramsHasher(paramNames.toStdString());
+                if (paramsHash == 0)
+                {
+                    paramsHash = currHash;
+                }
+                else if (paramsHash != currHash)
+                {
+                    throw QString("Ensemble parameters differ between cases");
+                }
+            }
+        }
+
+
+        if (!errors.isEmpty())
+        {
+            errors.append("\n");
+            errors.append("No parameters file (parameters.txt or runspecification.xml) was found in \n");
+            errors.append("the searched folders. ResInsight searches the home folder of the summary \n");
+            errors.append("case file and the three folder levels above that.\n");
+
+            throw errors;
+        }
+        return true;
+    }
+    catch (QString errorMessage)
+    {
+        QMessageBox mbox;
+        mbox.setIcon(QMessageBox::Icon::Warning);
+        mbox.setInformativeText(errorMessage);
+        mbox.exec();
+        return false;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -275,7 +410,7 @@ caf::PdmFieldHandle* RimSummaryCaseCollection::userDescriptionField()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCaseCollection::onLoadDataAndUpdate()
 {
-    // NOP
+    if (m_isEnsemble) calculateEnsembleParametersIntersectionHash();
 }
 
 //--------------------------------------------------------------------------------------------------

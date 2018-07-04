@@ -242,7 +242,6 @@ RimSummaryCaseCollection* RimSummaryCaseMainCollection::addCaseCollection(std::v
 {
     RimSummaryCaseCollection* summaryCaseCollection = allocator();
     if(!collectionName.isEmpty()) summaryCaseCollection->setName(collectionName);
-    summaryCaseCollection->setAsEnsemble(isEnsemble);
 
     for (RimSummaryCase* summaryCase : summaryCases)
     {
@@ -260,6 +259,8 @@ RimSummaryCaseCollection* RimSummaryCaseMainCollection::addCaseCollection(std::v
 
         summaryCaseCollection->addCase(summaryCase);
     }
+
+    summaryCaseCollection->setAsEnsemble(isEnsemble);
 
     m_caseCollections.push_back(summaryCaseCollection);
 

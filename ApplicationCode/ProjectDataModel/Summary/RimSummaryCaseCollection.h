@@ -74,8 +74,12 @@ public:
     void                            setAsEnsemble(bool isEnsemble);
     virtual std::set<RifEclipseSummaryAddress> calculateUnionOfSummaryAddresses() const;
     EnsembleParameter               ensembleParameter(const QString& paramName) const;
+    void                            calculateEnsembleParametersIntersectionHash();
+    void                            clearEnsembleParametersHashes();
 
     void                            loadDataAndUpdate();
+
+    static bool                     validateEnsembleCases(const std::vector<RimSummaryCase*> cases);
 
 private:
     caf::PdmFieldHandle*            userDescriptionField() override;

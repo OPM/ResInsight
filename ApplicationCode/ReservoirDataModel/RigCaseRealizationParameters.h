@@ -24,6 +24,7 @@
 #include <QString>
 
 #include <map>
+#include <set>
 #include <memory>
 
 //==================================================================================================
@@ -66,9 +67,13 @@ public:
     Value                       parameterValue(const QString& name);
 
     std::map<QString, Value>    parameters() const;
+    std::set<QString>           parameterNames() const;
 
     size_t                      parameterHash(const QString& name) const;
     size_t                      parametersHash();
+
+    void                        clearParametersHash();
+    void                        calculateParametersHash(const std::set<QString>& paramNames = std::set<QString>());
 
 private:
     std::map<QString, Value>    m_parameters;
