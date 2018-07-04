@@ -248,6 +248,34 @@ TEST(RiaTimeHistoryCurveResampler, Test_Resampling_Week)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+TEST(RiaTimeHistoryCurveResampler, Test_Resampling_NoSampleCrossingPeriodBoundary)
+{
+    std::vector<QString> timeStrings(
+        {
+            "2017-01-02",
+            "2017-06-15",
+            "2017-12-24"
+        }
+    );
+
+    std::vector<double> dataValues(
+        {
+            0.0,
+            0.0,
+            0.0
+        }
+    );
+
+    RiaTimeHistoryCurveResampler resampler;
+    resampler.setCurveData(dataValues, toTime_tVector(timeStrings));
+    resampler.resampleAndComputeWeightedMeanValues(DateTimePeriod::YEAR);
+
+    EXPECT_EQ(0, (int)resampler.resampledTimeSteps().size());
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 TEST(RiaTimeHistoryCurveResampler, Test_WeightedMean_Days)
 {
     std::vector<QString> timeStrings(
