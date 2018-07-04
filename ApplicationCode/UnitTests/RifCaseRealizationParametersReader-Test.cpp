@@ -16,7 +16,7 @@ static const QString TEST_DATA_DIRECTORY = QString("%1/RifCaseRealizationParamet
 //--------------------------------------------------------------------------------------------------
 TEST(RifCaseRealizationParametersReaderTest, LocatorTestSuccess)
 {
-    QString file = RifCaseRealizationParametersFileLocator::locate(TEST_DATA_DIRECTORY + "3/2");
+    QString file = RifCaseRealizationParametersFileLocator::locate(TEST_DATA_DIRECTORY + "4/3/2");
     QString expected = TEST_DATA_DIRECTORY + "parameters.txt";
     EXPECT_EQ(expected.toStdString(), file.toStdString());
 }
@@ -26,7 +26,7 @@ TEST(RifCaseRealizationParametersReaderTest, LocatorTestSuccess)
 //--------------------------------------------------------------------------------------------------
 TEST(RifCaseRealizationParametersReaderTest, LocatorTestFailure)
 {
-    QString file = RifCaseRealizationParametersFileLocator::locate(TEST_DATA_DIRECTORY + "3/2/1");
+    QString file = RifCaseRealizationParametersFileLocator::locate(TEST_DATA_DIRECTORY + "4/3/2/1");
     QString expected = "";
     EXPECT_EQ(expected.toStdString(), file.toStdString());
 }
