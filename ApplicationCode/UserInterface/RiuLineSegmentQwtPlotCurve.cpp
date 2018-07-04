@@ -29,6 +29,11 @@
 #include "qwt_interval_symbol.h"
 
 //--------------------------------------------------------------------------------------------------
+/// Internal constants
+//--------------------------------------------------------------------------------------------------
+#define DOUBLE_INF  std::numeric_limits<double>::infinity()
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 RiuLineSegmentQwtPlotCurve::RiuLineSegmentQwtPlotCurve(const QString &title)
@@ -93,7 +98,7 @@ void RiuLineSegmentQwtPlotCurve::setSamplesFromXValuesAndYValues(const std::vect
         {
             points << QPointF(filteredXValues[i], filteredYValues[i]);
 
-            if (showErrorBars)
+            if (showErrorBars && filteredYValues[i] != DOUBLE_INF && filteredYErrorValues[i] != DOUBLE_INF)
             {
                 errorIntervals << QwtIntervalSample(filteredXValues[i], filteredYValues[i] - filteredYErrorValues[i], filteredYValues[i] + filteredYErrorValues[i]);
             }
