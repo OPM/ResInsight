@@ -135,10 +135,9 @@ protected:
     // Fields
 protected:
     caf::PdmField<double>               m_datumElevation;
-private:
-
     caf::PdmField<QString>              m_name;
 
+private:
     caf::PdmField<QString>              m_simWellName;
     caf::PdmField<int>                  m_branchIndex;
 

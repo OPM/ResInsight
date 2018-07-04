@@ -38,6 +38,10 @@ RimModeledWellPath::RimModeledWellPath()
     CAF_PDM_InitFieldNoDefault(&m_geometryDefinition, "WellPathGeometryDef", "Trajectory", "", "", "");
     //m_geometryDefinition.uiCapability()->setUiHidden(true);
     m_geometryDefinition = new RimWellPathGeometryDef;
+
+    m_name.uiCapability()->setUiReadOnly(false);
+    m_name.xmlCapability()->setIOWritable(true);
+    m_name.xmlCapability()->setIOReadable(true);
 }
 
 //--------------------------------------------------------------------------------------------------

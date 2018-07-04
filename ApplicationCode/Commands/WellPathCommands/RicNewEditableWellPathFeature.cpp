@@ -68,6 +68,7 @@ void RicNewEditableWellPathFeature::onActionTriggered(bool isChecked)
         {
             std::vector<RimWellPath*> newWellPaths;
             newWellPaths.push_back(new RimModeledWellPath());
+            newWellPaths.back()->setName("UWell-" + QString::number(wellPathCollection->wellPaths.size()));
             wellPathCollection->addWellPaths(newWellPaths);
             wellPathCollection->uiCapability()->updateConnectedEditors();
             wellPathCollection->scheduleRedrawAffectedViews();
