@@ -66,6 +66,7 @@ PdmUiTableViewEditor::PdmUiTableViewEditor()
     m_tableModelPdm = nullptr;
     m_tableHeadingIcon = nullptr;
     m_delegate = nullptr;
+    m_previousFieldHandle = nullptr;
 
     m_useDefaultContextMenu = false;
 
@@ -116,8 +117,9 @@ QWidget* PdmUiTableViewEditor::createLabelWidget(QWidget * parent)
     }
 
     QHBoxLayout* layoutForIconLabel = new QHBoxLayout();
+    layoutForIconLabel->setMargin(0);
     layoutForIconLabel->addWidget(m_tableHeadingIcon);
-    layoutForIconLabel->addSpacing(5);
+    layoutForIconLabel->addSpacing(3);
     layoutForIconLabel->addWidget(m_tableHeading);
     layoutForIconLabel->addStretch();
     
@@ -164,15 +166,29 @@ void PdmUiTableViewEditor::configureAndUpdateUi(const QString& uiConfigName)
     if (childArrayFH && childArrayFH->uiCapability())
     {
         QString text = "";
-        m_tableHeadingIcon->setPixmap(childArrayFH->uiCapability()->uiIcon(uiConfigName).pixmap(16, 16));
-        m_tableHeading->setText(childArrayFH->uiCapability()->uiName(uiConfigName) + QString(" (%1)").arg(childArrayFH->size()));
-
+        if ( childArrayFH->uiCapability()->uiIcon(uiConfigName).isNull() )
+        {
+            m_tableHeadingIcon->setText(childArrayFH->uiCapability()->uiName(uiConfigName) + QString(" (%1)").arg(childArrayFH->size()));
+            m_tableHeading->setText("");
+        }
+        else
+        {
+            m_tableHeadingIcon->setPixmap(childArrayFH->uiCapability()->uiIcon(uiConfigName).pixmap(16, 16));
+            m_tableHeading->setText(childArrayFH->uiCapability()->uiName(uiConfigName) + QString(" (%1)").arg(childArrayFH->size()));
+        }
         m_tableModelPdm->createPersistentPushButtonWidgets(m_tableView);
     }
     else
     {
         m_tableHeading->setText("");
         m_tableHeadingIcon->setPixmap(QPixmap());
+    }
+
+    if (m_previousFieldHandle != childArrayFH)
+    {
+        m_tableView->resizeColumnsToContents();
+        m_tableView->resizeRowsToContents();
+        m_previousFieldHandle = childArrayFH;
     }
 }
 

@@ -142,6 +142,8 @@ private:
     bool                    m_useDefaultContextMenu;
     SelectionManager::SelectionRole m_selectionRole;
     bool                    m_isBlockingSelectionManagerChanged;
+
+    caf::PdmChildArrayFieldHandle* m_previousFieldHandle;
 };
 
 
