@@ -99,6 +99,7 @@ public:
 
     enum TimeFormat
     {
+        TIME_NONE,
         TIME_HHMM,
         TIME_HHMMSS,
         TIME_HHMMSSZZZ,

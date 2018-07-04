@@ -53,10 +53,11 @@ namespace caf {
     template<>
     void RicPasteAsciiDataToSummaryPlotFeatureUi::TimeFormatEnum::setUp()
     {
+        addItem(RicPasteAsciiDataToSummaryPlotFeatureUi::TIME_NONE,      "",             "None");
         addItem(RicPasteAsciiDataToSummaryPlotFeatureUi::TIME_HHMM,      "hh:mm",        "Hour:Minute (hh:mm)");
         addItem(RicPasteAsciiDataToSummaryPlotFeatureUi::TIME_HHMMSS,    "hh:mm:ss",     "Hour:Minute:Second (hh:mm:ss)");
         addItem(RicPasteAsciiDataToSummaryPlotFeatureUi::TIME_HHMMSSZZZ, "hh:mm:ss.zzz", "Hour:Minute:Second.Millisecond (hh:mm:ss.zzz)");
-        setDefault(RicPasteAsciiDataToSummaryPlotFeatureUi::TIME_HHMM);
+        setDefault(RicPasteAsciiDataToSummaryPlotFeatureUi::TIME_NONE);
     }
 
     template<>
@@ -243,7 +244,8 @@ const AsciiDataParseOptions RicPasteAsciiDataToSummaryPlotFeatureUi::parseOption
             parseOptions.useCustomDateTimeFormat = false;
             parseOptions.dateFormat = m_dateFormat().text();
             parseOptions.timeFormat = m_timeFormat().text();
-            parseOptions.dateTimeFormat = parseOptions.dateFormat + " " + parseOptions.timeFormat;
+            parseOptions.dateTimeFormat = parseOptions.dateFormat +
+                (m_timeFormat() != TimeFormat::TIME_NONE ? " " + parseOptions.timeFormat : "");
         }
     }
 
