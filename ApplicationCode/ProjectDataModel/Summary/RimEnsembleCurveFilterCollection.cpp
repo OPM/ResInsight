@@ -181,6 +181,11 @@ void RimEnsembleCurveFilterCollection::defineUiOrdering(QString uiConfigName, ca
                     first = false;
                 }
                 groupTitle += " }";
+
+                if (groupTitle.size() > 45)
+                {
+                    groupTitle = groupTitle.left(40) + "... }";
+                }
             }
         }
 
