@@ -291,7 +291,7 @@ void RimSummaryCaseCollection::calculateEnsembleParametersIntersectionHash()
     std::set<QString> paramNames;
     auto sumCases = allSummaryCases();
 
-    for (int i = 0; i < sumCases.size(); i++)
+    for (size_t i = 0; i < sumCases.size(); i++)
     {
         auto crp = sumCases[i]->caseRealizationParameters();
         if (!crp) continue;
