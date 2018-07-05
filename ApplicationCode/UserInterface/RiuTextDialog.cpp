@@ -199,6 +199,8 @@ RiuShowTabbedPlotDataDialog::RiuShowTabbedPlotDataDialog(QWidget* parent /*= nul
 
     for(auto timePeriod : RiaQDateTimeTools::dateTimePeriods())
     {
+        if(timePeriod == DateTimePeriod::DECADE) continue;
+
         QString tabTitle =
             timePeriod == DateTimePeriod::NONE ? "No Resampling" :
             QString("Plot Data, %1").arg(RiaQDateTimeTools::dateTimePeriodName(timePeriod));
