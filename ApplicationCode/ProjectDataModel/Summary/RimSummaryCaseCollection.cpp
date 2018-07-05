@@ -378,6 +378,8 @@ bool RimSummaryCaseCollection::validateEnsembleCases(const std::vector<RimSummar
 
         if (!errors.isEmpty())
         {
+            errors.prepend("Missing ensemble parameters\n\n");
+
             errors.append("\n");
             errors.append("No parameters file (parameters.txt or runspecification.xml) was found in \n");
             errors.append("the searched folders. ResInsight searches the home folder of the summary \n");
@@ -391,7 +393,7 @@ bool RimSummaryCaseCollection::validateEnsembleCases(const std::vector<RimSummar
     {
         QMessageBox mbox;
         mbox.setIcon(QMessageBox::Icon::Warning);
-        mbox.setInformativeText(errorMessage);
+        mbox.setText(errorMessage);
         mbox.exec();
         return false;
     }
