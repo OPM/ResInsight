@@ -482,7 +482,7 @@ void RimSummaryPlot::setPlotInfoLabel(const QString& label)
 
     m_plotInfoLabel.reset(new QwtPlotTextLabel());
     m_plotInfoLabel->setText(qwtText);
-    m_plotInfoLabel->setMargin(30);
+    m_plotInfoLabel->setMargin(10);
 }
 
 //--------------------------------------------------------------------------------------------------
