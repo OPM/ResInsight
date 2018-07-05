@@ -386,9 +386,9 @@ void RiuSummaryCurveDefSelection::setDefaultSelection(const std::vector<SummaryS
     bool hasEnsembles = std::count_if(allSumGroups.begin(), allSumGroups.end(),
                                       [](const RimSummaryCaseCollection* sumGroup) { return sumGroup->isEnsemble(); }) > 0;
 
-    if (allSumCases.size() > 0 && !hasEnsembles)
+    if (allSumCases.size() > 0)
     {
-        RifEclipseSummaryAddress defaultAddress = RifEclipseSummaryAddress::fieldAddress("FOPT");
+        RifEclipseSummaryAddress defaultAddress = !hasEnsembles ? RifEclipseSummaryAddress::fieldAddress("FOPT") : RifEclipseSummaryAddress();
 
         std::vector<SummarySource*> selectTheseSources = defaultSources;
         if (selectTheseSources.empty()) selectTheseSources.push_back(allSumCases[0]);
