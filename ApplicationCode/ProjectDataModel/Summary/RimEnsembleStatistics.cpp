@@ -106,7 +106,7 @@ void RimEnsembleStatistics::fieldChangedByUi(const caf::PdmFieldHandle* changedF
 
         curveSet->updateStatisticsCurves();
 
-        if (changedField == &m_active) curveSet->updateConnectedEditors();
+        if (changedField == &m_active || changedField == &m_basedOnFilteredCases) curveSet->updateConnectedEditors();
     }
 }
 
