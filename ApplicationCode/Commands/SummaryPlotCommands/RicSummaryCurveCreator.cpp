@@ -437,11 +437,17 @@ void RicSummaryCurveCreator::updatePreviewCurvesFromCurveDefinitions(
                 curveSet->disableStatisticCurves();
                 curveSet->setSummaryCaseCollection(curveDef.ensemble());
                 curveSet->setSummaryAddress(curveDef.summaryAddress());
-                m_previewPlot->ensembleCurveSetCollection()->addCurveSet(curveSet);
 
                 // Set single curve set color
-                size_t colorIndex = m_previewPlot->ensembleCurveSetCollection()->curveSetCount();
+                auto allCurveSets = m_previewPlot->ensembleCurveSetCollection()->curveSets();
+                size_t colorIndex = std::count_if(allCurveSets.begin(), allCurveSets.end(), [](RimEnsembleCurveSet* curveSet)
+                {
+                    return curveSet->colorMode() == RimEnsembleCurveSet::SINGLE_COLOR;
+                });
                 curveSet->setColor(RiaColorTables::summaryCurveDefaultPaletteColors().cycledColor3f(colorIndex));
+
+                // Add curve to plot
+                m_previewPlot->ensembleCurveSetCollection()->addCurveSet(curveSet);
 
                 if (m_previewPlot->ensembleCurveSetCollection()->curveSets().size() > 1 && ensembleCurveCnt > ENSEMBLE_CURVE_COUNT_THRESHOLD)
                 {
@@ -767,10 +773,19 @@ void RicSummaryCurveCreator::applyAppearanceToAllPreviewCurves()
     RimSummaryCurveAppearanceCalculator curveLookCalc(allCurveDefs, getAllSummaryCaseNames(), getAllSummaryWellNames());
     initCurveAppearanceCalculator(curveLookCalc);
 
+    // Summary curves
     for (auto& curve : m_previewPlot->summaryCurves())
     {
         curve->resetAppearance();
         curveLookCalc.setupCurveLook(curve);
+    }
+
+    // Ensemble curve sets
+    int colorIndex = 0;
+    for (auto& curveSet : m_previewPlot->ensembleCurveSetCollection()->curveSets())
+    {
+        if (curveSet->colorMode() != RimEnsembleCurveSet::SINGLE_COLOR) continue;
+        curveSet->setColor(RiaColorTables::summaryCurveDefaultPaletteColors().cycledColor3f(colorIndex++));
     }
 }
 
