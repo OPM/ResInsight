@@ -283,7 +283,8 @@ RifEclipseSummaryAddress::SummaryVarCategory RifEclipseSummaryAddress::identifyC
 {
     if (quantityName.size() == 0) return RifEclipseSummaryAddress::SUMMARY_INVALID;
 
-    if (!RiaStdStringTools::containsOnlyLettersAndDigits(quantityName)) return RifEclipseSummaryAddress::SUMMARY_INVALID;
+    QRegExp regexp("^[A-Za-z0-9_\\-]*$");
+    if(!regexp.exactMatch(QString::fromStdString(quantityName))) return RifEclipseSummaryAddress::SUMMARY_INVALID;
 
     if (quantityName.size() > 2 && quantityName[0] == 'R' && quantityName[2] == 'F')
     {
