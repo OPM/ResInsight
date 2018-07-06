@@ -35,6 +35,11 @@
 //}
 
 //--------------------------------------------------------------------------------------------------
+/// Internal constants
+//--------------------------------------------------------------------------------------------------
+#define DOUBLE_INF  std::numeric_limits<double>::infinity()
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 RiaTimeHistoryCurveResampler::RiaTimeHistoryCurveResampler()
@@ -139,7 +144,7 @@ void RiaTimeHistoryCurveResampler::computeWeightedMeanValues(DateTimePeriod peri
             if (oi < origDataSize)
             {
                 origTimeStep = origTimeSteps[oi];
-                origValue = origValues[oi];
+                origValue = origValues[oi] != DOUBLE_INF ? origValues[oi] : 0.0;
             }
             else
             {
