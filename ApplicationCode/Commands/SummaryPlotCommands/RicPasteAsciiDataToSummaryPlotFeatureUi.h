@@ -48,6 +48,7 @@ public:
     bool                    useCustomDateTimeFormat;
     QString                 dateFormat;
     QString                 timeFormat;
+    QString                 fallbackDateTimeFormat;
     QString                 dateTimeFormat;
     QString                 cellSeparator;
     QString                 timeSeriesColumnName;

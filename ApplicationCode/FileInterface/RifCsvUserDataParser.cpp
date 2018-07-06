@@ -311,7 +311,14 @@ bool RifCsvUserDataParser::parseData(const AsciiDataParseOptions& parseOptions)
                         if (!dt.isValid() && !parseOptions.useCustomDateTimeFormat)
                         {
                             // Try to match date format only
-                            dt = tryParseDateTime(colData.toStdString(), parseOptions.dateFormat);
+                            if (parseOptions.dateFormat != parseOptions.dateTimeFormat)
+                            {
+                                dt = tryParseDateTime(colData.toStdString(), parseOptions.dateFormat);
+                            }
+                            if (!dt.isValid() && !parseOptions.fallbackDateTimeFormat.isEmpty())
+                            {
+                                dt = tryParseDateTime(colData.toStdString(), parseOptions.fallbackDateTimeFormat);
+                            }
                         }
 
                         if (!dt.isValid())

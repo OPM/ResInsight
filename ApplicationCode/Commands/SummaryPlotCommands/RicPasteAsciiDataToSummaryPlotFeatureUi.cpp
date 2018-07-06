@@ -247,6 +247,11 @@ const AsciiDataParseOptions RicPasteAsciiDataToSummaryPlotFeatureUi::parseOption
             parseOptions.dateTimeFormat = parseOptions.dateFormat +
                 (m_timeFormat() != TimeFormat::TIME_NONE ? " " + parseOptions.timeFormat : "");
         }
+        if (m_timeFormat() == TimeFormat::TIME_NONE)
+        {
+            parseOptions.fallbackDateTimeFormat = parseOptions.dateFormat + " " +
+                RicPasteAsciiDataToSummaryPlotFeatureUi::TimeFormatEnum::text(TIME_HHMM);
+        }
     }
 
     parseOptions.timeSeriesColumnName = m_timeSeriesColumnName();
