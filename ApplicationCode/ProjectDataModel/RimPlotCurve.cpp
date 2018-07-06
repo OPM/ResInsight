@@ -160,7 +160,7 @@ void RimPlotCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField, con
              || &m_lineStyle == changedField
              || &m_symbolSkipPixelDistance == changedField
              || &m_curveInterpolation == changedField
-             || &m_symbolSize)
+             || &m_symbolSize == changedField)
     {
         updateCurveAppearance();
 
