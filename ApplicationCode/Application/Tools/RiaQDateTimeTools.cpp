@@ -157,9 +157,28 @@ QDateTime RiaQDateTimeTools::addSpan(const QDateTime& dt, DateTimeSpan span)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+QDateTime RiaQDateTimeTools::subtractSpan(const QDateTime& dt, DateTimeSpan span)
+{
+    return createUtcDateTime(dt)
+        .addYears(-span.years())
+        .addMonths(-span.months())
+        .addDays(-span.days());
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 QDateTime RiaQDateTimeTools::addPeriod(const QDateTime& dt, DateTimePeriod period)
 {
     return addSpan(dt, timeSpan(period));
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QDateTime RiaQDateTimeTools::subtractPeriod(const QDateTime& dt, DateTimePeriod period)
+{
+    return subtractSpan(dt, timeSpan(period));
 }
 
 //--------------------------------------------------------------------------------------------------

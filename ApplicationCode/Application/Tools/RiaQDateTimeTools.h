@@ -78,7 +78,9 @@ public:
     static QDateTime addDays(const QDateTime& dt, double days);
     static QDateTime addYears(const QDateTime& dt, double years);
     static QDateTime addSpan(const QDateTime& dt, DateTimeSpan span);
+    static QDateTime subtractSpan(const QDateTime& dt, DateTimeSpan span);
     static QDateTime addPeriod(const QDateTime& dt, DateTimePeriod period);
+    static QDateTime subtractPeriod(const QDateTime& dt, DateTimePeriod period);
 
     static QDateTime epoch();
 

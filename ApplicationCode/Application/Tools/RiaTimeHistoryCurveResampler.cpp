@@ -98,11 +98,13 @@ std::vector<time_t> RiaTimeHistoryCurveResampler::timeStepsFromTimeRange(DateTim
     auto currTimeStep = firstResampledTimeStep(firstOriginalTimeStep, period);
 
     std::vector<time_t> timeSteps;
-    while (QDT::lessThanOrEqualTo(currTimeStep, lastOriginalTimeStep))
+    while (QDT::lessThan(currTimeStep, lastOriginalTimeStep))
     {
         timeSteps.push_back(currTimeStep.toTime_t());
         currTimeStep = QDT::addPeriod(currTimeStep, period);
     }
+    timeSteps.push_back(currTimeStep.toTime_t());
+
     return timeSteps;
 }
 
@@ -122,33 +124,47 @@ void RiaTimeHistoryCurveResampler::computeWeightedMeanValues(DateTimePeriod peri
     for (size_t i = 0; i < m_timeSteps.size(); i++)
     {
         double wMean = 0.0;
-        time_t periodStart = i > 0 ? m_timeSteps[i - 1] : origTimeSteps[0];
+        time_t periodStart = i > 0 ? m_timeSteps[i - 1] :
+            QDT::subtractPeriod(QDT::fromTime_t(m_timeSteps[0]), period).toTime_t();
         time_t periodEnd = m_timeSteps[i];
         time_t periodLength = periodEnd - periodStart;
 
         while(true)
         {
-            if (oi == origDataSize) break;
+            time_t origTimeStep = 0;
+            double origValue = 0.0;
 
+            if (oi > origDataSize) break;
+
+            if (oi < origDataSize)
+            {
+                origTimeStep = origTimeSteps[oi];
+                origValue = origValues[oi];
+            }
+            else
+            {
+                origTimeStep = periodEnd;
+                origValue = 0.0;
+            }
+            
             if (oi == 0)
             {
-                if (origTimeSteps[oi] == m_timeSteps[i])
+                if (origTimeStep == m_timeSteps[i])
                 {
-                    wMean += origValues[0];
+                    wMean += origValue;
                     oi++;
                     break;
                 }
-                oi++;
-                continue;
+                origValue = 0.0;
             }
 
-            time_t startTime = std::max(origTimeSteps[oi-1], periodStart);
-            time_t endTime = std::min(origTimeSteps[oi], periodEnd);
+            time_t startTime = oi > 0 ? std::max(origTimeSteps[oi - 1], periodStart) : periodStart;
+            time_t endTime = std::min(origTimeStep, periodEnd);
             
-            wMean += origValues[oi] * (endTime - startTime) / periodLength;
+            wMean += origValue * (endTime - startTime) / periodLength;
 
-            if (origTimeSteps[oi] > m_timeSteps[i]) break;
-            if (origTimeSteps[oi] == m_timeSteps[i])
+            if (origTimeStep > m_timeSteps[i]) break;
+            if (origTimeStep == m_timeSteps[i])
             {
                 oi++;
                 break;
@@ -177,14 +193,17 @@ void RiaTimeHistoryCurveResampler::computePeriodEndValues(DateTimePeriod period)
     {
         while (oi < origDataSize && origTimeSteps[oi] < m_timeSteps[i]) oi++;
 
+        time_t origTimeStep = oi < origDataSize ? origTimeSteps[oi] : m_timeSteps[i];
+        double origValue = oi < origDataSize ? origValues[oi] : origValues[oi - 1];
+        
         double value;
-        if (oi > 0)
+        if (oi > 0 && origTimeStep >= m_timeSteps[i])
         {
-            value = interpolatedValue(m_timeSteps[i], origTimeSteps[oi - 1], origValues[oi - 1], origTimeSteps[oi], origValues[oi]);
+            value = interpolatedValue(m_timeSteps[i], origTimeSteps[oi - 1], origValues[oi - 1], origTimeStep, origValue);
         }
         else
         {
-            value = origValues[0];
+            value = origValue;
         }
 
         m_values.push_back(value);
@@ -213,11 +232,14 @@ void RiaTimeHistoryCurveResampler::computeResampledTimeSteps(DateTimePeriod peri
     clearData();
     auto currTimeStep = firstResampledTimeStep(firstOriginalTimeStep, period);
 
-    while (QDT::lessThanOrEqualTo(currTimeStep, lastOriginalTimeStep))
+    while (QDT::lessThan(currTimeStep, lastOriginalTimeStep))
     {
         m_timeSteps.push_back(currTimeStep.toTime_t());
         currTimeStep = QDT::addPeriod(currTimeStep, period);
     }
+
+    // Add last time step
+    m_timeSteps.push_back(currTimeStep.toTime_t());
 }
 
 //--------------------------------------------------------------------------------------------------
