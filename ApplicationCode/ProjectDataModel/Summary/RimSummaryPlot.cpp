@@ -1812,8 +1812,9 @@ void appendToExportDataForCase(QString& out, const std::vector<time_t>& timeStep
             if (j < curveData[k].values.size())
             {
                 valueText = QString::number(curveData[k].values[j], 'g', 6);
+                
             }
-            out += "\t" + valueText;
+            out += "\t" + valueText.rightJustified(13);
         }
     }
 }
@@ -1877,7 +1878,7 @@ void appendToExportData(QString& out, const std::vector<CurvesData>& curvesData)
                     {
                         valueText = "NULL";
                     }
-                    out += "\t" + valueText;
+                    out += "\t" + valueText.rightJustified(13);
                 }
 
                 if (timeStepExists && currIndex < data.timeSteps[i].size()) currIndex++;

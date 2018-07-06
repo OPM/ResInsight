@@ -214,7 +214,7 @@ RiuShowTabbedPlotDataDialog::RiuShowTabbedPlotDataDialog(QWidget* parent /*= nul
         textEdit->setContextMenuPolicy(Qt::NoContextMenu);
 
         auto fontWidth = QFontMetrics(font).width("m");
-        textEdit->setTabStopWidth(fontWidth * 9);
+        textEdit->setTabStopWidth(fontWidth * 4);
 
         m_tabWidget->addTab(textEdit, tabTitle);
     }
