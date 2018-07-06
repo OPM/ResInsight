@@ -600,6 +600,7 @@ void RimSummaryCurve::appendOptionItemsForSummaryAddresses(QList<caf::PdmOptionI
 
             for (auto& address : allAddresses)
             {
+                if (address.isErrorResult()) continue;
                 if (summaryFilter && !summaryFilter->isIncludedByFilter(address)) continue;
 
                 std::string name = address.uiText();
