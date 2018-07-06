@@ -52,9 +52,10 @@ public:
     void                                    setXRange(double min, double max);
 
     bool                                    isRimTrackVisible();
-    void                                    enableVerticalAxisLabelsAndTitle(bool enable);
+    void                                    enableDepthAxisLabelsAndTitle(bool enable);
     int                                     widthScaleFactor() const;
-    void                                    enableGridLines(bool majorGridLines, bool minorGridLines);
+    void                                    enableXGridLines(bool majorGridLines, bool minorGridLines);
+    void                                    enableDepthGridLines(bool majorGridLines, bool minorGridLines);
     void                                    setMajorAndMinorTickIntervals(double majorTickInterval, double minorTickInterval);
     void                                    setAutoTickIntervalCounts(int maxMajorTickIntervalCount, int maxMinorTickIntervalCount);
     double                                  getCurrentMajorTickInterval() const;

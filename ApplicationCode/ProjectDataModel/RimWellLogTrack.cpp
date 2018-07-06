@@ -114,15 +114,6 @@ namespace caf
         addItem(RimWellLogTrack::EXTRA_WIDE_TRACK,    "EXTRA_WIDE_TRACK",  "Extra wide");
         setDefault(RimWellLogTrack::NORMAL_TRACK);
     }
-
-    template<>
-    void AppEnum< RimWellLogTrack::GridLines >::setUp()
-    {
-        addItem(RimWellLogTrack::GRID_X_NONE, "GRID_X_NONE", "No Gridlines");
-        addItem(RimWellLogTrack::GRID_X_MAJOR, "GRID_X_MAJOR", "Major Only");
-        addItem(RimWellLogTrack::GRID_X_MAJOR_AND_MINOR, "GRID_X_MAJOR_AND_MINOR", "Major and Minor");
-        setDefault(RimWellLogTrack::GRID_X_MAJOR);
-    }
 }
 
 
@@ -150,7 +141,7 @@ RimWellLogTrack::RimWellLogTrack()
 
     CAF_PDM_InitField(&m_isLogarithmicScaleEnabled, "LogarithmicScaleX", false, "Logarithmic Scale", "", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&m_showXGridLines, "ShowXGridLines", "Show Grid Lines", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_xAxisGridVisibility, "ShowXGridLines", "Show Grid Lines", "", "", "");
 
     CAF_PDM_InitField(&m_explicitTickIntervals, "ExplicitTickIntervals", false, "Manually Set Tick Intervals", "", "", "");
     CAF_PDM_InitField(&m_majorTickInterval, "MajorTickIntervals", 0.0, "Major Tick Interval", "", "", "");
@@ -274,7 +265,7 @@ void RimWellLogTrack::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
             m_wellLogTrackPlotWidget->replot();
         }
     }
-    else if (changedField == &m_showXGridLines ||
+    else if (changedField == &m_xAxisGridVisibility ||
              changedField == &m_majorTickInterval ||
              changedField == &m_minorTickInterval)
     {
@@ -288,7 +279,7 @@ void RimWellLogTrack::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
         m_isAutoScaleXEnabled = false;
         bool emptyRange = std::abs(m_visibleXRangeMax() - m_visibleXRangeMin) < 1.0e-6 * std::max(1.0, std::max(m_visibleXRangeMax(), m_visibleXRangeMin()));
         m_explicitTickIntervals.uiCapability()->setUiReadOnly(emptyRange);
-        m_showXGridLines.uiCapability()->setUiReadOnly(emptyRange);
+        m_xAxisGridVisibility.uiCapability()->setUiReadOnly(emptyRange);
 
         updateEditors();
         updateParentPlotLayout();
@@ -477,16 +468,31 @@ void RimWellLogTrack::updateAxisAndGridTickIntervals()
         m_wellLogTrackPlotWidget->setAutoTickIntervalCounts(xMajorTickIntervals, xMinorTickIntervals);
     }
 
-    switch (m_showXGridLines())
+    switch (m_xAxisGridVisibility())
     {
-    case GRID_X_NONE:
-        m_wellLogTrackPlotWidget->enableGridLines(false, false);
+    case RimWellLogPlot::AXIS_GRID_NONE:
+        m_wellLogTrackPlotWidget->enableXGridLines(false, false);
         break;
-    case GRID_X_MAJOR:
-        m_wellLogTrackPlotWidget->enableGridLines(true, false);
+    case RimWellLogPlot::AXIS_GRID_MAJOR:
+        m_wellLogTrackPlotWidget->enableXGridLines(true, false);
         break;
-    case GRID_X_MAJOR_AND_MINOR:
-        m_wellLogTrackPlotWidget->enableGridLines(true, true);
+    case RimWellLogPlot::AXIS_GRID_MAJOR_AND_MINOR:
+        m_wellLogTrackPlotWidget->enableXGridLines(true, true);
+        break;
+    }
+
+    RimWellLogPlot* plot = nullptr;
+    this->firstAncestorOrThisOfTypeAsserted(plot);
+    switch (plot->depthGridLinesVisibility())
+    {
+    case RimWellLogPlot::AXIS_GRID_NONE:
+        m_wellLogTrackPlotWidget->enableDepthGridLines(false, false);
+        break;
+    case RimWellLogPlot::AXIS_GRID_MAJOR:
+        m_wellLogTrackPlotWidget->enableDepthGridLines(true, false);
+        break;
+    case RimWellLogPlot::AXIS_GRID_MAJOR_AND_MINOR:
+        m_wellLogTrackPlotWidget->enableDepthGridLines(true, true);
         break;
     }
 }
@@ -705,7 +711,7 @@ void RimWellLogTrack::loadDataAndUpdate()
 
     bool emptyRange = std::abs(m_visibleXRangeMax() - m_visibleXRangeMin) < 1.0e-6 * std::max(1.0, std::max(m_visibleXRangeMax(), m_visibleXRangeMin()));
     m_explicitTickIntervals.uiCapability()->setUiReadOnly(emptyRange);
-    m_showXGridLines.uiCapability()->setUiReadOnly(emptyRange);
+    m_xAxisGridVisibility.uiCapability()->setUiReadOnly(emptyRange);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1032,9 +1038,9 @@ void RimWellLogTrack::setTickIntervals(double majorTickInterval, double minorTic
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellLogTrack::enableGridLines(GridLines gridLines)
+void RimWellLogTrack::setXAxisGridVisibility(RimWellLogPlot::AxisGridVisibility gridLines)
 {
-    m_showXGridLines = gridLines;
+    m_xAxisGridVisibility = gridLines;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1292,7 +1298,7 @@ void RimWellLogTrack::uiOrderingForXAxisSettings(caf::PdmUiOrdering& uiOrdering)
     gridGroup->add(&m_isLogarithmicScaleEnabled);
     gridGroup->add(&m_visibleXRangeMin);
     gridGroup->add(&m_visibleXRangeMax);
-    gridGroup->add(&m_showXGridLines);
+    gridGroup->add(&m_xAxisGridVisibility);
     gridGroup->add(&m_explicitTickIntervals);
     gridGroup->add(&m_majorTickInterval);
     gridGroup->add(&m_minorTickInterval);

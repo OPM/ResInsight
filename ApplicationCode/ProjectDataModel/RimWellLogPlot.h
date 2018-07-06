@@ -52,8 +52,9 @@ public:
         CONNECTION_NUMBER
     };
 
+    enum AxisGridVisibility { AXIS_GRID_NONE, AXIS_GRID_MAJOR, AXIS_GRID_MAJOR_AND_MINOR };
 
-
+    typedef caf::AppEnum<AxisGridVisibility> AxisGridEnum;
 
 public:
     RimWellLogPlot();
@@ -71,8 +72,10 @@ public:
     RiaDefines::DepthUnitType                       depthUnit() const;
     void                                            setDepthUnit(RiaDefines::DepthUnitType depthUnit);
 
-
     QString                                         depthPlotTitle() const;
+    void                                            enableDepthGridLines(AxisGridVisibility gridVisibility);
+    AxisGridVisibility                              depthGridLinesVisibility() const;
+
     bool                                            isPlotTitleVisible() const;
     void                                            setPlotTitleVisible(bool visible);    
     bool                                            areTrackLegendsVisible() const;
@@ -140,25 +143,24 @@ private:
     void                                            updatePlotTitle();
 
 private:
-    caf::PdmField<QString>                          m_userName;
+    caf::PdmField<QString>                                  m_userName;
+    caf::PdmChildArrayField<RimWellLogTrack*>               m_tracks;
+
+    caf::PdmField< caf::AppEnum<DepthTypeEnum>>             m_depthType;
+    caf::PdmField< caf::AppEnum<RiaDefines::DepthUnitType>> m_depthUnit;
+    std::set<RimWellLogPlot::DepthTypeEnum>                 m_disabledDepthTypes;
+    caf::PdmField<double>                                   m_minVisibleDepth;
+    caf::PdmField<double>                                   m_maxVisibleDepth;
+    caf::PdmField<AxisGridEnum>                             m_depthAxisGridVisibility;
+    caf::PdmField<bool>                                     m_isAutoScaleDepthEnabled;
     
-    caf::PdmField< caf::AppEnum< DepthTypeEnum > >              m_depthType;
-    caf::PdmField< caf::AppEnum< RiaDefines::DepthUnitType > >  m_depthUnit;
-    std::set<DepthTypeEnum>                         m_disabledDepthTypes;
+    caf::PdmField<bool>                                     m_showTitleInPlot;
+    caf::PdmField<bool>                                     m_showTrackLegends;
+    caf::PdmField<bool>                                     m_trackLegendsHorizontal;
 
-    caf::PdmChildArrayField<RimWellLogTrack*>       m_tracks;
-
-    caf::PdmField<double>                           m_minVisibleDepth;
-    caf::PdmField<double>                           m_maxVisibleDepth;
-    caf::PdmField<bool>                             m_isAutoScaleDepthEnabled;
-    caf::PdmField<bool>                             m_showTitleInPlot;
-    caf::PdmField<bool>                             m_showTrackLegends;
-    caf::PdmField<bool>                             m_trackLegendsHorizontal;
-
-    double                                          m_minAvailableDepth;
-    double                                          m_maxAvailableDepth;
+    double m_minAvailableDepth;
+    double m_maxAvailableDepth;
 
     friend class RiuWellLogPlot;
-    QPointer<RiuWellLogPlot>                        m_viewer;
-
+    QPointer<RiuWellLogPlot> m_viewer;
 };

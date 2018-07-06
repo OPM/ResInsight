@@ -493,7 +493,7 @@ void RiuWellLogPlot::updateChildrenLayout()
             m_legends[tIdx]->setMaxColumns(legendColumns);
             m_legends[tIdx]->show();
 
-            m_trackPlots[tIdx]->enableVerticalAxisLabelsAndTitle(numTracksAlreadyShown == 0);
+            m_trackPlots[tIdx]->enableDepthAxisLabelsAndTitle(numTracksAlreadyShown == 0);
             numTracksAlreadyShown++;
         }
         else

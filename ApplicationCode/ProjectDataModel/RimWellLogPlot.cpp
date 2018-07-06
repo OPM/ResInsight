@@ -53,6 +53,15 @@ namespace caf {
         setDefault(RimWellLogPlot::MEASURED_DEPTH);
     }
 
+    template<>
+    void RimWellLogPlot::AxisGridEnum::setUp()
+    {
+        addItem(RimWellLogPlot::AXIS_GRID_NONE, "GRID_X_NONE", "No Grid Lines");
+        addItem(RimWellLogPlot::AXIS_GRID_MAJOR, "GRID_X_MAJOR", "Major Only");
+        addItem(RimWellLogPlot::AXIS_GRID_MAJOR_AND_MINOR, "GRID_X_MAJOR_AND_MINOR", "Major and Minor");
+        setDefault(RimWellLogPlot::AXIS_GRID_MAJOR);
+    }
+
 } // End namespace caf
 
 
@@ -78,6 +87,7 @@ RimWellLogPlot::RimWellLogPlot()
 
     CAF_PDM_InitField(&m_minVisibleDepth, "MinimumDepth", 0.0, "Min", "", "", "");
     CAF_PDM_InitField(&m_maxVisibleDepth, "MaximumDepth", 1000.0, "Max", "", "", "");    
+    CAF_PDM_InitFieldNoDefault(&m_depthAxisGridVisibility, "ShowDepthGridLines", "Show Grid Lines", "", "", "");
     CAF_PDM_InitField(&m_isAutoScaleDepthEnabled, "AutoScaleDepthEnabled", true, "Auto Scale", "", "", "");
     m_isAutoScaleDepthEnabled.uiCapability()->setUiHidden(true);
     CAF_PDM_InitField(&m_showTitleInPlot, "ShowTitleInPlot", false, "Show Title", "", "", "");
@@ -135,7 +145,8 @@ void RimWellLogPlot::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
     }
     else if (changedField == &m_showTitleInPlot ||
              changedField == &m_showTrackLegends ||
-             changedField == &m_trackLegendsHorizontal)
+             changedField == &m_trackLegendsHorizontal ||
+             changedField == &m_depthAxisGridVisibility)
     {
         updateTracks();
         if (m_viewer) m_viewer->updateChildrenLayout();
@@ -568,6 +579,7 @@ void RimWellLogPlot::uiOrderingForDepthAxis(caf::PdmUiOrdering& uiOrdering)
     }
     gridGroup->add(&m_minVisibleDepth);
     gridGroup->add(&m_maxVisibleDepth);
+    gridGroup->add(&m_depthAxisGridVisibility);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -828,6 +840,22 @@ QString RimWellLogPlot::depthPlotTitle() const
     }
 
     return depthTitle;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogPlot::enableDepthGridLines(AxisGridVisibility gridVisibility)
+{
+    m_depthAxisGridVisibility = gridVisibility;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimWellLogPlot::AxisGridVisibility RimWellLogPlot::depthGridLinesVisibility() const
+{
+    return m_depthAxisGridVisibility();
 }
 
 //--------------------------------------------------------------------------------------------------

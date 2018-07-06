@@ -1,4 +1,4 @@
-/////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2015-     Statoil ASA
 //  Copyright (C) 2015-     Ceetron Solutions AS
@@ -271,7 +271,7 @@ bool RiuWellLogTrack::isRimTrackVisible()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuWellLogTrack::enableVerticalAxisLabelsAndTitle(bool enable)
+void RiuWellLogTrack::enableDepthAxisLabelsAndTitle(bool enable)
 {
     this->axisScaleDraw(QwtPlot::yLeft)->enableComponent(QwtAbstractScaleDraw::Ticks, enable);
     this->axisScaleDraw(QwtPlot::yLeft)->enableComponent(QwtAbstractScaleDraw::Labels, enable);
@@ -292,7 +292,7 @@ int RiuWellLogTrack::widthScaleFactor() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuWellLogTrack::enableGridLines(bool majorGridLines, bool minorGridLines)
+void RiuWellLogTrack::enableXGridLines(bool majorGridLines, bool minorGridLines)
 {
     QwtPlotItemList plotItems = this->itemList(QwtPlotItem::Rtti_PlotGrid);
     for (QwtPlotItem* plotItem : plotItems)
@@ -304,6 +304,24 @@ void RiuWellLogTrack::enableGridLines(bool majorGridLines, bool minorGridLines)
         grid->setMajorPen(Qt::lightGray, 1.0, Qt::SolidLine);
         grid->setMinorPen(Qt::lightGray, 1.0, Qt::DashLine);
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuWellLogTrack::enableDepthGridLines(bool majorGridLines, bool minorGridLines)
+{
+    QwtPlotItemList plotItems = this->itemList(QwtPlotItem::Rtti_PlotGrid);
+    for (QwtPlotItem* plotItem : plotItems)
+    {
+        QwtPlotGrid* grid = static_cast<QwtPlotGrid*>(plotItem);
+        grid->setYAxis(QwtPlot::yLeft);
+        grid->enableY(majorGridLines);
+        grid->enableYMin(minorGridLines);
+        grid->setMajorPen(Qt::lightGray, 1.0, Qt::SolidLine);
+        grid->setMinorPen(Qt::lightGray, 1.0, Qt::DashLine);
+    }
+
 }
 
 //--------------------------------------------------------------------------------------------------

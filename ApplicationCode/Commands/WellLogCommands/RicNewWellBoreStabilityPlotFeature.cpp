@@ -197,7 +197,7 @@ void RicNewWellBoreStabilityPlotFeature::createStabilityCurvesTrack(RimWellLogPl
     stabilityCurvesTrack->setWidthScaleFactor(RimWellLogTrack::EXTRA_WIDE_TRACK);
     stabilityCurvesTrack->setAutoScaleXEnabled(true);
     stabilityCurvesTrack->setTickIntervals(0.5, 0.05);
-    stabilityCurvesTrack->enableGridLines(RimWellLogTrack::GRID_X_MAJOR_AND_MINOR);
+    stabilityCurvesTrack->setXAxisGridVisibility(RimWellLogPlot::AXIS_GRID_MAJOR_AND_MINOR);
     stabilityCurvesTrack->setFormationWellPath(wellPath);
     stabilityCurvesTrack->setFormationCase(geoMechView->geoMechCase());
     stabilityCurvesTrack->setShowFormations(true);
@@ -270,7 +270,7 @@ void RicNewWellBoreStabilityPlotFeature::createAnglesTrack(RimWellLogPlot* plot,
     wellPathAnglesTrack->setWidthScaleFactor(RimWellLogTrack::NORMAL_TRACK);
     wellPathAnglesTrack->setVisibleXRange(minValue, maxValue);
     wellPathAnglesTrack->setTickIntervals(90.0, 30.0);
-    wellPathAnglesTrack->enableGridLines(RimWellLogTrack::GRID_X_MAJOR_AND_MINOR);
+    wellPathAnglesTrack->setXAxisGridVisibility(RimWellLogPlot::AXIS_GRID_MAJOR_AND_MINOR);
     wellPathAnglesTrack->setFormationWellPath(wellPath);
     wellPathAnglesTrack->setFormationCase(geoMechView->geoMechCase());
     wellPathAnglesTrack->setShowFormations(true);

@@ -71,7 +71,6 @@ public:
     enum TrajectoryType   { WELL_PATH, SIMULATION_WELL };
     enum FormationSource  { CASE, WELL_PICK_FILTER };
     enum WidthScaleFactor { EXTRA_NARROW_TRACK = 2, NARROW_TRACK = 3, NORMAL_TRACK = 4, WIDE_TRACK = 6, EXTRA_WIDE_TRACK = 10 };
-    enum GridLines        { GRID_X_NONE, GRID_X_MAJOR, GRID_X_MAJOR_AND_MINOR};
 
     void setDescription(const QString& description);
     bool isVisible();
@@ -113,7 +112,7 @@ public:
     void updateEditors();
     void setVisibleXRange(double minValue, double maxValue);
     void setTickIntervals(double majorTickInterval, double minorTickInterval);
-    void enableGridLines(GridLines gridLines);
+    void setXAxisGridVisibility(RimWellLogPlot::AxisGridVisibility gridLines);
     void setShowFormations(bool on);
     void setShowFormationLabels(bool on);
 
@@ -172,17 +171,17 @@ private:
 private:
     QString m_xAxisTitle;
 
-    caf::PdmField<bool>                                                m_show;
-    caf::PdmField<QString>                                             m_userName;
-    caf::PdmChildArrayField<RimWellLogCurve*>                          curves;
-    caf::PdmField<double>                                              m_visibleXRangeMin;
-    caf::PdmField<double>                                              m_visibleXRangeMax;
-    caf::PdmField<bool>                                                m_isAutoScaleXEnabled;
-    caf::PdmField<bool>                                                m_isLogarithmicScaleEnabled;
-    caf::PdmField<caf::AppEnum<GridLines>>                             m_showXGridLines;
-    caf::PdmField<bool>                                                m_explicitTickIntervals;
-    caf::PdmField<double>                                              m_majorTickInterval;
-    caf::PdmField<double>                                              m_minorTickInterval;
+    caf::PdmField<bool>                         m_show;
+    caf::PdmField<QString>                      m_userName;
+    caf::PdmChildArrayField<RimWellLogCurve*>   curves;
+    caf::PdmField<double>                       m_visibleXRangeMin;
+    caf::PdmField<double>                       m_visibleXRangeMax;
+    caf::PdmField<bool>                         m_isAutoScaleXEnabled;
+    caf::PdmField<bool>                         m_isLogarithmicScaleEnabled;
+    caf::PdmField<RimWellLogPlot::AxisGridEnum> m_xAxisGridVisibility;
+    caf::PdmField<bool>                         m_explicitTickIntervals;
+    caf::PdmField<double>                       m_majorTickInterval;
+    caf::PdmField<double>                       m_minorTickInterval;
 
     caf::PdmField<bool>                                                m_showFormations;
     caf::PdmField<bool>                                                m_showFormationLabels;
