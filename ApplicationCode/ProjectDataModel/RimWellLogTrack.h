@@ -167,6 +167,7 @@ private:
     void updateFormationNamesOnPlot();
     void removeFormationNames();
     void updateAxisScaleEngine();
+    bool isFirstVisibleTrackInPlot() const;
 
 private:
     QString m_xAxisTitle;

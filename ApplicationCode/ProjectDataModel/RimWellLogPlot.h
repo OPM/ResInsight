@@ -85,9 +85,9 @@ public:
     size_t                                          trackCount() { return m_tracks.size();}
 
     void                                            removeTrack(RimWellLogTrack* track);
-    size_t                                          trackIndex(RimWellLogTrack* track);
-
+    size_t                                          trackIndex(const RimWellLogTrack* track) const;
     RimWellLogTrack*                                trackByIndex(size_t index);
+    size_t                                          firstVisibleTrackIndex() const;
 
     void                                            updateTracks(bool autoScaleXAxis = false);
     void                                            updateTrackNames();

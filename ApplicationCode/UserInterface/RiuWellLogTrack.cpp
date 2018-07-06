@@ -118,8 +118,11 @@ void RiuWellLogTrack::setXRange(double min, double max)
 void RiuWellLogTrack::setDepthTitle(const QString& title)
 {
     QwtText axisTitleY = axisTitle(QwtPlot::yLeft);
-    axisTitleY.setText(title);
-    setAxisTitle(QwtPlot::yLeft, axisTitleY);
+    if (title != axisTitleY.text())
+    {
+        axisTitleY.setText(title);
+        setAxisTitle(QwtPlot::yLeft, axisTitleY);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -129,7 +132,10 @@ void RiuWellLogTrack::setXTitle(const QString& title)
 {
     QwtText axisTitleX = axisTitle(QwtPlot::xTop);
     axisTitleX.setText(title);
-    setAxisTitle(QwtPlot::xTop, axisTitleX);
+    if (title != axisTitleX.text())
+    {
+        setAxisTitle(QwtPlot::xTop, axisTitleX);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -267,14 +273,8 @@ bool RiuWellLogTrack::isRimTrackVisible()
 //--------------------------------------------------------------------------------------------------
 void RiuWellLogTrack::enableVerticalAxisLabelsAndTitle(bool enable)
 {
-    QString depthAxisTitle("");
-    if (enable && m_plotTrackDefinition)
-    {
-        depthAxisTitle = m_plotTrackDefinition->depthPlotTitle();
-    }
-    this->setAxisTitle(QwtPlot::yLeft, depthAxisTitle);
-    this->axisScaleDraw(QwtPlot::yLeft)->enableComponent(
-        QwtAbstractScaleDraw::Labels, enable);
+    this->axisScaleDraw(QwtPlot::yLeft)->enableComponent(QwtAbstractScaleDraw::Ticks, enable);
+    this->axisScaleDraw(QwtPlot::yLeft)->enableComponent(QwtAbstractScaleDraw::Labels, enable);
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -670,7 +670,10 @@ void RimWellLogTrack::loadDataAndUpdate()
 
     if (wellLogPlot && m_wellLogTrackPlotWidget)
     {
-        m_wellLogTrackPlotWidget->setDepthTitle(wellLogPlot->depthPlotTitle());
+        if (isFirstVisibleTrackInPlot())
+        {
+            m_wellLogTrackPlotWidget->setDepthTitle(wellLogPlot->depthPlotTitle());
+        }
         m_wellLogTrackPlotWidget->setXTitle(m_xAxisTitle);
     }
 
@@ -1165,6 +1168,17 @@ void RimWellLogTrack::updateAxisScaleEngine()
     }
 }
 
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimWellLogTrack::isFirstVisibleTrackInPlot() const
+{
+    RimWellLogPlot* plot = nullptr;
+    firstAncestorOrThisOfTypeAsserted(plot);
+    size_t ownIndex = plot->trackIndex(this);
+    return plot->firstVisibleTrackIndex() == ownIndex;
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 

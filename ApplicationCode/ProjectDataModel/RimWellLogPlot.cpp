@@ -286,6 +286,21 @@ RimWellLogTrack* RimWellLogPlot::trackByIndex(size_t index)
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+size_t RimWellLogPlot::firstVisibleTrackIndex() const
+{
+    for (size_t i = 0; i < m_tracks.size(); ++i)
+    {
+        if (m_tracks[i]->isVisible())
+        {
+            return i;
+        }
+    }
+    return std::numeric_limits<size_t>::max();
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void RimWellLogPlot::setDepthZoomByFactorAndCenter(double zoomFactor, double zoomCenter)
@@ -866,7 +881,7 @@ void RimWellLogPlot::setTrackLegendsHorizontal(bool horizontal)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-size_t RimWellLogPlot::trackIndex(RimWellLogTrack* track)
+size_t RimWellLogPlot::trackIndex(const RimWellLogTrack* track) const
 {
     return m_tracks.index(track);
 }

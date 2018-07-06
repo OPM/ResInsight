@@ -380,7 +380,7 @@ void RiuWellLogPlot::placeChildWidgets(int frameHeight, int frameWidth)
 
     positionTitle(frameWidth);
 
-    const int trackPadding = 4;
+    const int trackPadding = 0;
 
     std::map<int, int> trackWidths = calculateTrackWidthsToMatchFrame(frameWidth);
     size_t visibleTrackCount = trackWidths.size();
