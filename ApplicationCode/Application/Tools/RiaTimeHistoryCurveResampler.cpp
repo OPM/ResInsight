@@ -21,6 +21,8 @@
 
 #include "RiaTimeHistoryCurveResampler.h"
 
+#include <limits>
+
 //QString tostring(const QDateTime& dt)
 //{
 //    int y = dt.date().year();
