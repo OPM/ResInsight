@@ -158,7 +158,8 @@ RimWellLogTrack::RimWellLogTrack()
     m_majorTickInterval.uiCapability()->setUiHidden(true);
     m_minorTickInterval.uiCapability()->setUiHidden(true);
 
-    CAF_PDM_InitField(&m_showFormations, "ShowFormations", false, "Show", "", "", "");
+    CAF_PDM_InitField(&m_showFormations, "ShowFormations", false, "Show Lines", "", "", "");
+    CAF_PDM_InitField(&m_showFormationLabels, "ShowFormationLabels", true, "Show Labels", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_formationSource, "FormationSource", "Source", "", "", "");
 
@@ -355,6 +356,10 @@ void RimWellLogTrack::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
                 pltPlot->updateConnectedEditors();
             }
         }
+    }
+    else if (changedField == &m_showFormationLabels)
+    {
+        loadDataAndUpdate();
     }
     else if (changedField == &m_formationCase)
     {
@@ -1038,6 +1043,14 @@ void RimWellLogTrack::setShowFormations(bool on)
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogTrack::setShowFormationLabels(bool on)
+{
+    m_showFormationLabels = on;
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 RimWellLogCurve* RimWellLogTrack::curveDefinitionFromCurve(const QwtPlotCurve* curve) const
@@ -1062,6 +1075,7 @@ void RimWellLogTrack::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering&
     caf::PdmUiGroup* formationGroup = uiOrdering.addNewGroup("Zonation/Formation Names");
     
     formationGroup->add(&m_showFormations);
+    formationGroup->add(&m_showFormationLabels);
 
     if (!m_formationsForCaseWithSimWellOnly)
     {
@@ -1439,6 +1453,7 @@ std::vector<QString> RimWellLogTrack::formationNamesVector(RimCase* rimCase)
 //--------------------------------------------------------------------------------------------------
 void RimWellLogTrack::setFormationFieldsUiReadOnly(bool readOnly /*= true*/)
 {
+    m_showFormationLabels.uiCapability()->setUiReadOnly(readOnly);
     m_formationSource.uiCapability()->setUiReadOnly(readOnly);
     m_formationTrajectoryType.uiCapability()->setUiReadOnly(readOnly);
     m_formationSimWellName.uiCapability()->setUiReadOnly(readOnly);
@@ -1530,7 +1545,7 @@ void RimWellLogTrack::updateFormationNamesOnPlot()
                                                   &formationNamesToPlot,
                                                   &yValues);
         
-        m_annotationTool->attachFormationNames(this->viewer(), formationNamesToPlot, yValues);
+        m_annotationTool->attachFormationNames(this->viewer(), formationNamesToPlot, yValues, m_showFormationLabels());
     }
     else if (m_formationSource() == WELL_PICK_FILTER)
     {

@@ -158,7 +158,13 @@ void RicNewWellBoreStabilityPlotFeature::createFormationTrack(RimWellLogPlot* pl
 //--------------------------------------------------------------------------------------------------
 void RicNewWellBoreStabilityPlotFeature::createCasingShoeTrack(RimWellLogPlot* plot, RimWellPath* wellPath, RimGeoMechCase* geoMechCase)
 {
-
+    RimWellLogTrack* casingShoeTrack = RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack(false, "Casing Shoe", plot);
+    casingShoeTrack->setWidthScaleFactor(RimWellLogTrack::NARROW_TRACK);
+    casingShoeTrack->setFormationWellPath(wellPath);
+    casingShoeTrack->setFormationCase(geoMechCase);
+    casingShoeTrack->setShowFormations(true);
+    casingShoeTrack->setShowFormationLabels(false);
+    casingShoeTrack->setVisibleXRange(0.0, 0.0);
     std::vector<RimWellLogFile*> wellLogFiles = wellPath->wellLogFiles();
     for (RimWellLogFile* logFile : wellLogFiles)
     {
@@ -167,9 +173,6 @@ void RicNewWellBoreStabilityPlotFeature::createCasingShoeTrack(RimWellLogPlot* p
         {
             if (channel->name() == "CASING_SIZE")
             {
-                RimWellLogTrack* casingShoeTrack = RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack(false, "Casing Shoe Depth", plot);
-                casingShoeTrack->setWidthScaleFactor(RimWellLogTrack::NARROW_TRACK);
-                casingShoeTrack->setAutoScaleXEnabled(true);
                 RimWellLogFileCurve* fileCurve = RicWellLogTools::addFileCurve(casingShoeTrack, false);
                 fileCurve->setWellLogFile(logFile);
                 fileCurve->setWellPath(wellPath);
@@ -177,6 +180,7 @@ void RicNewWellBoreStabilityPlotFeature::createCasingShoeTrack(RimWellLogPlot* p
                 fileCurve->setCustomName(QString("Casing size [in]"));
                 fileCurve->setLineThickness(2);
                 fileCurve->loadDataAndUpdate(false);
+                casingShoeTrack->setAutoScaleXEnabled(true);
                 casingShoeTrack->calculateXZoomRangeAndUpdateQwt();
                 break;
             }
@@ -194,6 +198,11 @@ void RicNewWellBoreStabilityPlotFeature::createStabilityCurvesTrack(RimWellLogPl
     stabilityCurvesTrack->setAutoScaleXEnabled(true);
     stabilityCurvesTrack->setTickIntervals(0.5, 0.05);
     stabilityCurvesTrack->enableGridLines(RimWellLogTrack::GRID_X_MAJOR_AND_MINOR);
+    stabilityCurvesTrack->setFormationWellPath(wellPath);
+    stabilityCurvesTrack->setFormationCase(geoMechView->geoMechCase());
+    stabilityCurvesTrack->setShowFormations(true);
+    stabilityCurvesTrack->setShowFormationLabels(false);
+
     std::vector<QString> resultNames = RiaDefines::wellPathStabilityResultNames();
 
     std::vector<cvf::Color3f> colors = { cvf::Color3f::RED, cvf::Color3f::PURPLE, cvf::Color3f::GREEN, cvf::Color3f::BLUE, cvf::Color3f::ORANGE };
@@ -262,5 +271,8 @@ void RicNewWellBoreStabilityPlotFeature::createAnglesTrack(RimWellLogPlot* plot,
     wellPathAnglesTrack->setVisibleXRange(minValue, maxValue);
     wellPathAnglesTrack->setTickIntervals(90.0, 30.0);
     wellPathAnglesTrack->enableGridLines(RimWellLogTrack::GRID_X_MAJOR_AND_MINOR);
-
+    wellPathAnglesTrack->setFormationWellPath(wellPath);
+    wellPathAnglesTrack->setFormationCase(geoMechView->geoMechCase());
+    wellPathAnglesTrack->setShowFormations(true);
+    wellPathAnglesTrack->setShowFormationLabels(false);
 }

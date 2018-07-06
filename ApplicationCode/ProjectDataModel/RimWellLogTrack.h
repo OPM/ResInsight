@@ -115,6 +115,7 @@ public:
     void setTickIntervals(double majorTickInterval, double minorTickInterval);
     void enableGridLines(GridLines gridLines);
     void setShowFormations(bool on);
+    void setShowFormationLabels(bool on);
 
     RiuWellLogTrack* viewer();
     
@@ -183,6 +184,7 @@ private:
     caf::PdmField<double>                                              m_minorTickInterval;
 
     caf::PdmField<bool>                                                m_showFormations;
+    caf::PdmField<bool>                                                m_showFormationLabels;
     caf::PdmField<caf::AppEnum<FormationSource>>                       m_formationSource;
     caf::PdmPtrField<RimCase*>                                         m_formationCase;
     caf::PdmField<caf::AppEnum<TrajectoryType>>                        m_formationTrajectoryType;
