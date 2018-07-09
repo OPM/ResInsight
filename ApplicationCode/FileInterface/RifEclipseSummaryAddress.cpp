@@ -29,6 +29,14 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+const std::set<std::string> RifEclipseSummaryAddress::KNOWN_MISC_QUANTITIES =
+{
+    "CPU"
+};
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 RifEclipseSummaryAddress::RifEclipseSummaryAddress(SummaryVarCategory category,
                                                    std::map<SummaryIdentifierType, std::string>& identifiers) :
     m_variableCategory(category),
@@ -283,37 +291,39 @@ RifEclipseSummaryAddress::SummaryVarCategory RifEclipseSummaryAddress::identifyC
 {
     if (quantityName.size() < 3 ||
         quantityName.size() > 8 ||
-        (quantityName.size() > 5 && quantityName.size() < 8)) return RifEclipseSummaryAddress::SUMMARY_INVALID;
+        (quantityName.size() > 5 && quantityName.size() < 8)) return SUMMARY_INVALID;
 
     QRegExp regexp("^[A-Za-z0-9_\\-]*$");
-    if(!regexp.exactMatch(QString::fromStdString(quantityName))) return RifEclipseSummaryAddress::SUMMARY_INVALID;
+    if(!regexp.exactMatch(QString::fromStdString(quantityName))) return SUMMARY_INVALID;
 
     if (quantityName.size() > 2 && quantityName[0] == 'R' && quantityName[2] == 'F')
     {
-        return RifEclipseSummaryAddress::SUMMARY_REGION_2_REGION;
+        return SUMMARY_REGION_2_REGION;
     }
+
+    if (KNOWN_MISC_QUANTITIES.count(baseQuantityName(quantityName)) > 0) return SUMMARY_MISC;
 
     char firstLetter = quantityName.at(0);
 
-    if (firstLetter == 'A') return RifEclipseSummaryAddress::SUMMARY_AQUIFER;
-    if (firstLetter == 'B') return RifEclipseSummaryAddress::SUMMARY_BLOCK;
-    if (firstLetter == 'C') return RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION;
-    if (firstLetter == 'F') return RifEclipseSummaryAddress::SUMMARY_FIELD;
-    if (firstLetter == 'G') return RifEclipseSummaryAddress::SUMMARY_WELL_GROUP;
-    if (firstLetter == 'N') return RifEclipseSummaryAddress::SUMMARY_NETWORK;
-    if (firstLetter == 'R') return RifEclipseSummaryAddress::SUMMARY_REGION;
-    if (firstLetter == 'S') return RifEclipseSummaryAddress::SUMMARY_WELL_SEGMENT;
-    if (firstLetter == 'W') return RifEclipseSummaryAddress::SUMMARY_WELL;
+    if (firstLetter == 'A') return SUMMARY_AQUIFER;
+    if (firstLetter == 'B') return SUMMARY_BLOCK;
+    if (firstLetter == 'C') return SUMMARY_WELL_COMPLETION;
+    if (firstLetter == 'F') return SUMMARY_FIELD;
+    if (firstLetter == 'G') return SUMMARY_WELL_GROUP;
+    if (firstLetter == 'N') return SUMMARY_NETWORK;
+    if (firstLetter == 'R') return SUMMARY_REGION;
+    if (firstLetter == 'S') return SUMMARY_WELL_SEGMENT;
+    if (firstLetter == 'W') return SUMMARY_WELL;
 
-    if (quantityName.size() < 2) return RifEclipseSummaryAddress::SUMMARY_INVALID;
+    if (quantityName.size() < 2) return SUMMARY_INVALID;
 
     std::string firstTwoLetters = quantityName.substr(0, 2);
 
-    if (firstTwoLetters == "LB") return RifEclipseSummaryAddress::SUMMARY_BLOCK_LGR;
-    if (firstTwoLetters == "LC") return RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION_LGR;
-    if (firstTwoLetters == "LW") return RifEclipseSummaryAddress::SUMMARY_WELL_LGR;
+    if (firstTwoLetters == "LB") return SUMMARY_BLOCK_LGR;
+    if (firstTwoLetters == "LC") return SUMMARY_WELL_COMPLETION_LGR;
+    if (firstTwoLetters == "LW") return SUMMARY_WELL_LGR;
 
-    return RifEclipseSummaryAddress::SUMMARY_INVALID;
+    return SUMMARY_INVALID;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -551,63 +561,63 @@ std::string RifEclipseSummaryAddress::uiText() const
     text += m_quantityName;
     switch(this->category())
     {
-        case RifEclipseSummaryAddress::SUMMARY_REGION:
+        case SUMMARY_REGION:
         {
             text += ":" + std::to_string(this->regionNumber());
         }
         break;
-        case RifEclipseSummaryAddress::SUMMARY_REGION_2_REGION:
+        case SUMMARY_REGION_2_REGION:
         {
             text += ":" + formatUiTextRegionToRegion();
         }
         break;
-        case RifEclipseSummaryAddress::SUMMARY_WELL_GROUP:
+        case SUMMARY_WELL_GROUP:
         {
             text += ":" + this->wellGroupName();
         }
         break;
-        case RifEclipseSummaryAddress::SUMMARY_WELL:
+        case SUMMARY_WELL:
         {
             text += ":" + this->wellName();
         }
         break;
-        case RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION:
+        case SUMMARY_WELL_COMPLETION:
         {
             text += ":" + this->wellName();
             text += ":" + formatUiTextIJK();
         }
         break;
-        case RifEclipseSummaryAddress::SUMMARY_WELL_LGR:
+        case SUMMARY_WELL_LGR:
         {
             text += ":" + this->lgrName();
             text += ":" + this->wellName();
         }
         break;
-        case RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION_LGR:
+        case SUMMARY_WELL_COMPLETION_LGR:
         {
             text += ":" + this->lgrName();
             text += ":" + this->wellName();
             text += ":" + formatUiTextIJK();
         }
         break;
-        case RifEclipseSummaryAddress::SUMMARY_WELL_SEGMENT:
+        case SUMMARY_WELL_SEGMENT:
         {
             text += ":" + this->wellName();
             text += ":" + std::to_string(this->wellSegmentNumber());
         }
         break;
-        case RifEclipseSummaryAddress::SUMMARY_BLOCK:
+        case SUMMARY_BLOCK:
         {
             text += ":" + formatUiTextIJK();
         }
         break;
-        case RifEclipseSummaryAddress::SUMMARY_BLOCK_LGR:
+        case SUMMARY_BLOCK_LGR:
         {
             text += ":" + this->lgrName();
             text += ":" + formatUiTextIJK();
         }
         break;
-        case RifEclipseSummaryAddress::SUMMARY_AQUIFER:
+        case SUMMARY_AQUIFER:
         {
             text += ":" + std::to_string(this->aquiferNumber());
         }
@@ -624,15 +634,15 @@ std::string RifEclipseSummaryAddress::uiText(RifEclipseSummaryAddress::SummaryId
 {
     switch (identifierType)
     {
-    case RifEclipseSummaryAddress::INPUT_REGION_NUMBER: return std::to_string(regionNumber());
-    case RifEclipseSummaryAddress::INPUT_REGION_2_REGION: return formatUiTextRegionToRegion();
-    case RifEclipseSummaryAddress::INPUT_WELL_NAME: return wellName();
-    case RifEclipseSummaryAddress::INPUT_WELL_GROUP_NAME: return wellGroupName();
-    case RifEclipseSummaryAddress::INPUT_CELL_IJK: return formatUiTextIJK();
-    case RifEclipseSummaryAddress::INPUT_LGR_NAME: return lgrName();
-    case RifEclipseSummaryAddress::INPUT_SEGMENT_NUMBER: return std::to_string(wellSegmentNumber());
-    case RifEclipseSummaryAddress::INPUT_AQUIFER_NUMBER: return std::to_string(aquiferNumber());
-    case RifEclipseSummaryAddress::INPUT_VECTOR_NAME: return quantityName();
+    case INPUT_REGION_NUMBER: return std::to_string(regionNumber());
+    case INPUT_REGION_2_REGION: return formatUiTextRegionToRegion();
+    case INPUT_WELL_NAME: return wellName();
+    case INPUT_WELL_GROUP_NAME: return wellGroupName();
+    case INPUT_CELL_IJK: return formatUiTextIJK();
+    case INPUT_LGR_NAME: return lgrName();
+    case INPUT_SEGMENT_NUMBER: return std::to_string(wellSegmentNumber());
+    case INPUT_AQUIFER_NUMBER: return std::to_string(aquiferNumber());
+    case INPUT_VECTOR_NAME: return quantityName();
     }
     return "";
 }
@@ -719,10 +729,7 @@ bool RifEclipseSummaryAddress::hasAccumulatedData() const
 {
     if (!isValidEclipseCategory()) return false;
 
-    QString qBaseName = QString::fromStdString(quantityName());
-    if (qBaseName.size() == 8) qBaseName.chop(3);
-    while (qBaseName.endsWith("_")) qBaseName.chop(1);
-
+    QString qBaseName = QString::fromStdString(baseQuantityName(quantityName()));
     return qBaseName.endsWith("T") || qBaseName.endsWith("TH");
 }
 
@@ -750,6 +757,17 @@ bool RifEclipseSummaryAddress::isValidEclipseCategory() const
         return true;
     }
     return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::string RifEclipseSummaryAddress::baseQuantityName(const std::string& quantityName)
+{
+    QString qBaseName = QString::fromStdString(quantityName);
+    if (qBaseName.size() == 8) qBaseName.chop(3);
+    while (qBaseName.endsWith("_")) qBaseName.chop(1);
+    return qBaseName.toStdString();
 }
 
 //--------------------------------------------------------------------------------------------------

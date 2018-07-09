@@ -19,6 +19,7 @@
 
 #include <string>
 #include <map>
+#include <set>
 #include <vector>
 
 class QTextStream;
@@ -72,6 +73,8 @@ public:
         INPUT_AQUIFER_NUMBER,
         INPUT_VECTOR_NAME,
     };
+
+    static const std::set<std::string> KNOWN_MISC_QUANTITIES;
 
 public:
 
@@ -177,9 +180,10 @@ public:
     void            setAsErrorResult()                                  { m_isErrorResult = true; }
     bool            isErrorResult() const                               { return m_isErrorResult; }
     bool            hasAccumulatedData() const;
-    bool            isValidEclipseCategory() const;
-private:
 
+private:
+    bool                                isValidEclipseCategory() const;
+    static std::string                  baseQuantityName(const std::string& quantityName);
     std::string                         formatUiTextIJK() const;
     static std::tuple<int, int, int>    ijkTupleFromUiText(const std::string &s);
     std::string                         formatUiTextRegionToRegion() const;
