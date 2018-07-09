@@ -281,7 +281,9 @@ RifEclipseSummaryAddress RifEclipseSummaryAddress::fromEclipseTextAddress(const 
 //--------------------------------------------------------------------------------------------------
 RifEclipseSummaryAddress::SummaryVarCategory RifEclipseSummaryAddress::identifyCategory(const std::string& quantityName)
 {
-    if (quantityName.size() == 0) return RifEclipseSummaryAddress::SUMMARY_INVALID;
+    if (quantityName.size() < 3 ||
+        quantityName.size() > 8 ||
+        (quantityName.size() > 5 && quantityName.size() < 8)) return RifEclipseSummaryAddress::SUMMARY_INVALID;
 
     QRegExp regexp("^[A-Za-z0-9_\\-]*$");
     if(!regexp.exactMatch(QString::fromStdString(quantityName))) return RifEclipseSummaryAddress::SUMMARY_INVALID;
