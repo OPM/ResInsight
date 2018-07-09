@@ -349,7 +349,7 @@ if(RESINSIGHT_ENABLE_COTIRE)
         ReservoirDataModel/RigCellGeometryTools.cpp
 
         # exclude file using SolveSpace
-        Application/Tools/RiaSCurveCalculator..cpp
+        Application/Tools/RiaSCurveCalculator.cpp
         
         # exclude test files due to cotire redefinition error report
         UnitTests/RifCaseRealizationParametersReader-Test.cpp
