@@ -324,7 +324,7 @@ void example_S_Curve(double p1x,
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-TEST(SolveSpaceSolverTest, SCurve)
+TEST(DISABLED_SolveSpaceSolverTest, SCurve)
 {
     example_S_Curve(100, 100,     0,    0, M_PI/4, 12,
                     100, 150, -1000, M_PI, M_PI/4, 12);
@@ -335,7 +335,7 @@ TEST(SolveSpaceSolverTest, SCurve)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-TEST(RiaSCurveCalculator, Test1)
+TEST(DISABLED_RiaSCurveCalculator, Test1)
 
 {
     RiaSCurveCalculator sCurveCalc({ 100, 100, 0 },
@@ -363,7 +363,7 @@ TEST(RiaSCurveCalculator, Test1)
     std::cout << "P22: " << "[ " << v_P22[0] << ", " << v_P22[1] << ", " << v_P22[2] << " ]" << std::endl;
 }
 
-TEST(RiaSCurveCalculator, Test2)
+TEST(DISABLED_RiaSCurveCalculator, Test2)
 {
     RiaSCurveCalculator sCurveCalc({ 100, 100, 0 },
                                    0,
@@ -392,7 +392,7 @@ TEST(RiaSCurveCalculator, Test2)
 }
 
 
-TEST(RiaSCurveCalculator, Test3)
+TEST(DISABLED_RiaSCurveCalculator, Test3)
 {
     RiaSCurveCalculator sCurveCalc({ 100, 100, 0 },
                                    0,
