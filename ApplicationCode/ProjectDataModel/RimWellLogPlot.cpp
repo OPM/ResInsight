@@ -643,6 +643,7 @@ void RimWellLogPlot::updateTracks(bool autoScaleXAxis)
             {
                 m_tracks[tIdx]->setAutoScaleXEnabled(true);
                 m_tracks[tIdx]->calculateXZoomRangeAndUpdateQwt();
+                m_tracks[tIdx]->updateAxisAndGridTickIntervals();
             }
         }
 

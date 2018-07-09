@@ -131,11 +131,11 @@ public:
     void uiOrderingForXAxisSettings(caf::PdmUiOrdering& uiOrdering);
 
     void setFormationsForCaseWithSimWellOnly(bool caseWithSimWellOnly);
+    void updateAxisAndGridTickIntervals();
 
 private:
     virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
     void         updateParentPlotLayout();
-    void         updateAxisAndGridTickIntervals();
     virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
 
     virtual caf::PdmFieldHandle* objectToggleField() override;
@@ -167,6 +167,8 @@ private:
     void removeFormationNames();
     void updateAxisScaleEngine();
     bool isFirstVisibleTrackInPlot() const;
+
+    std::pair<double, double> adjustXRange(double minValue, double maxValue, double tickInterval);
 
 private:
     QString m_xAxisTitle;

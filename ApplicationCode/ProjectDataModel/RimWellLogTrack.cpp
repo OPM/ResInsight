@@ -248,7 +248,6 @@ void RimWellLogTrack::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
     {
         updateParentPlotLayout();
         updateAxisAndGridTickIntervals();
-        m_wellLogTrackPlotWidget->replot();
     }
     else if (changedField == &m_explicitTickIntervals)
     {
@@ -262,7 +261,6 @@ void RimWellLogTrack::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
         if (!m_explicitTickIntervals())
         {
             updateAxisAndGridTickIntervals();
-            m_wellLogTrackPlotWidget->replot();
         }
     }
     else if (changedField == &m_xAxisGridVisibility ||
@@ -270,7 +268,6 @@ void RimWellLogTrack::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
              changedField == &m_minorTickInterval)
     {
         updateAxisAndGridTickIntervals();
-        m_wellLogTrackPlotWidget->replot();
     }
     else if (changedField == &m_visibleXRangeMin || changedField == &m_visibleXRangeMax)
     {
@@ -284,7 +281,6 @@ void RimWellLogTrack::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
         updateEditors();
         updateParentPlotLayout();
         updateAxisAndGridTickIntervals();
-        m_wellLogTrackPlotWidget->replot(); // TODO: See if we can get rid of duplicate replot
     }
     else if (changedField == &m_isAutoScaleXEnabled)
     {
@@ -495,6 +491,7 @@ void RimWellLogTrack::updateAxisAndGridTickIntervals()
         m_wellLogTrackPlotWidget->enableDepthGridLines(true, true);
         break;
     }
+    m_wellLogTrackPlotWidget->replot();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -977,6 +974,11 @@ void RimWellLogTrack::calculateXZoomRange()
         }
     }
 
+    if (m_minorTickInterval() != 0.0)
+    {
+        std::tie(minValue, maxValue) = adjustXRange(minValue, maxValue, m_minorTickInterval());
+    }
+
     m_visibleXRangeMin = minValue;
     m_visibleXRangeMax = maxValue;
 
@@ -1184,6 +1186,18 @@ bool RimWellLogTrack::isFirstVisibleTrackInPlot() const
     firstAncestorOrThisOfTypeAsserted(plot);
     size_t ownIndex = plot->trackIndex(this);
     return plot->firstVisibleTrackIndex() == ownIndex;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::pair<double, double> RimWellLogTrack::adjustXRange(double minValue, double maxValue, double tickInterval)
+{
+    double minRemainder = std::fmod(minValue, tickInterval);
+    double maxRemainder = std::fmod(maxValue, tickInterval);
+    double adjustedMin = minValue - minRemainder;
+    double adjustedMax = maxValue + (tickInterval - maxRemainder);
+    return std::make_pair(adjustedMin, adjustedMax);
 }
 
 //--------------------------------------------------------------------------------------------------
