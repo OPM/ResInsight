@@ -75,6 +75,7 @@ public:
     void                                    applyCurveAutoNameSettings(const RimSummaryCurveAutoName& autoNameSettings);
 
     virtual QString                         curveExportDescription() const override;
+    void                                    forceUpdateCurveAppearanceFromCaseType();
 
 protected:
     // RimPlotCurve overrides

@@ -680,6 +680,30 @@ QString RimSummaryCurve::curveExportDescription() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimSummaryCurve::forceUpdateCurveAppearanceFromCaseType()
+{
+    if (m_yValuesSummaryCase)
+    {
+        if (m_yValuesSummaryCase->isObservedData())
+        {
+            setLineStyle(RimPlotCurve::STYLE_NONE);
+
+            if (symbol() == RimPlotCurve::SYMBOL_NONE)
+            {
+                setSymbol(RimPlotCurve::SYMBOL_XCROSS);
+            }
+        }
+        else
+        {
+            setLineStyle(RimPlotCurve::STYLE_SOLID);
+            setSymbol(RimPlotCurve::SYMBOL_NONE);
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimSummaryCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
     this->RimPlotCurve::fieldChangedByUi(changedField, oldValue, newValue);

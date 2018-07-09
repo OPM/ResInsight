@@ -355,12 +355,7 @@ void RimSummaryCurveAppearanceCalculator::setupCurveLook(RimSummaryCurve* curve)
 
     if ( curve->summaryCaseY()->isObservedData() )
     {
-        curve->setLineStyle(RimPlotCurve::STYLE_NONE);
-
-        if ( curve->symbol() == RimPlotCurve::SYMBOL_NONE )
-        {
-            curve->setSymbol(RimPlotCurve::SYMBOL_XCROSS);
-        }
+        curve->forceUpdateCurveAppearanceFromCaseType();
     }
 }
 
