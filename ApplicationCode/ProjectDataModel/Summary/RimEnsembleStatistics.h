@@ -41,6 +41,7 @@ public:
     RimEnsembleStatistics();
 
     bool                        isActive() const;
+    bool                        hideEnsembleCurves() const { return m_hideEnsembleCurves; }
     bool                        basedOnFilteredCases() const { return m_basedOnFilteredCases; }
     bool                        showP10Curve() const { return m_showP10Curve; }
     bool                        showP50Curve() const { return m_showP50Curve; }
@@ -61,6 +62,7 @@ private:
     RimEnsembleCurveSet*        parentCurveSet() const;
 
     caf::PdmField<bool>         m_active;
+    caf::PdmField<bool>         m_hideEnsembleCurves;
     caf::PdmField<bool>         m_basedOnFilteredCases;
     caf::PdmField<bool>         m_showP10Curve;
     caf::PdmField<bool>         m_showP50Curve;

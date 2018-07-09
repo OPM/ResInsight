@@ -925,6 +925,8 @@ void RimEnsembleCurveSet::updateEnsembleCurves(const std::vector<RimSummaryCase*
     m_qwtPlotCurveForLegendText->detach();
     deleteStatisticsCurves();
 
+    if (m_statistics->hideEnsembleCurves()) return;
+
     RimSummaryAddress* addr = m_yValuesCurveVariable();
     if (plot && addr->address().category() != RifEclipseSummaryAddress::SUMMARY_INVALID)
     {
