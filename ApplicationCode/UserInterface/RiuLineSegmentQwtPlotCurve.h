@@ -79,6 +79,7 @@ public:
 
     void         attach(QwtPlot *plot);
     void         detach();
+    void         clearErrorBars();
     void         showErrorBars(bool show);
     void         setErrorBarsColor(QColor color);
 

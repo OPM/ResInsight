@@ -200,6 +200,11 @@ RifEclipseSummaryAddress RimSummaryCurve::summaryAddressY() const
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCurve::setSummaryAddressY(const RifEclipseSummaryAddress& address)
 {
+    if (m_yValuesCurveVariable->address() != address)
+    {
+        m_qwtPlotCurve->clearErrorBars();
+    }
+
     m_yValuesCurveVariable->setAddress(address);
 
     m_yValuesSummaryFilter->updateFromAddress(address);
