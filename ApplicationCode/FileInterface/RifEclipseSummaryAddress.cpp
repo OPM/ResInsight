@@ -717,8 +717,39 @@ bool RifEclipseSummaryAddress::isValid() const
 //--------------------------------------------------------------------------------------------------
 bool RifEclipseSummaryAddress::hasAccumulatedData() const
 {
-    return QString::fromStdString(m_quantityName).endsWith("T") ||
-        QString::fromStdString(m_quantityName).endsWith("TH");
+    if (!isValidEclipseCategory()) return false;
+
+    QString qBaseName = QString::fromStdString(quantityName());
+    if (qBaseName.size() == 8) qBaseName.chop(3);
+    while (qBaseName.endsWith("_")) qBaseName.chop(1);
+
+    return qBaseName.endsWith("T") || qBaseName.endsWith("TH");
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RifEclipseSummaryAddress::isValidEclipseCategory() const
+{
+    switch (category())
+    {
+    case SUMMARY_FIELD:
+    case SUMMARY_AQUIFER:
+    case SUMMARY_NETWORK:
+    case SUMMARY_MISC:
+    case SUMMARY_REGION:
+    case SUMMARY_REGION_2_REGION:
+    case SUMMARY_WELL_GROUP:
+    case SUMMARY_WELL:
+    case SUMMARY_WELL_COMPLETION:
+    case SUMMARY_WELL_LGR:
+    case SUMMARY_WELL_COMPLETION_LGR:
+    case SUMMARY_WELL_SEGMENT:
+    case SUMMARY_BLOCK:
+    case SUMMARY_BLOCK_LGR:
+        return true;
+    }
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------

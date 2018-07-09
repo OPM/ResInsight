@@ -177,7 +177,7 @@ public:
     void            setAsErrorResult()                                  { m_isErrorResult = true; }
     bool            isErrorResult() const                               { return m_isErrorResult; }
     bool            hasAccumulatedData() const;
-
+    bool            isValidEclipseCategory() const;
 private:
 
     std::string                         formatUiTextIJK() const;
