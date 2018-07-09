@@ -158,6 +158,11 @@ RimSummaryCurve::~RimSummaryCurve()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCurve::setSummaryCaseY(RimSummaryCase* sumCase)
 {
+    if (m_yValuesSummaryCase != sumCase)
+    {
+        m_qwtPlotCurve->clearErrorBars();
+    }
+
     m_yValuesSummaryCase = sumCase;
 }
 
