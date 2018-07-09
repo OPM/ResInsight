@@ -103,7 +103,9 @@ public:
 //--------------------------------------------------------------------------------------------------
 /// Internal functions
 //--------------------------------------------------------------------------------------------------
-void populateSummaryCurvesData(std::vector<RimSummaryCurve*> curves, CurvesData* curvesData);
+enum SummaryCurveType {CURVE_TYPE_GRID = 0x1, CURVE_TYPE_OBSERVED = 0x2};
+
+void populateSummaryCurvesData(std::vector<RimSummaryCurve*> curves, SummaryCurveType curveType, CurvesData* curvesData);
 void populateTimeHistoryCurvesData(std::vector<RimGridTimeHistoryCurve*> curves, CurvesData* curvesData);
 void populateAsciiDataCurvesData(std::vector<RimAsciiDataCurve*> curves, CurvesData* curvesData);
 
@@ -309,18 +311,23 @@ QString RimSummaryPlot::asciiDataForPlotExport(DateTimePeriod resamplingPeriod) 
         std::vector<RimSummaryCurve*> curves;
         this->descendantsIncludingThisOfType(curves);
 
-        CurvesData summaryCurvesData;
-        populateSummaryCurvesData(curves, &summaryCurvesData);
+        CurvesData summaryCurvesGridData;
+        CurvesData summaryCurvesObsData;
+        populateSummaryCurvesData(curves, CURVE_TYPE_GRID, &summaryCurvesGridData);
+        populateSummaryCurvesData(curves, CURVE_TYPE_OBSERVED, &summaryCurvesObsData);
 
         CurvesData timeHistoryCurvesData;
         populateTimeHistoryCurvesData(m_gridTimeHistoryCurves.childObjects(), &timeHistoryCurvesData);
 
+        // Export observed data
+        appendToExportData(out, { summaryCurvesObsData });
+
         std::vector<CurvesData> exportData(2);
 
-        // Summary data for export
+        // Summary grid data for export
         prepareCaseCurvesForExport(resamplingPeriod,
                                    ResampleAlgorithm::DATA_DECIDES,
-                                   summaryCurvesData,
+                                   summaryCurvesGridData,
                                    &exportData[0]);
 
         // Time history data for export
@@ -329,6 +336,7 @@ QString RimSummaryPlot::asciiDataForPlotExport(DateTimePeriod resamplingPeriod) 
                                    timeHistoryCurvesData,
                                    &exportData[1]);
 
+        // Export resampled summary and time history data
         appendToExportData(out, exportData);
     }
 
@@ -337,12 +345,7 @@ QString RimSummaryPlot::asciiDataForPlotExport(DateTimePeriod resamplingPeriod) 
         CurvesData asciiCurvesData;
         populateAsciiDataCurvesData(m_asciiDataCurves.childObjects(), &asciiCurvesData);
 
-        for (size_t i = 0; i < asciiCurvesData.timeSteps.size(); i++)
-        {
-            out += "\n\n";
-
-            appendToExportDataForCase(out, asciiCurvesData.timeSteps[i], asciiCurvesData.allCurveData[i]);
-        }
+        appendToExportData(out, { asciiCurvesData });
     }
 
     return out;
@@ -516,7 +519,14 @@ void RimSummaryPlot::updatePlotInfoLabel()
 //--------------------------------------------------------------------------------------------------
 bool RimSummaryPlot::containsResamplableCurves() const
 {
-    return !m_gridTimeHistoryCurves.empty() || !summaryAndEnsembleCurves().empty();
+    std::vector<RimSummaryCurve*> summaryCurves = summaryAndEnsembleCurves();
+    size_t resamplableSummaryCurveCount = std::count_if(summaryCurves.begin(), summaryCurves.end(),
+                                                        [](RimSummaryCurve* curve)
+    {
+        return curve->summaryCaseY() ? !curve->summaryCaseY()->isObservedData() : false;
+    });
+
+    return !m_gridTimeHistoryCurves.empty() || resamplableSummaryCurveCount > 0;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1699,7 +1709,7 @@ void populateAsciiDataCurvesData(std::vector<RimAsciiDataCurve*> curves, CurvesD
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void populateSummaryCurvesData(std::vector<RimSummaryCurve*> curves, CurvesData* curvesData)
+void populateSummaryCurvesData(std::vector<RimSummaryCurve*> curves, SummaryCurveType curveType, CurvesData* curvesData)
 {
     CVF_ASSERT(curvesData);
 
@@ -1709,7 +1719,12 @@ void populateSummaryCurvesData(std::vector<RimSummaryCurve*> curves, CurvesData*
 
     for (RimSummaryCurve* curve : curves)
     {
+        bool isObservedCurve = curve->summaryCaseY() ? curve->summaryCaseY()->isObservedData() : false;
+
         if (!curve->isCurveVisible()) continue;
+        if (isObservedCurve && (curveType & CURVE_TYPE_OBSERVED) == 0) continue;
+        if (!isObservedCurve && (curveType & CURVE_TYPE_GRID) == 0) continue;
+
         QString curveCaseName = curve->summaryCaseY()->caseName();
 
         size_t casePosInList = cvf::UNDEFINED_SIZE_T;
@@ -1891,8 +1906,11 @@ void appendToExportData(QString& out, const std::vector<CurvesData>& curvesData)
         for (size_t i = 0; i < data.caseNames.size(); i++)
         {
             out += "\n\n";
-            out += "Case: " + data.caseNames[i];
-            out += "\n";
+            if (!data.caseNames[i].isEmpty())
+            {
+                out += "Case: " + data.caseNames[i];
+                out += "\n";
+            }
 
             appendToExportDataForCase(out, data.timeSteps[i], data.allCurveData[i]);
         }
