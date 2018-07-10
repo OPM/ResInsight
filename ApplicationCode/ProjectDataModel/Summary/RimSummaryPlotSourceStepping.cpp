@@ -229,10 +229,10 @@ QList<caf::PdmOptionItemInfo> RimSummaryPlotSourceStepping::calculateValueOption
 
     std::vector<QString> identifierTexts;
 
-    RifSummaryReaderInterface* reader = firstSummaryReaderForCurves();
-    if (reader)
+    std::vector<RifSummaryReaderInterface*> readers = summaryReadersForCurves();
+    if (!readers.empty())
     {
-        RiaSummaryCurveAnalyzer* analyzer = analyzerForReader(reader);
+        RiaSummaryCurveAnalyzer* analyzer = analyzerForReader(readers.front());
 
         if (fieldNeedingOptions == &m_wellName)
         {
@@ -260,9 +260,12 @@ QList<caf::PdmOptionItemInfo> RimSummaryPlotSourceStepping::calculateValueOption
 
             RiaSummaryCurveAnalyzer quantityAnalyzer;
 
-            auto subset = RiaSummaryCurveAnalyzer::addressesForCategory(reader->allResultAddresses(), category);
+            for (auto reader : readers)
+            {
+                auto subset = RiaSummaryCurveAnalyzer::addressesForCategory(reader->allResultAddresses(), category);
+                quantityAnalyzer.appendAdresses(subset);
+            }
 
-            quantityAnalyzer.appendAdresses(subset);
             for (const auto& quantity : quantityAnalyzer.quantities())
             {
                 identifierTexts.push_back(QString::fromStdString(quantity));
@@ -459,8 +462,9 @@ void RimSummaryPlotSourceStepping::fieldChangedByUi(const caf::PdmFieldHandle* c
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifSummaryReaderInterface* RimSummaryPlotSourceStepping::firstSummaryReaderForCurves() const
+std::vector<RifSummaryReaderInterface*> RimSummaryPlotSourceStepping::summaryReadersForCurves() const
 {
+    std::vector<RifSummaryReaderInterface*> readers;
     RimSummaryCurveCollection* curveCollection = nullptr;
     this->firstAncestorOrThisOfTypeAsserted(curveCollection);
 
@@ -468,16 +472,16 @@ RifSummaryReaderInterface* RimSummaryPlotSourceStepping::firstSummaryReaderForCu
     {
         if (isYAxisStepping() && curve->summaryCaseY())
         {
-            return curve->summaryCaseY()->summaryReader();
+            readers.push_back(curve->summaryCaseY()->summaryReader());
         }
 
         if (isXAxisStepping() && curve->summaryCaseX())
         {
-            return curve->summaryCaseX()->summaryReader();
+            readers.push_back(curve->summaryCaseX()->summaryReader());
         }
     }
 
-    return nullptr;
+    return readers;
 }
 
 //--------------------------------------------------------------------------------------------------
