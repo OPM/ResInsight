@@ -165,6 +165,7 @@ void RigGeoMechWellLogExtractor::wellPathScaledCurveData(const RigFemResultAddre
     CVF_ASSERT(values);
 
     const RigFemPart* femPart = m_caseData->femParts()->part(0);
+    const RigFemPartGrid* femPartGrid = femPart->structGrid();
     const std::vector<cvf::Vec3f>& nodeCoords = femPart->nodes().coordinates;
     RigFemPartResultsCollection* resultCollection = m_caseData->femPartResults();
 
@@ -199,7 +200,11 @@ void RigGeoMechWellLogExtractor::wellPathScaledCurveData(const RigFemResultAddre
 
         if (!(elmType == HEX8 || elmType == HEX8P)) continue;
 
-        double trueVerticalDepth = -m_intersections[intersectionIdx].z();
+        const int* elmNodeIndices = femPart->connectivities(elmIdx);
+        cvf::Vec3f centroid = cellCentroid(elmNodeIndices, nodeCoords);
+
+        double trueVerticalDepth = -centroid.z();
+        
         double effectiveDepth = trueVerticalDepth + m_rkbDiff;
         double hydroStaticPorePressure = effectiveDepth * 9.81 / 100.0;
 
@@ -259,7 +264,10 @@ void RigGeoMechWellLogExtractor::wellBoreWallCurveData(const RigFemResultAddress
 
         if (!(elmType == HEX8 || elmType == HEX8P)) continue;
 
-        double trueVerticalDepth = -m_intersections[intersectionIdx].z();
+        const int* elmNodeIndices = femPart->connectivities(elmIdx);
+        cvf::Vec3f centroid = cellCentroid(elmNodeIndices, nodeCoords);
+
+        double trueVerticalDepth = -centroid.z();
         double porePressure = trueVerticalDepth * 9.81 / 100.0;
         if (!porePressures.empty())
         {
@@ -287,7 +295,7 @@ void RigGeoMechWellLogExtractor::wellBoreWallCurveData(const RigFemResultAddress
             CVF_ASSERT(resAddr.fieldName == RiaDefines::wellPathSFGResultName().toStdString());
             resultValue = sigmaCalculator.solveStassiDalia();
         }
-        double effectiveDepth = -m_intersections[intersectionIdx].z() + m_rkbDiff;
+        double effectiveDepth = trueVerticalDepth + m_rkbDiff;
         if (effectiveDepth > 1.0e-8)
         {
             resultValue *= 100.0 / (effectiveDepth * 9.81);
@@ -543,5 +551,18 @@ caf::Ten3d RigGeoMechWellLogExtractor::transformTensorToWellPathOrientation(cons
     cvf::Mat4d rotationMatrix = cvf::Mat4d::fromCoordSystemAxes(&local_x, &local_y, &local_z);
 
     return tensor.rotated(rotationMatrix.toMatrix3());
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+cvf::Vec3f RigGeoMechWellLogExtractor::cellCentroid(const int* elmNodeIndices, const std::vector<cvf::Vec3f>& nodeCoords)
+{
+    cvf::Vec3f centroid(0.0, 0.0, 0.0);
+    for (int i = 0; i < 8; ++i)
+    {
+        centroid += nodeCoords[elmNodeIndices[i]];
+    }
+    return centroid / 8.0;
 }
 

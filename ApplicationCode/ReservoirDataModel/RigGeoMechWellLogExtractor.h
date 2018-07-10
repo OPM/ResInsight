@@ -69,6 +69,7 @@ private:
     static caf::Ten3d            transformTensorToWellPathOrientation(const cvf::Vec3d& wellPathTangent,
                                                                       const caf::Ten3d& wellPathTensor);
 
+    static cvf::Vec3f            cellCentroid(const int* elmNodeIndices, const std::vector<cvf::Vec3f>& nodeCoords);
     cvf::ref<RigGeoMechCaseData> m_caseData;
     double                       m_rkbDiff;
 };
