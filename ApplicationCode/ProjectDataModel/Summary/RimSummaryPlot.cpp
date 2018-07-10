@@ -1734,16 +1734,32 @@ void populateSummaryCurvesData(std::vector<RimSummaryCurve*> curves, SummaryCurv
         }
 
         CurveData curveData = { curve->curveExportDescription(), curve->summaryAddressY(), curve->valuesY() };
+        CurveData errorCurveData;
+
+        // Error data
+        auto errorValues = curve->errorValuesY();
+        bool hasErrorData = !errorValues.empty();
+
+        if (hasErrorData)
+        {
+            errorCurveData.name = curve->curveExportDescription(curve->errorSummaryAddressY());
+            errorCurveData.address = curve->errorSummaryAddressY();
+            errorCurveData.values = errorValues;
+        }
 
         if (casePosInList == cvf::UNDEFINED_SIZE_T)
         {
+            auto curveDataList = std::vector<CurveData>({ curveData });
+            if (hasErrorData) curveDataList.push_back(errorCurveData);
+
             curvesData->caseNames.push_back(curveCaseName);
             curvesData->timeSteps.push_back(curve->timeStepsY());
-            curvesData->allCurveData.push_back(std::vector<CurveData>({ curveData }));
+            curvesData->allCurveData.push_back(curveDataList);
         }
         else
         {
             curvesData->allCurveData[casePosInList].push_back(curveData);
+            if(hasErrorData) curvesData->allCurveData[casePosInList].push_back(errorCurveData);
         }
     }
 }

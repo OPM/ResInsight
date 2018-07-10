@@ -259,6 +259,33 @@ std::vector<double> RimSummaryCurve::valuesY() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+RifEclipseSummaryAddress RimSummaryCurve::errorSummaryAddressY() const
+{
+    auto addr = summaryAddressY();
+    addr.setAsErrorResult();
+    return addr;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<double> RimSummaryCurve::errorValuesY() const
+{
+    std::vector<double> values;
+
+    RifSummaryReaderInterface* reader = valuesSummaryReaderY();
+
+    if (!reader) return values;
+
+    RifEclipseSummaryAddress addr = errorSummaryAddressY();
+    reader->values(addr, &values);
+
+    return values;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 std::vector<double> RimSummaryCurve::valuesX() const
 {
     std::vector<double> values;
@@ -652,9 +679,9 @@ void RimSummaryCurve::applyCurveAutoNameSettings(const RimSummaryCurveAutoName& 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RimSummaryCurve::curveExportDescription() const
+QString RimSummaryCurve::curveExportDescription(const RifEclipseSummaryAddress& address) const
 {
-    auto address = m_yValuesCurveVariable->address();
+    auto addr = address.isValid() ? address : m_yValuesCurveVariable->address();
 
     RimEnsembleCurveSetCollection* coll;
     firstAncestorOrThisOfType(coll);
@@ -665,14 +692,14 @@ QString RimSummaryCurve::curveExportDescription() const
     if (group && group->isEnsemble())
     {
         return QString("%1.%2.%3")
-            .arg(QString::fromStdString(address.uiText()))
+            .arg(QString::fromStdString(addr.uiText()))
             .arg(m_yValuesSummaryCase->caseName())
             .arg(group->name());
     }
     else
     {
         return QString("%1.%2")
-            .arg(QString::fromStdString(address.uiText()))
+            .arg(QString::fromStdString(addr.uiText()))
             .arg(m_yValuesSummaryCase->caseName());
     }
 }

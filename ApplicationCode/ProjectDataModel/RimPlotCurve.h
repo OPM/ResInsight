@@ -17,6 +17,8 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
+#include "RifEclipseSummaryAddress.h"
+
 #include "cafPdmField.h"
 #include "cafPdmFieldCvfColor.h"    
 #include "cafPdmObject.h"
@@ -94,7 +96,7 @@ public:
     void                            updateCurveNameNoLegendUpdate();
 
     QString                         curveName() const { return m_curveName; }
-    virtual QString                 curveExportDescription() const { return m_curveName; }
+    virtual QString                 curveExportDescription(const RifEclipseSummaryAddress& address = RifEclipseSummaryAddress()) const { return m_curveName; }
     void                            setCustomName(const QString& customName);
     void                            updateCurveVisibility(bool updateParentPlot);
     void                            updateLegendEntryVisibilityAndPlotLegend();

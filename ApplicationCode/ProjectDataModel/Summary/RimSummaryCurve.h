@@ -58,6 +58,8 @@ public:
     RifEclipseSummaryAddress                summaryAddressY() const;
     std::string                             unitNameY() const;
     std::vector<double>                     valuesY() const;
+    RifEclipseSummaryAddress                errorSummaryAddressY() const;
+    std::vector<double>                     errorValuesY() const;
     void                                    setLeftOrRightAxisY(RiaDefines::PlotAxis plotAxis);
     RiaDefines::PlotAxis                    axisY() const;
     const std::vector<time_t>&              timeStepsY() const;
@@ -74,7 +76,7 @@ public:
     void                                    updateQwtPlotAxis();
     void                                    applyCurveAutoNameSettings(const RimSummaryCurveAutoName& autoNameSettings);
 
-    virtual QString                         curveExportDescription() const override;
+    virtual QString                         curveExportDescription(const RifEclipseSummaryAddress& address = RifEclipseSummaryAddress()) const override;
     void                                    forceUpdateCurveAppearanceFromCaseType();
 
 protected:
