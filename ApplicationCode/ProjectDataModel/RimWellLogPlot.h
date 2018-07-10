@@ -19,16 +19,18 @@
 
 #pragma once
 
-#include "cafPdmObject.h"
-#include "cafPdmField.h"
-#include "cafPdmChildArrayField.h"
 #include "cafAppEnum.h"
+#include "cafPdmChildArrayField.h"
+#include "cafPdmChildField.h"
+#include "cafPdmField.h"
+#include "cafPdmObject.h"
 
 #include "RiaDefines.h"
 #include "RimViewWindow.h"
 
 #include <QPointer>
 
+class RimWellLogCurveCommonDataSource;
 class RiuWellLogPlot;
 class RimWellLogTrack;
 class RimWellRftPlot;
@@ -133,6 +135,9 @@ protected:
     virtual QWidget*                                createViewWidget(QWidget* mainWindowParent) override;
     virtual void                                    deleteViewWidget() override;
 
+
+    virtual void                                    initAfterRead() override;
+
 private:
     void                                            applyZoomAllDepths();
     void                                            applyDepthZoomFromVisibleDepth();
@@ -144,6 +149,7 @@ private:
 
 private:
     caf::PdmField<QString>                                  m_userName;
+    caf::PdmChildField<RimWellLogCurveCommonDataSource*>    m_commonDataSource;
     caf::PdmChildArrayField<RimWellLogTrack*>               m_tracks;
 
     caf::PdmField< caf::AppEnum<DepthTypeEnum>>             m_depthType;

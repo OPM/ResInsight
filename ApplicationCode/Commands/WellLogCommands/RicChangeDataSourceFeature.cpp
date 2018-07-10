@@ -18,17 +18,19 @@
 
 #include "RicChangeDataSourceFeature.h"
 
-#include "RicChangeDataSourceFeatureUi.h"
 #include "RicWellLogPlotCurveFeatureImpl.h"
 
 #include "RimCase.h"
 #include "RimWellLogCurve.h"
+#include "RimWellLogCurveCommonDataSource.h"
 #include "RimWellLogExtractionCurve.h"
 #include "RimWellPath.h"
 
 #include "cafPdmUiPropertyViewDialog.h"
 
 #include <QAction>
+
+#include <set>
 
 CAF_CMD_SOURCE_INIT(RicChangeDataSourceFeature, "RicChangeDataSourceFeature");
 
@@ -40,9 +42,9 @@ bool RicChangeDataSourceFeature::isCommandEnabled()
     if (RicWellLogPlotCurveFeatureImpl::parentWellAllocationPlot()) return false;
     if (RicWellLogPlotCurveFeatureImpl::parentWellRftPlot()) return false;
 
-    std::vector<RimWellLogExtractionCurve*> extrCurves = extractionCurves();
+    std::vector<RimWellLogCurve*> curves = RicWellLogPlotCurveFeatureImpl::selectedWellLogCurves();
 
-    return extrCurves.size() > 0;
+    return curves.size() > 0;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -52,24 +54,18 @@ void RicChangeDataSourceFeature::onActionTriggered(bool isChecked)
 {
     if (RicWellLogPlotCurveFeatureImpl::parentWellAllocationPlot()) return;
 
-    std::vector<RimWellLogExtractionCurve*> extrCurves = extractionCurves();
-    if (extrCurves.size() == 0) return;
+    std::vector<RimWellLogCurve*> curves = RicWellLogPlotCurveFeatureImpl::selectedWellLogCurves();
+    if (curves.size() == 0) return;
 
-    RicChangeDataSourceFeatureUi featureUi;
-    featureUi.wellPathToApply = extrCurves[0]->wellPath();
-    featureUi.caseToApply = extrCurves[0]->rimCase();
+    RimWellLogCurveCommonDataSource featureUi;
+    featureUi.updateDefaultOptions(curves);
 
-    caf::PdmUiPropertyViewDialog propertyDialog(nullptr, &featureUi, "Change Data Source for Selected Curves", "");
+    caf::PdmUiPropertyViewDialog propertyDialog(nullptr, &featureUi, "Change Data Source for Multiple Curves", "");
     propertyDialog.resize(QSize(500, 200));
+
     if (propertyDialog.exec() == QDialog::Accepted)
     {
-        for (RimWellLogExtractionCurve* extractionCurve : extrCurves)
-        {
-            extractionCurve->setWellPath(featureUi.wellPathToApply);
-            extractionCurve->setCase(featureUi.caseToApply);
-
-            extractionCurve->loadDataAndUpdate(true);
-        }
+        featureUi.updateCurves(curves);
     }
 }
 
@@ -78,26 +74,6 @@ void RicChangeDataSourceFeature::onActionTriggered(bool isChecked)
 //--------------------------------------------------------------------------------------------------
 void RicChangeDataSourceFeature::setupActionLook(QAction* actionToSetup)
 {
-    actionToSetup->setText("Change Data Source");
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-std::vector<RimWellLogExtractionCurve*> RicChangeDataSourceFeature::extractionCurves()
-{
-    std::vector<RimWellLogExtractionCurve*> extrCurves;
-
-    std::vector<RimWellLogCurve*> curves = RicWellLogPlotCurveFeatureImpl::selectedWellLogCurves();
-
-    for (RimWellLogCurve* c : curves)
-    {
-        if (dynamic_cast<RimWellLogExtractionCurve*>(c))
-        {
-            extrCurves.push_back(dynamic_cast<RimWellLogExtractionCurve*>(c));
-        }
-    }
-
-    return extrCurves;
+    actionToSetup->setText("Change Common Data Source");
 }
 

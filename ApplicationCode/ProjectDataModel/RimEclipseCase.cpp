@@ -926,6 +926,24 @@ void RimEclipseCase::setFormationNames(RimFormationNames* formationNames)
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::set<QString> RimEclipseCase::sortedSimWellNames() const
+{
+    std::set<QString> sortedWellNames;
+    if (eclipseCaseData())
+    {
+        const cvf::Collection<RigSimWellData>& simWellData = eclipseCaseData()->wellResults();
+
+        for (size_t wIdx = 0; wIdx < simWellData.size(); ++wIdx)
+        {
+            sortedWellNames.insert(simWellData[wIdx]->m_wellName);
+        }
+    }
+    return sortedWellNames;
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 std::vector<QDateTime> RimEclipseCase::timeStepDates() const

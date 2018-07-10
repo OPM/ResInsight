@@ -56,9 +56,12 @@ public:
 
     void            setPropertiesFromView(Rim3dView* view);
 
+    TrajectoryType  trajectoryType() const;
     virtual QString wellName() const;
     virtual QString wellLogChannelName() const;
     virtual QString wellDate() const;
+    int             branchIndex() const;
+    bool            branchDetection() const;
 
     bool            isEclipseCurve() const;
     QString         caseName() const;
@@ -69,6 +72,11 @@ public:
 
     void            setEclipseResultVariable(const QString& resVarname);
     void            setGeoMechResultAddress(const RigFemResultAddress& resAddr);
+
+    void            setTrajectoryType(TrajectoryType trajectoryType);
+    void            setWellName(QString wellName);
+    void            setBranchDetection(bool branchDetection);
+    void            setBranchIndex(int index);
 
 protected:
     virtual QString                                createCurveAutoName() override;
@@ -84,9 +92,8 @@ private:
     void                                           setLogScaleFromSelectedResult();
     void                                           clampTimestep();
     void                                           clampBranchIndex();
-    std::set<QString>                              findSortedWellNames();
+    std::set<QString>                              sortedSimWellNames();
     void                                           clearGeneratedSimWellPaths();
-    std::vector<const RigWellPath*>                simulationWellBranches() const;
 
 private:
     caf::PdmPtrField<RimCase*>                      m_case;

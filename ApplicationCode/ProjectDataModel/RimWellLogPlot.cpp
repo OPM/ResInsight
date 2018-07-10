@@ -25,6 +25,7 @@
 
 #include "RimWellAllocationPlot.h"
 #include "RimWellLogCurve.h"
+#include "RimWellLogCurveCommonDataSource.h"
 #include "RimWellLogTrack.h"
 #include "RimWellRftPlot.h"
 #include "RimWellPltPlot.h"
@@ -79,6 +80,12 @@ RimWellLogPlot::RimWellLogPlot()
 
     CAF_PDM_InitField(&m_userName, "PlotDescription", QString("Well Log Plot"),"Name", "", "", "");
     
+    CAF_PDM_InitFieldNoDefault(&m_commonDataSource, "CommonDataSource", "Common Data Source", "", "Change the Data Source of All Curves in the Plot", "");
+    m_commonDataSource = new RimWellLogCurveCommonDataSource;
+    m_commonDataSource.uiCapability()->setUiTreeHidden(true);
+    m_commonDataSource.uiCapability()->setUiTreeChildrenHidden(true);
+    m_commonDataSource.xmlCapability()->disableIO();
+
     caf::AppEnum< RimWellLogPlot::DepthTypeEnum > depthType = MEASURED_DEPTH;
     CAF_PDM_InitField(&m_depthType, "DepthType", depthType, "Type",   "", "", "");
 
@@ -112,6 +119,7 @@ RimWellLogPlot::~RimWellLogPlot()
     m_tracks.deleteAllChildObjects();
 
     deleteViewWidget();
+    delete m_commonDataSource;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -610,6 +618,7 @@ void RimWellLogPlot::depthZoomMinMax(double* minimumDepth, double* maximumDepth)
 void RimWellLogPlot::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
     uiOrdering.add(&m_userName);
+    m_commonDataSource->uiOrdering(uiConfigName, uiOrdering);    
     uiOrderingForDepthAxis(uiOrdering);
     uiOrderingForPlotSettings(uiOrdering);
 
@@ -773,6 +782,14 @@ void RimWellLogPlot::deleteViewWidget()
        m_viewer->deleteLater();
        m_viewer = nullptr;
    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogPlot::initAfterRead()
+{
+    m_commonDataSource->updateDefaultOptions();
 }
 
 //--------------------------------------------------------------------------------------------------

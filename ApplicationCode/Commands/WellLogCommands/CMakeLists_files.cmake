@@ -19,7 +19,6 @@ ${CMAKE_CURRENT_LIST_DIR}/RicPasteWellLogCurveFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicPasteWellLogTrackFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicPasteWellLogPlotFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicChangeDataSourceFeature.h
-${CMAKE_CURRENT_LIST_DIR}/RicChangeDataSourceFeatureUi.h
 ${CMAKE_CURRENT_LIST_DIR}/RicAsciiExportWellLogPlotFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicWellLogFileCloseFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicMoveWellLogFilesFeature.h
@@ -51,7 +50,6 @@ ${CMAKE_CURRENT_LIST_DIR}/RicPasteWellLogCurveFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicPasteWellLogTrackFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicPasteWellLogPlotFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicChangeDataSourceFeature.cpp
-${CMAKE_CURRENT_LIST_DIR}/RicChangeDataSourceFeatureUi.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicAsciiExportWellLogPlotFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicWellLogFileCloseFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicMoveWellLogFilesFeature.cpp

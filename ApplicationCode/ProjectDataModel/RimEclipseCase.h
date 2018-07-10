@@ -34,6 +34,8 @@
 #include "cvfObject.h"
 #include "cvfColor3.h"
 
+#include <set>
+
 class QString;
 
 class RigEclipseCaseData;
@@ -111,6 +113,8 @@ public:
     virtual double                              characteristicCellSize() const override;
 
     virtual void                                setFormationNames(RimFormationNames* formationNames) override;
+
+    std::set<QString>                           sortedSimWellNames() const;
 
 protected:
     virtual void                                initAfterRead();
