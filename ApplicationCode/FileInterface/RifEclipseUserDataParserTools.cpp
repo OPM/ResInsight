@@ -922,7 +922,7 @@ bool RifEclipseUserDataParserTools::isScalingText(const std::string& word)
 //--------------------------------------------------------------------------------------------------
 std::string Column::columnName() const
 {
-    return summaryAddress.quantityName();
+    return summaryAddress.uiText();
 }
 
 //--------------------------------------------------------------------------------------------------
