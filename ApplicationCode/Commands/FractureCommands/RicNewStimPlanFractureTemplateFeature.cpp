@@ -45,9 +45,9 @@ void RicNewStimPlanFractureTemplateFeature::onActionTriggered(bool isChecked)
 {
     RiaApplication* app = RiaApplication::instance();
     QString defaultDir = app->lastUsedDialogDirectory("BINARY_GRID");
-    QString fileName = QFileDialog::getOpenFileName(nullptr, "Open StimPlan XML File", defaultDir, "StimPlan XML File (*.xml);;All files(*.*)");
+    QStringList fileNames = QFileDialog::getOpenFileNames(nullptr, "Open StimPlan XML File", defaultDir, "StimPlan XML File (*.xml);;All files(*.*)");
 
-    if (fileName.isEmpty()) return;
+    if (fileNames.isEmpty()) return;
 
     RimProject* project = RiaApplication::instance()->project();
     CVF_ASSERT(project);
@@ -56,9 +56,12 @@ void RicNewStimPlanFractureTemplateFeature::onActionTriggered(bool isChecked)
     if (oilfield == nullptr) return;
 
     RimFractureTemplateCollection* fracDefColl = oilfield->fractureDefinitionCollection();
+    if (!fracDefColl) return;
 
-    if (fracDefColl)
+    for(auto fileName : fileNames)
     {
+        if (fileName.isEmpty()) continue;
+
         RimStimPlanFractureTemplate* fractureDef = new RimStimPlanFractureTemplate();
         fracDefColl->addFractureTemplate(fractureDef);
 
