@@ -95,6 +95,14 @@ void RimWellLogCurveCommonDataSource::setWellPathToApply(RimWellPath* val)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString RimWellLogCurveCommonDataSource::simWellNameToApply() const
+{
+    return m_simWellName();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 int RimWellLogCurveCommonDataSource::timeStepToApply() const
 {
     return m_timeStep;

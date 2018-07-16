@@ -274,7 +274,7 @@ QString Rim3dWellLogExtractionCurve::name() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString Rim3dWellLogExtractionCurve::createCurveAutoName() const
+QString Rim3dWellLogExtractionCurve::createAutoName() const
 {
     RimGeoMechCase* geomCase = dynamic_cast<RimGeoMechCase*>(m_case.value());
     RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>(m_case.value());

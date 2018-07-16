@@ -119,7 +119,7 @@ QString Rim3dWellLogFileCurve::name() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString Rim3dWellLogFileCurve::createCurveAutoName() const
+QString Rim3dWellLogFileCurve::createAutoName() const
 {
     QStringList name;
     QString unit;

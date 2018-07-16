@@ -99,7 +99,7 @@ QString Rim3dWellLogRftCurve::name() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString Rim3dWellLogRftCurve::createCurveAutoName() const
+QString Rim3dWellLogRftCurve::createAutoName() const
 {
     QStringList name;
 

@@ -29,7 +29,8 @@
 class RimCurveNameConfigHolderInterface
 {
 public:
-    virtual QString createCurveAutoName() const = 0;
+    virtual QString createAutoName() const = 0;
+    virtual void    updateHolder() {}
 };
 
 //==================================================================================================

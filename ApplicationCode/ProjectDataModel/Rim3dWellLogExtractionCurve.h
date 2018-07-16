@@ -51,7 +51,7 @@ public:
     virtual std::pair<double, double> findCurveValueRange() override;
 
     virtual QString name() const override;
-    virtual QString createCurveAutoName() const override;
+    virtual QString createAutoName() const override;
     double          rkbDiff() const;
 protected:
     virtual caf::PdmFieldHandle*            userDescriptionField() override;

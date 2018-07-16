@@ -72,7 +72,7 @@ void Rim3dWellLogCurveCollection::add3dWellLogCurve(Rim3dWellLogCurve* curve)
         size_t index = m_3dWellLogCurves.size();
         curve->setColor(RiaColorTables::wellLogPlotPaletteColors().cycledColor3f(index));
         m_3dWellLogCurves.push_back(curve);
-        curve->createCurveAutoName();
+        curve->createAutoName();
     }
 }
 

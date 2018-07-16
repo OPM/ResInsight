@@ -244,7 +244,7 @@ void Rim3dWellLogCurve::defineEditorAttribute(const caf::PdmFieldHandle* field, 
 //--------------------------------------------------------------------------------------------------
 void Rim3dWellLogCurve::initAfterRead()
 {
-    this->createCurveAutoName();
+    this->createAutoName();
 }
 
 //--------------------------------------------------------------------------------------------------

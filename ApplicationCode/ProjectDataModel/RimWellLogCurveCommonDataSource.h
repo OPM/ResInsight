@@ -47,6 +47,7 @@ public:
     void         setCaseToApply(RimCase* val);
     RimWellPath* wellPathToApply() const;
     void         setWellPathToApply(RimWellPath* val);
+    QString      simWellNameToApply() const;
     int          timeStepToApply() const;
     void         setTimeStepToApply(int val);
     void         updateDefaultOptions(const std::vector<RimWellLogCurve*>& curves);
@@ -65,6 +66,6 @@ private:
     caf::PdmPtrField<RimWellPath*>             m_wellPath;
     caf::PdmField<QString>                     m_simWellName;
     caf::PdmField<int>                         m_branchIndex;
-    caf::PdmField<caf::Tristate>                        m_branchDetection;
+    caf::PdmField<caf::Tristate>               m_branchDetection;
     caf::PdmField<int>                         m_timeStep;
 };

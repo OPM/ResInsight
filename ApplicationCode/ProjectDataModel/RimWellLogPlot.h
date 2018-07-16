@@ -27,6 +27,7 @@
 
 #include "RiaDefines.h"
 #include "RimViewWindow.h"
+#include "RimWellLogCurveNameConfig.h"
 
 #include <QPointer>
 
@@ -41,7 +42,7 @@ class RimWellPltPlot;
 ///  
 ///  
 //==================================================================================================
-class RimWellLogPlot : public RimViewWindow
+class RimWellLogPlot : public RimViewWindow, public RimCurveNameConfigHolderInterface
 {
     CAF_PDM_HEADER_INIT;
 
@@ -121,12 +122,15 @@ public:
     void                                            uiOrderingForDepthAxis(caf::PdmUiOrdering& uiOrdering);
     void                                            uiOrderingForPlotSettings(caf::PdmUiOrdering& uiOrdering);
 
+    virtual QString                                 createAutoName() const override;
+    void                                            updateHolder() override;
+
 protected:
 
     // Overridden PDM methods
     virtual void                                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
     virtual void                                    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
-    virtual caf::PdmFieldHandle*                    userDescriptionField() override { return &m_userName; }
+    virtual caf::PdmFieldHandle*                    userDescriptionField() override;
     virtual QList<caf::PdmOptionItemInfo>           calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
     virtual void                                    onLoadDataAndUpdate() override;
 
@@ -148,21 +152,23 @@ private:
     void                                            updatePlotTitle();
 
 private:
-    caf::PdmField<QString>                                  m_userName;
-    caf::PdmChildField<RimWellLogCurveCommonDataSource*>    m_commonDataSource;
-    caf::PdmChildArrayField<RimWellLogTrack*>               m_tracks;
+    caf::PdmField<QString>                                   m_userName;
+    caf::PdmChildField<RimWellLogCurveCommonDataSource*>     m_commonDataSource;
+    caf::PdmChildArrayField<RimWellLogTrack*>                m_tracks;
 
-    caf::PdmField< caf::AppEnum<DepthTypeEnum>>             m_depthType;
-    caf::PdmField< caf::AppEnum<RiaDefines::DepthUnitType>> m_depthUnit;
-    std::set<RimWellLogPlot::DepthTypeEnum>                 m_disabledDepthTypes;
-    caf::PdmField<double>                                   m_minVisibleDepth;
-    caf::PdmField<double>                                   m_maxVisibleDepth;
-    caf::PdmField<AxisGridEnum>                             m_depthAxisGridVisibility;
-    caf::PdmField<bool>                                     m_isAutoScaleDepthEnabled;
+    caf::PdmField< caf::AppEnum<DepthTypeEnum>>              m_depthType;
+    caf::PdmField< caf::AppEnum<RiaDefines::DepthUnitType>>  m_depthUnit;
+    std::set<RimWellLogPlot::DepthTypeEnum>                  m_disabledDepthTypes;
+    caf::PdmField<double>                                    m_minVisibleDepth;
+    caf::PdmField<double>                                    m_maxVisibleDepth;
+    caf::PdmField<AxisGridEnum>                              m_depthAxisGridVisibility;
+    caf::PdmField<bool>                                      m_isAutoScaleDepthEnabled;
     
-    caf::PdmField<bool>                                     m_showTitleInPlot;
-    caf::PdmField<bool>                                     m_showTrackLegends;
-    caf::PdmField<bool>                                     m_trackLegendsHorizontal;
+    caf::PdmField<bool>                                      m_showTitleInPlot;
+    caf::PdmField<bool>                                      m_showTrackLegends;
+    caf::PdmField<bool>                                      m_trackLegendsHorizontal;
+
+    caf::PdmChildField<RimWellLogExtractionCurveNameConfig*> m_nameConfig;
 
     double m_minAvailableDepth;
     double m_maxAvailableDepth;

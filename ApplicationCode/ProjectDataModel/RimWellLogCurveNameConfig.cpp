@@ -105,7 +105,7 @@ void RimCurveNameConfig::fieldChangedByUi(const caf::PdmFieldHandle* changedFiel
 
     if (changedField == &m_isUsingAutoName && !isUsingAutoName())
     {
-        m_customName = m_configHolder->createCurveAutoName();
+        m_customName = m_configHolder->createAutoName();
     }
 
     updateAllSettings();
@@ -116,7 +116,7 @@ void RimCurveNameConfig::fieldChangedByUi(const caf::PdmFieldHandle* changedFiel
 //--------------------------------------------------------------------------------------------------
 QString RimCurveNameConfig::autoName() const
 {
-    return m_configHolder->createCurveAutoName();
+    return m_configHolder->createAutoName();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -138,10 +138,14 @@ void RimCurveNameConfig::updateAllSettings()
     m_autoName.uiCapability()->updateConnectedEditors();
     m_customName.uiCapability()->updateConnectedEditors();
 
-    Rim3dWellLogCurve* curve;
-    this->firstAncestorOrThisOfTypeAsserted(curve);
-    curve->updateConnectedEditors();
-
+    RimCurveNameConfigHolderInterface* holder;
+    this->firstAncestorOrThisOfTypeAsserted(holder);
+    holder->updateHolder();
+    caf::PdmObject* pdmObject = dynamic_cast<caf::PdmObject*>(holder);
+    if (pdmObject)
+    {
+        pdmObject->updateConnectedEditors();        
+    }
 }
 
 //==================================================================================================

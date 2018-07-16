@@ -23,6 +23,8 @@
 
 #include "RigWellLogCurveData.h"
 
+#include "RimGeoMechCase.h"
+#include "RimEclipseCase.h"
 #include "RimWellAllocationPlot.h"
 #include "RimWellLogCurve.h"
 #include "RimWellLogCurveCommonDataSource.h"
@@ -105,6 +107,9 @@ RimWellLogPlot::RimWellLogPlot()
     CAF_PDM_InitFieldNoDefault(&m_tracks, "Tracks", "",  "", "", "");
     m_tracks.uiCapability()->setUiHidden(true);
 
+    CAF_PDM_InitFieldNoDefault(&m_nameConfig, "NameConfig", "", "", "", "");
+    m_nameConfig = new RimWellLogExtractionCurveNameConfig(this);
+
     m_minAvailableDepth = HUGE_VAL;
     m_maxAvailableDepth = -HUGE_VAL;
 }
@@ -120,6 +125,7 @@ RimWellLogPlot::~RimWellLogPlot()
 
     deleteViewWidget();
     delete m_commonDataSource;
+    delete m_nameConfig;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -603,6 +609,54 @@ void RimWellLogPlot::uiOrderingForPlotSettings(caf::PdmUiOrdering& uiOrdering)
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimWellLogPlot::createAutoName() const
+{
+    RimCase* commonCase = m_commonDataSource->caseToApply();
+    RimGeoMechCase* geomCase = dynamic_cast<RimGeoMechCase*>(commonCase);
+    RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>(commonCase);
+
+    QStringList generatedCurveName;
+
+    if (m_nameConfig->addWellName())
+    {
+        RimWellPath* wellPath = m_commonDataSource->wellPathToApply();
+        if (wellPath && !wellPath->name().isEmpty())
+        {
+            generatedCurveName.push_back(wellPath->name());
+        }
+        else if (!m_commonDataSource->simWellNameToApply().isEmpty())
+        {
+            generatedCurveName.push_back(m_commonDataSource->simWellNameToApply());
+        }
+    }
+
+    if (m_nameConfig->addCaseName() && commonCase)
+    {
+        generatedCurveName.push_back(commonCase->caseUserDescription());
+    }
+
+    if (m_nameConfig->addDate())
+    {
+        if (commonCase && m_commonDataSource->timeStepToApply() != -1)
+        {
+            generatedCurveName.push_back(commonCase->timeStepName(m_commonDataSource->timeStepToApply()));
+        }
+    }
+
+    return m_userName + QString(": ") + generatedCurveName.join(", ");
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogPlot::updateHolder()
+{
+    this->updatePlotTitle();
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void RimWellLogPlot::depthZoomMinMax(double* minimumDepth, double* maximumDepth) const
@@ -621,10 +675,18 @@ void RimWellLogPlot::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
     m_commonDataSource->uiOrdering(uiConfigName, uiOrdering);    
     uiOrderingForDepthAxis(uiOrdering);
     uiOrderingForPlotSettings(uiOrdering);
-
+    m_nameConfig()->createUiGroup(uiConfigName, uiOrdering);
     uiOrdering.skipRemainingFields(true);
 }
 
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+caf::PdmFieldHandle* RimWellLogPlot::userDescriptionField()
+{
+    return m_nameConfig->nameField();
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 

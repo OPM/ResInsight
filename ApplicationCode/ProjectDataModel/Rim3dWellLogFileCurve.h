@@ -43,7 +43,7 @@ public:
     virtual void    curveValuesAndMds(std::vector<double>* values, std::vector<double>* measuredDepthValues) const override;
     virtual QString resultPropertyString() const override;
     virtual QString name() const override;
-    virtual QString createCurveAutoName() const override;
+    virtual QString createAutoName() const override;
 protected:
     virtual caf::PdmFieldHandle*            userDescriptionField() override;
     virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField,
