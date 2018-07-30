@@ -30,6 +30,8 @@
 
 #include "RimEclipseCase.h"
 
+#include "RiaLogging.h"
+
 #include "cvfGeometryTools.h"
 
 //--------------------------------------------------------------------------------------------------
@@ -87,13 +89,28 @@ void RigEclipseToStimPlanCellTransmissibilityCalculator::calculateStimPlanCellsM
 
     RiaDefines::PorosityModelType porosityModel = RiaDefines::MATRIX_MODEL;
 
-    cvf::ref<RigResultAccessor> dataAccessObjectDx    = loadResultAndCreateResultAccessor(m_case, porosityModel, "DX");
-    cvf::ref<RigResultAccessor> dataAccessObjectDy    = loadResultAndCreateResultAccessor(m_case, porosityModel, "DY");
-    cvf::ref<RigResultAccessor> dataAccessObjectDz    = loadResultAndCreateResultAccessor(m_case, porosityModel, "DZ");
+    cvf::ref<RigResultAccessor> dataAccessObjectDx = loadResultAndCreateResultAccessor(m_case, porosityModel, "DX");
+    cvf::ref<RigResultAccessor> dataAccessObjectDy = loadResultAndCreateResultAccessor(m_case, porosityModel, "DY");
+    cvf::ref<RigResultAccessor> dataAccessObjectDz = loadResultAndCreateResultAccessor(m_case, porosityModel, "DZ");
+    if (dataAccessObjectDx.isNull() || dataAccessObjectDy.isNull() || dataAccessObjectDz.isNull())
+    {
+        RiaLogging::error("Data for DX/DY/DZ is not complete, and these values are required for export of COMPDAT. Make sure "
+                          "'Preferences->Compute DEPTH Related Properties' is checked.");
+
+        return;
+    }
+
     cvf::ref<RigResultAccessor> dataAccessObjectPermX = loadResultAndCreateResultAccessor(m_case, porosityModel, "PERMX");
     cvf::ref<RigResultAccessor> dataAccessObjectPermY = loadResultAndCreateResultAccessor(m_case, porosityModel, "PERMY");
     cvf::ref<RigResultAccessor> dataAccessObjectPermZ = loadResultAndCreateResultAccessor(m_case, porosityModel, "PERMZ");
-    cvf::ref<RigResultAccessor> dataAccessObjectNTG   = loadResultAndCreateResultAccessor(m_case, porosityModel, "NTG");
+    if (dataAccessObjectDx.isNull() || dataAccessObjectDy.isNull() || dataAccessObjectDz.isNull())
+    {
+        RiaLogging::error("Data for PERMX/PERMY/PERMZ is not complete, and these values are required for export of COMPDAT.");
+
+        return;
+    }
+
+    cvf::ref<RigResultAccessor> dataAccessObjectNTG = loadResultAndCreateResultAccessor(m_case, porosityModel, "NTG");
 
     const RigActiveCellInfo* activeCellInfo = eclipseCaseData->activeCellInfo(porosityModel);
 
