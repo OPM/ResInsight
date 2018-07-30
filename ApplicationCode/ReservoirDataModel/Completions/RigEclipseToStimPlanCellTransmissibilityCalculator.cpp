@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2017     Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -24,32 +24,33 @@
 #include "RigEclipseCaseData.h"
 #include "RigFractureCell.h"
 #include "RigFractureTransmissibilityEquations.h"
+#include "RigHexIntersectionTools.h"
 #include "RigMainGrid.h"
 #include "RigResultAccessorFactory.h"
-#include "RigHexIntersectionTools.h"
 
 #include "RimEclipseCase.h"
 
 #include "cvfGeometryTools.h"
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RigEclipseToStimPlanCellTransmissibilityCalculator::RigEclipseToStimPlanCellTransmissibilityCalculator(RimEclipseCase* caseToApply,
-                                                                                                       cvf::Mat4d fractureTransform,
-                                                                                                       double skinFactor,
-                                                                                                       double cDarcy,
-                                                                                                       const RigFractureCell& stimPlanCell)
-    : m_case(caseToApply),
-    m_fractureTransform(fractureTransform),
-    m_fractureSkinFactor(skinFactor),
-    m_cDarcy(cDarcy),
-    m_stimPlanCell(stimPlanCell)
+RigEclipseToStimPlanCellTransmissibilityCalculator::RigEclipseToStimPlanCellTransmissibilityCalculator(
+    RimEclipseCase*        caseToApply,
+    cvf::Mat4d             fractureTransform,
+    double                 skinFactor,
+    double                 cDarcy,
+    const RigFractureCell& stimPlanCell)
+    : m_case(caseToApply)
+    , m_fractureTransform(fractureTransform)
+    , m_fractureSkinFactor(skinFactor)
+    , m_cDarcy(cDarcy)
+    , m_stimPlanCell(stimPlanCell)
 {
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 const std::vector<size_t>& RigEclipseToStimPlanCellTransmissibilityCalculator::globalIndiciesToContributingEclipseCells()
 {
@@ -62,7 +63,7 @@ const std::vector<size_t>& RigEclipseToStimPlanCellTransmissibilityCalculator::g
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 const std::vector<double>& RigEclipseToStimPlanCellTransmissibilityCalculator::contributingEclipseCellTransmissibilities()
 {
@@ -75,7 +76,7 @@ const std::vector<double>& RigEclipseToStimPlanCellTransmissibilityCalculator::c
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RigEclipseToStimPlanCellTransmissibilityCalculator::calculateStimPlanCellsMatrixTransmissibility()
 {
@@ -86,13 +87,13 @@ void RigEclipseToStimPlanCellTransmissibilityCalculator::calculateStimPlanCellsM
 
     RiaDefines::PorosityModelType porosityModel = RiaDefines::MATRIX_MODEL;
 
-    cvf::ref<RigResultAccessor> dataAccessObjectDx      = loadResultAndCreateResultAccessor(m_case, porosityModel, "DX");
-    cvf::ref<RigResultAccessor> dataAccessObjectDy      = loadResultAndCreateResultAccessor(m_case, porosityModel, "DY");
-    cvf::ref<RigResultAccessor> dataAccessObjectDz      = loadResultAndCreateResultAccessor(m_case, porosityModel, "DZ");
-    cvf::ref<RigResultAccessor> dataAccessObjectPermX   = loadResultAndCreateResultAccessor(m_case, porosityModel, "PERMX");
-    cvf::ref<RigResultAccessor> dataAccessObjectPermY   = loadResultAndCreateResultAccessor(m_case, porosityModel, "PERMY");
-    cvf::ref<RigResultAccessor> dataAccessObjectPermZ   = loadResultAndCreateResultAccessor(m_case, porosityModel, "PERMZ");
-    cvf::ref<RigResultAccessor> dataAccessObjectNTG     = loadResultAndCreateResultAccessor(m_case, porosityModel, "NTG");
+    cvf::ref<RigResultAccessor> dataAccessObjectDx    = loadResultAndCreateResultAccessor(m_case, porosityModel, "DX");
+    cvf::ref<RigResultAccessor> dataAccessObjectDy    = loadResultAndCreateResultAccessor(m_case, porosityModel, "DY");
+    cvf::ref<RigResultAccessor> dataAccessObjectDz    = loadResultAndCreateResultAccessor(m_case, porosityModel, "DZ");
+    cvf::ref<RigResultAccessor> dataAccessObjectPermX = loadResultAndCreateResultAccessor(m_case, porosityModel, "PERMX");
+    cvf::ref<RigResultAccessor> dataAccessObjectPermY = loadResultAndCreateResultAccessor(m_case, porosityModel, "PERMY");
+    cvf::ref<RigResultAccessor> dataAccessObjectPermZ = loadResultAndCreateResultAccessor(m_case, porosityModel, "PERMZ");
+    cvf::ref<RigResultAccessor> dataAccessObjectNTG   = loadResultAndCreateResultAccessor(m_case, porosityModel, "NTG");
 
     const RigActiveCellInfo* activeCellInfo = eclipseCaseData->activeCellInfo(porosityModel);
 
@@ -123,12 +124,13 @@ void RigEclipseToStimPlanCellTransmissibilityCalculator::calculateStimPlanCellsM
             NTG = dataAccessObjectNTG->cellScalarGlobIdx(fracCell);
         }
 
-        const RigMainGrid* mainGrid = m_case->eclipseCaseData()->mainGrid();
+        const RigMainGrid*        mainGrid = m_case->eclipseCaseData()->mainGrid();
         std::array<cvf::Vec3d, 8> hexCorners;
         mainGrid->cellCornerVertices(fracCell, hexCorners.data());
 
-        std::vector<std::vector<cvf::Vec3d> > planeCellPolygons;
-        bool isPlanIntersected = RigHexIntersectionTools::planeHexIntersectionPolygons(hexCorners, m_fractureTransform, planeCellPolygons);
+        std::vector<std::vector<cvf::Vec3d>> planeCellPolygons;
+        bool                                 isPlanIntersected =
+            RigHexIntersectionTools::planeHexIntersectionPolygons(hexCorners, m_fractureTransform, planeCellPolygons);
         if (!isPlanIntersected || planeCellPolygons.size() == 0) continue;
 
         cvf::Vec3d localX;
@@ -136,9 +138,9 @@ void RigEclipseToStimPlanCellTransmissibilityCalculator::calculateStimPlanCellsM
         cvf::Vec3d localZ;
         RigCellGeometryTools::findCellLocalXYZ(hexCorners, localX, localY, localZ);
 
-        //Transform planCell polygon(s) and averageZdirection to x/y coordinate system (where fracturePolygon already is located)
+        // Transform planCell polygon(s) and averageZdirection to x/y coordinate system (where fracturePolygon already is located)
         cvf::Mat4d invertedTransMatrix = m_fractureTransform.getInverted();
-        for (std::vector<cvf::Vec3d> & planeCellPolygon : planeCellPolygons)
+        for (std::vector<cvf::Vec3d>& planeCellPolygon : planeCellPolygons)
         {
             for (cvf::Vec3d& v : planeCellPolygon)
             {
@@ -146,13 +148,14 @@ void RigEclipseToStimPlanCellTransmissibilityCalculator::calculateStimPlanCellsM
             }
         }
 
-        std::vector<std::vector<cvf::Vec3d> > polygonsForStimPlanCellInEclipseCell;
-        cvf::Vec3d areaVector;
-        std::vector<cvf::Vec3d> stimPlanPolygon = m_stimPlanCell.getPolygon();
+        std::vector<std::vector<cvf::Vec3d>> polygonsForStimPlanCellInEclipseCell;
+        cvf::Vec3d                           areaVector;
+        std::vector<cvf::Vec3d>              stimPlanPolygon = m_stimPlanCell.getPolygon();
 
         for (std::vector<cvf::Vec3d> planeCellPolygon : planeCellPolygons)
         {
-            std::vector<std::vector<cvf::Vec3d> >clippedPolygons = RigCellGeometryTools::intersectPolygons(planeCellPolygon, stimPlanPolygon);
+            std::vector<std::vector<cvf::Vec3d>> clippedPolygons =
+                RigCellGeometryTools::intersectPolygons(planeCellPolygon, stimPlanPolygon);
             for (std::vector<cvf::Vec3d> clippedPolygon : clippedPolygons)
             {
                 polygonsForStimPlanCellInEclipseCell.push_back(clippedPolygon);
@@ -161,16 +164,18 @@ void RigEclipseToStimPlanCellTransmissibilityCalculator::calculateStimPlanCellsM
 
         if (polygonsForStimPlanCellInEclipseCell.size() == 0) continue;
 
-        double area;
+        double              area;
         std::vector<double> areaOfFractureParts;
-        double length;
+        double              length;
         std::vector<double> lengthXareaOfFractureParts;
-        double Ax = 0.0, Ay = 0.0, Az = 0.0;
+        double              Ax = 0.0;
+        double              Ay = 0.0;
+        double              Az = 0.0;
 
         for (std::vector<cvf::Vec3d> fracturePartPolygon : polygonsForStimPlanCellInEclipseCell)
         {
             areaVector = cvf::GeometryTools::polygonAreaNormal3D(fracturePartPolygon);
-            area = areaVector.length();
+            area       = areaVector.length();
             areaOfFractureParts.push_back(area);
 
             length = RigCellGeometryTools::polygonLengthInLocalXdirWeightedByArea(fracturePartPolygon);
@@ -180,27 +185,30 @@ void RigEclipseToStimPlanCellTransmissibilityCalculator::calculateStimPlanCellsM
             fracturePlane.setFromPointAndNormal(static_cast<cvf::Vec3d>(m_fractureTransform.translation()),
                                                 static_cast<cvf::Vec3d>(m_fractureTransform.col(2)));
 
-            Ax += fabs(area*(fracturePlane.normal().dot(localY)));
-            Ay += fabs(area*(fracturePlane.normal().dot(localX)));
-            Az += fabs(area*(fracturePlane.normal().dot(localZ)));
+            Ax += fabs(area * (fracturePlane.normal().dot(localY)));
+            Ay += fabs(area * (fracturePlane.normal().dot(localX)));
+            Az += fabs(area * (fracturePlane.normal().dot(localZ)));
         }
 
         double fractureArea = 0.0;
-        for (double area : areaOfFractureParts) fractureArea += area;
+        for (double area : areaOfFractureParts)
+            fractureArea += area;
 
         double totalAreaXLength = 0.0;
-        for (double lengtXarea : lengthXareaOfFractureParts) totalAreaXLength += lengtXarea;
+        for (double lengtXarea : lengthXareaOfFractureParts)
+            totalAreaXLength += lengtXarea;
 
         double fractureAreaWeightedlength = totalAreaXLength / fractureArea;
 
-        double transmissibility_X = RigFractureTransmissibilityEquations::matrixToFractureTrans(permY, NTG, Ay, dx, m_fractureSkinFactor, fractureAreaWeightedlength, m_cDarcy);
-        double transmissibility_Y = RigFractureTransmissibilityEquations::matrixToFractureTrans(permX, NTG, Ax, dy, m_fractureSkinFactor, fractureAreaWeightedlength, m_cDarcy);
-        double transmissibility_Z = RigFractureTransmissibilityEquations::matrixToFractureTrans(permZ, 1.0, Az, dz, m_fractureSkinFactor, fractureAreaWeightedlength, m_cDarcy);
+        double transmissibility_X = RigFractureTransmissibilityEquations::matrixToFractureTrans(
+            permY, NTG, Ay, dx, m_fractureSkinFactor, fractureAreaWeightedlength, m_cDarcy);
+        double transmissibility_Y = RigFractureTransmissibilityEquations::matrixToFractureTrans(
+            permX, NTG, Ax, dy, m_fractureSkinFactor, fractureAreaWeightedlength, m_cDarcy);
+        double transmissibility_Z = RigFractureTransmissibilityEquations::matrixToFractureTrans(
+            permZ, 1.0, Az, dz, m_fractureSkinFactor, fractureAreaWeightedlength, m_cDarcy);
 
-        double transmissibility = sqrt(transmissibility_X * transmissibility_X
-                                       + transmissibility_Y * transmissibility_Y
-                                       + transmissibility_Z * transmissibility_Z);
-
+        double transmissibility = sqrt(transmissibility_X * transmissibility_X + transmissibility_Y * transmissibility_Y +
+                                       transmissibility_Z * transmissibility_Z);
 
         m_globalIndiciesToContributingEclipseCells.push_back(fracCell);
         m_contributingEclipseCellTransmissibilities.push_back(transmissibility);
@@ -208,9 +216,10 @@ void RigEclipseToStimPlanCellTransmissibilityCalculator::calculateStimPlanCellsM
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-std::vector<size_t> RigEclipseToStimPlanCellTransmissibilityCalculator::getPotentiallyFracturedCellsForPolygon(std::vector<cvf::Vec3d> polygon)
+std::vector<size_t>
+    RigEclipseToStimPlanCellTransmissibilityCalculator::getPotentiallyFracturedCellsForPolygon(std::vector<cvf::Vec3d> polygon)
 {
     std::vector<size_t> cellIndices;
 
@@ -218,7 +227,10 @@ std::vector<size_t> RigEclipseToStimPlanCellTransmissibilityCalculator::getPoten
     if (!mainGrid) return cellIndices;
 
     cvf::BoundingBox polygonBBox;
-    for (cvf::Vec3d nodeCoord : polygon) polygonBBox.add(nodeCoord);
+    for (cvf::Vec3d nodeCoord : polygon)
+    {
+        polygonBBox.add(nodeCoord);
+    }
 
     mainGrid->findIntersectingCells(polygonBBox, &cellIndices);
 
@@ -226,12 +238,12 @@ std::vector<size_t> RigEclipseToStimPlanCellTransmissibilityCalculator::getPoten
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 cvf::ref<RigResultAccessor> RigEclipseToStimPlanCellTransmissibilityCalculator::loadResultAndCreateResultAccessor(
-    RimEclipseCase* eclipseCase,
+    RimEclipseCase*               eclipseCase,
     RiaDefines::PorosityModelType porosityModel,
-    const QString& uiResultName)
+    const QString&                uiResultName)
 {
     CVF_ASSERT(eclipseCase);
 
