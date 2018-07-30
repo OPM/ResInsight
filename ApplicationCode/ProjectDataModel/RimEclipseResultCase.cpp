@@ -215,6 +215,13 @@ bool RimEclipseResultCase::importGridAndResultMetaData(bool showTimeStepFilter)
         RifReaderEclipseOutput* outReader = dynamic_cast<RifReaderEclipseOutput*>(readerInterface.p());
         outReader->setHdf5FileName(m_sourSimFileName());
     }
+
+    RiaApplication* app = RiaApplication::instance();
+    if (app->preferences()->autocomputeDepthRelatedProperties)
+    {
+        results(RiaDefines::MATRIX_MODEL)->computeDepthRelatedResults();
+        results(RiaDefines::FRACTURE_MODEL)->computeDepthRelatedResults();
+    }
     
     return true;
 }
