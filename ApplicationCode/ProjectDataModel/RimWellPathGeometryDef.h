@@ -61,9 +61,11 @@ private:
     virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
     virtual void defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName) override;
 
-    std::vector<cvf::Vec3d> lineArcEndpoints();
-    cvf::Vec3d              startTangent();
+    std::vector<RimWellPathTarget*> activeWellTargets() const;
+    std::vector<cvf::Vec3d>         lineArcEndpoints() const;
+    cvf::Vec3d                      startTangent() const;
 
+private:
     caf::PdmField<caf::AppEnum<WellStartType> >      m_wellStartType;
     caf::PdmField<cvf::Vec3d>                        m_referencePoint;
 
@@ -71,8 +73,6 @@ private:
     caf::PdmPtrField<RimWellPath*>                   m_parentWell;
 
     caf::PdmChildArrayField<RimWellPathTarget*>      m_wellTargets;
-
-
 };
 
 

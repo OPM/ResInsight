@@ -44,6 +44,14 @@ RimWellPathTarget::~RimWellPathTarget()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+bool RimWellPathTarget::isEnabled() const
+{
+    return m_isEnabled;    
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimWellPathTarget::setAsPointTargetXYD(const cvf::Vec3d& point)
 {
     m_targetType =  POINT; 
@@ -80,7 +88,7 @@ void RimWellPathTarget::setDerivedTangent(double azimuth, double inclination)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimWellPathTarget::TargetTypeEnum RimWellPathTarget::targetType()
+RimWellPathTarget::TargetTypeEnum RimWellPathTarget::targetType() const
 {
     return m_targetType();
 }
@@ -88,7 +96,7 @@ RimWellPathTarget::TargetTypeEnum RimWellPathTarget::targetType()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-cvf::Vec3d RimWellPathTarget::targetPointXYZ()
+cvf::Vec3d RimWellPathTarget::targetPointXYZ() const
 {
     cvf::Vec3d xyzPoint(m_targetPoint());
     xyzPoint.z() = -xyzPoint.z();
@@ -98,7 +106,7 @@ cvf::Vec3d RimWellPathTarget::targetPointXYZ()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-double RimWellPathTarget::azimuth()
+double RimWellPathTarget::azimuth() const
 {
     if ( m_targetType() == POINT_AND_TANGENT )
     {
@@ -113,7 +121,7 @@ double RimWellPathTarget::azimuth()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-double RimWellPathTarget::inclination()
+double RimWellPathTarget::inclination() const
 {
     if ( m_targetType() == POINT_AND_TANGENT )
     {
@@ -128,7 +136,7 @@ double RimWellPathTarget::inclination()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-cvf::Vec3d RimWellPathTarget::tangent()
+cvf::Vec3d RimWellPathTarget::tangent() const
 {
     return cvf::Vec3d (sin(m_azimuth) * sin(m_inclination),
                        cos(m_azimuth) * sin(m_inclination),

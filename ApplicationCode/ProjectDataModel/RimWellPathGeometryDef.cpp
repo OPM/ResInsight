@@ -82,7 +82,7 @@ cvf::ref<RigWellPath> RimWellPathGeometryDef::createWellPathGeometry()
 {
     cvf::ref<RigWellPath> wellPathGeometry = new RigWellPath; 
     
-    if (m_wellTargets.size() < 2) return wellPathGeometry;
+    if (activeWellTargets().size() < 2) return wellPathGeometry;
 
     RiaPolyArcLineSampler arcLineSampler(startTangent(),  lineArcEndpoints());
 
@@ -189,21 +189,37 @@ void RimWellPathGeometryDef::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTree
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<cvf::Vec3d> RimWellPathGeometryDef::lineArcEndpoints()
+std::vector<RimWellPathTarget*> RimWellPathGeometryDef::activeWellTargets() const
 {
-    CVF_ASSERT(m_wellTargets.size() > 1);
+    std::vector<RimWellPathTarget*> active;
+    for (const auto& wt : m_wellTargets)
+    {
+        if (wt->isEnabled())
+        {
+            active.push_back(wt);
+        }
+    }
+
+    return active;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<cvf::Vec3d> RimWellPathGeometryDef::lineArcEndpoints() const
+{
+    std::vector<RimWellPathTarget*> activeWellPathTargets = activeWellTargets();
+    
+    CVF_ASSERT(activeWellPathTargets.size() > 1);
 
     std::vector<cvf::Vec3d> endPoints;
+    endPoints.push_back(  activeWellPathTargets[0]->targetPointXYZ() + m_referencePoint() );
 
-    endPoints.push_back(  m_wellTargets[0]->targetPointXYZ() + m_referencePoint() );
-
-    for ( size_t tIdx = 0; tIdx < m_wellTargets.size() - 1; ++tIdx)
+    for ( size_t tIdx = 0; tIdx < activeWellPathTargets.size() - 1; ++tIdx)
     {
+        RimWellPathTarget* target1 = activeWellPathTargets[tIdx];
+        RimWellPathTarget* target2 = activeWellPathTargets[tIdx+1];
 
-        RimWellPathTarget* target1 = m_wellTargets[tIdx];
-        RimWellPathTarget* target2 = m_wellTargets[tIdx+1];
-
- 
         if (target1->targetType() == RimWellPathTarget::POINT_AND_TANGENT
             && target2->targetType() == RimWellPathTarget::POINT_AND_TANGENT)
         {
@@ -231,15 +247,17 @@ std::vector<cvf::Vec3d> RimWellPathGeometryDef::lineArcEndpoints()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-cvf::Vec3d RimWellPathGeometryDef::startTangent()
+cvf::Vec3d RimWellPathGeometryDef::startTangent() const
 {
-    if (m_wellTargets[0]->targetType() == RimWellPathTarget::POINT_AND_TANGENT)
+    std::vector<RimWellPathTarget*> wellTargets = activeWellTargets();
+
+    if (!wellTargets.empty() && wellTargets[0]->targetType() == RimWellPathTarget::POINT_AND_TANGENT)
     {
-        return m_wellTargets[0]->tangent();
+        return wellTargets[0]->tangent();
     }
     else
     {
-        return { 0, 0, -1};
+        return { 0, 0, -1 };
     }
 }
 
