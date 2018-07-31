@@ -61,10 +61,12 @@ void RicNewWellPathListTargetFeature::onActionTriggered(bool isChecked)
     caf::SelectionManager::instance()->objectsByType(&targets, caf::SelectionManager::CURRENT);
     if (targets.size() > 0)
     {
+        auto firstTarget = targets.front();
         RimWellPathGeometryDef* wellGeomDef = nullptr;
-        targets[0]->firstAncestorOrThisOfTypeAsserted(wellGeomDef);
+        firstTarget->firstAncestorOrThisOfTypeAsserted(wellGeomDef);
         
-        wellGeomDef->insertTarget(targets[0], new RimWellPathTarget);
+        RimWellPathTarget* duplicate = dynamic_cast<RimWellPathTarget*>(firstTarget->xmlCapability()->copyByXmlSerialization(caf::PdmDefaultObjectFactory::instance()));
+        wellGeomDef->insertTarget(firstTarget, duplicate);
         wellGeomDef->updateConnectedEditors();
         wellGeomDef->updateWellPathVisualization();
         return;
@@ -76,7 +78,7 @@ void RicNewWellPathListTargetFeature::onActionTriggered(bool isChecked)
     {
         RimWellPathGeometryDef* wellGeomDef = geomDefs[0];
 
-        wellGeomDef->insertTarget(nullptr, new RimWellPathTarget);
+        wellGeomDef->appendTarget();
         wellGeomDef->updateConnectedEditors();
         wellGeomDef->updateWellPathVisualization();
     }

@@ -126,6 +126,29 @@ void RimWellPathGeometryDef::deleteTarget(RimWellPathTarget* targetTodelete)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimWellPathGeometryDef::appendTarget()
+{
+    RimWellPathTarget* wellPathTarget = nullptr;
+    
+    auto targets = m_wellTargets.childObjects();
+    if (targets.empty())
+    {
+        wellPathTarget = new RimWellPathTarget;
+    }
+    else
+    {
+        wellPathTarget = dynamic_cast<RimWellPathTarget*>(targets.back()->xmlCapability()->copyByXmlSerialization(caf::PdmDefaultObjectFactory::instance()));
+    }
+        
+    if (wellPathTarget)
+    {
+        m_wellTargets.push_back(wellPathTarget);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo> RimWellPathGeometryDef::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, 
                                                                              bool* useOptionsOnly)
 {
