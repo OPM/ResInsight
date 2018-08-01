@@ -20,10 +20,11 @@
 
 #include "RigMainGrid.h"
 
-#include "RiaLogging.h"
 #include "RiaDefines.h"
-#include "RigFault.h"
+#include "RiaLogging.h"
 #include "RigActiveCellInfo.h"
+#include "RigFault.h"
+#include "RigHexIntersectionTools.h"
 
 #include "cvfBoundingBoxTree.h"
 #include "cvfAssert.h"
@@ -88,6 +89,34 @@ const RigCell& RigMainGrid::cellByGridAndGridLocalCellIdx(size_t gridIdx, size_t
 size_t RigMainGrid::reservoirCellIndexByGridAndGridLocalCellIndex(size_t gridIdx, size_t gridLocalCellIdx) const
 {
     return gridByIndex(gridIdx)->reservoirCellIndex(gridLocalCellIdx);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+size_t RigMainGrid::findReservoirCellIndexFromPoint(const cvf::Vec3d& point) const
+{
+    size_t cellContainingPoint = cvf::UNDEFINED_SIZE_T;
+
+    cvf::BoundingBox pointBBox;
+    pointBBox.add(point);
+
+    std::vector<size_t> cellIndices;
+    m_mainGrid->findIntersectingCells(pointBBox, &cellIndices);
+
+    for (size_t cellIndex : cellIndices)
+    {
+        cvf::Vec3d hexCorners[8];
+        m_mainGrid->cellCornerVertices(cellIndex, hexCorners);
+
+        if (RigHexIntersectionTools::isPointInCell(point, hexCorners))
+        {
+            cellContainingPoint = cellIndex;
+            break;
+        }
+    }
+
+    return cellContainingPoint;
 }
 
 //--------------------------------------------------------------------------------------------------

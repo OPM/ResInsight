@@ -56,6 +56,7 @@ public:
 
     const RigCell&                          cellByGridAndGridLocalCellIdx(size_t gridIdx, size_t gridLocalCellIdx) const;
     size_t                                  reservoirCellIndexByGridAndGridLocalCellIndex(size_t gridIdx, size_t gridLocalCellIdx) const;
+    size_t                                  findReservoirCellIndexFromPoint(const cvf::Vec3d& point) const;
 
     void                                    addLocalGrid(RigLocalGrid* localGrid);
     size_t                                  gridCount() const           { return m_localGrids.size() + 1; }
