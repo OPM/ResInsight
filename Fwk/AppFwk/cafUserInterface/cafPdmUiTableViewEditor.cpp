@@ -190,6 +190,8 @@ void PdmUiTableViewEditor::configureAndUpdateUi(const QString& uiConfigName)
         m_tableView->resizeRowsToContents();
         m_previousFieldHandle = childArrayFH;
     }
+
+    updateSelectionManagerFromTableSelection();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -309,6 +311,14 @@ void PdmUiTableViewEditor::updateSelectionManagerFromTableSelection()
         }
 
         std::vector<PdmUiItem*> items { selectedRowObjects.begin(), selectedRowObjects.end() };
+
+        if (items.empty() && childArrayFieldHandle() && childArrayFieldHandle()->ownerObject())
+        {
+            // If no rows are selected, add the owner object to the selection.
+            // This enables features to retrieve the owner object to add of new objects into
+            // an empty table or table without selection
+            items.push_back(childArrayFieldHandle()->ownerObject()->uiCapability());
+        }
 
         m_isBlockingSelectionManagerChanged = true;
         SelectionManager::instance()->setSelectedItems(items, m_selectionRole);
