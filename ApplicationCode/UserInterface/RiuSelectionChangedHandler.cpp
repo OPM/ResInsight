@@ -325,9 +325,18 @@ void RiuSelectionChangedHandler::updateResultInfo(const RiuSelectionItem* itemAd
         if (selItem->type() == RiuSelectionItem::INTERSECTION_SELECTION_OBJECT)
         {
             const Riu2dIntersectionSelectionItem* wrapperSelItem = dynamic_cast<Riu2dIntersectionSelectionItem*>(selItem);
-            intersectionView = wrapperSelItem->view();
-            if (wrapperSelItem && wrapperSelItem->eclipseSelectionItem()) selItem = wrapperSelItem->eclipseSelectionItem();
-            else if (wrapperSelItem && wrapperSelItem->geoMechSelectionItem()) selItem = wrapperSelItem->geoMechSelectionItem();
+            if (wrapperSelItem)
+            {
+                intersectionView = wrapperSelItem->view();
+                if (wrapperSelItem->eclipseSelectionItem())
+                {
+                    selItem = wrapperSelItem->eclipseSelectionItem();
+                }
+                else if (wrapperSelItem->geoMechSelectionItem())
+                {
+                    selItem = wrapperSelItem->geoMechSelectionItem();
+                }
+            }
         }
 
         if (selItem->type() == RiuSelectionItem::ECLIPSE_SELECTION_OBJECT)

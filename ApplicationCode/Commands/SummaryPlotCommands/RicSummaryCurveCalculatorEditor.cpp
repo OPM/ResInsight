@@ -36,6 +36,7 @@
 /// 
 //--------------------------------------------------------------------------------------------------
 RicSummaryCurveCalculatorEditor::RicSummaryCurveCalculatorEditor()
+    : m_pdmTableView(nullptr)
 {
     m_calculator = std::unique_ptr<RicSummaryCurveCalculator>(new RicSummaryCurveCalculator);
 

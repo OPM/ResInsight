@@ -72,6 +72,7 @@ RifSummaryCaseRestartSelector::RifSummaryCaseRestartSelector()
     m_showDialog = prefs->summaryRestartFilesShowImportDialog();
     m_defaultSummaryImportMode = mapReadOption(prefs->summaryImportMode());
     m_defaultGridImportMode = mapReadOption(prefs->gridImportMode());
+    m_ensembleOrGroupMode = false;
 
     //m_buildGridFileList = false;
     m_gridFiles.clear();

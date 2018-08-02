@@ -77,33 +77,33 @@ RimMdiWindowGeometry RiuMdiSubWindow::windowGeometryForWidget(QWidget* widget)
 {
     RimMdiWindowGeometry geo;
 
-    // Find topmost parent
-
-    QWidget* nextParent = widget->parentWidget();
-    QWidget* parent = nullptr;
-    while(nextParent)
-    {
-        parent = nextParent;
-        nextParent = nextParent->parentWidget();
-    }
-
-    int mainWinID = 0;
-    if (parent)
-    {
-        if (parent == RiaApplication::instance()->mainPlotWindow())
-        {
-            mainWinID = 1;
-        }
-    }
-
     if (widget)
     {
+        // Find topmost parent
+
+        QWidget* nextParent = widget->parentWidget();
+        QWidget* parent     = nullptr;
+        while (nextParent)
+        {
+            parent     = nextParent;
+            nextParent = nextParent->parentWidget();
+        }
+
+        int mainWinID = 0;
+        if (parent)
+        {
+            if (parent == RiaApplication::instance()->mainPlotWindow())
+            {
+                mainWinID = 1;
+            }
+        }
+
         geo.mainWindowID = mainWinID;
-        geo.x = widget->pos().x();
-        geo.y = widget->pos().y();
-        geo.width = widget->size().width();
-        geo.height = widget->size().height();
-        geo.isMaximized = widget->isMaximized();
+        geo.x            = widget->pos().x();
+        geo.y            = widget->pos().y();
+        geo.width        = widget->size().width();
+        geo.height       = widget->size().height();
+        geo.isMaximized  = widget->isMaximized();
     }
 
     return geo;

@@ -51,6 +51,8 @@ RimDerivedEnsembleCase::RimDerivedEnsembleCase() : m_summaryCase1(nullptr), m_su
     CAF_PDM_InitObject("Summary Case",":/SummaryCase16x16.png","","");
     CAF_PDM_InitFieldNoDefault(&m_summaryCase1, "SummaryCase1", "SummaryCase1", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_summaryCase2, "SummaryCase2", "SummaryCase2", "", "", "");
+
+    m_inUse = false;
 }
 
 //--------------------------------------------------------------------------------------------------

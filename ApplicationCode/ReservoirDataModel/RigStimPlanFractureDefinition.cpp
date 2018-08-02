@@ -42,10 +42,13 @@ size_t findMirrorXIndex(std::vector<double> xs);
 const double RigStimPlanFractureDefinition::THRESHOLD_VALUE = 1e-5;
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RigStimPlanFractureDefinition::RigStimPlanFractureDefinition() : 
-    m_unitSet(RiaEclipseUnitTools::UNITS_UNKNOWN), m_topPerfTvd(HUGE_VAL), m_bottomPerfTvd(HUGE_VAL)
+RigStimPlanFractureDefinition::RigStimPlanFractureDefinition()
+    : m_unitSet(RiaEclipseUnitTools::UNITS_UNKNOWN)
+    , m_topPerfTvd(HUGE_VAL)
+    , m_bottomPerfTvd(HUGE_VAL)
+    , m_xMirrorMode(false)
 {
 }
 

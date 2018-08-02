@@ -20,6 +20,8 @@
 
 #include "RigCaseCellResultsData.h"
 
+#include "RiaLogging.h"
+
 #include "RigEclipseCaseData.h"
 #include "RigEclipseMultiPropertyStatCalc.h"
 #include "RigEclipseNativeStatCalc.h"
@@ -2320,11 +2322,15 @@ void RigCaseCellResultsData::computeMobilePV()
     const std::vector<double>* swcrResults = nullptr;
     const std::vector<double>* multpvResults = nullptr;
 
-    porvResults   = RigCaseCellResultsData::getResultIndexableStaticResult(this->activeCellInfo(), this, "PORV", porvDataTemp);
+    porvResults = RigCaseCellResultsData::getResultIndexableStaticResult(this->activeCellInfo(), this, "PORV", porvDataTemp);
+    if (!porvResults || porvResults->empty())
+    {
+        RiaLogging::error("Assumed PORV, but not data was found.");
+        return;
+    }
+
     swcrResults   = RigCaseCellResultsData::getResultIndexableStaticResult(this->activeCellInfo(), this, "SWCR", swcrDataTemp);
     multpvResults = RigCaseCellResultsData::getResultIndexableStaticResult(this->activeCellInfo(), this, "MULTPV", multpvDataTemp);
-
-    CVF_ASSERT(!porvResults->empty());
 
     size_t mobPVIdx = this->findOrCreateScalarResultIndex(RiaDefines::STATIC_NATIVE, RiaDefines::mobilePoreVolumeName(), false);
 
@@ -2333,18 +2339,21 @@ void RigCaseCellResultsData::computeMobilePV()
     // Set up output container to correct number of results
     mobPVResults.resize(porvResults->size());
 
-    if (!(multpvResults || swcrResults))
+    if (multpvResults && swcrResults)
     {
-        mobPVResults.assign(porvResults->begin(), porvResults->end());
+        for (size_t vIdx = 0; vIdx < porvResults->size(); ++vIdx)
+        {
+            mobPVResults[vIdx] = (*multpvResults)[vIdx] * (*porvResults)[vIdx] * (1.0 - (*swcrResults)[vIdx]);
+        }
     }
-    else if (!multpvResults)
+    else if (!multpvResults && swcrResults)
     {
         for (size_t vIdx = 0; vIdx < porvResults->size(); ++vIdx)
         {
             mobPVResults[vIdx] = (*porvResults)[vIdx] * (1.0 - (*swcrResults)[vIdx]);
         }
     }
-    else if (!swcrResults)
+    else if (!swcrResults && multpvResults)
     {
         for (size_t vIdx = 0; vIdx < porvResults->size(); ++vIdx)
         {
@@ -2353,10 +2362,7 @@ void RigCaseCellResultsData::computeMobilePV()
     }
     else
     {
-        for (size_t vIdx = 0; vIdx < porvResults->size(); ++vIdx)
-        {
-            mobPVResults[vIdx] = (*multpvResults)[vIdx] * (*porvResults)[vIdx] * (1.0 - (*swcrResults)[vIdx]);
-        }
+        mobPVResults.assign(porvResults->begin(), porvResults->end());
     }
 }
 

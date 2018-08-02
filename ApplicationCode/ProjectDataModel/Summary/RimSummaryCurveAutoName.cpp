@@ -148,17 +148,14 @@ QString RimSummaryCurveAutoName::curveNameX(const RifEclipseSummaryAddress& summ
 
     if (summaryCurve && summaryCurve->summaryCaseX())
     {
-        QString caseName = summaryCurve->summaryCaseX()->caseName();
-
         bool skipSubString = nameHelper && nameHelper->isCaseInTitle();
 
         if (m_caseName && !skipSubString)
         {
-            if (summaryCurve && summaryCurve->summaryCaseX())
-            {
-                if (!text.empty()) text += ", ";
-                text += caseName.toStdString();
-            }
+            QString caseName = summaryCurve->summaryCaseX()->caseName();
+
+            if (!text.empty()) text += ", ";
+            text += caseName.toStdString();
         }
     }
 

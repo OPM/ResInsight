@@ -229,30 +229,35 @@ const QString RivWellFracturePartMgr::resultInfoText(const RimEclipseView& activ
     }
     else if (stimPlanTemplate)
     {
-        const RigFractureCell* cell           = getFractureCellAtDomainCoord(domainIntersectionPoint);
-        RimStimPlanColors*     stimPlanColors = activeView.fractureColors();
+        const RigFractureCell* cell = getFractureCellAtDomainCoord(domainIntersectionPoint);
+        if (cell)
+        {
+            QString resultNameFromColors = activeView.fractureColors()->uiResultName();
+            QString resultUnitFromColors = activeView.fractureColors()->unit();
 
-        QString resultNameFromColors = activeView.fractureColors()->uiResultName();
-        QString resultUnitFromColors = activeView.fractureColors()->unit();
+            double resultValue = stimPlanTemplate->resultValueAtIJ(
+                resultNameFromColors, resultUnitFromColors, stimPlanTemplate->activeTimeStepIndex(), cell->getI(), cell->getJ());
 
-        double resultValue = stimPlanTemplate->resultValueAtIJ(
-            resultNameFromColors, resultUnitFromColors, stimPlanTemplate->activeTimeStepIndex(), cell->getI(), cell->getJ());
+            QString resultValueText = QString("%1").arg(resultValue);
 
-        QString resultValueText = QString("%1").arg(resultValue);
+            QString iText = QString::number(cell->getI());
+            QString jText = QString::number(cell->getJ());
 
-        QString iText = cell ? QString::number(cell->getI()) : "-";
-        QString jText = cell ? QString::number(cell->getJ()) : "-";
+            RimStimPlanColors* stimPlanColors = activeView.fractureColors();
+            if (stimPlanColors)
+            {
+                // Conductivity
+                text.append("Result value: ");
 
-        // Conductivity
-        text.append("Result value: ");
+                QString resultName = stimPlanTemplate->mapUiResultNameToFileResultName(stimPlanColors->uiResultName());
+                text.append(resultName + " ");
+                text.append(resultValueText + "\n");
+            }
 
-        QString resultName = stimPlanTemplate->mapUiResultNameToFileResultName(stimPlanColors->uiResultName());
-        text.append(resultName + " ");
-        text.append(resultValueText + "\n");
-
-        // Cell index
-        text.append("Cell Index: ");
-        text.append(iText + ", " + jText + "\n");
+            // Cell index
+            text.append("Cell Index: ");
+            text.append(iText + ", " + jText + "\n");
+        }
     }
 
     return text;

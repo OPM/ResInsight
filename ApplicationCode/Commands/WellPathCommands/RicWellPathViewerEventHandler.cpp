@@ -63,40 +63,45 @@ bool RicWellPathViewerEventHandler::handleEvent(const RicViewerEventObject& even
     {
         const auto & partAndTriangleIndexPair = eventObject.m_partAndTriangleIndexPairs.front();
         const cvf::Part* part = partAndTriangleIndexPair.first;
-        
-        const RivObjectSourceInfo* sourceInfo = dynamic_cast<const RivObjectSourceInfo*>(part->sourceInfo());
-        if (sourceInfo)
-        {
-            if (dynamic_cast<RimPerforationInterval*>(sourceInfo->object()))
-            {
-                objectToSelect = sourceInfo->object();
 
-                if (eventObject.m_partAndTriangleIndexPairs.size() > 1)
+        if (part)
+        {
+            const RivObjectSourceInfo* sourceInfo = dynamic_cast<const RivObjectSourceInfo*>(part->sourceInfo());
+            if (sourceInfo)
+            {
+                if (dynamic_cast<RimPerforationInterval*>(sourceInfo->object()))
                 {
-                    const auto& secondPair = eventObject.m_partAndTriangleIndexPairs[1];
-                    const cvf::Part* secondPickedPart = secondPair.first;
-                    if (secondPickedPart)
+                    objectToSelect = sourceInfo->object();
+
+                    if (eventObject.m_partAndTriangleIndexPairs.size() > 1)
                     {
-                        auto wellPathSourceCandidate = dynamic_cast<const RivWellPathSourceInfo*>(secondPickedPart->sourceInfo());
-                        if (wellPathSourceCandidate)
+                        const auto&      secondPair       = eventObject.m_partAndTriangleIndexPairs[1];
+                        const cvf::Part* secondPickedPart = secondPair.first;
+                        if (secondPickedPart)
                         {
-                            RimWellPath* perforationWellPath = nullptr;
-                            objectToSelect->firstAncestorOrThisOfType(perforationWellPath);
-                            if (perforationWellPath == wellPathSourceCandidate->wellPath())
+                            auto wellPathSourceCandidate =
+                                dynamic_cast<const RivWellPathSourceInfo*>(secondPickedPart->sourceInfo());
+                            if (wellPathSourceCandidate)
                             {
-                                wellPathSourceInfo = dynamic_cast<const RivWellPathSourceInfo*>(secondPickedPart->sourceInfo());
-                                wellPathTriangleIndex = secondPair.second;
+                                RimWellPath* perforationWellPath = nullptr;
+                                objectToSelect->firstAncestorOrThisOfType(perforationWellPath);
+                                if (perforationWellPath == wellPathSourceCandidate->wellPath())
+                                {
+                                    wellPathSourceInfo =
+                                        dynamic_cast<const RivWellPathSourceInfo*>(secondPickedPart->sourceInfo());
+                                    wellPathTriangleIndex = secondPair.second;
+                                }
                             }
                         }
                     }
                 }
             }
-        }
 
-        if (part && dynamic_cast<const RivWellPathSourceInfo*>(part->sourceInfo()))
-        {
-            wellPathSourceInfo = dynamic_cast<const RivWellPathSourceInfo*>(part->sourceInfo());
-            wellPathTriangleIndex = partAndTriangleIndexPair.second;
+            if (dynamic_cast<const RivWellPathSourceInfo*>(part->sourceInfo()))
+            {
+                wellPathSourceInfo    = dynamic_cast<const RivWellPathSourceInfo*>(part->sourceInfo());
+                wellPathTriangleIndex = partAndTriangleIndexPair.second;
+            }
         }
     }
 

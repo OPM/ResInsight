@@ -71,7 +71,5 @@ private:
     caf::PdmField<bool>         m_showCurveLabels;
 
     caf::PdmField<cvf::Color3f> m_color;
-
-    RimSummaryCaseCollection*   m_ensemble;
 };
 

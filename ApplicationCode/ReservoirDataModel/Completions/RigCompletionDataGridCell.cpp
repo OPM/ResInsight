@@ -23,7 +23,14 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigCompletionDataGridCell::RigCompletionDataGridCell() {}
+RigCompletionDataGridCell::RigCompletionDataGridCell()
+    : m_globalCellIndex(0)
+    , m_lgrName("")
+    , m_localCellIndexI(0)
+    , m_localCellIndexJ(0)
+    , m_localCellIndexK(0)
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -33,9 +40,9 @@ RigCompletionDataGridCell::RigCompletionDataGridCell(size_t globalCellIndex, con
 {
     if (mainGrid)
     {
-        size_t gridLocalCellIndex;
+        size_t             gridLocalCellIndex;
         const RigGridBase* grid = mainGrid->gridAndGridLocalIdxFromGlobalCellIdx(globalCellIndex, &gridLocalCellIndex);
-        
+
         if (grid)
         {
             size_t i = 0;

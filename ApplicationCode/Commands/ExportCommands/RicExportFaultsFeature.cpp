@@ -81,20 +81,22 @@ void RicExportFaultsFeature::onActionTriggered(bool isChecked)
         RimEclipseCase* eclCase = nullptr;
         rimFault->firstAncestorOrThisOfType(eclCase);
 
-        QString caseName;
+        if (eclCase)
+        {
+            QString caseName = eclCase->caseUserDescription();
 
-        if (eclCase) caseName = eclCase->caseUserDescription();
+            QString faultName = rimFault->name();
+            if (faultName == RiaDefines::undefinedGridFaultName()) faultName = "UNDEF";
+            if (faultName == RiaDefines::undefinedGridFaultWithInactiveName()) faultName = "UNDEF_IA";
 
-        QString faultName = rimFault->name();
-        if ( faultName == RiaDefines::undefinedGridFaultName() ) faultName = "UNDEF";
-        if ( faultName == RiaDefines::undefinedGridFaultWithInactiveName() ) faultName = "UNDEF_IA";
+            QString baseFilename = "Fault_" + faultName + "_" + caseName;
+            baseFilename         = caf::Utils::makeValidFileBasename(baseFilename);
 
-        QString baseFilename = "Fault_" + faultName + "_" + caseName;
-        baseFilename = caf::Utils::makeValidFileBasename(baseFilename);
+            QString completeFilename = selectedDir + "/" + baseFilename + ".grdecl";
 
-        QString completeFilename = selectedDir + "/" + baseFilename + ".grdecl";
-
-        RicExportFaultsFeature::saveFault(completeFilename, eclCase->eclipseCaseData()->mainGrid(),  rimFault->faultGeometry()->faultFaces(), faultName);
+            RicExportFaultsFeature::saveFault(
+                completeFilename, eclCase->eclipseCaseData()->mainGrid(), rimFault->faultGeometry()->faultFaces(), faultName);
+        }
     }
 
 

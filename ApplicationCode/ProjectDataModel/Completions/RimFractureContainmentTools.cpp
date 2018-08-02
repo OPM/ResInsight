@@ -221,7 +221,7 @@ std::set<size_t> RimFractureContainmentTools::fracturedCellsTruncatedByFaults(co
 
                 // Negative faultThrow disables test on faultThrow
                 double maximumFaultThrow = -1.0;
-                if (fracture && fracture->fractureTemplate())
+                if (fracture->fractureTemplate() && fracture->fractureTemplate()->fractureContainment())
                 {
                     maximumFaultThrow = fracture->fractureTemplate()->fractureContainment()->minimumFaultThrow();
                 }

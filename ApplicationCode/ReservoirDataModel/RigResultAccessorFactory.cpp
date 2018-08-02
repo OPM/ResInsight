@@ -66,11 +66,6 @@ cvf::ref<RigResultAccessor> RigResultAccessorFactory::createFromNameAndType(cons
                                                                             const QString& uiResultName,
                                                                             RiaDefines::ResultCatType resultType)
 {
-    CVF_ASSERT(gridIndex < eclipseCase->gridCount());
-    CVF_ASSERT(eclipseCase);
-    CVF_ASSERT(eclipseCase->results(porosityModel));
-    CVF_ASSERT(eclipseCase->activeCellInfo(porosityModel));
-
     if (!eclipseCase || !eclipseCase->results(porosityModel) || !eclipseCase->activeCellInfo(porosityModel))
     {
         return nullptr;
@@ -148,11 +143,6 @@ cvf::ref<RigResultAccessor> RigResultAccessorFactory::createNativeFromUiResultNa
                                                                                    size_t timeStepIndex,
                                                                                    const QString& uiResultName)
 {
-    CVF_ASSERT(gridIndex < eclipseCase->gridCount());
-    CVF_ASSERT(eclipseCase);
-    CVF_ASSERT(eclipseCase->results(porosityModel));
-    CVF_ASSERT(eclipseCase->activeCellInfo(porosityModel));
-
     if (!eclipseCase || !eclipseCase->results(porosityModel) || !eclipseCase->activeCellInfo(porosityModel))
     {
         return nullptr;

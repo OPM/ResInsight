@@ -30,22 +30,24 @@ class RigFemResultAddress
 {
 public:
     RigFemResultAddress()
+        : resultPosType(RIG_NODAL)
+        , fieldName("")
+        , componentName("")
+        , timeLapseBaseFrameIdx(NO_TIME_LAPSE)
+        , refKLayerIndex(NO_COMPACTION)
     {
-        resultPosType = RIG_NODAL;
-        fieldName = "";
-        componentName = "";
     }
 
     RigFemResultAddress(RigFemResultPosEnum resPosType,
-                        const std::string& aFieldName,
-                        const std::string& aComponentName,
-                        int timeLapseBaseFrameIdx = NO_TIME_LAPSE,
-                        int refKLayerIndex = NO_COMPACTION)
-        : resultPosType(resPosType),
-        fieldName(aFieldName),
-        componentName(aComponentName),
-        timeLapseBaseFrameIdx(timeLapseBaseFrameIdx),
-        refKLayerIndex(refKLayerIndex)
+                        const std::string&  aFieldName,
+                        const std::string&  aComponentName,
+                        int                 timeLapseBaseFrameIdx = NO_TIME_LAPSE,
+                        int                 refKLayerIndex        = NO_COMPACTION)
+        : resultPosType(resPosType)
+        , fieldName(aFieldName)
+        , componentName(aComponentName)
+        , timeLapseBaseFrameIdx(timeLapseBaseFrameIdx)
+        , refKLayerIndex(refKLayerIndex)
     {
     }
 

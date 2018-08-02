@@ -90,6 +90,7 @@ RimWellLogFile::RimWellLogFile()
     m_invalidDateMessage.xmlCapability()->disableIO();
 
     m_wellLogDataFile = nullptr;
+    m_lasFileHasValidDate = false;
 }
 
 //--------------------------------------------------------------------------------------------------
