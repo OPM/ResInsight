@@ -56,8 +56,6 @@ RimEllipseFractureTemplate::RimEllipseFractureTemplate()
     CAF_PDM_InitField(&m_height,      "Height",           0.0,   "Height", "", "", "");
     CAF_PDM_InitField(&m_width,       "Width",            0.0,   "Width", "", "", "");
 
-    CAF_PDM_InitField(&m_userDefinedEffectivePermeability,"Permeability",     0.0,   "Permeability [mD]", "", "", "");
-
     m_fractureGrid = new RigFractureGrid();
     assignConductivityToCellsInsideEllipse();
 }
