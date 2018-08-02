@@ -299,6 +299,8 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicWellPathExportCompletionDataFeature";
             menuBuilder.subMenuEnd();
 
+            menuBuilder << "RicCreateMultipleFracturesFeature"; 
+
             menuBuilder << "Separator";
 
         }
@@ -727,6 +729,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             }
         }
 
+        menuBuilder << "RicCreateMultipleFracturesFeature";
         menuBuilder << "RicWellPathImportCompletionsFileFeature";
         menuBuilder << "RicFlyToObjectFeature";
         menuBuilder << "RicExportCarfin";

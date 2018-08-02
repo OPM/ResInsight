@@ -20,6 +20,7 @@
 
 #include "ExportCommands/RicExportCarfinUi.h"
 #include "CompletionExportCommands/RicExportCompletionDataSettingsUi.h"
+#include "FractureCommands/RicCreateMultipleFracturesUi.h"
 
 CAF_PDM_SOURCE_INIT(RimDialogData, "RimDialogData");
 
@@ -35,6 +36,9 @@ RimDialogData::RimDialogData()
 
     CAF_PDM_InitFieldNoDefault(&m_exportCompletionData, "ExportCompletionData", "Export Completion Data", "", "", "");
     m_exportCompletionData = new RicExportCompletionDataSettingsUi();
+
+    CAF_PDM_InitFieldNoDefault(&m_multipleFractionsData, "MultipleFractionsData", "Multiple Fractures Data", "", "", "");
+    m_multipleFractionsData = new RiuCreateMultipleFractionsUi();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -68,5 +72,13 @@ void RimDialogData::setExportCarfinDataFromString(const QString& data)
 RicExportCompletionDataSettingsUi* RimDialogData::exportCompletionData() const
 {
     return m_exportCompletionData;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RiuCreateMultipleFractionsUi* RimDialogData::multipleFractionsData() const
+{
+    return m_multipleFractionsData;
 }
 
