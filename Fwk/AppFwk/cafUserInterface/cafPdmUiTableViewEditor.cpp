@@ -331,13 +331,13 @@ void PdmUiTableViewEditor::updateSelectionManagerFromTableSelection()
 //--------------------------------------------------------------------------------------------------
 caf::PdmChildArrayFieldHandle* PdmUiTableViewEditor::childArrayFieldHandle()
 {
-    caf::PdmChildArrayFieldHandle* childArrayFieldHandle = nullptr;
+    caf::PdmChildArrayFieldHandle* fieldHandle = nullptr;
     if (this->uiField())
     {
-        childArrayFieldHandle = dynamic_cast<PdmChildArrayFieldHandle*>(this->uiField()->fieldHandle());
+        fieldHandle = dynamic_cast<PdmChildArrayFieldHandle*>(this->uiField()->fieldHandle());
     }
 
-    return childArrayFieldHandle;
+    return fieldHandle;
 }
 
 //--------------------------------------------------------------------------------------------------
