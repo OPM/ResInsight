@@ -201,6 +201,8 @@ void RimProject::close()
 
     multiSnapshotDefinitions.deleteAllChildObjects();
 
+    m_dialogData->clearProjectSpecificData();
+
     calculationCollection->deleteAllContainedObjects();
 
     delete viewLinkerCollection->viewLinker();

@@ -23,7 +23,11 @@
 
 #include "RicCreateMultipleFracturesUi.h"
 
+#include "RigActiveCellInfo.h"
+#include "RigEclipseCaseData.h"
+
 #include "RimDialogData.h"
+#include "RimEclipseCase.h"
 #include "RimFractureTemplate.h"
 #include "RimProject.h"
 #include "RimWellPath.h"
@@ -35,6 +39,7 @@
 #include "cafPdmUiPropertyViewDialog.h"
 #include "cafSelectionManagerTools.h"
 
+#include "RiaPorosityModel.h"
 #include <QAction>
 #include <QPushButton>
 
@@ -137,6 +142,47 @@ void RicCreateMultipleFracturesFeature::onActionTriggered(bool isChecked)
     if (multipleFractionsUi)
     {
         m_copyOfObject = multipleFractionsUi->writeObjectToXmlString();
+
+        if (multipleFractionsUi->options().empty())
+        {
+            RiaApplication* app  = RiaApplication::instance();
+            RimProject*     proj = app->project();
+
+            RimEclipseCase* firstSourceCase = nullptr;
+            int             topK            = 0;
+            int             baseK           = 0;
+            if (!proj->eclipseCases().empty())
+            {
+                firstSourceCase = proj->eclipseCases().front();
+
+                cvf::Vec3st minIJK;
+                cvf::Vec3st maxIJK;
+                if (firstSourceCase && firstSourceCase->eclipseCaseData())
+                {
+                    firstSourceCase->eclipseCaseData()->activeCellInfo(RiaDefines::MATRIX_MODEL)->IJKBoundingBox(minIJK, maxIJK);
+                }
+
+                topK  = static_cast<int>(minIJK.z());
+                baseK = static_cast<int>(maxIJK.z());
+
+                double minimumDistanceFromTip = 100.0;
+                int    maxFractureCount       = 100;
+                multipleFractionsUi->setValues(firstSourceCase, minimumDistanceFromTip, maxFractureCount);
+
+                auto newItem = new RicCreateMultipleFracturesOptionItemUi;
+
+                RimFractureTemplate* firstFractureTemplate = nullptr;
+                if (!proj->allFractureTemplates().empty())
+                {
+                    firstFractureTemplate = proj->allFractureTemplates().front();
+                }
+
+                double minimumSpacing = 300.0;
+                newItem->setValues(topK + 1, baseK + 1, firstFractureTemplate, minimumSpacing);
+
+                multipleFractionsUi->insertOptionItem(nullptr, newItem);
+            }
+        }
 
         caf::PdmUiPropertyViewDialog propertyDialog(
             Riu3DMainWindowTools::mainWindowWidget(), multipleFractionsUi, "Create Multiple Fractions", "");

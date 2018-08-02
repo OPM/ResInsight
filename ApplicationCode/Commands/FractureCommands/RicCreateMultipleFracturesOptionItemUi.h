@@ -34,12 +34,12 @@ class RicCreateMultipleFracturesOptionItemUi : public caf::PdmObject
 public:
     RicCreateMultipleFracturesOptionItemUi();
 
-    int                  topK() const;
-    int                  baseK() const;
+    void setValues(int topKOneBased, int baseKOneBased, RimFractureTemplate* fractureTemplate, double minimumSpacing);
+
     RimFractureTemplate* fractureTemplate() const;
     double               minimumSpacing() const;
 
-    bool isKLayerContained(int k) const;
+    bool                isKLayerContained(int k) const;
 
 private:
     virtual void
@@ -49,8 +49,8 @@ private:
                                                                 bool*                      useOptionsOnly) override;
 
 private:
-    caf::PdmField<int>                     m_topK;
-    caf::PdmField<int>                     m_baseK;
+    caf::PdmField<int>                     m_topKOneBased; // Eclipse uses 1-based indexing
+    caf::PdmField<int>                     m_baseKOneBased; // Eclipse uses 1-based indexing
     caf::PdmPtrField<RimFractureTemplate*> m_fractureTemplate;
     caf::PdmField<double>                  m_minSpacing;
 };

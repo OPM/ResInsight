@@ -33,8 +33,8 @@ CAF_PDM_SOURCE_INIT(RicCreateMultipleFracturesOptionItemUi, "RiuMultipleFraction
 //--------------------------------------------------------------------------------------------------
 RicCreateMultipleFracturesOptionItemUi::RicCreateMultipleFracturesOptionItemUi()
 {
-    CAF_PDM_InitField(&m_topK, "TopKLayer", 0, "Top K Layer", "", "", "");
-    CAF_PDM_InitField(&m_baseK, "BaseKLayer", 0, "Base K Layer", "", "", "");
+    CAF_PDM_InitField(&m_topKOneBased, "TopKLayer", 1, "Top K Layer", "", "", "");
+    CAF_PDM_InitField(&m_baseKOneBased, "BaseKLayer", 1, "Base K Layer", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_fractureTemplate, "Template", "Template", "", "", "");
     CAF_PDM_InitField(&m_minSpacing, "MinSpacing", 300.0, "Spacing", "", "", "");
 }
@@ -42,17 +42,15 @@ RicCreateMultipleFracturesOptionItemUi::RicCreateMultipleFracturesOptionItemUi()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int RicCreateMultipleFracturesOptionItemUi::topK() const
+void RicCreateMultipleFracturesOptionItemUi::setValues(int                  topKOneBased,
+                                                       int                  baseKOneBased,
+                                                       RimFractureTemplate* fractureTemplate,
+                                                       double               minimumSpacing)
 {
-    return m_topK;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-int RicCreateMultipleFracturesOptionItemUi::baseK() const
-{
-    return m_baseK;
+    m_topKOneBased     = topKOneBased;
+    m_baseKOneBased    = baseKOneBased;
+    m_fractureTemplate = fractureTemplate;
+    m_minSpacing       = minimumSpacing;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -76,7 +74,7 @@ double RicCreateMultipleFracturesOptionItemUi::minimumSpacing() const
 //--------------------------------------------------------------------------------------------------
 bool RicCreateMultipleFracturesOptionItemUi::isKLayerContained(int k) const
 {
-    auto minMax = std::minmax(m_topK, m_baseK);
+    auto minMax = std::minmax(m_topKOneBased, m_baseKOneBased);
 
     if (k < minMax.first) return false;
     if (k < minMax.second) return true;

@@ -42,6 +42,8 @@ class RimDialogData : public caf::PdmObject
 public:
     RimDialogData();
 
+    void clearProjectSpecificData();
+
     RicExportCarfinUi* exportCarfin() const;
     QString            exportCarfinDataAsString() const;
     void               setExportCarfinDataFromString(const QString& data);
@@ -49,6 +51,7 @@ public:
     RicExportCompletionDataSettingsUi* exportCompletionData() const;
 
     RiuCreateMultipleFractionsUi* multipleFractionsData() const;
+
 
 private:
     caf::PdmChildField<RicExportCarfinUi*>                 m_exportCarfin;

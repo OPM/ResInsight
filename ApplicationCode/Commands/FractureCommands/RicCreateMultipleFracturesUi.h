@@ -56,6 +56,9 @@ class RiuCreateMultipleFractionsUi : public caf::PdmObject
 public:
     RiuCreateMultipleFractionsUi();
 
+    void setValues(RimEclipseCase* eclipseCase, double minimumDistanceFromWellTip, int maxFracturesPerWell);
+    void resetValues();
+
     std::vector<RicCreateMultipleFracturesOptionItemUi*> options() const;
 
     void insertOptionItem(RicCreateMultipleFracturesOptionItemUi* insertBeforeThisObject,

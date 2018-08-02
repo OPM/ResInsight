@@ -50,8 +50,6 @@ RiuCreateMultipleFractionsUi::RiuCreateMultipleFractionsUi()
 
     CAF_PDM_InitFieldNoDefault(&m_options, "Options", "Options", "", "", "");
     m_options.uiCapability()->setUiEditorTypeName(caf::PdmUiTableViewEditor::uiEditorTypeName());
-
-    m_options.push_back(new RicCreateMultipleFracturesOptionItemUi);
     m_options.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::TOP);
     m_options.uiCapability()->setCustomContextMenuEnabled(true);
 
@@ -59,6 +57,25 @@ RiuCreateMultipleFractionsUi::RiuCreateMultipleFractionsUi()
     m_fractureCreationSummary.registerGetMethod(this, &RiuCreateMultipleFractionsUi::summaryText);
     m_fractureCreationSummary.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::TOP);
     m_fractureCreationSummary.uiCapability()->setUiEditorTypeName(caf::PdmUiTextEditor::uiEditorTypeName());
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuCreateMultipleFractionsUi::setValues(RimEclipseCase* eclipseCase, double minimumDistanceFromWellToe, int maxFracturesPerWell)
+{
+    m_sourceCase = eclipseCase;
+    m_minDistanceFromWellTd = minimumDistanceFromWellToe;
+    m_maxFracturesPerWell = maxFracturesPerWell;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuCreateMultipleFractionsUi::resetValues()
+{
+    m_sourceCase = nullptr;
+    m_options.deleteAllChildObjects();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -259,7 +276,8 @@ std::vector<LocationForNewFracture> RiuCreateMultipleFractionsUi::locationsForNe
                             size_t k;
                             mainGrid->ijkFromCellIndex(reservoirGlobalCellIndex, &i, &j, &k);
 
-                            if (option->isKLayerContained(static_cast<int>(k)))
+                            int oneBasedK = static_cast<int>(k) + 1;
+                            if (option->isKLayerContained(oneBasedK))
                             {
                                 if (option->fractureTemplate())
                                 {
