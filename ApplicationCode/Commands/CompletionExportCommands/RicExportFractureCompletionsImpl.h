@@ -24,7 +24,6 @@
 #include <vector>
 
 class RimWellPath;
-class RicExportCompletionDataSettingsUi;
 
 class QTextStream;
 class RigWellPath;
@@ -39,7 +38,7 @@ class RicExportFractureCompletionsImpl
 {
 public:
     static std::vector<RigCompletionData> generateCompdatValuesForWellPath(RimWellPath* wellPath,
-                                                                           const RicExportCompletionDataSettingsUi& settings, 
+                                                                           RimEclipseCase* caseToApply,
                                                                            QTextStream* outputStreamForIntermediateResultsText);
 
     static std::vector<RigCompletionData> generateCompdatValuesForSimWell(RimEclipseCase* eclipseCase,

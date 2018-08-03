@@ -20,8 +20,6 @@
 
 #include "RiaLogging.h"
 
-#include "RicExportCompletionDataSettingsUi.h"
-
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
 #include "RimFracture.h"
@@ -54,11 +52,9 @@
 /// 
 //--------------------------------------------------------------------------------------------------
 std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdatValuesForWellPath(RimWellPath* wellPath, 
-                                                                                                  const RicExportCompletionDataSettingsUi& settings, 
+                                                                                                  RimEclipseCase* caseToApply, 
                                                                                                   QTextStream* outputStreamForIntermediateResultsText)
 {
-    RimEclipseCase* caseToApply = settings.caseToApply();
-
     std::vector<RimFracture*> fracturesAlongWellPath;
 
     if (wellPath->fractureCollection()->isChecked())
@@ -118,6 +114,13 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
                                                                                        const std::vector<RimFracture*>& fractures,
                                                                                        QTextStream* outputStreamForIntermediateResultsText)
 {
+    std::vector<RigCompletionData> fractureCompletions;
+
+    if (!caseToApply || !caseToApply->eclipseCaseData()) 
+    {
+        return fractureCompletions;
+    }
+
     double cDarcyInCorrectUnit = RiaEclipseUnitTools::darcysConstant(caseToApply->eclipseCaseData()->unitsType());
     const RigMainGrid* mainGrid = caseToApply->eclipseCaseData()->mainGrid();
 
@@ -125,7 +128,6 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
     // to the well from each fracture intersecting the cell and sum these transmissibilities at the end.
     // std::map <eclipseCellIndex ,map< fracture, trans> > 
     std::map <size_t, std::map<RimFracture*, double> > eclCellIdxToTransPrFractureMap; 
-    std::vector<RigCompletionData> fractureCompletions; 
 
     for (RimFracture* fracture : fractures)
     {

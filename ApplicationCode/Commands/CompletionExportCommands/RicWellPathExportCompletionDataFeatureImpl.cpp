@@ -165,7 +165,7 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions(const std::ve
         {
             std::vector<RigCompletionData> fractureCompletionData =
                 RicExportFractureCompletionsImpl::generateCompdatValuesForWellPath(
-                    wellPath, exportSettings, fractureTransmissibilityExportInformationStream.get());
+                    wellPath, exportSettings.caseToApply(), fractureTransmissibilityExportInformationStream.get());
             
             appendCompletionData(&completionsPerEclipseCellAllCompletionTypes, fractureCompletionData);
             appendCompletionData(&completionsPerEclipseCellFracture, fractureCompletionData);
@@ -336,7 +336,7 @@ std::vector<RigCompletionData>
 
         {
             std::vector<RigCompletionData> completionData =
-                RicExportFractureCompletionsImpl::generateCompdatValuesForWellPath(wellPath, exportSettings, nullptr);
+                RicExportFractureCompletionsImpl::generateCompdatValuesForWellPath(wellPath, eclipseCase, nullptr);
 
             std::copy(completionData.begin(), completionData.end(), std::back_inserter(completionsPerEclipseCell));
         }
