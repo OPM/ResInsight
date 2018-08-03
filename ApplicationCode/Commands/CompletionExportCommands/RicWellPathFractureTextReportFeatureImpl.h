@@ -20,8 +20,6 @@
 
 #include "cafCmdFeature.h"
 
-#include <map>
-
 class RimWellPath;
 class RimWellPathFracture;
 class RimEclipseCase;
@@ -36,7 +34,7 @@ class RifEclipseDataTableFormatter;
 class RicWellPathFractureTextReportFeatureImpl
 {
 public:
-    QString wellPathFractureReport(const RimEclipseCase* sourceCase, const std::vector<RimWellPath*>& wellPaths);
+    QString wellPathFractureReport(RimEclipseCase* sourceCase, const std::vector<RimWellPath*>& wellPaths);
 
     static std::vector<RimWellPath*> wellPathsWithFractures();
 
@@ -47,6 +45,9 @@ private:
     QString createEllipseFractureText(const std::vector<RimEllipseFractureTemplate*>& ellipseTemplates) const;
     QString createFractureText(const std::vector<RimFractureTemplate*>& fractureTemplates) const;
     QString createFractureInstancesText(const std::vector<RimWellPathFracture*>& fractureTemplates) const;
+
+    QString createFractureCompletionSummaryText(RimEclipseCase*                          sourceCase,
+                                                const std::vector<RimWellPathFracture*>& wellPathFractures) const;
 
     void configureFormatter(RifEclipseDataTableFormatter* formatter) const;
 };

@@ -78,6 +78,25 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdatValuesForWellPathSingleFracture(
+    RimWellPath*    wellPath,
+    RimEclipseCase* caseToApply,
+    RimFracture*    fracture,
+    QTextStream*    outputStreamForIntermediateResultsText)
+{
+    std::vector<RimFracture*> fracturesAlongWellPath;
+    fracturesAlongWellPath.push_back(fracture);
+
+    return generateCompdatValues(caseToApply,
+                                 wellPath->completions()->wellNameForExport(),
+                                 wellPath->wellPathGeometry(),
+                                 fracturesAlongWellPath,
+                                 outputStreamForIntermediateResultsText);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdatValuesForSimWell(RimEclipseCase* eclipseCase,
                                                                                                  const RimSimWellInView* well,
                                                                                                  QTextStream* outputStreamForIntermediateResultsText)

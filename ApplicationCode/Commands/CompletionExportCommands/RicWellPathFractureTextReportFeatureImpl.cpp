@@ -20,7 +20,11 @@
 
 #include "RiaApplication.h"
 
+#include "RicExportFractureCompletionsImpl.h"
+
 #include "RifEclipseDataTableFormatter.h"
+
+#include "RigCompletionData.h"
 
 #include "RimEclipseCase.h"
 #include "RimEllipseFractureTemplate.h"
@@ -35,6 +39,8 @@
 #include "RimWellPathCollection.h"
 #include "RimWellPathFracture.h"
 #include "RimWellPathFractureCollection.h"
+
+#include "cvfGeometryTools.h"
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -63,7 +69,7 @@ RifEclipseOutputTableColumn floatNumberColumn(const QString& text)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RicWellPathFractureTextReportFeatureImpl::wellPathFractureReport(const RimEclipseCase*            sourceCase,
+QString RicWellPathFractureTextReportFeatureImpl::wellPathFractureReport(RimEclipseCase*                  sourceCase,
                                                                          const std::vector<RimWellPath*>& wellPaths)
 {
     if (!sourceCase || wellPaths.empty())
@@ -151,9 +157,17 @@ QString RicWellPathFractureTextReportFeatureImpl::wellPathFractureReport(const R
             }
         }
 
-        QString tableText = createFractureInstancesText(wellPathFractures);
-        textStream << tableText;
-        textStream << lineStart << "\n";
+        {
+            QString tableText = createFractureInstancesText(wellPathFractures);
+            textStream << tableText;
+            textStream << lineStart << "\n";
+        }
+
+        {
+            QString tableText = createFractureCompletionSummaryText(sourceCase, wellPathFractures);
+            textStream << tableText;
+            textStream << lineStart << "\n";
+        }
     }
 
     return text;
@@ -542,6 +556,143 @@ QString RicWellPathFractureTextReportFeatureImpl::createFractureInstancesText(
         formatter.add(fracture->perforationLength());
         formatter.add(fracture->perforationLength());
         formatter.add(fracture->wellRadius() * 2.0);
+
+        formatter.rowCompleted();
+    }
+
+    formatter.tableCompleted();
+
+    return tableText;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RicWellPathFractureTextReportFeatureImpl::createFractureCompletionSummaryText(
+    RimEclipseCase*                          sourceCase,
+    const std::vector<RimWellPathFracture*>& wellPathFractures) const
+{
+    QString tableText;
+
+    QTextStream                  stream(&tableText);
+    RifEclipseDataTableFormatter formatter(stream);
+    configureFormatter(&formatter);
+
+    std::vector<RifEclipseOutputTableColumn> header = {
+        RifEclipseOutputTableColumn(""),
+        RifEclipseOutputTableColumn(""),
+        RifEclipseOutputTableColumn(""),
+        floatNumberColumn("Tr"),
+        floatNumberColumn("#con"),
+        floatNumberColumn("Fcd"),
+        floatNumberColumn("Area"),
+        floatNumberColumn("KfWf"),
+        floatNumberColumn("Kf"),
+        floatNumberColumn("wf"),
+        floatNumberColumn("Xf"),
+        floatNumberColumn("H"),
+        floatNumberColumn("Km"),
+    };
+
+    formatter.header(header);
+
+    // Second header line
+    {
+        formatter.add("Well");
+        formatter.add("Fracture");
+        formatter.add("Template");
+        formatter.add("[Sm3/d/bar]"); // Tr
+        formatter.add(""); // #con
+        formatter.add("[]"); // Fcd
+        formatter.add("[m2]"); // Area
+        formatter.add("[mDm]"); // KfWf
+        formatter.add("[Md]"); // Kf
+        formatter.add("[m]"); // wf
+        formatter.add("[m]"); // Xf
+        formatter.add("[m]"); // H
+        formatter.add("[mD]"); // Km
+        formatter.rowCompleted();
+    }
+
+    formatter.addHorizontalLine('-');
+
+    // Cache the fracture template area, as this is a heavy operation
+    std::map<RimFractureTemplate*, double> templateAreaMap;
+
+    for (auto& fracture : wellPathFractures)
+    {
+        QString wellName;
+
+        RimWellPath* wellPath = nullptr;
+        fracture->firstAncestorOrThisOfType(wellPath);
+        if (wellPath)
+        {
+            wellName = wellPath->name();
+        }
+
+        formatter.add(wellName);
+        formatter.add(fracture->name());
+
+        if (fracture->fractureTemplate())
+        {
+            formatter.add(fracture->fractureTemplate()->name());
+        }
+        else
+        {
+            formatter.add("NA");
+        }
+
+        std::vector<RigCompletionData> completionDataOneFracture =
+            RicExportFractureCompletionsImpl::generateCompdatValuesForWellPathSingleFracture(
+                wellPath, sourceCase, fracture, nullptr);
+
+        double aggregatedTransmissibility = 0.0;
+        for (const auto& c : completionDataOneFracture)
+        {
+            aggregatedTransmissibility += c.transmissibility();
+        }
+
+        double fractureArea = 0.0;
+
+        if (fracture->fractureTemplate())
+        {
+            auto it = templateAreaMap.find(fracture->fractureTemplate());
+            if (it != templateAreaMap.end())
+            {
+                fractureArea = it->second;
+            }
+            else
+            {
+                std::vector<cvf::Vec3f> nodeCoords;
+                std::vector<cvf::uint>  triangleIndices;
+
+                fracture->fractureTemplate()->fractureTriangleGeometry(&nodeCoords, &triangleIndices);
+
+                for (size_t triangleIndex = 0; triangleIndex < triangleIndices.size(); triangleIndex += 3)
+                {
+                    std::vector<cvf::Vec3d> polygon;
+                    polygon.push_back(cvf::Vec3d(nodeCoords[triangleIndices[triangleIndex + 0]]));
+                    polygon.push_back(cvf::Vec3d(nodeCoords[triangleIndices[triangleIndex + 1]]));
+                    polygon.push_back(cvf::Vec3d(nodeCoords[triangleIndices[triangleIndex + 2]]));
+
+                    auto   areaVector  = cvf::GeometryTools::polygonAreaNormal3D(polygon);
+                    double polygonArea = areaVector.length();
+                    fractureArea += polygonArea;
+                }
+                templateAreaMap[fracture->fractureTemplate()] = fractureArea;
+            }
+        }
+
+        formatter.add(aggregatedTransmissibility); // Tr
+        formatter.add(completionDataOneFracture.size()); // #con
+        formatter.add(1.0); // Fcd
+        formatter.add(fractureArea); // Area
+        formatter.add(3.0); // KfWf
+        formatter.add(4.0); // Kf
+        formatter.add(5.0); // wf
+        formatter.add(6.0); // Xf
+        formatter.add(7.0); // H
+        formatter.add(8.0); // Km
 
         formatter.rowCompleted();
     }
