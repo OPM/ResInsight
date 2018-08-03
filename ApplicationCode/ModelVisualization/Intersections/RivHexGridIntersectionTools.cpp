@@ -86,7 +86,7 @@ void RivEclipseIntersectionGrid::cellCornerVertices(size_t cellIndex, cvf::Vec3d
 void RivEclipseIntersectionGrid::cellCornerIndices(size_t cellIndex, size_t cornerIndices[8]) const
 {
     const caf::SizeTArray8& cornerIndicesSource = m_mainGrid->globalCellArray()[cellIndex].cornerIndices();
-    memcpy(cornerIndices, cornerIndicesSource.data(), 8);
+    memcpy(cornerIndices, cornerIndicesSource.data(), 8 * sizeof(size_t));
 }
 
 //--------------------------------------------------------------------------------------------------
