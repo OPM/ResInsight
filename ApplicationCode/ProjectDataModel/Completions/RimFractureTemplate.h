@@ -203,7 +203,6 @@ protected:
 
     caf::PdmField<caf::AppEnum<PermeabilityEnum>>      m_permeabilityType;
     caf::PdmField<double>                              m_relativePermeability;
-    caf::PdmField<double>                              m_userDefinedEffectivePermeability;
 
     caf::PdmField<double>                              m_relativeGasDensity;
     caf::PdmField<double>                              m_gasViscosity;
@@ -216,4 +215,7 @@ protected:
     caf::PdmField<double>                              m_dFactorScaleFactor;
     caf::PdmField<double>                              m_conductivityScaleFactor;
     caf::PdmField<bool>                                m_scaleApplyButton;
+
+private:
+    caf::PdmField<double>                              m_userDefinedEffectivePermeability;
 };
