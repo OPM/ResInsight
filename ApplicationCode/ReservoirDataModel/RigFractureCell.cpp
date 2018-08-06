@@ -29,7 +29,7 @@ RigFractureCell::RigFractureCell(std::vector<cvf::Vec3d> polygon, size_t i, size
     : m_polygon(polygon)
     , m_i(i)
     , m_j(j)
-    , m_concutivityValue(0.0)
+    , m_conductivityValue(0.0)
 {
 }
 
@@ -44,9 +44,9 @@ const std::vector<cvf::Vec3d>& RigFractureCell::getPolygon() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RigFractureCell::getConductivtyValue() const
+double RigFractureCell::getConductivityValue() const
 {
-    return m_concutivityValue;
+    return m_conductivityValue;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -70,7 +70,7 @@ size_t RigFractureCell::getJ() const
 //--------------------------------------------------------------------------------------------------
 bool RigFractureCell::hasNonZeroConductivity() const
 {
-    return m_concutivityValue > 1e-7;
+    return m_conductivityValue > 1e-7;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -78,7 +78,7 @@ bool RigFractureCell::hasNonZeroConductivity() const
 //--------------------------------------------------------------------------------------------------
 void RigFractureCell::setConductivityValue(double cond)
 {
-    m_concutivityValue = cond;
+    m_conductivityValue = cond;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -404,7 +404,7 @@ FractureWidthAndConductivity RimStimPlanFractureTemplate::widthAndConductivityAt
         size_t wellCellIndex = m_fractureGrid->getGlobalIndexFromIJ(wellCellIJ.first, wellCellIJ.second);
         const RigFractureCell& wellCell = m_fractureGrid->cellFromIndex(wellCellIndex);
 
-        double conductivity = wellCell.getConductivtyValue();
+        double conductivity = wellCell.getConductivityValue();
         values.m_conductivity = conductivity;
 
         std::vector<std::pair<QString, QString> > propertyNamesUnitsOnFile = m_stimPlanFractureDefinitionData->getStimPlanPropertyNamesUnits();

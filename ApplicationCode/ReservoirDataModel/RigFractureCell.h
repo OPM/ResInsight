@@ -34,7 +34,7 @@ public:
     RigFractureCell(std::vector<cvf::Vec3d> polygon, size_t i, size_t j);
 
     const std::vector<cvf::Vec3d>& getPolygon() const;
-    double                  getConductivtyValue() const;
+    double                  getConductivityValue() const;
     size_t                  getI() const;
     size_t                  getJ() const;
 
@@ -46,7 +46,7 @@ public:
 
 private:
     std::vector<cvf::Vec3d> m_polygon;
-    double                  m_concutivityValue;
+    double                  m_conductivityValue;
     size_t                  m_i;
     size_t                  m_j;
 };

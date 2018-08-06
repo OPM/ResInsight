@@ -83,7 +83,7 @@ const std::vector<double>& RigEclipseToStimPlanCellTransmissibilityCalculator::c
 void RigEclipseToStimPlanCellTransmissibilityCalculator::calculateStimPlanCellsMatrixTransmissibility()
 {
     // Not calculating flow into fracture if stimPlan cell cond value is 0 (assumed to be outside the fracture):
-    if (m_stimPlanCell.getConductivtyValue() < 1e-7) return;
+    if (m_stimPlanCell.getConductivityValue() < 1e-7) return;
 
     const RigEclipseCaseData* eclipseCaseData = m_case->eclipseCaseData();
 

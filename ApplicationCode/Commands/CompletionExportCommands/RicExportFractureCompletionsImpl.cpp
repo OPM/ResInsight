@@ -244,10 +244,10 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
                         const RigFractureCell& fractureCellNeighbourX = fractureGrid->cellFromIndex(fractureCellNeighbourXIndex);
 
                         double horizontalTransToXneigbour =
-                            RigFractureTransmissibilityEquations::centerToCenterFractureCellTrans(fractureCell.getConductivtyValue(),
+                            RigFractureTransmissibilityEquations::centerToCenterFractureCellTrans(fractureCell.getConductivityValue(),
                                                                                                     fractureCell.cellSizeX(),
                                                                                                     fractureCell.cellSizeZ(),
-                                                                                                    fractureCellNeighbourX.getConductivtyValue(),
+                                                                                                    fractureCellNeighbourX.getConductivityValue(),
                                                                                                     fractureCellNeighbourX.cellSizeX(),
                                                                                                     fractureCellNeighbourX.cellSizeZ(),
                                                                                                     cDarcyInCorrectUnit);
@@ -263,10 +263,10 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
                         const RigFractureCell& fractureCellNeighbourZ = fractureGrid->cellFromIndex(fractureCellNeighbourZIndex);
 
                         double verticalTransToZneigbour = 
-                            RigFractureTransmissibilityEquations::centerToCenterFractureCellTrans(fractureCell.getConductivtyValue(),
+                            RigFractureTransmissibilityEquations::centerToCenterFractureCellTrans(fractureCell.getConductivityValue(),
                                                                                                     fractureCell.cellSizeZ(),
                                                                                                     fractureCell.cellSizeX(),
-                                                                                                    fractureCellNeighbourZ.getConductivtyValue(),
+                                                                                                    fractureCellNeighbourZ.getConductivityValue(),
                                                                                                     fractureCellNeighbourZ.cellSizeZ(),
                                                                                                     fractureCellNeighbourZ.cellSizeX(),
                                                                                                     cDarcyInCorrectUnit);
@@ -298,7 +298,7 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
 
                     const RigFractureCell& wellCell = fractureGrid->cellFromIndex(wellCellIndex);
 
-                    double radialTrans = RigFractureTransmissibilityEquations::fractureCellToWellRadialTrans(wellCell.getConductivtyValue(),
+                    double radialTrans = RigFractureTransmissibilityEquations::fractureCellToWellRadialTrans(wellCell.getConductivityValue(),
                                                                                                              wellCell.cellSizeX(),
                                                                                                              wellCell.cellSizeZ(),
                                                                                                              fracture->wellRadius(),
@@ -330,7 +330,7 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
                     double linearTrans = 0.0;
                     if (intersection.hlength > 0.0 || intersection.vlength > 0.0)
                     {
-                        linearTrans = RigFractureTransmissibilityEquations::fractureCellToWellLinearTrans(fractureWellCell.getConductivtyValue(),
+                        linearTrans = RigFractureTransmissibilityEquations::fractureCellToWellLinearTrans(fractureWellCell.getConductivityValue(),
                                                                                                             fractureWellCell.cellSizeX(),
                                                                                                             fractureWellCell.cellSizeZ(),
                                                                                                             intersection.vlength,
