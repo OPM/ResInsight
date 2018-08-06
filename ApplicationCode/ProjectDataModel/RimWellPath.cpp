@@ -37,6 +37,7 @@
 #include "RimTools.h"
 #include "RimWellLogFile.h"
 #include "RimWellLogPlotCollection.h"
+#include "RimWellPathAttributeCollection.h"
 #include "RimWellPathCollection.h"
 #include "RimWellPathCompletions.h"
 #include "RimWellPathFracture.h"
@@ -114,6 +115,11 @@ RimWellPath::RimWellPath()
     CAF_PDM_InitFieldNoDefault(&m_wellLogFile_OBSOLETE,      "WellLogFile",  "Well Log File", "", "", "");
     m_wellLogFile_OBSOLETE.uiCapability()->setUiHidden(true);
     m_wellLogFile_OBSOLETE.xmlCapability()->setIOWritable(false);
+
+    CAF_PDM_InitFieldNoDefault(&m_wellPathAttributes, "WellPathAttributes", "", "", "", "");
+    m_wellPathAttributes = new RimWellPathAttributeCollection;
+    m_wellPathAttributes->uiCapability()->setUiTreeHidden(true);
+    m_wellPathAttributes->uiCapability()->setUiTreeChildrenHidden(true);
 
     m_wellPath = nullptr;
 }
@@ -462,6 +468,8 @@ void RimWellPath::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiO
     caf::PdmUiGroup* formationFileInfoGroup = uiOrdering.addNewGroup("Well Picks");
     formationFileInfoGroup->add(&m_wellPathFormationFilePath);
     formationFileInfoGroup->add(&m_formationKeyInFile);
+
+    m_wellPathAttributes->uiOrdering(uiConfigName, uiOrdering);
 
     uiOrdering.skipRemainingFields(true);
 }

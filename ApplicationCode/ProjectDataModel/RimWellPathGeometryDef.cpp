@@ -124,7 +124,7 @@ void RimWellPathGeometryDef::deleteTarget(RimWellPathTarget* targetTodelete)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimWellPathGeometryDef::appendTarget()
 {

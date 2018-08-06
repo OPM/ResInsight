@@ -48,6 +48,7 @@ class RimFishboneWellPathCollection;
 
 class RimFishbonesCollection;
 class RimPerforationCollection;
+class RimWellPathAttributeCollection;
 class RimWellPathCompletions;
 class RigWellPathFormations;
 
@@ -152,9 +153,10 @@ private:
     caf::PdmField<double>               m_wellPathRadiusScaleFactor;
     caf::PdmField<cvf::Color3f>         m_wellPathColor;
     
-    caf::PdmChildArrayField<RimWellLogFile*>         m_wellLogFiles;
-    caf::PdmChildField<Rim3dWellLogCurveCollection*> m_3dWellLogCurves;
-    caf::PdmChildField<RimWellPathCompletions*>      m_completions;
+    caf::PdmChildArrayField<RimWellLogFile*>            m_wellLogFiles;
+    caf::PdmChildField<Rim3dWellLogCurveCollection*>    m_3dWellLogCurves;
+    caf::PdmChildField<RimWellPathCompletions*>         m_completions;
+    caf::PdmChildField<RimWellPathAttributeCollection*> m_wellPathAttributes;
 
 private:
 
