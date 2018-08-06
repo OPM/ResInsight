@@ -930,8 +930,7 @@ std::set<RifEclipseSummaryAddress> RiuSummaryCurveDefSelection::findPossibleSumm
 
         if (currCase)
         {
-            RifSummaryReaderInterface* reader = nullptr;
-            if (currCase) reader = currCase->summaryReader();
+            RifSummaryReaderInterface* reader = currCase->summaryReader();
             if (reader) allAddresses = reader->allResultAddresses();
         }
         else if (currEnsemble)
