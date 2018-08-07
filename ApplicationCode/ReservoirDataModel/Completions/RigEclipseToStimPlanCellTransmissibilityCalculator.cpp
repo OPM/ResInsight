@@ -56,7 +56,7 @@ RigEclipseToStimPlanCellTransmissibilityCalculator::RigEclipseToStimPlanCellTran
 //--------------------------------------------------------------------------------------------------
 const std::vector<size_t>& RigEclipseToStimPlanCellTransmissibilityCalculator::globalIndiciesToContributingEclipseCells()
 {
-    if (m_globalIndiciesToContributingEclipseCells.size() < 1)
+    if (m_globalIndiciesToContributingEclipseCells.empty())
     {
         calculateStimPlanCellsMatrixTransmissibility();
     }
@@ -69,7 +69,7 @@ const std::vector<size_t>& RigEclipseToStimPlanCellTransmissibilityCalculator::g
 //--------------------------------------------------------------------------------------------------
 const std::vector<double>& RigEclipseToStimPlanCellTransmissibilityCalculator::contributingEclipseCellTransmissibilities()
 {
-    if (m_globalIndiciesToContributingEclipseCells.size() < 1)
+    if (m_globalIndiciesToContributingEclipseCells.empty())
     {
         calculateStimPlanCellsMatrixTransmissibility();
     }
@@ -148,7 +148,7 @@ void RigEclipseToStimPlanCellTransmissibilityCalculator::calculateStimPlanCellsM
         std::vector<std::vector<cvf::Vec3d>> planeCellPolygons;
         bool                                 isPlanIntersected =
             RigHexIntersectionTools::planeHexIntersectionPolygons(hexCorners, m_fractureTransform, planeCellPolygons);
-        if (!isPlanIntersected || planeCellPolygons.size() == 0) continue;
+        if (!isPlanIntersected || planeCellPolygons.empty()) continue;
 
         cvf::Vec3d localX;
         cvf::Vec3d localY;
@@ -169,17 +169,17 @@ void RigEclipseToStimPlanCellTransmissibilityCalculator::calculateStimPlanCellsM
         cvf::Vec3d                           areaVector;
         std::vector<cvf::Vec3d>              stimPlanPolygon = m_stimPlanCell.getPolygon();
 
-        for (std::vector<cvf::Vec3d> planeCellPolygon : planeCellPolygons)
+        for (const std::vector<cvf::Vec3d>& planeCellPolygon : planeCellPolygons)
         {
             std::vector<std::vector<cvf::Vec3d>> clippedPolygons =
                 RigCellGeometryTools::intersectPolygons(planeCellPolygon, stimPlanPolygon);
-            for (std::vector<cvf::Vec3d> clippedPolygon : clippedPolygons)
+            for (const std::vector<cvf::Vec3d>& clippedPolygon : clippedPolygons)
             {
                 polygonsForStimPlanCellInEclipseCell.push_back(clippedPolygon);
             }
         }
 
-        if (polygonsForStimPlanCellInEclipseCell.size() == 0) continue;
+        if (polygonsForStimPlanCellInEclipseCell.empty()) continue;
 
         double              area;
         std::vector<double> areaOfFractureParts;
@@ -189,7 +189,7 @@ void RigEclipseToStimPlanCellTransmissibilityCalculator::calculateStimPlanCellsM
         double              Ay = 0.0;
         double              Az = 0.0;
 
-        for (std::vector<cvf::Vec3d> fracturePartPolygon : polygonsForStimPlanCellInEclipseCell)
+        for (const std::vector<cvf::Vec3d>& fracturePartPolygon : polygonsForStimPlanCellInEclipseCell)
         {
             areaVector = cvf::GeometryTools::polygonAreaNormal3D(fracturePartPolygon);
             area       = areaVector.length();
@@ -235,8 +235,8 @@ void RigEclipseToStimPlanCellTransmissibilityCalculator::calculateStimPlanCellsM
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<size_t>
-    RigEclipseToStimPlanCellTransmissibilityCalculator::getPotentiallyFracturedCellsForPolygon(std::vector<cvf::Vec3d> polygon)
+std::vector<size_t> RigEclipseToStimPlanCellTransmissibilityCalculator::getPotentiallyFracturedCellsForPolygon(
+    const std::vector<cvf::Vec3d>& polygon) const
 {
     std::vector<size_t> cellIndices;
 
@@ -244,7 +244,7 @@ std::vector<size_t>
     if (!mainGrid) return cellIndices;
 
     cvf::BoundingBox polygonBBox;
-    for (cvf::Vec3d nodeCoord : polygon)
+    for (const cvf::Vec3d& nodeCoord : polygon)
     {
         polygonBBox.add(nodeCoord);
     }

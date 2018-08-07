@@ -51,7 +51,7 @@ public:
 
 private:
     void                        calculateStimPlanCellsMatrixTransmissibility();
-    std::vector<size_t>         getPotentiallyFracturedCellsForPolygon(std::vector<cvf::Vec3d> polygon);
+    std::vector<size_t>         getPotentiallyFracturedCellsForPolygon(const std::vector<cvf::Vec3d>& polygon) const;
 
     static cvf::ref<RigResultAccessor>
         loadResultAndCreateResultAccessor(RimEclipseCase* eclipseCase,
