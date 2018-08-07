@@ -103,7 +103,7 @@ void RigEclipseToStimPlanCellTransmissibilityCalculator::calculateStimPlanCellsM
     cvf::ref<RigResultAccessor> dataAccessObjectPermX = loadResultAndCreateResultAccessor(m_case, porosityModel, "PERMX");
     cvf::ref<RigResultAccessor> dataAccessObjectPermY = loadResultAndCreateResultAccessor(m_case, porosityModel, "PERMY");
     cvf::ref<RigResultAccessor> dataAccessObjectPermZ = loadResultAndCreateResultAccessor(m_case, porosityModel, "PERMZ");
-    if (dataAccessObjectDx.isNull() || dataAccessObjectDy.isNull() || dataAccessObjectDz.isNull())
+    if (dataAccessObjectPermX.isNull() || dataAccessObjectPermY.isNull() || dataAccessObjectPermZ.isNull())
     {
         RiaLogging::error("Data for PERMX/PERMY/PERMZ is not complete, and these values are required for export of COMPDAT.");
 
