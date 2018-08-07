@@ -21,10 +21,11 @@
 #pragma once
 
 #include "cafAppEnum.h"
-#include "cafFixedArray.h"
 #include "cafPdmChildField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
+
+#include <array>
 
 class RigCaseCellResultsData;
 class RimEclipseCase;
@@ -117,7 +118,7 @@ private:
     caf::PdmField<bool>                   useYVariable;
     caf::PdmField<bool>                   useZVariable;
 
-    caf::FixedArray<std::pair<QString, size_t>, 6 > m_resultNameToIndexPairs;
+    std::array<std::pair<QString, size_t>, 6 > m_resultNameToIndexPairs;
     caf::PdmPointer<RimEclipseView>                 m_reservoirView;
     double                                          m_ignoredResultScalar;
 

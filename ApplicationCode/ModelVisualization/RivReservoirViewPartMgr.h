@@ -23,12 +23,13 @@
 #include "RivCellSetEnum.h"
 #include "RivReservoirPartMgr.h"    // Must include here because of caf::FixedArray<RivReservoirPartMgr, PROPERTY_FILTERED>
 
-#include "cafFixedArray.h"
 #include "cvfArray.h"
 #include "cvfBase.h"
 #include "cvfTransform.h"
 
 #include "cafPdmObject.h"
+
+#include <array>
 
 class RimEclipseView;
 class RigGridBase;
@@ -143,8 +144,8 @@ private:
 
 
 private:
-    caf::FixedArray<RivReservoirPartMgr, PROPERTY_FILTERED> m_geometries;
-    caf::FixedArray<bool, PROPERTY_FILTERED>                m_geometriesNeedsRegen;
+    std::array<RivReservoirPartMgr, PROPERTY_FILTERED>      m_geometries;
+    std::array<bool, PROPERTY_FILTERED>                     m_geometriesNeedsRegen;
 
     cvf::Collection<RivReservoirPartMgr>                    m_propFilteredGeometryFrames;
     std::vector<uchar>                                      m_propFilteredGeometryFramesNeedsRegen;

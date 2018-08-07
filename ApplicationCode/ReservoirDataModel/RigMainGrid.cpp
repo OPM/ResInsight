@@ -393,9 +393,9 @@ void RigMainGrid::calculateFaults(const RigActiveCellInfo* activeCellInfo)
 
                 double tolerance = 1e-6;
 
-                caf::SizeTArray4 faceIdxs;
+                std::array<size_t, 4> faceIdxs;
                 m_cells[gcIdx].faceIndices(face, &faceIdxs);
-                caf::SizeTArray4 nbFaceIdxs;
+                std::array<size_t, 4> nbFaceIdxs;
                 m_cells[neighborReservoirCellIdx].faceIndices(StructGridInterface::oppositeFace(face), &nbFaceIdxs);
 
 

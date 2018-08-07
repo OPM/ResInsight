@@ -8,7 +8,6 @@ include (${QT_USE_FILE})
 
 set( PROJECT_FILES
 	cafFactory.h
-	cafFixedArray.h
 	cafOmpMutex.h
 	cafPdmDocument.cpp
 	cafPdmDocument.h

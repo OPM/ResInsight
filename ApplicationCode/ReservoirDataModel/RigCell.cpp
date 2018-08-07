@@ -355,7 +355,7 @@ int RigCell::firstIntersectionPoint(const cvf::Ray& ray, cvf::Vec3d* intersectio
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigCell::faceIndices(cvf::StructGridInterface::FaceType face, caf::SizeTArray4* indices) const
+void RigCell::faceIndices(cvf::StructGridInterface::FaceType face, std::array<size_t, 4>* indices) const
 {
     cvf::ubyte faceVertexIndices[4];
     cvf::StructGridInterface::cellFaceVertexIndices(face, faceVertexIndices);

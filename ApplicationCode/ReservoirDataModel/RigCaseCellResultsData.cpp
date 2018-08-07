@@ -1590,8 +1590,8 @@ void calculateConnectionGeometry(const RigCell& c1, const RigCell& c2, const std
 
     std::vector<size_t> polygon;
     std::vector<cvf::Vec3d> intersections;
-    caf::SizeTArray4 face1;
-    caf::SizeTArray4 face2;
+    std::array<size_t, 4> face1;
+    std::array<size_t, 4> face2;
     c1.faceIndices(faceId, &face1);
     c2.faceIndices(cvf::StructGridInterface::oppositeFace(faceId), &face2);
 

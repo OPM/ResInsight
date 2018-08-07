@@ -32,6 +32,7 @@
 #include "cafPdmUiTreeOrdering.h"
 
 #include "cvfMath.h"
+#include <array>
 
 namespace caf
 {
@@ -193,7 +194,7 @@ QList<caf::PdmOptionItemInfo> RimCellEdgeColors::calculateValueOptions(const caf
 
             QList<caf::PdmOptionItemInfo> options;
 
-            std::map<QString, caf::FixedArray<QString, 6> > varBaseNameToVarsMap;
+            std::map<QString, std::array<QString, 6> > varBaseNameToVarsMap;
 
             int i;
             for (i = 0; i < varList.size(); ++i)
@@ -213,7 +214,7 @@ QList<caf::PdmOptionItemInfo> RimCellEdgeColors::calculateValueOptions(const caf
                 }
             }
 
-            std::map<QString, caf::FixedArray<QString, 6> >::iterator it;
+            std::map<QString, std::array<QString, 6> >::iterator it;
 
             for (it = varBaseNameToVarsMap.begin(); it != varBaseNameToVarsMap.end(); ++it)
             {

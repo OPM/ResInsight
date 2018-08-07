@@ -20,6 +20,9 @@
 
 #pragma once
 
+#include "RifReaderInterface.h"
+#include "RigFault.h"
+
 #include "cvfBase.h"
 
 #include "cvfVector3.h"
@@ -27,13 +30,8 @@
 #include "cvfStructGrid.h"
 #include "cvfStructGridGeometryGenerator.h"
 
-#include "cafFixedArray.h"
-
 #include <vector>
 #include <string>
-
-#include "RifReaderInterface.h"
-#include "RigFault.h"
 
 
 class RigMainGrid;
@@ -117,7 +115,7 @@ private:
     RigMainGrid*                m_mainGrid;
     cvf::BoundingBox            m_boundingBox;
 
-    std::vector<caf::SizeTArray6>    m_coarseningBoxInfo;
+    std::vector<std::array<size_t, 6>>    m_coarseningBoxInfo;
 
 };
 

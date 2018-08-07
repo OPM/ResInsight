@@ -41,7 +41,7 @@ public:
     std::array<size_t, 8>&       cornerIndices()                                     { return m_cornerIndices;}
     const std::array<size_t, 8>& cornerIndices() const                               { return m_cornerIndices;}
 
-    void                    faceIndices(cvf::StructGridInterface::FaceType face, caf::SizeTArray4 * faceIndices) const ;                              
+    void                    faceIndices(cvf::StructGridInterface::FaceType face, std::array<size_t, 4>* faceIndices) const ;                              
 
     bool                    isInvalid() const                                   { return m_isInvalid; }
     void                    setInvalid( bool val )                              { m_isInvalid = val; }

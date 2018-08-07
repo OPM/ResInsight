@@ -161,8 +161,8 @@ cvf::StructGridInterface::FaceType RigNNCData::calculateCellFaceOverlap(const Ri
 
         std::vector<size_t> polygon;
         std::vector<cvf::Vec3d> intersections;
-        caf::SizeTArray4 face1;
-        caf::SizeTArray4 face2;
+        std::array<size_t, 4> face1;
+        std::array<size_t, 4> face2;
         c1.faceIndices((cvf::StructGridInterface::FaceType)(fIdx), &face1);
         c2.faceIndices(cvf::StructGridInterface::oppositeFace((cvf::StructGridInterface::FaceType)(fIdx)), &face2);
 

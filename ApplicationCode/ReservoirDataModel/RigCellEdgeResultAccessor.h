@@ -21,7 +21,7 @@
 
 #include "RigResultAccessor.h"
 
-#include "cafFixedArray.h"
+#include <array>
 
 
 //==================================================================================================
@@ -41,5 +41,5 @@ public:
     virtual double cellFaceScalarGlobIdx(size_t globCellIndex, cvf::StructGridInterface::FaceType faceId) const;
 
 private:
-    caf::FixedArray<cvf::ref<RigResultAccessor>, 6> m_resultAccessObjects;
+    std::array<cvf::ref<RigResultAccessor>, 6> m_resultAccessObjects;
 };

@@ -50,6 +50,8 @@
 
 #include <QTcpSocket>
 
+#include <array>
+
 
 
 
@@ -116,7 +118,7 @@ public:
 
         // Write data back to octave: columnCount, bytesPrTimestep, GridNr I J K ParentGridNr PI PJ PK CoarseBoxIdx
 
-        caf::FixedArray<std::vector<qint32>, 9> activeCellInfo;
+        std::array<std::vector<qint32>, 9> activeCellInfo;
         if (!(rimCase && rimCase->eclipseCaseData() && rimCase->eclipseCaseData()->mainGrid()) )
         {
             // No data available
