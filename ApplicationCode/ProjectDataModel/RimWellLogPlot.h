@@ -27,7 +27,7 @@
 
 #include "RiaDefines.h"
 #include "RimViewWindow.h"
-#include "RimWellLogCurveNameConfig.h"
+#include "RimWellLogPlotNameConfig.h"
 
 #include <QPointer>
 
@@ -42,7 +42,7 @@ class RimWellPltPlot;
 ///  
 ///  
 //==================================================================================================
-class RimWellLogPlot : public RimViewWindow, public RimCurveNameConfigHolderInterface
+class RimWellLogPlot : public RimViewWindow, public RimNameConfigHolderInterface
 {
     CAF_PDM_HEADER_INIT;
 
@@ -110,7 +110,7 @@ public:
 
     virtual void                                    zoomAll() override;
     void                                            setDepthAutoZoom(bool on);
-
+    void                                            enableAutoName(bool enableAutoName);
 
     QString                                         asciiDataForPlotExport() const;
 
@@ -152,7 +152,7 @@ private:
     void                                            updatePlotTitle();
 
 private:
-    caf::PdmField<QString>                                   m_userName;
+    caf::PdmField<QString>                                   m_userName_OBSOLETE;
     caf::PdmChildField<RimWellLogCurveCommonDataSource*>     m_commonDataSource;
     caf::PdmChildArrayField<RimWellLogTrack*>                m_tracks;
 
@@ -168,7 +168,7 @@ private:
     caf::PdmField<bool>                                      m_showTrackLegends;
     caf::PdmField<bool>                                      m_trackLegendsHorizontal;
 
-    caf::PdmChildField<RimWellLogExtractionCurveNameConfig*> m_nameConfig;
+    caf::PdmChildField<RimWellLogPlotNameConfig*>            m_nameConfig;
 
     double m_minAvailableDepth;
     double m_maxAvailableDepth;

@@ -21,7 +21,7 @@
 #include "RifReaderEclipseRft.h"
 #include "RigWellLogCurveData.h"
 
-#include "RimWellLogCurveNameConfig.h"
+#include "RimWellLogRftCurveNameConfig.h"
 #include "RimEclipseResultCase.h"
 #include "RimTools.h"
 #include "RimWellPath.h"

@@ -20,6 +20,7 @@
 
 #include "RimEnsembleCurveSet.h"
 #include "RimEnsembleCurveSetCollection.h"
+#include "RimNameConfig.h"
 #include "RimSummaryCrossPlot.h"
 #include "RimSummaryCurve.h"
 #include "RimSummaryCurveCollection.h"
@@ -152,7 +153,7 @@ void RimPlotCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField, con
     else if (changedField == &m_curveName)
     {
         m_customCurveName = m_curveName;
-        updateCurveNameAndUpdatePlotLegend();
+        updateCurveNameAndUpdatePlotLegendAndTitle();
     }
     else if (&m_curveColor == changedField
              || &m_curveThickness == changedField
@@ -182,7 +183,7 @@ void RimPlotCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField, con
             m_customCurveName = createCurveAutoName();
         }
 
-        updateCurveNameAndUpdatePlotLegend();
+        updateCurveNameAndUpdatePlotLegendAndTitle();
     }
     else if (changedField == &m_showLegend)
     {
@@ -259,13 +260,14 @@ void RimPlotCurve::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimPlotCurve::updateCurvePresentation(bool updatePlotLegend)
+void RimPlotCurve::updateCurvePresentation(bool updatePlotLegendAndTitle)
 {
-    this->updateCurveVisibility(updatePlotLegend);
+    this->updateCurveVisibility(updatePlotLegendAndTitle);
 
-    if (updatePlotLegend)
+    if (updatePlotLegendAndTitle)
     {
-        this->updateCurveNameAndUpdatePlotLegend();
+        this->updateCurveNameAndUpdatePlotLegendAndTitle();
+        this->updatePlotTitle();
     }
     else
     {
@@ -351,7 +353,7 @@ void RimPlotCurve::setCurveVisiblity(bool visible)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimPlotCurve::updateCurveNameAndUpdatePlotLegend()
+void RimPlotCurve::updateCurveNameAndUpdatePlotLegendAndTitle()
 {
     if (m_isUsingAutoName)
     {
@@ -392,6 +394,19 @@ void RimPlotCurve::updateOptionSensitivity()
     m_curveName.uiCapability()->setUiReadOnly(m_isUsingAutoName);
 }
 
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotCurve::updatePlotTitle()
+{
+    RimNameConfigHolderInterface* nameConfigHolder = nullptr;
+    this->firstAncestorOrThisOfType(nameConfigHolder);
+    if (nameConfigHolder)
+    {
+        nameConfigHolder->updateHolder();
+    }
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 

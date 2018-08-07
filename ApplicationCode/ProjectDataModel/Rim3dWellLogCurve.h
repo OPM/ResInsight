@@ -27,7 +27,7 @@
 #include "cvfObject.h"
 #include "cvfVector3.h"
 
-#include "RimWellLogCurveNameConfig.h"
+#include "RimNameConfig.h"
 
 class Riv3dWellLogCurveGeometryGenerator;
 
@@ -35,7 +35,7 @@ class Riv3dWellLogCurveGeometryGenerator;
 ///
 ///
 //==================================================================================================
-class Rim3dWellLogCurve : public caf::PdmObject, public RimCurveNameConfigHolderInterface
+class Rim3dWellLogCurve : public caf::PdmObject, public RimNameConfigHolderInterface
 {
     CAF_PDM_HEADER_INIT;
 

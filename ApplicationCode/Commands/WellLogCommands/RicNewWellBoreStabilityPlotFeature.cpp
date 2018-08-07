@@ -90,23 +90,8 @@ void RicNewWellBoreStabilityPlotFeature::onActionTriggered(bool isChecked)
     progInfo.setProgressDescription("Creating plot and formation track");
     progInfo.setNextProgressIncrement(2);
     RimGeoMechCase* geoMechCase = geoMechView->geoMechCase();
-
-    double rkb = 0.0;
-    double tvdmsl = 0.0;
-    RigWellPath* wellPathGeometry = selectedWellPath->wellPathGeometry();
-    if (wellPathGeometry)
-    {
-        rkb = wellPathGeometry->rkbDiff();
-        const std::vector<cvf::Vec3d>& wellPathPoints = wellPathGeometry->wellPathPoints();
-        if (!wellPathPoints.empty())
-        {
-            tvdmsl = std::abs(wellPathPoints.front()[2]);
-        }
-    }
-
-    QString         timeStepName = geoMechCase->timeStepName(view->currentTimeStep());
-    QString         plotNameFormat("Well Bore Stability %1, %2, Air gap: %3 m, Water Depth: %4 m");
-    QString         plotName = plotNameFormat.arg(selectedWellPath->name()).arg(timeStepName).arg(rkb).arg(tvdmsl);
+    
+    QString         plotName("Well Bore Stability");
     RimWellLogPlot* plot = RicNewWellLogPlotFeatureImpl::createWellLogPlot(false, plotName);
     createFormationTrack(plot, selectedWellPath, geoMechCase);
     progInfo.incrementProgressAndUpdateNextStep(3, "Creating casing shoe size track");
@@ -116,11 +101,12 @@ void RicNewWellBoreStabilityPlotFeature::onActionTriggered(bool isChecked)
     progInfo.incrementProgressAndUpdateNextStep(15, "Creating angles track");
     createAnglesTrack(plot, selectedWellPath, geoMechView);
     progInfo.incrementProgressAndUpdateNextStep(5, "Updating all tracks");
+    plot->enableAutoName(true);
     plot->setPlotTitleVisible(true);
     plot->setTrackLegendsVisible(true);
     plot->setTrackLegendsHorizontal(true);
     plot->setDepthType(RimWellLogPlot::TRUE_VERTICAL_DEPTH);
-    plot->setDepthAutoZoom(true);
+    plot->setDepthAutoZoom(true);    
 
     RicNewWellLogPlotFeatureImpl::updateAfterCreation(plot);    
     progInfo.incrementProgress();

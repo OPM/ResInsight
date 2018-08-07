@@ -22,6 +22,7 @@
 #include "RiaApplication.h"
 
 #include "RigWellLogCurveData.h"
+#include "RigWellPath.h"
 
 #include "RimGeoMechCase.h"
 #include "RimEclipseCase.h"
@@ -80,7 +81,7 @@ RimWellLogPlot::RimWellLogPlot()
 
     m_viewer = nullptr;
 
-    CAF_PDM_InitField(&m_userName, "PlotDescription", QString("Well Log Plot"),"Name", "", "", "");
+    CAF_PDM_InitField(&m_userName_OBSOLETE, "PlotDescription", QString(""),"Name", "", "", "");
     
     CAF_PDM_InitFieldNoDefault(&m_commonDataSource, "CommonDataSource", "Common Data Source", "", "Change the Data Source of All Curves in the Plot", "");
     m_commonDataSource = new RimWellLogCurveCommonDataSource;
@@ -108,7 +109,10 @@ RimWellLogPlot::RimWellLogPlot()
     m_tracks.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&m_nameConfig, "NameConfig", "", "", "", "");
-    m_nameConfig = new RimWellLogExtractionCurveNameConfig(this);
+    m_nameConfig = new RimWellLogPlotNameConfig(this);
+    m_nameConfig.uiCapability()->setUiTreeHidden(true);
+    m_nameConfig.uiCapability()->setUiTreeChildrenHidden(true);
+    m_nameConfig->setUsingAutoName(false);
 
     m_minAvailableDepth = HUGE_VAL;
     m_maxAvailableDepth = -HUGE_VAL;
@@ -168,11 +172,6 @@ void RimWellLogPlot::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
     else if (changedField == &m_isAutoScaleDepthEnabled)
     {
         updateDepthZoom();
-    }
-    else if (changedField == &m_userName)
-    {
-        updateMdiWindowTitle();
-        updatePlotTitle();
     }
     else if (   changedField == &m_depthType )
     {
@@ -440,6 +439,14 @@ void RimWellLogPlot::setDepthAutoZoom(bool on)
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogPlot::enableAutoName(bool enableAutoName)
+{
+    m_nameConfig->setUsingAutoName(enableAutoName);
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 QString RimWellLogPlot::asciiDataForPlotExport() const
@@ -613,39 +620,78 @@ void RimWellLogPlot::uiOrderingForPlotSettings(caf::PdmUiOrdering& uiOrdering)
 //--------------------------------------------------------------------------------------------------
 QString RimWellLogPlot::createAutoName() const
 {
-    RimCase* commonCase = m_commonDataSource->caseToApply();
-    RimGeoMechCase* geomCase = dynamic_cast<RimGeoMechCase*>(commonCase);
-    RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>(commonCase);
-
     QStringList generatedCurveName;
 
-    if (m_nameConfig->addWellName())
+    generatedCurveName.push_back(m_nameConfig->customName());
+    if (m_nameConfig->isUsingAutoName())
     {
-        RimWellPath* wellPath = m_commonDataSource->wellPathToApply();
-        if (wellPath && !wellPath->name().isEmpty())
+        RimCase* commonCase = m_commonDataSource->caseToApply();
+        RimGeoMechCase* geomCase = dynamic_cast<RimGeoMechCase*>(commonCase);
+        RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>(commonCase);
+        RimWellPath* commonWellPath = m_commonDataSource->wellPathToApply();
+
+        QStringList generatedProperties;
+        if (m_nameConfig->addCaseName() && commonCase)
         {
-            generatedCurveName.push_back(wellPath->name());
+            generatedProperties.push_back(commonCase->caseUserDescription());
         }
-        else if (!m_commonDataSource->simWellNameToApply().isEmpty())
+
+        if (m_nameConfig->addWellName())
         {
-            generatedCurveName.push_back(m_commonDataSource->simWellNameToApply());
+
+            if (commonWellPath && !commonWellPath->name().isEmpty())
+            {
+                generatedProperties.push_back(commonWellPath->name());
+            }
+            else if (!m_commonDataSource->simWellNameToApply().isEmpty())
+            {
+                generatedProperties.push_back(m_commonDataSource->simWellNameToApply());
+            }
+        }
+
+        if (m_nameConfig->addTimeStep())
+        {
+            if (commonCase && m_commonDataSource->timeStepToApply() != -1)
+            {
+                generatedProperties.push_back(commonCase->timeStepName(m_commonDataSource->timeStepToApply()));
+            }
+        }
+
+        if (m_nameConfig->addAirGap())
+        {
+            if (commonWellPath)
+            {
+                RigWellPath* wellPathGeometry = commonWellPath->wellPathGeometry();
+                if (wellPathGeometry)
+                {
+                    double rkb = wellPathGeometry->rkbDiff();
+                    generatedProperties.push_back(QString("Air Gap = %1 m").arg(rkb));
+                }
+            }
+        }
+
+        if (m_nameConfig->addWaterDepth())
+        {
+            if (commonWellPath)
+            {
+                RigWellPath* wellPathGeometry = commonWellPath->wellPathGeometry();
+                if (wellPathGeometry)
+                {
+                    const std::vector<cvf::Vec3d>& wellPathPoints = wellPathGeometry->wellPathPoints();
+                    if (!wellPathPoints.empty())
+                    {
+                        double tvdmsl = std::abs(wellPathPoints.front()[2]);
+                        generatedProperties.push_back(QString("Water Depth = %1 m").arg(tvdmsl));
+                    }
+                }
+            }
+        }
+        if (!generatedProperties.empty())
+        {
+            generatedCurveName.push_back(generatedProperties.join(", "));
         }
     }
-
-    if (m_nameConfig->addCaseName() && commonCase)
-    {
-        generatedCurveName.push_back(commonCase->caseUserDescription());
-    }
-
-    if (m_nameConfig->addDate())
-    {
-        if (commonCase && m_commonDataSource->timeStepToApply() != -1)
-        {
-            generatedCurveName.push_back(commonCase->timeStepName(m_commonDataSource->timeStepToApply()));
-        }
-    }
-
-    return m_userName + QString(": ") + generatedCurveName.join(", ");
+    return generatedCurveName.join(": ");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -653,6 +699,7 @@ QString RimWellLogPlot::createAutoName() const
 //--------------------------------------------------------------------------------------------------
 void RimWellLogPlot::updateHolder()
 {
+    this->m_commonDataSource->updateDefaultOptions();
     this->updatePlotTitle();
 }
 
@@ -671,7 +718,6 @@ void RimWellLogPlot::depthZoomMinMax(double* minimumDepth, double* maximumDepth)
 //--------------------------------------------------------------------------------------------------
 void RimWellLogPlot::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
-    uiOrdering.add(&m_userName);
     m_commonDataSource->uiOrdering(uiConfigName, uiOrdering);    
     uiOrderingForDepthAxis(uiOrdering);
     uiOrderingForPlotSettings(uiOrdering);
@@ -811,7 +857,7 @@ void RimWellLogPlot::detachAllCurves()
 //--------------------------------------------------------------------------------------------------
 void RimWellLogPlot::setDescription(const QString& description)
 {
-    m_userName = description;
+    m_nameConfig->setCustomName(description);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -819,7 +865,7 @@ void RimWellLogPlot::setDescription(const QString& description)
 //--------------------------------------------------------------------------------------------------
 QString RimWellLogPlot::description() const
 {
-    return m_userName();
+    return createAutoName();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -852,6 +898,10 @@ void RimWellLogPlot::deleteViewWidget()
 void RimWellLogPlot::initAfterRead()
 {
     m_commonDataSource->updateDefaultOptions();
+    if (!m_userName_OBSOLETE().isEmpty())
+    {
+        m_nameConfig->setCustomName(m_userName_OBSOLETE());
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1046,7 +1096,8 @@ void RimWellLogPlot::updatePlotTitle()
 {
     if (m_viewer)
     {
-        m_viewer->setPlotTitle(this->windowTitle());
+        m_viewer->setPlotTitle(this->createAutoName());
+        
     }
 }
 

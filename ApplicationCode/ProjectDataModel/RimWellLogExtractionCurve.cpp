@@ -302,7 +302,7 @@ void RimWellLogExtractionCurve::fieldChangedByUi(const caf::PdmFieldHandle* chan
         changedField == &m_addDateToCurveName)
     {
         this->uiCapability()->updateConnectedEditors();
-        updateCurveNameAndUpdatePlotLegend();
+        updateCurveNameAndUpdatePlotLegendAndTitle();
     }
 }
 

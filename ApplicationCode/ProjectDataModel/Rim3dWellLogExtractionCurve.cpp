@@ -33,7 +33,7 @@
 #include "RimEclipseCase.h"
 #include "RimGeoMechCase.h"
 #include "Rim3dView.h"
-#include "RimWellLogCurveNameConfig.h"
+#include "RimWellLogExtractionCurveNameConfig.h"
 #include "RimCase.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"

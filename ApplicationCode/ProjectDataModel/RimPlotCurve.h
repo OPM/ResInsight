@@ -92,7 +92,7 @@ public:
     bool                            isCurveVisible() const;
     void                            setCurveVisiblity(bool visible);
 
-    void                            updateCurveNameAndUpdatePlotLegend();
+    void                            updateCurveNameAndUpdatePlotLegendAndTitle();
     void                            updateCurveNameNoLegendUpdate();
 
     QString                         curveName() const { return m_curveName; }
@@ -115,9 +115,10 @@ protected:
     virtual void                    updateZoomInParentPlot() = 0;
     virtual void                    onLoadDataAndUpdate(bool updateParentPlot) = 0;
     virtual void                    initAfterRead() override;
-    void                            updateCurvePresentation(bool updatePlotLegend);
+    void                            updateCurvePresentation(bool updatePlotLegendAndTitle);
 
     void                            updateOptionSensitivity();
+    void                            updatePlotTitle();
 
 protected:
 

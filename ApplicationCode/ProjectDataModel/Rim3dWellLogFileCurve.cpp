@@ -20,7 +20,7 @@
 
 #include "RigWellLogFile.h"
 
-#include "RimWellLogCurveNameConfig.h"
+#include "RimWellLogFileCurveNameConfig.h"
 #include "RimWellLogFile.h"
 #include "RimWellLogFileChannel.h"
 #include "RimWellPath.h"
