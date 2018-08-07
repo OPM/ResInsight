@@ -222,7 +222,7 @@ void RigReservoirBuilderMock::populateReservoir(RigEclipseCaseData* eclipseCase)
         {
             RigCell& cell = eclipseCase->mainGrid()->globalCellArray()[mainGridIndicesWithSubGrid[cellIdx]];
             
-            caf::SizeTArray8& indices = cell.cornerIndices();
+            std::array<size_t, 8>& indices = cell.cornerIndices();
             int nodeIdx;
             for (nodeIdx = 0; nodeIdx < 8; nodeIdx++)
             {

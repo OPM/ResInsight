@@ -754,7 +754,7 @@ private:
 
             if ( wellCell.isInvalid() ) continue;
 
-            const caf::SizeTArray8& cellIndices = wellCell.cornerIndices();
+            const std::array<size_t, 8>& cellIndices = wellCell.cornerIndices();
 
             cvf::BoundingBox& cellBB = m_cellBoundingBoxes[cIdx];
             cellBB.add(nodes[cellIndices[0]]);

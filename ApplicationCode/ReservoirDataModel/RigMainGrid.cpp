@@ -597,9 +597,9 @@ void RigMainGrid::buildCellSearchTree()
 
         for (size_t cIdx = 0; cIdx < cellCount; ++cIdx)
         {
-            const caf::SizeTArray8& cellIndices = m_cells[cIdx].cornerIndices();
-            
             if (m_cells[cIdx].isInvalid()) continue;
+
+            const std::array<size_t, 8>& cellIndices = m_cells[cIdx].cornerIndices();
 
             cvf::BoundingBox& cellBB = cellBoundingBoxes[cIdx];
             cellBB.add(m_nodes[cellIndices[0]]);

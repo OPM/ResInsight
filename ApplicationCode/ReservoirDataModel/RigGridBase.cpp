@@ -154,7 +154,7 @@ void RigGridBase::initSubCellsMainGridCellIndex()
 //--------------------------------------------------------------------------------------------------
 void RigGridBase::cellCornerVertices(size_t cellIndex, cvf::Vec3d vertices[8]) const
 {
-    const caf::SizeTArray8& indices = cell(cellIndex).cornerIndices();
+    const std::array<size_t, 8>& indices = cell(cellIndex).cornerIndices();
     
     vertices[0].set(m_mainGrid->nodes()[indices[0]]);
     vertices[1].set(m_mainGrid->nodes()[indices[1]]);
