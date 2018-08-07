@@ -104,9 +104,9 @@ size_t RigMainGrid::findReservoirCellIndexFromPoint(const cvf::Vec3d& point) con
     std::vector<size_t> cellIndices;
     m_mainGrid->findIntersectingCells(pointBBox, &cellIndices);
 
+    cvf::Vec3d hexCorners[8];
     for (size_t cellIndex : cellIndices)
     {
-        cvf::Vec3d hexCorners[8];
         m_mainGrid->cellCornerVertices(cellIndex, hexCorners);
 
         if (RigHexIntersectionTools::isPointInCell(point, hexCorners))
