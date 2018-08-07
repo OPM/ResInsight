@@ -44,7 +44,7 @@ class RigGridBase : public cvf::StructGridInterface
 {
 public:
     explicit RigGridBase(RigMainGrid* mainGrid);
-    virtual ~RigGridBase(void);
+    virtual ~RigGridBase();
 
     void                        setGridPointDimensions(const cvf::Vec3st& gridDimensions)   { m_gridPointDimensions = gridDimensions;}
     cvf::Vec3st                 gridPointDimensions()                                       { return m_gridPointDimensions; }
@@ -85,28 +85,28 @@ protected:
 
     // Interface implementation
 public:
-    virtual size_t gridPointCountI() const;
-    virtual size_t gridPointCountJ() const;
-    virtual size_t gridPointCountK() const;
+    size_t gridPointCountI() const override;
+    size_t gridPointCountJ() const override;
+    size_t gridPointCountK() const override;
 
-    virtual cvf::Vec3d minCoordinate() const;
-    virtual cvf::Vec3d maxCoordinate() const;
-    virtual cvf::Vec3d displayModelOffset() const;
+    cvf::Vec3d minCoordinate() const override;
+    cvf::Vec3d maxCoordinate() const override;
+    cvf::Vec3d displayModelOffset() const override;
 
-    virtual size_t cellIndexFromIJK( size_t i, size_t j, size_t k ) const;
-    virtual bool ijkFromCellIndex( size_t cellIndex, size_t* i, size_t* j, size_t* k ) const;
+    size_t cellIndexFromIJK( size_t i, size_t j, size_t k ) const override;
+    bool ijkFromCellIndex( size_t cellIndex, size_t* i, size_t* j, size_t* k ) const override;
 
-    virtual bool cellIJKFromCoordinate( const cvf::Vec3d& coord, size_t* i, size_t* j, size_t* k ) const;
-    virtual void cellCornerVertices( size_t cellIndex, cvf::Vec3d vertices[8] ) const;
-    virtual cvf::Vec3d cellCentroid( size_t cellIndex ) const;
+    bool cellIJKFromCoordinate( const cvf::Vec3d& coord, size_t* i, size_t* j, size_t* k ) const override;
+    void cellCornerVertices( size_t cellIndex, cvf::Vec3d vertices[8] ) const override;
+    cvf::Vec3d cellCentroid( size_t cellIndex ) const override;
 
-    virtual void cellMinMaxCordinates( size_t cellIndex, cvf::Vec3d* minCoordinate, cvf::Vec3d* maxCoordinate ) const;
+    void cellMinMaxCordinates( size_t cellIndex, cvf::Vec3d* minCoordinate, cvf::Vec3d* maxCoordinate ) const override;
 
-    virtual size_t gridPointIndexFromIJK( size_t i, size_t j, size_t k ) const;
-    virtual cvf::Vec3d gridPointCoordinate( size_t i, size_t j, size_t k ) const;
+    size_t gridPointIndexFromIJK( size_t i, size_t j, size_t k ) const override;
+    cvf::Vec3d gridPointCoordinate( size_t i, size_t j, size_t k ) const override;
 
-    virtual bool isCellValid( size_t i, size_t j, size_t k ) const;
-    virtual bool cellIJKNeighbor(size_t i, size_t j, size_t k, FaceType face, size_t* neighborCellIndex ) const;
+    bool isCellValid( size_t i, size_t j, size_t k ) const override;
+    bool cellIJKNeighbor(size_t i, size_t j, size_t k, FaceType face, size_t* neighborCellIndex ) const override;
 
 private:
     std::string                 m_gridName;
@@ -130,7 +130,7 @@ public:
     {
     }
 
-    virtual bool isFaceVisible( size_t i, size_t j, size_t k, cvf::StructGridInterface::FaceType face, const cvf::UByteArray* cellVisibility ) const;
+    bool isFaceVisible( size_t i, size_t j, size_t k, cvf::StructGridInterface::FaceType face, const cvf::UByteArray* cellVisibility ) const override;
 
 private:
     const RigGridBase* m_grid;
