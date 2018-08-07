@@ -793,20 +793,12 @@ cvf::ref<cvf::Part> RivWellFracturePartMgr::createMaskOfFractureOutsideGrid(cons
                 bool         pointInsideGrid     = false;
                 RigMainGrid* mainGrid            = activeView.mainGrid();
 
+                std::array<cvf::Vec3d, 8> corners;
                 for (size_t cellIndex : cellCandidates)
                 {
-                    auto       cornerIndices = mainGrid->globalCellArray()[cellIndex].cornerIndices();
-                    cvf::Vec3d vertices[8];
-                    vertices[0] = (mainGrid->nodes()[cornerIndices[0]]);
-                    vertices[1] = (mainGrid->nodes()[cornerIndices[1]]);
-                    vertices[2] = (mainGrid->nodes()[cornerIndices[2]]);
-                    vertices[3] = (mainGrid->nodes()[cornerIndices[3]]);
-                    vertices[4] = (mainGrid->nodes()[cornerIndices[4]]);
-                    vertices[5] = (mainGrid->nodes()[cornerIndices[5]]);
-                    vertices[6] = (mainGrid->nodes()[cornerIndices[6]]);
-                    vertices[7] = (mainGrid->nodes()[cornerIndices[7]]);
+                    mainGrid->cellCornerVertices(cellIndex, corners.data());
 
-                    if (RigHexIntersectionTools::isPointInCell(pointInDomainCoords, vertices))
+                    if (RigHexIntersectionTools::isPointInCell(pointInDomainCoords, corners.data()))
                     {
                         pointInsideGrid = true;
                         break;
