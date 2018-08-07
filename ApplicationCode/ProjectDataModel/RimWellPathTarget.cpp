@@ -29,8 +29,8 @@ RimWellPathTarget::RimWellPathTarget()
     CAF_PDM_InitFieldNoDefault(&m_targetType, "TargetType", "Type", "", "", "");
     //m_targetType.uiCapability()->setUiHidden(true);
     CAF_PDM_InitFieldNoDefault(&m_targetPoint, "TargetPoint", "Point", "", "", "");
-    CAF_PDM_InitField(&m_azimuth, "Azimuth", 0.0, "Azi", "", "", "");
-    CAF_PDM_InitField(&m_inclination, "Inclination", 0.0, "Inc", "", "", "");
+    CAF_PDM_InitField(&m_azimuth, "Azimuth", 0.0, "Azi(deg)", "", "", "");
+    CAF_PDM_InitField(&m_inclination, "Inclination", 0.0, "Inc(deg)", "", "", "");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -69,8 +69,8 @@ void RimWellPathTarget::setAsPointAndTangentTarget(const cvf::Vec3d& point,
 {
     m_targetType =  POINT_AND_TANGENT; 
     m_targetPoint = point; 
-    m_azimuth = azimuth; 
-    m_inclination = inclination;
+    m_azimuth = cvf::Math::toDegrees(azimuth); 
+    m_inclination = cvf::Math::toDegrees(inclination);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -80,8 +80,8 @@ void RimWellPathTarget::setDerivedTangent(double azimuth, double inclination)
 {
     if (m_targetType == POINT)
     {
-        m_azimuth = azimuth; 
-        m_inclination = inclination;
+        m_azimuth = cvf::Math::toDegrees(azimuth); 
+        m_inclination = cvf::Math::toDegrees(inclination);
     }
 }
 
@@ -110,7 +110,7 @@ double RimWellPathTarget::azimuth() const
 {
     if ( m_targetType() == POINT_AND_TANGENT )
     {
-        return m_azimuth;
+        return cvf::Math::toRadians( m_azimuth);
     }
     else
     {
@@ -125,7 +125,7 @@ double RimWellPathTarget::inclination() const
 {
     if ( m_targetType() == POINT_AND_TANGENT )
     {
-        return m_inclination;
+        return cvf::Math::toRadians(m_inclination);
     }
     else
     {
@@ -138,9 +138,11 @@ double RimWellPathTarget::inclination() const
 //--------------------------------------------------------------------------------------------------
 cvf::Vec3d RimWellPathTarget::tangent() const
 {
-    return cvf::Vec3d (sin(m_azimuth) * sin(m_inclination),
-                       cos(m_azimuth) * sin(m_inclination),
-                       -cos(m_inclination));
+    double aziRad = cvf::Math::toRadians(m_azimuth);
+    double incRad = cvf::Math::toRadians(m_inclination);
+    return cvf::Vec3d (sin(aziRad) * sin(incRad),
+                       cos(aziRad) * sin(incRad),
+                       -cos(incRad));
 }
 
 //--------------------------------------------------------------------------------------------------
