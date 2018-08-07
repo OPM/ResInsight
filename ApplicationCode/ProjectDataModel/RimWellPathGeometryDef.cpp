@@ -26,6 +26,7 @@
 #include "RimWellPathTarget.h"
 #include "RimModeledWellPath.h"
 #include "RiaSCurveCalculator.h"
+#include "RiaLogging.h"
 
 namespace caf
 {
@@ -255,8 +256,19 @@ std::vector<cvf::Vec3d> RimWellPathGeometryDef::lineArcEndpoints() const
                                            target2->inclination(),
                                            50);//30.0/cvf::Math::toRadians(12.0));
 
-            if (!sCurveCalc.isOk()) std::cout << "SCurve Calculation failed" << std::endl;
+            if (!sCurveCalc.isOk())
+            {
+                RiaLogging::warning("SCurve Calculation failed between target " + QString::number(tIdx+1) + " and " + QString::number(tIdx+2));
 
+                sCurveCalc = RiaSCurveCalculator::fromTangentsAndLength(target1->targetPointXYZ(),
+                                                                        target1->azimuth(),
+                                                                        target1->inclination(),
+                                                                        50,
+                                                                        target2->targetPointXYZ(),
+                                                                        target2->azimuth(),
+                                                                        target2->inclination(),
+                                                                        50);
+            }
             endPoints.push_back( sCurveCalc.firstArcEndpoint() + m_referencePoint() );
             endPoints.push_back( sCurveCalc.secondArcStartpoint() + m_referencePoint() );
         }

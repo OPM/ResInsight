@@ -1,6 +1,7 @@
 #include "RiaSCurveCalculator.h"
 
 #include "SolveSpaceSystem.h"
+#include <cmath>
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -15,36 +16,75 @@ RiaSCurveCalculator::RiaSCurveCalculator(cvf::Vec3d p1, double azi1, double inc1
 {
     // Estimate 
 
-    cvf::Vec3d t1(sin(azi1)*sin(inc1),
-                  cos(azi1)*sin(inc1),
-                  -cos(inc1));
-    cvf::Vec3d t2(sin(azi2)*sin(inc2),
-                  cos(azi2)*sin(inc2),
-                  -cos(inc2));
+    double est_p_c1x  =  10.0;
+    double est_p_c1y  =   2.0;
+    double est_p_p11x =   2.0;
+    double est_p_p11y = -10.0;
 
-    cvf::Vec3d p1p2 = p2-p1;
-    double p1p2Length = p1p2.length();
+    double est_p_c2x  =  10.0;
+    double est_p_c2y  =   2.0;
+    double est_p_p22x =   2.0;
+    double est_p_p22y = -10.0;
 
-    cvf::Vec3d Q1 = p1 + 0.2 * p1p2Length * t1;
-    cvf::Vec3d Q2 = p2 - 0.2 * p1p2Length * t2;
-    cvf::Vec3d tQ1Q2 = (Q2 - Q1).getNormalized();
-    
-    RiaSCurveCalculator estimatedCurveCalc(p1, Q1, p2, Q2);
-    m_firstArcEndpoint = estimatedCurveCalc.firstArcEndpoint();
-    m_secondArcStartpoint = estimatedCurveCalc.secondArcStartpoint();
-    m_c1 = estimatedCurveCalc.firstCenter();
-    m_c2 = estimatedCurveCalc.secondCenter();
-    m_n1 = estimatedCurveCalc.firstNormal();
-    m_n2 = estimatedCurveCalc.secondNormal();
+    double est_p_Plane1Qw = 0.0;
+    double est_p_Plane1Qx = 0.0;
+    double est_p_Plane1Qy = 0.0;
+    double est_p_Plane1Qz = 0.0;
 
-    #if 1 // Bypass SolveSpace
-    m_r1 = estimatedCurveCalc.firstRadius();
-    m_r2 = estimatedCurveCalc.secondRadius();
-    return;
-    #endif
+    double est_p_Plane2Qw = 0.0;
+    double est_p_Plane2Qx = 0.0;
+    double est_p_Plane2Qy = 0.0;
+    double est_p_Plane2Qz = 0.0;
 
-    cvf::Vec3d tp1c1 = (estimatedCurveCalc.firstCenter() - p1).getNormalized();
-    cvf::Vec3d tp2c2 = (estimatedCurveCalc.secondCenter() - p2).getNormalized();
+    Slvs_MakeQuaternion(1, 0, 0,
+                        0, 1, 0, 
+                        &est_p_Plane1Qw, 
+                        &est_p_Plane1Qx, 
+                        &est_p_Plane1Qy, 
+                        &est_p_Plane1Qz);
+    Slvs_MakeQuaternion(1, 0, 0,
+                        0, 1, 0, 
+                        &est_p_Plane2Qw, 
+                        &est_p_Plane2Qx, 
+                        &est_p_Plane2Qy, 
+                        &est_p_Plane2Qz);
+
+    if (false)
+    {
+        double p1p2Length =  (p2-p1).length();
+        RiaSCurveCalculator estimatedCurveCalc = RiaSCurveCalculator::fromTangentsAndLength(p1, azi1, inc1, 0.2 * p1p2Length,
+                                                                                            p2, azi2, inc2, 0.2 * p1p2Length);
+
+        est_p_c1x  =  0.0; 
+        est_p_c1y  = rad1; 
+        est_p_p11x = rad1; 
+        est_p_p11y = rad1; 
+
+        est_p_c2x  =   0.0;
+        est_p_c2y  =  rad2;
+        est_p_p22x = -rad2;
+        est_p_p22y =  rad2;
+
+        cvf::Vec3d est_tp1c1;
+        cvf::Vec3d est_tp2c2;
+
+        est_tp1c1 = (estimatedCurveCalc.firstCenter() - p1).getNormalized();
+        est_tp2c2 = (estimatedCurveCalc.secondCenter() - p2).getNormalized();
+
+        cvf::Vec3d t1(sin(azi1)*sin(inc1),
+                      cos(azi1)*sin(inc1),
+                      -cos(inc1));
+        cvf::Vec3d t2(sin(azi2)*sin(inc2),
+                      cos(azi2)*sin(inc2),
+                      -cos(inc2));
+
+        Slvs_MakeQuaternion(t1.x(), t1.y(), t1.z(),
+                            est_tp1c1.x(), est_tp1c1.y(), est_tp1c1.z(),
+                            &est_p_Plane1Qw, &est_p_Plane1Qx, &est_p_Plane1Qy, &est_p_Plane1Qz);
+        Slvs_MakeQuaternion(t2.x(), t2.y(), t2.z(),
+                            est_tp2c2.x(), est_tp2c2.y(), est_tp2c2.z(),
+                            &est_p_Plane2Qw, &est_p_Plane2Qx, &est_p_Plane2Qy, &est_p_Plane2Qz);
+    }
 
     // 
     SolveSpaceSystem sys;
@@ -105,17 +145,13 @@ RiaSCurveCalculator::RiaSCurveCalculator(cvf::Vec3d p1, double azi1, double inc1
 
     // Plane1
 
-    double unitQw, unitQx, unitQy, unitQz;
-    Slvs_MakeQuaternion(t1.x(), t1.y(), t1.z(),
-                        tp1c1.x(), tp1c1.y() , tp1c1.z(),
-                        &unitQw, &unitQx, &unitQy, &unitQz);
 
     // Plane 1
 
-    Slvs_hParam p_Plane1Qw = sys.addParam(Slvs_MakeParam(-1, group2, unitQw));
-    Slvs_hParam p_Plane1Qx = sys.addParam(Slvs_MakeParam(-1, group2, unitQx));
-    Slvs_hParam p_Plane1Qy = sys.addParam(Slvs_MakeParam(-1, group2, unitQy));
-    Slvs_hParam p_Plane1Qz = sys.addParam(Slvs_MakeParam(-1, group2, unitQz));
+    Slvs_hParam p_Plane1Qw = sys.addParam(Slvs_MakeParam(-1, group2, est_p_Plane1Qw));
+    Slvs_hParam p_Plane1Qx = sys.addParam(Slvs_MakeParam(-1, group2, est_p_Plane1Qx));
+    Slvs_hParam p_Plane1Qy = sys.addParam(Slvs_MakeParam(-1, group2, est_p_Plane1Qy));
+    Slvs_hParam p_Plane1Qz = sys.addParam(Slvs_MakeParam(-1, group2, est_p_Plane1Qz));
     Slvs_hEntity e_Plane1Q = sys.addEntity(Slvs_MakeNormal3d(-1, group2,
                                                              p_Plane1Qw,
                                                              p_Plane1Qx,
@@ -133,8 +169,8 @@ RiaSCurveCalculator::RiaSCurveCalculator(cvf::Vec3d p1, double azi1, double inc1
                                                                      e_Plane1,
                                                                      -1));
     // Arc1 center
-    Slvs_hParam p_c1x  = sys.addParam(Slvs_MakeParam(-1, group2, 0)); // Needs a better guess 
-    Slvs_hParam p_c1y  = sys.addParam(Slvs_MakeParam(-1, group2, rad1));
+    Slvs_hParam p_c1x  = sys.addParam(Slvs_MakeParam(-1, group2, est_p_c1x)); // Needs a better guess 
+    Slvs_hParam p_c1y  = sys.addParam(Slvs_MakeParam(-1, group2, est_p_c1y));
 
     Slvs_hEntity e_C1 = sys.addEntity(Slvs_MakePoint2d(-1, group2, e_Plane1, p_c1x, p_c1y));
 
@@ -162,8 +198,8 @@ RiaSCurveCalculator::RiaSCurveCalculator(cvf::Vec3d p1, double azi1, double inc1
 
     // Arc1 end
 
-    Slvs_hParam p_p11x  = sys.addParam(Slvs_MakeParam(-1, group2, rad1)); // Needs a better guess: Perp on p_c1x/p_c1y
-    Slvs_hParam p_p11y  = sys.addParam(Slvs_MakeParam(-1, group2, rad1));
+    Slvs_hParam p_p11x  = sys.addParam(Slvs_MakeParam(-1, group2, est_p_p11x)); // Needs a better guess: Perp on p_c1x/p_c1y
+    Slvs_hParam p_p11y  = sys.addParam(Slvs_MakeParam(-1, group2, est_p_p11y));
 
     Slvs_hEntity e_P11 = sys.addEntity(Slvs_MakePoint2d(-1, group2, e_Plane1, p_p11x, p_p11y));
 
@@ -183,17 +219,13 @@ RiaSCurveCalculator::RiaSCurveCalculator(cvf::Vec3d p1, double azi1, double inc1
 
 
 
-    double unitQw2, unitQx2, unitQy2, unitQz2;
-    Slvs_MakeQuaternion(t2.x(), t2.y(), t2.z(),
-                        tp1c1.x(), tp1c1.y(), tp1c1.z(),
-                        &unitQw2, &unitQx2, &unitQy2, &unitQz2);
 
     // Plane 2
 
-    Slvs_hParam p_Plane2Qw = sys.addParam(Slvs_MakeParam(-1, group2, unitQw2));
-    Slvs_hParam p_Plane2Qx = sys.addParam(Slvs_MakeParam(-1, group2, unitQx2));
-    Slvs_hParam p_Plane2Qy = sys.addParam(Slvs_MakeParam(-1, group2, unitQy2));
-    Slvs_hParam p_Plane2Qz = sys.addParam(Slvs_MakeParam(-1, group2, unitQz2));
+    Slvs_hParam p_Plane2Qw = sys.addParam(Slvs_MakeParam(-1, group2, est_p_Plane2Qw));
+    Slvs_hParam p_Plane2Qx = sys.addParam(Slvs_MakeParam(-1, group2, est_p_Plane2Qx));
+    Slvs_hParam p_Plane2Qy = sys.addParam(Slvs_MakeParam(-1, group2, est_p_Plane2Qy));
+    Slvs_hParam p_Plane2Qz = sys.addParam(Slvs_MakeParam(-1, group2, est_p_Plane2Qz));
     Slvs_hEntity e_Plane2Q = sys.addEntity(Slvs_MakeNormal3d(-1, group2,
                                                              p_Plane2Qw,
                                                              p_Plane2Qx,
@@ -214,8 +246,8 @@ RiaSCurveCalculator::RiaSCurveCalculator(cvf::Vec3d p1, double azi1, double inc1
 
     // Arc2 center
 
-    Slvs_hParam p_c2x  = sys.addParam(Slvs_MakeParam(-1, group2, 0)); // Needs a better guess 
-    Slvs_hParam p_c2y  = sys.addParam(Slvs_MakeParam(-1, group2, rad2));
+    Slvs_hParam p_c2x  = sys.addParam(Slvs_MakeParam(-1, group2, est_p_c2x)); // Needs a better guess 
+    Slvs_hParam p_c2y  = sys.addParam(Slvs_MakeParam(-1, group2, est_p_c2y));
 
     Slvs_hEntity e_C2 = sys.addEntity(Slvs_MakePoint2d(-1, group2, e_Plane2, p_c2x, p_c2y));
 
@@ -243,8 +275,8 @@ RiaSCurveCalculator::RiaSCurveCalculator(cvf::Vec3d p1, double azi1, double inc1
 
     // Arc2 end
 
-    Slvs_hParam p_p22x  = sys.addParam(Slvs_MakeParam(-1, group2, -rad2)); // Needs a better guess: Perp on p_c1x/p_c1y
-    Slvs_hParam p_p22y  = sys.addParam(Slvs_MakeParam(-1, group2,  rad2));
+    Slvs_hParam p_p22x  = sys.addParam(Slvs_MakeParam(-1, group2, est_p_p22x)); // Needs a better guess: Perp on p_c1x/p_c1y
+    Slvs_hParam p_p22y  = sys.addParam(Slvs_MakeParam(-1, group2, est_p_p22y));
 
     Slvs_hEntity e_P22 = sys.addEntity(Slvs_MakePoint2d(-1, group2, e_Plane2, p_p22x, p_p22y));
 
@@ -383,25 +415,55 @@ RiaSCurveCalculator::RiaSCurveCalculator(cvf::Vec3d p1, cvf::Vec3d q1,
                                          cvf::Vec3d p2, cvf::Vec3d q2)
 {
     using Vec3d = cvf::Vec3d;
+    bool isOk = true;
+    m_isCalculationOK = true;
 
-    Vec3d tq1q2 = (q2-q1).getNormalized();
-    Vec3d t1 = (q1 - p1).getNormalized();
-    Vec3d t2 = (p2 - q2).getNormalized();
+    Vec3d tq1q2 = (q2 - q1).getNormalized(&isOk); 
+    m_isCalculationOK = m_isCalculationOK && isOk;
+    Vec3d t1    = (q1 - p1).getNormalized(&isOk); 
+    m_isCalculationOK = m_isCalculationOK && isOk;
+    Vec3d t2    = (p2 - q2).getNormalized(&isOk); 
+    m_isCalculationOK = m_isCalculationOK && isOk;
 
-    Vec3d td1 = (tq1q2 - t1).getNormalized();
-    Vec3d td2 = (-tq1q2 + t2).getNormalized();
+    Vec3d td1 = ( tq1q2 - t1).getNormalized(&isOk); 
+    m_isCalculationOK = m_isCalculationOK && isOk;
+    Vec3d td2 = (-tq1q2 + t2).getNormalized(&isOk); 
+    m_isCalculationOK = m_isCalculationOK && isOk;
 
-    m_c1 = q1 + (q1-p1).length() * (td1 * (-t1))*td1;
-    m_c2 = q2 + (q2-p2).length() * (td2 * (t2))*td2;
+    m_c1 = q1 + (q1 - p1).length() * (td1 * (-t1)) * td1;
+    m_c2 = q2 + (q2 - p2).length() * (td2 * ( t2)) * td2;
 
-    m_firstArcEndpoint = q1 + (q1 - p1).length()*tq1q2;
-    m_secondArcStartpoint = q2 - (q2 - p2).length()*tq1q2;
+    m_firstArcEndpoint    = q1 + (q1 - p1).length() * tq1q2;
+    m_secondArcStartpoint = q2 - (q2 - p2).length() * tq1q2;
 
     m_n1 = t1 ^ tq1q2;
-    m_n2 = tq1q2 ^t2;
+    m_n2 = tq1q2 ^ t2;
 
     m_r1 = (m_c1 - p1).length();
     m_r2 = (m_c2 - p2).length();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RiaSCurveCalculator RiaSCurveCalculator::fromTangentsAndLength(cvf::Vec3d p1, double azi1, double inc1, double lengthToQ1, 
+                                                               cvf::Vec3d p2, double azi2, double inc2, double lengthToQ2)
+{
+    cvf::Vec3d t1(sin(azi1)*sin(inc1),
+                  cos(azi1)*sin(inc1),
+                  -cos(inc1));
+    cvf::Vec3d t2(sin(azi2)*sin(inc2),
+                  cos(azi2)*sin(inc2),
+                  -cos(inc2));
+
+    cvf::Vec3d Q1 = p1 + lengthToQ1 * t1;
+    cvf::Vec3d Q2 = p2 - lengthToQ2 * t2;
+    cvf::Vec3d tQ1Q2 = (Q2 - Q1).getNormalized();
+
+    RiaSCurveCalculator curveFromControlPoints(p1, Q1, 
+                                               p2, Q2);
+
+    return curveFromControlPoints;
 }
 
 //--------------------------------------------------------------------------------------------------
