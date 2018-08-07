@@ -34,12 +34,12 @@ RimWellLogExtractionCurveNameConfig::RimWellLogExtractionCurveNameConfig(const R
     CAF_PDM_InitObject("Well Log Extraction Curve Name Generator", "", "", "");
 
     CAF_PDM_InitField(&m_addCaseName, "AddCaseName", false, "Add Case Name", "", "", "");
-    CAF_PDM_InitField(&m_addProperty, "AddProperty", true, "Add Property Type", "", "", "");
-    CAF_PDM_InitField(&m_addWellName, "AddWellName", true, "Add Well Name", "", "", "");
-    CAF_PDM_InitField(&m_addTimestep, "AddTimeStep", true, "Add Time Step", "", "", "");
-    CAF_PDM_InitField(&m_addDate,     "AddDate",     true, "Add Date", "", "", "");
+    CAF_PDM_InitField(&m_addProperty, "AddProperty", false, "Add Property Type", "", "", "");
+    CAF_PDM_InitField(&m_addWellName, "AddWellName", false, "Add Well Name", "", "", "");
+    CAF_PDM_InitField(&m_addTimestep, "AddTimeStep", false, "Add Time Step", "", "", "");
+    CAF_PDM_InitField(&m_addDate,     "AddDate",     false, "Add Date", "", "", "");
 
-    m_customName = "Extraction Curve";
+    m_customName = "Log Extraction";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -97,17 +97,13 @@ bool RimWellLogExtractionCurveNameConfig::addDate() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RimWellLogExtractionCurveNameConfig::updateAllSettings()
+void RimWellLogExtractionCurveNameConfig::enableAllAutoNameTags(bool enable)
 {
-    m_addCaseName.uiCapability()->setUiReadOnly(!isUsingAutoName());
-    m_addProperty.uiCapability()->setUiReadOnly(!isUsingAutoName());
-    m_addWellName.uiCapability()->setUiReadOnly(!isUsingAutoName());
-    m_addTimestep.uiCapability()->setUiReadOnly(!isUsingAutoName());
-    m_addDate.uiCapability()->setUiReadOnly(!isUsingAutoName());
-
-    RimNameConfig::updateAllSettings();
+    m_addCaseName = enable;
+    m_addProperty = enable;
+    m_addWellName = enable;
+    m_addTimestep = enable;
+    m_addDate     = enable;
 }
-
-

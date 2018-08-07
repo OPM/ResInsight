@@ -44,11 +44,10 @@ class RimNameConfig : public caf::PdmObject
 public:
     RimNameConfig(const RimNameConfigHolderInterface* configHolder = nullptr);
     virtual ~RimNameConfig();
-    bool                             isUsingAutoName() const;
-    void                             setUsingAutoName(bool useAutoName);
     QString                          customName() const;
-    void                             setCustomName(const QString& name);
-    
+    void                             setCustomName(const QString& name);    
+    virtual void                     enableAllAutoNameTags(bool enable) {}
+
     caf::PdmFieldHandle*             nameField();
     QString                          name() const;
     virtual caf::PdmUiGroup*         createUiGroup(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
@@ -60,7 +59,7 @@ protected:
     virtual void                     initAfterRead() override;
 
 protected:
-    caf::PdmField<bool>              m_isUsingAutoName;
+    caf::PdmField<bool>              m_isUsingAutoName_OBSOLETE;
     caf::PdmField<QString>           m_customName;
     caf::PdmProxyValueField<QString> m_autoName;
 

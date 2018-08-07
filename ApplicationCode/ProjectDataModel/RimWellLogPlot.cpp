@@ -82,7 +82,8 @@ RimWellLogPlot::RimWellLogPlot()
     m_viewer = nullptr;
 
     CAF_PDM_InitField(&m_userName_OBSOLETE, "PlotDescription", QString(""),"Name", "", "", "");
-    
+    m_userName_OBSOLETE.xmlCapability()->setIOWritable(false);
+
     CAF_PDM_InitFieldNoDefault(&m_commonDataSource, "CommonDataSource", "Common Data Source", "", "Change the Data Source of All Curves in the Plot", "");
     m_commonDataSource = new RimWellLogCurveCommonDataSource;
     m_commonDataSource.uiCapability()->setUiTreeHidden(true);
@@ -112,7 +113,6 @@ RimWellLogPlot::RimWellLogPlot()
     m_nameConfig = new RimWellLogPlotNameConfig(this);
     m_nameConfig.uiCapability()->setUiTreeHidden(true);
     m_nameConfig.uiCapability()->setUiTreeChildrenHidden(true);
-    m_nameConfig->setUsingAutoName(false);
 
     m_minAvailableDepth = HUGE_VAL;
     m_maxAvailableDepth = -HUGE_VAL;
@@ -441,9 +441,9 @@ void RimWellLogPlot::setDepthAutoZoom(bool on)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellLogPlot::enableAutoName(bool enableAutoName)
+void RimWellLogPlot::enableAllAutoNameTags(bool enable)
 {
-    m_nameConfig->setUsingAutoName(enableAutoName);
+    m_nameConfig->enableAllAutoNameTags(enable);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -622,74 +622,76 @@ QString RimWellLogPlot::createAutoName() const
 {
     QStringList generatedCurveName;
 
-    generatedCurveName.push_back(m_nameConfig->customName());
-    if (m_nameConfig->isUsingAutoName())
+    if (!m_nameConfig->customName().isEmpty())
     {
-        RimCase* commonCase = m_commonDataSource->caseToApply();
-        RimGeoMechCase* geomCase = dynamic_cast<RimGeoMechCase*>(commonCase);
-        RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>(commonCase);
-        RimWellPath* commonWellPath = m_commonDataSource->wellPathToApply();
+        generatedCurveName.push_back(m_nameConfig->customName());
+    }
 
-        QStringList generatedProperties;
-        if (m_nameConfig->addCaseName() && commonCase)
+    RimCase* commonCase = m_commonDataSource->caseToApply();
+    RimGeoMechCase* geomCase = dynamic_cast<RimGeoMechCase*>(commonCase);
+    RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>(commonCase);
+    RimWellPath* commonWellPath = m_commonDataSource->wellPathToApply();
+
+    QStringList generatedAutoTags;
+    if (m_nameConfig->addCaseName() && commonCase)
+    {
+        generatedAutoTags.push_back(commonCase->caseUserDescription());
+    }
+
+    if (m_nameConfig->addWellName())
+    {
+
+        if (commonWellPath && !commonWellPath->name().isEmpty())
         {
-            generatedProperties.push_back(commonCase->caseUserDescription());
+            generatedAutoTags.push_back(commonWellPath->name());
         }
-
-        if (m_nameConfig->addWellName())
+        else if (!m_commonDataSource->simWellNameToApply().isEmpty())
         {
+            generatedAutoTags.push_back(m_commonDataSource->simWellNameToApply());
+        }
+    }
 
-            if (commonWellPath && !commonWellPath->name().isEmpty())
+    if (m_nameConfig->addTimeStep())
+    {
+        if (commonCase && m_commonDataSource->timeStepToApply() != -1)
+        {
+            generatedAutoTags.push_back(commonCase->timeStepName(m_commonDataSource->timeStepToApply()));
+        }
+    }
+
+    if (m_nameConfig->addAirGap())
+    {
+        if (commonWellPath)
+        {
+            RigWellPath* wellPathGeometry = commonWellPath->wellPathGeometry();
+            if (wellPathGeometry)
             {
-                generatedProperties.push_back(commonWellPath->name());
-            }
-            else if (!m_commonDataSource->simWellNameToApply().isEmpty())
-            {
-                generatedProperties.push_back(m_commonDataSource->simWellNameToApply());
+                double rkb = wellPathGeometry->rkbDiff();
+                generatedAutoTags.push_back(QString("Air Gap = %1 m").arg(rkb));
             }
         }
+    }
 
-        if (m_nameConfig->addTimeStep())
+    if (m_nameConfig->addWaterDepth())
+    {
+        if (commonWellPath)
         {
-            if (commonCase && m_commonDataSource->timeStepToApply() != -1)
+            RigWellPath* wellPathGeometry = commonWellPath->wellPathGeometry();
+            if (wellPathGeometry)
             {
-                generatedProperties.push_back(commonCase->timeStepName(m_commonDataSource->timeStepToApply()));
-            }
-        }
-
-        if (m_nameConfig->addAirGap())
-        {
-            if (commonWellPath)
-            {
-                RigWellPath* wellPathGeometry = commonWellPath->wellPathGeometry();
-                if (wellPathGeometry)
+                const std::vector<cvf::Vec3d>& wellPathPoints = wellPathGeometry->wellPathPoints();
+                if (!wellPathPoints.empty())
                 {
-                    double rkb = wellPathGeometry->rkbDiff();
-                    generatedProperties.push_back(QString("Air Gap = %1 m").arg(rkb));
+                    double tvdmsl = std::abs(wellPathPoints.front()[2]);
+                    generatedAutoTags.push_back(QString("Water Depth = %1 m").arg(tvdmsl));
                 }
             }
         }
+    }
 
-        if (m_nameConfig->addWaterDepth())
-        {
-            if (commonWellPath)
-            {
-                RigWellPath* wellPathGeometry = commonWellPath->wellPathGeometry();
-                if (wellPathGeometry)
-                {
-                    const std::vector<cvf::Vec3d>& wellPathPoints = wellPathGeometry->wellPathPoints();
-                    if (!wellPathPoints.empty())
-                    {
-                        double tvdmsl = std::abs(wellPathPoints.front()[2]);
-                        generatedProperties.push_back(QString("Water Depth = %1 m").arg(tvdmsl));
-                    }
-                }
-            }
-        }
-        if (!generatedProperties.empty())
-        {
-            generatedCurveName.push_back(generatedProperties.join(", "));
-        }
+    if (!generatedAutoTags.empty())
+    {
+        generatedCurveName.push_back(generatedAutoTags.join(", "));
     }
     return generatedCurveName.join(": ");
 }

@@ -110,7 +110,7 @@ public:
 
     virtual void                                    zoomAll() override;
     void                                            setDepthAutoZoom(bool on);
-    void                                            enableAutoName(bool enableAutoName);
+    void                                            enableAllAutoNameTags(bool enable);
 
     QString                                         asciiDataForPlotExport() const;
 

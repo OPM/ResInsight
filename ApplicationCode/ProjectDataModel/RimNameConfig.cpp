@@ -36,9 +36,10 @@ RimNameConfig::RimNameConfig(const RimNameConfigHolderInterface* configHolder /*
 {
     CAF_PDM_InitObject("Curve Name Generator", "", "", "");
 
-    CAF_PDM_InitField(&m_isUsingAutoName, "IsUsingAutoName", true, "Add Automatic Name Tags", "", "", "");
+    CAF_PDM_InitField(&m_isUsingAutoName_OBSOLETE, "IsUsingAutoName", true, "Add Automatic Name Tags", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_customName, "CustomCurveName", "Custom Name Part", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_autoName, "AutoCurveName", "Full Curve Name", "", "", "");
+    m_isUsingAutoName_OBSOLETE.xmlCapability()->setIOWritable(false);
     m_autoName.registerGetMethod(this, &RimNameConfig::autoName);
     m_autoName.xmlCapability()->disableIO();
     m_autoName.uiCapability()->setUiReadOnly(true);
@@ -49,22 +50,6 @@ RimNameConfig::RimNameConfig(const RimNameConfigHolderInterface* configHolder /*
 //--------------------------------------------------------------------------------------------------
 RimNameConfig::~RimNameConfig()
 {
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-bool RimNameConfig::isUsingAutoName() const
-{
-    return m_isUsingAutoName();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimNameConfig::setUsingAutoName(bool useAutoName)
-{
-    m_isUsingAutoName = useAutoName;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -99,7 +84,6 @@ caf::PdmUiGroup* RimNameConfig::createUiGroup(QString uiConfigName, caf::PdmUiOr
     caf::PdmUiGroup* nameGroup = uiOrdering.addNewGroup("Curve Name");
     nameGroup->add(&m_customName);
     nameGroup->add(&m_autoName);
-    nameGroup->add(&m_isUsingAutoName);
     return nameGroup;
 }
 
@@ -132,7 +116,6 @@ void RimNameConfig::setCustomName(const QString& name)
 //--------------------------------------------------------------------------------------------------
 void RimNameConfig::updateAllSettings()
 {
-    m_isUsingAutoName.uiCapability()->updateConnectedEditors();
     m_autoName.uiCapability()->updateConnectedEditors();
     m_customName.uiCapability()->updateConnectedEditors();
 
@@ -151,5 +134,11 @@ void RimNameConfig::updateAllSettings()
 //--------------------------------------------------------------------------------------------------
 void RimNameConfig::initAfterRead()
 {
+    // Now we just switch them all individually.
+    if (!m_isUsingAutoName_OBSOLETE())
+    {
+        enableAllAutoNameTags(false);
+    }
+
     updateAllSettings();
 }

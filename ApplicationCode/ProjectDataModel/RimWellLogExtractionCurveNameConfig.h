@@ -38,8 +38,7 @@ public:
     bool                     addTimeStep() const;
     bool                     addDate() const;
 
-protected:
-    virtual void             updateAllSettings();
+    virtual void             enableAllAutoNameTags(bool enable) override;
 
 private:
     caf::PdmField<bool>              m_addCaseName;

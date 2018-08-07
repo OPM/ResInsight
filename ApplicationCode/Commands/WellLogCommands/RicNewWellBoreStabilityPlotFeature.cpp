@@ -82,7 +82,7 @@ void RicNewWellBoreStabilityPlotFeature::onActionTriggered(bool isChecked)
 
     Rim3dView* view = RiaApplication::instance()->activeReservoirView();
     if (!view) return;
-    
+
     RimGeoMechView* geoMechView = dynamic_cast<RimGeoMechView*>(view);
     if (!geoMechView) return;
 
@@ -90,7 +90,7 @@ void RicNewWellBoreStabilityPlotFeature::onActionTriggered(bool isChecked)
     progInfo.setProgressDescription("Creating plot and formation track");
     progInfo.setNextProgressIncrement(2);
     RimGeoMechCase* geoMechCase = geoMechView->geoMechCase();
-    
+
     QString         plotName("Well Bore Stability");
     RimWellLogPlot* plot = RicNewWellLogPlotFeatureImpl::createWellLogPlot(false, plotName);
     createFormationTrack(plot, selectedWellPath, geoMechCase);
@@ -101,19 +101,19 @@ void RicNewWellBoreStabilityPlotFeature::onActionTriggered(bool isChecked)
     progInfo.incrementProgressAndUpdateNextStep(15, "Creating angles track");
     createAnglesTrack(plot, selectedWellPath, geoMechView);
     progInfo.incrementProgressAndUpdateNextStep(5, "Updating all tracks");
-    plot->enableAutoName(true);
+    plot->enableAllAutoNameTags(true);
     plot->setPlotTitleVisible(true);
     plot->setTrackLegendsVisible(true);
     plot->setTrackLegendsHorizontal(true);
     plot->setDepthType(RimWellLogPlot::TRUE_VERTICAL_DEPTH);
-    plot->setDepthAutoZoom(true);    
+    plot->setDepthAutoZoom(true);
 
-    RicNewWellLogPlotFeatureImpl::updateAfterCreation(plot);    
+    RicNewWellLogPlotFeatureImpl::updateAfterCreation(plot);
     progInfo.incrementProgress();
 
     RiuPlotMainWindowTools::selectAsCurrentItem(plot);
 
-    // Make sure the summary plot window is visible    
+    // Make sure the summary plot window is visible
     RiuPlotMainWindowTools::showPlotMainWindow();
 }
 

@@ -33,11 +33,11 @@ RimWellLogPlotNameConfig::RimWellLogPlotNameConfig(const RimNameConfigHolderInte
 {
     CAF_PDM_InitObject("Well Log Plot Name Generator", "", "", "");
 
-    CAF_PDM_InitField(&m_addCaseName,   "AddCaseName",   true, "Add Case Name",   "", "", "");
-    CAF_PDM_InitField(&m_addWellName,   "AddWellName",   true, "Add Well Name",   "", "", "");
-    CAF_PDM_InitField(&m_addTimestep,   "AddTimeStep",   true, "Add Time Step",   "", "", "");
-    CAF_PDM_InitField(&m_addAirGap,     "AddAirGap",     true, "Add Air Gap",     "", "", "");
-    CAF_PDM_InitField(&m_addWaterDepth, "AddWaterDepth", true, "Add Water Depth To Auto Name", "", "", "");
+    CAF_PDM_InitField(&m_addCaseName,   "AddCaseName",   false, "Add Case Name",   "", "", "");
+    CAF_PDM_InitField(&m_addWellName,   "AddWellName",   false, "Add Well Name",   "", "", "");
+    CAF_PDM_InitField(&m_addTimestep,   "AddTimeStep",   false, "Add Time Step",   "", "", "");
+    CAF_PDM_InitField(&m_addAirGap,     "AddAirGap",     false, "Add Air Gap",     "", "", "");
+    CAF_PDM_InitField(&m_addWaterDepth, "AddWaterDepth", false, "Add Water Depth To Auto Name", "", "", "");
 
     m_customName = "Well Log Plot";
 }
@@ -97,15 +97,14 @@ bool RimWellLogPlotNameConfig::addWaterDepth() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RimWellLogPlotNameConfig::updateAllSettings()
+void RimWellLogPlotNameConfig::enableAllAutoNameTags(bool enable)
 {
-    m_addCaseName.uiCapability()->setUiReadOnly(!isUsingAutoName());
-    m_addWellName.uiCapability()->setUiReadOnly(!isUsingAutoName());
-    m_addTimestep.uiCapability()->setUiReadOnly(!isUsingAutoName());
-    m_addAirGap.uiCapability()->setUiReadOnly(!isUsingAutoName());
-    m_addWaterDepth.uiCapability()->setUiReadOnly(!isUsingAutoName());
-    RimNameConfig::updateAllSettings();
+    m_addCaseName   = enable;
+    m_addWellName   = enable;
+    m_addTimestep   = enable;
+    m_addAirGap     = enable;
+    m_addWaterDepth = enable;
 }
 

@@ -37,9 +37,7 @@ public:
     bool                     addTimeStep() const;
     bool                     addAirGap() const;
     bool                     addWaterDepth() const;
-
-protected:
-    virtual void             updateAllSettings();
+    virtual void             enableAllAutoNameTags(bool enable) override;
 
 private:
     caf::PdmField<bool>              m_addCaseName;

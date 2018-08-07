@@ -279,26 +279,33 @@ QString Rim3dWellLogExtractionCurve::createAutoName() const
     RimGeoMechCase* geomCase = dynamic_cast<RimGeoMechCase*>(m_case.value());
     RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>(m_case.value());
 
-    QStringList generatedCurveName;
-    
+    QStringList autoName;
+
+    if (!m_nameConfig->customName().isEmpty())
+    {
+        autoName.push_back(m_nameConfig->customName());
+    }
+
+    QStringList generatedAutoTags;
+
     if (m_nameConfig->addWellName())
     {
         RimWellPath* wellPath;
         this->firstAncestorOrThisOfTypeAsserted(wellPath);
         if (!wellPath->name().isEmpty())
         {
-            generatedCurveName += wellPath->name();
+            generatedAutoTags += wellPath->name();
         }
     }
 
     if (m_nameConfig->addCaseName() && m_case())
     {
-        generatedCurveName.push_back(m_case->caseUserDescription());
+        generatedAutoTags.push_back(m_case->caseUserDescription());
     }
 
     if (m_nameConfig->addProperty() && !resultPropertyString().isEmpty())
     {
-        generatedCurveName.push_back(resultPropertyString());
+        generatedAutoTags.push_back(resultPropertyString());
     }
 
     if (m_nameConfig->addTimeStep() || m_nameConfig->addDate())
@@ -329,17 +336,20 @@ QString Rim3dWellLogExtractionCurve::createAutoName() const
             QString dateString = wellDate();
             if (!dateString.isEmpty())
             {
-                generatedCurveName.push_back(dateString);
+                generatedAutoTags.push_back(dateString);
             }
         }
 
         if (addTimeStep)
         {
-            generatedCurveName.push_back(QString("[%1/%2]").arg(m_timeStep() + 1).arg(maxTimeStep));            
+            generatedAutoTags.push_back(QString("[%1/%2]").arg(m_timeStep() + 1).arg(maxTimeStep));            
         }
     }
-
-    return generatedCurveName.join(", ");
+    if (!generatedAutoTags.empty())
+    {
+        autoName.push_back(generatedAutoTags.join(", "));
+    }
+    return autoName.join(": ");
 }
 
 //--------------------------------------------------------------------------------------------------
