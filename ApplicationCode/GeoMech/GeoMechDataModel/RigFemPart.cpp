@@ -386,3 +386,32 @@ size_t RigFemPart::elementNodeResultCount() const
     return lastElmResultIdx + 1;
 }
 
+//--------------------------------------------------------------------------------------------------
+/// Generate a sensible index into the result vector based on which result position type is used.
+//--------------------------------------------------------------------------------------------------
+size_t RigFemPart::resultValueIdxFromResultPosType(RigFemResultPosEnum resultPosType, int elementIdx, int elmLocalNodeIdx) const
+{
+    if (resultPosType == RIG_ELEMENT || resultPosType == RIG_FORMATION_NAMES)
+    {
+        CVF_ASSERT(elementIdx < m_elementId.size());
+        return elementIdx;
+    }
+
+    size_t elementNodeResultIdx = this->elementNodeResultIdx(static_cast<int>(elementIdx), elmLocalNodeIdx);
+    CVF_ASSERT(elementNodeResultIdx < elementNodeResultCount());
+
+    if (resultPosType == RIG_ELEMENT_NODAL || resultPosType == RIG_INTEGRATION_POINT)
+    {
+        return elementNodeResultIdx;
+    }
+    else if (resultPosType == RIG_NODAL)
+    {
+        size_t nodeIdx = nodeIdxFromElementNodeResultIdx(elementNodeResultIdx);
+        CVF_ASSERT(nodeIdx < m_nodes.nodeIds.size());
+        return nodeIdx;
+    }
+
+    CVF_ASSERT(false);
+    return 0u;
+}
+

@@ -22,6 +22,7 @@
 #include <stdlib.h>
 
 #include "RigFemTypes.h"
+#include "RigFemResultPosEnum.h"
 #include "cvfObject.h"
 #include "cvfAssert.h"
 #include "cvfBoundingBox.h"
@@ -63,7 +64,7 @@ public:
     size_t                      elementNodeResultIdx(int elementIdx, int elmLocalNodeIdx) const { return m_elementConnectivityStartIndices[elementIdx] + elmLocalNodeIdx;}
     size_t                      elementNodeResultCount() const;
     int                         nodeIdxFromElementNodeResultIdx(size_t elmNodeResultIdx)  const { return m_allElementConnectivities[elmNodeResultIdx]; }
-
+    size_t                      resultValueIdxFromResultPosType(RigFemResultPosEnum resultPosType, int elementIdx, int elmLocalNodeIdx) const;
     RigFemPartNodes&            nodes()                                    {return m_nodes;}
     const RigFemPartNodes&      nodes() const                              {return m_nodes;}
 

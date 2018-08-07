@@ -352,39 +352,42 @@ T RigGeoMechWellLogExtractor::interpolateGridResultValue(RigFemResultPosEnum   r
 
     if (cellFace == cvf::StructGridInterface::NO_FACE)
     {
+        if (resultPosType == RIG_ELEMENT_NODAL_FACE)
+        {
+            return std::numeric_limits<T>::infinity(); // undefined value. ELEMENT_NODAL_FACE values are only defined on a face.
+        }
         // TODO: Should interpolate within the whole hexahedron. This requires converting to locals coordinates.
         // For now just pick the average value for the cell.
-        T sumOfVertexValues = gridResultValues[femPart->elementNodeResultIdx(static_cast<int>(elmIdx), 0)];
+        size_t gridResultValueIdx = femPart->resultValueIdxFromResultPosType(resultPosType, static_cast<int>(elmIdx), 0);
+        T sumOfVertexValues = gridResultValues[gridResultValueIdx];
         for (int i = 1; i < 8; ++i)
         {
-            sumOfVertexValues = sumOfVertexValues + gridResultValues[femPart->elementNodeResultIdx(static_cast<int>(elmIdx), i)];
+            gridResultValueIdx = femPart->resultValueIdxFromResultPosType(resultPosType, static_cast<int>(elmIdx), i);
+            sumOfVertexValues = sumOfVertexValues + gridResultValues[gridResultValueIdx];
         }
         return sumOfVertexValues * (1.0 / 8.0);
     }
 
     int faceNodeCount = 0;
-    const int* faceLocalIndices = RigFemTypes::localElmNodeIndicesForFace(elmType, cellFace, &faceNodeCount);
+    const int* elementLocalIndicesForFace = RigFemTypes::localElmNodeIndicesForFace(elmType, cellFace, &faceNodeCount);
     const int* elmNodeIndices = femPart->connectivities(elmIdx);
 
-    cvf::Vec3d v0(nodeCoords[elmNodeIndices[faceLocalIndices[0]]]);
-    cvf::Vec3d v1(nodeCoords[elmNodeIndices[faceLocalIndices[1]]]);
-    cvf::Vec3d v2(nodeCoords[elmNodeIndices[faceLocalIndices[2]]]);
-    cvf::Vec3d v3(nodeCoords[elmNodeIndices[faceLocalIndices[3]]]);
+    cvf::Vec3d v0(nodeCoords[elmNodeIndices[elementLocalIndicesForFace[0]]]);
+    cvf::Vec3d v1(nodeCoords[elmNodeIndices[elementLocalIndicesForFace[1]]]);
+    cvf::Vec3d v2(nodeCoords[elmNodeIndices[elementLocalIndicesForFace[2]]]);
+    cvf::Vec3d v3(nodeCoords[elmNodeIndices[elementLocalIndicesForFace[3]]]);
 
     std::vector<size_t> nodeResIdx(4, cvf::UNDEFINED_SIZE_T);
 
-    if (resultPosType == RIG_NODAL)
+    for (size_t i = 0; i < nodeResIdx.size(); ++i)
     {
-        for (size_t i = 0; i < nodeResIdx.size(); ++i)
+        if (resultPosType == RIG_ELEMENT_NODAL_FACE)
         {
-            nodeResIdx[i] = elmNodeIndices[faceLocalIndices[i]];
+            nodeResIdx[i] = gridResultIndexFace(elmIdx, cellFace, static_cast<int>(i));
         }
-    }
-    else
-    {
-        for (size_t i = 0; i < nodeResIdx.size(); ++i)
+        else
         {
-            nodeResIdx[i] = (size_t)femPart->elementNodeResultIdx((int)elmIdx, faceLocalIndices[i]);
+            nodeResIdx[i] = femPart->resultValueIdxFromResultPosType(resultPosType, static_cast<int>(elmIdx), elementLocalIndicesForFace[i]);
         }
     }
 
@@ -398,12 +401,12 @@ T RigGeoMechWellLogExtractor::interpolateGridResultValue(RigFemResultPosEnum   r
             int nodeIndex = femPart->nodeIdxFromElementNodeResultIdx(nodeResIdx[i]);
             const std::vector<int>& elements = femPart->elementsUsingNode(nodeIndex);
             const std::vector<unsigned char>& localIndices = femPart->elementLocalIndicesForNode(nodeIndex);
-            size_t otherNodeResIdx = femPart->elementNodeResultIdx(elements[0], static_cast<int>(localIndices[0]));
-            T nodeResultValue = gridResultValues[otherNodeResIdx];
+            size_t otherGridResultValueIdx = femPart->resultValueIdxFromResultPosType(resultPosType, elements[0], static_cast<int>(localIndices[0]));
+            T nodeResultValue = gridResultValues[otherGridResultValueIdx];
             for (size_t j = 1; j < elements.size(); ++j)
             {
-                otherNodeResIdx = femPart->elementNodeResultIdx(elements[j], static_cast<int>(localIndices[j]));
-                nodeResultValue = nodeResultValue + gridResultValues[otherNodeResIdx];
+                otherGridResultValueIdx = femPart->resultValueIdxFromResultPosType(resultPosType, elements[j], static_cast<int>(localIndices[j]));
+                nodeResultValue = nodeResultValue + gridResultValues[otherGridResultValueIdx];
             }
             nodeResultValue = nodeResultValue * (1.0 / elements.size());
             nodeResultValues.push_back(nodeResultValue);
@@ -425,6 +428,15 @@ T RigGeoMechWellLogExtractor::interpolateGridResultValue(RigFemResultPosEnum   r
     );
 
     return interpolatedValue;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+size_t RigGeoMechWellLogExtractor::gridResultIndexFace(size_t elementIdx, cvf::StructGridInterface::FaceType cellFace, int faceLocalNodeIdx) const
+{
+    CVF_ASSERT(cellFace != cvf::StructGridInterface::NO_FACE && faceLocalNodeIdx < 4);
+    return elementIdx * 24 + static_cast<int>(cellFace) * 4 + faceLocalNodeIdx;
 }
 
 //--------------------------------------------------------------------------------------------------

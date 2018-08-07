@@ -33,6 +33,7 @@
 
 #include <vector>
 
+class RigFemPart;
 class RigFemResultAddress;
 class RigGeoMechCaseData;
 class RigWellPath;
@@ -60,6 +61,7 @@ private:
    
     template<typename T>
     T                            interpolateGridResultValue(RigFemResultPosEnum resultPosType, const std::vector<T>& gridResultValues, int64_t intersectionIdx, bool averageNodeElementResults) const;
+    size_t                       gridResultIndexFace(size_t elementIdx, cvf::StructGridInterface::FaceType cellFace, int faceLocalNodeIdx) const;
     void                         calculateIntersection();
     std::vector<size_t>          findCloseCells(const cvf::BoundingBox& bb);
     virtual cvf::Vec3d           calculateLengthInCell(size_t cellIndex, 
