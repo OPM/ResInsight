@@ -70,8 +70,6 @@ public:
                                                                    const std::set<size_t>& containmentCells,
                                                                    size_t globalCellIndex) const;
 
-    size_t                          findAnchorEclipseCell(const RigMainGrid* mainGrid) const;
-
     cvf::Mat4d                      transformMatrix() const;
     double                          dip() const;
     double                          tilt() const;

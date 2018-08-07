@@ -358,7 +358,8 @@ QString RimSimWellFracture::createOneBasedIJKText() const
 {
     RigMainGrid* mainGrid = ownerCaseMainGrid();
     size_t i,j,k;
-    size_t anchorCellIdx = findAnchorEclipseCell(mainGrid);
+    size_t anchorCellIdx= mainGrid->findReservoirCellIndexFromPoint(anchorPosition());
+
     if (anchorCellIdx == cvf::UNDEFINED_SIZE_T) return "";
     
     size_t gridLocalCellIdx;

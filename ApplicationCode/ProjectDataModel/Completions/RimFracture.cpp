@@ -623,46 +623,10 @@ bool RimFracture::isEclipseCellWithinContainment(const RigMainGrid*      mainGri
     CVF_ASSERT(fractureTemplate());
     if (!fractureTemplate()->fractureContainment()->isEnabled()) return true;
 
-    size_t anchorEclipseCell = findAnchorEclipseCell(mainGrid);
+    size_t anchorEclipseCell = mainGrid->findReservoirCellIndexFromPoint(m_anchorPosition);
 
     return fractureTemplate()->fractureContainment()->isEclipseCellWithinContainment(
         mainGrid, anchorEclipseCell, globalCellIndex, containmentCells);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-size_t RimFracture::findAnchorEclipseCell(const RigMainGrid* mainGrid ) const
-{
-    cvf::BoundingBox pointBBox;
-    pointBBox.add(m_anchorPosition);
-
-    std::vector<size_t> cellIndices;
-    mainGrid->findIntersectingCells(pointBBox, &cellIndices);
-    
-    size_t cellContainingAchorPoint = cvf::UNDEFINED_SIZE_T;
-
-    for ( size_t cellIndex : cellIndices )
-    {
-        auto cornerIndices =  mainGrid->globalCellArray()[cellIndex].cornerIndices();
-        cvf::Vec3d vertices[8];
-        vertices[0] = (mainGrid->nodes()[cornerIndices[0]]);
-        vertices[1] = (mainGrid->nodes()[cornerIndices[1]]);
-        vertices[2] = (mainGrid->nodes()[cornerIndices[2]]);
-        vertices[3] = (mainGrid->nodes()[cornerIndices[3]]);
-        vertices[4] = (mainGrid->nodes()[cornerIndices[4]]);
-        vertices[5] = (mainGrid->nodes()[cornerIndices[5]]);
-        vertices[6] = (mainGrid->nodes()[cornerIndices[6]]);
-        vertices[7] = (mainGrid->nodes()[cornerIndices[7]]);
-
-        if ( RigHexIntersectionTools::isPointInCell(m_anchorPosition, vertices) )
-        {
-            cellContainingAchorPoint = cellIndex;
-            break;
-        }
-    }    
-    
-    return cellContainingAchorPoint;
 }
 
 //--------------------------------------------------------------------------------------------------
