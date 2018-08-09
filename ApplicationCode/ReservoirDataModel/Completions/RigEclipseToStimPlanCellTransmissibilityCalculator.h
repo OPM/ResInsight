@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2017     Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -21,8 +21,8 @@
 #include "RiaPorosityModel.h"
 
 #include "cvfBase.h"
-#include "cvfObject.h"
 #include "cvfMatrix4.h"
+#include "cvfObject.h"
 
 #include <vector>
 
@@ -30,7 +30,6 @@ class QString;
 
 class RimEclipseCase;
 class RigFractureCell;
-class RigEclipseCaseData;
 class RigResultAccessor;
 
 //==================================================================================================
@@ -40,23 +39,24 @@ class RigResultAccessor;
 class RigEclipseToStimPlanCellTransmissibilityCalculator
 {
 public:
-    explicit RigEclipseToStimPlanCellTransmissibilityCalculator(RimEclipseCase* caseToApply,
-                                                                cvf::Mat4d fractureTransform,
-                                                                double skinFactor,
-                                                                double cDarcy,
+    explicit RigEclipseToStimPlanCellTransmissibilityCalculator(RimEclipseCase*        caseToApply,
+                                                                cvf::Mat4d             fractureTransform,
+                                                                double                 skinFactor,
+                                                                double                 cDarcy,
                                                                 const RigFractureCell& stimPlanCell);
 
-    const std::vector<size_t>&  globalIndiciesToContributingEclipseCells();
-    const std::vector<double>&  contributingEclipseCellTransmissibilities();
+    const std::vector<size_t>& globalIndiciesToContributingEclipseCells() const;
+    const std::vector<double>& contributingEclipseCellTransmissibilities() const;
+    const std::vector<double>& contributingEclipseCellAreas() const;
+    const RigFractureCell&     fractureCell() const;
 
 private:
-    void                        calculateStimPlanCellsMatrixTransmissibility();
-    std::vector<size_t>         getPotentiallyFracturedCellsForPolygon(const std::vector<cvf::Vec3d>& polygon) const;
+    void                calculateStimPlanCellsMatrixTransmissibility();
+    std::vector<size_t> getPotentiallyFracturedCellsForPolygon(const std::vector<cvf::Vec3d>& polygon) const;
 
-    static cvf::ref<RigResultAccessor>
-        loadResultAndCreateResultAccessor(RimEclipseCase* eclipseCase,
-                                          RiaDefines::PorosityModelType porosityModel,
-                                          const QString& uiResultName);
+    static cvf::ref<RigResultAccessor> loadResultAndCreateResultAccessor(RimEclipseCase*               eclipseCase,
+                                                                         RiaDefines::PorosityModelType porosityModel,
+                                                                         const QString&                uiResultName);
 
 private:
     RimEclipseCase*        m_case;
@@ -66,4 +66,5 @@ private:
     const RigFractureCell& m_stimPlanCell;
     std::vector<size_t>    m_globalIndiciesToContributingEclipseCells;
     std::vector<double>    m_contributingEclipseCellTransmissibilities;
+    std::vector<double>    m_contributingEclipseCellAreas;
 };

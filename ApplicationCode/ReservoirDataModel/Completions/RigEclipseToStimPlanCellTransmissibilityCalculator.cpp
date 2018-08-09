@@ -49,32 +49,39 @@ RigEclipseToStimPlanCellTransmissibilityCalculator::RigEclipseToStimPlanCellTran
     , m_cDarcy(cDarcy)
     , m_stimPlanCell(stimPlanCell)
 {
+    calculateStimPlanCellsMatrixTransmissibility();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::vector<size_t>& RigEclipseToStimPlanCellTransmissibilityCalculator::globalIndiciesToContributingEclipseCells()
+const std::vector<size_t>& RigEclipseToStimPlanCellTransmissibilityCalculator::globalIndiciesToContributingEclipseCells() const
 {
-    if (m_globalIndiciesToContributingEclipseCells.empty())
-    {
-        calculateStimPlanCellsMatrixTransmissibility();
-    }
-
     return m_globalIndiciesToContributingEclipseCells;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::vector<double>& RigEclipseToStimPlanCellTransmissibilityCalculator::contributingEclipseCellTransmissibilities()
+const std::vector<double>& RigEclipseToStimPlanCellTransmissibilityCalculator::contributingEclipseCellTransmissibilities() const
 {
-    if (m_globalIndiciesToContributingEclipseCells.empty())
-    {
-        calculateStimPlanCellsMatrixTransmissibility();
-    }
-
     return m_contributingEclipseCellTransmissibilities;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const std::vector<double>& RigEclipseToStimPlanCellTransmissibilityCalculator::contributingEclipseCellAreas() const
+{
+    return m_contributingEclipseCellAreas;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const RigFractureCell& RigEclipseToStimPlanCellTransmissibilityCalculator::fractureCell() const
+{
+    return m_stimPlanCell;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -229,6 +236,7 @@ void RigEclipseToStimPlanCellTransmissibilityCalculator::calculateStimPlanCellsM
 
         m_globalIndiciesToContributingEclipseCells.push_back(fracCell);
         m_contributingEclipseCellTransmissibilities.push_back(transmissibility);
+        m_contributingEclipseCellAreas.push_back(fractureArea);
     }
 }
 
