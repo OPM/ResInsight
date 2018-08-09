@@ -241,6 +241,23 @@ double RimFishbonesMultipleSubs::tubingDiameter(RiaEclipseUnitTools::UnitSystem 
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimFishbonesMultipleSubs::effectiveDiameter(RiaEclipseUnitTools::UnitSystem unitSystem) const
+{
+    double innerRadius = tubingDiameter(unitSystem) / 2;
+    double outerRadius = holeDiameter(unitSystem) / 2;
+
+    double innerArea = cvf::PI_D * innerRadius * innerRadius;
+    double outerArea = cvf::PI_D * outerRadius * outerRadius;
+
+    double effectiveArea = outerArea - innerArea;
+
+    double effectiveRadius = cvf::Math::sqrt(effectiveArea / cvf::PI_D);
+    return effectiveRadius * 2;
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 double RimFishbonesMultipleSubs::openHoleRoughnessFactor(RiaEclipseUnitTools::UnitSystem unitSystem) const

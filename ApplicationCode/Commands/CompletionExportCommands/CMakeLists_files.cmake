@@ -9,6 +9,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RicCaseAndFileExportSettingsUi.h
 ${CMAKE_CURRENT_LIST_DIR}/RicExportFractureCompletionsImpl.h
 ${CMAKE_CURRENT_LIST_DIR}/RicExportCompletionsForVisibleWellPathsFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicExportCompletionsForVisibleSimWellsFeature.h
+${CMAKE_CURRENT_LIST_DIR}/RicMultiSegmentWellExportInfo.h
 ${CMAKE_CURRENT_LIST_DIR}/RicWellPathFractureTextReportFeatureImpl.h
 ${CMAKE_CURRENT_LIST_DIR}/RicWellPathFractureReportItem.h
 )
@@ -24,6 +25,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RicCaseAndFileExportSettingsUi.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicExportFractureCompletionsImpl.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicExportCompletionsForVisibleWellPathsFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicExportCompletionsForVisibleSimWellsFeature.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicMultiSegmentWellExportInfo.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicWellPathFractureTextReportFeatureImpl.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicWellPathFractureReportItem.cpp
 )

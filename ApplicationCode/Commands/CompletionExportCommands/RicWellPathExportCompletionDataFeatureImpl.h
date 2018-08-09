@@ -21,6 +21,7 @@
 #include "RigCompletionData.h"
 
 #include "RicExportCompletionDataSettingsUi.h"
+#include "RicMultiSegmentWellExportInfo.h"
 #include "RicWellPathFractureReportItem.h"
 
 #include "cvfBase.h"
@@ -41,92 +42,16 @@ class RigVirtualPerforationTransmissibilities;
 //==================================================================================================
 /// 
 //==================================================================================================
-struct WellSegmentLateralIntersection
-{
-    WellSegmentLateralIntersection(int               segmentNumber,
-                                   int               attachedSegmentNumber,
-                                   size_t            globalCellIndex,
-                                   double            length,
-                                   double            depth,
-                                   const cvf::Vec3d& lengthsInCell)
-        : segmentNumber(segmentNumber)
-        , attachedSegmentNumber(attachedSegmentNumber)
-        , globalCellIndex(globalCellIndex)
-        , mdFromPreviousIntersection(length)
-        , tvdChangeFromPreviousIntersection(depth)
-        , lengthsInCell(lengthsInCell)
-        , mainBoreCell(false)
-    {
-    }
-
-    int        segmentNumber;
-    int        attachedSegmentNumber;
-    size_t     globalCellIndex;
-    bool       mainBoreCell;
-    double     mdFromPreviousIntersection;
-    double     tvdChangeFromPreviousIntersection;
-    cvf::Vec3d lengthsInCell;
-};
-
-//==================================================================================================
-/// 
-//==================================================================================================
-struct WellSegmentLateral
-{
-    WellSegmentLateral(size_t lateralIndex)
-        : lateralIndex(lateralIndex)
-        , branchNumber(0)
-    {
-    }
-
-    size_t                                      lateralIndex;
-    int                                         branchNumber;
-    std::vector<WellSegmentLateralIntersection> intersections;
-};
-
-//==================================================================================================
-/// 
-//==================================================================================================
-struct WellSegmentLocation
-{
-    WellSegmentLocation(const RimFishbonesMultipleSubs* subs,
-                        double                          measuredDepth,
-                        double                          trueVerticalDepth,
-                        size_t                          subIndex,
-                        int                             segmentNumber = -1)
-        : fishbonesSubs(subs)
-        , measuredDepth(measuredDepth)
-        , trueVerticalDepth(trueVerticalDepth)
-        , subIndex(subIndex)
-        , segmentNumber(segmentNumber)
-        , icdBranchNumber(-1)
-        , icdSegmentNumber(-1)
-    {
-    }
-
-    const RimFishbonesMultipleSubs* fishbonesSubs;
-    double                          measuredDepth;
-    double                          trueVerticalDepth;
-    size_t                          subIndex;
-    int                             segmentNumber;
-    int                             icdBranchNumber;
-    int                             icdSegmentNumber;
-    std::vector<WellSegmentLateral> laterals;
-};
-
-//==================================================================================================
-/// 
-//==================================================================================================
 class RicWellPathExportCompletionDataFeatureImpl
 {
 
 public:
-    static std::vector<WellSegmentLocation>      findWellSegmentLocations(const RimEclipseCase* caseToApply, 
-                                                                          const RimWellPath* wellPath);
+    static RicMultiSegmentWellExportInfo         generateFishbonesMSWExportInfo(const RimEclipseCase* caseToApply,
+                                                                                const RimWellPath*    wellPath);
 
-    static std::vector<WellSegmentLocation>      findWellSegmentLocations(const RimEclipseCase* caseToApply, 
-                                                                          const RimWellPath* wellPath, 
-                                                                          const std::vector<RimFishbonesMultipleSubs*>& fishbonesSubs);
+    static RicMultiSegmentWellExportInfo         generateFishbonesMSWExportInfo(const RimEclipseCase*                         caseToApply,
+                                                                                const RimWellPath*                            wellPath,
+                                                                                const std::vector<RimFishbonesMultipleSubs*>& fishbonesSubs);
 
     static CellDirection                         calculateDirectionInCell(RimEclipseCase* eclipseCase, 
                                                                           size_t globalCellIndex, 
@@ -153,6 +78,10 @@ public:
     static std::vector<RigCompletionData>        computeDynamicCompletionsForWellPath(RimWellPath* wellPath,
                                                                                       RimEclipseCase* eclipseCase,
                                                                                       size_t timeStepIndex);
+
+    static void                                  generateWelsegsTable(RifEclipseDataTableFormatter& formatter, const RicMultiSegmentWellExportInfo& exportInfo);
+    static void                                  generateCompsegsTable(RifEclipseDataTableFormatter& formatter, const RicMultiSegmentWellExportInfo& exportInfo);
+    static void                                  generateWsegvalvTable(RifEclipseDataTableFormatter& formatter, const RicMultiSegmentWellExportInfo& exportInfo);
 
 private:
     static double                                calculateTransmissibilityAsEclipseDoes(RimEclipseCase* eclipseCase,
@@ -189,16 +118,15 @@ private:
     static std::vector<RigCompletionData>       generatePerforationsCompdatValues(const RimWellPath* wellPath,
                                                                                   const RicExportCompletionDataSettingsUi& settings);
 
-    static bool                                 wellSegmentLocationOrdering(const WellSegmentLocation& first,
-                                                                            const WellSegmentLocation& second);
-
     static void                                 assignLateralIntersections(const RimEclipseCase* caseToApply,
-                                                                           WellSegmentLocation* location,
-                                                                           int* branchNum,
-                                                                           int* segmentNum);
-
-    static void                                 assignLateralIntersectionsAndBranchAndSegmentNumbers(const RimEclipseCase* caseToApply,
-                                                                                                     std::vector<WellSegmentLocation>* locations);
+                                                                           const RimFishbonesMultipleSubs* fishbonesSubs,
+                                                                           RicWellSegmentLocation* location);
+    static void                                 assignBranchAndSegmentNumbers(const RimEclipseCase*   caseToApply,
+                                                                              RicWellSegmentLocation* location,
+                                                                              int*                    branchNum,
+                                                                              int*                    segmentNum);
+    static void                                 assignBranchAndSegmentNumbers(const RimEclipseCase* caseToApply,
+                                                                              RicMultiSegmentWellExportInfo* exportInfo);
 
     static void                                 appendCompletionData(std::map<RigCompletionDataGridCell, std::vector<RigCompletionData>>* completionData,
                                                                      const std::vector<RigCompletionData>& data);

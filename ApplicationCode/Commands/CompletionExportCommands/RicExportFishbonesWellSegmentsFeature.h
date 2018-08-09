@@ -21,14 +21,16 @@
 #include "RifEclipseDataTableFormatter.h"
 
 #include "RicCaseAndFileExportSettingsUi.h"
+#include "RicMultiSegmentWellExportInfo.h"
 #include "RicWellPathExportCompletionDataFeatureImpl.h"
-
 
 #include "cafCmdFeature.h"
 
 class RimFishbonesCollection;
 class RimFishbonesMultipleSubs;
 class RimWellPath;
+
+
 
 //==================================================================================================
 /// 
@@ -48,10 +50,5 @@ public:
 private:
     static RimFishbonesCollection*               selectedFishbonesCollection();
     static RimWellPath*                          selectedWellPath();
-
-    static void                                  generateWelsegsTable(RifEclipseDataTableFormatter& formatter, const RimWellPath* wellPath, const RicCaseAndFileExportSettingsUi& settings, const std::vector<WellSegmentLocation>& locations);
-    static void                                  generateCompsegsTable(RifEclipseDataTableFormatter& formatter, const RimWellPath* wellPath, const RicCaseAndFileExportSettingsUi& settings, const std::vector<WellSegmentLocation>& locations);
-    static void                                  generateWsegvalvTable(RifEclipseDataTableFormatter& formatter, const RimWellPath* wellPath, const RicCaseAndFileExportSettingsUi& settings, const std::vector<WellSegmentLocation>& locations);
-
-    static double                                computeEffectiveDiameter(double innerDiameter, double outerDiameter);
+    
 };

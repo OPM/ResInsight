@@ -69,22 +69,22 @@ void RicFishbonesTransmissibilityCalculationFeatureImp::findFishboneLateralsWell
 
     // Generate data
     const RigEclipseCaseData* caseData = settings.caseToApply()->eclipseCaseData();
-    std::vector<WellSegmentLocation> locations = RicWellPathExportCompletionDataFeatureImpl::findWellSegmentLocations(settings.caseToApply, wellPath);
+    RicMultiSegmentWellExportInfo exportInfo = RicWellPathExportCompletionDataFeatureImpl::generateFishbonesMSWExportInfo(settings.caseToApply(), wellPath);
 
     RiaEclipseUnitTools::UnitSystem unitSystem = caseData->unitsType();
     bool isMainBore = false;
 
-    for (const WellSegmentLocation& location : locations)
+    for (const RicWellSegmentLocation& location : exportInfo.wellSegmentLocations())
     {
-        for (const WellSegmentLateral& lateral : location.laterals)
+        for (const RicWellSegmentLateral& lateral : location.laterals)
         {
-            for (const WellSegmentLateralIntersection& intersection : lateral.intersections)
+            for (const RicWellSegmentLateralIntersection& intersection : lateral.intersections)
             {
-                double diameter = location.fishbonesSubs->holeDiameter(unitSystem);
-                QString completionMetaData = (location.fishbonesSubs->generatedName() + QString(": Sub: %1 Lateral: %2").arg(location.subIndex).arg(lateral.lateralIndex));
+                double diameter = location.holeDiameter;
+                QString completionMetaData = (location.label + QString(": Sub: %1 Lateral: %2").arg(location.subIndex).arg(lateral.lateralIndex));
                 WellBorePartForTransCalc wellBorePart = WellBorePartForTransCalc(intersection.lengthsInCell, 
                                                                                  diameter / 2, 
-                                                                                 location.fishbonesSubs->skinFactor(), 
+                                                                                 location.skinFactor,
                                                                                  isMainBore,
                                                                                  completionMetaData);
 

@@ -86,6 +86,7 @@ public:
 
     double              tubingDiameter(RiaEclipseUnitTools::UnitSystem unitSystem) const;
     double              holeDiameter(RiaEclipseUnitTools::UnitSystem unitSystem) const { return m_pipeProperties()->holeDiameter(unitSystem); }
+    double              effectiveDiameter(RiaEclipseUnitTools::UnitSystem unitSystem) const;
     double              skinFactor() const { return m_pipeProperties()->skinFactor(); }
     double              openHoleRoughnessFactor(RiaEclipseUnitTools::UnitSystem unitSystem) const;
     double              icdOrificeDiameter(RiaEclipseUnitTools::UnitSystem unitSystem) const;

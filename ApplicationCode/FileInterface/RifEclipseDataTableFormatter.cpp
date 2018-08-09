@@ -343,6 +343,11 @@ int RifEclipseDataTableFormatter::tableWidth() const
 //--------------------------------------------------------------------------------------------------
 QString RifEclipseDataTableFormatter::format(double num, RifEclipseOutputTableDoubleFormatting doubleFormat)
 {
+    if (num == std::numeric_limits<double>::infinity())
+    {
+        return QString("1*"); // Eclipse default column value
+    }
+
     switch (doubleFormat.format)
     {
         case RifEclipseOutputTableDoubleFormat::RIF_FLOAT:
