@@ -216,6 +216,12 @@ void RiaRegressionTestRunner::runRegressionTest(const QString& testRootPath, con
         QFileInfoList commandFileEntries = testCaseFolder.entryInfoList(filterList);
         if (!commandFileEntries.empty())
         {
+            {
+                QString generatedFilesFolderName = testCaseFolder.filePath(RegTestNames::generatedFilesFolderName);
+                QDir genDir(generatedFilesFolderName);
+                removeDirectoryWithContent(genDir);
+            }
+
             QString currentApplicationPath = QDir::current().absolutePath();
 
             // Set current path to the folder containing the command file, as this is required when using file references
