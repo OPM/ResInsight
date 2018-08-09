@@ -43,12 +43,6 @@ public:
                                          std::vector<RicWellPathFractureReportItem>* fractureDataForReport,
                                          QTextStream*                                outputStreamForIntermediateResultsText);
 
-    static std::vector<RigCompletionData>
-        generateCompdatValuesForWellPathSingleFracture(RimWellPath*    wellPath,
-                                                       RimEclipseCase* caseToApply,
-                                                       RimFracture*    fracture,
-                                                       QTextStream*    outputStreamForIntermediateResultsText);
-
     static std::vector<RigCompletionData> generateCompdatValuesForSimWell(RimEclipseCase*         eclipseCase,
                                                                           const RimSimWellInView* well,
                                                                           QTextStream* outputStreamForIntermediateResultsText);

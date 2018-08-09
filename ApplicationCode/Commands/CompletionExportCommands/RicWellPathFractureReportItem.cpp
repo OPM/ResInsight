@@ -27,6 +27,16 @@ RicWellPathFractureReportItem::RicWellPathFractureReportItem(const QString& well
     : m_wellPath(wellPathName)
     , m_wellPathFracture(fractureName)
     , m_wellPathFractureTemplate(fractureTemplateName)
+    , m_transmissibility(0.0)
+    , m_connectionCount(0)
+    , m_fcd(0.0)
+    , m_area(0.0)
+    , m_kfwf(0.0)
+    , m_kf(0.0)
+    , m_wf(0.0)
+    , m_xf(0.0)
+    , m_h(0.0)
+    , m_km(0.0)
 {
 }
 
@@ -62,7 +72,7 @@ void RicWellPathFractureReportItem::setHeightAndHalfLength(double height, double
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicWellPathFractureReportItem::setAreaWeightedTransmissibility(double transmissibility)
 {

@@ -747,11 +747,10 @@ void RimStimPlanFractureTemplate::updateFractureGrid()
             std::vector<double> areaPerCell;
 
             double totalArea = 0.0;
-            double cellArea  = 0.0;
 
             for (const auto& c : m_fractureGrid->fractureCells())
             {
-                cellArea = c.cellSizeX() * c.cellSizeZ();
+                double cellArea = c.cellSizeX() * c.cellSizeZ();
 
                 areaPerCell.push_back(cellArea);
                 totalArea += cellArea;
@@ -774,8 +773,6 @@ void RimStimPlanFractureTemplate::updateFractureGrid()
 
                 for (size_t i = 0; i < areaPerCell.size(); i++)
                 {
-                    const auto& c = m_fractureGrid->fractureCells()[i];
-
                     double perCellValue = resultValues[i] * areaPerCell[i] / totalArea;
 
                     m_areaWeightedWidth += perCellValue;

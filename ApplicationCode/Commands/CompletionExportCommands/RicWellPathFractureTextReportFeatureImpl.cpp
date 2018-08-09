@@ -612,9 +612,6 @@ QString RicWellPathFractureTextReportFeatureImpl::createFractureCompletionSummar
 
     formatter.addHorizontalLine('-');
 
-    // Cache the fracture template area, as this is a heavy operation
-    std::map<RimFractureTemplate*, double> templateAreaMap;
-
     for (const auto& reportItem : wellPathFractureReportItems)
     {
         QString wellPathName, fractureName, fractureTemplateName;
