@@ -78,6 +78,10 @@ RimStimPlanFractureTemplate::RimStimPlanFractureTemplate()
 
     m_fractureGrid = new RigFractureGrid();
     m_readError    = false;
+
+    m_areaWeightedConductivity = 0.0;
+    m_areaWeightedWidth = 0.0;
+    m_longestYRangeAboveConductivityThreshold = 0.0;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -407,72 +411,64 @@ FractureWidthAndConductivity RimStimPlanFractureTemplate::widthAndConductivityAt
         double conductivity = wellCell.getConductivityValue();
         values.m_conductivity = conductivity;
 
-        std::vector<std::pair<QString, QString> > propertyNamesUnitsOnFile = m_stimPlanFractureDefinitionData->getStimPlanPropertyNamesUnits();
-
-        QString propertyNameForFractureWidth;
+        auto nameUnit = widthParameterNameAndUnit();
+        if (!nameUnit.first.isEmpty())
         {
-            QString widthParameterName;
-            QString effWidthParameterName;
-            for (const auto& nameUnit : propertyNamesUnitsOnFile)
+            double widthInRequiredUnit = HUGE_VAL;
             {
-                if (effWidthParameterName.isEmpty() && nameUnit.first.contains("effective width", Qt::CaseInsensitive))
-                {
-                    effWidthParameterName = nameUnit.first;
-                }
+                auto resultValues = m_stimPlanFractureDefinitionData->fractureGridResults(nameUnit.first, nameUnit.second, m_activeTimeStepIndex);
 
-                if (widthParameterName.isEmpty() && nameUnit.first.contains("width", Qt::CaseInsensitive))
+                double widthInFileUnitSystem = resultValues[wellCellIndex];
+
+                if (fractureTemplateUnit() == RiaEclipseUnitTools::UNITS_METRIC)
                 {
-                    widthParameterName = nameUnit.first;
+                    QString unitText = nameUnit.second;
+
+                    widthInRequiredUnit = RiaEclipseUnitTools::convertToMeter(widthInFileUnitSystem, unitText);
+                }
+                else if (fractureTemplateUnit() == RiaEclipseUnitTools::UNITS_FIELD)
+                {
+                    QString unitText = nameUnit.second;
+
+                    widthInRequiredUnit = RiaEclipseUnitTools::convertToFeet(widthInFileUnitSystem, unitText);
                 }
             }
 
-            if (!effWidthParameterName.isEmpty())
+            if (widthInRequiredUnit != HUGE_VAL && fabs(widthInRequiredUnit) > 1e-20)
             {
-                propertyNameForFractureWidth = effWidthParameterName;
-            }
-            else
-            {
-                propertyNameForFractureWidth = widthParameterName;
-            }
-        }
-
-        if (!propertyNameForFractureWidth.isEmpty())
-        {
-            for (const auto& nameUnit : propertyNamesUnitsOnFile)
-            {
-                if (nameUnit.first == propertyNameForFractureWidth)
-                {
-                    double widthInRequiredUnit = HUGE_VAL;
-                    {
-                        auto resultValues = m_stimPlanFractureDefinitionData->fractureGridResults(nameUnit.first, nameUnit.second, m_activeTimeStepIndex);
-
-                        double widthInFileUnitSystem = resultValues[wellCellIndex];
-
-                        if (fractureTemplateUnit() == RiaEclipseUnitTools::UNITS_METRIC)
-                        {
-                            QString unitText = nameUnit.second;
-
-                            widthInRequiredUnit = RiaEclipseUnitTools::convertToMeter(widthInFileUnitSystem, unitText);
-                        }
-                        else if (fractureTemplateUnit() == RiaEclipseUnitTools::UNITS_FIELD)
-                        {
-                            QString unitText = nameUnit.second;
-
-                            widthInRequiredUnit = RiaEclipseUnitTools::convertToFeet(widthInFileUnitSystem, unitText);
-                        }
-                    }
-
-                    if (widthInRequiredUnit != HUGE_VAL && fabs(widthInRequiredUnit) > 1e-20)
-                    {
-                        values.m_width = widthInRequiredUnit;
-                        values.m_permeability = conductivity / widthInRequiredUnit;
-                    }
-                }
+                values.m_width = widthInRequiredUnit;
+                values.m_permeability = conductivity / widthInRequiredUnit;
             }
         }
     }
 
     return values;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::pair<QString, QString> RimStimPlanFractureTemplate::widthParameterNameAndUnit() const
+{
+    if (m_stimPlanFractureDefinitionData.notNull())
+    {
+        std::vector<std::pair<QString, QString> > propertyNamesUnitsOnFile = m_stimPlanFractureDefinitionData->getStimPlanPropertyNamesUnits();
+
+        for (const auto& nameUnit : propertyNamesUnitsOnFile)
+        {
+            if (nameUnit.first.contains("effective width", Qt::CaseInsensitive))
+            {
+                return nameUnit;
+            }
+
+            if (nameUnit.first.contains("width", Qt::CaseInsensitive))
+            {
+                return nameUnit;
+            }
+        }
+    }
+
+    return std::pair<QString, QString>();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -684,6 +680,30 @@ double RimStimPlanFractureTemplate::resultValueAtIJ(const QString& uiResultName,
 }
 
 //--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+double RimStimPlanFractureTemplate::areaWeightedWidth() const
+{
+    return m_areaWeightedWidth;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+double RimStimPlanFractureTemplate::areaWeightedConductivity() const
+{
+    return m_areaWeightedConductivity;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+double RimStimPlanFractureTemplate::longestYRange() const
+{
+    return m_longestYRangeAboveConductivityThreshold;
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 void RimStimPlanFractureTemplate::appendDataToResultStatistics(const QString& uiResultName, const QString& unit,
@@ -712,6 +732,9 @@ const RigFractureGrid* RimStimPlanFractureTemplate::fractureGrid() const
 void RimStimPlanFractureTemplate::updateFractureGrid()
 {
     m_fractureGrid = nullptr;
+    m_areaWeightedConductivity = 0.0;
+    m_areaWeightedWidth = 0.0;
+    m_longestYRangeAboveConductivityThreshold = 0.0;
 
     if (m_stimPlanFractureDefinitionData.notNull())
     {
@@ -719,10 +742,76 @@ void RimStimPlanFractureTemplate::updateFractureGrid()
                                                                               m_activeTimeStepIndex,
                                                                               m_wellPathDepthAtFracture,
                                                                               m_fractureTemplateUnit());
+        if (m_fractureGrid.notNull())
+        {
+            std::vector<double> areaPerCell;
+
+            double totalArea = 0.0;
+            double cellArea  = 0.0;
+
+            for (const auto& c : m_fractureGrid->fractureCells())
+            {
+                cellArea = c.cellSizeX() * c.cellSizeZ();
+
+                areaPerCell.push_back(cellArea);
+                totalArea += cellArea;
+            }
+
+            for (size_t i = 0; i < areaPerCell.size(); i++)
+            {
+                const auto& c = m_fractureGrid->fractureCells()[i];
+
+                double perCellValue = c.getConductivityValue() * areaPerCell[i] / totalArea;
+
+                m_areaWeightedConductivity += perCellValue;
+            }
+
+            auto nameUnit = widthParameterNameAndUnit();
+            if (!nameUnit.first.isEmpty())
+            {
+                auto resultValues =
+                    m_stimPlanFractureDefinitionData->fractureGridResults(nameUnit.first, nameUnit.second, m_activeTimeStepIndex);
+
+                for (size_t i = 0; i < areaPerCell.size(); i++)
+                {
+                    const auto& c = m_fractureGrid->fractureCells()[i];
+
+                    double perCellValue = resultValues[i] * areaPerCell[i] / totalArea;
+
+                    m_areaWeightedWidth += perCellValue;
+                }
+            }
+
+            // Compute longest y-range with continuous non-zero conductivity
+            {
+                double longestYRange = 0.0;
+                
+                for (size_t i = 0; i < m_fractureGrid->iCellCount(); i++)
+                {
+                    double currentYRange = 0.0;
+                    for (size_t j = 0; j < m_fractureGrid->jCellCount(); j++)
+                    {
+                        size_t globalIndex = m_fractureGrid->getGlobalIndexFromIJ(i, j);
+                        const auto& cell = m_fractureGrid->cellFromIndex(globalIndex);
+                        if (cell.hasNonZeroConductivity())
+                        {
+                            currentYRange += cell.cellSizeZ();
+                        }
+                        else
+                        {
+                            longestYRange = std::max(longestYRange, currentYRange);
+                            currentYRange = 0.0;
+                        }
+                    }
+
+                    longestYRange = std::max(longestYRange, currentYRange);
+                }
+
+                m_longestYRangeAboveConductivityThreshold = longestYRange;
+            }
+        }
     }
 }
-
-
 
 //--------------------------------------------------------------------------------------------------
 /// 

@@ -80,6 +80,10 @@ public:
     bool                                    hasConductivity() const;
     double                                  resultValueAtIJ(const QString& uiResultName, const QString& unitName, size_t timeStepIndex, size_t i, size_t j);
 
+    double                                  areaWeightedWidth() const;
+    double                                  areaWeightedConductivity() const;
+    double                                  longestYRange() const;
+
     void                                    appendDataToResultStatistics(const QString& uiResultName, 
                                                                          const QString& unit,
                                                                          MinMaxAccumulator& minMaxAccumulator,
@@ -109,6 +113,8 @@ private:
 
     virtual FractureWidthAndConductivity    widthAndConductivityAtWellPathIntersection() const override;
 
+    std::pair<QString, QString>             widthParameterNameAndUnit() const;
+
 private:
     caf::PdmField<int>                      m_activeTimeStepIndex;
     caf::PdmField<QString>                  m_conductivityResultNameOnFile;
@@ -120,6 +126,10 @@ private:
     cvf::ref<RigStimPlanFractureDefinition> m_stimPlanFractureDefinitionData;
     cvf::ref<RigFractureGrid>               m_fractureGrid;
     bool                                    m_readError;
+
+    double                                  m_areaWeightedConductivity;
+    double                                  m_areaWeightedWidth;
+    double                                  m_longestYRangeAboveConductivityThreshold;
 
     caf::PdmField<bool>                     m_showStimPlanMesh_OBSOLETE;
 };
