@@ -165,11 +165,17 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions(const std::ve
 
         if (exportSettings.includeFractures())
         {
+            std::vector<RicWellPathFractureReportItem>* reportItems = nullptr;
+            if (exportSettings.includeFracturesSummaryHeader())
+            {
+                reportItems = &fractureDataReportItems;
+            }
+
             std::vector<RigCompletionData> fractureCompletionData =
                 RicExportFractureCompletionsImpl::generateCompdatValuesForWellPath(
                     wellPath,
                     exportSettings.caseToApply(),
-                    &fractureDataReportItems,
+                    reportItems,
                     fractureTransmissibilityExportInformationStream.get());
 
             appendCompletionData(&completionsPerEclipseCellAllCompletionTypes, fractureCompletionData);

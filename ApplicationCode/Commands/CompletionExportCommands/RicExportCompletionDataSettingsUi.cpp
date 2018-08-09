@@ -67,6 +67,7 @@ RicExportCompletionDataSettingsUi::RicExportCompletionDataSettingsUi()
     CAF_PDM_InitField(&includePerforations, "IncludePerforations", true, "Perforations", "", "", "");
     CAF_PDM_InitField(&includeFishbones, "IncludeFishbones", true, "Fishbones", "", "", "");
     CAF_PDM_InitField(&includeFractures, "IncludeFractures", true, "Fractures", "", "", "");
+    CAF_PDM_InitField(&m_includeFracturesSummaryHeader, "IncludeFracturesSummaryHeader", false, "Append Detailed Text Summary (BETA)", "", "", "");
 
     CAF_PDM_InitField(&excludeMainBoreForFishbones, "ExcludeMainBoreForFishbones", false, "  Exclude Main Bore Transmissibility", "", "", "");
     
@@ -133,6 +134,14 @@ void RicExportCompletionDataSettingsUi::showFishbonesInUi(bool enable)
 bool RicExportCompletionDataSettingsUi::reportCompletionsTypesIndividually() const
 {
     return m_reportCompletionTypesSeparately() == INDIVIDUALLY;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RicExportCompletionDataSettingsUi::includeFracturesSummaryHeader() const
+{
+    return m_includeFracturesSummaryHeader;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -221,6 +230,7 @@ void RicExportCompletionDataSettingsUi::defineUiOrdering(QString uiConfigName, c
         if (m_fracturesEnabled)
         {
             group->add(&includeFractures);
+            group->add(&m_includeFracturesSummaryHeader);
 
             if (compdatExport == WPIMULT_AND_DEFAULT_CONNECTION_FACTORS)
             {

@@ -63,6 +63,7 @@ public:
     caf::PdmField<bool>                     includePerforations;
     caf::PdmField<bool>                     includeFishbones;
     caf::PdmField<bool>                     excludeMainBoreForFishbones;
+    
     caf::PdmField<bool>                     includeFractures;
     
     void                                    showForSimWells();
@@ -75,6 +76,7 @@ public:
     void                                    showFishbonesInUi(bool enable);
 
     bool                                    reportCompletionsTypesIndividually() const;
+    bool                                    includeFracturesSummaryHeader() const;
 
     virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
 
@@ -83,7 +85,8 @@ protected:
     virtual void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
 
 private:
-    caf::PdmField<CombinationModeType> m_reportCompletionTypesSeparately;
+    caf::PdmField<CombinationModeType>  m_reportCompletionTypesSeparately;
+    caf::PdmField<bool>                 m_includeFracturesSummaryHeader;
 
     bool                m_displayForSimWell;
     bool                m_fracturesEnabled;
