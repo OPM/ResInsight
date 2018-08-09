@@ -165,15 +165,25 @@ void RicExportFishbonesWellSegmentsFeature::exportWellSegments(const RimWellPath
 
     QString fileName = QString("%1-Welsegs").arg(settings.caseToApply()->caseUserDescription());
     fileName = caf::Utils::makeValidFileBasename(fileName);
-    QString filePath = QDir(settings.folder()).filePath(fileName);
-    QFile exportFile(filePath);
 
+    QDir exportFolder(settings.folder());
+    if (!exportFolder.exists())
+    {
+        bool createdPath = exportFolder.mkpath(".");
+        if (createdPath)
+            RiaLogging::info("Created export folder " + settings.folder());
+        else
+            RiaLogging::error("Selected output folder does not exist, and could not be created.");
+    }
+
+    QString filePath = exportFolder.filePath(fileName);
+    QFile   exportFile(filePath);
     if (!exportFile.open(QIODevice::WriteOnly))
     {
         RiaLogging::error(QString("Export Well Segments: Could not open the file: %1").arg(filePath));
         return;
     }
-
+    
     std::vector<WellSegmentLocation> locations = RicWellPathExportCompletionDataFeatureImpl::findWellSegmentLocations(settings.caseToApply, wellPath, fishbonesSubs);
 
     QTextStream stream(&exportFile);
