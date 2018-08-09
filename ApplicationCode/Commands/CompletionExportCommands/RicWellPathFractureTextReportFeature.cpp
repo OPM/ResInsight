@@ -32,6 +32,7 @@
 #include "RiuTextDialog.h"
 
 #include <QAction>
+#include "RicWellPathFractureReportItem.h"
 
 CAF_CMD_SOURCE_INIT(RicWellPathFractureTextReportFeature, "RicWellPathFractureTextReportFeature");
 
@@ -68,7 +69,8 @@ void RicWellPathFractureTextReportFeature::onActionTriggered(bool isChecked)
 
     RicWellPathFractureTextReportFeatureImpl impl;
 
-    QString reportText = impl.wellPathFractureReport(eclipseCase, wellPaths);
+    std::vector<RicWellPathFractureReportItem> wellPathFractureReportItems;
+    QString reportText = impl.wellPathFractureReport(eclipseCase, wellPaths, wellPathFractureReportItems);
 
     RiuTextDialog* textDialog = new RiuTextDialog(nullptr);
     textDialog->resize(QSize(1000, 1000));

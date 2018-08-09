@@ -18,6 +18,8 @@
 
 #include "RicExportFractureCompletionsImpl.h"
 
+#include "RicWellPathFractureReportItem.h"
+
 #include "RiaLogging.h"
 
 #include "RimEclipseCase.h"
@@ -34,15 +36,19 @@
 #include "RimWellPathFracture.h"
 #include "RimWellPathFractureCollection.h"
 
+#include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
+#include "RigEclipseToStimPlanCalculator.h"
 #include "RigEclipseToStimPlanCellTransmissibilityCalculator.h"
 #include "RigFractureCell.h"
 #include "RigFractureGrid.h"
 #include "RigFractureTransmissibilityEquations.h"
 #include "RigMainGrid.h"
+#include "RigResultAccessorFactory.h"
 #include "RigSimWellData.h"
 #include "RigSimulationWellCoordsAndMD.h"
 #include "RigTransmissibilityCondenser.h"
+#include "RigTransmissibilityEquations.h"
 #include "RigWellPath.h"
 #include "RigWellPathStimplanIntersector.h"
 
@@ -51,10 +57,11 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RigCompletionData>
-    RicExportFractureCompletionsImpl::generateCompdatValuesForWellPath(RimWellPath*    wellPath,
-                                                                       RimEclipseCase* caseToApply,
-                                                                       QTextStream*    outputStreamForIntermediateResultsText)
+std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdatValuesForWellPath(
+    RimWellPath*                                wellPath,
+    RimEclipseCase*                             caseToApply,
+    std::vector<RicWellPathFractureReportItem>* fractureDataForReport,
+    QTextStream*                                outputStreamForIntermediateResultsText)
 {
     std::vector<RimFracture*> fracturesAlongWellPath;
 
@@ -73,6 +80,7 @@ std::vector<RigCompletionData>
                                  wellPath->completions()->wellNameForExport(),
                                  wellPath->wellPathGeometry(),
                                  fracturesAlongWellPath,
+                                 fractureDataForReport,
                                  outputStreamForIntermediateResultsText);
 }
 
@@ -92,6 +100,7 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
                                  wellPath->completions()->wellNameForExport(),
                                  wellPath->wellPathGeometry(),
                                  fracturesAlongWellPath,
+                                 nullptr,
                                  outputStreamForIntermediateResultsText);
 }
 
@@ -119,7 +128,7 @@ std::vector<RigCompletionData>
         }
 
         std::vector<RigCompletionData> branchCompletions = generateCompdatValues(
-            eclipseCase, well->name(), branches[branchIndex], fractures, outputStreamForIntermediateResultsText);
+            eclipseCase, well->name(), branches[branchIndex], fractures, nullptr, outputStreamForIntermediateResultsText);
 
         completionData.insert(completionData.end(), branchCompletions.begin(), branchCompletions.end());
     }
@@ -131,10 +140,11 @@ std::vector<RigCompletionData>
 ///
 //--------------------------------------------------------------------------------------------------
 std::vector<RigCompletionData>
-    RicExportFractureCompletionsImpl::generateCompdatValues(RimEclipseCase*                  caseToApply,
-                                                            const QString&                   wellPathName,
-                                                            const RigWellPath*               wellPathGeometry,
-                                                            const std::vector<RimFracture*>& fractures,
+    RicExportFractureCompletionsImpl::generateCompdatValues(RimEclipseCase*                             caseToApply,
+                                                            const QString&                              wellPathName,
+                                                            const RigWellPath*                          wellPathGeometry,
+                                                            const std::vector<RimFracture*>&            fractures,
+                                                            std::vector<RicWellPathFractureReportItem>* fractureDataReportItems,
                                                             QTextStream* outputStreamForIntermediateResultsText)
 {
     std::vector<RigCompletionData> fractureCompletions;
@@ -180,57 +190,17 @@ std::vector<RigCompletionData>
             }
         }
 
-        using CellIdxSpace = RigTransmissibilityCondenser::CellAddress;
         RigTransmissibilityCondenser transCondenser;
 
         //////
         // Calculate Matrix To Fracture Trans
+        RigEclipseToStimPlanCalculator eclToFractureCalc(caseToApply,
+                                                         fracture->transformMatrix(),
+                                                         fracture->fractureTemplate()->skinFactor(),
+                                                         cDarcyInCorrectUnit,
+                                                         *fractureGrid);
 
-        const std::vector<RigFractureCell>& fractureCells = fractureGrid->fractureCells();
-
-        for (const RigFractureCell& fractureCell : fractureCells)
-        {
-            if (!fractureCell.hasNonZeroConductivity()) continue;
-
-            RigEclipseToStimPlanCellTransmissibilityCalculator eclToFractureTransCalc(caseToApply,
-                                                                                      fracture->transformMatrix(),
-                                                                                      fracture->fractureTemplate()->skinFactor(),
-                                                                                      cDarcyInCorrectUnit,
-                                                                                      fractureCell);
-
-            const std::vector<size_t>& fractureCellContributingEclipseCells =
-                eclToFractureTransCalc.globalIndiciesToContributingEclipseCells();
-            const std::vector<double>& fractureCellContributingEclipseCellTransmissibilities =
-                eclToFractureTransCalc.contributingEclipseCellTransmissibilities();
-
-            size_t stimPlanCellIndex = fractureGrid->getGlobalIndexFromIJ(fractureCell.getI(), fractureCell.getJ());
-
-            auto truncatedFractureCellIndices =
-                RimFractureContainmentTools::fracturedCellsTruncatedByFaults(caseToApply, fracture);
-
-            for (size_t i = 0; i < fractureCellContributingEclipseCells.size(); i++)
-            {
-                if (fracture->isEclipseCellWithinContainment(caseToApply->eclipseCaseData()->mainGrid(),
-                                                             truncatedFractureCellIndices,
-                                                             fractureCellContributingEclipseCells[i]))
-                {
-                    if (useFiniteConductivityInFracture)
-                    {
-                        transCondenser.addNeighborTransmissibility(
-                            {true, CellIdxSpace::ECLIPSE, fractureCellContributingEclipseCells[i]},
-                            {false, CellIdxSpace::STIMPLAN, stimPlanCellIndex},
-                            fractureCellContributingEclipseCellTransmissibilities[i]);
-                    }
-                    else
-                    {
-                        transCondenser.addNeighborTransmissibility(
-                            {true, CellIdxSpace::ECLIPSE, fractureCellContributingEclipseCells[i]},
-                            {true, CellIdxSpace::WELL, 1},
-                            fractureCellContributingEclipseCellTransmissibilities[i]);
-                    }
-                }
-            }
-        }
+        eclToFractureCalc.appendDataToTransmissibilityCondenser(fracture, useFiniteConductivityInFracture, &transCondenser);
 
         //////
         // Calculate Transmissibility in the fracture: From one StimPlan Cell to the other
@@ -415,6 +385,108 @@ std::vector<RigCompletionData>
             }
         }
 
+        if (fractureDataReportItems)
+        {
+            QString fractureTemplateName;
+            if (fracture->fractureTemplate())
+            {
+                fractureTemplateName = fracture->fractureTemplate()->name();
+            }
+            RicWellPathFractureReportItem reportItem(wellPathName, fracture->name(), fractureTemplateName);
+
+            double transmissibility = 0.0;
+            double fcd              = -1.0;
+            double area             = 0.0;
+
+            for (const auto& c : allCompletionsForOneFracture)
+            {
+                transmissibility += c.transmissibility();
+            }
+
+            auto areaPerEclipseCell = eclToFractureCalc.areaPerEclipseCell();
+            for (const auto& areaPerEclipseCell : areaPerEclipseCell)
+            {
+                area += areaPerEclipseCell.second;
+            }
+
+            reportItem.setData(transmissibility, allCompletionsForOneFracture.size(), fcd, area);
+
+            double conductivity = 0.0;
+            double width        = 0.0;
+            double height       = 0.0;
+            double halfLength   = 0.0;
+            {
+                auto* ellipseTemplate = dynamic_cast<RimEllipseFractureTemplate*>(fracTemplate);
+                if (ellipseTemplate)
+                {
+                    conductivity = ellipseTemplate->conductivity();
+                    width        = ellipseTemplate->width();
+                    height       = ellipseTemplate->height();
+                    halfLength   = ellipseTemplate->halfLength();
+                }
+
+                auto* stimplanTemplate = dynamic_cast<RimStimPlanFractureTemplate*>(fracTemplate);
+                if (stimplanTemplate)
+                {
+                    conductivity = stimplanTemplate->areaWeightedConductivity();
+                    width        = stimplanTemplate->areaWeightedWidth();
+
+                    height = stimplanTemplate->longestYRange();
+
+                    double xLength = 0.0;
+                    if (height > 1e-9)
+                    {
+                        xLength = area / height;
+                    }
+
+                    // Compute half length defined as (total area / (H/2) )
+                    halfLength = xLength / 2.0;
+                }
+            }
+            reportItem.setWidthAndConductivity(width, conductivity);
+            reportItem.setHeightAndHalfLength(height, halfLength);
+
+            double areaWeightedEclipseTransmissibility = 0.0;
+
+            if (caseToApply && caseToApply->eclipseCaseData())
+            {
+                RigCaseCellResultsData* gridCellResults = caseToApply->results(RiaDefines::MATRIX_MODEL);
+                if (gridCellResults)
+                {
+                    gridCellResults->findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, "TRANX");
+                    gridCellResults->findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, "TRANY");
+                    gridCellResults->findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, "TRANZ");
+                }
+
+                cvf::ref<RigResultAccessor> tranxAccessObject = RigResultAccessorFactory::createFromUiResultName(
+                    caseToApply->eclipseCaseData(), 0, RiaDefines::MATRIX_MODEL, 0, "TRANX");
+
+                cvf::ref<RigResultAccessor> tranyAccessObject = RigResultAccessorFactory::createFromUiResultName(
+                    caseToApply->eclipseCaseData(), 0, RiaDefines::MATRIX_MODEL, 0, "TRANY");
+
+                cvf::ref<RigResultAccessor> tranzAccessObject = RigResultAccessorFactory::createFromUiResultName(
+                    caseToApply->eclipseCaseData(), 0, RiaDefines::MATRIX_MODEL, 0, "TRANZ");
+
+                if (tranxAccessObject.notNull() && tranyAccessObject.notNull() && tranzAccessObject.notNull())
+                {
+                    for (const auto& areaPerEclipseCell : areaPerEclipseCell)
+                    {
+                        double tranx = tranxAccessObject->cellScalarGlobIdx(areaPerEclipseCell.first);
+                        double trany = tranyAccessObject->cellScalarGlobIdx(areaPerEclipseCell.first);
+                        double tranz = tranzAccessObject->cellScalarGlobIdx(areaPerEclipseCell.first);
+
+                        double transmissibilityForCell = RigTransmissibilityEquations::totalConnectionFactor(tranx, trany, tranz);
+
+                        areaWeightedEclipseTransmissibility += transmissibilityForCell * areaPerEclipseCell.second / area;
+                    }
+                }
+            }
+
+            reportItem.setAreaWeightedTransmissibility(areaWeightedEclipseTransmissibility);
+
+            fractureDataReportItems->push_back(reportItem);
+        }
+
         std::copy(
             allCompletionsForOneFracture.begin(), allCompletionsForOneFracture.end(), std::back_inserter(fractureCompletions));
 
@@ -424,18 +496,18 @@ std::vector<RigCompletionData>
                 << "\n"
                 << "\n"
                 << "\n----------- All Transmissibilities " << fracture->name() << " -------------------- \n\n";
-            
+
             (*outputStreamForIntermediateResultsText)
                 << QString::fromStdString(transCondenser.neighborTransDebugOutput(mainGrid, fractureGrid));
-            
+
             (*outputStreamForIntermediateResultsText)
                 << "\n"
                 << "\n"
                 << "\n----------- Condensed Results " << fracture->name() << " -------------------- \n\n";
-            
+
             (*outputStreamForIntermediateResultsText)
                 << QString::fromStdString(transCondenser.condensedTransDebugOutput(mainGrid, fractureGrid));
-            
+
             (*outputStreamForIntermediateResultsText) << "\n";
         }
     }

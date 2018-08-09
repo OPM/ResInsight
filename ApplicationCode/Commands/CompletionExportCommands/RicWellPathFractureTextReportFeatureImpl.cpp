@@ -21,6 +21,7 @@
 #include "RiaApplication.h"
 
 #include "RicExportFractureCompletionsImpl.h"
+#include "RicWellPathFractureReportItem.h"
 
 #include "RifEclipseDataTableFormatter.h"
 
@@ -30,6 +31,7 @@
 #include "RimEllipseFractureTemplate.h"
 #include "RimFileWellPath.h"
 #include "RimFractureContainment.h"
+#include "RimFractureTemplate.h"
 #include "RimFractureTemplateCollection.h"
 #include "RimOilField.h"
 #include "RimProject.h"
@@ -39,8 +41,6 @@
 #include "RimWellPathCollection.h"
 #include "RimWellPathFracture.h"
 #include "RimWellPathFractureCollection.h"
-
-#include "cvfGeometryTools.h"
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -69,14 +69,11 @@ RifEclipseOutputTableColumn floatNumberColumn(const QString& text)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RicWellPathFractureTextReportFeatureImpl::wellPathFractureReport(RimEclipseCase*                  sourceCase,
-                                                                         const std::vector<RimWellPath*>& wellPaths)
+QString RicWellPathFractureTextReportFeatureImpl::wellPathFractureReport(
+    RimEclipseCase*                                   sourceCase,
+    const std::vector<RimWellPath*>&                  wellPaths,
+    const std::vector<RicWellPathFractureReportItem>& wellPathFractureReportItems)
 {
-    if (!sourceCase || wellPaths.empty())
-    {
-        return "";
-    }
-
     QString lineStart = "--";
 
     QString     text;
@@ -164,7 +161,7 @@ QString RicWellPathFractureTextReportFeatureImpl::wellPathFractureReport(RimEcli
         }
 
         {
-            QString tableText = createFractureCompletionSummaryText(sourceCase, wellPathFractures);
+            QString tableText = createFractureCompletionSummaryText(wellPathFractureReportItems);
             textStream << tableText;
             textStream << lineStart << "\n";
         }
@@ -569,8 +566,7 @@ QString RicWellPathFractureTextReportFeatureImpl::createFractureInstancesText(
 ///
 //--------------------------------------------------------------------------------------------------
 QString RicWellPathFractureTextReportFeatureImpl::createFractureCompletionSummaryText(
-    RimEclipseCase*                          sourceCase,
-    const std::vector<RimWellPathFracture*>& wellPathFractures) const
+    const std::vector<RicWellPathFractureReportItem>& wellPathFractureReportItems) const
 {
     QString tableText;
 
@@ -606,7 +602,7 @@ QString RicWellPathFractureTextReportFeatureImpl::createFractureCompletionSummar
         formatter.add("[]"); // Fcd
         formatter.add("[m2]"); // Area
         formatter.add("[mDm]"); // KfWf
-        formatter.add("[Md]"); // Kf
+        formatter.add("[mD]"); // Kf
         formatter.add("[m]"); // wf
         formatter.add("[m]"); // Xf
         formatter.add("[m]"); // H
@@ -619,80 +615,27 @@ QString RicWellPathFractureTextReportFeatureImpl::createFractureCompletionSummar
     // Cache the fracture template area, as this is a heavy operation
     std::map<RimFractureTemplate*, double> templateAreaMap;
 
-    for (auto& fracture : wellPathFractures)
+    for (const auto& reportItem : wellPathFractureReportItems)
     {
-        QString wellName;
+        QString wellPathName, fractureName, fractureTemplateName;
+        reportItem.getNames(wellPathName, fractureName, fractureTemplateName);
 
-        RimWellPath* wellPath = nullptr;
-        fracture->firstAncestorOrThisOfType(wellPath);
-        if (wellPath)
-        {
-            wellName = wellPath->name();
-        }
+        formatter.add(wellPathName);
+        formatter.add(fractureName);
+        formatter.add(fractureTemplateName);
 
-        formatter.add(wellName);
-        formatter.add(fracture->name());
+        formatter.add(reportItem.transmissibility());
+        formatter.add(reportItem.connectionCount());
+        formatter.add(reportItem.fcd());
+        formatter.add(reportItem.area());
 
-        if (fracture->fractureTemplate())
-        {
-            formatter.add(fracture->fractureTemplate()->name());
-        }
-        else
-        {
-            formatter.add("NA");
-        }
+        formatter.add(reportItem.kfwf()); // KfWf
+        formatter.add(reportItem.kf()); // Kf
+        formatter.add(reportItem.wf()); // wf
 
-        std::vector<RigCompletionData> completionDataOneFracture =
-            RicExportFractureCompletionsImpl::generateCompdatValuesForWellPathSingleFracture(
-                wellPath, sourceCase, fracture, nullptr);
-
-        double aggregatedTransmissibility = 0.0;
-        for (const auto& c : completionDataOneFracture)
-        {
-            aggregatedTransmissibility += c.transmissibility();
-        }
-
-        double fractureArea = 0.0;
-
-        if (fracture->fractureTemplate())
-        {
-            auto it = templateAreaMap.find(fracture->fractureTemplate());
-            if (it != templateAreaMap.end())
-            {
-                fractureArea = it->second;
-            }
-            else
-            {
-                std::vector<cvf::Vec3f> nodeCoords;
-                std::vector<cvf::uint>  triangleIndices;
-
-                fracture->fractureTemplate()->fractureTriangleGeometry(&nodeCoords, &triangleIndices);
-
-                for (size_t triangleIndex = 0; triangleIndex < triangleIndices.size(); triangleIndex += 3)
-                {
-                    std::vector<cvf::Vec3d> polygon;
-                    polygon.push_back(cvf::Vec3d(nodeCoords[triangleIndices[triangleIndex + 0]]));
-                    polygon.push_back(cvf::Vec3d(nodeCoords[triangleIndices[triangleIndex + 1]]));
-                    polygon.push_back(cvf::Vec3d(nodeCoords[triangleIndices[triangleIndex + 2]]));
-
-                    auto   areaVector  = cvf::GeometryTools::polygonAreaNormal3D(polygon);
-                    double polygonArea = areaVector.length();
-                    fractureArea += polygonArea;
-                }
-                templateAreaMap[fracture->fractureTemplate()] = fractureArea;
-            }
-        }
-
-        formatter.add(aggregatedTransmissibility); // Tr
-        formatter.add(completionDataOneFracture.size()); // #con
-        formatter.add(1.0); // Fcd
-        formatter.add(fractureArea); // Area
-        formatter.add(3.0); // KfWf
-        formatter.add(4.0); // Kf
-        formatter.add(5.0); // wf
-        formatter.add(6.0); // Xf
-        formatter.add(7.0); // H
-        formatter.add(8.0); // Km
+        formatter.add(reportItem.xf()); // Xf
+        formatter.add(reportItem.h()); // H
+        formatter.add(reportItem.km()); // Km
 
         formatter.rowCompleted();
     }

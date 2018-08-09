@@ -21,6 +21,7 @@
 #include "RigCompletionData.h"
 
 #include "RicExportCompletionDataSettingsUi.h"
+#include "RicWellPathFractureReportItem.h"
 
 #include "cvfBase.h"
 #include "cvfVector3.h"
@@ -163,14 +164,18 @@ private:
     static RigCompletionData                     combineEclipseCellCompletions(const std::vector<RigCompletionData>& completions, 
                                                                                const RicExportCompletionDataSettingsUi& settings);
 
-    static void                                  sortAndExportCompletionsToFile(const QString& exportFolder, 
+    static void                                  sortAndExportCompletionsToFile(RimEclipseCase* eclipseCase,
+                                                                         const QString& exportFolder, 
                                                                          const QString& fileName, 
                                                                          std::vector<RigCompletionData>& completions, 
+                                                                         const std::vector<RicWellPathFractureReportItem>& wellPathFractureReportItems,
                                                                          RicExportCompletionDataSettingsUi::CompdatExportType exportType);
 
-    static void                                  exportCompdatAndWpimultTables(const QString& folderName, 
+    static void                                  exportCompdatAndWpimultTables(RimEclipseCase* sourceCase,
+                                                                        const QString& folderName, 
                                                                         const QString& fileName, 
                                                                         const std::map<QString, std::vector<RigCompletionData>>& completionsPerGrid, 
+                                                                        const std::vector<RicWellPathFractureReportItem>& wellPathFractureReportItems,
                                                                         RicExportCompletionDataSettingsUi::CompdatExportType exportType);
 
     static void                                  exportCompdatTableUsingFormatter(RifEclipseDataTableFormatter& formatter, 

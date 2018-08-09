@@ -27,6 +27,7 @@ class RimFractureTemplate;
 class RimEllipseFractureTemplate;
 class RimStimPlanFractureTemplate;
 class RifEclipseDataTableFormatter;
+class RicWellPathFractureReportItem;
 
 //==================================================================================================
 ///
@@ -34,7 +35,9 @@ class RifEclipseDataTableFormatter;
 class RicWellPathFractureTextReportFeatureImpl
 {
 public:
-    QString wellPathFractureReport(RimEclipseCase* sourceCase, const std::vector<RimWellPath*>& wellPaths);
+    QString wellPathFractureReport(RimEclipseCase*                                   sourceCase,
+                                   const std::vector<RimWellPath*>&                  wellPaths,
+                                   const std::vector<RicWellPathFractureReportItem>& wellPathFractureReportItems);
 
     static std::vector<RimWellPath*> wellPathsWithFractures();
 
@@ -46,8 +49,8 @@ private:
     QString createFractureText(const std::vector<RimFractureTemplate*>& fractureTemplates) const;
     QString createFractureInstancesText(const std::vector<RimWellPathFracture*>& fractureTemplates) const;
 
-    QString createFractureCompletionSummaryText(RimEclipseCase*                          sourceCase,
-                                                const std::vector<RimWellPathFracture*>& wellPathFractures) const;
+    QString
+        createFractureCompletionSummaryText(const std::vector<RicWellPathFractureReportItem>& wellPathFractureReportItems) const;
 
     void configureFormatter(RifEclipseDataTableFormatter* formatter) const;
 };
