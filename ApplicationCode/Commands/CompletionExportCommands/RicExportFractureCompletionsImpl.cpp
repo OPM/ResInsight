@@ -403,10 +403,10 @@ std::vector<RigCompletionData>
                 transmissibility += c.transmissibility();
             }
 
-            auto areaPerEclipseCell = eclToFractureCalc.areaPerEclipseCell();
-            for (const auto& areaPerEclipseCell : areaPerEclipseCell)
+            auto cellAreas = eclToFractureCalc.eclipseCellAreas();
+            for (const auto& cellArea : cellAreas)
             {
-                area += areaPerEclipseCell.second;
+                area += cellArea.second;
             }
 
             reportItem.setData(transmissibility, allCompletionsForOneFracture.size(), fcd, area);
@@ -469,15 +469,15 @@ std::vector<RigCompletionData>
 
                 if (tranxAccessObject.notNull() && tranyAccessObject.notNull() && tranzAccessObject.notNull())
                 {
-                    for (const auto& areaPerEclipseCell : areaPerEclipseCell)
+                    for (const auto& cellArea : cellAreas)
                     {
-                        double tranx = tranxAccessObject->cellScalarGlobIdx(areaPerEclipseCell.first);
-                        double trany = tranyAccessObject->cellScalarGlobIdx(areaPerEclipseCell.first);
-                        double tranz = tranzAccessObject->cellScalarGlobIdx(areaPerEclipseCell.first);
+                        double tranx = tranxAccessObject->cellScalarGlobIdx(cellArea.first);
+                        double trany = tranyAccessObject->cellScalarGlobIdx(cellArea.first);
+                        double tranz = tranzAccessObject->cellScalarGlobIdx(cellArea.first);
 
                         double transmissibilityForCell = RigTransmissibilityEquations::totalConnectionFactor(tranx, trany, tranz);
 
-                        areaWeightedEclipseTransmissibility += transmissibilityForCell * areaPerEclipseCell.second / area;
+                        areaWeightedEclipseTransmissibility += transmissibilityForCell * cellArea.second / area;
                     }
                 }
             }

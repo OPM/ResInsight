@@ -252,7 +252,6 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicReloadWellPathFormationNamesFeature";
             menuBuilder << "RicWellPathImportPerforationIntervalsFeature";
             menuBuilder.subMenuEnd();
-            menuBuilder << "RicWellPathFractureTextReportFeature";
         }
         else if (dynamic_cast<RimWellPath*>(uiItem))
         {

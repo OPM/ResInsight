@@ -52,7 +52,7 @@ public:
                                                RigTransmissibilityCondenser* condenser) const;
 
     // Returns the area of each stimplan cell intersecting eclipse cells
-    std::map<size_t, double> areaPerEclipseCell() const;
+    std::map<size_t, double> eclipseCellAreas() const;
 
 private:
     void computeValues();

@@ -122,7 +122,7 @@ void RigEclipseToStimPlanCalculator::appendDataToTransmissibilityCondenser(RimFr
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::map<size_t, double> RigEclipseToStimPlanCalculator::areaPerEclipseCell() const
+std::map<size_t, double> RigEclipseToStimPlanCalculator::eclipseCellAreas() const
 {
     std::map<size_t, double> areaForEclipseReservoirCells;
 
