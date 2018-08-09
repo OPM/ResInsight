@@ -310,12 +310,14 @@ void example_S_Curve(double p1x,
     std::valarray<double> v_P11 = sys.global3DPos(e_P11);
     std::valarray<double> v_P22 = sys.global3DPos(e_P22);
 
-    std::cout << "C1:  " << "[ " << v_C1[0]  << ", " << v_C1[1]  << ", " << v_C1[2]  << " ]" << std::endl;
-    std::cout << "N1:  " << "[ " << v_N1[0]  << ", " << v_N1[1]  << ", " << v_N1[2]  << " ]" << std::endl;
-    std::cout << "P11: " << "[ " << v_P11[0] << ", " << v_P11[1] << ", " << v_P11[2] << " ]" << std::endl;
-    std::cout << "C2:  " << "[ " << v_C2[0]  << ", " << v_C2[1]  << ", " << v_C2[2]  << " ]" << std::endl;
-    std::cout << "N1:  " << "[ " << v_N2[0]  << ", " << v_N2[1]  << ", " << v_N2[2]  << " ]" << std::endl;
-    std::cout << "P22: " << "[ " << v_P22[0] << ", " << v_P22[1] << ", " << v_P22[2] << " ]" << std::endl;
+    std::cout << "P1:  " << "[ " <<  p1x     << "  " << p1y      << "  " << p1z      << " " << std::endl;
+    std::cout << "P11: " << "[ " << v_P11[0] << "  " << v_P11[1] << "  " << v_P11[2] << " " << std::endl;
+    std::cout << "P22: " << "[ " << v_P22[0] << "  " << v_P22[1] << "  " << v_P22[2] << " " << std::endl;
+    std::cout << "P2:  " << "[ " <<  p2x     << "  " << p2y      << "  " << p2z      << " " << std::endl;
+    std::cout << "C1:  " << "[ " << v_C1[0]  << "  " << v_C1[1]  << "  " << v_C1[2]  << " " << std::endl;
+    std::cout << "C2:  " << "[ " << v_C2[0]  << "  " << v_C2[1]  << "  " << v_C2[2]  << " " << std::endl;
+    std::cout << "N1:  " << "[ " << v_N1[0]  << "  " << v_N1[1]  << "  " << v_N1[2]  << " " << std::endl;
+    std::cout << "N2:  " << "[ " << v_N2[0]  << "  " << v_N2[1]  << "  " << v_N2[2]  << " " << std::endl;
 
 }
 
@@ -324,7 +326,7 @@ void example_S_Curve(double p1x,
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-TEST(DISABLED_SolveSpaceSolverTest, SCurve)
+TEST(SolveSpaceSolverTest, SCurve)
 {
     example_S_Curve(100, 100,     0,    0, M_PI/4, 12,
                     100, 150, -1000, M_PI, M_PI/4, 12);
@@ -335,7 +337,7 @@ TEST(DISABLED_SolveSpaceSolverTest, SCurve)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-TEST(DISABLED_RiaSCurveCalculator, Test1)
+TEST(RiaSCurveCalculator, Test1)
 
 {
     RiaSCurveCalculator sCurveCalc({ 100, 100, 0 },
@@ -347,23 +349,31 @@ TEST(DISABLED_RiaSCurveCalculator, Test1)
                                    M_PI/4,
                                    12);
     EXPECT_TRUE(sCurveCalc.isOk() );
-
-    cvf::Vec3d v_C1 = sCurveCalc.firstCenter();
-    cvf::Vec3d v_C2 = sCurveCalc.secondCenter();
-    cvf::Vec3d v_N1 = sCurveCalc.firstNormal();
-    cvf::Vec3d v_N2 = sCurveCalc.secondNormal();
-    cvf::Vec3d v_P11 = sCurveCalc.firstArcEndpoint();
-    cvf::Vec3d v_P22 = sCurveCalc.secondArcStartpoint();
-
-    std::cout << "C1:  " << "[ " << v_C1[0]  << ", " << v_C1[1]  << ", " << v_C1[2]  << " ]" << std::endl;
-    std::cout << "N1:  " << "[ " << v_N1[0]  << ", " << v_N1[1]  << ", " << v_N1[2]  << " ]" << std::endl;
-    std::cout << "P11: " << "[ " << v_P11[0] << ", " << v_P11[1] << ", " << v_P11[2] << " ]" << std::endl;
-    std::cout << "C2:  " << "[ " << v_C2[0]  << ", " << v_C2[1]  << ", " << v_C2[2]  << " ]" << std::endl;
-    std::cout << "N1:  " << "[ " << v_N2[0]  << ", " << v_N2[1]  << ", " << v_N2[2]  << " ]" << std::endl;
-    std::cout << "P22: " << "[ " << v_P22[0] << ", " << v_P22[1] << ", " << v_P22[2] << " ]" << std::endl;
+    
+    sCurveCalc.dump();
 }
 
-TEST(DISABLED_RiaSCurveCalculator, Test2)
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+TEST(RiaSCurveCalculator, Test1AtEstimate)
+
+{
+    RiaSCurveCalculator sCurveCalc({ 100, 100, 0 },
+                                   0,
+                                   M_PI/4,
+                                   535.452,
+                                   { 100, 150, -1000 },
+                                   M_PI,
+                                   M_PI/4,
+                                   439.508);
+    EXPECT_TRUE(sCurveCalc.isOk() );
+
+    sCurveCalc.dump();
+
+}
+
+TEST(RiaSCurveCalculator, Test2)
 {
     RiaSCurveCalculator sCurveCalc({ 100, 100, 0 },
                                    0,
@@ -376,23 +386,12 @@ TEST(DISABLED_RiaSCurveCalculator, Test2)
 
     EXPECT_TRUE(sCurveCalc.isOk());
 
-    cvf::Vec3d v_C1 = sCurveCalc.firstCenter();
-    cvf::Vec3d v_C2 = sCurveCalc.secondCenter();
-    cvf::Vec3d v_N1 = sCurveCalc.firstNormal();
-    cvf::Vec3d v_N2 = sCurveCalc.secondNormal();
-    cvf::Vec3d v_P11 = sCurveCalc.firstArcEndpoint();
-    cvf::Vec3d v_P22 = sCurveCalc.secondArcStartpoint();
+    sCurveCalc.dump();
 
-    std::cout << "C1:  " << "[ " << v_C1[0]  << ", " << v_C1[1]  << ", " << v_C1[2]  << " ]" << std::endl;
-    std::cout << "N1:  " << "[ " << v_N1[0]  << ", " << v_N1[1]  << ", " << v_N1[2]  << " ]" << std::endl;
-    std::cout << "P11: " << "[ " << v_P11[0] << ", " << v_P11[1] << ", " << v_P11[2] << " ]" << std::endl;
-    std::cout << "C2:  " << "[ " << v_C2[0]  << ", " << v_C2[1]  << ", " << v_C2[2]  << " ]" << std::endl;
-    std::cout << "N1:  " << "[ " << v_N2[0]  << ", " << v_N2[1]  << ", " << v_N2[2]  << " ]" << std::endl;
-    std::cout << "P22: " << "[ " << v_P22[0] << ", " << v_P22[1] << ", " << v_P22[2] << " ]" << std::endl;
 }
 
 
-TEST(DISABLED_RiaSCurveCalculator, Test3)
+TEST(RiaSCurveCalculator, Test3)
 {
     RiaSCurveCalculator sCurveCalc({ 100, 100, 0 },
                                    0,
@@ -405,17 +404,172 @@ TEST(DISABLED_RiaSCurveCalculator, Test3)
 
     EXPECT_TRUE(sCurveCalc.isOk() );
 
-    cvf::Vec3d v_C1 = sCurveCalc.firstCenter();
-    cvf::Vec3d v_C2 = sCurveCalc.secondCenter();
-    cvf::Vec3d v_N1 = sCurveCalc.firstNormal();
-    cvf::Vec3d v_N2 = sCurveCalc.secondNormal();
-    cvf::Vec3d v_P11 = sCurveCalc.firstArcEndpoint();
-    cvf::Vec3d v_P22 = sCurveCalc.secondArcStartpoint();
+    sCurveCalc.dump();
 
-    std::cout << "C1:  " << "[ " << v_C1[0]  << ", " << v_C1[1]  << ", " << v_C1[2]  << " ]" << std::endl;
-    std::cout << "N1:  " << "[ " << v_N1[0]  << ", " << v_N1[1]  << ", " << v_N1[2]  << " ]" << std::endl;
-    std::cout << "P11: " << "[ " << v_P11[0] << ", " << v_P11[1] << ", " << v_P11[2] << " ]" << std::endl;
-    std::cout << "C2:  " << "[ " << v_C2[0]  << ", " << v_C2[1]  << ", " << v_C2[2]  << " ]" << std::endl;
-    std::cout << "N1:  " << "[ " << v_N2[0]  << ", " << v_N2[1]  << ", " << v_N2[2]  << " ]" << std::endl;
-    std::cout << "P22: " << "[ " << v_P22[0] << ", " << v_P22[1] << ", " << v_P22[2] << " ]" << std::endl;
+}
+
+void printQ1Q2R1R2Matrix(cvf::Vec3d p1, double azi1, double inc1,
+                         cvf::Vec3d p2, double azi2, double inc2)
+{
+
+    double q1Start = 0.0; 
+    double q1End = 3000;
+    double step1 = 100;
+    double q2Start = 0.0; 
+    double q2End = 3000;
+    double step2 = 100;
+
+    std::cout << "R1" <<  std::endl;
+    std::cout << "q1\\q2" << "  ";
+
+    for (double q2 = q2Start; q2 < q2End; q2 += step2)
+    {
+        std::cout << q2 << "  "; 
+    }
+    std::cout << std::endl;
+
+    for (double q1 = q1Start; q1 < q1End; q1 += step1)
+    {
+        std::cout << q1 << "  "; 
+        for (double q2 = q2Start; q2 < q2End; q2 += step2)
+        {
+            RiaSCurveCalculator sCurveCalc = RiaSCurveCalculator::fromTangentsAndLength(p1, azi1, inc1, q1,
+                                                                                        p2, azi2, inc2, q2);
+            if ( sCurveCalc.isOk() )
+            {
+                std::cout << sCurveCalc.firstRadius() << "  " ;
+            }
+            else
+            {
+                std::cout << "NS" << "  " ;
+            }
+        }
+
+        std::cout <<  std::endl;
+    }
+
+    std::cout <<  std::endl;
+    std::cout << "R2" <<  std::endl;
+    std::cout << "q1\\q2" << "  ";
+
+    for (double q2 = q2Start; q2 < q2End; q2 += step2)
+    {
+        std::cout << q2 << "  "; 
+    }
+    std::cout << std::endl;
+
+    for (double q1 = q1Start; q1 < q1End; q1 += step1)
+    {
+        std::cout << q1 << "  "; 
+        for (double q2 = q2Start; q2 < q2End; q2 += step2)
+        {
+            RiaSCurveCalculator sCurveCalc = RiaSCurveCalculator::fromTangentsAndLength(p1, azi1, inc1, q1,
+                                                                                        p2, azi2, inc2, q2);
+            if ( sCurveCalc.isOk() )
+            {
+                std::cout << sCurveCalc.secondRadius() << "  " ;
+            }
+            else
+            {
+                std::cout << "NS" << "  " ;
+            }
+        }
+
+        std::cout <<  std::endl;
+    }
+
+}
+
+TEST(DISABLED_RiaSCurveCalculator, q_r_relation)
+{
+    std::cout << "Config 1" << std::endl;
+
+    printQ1Q2R1R2Matrix(
+    { 0,0,0 }, 0, 0,
+    { 0,0,-1000 }, 0, 0);
+
+    std::cout << "Config 1a" << std::endl;
+
+    printQ1Q2R1R2Matrix(
+    { 0,0,0 }, 0, 0,
+    { 0,0,-1000 }, 0, 0.01);
+
+    std::cout << "Config 2" << std::endl;
+
+    printQ1Q2R1R2Matrix(
+    { 0,0,0 }, 0, 0,
+    { 0,0,-1000 }, 0, M_PI/2.0);
+
+    std::cout << "Config 3" << std::endl;
+
+    printQ1Q2R1R2Matrix(
+    { 0,0,0 }, 0, 0,
+    { 0,0,-1000 }, 0, M_PI);
+
+    std::cout << "Config 3a" << std::endl;
+
+    printQ1Q2R1R2Matrix(
+    { 0,0,0 }, 0, 0,
+    { 0,0,-1000 }, 0, M_PI-0.01);
+
+    std::cout << "Config 4" << std::endl;
+
+    printQ1Q2R1R2Matrix(
+    { 0,0,0 }, 0,  M_PI/2.0,
+    { 0,0,-1000 }, 0,  M_PI/2.0);
+
+    std::cout << "Config 5" << std::endl;
+
+    printQ1Q2R1R2Matrix(
+    { 0,0,0 }, 0,  M_PI/2.0,
+    { 0,0,-1000 }, M_PI,  M_PI/2.0);
+
+    std::cout << "Config 6" << std::endl;
+
+    printQ1Q2R1R2Matrix(
+    { 0,0,0 }, 0,  M_PI,
+    { 0,0,-1000 }, 0,  0);
+
+    std::cout << "Config 6a" << std::endl;
+
+    printQ1Q2R1R2Matrix(
+    { 0,0,0 }, 0,  M_PI,
+    { 0,0,-1000 }, 0,  0.01);
+
+    std::cout << "Config 6b" << std::endl;
+
+    printQ1Q2R1R2Matrix(
+    { 0,0,0 }, 0,  M_PI-0.01,
+    { 0,0,-1000 }, 0,  0.00);
+
+    std::cout << "Config 7" << std::endl;
+
+    printQ1Q2R1R2Matrix(
+    { 0,0,0 }, 0,  M_PI,
+    { 0,0,-1000 }, 0,   M_PI/2.0);
+
+    std::cout << "Config 8" << std::endl;
+
+    printQ1Q2R1R2Matrix(
+    { 0,0,0 }, 0,  M_PI,
+    { 0,0,-1000 }, 0,   M_PI);
+
+    std::cout << "Config 8a" << std::endl;
+
+    printQ1Q2R1R2Matrix(
+    { 0,0,0 }, 0,  M_PI,
+    { 0,0,-1000 }, 0,   M_PI-0.01);
+
+    std::cout << "Config 8b" << std::endl;
+
+    printQ1Q2R1R2Matrix(
+    { 0,0,0 }, 0,  M_PI-0.01,
+    { 0,0,-1000 }, 0,   M_PI);
+
+    std::cout << "Config 9" << std::endl;
+
+    printQ1Q2R1R2Matrix(
+    { 0,0,0 }, 0,  M_PI/2,
+    { 0,0,-1000 }, M_PI/2,   M_PI/2);
+
 }

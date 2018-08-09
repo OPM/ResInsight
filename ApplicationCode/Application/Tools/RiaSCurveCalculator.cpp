@@ -2,6 +2,8 @@
 
 #include "SolveSpaceSystem.h"
 #include <cmath>
+#include "cvfMatrix4.h"
+#include <iostream>
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -9,6 +11,8 @@
 RiaSCurveCalculator::RiaSCurveCalculator(cvf::Vec3d p1, double azi1, double inc1, double rad1, 
                                          cvf::Vec3d p2, double azi2, double inc2, double rad2)
                                          : m_isCalculationOK(false)
+                                         , m_p1(p1)
+                                         , m_p2(p2)
                                          , m_firstArcEndpoint(p1 + 0.3*(p2-p1))
                                          , m_secondArcStartpoint(p1 + 0.6*(p2-p1))
                                          , m_r1(rad1)
@@ -48,28 +52,24 @@ RiaSCurveCalculator::RiaSCurveCalculator(cvf::Vec3d p1, double azi1, double inc1
                         &est_p_Plane2Qx, 
                         &est_p_Plane2Qy, 
                         &est_p_Plane2Qz);
+    double est_rad1 = rad1;
+    double est_rad2 = rad2;
 
-    if (false)
+
+    if (true)
     {
         double p1p2Length =  (p2-p1).length();
         RiaSCurveCalculator estimatedCurveCalc = RiaSCurveCalculator::fromTangentsAndLength(p1, azi1, inc1, 0.2 * p1p2Length,
                                                                                             p2, azi2, inc2, 0.2 * p1p2Length);
 
-        est_p_c1x  =  0.0; 
-        est_p_c1y  = rad1; 
-        est_p_p11x = rad1; 
-        est_p_p11y = rad1; 
+        //est_rad1 = estimatedCurveCalc.firstRadius();
+        //est_rad2 = estimatedCurveCalc.secondRadius();
 
-        est_p_c2x  =   0.0;
-        est_p_c2y  =  rad2;
-        est_p_p22x = -rad2;
-        est_p_p22y =  rad2;
+        #if 0
 
-        cvf::Vec3d est_tp1c1;
-        cvf::Vec3d est_tp2c2;
-
-        est_tp1c1 = (estimatedCurveCalc.firstCenter() - p1).getNormalized();
-        est_tp2c2 = (estimatedCurveCalc.secondCenter() - p2).getNormalized();
+        std::cout << "Estimate:"  << std::endl;
+        estimatedCurveCalc.dump();
+        #endif
 
         cvf::Vec3d t1(sin(azi1)*sin(inc1),
                       cos(azi1)*sin(inc1),
@@ -77,6 +77,30 @@ RiaSCurveCalculator::RiaSCurveCalculator(cvf::Vec3d p1, double azi1, double inc1
         cvf::Vec3d t2(sin(azi2)*sin(inc2),
                       cos(azi2)*sin(inc2),
                       -cos(inc2));
+
+        cvf::Vec3d est_tp1c1 = (estimatedCurveCalc.firstCenter() - p1).getNormalized();
+        cvf::Vec3d est_tp2c2 = (estimatedCurveCalc.secondCenter() - p2).getNormalized();
+
+        cvf::Mat4d mx1 =  cvf::Mat4d::fromCoordSystemAxes(&t1, &est_tp1c1, nullptr );
+        mx1.setTranslation(p1);
+        cvf::Vec3d est_p11 = estimatedCurveCalc.firstArcEndpoint();
+        est_p11.transformPoint(mx1.getInverted());
+        CVF_ASSERT(fabs(est_p11.z()) < 1e-4 );
+        cvf::Mat4d mx2 =  cvf::Mat4d::fromCoordSystemAxes(&t2, &est_tp2c2, nullptr );
+        mx2.setTranslation(p2);
+        cvf::Vec3d est_p22 = estimatedCurveCalc.secondArcStartpoint();
+        est_p22.transformPoint(mx2.getInverted());
+        CVF_ASSERT(fabs(est_p22.z()) < 1e-4 );
+
+        est_p_c1x  =  0.0; 
+        est_p_c1y  = estimatedCurveCalc.m_r1; 
+        est_p_p11x = est_p11.x(); 
+        est_p_p11y = est_p11.y(); 
+
+        est_p_c2x  =  0.0;
+        est_p_c2y  =  estimatedCurveCalc.m_r2;
+        est_p_p22x = est_p22.x();
+        est_p_p22y = est_p22.y();
 
         Slvs_MakeQuaternion(t1.x(), t1.y(), t1.z(),
                             est_tp1c1.x(), est_tp1c1.y(), est_tp1c1.z(),
@@ -190,7 +214,7 @@ RiaSCurveCalculator::RiaSCurveCalculator(cvf::Vec3d p1, double azi1, double inc1
                                                                      group2,
                                                                      SLVS_C_PT_PT_DISTANCE,
                                                                      e_Plane1,
-                                                                     rad1,
+                                                                     est_rad1,
                                                                      e_P1,
                                                                      e_C1,
                                                                      -1,
@@ -246,7 +270,7 @@ RiaSCurveCalculator::RiaSCurveCalculator(cvf::Vec3d p1, double azi1, double inc1
 
     // Arc2 center
 
-    Slvs_hParam p_c2x  = sys.addParam(Slvs_MakeParam(-1, group2, est_p_c2x)); // Needs a better guess 
+    Slvs_hParam p_c2x  = sys.addParam(Slvs_MakeParam(-1, group2, est_p_c2x)); 
     Slvs_hParam p_c2y  = sys.addParam(Slvs_MakeParam(-1, group2, est_p_c2y));
 
     Slvs_hEntity e_C2 = sys.addEntity(Slvs_MakePoint2d(-1, group2, e_Plane2, p_c2x, p_c2y));
@@ -267,7 +291,7 @@ RiaSCurveCalculator::RiaSCurveCalculator(cvf::Vec3d p1, double azi1, double inc1
                                                                      group2,
                                                                      SLVS_C_PT_PT_DISTANCE,
                                                                      e_Plane2,
-                                                                     rad2,
+                                                                     est_rad2,
                                                                      e_P2,
                                                                      e_C2,
                                                                      -1,
@@ -296,7 +320,7 @@ RiaSCurveCalculator::RiaSCurveCalculator(cvf::Vec3d p1, double azi1, double inc1
 
 
     auto solveResult = sys.solve(group2, true);
-
+    
     if(solveResult != SolveSpaceSystem::RESULT_OKAY) 
     {
         return;
@@ -320,7 +344,7 @@ RiaSCurveCalculator::RiaSCurveCalculator(cvf::Vec3d p1, double azi1, double inc1
                                                                              e_LP11P22));
 
     solveResult = sys.solve(group2, true);
-
+    
     if(solveResult != SolveSpaceSystem::RESULT_OKAY) return;
 
 
@@ -336,7 +360,7 @@ RiaSCurveCalculator::RiaSCurveCalculator(cvf::Vec3d p1, double azi1, double inc1
                                                                              e_LP11P22));
 
     solveResult = sys.solve(group2, true);
-
+    
     if(solveResult != SolveSpaceSystem::RESULT_OKAY) return;
 
 
@@ -353,7 +377,7 @@ RiaSCurveCalculator::RiaSCurveCalculator(cvf::Vec3d p1, double azi1, double inc1
                                                                        -1));
 
     solveResult = sys.solve(group2, true);
-
+    
     if(solveResult != SolveSpaceSystem::RESULT_OKAY) return;
 
 
@@ -413,34 +437,92 @@ RiaSCurveCalculator::RiaSCurveCalculator(cvf::Vec3d p1, double azi1, double inc1
 //--------------------------------------------------------------------------------------------------
 RiaSCurveCalculator::RiaSCurveCalculator(cvf::Vec3d p1, cvf::Vec3d q1, 
                                          cvf::Vec3d p2, cvf::Vec3d q2)
+    : m_isCalculationOK(true)
+    , m_p1(p1)
+    , m_p2(p2)
 {
     using Vec3d = cvf::Vec3d;
     bool isOk = true;
     m_isCalculationOK = true;
 
-    Vec3d tq1q2 = (q2 - q1).getNormalized(&isOk); 
+    Vec3d tq1q2 = (q2 - q1).getNormalized(&isOk); // !ok means the control points are in the same place. Could fallback to use only one circle segment + one line. 
     m_isCalculationOK = m_isCalculationOK && isOk;
-    Vec3d t1    = (q1 - p1).getNormalized(&isOk); 
+    Vec3d t1    = (q1 - p1).getNormalized(&isOk); // !ok means no tangent specified. Could fallback to use only one circle segment + one line.
     m_isCalculationOK = m_isCalculationOK && isOk;
-    Vec3d t2    = (p2 - q2).getNormalized(&isOk); 
-    m_isCalculationOK = m_isCalculationOK && isOk;
-
-    Vec3d td1 = ( tq1q2 - t1).getNormalized(&isOk); 
-    m_isCalculationOK = m_isCalculationOK && isOk;
-    Vec3d td2 = (-tq1q2 + t2).getNormalized(&isOk); 
+    Vec3d t2    = (p2 - q2).getNormalized(&isOk); // !ok means no tangent specified. Could fallback to use only one circle segment + one line or only one straight line if both tangents are missing
     m_isCalculationOK = m_isCalculationOK && isOk;
 
-    m_c1 = q1 + (q1 - p1).length() * (td1 * (-t1)) * td1;
-    m_c2 = q2 + (q2 - p2).length() * (td2 * ( t2)) * td2;
+    {
+        Vec3d td1 = (tq1q2 - t1);
+        double td1Length = td1.length();
+
+        if ( td1Length > 1e-10 )
+        {
+            td1 /= td1Length;
+            m_c1 = q1 + ((q1 - p1).length() / (td1 * (-t1))) * td1;
+            m_r1 = (m_c1 - p1).length();
+        }
+        else // both control points are along t1. First curve has infinite radius
+        {
+            m_c1 = cvf::Vec3d::UNDEFINED;
+            m_r1 = std::numeric_limits<double>::infinity();
+        }
+    }
+
+    {
+        Vec3d td2 = (-tq1q2 + t2);
+        double td2Length = td2.length();
+
+        if ( td2Length > 1e-10 )
+        {
+            td2 /= td2Length;
+            m_c2 = q2 + ((q2 - p2).length() / (td2 * (t2))) * td2;
+            m_r2 = (m_c2 - p2).length();
+        }
+        else // both control points are along t2. Second curve has infinite radius
+        {
+            m_c2 = cvf::Vec3d::UNDEFINED;
+            m_r2 = std::numeric_limits<double>::infinity();
+        }
+    }
 
     m_firstArcEndpoint    = q1 + (q1 - p1).length() * tq1q2;
     m_secondArcStartpoint = q2 - (q2 - p2).length() * tq1q2;
 
-    m_n1 = t1 ^ tq1q2;
-    m_n2 = tq1q2 ^ t2;
+    if (((q1 - p1).length() + (q2 - p2).length()) > (q2 - q1).length()) // first arc end and second arc start is overlapping
+    {
+        m_isCalculationOK = false;
+    }
 
-    m_r1 = (m_c1 - p1).length();
-    m_r2 = (m_c2 - p2).length();
+    // The Circle normals. Will be set to cvf::Vec3d::ZERO if undefined.
+
+    m_n1 = (t1 ^ tq1q2).getNormalized();
+    m_n2 = (tq1q2 ^ t2).getNormalized();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiaSCurveCalculator::dump()
+{
+    cvf::Vec3d v_C1 = firstCenter();
+    cvf::Vec3d v_C2 = secondCenter();
+    cvf::Vec3d v_N1 = firstNormal();
+    cvf::Vec3d v_N2 = secondNormal();
+    cvf::Vec3d v_P11 = firstArcEndpoint();
+    cvf::Vec3d v_P22 = secondArcStartpoint();
+
+    std::cout << "  P1:  " << "[ " << m_p1[0]  << "  " << m_p1[1]  << "  " << m_p1[2]  << " " << std::endl;
+    std::cout << "  P11: " << "[ " << v_P11[0] << "  " << v_P11[1] << "  " << v_P11[2] << " " << std::endl;
+    std::cout << "  P22: " << "[ " << v_P22[0] << "  " << v_P22[1] << "  " << v_P22[2] << " " << std::endl;
+    std::cout << "  P2:  " << "[ " << m_p2[0]  << "  " << m_p2[1]  << "  " << m_p2[2]  << " " << std::endl;
+    std::cout << "  C1:  " << "[ " << v_C1[0]  << "  " << v_C1[1]  << "  " << v_C1[2]  << " " << std::endl;
+    std::cout << "  C2:  " << "[ " << v_C2[0]  << "  " << v_C2[1]  << "  " << v_C2[2]  << " " << std::endl;
+    std::cout << "  N1:  " << "[ " << v_N1[0]  << "  " << v_N1[1]  << "  " << v_N1[2]  << " " << std::endl;
+    std::cout << "  N2:  " << "[ " << v_N2[0]  << "  " << v_N2[1]  << "  " << v_N2[2]  << " " << std::endl;
+    std::cout << "  R1:  " << "[ " << firstRadius()  << " ]" << std::endl;
+    std::cout << "  R2:  " << "[ " << secondRadius() << " ]" << std::endl;
+
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -458,7 +540,6 @@ RiaSCurveCalculator RiaSCurveCalculator::fromTangentsAndLength(cvf::Vec3d p1, do
 
     cvf::Vec3d Q1 = p1 + lengthToQ1 * t1;
     cvf::Vec3d Q2 = p2 - lengthToQ2 * t2;
-    cvf::Vec3d tQ1Q2 = (Q2 - Q1).getNormalized();
 
     RiaSCurveCalculator curveFromControlPoints(p1, Q1, 
                                                p2, Q2);
