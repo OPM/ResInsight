@@ -32,12 +32,14 @@
 #include "RimMainPlotCollection.h"
 #include "RimProject.h"
 
-#include "RiuPlotMainWindow.h"
 #include "RiuMainWindow.h"
+#include "RiuPlotMainWindow.h"
 #include "RiuViewer.h"
 
 #include "ExportCommands/RicSnapshotAllPlotsToFileFeature.h"
 #include "ExportCommands/RicSnapshotAllViewsToFileFeature.h"
+
+#include "cafUtils.h"
 
 #include <QDateTime>
 #include <QDebug>
@@ -153,13 +155,20 @@ void RiaRegressionTestRunner::runRegressionTest(const QString& testRootPath, con
     {
         QDir testCaseFolder(folderList[i].filePath());
 
-        QDir genDir(testCaseFolder.filePath(generatedFolderName));
-        removeDirectoryWithContent(genDir);
+        {
+            QDir genDir(testCaseFolder.filePath(generatedFolderName));
+            removeDirectoryWithContent(genDir);
+        }
 
-        QDir diffDir(testCaseFolder.filePath(diffFolderName));
-        removeDirectoryWithContent(diffDir);
+        {
+            QDir diffDir(testCaseFolder.filePath(diffFolderName));
+            removeDirectoryWithContent(diffDir);
+        }
 
-        QDir baseDir(testCaseFolder.filePath(baseFolderName));
+        {
+            QDir generatedFiles(testCaseFolder.filePath(RegTestNames::generatedFilesFolderName));
+            removeDirectoryWithContent(generatedFiles);
+        }
     }
 
     // Generate html report
@@ -216,12 +225,6 @@ void RiaRegressionTestRunner::runRegressionTest(const QString& testRootPath, con
         QFileInfoList commandFileEntries = testCaseFolder.entryInfoList(filterList);
         if (!commandFileEntries.empty())
         {
-            {
-                QString generatedFilesFolderName = testCaseFolder.filePath(RegTestNames::generatedFilesFolderName);
-                QDir genDir(generatedFilesFolderName);
-                removeDirectoryWithContent(genDir);
-            }
-
             QString currentApplicationPath = QDir::current().absolutePath();
 
             // Set current path to the folder containing the command file, as this is required when using file references
@@ -268,22 +271,26 @@ void RiaRegressionTestRunner::runRegressionTest(const QString& testRootPath, con
 
                         html += "<table>\n";
                         html += "  <tr>\n";
-                        html += "    <td colspan=\"3\" bgcolor=\"darkblue\" height=\"40\">  <b><font color=\"white\" size=\"3\"> " + headerText + " </font></b> </td>\n";
+                        html +=
+                            "    <td colspan=\"3\" bgcolor=\"darkblue\" height=\"40\">  <b><font color=\"white\" size=\"3\"> " +
+                            headerText + " </font></b> </td>\n";
                         html += "  </tr>\n";
 
                         textFileCompare.runComparison(baseFilesFolderName, generatedFilesFolderName);
-    
+
                         QString diff = textFileCompare.diffOutput();
                         if (diff.isEmpty())
                         {
                             html += "  <tr>\n";
-                            html += "    <td colspan=\"3\" bgcolor=\"lightgray\"> <font color=\"green\">No text diff detected</font> </td> \n";
+                            html += "    <td colspan=\"3\" bgcolor=\"lightgray\"> <font color=\"green\">No text diff "
+                                    "detected</font> </td> \n";
                             html += "  </tr>\n";
                         }
                         else
                         {
                             html += "  <tr>\n";
-                            html += "    <td colspan=\"3\" bgcolor=\"lightgray\"> <font color=\"red\">Text diff detected - output from diff tool : </font> </td> \n";
+                            html += "    <td colspan=\"3\" bgcolor=\"lightgray\"> <font color=\"red\">Text diff detected - "
+                                    "output from diff tool : </font> </td> \n";
                             html += "  </tr>\n";
                         }
 
@@ -382,12 +389,7 @@ void RiaRegressionTestRunner::runRegressionTest(const QString& testRootPath, con
 //--------------------------------------------------------------------------------------------------
 void RiaRegressionTestRunner::removeDirectoryWithContent(QDir& dirToDelete)
 {
-    QStringList files = dirToDelete.entryList();
-    for (int fIdx = 0; fIdx < files.size(); ++fIdx)
-    {
-        dirToDelete.remove(files[fIdx]);
-    }
-    dirToDelete.rmdir(".");
+    caf::Utils::removeDirectoryAndFilesRecursively(dirToDelete.absolutePath());
 }
 
 //--------------------------------------------------------------------------------------------------
