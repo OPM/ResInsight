@@ -163,7 +163,7 @@ std::valarray<double> SolveSpaceSystem::global3DPos(Slvs_hEntity pointEntityId)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-Slvs_Constraint SolveSpaceSystem::constraint(Slvs_hConstraint constraintId)
+Slvs_Constraint& SolveSpaceSystem::constraint(Slvs_hConstraint constraintId)
 {
     return (*m_constraintMemory)[constraintId-1];
 }

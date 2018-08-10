@@ -37,7 +37,7 @@ public:
     // Returns point as x, y, z values
     std::valarray<double> global3DPos (Slvs_hEntity pointEntityId);
 
-    Slvs_Constraint constraint(Slvs_hConstraint constraintId);
+    Slvs_Constraint & constraint(Slvs_hConstraint constraintId);
     std::vector<Slvs_hConstraint> failedConstraints() const;
 
 private:
