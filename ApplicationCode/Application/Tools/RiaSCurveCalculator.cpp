@@ -4,6 +4,7 @@
 #include <cmath>
 #include "cvfMatrix4.h"
 #include <iostream>
+#include <algorithm>
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -62,11 +63,10 @@ RiaSCurveCalculator::RiaSCurveCalculator(cvf::Vec3d p1, double azi1, double inc1
         RiaSCurveCalculator estimatedCurveCalc = RiaSCurveCalculator::fromTangentsAndLength(p1, azi1, inc1, 0.2 * p1p2Length,
                                                                                             p2, azi2, inc2, 0.2 * p1p2Length);
 
-        //est_rad1 = estimatedCurveCalc.firstRadius();
-        //est_rad2 = estimatedCurveCalc.secondRadius();
+        est_rad1 = estimatedCurveCalc.firstRadius() ;
+        est_rad2 = estimatedCurveCalc.secondRadius();
 
-        #if 0
-
+        #if 1
         std::cout << "Estimate:"  << std::endl;
         estimatedCurveCalc.dump();
         #endif
@@ -317,14 +317,16 @@ RiaSCurveCalculator::RiaSCurveCalculator(cvf::Vec3d p1, double azi1, double inc1
                                                                       e_LP2C2,
                                                                       e_LC2P22));
 
+    SolveSpaceSystem::ResultStatus solveResult;
+    #if 0
 
-
-    auto solveResult = sys.solve(group2, true);
+    solveResult = sys.solve(group2, true);
     
     if(solveResult != SolveSpaceSystem::RESULT_OKAY) 
     {
         return;
     }
+    #endif
 
     // Connecting the two planes
 
@@ -342,10 +344,15 @@ RiaSCurveCalculator::RiaSCurveCalculator(cvf::Vec3d p1, double azi1, double inc1
                                                                              -1,
                                                                              e_LC1P11,
                                                                              e_LP11P22));
+    #if 0
 
     solveResult = sys.solve(group2, true);
     
-    if(solveResult != SolveSpaceSystem::RESULT_OKAY) return;
+    if(solveResult != SolveSpaceSystem::RESULT_OKAY) 
+    {
+        return;
+    }
+    #endif
 
 
 
@@ -358,10 +365,15 @@ RiaSCurveCalculator::RiaSCurveCalculator(cvf::Vec3d p1, double azi1, double inc1
                                                                              -1,
                                                                              e_LC2P22,
                                                                              e_LP11P22));
+    #if 0
 
     solveResult = sys.solve(group2, true);
     
-    if(solveResult != SolveSpaceSystem::RESULT_OKAY) return;
+    if(solveResult != SolveSpaceSystem::RESULT_OKAY) 
+    {
+        return;
+    }
+    #endif
 
 
     // P11, P22 in plane constraints
@@ -375,11 +387,14 @@ RiaSCurveCalculator::RiaSCurveCalculator(cvf::Vec3d p1, double azi1, double inc1
                                                                        -1,
                                                                        e_Plane2,
                                                                        -1));
-
+    #if 0
     solveResult = sys.solve(group2, true);
-    
-    if(solveResult != SolveSpaceSystem::RESULT_OKAY) return;
-
+ 
+    if(solveResult != SolveSpaceSystem::RESULT_OKAY) 
+    {
+        return;
+    }
+    #endif
 
     Slvs_hConstraint c_P22InPlane1 = sys.addConstr(Slvs_MakeConstraint(-1,
                                                                        group2,
@@ -391,12 +406,107 @@ RiaSCurveCalculator::RiaSCurveCalculator(cvf::Vec3d p1, double azi1, double inc1
                                                                        e_Plane1,
                                                                        -1));
 
+    
+    m_isCalculationOK = true;
+    #if 0
+    std::cout << std::endl;
+    for ( int iter = 0; iter < 2; ++iter )
+    {
+        double newRad1 = est_rad1 - iter*1.0*(est_rad1 - rad1);
+        double newRad2 = est_rad2 - iter*1.0*(est_rad2 - rad2);
+
+        sys.constraint(c_dist_P1C1).valA = newRad1;
+        sys.constraint(c_dist_P2C2).valA = newRad2;
+
+        solveResult = sys.solve(group2, true);
+
+        if ( solveResult != SolveSpaceSystem::RESULT_OKAY )
+        {
+            std::cout << std::endl;
+            m_isCalculationOK = false;
+            if (iter > 0)
+                break;
+            else
+                return;
+        }
+        std::cout << iter ;
+    }
+    std::cout << std::endl;
+
+    #else
+    std::cout << std::endl;
+
+    // Initial solve using the precalculated estimated curve
 
     solveResult = sys.solve(group2, true);
+    if ( solveResult != SolveSpaceSystem::RESULT_OKAY )
+    {
+        std::cout << std::endl;
+        m_isCalculationOK = false;
+        return;
+    }
+    
+    // Change radius from estimate towards the radii provided in steps.
+    // Try all in one go first. 
+    // if solution diverges, reduce step by half until the solution converges.
+    // Keep stepsize one step before trying to double it. 
+    
+    double currentRadius1 = est_rad1;
+    double currentRadius2 = est_rad2;
+    double nextStepR1 = rad1 - currentRadius1;
+    double nextStepR2 = rad2 - currentRadius2;
+    int iter = 0; int maxIter = 12;
+    bool isIncreaseStepOk = false;
+    bool hasReachedRadiusTargets = false;
 
-    if(solveResult != SolveSpaceSystem::RESULT_OKAY) return;
+    while ( iter < maxIter 
+            && !hasReachedRadiusTargets )
+    {
+        
+        double newRad1 = currentRadius1 + nextStepR1;
+        double newRad2 = currentRadius2 + nextStepR2;
 
-    m_isCalculationOK = true;
+        sys.constraint(c_dist_P1C1).valA = newRad1;
+        sys.constraint(c_dist_P2C2).valA = newRad2;
+
+        solveResult = sys.solve(group2, true);
+
+        iter++;
+        std::cout << iter ;
+        if ( solveResult != SolveSpaceSystem::RESULT_OKAY )
+        {
+            nextStepR1 = 0.5* nextStepR1;
+            nextStepR2 = 0.5* nextStepR2;
+            isIncreaseStepOk = false;
+            std::cout << "-";
+        }
+        else
+        {
+            currentRadius1 = newRad1;
+            currentRadius2 = newRad2;
+            if ( isIncreaseStepOk )
+            {
+                nextStepR1 = std::min(2*nextStepR1, rad1 - currentRadius1);
+                nextStepR2 = std::min(2*nextStepR2, rad2 - currentRadius2);
+                std::cout << "++";
+
+            }
+            else
+            {
+                nextStepR1 = std::min(nextStepR1, rad1 - currentRadius1);
+                nextStepR2 = std::min(nextStepR2, rad2 - currentRadius2);
+                isIncreaseStepOk = true;
+                std::cout << "+";
+            }
+        }
+        hasReachedRadiusTargets =  (    fabs(currentRadius1 - rad1) < 1e-5 
+                                     && fabs(currentRadius2 - rad2) < 1e-5);
+    }
+
+    m_isCalculationOK = (hasReachedRadiusTargets && solveResult == SolveSpaceSystem::RESULT_OKAY);
+    
+    std::cout << std::endl;
+    #endif
 
     // Circle Center, Plane normals, P11, P22
 
@@ -430,6 +540,8 @@ RiaSCurveCalculator::RiaSCurveCalculator(cvf::Vec3d p1, double azi1, double inc1
     m_secondArcStartpoint[1] = v_P22[1];
     m_secondArcStartpoint[2] = v_P22[2];
 
+    m_r1 = (m_c1 - m_p1).length();
+    m_r2 = (m_c2 - m_p2).length();
 }
 
 //--------------------------------------------------------------------------------------------------
