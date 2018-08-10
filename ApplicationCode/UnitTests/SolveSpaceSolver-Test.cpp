@@ -408,6 +408,148 @@ TEST(RiaSCurveCalculator, Test3)
 
 }
 
+TEST(RiaSCurveCalculator, Test4)
+{
+    RiaSCurveCalculator sCurveCalc({ 0, 0, 0 },
+                                   0,
+                                   45,
+                                   115,
+                                   { 0, 50, -1000 },
+                                   0,
+                                   0,
+                                   115);
+
+    EXPECT_TRUE(sCurveCalc.isOk() );
+
+    sCurveCalc.dump();
+
+}
+
+double curveRadius = 115;
+double angleEpsilon = 0.01;
+
+TEST(DISABLED_RiaSCurveCalculator, Config1 ) 
+{ 
+    RiaSCurveCalculator sCurveCalc(
+    { 0,0,0 }, 0, 0, curveRadius,
+    { 0,0,-1000 }, 0, 0, curveRadius);
+    sCurveCalc.dump();
+    EXPECT_TRUE(sCurveCalc.isOk() );
+}
+
+TEST(RiaSCurveCalculator, Config1a ) 
+{ 
+    RiaSCurveCalculator sCurveCalc(
+    { 0,0,0 }, 0, 0, curveRadius,
+    { 0,0,-1000 }, 0, angleEpsilon, curveRadius);
+    sCurveCalc.dump();
+    EXPECT_TRUE(sCurveCalc.isOk() );
+}
+TEST(RiaSCurveCalculator, Config2 ) 
+{ 
+    RiaSCurveCalculator sCurveCalc(
+    { 0,0,0 }, 0, 0, curveRadius,
+    { 0,0,-1000 }, 0, M_PI/2.0, curveRadius);
+    sCurveCalc.dump();
+    EXPECT_TRUE(sCurveCalc.isOk() );
+}
+TEST(DISABLED_RiaSCurveCalculator, Config3 ) 
+{ 
+    RiaSCurveCalculator sCurveCalc(
+    { 0,0,0 }, 0, 0, curveRadius,
+    { 0,0,-1000 }, 0, M_PI, curveRadius);
+    sCurveCalc.dump();
+    EXPECT_TRUE(sCurveCalc.isOk() );
+}
+TEST(RiaSCurveCalculator, Config3a ) 
+{ 
+    RiaSCurveCalculator sCurveCalc(
+    { 0,0,0 }, 0, 0, curveRadius,
+    { 0,0,-1000 }, 0, M_PI-angleEpsilon, curveRadius);
+    sCurveCalc.dump();
+    EXPECT_TRUE(sCurveCalc.isOk() );
+}
+TEST(RiaSCurveCalculator, Config4 ) 
+{ 
+    RiaSCurveCalculator sCurveCalc(
+    { 0,0,0 }, 0,  M_PI/2.0, curveRadius,
+    { 0,0,-1000 }, 0,  M_PI/2.0, curveRadius);
+    sCurveCalc.dump();
+    EXPECT_TRUE(sCurveCalc.isOk() );
+}
+TEST(RiaSCurveCalculator, Config5 ) 
+{ 
+    RiaSCurveCalculator sCurveCalc(
+    { 0,0,0 }, 0,  M_PI/2.0, curveRadius,
+    { 0,0,-1000 }, M_PI,  M_PI/2.0, curveRadius);
+    sCurveCalc.dump();
+    EXPECT_TRUE(sCurveCalc.isOk() );
+}
+TEST(DISABLED_RiaSCurveCalculator, Config6 ) 
+{ 
+    RiaSCurveCalculator sCurveCalc(
+    { 0,0,0 }, 0,  M_PI, curveRadius,
+    { 0,0,-1000 }, 0,  0, curveRadius);
+    sCurveCalc.dump();
+    EXPECT_TRUE(sCurveCalc.isOk() );
+}
+TEST(RiaSCurveCalculator, Config6a ) 
+{ 
+    RiaSCurveCalculator sCurveCalc(
+    { 0,0,0 }, 0,  M_PI, curveRadius,
+    { 0,0,-1000 }, 0,  angleEpsilon, curveRadius);
+    sCurveCalc.dump();
+    EXPECT_TRUE(sCurveCalc.isOk() );
+}
+TEST(RiaSCurveCalculator, Config6b ) 
+{ 
+    RiaSCurveCalculator sCurveCalc(
+    { 0,0,0 }, 0,  M_PI-angleEpsilon, curveRadius,
+    { 0,0,-1000 }, 0,  0.00, curveRadius);
+    sCurveCalc.dump();
+    EXPECT_TRUE(sCurveCalc.isOk() );
+}
+TEST(RiaSCurveCalculator, Config7 ) 
+{ 
+    RiaSCurveCalculator sCurveCalc(
+    { 0,0,0 }, 0,  M_PI, curveRadius,
+    { 0,0,-1000 }, 0,   M_PI/2.0, curveRadius);
+    sCurveCalc.dump();
+    EXPECT_TRUE(sCurveCalc.isOk() );
+}
+TEST(DISABLED_RiaSCurveCalculator, Config8 ) 
+{ 
+    RiaSCurveCalculator sCurveCalc(
+    { 0,0,0 }, 0,  M_PI, curveRadius,
+    { 0,0,-1000 }, 0,   M_PI, curveRadius);
+    sCurveCalc.dump();
+    EXPECT_TRUE(sCurveCalc.isOk() );
+}
+TEST(RiaSCurveCalculator, Config8a ) 
+{ 
+    RiaSCurveCalculator sCurveCalc(
+    { 0,0,0 }, 0,  M_PI, curveRadius,
+    { 0,0,-1000 }, 0,   M_PI-angleEpsilon, curveRadius);
+    sCurveCalc.dump();
+    EXPECT_TRUE(sCurveCalc.isOk() );
+}
+TEST(RiaSCurveCalculator, Config8b ) 
+{ 
+    RiaSCurveCalculator sCurveCalc(
+    { 0,0,0 }, 0,  M_PI-angleEpsilon, curveRadius,
+    { 0,0,-1000 }, 0,   M_PI, curveRadius);
+    sCurveCalc.dump();
+    EXPECT_TRUE(sCurveCalc.isOk() );
+}
+TEST(RiaSCurveCalculator, Config9 ) 
+{ 
+    RiaSCurveCalculator sCurveCalc(
+    { 0,0,0 }, 0,  M_PI/2, curveRadius,
+    { 0,0,-1000 }, M_PI/2,   M_PI/2, curveRadius);
+    sCurveCalc.dump();
+    EXPECT_TRUE(sCurveCalc.isOk() );
+}
+
 void printQ1Q2R1R2Matrix(cvf::Vec3d p1, double azi1, double inc1,
                          cvf::Vec3d p2, double azi2, double inc2)
 {
@@ -492,7 +634,7 @@ TEST(DISABLED_RiaSCurveCalculator, q_r_relation)
 
     printQ1Q2R1R2Matrix(
     { 0,0,0 }, 0, 0,
-    { 0,0,-1000 }, 0, 0.01);
+    { 0,0,-1000 }, 0, angleEpsilon);
 
     std::cout << "Config 2" << std::endl;
 
@@ -510,7 +652,7 @@ TEST(DISABLED_RiaSCurveCalculator, q_r_relation)
 
     printQ1Q2R1R2Matrix(
     { 0,0,0 }, 0, 0,
-    { 0,0,-1000 }, 0, M_PI-0.01);
+    { 0,0,-1000 }, 0, M_PI-angleEpsilon);
 
     std::cout << "Config 4" << std::endl;
 
@@ -534,12 +676,12 @@ TEST(DISABLED_RiaSCurveCalculator, q_r_relation)
 
     printQ1Q2R1R2Matrix(
     { 0,0,0 }, 0,  M_PI,
-    { 0,0,-1000 }, 0,  0.01);
+    { 0,0,-1000 }, 0,  angleEpsilon);
 
     std::cout << "Config 6b" << std::endl;
 
     printQ1Q2R1R2Matrix(
-    { 0,0,0 }, 0,  M_PI-0.01,
+    { 0,0,0 }, 0,  M_PI-angleEpsilon,
     { 0,0,-1000 }, 0,  0.00);
 
     std::cout << "Config 7" << std::endl;
@@ -558,12 +700,12 @@ TEST(DISABLED_RiaSCurveCalculator, q_r_relation)
 
     printQ1Q2R1R2Matrix(
     { 0,0,0 }, 0,  M_PI,
-    { 0,0,-1000 }, 0,   M_PI-0.01);
+    { 0,0,-1000 }, 0,   M_PI-angleEpsilon);
 
     std::cout << "Config 8b" << std::endl;
 
     printQ1Q2R1R2Matrix(
-    { 0,0,0 }, 0,  M_PI-0.01,
+    { 0,0,0 }, 0,  M_PI-angleEpsilon,
     { 0,0,-1000 }, 0,   M_PI);
 
     std::cout << "Config 9" << std::endl;
