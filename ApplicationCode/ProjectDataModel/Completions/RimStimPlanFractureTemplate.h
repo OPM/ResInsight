@@ -68,8 +68,7 @@ public:
     const RigFractureGrid*                  fractureGrid() const override;
     void                                    updateFractureGrid();
     void                                    fractureTriangleGeometry(std::vector<cvf::Vec3f>* nodeCoords,
-                                                                     std::vector<cvf::uint>* triangleIndices) override;
-    std::vector<cvf::Vec3f>                 fractureBorderPolygon() override;
+                                                                     std::vector<cvf::uint>* triangleIndices) const override;
 
     // Result Access
 

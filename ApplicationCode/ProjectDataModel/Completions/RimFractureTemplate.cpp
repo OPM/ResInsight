@@ -776,7 +776,7 @@ QString RimFractureTemplate::nameAndUnit() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-double RimFractureTemplate::wellDiameter()
+double RimFractureTemplate::wellDiameter() const
 {
     return m_wellDiameter;
 }
@@ -784,7 +784,7 @@ double RimFractureTemplate::wellDiameter()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-double RimFractureTemplate::perforationLength()
+double RimFractureTemplate::perforationLength() const
 {
     return m_perforationLength;
 }
@@ -792,7 +792,7 @@ double RimFractureTemplate::perforationLength()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const RimFractureContainment * RimFractureTemplate::fractureContainment()
+const RimFractureContainment * RimFractureTemplate::fractureContainment() const
 {
     return m_fractureContainment();
 }

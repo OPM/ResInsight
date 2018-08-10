@@ -814,14 +814,9 @@ void RimStimPlanFractureTemplate::updateFractureGrid()
 /// 
 //--------------------------------------------------------------------------------------------------
 void RimStimPlanFractureTemplate::fractureTriangleGeometry(std::vector<cvf::Vec3f>* nodeCoords, 
-                                                           std::vector<cvf::uint>* triangleIndices)
+                                                           std::vector<cvf::uint>* triangleIndices) const
 {
-
-    if (m_stimPlanFractureDefinitionData.isNull())
-    {
-        loadDataAndUpdate();
-    }
-    else    
+    if (m_stimPlanFractureDefinitionData.notNull())
     {
         m_stimPlanFractureDefinitionData->createFractureTriangleGeometry(m_wellPathDepthAtFracture,
                                                                          name(),
@@ -829,16 +824,6 @@ void RimStimPlanFractureTemplate::fractureTriangleGeometry(std::vector<cvf::Vec3
                                                                          triangleIndices);
     }
 }
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-std::vector<cvf::Vec3f> RimStimPlanFractureTemplate::fractureBorderPolygon()
-{
-    // Not implemented
-    return std::vector<cvf::Vec3f>();
-}
-
 
 //--------------------------------------------------------------------------------------------------
 /// 
