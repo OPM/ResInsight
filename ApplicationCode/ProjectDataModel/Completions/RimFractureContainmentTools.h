@@ -30,12 +30,10 @@ class RimEclipseCase;
 class RimFractureContainmentTools
 {
 public:
-    static std::set<size_t> fracturedCellsTruncatedByFaults(const RimEclipseCase* eclipseCase, RimFracture* fracture);
+    static std::set<size_t> fracturedCellsTruncatedByFaults(const RimEclipseCase* eclipseCase, const RimFracture* fracture);
 
 private:
-    // TODO: Try to change RimStimPlanFractureTemplate::fractureTriangleGeometry to be able to use const RimFracture
-    static std::set<size_t> getCellsIntersectingFracturePlane(const RigMainGrid*       mainGrid,
-                                                              RimFracture*             fracture);
+    static std::set<size_t> getCellsIntersectingFracturePlane(const RigMainGrid* mainGrid, const RimFracture* fracture);
 
     static void appendNeighborCellForFace(const std::set<size_t>&            allFracturedCells,
                                           const RigMainGrid*                 mainGrid,

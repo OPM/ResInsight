@@ -142,7 +142,7 @@ std::vector<RigCompletionData>
     // std::map <eclipseCellIndex ,map< fracture, trans> >
     std::map<size_t, std::map<RimFracture*, double>> eclCellIdxToTransPrFractureMap;
 
-    for (RimFracture* fracture : fractures)
+    for (const RimFracture* fracture : fractures)
     {
         RimFractureTemplate* fracTemplate = fracture->fractureTemplate();
 

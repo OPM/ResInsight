@@ -204,7 +204,7 @@ void RimFractureContainmentTools::appendNeighborCells(const std::set<size_t>& al
 ///
 //--------------------------------------------------------------------------------------------------
 std::set<size_t> RimFractureContainmentTools::fracturedCellsTruncatedByFaults(const RimEclipseCase* eclipseCase,
-                                                                              RimFracture*          fracture)
+                                                                              const RimFracture*    fracture)
 {
     std::set<size_t> fracturedCellsContainedByFaults;
 
@@ -259,7 +259,7 @@ std::set<size_t> RimFractureContainmentTools::fracturedCellsTruncatedByFaults(co
 ///
 //--------------------------------------------------------------------------------------------------
 std::set<size_t> RimFractureContainmentTools::getCellsIntersectingFracturePlane(const RigMainGrid* mainGrid,
-                                                                                RimFracture*       fracture)
+                                                                                const RimFracture* fracture)
 {
     std::set<size_t> eclipseCellIndices;
 

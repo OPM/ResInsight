@@ -80,8 +80,8 @@ using CellIdxSpace = RigTransmissibilityCondenser::CellAddress;
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigEclipseToStimPlanCalculator::appendDataToTransmissibilityCondenser(RimFracture* fracture,
-                                                                           bool         useFiniteConductivityInFracture,
+void RigEclipseToStimPlanCalculator::appendDataToTransmissibilityCondenser(const RimFracture* fracture,
+                                                                           bool               useFiniteConductivityInFracture,
                                                                            RigTransmissibilityCondenser* condenser) const
 {
     for (const auto& eclToFractureTransCalc : m_singleFractureCellCalculators)

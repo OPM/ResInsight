@@ -47,7 +47,7 @@ public:
                                             double                 cDarcy,
                                             const RigFractureGrid& fractureGrid);
 
-    void appendDataToTransmissibilityCondenser(RimFracture*                  fracture,
+    void appendDataToTransmissibilityCondenser(const RimFracture*            fracture,
                                                bool                          useFiniteConductivityInFracture,
                                                RigTransmissibilityCondenser* condenser) const;
 
