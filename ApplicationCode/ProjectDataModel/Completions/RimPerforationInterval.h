@@ -57,7 +57,7 @@ public:
 
     bool                                isActiveOnDate(const QDateTime& date) const;
 
-    virtual cvf::BoundingBox            boundingBoxInDomainCoords() override;
+    virtual cvf::BoundingBox            boundingBoxInDomainCoords() const override;
 
     void                                setUnitSystemSpecificDefaults();
 

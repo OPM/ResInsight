@@ -24,5 +24,5 @@
 class Rim3dPropertiesInterface
 {
 public:
-    virtual cvf::BoundingBox boundingBoxInDomainCoords() = 0;
+    virtual cvf::BoundingBox boundingBoxInDomainCoords() const = 0;
 };

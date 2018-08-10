@@ -101,7 +101,7 @@ public:
     void                                        setUnitSystemSpecificDefaults();
     
     // Override from Rim3dPropertiesInterface
-    virtual cvf::BoundingBox boundingBoxInDomainCoords() override;
+    virtual cvf::BoundingBox boundingBoxInDomainCoords() const override;
 
 public:
     caf::PdmField<cvf::Color3f>         fishbonesColor;

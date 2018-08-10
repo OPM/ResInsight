@@ -80,9 +80,8 @@ public:
 
     RivWellFracturePartMgr*         fracturePartManager();
 
-    void                            triangleGeometry(std::vector<cvf::uint>* triangleIndices, std::vector<cvf::Vec3f>* vxCoords );
 
-    std::vector<size_t>             getPotentiallyFracturedCells(const RigMainGrid* mainGrid);
+    std::vector<size_t>             getPotentiallyFracturedCells(const RigMainGrid* mainGrid) const;
 
     virtual void                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
     cvf::Vec3d                      fracturePosition() const;
@@ -104,11 +103,12 @@ protected:
 private:
     cvf::Vec3d                      fracturePositionForUi() const;
     double                          wellFractureAzimuthDiff() const; 
+    void                            triangleGeometry(std::vector<cvf::uint>* triangleIndices, std::vector<cvf::Vec3f>* vxCoords ) const;
     
     QString                         wellFractureAzimuthDiffText() const;
     QString                         wellAzimuthAtFracturePositionText() const;
 
-    virtual cvf::BoundingBox        boundingBoxInDomainCoords() override;
+    virtual cvf::BoundingBox        boundingBoxInDomainCoords() const override;
 
 protected:
     caf::PdmPtrField<RimFractureTemplate*>          m_fractureTemplate;

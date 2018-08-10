@@ -98,7 +98,7 @@ void setDefaultFractureColorResult()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimFracture::RimFracture(void)
+RimFracture::RimFracture()
 {
     CAF_PDM_InitObject("Fracture", "", "", "");
 
@@ -180,7 +180,7 @@ void RimFracture::setStimPlanTimeIndexToPlot(int timeIndex)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<size_t> RimFracture::getPotentiallyFracturedCells(const RigMainGrid* mainGrid)
+std::vector<size_t> RimFracture::getPotentiallyFracturedCells(const RigMainGrid* mainGrid) const
 {
     std::vector<size_t> cellindecies;
     if (!mainGrid) return cellindecies;
@@ -283,7 +283,7 @@ QString RimFracture::wellAzimuthAtFracturePositionText() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-cvf::BoundingBox RimFracture::boundingBoxInDomainCoords()
+cvf::BoundingBox RimFracture::boundingBoxInDomainCoords() const
 {
     std::vector<cvf::Vec3f> nodeCoordVec;
     std::vector<cvf::uint> triangleIndices;
@@ -389,7 +389,7 @@ void RimFracture::setFractureTemplateNoUpdate(RimFractureTemplate* fractureTempl
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimFracture::triangleGeometry(std::vector<cvf::uint>* triangleIndices, std::vector<cvf::Vec3f>* nodeCoords)
+void RimFracture::triangleGeometry(std::vector<cvf::uint>* triangleIndices, std::vector<cvf::Vec3f>* nodeCoords) const
 {
     RimFractureTemplate* fractureDef = fractureTemplate();
     if (fractureDef)

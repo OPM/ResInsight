@@ -691,7 +691,7 @@ void RimFishbonesMultipleSubs::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-cvf::BoundingBox RimFishbonesMultipleSubs::boundingBoxInDomainCoords()
+cvf::BoundingBox RimFishbonesMultipleSubs::boundingBoxInDomainCoords() const
 {
     cvf::BoundingBox bb;
 

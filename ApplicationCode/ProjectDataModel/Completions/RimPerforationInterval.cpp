@@ -180,7 +180,7 @@ bool RimPerforationInterval::isActiveOnDate(const QDateTime& date) const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-cvf::BoundingBox RimPerforationInterval::boundingBoxInDomainCoords()
+cvf::BoundingBox RimPerforationInterval::boundingBoxInDomainCoords() const
 {
     cvf::BoundingBox bb;
 
