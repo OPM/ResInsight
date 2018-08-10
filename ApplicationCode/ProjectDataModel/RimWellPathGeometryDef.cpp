@@ -258,7 +258,6 @@ std::vector<cvf::Vec3d> RimWellPathGeometryDef::lineArcEndpoints() const
 
             if (!sCurveCalc.isOk())
             {
-                RiaLogging::warning("SCurve Calculation failed between target " + QString::number(tIdx+1) + " and " + QString::number(tIdx+2));
                 double p1p2Length = (target2->targetPointXYZ() - target1->targetPointXYZ()).length();
                 sCurveCalc = RiaSCurveCalculator::fromTangentsAndLength(target1->targetPointXYZ(),
                                                                         target1->azimuth(),
@@ -268,6 +267,8 @@ std::vector<cvf::Vec3d> RimWellPathGeometryDef::lineArcEndpoints() const
                                                                         target2->azimuth(),
                                                                         target2->inclination(),
                                                                         0.2*p1p2Length);
+
+                RiaLogging::warning("Using fall-back calculation of well path geometry between active target number: " + QString::number(tIdx+1) + " and " + QString::number(tIdx+2));
             }
             endPoints.push_back( sCurveCalc.firstArcEndpoint() + m_referencePoint() );
             endPoints.push_back( sCurveCalc.secondArcStartpoint() + m_referencePoint() );

@@ -59,12 +59,19 @@ RiaSCurveCalculator::RiaSCurveCalculator(cvf::Vec3d p1, double azi1, double inc1
 
     if (true)
     {
-        double p1p2Length =  (p2-p1).length();
+        cvf::Vec3d p1p2 = p2 - p1;
+
+        double p1p2Length =  (p1p2).length();
         RiaSCurveCalculator estimatedCurveCalc = RiaSCurveCalculator::fromTangentsAndLength(p1, azi1, inc1, 0.2 * p1p2Length,
                                                                                             p2, azi2, inc2, 0.2 * p1p2Length);
 
         est_rad1 = estimatedCurveCalc.firstRadius() ;
         est_rad2 = estimatedCurveCalc.secondRadius();
+
+        if (est_rad1 >= 1e10 || est_rad2 >= 1e10)
+        {
+            return;
+        }
 
         #if 1
         std::cout << "Estimate:"  << std::endl;
@@ -542,6 +549,22 @@ RiaSCurveCalculator::RiaSCurveCalculator(cvf::Vec3d p1, double azi1, double inc1
 
     m_r1 = (m_c1 - m_p1).length();
     m_r2 = (m_c2 - m_p2).length();
+
+    // Validate solution
+    // Normal1 x C1P11 == tP11P22
+    // Normal2 x C2P22 == tP11P22
+
+    cvf::Vec3d tP11P22 = (m_secondArcStartpoint - m_firstArcEndpoint).getNormalized();
+
+   double error1 = ((m_n1 ^ (m_firstArcEndpoint - m_c1).getNormalized() ) -  tP11P22).lengthSquared();
+   double error2 = ((m_n2 ^ (m_secondArcStartpoint - m_c2).getNormalized() ) -  tP11P22).lengthSquared();
+
+    if (    error1 > 1e-9 && error2 > 1e-9 )
+    {
+        // Solution is invalid. The line is not continuing the arcs in the right direction
+        m_isCalculationOK =  false;
+    }
+
 }
 
 //--------------------------------------------------------------------------------------------------
