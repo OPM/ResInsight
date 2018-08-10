@@ -628,10 +628,6 @@ void RivGridBoxGenerator::createLegend(EdgeType edge, cvf::Collection<cvf::Part>
         caf::MeshEffectGenerator effGen(m_gridLegendColor);
         eff = effGen.generateUnCachedEffect();
 
-        cvf::ref<cvf::RenderStateDepth> depth = new cvf::RenderStateDepth;
-        depth->enableDepthTest(false);
-        eff->setRenderState(depth.p());
-
         part->setPriority(RivPartPriority::PartType::Text);
         part->setEffect(eff.p());
 
