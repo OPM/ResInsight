@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2017     Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -23,19 +23,9 @@
 #include "RiaEclipseUnitTools.h"
 #include "RiaLogging.h"
 
-#include "RifReaderInterface.h"
-
-#include "RigActiveCellInfo.h"
-#include "RigCaseCellResultsData.h"
-#include "RigCell.h"
-#include "RigCellGeometryTools.h"
-#include "RigEclipseCaseData.h"
-#include "RigHexIntersectionTools.h"
 #include "RigMainGrid.h"
-#include "RigResultAccessor.h"
-#include "RigResultAccessorFactory.h"
-#include "RigTesselatorTools.h"
 
+#include "Rim3dView.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
 #include "RimEclipseView.h"
@@ -46,9 +36,8 @@
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimReservoirCellResultsStorage.h"
-#include "RimStimPlanFractureTemplate.h"
 #include "RimStimPlanColors.h"
-#include "Rim3dView.h"
+#include "RimStimPlanFractureTemplate.h"
 
 #include "RivWellFracturePartMgr.h"
 
@@ -56,8 +45,6 @@
 
 #include "cafPdmUiDoubleSliderEditor.h"
 #include "cafPdmUiTreeOrdering.h"
-
-#include "clipper/clipper.hpp"
 
 #include "cvfBoundingBox.h"
 #include "cvfGeometryTools.h"
@@ -73,12 +60,12 @@
 CAF_PDM_XML_ABSTRACT_SOURCE_INIT(RimFracture, "Fracture");
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void setDefaultFractureColorResult()
 {
-    RiaApplication* app = RiaApplication::instance();
-    RimProject* proj = app->project();
+    RiaApplication* app  = RiaApplication::instance();
+    RimProject*     proj = app->project();
 
     for (RimEclipseCase* const eclCase : proj->eclipseCases())
     {
@@ -96,10 +83,12 @@ void setDefaultFractureColorResult()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimFracture::RimFracture()
 {
+    // clang-format off
+
     CAF_PDM_InitObject("Fracture", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_fractureTemplate, "FractureDef", "Fracture Template", "", "", "");
@@ -144,17 +133,17 @@ RimFracture::RimFracture()
     m_wellFractureAzimuthAngleWarning.xmlCapability()->disableIO();
 
     m_fracturePartMgr = new RivWellFracturePartMgr(this);
+
+    // clang-format on
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RimFracture::~RimFracture()
-{
-}
+RimFracture::~RimFracture() {}
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 double RimFracture::perforationLength() const
 {
@@ -162,7 +151,7 @@ double RimFracture::perforationLength() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 double RimFracture::perforationEfficiency() const
 {
@@ -170,7 +159,7 @@ double RimFracture::perforationEfficiency() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimFracture::setStimPlanTimeIndexToPlot(int timeIndex)
 {
@@ -178,7 +167,7 @@ void RimFracture::setStimPlanTimeIndexToPlot(int timeIndex)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 std::vector<size_t> RimFracture::getPotentiallyFracturedCells(const RigMainGrid* mainGrid) const
 {
@@ -193,7 +182,7 @@ std::vector<size_t> RimFracture::getPotentiallyFracturedCells(const RigMainGrid*
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimFracture::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
@@ -203,14 +192,15 @@ void RimFracture::fieldChangedByUi(const caf::PdmFieldHandle* changedField, cons
         {
             QString fractureUnitText = RiaEclipseUnitTools::UnitSystemType::uiText(fractureUnit());
 
-            QString warningText = QString("Using a fracture template defined in a different unit is not supported.\n\nPlease select a "
-                                          "fracture template of unit '%1'")
-                                      .arg(fractureUnitText);
+            QString warningText =
+                QString("Using a fracture template defined in a different unit is not supported.\n\nPlease select a "
+                        "fracture template of unit '%1'")
+                    .arg(fractureUnitText);
 
             QMessageBox::warning(nullptr, "Fracture Template Selection", warningText);
 
-            PdmObjectHandle* prevValue = oldValue.value<caf::PdmPointer<PdmObjectHandle>>().rawPtr();
-            auto prevTemplate = dynamic_cast<RimFractureTemplate*>(prevValue);
+            PdmObjectHandle* prevValue    = oldValue.value<caf::PdmPointer<PdmObjectHandle>>().rawPtr();
+            auto             prevTemplate = dynamic_cast<RimFractureTemplate*>(prevValue);
 
             m_fractureTemplate = prevTemplate;
         }
@@ -219,12 +209,8 @@ void RimFracture::fieldChangedByUi(const caf::PdmFieldHandle* changedField, cons
         setDefaultFractureColorResult();
     }
 
-    if (changedField == &m_azimuth || 
-        changedField == &m_fractureTemplate ||
-        changedField == &m_stimPlanTimeIndexToPlot ||
-        changedField == this->objectToggleField() ||
-        changedField == &m_dip ||
-        changedField == &m_tilt ||
+    if (changedField == &m_azimuth || changedField == &m_fractureTemplate || changedField == &m_stimPlanTimeIndexToPlot ||
+        changedField == this->objectToggleField() || changedField == &m_dip || changedField == &m_tilt ||
         changedField == &m_perforationLength)
     {
         RimEclipseView* rimView = nullptr;
@@ -235,7 +221,8 @@ void RimFracture::fieldChangedByUi(const caf::PdmFieldHandle* changedField, cons
             rimView->firstAncestorOrThisOfType(eclipseCase);
             if (eclipseCase)
             {
-                RiaCompletionTypeCalculationScheduler::instance()->scheduleRecalculateCompletionTypeAndRedrawAllViews(eclipseCase);
+                RiaCompletionTypeCalculationScheduler::instance()->scheduleRecalculateCompletionTypeAndRedrawAllViews(
+                    eclipseCase);
             }
         }
         else
@@ -249,7 +236,7 @@ void RimFracture::fieldChangedByUi(const caf::PdmFieldHandle* changedField, cons
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 cvf::Vec3d RimFracture::fracturePosition() const
 {
@@ -257,7 +244,7 @@ cvf::Vec3d RimFracture::fracturePosition() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 double RimFracture::wellFractureAzimuthDiff() const
 {
@@ -266,7 +253,7 @@ double RimFracture::wellFractureAzimuthDiff() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString RimFracture::wellFractureAzimuthDiffText() const
 {
@@ -281,24 +268,24 @@ QString RimFracture::wellAzimuthAtFracturePositionText() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 cvf::BoundingBox RimFracture::boundingBoxInDomainCoords() const
 {
     std::vector<cvf::Vec3f> nodeCoordVec;
-    std::vector<cvf::uint> triangleIndices;
+    std::vector<cvf::uint>  triangleIndices;
 
     this->triangleGeometry(&triangleIndices, &nodeCoordVec);
 
     cvf::BoundingBox fractureBBox;
-    for (const auto& nodeCoord : nodeCoordVec) fractureBBox.add(nodeCoord);
-  
+    for (const auto& nodeCoord : nodeCoordVec)
+        fractureBBox.add(nodeCoord);
+
     return fractureBBox;
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 double RimFracture::wellRadius() const
 {
@@ -315,7 +302,7 @@ double RimFracture::wellRadius() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 cvf::Vec3d RimFracture::anchorPosition() const
 {
@@ -323,7 +310,7 @@ cvf::Vec3d RimFracture::anchorPosition() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 cvf::Mat4d RimFracture::transformMatrix() const
 {
@@ -335,12 +322,11 @@ cvf::Mat4d RimFracture::transformMatrix() const
     // Dip (out of XY plane)
     cvf::Mat4d tiltRotation = cvf::Mat4d::fromRotation(cvf::Vec3d::X_AXIS, cvf::Math::toRadians(m_tilt()));
 
-
     // Ellipsis geometry is produced in XY-plane, rotate 90 deg around X to get zero azimuth along Y
     cvf::Mat4d rotationFromTesselator = cvf::Mat4d::fromRotation(cvf::Vec3d::X_AXIS, cvf::Math::toRadians(90.0f));
-    
+
     // Azimuth rotation
-    cvf::Mat4d azimuthRotation = cvf::Mat4d::fromRotation(cvf::Vec3d::Z_AXIS, cvf::Math::toRadians(-m_azimuth()-90));
+    cvf::Mat4d azimuthRotation = cvf::Mat4d::fromRotation(cvf::Vec3d::Z_AXIS, cvf::Math::toRadians(-m_azimuth() - 90));
 
     cvf::Mat4d m = azimuthRotation * rotationFromTesselator * dipRotation * tiltRotation;
     m.setTranslation(center);
@@ -349,7 +335,7 @@ cvf::Mat4d RimFracture::transformMatrix() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 double RimFracture::dip() const
 {
@@ -357,7 +343,7 @@ double RimFracture::dip() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 double RimFracture::tilt() const
 {
@@ -365,7 +351,7 @@ double RimFracture::tilt() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimFracture::setFractureTemplateNoUpdate(RimFractureTemplate* fractureTemplate)
 {
@@ -387,7 +373,7 @@ void RimFracture::setFractureTemplateNoUpdate(RimFractureTemplate* fractureTempl
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimFracture::triangleGeometry(std::vector<cvf::uint>* triangleIndices, std::vector<cvf::Vec3f>* nodeCoords) const
 {
@@ -410,7 +396,7 @@ void RimFracture::triangleGeometry(std::vector<cvf::uint>* triangleIndices, std:
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 cvf::Vec3d RimFracture::fracturePositionForUi() const
 {
@@ -422,9 +408,10 @@ cvf::Vec3d RimFracture::fracturePositionForUi() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RimFracture::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly)
+QList<caf::PdmOptionItemInfo> RimFracture::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions,
+                                                                 bool*                      useOptionsOnly)
 {
     QList<caf::PdmOptionItemInfo> options;
 
@@ -458,15 +445,14 @@ QList<caf::PdmOptionItemInfo> RimFracture::calculateValueOptions(const caf::PdmF
             if (dynamic_cast<RimStimPlanFractureTemplate*>(fracTemplate))
             {
                 RimStimPlanFractureTemplate* fracTemplateStimPlan = dynamic_cast<RimStimPlanFractureTemplate*>(fracTemplate);
-                std::vector<double> timeValues = fracTemplateStimPlan->timeSteps();
-                int index = 0;
+                std::vector<double>          timeValues           = fracTemplateStimPlan->timeSteps();
+                int                          index                = 0;
                 for (double value : timeValues)
                 {
                     options.push_back(caf::PdmOptionItemInfo(QString::number(value), index));
                     index++;
                 }
             }
-
         }
     }
 
@@ -474,7 +460,7 @@ QList<caf::PdmOptionItemInfo> RimFracture::calculateValueOptions(const caf::PdmF
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimFracture::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
@@ -491,8 +477,8 @@ void RimFracture::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiO
 
     if (fractureTemplate())
     {
-        if (fractureTemplate()->orientationType() == RimFractureTemplate::ALONG_WELL_PATH
-            || fractureTemplate()->orientationType() == RimFractureTemplate::TRANSVERSE_WELL_PATH)
+        if (fractureTemplate()->orientationType() == RimFractureTemplate::ALONG_WELL_PATH ||
+            fractureTemplate()->orientationType() == RimFractureTemplate::TRANSVERSE_WELL_PATH)
         {
             m_uiWellPathAzimuth.uiCapability()->setUiHidden(true);
             m_uiWellFractureAzimuthDiff.uiCapability()->setUiHidden(true);
@@ -503,9 +489,8 @@ void RimFracture::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiO
         {
             m_uiWellPathAzimuth.uiCapability()->setUiHidden(false);
             m_uiWellFractureAzimuthDiff.uiCapability()->setUiHidden(false);
-            if (wellFractureAzimuthDiff() < 10
-                || (wellFractureAzimuthDiff() > 170 && wellFractureAzimuthDiff() < 190 ) 
-                || wellFractureAzimuthDiff() > 350)
+            if (wellFractureAzimuthDiff() < 10 || (wellFractureAzimuthDiff() > 170 && wellFractureAzimuthDiff() < 190) ||
+                wellFractureAzimuthDiff() > 350)
             {
                 m_wellFractureAzimuthAngleWarning.uiCapability()->setUiHidden(false);
             }
@@ -515,8 +500,8 @@ void RimFracture::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiO
             }
         }
 
-        if (fractureTemplate()->orientationType() == RimFractureTemplate::ALONG_WELL_PATH
-            || fractureTemplate()->orientationType() == RimFractureTemplate::TRANSVERSE_WELL_PATH)
+        if (fractureTemplate()->orientationType() == RimFractureTemplate::ALONG_WELL_PATH ||
+            fractureTemplate()->orientationType() == RimFractureTemplate::TRANSVERSE_WELL_PATH)
         {
             m_azimuth.uiCapability()->setUiReadOnly(true);
         }
@@ -564,9 +549,11 @@ void RimFracture::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiO
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RimFracture::defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute * attribute)
+void RimFracture::defineEditorAttribute(const caf::PdmFieldHandle* field,
+                                        QString                    uiConfigName,
+                                        caf::PdmUiEditorAttribute* attribute)
 {
     if (field == &m_azimuth)
     {
@@ -590,7 +577,7 @@ void RimFracture::defineEditorAttribute(const caf::PdmFieldHandle* field, QStrin
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimFracture::setAnchorPosition(const cvf::Vec3d& pos)
 {
@@ -598,7 +585,7 @@ void RimFracture::setAnchorPosition(const cvf::Vec3d& pos)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RiaEclipseUnitTools::UnitSystem RimFracture::fractureUnit() const
 {
@@ -606,7 +593,7 @@ RiaEclipseUnitTools::UnitSystem RimFracture::fractureUnit() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimFracture::setFractureUnit(RiaEclipseUnitTools::UnitSystem unitSystem)
 {
@@ -630,7 +617,7 @@ bool RimFracture::isEclipseCellWithinContainment(const RigMainGrid*      mainGri
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimFracture::setFractureTemplate(RimFractureTemplate* fractureTemplate)
 {
@@ -655,12 +642,12 @@ void RimFracture::setFractureTemplate(RimFractureTemplate* fractureTemplate)
     {
         this->updateAzimuthBasedOnWellAzimuthAngle();
     }
-    this->m_wellDiameter = fractureTemplate->wellDiameter();
+    this->m_wellDiameter      = fractureTemplate->wellDiameter();
     this->m_perforationLength = fractureTemplate->perforationLength();
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimFractureTemplate* RimFracture::fractureTemplate() const
 {
@@ -668,7 +655,7 @@ RimFractureTemplate* RimFracture::fractureTemplate() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RivWellFracturePartMgr* RimFracture::fracturePartManager()
 {
@@ -676,4 +663,3 @@ RivWellFracturePartMgr* RimFracture::fracturePartManager()
 
     return m_fracturePartMgr.p();
 }
-

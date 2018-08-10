@@ -27,7 +27,6 @@
 #include "cvfObject.h"
 #include "cvfVector3.h"
 #include "cvfMatrix4.h"
-#include "cvfPlane.h"
 
 #include "cafPdmChildField.h"
 #include "cafPdmFieldCvfVec3d.h"
