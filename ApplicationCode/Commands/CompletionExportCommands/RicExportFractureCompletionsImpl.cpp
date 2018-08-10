@@ -140,7 +140,7 @@ std::vector<RigCompletionData>
     // To handle several fractures in the same eclipse cell we need to keep track of the transmissibility
     // to the well from each fracture intersecting the cell and sum these transmissibilities at the end.
     // std::map <eclipseCellIndex ,map< fracture, trans> >
-    std::map<size_t, std::map<RimFracture*, double>> eclCellIdxToTransPrFractureMap;
+    std::map<size_t, std::map<const RimFracture*, double>> eclCellIdxToTransPrFractureMap;
 
     for (const RimFracture* fracture : fractures)
     {
