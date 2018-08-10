@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2017 -     Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -28,12 +28,14 @@
 #include "cafPdmObject.h"
 #include "cafPdmUiDoubleSliderEditor.h"
 #include "cafPdmUiDoubleValueEditor.h"
-#include "cafPdmUiTextEditor.h"
 #include "cafPdmUiPushButtonEditor.h"
+#include "cafPdmUiTextEditor.h"
 
 #include "cvfVector3.h"
 
 #include <cmath>
+
+// clang-format off
 
 namespace caf
 {
@@ -169,15 +171,15 @@ RimFractureTemplate::RimFractureTemplate()
     m_scaleApplyButton.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RimFractureTemplate::~RimFractureTemplate()
-{
-}
+// clang-format on
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
+//--------------------------------------------------------------------------------------------------
+RimFractureTemplate::~RimFractureTemplate() {}
+
+//--------------------------------------------------------------------------------------------------
+///
 //--------------------------------------------------------------------------------------------------
 int RimFractureTemplate::id() const
 {
@@ -185,7 +187,7 @@ int RimFractureTemplate::id() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimFractureTemplate::setName(const QString& name)
 {
@@ -193,7 +195,7 @@ void RimFractureTemplate::setName(const QString& name)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimFractureTemplate::setFractureTemplateUnit(RiaEclipseUnitTools::UnitSystemType unitSystem)
 {
@@ -201,7 +203,7 @@ void RimFractureTemplate::setFractureTemplateUnit(RiaEclipseUnitTools::UnitSyste
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString RimFractureTemplate::name() const
 {
@@ -209,7 +211,7 @@ QString RimFractureTemplate::name() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimFractureTemplate::FracOrientationEnum RimFractureTemplate::orientationType() const
 {
@@ -217,7 +219,7 @@ RimFractureTemplate::FracOrientationEnum RimFractureTemplate::orientationType() 
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RiaEclipseUnitTools::UnitSystemType RimFractureTemplate::fractureTemplateUnit() const
 {
@@ -225,7 +227,7 @@ RiaEclipseUnitTools::UnitSystemType RimFractureTemplate::fractureTemplateUnit() 
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 caf::PdmFieldHandle* RimFractureTemplate::userDescriptionField()
 {
@@ -233,19 +235,21 @@ caf::PdmFieldHandle* RimFractureTemplate::userDescriptionField()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RimFractureTemplate::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+void RimFractureTemplate::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
+                                           const QVariant&            oldValue,
+                                           const QVariant&            newValue)
 {
     bool createDisplayModelAndRedraw = false;
     if (changedField == &m_azimuthAngle || changedField == &m_orientationType)
     {
-        //Changes to one of these parameters should change all fractures with this fracture template attached. 
+        // Changes to one of these parameters should change all fractures with this fracture template attached.
         RimProject* proj;
         this->firstAncestorOrThisOfType(proj);
         if (proj)
         {
-            //Regenerate geometry
+            // Regenerate geometry
             std::vector<RimFracture*> fractures;
             proj->descendantsIncludingThisOfType(fractures);
 
@@ -264,7 +268,10 @@ void RimFractureTemplate::fieldChangedByUi(const caf::PdmFieldHandle* changedFie
                         {
                             fracture->m_azimuth = m_azimuthAngle;
                         }
-                        else fracture->updateAzimuthBasedOnWellAzimuthAngle();
+                        else
+                        {
+                            fracture->updateAzimuthBasedOnWellAzimuthAngle();
+                        }
                     }
                 }
             }
@@ -289,7 +296,8 @@ void RimFractureTemplate::fieldChangedByUi(const caf::PdmFieldHandle* changedFie
                 {
                     fracture->m_perforationLength = m_perforationLength;
                 }
-                if (changedField == &m_perforationEfficiency && (fabs(oldValue.toDouble() - fracture->m_perforationEfficiency()) < 1e-5))
+                if (changedField == &m_perforationEfficiency &&
+                    (fabs(oldValue.toDouble() - fracture->m_perforationEfficiency()) < 1e-5))
                 {
                     fracture->m_perforationEfficiency = m_perforationEfficiency;
                 }
@@ -318,7 +326,7 @@ void RimFractureTemplate::fieldChangedByUi(const caf::PdmFieldHandle* changedFie
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimFractureTemplate::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
@@ -337,7 +345,7 @@ void RimFractureTemplate::defineUiOrdering(QString uiConfigName, caf::PdmUiOrder
 
     auto nonDarcyFlowGroup = uiOrdering.addNewGroup("Non-Darcy Flow");
     nonDarcyFlowGroup->add(&m_nonDarcyFlowType);
-    
+
     if (m_nonDarcyFlowType == RimFractureTemplate::NON_DARCY_USER_DEFINED)
     {
         nonDarcyFlowGroup->add(&m_userDefinedDFactor);
@@ -365,7 +373,7 @@ void RimFractureTemplate::defineUiOrdering(QString uiConfigName, caf::PdmUiOrder
         nonDarcyFlowGroup->add(&m_dFactorDisplayField);
 
         {
-            auto group  = nonDarcyFlowGroup->addNewGroup("D Factor Details");
+            auto group = nonDarcyFlowGroup->addNewGroup("D Factor Details");
             group->setCollapsedByDefault(true);
             group->add(&m_dFactorSummaryText);
         }
@@ -376,9 +384,11 @@ void RimFractureTemplate::defineUiOrdering(QString uiConfigName, caf::PdmUiOrder
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RimFractureTemplate::defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute)
+void RimFractureTemplate::defineEditorAttribute(const caf::PdmFieldHandle* field,
+                                                QString                    uiConfigName,
+                                                caf::PdmUiEditorAttribute* attribute)
 {
     if (field == &m_perforationEfficiency)
     {
@@ -396,16 +406,16 @@ void RimFractureTemplate::defineEditorAttribute(const caf::PdmFieldHandle* field
         if (myAttr)
         {
             myAttr->wrapMode = caf::PdmUiTextEditorAttribute::NoWrap;
-            
+
             QFont font("Monospace", 10);
-            myAttr->font = font;
+            myAttr->font     = font;
             myAttr->textMode = caf::PdmUiTextEditorAttribute::HTML;
         }
     }
 
     if (field == &m_scaleApplyButton)
     {
-        caf::PdmUiPushButtonEditorAttribute* attrib = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*> (attribute);
+        caf::PdmUiPushButtonEditorAttribute* attrib = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>(attribute);
         if (attrib)
         {
             attrib->m_buttonText = "Apply";
@@ -457,8 +467,8 @@ void RimFractureTemplate::prepareFieldsForUiDisplay()
         m_fractureWidth.uiCapability()->setUiName("Fracture Width [ft]");
     }
 
-    if (m_orientationType == RimFractureTemplate::ALONG_WELL_PATH
-        || m_orientationType == RimFractureTemplate::TRANSVERSE_WELL_PATH)
+    if (m_orientationType == RimFractureTemplate::ALONG_WELL_PATH ||
+        m_orientationType == RimFractureTemplate::TRANSVERSE_WELL_PATH)
     {
         m_azimuthAngle.uiCapability()->setUiHidden(true);
     }
@@ -472,7 +482,7 @@ void RimFractureTemplate::prepareFieldsForUiDisplay()
         m_perforationEfficiency.uiCapability()->setUiHidden(false);
         m_perforationLength.uiCapability()->setUiHidden(false);
     }
-    else 
+    else
     {
         m_perforationEfficiency.uiCapability()->setUiHidden(true);
         m_perforationLength.uiCapability()->setUiHidden(true);
@@ -519,12 +529,12 @@ void RimFractureTemplate::prepareFieldsForUiDisplay()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString RimFractureTemplate::dFactorSummary() const
 {
     QString text;
-    
+
     auto val = dFactor();
     text += QString("D-factor : %1").arg(val);
 
@@ -561,7 +571,7 @@ QString RimFractureTemplate::dFactorSummary() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 double RimFractureTemplate::effectivePermeability() const
 {
@@ -572,7 +582,7 @@ double RimFractureTemplate::effectivePermeability() const
     else
     {
         double fracPermeability = 0.0;
-        auto values = widthAndConductivityAtWellPathIntersection();
+        auto   values           = widthAndConductivityAtWellPathIntersection();
         if (values.isWidthAndPermeabilityDefined())
         {
             fracPermeability = values.m_permeability;
@@ -580,7 +590,7 @@ double RimFractureTemplate::effectivePermeability() const
         else
         {
             auto conductivity = values.m_conductivity;
-            auto width = fractureWidth();
+            auto width        = fractureWidth();
 
             if (fabs(width) < 1e-10) return HUGE_VAL;
 
@@ -592,7 +602,7 @@ double RimFractureTemplate::effectivePermeability() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 double RimFractureTemplate::dFactor() const
 {
@@ -604,16 +614,16 @@ double RimFractureTemplate::dFactor() const
     }
     else
     {
-        auto alpha = RiaDefines::nonDarcyFlowAlpha(m_fractureTemplateUnit());
-        auto beta = m_inertialCoefficient;
+        auto alpha   = RiaDefines::nonDarcyFlowAlpha(m_fractureTemplateUnit());
+        auto beta    = m_inertialCoefficient;
         auto effPerm = effectivePermeability();
-        auto gamma = m_relativeGasDensity;
+        auto gamma   = m_relativeGasDensity;
 
         auto radius = m_wellDiameter / 2.0;
-        auto mu = m_gasViscosity;
-        auto h = fractureWidth();
+        auto mu     = m_gasViscosity;
+        auto h      = fractureWidth();
 
-        double numerator = alpha * beta * effPerm * gamma;
+        double numerator   = alpha * beta * effPerm * gamma;
         double denumerator = h * radius * mu;
 
         if (denumerator < 1e-10) return HUGE_VAL;
@@ -625,7 +635,7 @@ double RimFractureTemplate::dFactor() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 double RimFractureTemplate::kh() const
 {
@@ -638,12 +648,12 @@ double RimFractureTemplate::kh() const
         // If conductivity is found in stim plan file, use this directly
         return values.m_conductivity;
     }
-    
+
     return effectivePermeability() * fractureWidth();
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimFractureTemplate::convertToUnitSystem(RiaEclipseUnitTools::UnitSystem neededUnit)
 {
@@ -662,7 +672,7 @@ void RimFractureTemplate::convertToUnitSystem(RiaEclipseUnitTools::UnitSystem ne
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimFractureTemplate::disconnectAllFracturesAndRedrawViews() const
 {
@@ -690,7 +700,7 @@ void RimFractureTemplate::disconnectAllFracturesAndRedrawViews() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimFractureTemplate::setId(int id)
 {
@@ -698,31 +708,34 @@ void RimFractureTemplate::setId(int id)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimFractureTemplate::setScaleFactors(double widthScale, double heightScale, double dFactorScale, double conductivityScale)
 {
-    m_widthScaleFactor = widthScale;
-    m_heightScaleFactor = heightScale;
-    m_dFactorScaleFactor = dFactorScale;
+    m_widthScaleFactor        = widthScale;
+    m_heightScaleFactor       = heightScale;
+    m_dFactorScaleFactor      = dFactorScale;
     m_conductivityScaleFactor = conductivityScale;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RimFractureTemplate::scaleFactors(double* widthScale, double* heightScale, double* dFactorScale, double* conductivityScale) const
+void RimFractureTemplate::scaleFactors(double* widthScale,
+                                       double* heightScale,
+                                       double* dFactorScale,
+                                       double* conductivityScale) const
 {
     CVF_ASSERT(widthScale && heightScale && dFactorScale && conductivityScale);
 
-    *widthScale = m_widthScaleFactor;
-    *heightScale = m_widthScaleFactor;
-    *dFactorScale = m_dFactorScaleFactor;
+    *widthScale        = m_widthScaleFactor;
+    *heightScale       = m_widthScaleFactor;
+    *dFactorScale      = m_dFactorScaleFactor;
     *conductivityScale = m_conductivityScaleFactor;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimFractureTemplate::setContainmentTopKLayer(int topKLayer)
 {
@@ -730,7 +743,7 @@ void RimFractureTemplate::setContainmentTopKLayer(int topKLayer)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimFractureTemplate::setContainmentBaseKLayer(int baseKLayer)
 {
@@ -738,14 +751,14 @@ void RimFractureTemplate::setContainmentBaseKLayer(int baseKLayer)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 double RimFractureTemplate::fractureWidth() const
 {
     if (m_fractureWidthType == RimFractureTemplate::WIDTH_FROM_FRACTURE)
     {
         auto values = widthAndConductivityAtWellPathIntersection();
-    
+
         return values.m_width;
     }
 
@@ -753,7 +766,7 @@ double RimFractureTemplate::fractureWidth() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString RimFractureTemplate::nameAndUnit() const
 {
@@ -774,7 +787,7 @@ QString RimFractureTemplate::nameAndUnit() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 double RimFractureTemplate::wellDiameter() const
 {
@@ -782,7 +795,7 @@ double RimFractureTemplate::wellDiameter() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 double RimFractureTemplate::perforationLength() const
 {
@@ -790,15 +803,15 @@ double RimFractureTemplate::perforationLength() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-const RimFractureContainment * RimFractureTemplate::fractureContainment() const
+const RimFractureContainment* RimFractureTemplate::fractureContainment() const
 {
     return m_fractureContainment();
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimFractureTemplate::FracConductivityEnum RimFractureTemplate::conductivityType() const
 {
@@ -806,7 +819,7 @@ RimFractureTemplate::FracConductivityEnum RimFractureTemplate::conductivityType(
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 float RimFractureTemplate::azimuthAngle() const
 {
@@ -814,7 +827,7 @@ float RimFractureTemplate::azimuthAngle() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 float RimFractureTemplate::skinFactor() const
 {
@@ -822,7 +835,7 @@ float RimFractureTemplate::skinFactor() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimFractureTemplate::setDefaultWellDiameterFromUnit()
 {
@@ -837,7 +850,7 @@ void RimFractureTemplate::setDefaultWellDiameterFromUnit()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RimFractureTemplate::isNonDarcyFlowEnabled() const
 {
