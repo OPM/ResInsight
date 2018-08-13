@@ -107,8 +107,9 @@ public:
     void        setKh(double kh);
 
     void        addMetadata(const QString& name, const QString& comment);
-    static bool isDefaultValue(double val);
-
+    
+    static double                             defaultValue();
+    static bool                               isDefaultValue(double num);
     const std::vector<RigCompletionMetaData>& metadata() const;
     const QString&                            wellName() const;
     const RigCompletionDataGridCell&          completionDataGridCell() const;

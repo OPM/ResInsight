@@ -113,10 +113,11 @@ public:
     RifEclipseDataTableFormatter& keyword(const QString& keyword);
     RifEclipseDataTableFormatter& header(std::vector<RifEclipseOutputTableColumn> tableHeader);
     RifEclipseDataTableFormatter& add(const QString& str);
-    RifEclipseDataTableFormatter& add(double num);
+    RifEclipseDataTableFormatter& add(double num);    
     RifEclipseDataTableFormatter& add(int num);
     RifEclipseDataTableFormatter& add(size_t num);
     RifEclipseDataTableFormatter& addZeroBasedCellIndex(size_t index);
+    RifEclipseDataTableFormatter& addValueOrDefaultMarker(double value, double defaultValue);
     RifEclipseDataTableFormatter& comment(const QString& str);
     RifEclipseDataTableFormatter& addHorizontalLine(const QChar& str);
     void                          rowCompleted();

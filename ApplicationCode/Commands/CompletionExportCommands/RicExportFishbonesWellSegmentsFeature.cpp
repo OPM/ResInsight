@@ -184,11 +184,11 @@ void RicExportFishbonesWellSegmentsFeature::exportWellSegments(const RimWellPath
         return;
     }
     
-    RicMultiSegmentWellExportInfo exportInfo = RicWellPathExportCompletionDataFeatureImpl::generateFishbonesMSWExportInfo(settings.caseToApply, wellPath, fishbonesSubs);
+    RicMultiSegmentWellExportInfo exportInfo = RicWellPathExportCompletionDataFeatureImpl::generateFishbonesMswExportInfo(settings.caseToApply, wellPath, fishbonesSubs);
 
     QTextStream stream(&exportFile);
     RifEclipseDataTableFormatter formatter(stream);
-    RicWellPathExportCompletionDataFeatureImpl::generateWelsegsTable(formatter,  exportInfo);
-    RicWellPathExportCompletionDataFeatureImpl::generateCompsegsTable(formatter, exportInfo);
+    RicWellPathExportCompletionDataFeatureImpl::generateWelsegsTable (formatter, exportInfo);
+    RicWellPathExportCompletionDataFeatureImpl::generateCompsegTables(formatter, exportInfo);
     RicWellPathExportCompletionDataFeatureImpl::generateWsegvalvTable(formatter, exportInfo);
 }
