@@ -76,6 +76,7 @@
 #include "RiaApplication.h"
 #include "RiaPreferences.h"
 #include "RimFaultInView.h"
+#include "RiaOffshoreSphericalCoords.h"
 
 
 //--------------------------------------------------------------------------------------------------
@@ -437,14 +438,14 @@ void RivIntersectionPartMgr::calculatePlaneAngleTextureCoords(cvf::Vec2fArray* t
     int vxCount = static_cast<int>(triangelVertices->size());
     int triCount = vxCount/3;
 
-    std::function<float (const OffshoreSphericalCoords& )> operation;
+    std::function<float (const RiaOffshoreSphericalCoords& )> operation;
     if (resVarAddress.componentName == "Pazi")
     {
-        operation = [](const OffshoreSphericalCoords& sphCoord) { return sphCoord.azi();};
+        operation = [](const RiaOffshoreSphericalCoords& sphCoord) { return sphCoord.azi();};
     }
     else if ( resVarAddress.componentName == "Pinc" )
     {
-        operation = [](const OffshoreSphericalCoords& sphCoord) { return sphCoord.inc();};
+        operation = [](const RiaOffshoreSphericalCoords& sphCoord) { return sphCoord.inc();};
     }
 
     #pragma omp parallel for schedule(dynamic)
@@ -455,7 +456,7 @@ void RivIntersectionPartMgr::calculatePlaneAngleTextureCoords(cvf::Vec2fArray* t
         const cvf::Vec3f* triangle = &((*triangelVertices)[triangleVxStartIdx]);
         cvf::Mat3f rotMx = cvf::GeometryTools::computePlaneHorizontalRotationMx(triangle[1] - triangle[0], triangle[2] - triangle[0]);
 
-        OffshoreSphericalCoords sphCoord(cvf::Vec3f(rotMx.rowCol(0, 2), rotMx.rowCol(1, 2), rotMx.rowCol(2, 2))); // Use Ez from the matrix as plane normal
+        RiaOffshoreSphericalCoords sphCoord(cvf::Vec3f(rotMx.rowCol(0, 2), rotMx.rowCol(1, 2), rotMx.rowCol(2, 2))); // Use Ez from the matrix as plane normal
 
         float angle = cvf::Math::toDegrees( operation(sphCoord));
         cvf::Vec2f texCoord = (angle != std::numeric_limits<float>::infinity()) ? mapper->mapToTextureCoord(angle) : cvf::Vec2f(0.0f, 1.0f);

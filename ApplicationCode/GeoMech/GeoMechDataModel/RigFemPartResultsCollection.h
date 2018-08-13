@@ -149,39 +149,6 @@ private:
     std::map<RigFemResultAddress, cvf::ref<RigStatisticsDataCache> >  m_resultStatistics;
 };
 
-#include <array>
-#include "cvfVector3.h"
-#include <cmath>
-
-// Y - North,  X - East, Z - up but depth is negative Z
-// azi is measured from the Northing (Y) Axis in Clockwise direction looking down
-// inc is measured from the negative Z (depth) axis
- 
-class OffshoreSphericalCoords
-{
-public:
-    explicit OffshoreSphericalCoords(const cvf::Vec3f& vec)
-    {
-        // Azimuth: 
-        if (vec[0] == 0.0f &&  vec[1] == 0.0 ) incAziR[1] = 0.0f;
-        else incAziR[1] = atan2(vec[0], vec[1]); // atan2(Y, X)      
-
-        // R
-        incAziR[2] = vec.length();
-
-        // Inclination from vertical down
-        if (incAziR[2] == 0) incAziR[0] = 0.0f;
-        else incAziR[0] = acos(-vec[2]/incAziR[2]);
-
-    }
-
-    float inc() const { return incAziR[0];}
-    float azi() const { return incAziR[1];}
-    float r()   const { return incAziR[2];}
-
-private:
-    std::array<float, 3> incAziR;
-};
 
 class RigFemPart;
 

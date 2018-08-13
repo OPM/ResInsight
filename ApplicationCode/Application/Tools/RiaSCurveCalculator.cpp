@@ -1,4 +1,24 @@
+/////////////////////////////////////////////////////////////////////////////////
+//
+//  Copyright (C) 2018-     Statoil ASA
+// 
+//  ResInsight is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 3 of the License, or
+//  (at your option) any later version.
+// 
+//  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
+//  WARRANTY; without even the implied warranty of MERCHANTABILITY or
+//  FITNESS FOR A PARTICULAR PURPOSE.
+// 
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//  for more details.
+//
+/////////////////////////////////////////////////////////////////////////////////
+
 #include "RiaSCurveCalculator.h"
+
+#include "RiaOffshoreSphericalCoords.h"
 
 #include "SolveSpaceSystem.h"
 #include <cmath>
@@ -78,12 +98,8 @@ RiaSCurveCalculator::RiaSCurveCalculator(cvf::Vec3d p1, double azi1, double inc1
         estimatedCurveCalc.dump();
         #endif
 
-        cvf::Vec3d t1(sin(azi1)*sin(inc1),
-                      cos(azi1)*sin(inc1),
-                      -cos(inc1));
-        cvf::Vec3d t2(sin(azi2)*sin(inc2),
-                      cos(azi2)*sin(inc2),
-                      -cos(inc2));
+        cvf::Vec3d t1(RiaOffshoreSphericalCoords::unitVectorFromAziInc(azi1,inc1)); 
+        cvf::Vec3d t2(RiaOffshoreSphericalCoords::unitVectorFromAziInc(azi2,inc2));
 
         cvf::Vec3d est_tp1c1 = (estimatedCurveCalc.firstCenter() - p1).getNormalized();
         cvf::Vec3d est_tp2c2 = (estimatedCurveCalc.secondCenter() - p2).getNormalized();
@@ -638,7 +654,7 @@ RiaSCurveCalculator::RiaSCurveCalculator(cvf::Vec3d p1, cvf::Vec3d q1,
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiaSCurveCalculator::dump()
+void RiaSCurveCalculator::dump() const
 {
     cvf::Vec3d v_C1 = firstCenter();
     cvf::Vec3d v_C2 = secondCenter();
@@ -666,12 +682,8 @@ void RiaSCurveCalculator::dump()
 RiaSCurveCalculator RiaSCurveCalculator::fromTangentsAndLength(cvf::Vec3d p1, double azi1, double inc1, double lengthToQ1, 
                                                                cvf::Vec3d p2, double azi2, double inc2, double lengthToQ2)
 {
-    cvf::Vec3d t1(sin(azi1)*sin(inc1),
-                  cos(azi1)*sin(inc1),
-                  -cos(inc1));
-    cvf::Vec3d t2(sin(azi2)*sin(inc2),
-                  cos(azi2)*sin(inc2),
-                  -cos(inc2));
+    cvf::Vec3d t1(RiaOffshoreSphericalCoords::unitVectorFromAziInc(azi1,inc1)); 
+    cvf::Vec3d t2(RiaOffshoreSphericalCoords::unitVectorFromAziInc(azi2,inc2));
 
     cvf::Vec3d Q1 = p1 + lengthToQ1 * t1;
     cvf::Vec3d Q2 = p2 - lengthToQ2 * t2;
@@ -680,18 +692,5 @@ RiaSCurveCalculator RiaSCurveCalculator::fromTangentsAndLength(cvf::Vec3d p1, do
                                                p2, Q2);
 
     return curveFromControlPoints;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiaSCurveCalculator::calculateEstimatedSolution()
-{
-    // Plane1 basisvectors
-    // C1 position in Plane1
-    // P11 position in Plane 1
-
-    // Plane2 basisvectors
-
 }
 

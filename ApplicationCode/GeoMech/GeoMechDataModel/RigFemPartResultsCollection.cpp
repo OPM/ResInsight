@@ -28,6 +28,8 @@
 
 #include "RiaApplication.h"
 
+#include "RiaOffshoreSphericalCoords.h"
+
 #include "RigFemNativeStatCalc.h"
 #include "RigFemPartCollection.h"
 #include "RigFemPartGrid.h"
@@ -1261,7 +1263,7 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateSurfaceAngles(in
                     quadVxs[3] = (nodeCoordinates[elmNodeIndices[localElmNodeIndicesForFace[3]]]);
 
                     cvf::Mat3f rotMx = cvf::GeometryTools::computePlaneHorizontalRotationMx(quadVxs[2] -quadVxs[0], quadVxs[3] - quadVxs[1]);
-                    OffshoreSphericalCoords sphCoord(cvf::Vec3f(rotMx.rowCol(0,2), rotMx.rowCol(1,2), rotMx.rowCol(2,2))); // Use Ez from the matrix as plane normal
+                    RiaOffshoreSphericalCoords sphCoord(cvf::Vec3f(rotMx.rowCol(0,2), rotMx.rowCol(1,2), rotMx.rowCol(2,2))); // Use Ez from the matrix as plane normal
 
                     for ( int qIdx = 0; qIdx < 4; ++qIdx )
                     {
@@ -1369,7 +1371,7 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculatePrincipalStressV
 
             if ( principals[0] != std::numeric_limits<float>::infinity() )
             {
-                OffshoreSphericalCoords sphCoord1(principalDirs[0]);
+                RiaOffshoreSphericalCoords sphCoord1(principalDirs[0]);
                 s1inc[vIdx] = cvf::Math::toDegrees(sphCoord1.inc());
                 s1azi[vIdx] = cvf::Math::toDegrees(sphCoord1.azi());
             }
@@ -1381,7 +1383,7 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculatePrincipalStressV
 
             if ( principals[1] != std::numeric_limits<float>::infinity() )
             {
-                OffshoreSphericalCoords sphCoord2(principalDirs[1]);
+                RiaOffshoreSphericalCoords sphCoord2(principalDirs[1]);
                 s2inc[vIdx] = cvf::Math::toDegrees(sphCoord2.inc());
                 s2azi[vIdx] = cvf::Math::toDegrees(sphCoord2.azi());
             }
@@ -1393,7 +1395,7 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculatePrincipalStressV
 
             if ( principals[2] != std::numeric_limits<float>::infinity() )
             {
-                OffshoreSphericalCoords sphCoord3(principalDirs[2]);
+                RiaOffshoreSphericalCoords sphCoord3(principalDirs[2]);
                 s3inc[vIdx] = cvf::Math::toDegrees(sphCoord3.inc());
                 s3azi[vIdx] = cvf::Math::toDegrees(sphCoord3.azi());
             }
