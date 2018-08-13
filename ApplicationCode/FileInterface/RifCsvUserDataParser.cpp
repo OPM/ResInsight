@@ -222,7 +222,7 @@ bool RifCsvUserDataParser::parseData(const AsciiDataParseOptions& parseOptions)
     // Parse header
     if (!parseColumnInfo(dataStream, parseOptions, &columnInfoList))
     {
-        m_errorText->append("CSV import: Failed to parse header columns");
+        if (m_errorText) m_errorText->append("CSV import: Failed to parse header columns");
         return false;
     }
 
@@ -236,7 +236,7 @@ bool RifCsvUserDataParser::parseData(const AsciiDataParseOptions& parseOptions)
 
         if(lineColumns.size() != colCount)
         {
-            m_errorText->append("CSV import: Varying number of columns");
+            if (m_errorText) m_errorText->append("CSV import: Varying number of columns");
             errors = true;
             break;
         }
@@ -290,7 +290,7 @@ bool RifCsvUserDataParser::parseData(const AsciiDataParseOptions& parseOptions)
                             // Find the error reason, wrong decimal sign or something else
                             if (RiaStdStringTools::isNumber(colData.toStdString(), '.') || RiaStdStringTools::isNumber(colData.toStdString(), ','))
                             {
-                                m_errorText->append(QString("CSV import: Failed to parse numeric value in column %1\n").arg(QString::number(iCol + 1)));
+                                if (m_errorText) m_errorText->append(QString("CSV import: Failed to parse numeric value in column %1\n").arg(QString::number(iCol + 1)));
                                 throw 0;
                             }
 
@@ -323,7 +323,7 @@ bool RifCsvUserDataParser::parseData(const AsciiDataParseOptions& parseOptions)
 
                         if (!dt.isValid())
                         {
-                            m_errorText->append("CSV import: Failed to parse date time value");
+                            if (m_errorText) m_errorText->append("CSV import: Failed to parse date time value");
                             throw 0;
                         }
                         col.dateTimeValues.push_back(dt);
