@@ -42,10 +42,15 @@ std::vector<time_t> getTimeSteps(ecl_sum_type* ecl_sum)
 
     if (ecl_sum)
     {
-        for (int time_index = 0; time_index < ecl_sum_get_data_length(ecl_sum); time_index++)
+        time_t_vector_type* steps = ecl_sum_alloc_time_vector(ecl_sum, false);
+
+        if (steps)
         {
-            time_t sim_time = ecl_sum_iget_sim_time(ecl_sum, time_index);
-            timeSteps.push_back(sim_time);
+            for (int i = 0; i < time_t_vector_size(steps); i++)
+            {
+                timeSteps.push_back(time_t_vector_iget(steps, i));
+            }
+            free(steps);
         }
     }
     return timeSteps;
@@ -384,10 +389,15 @@ bool RifReaderEclipseSummary::values(const RifEclipseSummaryAddress& resultAddre
         const smspec_node_type* ertSumVarNode = ecl_smspec_iget_node(m_ecl_SmSpec, variableIndex);
         int paramsIndex = smspec_node_get_params_index(ertSumVarNode);
 
-        for(int time_index = 0; time_index < tsCount; time_index++)
+        double_vector_type* dataValues = ecl_sum_alloc_data_vector(m_ecl_sum, paramsIndex, false);
+
+        if (dataValues)
         {
-            double value = ecl_sum_iget(m_ecl_sum, time_index, paramsIndex);
-            values->push_back(value);
+            for (int i = 0; i < double_vector_size(dataValues); i++)
+            {
+                values->push_back(double_vector_iget(dataValues, i));
+            }
+            free(dataValues);
         }
     }
 
