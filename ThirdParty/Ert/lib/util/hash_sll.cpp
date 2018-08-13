@@ -1,26 +1,26 @@
 /*
-   Copyright (C) 2011  Statoil ASA, Norway. 
-    
-   The file 'hash_sll.c' is part of ERT - Ensemble based Reservoir Tool. 
-    
-   ERT is free software: you can redistribute it and/or modify 
-   it under the terms of the GNU General Public License as published by 
-   the Free Software Foundation, either version 3 of the License, or 
-   (at your option) any later version. 
-    
-   ERT is distributed in the hope that it will be useful, but WITHOUT ANY 
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or 
-   FITNESS FOR A PARTICULAR PURPOSE.   
-    
-   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
-   for more details. 
+   Copyright (C) 2011  Statoil ASA, Norway.
+
+   The file 'hash_sll.c' is part of ERT - Ensemble based Reservoir Tool.
+
+   ERT is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   ERT is distributed in the hope that it will be useful, but WITHOUT ANY
+   WARRANTY; without even the implied warranty of MERCHANTABILITY or
+   FITNESS FOR A PARTICULAR PURPOSE.
+
+   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+   for more details.
 */
 
 
 #include <stdlib.h>
 #include <stdio.h>
 
-#include <ert/util/util.hpp>
+#include <ert/util/util.h>
 #include <ert/util/hash_node.hpp>
 #include <ert/util/hash_sll.hpp>
 
@@ -52,7 +52,7 @@ hash_sll_type ** hash_sll_alloc_table(int size) {
 
 
 void hash_sll_del_node(hash_sll_type *hash_sll , hash_node_type *del_node) {
-  if (del_node == NULL) 
+  if (del_node == NULL)
     util_abort("%s: tried to delete NULL node - aborting \n",__func__);
 
   {
@@ -65,8 +65,8 @@ void hash_sll_del_node(hash_sll_type *hash_sll , hash_node_type *del_node) {
     }
 
     if (node == del_node) {
-      if (p_node == NULL) 
-        /* 
+      if (p_node == NULL)
+        /*
            We are attempting to delete the first element in the list.
         */
         hash_sll->head = hash_node_get_next(del_node);
@@ -74,7 +74,7 @@ void hash_sll_del_node(hash_sll_type *hash_sll , hash_node_type *del_node) {
         hash_node_set_next(p_node , hash_node_get_next(del_node));
       hash_node_free(del_node);
       hash_sll->length--;
-    } else 
+    } else
       util_abort("%s: tried to delete node not in list - aborting \n",__func__);
 
   }
@@ -115,10 +115,10 @@ bool hash_sll_empty(const hash_sll_type * hash_sll) {
 
 hash_node_type * hash_sll_get(const hash_sll_type *hash_sll, uint32_t global_index , const char *key) {
   hash_node_type * node = hash_sll->head;
-  
-  while ((node != NULL) && (!hash_node_key_eq(node , global_index , key))) 
+
+  while ((node != NULL) && (!hash_node_key_eq(node , global_index , key)))
     node = hash_node_get_next(node);
-  
+
   return node;
 }
 

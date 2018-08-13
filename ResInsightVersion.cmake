@@ -16,7 +16,7 @@ set(RESINSIGHT_DEV_VERSION ".04")
 set(NRLIB_GITHUB_SHA "ba35d4359882f1c6f5e9dc30eb95fe52af50fd6f") 
 
 # https://github.com/Statoil/libecl
-set(ECL_GITHUB_SHA "0188b08081eb1ac4ade89ac224b8128b4c9b0481")
+set(ECL_GITHUB_SHA "a165d636552fa0c0f96219d341f7f2c17c08dc9d")
 
 # https://github.com/OPM/opm-flowdiagnostics
 set(OPM_FLOWDIAGNOSTICS_SHA "f8af0914f8b1ddcda41f040f539c945a6057f5e4")

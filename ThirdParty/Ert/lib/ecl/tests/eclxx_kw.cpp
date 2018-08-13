@@ -22,7 +22,7 @@
 
 #include <ert/util/test_util.hpp>
 
-#include <ert/ecl/ecl_file.h>
+#include <ert/ecl/ecl_file.hpp>
 
 #include <ert/ecl/EclKW.hpp>
 #include <ert/ecl/FortIO.hpp>

@@ -1,26 +1,26 @@
 /*
-   Copyright (C) 2011  Statoil ASA, Norway. 
-    
-   The file 'geo_region.c' is part of ERT - Ensemble based Reservoir Tool. 
-    
-   ERT is free software: you can redistribute it and/or modify 
-   it under the terms of the GNU General Public License as published by 
-   the Free Software Foundation, either version 3 of the License, or 
-   (at your option) any later version. 
-    
-   ERT is distributed in the hope that it will be useful, but WITHOUT ANY 
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or 
-   FITNESS FOR A PARTICULAR PURPOSE.   
-    
-   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
-   for more details. 
+   Copyright (C) 2011  Statoil ASA, Norway.
+
+   The file 'geo_region.c' is part of ERT - Ensemble based Reservoir Tool.
+
+   ERT is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   ERT is distributed in the hope that it will be useful, but WITHOUT ANY
+   WARRANTY; without even the implied warranty of MERCHANTABILITY or
+   FITNESS FOR A PARTICULAR PURPOSE.
+
+   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+   for more details.
 */
 
 
 #include <stdlib.h>
 #include <stdbool.h>
 
-#include <ert/util/util.hpp>
+#include <ert/util/util.h>
 #include <ert/util/int_vector.hpp>
 #include <ert/util/bool_vector.hpp>
 #include <ert/util/type_macros.hpp>
@@ -36,10 +36,10 @@ struct geo_region_struct {
   UTIL_TYPE_ID_DECLARATION;
   bool                      preselect;
   bool                      index_valid;
-  bool                    * active_mask; 
+  bool                    * active_mask;
   int_vector_type         * index_list;
   const geo_pointset_type * pointset;
-  int                       pointset_size;   
+  int                       pointset_size;
 };
 
 
@@ -100,19 +100,19 @@ void geo_region_free__( void * arg ) {
 
 /*****************************************************************/
 
-static void geo_region_polygon_select__( geo_region_type * region , 
-                                         const geo_polygon_type * polygon , 
+static void geo_region_polygon_select__( geo_region_type * region ,
+                                         const geo_polygon_type * polygon ,
                                          bool select_inside , bool select) {
-  
+
   int index;
   for (index = 0; index < region->pointset_size; index++) {
 
     double x , y;
     bool is_inside;
     geo_pointset_iget_xy( region->pointset , index , &x , &y);
-    
+
     is_inside = geo_polygon_contains_point( polygon  , x , y );
-    if (is_inside == select_inside) 
+    if (is_inside == select_inside)
       region->active_mask[index] = select;
 
   }
@@ -139,7 +139,7 @@ void geo_region_deselect_outside_polygon( geo_region_type * region , const geo_p
 /*****************************************************************/
 
 static void geo_region_select_line__( geo_region_type * region, const double xcoords[2] , const double ycoords[2], bool select_above , bool select){
-  double vx = xcoords[1] - xcoords[0];   // Vector from point 1 to point 2 
+  double vx = xcoords[1] - xcoords[0];   // Vector from point 1 to point 2
   double vy = ycoords[1] - ycoords[0];
   int index;
 
@@ -161,8 +161,8 @@ static void geo_region_select_line__( geo_region_type * region, const double xco
       else
         above = false;
     }
-        
-    if (above == select_above) 
+
+    if (above == select_above)
       region->active_mask[index] = select;
   }
   geo_region_invalidate_index_list( region );

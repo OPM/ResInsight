@@ -1,7 +1,8 @@
-cmake_minimum_required( VERSION 2.8.12 )
+cmake_minimum_required( VERSION 2.8.12 ) # If you are creating Python wrappers for Windows, the actual version requirement is 3.4
 project( ERT C CXX )
 
 include(GNUInstallDirs)
+include(TestBigEndian)
 
 if(POLICY CMP0042)
   cmake_policy(SET CMP0042 OLD)
@@ -115,7 +116,7 @@ endif()
 # Treat warnings as errors if not on Windows
 if (NOT ERT_WINDOWS)
    set( CMAKE_C_FLAGS   "${CMAKE_C_FLAGS} -std=gnu99 -Wall -Wno-unknown-pragmas ")
-   set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall " )
+   set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wno-unknown-pragmas -Wno-unused-result -Wno-unused-parameter" )
 endif()
 
 if (MSVC)
@@ -191,11 +192,6 @@ if (SHLWAPI_LIBRARY)
     set(shlwapi ${SHLWAPI_LIBRARY})
 endif ()
 
-find_library(WS2_32_LIBRARY NAMES Ws2_32)
-if (WS2_32_LIBRARY)
-    set(ws2_32 ${WS2_32_LIBRARY})
-endif ()
-
 #-----------------------------------------------------------------
 
 # feature tests
@@ -227,9 +223,6 @@ check_function_exists( mkdir HAVE_POSIX_MKDIR)
 check_function_exists( _mkdir HAVE_WINDOWS_MKDIR)
 check_function_exists( opendir ERT_HAVE_OPENDIR )
 check_function_exists( posix_spawn ERT_HAVE_SPAWN )
-check_function_exists( pthread_timedjoin_np HAVE_TIMEDJOIN)
-check_function_exists( pthread_yield HAVE_YIELD)
-check_function_exists( pthread_yield_np HAVE_YIELD_NP)
 check_function_exists( readlinkat ERT_HAVE_READLINKAT )
 check_function_exists( realpath HAVE_REALPATH )
 check_function_exists( regexec ERT_HAVE_REGEXP )
@@ -247,10 +240,7 @@ check_include_file(execinfo.h HAVE_EXECINFO)
 check_include_file(getopt.h   ERT_HAVE_GETOPT)
 check_include_file(unistd.h   ERT_HAVE_UNISTD)
 
-# Portability checks; look for htons function
-check_include_file("netinet/in.h" HAVE_NETINET_IN_H)
-check_include_file("arpa/inet.h"  HAVE_ARPA_INET_H)
-check_include_file("winsock2.h"   HAVE_WINSOCK2_H)
+test_big_endian(BIG_ENDIAN)
 
 check_type_size(time_t SIZE_OF_TIME_T)
 if (${SIZE_OF_TIME_T} EQUAL 8)
@@ -329,33 +319,31 @@ if (MSVC)
    add_definitions( -D__func__="\\"????\\"")
 endif()
 
-if (ERT_WINDOWS)
-    message(WARNING "Python is not supported on Windows")
-    set( ENABLE_PYTHON OFF )
-endif ()
-
 if (ERT_LINUX)
    add_definitions( -DHAVE_PROC )
 endif()
 
+add_subdirectory( external/catch2 )
 add_subdirectory( lib )
 add_subdirectory( applications )
 add_subdirectory( bin )
 
-if (ENABLE_PYTHON)
-   if (ERT_WINDOWS)
-      message(WARNING "Python is not supported on Windows")
-      set( ENABLE_PYTHON OFF )
-   else()
-      # If finding the Python interpreter and required packages
-      # fails in the python/CMakeLists.txt file the ENABLE_PYTHON
-      # will be set to OFF.
-      add_subdirectory( python )
+if (ENABLE_PYTHON AND ERT_WINDOWS)
+    if ((NOT MSVC) OR (MSVC_VERSION LESS 1900))
+      message(FATAL_ERROR "The Python wrappers require Visual Studio 2015 or newer")
+    endif()
+endif()
 
-      if(RST_DOC)
-         add_subdirectory( docs )
-      endif()
-   endif()
+if (ENABLE_PYTHON)
+    # If finding the Python interpreter and required packages
+    # fails in the python/CMakeLists.txt file the ENABLE_PYTHON
+    # will be set to OFF.
+    add_subdirectory( python )
+
+    if(RST_DOC)
+       add_subdirectory( docs )
+    endif()
+
 endif()
 
 if (ENABLE_PYTHON)
@@ -364,9 +352,6 @@ if (ENABLE_PYTHON)
    endif()
 endif()
 
-if (INSTALL_ERT)
-   install(EXPORT ecl-config DESTINATION share/cmake/ecl)
-endif()
-
+install(EXPORT ecl-config DESTINATION share/cmake/ecl)
 export(TARGETS ecl FILE eclConfig.cmake)
 export(PACKAGE ecl)

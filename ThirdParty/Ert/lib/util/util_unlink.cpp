@@ -18,7 +18,7 @@
 
 #include "ert/util/build_config.hpp"
 
-#include <ert/util/util.hpp>
+#include <ert/util/util.h>
 
 #if defined(HAVE_WINDOWS_UNLINK)
 

@@ -18,7 +18,7 @@
 
 #include <stdbool.h>
 
-#include <ert/util/util.hpp>
+#include <ert/util/util.h>
 #include <ert/util/int_vector.hpp>
 
 #include <ert/ecl/ecl_file.hpp>
@@ -36,7 +36,7 @@ struct well_rseg_loader_struct {
   int_vector_type     * relative_index_map;
   int_vector_type     * absolute_index_map;
   char                * buffer;
-  char                * kw;
+  const char          * kw;
 };
 
 

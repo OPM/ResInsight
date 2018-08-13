@@ -35,7 +35,7 @@
 #include <fcntl.h>
 #include <limits.h>
 
-#include <ert/util/ert_api_config.h>
+#include <ert/util/ert_api_config.hpp>
 #include "ert/util/build_config.h"
 
 #include <errno.h>
@@ -89,7 +89,7 @@
 #endif
 
 #include <ert/util/util.h>
-#include <ert/util/buffer.h>
+#include <ert/util/buffer.hpp>
 
 
 /*
@@ -270,8 +270,6 @@ static bool EOL_CHAR(char c) {
   else
     return false;
 }
-
-#undef strncpy // This is for some reason needed in RH3
 
 /*
   The difference between /dev/random and /dev/urandom is that the
@@ -487,23 +485,6 @@ void util_string_tr(char * s, char c1, char c2) {
 }
 
 
-void util_rewind_line(FILE *stream) {
-  bool at_eol = false;
-  int c;
-
-  do {
-    if (util_ftell(stream) == 0)
-      at_eol = true;
-    else {
-      util_fseek(stream , -1 , SEEK_CUR);
-      c = fgetc(stream);
-      at_eol = EOL_CHAR(c);
-      if (!at_eol)
-        util_fseek(stream , -1 , SEEK_CUR);
-    }
-  } while (!at_eol);
-}
-
 
 
 /**
@@ -677,10 +658,6 @@ char * util_fscanf_alloc_line(FILE *stream , bool *at_eof) {
 }
 
 
-char * util_fscanf_realloc_line(FILE *stream , bool *at_eof , char *line) {
-  return util_fscanf_alloc_line__(stream , at_eof , line);
-}
-
 
 
 
@@ -700,20 +677,6 @@ void util_usleep( unsigned long micro_seconds ) {
     Sleep( milli_seconds );
   }
 #endif
-#endif
-}
-
-void util_yield() {
-#if defined(WITH_PTHREAD) && (defined(HAVE_YIELD_NP) || defined(HAVE_YIELD))
-  #ifdef HAVE_YIELD_NP
-    pthread_yield_np();
-  #else
-    #ifdef HAVE_YIELD
-    pthread_yield();
-    #endif
-  #endif
-#else
-  util_usleep(1000);
 #endif
 }
 
@@ -1076,49 +1039,6 @@ void util_fskip_lines(FILE * stream , int lines) {
   } while (cont);
 }
 
-
-/*
-  The last line(s) without content are not counted, i.e.
-
-  File:
-  ----------
-  |Line1
-  |Line2
-  |
-  |Line4
-  |empty1
-  |empty2
-  |empty3
-
-  will return a value of four.
-*/
-
-int util_forward_line(FILE * stream , bool * at_eof) {
-  bool at_eol = false;
-  int col = 0;
-  *at_eof     = false;
-
-  do {
-    char c = fgetc(stream);
-    if (c == EOF) {
-      *at_eof = true;
-      at_eol  = true;
-    } else {
-      if (EOL_CHAR(c)) {
-        at_eol = true;
-        c = fgetc(stream);
-        if (c == EOF)
-          *at_eof = true;
-        else {
-          if (!EOL_CHAR(c))
-            util_fseek(stream , -1 , SEEK_CUR);
-        }
-      } else
-        col++;
-    }
-  } while (!at_eol);
-  return col;
-}
 
 
 
@@ -1907,25 +1827,6 @@ bool util_fscanf_int(FILE * stream , int * value) {
 
 
 
-/**
-   This function counts the number of lines from the current position
-   in the file, to the end of line. The file pointer is repositioned
-   at the end of the counting.
-*/
-
-
-int util_count_file_lines(FILE * stream) {
-  long int init_pos = util_ftell(stream);
-  int lines = 0;
-  bool at_eof = false;
-  do {
-    int col = util_forward_line(stream , &at_eof);
-    if (col > 0) lines++;
-  } while (!at_eof);
-  util_fseek(stream , init_pos , SEEK_SET);
-  return lines;
-}
-
 
 int util_count_content_file_lines(FILE * stream) {
   int lines       = 0;
@@ -2664,7 +2565,7 @@ bool util_same_file(const char * file1 , const char * file2) {
       return same_file;
   }
   else
-    return false;    
+    return false;
 #endif
 }
 
@@ -3219,16 +3120,6 @@ char * util_alloc_strip_copy(const char *src) {
 
 
 
-char * util_realloc_strip_copy(char *src) {
-  if (src == NULL)
-    return NULL;
-  else {
-    char * strip_copy = util_alloc_strip_copy(src);
-    free(src);
-    return strip_copy;
-  }
-}
-
 
 char ** util_alloc_stringlist_copy(const char **src, int len) {
   if (src != NULL) {
@@ -3326,16 +3217,6 @@ char * util_realloc_substring_copy(char * old_string , const char *src , int len
     return NULL;
 }
 
-
-/**
-   This function check that a pointer is different from NULL, and
-   frees the memory if that is the case.
-*/
-
-
-void util_safe_free(void *ptr) {
-   if (ptr != NULL) free(ptr);
-}
 
 
 
@@ -3444,7 +3325,7 @@ void util_free_stringlist(char **list , int N) {
   int i;
   if (list != NULL) {
     for (i=0; i < N; i++) {
-      util_safe_free( list[i] );
+      free( list[i] );
     }
     free(list);
   }
@@ -4285,18 +4166,6 @@ double util_double_vector_stddev(int N, const double * vector) {
 
 
 
-/**
-   This function will update *value so that on return ALL bits which
-   are set in bitmask, are also set in value. No other bits in *value
-   should be modified - i.e. it is a logical or.
-*/
-
-void util_bitmask_on(int * value , int mask) {
-  int tmp = *value;
-  tmp = (tmp | mask);
-  *value = tmp;
-}
-
 
 FILE * util_fopen__(const char * filename , const char * mode) {
   return fopen(filename, mode);
@@ -4311,16 +4180,6 @@ FILE * util_fopen(const char * filename , const char * mode) {
 }
 
 
-
-/**
-   This micro function is only provided for the convenience of java
-   wrapping; if you wonder "What on earth should I use this function
-   for" - you can just forget about it.
-*/
-
-void util_fclose( FILE * stream ) {
-  fclose( stream );
-}
 
 
 
@@ -4463,9 +4322,6 @@ void * util_realloc_copy(void * org_ptr , const void * src , size_t byte_size ) 
   }
 }
 
-void util_free(void * ptr) {
-  free( ptr );
-}
 
 
 
@@ -4564,41 +4420,6 @@ char * util_alloc_sprintf(const char * fmt , ...) {
 }
 
 
-char * util_alloc_sprintf_escape(const char * src , int max_escape) {
-  if (src == NULL)
-    return NULL;
-
-  if (max_escape == 0)
-    max_escape = strlen( src );
-
-  {
-    const int src_len = strlen( src );
-    char * target = (char*)util_calloc( max_escape + strlen(src) + 1 , sizeof * target);
-
-    int escape_count = 0;
-    int src_offset = 0;
-    int target_offset = 0;
-
-    while (true) {
-      if (src[src_offset] == '%') {
-        if (escape_count < max_escape) {
-          target[target_offset] = '%';
-          target_offset++;
-          escape_count++;
-        }
-      }
-      target[target_offset] = src[src_offset];
-      target_offset++;
-      src_offset++;
-      if (src_offset == src_len)
-        break;
-    }
-    target[target_offset] = '\0';
-    target = (char*)util_realloc( target , (target_offset + 1) * sizeof * target);
-    return target;
-  }
-}
-
 
 /*
 char * util_realloc_sprintf(char * s , const char * fmt , ...) {
@@ -4625,7 +4446,7 @@ char * util_realloc_sprintf(char * s , const char * fmt , ...) {
   va_start(ap , fmt);
 
   new_s = util_alloc_sprintf_va( fmt , ap );
-  util_safe_free(s);
+  free(s);
 
   va_end(ap);
   return new_s;
@@ -4716,19 +4537,6 @@ void util_exit(const char * fmt , ...) {
 
 
 
-/**
-   This function is quite dangerous - it will always return something;
-   it is the responsability of the calling scope to check that it
-   makes sense. Will return 0 on input NULL.
-*/
-
-int util_get_type( void * data ) {
-  if (data == NULL)
-    return 0;
-  else
-    return ((int *) data)[0];
-}
-
 
 
 
@@ -4766,18 +4574,6 @@ int util_get_current_linenr(FILE * stream) {
 
 
 
-
-
-const char * util_enum_iget( int index , int size , const util_enum_element_type * enum_defs , int * value) {
-  if ((index < 0) || (index >= size)) {
-    *value = -1;
-    return NULL;
-  } else {
-    const util_enum_element_type elm = enum_defs[ index ];
-    *value = elm.value;
-    return elm.name;
-  }
-}
 
 
 
@@ -4877,7 +4673,7 @@ bool util_is_abs_path(const char * path) {
 #ifdef ERT_WINDOWS
   if ((path[0] == '/') || (path[0] == '\\'))
     return true;
-  else 
+  else
     if ((isalpha(path[0]) && (path[1] == ':')))
       return true;
 
@@ -4903,8 +4699,13 @@ static int util_mkdir( const char * path ) {
 #endif
 }
 
+/*
+  Acts like the shell command 'mkdir -p' - i.e. creating a full directory tree.
+  The return value is: util_is_directory(_path) - i.e. will return true if the
+  directory exists at the end, and false otherwise.
+*/
 
-void util_make_path(const char *_path) {
+bool util_mkdir_p(const char *_path) {
   char *active_path;
   char *path = (char *) _path;
   int current_pos = 0;
@@ -4912,6 +4713,7 @@ void util_make_path(const char *_path) {
   if (!util_is_directory(path)) {
     int i = 0;
     active_path = (char*)util_calloc(strlen(path) + 1 , sizeof * active_path );
+
     do {
       size_t n = strcspn(path , UTIL_PATH_SEP_STRING);
       if (n < strlen(path))
@@ -4924,26 +4726,24 @@ void util_make_path(const char *_path) {
 
       if (!util_is_directory(active_path)) {
         if (util_mkdir(active_path) != 0) {
-          bool fail = false;
-          switch (errno) {
-          case(EEXIST):
-            if (util_is_directory(active_path))
-              fail = false;
+          if (errno != EEXIST)
             break;
-          default:
-            fail = true;
-            break;
-          }
-          if (fail)
-            util_abort("%s: failed to make directory:%s - aborting\n: %s(%d) \n",__func__ , active_path , strerror(errno), errno);
         }
       }
 
     } while (strlen(active_path) < strlen(_path));
+
     free(active_path);
   }
+  return util_is_directory(_path);
 }
 
+
+void util_make_path(const char * path) {
+  bool mkdir_ok = util_mkdir_p(path);
+  if (!mkdir_ok)
+    util_abort("%s: failed to make directory:%s - aborting\n: %s(%d) \n",__func__ , path , strerror(errno), errno);
+}
 
 /**
    This function will allocate a unique filename with a random part in
@@ -5019,7 +4819,7 @@ char * util_alloc_filename(const char * path , const char * basename , const cha
 
   file = (char*) util_calloc(length , sizeof * file );
   file[0] = '\0';
-  
+
   if (path && strlen(path)) {
     strcat(file, path);
     strcat(file, UTIL_PATH_SEP_STRING );
@@ -5035,30 +4835,12 @@ char * util_alloc_filename(const char * path , const char * basename , const cha
 
 
 char * util_realloc_filename(char * filename , const char * path , const char * basename , const char * extension) {
-  util_safe_free(filename);
+  free(filename);
   return util_alloc_filename( path , basename , extension );
 }
 
 
 
-
-#ifdef HAVE_PROC
-bool util_proc_alive(pid_t pid) {
-  char proc_path[16];
-  sprintf(proc_path , "/proc/%d" , pid);
-  return util_is_directory(proc_path);
-}
-#endif
-
-int util_proc_mem_free(void) {
-  FILE *stream = util_fopen("/proc/meminfo" , "r");
-  int mem;
-  util_fskip_lines(stream , 1);
-  util_fskip_token(stream);
-  util_fscanf_int(stream , &mem);
-  fclose(stream);
-  return mem;
-}
 
 
 
@@ -5081,8 +4863,8 @@ char * util_split_alloc_filename( const char * input_path ) {
     if (basename)
       filename = util_alloc_filename( NULL , basename , extension );
 
-    util_safe_free( basename );
-    util_safe_free( extension );
+    free( basename );
+    free( extension );
   }
 
   return filename;
@@ -5146,10 +4928,6 @@ char * util_alloc_parent_path( const char * path) {
 
 #ifdef ERT_HAVE_UNISTD
 
-int util_type_get_id( const void * data ) {
-  int type_id = ((const int*) data)[0];
-  return type_id;
-}
 
 int util_chdir(const char * path) {
   return chdir( path );

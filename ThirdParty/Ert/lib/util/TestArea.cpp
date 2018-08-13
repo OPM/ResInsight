@@ -15,9 +15,10 @@
    See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
    for more details.
 */
+
 #include <string>
 
-#include <ert/util/util.hpp>
+#include <ert/util/util.h>
 #include <ert/util/TestArea.hpp>
 #include <cstdlib>
 #include <memory>
@@ -120,4 +121,3 @@ namespace ERT {
   }
 
 }
-

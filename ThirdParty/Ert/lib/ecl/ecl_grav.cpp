@@ -20,7 +20,7 @@
 #include <math.h>
 #include <stdbool.h>
 
-#include <ert/util/util.hpp>
+#include <ert/util/util.h>
 #include <ert/util/hash.hpp>
 #include <ert/util/vector.hpp>
 
@@ -305,7 +305,7 @@ static ecl_grav_phase_type * ecl_grav_phase_alloc( ecl_grav_type * ecl_grav ,
 
 
 static void ecl_grav_phase_free( ecl_grav_phase_type * grav_phase ) {
-  util_safe_free( grav_phase->work );
+  free( grav_phase->work );
   free( grav_phase->fluid_mass );
   free( grav_phase );
 }
@@ -529,7 +529,7 @@ static ecl_grav_survey_type * ecl_grav_survey_alloc_RFIP(ecl_grav_type * ecl_gra
 
 static void ecl_grav_survey_free( ecl_grav_survey_type * grav_survey ) {
   free( grav_survey->name );
-  util_safe_free( grav_survey->porv );
+  free( grav_survey->porv );
   vector_free( grav_survey->phase_list );
   hash_free( grav_survey->phase_map );
   free( grav_survey );

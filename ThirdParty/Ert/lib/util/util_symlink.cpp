@@ -4,7 +4,7 @@
 
 #include "ert/util/build_config.hpp"
 #include <ert/util/ert_api_config.hpp>
-#include <ert/util/util.hpp>
+#include <ert/util/util.h>
 
 #ifndef ERT_HAVE_SYMLINK
 
@@ -24,12 +24,12 @@ char * util_alloc_link_target(const char * link) {
 void util_make_slink(const char *target , const char * link) {
   if (util_file_exists(link)) {
     if (util_is_link(link)) {
-      if (!util_same_file(target , link)) 
+      if (!util_same_file(target , link))
         util_abort("%s: %s already exists - not pointing to: %s - aborting \n",__func__ , link , target);
-    } else 
+    } else
       util_abort("%s: %s already exists - is not a link - aborting \n",__func__ , link);
   } else {
-    if (symlink(target , link) != 0) 
+    if (symlink(target , link) != 0)
       util_abort("%s: linking %s -> %s failed - aborting: %s \n",__func__ , link , target , strerror(errno));
   }
 }
@@ -72,15 +72,15 @@ char * util_alloc_link_target(const char * link) {
     do {
       target        = (char*)util_realloc(target , buffer_size );
       target_length = readlink(link , target , buffer_size);
-      
-      if (target_length == -1) 
+
+      if (target_length == -1)
         util_abort("%s: readlink(%s,...) failed with error:%s - aborting\n",__func__ , link , strerror(errno));
-      
+
       if (target_length < (buffer_size - 1))   /* Must leave room for the trailing \0 */
         retry = false;
       else
         buffer_size *= 2;
-      
+
     } while (retry);
     target[target_length] = '\0';
     target = (char*)util_realloc( target , strlen( target ) + 1 );   /* Shrink down to accurate size. */
@@ -111,11 +111,11 @@ char * util_alloc_atlink_target(const char * path , const char * link) {
     dir = opendir( path );
     if (dir == NULL)
       return NULL;
-    
+
     path_fd = dirfd( dir );
     if (path_fd == -1)
       return NULL;
-    
+
     {
       bool retry = true;
       int target_length;
@@ -123,19 +123,19 @@ char * util_alloc_atlink_target(const char * path , const char * link) {
       do {
         target        = (char*)util_realloc(target , buffer_size );
         target_length = readlinkat( path_fd , link , target , buffer_size);
-        
-        if (target_length == -1) 
+
+        if (target_length == -1)
           util_abort("%s: readlinkat(%s,...) failed with error:%s - aborting\n",__func__ , link , strerror(errno));
-        
+
         if (target_length < (buffer_size - 1))   /* Must leave room for the trailing \0 */
           retry = false;
         else
           buffer_size *= 2;
-        
+
       } while (retry);
       target[target_length] = '\0';
       target = (char*)util_realloc( target , strlen( target ) + 1 );   /* Shrink down to accurate size. */
-    } 
+    }
     closedir( dir );
     return target;
   }

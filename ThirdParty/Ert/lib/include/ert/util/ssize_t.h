@@ -1,34 +1,9 @@
 /*
-   Copyright (C) 2011  Statoil ASA, Norway. 
-    
-   The file 'ssize_t.h' is part of ERT - Ensemble based Reservoir Tool. 
-    
-   ERT is free software: you can redistribute it and/or modify 
-   it under the terms of the GNU General Public License as published by 
-   the Free Software Foundation, either version 3 of the License, or 
-   (at your option) any later version. 
-    
-   ERT is distributed in the hope that it will be useful, but WITHOUT ANY 
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or 
-   FITNESS FOR A PARTICULAR PURPOSE.   
-    
-   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
-   for more details. 
+  Warning: The libecl code has changed to be compiled as a C++ project. This
+  header file is retained for a period for compatibility, but you are encouraged
+  to switch to include the new hpp header directly in your code.
 */
 
-#ifndef ERT_SSIZE_T_H
-#define ERT_SSIZE_T_H
+#include <ert/util/ssize_t.hpp>
 
-#ifdef _MSC_VER
-/* maximum number of bytes addressable */
-#ifdef _WIN64
-typedef __int64 ssize_t;
-#else
-typedef long ssize_t;
-#endif
-#else
-/* POSIX 2008 states that it should be defined here */
-#include <sys/types.h>
-#endif
 
-#endif

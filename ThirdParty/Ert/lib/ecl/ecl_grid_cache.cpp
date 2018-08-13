@@ -21,7 +21,7 @@
 #include <math.h>
 #include <stdbool.h>
 
-#include <ert/util/util.hpp>
+#include <ert/util/util.h>
 
 #include <ert/ecl/ecl_kw.hpp>
 #include <ert/ecl/ecl_util.hpp>

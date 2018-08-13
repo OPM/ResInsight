@@ -21,10 +21,10 @@
 #include <string.h>
 
 #include <ert/util/int_vector.hpp>
-#include <ert/util/util.hpp>
+#include <ert/util/util.h>
 
-#include <ert/geometry/geo_util.h>
-#include <ert/geometry/geo_polygon.h>
+#include <ert/geometry/geo_util.hpp>
+#include <ert/geometry/geo_polygon.hpp>
 
 #include <ert/ecl/ecl_kw.hpp>
 #include <ert/ecl/ecl_grid.hpp>
@@ -170,7 +170,7 @@ void ecl_region_free( ecl_region_type * region ) {
   int_vector_free( region->active_index_list );
   int_vector_free( region->global_index_list );
   int_vector_free( region->global_active_list );
-  util_safe_free( region->name );
+  free( region->name );
   free( region );
 }
 

@@ -42,6 +42,7 @@ class EclSMSPECNode(BaseCClass):
     _gen_key2           = EclPrototype("char* smspec_node_get_gen_key2( smspec_node )")
     _var_type           = EclPrototype("ecl_sum_var_type smspec_node_get_var_type( smspec_node )")
     _cmp                = EclPrototype("int smspec_node_cmp( smspec_node , smspec_node)")
+    _get_default        = EclPrototype("float smspec_node_get_default(smspec_node)")
 
     def __init__(self):
         super(EclSMSPECNode, self).__init__(0) # null pointer
@@ -105,6 +106,19 @@ class EclSMSPECNode(BaseCClass):
     @property
     def num(self):
         return self.getNum( )
+
+
+    @property
+    def default(self):
+        """Will return the default value for this key.
+
+        The default value is typically used when fetching values from a
+        historical case, when the key is only present in the restarted case.
+        The default value is also used to initialize the PARAMS vector when
+        writing to file.
+        """
+        return self._get_default()
+
 
     def get_key1(self):
         """

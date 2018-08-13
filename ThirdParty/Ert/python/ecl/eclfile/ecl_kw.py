@@ -352,7 +352,7 @@ class EclKW(BaseCClass):
     def __repr__(self):
         si = len(self)
         nm = self.getName()
-        mm = 'type=%s' % str(self.getEclType())
+        mm = 'type=%s' % str(self.data_type)
         if self.isNumeric():
             mi, ma = self.getMinMax()
             mm = 'min=%.2f, max=%.2f' % (mi,ma)
@@ -968,7 +968,9 @@ class EclKW(BaseCClass):
 
     @property
     def type(self):
-        return self.getEclType()
+        warnings.warn("ecl_kw.type is deprecated, use .data_type",
+            DeprecationWarning)
+        return self._get_type()
 
     @property
     def data_type(self):
@@ -1190,7 +1192,7 @@ class EclKW(BaseCClass):
         if offset >= len(self):
             raise IndexError("Offset:%d invalid - size:%d" % (offset, len(self)))
 
-        if self.getEclType() != other.getEclType():
+        if self.data_type!= other.data_type:
             raise TypeError("The two keywords have different type")
 
         if abs_epsilon is None:

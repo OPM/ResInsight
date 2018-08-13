@@ -3,10 +3,10 @@ functionalities. The different libraries depend on eachother, and the
 libraries must be built in correct order. The dependencies is as
 follows:
 
-libhash  : 
+libhash  :
 libutil  : libhash
 libecl   : libhash libutil
-librms   : libecl  libutil libhash 
+librms   : libecl  libutil libhash
 libsched : libecl  linutil libhash
 libenkf  : libecl  libsched librm linutil libhash
 
@@ -16,7 +16,7 @@ libhash:  This library implements the classes hash_type, set_type and
 
 libutil:  This library is a collection utility routines. Observe that
           this library only implements routines, and not statefull
-          objects. 
+          objects.
 
 libecl:   This library implements functions for reading/writing ECLIPSE
           restart/summary/init/grid files.
@@ -27,7 +27,7 @@ librms:   This library implements (basic) reader and writer for binary
           RMS ROFF files.
 
 libenkf:  This library implements various high level objects for EnKF
-          functionality. 
+          functionality.
 
 -----------------------------------------------------------------
 

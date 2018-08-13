@@ -19,7 +19,7 @@
 #include <string.h>
 #include <ctype.h>
 
-#include <ert/util/util.hpp>
+#include <ert/util/util.h>
 
 #include <ert/ecl/ecl_kw.hpp>
 #include <ert/ecl/ecl_type.hpp>
@@ -259,7 +259,7 @@ static char * fscanf_alloc_grdecl_data( const char * header , bool strict , ecl_
   int buffer_size     = 64;
   int data_index      = 0;
   int sizeof_ctype    = ecl_type_get_sizeof_ctype( data_type );
-  int data_size       = init_size;
+  size_t data_size    = init_size;
   char * buffer       = (char*)util_calloc( (buffer_size + 1) , sizeof * buffer      );
   char * data         = (char*)util_calloc( sizeof_ctype * data_size , sizeof * data );
 
@@ -394,9 +394,9 @@ static char * fscanf_alloc_grdecl_data( const char * header , bool strict , ecl_
 
    The ecl_kw class has a quite deeply wired assumption that the
    header is a string of length 8 (I hope/think that is an ECLIPSE
-   limitation). The class cannot read/write kw with headers longer than 8 bytes. 
+   limitation). The class cannot read/write kw with headers longer than 8 bytes.
    ecl_kw_grdecl is a workaround allowing for reading/writing kw with long
-   headers. 
+   headers.
 
    -----------------------------------------------------------------
 
@@ -454,7 +454,7 @@ static ecl_kw_type * __ecl_kw_fscanf_alloc_grdecl__(FILE * stream , const char *
       // Verify size
       if (size > 0)
         if (size != kw_size) {
-          util_safe_free( data );
+          free( data );
           util_abort("%s: size mismatch when loading:%s. File:%d elements. Requested:%d elements \n",
                      __func__ , file_header , kw_size , size);
         }

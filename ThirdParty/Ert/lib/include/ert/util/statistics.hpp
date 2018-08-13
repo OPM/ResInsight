@@ -1,7 +1,7 @@
 /*
-   Copyright (C) 2018 Statoil ASA, Norway.
+   Copyright (C) 2011  Statoil ASA, Norway.
 
-   This is part of ERT - Ensemble based Reservoir Tool.
+   The file 'statistics.h' is part of ERT - Ensemble based Reservoir Tool.
 
    ERT is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -9,16 +9,27 @@
    (at your option) any later version.
 
    ERT is distributed in the hope that it will be useful, but WITHOUT ANY
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or1
+   WARRANTY; without even the implied warranty of MERCHANTABILITY or
    FITNESS FOR A PARTICULAR PURPOSE.
 
    See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
    for more details.
 */
 
-#ifndef STATISTICS_CXX
-#define STATISTICS_CXX
+#ifndef ERT_STATISTICS_H
+#define ERT_STATISTICS_H
 
-#include <ert/util/statistics.h>
+#ifdef __cplusplus
+extern "C" {
+#endif
+#include <ert/util/double_vector.hpp>
 
+double      statistics_std( const double_vector_type * data_vector );
+double      statistics_mean( const double_vector_type * data_vector );
+double      statistics_empirical_quantile( double_vector_type * data , double quantile );
+double      statistics_empirical_quantile__( const double_vector_type * data , double quantile );
+
+#ifdef __cplusplus
+}
+#endif
 #endif

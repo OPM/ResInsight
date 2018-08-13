@@ -23,7 +23,7 @@
 #include <stdbool.h>
 
 #include <ert/util/hash.hpp>
-#include <ert/util/util.hpp>
+#include <ert/util/util.h>
 #include <ert/util/vector.hpp>
 
 #include <ert/ecl/ecl_kw.hpp>
@@ -123,8 +123,8 @@ static ecl_subsidence_survey_type * ecl_subsidence_survey_alloc_PRESSURE(ecl_sub
 
 static void ecl_subsidence_survey_free( ecl_subsidence_survey_type * subsidence_survey ) {
   free( subsidence_survey->name );
-  util_safe_free( subsidence_survey->porv );
-  util_safe_free( subsidence_survey->pressure );
+  free( subsidence_survey->porv );
+  free( subsidence_survey->pressure );
   free( subsidence_survey );
 }
 

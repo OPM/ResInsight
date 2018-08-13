@@ -16,16 +16,16 @@
    for more details.
 */
 
-#include <ert/util/type_macros.h>
-#include <ert/util/int_vector.h>
-#include <ert/util/double_vector.h>
-#include <ert/util/vector.h>
+#include <ert/util/type_macros.hpp>
+#include <ert/util/int_vector.hpp>
+#include <ert/util/double_vector.hpp>
+#include <ert/util/vector.hpp>
 
-#include <ert/ecl/ecl_grid.h>
-#include <ert/ecl/ecl_kw.h>
-#include <ert/ecl/fault_block_layer.h>
-#include <ert/ecl/fault_block.h>
-#include <ert/ecl/layer.h>
+#include <ert/ecl/ecl_grid.hpp>
+#include <ert/ecl/ecl_kw.hpp>
+#include <ert/ecl/fault_block_layer.hpp>
+#include <ert/ecl/fault_block.hpp>
+#include <ert/ecl/layer.hpp>
 
 #define FAULT_BLOCK_LAYER_ID 2297476
 

@@ -223,7 +223,7 @@ int main (int argc , char ** argv) {
             vprofile( i - 1, j - 1, ecl_grid , ecl_file , kw , tstep , output_fmt );
             
             if (!unified)
-              util_safe_free( restart_file );
+              free( restart_file );
           } else
             fprintf(stderr,"** The string: \'%s\' was not interpreted as a time-step - ignored \n",tlist[it]);
         }

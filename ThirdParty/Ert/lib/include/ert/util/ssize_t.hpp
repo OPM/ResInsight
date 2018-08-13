@@ -1,7 +1,7 @@
 /*
-   Copyright (C) 2018 Statoil ASA, Norway.
+   Copyright (C) 2011  Statoil ASA, Norway.
 
-   This is part of ERT - Ensemble based Reservoir Tool.
+   The file 'ssize_t.h' is part of ERT - Ensemble based Reservoir Tool.
 
    ERT is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -9,16 +9,26 @@
    (at your option) any later version.
 
    ERT is distributed in the hope that it will be useful, but WITHOUT ANY
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or1
+   WARRANTY; without even the implied warranty of MERCHANTABILITY or
    FITNESS FOR A PARTICULAR PURPOSE.
 
    See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
    for more details.
 */
 
-#ifndef SSIZE_T_CXX
-#define SSIZE_T_CXX
+#ifndef ERT_SSIZE_T_H
+#define ERT_SSIZE_T_H
 
-#include <ert/util/ssize_t.h>
+#ifdef _MSC_VER
+/* maximum number of bytes addressable */
+#ifdef _WIN64
+typedef __int64 ssize_t;
+#else
+typedef long ssize_t;
+#endif
+#else
+/* POSIX 2008 states that it should be defined here */
+#include <sys/types.h>
+#endif
 
 #endif

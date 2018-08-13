@@ -29,7 +29,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include <ert/util/util.hpp>
+#include <ert/util/util.h>
 #include <ert/util/test_work_area.hpp>
 #include <ert/util/type_macros.hpp>
 

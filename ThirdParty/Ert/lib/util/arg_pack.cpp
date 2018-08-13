@@ -21,7 +21,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 
-#include <ert/util/util.hpp>
+#include <ert/util/util.h>
 #include <ert/util/arg_pack.hpp>
 #include <ert/util/node_ctype.hpp>
 
@@ -276,7 +276,7 @@ static void arg_node_clear(arg_node_type * node) {
 
 static void arg_node_free(arg_node_type * node) {
   arg_node_clear(node);
-  util_safe_free(node->buffer);
+  free(node->buffer);
   free(node);
 }
 

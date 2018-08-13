@@ -62,11 +62,6 @@ class ExtendedTestCase(TestCase):
         super(ExtendedTestCase , self).__init__(*args , **kwargs)
 
 
-    def __str__(self):
-        return 'ExtendedTestCase( TESTADATA_ROOT=%s, SOURCE_ROOT=%s, SHARE_ROOT=%s)' % (self.TESTDATA_ROOT,
-                                                                                        self.SOURCE_ROOT,
-                                                                                        self.SHARE_ROOT)
-
     def assertFloatEqual(self, first, second, msg=None, tolerance=1e-6):
         try:
             f_first, f_second = float(first), float(second)

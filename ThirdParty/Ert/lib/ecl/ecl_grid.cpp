@@ -22,15 +22,15 @@
 #include <stdbool.h>
 #include <math.h>
 
-#include <ert/util/util.hpp>
+#include <ert/util/util.h>
 #include <ert/util/double_vector.hpp>
 #include <ert/util/int_vector.hpp>
 #include <ert/util/hash.hpp>
 #include <ert/util/vector.hpp>
 #include <ert/util/stringlist.hpp>
 
-#include <ert/geometry/geo_util.h>
-#include <ert/geometry/geo_polygon.h>
+#include <ert/geometry/geo_util.hpp>
+#include <ert/geometry/geo_polygon.hpp>
 
 #include <ert/ecl/ecl_util.hpp>
 #include <ert/ecl/ecl_type.hpp>
@@ -763,6 +763,10 @@ struct ecl_grid_struct {
   int                   eclipse_version;
 };
 
+ert_ecl_unit_enum ecl_grid_get_unit_system(const ecl_grid_type * grid) {
+  return grid->unit_system;
+}
+
 static void ecl_cell_compare(const ecl_cell_type * c1 , const ecl_cell_type * c2,  bool include_nnc , bool * equal) {
   int i;
 
@@ -1167,7 +1171,7 @@ static double C(double *r,int f1,int f2,int f3){
 }
 
 
-static double ecl_cell_get_volume_tskille( ecl_cell_type * cell ) {
+static double ecl_cell_get_volume( ecl_cell_type * cell ) {
   double volume = 0;
   int pb,pg,qa,qg,ra,rb;
   double X[8];
@@ -1267,79 +1271,6 @@ static bool tetrahedron_contains(tetrahedron_type tet, const point_type p) {
   }
 
   return (fabs(tetra_volume - decomposition_volume) < epsilon);
-}
-
-/*
- * This function used to account for a significant amount of execution time
- * when used in opm-parser and has been optimised significantly. This means
- * inlining several operations, e.g. vector operations, and other tricks.
- */
-static double ecl_cell_get_signed_volume( ecl_cell_type * cell) {
-  if (GET_CELL_FLAG(cell , CELL_FLAG_VOLUME))
-    return cell->volume;
-
-  ecl_cell_assert_center( cell );
-  {
-    /*
-     * We make an activation record local copy of the cell's corners for less
-     * jumping in memory and better cache performance.
-     */
-    point_type center = cell->center;
-    point_type corners[ 8 ];
-    memcpy( corners, cell->corner_list, sizeof( point_type ) * 8 );
-
-    tetrahedron_type tet;
-    tet.p0 = center;
-    double           volume = 0;
-    /*
-      using both tetrahedron decompositions - gives good agreement
-      with porv from eclipse init files.
-    */
-
-    /*
-     * The order of these loops is intentional and guided by profiling. It's much
-     * faster to access method, then the number, rather than the other way
-     * around. If you are to change this, please measure performance impact.
-     */
-    for( int method = 0; method < 2; ++method ) {
-      for( int itet = 0; itet < 12; ++itet  ) {
-        const int point0 = tetrahedron_permutations[ method ][ itet ][ 0 ];
-        const int point1 = tetrahedron_permutations[ method ][ itet ][ 1 ];
-        const int point2 = tetrahedron_permutations[ method ][ itet ][ 2 ];
-
-        tet.p1 = corners[ point0 ];
-        tet.p2 = corners[ point1 ];
-        tet.p3 = corners[ point2 ];
-        volume += tetrahedron_volume6( tet ) / 6;
-      }
-    }
-
-    /* The volume of a tetrahedron is
-     *        |a·(b x c)|
-     *  V  =  -----------
-     *             6
-     * Since sum( |a·(b x c)| ) / 6 is equal to
-     * sum( |a·(b x c)| / 6 ) we can do the (rather expensive) division only once
-     * and still get the correct result. We multiply by 0.5 because we've now
-     * considered two decompositions of the tetrahedron, and want their average.
-     *
-     *
-     * Note added: these volume calculations are used to calculate pore
-     * volumes in OPM, it turns out that opm is very sensitive to these
-     * volumes. Extracting the divison by 6.0 was actually enough to
-     * induce a regression test failure in flow, this has therefore been
-     * reverted.
-     */
-
-    cell->volume = volume * 0.5;
-    SET_CELL_FLAG( cell , CELL_FLAG_VOLUME );
-  }
-  return cell->volume;
-}
-
-
-static double ecl_cell_get_volume( ecl_cell_type * cell ) {
-  return fabs( ecl_cell_get_signed_volume(cell));
 }
 
 
@@ -2299,6 +2230,80 @@ int ecl_grid_zcorn_index__(int nx, int ny , int i, int j , int k , int c) {
 int ecl_grid_zcorn_index(const ecl_grid_type * grid , int i, int j , int k , int c) {
   return ecl_grid_zcorn_index__( grid->nx, grid->ny , i , j , k , c );
 }
+static void ecl_grid_init_GRDECL_data_jslice(ecl_grid_type * ecl_grid,
+                                             const double * zcorn,
+                                             const double * coord,
+                                             const int * actnum,
+                                             const int * corsnum,
+                                             int j) {
+  const int nx = ecl_grid->nx;
+  const int ny = ecl_grid->ny;
+  const int nz = ecl_grid->nz;
+  int i;
+
+
+  for (i=0; i < nx; i++) {
+    point_type pillars[4][2];
+    int pillar_index[4];
+    pillar_index[0] = 6 * ( j      * (nx + 1) + i    );
+    pillar_index[1] = 6 * ( j      * (nx + 1) + i + 1);
+    pillar_index[2] = 6 * ((j + 1) * (nx + 1) + i    );
+    pillar_index[3] = 6 * ((j + 1) * (nx + 1) + i + 1);
+
+    {
+      int ip;
+      for (ip = 0; ip < 4; ip++) {
+        int index = pillar_index[ip];
+        point_set(&pillars[ip][0] , coord[index] , coord[index + 1] , coord[index + 2]);
+
+        index += 3;
+        point_set(&pillars[ip][1] , coord[index] , coord[index + 1] , coord[index + 2]);
+      }
+    }
+
+    {
+      double ex[4];
+      double ey[4];
+      double ez[4];
+      int k;
+
+      {
+        int ip;
+        for (ip = 0; ip <  4; ip++) {
+          ex[ip] = pillars[ip][1].x - pillars[ip][0].x;
+          ey[ip] = pillars[ip][1].y - pillars[ip][0].y;
+          ez[ip] = pillars[ip][1].z - pillars[ip][0].z;
+        }
+      }
+
+
+      for (k=0; k < nz; k++) {
+        double x[4][2];
+        double y[4][2];
+        double z[4][2];
+
+        {
+          int c;
+          for (c = 0; c < 2; c++) {
+            z[0][c] = zcorn[k*8*nx*ny + j*4*nx + 2*i            + c*4*nx*ny];
+            z[1][c] = zcorn[k*8*nx*ny + j*4*nx + 2*i  +  1      + c*4*nx*ny];
+            z[2][c] = zcorn[k*8*nx*ny + j*4*nx + 2*nx + 2*i     + c*4*nx*ny];
+            z[3][c] = zcorn[k*8*nx*ny + j*4*nx + 2*nx + 2*i + 1 + c*4*nx*ny];
+          }
+        }
+
+        {
+          int ip;
+          for (ip = 0; ip <  4; ip++)
+            ecl_grid_pillar_cross_planes(&pillars[ip][0] , ex[ip], ey[ip] , ez[ip] , z[ip] , x[ip] , y[ip]);
+        }
+
+        ecl_grid_set_cell_EGRID(ecl_grid , i , j , k , x , y , z , actnum , corsnum);
+      }
+    }
+  }
+}
+
 
 
 static void ecl_grid_init_GRDECL_data_jslice(ecl_grid_type * ecl_grid,
@@ -2375,6 +2380,19 @@ static void ecl_grid_init_GRDECL_data_jslice(ecl_grid_type * ecl_grid,
   }
 }
 
+void ecl_grid_init_GRDECL_data(ecl_grid_type * ecl_grid,
+                               const double * zcorn,
+                               const double * coord,
+                               const int * actnum,
+                               const int * corsnum) {
+  const int ny = ecl_grid->ny;
+  int j;
+#pragma omp parallel for
+  for ( j=0; j < ny; j++)
+    ecl_grid_init_GRDECL_data_jslice( ecl_grid , zcorn, coord , actnum , corsnum , j );
+}
+
+
 
 void ecl_grid_init_GRDECL_data(ecl_grid_type * ecl_grid,
                                const float * zcorn,
@@ -2395,6 +2413,42 @@ void ecl_grid_init_GRDECL_data(ecl_grid_type * ecl_grid,
   |   |
   0---1
 */
+
+static ecl_grid_type * ecl_grid_alloc_GRDECL_data__(ecl_grid_type * global_grid,
+                                                    int dualp_flag,
+                                                    bool apply_mapaxes,
+                                                    int nx,
+                                                    int ny,
+                                                    int nz,
+                                                    const double * zcorn,
+                                                    const double * coord,
+                                                    const int * actnum,
+                                                    const float * mapaxes,
+                                                    const int * corsnum,
+                                                    int lgr_nr) {
+
+  ecl_grid_type * ecl_grid = ecl_grid_alloc_empty(global_grid , dualp_flag , nx,ny,nz,lgr_nr,true);
+  if (ecl_grid) {
+    if (mapaxes != NULL)
+      ecl_grid_init_mapaxes( ecl_grid , apply_mapaxes, mapaxes );
+
+    if (corsnum != NULL)
+      ecl_grid->coarsening_active = true;
+
+    ecl_grid->coord_kw = ecl_kw_alloc("COORD" , 6*(nx + 1) * (ny + 1) , ECL_FLOAT);
+    {
+      float * coord_float = (float *)ecl_kw_get_ptr(ecl_grid->coord_kw);
+      for (int i=0; i < ecl_kw_get_size(ecl_grid->coord_kw); i++)
+        coord_float[i] = coord[i];
+    }
+    ecl_grid_init_GRDECL_data( ecl_grid , zcorn , coord , actnum , corsnum);
+
+    ecl_grid_init_coarse_cells( ecl_grid );
+    ecl_grid_update_index( ecl_grid );
+    ecl_grid_taint_cells( ecl_grid );
+  }
+  return ecl_grid;
+}
 
 static ecl_grid_type * ecl_grid_alloc_GRDECL_data__(ecl_grid_type * global_grid,
                                                     int dualp_flag,
@@ -2426,6 +2480,8 @@ static ecl_grid_type * ecl_grid_alloc_GRDECL_data__(ecl_grid_type * global_grid,
   }
   return ecl_grid;
 }
+
+
 
 
 static void ecl_grid_copy_mapaxes( ecl_grid_type * target_grid , const ecl_grid_type * src_grid ) {
@@ -2580,6 +2636,33 @@ ecl_grid_type * ecl_grid_alloc_GRDECL_data(int nx,
                                       mapaxes,
                                       NULL,
                                       0);
+}
+
+namespace ecl {
+
+  ecl_grid_type * ecl_grid_alloc_GRDECL_data(int nx,
+                                             int ny,
+                                             int nz,
+                                             const double * zcorn,
+                                             const double * coord,
+                                             const int * actnum,
+                                             bool apply_mapaxes,
+                                             const float * mapaxes) {
+
+    return ecl_grid_alloc_GRDECL_data__(NULL,
+                                        FILEHEAD_SINGLE_POROSITY,
+                                        apply_mapaxes,
+                                        nx,
+                                        ny,
+                                        nz,
+                                        zcorn,
+                                        coord,
+                                        actnum,
+                                        mapaxes,
+                                        NULL,
+                                        0);
+  }
+
 }
 
 
@@ -4458,12 +4541,12 @@ int ecl_grid_get_block_count3d(const ecl_grid_type * grid , int i , int j, int k
 
 void ecl_grid_free(ecl_grid_type * grid) {
   ecl_grid_free_cells( grid );
-  util_safe_free(grid->index_map);
-  util_safe_free(grid->inv_index_map);
+  free(grid->index_map);
+  free(grid->inv_index_map);
 
-  util_safe_free(grid->fracture_index_map);
-  util_safe_free(grid->inv_fracture_index_map);
-  util_safe_free(grid->mapaxes);
+  free(grid->fracture_index_map);
+  free(grid->inv_fracture_index_map);
+  free(grid->mapaxes);
 
   if (grid->values != NULL) {
     int i;
@@ -4481,9 +4564,9 @@ void ecl_grid_free(ecl_grid_type * grid) {
 
   vector_free( grid->coarse_cells );
   hash_free( grid->children );
-  util_safe_free( grid->parent_name );
-  util_safe_free( grid->visited );
-  util_safe_free( grid->name );
+  free( grid->parent_name );
+  free( grid->visited );
+  free( grid->name );
   free( grid );
 }
 
@@ -5386,15 +5469,6 @@ double ecl_grid_get_cell_volume1A( const ecl_grid_type * ecl_grid, int active_in
   int global_index = ecl_grid_get_global_index1A( ecl_grid , active_index );
   return ecl_grid_get_cell_volume1( ecl_grid , global_index );
 }
-
-
-
-double ecl_grid_get_cell_volume1_tskille( const ecl_grid_type * ecl_grid, int global_index ) {
-  ecl_cell_type * cell = ecl_grid_get_cell( ecl_grid , global_index );
-  return ecl_cell_get_volume_tskille( cell );
-}
-
-
 
 
 

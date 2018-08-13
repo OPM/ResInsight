@@ -16,12 +16,12 @@
    for more details.
 */
 
-#include <ert/util/type_macros.h>
-#include <ert/util/int_vector.h>
+#include <ert/util/type_macros.hpp>
+#include <ert/util/int_vector.hpp>
 
-#include <ert/geometry/geo_util.h>
-#include <ert/geometry/geo_polygon.h>
-#include <ert/geometry/geo_polygon_collection.h>
+#include <ert/geometry/geo_util.hpp>
+#include <ert/geometry/geo_polygon.hpp>
+#include <ert/geometry/geo_polygon_collection.hpp>
 
 #include <ert/ecl/ecl_grid.hpp>
 #include <ert/ecl/ecl_kw.hpp>
@@ -257,7 +257,7 @@ static bool fault_block_connected_neighbour( const fault_block_type * block , in
   */
   if (!ecl_grid_cell_active3( block->grid , i2,j2,block->k))
     return false;
-  
+
   {
     int cell_id = layer_iget_cell_value( layer , i1 , j1 );
     int neighbour_id = layer_iget_cell_value(layer , i2 , j2);

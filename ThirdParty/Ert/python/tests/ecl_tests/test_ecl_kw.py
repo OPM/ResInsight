@@ -72,8 +72,7 @@ class KWTest(EclTest):
 
             self.assertEqual(EclTypeEnum.ECL_INT_TYPE, kw.type)
 
-            self.assertTrue(len(w) > 0)
-            self.assertTrue(issubclass(w[-1].category, DeprecationWarning))
+            self.assertTrue(len(w) == 1)
 
     def kw_test(self, data_type, data, fmt):
         name1 = "file1.txt"

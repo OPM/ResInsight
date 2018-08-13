@@ -1,19 +1,19 @@
 /*
-   Copyright (C) 2011  Statoil ASA, Norway. 
-    
-   The file 'timer.c' is part of ERT - Ensemble based Reservoir Tool. 
-    
-   ERT is free software: you can redistribute it and/or modify 
-   it under the terms of the GNU General Public License as published by 
-   the Free Software Foundation, either version 3 of the License, or 
-   (at your option) any later version. 
-    
-   ERT is distributed in the hope that it will be useful, but WITHOUT ANY 
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or 
-   FITNESS FOR A PARTICULAR PURPOSE.   
-    
-   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
-   for more details. 
+   Copyright (C) 2011  Statoil ASA, Norway.
+
+   The file 'timer.c' is part of ERT - Ensemble based Reservoir Tool.
+
+   ERT is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   ERT is distributed in the hope that it will be useful, but WITHOUT ANY
+   WARRANTY; without even the implied warranty of MERCHANTABILITY or
+   FITNESS FOR A PARTICULAR PURPOSE.
+
+   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+   for more details.
 */
 
 #include <time.h>
@@ -21,7 +21,7 @@
 #include <string.h>
 #include <math.h>
 
-#include <ert/util/util.hpp>
+#include <ert/util/util.h>
 #include <ert/util/timer.hpp>
 
 #ifdef __cplusplus
@@ -43,7 +43,7 @@ struct timer_struct {
 timer_type * timer_alloc(bool epoch_time) {
   timer_type *timer;
   timer       = (timer_type*)util_malloc(sizeof * timer );
-  
+
   timer->epoch_time = epoch_time;
   timer_reset(timer);
   return timer;
@@ -56,7 +56,7 @@ void timer_free(timer_type *timer) {
 
 
 void timer_start(timer_type *timer) {
-  if (timer->running) 
+  if (timer->running)
     util_abort("%s: Timer already running. Use timer_stop() or timer_restart(). Aborting \n",__func__ );
   timer->running    = true;
 
@@ -64,14 +64,14 @@ void timer_start(timer_type *timer) {
     time( &timer->epoch_start );
   else
     timer->clock_start = clock();
-  
+
 }
 
 
 double timer_stop(timer_type *timer) {
   time_t  epoch_time;
   clock_t clock_time = clock();
-  
+
   time(&epoch_time);
   if (timer->running) {
     double cpu_sec;
@@ -79,7 +79,7 @@ double timer_stop(timer_type *timer) {
       cpu_sec = 1.0 * (epoch_time - timer->epoch_start);
     else
       cpu_sec = 1.0 * (clock_time - timer->clock_start) / CLOCKS_PER_SEC;
-    
+
     timer->count++;
     timer->sum1    += cpu_sec;
     timer->sum2    += cpu_sec * cpu_sec;
@@ -88,9 +88,9 @@ double timer_stop(timer_type *timer) {
     timer->running  = false;
 
     return cpu_sec;
-  } else 
+  } else
     util_abort("%s: Timer is not running. Aborting \n",__func__ );
-  
+
   return -1;
 }
 

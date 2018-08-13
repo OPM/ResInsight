@@ -21,7 +21,7 @@
 
 #include <string>
 
-#include <ert/util/test_work_area.h>
+#include <ert/util/test_work_area.hpp>
 
 #include <ert/util/ert_unique_ptr.hpp>
 
@@ -45,7 +45,7 @@ namespace ERT {
       TestArea( );
       TestArea( const std::string& name );
       void enter(const std::string& name );
-      
+
       /* Will copy one file into work area. */
       void copyFile( const std::string& filename) const;
 
@@ -53,14 +53,14 @@ namespace ERT {
 	 work area. */
       void copyDirectory( const std::string& directory) const;
 
-      /* 
+      /*
 	 Will copy all the content of a directory into the work area, i.e.
 	 if your directory looks like:
 
 	    path0/file1.txt
 	    path0/file2.txt
 	    path0/subdir/file3.txt
-	   
+
          copyDirectoryContet( "path0" ) will copy the files file1.txt,
          file2.txt and the directory subdir into work area.
       */
@@ -72,17 +72,17 @@ namespace ERT {
 	equivalent:
 
            copyDirectoryContent("path0") <=> copyParentContent("path0/file1.txt")
-	   
+
       */
       void copyParentContent( const std::string& entry ) const;
 
       /*
 	Will call copyDircetory( ) with the directory holding this
 	entry:
-	
+
 	    copyDirectory("path0") <=> copyParentDirectory("path0/file1.txt")
       */
-      void copyParentDirectory( const std::string& entry ) const; 
+      void copyParentDirectory( const std::string& entry ) const;
 
       std::string getCwd() const;
       std::string getOriginalCwd() const;
@@ -95,7 +95,7 @@ namespace ERT {
       void assertDirectoryExists( const std::string& ) const;
       void assertEntryExists( const std::string& ) const;
       ert_unique_ptr<test_work_area_type , test_work_area_free> c_ptr;
-    }; 
+    };
 }
 
 #endif

@@ -20,7 +20,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <ert/util/ert_api_config.h>
+#include <ert/util/ert_api_config.hpp>
 #ifdef ERT_HAVE_OPENDIR
 #include <sys/types.h>
 #include <dirent.h>
@@ -32,7 +32,7 @@
 #include <Windows.h>
 #endif
 
-#include <ert/util/util.hpp>
+#include <ert/util/util.h>
 #include <ert/util/stringlist.hpp>
 #include <ert/util/vector.hpp>
 

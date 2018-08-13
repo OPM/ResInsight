@@ -1,19 +1,19 @@
 /*
-   Copyright (C) 2011  Statoil ASA, Norway. 
-    
-   The file 'fortio.h' is part of ERT - Ensemble based Reservoir Tool. 
-    
-   ERT is free software: you can redistribute it and/or modify 
-   it under the terms of the GNU General Public License as published by 
-   the Free Software Foundation, either version 3 of the License, or 
-   (at your option) any later version. 
-    
-   ERT is distributed in the hope that it will be useful, but WITHOUT ANY 
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or 
-   FITNESS FOR A PARTICULAR PURPOSE.   
-    
-   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
-   for more details. 
+   Copyright (C) 2011  Statoil ASA, Norway.
+
+   The file 'fortio.h' is part of ERT - Ensemble based Reservoir Tool.
+
+   ERT is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   ERT is distributed in the hope that it will be useful, but WITHOUT ANY
+   WARRANTY; without even the implied warranty of MERCHANTABILITY or
+   FITNESS FOR A PARTICULAR PURPOSE.
+
+   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+   for more details.
 */
 
 #ifndef ERT_FORTIO_H
@@ -27,13 +27,13 @@ extern "C" {
 #include <stdbool.h>
 
 #include <ert/util/util.h>
-#include <ert/util/type_macros.h>
+#include <ert/util/type_macros.hpp>
 
 typedef enum {
   FORTIO_NOENTRY         = 0,    /* File does not exists at all - application error. */
   FORTIO_EOF             = 1,    /* The file / record is empty */
   FORTIO_OK              = 2,    /* The file / record is OK with: [32 bit header | data | 32 bit footer] */
-  FORTIO_MISSING_DATA    = 3,    
+  FORTIO_MISSING_DATA    = 3,
   FORTIO_MISSING_TAIL    = 4,
   FORTIO_HEADER_MISMATCH = 5
 } fortio_status_type;

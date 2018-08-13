@@ -20,7 +20,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <ert/util/util.hpp>
+#include <ert/util/util.h>
 #include <ert/util/parser.hpp>
 #include <ert/util/int_vector.hpp>
 #include <ert/util/bool_vector.hpp>

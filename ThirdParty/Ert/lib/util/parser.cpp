@@ -1,26 +1,26 @@
 /*
-   Copyright (C) 2011  Statoil ASA, Norway. 
-    
-   The file 'parser.c' is part of ERT - Ensemble based Reservoir Tool. 
-    
-   ERT is free software: you can redistribute it and/or modify 
-   it under the terms of the GNU General Public License as published by 
-   the Free Software Foundation, either version 3 of the License, or 
-   (at your option) any later version. 
-    
-   ERT is distributed in the hope that it will be useful, but WITHOUT ANY 
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or 
-   FITNESS FOR A PARTICULAR PURPOSE.   
-    
-   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
-   for more details. 
+   Copyright (C) 2011  Statoil ASA, Norway.
+
+   The file 'parser.c' is part of ERT - Ensemble based Reservoir Tool.
+
+   ERT is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   ERT is distributed in the hope that it will be useful, but WITHOUT ANY
+   WARRANTY; without even the implied warranty of MERCHANTABILITY or
+   FITNESS FOR A PARTICULAR PURPOSE.
+
+   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+   for more details.
 */
 
 #include <assert.h>
 #include <string.h>
 #include <ctype.h>
 
-#include <ert/util/util.hpp>
+#include <ert/util/util.h>
 #include <ert/util/parser.hpp>
 #include <ert/util/buffer.hpp>
 
@@ -33,9 +33,9 @@ struct basic_parser_struct
   char * splitters;         /* The string is split into tokens on the occurence of one of these characters - and they are removed. */
   char * specials;          /* This exactly like the splitters - but these characters are retained as tokens. */
   char * delete_set;        /* The chracters are just plain removed - but without any splitting on them. */
-  char * quoters;       
-  char * comment_start; 
-  char * comment_end;   
+  char * quoters;
+  char * comment_start;
+  char * comment_end;
 };
 
 
@@ -95,19 +95,19 @@ basic_parser_type * basic_parser_alloc(
   parser->specials      = NULL;
   parser->comment_start = NULL;
   parser->comment_end   = NULL;
-  
+
   basic_parser_set_splitters( parser , splitters );
   basic_parser_set_quoters( parser , quoters );
   basic_parser_set_specials( parser , specials );
   basic_parser_set_delete_set( parser , delete_set );
   basic_parser_set_comment_start( parser , comment_start );
   basic_parser_set_comment_end( parser , comment_end );
-    
+
   if(comment_start == NULL && comment_end != NULL)
     util_abort("%s: Need to have comment_start when comment_end is set.\n", __func__);
   if(comment_start != NULL && comment_end == NULL)
     util_abort("%s: Need to have comment_end when comment_start is set.\n", __func__);
-  
+
   return parser;
 }
 
@@ -115,12 +115,12 @@ basic_parser_type * basic_parser_alloc(
 
 void basic_parser_free(basic_parser_type * parser) {
 
-  util_safe_free( parser->splitters    );
-  util_safe_free( parser->quoters       ); 
-  util_safe_free( parser->specials      ); 
-  util_safe_free( parser->comment_start );
-  util_safe_free( parser->comment_end   );
-  util_safe_free( parser->delete_set    );
+  free( parser->splitters    );
+  free( parser->quoters       );
+  free( parser->specials      );
+  free( parser->comment_start );
+  free( parser->comment_end   );
+  free( parser->delete_set    );
 
   free( parser     );
 }
@@ -205,7 +205,7 @@ static int length_of_quotation( const char * buffer) {
   {
   int  length  = 1;
   char target  = buffer[0];
-  char current = buffer[1]; 
+  char current = buffer[1];
 
   bool escaped = false;
   while(current != '\0' &&  !(current == target && !escaped ))
@@ -218,8 +218,8 @@ static int length_of_quotation( const char * buffer) {
 
   if ( current == '\0') /* We ran through the whole string without finding the end of the quotation - abort HARD. */
     util_abort("%s: could not find quotation closing on %s \n",__func__ , buffer);
-  
-  
+
+
   return length;
   }
 }
@@ -248,7 +248,7 @@ static int length_of_comment(  const char * buffer_position, const basic_parser_
     while(buffer_position[length] != '\0' && in_comment) {
       if( strncmp( &buffer_position[length], comment_end, len_comment_end) == 0)  {
         in_comment = false;
-        length += len_comment_end; 
+        length += len_comment_end;
       } else
         length += 1;
     }
@@ -288,12 +288,12 @@ static char * alloc_quoted_token( const char * buffer, int length,  bool strip_q
 
 
 
-/** 
+/**
     This does not care about the possible occurence of characters in
     the delete_set. That is handled when the token is inserted in the
     token list.
 */
-    
+
 static int length_of_normal_non_splitters( const char * buffer, const basic_parser_type * parser) {
   bool at_end  = false;
   int length   = 0;
@@ -339,7 +339,7 @@ static int length_of_delete( const char * buffer , const basic_parser_type * par
 
 
 /**
-   Allocates a new stringlist. 
+   Allocates a new stringlist.
 */
 stringlist_type * basic_parser_tokenize_buffer(
   const basic_parser_type    * parser,
@@ -353,9 +353,9 @@ stringlist_type * basic_parser_tokenize_buffer(
   int delete_length     = 0;
 
   stringlist_type * tokens = stringlist_alloc_new();
-  
+
   while( position < buffer_size ) {
-    /** 
+    /**
       Skip initial splitters.
     */
     splitters_length = length_of_initial_splitters( &buffer[position], parser );
@@ -374,11 +374,11 @@ stringlist_type * basic_parser_tokenize_buffer(
       continue;
     }
 
-    
+
     /**
-       Skip characters which are just deleted. 
+       Skip characters which are just deleted.
     */
-      
+
     delete_length = length_of_delete( &buffer[position] , parser );
     if (delete_length > 0) {
       position += delete_length;
@@ -387,7 +387,7 @@ stringlist_type * basic_parser_tokenize_buffer(
 
 
 
-    /** 
+    /**
        Copy the character if it is in the special set,
     */
     if( is_special( buffer[position], parser ) )  {
@@ -453,7 +453,7 @@ stringlist_type * basic_parser_tokenize_buffer(
       if (token_length > 0) { /* We do not insert empty tokens. */
         token[token_length] = '\0';
         stringlist_append_owned_ref( tokens, token );
-      } else 
+      } else
         free( token );    /* The whole thing is discarded. */
 
       position += length;
@@ -503,13 +503,13 @@ static bool fgetc_while_equal( FILE * stream , const char * string , bool case_s
     int c = fgetc( stream );
     if (!case_sensitive)
       c = toupper( c );
-    
+
     if (c != string[string_index]) {
       equal = false;
       break;
     }
   }
-  
+
   if (!equal) /* OK - not equal - go back. */
     util_fseek( stream , current_pos , SEEK_SET);
   return equal;
@@ -537,14 +537,14 @@ bool basic_parser_fseek_string(const basic_parser_type * parser , FILE * stream 
   {
     long int initial_pos     = util_ftell( stream );   /* Store the inital position. */
     bool cont                = true;
-    
+
     if (strstr( string , parser->comment_start ) != NULL)
       util_abort("%s: sorry the string contains a comment start - will never find it ... \n",__func__); /* A bit harsh ?? */
-    
+
     do {
       int c = fgetc( stream );
       if (!case_sensitive) c = toupper( c );
-      
+
       /* Special treatment of quoters - does not properly handle escaping of the quoters. */
       if (is_in_quoters( c , parser )) {
         long int quote_start_pos = util_ftell(stream);
@@ -553,13 +553,13 @@ bool basic_parser_fseek_string(const basic_parser_type * parser , FILE * stream 
           fprintf(stderr,"Warning: unterminated quotation starting at line: %d \n",util_get_current_linenr( stream ));
           util_fseek(stream , 0 , SEEK_END);
         }
-        /* 
+        /*
            Now we are either at the first character following a
-           terminated quotation, or at EOF. 
+           terminated quotation, or at EOF.
         */
         continue;
       }
-      
+
       /* Special treatment of comments: */
       if (c == parser->comment_start[0]) {
         /* OK - this might be the start of a comment - let us check further. */
@@ -567,36 +567,36 @@ bool basic_parser_fseek_string(const basic_parser_type * parser , FILE * stream 
         if (comment_start) {
           long int comment_start_pos = util_ftell(stream) - strlen( parser->comment_start );
           /* Start seeking for comment_end */
-          if (!util_fseek_string(stream , parser->comment_end , true , true)) { 
-            /* 
+          if (!util_fseek_string(stream , parser->comment_end , true , true)) {
+            /*
                No end comment end was found - what to do about that??
                The file is just positioned at the end - and the routine
-               will exit at the next step - with a Warning. 
+               will exit at the next step - with a Warning.
             */
             util_fseek( stream , comment_start_pos , SEEK_SET);
             fprintf(stderr,"Warning: unterminated comment starting at line: %d \n",util_get_current_linenr( stream ));
             util_fseek(stream , 0 , SEEK_END);
           } continue;
           /* Now we are at the character following a comment end - or at EOF. */
-        } 
+        }
       }
-      
+
       /*****************************************************************/
-      
+
       /* Now c is a regular character - and we can start looking for our string. */
       if (c == string[0]) {  /* OK - we got the first character right - lets try in more detail: */
         bool equal = fgetc_while_equal( stream , &string[1] , case_sensitive);
         if (equal) {
           string_found = true;
           cont = false;
-        } 
+        }
       }
-      
-      if (c == EOF) 
+
+      if (c == EOF)
         cont = false;
-      
+
     } while (cont);
-    
+
     if (string_found) {
       if (!skip_string) {
         offset_type offset = (offset_type) strlen( string );
@@ -617,7 +617,7 @@ bool basic_parser_fseek_string(const basic_parser_type * parser , FILE * stream 
    1. Quoted content is copied verbatim (this takes presedence).
    2. All comment sections are removed.
    3. Delete characters are deleted.
-   
+
 */
 
 
@@ -641,16 +641,16 @@ void basic_parser_strip_buffer(const basic_parser_type * parser , char ** __buff
       continue;
     }
 
-    
+
     /**
-       Skip characters which are just deleted. 
+       Skip characters which are just deleted.
     */
     delete_length = length_of_delete( &src[src_position] , parser );
     if (delete_length > 0) {
       src_position += delete_length;
       continue;
     }
-    
+
     /*
       Quotations.
     */
@@ -665,7 +665,7 @@ void basic_parser_strip_buffer(const basic_parser_type * parser , char ** __buff
     }
 
     /**
-       OK -it is a god damn normal charactar - copy it straight over: 
+       OK -it is a god damn normal charactar - copy it straight over:
     */
     target[target_position] = src[src_position];
     src_position    += 1;
@@ -673,7 +673,7 @@ void basic_parser_strip_buffer(const basic_parser_type * parser , char ** __buff
   }
   target[target_position] = '\0';
   target = (char*)util_realloc( target , sizeof * target * (target_position + 1) );
-  
+
   free( src );
   *__buffer = target;
 }
@@ -694,7 +694,7 @@ void basic_parser_strip_buffer(const basic_parser_type * parser , char ** __buff
 char * basic_parser_fread_alloc_file_content(const char * filename , const char * quote_set , const char * delete_set , const char * comment_start , const char * comment_end) {
   basic_parser_type * parser = basic_parser_alloc( NULL , quote_set , NULL , delete_set , comment_start , comment_end);
   char * buffer              = util_fread_alloc_file_content( filename , NULL);
-  
+
   basic_parser_strip_buffer( parser , &buffer );
   basic_parser_free( parser );
   return buffer;

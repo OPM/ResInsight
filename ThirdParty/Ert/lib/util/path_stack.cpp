@@ -24,7 +24,7 @@
 #include <errno.h>
 
 #include <ert/util/stringlist.hpp>
-#include <ert/util/util.hpp>
+#include <ert/util/util.h>
 #include <ert/util/path_stack.hpp>
 
 /**

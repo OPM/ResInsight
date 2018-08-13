@@ -34,7 +34,7 @@
 #include <string.h>
 
 #include <ert/util/util.h>
-#include <ert/util/test_util.h>
+#include <ert/util/test_util.hpp>
 
 #include <stdbool.h>
 
@@ -105,7 +105,7 @@ static bool util_addr2line_lookup__(const void * bt_addr , char ** func_name , c
               address_found = true;
 
             free( stdout_file_name );
-            util_safe_free( line_string );
+            free( line_string );
           }
           free( tmp_fname );
           fclose(stream);
@@ -200,9 +200,9 @@ static void util_fprintf_backtrace(FILE * stream) {
       }
     }
 
-    util_safe_free( func_name );
-    util_safe_free( file_name );
-    util_safe_free( padding );
+    free( func_name );
+    free( file_name );
+    free( padding );
   }
   fprintf(stream , "--------------------------------------------------------------------------------\n");
 }
@@ -301,7 +301,7 @@ void util_abort__(const char * file , const char * function , int line , const c
     }
 
     if (abort_dump != stderr) {
-      util_fclose(abort_dump);
+      fclose(abort_dump);
       fprintf(stderr, "\nError message: ");
       {
         va_list args;

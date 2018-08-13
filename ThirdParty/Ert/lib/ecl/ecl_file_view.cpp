@@ -558,7 +558,7 @@ bool ecl_file_view_has_report_step( const ecl_file_view_type * ecl_file_view , i
 
 time_t ecl_file_view_iget_restart_sim_date(const ecl_file_view_type * ecl_file_view , int seqnum_index) {
   time_t sim_time = -1;
-  ecl_file_view_type * seqnum_map = seqnum_map = ecl_file_view_alloc_blockview( ecl_file_view , SEQNUM_KW , seqnum_index);
+  ecl_file_view_type * seqnum_map = ecl_file_view_alloc_blockview( ecl_file_view , SEQNUM_KW , seqnum_index);
 
   if (seqnum_map != NULL) {
     ecl_kw_type * intehead_kw = ecl_file_view_iget_named_kw( seqnum_map , INTEHEAD_KW , 0);
@@ -778,7 +778,7 @@ void ecl_file_view_fclose_stream( ecl_file_view_type * file_view ) {
 void ecl_file_view_write_index(const ecl_file_view_type * file_view, FILE * ostream) {
   int size = ecl_file_view_get_size(file_view);
   util_fwrite_int( size , ostream);
-  
+
   ecl_file_kw_type * file_kw;
   for (int i = 0; i < size; i++) {
      file_kw = ecl_file_view_iget_file_kw( file_view, i );
@@ -791,7 +791,7 @@ ecl_file_view_type * ecl_file_view_fread_alloc( fortio_type * fortio , int * fla
   int index_size = util_fread_int(istream);
   ecl_file_kw_type ** file_kw_list = ecl_file_kw_fread_alloc_multiple( istream, index_size);
   if (file_kw_list) {
-    ecl_file_view_type * file_view = ecl_file_view_alloc( fortio , flags , inv_map , true ); 
+    ecl_file_view_type * file_view = ecl_file_view_alloc( fortio , flags , inv_map , true );
     for (int i=0; i < index_size; i++)
       ecl_file_view_add_kw(file_view , file_kw_list[i]);
 

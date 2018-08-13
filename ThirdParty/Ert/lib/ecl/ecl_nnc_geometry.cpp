@@ -16,7 +16,7 @@
    for more details.
 */
 
-#include <ert/util/struct_vector.h>
+#include <ert/util/struct_vector.hpp>
 
 #include <ert/ecl/ecl_nnc_geometry.hpp>
 

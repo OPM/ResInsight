@@ -25,7 +25,7 @@
 #include <time.h>
 #include <stdbool.h>
 
-#include <ert/util/util.hpp>
+#include <ert/util/util.h>
 #include <ert/util/vector.hpp>
 #include <ert/util/hash.hpp>
 #include <ert/util/int_vector.hpp>
@@ -447,14 +447,11 @@ static void well_state_add_LGR_connections(well_state_type * well_state,
   int num_lgr = ecl_grid_get_num_lgr( grid );
   for (int lgr_index = 0; lgr_index < num_lgr; lgr_index++) {
     ecl_file_view_type * lgr_view = ecl_file_view_add_blockview(file_view , LGR_KW , lgr_index);
-    if (lgr_view)
-    {
-        const char * grid_name = ecl_grid_iget_lgr_name( grid , lgr_index );
-        int well_nr = well_state_get_lgr_well_nr( well_state , lgr_view );
-        if (well_nr >= 0)
-          well_state_add_connections__( well_state , lgr_view , grid_name , lgr_index + 1, well_nr );
-      }
-    }
+    const char * grid_name = ecl_grid_iget_lgr_name( grid , lgr_index );
+    int well_nr = well_state_get_lgr_well_nr( well_state , lgr_view );
+    if (well_nr >= 0)
+      well_state_add_connections__( well_state , lgr_view , grid_name , lgr_index + 1, well_nr );
+  }
 }
 
 

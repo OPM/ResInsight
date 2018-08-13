@@ -20,7 +20,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <ert/util/util.hpp>
+#include <ert/util/util.h>
 #include <ert/util/type_macros.hpp>
 #include <ert/util/int_vector.hpp>
 
@@ -57,7 +57,7 @@
    the cells represents the cells global index.
 
  - The grid contains a coarse cell of dimensions 4 x 3, the coarse
-   cell is in the global region: i \in [1,4] and j \in [1,3]. 
+   cell is in the global region: i \in [1,4] and j \in [1,3].
 
  - When solving the dynamical equations the properties of the coarse
    cell will enter as one entity, but when defining the grid initially
@@ -68,7 +68,7 @@
  - In the global grid the cells marked with [X] are active, i.e. when
    counting from zero the coarse cell will be the fourth active
    cell. This particular grid has a total of ten normal active cells
-   (i.e. 10 x [X]) and one coarse cell which is active. 
+   (i.e. 10 x [X]) and one coarse cell which is active.
 
 
  - The dynamic variables like PRESSURE and SWAT are only represented
@@ -100,7 +100,7 @@ following content:
   cell_list     = {7,8,9,10,13,14,15,16,19,20,21,22}
   active_cells  = {13,15,21}
   active_values = {1,1,1}   <= This can 2/3 for dual porosity.
-   
+
 */
 
 
@@ -114,7 +114,7 @@ struct ecl_coarse_cell_struct {
   int               active_index;
   int               active_fracture_index;
 
-  bool              __cell_list_sorted;  
+  bool              __cell_list_sorted;
   int_vector_type * cell_list;
   int_vector_type * active_cells;
   int_vector_type * active_values;
@@ -168,16 +168,16 @@ bool ecl_coarse_cell_equal( const ecl_coarse_cell_type * coarse_cell1 , const ec
 
   if (coarse_cell1->active_fracture_index != coarse_cell2->active_fracture_index)
     equal = false;
-  
+
   if (equal) {
     if (memcmp( coarse_cell1->ijk , coarse_cell2->ijk , 6 * sizeof * coarse_cell1->ijk) != 0)
       equal = false;
   }
 
-  
+
   if (equal)
     equal = int_vector_equal(coarse_cell1->active_cells , coarse_cell2->active_cells);
-  
+
   if (equal)
     equal = int_vector_equal(coarse_cell1->active_values , coarse_cell2->active_values);
 
@@ -188,7 +188,7 @@ bool ecl_coarse_cell_equal( const ecl_coarse_cell_type * coarse_cell1 , const ec
     ecl_coarse_cell_fprintf( coarse_cell1 , stdout );
     ecl_coarse_cell_fprintf( coarse_cell2 , stdout );
   }
-  
+
   return equal;
 }
 
@@ -295,17 +295,17 @@ void ecl_coarse_cell_update_index( ecl_coarse_cell_type * coarse_cell , int glob
       (*active_index) += 1;
     }
   }
-  
+
   if (active_value & CELL_ACTIVE_FRACTURE) {
     if (coarse_cell->active_fracture_index == -1) {
       coarse_cell->active_fracture_index = *active_fracture_index;
       (*active_fracture_index) += 1;
     }
   }
-  
+
   int_vector_append( coarse_cell->active_cells , global_index );
   int_vector_append( coarse_cell->active_values , active_value );
-  
+
   if (int_vector_size( coarse_cell->active_values ) > 1) {
     if (int_vector_reverse_iget( coarse_cell->active_values , -2 ) != active_value)
       util_abort("%s: Sorry - current coarse cell implementation requires that all active cells have the same active value\n",__func__);
@@ -346,7 +346,7 @@ void ecl_coarse_cell_fprintf( const ecl_coarse_cell_type * coarse_cell , FILE * 
   fprintf(stream,"   i             : %3d - %3d\n",coarse_cell->ijk[0] , coarse_cell->ijk[1]);
   fprintf(stream,"   j             : %3d - %3d\n",coarse_cell->ijk[2] , coarse_cell->ijk[3]);
   fprintf(stream,"   k             : %3d - %3d\n",coarse_cell->ijk[4] , coarse_cell->ijk[5]);
-  fprintf(stream,"   active_cells  : " ); int_vector_fprintf( coarse_cell->active_cells  , stream , "" , "%5d "); 
-  fprintf(stream,"   active_values : " ); int_vector_fprintf( coarse_cell->active_values , stream , "" , "%5d "); 
+  fprintf(stream,"   active_cells  : " ); int_vector_fprintf( coarse_cell->active_cells  , stream , "" , "%5d ");
+  fprintf(stream,"   active_values : " ); int_vector_fprintf( coarse_cell->active_values , stream , "" , "%5d ");
   //fprintf(stream,"   Cells         : " ); int_vector_fprintf( coarse_cell->cell_list , stream , "" , "%5d ");
 }

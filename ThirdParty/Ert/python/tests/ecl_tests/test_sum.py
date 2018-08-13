@@ -101,7 +101,7 @@ class SumTest(EclTest):
 
 
     def test_identify_var_type(self):
-        self.assertEnumIsFullyDefined( EclSumVarType , "ecl_smspec_var_type" , "lib/include/ert/ecl/smspec_node.h")
+        self.assertEnumIsFullyDefined( EclSumVarType , "ecl_smspec_var_type" , "lib/include/ert/ecl/smspec_node.hpp")
         self.assertEqual( EclSum.varType( "WWCT:OP_X") , EclSumVarType.ECL_SMSPEC_WELL_VAR )
         self.assertEqual( EclSum.varType( "RPR") , EclSumVarType.ECL_SMSPEC_REGION_VAR )
         self.assertEqual( EclSum.varType( "WNEWTON") , EclSumVarType.ECL_SMSPEC_MISC_VAR )
@@ -228,33 +228,6 @@ class SumTest(EclTest):
         self.assertEqual( sol[0] , t1 )
         self.assertEqual( sol[1] , t2 )
 
-
-    def test_ecl_sum_vector_algebra(self):
-        scalar = 0.78
-        addend = 2.718281828459045
-
-        case = create_case()
-        with self.assertRaises( KeyError ):
-            case.scaleVector( "MISSING:KEY" , scalar)
-            case.shiftVector( "MISSING:KEY" , addend)
-
-        # scale all vectors with scalar
-        for key in case.keys():
-            x = case.get_values(key) # get vector key
-            case.scaleVector(key , scalar)
-            y = case.get_values(key)
-            x = x * scalar # numpy vector scaling
-            for i in range(len(x)):
-                self.assertFloatEqual(x[i], y[i])
-
-        # shift all vectors with addend
-        for key in case.keys():
-            x = case.get_values(key) # get vector key
-            case.shiftVector(key , addend)
-            y = case.get_values(key)
-            x = x + addend # numpy vector shifting
-            for i in range(len(x)):
-                self.assertFloatEqual(x[i], y[i])
 
 
     def test_different_names(self):
@@ -523,7 +496,7 @@ class SumTest(EclTest):
         dates = [datetime.datetime(2000,1,1)] + case.dates + [datetime.datetime(2020,1,1)]
         fopr = case.numpy_vector("FOPR", time_index = dates)
         fopt = case.numpy_vector("FOPT", time_index = dates)
-
+        self.assertEqual(len(fopt), len(dates))
 
         self.assertEqual(fopr[0], 0)
         self.assertEqual(fopr[-1], 0)
@@ -532,7 +505,21 @@ class SumTest(EclTest):
         self.assertEqual(fopt[0], case.first_value("FOPT"))
         self.assertEqual(fopt[-1], case.last_value("FOPT"))
 
+        with self.assertRaises(ValueError):
+            v = case.numpy_vector("FOPR", time_index=dates, report_only=True)
 
+        v = case.numpy_vector("FOPR", report_only=True)
+        self.assertEqual(len(v), len(case.report_dates))
+
+
+    def test_vector(self):
+        case = create_case()
+
+        # The get_vector method is extremely deprecated.
+        v1 = case.get_vector("FOPT")
+        v2 = case.get_vector("FOPT", report_only = True)
+        s1 = sum( [x.value for x in v1 ])
+        s2 = sum( [x.value for x in v2 ])
 
     def test_pandas(self):
         case = create_case()
@@ -560,3 +547,32 @@ class SumTest(EclTest):
         rows, columns = frame.shape
         self.assertEqual(len(case.keys()), columns)
         self.assertEqual(len(case), rows)
+
+
+    def test_total_and_rate(self):
+        self.assertTrue( EclSum.is_total("FOPT"))
+        self.assertTrue( EclSum.is_total("WWPT:OP_3"))
+        self.assertFalse( EclSum.is_total("RPR:2"))
+
+        self.assertTrue( EclSum.is_rate("WOPR:OP_4"))
+        self.assertFalse( EclSum.is_rate("BPR:123"))
+        self.assertTrue(EclSum.is_rate("FWIR"))
+
+
+    def test_load_case(self):
+        path = os.path.join(self.TESTDATA_ROOT, "local/ECLIPSE/cp_simple3/SIMPLE_SUMMARY3")
+        case = EclSum( path )
+        self.assertFloatEqual(case.sim_length, 545.0)
+
+        fopr = case.numpy_vector("FOPR")
+        for time_index,value in enumerate(fopr):
+            self.assertEqual(fopr[time_index], value)
+
+
+
+    def test_write_not_implemented(self):
+        path = os.path.join(self.TESTDATA_ROOT, "local/ECLIPSE/cp_simple3/SIMPLE_SUMMARY3")
+        case = EclSum( path, lazy_load=True )
+        self.assertFalse(case.can_write())
+        with self.assertRaises(NotImplementedError):
+            case.fwrite( )

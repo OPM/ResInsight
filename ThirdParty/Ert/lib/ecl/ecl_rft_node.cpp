@@ -23,7 +23,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 
-#include <ert/util/util.hpp>
+#include <ert/util/util.h>
 #include <ert/util/hash.hpp>
 #include <ert/util/vector.hpp>
 #include <ert/util/int_vector.hpp>
@@ -166,7 +166,7 @@ static ecl_kw_type * ecl_rft_node_get_pressure_kw( ecl_rft_node_type * rft_node 
       else {
         fprintf(stderr, "WARNING: %s returned a CONPRES_KW with all values at zero. PRESSURE_KW not found.\n", __func__);
         return conpres_kw;
-      } 
+      }
   }
 }
 
@@ -541,7 +541,7 @@ void ecl_rft_node_fwrite(const ecl_rft_node_type * rft_node, fortio_type * forti
   ecl_rft_enum type = ecl_rft_node_get_type(rft_node);
   if (type != RFT)
     util_abort("%s: sorry - only writing of simple RFT is currently implemented",__func__);
-  
+
   {
     ecl_kw_type * time = ecl_kw_alloc(TIME_KW, 1, ECL_FLOAT);
     ecl_kw_iset_float(time, 0, ecl_rft_node_get_days(rft_node));

@@ -5,7 +5,7 @@
 
 #include <zlib.h>
 
-#include <ert/util/util.hpp>
+#include <ert/util/util.h>
 
 /**
   This function reads data from the input pointer data, and writes a
@@ -23,8 +23,8 @@ void util_compress_buffer(const void * data , int data_size , void * zbuffer , u
        Have some not reproducible "one-in-a-thousand" problems with
        the return value from compress. It seemingly randomly returns:
 
-         -2  == Z_STREAM_ERROR. 
-         
+         -2  == Z_STREAM_ERROR.
+
        According to the documentation in zlib.h compress should only
        return one of the three values:
 
@@ -33,7 +33,7 @@ void util_compress_buffer(const void * data , int data_size , void * zbuffer , u
        We mask the Z_STREAM_ERROR return value as Z_OK, with a
        FAT-AND_UGLY_WARNING, and continue with fingers crossed.
     */
-    
+
     if (compress_result == Z_STREAM_ERROR) {
       fprintf(stderr,"*****************************************************************\n");
       fprintf(stderr,"**                       W A R N I N G                         **\n");
@@ -46,8 +46,8 @@ void util_compress_buffer(const void * data , int data_size , void * zbuffer , u
       printf("data_size:%d   compressed_size:%ld \n",data_size , *compressed_size);
       util_abort("%s - kkk \n", __func__ );
     }
-    
-    if (compress_result != Z_OK) 
+
+    if (compress_result != Z_OK)
       util_abort("%s: returned %d - different from Z_OK - aborting\n",__func__ , compress_result);
   } else
     *compressed_size = 0;
@@ -108,7 +108,7 @@ void util_fwrite_compressed(const void * _data , int size , FILE * stream) {
     int       required_buffer_size = (int) ceil(size * 1.001 + 64);
     int       buffer_size , block_size;
     void *    zbuffer;
-    
+
     buffer_size = util_int_min(required_buffer_size , max_buffer_size);
     do {
       zbuffer = malloc(buffer_size);
@@ -117,7 +117,7 @@ void util_fwrite_compressed(const void * _data , int size , FILE * stream) {
     } while(zbuffer == NULL);
     memset(zbuffer , 0 , buffer_size);
     block_size = (int) (floor(buffer_size / 1.002) - 64);
-    
+
     {
       int header_write;
       header_write  = fwrite(&size        , sizeof size        , 1 , stream);
@@ -125,7 +125,7 @@ void util_fwrite_compressed(const void * _data , int size , FILE * stream) {
       if (header_write != 2)
         util_abort("%s: failed to write header to disk: %s \n",__func__ , strerror(errno));
     }
-    
+
     {
       int offset = 0;
       do {
@@ -135,7 +135,7 @@ void util_fwrite_compressed(const void * _data , int size , FILE * stream) {
         fwrite(&compressed_size , sizeof compressed_size , 1 , stream);
         {
           unsigned long bytes_written = fwrite(zbuffer , 1 , compressed_size , stream);
-          if (bytes_written < compressed_size) 
+          if (bytes_written < compressed_size)
             util_abort("%s: wrote only %d/%ld bytes to compressed file  - aborting \n",__func__ , bytes_written , compressed_size);
         }
         offset += this_block_size;
@@ -157,8 +157,8 @@ void util_fread_compressed(void *__data , FILE * stream) {
   int buffer_size;
   int size , offset;
   void * zbuffer;
-  
-  fread(&size  , sizeof size , 1 , stream); 
+
+  fread(&size  , sizeof size , 1 , stream);
   if (size == 0) return;
 
 
@@ -172,9 +172,9 @@ void util_fread_compressed(void *__data , FILE * stream) {
     fread(&compressed_size , sizeof compressed_size , 1 , stream);
     {
       unsigned long bytes_read = fread(zbuffer , 1 , compressed_size , stream);
-      if (bytes_read < compressed_size) 
+      if (bytes_read < compressed_size)
         util_abort("%s: read only %d/%d bytes from compressed file - aborting \n",__func__ , bytes_read , compressed_size);
-      
+
     }
     uncompress_result = uncompress(&data[offset] , &block_size , (const Bytef*)zbuffer , compressed_size);
     if (uncompress_result != Z_OK) {
@@ -188,12 +188,12 @@ void util_fread_compressed(void *__data , FILE * stream) {
       if (uncompress_result < 0 && uncompress_result != Z_BUF_ERROR)
         util_abort("%s: fatal uncompress error: %d \n",__func__ , uncompress_result);
     }
-    
+
     offset += block_size;
     {
       int file_offset;
-      fread(&file_offset , sizeof offset , 1 , stream); 
-      if (file_offset != offset) 
+      fread(&file_offset , sizeof offset , 1 , stream);
+      if (file_offset != offset)
         util_abort("%s: something wrong when reding compressed stream - aborting \n",__func__);
     }
   } while (offset < size);
@@ -212,8 +212,8 @@ void * util_fread_alloc_compressed(FILE * stream) {
   char * data;
   int    size;
 
-  fread(&size  , sizeof size , 1 , stream); 
-  if (size == 0) 
+  fread(&size  , sizeof size , 1 , stream);
+  if (size == 0)
     return NULL;
   else {
     util_fseek(stream , current_pos , SEEK_SET);
@@ -225,14 +225,14 @@ void * util_fread_alloc_compressed(FILE * stream) {
 
 
 /**
-   Returns the **UNCOMPRESSED** size of a compressed section. 
+   Returns the **UNCOMPRESSED** size of a compressed section.
 */
 
 int util_fread_sizeof_compressed(FILE * stream) {
   long   pos = ftell(stream);
   int    size;
 
-  fread(&size  , sizeof size , 1 , stream); 
+  fread(&size  , sizeof size , 1 , stream);
   util_fseek(  stream , pos , SEEK_SET );
   return size;
 }
@@ -246,7 +246,7 @@ void util_fskip_compressed(FILE * stream) {
   fread(&size        , sizeof size        , 1 , stream);
   if (size == 0) return;
 
-  
+
   fread(&buffer_size , sizeof buffer_size , 1 , stream);
   do {
     unsigned long compressed_size;

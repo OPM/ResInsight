@@ -122,13 +122,13 @@ class EclWellTest(EclTest):
 
 
     def test_well_type_enum(self):
-        source_file_path = "lib/include/ert/ecl_well/well_conn.h"
+        source_file_path = "lib/include/ert/ecl_well/well_conn.hpp"
         # The header file has duplicated symbols, so the simple test fails.
         # self.assertEnumIsFullyDefined(WellTypeEnum, "well_type_enum", source_file_path)
 
 
     def test_well_connection_direction_enum(self):
-        source_file_path = "lib/include/ert/ecl_well/well_conn.h"
+        source_file_path = "lib/include/ert/ecl_well/well_conn.hpp"
         self.assertEnumIsFullyDefined(WellConnectionDirectionEnum, "well_conn_dir_enum", source_file_path)
 
 

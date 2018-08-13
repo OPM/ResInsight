@@ -1,12 +1,27 @@
 ﻿version: 1.0.{build}
+
 clone_depth: 1
+
+configuration:
+    - Release
+
+os: Visual Studio 2015
+image: Visual Studio 2015
+
+platform:
+    - x64
+
+matrix:
+    fast_finish: true
+
 build_script:
-- cmd: >-
-    mkdir build
+    - IF "%platform%" == "x64" set W64="-GVisual Studio 14 2015 Win64"
+    - cmake %W64% -DBUILD_SHARED_LIBS=ON
+                  -DCMAKE_BUILD_TYPE=Release
+                  -DENABLE_PYTHON=ON
+                  -DERT_BUILD_CXX=OFF
+                  -DBUILD_APPLICATIONS=ON
+    - cmake --build . --config %configuration% --target install
 
-    cd build
-
-    cmake .. -G"Visual Studio 14 2015 Win64" -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF -DERT_BUILD_CXX=OFF -DENABLE_PYTHON=OFF -DBUILD_APPLICATIONS=ON
-
-
-    msbuild /m /p:Configuration=Release /p:Platform="x64" ERT.sln
+test_script:
+    - ctest --config %configuration% --output-on-failure

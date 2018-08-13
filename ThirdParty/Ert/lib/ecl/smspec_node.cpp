@@ -22,8 +22,7 @@
 #include <time.h>
 
 #include <ert/util/hash.hpp>
-#include <ert/util/util.hpp>
-#include <ert/util/set.hpp>
+#include <ert/util/util.h>
 #include <ert/util/vector.hpp>
 #include <ert/util/int_vector.hpp>
 #include <ert/util/stringlist.hpp>
@@ -70,7 +69,6 @@ struct smspec_node_struct {
   bool                   historical;         /* Does the name end with 'H'? */
   int                    params_index;       /* The index of this variable (applies to all the vectors - in particular the PARAMS vectors of the summary files *.Snnnn / *.UNSMRY ). */
   float                  default_value;      /* Default value for this variable. */
-  bool                   valid;
 };
 
 
@@ -79,6 +77,22 @@ bool smspec_node_equal( const smspec_node_type * node1,  const smspec_node_type 
   return smspec_node_cmp( node1 , node2 ) == 0;
 }
 
+static bool smspec_node_need_wgname(ecl_smspec_var_type var_type) {
+  if (var_type == ECL_SMSPEC_COMPLETION_VAR ||
+      var_type == ECL_SMSPEC_GROUP_VAR      ||
+      var_type == ECL_SMSPEC_WELL_VAR       ||
+      var_type == ECL_SMSPEC_SEGMENT_VAR)
+    return true;
+  else
+    return false;
+}
+
+static bool smspec_node_type_supported(ecl_smspec_var_type var_type) {
+  if (var_type == ECL_SMSPEC_NETWORK_VAR)
+    return false;
+
+  return true;
+}
 
 
 /*****************************************************************/
@@ -274,39 +288,31 @@ static void smspec_node_set_invalid_flags( smspec_node_type * smspec_node) {
   smspec_node->rate_variable  = false;
   smspec_node->total_variable = false;
   smspec_node->historical     = false;
-  smspec_node->valid          = false;
 }
 
 static char LAST_CHAR(const char * s) {
   return s[ strlen(s) - 1];
 }
 
-static void smspec_node_set_flags( smspec_node_type * smspec_node) {
-  /*
-     Check if this is a rate variabel - that info is used when
-     interpolating results to true_time between ministeps.
-  */
-  {
-    const char *rate_vars[] = {"OPR" , "GPR" , "WPR" , "GOR" , "WCT"};
-    int num_rate_vars = sizeof( rate_vars ) / sizeof( rate_vars[0] );
-    bool  is_rate           = false;
-    int ivar;
-    for (ivar = 0; ivar < num_rate_vars; ivar++) {
-      const char * var_substring = &smspec_node->keyword[1];
-      if (strncmp( rate_vars[ivar] , var_substring , strlen( rate_vars[ivar] )) == 0) {
-        is_rate = true;
-        break;
-      }
+
+bool smspec_node_identify_rate(const char * keyword) {
+  const char *rate_vars[] = {"OPR" , "GPR" , "WPR" , "LPR", "OIR", "GIR", "WIR", "LIR", "GOR" , "WCT"};
+  int num_rate_vars = sizeof( rate_vars ) / sizeof( rate_vars[0] );
+  bool  is_rate           = false;
+  int ivar;
+  for (ivar = 0; ivar < num_rate_vars; ivar++) {
+    const char * var_substring = &keyword[1];
+    if (strncmp( rate_vars[ivar] , var_substring , strlen( rate_vars[ivar] )) == 0) {
+      is_rate = true;
+      break;
     }
-    smspec_node->rate_variable = is_rate;
   }
+  return is_rate;
+}
 
-  {
-    if (LAST_CHAR(smspec_node->keyword) == 'H')
-      smspec_node->historical = true;
-  }
 
-  /*
+bool smspec_node_identify_total(const char * keyword, ecl_smspec_var_type var_type) {
+ /*
     This code checks in a predefined list whether a certain WGNAMES
     variable represents a total accumulated quantity. Only the last three
     characters in the variable is considered (i.e. the leading 'W', 'G' or
@@ -316,34 +322,45 @@ static void smspec_node_set_flags( smspec_node_type * smspec_node) {
     the tables 2.7 - 2.11 in the ECLIPSE fileformat documentation.  Have
     skipped some of the most exotic keywords.
   */
-  {
-    bool is_total = false;
-    if (smspec_node->var_type == ECL_SMSPEC_WELL_VAR ||
-        smspec_node->var_type == ECL_SMSPEC_GROUP_VAR ||
-        smspec_node->var_type == ECL_SMSPEC_FIELD_VAR ||
-        smspec_node->var_type == ECL_SMSPEC_REGION_VAR ||
-        smspec_node->var_type == ECL_SMSPEC_COMPLETION_VAR ) {
-      const char *total_vars[] = {"OPT"  , "GPT"  , "WPT" , "GIT", "WIT", "OPTF" , "OPTS" , "OIT"  , "OVPT" , "OVIT" , "MWT" ,
-                                  "WVPT" , "WVIT" , "GMT"  , "GPTF" , "SGT"  , "GST" , "FGT" , "GCT" , "GIMT" ,
-                                  "WGPT" , "WGIT" , "EGT"  , "EXGT" , "GVPT" , "GVIT" , "LPT" , "VPT" , "VIT" , "NPT" , "NIT"};
+  bool is_total = false;
+  if (var_type == ECL_SMSPEC_WELL_VAR ||
+      var_type == ECL_SMSPEC_GROUP_VAR ||
+      var_type == ECL_SMSPEC_FIELD_VAR ||
+      var_type == ECL_SMSPEC_REGION_VAR ||
+      var_type == ECL_SMSPEC_COMPLETION_VAR ) {
+    const char *total_vars[] = {"OPT"  , "GPT"  , "WPT" , "GIT", "WIT", "OPTF" , "OPTS" , "OIT"  , "OVPT" , "OVIT" , "MWT" ,
+                                "WVPT" , "WVIT" , "GMT"  , "GPTF" , "SGT"  , "GST" , "FGT" , "GCT" , "GIMT" ,
+                                "WGPT" , "WGIT" , "EGT"  , "EXGT" , "GVPT" , "GVIT" , "LPT" , "VPT" , "VIT" , "NPT" , "NIT",
+                                "CPT", "CIT"};
 
-      int num_total_vars = sizeof( total_vars ) / sizeof( total_vars[0] );
-      int ivar;
-      for (ivar = 0; ivar < num_total_vars; ivar++) {
-        const char * var_substring = &smspec_node->keyword[1];
-        /*
-          We want to mark both FOPT and FOPTH as historical variables;
-          we use strncmp() to make certain that the trailing 'H' is
-          not included in the comparison.
-        */
-        if (strncmp( total_vars[ivar] , var_substring , strlen( total_vars[ivar] )) == 0) {
-          is_total = true;
-          break;
-        }
+    int num_total_vars = sizeof( total_vars ) / sizeof( total_vars[0] );
+    int ivar;
+    for (ivar = 0; ivar < num_total_vars; ivar++) {
+      const char * var_substring = &keyword[1];
+      /*
+        We want to mark both FOPT and FOPTH as total variables;
+        we use strncmp() to make certain that the trailing 'H' is
+        not included in the comparison.
+      */
+      if (strncmp( total_vars[ivar] , var_substring , strlen( total_vars[ivar] )) == 0) {
+        is_total = true;
+        break;
       }
     }
-    smspec_node->total_variable = is_total;
   }
+  return is_total;
+}
+
+
+static void smspec_node_set_flags( smspec_node_type * smspec_node) {
+  /*
+     Check if this is a rate variabel - that info is used when
+     interpolating results to true_time between ministeps.
+  */
+  smspec_node->rate_variable = smspec_node_identify_rate(smspec_node->keyword);
+  if (LAST_CHAR(smspec_node->keyword) == 'H')
+    smspec_node->historical = true;
+  smspec_node->total_variable = smspec_node_identify_total(smspec_node->keyword, smspec_node->var_type);
 }
 
 /**
@@ -387,12 +404,7 @@ smspec_node_type * smspec_node_alloc_new(int params_index, float default_value) 
 
 
 static void smspec_node_set_wgname( smspec_node_type * index , const char * wgname ) {
-  if (wgname == NULL) {
-    util_safe_free( index->wgname );
-    index->wgname = NULL;
-  } else {
-    index->wgname = util_realloc_string_copy(index->wgname , wgname );
-  }
+  index->wgname = util_realloc_string_copy(index->wgname , wgname );
 }
 
 
@@ -544,17 +556,9 @@ static void smspec_node_set_gen_keys( smspec_node_type * smspec_node , const cha
   default:
     util_abort("%s: internal error - should not be here? \n" , __func__);
   }
-  smspec_node->valid = true;
 }
 
 
-
-void smspec_node_update_wgname( smspec_node_type * index , const char * wgname , const char * key_join_string) {
-  smspec_node_set_wgname( index , wgname );
-  util_safe_free( index->gen_key1 );
-  util_safe_free( index->gen_key2 );
-  smspec_node_set_gen_keys( index , key_join_string );
-}
 
 static void smspec_node_common_init( smspec_node_type * node , ecl_smspec_var_type var_type , const char * keyword , const char * unit ) {
   if (node->var_type == ECL_SMSPEC_INVALID_VAR) {
@@ -568,22 +572,16 @@ static void smspec_node_common_init( smspec_node_type * node , ecl_smspec_var_ty
 }
 
 
-/*
-  This *should* become static.
-*/
-void smspec_node_init( smspec_node_type * smspec_node,
-                       ecl_smspec_var_type var_type ,
-                       const char * wgname  ,
-                       const char * keyword ,
-                       const char * unit    ,
-                       const char * key_join_string ,
-                       const int grid_dims[3] ,
-                       int num) {
+static bool smspec_node_init__( smspec_node_type * smspec_node,
+                                ecl_smspec_var_type var_type ,
+                                const char * wgname  ,
+                                const char * keyword ,
+                                const char * unit    ,
+                                const char * key_join_string ,
+                                const int grid_dims[3] ,
+                                int num) {
 
   bool initOK    = true;
-  bool wgnameOK = true;
-  if ((wgname != NULL) && (IS_DUMMY_WELL(wgname)))
-    wgnameOK = false;
 
   smspec_node_common_init( smspec_node , var_type , keyword , unit );
   switch (var_type) {
@@ -591,23 +589,21 @@ void smspec_node_init( smspec_node_type * smspec_node,
     /* Completion variable : WGNAME & NUM */
     smspec_node_set_num( smspec_node , grid_dims , num );
     smspec_node_set_wgname( smspec_node , wgname );
-    if (!wgnameOK || num < 0)
+    if (num < 0)
       initOK = false;
     break;
   case(ECL_SMSPEC_GROUP_VAR):
     /* Group variable : WGNAME */
     smspec_node_set_wgname( smspec_node , wgname );
-    initOK = wgnameOK;
     break;
   case(ECL_SMSPEC_WELL_VAR):
     /* Well variable : WGNAME */
     smspec_node_set_wgname( smspec_node , wgname );
-    initOK = wgnameOK;
     break;
   case(ECL_SMSPEC_SEGMENT_VAR):
     smspec_node_set_wgname( smspec_node , wgname );
     smspec_node_set_num( smspec_node , grid_dims , num );
-    if (!wgnameOK || num < 0)
+    if (num < 0)
       initOK = false;
     break;
   case(ECL_SMSPEC_FIELD_VAR):
@@ -654,6 +650,31 @@ void smspec_node_init( smspec_node_type * smspec_node,
 
   if (initOK)
     smspec_node_set_gen_keys( smspec_node , key_join_string );
+
+  return initOK;
+}
+
+/*
+  This function should be removed from the public API.
+*/
+void smspec_node_init( smspec_node_type * smspec_node,
+                       ecl_smspec_var_type var_type ,
+                       const char * wgname  ,
+                       const char * keyword ,
+                       const char * unit    ,
+                       const char * key_join_string ,
+                       const int grid_dims[3] ,
+                       int num) {
+
+  smspec_node_init__(smspec_node,
+                     var_type,
+                     wgname,
+                     keyword,
+                     unit,
+                     key_join_string,
+                     grid_dims,
+                     num);
+
 }
 
 /**
@@ -673,12 +694,12 @@ void smspec_node_init( smspec_node_type * smspec_node,
 
 
 smspec_node_type * smspec_node_alloc( ecl_smspec_var_type var_type ,
-                                       const char * wgname  ,
-                                       const char * keyword ,
-                                       const char * unit    ,
-                                       const char * key_join_string ,
-                                       const int grid_dims[3] ,
-                                       int num , int param_index, float default_value) {
+                                      const char * wgname  ,
+                                      const char * keyword ,
+                                      const char * unit    ,
+                                      const char * key_join_string ,
+                                      const int grid_dims[3] ,
+                                      int num , int param_index, float default_value) {
   /*
     Well and group names in the wgname parameter is quite messy. The
     situation is as follows:
@@ -709,8 +730,22 @@ smspec_node_type * smspec_node_alloc( ecl_smspec_var_type var_type ,
        completely.
   */
 
+  if (smspec_node_need_wgname(var_type) && IS_DUMMY_WELL(wgname))
+    return NULL;
+
+  if (!smspec_node_type_supported(var_type))
+    return NULL;
+
+  /*
+    TODO: The alloc_new and init functions should be joined in one function.
+  */
   smspec_node_type * smspec_node = smspec_node_alloc_new( param_index , default_value );
-  smspec_node_init( smspec_node , var_type , wgname , keyword , unit , key_join_string , grid_dims, num);
+  bool initOK = smspec_node_init__( smspec_node , var_type , wgname , keyword , unit , key_join_string , grid_dims, num);
+  if (!initOK) {
+    smspec_node_free(smspec_node);
+    smspec_node = NULL;
+  }
+
   return smspec_node;
 }
 
@@ -799,7 +834,6 @@ smspec_node_type* smspec_node_alloc_copy( const smspec_node_type* node ) {
         memcpy( copy->lgr_ijk, node->lgr_ijk, 3 * sizeof( * node->lgr_ijk ) );
     }
 
-    copy->valid = node->valid;
     copy->rate_variable = node->rate_variable;
     copy->total_variable = node->total_variable;
     copy->historical = node->historical;
@@ -810,14 +844,14 @@ smspec_node_type* smspec_node_alloc_copy( const smspec_node_type* node ) {
 }
 
 void smspec_node_free( smspec_node_type * index ) {
-  util_safe_free( index->unit );
-  util_safe_free( index->keyword );
-  util_safe_free( index->ijk );
-  util_safe_free( index->gen_key1 );
-  util_safe_free( index->gen_key2 );
-  util_safe_free( index->wgname );
-  util_safe_free( index->lgr_name );
-  util_safe_free( index->lgr_ijk );
+  free( index->unit );
+  free( index->keyword );
+  free( index->ijk );
+  free( index->gen_key1 );
+  free( index->gen_key2 );
+  free( index->wgname );
+  free( index->lgr_name );
+  free( index->lgr_ijk );
   free( index );
 }
 
@@ -880,19 +914,13 @@ bool smspec_node_is_historical( const smspec_node_type * smspec_node ){
   return smspec_node->historical;
 }
 
-
-bool smspec_node_is_valid( const smspec_node_type * smspec_node ){
-  return smspec_node->valid;
-}
-
-
 const char  * smspec_node_get_unit( const smspec_node_type * smspec_node) {
   return smspec_node->unit;
 }
 
 void smspec_node_set_unit( smspec_node_type * smspec_node , const char * unit ) {
   // ECLIPSE Standard: Max eight characters - everything beyond is silently dropped
-  util_safe_free( smspec_node->unit );
+  free( smspec_node->unit );
   smspec_node->unit = util_alloc_substring_copy( unit , 0 , 8);
 }
 
@@ -964,6 +992,8 @@ void smspec_node_fprintf( const smspec_node_type * smspec_node , FILE * stream) 
   fprintf(stream, "KEYWORD: %s \n",smspec_node->keyword);
   fprintf(stream, "WGNAME : %s \n",smspec_node->wgname);
   fprintf(stream, "UNIT   : %s \n",smspec_node->unit);
+  fprintf(stream, "TYPE   : %d \n",smspec_node->var_type);
+  fprintf(stream, "NUM    : %d \n\n",smspec_node->num);
 }
 
 

@@ -25,7 +25,7 @@
 
 #include <ert/util/ert_api_config.hpp>
 #include <ert/util/ssize_t.hpp>
-#include <ert/util/util.hpp>
+#include <ert/util/util.h>
 #include <ert/util/type_macros.hpp>
 #include <ert/util/buffer.hpp>
 

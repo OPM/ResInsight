@@ -22,7 +22,7 @@
 #include <string.h>
 #include <math.h>
 
-#include <ert/util/util.hpp>
+#include <ert/util/util.h>
 #include <ert/util/buffer.hpp>
 #include <ert/util/int_vector.hpp>
 
@@ -651,8 +651,8 @@ ecl_kw_type * ecl_kw_alloc_empty() {
 
 
 void ecl_kw_free(ecl_kw_type *ecl_kw) {
-  util_safe_free( ecl_kw->header );
-  util_safe_free(ecl_kw->header8);
+  free( ecl_kw->header );
+  free(ecl_kw->header8);
   ecl_kw_free_data(ecl_kw);
   free(ecl_kw);
 }
@@ -951,7 +951,7 @@ void ecl_kw_iset_string_ptr( ecl_kw_type * ecl_kw, int index, const char * s) {
 
   {
     char * ecl_string = (char *) ecl_kw_iget_ptr(ecl_kw, index);
-    int i;
+    size_t i;
 
     for(i = 0; i < input_len; ++i)
       ecl_string[i] = s[i];
@@ -1376,7 +1376,9 @@ ecl_read_status_enum ecl_kw_fread_header(ecl_kw_type *ecl_kw , fortio_type * for
       return ECL_KW_READ_FAIL;
 
     memcpy( header , &buffer[0] , ECL_STRING8_LENGTH);
-    size = *( (int *) &buffer[ECL_STRING8_LENGTH] );
+    void * ptr = &buffer[ECL_STRING8_LENGTH];
+    size = *((int*)ptr);
+
     memcpy( ecl_type_str , &buffer[ECL_STRING8_LENGTH + sizeof(size)] , ECL_TYPE_LENGTH);
 
     if(!fortio_complete_read(fortio , record_size))
@@ -1483,7 +1485,7 @@ bool ecl_kw_fseek_last_kw(const char * kw , bool abort_on_error , fortio_type *f
 
 void ecl_kw_set_data_ptr(ecl_kw_type * ecl_kw , void * data) {
   if (!ecl_kw->shared_data)
-    util_safe_free( ecl_kw->data );
+    free( ecl_kw->data );
   ecl_kw->data = (char*)data;
 }
 
@@ -1506,7 +1508,7 @@ void ecl_kw_alloc_data(ecl_kw_type *ecl_kw) {
 
 void ecl_kw_free_data(ecl_kw_type *ecl_kw) {
   if (!ecl_kw->shared_data)
-    util_safe_free(ecl_kw->data);
+    free(ecl_kw->data);
 
   ecl_kw->data = NULL;
 }
@@ -1519,7 +1521,7 @@ void ecl_kw_set_header_name(ecl_kw_type * ecl_kw , const char * header) {
      sprintf(ecl_kw->header8 , "%-8s" , header);
 
      /* Internalizing a header without the trailing spaces as well. */
-     util_safe_free( ecl_kw->header );
+     free( ecl_kw->header );
      ecl_kw->header = util_alloc_strip_copy( ecl_kw->header8 );
   }
   else {
@@ -1932,7 +1934,7 @@ ecl_kw_type * ecl_kw_alloc_global_copy(const ecl_kw_type * src, const ecl_kw_typ
     return NULL;
 
   const int global_size = ecl_kw_get_size(actnum);
-  ecl_kw_type * global_copy = ecl_kw_alloc( ecl_kw_get_header(src), global_size, src->data_type); 
+  ecl_kw_type * global_copy = ecl_kw_alloc( ecl_kw_get_header(src), global_size, src->data_type);
   const int * mapping = ecl_kw_get_int_ptr(actnum);
   const int src_size = ecl_kw_get_size(src);
   int src_index = 0;

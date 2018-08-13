@@ -1,19 +1,19 @@
 /*
-   Copyright (C) 2011  Statoil ASA, Norway. 
-    
-   The file 'ecl_box.c' is part of ERT - Ensemble based Reservoir Tool. 
-    
-   ERT is free software: you can redistribute it and/or modify 
-   it under the terms of the GNU General Public License as published by 
-   the Free Software Foundation, either version 3 of the License, or 
-   (at your option) any later version. 
-    
-   ERT is distributed in the hope that it will be useful, but WITHOUT ANY 
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or 
-   FITNESS FOR A PARTICULAR PURPOSE.   
-    
-   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
-   for more details. 
+   Copyright (C) 2011  Statoil ASA, Norway.
+
+   The file 'ecl_box.c' is part of ERT - Ensemble based Reservoir Tool.
+
+   ERT is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   ERT is distributed in the hope that it will be useful, but WITHOUT ANY
+   WARRANTY; without even the implied warranty of MERCHANTABILITY or
+   FITNESS FOR A PARTICULAR PURPOSE.
+
+   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+   for more details.
 */
 
 
@@ -21,7 +21,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include <ert/util/util.hpp>
+#include <ert/util/util.h>
 
 #include <ert/ecl/ecl_box.hpp>
 #include <ert/ecl/ecl_grid.hpp>
@@ -33,10 +33,10 @@ struct ecl_box_struct {
   UTIL_TYPE_ID_DECLARATION;
   int     grid_nx  , grid_ny  , grid_nz;
   int     grid_sx  , grid_sy  , grid_sz;   /* xxx_sx : x stride */
-  
+
   int     i1,i2,j1,j2,k1,k2;
   int     box_nx  , box_ny  , box_nz;
-  int     box_sx  , box_sy  , box_sz;   
+  int     box_sx  , box_sy  , box_sz;
   int     box_offset;
   int     active_size;
   int    *active_list;  /* This is a list with active_size elements containing the index active index of the elemtents in the box. Will be NULL if there are no active elements. */
@@ -85,12 +85,12 @@ ecl_box_type * ecl_box_alloc(const ecl_grid_type * ecl_grid , int __i1,int __i2 
     ecl_box->j2 = j2;
     ecl_box->k1 = k1;
     ecl_box->k2 = k2;
-  
+
     /*Properties of the box: */
     ecl_box->box_nx = i2 - i1 + 1;
     ecl_box->box_ny = j2 - j1 + 1;
     ecl_box->box_nz = k2 - k1 + 1;
-    
+
     ecl_box->box_sx = 1;
     ecl_box->box_sy = ecl_box->box_nx;
     ecl_box->box_sz = ecl_box->box_nx * ecl_box->box_ny;
@@ -104,7 +104,7 @@ ecl_box_type * ecl_box_alloc(const ecl_grid_type * ecl_grid , int __i1,int __i2 
       ecl_box->active_size = 0;
       ecl_box->active_list = (int*)util_calloc( ecl_box->box_nx * ecl_box->box_ny * ecl_box->box_nz , sizeof * ecl_box->active_list );
       ecl_box->global_list = (int*)util_calloc( ecl_box->box_nx * ecl_box->box_ny * ecl_box->box_nz , sizeof * ecl_box->global_list );
-      for (k=k1; k <= k2; k++) 
+      for (k=k1; k <= k2; k++)
         for (j=j1; j <= j2; j++)
           for (i=i1; i <= i2; i++) {
             {
@@ -120,7 +120,7 @@ ecl_box_type * ecl_box_alloc(const ecl_grid_type * ecl_grid , int __i1,int __i2 
               }
             }
           }
-      
+
       ecl_box->active_list = (int*)util_realloc( ecl_box->active_list , ecl_box->active_size * sizeof * ecl_box->active_list );
     }
   }
@@ -134,38 +134,38 @@ ecl_box_type * ecl_box_alloc(const ecl_grid_type * ecl_grid , int __i1,int __i2 
 
     ijk: These are zero offset.
     ijk: Which are ON one of the box surfaces will return true.
-    
+
 */
 
 
 bool ecl_box_contains(const ecl_box_type * box , int i , int j , int k) {
-  
+
   return (( box->i1 >= i ) && (i <= box->i2) &&
           ( box->j1 >= j ) && (j <= box->j2) &&
           ( box->k1 >= k ) && (k <= box->k2));
-  
+
 }
 
 
 
 
-void ecl_box_free(ecl_box_type * ecl_box) { 
-  util_safe_free(ecl_box->active_list );
-  util_safe_free(ecl_box->global_list );
-  free(ecl_box); 
+void ecl_box_free(ecl_box_type * ecl_box) {
+  free(ecl_box->active_list );
+  free(ecl_box->global_list );
+  free(ecl_box);
 }
 
 
 
 /*
 void ecl_kw_merge(ecl_kw_type * main_kw , const ecl_kw_type * sub_kw , const ecl_box_type * ecl_box) {
-  if (main_kw->sizeof_ctype != sub_kw->sizeof_ctype) 
+  if (main_kw->sizeof_ctype != sub_kw->sizeof_ctype)
     util_abort("%s: trying to combine two different underlying datatypes - aborting \n",__func__);
 
-  if (ecl_kw_get_size(main_kw) != ecl_box_get_total_size(ecl_box)) 
+  if (ecl_kw_get_size(main_kw) != ecl_box_get_total_size(ecl_box))
     util_abort("%s box size and total_kw mismatch - aborting \n",__func__);
 
-  if (ecl_kw_get_size(sub_kw)   != ecl_box_get_box_size(ecl_box)) 
+  if (ecl_kw_get_size(sub_kw)   != ecl_box_get_box_size(ecl_box))
     util_abort("%s box size and total_kw mismatch - aborting \n",__func__);
 
   ecl_box_set_values(ecl_box , ecl_kw_get_data_ref(main_kw) , ecl_kw_get_data_ref(sub_kw) , main_kw->sizeof_ctype);
@@ -175,7 +175,7 @@ void ecl_kw_merge(ecl_kw_type * main_kw , const ecl_kw_type * sub_kw , const ecl
 void ecl_box_set_values(const ecl_box_type * ecl_box , char * main_field , const char * sub_field , int element_size) {
   int i,j,k;
 
-  for (k=0; k < ecl_box->box_nz; k++) 
+  for (k=0; k < ecl_box->box_nz; k++)
     for(j=0; j < ecl_box->box_ny; j++)
       for (i=0; i < ecl_box->box_nx; i++) {
         int grid_index = k*ecl_box->grid_sz   + j*ecl_box->grid_sy   + i*ecl_box->grid_sx + ecl_box->box_offset;
@@ -186,7 +186,7 @@ void ecl_box_set_values(const ecl_box_type * ecl_box , char * main_field , const
 
 
 /*
-  Return the number of active element in the box. 
+  Return the number of active element in the box.
 */
 int ecl_box_get_active_size( const ecl_box_type * ecl_box ) {
   return ecl_box->active_size;
@@ -199,7 +199,7 @@ const int * ecl_box_get_active_list( const ecl_box_type * ecl_box ) {
 
 
 /*
-  Return the number of global element in the box. 
+  Return the number of global element in the box.
 */
 int ecl_box_get_global_size( const ecl_box_type * ecl_box ) {
   return ecl_box->box_nx * ecl_box->box_ny * ecl_box->box_nz;

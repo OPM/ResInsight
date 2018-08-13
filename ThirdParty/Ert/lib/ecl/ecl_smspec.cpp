@@ -23,7 +23,7 @@
 #include <errno.h>
 
 #include <ert/util/hash.hpp>
-#include <ert/util/util.hpp>
+#include <ert/util/util.h>
 #include <ert/util/vector.hpp>
 #include <ert/util/int_vector.hpp>
 #include <ert/util/float_vector.hpp>
@@ -117,7 +117,6 @@ struct ecl_smspec_struct {
   vector_type        * smspec_nodes;
   bool                 write_mode;
   bool                 need_nums;
-  bool                 locked;
   int_vector_type    * index_map;
 
   /*-----------------------------------------------------------------*/
@@ -217,7 +216,10 @@ Completion var:    VAR_TYPE:WELL_NAME:NUM
 */
 
 static const char* special_vars[] = {"NEWTON",
+                                     "NAIMFRAC",
                                      "NLINEARS",
+                                     "NLINSMIN",
+                                     "NLINSMAX",
                                      "ELAPSED",
                                      "MAXDPR",
                                      "MAXDSO",
@@ -272,7 +274,6 @@ ecl_smspec_type * ecl_smspec_alloc_empty(bool write_mode , const char * key_join
   ecl_smspec->day_index    = -1;
   ecl_smspec->year_index   = -1;
   ecl_smspec->month_index  = -1;
-  ecl_smspec->locked       = false;
   ecl_smspec->time_seconds = -1;
 
   /*
@@ -303,14 +304,12 @@ int * ecl_smspec_alloc_mapping( const ecl_smspec_type * self, const ecl_smspec_t
 
   for (int i=0; i < ecl_smspec_num_nodes( self ); i++) {
     const smspec_node_type * self_node = ecl_smspec_iget_node( self , i );
-    if (smspec_node_is_valid( self_node )) {
-      int self_index = smspec_node_get_params_index( self_node );
-      const char * key = smspec_node_get_gen_key1( self_node );
-      if (ecl_smspec_has_general_var( other , key)) {
-        const smspec_node_type * other_node = ecl_smspec_get_general_var_node( other , key);
-        int other_index = smspec_node_get_params_index(other_node);
-        mapping[ self_index ]  =  other_index;
-      }
+    int self_index = smspec_node_get_params_index( self_node );
+    const char * key = smspec_node_get_gen_key1( self_node );
+    if (ecl_smspec_has_general_var( other , key)) {
+      const smspec_node_type * other_node = ecl_smspec_get_general_var_node( other , key);
+      int other_index = smspec_node_get_params_index(other_node);
+      mapping[ self_index ]  =  other_index;
     }
   }
 
@@ -334,21 +333,6 @@ int ecl_smspec_num_nodes( const ecl_smspec_type * smspec) {
 }
 
 
-/*
-  In the current implementation it is impossible to mix calls to
-  ecl_sum_add_var() and ecl_sum_add_tstep() - i.e. one must first add
-  *all* the variables with ecl_sum_add_var() calls, and then
-  subsequently add timesteps with ecl_sum_add_tstep().
-
-  The locked property of the smspec structure is to ensure that no new
-  variables are added to the ecl_smspec structure after the first
-  timestep has been added.
-*/
-
-void ecl_smspec_lock( ecl_smspec_type * smspec ) {
-  smspec->locked = true;
-}
-
 /**
  * Returns an ecl data type for which all names will fit. If the maximum name
  * length is at most 8, an ECL_CHAR is returned and otherwise a large enough
@@ -358,11 +342,9 @@ static ecl_data_type get_wgnames_type(const ecl_smspec_type * smspec) {
   size_t max_len = 0;
   for(int i = 0; i < ecl_smspec_num_nodes(smspec); ++i) {
     const smspec_node_type * node = ecl_smspec_iget_node(smspec, i);
-    if (smspec_node_is_valid( node )) {
-      const char * name = smspec_node_get_wgname( node );
-      if(name)
-        max_len = util_size_t_max(max_len, strlen(name));
-    }
+    const char * name = smspec_node_get_wgname( node );
+    if(name)
+      max_len = util_size_t_max(max_len, strlen(name));
   }
 
   return max_len <= ECL_STRING8_LENGTH ? ECL_CHAR : ECL_STRING(max_len);
@@ -510,7 +492,7 @@ void ecl_smspec_fwrite( const ecl_smspec_type * smspec , const char * ecl_case ,
   fortio_type * fortio = fortio_open_writer( filename , fmt_file , ECL_ENDIAN_FLIP);
 
   if (!fortio) {
-    char * error_fmt_msg = "%s: Unable to open fortio file %s, error: %s .\n";
+    const char * error_fmt_msg = "%s: Unable to open fortio file %s, error: %s .\n";
     util_abort( error_fmt_msg , __func__ , filename , strerror( errno ) );
   }
 
@@ -922,6 +904,7 @@ static void ecl_smspec_install_special_keys( ecl_smspec_type * ecl_smspec , smsp
   case(ECL_SMSPEC_AQUIFER_VAR):
     break;
   default:
+    smspec_node_fprintf(smspec_node, stderr);
     util_abort("%: Internal error - should never be here ?? \n",__func__);
     break;
   }
@@ -1077,8 +1060,8 @@ static void ecl_smspec_load_restart( ecl_smspec_type * ecl_smspec , const ecl_fi
         }
       }
 
-      util_safe_free( path );
-      util_safe_free( smspec_header );
+      free( path );
+      free( smspec_header );
     }
     free( restart_base );
   }
@@ -1087,18 +1070,11 @@ static void ecl_smspec_load_restart( ecl_smspec_type * ecl_smspec , const ecl_fi
 
 
 void ecl_smspec_index_node( ecl_smspec_type * ecl_smspec , smspec_node_type * smspec_node) {
-  /*
-    It is possible crate a node which is not fully specified, e.g. the
-    well or group name can be left at NULL. In that case the node is
-    not installed in the different indexes.
-  */
-  if (smspec_node_is_valid( smspec_node )) {
-    ecl_smspec_install_gen_keys( ecl_smspec , smspec_node );
-    ecl_smspec_install_special_keys( ecl_smspec , smspec_node );
+  ecl_smspec_install_gen_keys( ecl_smspec , smspec_node );
+  ecl_smspec_install_special_keys( ecl_smspec , smspec_node );
 
-    if (smspec_node_need_nums( smspec_node ))
-      ecl_smspec->need_nums = true;
-  }
+  if (smspec_node_need_nums( smspec_node ))
+    ecl_smspec->need_nums = true;
 }
 
 
@@ -1110,30 +1086,27 @@ static void ecl_smspec_set_params_size( ecl_smspec_type * ecl_smspec , int param
 
 
 void ecl_smspec_insert_node(ecl_smspec_type * ecl_smspec, smspec_node_type * smspec_node){
-  if (!ecl_smspec->locked) {
-    int internal_index = vector_get_size( ecl_smspec->smspec_nodes );
+  int internal_index = vector_get_size( ecl_smspec->smspec_nodes );
 
-    /* This IF test should only apply in write_mode. */
-    if (smspec_node_get_params_index( smspec_node ) < 0) {
-      if (!ecl_smspec->write_mode)
-        util_abort("%s: internal error \n",__func__);
-      smspec_node_set_params_index( smspec_node , internal_index);
+  /* This IF test should only apply in write_mode. */
+  if (smspec_node_get_params_index( smspec_node ) < 0) {
+    if (!ecl_smspec->write_mode)
+      util_abort("%s: internal error \n",__func__);
+    smspec_node_set_params_index( smspec_node , internal_index);
 
-      if (internal_index >= ecl_smspec->params_size)
-        ecl_smspec_set_params_size( ecl_smspec , internal_index + 1);
-    }
-    vector_append_owned_ref( ecl_smspec->smspec_nodes , smspec_node , smspec_node_free__ );
+    if (internal_index >= ecl_smspec->params_size)
+      ecl_smspec_set_params_size( ecl_smspec , internal_index + 1);
+  }
+  vector_append_owned_ref( ecl_smspec->smspec_nodes , smspec_node , smspec_node_free__ );
 
-    {
-      int params_index = smspec_node_get_params_index( smspec_node );
+  {
+    int params_index = smspec_node_get_params_index( smspec_node );
 
-      /* This indexing must be used when writing. */
-      int_vector_iset( ecl_smspec->index_map , internal_index , params_index);
+    /* This indexing must be used when writing. */
+    int_vector_iset( ecl_smspec->index_map , internal_index , params_index);
 
-      float_vector_iset( ecl_smspec->params_default , params_index , smspec_node_get_default(smspec_node) );
-    }
-  } else
-    util_abort("%s: sorry - the smspec header has been locked (can not mix ecl_sum_add_var() and ecl_sum_add_tstep() calls.)\n",__func__);
+    float_vector_iset( ecl_smspec->params_default , params_index , smspec_node_get_default(smspec_node) );
+  }
 }
 
 
@@ -1168,7 +1141,7 @@ static const char * get_active_keyword_alias(ecl_file_type * header, const char 
 
 static bool ecl_smspec_check_header( ecl_file_type * header ) {
   bool OK = true;
-  for (int i=0; i < num_req_keywords && OK; i++) {
+  for (size_t i=0; i < num_req_keywords && OK; i++) {
     OK &= ecl_file_has_kw(
             header,
             get_active_keyword_alias(header, smspec_required_keywords[i])
@@ -1257,13 +1230,13 @@ static bool ecl_smspec_fread_header(ecl_smspec_type * ecl_smspec, const char * h
         } else
           smspec_node = smspec_node_alloc( var_type , well , kw , unit , ecl_smspec->key_join_string , ecl_smspec->grid_dims , num , params_index , default_value);
 
-
-        ecl_smspec_add_node( ecl_smspec , smspec_node );
+        if (smspec_node)
+          ecl_smspec_add_node( ecl_smspec , smspec_node );
 
         free( kw );
         free( well );
         free( unit );
-        util_safe_free( lgr_name );
+        free( lgr_name );
       }
     }
 
@@ -1287,7 +1260,7 @@ ecl_smspec_type * ecl_smspec_fread_alloc(const char *header_file, const char * k
     char *path;
     util_alloc_file_components(header_file , &path , NULL , NULL);
     ecl_smspec = ecl_smspec_alloc_empty(false , key_join_string);
-    util_safe_free(path);
+    free(path);
   }
 
   if (ecl_smspec_fread_header(ecl_smspec , header_file , include_restart)) {
@@ -1710,6 +1683,13 @@ int ecl_smspec_get_restart_step(const ecl_smspec_type * ecl_smspec) {
   return ecl_smspec->restart_step;
 }
 
+int ecl_smspec_get_first_step(const ecl_smspec_type * ecl_smspec) {
+  if (ecl_smspec->restart_step > 0)
+    return ecl_smspec->restart_step + 1;
+  else
+    return 1;
+}
+
 
 const char * ecl_smspec_get_restart_case( const ecl_smspec_type * ecl_smspec) {
   return ecl_smspec->restart_case;
@@ -1731,7 +1711,7 @@ void ecl_smspec_free(ecl_smspec_type *ecl_smspec) {
   hash_free(ecl_smspec->misc_var_index);
   hash_free(ecl_smspec->block_var_index);
   hash_free(ecl_smspec->gen_var_index);
-  util_safe_free( ecl_smspec->header_file );
+  free( ecl_smspec->header_file );
   int_vector_free( ecl_smspec->index_map );
   float_vector_free( ecl_smspec->params_default );
   vector_free( ecl_smspec->smspec_nodes );
@@ -1932,10 +1912,6 @@ const int * ecl_smspec_get_grid_dims( const ecl_smspec_type * smspec ) {
 }
 
 
-void ecl_smspec_update_wgname( ecl_smspec_type * smspec , smspec_node_type * node , const char * wgname ) {
-  smspec_node_update_wgname( node , wgname , smspec->key_join_string);
-  ecl_smspec_index_node( smspec , node );
-}
 
 
 /*****************************************************************/
