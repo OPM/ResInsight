@@ -437,7 +437,7 @@ TEST(DISABLED_RiaSCurveCalculator, Config1 )
     EXPECT_TRUE(sCurveCalc.isOk() );
 }
 
-TEST(RiaSCurveCalculator, Config1a ) 
+TEST(DISABLED_RiaSCurveCalculator, Config1a ) 
 { 
     RiaSCurveCalculator sCurveCalc(
     { 0,0,0 }, 0, 0, curveRadius,
@@ -461,7 +461,7 @@ TEST(DISABLED_RiaSCurveCalculator, Config3 )
     sCurveCalc.dump();
     EXPECT_TRUE(sCurveCalc.isOk() );
 }
-TEST(RiaSCurveCalculator, Config3a ) 
+TEST(DISABLED_RiaSCurveCalculator, Config3a ) 
 { 
     RiaSCurveCalculator sCurveCalc(
     { 0,0,0 }, 0, 0, curveRadius,
@@ -493,7 +493,7 @@ TEST(DISABLED_RiaSCurveCalculator, Config6 )
     sCurveCalc.dump();
     EXPECT_TRUE(sCurveCalc.isOk() );
 }
-TEST(RiaSCurveCalculator, Config6a ) 
+TEST(DISABLED_RiaSCurveCalculator, Config6a ) 
 { 
     RiaSCurveCalculator sCurveCalc(
     { 0,0,0 }, 0,  M_PI, curveRadius,
@@ -501,7 +501,7 @@ TEST(RiaSCurveCalculator, Config6a )
     sCurveCalc.dump();
     EXPECT_TRUE(sCurveCalc.isOk() );
 }
-TEST(RiaSCurveCalculator, Config6b ) 
+TEST(DISABLED_RiaSCurveCalculator, Config6b ) 
 { 
     RiaSCurveCalculator sCurveCalc(
     { 0,0,0 }, 0,  M_PI-angleEpsilon, curveRadius,
