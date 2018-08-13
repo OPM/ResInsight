@@ -72,8 +72,13 @@ ecl_sum_type* openEclSum(const QString& inHeaderFileName, bool includeRestartFil
         stringlist_append_copy(dataFiles, RiaStringEncodingTools::toNativeEncoded(dataFileNames[i]).data());
     }
 
+    bool lazyLoad = true;
     std::string itemSeparatorInVariableNames = ":";
-    ecl_sum_type* ecl_sum = ecl_sum_fread_alloc(RiaStringEncodingTools::toNativeEncoded(headerFileName).data(), dataFiles, itemSeparatorInVariableNames.data(), includeRestartFiles);
+    ecl_sum_type* ecl_sum = ecl_sum_fread_alloc(RiaStringEncodingTools::toNativeEncoded(headerFileName).data(),
+                                                dataFiles,
+                                                itemSeparatorInVariableNames.data(),
+                                                includeRestartFiles,
+                                                lazyLoad);
 
     stringlist_free(dataFiles);
 
@@ -217,8 +222,7 @@ RifRestartFileInfo RifReaderEclipseSummary::getFileInfo(const QString& headerFil
 //--------------------------------------------------------------------------------------------------
 RifEclipseSummaryAddress addressFromErtSmSpecNode(const smspec_node_type * ertSumVarNode)
 {
-    if (   smspec_node_get_var_type(ertSumVarNode) == ECL_SMSPEC_INVALID_VAR
-        || !smspec_node_is_valid(ertSumVarNode)) 
+    if (smspec_node_get_var_type(ertSumVarNode) == ECL_SMSPEC_INVALID_VAR) 
     {
         return RifEclipseSummaryAddress();
     }
@@ -483,7 +487,7 @@ RifRestartFileInfo RifReaderEclipseSummary::getRestartFile(const QString& header
         
         char* smspec_header = ecl_util_alloc_exfilename(path.toStdString().data(), restartBase.toStdString().data(), ECL_SUMMARY_HEADER_FILE, false /*unformatted*/, 0);
         QString restartFileName = RiaFilePathTools::toInternalSeparator(RiaStringEncodingTools::fromNativeEncoded(smspec_header));
-        util_safe_free(smspec_header);
+        free(smspec_header);
 
         return getFileInfo(restartFileName);
     }

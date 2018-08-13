@@ -214,7 +214,7 @@ bool RifEclipseInputFileTools::openGridFile(const QString& fileName, RigEclipseC
 
     ecl_grid_free(inputGrid);
 
-    util_fclose(gridFilePointer);
+    fclose(gridFilePointer);
     
     return true;
 }
@@ -264,7 +264,7 @@ std::map<QString, QString> RifEclipseInputFileTools::readProperties(const QStrin
         progress.setProgress(i);
     }
 
-    util_fclose(gridFilePointer);
+    fclose(gridFilePointer);
     return newResults;
 }
 
@@ -291,7 +291,7 @@ bool RifEclipseInputFileTools::readProperty(const QString& fileName, RigEclipseC
         ecl_kw_free(eclipseKeywordData);
     }
 
-    util_fclose(filePointer);
+    fclose(filePointer);
 
     return isOk;
 }
