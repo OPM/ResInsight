@@ -311,27 +311,17 @@ std::vector<std::vector<double>>
     // The conductivity value is used in the computations of transmissibility when exporting COMPDAT, and has unit md-m or md-ft
     // This unit must match the unit used to represent coordinates of the grid used for export
 
-    QString conversionUnitText;
-    if (conductivityUnitTextOnFile == "md-m")
-    {
-        conversionUnitText = "m";
-    }
-    else if (conductivityUnitTextOnFile == "md-ft")
-    {
-        conversionUnitText = "ft";
-    }
-
     for (auto& yValues : conductivityValues)
     {
         for (auto& xVal : yValues)
         {
             if (requiredUnitSet == RiaEclipseUnitTools::UNITS_FIELD)
             {
-                xVal = RiaEclipseUnitTools::convertToFeet(xVal, conversionUnitText);
+                xVal = RiaEclipseUnitTools::convertToFeet(xVal, conductivityUnitTextOnFile);
             }
             else if (requiredUnitSet == RiaEclipseUnitTools::UNITS_METRIC)
             {
-                xVal = RiaEclipseUnitTools::convertToMeter(xVal, conversionUnitText);
+                xVal = RiaEclipseUnitTools::convertToMeter(xVal, conductivityUnitTextOnFile);
             }
         }
     }
