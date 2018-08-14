@@ -44,6 +44,8 @@ public:
     double         azimuth() const;
     double         inclination() const;
     cvf::Vec3d     tangent() const;
+    double         radius1() const;
+    double         radius2() const;
 
 private:
     virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
@@ -56,5 +58,8 @@ private:
     caf::PdmField<cvf::Vec3d>                    m_targetPoint;
     caf::PdmField<double>                        m_azimuth;
     caf::PdmField<double>                        m_inclination;
+    caf::PdmField<double>                        m_dogleg1;
+    caf::PdmField<double>                        m_dogleg2;
+
 };
 

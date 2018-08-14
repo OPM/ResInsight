@@ -28,9 +28,11 @@ RimWellPathTarget::RimWellPathTarget()
     CAF_PDM_InitField(&m_isEnabled, "IsEnabled", true, "", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_targetType, "TargetType", "Type", "", "", "");
     //m_targetType.uiCapability()->setUiHidden(true);
+    CAF_PDM_InitField(&m_dogleg1, "Dogleg1", 5.0, "DLS 1", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_targetPoint, "TargetPoint", "Point", "", "", "");
     CAF_PDM_InitField(&m_azimuth, "Azimuth", 0.0, "Azi(deg)", "", "", "");
     CAF_PDM_InitField(&m_inclination, "Inclination", 0.0, "Inc(deg)", "", "", "");
+    CAF_PDM_InitField(&m_dogleg2, "Dogleg2", 5.0, "DLS 2", "", "", "");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -148,6 +150,31 @@ cvf::Vec3d RimWellPathTarget::tangent() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+double RimWellPathTarget::radius1() const
+{
+    // Needs to be aware of unit to select correct DLS conversion
+    // Degrees pr 100 ft
+    // Degrees pr 10m
+    // Degrees pr 30m
+
+    return 30.0/cvf::Math::toRadians(m_dogleg1);
+}
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+double RimWellPathTarget::radius2() const
+{
+    // Needs to be aware of unit to select correct DLS conversion
+    // Degrees pr 100 ft
+    // Degrees pr 10m
+    // Degrees pr 30m
+
+    return 30.0/cvf::Math::toRadians(m_dogleg2);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo> RimWellPathTarget::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly)
 {
     QList<caf::PdmOptionItemInfo> options;
@@ -178,10 +205,12 @@ void RimWellPathTarget::defineUiOrdering(QString uiConfigName, caf::PdmUiOrderin
     {
         m_azimuth.uiCapability()->setUiReadOnly(true);
         m_inclination.uiCapability()->setUiReadOnly(true);
+        m_dogleg1.uiCapability()->setUiReadOnly(true);
     }
     else
     {
         m_azimuth.uiCapability()->setUiReadOnly(false);
         m_inclination.uiCapability()->setUiReadOnly(false);
+        m_dogleg1.uiCapability()->setUiReadOnly(false);
     }
 }
