@@ -117,7 +117,7 @@ TEST(RiaOffshoreSphericalCoords, RiaOffshoreSphericalCoords)
         cvf::Vec3f vec(1, 0, 0);
         RiaOffshoreSphericalCoords spCoord(vec);
         EXPECT_NEAR(cvf::Math::toDegrees(spCoord.inc()), 90.0, 1e-10);
-        EXPECT_NEAR(cvf::Math::toDegrees(spCoord.azi()), 90.0, 1e-10);
+        EXPECT_NEAR(cvf::Math::toDegrees(spCoord.azi()), 90.0, 1e-5);
         EXPECT_NEAR(spCoord.r(), 1.0, 1e-10);
     }
 
@@ -125,7 +125,7 @@ TEST(RiaOffshoreSphericalCoords, RiaOffshoreSphericalCoords)
         cvf::Vec3f vec(-1, 0, 0);
         RiaOffshoreSphericalCoords spCoord(vec);
         EXPECT_NEAR(cvf::Math::toDegrees(spCoord.inc()), 90.0, 1e-10);
-        EXPECT_NEAR(cvf::Math::toDegrees(spCoord.azi()), -90.0, 1e-10);
+        EXPECT_NEAR(cvf::Math::toDegrees(spCoord.azi()), -90.0, 1e-5);
         EXPECT_NEAR(spCoord.r(), 1.0, 1e-10);
     }
 

@@ -43,9 +43,23 @@ public:
 
     }
 
-    float inc() const { return incAziR[0];}
-    float azi() const { return incAziR[1];}
-    float r()   const { return incAziR[2];}
+    explicit RiaOffshoreSphericalCoords(const cvf::Vec3d& vec)
+    {
+        // Azimuth: 
+        if (vec[0] == 0.0 &&  vec[1] == 0.0 ) incAziR[1] = 0.0;
+        else incAziR[1] = atan2(vec[0], vec[1]); // atan2(Y, X)      
+
+                                                 // R
+        incAziR[2] = vec.length();
+
+        // Inclination from vertical down
+        if (incAziR[2] == 0) incAziR[0] = 0.0;
+        else incAziR[0] = acos(-vec[2]/incAziR[2]);
+
+    }
+    double inc() const { return incAziR[0];}
+    double azi() const { return incAziR[1];}
+    double r()   const { return incAziR[2];}
 
     // Note that this is a double function, while the rest of the class is float.
     // Todo: Convert class to a template to enable float and double versions of everything
@@ -57,6 +71,6 @@ public:
     }
 
 private:
-    std::array<float, 3> incAziR;
+    std::array<double, 3> incAziR;
 };
 

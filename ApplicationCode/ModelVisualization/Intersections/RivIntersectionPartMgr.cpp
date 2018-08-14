@@ -441,11 +441,11 @@ void RivIntersectionPartMgr::calculatePlaneAngleTextureCoords(cvf::Vec2fArray* t
     std::function<float (const RiaOffshoreSphericalCoords& )> operation;
     if (resVarAddress.componentName == "Pazi")
     {
-        operation = [](const RiaOffshoreSphericalCoords& sphCoord) { return sphCoord.azi();};
+        operation = [](const RiaOffshoreSphericalCoords& sphCoord) { return (float)sphCoord.azi();};
     }
     else if ( resVarAddress.componentName == "Pinc" )
     {
-        operation = [](const RiaOffshoreSphericalCoords& sphCoord) { return sphCoord.inc();};
+        operation = [](const RiaOffshoreSphericalCoords& sphCoord) { return (float)sphCoord.inc();};
     }
 
     #pragma omp parallel for schedule(dynamic)
