@@ -16,6 +16,8 @@ set(RESINSIGHT_DEV_VERSION ".04")
 set(NRLIB_GITHUB_SHA "ba35d4359882f1c6f5e9dc30eb95fe52af50fd6f") 
 
 # https://github.com/Statoil/libecl
+# Note:
+# Apply patches fix-synthetic-odb-cases.patch and install-ert.patch after update
 set(ECL_GITHUB_SHA "a165d636552fa0c0f96219d341f7f2c17c08dc9d")
 
 # https://github.com/OPM/opm-flowdiagnostics
