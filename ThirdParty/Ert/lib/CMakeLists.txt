@@ -205,7 +205,7 @@ endif ()
 set_target_properties(ecl PROPERTIES
                           VERSION ${ECL_VERSION_MAJOR}.${ECL_VERSION_MINOR}
                           SOVERSION ${ECL_VERSION_MAJOR})
-
+if (INSTALL_ERT)
 install(TARGETS ecl
         EXPORT  ecl-config
         ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
@@ -230,6 +230,7 @@ if (ERT_BUILD_CXX)
             PATTERN *.hpp
 )
 endif ()
+endif()
 
 if (NOT BUILD_TESTS)
     return ()
