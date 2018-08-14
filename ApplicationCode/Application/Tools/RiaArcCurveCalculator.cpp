@@ -30,6 +30,8 @@ RiaArcCurveCalculator::RiaArcCurveCalculator(cvf::Vec3d p1, cvf::Vec3d t1, cvf::
     : m_isCalculationOK(false)
     , m_radius(std::numeric_limits<double>::infinity())
     , m_arcCS(cvf::Mat4d::ZERO)
+    , m_endAzi(0)
+    , m_endInc(0)
 {
     bool isOk = t1.normalize();
     if (!isOk)
@@ -50,6 +52,9 @@ RiaArcCurveCalculator::RiaArcCurveCalculator(cvf::Vec3d p1, cvf::Vec3d t1, cvf::
     if (!isOk)
     {
         // P2 is on the p1 + k*t1 line. We have a straight line
+        RiaOffshoreSphericalCoords endTangent(t1);
+        m_endAzi = endTangent.azi();
+        m_endInc = endTangent.inc();
         return;
     }
 
@@ -63,6 +68,13 @@ RiaArcCurveCalculator::RiaArcCurveCalculator(cvf::Vec3d p1, cvf::Vec3d t1, cvf::
     m_arcCS = cvf::Mat4d::fromCoordSystemAxes( &nTr1, &t1, &N );
 
     m_arcCS.setTranslation(C);
+
+    cvf::Vec3d t2 = N ^ (p2 - C).getNormalized();
+
+    RiaOffshoreSphericalCoords endTangent(t2);
+    m_endAzi = endTangent.azi();
+    m_endInc = endTangent.inc();
+
     m_isCalculationOK = true;
 }
 

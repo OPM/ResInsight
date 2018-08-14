@@ -41,11 +41,18 @@ public:
     cvf::Vec3d center() const { return m_arcCS.translation();}
     cvf::Vec3d normal() const { return cvf::Vec3d(m_arcCS.col(2));}
 
+    double     endAzimuth()       const  { return m_endAzi; }
+    double     endInclination()   const  { return m_endInc; }
+
 private:
     bool m_isCalculationOK;
 
     double m_radius;
     cvf::Mat4d m_arcCS;
+
+    double     m_endAzi;
+    double     m_endInc;
+
 };
 
 

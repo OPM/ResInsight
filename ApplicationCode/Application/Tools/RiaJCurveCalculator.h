@@ -32,12 +32,17 @@ public:
     cvf::Vec3d firstCenter()      const { return m_c1; }
     cvf::Vec3d firstNormal()      const { return m_n1; }
 
+    double     endAzimuth()       const  { return m_endAzi; }
+    double     endInclination()   const  { return m_endInc; }
+
 private:
-    bool m_isCalculationOK;
+    bool       m_isCalculationOK;
 
     cvf::Vec3d m_firstArcEndpoint;
     cvf::Vec3d m_c1;
     cvf::Vec3d m_n1;
+    double     m_endAzi;
+    double     m_endInc;
 };
 
 
