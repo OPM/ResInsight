@@ -19,6 +19,7 @@
 #include "RiaJCurveCalculator.h"
 #include "RiaOffshoreSphericalCoords.h"
 #include "cvfMatrix3.h"
+#include "RiaArcCurveCalculator.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -50,15 +51,21 @@ RiaJCurveCalculator::RiaJCurveCalculator(cvf::Vec3d p1, double azi1, double inc1
     if (p2c1Length < r1)
     {
         // Radius is too big. We can not get to point 2 using the requested radius.
-
+        m_isCalculationOK = false;
+        RiaArcCurveCalculator arc(p1, t1, p2);
+        m_c1 = arc.center();
+        m_n1 = arc.normal();
+        m_firstArcEndpoint = p2;
+        return;
     }
+
     double d = sqrt( p2c1Length * p2c1Length - r1 * r1);
     
     double betha = asin( r1/p2c1Length );
     cvf::Vec3d tp2c1 = p2c1/p2c1Length;
     cvf::Vec3d nc1 = t1 ^ tr1;
 
-    cvf::Vec3d tp11p2 = tp2c1.getTransformedVector(cvf::Mat3d::fromRotation(nc1, betha));
+    cvf::Vec3d tp11p2 = -tp2c1.getTransformedVector(cvf::Mat3d::fromRotation(nc1, betha));
     
     m_firstArcEndpoint = p2 - d*tp11p2;
     m_c1 = c1;
