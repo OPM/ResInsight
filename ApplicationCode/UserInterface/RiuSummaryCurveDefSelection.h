@@ -37,6 +37,7 @@ class RimSummaryCaseCollection;
 class RimSummaryCurveAutoName;
 class RimSummaryPlot;
 class RiaSummaryCurveDefinition;
+class RiaCurveSetDefinition;
 class SummaryIdentifierAndField;
 
 
@@ -57,6 +58,7 @@ public:
 
     void                                    setSelectedCurveDefinitions(const std::vector<RiaSummaryCurveDefinition>& curveDefinitions);
     std::vector<RiaSummaryCurveDefinition>  allCurveDefinitionsFromSelection() const;
+    std::vector<RiaCurveSetDefinition>      allCurveSetDefinitionsFromSelections() const;
     std::vector<RiaSummaryCurveDefinition>  selection() const;
 
     void                                    setMultiSelectionMode(bool multiSelectionMode);

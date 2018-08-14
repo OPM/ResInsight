@@ -20,6 +20,7 @@
 
 #include "RiaApplication.h"
 #include "RiaSummaryCurveDefinition.h"
+#include "RiaCurveSetDefinition.h"
 
 #include "RifEclipseSummaryAddress.h"
 #include "RifSummaryReaderInterface.h"
@@ -300,6 +301,40 @@ std::vector<RiaSummaryCurveDefinition> RiuSummaryCurveDefSelection::allCurveDefi
     }
 
     return curveDefVector;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<RiaCurveSetDefinition> RiuSummaryCurveDefSelection::allCurveSetDefinitionsFromSelections() const
+{
+    std::vector<RiaCurveSetDefinition> curveSetDefVector;
+    std::set<RiaCurveSetDefinition> curveSetDefinitions;
+    std::set<RifEclipseSummaryAddress> selectedAddressesFromUi = buildAddressListFromSelections();
+
+    for (SummarySource* currSource : selectedSummarySources())
+    {
+        RimSummaryCaseCollection* ensemble = dynamic_cast<RimSummaryCaseCollection*>(currSource);
+        if (!ensemble) continue;
+
+        std::vector<SummarySource*> sourceSources;
+        std::set<RifEclipseSummaryAddress> addressesFromSource;
+
+        // Build case list
+        auto addresses = ensemble->calculateUnionOfSummaryAddresses();
+        addressesFromSource.insert(addresses.begin(), addresses.end());
+
+        for (const auto& addressFromSource : addressesFromSource)
+        {
+            if (selectedAddressesFromUi.count(addressFromSource) > 0)
+            {
+                curveSetDefinitions.insert(RiaCurveSetDefinition(ensemble, addressFromSource));
+            }
+        }
+    }
+
+    std::copy(curveSetDefinitions.begin(), curveSetDefinitions.end(), std::back_inserter(curveSetDefVector));
+    return curveSetDefVector;
 }
 
 //--------------------------------------------------------------------------------------------------

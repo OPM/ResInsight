@@ -87,7 +87,8 @@ private:
     void                                    syncPreviewCurvesFromUiSelection();
     void                                    updatePreviewCurvesFromCurveDefinitions(const std::set<RiaSummaryCurveDefinition>& allCurveDefsToDisplay, 
                                                                                     const std::set<RiaSummaryCurveDefinition>& curveDefsToAdd,
-                                                                                    const std::set<RimSummaryCurve*>& curvesToDelete);
+                                                                                    const std::set<RimSummaryCurve*>& curvesToDelete,
+                                                                                    const std::set<RimEnsembleCurveSet*>& curveSetsToDelete);
     std::set<std::string>                   getAllSummaryCaseNames();
     std::set<std::string>                   getAllSummaryWellNames();
 

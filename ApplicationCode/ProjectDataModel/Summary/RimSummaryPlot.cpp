@@ -403,6 +403,14 @@ RiuSummaryQwtPlot* RimSummaryPlot::qwtPlot() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+std::vector<RimEnsembleCurveSet*> RimSummaryPlot::curveSets() const
+{
+    return ensembleCurveSetCollection()->curveSets();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::updatePlotTitle()
 {
     updateNameHelperWithCurveData(m_nameHelperAllCurves.get());

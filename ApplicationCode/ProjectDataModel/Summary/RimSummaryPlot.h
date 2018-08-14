@@ -112,6 +112,8 @@ public:
     RimSummaryCurveCollection*                      summaryCurveCollection() const;
     RiuSummaryQwtPlot*                              qwtPlot() const;
 
+    std::vector<RimEnsembleCurveSet*>               curveSets() const;
+
     void                                            updatePlotTitle();
 
     const RimSummaryPlotNameHelper*                 activePlotTitleHelperAllCurves() const;

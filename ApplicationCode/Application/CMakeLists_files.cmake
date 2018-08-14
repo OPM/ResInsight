@@ -7,6 +7,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RiaFractureDefines.h
 ${CMAKE_CURRENT_LIST_DIR}/RiaPreferences.h
 ${CMAKE_CURRENT_LIST_DIR}/RiaPorosityModel.h
 ${CMAKE_CURRENT_LIST_DIR}/RiaSummaryCurveDefinition.h
+${CMAKE_CURRENT_LIST_DIR}/RiaCurveSetDefinition.h
 ${CMAKE_CURRENT_LIST_DIR}/RiaRftPltCurveDefinition.h
 ${CMAKE_CURRENT_LIST_DIR}/RiaViewRedrawScheduler.h
 ${CMAKE_CURRENT_LIST_DIR}/RiaMemoryCleanup.h
@@ -21,6 +22,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RiaMain.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiaPreferences.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiaPorosityModel.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiaSummaryCurveDefinition.cpp
+${CMAKE_CURRENT_LIST_DIR}/RiaCurveSetDefinition.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiaRftPltCurveDefinition.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiaViewRedrawScheduler.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiaMemoryCleanup.cpp
