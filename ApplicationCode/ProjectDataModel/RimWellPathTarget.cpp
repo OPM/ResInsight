@@ -2,6 +2,7 @@
 #include "RimModeledWellPath.h"
 
 #include <cmath>
+#include "RimWellPathGeometryDef.h"
 
 CAF_PDM_SOURCE_INIT(RimWellPathTarget, "WellPathTarget");
 
@@ -201,16 +202,46 @@ void RimWellPathTarget::fieldChangedByUi(const caf::PdmFieldHandle* changedField
 //--------------------------------------------------------------------------------------------------
 void RimWellPathTarget::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
-    if (m_targetType == POINT)
+    if (m_isEnabled())
     {
-        m_azimuth.uiCapability()->setUiReadOnly(true);
-        m_inclination.uiCapability()->setUiReadOnly(true);
-        m_dogleg1.uiCapability()->setUiReadOnly(true);
+
+        m_targetType.uiCapability()->setUiReadOnly(false);
+        m_targetPoint.uiCapability()->setUiReadOnly(false);
+        m_dogleg2.uiCapability()->setUiReadOnly(false);
+
+        if ( m_targetType == POINT )
+        {
+            m_azimuth.uiCapability()->setUiReadOnly(true);
+            m_inclination.uiCapability()->setUiReadOnly(true);
+            m_dogleg1.uiCapability()->setUiReadOnly(true);
+        }
+        else
+        {
+            m_azimuth.uiCapability()->setUiReadOnly(false);
+            m_inclination.uiCapability()->setUiReadOnly(false);
+            m_dogleg1.uiCapability()->setUiReadOnly(false);
+        }
+
+        RimWellPathGeometryDef* geomDef = nullptr;
+        firstAncestorOrThisOfTypeAsserted(geomDef);
+
+        if ( this == geomDef->firstActiveTarget() )
+        {
+            m_dogleg1.uiCapability()->setUiReadOnly(true);
+        }
+
+        if ( this == geomDef->lastActiveTarget() )
+        {
+            m_dogleg2.uiCapability()->setUiReadOnly(true);
+        }
     }
     else
     {
-        m_azimuth.uiCapability()->setUiReadOnly(false);
-        m_inclination.uiCapability()->setUiReadOnly(false);
-        m_dogleg1.uiCapability()->setUiReadOnly(false);
+        m_dogleg1.uiCapability()->setUiReadOnly(true);
+        m_targetType.uiCapability()->setUiReadOnly(true);
+        m_targetPoint.uiCapability()->setUiReadOnly(true);
+        m_azimuth.uiCapability()->setUiReadOnly(true);
+        m_inclination.uiCapability()->setUiReadOnly(true);
+        m_dogleg2.uiCapability()->setUiReadOnly(true);
     }
 }

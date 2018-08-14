@@ -49,6 +49,8 @@ public:
     void deleteTarget(RimWellPathTarget* targetTodelete);
     void appendTarget();
 
+    const RimWellPathTarget* firstActiveTarget() const;
+    const RimWellPathTarget* lastActiveTarget() const;
 
     virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
 

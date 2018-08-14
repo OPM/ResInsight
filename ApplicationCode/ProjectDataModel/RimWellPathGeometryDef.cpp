@@ -151,6 +151,38 @@ void RimWellPathGeometryDef::appendTarget()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+const RimWellPathTarget* RimWellPathGeometryDef::firstActiveTarget() const
+{
+    for (const RimWellPathTarget* target: m_wellTargets)
+    {
+        if (target->isEnabled())
+        {
+            return target;
+        }
+    }
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const RimWellPathTarget* RimWellPathGeometryDef::lastActiveTarget() const
+{
+    if (!m_wellTargets.size()) return nullptr;
+
+    for (int tIdx = static_cast<int>(m_wellTargets.size() - 1); tIdx >= 0 ; --tIdx)
+    {
+        if (m_wellTargets[tIdx]->isEnabled())
+        {
+            return m_wellTargets[tIdx];
+        }
+    }
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo> RimWellPathGeometryDef::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, 
                                                                              bool* useOptionsOnly)
 {
