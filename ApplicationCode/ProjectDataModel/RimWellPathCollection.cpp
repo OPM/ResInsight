@@ -451,6 +451,22 @@ bool RimWellPathCollection::anyWellsContainingPerforationIntervals() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+size_t RimWellPathCollection::modelledWellPathCount() const
+{
+    size_t count = 0;
+    for (size_t wellPathIdx = 0; wellPathIdx < wellPaths.size(); wellPathIdx++)
+    {
+        if (dynamic_cast<RimModeledWellPath*>( wellPaths[wellPathIdx]))
+        {
+            count++;
+        }
+    }  
+    return count;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 RimWellPath* RimWellPathCollection::wellPathByName(const QString& wellPathName) const
 {
     for (size_t wellPathIdx = 0; wellPathIdx < wellPaths.size(); wellPathIdx++)

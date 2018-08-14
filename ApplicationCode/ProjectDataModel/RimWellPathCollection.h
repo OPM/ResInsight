@@ -109,7 +109,7 @@ public:
 
     void                                updateFilePathsFromProjectPath(const QString& newProjectPath, const QString& oldProjectPath);
     bool                                anyWellsContainingPerforationIntervals() const;
-
+    size_t                              modelledWellPathCount() const;
 protected:
     virtual void                        fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
