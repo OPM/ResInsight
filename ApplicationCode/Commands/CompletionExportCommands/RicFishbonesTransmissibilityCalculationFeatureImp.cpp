@@ -91,7 +91,7 @@ void RicFishbonesTransmissibilityCalculationFeatureImp::findFishboneLateralsWell
                 wellBorePart.intersectionWithWellMeasuredDepth = location.measuredDepth();
                 wellBorePart.lateralIndex = lateral.lateralIndex();
 
-                wellBorePartsInCells[intersection.gridLocalCellIndex()].push_back(wellBorePart);
+                wellBorePartsInCells[intersection.globalCellIndex()].push_back(wellBorePart);
 
             }
         }

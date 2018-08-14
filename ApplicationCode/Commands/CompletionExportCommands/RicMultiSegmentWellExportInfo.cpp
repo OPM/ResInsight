@@ -18,7 +18,7 @@ RicWellSegmentLateralIntersection::RicWellSegmentLateralIntersection(const QStri
                                                                      double deltaTVD,
                                                                      const cvf::Vec3d& lengthsInCell)
     : m_gridName(gridName)
-    , m_gridLocalCellIndex(gridLocalCellIndex)
+    , m_globalCellIndex(gridLocalCellIndex)
     , m_gridLocalCellIJK(gridLocalCellIJK)
     , m_startMD(startMD)
     , m_deltaMD(deltaMD)
@@ -42,9 +42,9 @@ const QString& RicWellSegmentLateralIntersection::gridName() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-size_t RicWellSegmentLateralIntersection::gridLocalCellIndex() const
+size_t RicWellSegmentLateralIntersection::globalCellIndex() const
 {
-    return m_gridLocalCellIndex;
+    return m_globalCellIndex;
 }
 
 //--------------------------------------------------------------------------------------------------

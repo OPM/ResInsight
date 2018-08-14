@@ -35,7 +35,7 @@ class RicWellSegmentLateralIntersection
 {
 public:
     RicWellSegmentLateralIntersection(const QString& gridName, // Pass in empty string for main grid
-                                      size_t gridLocalCellIndex,
+                                      size_t globalCellIndex,
                                       const cvf::Vec3st& gridLocalCellIJK,
                                       double startMD,
                                       double deltaMD,
@@ -44,7 +44,7 @@ public:
                                       const cvf::Vec3d& lengthsInCell);
 
     const QString&    gridName() const;
-    size_t            gridLocalCellIndex() const;
+    size_t            globalCellIndex() const;
     cvf::Vec3st       gridLocalCellIJK() const;
     double            startMD() const;
     double            deltaMD() const;
@@ -62,7 +62,7 @@ public:
 
 private:
     QString     m_gridName;
-    size_t      m_gridLocalCellIndex;
+    size_t      m_globalCellIndex;
     cvf::Vec3st m_gridLocalCellIJK;
     double      m_startMD;
     double      m_deltaMD;

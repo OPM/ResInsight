@@ -1308,7 +1308,7 @@ void RicWellPathExportCompletionDataFeatureImpl::assignLateralIntersections(cons
             localGrid->ijkFromCellIndex(localGridIdx, &i, &j, &k);
 
             RicWellSegmentLateralIntersection lateralIntersection(gridName,
-                                                                  localGridIdx,
+                                                                  cellIntInfo.globCellIndex,
                                                                   cvf::Vec3st(i, j, k),
                                                                   previousExitMD,
                                                                   cellIntInfo.endMD - previousExitMD,
