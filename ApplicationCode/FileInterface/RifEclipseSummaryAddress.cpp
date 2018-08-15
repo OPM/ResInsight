@@ -32,7 +32,23 @@
 const std::set<std::string> RifEclipseSummaryAddress::KNOWN_MISC_QUANTITIES =
 {
     "CPU",
+    "DATE",
+    "DAY",
+    "ELAPSED",
+    "MLINEARS",
+    "MONTH",
+    "MSUMLINS",
+    "MSUMNEWT",
+    "NEWTON",
+    "STEPTYPE",
+    "TCPU",
+    "TCPUDAY",
+    "TCPUTS",
+    "TELAPLIN",
     "TIME",
+    "TIMESTEP",
+    "TIMESTRY",
+    "YEAR",
     "YEARS"
 };
 
