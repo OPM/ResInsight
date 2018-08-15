@@ -18,7 +18,7 @@ unsmry_loader::unsmry_loader(const ecl_smspec_type * smspec, const std::string& 
   time_seconds(ecl_smspec_get_time_seconds(smspec)),
   sim_start(ecl_smspec_get_start_time(smspec))
 {
-  int options = 0;
+  int options = ECL_FILE_CLOSE_STREAM;
   ecl_file_type * file = ecl_file_open(filename.c_str(), options);
   if (!file)
     throw std::bad_alloc();
