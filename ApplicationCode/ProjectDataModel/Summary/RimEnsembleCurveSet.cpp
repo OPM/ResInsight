@@ -1005,7 +1005,8 @@ void RimEnsembleCurveSet::updateStatisticsCurves(const std::vector<RimSummaryCas
             addresses.push_back(SAddr::ensembleStatisticsAddress(ENSEMBLE_STAT_P50_QUANTITY_NAME, dataAddress.quantityName()));
         if (m_statistics->showP90Curve() && m_ensembleStatCase->hasP90Data())
             addresses.push_back(SAddr::ensembleStatisticsAddress(ENSEMBLE_STAT_P90_QUANTITY_NAME, dataAddress.quantityName()));
-        if (m_statistics->showMeanCurve()) addresses.push_back(SAddr::ensembleStatisticsAddress(ENSEMBLE_STAT_MEAN_QUANTITY_NAME, dataAddress.quantityName()));
+        if (m_statistics->showMeanCurve() && m_ensembleStatCase->hasMeanData())
+            addresses.push_back(SAddr::ensembleStatisticsAddress(ENSEMBLE_STAT_MEAN_QUANTITY_NAME, dataAddress.quantityName()));
     }
 
     deleteStatisticsCurves();
@@ -1164,6 +1165,14 @@ bool RimEnsembleCurveSet::hasP50Data() const
 bool RimEnsembleCurveSet::hasP90Data() const
 {
     return m_ensembleStatCase->hasP90Data();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimEnsembleCurveSet::hasMeanData() const
+{
+    return m_ensembleStatCase->hasMeanData();
 }
 
 //--------------------------------------------------------------------------------------------------

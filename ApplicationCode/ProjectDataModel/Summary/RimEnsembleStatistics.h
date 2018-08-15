@@ -70,6 +70,8 @@ private:
     caf::PdmField<bool>         m_showMeanCurve;
     caf::PdmField<bool>         m_showCurveLabels;
 
+    caf::PdmField<QString>      m_warningLabel;
+
     caf::PdmField<cvf::Color3f> m_color;
 };
 

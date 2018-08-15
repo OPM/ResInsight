@@ -113,6 +113,7 @@ public:
     bool                                    hasP10Data() const;
     bool                                    hasP50Data() const;
     bool                                    hasP90Data() const;
+    bool                                    hasMeanData() const;
 
 private:
     void                                    updateEnsembleCurves(const std::vector<RimSummaryCase*>& sumCases);

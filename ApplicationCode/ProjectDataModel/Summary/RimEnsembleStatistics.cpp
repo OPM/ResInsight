@@ -45,7 +45,12 @@ RimEnsembleStatistics::RimEnsembleStatistics()
     CAF_PDM_InitField(&m_showP90Curve, "ShowP90Curve", true, "P10", "", "", "");    // Yes, P10
     CAF_PDM_InitField(&m_showMeanCurve, "ShowMeanCurve", true, "Mean", "", "", "");
     CAF_PDM_InitField(&m_showCurveLabels, "ShowCurveLabels", true, "Show Curve Labels", "", "", "");
+    CAF_PDM_InitField(&m_warningLabel, "WarningLabel", QString("Warning: Ensemble time range mismatch"), "", "", "", "");
     CAF_PDM_InitField(&m_color, "Color", cvf::Color3f(cvf::Color3::BLACK), "Color", "", "", "");
+
+    m_warningLabel.xmlCapability()->disableIO();
+    m_warningLabel.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
+    m_warningLabel.uiCapability()->setUiReadOnly(true);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -134,6 +139,7 @@ void RimEnsembleStatistics::defineUiOrdering(QString uiConfigName, caf::PdmUiOrd
     uiOrdering.add(&m_color);
 
     auto group = uiOrdering.addNewGroup("Curves");
+    if (!curveSet->hasMeanData()) group->add(&m_warningLabel);
     group->add(&m_showP90Curve);
     group->add(&m_showP50Curve);
     group->add(&m_showMeanCurve);
@@ -142,7 +148,7 @@ void RimEnsembleStatistics::defineUiOrdering(QString uiConfigName, caf::PdmUiOrd
     disableP10Curve(!m_active || !curveSet->hasP10Data());
     disableP50Curve(!m_active || !curveSet->hasP50Data());
     disableP90Curve(!m_active || !curveSet->hasP90Data());
-    disableMeanCurve(!m_active);
+    disableMeanCurve(!m_active || !curveSet->hasMeanData());
     m_showCurveLabels.uiCapability()->setUiReadOnly(!m_active);
     m_color.uiCapability()->setUiReadOnly(!m_active);
 
