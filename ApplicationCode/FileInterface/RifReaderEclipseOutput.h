@@ -72,7 +72,7 @@ public:
 
 private:
     bool                    readActiveCellInfo();
-    void                    buildMetaData();
+    void                    buildMetaData(ecl_grid_type* grid);
     void                    readWellCells(const ecl_grid_type* mainEclGrid, bool importCompleteMswData);
 
     std::string             ertGridName( size_t gridNr );

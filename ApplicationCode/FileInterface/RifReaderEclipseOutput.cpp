@@ -414,7 +414,7 @@ bool RifReaderEclipseOutput::open(const QString& fileName, RigEclipseCaseData* e
     // Build results meta data
     progInfo.setProgressDescription("Reading Result index");
     progInfo.setNextProgressIncrement(25);
-    buildMetaData();
+    buildMetaData(mainEclGrid);
     progInfo.incrementProgress();
 
     if (isNNCsEnabled())
@@ -810,7 +810,7 @@ bool RifReaderEclipseOutput::readActiveCellInfo()
 //--------------------------------------------------------------------------------------------------
 /// Build meta data - get states and results info
 //--------------------------------------------------------------------------------------------------
-void RifReaderEclipseOutput::buildMetaData()
+void RifReaderEclipseOutput::buildMetaData(ecl_grid_type* grid)
 {
     CVF_ASSERT(m_eclipseCase);
     CVF_ASSERT(m_filesWithSameBaseName.size() > 0);
@@ -863,28 +863,45 @@ void RifReaderEclipseOutput::buildMetaData()
                 fractureModelResults->setTimeStepInfos(resIndex, timeStepInfos);
             }
         }
-
-        // Default units type is METRIC
-        RiaEclipseUnitTools::UnitSystem unitsType = RiaEclipseUnitTools::UNITS_METRIC;
-        {
-            int unitsTypeValue = m_dynamicResultsAccess->readUnitsType();
-            if (unitsTypeValue == 2)
-            {
-                unitsType = RiaEclipseUnitTools::UNITS_FIELD;
-            }
-            else if (unitsTypeValue == 3)
-            {
-                unitsType = RiaEclipseUnitTools::UNITS_LAB;
-            }
-        }
-
-        m_eclipseCase->setUnitsType(unitsType);
     }
 
     progInfo.incrementProgress();
 
     openInitFile();
-    
+
+    // Unit system
+    {
+        // Default units type is METRIC
+        RiaEclipseUnitTools::UnitSystem unitsType = RiaEclipseUnitTools::UNITS_METRIC;
+        int unitsTypeValue;
+
+        if (m_dynamicResultsAccess.notNull())
+        {
+            unitsTypeValue = m_dynamicResultsAccess->readUnitsType();
+        }
+        else
+        {
+            if (m_ecl_init_file)
+            {
+                unitsTypeValue = RifEclipseOutputFileTools::readUnitsType(m_ecl_init_file);
+            }
+            else
+            {
+                unitsTypeValue = ecl_grid_get_unit_system(grid);
+            }
+        }
+
+        if (unitsTypeValue == 2)
+        {
+            unitsType = RiaEclipseUnitTools::UNITS_FIELD;
+        }
+        else if (unitsTypeValue == 3)
+        {
+            unitsType = RiaEclipseUnitTools::UNITS_LAB;
+        }
+        m_eclipseCase->setUnitsType(unitsType);
+    }
+
     progInfo.incrementProgress();
 
     if (m_ecl_init_file)
