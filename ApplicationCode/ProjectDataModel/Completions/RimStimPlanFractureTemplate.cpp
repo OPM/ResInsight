@@ -21,6 +21,7 @@
 #include "RiaApplication.h"
 #include "RiaFractureDefines.h"
 #include "RiaLogging.h"
+#include "RiaWeightedAverageCalculator.h"
 
 #include "RifStimPlanXmlReader.h"
 
@@ -457,51 +458,53 @@ FractureWidthAndConductivity
 
             if (rimWellPath && rimWellPath->wellPathGeometry())
             {
-                RigWellPathStimplanIntersector intersector(rimWellPath->wellPathGeometry(), fractureInstance);
-
-                double totalLength = 0.0;
-                for (const auto& v : intersector.intersections())
-                {
-                    totalLength += v.second.computeLength();
-                }
-
-                std::vector<double> widthResultValues;
-                {
-                    auto nameUnit     = widthParameterNameAndUnit();
-                    widthResultValues = fractureGridResultsForUnitSystem(
-                        nameUnit.first, nameUnit.second, m_activeTimeStepIndex, fractureTemplateUnit());
-                }
-
-                std::vector<double> conductivityResultValues;
-                {
-                    auto nameUnit            = conductivityParameterNameAndUnit();
-                    conductivityResultValues = fractureGridResultsForUnitSystem(
-                        nameUnit.first, nameUnit.second, m_activeTimeStepIndex, fractureTemplateUnit());
-                }
-
+                double totalLength          = 0.0;
                 double weightedConductivity = 0.0;
                 double weightedWidth        = 0.0;
 
-                for (const auto& v : intersector.intersections())
                 {
-                    size_t fractureGlobalCellIndex = v.first;
-
-                    if (fractureGlobalCellIndex < widthResultValues.size())
+                    std::vector<double> widthResultValues;
                     {
-                        weightedWidth += widthResultValues[fractureGlobalCellIndex] * v.second.computeLength();
+                        auto nameUnit     = widthParameterNameAndUnit();
+                        widthResultValues = fractureGridResultsForUnitSystem(
+                            nameUnit.first, nameUnit.second, m_activeTimeStepIndex, fractureTemplateUnit());
                     }
 
-                    if (fractureGlobalCellIndex < conductivityResultValues.size())
+                    std::vector<double> conductivityResultValues;
                     {
-                        weightedConductivity += conductivityResultValues[fractureGlobalCellIndex] * v.second.computeLength();
+                        auto nameUnit            = conductivityParameterNameAndUnit();
+                        conductivityResultValues = fractureGridResultsForUnitSystem(
+                            nameUnit.first, nameUnit.second, m_activeTimeStepIndex, fractureTemplateUnit());
                     }
+
+                    RiaWeightedAverageCalculator widthCalc;
+                    RiaWeightedAverageCalculator conductivityCalc;
+
+                    RigWellPathStimplanIntersector intersector(rimWellPath->wellPathGeometry(), fractureInstance);
+                    for (const auto& v : intersector.intersections())
+                    {
+                        size_t fractureGlobalCellIndex = v.first;
+                        double intersectionLength      = v.second.computeLength();
+
+                        if (fractureGlobalCellIndex < widthResultValues.size())
+                        {
+                            widthCalc.addValueAndWeight(widthResultValues[fractureGlobalCellIndex], intersectionLength);
+                        }
+
+                        if (fractureGlobalCellIndex < conductivityResultValues.size())
+                        {
+                            conductivityCalc.addValueAndWeight(conductivityResultValues[fractureGlobalCellIndex],
+                                                               intersectionLength);
+                        }
+                    }
+
+                    weightedConductivity = conductivityCalc.weightedAverage();
+                    weightedWidth        = widthCalc.weightedAverage();
+                    totalLength          = widthCalc.aggregatedWeight();
                 }
 
                 if (totalLength > 1e-7)
                 {
-                    weightedWidth /= totalLength;
-                    weightedConductivity /= totalLength;
-
                     values.m_width        = weightedWidth;
                     values.m_conductivity = weightedConductivity;
                 }

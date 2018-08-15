@@ -18,6 +18,8 @@
 
 #include "RiaWeightedAverageCalculator.h"
 
+#include "cvfAssert.h"
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -32,6 +34,8 @@ RiaWeightedAverageCalculator::RiaWeightedAverageCalculator()
 //--------------------------------------------------------------------------------------------------
 void RiaWeightedAverageCalculator::addValueAndWeight(double value, double weight)
 {
+    CVF_ASSERT(weight >= 0.0);
+
     m_aggregatedValue += value * weight;
     m_aggregatedWeight += weight;
 }
