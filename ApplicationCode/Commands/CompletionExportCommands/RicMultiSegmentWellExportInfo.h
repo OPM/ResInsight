@@ -19,8 +19,10 @@
 #pragma once
 
 #include "RiaEclipseUnitTools.h"
+#include "RigCompletionData.h"
 
 #include "cvfBase.h"
+#include "cvfMath.h"
 #include "cvfVector3.h"
 
 #include <QString>
@@ -31,69 +33,84 @@ class RimFishbonesMultipleSubs;
 //==================================================================================================
 /// 
 //==================================================================================================
-class RicWellSegmentLateralIntersection
+class RicWellSegmentSubSegmentIntersection
 {
 public:
-    RicWellSegmentLateralIntersection(const QString& gridName, // Pass in empty string for main grid
-                                      size_t globalCellIndex,
-                                      const cvf::Vec3st& gridLocalCellIJK,
-                                      double startMD,
-                                      double deltaMD,
-                                      double startTVD,
-                                      double deltaTVD,
-                                      const cvf::Vec3d& lengthsInCell);
-
+    RicWellSegmentSubSegmentIntersection(const QString& gridName, // Pass in empty string for main grid
+                                         size_t globalCellIndex,
+                                         const cvf::Vec3st& gridLocalCellIJK,
+                                         const cvf::Vec3d& lengthsInCell);
     const QString&    gridName() const;
     size_t            globalCellIndex() const;
     cvf::Vec3st       gridLocalCellIJK() const;
-    double            startMD() const;
-    double            deltaMD() const;
-    double            startTVD() const;
-    double            deltaTVD() const;
     const cvf::Vec3d& lengthsInCell() const;
-
-    int               segmentNumber() const;
-    int               attachedSegmentNumber() const;
-    bool              isMainBoreCell() const;
-
-    void              setSegmentNumber(int segmentNumber);
-    void              setAttachedSegmentNumber(int attachedSegmentNumber);
-    void              setIsMainBoreCell(bool isMainBoreCell);
-
 private:
     QString     m_gridName;
     size_t      m_globalCellIndex;
     cvf::Vec3st m_gridLocalCellIJK;
-    double      m_startMD;
-    double      m_deltaMD;
-    double      m_startTVD;
-    double      m_deltaTVD;
     cvf::Vec3d  m_lengthsInCell;
-    int         m_segmentNumber;
-    int         m_attachedSegmentNumber;
-    bool        m_mainBoreCell;
 };
 
 //==================================================================================================
 /// 
 //==================================================================================================
-class RicWellSegmentLateral
+class RicWellSegmentSubSegment
 {
 public:
-    RicWellSegmentLateral(size_t lateralIndex, int branchNumber = 0);
+    RicWellSegmentSubSegment(double startMD,
+                             double deltaMD,
+                             double startTVD,
+                             double deltaTVD);
 
-    size_t                                                lateralIndex() const;
-    int                                                   branchNumber() const;
-    void                                                  setBranchNumber(int branchNumber);
+    double            startMD() const;
+    double            deltaMD() const;
+    double            startTVD() const;
+    double            deltaTVD() const;
 
-    void                                                  addIntersection(const RicWellSegmentLateralIntersection& intersection);
-    std::vector<RicWellSegmentLateralIntersection>&       intersections();
-    const std::vector<RicWellSegmentLateralIntersection>& intersections() const;
+    int               segmentNumber() const;
+    int               attachedSegmentNumber() const;
+
+    void              setSegmentNumber(int segmentNumber);
+    void              setAttachedSegmentNumber(int attachedSegmentNumber);
+    void              addIntersection(const RicWellSegmentSubSegmentIntersection& intersection);
+
+    const std::vector<RicWellSegmentSubSegmentIntersection>& intersections() const;
+    std::vector<RicWellSegmentSubSegmentIntersection>&       intersections();
+    
+
+private:
+    double      m_startMD;
+    double      m_deltaMD;
+    double      m_startTVD;
+    double      m_deltaTVD;
+    int         m_segmentNumber;
+    int         m_attachedSegmentNumber;
+
+    std::vector<RicWellSegmentSubSegmentIntersection> m_intersections;
+};
+
+//==================================================================================================
+/// 
+//==================================================================================================
+class RicWellSegmentCompletion
+{
+public:
+    RicWellSegmentCompletion(RigCompletionData::CompletionType completionType, size_t index = cvf::UNDEFINED_SIZE_T, int branchNumber = cvf::UNDEFINED_INT);
+
+    RigCompletionData::CompletionType              completionType() const;
+    size_t                                         index() const;
+    int                                            branchNumber() const;
+    void                                           setBranchNumber(int branchNumber);
+
+    void                                           addSubSegment(const RicWellSegmentSubSegment& subSegment);
+    std::vector<RicWellSegmentSubSegment>&         subSegments();
+    const std::vector<RicWellSegmentSubSegment>&   subSegments() const;
     
 private:
-    size_t                                         m_lateralIndex;
-    int                                            m_branchNumber;
-    std::vector<RicWellSegmentLateralIntersection> m_intersections;
+    RigCompletionData::CompletionType      m_completionType;
+    size_t                                 m_index;
+    int                                    m_branchNumber;
+    std::vector<RicWellSegmentSubSegment>  m_subSegments;
 };
 
 //==================================================================================================
@@ -105,7 +122,7 @@ public:
     RicWellSegmentLocation(const QString& label,
                            double measuredDepth,
                            double trueVerticalDepth,
-                           size_t subIndex,
+                           size_t subIndex = cvf::UNDEFINED_SIZE_T,
                            int segmentNumber = -1);
 
     QString label() const;
@@ -120,11 +137,9 @@ public:
     
     size_t  subIndex() const;
     int     segmentNumber() const;
-    int     icdBranchNumber() const;
-    int     icdSegmentNumber() const;
 
-    const std::vector<RicWellSegmentLateral>& laterals() const;
-    std::vector<RicWellSegmentLateral>&       laterals();
+    const std::vector<RicWellSegmentCompletion>& completions() const;
+    std::vector<RicWellSegmentCompletion>&       completions();
 
     void setEffectiveDiameter(double effectiveDiameter);
     void setHoleDiameter(double holeDiameter);
@@ -133,9 +148,7 @@ public:
     void setIcdFlowCoefficient(double icdFlowCoefficient);
     void setIcdArea(double icdArea);
     void setSegmentNumber(int segmentNumber);
-    void setIcdBranchNumber(int icdBranchNumber);
-    void setIcdSegmentNumber(int icdSegmentNumber);    
-    void addLateral(const RicWellSegmentLateral& lateral);
+    void addCompletion(const RicWellSegmentCompletion& completion);
 
     bool operator<(const RicWellSegmentLocation& rhs) const;
     
@@ -153,10 +166,8 @@ private:
 
     size_t                          m_subIndex;
     int                             m_segmentNumber;
-    int                             m_icdBranchNumber;
-    int                             m_icdSegmentNumber;
 
-    std::vector<RicWellSegmentLateral> m_laterals;
+    std::vector<RicWellSegmentCompletion> m_completions;
 };
 
 class RicMultiSegmentWellExportInfo

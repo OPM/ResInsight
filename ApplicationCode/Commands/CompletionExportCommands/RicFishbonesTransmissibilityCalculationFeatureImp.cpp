@@ -76,23 +76,25 @@ void RicFishbonesTransmissibilityCalculationFeatureImp::findFishboneLateralsWell
 
     for (const RicWellSegmentLocation& location : exportInfo.wellSegmentLocations())
     {
-        for (const RicWellSegmentLateral& lateral : location.laterals())
+        for (const RicWellSegmentCompletion& lateral : location.completions())
         {
-            for (const RicWellSegmentLateralIntersection& intersection : lateral.intersections())
+            for (const RicWellSegmentSubSegment& segment : lateral.subSegments())
             {
-                double diameter = location.holeDiameter();
-                QString completionMetaData = (location.label() + QString(": Sub: %1 Lateral: %2").arg(location.subIndex()).arg(lateral.lateralIndex()));
-                WellBorePartForTransCalc wellBorePart = WellBorePartForTransCalc(intersection.lengthsInCell(), 
-                                                                                 diameter / 2, 
-                                                                                 location.skinFactor(),
-                                                                                 isMainBore,
-                                                                                 completionMetaData);
+                for (const RicWellSegmentSubSegmentIntersection& intersection : segment.intersections())
+                {
+                    double diameter = location.holeDiameter();
+                    QString completionMetaData = (location.label() + QString(": Sub: %1 Lateral: %2").arg(location.subIndex()).arg(lateral.index()));
+                    WellBorePartForTransCalc wellBorePart = WellBorePartForTransCalc(intersection.lengthsInCell(), 
+                                                                                     diameter / 2, 
+                                                                                     location.skinFactor(),
+                                                                                     isMainBore,
+                                                                                     completionMetaData);
 
-                wellBorePart.intersectionWithWellMeasuredDepth = location.measuredDepth();
-                wellBorePart.lateralIndex = lateral.lateralIndex();
+                    wellBorePart.intersectionWithWellMeasuredDepth = location.measuredDepth();
+                    wellBorePart.lateralIndex = lateral.index();
 
-                wellBorePartsInCells[intersection.globalCellIndex()].push_back(wellBorePart);
-
+                    wellBorePartsInCells[intersection.globalCellIndex()].push_back(wellBorePart);
+                }
             }
         }
     }

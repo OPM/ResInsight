@@ -22,29 +22,27 @@
 
 #include "cafCmdFeature.h"
 
-class RimFishbonesCollection;
-class RimFishbonesMultipleSubs;
 class RimWellPath;
-
-
+class RimWellPathFracture;
+class RimWellPathFractureCollection;
 
 //==================================================================================================
 /// 
 //==================================================================================================
-class RicExportFishbonesWellSegmentsFeature : public caf::CmdFeature
+class RicExportFracturesWellSegmentsFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
+
+public:
+    static void  exportWellSegments(const RimWellPath* wellPath, const std::vector<RimWellPathFracture*>& fractures, const RicCaseAndFileExportSettingsUi& settings);
 
 protected:
     virtual void onActionTriggered(bool isChecked) override;
     virtual void setupActionLook(QAction* actionToSetup) override;
     virtual bool isCommandEnabled() override;
 
-public:
-    static void                                  exportWellSegments(const RimWellPath* wellPath, const std::vector<RimFishbonesMultipleSubs*>& fishbonesSubs, const RicCaseAndFileExportSettingsUi& settings);
-
-private:
-    static RimFishbonesCollection*               selectedFishbonesCollection();
-    static RimWellPath*                          selectedWellPath();
+    static RimWellPath*                   selectedWellPath();
+    static RimWellPathFracture*           selectedWellPathFracture();
+    static RimWellPathFractureCollection* selectedWellPathFractureCollection();
     
 };

@@ -47,7 +47,6 @@ public:
                                                                           const RimSimWellInView* well,
                                                                           QTextStream* outputStreamForIntermediateResultsText);
 
-private:
     static std::vector<RigCompletionData> generateCompdatValues(RimEclipseCase*                             caseToApply,
                                                                 const QString&                              wellPathName,
                                                                 const RigWellPath*                          wellPathGeometry,
