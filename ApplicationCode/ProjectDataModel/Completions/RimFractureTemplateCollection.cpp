@@ -131,7 +131,7 @@ void RimFractureTemplateCollection::setDefaultUnitSystemBasedOnLoadedCases()
     for (const auto& c : rimCases)
     {
         auto eclipseCase = dynamic_cast<RimEclipseCase*>(c);
-        if (eclipseCase)
+        if (eclipseCase && eclipseCase->eclipseCaseData())
         {
             if (commonUnitSystemForAllCases == RiaEclipseUnitTools::UNITS_UNKNOWN)
             {
