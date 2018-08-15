@@ -47,6 +47,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RiaTimeHistoryCurveTools-Test.cpp
 ${CMAKE_CURRENT_LIST_DIR}/SolveSpaceSolver-Test.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiaPolyArcLineSampler-Test.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RifEclipseDataTableFormatter-Test.cpp
+${CMAKE_CURRENT_LIST_DIR}/RiaWeightedAverage-Test.cpp
 )
 
 list(APPEND CODE_HEADER_FILES
