@@ -6,35 +6,26 @@
 #include <algorithm>
 #include <limits>
 
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicWellSegmentLateralIntersection::RicWellSegmentLateralIntersection(const QString& gridName, 
-                                                                     size_t globalCellIndex,
-                                                                     const cvf::Vec3st& gridLocalCellIJK,
-                                                                     double startMD,
-                                                                     double deltaMD,
-                                                                     double startTVD,
-                                                                     double deltaTVD,
-                                                                     const cvf::Vec3d& lengthsInCell)
+RicWellSegmentSubSegmentIntersection::RicWellSegmentSubSegmentIntersection(const QString& gridName, 
+                                                                                         size_t globalCellIndex,
+                                                                                         const cvf::Vec3st& gridLocalCellIJK,
+                                                                                         const cvf::Vec3d& lengthsInCell)
     : m_gridName(gridName)
     , m_globalCellIndex(globalCellIndex)
     , m_gridLocalCellIJK(gridLocalCellIJK)
-    , m_startMD(startMD)
-    , m_deltaMD(deltaMD)
-    , m_startTVD(startTVD)
-    , m_deltaTVD(deltaTVD)
     , m_lengthsInCell(lengthsInCell)
-    , m_segmentNumber(std::numeric_limits<int>::infinity())
-    , m_attachedSegmentNumber(std::numeric_limits<int>::infinity())
-    , m_mainBoreCell(false)
 {
+
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const QString& RicWellSegmentLateralIntersection::gridName() const
+const QString& RicWellSegmentSubSegmentIntersection::gridName() const
 {
     return m_gridName;
 }
@@ -42,7 +33,7 @@ const QString& RicWellSegmentLateralIntersection::gridName() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-size_t RicWellSegmentLateralIntersection::globalCellIndex() const
+size_t RicWellSegmentSubSegmentIntersection::globalCellIndex() const
 {
     return m_globalCellIndex;
 }
@@ -50,7 +41,7 @@ size_t RicWellSegmentLateralIntersection::globalCellIndex() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::Vec3st RicWellSegmentLateralIntersection::gridLocalCellIJK() const
+cvf::Vec3st RicWellSegmentSubSegmentIntersection::gridLocalCellIJK() const
 {
     return m_gridLocalCellIJK;
 }
@@ -58,39 +49,7 @@ cvf::Vec3st RicWellSegmentLateralIntersection::gridLocalCellIJK() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RicWellSegmentLateralIntersection::startMD() const
-{
-    return m_startMD;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-double RicWellSegmentLateralIntersection::deltaMD() const
-{
-    return m_deltaMD;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-double RicWellSegmentLateralIntersection::startTVD() const
-{
-    return m_startTVD;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-double RicWellSegmentLateralIntersection::deltaTVD() const
-{
-    return m_deltaTVD;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-const cvf::Vec3d& RicWellSegmentLateralIntersection::lengthsInCell() const
+const cvf::Vec3d& RicWellSegmentSubSegmentIntersection::lengthsInCell() const
 {
     return m_lengthsInCell;
 }
@@ -98,7 +57,55 @@ const cvf::Vec3d& RicWellSegmentLateralIntersection::lengthsInCell() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int RicWellSegmentLateralIntersection::segmentNumber() const
+RicWellSegmentSubSegment::RicWellSegmentSubSegment(double startMD,
+                                                                 double deltaMD,
+                                                                 double startTVD,
+                                                                 double deltaTVD)
+    : m_startMD(startMD)
+    , m_deltaMD(deltaMD)
+    , m_startTVD(startTVD)
+    , m_deltaTVD(deltaTVD)
+    , m_segmentNumber(-1)
+    , m_attachedSegmentNumber(-1)
+{
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RicWellSegmentSubSegment::startMD() const
+{
+    return m_startMD;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RicWellSegmentSubSegment::deltaMD() const
+{
+    return m_deltaMD;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RicWellSegmentSubSegment::startTVD() const
+{
+    return m_startTVD;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RicWellSegmentSubSegment::deltaTVD() const
+{
+    return m_deltaTVD;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RicWellSegmentSubSegment::segmentNumber() const
 {
     return m_segmentNumber;
 }
@@ -106,7 +113,7 @@ int RicWellSegmentLateralIntersection::segmentNumber() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int RicWellSegmentLateralIntersection::attachedSegmentNumber() const
+int RicWellSegmentSubSegment::attachedSegmentNumber() const
 {
     return m_attachedSegmentNumber;
 }
@@ -114,15 +121,7 @@ int RicWellSegmentLateralIntersection::attachedSegmentNumber() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicWellSegmentLateralIntersection::isMainBoreCell() const
-{
-    return m_mainBoreCell;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RicWellSegmentLateralIntersection::setSegmentNumber(int segmentNumber)
+void RicWellSegmentSubSegment::setSegmentNumber(int segmentNumber)
 {
     m_segmentNumber = segmentNumber;
 }
@@ -130,7 +129,7 @@ void RicWellSegmentLateralIntersection::setSegmentNumber(int segmentNumber)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicWellSegmentLateralIntersection::setAttachedSegmentNumber(int attachedSegmentNumber)
+void RicWellSegmentSubSegment::setAttachedSegmentNumber(int attachedSegmentNumber)
 {
     m_attachedSegmentNumber = attachedSegmentNumber;
 }
@@ -138,48 +137,7 @@ void RicWellSegmentLateralIntersection::setAttachedSegmentNumber(int attachedSeg
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicWellSegmentLateralIntersection::setIsMainBoreCell(bool isMainBoreCell)
-{
-    m_mainBoreCell = isMainBoreCell;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RicWellSegmentLateral::RicWellSegmentLateral(size_t lateralIndex, int branchNumber /*= 0*/)
-    : m_lateralIndex(lateralIndex)
-    , m_branchNumber(branchNumber)
-{
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-size_t RicWellSegmentLateral::lateralIndex() const
-{
-    return m_lateralIndex;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-int RicWellSegmentLateral::branchNumber() const
-{
-    return m_branchNumber;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RicWellSegmentLateral::setBranchNumber(int branchNumber)
-{
-    m_branchNumber = branchNumber;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RicWellSegmentLateral::addIntersection(const RicWellSegmentLateralIntersection& intersection)
+void RicWellSegmentSubSegment::addIntersection(const RicWellSegmentSubSegmentIntersection& intersection)
 {
     m_intersections.push_back(intersection);
 }
@@ -187,7 +145,7 @@ void RicWellSegmentLateral::addIntersection(const RicWellSegmentLateralIntersect
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RicWellSegmentLateralIntersection>& RicWellSegmentLateral::intersections()
+const std::vector<RicWellSegmentSubSegmentIntersection>& RicWellSegmentSubSegment::intersections() const
 {
     return m_intersections;
 }
@@ -195,9 +153,77 @@ std::vector<RicWellSegmentLateralIntersection>& RicWellSegmentLateral::intersect
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::vector<RicWellSegmentLateralIntersection>& RicWellSegmentLateral::intersections() const
+std::vector<RicWellSegmentSubSegmentIntersection>& RicWellSegmentSubSegment::intersections()
 {
     return m_intersections;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RicWellSegmentCompletion::RicWellSegmentCompletion(RigCompletionData::CompletionType completionType,
+                                                   size_t                            index /* = cvf::UNDEFINED_SIZE_T */,
+                                                   int                               branchNumber /*= 0*/)
+    : m_completionType(completionType)
+    , m_index(index)
+    , m_branchNumber(branchNumber)
+{
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RigCompletionData::CompletionType RicWellSegmentCompletion::completionType() const
+{
+    return m_completionType;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+size_t RicWellSegmentCompletion::index() const
+{
+    return m_index;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RicWellSegmentCompletion::branchNumber() const
+{
+    return m_branchNumber;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicWellSegmentCompletion::setBranchNumber(int branchNumber)
+{
+    m_branchNumber = branchNumber;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicWellSegmentCompletion::addSubSegment(const RicWellSegmentSubSegment& subSegment)
+{
+    m_subSegments.push_back(subSegment);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RicWellSegmentSubSegment>& RicWellSegmentCompletion::subSegments()
+{
+    return m_subSegments;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const std::vector<RicWellSegmentSubSegment>& RicWellSegmentCompletion::subSegments() const
+{
+    return m_subSegments;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -219,8 +245,6 @@ RicWellSegmentLocation::RicWellSegmentLocation(const QString& label,
     , m_icdArea(RicMultiSegmentWellExportInfo::defaultDoubleValue())
     , m_subIndex(subIndex)
     , m_segmentNumber(segmentNumber)
-    , m_icdBranchNumber(-1)
-    , m_icdSegmentNumber(-1)
 {
 }
 
@@ -315,33 +339,17 @@ int RicWellSegmentLocation::segmentNumber() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int RicWellSegmentLocation::icdBranchNumber() const
+const std::vector<RicWellSegmentCompletion>& RicWellSegmentLocation::completions() const
 {
-    return m_icdBranchNumber;
+    return m_completions;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int RicWellSegmentLocation::icdSegmentNumber() const
+std::vector<RicWellSegmentCompletion>& RicWellSegmentLocation::completions()
 {
-    return m_icdSegmentNumber;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-const std::vector<RicWellSegmentLateral>& RicWellSegmentLocation::laterals() const
-{
-    return m_laterals;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::vector<RicWellSegmentLateral>& RicWellSegmentLocation::laterals()
-{
-    return m_laterals;
+    return m_completions;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -403,25 +411,9 @@ void RicWellSegmentLocation::setSegmentNumber(int segmentNumber)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicWellSegmentLocation::setIcdBranchNumber(int icdBranchNumber)
+void RicWellSegmentLocation::addCompletion(const RicWellSegmentCompletion& completion)
 {
-    m_icdBranchNumber = icdBranchNumber;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RicWellSegmentLocation::setIcdSegmentNumber(int icdSegmentNumber)
-{
-    m_icdSegmentNumber = icdSegmentNumber;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RicWellSegmentLocation::addLateral(const RicWellSegmentLateral& lateral)
-{
-    m_laterals.push_back(lateral);
+    m_completions.push_back(completion);
 }
 
 //--------------------------------------------------------------------------------------------------

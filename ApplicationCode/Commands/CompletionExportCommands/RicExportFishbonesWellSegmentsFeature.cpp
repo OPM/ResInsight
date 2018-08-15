@@ -21,7 +21,11 @@
 #include "RiaApplication.h"
 #include "RiaLogging.h"
 
+#include "RifEclipseDataTableFormatter.h"
+
 #include "RicExportFeatureImpl.h"
+#include "RicMultiSegmentWellExportInfo.h"
+#include "RicWellPathExportCompletionDataFeatureImpl.h"
 
 #include "RimProject.h"
 #include "RimFishboneWellPathCollection.h"

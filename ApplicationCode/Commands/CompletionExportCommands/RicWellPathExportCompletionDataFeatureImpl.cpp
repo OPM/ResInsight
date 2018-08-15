@@ -43,12 +43,15 @@
 
 #include "RimFishbonesCollection.h"
 #include "RimFishbonesMultipleSubs.h"
+#include "RimFractureTemplate.h"
 #include "RimPerforationCollection.h"
 #include "RimPerforationInterval.h"
 #include "RimSimWellInView.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 #include "RimWellPathCompletions.h"
+#include "RimWellPathFracture.h"
+#include "RimWellPathFractureCollection.h"
 
 #include "RiuMainWindow.h"
 
@@ -463,8 +466,12 @@ void RicWellPathExportCompletionDataFeatureImpl::generateWelsegsTable(RifEclipse
                 depth += location.trueVerticalDepth() - previousTVD;
                 length += location.measuredDepth() - previousMD;
             }
-
-            formatter.comment(QString("Segment for sub %1").arg(location.subIndex()));
+            QString comment = QString("Segment for %1").arg(location.label());
+            if (location.subIndex() != cvf::UNDEFINED_SIZE_T)
+            {
+                comment += QString(", sub %1").arg(location.subIndex());
+            }
+            formatter.comment(comment);
             formatter.add(location.segmentNumber()).add(location.segmentNumber());
             formatter.add(1); // All segments on main stem are branch 1
             formatter.add(location.segmentNumber() - 1); // All main stem segments are connected to the segment below them
@@ -485,48 +492,64 @@ void RicWellPathExportCompletionDataFeatureImpl::generateWelsegsTable(RifEclipse
         formatter.comment("Rough: MSW - Open Hole Roughness Factor");
         for (const RicWellSegmentLocation& location : exportInfo.wellSegmentLocations())
         {
-            formatter.comment("ICD");
-            formatter.add(location.icdSegmentNumber()).add(location.icdSegmentNumber());
-            formatter.add(location.icdBranchNumber());
-            formatter.add(location.segmentNumber());
-            formatter.add(0.1); // ICDs have 0.1 length
-            formatter.add(0); // Depth change
-            formatter.add(exportInfo.linerDiameter());
-            formatter.add(exportInfo.roughnessFactor());
-            formatter.rowCompleted();
-
-            for (const RicWellSegmentLateral& lateral : location.laterals())
+            if (location.completions().empty())
             {
-                formatter.comment(QString("%1 : Sub index %2 - Lateral %3")
-                                      .arg(location.label())
-                                      .arg(location.subIndex())
-                                      .arg(lateral.lateralIndex()));
+                continue;
+            }                           
 
-                for (const RicWellSegmentLateralIntersection& intersection : lateral.intersections())
+            for (const RicWellSegmentCompletion& lateral : location.completions())
+            {
+                if (lateral.completionType() == RigCompletionData::ICD) // Found ICD
                 {
-                    double depth = 0;
-                    double length = 0;
-
-                    if (exportInfo.lengthAndDepthText() == QString("INC"))
-                    {
-                        depth  = intersection.deltaTVD();
-                        length = intersection.deltaMD();
-                    }
-                    else
-                    {
-                        depth  = intersection.startTVD() + intersection.deltaTVD();
-                        length = intersection.startMD()  + intersection.deltaMD();
-                    }
-                    double diameter = location.effectiveDiameter();
-                    formatter.add(intersection.segmentNumber());
-                    formatter.add(intersection.segmentNumber());
+                    formatter.comment("ICD");
+                    formatter.add(lateral.subSegments().front().segmentNumber());
+                    formatter.add(lateral.subSegments().front().segmentNumber());
                     formatter.add(lateral.branchNumber());
-                    formatter.add(intersection.attachedSegmentNumber());
-                    formatter.add(length);
-                    formatter.add(depth);
-                    formatter.add(diameter);
-                    formatter.add(location.openHoleRoughnessFactor());
+                    formatter.add(location.segmentNumber());
+                    formatter.add(0.1); // ICDs have 0.1 length
+                    formatter.add(0); // Depth change
+                    formatter.add(exportInfo.linerDiameter());
+                    formatter.add(exportInfo.roughnessFactor());
                     formatter.rowCompleted();
+                }
+                else {
+                    if (lateral.completionType() == RigCompletionData::FISHBONES)
+                    {
+                        formatter.comment(QString("%1 : Sub index %2 - Lateral %3")
+                                              .arg(location.label())
+                                              .arg(location.subIndex())
+                                              .arg(lateral.index()));
+                    }
+                    else if (lateral.completionType() == RigCompletionData::FRACTURE)
+                    {
+                        formatter.comment(QString("%1").arg(location.label()));
+                    }
+                    for (const RicWellSegmentSubSegment& subSegment : lateral.subSegments())
+                    {
+                        double depth = 0;
+                        double length = 0;
+
+                        if (exportInfo.lengthAndDepthText() == QString("INC"))
+                        {
+                            depth = subSegment.deltaTVD();
+                            length = subSegment.deltaMD();
+                        }
+                        else
+                        {
+                            depth = subSegment.startTVD() + subSegment.deltaTVD();
+                            length = subSegment.startMD() + subSegment.deltaMD();
+                        }
+                        double diameter = location.effectiveDiameter();
+                        formatter.add(subSegment.segmentNumber());
+                        formatter.add(subSegment.segmentNumber());
+                        formatter.add(lateral.branchNumber());
+                        formatter.add(subSegment.attachedSegmentNumber());
+                        formatter.add(length);
+                        formatter.add(depth);
+                        formatter.add(diameter);
+                        formatter.add(location.openHoleRoughnessFactor());
+                        formatter.rowCompleted();
+                    }
                 }
             }
         }
@@ -592,26 +615,36 @@ void RicWellPathExportCompletionDataFeatureImpl::generateCompsegTable(RifEclipse
 
     for (const RicWellSegmentLocation& location : exportInfo.wellSegmentLocations())
     {
-        for (const RicWellSegmentLateral& lateral : location.laterals())
+        for (const RicWellSegmentCompletion& completion : location.completions())
         {
             double aggregatedLength = 0;
-            for (const RicWellSegmentLateralIntersection& intersection : lateral.intersections())
+            if (completion.completionType() == RigCompletionData::FRACTURE)
             {
-                bool isSubGridIntersection = !intersection.gridName().isEmpty();
-                if (isSubGridIntersection == exportSubGridIntersections)
+                aggregatedLength = location.measuredDepth();
+            }
+            for (const RicWellSegmentSubSegment& segment : completion.subSegments())
+            {
+                for (const RicWellSegmentSubSegmentIntersection& intersection : segment.intersections())
                 {
-                    if (exportSubGridIntersections)
+                    bool isSubGridIntersection = !intersection.gridName().isEmpty();
+                    if (isSubGridIntersection == exportSubGridIntersections)
                     {
-                        formatter.add(intersection.gridName());
+                        if (exportSubGridIntersections)
+                        {
+                            formatter.add(intersection.gridName());
+                        }
+                        cvf::Vec3st ijk = intersection.gridLocalCellIJK();
+                        formatter.addZeroBasedCellIndex(ijk.x()).addZeroBasedCellIndex(ijk.y()).addZeroBasedCellIndex(ijk.z());
+                        formatter.add(completion.branchNumber());
+                        formatter.add(aggregatedLength);
+                        formatter.add(aggregatedLength + segment.deltaMD());
+                        formatter.rowCompleted();
                     }
-                    cvf::Vec3st ijk = intersection.gridLocalCellIJK();
-                    formatter.addZeroBasedCellIndex(ijk.x()).addZeroBasedCellIndex(ijk.y()).addZeroBasedCellIndex(ijk.z());
-                    formatter.add(lateral.branchNumber());
-                    formatter.add(aggregatedLength);
-                    formatter.add(aggregatedLength + intersection.deltaMD());
-                    formatter.rowCompleted();
+                    if (completion.completionType() == RigCompletionData::FISHBONES)
+                    {
+                        aggregatedLength += segment.deltaMD();
+                    }
                 }
-                aggregatedLength += intersection.deltaMD();
             }
         }
     }
@@ -637,11 +670,18 @@ void RicWellPathExportCompletionDataFeatureImpl::generateWsegvalvTable(RifEclips
     }
     for (const RicWellSegmentLocation& location : exportInfo.wellSegmentLocations())
     {
-        formatter.add(exportInfo.wellPath()->name());
-        formatter.add(location.icdSegmentNumber());
-        formatter.add(location.icdFlowCoefficient());
-        formatter.add(location.icdArea());
-        formatter.rowCompleted();
+        for (const RicWellSegmentCompletion& lateral : location.completions())
+        {
+            if (lateral.completionType() == RigCompletionData::ICD)
+            {
+                CVF_ASSERT(lateral.subSegments().size() == 1u);
+                formatter.add(exportInfo.wellPath()->name());
+                formatter.add(lateral.subSegments().front().segmentNumber());
+                formatter.add(location.icdFlowCoefficient());
+                formatter.add(location.icdArea());
+                formatter.rowCompleted();
+            }
+        }
     }
     formatter.tableCompleted();
 }
@@ -1236,11 +1276,17 @@ RicMultiSegmentWellExportInfo RicWellPathExportCompletionDataFeatureImpl::genera
             double icdOrificeRadius          = subs->icdOrificeDiameter(unitSystem) / 2;
             location.setIcdArea(icdOrificeRadius * icdOrificeRadius * cvf::PI_D * subs->icdCount());
 
+            // Add lateral for ICD
+            RicWellSegmentCompletion icdLateral(RigCompletionData::ICD);
+            RicWellSegmentSubSegment icdSegment(measuredDepth, 0.1, -position.z(), 0.0);
+            icdLateral.addSubSegment(icdSegment);
+            location.addCompletion(icdLateral);
+
             for (size_t lateralIndex : sub.lateralIndices)
             {
-                location.addLateral(RicWellSegmentLateral(lateralIndex));
+                location.addCompletion(RicWellSegmentCompletion(RigCompletionData::FISHBONES, lateralIndex));
             }
-            assignLateralIntersections(caseToApply, subs, &location, &foundSubGridIntersections);
+            assignFishbonesLateralIntersections(caseToApply, subs, &location, &foundSubGridIntersections);
 
             exportInfo.addWellSegmentLocation(location);
         }
@@ -1253,22 +1299,130 @@ RicMultiSegmentWellExportInfo RicWellPathExportCompletionDataFeatureImpl::genera
     return exportInfo;
 }
 
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicWellPathExportCompletionDataFeatureImpl::assignLateralIntersections(const RimEclipseCase*           caseToApply,
-                                                                            const RimFishbonesMultipleSubs* fishbonesSubs,
-                                                                            RicWellSegmentLocation*         location,
-                                                                            bool*                           foundSubGridIntersections)
+RicMultiSegmentWellExportInfo RicWellPathExportCompletionDataFeatureImpl::generateFracturesMswExportInfo(RimEclipseCase* caseToApply, const RimWellPath* wellPath)
+{
+    std::vector<RimWellPathFracture*> fractures;
+
+    if (wellPath->fractureCollection()->isChecked())
+    {
+        for (RimWellPathFracture* fracture : wellPath->fractureCollection()->fractures())
+        {
+            if (fracture->isChecked())
+            {
+                fractures.push_back(fracture);
+            }
+        }
+    }
+
+    return generateFracturesMswExportInfo(caseToApply, wellPath, fractures);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RicMultiSegmentWellExportInfo RicWellPathExportCompletionDataFeatureImpl::generateFracturesMswExportInfo(RimEclipseCase* caseToApply, const RimWellPath* wellPath, const std::vector<RimWellPathFracture*>& fractures)
+{
+    const RigMainGrid* grid = caseToApply->eclipseCaseData()->mainGrid();
+
+    RiaEclipseUnitTools::UnitSystem unitSystem = caseToApply->eclipseCaseData()->unitsType();
+
+    RicMultiSegmentWellExportInfo exportInfo(wellPath,
+                                             unitSystem,
+                                             0.0,
+                                             QString("INC"),
+                                             QString("HF-"));
+
+    const RigWellPath* wellPathGeometry = wellPath->wellPathGeometry();
+    const std::vector<cvf::Vec3d>& coords = wellPathGeometry->wellPathPoints();
+    const std::vector<double>& mds        = wellPathGeometry->measureDepths();
+    CVF_ASSERT(!coords.empty() && !mds.empty());
+
+    std::vector<WellPathCellIntersectionInfo> intersections =
+        RigWellPathIntersectionTools::findCellIntersectionInfosAlongPath(
+            caseToApply->eclipseCaseData(), coords, mds);
+
+    double previousExitMD = mds.front();
+    double previousExitTVD = -coords.front().z();
+
+    bool foundSubGridIntersections = false;
+
+    // Main bore
+    int mainBoreSegment = 0;
+    for (const auto& cellIntInfo : intersections)
+    {
+        size_t localGridIdx = 0u;
+        const RigGridBase* localGrid = grid->gridAndGridLocalIdxFromGlobalCellIdx(cellIntInfo.globCellIndex, &localGridIdx);
+        QString gridName;
+        if (localGrid != grid)
+        {
+            gridName = QString::fromStdString(localGrid->gridName());
+            foundSubGridIntersections = true;
+        }
+
+        size_t i = 0u, j = 0u, k = 0u;
+        localGrid->ijkFromCellIndex(localGridIdx, &i, &j, &k);
+        QString label = QString("Main stem segment %1").arg(++mainBoreSegment);
+        RicWellSegmentLocation location(label, cellIntInfo.endMD, -cellIntInfo.endPoint.z());
+        exportInfo.addWellSegmentLocation(location);
+
+        previousExitMD  = cellIntInfo.endMD;
+        previousExitTVD = -cellIntInfo.endPoint.z();
+    }
+
+    // Fractures
+    for (RimWellPathFracture* fracture : fractures)
+    {
+        double measuredDepth = fracture->fractureMD();
+        cvf::Vec3d position = wellPath->wellPathGeometry()->interpolatedPointAlongWellPath(measuredDepth);
+        RicWellSegmentLocation location(fracture->name(), measuredDepth, -position.z(), 0);
+
+        std::vector<RimFracture*> fractureVector(1, fracture);
+        std::vector<RigCompletionData> completionData = 
+            RicExportFractureCompletionsImpl::generateCompdatValues(caseToApply,
+                                                                    wellPath->completions()->wellNameForExport(),
+                                                                    wellPath->wellPathGeometry(),
+                                                                    fractureVector,
+                                                                    nullptr,
+                                                                    nullptr);
+
+
+        assignFractureIntersections(caseToApply, fracture, completionData, &location, &foundSubGridIntersections);
+
+        exportInfo.addWellSegmentLocation(location);
+    }
+    exportInfo.setHasSubGridIntersections(foundSubGridIntersections);
+    exportInfo.sortLocations();
+    assignBranchAndSegmentNumbers(caseToApply, &exportInfo);
+
+    return exportInfo;
+}
+
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicWellPathExportCompletionDataFeatureImpl::assignFishbonesLateralIntersections(const RimEclipseCase*           caseToApply,
+                                                                                     const RimFishbonesMultipleSubs* fishbonesSubs,
+                                                                                     RicWellSegmentLocation*         location,
+                                                                                     bool*                           foundSubGridIntersections)
 {
     CVF_ASSERT(foundSubGridIntersections != nullptr);
 
     const RigMainGrid* grid = caseToApply->eclipseCaseData()->mainGrid();
 
-    for (RicWellSegmentLateral& lateral : location->laterals())
+    for (RicWellSegmentCompletion& lateral : location->completions())
     {
+        if (lateral.index() == cvf::UNDEFINED_SIZE_T)
+        {
+            continue;
+        }
+
         std::vector<std::pair<cvf::Vec3d, double>> lateralCoordMDPairs =
-            fishbonesSubs->coordsAndMDForLateral(location->subIndex(), lateral.lateralIndex());
+            fishbonesSubs->coordsAndMDForLateral(location->subIndex(), lateral.index());
 
         if (lateralCoordMDPairs.empty())
         {
@@ -1306,22 +1460,56 @@ void RicWellPathExportCompletionDataFeatureImpl::assignLateralIntersections(cons
 
             size_t i = 0u, j = 0u, k = 0u;
             localGrid->ijkFromCellIndex(localGridIdx, &i, &j, &k);
+            RicWellSegmentSubSegment subSegment (previousExitMD,
+                                                 cellIntInfo.endMD - previousExitMD,
+                                                 previousExitTVD,
+                                                 cellIntInfo.endPoint.z() - previousExitTVD);
 
-            RicWellSegmentLateralIntersection lateralIntersection(gridName,
-                                                                  cellIntInfo.globCellIndex,
-                                                                  cvf::Vec3st(i, j, k),
-                                                                  previousExitMD,
-                                                                  cellIntInfo.endMD - previousExitMD,
-                                                                  previousExitTVD,
-                                                                  cellIntInfo.endPoint.z() - previousExitTVD,
-                                                                  cellIntInfo.intersectionLengthsInCellCS);
+            RicWellSegmentSubSegmentIntersection intersection(gridName,
+                                                              cellIntInfo.globCellIndex,
+                                                              cvf::Vec3st(i, j, k),
+                                                              cellIntInfo.intersectionLengthsInCellCS);
+            subSegment.addIntersection(intersection);
+            lateral.addSubSegment(subSegment);
 
-            lateral.addIntersection(lateralIntersection);
-
-            previousExitMD  = cellIntInfo.endMD;
+            previousExitMD = cellIntInfo.endMD;
             previousExitTVD = cellIntInfo.endPoint.z();
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicWellPathExportCompletionDataFeatureImpl::assignFractureIntersections(const RimEclipseCase*                 caseToApply,
+                                                                             const RimWellPathFracture*            fracture,
+                                                                             const std::vector<RigCompletionData>& completionData,
+                                                                             RicWellSegmentLocation*               location,
+                                                                             bool*                                 foundSubGridIntersections)
+{
+    CVF_ASSERT(foundSubGridIntersections != nullptr);
+    const RigMainGrid* grid = caseToApply->eclipseCaseData()->mainGrid();
+
+    double fractureMD = fracture->fractureMD();
+    RicWellSegmentCompletion lateral(RigCompletionData::FRACTURE);
+    RicWellSegmentSubSegment subSegment(fracture->fractureMD(),
+                                        fracture->fractureTemplate()->computeFractureWidth(fracture),
+                                        0.0,
+                                        0.0);        
+    for (const RigCompletionData& compIntersection : completionData)
+    {
+        
+        const RigCompletionDataGridCell& cell = compIntersection.completionDataGridCell();
+        cvf::Vec3st localIJK(cell.localCellIndexI(), cell.localCellIndexJ(), cell.localCellIndexK());
+
+        RicWellSegmentSubSegmentIntersection intersection(cell.lgrName(),
+                                                          cell.globalCellIndex(),
+                                                          localIJK,
+                                                          cvf::Vec3d::ZERO);
+        subSegment.addIntersection(intersection);
+    }
+    lateral.addSubSegment(subSegment);
+    location->addCompletion(lateral);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1332,18 +1520,35 @@ void RicWellPathExportCompletionDataFeatureImpl::assignBranchAndSegmentNumbers(c
                                                                                int*                    branchNum,
                                                                                int*                    segmentNum)
 {
-    for (RicWellSegmentLateral& lateral : location->laterals())
+    int icdSegmentNumber = cvf::UNDEFINED_INT;
+    for (RicWellSegmentCompletion& completion : location->completions())
     {
-        ++(*branchNum);
-        lateral.setBranchNumber(*branchNum);
-
-        int attachedSegmentNumber = location->icdSegmentNumber();
-        for (auto& intersection : lateral.intersections())
+        if (completion.completionType() != RigCompletionData::ICD)
         {
-            ++(*segmentNum);
-            intersection.setSegmentNumber(*segmentNum);
-            intersection.setAttachedSegmentNumber(attachedSegmentNumber);
-            attachedSegmentNumber              = *segmentNum;
+            ++(*branchNum);
+            completion.setBranchNumber(*branchNum);
+        }
+
+        int attachedSegmentNumber = location->segmentNumber();
+        if (icdSegmentNumber != cvf::UNDEFINED_INT)
+        {
+            attachedSegmentNumber = icdSegmentNumber;
+        }
+
+        for (auto& subSegment : completion.subSegments())
+        {
+            if (completion.completionType() == RigCompletionData::ICD)
+            {
+                subSegment.setSegmentNumber(location->segmentNumber() + 1);
+                icdSegmentNumber = subSegment.segmentNumber();
+            }
+            else
+            {
+                ++(*segmentNum);
+                subSegment.setSegmentNumber(*segmentNum);
+            }
+            subSegment.setAttachedSegmentNumber(attachedSegmentNumber);
+            attachedSegmentNumber = *segmentNum;
         }
     }
 }
@@ -1361,8 +1566,14 @@ void RicWellPathExportCompletionDataFeatureImpl::assignBranchAndSegmentNumbers(c
     for (RicWellSegmentLocation& location : exportInfo->wellSegmentLocations())
     {
         location.setSegmentNumber(++segmentNumber);
-        location.setIcdBranchNumber(++branchNumber);
-        location.setIcdSegmentNumber(++segmentNumber);
+        for (RicWellSegmentCompletion& completion : location.completions())
+        {
+            if (completion.completionType() == RigCompletionData::ICD)
+            {
+                ++segmentNumber; // Skip a segment number because we need one for the ICD
+                completion.setBranchNumber(++branchNumber);
+            }
+        }
     }
 
     // Then assign branch and segment numbers to each lateral parts

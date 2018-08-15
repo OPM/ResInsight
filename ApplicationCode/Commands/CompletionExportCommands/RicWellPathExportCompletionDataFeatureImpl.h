@@ -36,6 +36,7 @@ class RimEclipseCase;
 class RimFishbonesMultipleSubs;
 class RimSimWellInView;
 class RimWellPath;
+class RimWellPathFracture;
 class RifEclipseDataTableFormatter;
 class RigVirtualPerforationTransmissibilities;
 
@@ -52,6 +53,13 @@ public:
     static RicMultiSegmentWellExportInfo  generateFishbonesMswExportInfo(const RimEclipseCase*                         caseToApply,
                                                                          const RimWellPath*                            wellPath,
                                                                          const std::vector<RimFishbonesMultipleSubs*>& fishbonesSubs);
+
+    static RicMultiSegmentWellExportInfo  generateFracturesMswExportInfo(RimEclipseCase*    caseToApply,
+                                                                         const RimWellPath* wellPath);
+
+    static RicMultiSegmentWellExportInfo  generateFracturesMswExportInfo(RimEclipseCase*                          caseToApply,
+                                                                         const RimWellPath*                       wellPath,
+                                                                         const std::vector<RimWellPathFracture*>& fractures);
 
     static CellDirection                  calculateDirectionInCell(RimEclipseCase* eclipseCase, 
                                                                    size_t globalCellIndex, 
@@ -124,10 +132,17 @@ private:
     static std::vector<RigCompletionData> generatePerforationsCompdatValues(const RimWellPath* wellPath,
                                                                                    const RicExportCompletionDataSettingsUi& settings);
 
-    static void                           assignLateralIntersections(const RimEclipseCase*           caseToApply,
-                                                                     const RimFishbonesMultipleSubs* fishbonesSubs,
-                                                                     RicWellSegmentLocation*         location,
-                                                                     bool*                           foundSubGridIntersections);
+    static void                           assignFishbonesLateralIntersections(const RimEclipseCase*           caseToApply,
+                                                                              const RimFishbonesMultipleSubs* fishbonesSubs,
+                                                                              RicWellSegmentLocation*         location,
+                                                                              bool*                           foundSubGridIntersections);
+
+    static void                           assignFractureIntersections(const RimEclipseCase*                 caseToApply,
+                                                                      const RimWellPathFracture*            fracture,
+                                                                      const std::vector<RigCompletionData>& completionData,
+                                                                      RicWellSegmentLocation*               location,
+                                                                      bool*                                 foundSubGridIntersections);
+
     static void                           assignBranchAndSegmentNumbers(const RimEclipseCase*   caseToApply,
                                                                         RicWellSegmentLocation* location,
                                                                         int*                    branchNum,
