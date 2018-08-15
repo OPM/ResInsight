@@ -546,11 +546,10 @@ void RimEclipseView::createDisplayModel()
         updateLegends();
     }
 
-    std::vector<caf::PdmFieldHandle*> objects;
-    this->referringPtrFields(objects);
-    for (auto object : objects)
+    std::vector<RimFlowCharacteristicsPlot*> objects;
+    this->objectsWithReferringPtrFieldsOfType(objects);
+    for (auto plot : objects)
     {
-        RimFlowCharacteristicsPlot* plot = dynamic_cast<RimFlowCharacteristicsPlot*>(object->ownerObject());
         if (plot != nullptr)
         {
             plot->viewGeometryUpdated();

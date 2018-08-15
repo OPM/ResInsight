@@ -96,11 +96,10 @@ void RimSummaryCaseCollection::addCase(RimSummaryCase* summaryCase, bool updateC
     m_cases.push_back(summaryCase);
 
     // Update derived ensemble cases (if any)
-    std::vector<caf::PdmObjectHandle*> referringObjects;
-    objectsWithReferringPtrFields(referringObjects);
-    for (auto refObj : referringObjects)
+    std::vector<RimDerivedEnsembleCaseCollection*> referringObjects;
+    objectsWithReferringPtrFieldsOfType(referringObjects);
+    for (auto derEnsemble : referringObjects)
     {
-        auto derEnsemble = dynamic_cast<RimDerivedEnsembleCaseCollection*>(refObj);
         if (!derEnsemble) continue;
 
         derEnsemble->updateDerivedEnsembleCases();
@@ -421,12 +420,11 @@ void RimSummaryCaseCollection::onLoadDataAndUpdate()
 void RimSummaryCaseCollection::updateReferringCurveSets()
 {
     // Update curve set referring to this group
-    std::vector<PdmObjectHandle*> referringObjects;
-    objectsWithReferringPtrFields(referringObjects);
+    std::vector<RimEnsembleCurveSet*> referringObjects;
+    objectsWithReferringPtrFieldsOfType(referringObjects);
 
-    for (PdmObjectHandle* obj : referringObjects)
+    for (auto curveSet : referringObjects)
     {
-        RimEnsembleCurveSet* curveSet = dynamic_cast<RimEnsembleCurveSet*>(obj);
         if (curveSet) curveSet->updateAllCurves();
     }
 }

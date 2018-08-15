@@ -221,17 +221,18 @@ void RimGridView::replaceRangeFilterCollectionWithOverride()
 //--------------------------------------------------------------------------------------------------
 RimViewController* RimGridView::viewController() const
 {
-    RimViewController* viewController = nullptr;
-    std::vector<caf::PdmObjectHandle*> reffingObjs;
+    std::vector<RimViewController*> objects;
+    this->objectsWithReferringPtrFieldsOfType(objects);
 
-    this->objectsWithReferringPtrFields(reffingObjs);
-    for (size_t i = 0; i < reffingObjs.size(); ++i)
+    for (auto v : objects)
     {
-        viewController = dynamic_cast<RimViewController*>(reffingObjs[i]);
-        if (viewController) break;
+        if (v)
+        {
+            return v;
+        }
     }
 
-    return viewController;
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -352,18 +353,18 @@ void RimGridView::selectOverlayInfoConfig()
 //--------------------------------------------------------------------------------------------------
 RimViewLinker* RimGridView::viewLinkerIfMasterView() const
 {
-    RimViewLinker* viewLinker = nullptr;
-    std::vector<caf::PdmObjectHandle*> reffingObjs;
+    std::vector<RimViewLinker*> objects;
+    this->objectsWithReferringPtrFieldsOfType(objects);
 
-    this->objectsWithReferringPtrFields(reffingObjs);
-
-    for (size_t i = 0; i < reffingObjs.size(); ++i)
+    for (auto viewLinker : objects)
     {
-        viewLinker = dynamic_cast<RimViewLinker*>(reffingObjs[i]);
-        if (viewLinker) break;
+        if (viewLinker)
+        {
+            return viewLinker;
+        }
     }
 
-    return viewLinker;
+    return nullptr;
 }
 
 

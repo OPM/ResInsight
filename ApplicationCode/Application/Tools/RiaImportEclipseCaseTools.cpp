@@ -112,16 +112,16 @@ bool RiaImportEclipseCaseTools::openEclipseCasesFromFile(const QStringList& file
 
                         // Replace all occurrences of file sum with ecl sum
 
-                        std::vector<caf::PdmObjectHandle*> referringObjects;
-                        existingFileSummaryCase->objectsWithReferringPtrFields(referringObjects);
+                        std::vector<RimSummaryCurve*> objects;
+                        existingFileSummaryCase->objectsWithReferringPtrFieldsOfType(objects);
+
 
                         // UI settings of a curve filter is updated based
                         // on the new case association for the curves in the curve filter
                         // UI is updated by loadDataAndUpdate()
 
-                        for (caf::PdmObjectHandle* objHandle : referringObjects)
+                        for (RimSummaryCurve* summaryCurve : objects)
                         {
-                            RimSummaryCurve* summaryCurve = dynamic_cast<RimSummaryCurve*>(objHandle);
                             if (summaryCurve)
                             {
                                 RimSummaryCurveCollection* parentCollection = nullptr;

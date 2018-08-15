@@ -227,12 +227,11 @@ void RimFractureTemplateCollection::createAndAssignTemplateCopyForNonMatchingUni
         {
             RimFractureTemplate* templateWithMatchingUnit = nullptr;
 
-            std::vector<caf::PdmObjectHandle*> referringObjects;
-            fractureTemplate->objectsWithReferringPtrFields(referringObjects);
+            std::vector<RimFracture*> referringObjects;
+            fractureTemplate->objectsWithReferringPtrFieldsOfType(referringObjects);
 
-            for (auto refObj : referringObjects)
+            for (auto fracture : referringObjects)
             {
-                auto fracture = dynamic_cast<RimFracture*>(refObj);
                 if (fracture && fracture->fractureUnit() != fractureTemplate->fractureTemplateUnit())
                 {
                     if (!templateWithMatchingUnit)

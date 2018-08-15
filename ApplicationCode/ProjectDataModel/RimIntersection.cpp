@@ -744,16 +744,16 @@ void RimIntersection::appendPointToPolyLine(const cvf::Vec3d& point)
 //--------------------------------------------------------------------------------------------------
 Rim2dIntersectionView* RimIntersection::correspondingIntersectionView()
 {
-    std::vector<caf::PdmObjectHandle*> objects;
-
-    this->objectsWithReferringPtrFields(objects);
-    Rim2dIntersectionView* isectView = nullptr;
-    for (auto obj : objects)
+    std::vector<Rim2dIntersectionView*> objects;
+    this->objectsWithReferringPtrFieldsOfType(objects);
+    for (auto isectView : objects)
     {
-        isectView = dynamic_cast<Rim2dIntersectionView*>(obj);
-        if (isectView) break;
+        if (isectView)
+        {
+            return isectView;
+        }
     }
-    return isectView;
+    return nullptr;
 
 }
 

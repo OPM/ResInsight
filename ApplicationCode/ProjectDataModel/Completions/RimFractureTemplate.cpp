@@ -767,17 +767,7 @@ double RimFractureTemplate::computeFractureWidth(const RimFracture* fractureInst
 std::vector<RimFracture*> RimFractureTemplate::fracturesUsingThisTemplate() const
 {
     std::vector<RimFracture*> fractures;
-
-    std::vector<caf::PdmObjectHandle*> objects;
-    this->objectsWithReferringPtrFields(objects);
-    for (auto object : objects)
-    {
-        auto f = dynamic_cast<RimFracture*>(object);
-        if (f)
-        {
-            fractures.push_back(f);
-        }
-    }
+    this->objectsWithReferringPtrFieldsOfType(fractures);
 
     return fractures;
 }

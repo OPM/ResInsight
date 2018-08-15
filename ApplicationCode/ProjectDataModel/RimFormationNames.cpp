@@ -118,11 +118,11 @@ QString RimFormationNames::fileNameWoPath()
 //--------------------------------------------------------------------------------------------------
 void RimFormationNames::updateConnectedViews()
 {
-    std::vector<caf::PdmObjectHandle*> usingObjs;
-    this->objectsWithReferringPtrFields(usingObjs);
-    for (caf::PdmObjectHandle* obj: usingObjs)
+    std::vector<RimCase*> objects;
+    this->objectsWithReferringPtrFieldsOfType(objects);
+
+    for (RimCase* caseObj : objects)
     {
-        RimCase* caseObj = dynamic_cast<RimCase*>(obj);
         if (caseObj)
         {
             caseObj->updateFormationNamesData();
