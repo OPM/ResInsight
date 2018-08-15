@@ -67,10 +67,12 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
 
     if (wellPath->fractureCollection()->isChecked())
     {
-        for (const auto& frac : wellPath->fractureCollection()->fractures)
+        for (auto& frac : wellPath->fractureCollection()->fractures)
         {
             if (frac->isChecked())
             {
+                frac->ensureValidNonDarcyProperties();
+
                 fracturesAlongWellPath.push_back(frac);
             }
         }
@@ -174,11 +176,8 @@ std::vector<RigCompletionData>
 
         //////
         // Calculate Matrix To Fracture Trans
-        RigEclipseToStimPlanCalculator eclToFractureCalc(caseToApply,
-                                                         fracture->transformMatrix(),
-                                                         fracture->fractureTemplate()->skinFactor(),
-                                                         cDarcyInCorrectUnit,
-                                                         *fractureGrid);
+        RigEclipseToStimPlanCalculator eclToFractureCalc(
+            caseToApply, fracture->transformMatrix(), fracTemplate->skinFactor(), cDarcyInCorrectUnit, *fractureGrid);
 
         eclToFractureCalc.appendDataToTransmissibilityCondenser(fracture, useFiniteConductivityInFracture, &transCondenser);
 
@@ -248,32 +247,28 @@ std::vector<RigCompletionData>
             ////
             // If fracture has orientation Azimuth or Transverse, assume only radial inflow
 
-            if (fracture->fractureTemplate()->orientationType() == RimFractureTemplate::AZIMUTH ||
-                fracture->fractureTemplate()->orientationType() == RimFractureTemplate::TRANSVERSE_WELL_PATH)
+            if (fracTemplate->orientationType() == RimFractureTemplate::AZIMUTH ||
+                fracTemplate->orientationType() == RimFractureTemplate::TRANSVERSE_WELL_PATH)
             {
-                const RigFractureGrid* fracGrid = fracture->fractureTemplate()->fractureGrid();
-                if (fracGrid)
-                {
-                    std::pair<size_t, size_t> wellCellIJ    = fracGrid->fractureCellAtWellCenter();
-                    size_t                    wellCellIndex = fracGrid->getGlobalIndexFromIJ(wellCellIJ.first, wellCellIJ.second);
+                std::pair<size_t, size_t> wellCellIJ    = fractureGrid->fractureCellAtWellCenter();
+                size_t                    wellCellIndex = fractureGrid->getGlobalIndexFromIJ(wellCellIJ.first, wellCellIJ.second);
 
-                    const RigFractureCell& wellCell = fractureGrid->cellFromIndex(wellCellIndex);
+                const RigFractureCell& wellCell = fractureGrid->cellFromIndex(wellCellIndex);
 
-                    double radialTrans =
-                        RigFractureTransmissibilityEquations::fractureCellToWellRadialTrans(wellCell.getConductivityValue(),
-                                                                                            wellCell.cellSizeX(),
-                                                                                            wellCell.cellSizeZ(),
-                                                                                            fracture->wellRadius(),
-                                                                                            fracTemplate->skinFactor(),
-                                                                                            cDarcyInCorrectUnit);
+                double radialTrans =
+                    RigFractureTransmissibilityEquations::fractureCellToWellRadialTrans(wellCell.getConductivityValue(),
+                                                                                        wellCell.cellSizeX(),
+                                                                                        wellCell.cellSizeZ(),
+                                                                                        fracture->wellRadius(),
+                                                                                        fracTemplate->skinFactor(),
+                                                                                        cDarcyInCorrectUnit);
 
-                    transCondenser.addNeighborTransmissibility(
-                        {true, RigTransmissibilityCondenser::CellAddress::WELL, 1},
-                        {false, RigTransmissibilityCondenser::CellAddress::STIMPLAN, wellCellIndex},
-                        radialTrans);
-                }
+                transCondenser.addNeighborTransmissibility(
+                    {true, RigTransmissibilityCondenser::CellAddress::WELL, 1},
+                    {false, RigTransmissibilityCondenser::CellAddress::STIMPLAN, wellCellIndex},
+                    radialTrans);
             }
-            else if (fracture->fractureTemplate()->orientationType() == RimFractureTemplate::ALONG_WELL_PATH)
+            else if (fracTemplate->orientationType() == RimFractureTemplate::ALONG_WELL_PATH)
             {
                 ////
                 // If fracture has orientation along well, linear inflow along well and radial flow at endpoints
@@ -332,7 +327,7 @@ std::vector<RigCompletionData>
                                           fracture->fractureMD());
 
                 double diameter = 2.0 * fracture->wellRadius();
-                compDat.setFromFracture(trans, fracture->fractureTemplate()->skinFactor(), diameter);
+                compDat.setFromFracture(trans, fracTemplate->skinFactor(), diameter);
                 compDat.addMetadata(fracture->name(), QString::number(trans));
                 allCompletionsForOneFracture.push_back(compDat);
             }
@@ -341,10 +336,10 @@ std::vector<RigCompletionData>
         /////
         // Compute Non-Dracy Flow parameters
 
-        if (fracture->fractureTemplate()->isNonDarcyFlowEnabled())
+        if (fracTemplate->isNonDarcyFlowEnabled())
         {
-            double dFactorForFracture = fracture->fractureTemplate()->dFactor();
-            double khForFracture      = fracture->fractureTemplate()->kh();
+            double dFactorForFracture = fracture->nonDarcyProperties().dFactor;
+            double khForFracture      = fracture->nonDarcyProperties().conductivity;
 
             double sumOfTransmissibilitiesInFracture = 0.0;
             for (const auto& c : allCompletionsForOneFracture)
@@ -367,11 +362,7 @@ std::vector<RigCompletionData>
 
         if (fractureDataReportItems)
         {
-            QString fractureTemplateName;
-            if (fracture->fractureTemplate())
-            {
-                fractureTemplateName = fracture->fractureTemplate()->name();
-            }
+            QString                       fractureTemplateName = fracTemplate->name();
             RicWellPathFractureReportItem reportItem(wellPathName, fracture->name(), fractureTemplateName);
 
             double transmissibility = 0.0;

@@ -290,8 +290,6 @@ QString RicWellPathFractureTextReportFeatureImpl::createStimPlanFractureText(
         RifEclipseOutputTableColumn(" "),
         floatNumberColumn("WDiam"),
         floatNumberColumn("Skin"),
-        floatNumberColumn("Dfac"),
-        floatNumberColumn("LPerf"),
     };
 
     formatter.header(header);
@@ -302,8 +300,6 @@ QString RicWellPathFractureTextReportFeatureImpl::createStimPlanFractureText(
         formatter.add("Orientation"); // Orientation
         formatter.add("[m]"); // WDiam
         formatter.add("[] "); // Skin
-        formatter.add("[...]"); // DFac
-        formatter.add("[m]"); // LPerf
         formatter.rowCompleted();
     }
 
@@ -315,17 +311,6 @@ QString RicWellPathFractureTextReportFeatureImpl::createStimPlanFractureText(
         formatter.add(orientationText(stimPlanTemplate->orientationType()));
         formatter.add(stimPlanTemplate->wellDiameter());
         formatter.add(stimPlanTemplate->skinFactor());
-
-        if (stimPlanTemplate->isNonDarcyFlowEnabled())
-        {
-            formatter.add(stimPlanTemplate->dFactor());
-            formatter.add(stimPlanTemplate->perforationLength());
-        }
-        else
-        {
-            formatter.add("NA");
-            formatter.add("NA");
-        }
 
         formatter.rowCompleted();
     }
@@ -358,8 +343,6 @@ QString RicWellPathFractureTextReportFeatureImpl::createEllipseFractureText(
         floatNumberColumn("Wf"),
         floatNumberColumn("WDiam"),
         floatNumberColumn("Skin"),
-        floatNumberColumn("Dfac"),
-        floatNumberColumn("LPerf"),
     };
 
     formatter.header(header);
@@ -374,8 +357,6 @@ QString RicWellPathFractureTextReportFeatureImpl::createEllipseFractureText(
         formatter.add("[m]"); // Wf
         formatter.add("[m]"); // WDiam
         formatter.add("[] "); // Skin
-        formatter.add("[...]"); // DFac
-        formatter.add("[m]"); // LPerf
         formatter.rowCompleted();
     }
 
@@ -393,17 +374,6 @@ QString RicWellPathFractureTextReportFeatureImpl::createEllipseFractureText(
 
         formatter.add(ellipseTemplate->wellDiameter());
         formatter.add(ellipseTemplate->skinFactor());
-
-        if (ellipseTemplate->isNonDarcyFlowEnabled())
-        {
-            formatter.add(ellipseTemplate->dFactor());
-            formatter.add(ellipseTemplate->perforationLength());
-        }
-        else
-        {
-            formatter.add("NA");
-            formatter.add("NA");
-        }
 
         formatter.rowCompleted();
     }

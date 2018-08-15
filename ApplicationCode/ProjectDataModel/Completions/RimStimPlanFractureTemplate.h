@@ -109,10 +109,12 @@ private:
     void                                    computePerforationLength();
     QString                                 getUnitForStimPlanParameter(QString parameterName);
 
+    std::vector<double>                     fractureGridResultsForUnitSystem(const QString& resultName, const QString& unitName, size_t timeStepIndex, RiaEclipseUnitTools::UnitSystem requiredUnitSystem) const;
 
-    virtual FractureWidthAndConductivity    widthAndConductivityAtWellPathIntersection() const override;
+    virtual FractureWidthAndConductivity    widthAndConductivityAtWellPathIntersection(const RimFracture* fractureInstance) const override;
 
     std::pair<QString, QString>             widthParameterNameAndUnit() const;
+    std::pair<QString, QString>             conductivityParameterNameAndUnit() const;
 
 private:
     caf::PdmField<int>                      m_activeTimeStepIndex;

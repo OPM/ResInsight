@@ -26,6 +26,7 @@
 
 #include "RigFractureGrid.h"
 #include "RigStimPlanFractureDefinition.h"
+#include "RigWellPathStimplanIntersector.h"
 
 #include "RigFractureCell.h"
 #include "RimEclipseView.h"
@@ -42,6 +43,7 @@
 #include "cafPdmUiDoubleSliderEditor.h"
 #include "cafPdmUiFilePathEditor.h"
 
+#include "cvfMath.h"
 #include "cvfVector3.h"
 
 #include <QFileInfo>
@@ -279,6 +281,11 @@ void RimStimPlanFractureTemplate::loadDataAndUpdate()
 
     updateFractureGrid();
 
+    for (RimFracture* fracture : fracturesUsingThisTemplate())
+    {
+        fracture->clearCachedNonDarcyProperties();
+    }
+
     // Todo: Must update all views using this fracture template
     RimEclipseView* activeView = dynamic_cast<RimEclipseView*>(RiaApplication::instance()->activeReservoirView());
     if (activeView) activeView->fractureColors()->loadDataAndUpdate();
@@ -405,47 +412,134 @@ QString RimStimPlanFractureTemplate::getUnitForStimPlanParameter(QString paramet
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-FractureWidthAndConductivity RimStimPlanFractureTemplate::widthAndConductivityAtWellPathIntersection() const
+std::vector<double>
+    RimStimPlanFractureTemplate::fractureGridResultsForUnitSystem(const QString&                  resultName,
+                                                                  const QString&                  unitName,
+                                                                  size_t                          timeStepIndex,
+                                                                  RiaEclipseUnitTools::UnitSystem requiredUnitSystem) const
+{
+    auto resultValues = m_stimPlanFractureDefinitionData->fractureGridResults(resultName, unitName, m_activeTimeStepIndex);
+
+    if (fractureTemplateUnit() == RiaEclipseUnitTools::UNITS_METRIC)
+    {
+        for (auto& v : resultValues)
+        {
+            v = RiaEclipseUnitTools::convertToMeter(v, unitName);
+        }
+    }
+    else if (fractureTemplateUnit() == RiaEclipseUnitTools::UNITS_FIELD)
+    {
+        for (auto& v : resultValues)
+        {
+            v = RiaEclipseUnitTools::convertToFeet(v, unitName);
+        }
+    }
+
+    return resultValues;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+FractureWidthAndConductivity
+    RimStimPlanFractureTemplate::widthAndConductivityAtWellPathIntersection(const RimFracture* fractureInstance) const
 {
     FractureWidthAndConductivity values;
 
     if (m_fractureGrid.notNull())
     {
-        std::pair<size_t, size_t> wellCellIJ    = m_fractureGrid->fractureCellAtWellCenter();
-        size_t                    wellCellIndex = m_fractureGrid->getGlobalIndexFromIJ(wellCellIJ.first, wellCellIJ.second);
-        const RigFractureCell&    wellCell      = m_fractureGrid->cellFromIndex(wellCellIndex);
-
-        double conductivity   = wellCell.getConductivityValue();
-        values.m_conductivity = conductivity;
-
-        auto nameUnit = widthParameterNameAndUnit();
-        if (!nameUnit.first.isEmpty())
+        if (orientationType() == ALONG_WELL_PATH)
         {
-            double widthInRequiredUnit = HUGE_VAL;
+            CVF_ASSERT(fractureInstance);
+
+            RimWellPath* rimWellPath = nullptr;
+            fractureInstance->firstAncestorOrThisOfType(rimWellPath);
+
+            if (rimWellPath && rimWellPath->wellPathGeometry())
             {
-                auto resultValues =
-                    m_stimPlanFractureDefinitionData->fractureGridResults(nameUnit.first, nameUnit.second, m_activeTimeStepIndex);
+                RigWellPathStimplanIntersector intersector(rimWellPath->wellPathGeometry(), fractureInstance);
 
-                double widthInFileUnitSystem = resultValues[wellCellIndex];
-
-                if (fractureTemplateUnit() == RiaEclipseUnitTools::UNITS_METRIC)
+                double totalLength = 0.0;
+                for (const auto& v : intersector.intersections())
                 {
-                    QString unitText = nameUnit.second;
-
-                    widthInRequiredUnit = RiaEclipseUnitTools::convertToMeter(widthInFileUnitSystem, unitText);
+                    totalLength += v.second.computeLength();
                 }
-                else if (fractureTemplateUnit() == RiaEclipseUnitTools::UNITS_FIELD)
-                {
-                    QString unitText = nameUnit.second;
 
-                    widthInRequiredUnit = RiaEclipseUnitTools::convertToFeet(widthInFileUnitSystem, unitText);
+                std::vector<double> widthResultValues;
+                {
+                    auto nameUnit     = widthParameterNameAndUnit();
+                    widthResultValues = fractureGridResultsForUnitSystem(
+                        nameUnit.first, nameUnit.second, m_activeTimeStepIndex, fractureTemplateUnit());
+                }
+
+                std::vector<double> conductivityResultValues;
+                {
+                    auto nameUnit            = conductivityParameterNameAndUnit();
+                    conductivityResultValues = fractureGridResultsForUnitSystem(
+                        nameUnit.first, nameUnit.second, m_activeTimeStepIndex, fractureTemplateUnit());
+                }
+
+                double weightedConductivity = 0.0;
+                double weightedWidth        = 0.0;
+
+                for (const auto& v : intersector.intersections())
+                {
+                    size_t fractureGlobalCellIndex = v.first;
+
+                    if (fractureGlobalCellIndex < widthResultValues.size())
+                    {
+                        weightedWidth += widthResultValues[fractureGlobalCellIndex] * v.second.computeLength();
+                    }
+
+                    if (fractureGlobalCellIndex < conductivityResultValues.size())
+                    {
+                        weightedConductivity += conductivityResultValues[fractureGlobalCellIndex] * v.second.computeLength();
+                    }
+                }
+
+                if (totalLength > 1e-7)
+                {
+                    weightedWidth /= totalLength;
+                    weightedConductivity /= totalLength;
+
+                    values.m_width        = weightedWidth;
+                    values.m_conductivity = weightedConductivity;
+                }
+
+                if (weightedWidth > 1e-7)
+                {
+                    values.m_permeability = weightedConductivity / weightedWidth;
                 }
             }
+        }
+        else
+        {
+            std::pair<size_t, size_t> wellCellIJ    = m_fractureGrid->fractureCellAtWellCenter();
+            size_t                    wellCellIndex = m_fractureGrid->getGlobalIndexFromIJ(wellCellIJ.first, wellCellIJ.second);
+            const RigFractureCell&    wellCell      = m_fractureGrid->cellFromIndex(wellCellIndex);
 
-            if (widthInRequiredUnit != HUGE_VAL && fabs(widthInRequiredUnit) > 1e-20)
+            double conductivity   = wellCell.getConductivityValue();
+            values.m_conductivity = conductivity;
+
+            auto nameUnit = widthParameterNameAndUnit();
+            if (!nameUnit.first.isEmpty())
             {
-                values.m_width        = widthInRequiredUnit;
-                values.m_permeability = conductivity / widthInRequiredUnit;
+                double widthInRequiredUnit = HUGE_VAL;
+                {
+                    auto resultValues = fractureGridResultsForUnitSystem(
+                        nameUnit.first, nameUnit.second, m_activeTimeStepIndex, fractureTemplateUnit());
+
+                    if (wellCellIndex < resultValues.size())
+                    {
+                        widthInRequiredUnit = resultValues[wellCellIndex];
+                    }
+                }
+
+                if (widthInRequiredUnit != HUGE_VAL && fabs(widthInRequiredUnit) > 1e-20)
+                {
+                    values.m_width        = widthInRequiredUnit;
+                    values.m_permeability = conductivity / widthInRequiredUnit;
+                }
             }
         }
     }
@@ -471,6 +565,28 @@ std::pair<QString, QString> RimStimPlanFractureTemplate::widthParameterNameAndUn
             }
 
             if (nameUnit.first.contains("width", Qt::CaseInsensitive))
+            {
+                return nameUnit;
+            }
+        }
+    }
+
+    return std::pair<QString, QString>();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::pair<QString, QString> RimStimPlanFractureTemplate::conductivityParameterNameAndUnit() const
+{
+    if (m_stimPlanFractureDefinitionData.notNull())
+    {
+        std::vector<std::pair<QString, QString>> propertyNamesUnitsOnFile =
+            m_stimPlanFractureDefinitionData->getStimPlanPropertyNamesUnits();
+
+        for (const auto& nameUnit : propertyNamesUnitsOnFile)
+        {
+            if (nameUnit.first.contains(m_conductivityResultNameOnFile, Qt::CaseInsensitive))
             {
                 return nameUnit;
             }
@@ -786,8 +902,8 @@ void RimStimPlanFractureTemplate::updateFractureGrid()
             auto nameUnit = widthParameterNameAndUnit();
             if (!nameUnit.first.isEmpty())
             {
-                auto resultValues =
-                    m_stimPlanFractureDefinitionData->fractureGridResults(nameUnit.first, nameUnit.second, m_activeTimeStepIndex);
+                auto resultValues = fractureGridResultsForUnitSystem(
+                    nameUnit.first, nameUnit.second, m_activeTimeStepIndex, fractureTemplateUnit());
 
                 for (size_t i = 0; i < areaPerCell.size(); i++)
                 {

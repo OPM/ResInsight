@@ -213,6 +213,8 @@ void RimFracture::fieldChangedByUi(const caf::PdmFieldHandle* changedField, cons
         changedField == this->objectToggleField() || changedField == &m_dip || changedField == &m_tilt ||
         changedField == &m_perforationLength)
     {
+        clearCachedNonDarcyProperties();
+
         RimEclipseView* rimView = nullptr;
         this->firstAncestorOrThisOfType(rimView);
         if (rimView)
@@ -241,6 +243,46 @@ void RimFracture::fieldChangedByUi(const caf::PdmFieldHandle* changedField, cons
 cvf::Vec3d RimFracture::fracturePosition() const
 {
     return m_anchorPosition;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const NonDarcyData& RimFracture::nonDarcyProperties() const
+{
+    CVF_ASSERT(!m_cachedFractureProperties.isDirty());
+
+    return m_cachedFractureProperties;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFracture::ensureValidNonDarcyProperties()
+{
+    if (m_cachedFractureProperties.isDirty())
+    {
+        NonDarcyData props;
+
+        if (m_fractureTemplate)
+        {
+            props.width                 = m_fractureTemplate->computeFractureWidth(this);
+            props.conductivity          = m_fractureTemplate->computeKh(this);
+            props.dFactor               = m_fractureTemplate->computeDFactor(this);
+            props.effectivePermeability = m_fractureTemplate->computeEffectivePermeability(this);
+
+            props.isDataDirty = false;
+        }
+        m_cachedFractureProperties = props;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFracture::clearCachedNonDarcyProperties()
+{
+    m_cachedFractureProperties = NonDarcyData();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -644,6 +686,8 @@ void RimFracture::setFractureTemplate(RimFractureTemplate* fractureTemplate)
     }
     this->m_wellDiameter      = fractureTemplate->wellDiameter();
     this->m_perforationLength = fractureTemplate->perforationLength();
+
+    clearCachedNonDarcyProperties();
 }
 
 //--------------------------------------------------------------------------------------------------

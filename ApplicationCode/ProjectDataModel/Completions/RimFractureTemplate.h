@@ -38,6 +38,7 @@ class RigFractureGrid;
 class RimFractureContainment;
 class MinMaxAccumulator;
 class PosNegAccumulator;
+class RimFracture;
 
 class FractureWidthAndConductivity
 {
@@ -146,8 +147,6 @@ public:
     void                            setDefaultWellDiameterFromUnit();
 
     bool                            isNonDarcyFlowEnabled() const;
-    double                          dFactor() const;
-    double                          kh() const;
 
     virtual void                    convertToUnitSystem(RiaEclipseUnitTools::UnitSystem neededUnit);
 
@@ -162,6 +161,11 @@ public:
     void                            setContainmentTopKLayer(int topKLayer);
     void                            setContainmentBaseKLayer(int baseKLayer);
 
+    double                          computeDFactor(const RimFracture* fractureInstance) const;
+    double                          computeKh(const RimFracture* fractureInstance) const;
+    double                          computeEffectivePermeability(const RimFracture* fractureInstance) const;
+    double                          computeFractureWidth(const RimFracture* fractureInstance) const;
+
 protected:
     virtual caf::PdmFieldHandle*    userDescriptionField() override;
     virtual void                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
@@ -169,14 +173,13 @@ protected:
     virtual void                    defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override;
     virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
 
+    std::vector<RimFracture*>       fracturesUsingThisTemplate() const;
+
 private:
     void                            prepareFieldsForUiDisplay();
-    virtual FractureWidthAndConductivity widthAndConductivityAtWellPathIntersection() const = 0;
+    virtual FractureWidthAndConductivity widthAndConductivityAtWellPathIntersection(const RimFracture* fractureInstance) const = 0;
 
     QString                         dFactorSummary() const;
-    double                          effectivePermeability() const;
-
-    double                          fractureWidth() const;
 
 protected:
     caf::PdmField<int>                                 m_id;
@@ -206,7 +209,7 @@ protected:
     caf::PdmField<double>                              m_relativeGasDensity;
     caf::PdmField<double>                              m_gasViscosity;
 
-    caf::PdmProxyValueField<double>                    m_dFactorDisplayField;
+    //caf::PdmProxyValueField<double>                    m_dFactorDisplayField;
     caf::PdmProxyValueField<QString>                   m_dFactorSummaryText;
 
     caf::PdmField<double>                              m_heightScaleFactor;

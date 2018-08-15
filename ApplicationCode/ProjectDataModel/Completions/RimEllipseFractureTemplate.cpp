@@ -231,7 +231,7 @@ void RimEllipseFractureTemplate::assignConductivityToCellsInsideEllipse()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-FractureWidthAndConductivity RimEllipseFractureTemplate::widthAndConductivityAtWellPathIntersection() const
+FractureWidthAndConductivity RimEllipseFractureTemplate::widthAndConductivityAtWellPathIntersection(const RimFracture* fractureInstance) const
 {
     FractureWidthAndConductivity values;
     values.m_width        = m_width;

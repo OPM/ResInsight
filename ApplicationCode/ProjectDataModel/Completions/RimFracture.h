@@ -41,6 +41,29 @@ class RimFractureTemplate;
 class RigFracturedEclipseCellExportData;
 class RigMainGrid;
 
+class NonDarcyData
+{
+public:
+    NonDarcyData()
+        : width(std::numeric_limits<double>::infinity())
+        , conductivity(std::numeric_limits<double>::infinity())
+        , effectivePermeability(std::numeric_limits<double>::infinity())
+        , dFactor(std::numeric_limits<double>::infinity())
+        , isDataDirty(true)
+    {
+    }
+
+    bool isDirty() const
+    {
+        return isDataDirty;
+    }
+
+    double width;
+    double conductivity;
+    double effectivePermeability;
+    double dFactor;
+    bool   isDataDirty;
+};
 
 //==================================================================================================
 ///  
@@ -91,6 +114,12 @@ public:
     
     virtual void                    loadDataAndUpdate() = 0;
     virtual std::vector<cvf::Vec3d> perforationLengthCenterLineCoords() const = 0;
+
+    
+    // Fracture properties
+    const NonDarcyData&       nonDarcyProperties() const;
+    void                            ensureValidNonDarcyProperties();
+    void                            clearCachedNonDarcyProperties();
     
     friend class RimFractureTemplate;
 
@@ -130,4 +159,6 @@ private:
     caf::PdmField<cvf::Vec3d>        m_anchorPosition;
 
     cvf::ref<RivWellFracturePartMgr> m_fracturePartMgr;
+
+    NonDarcyData        m_cachedFractureProperties;
 };
