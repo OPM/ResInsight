@@ -13,6 +13,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RicWellPathsUnitSystemSettingsUi.h
 ${CMAKE_CURRENT_LIST_DIR}/RicWellPathViewerEventHandler.h 
 ${CMAKE_CURRENT_LIST_DIR}/RicIntersectionViewerEventHandler.h
 ${CMAKE_CURRENT_LIST_DIR}/RicWellPathFormationsImportFileFeature.h
+${CMAKE_CURRENT_LIST_DIR}/PointTangentManipulator/RicPointTangentManipulator.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -29,6 +30,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RicWellPathsUnitSystemSettingsUi.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicWellPathViewerEventHandler.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicIntersectionViewerEventHandler.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicWellPathFormationsImportFileFeature.cpp
+${CMAKE_CURRENT_LIST_DIR}/PointTangentManipulator/RicPointTangentManipulator.cpp
 )
 
 list(APPEND CODE_HEADER_FILES
@@ -37,6 +39,10 @@ ${SOURCE_GROUP_HEADER_FILES}
 
 list(APPEND CODE_SOURCE_FILES
 ${SOURCE_GROUP_SOURCE_FILES}
+)
+
+list(APPEND QT_MOC_HEADERS
+${CMAKE_CURRENT_LIST_DIR}/PointTangentManipulator/RicPointTangentManipulator.h
 )
 
 source_group( "CommandFeature\\WellPath" FILES ${SOURCE_GROUP_HEADER_FILES} ${SOURCE_GROUP_SOURCE_FILES} ${CMAKE_CURRENT_LIST_DIR}/CMakeLists_files.cmake )

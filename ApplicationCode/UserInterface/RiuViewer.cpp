@@ -65,6 +65,8 @@
 #include "WindowEdgeAxesOverlayItem/RivWindowEdgeAxesOverlayItem.h"
 #include <algorithm>
 
+#include "WellPathCommands/PointTangentManipulator/RicPointTangentManipulator.h"
+
 using cvf::ManipulatorTrackball;
 
 
@@ -184,6 +186,7 @@ RiuViewer::RiuViewer(const QGLFormat& format, QWidget* parent)
     m_windowEdgeAxisOverlay = new RivWindowEdgeAxesOverlayItem(standardFont);
     m_showWindowEdgeAxes = false;
 
+    new caf::PdmUiSelectionVisualizer3d(this);
 }
 
 //--------------------------------------------------------------------------------------------------

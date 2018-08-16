@@ -53,6 +53,7 @@ private:
     virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
 
 private:
+    friend class RicWellTarget3dEditor;
     caf::PdmField<bool>                          m_isEnabled;
     caf::PdmField<caf::AppEnum<TargetTypeEnum> > m_targetType;
     caf::PdmField<cvf::Vec3d>                    m_targetPoint;

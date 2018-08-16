@@ -41,6 +41,7 @@ public:
 
     enum WellStartType { START_AT_FIRST_TARGET, START_AT_SURFACE, START_FROM_OTHER_WELL, START_AT_AUTO_SURFACE };
 
+    cvf::Vec3d referencePoint() { return m_referencePoint;}
     cvf::ref<RigWellPath> createWellPathGeometry();
     
     void updateWellPathVisualization();
@@ -54,6 +55,7 @@ public:
 
     virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
 
+    std::vector<RimWellPathTarget*> activeWellTargets() const;
 protected:
     virtual void defineCustomContextMenu(const caf::PdmFieldHandle* fieldNeedingMenu, 
                                          QMenu* menu, 
@@ -64,7 +66,6 @@ private:
     virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
     virtual void defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName) override;
 
-    std::vector<RimWellPathTarget*> activeWellTargets() const;
     std::vector<cvf::Vec3d>         lineArcEndpoints() const;
     cvf::Vec3d                      startTangent() const;
 
@@ -77,6 +78,3 @@ private:
 
     caf::PdmChildArrayField<RimWellPathTarget*>      m_wellTargets;
 };
-
-
-
