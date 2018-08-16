@@ -100,8 +100,8 @@ set( PROJECT_FILES
     cafPdmUiListView.h
     cafPdmUiListViewEditor.cpp
     cafPdmUiListViewEditor.h
-    cafPdmUiTableItemEditor.cpp
-    cafPdmUiTableItemEditor.h
+    cafPdmUiTableRowEditor.cpp
+    cafPdmUiTableRowEditor.h
     cafPdmUiTableView.cpp
     cafPdmUiTableView.h
     cafPdmUiTableViewDelegate.cpp

@@ -35,7 +35,7 @@
 //##################################################################################################
 
 
-#include "cafPdmUiTableItemEditor.h"
+#include "cafPdmUiTableRowEditor.h"
 
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
@@ -50,7 +50,7 @@ namespace caf
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-PdmUiTableItemEditor::PdmUiTableItemEditor(PdmUiTableViewQModel* model, caf::PdmObjectHandle* pdmObject, int row)
+PdmUiTableRowEditor::PdmUiTableRowEditor(PdmUiTableViewQModel* model, caf::PdmObjectHandle* pdmObject, int row)
 {
     m_model = model;
     m_row = row;
@@ -62,14 +62,14 @@ PdmUiTableItemEditor::PdmUiTableItemEditor(PdmUiTableViewQModel* model, caf::Pdm
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-PdmUiTableItemEditor::~PdmUiTableItemEditor()
+PdmUiTableRowEditor::~PdmUiTableRowEditor()
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void PdmUiTableItemEditor::configureAndUpdateUi(const QString& uiConfigName)
+void PdmUiTableRowEditor::configureAndUpdateUi(const QString& uiConfigName)
 {
     caf::PdmUiObjectHandle* uiObject = dynamic_cast<caf::PdmUiObjectHandle*>(this->pdmItem());
     if (uiObject)

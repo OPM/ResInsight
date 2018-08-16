@@ -52,7 +52,7 @@ class PdmChildArrayFieldHandle;
 class PdmObjectHandle;
 class PdmUiFieldEditorHandle;
 class PdmUiItem;
-class PdmUiTableItemEditor;
+class PdmUiTableRowEditor;
 class PdmUiTreeOrdering;
 class PdmUiTreeViewEditor;
 
@@ -124,7 +124,7 @@ private:
     std::map<QString, PdmUiFieldEditorHandle*>  m_fieldEditors;
     std::vector<int>                            m_modelColumnIndexToFieldIndex;
 
-    std::vector<PdmUiTableItemEditor*>          m_tableRowEditors;
+    std::vector<PdmUiTableRowEditor*>          m_tableRowEditors;
 
     PdmUiTableViewPushButtonEditorAttribute     m_pushButtonEditorAttributes;
 };

@@ -45,7 +45,7 @@
 #include "cafPdmUiDateEditor.h"
 #include "cafPdmUiFieldEditorHelper.h"
 #include "cafPdmUiLineEditor.h"
-#include "cafPdmUiTableItemEditor.h"
+#include "cafPdmUiTableRowEditor.h"
 #include "cafPdmUiTableView.h"
 #include "cafSelectionManager.h"
 
@@ -561,7 +561,7 @@ void PdmUiTableViewQModel::recreateTableItemEditors()
         for (size_t i = 0; i < childArrayField->size(); i++)
         {
             PdmObjectHandle* pdmObject = childArrayField->at(i);
-            m_tableRowEditors.push_back(new PdmUiTableItemEditor(this, pdmObject, static_cast<int>(i)));
+            m_tableRowEditors.push_back(new PdmUiTableRowEditor(this, pdmObject, static_cast<int>(i)));
         }
     }
 }

@@ -45,24 +45,21 @@ namespace caf
 class PdmUiTableViewQModel;
 class PdmObjectHandle;
 
-
 //--------------------------------------------------------------------------------------------------
 /// This class is used to update a row in the model when a field value changes
 //--------------------------------------------------------------------------------------------------
-class PdmUiTableItemEditor : public PdmUiEditorHandle
+class PdmUiTableRowEditor : public PdmUiEditorHandle
 {
 public:
-    PdmUiTableItemEditor(PdmUiTableViewQModel* model, caf::PdmObjectHandle* pdmObject, int row);
-    virtual ~PdmUiTableItemEditor();
+    PdmUiTableRowEditor(PdmUiTableViewQModel* model, caf::PdmObjectHandle* pdmObject, int row);
+    virtual ~PdmUiTableRowEditor();
 
 protected: // Interface to override:
-    virtual void configureAndUpdateUi(const QString& uiConfigName);
+    void configureAndUpdateUi(const QString& uiConfigName) override;
 
 private:
-    QPointer<PdmUiTableViewQModel>  m_model;
-    int                             m_row;
+    QPointer<PdmUiTableViewQModel> m_model;
+    int                            m_row;
 };
-
-
 
 } // End of namespace caf
