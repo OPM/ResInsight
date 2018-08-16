@@ -54,7 +54,7 @@ public:
     void        setKeyword(const QString& keyword);
     QString     keyword() const;
 
-    bool        isUiGroup() override;
+    bool        isUiGroup() const override;
 
     /// Set this group to be collapsed by default. When the user expands the group, the default no longer has any effect. 
     void         setCollapsedByDefault(bool doCollapse); 

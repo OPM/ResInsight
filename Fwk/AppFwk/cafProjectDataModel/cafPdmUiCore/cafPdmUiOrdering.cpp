@@ -165,7 +165,7 @@ caf::PdmUiGroup* PdmUiOrdering::createGroupWithIdBeforeItem(const PdmUiItem* ite
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-caf::PdmUiGroup* PdmUiOrdering::findGroup(const QString& groupId)
+caf::PdmUiGroup* PdmUiOrdering::findGroup(const QString& groupId) const
 {
     return findGroupPosition(groupId).group();
 }

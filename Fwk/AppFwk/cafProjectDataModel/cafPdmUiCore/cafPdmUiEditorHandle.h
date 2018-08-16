@@ -50,16 +50,14 @@ class PdmUiItem;
 /// Abstract class to handle editors. Inherits QObject to be able to use signals and slots
 //==================================================================================================
 
-class PdmUiEditorHandle: public QObject
+class PdmUiEditorHandle : public QObject
 {
 public:
     PdmUiEditorHandle();
     virtual ~PdmUiEditorHandle();
 
 public:
-    
     void        updateUi(const QString& uiConfigName);;
-
     void        updateUi();;
 
 protected:
@@ -99,7 +97,7 @@ public:
 protected: // Interface to override:
 
     /// Supposed to update all parts of the widgets, both visibility, sensitivity, decorations and field data
-    virtual void configureAndUpdateUi(const QString& uiConfigName)
+    void configureAndUpdateUi(const QString& uiConfigName) override
     {
         if (m_mainEditorHandle)
         {

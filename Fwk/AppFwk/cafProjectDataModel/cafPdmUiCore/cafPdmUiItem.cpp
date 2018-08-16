@@ -397,7 +397,7 @@ void PdmUiItem::setUiEditorTypeName(const QString& editorTypeName, const QString
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool PdmUiItem::isUiGroup()
+bool PdmUiItem::isUiGroup() const
 {
     return false;
 }
@@ -483,7 +483,7 @@ const PdmUiItemInfo* PdmUiItem::defaultInfo() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiItem::updateConnectedEditors()
+void PdmUiItem::updateConnectedEditors() const
 {
     std::set<PdmUiEditorHandle*>::iterator it;
     for (it = m_editors.begin(); it != m_editors.end(); ++it)
@@ -495,7 +495,7 @@ void PdmUiItem::updateConnectedEditors()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiItem::updateAllRequiredEditors()
+void PdmUiItem::updateAllRequiredEditors() const
 {
     updateConnectedEditors();
 

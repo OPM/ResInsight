@@ -74,7 +74,7 @@ public:
     PdmUiGroup*                     createGroupWithIdBeforeGroup(const QString& groupId, const QString& displayName, const QString& newGroupId);
     PdmUiGroup*                     createGroupWithIdBeforeItem(const PdmUiItem* item,   const QString& displayName, const QString& newGroupId);
 
-    PdmUiGroup*                     findGroup(const QString& groupId);
+    PdmUiGroup*                     findGroup(const QString& groupId) const;
 
     void                            skipRemainingFields(bool doSkip = true);
 

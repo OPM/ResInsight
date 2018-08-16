@@ -232,13 +232,13 @@ public:
     QString          uiEditorTypeName(const QString& uiConfigName) const;
     void             setUiEditorTypeName(const QString& editorTypeName, const QString& uiConfigName = "");
 
-    virtual bool     isUiGroup();
+    virtual bool     isUiGroup() const;
 
     /// Intended to be called when fields in an object has been changed
-    void             updateConnectedEditors();
+    void             updateConnectedEditors() const;
 
     /// Intended to be called when an object has been created or deleted
-    void             updateAllRequiredEditors();
+    void             updateAllRequiredEditors() const;
 
     void             updateUiIconFromState(bool isActive,  const QString& uiConfigName = "");
 
