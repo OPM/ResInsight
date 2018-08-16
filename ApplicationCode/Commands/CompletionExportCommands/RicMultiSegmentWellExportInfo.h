@@ -33,10 +33,10 @@ class RimFishbonesMultipleSubs;
 //==================================================================================================
 /// 
 //==================================================================================================
-class RicWellSegmentSubSegmentIntersection
+class RicWellSubSegmentCellIntersection
 {
 public:
-    RicWellSegmentSubSegmentIntersection(const QString& gridName, // Pass in empty string for main grid
+    RicWellSubSegmentCellIntersection(const QString& gridName, // Pass in empty string for main grid
                                          size_t globalCellIndex,
                                          const cvf::Vec3st& gridLocalCellIJK,
                                          const cvf::Vec3d& lengthsInCell);
@@ -54,10 +54,10 @@ private:
 //==================================================================================================
 /// 
 //==================================================================================================
-class RicWellSegmentSubSegment
+class RicWellSubSegment
 {
 public:
-    RicWellSegmentSubSegment(double startMD,
+    RicWellSubSegment(double startMD,
                              double deltaMD,
                              double startTVD,
                              double deltaTVD);
@@ -72,10 +72,10 @@ public:
 
     void              setSegmentNumber(int segmentNumber);
     void              setAttachedSegmentNumber(int attachedSegmentNumber);
-    void              addIntersection(const RicWellSegmentSubSegmentIntersection& intersection);
+    void              addIntersection(const RicWellSubSegmentCellIntersection& intersection);
 
-    const std::vector<RicWellSegmentSubSegmentIntersection>& intersections() const;
-    std::vector<RicWellSegmentSubSegmentIntersection>&       intersections();
+    const std::vector<RicWellSubSegmentCellIntersection>& intersections() const;
+    std::vector<RicWellSubSegmentCellIntersection>&       intersections();
     
 
 private:
@@ -86,7 +86,7 @@ private:
     int         m_segmentNumber;
     int         m_attachedSegmentNumber;
 
-    std::vector<RicWellSegmentSubSegmentIntersection> m_intersections;
+    std::vector<RicWellSubSegmentCellIntersection> m_intersections;
 };
 
 //==================================================================================================
@@ -102,15 +102,15 @@ public:
     int                                            branchNumber() const;
     void                                           setBranchNumber(int branchNumber);
 
-    void                                           addSubSegment(const RicWellSegmentSubSegment& subSegment);
-    std::vector<RicWellSegmentSubSegment>&         subSegments();
-    const std::vector<RicWellSegmentSubSegment>&   subSegments() const;
+    void                                           addSubSegment(const RicWellSubSegment& subSegment);
+    std::vector<RicWellSubSegment>&         subSegments();
+    const std::vector<RicWellSubSegment>&   subSegments() const;
     
 private:
     RigCompletionData::CompletionType      m_completionType;
     size_t                                 m_index;
     int                                    m_branchNumber;
-    std::vector<RicWellSegmentSubSegment>  m_subSegments;
+    std::vector<RicWellSubSegment>  m_subSegments;
 };
 
 //==================================================================================================

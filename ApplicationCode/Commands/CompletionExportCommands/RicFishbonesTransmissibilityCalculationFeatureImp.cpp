@@ -78,9 +78,9 @@ void RicFishbonesTransmissibilityCalculationFeatureImp::findFishboneLateralsWell
     {
         for (const RicWellSegmentCompletion& lateral : location.completions())
         {
-            for (const RicWellSegmentSubSegment& segment : lateral.subSegments())
+            for (const RicWellSubSegment& segment : lateral.subSegments())
             {
-                for (const RicWellSegmentSubSegmentIntersection& intersection : segment.intersections())
+                for (const RicWellSubSegmentCellIntersection& intersection : segment.intersections())
                 {
                     double diameter = location.holeDiameter();
                     QString completionMetaData = (location.label() + QString(": Sub: %1 Lateral: %2").arg(location.subIndex()).arg(lateral.index()));
