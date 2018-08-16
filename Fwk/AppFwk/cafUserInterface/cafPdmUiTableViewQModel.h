@@ -86,7 +86,7 @@ public:
 
     QItemSelection          modelIndexFromPdmObject(PdmObjectHandle* pdmObject);
     PdmFieldHandle*         getField(const QModelIndex &index) const;
-    void                    setPdmData(PdmChildArrayFieldHandle* pdmObject, const QString& configName);
+    void                    setArrayFieldAndBuildEditors(PdmChildArrayFieldHandle* pdmObject, const QString& configName);
     PdmObjectHandle*        pdmObjectForRow(int row) const;
 
     // Qt overrides
@@ -124,7 +124,7 @@ private:
     std::map<QString, PdmUiFieldEditorHandle*>  m_fieldEditors;
     std::vector<int>                            m_modelColumnIndexToFieldIndex;
 
-    std::vector<PdmUiTableItemEditor*>          m_tableItemEditors;
+    std::vector<PdmUiTableItemEditor*>          m_tableRowEditors;
 
     PdmUiTableViewPushButtonEditorAttribute     m_pushButtonEditorAttributes;
 };

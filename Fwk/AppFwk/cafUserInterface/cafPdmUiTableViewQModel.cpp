@@ -325,7 +325,7 @@ QVariant PdmUiTableViewQModel::data(const QModelIndex &index, int role /*= Qt::D
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void PdmUiTableViewQModel::setPdmData(PdmChildArrayFieldHandle* listField, const QString& configName)
+void PdmUiTableViewQModel::setArrayFieldAndBuildEditors(PdmChildArrayFieldHandle* listField, const QString& configName)
 {
     beginResetModel();
 
@@ -445,13 +445,11 @@ void PdmUiTableViewQModel::setPdmData(PdmChildArrayFieldHandle* listField, const
         // Update UI for all cells, as the content potentially has changed
         // This will probably cause performance issues for large tables
 
-        std::vector<PdmObjectHandle*> objects;
-        m_pdmList->childObjects(&objects);
-
-        for (auto obj : objects)
+        for (auto tableItemEditor : m_tableRowEditors)
         {
-            obj->uiCapability()->updateConnectedEditors();
+            tableItemEditor->updateUi(configName);
         }
+
     }
 }
 
@@ -551,11 +549,11 @@ void PdmUiTableViewQModel::notifyDataChanged(const QModelIndex& topLeft, const Q
 //--------------------------------------------------------------------------------------------------
 void PdmUiTableViewQModel::recreateTableItemEditors()
 {
-    for (auto tableItemEditor : m_tableItemEditors)
+    for (auto tableItemEditor : m_tableRowEditors)
     {
         delete tableItemEditor;
     }
-    m_tableItemEditors.clear();
+    m_tableRowEditors.clear();
 
     auto childArrayField = childArrayFieldHandle();
     if (childArrayField)
@@ -563,7 +561,7 @@ void PdmUiTableViewQModel::recreateTableItemEditors()
         for (size_t i = 0; i < childArrayField->size(); i++)
         {
             PdmObjectHandle* pdmObject = childArrayField->at(i);
-            m_tableItemEditors.push_back(new PdmUiTableItemEditor(this, pdmObject, static_cast<int>(i)));
+            m_tableRowEditors.push_back(new PdmUiTableItemEditor(this, pdmObject, static_cast<int>(i)));
         }
     }
 }

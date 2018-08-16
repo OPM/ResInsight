@@ -146,7 +146,7 @@ void PdmUiTableViewEditor::configureAndUpdateUi(const QString& uiConfigName)
         this->enableHeaderText(editorAttrib.enableHeaderText);
     }
 
-    m_tableModelPdm->setPdmData(childArrayFH, uiConfigName);
+    m_tableModelPdm->setArrayFieldAndBuildEditors(childArrayFH, uiConfigName);
 
     if (m_tableModelPdm->rowCount() > 0)
     {
@@ -191,7 +191,6 @@ void PdmUiTableViewEditor::configureAndUpdateUi(const QString& uiConfigName)
         m_previousFieldHandle = childArrayFH;
     }
 
-    updateSelectionManagerFromTableSelection();
 }
 
 //--------------------------------------------------------------------------------------------------
