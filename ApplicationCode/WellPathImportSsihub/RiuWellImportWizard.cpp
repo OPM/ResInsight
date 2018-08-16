@@ -28,7 +28,6 @@
 #include "cafPdmObject.h"
 #include "cafPdmObjectGroup.h"
 #include "cafPdmUiListView.h"
-#include "cafPdmUiListViewEditor.h"
 #include "cafPdmUiPropertyView.h"
 #include "cafPdmUiTreeView.h"
 #include "cafPdmUiTreeViewEditor.h"
