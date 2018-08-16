@@ -23,7 +23,7 @@ PdmUiObjectHandle::PdmUiObjectHandle(PdmObjectHandle* owner, bool giveOwnership)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-PdmUiObjectHandle* uiObj(PdmObjectHandle* obj)
+PdmUiObjectHandle* uiObj(const PdmObjectHandle* obj)
 {
     if (!obj) return nullptr;
     PdmUiObjectHandle* uiObject = obj->capability<PdmUiObjectHandle>();

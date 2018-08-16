@@ -104,7 +104,7 @@ private:
 
 };
 
-PdmUiObjectHandle* uiObj(PdmObjectHandle* obj);
+PdmUiObjectHandle* uiObj(const PdmObjectHandle* obj);
 
 
 } // End of namespace caf
