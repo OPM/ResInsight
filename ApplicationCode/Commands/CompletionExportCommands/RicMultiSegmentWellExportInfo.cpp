@@ -10,7 +10,7 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicWellSegmentSubSegmentIntersection::RicWellSegmentSubSegmentIntersection(const QString& gridName, 
+RicWellSubSegmentCellIntersection::RicWellSubSegmentCellIntersection(const QString& gridName, 
                                                                                          size_t globalCellIndex,
                                                                                          const cvf::Vec3st& gridLocalCellIJK,
                                                                                          const cvf::Vec3d& lengthsInCell)
@@ -25,7 +25,7 @@ RicWellSegmentSubSegmentIntersection::RicWellSegmentSubSegmentIntersection(const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const QString& RicWellSegmentSubSegmentIntersection::gridName() const
+const QString& RicWellSubSegmentCellIntersection::gridName() const
 {
     return m_gridName;
 }
@@ -33,7 +33,7 @@ const QString& RicWellSegmentSubSegmentIntersection::gridName() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-size_t RicWellSegmentSubSegmentIntersection::globalCellIndex() const
+size_t RicWellSubSegmentCellIntersection::globalCellIndex() const
 {
     return m_globalCellIndex;
 }
@@ -41,7 +41,7 @@ size_t RicWellSegmentSubSegmentIntersection::globalCellIndex() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::Vec3st RicWellSegmentSubSegmentIntersection::gridLocalCellIJK() const
+cvf::Vec3st RicWellSubSegmentCellIntersection::gridLocalCellIJK() const
 {
     return m_gridLocalCellIJK;
 }
@@ -49,7 +49,7 @@ cvf::Vec3st RicWellSegmentSubSegmentIntersection::gridLocalCellIJK() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const cvf::Vec3d& RicWellSegmentSubSegmentIntersection::lengthsInCell() const
+const cvf::Vec3d& RicWellSubSegmentCellIntersection::lengthsInCell() const
 {
     return m_lengthsInCell;
 }
@@ -57,7 +57,7 @@ const cvf::Vec3d& RicWellSegmentSubSegmentIntersection::lengthsInCell() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicWellSegmentSubSegment::RicWellSegmentSubSegment(double startMD,
+RicWellSubSegment::RicWellSubSegment(double startMD,
                                                                  double deltaMD,
                                                                  double startTVD,
                                                                  double deltaTVD)
@@ -73,7 +73,7 @@ RicWellSegmentSubSegment::RicWellSegmentSubSegment(double startMD,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RicWellSegmentSubSegment::startMD() const
+double RicWellSubSegment::startMD() const
 {
     return m_startMD;
 }
@@ -81,7 +81,7 @@ double RicWellSegmentSubSegment::startMD() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RicWellSegmentSubSegment::deltaMD() const
+double RicWellSubSegment::deltaMD() const
 {
     return m_deltaMD;
 }
@@ -89,7 +89,7 @@ double RicWellSegmentSubSegment::deltaMD() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RicWellSegmentSubSegment::startTVD() const
+double RicWellSubSegment::startTVD() const
 {
     return m_startTVD;
 }
@@ -97,7 +97,7 @@ double RicWellSegmentSubSegment::startTVD() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RicWellSegmentSubSegment::deltaTVD() const
+double RicWellSubSegment::deltaTVD() const
 {
     return m_deltaTVD;
 }
@@ -105,7 +105,7 @@ double RicWellSegmentSubSegment::deltaTVD() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int RicWellSegmentSubSegment::segmentNumber() const
+int RicWellSubSegment::segmentNumber() const
 {
     return m_segmentNumber;
 }
@@ -113,7 +113,7 @@ int RicWellSegmentSubSegment::segmentNumber() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int RicWellSegmentSubSegment::attachedSegmentNumber() const
+int RicWellSubSegment::attachedSegmentNumber() const
 {
     return m_attachedSegmentNumber;
 }
@@ -121,7 +121,7 @@ int RicWellSegmentSubSegment::attachedSegmentNumber() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicWellSegmentSubSegment::setSegmentNumber(int segmentNumber)
+void RicWellSubSegment::setSegmentNumber(int segmentNumber)
 {
     m_segmentNumber = segmentNumber;
 }
@@ -129,7 +129,7 @@ void RicWellSegmentSubSegment::setSegmentNumber(int segmentNumber)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicWellSegmentSubSegment::setAttachedSegmentNumber(int attachedSegmentNumber)
+void RicWellSubSegment::setAttachedSegmentNumber(int attachedSegmentNumber)
 {
     m_attachedSegmentNumber = attachedSegmentNumber;
 }
@@ -137,7 +137,7 @@ void RicWellSegmentSubSegment::setAttachedSegmentNumber(int attachedSegmentNumbe
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicWellSegmentSubSegment::addIntersection(const RicWellSegmentSubSegmentIntersection& intersection)
+void RicWellSubSegment::addIntersection(const RicWellSubSegmentCellIntersection& intersection)
 {
     m_intersections.push_back(intersection);
 }
@@ -145,7 +145,7 @@ void RicWellSegmentSubSegment::addIntersection(const RicWellSegmentSubSegmentInt
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::vector<RicWellSegmentSubSegmentIntersection>& RicWellSegmentSubSegment::intersections() const
+const std::vector<RicWellSubSegmentCellIntersection>& RicWellSubSegment::intersections() const
 {
     return m_intersections;
 }
@@ -153,7 +153,7 @@ const std::vector<RicWellSegmentSubSegmentIntersection>& RicWellSegmentSubSegmen
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RicWellSegmentSubSegmentIntersection>& RicWellSegmentSubSegment::intersections()
+std::vector<RicWellSubSegmentCellIntersection>& RicWellSubSegment::intersections()
 {
     return m_intersections;
 }
@@ -205,7 +205,7 @@ void RicWellSegmentCompletion::setBranchNumber(int branchNumber)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicWellSegmentCompletion::addSubSegment(const RicWellSegmentSubSegment& subSegment)
+void RicWellSegmentCompletion::addSubSegment(const RicWellSubSegment& subSegment)
 {
     m_subSegments.push_back(subSegment);
 }
@@ -213,7 +213,7 @@ void RicWellSegmentCompletion::addSubSegment(const RicWellSegmentSubSegment& sub
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RicWellSegmentSubSegment>& RicWellSegmentCompletion::subSegments()
+std::vector<RicWellSubSegment>& RicWellSegmentCompletion::subSegments()
 {
     return m_subSegments;
 }
@@ -221,7 +221,7 @@ std::vector<RicWellSegmentSubSegment>& RicWellSegmentCompletion::subSegments()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::vector<RicWellSegmentSubSegment>& RicWellSegmentCompletion::subSegments() const
+const std::vector<RicWellSubSegment>& RicWellSegmentCompletion::subSegments() const
 {
     return m_subSegments;
 }
