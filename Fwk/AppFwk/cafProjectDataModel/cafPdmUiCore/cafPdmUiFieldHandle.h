@@ -1,43 +1,40 @@
 #pragma once
 
-#include "cafPdmUiItem.h"
 #include "cafPdmFieldCapability.h"
 #include "cafPdmUiFieldHandleInterface.h"
+#include "cafPdmUiItem.h"
 
 namespace caf
 {
-
 class PdmFieldHandle;
 
 class PdmUiFieldHandle : public PdmUiItem, public PdmFieldCapability, public PdmUiFieldHandleInterface
 {
 public:
     PdmUiFieldHandle(PdmFieldHandle* owner, bool giveOwnership);
-    virtual ~PdmUiFieldHandle() { }
+    virtual ~PdmUiFieldHandle();
 
-    PdmFieldHandle* fieldHandle() { return m_owner; }
+    PdmFieldHandle* fieldHandle();
 
     // Generalized access methods for User interface
     // The QVariant encapsulates the real value, or an index into the valueOptions
 
-    virtual QVariant uiValue() const                                { return QVariant(); }
-    virtual QList<PdmOptionItemInfo>
-                     valueOptions(bool* useOptionsOnly)             { return  QList<PdmOptionItemInfo>(); }
+    virtual QVariant                 uiValue() const;
+    virtual QList<PdmOptionItemInfo> valueOptions(bool* useOptionsOnly) const;
 
-    virtual void     notifyFieldChanged(const QVariant& oldUiBasedQVariant, const QVariant& newUiBasedQVariant);
+    void notifyFieldChanged(const QVariant& oldUiBasedQVariant, const QVariant& newUiBasedQVariant) override;
 
-    bool             isAutoAddingOptionFromValue() const              { return m_isAutoAddingOptionFromValue; }
-    void             setAutoAddingOptionFromValue(bool isAddingValue) { m_isAutoAddingOptionFromValue = isAddingValue;} 
+    bool isAutoAddingOptionFromValue() const;
+    void setAutoAddingOptionFromValue(bool isAddingValue);
 
 private:
     friend class PdmUiCommandSystemProxy;
     friend class CmdFieldChangeExec;
-    virtual void     setValueFromUiEditor(const QVariant& uiValue)        {  }
+    virtual void setValueFromUiEditor(const QVariant& uiValue);
 
 private:
-    PdmFieldHandle*  m_owner;
-    bool             m_isAutoAddingOptionFromValue;
+    PdmFieldHandle* m_owner;
+    bool            m_isAutoAddingOptionFromValue;
 };
-
 
 } // End of namespace caf

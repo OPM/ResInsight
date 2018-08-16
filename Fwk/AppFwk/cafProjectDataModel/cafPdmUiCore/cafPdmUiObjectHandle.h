@@ -27,20 +27,20 @@ public:
 
     /// Method to be called from the Ui classes creating Auto Gui to get the group information 
     /// supplied by the \sa defineUiOrdering method that can be reimplemented
-    void                    uiOrdering(QString uiConfigName, PdmUiOrdering& uiOrdering) ;
+    void                    uiOrdering(const QString& uiConfigName, PdmUiOrdering& uiOrdering);
 
     /// Method to be called by Ui displaying a tree representation of the object hierarchy
     /// Caller must delete the returned object.
-    PdmUiTreeOrdering*      uiTreeOrdering(QString uiConfigName = "");
+    PdmUiTreeOrdering*      uiTreeOrdering(const QString& uiConfigName = "") const;
     /// Helper function to expand a pre-defined tree start
-    static void             expandUiTree(PdmUiTreeOrdering* root, QString uiConfigName = "");
+    static void             expandUiTree(PdmUiTreeOrdering* root, const QString& uiConfigName = "");
 
 
     /// For a specific field, return editor specific parameters used to customize the editor behavior.
-    void                    editorAttribute(const PdmFieldHandle* field, QString uiConfigName, PdmUiEditorAttribute* attribute);
+    void                    editorAttribute(const PdmFieldHandle* field, const QString& uiConfigName, PdmUiEditorAttribute* attribute);
 
     /// Return object editor specific parameters used to customize the editor behavior.
-    void                    objectEditorAttribute(QString uiConfigName, PdmUiEditorAttribute* attribute);
+    void                    objectEditorAttribute(const QString& uiConfigName, PdmUiEditorAttribute* attribute);
 
     /// Field used to control if field change of and object should be covered by undo/redo framework
     virtual bool            useUndoRedoForFieldChanged() { return true; }

@@ -35,7 +35,7 @@ PdmUiObjectHandle* uiObj(const PdmObjectHandle* obj)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void PdmUiObjectHandle::uiOrdering(QString uiConfigName, PdmUiOrdering& uiOrdering)
+void PdmUiObjectHandle::uiOrdering(const QString& uiConfigName, PdmUiOrdering& uiOrdering)
 {
     // Restore state for includeRemainingFields, as this flag
     // can be changed in defineUiOrdering()
@@ -66,7 +66,7 @@ void PdmUiObjectHandle::uiOrdering(QString uiConfigName, PdmUiOrdering& uiOrderi
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void PdmUiObjectHandle::editorAttribute(const PdmFieldHandle* field, QString uiConfigName, PdmUiEditorAttribute * attribute)
+void PdmUiObjectHandle::editorAttribute(const PdmFieldHandle* field, const QString& uiConfigName, PdmUiEditorAttribute * attribute)
 {
     this->defineEditorAttribute(field, uiConfigName, attribute);
 }
@@ -74,7 +74,7 @@ void PdmUiObjectHandle::editorAttribute(const PdmFieldHandle* field, QString uiC
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void PdmUiObjectHandle::objectEditorAttribute(QString uiConfigName, PdmUiEditorAttribute* attribute)
+void PdmUiObjectHandle::objectEditorAttribute(const QString& uiConfigName, PdmUiEditorAttribute* attribute)
 {
     this->defineObjectEditorAttribute(uiConfigName, attribute);
 }
@@ -88,7 +88,7 @@ void PdmUiObjectHandle::objectEditorAttribute(QString uiConfigName, PdmUiEditorA
 ///
 /// The caller is responsible to delete the returned PdmUiTreeOrdering
 //--------------------------------------------------------------------------------------------------
-PdmUiTreeOrdering* PdmUiObjectHandle::uiTreeOrdering(QString uiConfigName /*= ""*/)
+PdmUiTreeOrdering* PdmUiObjectHandle::uiTreeOrdering(const QString& uiConfigName /*= ""*/) const
 {
     CAF_ASSERT(this); // This method actually is possible to call on a NULL ptr without getting a crash, so we assert instead.
 
@@ -168,7 +168,7 @@ void PdmUiObjectHandle::addDefaultUiTreeChildren(PdmUiTreeOrdering* uiTreeOrderi
 /// Builds the sPdmUiTree for all the children of @param root recursively, and stores the result
 /// in root
 //--------------------------------------------------------------------------------------------------
-void PdmUiObjectHandle::expandUiTree(PdmUiTreeOrdering* root, QString uiConfigName /*= "" */)
+void PdmUiObjectHandle::expandUiTree(PdmUiTreeOrdering* root, const QString& uiConfigName /*= "" */)
 {
 #if 1
     if (!root || !root->isValid()) return;
