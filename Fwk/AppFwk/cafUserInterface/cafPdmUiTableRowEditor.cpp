@@ -34,7 +34,6 @@
 //
 //##################################################################################################
 
-
 #include "cafPdmUiTableRowEditor.h"
 
 #include "cafPdmField.h"
@@ -42,39 +41,34 @@
 #include "cafPdmUiEditorHandle.h"
 #include "cafPdmUiTableViewQModel.h"
 
-
 namespace caf
 {
-
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 PdmUiTableRowEditor::PdmUiTableRowEditor(PdmUiTableViewQModel* model, caf::PdmObjectHandle* pdmObject, int row)
 {
     m_model = model;
-    m_row = row;
+    m_row   = row;
 
     caf::PdmUiObjectHandle* uiObject = uiObj(pdmObject);
     this->bindToPdmItem(uiObject);
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-PdmUiTableRowEditor::~PdmUiTableRowEditor()
-{
-}
+PdmUiTableRowEditor::~PdmUiTableRowEditor() {}
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void PdmUiTableRowEditor::configureAndUpdateUi(const QString& uiConfigName)
 {
     caf::PdmUiObjectHandle* uiObject = dynamic_cast<caf::PdmUiObjectHandle*>(this->pdmItem());
     if (uiObject)
     {
-        // Call uiOrdering method, as this method is responsible for control of 
+        // Call uiOrdering method, as this method is responsible for control of
         // object states like hidden/readOnly, etc...
 
         caf::PdmUiOrdering dummy;
@@ -84,11 +78,10 @@ void PdmUiTableRowEditor::configureAndUpdateUi(const QString& uiConfigName)
     if (m_model)
     {
         QModelIndex miStart = m_model->index(m_row, 0);
-        QModelIndex miEnd = m_model->index(m_row, m_model->columnCount());
+        QModelIndex miEnd   = m_model->index(m_row, m_model->columnCount());
 
         m_model->notifyDataChanged(miStart, miEnd);
     }
 }
-
 
 } // end namespace caf

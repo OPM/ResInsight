@@ -54,7 +54,7 @@ public:
     PdmUiTableRowEditor(PdmUiTableViewQModel* model, caf::PdmObjectHandle* pdmObject, int row);
     virtual ~PdmUiTableRowEditor();
 
-protected: // Interface to override:
+protected:
     void configureAndUpdateUi(const QString& uiConfigName) override;
 
 private:
