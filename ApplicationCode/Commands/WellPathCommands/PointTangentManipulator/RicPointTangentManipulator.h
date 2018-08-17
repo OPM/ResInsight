@@ -54,6 +54,7 @@ public:
 
     void setOrigin(const cvf::Vec3d& origin);
     void setTangent(const cvf::Vec3d& tangent);
+    void setHandleSize(double handleSize);
 
     void appendPartsToModel(cvf::ModelBasicList* model);
 
@@ -92,6 +93,8 @@ class HitItem;
 
 template <typename> class Array;
 typedef Array<Vec3f>   Vec3fArray;
+typedef Array<uint>   UIntArray;
+
 }
 
 class RicPointTangentManipulatorPartMgr : public cvf::Object
@@ -111,6 +114,7 @@ public:
 
     void    setOrigin(const cvf::Vec3d& origin);
     void    setTangent(const cvf::Vec3d& tangent);
+    void    setHandleSize(double handleSize);
     void    originAndTangent(cvf::Vec3d* origin, cvf::Vec3d* tangent);
 
     bool    isManipulatorActive() const;
@@ -126,6 +130,7 @@ private:
     void        recreateAllGeometryAndParts();
 
     void        createHorizontalPlaneHandle();
+    void        createVerticalAxisHandle();
 
     void addHandlePart(cvf::DrawableGeo* geo,
                        const cvf::Color4f& color, 
@@ -138,6 +143,8 @@ private:
                            const cvf::String& partName);
 
     static cvf::ref<cvf::DrawableGeo> createTriangelDrawableGeo(cvf::Vec3fArray* triangleVertexArray);
+    static cvf::ref<cvf::DrawableGeo> createIndexedTriangelDrawableGeo(cvf::Vec3fArray* triangleVertexArray, 
+                                                                       cvf::UIntArray* triangleIndices);
     static cvf::ref<cvf::Part> createPart(cvf::DrawableGeo* geo,
                                           const cvf::Color4f& color,
                                           const cvf::String& partName);
@@ -149,6 +156,7 @@ private:
 
     cvf::Vec3d          m_origin;
     cvf::Vec3d          m_tangent;
+    double              m_handleSize;
 
     cvf::Vec3d          m_initialPickPoint;
     cvf::Vec3d          m_tangentOnStartManipulation;
@@ -168,7 +176,9 @@ private:
 #include "cafSelectionChangedReceiver.h"
 #include "cafPdmUiObjectEditorHandle.h"
 #include "cafFactory.h"
-
+// PdmUiObjectEditorHandle
+// PdmUiObjectWidgetEditorHandle --<| PdmUiWidgetBasedObjectEditor PdmUiObjectFormLayoutEditor 
+// PdmUiObject3dEditorHandle
 namespace caf
 {
 
