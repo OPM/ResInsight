@@ -479,23 +479,43 @@ QString RicWellPathFractureTextReportFeatureImpl::createFractureInstancesText(
     configureFormatter(&formatter);
 
     std::vector<RifEclipseOutputTableColumn> header = {
-        RifEclipseOutputTableColumn("Well"),
-        RifEclipseOutputTableColumn("Fracture"),
-        RifEclipseOutputTableColumn("Template"),
+        RifEclipseOutputTableColumn(""),
+        RifEclipseOutputTableColumn(""),
+        RifEclipseOutputTableColumn(""),
         floatNumberColumn("MD"),
         floatNumberColumn("Dip"),
         floatNumberColumn("Tilt"),
         floatNumberColumn("LPerf"),
         floatNumberColumn("PerfEff"),
         floatNumberColumn("Wdia"),
+        RifEclipseOutputTableColumn(
+            "Dfac", RifEclipseOutputTableDoubleFormatting(RifEclipseOutputTableDoubleFormat::RIF_SCIENTIFIC), RIGHT),
     };
 
     formatter.header(header);
+
+    // Second header line
+    {
+        formatter.add("Well");
+        formatter.add("Fracture");
+        formatter.add("Template");
+        formatter.add(""); // MD
+        formatter.add(""); // Dip
+        formatter.add(""); // Tilt
+        formatter.add("[m]"); // LPerf
+        formatter.add("[]"); // PerfEff
+        formatter.add("[m]"); // WDia
+        formatter.add("[...]"); // Dfac
+
+        formatter.rowCompleted();
+    }
 
     formatter.addHorizontalLine('-');
 
     for (const auto& fracture : fractures)
     {
+        fracture->ensureValidNonDarcyProperties();
+
         QString wellName;
 
         RimWellPath* wellPath = nullptr;
@@ -521,8 +541,9 @@ QString RicWellPathFractureTextReportFeatureImpl::createFractureInstancesText(
         formatter.add(fracture->dip());
         formatter.add(fracture->tilt());
         formatter.add(fracture->perforationLength());
-        formatter.add(fracture->perforationLength());
+        formatter.add(fracture->perforationEfficiency());
         formatter.add(fracture->wellRadius() * 2.0);
+        formatter.add(fracture->nonDarcyProperties().dFactor);
 
         formatter.rowCompleted();
     }
