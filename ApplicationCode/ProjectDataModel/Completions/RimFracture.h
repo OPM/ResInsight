@@ -49,6 +49,7 @@ public:
         , conductivity(std::numeric_limits<double>::infinity())
         , effectivePermeability(std::numeric_limits<double>::infinity())
         , dFactor(std::numeric_limits<double>::infinity())
+        , eqWellRadius(std::numeric_limits<double>::infinity())
         , isDataDirty(true)
     {
     }
@@ -58,6 +59,7 @@ public:
         return isDataDirty;
     }
 
+    double eqWellRadius;
     double width;
     double conductivity;
     double effectivePermeability;

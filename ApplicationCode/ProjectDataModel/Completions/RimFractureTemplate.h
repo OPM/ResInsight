@@ -164,6 +164,7 @@ public:
     double                          computeDFactor(const RimFracture* fractureInstance) const;
     double                          computeKh(const RimFracture* fractureInstance) const;
     double                          computeEffectivePermeability(const RimFracture* fractureInstance) const;
+    double                          computeWellRadiusForDFactorCalculation(const RimFracture* fractureInstance) const;
     double                          computeFractureWidth(const RimFracture* fractureInstance) const;
 
 protected:
@@ -180,6 +181,7 @@ private:
     virtual FractureWidthAndConductivity widthAndConductivityAtWellPathIntersection(const RimFracture* fractureInstance) const = 0;
 
     QString                         dFactorSummary() const;
+    double                          dFactorForTemplate() const;
 
 protected:
     caf::PdmField<int>                                 m_id;
@@ -209,7 +211,7 @@ protected:
     caf::PdmField<double>                              m_relativeGasDensity;
     caf::PdmField<double>                              m_gasViscosity;
 
-    //caf::PdmProxyValueField<double>                    m_dFactorDisplayField;
+    caf::PdmProxyValueField<double>                    m_dFactorDisplayField;
     caf::PdmProxyValueField<QString>                   m_dFactorSummaryText;
 
     caf::PdmField<double>                              m_heightScaleFactor;

@@ -147,13 +147,11 @@ RimFractureTemplate::RimFractureTemplate()
     CAF_PDM_InitField(&m_relativeGasDensity,            "RelativeGasDensity",   0.8,    "<html>Relative Gas Density (&gamma;)</html>", "", "Relative density of gas at surface conditions with respect to air at STP", "");
     CAF_PDM_InitField(&m_gasViscosity,                  "GasViscosity",         0.02,   "<html>Gas Viscosity (&mu;)</html> [cP]", "", "Gas viscosity at bottom hole pressure", "");
 
-/*
     CAF_PDM_InitFieldNoDefault(&m_dFactorDisplayField, "dFactorDisplayField", "D Factor", "", "", "");
-    m_dFactorDisplayField.registerGetMethod(this, &RimFractureTemplate::dFactor);
+    m_dFactorDisplayField.registerGetMethod(this, &RimFractureTemplate::dFactorForTemplate);
     m_dFactorDisplayField.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleValueEditor::uiEditorTypeName());
     m_dFactorDisplayField.uiCapability()->setUiReadOnly(true);
     m_dFactorDisplayField.xmlCapability()->disableIO();
-*/
 
     CAF_PDM_InitFieldNoDefault(&m_dFactorSummaryText, "dFactorSummaryText", "D Factor Summary", "", "", "");
     m_dFactorSummaryText.registerGetMethod(this, &RimFractureTemplate::dFactorSummary);
@@ -355,7 +353,11 @@ void RimFractureTemplate::defineUiOrdering(QString uiConfigName, caf::PdmUiOrder
 
         nonDarcyFlowGroup->add(&m_relativeGasDensity);
         nonDarcyFlowGroup->add(&m_gasViscosity);
-        //        nonDarcyFlowGroup->add(&m_dFactorDisplayField);
+
+        if (orientationType() != ALONG_WELL_PATH)
+        {
+            nonDarcyFlowGroup->add(&m_dFactorDisplayField);
+        }
 
         {
             auto group = nonDarcyFlowGroup->addNewGroup("D Factor Details");
@@ -498,7 +500,7 @@ void RimFractureTemplate::prepareFieldsForUiDisplay()
 
 QString indentedText(const QString& text)
 {
-    return QString("<pre>  %1</pre>").arg(text);
+    return QString("  %1\n").arg(text);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -508,41 +510,78 @@ QString RimFractureTemplate::dFactorSummary() const
 {
     QString text;
 
-    auto fractures = fracturesUsingThisTemplate();
-    for (auto f : fractures)
+    std::vector<RimFracture*> fracturesToDisplay;
+    {
+        auto candidateFractures = fracturesUsingThisTemplate();
+
+        if (orientationType() != ALONG_WELL_PATH)
+        {
+            // D-factor values are identical for all fractures, only show summary for the first fracture
+            if (!candidateFractures.empty())
+            {
+                fracturesToDisplay.push_back(candidateFractures.front());
+            }
+        }
+        else
+        {
+            fracturesToDisplay = candidateFractures;
+        }
+    }
+
+    for (auto f : fracturesToDisplay)
     {
         f->ensureValidNonDarcyProperties();
 
-        text += QString("Fracture name : %1").arg(f->name());
+        if (orientationType() == ALONG_WELL_PATH)
+        {
+            text += QString("Fracture name : %1").arg(f->name());
+        }
 
-        auto val = f->nonDarcyProperties().dFactor;
-        text += indentedText(QString("D-factor : %1").arg(val));
+        text += "<pre>";
+        {
+            auto val = f->nonDarcyProperties().dFactor;
+            text += indentedText(QString("D-factor : %1").arg(val));
 
-        auto alpha = RiaDefines::nonDarcyFlowAlpha(m_fractureTemplateUnit());
-        text += indentedText(QString("&alpha;  : %1").arg(alpha));
+            auto alpha = RiaDefines::nonDarcyFlowAlpha(m_fractureTemplateUnit());
+            text += indentedText(QString("&alpha;  : %1").arg(alpha));
 
-        auto beta = m_inertialCoefficient;
-        text += indentedText(QString("&beta;  : %1").arg(beta));
+            auto beta = m_inertialCoefficient;
+            text += indentedText(QString("&beta;  : %1").arg(beta));
 
-        double effPerm = f->nonDarcyProperties().effectivePermeability;
-        text += indentedText(QString("Ke : %1").arg(effPerm));
+            double effPerm = f->nonDarcyProperties().effectivePermeability;
+            text += indentedText(QString("Ke : %1").arg(effPerm));
 
-        double gamma = m_relativeGasDensity;
-        text += indentedText(QString("&gamma;  : %1").arg(gamma));
+            double gamma = m_relativeGasDensity;
+            text += indentedText(QString("&gamma;  : %1").arg(gamma));
 
-        auto h = f->nonDarcyProperties().width;
-        text += indentedText(QString("h  : %1").arg(h));
+            auto h = f->nonDarcyProperties().width;
+            text += indentedText(QString("h  : %1").arg(h));
 
-        auto wellRadius = m_wellDiameter / 2.0;
-        text += indentedText(QString("rw : %1").arg(wellRadius));
+            auto wellRadius = f->nonDarcyProperties().eqWellRadius;
+            text += indentedText(QString("rw : %1").arg(wellRadius));
 
-        auto mu = m_gasViscosity;
-        text += indentedText(QString("&mu;  : %1").arg(mu));
+            auto mu = m_gasViscosity;
+            text += indentedText(QString("&mu;  : %1").arg(mu));
+        }
+        text += "</pre>";
 
         text += "<br>";
     }
 
     return text;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimFractureTemplate::dFactorForTemplate() const
+{
+    if (orientationType() == ALONG_WELL_PATH)
+    {
+        return std::numeric_limits<double>::infinity();
+    }
+
+    return computeDFactor(nullptr);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -579,6 +618,27 @@ double RimFractureTemplate::computeEffectivePermeability(const RimFracture* frac
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+double RimFractureTemplate::computeWellRadiusForDFactorCalculation(const RimFracture* fractureInstance) const
+{
+    double radius = 0.0;
+
+    if (m_orientationType == ALONG_WELL_PATH && fractureInstance)
+    {
+        auto perforationLength = fractureInstance->perforationLength();
+
+        radius = perforationLength / cvf::PI_D;
+    }
+    else
+    {
+        radius = m_wellDiameter / 2.0;
+    }
+
+    return radius;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 double RimFractureTemplate::computeDFactor(const RimFracture* fractureInstance) const
 {
     double d;
@@ -589,26 +649,14 @@ double RimFractureTemplate::computeDFactor(const RimFracture* fractureInstance) 
     }
     else
     {
-        double radius = 0.0;
+        double radius  = computeWellRadiusForDFactorCalculation(fractureInstance);
+        double alpha   = RiaDefines::nonDarcyFlowAlpha(m_fractureTemplateUnit());
+        double beta    = m_inertialCoefficient;
+        double effPerm = computeEffectivePermeability(fractureInstance);
+        double gamma   = m_relativeGasDensity;
 
-        if (m_orientationType == ALONG_WELL_PATH && fractureInstance)
-        {
-            auto perforationLength = fractureInstance->perforationLength();
-
-            radius = perforationLength / cvf::PI_D;
-        }
-        else
-        {
-            radius = m_wellDiameter / 2.0;
-        }
-
-        auto alpha   = RiaDefines::nonDarcyFlowAlpha(m_fractureTemplateUnit());
-        auto beta    = m_inertialCoefficient;
-        auto effPerm = computeEffectivePermeability(fractureInstance);
-        auto gamma   = m_relativeGasDensity;
-
-        auto mu = m_gasViscosity;
-        auto h  = computeFractureWidth(fractureInstance);
+        double mu = m_gasViscosity;
+        double h  = computeFractureWidth(fractureInstance);
 
         double numerator   = alpha * beta * effPerm * gamma;
         double denumerator = h * radius * mu;
