@@ -560,7 +560,7 @@ void RimFishbonesMultipleSubs::computeRangesAndLocations()
 
                 for (auto md : locationsFromStartSpacingAndCount(m_rangeStart, m_rangeSubSpacing, m_rangeSubCount))
                 {
-                    if (md > firstWellPathMD && md < lastWellPathMD)
+                    if (md >= firstWellPathMD && md <= lastWellPathMD)
                     {
                         validMeasuredDepths.push_back(md);
                     }
