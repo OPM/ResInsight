@@ -134,17 +134,17 @@ private:
 
     static void                           assignFishbonesLateralIntersections(const RimEclipseCase*           caseToApply,
                                                                               const RimFishbonesMultipleSubs* fishbonesSubs,
-                                                                              RicWellSegmentLocation*         location,
+                                                                              RicMswWellSegment*              location,
                                                                               bool*                           foundSubGridIntersections);
 
     static void                           assignFractureIntersections(const RimEclipseCase*                 caseToApply,
                                                                       const RimWellPathFracture*            fracture,
                                                                       const std::vector<RigCompletionData>& completionData,
-                                                                      RicWellSegmentLocation*               location,
+                                                                      RicMswWellSegment*                    location,
                                                                       bool*                                 foundSubGridIntersections);
 
     static void                           assignBranchAndSegmentNumbers(const RimEclipseCase*   caseToApply,
-                                                                        RicWellSegmentLocation* location,
+                                                                        RicMswWellSegment*      location,
                                                                         int*                    branchNum,
                                                                         int*                    segmentNum);
     static void                           assignBranchAndSegmentNumbers(const RimEclipseCase* caseToApply,
