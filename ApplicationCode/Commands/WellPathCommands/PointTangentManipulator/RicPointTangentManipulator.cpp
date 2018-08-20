@@ -30,6 +30,7 @@
 
 #include <QDebug>
 #include <QMouseEvent>
+#include "RivPartPriority.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -317,9 +318,8 @@ void RicPointTangentManipulatorPartMgr::tryToActivateManipulator(const cvf::HitI
 void RicPointTangentManipulatorPartMgr::updateManipulatorFromRay(const cvf::Ray* ray)
 {
     if (!isManipulatorActive()) return;
-    //if (m_boxPart.isNull()) return;
-    //
-    //
+
+
     //BoxFace face = m_handleIds[m_currentHandleIndex].first;
     //cvf::Vec3d faceDir = normalFromFace(face);
     //
@@ -437,7 +437,7 @@ void  RicPointTangentManipulatorPartMgr::createVerticalAxisHandle()
     using namespace cvf;
     
     cvf::ref< cvf::GeometryBuilderTriangles> geomBuilder = new cvf::GeometryBuilderTriangles;
-    cvf::GeometryUtils::createBox({-0.25f, -0.25f, -1.0f}, { 0.25f,  0.25f, 1.0f}, geomBuilder.p());
+    cvf::GeometryUtils::createBox({-0.3f, -0.3f, -1.0f}, { 0.3f,  0.3f, 1.0f}, geomBuilder.p());
     
     cvf::ref<cvf::Vec3fArray> vertexArray = geomBuilder->vertices();
     cvf::ref<cvf::UIntArray> indexArray = geomBuilder->triangles();
@@ -538,6 +538,7 @@ cvf::ref<cvf::Part> RicPointTangentManipulatorPartMgr::createPart(cvf::DrawableG
     caf::SurfaceEffectGenerator surfaceGen(color, caf::PO_1);
     cvf::ref<cvf::Effect> eff = surfaceGen.generateCachedEffect();
     part->setEffect(eff.p());
+    if (color.a() < 1.0) part->setPriority(RivPartPriority::Transparent);
 
     return part;
 }
@@ -620,6 +621,12 @@ void PdmUiSelectionVisualizer3d::onSelectionManagerSelectionChanged()
     m_active3DEditors.clear();
      
     if (!m_ownerViewer) return;
+
+    // Todo: How do we deduce the editor from the selected object ?
+    // Alt 1: Register the rim object type name as kay in the factory as well
+    // Alt 2: Set the editor type name as PdmUiItem::setUiEditorTypeName
+    // Alt 3: Use a specific config-name in alt 2.
+    // Alt 4: Introduce a PdmUiItem::editorTypeName3d
 
     std::vector<RimWellPathGeometryDef*> wellPathGeomDefs;
     caf::SelectionManager::instance()->objectsByType(&wellPathGeomDefs);
@@ -774,7 +781,7 @@ void RicWellTarget3dEditor::configureAndUpdateUi(const QString& uiConfigName)
         RiuViewer* viewer = dynamic_cast<RiuViewer*>(m_ownerViewer.data());
         dispXf = viewer->ownerReservoirView()->displayCoordTransform();
         Rim3dView* view = dynamic_cast<Rim3dView*>(viewer->ownerReservoirView());
-        handleSize = 0.5 * view->ownerCase()->characteristicCellSize();
+        handleSize = 0.7 * view->ownerCase()->characteristicCellSize();
     }
 
     m_manipulator->setOrigin(dispXf->transformToDisplayCoord( target->targetPointXYZ() + geomDef->referencePoint()));
