@@ -83,7 +83,6 @@ void RicExportFracturesWellSegmentsFeature::exportWellSegments(const RimWellPath
     RifEclipseDataTableFormatter formatter(stream);
     RicWellPathExportCompletionDataFeatureImpl::generateWelsegsTable(formatter, exportInfo);
     RicWellPathExportCompletionDataFeatureImpl::generateCompsegTables(formatter, exportInfo);
-    RicWellPathExportCompletionDataFeatureImpl::generateWsegvalvTable(formatter, exportInfo);
 }
 
 //--------------------------------------------------------------------------------------------------
