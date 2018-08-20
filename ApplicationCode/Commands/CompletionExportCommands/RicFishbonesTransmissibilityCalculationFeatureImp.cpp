@@ -212,8 +212,8 @@ void RicFishbonesTransmissibilityCalculationFeatureImp::findFishboneLateralsWell
             appendMainWellBoreParts(wellBorePartsInCells,
                                     wellPath,
                                     settings,
-                                    holeRadius,
                                     skinFactor,
+                                    holeRadius,
                                     fishboneDefinition->startOfSubMD(),
                                     fishboneDefinition->endOfSubMD());
         }
