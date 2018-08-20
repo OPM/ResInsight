@@ -217,9 +217,6 @@ void RicFishbonesTransmissibilityCalculationFeatureImp::findFishboneImportedLate
     if (!wellPath) return;
     if (!wellPath->wellPathGeometry()) return;
 
-    std::set<size_t> wellPathCells = RigWellPathIntersectionTools::findIntersectedGlobalCellIndicesForWellPath(
-        settings.caseToApply()->eclipseCaseData(), wellPath->wellPathGeometry());
-
     bool   isMainBore = false;
     double diameter   = wellPath->fishbonesCollection()->wellPathCollection()->holeDiameter(unitSystem);
     for (const RimFishboneWellPath* fishbonesPath : wellPath->fishbonesCollection()->wellPathCollection()->wellPaths())
@@ -235,8 +232,6 @@ void RicFishbonesTransmissibilityCalculationFeatureImp::findFishboneImportedLate
 
         for (const auto& cellIntersectionInfo : intersectedCells)
         {
-            if (wellPathCells.count(cellIntersectionInfo.globCellIndex)) continue;
-
             double                   skinFactor         = wellPath->fishbonesCollection()->wellPathCollection()->skinFactor();
             QString                  completionMetaData = fishbonesPath->name();
             WellBorePartForTransCalc wellBorePart       = WellBorePartForTransCalc(
