@@ -1,23 +1,24 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2017-     Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RicExportCompletionDataSettingsUi.h"
 
+// clang-format off
 namespace caf
 {
     template<>
@@ -45,12 +46,12 @@ namespace caf
         setDefault(RicExportCompletionDataSettingsUi::INDIVIDUALLY);
     }
 }
-
+// clang-format on
 
 CAF_PDM_SOURCE_INIT(RicExportCompletionDataSettingsUi, "RicExportCompletionDataSettingsUi");
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RicExportCompletionDataSettingsUi::RicExportCompletionDataSettingsUi()
 {
@@ -67,21 +68,35 @@ RicExportCompletionDataSettingsUi::RicExportCompletionDataSettingsUi()
     CAF_PDM_InitField(&includePerforations, "IncludePerforations", true, "Perforations", "", "", "");
     CAF_PDM_InitField(&includeFishbones, "IncludeFishbones", true, "Fishbones", "", "", "");
     CAF_PDM_InitField(&includeFractures, "IncludeFractures", true, "Fractures", "", "", "");
-    CAF_PDM_InitField(&m_includeFracturesSummaryHeader, "IncludeFracturesSummaryHeader", false, "Append Detailed Text Summary (BETA)", "", "", "");
 
-    CAF_PDM_InitField(&excludeMainBoreForFishbones, "ExcludeMainBoreForFishbones", false, "  Exclude Main Bore Transmissibility", "", "", "");
-    
-    CAF_PDM_InitFieldNoDefault(&m_reportCompletionTypesSeparately, "ReportCompletionTypesSeparately", "Export Completion Types", "", "", "");
+    CAF_PDM_InitField(&m_includeFracturesSummaryHeader,
+                      "IncludeFracturesSummaryHeader",
+                      false,
+                      "Append Detailed Text Summary (BETA)",
+                      "",
+                      "",
+                      "");
+
+    CAF_PDM_InitField(&excludeMainBoreForFishbones,
+                      "ExcludeMainBoreForFishbones",
+                      false,
+                      "  Exclude Main Bore Transmissibility",
+                      "",
+                      "Main bore perforation intervals are defined by start/end MD of each active fishbone sub definition",
+                      "");
+
+    CAF_PDM_InitFieldNoDefault(
+        &m_reportCompletionTypesSeparately, "ReportCompletionTypesSeparately", "Export Completion Types", "", "", "");
 
     m_displayForSimWell = true;
-    
-    m_fracturesEnabled = true;
+
+    m_fracturesEnabled    = true;
     m_perforationsEnabled = true;
-    m_fishbonesEnabled = true;
+    m_fishbonesEnabled    = true;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicExportCompletionDataSettingsUi::showForSimWells()
 {
@@ -89,7 +104,7 @@ void RicExportCompletionDataSettingsUi::showForSimWells()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicExportCompletionDataSettingsUi::showForWellPath()
 {
@@ -97,7 +112,7 @@ void RicExportCompletionDataSettingsUi::showForWellPath()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicExportCompletionDataSettingsUi::setCombinationMode(CombinationMode combinationMode)
 {
@@ -105,7 +120,7 @@ void RicExportCompletionDataSettingsUi::setCombinationMode(CombinationMode combi
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicExportCompletionDataSettingsUi::showFractureInUi(bool enable)
 {
@@ -113,7 +128,7 @@ void RicExportCompletionDataSettingsUi::showFractureInUi(bool enable)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicExportCompletionDataSettingsUi::showPerforationsInUi(bool enable)
 {
@@ -121,7 +136,7 @@ void RicExportCompletionDataSettingsUi::showPerforationsInUi(bool enable)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicExportCompletionDataSettingsUi::showFishbonesInUi(bool enable)
 {
@@ -129,7 +144,7 @@ void RicExportCompletionDataSettingsUi::showFishbonesInUi(bool enable)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicExportCompletionDataSettingsUi::reportCompletionsTypesIndividually() const
 {
@@ -137,7 +152,7 @@ bool RicExportCompletionDataSettingsUi::reportCompletionsTypesIndividually() con
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicExportCompletionDataSettingsUi::includeFracturesSummaryHeader() const
 {
@@ -145,9 +160,11 @@ bool RicExportCompletionDataSettingsUi::includeFracturesSummaryHeader() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RicExportCompletionDataSettingsUi::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+void RicExportCompletionDataSettingsUi::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
+                                                         const QVariant&            oldValue,
+                                                         const QVariant&            newValue)
 {
     if (changedField == &compdatExport)
     {
@@ -165,9 +182,10 @@ void RicExportCompletionDataSettingsUi::fieldChangedByUi(const caf::PdmFieldHand
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RicExportCompletionDataSettingsUi::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly)
+QList<caf::PdmOptionItemInfo>
+    RicExportCompletionDataSettingsUi::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly)
 {
     QList<caf::PdmOptionItemInfo> options;
     if (fieldNeedingOptions == &timeStep)
@@ -192,13 +210,13 @@ QList<caf::PdmOptionItemInfo> RicExportCompletionDataSettingsUi::calculateValueO
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicExportCompletionDataSettingsUi::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
     {
         caf::PdmUiGroup* group = uiOrdering.addNewGroup("File Settings");
-    
+
         group->add(&folder);
         group->add(&fileSplit);
         group->add(&m_reportCompletionTypesSeparately);
