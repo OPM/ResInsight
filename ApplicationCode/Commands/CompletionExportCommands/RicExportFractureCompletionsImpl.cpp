@@ -142,10 +142,14 @@ std::vector<RigCompletionData>
     // To handle several fractures in the same eclipse cell we need to keep track of the transmissibility
     // to the well from each fracture intersecting the cell and sum these transmissibilities at the end.
     // std::map <eclipseCellIndex ,map< fracture, trans> >
-    std::map<size_t, std::map<const RimFracture*, double>> eclCellIdxToTransPrFractureMap;
+    //std::map<size_t, std::map<const RimFracture*, double>> eclCellIdxToTransPrFractureMap;
 
-    for (const RimFracture* fracture : fractures)
+    std::vector<std::vector<RigCompletionData>> sharedComplForFracture(fractures.size());
+
+#pragma omp parallel for
+    for (int i = 0; i < (int)fractures.size(); i++)
     {
+        RimFracture* fracture = fractures[i];
         RimFractureTemplate* fracTemplate = fracture->fractureTemplate();
 
         if (!fracTemplate) continue;
@@ -320,7 +324,7 @@ std::vector<RigCompletionData>
                 double trans = transCondenser.condensedTransmissibility(
                     externalCell, {true, RigTransmissibilityCondenser::CellAddress::WELL, 1});
 
-                eclCellIdxToTransPrFractureMap[externalCell.m_globalCellIdx][fracture] = trans;
+                //eclCellIdxToTransPrFractureMap[externalCell.m_globalCellIdx][fracture] = trans;
 
                 RigCompletionData compDat(wellPathName,
                                           RigCompletionDataGridCell(externalCell.m_globalCellIdx, caseToApply->mainGrid()),
@@ -459,7 +463,8 @@ std::vector<RigCompletionData>
         }
 
         std::copy(
-            allCompletionsForOneFracture.begin(), allCompletionsForOneFracture.end(), std::back_inserter(fractureCompletions));
+            allCompletionsForOneFracture.begin(), allCompletionsForOneFracture.end(), std::back_inserter(sharedComplForFracture[i]));
+
 
         if (outputStreamForIntermediateResultsText)
         {
@@ -483,5 +488,9 @@ std::vector<RigCompletionData>
         }
     }
 
+    for (const auto& completions : sharedComplForFracture)
+    {
+        std::copy(completions.begin(), completions.end(), std::back_inserter(fractureCompletions));
+    }
     return fractureCompletions;
 }

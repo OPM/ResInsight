@@ -151,7 +151,7 @@ void RigCellGeometryTools::findCellLocalXYZ(const std::array<cvf::Vec3d, 8>& hex
 //--------------------------------------------------------------------------------------------------
 ///  
 //--------------------------------------------------------------------------------------------------
-double RigCellGeometryTools::polygonLengthInLocalXdirWeightedByArea(std::vector<cvf::Vec3d> polygonToCalcLengthOf)
+double RigCellGeometryTools::polygonLengthInLocalXdirWeightedByArea(const std::vector<cvf::Vec3d>& polygonToCalcLengthOf)
 {
     //Find bounding box
     cvf::BoundingBox polygonBBox;
@@ -250,19 +250,20 @@ cvf::Vec3d fromClipperPoint(const ClipperLib::IntPoint& clipPoint)
 //--------------------------------------------------------------------------------------------------
 ///  
 //--------------------------------------------------------------------------------------------------
-std::vector<std::vector<cvf::Vec3d> > RigCellGeometryTools::intersectPolygons(std::vector<cvf::Vec3d> polygon1, std::vector<cvf::Vec3d> polygon2)
+std::vector<std::vector<cvf::Vec3d> > RigCellGeometryTools::intersectPolygons(const std::vector<cvf::Vec3d>& polygon1,
+                                                                              const std::vector<cvf::Vec3d>& polygon2)
 {
     std::vector<std::vector<cvf::Vec3d> > clippedPolygons;
     
     // Convert to int for clipper library and store as clipper "path"
     ClipperLib::Path polygon1path;
-    for (cvf::Vec3d& v : polygon1)
+    for (const cvf::Vec3d& v : polygon1)
     {
         polygon1path.push_back(toClipperPoint(v));
     }
 
     ClipperLib::Path polygon2path;
-    for (cvf::Vec3d& v : polygon2)
+    for (const cvf::Vec3d& v : polygon2)
     {
         polygon2path.push_back(toClipperPoint(v));
     }
@@ -458,28 +459,30 @@ std::vector<std::vector<cvf::Vec3d> > RigCellGeometryTools::clipPolylineByPolygo
 //--------------------------------------------------------------------------------------------------
 ///  
 //--------------------------------------------------------------------------------------------------
-std::pair<cvf::Vec3d, cvf::Vec3d> RigCellGeometryTools::getLineThroughBoundingBox(cvf::Vec3d lineDirection, cvf::BoundingBox polygonBBox, cvf::Vec3d pointOnLine)
+std::pair<cvf::Vec3d, cvf::Vec3d> RigCellGeometryTools::getLineThroughBoundingBox(const cvf::Vec3d& lineDirection,
+                                                                                  const cvf::BoundingBox& polygonBBox,
+                                                                                  const cvf::Vec3d& pointOnLine)
 {
     cvf::Vec3d bboxCorners[8];
     polygonBBox.cornerVertices(bboxCorners);
 
     cvf::Vec3d startPoint = pointOnLine;
     cvf::Vec3d endPoint = pointOnLine;
-    
+    cvf::Vec3d lineDir = lineDirection;
 
     //To avoid doing many iterations in loops below linedirection should be quite large. 
-    lineDirection.normalize();
-    lineDirection = lineDirection * polygonBBox.extent().length() / 5;
+    lineDir.normalize();
+    lineDir = lineDir * polygonBBox.extent().length() / 5;
 
     //Extend line in positive direction
     while (polygonBBox.contains(startPoint))
     {
-        startPoint = startPoint + lineDirection;
+        startPoint = startPoint + lineDir;
     }
     //Extend line in negative direction
     while (polygonBBox.contains(endPoint))
     {
-        endPoint = endPoint - lineDirection;
+        endPoint = endPoint - lineDir;
     }
 
     std::pair<cvf::Vec3d, cvf::Vec3d> line;
@@ -508,7 +511,7 @@ double RigCellGeometryTools::getLengthOfPolygonAlongLine(const std::pair<cvf::Ve
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<cvf::Vec3d> RigCellGeometryTools::unionOfPolygons(std::vector<std::vector<cvf::Vec3d>> polygons)
+std::vector<cvf::Vec3d> RigCellGeometryTools::unionOfPolygons(const std::vector<std::vector<cvf::Vec3d>>& polygons)
 {
     // Convert to int for clipper library and store as clipper "path"
     std::vector<ClipperLib::Path> polygonPaths;
