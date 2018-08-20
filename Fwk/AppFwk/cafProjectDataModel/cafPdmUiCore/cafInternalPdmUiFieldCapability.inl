@@ -169,7 +169,7 @@ QVariant caf::PdmFieldUiCap<FieldType>::uiValue() const
 //--------------------------------------------------------------------------------------------------
 
 template<typename FieldType >
-QList<PdmOptionItemInfo> caf::PdmFieldUiCap<FieldType>::valueOptions(bool* useOptionsOnly)
+QList<PdmOptionItemInfo> caf::PdmFieldUiCap<FieldType>::valueOptions(bool* useOptionsOnly) const
 {
     m_optionEntryCache.clear();
 

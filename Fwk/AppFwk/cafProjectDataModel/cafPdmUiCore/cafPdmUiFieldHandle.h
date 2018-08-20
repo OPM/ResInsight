@@ -20,7 +20,7 @@ public:
     // The QVariant encapsulates the real value, or an index into the valueOptions
 
     virtual QVariant                 uiValue() const;
-    virtual QList<PdmOptionItemInfo> valueOptions(bool* useOptionsOnly);
+    virtual QList<PdmOptionItemInfo> valueOptions(bool* useOptionsOnly) const;
 
     void notifyFieldChanged(const QVariant& oldUiBasedQVariant, const QVariant& newUiBasedQVariant) override;
 
