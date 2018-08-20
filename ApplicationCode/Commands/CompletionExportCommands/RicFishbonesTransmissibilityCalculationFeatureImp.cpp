@@ -224,6 +224,11 @@ void RicFishbonesTransmissibilityCalculationFeatureImp::findFishboneImportedLate
     double diameter   = wellPath->fishbonesCollection()->wellPathCollection()->holeDiameter(unitSystem);
     for (const RimFishboneWellPath* fishbonesPath : wellPath->fishbonesCollection()->wellPathCollection()->wellPaths())
     {
+        if (!fishbonesPath->isChecked())
+        {
+            continue;
+        }
+
         std::vector<WellPathCellIntersectionInfo> intersectedCells =
             RigWellPathIntersectionTools::findCellIntersectionInfosAlongPath(
                 settings.caseToApply->eclipseCaseData(), fishbonesPath->coordinates(), fishbonesPath->measuredDepths());
