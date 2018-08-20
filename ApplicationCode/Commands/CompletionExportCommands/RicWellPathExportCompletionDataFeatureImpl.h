@@ -47,17 +47,17 @@ class RicWellPathExportCompletionDataFeatureImpl
 {
 
 public:
-    static RicMultiSegmentWellExportInfo  generateFishbonesMswExportInfo(const RimEclipseCase* caseToApply,
+    static RicMswExportInfo               generateFishbonesMswExportInfo(const RimEclipseCase* caseToApply,
                                                                          const RimWellPath*    wellPath);
 
-    static RicMultiSegmentWellExportInfo  generateFishbonesMswExportInfo(const RimEclipseCase*                         caseToApply,
+    static RicMswExportInfo               generateFishbonesMswExportInfo(const RimEclipseCase*                         caseToApply,
                                                                          const RimWellPath*                            wellPath,
                                                                          const std::vector<RimFishbonesMultipleSubs*>& fishbonesSubs);
 
-    static RicMultiSegmentWellExportInfo  generateFracturesMswExportInfo(RimEclipseCase*    caseToApply,
+    static RicMswExportInfo               generateFracturesMswExportInfo(RimEclipseCase*    caseToApply,
                                                                          const RimWellPath* wellPath);
 
-    static RicMultiSegmentWellExportInfo  generateFracturesMswExportInfo(RimEclipseCase*                          caseToApply,
+    static RicMswExportInfo               generateFracturesMswExportInfo(RimEclipseCase*                          caseToApply,
                                                                          const RimWellPath*                       wellPath,
                                                                          const std::vector<RimWellPathFracture*>& fractures);
 
@@ -88,14 +88,14 @@ public:
                                                                                size_t timeStepIndex);
 
     static void                           generateWelsegsTable(RifEclipseDataTableFormatter& formatter,
-                                                               const RicMultiSegmentWellExportInfo& exportInfo);
+                                                               const RicMswExportInfo& exportInfo);
     static void                           generateCompsegTables(RifEclipseDataTableFormatter& formatter,
-                                                                const RicMultiSegmentWellExportInfo& exportInfo);
+                                                                const RicMswExportInfo& exportInfo);
     static void                           generateCompsegTable(RifEclipseDataTableFormatter& formatter,
-                                                               const RicMultiSegmentWellExportInfo& exportInfo,
+                                                               const RicMswExportInfo& exportInfo,
                                                                bool exportSubGridIntersections);
     static void                           generateWsegvalvTable(RifEclipseDataTableFormatter& formatter,
-                                                                const RicMultiSegmentWellExportInfo& exportInfo);
+                                                                const RicMswExportInfo& exportInfo);
 
 private:
     static double                         calculateTransmissibilityAsEclipseDoes(RimEclipseCase* eclipseCase,
@@ -134,21 +134,21 @@ private:
 
     static void                           assignFishbonesLateralIntersections(const RimEclipseCase*           caseToApply,
                                                                               const RimFishbonesMultipleSubs* fishbonesSubs,
-                                                                              RicMswWellSegment*              location,
+                                                                              RicMswSegment*                  location,
                                                                               bool*                           foundSubGridIntersections);
 
     static void                           assignFractureIntersections(const RimEclipseCase*                 caseToApply,
                                                                       const RimWellPathFracture*            fracture,
                                                                       const std::vector<RigCompletionData>& completionData,
-                                                                      RicMswWellSegment*                    location,
+                                                                      RicMswSegment*                        location,
                                                                       bool*                                 foundSubGridIntersections);
 
-    static void                           assignBranchAndSegmentNumbers(const RimEclipseCase*   caseToApply,
-                                                                        RicMswWellSegment*      location,
-                                                                        int*                    branchNum,
-                                                                        int*                    segmentNum);
     static void                           assignBranchAndSegmentNumbers(const RimEclipseCase* caseToApply,
-                                                                        RicMultiSegmentWellExportInfo* exportInfo);
+                                                                        RicMswSegment*        location,
+                                                                        int*                  branchNum,
+                                                                        int*                  segmentNum);
+    static void                           assignBranchAndSegmentNumbers(const RimEclipseCase* caseToApply,
+                                                                        RicMswExportInfo* exportInfo);
 
     static void                           appendCompletionData(std::map<RigCompletionDataGridCell, std::vector<RigCompletionData>>* completionData,
                                                                const std::vector<RigCompletionData>& data);

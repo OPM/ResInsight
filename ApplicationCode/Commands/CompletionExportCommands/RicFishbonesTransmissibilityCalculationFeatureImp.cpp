@@ -169,19 +169,19 @@ void RicFishbonesTransmissibilityCalculationFeatureImp::findFishboneLateralsWell
 
     // Generate data
     const RigEclipseCaseData*     caseData = settings.caseToApply()->eclipseCaseData();
-    RicMultiSegmentWellExportInfo exportInfo =
+    RicMswExportInfo exportInfo =
         RicWellPathExportCompletionDataFeatureImpl::generateFishbonesMswExportInfo(settings.caseToApply(), wellPath);
 
     RiaEclipseUnitTools::UnitSystem unitSystem = caseData->unitsType();
     bool                            isMainBore = false;
 
-    for (const RicWellSegmentLocation& location : exportInfo.wellSegmentLocations())
+    for (const RicMswSegment& location : exportInfo.wellSegmentLocations())
     {
-        for (const RicWellSegmentCompletion& completion : location.completions())
+        for (const RicMswCompletion& completion : location.completions())
         {
-            for (const RicWellSubSegment& segment : completion.subSegments())
+            for (const RicMswSubSegment& segment : completion.subSegments())
             {
-                for (const RicWellSubSegmentCellIntersection& intersection : segment.intersections())
+                for (const RicMswSubSegmentCellIntersection& intersection : segment.intersections())
                 {
                     double  diameter = location.holeDiameter();
                     QString completionMetaData =
@@ -190,7 +190,7 @@ void RicFishbonesTransmissibilityCalculationFeatureImp::findFishboneLateralsWell
                     WellBorePartForTransCalc wellBorePart = WellBorePartForTransCalc(
                         intersection.lengthsInCell(), diameter / 2.0, location.skinFactor(), isMainBore, completionMetaData);
 
-                    wellBorePart.intersectionWithWellMeasuredDepth = location.measuredDepth();
+                    wellBorePart.intersectionWithWellMeasuredDepth = location.endMD();
                     wellBorePart.lateralIndex                      = completion.index();
 
                     wellBorePartsInCells[intersection.globalCellIndex()].push_back(wellBorePart);

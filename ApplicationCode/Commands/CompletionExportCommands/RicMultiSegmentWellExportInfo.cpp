@@ -6,26 +6,24 @@
 #include <algorithm>
 #include <limits>
 
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicWellSubSegmentCellIntersection::RicWellSubSegmentCellIntersection(const QString& gridName, 
-                                                                                         size_t globalCellIndex,
-                                                                                         const cvf::Vec3st& gridLocalCellIJK,
-                                                                                         const cvf::Vec3d& lengthsInCell)
+RicMswSubSegmentCellIntersection::RicMswSubSegmentCellIntersection(const QString&     gridName,
+                                                                   size_t             globalCellIndex,
+                                                                   const cvf::Vec3st& gridLocalCellIJK,
+                                                                   const cvf::Vec3d&  lengthsInCell)
     : m_gridName(gridName)
     , m_globalCellIndex(globalCellIndex)
     , m_gridLocalCellIJK(gridLocalCellIJK)
     , m_lengthsInCell(lengthsInCell)
 {
-
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const QString& RicWellSubSegmentCellIntersection::gridName() const
+const QString& RicMswSubSegmentCellIntersection::gridName() const
 {
     return m_gridName;
 }
@@ -33,7 +31,7 @@ const QString& RicWellSubSegmentCellIntersection::gridName() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-size_t RicWellSubSegmentCellIntersection::globalCellIndex() const
+size_t RicMswSubSegmentCellIntersection::globalCellIndex() const
 {
     return m_globalCellIndex;
 }
@@ -41,7 +39,7 @@ size_t RicWellSubSegmentCellIntersection::globalCellIndex() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::Vec3st RicWellSubSegmentCellIntersection::gridLocalCellIJK() const
+cvf::Vec3st RicMswSubSegmentCellIntersection::gridLocalCellIJK() const
 {
     return m_gridLocalCellIJK;
 }
@@ -49,7 +47,7 @@ cvf::Vec3st RicWellSubSegmentCellIntersection::gridLocalCellIJK() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const cvf::Vec3d& RicWellSubSegmentCellIntersection::lengthsInCell() const
+const cvf::Vec3d& RicMswSubSegmentCellIntersection::lengthsInCell() const
 {
     return m_lengthsInCell;
 }
@@ -57,10 +55,7 @@ const cvf::Vec3d& RicWellSubSegmentCellIntersection::lengthsInCell() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicWellSubSegment::RicWellSubSegment(double startMD,
-                                     double deltaMD,
-                                     double startTVD,
-                                     double deltaTVD)
+RicMswSubSegment::RicMswSubSegment(double startMD, double deltaMD, double startTVD, double deltaTVD)
     : m_startMD(startMD)
     , m_deltaMD(deltaMD)
     , m_startTVD(startTVD)
@@ -73,7 +68,7 @@ RicWellSubSegment::RicWellSubSegment(double startMD,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RicWellSubSegment::startMD() const
+double RicMswSubSegment::startMD() const
 {
     return m_startMD;
 }
@@ -81,7 +76,7 @@ double RicWellSubSegment::startMD() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RicWellSubSegment::deltaMD() const
+double RicMswSubSegment::deltaMD() const
 {
     return m_deltaMD;
 }
@@ -89,7 +84,7 @@ double RicWellSubSegment::deltaMD() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RicWellSubSegment::startTVD() const
+double RicMswSubSegment::startTVD() const
 {
     return m_startTVD;
 }
@@ -97,7 +92,7 @@ double RicWellSubSegment::startTVD() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RicWellSubSegment::deltaTVD() const
+double RicMswSubSegment::deltaTVD() const
 {
     return m_deltaTVD;
 }
@@ -105,7 +100,7 @@ double RicWellSubSegment::deltaTVD() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int RicWellSubSegment::segmentNumber() const
+int RicMswSubSegment::segmentNumber() const
 {
     return m_segmentNumber;
 }
@@ -113,7 +108,7 @@ int RicWellSubSegment::segmentNumber() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int RicWellSubSegment::attachedSegmentNumber() const
+int RicMswSubSegment::attachedSegmentNumber() const
 {
     return m_attachedSegmentNumber;
 }
@@ -121,7 +116,7 @@ int RicWellSubSegment::attachedSegmentNumber() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicWellSubSegment::setSegmentNumber(int segmentNumber)
+void RicMswSubSegment::setSegmentNumber(int segmentNumber)
 {
     m_segmentNumber = segmentNumber;
 }
@@ -129,7 +124,7 @@ void RicWellSubSegment::setSegmentNumber(int segmentNumber)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicWellSubSegment::setAttachedSegmentNumber(int attachedSegmentNumber)
+void RicMswSubSegment::setAttachedSegmentNumber(int attachedSegmentNumber)
 {
     m_attachedSegmentNumber = attachedSegmentNumber;
 }
@@ -137,7 +132,7 @@ void RicWellSubSegment::setAttachedSegmentNumber(int attachedSegmentNumber)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicWellSubSegment::addIntersection(const RicWellSubSegmentCellIntersection& intersection)
+void RicMswSubSegment::addIntersection(const RicMswSubSegmentCellIntersection& intersection)
 {
     m_intersections.push_back(intersection);
 }
@@ -145,7 +140,7 @@ void RicWellSubSegment::addIntersection(const RicWellSubSegmentCellIntersection&
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::vector<RicWellSubSegmentCellIntersection>& RicWellSubSegment::intersections() const
+const std::vector<RicMswSubSegmentCellIntersection>& RicMswSubSegment::intersections() const
 {
     return m_intersections;
 }
@@ -153,7 +148,7 @@ const std::vector<RicWellSubSegmentCellIntersection>& RicWellSubSegment::interse
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RicWellSubSegmentCellIntersection>& RicWellSubSegment::intersections()
+std::vector<RicMswSubSegmentCellIntersection>& RicMswSubSegment::intersections()
 {
     return m_intersections;
 }
@@ -161,10 +156,10 @@ std::vector<RicWellSubSegmentCellIntersection>& RicWellSubSegment::intersections
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicWellSegmentCompletion::RicWellSegmentCompletion(RigCompletionData::CompletionType completionType,
-                                                   const QString&                    label,
-                                                   size_t                            index /* = cvf::UNDEFINED_SIZE_T */,
-                                                   int                               branchNumber /*= 0*/)
+RicMswCompletion::RicMswCompletion(RigCompletionData::CompletionType completionType,
+                                   const QString&                    label,
+                                   size_t                            index /* = cvf::UNDEFINED_SIZE_T */,
+                                   int                               branchNumber /*= 0*/)
     : m_completionType(completionType)
     , m_label(label)
     , m_index(index)
@@ -175,7 +170,7 @@ RicWellSegmentCompletion::RicWellSegmentCompletion(RigCompletionData::Completion
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigCompletionData::CompletionType RicWellSegmentCompletion::completionType() const
+RigCompletionData::CompletionType RicMswCompletion::completionType() const
 {
     return m_completionType;
 }
@@ -183,7 +178,7 @@ RigCompletionData::CompletionType RicWellSegmentCompletion::completionType() con
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const QString& RicWellSegmentCompletion::label() const
+const QString& RicMswCompletion::label() const
 {
     return m_label;
 }
@@ -191,7 +186,7 @@ const QString& RicWellSegmentCompletion::label() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-size_t RicWellSegmentCompletion::index() const
+size_t RicMswCompletion::index() const
 {
     return m_index;
 }
@@ -199,7 +194,7 @@ size_t RicWellSegmentCompletion::index() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int RicWellSegmentCompletion::branchNumber() const
+int RicMswCompletion::branchNumber() const
 {
     return m_branchNumber;
 }
@@ -207,7 +202,7 @@ int RicWellSegmentCompletion::branchNumber() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicWellSegmentCompletion::setBranchNumber(int branchNumber)
+void RicMswCompletion::setBranchNumber(int branchNumber)
 {
     m_branchNumber = branchNumber;
 }
@@ -215,7 +210,7 @@ void RicWellSegmentCompletion::setBranchNumber(int branchNumber)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicWellSegmentCompletion::addSubSegment(const RicWellSubSegment& subSegment)
+void RicMswCompletion::addSubSegment(const RicMswSubSegment& subSegment)
 {
     m_subSegments.push_back(subSegment);
 }
@@ -223,7 +218,7 @@ void RicWellSegmentCompletion::addSubSegment(const RicWellSubSegment& subSegment
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RicWellSubSegment>& RicWellSegmentCompletion::subSegments()
+std::vector<RicMswSubSegment>& RicMswCompletion::subSegments()
 {
     return m_subSegments;
 }
@@ -231,7 +226,7 @@ std::vector<RicWellSubSegment>& RicWellSegmentCompletion::subSegments()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::vector<RicWellSubSegment>& RicWellSegmentCompletion::subSegments() const
+const std::vector<RicMswSubSegment>& RicMswCompletion::subSegments() const
 {
     return m_subSegments;
 }
@@ -239,24 +234,24 @@ const std::vector<RicWellSubSegment>& RicWellSegmentCompletion::subSegments() co
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicMswWellSegment::RicMswWellSegment(const QString& label,
-                                     double         startMD,
-                                     double         endMD,
-                                     double         startTVD,
-                                     double         endTVD,
-                                     size_t         subIndex,
-                                     int            segmentNumber /*= -1*/)
+RicMswSegment::RicMswSegment(const QString& label,
+                             double         startMD,
+                             double         endMD,
+                             double         startTVD,
+                             double         endTVD,
+                             size_t         subIndex,
+                             int            segmentNumber /*= -1*/)
     : m_label(label)
     , m_startMD(startMD)
     , m_endMD(endMD)
     , m_startTVD(startTVD)
     , m_endTVD(endTVD)
     , m_effectiveDiameter(0.15)
-    , m_holeDiameter(RicMultiSegmentWellExportInfo::defaultDoubleValue())
+    , m_holeDiameter(RicMswExportInfo::defaultDoubleValue())
     , m_openHoleRoughnessFactor(5.0e-5)
-    , m_skinFactor(RicMultiSegmentWellExportInfo::defaultDoubleValue())
-    , m_icdFlowCoefficient(RicMultiSegmentWellExportInfo::defaultDoubleValue())
-    , m_icdArea(RicMultiSegmentWellExportInfo::defaultDoubleValue())
+    , m_skinFactor(RicMswExportInfo::defaultDoubleValue())
+    , m_icdFlowCoefficient(RicMswExportInfo::defaultDoubleValue())
+    , m_icdArea(RicMswExportInfo::defaultDoubleValue())
     , m_subIndex(subIndex)
     , m_segmentNumber(segmentNumber)
 {
@@ -265,7 +260,7 @@ RicMswWellSegment::RicMswWellSegment(const QString& label,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RicMswWellSegment::label() const
+QString RicMswSegment::label() const
 {
     return m_label;
 }
@@ -273,7 +268,7 @@ QString RicMswWellSegment::label() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RicMswWellSegment::startMD() const
+double RicMswSegment::startMD() const
 {
     return m_startMD;
 }
@@ -281,7 +276,7 @@ double RicMswWellSegment::startMD() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RicMswWellSegment::endMD() const
+double RicMswSegment::endMD() const
 {
     return m_endMD;
 }
@@ -289,7 +284,7 @@ double RicMswWellSegment::endMD() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RicMswWellSegment::deltaMD() const
+double RicMswSegment::deltaMD() const
 {
     return m_endMD - m_startMD;
 }
@@ -297,7 +292,7 @@ double RicMswWellSegment::deltaMD() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RicMswWellSegment::startTVD() const
+double RicMswSegment::startTVD() const
 {
     return m_startTVD;
 }
@@ -305,7 +300,7 @@ double RicMswWellSegment::startTVD() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RicMswWellSegment::endTVD() const
+double RicMswSegment::endTVD() const
 {
     return m_endTVD;
 }
@@ -313,7 +308,7 @@ double RicMswWellSegment::endTVD() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RicMswWellSegment::deltaTVD() const
+double RicMswSegment::deltaTVD() const
 {
     return m_endTVD - m_startTVD;
 }
@@ -321,7 +316,7 @@ double RicMswWellSegment::deltaTVD() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RicMswWellSegment::effectiveDiameter() const
+double RicMswSegment::effectiveDiameter() const
 {
     return m_effectiveDiameter;
 }
@@ -329,7 +324,7 @@ double RicMswWellSegment::effectiveDiameter() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RicMswWellSegment::holeDiameter() const
+double RicMswSegment::holeDiameter() const
 {
     return m_holeDiameter;
 }
@@ -337,7 +332,7 @@ double RicMswWellSegment::holeDiameter() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RicMswWellSegment::openHoleRoughnessFactor() const
+double RicMswSegment::openHoleRoughnessFactor() const
 {
     return m_openHoleRoughnessFactor;
 }
@@ -345,7 +340,7 @@ double RicMswWellSegment::openHoleRoughnessFactor() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RicMswWellSegment::skinFactor() const
+double RicMswSegment::skinFactor() const
 {
     return m_skinFactor;
 }
@@ -353,7 +348,7 @@ double RicMswWellSegment::skinFactor() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RicMswWellSegment::icdFlowCoefficient() const
+double RicMswSegment::icdFlowCoefficient() const
 {
     return m_icdFlowCoefficient;
 }
@@ -361,7 +356,7 @@ double RicMswWellSegment::icdFlowCoefficient() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RicMswWellSegment::icdArea() const
+double RicMswSegment::icdArea() const
 {
     return m_icdArea;
 }
@@ -369,7 +364,7 @@ double RicMswWellSegment::icdArea() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-size_t RicMswWellSegment::subIndex() const
+size_t RicMswSegment::subIndex() const
 {
     return m_subIndex;
 }
@@ -377,7 +372,7 @@ size_t RicMswWellSegment::subIndex() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int RicMswWellSegment::segmentNumber() const
+int RicMswSegment::segmentNumber() const
 {
     return m_segmentNumber;
 }
@@ -385,7 +380,7 @@ int RicMswWellSegment::segmentNumber() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::vector<RicWellSegmentCompletion>& RicMswWellSegment::completions() const
+const std::vector<RicMswCompletion>& RicMswSegment::completions() const
 {
     return m_completions;
 }
@@ -393,7 +388,7 @@ const std::vector<RicWellSegmentCompletion>& RicMswWellSegment::completions() co
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RicWellSegmentCompletion>& RicMswWellSegment::completions()
+std::vector<RicMswCompletion>& RicMswSegment::completions()
 {
     return m_completions;
 }
@@ -401,7 +396,7 @@ std::vector<RicWellSegmentCompletion>& RicMswWellSegment::completions()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicMswWellSegment::setEffectiveDiameter(double effectiveDiameter)
+void RicMswSegment::setEffectiveDiameter(double effectiveDiameter)
 {
     m_effectiveDiameter = effectiveDiameter;
 }
@@ -409,7 +404,7 @@ void RicMswWellSegment::setEffectiveDiameter(double effectiveDiameter)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicMswWellSegment::setHoleDiameter(double holeDiameter)
+void RicMswSegment::setHoleDiameter(double holeDiameter)
 {
     m_holeDiameter = holeDiameter;
 }
@@ -417,7 +412,7 @@ void RicMswWellSegment::setHoleDiameter(double holeDiameter)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicMswWellSegment::setOpenHoleRoughnessFactor(double roughnessFactor)
+void RicMswSegment::setOpenHoleRoughnessFactor(double roughnessFactor)
 {
     m_openHoleRoughnessFactor = roughnessFactor;
 }
@@ -425,7 +420,7 @@ void RicMswWellSegment::setOpenHoleRoughnessFactor(double roughnessFactor)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicMswWellSegment::setSkinFactor(double skinFactor)
+void RicMswSegment::setSkinFactor(double skinFactor)
 {
     m_skinFactor = skinFactor;
 }
@@ -433,7 +428,7 @@ void RicMswWellSegment::setSkinFactor(double skinFactor)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicMswWellSegment::setIcdFlowCoefficient(double icdFlowCoefficient)
+void RicMswSegment::setIcdFlowCoefficient(double icdFlowCoefficient)
 {
     m_icdFlowCoefficient = icdFlowCoefficient;
 }
@@ -441,7 +436,7 @@ void RicMswWellSegment::setIcdFlowCoefficient(double icdFlowCoefficient)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicMswWellSegment::setIcdArea(double icdArea)
+void RicMswSegment::setIcdArea(double icdArea)
 {
     m_icdArea = icdArea;
 }
@@ -449,7 +444,7 @@ void RicMswWellSegment::setIcdArea(double icdArea)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicMswWellSegment::setSegmentNumber(int segmentNumber)
+void RicMswSegment::setSegmentNumber(int segmentNumber)
 {
     m_segmentNumber = segmentNumber;
 }
@@ -457,7 +452,7 @@ void RicMswWellSegment::setSegmentNumber(int segmentNumber)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicMswWellSegment::addCompletion(const RicWellSegmentCompletion& completion)
+void RicMswSegment::addCompletion(const RicMswCompletion& completion)
 {
     m_completions.push_back(completion);
 }
@@ -465,7 +460,7 @@ void RicMswWellSegment::addCompletion(const RicWellSegmentCompletion& completion
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicMswWellSegment::operator<(const RicMswWellSegment& rhs) const
+bool RicMswSegment::operator<(const RicMswSegment& rhs) const
 {
     return startMD() < rhs.startMD();
 }
@@ -473,15 +468,15 @@ bool RicMswWellSegment::operator<(const RicMswWellSegment& rhs) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicMultiSegmentWellExportInfo::RicMultiSegmentWellExportInfo(const RimWellPath*              wellPath,
-                                                             RiaEclipseUnitTools::UnitSystem unitSystem,
-                                                             double                          initialMD,
-                                                             const QString&                  lengthAndDepthText,
-                                                             const QString&                  pressureDropText)
+RicMswExportInfo::RicMswExportInfo(const RimWellPath*              wellPath,
+                                   RiaEclipseUnitTools::UnitSystem unitSystem,
+                                   double                          initialMD,
+                                   const QString&                  lengthAndDepthText,
+                                   const QString&                  pressureDropText)
     : m_wellPath(wellPath)
     , m_initialMD(initialMD)
     , m_unitSystem(unitSystem)
-    , m_topWellBoreVolume(RicMultiSegmentWellExportInfo::defaultDoubleValue())
+    , m_topWellBoreVolume(RicMswExportInfo::defaultDoubleValue())
     , m_linerDiameter(0.15)
     , m_roughnessFactor(5.0e-5)
     , m_lengthAndDepthText(lengthAndDepthText)
@@ -493,7 +488,7 @@ RicMultiSegmentWellExportInfo::RicMultiSegmentWellExportInfo(const RimWellPath* 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicMultiSegmentWellExportInfo::setTopWellBoreVolume(double topWellBoreVolume)
+void RicMswExportInfo::setTopWellBoreVolume(double topWellBoreVolume)
 {
     m_topWellBoreVolume = topWellBoreVolume;
 }
@@ -501,7 +496,7 @@ void RicMultiSegmentWellExportInfo::setTopWellBoreVolume(double topWellBoreVolum
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicMultiSegmentWellExportInfo::setLinerDiameter(double linerDiameter)
+void RicMswExportInfo::setLinerDiameter(double linerDiameter)
 {
     m_linerDiameter = linerDiameter;
 }
@@ -509,7 +504,7 @@ void RicMultiSegmentWellExportInfo::setLinerDiameter(double linerDiameter)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicMultiSegmentWellExportInfo::setRoughnessFactor(double roughnessFactor)
+void RicMswExportInfo::setRoughnessFactor(double roughnessFactor)
 {
     m_roughnessFactor = roughnessFactor;
 }
@@ -517,7 +512,7 @@ void RicMultiSegmentWellExportInfo::setRoughnessFactor(double roughnessFactor)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicMultiSegmentWellExportInfo::setHasSubGridIntersections(bool subGridIntersections)
+void RicMswExportInfo::setHasSubGridIntersections(bool subGridIntersections)
 {
     m_hasSubGridIntersections = subGridIntersections;
 }
@@ -525,7 +520,7 @@ void RicMultiSegmentWellExportInfo::setHasSubGridIntersections(bool subGridInter
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicMultiSegmentWellExportInfo::addWellSegmentLocation(const RicMswWellSegment& location)
+void RicMswExportInfo::addWellSegmentLocation(const RicMswSegment& location)
 {
     m_wellSegmentLocations.push_back(location);
 }
@@ -533,7 +528,7 @@ void RicMultiSegmentWellExportInfo::addWellSegmentLocation(const RicMswWellSegme
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicMultiSegmentWellExportInfo::sortLocations()
+void RicMswExportInfo::sortLocations()
 {
     std::sort(m_wellSegmentLocations.begin(), m_wellSegmentLocations.end());
 }
@@ -541,7 +536,7 @@ void RicMultiSegmentWellExportInfo::sortLocations()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const RimWellPath* RicMultiSegmentWellExportInfo::wellPath() const
+const RimWellPath* RicMswExportInfo::wellPath() const
 {
     return m_wellPath;
 }
@@ -549,7 +544,7 @@ const RimWellPath* RicMultiSegmentWellExportInfo::wellPath() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RicMultiSegmentWellExportInfo::initialMD() const
+double RicMswExportInfo::initialMD() const
 {
     return m_initialMD;
 }
@@ -557,7 +552,7 @@ double RicMultiSegmentWellExportInfo::initialMD() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RicMultiSegmentWellExportInfo::initialTVD() const
+double RicMswExportInfo::initialTVD() const
 {
     return -m_wellPath->wellPathGeometry()->interpolatedPointAlongWellPath(m_initialMD).z();
 }
@@ -565,7 +560,7 @@ double RicMultiSegmentWellExportInfo::initialTVD() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiaEclipseUnitTools::UnitSystem RicMultiSegmentWellExportInfo::unitSystem() const
+RiaEclipseUnitTools::UnitSystem RicMswExportInfo::unitSystem() const
 {
     return m_unitSystem;
 }
@@ -573,7 +568,7 @@ RiaEclipseUnitTools::UnitSystem RicMultiSegmentWellExportInfo::unitSystem() cons
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RicMultiSegmentWellExportInfo::topWellBoreVolume() const
+double RicMswExportInfo::topWellBoreVolume() const
 {
     return m_topWellBoreVolume;
 }
@@ -581,7 +576,7 @@ double RicMultiSegmentWellExportInfo::topWellBoreVolume() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RicMultiSegmentWellExportInfo::linerDiameter() const
+double RicMswExportInfo::linerDiameter() const
 {
     return m_linerDiameter;
 }
@@ -589,7 +584,7 @@ double RicMultiSegmentWellExportInfo::linerDiameter() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RicMultiSegmentWellExportInfo::roughnessFactor() const
+double RicMswExportInfo::roughnessFactor() const
 {
     return m_roughnessFactor;
 }
@@ -597,7 +592,7 @@ double RicMultiSegmentWellExportInfo::roughnessFactor() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RicMultiSegmentWellExportInfo::lengthAndDepthText() const
+QString RicMswExportInfo::lengthAndDepthText() const
 {
     return m_lengthAndDepthText;
 }
@@ -605,7 +600,7 @@ QString RicMultiSegmentWellExportInfo::lengthAndDepthText() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RicMultiSegmentWellExportInfo::pressureDropText() const
+QString RicMswExportInfo::pressureDropText() const
 {
     return m_pressureDropText;
 }
@@ -613,7 +608,7 @@ QString RicMultiSegmentWellExportInfo::pressureDropText() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicMultiSegmentWellExportInfo::hasSubGridIntersections() const
+bool RicMswExportInfo::hasSubGridIntersections() const
 {
     return m_hasSubGridIntersections;
 }
@@ -621,7 +616,7 @@ bool RicMultiSegmentWellExportInfo::hasSubGridIntersections() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RicMultiSegmentWellExportInfo::defaultDoubleValue()
+double RicMswExportInfo::defaultDoubleValue()
 {
     return std::numeric_limits<double>::infinity();
 }
@@ -629,7 +624,7 @@ double RicMultiSegmentWellExportInfo::defaultDoubleValue()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::vector<RicMswWellSegment>& RicMultiSegmentWellExportInfo::wellSegmentLocations() const
+const std::vector<RicMswSegment>& RicMswExportInfo::wellSegmentLocations() const
 {
     return m_wellSegmentLocations;
 }
@@ -637,7 +632,7 @@ const std::vector<RicMswWellSegment>& RicMultiSegmentWellExportInfo::wellSegment
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RicMswWellSegment>& RicMultiSegmentWellExportInfo::wellSegmentLocations()
+std::vector<RicMswSegment>& RicMswExportInfo::wellSegmentLocations()
 {
     return m_wellSegmentLocations;
 }

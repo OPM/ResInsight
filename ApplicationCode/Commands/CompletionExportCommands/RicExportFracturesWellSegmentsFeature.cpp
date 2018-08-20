@@ -77,7 +77,7 @@ void RicExportFracturesWellSegmentsFeature::exportWellSegments(const RimWellPath
         return;
     }
 
-    RicMultiSegmentWellExportInfo exportInfo = RicWellPathExportCompletionDataFeatureImpl::generateFracturesMswExportInfo(settings.caseToApply, wellPath, fractures);
+    RicMswExportInfo exportInfo = RicWellPathExportCompletionDataFeatureImpl::generateFracturesMswExportInfo(settings.caseToApply, wellPath, fractures);
 
     QTextStream stream(&exportFile);
     RifEclipseDataTableFormatter formatter(stream);

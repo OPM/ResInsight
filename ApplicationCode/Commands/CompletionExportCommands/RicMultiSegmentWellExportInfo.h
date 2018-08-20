@@ -33,13 +33,13 @@ class RimFishbonesMultipleSubs;
 //==================================================================================================
 /// 
 //==================================================================================================
-class RicWellSubSegmentCellIntersection
+class RicMswSubSegmentCellIntersection
 {
 public:
-    RicWellSubSegmentCellIntersection(const QString& gridName, // Pass in empty string for main grid
-                                         size_t globalCellIndex,
-                                         const cvf::Vec3st& gridLocalCellIJK,
-                                         const cvf::Vec3d& lengthsInCell);
+    RicMswSubSegmentCellIntersection(const QString& gridName, // Pass in empty string for main grid
+                                     size_t globalCellIndex,
+                                     const cvf::Vec3st& gridLocalCellIJK,
+                                     const cvf::Vec3d& lengthsInCell);
     const QString&    gridName() const;
     size_t            globalCellIndex() const;
     cvf::Vec3st       gridLocalCellIJK() const;
@@ -54,13 +54,13 @@ private:
 //==================================================================================================
 /// 
 //==================================================================================================
-class RicWellSubSegment
+class RicMswSubSegment
 {
 public:
-    RicWellSubSegment(double startMD,
-                      double deltaMD,
-                      double startTVD,
-                      double deltaTVD);
+    RicMswSubSegment(double startMD,
+                     double deltaMD,
+                     double startTVD,
+                     double deltaTVD);
 
     double            startMD() const;
     double            deltaMD() const;
@@ -72,10 +72,10 @@ public:
 
     void              setSegmentNumber(int segmentNumber);
     void              setAttachedSegmentNumber(int attachedSegmentNumber);
-    void              addIntersection(const RicWellSubSegmentCellIntersection& intersection);
+    void              addIntersection(const RicMswSubSegmentCellIntersection& intersection);
 
-    const std::vector<RicWellSubSegmentCellIntersection>& intersections() const;
-    std::vector<RicWellSubSegmentCellIntersection>&       intersections();
+    const std::vector<RicMswSubSegmentCellIntersection>& intersections() const;
+    std::vector<RicMswSubSegmentCellIntersection>&       intersections();
     
 
 private:
@@ -86,49 +86,49 @@ private:
     int         m_segmentNumber;
     int         m_attachedSegmentNumber;
 
-    std::vector<RicWellSubSegmentCellIntersection> m_intersections;
+    std::vector<RicMswSubSegmentCellIntersection> m_intersections;
 };
 
 //==================================================================================================
 /// 
 //==================================================================================================
-class RicWellSegmentCompletion
+class RicMswCompletion
 {
 public:
-    RicWellSegmentCompletion(RigCompletionData::CompletionType completionType, const QString& label, size_t index = cvf::UNDEFINED_SIZE_T, int branchNumber = cvf::UNDEFINED_INT);
+    RicMswCompletion(RigCompletionData::CompletionType completionType, const QString& label, size_t index = cvf::UNDEFINED_SIZE_T, int branchNumber = cvf::UNDEFINED_INT);
 
-    RigCompletionData::CompletionType              completionType() const;
-    const QString&                                 label() const;
-    size_t                                         index() const;
-    int                                            branchNumber() const;
-    void                                           setBranchNumber(int branchNumber);
+    RigCompletionData::CompletionType    completionType() const;
+    const QString&                       label() const;
+    size_t                               index() const;
+    int                                  branchNumber() const;
+    void                                 setBranchNumber(int branchNumber);
 
-    void                                           addSubSegment(const RicWellSubSegment& subSegment);
+    void                                 addSubSegment(const RicMswSubSegment& subSegment);
 
-    std::vector<RicWellSubSegment>&                subSegments();
-    const std::vector<RicWellSubSegment>&          subSegments() const;
+    std::vector<RicMswSubSegment>&       subSegments();
+    const std::vector<RicMswSubSegment>& subSegments() const;
     
 private:
-    RigCompletionData::CompletionType      m_completionType;
-    QString                                m_label;
-    size_t                                 m_index;
-    int                                    m_branchNumber;
-    std::vector<RicWellSubSegment>         m_subSegments;
+    RigCompletionData::CompletionType    m_completionType;
+    QString                              m_label;
+    size_t                               m_index;
+    int                                  m_branchNumber;
+    std::vector<RicMswSubSegment>        m_subSegments;
 };
 
 //==================================================================================================
 /// 
 //==================================================================================================
-class RicMswWellSegment
+class RicMswSegment
 {
 public:
-    RicMswWellSegment(const QString& label,
-                      double startMD,
-                      double endMD,
-                      double startTVD,
-                      double endTVD,
-                      size_t subIndex = cvf::UNDEFINED_SIZE_T,
-                      int segmentNumber = -1);
+    RicMswSegment(const QString& label,
+                  double startMD,
+                  double endMD,
+                  double startTVD,
+                  double endTVD,
+                  size_t subIndex = cvf::UNDEFINED_SIZE_T,
+                  int segmentNumber = -1);
 
     QString label() const;
 
@@ -149,8 +149,8 @@ public:
     size_t  subIndex() const;
     int     segmentNumber() const;
 
-    const std::vector<RicWellSegmentCompletion>& completions() const;
-    std::vector<RicWellSegmentCompletion>&       completions();
+    const std::vector<RicMswCompletion>& completions() const;
+    std::vector<RicMswCompletion>&       completions();
 
     void setEffectiveDiameter(double effectiveDiameter);
     void setHoleDiameter(double holeDiameter);
@@ -159,9 +159,9 @@ public:
     void setIcdFlowCoefficient(double icdFlowCoefficient);
     void setIcdArea(double icdArea);
     void setSegmentNumber(int segmentNumber);
-    void addCompletion(const RicWellSegmentCompletion& completion);
+    void addCompletion(const RicMswCompletion& completion);
 
-    bool operator<(const RicMswWellSegment& rhs) const;
+    bool operator<(const RicMswSegment& rhs) const;
     
 private:
     QString                         m_label;
@@ -180,24 +180,24 @@ private:
     size_t                          m_subIndex;
     int                             m_segmentNumber;
 
-    std::vector<RicWellSegmentCompletion> m_completions;
+    std::vector<RicMswCompletion> m_completions;
 };
 
-class RicMultiSegmentWellExportInfo
+class RicMswExportInfo
 {
 public:
-    RicMultiSegmentWellExportInfo(const RimWellPath*              wellPath,
-                                  RiaEclipseUnitTools::UnitSystem unitSystem,
-                                  double                          initialMD,
-                                  const QString&                  lengthAndDepthText,
-                                  const QString&                  pressureDropText);
+    RicMswExportInfo(const RimWellPath*              wellPath,
+                     RiaEclipseUnitTools::UnitSystem unitSystem,
+                     double                          initialMD,
+                     const QString&                  lengthAndDepthText,
+                     const QString&                  pressureDropText);
     
     void setTopWellBoreVolume(double topWellBoreVolume);
     void setLinerDiameter(double linerDiameter);
     void setRoughnessFactor(double roughnessFactor);
     void setHasSubGridIntersections(bool subGridIntersections);
 
-    void addWellSegmentLocation(const RicMswWellSegment& location);
+    void addWellSegmentLocation(const RicMswSegment& location);
     void sortLocations();
 
     const RimWellPath*              wellPath() const;
@@ -212,20 +212,19 @@ public:
     bool                            hasSubGridIntersections() const;
     static double                   defaultDoubleValue();
 
-    const std::vector<RicMswWellSegment>& wellSegmentLocations() const;
-    std::vector<RicMswWellSegment>&       wellSegmentLocations();
+    const std::vector<RicMswSegment>& wellSegmentLocations() const;
+    std::vector<RicMswSegment>&       wellSegmentLocations();
 
 private:
-    const RimWellPath*                   m_wellPath;
-    RiaEclipseUnitTools::UnitSystem      m_unitSystem;
-    double                               m_initialMD;
-    double                               m_topWellBoreVolume;
-    double                               m_linerDiameter;
-    double                               m_roughnessFactor;
-    QString                              m_lengthAndDepthText;
-    QString                              m_pressureDropText;
-    bool                                 m_hasSubGridIntersections;
-
-    std::vector<RicMswWellSegment> m_wellSegmentLocations;
+    const RimWellPath*                m_wellPath;
+    RiaEclipseUnitTools::UnitSystem   m_unitSystem;
+    double                            m_initialMD;
+    double                            m_topWellBoreVolume;
+    double                            m_linerDiameter;
+    double                            m_roughnessFactor;
+    QString                           m_lengthAndDepthText;
+    QString                           m_pressureDropText;
+    bool                              m_hasSubGridIntersections;
+    std::vector<RicMswSegment>        m_wellSegmentLocations;
 };
 
