@@ -81,6 +81,9 @@ public:
     double              measuredDepth(size_t subIndex) const;
     double              rotationAngle(size_t subIndex) const;
 
+    double              startOfSubMD() const;
+    double              endOfSubMD() const;
+
     double              exitAngle() const;
     double              buildAngle() const;
 

@@ -194,6 +194,34 @@ double RimFishbonesMultipleSubs::rotationAngle(size_t index) const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+double RimFishbonesMultipleSubs::startOfSubMD() const
+{
+    double measuredDepth = 0.0;
+    if (!m_locationOfSubs().empty())
+    {
+        measuredDepth = m_locationOfSubs().front();
+    }
+
+    return measuredDepth;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+double RimFishbonesMultipleSubs::endOfSubMD() const
+{
+    double measuredDepth = 0.0;
+    if (!m_locationOfSubs().empty())
+    {
+        measuredDepth = m_locationOfSubs().back();
+    }
+
+    return measuredDepth;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 double RimFishbonesMultipleSubs::exitAngle() const
 {
     return m_lateralExitAngle;

@@ -52,7 +52,11 @@ private:
                                                   const RimWellPath*                                       wellPath,
                                                   const RicExportCompletionDataSettingsUi&                 settings);
 
-    static void findMainWellBoreParts(std::map<size_t, std::vector<WellBorePartForTransCalc>>& wellBorePartsInCells,
-                                      const RimWellPath*                                       wellPath,
-                                      const RicExportCompletionDataSettingsUi&                 settings);
+    static void appendMainWellBoreParts(std::map<size_t, std::vector<WellBorePartForTransCalc>>& wellBorePartsInCells,
+                                        const RimWellPath*                                       wellPath,
+                                        const RicExportCompletionDataSettingsUi&                 settings,
+                                        double                                                   skinFactor,
+                                        double                                                   holeRadius,
+                                        double                                                   startMeasuredDepth,
+                                        double                                                   endMeasuredDepth);
 };
