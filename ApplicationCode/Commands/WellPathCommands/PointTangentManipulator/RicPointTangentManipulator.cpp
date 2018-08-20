@@ -422,7 +422,7 @@ void  RicPointTangentManipulatorPartMgr::createHorizontalPlaneHandle()
     ref<DrawableGeo> geo = createTriangelDrawableGeo(vertexArray.p());
 
     HandleType handleId = HORIZONTAL_PLANE;
-    cvf::Color4f color =  cvf::Color4f({1.0f, 0.0f, 1.0f, 0.5f});
+    cvf::Color4f color =  cvf::Color4f(1.0f, 0.0f, 1.0f, 0.5f);
     cvf::String partName("PointTangentManipulator Horizontal Plane Handle");
 
     addHandlePart(geo.p(), color,  handleId, partName);
@@ -452,7 +452,7 @@ void  RicPointTangentManipulatorPartMgr::createVerticalAxisHandle()
     ref<DrawableGeo> geo = createIndexedTriangelDrawableGeo(vertexArray.p(), indexArray.p());
 
     HandleType handleId = VERTICAL_AXIS;
-    cvf::Color4f color =  cvf::Color4f({0.0f, 0.2f, 0.8f, 0.5f});
+    cvf::Color4f color =  cvf::Color4f(0.0f, 0.2f, 0.8f, 0.5f);
     cvf::String partName("PointTangentManipulator Vertical Axis Handle");
 
     addHandlePart(geo.p(), color,  handleId, partName);
