@@ -57,12 +57,12 @@ class PdmChildArrayFieldHandle;
 class SelectionManager
 {
 public:
-    enum SelectionRole 
-    {                       // Suggested renaming:
-        BASE_LEVEL, // BASE_LEVEL = 0,
-        CURRENT,            // FIRST_LEVEL = 1,
-                            // SECOND_LEVEL = 2,
-                            UNDEFINED = -1
+    enum SelectionLevel 
+    {                       
+        UNDEFINED = -1,
+        BASE_LEVEL = 0, 
+        FIRST_LEVEL = 1, 
+        SECOND_LEVEL = 2
     };
 
 public:

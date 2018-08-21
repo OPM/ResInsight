@@ -39,7 +39,7 @@
 
 #include "cafNotificationCenter.h"
 #include "cafPdmUiFieldEditorHandle.h"
-#include "cafSelectionManager.h"
+//#include "cafSelectionManager.h"
 
 #include <QModelIndex>
 #include <QString>
@@ -69,7 +69,7 @@ public:
     void              setChildArrayField(PdmChildArrayFieldHandle* childArrayField);
     void              setUiConfigurationName(QString uiConfigName);
     void              enableHeaderText(bool enable);
-    void              setSelectionRole(SelectionManager::SelectionRole role);
+    void              setSelectionLevel(int selectionLevel);
 
     PdmObjectHandle*  pdmObjectFromModelIndex(const QModelIndex& mi);
 

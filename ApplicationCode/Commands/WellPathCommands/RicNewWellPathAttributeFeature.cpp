@@ -41,7 +41,7 @@ bool RicNewWellPathAttributeFeature::isCommandEnabled()
     }
     {
         std::vector<RimWellPathAttribute*> objects;
-        caf::SelectionManager::instance()->objectsByType(&objects, caf::SelectionManager::CURRENT);
+        caf::SelectionManager::instance()->objectsByType(&objects, caf::SelectionManager::FIRST_LEVEL);
 
         if ( objects.size() > 0 )
         {
@@ -58,7 +58,7 @@ bool RicNewWellPathAttributeFeature::isCommandEnabled()
 void RicNewWellPathAttributeFeature::onActionTriggered(bool isChecked)
 {
     std::vector<RimWellPathAttribute*> attributes;
-    caf::SelectionManager::instance()->objectsByType(&attributes, caf::SelectionManager::CURRENT);
+    caf::SelectionManager::instance()->objectsByType(&attributes, caf::SelectionManager::FIRST_LEVEL);
     if (attributes.size() > 0)
     {
         RimWellPathAttributeCollection* attributeCollection = nullptr;

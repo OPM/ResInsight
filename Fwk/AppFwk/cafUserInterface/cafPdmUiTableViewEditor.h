@@ -40,7 +40,8 @@
 #include "cafPdmDocument.h"
 #include "cafPdmUiFieldEditorHandle.h"
 #include "cafPdmUiObjectEditorHandle.h"
-#include "cafSelectionManager.h"
+#include "cafSelectionChangedReceiver.h"
+//#include "cafSelectionManager.h"
 
 #include <QAbstractItemModel>
 #include <QPointer>
@@ -58,6 +59,7 @@ class PdmUiFieldEditorHandle;
 class PdmUiItem;
 class PdmUiTableViewDelegate;
 class PdmUiTableViewQModel;
+class PdmChildArrayFieldHandle;
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -81,13 +83,13 @@ class PdmUiTableViewEditorAttribute : public PdmUiEditorAttribute
 {
 public:
     PdmUiTableViewEditorAttribute()
-        : selectionRole(SelectionManager::CURRENT)
+        : selectionLevel(1)
         , enableHeaderText(true)
     {
     }
 
-    SelectionManager::SelectionRole selectionRole;
-    bool                            enableHeaderText;
+    int     selectionLevel;
+    bool    enableHeaderText;
 };
 
 
@@ -105,7 +107,7 @@ public:
     ~PdmUiTableViewEditor();
 
     void            enableHeaderText(bool enable);
-    void            setSelectionRole(SelectionManager::SelectionRole role);
+    void            setSelectionLevel(int selectionLevel);
 
     PdmObjectHandle* pdmObjectFromModelIndex(const QModelIndex& mi);
     QTableView*     tableView();
@@ -140,7 +142,7 @@ private:
     PdmUiCheckBoxDelegate*  m_checkboxDelegate;
 
     bool                    m_useDefaultContextMenu;
-    SelectionManager::SelectionRole m_selectionRole;
+    int                     m_selectionLevel;
     bool                    m_isBlockingSelectionManagerChanged;
 
     caf::PdmChildArrayFieldHandle* m_previousFieldHandle;

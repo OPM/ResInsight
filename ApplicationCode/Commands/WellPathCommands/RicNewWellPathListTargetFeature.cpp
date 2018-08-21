@@ -41,7 +41,7 @@ bool RicNewWellPathListTargetFeature::isCommandEnabled()
     }
     {
         std::vector<RimWellPathTarget*> objects;
-        caf::SelectionManager::instance()->objectsByType(&objects, caf::SelectionManager::CURRENT);
+        caf::SelectionManager::instance()->objectsByType(&objects, caf::SelectionManager::FIRST_LEVEL);
 
         if ( objects.size() > 0 )
         {
@@ -58,7 +58,7 @@ bool RicNewWellPathListTargetFeature::isCommandEnabled()
 void RicNewWellPathListTargetFeature::onActionTriggered(bool isChecked)
 {
     std::vector<RimWellPathTarget*> targets;
-    caf::SelectionManager::instance()->objectsByType(&targets, caf::SelectionManager::CURRENT);
+    caf::SelectionManager::instance()->objectsByType(&targets, caf::SelectionManager::FIRST_LEVEL);
     if (targets.size() > 0)
     {
         auto firstTarget = targets.front();

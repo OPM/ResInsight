@@ -42,6 +42,7 @@
 #include "cafPdmUiEditorHandle.h"
 #include "cafPdmUiTableViewDelegate.h"
 #include "cafPdmUiTableViewQModel.h"
+#include "cafSelectionManager.h"
 
 #include <QApplication>
 #include <QEvent>
@@ -72,7 +73,7 @@ PdmUiTableViewEditor::PdmUiTableViewEditor()
 
     m_checkboxDelegate = new PdmUiCheckBoxDelegate(this);
 
-    m_selectionRole = SelectionManager::CURRENT;
+    m_selectionLevel = SelectionManager::FIRST_LEVEL;
     m_isBlockingSelectionManagerChanged = false;
 }
 
@@ -142,7 +143,7 @@ void PdmUiTableViewEditor::configureAndUpdateUi(const QString& uiConfigName)
     {
         PdmUiTableViewEditorAttribute editorAttrib;
         childArrayFH->ownerObject()->uiCapability()->editorAttribute(childArrayFH, uiConfigName, &editorAttrib);
-        this->setSelectionRole(editorAttrib.selectionRole);
+        this->setSelectionLevel(editorAttrib.selectionLevel);
         this->enableHeaderText(editorAttrib.enableHeaderText);
     }
 
@@ -230,9 +231,9 @@ void PdmUiTableViewEditor::enableHeaderText(bool enable)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void PdmUiTableViewEditor::setSelectionRole(SelectionManager::SelectionRole role)
+void PdmUiTableViewEditor::setSelectionLevel(int selectionLevel)
 {
-    m_selectionRole = role;
+    m_selectionLevel = selectionLevel;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -242,10 +243,10 @@ void PdmUiTableViewEditor::onSelectionManagerSelectionChanged(int selectionLevel
 {
     if (m_isBlockingSelectionManagerChanged) return;
 
-    if (isSelectionRoleDefined() && (m_selectionRole == selectionLevel))
+    if (isSelectionRoleDefined() && (m_selectionLevel == selectionLevel))
     {
         std::vector<PdmUiItem*> items;
-        SelectionManager::instance()->selectedItems(items, m_selectionRole);
+        SelectionManager::instance()->selectedItems(items, m_selectionLevel);
 
         QItemSelection totalSelection;
         for (auto item: items)
@@ -274,7 +275,7 @@ void PdmUiTableViewEditor::slotSelectionChanged(const QItemSelection & selected,
 //--------------------------------------------------------------------------------------------------
 bool PdmUiTableViewEditor::isSelectionRoleDefined() const
 {
-    return m_selectionRole != SelectionManager::UNDEFINED;
+    return m_selectionLevel != SelectionManager::UNDEFINED;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -320,7 +321,7 @@ void PdmUiTableViewEditor::updateSelectionManagerFromTableSelection()
         }
 
         m_isBlockingSelectionManagerChanged = true;
-        SelectionManager::instance()->setSelectedItems(items, m_selectionRole);
+        SelectionManager::instance()->setSelectedItems(items, m_selectionLevel);
         m_isBlockingSelectionManagerChanged = false;
     }
 }

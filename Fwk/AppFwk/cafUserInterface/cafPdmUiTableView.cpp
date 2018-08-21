@@ -40,6 +40,7 @@
 #include "cafPdmChildArrayField.h"
 #include "cafPdmObject.h"
 #include "cafPdmUiTableViewEditor.h"
+#include "cafSelectionManager.h"
 
 #include <QVBoxLayout>
 #include "cafPdmUiCommandSystemProxy.h"
@@ -152,9 +153,9 @@ void PdmUiTableView::enableHeaderText(bool enable)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void PdmUiTableView::setSelectionRole(SelectionManager::SelectionRole role)
+void PdmUiTableView::setSelectionLevel(int selectionLevel)
 {
-    m_listViewEditor->setSelectionRole(role);
+    m_listViewEditor->setSelectionLevel(selectionLevel);
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -57,7 +57,7 @@ QString CmdSelectionChangeExec::name()
 //--------------------------------------------------------------------------------------------------
 void CmdSelectionChangeExec::redo()
 {
-    SelectionManager::instance()->setSelectionFromReferences(m_commandData->m_newSelection.v(), m_commandData->m_selectionRole.v());
+    SelectionManager::instance()->setSelectionFromReferences(m_commandData->m_newSelection.v(), m_commandData->m_selectionLevel.v());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -65,7 +65,7 @@ void CmdSelectionChangeExec::redo()
 //--------------------------------------------------------------------------------------------------
 void CmdSelectionChangeExec::undo()
 {
-    SelectionManager::instance()->setSelectionFromReferences(m_commandData->m_previousSelection.v(), m_commandData->m_selectionRole.v());
+    SelectionManager::instance()->setSelectionFromReferences(m_commandData->m_previousSelection.v(), m_commandData->m_selectionLevel.v());
 }
 
 //--------------------------------------------------------------------------------------------------

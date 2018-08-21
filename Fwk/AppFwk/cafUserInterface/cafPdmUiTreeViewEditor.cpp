@@ -279,7 +279,7 @@ void PdmUiTreeViewEditor::customMenuRequested(QPoint pos)
 //--------------------------------------------------------------------------------------------------
 PdmChildArrayFieldHandle* PdmUiTreeViewEditor::currentChildArrayFieldHandle()
 {
-    PdmUiItem* currentSelectedItem = SelectionManager::instance()->selectedItem(SelectionManager::CURRENT);
+    PdmUiItem* currentSelectedItem = SelectionManager::instance()->selectedItem(SelectionManager::FIRST_LEVEL);
 
     PdmUiFieldHandle* uiFieldHandle = dynamic_cast<PdmUiFieldHandle*>(currentSelectedItem);
     if (uiFieldHandle)

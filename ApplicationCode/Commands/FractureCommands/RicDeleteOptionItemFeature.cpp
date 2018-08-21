@@ -33,7 +33,7 @@ CAF_CMD_SOURCE_INIT(RicDeleteOptionItemFeature, "RicDeleteOptionItemFeature");
 void RicDeleteOptionItemFeature::onActionTriggered(bool isChecked)
 {
     std::vector<RicCreateMultipleFracturesOptionItemUi*> optionItems;
-    caf::SelectionManager::instance()->objectsByType(&optionItems, caf::SelectionManager::CURRENT);
+    caf::SelectionManager::instance()->objectsByType(&optionItems, caf::SelectionManager::FIRST_LEVEL);
 
     if (!optionItems.empty())
     {
@@ -64,7 +64,7 @@ void RicDeleteOptionItemFeature::setupActionLook(QAction* actionToSetup)
 bool RicDeleteOptionItemFeature::isCommandEnabled()
 {
     std::vector<RicCreateMultipleFracturesOptionItemUi*> optionItems;
-    caf::SelectionManager::instance()->objectsByType(&optionItems, caf::SelectionManager::CURRENT);
+    caf::SelectionManager::instance()->objectsByType(&optionItems, caf::SelectionManager::FIRST_LEVEL);
 
     return !optionItems.empty();
 }

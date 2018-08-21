@@ -55,7 +55,7 @@ void RicNewOptionItemFeature::onActionTriggered(bool isChecked)
 
     {
         std::vector<RicCreateMultipleFracturesOptionItemUi*> optionItems;
-        caf::SelectionManager::instance()->objectsByType(&optionItems, caf::SelectionManager::CURRENT);
+        caf::SelectionManager::instance()->objectsByType(&optionItems, caf::SelectionManager::FIRST_LEVEL);
         if (!optionItems.empty())
         {
             selectedOptionItem = optionItems.front();
@@ -64,7 +64,7 @@ void RicNewOptionItemFeature::onActionTriggered(bool isChecked)
     }
 
     std::vector<RiuCreateMultipleFractionsUi*> multipleFractions;
-    caf::SelectionManager::instance()->objectsByType(&multipleFractions, caf::SelectionManager::CURRENT);
+    caf::SelectionManager::instance()->objectsByType(&multipleFractions, caf::SelectionManager::FIRST_LEVEL);
     if (!multipleFractions.empty())
     {
         multipleFractionUi = multipleFractions[0];
