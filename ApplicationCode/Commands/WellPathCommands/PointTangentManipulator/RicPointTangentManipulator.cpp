@@ -611,8 +611,10 @@ PdmUiSelectionVisualizer3d::~PdmUiSelectionVisualizer3d()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void PdmUiSelectionVisualizer3d::onSelectionManagerSelectionChanged()
+void PdmUiSelectionVisualizer3d::onSelectionManagerSelectionChanged(int selectionLevel)
 {
+    if (selectionLevel != caf::SelectionManager::APPLICATION_GLOBAL) return;
+
     for (auto editor: m_active3DEditors)
     {
         delete editor;

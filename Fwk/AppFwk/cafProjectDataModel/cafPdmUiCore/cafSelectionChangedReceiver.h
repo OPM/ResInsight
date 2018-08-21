@@ -46,7 +46,7 @@ public:
 protected:
     friend class SelectionManager;
     /// Called whenever caf::SelectionManager's selection changes
-    virtual void onSelectionManagerSelectionChanged() = 0;
+    virtual void onSelectionManagerSelectionChanged(int selectionLevel) = 0;
 };
 
 }

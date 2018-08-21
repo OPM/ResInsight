@@ -110,7 +110,7 @@ void SelectionManager::setSelectedItems(const std::vector<PdmUiItem*>& items, in
     if (newSelection != selection)
     {
         selection = newSelection;
-        notifySelectionChanged();
+        notifySelectionChanged(role);
     }
 }
 
@@ -206,17 +206,21 @@ void SelectionManager::setSelectionFromReferences(const std::vector<QString>& re
 //--------------------------------------------------------------------------------------------------
 void SelectionManager::clearAll()
 {
-    bool isChanged = false;
+    std::set<int> changedSelectionLevels;
+
     for (size_t i = 0; i < m_selectionForRole.size(); i++)
     {
         if ( m_selectionForRole[i].size())
         {
             m_selectionForRole[i].clear();
-            isChanged = true;
+            changedSelectionLevels.insert((int)i);
         }
     }
 
-    if (isChanged) notifySelectionChanged();
+    for (int level: changedSelectionLevels)
+    {
+        notifySelectionChanged(level); 
+    }
 }
 
 
@@ -229,18 +233,18 @@ void SelectionManager::clear(int role)
     {
         m_selectionForRole[role].clear();
 
-        notifySelectionChanged();
+        notifySelectionChanged(role);
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void SelectionManager::notifySelectionChanged()
+void SelectionManager::notifySelectionChanged( int selectionLevel)
 {
     for (auto receiver: m_selectionReceivers)
     {
-        receiver->onSelectionManagerSelectionChanged();
+        receiver->onSelectionManagerSelectionChanged(selectionLevel);
     }
 }
 
@@ -250,6 +254,7 @@ void SelectionManager::notifySelectionChanged()
 void SelectionManager::removeObjectFromAllSelections(PdmObjectHandle* pdmObject)
 {
     bool doNotifySelectionChanged = false;
+    std::set<int> changedSelectionLevels;
 
     for (size_t role = 0; role < m_selectionForRole.size(); role++)
     {
@@ -265,7 +270,7 @@ void SelectionManager::removeObjectFromAllSelections(PdmObjectHandle* pdmObject)
                 {
                     iter = selection.erase(iter);
 
-                    doNotifySelectionChanged = true;
+                    changedSelectionLevels.insert((int)role);
                 }
                 else
                 {
@@ -279,9 +284,9 @@ void SelectionManager::removeObjectFromAllSelections(PdmObjectHandle* pdmObject)
         }
     }
 
-    if (doNotifySelectionChanged)
+    for (int level: changedSelectionLevels)
     {
-        notifySelectionChanged();
+        notifySelectionChanged(level); 
     }
 }
 

@@ -238,11 +238,11 @@ void PdmUiTableViewEditor::setSelectionRole(SelectionManager::SelectionRole role
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void PdmUiTableViewEditor::onSelectionManagerSelectionChanged()
+void PdmUiTableViewEditor::onSelectionManagerSelectionChanged(int selectionLevel)
 {
     if (m_isBlockingSelectionManagerChanged) return;
 
-    if (isSelectionRoleDefined())
+    if (isSelectionRoleDefined() && (m_selectionRole == selectionLevel))
     {
         std::vector<PdmUiItem*> items;
         SelectionManager::instance()->selectedItems(items, m_selectionRole);

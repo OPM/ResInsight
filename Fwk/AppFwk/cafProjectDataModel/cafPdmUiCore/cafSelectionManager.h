@@ -57,11 +57,12 @@ class PdmChildArrayFieldHandle;
 class SelectionManager
 {
 public:
-    enum SelectionRole
-    {
-        APPLICATION_GLOBAL,
-        CURRENT,
-        UNDEFINED
+    enum SelectionRole 
+    {                       // Suggested renaming:
+        APPLICATION_GLOBAL, // FIRST_LEVEL
+        CURRENT,            // SECOND_LEVEL
+                            // THIRD_LEVEL
+                            UNDEFINED
     };
 
 public:
@@ -123,7 +124,7 @@ public:
 private:
     SelectionManager();
 
-    void notifySelectionChanged();
+    void notifySelectionChanged( int selectionLevel);
 
     friend class SelectionChangedReceiver;
     void registerSelectionChangedReceiver  ( SelectionChangedReceiver* receiver) { m_selectionReceivers.insert(receiver);}

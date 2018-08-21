@@ -115,7 +115,7 @@ protected:
     QWidget*        createLabelWidget(QWidget * parent) override;
     virtual void    configureAndUpdateUi(const QString& uiConfigName) override;
 
-    virtual void    onSelectionManagerSelectionChanged() override;
+    virtual void    onSelectionManagerSelectionChanged(int selectionLevel) override;
 
 private:
     void            selectedUiItems(const QModelIndexList& modelIndexList, std::vector<PdmUiItem*>& objects);

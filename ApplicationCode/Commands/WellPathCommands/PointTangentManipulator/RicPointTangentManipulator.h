@@ -231,7 +231,7 @@ public:
     PdmUiSelectionVisualizer3d(caf::Viewer* ownerViewer);
     ~PdmUiSelectionVisualizer3d(); 
 protected:
-    virtual void onSelectionManagerSelectionChanged() override;
+    virtual void onSelectionManagerSelectionChanged(int selectionLevel) override;
 
     std::vector< QPointer<PdmUiObject3dEditorHandle> > m_active3DEditors;
 
