@@ -613,7 +613,7 @@ PdmUiSelectionVisualizer3d::~PdmUiSelectionVisualizer3d()
 //--------------------------------------------------------------------------------------------------
 void PdmUiSelectionVisualizer3d::onSelectionManagerSelectionChanged(int selectionLevel)
 {
-    if (selectionLevel != caf::SelectionManager::APPLICATION_GLOBAL) return;
+    if (selectionLevel != 0) return;
 
     for (auto editor: m_active3DEditors)
     {

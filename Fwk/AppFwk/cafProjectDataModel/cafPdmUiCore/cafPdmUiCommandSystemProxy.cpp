@@ -92,14 +92,15 @@ void PdmUiCommandSystemProxy::setUiValueToField(PdmUiFieldHandle* uiFieldHandle,
         std::vector<PdmFieldHandle*> fieldsToUpdate;
         fieldsToUpdate.push_back(editorField);
 
-        // For current selection, find all fields with same keyword
+        // For level 1 selection, find all fields with same keyword
         // Todo: Should traverse the ui ordering and find all fields with same keyword and same ownerobject type. 
-        //       Until we do, fields embedded into the proerty panel fram a different object will not work with multiselection edit
+        //       Until we do, fields embedded into the property panel from a different object will not work with multiselection edit
         //       For now we only makes sure we have same ownerobject type
         {
             std::vector<PdmUiItem*> items;
-            SelectionManager::instance()->selectedItems(items, SelectionManager::CURRENT);
-            //SelectionManager::instance()->selectedItems(items, SelectionManager::APPLICATION_GLOBAL);
+
+            int selectionLevel = 1; // = 0;
+            SelectionManager::instance()->selectedItems(items, selectionLevel);
 
             for (size_t i = 0; i < items.size(); i++)
             {

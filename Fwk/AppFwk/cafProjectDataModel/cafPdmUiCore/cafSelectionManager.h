@@ -59,10 +59,10 @@ class SelectionManager
 public:
     enum SelectionRole 
     {                       // Suggested renaming:
-        APPLICATION_GLOBAL, // FIRST_LEVEL
-        CURRENT,            // SECOND_LEVEL
-                            // THIRD_LEVEL
-                            UNDEFINED
+        BASE_LEVEL, // BASE_LEVEL = 0,
+        CURRENT,            // FIRST_LEVEL = 1,
+                            // SECOND_LEVEL = 2,
+                            UNDEFINED = -1
     };
 
 public:
@@ -77,24 +77,24 @@ public:
     void                      setPdmRootObject(PdmObjectHandle* root);
     PdmObjectHandle*          pdmRootObject() { return m_rootObject; }
 
-    PdmUiItem*                selectedItem(int role = SelectionManager::APPLICATION_GLOBAL);
-    void                      setSelectedItem(PdmUiItem* item, int role = SelectionManager::APPLICATION_GLOBAL);
+    PdmUiItem*                selectedItem(int selectionLevel = 0);
+    void                      setSelectedItem(PdmUiItem* item, int selectionLevel = 0);
 
-    void                      selectedItems(std::vector<PdmUiItem*>& items, int role = SelectionManager::APPLICATION_GLOBAL);
-    void                      setSelectedItems(const std::vector<PdmUiItem*>& items, int role = SelectionManager::APPLICATION_GLOBAL);
+    void                      selectedItems(std::vector<PdmUiItem*>& items, int selectionLevel = 0);
+    void                      setSelectedItems(const std::vector<PdmUiItem*>& items, int selectionLevel = 0);
 
-    void                      selectionAsReferences(std::vector<QString>& referenceList, int role = SelectionManager::APPLICATION_GLOBAL) const;
-    void                      setSelectionFromReferences(const std::vector<QString>& referenceList, int role = SelectionManager::APPLICATION_GLOBAL);
+    void                      selectionAsReferences(std::vector<QString>& referenceList, int selectionLevel = 0) const;
+    void                      setSelectionFromReferences(const std::vector<QString>& referenceList, int selectionLevel = 0);
 
     void                      clearAll();
-    void                      clear(int role);
+    void                      clear(int selectionLevel);
     void                      removeObjectFromAllSelections(PdmObjectHandle* pdmObject);
 
     template <typename T>
-    void objectsByType(std::vector<T*>* typedObjects, int role = SelectionManager::APPLICATION_GLOBAL)
+    void objectsByType(std::vector<T*>* typedObjects, int selectionLevel = 0)
     {
         std::vector<PdmUiItem*> items;
-        this->selectedItems(items, role);
+        this->selectedItems(items, selectionLevel);
         for (size_t i = 0; i < items.size(); i++)
         {
             T* obj = dynamic_cast<T*>(items[i]);
@@ -105,10 +105,10 @@ public:
     /// Returns the selected objects of the requested type if _all_ the selected objects are of the requested type
 
     template <typename T>
-    void objectsByTypeStrict(std::vector<T*>* typedObjects, int role = SelectionManager::APPLICATION_GLOBAL)
+    void objectsByTypeStrict(std::vector<T*>* typedObjects, int selectionLevel = 0)
     {
         std::vector<PdmUiItem*> items;
-        this->selectedItems(items, role);
+        this->selectedItems(items, selectionLevel);
         for (size_t i = 0; i < items.size(); i++)
         {
             T* obj = dynamic_cast<T*>(items[i]);
@@ -131,7 +131,7 @@ private:
     void unregisterSelectionChangedReceiver( SelectionChangedReceiver* receiver) { m_selectionReceivers.erase(receiver);}
 
 private:
-    std::vector < std::vector< std::pair<PdmPointer<PdmObjectHandle>, PdmUiItem*> > > m_selectionForRole;
+    std::map <int,  std::vector< std::pair<PdmPointer<PdmObjectHandle>, PdmUiItem*> > >  m_selectionPrLevel;
 
     PdmChildArrayFieldHandle*   m_activeChildArrayFieldHandle;
     PdmPointer<PdmObjectHandle> m_rootObject;

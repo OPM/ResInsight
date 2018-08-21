@@ -42,19 +42,7 @@
 namespace caf
 {
 
-
-    template<>
-    void AppEnum<SelectionManager::SelectionRole>::setUp()
-    {
-        addItem(SelectionManager::APPLICATION_GLOBAL,   "APPLICATION_GLOBAL",   "APPLICATION_GLOBAL");
-        addItem(SelectionManager::CURRENT,              "CURRENT",              "CURRENT");
-        addItem(SelectionManager::UNDEFINED,            "UNDEFINED",            "UNDEFINED");
-        setDefault(SelectionManager::UNDEFINED);
-    }
-
 CAF_PDM_SOURCE_INIT(CmdSelectionChangeExecData, "CmdSelectionChangeExecData");
-
-
 
 //--------------------------------------------------------------------------------------------------
 /// 

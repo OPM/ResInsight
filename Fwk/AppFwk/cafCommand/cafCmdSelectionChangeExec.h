@@ -66,7 +66,7 @@ public:
         CAF_PDM_InitField(&m_newSelection,              "newSelection",         std::vector<QString>(), "newSelection", "", "", "");
     }
 
-    PdmField< AppEnum<SelectionManager::SelectionRole> > m_selectionRole;
+    PdmField< int >                   m_selectionRole;
     PdmField< std::vector<QString> >  m_previousSelection;
     PdmField< std::vector<QString> >  m_newSelection;
 };
