@@ -322,14 +322,35 @@ void RicPointTangentManipulatorPartMgr::updateManipulatorFromRay(const cvf::Ray*
 {
     if (!isManipulatorActive()) return;
 
-    cvf::Plane plane;
-    plane.setFromPointAndNormal(m_origin, cvf::Vec3d::Z_AXIS);
-    cvf::Vec3d newIntersection;
-    newMouseRay->planeIntersect(plane, &newIntersection);
+    if ( m_handleIds[m_currentHandleIndex] ==  HORIZONTAL_PLANE )
+    {
+        cvf::Plane plane;
+        plane.setFromPointAndNormal(m_origin, cvf::Vec3d::Z_AXIS);
+        cvf::Vec3d newIntersection;
+        newMouseRay->planeIntersect(plane, &newIntersection);
 
-    cvf::Vec3d newOrigin = m_originOnStartManipulation + (newIntersection - m_initialPickPoint); 
+        cvf::Vec3d newOrigin = m_originOnStartManipulation + (newIntersection - m_initialPickPoint);
 
-    m_origin = newOrigin;
+        m_origin = newOrigin;
+    }
+    else if ( m_handleIds[m_currentHandleIndex] ==  VERTICAL_AXIS )
+    {
+        cvf::Plane plane;
+        cvf::Vec3d planeNormal = (newMouseRay->direction() ^ cvf::Vec3d::Z_AXIS) ^ cvf::Vec3d::Z_AXIS;
+        double length = planeNormal.length();
+
+        if (length < 1e-5) return;
+
+        planeNormal /= length;
+        plane.setFromPointAndNormal(m_initialPickPoint, planeNormal );
+        cvf::Vec3d newIntersection;
+        newMouseRay->planeIntersect(plane, &newIntersection);
+
+        cvf::Vec3d newOrigin = m_originOnStartManipulation;
+        newOrigin.z() += (newIntersection.z() - m_initialPickPoint.z());
+
+        m_origin = newOrigin;
+    }
     //m_tangent = newTangent;
 
     clearAllGeometryAndParts();

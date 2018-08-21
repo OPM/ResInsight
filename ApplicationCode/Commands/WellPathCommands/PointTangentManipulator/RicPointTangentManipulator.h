@@ -149,10 +149,10 @@ private:
                                           const cvf::Color4f& color,
                                           const cvf::String& partName);
 private:
+    size_t                      m_currentHandleIndex;
     std::vector< HandleType >   m_handleIds;             // These arrays have the same length
     cvf::Collection<cvf::Part>  m_handleParts;           // These arrays have the same length
     cvf::Collection<cvf::Part>  m_activeDragModeParts;
-
 
     cvf::Vec3d          m_origin;
     cvf::Vec3d          m_tangent;
@@ -162,7 +162,6 @@ private:
     cvf::Vec3d          m_tangentOnStartManipulation;
     cvf::Vec3d          m_originOnStartManipulation;
 
-    size_t              m_currentHandleIndex;
 };
 
 
