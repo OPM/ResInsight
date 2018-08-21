@@ -39,7 +39,6 @@
 
 #include "cafNotificationCenter.h"
 #include "cafPdmUiFieldEditorHandle.h"
-//#include "cafSelectionManager.h"
 
 #include <QModelIndex>
 #include <QString>

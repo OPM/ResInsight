@@ -40,7 +40,6 @@
 
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
-#include "cafSelectionManager.h"
 #include "cafAppEnum.h"
 
 

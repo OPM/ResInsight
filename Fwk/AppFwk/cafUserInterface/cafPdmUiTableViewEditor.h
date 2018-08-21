@@ -41,7 +41,6 @@
 #include "cafPdmUiFieldEditorHandle.h"
 #include "cafPdmUiObjectEditorHandle.h"
 #include "cafSelectionChangedReceiver.h"
-//#include "cafSelectionManager.h"
 
 #include <QAbstractItemModel>
 #include <QPointer>
