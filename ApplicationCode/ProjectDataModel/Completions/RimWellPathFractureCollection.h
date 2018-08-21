@@ -19,7 +19,9 @@
 #pragma once
 
 #include "RimCheckableNamedObject.h"
+#include "RimMswCompletionParameters.h"
 
+#include "cafPdmChildField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmChildArrayField.h"
@@ -33,16 +35,34 @@ class RimWellPathFracture;
 class RimWellPathFractureCollection : public RimCheckableNamedObject
 {
      CAF_PDM_HEADER_INIT;
-
 public:
+    enum ReferenceMDType
+    {
+        AUTO_REFERENCE_MD = 0,
+        MANUAL_REFERENCE_MD
+    };
+
+    typedef caf::AppEnum<ReferenceMDType> ReferenceMDEnum;
+
     RimWellPathFractureCollection(void);
     virtual ~RimWellPathFractureCollection(void);
     
-    void                                            deleteFractures();
+    const RimMswCompletionParameters* mswParameters() const;
+    void                              deleteFractures();
+    void                              setUnitSystemSpecificDefaults();
+    ReferenceMDType                   referenceMDType() const;
+    double                            manualReferenceMD() const;
 
 public:
     caf::PdmChildArrayField<RimWellPathFracture*>   fractures;
 
+protected:
+    virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
+
 private:
     virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+
+    caf::PdmField<ReferenceMDEnum>                  m_refMDType;
+    caf::PdmField<double>                           m_refMD;
+    caf::PdmChildField<RimMswCompletionParameters*> m_mswParameters;
 };

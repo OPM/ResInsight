@@ -32,25 +32,6 @@
 #include <algorithm>
 #include <cmath>
 
-namespace caf {
-    template<>
-    void RimFishbonesCollection::PressureDropEnum::setUp()
-    {
-        addItem(RimFishbonesCollection::HYDROSTATIC,                       "H--", "Hydrostatic");
-        addItem(RimFishbonesCollection::HYDROSTATIC_FRICTION,              "HF-", "Hydrostatic + Friction");
-        addItem(RimFishbonesCollection::HYDROSTATIC_FRICTION_ACCELERATION, "HFA", "Hydrostatic + Friction + Acceleration");
-        setDefault(RimFishbonesCollection::HYDROSTATIC);
-    }
-
-    template<>
-    void RimFishbonesCollection::LengthAndDepthEnum::setUp()
-    {
-        addItem(RimFishbonesCollection::INC, "INC", "Incremental");
-        addItem(RimFishbonesCollection::ABS, "ABS", "Absolute");
-        setDefault(RimFishbonesCollection::INC);
-    }
-}
-
 CAF_PDM_SOURCE_INIT(RimFishbonesCollection, "FishbonesCollection");
 
 //--------------------------------------------------------------------------------------------------
@@ -71,16 +52,23 @@ RimFishbonesCollection::RimFishbonesCollection()
     m_wellPathCollection = new RimFishboneWellPathCollection;
     m_wellPathCollection.uiCapability()->setUiHidden(true);
 
-    CAF_PDM_InitField(&m_startMD,           "StartMD",          HUGE_VAL,   "Start MD",             "", "", "");
+    
+    CAF_PDM_InitField(&m_startMD, "StartMD", HUGE_VAL, "Start MD", "", "", "");
     CAF_PDM_InitField(&m_mainBoreDiameter,  "MainBoreDiameter", 0.216,      "Main Bore Diameter",   "", "", "");
     CAF_PDM_InitField(&m_skinFactor, "MainBoreSkinFactor", 0., "Main Bore Skin Factor [0..1]", "", "", "");
-    CAF_PDM_InitField(&m_linerDiameter,     "LinerDiameter",    0.152,      "Liner Inner Diameter", "", "", "");
-    CAF_PDM_InitField(&m_roughnessFactor,   "RoughnessFactor",  1e-05,      "Roughness Factor",     "", "", "");
-
-    CAF_PDM_InitFieldNoDefault(&m_pressureDrop, "PressureDrop", "Pressure Drop", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&m_lengthAndDepth, "LengthAndDepth", "Length and Depth", "", "", "");
-
+    CAF_PDM_InitFieldNoDefault(&m_mswParameters, "MswParameters", "Multi Segment Well Parameters", "", "", "");
+    m_mswParameters = new RimMswCompletionParameters;
     manuallyModifiedStartMD = false;
+
+    // Moved to RimMswCompletionParameters and obsoleted
+    CAF_PDM_InitField(&m_linerDiameter_OBSOLETE, "LinerDiameter", 0.152, "Liner Inner Diameter", "", "", "");
+    CAF_PDM_InitField(&m_roughnessFactor_OBSOLETE, "RoughnessFactor", 1e-05, "Roughness Factor", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_pressureDrop_OBSOLETE, "PressureDrop", "Pressure Drop", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_lengthAndDepth_OBSOLETE, "LengthAndDepth", "Length and Depth", "", "", "");
+    m_linerDiameter_OBSOLETE.xmlCapability()->setIOWritable(false);
+    m_roughnessFactor_OBSOLETE.xmlCapability()->setIOWritable(false);
+    m_pressureDrop_OBSOLETE.xmlCapability()->setIOWritable(false);
+    m_lengthAndDepth_OBSOLETE.xmlCapability()->setIOWritable(false);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -129,15 +117,11 @@ void RimFishbonesCollection::defineUiOrdering(QString uiConfigName, caf::PdmUiOr
             {
                 m_startMD.uiCapability()->setUiName("Start MD [m]");
                 m_mainBoreDiameter.uiCapability()->setUiName("Main Bore Diameter [m]");
-                m_linerDiameter.uiCapability()->setUiName("Liner Inner Diameter [m]");
-                m_roughnessFactor.uiCapability()->setUiName("Roughness Factor [m]");
             }
             else if (wellPath->unitSystem() == RiaEclipseUnitTools::UNITS_FIELD)
             {
                 m_startMD.uiCapability()->setUiName("Start MD [ft]");
                 m_mainBoreDiameter.uiCapability()->setUiName("Main Bore Diameter [ft]");
-                m_linerDiameter.uiCapability()->setUiName("Liner Inner Diameter [ft]");
-                m_roughnessFactor.uiCapability()->setUiName("Roughness Factor [ft]");
             }
         }
     }
@@ -146,12 +130,32 @@ void RimFishbonesCollection::defineUiOrdering(QString uiConfigName, caf::PdmUiOr
     wellGroup->add(&m_startMD);
     wellGroup->add(&m_mainBoreDiameter);
     wellGroup->add(&m_skinFactor);
+    caf::PdmUiGroup* mswGroup = uiOrdering.addNewGroup("Multi Segment Well Properties");
+    m_mswParameters->uiOrdering(uiConfigName, *mswGroup);
+    uiOrdering.skipRemainingFields(true);
+}
 
-    caf::PdmUiGroup* mswGroup = uiOrdering.addNewGroup("Multi Segment Wells");
-    mswGroup->add(&m_linerDiameter);
-    mswGroup->add(&m_roughnessFactor);
-    mswGroup->add(&m_pressureDrop);
-    mswGroup->add(&m_lengthAndDepth);
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFishbonesCollection::initAfterRead()
+{
+    if (m_linerDiameter_OBSOLETE() != m_linerDiameter_OBSOLETE.defaultValue())
+    {
+        m_mswParameters->setLinerDiameter(m_linerDiameter_OBSOLETE());
+    }
+    if (m_roughnessFactor_OBSOLETE() != m_roughnessFactor_OBSOLETE.defaultValue())
+    {
+        m_mswParameters->setRoughnessFactor(m_roughnessFactor_OBSOLETE());
+    }
+    if (m_pressureDrop_OBSOLETE() != m_pressureDrop_OBSOLETE.defaultValue())
+    {
+        m_mswParameters->setPressureDrop(m_pressureDrop_OBSOLETE());
+    }
+    if (m_lengthAndDepth_OBSOLETE() != m_lengthAndDepth_OBSOLETE.defaultValue())
+    {
+        m_mswParameters->setLengthAndDepth(m_lengthAndDepth_OBSOLETE());
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -164,6 +168,14 @@ void RimFishbonesCollection::appendFishbonesSubs(RimFishbonesMultipleSubs* subs)
 
     subs->setUnitSystemSpecificDefaults();
     subs->recomputeLateralLocations();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const RimMswCompletionParameters* RimFishbonesCollection::mswParameters() const
+{
+    return m_mswParameters;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -229,6 +241,14 @@ void RimFishbonesCollection::recalculateStartMD()
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimFishbonesCollection::startMD() const
+{
+    return m_startMD;
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 double RimFishbonesCollection::mainBoreDiameter(RiaEclipseUnitTools::UnitSystem unitSystem) const
@@ -246,41 +266,6 @@ double RimFishbonesCollection::mainBoreDiameter(RiaEclipseUnitTools::UnitSystem 
     return m_mainBoreDiameter();
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-double RimFishbonesCollection::linerDiameter(RiaEclipseUnitTools::UnitSystem unitSystem) const
-{
-    RimWellPath* wellPath;
-    firstAncestorOrThisOfTypeAsserted(wellPath);
-    if (wellPath->unitSystem() == RiaEclipseUnitTools::UNITS_FIELD && unitSystem == RiaEclipseUnitTools::UNITS_METRIC)
-    {
-        return RiaEclipseUnitTools::feetToMeter(m_linerDiameter());
-    }
-    else if (wellPath->unitSystem() == RiaEclipseUnitTools::UNITS_METRIC && unitSystem == RiaEclipseUnitTools::UNITS_FIELD)
-    {
-        return RiaEclipseUnitTools::meterToFeet(m_linerDiameter());
-    }
-    return m_linerDiameter();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-double RimFishbonesCollection::roughnessFactor(RiaEclipseUnitTools::UnitSystem unitSystem) const
-{
-    RimWellPath* wellPath;
-    firstAncestorOrThisOfTypeAsserted(wellPath);
-    if (wellPath->unitSystem() == RiaEclipseUnitTools::UNITS_FIELD && unitSystem == RiaEclipseUnitTools::UNITS_METRIC)
-    {
-        return RiaEclipseUnitTools::feetToMeter(m_roughnessFactor());
-    }
-    else if (wellPath->unitSystem() == RiaEclipseUnitTools::UNITS_METRIC && unitSystem == RiaEclipseUnitTools::UNITS_FIELD)
-    {
-        return RiaEclipseUnitTools::meterToFeet(m_roughnessFactor());
-    }
-    return m_roughnessFactor();
-}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -294,17 +279,14 @@ void RimFishbonesCollection::setUnitSystemSpecificDefaults()
         if (wellPath->unitSystem() == RiaEclipseUnitTools::UNITS_METRIC)
         {
             m_mainBoreDiameter = 0.216;
-            m_linerDiameter = 0.152;
-            m_roughnessFactor = 1e-05;
         }
         else
         {
             m_mainBoreDiameter = 0.708;
-            m_linerDiameter = 0.5;
-            m_roughnessFactor = 3.28e-05;
         }
 
         m_wellPathCollection->setUnitSystemSpecificDefaults();
     }
+    m_mswParameters->setUnitSystemSpecificDefaults();
 }
 

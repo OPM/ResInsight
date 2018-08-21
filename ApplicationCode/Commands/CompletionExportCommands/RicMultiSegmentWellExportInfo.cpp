@@ -1,7 +1,9 @@
 #include "RicMultiSegmentWellExportInfo.h"
 
-#include "RigWellPath.h"
+#include "RimMswCompletionParameters.h"
 #include "RimWellPath.h"
+
+#include "RigWellPath.h"
 
 #include <algorithm>
 #include <limits>
@@ -477,8 +479,8 @@ RicMswExportInfo::RicMswExportInfo(const RimWellPath*              wellPath,
     , m_initialMD(initialMD)
     , m_unitSystem(unitSystem)
     , m_topWellBoreVolume(RicMswExportInfo::defaultDoubleValue())
-    , m_linerDiameter(0.15)
-    , m_roughnessFactor(5.0e-5)
+    , m_linerDiameter(RimMswCompletionParameters::defaultLinerDiameter(unitSystem))
+    , m_roughnessFactor(RimMswCompletionParameters::defaultRoughnessFactor(unitSystem))
     , m_lengthAndDepthText(lengthAndDepthText)
     , m_pressureDropText(pressureDropText)
     , m_hasSubGridIntersections(false)

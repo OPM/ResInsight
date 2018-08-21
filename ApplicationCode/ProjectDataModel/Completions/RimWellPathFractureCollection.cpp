@@ -24,6 +24,15 @@
 #include "cafPdmObject.h"
 
 
+namespace caf {
+    template<>
+    void RimWellPathFractureCollection::ReferenceMDEnum::setUp()
+    {
+        addItem(RimWellPathFractureCollection::AUTO_REFERENCE_MD, "GridIntersectionRefMD", "Use depth where the well path meets grid");
+        addItem(RimWellPathFractureCollection::MANUAL_REFERENCE_MD, "ManualRefMD", "Set Manually");
+        setDefault(RimWellPathFractureCollection::AUTO_REFERENCE_MD);
+    }
+}
 
 
 CAF_PDM_SOURCE_INIT(RimWellPathFractureCollection, "WellPathFractureCollection");
@@ -40,6 +49,11 @@ RimWellPathFractureCollection::RimWellPathFractureCollection(void)
 
     setName("Fractures");
     nameField()->uiCapability()->setUiHidden(true);
+
+    CAF_PDM_InitFieldNoDefault(&m_refMDType, "RefMDType", "Reference Depth", "", "", "");
+    CAF_PDM_InitField(&m_refMD, "RefMD", 0.0, "Reference MD", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_mswParameters, "MswParameters", "Multi Segment Well Parameters", "", "", "");
+    m_mswParameters = new RimMswCompletionParameters;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -50,11 +64,61 @@ RimWellPathFractureCollection::~RimWellPathFractureCollection()
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const RimMswCompletionParameters* RimWellPathFractureCollection::mswParameters() const
+{
+    return m_mswParameters;
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void RimWellPathFractureCollection::deleteFractures()
 {
     fractures.deleteAllChildObjects();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellPathFractureCollection::setUnitSystemSpecificDefaults()
+{
+    m_mswParameters->setUnitSystemSpecificDefaults();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimWellPathFractureCollection::ReferenceMDType RimWellPathFractureCollection::referenceMDType() const
+{
+    return m_refMDType();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimWellPathFractureCollection::manualReferenceMD() const
+{
+    if (m_refMDType == AUTO_REFERENCE_MD)
+    {
+        return std::numeric_limits<double>::infinity();
+    }
+    return m_refMD;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellPathFractureCollection::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+{
+    caf::PdmUiGroup* mswGroup = uiOrdering.addNewGroup("Multi Segment Well Properties");
+
+    mswGroup->add(&m_refMDType);
+    mswGroup->add(&m_refMD);
+    m_refMD.uiCapability()->setUiHidden(m_refMDType == AUTO_REFERENCE_MD);
+
+    m_mswParameters->uiOrdering(uiConfigName, *mswGroup);
 }
 
 //--------------------------------------------------------------------------------------------------

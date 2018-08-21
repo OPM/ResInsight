@@ -448,7 +448,8 @@ void RicWellPathExportCompletionDataFeatureImpl::generateWelsegsTable(RifEclipse
 
     {
         formatter.comment("Main stem");
-
+        double prevMD  = exportInfo.initialMD();
+        double prevTVD = exportInfo.initialTVD();
         for (const RicMswSegment& location : exportInfo.wellSegmentLocations())
         {
             double depth  = 0;
@@ -456,8 +457,8 @@ void RicWellPathExportCompletionDataFeatureImpl::generateWelsegsTable(RifEclipse
 
             if (exportInfo.lengthAndDepthText() == QString("INC"))
             {
-                depth  = location.deltaTVD();
-                length = location.deltaMD();
+                depth  = location.endTVD() - prevTVD;
+                length = location.endMD() - prevMD;
             }
             else
             {
@@ -478,6 +479,8 @@ void RicWellPathExportCompletionDataFeatureImpl::generateWelsegsTable(RifEclipse
             formatter.add(exportInfo.linerDiameter());
             formatter.add(exportInfo.roughnessFactor());
             formatter.rowCompleted();
+            prevMD  = location.endMD();
+            prevTVD = location.endTVD();
         }
     }
 
@@ -628,7 +631,6 @@ void RicWellPathExportCompletionDataFeatureImpl::generateCompsegTable(RifEclipse
                     bool isSubGridIntersection = !intersection.gridName().isEmpty();
                     if (isSubGridIntersection == exportSubGridIntersections)
                     {
-                        double relativeStartLength = segment.startMD() - startMD;
                         if (exportSubGridIntersections)
                         {
                             formatter.add(intersection.gridName());
@@ -636,8 +638,15 @@ void RicWellPathExportCompletionDataFeatureImpl::generateCompsegTable(RifEclipse
                         cvf::Vec3st ijk = intersection.gridLocalCellIJK();
                         formatter.addZeroBasedCellIndex(ijk.x()).addZeroBasedCellIndex(ijk.y()).addZeroBasedCellIndex(ijk.z());
                         formatter.add(completion.branchNumber());
-                        formatter.add(relativeStartLength);
-                        formatter.add(relativeStartLength + segment.deltaMD());
+
+                        double startLength = segment.startMD();
+                        if (exportInfo.lengthAndDepthText() == QString("INC"))
+                        {
+                            startLength -= startMD;
+                        }
+                        formatter.add(startLength);
+                        formatter.add(startLength + segment.deltaMD());
+
                         formatter.rowCompleted();
                     }
                 }
@@ -1248,10 +1257,10 @@ RicMswExportInfo RicWellPathExportCompletionDataFeatureImpl::generateFishbonesMs
     RicMswExportInfo exportInfo(wellPath,
                                 unitSystem,
                                 wellPath->fishbonesCollection()->startMD(),
-                                wellPath->fishbonesCollection()->lengthAndDepth().text(),
-                                wellPath->fishbonesCollection()->pressureDrop().text());
-    exportInfo.setLinerDiameter(wellPath->fishbonesCollection()->linerDiameter(unitSystem));
-    exportInfo.setRoughnessFactor(wellPath->fishbonesCollection()->roughnessFactor(unitSystem));
+                                wellPath->fishbonesCollection()->mswParameters()->lengthAndDepth().text(),
+                                wellPath->fishbonesCollection()->mswParameters()->pressureDrop().text());
+    exportInfo.setLinerDiameter(wellPath->fishbonesCollection()->mswParameters()->linerDiameter(unitSystem));
+    exportInfo.setRoughnessFactor(wellPath->fishbonesCollection()->mswParameters()->roughnessFactor(unitSystem));
 
     bool   foundSubGridIntersections = false;
     double startMD                   = wellPath->fishbonesCollection()->startMD();
@@ -1276,7 +1285,7 @@ RicMswExportInfo RicWellPathExportCompletionDataFeatureImpl::generateFishbonesMs
 
             // Add completion for ICD
             RicMswCompletion icdCompletion(RigCompletionData::ICD, QString("ICD"));
-            RicMswSubSegment icdSegment(endMD, 0.1, -endPosition.z(), 0.0);
+            RicMswSubSegment icdSegment(endMD, 0.1, endTVD, 0.0);
             icdCompletion.addSubSegment(icdSegment);
             location.addCompletion(icdCompletion);
 
@@ -1342,14 +1351,24 @@ RicMswExportInfo RicWellPathExportCompletionDataFeatureImpl::generateFracturesMs
     std::vector<WellPathCellIntersectionInfo> intersections =
         RigWellPathIntersectionTools::findCellIntersectionInfosAlongPath(caseToApply->eclipseCaseData(), coords, mds);
 
-    double initialMD = mds.front();
-
-    if (!intersections.empty())
+    double initialMD = 0.0;
+    if (wellPath->fractureCollection()->referenceMDType() == RimWellPathFractureCollection::MANUAL_REFERENCE_MD)
+    {
+        initialMD = wellPath->fractureCollection()->manualReferenceMD();
+    }
+    else if (!intersections.empty())
     {
         initialMD = intersections.front().startMD;
     }
 
-    RicMswExportInfo exportInfo(wellPath, unitSystem, initialMD, QString("INC"), QString("HF-"));
+    RicMswExportInfo exportInfo(wellPath,
+                                unitSystem,
+                                initialMD,
+                                wellPath->fractureCollection()->mswParameters()->lengthAndDepth().text(),
+                                wellPath->fractureCollection()->mswParameters()->pressureDrop().text());
+
+    exportInfo.setLinerDiameter(wellPath->fractureCollection()->mswParameters()->linerDiameter(unitSystem));
+    exportInfo.setRoughnessFactor(wellPath->fractureCollection()->mswParameters()->roughnessFactor(unitSystem));
 
     bool foundSubGridIntersections = false;
 
