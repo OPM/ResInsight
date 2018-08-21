@@ -31,6 +31,7 @@
 #include <QDebug>
 #include <QMouseEvent>
 #include "RivPartPriority.h"
+#include "cafPdmUiCommandSystemProxy.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -174,6 +175,7 @@ bool RicPointTangentManipulator::eventFilter(QObject *obj, QEvent* inputEvent)
 #include "cafBoxManipulatorGeometryGenerator.h"
 #include "cafEffectGenerator.h"
 #include "cafLine.h"
+#include "cafSelectionManager.h"
 
 #include "cvfBoxGenerator.h"
 #include "cvfDrawableGeo.h"
@@ -305,6 +307,7 @@ void RicPointTangentManipulatorPartMgr::tryToActivateManipulator(const cvf::HitI
             m_tangentOnStartManipulation = m_tangent;
             m_originOnStartManipulation = m_origin;
             m_currentHandleIndex = i;
+            caf::SelectionManager::instance()->clear(caf::SelectionManager::FIRST_LEVEL);
         }
     }
 
@@ -315,45 +318,18 @@ void RicPointTangentManipulatorPartMgr::tryToActivateManipulator(const cvf::HitI
 /// Calculate new origin and tangent based on the new ray position
 /// Clear geometry to trigger regeneration  
 //--------------------------------------------------------------------------------------------------
-void RicPointTangentManipulatorPartMgr::updateManipulatorFromRay(const cvf::Ray* ray)
+void RicPointTangentManipulatorPartMgr::updateManipulatorFromRay(const cvf::Ray* newMouseRay)
 {
     if (!isManipulatorActive()) return;
 
+    cvf::Plane plane;
+    plane.setFromPointAndNormal(m_origin, cvf::Vec3d::Z_AXIS);
+    cvf::Vec3d newIntersection;
+    newMouseRay->planeIntersect(plane, &newIntersection);
 
-    //BoxFace face = m_handleIds[m_currentHandleIndex].first;
-    //cvf::Vec3d faceDir = normalFromFace(face);
-    //
-    //caf::Line<double> rayLine(ray->origin(), ray->origin() + ray->direction());
-    //caf::Line<double> pickLine(m_initialPickPoint, m_initialPickPoint + faceDir);
-    //
-    //caf::Line<double> mouseHandleLine = rayLine.findLineBetweenNearestPoints(pickLine);
-    //cvf::Vec3d closestPointOnMouseRay = mouseHandleLine.start();
-    //cvf::Vec3d closestPointOnHandleRay = mouseHandleLine.end();
-    //
-    //cvf::Vec3d newOrigin = m_origin;
-    //cvf::Vec3d newTangent = m_tangent;
-    //
-    //int axis = face/2;
-    //cvf::Vec3d axisDir;
-    //axisDir[axis] = 1.0;
-    //
-    //cvf::Vec3d motion3d = closestPointOnHandleRay - m_initialPickPoint;
-    //
-    //if (face == BCF_X_POS || face == BCF_Y_POS || face == BCF_Z_POS)
-    //{
-    //    newTangent = m_tangentOnStartManipulation + motion3d;
-    //
-    //    for (int i = 0; i < 3; ++i) if (newTangent[i] < 0.0) { newOrigin[i] = m_originOnStartManipulation[i] + newTangent[i]; newTangent[i] = 0.0; }
-    //}
-    //else
-    //{
-    //    newOrigin = m_originOnStartManipulation + motion3d;
-    //    newTangent   = m_tangentOnStartManipulation - motion3d;
-    //
-    //    for (int i = 0; i < 3; ++i) if (newTangent[i] < 0.0) {  newTangent[i] = 0.0; }
-    //}
+    cvf::Vec3d newOrigin = m_originOnStartManipulation + (newIntersection - m_initialPickPoint); 
 
-    //m_origin = newOrigin;
+    m_origin = newOrigin;
     //m_tangent = newTangent;
 
     clearAllGeometryAndParts();
@@ -458,6 +434,37 @@ void  RicPointTangentManipulatorPartMgr::createVerticalAxisHandle()
     addHandlePart(geo.p(), color,  handleId, partName);
 }
 
+#if 0
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void  RicPointTangentManipulatorPartMgr::createAzimuthHandle()
+{
+    using namespace cvf;
+
+    cvf::ref< cvf::GeometryBuilderTriangles> geomBuilder = new cvf::GeometryBuilderTriangles;
+    cvf::GeometryUtils::createDisc(1.3, 1.1, 16, geomBuilder.p());
+
+    cvf::ref<cvf::Vec3fArray> vertexArray = geomBuilder->vertices();
+    cvf::ref<cvf::UIntArray> indexArray = geomBuilder->triangles();
+
+    Vec3f origin(m_origin);
+    for (cvf::Vec3f& vx: *vertexArray)
+    {
+        vx *= 0.5*m_handleSize;
+        vx += origin;
+    }
+
+    ref<DrawableGeo> geo = createIndexedTriangelDrawableGeo(vertexArray.p(), indexArray.p());
+
+    HandleType handleId = AZIMUTH;
+    cvf::Color4f color =  cvf::Color4f(0.0f, 0.2f, 0.8f, 0.5f);
+    cvf::String partName("PointTangentManipulator Azimuth Handle");
+
+    addHandlePart(geo.p(), color,  handleId, partName);
+}
+
+#endif
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -625,7 +632,7 @@ void PdmUiSelectionVisualizer3d::onSelectionManagerSelectionChanged(int selectio
     if (!m_ownerViewer) return;
 
     // Todo: How do we deduce the editor from the selected object ?
-    // Alt 1: Register the rim object type name as kay in the factory as well
+    // Alt 1: Register the rim object type name as key in the factory as well
     // Alt 2: Set the editor type name as PdmUiItem::setUiEditorTypeName
     // Alt 3: Use a specific config-name in alt 2.
     // Alt 4: Introduce a PdmUiItem::editorTypeName3d
@@ -731,7 +738,7 @@ RicWellTarget3dEditor::RicWellTarget3dEditor()
 //--------------------------------------------------------------------------------------------------
 RicWellTarget3dEditor::~RicWellTarget3dEditor()
 {
-    if (m_cvfModel.notNull()) 
+    if (m_cvfModel.notNull() && m_ownerViewer) 
     {
         // Could result in some circularities ....
         m_ownerViewer->removeStaticModel(m_cvfModel.p());
@@ -773,6 +780,10 @@ void RicWellTarget3dEditor::configureAndUpdateUi(const QString& uiConfigName)
     if (m_manipulator.isNull())
     {
         m_manipulator = new RicPointTangentManipulator(m_ownerViewer);
+        QObject::connect(m_manipulator,
+                         SIGNAL( notifyUpdate(const cvf::Vec3d& , const cvf::Vec3d& ) ),
+                         this,
+                         SLOT( slotUpdated(const cvf::Vec3d& , const cvf::Vec3d& ) ) );
         m_cvfModel = new cvf::ModelBasicList;
         m_ownerViewer->addStaticModelOnce(m_cvfModel.p());
     }
@@ -808,4 +819,36 @@ void RicWellTarget3dEditor::cleanupBeforeSettingPdmObject()
         oldTarget->m_azimuth.uiCapability()->removeFieldEditor(this);
         oldTarget->m_inclination.uiCapability()->removeFieldEditor(this);
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicWellTarget3dEditor::slotUpdated(const cvf::Vec3d& origin, const cvf::Vec3d& tangent)
+{
+    RimWellPathTarget* target = dynamic_cast<RimWellPathTarget*>(this->pdmObject());
+
+    if ( !target)
+    {
+        return;
+    }
+
+    cvf::ref<caf::DisplayCoordTransform> dispXf;
+    {
+        RiuViewer* viewer = dynamic_cast<RiuViewer*>(m_ownerViewer.data());
+        dispXf = viewer->ownerReservoirView()->displayCoordTransform();
+    }
+
+    RimWellPathGeometryDef* geomDef;
+    target->firstAncestorOrThisOfTypeAsserted(geomDef);
+
+    cvf::Vec3d domainOrigin = dispXf->transformToDomainCoord( origin)  - geomDef->referencePoint();
+    domainOrigin.z() = -domainOrigin.z();
+    QVariant originVariant = caf::PdmValueFieldSpecialization < cvf::Vec3d >::convert(domainOrigin);
+
+    std::cout << "RicWellTarget3dEditor::slotUpdated() start" << std::endl;
+
+    caf::PdmUiCommandSystemProxy::instance()->setUiValueToField(target->m_targetPoint.uiCapability(), originVariant);
+    std::cout << "RicWellTarget3dEditor::slotUpdated() end" << std::endl;
+
 }

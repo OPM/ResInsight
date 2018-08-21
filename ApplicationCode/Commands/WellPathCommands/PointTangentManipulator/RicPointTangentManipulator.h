@@ -284,6 +284,8 @@ protected:
     virtual void configureAndUpdateUi(const QString& uiConfigName) override;
     virtual void cleanupBeforeSettingPdmObject() override;
 
+private slots:
+    void slotUpdated(const cvf::Vec3d& origin, const cvf::Vec3d& tangent);
 private:
     QPointer<RicPointTangentManipulator> m_manipulator;
     cvf::ref<cvf::ModelBasicList> m_cvfModel;
