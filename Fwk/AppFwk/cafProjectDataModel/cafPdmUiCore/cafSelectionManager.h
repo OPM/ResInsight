@@ -37,6 +37,7 @@
 
 #include "cafSelectionChangedReceiver.h"
 
+#include "cafPdmObjectHandle.h"
 #include "cafPdmPointer.h"
 #include "cafPdmField.h"
 
