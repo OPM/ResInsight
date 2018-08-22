@@ -54,6 +54,8 @@ RimWellPathFractureCollection::RimWellPathFractureCollection(void)
     CAF_PDM_InitField(&m_refMD, "RefMD", 0.0, "Reference MD", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_mswParameters, "MswParameters", "Multi Segment Well Parameters", "", "", "");
     m_mswParameters = new RimMswCompletionParameters;
+    m_mswParameters.uiCapability()->setUiTreeHidden(true);
+    m_mswParameters.uiCapability()->setUiTreeChildrenHidden(true);
 }
 
 //--------------------------------------------------------------------------------------------------

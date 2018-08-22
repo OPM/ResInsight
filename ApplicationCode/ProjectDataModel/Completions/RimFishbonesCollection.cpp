@@ -58,6 +58,8 @@ RimFishbonesCollection::RimFishbonesCollection()
     CAF_PDM_InitField(&m_skinFactor, "MainBoreSkinFactor", 0., "Main Bore Skin Factor [0..1]", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_mswParameters, "MswParameters", "Multi Segment Well Parameters", "", "", "");
     m_mswParameters = new RimMswCompletionParameters;
+    m_mswParameters.uiCapability()->setUiTreeHidden(true);
+    m_mswParameters.uiCapability()->setUiTreeChildrenHidden(true);
     manuallyModifiedStartMD = false;
 
     // Moved to RimMswCompletionParameters and obsoleted
