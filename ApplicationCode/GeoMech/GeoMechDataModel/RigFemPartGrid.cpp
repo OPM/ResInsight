@@ -430,18 +430,20 @@ size_t RigFemPartGrid::cellIndexFromIJK(size_t i, size_t j, size_t k) const
 //--------------------------------------------------------------------------------------------------
 bool RigFemPartGrid::ijkFromCellIndex(size_t cellIndex, size_t* i, size_t* j, size_t* k) const
 {
-    int signed_i = m_ijkPrElement[cellIndex][0];
-    int signed_j = m_ijkPrElement[cellIndex][1];
-    int signed_k = m_ijkPrElement[cellIndex][2];
-
-    if (signed_i >= 0 && signed_j >= 0 && signed_k >= 0)
+    if (cellIndex < m_ijkPrElement.size())
     {
-        *i = signed_i;
-        *j = signed_j;
-        *k = signed_k;
-        return true;
-    }
+        int signed_i = m_ijkPrElement[cellIndex][0];
+        int signed_j = m_ijkPrElement[cellIndex][1];
+        int signed_k = m_ijkPrElement[cellIndex][2];
 
+        if (signed_i >= 0 && signed_j >= 0 && signed_k >= 0)
+        {
+            *i = signed_i;
+            *j = signed_j;
+            *k = signed_k;
+            return true;
+        }
+    }
     return false;
 }
 

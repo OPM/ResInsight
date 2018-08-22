@@ -24,7 +24,9 @@
 #include "RimProject.h"
 #include "RimTools.h"
 #include "RimWellLogExtractionCurve.h"
+#include "RimWellLogFileCurve.h"
 #include "RimWellLogPlot.h"
+#include "RimWellLogPlotCollection.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 
@@ -225,8 +227,24 @@ void RimWellLogCurveCommonDataSource::updateCurves(std::vector<RimWellLogCurve*>
     std::set<RimWellLogPlot*> plots;
     for (RimWellLogCurve* curve : curves)
     {
+        RimWellLogFileCurve*       fileCurve = dynamic_cast<RimWellLogFileCurve*>(curve);
         RimWellLogExtractionCurve* extractionCurve = dynamic_cast<RimWellLogExtractionCurve*>(curve);
-        if (extractionCurve)
+        if (fileCurve)
+        {
+            if (wellPathToApply() != nullptr)
+            {
+                fileCurve->setWellPath(wellPathToApply());
+                if (!fileCurve->wellLogChannelName().isEmpty())
+                {
+                    RimWellLogFile* logFile = wellPathToApply()->firstWellLogFileMatchingChannelName(fileCurve->wellLogChannelName());
+                    fileCurve->setWellLogFile(logFile);
+                    RimWellLogPlot* parentPlot = nullptr;
+                    fileCurve->firstAncestorOrThisOfTypeAsserted(parentPlot);
+                    plots.insert(parentPlot);
+                }
+            }
+        }
+        else if (extractionCurve)
         {
             bool updatedSomething = false;
             if (caseToApply() != nullptr)

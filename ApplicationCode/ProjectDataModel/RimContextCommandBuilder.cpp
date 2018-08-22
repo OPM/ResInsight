@@ -373,6 +373,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicPasteWellLogPlotFeature";
             menuBuilder << "Separator";
             menuBuilder << "RicNewWellLogPlotFeature";
+            menuBuilder << "RicNewWellBoreStabilityPlotFeature";
         }
         else if (dynamic_cast<RimRftPlotCollection*>(uiItem))
         {

@@ -64,10 +64,7 @@ void RicPasteWellLogTrackFeature::onActionTriggered(bool isChecked)
 {
     if (RicWellLogPlotCurveFeatureImpl::parentWellAllocationPlot()) return;
 
-    caf::PdmObjectHandle* destinationObject = dynamic_cast<caf::PdmObjectHandle*>(caf::SelectionManager::instance()->selectedItem());
-
-    RimWellLogPlot* wellLogPlot = nullptr;
-    destinationObject->firstAncestorOrThisOfType(wellLogPlot);
+    RimWellLogPlot* wellLogPlot = caf::SelectionManager::instance()->selectedItemAncestorOfType<RimWellLogPlot>();
     if (!wellLogPlot)
     {
         return;

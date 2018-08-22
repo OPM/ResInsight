@@ -31,6 +31,7 @@
 #include "RimGeoMechView.h"
 #include "RimProject.h"
 #include "RimWellLogPlot.h"
+#include "RimWellLogPlotCollection.h"
 #include "RimWellLogTrack.h"
 #include "RimWellLogExtractionCurve.h"
 #include "RimWellLogFile.h"
@@ -43,9 +44,10 @@
 
 #include "RiaApplication.h"
 
-#include "cafProgressInfo.h"
 #include "cvfAssert.h"
 #include "cvfMath.h"
+#include "cafProgressInfo.h"
+#include "cafSelectionManager.h"
 
 #include <QAction>
 #include <QDateTime>
@@ -59,13 +61,7 @@ CAF_CMD_SOURCE_INIT(RicNewWellBoreStabilityPlotFeature, "RicNewWellBoreStability
 /// 
 //--------------------------------------------------------------------------------------------------
 bool RicNewWellBoreStabilityPlotFeature::isCommandEnabled()
-{
-    RimWellPath* selectedWellPath = RicWellLogTools::findWellPathFromSelection();
-    if (!selectedWellPath)
-    {
-        return false;
-    }
-
+{    
     Rim3dView* view = RiaApplication::instance()->activeReservoirView();
     if (!view) return false;
     RimGeoMechView* geoMechView = dynamic_cast<RimGeoMechView*>(view);
@@ -77,8 +73,27 @@ bool RicNewWellBoreStabilityPlotFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicNewWellBoreStabilityPlotFeature::onActionTriggered(bool isChecked)
 {
-    RimWellPath* selectedWellPath = RicWellLogTools::findWellPathFromSelection();
-    if (!selectedWellPath) return;
+    RimWellPath*              wellPath       = caf::SelectionManager::instance()->selectedItemAncestorOfType<RimWellPath>();
+    RimWellLogPlotCollection* plotCollection = caf::SelectionManager::instance()->selectedItemOfType<RimWellLogPlotCollection>();
+    if (!wellPath)
+    {
+        if (plotCollection)
+        {
+            RimProject* project = nullptr;
+            plotCollection->firstAncestorOrThisOfTypeAsserted(project);
+            std::vector<RimWellPath*> allWellPaths;
+            project->descendantsIncludingThisOfType(allWellPaths);
+            if (!allWellPaths.empty())
+            {
+                wellPath = allWellPaths.front();
+            }
+        }
+    }
+
+    if (!wellPath)
+    {
+        return;
+    }
 
     Rim3dView* view = RiaApplication::instance()->activeReservoirView();
     if (!view) return;
@@ -93,13 +108,13 @@ void RicNewWellBoreStabilityPlotFeature::onActionTriggered(bool isChecked)
 
     QString         plotName("Well Bore Stability");
     RimWellLogPlot* plot = RicNewWellLogPlotFeatureImpl::createWellLogPlot(false, plotName);
-    createFormationTrack(plot, selectedWellPath, geoMechCase);
+    createFormationTrack(plot, wellPath, geoMechCase);
     progInfo.incrementProgressAndUpdateNextStep(3, "Creating casing shoe size track");
-    createCasingShoeTrack(plot, selectedWellPath, geoMechCase);
+    createCasingShoeTrack(plot, wellPath, geoMechCase);
     progInfo.incrementProgressAndUpdateNextStep(75, "Creating stability curves track");
-    createStabilityCurvesTrack(plot, selectedWellPath, geoMechView);
+    createStabilityCurvesTrack(plot, wellPath, geoMechView);
     progInfo.incrementProgressAndUpdateNextStep(15, "Creating angles track");
-    createAnglesTrack(plot, selectedWellPath, geoMechView);
+    createAnglesTrack(plot, wellPath, geoMechView);
     progInfo.incrementProgressAndUpdateNextStep(5, "Updating all tracks");
     plot->enableAllAutoNameTags(true);
     plot->setPlotTitleVisible(true);
@@ -151,27 +166,18 @@ void RicNewWellBoreStabilityPlotFeature::createCasingShoeTrack(RimWellLogPlot* p
     casingShoeTrack->setShowFormations(true);
     casingShoeTrack->setShowFormationLabels(false);
     casingShoeTrack->setVisibleXRange(0.0, 0.0);
-    std::vector<RimWellLogFile*> wellLogFiles = wellPath->wellLogFiles();
-    for (RimWellLogFile* logFile : wellLogFiles)
-    {
-        std::vector<RimWellLogFileChannel*> channels = logFile->wellLogChannels();
-        for (RimWellLogFileChannel* channel : channels)
-        {
-            if (channel->name() == "CASING_SIZE")
-            {
-                RimWellLogFileCurve* fileCurve = RicWellLogTools::addFileCurve(casingShoeTrack, false);
-                fileCurve->setWellLogFile(logFile);
-                fileCurve->setWellPath(wellPath);
-                fileCurve->setWellLogChannelName(channel->name());
-                fileCurve->setCustomName(QString("Casing size [in]"));
-                fileCurve->setLineThickness(2);
-                fileCurve->loadDataAndUpdate(false);
-                casingShoeTrack->setAutoScaleXEnabled(true);
-                casingShoeTrack->calculateXZoomRangeAndUpdateQwt();
-                break;
-            }
-        }
-    }    
+    RimWellLogFile* foundLogFile = wellPath->firstWellLogFileMatchingChannelName("CASING_SIZE");
+
+    // foundLogFile may be nullptr. Create the curve anyway so it exists when changing well.
+    RimWellLogFileCurve* fileCurve = RicWellLogTools::addFileCurve(casingShoeTrack, false);
+    fileCurve->setWellLogFile(foundLogFile);
+    fileCurve->setWellPath(wellPath);
+    fileCurve->setWellLogChannelName("CASING_SIZE");
+    fileCurve->setCustomName(QString("Casing size [in]"));
+    fileCurve->setLineThickness(2);
+    fileCurve->loadDataAndUpdate(false);
+    casingShoeTrack->setAutoScaleXEnabled(true);
+    casingShoeTrack->calculateXZoomRangeAndUpdateQwt();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -90,6 +90,7 @@ public:
     void                                deleteWellLogFile(RimWellLogFile* logFileInfo);
     void                                detachWellLogFile(RimWellLogFile* logFileInfo);
     std::vector<RimWellLogFile*>        wellLogFiles() const;
+    RimWellLogFile*                     firstWellLogFileMatchingChannelName(const QString& channelName) const;
 
     void                                setFormationsGeometry(cvf::ref<RigWellPathFormations> wellPathFormations);
     bool                                readWellPathFormationsFile(QString* errorMessage, RifWellPathFormationsImporter* wellPathFormationsImporter);

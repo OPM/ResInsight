@@ -36,6 +36,7 @@
 #include "RimProject.h"
 #include "RimTools.h"
 #include "RimWellLogFile.h"
+#include "RimWellLogFileChannel.h"
 #include "RimWellLogPlotCollection.h"
 #include "RimWellPathAttributeCollection.h"
 #include "RimWellPathCollection.h"
@@ -377,6 +378,27 @@ std::vector<RimWellLogFile*> RimWellPath::wellLogFiles() const
 {
     return std::vector<RimWellLogFile*>(m_wellLogFiles.begin(), m_wellLogFiles.end());
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimWellLogFile* RimWellPath::firstWellLogFileMatchingChannelName(const QString& channelName) const
+{
+    std::vector<RimWellLogFile*> allWellLogFiles = wellLogFiles();
+    for (RimWellLogFile* logFile : allWellLogFiles)
+    {
+        std::vector<RimWellLogFileChannel*> channels = logFile->wellLogChannels();
+        for (RimWellLogFileChannel* channel : channels)
+        {
+            if (channel->name() == channelName)
+            {
+                return logFile;
+            }
+        }
+    }
+    return nullptr;
+}
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
