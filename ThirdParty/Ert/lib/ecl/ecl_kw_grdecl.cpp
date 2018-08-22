@@ -215,11 +215,13 @@ bool ecl_kw_grdecl_fseek_kw(const char * kw , bool rewind , FILE * stream) {
    which (might) have been used in the input.
 */
 
-
-static void iset_range( char * data , int data_offset , int sizeof_ctype , void * value_ptr , int multiplier) {
-  int index;
-  for ( index =0; index < multiplier; index++)
-    memcpy( &data[ (index + data_offset) * sizeof_ctype ] , value_ptr , sizeof_ctype);
+static void iset_range( char * data , int data_index, int sizeof_ctype , void * value_ptr , int multiplier) {
+  size_t byte_offset;
+  for (int index =0; index < multiplier; index++) {
+    byte_offset = static_cast<size_t>(data_index) + static_cast<size_t>(index);
+    byte_offset *= sizeof_ctype;
+    memcpy( &data[ byte_offset ] , value_ptr , sizeof_ctype);
+  }
 }
 
 
@@ -255,9 +257,9 @@ static void iset_range( char * data , int data_offset , int sizeof_ctype , void 
 static char * fscanf_alloc_grdecl_data( const char * header , bool strict , ecl_data_type data_type , int * kw_size , FILE * stream ) {
   char newline        = '\n';
   bool atEOF          = false;
-  int init_size       = 32;
-  int buffer_size     = 64;
-  int data_index      = 0;
+  size_t init_size       = 32;
+  size_t buffer_size     = 64;
+  size_t data_index      = 0;
   int sizeof_ctype    = ecl_type_get_sizeof_ctype( data_type );
   size_t data_size    = init_size;
   char * buffer       = (char*)util_calloc( (buffer_size + 1) , sizeof * buffer      );
@@ -347,7 +349,7 @@ static char * fscanf_alloc_grdecl_data( const char * header , bool strict , ecl_
               data_size  = util_size_t_min( ECL_KW_MAX_SIZE , 2*(data_index + multiplier));
               byte_size *= data_size;
 
-              data = (char*)util_realloc( data , byte_size );
+              data = (char*) util_realloc( data , byte_size );
             } else {
               /*
                 We are asking for more elements than can possible be adressed in

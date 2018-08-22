@@ -696,9 +696,9 @@ void ecl_sum_data_add_case(ecl_sum_data_type * self, const ecl_sum_data_type * o
   call to ecl_sum_data_build_index().
 */
 
-bool ecl_sum_data_fread(ecl_sum_data_type * data , const stringlist_type * filelist, bool lazy_load) {
+bool ecl_sum_data_fread(ecl_sum_data_type * data , const stringlist_type * filelist, bool lazy_load, int file_options) {
   ecl::ecl_sum_file_data * file_data = new ecl::ecl_sum_file_data( data->smspec );
-  if (file_data->fread( filelist, lazy_load)) {
+  if (file_data->fread( filelist, lazy_load, file_options)) {
     ecl_sum_data_append_file_data( data, file_data );
     ecl_sum_data_build_index(data);
     return true;
@@ -722,9 +722,9 @@ bool ecl_sum_data_fread(ecl_sum_data_type * data , const stringlist_type * filel
    (manually) changed from the historical part.
 */
 
-ecl_sum_data_type * ecl_sum_data_fread_alloc( ecl_smspec_type * smspec , const stringlist_type * filelist , bool include_restart, bool lazy_load) {
+ecl_sum_data_type * ecl_sum_data_fread_alloc( ecl_smspec_type * smspec , const stringlist_type * filelist , bool include_restart, bool lazy_load, int file_options) {
   ecl_sum_data_type * data = ecl_sum_data_alloc( smspec );
-  ecl_sum_data_fread( data , filelist, lazy_load );
+  ecl_sum_data_fread( data , filelist, lazy_load, file_options );
 
   /*****************************************************************/
   /* OK - now we have loaded all the data. Must sort the internal

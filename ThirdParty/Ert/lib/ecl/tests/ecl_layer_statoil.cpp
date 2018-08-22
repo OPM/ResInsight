@@ -18,13 +18,16 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
+#include <vector>
+
 #include <ert/util/test_util.hpp>
 #include <ert/util/util.h>
 
-#include <ert/ecl/layer.hpp>
 #include <ert/ecl/ecl_grid.hpp>
 #include <ert/ecl/ecl_kw.hpp>
+#include <ert/ecl/layer.hpp>
 
+#include "detail/ecl/layer_cxx.hpp"
 
 ecl_kw_type * alloc_faultblock_kw( const char * filename, int grid_size) {
   FILE * stream = util_fopen( filename , "r");
@@ -49,7 +52,7 @@ void test_layer( const ecl_grid_type * ecl_grid , const ecl_kw_type * faultblock
     }
 
   {
-    struct_vector_type * corner_list = struct_vector_alloc( sizeof(int_point2d_type) );
+    std::vector<int_point2d_type> corner_list;
     int_vector_type * i_list = int_vector_alloc(0,0);
     int_vector_type * j_list = int_vector_alloc(0,0);
     int_vector_type * cell_list = int_vector_alloc(0,0);
@@ -64,7 +67,6 @@ void test_layer( const ecl_grid_type * ecl_grid , const ecl_kw_type * faultblock
       }
     }
     test_assert_int_equal( 0 , layer_get_cell_sum( layer ));
-    struct_vector_free( corner_list );
     int_vector_free( i_list );
     int_vector_free( j_list );
     int_vector_free( cell_list );

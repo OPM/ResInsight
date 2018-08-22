@@ -80,7 +80,6 @@ add_library(ecl util/rng.cpp
                 util/util_symlink.cpp
                 util/util_lfs.c
                 util/util_unlink.cpp
-                util/arg_pack.cpp
                 util/vector.cpp
                 util/parser.cpp
                 util/stringlist.cpp
@@ -89,7 +88,6 @@ add_library(ecl util/rng.cpp
                 util/string_util.cpp
                 util/type_vector_functions.cpp
                 util/ecl_version.cpp
-                util/struct_vector.cpp
                 util/perm_vector.cpp
                 util/test_util.cpp
                 ${opt_srcs}
@@ -205,7 +203,7 @@ endif ()
 set_target_properties(ecl PROPERTIES
                           VERSION ${ECL_VERSION_MAJOR}.${ECL_VERSION_MINOR}
                           SOVERSION ${ECL_VERSION_MAJOR})
-if (INSTALL_ERT)
+
 install(TARGETS ecl
         EXPORT  ecl-config
         ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
@@ -230,7 +228,6 @@ if (ERT_BUILD_CXX)
             PATTERN *.hpp
 )
 endif ()
-endif()
 
 if (NOT BUILD_TESTS)
     return ()
@@ -248,7 +245,6 @@ add_test(NAME ecl3 COMMAND ecl3-testsuite)
 
 foreach (name   ert_util_alloc_file_components
                 ert_util_approx_equal
-                ert_util_arg_pack
                 ert_util_before_after
                 ert_util_binary_split
                 ert_util_buffer
@@ -323,10 +319,6 @@ if (HAVE_BACKTRACE)
 endif()
 
 if (HAVE_UTIL_ABORT_INTERCEPT)
-   add_executable(ert_util_struct_vector util/tests/ert_util_struct_vector.cpp)
-   target_link_libraries(ert_util_struct_vector ecl)
-   add_test(NAME ert_util_struct_vector COMMAND ert_util_struct_vector)
-
    add_executable(ert_util_type_vector_test util/tests/ert_util_type_vector_test.cpp)
    target_link_libraries(ert_util_type_vector_test ecl)
    add_test(NAME ert_util_type_vector_test COMMAND ert_util_type_vector_test)
@@ -350,9 +342,11 @@ foreach (name   ecl_alloc_cpgrid
                 ecl_grid_copy
                 ecl_grid_create
                 ecl_grid_DEPTHZ
+                ecl_grid_unit_system
                 ecl_grid_export
                 ecl_grid_init_fwrite
                 ecl_grid_reset_actnum
+                ecl_grid_ext_actnum
                 ecl_init_file
                 ecl_kw_cmp_string
                 ecl_kw_equal
@@ -409,6 +403,7 @@ if (HAVE_UTIL_ABORT_INTERCEPT)
 
    add_executable(ecl_layer ecl/tests/ecl_layer.cpp)
    target_link_libraries(ecl_layer ecl)
+   target_include_directories(ecl_layer PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/private-include)
    add_test(NAME ecl_layer COMMAND ecl_layer)
 endif()
 
@@ -594,6 +589,7 @@ add_test(NAME ecl_nnc_test4 COMMAND ecl_nnc_test ${_eclpath}/DualPoro/DUAL_DIFF.
 add_test(NAME ecl_nnc_test5 COMMAND ecl_nnc_test ${_eclpath}/nestedLGRcase/TESTCASE_NESTEDLGR.EGRID)
 
 add_executable(ecl_layer_statoil ecl/tests/ecl_layer_statoil.cpp)
+target_include_directories(ecl_layer_statoil PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/private-include)
 target_link_libraries(ecl_layer_statoil ecl)
 add_test(NAME ecl_layer_statoil COMMAND ecl_layer_statoil
     ${_eclpath}/Mariner/MARINER.EGRID

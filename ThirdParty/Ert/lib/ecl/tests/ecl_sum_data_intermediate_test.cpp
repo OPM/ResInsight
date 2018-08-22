@@ -96,7 +96,7 @@ void write_CASE1(bool unified) {
 
 
 void verify_CASE2() {
-  ecl_sum_type * sum = ecl_sum_fread_alloc_case2__("CASE2", ":", false, true);
+  ecl_sum_type * sum = ecl_sum_fread_alloc_case2__("CASE2", ":", false, true, 0);
 
   for (int i=0; i < 2; i++) {
     double_vector_type * d = ecl_sum_alloc_data_vector(sum, i+1, false);
@@ -154,7 +154,7 @@ void write_CASE2(bool unified) {
 }
 
 void verify_CASE3() {
-  ecl_sum_type * sum = ecl_sum_fread_alloc_case2__("CASE3", ":", false, true);
+  ecl_sum_type * sum = ecl_sum_fread_alloc_case2__("CASE3", ":", false, true, 0);
 
   for (int i=0; i < 3; i++) {
     double_vector_type * d = ecl_sum_alloc_data_vector(sum, i+1, false);

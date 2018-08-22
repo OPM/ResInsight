@@ -40,7 +40,7 @@ void test_load() {
   ecl_sum_type * ecl_sum = write_ecl_sum();
   test_assert_true( util_file_exists("CASE.SMSPEC") );
   test_assert_true( util_file_exists("CASE.UNSMRY") );
-  ecl::unsmry_loader * loader = new ecl::unsmry_loader(ecl_sum_get_smspec(ecl_sum), "CASE.UNSMRY");
+  ecl::unsmry_loader * loader = new ecl::unsmry_loader(ecl_sum_get_smspec(ecl_sum), "CASE.UNSMRY", 0);
 
   const std::vector<double> FOPT_value = loader->get_vector(1);
   const std::vector<double> BPR_value  = loader->get_vector(2);

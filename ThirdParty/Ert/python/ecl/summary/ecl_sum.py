@@ -86,7 +86,7 @@ def date2num(dt):
 
 class EclSum(BaseCClass):
     TYPE_NAME = "ecl_sum"
-    _fread_alloc_case2             = EclPrototype("void*     ecl_sum_fread_alloc_case2__(char*, char*, bool, bool)", bind=False)
+    _fread_alloc_case2             = EclPrototype("void*     ecl_sum_fread_alloc_case2__(char*, char*, bool, bool, int)", bind=False)
     _fread_alloc                   = EclPrototype("void*     ecl_sum_fread_alloc(char*, stringlist, char*, bool)", bind=False)
     _create_restart_writer         = EclPrototype("ecl_sum_obj  ecl_sum_alloc_restart_writer2(char*, char*, int, bool, bool, char*, time_t, bool, int, int, int)", bind = False)
     _create_writer                 = EclPrototype("ecl_sum_obj  ecl_sum_alloc_writer(char*, bool, bool, char*, time_t, bool, int, int, int)", bind = False)
@@ -149,7 +149,7 @@ class EclSum(BaseCClass):
     _init_numpy_datetime64         = EclPrototype("void ecl_sum_init_datetime64_vector(ecl_sum, int64*, int)")
 
 
-    def __init__(self, load_case, join_string=":", include_restart=True, lazy_load=True):
+    def __init__(self, load_case, join_string=":", include_restart=True, lazy_load=True, file_options=0):
         """Loads a new EclSum instance with summary data.
 
         Loads a new summary results from the ECLIPSE case given by
@@ -171,12 +171,14 @@ class EclSum(BaseCClass):
         is actually requested. This will reduce startup time and memory usage,
         whereas getting a vector will be slower. When the summary data is split
         over multiple CASE.Snnn files all the data will be loaded at
-        construction time, and the @lazy_load option is ignored.
+        construction time, and the @lazy_load option is ignored. If the
+        lazy_load functionality is used the file_options intege flag is passed
+        when opening the UNSMRY file.
 
         """
         if not load_case:
             raise ValueError('load_case must be the basename of the simulation')
-        c_pointer = self._fread_alloc_case2(load_case, join_string, include_restart, lazy_load)
+        c_pointer = self._fread_alloc_case2(load_case, join_string, include_restart, lazy_load, file_options)
         if c_pointer is None:
             raise IOError("Failed to create summary instance from argument:%s" % load_case)
 

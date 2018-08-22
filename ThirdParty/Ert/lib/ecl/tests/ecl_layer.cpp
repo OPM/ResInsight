@@ -18,12 +18,13 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
+#include <vector>
+
 #include <ert/util/test_util.hpp>
 #include <ert/util/util.h>
-#include <ert/util/struct_vector.hpp>
 
 #include <ert/ecl/layer.hpp>
-
+#include "detail/ecl/layer_cxx.hpp"
 
 void test_create() {
   layer_type * layer = layer_alloc(10,20);
@@ -199,7 +200,7 @@ void test_edge() {
 
 void test_walk() {
   layer_type * layer = layer_alloc(10,10);
-  struct_vector_type * corner_list = struct_vector_alloc( sizeof(int_point2d_type));
+  std::vector<int_point2d_type> corner_list;
   int_vector_type * cell_list = int_vector_alloc(0,0);
 
   test_assert_false( layer_trace_block_edge( layer , 4 , 4 , 100 , corner_list , cell_list));
@@ -207,26 +208,20 @@ void test_walk() {
   test_assert_false( layer_trace_block_edge( layer , 4 , 4 , 200 , corner_list , cell_list));
 
   test_assert_true( layer_trace_block_edge( layer , 4 , 4 , 100 , corner_list , cell_list));
-  test_assert_int_equal( struct_vector_get_size( corner_list ) , 4);
+  test_assert_int_equal( corner_list.size(), 4);
   test_assert_int_equal( int_vector_size( cell_list ) , 1 );
   {
-    int_point2d_type point;
+    test_assert_int_equal( 4 , corner_list[0].i );
+    test_assert_int_equal( 4 , corner_list[0].j );
 
-    struct_vector_iget( corner_list , 0 , &point);
-    test_assert_int_equal( 4 , point.i );
-    test_assert_int_equal( 4 , point.j );
+    test_assert_int_equal( 5 , corner_list[1].i );
+    test_assert_int_equal( 4 , corner_list[1].j );
 
-    struct_vector_iget( corner_list , 1 , &point);
-    test_assert_int_equal( 5 , point.i );
-    test_assert_int_equal( 4 , point.j );
+    test_assert_int_equal( 5 , corner_list[2].i );
+    test_assert_int_equal( 5 , corner_list[2].j );
 
-    struct_vector_iget( corner_list , 2 , &point);
-    test_assert_int_equal( 5 , point.i );
-    test_assert_int_equal( 5 , point.j );
-
-    struct_vector_iget( corner_list , 3 , &point);
-    test_assert_int_equal( 4 , point.i );
-    test_assert_int_equal( 5 , point.j );
+    test_assert_int_equal( 4 , corner_list[3].i );
+    test_assert_int_equal( 5 , corner_list[3].j );
   }
 
   {
@@ -247,7 +242,7 @@ void test_walk() {
     int_vector_select_unique( true_cell_list );
 
     test_assert_true( layer_trace_block_edge( layer , 3 , 3 , 100 , corner_list , cell_list));
-    test_assert_int_equal( 16 , struct_vector_get_size( corner_list ));
+    test_assert_int_equal( 16 , corner_list.size());
     test_assert_int_equal( 12 , int_vector_size( cell_list ));
 
     int_vector_fprintf( cell_list      , stdout , "     cell_list" , "%3d");
@@ -258,7 +253,6 @@ void test_walk() {
   }
 
   int_vector_free( cell_list );
-  struct_vector_free( corner_list );
   layer_free( layer );
 }
 
@@ -320,7 +314,7 @@ void test_content2() {
     int_vector_type * i_list = int_vector_alloc(0,0);
     int_vector_type * j_list = int_vector_alloc(0,0);
     int_vector_type * cell_list = int_vector_alloc(0,0);
-    struct_vector_type * corner_list = struct_vector_alloc( sizeof(int_point2d_type) );
+    std::vector<int_point2d_type> corner_list;
 
 
     for (j=0; j < 5; j++) {
@@ -335,7 +329,6 @@ void test_content2() {
       }
     }
 
-    struct_vector_free( corner_list );
     int_vector_free( i_list );
     int_vector_free( j_list );
     int_vector_free( cell_list );

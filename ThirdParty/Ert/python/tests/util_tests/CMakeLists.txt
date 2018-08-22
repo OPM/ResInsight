@@ -11,7 +11,6 @@ set(TEST_SOURCES
     test_version.py
     test_work_area.py
     test_path_context.py
-    test_arg_pack.py
     test_spawn.py
 )
 
@@ -27,6 +26,5 @@ addPythonTest(tests.util_tests.test_work_area.WorkAreaTest)
 addPythonTest(tests.util_tests.test_version.VersionTest)
 addPythonTest(tests.util_tests.test_path_context.PathContextTest)
 addPythonTest(tests.util_tests.test_thread_pool.ThreadPoolTest)
-addPythonTest(tests.util_tests.test_arg_pack.ArgPackTest)
 addPythonTest(tests.util_tests.test_spawn.SpawnTest)
 #addPythonTest(tests.util.test_substitution_list.SubstitutionListTest)

@@ -25,7 +25,7 @@ from cwrap import Prototype
 from cwrap import open as copen
 
 import time
-from ecl import EclDataType
+from ecl import EclDataType, EclUnitTypeEnum
 from ecl.eclfile import EclKW, EclFile, openEclFile
 from ecl.grid import EclGrid
 from ecl.util.util import DoubleVector, IntVector

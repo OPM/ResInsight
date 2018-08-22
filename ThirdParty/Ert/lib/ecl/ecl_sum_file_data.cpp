@@ -579,7 +579,7 @@ void ecl_sum_file_data::add_ecl_file(int report_step, const ecl_file_view_type *
 }
 
 
-bool ecl_sum_file_data::fread(const stringlist_type * filelist, bool lazy_load) {
+bool ecl_sum_file_data::fread(const stringlist_type * filelist, bool lazy_load, int file_options) {
   if (stringlist_get_size( filelist ) == 0)
     return false;
 
@@ -608,7 +608,7 @@ bool ecl_sum_file_data::fread(const stringlist_type * filelist, bool lazy_load) 
   } else if (file_type == ECL_UNIFIED_SUMMARY_FILE) {
     if (lazy_load) {
       try {
-        this->loader.reset( new unsmry_loader( this->ecl_smspec, stringlist_iget(filelist, 0)) );
+        this->loader.reset( new unsmry_loader( this->ecl_smspec, stringlist_iget(filelist, 0), file_options) );
       }
       catch(const std::bad_alloc& e)
       {

@@ -89,10 +89,10 @@ typedef struct ecl_sum_struct       ecl_sum_type;
   void             ecl_sum_free_data(ecl_sum_type * );
   void             ecl_sum_free__(void * );
   void             ecl_sum_free(ecl_sum_type * );
-  ecl_sum_type   * ecl_sum_fread_alloc(const char * , const stringlist_type * data_files, const char * key_join_string, bool include_restart, bool lazy_load);
+  ecl_sum_type   * ecl_sum_fread_alloc(const char * , const stringlist_type * data_files, const char * key_join_string, bool include_restart, bool lazy_load, int file_options);
   ecl_sum_type   * ecl_sum_fread_alloc_case(const char *  , const char * key_join_string);
   ecl_sum_type   * ecl_sum_fread_alloc_case__(const char * input_file , const char * key_join_string , bool include_restart);
-  ecl_sum_type   * ecl_sum_fread_alloc_case2__(const char *  , const char * key_join_string , bool include_restart, bool lazy_load);
+  ecl_sum_type   * ecl_sum_fread_alloc_case2__(const char *  , const char * key_join_string , bool include_restart, bool lazy_load, int file_options);
   ecl_sum_type   * ecl_sum_alloc_resample(const ecl_sum_type * ecl_sum, const char * ecl_case, const time_t_vector_type * times);
   bool             ecl_sum_case_exists( const char * input_file );
 

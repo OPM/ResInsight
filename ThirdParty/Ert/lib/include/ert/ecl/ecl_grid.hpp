@@ -112,6 +112,7 @@ extern "C" {
   ecl_grid_type * ecl_grid_alloc_GRDECL_data(int , int , int , const float *  , const float *  , const int * , bool apply_mapaxes , const float * mapaxes);
   ecl_grid_type * ecl_grid_alloc_GRID_data(int num_coords , int nx, int ny , int nz , int coords_size , int ** coords , float ** corners , bool apply_mapaxes, const float * mapaxes);
   ecl_grid_type * ecl_grid_alloc(const char * );
+  ecl_grid_type * ecl_grid_alloc_ext_actnum(const char * , const int * ext_actnum);
   ecl_grid_type * ecl_grid_load_case( const char * case_input );
   ecl_grid_type * ecl_grid_load_case__( const char * case_input , bool apply_mapaxes);
   ecl_grid_type * ecl_grid_alloc_rectangular( int nx , int ny , int nz , double dx , double dy , double dz , const int * actnum);

@@ -26,7 +26,6 @@
 
 #include "ert/util/build_config.hpp"
 #include <ert/util/util.h>
-#include <ert/util/arg_pack.hpp>
 #include <ert/util/test_util.hpp>
 #include <ert/util/stringlist.hpp>
 #include <ert/util/util.h>
@@ -373,9 +372,3 @@ void * thread_pool_test_func1( void * arg ) {
 #endif
 
 
-void * test_argpack_is_stringlist( void * arg ) {
-  arg_pack_type * arg_pack = arg_pack_safe_cast( arg );
-  void * arg0 = arg_pack_iget_ptr( arg_pack , 0 );
-  test_assert_true( stringlist_is_instance( arg0 ) );
-  return NULL;
-}

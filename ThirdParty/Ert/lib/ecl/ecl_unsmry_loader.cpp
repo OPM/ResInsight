@@ -12,14 +12,13 @@
 
 namespace ecl {
 
-unsmry_loader::unsmry_loader(const ecl_smspec_type * smspec, const std::string& filename) :
+unsmry_loader::unsmry_loader(const ecl_smspec_type * smspec, const std::string& filename, int file_options) :
   size(ecl_smspec_get_params_size(smspec)),
   time_index(ecl_smspec_get_time_index(smspec)),
   time_seconds(ecl_smspec_get_time_seconds(smspec)),
   sim_start(ecl_smspec_get_start_time(smspec))
 {
-  int options = ECL_FILE_CLOSE_STREAM;
-  ecl_file_type * file = ecl_file_open(filename.c_str(), options);
+  ecl_file_type * file = ecl_file_open(filename.c_str(), file_options);
   if (!file)
     throw std::bad_alloc();
 

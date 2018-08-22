@@ -18,7 +18,7 @@ set(NRLIB_GITHUB_SHA "ba35d4359882f1c6f5e9dc30eb95fe52af50fd6f")
 # https://github.com/Statoil/libecl
 # Note:
 # Apply patches fix-synthetic-odb-cases.patch and install-ert.patch after update
-set(ECL_GITHUB_SHA "a165d636552fa0c0f96219d341f7f2c17c08dc9d")
+set(ECL_GITHUB_SHA "1f051833c8ed819185fd334dfc7e05511ee35d5f")
 
 # https://github.com/OPM/opm-flowdiagnostics
 set(OPM_FLOWDIAGNOSTICS_SHA "f8af0914f8b1ddcda41f040f539c945a6057f5e4")

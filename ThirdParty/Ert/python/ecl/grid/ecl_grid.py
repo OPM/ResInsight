@@ -115,6 +115,7 @@ class EclGrid(BaseCClass):
     _export_zcorn                 = EclPrototype("ecl_kw_obj ecl_grid_alloc_zcorn_kw(ecl_grid)")
     _export_actnum                = EclPrototype("ecl_kw_obj ecl_grid_alloc_actnum_kw(ecl_grid)")
     _export_mapaxes               = EclPrototype("ecl_kw_obj ecl_grid_alloc_mapaxes_kw(ecl_grid)")
+    _get_unit_system              = EclPrototype("ecl_unit_enum ecl_grid_get_unit_system(ecl_grid)")
 
 
 
@@ -1147,15 +1148,14 @@ class EclGrid(BaseCClass):
         cfile = CFILE(pyfile)
         self._fprintf_grdecl2(cfile, output_unit)
 
-    def save_EGRID(self, filename, output_unit=EclUnitTypeEnum.ECL_METRIC_UNITS):
-        """
-        Will save the current grid as a EGRID file.
-        """
-        self._fwrite_EGRID2(filename, output_unit)
+    def save_EGRID(self, filename, output_unit=None):
+         if output_unit is None:
+             output_unit = self.unit_system
+         self._fwrite_EGRID2(filename, output_unit)
 
     def save_GRID(self, filename, output_unit=EclUnitTypeEnum.ECL_METRIC_UNITS):
         """
-        Will save the current grid as a EGRID file.
+        Will save the current grid as a GRID file.
         """
         self._fwrite_GRID2( filename, output_unit)
 
@@ -1268,6 +1268,10 @@ class EclGrid(BaseCClass):
             return None
 
         return self._export_mapaxes()
+
+    @property
+    def unit_system(self):
+        return self._get_unit_system()
 
 monkey_the_camel(EclGrid, 'loadFromGrdecl', EclGrid.load_from_grdecl, classmethod)
 monkey_the_camel(EclGrid, 'loadFromFile', EclGrid.load_from_file, classmethod)

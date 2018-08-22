@@ -174,22 +174,22 @@ static ecl_sum_type * ecl_sum_alloc__( const char * input_arg , const char * key
 }
 
 
-static bool ecl_sum_fread_data( ecl_sum_type * ecl_sum , const stringlist_type * data_files , bool include_restart, bool lazy_load) {
+static bool ecl_sum_fread_data( ecl_sum_type * ecl_sum , const stringlist_type * data_files , bool include_restart, bool lazy_load, int file_options) {
   if (ecl_sum->data != NULL)
     ecl_sum_free_data( ecl_sum );
 
   ecl_sum->data = ecl_sum_data_alloc( ecl_sum->smspec );
-  return ecl_sum_data_fread( ecl_sum->data , data_files, lazy_load);
+  return ecl_sum_data_fread( ecl_sum->data , data_files, lazy_load, file_options);
 }
 
 
-static void ecl_sum_fread_history( ecl_sum_type * ecl_sum, bool lazy_load) {
+static void ecl_sum_fread_history( ecl_sum_type * ecl_sum, bool lazy_load, int file_options) {
   char * restart_header = ecl_util_alloc_filename(NULL,
                                                   ecl_smspec_get_restart_case(ecl_sum->smspec),
                                                   ECL_SUMMARY_HEADER_FILE,
                                                   ecl_smspec_get_formatted(ecl_sum->smspec),
                                                   -1);
-  ecl_sum_type * restart_case = ecl_sum_fread_alloc_case2__(restart_header, ":" , true, lazy_load);
+  ecl_sum_type * restart_case = ecl_sum_fread_alloc_case2__(restart_header, ":" , true, lazy_load, file_options);
   if (restart_case) {
     ecl_sum->restart_case = restart_case;
     ecl_sum_data_add_case(ecl_sum->data , restart_case->data );
@@ -199,7 +199,7 @@ static void ecl_sum_fread_history( ecl_sum_type * ecl_sum, bool lazy_load) {
 
 
 
-static bool ecl_sum_fread(ecl_sum_type * ecl_sum , const char *header_file , const stringlist_type *data_files , bool include_restart, bool lazy_load) {
+static bool ecl_sum_fread(ecl_sum_type * ecl_sum , const char *header_file , const stringlist_type *data_files , bool include_restart, bool lazy_load, int file_options) {
   ecl_sum->smspec = ecl_smspec_fread_alloc( header_file , ecl_sum->key_join_string , include_restart);
   if (ecl_sum->smspec) {
     bool fmt_file;
@@ -208,7 +208,7 @@ static bool ecl_sum_fread(ecl_sum_type * ecl_sum , const char *header_file , con
   } else
     return false;
 
-  if (ecl_sum_fread_data( ecl_sum , data_files , include_restart, lazy_load )) {
+  if (ecl_sum_fread_data( ecl_sum , data_files , include_restart, lazy_load, file_options )) {
     ecl_file_enum file_type = ecl_util_get_file_type( stringlist_iget( data_files , 0 ) , NULL , NULL);
 
     if (file_type == ECL_SUMMARY_FILE)
@@ -221,13 +221,13 @@ static bool ecl_sum_fread(ecl_sum_type * ecl_sum , const char *header_file , con
     return false;
 
   if (include_restart && ecl_smspec_get_restart_case( ecl_sum->smspec ))
-    ecl_sum_fread_history( ecl_sum, lazy_load);
+    ecl_sum_fread_history( ecl_sum, lazy_load, file_options);
 
   return true;
 }
 
 
-static bool ecl_sum_fread_case( ecl_sum_type * ecl_sum , bool include_restart, bool lazy_load) {
+static bool ecl_sum_fread_case( ecl_sum_type * ecl_sum , bool include_restart, bool lazy_load, int file_options) {
   char * header_file;
   stringlist_type * summary_file_list = stringlist_alloc_new();
 
@@ -235,7 +235,7 @@ static bool ecl_sum_fread_case( ecl_sum_type * ecl_sum , bool include_restart, b
 
   ecl_util_alloc_summary_files( ecl_sum->path , ecl_sum->base , ecl_sum->ext , &header_file , summary_file_list );
   if ((header_file != NULL) && (stringlist_get_size( summary_file_list ) > 0)) {
-    caseOK = ecl_sum_fread( ecl_sum , header_file , summary_file_list , include_restart, lazy_load );
+    caseOK = ecl_sum_fread( ecl_sum , header_file , summary_file_list , include_restart, lazy_load, file_options );
   }
   free( header_file );
   stringlist_free( summary_file_list );
@@ -255,10 +255,10 @@ static bool ecl_sum_fread_case( ecl_sum_type * ecl_sum , bool include_restart, b
 */
 
 
-ecl_sum_type * ecl_sum_fread_alloc(const char *header_file , const stringlist_type *data_files , const char * key_join_string, bool include_restart, bool lazy_load) {
+ecl_sum_type * ecl_sum_fread_alloc(const char *header_file , const stringlist_type *data_files , const char * key_join_string, bool include_restart, bool lazy_load, int file_options) {
   ecl_sum_type * ecl_sum = ecl_sum_alloc__( header_file , key_join_string );
   if (ecl_sum) {
-    if (!ecl_sum_fread( ecl_sum , header_file , data_files , include_restart, lazy_load)) {
+    if (!ecl_sum_fread( ecl_sum , header_file , data_files , include_restart, lazy_load, file_options)) {
       ecl_sum_free( ecl_sum );
       ecl_sum = NULL;
     }
@@ -451,12 +451,12 @@ void ecl_sum_free__(void * __ecl_sum) {
 */
 
 
-ecl_sum_type * ecl_sum_fread_alloc_case2__(const char * input_file , const char * key_join_string , bool include_restart, bool lazy_load){
+ecl_sum_type * ecl_sum_fread_alloc_case2__(const char * input_file , const char * key_join_string , bool include_restart, bool lazy_load, int file_options){
   ecl_sum_type * ecl_sum = ecl_sum_alloc__(input_file , key_join_string);
   if (!ecl_sum)
     return NULL;
 
-  if (ecl_sum_fread_case( ecl_sum , include_restart, lazy_load))
+  if (ecl_sum_fread_case( ecl_sum , include_restart, lazy_load, file_options))
     return ecl_sum;
   else {
     /*
@@ -470,14 +470,16 @@ ecl_sum_type * ecl_sum_fread_alloc_case2__(const char * input_file , const char 
 
 ecl_sum_type * ecl_sum_fread_alloc_case__(const char * input_file , const char * key_join_string , bool include_restart) {
   bool lazy_load = true;
-  return ecl_sum_fread_alloc_case2__(input_file, key_join_string, include_restart, lazy_load);
+  int file_options = 0;
+  return ecl_sum_fread_alloc_case2__(input_file, key_join_string, include_restart, lazy_load, file_options);
 }
 
 
 ecl_sum_type * ecl_sum_fread_alloc_case(const char * input_file , const char * key_join_string){
   bool include_restart = true;
   bool lazy_load = true;
-  return ecl_sum_fread_alloc_case2__( input_file , key_join_string , include_restart, lazy_load );
+  int file_options = 0;
+  return ecl_sum_fread_alloc_case2__( input_file , key_join_string , include_restart, lazy_load, file_options );
 }
 
 

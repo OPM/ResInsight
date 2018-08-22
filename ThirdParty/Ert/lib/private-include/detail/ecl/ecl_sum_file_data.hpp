@@ -127,7 +127,7 @@ public:
   bool                 can_write() const;
   void                 fwrite_unified( fortio_type * fortio ) const;
   void                 fwrite_multiple( const char * ecl_case , bool fmt_case ) const;
-  bool                 fread(const stringlist_type * filelist, bool lazy_load);
+  bool                 fread(const stringlist_type * filelist, bool lazy_load, int file_options);
 
 private:
   const ecl_smspec_type         * ecl_smspec;

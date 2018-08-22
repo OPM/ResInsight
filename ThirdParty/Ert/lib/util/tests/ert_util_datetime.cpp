@@ -21,8 +21,7 @@
 #include <unistd.h>
 
 #include <ert/util/test_util.hpp>
-#include <ert/util/arg_pack.hpp>
-
+#include <ert/util/util.h>
 
 
 int main( int argc , char ** argv) {
