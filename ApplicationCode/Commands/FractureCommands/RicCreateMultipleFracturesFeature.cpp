@@ -207,7 +207,7 @@ void RicCreateMultipleFracturesFeature::onActionTriggered(bool isChecked)
         for (auto wellPath : selWells) multipleFractionsUi->addWellPath(wellPath);
 
         caf::PdmUiPropertyViewDialog propertyDialog(
-            Riu3DMainWindowTools::mainWindowWidget(), multipleFractionsUi, "Create Multiple Fractions", "");
+            Riu3DMainWindowTools::mainWindowWidget(), multipleFractionsUi, "Create Multiple Fractures", "");
 
         m_dialog = &propertyDialog;
 
