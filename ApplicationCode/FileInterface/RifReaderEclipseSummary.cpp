@@ -83,7 +83,8 @@ ecl_sum_type* openEclSum(const QString& inHeaderFileName, bool includeRestartFil
                                                 dataFiles,
                                                 itemSeparatorInVariableNames.data(),
                                                 includeRestartFiles,
-                                                lazyLoad);
+                                                lazyLoad,
+                                                ECL_FILE_CLOSE_STREAM);
 
     stringlist_free(dataFiles);
 
