@@ -40,9 +40,4 @@ protected:
     virtual void onActionTriggered(bool isChecked) override;
     virtual void setupActionLook(QAction* actionToSetup) override;
     virtual bool isCommandEnabled() override;
-
-    static RimWellPath*                   selectedWellPath();
-    static RimWellPathFracture*           selectedWellPathFracture();
-    static RimWellPathFractureCollection* selectedWellPathFractureCollection();
-    
 };

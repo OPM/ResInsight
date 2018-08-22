@@ -41,10 +41,7 @@ protected:
     virtual bool isCommandEnabled() override;
 
 public:
-    static void                                  exportWellSegments(const RimWellPath* wellPath, const std::vector<RimFishbonesMultipleSubs*>& fishbonesSubs, const RicCaseAndFileExportSettingsUi& settings);
-
-private:
-    static RimFishbonesCollection*               selectedFishbonesCollection();
-    static RimWellPath*                          selectedWellPath();
-    
+    static void  exportWellSegments(const RimWellPath*                            wellPath,
+                                    const std::vector<RimFishbonesMultipleSubs*>& fishbonesSubs,
+                                    const RicCaseAndFileExportSettingsUi&         settings);
 };

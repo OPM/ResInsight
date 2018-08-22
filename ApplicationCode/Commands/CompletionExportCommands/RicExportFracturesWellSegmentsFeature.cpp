@@ -90,12 +90,12 @@ void RicExportFracturesWellSegmentsFeature::exportWellSegments(const RimWellPath
 //--------------------------------------------------------------------------------------------------
 void RicExportFracturesWellSegmentsFeature::onActionTriggered(bool isChecked)
 {
-    RimWellPath*                   wellPath           = selectedWellPath();
-    RimWellPathFracture*           fracture           = selectedWellPathFracture();
-    RimWellPathFractureCollection* fractureCollection = selectedWellPathFractureCollection();
+    RimWellPath*                   wellPath   = caf::SelectionManager::instance()->selectedItemAncestorOfType<RimWellPath>();
+    RimWellPathFracture*           fracture   = caf::SelectionManager::instance()->selectedItemAncestorOfType<RimWellPathFracture>();
+    RimWellPathFractureCollection* collection = caf::SelectionManager::instance()->selectedItemAncestorOfType<RimWellPathFractureCollection>();
 
     CVF_ASSERT(wellPath);
-    CVF_ASSERT(fractureCollection);
+    CVF_ASSERT(collection);
 
     RiaApplication* app = RiaApplication::instance();
 
@@ -130,7 +130,7 @@ void RicExportFracturesWellSegmentsFeature::onActionTriggered(bool isChecked)
         }
         else
         {
-            for (RimWellPathFracture* fracture : fractureCollection->fractures())
+            for (RimWellPathFracture* fracture : collection->fractures())
             {
                 if (fracture->isChecked())
                 {
@@ -146,63 +146,9 @@ void RicExportFracturesWellSegmentsFeature::onActionTriggered(bool isChecked)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimWellPath* RicExportFracturesWellSegmentsFeature::selectedWellPath()
-{
-    RimWellPath* objToFind = nullptr;
-    
-    caf::PdmUiItem* pdmUiItem = caf::SelectionManager::instance()->selectedItem();
-
-    caf::PdmObjectHandle* objHandle = dynamic_cast<caf::PdmObjectHandle*>(pdmUiItem);
-    if (objHandle)
-    {
-        objHandle->firstAncestorOrThisOfType(objToFind);
-    }
-
-    return objToFind;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RimWellPathFracture* RicExportFracturesWellSegmentsFeature::selectedWellPathFracture()
-{
-    RimWellPathFracture* objToFind = nullptr;
-
-    caf::PdmUiItem* pdmUiItem = caf::SelectionManager::instance()->selectedItem();
-
-    caf::PdmObjectHandle* objHandle = dynamic_cast<caf::PdmObjectHandle*>(pdmUiItem);
-    if (objHandle)
-    {
-        objHandle->firstAncestorOrThisOfType(objToFind);
-    }
-
-    return objToFind;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RimWellPathFractureCollection* RicExportFracturesWellSegmentsFeature::selectedWellPathFractureCollection()
-{
-    RimWellPathFractureCollection* objToFind = nullptr;
-
-    caf::PdmUiItem* pdmUiItem = caf::SelectionManager::instance()->selectedItem();
-
-    caf::PdmObjectHandle* objHandle = dynamic_cast<caf::PdmObjectHandle*>(pdmUiItem);
-    if (objHandle)
-    {
-        objHandle->firstAncestorOrThisOfType(objToFind);
-    }
-
-    return objToFind;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 void RicExportFracturesWellSegmentsFeature::setupActionLook(QAction* actionToSetup)
 {
-    if (selectedWellPathFracture())
+    if (caf::SelectionManager::instance()->selectedItemOfType<RimWellPathFracture>())
     {
         actionToSetup->setText("Export Fracture as Multi Segment Well");
     }
@@ -217,7 +163,7 @@ void RicExportFracturesWellSegmentsFeature::setupActionLook(QAction* actionToSet
 //--------------------------------------------------------------------------------------------------
 bool RicExportFracturesWellSegmentsFeature::isCommandEnabled()
 {
-    if (selectedWellPathFractureCollection())
+    if (caf::SelectionManager::instance()->selectedItemAncestorOfType<RimWellPathFractureCollection>())
     {
         return true;
     }

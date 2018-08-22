@@ -57,8 +57,8 @@ CAF_CMD_SOURCE_INIT(RicExportFishbonesWellSegmentsFeature, "RicExportFishbonesWe
 //--------------------------------------------------------------------------------------------------
 void RicExportFishbonesWellSegmentsFeature::onActionTriggered(bool isChecked)
 {
-    RimFishbonesCollection* fishbonesCollection = selectedFishbonesCollection();
-    RimWellPath* wellPath = selectedWellPath();
+    RimFishbonesCollection* fishbonesCollection = caf::SelectionManager::instance()->selectedItemAncestorOfType<RimFishbonesCollection>(); 
+    RimWellPath* wellPath = caf::SelectionManager::instance()->selectedItemAncestorOfType<RimWellPath>();
     CVF_ASSERT(fishbonesCollection);
     CVF_ASSERT(wellPath);
 
@@ -102,42 +102,6 @@ void RicExportFishbonesWellSegmentsFeature::onActionTriggered(bool isChecked)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimFishbonesCollection* RicExportFishbonesWellSegmentsFeature::selectedFishbonesCollection()
-{
-    RimFishbonesCollection* objToFind = nullptr;
-    
-    caf::PdmUiItem* pdmUiItem = caf::SelectionManager::instance()->selectedItem();
-
-    caf::PdmObjectHandle* objHandle = dynamic_cast<caf::PdmObjectHandle*>(pdmUiItem);
-    if (objHandle)
-    {
-        objHandle->firstAncestorOrThisOfType(objToFind);
-    }
-
-    return objToFind;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RimWellPath* RicExportFishbonesWellSegmentsFeature::selectedWellPath()
-{
-    RimWellPath* objToFind = nullptr;
-    
-    caf::PdmUiItem* pdmUiItem = caf::SelectionManager::instance()->selectedItem();
-
-    caf::PdmObjectHandle* objHandle = dynamic_cast<caf::PdmObjectHandle*>(pdmUiItem);
-    if (objHandle)
-    {
-        objHandle->firstAncestorOrThisOfType(objToFind);
-    }
-
-    return objToFind;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 void RicExportFishbonesWellSegmentsFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setText("Export Well Segments");
@@ -148,7 +112,7 @@ void RicExportFishbonesWellSegmentsFeature::setupActionLook(QAction* actionToSet
 //--------------------------------------------------------------------------------------------------
 bool RicExportFishbonesWellSegmentsFeature::isCommandEnabled()
 {
-    if (selectedFishbonesCollection())
+    if (caf::SelectionManager::instance()->selectedItemAncestorOfType<RimFishbonesCollection>())
     {
         return true;
     }
