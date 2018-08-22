@@ -46,6 +46,22 @@
 CAF_CMD_SOURCE_INIT(RicCreateMultipleFracturesFeature, "RicCreateMultipleFracturesFeature");
 
 //--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicCreateMultipleFracturesFeature::appendFractures()
+{
+    slotAppendFractures();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicCreateMultipleFracturesFeature::replaceFractures()
+{
+    slotDeleteAndAppendFractures();
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 void RicCreateMultipleFracturesFeature::slotDeleteAndAppendFractures()
@@ -169,6 +185,7 @@ void RicCreateMultipleFracturesFeature::onActionTriggered(bool isChecked)
                 int    maxFractureCount       = 100;
                 multipleFractionsUi->setValues(firstSourceCase, minimumDistanceFromTip, maxFractureCount);
 
+                // Options
                 auto newItem = new RicCreateMultipleFracturesOptionItemUi;
 
                 RimFractureTemplate* firstFractureTemplate = nullptr;
@@ -183,6 +200,11 @@ void RicCreateMultipleFracturesFeature::onActionTriggered(bool isChecked)
                 multipleFractionsUi->insertOptionItem(nullptr, newItem);
             }
         }
+
+        // Selected well paths
+        std::vector<RimWellPath*> selWells = caf::selectedObjectsByTypeStrict<RimWellPath*>();
+        multipleFractionsUi->clearWellPaths();
+        for (auto wellPath : selWells) multipleFractionsUi->addWellPath(wellPath);
 
         caf::PdmUiPropertyViewDialog propertyDialog(
             Riu3DMainWindowTools::mainWindowWidget(), multipleFractionsUi, "Create Multiple Fractions", "");

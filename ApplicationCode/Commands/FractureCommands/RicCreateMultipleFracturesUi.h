@@ -66,6 +66,12 @@ public:
 
     void deleteOptionItem(RicCreateMultipleFracturesOptionItemUi* optionsItem);
 
+    void clearOptions();
+
+    void addWellPath(RimWellPath* wellPath);
+
+    void clearWellPaths();
+
     std::vector<LocationForNewFracture> locationsForNewFractures() const;
 
 private:
@@ -86,4 +92,6 @@ private:
     caf::PdmChildArrayField<RicCreateMultipleFracturesOptionItemUi*> m_options;
 
     caf::PdmProxyValueField<QString> m_fractureCreationSummary;
+
+    std::vector<RimWellPath*>       m_wellPaths;
 };

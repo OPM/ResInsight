@@ -36,6 +36,12 @@ class RicCreateMultipleFracturesFeature : public caf::CmdFeature
     Q_OBJECT
     CAF_CMD_HEADER_INIT;
 
+public:
+    RicCreateMultipleFracturesFeature() {}
+
+    void appendFractures();
+    void replaceFractures();
+
 private slots:
     void slotDeleteAndAppendFractures();
     void slotAppendFractures();

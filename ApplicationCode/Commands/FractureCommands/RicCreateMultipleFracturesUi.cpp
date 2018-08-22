@@ -113,6 +113,30 @@ void RiuCreateMultipleFractionsUi::deleteOptionItem(RicCreateMultipleFracturesOp
 }
 
 //--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuCreateMultipleFractionsUi::clearOptions()
+{
+    m_options.deleteAllChildObjects();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuCreateMultipleFractionsUi::addWellPath(RimWellPath* wellPath)
+{
+    m_wellPaths.push_back(wellPath);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuCreateMultipleFractionsUi::clearWellPaths()
+{
+    m_wellPaths.clear();
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo> RiuCreateMultipleFractionsUi::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions,
@@ -242,9 +266,9 @@ std::vector<LocationForNewFracture> RiuCreateMultipleFractionsUi::locationsForNe
 
     if (mainGrid)
     {
-        std::vector<RimWellPath*> selWells = caf::selectedObjectsByTypeStrict<RimWellPath*>();
+        //std::vector<RimWellPath*> selWells = caf::selectedObjectsByTypeStrict<RimWellPath*>();
 
-        for (auto w : selWells)
+        for (auto w : m_wellPaths)
         {
             auto wellPathGeometry = w->wellPathGeometry();
             if (wellPathGeometry)
