@@ -121,6 +121,32 @@ public:
         }
     }
 
+    template <typename T>
+    T* selectedItemOfType(int selectionLevel = 0)
+    {
+        std::vector<T*> typedObjects;
+        this->objectsByType<T>(&typedObjects, selectionLevel);
+        if (!typedObjects.empty())
+        {
+            return typedObjects.front();
+        }
+        return nullptr;
+    }
+
+    template <typename T>
+    T* selectedItemAncestorOfType(int selectionLevel = 0)
+    {
+        PdmUiItem* item = this->selectedItem(selectionLevel);
+        PdmObjectHandle* selectedObject = dynamic_cast<PdmObjectHandle*>(item);
+        if (selectedObject)
+        {
+            T* ancestor = nullptr;
+            selectedObject->firstAncestorOrThisOfType(ancestor);
+            return ancestor;
+        }
+        return nullptr;
+    }
+
 private:
     SelectionManager();
 
