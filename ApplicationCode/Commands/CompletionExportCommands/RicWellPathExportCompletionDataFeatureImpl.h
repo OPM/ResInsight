@@ -89,11 +89,22 @@ public:
 
     static void                           generateWelsegsTable(RifEclipseDataTableFormatter& formatter,
                                                                const RicMswExportInfo& exportInfo);
+
+    static void                           generateWelsegsSegments(RifEclipseDataTableFormatter &formatter,
+                                                                  const RicMswExportInfo &exportInfo,
+                                                                  const std::set<RigCompletionData::CompletionType>& exportCompletionTypes);
+    static void                           generateWelsegsCompletionCommentHeader(RifEclipseDataTableFormatter &formatter,
+                                                                                 RigCompletionData::CompletionType completionType);
     static void                           generateCompsegTables(RifEclipseDataTableFormatter& formatter,
                                                                 const RicMswExportInfo& exportInfo);
     static void                           generateCompsegTable(RifEclipseDataTableFormatter& formatter,
                                                                const RicMswExportInfo& exportInfo,
-                                                               bool exportSubGridIntersections);
+                                                               bool exportSubGridIntersections,
+                                                               const std::set<RigCompletionData::CompletionType>& exportCompletionTypes);
+    static void                           generateCompsegHeader(RifEclipseDataTableFormatter&     formatter,
+                                                                const RicMswExportInfo&           exportInfo,
+                                                                RigCompletionData::CompletionType completionType,
+                                                                bool                              exportSubGridIntersections);
     static void                           generateWsegvalvTable(RifEclipseDataTableFormatter& formatter,
                                                                 const RicMswExportInfo& exportInfo);
 
