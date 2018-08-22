@@ -41,13 +41,16 @@
 
 CAF_PDM_SOURCE_INIT(RicfCreateMultipleFractures, "createMultipleFractures");
 
-template<>
-void caf::AppEnum< MultipleFractures::Action >::setUp()
+namespace caf
 {
-    addItem(MultipleFractures::APPEND_FRACTURES, "APPEND_FRACTURES", "Append Fractures");
-    addItem(MultipleFractures::REPLACE_FRACTURES, "REPLACE_FRACTURES", "Replace Fractures");
+    template<>
+    void AppEnum< MultipleFractures::Action >::setUp()
+    {
+        addItem(MultipleFractures::APPEND_FRACTURES, "APPEND_FRACTURES", "Append Fractures");
+        addItem(MultipleFractures::REPLACE_FRACTURES, "REPLACE_FRACTURES", "Replace Fractures");
 
-    setDefault(MultipleFractures::NONE);
+        setDefault(MultipleFractures::NONE);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
