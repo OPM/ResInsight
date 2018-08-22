@@ -146,7 +146,8 @@ std::vector<RigCompletionData>
 
     std::vector<std::vector<RigCompletionData>> sharedComplForFracture(fractures.size());
 
-#pragma omp parallel for
+// Temporarily commented out due to sync problems. Needs more analysis
+//#pragma omp parallel for
     for (int i = 0; i < (int)fractures.size(); i++)
     {
         RimFracture* fracture = fractures[i];
