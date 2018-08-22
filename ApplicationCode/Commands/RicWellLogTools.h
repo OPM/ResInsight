@@ -38,10 +38,7 @@ class RimWellPath;
 class RicWellLogTools
 {
 public:
-    static RimWellLogTrack*             selectedWellLogPlotTrack();
     static RimSimWellInView*            selectedSimulationWell(int* branchIndex);
-    static RimWellPath*                 selectedWellPath();
-    static RimWellPath*                 findWellPathFromSelection();
     static bool                         wellHasRftData(const QString& wellName);
     static bool                         isWellPathOrSimWellSelectedInView();
     static void                         addWellLogChannelsToPlotTrack(RimWellLogTrack*                           plotTrack,

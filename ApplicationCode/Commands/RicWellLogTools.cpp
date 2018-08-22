@@ -42,17 +42,6 @@
 
 #include "cafSelectionManager.h"
 
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RimWellLogTrack* RicWellLogTools::selectedWellLogPlotTrack()
-{
-    std::vector<RimWellLogTrack*> selection;
-    caf::SelectionManager::instance()->objectsByType(&selection);
-    return selection.size() > 0 ? selection[0] : nullptr;
-}
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -74,35 +63,6 @@ RimSimWellInView* RicWellLogTools::selectedSimulationWell(int *branchIndex)
     }
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RimWellPath* RicWellLogTools::selectedWellPath()
-{
-    std::vector<RimWellPath*> selection;
-    caf::SelectionManager::instance()->objectsByType(&selection);
-    return selection.size() > 0 ? selection[0] : nullptr;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RimWellPath* RicWellLogTools::findWellPathFromSelection()
-{
-    std::vector<caf::PdmObject*> selection;
-    caf::SelectionManager::instance()->objectsByType(&selection);
-    if (selection.size() > 0)
-    {
-        caf::PdmObject* firstSelection = selection[0];
-        RimWellPath* wellPath;
-        firstSelection->firstAncestorOrThisOfType(wellPath);
-        if (wellPath)
-        {
-            return wellPath;
-        }
-    }
-    return nullptr;
-}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -195,7 +155,7 @@ RimWellPath* RicWellLogTools::selectedWellPathWithLogFile()
 //--------------------------------------------------------------------------------------------------
 RimWellPath* RicWellLogTools::findWellPathWithLogFileFromSelection()
 {
-    RimWellPath* wellPath = findWellPathFromSelection();
+    RimWellPath* wellPath = caf::SelectionManager::instance()->selectedItemAncestorOfType<RimWellPath>();
     if (wellPath->wellLogFiles().size() > 0)
     {
         return wellPath;

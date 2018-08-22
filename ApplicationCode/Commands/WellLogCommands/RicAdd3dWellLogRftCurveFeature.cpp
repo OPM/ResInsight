@@ -28,6 +28,8 @@
 
 #include "Riu3DMainWindowTools.h"
 
+#include "cafSelectionManager.h"
+
 #include <QAction>
 
 CAF_CMD_SOURCE_INIT(RicAdd3dWellLogRftCurveFeature, "RicAdd3dWellLogRftCurveFeature");
@@ -41,7 +43,7 @@ bool RicAdd3dWellLogRftCurveFeature::isCommandEnabled()
     RiaApplication::instance()->project()->allCases(cases);
     if (cases.empty()) return false;
 
-    RimWellPath* wellPath = RicWellLogTools::findWellPathFromSelection();
+    RimWellPath* wellPath = caf::SelectionManager::instance()->selectedItemAncestorOfType<RimWellPath>();
     if (wellPath)
     {
         return RicWellLogTools::wellHasRftData(wellPath->name());
@@ -54,7 +56,7 @@ bool RicAdd3dWellLogRftCurveFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicAdd3dWellLogRftCurveFeature::onActionTriggered(bool isChecked)
 {
-    RimWellPath* selectedWellPath = RicWellLogTools::findWellPathFromSelection();
+    RimWellPath* selectedWellPath = caf::SelectionManager::instance()->selectedItemAncestorOfType<RimWellPath>();
     if (!selectedWellPath) return;
 
     Rim3dWellLogRftCurve* rim3dWellLogRftCurve = new Rim3dWellLogRftCurve();

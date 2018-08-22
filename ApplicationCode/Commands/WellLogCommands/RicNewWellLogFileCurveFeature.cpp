@@ -50,7 +50,7 @@ CAF_CMD_SOURCE_INIT(RicNewWellLogFileCurveFeature, "RicNewWellLogFileCurveFeatur
 bool RicNewWellLogFileCurveFeature::isCommandEnabled()
 {
     if (RicWellLogPlotCurveFeatureImpl::parentWellRftPlot()) return false;
-    return (RicWellLogTools::selectedWellLogPlotTrack() != nullptr && wellLogFilesAvailable()) || RicWellLogTools::selectedWellPathWithLogFile() != nullptr;
+    return (caf::SelectionManager::instance()->selectedItemAncestorOfType<RimWellLogTrack>() != nullptr && wellLogFilesAvailable()) || RicWellLogTools::selectedWellPathWithLogFile() != nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -58,7 +58,7 @@ bool RicNewWellLogFileCurveFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicNewWellLogFileCurveFeature::onActionTriggered(bool isChecked)
 {
-    RimWellLogTrack* wellLogPlotTrack = RicWellLogTools::selectedWellLogPlotTrack();
+    RimWellLogTrack* wellLogPlotTrack = caf::SelectionManager::instance()->selectedItemAncestorOfType<RimWellLogTrack>();
     if (wellLogPlotTrack)
     {
         RicWellLogTools::addFileCurve(wellLogPlotTrack);
