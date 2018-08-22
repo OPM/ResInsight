@@ -685,7 +685,6 @@ void MainWindow::createDockPanels()
         dockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
 
         m_pdmUiTableView = new caf::PdmUiTableView(dockWidget);
-        m_pdmUiTableView->setSelectionRole(caf::SelectionManager::CURRENT);
 
         dockWidget->setWidget(m_pdmUiTableView);
 
