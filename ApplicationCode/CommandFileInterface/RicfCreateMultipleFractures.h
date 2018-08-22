@@ -59,7 +59,7 @@ private:
 
     caf::PdmField<int>                      m_caseId;
     caf::PdmField<std::vector<QString>>     m_wellPathNames;
-    caf::PdmField<double>                   m_maxDistFromWellTd;
+    caf::PdmField<double>                   m_minDistFromWellTd;
     caf::PdmField<int>                      m_maxFracturesPerWell;
     caf::PdmField<int>                      m_templateId;
     caf::PdmField<int>                      m_topLayer;

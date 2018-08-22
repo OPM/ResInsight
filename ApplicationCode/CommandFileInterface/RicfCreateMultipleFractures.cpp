@@ -60,7 +60,7 @@ RicfCreateMultipleFractures::RicfCreateMultipleFractures()
 {
     RICF_InitField(&m_caseId,               "caseId",               -1,                     "Case ID", "", "", "");
     RICF_InitField(&m_wellPathNames,        "wellPathNames",        std::vector<QString>(), "Well Path Names", "", "", "");
-    RICF_InitField(&m_maxDistFromWellTd,    "maxDistFromWellTd",    100.0,                  "Max Distance From Well TD", "", "", "");
+    RICF_InitField(&m_minDistFromWellTd,    "minDistFromWellTd",    100.0,                  "Min Distance From Well TD", "", "", "");
     RICF_InitField(&m_maxFracturesPerWell,  "maxFracturesPerWell",  100,                    "Max Fractures per Well", "", "", "");
     RICF_InitField(&m_templateId,           "templateId",           -1,                     "Template ID", "", "", "");
     RICF_InitField(&m_topLayer,             "topLayer",             -1,                     "Top Layer", "", "", "");
@@ -94,7 +94,7 @@ void RicfCreateMultipleFractures::execute()
             settings->addWellPath(wellPath);
         }
 
-        settings->setValues(gridCase, m_maxDistFromWellTd, m_maxFracturesPerWell);
+        settings->setValues(gridCase, m_minDistFromWellTd, m_maxFracturesPerWell);
         settings->clearOptions();
         settings->insertOptionItem(nullptr, options);
 
