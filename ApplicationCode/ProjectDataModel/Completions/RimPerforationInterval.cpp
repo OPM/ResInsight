@@ -26,6 +26,7 @@
 #include "RimWellPath.h"
 
 #include "cafPdmUiDateEditor.h"
+#include "cafPdmUiDoubleSliderEditor.h"
 
 CAF_PDM_SOURCE_INIT(RimPerforationInterval, "Perforation");
 
@@ -51,6 +52,9 @@ RimPerforationInterval::RimPerforationInterval()
     CAF_PDM_InitField(&m_endDate,           "EndDate",            QDateTime::currentDateTime(), "End Date", "", "", "");
 
     nameField()->uiCapability()->setUiReadOnly(true);
+
+    m_startMD.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
+    m_endMD.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -289,6 +293,27 @@ void RimPerforationInterval::defineEditorAttribute(const caf::PdmFieldHandle* fi
             myAttr->dateFormat = "dd MMM yyyy";
         }
     }
+    else if (field == &m_startMD || field == &m_endMD)
+    {
+        caf::PdmUiDoubleSliderEditorAttribute* myAttr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>(attribute);
+
+        if (myAttr)
+        {
+            RimWellPath* rimWellPath = nullptr;
+            this->firstAncestorOrThisOfType(rimWellPath);
+            if (!rimWellPath) return;
+
+            RigWellPath* wellPathGeo = rimWellPath->wellPathGeometry();
+            if (!wellPathGeo) return;
+
+            if (wellPathGeo->m_measuredDepths.size() > 2)
+            {
+                myAttr->m_minimum = wellPathGeo->m_measuredDepths.front();
+                myAttr->m_maximum = wellPathGeo->m_measuredDepths.back();
+            }
+        }
+    }
+
 }
 
 //--------------------------------------------------------------------------------------------------
