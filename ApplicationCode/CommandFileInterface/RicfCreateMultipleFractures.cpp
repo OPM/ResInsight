@@ -66,7 +66,7 @@ RicfCreateMultipleFractures::RicfCreateMultipleFractures()
     RICF_InitField(&m_topLayer,             "topLayer",             -1,                     "Top Layer", "", "", "");
     RICF_InitField(&m_baseLayer,            "baseLayer",            -1,                     "Base Layer", "", "", "");
     RICF_InitField(&m_spacing,              "spacing",              300.0,                  "Spacing", "", "", "");
-    RICF_InitField(&m_action,               "action", caf::AppEnum<MultipleFractures::Action>(MultipleFractures::NONE), "Action", "", "", "");
+    RICF_InitField(&m_action,               "action", caf::AppEnum<MultipleFractures::Action>(MultipleFractures::APPEND_FRACTURES), "Action", "", "", "");
 
 }
 
@@ -86,7 +86,19 @@ void RicfCreateMultipleFractures::execute()
     if (gridCase && fractureTemplate && !wellPaths.empty() && validateArguments())
     {
         RicCreateMultipleFracturesOptionItemUi* options = new RicCreateMultipleFracturesOptionItemUi();
-        options->setValues(m_topLayer, m_baseLayer, fractureTemplate, m_spacing);
+        caf::CmdFeatureManager*                 commandManager = caf::CmdFeatureManager::instance();
+        auto feature = dynamic_cast<RicCreateMultipleFracturesFeature*>(commandManager->getCommandFeature("RicCreateMultipleFracturesFeature"));
+
+        // Default layers
+        int topLayer = m_topLayer;
+        int baseLayer = m_baseLayer;
+        if (feature && (topLayer < 0 || baseLayer < 0))
+        {
+            auto ijkRange = feature->ijkRangeForGrid(gridCase);
+            if (topLayer < 0) topLayer = static_cast<int>(ijkRange.first.z());
+            if (baseLayer < 0) baseLayer = static_cast<int>(ijkRange.second.z());
+        }
+        options->setValues(topLayer, baseLayer, fractureTemplate, m_spacing);
 
         settings->clearWellPaths();
         for (auto wellPath : wellPaths)
@@ -98,8 +110,6 @@ void RicfCreateMultipleFractures::execute()
         settings->clearOptions();
         settings->insertOptionItem(nullptr, options);
 
-        caf::CmdFeatureManager* commandManager = caf::CmdFeatureManager::instance();
-        auto feature = dynamic_cast<RicCreateMultipleFracturesFeature*>(commandManager->getCommandFeature("RicCreateMultipleFracturesFeature"));
 
         if (feature)
         {
@@ -117,12 +127,11 @@ bool RicfCreateMultipleFractures::validateArguments() const
 {
     bool valid = 
         m_caseId >= 0 &&
-        m_templateId >= 0 &&
-        !(m_action == MultipleFractures::NONE);
+        m_templateId >= 0;
 
     if (valid) return true;
 
-    RiaLogging::error(QString("createMultipleFractures: Command argument validation failed"));
+    RiaLogging::error(QString("createMultipleFractures: Mandatory argument(s) missing"));
     return false;
 }
 

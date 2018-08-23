@@ -20,9 +20,12 @@
 
 #include "cafCmdFeature.h"
 
+#include "cvfVector3.h"
+
 #include <QPointer>
 
 class RiuCreateMultipleFractionsUi;
+class RimEclipseCase;
 
 namespace caf {
     class PdmUiPropertyViewDialog;
@@ -41,6 +44,7 @@ public:
 
     void appendFractures();
     void replaceFractures();
+    std::pair<cvf::Vec3st, cvf::Vec3st> ijkRangeForGrid(RimEclipseCase* gridCase) const;
 
 private slots:
     void slotDeleteAndAppendFractures();
