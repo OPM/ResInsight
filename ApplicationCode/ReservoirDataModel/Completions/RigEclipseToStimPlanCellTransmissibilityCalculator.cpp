@@ -38,7 +38,7 @@
 ///
 //--------------------------------------------------------------------------------------------------
 RigEclipseToStimPlanCellTransmissibilityCalculator::RigEclipseToStimPlanCellTransmissibilityCalculator(
-    RimEclipseCase*        caseToApply,
+    const RimEclipseCase*  caseToApply,
     cvf::Mat4d             fractureTransform,
     double                 skinFactor,
     double                 cDarcy,
@@ -124,9 +124,9 @@ void RigEclipseToStimPlanCellTransmissibilityCalculator::calculateStimPlanCellsM
 
     RiaDefines::PorosityModelType porosityModel = RiaDefines::MATRIX_MODEL;
 
-    cvf::ref<RigResultAccessor> dataAccessObjectDx = loadResultAndCreateResultAccessor(m_case, porosityModel, "DX");
-    cvf::ref<RigResultAccessor> dataAccessObjectDy = loadResultAndCreateResultAccessor(m_case, porosityModel, "DY");
-    cvf::ref<RigResultAccessor> dataAccessObjectDz = loadResultAndCreateResultAccessor(m_case, porosityModel, "DZ");
+    cvf::ref<RigResultAccessor> dataAccessObjectDx = createResultAccessor(m_case, "DX");
+    cvf::ref<RigResultAccessor> dataAccessObjectDy = createResultAccessor(m_case, "DY");
+    cvf::ref<RigResultAccessor> dataAccessObjectDz = createResultAccessor(m_case, "DZ");
     if (dataAccessObjectDx.isNull() || dataAccessObjectDy.isNull() || dataAccessObjectDz.isNull())
     {
         RiaLogging::error("Data for DX/DY/DZ is not complete, and these values are required for export of COMPDAT. Make sure "
@@ -135,9 +135,9 @@ void RigEclipseToStimPlanCellTransmissibilityCalculator::calculateStimPlanCellsM
         return;
     }
 
-    cvf::ref<RigResultAccessor> dataAccessObjectPermX = loadResultAndCreateResultAccessor(m_case, porosityModel, "PERMX");
-    cvf::ref<RigResultAccessor> dataAccessObjectPermY = loadResultAndCreateResultAccessor(m_case, porosityModel, "PERMY");
-    cvf::ref<RigResultAccessor> dataAccessObjectPermZ = loadResultAndCreateResultAccessor(m_case, porosityModel, "PERMZ");
+    cvf::ref<RigResultAccessor> dataAccessObjectPermX = createResultAccessor(m_case, "PERMX");
+    cvf::ref<RigResultAccessor> dataAccessObjectPermY = createResultAccessor(m_case, "PERMY");
+    cvf::ref<RigResultAccessor> dataAccessObjectPermZ = createResultAccessor(m_case, "PERMZ");
     if (dataAccessObjectPermX.isNull() || dataAccessObjectPermY.isNull() || dataAccessObjectPermZ.isNull())
     {
         RiaLogging::error("Data for PERMX/PERMY/PERMZ is not complete, and these values are required for export of COMPDAT.");
@@ -145,7 +145,7 @@ void RigEclipseToStimPlanCellTransmissibilityCalculator::calculateStimPlanCellsM
         return;
     }
 
-    cvf::ref<RigResultAccessor> dataAccessObjectNTG = loadResultAndCreateResultAccessor(m_case, porosityModel, "NTG");
+    cvf::ref<RigResultAccessor> dataAccessObjectNTG = createResultAccessor(m_case, "NTG");
 
     const RigActiveCellInfo* activeCellInfo = eclipseCaseData->activeCellInfo(porosityModel);
 
@@ -293,19 +293,12 @@ std::vector<size_t> RigEclipseToStimPlanCellTransmissibilityCalculator::getPoten
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::ref<RigResultAccessor> RigEclipseToStimPlanCellTransmissibilityCalculator::loadResultAndCreateResultAccessor(
-    RimEclipseCase*               eclipseCase,
-    RiaDefines::PorosityModelType porosityModel,
-    const QString&                uiResultName)
+cvf::ref<RigResultAccessor>
+    RigEclipseToStimPlanCellTransmissibilityCalculator::createResultAccessor(const RimEclipseCase* eclipseCase,
+                                                                             const QString&        uiResultName)
 {
-    CVF_ASSERT(eclipseCase);
-
-    RigCaseCellResultsData* gridCellResults = eclipseCase->results(porosityModel);
-
-    // Calling this function will force loading of result from file
-    gridCellResults->findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, uiResultName);
-
-    const RigEclipseCaseData* eclipseCaseData = eclipseCase->eclipseCaseData();
+    RiaDefines::PorosityModelType porosityModel   = RiaDefines::MATRIX_MODEL;
+    const RigEclipseCaseData*     eclipseCaseData = eclipseCase->eclipseCaseData();
 
     // Create result accessor object for main grid at time step zero (static result date is always at first time step
     return RigResultAccessorFactory::createFromUiResultName(eclipseCaseData, 0, porosityModel, 0, uiResultName);

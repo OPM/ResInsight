@@ -39,7 +39,7 @@ class RigResultAccessor;
 class RigEclipseToStimPlanCellTransmissibilityCalculator
 {
 public:
-    explicit RigEclipseToStimPlanCellTransmissibilityCalculator(RimEclipseCase*        caseToApply,
+    explicit RigEclipseToStimPlanCellTransmissibilityCalculator(const RimEclipseCase*  caseToApply,
                                                                 cvf::Mat4d             fractureTransform,
                                                                 double                 skinFactor,
                                                                 double                 cDarcy,
@@ -57,12 +57,11 @@ private:
     void                calculateStimPlanCellsMatrixTransmissibility();
     std::vector<size_t> getPotentiallyFracturedCellsForPolygon(const std::vector<cvf::Vec3d>& polygon) const;
 
-    static cvf::ref<RigResultAccessor> loadResultAndCreateResultAccessor(RimEclipseCase*               eclipseCase,
-                                                                         RiaDefines::PorosityModelType porosityModel,
+    static cvf::ref<RigResultAccessor> createResultAccessor(const RimEclipseCase*         eclipseCase,
                                                                          const QString&                uiResultName);
 
 private:
-    RimEclipseCase*        m_case;
+    const RimEclipseCase*  m_case;
     double                 m_cDarcy;
     double                 m_fractureSkinFactor;
     cvf::Mat4d             m_fractureTransform;

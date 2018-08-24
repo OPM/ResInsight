@@ -39,7 +39,7 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigEclipseToStimPlanCalculator::RigEclipseToStimPlanCalculator(RimEclipseCase*        caseToApply,
+RigEclipseToStimPlanCalculator::RigEclipseToStimPlanCalculator(const RimEclipseCase*  caseToApply,
                                                                cvf::Mat4d             fractureTransform,
                                                                double                 skinFactor,
                                                                double                 cDarcy,

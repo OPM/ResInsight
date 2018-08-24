@@ -41,7 +41,7 @@ class RimFracture;
 class RigEclipseToStimPlanCalculator
 {
 public:
-    explicit RigEclipseToStimPlanCalculator(RimEclipseCase*        caseToApply,
+    explicit RigEclipseToStimPlanCalculator(const RimEclipseCase*  caseToApply,
                                             cvf::Mat4d             fractureTransform,
                                             double                 skinFactor,
                                             double                 cDarcy,
@@ -58,7 +58,7 @@ private:
     void computeValues();
 
 private:
-    RimEclipseCase*        m_case;
+    const RimEclipseCase*  m_case;
     double                 m_cDarcy;
     double                 m_fractureSkinFactor;
     cvf::Mat4d             m_fractureTransform;
