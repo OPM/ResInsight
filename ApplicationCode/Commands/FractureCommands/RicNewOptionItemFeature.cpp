@@ -18,8 +18,13 @@
 
 #include "RicNewOptionItemFeature.h"
 
+#include "RiaApplication.h"
+
 #include "RicCreateMultipleFracturesOptionItemUi.h"
 #include "RicCreateMultipleFracturesUi.h"
+
+#include "RimProject.h"
+#include "RimDialogData.h"
 
 #include "cafPdmChildArrayField.h"
 #include "cafSelectionManager.h"
@@ -50,7 +55,7 @@ void RicNewOptionItemFeature::setupActionLook(QAction* actionToSetup)
 //--------------------------------------------------------------------------------------------------
 void RicNewOptionItemFeature::onActionTriggered(bool isChecked)
 {
-    RiuCreateMultipleFractionsUi* multipleFractionUi = nullptr;
+    RiuCreateMultipleFractionsUi* multipleFractionUi = RiaApplication::instance()->project()->dialogData()->multipleFractionsData();
     RicCreateMultipleFracturesOptionItemUi* selectedOptionItem = nullptr;
 
     {
@@ -61,13 +66,6 @@ void RicNewOptionItemFeature::onActionTriggered(bool isChecked)
             selectedOptionItem = optionItems.front();
             selectedOptionItem->firstAncestorOrThisOfTypeAsserted(multipleFractionUi);
         }
-    }
-
-    std::vector<RiuCreateMultipleFractionsUi*> multipleFractions;
-    caf::SelectionManager::instance()->objectsByType(&multipleFractions, caf::SelectionManager::FIRST_LEVEL);
-    if (!multipleFractions.empty())
-    {
-        multipleFractionUi = multipleFractions[0];
     }
 
     if (multipleFractionUi)
