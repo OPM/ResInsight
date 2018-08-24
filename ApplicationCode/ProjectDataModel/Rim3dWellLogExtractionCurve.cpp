@@ -233,35 +233,37 @@ std::pair<double, double> Rim3dWellLogExtractionCurve::findCurveValueRange()
 {
     double foundMinValue = std::numeric_limits<float>::infinity();
     double foundMaxValue = -std::numeric_limits<float>::infinity();
-
-    std::set<int> timeStepsToCheck;
-    if (followAnimationTimeStep())
+    if (m_case())
     {
-        // Check all time steps to avoid range changing during animation.
-        for (int i = 0; i < m_case->timeStepStrings().size(); ++i)
+        std::set<int> timeStepsToCheck;
+        if (followAnimationTimeStep())
         {
-            timeStepsToCheck.insert(i);
-        }
-    }
-    else
-    {
-        timeStepsToCheck.insert(m_timeStep());
-    }
-
-    for (int timeStep : timeStepsToCheck)
-    {
-        std::vector<double> values;
-        std::vector<double> measuredDepths;
-        this->curveValuesAndMdsAtTimeStep(&values, &measuredDepths, timeStep);
-
-        for (double value : values)
-        {
-            if (RiaCurveDataTools::isValidValue(value, false))
+            // Check all time steps to avoid range changing during animation.
+            for (int i = 0; i < m_case->timeStepStrings().size(); ++i)
             {
-                foundMinValue = std::min(foundMinValue, value);
-                foundMaxValue = std::max(foundMaxValue, value);
+                timeStepsToCheck.insert(i);
             }
-        }        
+        }
+        else
+        {
+            timeStepsToCheck.insert(m_timeStep());
+        }
+
+        for (int timeStep : timeStepsToCheck)
+        {
+            std::vector<double> values;
+            std::vector<double> measuredDepths;
+            this->curveValuesAndMdsAtTimeStep(&values, &measuredDepths, timeStep);
+
+            for (double value : values)
+            {
+                if (RiaCurveDataTools::isValidValue(value, false))
+                {
+                    foundMinValue = std::min(foundMinValue, value);
+                    foundMaxValue = std::max(foundMaxValue, value);
+                }
+            }
+        }
     }
     return std::make_pair(foundMinValue, foundMaxValue);
 }
