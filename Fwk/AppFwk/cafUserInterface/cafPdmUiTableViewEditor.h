@@ -87,8 +87,9 @@ public:
     {
     }
 
-    int     selectionLevel;
-    bool    enableHeaderText;
+    int                 selectionLevel;
+    bool                enableHeaderText;
+    std::vector<int>    columnWidths;
 };
 
 

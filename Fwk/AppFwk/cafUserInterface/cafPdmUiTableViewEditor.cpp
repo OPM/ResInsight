@@ -139,10 +139,14 @@ void PdmUiTableViewEditor::configureAndUpdateUi(const QString& uiConfigName)
 
     auto childArrayFH = childArrayFieldHandle();
 
+    PdmUiTableViewEditorAttribute editorAttrib;
+    bool editorAttribLoaded = false;
+
     if ( childArrayFH && childArrayFH->ownerObject() && childArrayFH->ownerObject()->uiCapability() )
     {
-        PdmUiTableViewEditorAttribute editorAttrib;
         childArrayFH->ownerObject()->uiCapability()->editorAttribute(childArrayFH, uiConfigName, &editorAttrib);
+        editorAttribLoaded = true;
+
         this->setSelectionLevel(editorAttrib.selectionLevel);
         this->enableHeaderText(editorAttrib.enableHeaderText);
     }
@@ -192,6 +196,15 @@ void PdmUiTableViewEditor::configureAndUpdateUi(const QString& uiConfigName)
         m_previousFieldHandle = childArrayFH;
     }
 
+    if (editorAttribLoaded)
+    {
+        int colCount = m_tableModelPdm->columnCount();
+        for (int c = 0; c < colCount && c < editorAttrib.columnWidths.size(); c++)
+        {
+            auto w = editorAttrib.columnWidths[c];
+            if (w > 0) m_tableView->setColumnWidth(c, w);
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
