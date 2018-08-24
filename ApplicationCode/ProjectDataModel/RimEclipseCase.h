@@ -78,7 +78,7 @@ public:
 
     RigCaseCellResultsData*                     results(RiaDefines::PorosityModelType porosityModel);
     const RigCaseCellResultsData*               results(RiaDefines::PorosityModelType porosityModel) const;
-    void                                        loadStaticResultsByName(const std::vector<QString>& resultNames);
+    bool                                        loadStaticResultsByName(const std::vector<QString>& resultNames);
 
     RimReservoirCellResultsStorage*             resultsStorage(RiaDefines::PorosityModelType porosityModel);
     const RimReservoirCellResultsStorage*       resultsStorage(RiaDefines::PorosityModelType porosityModel) const;

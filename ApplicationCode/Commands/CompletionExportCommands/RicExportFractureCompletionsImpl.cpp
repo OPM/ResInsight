@@ -142,15 +142,43 @@ std::vector<RigCompletionData>
     // To handle several fractures in the same eclipse cell we need to keep track of the transmissibility
     // to the well from each fracture intersecting the cell and sum these transmissibilities at the end.
     // std::map <eclipseCellIndex ,map< fracture, trans> >
-    //std::map<size_t, std::map<const RimFracture*, double>> eclCellIdxToTransPrFractureMap;
+    // std::map<size_t, std::map<const RimFracture*, double>> eclCellIdxToTransPrFractureMap;
 
     std::vector<std::vector<RigCompletionData>> sharedComplForFracture(fractures.size());
 
-// Temporarily commented out due to sync problems. Needs more analysis
-//#pragma omp parallel for
+    {
+        // Load the data required by computations to be able to use const access only inside OpenMP loop
+
+        std::vector<QString> resultNames = RigEclipseToStimPlanCellTransmissibilityCalculator::requiredResultNames();
+
+        if (!caseToApply->loadStaticResultsByName(resultNames))
+        {
+            QString msg;
+            msg += "Compdat Export : Required data missing. Required results ";
+
+            for (const auto& r : resultNames)
+            {
+                msg += " ";
+                msg += r;
+            }
+            RiaLogging::error(msg);
+
+            return fractureCompletions;
+        }
+    }
+
+    {
+        // Optional results
+        std::vector<QString> resultNames = RigEclipseToStimPlanCellTransmissibilityCalculator::optionalResultNames();
+
+        caseToApply->loadStaticResultsByName(resultNames);
+    }
+
+    // Temporarily commented out due to sync problems. Needs more analysis
+    //#pragma omp parallel for
     for (int i = 0; i < (int)fractures.size(); i++)
     {
-        RimFracture* fracture = fractures[i];
+        RimFracture*         fracture     = fractures[i];
         RimFractureTemplate* fracTemplate = fracture->fractureTemplate();
 
         if (!fracTemplate) continue;
@@ -325,7 +353,7 @@ std::vector<RigCompletionData>
                 double trans = transCondenser.condensedTransmissibility(
                     externalCell, {true, RigTransmissibilityCondenser::CellAddress::WELL, 1});
 
-                //eclCellIdxToTransPrFractureMap[externalCell.m_globalCellIdx][fracture] = trans;
+                // eclCellIdxToTransPrFractureMap[externalCell.m_globalCellIdx][fracture] = trans;
 
                 RigCompletionData compDat(wellPathName,
                                           RigCompletionDataGridCell(externalCell.m_globalCellIdx, caseToApply->mainGrid()),
@@ -463,9 +491,9 @@ std::vector<RigCompletionData>
             fractureDataReportItems->push_back(reportItem);
         }
 
-        std::copy(
-            allCompletionsForOneFracture.begin(), allCompletionsForOneFracture.end(), std::back_inserter(sharedComplForFracture[i]));
-
+        std::copy(allCompletionsForOneFracture.begin(),
+                  allCompletionsForOneFracture.end(),
+                  std::back_inserter(sharedComplForFracture[i]));
 
         if (outputStreamForIntermediateResultsText)
         {

@@ -87,6 +87,34 @@ const RigFractureCell& RigEclipseToStimPlanCellTransmissibilityCalculator::fract
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::vector<QString> RigEclipseToStimPlanCellTransmissibilityCalculator::requiredResultNames()
+{
+    std::vector<QString> resultNames;
+    resultNames.push_back("PERMX");
+    resultNames.push_back("PERMY");
+    resultNames.push_back("PERMZ");
+
+    resultNames.push_back("DX");
+    resultNames.push_back("DY");
+    resultNames.push_back("DZ");
+
+    return resultNames;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<QString> RigEclipseToStimPlanCellTransmissibilityCalculator::optionalResultNames()
+{
+    std::vector<QString> resultNames;
+    resultNames.push_back("NTG");
+
+    return resultNames;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RigEclipseToStimPlanCellTransmissibilityCalculator::calculateStimPlanCellsMatrixTransmissibility()
 {
     // Not calculating flow into fracture if stimPlan cell cond value is 0 (assumed to be outside the fracture):

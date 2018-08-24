@@ -50,6 +50,9 @@ public:
     const std::vector<double>& contributingEclipseCellAreas() const;
     const RigFractureCell&     fractureCell() const;
 
+    static std::vector<QString> requiredResultNames();
+    static std::vector<QString> optionalResultNames();
+
 private:
     void                calculateStimPlanCellsMatrixTransmissibility();
     std::vector<size_t> getPotentiallyFracturedCellsForPolygon(const std::vector<cvf::Vec3d>& polygon) const;
