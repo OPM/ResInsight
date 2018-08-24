@@ -168,6 +168,14 @@ std::vector<RigCompletionData>
     }
 
     {
+        // Load the data required by fracture summary header
+
+        std::vector<QString> resultNames{"TRANX", "TRANY", "TRANZ"};
+
+        caseToApply->loadStaticResultsByName(resultNames);
+    }
+
+    {
         // Optional results
         std::vector<QString> resultNames = RigEclipseToStimPlanCellTransmissibilityCalculator::optionalResultNames();
 
@@ -454,14 +462,6 @@ std::vector<RigCompletionData>
 
             if (caseToApply && caseToApply->eclipseCaseData())
             {
-                RigCaseCellResultsData* gridCellResults = caseToApply->results(RiaDefines::MATRIX_MODEL);
-                if (gridCellResults)
-                {
-                    gridCellResults->findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, "TRANX");
-                    gridCellResults->findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, "TRANY");
-                    gridCellResults->findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, "TRANZ");
-                }
-
                 cvf::ref<RigResultAccessor> tranxAccessObject = RigResultAccessorFactory::createFromUiResultName(
                     caseToApply->eclipseCaseData(), 0, RiaDefines::MATRIX_MODEL, 0, "TRANX");
 
