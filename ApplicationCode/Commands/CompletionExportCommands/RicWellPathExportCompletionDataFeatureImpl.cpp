@@ -1428,7 +1428,7 @@ RicMswExportInfo
                                                                                const std::vector<RimWellPathFracture*>& fractures)
 {
     const RigMainGrid* grid = caseToApply->eclipseCaseData()->mainGrid();
-
+    const RigActiveCellInfo* activeCellInfo = caseToApply->eclipseCaseData()->activeCellInfo(RiaDefines::MATRIX_MODEL);
     RiaEclipseUnitTools::UnitSystem unitSystem = caseToApply->eclipseCaseData()->unitsType();
 
     const RigWellPath*             wellPathGeometry = wellPath->wellPathGeometry();
@@ -1444,9 +1444,16 @@ RicMswExportInfo
     {
         initialMD = wellPath->fractureCollection()->manualReferenceMD();
     }
-    else if (!intersections.empty())
+    else
     {
-        initialMD = intersections.front().startMD;
+        for (WellPathCellIntersectionInfo intersection : intersections)
+        {
+            if (activeCellInfo->isActive(intersection.globCellIndex))
+            {
+                initialMD = intersection.startMD;
+                break;
+            }
+        }
     }
 
     RicMswExportInfo exportInfo(wellPath,
