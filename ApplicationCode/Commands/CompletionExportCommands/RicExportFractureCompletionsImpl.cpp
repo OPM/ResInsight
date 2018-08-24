@@ -63,7 +63,7 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
     std::vector<RicWellPathFractureReportItem>* fractureDataForReport,
     QTextStream*                                outputStreamForIntermediateResultsText)
 {
-    std::vector<RimFracture*> fracturesAlongWellPath;
+    std::vector<const RimFracture*> fracturesAlongWellPath;
 
     if (wellPath->fractureCollection()->isChecked())
     {
@@ -100,7 +100,7 @@ std::vector<RigCompletionData>
 
     for (size_t branchIndex = 0; branchIndex < branches.size(); ++branchIndex)
     {
-        std::vector<RimFracture*> fractures;
+        std::vector<const RimFracture*> fractures;
         for (RimSimWellFracture* fracture : well->simwellFractureCollection->simwellFractures())
         {
             if (fracture->isChecked() && static_cast<size_t>(fracture->branchIndex()) == branchIndex)
@@ -125,7 +125,7 @@ std::vector<RigCompletionData>
     RicExportFractureCompletionsImpl::generateCompdatValues(RimEclipseCase*                             caseToApply,
                                                             const QString&                              wellPathName,
                                                             const RigWellPath*                          wellPathGeometry,
-                                                            const std::vector<RimFracture*>&            fractures,
+                                                            const std::vector<const RimFracture*>&            fractures,
                                                             std::vector<RicWellPathFractureReportItem>* fractureDataReportItems,
                                                             QTextStream* outputStreamForIntermediateResultsText)
 {
@@ -135,16 +135,6 @@ std::vector<RigCompletionData>
     {
         return fractureCompletions;
     }
-
-    double             cDarcyInCorrectUnit = RiaEclipseUnitTools::darcysConstant(caseToApply->eclipseCaseData()->unitsType());
-    const RigMainGrid* mainGrid            = caseToApply->eclipseCaseData()->mainGrid();
-
-    // To handle several fractures in the same eclipse cell we need to keep track of the transmissibility
-    // to the well from each fracture intersecting the cell and sum these transmissibilities at the end.
-    // std::map <eclipseCellIndex ,map< fracture, trans> >
-    // std::map<size_t, std::map<const RimFracture*, double>> eclCellIdxToTransPrFractureMap;
-
-    std::vector<std::vector<RigCompletionData>> sharedComplForFracture(fractures.size());
 
     {
         // Load the data required by computations to be able to use const access only inside OpenMP loop
@@ -182,12 +172,43 @@ std::vector<RigCompletionData>
         caseToApply->loadStaticResultsByName(resultNames);
     }
 
+    return generateCompdatValuesConst(caseToApply, wellPathName, wellPathGeometry, fractures, fractureDataReportItems, outputStreamForIntermediateResultsText);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdatValuesConst(
+    const RimEclipseCase*                       caseToApply,
+    const QString&                              wellPathName,
+    const RigWellPath*                          wellPathGeometry,
+    const std::vector<const RimFracture*>&      fractures,
+    std::vector<RicWellPathFractureReportItem>* fractureDataReportItems,
+    QTextStream*                                outputStreamForIntermediateResultsText)
+{
+    std::vector<RigCompletionData> fractureCompletions;
+
+    if (!caseToApply || !caseToApply->eclipseCaseData())
+    {
+        return fractureCompletions;
+    }
+
+    double             cDarcyInCorrectUnit = RiaEclipseUnitTools::darcysConstant(caseToApply->eclipseCaseData()->unitsType());
+    const RigMainGrid* mainGrid            = caseToApply->eclipseCaseData()->mainGrid();
+
+    // To handle several fractures in the same eclipse cell we need to keep track of the transmissibility
+    // to the well from each fracture intersecting the cell and sum these transmissibilities at the end.
+    // std::map <eclipseCellIndex ,map< fracture, trans> >
+    // std::map<size_t, std::map<const RimFracture*, double>> eclCellIdxToTransPrFractureMap;
+
+    std::vector<std::vector<RigCompletionData>> sharedComplForFracture(fractures.size());
+
     // Temporarily commented out due to sync problems. Needs more analysis
     //#pragma omp parallel for
     for (int i = 0; i < (int)fractures.size(); i++)
     {
-        RimFracture*         fracture     = fractures[i];
-        RimFractureTemplate* fracTemplate = fracture->fractureTemplate();
+        const RimFracture*         fracture     = fractures[i];
+        const RimFractureTemplate* fracTemplate = fracture->fractureTemplate();
 
         if (!fracTemplate) continue;
 
@@ -199,9 +220,9 @@ std::vector<RigCompletionData>
         // If finite cond chosen and conductivity not present in stimplan file, do not calculate trans for this fracture
         if (useFiniteConductivityInFracture)
         {
-            if (dynamic_cast<RimStimPlanFractureTemplate*>(fracTemplate))
+            auto fracTemplateStimPlan = dynamic_cast<const RimStimPlanFractureTemplate*>(fracTemplate);
+            if (fracTemplateStimPlan)
             {
-                RimStimPlanFractureTemplate* fracTemplateStimPlan = dynamic_cast<RimStimPlanFractureTemplate*>(fracTemplate);
                 if (!fracTemplateStimPlan->hasConductivity())
                 {
                     RiaLogging::error("Trying to export completion data for stimPlan fracture without conductivity data for " +
@@ -428,7 +449,7 @@ std::vector<RigCompletionData>
             double height       = 0.0;
             double halfLength   = 0.0;
             {
-                auto* ellipseTemplate = dynamic_cast<RimEllipseFractureTemplate*>(fracTemplate);
+                auto* ellipseTemplate = dynamic_cast<const RimEllipseFractureTemplate*>(fracTemplate);
                 if (ellipseTemplate)
                 {
                     conductivity = ellipseTemplate->conductivity();
@@ -437,7 +458,7 @@ std::vector<RigCompletionData>
                     halfLength   = ellipseTemplate->halfLength();
                 }
 
-                auto* stimplanTemplate = dynamic_cast<RimStimPlanFractureTemplate*>(fracTemplate);
+                auto* stimplanTemplate = dynamic_cast<const RimStimPlanFractureTemplate*>(fracTemplate);
                 if (stimplanTemplate)
                 {
                     conductivity = stimplanTemplate->areaWeightedConductivity();

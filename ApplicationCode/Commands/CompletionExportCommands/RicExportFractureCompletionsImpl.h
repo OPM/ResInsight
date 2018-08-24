@@ -47,10 +47,20 @@ public:
                                                                           const RimSimWellInView* well,
                                                                           QTextStream* outputStreamForIntermediateResultsText);
 
-    static std::vector<RigCompletionData> generateCompdatValues(RimEclipseCase*                             caseToApply,
-                                                                const QString&                              wellPathName,
-                                                                const RigWellPath*                          wellPathGeometry,
-                                                                const std::vector<RimFracture*>&            fractures,
-                                                                std::vector<RicWellPathFractureReportItem>* fractureDataForReport,
-                                                                QTextStream* outputStreamForIntermediateResultsText);
+    static std::vector<RigCompletionData>
+        generateCompdatValues(RimEclipseCase*                             caseToApply,
+                              const QString&                              wellPathName,
+                              const RigWellPath*                          wellPathGeometry,
+                              const std::vector<const RimFracture*>&            fractures,
+                              std::vector<RicWellPathFractureReportItem>* fractureDataReportItems,
+                              QTextStream*                                outputStreamForIntermediateResultsText);
+
+private:
+    static std::vector<RigCompletionData>
+        generateCompdatValuesConst(const RimEclipseCase*                       caseToApply,
+                                   const QString&                              wellPathName,
+                                   const RigWellPath*                          wellPathGeometry,
+                                   const std::vector<const RimFracture*>&      fractures,
+                                   std::vector<RicWellPathFractureReportItem>* fractureDataReportItems,
+                                   QTextStream*                                outputStreamForIntermediateResultsText);
 };
