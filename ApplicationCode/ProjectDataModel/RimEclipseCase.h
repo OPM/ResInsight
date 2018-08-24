@@ -61,12 +61,8 @@ public:
     RimEclipseCase();
     virtual ~RimEclipseCase();
 
-
     // Fields:                                        
-    caf::PdmField<bool>                         releaseResultMemory;
     caf::PdmChildArrayField<RimEclipseView*>    reservoirViews;
-    caf::PdmField<bool>                         flipXAxis;
-    caf::PdmField<bool>                         flipYAxis;
     
     std::vector<QString>                        filesContainingFaults() const;
     void                                        setFilesContainingFaults(const std::vector<QString>& val);
@@ -133,12 +129,17 @@ private:
     void                                        createTimeStepFormatString();
     virtual std::vector<Rim3dView*>             allSpecialViews() const override;
 
+protected:
+    caf::PdmField<bool>                         m_flipXAxis;
+    caf::PdmField<bool>                         m_flipYAxis;
+
 private:
+    caf::PdmField<QString>                      m_filesContainingFaultsSemColSeparated;
+    caf::PdmField<bool>                         m_releaseResultMemory;
+
     cvf::ref<RigEclipseCaseData>                m_rigEclipseCase;
     QString                                     m_timeStepFormatString;
-    std::map<QString , cvf::Color3f>            m_wellToColorMap;
-    caf::PdmField<QString >                     m_filesContainingFaultsSemColSeparated;
-
+    std::map<QString, cvf::Color3f>             m_wellToColorMap;
 
     caf::PdmChildField<RimReservoirCellResultsStorage*> m_matrixModelResults;
     caf::PdmChildField<RimReservoirCellResultsStorage*> m_fractureModelResults;

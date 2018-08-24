@@ -124,7 +124,7 @@ bool RimEclipseInputCase::openDataFileSet(const QStringList& fileNames)
 
                 this->caseUserDescription = caseName;
 
-                this->eclipseCaseData()->mainGrid()->setFlipAxis(flipXAxis, flipYAxis);
+                this->eclipseCaseData()->mainGrid()->setFlipAxis(m_flipXAxis, m_flipYAxis);
 
                 computeCachedData();
 
@@ -208,7 +208,7 @@ bool RimEclipseInputCase::openEclipseGridFile()
         results(RiaDefines::MATRIX_MODEL)->setReaderInterface(readerInterface.p());
         results(RiaDefines::FRACTURE_MODEL)->setReaderInterface(readerInterface.p());
 
-        this->eclipseCaseData()->mainGrid()->setFlipAxis(flipXAxis, flipYAxis);
+        this->eclipseCaseData()->mainGrid()->setFlipAxis(m_flipXAxis, m_flipYAxis);
         
         computeCachedData();
         loadAndSyncronizeInputProperties();
@@ -397,8 +397,8 @@ void RimEclipseInputCase::defineUiOrdering(QString uiConfigName, caf::PdmUiOrder
 
     auto group = uiOrdering.addNewGroup("Case Options");
     group->add(&activeFormationNames);
-    group->add(&flipXAxis);
-    group->add(&flipYAxis);
+    group->add(&m_flipXAxis);
+    group->add(&m_flipYAxis);
 
 }
 

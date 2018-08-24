@@ -79,9 +79,9 @@ RimEclipseResultCase::RimEclipseResultCase()
     caseDirectory.xmlCapability()->setIOWritable(false); 
     caseDirectory.uiCapability()->setUiHidden(true);
 
-    flipXAxis.xmlCapability()->setIOWritable(true);
+    m_flipXAxis.xmlCapability()->setIOWritable(true);
     //flipXAxis.uiCapability()->setUiHidden(true);
-    flipYAxis.xmlCapability()->setIOWritable(true);
+    m_flipYAxis.xmlCapability()->setIOWritable(true);
     //flipYAxis.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitField(&m_sourSimFileName, "SourSimFileName", QString(), "SourSim File Name", "", "", "");
@@ -590,8 +590,8 @@ void RimEclipseResultCase::defineUiOrdering(QString uiConfigName, caf::PdmUiOrde
 
     auto group = uiOrdering.addNewGroup("Case Options");
     group->add(&activeFormationNames);
-    group->add(&flipXAxis);
-    group->add(&flipYAxis);
+    group->add(&m_flipXAxis);
+    group->add(&m_flipYAxis);
 
     if (eclipseCaseData()
         && eclipseCaseData()->results(RiaDefines::MATRIX_MODEL)

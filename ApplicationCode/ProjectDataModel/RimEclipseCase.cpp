@@ -91,8 +91,8 @@ RimEclipseCase::RimEclipseCase()
     CAF_PDM_InitFieldNoDefault(&m_fractureModelResults, "FractureModelResults", "",  "", "", "");
     m_fractureModelResults.uiCapability()->setUiHidden(true);
 
-    CAF_PDM_InitField(&flipXAxis, "FlipXAxis", false, "Flip X Axis", "", "", "");
-    CAF_PDM_InitField(&flipYAxis, "FlipYAxis", false, "Flip Y Axis", "", "", "");
+    CAF_PDM_InitField(&m_flipXAxis, "FlipXAxis", false, "Flip X Axis", "", "", "");
+    CAF_PDM_InitField(&m_flipYAxis, "FlipYAxis", false, "Flip Y Axis", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_filesContainingFaultsSemColSeparated,    "CachedFileNamesContainingFaults", "", "", "", "");
     m_filesContainingFaultsSemColSeparated.uiCapability()->setUiHidden(true);
@@ -397,18 +397,18 @@ const RigVirtualPerforationTransmissibilities* RimEclipseCase::computeAndGetVirt
 //--------------------------------------------------------------------------------------------------
 void RimEclipseCase::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
-    if (changedField == &releaseResultMemory)
+    if (changedField == &m_releaseResultMemory)
     {
         reloadDataAndUpdate();
 
-        releaseResultMemory = oldValue.toBool();
+        m_releaseResultMemory = oldValue.toBool();
     }
-    else if (changedField == &flipXAxis || changedField == &flipYAxis)
+    else if (changedField == &m_flipXAxis || changedField == &m_flipYAxis)
     {
         RigEclipseCaseData* rigEclipseCase = eclipseCaseData();
         if (rigEclipseCase)
         {
-            rigEclipseCase->mainGrid()->setFlipAxis(flipXAxis, flipYAxis);
+            rigEclipseCase->mainGrid()->setFlipAxis(m_flipXAxis, m_flipYAxis);
 
             computeCachedData();
 

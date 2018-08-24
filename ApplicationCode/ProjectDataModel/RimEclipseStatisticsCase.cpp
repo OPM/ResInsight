@@ -113,8 +113,8 @@ RimEclipseStatisticsCase::RimEclipseStatisticsCase()
     m_populateSelectionAfterLoadingGrid = false;
 
     // These does not work properly for statistics case, so hide for now
-    flipXAxis.uiCapability()->setUiHidden(true);
-    flipYAxis.uiCapability()->setUiHidden(true);
+    m_flipXAxis.uiCapability()->setUiHidden(true);
+    m_flipYAxis.uiCapability()->setUiHidden(true);
     activeFormationNames.uiCapability()->setUiHidden(true);
 }
 
@@ -385,8 +385,8 @@ void RimEclipseStatisticsCase::defineUiOrdering(QString uiConfigName, caf::PdmUi
     group = uiOrdering.addNewGroup("Case Options");
     group->add(&m_wellDataSourceCase);
     group->add(&activeFormationNames);
-    group->add(&flipXAxis);
-    group->add(&flipYAxis);
+    group->add(&m_flipXAxis);
+    group->add(&m_flipYAxis);
 }
 
 QList<caf::PdmOptionItemInfo> toOptionList(const QStringList& varList)
