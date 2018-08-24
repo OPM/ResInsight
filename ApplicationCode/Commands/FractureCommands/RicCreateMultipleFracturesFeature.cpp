@@ -220,7 +220,7 @@ void RicCreateMultipleFracturesFeature::onActionTriggered(bool isChecked)
 
         m_dialog = &propertyDialog;
 
-        propertyDialog.resize(QSize(600, 400));
+        propertyDialog.resize(QSize(700, 400));
 
         QDialogButtonBox* dialogButtonBox = propertyDialog.dialogButtonBox();
 
@@ -231,13 +231,15 @@ void RicCreateMultipleFracturesFeature::onActionTriggered(bool isChecked)
             connect(pushButton, SIGNAL(clicked()), this, SLOT(slotDeleteAndAppendFractures()));
             pushButton->setDefault(false);
             pushButton->setAutoDefault(false);
+            pushButton->setToolTip("Delete all existing fractures before adding new fractures");
         }
 
         {
-            QPushButton* pushButton = dialogButtonBox->addButton("Append Fractures", QDialogButtonBox::ActionRole);
+            QPushButton* pushButton = dialogButtonBox->addButton("Add Fractures", QDialogButtonBox::ActionRole);
             connect(pushButton, SIGNAL(clicked()), this, SLOT(slotAppendFractures()));
             pushButton->setDefault(false);
             pushButton->setAutoDefault(false);
+            pushButton->setToolTip("Add new fractures");
         }
 
         {

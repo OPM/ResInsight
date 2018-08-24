@@ -53,7 +53,7 @@ RiuCreateMultipleFractionsUi::RiuCreateMultipleFractionsUi()
     m_options.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::TOP);
     m_options.uiCapability()->setCustomContextMenuEnabled(true);
 
-    CAF_PDM_InitFieldNoDefault(&m_fractureCreationSummary, "FractureCreationSummary", "Summary", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_fractureCreationSummary, "FractureCreationSummary", "Generated Fractures", "", "", "");
     m_fractureCreationSummary.registerGetMethod(this, &RiuCreateMultipleFractionsUi::summaryText);
     m_fractureCreationSummary.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::TOP);
     m_fractureCreationSummary.uiCapability()->setUiEditorTypeName(caf::PdmUiTextEditor::uiEditorTypeName());
@@ -184,7 +184,6 @@ QString RiuCreateMultipleFractionsUi::summaryText() const
     }
 
     QString tableText;
-    tableText += "Fracture Template Count for selected wells\n\n";
 
     {
         QTextStream                  stream(&tableText);
@@ -193,7 +192,7 @@ QString RiuCreateMultipleFractionsUi::summaryText() const
         formatter.setTableRowPrependText("   ");
 
         std::vector<RifEclipseOutputTableColumn> header;
-        header.push_back(RifEclipseOutputTableColumn("Well Name"));
+        header.push_back(RifEclipseOutputTableColumn("Selected Wells"));
 
         for (auto fracTemplate : fracTemplateSet)
         {
@@ -246,6 +245,15 @@ void RiuCreateMultipleFractionsUi::defineEditorAttribute(const caf::PdmFieldHand
 
             attr->font = font;
             attr->heightHint = 100;
+            attr->wrapMode = caf::PdmUiTextEditorAttribute::NoWrap;
+        }
+    }
+    else if (field == &m_options)
+    {
+        auto attr = dynamic_cast<caf::PdmUiTableViewEditorAttribute*>(attribute);
+        if (attr)
+        {
+            attr->columnWidths = { 90, 90, 400, 70 };
         }
     }
 }
