@@ -54,6 +54,22 @@ void RicCreateMultipleFracturesOptionItemUi::setValues(int                  topK
 }
 
 //--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+int RicCreateMultipleFracturesOptionItemUi::topKLayer() const
+{
+    return m_topKOneBased;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+int RicCreateMultipleFracturesOptionItemUi::baseKLayer() const
+{
+    return m_baseKOneBased;
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RimFractureTemplate* RicCreateMultipleFracturesOptionItemUi::fractureTemplate() const

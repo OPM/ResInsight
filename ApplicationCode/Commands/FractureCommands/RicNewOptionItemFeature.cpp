@@ -66,11 +66,24 @@ void RicNewOptionItemFeature::onActionTriggered(bool isChecked)
             selectedOptionItem = optionItems.front();
             selectedOptionItem->firstAncestorOrThisOfTypeAsserted(multipleFractionUi);
         }
+
+        if (!selectedOptionItem && multipleFractionUi && !multipleFractionUi->options().empty())
+        {
+            selectedOptionItem = multipleFractionUi->options().back();
+        }
     }
 
     if (multipleFractionUi)
     {
-        multipleFractionUi->insertOptionItem(selectedOptionItem, new RicCreateMultipleFracturesOptionItemUi);
+        auto newItem = new RicCreateMultipleFracturesOptionItemUi();
+        if (selectedOptionItem)
+        {
+            newItem->setValues(selectedOptionItem->topKLayer(),
+                               selectedOptionItem->baseKLayer(),
+                               selectedOptionItem->fractureTemplate(),
+                               selectedOptionItem->minimumSpacing());
+        }
+        multipleFractionUi->insertOptionItem(selectedOptionItem, newItem);
         multipleFractionUi->updateConnectedEditors();
     }
 }

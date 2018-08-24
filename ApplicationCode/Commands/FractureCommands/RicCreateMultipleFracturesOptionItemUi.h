@@ -36,6 +36,8 @@ public:
 
     void setValues(int topKOneBased, int baseKOneBased, RimFractureTemplate* fractureTemplate, double minimumSpacing);
 
+    int                  topKLayer() const;
+    int                  baseKLayer() const;
     RimFractureTemplate* fractureTemplate() const;
     double               minimumSpacing() const;
 
