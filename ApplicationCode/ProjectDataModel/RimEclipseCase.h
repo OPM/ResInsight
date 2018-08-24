@@ -82,6 +82,7 @@ public:
 
     RigCaseCellResultsData*                     results(RiaDefines::PorosityModelType porosityModel);
     const RigCaseCellResultsData*               results(RiaDefines::PorosityModelType porosityModel) const;
+    void                                        loadStaticResultsByName(const std::vector<QString>& resultNames);
 
     RimReservoirCellResultsStorage*             resultsStorage(RiaDefines::PorosityModelType porosityModel);
     const RimReservoirCellResultsStorage*       resultsStorage(RiaDefines::PorosityModelType porosityModel) const;
@@ -102,9 +103,9 @@ public:
     virtual std::vector<QDateTime>              timeStepDates() const override;
 
 
-    virtual cvf::BoundingBox                    activeCellsBoundingBox() const;
-    virtual cvf::BoundingBox                    allCellsBoundingBox() const;
-    virtual cvf::Vec3d                          displayModelOffset() const;
+    cvf::BoundingBox                            activeCellsBoundingBox() const override;
+    cvf::BoundingBox                            allCellsBoundingBox() const override;
+    cvf::Vec3d                                  displayModelOffset() const override;
 
     void                                        reloadDataAndUpdate();
     virtual void                                reloadEclipseGridFile() = 0;
@@ -117,8 +118,8 @@ public:
     std::set<QString>                           sortedSimWellNames() const;
 
 protected:
-    virtual void                                initAfterRead();
-    virtual void                                fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue );
+    void                                        initAfterRead() override;
+    void                                        fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     virtual void                                defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
 
     virtual void                                updateFormationNamesData() override;

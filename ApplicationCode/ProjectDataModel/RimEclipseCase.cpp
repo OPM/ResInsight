@@ -652,6 +652,22 @@ const RigCaseCellResultsData* RimEclipseCase::results(RiaDefines::PorosityModelT
 }
 
 //--------------------------------------------------------------------------------------------------
+/// Convenience function used to pre-load data before const access of data
+/// Used when implementing calculations in a parallelized loop
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCase::loadStaticResultsByName(const std::vector<QString>& resultNames)
+{
+    RigCaseCellResultsData* cellResultsData = this->results(RiaDefines::MATRIX_MODEL);
+    if(cellResultsData)
+    {
+        for (const auto& resultName : resultNames)
+        {
+            cellResultsData->findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, resultName);
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 RimReservoirCellResultsStorage* RimEclipseCase::resultsStorage(RiaDefines::PorosityModelType porosityModel)
