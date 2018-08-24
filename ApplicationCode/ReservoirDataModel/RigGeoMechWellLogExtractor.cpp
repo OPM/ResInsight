@@ -119,7 +119,7 @@ void RigGeoMechWellLogExtractor::wellPathAngles(const RigFemResultAddress& resAd
     {
         size_t elmIdx = m_intersectedCellsGlobIdx[intersectionIdx];
 
-        cvf::Vec3d wellPathTangent = calculateWellPathTangent(intersectionIdx);
+        cvf::Vec3d wellPathTangent = calculateWellPathTangent(intersectionIdx, TangentFollowWellPathSegments);
    
         // Deviation from vertical. Since well path is tending downwards we compare with negative z.
         double inclination = cvf::Math::toDegrees(std::acos(cvf::Vec3d(0.0, 0.0, -1.0) * wellPathTangent.getNormalized()));       
@@ -280,7 +280,7 @@ void RigGeoMechWellLogExtractor::wellBoreWallCurveData(const RigFemResultAddress
         }
 
         caf::Ten3d interpolatedStress = interpolateGridResultValue(stressResAddr.resultPosType, vertexStresses, intersectionIdx, false);
-        cvf::Vec3d wellPathTangent = calculateWellPathTangent(intersectionIdx);
+        cvf::Vec3d wellPathTangent = calculateWellPathTangent(intersectionIdx, TangentConstantWithinCell);
         caf::Ten3d wellPathStressFloat = transformTensorToWellPathOrientation(wellPathTangent, interpolatedStress);
         caf::Ten3d wellPathStressDouble(wellPathStressFloat);
 
@@ -542,11 +542,29 @@ cvf::Vec3d RigGeoMechWellLogExtractor::calculateLengthInCell(size_t cellIndex, c
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::Vec3d RigGeoMechWellLogExtractor::calculateWellPathTangent(int64_t intersectionIdx) const
+cvf::Vec3d RigGeoMechWellLogExtractor::calculateWellPathTangent(int64_t                    intersectionIdx,
+                                                                WellPathTangentCalculation calculationType) const
 {
-    cvf::Vec3d segmentStart, segmentEnd;
-    m_wellPath->twoClosestPoints(m_intersections[intersectionIdx], &segmentStart, &segmentEnd);
-    return (segmentEnd - segmentStart).getNormalized();
+    if (calculationType == TangentFollowWellPathSegments)
+    {
+        cvf::Vec3d segmentStart, segmentEnd;
+        m_wellPath->twoClosestPoints(m_intersections[intersectionIdx], &segmentStart, &segmentEnd);
+        return (segmentEnd - segmentStart).getNormalized();
+    }
+    else
+    {
+        cvf::Vec3d wellPathTangent;
+        if (intersectionIdx % 2 == 0)
+        {
+            wellPathTangent = m_intersections[intersectionIdx + 1] - m_intersections[intersectionIdx];
+        }
+        else
+        {
+            wellPathTangent = m_intersections[intersectionIdx] - m_intersections[intersectionIdx - 1];
+        }
+        CVF_ASSERT(wellPathTangent.length() > 1.0e-7);
+        return wellPathTangent.getNormalized();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

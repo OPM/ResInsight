@@ -54,6 +54,12 @@ public:
     const RigGeoMechCaseData*    caseData();
     void                         setRkbDiff(double rkbDiff);
 private:
+    enum WellPathTangentCalculation
+    {
+        TangentFollowWellPathSegments,
+        TangentConstantWithinCell
+    };
+
     void                         wellPathAngles(const RigFemResultAddress& resAddr, std::vector<double>* values);
     void                         wellPathScaledCurveData(const RigFemResultAddress& resAddr, int frameIndex, std::vector<double>* values);
     void                         wellBoreWallCurveData(const RigFemResultAddress& resAddr, int frameIndex, std::vector<double>* values);
@@ -67,7 +73,7 @@ private:
     virtual cvf::Vec3d           calculateLengthInCell(size_t cellIndex, 
                                                        const cvf::Vec3d& startPoint, 
                                                        const cvf::Vec3d& endPoint) const override;
-    cvf::Vec3d                   calculateWellPathTangent(int64_t intersectionIdx) const;
+    cvf::Vec3d                   calculateWellPathTangent(int64_t intersectionIdx, WellPathTangentCalculation calculationType) const;
     static caf::Ten3d            transformTensorToWellPathOrientation(const cvf::Vec3d& wellPathTangent,
                                                                       const caf::Ten3d& wellPathTensor);
 
