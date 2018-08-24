@@ -74,6 +74,6 @@ void RicChangeDataSourceFeature::onActionTriggered(bool isChecked)
 //--------------------------------------------------------------------------------------------------
 void RicChangeDataSourceFeature::setupActionLook(QAction* actionToSetup)
 {
-    actionToSetup->setText("Change Common Data Source");
+    actionToSetup->setText("Change Data Source");
 }
 

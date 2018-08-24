@@ -84,7 +84,7 @@ RimWellLogPlot::RimWellLogPlot()
     CAF_PDM_InitField(&m_userName_OBSOLETE, "PlotDescription", QString(""),"Name", "", "", "");
     m_userName_OBSOLETE.xmlCapability()->setIOWritable(false);
 
-    CAF_PDM_InitFieldNoDefault(&m_commonDataSource, "CommonDataSource", "Common Data Source", "", "Change the Data Source of All Curves in the Plot", "");
+    CAF_PDM_InitFieldNoDefault(&m_commonDataSource, "CommonDataSource", "Data Source", "", "Change the Data Source of All Curves in the Plot", "");
     m_commonDataSource = new RimWellLogCurveCommonDataSource;
     m_commonDataSource.uiCapability()->setUiTreeHidden(true);
     m_commonDataSource.uiCapability()->setUiTreeChildrenHidden(true);

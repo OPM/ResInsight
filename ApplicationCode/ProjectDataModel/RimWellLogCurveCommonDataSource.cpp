@@ -42,7 +42,7 @@ CAF_PDM_SOURCE_INIT(RimWellLogCurveCommonDataSource, "ChangeDataSourceFeatureUi"
 //--------------------------------------------------------------------------------------------------
 RimWellLogCurveCommonDataSource::RimWellLogCurveCommonDataSource()
 {
-    CAF_PDM_InitObject("Change Common Data Source", "", "", "");
+    CAF_PDM_InitObject("Change Data Source", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_case, "CurveCase", "Case", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_trajectoryType, "TrajectoryType", "Trajectory Type", "", "", "");
@@ -453,7 +453,7 @@ void RimWellLogCurveCommonDataSource::defineUiOrdering(QString uiConfigName, caf
 {
     updateDefaultOptions();
 
-    caf::PdmUiGroup* group = uiOrdering.addNewGroup("Common Data Source");
+    caf::PdmUiGroup* group = uiOrdering.addNewGroup("Data Source");
     group->add(&m_case);
 
     RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>(m_case());
