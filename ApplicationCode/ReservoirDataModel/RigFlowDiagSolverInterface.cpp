@@ -480,7 +480,7 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate(size_t timeStepI
                 }
 
                
-                #pragma omp critical
+                #pragma omp critical(critical_section_RigFlowDiagSolverInterface_calculate)
                 {
                     result.setInjProdWellPairFlux(uiInjectorTracerName,
                                                   uiProducerTracerName,

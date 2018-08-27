@@ -184,21 +184,23 @@ void RifEclipseOutputFileTools::timeSteps(ecl_file_type* ecl_file, std::vector<Q
 //--------------------------------------------------------------------------------------------------
 bool RifEclipseOutputFileTools::keywordData(ecl_file_type* ecl_file, const QString& keyword, size_t fileKeywordOccurrence, std::vector<double>* values)
 {
-    ecl_kw_type* kwData = ecl_file_iget_named_kw(ecl_file, RiaStringEncodingTools::toNativeEncoded(keyword).data(), static_cast<int>(fileKeywordOccurrence));
-    if (kwData)
+#pragma omp critical(critical_section_keywordData_double)
     {
-        size_t numValues = ecl_kw_get_size(kwData);
+        ecl_kw_type* kwData = ecl_file_iget_named_kw(ecl_file, RiaStringEncodingTools::toNativeEncoded(keyword).data(), static_cast<int>(fileKeywordOccurrence));
+        if (kwData)
+        {
+            size_t numValues = ecl_kw_get_size(kwData);
 
-        std::vector<double> doubleData;
-        doubleData.resize(numValues);
+            std::vector<double> doubleData;
+            doubleData.resize(numValues);
 
-        ecl_kw_get_data_as_double(kwData, doubleData.data());
-        values->insert(values->end(), doubleData.begin(), doubleData.end());
+            ecl_kw_get_data_as_double(kwData, doubleData.data());
+            values->insert(values->end(), doubleData.begin(), doubleData.end());
 
-        return true;
+            return true;
+        }
+        return false;
     }
-
-    return false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -206,21 +208,23 @@ bool RifEclipseOutputFileTools::keywordData(ecl_file_type* ecl_file, const QStri
 //--------------------------------------------------------------------------------------------------
 bool RifEclipseOutputFileTools::keywordData(ecl_file_type* ecl_file, const QString& keyword, size_t fileKeywordOccurrence, std::vector<int>* values)
 {
-    ecl_kw_type* kwData = ecl_file_iget_named_kw(ecl_file, RiaStringEncodingTools::toNativeEncoded(keyword).data(), static_cast<int>(fileKeywordOccurrence));
-    if (kwData)
+#pragma omp critical(critical_section_keywordData_int)
     {
-        size_t numValues = ecl_kw_get_size(kwData);
+        ecl_kw_type* kwData = ecl_file_iget_named_kw(ecl_file, RiaStringEncodingTools::toNativeEncoded(keyword).data(), static_cast<int>(fileKeywordOccurrence));
+        if (kwData)
+        {
+            size_t numValues = ecl_kw_get_size(kwData);
 
-        std::vector<int> integerData;
-        integerData.resize(numValues);
+            std::vector<int> integerData;
+            integerData.resize(numValues);
 
-        ecl_kw_get_memcpy_int_data(kwData, integerData.data());
-        values->insert(values->end(), integerData.begin(), integerData.end());
+            ecl_kw_get_memcpy_int_data(kwData, integerData.data());
+            values->insert(values->end(), integerData.begin(), integerData.end());
 
-        return true;
+            return true;
+        }
+        return false;
     }
-
-    return false;
 }
 
 //--------------------------------------------------------------------------------------------------

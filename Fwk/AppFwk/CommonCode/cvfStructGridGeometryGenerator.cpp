@@ -412,7 +412,7 @@ void StructGridGeometryGenerator::computeArrays()
                         m_grid->cellFaceVertexIndices(face, faceConn);
 
                         // Critical section to avoid two threads accessing the arrays at the same time.
-                        #pragma omp critical
+                        #pragma omp critical(critical_section_StructGridGeometryGenerator_computeArrays)
                         {
                             int n;
                             for (n = 0; n < 4; n++)

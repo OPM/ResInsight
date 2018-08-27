@@ -234,7 +234,7 @@ void RivFemPartGeometryGenerator::computeArrays()
                    qElmNodeResIdx[2] = m_part->elementNodeResultIdx(elmIdx, localElmNodeIndicesForFace[2]);
                    qElmNodeResIdx[3] = m_part->elementNodeResultIdx(elmIdx, localElmNodeIndicesForFace[3]);
 
-                   #pragma omp critical
+                   #pragma omp critical(critical_section_RivFemPartGeometryGenerator_computeArrays)
                    {
                        vertices.push_back(quadVxs0);
                        vertices.push_back(quadVxs1);

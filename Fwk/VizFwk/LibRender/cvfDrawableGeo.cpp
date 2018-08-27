@@ -1332,7 +1332,7 @@ bool DrawableGeo::rayIntersect(const Ray& ray, Vec3d* intersectionPoint, uint* f
             {
                 const double distSquared = (ray.origin() - localIntersect).lengthSquared();
                 
-                #pragma omp critical
+                #pragma omp critical(critical_section_rayIntersect2)
                 {
                     if (distSquared < minDistSquared)
                     {
@@ -1415,7 +1415,7 @@ bool DrawableGeo::rayIntersect(const Ray& ray, Vec3dArray* intersectionPoints, U
 
             if (hitThisFace)
             {
-                #pragma omp critical
+                #pragma omp critical(critical_section_rayIntersect1)
                 {
                     isectPts.push_back(localIntersect);
 

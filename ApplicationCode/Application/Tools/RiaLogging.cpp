@@ -212,7 +212,7 @@ void RiaLogging::error(const QString& message)
 {
     if (sm_logger && sm_logger->level() >= RI_LL_ERROR)
     {
-#pragma omp critical
+#pragma omp critical(critical_section_logging)
         sm_logger->error(message.toLatin1().constData());
     }
 }
@@ -224,7 +224,7 @@ void RiaLogging::warning(const QString& message)
 {
     if (sm_logger && sm_logger->level() >= RI_LL_WARNING)
     {
-#pragma omp critical
+#pragma omp critical(critical_section_logging)
         sm_logger->warning(message.toLatin1().constData());
     }
 }
@@ -236,7 +236,7 @@ void RiaLogging::info(const QString& message)
 {
     if (sm_logger && sm_logger->level() >= RI_LL_INFO)
     {
-#pragma omp critical
+#pragma omp critical(critical_section_logging)
         sm_logger->info(message.toLatin1().constData());
     }
 }
@@ -248,7 +248,7 @@ void RiaLogging::debug(const QString& message)
 {
     if (sm_logger && sm_logger->level() >= RI_LL_DEBUG)
     {
-#pragma omp critical
+#pragma omp critical(critical_section_logging)
         sm_logger->debug(message.toLatin1().constData());
     }
 }
