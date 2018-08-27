@@ -62,7 +62,7 @@ bool RicWellPathViewerEventHandler::handleEvent(const RicViewerEventObject& even
     if(!eventObject.m_partAndTriangleIndexPairs.empty())
     {
         const auto & partAndTriangleIndexPair = eventObject.m_partAndTriangleIndexPairs.front();
-        const cvf::Part* part = partAndTriangleIndexPair.first;
+        const cvf::Part* part = partAndTriangleIndexPair.pickedPart();
 
         if (part)
         {
@@ -76,7 +76,7 @@ bool RicWellPathViewerEventHandler::handleEvent(const RicViewerEventObject& even
                     if (eventObject.m_partAndTriangleIndexPairs.size() > 1)
                     {
                         const auto&      secondPair       = eventObject.m_partAndTriangleIndexPairs[1];
-                        const cvf::Part* secondPickedPart = secondPair.first;
+                        const cvf::Part* secondPickedPart = secondPair.pickedPart();
                         if (secondPickedPart)
                         {
                             auto wellPathSourceCandidate =
@@ -89,7 +89,7 @@ bool RicWellPathViewerEventHandler::handleEvent(const RicViewerEventObject& even
                                 {
                                     wellPathSourceInfo =
                                         dynamic_cast<const RivWellPathSourceInfo*>(secondPickedPart->sourceInfo());
-                                    wellPathTriangleIndex = secondPair.second;
+                                    wellPathTriangleIndex = secondPair.faceIdx();
                                 }
                             }
                         }
@@ -100,7 +100,7 @@ bool RicWellPathViewerEventHandler::handleEvent(const RicViewerEventObject& even
             if (dynamic_cast<const RivWellPathSourceInfo*>(part->sourceInfo()))
             {
                 wellPathSourceInfo    = dynamic_cast<const RivWellPathSourceInfo*>(part->sourceInfo());
-                wellPathTriangleIndex = partAndTriangleIndexPair.second;
+                wellPathTriangleIndex = partAndTriangleIndexPair.faceIdx();
             }
         }
     }
@@ -111,7 +111,7 @@ bool RicWellPathViewerEventHandler::handleEvent(const RicViewerEventObject& even
         if (!rimView) return false;
 
         cvf::ref<caf::DisplayCoordTransform> transForm = rimView->displayCoordTransform();
-        cvf::Vec3d pickedPositionInUTM = transForm->transformToDomainCoord(eventObject.m_globalIntersectionPoint);
+        cvf::Vec3d pickedPositionInUTM = transForm->transformToDomainCoord(eventObject.m_partAndTriangleIndexPairs.front().globalPickedPoint());
 
         if (auto intersectionView = dynamic_cast<Rim2dIntersectionView*>(rimView))
         {

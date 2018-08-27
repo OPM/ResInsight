@@ -148,6 +148,7 @@ void RiuViewerCommands::setOwnerView(Rim3dView * owner)
     m_reservoirView = owner;
 }
 
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -162,41 +163,43 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
     QMenu menu;
     caf::CmdFeatureMenuBuilder menuBuilder;
 
-    uint firstPartTriangleIndex = cvf::UNDEFINED_UINT;
-    cvf::Vec3d localIntersectionPoint(cvf::Vec3d::ZERO);
-    cvf::Vec3d globalIntersectionPoint(cvf::Vec3d::ZERO);
-
     const cvf::Part* firstHitPart = nullptr;
-
+    uint firstPartTriangleIndex = cvf::UNDEFINED_UINT;
     m_currentPickPositionInDomainCoords = cvf::Vec3d::UNDEFINED;
 
-    // Check type of view
-    RimGridView* gridView = dynamic_cast<RimGridView*>(m_reservoirView.p());
-    Rim2dIntersectionView* int2dView = dynamic_cast<Rim2dIntersectionView*>(m_reservoirView.p());
-
+ 
     cvf::HitItemCollection hitItems;
     if (m_viewer->rayPick(winPosX, winPosY, &hitItems))
     {
-        std::vector<std::pair<const cvf::Part*, cvf::uint>> partAndTriangleIndexPairs;
-        extractIntersectionData(hitItems, &localIntersectionPoint, &globalIntersectionPoint,
-                                &partAndTriangleIndexPairs, nullptr, nullptr);
+        std::vector<RiuPickItemInfo> pickItemInfos = RiuPickItemInfo::convertToPickItemInfos(hitItems);
 
-        for (const auto& partTringleIndex : partAndTriangleIndexPairs)
+        cvf::Vec3d globalIntersectionPoint(cvf::Vec3d::ZERO);
+
+        if ( pickItemInfos.size() )
         {
-            if (!firstHitPart)
-            {
-                auto part = partTringleIndex.first;
-                const RivObjectSourceInfo* objectSourceInfo = dynamic_cast<const RivObjectSourceInfo*>(part->sourceInfo());
-                if (objectSourceInfo && dynamic_cast<RimPerforationInterval*>(objectSourceInfo->object()))
-                { 
-                    // Skip picking on perforation interval, display well path context menu
-                    continue;
-                }
+            globalIntersectionPoint = pickItemInfos[0].globalPickedPoint();
+        }
 
-                firstHitPart = part;
-                firstPartTriangleIndex = partTringleIndex.second;
-                break;
+        for (const auto& pickItem : pickItemInfos)
+        {
+            const RivObjectSourceInfo* objectSourceInfo = dynamic_cast<const RivObjectSourceInfo*>(pickItem.sourceInfo());
+            if ( objectSourceInfo && dynamic_cast<RimPerforationInterval*>(objectSourceInfo->object()) )
+            {
+                // Skip picking on perforation interval, display well path context menu
+                continue;
             }
+
+            const RivSourceInfo* rivSourceInfo = dynamic_cast<const RivSourceInfo*>(pickItem.sourceInfo());
+            if ( rivSourceInfo &&  rivSourceInfo->hasNNCIndices())
+            {
+                // Skip picking on nnc-s
+                continue;
+            }
+
+            firstHitPart = pickItem.pickedPart();
+            firstPartTriangleIndex = pickItem.faceIdx();
+            globalIntersectionPoint = pickItem.globalPickedPoint();
+            break;
         }
 
         cvf::Vec3d displayModelOffset = cvf::Vec3d::ZERO;
@@ -208,6 +211,11 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
         }
 
     }
+
+    // Check type of view
+
+    RimGridView* gridView = dynamic_cast<RimGridView*>(m_reservoirView.p());
+    Rim2dIntersectionView* int2dView = dynamic_cast<Rim2dIntersectionView*>(m_reservoirView.p());
 
     if (firstHitPart && firstPartTriangleIndex != cvf::UNDEFINED_UINT)
     {
@@ -518,19 +526,13 @@ void RiuViewerCommands::handlePickAction(int winPosX, int winPosY, Qt::KeyboardM
         cvf::HitItemCollection hitItems;
         if (m_viewer->rayPick(winPosX, winPosY, &hitItems))
         {
-            std::vector<std::pair<const cvf::Part*, cvf::uint>> partAndTriangleIndexPairs;
-            extractIntersectionData(hitItems, 
-                                    &localIntersectionPoint, 
-                                    &globalIntersectionPoint, 
-                                    &partAndTriangleIndexPairs, 
-                                    &firstNncHitPart, 
-                                    &nncPartTriangleIndex);
-
-            if (!partAndTriangleIndexPairs.empty())
+            if (hitItems.count())
             {
-                RicViewerEventObject viewerEventObject(globalIntersectionPoint, 
-                                                       partAndTriangleIndexPairs, 
+                std::vector<RiuPickItemInfo> pickItemInfos = RiuPickItemInfo::convertToPickItemInfos(hitItems);
+
+                RicViewerEventObject viewerEventObject(pickItemInfos, 
                                                        m_reservoirView);
+
                 for (size_t i = 0; i < m_viewerEventHandlers.size(); i++)
                 {
                     if (m_viewerEventHandlers[i]->handleEvent(viewerEventObject))
@@ -539,8 +541,24 @@ void RiuViewerCommands::handlePickAction(int winPosX, int winPosY, Qt::KeyboardM
                     }
                 }
 
-                firstHitPart = partAndTriangleIndexPairs.front().first;
-                firstPartTriangleIndex = partAndTriangleIndexPairs.front().second;
+                size_t indexToFirstNoneNncItem = -1;
+                size_t indexToNncItemNearFirstItem = -1;
+
+                findFirstItems(pickItemInfos, &indexToFirstNoneNncItem, &indexToNncItemNearFirstItem);
+
+                if ( indexToFirstNoneNncItem != -1 )
+                {
+                    localIntersectionPoint = pickItemInfos[indexToFirstNoneNncItem].localPickedPoint();
+                    globalIntersectionPoint = pickItemInfos[indexToFirstNoneNncItem].globalPickedPoint();
+                    firstHitPart = pickItemInfos[indexToFirstNoneNncItem].pickedPart();
+                    firstPartTriangleIndex = pickItemInfos[indexToFirstNoneNncItem].faceIdx();
+                }
+
+                if (indexToNncItemNearFirstItem != -1)
+                {
+                    firstNncHitPart = pickItemInfos[indexToNncItemNearFirstItem].pickedPart();
+                    nncPartTriangleIndex = pickItemInfos[indexToNncItemNearFirstItem].faceIdx();
+                }
             }
         }
 
@@ -903,8 +921,76 @@ void RiuViewerCommands::findCellAndGridIndex(const RivIntersectionBoxSourceInfo*
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RiuViewerCommands::findFirstItems(const std::vector<RiuPickItemInfo> & pickItemInfos, 
+                                       size_t* indexToFirstNoneNncItem,
+                                       size_t* indexToNncItemNearFirsItem)
+{
+    CVF_ASSERT(pickItemInfos.size() > 0);
+    CVF_ASSERT(indexToFirstNoneNncItem);
+    CVF_ASSERT(indexToNncItemNearFirsItem);
 
+    double pickDepthThresholdSquared = 0.05 *0.05;
+    {
+        RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>(m_reservoirView.p());
 
+        if (eclipseView && eclipseView->mainGrid())
+        {
+            double characteristicCellSize = eclipseView->mainGrid()->characteristicIJCellSize();
+            pickDepthThresholdSquared = characteristicCellSize / 100.0;
+            pickDepthThresholdSquared = pickDepthThresholdSquared * pickDepthThresholdSquared;
+        }
+    }
+
+    size_t firstNonNncHitIndex = cvf::UNDEFINED_SIZE_T;
+    size_t nncNearFirstItemIndex = cvf::UNDEFINED_SIZE_T;
+    cvf::Vec3d firstOrFirstNonNncIntersectionPoint = pickItemInfos[0].globalPickedPoint();
+
+    // Find first nnc part, and store as a separate thing if the nnc is first or close behind the first hit item. 
+    // Find index to first ordinary (non-nnc) part
+
+    for (size_t i = 0; i < pickItemInfos.size(); i++)
+    {
+        // If hit item is nnc and is close to first (none-nnc) hit, store nncpart and face id
+
+        bool canFindRelvantNNC = true;
+
+        const RivSourceInfo* rivSourceInfo = dynamic_cast<const RivSourceInfo*>(pickItemInfos[i].sourceInfo());
+        if ( rivSourceInfo && rivSourceInfo->hasNNCIndices() )
+        {
+            if ( nncNearFirstItemIndex == cvf::UNDEFINED_SIZE_T && canFindRelvantNNC)
+            {
+                cvf::Vec3d distFirstNonNNCToCandidate = firstOrFirstNonNncIntersectionPoint - pickItemInfos[i].globalPickedPoint();
+
+                // This candidate is an NNC hit
+                if ( distFirstNonNNCToCandidate.lengthSquared() < pickDepthThresholdSquared )
+                {
+                    nncNearFirstItemIndex = i;
+                }
+                else
+                {
+                    canFindRelvantNNC = false;
+                }
+            }
+        }
+        else
+        {
+            if ( firstNonNncHitIndex == cvf::UNDEFINED_SIZE_T )
+            {
+                firstNonNncHitIndex = i;
+            }
+        }
+
+        if (firstNonNncHitIndex != cvf::UNDEFINED_SIZE_T && (nncNearFirstItemIndex != cvf::UNDEFINED_SIZE_T || !canFindRelvantNNC) )
+        {
+            break; // Found what can be found
+        }
+    }
+
+    (*indexToFirstNoneNncItem) = firstNonNncHitIndex;
+    (*indexToNncItemNearFirsItem) = nncNearFirstItemIndex;
+}
+
+#if 0
 //--------------------------------------------------------------------------------------------------
 /// If there is an nnc-item within a depth-tolerance distance from the first hit-item 
 /// return this as nncPart and nncPartFaceHit
@@ -917,7 +1003,9 @@ void RiuViewerCommands::extractIntersectionData(const cvf::HitItemCollection& hi
                                                 std::vector<std::pair<const cvf::Part*, cvf::uint>>* partAndTriangleIndexPairs,
                                                 const cvf::Part** nncPart, uint* nncPartFaceHit)
 {
+
     CVF_ASSERT(hitItems.count() > 0);
+    std::vector<RiuPickItemInfo> pickItemInfos = convertToPickItemInfos(hitItems);
 
     double pickDepthThresholdSquared = 0.05 *0.05;
     {
@@ -933,14 +1021,8 @@ void RiuViewerCommands::extractIntersectionData(const cvf::HitItemCollection& hi
 
     size_t firstNonNncHitIndex = cvf::UNDEFINED_SIZE_T;
     size_t nncHitIndex = cvf::UNDEFINED_SIZE_T;
-    cvf::Vec3d firstOrFirstNonNncIntersectionPoint = hitItems.item(0)->intersectionPoint();
+    cvf::Vec3d firstOrFirstNonNncIntersectionPoint = pickItemInfos[0].globalPickedPoint();
 
-    std::vector<RiuPickItemInfo> pickItemInfos;
-    pickItemInfos.reserve(hitItems.count());
-    for (size_t i = 0; i < hitItems.count(); i++)
-    {
-        pickItemInfos.emplace_back(RiuPickItemInfo(hitItems.item(i)));
-    }
 
     // Find first nnc part, and store as a separate thing if the nnc is first or close behind the first hit item. 
     // Find index to first ordinary (non-nnc) part
@@ -1006,6 +1088,7 @@ void RiuViewerCommands::extractIntersectionData(const cvf::HitItemCollection& hi
     }
 }
 
+#endif
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------

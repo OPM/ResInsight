@@ -33,6 +33,7 @@ class Rim3dView;
 class RiuViewer;
 class RivIntersectionBoxSourceInfo;
 class RivIntersectionSourceInfo;
+class RiuPickItemInfo;
 
 class QMouseEvent;
 
@@ -64,12 +65,10 @@ private:
     void            findCellAndGridIndex(const RivIntersectionBoxSourceInfo* intersectionBoxSourceInfo, cvf::uint firstPartTriangleIndex, size_t* cellIndex, size_t* gridIndex);
 
     void            ijkFromCellIndex(size_t gridIdx, size_t cellIndex, size_t* i, size_t* j, size_t* k);
-    void            extractIntersectionData(const cvf::HitItemCollection& hitItems, 
-                                            cvf::Vec3d* localIntersectionPoint, 
-                                            cvf::Vec3d* globalIntersectionPoint, 
-                                            std::vector<std::pair<const cvf::Part*, cvf::uint>>* partAndTriangleIndexPairs, 
-                                            const cvf::Part** nncPart, 
-                                            uint* nncPartFaceHit);
+
+    void            findFirstItems(const std::vector<RiuPickItemInfo> & pickItemInfos, 
+                                   size_t* indexToFirstNoneNncItem,
+                                   size_t* indexToNncItemNearFirsItem);
 
     bool            handleOverlayItemPicking(int winPosX, int winPosY);
 

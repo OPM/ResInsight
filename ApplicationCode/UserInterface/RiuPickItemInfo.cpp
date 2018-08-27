@@ -22,6 +22,7 @@
 #include "cvfPart.h"
 #include "cvfDrawableGeo.h"
 #include "cvfTransform.h"
+#include "cvfHitItemCollection.h"
 
 
 //--------------------------------------------------------------------------------------------------
@@ -47,4 +48,18 @@ RiuPickItemInfo RiuPickItemInfo::extractPickItemInfo(const cvf::HitItem* hitItem
     }
 
     return pickInfo;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<RiuPickItemInfo> RiuPickItemInfo::convertToPickItemInfos( const cvf::HitItemCollection &hitItems)
+{
+    std::vector<RiuPickItemInfo> pickItemInfos;
+    pickItemInfos.reserve(hitItems.count());
+    for ( size_t i = 0; i < hitItems.count(); i++ )
+    {
+        pickItemInfos.emplace_back(RiuPickItemInfo(hitItems.item(i)));
+    }
+    return pickItemInfos;
 }

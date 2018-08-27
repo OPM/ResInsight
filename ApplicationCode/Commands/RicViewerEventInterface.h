@@ -24,6 +24,7 @@
 #include "cvfBase.h"
 #include "cvfObject.h"
 #include "cvfVector3.h"
+#include "RiuPickItemInfo.h"
 
 namespace cvf { 
     class Part; 
@@ -37,18 +38,15 @@ class Rim3dView;
 class RicViewerEventObject
 {
 public:
-    RicViewerEventObject(cvf::Vec3d globalIntersectionPoint, 
-                         const std::vector<std::pair<const cvf::Part*, 
-                         cvf::uint>>& partAndTriangleIndexPairs, Rim3dView* view)
-        : m_globalIntersectionPoint(globalIntersectionPoint)
-        , m_partAndTriangleIndexPairs(partAndTriangleIndexPairs)
+    RicViewerEventObject(const std::vector<RiuPickItemInfo>& partAndTriangleIndexPairs, 
+                         Rim3dView* view)
+        : m_partAndTriangleIndexPairs(partAndTriangleIndexPairs)
         , m_view(view)
     {
     }
 
-    cvf::Vec3d                                          m_globalIntersectionPoint;
-    std::vector<std::pair<const cvf::Part*, cvf::uint>> m_partAndTriangleIndexPairs;
-    Rim3dView*                                          m_view; 
+    std::vector<RiuPickItemInfo> m_partAndTriangleIndexPairs;
+    Rim3dView*                   m_view; 
 };
 
 

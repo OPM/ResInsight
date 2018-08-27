@@ -52,7 +52,7 @@ bool RicIntersectionViewerEventHandler::handleEvent(const RicViewerEventObject& 
             CVF_ASSERT(rimView);
 
             cvf::ref<caf::DisplayCoordTransform> transForm = rimView->displayCoordTransform();
-            cvf::Vec3d domainCoord = transForm->transformToDomainCoord(eventObject.m_globalIntersectionPoint);
+            cvf::Vec3d domainCoord = transForm->transformToDomainCoord(eventObject.m_partAndTriangleIndexPairs.front().globalPickedPoint());
 
             if (intersection->inputPolyLineFromViewerEnabled())
             {

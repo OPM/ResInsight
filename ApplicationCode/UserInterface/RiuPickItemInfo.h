@@ -20,12 +20,14 @@
 
 #include "cvfBase.h"
 #include "cvfVector3.h"
+#include <vector>
 
 namespace cvf
 {
     class Part;
     class Object;
     class HitItem;
+    class HitItemCollection;
 }
 
 
@@ -58,7 +60,8 @@ public:
     cvf::uint          faceIdx()            const { return m_faceIdx;}
     double             distanceAlongRay()   const { return m_distanceAlongRay;}
 
-    static RiuPickItemInfo extractPickItemInfo(const cvf::HitItem* hitItem);
+    static RiuPickItemInfo              extractPickItemInfo(const cvf::HitItem* hitItem);
+    static std::vector<RiuPickItemInfo> convertToPickItemInfos(const cvf::HitItemCollection &hitItems);
 
 private:
     double             m_distanceAlongRay;

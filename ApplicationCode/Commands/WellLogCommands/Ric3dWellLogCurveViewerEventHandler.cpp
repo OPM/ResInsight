@@ -46,7 +46,7 @@ bool Ric3dWellLogCurveViewerEventHandler::handleEvent(const RicViewerEventObject
     cvf::uint triangleIndex = cvf::UNDEFINED_UINT;
 
     const auto&      partAndTriangleIndexPair = eventObject.m_partAndTriangleIndexPairs.front();
-    const cvf::Part* part                     = partAndTriangleIndexPair.first;
+    const cvf::Part* part                     = partAndTriangleIndexPair.pickedPart();
 
     const RivObjectSourceInfo* sourceInfo = dynamic_cast<const RivObjectSourceInfo*>(part->sourceInfo());
     if (sourceInfo)
@@ -60,8 +60,10 @@ bool Ric3dWellLogCurveViewerEventHandler::handleEvent(const RicViewerEventObject
             cvf::Vec3d closestPoint;
             double measuredDepthAtPoint;
             double valueAtPoint;
-            Rim3dWellLogCurve* curve = curveCollection->checkForCurveIntersection(
-                eventObject.m_globalIntersectionPoint, &closestPoint, &measuredDepthAtPoint, &valueAtPoint);
+            Rim3dWellLogCurve* curve = curveCollection->checkForCurveIntersection( eventObject.m_partAndTriangleIndexPairs.front().globalPickedPoint(), 
+                                                                                  &closestPoint, 
+                                                                                  &measuredDepthAtPoint, 
+                                                                                  &valueAtPoint);
             if (curve)
             {
                 RiuMainWindow::instance()->selectAsCurrentItem(curve);
