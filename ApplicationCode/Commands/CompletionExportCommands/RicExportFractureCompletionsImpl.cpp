@@ -515,11 +515,12 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
                   allCompletionsForOneFracture.end(),
                   std::back_inserter(sharedComplForFracture[i]));
 
-#pragma omp critical(critical_section_outputStreamForIntermediateResultsText)
         if (outputStreamForIntermediateResultsText)
         {
-            (*outputStreamForIntermediateResultsText)
-                << "\n"
+#pragma omp critical(critical_section_outputStreamForIntermediateResultsText)
+            {
+                (*outputStreamForIntermediateResultsText)
+                    << "\n"
                 << "\n"
                 << "\n----------- All Transmissibilities " << fracture->name() << " -------------------- \n\n";
 
@@ -534,7 +535,8 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
             (*outputStreamForIntermediateResultsText)
                 << QString::fromStdString(transCondenser.condensedTransDebugOutput(mainGrid, fractureGrid));
 
-            (*outputStreamForIntermediateResultsText) << "\n";
+                (*outputStreamForIntermediateResultsText) << "\n";
+            }
         }
     }
 
