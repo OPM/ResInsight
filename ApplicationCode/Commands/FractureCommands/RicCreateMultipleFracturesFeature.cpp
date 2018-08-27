@@ -33,6 +33,8 @@
 #include "RimWellPath.h"
 #include "RimWellPathFracture.h"
 #include "RimWellPathFractureCollection.h"
+#include "RimEclipseView.h"
+#include "RimStimPlanColors.h"
 
 #include "Riu3DMainWindowTools.h"
 
@@ -111,6 +113,16 @@ void RicCreateMultipleFracturesFeature::slotAppendFractures()
         if (item.wellPath)
         {
             RimWellPathFractureCollection* fractureCollection = item.wellPath->fractureCollection();
+
+            // If this is the first fracture, set default result name
+            if (fractureCollection->fractures.empty())
+            {
+                RimEclipseView* activeView = dynamic_cast<RimEclipseView*>(RiaApplication::instance()->activeReservoirView());
+                if (activeView)
+                {
+                    activeView->fractureColors()->setDefaultResultName();
+                }
+            }
 
             RimWellPathFracture* fracture = new RimWellPathFracture();
             fractureCollection->fractures.push_back(fracture);
