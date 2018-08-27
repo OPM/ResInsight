@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include "cafPdmUiWidgetBasedObjectEditor.h"
+#include "cafPdmUiFormLayoutObjectEditor.h"
 
 #include <vector>
 #include <memory>
@@ -43,7 +43,7 @@ namespace caf {
 ///  
 ///  
 //==================================================================================================
-class RiuSummaryCurveDefSelectionEditor : public caf::PdmUiWidgetBasedObjectEditor
+class RiuSummaryCurveDefSelectionEditor : public caf::PdmUiFormLayoutObjectEditor
 {
 public:
     RiuSummaryCurveDefSelectionEditor();

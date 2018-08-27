@@ -56,12 +56,12 @@ class PdmUiGroup;
 //==================================================================================================
 /// 
 //==================================================================================================
-class PdmUiWidgetBasedObjectEditor : public PdmUiObjectEditorHandle
+class PdmUiFormLayoutObjectEditor : public PdmUiObjectEditorHandle
 {
     Q_OBJECT
 public:
-    PdmUiWidgetBasedObjectEditor();
-    ~PdmUiWidgetBasedObjectEditor();
+    PdmUiFormLayoutObjectEditor();
+    ~PdmUiFormLayoutObjectEditor();
 
 protected:
     /// When overriding this function, use findOrCreateGroupBox() or findOrCreateFieldEditor() for detailed control

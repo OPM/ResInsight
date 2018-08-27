@@ -43,7 +43,7 @@ set( QOBJECT_HEADERS
     QMinimizePanel.h
     cafPdmUiTreeSelectionEditor.h
     cafPdmUiTreeSelectionQModel.h
-    cafPdmUiWidgetBasedObjectEditor.h
+    cafPdmUiFormLayoutObjectEditor.h
     cafPdmUiDoubleValueEditor.h
 )
 
@@ -124,8 +124,8 @@ set( PROJECT_FILES
     cafPdmUiPropertyView.h
     cafPdmUiPropertyViewDialog.cpp
     cafPdmUiPropertyViewDialog.h
-    cafPdmUiWidgetBasedObjectEditor.cpp
-    cafPdmUiWidgetBasedObjectEditor.h
+    cafPdmUiFormLayoutObjectEditor.cpp
+    cafPdmUiFormLayoutObjectEditor.h
     cafPdmUiDoubleValueEditor.cpp
     cafPdmUiDoubleValueEditor.h
 

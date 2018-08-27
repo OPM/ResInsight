@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include "cafPdmUiWidgetBasedObjectEditor.h"
+#include "cafPdmUiFormLayoutObjectEditor.h"
 
 #include <vector>
 #include <memory>
@@ -41,7 +41,7 @@ namespace caf {
 ///  
 ///  
 //==================================================================================================
-class RicSummaryCurveCalculatorEditor : public caf::PdmUiWidgetBasedObjectEditor
+class RicSummaryCurveCalculatorEditor : public caf::PdmUiFormLayoutObjectEditor
 {
     Q_OBJECT
 

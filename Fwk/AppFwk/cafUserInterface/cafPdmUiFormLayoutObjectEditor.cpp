@@ -35,7 +35,7 @@
 //##################################################################################################
 
 
-#include "cafPdmUiWidgetBasedObjectEditor.h"
+#include "cafPdmUiFormLayoutObjectEditor.h"
 
 #include "cafPdmObjectHandle.h"
 #include "cafPdmUiFieldEditorHandle.h"
@@ -53,7 +53,7 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-caf::PdmUiWidgetBasedObjectEditor::PdmUiWidgetBasedObjectEditor()
+caf::PdmUiFormLayoutObjectEditor::PdmUiFormLayoutObjectEditor()
 {
 
 }
@@ -61,7 +61,7 @@ caf::PdmUiWidgetBasedObjectEditor::PdmUiWidgetBasedObjectEditor()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-caf::PdmUiWidgetBasedObjectEditor::~PdmUiWidgetBasedObjectEditor()
+caf::PdmUiFormLayoutObjectEditor::~PdmUiFormLayoutObjectEditor()
 {
     // If there are field editor present, the usage of this editor has not cleared correctly
     // The intended usage is to call the method setPdmObject(NULL) before closing the dialog
@@ -71,7 +71,7 @@ caf::PdmUiWidgetBasedObjectEditor::~PdmUiWidgetBasedObjectEditor()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void caf::PdmUiWidgetBasedObjectEditor::recursivelyConfigureAndUpdateUiItemsInGridLayoutColumn(const std::vector<PdmUiItem*>& uiItems, QWidget* containerWidgetWithGridLayout, const QString& uiConfigName)
+void caf::PdmUiFormLayoutObjectEditor::recursivelyConfigureAndUpdateUiItemsInGridLayoutColumn(const std::vector<PdmUiItem*>& uiItems, QWidget* containerWidgetWithGridLayout, const QString& uiConfigName)
 {
     CAF_ASSERT(containerWidgetWithGridLayout);
 
@@ -179,7 +179,7 @@ void caf::PdmUiWidgetBasedObjectEditor::recursivelyConfigureAndUpdateUiItemsInGr
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool caf::PdmUiWidgetBasedObjectEditor::isUiGroupExpanded(const PdmUiGroup* uiGroup) const
+bool caf::PdmUiFormLayoutObjectEditor::isUiGroupExpanded(const PdmUiGroup* uiGroup) const
 {
     if (uiGroup->hasForcedExpandedState()) return uiGroup->forcedExpandedState();
 
@@ -201,7 +201,7 @@ bool caf::PdmUiWidgetBasedObjectEditor::isUiGroupExpanded(const PdmUiGroup* uiGr
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QMinimizePanel* caf::PdmUiWidgetBasedObjectEditor::findOrCreateGroupBox(QWidget* parent, PdmUiGroup* group, const QString& uiConfigName)
+QMinimizePanel* caf::PdmUiFormLayoutObjectEditor::findOrCreateGroupBox(QWidget* parent, PdmUiGroup* group, const QString& uiConfigName)
 {
     QString groupBoxKey = group->keyword();
     QMinimizePanel* groupBox = nullptr;
@@ -243,7 +243,7 @@ QMinimizePanel* caf::PdmUiWidgetBasedObjectEditor::findOrCreateGroupBox(QWidget*
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-caf::PdmUiFieldEditorHandle* caf::PdmUiWidgetBasedObjectEditor::findOrCreateFieldEditor(QWidget* parent, PdmUiFieldHandle* field, const QString& uiConfigName)
+caf::PdmUiFieldEditorHandle* caf::PdmUiFormLayoutObjectEditor::findOrCreateFieldEditor(QWidget* parent, PdmUiFieldHandle* field, const QString& uiConfigName)
 {
     caf::PdmUiFieldEditorHandle* fieldEditor = nullptr;
 
@@ -283,7 +283,7 @@ caf::PdmUiFieldEditorHandle* caf::PdmUiWidgetBasedObjectEditor::findOrCreateFiel
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void caf::PdmUiWidgetBasedObjectEditor::groupBoxExpandedStateToggled(bool isExpanded)
+void caf::PdmUiFormLayoutObjectEditor::groupBoxExpandedStateToggled(bool isExpanded)
 {
     if (!this->pdmObject()->xmlCapability()) return;
 
@@ -298,7 +298,7 @@ void caf::PdmUiWidgetBasedObjectEditor::groupBoxExpandedStateToggled(bool isExpa
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void caf::PdmUiWidgetBasedObjectEditor::cleanupBeforeSettingPdmObject()
+void caf::PdmUiFormLayoutObjectEditor::cleanupBeforeSettingPdmObject()
 {
     std::map<PdmFieldHandle*, PdmUiFieldEditorHandle*>::iterator it;
     for (it = m_fieldViews.begin(); it != m_fieldViews.end(); ++it)
@@ -322,7 +322,7 @@ void caf::PdmUiWidgetBasedObjectEditor::cleanupBeforeSettingPdmObject()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void caf::PdmUiWidgetBasedObjectEditor::configureAndUpdateUi(const QString& uiConfigName)
+void caf::PdmUiFormLayoutObjectEditor::configureAndUpdateUi(const QString& uiConfigName)
 {
     caf::PdmUiOrdering config;
     if (pdmObject())
@@ -392,7 +392,7 @@ void caf::PdmUiWidgetBasedObjectEditor::configureAndUpdateUi(const QString& uiCo
 //--------------------------------------------------------------------------------------------------
 /// Unused. Should probably remove
 //--------------------------------------------------------------------------------------------------
-void caf::PdmUiWidgetBasedObjectEditor::recursiveVerifyUniqueNames(const std::vector<PdmUiItem*>& uiItems, 
+void caf::PdmUiFormLayoutObjectEditor::recursiveVerifyUniqueNames(const std::vector<PdmUiItem*>& uiItems, 
                                                                    const QString& uiConfigName, 
                                                                    std::set<QString>* fieldKeywordNames, 
                                                                    std::set<QString>* groupNames)
