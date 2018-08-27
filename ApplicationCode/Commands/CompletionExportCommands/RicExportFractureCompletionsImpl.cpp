@@ -203,8 +203,7 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
 
     std::vector<std::vector<RigCompletionData>> sharedComplForFracture(fractures.size());
 
-    // Temporarily commented out due to sync problems. Needs more analysis
-    //#pragma omp parallel for
+#pragma omp parallel for
     for (int i = 0; i < (int)fractures.size(); i++)
     {
         const RimFracture*         fracture     = fractures[i];
@@ -516,6 +515,7 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
                   allCompletionsForOneFracture.end(),
                   std::back_inserter(sharedComplForFracture[i]));
 
+#pragma omp critical(critical_section_outputStreamForIntermediateResultsText)
         if (outputStreamForIntermediateResultsText)
         {
             (*outputStreamForIntermediateResultsText)

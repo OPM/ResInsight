@@ -184,6 +184,8 @@ void RifEclipseOutputFileTools::timeSteps(ecl_file_type* ecl_file, std::vector<Q
 //--------------------------------------------------------------------------------------------------
 bool RifEclipseOutputFileTools::keywordData(ecl_file_type* ecl_file, const QString& keyword, size_t fileKeywordOccurrence, std::vector<double>* values)
 {
+    bool result = false;
+
 #pragma omp critical(critical_section_keywordData_double)
     {
         ecl_kw_type* kwData = ecl_file_iget_named_kw(ecl_file, RiaStringEncodingTools::toNativeEncoded(keyword).data(), static_cast<int>(fileKeywordOccurrence));
@@ -197,10 +199,11 @@ bool RifEclipseOutputFileTools::keywordData(ecl_file_type* ecl_file, const QStri
             ecl_kw_get_data_as_double(kwData, doubleData.data());
             values->insert(values->end(), doubleData.begin(), doubleData.end());
 
-            return true;
+            result = true;
         }
-        return false;
     }
+
+    return result;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -208,6 +211,8 @@ bool RifEclipseOutputFileTools::keywordData(ecl_file_type* ecl_file, const QStri
 //--------------------------------------------------------------------------------------------------
 bool RifEclipseOutputFileTools::keywordData(ecl_file_type* ecl_file, const QString& keyword, size_t fileKeywordOccurrence, std::vector<int>* values)
 {
+    bool result = false;
+
 #pragma omp critical(critical_section_keywordData_int)
     {
         ecl_kw_type* kwData = ecl_file_iget_named_kw(ecl_file, RiaStringEncodingTools::toNativeEncoded(keyword).data(), static_cast<int>(fileKeywordOccurrence));
@@ -221,10 +226,11 @@ bool RifEclipseOutputFileTools::keywordData(ecl_file_type* ecl_file, const QStri
             ecl_kw_get_memcpy_int_data(kwData, integerData.data());
             values->insert(values->end(), integerData.begin(), integerData.end());
 
-            return true;
+            result = true;
         }
-        return false;
     }
+
+    return result;
 }
 
 //--------------------------------------------------------------------------------------------------
