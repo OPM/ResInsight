@@ -581,7 +581,7 @@ namespace caf
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-PdmUiObject3dEditorHandle::PdmUiObject3dEditorHandle()
+PdmUi3dObjectEditorHandle::PdmUi3dObjectEditorHandle()
 {
 
 }
@@ -589,7 +589,7 @@ PdmUiObject3dEditorHandle::PdmUiObject3dEditorHandle()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-PdmUiObject3dEditorHandle::~PdmUiObject3dEditorHandle()
+PdmUi3dObjectEditorHandle::~PdmUi3dObjectEditorHandle()
 {
 
 }
@@ -597,7 +597,7 @@ PdmUiObject3dEditorHandle::~PdmUiObject3dEditorHandle()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void PdmUiObject3dEditorHandle::setViewer(caf::Viewer* ownerViewer)
+void PdmUi3dObjectEditorHandle::setViewer(caf::Viewer* ownerViewer)
 {
     // Not allowed to change viewer. Should be constructor argument, but makes factory stuff difficult.
     CAF_ASSERT(m_ownerViewer.isNull()); 
@@ -682,7 +682,7 @@ void PdmUiSelectionVisualizer3d::onSelectionManagerSelectionChanged(int selectio
 
 #include "RimWellPathTarget.h"
 
-CAF_PDM_UI_OBJECT_3D_EDITOR_SOURCE_INIT(RicWellPathGeometry3dEditor);
+CAF_PDM_UI_3D_OBJECT_EDITOR_SOURCE_INIT(RicWellPathGeometry3dEditor);
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -744,7 +744,7 @@ void RicWellPathGeometry3dEditor::configureAndUpdateUi(const QString& uiConfigNa
 #include "Rim3dView.h"
 #include "RimCase.h"
 
-CAF_PDM_UI_OBJECT_3D_EDITOR_SOURCE_INIT(RicWellTarget3dEditor);
+CAF_PDM_UI_3D_OBJECT_EDITOR_SOURCE_INIT(RicWellTarget3dEditor);
 
 //--------------------------------------------------------------------------------------------------
 /// 

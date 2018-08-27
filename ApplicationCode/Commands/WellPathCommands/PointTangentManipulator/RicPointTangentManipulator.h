@@ -175,9 +175,8 @@ private:
 #include "cafSelectionChangedReceiver.h"
 #include "cafPdmUiObjectEditorHandle.h"
 #include "cafFactory.h"
-// PdmUiObjectEditorHandle
-// PdmUiObjectWidgetEditorHandle --<| PdmUiWidgetBasedObjectEditor PdmUiObjectFormLayoutEditor 
-// PdmUiObject3dEditorHandle
+// PdmUiObjectEditorHandle -<| PdmUiWidgetObjectEditorHandle --<| PdmUiFormLayoutObjectEditor 
+//                         -<| PdmUi3dObjectEditorHandle
 namespace caf
 {
 
@@ -185,26 +184,26 @@ namespace caf
 /// Macros helping in development of PDM UI 3d editors
 //==================================================================================================
 
-/// CAF_PDM_UI_FIELD_EDITOR_HEADER_INIT assists the factory used when creating editors
+/// CAF_PDM_UI_3D_OBJECT_EDITOR_HEADER_INIT assists the factory used when creating editors
 /// Place this in the header file inside the class definition of your PdmUiEditor
 
-#define CAF_PDM_UI_OBJECT_3D_EDITOR_HEADER_INIT \
+#define CAF_PDM_UI_3D_OBJECT_EDITOR_HEADER_INIT \
 public: \
     static QString uiEditorTypeName()
 
-/// CAF_PDM_UI_OBJECT_3D_EDITOR_SOURCE_INIT  implements editorTypeName() and registers the field editor in the field editor factory
+/// CAF_PDM_UI_3D_OBJECT_EDITOR_SOURCE_INIT  implements editorTypeName() and registers the field editor in the field editor factory
 /// Place this in the cpp file, preferably above the constructor
 
-#define CAF_PDM_UI_OBJECT_3D_EDITOR_SOURCE_INIT(EditorClassName) \
+#define CAF_PDM_UI_3D_OBJECT_EDITOR_SOURCE_INIT(EditorClassName) \
     QString EditorClassName::uiEditorTypeName() { return #EditorClassName; } \
-    CAF_FACTORY_REGISTER(caf::PdmUiObject3dEditorHandle, EditorClassName, QString, EditorClassName::uiEditorTypeName())
+    CAF_FACTORY_REGISTER(caf::PdmUi3dObjectEditorHandle, EditorClassName, QString, EditorClassName::uiEditorTypeName())
 
 
-class PdmUiObject3dEditorHandle : public caf::PdmUiObjectEditorHandle
+class PdmUi3dObjectEditorHandle : public caf::PdmUiObjectEditorHandle
 {
 public:
-    PdmUiObject3dEditorHandle();
-    ~PdmUiObject3dEditorHandle() override;
+    PdmUi3dObjectEditorHandle();
+    ~PdmUi3dObjectEditorHandle() override;
 
     void setViewer(caf::Viewer* ownerViewer);
 
@@ -232,7 +231,7 @@ public:
 protected:
     virtual void onSelectionManagerSelectionChanged(int selectionLevel) override;
 
-    std::vector< QPointer<PdmUiObject3dEditorHandle> > m_active3DEditors;
+    std::vector< QPointer<PdmUi3dObjectEditorHandle> > m_active3DEditors;
 
     QPointer<caf::Viewer>                   m_ownerViewer;
 };
@@ -248,9 +247,9 @@ protected:
 
 class RicWellTarget3dEditor;
 
-class RicWellPathGeometry3dEditor : public caf::PdmUiObject3dEditorHandle
+class RicWellPathGeometry3dEditor : public caf::PdmUi3dObjectEditorHandle
 {
-    CAF_PDM_UI_OBJECT_3D_EDITOR_HEADER_INIT;
+    CAF_PDM_UI_3D_OBJECT_EDITOR_HEADER_INIT;
     Q_OBJECT
 public:
     RicWellPathGeometry3dEditor();
@@ -271,9 +270,9 @@ private:
 //==================================================================================================
 
 
-class RicWellTarget3dEditor : public caf::PdmUiObject3dEditorHandle
+class RicWellTarget3dEditor : public caf::PdmUi3dObjectEditorHandle
 {
-    CAF_PDM_UI_OBJECT_3D_EDITOR_HEADER_INIT;
+    CAF_PDM_UI_3D_OBJECT_EDITOR_HEADER_INIT;
     Q_OBJECT
 public:
     RicWellTarget3dEditor();
