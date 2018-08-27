@@ -44,6 +44,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RiuTreeViewEventFilter.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuViewer.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuViewerToViewInterface.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuViewerCommands.h
+${CMAKE_CURRENT_LIST_DIR}/RiuPickItemInfo.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuWellLogPlot.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuWellLogTrack.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuPlotAnnotationTool.h
@@ -117,6 +118,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RiuToolTipMenu.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuTreeViewEventFilter.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuViewer.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuViewerCommands.cpp
+${CMAKE_CURRENT_LIST_DIR}/RiuPickItemInfo.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuWellLogPlot.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuWellLogTrack.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuPlotAnnotationTool.cpp
