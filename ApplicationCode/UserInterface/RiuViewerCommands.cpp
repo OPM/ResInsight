@@ -154,25 +154,25 @@ void RiuViewerCommands::setOwnerView(Rim3dView * owner)
 //--------------------------------------------------------------------------------------------------
 void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
 {
-    m_currentGridIdx = cvf::UNDEFINED_SIZE_T;
-    m_currentCellIndex = cvf::UNDEFINED_SIZE_T;
+    // Do the ray pick, and extract the infos
 
-    int winPosX = event->x();
-    int winPosY = event->y();
+    std::vector<RiuPickItemInfo> pickItemInfos;
+    {
+        cvf::HitItemCollection hitItems;
+        if (m_viewer->rayPick( event->x(), event->y(), &hitItems))
+        {
+            pickItemInfos = RiuPickItemInfo::convertToPickItemInfos(hitItems);
+        }
+    }
 
-    QMenu menu;
-    caf::CmdFeatureMenuBuilder menuBuilder;
+    // Find the following data
 
     const cvf::Part* firstHitPart = nullptr;
     uint firstPartTriangleIndex = cvf::UNDEFINED_UINT;
     m_currentPickPositionInDomainCoords = cvf::Vec3d::UNDEFINED;
 
- 
-    cvf::HitItemCollection hitItems;
-    if (m_viewer->rayPick(winPosX, winPosY, &hitItems))
+    if (pickItemInfos.size())
     {
-        std::vector<RiuPickItemInfo> pickItemInfos = RiuPickItemInfo::convertToPickItemInfos(hitItems);
-
         cvf::Vec3d globalIntersectionPoint(cvf::Vec3d::ZERO);
 
         if ( pickItemInfos.size() )
@@ -209,8 +209,14 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
             cvf::ref<caf::DisplayCoordTransform> transForm = m_reservoirView.p()->displayCoordTransform();
             m_currentPickPositionInDomainCoords = transForm->transformToDomainCoord(globalIntersectionPoint);
         }
-
     }
+
+    // Build menue
+
+    QMenu menu;
+    caf::CmdFeatureMenuBuilder menuBuilder;
+    m_currentGridIdx = cvf::UNDEFINED_SIZE_T;
+    m_currentCellIndex = cvf::UNDEFINED_SIZE_T;
 
     // Check type of view
 
@@ -499,10 +505,44 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
 //--------------------------------------------------------------------------------------------------
 void RiuViewerCommands::handlePickAction(int winPosX, int winPosY, Qt::KeyboardModifiers keyboardModifiers)
 {
+    // Overlay item picking
+
     if (handleOverlayItemPicking(winPosX, winPosY))
     {
         return;
     }
+
+    // Do the ray intersection with the scene
+      
+    std::vector<RiuPickItemInfo> pickItemInfos;
+    {
+        cvf::HitItemCollection hitItems;
+        if ( m_viewer->rayPick(winPosX, winPosY, &hitItems) )
+        {
+            if ( hitItems.count() )
+            {
+                pickItemInfos = RiuPickItemInfo::convertToPickItemInfos(hitItems);
+            }
+        }
+    }
+
+    // Make pickEventHandlers do their stuff  
+
+    if ( pickItemInfos.size() )
+    {
+        Ric3DPickEvent viewerEventObject(pickItemInfos,
+                                         m_reservoirView);
+
+        for ( size_t i = 0; i < m_pickEventHandlers.size(); i++ )
+        {
+            if ( m_pickEventHandlers[i]->handlePickEvent(viewerEventObject) )
+            {
+                return;
+            }
+        }
+    }
+
+    // Old pick handling. Todo: Encapsulate in pickEventHandlers
 
     size_t gridIndex = cvf::UNDEFINED_SIZE_T;
     size_t cellIndex = cvf::UNDEFINED_SIZE_T;
@@ -523,41 +563,36 @@ void RiuViewerCommands::handlePickAction(int winPosX, int winPosY, Qt::KeyboardM
         const cvf::Part* firstNncHitPart = nullptr;
         uint nncPartTriangleIndex = cvf::UNDEFINED_UINT;
 
-        cvf::HitItemCollection hitItems;
-        if (m_viewer->rayPick(winPosX, winPosY, &hitItems))
+        if ( pickItemInfos.size() )
         {
-            if (hitItems.count())
+            size_t indexToFirstNoneNncItem = -1;
+            size_t indexToNncItemNearFirstItem = -1;
+
+            findFirstItems(pickItemInfos, &indexToFirstNoneNncItem, &indexToNncItemNearFirstItem);
+
+            if ( indexToFirstNoneNncItem != -1 )
             {
-                std::vector<RiuPickItemInfo> pickItemInfos = RiuPickItemInfo::convertToPickItemInfos(hitItems);
+                localIntersectionPoint = pickItemInfos[indexToFirstNoneNncItem].localPickedPoint();
+                globalIntersectionPoint = pickItemInfos[indexToFirstNoneNncItem].globalPickedPoint();
+                firstHitPart = pickItemInfos[indexToFirstNoneNncItem].pickedPart();
+                firstPartTriangleIndex = pickItemInfos[indexToFirstNoneNncItem].faceIdx();
+            }
 
-                Ric3DPickEvent viewerEventObject(pickItemInfos, 
-                                                 m_reservoirView);
+            if ( indexToNncItemNearFirstItem != -1 )
+            {
+                firstNncHitPart = pickItemInfos[indexToNncItemNearFirstItem].pickedPart();
+                nncPartTriangleIndex = pickItemInfos[indexToNncItemNearFirstItem].faceIdx();
+            }
+        }
 
-                for (size_t i = 0; i < m_pickEventHandlers.size(); i++)
+        if (firstNncHitPart && firstNncHitPart->sourceInfo())
+        {
+            const RivSourceInfo* rivSourceInfo = dynamic_cast<const RivSourceInfo*>(firstNncHitPart->sourceInfo());
+            if (rivSourceInfo)
+            {
+                if (nncPartTriangleIndex < rivSourceInfo->m_NNCIndices->size())
                 {
-                    if (m_pickEventHandlers[i]->handlePickEvent(viewerEventObject))
-                    {
-                        return;
-                    }
-                }
-
-                size_t indexToFirstNoneNncItem = -1;
-                size_t indexToNncItemNearFirstItem = -1;
-
-                findFirstItems(pickItemInfos, &indexToFirstNoneNncItem, &indexToNncItemNearFirstItem);
-
-                if ( indexToFirstNoneNncItem != -1 )
-                {
-                    localIntersectionPoint = pickItemInfos[indexToFirstNoneNncItem].localPickedPoint();
-                    globalIntersectionPoint = pickItemInfos[indexToFirstNoneNncItem].globalPickedPoint();
-                    firstHitPart = pickItemInfos[indexToFirstNoneNncItem].pickedPart();
-                    firstPartTriangleIndex = pickItemInfos[indexToFirstNoneNncItem].faceIdx();
-                }
-
-                if (indexToNncItemNearFirstItem != -1)
-                {
-                    firstNncHitPart = pickItemInfos[indexToNncItemNearFirstItem].pickedPart();
-                    nncPartTriangleIndex = pickItemInfos[indexToNncItemNearFirstItem].faceIdx();
+                    nncIndex = rivSourceInfo->m_NNCIndices->get(nncPartTriangleIndex);
                 }
             }
         }
@@ -778,20 +813,7 @@ void RiuViewerCommands::handlePickAction(int winPosX, int winPosY, Qt::KeyboardM
                     }
 
                 }
-                
                 RiuMainWindow::instance()->selectAsCurrentItem(simWellConnectionSourceInfo->simWellInView(), allowActiveViewChange);
-            }
-        }
-
-        if (firstNncHitPart && firstNncHitPart->sourceInfo())
-        {
-            const RivSourceInfo* rivSourceInfo = dynamic_cast<const RivSourceInfo*>(firstNncHitPart->sourceInfo());
-            if (rivSourceInfo)
-            {
-                if (nncPartTriangleIndex < rivSourceInfo->m_NNCIndices->size())
-                {
-                    nncIndex = rivSourceInfo->m_NNCIndices->get(nncPartTriangleIndex);
-                }
             }
         }
     }
@@ -990,105 +1012,6 @@ void RiuViewerCommands::findFirstItems(const std::vector<RiuPickItemInfo> & pick
     (*indexToNncItemNearFirsItem) = nncNearFirstItemIndex;
 }
 
-#if 0
-//--------------------------------------------------------------------------------------------------
-/// If there is an nnc-item within a depth-tolerance distance from the first hit-item 
-/// return this as nncPart and nncPartFaceHit
-/// Return all the hit items as part and triangle idx pairs in partAndTriangleIndexPairs except the nnc-part if it is first.
-/// Return local and global intersection of first none-nnc-hit if we have one. If we only have an nnc-hit, return its intersection point.
-//--------------------------------------------------------------------------------------------------
-void RiuViewerCommands::extractIntersectionData(const cvf::HitItemCollection& hitItems, 
-                                                cvf::Vec3d* localIntersectionPoint,
-                                                cvf::Vec3d* globalIntersectionPoint,
-                                                std::vector<std::pair<const cvf::Part*, cvf::uint>>* partAndTriangleIndexPairs,
-                                                const cvf::Part** nncPart, uint* nncPartFaceHit)
-{
-
-    CVF_ASSERT(hitItems.count() > 0);
-    std::vector<RiuPickItemInfo> pickItemInfos = convertToPickItemInfos(hitItems);
-
-    double pickDepthThresholdSquared = 0.05 *0.05;
-    {
-        RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>(m_reservoirView.p());
-
-        if (eclipseView && eclipseView->mainGrid())
-        {
-            double characteristicCellSize = eclipseView->mainGrid()->characteristicIJCellSize();
-            pickDepthThresholdSquared = characteristicCellSize / 100.0;
-            pickDepthThresholdSquared = pickDepthThresholdSquared * pickDepthThresholdSquared;
-        }
-    }
-
-    size_t firstNonNncHitIndex = cvf::UNDEFINED_SIZE_T;
-    size_t nncHitIndex = cvf::UNDEFINED_SIZE_T;
-    cvf::Vec3d firstOrFirstNonNncIntersectionPoint = pickItemInfos[0].globalPickedPoint();
-
-
-    // Find first nnc part, and store as a separate thing if the nnc is first or close behind the first hit item. 
-    // Find index to first ordinary (non-nnc) part
-
-    for (size_t i = 0; i < pickItemInfos.size(); i++)
-    {
-        cvf::Vec3d distFirstNonNNCToCandidate = firstOrFirstNonNncIntersectionPoint - pickItemInfos[i].globalPickedPoint();
-
-        bool isNncpart = false;
-
-        // If hit item is nnc and is close to first (none-nnc) hit, store nncpart and face id
-
-        const RivSourceInfo* rivSourceInfo = dynamic_cast<const RivSourceInfo*>(pickItemInfos[i].sourceInfo());
-        if ( rivSourceInfo && rivSourceInfo->hasNNCIndices() )
-        {
-            // This candidate is an NNC hit
-            if ( distFirstNonNNCToCandidate.lengthSquared() < pickDepthThresholdSquared )
-            {
-                // it is first, or close to the first item
-                if ( nncPart ) *nncPart = pickItemInfos[i].pickedPart();
-
-                if ( nncPartFaceHit && pickItemInfos[i].faceIdx() != -1 ) *nncPartFaceHit = pickItemInfos[i].faceIdx();
-
-                isNncpart = true;
-                nncHitIndex = i;
-            }
-        }
-
-        // If found first non-nnc hit, store it
-
-        if (!isNncpart && firstNonNncHitIndex == cvf::UNDEFINED_SIZE_T)
-        {
-            firstOrFirstNonNncIntersectionPoint = pickItemInfos[i].globalPickedPoint();
-            firstNonNncHitIndex = i;
-        }
-
-        // If both nncpart and none-nnc part found, break loop.
-
-        if (firstNonNncHitIndex != cvf::UNDEFINED_SIZE_T && nncPart && *nncPart)
-        {
-            break;
-        }
-    }
-
-    // if found a none-nnc part
-    if (firstNonNncHitIndex != cvf::UNDEFINED_SIZE_T)
-    {
-        if ( globalIntersectionPoint ) *globalIntersectionPoint = pickItemInfos[firstNonNncHitIndex].globalPickedPoint();
-        if ( localIntersectionPoint )  *localIntersectionPoint  = pickItemInfos[firstNonNncHitIndex].localPickedPoint();
-
-        for (size_t i = firstNonNncHitIndex; i < pickItemInfos.size(); i++)
-        {
-            partAndTriangleIndexPairs->push_back(std::make_pair(pickItemInfos[i].pickedPart(), pickItemInfos[i].faceIdx()));
-        }
-    }
-    else // Only found an nnc-part
-    {
-        if (localIntersectionPoint && nncPart && *nncPart)
-        {
-            if (globalIntersectionPoint) *globalIntersectionPoint = pickItemInfos[nncHitIndex].globalPickedPoint();
-            if ( localIntersectionPoint )  *localIntersectionPoint  = pickItemInfos[nncHitIndex].localPickedPoint();
-        }
-    }
-}
-
-#endif
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
