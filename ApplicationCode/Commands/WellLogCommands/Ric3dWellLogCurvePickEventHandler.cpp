@@ -17,7 +17,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "Ric3dWellLogCurveViewerEventHandler.h"
+#include "Ric3dWellLogCurvePickEventHandler.h"
 
 #include "Rim3dWellLogCurve.h"
 #include "Rim3dWellLogCurveCollection.h"
@@ -30,16 +30,16 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-Ric3dWellLogCurveViewerEventHandler* Ric3dWellLogCurveViewerEventHandler::instance()
+Ric3dWellLogCurvePickEventHandler* Ric3dWellLogCurvePickEventHandler::instance()
 {
-    static Ric3dWellLogCurveViewerEventHandler* singleton = new Ric3dWellLogCurveViewerEventHandler;
+    static Ric3dWellLogCurvePickEventHandler* singleton = new Ric3dWellLogCurvePickEventHandler;
     return singleton;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool Ric3dWellLogCurveViewerEventHandler::handlePickEvent(const Ric3DPickEvent& eventObject)
+bool Ric3dWellLogCurvePickEventHandler::handlePickEvent(const Ric3DPickEvent& eventObject)
 {
     if (eventObject.m_pickItemInfos.empty()) return false;
 

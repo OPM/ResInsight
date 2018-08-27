@@ -25,10 +25,10 @@
 
 #include "RicEclipsePropertyFilterNewExec.h"
 #include "RicGeoMechPropertyFilterNewExec.h"
-#include "RicViewerEventInterface.h"
-#include "WellLogCommands/Ric3dWellLogCurveViewerEventHandler.h"
-#include "WellPathCommands/RicIntersectionViewerEventHandler.h"
-#include "WellPathCommands/RicWellPathViewerEventHandler.h"
+#include "RicPickEventHandler.h"
+#include "WellLogCommands/Ric3dWellLogCurvePickEventHandler.h"
+#include "WellPathCommands/RicIntersectionPickEventHandler.h"
+#include "WellPathCommands/RicWellPathPickEventHandler.h"
 
 #include "RigEclipseCaseData.h"
 #include "RigFault.h"
@@ -120,15 +120,15 @@ RiuViewerCommands::RiuViewerCommands(RiuViewer* ownerViewer)
     , m_viewer(ownerViewer)
 {
     {
-        m_pickEventHandlers.push_back(dynamic_cast<RicPickEventHandler*>(RicIntersectionViewerEventHandler::instance()));
+        m_pickEventHandlers.push_back(dynamic_cast<RicPickEventHandler*>(RicIntersectionPickEventHandler::instance()));
     }
 
     {
-        m_pickEventHandlers.push_back(dynamic_cast<RicPickEventHandler*>(Ric3dWellLogCurveViewerEventHandler::instance()));
+        m_pickEventHandlers.push_back(dynamic_cast<RicPickEventHandler*>(Ric3dWellLogCurvePickEventHandler::instance()));
     }
 
     {
-        m_pickEventHandlers.push_back(dynamic_cast<RicPickEventHandler*>(RicWellPathViewerEventHandler::instance()));
+        m_pickEventHandlers.push_back(dynamic_cast<RicPickEventHandler*>(RicWellPathPickEventHandler::instance()));
     }
 }
 

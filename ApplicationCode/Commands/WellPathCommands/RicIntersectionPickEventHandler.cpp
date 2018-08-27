@@ -16,7 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicIntersectionViewerEventHandler.h"
+#include "RicIntersectionPickEventHandler.h"
 #include "RimIntersection.h"
 #include "Rim3dView.h"
 
@@ -28,16 +28,16 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RicIntersectionViewerEventHandler* RicIntersectionViewerEventHandler::instance()
+RicIntersectionPickEventHandler* RicIntersectionPickEventHandler::instance()
 {
-    static RicIntersectionViewerEventHandler* singleton = new RicIntersectionViewerEventHandler;
+    static RicIntersectionPickEventHandler* singleton = new RicIntersectionPickEventHandler;
     return singleton;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RicIntersectionViewerEventHandler::handlePickEvent(const Ric3DPickEvent& eventObject)
+bool RicIntersectionPickEventHandler::handlePickEvent(const Ric3DPickEvent& eventObject)
 {
     std::vector<RimIntersection*> selection;
     caf::SelectionManager::instance()->objectsByType(&selection);

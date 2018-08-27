@@ -1,7 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2015-     Statoil ASA
-//  Copyright (C) 2015-     Ceetron Solutions AS
+//  Copyright (C) 2017-     Statoil ASA
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -19,17 +18,17 @@
 
 #pragma once
 
-#include "RicViewerEventInterface.h"
-
+#include "RicPickEventHandler.h"
 
 //==================================================================================================
 /// 
 //==================================================================================================
-class RicWellPathViewerEventHandler : public RicPickEventHandler
+class RicIntersectionPickEventHandler : public RicPickEventHandler
 {
 public:
-    static RicWellPathViewerEventHandler* instance();
+    static RicIntersectionPickEventHandler* instance();
 
-    bool handlePickEvent(const Ric3DPickEvent& eventObject) override;
+protected:
+    virtual bool handlePickEvent(const Ric3DPickEvent& eventObject) override;
 };
 

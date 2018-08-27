@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "RicViewerEventInterface.h"
+#include "RicPickEventHandler.h"
 
 #include "cafCmdExecuteCommand.h"
 #include "cafPdmPointer.h"

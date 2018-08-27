@@ -17,7 +17,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicWellPathViewerEventHandler.h"
+#include "RicWellPathPickEventHandler.h"
 
 #include "RiaApplication.h"
 
@@ -41,16 +41,16 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RicWellPathViewerEventHandler* RicWellPathViewerEventHandler::instance()
+RicWellPathPickEventHandler* RicWellPathPickEventHandler::instance()
 {
-    static RicWellPathViewerEventHandler* singleton = new RicWellPathViewerEventHandler;
+    static RicWellPathPickEventHandler* singleton = new RicWellPathPickEventHandler;
     return singleton;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RicWellPathViewerEventHandler::handlePickEvent(const Ric3DPickEvent& eventObject)
+bool RicWellPathPickEventHandler::handlePickEvent(const Ric3DPickEvent& eventObject)
 {
     if (eventObject.m_pickItemInfos.empty()) return false;
 
