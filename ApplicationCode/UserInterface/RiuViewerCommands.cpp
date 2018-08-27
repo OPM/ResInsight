@@ -518,11 +518,18 @@ void RiuViewerCommands::handlePickAction(int winPosX, int winPosY, Qt::KeyboardM
         if (m_viewer->rayPick(winPosX, winPosY, &hitItems))
         {
             std::vector<std::pair<const cvf::Part*, cvf::uint>> partAndTriangleIndexPairs;
-            extractIntersectionData(hitItems, &localIntersectionPoint, &globalIntersectionPoint, &partAndTriangleIndexPairs, &firstNncHitPart, &nncPartTriangleIndex);
+            extractIntersectionData(hitItems, 
+                                    &localIntersectionPoint, 
+                                    &globalIntersectionPoint, 
+                                    &partAndTriangleIndexPairs, 
+                                    &firstNncHitPart, 
+                                    &nncPartTriangleIndex);
 
             if (!partAndTriangleIndexPairs.empty())
             {
-                RicViewerEventObject viewerEventObject(globalIntersectionPoint, partAndTriangleIndexPairs, m_reservoirView);
+                RicViewerEventObject viewerEventObject(globalIntersectionPoint, 
+                                                       partAndTriangleIndexPairs, 
+                                                       m_reservoirView);
                 for (size_t i = 0; i < m_viewerEventHandlers.size(); i++)
                 {
                     if (m_viewerEventHandlers[i]->handleEvent(viewerEventObject))
@@ -891,12 +898,57 @@ void RiuViewerCommands::findCellAndGridIndex(const RivIntersectionBoxSourceInfo*
     }
 }
 
+struct RiuPickItemInfo
+{
+    RiuPickItemInfo() 
+    : pickedPart(nullptr)
+    , globalPickedPoint (cvf::Vec3d::UNDEFINED)
+    , localPickedPoint (cvf::Vec3d::UNDEFINED)
+    , sourceInfo (nullptr)
+    , faceIdx (-1)
+    {}
+
+    const cvf::Part*   pickedPart;
+    cvf::Vec3d         globalPickedPoint;
+    cvf::Vec3d         localPickedPoint;
+    const cvf::Object* sourceInfo;
+    cvf::uint          faceIdx;
+};
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+RiuPickItemInfo extractPickItemInfo(const cvf::HitItem* hitItem)
+{
+    RiuPickItemInfo pickInfo;
+
+    pickInfo.pickedPart = hitItem->part();
+    pickInfo.globalPickedPoint = hitItem->intersectionPoint();
+    if (pickInfo.pickedPart) pickInfo.sourceInfo = pickInfo.pickedPart->sourceInfo();
+
+    cvf::uint faceIdx = -1;
+    const cvf::HitDetailDrawableGeo* detail = dynamic_cast<const cvf::HitDetailDrawableGeo*>(hitItem->detail());
+    if (detail) pickInfo.faceIdx = detail->faceIndex();
+
+    pickInfo.localPickedPoint = pickInfo.globalPickedPoint;
+    const cvf::Transform* xf = pickInfo.pickedPart->transform();
+    if ( xf )
+    {
+        pickInfo.localPickedPoint.transformPoint(xf->worldTransform().getInverted());
+    }
+
+    return pickInfo;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// If there is an nnc-item within a depth-tolerance distance from the first hit-item 
+/// return this as nncPart and nncPartFaceHit
+/// Return all the hit items as part and triangle idx pairs in partAndTriangleIndexPairs except the nnc-part if it is first.
+/// Return local and global intersection of first none-nnc-hit if we have one. If we only have an nnc-hit, return its intersection point.
+//--------------------------------------------------------------------------------------------------
 void RiuViewerCommands::extractIntersectionData(const cvf::HitItemCollection& hitItems, 
                                                 cvf::Vec3d* localIntersectionPoint,
-                                                cvf::Vec3d*globalIntersectionPoint,
+                                                cvf::Vec3d* globalIntersectionPoint,
                                                 std::vector<std::pair<const cvf::Part*, cvf::uint>>* partAndTriangleIndexPairs,
                                                 const cvf::Part** nncPart, uint* nncPartFaceHit)
 {
@@ -914,119 +966,77 @@ void RiuViewerCommands::extractIntersectionData(const cvf::HitItemCollection& hi
         }
     }
 
-    size_t firstNonNncPartIndex = cvf::UNDEFINED_SIZE_T;
-    cvf::Vec3d firstItemIntersectionPoint = hitItems.item(0)->intersectionPoint();
+    size_t firstNonNncHitIndex = cvf::UNDEFINED_SIZE_T;
+    size_t nncHitIndex = cvf::UNDEFINED_SIZE_T;
+    cvf::Vec3d firstOrFirstNonNncIntersectionPoint = hitItems.item(0)->intersectionPoint();
 
-    // Check if we have a close hit item with NNC data
-
+    std::vector<RiuPickItemInfo> pickItemInfos;
+    pickItemInfos.reserve(hitItems.count());
     for (size_t i = 0; i < hitItems.count(); i++)
     {
-        const cvf::HitItem* hitItemCandidate = hitItems.item(i);
-        cvf::Vec3d diff = firstItemIntersectionPoint - hitItemCandidate->intersectionPoint();
+        pickItemInfos.emplace_back(extractPickItemInfo(hitItems.item(i)));
+    }
 
-        const cvf::Part* pickedPartCandidate = hitItemCandidate->part();
+    // Find first nnc part, and store as a separate thing if the nnc is first or close behind the first hit item. 
+    // Find index to first ordinary (non-nnc) part
+
+    for (size_t i = 0; i < pickItemInfos.size(); i++)
+    {
+        cvf::Vec3d distFirstNonNNCToCandidate = firstOrFirstNonNncIntersectionPoint - pickItemInfos[i].globalPickedPoint;
+
         bool isNncpart = false;
 
-        if (pickedPartCandidate && pickedPartCandidate->sourceInfo())
+        // If hit item is nnc and is close to first (none-nnc) hit, store nncpart and face id
+
+        const RivSourceInfo* rivSourceInfo = dynamic_cast<const RivSourceInfo*>(pickItemInfos[i].sourceInfo);
+        if ( rivSourceInfo && rivSourceInfo->hasNNCIndices() )
         {
-            const RivSourceInfo* rivSourceInfo = dynamic_cast<const RivSourceInfo*>(pickedPartCandidate->sourceInfo());
-            if (rivSourceInfo && rivSourceInfo->hasNNCIndices())
+            // This candidate is an NNC hit
+            if ( distFirstNonNNCToCandidate.lengthSquared() < pickDepthThresholdSquared )
             {
+                // it is first, or close to the first item
+                if ( nncPart ) *nncPart = pickItemInfos[i].pickedPart;
 
-                // Hit items are ordered by distance from eye
-                if (diff.lengthSquared() < pickDepthThresholdSquared)
-                {
-                    if (nncPart)
-                    {
-                        *nncPart = pickedPartCandidate;
-                    }
+                if ( nncPartFaceHit && pickItemInfos[i].faceIdx != -1 ) *nncPartFaceHit = pickItemInfos[i].faceIdx;
 
-                    const cvf::HitDetailDrawableGeo* detail = dynamic_cast<const cvf::HitDetailDrawableGeo*>(hitItemCandidate->detail());
-                    if (detail && nncPartFaceHit)
-                    {
-                        *nncPartFaceHit = detail->faceIndex();
-                    }
-
-                    isNncpart = true;
-                }
+                isNncpart = true;
+                nncHitIndex = i;
             }
         }
 
-        if (!isNncpart && firstNonNncPartIndex == cvf::UNDEFINED_SIZE_T)
+        // If found first non-nnc hit, store it
+
+        if (!isNncpart && firstNonNncHitIndex == cvf::UNDEFINED_SIZE_T)
         {
-            firstItemIntersectionPoint = hitItemCandidate->intersectionPoint();
-            firstNonNncPartIndex = i;
+            firstOrFirstNonNncIntersectionPoint = pickItemInfos[i].globalPickedPoint;
+            firstNonNncHitIndex = i;
         }
 
-        if (firstNonNncPartIndex != cvf::UNDEFINED_SIZE_T && nncPart && *nncPart)
+        // If both nncpart and none-nnc part found, break loop.
+
+        if (firstNonNncHitIndex != cvf::UNDEFINED_SIZE_T && nncPart && *nncPart)
         {
             break;
         }
     }
 
-    if (firstNonNncPartIndex != cvf::UNDEFINED_SIZE_T)
+    // if found a none-nnc part
+    if (firstNonNncHitIndex != cvf::UNDEFINED_SIZE_T)
     {
+        if ( globalIntersectionPoint ) *globalIntersectionPoint = pickItemInfos[firstNonNncHitIndex].globalPickedPoint;
+        if ( localIntersectionPoint )  *localIntersectionPoint  = pickItemInfos[firstNonNncHitIndex].localPickedPoint;
+
+        for (size_t i = firstNonNncHitIndex; i < pickItemInfos.size(); i++)
         {
-            const cvf::HitItem* firstNonNncHitItem = hitItems.item(firstNonNncPartIndex);
-            const cvf::Part* pickedPart = firstNonNncHitItem->part();
-            CVF_ASSERT(pickedPart);
-
-            const cvf::Transform* xf = pickedPart->transform();
-            const cvf::Vec3d& globalPickedPoint = firstNonNncHitItem->intersectionPoint();
-
-            if (globalIntersectionPoint)
-            {
-                *globalIntersectionPoint = globalPickedPoint;
-            }
-
-            if (localIntersectionPoint)
-            {
-                if (xf)
-                {
-                    *localIntersectionPoint = globalPickedPoint.getTransformedPoint(xf->worldTransform().getInverted());
-                }
-                else
-                {
-                    *localIntersectionPoint = globalPickedPoint;
-                }
-            }
-        }
-
-        for (size_t i = firstNonNncPartIndex; i < hitItems.count(); i++)
-        {
-            const cvf::HitItem* hitItem = hitItems.item(i);
-            const cvf::Part* pickedPart = hitItem->part();
-
-            cvf::uint faceIndex = cvf::UNDEFINED_UINT;
-            const cvf::HitDetailDrawableGeo* detail = dynamic_cast<const cvf::HitDetailDrawableGeo*>(hitItem->detail());
-            if (detail)
-            {
-                faceIndex = detail->faceIndex();
-            }
-
-            partAndTriangleIndexPairs->push_back(std::make_pair(pickedPart, faceIndex));
+            partAndTriangleIndexPairs->push_back(std::make_pair(pickItemInfos[i].pickedPart, pickItemInfos[i].faceIdx));
         }
     }
-    else
+    else // Only found an nnc-part
     {
         if (localIntersectionPoint && nncPart && *nncPart)
         {
-            const cvf::Vec3d& globalPickedPoint = firstItemIntersectionPoint;
-
-            if (globalIntersectionPoint)
-            {
-                *globalIntersectionPoint = globalPickedPoint;
-            }
-
-            const cvf::Transform* xf = (*nncPart)->transform();
-            if (xf)
-            {
-                *localIntersectionPoint = globalPickedPoint.getTransformedPoint(xf->worldTransform().getInverted());
-            }
-            else
-            {
-                *localIntersectionPoint = globalPickedPoint;
-            }
+            if (globalIntersectionPoint) *globalIntersectionPoint = pickItemInfos[nncHitIndex].globalPickedPoint;
+            if ( localIntersectionPoint )  *localIntersectionPoint  = pickItemInfos[nncHitIndex].localPickedPoint;
         }
     }
 }
