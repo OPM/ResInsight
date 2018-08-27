@@ -90,6 +90,7 @@ public:
     int                 selectionLevel;
     bool                enableHeaderText;
     std::vector<int>    columnWidths;
+    int                 minimumHeight;
 };
 
 

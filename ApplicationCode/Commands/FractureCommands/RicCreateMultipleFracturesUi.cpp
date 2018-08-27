@@ -244,7 +244,6 @@ void RiuCreateMultipleFractionsUi::defineEditorAttribute(const caf::PdmFieldHand
             QFont font("Courier", 8);
 
             attr->font = font;
-            attr->heightHint = 100;
             attr->wrapMode = caf::PdmUiTextEditorAttribute::NoWrap;
         }
     }
@@ -253,6 +252,7 @@ void RiuCreateMultipleFractionsUi::defineEditorAttribute(const caf::PdmFieldHand
         auto attr = dynamic_cast<caf::PdmUiTableViewEditorAttribute*>(attribute);
         if (attr)
         {
+            attr->minimumHeight = 130;
             attr->columnWidths = { 90, 90, 400, 70 };
         }
     }

@@ -220,7 +220,7 @@ void RicCreateMultipleFracturesFeature::onActionTriggered(bool isChecked)
 
         m_dialog = &propertyDialog;
 
-        propertyDialog.resize(QSize(700, 400));
+        propertyDialog.resize(QSize(700, 450));
 
         QDialogButtonBox* dialogButtonBox = propertyDialog.dialogButtonBox();
 

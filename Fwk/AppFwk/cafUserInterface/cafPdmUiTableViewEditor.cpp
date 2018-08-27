@@ -191,20 +191,31 @@ void PdmUiTableViewEditor::configureAndUpdateUi(const QString& uiConfigName)
 
     if (m_previousFieldHandle != childArrayFH)
     {
+        if (editorAttrib.minimumHeight > 0)
+        {
+            m_tableView->setMinimumHeight(editorAttrib.minimumHeight);
+        }
+
+        // Set default column widths
         m_tableView->resizeColumnsToContents();
-        m_tableView->resizeRowsToContents();
+
+        // Set specified widths (if any)
+        if (editorAttribLoaded)
+        {
+            int colCount = m_tableModelPdm->columnCount();
+            for (int c = 0; c < colCount && c < editorAttrib.columnWidths.size(); c++)
+            {
+                auto w = editorAttrib.columnWidths[c];
+                if (w > 0) m_tableView->setColumnWidth(c, w);
+            }
+        }
+
         m_previousFieldHandle = childArrayFH;
     }
 
-    if (editorAttribLoaded)
-    {
-        int colCount = m_tableModelPdm->columnCount();
-        for (int c = 0; c < colCount && c < editorAttrib.columnWidths.size(); c++)
-        {
-            auto w = editorAttrib.columnWidths[c];
-            if (w > 0) m_tableView->setColumnWidth(c, w);
-        }
-    }
+
+    // Set default row heights
+    m_tableView->resizeRowsToContents();
 }
 
 //--------------------------------------------------------------------------------------------------
