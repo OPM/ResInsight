@@ -120,15 +120,15 @@ RiuViewerCommands::RiuViewerCommands(RiuViewer* ownerViewer)
     , m_viewer(ownerViewer)
 {
     {
-        m_viewerEventHandlers.push_back(dynamic_cast<RicViewerEventInterface*>(RicIntersectionViewerEventHandler::instance()));
+        m_pickEventHandlers.push_back(dynamic_cast<RicPickEventHandler*>(RicIntersectionViewerEventHandler::instance()));
     }
 
     {
-        m_viewerEventHandlers.push_back(dynamic_cast<RicViewerEventInterface*>(Ric3dWellLogCurveViewerEventHandler::instance()));
+        m_pickEventHandlers.push_back(dynamic_cast<RicPickEventHandler*>(Ric3dWellLogCurveViewerEventHandler::instance()));
     }
 
     {
-        m_viewerEventHandlers.push_back(dynamic_cast<RicViewerEventInterface*>(RicWellPathViewerEventHandler::instance()));
+        m_pickEventHandlers.push_back(dynamic_cast<RicPickEventHandler*>(RicWellPathViewerEventHandler::instance()));
     }
 }
 
@@ -530,12 +530,12 @@ void RiuViewerCommands::handlePickAction(int winPosX, int winPosY, Qt::KeyboardM
             {
                 std::vector<RiuPickItemInfo> pickItemInfos = RiuPickItemInfo::convertToPickItemInfos(hitItems);
 
-                RicViewerEventObject viewerEventObject(pickItemInfos, 
-                                                       m_reservoirView);
+                Ric3DPickEvent viewerEventObject(pickItemInfos, 
+                                                 m_reservoirView);
 
-                for (size_t i = 0; i < m_viewerEventHandlers.size(); i++)
+                for (size_t i = 0; i < m_pickEventHandlers.size(); i++)
                 {
-                    if (m_viewerEventHandlers[i]->handleEvent(viewerEventObject))
+                    if (m_pickEventHandlers[i]->handlePickEvent(viewerEventObject))
                     {
                         return;
                     }

@@ -39,16 +39,16 @@ Ric3dWellLogCurveViewerEventHandler* Ric3dWellLogCurveViewerEventHandler::instan
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool Ric3dWellLogCurveViewerEventHandler::handleEvent(const RicViewerEventObject& eventObject)
+bool Ric3dWellLogCurveViewerEventHandler::handlePickEvent(const Ric3DPickEvent& eventObject)
 {
-    if (eventObject.m_partAndTriangleIndexPairs.empty()) return false;
+    if (eventObject.m_pickItemInfos.empty()) return false;
 
     cvf::uint triangleIndex = cvf::UNDEFINED_UINT;
 
-    const auto&      partAndTriangleIndexPair = eventObject.m_partAndTriangleIndexPairs.front();
-    const cvf::Part* part                     = partAndTriangleIndexPair.pickedPart();
+    const auto&      firstPickedItem = eventObject.m_pickItemInfos.front();
+    const cvf::Part* firstPickedPart            = firstPickedItem.pickedPart();
 
-    const RivObjectSourceInfo* sourceInfo = dynamic_cast<const RivObjectSourceInfo*>(part->sourceInfo());
+    const RivObjectSourceInfo* sourceInfo = dynamic_cast<const RivObjectSourceInfo*>(firstPickedPart->sourceInfo());
     if (sourceInfo)
     {
         Rim3dWellLogCurveCollection* curveCollection = dynamic_cast<Rim3dWellLogCurveCollection*>(sourceInfo->object());
@@ -60,7 +60,7 @@ bool Ric3dWellLogCurveViewerEventHandler::handleEvent(const RicViewerEventObject
             cvf::Vec3d closestPoint;
             double measuredDepthAtPoint;
             double valueAtPoint;
-            Rim3dWellLogCurve* curve = curveCollection->checkForCurveIntersection( eventObject.m_partAndTriangleIndexPairs.front().globalPickedPoint(), 
+            Rim3dWellLogCurve* curve = curveCollection->checkForCurveIntersection( firstPickedItem.globalPickedPoint(), 
                                                                                   &closestPoint, 
                                                                                   &measuredDepthAtPoint, 
                                                                                   &valueAtPoint);

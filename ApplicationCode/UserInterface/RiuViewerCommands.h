@@ -25,7 +25,7 @@
 #include <QObject>
 #include <QPointer>
 
-class RicViewerEventInterface;
+class RicPickEventHandler;
 class RimEclipseView;
 class RimGeoMechView;
 class RimIntersection;
@@ -79,5 +79,5 @@ private:
     cvf::Vec3d                            m_currentPickPositionInDomainCoords;
     caf::PdmPointer<Rim3dView>            m_reservoirView;
     QPointer<RiuViewer>                   m_viewer;
-    std::vector<RicViewerEventInterface*> m_viewerEventHandlers;
+    std::vector<RicPickEventHandler*>     m_pickEventHandlers;
 };

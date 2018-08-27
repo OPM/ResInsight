@@ -50,33 +50,33 @@ RicWellPathViewerEventHandler* RicWellPathViewerEventHandler::instance()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RicWellPathViewerEventHandler::handleEvent(const RicViewerEventObject& eventObject)
+bool RicWellPathViewerEventHandler::handlePickEvent(const Ric3DPickEvent& eventObject)
 {
-    if (eventObject.m_partAndTriangleIndexPairs.empty()) return false;
+    if (eventObject.m_pickItemInfos.empty()) return false;
 
     const caf::PdmObject* objectToSelect = nullptr;
 
     cvf::uint wellPathTriangleIndex = cvf::UNDEFINED_UINT;
     const RivWellPathSourceInfo* wellPathSourceInfo = nullptr;
 
-    if(!eventObject.m_partAndTriangleIndexPairs.empty())
+    if(!eventObject.m_pickItemInfos.empty())
     {
-        const auto & partAndTriangleIndexPair = eventObject.m_partAndTriangleIndexPairs.front();
-        const cvf::Part* part = partAndTriangleIndexPair.pickedPart();
+        const auto & firstPickedItem = eventObject.m_pickItemInfos.front();
+        const cvf::Part* firstPickedPart = firstPickedItem.pickedPart();
 
-        if (part)
+        if (firstPickedPart)
         {
-            const RivObjectSourceInfo* sourceInfo = dynamic_cast<const RivObjectSourceInfo*>(part->sourceInfo());
+            const RivObjectSourceInfo* sourceInfo = dynamic_cast<const RivObjectSourceInfo*>(firstPickedPart->sourceInfo());
             if (sourceInfo)
             {
                 if (dynamic_cast<RimPerforationInterval*>(sourceInfo->object()))
                 {
                     objectToSelect = sourceInfo->object();
 
-                    if (eventObject.m_partAndTriangleIndexPairs.size() > 1)
+                    if (eventObject.m_pickItemInfos.size() > 1)
                     {
-                        const auto&      secondPair       = eventObject.m_partAndTriangleIndexPairs[1];
-                        const cvf::Part* secondPickedPart = secondPair.pickedPart();
+                        const auto&      secondPickedItem = eventObject.m_pickItemInfos[1];
+                        const cvf::Part* secondPickedPart = secondPickedItem.pickedPart();
                         if (secondPickedPart)
                         {
                             auto wellPathSourceCandidate =
@@ -89,7 +89,7 @@ bool RicWellPathViewerEventHandler::handleEvent(const RicViewerEventObject& even
                                 {
                                     wellPathSourceInfo =
                                         dynamic_cast<const RivWellPathSourceInfo*>(secondPickedPart->sourceInfo());
-                                    wellPathTriangleIndex = secondPair.faceIdx();
+                                    wellPathTriangleIndex = secondPickedItem.faceIdx();
                                 }
                             }
                         }
@@ -97,10 +97,10 @@ bool RicWellPathViewerEventHandler::handleEvent(const RicViewerEventObject& even
                 }
             }
 
-            if (dynamic_cast<const RivWellPathSourceInfo*>(part->sourceInfo()))
+            if (dynamic_cast<const RivWellPathSourceInfo*>(firstPickedPart->sourceInfo()))
             {
-                wellPathSourceInfo    = dynamic_cast<const RivWellPathSourceInfo*>(part->sourceInfo());
-                wellPathTriangleIndex = partAndTriangleIndexPair.faceIdx();
+                wellPathSourceInfo    = dynamic_cast<const RivWellPathSourceInfo*>(firstPickedPart->sourceInfo());
+                wellPathTriangleIndex = firstPickedItem.faceIdx();
             }
         }
     }
@@ -111,7 +111,7 @@ bool RicWellPathViewerEventHandler::handleEvent(const RicViewerEventObject& even
         if (!rimView) return false;
 
         cvf::ref<caf::DisplayCoordTransform> transForm = rimView->displayCoordTransform();
-        cvf::Vec3d pickedPositionInUTM = transForm->transformToDomainCoord(eventObject.m_partAndTriangleIndexPairs.front().globalPickedPoint());
+        cvf::Vec3d pickedPositionInUTM = transForm->transformToDomainCoord(eventObject.m_pickItemInfos.front().globalPickedPoint());
 
         if (auto intersectionView = dynamic_cast<Rim2dIntersectionView*>(rimView))
         {

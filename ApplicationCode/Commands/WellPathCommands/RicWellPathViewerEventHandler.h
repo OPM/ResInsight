@@ -25,11 +25,11 @@
 //==================================================================================================
 /// 
 //==================================================================================================
-class RicWellPathViewerEventHandler : public RicViewerEventInterface
+class RicWellPathViewerEventHandler : public RicPickEventHandler
 {
 public:
     static RicWellPathViewerEventHandler* instance();
 
-    bool handleEvent(const RicViewerEventObject& eventObject) override;
+    bool handlePickEvent(const Ric3DPickEvent& eventObject) override;
 };
 

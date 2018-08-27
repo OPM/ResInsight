@@ -35,17 +35,17 @@ class Rim3dView;
 //==================================================================================================
 /// 
 //==================================================================================================
-class RicViewerEventObject
+class Ric3DPickEvent
 {
 public:
-    RicViewerEventObject(const std::vector<RiuPickItemInfo>& partAndTriangleIndexPairs, 
-                         Rim3dView* view)
-        : m_partAndTriangleIndexPairs(partAndTriangleIndexPairs)
+    Ric3DPickEvent(const std::vector<RiuPickItemInfo>& pickItemInfos, 
+                   Rim3dView* view)
+        : m_pickItemInfos(pickItemInfos)
         , m_view(view)
     {
     }
 
-    std::vector<RiuPickItemInfo> m_partAndTriangleIndexPairs;
+    std::vector<RiuPickItemInfo> m_pickItemInfos;
     Rim3dView*                   m_view; 
 };
 
@@ -53,9 +53,9 @@ public:
 //==================================================================================================
 /// 
 //==================================================================================================
-class RicViewerEventInterface
+class RicPickEventHandler
 {
 public:
-    virtual bool handleEvent(const RicViewerEventObject& eventObject) = 0;
+    virtual bool handlePickEvent(const Ric3DPickEvent& eventObject) = 0;
 };
 

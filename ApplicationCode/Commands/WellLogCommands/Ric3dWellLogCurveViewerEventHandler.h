@@ -24,10 +24,10 @@
 //==================================================================================================
 ///
 //==================================================================================================
-class Ric3dWellLogCurveViewerEventHandler : public RicViewerEventInterface
+class Ric3dWellLogCurveViewerEventHandler : public RicPickEventHandler
 {
 public:
     static Ric3dWellLogCurveViewerEventHandler* instance();
 
-    bool handleEvent(const RicViewerEventObject& eventObject) override;
+    bool handlePickEvent(const Ric3DPickEvent& eventObject) override;
 };

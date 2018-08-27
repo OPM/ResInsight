@@ -23,12 +23,12 @@
 //==================================================================================================
 /// 
 //==================================================================================================
-class RicIntersectionViewerEventHandler : public RicViewerEventInterface
+class RicIntersectionViewerEventHandler : public RicPickEventHandler
 {
 public:
     static RicIntersectionViewerEventHandler* instance();
 
 protected:
-    virtual bool handleEvent(const RicViewerEventObject& eventObject) override;
+    virtual bool handlePickEvent(const Ric3DPickEvent& eventObject) override;
 };
 
