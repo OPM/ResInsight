@@ -204,18 +204,24 @@ void RicFishbonesTransmissibilityCalculationFeatureImp::findFishboneLateralsWell
         // Note that it is not supported to export main bore perforation intervals for Imported Laterals, only for fishbones
         // defined by ResInsight
 
-        double holeRadius = wellPath->fishbonesCollection()->mainBoreDiameter(unitSystem) / 2.0;
-        double skinFactor = wellPath->fishbonesCollection()->mainBoreSkinFactor();
-
-        for (const auto& fishboneDefinition : wellPath->fishbonesCollection()->fishbonesSubs())
+        if (wellPath->fishbonesCollection()->isChecked())
         {
-            appendMainWellBoreParts(wellBorePartsInCells,
-                                    wellPath,
-                                    settings,
-                                    skinFactor,
-                                    holeRadius,
-                                    fishboneDefinition->startOfSubMD(),
-                                    fishboneDefinition->endOfSubMD());
+            double holeRadius = wellPath->fishbonesCollection()->mainBoreDiameter(unitSystem) / 2.0;
+            double skinFactor = wellPath->fishbonesCollection()->mainBoreSkinFactor();
+
+            for (const auto& fishboneDefinition : wellPath->fishbonesCollection()->fishbonesSubs())
+            {
+                if (fishboneDefinition->isActive())
+                {
+                    appendMainWellBoreParts(wellBorePartsInCells,
+                                            wellPath,
+                                            settings,
+                                            skinFactor,
+                                            holeRadius,
+                                            fishboneDefinition->startOfSubMD(),
+                                            fishboneDefinition->endOfSubMD());
+                }
+            }
         }
     }
 }
