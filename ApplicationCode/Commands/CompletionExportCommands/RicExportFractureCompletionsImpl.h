@@ -22,14 +22,14 @@
 
 #include <vector>
 
-class RimWellPath;
-
-class QTextStream;
+class RicWellPathFractureReportItem;
 class RigWellPath;
 class RimEclipseCase;
 class RimFracture;
 class RimSimWellInView;
-class RicWellPathFractureReportItem;
+class RimWellPath;
+
+class QTextStream;
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -51,7 +51,7 @@ public:
         generateCompdatValues(RimEclipseCase*                             caseToApply,
                               const QString&                              wellPathName,
                               const RigWellPath*                          wellPathGeometry,
-                              const std::vector<const RimFracture*>&            fractures,
+                              const std::vector<const RimFracture*>&      fractures,
                               std::vector<RicWellPathFractureReportItem>* fractureDataReportItems,
                               QTextStream*                                outputStreamForIntermediateResultsText);
 

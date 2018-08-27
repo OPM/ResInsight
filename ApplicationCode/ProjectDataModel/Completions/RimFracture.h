@@ -119,7 +119,7 @@ public:
 
     
     // Fracture properties
-    const NonDarcyData&       nonDarcyProperties() const;
+    const NonDarcyData&             nonDarcyProperties() const;
     void                            ensureValidNonDarcyProperties();
     void                            clearCachedNonDarcyProperties();
     

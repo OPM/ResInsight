@@ -125,7 +125,7 @@ std::vector<RigCompletionData>
     RicExportFractureCompletionsImpl::generateCompdatValues(RimEclipseCase*                             caseToApply,
                                                             const QString&                              wellPathName,
                                                             const RigWellPath*                          wellPathGeometry,
-                                                            const std::vector<const RimFracture*>&            fractures,
+                                                            const std::vector<const RimFracture*>&      fractures,
                                                             std::vector<RicWellPathFractureReportItem>* fractureDataReportItems,
                                                             QTextStream* outputStreamForIntermediateResultsText)
 {
@@ -172,7 +172,8 @@ std::vector<RigCompletionData>
         caseToApply->loadStaticResultsByName(resultNames);
     }
 
-    return generateCompdatValuesConst(caseToApply, wellPathName, wellPathGeometry, fractures, fractureDataReportItems, outputStreamForIntermediateResultsText);
+    return generateCompdatValuesConst(
+        caseToApply, wellPathName, wellPathGeometry, fractures, fractureDataReportItems, outputStreamForIntermediateResultsText);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -521,19 +522,19 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
             {
                 (*outputStreamForIntermediateResultsText)
                     << "\n"
-                << "\n"
-                << "\n----------- All Transmissibilities " << fracture->name() << " -------------------- \n\n";
+                    << "\n"
+                    << "\n----------- All Transmissibilities " << fracture->name() << " -------------------- \n\n";
 
-            (*outputStreamForIntermediateResultsText)
-                << QString::fromStdString(transCondenser.neighborTransDebugOutput(mainGrid, fractureGrid));
+                (*outputStreamForIntermediateResultsText)
+                    << QString::fromStdString(transCondenser.neighborTransDebugOutput(mainGrid, fractureGrid));
 
-            (*outputStreamForIntermediateResultsText)
-                << "\n"
-                << "\n"
-                << "\n----------- Condensed Results " << fracture->name() << " -------------------- \n\n";
+                (*outputStreamForIntermediateResultsText)
+                    << "\n"
+                    << "\n"
+                    << "\n----------- Condensed Results " << fracture->name() << " -------------------- \n\n";
 
-            (*outputStreamForIntermediateResultsText)
-                << QString::fromStdString(transCondenser.condensedTransDebugOutput(mainGrid, fractureGrid));
+                (*outputStreamForIntermediateResultsText)
+                    << QString::fromStdString(transCondenser.condensedTransDebugOutput(mainGrid, fractureGrid));
 
                 (*outputStreamForIntermediateResultsText) << "\n";
             }
