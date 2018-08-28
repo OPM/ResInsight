@@ -36,7 +36,7 @@
 
 #pragma once
 
-#include "cafPdmUiWidgetBasedObjectEditor.h"
+#include "cafPdmUiFormLayoutObjectEditor.h"
 
 #include <QPointer>
 
@@ -61,7 +61,7 @@ class PdmUiGroup;
 /// User defined external widgets can be inserted into grid layout cells, and these cells
 /// are excluded for automatic layout
 //==================================================================================================
-class CustomObjectEditor : public PdmUiWidgetBasedObjectEditor
+class CustomObjectEditor : public PdmUiFormLayoutObjectEditor
 {
     Q_OBJECT
 public:
