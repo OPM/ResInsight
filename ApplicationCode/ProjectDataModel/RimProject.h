@@ -21,6 +21,7 @@
 #pragma once
 
 #include "RiaDefines.h"
+#include "RiaEclipseUnitTools.h"
 
 #include "cafPdmChildArrayField.h"
 #include "cafPdmChildField.h"
@@ -105,7 +106,7 @@ public:
     void            assignCaseIdToCase(RimCase* reservoirCase);
     void            assignIdToCaseGroup(RimIdenticalGridCaseGroup* caseGroup);
 
-    void            allCases(std::vector<RimCase*>& cases);
+    void            allCases(std::vector<RimCase*>& cases) const;
 
     std::vector<RimSummaryCase*>    allSummaryCases() const;
     std::vector<RimSummaryCaseCollection*> summaryGroups() const;
@@ -146,6 +147,8 @@ public:
 
     std::vector<RimFractureTemplateCollection*> allFractureTemplateCollections() const;
     std::vector<RimFractureTemplate*> allFractureTemplates() const;
+
+    RiaEclipseUnitTools::UnitSystem commonUnitSystemForAllCases() const;
 
 protected:
     // Overridden methods

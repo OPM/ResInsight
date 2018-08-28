@@ -60,14 +60,17 @@ bool RicNewEditableWellPathFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicNewEditableWellPathFeature::onActionTriggered(bool isChecked)
 {
-    if ( RiaApplication::instance()->project() && RiaApplication::instance()->project()->activeOilField() )
+    RimProject* project = RiaApplication::instance()->project();
+    if (project  && RiaApplication::instance()->project()->activeOilField() )
     {
         RimWellPathCollection* wellPathCollection = RiaApplication::instance()->project()->activeOilField()->wellPathCollection();
 
         if ( wellPathCollection )
         {
             std::vector<RimWellPath*> newWellPaths;
-            newWellPaths.push_back(new RimModeledWellPath());
+            auto newModeledWellPath = new RimModeledWellPath();
+            newModeledWellPath->setUnitSystem(project->commonUnitSystemForAllCases());
+            newWellPaths.push_back(newModeledWellPath);
             newWellPaths.back()->setName("UWell-" + QString::number(wellPathCollection->modelledWellPathCount()+1));
             wellPathCollection->addWellPaths(newWellPaths);
             wellPathCollection->uiCapability()->updateConnectedEditors();

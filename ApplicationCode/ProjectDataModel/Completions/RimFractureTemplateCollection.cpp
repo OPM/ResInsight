@@ -123,31 +123,10 @@ void RimFractureTemplateCollection::setDefaultUnitSystemBasedOnLoadedCases()
 {
     RimProject* proj = RiaApplication::instance()->project();
 
-    std::vector<RimCase*> rimCases;
-    proj->allCases(rimCases);
-
-    RiaEclipseUnitTools::UnitSystem commonUnitSystemForAllCases = RiaEclipseUnitTools::UNITS_UNKNOWN;
-
-    for (const auto& c : rimCases)
+    auto commonUnitSystem = proj->commonUnitSystemForAllCases();
+    if (commonUnitSystem != RiaEclipseUnitTools::UNITS_UNKNOWN)
     {
-        auto eclipseCase = dynamic_cast<RimEclipseCase*>(c);
-        if (eclipseCase && eclipseCase->eclipseCaseData())
-        {
-            if (commonUnitSystemForAllCases == RiaEclipseUnitTools::UNITS_UNKNOWN)
-            {
-                commonUnitSystemForAllCases = eclipseCase->eclipseCaseData()->unitsType();
-            }
-            else if (commonUnitSystemForAllCases != eclipseCase->eclipseCaseData()->unitsType())
-            {
-                commonUnitSystemForAllCases = RiaEclipseUnitTools::UNITS_UNKNOWN;
-                break;
-            }
-        }
-    }
-
-    if (commonUnitSystemForAllCases != RiaEclipseUnitTools::UNITS_UNKNOWN)
-    {
-        m_defaultUnitsForFracTemplates = commonUnitSystemForAllCases;
+        m_defaultUnitsForFracTemplates = commonUnitSystem;
     }
 }
 

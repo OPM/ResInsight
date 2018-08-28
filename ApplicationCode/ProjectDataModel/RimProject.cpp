@@ -529,7 +529,7 @@ void RimProject::assignIdToCaseGroup(RimIdenticalGridCaseGroup* caseGroup)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimProject::allCases(std::vector<RimCase*>& cases)
+void RimProject::allCases(std::vector<RimCase*>& cases) const
 {
     for (size_t oilFieldIdx = 0; oilFieldIdx < oilFields().size(); oilFieldIdx++)
     {
@@ -1013,6 +1013,36 @@ std::vector<RimFractureTemplate*> RimProject::allFractureTemplates() const
         }
     }
     return templates;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RiaEclipseUnitTools::UnitSystem RimProject::commonUnitSystemForAllCases() const
+{
+    std::vector<RimCase*> rimCases;
+    allCases(rimCases);
+
+    RiaEclipseUnitTools::UnitSystem commonUnitSystem = RiaEclipseUnitTools::UNITS_UNKNOWN;
+
+    for (const auto& c : rimCases)
+    {
+        auto eclipseCase = dynamic_cast<RimEclipseCase*>(c);
+        if (eclipseCase && eclipseCase->eclipseCaseData())
+        {
+            if (commonUnitSystem == RiaEclipseUnitTools::UNITS_UNKNOWN)
+            {
+                commonUnitSystem = eclipseCase->eclipseCaseData()->unitsType();
+            }
+            else if (commonUnitSystem != eclipseCase->eclipseCaseData()->unitsType())
+            {
+                commonUnitSystem = RiaEclipseUnitTools::UNITS_UNKNOWN;
+                break;
+            }
+        }
+    }
+
+    return commonUnitSystem;
 }
 
 //--------------------------------------------------------------------------------------------------
