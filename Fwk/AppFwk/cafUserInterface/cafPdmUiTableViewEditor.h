@@ -85,6 +85,7 @@ public:
         : selectionLevel(1)
         , enableHeaderText(true)
         , minimumHeight(-1)
+        , forceColumnWidthResize(false)
     {
         QPalette myPalette;
         baseColor = myPalette.color(QPalette::Active, QPalette::Base);
@@ -95,7 +96,7 @@ public:
     std::vector<int>    columnWidths;
     int                 minimumHeight; ///< Not used if If < 0 
     QColor              baseColor;
-
+    bool                forceColumnWidthResize; 
 };
 
 

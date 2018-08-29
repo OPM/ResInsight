@@ -194,13 +194,16 @@ void PdmUiTableViewEditor::configureAndUpdateUi(const QString& uiConfigName)
         m_tableHeadingIcon->setPixmap(QPixmap());
     }
 
-    if (m_previousFieldHandle != childArrayFH)
+    if (m_previousFieldHandle != childArrayFH )
     {
         if (editorAttrib.minimumHeight > 0)
         {
             m_tableView->setMinimumHeight(editorAttrib.minimumHeight);
         }
+    }
 
+    if ( m_previousFieldHandle != childArrayFH || editorAttrib.forceColumnWidthResize )
+    {
         // Set default column widths
         m_tableView->resizeColumnsToContents();
 
@@ -215,9 +218,9 @@ void PdmUiTableViewEditor::configureAndUpdateUi(const QString& uiConfigName)
             }
         }
 
-        m_previousFieldHandle = childArrayFH;
     }
 
+    m_previousFieldHandle = childArrayFH;
 
     // Set default row heights
     m_tableView->resizeRowsToContents();
