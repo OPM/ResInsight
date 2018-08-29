@@ -11,6 +11,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RicDeleteWellPathAttributeFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicWellPathsUnitSystemSettingsImpl.h
 ${CMAKE_CURRENT_LIST_DIR}/RicWellPathsUnitSystemSettingsUi.h
 ${CMAKE_CURRENT_LIST_DIR}/RicWellPathPickEventHandler.h 
+${CMAKE_CURRENT_LIST_DIR}/RicCreateWellTargetsPickEventHandler.h
 ${CMAKE_CURRENT_LIST_DIR}/RicIntersectionPickEventHandler.h
 ${CMAKE_CURRENT_LIST_DIR}/RicWellPathFormationsImportFileFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/PointTangentManipulator/RicPointTangentManipulator.h
@@ -28,6 +29,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RicDeleteWellPathAttributeFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicWellPathsUnitSystemSettingsImpl.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicWellPathsUnitSystemSettingsUi.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicWellPathPickEventHandler.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicCreateWellTargetsPickEventHandler.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicIntersectionPickEventHandler.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicWellPathFormationsImportFileFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/PointTangentManipulator/RicPointTangentManipulator.cpp

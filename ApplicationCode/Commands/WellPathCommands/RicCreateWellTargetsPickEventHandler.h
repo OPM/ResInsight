@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2018 -    equinor ASA
+//  Copyright (C) 2017-     Statoil ASA
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -15,32 +15,27 @@
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
+
 #pragma once
 
-#include "RimWellPath.h"
+#include "RicPickEventHandler.h"
 
-#include "cafPdmChildField.h"
+#include "cafPdmPointer.h"
 
-class RimWellPathTarget;
-class RimWellPath;
 class RimWellPathGeometryDef;
 
-class RimModeledWellPath: public RimWellPath
+//==================================================================================================
+/// 
+//==================================================================================================
+class RicCreateWellTargetsPickEventHandler : public RicPickEventHandler
 {
-    CAF_PDM_HEADER_INIT; 
 public:
+    RicCreateWellTargetsPickEventHandler(RimWellPathGeometryDef* wellGeometryDef);
+    ~RicCreateWellTargetsPickEventHandler();
 
-    RimModeledWellPath();
-    ~RimModeledWellPath();
+protected:
+    caf::PdmPointer<RimWellPathGeometryDef> m_geometryToAddTargetsTo;
 
-    void                    createWellPathGeometry();
-    void                    updateWellPathVisualization();
-    RimWellPathGeometryDef* geometryDefinition();
-
-private:
-    virtual void defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName) override;
-
-    caf::PdmChildField<RimWellPathGeometryDef*> m_geometryDefinition;
-
+    virtual bool handlePickEvent(const Ric3DPickEvent& eventObject) override;
 };
 

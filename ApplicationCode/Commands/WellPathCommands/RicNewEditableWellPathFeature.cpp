@@ -27,6 +27,8 @@ CAF_CMD_SOURCE_INIT(RicNewEditableWellPathFeature, "RicNewEditableWellPathFeatur
 #include "RimModeledWellPath.h"
 #include <QAction>
 #include "RimOilField.h"
+#include "Riu3DMainWindowTools.h"
+#include "RimWellPathGeometryDef.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -74,7 +76,14 @@ void RicNewEditableWellPathFeature::onActionTriggered(bool isChecked)
             newWellPaths.back()->setName("UWell-" + QString::number(wellPathCollection->modelledWellPathCount()+1));
             wellPathCollection->addWellPaths(newWellPaths);
             wellPathCollection->uiCapability()->updateConnectedEditors();
-            wellPathCollection->scheduleRedrawAffectedViews();
+            
+            newModeledWellPath->geometryDefinition()->enableTargetPointPicking(true);
+
+            RimProject* project;
+            wellPathCollection->firstAncestorOrThisOfTypeAsserted(project);
+            project->createDisplayModelAndRedrawAllViews();
+
+            Riu3DMainWindowTools::selectAsCurrentItem(newModeledWellPath->geometryDefinition());
         }
     }
 }

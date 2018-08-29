@@ -18,8 +18,8 @@
 #include "RicDeleteWellPathAttributeFeature.h"
 
 #include "RimWellPathAttributeCollection.h"
-#include "RimWellPathTarget.h"
-#include "RimModeledWellPath.h"
+#include "RimWellPath.h"
+
 #include "cafSelectionManager.h"
 #include <QAction>
 
@@ -72,5 +72,3 @@ void RicDeleteWellPathAttributeFeature::setupActionLook(QAction* actionToSetup)
     actionToSetup->setText("Delete Attribute");
     actionToSetup->setIcon(QIcon(":/Erase.png"));
 }
-
-

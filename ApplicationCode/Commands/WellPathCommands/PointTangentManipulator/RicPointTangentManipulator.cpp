@@ -818,7 +818,7 @@ void RicWellTarget3dEditor::configureAndUpdateUi(const QString& uiConfigName)
         handleSize = 0.7 * view->ownerCase()->characteristicCellSize();
     }
 
-    m_manipulator->setOrigin(dispXf->transformToDisplayCoord( target->targetPointXYZ() + geomDef->referencePoint()));
+    m_manipulator->setOrigin(dispXf->transformToDisplayCoord( target->targetPointXYZ() + geomDef->referencePointXyz()));
     m_manipulator->setTangent(target->tangent());
     m_manipulator->setHandleSize(handleSize);
     m_cvfModel->removeAllParts();
@@ -863,7 +863,7 @@ void RicWellTarget3dEditor::slotUpdated(const cvf::Vec3d& origin, const cvf::Vec
     RimWellPathGeometryDef* geomDef;
     target->firstAncestorOrThisOfTypeAsserted(geomDef);
 
-    cvf::Vec3d domainOrigin = dispXf->transformToDomainCoord( origin)  - geomDef->referencePoint();
+    cvf::Vec3d domainOrigin = dispXf->transformToDomainCoord( origin)  - geomDef->referencePointXyz();
     domainOrigin.z() = -domainOrigin.z();
     QVariant originVariant = caf::PdmValueFieldSpecialization < cvf::Vec3d >::convert(domainOrigin);
 

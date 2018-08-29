@@ -26,8 +26,10 @@
 #include "cafPdmPtrField.h"
 #include "cafPdmChildArrayField.h"
 
+
 class RimWellPath;
 class RimWellPathTarget;
+class RicCreateWellTargetsPickEventHandler;
 
 class RigWellPath;
 
@@ -41,40 +43,56 @@ public:
 
     enum WellStartType { START_AT_FIRST_TARGET, START_AT_SURFACE, START_FROM_OTHER_WELL, START_AT_AUTO_SURFACE };
 
-    cvf::Vec3d referencePoint() { return m_referencePoint;}
-    cvf::ref<RigWellPath> createWellPathGeometry();
+    cvf::Vec3d                      referencePointXyz() { return m_referencePointXyz;}
+    void                            setReferencePoint(const cvf::Vec3d& refPointXyz ) {m_referencePointXyz = refPointXyz;}
+
+    cvf::ref<RigWellPath>           createWellPathGeometry();
     
-    void updateWellPathVisualization();
+    void                            updateWellPathVisualization();
 
-    void insertTarget(RimWellPathTarget* targetToInsertBefore, RimWellPathTarget* targetToInsert);
-    void deleteTarget(RimWellPathTarget* targetTodelete);
-    void appendTarget();
+    void                            insertTarget(const RimWellPathTarget* targetToInsertBefore, 
+                                                 RimWellPathTarget* targetToInsert);
+    void                            deleteTarget(RimWellPathTarget* targetTodelete);
+    void                            appendTarget();
 
-    const RimWellPathTarget* firstActiveTarget() const;
-    const RimWellPathTarget* lastActiveTarget() const;
+    const RimWellPathTarget*        firstActiveTarget() const;
+    const RimWellPathTarget*        lastActiveTarget() const;
 
-    virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
+    void                            enableTargetPointPicking(bool isEnabling);
 
     std::vector<RimWellPathTarget*> activeWellTargets() const;
 protected:
-    virtual void defineCustomContextMenu(const caf::PdmFieldHandle* fieldNeedingMenu, 
-                                         QMenu* menu, 
-                                         QWidget* fieldEditorWidget) override;
-
-private:
-    virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
-    virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
-    virtual void defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName) override;
+    void                            defineCustomContextMenu(const caf::PdmFieldHandle* fieldNeedingMenu, 
+                                                            QMenu* menu, 
+                                                            QWidget* fieldEditorWidget) override;
+                                    
+                                    
+    void                            defineEditorAttribute(const caf::PdmFieldHandle* field, 
+                                                          QString uiConfigName, 
+                                                          caf::PdmUiEditorAttribute* attribute) override;
+                                    
+private:                            
+    void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
+                                                     const QVariant& oldValue, 
+                                                     const QVariant& newValue) override;
+    void                            defineUiOrdering(QString uiConfigName, 
+                                                     caf::PdmUiOrdering& uiOrdering) override;
+    void                            defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, 
+                                                         QString uiConfigName) override;
+    QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
 
     std::vector<cvf::Vec3d>         lineArcEndpoints() const;
     cvf::Vec3d                      startTangent() const;
 
 private:
     caf::PdmField<caf::AppEnum<WellStartType> >      m_wellStartType;
-    caf::PdmField<cvf::Vec3d>                        m_referencePoint;
+    caf::PdmField<cvf::Vec3d>                        m_referencePointXyz;
 
     caf::PdmField<double>                            m_kickoffDepthOrMD;
     caf::PdmPtrField<RimWellPath*>                   m_parentWell;
 
+    caf::PdmField< bool >                            m_pickPointsEnabled;
+
     caf::PdmChildArrayField<RimWellPathTarget*>      m_wellTargets;
+    RicCreateWellTargetsPickEventHandler*            m_pickTargetsEventHandler;
 };

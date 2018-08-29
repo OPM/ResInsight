@@ -28,6 +28,10 @@
 #include "RiaSCurveCalculator.h"
 #include "RiaLogging.h"
 #include "RiaJCurveCalculator.h"
+#include "cafPdmUiPushButtonEditor.h"
+
+#include "WellPathCommands/RicCreateWellTargetsPickEventHandler.h"
+#include "RiuViewerCommands.h"
 
 namespace caf
 {
@@ -49,11 +53,12 @@ CAF_PDM_SOURCE_INIT(RimWellPathGeometryDef, "WellPathGeometryDef");
 /// 
 //--------------------------------------------------------------------------------------------------
 RimWellPathGeometryDef::RimWellPathGeometryDef()
+    : m_pickTargetsEventHandler(new RicCreateWellTargetsPickEventHandler(this))
 {
     CAF_PDM_InitObject("Trajectory", ":/Well.png", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_wellStartType, "WellStartType", "Start Type", "", "", "");
-    CAF_PDM_InitField(&m_referencePoint, "ReferencePos", cvf::Vec3d(0,0,0), "UTM Reference Point", "", "", "");
+    CAF_PDM_InitField(&m_referencePointXyz, "ReferencePos", cvf::Vec3d(0,0,0), "UTM Reference Point", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_parentWell, "ParentWell", "Parent Well", "", "", "");
     CAF_PDM_InitField(&m_kickoffDepthOrMD, "KickoffDepthOrMD", 100.0, "Kickoff Depth", "", "", "");
@@ -65,8 +70,8 @@ RimWellPathGeometryDef::RimWellPathGeometryDef()
     m_wellTargets.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::TOP);
     m_wellTargets.uiCapability()->setCustomContextMenuEnabled(true);
 
-
-    m_wellTargets.push_back(new RimWellPathTarget());
+    CAF_PDM_InitField(&m_pickPointsEnabled, "m_pickPointsEnabled", false, "", "", "", "");
+    caf::PdmUiPushButtonEditor::configureEditorForField(&m_pickPointsEnabled);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -74,7 +79,11 @@ RimWellPathGeometryDef::RimWellPathGeometryDef()
 //--------------------------------------------------------------------------------------------------
 RimWellPathGeometryDef::~RimWellPathGeometryDef()
 {
+    RiuViewerCommands::removePickEventHandler(m_pickTargetsEventHandler);
 
+    delete m_pickTargetsEventHandler;
+
+    m_pickTargetsEventHandler = nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -109,7 +118,7 @@ void RimWellPathGeometryDef::updateWellPathVisualization()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellPathGeometryDef::insertTarget(RimWellPathTarget* targetToInsertBefore, RimWellPathTarget* targetToInsert)
+void RimWellPathGeometryDef::insertTarget(const RimWellPathTarget* targetToInsertBefore, RimWellPathTarget* targetToInsert)
 {
    size_t index = m_wellTargets.index(targetToInsertBefore);
    if (index < m_wellTargets.size()) m_wellTargets.insert(index, targetToInsert);
@@ -183,6 +192,25 @@ const RimWellPathTarget* RimWellPathGeometryDef::lastActiveTarget() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimWellPathGeometryDef::enableTargetPointPicking(bool isEnabling)
+{
+    if (isEnabling)
+    {
+        m_pickPointsEnabled = true;
+        RiuViewerCommands::addPickEventHandler(m_pickTargetsEventHandler);
+        updateConnectedEditors();
+    }
+    else
+    {
+        RiuViewerCommands::removePickEventHandler(m_pickTargetsEventHandler);
+        m_pickPointsEnabled = false;
+        updateConnectedEditors();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo> RimWellPathGeometryDef::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, 
                                                                              bool* useOptionsOnly)
 {
@@ -203,9 +231,13 @@ void RimWellPathGeometryDef::fieldChangedByUi(const caf::PdmFieldHandle* changed
                                               const QVariant& oldValue, 
                                               const QVariant& newValue)
 {
-    if (&m_referencePoint == changedField)
+    if (&m_referencePointXyz == changedField)
     {
         std::cout << "fieldChanged" << std::endl;
+    }
+    else if (changedField == &m_pickPointsEnabled)
+    {
+        enableTargetPointPicking(m_pickPointsEnabled);
     }
 
     updateWellPathVisualization();
@@ -230,8 +262,9 @@ void RimWellPathGeometryDef::defineUiOrdering(QString uiConfigName, caf::PdmUiOr
         uiOrdering.add(&m_kickoffDepthOrMD);
     }
 
-    uiOrdering.add(&m_referencePoint);
+    uiOrdering.add(&m_referencePointXyz);
     uiOrdering.add(&m_wellTargets);
+    uiOrdering.add(&m_pickPointsEnabled);
     uiOrdering.skipRemainingFields(true);
 }
 
@@ -273,7 +306,7 @@ std::vector<cvf::Vec3d> RimWellPathGeometryDef::lineArcEndpoints() const
     CVF_ASSERT(activeWellPathTargets.size() > 1);
 
     std::vector<cvf::Vec3d> endPoints;
-    endPoints.push_back(  activeWellPathTargets[0]->targetPointXYZ() + m_referencePoint() );
+    endPoints.push_back(  activeWellPathTargets[0]->targetPointXYZ() + m_referencePointXyz() );
 
     for ( size_t tIdx = 0; tIdx < activeWellPathTargets.size() - 1; ++tIdx)
     {
@@ -307,9 +340,9 @@ std::vector<cvf::Vec3d> RimWellPathGeometryDef::lineArcEndpoints() const
                 RiaLogging::warning("Using fall-back calculation of well path geometry between active target number: " + QString::number(tIdx+1) + " and " + QString::number(tIdx+2));
             }
 
-            endPoints.push_back( sCurveCalc.firstArcEndpoint() + m_referencePoint() );
-            endPoints.push_back( sCurveCalc.secondArcStartpoint() + m_referencePoint() );
-            endPoints.push_back( target2->targetPointXYZ() + m_referencePoint() );
+            endPoints.push_back( sCurveCalc.firstArcEndpoint() + m_referencePointXyz() );
+            endPoints.push_back( sCurveCalc.secondArcStartpoint() + m_referencePointXyz() );
+            endPoints.push_back( target2->targetPointXYZ() + m_referencePointXyz() );
 
         }
         else if (   target1->targetType() == RimWellPathTarget::POINT
@@ -339,9 +372,9 @@ std::vector<cvf::Vec3d> RimWellPathGeometryDef::lineArcEndpoints() const
                 RiaLogging::warning("Using fall-back calculation of well path geometry between active target number: " + QString::number(tIdx+1) + " and " + QString::number(tIdx+2));
             }
 
-            endPoints.push_back( sCurveCalc.firstArcEndpoint() + m_referencePoint() );
-            endPoints.push_back( sCurveCalc.secondArcStartpoint() + m_referencePoint() );
-            endPoints.push_back( target2->targetPointXYZ() + m_referencePoint() );
+            endPoints.push_back( sCurveCalc.firstArcEndpoint() + m_referencePointXyz() );
+            endPoints.push_back( sCurveCalc.secondArcStartpoint() + m_referencePointXyz() );
+            endPoints.push_back( target2->targetPointXYZ() + m_referencePointXyz() );
         }
         else if (   target1->targetType() == RimWellPathTarget::POINT_AND_TANGENT
                  && target2->targetType() == RimWellPathTarget::POINT)
@@ -353,9 +386,9 @@ std::vector<cvf::Vec3d> RimWellPathGeometryDef::lineArcEndpoints() const
                                        target2->targetPointXYZ());
             if ( jCurve.isOk() )
             {
-                endPoints.push_back(jCurve.firstArcEndpoint() + m_referencePoint());
+                endPoints.push_back(jCurve.firstArcEndpoint() + m_referencePointXyz());
             }
-            endPoints.push_back( target2->targetPointXYZ() + m_referencePoint() );
+            endPoints.push_back( target2->targetPointXYZ() + m_referencePointXyz() );
             prevSegmentEndAzi = jCurve.endAzimuth();
             prevSegmentEndInc = jCurve.endInclination();
 
@@ -371,9 +404,9 @@ std::vector<cvf::Vec3d> RimWellPathGeometryDef::lineArcEndpoints() const
                                        target2->targetPointXYZ());
             if ( jCurve.isOk() )
             {
-                endPoints.push_back(jCurve.firstArcEndpoint() + m_referencePoint());
+                endPoints.push_back(jCurve.firstArcEndpoint() + m_referencePointXyz());
             }
-            endPoints.push_back( target2->targetPointXYZ() + m_referencePoint() );
+            endPoints.push_back( target2->targetPointXYZ() + m_referencePointXyz() );
             prevSegmentEndAzi = jCurve.endAzimuth();
             prevSegmentEndInc = jCurve.endInclination();
         }
@@ -417,4 +450,35 @@ void RimWellPathGeometryDef::defineCustomContextMenu(const caf::PdmFieldHandle* 
     menuBuilder << "RicDeleteWellPathTargetFeature";
 
     menuBuilder.appendToMenu(menu);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellPathGeometryDef::defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute)
+{
+    if (field == &m_pickPointsEnabled)
+    {
+        caf::PdmUiPushButtonEditorAttribute* pbAttribute = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>(attribute);
+        if ( pbAttribute )
+        {
+            if ( !m_pickPointsEnabled )
+            {
+                pbAttribute->m_buttonText = "Start Picking Targets";
+            }
+            else
+            {
+                pbAttribute->m_buttonText = "Stop Picking Targets";
+            }
+        }
+    }
+
+    if (field == &m_wellTargets)
+    {
+        auto tvAttribute = dynamic_cast<caf::PdmUiTableViewEditorAttribute*>(attribute);
+        if (tvAttribute && m_pickPointsEnabled)
+        {
+            tvAttribute->baseColor.setRgb(255, 220, 255);
+        }
+    }
 }

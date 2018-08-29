@@ -74,6 +74,14 @@ void RimModeledWellPath::updateWellPathVisualization()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+RimWellPathGeometryDef* RimModeledWellPath::geometryDefinition()
+{
+    return m_geometryDefinition;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimModeledWellPath::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName)
 {
     uiTreeOrdering.add(m_geometryDefinition());
