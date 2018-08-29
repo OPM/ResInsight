@@ -479,6 +479,7 @@ void RimWellPathGeometryDef::defineEditorAttribute(const caf::PdmFieldHandle* fi
         if (tvAttribute && m_pickPointsEnabled)
         {
             tvAttribute->baseColor.setRgb(255, 220, 255);
+            tvAttribute->forceColumnWidthResize = true;
         }
     }
 }
