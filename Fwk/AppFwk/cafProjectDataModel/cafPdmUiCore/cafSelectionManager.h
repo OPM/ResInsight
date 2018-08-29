@@ -87,6 +87,8 @@ public:
     void                      selectionAsReferences(std::vector<QString>& referenceList, int selectionLevel = 0) const;
     void                      setSelectionFromReferences(const std::vector<QString>& referenceList, int selectionLevel = 0);
 
+    bool                      isSelected(PdmUiItem* item, int selectionLevel) const;
+
     void                      clearAll();
     void                      clear(int selectionLevel);
     void                      removeObjectFromAllSelections(PdmObjectHandle* pdmObject);

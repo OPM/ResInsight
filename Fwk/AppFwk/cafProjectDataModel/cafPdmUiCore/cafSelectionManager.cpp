@@ -212,6 +212,33 @@ void SelectionManager::setSelectionFromReferences(const std::vector<QString>& re
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+bool SelectionManager::isSelected(PdmUiItem* item, int selectionLevel) const
+{
+    auto levelIter = m_selectionPrLevel.find(selectionLevel);
+    
+    if (levelIter == m_selectionPrLevel.end()) return false;
+
+    const std::vector< std::pair<PdmPointer<PdmObjectHandle>, PdmUiItem*> >& selection = levelIter->second;
+
+    auto iter = selection.begin();
+    while ( iter != selection.end() )
+    {
+        if ( iter->second == item )
+        {
+            return true;
+        }
+        else
+        {
+            ++iter;
+        }
+    }
+
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void SelectionManager::clearAll()
 {
     std::set<int> changedSelectionLevels;
