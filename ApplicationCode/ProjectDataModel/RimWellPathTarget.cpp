@@ -29,11 +29,11 @@ RimWellPathTarget::RimWellPathTarget()
     CAF_PDM_InitField(&m_isEnabled, "IsEnabled", true, "", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_targetType, "TargetType", "Type", "", "", "");
     //m_targetType.uiCapability()->setUiHidden(true);
-    CAF_PDM_InitField(&m_dogleg1, "Dogleg1", 5.0, "DLS 1", "", "", "");
+    CAF_PDM_InitField(&m_dogleg1, "Dogleg1", 3.0, "DLS 1", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_targetPoint, "TargetPoint", "Point", "", "", "");
     CAF_PDM_InitField(&m_azimuth, "Azimuth", 0.0, "Azi(deg)", "", "", "");
     CAF_PDM_InitField(&m_inclination, "Inclination", 0.0, "Inc(deg)", "", "", "");
-    CAF_PDM_InitField(&m_dogleg2, "Dogleg2", 5.0, "DLS 2", "", "", "");
+    CAF_PDM_InitField(&m_dogleg2, "Dogleg2", 3.0, "DLS 2", "", "", "");
 }
 
 //--------------------------------------------------------------------------------------------------
