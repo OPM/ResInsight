@@ -668,7 +668,7 @@ void RicWellPathExportCompletionDataFeatureImpl::generateCompsegTable(
                                 formatter.add(intersection.gridName());
                             }
                             cvf::Vec3st ijk = intersection.gridLocalCellIJK();
-                            formatter.addZeroBasedCellIndex(ijk.x()).addZeroBasedCellIndex(ijk.y()).addZeroBasedCellIndex(
+                            formatter.addOneBasedCellIndex(ijk.x()).addOneBasedCellIndex(ijk.y()).addOneBasedCellIndex(
                                 ijk.z());
                             formatter.add(completion.branchNumber());
 
@@ -1127,10 +1127,10 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompdatTableUsingFormatte
             formatter.add(gridName);
         }
 
-        formatter.addZeroBasedCellIndex(data.completionDataGridCell().localCellIndexI())
-            .addZeroBasedCellIndex(data.completionDataGridCell().localCellIndexJ())
-            .addZeroBasedCellIndex(data.completionDataGridCell().localCellIndexK())
-            .addZeroBasedCellIndex(data.completionDataGridCell().localCellIndexK());
+        formatter.addOneBasedCellIndex(data.completionDataGridCell().localCellIndexI())
+            .addOneBasedCellIndex(data.completionDataGridCell().localCellIndexJ())
+            .addOneBasedCellIndex(data.completionDataGridCell().localCellIndexK())
+            .addOneBasedCellIndex(data.completionDataGridCell().localCellIndexK());
         switch (data.connectionState())
         {
             case OPEN:
@@ -1240,9 +1240,9 @@ void RicWellPathExportCompletionDataFeatureImpl::exportWpimultTableUsingFormatte
 
         formatter.add(completion.wpimult());
 
-        formatter.addZeroBasedCellIndex(completion.completionDataGridCell().localCellIndexI())
-            .addZeroBasedCellIndex(completion.completionDataGridCell().localCellIndexJ())
-            .addZeroBasedCellIndex(completion.completionDataGridCell().localCellIndexK());
+        formatter.addOneBasedCellIndex(completion.completionDataGridCell().localCellIndexI())
+            .addOneBasedCellIndex(completion.completionDataGridCell().localCellIndexJ())
+            .addOneBasedCellIndex(completion.completionDataGridCell().localCellIndexK());
         formatter.rowCompleted();
     }
 

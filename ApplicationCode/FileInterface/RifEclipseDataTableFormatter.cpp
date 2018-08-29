@@ -266,16 +266,16 @@ RifEclipseDataTableFormatter& RifEclipseDataTableFormatter::add(size_t num)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifEclipseDataTableFormatter& RifEclipseDataTableFormatter::addZeroBasedCellIndex(size_t index)
+RifEclipseDataTableFormatter& RifEclipseDataTableFormatter::addOneBasedCellIndex(size_t zeroBasedIndex)
 {
     size_t column = m_lineBuffer.size();
     CVF_ASSERT(column < m_columns.size());
 
     // Increase index by 1 to use Eclipse 1-based cell index instead of ResInsight 0-based
-    index++;
+    zeroBasedIndex++;
 
-    m_columns[column].width = std::max(measure(index), m_columns[column].width);
-    m_lineBuffer.push_back(format(index));
+    m_columns[column].width = std::max(measure(zeroBasedIndex), m_columns[column].width);
+    m_lineBuffer.push_back(format(zeroBasedIndex));
     return *this;
 }
 
