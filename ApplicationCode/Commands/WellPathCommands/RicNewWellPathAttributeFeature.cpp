@@ -17,10 +17,12 @@
 /////////////////////////////////////////////////////////////////////////////////
 #include "RicNewWellPathAttributeFeature.h"
 
+#include "RimWellPath.h"
+#include "RimWellPathAttribute.h"
 #include "RimWellPathAttributeCollection.h"
-#include "RimWellPathTarget.h"
-#include "RimModeledWellPath.h"
+
 #include "cafSelectionManager.h"
+
 #include <QAction>
 
 CAF_CMD_SOURCE_INIT(RicNewWellPathAttributeFeature, "RicNewWellPathAttributeFeature");
@@ -31,24 +33,21 @@ CAF_CMD_SOURCE_INIT(RicNewWellPathAttributeFeature, "RicNewWellPathAttributeFeat
 bool RicNewWellPathAttributeFeature::isCommandEnabled()
 {
     {
-        std::vector<RimWellPath*> objects;
-        caf::SelectionManager::instance()->objectsByType(&objects);
-
-        if ( objects.size() > 0 )
-        {
-            return true;
-        }
-    }
-    {
         std::vector<RimWellPathAttribute*> objects;
         caf::SelectionManager::instance()->objectsByType(&objects, caf::SelectionManager::FIRST_LEVEL);
 
-        if ( objects.size() > 0 )
+        if (objects.size() > 0)
         {
             return true;
         }
     }
 
+    {
+        if (caf::SelectionManager::instance()->selectedItemAncestorOfType<RimWellPath>())
+        {
+            return true;
+        }
+    }
     return false;
 }
 
@@ -59,30 +58,23 @@ void RicNewWellPathAttributeFeature::onActionTriggered(bool isChecked)
 {
     std::vector<RimWellPathAttribute*> attributes;
     caf::SelectionManager::instance()->objectsByType(&attributes, caf::SelectionManager::FIRST_LEVEL);
-    if (attributes.size() > 0)
+    if (attributes.size() == 1u)
     {
         RimWellPathAttributeCollection* attributeCollection = nullptr;
         attributes[0]->firstAncestorOrThisOfTypeAsserted(attributeCollection);
-        RimWellPath* wellPath = nullptr;
-        attributeCollection->firstAncestorOrThisOfTypeAsserted(wellPath);
-        attributes[0]->updateConnectedEditors();
         attributeCollection->insertAttribute(attributes[0], new RimWellPathAttribute);
-        wellPath->updateConnectedEditors();
+        attributeCollection->updateAllRequiredEditors();
         return;
     }
 
-    std::vector<RimWellPath*> wellPaths;
-    caf::SelectionManager::instance()->objectsByType(&wellPaths);
-
-    if (wellPaths.size() > 0)
+    RimWellPath* wellPath = caf::SelectionManager::instance()->selectedItemAncestorOfType<RimWellPath>();
+    if (wellPath)
     {
         std::vector<RimWellPathAttributeCollection*> attributeCollections;
-        wellPaths[0]->descendantsIncludingThisOfType(attributeCollections);
-        if (attributeCollections.size() > 0)
-        {
-            attributeCollections[0]->insertAttribute(nullptr, new RimWellPathAttribute);
-        }
-        wellPaths[0]->updateConnectedEditors();
+        wellPath->descendantsIncludingThisOfType(attributeCollections);
+    
+        attributeCollections[0]->insertAttribute(nullptr, new RimWellPathAttribute);
+        attributeCollections[0]->updateAllRequiredEditors();
     }
 }
 
@@ -91,8 +83,18 @@ void RicNewWellPathAttributeFeature::onActionTriggered(bool isChecked)
 //--------------------------------------------------------------------------------------------------
 void RicNewWellPathAttributeFeature::setupActionLook(QAction* actionToSetup)
 {
-    actionToSetup->setText("New Attribute");
-    actionToSetup->setIcon(QIcon(":/Well.png"));
+    std::vector<RimWellPathAttribute*> attributes;
+    caf::SelectionManager::instance()->objectsByType(&attributes, caf::SelectionManager::FIRST_LEVEL);
+    if (attributes.size() == 1u)
+    {
+        actionToSetup->setText(QString("Insert New Attribute before %1").arg(attributes[0]->label()));
+        actionToSetup->setIcon(QIcon(":/Well.png"));
+    }
+    else
+    {
+        actionToSetup->setText("Append New Attribute");
+        actionToSetup->setIcon(QIcon(":/Well.png"));
+    }
 }
 
 

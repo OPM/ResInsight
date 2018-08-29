@@ -54,13 +54,11 @@ void RicDeleteWellPathAttributeFeature::onActionTriggered(bool isChecked)
     {       
         RimWellPathAttributeCollection* wellPathAttributeCollection = nullptr;
         attributes[0]->firstAncestorOrThisOfTypeAsserted(wellPathAttributeCollection);
-        RimWellPath* wellPath = nullptr;
-        wellPathAttributeCollection->firstAncestorOrThisOfTypeAsserted(wellPath);
         for (RimWellPathAttribute* attributeToDelete : attributes)
         {
             wellPathAttributeCollection->deleteAttribute(attributeToDelete);
         }
-        wellPath->updateConnectedEditors();        
+        wellPathAttributeCollection->updateAllRequiredEditors();
     }
 }
 
