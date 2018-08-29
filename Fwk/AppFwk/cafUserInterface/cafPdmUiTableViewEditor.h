@@ -84,13 +84,18 @@ public:
     PdmUiTableViewEditorAttribute()
         : selectionLevel(1)
         , enableHeaderText(true)
+        , minimumHeight(-1)
     {
+        QPalette myPalette;
+        baseColor = myPalette.color(QPalette::Active, QPalette::Base);
     }
 
     int                 selectionLevel;
     bool                enableHeaderText;
     std::vector<int>    columnWidths;
-    int                 minimumHeight;
+    int                 minimumHeight; ///< Not used if If < 0 
+    QColor              baseColor;
+
 };
 
 

@@ -149,6 +149,11 @@ void PdmUiTableViewEditor::configureAndUpdateUi(const QString& uiConfigName)
 
         this->setSelectionLevel(editorAttrib.selectionLevel);
         this->enableHeaderText(editorAttrib.enableHeaderText);
+
+        QPalette myPalette(m_tableView->palette());
+        myPalette.setColor(QPalette::Base, editorAttrib.baseColor);
+        m_tableView->setPalette(myPalette);
+
     }
 
     m_tableModelPdm->setArrayFieldAndBuildEditors(childArrayFH, uiConfigName);
