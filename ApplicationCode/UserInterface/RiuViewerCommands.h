@@ -58,8 +58,11 @@ public:
 
     void            displayContextMenu(QMouseEvent* event);
     void            handlePickAction(int winPosX, int winPosY, Qt::KeyboardModifiers keyboardModifiers);
-    cvf::Vec3d      lastPickPositionInDomainCoords() const;
 
+    static void     addPickEventHandler(RicPickEventHandler* pickEventHandler);
+    static void     removePickEventHandler(RicPickEventHandler* pickEventHandler);
+
+    cvf::Vec3d      lastPickPositionInDomainCoords() const;
 private:
     void            findCellAndGridIndex(const RivIntersectionSourceInfo* crossSectionSourceInfo, cvf::uint firstPartTriangleIndex, size_t* cellIndex, size_t* gridIndex);
     void            findCellAndGridIndex(const RivIntersectionBoxSourceInfo* intersectionBoxSourceInfo, cvf::uint firstPartTriangleIndex, size_t* cellIndex, size_t* gridIndex);
@@ -79,5 +82,5 @@ private:
     cvf::Vec3d                            m_currentPickPositionInDomainCoords;
     caf::PdmPointer<Rim3dView>            m_reservoirView;
     QPointer<RiuViewer>                   m_viewer;
-    std::vector<RicPickEventHandler*>     m_pickEventHandlers;
+    static std::vector<RicPickEventHandler*>     sm_pickEventHandlers;
 };

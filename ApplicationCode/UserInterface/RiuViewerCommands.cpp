@@ -108,6 +108,8 @@
 //
 //==================================================================================================
 
+std::vector<RicPickEventHandler*>     RiuViewerCommands::sm_pickEventHandlers;
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -119,16 +121,11 @@ RiuViewerCommands::RiuViewerCommands(RiuViewer* ownerViewer)
     , m_currentPickPositionInDomainCoords(cvf::Vec3d::UNDEFINED)
     , m_viewer(ownerViewer)
 {
+    if ( sm_pickEventHandlers.empty() )
     {
-        m_pickEventHandlers.push_back(dynamic_cast<RicPickEventHandler*>(RicIntersectionPickEventHandler::instance()));
-    }
-
-    {
-        m_pickEventHandlers.push_back(dynamic_cast<RicPickEventHandler*>(Ric3dWellLogCurvePickEventHandler::instance()));
-    }
-
-    {
-        m_pickEventHandlers.push_back(dynamic_cast<RicPickEventHandler*>(RicWellPathPickEventHandler::instance()));
+        addPickEventHandler(RicIntersectionPickEventHandler::instance());
+        addPickEventHandler(Ric3dWellLogCurvePickEventHandler::instance());
+        addPickEventHandler(RicWellPathPickEventHandler::instance());
     }
 }
 
@@ -533,9 +530,9 @@ void RiuViewerCommands::handlePickAction(int winPosX, int winPosY, Qt::KeyboardM
         Ric3DPickEvent viewerEventObject(pickItemInfos,
                                          m_reservoirView);
 
-        for ( size_t i = 0; i < m_pickEventHandlers.size(); i++ )
+        for ( size_t i = 0; i < sm_pickEventHandlers.size(); i++ )
         {
-            if ( m_pickEventHandlers[i]->handlePickEvent(viewerEventObject) )
+            if ( sm_pickEventHandlers[i]->handlePickEvent(viewerEventObject) )
             {
                 return;
             }
@@ -886,6 +883,33 @@ void RiuViewerCommands::handlePickAction(int winPosX, int winPosY, Qt::KeyboardM
 cvf::Vec3d RiuViewerCommands::lastPickPositionInDomainCoords() const
 {
     return m_currentPickPositionInDomainCoords;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuViewerCommands::addPickEventHandler(RicPickEventHandler* pickEventHandler)
+{
+    removePickEventHandler(pickEventHandler);
+    if (pickEventHandler)
+    {
+        sm_pickEventHandlers.push_back(pickEventHandler);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuViewerCommands::removePickEventHandler(RicPickEventHandler* pickEventHandler)
+{
+    for ( auto it = sm_pickEventHandlers.begin(); it != sm_pickEventHandlers.end(); ++it )
+    {
+        if ( *it == pickEventHandler )
+        {
+            sm_pickEventHandlers.erase(it);
+            break;
+        }
+    }    
 }
 
 //--------------------------------------------------------------------------------------------------
