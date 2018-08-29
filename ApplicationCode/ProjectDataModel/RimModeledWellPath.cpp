@@ -24,6 +24,7 @@
 #include "RigWellPath.h"
 
 #include "cafPdmUiTreeOrdering.h"
+#include "RimPlotCurve.h"
 
 
 CAF_PDM_SOURCE_INIT(RimModeledWellPath, "ModeledWellPath");
@@ -69,6 +70,14 @@ void RimModeledWellPath::updateWellPathVisualization()
     RimProject* proj;
     this->firstAncestorOrThisOfTypeAsserted(proj);
     proj->createDisplayModelAndRedrawAllViews();
+    
+    std::vector<RimPlotCurve*> refferingCurves;
+    this->objectsWithReferringPtrFieldsOfType(refferingCurves);
+
+    for (auto curve: refferingCurves)
+    {
+        curve->loadDataAndUpdate(false);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
