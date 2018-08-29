@@ -135,6 +135,10 @@ private:
 
     static std::map<QString, std::vector<RigCompletionData>> subGridsCompletions(std::vector<RigCompletionData>& allCompletions);
 
+    static void                           exportWellPathFractureReport(RimEclipseCase*                                          sourceCase,
+                                                                       QFilePtr                                                 exportFile,
+                                                                       const std::vector<RicWellPathFractureReportItem>&        wellPathFractureReportItems);
+
     static void                           exportWelspecsToFile(RimEclipseCase* gridCase,
                                                                QFilePtr exportFile,
                                                                const std::vector<RigCompletionData>& completions);
@@ -152,10 +156,7 @@ private:
 
     static void                           exportCompdatAndWpimultTables(RimEclipseCase* sourceCase,
                                                                         QFilePtr exportFile,
-                                                                        //const QString& folderName, 
-                                                                        //const QString& fileName, 
                                                                         const std::map<QString, std::vector<RigCompletionData>>& completionsPerGrid, 
-                                                                        const std::vector<RicWellPathFractureReportItem>& wellPathFractureReportItems,
                                                                         RicExportCompletionDataSettingsUi::CompdatExportType exportType);
 
     static void                           exportCompdatTableUsingFormatter(RifEclipseDataTableFormatter& formatter, 

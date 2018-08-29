@@ -1002,6 +1002,45 @@ RicWellPathExportCompletionDataFeatureImpl::subGridsCompletions(std::vector<RigC
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RicWellPathExportCompletionDataFeatureImpl::exportWellPathFractureReport(RimEclipseCase* sourceCase,
+                                                                              QFilePtr exportFile,
+                                                                              const std::vector<RicWellPathFractureReportItem>& wellPathFractureReportItems)
+{
+    QTextStream stream(exportFile.get());
+
+    if (!wellPathFractureReportItems.empty())
+    {
+        std::vector<RimWellPath*> wellPathsToReport;
+        {
+            std::set<RimWellPath*> wellPathsSet;
+
+            auto allWellPaths = RicWellPathFractureTextReportFeatureImpl::wellPathsWithFractures();
+            for (const auto& wellPath : allWellPaths)
+            {
+                for (const auto& reportItem : wellPathFractureReportItems)
+                {
+                    if (reportItem.wellPathName() == wellPath->name())
+                    {
+                        wellPathsSet.insert(wellPath);
+                    }
+                }
+            }
+
+            std::copy(wellPathsSet.begin(), wellPathsSet.end(), std::back_inserter(wellPathsToReport));
+
+            RicWellPathFractureTextReportFeatureImpl reportGenerator;
+
+            QString summaryText =
+                reportGenerator.wellPathFractureReport(sourceCase, wellPathsToReport, wellPathFractureReportItems);
+
+            stream << summaryText;
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RicWellPathExportCompletionDataFeatureImpl::exportWelspecsToFile(RimEclipseCase* gridCase,
                                                                       QFilePtr exportFile,
                                                                       const std::vector<RigCompletionData>& completions)
@@ -1145,10 +1184,9 @@ void RicWellPathExportCompletionDataFeatureImpl::sortAndExportCompletionsToFile(
             std::map<QString, std::vector<RigCompletionData>> completionsForGrid;
             completionsForGrid.insert(std::pair<QString, std::vector<RigCompletionData>>("", completionsForMainGrid));
 
+            exportWellPathFractureReport(eclipseCase, exportFile, wellPathFractureReportItems);
             exportWelspecsToFile(eclipseCase, exportFile, completionsForMainGrid);
-
-            exportCompdatAndWpimultTables(
-                eclipseCase, exportFile, completionsForGrid, wellPathFractureReportItems, exportType);
+            exportCompdatAndWpimultTables(eclipseCase, exportFile, completionsForGrid, exportType);
         }
         catch(OpenFileException)
         { }
@@ -1161,10 +1199,9 @@ void RicWellPathExportCompletionDataFeatureImpl::sortAndExportCompletionsToFile(
             QString lgrFileName = fileName + "_LGR";
             QFilePtr exportFile = openFileForExport(folderName, lgrFileName);
 
+            exportWellPathFractureReport(eclipseCase, exportFile, wellPathFractureReportItems);
             exportWelspeclToFile(eclipseCase, exportFile, completionsForSubGrids);
-
-            exportCompdatAndWpimultTables(
-                eclipseCase, exportFile, completionsForSubGrids, wellPathFractureReportItems, exportType);
+            exportCompdatAndWpimultTables(eclipseCase, exportFile, completionsForSubGrids, exportType);
         }
         catch(OpenFileException)
         { }
@@ -1178,41 +1215,11 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompdatAndWpimultTables(
     RimEclipseCase*                                          sourceCase,
     QFilePtr                                                 exportFile,
     const std::map<QString, std::vector<RigCompletionData>>& completionsPerGrid,
-    const std::vector<RicWellPathFractureReportItem>&        wellPathFractureReportItems,
     RicExportCompletionDataSettingsUi::CompdatExportType     exportType)
 {
     if (completionsPerGrid.empty()) return;
 
     QTextStream stream(exportFile.get());
-
-    if (!wellPathFractureReportItems.empty())
-    {
-        std::vector<RimWellPath*> wellPathsToReport;
-        {
-            std::set<RimWellPath*> wellPathsSet;
-
-            auto allWellPaths = RicWellPathFractureTextReportFeatureImpl::wellPathsWithFractures();
-            for (const auto& wellPath : allWellPaths)
-            {
-                for (const auto& reportItem : wellPathFractureReportItems)
-                {
-                    if (reportItem.wellPathName() == wellPath->name())
-                    {
-                        wellPathsSet.insert(wellPath);
-                    }
-                }
-            }
-
-            std::copy(wellPathsSet.begin(), wellPathsSet.end(), std::back_inserter(wellPathsToReport));
-
-            RicWellPathFractureTextReportFeatureImpl reportGenerator;
-
-            QString summaryText =
-                reportGenerator.wellPathFractureReport(sourceCase, wellPathsToReport, wellPathFractureReportItems);
-
-            stream << summaryText;
-        }
-    }
 
     RifEclipseDataTableFormatter formatter(stream);
     formatter.setColumnSpacing(3);
