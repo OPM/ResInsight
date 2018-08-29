@@ -31,8 +31,6 @@ class RimWellLogCurve;
 class RimWellLogPlot;
 class RimWellPath;
 
-
-
 //==================================================================================================
 /// 
 //==================================================================================================
@@ -45,11 +43,20 @@ public:
 
     RimCase*     caseToApply() const;
     void         setCaseToApply(RimCase* val);
+    int          trajectoryTypeToApply() const;
+    void         setTrajectoryTypeToApply(int val);
     RimWellPath* wellPathToApply() const;
     void         setWellPathToApply(RimWellPath* val);
+    int          branchIndexToApply() const;
+    void         setBranchIndexToApply(int val);
+    caf::Tristate branchDetectionToApply() const;
+    void         setBranchDetectionToApply(caf::Tristate::State val);
     QString      simWellNameToApply() const;
+    void         setSimWellNameToApply(const QString& val);
     int          timeStepToApply() const;
     void         setTimeStepToApply(int val);
+
+    void         resetDefaultOptions();
     void         updateDefaultOptions(const std::vector<RimWellLogCurve*>& curves);
     void         updateDefaultOptions();
     void         updateCurves(std::vector<RimWellLogCurve*>& curves);
