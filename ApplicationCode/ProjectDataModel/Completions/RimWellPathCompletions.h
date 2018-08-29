@@ -26,6 +26,7 @@ class RimFishbonesCollection;
 class RimPerforationCollection;
 class RimWellPathFractureCollection;
 
+
 //==================================================================================================
 ///  
 ///  
@@ -33,6 +34,9 @@ class RimWellPathFractureCollection;
 class RimWellPathCompletions : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
+
+    enum WellType {OIL, GAS, WATER, LIQUID};
+    typedef caf::AppEnum<WellType> WellTypeEnum;
 
 public:
     RimWellPathCompletions();
@@ -43,6 +47,9 @@ public:
 
     void                        setWellNameForExport(const QString& name);
     QString                     wellNameForExport() const;
+    QString                     wellGroupName() const;
+    QString                     referenceDepth() const;
+    QString                     wellTypeName() const;
     bool                        hasCompletions() const;
 
     void                        setUnitSystemSpecificDefaults();
@@ -56,4 +63,8 @@ private:
     caf::PdmChildField<RimWellPathFractureCollection*>  m_fractureCollection;
     
     caf::PdmField<QString>                              m_wellNameForExport;
+    caf::PdmField<QString>                              m_wellGroupName;
+    
+    caf::PdmField<QString>                              m_referenceDepth;
+    caf::PdmField<WellTypeEnum>                         m_wellType;
 };

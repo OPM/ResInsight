@@ -154,6 +154,30 @@ RigGridBase* RigEclipseCaseData::grid(size_t index)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+const RigGridBase* RigEclipseCaseData::grid(const QString& gridName) const
+{
+    if (m_mainGrid.isNull())
+    {
+        return nullptr;
+    }
+
+    if (gridName.isEmpty())
+    {
+        return m_mainGrid.p();
+    }
+
+    size_t i;
+    for (i = 0; i < m_mainGrid->gridCount(); i++)
+    {
+        const RigGridBase* grid = m_mainGrid->gridByIndex(i);
+        if (QString::fromStdString(grid->gridName()) == gridName) return grid;
+    }
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 size_t RigEclipseCaseData::gridCount() const
 {
     CVF_ASSERT(m_mainGrid.notNull());

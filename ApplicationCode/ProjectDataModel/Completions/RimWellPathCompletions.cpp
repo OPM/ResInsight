@@ -28,6 +28,21 @@
 #include "cafPdmUiTreeOrdering.h"
 
 
+namespace caf {
+
+    template<>
+    void RimWellPathCompletions::WellTypeEnum::setUp()
+    {
+        addItem(RimWellPathCompletions::OIL, "OIL", "Oil");
+        addItem(RimWellPathCompletions::GAS, "GAS", "Gas");
+        addItem(RimWellPathCompletions::WATER, "WATER", "Water");
+        addItem(RimWellPathCompletions::LIQUID, "LIQUID", "Liquid");
+
+        setDefault(RimWellPathCompletions::OIL);
+    }
+}
+
+
 CAF_PDM_SOURCE_INIT(RimWellPathCompletions, "WellPathCompletions");
 
 //--------------------------------------------------------------------------------------------------
@@ -50,6 +65,12 @@ RimWellPathCompletions::RimWellPathCompletions()
     m_fractureCollection.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitField(&m_wellNameForExport, "WellNameForExport", QString(), "Well Name for Completion Export", "", "", "");
+
+    CAF_PDM_InitField(&m_wellGroupName, "WellGroupNameForExport", QString(), "Well Group Name for Completion Export", "", "", "");
+
+    CAF_PDM_InitField(&m_referenceDepth, "ReferenceDepthForExport", QString(), "Reference Depth for Completion Export", "", "", "");
+
+    CAF_PDM_InitField(&m_wellType, "WellTypeForExport", WellTypeEnum(), "Well Type for Completion Export", "", "", "");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -86,6 +107,30 @@ void RimWellPathCompletions::setWellNameForExport(const QString& name)
 QString RimWellPathCompletions::wellNameForExport() const
 {
     return m_wellNameForExport();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RimWellPathCompletions::wellGroupName() const
+{
+    return m_wellGroupName;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RimWellPathCompletions::referenceDepth() const
+{
+    return m_referenceDepth;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RimWellPathCompletions::wellTypeName() const
+{
+    return WellTypeEnum(m_wellType).uiText();
 }
 
 //--------------------------------------------------------------------------------------------------

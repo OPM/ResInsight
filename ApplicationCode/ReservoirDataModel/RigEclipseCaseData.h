@@ -71,6 +71,7 @@ public:
     const RigGridBase*                          grid(size_t index) const;
     RigGridBase*                                grid(size_t index);
     size_t                                      gridCount() const;
+    const RigGridBase*                          grid(const QString& gridName) const;
 
     RigCaseCellResultsData*                     results(RiaDefines::PorosityModelType porosityModel);
     const RigCaseCellResultsData*               results(RiaDefines::PorosityModelType porosityModel) const;

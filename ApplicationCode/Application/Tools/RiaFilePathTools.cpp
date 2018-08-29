@@ -128,3 +128,20 @@ QString RiaFilePathTools::commonRootPath(const QStringList& paths)
 
     return paths.front().left(iDir + 1);
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::pair<QString, QString> RiaFilePathTools::toFolderAndFileName(const QString& absFileName)
+{
+    auto absFN = toInternalSeparator(absFileName);
+    int lastSep = absFN.lastIndexOf(SEPARATOR);
+    if (lastSep > 0)
+    {
+        return std::make_pair(absFN.left(lastSep), absFN.mid(lastSep+1));
+    }
+    else
+    {
+        return std::make_pair("", absFN);
+    }
+}

@@ -24,10 +24,13 @@
 #include "RicMultiSegmentWellExportInfo.h"
 #include "RicWellPathFractureReportItem.h"
 
+#include <QFile>
+
 #include "cvfBase.h"
 #include "cvfVector3.h"
 
 #include <vector>
+#include <memory>
 
 class RigCell;
 class RigEclipseCaseData;
@@ -39,6 +42,11 @@ class RimWellPath;
 class RimWellPathFracture;
 class RifEclipseDataTableFormatter;
 class RigVirtualPerforationTransmissibilities;
+
+//==================================================================================================
+/// 
+//==================================================================================================
+typedef std::shared_ptr<QFile> QFilePtr;
 
 //==================================================================================================
 /// 
@@ -118,6 +126,23 @@ private:
     static RigCompletionData              combineEclipseCellCompletions(const std::vector<RigCompletionData>& completions, 
                                                                         const RicExportCompletionDataSettingsUi& settings);
 
+    static QFilePtr                       openFileForExport(const QString& fullFileName);
+
+    static QFilePtr                       openFileForExport(const QString& folderName,
+                                                            const QString& fileName);
+
+    static std::vector<RigCompletionData> mainGridCompletions(std::vector<RigCompletionData>& allCompletions);
+
+    static std::map<QString, std::vector<RigCompletionData>> subGridsCompletions(std::vector<RigCompletionData>& allCompletions);
+
+    static void                           exportWelspecsToFile(RimEclipseCase* gridCase,
+                                                               QFilePtr exportFile,
+                                                               const std::vector<RigCompletionData>& completions);
+
+    static void                           exportWelspeclToFile(RimEclipseCase* gridCase,
+                                                               QFilePtr exportFile,
+                                                               const std::map<QString, std::vector<RigCompletionData>>& completions);
+
     static void                           sortAndExportCompletionsToFile(RimEclipseCase* eclipseCase,
                                                                          const QString& exportFolder, 
                                                                          const QString& fileName, 
@@ -126,8 +151,9 @@ private:
                                                                          RicExportCompletionDataSettingsUi::CompdatExportType exportType);
 
     static void                           exportCompdatAndWpimultTables(RimEclipseCase* sourceCase,
-                                                                        const QString& folderName, 
-                                                                        const QString& fileName, 
+                                                                        QFilePtr exportFile,
+                                                                        //const QString& folderName, 
+                                                                        //const QString& fileName, 
                                                                         const std::map<QString, std::vector<RigCompletionData>>& completionsPerGrid, 
                                                                         const std::vector<RicWellPathFractureReportItem>& wellPathFractureReportItems,
                                                                         RicExportCompletionDataSettingsUi::CompdatExportType exportType);
@@ -163,4 +189,6 @@ private:
 
     static void                           appendCompletionData(std::map<RigCompletionDataGridCell, std::vector<RigCompletionData>>* completionData,
                                                                const std::vector<RigCompletionData>& data);
+
+    static cvf::Vec2i                     wellPathUpperGridIntersectionIJ(const RimEclipseCase* gridCase, const RimWellPath* wellPath, const QString& gridName = "");
 };

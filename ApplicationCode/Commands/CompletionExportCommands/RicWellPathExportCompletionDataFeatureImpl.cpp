@@ -21,6 +21,7 @@
 #include "RiaApplication.h"
 #include "RiaLogging.h"
 #include "RiaPreferences.h"
+#include "RiaFilePathTools.h"
 
 #include "RicExportCompletionDataSettingsUi.h"
 #include "RicExportFeatureImpl.h"
@@ -40,7 +41,8 @@
 #include "RigWellLogExtractor.h"
 #include "RigWellPath.h"
 #include "RigWellPathIntersectionTools.h"
-
+ 
+#include "RimFileWellPath.h"
 #include "RimFishbonesCollection.h"
 #include "RimFishbonesMultipleSubs.h"
 #include "RimFractureTemplate.h"
@@ -52,6 +54,7 @@
 #include "RimWellPathCompletions.h"
 #include "RimWellPathFracture.h"
 #include "RimWellPathFractureCollection.h"
+#include "RimProject.h"
 
 #include "RiuMainWindow.h"
 
@@ -64,6 +67,21 @@
 #include "RicWellPathFractureTextReportFeatureImpl.h"
 #include "RigVirtualPerforationTransmissibilities.h"
 #include <QDir>
+
+//--------------------------------------------------------------------------------------------------
+/// Internal functions
+//--------------------------------------------------------------------------------------------------
+const RimWellPath* findWellPathFromExportName(const QString& wellNameForExport);
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+class OpenFileException
+{
+public:
+    OpenFileException(const QString &message) : message(message) {}
+    QString  message;
+};
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -896,6 +914,214 @@ RigCompletionData
 }
 
 //--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QFilePtr RicWellPathExportCompletionDataFeatureImpl::openFileForExport(const QString& fullFileName)
+{
+    std::pair<QString, QString> folderAndFileName = RiaFilePathTools::toFolderAndFileName(fullFileName);
+    return openFileForExport(folderAndFileName.first, folderAndFileName.second);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QFilePtr RicWellPathExportCompletionDataFeatureImpl::openFileForExport(const QString& folderName, const QString& fileName)
+{
+    QDir exportFolder = QDir(folderName);
+    if (!exportFolder.exists())
+    {
+        bool createdPath = exportFolder.mkpath(".");
+        if (createdPath)
+            RiaLogging::info("Created export folder " + folderName);
+        else
+        {
+            auto errorMessage = QString("Selected output folder does not exist, and could not be created.");
+            RiaLogging::error(errorMessage);
+            throw OpenFileException(errorMessage);
+        }
+    }
+
+    QString  filePath = exportFolder.filePath(fileName);
+    QFilePtr exportFile(new QFile(filePath));
+    if (!exportFile->open(QIODevice::WriteOnly))
+    {
+        auto errorMessage = QString("Export Completions Data: Could not open the file: %1").arg(filePath);
+        RiaLogging::error(errorMessage);
+        throw OpenFileException(errorMessage);
+    }
+    return exportFile;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<RigCompletionData>
+RicWellPathExportCompletionDataFeatureImpl::mainGridCompletions(std::vector<RigCompletionData>& allCompletions)
+{
+    std::vector<RigCompletionData> completions;
+
+    for (const auto& completion : allCompletions)
+    {
+        QString gridName = completion.completionDataGridCell().lgrName();
+        if (gridName.isEmpty())
+        {
+            completions.push_back(completion);
+        }
+    }
+    return completions;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::map<QString, std::vector<RigCompletionData>>
+RicWellPathExportCompletionDataFeatureImpl::subGridsCompletions(std::vector<RigCompletionData>& allCompletions)
+{
+    std::map<QString, std::vector<RigCompletionData>> completions;
+
+    for (const auto& completion : allCompletions)
+    {
+        QString gridName = completion.completionDataGridCell().lgrName();
+        if (!gridName.isEmpty())
+        {
+            auto it = completions.find(gridName);
+            if (it == completions.end())
+            {
+                completions.insert(
+                    std::pair<QString, std::vector<RigCompletionData>>(gridName, {completion}));
+            }
+            else
+            {
+                it->second.push_back(completion);
+            }
+        }
+    }
+    return completions;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicWellPathExportCompletionDataFeatureImpl::exportWelspecsToFile(RimEclipseCase* gridCase,
+                                                                      QFilePtr exportFile,
+                                                                      const std::vector<RigCompletionData>& completions)
+{
+    QTextStream stream(exportFile.get());
+
+    RifEclipseDataTableFormatter formatter(stream);
+    formatter.setColumnSpacing(3);
+
+    std::vector<RifEclipseOutputTableColumn> header = {
+        RifEclipseOutputTableColumn("Well"),
+        RifEclipseOutputTableColumn("Grp"),
+        RifEclipseOutputTableColumn("I"),
+        RifEclipseOutputTableColumn("J"),
+        RifEclipseOutputTableColumn("RefDpth"),
+        RifEclipseOutputTableColumn("WellType")
+    };
+
+    formatter.keyword("WELSPEC");
+    formatter.header(header);
+
+    std::set<const RimWellPath*> wellPathSet;
+
+    // Build list of unique RimWellPath
+    for (const auto completion : completions)
+    {
+        const auto wellPath = findWellPathFromExportName(completion.wellName());
+        if (wellPath)
+        {
+            wellPathSet.insert(wellPath);
+        }
+    }
+
+    // Export
+    for (const auto wellPath : wellPathSet)
+    {
+        auto completions = wellPath->completions();
+        cvf::Vec2i ijIntersection = wellPathUpperGridIntersectionIJ(gridCase, wellPath);
+
+        formatter
+            .add(completions->wellNameForExport())
+            .add(completions->wellGroupName())
+            .addOneBasedCellIndex(ijIntersection.x())
+            .addOneBasedCellIndex(ijIntersection.y())
+            .add(completions->referenceDepth())
+            .add(completions->wellTypeName())
+            .rowCompleted();
+    }
+
+    formatter.tableCompleted();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicWellPathExportCompletionDataFeatureImpl::exportWelspeclToFile(RimEclipseCase* gridCase,
+                                                                      QFilePtr exportFile,
+                                                                      const std::map<QString, std::vector<RigCompletionData>>& completions)
+{
+    QTextStream stream(exportFile.get());
+
+    RifEclipseDataTableFormatter formatter(stream);
+    formatter.setColumnSpacing(3);
+
+    std::vector<RifEclipseOutputTableColumn> header = {
+        RifEclipseOutputTableColumn("Well"),
+        RifEclipseOutputTableColumn("Grp"),
+        RifEclipseOutputTableColumn("LGR"),
+        RifEclipseOutputTableColumn("I"),
+        RifEclipseOutputTableColumn("J"),
+        RifEclipseOutputTableColumn("RefDpth"),
+        RifEclipseOutputTableColumn("WellType")
+    };
+
+    formatter.keyword("WELSPECL");
+    formatter.header(header);
+
+    std::map<QString, std::set<const RimWellPath*>> wellPathMap;
+
+    // Build list of unique RimWellPath for each LGR
+    for (const auto completionsForLgr : completions)
+    {
+        wellPathMap.insert(std::make_pair(completionsForLgr.first, std::set<const RimWellPath*>()));
+
+        for (const auto completion : completionsForLgr.second)
+        {
+            const auto wellPath = findWellPathFromExportName(completion.wellName());
+            if (wellPath)
+            {
+                wellPathMap[completionsForLgr.first].insert(wellPath);
+            }
+        }
+    }
+
+    for (const auto wellPathsForLgr : wellPathMap)
+    {
+        QString lgrName = wellPathsForLgr.first;
+
+        // Export
+        for (const auto wellPath : wellPathsForLgr.second)
+        {
+            auto completions = wellPath->completions();
+            cvf::Vec2i ijIntersection = wellPathUpperGridIntersectionIJ(gridCase, wellPath, lgrName);
+
+            formatter
+                .add(completions->wellNameForExport())
+                .add(completions->wellGroupName())
+                .add(lgrName)
+                .addOneBasedCellIndex(ijIntersection.x())
+                .addOneBasedCellIndex(ijIntersection.y())
+                .add(completions->referenceDepth())
+                .add(completions->wellTypeName())
+                .rowCompleted();
+        }
+    }
+
+    formatter.tableCompleted();
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 void RicWellPathExportCompletionDataFeatureImpl::sortAndExportCompletionsToFile(
@@ -907,46 +1133,41 @@ void RicWellPathExportCompletionDataFeatureImpl::sortAndExportCompletionsToFile(
     RicExportCompletionDataSettingsUi::CompdatExportType exportType)
 {
     // Sort completions based on grid they belong to
-    std::vector<RigCompletionData> completionsForMainGrid;
-
-    std::map<QString, std::vector<RigCompletionData>> completionsForSubGrids;
-
-    for (const auto& completion : completions)
-    {
-        QString gridName = completion.completionDataGridCell().lgrName();
-        if (gridName.isEmpty())
-        {
-            completionsForMainGrid.push_back(completion);
-        }
-        else
-        {
-            auto it = completionsForSubGrids.find(gridName);
-            if (it == completionsForSubGrids.end())
-            {
-                completionsForSubGrids.insert(
-                    std::pair<QString, std::vector<RigCompletionData>>(gridName, std::vector<RigCompletionData>{completion}));
-            }
-            else
-            {
-                it->second.push_back(completion);
-            }
-        }
-    }
+    std::vector<RigCompletionData>                    completionsForMainGrid = mainGridCompletions(completions);
+    std::map<QString, std::vector<RigCompletionData>> completionsForSubGrids = subGridsCompletions(completions);
 
     if (!completionsForMainGrid.empty())
     {
-        std::map<QString, std::vector<RigCompletionData>> completionsForGrid;
-        completionsForGrid.insert(std::pair<QString, std::vector<RigCompletionData>>("", completionsForMainGrid));
+        try
+        {
+            QFilePtr exportFile = openFileForExport(folderName, fileName);
 
-        exportCompdatAndWpimultTables(
-            eclipseCase, folderName, fileName, completionsForGrid, wellPathFractureReportItems, exportType);
+            std::map<QString, std::vector<RigCompletionData>> completionsForGrid;
+            completionsForGrid.insert(std::pair<QString, std::vector<RigCompletionData>>("", completionsForMainGrid));
+
+            exportWelspecsToFile(eclipseCase, exportFile, completionsForMainGrid);
+
+            exportCompdatAndWpimultTables(
+                eclipseCase, exportFile, completionsForGrid, wellPathFractureReportItems, exportType);
+        }
+        catch(OpenFileException)
+        { }
     }
 
     if (!completionsForSubGrids.empty())
     {
-        QString lgrFileName = fileName + "_LGR";
-        exportCompdatAndWpimultTables(
-            eclipseCase, folderName, lgrFileName, completionsForSubGrids, wellPathFractureReportItems, exportType);
+        try
+        {
+            QString lgrFileName = fileName + "_LGR";
+            QFilePtr exportFile = openFileForExport(folderName, lgrFileName);
+
+            exportWelspeclToFile(eclipseCase, exportFile, completionsForSubGrids);
+
+            exportCompdatAndWpimultTables(
+                eclipseCase, exportFile, completionsForSubGrids, wellPathFractureReportItems, exportType);
+        }
+        catch(OpenFileException)
+        { }
     }
 }
 
@@ -955,33 +1176,14 @@ void RicWellPathExportCompletionDataFeatureImpl::sortAndExportCompletionsToFile(
 //--------------------------------------------------------------------------------------------------
 void RicWellPathExportCompletionDataFeatureImpl::exportCompdatAndWpimultTables(
     RimEclipseCase*                                          sourceCase,
-    const QString&                                           folderName,
-    const QString&                                           fileName,
+    QFilePtr                                                 exportFile,
     const std::map<QString, std::vector<RigCompletionData>>& completionsPerGrid,
     const std::vector<RicWellPathFractureReportItem>&        wellPathFractureReportItems,
     RicExportCompletionDataSettingsUi::CompdatExportType     exportType)
 {
     if (completionsPerGrid.empty()) return;
 
-    QDir exportFolder(folderName);
-    if (!exportFolder.exists())
-    {
-        bool createdPath = exportFolder.mkpath(".");
-        if (createdPath)
-            RiaLogging::info("Created export folder " + folderName);
-        else
-            RiaLogging::error("Selected output folder does not exist, and could not be created.");
-    }
-
-    QString filePath = exportFolder.filePath(fileName);
-    QFile   exportFile(filePath);
-    if (!exportFile.open(QIODevice::WriteOnly))
-    {
-        RiaLogging::error(QString("Export Completions Data: Could not open the file: %1").arg(filePath));
-        return;
-    }
-
-    QTextStream stream(&exportFile);
+    QTextStream stream(exportFile.get());
 
     if (!wellPathFractureReportItems.empty())
     {
@@ -1032,7 +1234,7 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompdatAndWpimultTables(
         }
     }
 
-    RiaLogging::info(QString("Successfully exported completion data to %1").arg(filePath));
+    RiaLogging::info(QString("Successfully exported completion data to %1").arg(exportFile->fileName()));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1903,4 +2105,62 @@ double RicWellPathExportCompletionDataFeatureImpl::calculateTransmissibilityAsEc
     }
 
     return trans;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::Vec2i RicWellPathExportCompletionDataFeatureImpl::wellPathUpperGridIntersectionIJ(const RimEclipseCase* gridCase,
+                                                                                       const RimWellPath* wellPath,
+                                                                                       const QString& gridName)
+{
+    const RigEclipseCaseData*       caseData = gridCase->eclipseCaseData();
+    const RigMainGrid*              mainGrid = caseData->mainGrid();
+    const RigActiveCellInfo*        activeCellInfo = caseData->activeCellInfo(RiaDefines::MATRIX_MODEL);
+    const RigWellPath*              wellPathGeometry = wellPath->wellPathGeometry();
+    const std::vector<cvf::Vec3d>&  coords = wellPathGeometry->wellPathPoints();
+    const std::vector<double>&      mds = wellPathGeometry->measureDepths();
+    CVF_ASSERT(!coords.empty() && !mds.empty());
+
+    std::vector<WellPathCellIntersectionInfo> intersections =
+        RigWellPathIntersectionTools::findCellIntersectionInfosAlongPath(caseData, coords, mds);
+
+    size_t gridId = 0;
+
+    if (!gridName.isEmpty())
+    {
+        const auto grid = caseData->grid(gridName);
+        if (grid) gridId = grid->gridId();
+    }
+
+    for (WellPathCellIntersectionInfo intersection : intersections)
+    {
+        size_t             gridLocalCellIndex = 0;
+        const RigGridBase* grid = mainGrid->gridAndGridLocalIdxFromGlobalCellIdx(intersection.globCellIndex, &gridLocalCellIndex);
+
+        if (grid->gridId() == gridId && activeCellInfo->isActive(intersection.globCellIndex))
+        {
+            size_t i, j, k;
+            if (grid->ijkFromCellIndex(gridLocalCellIndex, &i, &j, &k))
+            {
+                return cvf::Vec2i((int)i, (int)j);
+            }
+        }
+    }
+    return cvf::Vec2i();
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// Internal function
+//--------------------------------------------------------------------------------------------------
+const RimWellPath* findWellPathFromExportName(const QString& wellNameForExport)
+{
+    auto allWellPaths = RiaApplication::instance()->project()->allWellPaths();
+
+    for (const auto wellPath : allWellPaths)
+    {
+        if (wellPath->completions()->wellNameForExport() == wellNameForExport) return wellPath;
+    }
+    return nullptr;
 }
