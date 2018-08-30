@@ -25,6 +25,7 @@
 #include <QObject>
 #include <QPointer>
 
+class RicDefaultPickEventHandler;
 class RicPickEventHandler;
 class RimEclipseView;
 class RimGeoMechView;
@@ -59,8 +60,8 @@ public:
     void            displayContextMenu(QMouseEvent* event);
     void            handlePickAction(int winPosX, int winPosY, Qt::KeyboardModifiers keyboardModifiers);
 
-    static void     addPickEventHandler(RicPickEventHandler* pickEventHandler);
-    static void     removePickEventHandler(RicPickEventHandler* pickEventHandler);
+    static void     setPickEventHandler(RicPickEventHandler* pickEventHandler);
+    static void     removePickEventHandlerIfActive(RicPickEventHandler* pickEventHandler);
 
     cvf::Vec3d      lastPickPositionInDomainCoords() const;
 private:
@@ -75,6 +76,9 @@ private:
 
     bool            handleOverlayItemPicking(int winPosX, int winPosY);
 
+    static void     addDefaultPickEventHandler(RicDefaultPickEventHandler* pickEventHandler);
+    static void     removeDefaultPickEventHandler(RicDefaultPickEventHandler* pickEventHandler);
+
 private:
     size_t                                m_currentGridIdx;
     size_t                                m_currentCellIndex;
@@ -82,5 +86,7 @@ private:
     cvf::Vec3d                            m_currentPickPositionInDomainCoords;
     caf::PdmPointer<Rim3dView>            m_reservoirView;
     QPointer<RiuViewer>                   m_viewer;
-    static std::vector<RicPickEventHandler*>     sm_pickEventHandlers;
+
+    static RicPickEventHandler*                         sm_overridingPickHandler;
+    static std::vector<RicDefaultPickEventHandler*>     sm_defaultPickEventHandlers;
 };

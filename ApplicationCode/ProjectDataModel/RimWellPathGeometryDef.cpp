@@ -79,7 +79,7 @@ RimWellPathGeometryDef::RimWellPathGeometryDef()
 //--------------------------------------------------------------------------------------------------
 RimWellPathGeometryDef::~RimWellPathGeometryDef()
 {
-    RiuViewerCommands::removePickEventHandler(m_pickTargetsEventHandler);
+    RiuViewerCommands::removePickEventHandlerIfActive(m_pickTargetsEventHandler);
 
     delete m_pickTargetsEventHandler;
 
@@ -197,12 +197,12 @@ void RimWellPathGeometryDef::enableTargetPointPicking(bool isEnabling)
     if (isEnabling)
     {
         m_pickPointsEnabled = true;
-        RiuViewerCommands::addPickEventHandler(m_pickTargetsEventHandler);
+        RiuViewerCommands::setPickEventHandler(m_pickTargetsEventHandler);
         updateConnectedEditors();
     }
     else
     {
-        RiuViewerCommands::removePickEventHandler(m_pickTargetsEventHandler);
+        RiuViewerCommands::removePickEventHandlerIfActive(m_pickTargetsEventHandler);
         m_pickPointsEnabled = false;
         updateConnectedEditors();
     }

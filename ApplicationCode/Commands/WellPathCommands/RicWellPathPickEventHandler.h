@@ -25,7 +25,7 @@
 //==================================================================================================
 /// 
 //==================================================================================================
-class RicWellPathPickEventHandler : public RicPickEventHandler
+class RicWellPathPickEventHandler : public RicDefaultPickEventHandler
 {
 public:
     static RicWellPathPickEventHandler* instance();

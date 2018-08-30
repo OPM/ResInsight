@@ -24,7 +24,7 @@
 //==================================================================================================
 ///
 //==================================================================================================
-class Ric3dWellLogCurvePickEventHandler : public RicPickEventHandler
+class Ric3dWellLogCurvePickEventHandler : public RicDefaultPickEventHandler
 {
 public:
     static Ric3dWellLogCurvePickEventHandler* instance();

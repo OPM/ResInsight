@@ -23,7 +23,7 @@
 //==================================================================================================
 /// 
 //==================================================================================================
-class RicIntersectionPickEventHandler : public RicPickEventHandler
+class RicIntersectionPickEventHandler : public RicDefaultPickEventHandler
 {
 public:
     static RicIntersectionPickEventHandler* instance();

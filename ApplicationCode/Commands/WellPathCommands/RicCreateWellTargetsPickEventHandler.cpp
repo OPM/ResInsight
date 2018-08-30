@@ -48,6 +48,14 @@ RicCreateWellTargetsPickEventHandler::~RicCreateWellTargetsPickEventHandler()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RicCreateWellTargetsPickEventHandler::notifyUnregistered()
+{
+    m_geometryToAddTargetsTo->enableTargetPointPicking(false);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 bool RicCreateWellTargetsPickEventHandler::handlePickEvent(const Ric3DPickEvent& eventObject)
 {
     if (!caf::SelectionManager::instance()->isSelected(m_geometryToAddTargetsTo.p(), 0))

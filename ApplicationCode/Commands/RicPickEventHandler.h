@@ -51,11 +51,21 @@ public:
 
 
 //==================================================================================================
-/// 
+/// A static always-on pick handler used in the RiuViewerCommand        
 //==================================================================================================
-class RicPickEventHandler
+class RicDefaultPickEventHandler
 {
 public:
     virtual bool handlePickEvent(const Ric3DPickEvent& eventObject) = 0;
+};
+
+//==================================================================================================
+/// A temporary, dynamic pick handler that overrides the default ones
+//==================================================================================================
+class RicPickEventHandler 
+{
+public:
+    virtual bool handlePickEvent(const Ric3DPickEvent& eventObject) = 0;
+    virtual void notifyUnregistered() = 0;
 };
 
