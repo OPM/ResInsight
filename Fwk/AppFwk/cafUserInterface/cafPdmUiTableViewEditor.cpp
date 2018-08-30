@@ -356,11 +356,17 @@ void PdmUiTableViewEditor::updateSelectionManagerFromTableSelection()
         std::vector<PdmUiItem*> items { selectedRowObjects.begin(), selectedRowObjects.end() };
 
         m_isBlockingSelectionManagerChanged = true;
-        if (childArrayFieldHandle() && childArrayFieldHandle()->ownerObject())
         {
-            SelectionManager::instance()->setSelectedItem(childArrayFieldHandle()->ownerObject()->uiCapability(), m_tableSelectionLevel);
+            SelectionManager::instance()->clearAll();
+
+            if (childArrayFieldHandle() && childArrayFieldHandle()->ownerObject())
+            {
+                SelectionManager::instance()->setSelectedItem(childArrayFieldHandle()->ownerObject()->uiCapability(),
+                                                              m_tableSelectionLevel);
+            }
+            
+            SelectionManager::instance()->setSelectedItems(items, m_rowSelectionLevel);
         }
-        SelectionManager::instance()->setSelectedItems(items, m_rowSelectionLevel);
         m_isBlockingSelectionManagerChanged = false;
     }
 }
