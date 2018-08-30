@@ -73,7 +73,8 @@ PdmUiTableViewEditor::PdmUiTableViewEditor()
 
     m_checkboxDelegate = new PdmUiCheckBoxDelegate(this);
 
-    m_selectionLevel = SelectionManager::FIRST_LEVEL;
+    m_tableSelectionLevel = SelectionManager::BASE_LEVEL;
+    m_rowSelectionLevel  = SelectionManager::FIRST_LEVEL;
     m_isBlockingSelectionManagerChanged = false;
 }
 
@@ -96,6 +97,7 @@ QWidget* PdmUiTableViewEditor::createEditorWidget(QWidget* parent)
     m_tableView = new QTableView(parent);
     m_tableView->setShowGrid(true);
     m_tableView->setModel(m_tableModelPdm);
+    m_tableView->installEventFilter(this);
 
     connect(m_tableView->selectionModel(), SIGNAL(selectionChanged( const QItemSelection & , const QItemSelection & )), SLOT(slotSelectionChanged( const QItemSelection & , const QItemSelection & )));
 
@@ -147,7 +149,8 @@ void PdmUiTableViewEditor::configureAndUpdateUi(const QString& uiConfigName)
         childArrayFH->ownerObject()->uiCapability()->editorAttribute(childArrayFH, uiConfigName, &editorAttrib);
         editorAttribLoaded = true;
 
-        this->setSelectionLevel(editorAttrib.selectionLevel);
+        this->setTableSelectionLevel(editorAttrib.tableSelectionLevel);
+        this->setRowSelectionLevel(editorAttrib.rowSelectionLevel);
         this->enableHeaderText(editorAttrib.enableHeaderText);
 
         QPalette myPalette(m_tableView->palette());
@@ -261,11 +264,19 @@ void PdmUiTableViewEditor::enableHeaderText(bool enable)
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void PdmUiTableViewEditor::setTableSelectionLevel(int selectionLevel)
+{
+    m_tableSelectionLevel = selectionLevel;
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void PdmUiTableViewEditor::setSelectionLevel(int selectionLevel)
+void PdmUiTableViewEditor::setRowSelectionLevel(int selectionLevel)
 {
-    m_selectionLevel = selectionLevel;
+    m_rowSelectionLevel = selectionLevel;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -275,10 +286,10 @@ void PdmUiTableViewEditor::onSelectionManagerSelectionChanged(int selectionLevel
 {
     if (m_isBlockingSelectionManagerChanged) return;
 
-    if (isSelectionRoleDefined() && (m_selectionLevel == selectionLevel))
+    if (isSelectionRoleDefined() && (m_rowSelectionLevel == selectionLevel))
     {
         std::vector<PdmUiItem*> items;
-        SelectionManager::instance()->selectedItems(items, m_selectionLevel);
+        SelectionManager::instance()->selectedItems(items, m_rowSelectionLevel);
 
         QItemSelection totalSelection;
         for (auto item: items)
@@ -307,7 +318,7 @@ void PdmUiTableViewEditor::slotSelectionChanged(const QItemSelection & selected,
 //--------------------------------------------------------------------------------------------------
 bool PdmUiTableViewEditor::isSelectionRoleDefined() const
 {
-    return m_selectionLevel != SelectionManager::UNDEFINED;
+    return m_rowSelectionLevel != SelectionManager::UNDEFINED;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -344,18 +355,27 @@ void PdmUiTableViewEditor::updateSelectionManagerFromTableSelection()
 
         std::vector<PdmUiItem*> items { selectedRowObjects.begin(), selectedRowObjects.end() };
 
-        if (items.empty() && childArrayFieldHandle() && childArrayFieldHandle()->ownerObject())
-        {
-            // If no rows are selected, add the owner object to the selection.
-            // This enables features to retrieve the owner object to add of new objects into
-            // an empty table or table without selection
-            items.push_back(childArrayFieldHandle()->ownerObject()->uiCapability());
-        }
-
         m_isBlockingSelectionManagerChanged = true;
-        SelectionManager::instance()->setSelectedItems(items, m_selectionLevel);
+        if (childArrayFieldHandle() && childArrayFieldHandle()->ownerObject())
+        {
+            SelectionManager::instance()->setSelectedItem(childArrayFieldHandle()->ownerObject()->uiCapability(), m_tableSelectionLevel);
+        }
+        SelectionManager::instance()->setSelectedItems(items, m_rowSelectionLevel);
         m_isBlockingSelectionManagerChanged = false;
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool PdmUiTableViewEditor::eventFilter(QObject* obj, QEvent* event)
+{
+    if (event->type() == QEvent::FocusIn)
+    {
+        this->updateSelectionManagerFromTableSelection();
+    }
+    // standard event processing
+    return QObject::eventFilter(obj, event);
 }
 
 //--------------------------------------------------------------------------------------------------

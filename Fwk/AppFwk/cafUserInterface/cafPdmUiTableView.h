@@ -68,7 +68,8 @@ public:
     void              setChildArrayField(PdmChildArrayFieldHandle* childArrayField);
     void              setUiConfigurationName(QString uiConfigName);
     void              enableHeaderText(bool enable);
-    void              setSelectionLevel(int selectionLevel);
+    void              setTableSelectionLevel(int selectionLevel);
+    void              setRowSelectionLevel(int selectionLevel);
 
     PdmObjectHandle*  pdmObjectFromModelIndex(const QModelIndex& mi);
 

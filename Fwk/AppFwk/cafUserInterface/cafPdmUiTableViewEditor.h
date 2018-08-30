@@ -82,7 +82,8 @@ class PdmUiTableViewEditorAttribute : public PdmUiEditorAttribute
 {
 public:
     PdmUiTableViewEditorAttribute()
-        : selectionLevel(1)
+        : tableSelectionLevel(0)
+        , rowSelectionLevel(1)
         , enableHeaderText(true)
         , minimumHeight(-1)
         , forceColumnWidthResize(false)
@@ -92,6 +93,8 @@ public:
     }
 
     int                 selectionLevel;
+    int                 tableSelectionLevel;
+    int                 rowSelectionLevel;
     bool                enableHeaderText;
     std::vector<int>    columnWidths;
     int                 minimumHeight; ///< Not used if If < 0 
@@ -114,7 +117,8 @@ public:
     ~PdmUiTableViewEditor();
 
     void            enableHeaderText(bool enable);
-    void            setSelectionLevel(int selectionLevel);
+    void            setTableSelectionLevel(int selectionLevel);
+    void            setRowSelectionLevel(int selectionLevel);
 
     PdmObjectHandle* pdmObjectFromModelIndex(const QModelIndex& mi);
     QTableView*     tableView();
@@ -131,6 +135,7 @@ private:
     bool            isSelectionRoleDefined() const;
     void            updateSelectionManagerFromTableSelection();
 
+    bool            eventFilter(QObject* obj, QEvent* event);
     PdmChildArrayFieldHandle* childArrayFieldHandle();
 
 private slots:
@@ -149,7 +154,8 @@ private:
     PdmUiCheckBoxDelegate*  m_checkboxDelegate;
 
     bool                    m_useDefaultContextMenu;
-    int                     m_selectionLevel;
+    int                     m_tableSelectionLevel;
+    int                     m_rowSelectionLevel;
     bool                    m_isBlockingSelectionManagerChanged;
 
     caf::PdmChildArrayFieldHandle* m_previousFieldHandle;
