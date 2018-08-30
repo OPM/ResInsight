@@ -23,6 +23,8 @@
 
 #include "cafPdmUiComboBoxEditor.h"
 
+#include <cmath>
+
 CAF_PDM_SOURCE_INIT(RimWellPathAttribute, "WellPathAttribute");
 
 namespace caf
@@ -146,7 +148,7 @@ QString RimWellPathAttribute::generateInchesLabel(double diameter)
     double integerPart = 0.0;
     double fraction = modf(diameter, &integerPart);
 
-    int numerator = static_cast<int>(std::round(fraction / 0.125));
+    int numerator = static_cast<int>(std::round(8.0 * fraction));
 
     if (numerator > 0)
     {

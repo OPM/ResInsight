@@ -17,6 +17,9 @@
 /////////////////////////////////////////////////////////////////////////////////
 #include "RimWellPathAttributeCollection.h"
 
+#include "RimWellPathAttribute.h"
+#include "RimWellLogTrack.h"
+
 #include "cafCmdFeatureMenuBuilder.h"
 #include "cafPdmUiTableViewEditor.h"
 
@@ -41,6 +44,21 @@ RimWellPathAttributeCollection::RimWellPathAttributeCollection()
 //--------------------------------------------------------------------------------------------------
 RimWellPathAttributeCollection::~RimWellPathAttributeCollection()
 {
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellPathAttributeCollection::updateAllReferringTracks()
+{
+    std::vector<RimWellLogTrack*> wellLogTracks;
+
+    this->objectsWithReferringPtrFieldsOfType(wellLogTracks);
+    for (RimWellLogTrack* track : wellLogTracks)
+    {
+        track->loadDataAndUpdate();
+    }
+    this->updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------

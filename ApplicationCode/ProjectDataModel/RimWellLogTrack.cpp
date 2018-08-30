@@ -20,6 +20,7 @@
 #include "RimWellLogTrack.h"
 
 #include "RiaApplication.h"
+#include "RiaColorTables.h"
 #include "RiaExtractionTools.h"
 #include "RiaSimWellBranchTools.h"
 
@@ -45,6 +46,9 @@
 #include "RimMainPlotCollection.h"
 #include "RimProject.h"
 #include "RimTools.h"
+#include "RimWellPathAttribute.h"
+#include "RimWellPathAttributeCurve.h"
+#include "RimWellPathAttributeCollection.h"
 #include "RimWellFlowRateCurve.h"
 #include "RimWellLogCurve.h"
 #include "RimWellLogPlotCollection.h"
@@ -173,6 +177,15 @@ RimWellLogTrack::RimWellLogTrack()
     CAF_PDM_InitFieldNoDefault(&m_formationLevel, "FormationLevel", "Well Pick Filter", "", "", "");
 
     CAF_PDM_InitField(&m_showformationFluids, "ShowFormationFluids", false, "Show Fluids", "", "", "");
+
+    CAF_PDM_InitField(&m_showWellPathAttributes, "ShowWellPathAttributes", false, "Show Well Attributes", "", "", "");
+    CAF_PDM_InitField(&m_showWellPathAttributeBothSides, "ShowWellPathAttrBothSides", false, "Show Both Sides", "", "", "");
+    CAF_PDM_InitField(&m_wellPathAttributesInLegend, "WellPathAttributesInLegend", false, "Contribute to Legend", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_attributesWellPathSource, "AttributesWellPathSource", "Well Path", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_attributesCollection, "AttributesCollection", "Well Attributes", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_attributeCurves, "AttributeCurves", "", "", "", "");
+    m_attributeCurves.uiCapability()->setUiHidden(true);
+    m_attributeCurves.uiCapability()->setUiTreeChildrenHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&m_widthScaleFactor, "Width", "Track Width", "", "Set width of track. ", "");
 
@@ -404,6 +417,26 @@ void RimWellLogTrack::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
     {
         loadDataAndUpdate();
     }
+    else if (changedField == &m_showWellPathAttributes || 
+             changedField == &m_showWellPathAttributeBothSides ||
+             changedField == &m_wellPathAttributesInLegend)
+    {
+        updateWellPathAttributesOnPlot();
+    }
+    else if (changedField == &m_attributesWellPathSource)
+    {
+        m_attributesCollection = nullptr;
+        if (m_attributesWellPathSource)
+        {
+            std::vector<RimWellPathAttributeCollection*> attributeCollection;
+            m_attributesWellPathSource->descendantsIncludingThisOfType(attributeCollection);
+            if (!attributeCollection.empty())
+            {
+                m_attributesCollection = attributeCollection.front();
+            }
+        }
+        updateWellPathAttributesOnPlot();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -554,7 +587,11 @@ QList<caf::PdmOptionItemInfo> RimWellLogTrack::calculateValueOptions(const caf::
             }
         }
     }
-
+    else if (fieldNeedingOptions == &m_attributesWellPathSource)
+    {
+        RimTools::wellPathOptionItems(&options);
+        options.push_front(caf::PdmOptionItemInfo("None", nullptr));
+    }
     return options;
 }
 
@@ -638,14 +675,17 @@ void RimWellLogTrack::availableDepthRange(double* minimumDepth, double* maximumD
     double minDepth = HUGE_VAL;
     double maxDepth = -HUGE_VAL;
 
-    size_t curveCount = curves.size();
 
-    for (size_t cIdx = 0; cIdx < curveCount; cIdx++)
+    std::vector<RimPlotCurve*> allCurves;
+    allCurves.insert(allCurves.end(), curves.begin(), curves.end());
+    allCurves.insert(allCurves.end(), m_attributeCurves.begin(), m_attributeCurves.end());
+
+    for (RimPlotCurve* curve : allCurves)
     {
         double minCurveDepth = HUGE_VAL;
         double maxCurveDepth = -HUGE_VAL;
 
-        if (curves[cIdx]->isCurveVisible() && curves[cIdx]->depthRange(&minCurveDepth, &maxCurveDepth))
+        if (curve->isCurveVisible() && curve->yValueRange(&minCurveDepth, &maxCurveDepth))
         {
             if (minCurveDepth < minDepth)
             {
@@ -696,7 +736,9 @@ void RimWellLogTrack::loadDataAndUpdate()
 
     if ( m_wellLogTrackPlotWidget )
     {
+        this->updateWellPathAttributesOnPlot();
         m_wellLogTrackPlotWidget->updateLegend();
+
         this->updateAxisScaleEngine();
         this->updateFormationNamesOnPlot();
         this->applyXZoomFromVisibleRange();
@@ -913,6 +955,16 @@ void RimWellLogTrack::applyXZoomFromVisibleRange()
     if (!m_wellLogTrackPlotWidget) return;
 
     m_wellLogTrackPlotWidget->setXRange(m_visibleXRangeMin, m_visibleXRangeMax);
+
+    // Attribute range
+    double posRange = 1.5 * 0.5 * RimWellPathAttribute::MAX_DIAMETER_IN_INCHES;
+    double negRange = 0.0;
+    if (m_showWellPathAttributeBothSides)
+    {
+        negRange = -posRange;
+    }
+    m_wellLogTrackPlotWidget->setXRange(negRange, posRange, QwtPlot::xBottom);
+
     m_wellLogTrackPlotWidget->replot();
 }
 
@@ -936,15 +988,15 @@ void RimWellLogTrack::calculateXZoomRange()
     double maxValue = -HUGE_VAL;
 
     size_t visibleCurves = 0u;
-    for (size_t cIdx = 0; cIdx < curves.size(); cIdx++)
+    for (auto curve : curves)
     {
         double minCurveValue = HUGE_VAL;
         double maxCurveValue = -HUGE_VAL;
 
-        if (curves[cIdx]->isCurveVisible())
+        if (curve->isCurveVisible())
         {
             visibleCurves++;
-            if (curves[cIdx]->valueRange(&minCurveValue, &maxCurveValue))
+            if (curve->xValueRange(&minCurveValue, &maxCurveValue))
             {
                 if (minCurveValue < minValue)
                 {
@@ -1130,6 +1182,12 @@ void RimWellLogTrack::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering&
             formationGroup->add(&m_showformationFluids);
         }
     }
+
+    caf::PdmUiGroup* attributeGroup = uiOrdering.addNewGroup("Well Attributes");
+    attributeGroup->add(&m_showWellPathAttributes);
+    attributeGroup->add(&m_showWellPathAttributeBothSides);
+    attributeGroup->add(&m_wellPathAttributesInLegend);
+    attributeGroup->add(&m_attributesWellPathSource);
 
     uiOrderingForXAxisSettings(uiOrdering);
 
@@ -1599,6 +1657,65 @@ void RimWellLogTrack::updateFormationNamesOnPlot()
         formations->depthAndFormationNamesUpToLevel(m_formationLevel(), &formationNamesToPlot, &yValues, m_showformationFluids(), plot->depthType());
         
         m_annotationTool->attachWellPicks(this->viewer(), formationNamesToPlot, yValues);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogTrack::updateWellPathAttributesOnPlot()
+{
+    for (RimWellPathAttributeCurve* curve : m_attributeCurves)
+    {
+        curve->detachQwtCurve();
+    }
+    m_attributeCurves.deleteAllChildObjects();
+
+    if (m_showWellPathAttributes)
+    {
+        if (m_attributesCollection)
+        {
+            int index = 0;
+            for (RimWellPathAttribute* attribute : m_attributesCollection->attributes())
+            {                
+                cvf::Color3f curveColor = RiaColorTables::wellLogPlotPaletteColors().cycledColor3f(index++);
+                {
+                    RimWellPathAttributeCurve* positiveCurve = new RimWellPathAttributeCurve(
+                        attribute, RimWellPathAttributeCurve::PositiveSide, RimWellPathAttributeCurve::LineCurve);
+                    RimWellPathAttributeCurve* negativeCurve = new RimWellPathAttributeCurve(
+                        attribute, RimWellPathAttributeCurve::NegativeSide, RimWellPathAttributeCurve::LineCurve);
+                    positiveCurve->setColor(curveColor);
+                    negativeCurve->setColor(curveColor);
+                    positiveCurve->showLegend(m_wellPathAttributesInLegend());
+                    negativeCurve->showLegend(false);
+                    m_attributeCurves.push_back(positiveCurve);
+                    m_attributeCurves.push_back(negativeCurve);
+                }
+
+                if (attribute->type() == RimWellPathAttribute::AttributeCasing)
+                {
+                    RimWellPathAttributeCurve* positiveSymbol = new RimWellPathAttributeCurve(
+                        attribute, RimWellPathAttributeCurve::PositiveSide, RimWellPathAttributeCurve::MarkerSymbol);
+                    RimWellPathAttributeCurve* negativeSymbol = new RimWellPathAttributeCurve(
+                        attribute, RimWellPathAttributeCurve::NegativeSide, RimWellPathAttributeCurve::MarkerSymbol);
+                    positiveSymbol->setColor(curveColor);
+                    negativeSymbol->setColor(curveColor);
+                    positiveSymbol->showLegend(false);
+                    negativeSymbol->showLegend(false);
+                    m_attributeCurves.push_back(positiveSymbol);
+                    m_attributeCurves.push_back(negativeSymbol);
+                }
+            }
+        }
+        for (RimWellPathAttributeCurve* curve : m_attributeCurves)
+        {
+            curve->loadDataAndUpdate(false);
+            if (m_wellLogTrackPlotWidget)
+            {
+                curve->setParentQwtPlotNoReplot(m_wellLogTrackPlotWidget);
+            }
+        }
+        applyXZoomFromVisibleRange();
     }
 }
 

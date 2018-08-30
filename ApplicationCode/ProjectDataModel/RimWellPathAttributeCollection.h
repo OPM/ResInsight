@@ -17,13 +17,13 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
-#include "RimWellPathAttribute.h"
-
 #include "cafAppEnum.h"
 #include "cvfBase.h"
 #include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
+
+class RimWellPathAttribute;
 
 class RimWellPathAttributeCollection : public caf::PdmObject
 {
@@ -32,6 +32,7 @@ public:
     RimWellPathAttributeCollection();
     ~RimWellPathAttributeCollection();
 
+    void                               updateAllReferringTracks();
     std::vector<RimWellPathAttribute*> attributes() const;
     void                               insertAttribute(RimWellPathAttribute* insertBefore, RimWellPathAttribute* attribute);
     void                               deleteAttribute(RimWellPathAttribute* attributeToDelete);

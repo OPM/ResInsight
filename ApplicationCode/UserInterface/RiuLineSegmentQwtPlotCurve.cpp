@@ -243,8 +243,7 @@ void RiuLineSegmentQwtPlotCurve::drawSymbols(QPainter *painter, const QwtSymbol 
         {
             for (auto& pt : pointsToDisplay)
             {
-                int width = painter->fontMetrics().width(sym->label());
-                painter->drawText(pt.x() - width / 2, pt.y() - 5, sym->label());
+                sym->renderSymbolLabel(painter, pt);
             }
         }
     }
@@ -358,7 +357,8 @@ std::vector<double> RiuLineSegmentQwtPlotCurve::fromTime_t(const std::vector<tim
 //--------------------------------------------------------------------------------------------------
 /// Internal class to support labels on symbols
 //--------------------------------------------------------------------------------------------------
-RiuCurveQwtSymbol::RiuCurveQwtSymbol(QwtSymbol::Style style, const QString& label) : QwtSymbol(style), m_label(label)
+RiuCurveQwtSymbol::RiuCurveQwtSymbol(QwtSymbol::Style style, const QString& label, LabelPosition labelPosition)
+    : QwtSymbol(style), m_label(label), m_labelPosition(labelPosition)
 { 
 }
 
@@ -370,9 +370,33 @@ void RiuCurveQwtSymbol::renderSymbols(QPainter *painter, const QPointF *points, 
     {
         for (int i = 0; i < numPoints; i++)
         {
-            auto pt = points[i];
-            int width = painter->fontMetrics().width(m_label);
-            painter->drawText(pt.x() - width / 2, pt.y() - 5, m_label);
+            auto position = points[i];
+            renderSymbolLabel(painter, position);
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuCurveQwtSymbol::renderSymbolLabel(QPainter *painter, const QPointF& position) const
+{
+    int symbolWidth = this->size().width();
+    int labelWidth = painter->fontMetrics().width(m_label);
+    if (m_labelPosition == LabelAboveSymbol)
+    {
+        painter->drawText(position.x() - labelWidth / 2, position.y() - 5, m_label);
+    }
+    else if (m_labelPosition == LabelRightOfSymbol)
+    {
+        painter->drawText(position.x() + symbolWidth / 2 + 1, position.y(), m_label);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuCurveQwtSymbol::setLabelPosition(LabelPosition labelPosition)
+{
+    m_labelPosition = labelPosition;
 }

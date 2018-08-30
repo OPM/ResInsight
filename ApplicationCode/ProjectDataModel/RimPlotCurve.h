@@ -18,14 +18,13 @@
 #pragma once
 
 #include "RifEclipseSummaryAddress.h"
+#include "RiuLineSegmentQwtPlotCurve.h"
 
 #include "cafPdmField.h"
 #include "cafPdmFieldCvfColor.h"    
 #include "cafPdmObject.h"
 
 #include <QPointer>
-
-class RiuLineSegmentQwtPlotCurve;
 
 class QwtPlot;
 class QwtPlotCurve;
@@ -72,6 +71,9 @@ public:
     virtual ~RimPlotCurve();
 
     void                            loadDataAndUpdate(bool updateParentPlot);
+
+    virtual bool                    xValueRange(double* minimumValue, double* maximumValue) const;
+    virtual bool                    yValueRange(double* minimumValue, double* maximumValue) const;
 
     void                            setParentQwtPlotAndReplot(QwtPlot* plot);
     void                            setParentQwtPlotNoReplot(QwtPlot* plot);
@@ -147,9 +149,10 @@ protected:
     caf::PdmField<float>            m_symbolSkipPixelDistance;
     caf::PdmField<bool>             m_showErrorBars;
 
-    caf::PdmField< caf::AppEnum< PointSymbolEnum > > m_pointSymbol;
-    caf::PdmField< caf::AppEnum< LineStyleEnum > >   m_lineStyle;
-    caf::PdmField< CurveInterpolation >              m_curveInterpolation;
+    caf::PdmField< caf::AppEnum< PointSymbolEnum > >               m_pointSymbol;
+    caf::PdmField< caf::AppEnum< LineStyleEnum > >                 m_lineStyle;
+    caf::PdmField< CurveInterpolation >                            m_curveInterpolation;
+    RiuCurveQwtSymbol::LabelPosition                               m_symbolLabelPosition;
 };
 
 

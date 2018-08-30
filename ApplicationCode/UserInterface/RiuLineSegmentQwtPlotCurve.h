@@ -118,12 +118,20 @@ private:
 class RiuCurveQwtSymbol : public QwtSymbol
 {
 public:
-    RiuCurveQwtSymbol(QwtSymbol::Style style, const QString& label);
+    enum LabelPosition
+    {
+        LabelAboveSymbol,
+        LabelRightOfSymbol
+    };
+    RiuCurveQwtSymbol(QwtSymbol::Style style, const QString& label, LabelPosition labelPosition = LabelAboveSymbol);
 
     virtual void renderSymbols(QPainter *painter, const QPointF *points, int numPoints) const override;
-
+    void         renderSymbolLabel(QPainter *painter, const QPointF& position) const;
     QString label() const { return m_label; }
 
+    void setLabelPosition(LabelPosition labelPosition);
+
 private:
-    QString m_label;
+    QString       m_label;
+    LabelPosition m_labelPosition;
 };

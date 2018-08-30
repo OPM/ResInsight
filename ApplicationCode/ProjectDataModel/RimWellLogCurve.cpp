@@ -56,45 +56,21 @@ RimWellLogCurve::~RimWellLogCurve()
 {
 }
 
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 bool RimWellLogCurve::depthRange(double* minimumDepth, double* maximumDepth) const
 {
-    CVF_ASSERT(minimumDepth && maximumDepth);
-    CVF_ASSERT(m_qwtPlotCurve);
-    
-    if (m_qwtPlotCurve->data()->size() < 1)
-    {
-        return false;
-    }
-
-    *minimumDepth = m_qwtPlotCurve->minYValue();
-    *maximumDepth = m_qwtPlotCurve->maxYValue();
-
-    return true;
+    return yValueRange(minimumDepth, maximumDepth);
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RimWellLogCurve::valueRange(double* minimumValue, double* maximumValue) const
 {
-    CVF_ASSERT(minimumValue && maximumValue);
-    CVF_ASSERT(m_qwtPlotCurve);
-
-    if (m_qwtPlotCurve->data()->size() < 1)
-    {
-        return false;
-    }
-
-    *minimumValue = m_qwtPlotCurve->minXValue();
-    *maximumValue = m_qwtPlotCurve->maxXValue();
-
-    return true;
+    return xValueRange(minimumValue, maximumValue);
 }
-
 
 //--------------------------------------------------------------------------------------------------
 /// 

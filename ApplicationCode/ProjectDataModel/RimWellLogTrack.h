@@ -36,6 +36,8 @@
 
 class RigWellPath;
 class RimCase;
+class RimWellPathAttributeCurve;
+class RimWellPathAttributeCollection;
 class RimWellFlowRateCurve;
 class RimWellLogCurve;
 class RimWellPath;
@@ -164,6 +166,7 @@ private:
     void setFormationFieldsUiReadOnly(bool readOnly = true);
 
     void updateFormationNamesOnPlot();
+    void updateWellPathAttributesOnPlot();
     void removeFormationNames();
     void updateAxisScaleEngine();
     bool isFirstVisibleTrackInPlot() const;
@@ -198,6 +201,12 @@ private:
     caf::PdmField<bool>                                                m_showformationFluids;
     caf::PdmField<caf::AppEnum<WidthScaleFactor>>                      m_widthScaleFactor;
     caf::PdmField<bool>                                                m_formationBranchDetection;
+    caf::PdmField<bool>                                                m_showWellPathAttributes;
+    caf::PdmField<bool>                                                m_showWellPathAttributeBothSides;
+    caf::PdmField<bool>                                                m_wellPathAttributesInLegend;
+    caf::PdmPtrField<RimWellPath*>                                     m_attributesWellPathSource;
+    caf::PdmPtrField<RimWellPathAttributeCollection*>                  m_attributesCollection;
+    caf::PdmChildArrayField<RimWellPathAttributeCurve*>                m_attributeCurves;
 
     bool m_formationsForCaseWithSimWellOnly;
 

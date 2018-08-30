@@ -49,7 +49,7 @@ public:
     void                                    setDepthTitle(const QString& title);
     void                                    setXTitle(const QString& title);
 
-    void                                    setXRange(double min, double max);
+    void                                    setXRange(double min, double max, QwtPlot::Axis axis = QwtPlot::xTop);
 
     bool                                    isRimTrackVisible();
     void                                    enableDepthAxisLabelsAndTitle(bool enable);

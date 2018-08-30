@@ -49,13 +49,13 @@ public:
     QString       label() const;
     QString       diameterLabel() const;
 
-    virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
-
 private:
+    virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
     static QString generateInchesLabel(double diameter);
     virtual void   fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
     virtual void   defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
 
+private:
     caf::PdmField<AttributeTypeEnum> m_type;
     caf::PdmField<double>            m_depthStart;
     caf::PdmField<double>            m_depthEnd;

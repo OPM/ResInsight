@@ -28,7 +28,6 @@
 #include "RimSummaryPlot.h"
 
 #include "RiuRimQwtPlotCurve.h"
-#include "RiuLineSegmentQwtPlotCurve.h"
 
 #include "cafPdmUiComboBoxEditor.h"
 
@@ -84,6 +83,7 @@ void RimPlotCurve::CurveInterpolation::setUp()
 /// 
 //--------------------------------------------------------------------------------------------------
 RimPlotCurve::RimPlotCurve()
+    : m_symbolLabelPosition(RiuCurveQwtSymbol::LabelAboveSymbol)
 {
     CAF_PDM_InitObject("Curve", ":/WellLogCurve16x16.png", "", "");
 
@@ -476,7 +476,7 @@ void RimPlotCurve::updateCurveAppearance()
         }
 
         // QwtPlotCurve will take ownership of the symbol
-        symbol = new RiuCurveQwtSymbol(style, m_symbolLabel);
+        symbol = new RiuCurveQwtSymbol(style, m_symbolLabel, m_symbolLabelPosition);
 
         symbol->setSize(m_symbolSize, m_symbolSize);
         symbol->setColor(curveColor);
@@ -582,6 +582,44 @@ QList<caf::PdmOptionItemInfo> RimPlotCurve::calculateValueOptions(const caf::Pdm
 void RimPlotCurve::loadDataAndUpdate(bool updateParentPlot)
 {
     this->onLoadDataAndUpdate(updateParentPlot);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimPlotCurve::xValueRange(double* minimumValue, double* maximumValue) const
+{
+    CVF_ASSERT(minimumValue && maximumValue);
+    CVF_ASSERT(m_qwtPlotCurve);
+
+    if (m_qwtPlotCurve->data()->size() < 1)
+    {
+        return false;
+    }
+
+    *minimumValue = m_qwtPlotCurve->minXValue();
+    *maximumValue = m_qwtPlotCurve->maxXValue();
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimPlotCurve::yValueRange(double* minimumValue, double* maximumValue) const
+{
+    CVF_ASSERT(minimumValue && maximumValue);
+    CVF_ASSERT(m_qwtPlotCurve);
+
+    if (m_qwtPlotCurve->data()->size() < 1)
+    {
+        return false;
+    }
+
+    *minimumValue = m_qwtPlotCurve->minYValue();
+    *maximumValue = m_qwtPlotCurve->maxYValue();
+
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -700,16 +738,15 @@ void RimPlotCurve::updateLegendEntryVisibilityNoPlotUpdate()
     RimSummaryPlot* summaryPlot = nullptr;
     this->firstAncestorOrThisOfType(summaryPlot);
 
+    bool showLegendInQwt = m_showLegend();
     if (summaryPlot)
     {
-        bool showLegendInQwt = m_showLegend();
 
         if (summaryPlot->ensembleCurveSetCollection()->curveSets().empty() && summaryPlot->curveCount() == 1)
         {
             // Disable display of legend if the summary plot has only one single curve
             showLegendInQwt = false;
         }
-
-        m_qwtPlotCurve->setItemAttribute(QwtPlotItem::Legend, showLegendInQwt);
     }
+    m_qwtPlotCurve->setItemAttribute(QwtPlotItem::Legend, showLegendInQwt);
 }
