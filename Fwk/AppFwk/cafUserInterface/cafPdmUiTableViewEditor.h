@@ -157,6 +157,7 @@ private:
     int                     m_tableSelectionLevel;
     int                     m_rowSelectionLevel;
     bool                    m_isBlockingSelectionManagerChanged;
+    bool                    m_isUpdatingSelectionQModel;
 
     caf::PdmChildArrayFieldHandle* m_previousFieldHandle;
 };

@@ -298,8 +298,10 @@ void PdmUiTableViewEditor::onSelectionManagerSelectionChanged(int selectionLevel
             QItemSelection itemSelection = m_tableModelPdm->modelIndexFromPdmObject(pdmObj);
             totalSelection.merge(itemSelection, QItemSelectionModel::Select);
         }
- 
+
+        m_isUpdatingSelectionQModel = true;
         m_tableView->selectionModel()->select(totalSelection, QItemSelectionModel::SelectCurrent);
+        m_isUpdatingSelectionQModel = false;
     }
 }
 
@@ -310,7 +312,7 @@ void PdmUiTableViewEditor::onSelectionManagerSelectionChanged(int selectionLevel
 //--------------------------------------------------------------------------------------------------
 void PdmUiTableViewEditor::slotSelectionChanged(const QItemSelection & selected, const QItemSelection & deselected)
 {
-    updateSelectionManagerFromTableSelection();
+    if (!m_isUpdatingSelectionQModel) updateSelectionManagerFromTableSelection();
 }
 
 //--------------------------------------------------------------------------------------------------
