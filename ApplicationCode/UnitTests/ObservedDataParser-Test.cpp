@@ -351,7 +351,7 @@ TEST(RifColumnBasedRsmspecParserTest, TestTableValues)
     out << "---------------------------------------\n";
     out << "SUMMARY OF RUN SIP USER FILE DATA VECTORS\n";
     out << "---------------------------------------\n";
-    out << "TIME     WLVP       WPLT      WTEST      WFOFF      WBUP\n";
+    out << "TIME     WOPR       WOPRA      WOPRB      WOPTA      WOPTB\n";
     out << "DAYS      BARSA       BARSA     BARSA     BARSA    BARSA\n";
     out << "\n";
     out << "    P-15P   P-15P   P-15P   P-15P   P-15P  \n";
@@ -377,7 +377,7 @@ TEST(RifColumnBasedRsmspecParserTest, TestTableValues)
     out << "---------------------------------------\n";
     out << "SUMMARY OF RUN SIP USER FILE DATA VECTORS\n";
     out << "---------------------------------------\n";
-    out << "TIME     WLVP       WPLT      WTEST      WFOFF      WBUP\n";
+    out << "TIME     WOPR       WOPRA      WOPRB      WOPTA      WOPTB\n";
     out << "DAYS      BARSA       BARSA     BARSA     BARSA    BARSA\n";
     out << "\n";
     out << "    P-9P   P-9P   P-9P   P-9P   P-9P  \n";
@@ -404,7 +404,7 @@ TEST(RifColumnBasedRsmspecParserTest, TestTableValues)
     EXPECT_EQ(3.0, tables.at(1).columnInfos().at(0).values.at(2));
     EXPECT_EQ(370.0, tables.at(1).columnInfos().at(3).values.at(3));
 
-    EXPECT_EQ("WLVP", tables.at(0).columnInfos().at(1).summaryAddress.quantityName());
+    EXPECT_EQ("WOPR", tables.at(0).columnInfos().at(1).summaryAddress.quantityName());
     EXPECT_EQ("P-15P", tables.at(0).columnInfos().at(5).summaryAddress.wellName());
     EXPECT_EQ("P-9P", tables.at(1).columnInfos().at(1).summaryAddress.wellName());
     EXPECT_NE("P-9P", tables.at(1).columnInfos().at(0).summaryAddress.wellName());
@@ -412,7 +412,7 @@ TEST(RifColumnBasedRsmspecParserTest, TestTableValues)
     RifColumnBasedUserData userData;
     userData.parse(data);
 
-    RifEclipseSummaryAddress adr(RifEclipseSummaryAddress::SUMMARY_WELL, "WLVP", -1, -1, "", "P-15P", -1, "", -1, -1, -1, -1, false);
+    RifEclipseSummaryAddress adr(RifEclipseSummaryAddress::SUMMARY_WELL, "WOPR", -1, -1, "", "P-15P", -1, "", -1, -1, -1, -1, false);
    
     QDateTime firstTimeStep = RiaQDateTimeTools::addDays(RiaQDateTimeTools::epoch(), 1.0);
     auto timeSteps = userData.timeSteps(adr);
@@ -434,7 +434,7 @@ TEST(RifColumnBasedRsmspecParserTest, TestTableMissingWellNames)
     out << "---------------------------------------\n";
     out << "SUMMARY OF RUN SIP USER FILE DATA VECTORS\n";
     out << "---------------------------------------\n";
-    out << "TIME     WLVP       WPLT      WTEST      WFOFF      WBUP\n";
+    out << "TIME     WOPR       WOPRA      WOPRB      WOPTA      WOPTB\n";
     out << "DAYS      BARSA       BARSA     BARSA     BARSA    BARSA\n";
     out << "\n";
     out << "   1   0.0   0.0   0.0   0.0   0.0\n";
@@ -680,10 +680,10 @@ TEST(RifKeywordBasedRsmspecParserTest, TestShutins)
     out << "-- Created running the command shutin_pressures\n";
     out << "\n";
     out << "PAGE 1\n";
-    out << "ORIGIN       OP-1_WBP9L\n";
+    out << "ORIGIN       OP-1_WOPR\n";
     out << "STARTDATE    01 01 2004     -- DD MM YYYY\n";
     out << "\n";
-    out << "TIME     YEARX      WBP9L\n";
+    out << "TIME     YEARX      WOPR\n";
     out << "DAYS     YEARS      BARSA\n";
     out << "1        1          1\n";
     out << "                    OP-1\n";
@@ -720,7 +720,7 @@ TEST(RifKeywordBasedRsmspecParserTest, TestShutins)
 
     EXPECT_EQ(2014.39, tables.at(0).columnInfos().at(1).values[2]);
 
-    EXPECT_EQ("WBP9L", tables.at(0).columnInfos().at(2).summaryAddress.quantityName());
+    EXPECT_EQ("WOPR", tables.at(0).columnInfos().at(2).summaryAddress.quantityName());
 
     EXPECT_EQ("OP-1", tables.at(0).columnInfos().at(2).summaryAddress.wellName());
     EXPECT_NE("OP-1", tables.at(0).columnInfos().at(1).summaryAddress.wellName());
@@ -739,10 +739,10 @@ TEST(RifKeywordBasedRsmspecParserTest, TestTimeSteps)
     out << "-- Created running the command shutin_pressures\n";
     out << "\n";
     out << "PAGE 1\n";
-    out << "ORIGIN       OP-1_WBP9L\n";
+    out << "ORIGIN       OP-1_WOPR\n";
     out << "STARTDATE    01 01 2004     -- DD MM YYYY\n";
     out << "\n";
-    out << "TIME     YEARX      WBP9L\n";
+    out << "TIME     YEARX      WOPR\n";
     out << "DAYS     YEARS      BARSA\n";
     out << "1        1          1\n";
     out << "                    OP-1\n";
@@ -768,7 +768,7 @@ TEST(RifKeywordBasedRsmspecParserTest, TestTimeSteps)
     out << "3493     2015.55    219.0    -- Measured\n";
     out << "\n";
 
-    std::string quantityName = "WBP9L";
+    std::string quantityName = "WOPR";
     std::vector< std::string > headerColumn;
     headerColumn.push_back("OP-1");
 

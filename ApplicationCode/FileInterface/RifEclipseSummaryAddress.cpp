@@ -299,6 +299,7 @@ RifEclipseSummaryAddress::SummaryVarCategory RifEclipseSummaryAddress::identifyC
     if (firstTwoLetters == "LC") return SUMMARY_WELL_COMPLETION_LGR;
     if (firstTwoLetters == "LW") return SUMMARY_WELL_LGR;
 
+    if (quantityName[0] == 'N') return SUMMARY_NETWORK;
     return SUMMARY_INVALID;
 }
 

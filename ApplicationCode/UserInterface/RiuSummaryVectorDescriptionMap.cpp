@@ -41,10 +41,26 @@ RiuSummaryVectorInfo RiuSummaryVectorDescriptionMap::vectorInfo(const std::strin
     }
     else if (vectorName.size() > 1 && vectorName[1] == 'U')
     {
+        // User defined vector name
+
         std::string key = vectorName.substr(0, 2);
 
         it = m_summaryToDescMap.find(key);
 
+        if (it != m_summaryToDescMap.end())
+        {
+            return it->second;
+        }
+    }
+    else if (vectorName.size() > 5)
+    {
+        // Check for custom vector naming
+
+        std::string baseName = vectorName.substr(0, 5);
+        while (baseName.back() == '_') baseName.pop_back();
+        
+        it = m_summaryToDescMap.find(baseName);
+        
         if (it != m_summaryToDescMap.end())
         {
             return it->second;

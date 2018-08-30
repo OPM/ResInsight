@@ -21,13 +21,13 @@ TEST(RifEclipseSummaryAddressTest, TestEclipseAddressParsing_Field)
 
 TEST(RifEclipseSummaryAddressTest, TestEclipseAddressParsing_Aquifer)
 {
-    std::string addrString = "AAQU:456";
+    std::string addrString = "AAQR:456";
 
     RifEclipseSummaryAddress addr = RifEclipseSummaryAddress::fromEclipseTextAddress(addrString);
 
     EXPECT_TRUE(addr.isValid());
     EXPECT_EQ(RifEclipseSummaryAddress::SUMMARY_AQUIFER, addr.category());
-    EXPECT_EQ("AAQU", addr.quantityName());
+    EXPECT_EQ("AAQR", addr.quantityName());
     EXPECT_EQ(456, addr.aquiferNumber());
     EXPECT_FALSE(addr.isErrorResult());
 }
@@ -46,38 +46,38 @@ TEST(RifEclipseSummaryAddressTest, TestEclipseAddressParsing_Network)
 
 TEST(RifEclipseSummaryAddressTest, DISABLED_TestEclipseAddressParsing_Misc)
 {
-    std::string addrString = "MISC";
+    std::string addrString = "CPU";
 
     RifEclipseSummaryAddress addr = RifEclipseSummaryAddress::fromEclipseTextAddress(addrString);
 
     EXPECT_TRUE(addr.isValid());
     EXPECT_EQ(RifEclipseSummaryAddress::SUMMARY_MISC, addr.category());
-    EXPECT_EQ("NETW", addr.quantityName());
+    EXPECT_EQ("CPU", addr.quantityName());
     EXPECT_FALSE(addr.isErrorResult());
 }
 
 TEST(RifEclipseSummaryAddressTest, TestEclipseAddressParsing_Region)
 {
-    std::string addrString = "REGI:7081";
+    std::string addrString = "RPR:7081";
 
     RifEclipseSummaryAddress addr = RifEclipseSummaryAddress::fromEclipseTextAddress(addrString);
 
     EXPECT_TRUE(addr.isValid());
     EXPECT_EQ(RifEclipseSummaryAddress::SUMMARY_REGION, addr.category());
-    EXPECT_EQ("REGI", addr.quantityName());
+    EXPECT_EQ("RPR", addr.quantityName());
     EXPECT_EQ(7081, addr.regionNumber());
     EXPECT_FALSE(addr.isErrorResult());
 }
 
 TEST(RifEclipseSummaryAddressTest, TestEclipseAddressParsing_RegionToRegion)
 {
-    std::string addrString = "REFR:7081-8001";
+    std::string addrString = "ROFR:7081-8001";
 
     RifEclipseSummaryAddress addr = RifEclipseSummaryAddress::fromEclipseTextAddress(addrString);
 
     EXPECT_TRUE(addr.isValid());
     EXPECT_EQ(RifEclipseSummaryAddress::SUMMARY_REGION_2_REGION, addr.category());
-    EXPECT_EQ("REFR", addr.quantityName());
+    EXPECT_EQ("ROFR", addr.quantityName());
     EXPECT_EQ(7081, addr.regionNumber());
     EXPECT_EQ(8001, addr.regionNumber2());
     EXPECT_FALSE(addr.isErrorResult());
@@ -85,39 +85,39 @@ TEST(RifEclipseSummaryAddressTest, TestEclipseAddressParsing_RegionToRegion)
 
 TEST(RifEclipseSummaryAddressTest, TestEclipseAddressParsing_WellGroup)
 {
-    std::string addrString = "GGRP:WELLS1";
+    std::string addrString = "GOPR:WELLS1";
 
     RifEclipseSummaryAddress addr = RifEclipseSummaryAddress::fromEclipseTextAddress(addrString);
 
     EXPECT_TRUE(addr.isValid());
     EXPECT_EQ(RifEclipseSummaryAddress::SUMMARY_WELL_GROUP, addr.category());
-    EXPECT_EQ("GGRP", addr.quantityName());
+    EXPECT_EQ("GOPR", addr.quantityName());
     EXPECT_EQ("WELLS1", addr.wellGroupName());
     EXPECT_FALSE(addr.isErrorResult());
 }
 
 TEST(RifEclipseSummaryAddressTest, TestEclipseAddressParsing_Well)
 {
-    std::string addrString = "WGAS:B-2H";
+    std::string addrString = "WOPR:B-2H";
 
     RifEclipseSummaryAddress addr = RifEclipseSummaryAddress::fromEclipseTextAddress(addrString);
 
     EXPECT_TRUE(addr.isValid());
     EXPECT_EQ(RifEclipseSummaryAddress::SUMMARY_WELL, addr.category());
-    EXPECT_EQ("WGAS", addr.quantityName());
+    EXPECT_EQ("WOPR", addr.quantityName());
     EXPECT_EQ("B-2H", addr.wellName());
     EXPECT_FALSE(addr.isErrorResult());
 }
 
 TEST(RifEclipseSummaryAddressTest, TestEclipseAddressParsing_WellCompletion)
 {
-    std::string addrString = "CDATA:B-1H:15,13,14";
+    std::string addrString = "COFRL:B-1H:15,13,14";
 
     RifEclipseSummaryAddress addr = RifEclipseSummaryAddress::fromEclipseTextAddress(addrString);
 
     EXPECT_TRUE(addr.isValid());
     EXPECT_EQ(RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION, addr.category());
-    EXPECT_EQ("CDATA", addr.quantityName());
+    EXPECT_EQ("COFRL", addr.quantityName());
     EXPECT_EQ("B-1H", addr.wellName());
     EXPECT_EQ(15, addr.cellI());
     EXPECT_EQ(13, addr.cellJ());
@@ -158,13 +158,13 @@ TEST(RifEclipseSummaryAddressTest, TestEclipseAddressParsing_WellCompletionLgr)
 
 TEST(RifEclipseSummaryAddressTest, TestEclipseAddressParsing_WellSegment)
 {
-    std::string addrString = "SGMT:B-5H:32";
+    std::string addrString = "SOFR:B-5H:32";
 
     RifEclipseSummaryAddress addr = RifEclipseSummaryAddress::fromEclipseTextAddress(addrString);
 
     EXPECT_TRUE(addr.isValid());
     EXPECT_EQ(RifEclipseSummaryAddress::SUMMARY_WELL_SEGMENT, addr.category());
-    EXPECT_EQ("SGMT", addr.quantityName());
+    EXPECT_EQ("SOFR", addr.quantityName());
     EXPECT_EQ("B-5H", addr.wellName());
     EXPECT_EQ(32, addr.wellSegmentNumber());
     EXPECT_FALSE(addr.isErrorResult());
@@ -172,13 +172,13 @@ TEST(RifEclipseSummaryAddressTest, TestEclipseAddressParsing_WellSegment)
 
 TEST(RifEclipseSummaryAddressTest, TestEclipseAddressParsing_Block)
 {
-    std::string addrString = "BLOC:123,122,121";
+    std::string addrString = "BPR:123,122,121";
 
     RifEclipseSummaryAddress addr = RifEclipseSummaryAddress::fromEclipseTextAddress(addrString);
 
     EXPECT_TRUE(addr.isValid());
     EXPECT_EQ(RifEclipseSummaryAddress::SUMMARY_BLOCK, addr.category());
-    EXPECT_EQ("BLOC", addr.quantityName());
+    EXPECT_EQ("BPR", addr.quantityName());
     EXPECT_EQ(123, addr.cellI());
     EXPECT_EQ(122, addr.cellJ());
     EXPECT_EQ(121, addr.cellK());
@@ -215,13 +215,13 @@ TEST(RifEclipseSummaryAddressTest, TestEclipseAddressParsing_Imported)
 
 TEST(RifEclipseSummaryAddressTest, TestEclipseAddressParsing_ErrorResult1)
 {
-    std::string addrString = "ER:AAQU:456";
+    std::string addrString = "ER:AAQR:456";
 
     RifEclipseSummaryAddress addr = RifEclipseSummaryAddress::fromEclipseTextAddress(addrString);
 
     EXPECT_TRUE(addr.isValid());
     EXPECT_EQ(RifEclipseSummaryAddress::SUMMARY_AQUIFER, addr.category());
-    EXPECT_EQ("AAQU", addr.quantityName());
+    EXPECT_EQ("AAQR", addr.quantityName());
     EXPECT_EQ(456, addr.aquiferNumber());
     EXPECT_TRUE(addr.isErrorResult());
 }
@@ -262,7 +262,7 @@ TEST(RifEclipseSummaryAddressTest, TestEclipseAddressIjkParsing)
         {
             { RifEclipseSummaryAddress::INPUT_WELL_NAME, "1-BH" },
             { RifEclipseSummaryAddress::INPUT_CELL_IJK, "6, 7, 8" },
-            { RifEclipseSummaryAddress::INPUT_VECTOR_NAME, "WABC" },
+            { RifEclipseSummaryAddress::INPUT_VECTOR_NAME, "WOPR" },
         }
     );
 
@@ -270,7 +270,7 @@ TEST(RifEclipseSummaryAddressTest, TestEclipseAddressIjkParsing)
 
     EXPECT_TRUE(addr.isValid());
     EXPECT_EQ(RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION, addr.category());
-    EXPECT_EQ("WABC", addr.quantityName());
+    EXPECT_EQ("WOPR", addr.quantityName());
     EXPECT_EQ("1-BH", addr.wellName());
     EXPECT_EQ(6, addr.cellI());
     EXPECT_EQ(7, addr.cellJ());
@@ -284,7 +284,7 @@ TEST(RifEclipseSummaryAddressTest, TestEclipseAddressRegToRegParsing)
     std::map<RifEclipseSummaryAddress::SummaryIdentifierType, std::string> identifiers(
         {
             { RifEclipseSummaryAddress::INPUT_REGION_2_REGION, "123 - 456" },
-            { RifEclipseSummaryAddress::INPUT_VECTOR_NAME, "REFR" },
+            { RifEclipseSummaryAddress::INPUT_VECTOR_NAME, "ROFR" },
         }
     );
 
@@ -292,7 +292,7 @@ TEST(RifEclipseSummaryAddressTest, TestEclipseAddressRegToRegParsing)
 
     EXPECT_TRUE(addr.isValid());
     EXPECT_EQ(RifEclipseSummaryAddress::SUMMARY_REGION_2_REGION, addr.category());
-    EXPECT_EQ("REFR", addr.quantityName());
+    EXPECT_EQ("ROFR", addr.quantityName());
     EXPECT_EQ(123, addr.regionNumber());
     EXPECT_EQ(456, addr.regionNumber2());
     EXPECT_TRUE(!addr.isErrorResult());
