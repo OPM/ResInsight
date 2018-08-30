@@ -489,7 +489,7 @@ cvf::ref<cvf::Part> RivWellFracturePartMgr::createStimPlanColorInterpolatedSurfa
     {
         // No result is mapped, show the entire StimPlan surface with default color
 
-        return createSingleColorSurfacePart(triangleIndices, nodeCoords, activeView.fractureColors()->defaultColor());
+        return createSingleColorSurfacePart(triangleIndices, nodeDisplayCoords, activeView.fractureColors()->defaultColor());
     }
 
     return nullptr;
