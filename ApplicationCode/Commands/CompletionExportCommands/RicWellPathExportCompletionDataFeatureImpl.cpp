@@ -1055,7 +1055,7 @@ void RicWellPathExportCompletionDataFeatureImpl::exportWelspecsToFile(RimEclipse
         RifEclipseOutputTableColumn("Grp"),
         RifEclipseOutputTableColumn("I"),
         RifEclipseOutputTableColumn("J"),
-        RifEclipseOutputTableColumn("RefDpth"),
+        RifEclipseOutputTableColumn("RefDepth"),
         RifEclipseOutputTableColumn("WellType")
     };
 
@@ -1111,7 +1111,7 @@ void RicWellPathExportCompletionDataFeatureImpl::exportWelspeclToFile(RimEclipse
         RifEclipseOutputTableColumn("LGR"),
         RifEclipseOutputTableColumn("I"),
         RifEclipseOutputTableColumn("J"),
-        RifEclipseOutputTableColumn("RefDpth"),
+        RifEclipseOutputTableColumn("RefDepth"),
         RifEclipseOutputTableColumn("WellType")
     };
 
