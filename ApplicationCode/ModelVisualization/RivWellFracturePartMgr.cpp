@@ -324,14 +324,16 @@ cvf::ref<cvf::Part> RivWellFracturePartMgr::createEllipseSurfacePart(const RimEc
 
     if (m_rimFracture)
     {
-        std::vector<cvf::Vec3f> nodeCoords;
         std::vector<cvf::uint>  triangleIndices;
+        std::vector<cvf::Vec3f> nodeDisplayCoords;
 
-        m_rimFracture->fractureTemplate()->fractureTriangleGeometry(&nodeCoords, &triangleIndices);
+        {
+            std::vector<cvf::Vec3f> nodeCoords;
+            m_rimFracture->fractureTemplate()->fractureTriangleGeometry(&nodeCoords, &triangleIndices);
 
-        cvf::Mat4d              fractureXf = m_rimFracture->transformMatrix();
-        std::vector<cvf::Vec3f> nodeDisplayCoords =
-            transformToFractureDisplayCoords(nodeCoords, fractureXf, *displayCoordTransform);
+            cvf::Mat4d fractureXf = m_rimFracture->transformMatrix();
+            nodeDisplayCoords     = transformToFractureDisplayCoords(nodeCoords, fractureXf, *displayCoordTransform);
+        }
 
         if (triangleIndices.empty() || nodeDisplayCoords.empty())
         {
@@ -396,18 +398,20 @@ cvf::ref<cvf::Part> RivWellFracturePartMgr::createStimPlanColorInterpolatedSurfa
 
     // Note that the filtering and result mapping code below couples closely to the triangulation and vertex layout returned by
     // triangleGeometry() If this ever changes, the entire code must be revisited
-    std::vector<cvf::Vec3f> nodeCoords;
     std::vector<cvf::uint>  triangleIndices;
-
-    stimPlanFracTemplate->fractureTriangleGeometry(&nodeCoords, &triangleIndices);
-
-    if (triangleIndices.empty() || nodeCoords.empty())
+    std::vector<cvf::Vec3f> nodeDisplayCoords;
     {
-        return nullptr;
-    }
+        std::vector<cvf::Vec3f> nodeCoords;
+        stimPlanFracTemplate->fractureTriangleGeometry(&nodeCoords, &triangleIndices);
 
-    cvf::Mat4d              fractureXf        = m_rimFracture->transformMatrix();
-    std::vector<cvf::Vec3f> nodeDisplayCoords = transformToFractureDisplayCoords(nodeCoords, fractureXf, *displayCoordTransform);
+        if (triangleIndices.empty() || nodeCoords.empty())
+        {
+            return nullptr;
+        }
+
+        cvf::Mat4d fractureXf = m_rimFracture->transformMatrix();
+        nodeDisplayCoords     = transformToFractureDisplayCoords(nodeCoords, fractureXf, *displayCoordTransform);
+    }
 
     RimRegularLegendConfig* legendConfig = nullptr;
     if (activeView.fractureColors() && activeView.fractureColors()->isChecked())
@@ -422,7 +426,8 @@ cvf::ref<cvf::Part> RivWellFracturePartMgr::createStimPlanColorInterpolatedSurfa
         // Since some time steps don't have result vales, we initialize the array to well known values before populating it
         std::vector<double> perNodeResultValues(nodeDisplayCoords.size(), HUGE_VAL);
         {
-            size_t                                 idx = 0;
+            size_t idx = 0;
+
             const std::vector<std::vector<double>> dataToPlot =
                 stimPlanFracTemplate->resultValues(activeView.fractureColors()->uiResultName(),
                                                    activeView.fractureColors()->unit(),
