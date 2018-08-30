@@ -120,7 +120,7 @@ QString RimSummaryPlotNameHelper::plotTitle() const
     if (!m_titleQuantity.empty())
     {
         if (!title.isEmpty()) title += ", ";
-        title += QString::fromStdString(RiuSummaryVectorDescriptionMap::instance()->fieldInfo(m_titleQuantity));
+        title += QString::fromStdString(RiuSummaryVectorDescriptionMap::instance()->vectorLongName(m_titleQuantity, true));
     }
 
     if (title.isEmpty())

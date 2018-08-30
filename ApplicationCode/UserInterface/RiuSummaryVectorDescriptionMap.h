@@ -18,9 +18,22 @@
 
 #pragma once
 
+#include "RifEclipseSummaryAddress.h"
+
 #include <map>
 #include <string>
 
+
+class RiuSummaryVectorInfo
+{
+public:
+    RiuSummaryVectorInfo() : category(RifEclipseSummaryAddress::SUMMARY_INVALID) {}
+    RiuSummaryVectorInfo(RifEclipseSummaryAddress::SummaryVarCategory category, const std::string& longName)
+        : category(category), longName(longName) {}
+
+    RifEclipseSummaryAddress::SummaryVarCategory    category;
+    std::string                                     longName;
+};
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -30,12 +43,15 @@ class RiuSummaryVectorDescriptionMap
 public:
     static RiuSummaryVectorDescriptionMap* instance();
 
-    std::string fieldInfo(const std::string& field);
+    RiuSummaryVectorInfo                         vectorInfo(const std::string& vectorName);
+    std::string                                  vectorLongName(const std::string& vectorName,
+                                                                bool returnVectorNameIfNotFound = false);
+    RifEclipseSummaryAddress::SummaryVarCategory vectorCategory(const std::string& vectorName);
 
 private:
     RiuSummaryVectorDescriptionMap();
     void populateFieldToInfoMap();
 
 private:
-    std::map<std::string, std::string> m_summaryToDescMap;
+    std::map<std::string, RiuSummaryVectorInfo> m_summaryToDescMap;
 };

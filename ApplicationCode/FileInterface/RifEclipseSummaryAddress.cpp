@@ -20,37 +20,13 @@
 
 #include "RiaStdStringTools.h"
 
+#include "RiuSummaryVectorDescriptionMap.h"
+
 #include <QTextStream>
 #include <QStringList>
 
 #include "cvfAssert.h"
 
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-const std::set<std::string> RifEclipseSummaryAddress::KNOWN_MISC_QUANTITIES =
-{
-    "CPU",
-    "DATE",
-    "DAY",
-    "ELAPSED",
-    "MLINEARS",
-    "MONTH",
-    "MSUMLINS",
-    "MSUMNEWT",
-    "NEWTON",
-    "STEPTYPE",
-    "TCPU",
-    "TCPUDAY",
-    "TCPUTS",
-    "TELAPLIN",
-    "TIME",
-    "TIMESTEP",
-    "TIMESTRY",
-    "YEAR",
-    "YEARS"
-};
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -307,34 +283,16 @@ RifEclipseSummaryAddress RifEclipseSummaryAddress::fromEclipseTextAddress(const 
 //--------------------------------------------------------------------------------------------------
 RifEclipseSummaryAddress::SummaryVarCategory RifEclipseSummaryAddress::identifyCategory(const std::string& quantityName)
 {
-    if (quantityName.size() < 3 ||
-        quantityName.size() > 8 ||
-        (quantityName.size() > 5 && quantityName.size() < 8)) return SUMMARY_INVALID;
+    if (quantityName.size() < 3 || quantityName.size() > 8) return SUMMARY_INVALID;
 
-    QRegExp regexp("^[A-Za-z0-9_\\-]*$");
+    QRegExp regexp("^[A-Za-z0-9_\\-+#]*$");
     if(!regexp.exactMatch(QString::fromStdString(quantityName))) return SUMMARY_INVALID;
 
-    if (quantityName.size() > 2 && quantityName[0] == 'R' && quantityName[2] == 'F')
-    {
-        return SUMMARY_REGION_2_REGION;
-    }
+    // First, try to lookup vector in vector table
+    auto vectorInfo = RiuSummaryVectorDescriptionMap::instance()->vectorInfo(quantityName);
+    if (vectorInfo.category != SUMMARY_INVALID) return vectorInfo.category;
 
-    if (KNOWN_MISC_QUANTITIES.count(baseQuantityName(quantityName)) > 0) return SUMMARY_MISC;
-
-    char firstLetter = quantityName.at(0);
-
-    if (firstLetter == 'A') return SUMMARY_AQUIFER;
-    if (firstLetter == 'B') return SUMMARY_BLOCK;
-    if (firstLetter == 'C') return SUMMARY_WELL_COMPLETION;
-    if (firstLetter == 'F') return SUMMARY_FIELD;
-    if (firstLetter == 'G') return SUMMARY_WELL_GROUP;
-    if (firstLetter == 'N') return SUMMARY_NETWORK;
-    if (firstLetter == 'R') return SUMMARY_REGION;
-    if (firstLetter == 'S') return SUMMARY_WELL_SEGMENT;
-    if (firstLetter == 'W') return SUMMARY_WELL;
-
-    if (quantityName.size() < 2) return SUMMARY_INVALID;
-
+    // Then check LGR categories
     std::string firstTwoLetters = quantityName.substr(0, 2);
 
     if (firstTwoLetters == "LB") return SUMMARY_BLOCK_LGR;

@@ -74,8 +74,6 @@ public:
         INPUT_VECTOR_NAME,
     };
 
-    static const std::set<std::string> KNOWN_MISC_QUANTITIES;
-
 public:
 
     RifEclipseSummaryAddress() :

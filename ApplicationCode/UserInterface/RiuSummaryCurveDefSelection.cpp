@@ -725,7 +725,7 @@ QList<caf::PdmOptionItemInfo> RiuSummaryCurveDefSelection::calculateValueOptions
 
                     if (isVectorField)
                     {
-                        std::string longVectorName = RiuSummaryVectorDescriptionMap::instance()->fieldInfo(itemName);
+                        std::string longVectorName = RiuSummaryVectorDescriptionMap::instance()->vectorLongName(itemName, true);
                         displayName = QString::fromStdString(longVectorName);
                         displayName += QString(" (%1)").arg(QString::fromStdString(itemName));
                     }

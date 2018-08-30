@@ -239,7 +239,7 @@ QString RimSummaryPlotYAxisFormatter::autoAxisTitle() const
             {
                 if (m_axisProperties->showDescription())
                 {
-                    quantityNameForDisplay = RiuSummaryVectorDescriptionMap::instance()->fieldInfo(quantityName);
+                    quantityNameForDisplay = RiuSummaryVectorDescriptionMap::instance()->vectorLongName(quantityName, true);
                 }
 
                 if (m_axisProperties->showAcronym())
