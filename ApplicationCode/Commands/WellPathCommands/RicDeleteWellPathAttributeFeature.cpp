@@ -17,8 +17,9 @@
 /////////////////////////////////////////////////////////////////////////////////
 #include "RicDeleteWellPathAttributeFeature.h"
 
-#include "RimWellPathAttributeCollection.h"
 #include "RimWellPath.h"
+#include "RimWellPathAttribute.h"
+#include "RimWellPathAttributeCollection.h"
 
 #include "cafSelectionManager.h"
 #include <QAction>

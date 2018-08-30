@@ -72,9 +72,11 @@ void RicNewWellPathAttributeFeature::onActionTriggered(bool isChecked)
     {
         std::vector<RimWellPathAttributeCollection*> attributeCollections;
         wellPath->descendantsIncludingThisOfType(attributeCollections);
-    
-        attributeCollections[0]->insertAttribute(nullptr, new RimWellPathAttribute);
-        attributeCollections[0]->updateAllRequiredEditors();
+        if (!attributeCollections.empty())
+        {
+            attributeCollections[0]->insertAttribute(nullptr, new RimWellPathAttribute);
+            attributeCollections[0]->updateAllRequiredEditors();
+        }
     }
 }
 
