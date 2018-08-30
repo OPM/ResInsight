@@ -29,10 +29,13 @@ class RimWellPathAttribute : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 public:
+    static double MAX_DIAMETER_IN_INCHES;
+    static double MIN_DIAMETER_IN_INCHES;
+
     enum AttributeType
     {
         AttributeCasing,
-        AttributeLining
+        AttributeLiner
     };
     typedef caf::AppEnum<AttributeType> AttributeTypeEnum;
 
@@ -42,15 +45,20 @@ public:
     AttributeType type() const;
     double        depthStart() const;
     double        depthEnd() const;
+    double        diameterInInches() const;
     QString       label() const;
+    QString       diameterLabel() const;
+
+    virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
 
 private:
-    virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
-    virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    static QString generateInchesLabel(double diameter);
+    virtual void   fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    virtual void   defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
 
     caf::PdmField<AttributeTypeEnum> m_type;
     caf::PdmField<double>            m_depthStart;
     caf::PdmField<double>            m_depthEnd;
-    caf::PdmField<QString>           m_label;
+    caf::PdmField<double>            m_diameterInInches;
 };
 
