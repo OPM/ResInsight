@@ -284,7 +284,7 @@ void PdmUiTableViewEditor::setRowSelectionLevel(int selectionLevel)
 //--------------------------------------------------------------------------------------------------
 void PdmUiTableViewEditor::onSelectionManagerSelectionChanged( const std::set<int>& changedSelectionLevels )
 {
-    if (m_isBlockingSelectionManagerChanged) return;
+    if (!m_tableView->isVisible() || m_isBlockingSelectionManagerChanged ) return;
 
     if (isSelectionRoleDefined() && (changedSelectionLevels.count(m_rowSelectionLevel) ))
     {
@@ -313,6 +313,11 @@ void PdmUiTableViewEditor::onSelectionManagerSelectionChanged( const std::set<in
 void PdmUiTableViewEditor::slotSelectionChanged(const QItemSelection & selected, const QItemSelection & deselected)
 {
     if (!m_isUpdatingSelectionQModel) updateSelectionManagerFromTableSelection();
+
+    // Hack to circumvent missing redraw from Qt in certain situations, when selection has changed
+
+    m_tableView->resize(m_tableView->width(), m_tableView->height() +1);
+    m_tableView->resize(m_tableView->width(), m_tableView->height() -1);
 }
 
 //--------------------------------------------------------------------------------------------------
