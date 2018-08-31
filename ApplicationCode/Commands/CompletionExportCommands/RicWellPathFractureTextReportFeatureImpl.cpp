@@ -281,6 +281,9 @@ QString RicWellPathFractureTextReportFeatureImpl::createStimPlanFractureText(
 
     QString tableText;
 
+    RiaEclipseUnitTools::UnitSystem unitSystem = stimPlanTemplates.front()->fractureTemplateUnit();
+    bool isFieldUnits = unitSystem == RiaEclipseUnitTools::UNITS_FIELD;
+
     QTextStream                  stream(&tableText);
     RifEclipseDataTableFormatter formatter(stream);
     configureFormatter(&formatter);
@@ -298,7 +301,7 @@ QString RicWellPathFractureTextReportFeatureImpl::createStimPlanFractureText(
     {
         formatter.add("Template"); // Template
         formatter.add("Orientation"); // Orientation
-        formatter.add("[m]"); // WDiam
+        formatter.add(isFieldUnits ? "[in]" : "[m]"); // WDiam
         formatter.add("[] "); // Skin
         formatter.rowCompleted();
     }
@@ -330,6 +333,9 @@ QString RicWellPathFractureTextReportFeatureImpl::createEllipseFractureText(
 
     QString tableText;
 
+    RiaEclipseUnitTools::UnitSystem unitSystem = ellipseTemplates.front()->fractureTemplateUnit();
+    bool isFieldUnits = unitSystem == RiaEclipseUnitTools::UNITS_FIELD;
+
     QTextStream                  stream(&tableText);
     RifEclipseDataTableFormatter formatter(stream);
     configureFormatter(&formatter);
@@ -351,11 +357,11 @@ QString RicWellPathFractureTextReportFeatureImpl::createEllipseFractureText(
     {
         formatter.add("Template"); // Template
         formatter.add("Orientation"); // Orientation
-        formatter.add("[m]"); // Xf
-        formatter.add("[m]"); // Height
+        formatter.add(isFieldUnits ? "[ft]" : "[m]"); // Xf
+        formatter.add(isFieldUnits ? "[ft]" : "[m]"); // Height
         formatter.add("[mD]"); // Kf
-        formatter.add("[m]"); // Wf
-        formatter.add("[m]"); // WDiam
+        formatter.add(isFieldUnits ? "[in]" : "[m]"); // Wf
+        formatter.add(isFieldUnits ? "[ft]" : "[m]"); // WDiam
         formatter.add("[] "); // Skin
         formatter.rowCompleted();
     }
@@ -472,6 +478,9 @@ QString RicWellPathFractureTextReportFeatureImpl::createFractureInstancesText(
 {
     if (fractures.empty()) return "";
 
+    RiaEclipseUnitTools::UnitSystem unitSystem = fractures.front()->fractureUnit(); // Fix
+    bool isFieldUnits = unitSystem == RiaEclipseUnitTools::UNITS_FIELD;
+
     QString tableText;
 
     QTextStream                  stream(&tableText);
@@ -502,9 +511,9 @@ QString RicWellPathFractureTextReportFeatureImpl::createFractureInstancesText(
         formatter.add(""); // MD
         formatter.add(""); // Dip
         formatter.add(""); // Tilt
-        formatter.add("[m]"); // LPerf
+        formatter.add(isFieldUnits ? "[ft]" : "[m]"); // LPerf
         formatter.add("[]"); // PerfEff
-        formatter.add("[m]"); // WDia
+        formatter.add(isFieldUnits ? "[ft]" : "[m]"); // WDia
         formatter.add("[...]"); // Dfac
 
         formatter.rowCompleted();
@@ -561,6 +570,9 @@ QString RicWellPathFractureTextReportFeatureImpl::createFractureCompletionSummar
 {
     QString tableText;
 
+    RiaEclipseUnitTools::UnitSystem unitSystem = wellPathFractureReportItems.front().unitSystem();
+    bool isFieldUnits = unitSystem == RiaEclipseUnitTools::UNITS_FIELD;
+
     QTextStream                  stream(&tableText);
     RifEclipseDataTableFormatter formatter(stream);
     configureFormatter(&formatter);
@@ -588,15 +600,15 @@ QString RicWellPathFractureTextReportFeatureImpl::createFractureCompletionSummar
         formatter.add("Well");
         formatter.add("Fracture");
         formatter.add("Template");
-        formatter.add("[Sm3/d/bar]"); // Tr
+        formatter.add(isFieldUnits ? "[cP.rb/day/psi]" : "[Sm3/d/bar]"); // Tr
         formatter.add(""); // #con
         formatter.add("[]"); // Fcd
-        formatter.add("[m2]"); // Area
-        formatter.add("[mDm]"); // KfWf
+        formatter.add(isFieldUnits ? "[ft2]" : "[m2]"); // Area
+        formatter.add(isFieldUnits ? "[mDft]" : "[mDm]"); // KfWf
         formatter.add("[mD]"); // Kf
-        formatter.add("[m]"); // wf
-        formatter.add("[m]"); // Xf
-        formatter.add("[m]"); // H
+        formatter.add(isFieldUnits ? "[ft]" : "[m]"); // wf
+        formatter.add(isFieldUnits ? "[ft]" : "[m]"); // Xf
+        formatter.add(isFieldUnits ? "[ft]" : "[m]"); // H
         formatter.add("[mD]"); // Km
         formatter.rowCompleted();
     }

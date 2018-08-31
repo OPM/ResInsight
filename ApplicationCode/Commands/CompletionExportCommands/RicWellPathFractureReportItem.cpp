@@ -98,6 +98,22 @@ void RicWellPathFractureReportItem::getNames(QString& wellPathName, QString& fra
 }
 
 //--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicWellPathFractureReportItem::setUnitSystem(RiaEclipseUnitTools::UnitSystem unitSystem)
+{
+    m_unitSystem = unitSystem;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RiaEclipseUnitTools::UnitSystem RicWellPathFractureReportItem::unitSystem() const
+{
+    return m_unitSystem;
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 double RicWellPathFractureReportItem::transmissibility() const

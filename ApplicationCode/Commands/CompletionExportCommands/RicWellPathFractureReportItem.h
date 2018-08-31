@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include "RiaEclipseUnitTools.h"
+
 #include <QString>
 
 //==================================================================================================
@@ -37,6 +39,9 @@ public:
 
     void getNames(QString& wellPathName, QString& fractureName, QString& fractureTemplateName) const;
 
+    void                            setUnitSystem(RiaEclipseUnitTools::UnitSystem unitSystem);
+    RiaEclipseUnitTools::UnitSystem unitSystem() const;
+
     double transmissibility() const;
     size_t connectionCount() const;
     double fcd() const;
@@ -50,6 +55,7 @@ public:
     double km() const;
 
 private:
+    RiaEclipseUnitTools::UnitSystem m_unitSystem;
     QString m_wellPath;
     QString m_wellPathFracture;
     QString m_wellPathFractureTemplate;

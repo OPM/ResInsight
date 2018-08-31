@@ -448,10 +448,13 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
             double width        = 0.0;
             double height       = 0.0;
             double halfLength   = 0.0;
+            RiaEclipseUnitTools::UnitSystem unitSystem = RiaEclipseUnitTools::UNITS_METRIC;
+
             {
                 auto* ellipseTemplate = dynamic_cast<const RimEllipseFractureTemplate*>(fracTemplate);
                 if (ellipseTemplate)
                 {
+                    unitSystem   = ellipseTemplate->fractureTemplateUnit();
                     conductivity = ellipseTemplate->conductivity();
                     width        = ellipseTemplate->width();
                     height       = ellipseTemplate->height();
@@ -461,6 +464,7 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
                 auto* stimplanTemplate = dynamic_cast<const RimStimPlanFractureTemplate*>(fracTemplate);
                 if (stimplanTemplate)
                 {
+                    unitSystem   = stimplanTemplate->fractureTemplateUnit();
                     conductivity = stimplanTemplate->areaWeightedConductivity();
                     width        = stimplanTemplate->areaWeightedWidth();
 
@@ -476,6 +480,7 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
                     halfLength = xLength / 2.0;
                 }
             }
+            reportItem.setUnitSystem(unitSystem);
             reportItem.setWidthAndConductivity(width, conductivity);
             reportItem.setHeightAndHalfLength(height, halfLength);
 
