@@ -145,7 +145,7 @@ void RimGeoMechResultDefinition::defineUiOrdering(QString uiConfigName, caf::Pdm
         {
             if (m_geomCase &&  m_geomCase->geoMechData() )
             {
-                m_compactionRefLayerUiField = (int)m_geomCase->geoMechData()->femParts()->part(0)->structGrid()->reservoirIJKBoundingBox().first.z();
+                m_compactionRefLayerUiField = (int)m_geomCase->geoMechData()->femParts()->part(0)->getOrCreateStructGrid()->reservoirIJKBoundingBox().first.z();
             }
         }
     }
@@ -220,7 +220,7 @@ QList<caf::PdmOptionItemInfo> RimGeoMechResultDefinition::calculateValueOptions(
         {
             if (m_geomCase->geoMechData())
             {
-                size_t kCount = m_geomCase->geoMechData()->femParts()->part(0)->structGrid()->gridPointCountK() - 1;
+                size_t kCount = m_geomCase->geoMechData()->femParts()->part(0)->getOrCreateStructGrid()->gridPointCountK() - 1;
                 for ( size_t layerIdx = 0; layerIdx < kCount; ++layerIdx )
                 {
                     options.push_back(caf::PdmOptionItemInfo(QString::number(layerIdx + 1), (int)layerIdx));

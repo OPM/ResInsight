@@ -141,7 +141,7 @@ QString RiuFemResultTextBuilder::geometrySelectionText(QString itemSeparator)
             size_t i = 0;
             size_t j = 0;
             size_t k = 0;
-            if (geomData->femParts()->part(m_gridIndex)->structGrid()->ijkFromCellIndex(m_cellIndex, &i, &j, &k))
+            if (geomData->femParts()->part(m_gridIndex)->getOrCreateStructGrid()->ijkFromCellIndex(m_cellIndex, &i, &j, &k))
             {
                 // Adjust to 1-based Eclipse indexing
                 i++;
@@ -224,7 +224,7 @@ QString RiuFemResultTextBuilder::formationDetails()
                     {
                         size_t i = 0;
                         size_t j = 0;
-                        geomData->femParts()->part(m_gridIndex)->structGrid()->ijkFromCellIndex(m_cellIndex, &i, &j, &k);
+                        geomData->femParts()->part(m_gridIndex)->getOrCreateStructGrid()->ijkFromCellIndex(m_cellIndex, &i, &j, &k);
                     }
                 }
             }

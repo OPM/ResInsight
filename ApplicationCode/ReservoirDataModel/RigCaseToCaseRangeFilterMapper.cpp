@@ -108,9 +108,9 @@ void RigCaseToCaseRangeFilterMapper::convertRangeFilter(const RimCellRangeFilter
         }
         else
         {
-            maxIIndex = femPart->structGrid()->cellCountI()- 1;
-            maxJIndex = femPart->structGrid()->cellCountJ()- 1;
-            maxKIndex = femPart->structGrid()->cellCountK()- 1;
+            maxIIndex = femPart->getOrCreateStructGrid()->cellCountI()- 1;
+            maxJIndex = femPart->getOrCreateStructGrid()->cellCountJ()- 1;
+            maxKIndex = femPart->getOrCreateStructGrid()->cellCountK()- 1;
 
         }
         src.EndI = CVF_MIN(src.EndI, maxIIndex);
@@ -398,7 +398,7 @@ RigCaseToCaseRangeFilterMapper::findBestFemCellFromEclCell(const RigMainGrid* ma
 
     if (elmIdxToBestMatch != -1)
     {
-        bool validIndex = dependentFemPart->structGrid()->ijkFromCellIndex(elmIdxToBestMatch, fi, fj, fk);
+        bool validIndex = dependentFemPart->getOrCreateStructGrid()->ijkFromCellIndex(elmIdxToBestMatch, fi, fj, fk);
         CVF_ASSERT(validIndex);
     }
     else
@@ -429,7 +429,7 @@ RigCaseToCaseRangeFilterMapper::findBestEclCellFromFemCell(const RigFemPart* dep
 
     bool isEclFaceNormalsOutwards = masterEclGrid->isFaceNormalsOutwards();
 
-    int elementIdx =  static_cast<int>(dependentFemPart->structGrid()->cellIndexFromIJK(fi, fj, fk));
+    int elementIdx =  static_cast<int>(dependentFemPart->getOrCreateStructGrid()->cellIndexFromIJK(fi, fj, fk));
 
     cvf::Vec3d elmCorners[8];
     RigCaseToCaseCellMapperTools::elementCorners(dependentFemPart, elementIdx, elmCorners);

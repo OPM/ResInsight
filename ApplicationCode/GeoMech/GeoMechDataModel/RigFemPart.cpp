@@ -71,7 +71,7 @@ void RigFemPart::appendElement(RigElementType elmType, int id, const int* connec
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const RigFemPartGrid* RigFemPart::structGrid() const
+const RigFemPartGrid* RigFemPart::getOrCreateStructGrid() const
 {
     if (m_structGrid.isNull())
     {

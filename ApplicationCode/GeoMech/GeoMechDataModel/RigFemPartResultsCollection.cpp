@@ -1516,7 +1516,7 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateCompactionValues
             part->findIntersectingCells(bb, &refElementCandidates);
 
             // Also make sure the struct grid is created, as this is required before using OpenMP
-            part->structGrid();
+            part->getOrCreateStructGrid();
         }
 
 #pragma omp parallel for
@@ -1832,6 +1832,9 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateFormationIndices
 
     if (activeFormNames)
     {
+        // Has to be done before the parallel loop because the first call allocates.
+        const RigFemPartGrid* structGrid = femPart->getOrCreateStructGrid();
+
         int elementCount = femPart->elementCount();
 
 #pragma omp parallel for
@@ -1841,7 +1844,7 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateFormationIndices
             int elmNodeCount = RigFemTypes::elmentNodeCount(elmType);
 
             size_t i, j, k;
-            bool validIndex = femPart->structGrid()->ijkFromCellIndex(elmIdx, &i, &j, &k);
+            bool validIndex = structGrid->ijkFromCellIndex(elmIdx, &i, &j, &k);
             if (validIndex)
             {
                 int formNameIdx = activeFormNames->formationIndexFromKLayerIdx(k);
@@ -2771,7 +2774,7 @@ void findReferenceElementForNode(const RigFemPart& part, size_t nodeIdx, size_t 
     std::vector<size_t> refElementCandidates;
     part.findIntersectingCells(bb, &refElementCandidates);
 
-    const RigFemPartGrid* grid = part.structGrid();
+    const RigFemPartGrid* grid = part.getOrCreateStructGrid();
     const std::vector<cvf::Vec3f>& nodeCoords = part.nodes().coordinates;
 
     refElement->elementIdx = cvf::UNDEFINED_SIZE_T;

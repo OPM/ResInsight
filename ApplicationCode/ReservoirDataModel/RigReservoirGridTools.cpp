@@ -74,7 +74,7 @@ const cvf::StructGridInterface* RigReservoirGridTools::gridByIndex(RimCase* rimC
     }
     else if (geoMechPartCollection)
     {
-        return geoMechPartCollection->part(gridIndex)->structGrid();
+        return geoMechPartCollection->part(gridIndex)->getOrCreateStructGrid();
     }
 
     return nullptr;

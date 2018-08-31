@@ -87,7 +87,7 @@ QString RiuFemTimeHistoryResultAccessor::geometrySelectionText() const
         size_t i = 0;
         size_t j = 0;
         size_t k = 0;
-        if (m_geoMechCaseData->femParts()->part(m_gridIndex)->structGrid()->ijkFromCellIndex(m_elementIndex, &i, &j, &k))
+        if (m_geoMechCaseData->femParts()->part(m_gridIndex)->getOrCreateStructGrid()->ijkFromCellIndex(m_elementIndex, &i, &j, &k))
         {
             // Adjust to 1-based Eclipse indexing
             i++;

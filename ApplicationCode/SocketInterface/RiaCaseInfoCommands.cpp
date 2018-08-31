@@ -618,7 +618,7 @@ public:
             else if (item->type() == RiuSelectionItem::GEOMECH_SELECTION_OBJECT)
             {
                 const RiuGeoMechSelectionItem* geomechItem = static_cast<const RiuGeoMechSelectionItem*>(item);
-                validIndex = geomechItem->m_view->femParts()->part(geomechItem->m_gridIndex)->structGrid()->ijkFromCellIndex(geomechItem->m_cellIndex, &i, &j, &k);
+                validIndex = geomechItem->m_view->femParts()->part(geomechItem->m_gridIndex)->getOrCreateStructGrid()->ijkFromCellIndex(geomechItem->m_cellIndex, &i, &j, &k);
                 CVF_ASSERT(validIndex);
                 gridIndex = geomechItem->m_gridIndex;
                 caseId = geomechItem->m_view->geoMechCase()->caseId;
