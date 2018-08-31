@@ -282,11 +282,11 @@ void PdmUiTableViewEditor::setRowSelectionLevel(int selectionLevel)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void PdmUiTableViewEditor::onSelectionManagerSelectionChanged(int selectionLevel)
+void PdmUiTableViewEditor::onSelectionManagerSelectionChanged( const std::set<int>& changedSelectionLevels )
 {
     if (m_isBlockingSelectionManagerChanged) return;
 
-    if (isSelectionRoleDefined() && (m_rowSelectionLevel == selectionLevel))
+    if (isSelectionRoleDefined() && (changedSelectionLevels.count(m_rowSelectionLevel) ))
     {
         std::vector<PdmUiItem*> items;
         SelectionManager::instance()->selectedItems(items, m_rowSelectionLevel);
@@ -355,21 +355,24 @@ void PdmUiTableViewEditor::updateSelectionManagerFromTableSelection()
             }
         }
 
-        std::vector<PdmUiItem*> items { selectedRowObjects.begin(), selectedRowObjects.end() };
+        std::vector<SelectionManager::SelectionItem> newCompleteSelection;
+
+        for (auto item : selectedRowObjects)
+        {
+            newCompleteSelection.push_back({ item, m_rowSelectionLevel });
+        }
+
+
+        if ( childArrayFieldHandle() && childArrayFieldHandle()->ownerObject() )
+        {
+            newCompleteSelection.push_back({ childArrayFieldHandle()->ownerObject()->uiCapability() ,
+                                              m_tableSelectionLevel });
+        }
 
         m_isBlockingSelectionManagerChanged = true;
-        {
-            SelectionManager::instance()->clearAll();
-
-            if (childArrayFieldHandle() && childArrayFieldHandle()->ownerObject())
-            {
-                SelectionManager::instance()->setSelectedItem(childArrayFieldHandle()->ownerObject()->uiCapability(),
-                                                              m_tableSelectionLevel);
-            }
-            
-            SelectionManager::instance()->setSelectedItems(items, m_rowSelectionLevel);
-        }
+        SelectionManager::instance()->setSelection(newCompleteSelection);
         m_isBlockingSelectionManagerChanged = false;
+        
     }
 }
 

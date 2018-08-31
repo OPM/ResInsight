@@ -69,23 +69,21 @@ public:
 public:
     static SelectionManager*  instance();
 
-    // OBSOLETE ! Remove when time to refactor the command system 
-    NotificationCenter*       notificationCenter();
-
-    void                      setActiveChildArrayFieldHandle(PdmChildArrayFieldHandle* childArray);
-    PdmChildArrayFieldHandle* activeChildArrayFieldHandle();
-
-    void                      setPdmRootObject(PdmObjectHandle* root);
-    PdmObjectHandle*          pdmRootObject() { return m_rootObject; }
-
     PdmUiItem*                selectedItem(int selectionLevel = 0);
-    void                      setSelectedItem(PdmUiItem* item, int selectionLevel = 0);
-
     void                      selectedItems(std::vector<PdmUiItem*>& items, int selectionLevel = 0);
-    void                      setSelectedItems(const std::vector<PdmUiItem*>& items, int selectionLevel = 0);
+
+    void                      setSelectedItem(PdmUiItem* item);
+    void                      setSelectedItemAtLevel(PdmUiItem* item, int selectionLevel);
+
+    void                      setSelectedItems(const std::vector<PdmUiItem*>& items);
+    void                      setSelectedItemsAtLevel(const std::vector<PdmUiItem*>& items, int selectionLevel = 0);
+
+    struct SelectionItem      { PdmUiItem* item; int selectionLevel; };
+    void                      setSelection(const std::vector< SelectionItem > completeSelection);
+
 
     void                      selectionAsReferences(std::vector<QString>& referenceList, int selectionLevel = 0) const;
-    void                      setSelectionFromReferences(const std::vector<QString>& referenceList, int selectionLevel = 0);
+    void                      setSelectionAtLevelFromReferences(const std::vector<QString>& referenceList, int selectionLevel);
 
     bool                      isSelected(PdmUiItem* item, int selectionLevel) const;
 
@@ -150,10 +148,24 @@ public:
         return nullptr;
     }
 
+    // OBSOLETE ! Remove when time to refactor the command system 
+    NotificationCenter*       notificationCenter();
+
+    void                      setActiveChildArrayFieldHandle(PdmChildArrayFieldHandle* childArray);
+    PdmChildArrayFieldHandle* activeChildArrayFieldHandle();
+
+    void                      setPdmRootObject(PdmObjectHandle* root);
+    PdmObjectHandle*          pdmRootObject() { return m_rootObject; }
+    // End OBSOLETE
+
 private:
     SelectionManager();
 
-    void notifySelectionChanged( int selectionLevel);
+    static void extractInternalSelectionItems(const std::vector<PdmUiItem *> &items, 
+                                              std::vector<std::pair<PdmPointer<PdmObjectHandle>, PdmUiItem *>> *internalSelectionItems);
+
+    void          notifySelectionChanged( const std::set<int>& changedSelectionLevels );
+    std::set<int> findChangedLevels(const std::map<int, std::vector<std::pair<PdmPointer<PdmObjectHandle>, PdmUiItem *>>> &newCompleteSelectionMap) const;
 
     friend class SelectionChangedReceiver;
     void registerSelectionChangedReceiver  ( SelectionChangedReceiver* receiver) { m_selectionReceivers.insert(receiver);}

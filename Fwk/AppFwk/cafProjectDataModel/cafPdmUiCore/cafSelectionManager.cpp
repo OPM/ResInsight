@@ -87,35 +87,129 @@ void SelectionManager::selectedItems(std::vector<PdmUiItem*>& items, int selecti
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void SelectionManager::setSelectedItems(const std::vector<PdmUiItem*>& items, int selectionLevel /*= 0*/)
+void SelectionManager::setSelectedItems(const std::vector<PdmUiItem*>& items)
 {
-    std::vector< std::pair<PdmPointer<PdmObjectHandle>, PdmUiItem*> >& selection = m_selectionPrLevel[selectionLevel];
-    std::vector< std::pair<PdmPointer<PdmObjectHandle>, PdmUiItem*> > newSelection;
+    std::map <int,  std::vector< std::pair<PdmPointer<PdmObjectHandle>, PdmUiItem*> > > newCompleteSelectionMap;
 
-    for (size_t i = 0; i < items.size(); i++)
+    std::vector< std::pair<PdmPointer<PdmObjectHandle>, PdmUiItem*> > & newSelection = newCompleteSelectionMap[0];
+
+    extractInternalSelectionItems(items, &newSelection);
+
+    std::set<int> changedLevels = findChangedLevels(newCompleteSelectionMap);
+
+    if ( !changedLevels.empty() )
+    {
+        m_selectionPrLevel = newCompleteSelectionMap;
+        notifySelectionChanged(changedLevels);
+    }
+}
+
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void SelectionManager::extractInternalSelectionItems(const std::vector<PdmUiItem *> &items, 
+                                                     std::vector<std::pair<PdmPointer<PdmObjectHandle>, PdmUiItem *>> *newSelection)
+{
+    for ( size_t i = 0; i < items.size(); i++ )
     {
         PdmUiFieldHandle* fieldHandle = dynamic_cast<PdmUiFieldHandle*>(items[i]);
-        if (fieldHandle)
+        if ( fieldHandle )
         {
             PdmObjectHandle* obj = fieldHandle->fieldHandle()->ownerObject();
 
-            newSelection.push_back(std::make_pair(obj, fieldHandle));
+            newSelection->push_back(std::make_pair(obj, fieldHandle));
         }
         else
         {
             PdmUiObjectHandle* obj = dynamic_cast<PdmUiObjectHandle*>(items[i]);
-            if (obj)
+            if ( obj )
             {
-                newSelection.push_back(std::make_pair(obj->objectHandle(), obj));
+                newSelection->push_back(std::make_pair(obj->objectHandle(), obj));
             }
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void SelectionManager::setSelectedItemsAtLevel(const std::vector<PdmUiItem*>& items, int selectionLevel)
+{
+    std::vector< std::pair<PdmPointer<PdmObjectHandle>, PdmUiItem*> >& selection = m_selectionPrLevel[selectionLevel];
+    std::vector< std::pair<PdmPointer<PdmObjectHandle>, PdmUiItem*> > newSelection;
+
+    extractInternalSelectionItems(items, &newSelection);
 
     if (newSelection != selection)
     {
         selection = newSelection;
-        notifySelectionChanged(selectionLevel);
+        notifySelectionChanged({selectionLevel});
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void SelectionManager::setSelection(const std::vector< SelectionItem > completeSelection)
+{
+    std::map <int,  std::vector< std::pair<PdmPointer<PdmObjectHandle>, PdmUiItem*> > > newCompleteSelectionMap;
+    std::map<int, std::vector<PdmUiItem*> > newSelectionPrLevel;
+
+    for (const SelectionItem& item: completeSelection)
+    {
+        newSelectionPrLevel[item.selectionLevel].push_back(item.item);
+    }
+
+    for (auto& levelItemsPair: newSelectionPrLevel)
+    {
+        std::vector< std::pair<PdmPointer<PdmObjectHandle>, PdmUiItem*> > & newSelectionLevel = newCompleteSelectionMap[levelItemsPair.first];
+        extractInternalSelectionItems(levelItemsPair.second, &newSelectionLevel);
+    }
+
+    std::set<int> changedLevels = findChangedLevels(newCompleteSelectionMap);
+
+    if ( !changedLevels.empty())
+    {
+        m_selectionPrLevel = newCompleteSelectionMap;
+        notifySelectionChanged(changedLevels); 
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::set<int> SelectionManager::findChangedLevels(const std::map<int, std::vector<std::pair<PdmPointer<PdmObjectHandle>, PdmUiItem *>>> & newCompleteSelectionMap ) const 
+{
+    std::set<int> changedLevels;
+
+    // Compare the existing levels with the corresponding levels in the new selection
+
+    for ( auto& levelSelectionPair : m_selectionPrLevel )
+    {
+        auto it = newCompleteSelectionMap.find(levelSelectionPair.first);
+        if ( it != newCompleteSelectionMap.end() )
+        {
+            if ( levelSelectionPair.second != it->second ) changedLevels.insert(levelSelectionPair.first);
+        }
+        else
+        {
+            if ( !levelSelectionPair.second.empty() ) changedLevels.insert(levelSelectionPair.first);
+        }
+    }
+
+    // Add each of the levels in the new selection that are not present in the existing selection
+    for ( auto& levelSelectionPair : newCompleteSelectionMap )
+    {
+        auto it = m_selectionPrLevel.find(levelSelectionPair.first);
+        if ( it == m_selectionPrLevel.end() )
+        {
+            changedLevels.insert(levelSelectionPair.first);
+        }
+    }
+
+    return changedLevels;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -142,12 +236,23 @@ PdmUiItem* SelectionManager::selectedItem(int selectionLevel /*= 0*/)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void SelectionManager::setSelectedItem(PdmUiItem* item, int selectionLevel /*= 0*/)
+void SelectionManager::setSelectedItem(PdmUiItem* item)
 {
     std::vector<PdmUiItem*> singleSelection;
     singleSelection.push_back(item);
 
-    setSelectedItems(singleSelection, selectionLevel);
+    setSelectedItems(singleSelection);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void SelectionManager::setSelectedItemAtLevel(PdmUiItem* item, int selectionLevel)
+{
+    std::vector<PdmUiItem*> singleSelection;
+    singleSelection.push_back(item);
+
+    setSelectedItemsAtLevel(singleSelection, selectionLevel);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -187,7 +292,7 @@ void SelectionManager::selectionAsReferences(std::vector<QString>& referenceList
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void SelectionManager::setSelectionFromReferences(const std::vector<QString>& referenceList, int selectionLevel /*= 0*/)
+void SelectionManager::setSelectionAtLevelFromReferences(const std::vector<QString>& referenceList, int selectionLevel /*= 0*/)
 {
     std::vector<PdmUiItem*> uiItems;
 
@@ -206,7 +311,7 @@ void SelectionManager::setSelectionFromReferences(const std::vector<QString>& re
         }
     }
 
-    setSelectedItems(uiItems, selectionLevel);
+    setSelectedItemsAtLevel(uiItems, selectionLevel);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -253,10 +358,10 @@ void SelectionManager::clearAll()
     }
     
     m_selectionPrLevel.clear();
-
-    for (int level: changedSelectionLevels)
+   
+    if ( changedSelectionLevels.size() )
     {
-        notifySelectionChanged(level); 
+        notifySelectionChanged(changedSelectionLevels);
     }
 }
 
@@ -274,18 +379,18 @@ void SelectionManager::clear(int selectionLevel)
     {
         m_selectionPrLevel[selectionLevel].clear();
 
-        notifySelectionChanged(selectionLevel);
+        notifySelectionChanged({selectionLevel});
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void SelectionManager::notifySelectionChanged( int selectionLevel)
+void SelectionManager::notifySelectionChanged( const std::set<int>& changedSelectionLevels )
 {
     for (auto receiver: m_selectionReceivers)
     {
-        receiver->onSelectionManagerSelectionChanged(selectionLevel);
+        receiver->onSelectionManagerSelectionChanged(changedSelectionLevels);
     }
 }
 
@@ -324,10 +429,7 @@ void SelectionManager::removeObjectFromAllSelections(PdmObjectHandle* pdmObject)
         }
     }
 
-    for (int level: changedSelectionLevels)
-    {
-        notifySelectionChanged(level); 
-    }
+    notifySelectionChanged(changedSelectionLevels);
 }
 
 void SelectionManager::setPdmRootObject(PdmObjectHandle* root)

@@ -59,6 +59,7 @@ public:
     void appendPartsToModel(cvf::ModelBasicList* model);
 
 signals:
+    void        notifySelected();
     void        notifyRedraw();
     void        notifyUpdate(const cvf::Vec3d& origin, const cvf::Vec3d& tangent);
 
@@ -229,7 +230,7 @@ public:
     PdmUiSelectionVisualizer3d(caf::Viewer* ownerViewer);
     ~PdmUiSelectionVisualizer3d(); 
 protected:
-    virtual void onSelectionManagerSelectionChanged(int selectionLevel) override;
+    virtual void onSelectionManagerSelectionChanged( const std::set<int>& changedSelectionLevels ) override;
 
     std::vector< QPointer<PdmUi3dObjectEditorHandle> > m_active3DEditors;
 
@@ -284,6 +285,7 @@ protected:
 
 private slots:
     void slotUpdated(const cvf::Vec3d& origin, const cvf::Vec3d& tangent);
+    void slotSelectedIn3D();
 private:
     QPointer<RicPointTangentManipulator> m_manipulator;
     cvf::ref<cvf::ModelBasicList> m_cvfModel;

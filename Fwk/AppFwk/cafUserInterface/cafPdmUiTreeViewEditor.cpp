@@ -384,7 +384,6 @@ void PdmUiTreeViewEditor::updateSelectionManager()
         std::vector<PdmUiItem*> items;
         this->selectedUiItems(items);
 
-        SelectionManager::instance()->clearAll();
         SelectionManager::instance()->setSelectedItems(items);
     }
 }

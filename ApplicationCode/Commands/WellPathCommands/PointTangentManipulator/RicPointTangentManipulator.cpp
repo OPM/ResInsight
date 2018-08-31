@@ -107,6 +107,7 @@ bool RicPointTangentManipulator::eventFilter(QObject *obj, QEvent* inputEvent)
 
                 if(m_partManager->isManipulatorActive())
                 {
+                    emit notifySelected();
                     emit notifyRedraw();
 
                     return true;
@@ -307,7 +308,6 @@ void RicPointTangentManipulatorPartMgr::tryToActivateManipulator(const cvf::HitI
             m_tangentOnStartManipulation = m_tangent;
             m_originOnStartManipulation = m_origin;
             m_currentHandleIndex = i;
-            caf::SelectionManager::instance()->clear(caf::SelectionManager::FIRST_LEVEL);
         }
     }
 
@@ -639,9 +639,9 @@ PdmUiSelectionVisualizer3d::~PdmUiSelectionVisualizer3d()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void PdmUiSelectionVisualizer3d::onSelectionManagerSelectionChanged(int selectionLevel)
+void PdmUiSelectionVisualizer3d::onSelectionManagerSelectionChanged( const std::set<int>& changedSelectionLevels )
 {
-    if (selectionLevel != 0) return;
+    if (!changedSelectionLevels.count(0)) return;
 
     for (auto editor: m_active3DEditors)
     {
@@ -805,6 +805,10 @@ void RicWellTarget3dEditor::configureAndUpdateUi(const QString& uiConfigName)
                          SIGNAL( notifyUpdate(const cvf::Vec3d& , const cvf::Vec3d& ) ),
                          this,
                          SLOT( slotUpdated(const cvf::Vec3d& , const cvf::Vec3d& ) ) );
+        QObject::connect(m_manipulator,
+                         SIGNAL( notifySelected() ),
+                         this,
+                         SLOT( slotSelectedIn3D() ) );
         m_cvfModel = new cvf::ModelBasicList;
         m_ownerViewer->addStaticModelOnce(m_cvfModel.p());
     }
@@ -872,4 +876,15 @@ void RicWellTarget3dEditor::slotUpdated(const cvf::Vec3d& origin, const cvf::Vec
     caf::PdmUiCommandSystemProxy::instance()->setUiValueToField(target->m_targetPoint.uiCapability(), originVariant);
     std::cout << "RicWellTarget3dEditor::slotUpdated() end" << std::endl;
 
+}
+
+void RicWellTarget3dEditor::slotSelectedIn3D()
+{
+    RimWellPathTarget* target = dynamic_cast<RimWellPathTarget*>(this->pdmObject());
+    if ( !target)
+    {
+        return;
+    }
+
+    caf::SelectionManager::instance()->setSelectedItemAtLevel(target, caf::SelectionManager::FIRST_LEVEL);
 }

@@ -35,6 +35,8 @@
 //##################################################################################################
 #pragma once
 
+#include <set>
+
 namespace caf
 {
 class SelectionChangedReceiver
@@ -46,7 +48,7 @@ public:
 protected:
     friend class SelectionManager;
     /// Called whenever caf::SelectionManager's selection changes
-    virtual void onSelectionManagerSelectionChanged(int selectionLevel) = 0;
+    virtual void onSelectionManagerSelectionChanged( const std::set<int>& changedSelectionLevels ) = 0;
 };
 
 }
