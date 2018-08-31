@@ -47,15 +47,19 @@ public:
 
     void                        setWellNameForExport(const QString& name);
     QString                     wellNameForExport() const;
-    QString                     wellGroupName() const;
-    QString                     referenceDepth() const;
-    QString                     wellTypeName() const;
+    QString                     wellGroupNameForExport() const;
+    QString                     referenceDepthForExport() const;
+    QString                     wellTypeNameForExport() const;
     bool                        hasCompletions() const;
 
     void                        setUnitSystemSpecificDefaults();
 
 protected:
     virtual void                        defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName) override;
+    virtual void                        fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+
+private:
+    QString                     formatStringForExport(const QString& text, const QString& defaultText = "") const;
 
 private:
     caf::PdmChildField<RimFishbonesCollection*>         m_fishbonesCollection;

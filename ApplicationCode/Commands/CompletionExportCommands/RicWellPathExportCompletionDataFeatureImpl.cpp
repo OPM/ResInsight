@@ -1082,11 +1082,11 @@ void RicWellPathExportCompletionDataFeatureImpl::exportWelspecsToFile(RimEclipse
 
         formatter
             .add(completions->wellNameForExport())
-            .add(completions->wellGroupName())
+            .add(completions->wellGroupNameForExport())
             .addOneBasedCellIndex(ijIntersection.x())
             .addOneBasedCellIndex(ijIntersection.y())
-            .add(completions->referenceDepth())
-            .add(completions->wellTypeName())
+            .add(completions->referenceDepthForExport())
+            .add(completions->wellTypeNameForExport())
             .rowCompleted();
     }
 
@@ -1147,12 +1147,12 @@ void RicWellPathExportCompletionDataFeatureImpl::exportWelspeclToFile(RimEclipse
 
             formatter
                 .add(completions->wellNameForExport())
-                .add(completions->wellGroupName())
+                .add(completions->wellGroupNameForExport())
                 .add(lgrName)
                 .addOneBasedCellIndex(ijIntersection.x())
                 .addOneBasedCellIndex(ijIntersection.y())
-                .add(completions->referenceDepth())
-                .add(completions->wellTypeName())
+                .add(completions->referenceDepthForExport())
+                .add(completions->wellTypeNameForExport())
                 .rowCompleted();
         }
     }

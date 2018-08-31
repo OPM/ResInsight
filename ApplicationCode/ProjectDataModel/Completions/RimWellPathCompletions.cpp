@@ -18,6 +18,8 @@
 
 #include "RimWellPathCompletions.h"
 
+#include "RiaStdStringTools.h"
+
 #include "RimFishbonesCollection.h"
 #include "RimFishboneWellPathCollection.h"
 #include "RimPerforationCollection.h"
@@ -26,6 +28,13 @@
 #include "cvfAssert.h"
 
 #include "cafPdmUiTreeOrdering.h"
+
+#include <cmath>
+
+//--------------------------------------------------------------------------------------------------
+/// Internal constants
+//--------------------------------------------------------------------------------------------------
+#define DOUBLE_INF  std::numeric_limits<double>::infinity()
 
 
 namespace caf {
@@ -98,7 +107,8 @@ RimPerforationCollection* RimWellPathCompletions::perforationCollection() const
 //--------------------------------------------------------------------------------------------------
 void RimWellPathCompletions::setWellNameForExport(const QString& name)
 {
-    m_wellNameForExport = name;
+    auto n = name;
+    m_wellNameForExport = n.remove(' ');
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -106,31 +116,43 @@ void RimWellPathCompletions::setWellNameForExport(const QString& name)
 //--------------------------------------------------------------------------------------------------
 QString RimWellPathCompletions::wellNameForExport() const
 {
-    return m_wellNameForExport();
+    return formatStringForExport(m_wellNameForExport());
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RimWellPathCompletions::wellGroupName() const
+QString RimWellPathCompletions::wellGroupNameForExport() const
 {
-    return m_wellGroupName;
+    return formatStringForExport(m_wellGroupName, "1*");
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RimWellPathCompletions::referenceDepth() const
+QString RimWellPathCompletions::referenceDepthForExport() const
 {
-    return m_referenceDepth;
+    std::string refDepth = m_referenceDepth.v().toStdString();
+    if (RiaStdStringTools::isNumber(refDepth, '.'))
+    {
+        return m_referenceDepth.v();
+    }
+    return "1*";
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RimWellPathCompletions::wellTypeName() const
+QString RimWellPathCompletions::wellTypeNameForExport() const
 {
-    return WellTypeEnum(m_wellType).uiText();
+    switch (m_wellType.v())
+    {
+    case OIL:       return "OIL";
+    case GAS:       return "GAS";
+    case WATER:     return "WATER";
+    case LIQUID:    return "LIQ";
+    }
+    return "";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -189,4 +211,38 @@ void RimWellPathCompletions::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTree
     {
         uiTreeOrdering.add(&m_fractureCollection);
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellPathCompletions::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+{
+    if (changedField == &m_referenceDepth)
+    {
+        if (!RiaStdStringTools::isNumber(m_referenceDepth.v().toStdString(), '.'))
+        {
+            if (!RiaStdStringTools::isNumber(m_referenceDepth.v().toStdString(), ','))
+            {
+                // Remove invalid input text
+                m_referenceDepth = "";
+            }
+            else
+            {
+                // Wrong decimal sign entered, replace , by .
+                auto text = m_referenceDepth.v();
+                m_referenceDepth = text.replace(',', '.');
+            }
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RimWellPathCompletions::formatStringForExport(const QString& text, const QString& defaultValue) const
+{
+    if (text.isEmpty()) return defaultValue;
+    if (text.contains(' ')) return QString("'%1'").arg(text);
+    return text;
 }
