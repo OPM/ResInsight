@@ -26,7 +26,7 @@
 ///
 //--------------------------------------------------------------------------------------------------
 RiaWeightedGeometricMeanCalculator::RiaWeightedGeometricMeanCalculator()
-    : m_aggregatedWeightedValue(1.0)
+    : m_aggregatedWeightedValue(0.0)
     , m_aggregatedWeight(0.0)
 {
 }
@@ -39,7 +39,7 @@ void RiaWeightedGeometricMeanCalculator::addValueAndWeight(double value, double 
     CVF_ASSERT(weight >= 0.0);
 
     // This can be a very big number, consider other algorithms if that becomes a problem
-    m_aggregatedWeightedValue *= std::pow(value,  weight);
+    m_aggregatedWeightedValue += (std::log(value) * weight);
     m_aggregatedWeight += weight;
 }
 
@@ -50,7 +50,7 @@ double RiaWeightedGeometricMeanCalculator::weightedMean() const
 {
     if (m_aggregatedWeight > 1e-7)
     {
-        return std::pow(m_aggregatedWeightedValue, 1 / m_aggregatedWeight);
+        return std::exp(m_aggregatedWeightedValue / m_aggregatedWeight);
     }
 
     return 0.0;
