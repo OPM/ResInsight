@@ -165,6 +165,12 @@ QString RicWellPathFractureTextReportFeatureImpl::wellPathFractureReport(
             textStream << tableText;
             textStream << lineStart << "\n";
         }
+
+        {
+            QString tableText = createConnectionsPerWellText(wellPathFractureReportItems);
+            textStream << tableText;
+            textStream << lineStart << "\n";
+        }
     }
 
     return text;
@@ -636,6 +642,54 @@ QString RicWellPathFractureTextReportFeatureImpl::createFractureCompletionSummar
         formatter.add(reportItem.xf()); // Xf
         formatter.add(reportItem.h()); // H
         formatter.add(reportItem.km()); // Km
+
+        formatter.rowCompleted();
+    }
+
+    formatter.tableCompleted();
+
+    return tableText;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RicWellPathFractureTextReportFeatureImpl::createConnectionsPerWellText(const std::vector<RicWellPathFractureReportItem>& wellPathFractureReportItems) const
+{
+    QString tableText;
+
+    RiaEclipseUnitTools::UnitSystem unitSystem = wellPathFractureReportItems.front().unitSystem();
+    bool isFieldUnits = unitSystem == RiaEclipseUnitTools::UNITS_FIELD;
+
+    QTextStream                  stream(&tableText);
+    RifEclipseDataTableFormatter formatter(stream);
+    configureFormatter(&formatter);
+
+    std::vector<RifEclipseOutputTableColumn> header = {
+        RifEclipseOutputTableColumn("Well"),
+        floatNumberColumn("#con")
+    };
+
+    formatter.header(header);
+    formatter.addHorizontalLine('-');
+
+    std::map<QString /*Well*/, size_t> wellConnectionCounts;
+    for (const auto& reportItem : wellPathFractureReportItems)
+    {
+        QString wellPathName, fractureName, fractureTemplateName;
+        reportItem.getNames(wellPathName, fractureName, fractureTemplateName);
+        if (wellConnectionCounts.find(wellPathName) == wellConnectionCounts.end())
+        {
+            wellConnectionCounts.insert(std::make_pair(wellPathName, 0));
+        }
+
+        wellConnectionCounts[wellPathName] += reportItem.connectionCount();
+    }
+
+    for (const auto& connCount : wellConnectionCounts)
+    {
+        formatter.add(connCount.first);
+        formatter.add(connCount.second);
 
         formatter.rowCompleted();
     }

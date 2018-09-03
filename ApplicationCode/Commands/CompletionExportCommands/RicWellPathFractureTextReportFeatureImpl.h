@@ -51,6 +51,7 @@ private:
 
     QString
         createFractureCompletionSummaryText(const std::vector<RicWellPathFractureReportItem>& wellPathFractureReportItems) const;
+    QString createConnectionsPerWellText(const std::vector<RicWellPathFractureReportItem>& wellPathFractureReportItems) const;
 
     void configureFormatter(RifEclipseDataTableFormatter* formatter) const;
 };
