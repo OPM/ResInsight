@@ -67,6 +67,17 @@ Tensor3<S>::Tensor3(S sxx, S syy, S szz, S sxy, S syz, S szx)
     m_tensor[5] = szx;
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+template <typename S>
+Tensor3<S> caf::Tensor3<S>::invalid()
+{
+    return caf::Tensor3<S>(std::numeric_limits<S>::infinity(), std::numeric_limits<S>::infinity(),
+                           std::numeric_limits<S>::infinity(), std::numeric_limits<S>::infinity(),
+                           std::numeric_limits<S>::infinity(), std::numeric_limits<S>::infinity());
+}
+
 //----------------------------------------------------------------------------------------------------
 /// Assignment operator
 //----------------------------------------------------------------------------------------------------

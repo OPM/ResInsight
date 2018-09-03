@@ -47,11 +47,14 @@
 #include "RimProject.h"
 #include "RimTools.h"
 #include "RimWellLogCurve.h"
+#include "RimWellLogFile.h"
+#include "RimWellLogFileChannel.h"
 #include "RimWellLogPlot.h"
 #include "RimWellLogPlotCollection.h"
 #include "RimWellLogTrack.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
+#include "RimWellPlotTools.h"
 
 #include "RiuLineSegmentQwtPlotCurve.h"
 #include "RiuWellLogTrack.h"
@@ -396,8 +399,11 @@ void RimWellLogExtractionCurve::onLoadDataAndUpdate(bool updateParentPlot)
             measuredDepthValues =  geomExtractor->measuredDepth();
             tvDepthValues = geomExtractor->trueVerticalDepth();
 
-            m_geomResultDefinition->loadResult();
+            findAndLoadWbsParametersFromLasFiles(m_wellPath(), geomExtractor.p());
+
             geomExtractor->setRkbDiff(rkbDiff());
+
+            m_geomResultDefinition->loadResult();
             geomExtractor->curveData(m_geomResultDefinition->resultAddress(), m_timeStep, &values);
         }
 
@@ -459,6 +465,43 @@ void RimWellLogExtractionCurve::onLoadDataAndUpdate(bool updateParentPlot)
         {
             m_parentQwtPlot->replot();
         }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Search well path for LAS-files containing Well Bore Stability data and set them in the extractor.
+//--------------------------------------------------------------------------------------------------
+void RimWellLogExtractionCurve::findAndLoadWbsParametersFromLasFiles(const RimWellPath* wellPath, RigGeoMechWellLogExtractor* geomExtractor)
+{
+    std::vector<std::pair<double, double>> logFileMudWeights = RimWellLogFile::findMdAndChannelValuesForWellPath(wellPath, "PP");
+    if (!logFileMudWeights.empty())
+    {
+        // Log file pressures come in SG units (g / cm^3).
+        // We need SI as input (kg / m^3), so multiply by 1000:
+        for (auto& mudWeight : logFileMudWeights)
+        {
+            mudWeight.second *= 1000.0;
+        }
+        geomExtractor->setWellLogMdAndMudWeightKgPerM3(logFileMudWeights);
+    }
+
+    std::vector<std::pair<double, double>> logFileUcs = RimWellLogFile::findMdAndChannelValuesForWellPath(wellPath, "UCS");
+    if (!logFileUcs.empty())
+    {
+        // TODO: UCS is typically in MPa, but not necessarily.
+        // We need to at least give a warning if the units don't match
+        // ... and preferable do a conversion.
+        for (auto& ucsValue : logFileUcs)
+        {
+            ucsValue.second *= 10.0; // MPa -> Bar
+        }
+        geomExtractor->setWellLogMdAndUcsBar(logFileUcs);
+    }
+
+    std::vector<std::pair<double, double>> logFilePoissonRatio = RimWellLogFile::findMdAndChannelValuesForWellPath(wellPath, "POISSON_RATIO");
+    if (!logFilePoissonRatio.empty())
+    {
+        geomExtractor->setWellLogMdAndPoissonRatio(logFilePoissonRatio);
     }
 }
 

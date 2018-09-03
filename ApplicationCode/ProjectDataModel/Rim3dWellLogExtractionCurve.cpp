@@ -45,6 +45,7 @@
 #include "RimTools.h"
 #include "RimWellLogFile.h"
 #include "RimWellLogFileChannel.h"
+#include "RimWellLogExtractionCurve.h"
 #include "RimWellPath.h"
 
 #include "cafUtils.h"
@@ -220,6 +221,9 @@ void Rim3dWellLogExtractionCurve::curveValuesAndMdsAtTimeStep(std::vector<double
     else if (geomExtractor.notNull())
     {
         *measuredDepthValues = geomExtractor->measuredDepth();
+
+        RimWellLogExtractionCurve::findAndLoadWbsParametersFromLasFiles(wellPath, geomExtractor.p());
+
         m_geomResultDefinition->loadResult();
         geomExtractor->setRkbDiff(rkbDiff());
         geomExtractor->curveData(m_geomResultDefinition->resultAddress(), timeStep, values);

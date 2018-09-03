@@ -53,6 +53,12 @@ public:
     void                         curveData(const RigFemResultAddress& resAddr, int frameIndex, std::vector<double>* values );
     const RigGeoMechCaseData*    caseData();
     void                         setRkbDiff(double rkbDiff);
+
+    void                         setWellLogMdAndMudWeightKgPerM3(const std::vector<std::pair<double, double>>& mudWeightKgPerM3);
+    void                         setWellLogMdAndUcsBar(const std::vector<std::pair<double, double>>& ucsValues);
+    void                         setWellLogMdAndPoissonRatio(const std::vector<std::pair<double, double>>& poissonRatio);
+
+
 private:
     enum WellPathTangentCalculation
     {
@@ -60,11 +66,16 @@ private:
         TangentConstantWithinCell
     };
 
+    float                        calculatePorePressureInSegment(int64_t intersectionIdx, float averageSegmentPorePressureBars, double hydroStaticPorePressureBars, double effectiveDepthMeters, const std::vector<float>& poreElementPressuresPascal) const;
+    float                        calculatePoissonRatio(int64_t intersectionIdx, const std::vector<float>& poissonRatios) const;
+    float                        calculateUcs(int64_t intersectionIdx, const std::vector<float>& ucsValuesPascal) const;
+
     void                         wellPathAngles(const RigFemResultAddress& resAddr, std::vector<double>* values);
     void                         wellPathScaledCurveData(const RigFemResultAddress& resAddr, int frameIndex, std::vector<double>* values);
+
+
     void                         wellBoreWallCurveData(const RigFemResultAddress& resAddr, int frameIndex, std::vector<double>* values);
 
-   
     template<typename T>
     T                            interpolateGridResultValue(RigFemResultPosEnum resultPosType, const std::vector<T>& gridResultValues, int64_t intersectionIdx, bool averageNodeElementResults) const;
     size_t                       gridResultIndexFace(size_t elementIdx, cvf::StructGridInterface::FaceType cellFace, int faceLocalNodeIdx) const;
@@ -78,8 +89,18 @@ private:
                                                                       const caf::Ten3d& wellPathTensor);
 
     static cvf::Vec3f            cellCentroid(const int* elmNodeIndices, const std::vector<cvf::Vec3f>& nodeCoords);
+    double                       getWellLogSegmentValue(size_t intersectionIdx, const std::vector<std::pair<double, double>>& wellLogValues) const;
+
+    template<typename T>
+    static bool                  averageIntersectionValuesToSegmentValue(size_t intersectionIdx, const std::vector<T>& intersectionValues, const T& invalidValue, T* averagedSegmentValue);
+    static double                pascalToBar(double pascalValue);
+private:
     cvf::ref<RigGeoMechCaseData> m_caseData;
     double                       m_rkbDiff;
-};
+    std::vector<std::pair<double, double>> m_wellLogMdAndMudWeightKgPerM3;
+    std::vector<std::pair<double, double>> m_wellLogMdAndUcsBar;
+    std::vector<std::pair<double, double>> m_wellLogMdAndPoissonRatios;
 
+    static const double          UNIT_WEIGHT_OF_WATER;
+};
 

@@ -260,6 +260,33 @@ void RimWellLogFile::updateFilePathsFromProjectPath(const QString& newProjectPat
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<std::pair<double, double>> RimWellLogFile::findMdAndChannelValuesForWellPath(const RimWellPath* wellPath, const QString& channelName)
+{
+    CVF_ASSERT(wellPath);
+    std::vector<RimWellLogFile*> wellLogFiles;
+    wellPath->descendantsIncludingThisOfType(wellLogFiles);
+    for (RimWellLogFile* wellLogFile : wellLogFiles)
+    {
+        RigWellLogFile* fileData = wellLogFile->wellLogFileData();
+        std::vector<double> channelValues = fileData->values(channelName);
+        if (!channelValues.empty())
+        {
+            std::vector<double> depthValues = fileData->depthValues();
+            CVF_ASSERT(depthValues.size() == channelValues.size());
+            std::vector<std::pair<double, double>> depthValuePairs;
+            for (size_t i = 0; i < depthValues.size(); ++i)
+            {
+                depthValuePairs.push_back(std::make_pair(depthValues[i], channelValues[i]));
+            }
+            return depthValuePairs;
+        }
+    }
+    return std::vector<std::pair<double, double>>();
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void RimWellLogFile::setupBeforeSave()

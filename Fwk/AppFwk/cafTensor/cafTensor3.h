@@ -35,6 +35,8 @@ public:
     template<typename T>
     explicit Tensor3(const Tensor3<T>& other);
 
+    static Tensor3      invalid();
+
     inline Tensor3&     operator=(const Tensor3& rhs);
     inline Tensor3      operator+(const Tensor3& rhs) const;
     inline Tensor3      operator*(S scale) const;

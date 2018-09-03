@@ -26,6 +26,7 @@
 #include "cafPdmPtrField.h"
 #include "cafPdmChildField.h"
 
+class RigGeoMechWellLogExtractor;
 class RigWellPath;
 class RimCase;
 class RimEclipseResultDefinition;
@@ -78,6 +79,7 @@ public:
     void            setBranchDetection(bool branchDetection);
     void            setBranchIndex(int index);
 
+    static void     findAndLoadWbsParametersFromLasFiles(const RimWellPath* wellPath, RigGeoMechWellLogExtractor* geomExtractor);
 protected:
     virtual QString                                createCurveAutoName() override;
     virtual void                                   onLoadDataAndUpdate(bool updateParentPlot) override;
