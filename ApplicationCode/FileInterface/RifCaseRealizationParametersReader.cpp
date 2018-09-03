@@ -143,7 +143,7 @@ void RifCaseRealizationParametersReader::parse()
             QString line = dataStream->readLine();
 
             lineNo++;
-            QStringList cols = RifFileParseTools::splitLineAndTrim(line, " ");
+            QStringList cols = RifFileParseTools::splitLineAndTrim(line, QRegExp("[ \t]"), true);
 
             if (cols.size() != 2)
             {
