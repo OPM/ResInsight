@@ -413,6 +413,23 @@ RimWellPathCollection* Rim3dView::wellPathCollection() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+bool Rim3dView::hasVisibleTimeStepDependent3dWellLogCurves() const
+{
+    std::vector<Rim3dWellLogCurve*> wellLogCurves;
+    wellPathCollection()->descendantsIncludingThisOfType(wellLogCurves);
+    for (const Rim3dWellLogCurve* curve : wellLogCurves)
+    {
+        if (curve->isShowingTimeDependentResultInView(this))
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void Rim3dView::setupBeforeSave()
 {
     if (m_viewer)

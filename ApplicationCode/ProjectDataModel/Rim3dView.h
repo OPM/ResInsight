@@ -152,7 +152,8 @@ protected:
 
 
     RimWellPathCollection*                  wellPathCollection() const;
-    void                                    addWellPathsToModel(cvf::ModelBasicList* wellPathModelBasicList, 
+    bool                                    hasVisibleTimeStepDependent3dWellLogCurves() const;
+    void                                    addWellPathsToModel(cvf::ModelBasicList* wellPathModelBasicList,
                                                                 const cvf::BoundingBox& wellPathClipBoundingBox);
 
     void                                    addDynamicWellPathsToModel(cvf::ModelBasicList* wellPathModelBasicList, 

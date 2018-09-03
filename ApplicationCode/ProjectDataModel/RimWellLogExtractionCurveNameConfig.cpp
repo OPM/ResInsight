@@ -33,11 +33,11 @@ RimWellLogExtractionCurveNameConfig::RimWellLogExtractionCurveNameConfig(const R
 {
     CAF_PDM_InitObject("Well Log Extraction Curve Name Generator", "", "", "");
 
-    CAF_PDM_InitField(&m_addCaseName, "AddCaseName", false, "Add Case Name", "", "", "");
-    CAF_PDM_InitField(&m_addProperty, "AddProperty", false, "Add Property Type", "", "", "");
-    CAF_PDM_InitField(&m_addWellName, "AddWellName", false, "Add Well Name", "", "", "");
-    CAF_PDM_InitField(&m_addTimestep, "AddTimeStep", false, "Add Time Step", "", "", "");
-    CAF_PDM_InitField(&m_addDate,     "AddDate",     false, "Add Date", "", "", "");
+    CAF_PDM_InitField(&m_addCaseName, "AddCaseName", true, "Add Case Name", "", "", "");
+    CAF_PDM_InitField(&m_addProperty, "AddProperty", true, "Add Property Type", "", "", "");
+    CAF_PDM_InitField(&m_addWellName, "AddWellName", true, "Add Well Name", "", "", "");
+    CAF_PDM_InitField(&m_addTimestep, "AddTimeStep", true, "Add Time Step", "", "", "");
+    CAF_PDM_InitField(&m_addDate,     "AddDate",     true, "Add Date", "", "", "");
 
     m_customName = "Log Extraction";
 }

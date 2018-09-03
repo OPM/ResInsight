@@ -1563,6 +1563,8 @@ bool RimEclipseView::isTimeStepDependentDataVisible() const
 
     if (this->wellPathCollection()->anyWellsContainingPerforationIntervals()) return true;
 
+    if (this->hasVisibleTimeStepDependent3dWellLogCurves()) return true;
+
     return false;
 }
 

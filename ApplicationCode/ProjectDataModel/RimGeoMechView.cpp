@@ -646,7 +646,16 @@ void RimGeoMechView::clampCurrentTimestep()
 //--------------------------------------------------------------------------------------------------
 bool RimGeoMechView::isTimeStepDependentDataVisible() const
 {
-    return this->hasUserRequestedAnimation() && (this->cellResult()->hasResult() || this->geoMechPropertyFilterCollection()->hasActiveFilters());
+    if (this->hasUserRequestedAnimation() && 
+        (this->cellResult()->hasResult() || this->geoMechPropertyFilterCollection()->hasActiveFilters()))
+    {
+        return true;
+    }
+    if (this->hasVisibleTimeStepDependent3dWellLogCurves())
+    {
+        return true;
+    }
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------

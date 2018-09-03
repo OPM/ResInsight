@@ -378,6 +378,44 @@ double Rim3dWellLogExtractionCurve::rkbDiff() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool Rim3dWellLogExtractionCurve::isShowingTimeDependentResultInView(const Rim3dView* gridView) const
+{
+    if (showInView(gridView))
+    {
+        if (dynamic_cast<const RimEclipseCase*>(m_case()))
+        {
+            return m_eclipseResultDefinition->hasDynamicResult();
+        }
+        else if (dynamic_cast<const RimGeoMechCase*>(m_case()))
+        {
+            return m_geomResultDefinition->hasResult();
+        }
+    }
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool Rim3dWellLogExtractionCurve::showInView(const Rim3dView* gridView) const
+{
+    if (isShowingCurve())
+    {
+        if (dynamic_cast<const RimEclipseCase*>(m_case()))
+        {
+            return dynamic_cast<const RimEclipseView*>(gridView) != nullptr;
+        }
+        else if (dynamic_cast<const RimGeoMechCase*>(m_case()))
+        {
+            return dynamic_cast<const RimGeoMechView*>(gridView) != nullptr;
+        }
+    }
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 caf::PdmFieldHandle* Rim3dWellLogExtractionCurve::userDescriptionField()
 {
     return m_nameConfig()->nameField();
@@ -388,7 +426,22 @@ caf::PdmFieldHandle* Rim3dWellLogExtractionCurve::userDescriptionField()
 //--------------------------------------------------------------------------------------------------
 void Rim3dWellLogExtractionCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {   
-    if (changedField == &m_case || changedField == &m_timeStep)
+    if (changedField == &m_case)
+    {
+        RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>(m_case());
+        RimGeoMechCase* geoMechCase = dynamic_cast<RimGeoMechCase*>(m_case());
+        if (eclipseCase)
+        {
+            m_eclipseResultDefinition->setEclipseCase(eclipseCase);
+        }
+        else if (geoMechCase)
+        {
+            m_geomResultDefinition->setGeoMechCase(geoMechCase);
+        }
+
+        this->resetMinMaxValuesAndUpdateUI();
+    }
+    else if (changedField == &m_timeStep)
     {
         this->resetMinMaxValuesAndUpdateUI();
     }

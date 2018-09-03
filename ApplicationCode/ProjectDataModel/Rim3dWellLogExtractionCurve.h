@@ -53,6 +53,11 @@ public:
     virtual QString name() const override;
     virtual QString createAutoName() const override;
     double          rkbDiff() const;
+
+    virtual bool    isShowingTimeDependentResultInView(const Rim3dView* gridView) const override;
+
+    virtual bool    showInView(const Rim3dView* gridView) const override;
+
 protected:
     virtual caf::PdmFieldHandle*            userDescriptionField() override;
     virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;

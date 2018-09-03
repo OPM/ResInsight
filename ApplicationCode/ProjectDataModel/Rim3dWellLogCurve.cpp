@@ -100,9 +100,9 @@ Rim3dWellLogCurve::DrawPlane Rim3dWellLogCurve::drawPlane() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double Rim3dWellLogCurve::drawPlaneAngle() const
+double Rim3dWellLogCurve::drawPlaneAngle(Rim3dWellLogCurve::DrawPlane drawPlane)
 {
-    switch (drawPlane())
+    switch (drawPlane)
     {
         case HORIZONTAL_LEFT:
         case HORIZONTAL_CENTER:

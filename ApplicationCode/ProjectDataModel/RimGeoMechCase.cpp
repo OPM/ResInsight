@@ -129,7 +129,7 @@ QString RimGeoMechCase::caseFileName() const
 //--------------------------------------------------------------------------------------------------
 RigGeoMechCaseData* RimGeoMechCase::geoMechData()
 {
-    return m_geoMechCaseData.p();
+    return m_geoMechCaseData.p();    
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -137,7 +137,7 @@ RigGeoMechCaseData* RimGeoMechCase::geoMechData()
 //--------------------------------------------------------------------------------------------------
 const RigGeoMechCaseData* RimGeoMechCase::geoMechData() const
 {
-    return m_geoMechCaseData.p();
+    return m_geoMechCaseData.p();    
 }
 
 //--------------------------------------------------------------------------------------------------
