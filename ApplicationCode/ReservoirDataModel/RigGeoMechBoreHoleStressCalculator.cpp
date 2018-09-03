@@ -96,10 +96,12 @@ double RigGeoMechBoreHoleStressCalculator::solveBisection(double minPw, double m
         // No solution. Function is always negative. Pick largest value.
         return largestNegativeValue.first;        
     }
+    minPw = largestNegativeValue.first;
+    double minPwFuncVal = largestNegativeValue.second;
+    maxPw = smallestPositiveValue.first;
+    double maxPwFuncVal = smallestPositiveValue.second;
 
-    double minPwFuncVal = (this->*fn)(largestNegativeValue.first, &theta);
-    double maxPwFuncVal = (this->*fn)(smallestPositiveValue.first, &theta);
-    double range = maxPw - minPw;
+    double range = std::abs(maxPw - minPw);
     
     int i = 0;
     for (; i <= N && range > m_porePressure * epsilon; ++i)
@@ -116,7 +118,7 @@ double RigGeoMechBoreHoleStressCalculator::solveBisection(double minPw, double m
             minPw = midPw;
             minPwFuncVal = midPwFuncVal;
         }
-        range = maxPw - minPw;
+        range = std::abs(maxPw - minPw);
     }
     CVF_ASSERT(i < N); // Otherwise it hasn't converged                       
 
@@ -146,7 +148,7 @@ double RigGeoMechBoreHoleStressCalculator::solveSecant(MemberFunc fn, double* th
     double x = 0.0;
     double f_x = 0.0;
     int i = 0;
-    for (; i < N && std::abs(f_x1 - f_x0) > epsilon; ++i)
+    for (; i <= N && std::abs(f_x1 - f_x0) > epsilon; ++i)
     {
         x = x_1 - f_x1 * (x_1 - x_0) / (f_x1 - f_x0);
         f_x = (this->*fn)(x, &theta);
@@ -159,9 +161,9 @@ double RigGeoMechBoreHoleStressCalculator::solveSecant(MemberFunc fn, double* th
         f_x1 = f_x;        
     }
 
-    if (i == N)
+    if (i == N || std::abs(f_x) > epsilon * m_porePressure)
     {
-        // Fallback to bisection if secant doesn't converge.
+        // Fallback to bisection if secant doesn't converge or converged to a wrong solution.
         return solveBisection(0.0, m_porePressure * 2.0, fn, thetaOut);
     }
 
