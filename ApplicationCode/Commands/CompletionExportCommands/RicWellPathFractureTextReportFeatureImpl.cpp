@@ -167,6 +167,9 @@ QString RicWellPathFractureTextReportFeatureImpl::wellPathFractureReport(
         }
 
         {
+            textStream << lineStart << " Maximum number of connections per well\n";
+            textStream << lineStart << "\n";
+
             QString tableText = createConnectionsPerWellText(wellPathFractureReportItems);
             textStream << tableText;
             textStream << lineStart << "\n";
@@ -667,7 +670,7 @@ QString RicWellPathFractureTextReportFeatureImpl::createConnectionsPerWellText(c
 
     std::vector<RifEclipseOutputTableColumn> header = {
         RifEclipseOutputTableColumn("Well"),
-        floatNumberColumn("#con")
+        floatNumberColumn("ConnCount")
     };
 
     formatter.header(header);
