@@ -1059,7 +1059,7 @@ void RicWellPathExportCompletionDataFeatureImpl::exportWelspecsToFile(RimEclipse
         RifEclipseOutputTableColumn("WellType")
     };
 
-    formatter.keyword("WELSPEC");
+    formatter.keyword("WELSPECS");
     formatter.header(header);
 
     std::set<const RimWellPath*> wellPathSet;
