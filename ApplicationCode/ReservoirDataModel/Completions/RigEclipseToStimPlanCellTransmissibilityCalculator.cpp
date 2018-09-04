@@ -156,29 +156,29 @@ void RigEclipseToStimPlanCellTransmissibilityCalculator::calculateStimPlanCellsM
         stimPlanPolygonTransformed.push_back(v);
     }
 
-    std::vector<size_t> fracCells = getPotentiallyFracturedCellsForPolygon(stimPlanPolygonTransformed);
-    for (size_t fracCell : fracCells)
+    std::vector<size_t> reservoirCellIndices = getPotentiallyFracturedCellsForPolygon(stimPlanPolygonTransformed);
+    for (size_t reservoirCellIndex : reservoirCellIndices)
     {
-        bool cellIsActive = activeCellInfo->isActive(fracCell);
+        bool cellIsActive = activeCellInfo->isActive(reservoirCellIndex);
         if (!cellIsActive) continue;
 
-        double permX = dataAccessObjectPermX->cellScalarGlobIdx(fracCell);
-        double permY = dataAccessObjectPermY->cellScalarGlobIdx(fracCell);
-        double permZ = dataAccessObjectPermZ->cellScalarGlobIdx(fracCell);
+        double permX = dataAccessObjectPermX->cellScalarGlobIdx(reservoirCellIndex);
+        double permY = dataAccessObjectPermY->cellScalarGlobIdx(reservoirCellIndex);
+        double permZ = dataAccessObjectPermZ->cellScalarGlobIdx(reservoirCellIndex);
 
-        double dx = dataAccessObjectDx->cellScalarGlobIdx(fracCell);
-        double dy = dataAccessObjectDy->cellScalarGlobIdx(fracCell);
-        double dz = dataAccessObjectDz->cellScalarGlobIdx(fracCell);
+        double dx = dataAccessObjectDx->cellScalarGlobIdx(reservoirCellIndex);
+        double dy = dataAccessObjectDy->cellScalarGlobIdx(reservoirCellIndex);
+        double dz = dataAccessObjectDz->cellScalarGlobIdx(reservoirCellIndex);
 
         double NTG = 1.0;
         if (dataAccessObjectNTG.notNull())
         {
-            NTG = dataAccessObjectNTG->cellScalarGlobIdx(fracCell);
+            NTG = dataAccessObjectNTG->cellScalarGlobIdx(reservoirCellIndex);
         }
 
         const RigMainGrid*        mainGrid = m_case->eclipseCaseData()->mainGrid();
         std::array<cvf::Vec3d, 8> hexCorners;
-        mainGrid->cellCornerVertices(fracCell, hexCorners.data());
+        mainGrid->cellCornerVertices(reservoirCellIndex, hexCorners.data());
 
         std::vector<std::vector<cvf::Vec3d>> planeCellPolygons;
         bool                                 isPlanIntersected =
@@ -262,7 +262,7 @@ void RigEclipseToStimPlanCellTransmissibilityCalculator::calculateStimPlanCellsM
         double transmissibility = sqrt(transmissibility_X * transmissibility_X + transmissibility_Y * transmissibility_Y +
                                        transmissibility_Z * transmissibility_Z);
 
-        m_globalIndiciesToContributingEclipseCells.push_back(fracCell);
+        m_globalIndiciesToContributingEclipseCells.push_back(reservoirCellIndex);
         m_contributingEclipseCellTransmissibilities.push_back(transmissibility);
         m_contributingEclipseCellAreas.push_back(fractureArea);
     }
