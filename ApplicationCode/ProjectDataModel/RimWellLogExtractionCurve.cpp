@@ -370,8 +370,8 @@ void RimWellLogExtractionCurve::onLoadDataAndUpdate(bool updateParentPlot)
 
         if (eclExtractor.notNull() && eclipseCase)
         {
-            measuredDepthValues = eclExtractor->measuredDepth();
-            tvDepthValues = eclExtractor->trueVerticalDepth();
+            measuredDepthValues = eclExtractor->cellIntersectionMDs();
+            tvDepthValues = eclExtractor->cellIntersectionTVDs();
 
             m_eclipseResultDefinition->loadResult();
 
@@ -396,8 +396,8 @@ void RimWellLogExtractionCurve::onLoadDataAndUpdate(bool updateParentPlot)
         else if (geomExtractor.notNull()) // geomExtractor
         {
 
-            measuredDepthValues =  geomExtractor->measuredDepth();
-            tvDepthValues = geomExtractor->trueVerticalDepth();
+            measuredDepthValues =  geomExtractor->cellIntersectionMDs();
+            tvDepthValues = geomExtractor->cellIntersectionTVDs();
 
             findAndLoadWbsParametersFromLasFiles(m_wellPath(), geomExtractor.p());
 

@@ -60,7 +60,7 @@ public:
     cvf::Color3f                    color() const { return m_curveColor; }
     void                            setLineStyle(RiuQwtPlotCurve::LineStyleEnum lineStyle);
     void                            setSymbol(RiuQwtSymbol::PointSymbolEnum symbolStyle);
-    RiuQwtSymbol::PointSymbolEnum symbol();
+    RiuQwtSymbol::PointSymbolEnum   symbol();
     void                            setSymbolSkipDistance(float distance);
     void                            setSymbolLabel(const QString& label);
     void                            setSymbolSize(int sizeInPixels);

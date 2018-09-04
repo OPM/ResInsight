@@ -709,7 +709,7 @@ std::vector<double> RimWellLogRftCurve::measuredDepthValues()
 
     if (!eclExtractor) return measuredDepthForCells;
 
-    std::vector<double> measuredDepthForIntersections = eclExtractor->measuredDepth();
+    std::vector<double> measuredDepthForIntersections = eclExtractor->cellIntersectionMDs();
     
     if (measuredDepthForIntersections.empty())
     {

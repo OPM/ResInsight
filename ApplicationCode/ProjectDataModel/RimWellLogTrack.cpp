@@ -1413,8 +1413,8 @@ CurveSamplingPointData RimWellLogTrack::curveSamplingPointData(RigEclipseWellLog
 {
     CurveSamplingPointData curveData;
 
-    curveData.md = extractor->measuredDepth();
-    curveData.tvd = extractor->trueVerticalDepth();
+    curveData.md = extractor->cellIntersectionMDs();
+    curveData.tvd = extractor->cellIntersectionTVDs();
     
     extractor->curveData(resultAccessor, &curveData.data);
     
@@ -1428,8 +1428,8 @@ CurveSamplingPointData RimWellLogTrack::curveSamplingPointData(RigGeoMechWellLog
 {
     CurveSamplingPointData curveData;
 
-    curveData.md = extractor->measuredDepth();
-    curveData.tvd = extractor->trueVerticalDepth();
+    curveData.md = extractor->cellIntersectionMDs();
+    curveData.tvd = extractor->cellIntersectionTVDs();
 
     extractor->curveData(resultAddress, 0, &curveData.data);
     return curveData;

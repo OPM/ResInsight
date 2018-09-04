@@ -102,13 +102,9 @@ RimPlotCurve::RimPlotCurve()
     CAF_PDM_InitField(&m_curveThickness, "Thickness", 1, "Line Thickness", "", "", "");
     m_curveThickness.uiCapability()->setUiEditorTypeName(caf::PdmUiComboBoxEditor::uiEditorTypeName());
 
-    caf::AppEnum< RiuQwtPlotCurve::LineStyleEnum > lineStyle = RiuQwtPlotCurve::STYLE_SOLID;
-    CAF_PDM_InitField(&m_lineStyle, "LineStyle", lineStyle, "Line Style", "", "", "");
-
     CAF_PDM_InitFieldNoDefault(&m_curveInterpolation, "CurveInterpolation", "Interpolation", "", "", "");
-
-    caf::AppEnum< RiuQwtSymbol::PointSymbolEnum > pointSymbol = RiuQwtSymbol::SYMBOL_NONE;
-    CAF_PDM_InitField(&m_pointSymbol, "PointSymbol", pointSymbol, "Symbol", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_lineStyle, "LineStyle", "Line Style", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_pointSymbol, "PointSymbol", "Symbol", "", "", "");
 
     CAF_PDM_InitField(&m_symbolSkipPixelDistance, "SymbolSkipPxDist", 0.0f, "Symbol Skip Distance", "", "Minimum pixel distance between symbols", "");
 

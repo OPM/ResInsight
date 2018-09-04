@@ -205,7 +205,7 @@ void Rim3dWellLogExtractionCurve::curveValuesAndMdsAtTimeStep(std::vector<double
 
     if (eclExtractor.notNull() && eclipseCase)
     {
-        *measuredDepthValues = eclExtractor->measuredDepth();
+        *measuredDepthValues = eclExtractor->cellIntersectionMDs();
 
         m_eclipseResultDefinition->loadResult();
 
@@ -220,7 +220,7 @@ void Rim3dWellLogExtractionCurve::curveValuesAndMdsAtTimeStep(std::vector<double
     }
     else if (geomExtractor.notNull())
     {
-        *measuredDepthValues = geomExtractor->measuredDepth();
+        *measuredDepthValues = geomExtractor->cellIntersectionMDs();
 
         RimWellLogExtractionCurve::findAndLoadWbsParametersFromLasFiles(wellPath, geomExtractor.p());
 

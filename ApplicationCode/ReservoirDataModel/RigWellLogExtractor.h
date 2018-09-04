@@ -59,11 +59,11 @@ public:
     RigWellLogExtractor(const RigWellPath* wellpath, const std::string& wellCaseErrorMsgName);
     virtual ~RigWellLogExtractor();
 
-    const std::vector<double>&  measuredDepth()     { return m_intersectionMeasuredDepths; }
-    const std::vector<double>&  trueVerticalDepth() { return m_intersectionTVDs; }
+    const std::vector<double>&  cellIntersectionMDs();
+    const std::vector<double>&  cellIntersectionTVDs();
     const std::vector<size_t>&  intersectedCellsGlobIdx();
 
-    const RigWellPath*          wellPathData()      { return m_wellPath.p();}
+    const RigWellPath*          wellPathData();
 
     std::vector<WellPathCellIntersectionInfo> cellIntersectionInfosAlongWellPath() const;
 
@@ -92,7 +92,6 @@ protected:
     std::vector<double>         m_intersectionMeasuredDepths;
     std::vector<double>         m_intersectionTVDs;
 
-private:
     std::string                 m_wellCaseErrorMsgName;
 };
 
