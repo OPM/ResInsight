@@ -198,7 +198,7 @@ void RicNewWellBoreStabilityPlotFeature::createStabilityCurvesTrack(RimWellLogPl
     std::vector<QString> resultNames = RiaDefines::wellPathStabilityResultNames();
 
     std::vector<cvf::Color3f> colors = { cvf::Color3f::RED, cvf::Color3f::PURPLE, cvf::Color3f::GREEN, cvf::Color3f::BLUE, cvf::Color3f::ORANGE };
-    std::vector<RimPlotCurve::LineStyleEnum> lineStyles = { RimPlotCurve::STYLE_SOLID, RimPlotCurve::STYLE_DASH, RimPlotCurve::STYLE_DASH_DOT, RimPlotCurve::STYLE_SOLID, RimPlotCurve::STYLE_DASH};
+    std::vector<RiuQwtPlotCurve::LineStyleEnum> lineStyles = { RiuQwtPlotCurve::STYLE_SOLID, RiuQwtPlotCurve::STYLE_DASH, RiuQwtPlotCurve::STYLE_DASH_DOT, RiuQwtPlotCurve::STYLE_SOLID, RiuQwtPlotCurve::STYLE_DASH};
     
     for (size_t i = 0; i < resultNames.size(); ++i)
     {
@@ -229,7 +229,7 @@ void RicNewWellBoreStabilityPlotFeature::createAnglesTrack(RimWellLogPlot* plot,
     
     std::vector<cvf::Color3f> colors = { cvf::Color3f::DARK_RED, cvf::Color3f::BLUE };
 
-    std::vector<RimPlotCurve::LineStyleEnum> lineStyles = { RimPlotCurve::STYLE_SOLID, RimPlotCurve::STYLE_DASH };
+    std::vector<RiuQwtPlotCurve::LineStyleEnum> lineStyles = { RiuQwtPlotCurve::STYLE_SOLID, RiuQwtPlotCurve::STYLE_DASH };
 
     for (size_t i = 0; i < resultNames.size(); ++i)
     {

@@ -40,7 +40,7 @@
 #include "RimSummaryTimeAxisProperties.h"
 
 #include "RiuFemTimeHistoryResultAccessor.h"
-#include "RiuLineSegmentQwtPlotCurve.h"
+#include "RiuQwtPlotCurve.h"
 #include "RiuSelectionManager.h"
 
 #include "qwt_plot.h"

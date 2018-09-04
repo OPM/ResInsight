@@ -42,7 +42,7 @@
 #include "RimSummaryTimeAxisProperties.h"
 #include "RimTools.h"
 
-#include "RiuLineSegmentQwtPlotCurve.h"
+#include "RiuQwtPlotCurve.h"
 #include "RiuPlotMainWindow.h"
 #include "RiuSummaryCurveDefSelectionDialog.h"
 #include "RiuSummaryQwtPlot.h"
@@ -713,17 +713,17 @@ void RimSummaryCurve::forceUpdateCurveAppearanceFromCaseType()
     {
         if (m_yValuesSummaryCase->isObservedData())
         {
-            setLineStyle(RimPlotCurve::STYLE_NONE);
+            setLineStyle(RiuQwtPlotCurve::STYLE_NONE);
 
-            if (symbol() == RimPlotCurve::SYMBOL_NONE)
+            if (symbol() == RiuQwtSymbol::SYMBOL_NONE)
             {
-                setSymbol(RimPlotCurve::SYMBOL_XCROSS);
+                setSymbol(RiuQwtSymbol::SYMBOL_XCROSS);
             }
         }
         else
         {
-            setLineStyle(RimPlotCurve::STYLE_SOLID);
-            setSymbol(RimPlotCurve::SYMBOL_NONE);
+            setLineStyle(RiuQwtPlotCurve::STYLE_SOLID);
+            setSymbol(RiuQwtSymbol::SYMBOL_NONE);
         }
     }
 }
@@ -779,8 +779,8 @@ void RimSummaryCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
         if (oldVal == nullptr && m_yValuesSummaryCase->isObservedData())
         {
             // If no previous case selected and observed data, use symbols to indicate observed data curve
-            setLineStyle(RimPlotCurve::STYLE_NONE);
-            setSymbol(RimPlotCurve::SYMBOL_XCROSS);
+            setLineStyle(RiuQwtPlotCurve::STYLE_NONE);
+            setSymbol(RiuQwtSymbol::SYMBOL_XCROSS);
         }
         plot->updateCaseNameHasChanged();
         this->onLoadDataAndUpdate(true);
@@ -986,11 +986,11 @@ void RimSummaryCurve::calculateCurveInterpolationFromAddress()
         auto address = m_yValuesCurveVariable()->address();
         if (address.hasAccumulatedData())
         {
-            m_curveInterpolation = INTERPOLATION_POINT_TO_POINT;
+            m_curveInterpolation = RiuQwtPlotCurve::INTERPOLATION_POINT_TO_POINT;
         }
         else
         {
-            m_curveInterpolation = INTERPOLATION_STEP_LEFT;
+            m_curveInterpolation = RiuQwtPlotCurve::INTERPOLATION_STEP_LEFT;
         }
     }
 }

@@ -30,7 +30,7 @@
 class RimFlowCharacteristicsPlot;
 class RiuNightchartsWidget;
 class RiuResultQwtPlot;
-class RiuLineSegmentQwtPlotCurve;
+class RiuQwtPlotCurve;
 
 class QLabel;
 
@@ -63,7 +63,7 @@ public:
     virtual RimViewWindow*          ownerViewWindow() const override;
 
     static void                        addWindowZoom(QwtPlot* plot);
-    static RiuLineSegmentQwtPlotCurve* createEmptyCurve(QwtPlot* plot, const QString& curveName, const QColor& curveColor);
+    static RiuQwtPlotCurve* createEmptyCurve(QwtPlot* plot, const QString& curveName, const QColor& curveColor);
 
 protected:
     virtual QSize                   sizeHint() const override;

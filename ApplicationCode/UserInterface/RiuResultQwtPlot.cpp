@@ -24,7 +24,7 @@
 #include "RimContextCommandBuilder.h"
 #include "RimCase.h"
 
-#include "RiuLineSegmentQwtPlotCurve.h"
+#include "RiuQwtPlotCurve.h"
 #include "RiuSummaryQwtPlot.h"
 #include "RiuTextDialog.h"
 
@@ -72,7 +72,7 @@ void RiuResultQwtPlot::addCurve(const RimCase* rimCase, const QString& curveName
         return;
     }
 
-    RiuLineSegmentQwtPlotCurve* plotCurve = new RiuLineSegmentQwtPlotCurve("Curve 1");
+    RiuQwtPlotCurve* plotCurve = new RiuQwtPlotCurve("Curve 1");
 
     plotCurve->setSamplesFromDatesAndYValues(dateTimes, timeHistoryValues, false);
     plotCurve->setTitle(curveName);

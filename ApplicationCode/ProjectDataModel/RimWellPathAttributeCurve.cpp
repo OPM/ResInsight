@@ -20,7 +20,7 @@
 
 #include "RimWellPathAttribute.h"
 
-#include "RiuLineSegmentQwtPlotCurve.h"
+#include "RiuQwtPlotCurve.h"
 
 #include "qwt_plot.h"
 
@@ -44,7 +44,7 @@ RimWellPathAttributeCurve::RimWellPathAttributeCurve(RimWellPathAttribute* wellP
     CAF_PDM_InitFieldNoDefault(&m_wellPathAttribute, "WellPathAttribute", "Well Attribute", "", "", "");
     m_wellPathAttribute.xmlCapability()->disableIO();
     m_wellPathAttribute = wellPathAttribute;
-    m_symbolLabelPosition = RiuCurveQwtSymbol::LabelRightOfSymbol;
+    m_symbolLabelPosition = RiuQwtSymbol::LabelRightOfSymbol;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -92,22 +92,26 @@ void RimWellPathAttributeCurve::onLoadDataAndUpdate(bool updateParentPlot)
         {
             if (m_curvePlotItem == LineCurve)
             {
-                setLineStyle(RimPlotCurve::STYLE_SOLID);
+                setLineStyle(RiuQwtPlotCurve::STYLE_SOLID);
                 setLineThickness(4);
-                setSymbol(RimPlotCurve::SYMBOL_NONE);
+                setSymbol(RiuQwtSymbol::SYMBOL_NONE);
                 xValues = { radius, radius };
                 yValues = { 0.0, m_wellPathAttribute->depthEnd() };
             }
             else if (m_curvePlotItem == MarkerSymbol)
             {
-                setLineStyle(RimPlotCurve::STYLE_NONE);
-                setLineThickness(0);
-                setSymbol(RimPlotCurve::SYMBOL_TRIANGLE);
-                setSymbolSize(16);
+                setLineStyle(RiuQwtPlotCurve::STYLE_NONE);
+                setLineThickness(4);
+                setSymbolSize(10);
                 
                 if (m_curvePlotPosition == PositiveSide)
                 {
+                    setSymbol(RiuQwtSymbol::SYMBOL_RIGHT_TRIANGLE);
                     setSymbolLabel(m_wellPathAttribute->diameterLabel());
+                }
+                else
+                {
+                    setSymbol(RiuQwtSymbol::SYMBOL_LEFT_TRIANGLE);
                 }
 
                 xValues = { radius };
@@ -116,7 +120,7 @@ void RimWellPathAttributeCurve::onLoadDataAndUpdate(bool updateParentPlot)
         }
         else if (m_wellPathAttribute->type() == RimWellPathAttribute::AttributeLiner)
         {
-            setLineStyle(RimPlotCurve::STYLE_DASH);
+            setLineStyle(RiuQwtPlotCurve::STYLE_DASH);
             setLineThickness(2);
 
             xValues = { radius, radius};

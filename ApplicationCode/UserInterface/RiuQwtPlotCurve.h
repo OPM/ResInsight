@@ -45,11 +45,27 @@ class RiuErrorBarsQwtPlotCurve;
 //  Values     1.0|2.0|inf|inf|inf|1.0|2.0|1.0|inf|1.0|1.0|inf|1.0|inf
 //  Vec index   0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10| 11| 12| 13
 //==================================================================================================
-class RiuLineSegmentQwtPlotCurve : public QwtPlotCurve
+class RiuQwtPlotCurve : public QwtPlotCurve
 {
 public:
-    explicit RiuLineSegmentQwtPlotCurve(const QString &title = QString::null);
-    virtual ~RiuLineSegmentQwtPlotCurve();
+    enum CurveInterpolationEnum
+    {
+        INTERPOLATION_POINT_TO_POINT,
+        INTERPOLATION_STEP_LEFT,
+    };
+
+    enum LineStyleEnum
+    {
+        STYLE_NONE,
+        STYLE_SOLID,
+        STYLE_DASH,
+        STYLE_DOT,
+        STYLE_DASH_DOT
+    };
+
+public:
+    explicit RiuQwtPlotCurve(const QString &title = QString::null);
+    virtual ~RiuQwtPlotCurve();
 
     void         setSamplesFromXValuesAndYValues(const std::vector<double>& xValues,
                                                  const std::vector<double>& yValues,
@@ -83,6 +99,11 @@ public:
     void         showErrorBars(bool show);
     void         setErrorBarsColor(QColor color);
 
+    void         setAppearance(LineStyleEnum lineStyle,
+                               CurveInterpolationEnum interpolationType,
+                               int curveThickness,
+                               const QColor& curveColor);
+
 protected:
     virtual void drawCurve(QPainter* p, int style,
                             const QwtScaleMap& xMap, const QwtScaleMap& yMap,
@@ -107,31 +128,4 @@ private:
     bool                    m_showErrorBars;
     QwtPlotIntervalCurve*   m_errorBars;
     QwtPlot*                m_attachedToPlot;
-};
-
-//--------------------------------------------------------------------------------------------------
-/// This class overrides renderSymbols to draw symbols and labels.
-/// The label is only visible in the legend, while it is clipped in the plot.
-/// Therefore the method RiuLineSegmentQwtPlotCurve::drawSymbols also draw labels to have labels
-/// in the plot as well.
-//--------------------------------------------------------------------------------------------------
-class RiuCurveQwtSymbol : public QwtSymbol
-{
-public:
-    enum LabelPosition
-    {
-        LabelAboveSymbol,
-        LabelRightOfSymbol
-    };
-    RiuCurveQwtSymbol(QwtSymbol::Style style, const QString& label, LabelPosition labelPosition = LabelAboveSymbol);
-
-    virtual void renderSymbols(QPainter *painter, const QPointF *points, int numPoints) const override;
-    void         renderSymbolLabel(QPainter *painter, const QPointF& position) const;
-    QString label() const { return m_label; }
-
-    void setLabelPosition(LabelPosition labelPosition);
-
-private:
-    QString       m_label;
-    LabelPosition m_labelPosition;
 };

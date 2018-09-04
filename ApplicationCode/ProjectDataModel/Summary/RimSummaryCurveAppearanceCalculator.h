@@ -64,7 +64,7 @@ public:
     static cvf::Color3f            cycledBlueColor(int colorIndex);
     static cvf::Color3f            cycledRedColor(int colorIndex);
     static cvf::Color3f            cycledBrownColor(int colorIndex);
-    static RimPlotCurve::PointSymbolEnum  cycledSymbol(int index);
+    static RiuQwtSymbol::PointSymbolEnum  cycledSymbol(int index);
 
 private:
     template<typename S>
@@ -74,7 +74,7 @@ private:
     std::map<std::string, size_t>  mapNameToAppearanceIndex(CurveAppearanceType & appearance, const std::set<std::string>& names);
 
 
-    RimPlotCurve::LineStyleEnum    cycledLineStyle(int index);
+    RiuQwtPlotCurve::LineStyleEnum    cycledLineStyle(int index);
     int                            cycledLineThickness(int index);
     float                          gradient(size_t totalCount, int index);
     

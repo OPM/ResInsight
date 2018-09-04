@@ -167,8 +167,8 @@ RicPasteAsciiDataToSummaryPlotFeatureUi::RicPasteAsciiDataToSummaryPlotFeatureUi
     CAF_PDM_InitField(&m_useCustomDateFormat, "UseCustomDateFormat", false, "Use Custom Date Time Format", "", "", "");
     CAF_PDM_InitField(&m_customDateTimeFormat,"CustomDateTimeFormat", QString(), "Custom Date Time Format", "", DATETIME_FORMAT_TOOLTIP, "");
 
-    CAF_PDM_InitField(&m_curveLineStyle, "LineStyle",                    caf::AppEnum<RimPlotCurve::LineStyleEnum>(RimPlotCurve::STYLE_NONE),       "Line Style", "", "", "");
-    CAF_PDM_InitField(&m_curveSymbol,    "Symbol",                       caf::AppEnum<RimPlotCurve::PointSymbolEnum>(RimPlotCurve::SYMBOL_ELLIPSE), "Symbol", "", "", "");
+    CAF_PDM_InitField(&m_curveLineStyle, "LineStyle",                    caf::AppEnum<RiuQwtPlotCurve::LineStyleEnum>(RiuQwtPlotCurve::STYLE_NONE),       "Line Style", "", "", "");
+    CAF_PDM_InitField(&m_curveSymbol,    "Symbol",                       caf::AppEnum<RiuQwtSymbol::PointSymbolEnum>(RiuQwtSymbol::SYMBOL_ELLIPSE), "Symbol", "", "", "");
     CAF_PDM_InitField(&m_curveSymbolSkipDistance, "SymbolSkipDinstance", 0.0f,                                                                      "Symbol Skip Distance", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_cellSeparator, "CellSeparator", "Cell Separator", "", "", "");

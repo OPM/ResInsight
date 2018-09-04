@@ -24,7 +24,7 @@
 #include "RimWellLogPlot.h"
 #include "RimWellLogTrack.h"
 
-#include "RiuLineSegmentQwtPlotCurve.h"
+#include "RiuQwtPlotCurve.h"
 #include "RiuWellLogTrack.h"
 
 #include "cafPdmUiComboBoxEditor.h"

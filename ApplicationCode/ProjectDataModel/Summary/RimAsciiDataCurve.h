@@ -36,7 +36,7 @@
 class RifReaderEclipseSummary;
 class RimSummaryCase;
 class RimSummaryFilter;
-class RiuLineSegmentQwtPlotCurve;
+class RiuQwtPlotCurve;
 class RimAsciiDataCurveAutoName;
 
 //==================================================================================================

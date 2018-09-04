@@ -19,7 +19,7 @@
 #include "RiuRelativePermeabilityPlotPanel.h"
 #include "RiuRelativePermeabilityPlotUpdater.h"
 #include "RiuSummaryQwtPlot.h"
-#include "RiuLineSegmentQwtPlotCurve.h"
+#include "RiuQwtPlotCurve.h"
 #include "RiuTextDialog.h"
 
 #include "RiaCurveDataTools.h"
@@ -315,7 +315,7 @@ void RiuRelativePermeabilityPlotPanel::plotCurvesInQwt(RiaEclipseUnitTools::Unit
         }
 
         //QwtPlotCurve* qwtCurve = new QwtPlotCurve(curve.name.c_str());
-        RiuLineSegmentQwtPlotCurve* qwtCurve = new RiuLineSegmentQwtPlotCurve(curve.name.c_str());
+        RiuQwtPlotCurve* qwtCurve = new RiuQwtPlotCurve(curve.name.c_str());
 
         CVF_ASSERT(curve.saturationVals.size() == curve.yVals.size());
         //qwtCurve->setSamples(curve.xVals.data(), curve.yVals.data(), static_cast<int>(curve.xVals.size()));

@@ -43,7 +43,7 @@
 #include "RimWellPath.h"
 #include "RimWellPlotTools.h"
 
-#include "RiuLineSegmentQwtPlotCurve.h"
+#include "RiuQwtPlotCurve.h"
 #include "RiuWellLogTrack.h"
 
 #include "cafPdmObject.h"

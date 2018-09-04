@@ -33,7 +33,7 @@
 #include "RimWellPlotTools.h"
 #include "RimWellRftPlot.h"
 
-#include "RiuLineSegmentQwtPlotCurve.h"
+#include "RiuQwtPlotCurve.h"
 #include "RiuWellLogTrack.h"
 
 #include "RiaApplication.h"

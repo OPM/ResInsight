@@ -34,7 +34,7 @@
 class RifSummaryReaderInterface;
 class RimSummaryCase;
 class RimSummaryFilter;
-class RiuLineSegmentQwtPlotCurve;
+class RiuQwtPlotCurve;
 class RimSummaryCurveAutoName;
 
 

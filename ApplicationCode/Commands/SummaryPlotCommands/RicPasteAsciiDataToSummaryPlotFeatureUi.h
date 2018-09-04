@@ -55,8 +55,8 @@ public:
 
     bool                    assumeNumericDataColumns;
 
-    RimPlotCurve::LineStyleEnum   curveLineStyle;
-    RimPlotCurve::PointSymbolEnum curveSymbol;
+    RiuQwtPlotCurve::LineStyleEnum   curveLineStyle;
+    RiuQwtSymbol::PointSymbolEnum curveSymbol;
     float                         curveSymbolSkipDistance;
 };
 
@@ -148,8 +148,8 @@ private:
     caf::PdmField<CellSeparatorEnum>                            m_cellSeparator;
     caf::PdmField<QString>                                      m_timeSeriesColumnName;
 
-    caf::PdmField<caf::AppEnum<RimPlotCurve::LineStyleEnum>>    m_curveLineStyle;
-    caf::PdmField<caf::AppEnum<RimPlotCurve::PointSymbolEnum>>  m_curveSymbol;
+    caf::PdmField<caf::AppEnum<RiuQwtPlotCurve::LineStyleEnum>>    m_curveLineStyle;
+    caf::PdmField<caf::AppEnum<RiuQwtSymbol::PointSymbolEnum>>  m_curveSymbol;
     caf::PdmField<float>                                        m_curveSymbolSkipDistance;
 
     bool                                                        m_createNewPlot;

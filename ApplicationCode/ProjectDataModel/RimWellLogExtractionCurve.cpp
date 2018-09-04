@@ -56,7 +56,7 @@
 #include "RimWellPathCollection.h"
 #include "RimWellPlotTools.h"
 
-#include "RiuLineSegmentQwtPlotCurve.h"
+#include "RiuQwtPlotCurve.h"
 #include "RiuWellLogTrack.h"
 
 #include "cafPdmUiTreeOrdering.h"

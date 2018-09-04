@@ -47,6 +47,7 @@
 #include "RimSummaryFilter.h"
 #include "RimSummaryPlot.h"
 
+#include "RiuQwtPlotCurve.h"
 #include "RiuPlotMainWindow.h"
 #include "RiuSummaryQwtPlot.h"
 #include "RiuSummaryCurveDefSelectionDialog.h"
@@ -71,8 +72,8 @@
 //--------------------------------------------------------------------------------------------------
 /// Internal functions
 //--------------------------------------------------------------------------------------------------
-RimPlotCurve::PointSymbolEnum statisticsCurveSymbolFromAddress(const RifEclipseSummaryAddress& address);
-int statisticsCurveSymbolSize(RimPlotCurve::PointSymbolEnum symbol);
+RiuQwtSymbol::PointSymbolEnum statisticsCurveSymbolFromAddress(const RifEclipseSummaryAddress& address);
+int statisticsCurveSymbolSize(RiuQwtSymbol::PointSymbolEnum symbol);
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -1027,7 +1028,7 @@ void RimEnsembleCurveSet::updateStatisticsCurves(const std::vector<RimSummaryCas
             curve->setSymbolLabel(RiaStatisticsTools::replacePercentileByPValueText(
                 QString::fromStdString(address.ensembleStatisticsQuantityName())));
         }
-        curve->setLineStyle(RimPlotCurve::STYLE_SOLID);
+        curve->setLineStyle(RiuQwtPlotCurve::STYLE_SOLID);
         curve->setSummaryCaseY(m_ensembleStatCase.get());
         curve->setSummaryAddressY(address);
         curve->setZOrder(1000);
@@ -1274,23 +1275,23 @@ void RimEnsembleCurveSet::updateLegendMappingMode()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimPlotCurve::PointSymbolEnum statisticsCurveSymbolFromAddress(const RifEclipseSummaryAddress& address)
+RiuQwtSymbol::PointSymbolEnum statisticsCurveSymbolFromAddress(const RifEclipseSummaryAddress& address)
 {
     auto qName = QString::fromStdString(address.quantityName());
 
-    if (qName.contains(ENSEMBLE_STAT_P10_QUANTITY_NAME)) return RimPlotCurve::SYMBOL_TRIANGLE;
-    if (qName.contains(ENSEMBLE_STAT_P90_QUANTITY_NAME)) return RimPlotCurve::SYMBOL_DOWN_TRIANGLE;
-    if (qName.contains(ENSEMBLE_STAT_P50_QUANTITY_NAME)) return RimPlotCurve::SYMBOL_DIAMOND;
-    return RimPlotCurve::SYMBOL_ELLIPSE;
+    if (qName.contains(ENSEMBLE_STAT_P10_QUANTITY_NAME)) return RiuQwtSymbol::SYMBOL_TRIANGLE;
+    if (qName.contains(ENSEMBLE_STAT_P90_QUANTITY_NAME)) return RiuQwtSymbol::SYMBOL_DOWN_TRIANGLE;
+    if (qName.contains(ENSEMBLE_STAT_P50_QUANTITY_NAME)) return RiuQwtSymbol::SYMBOL_DIAMOND;
+    return RiuQwtSymbol::SYMBOL_ELLIPSE;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-int statisticsCurveSymbolSize(RimPlotCurve::PointSymbolEnum symbol)
+int statisticsCurveSymbolSize(RiuQwtSymbol::PointSymbolEnum symbol)
 {
-    if (symbol == RimPlotCurve::SYMBOL_DIAMOND) return 8;
-    if (symbol == RimPlotCurve::SYMBOL_TRIANGLE) return 7;
-    if (symbol == RimPlotCurve::SYMBOL_DOWN_TRIANGLE) return 7;
+    if (symbol == RiuQwtSymbol::SYMBOL_DIAMOND) return 8;
+    if (symbol == RiuQwtSymbol::SYMBOL_TRIANGLE) return 7;
+    if (symbol == RiuQwtSymbol::SYMBOL_DOWN_TRIANGLE) return 7;
     return 6;
 }

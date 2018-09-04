@@ -17,10 +17,12 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RiuLineSegmentQwtPlotCurve.h"
+#include "RiuQwtPlotCurve.h"
+
+#include "RiaCurveDataTools.h"
+#include "RiuQwtSymbol.h"
 
 #include "qwt_symbol.h"
-#include "RiaCurveDataTools.h"
 #include "qwt_date.h"
 #include "qwt_point_mapper.h"
 #include "qwt_painter.h"
@@ -38,7 +40,7 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RiuLineSegmentQwtPlotCurve::RiuLineSegmentQwtPlotCurve(const QString &title)
+RiuQwtPlotCurve::RiuQwtPlotCurve(const QString &title)
     : QwtPlotCurve(title)
 {
     this->setLegendAttribute(QwtPlotCurve::LegendShowLine, true);
@@ -61,14 +63,14 @@ RiuLineSegmentQwtPlotCurve::RiuLineSegmentQwtPlotCurve(const QString &title)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RiuLineSegmentQwtPlotCurve::~RiuLineSegmentQwtPlotCurve()
+RiuQwtPlotCurve::~RiuQwtPlotCurve()
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuLineSegmentQwtPlotCurve::setSamplesFromXValuesAndYValues(const std::vector<double>& xValues, const std::vector<double>& yValues, const std::vector<double>& yErrorValues, bool keepOnlyPositiveValues)
+void RiuQwtPlotCurve::setSamplesFromXValuesAndYValues(const std::vector<double>& xValues, const std::vector<double>& yValues, const std::vector<double>& yErrorValues, bool keepOnlyPositiveValues)
 {
     CVF_ASSERT(xValues.size() == yValues.size());
     CVF_ASSERT(yErrorValues.empty() || yErrorValues.size() == xValues.size());
@@ -115,7 +117,7 @@ void RiuLineSegmentQwtPlotCurve::setSamplesFromXValuesAndYValues(const std::vect
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuLineSegmentQwtPlotCurve::setSamplesFromXValuesAndYValues(const std::vector<double>& xValues, const std::vector<double>& yValues, bool keepOnlyPositiveValues)
+void RiuQwtPlotCurve::setSamplesFromXValuesAndYValues(const std::vector<double>& xValues, const std::vector<double>& yValues, bool keepOnlyPositiveValues)
 {
     setSamplesFromXValuesAndYValues(xValues, yValues, std::vector<double>(), keepOnlyPositiveValues);
 }
@@ -123,31 +125,31 @@ void RiuLineSegmentQwtPlotCurve::setSamplesFromXValuesAndYValues(const std::vect
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuLineSegmentQwtPlotCurve::setSamplesFromDatesAndYValues(const std::vector<QDateTime>& dateTimes, const std::vector<double>& yValues, bool keepOnlyPositiveValues)
+void RiuQwtPlotCurve::setSamplesFromDatesAndYValues(const std::vector<QDateTime>& dateTimes, const std::vector<double>& yValues, bool keepOnlyPositiveValues)
 {
-    setSamplesFromXValuesAndYValues(RiuLineSegmentQwtPlotCurve::fromQDateTime(dateTimes), yValues, std::vector<double>(), keepOnlyPositiveValues);
+    setSamplesFromXValuesAndYValues(RiuQwtPlotCurve::fromQDateTime(dateTimes), yValues, std::vector<double>(), keepOnlyPositiveValues);
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuLineSegmentQwtPlotCurve::setSamplesFromTimeTAndYValues(const std::vector<time_t>& dateTimes, const std::vector<double>& yValues, bool keepOnlyPositiveValues)
+void RiuQwtPlotCurve::setSamplesFromTimeTAndYValues(const std::vector<time_t>& dateTimes, const std::vector<double>& yValues, bool keepOnlyPositiveValues)
 {
-    setSamplesFromXValuesAndYValues(RiuLineSegmentQwtPlotCurve::fromTime_t(dateTimes), yValues, std::vector<double>(), keepOnlyPositiveValues);
+    setSamplesFromXValuesAndYValues(RiuQwtPlotCurve::fromTime_t(dateTimes), yValues, std::vector<double>(), keepOnlyPositiveValues);
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuLineSegmentQwtPlotCurve::setSamplesFromTimeTAndYValues(const std::vector<time_t>& dateTimes, const std::vector<double>& yValues, const std::vector<double>& yErrorValues, bool keepOnlyPositiveValues)
+void RiuQwtPlotCurve::setSamplesFromTimeTAndYValues(const std::vector<time_t>& dateTimes, const std::vector<double>& yValues, const std::vector<double>& yErrorValues, bool keepOnlyPositiveValues)
 {
-    setSamplesFromXValuesAndYValues(RiuLineSegmentQwtPlotCurve::fromTime_t(dateTimes), yValues, yErrorValues, keepOnlyPositiveValues);
+    setSamplesFromXValuesAndYValues(RiuQwtPlotCurve::fromTime_t(dateTimes), yValues, yErrorValues, keepOnlyPositiveValues);
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuLineSegmentQwtPlotCurve::drawCurve(QPainter* p, int style,
+void RiuQwtPlotCurve::drawCurve(QPainter* p, int style,
     const QwtScaleMap& xMap, const QwtScaleMap& yMap,
     const QRectF& canvasRect, int from, int to) const
 {
@@ -181,7 +183,7 @@ void RiuLineSegmentQwtPlotCurve::drawCurve(QPainter* p, int style,
 //--------------------------------------------------------------------------------------------------
 /// Drawing symbols but skipping if they are to close to the previous one
 //--------------------------------------------------------------------------------------------------
-void RiuLineSegmentQwtPlotCurve::drawSymbols(QPainter *painter, const QwtSymbol &symbol, 
+void RiuQwtPlotCurve::drawSymbols(QPainter *painter, const QwtSymbol &symbol, 
                                             const QwtScaleMap &xMap, const QwtScaleMap &yMap, 
                                             const QRectF &canvasRect, int from, int to) const
 {
@@ -237,7 +239,7 @@ void RiuLineSegmentQwtPlotCurve::drawSymbols(QPainter *painter, const QwtSymbol 
     {
         symbol.drawSymbols(painter, pointsToDisplay);
 
-        const RiuCurveQwtSymbol* sym = dynamic_cast<const RiuCurveQwtSymbol*>(&symbol);
+        const RiuQwtSymbol* sym = dynamic_cast<const RiuQwtSymbol*>(&symbol);
 
         if (sym && !sym->label().isEmpty())
         {
@@ -252,7 +254,7 @@ void RiuLineSegmentQwtPlotCurve::drawSymbols(QPainter *painter, const QwtSymbol 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuLineSegmentQwtPlotCurve::setLineSegmentStartStopIndices(const std::vector< std::pair<size_t, size_t> >& lineSegmentStartStopIndices)
+void RiuQwtPlotCurve::setLineSegmentStartStopIndices(const std::vector< std::pair<size_t, size_t> >& lineSegmentStartStopIndices)
 {
     m_polyLineStartStopIndices = lineSegmentStartStopIndices;
 }
@@ -260,7 +262,7 @@ void RiuLineSegmentQwtPlotCurve::setLineSegmentStartStopIndices(const std::vecto
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuLineSegmentQwtPlotCurve::setSymbolSkipPixelDistance(float distance)
+void RiuQwtPlotCurve::setSymbolSkipPixelDistance(float distance)
 {
     m_symbolSkipPixelDistance = distance >= 0.0f ? distance: 0.0f;
 }
@@ -268,7 +270,7 @@ void RiuLineSegmentQwtPlotCurve::setSymbolSkipPixelDistance(float distance)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuLineSegmentQwtPlotCurve::attach(QwtPlot *plot)
+void RiuQwtPlotCurve::attach(QwtPlot *plot)
 {
     QwtPlotItem::attach(plot);
     if(m_showErrorBars) m_errorBars->attach(plot);
@@ -278,7 +280,7 @@ void RiuLineSegmentQwtPlotCurve::attach(QwtPlot *plot)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuLineSegmentQwtPlotCurve::detach()
+void RiuQwtPlotCurve::detach()
 {
     QwtPlotItem::detach();
     m_errorBars->detach();
@@ -288,7 +290,7 @@ void RiuLineSegmentQwtPlotCurve::detach()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuLineSegmentQwtPlotCurve::clearErrorBars()
+void RiuQwtPlotCurve::clearErrorBars()
 {
     m_errorBars->setSamples(nullptr);
 }
@@ -296,7 +298,7 @@ void RiuLineSegmentQwtPlotCurve::clearErrorBars()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuLineSegmentQwtPlotCurve::showErrorBars(bool show)
+void RiuQwtPlotCurve::showErrorBars(bool show)
 {
     m_showErrorBars = show;
     if (m_showErrorBars && m_attachedToPlot)    m_errorBars->attach(m_attachedToPlot);
@@ -306,7 +308,7 @@ void RiuLineSegmentQwtPlotCurve::showErrorBars(bool show)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuLineSegmentQwtPlotCurve::setErrorBarsColor(QColor color)
+void RiuQwtPlotCurve::setErrorBarsColor(QColor color)
 {
     QwtIntervalSymbol* newSymbol = new QwtIntervalSymbol(QwtIntervalSymbol::Bar);
     newSymbol->setPen(QPen(color));
@@ -314,9 +316,61 @@ void RiuLineSegmentQwtPlotCurve::setErrorBarsColor(QColor color)
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuQwtPlotCurve::setAppearance(LineStyleEnum          lineStyle,
+                                               CurveInterpolationEnum interpolationType,
+                                               int                    curveThickness,
+                                               const QColor&          curveColor)
+{
+    QwtPlotCurve::CurveStyle curveStyle = QwtPlotCurve::NoCurve;
+    Qt::PenStyle penStyle = Qt::SolidLine;
+
+    if (lineStyle != STYLE_NONE)
+    {
+        switch (interpolationType)
+        {
+        case INTERPOLATION_STEP_LEFT:
+            curveStyle = QwtPlotCurve::Steps;
+            setCurveAttribute(QwtPlotCurve::Inverted, false);
+            break;
+        case INTERPOLATION_POINT_TO_POINT: // Fall through
+        default:
+            curveStyle = QwtPlotCurve::Lines;
+            break;
+        }
+
+        switch (lineStyle)
+        {
+        case STYLE_SOLID:
+            penStyle = Qt::SolidLine;
+            break;
+        case STYLE_DASH:
+            penStyle = Qt::DashLine;
+            break;
+        case STYLE_DOT:
+            penStyle = Qt::DotLine;
+            break;
+        case STYLE_DASH_DOT:
+            penStyle = Qt::DashDotLine;
+            break;
+
+        default:
+            break;
+        }
+    }
+    QPen curvePen(curveColor);
+    curvePen.setWidth(curveThickness);
+    curvePen.setStyle(penStyle);
+
+    setPen(curvePen);
+    setStyle(curveStyle);
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<double> RiuLineSegmentQwtPlotCurve::fromQDateTime(const std::vector<QDateTime>& dateTimes)
+std::vector<double> RiuQwtPlotCurve::fromQDateTime(const std::vector<QDateTime>& dateTimes)
 {
     std::vector<double> doubleValues;
 
@@ -336,7 +390,7 @@ std::vector<double> RiuLineSegmentQwtPlotCurve::fromQDateTime(const std::vector<
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<double> RiuLineSegmentQwtPlotCurve::fromTime_t(const std::vector<time_t>& timeSteps)
+std::vector<double> RiuQwtPlotCurve::fromTime_t(const std::vector<time_t>& timeSteps)
 {
     std::vector<double> doubleValues;
 
@@ -352,51 +406,4 @@ std::vector<double> RiuLineSegmentQwtPlotCurve::fromTime_t(const std::vector<tim
     }
 
     return doubleValues;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// Internal class to support labels on symbols
-//--------------------------------------------------------------------------------------------------
-RiuCurveQwtSymbol::RiuCurveQwtSymbol(QwtSymbol::Style style, const QString& label, LabelPosition labelPosition)
-    : QwtSymbol(style), m_label(label), m_labelPosition(labelPosition)
-{ 
-}
-
-void RiuCurveQwtSymbol::renderSymbols(QPainter *painter, const QPointF *points, int numPoints) const
-{
-    QwtSymbol::renderSymbols(painter, points, numPoints);
-
-    if (!m_label.isEmpty())
-    {
-        for (int i = 0; i < numPoints; i++)
-        {
-            auto position = points[i];
-            renderSymbolLabel(painter, position);
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiuCurveQwtSymbol::renderSymbolLabel(QPainter *painter, const QPointF& position) const
-{
-    int symbolWidth = this->size().width();
-    int labelWidth = painter->fontMetrics().width(m_label);
-    if (m_labelPosition == LabelAboveSymbol)
-    {
-        painter->drawText(position.x() - labelWidth / 2, position.y() - 5, m_label);
-    }
-    else if (m_labelPosition == LabelRightOfSymbol)
-    {
-        painter->drawText(position.x() + symbolWidth / 2 + 1, position.y(), m_label);
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiuCurveQwtSymbol::setLabelPosition(LabelPosition labelPosition)
-{
-    m_labelPosition = labelPosition;
 }
