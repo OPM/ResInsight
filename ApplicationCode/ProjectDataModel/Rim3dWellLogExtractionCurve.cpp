@@ -388,6 +388,7 @@ bool Rim3dWellLogExtractionCurve::isShowingTimeDependentResult() const
     {
         return m_geomResultDefinition->hasResult();
     }
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------
