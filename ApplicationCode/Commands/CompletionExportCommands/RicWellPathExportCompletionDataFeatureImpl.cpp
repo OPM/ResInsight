@@ -2132,7 +2132,7 @@ cvf::Vec2i RicWellPathExportCompletionDataFeatureImpl::wellPathUpperGridIntersec
     std::vector<WellPathCellIntersectionInfo> intersections =
         RigWellPathIntersectionTools::findCellIntersectionInfosAlongPath(caseData, coords, mds);
 
-    size_t gridId = 0;
+    int gridId = 0;
 
     if (!gridName.isEmpty())
     {

@@ -313,7 +313,7 @@ std::vector<LocationForNewFracture> RiuCreateMultipleFractionsUi::locationsForNe
                 double  lastFracMd = mdOfWellPathTip;
                 
                 // Iterate options which are sorted from deeper to shallower
-                for(int i = 0; i < options.size(); i++)
+                for(size_t i = 0; i < options.size(); i++)
                 {
                     const auto& option = options[i];
                     double fracMdCandidate;
