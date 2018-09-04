@@ -41,7 +41,7 @@ public:
     RimFractureTemplate* fractureTemplate() const;
     double               minimumSpacing() const;
 
-    bool                isKLayerContained(int k) const;
+    bool                isKLayerContained(int oneBasedK) const;
 
 private:
     virtual void

@@ -88,12 +88,12 @@ double RicCreateMultipleFracturesOptionItemUi::minimumSpacing() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicCreateMultipleFracturesOptionItemUi::isKLayerContained(int k) const
+bool RicCreateMultipleFracturesOptionItemUi::isKLayerContained(int oneBasedK) const
 {
     auto minMax = std::minmax(m_topKOneBased, m_baseKOneBased);
 
-    if (k < minMax.first) return false;
-    if (k < minMax.second) return true;
+    if (oneBasedK < minMax.first) return false;
+    if (oneBasedK <= minMax.second) return true;
 
     return false;
 }
