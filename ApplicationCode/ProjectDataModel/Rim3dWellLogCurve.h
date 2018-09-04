@@ -66,8 +66,8 @@ public:
 
     cvf::Color3f    color() const;
     bool            isShowingCurve() const;
-    virtual bool    isShowingTimeDependentResultInView(const Rim3dView* gridView) const { return showInView(gridView); }
-    virtual bool    showInView(const Rim3dView* gridView) const { return isShowingCurve(); }
+    virtual bool    isShowingTimeDependentResult() const { return isShowingCurve(); }
+    virtual bool    showInView(const Rim3dView* gridView) const                         { return isShowingCurve(); }
     virtual bool    followAnimationTimeStep() const { return false;  }
     virtual void    curveValuesAndMds(std::vector<double>* values, std::vector<double>* measuredDepthValues) const = 0;
     virtual void    curveValuesAndMdsAtTimeStep(std::vector<double>* values, std::vector<double>* measuredDepthValues, int timeStep) const;

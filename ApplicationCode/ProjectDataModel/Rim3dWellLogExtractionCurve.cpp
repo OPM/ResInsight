@@ -378,20 +378,16 @@ double Rim3dWellLogExtractionCurve::rkbDiff() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool Rim3dWellLogExtractionCurve::isShowingTimeDependentResultInView(const Rim3dView* gridView) const
+bool Rim3dWellLogExtractionCurve::isShowingTimeDependentResult() const
 {
-    if (showInView(gridView))
+    if (dynamic_cast<const RimEclipseCase*>(m_case()))
     {
-        if (dynamic_cast<const RimEclipseCase*>(m_case()))
-        {
-            return m_eclipseResultDefinition->hasDynamicResult();
-        }
-        else if (dynamic_cast<const RimGeoMechCase*>(m_case()))
-        {
-            return m_geomResultDefinition->hasResult();
-        }
+        return m_eclipseResultDefinition->hasDynamicResult();
     }
-    return false;
+    else if (dynamic_cast<const RimGeoMechCase*>(m_case()))
+    {
+        return m_geomResultDefinition->hasResult();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

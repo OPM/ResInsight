@@ -88,9 +88,8 @@ void Riv3dWellLogPlanePartMgr::appendPlaneToModel(cvf::ModelBasicList*          
     }
     for (Rim3dWellLogCurve* rim3dWellLogCurve : m_wellPath->rim3dWellLogCurveCollection()->vectorOf3dWellLogCurves())
     {
-        if (rim3dWellLogCurve->isShowingTimeDependentResultInView(m_gridView) != isStaticResult)
+        if (rim3dWellLogCurve->showInView(m_gridView) && rim3dWellLogCurve->isShowingTimeDependentResult() != isStaticResult)
         {
-
             append3dWellLogCurveToModel(model,
                                         displayCoordTransform,
                                         wellPathClipBoundingBox,

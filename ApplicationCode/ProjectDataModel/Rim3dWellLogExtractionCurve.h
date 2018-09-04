@@ -54,7 +54,7 @@ public:
     virtual QString createAutoName() const override;
     double          rkbDiff() const;
 
-    virtual bool    isShowingTimeDependentResultInView(const Rim3dView* gridView) const override;
+    virtual bool    isShowingTimeDependentResult() const override;
 
     virtual bool    showInView(const Rim3dView* gridView) const override;
 

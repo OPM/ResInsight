@@ -419,7 +419,7 @@ bool Rim3dView::hasVisibleTimeStepDependent3dWellLogCurves() const
     wellPathCollection()->descendantsIncludingThisOfType(wellLogCurves);
     for (const Rim3dWellLogCurve* curve : wellLogCurves)
     {
-        if (curve->isShowingTimeDependentResultInView(this))
+        if (curve->showInView(this) && curve->isShowingTimeDependentResult())
         {
             return true;
         }
