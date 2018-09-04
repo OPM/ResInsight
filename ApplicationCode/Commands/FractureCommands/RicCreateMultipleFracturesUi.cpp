@@ -23,6 +23,8 @@
 #include "RigEclipseCaseData.h"
 #include "RigMainGrid.h"
 #include "RigWellPath.h"
+#include "RigWellPathIntersectionTools.h"
+#include "RigWellLogExtractor.h"
 
 #include "RimEclipseCase.h"
 #include "RimFractureTemplate.h"
@@ -36,7 +38,33 @@
 
 #include "cvfBoundingBox.h"
 
+#include <algorithm>
+
 CAF_PDM_SOURCE_INIT(RiuCreateMultipleFractionsUi, "RiuCreateMultipleFractionsUi");
+
+//--------------------------------------------------------------------------------------------------
+/// Internal definitions
+//--------------------------------------------------------------------------------------------------
+#define DOUBLE_INF  std::numeric_limits<double>::infinity()
+
+// startMd > endMd (going upwards along well path)
+class MultipleFracturesOption
+{
+public:
+    MultipleFracturesOption() : startMd(0), endMd(0), startK(0), endK(0), uiOption(nullptr) {}
+    double startMd;
+    double endMd;
+    size_t startK;
+    size_t endK;
+    RicCreateMultipleFracturesOptionItemUi* uiOption;
+};
+
+std::vector<MultipleFracturesOption> fractureOptions(const RigEclipseCaseData* caseData,
+                                                     const RimWellPath* wellPath,
+                                                     const std::vector<RicCreateMultipleFracturesOptionItemUi*>& allUiOptions);
+RicCreateMultipleFracturesOptionItemUi* firstUiOptionContainingK(size_t k,
+                                                                 const std::vector<RicCreateMultipleFracturesOptionItemUi*>& allUiOptions);
+
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -274,67 +302,138 @@ std::vector<LocationForNewFracture> RiuCreateMultipleFractionsUi::locationsForNe
 
     if (mainGrid)
     {
-        //std::vector<RimWellPath*> selWells = caf::selectedObjectsByTypeStrict<RimWellPath*>();
-
         for (auto w : m_wellPaths)
         {
+            int fractureCountForWell = 0;
             auto wellPathGeometry = w->wellPathGeometry();
             if (wellPathGeometry)
             {
-                auto mdOfWellPathTip = wellPathGeometry->measureDepths().back();
-
-                int fractureCountForWell = 0;
-
-                for (const auto& option : m_options)
+                auto    options = fractureOptions(m_sourceCase->eclipseCaseData(), w, this->options());
+                auto    mdOfWellPathTip = wellPathGeometry->measureDepths().back();
+                double  lastFracMd = mdOfWellPathTip;
+                
+                // Iterate options which are sorted from deeper to shallower
+                for(int i = 0; i < options.size(); i++)
                 {
-                    double currentMeasuredDepth = mdOfWellPathTip - m_minDistanceFromWellTd;
-
-                    bool continueSearch = true;
-                    if (fractureCountForWell >= m_maxFracturesPerWell)
+                    const auto& option = options[i];
+                    double fracMdCandidate;
+                    if(i == 0)
                     {
-                        continueSearch = false;
+                        fracMdCandidate = mdOfWellPathTip - m_minDistanceFromWellTd;
+                    }
+                    else
+                    {
+                        double spacing = std::max(options[i - 1].uiOption->minimumSpacing(), option.uiOption->minimumSpacing());
+                        fracMdCandidate = lastFracMd - spacing;
                     }
 
-                    while (continueSearch)
+                    if (fracMdCandidate > option.startMd) fracMdCandidate = option.startMd;
+
+                    while (fracMdCandidate > option.endMd)
                     {
-                        auto locationInDomainCoords = wellPathGeometry->interpolatedPointAlongWellPath(currentMeasuredDepth);
+                        items.push_back(LocationForNewFracture(option.uiOption->fractureTemplate(), w, fracMdCandidate));
+                        lastFracMd = fracMdCandidate;
+                        fracMdCandidate -= option.uiOption->minimumSpacing();
+                        fractureCountForWell++;
 
-                        size_t reservoirGlobalCellIndex = mainGrid->findReservoirCellIndexFromPoint(locationInDomainCoords);
-
-                        if (reservoirGlobalCellIndex != cvf::UNDEFINED_SIZE_T)
-                        {
-                            size_t i;
-                            size_t j;
-                            size_t k;
-                            mainGrid->ijkFromCellIndex(reservoirGlobalCellIndex, &i, &j, &k);
-
-                            int oneBasedK = static_cast<int>(k) + 1;
-                            if (option->isKLayerContained(oneBasedK))
-                            {
-                                if (option->fractureTemplate())
-                                {
-                                    items.push_back(LocationForNewFracture(option->fractureTemplate(), w, currentMeasuredDepth));
-                                    fractureCountForWell++;
-                                }
-                            }
-                        }
-
-                        currentMeasuredDepth -= option->minimumSpacing();
-
-                        if (currentMeasuredDepth < 0)
-                        {
-                            continueSearch = false;
-                        }
-
-                        if (fractureCountForWell >= m_maxFracturesPerWell)
-                        {
-                            continueSearch = false;
-                        }
+                        if (fractureCountForWell >= m_maxFracturesPerWell) break;
                     }
+
+                    if (fractureCountForWell >= m_maxFracturesPerWell) break;
                 }
             }
         }
     }
 
     return items;
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// Internal definitions
+//--------------------------------------------------------------------------------------------------
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<MultipleFracturesOption> fractureOptions(const RigEclipseCaseData* caseData,
+                                                     const RimWellPath* wellPath,
+                                                     const std::vector<RicCreateMultipleFracturesOptionItemUi*>& allUiOptions)
+{
+    std::vector<MultipleFracturesOption> options;
+
+    if (!caseData->mainGrid()) return options;
+
+    auto wellPathGeometry = wellPath->wellPathGeometry();
+
+    std::vector<WellPathCellIntersectionInfo> wellPathInfos =
+        RigWellPathIntersectionTools::findCellIntersectionInfosAlongPath(caseData,
+                                                                         wellPathGeometry->wellPathPoints(),
+                                                                         wellPathGeometry->measureDepths());
+    std::reverse(wellPathInfos.begin(), wellPathInfos.end());
+
+    bool doCreateNewOption = true;
+    for (const auto& wellPathInfo : wellPathInfos)
+    {
+        size_t i, j, currK;
+
+        if(!caseData->mainGrid()->ijkFromCellIndex(wellPathInfo.globCellIndex, &i, &j, &currK)) continue;
+
+        RicCreateMultipleFracturesOptionItemUi* uiOption = firstUiOptionContainingK(currK, allUiOptions);
+
+        if (!uiOption)
+        {
+            doCreateNewOption = true;
+            continue;
+        }
+        else if (options.empty() || options.back().uiOption != uiOption)
+        {
+            doCreateNewOption = true;
+        }
+
+        if (doCreateNewOption)
+        {
+            // New option
+            MultipleFracturesOption option;
+
+            option.startMd = wellPathInfo.endMD;  // Deeper MD
+            option.endMd = wellPathInfo.startMD;  // Upper MD
+
+            option.startK = currK;
+            option.endK = currK;
+
+            option.uiOption = uiOption;
+            options.push_back(option);
+
+            doCreateNewOption = false;
+        }
+        else
+        {
+            // Update existing option
+            MultipleFracturesOption& option = options.back();
+
+            option.endMd = wellPathInfo.startMD;  // Upper MD
+            option.startK = std::max(option.startK, currK);
+            option.endK = std::min(option.endK, currK);
+        }
+    }
+
+    return options;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RicCreateMultipleFracturesOptionItemUi* firstUiOptionContainingK(size_t k,
+                                                                 const std::vector<RicCreateMultipleFracturesOptionItemUi*>& allUiOptions)
+{
+    for (auto uiOption : allUiOptions)
+    {
+        int oneBasedK = static_cast<int>(k) + 1;
+        if (uiOption->isKLayerContained(oneBasedK) && uiOption->fractureTemplate())
+        {
+            return uiOption;
+        }
+    }
+    return nullptr;
 }
