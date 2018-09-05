@@ -957,10 +957,11 @@ void RimWellLogTrack::applyXZoomFromVisibleRange()
     }
     else if (m_wellPathAttributeCollection)
     {
-        attributeRangeMin = attributeRangeMax;
+        attributeRangeMax = 0.75 * RimWellPathAttribute::MAX_DIAMETER_IN_INCHES;
+        attributeRangeMin = 0.5  * RimWellPathAttribute::MAX_DIAMETER_IN_INCHES;
         for (const RimWellPathAttribute* attribute : m_wellPathAttributeCollection->attributes())
         {
- 	       attributeRangeMin = std::max(attributeRangeMin, attribute->diameterInInches() * 0.5);
+ 	       attributeRangeMin = std::min(attributeRangeMin, attribute->diameterInInches() * 0.5);
         }
     }
     m_wellLogTrackPlotWidget->setXRange(attributeRangeMin, attributeRangeMax, QwtPlot::xBottom);
