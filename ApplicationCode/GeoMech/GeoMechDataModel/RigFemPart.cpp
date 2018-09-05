@@ -393,7 +393,7 @@ size_t RigFemPart::resultValueIdxFromResultPosType(RigFemResultPosEnum resultPos
 {
     if (resultPosType == RIG_ELEMENT || resultPosType == RIG_FORMATION_NAMES)
     {
-        CVF_ASSERT(elementIdx < m_elementId.size());
+        CVF_ASSERT(elementIdx < static_cast<int>(m_elementId.size()));
         return elementIdx;
     }
 
