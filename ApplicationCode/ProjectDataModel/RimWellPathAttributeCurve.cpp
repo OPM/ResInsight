@@ -18,8 +18,11 @@
 
 #include "RimWellPathAttributeCurve.h"
 
+#include "RimWellLogPlot.h"
 #include "RimWellPathAttribute.h"
+#include "RimWellPath.h"
 
+#include "RigWellPath.h"
 #include "RiuQwtPlotCurve.h"
 
 #include "qwt_plot.h"
@@ -81,8 +84,24 @@ void RimWellPathAttributeCurve::onLoadDataAndUpdate(bool updateParentPlot)
 
     std::vector<double> xValues;
     std::vector<double> yValues;
+
+    RimWellLogPlot* plot = nullptr;
+    firstAncestorOrThisOfTypeAsserted(plot);
+    RimWellLogPlot::DepthTypeEnum depthType = plot->depthType();
+
     if (m_wellPathAttribute)
     {
+        RimWellPath* wellPath = nullptr;
+        m_wellPathAttribute->firstAncestorOrThisOfTypeAsserted(wellPath);
+        cvf::Vec3d startPoint = wellPath->wellPathGeometry()->interpolatedPointAlongWellPath(m_wellPathAttribute->depthStart());
+        cvf::Vec3d endPoint = wellPath->wellPathGeometry()->interpolatedPointAlongWellPath(m_wellPathAttribute->depthEnd());
+
+        double startTVD = -startPoint.z();
+        double endTVD = -endPoint.z();
+
+        double startDepth = depthType == RimWellLogPlot::TRUE_VERTICAL_DEPTH ? startTVD : m_wellPathAttribute->depthStart();
+        double endDepth   = depthType == RimWellLogPlot::TRUE_VERTICAL_DEPTH ? endTVD   : m_wellPathAttribute->depthEnd();
+
         setCustomName(m_wellPathAttribute->label());
 
         double sign = m_curvePlotPosition == PositiveSide ? 1.0 : -1.0;
@@ -96,7 +115,7 @@ void RimWellPathAttributeCurve::onLoadDataAndUpdate(bool updateParentPlot)
                 setLineThickness(4);
                 setSymbol(RiuQwtSymbol::SYMBOL_NONE);
                 xValues = { radius, radius };
-                yValues = { 0.0, m_wellPathAttribute->depthEnd() };
+                yValues = { startDepth, endDepth };
             }
             else if (m_curvePlotItem == MarkerSymbol)
             {
@@ -115,7 +134,7 @@ void RimWellPathAttributeCurve::onLoadDataAndUpdate(bool updateParentPlot)
                 }
 
                 xValues = { radius };
-                yValues = { m_wellPathAttribute->depthEnd() };
+                yValues = { endDepth };
             }
         }
         else if (m_wellPathAttribute->type() == RimWellPathAttribute::AttributeLiner)
@@ -124,7 +143,7 @@ void RimWellPathAttributeCurve::onLoadDataAndUpdate(bool updateParentPlot)
             setLineThickness(2);
 
             xValues = { radius, radius};
-            yValues = { m_wellPathAttribute->depthStart(), m_wellPathAttribute->depthEnd() };
+            yValues = { startDepth, endDepth };
         }
     }
     if (!xValues.empty())
@@ -147,8 +166,23 @@ bool RimWellPathAttributeCurve::yValueRange(double* minimumValue, double* maximu
 {
     if (m_wellPathAttribute)
     {
-        *minimumValue = m_wellPathAttribute->depthStart();
-        *maximumValue = m_wellPathAttribute->depthEnd();
+        RimWellLogPlot* plot = nullptr;
+        firstAncestorOrThisOfTypeAsserted(plot);
+        RimWellLogPlot::DepthTypeEnum depthType = plot->depthType();
+
+        RimWellPath* wellPath = nullptr;
+        m_wellPathAttribute->firstAncestorOrThisOfTypeAsserted(wellPath);
+        cvf::Vec3d startPoint = wellPath->wellPathGeometry()->interpolatedPointAlongWellPath(m_wellPathAttribute->depthStart());
+        cvf::Vec3d endPoint = wellPath->wellPathGeometry()->interpolatedPointAlongWellPath(m_wellPathAttribute->depthEnd());
+
+        double startTVD = -startPoint.z();
+        double endTVD = -endPoint.z();
+
+        double startDepth = depthType == RimWellLogPlot::TRUE_VERTICAL_DEPTH ? startTVD : m_wellPathAttribute->depthStart();
+        double endDepth = depthType == RimWellLogPlot::TRUE_VERTICAL_DEPTH ? endTVD : m_wellPathAttribute->depthEnd();
+
+        *minimumValue = startDepth;
+        *maximumValue = endDepth;
         return true;
     }
     return false;

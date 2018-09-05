@@ -112,7 +112,7 @@ void RiuQwtSymbol::renderSymbolLabel(QPainter *painter, const QPointF& position)
     }
     else if (m_labelPosition == LabelRightOfSymbol)
     {
-        painter->drawText(position.x() + symbolWidth / 2 + 1, position.y(), m_label);
+        painter->drawText(position.x() + symbolWidth + 3, position.y(), m_label);
     }
 }
 

@@ -165,19 +165,11 @@ void RicNewWellBoreStabilityPlotFeature::createCasingShoeTrack(RimWellLogPlot* p
     casingShoeTrack->setFormationCase(geoMechCase);
     casingShoeTrack->setShowFormations(true);
     casingShoeTrack->setShowFormationLabels(false);
+    casingShoeTrack->setShowWellPathAttributes(true);
+    casingShoeTrack->setWellPathAttributesSource(wellPath);
     casingShoeTrack->setVisibleXRange(0.0, 0.0);
-    RimWellLogFile* foundLogFile = wellPath->firstWellLogFileMatchingChannelName("CASING_SIZE");
-
-    // foundLogFile may be nullptr. Create the curve anyway so it exists when changing well.
-    RimWellLogFileCurve* fileCurve = RicWellLogTools::addFileCurve(casingShoeTrack, false);
-    fileCurve->setWellLogFile(foundLogFile);
-    fileCurve->setWellPath(wellPath);
-    fileCurve->setWellLogChannelName("CASING_SIZE");
-    fileCurve->setCustomName(QString("Casing size [in]"));
-    fileCurve->setLineThickness(2);
-    fileCurve->loadDataAndUpdate(false);
     casingShoeTrack->setAutoScaleXEnabled(true);
-    casingShoeTrack->calculateXZoomRangeAndUpdateQwt();
+    casingShoeTrack->loadDataAndUpdate();    
 }
 
 //--------------------------------------------------------------------------------------------------

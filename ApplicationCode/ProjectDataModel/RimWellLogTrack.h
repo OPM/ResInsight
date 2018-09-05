@@ -117,6 +117,8 @@ public:
     void setXAxisGridVisibility(RimWellLogPlot::AxisGridVisibility gridLines);
     void setShowFormations(bool on);
     void setShowFormationLabels(bool on);
+    void setShowWellPathAttributes(bool on);
+    void setWellPathAttributesSource(RimWellPath* wellPath);
 
     RiuWellLogTrack* viewer();
     
@@ -173,6 +175,7 @@ private:
 
     std::pair<double, double> adjustXRange(double minValue, double maxValue, double tickInterval);
 
+    void updateWellPathAttributesCollection();
 private:
     QString m_xAxisTitle;
 
@@ -204,9 +207,9 @@ private:
     caf::PdmField<bool>                                                m_showWellPathAttributes;
     caf::PdmField<bool>                                                m_showWellPathAttributeBothSides;
     caf::PdmField<bool>                                                m_wellPathAttributesInLegend;
-    caf::PdmPtrField<RimWellPath*>                                     m_attributesWellPathSource;
-    caf::PdmPtrField<RimWellPathAttributeCollection*>                  m_attributesCollection;
-    caf::PdmChildArrayField<RimWellPathAttributeCurve*>                m_attributeCurves;
+    caf::PdmPtrField<RimWellPath*>                                     m_wellPathAttributeSource;
+    caf::PdmPtrField<RimWellPathAttributeCollection*>                  m_wellPathAttributeCollection;
+    caf::PdmChildArrayField<RimWellPathAttributeCurve*>                m_wellPathAttributeCurves;
 
     bool m_formationsForCaseWithSimWellOnly;
 
