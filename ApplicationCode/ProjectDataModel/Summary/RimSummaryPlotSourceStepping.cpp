@@ -24,6 +24,7 @@
 
 #include "RifSummaryReaderInterface.h"
 
+#include "RimDataSourceSteppingTools.h"
 #include "RimProject.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseMainCollection.h"
@@ -75,33 +76,7 @@ void RimSummaryPlotSourceStepping::setSourceSteppingType(SourceSteppingType sour
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlotSourceStepping::applyNextCase()
 {
-    RimProject* proj = RiaApplication::instance()->project();
-
-    auto summaryCases = proj->allSummaryCases();
-    if (summaryCases.size() < 1) return;
-
-    auto currentCase = std::find(summaryCases.begin(), summaryCases.end(), m_summaryCase());
-
-    if (currentCase != summaryCases.end())
-    {
-        currentCase++;
-        if (currentCase != summaryCases.end())
-        {
-            m_summaryCase = *currentCase;
-        }
-    }
-    else
-    {
-        m_summaryCase = summaryCases[0];
-    }
-
-    fieldChangedByUi(&m_summaryCase, QVariant(), QVariant());
-    m_summaryCase.uiCapability()->updateConnectedEditors();
-
-    RimSummaryCurveCollection* curveCollection = nullptr;
-    this->firstAncestorOrThisOfTypeAsserted(curveCollection);
-
-    curveCollection->updateConnectedEditors();
+    modifyCurrentIndex(&m_summaryCase, 1);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -109,30 +84,7 @@ void RimSummaryPlotSourceStepping::applyNextCase()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlotSourceStepping::applyPrevCase()
 {
-    RimProject* proj = RiaApplication::instance()->project();
-
-    auto summaryCases = proj->allSummaryCases();
-    if (summaryCases.size() < 1) return;
-
-    auto currentCase = std::find(summaryCases.begin(), summaryCases.end(), m_summaryCase());
-
-    if (currentCase != summaryCases.end() && currentCase != summaryCases.begin())
-    {
-        currentCase--;
-        m_summaryCase = *currentCase;
-    }
-    else
-    {
-        m_summaryCase = summaryCases[0];
-    }
-
-    fieldChangedByUi(&m_summaryCase, QVariant(), QVariant());
-    m_summaryCase.uiCapability()->updateConnectedEditors();
-
-    RimSummaryCurveCollection* curveCollection = nullptr;
-    this->firstAncestorOrThisOfTypeAsserted(curveCollection);
-
-    curveCollection->updateConnectedEditors();
+    modifyCurrentIndex(&m_summaryCase, -1);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -694,44 +646,9 @@ RiaSummaryCurveAnalyzer* RimSummaryPlotSourceStepping::analyzerForReader(RifSumm
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlotSourceStepping::modifyCurrentIndex(caf::PdmValueField* valueField, int indexOffset)
 {
-    if (valueField)
-    {
-        bool useOptionsOnly = true;
-
-        QList<caf::PdmOptionItemInfo> options = calculateValueOptions(valueField, nullptr);
-        if (options.isEmpty())
-        {
-            return;
-        }
-
-        auto uiVariant = valueField->uiCapability()->toUiBasedQVariant();
-
-        int currentIndex = -1;
-        for (int i = 0; i < options.size(); i++)
-        {
-            if (uiVariant == options[i].optionUiText())
-            {
-                currentIndex = i;
-            }
-        }
-
-        if (currentIndex == -1)
-        {
-            currentIndex = 0;
-        }
-
-        int nextIndex = currentIndex + indexOffset;
-        if (nextIndex < options.size() && nextIndex > -1)
-        {
-            auto optionValue = options[nextIndex].value();
-
-            QVariant currentValue = valueField->toQVariant();
-
-            valueField->setFromQVariant(optionValue);
-
-            valueField->uiCapability()->notifyFieldChanged(currentValue, optionValue);
-        }
-    }
+    bool useOptionsOnly;
+    QList<caf::PdmOptionItemInfo> options = calculateValueOptions(valueField, &useOptionsOnly);
+    RimDataSourceSteppingTools::modifyCurrentIndex(valueField, options, indexOffset);
 }
 
 //--------------------------------------------------------------------------------------------------

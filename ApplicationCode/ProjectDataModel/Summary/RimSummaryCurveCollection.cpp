@@ -365,7 +365,7 @@ void RimSummaryCurveCollection::defineUiOrdering(QString uiConfigName, caf::PdmU
     }
     else
     {
-        auto group = uiOrdering.addNewGroup("Plot Source Stepping");
+        auto group = uiOrdering.addNewGroup("Data Source");
 
         m_ySourceStepping()->uiOrdering(uiConfigName, *group);
     }

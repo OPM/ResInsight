@@ -73,6 +73,7 @@ RiuWellLogPlot::RiuWellLogPlot(RimWellLogPlot* plotDefinition, QWidget* parent)
 
     this->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
     
+    setFocusPolicy(Qt::StrongFocus);
     connect(m_scrollBar, SIGNAL(valueChanged(int)), this, SLOT(slotSetMinDepth(int)));
 }
 
@@ -231,6 +232,14 @@ void RiuWellLogPlot::contextMenuEvent(QContextMenuEvent* event)
 QSize RiuWellLogPlot::sizeHint() const
 {
     return QSize(1, 1);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuWellLogPlot::keyPressEvent(QKeyEvent* keyEvent)
+{
+    m_plotDefinition->handleKeyPressEvent(keyEvent);
 }
 
 //--------------------------------------------------------------------------------------------------

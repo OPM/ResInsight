@@ -70,6 +70,9 @@ protected:
     virtual void                    contextMenuEvent(QContextMenuEvent *) override;
     virtual QSize                   sizeHint() const override;
 
+
+    virtual void                    keyPressEvent(QKeyEvent* keyEvent) override;
+
 private:
     void                            updateScrollBar(double minDepth, double maxDepth);
     std::map<int, int>              calculateTrackWidthsToMatchFrame(int frameWidth) const;

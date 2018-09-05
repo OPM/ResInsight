@@ -19,6 +19,7 @@
 #include "RimWellLogCurveCommonDataSource.h"
 
 #include "RimCase.h"
+#include "RimDataSourceSteppingTools.h"
 #include "RimEclipseCase.h"
 #include "RimOilField.h"
 #include "RimProject.h"
@@ -34,6 +35,7 @@
 #include "RiaSimWellBranchTools.h"
 
 #include "cafPdmUiCheckBoxTristateEditor.h"
+#include "cafPdmUiComboBoxEditor.h"
 
 CAF_PDM_SOURCE_INIT(RimWellLogCurveCommonDataSource, "ChangeDataSourceFeatureUi");
 
@@ -366,6 +368,68 @@ void RimWellLogCurveCommonDataSource::updateCurves(std::vector<RimWellLogCurve*>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimWellLogCurveCommonDataSource::applyPrevCase()
+{
+    modifyCurrentIndex(&m_case, -1);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogCurveCommonDataSource::applyNextCase()
+{
+    modifyCurrentIndex(&m_case, 1);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogCurveCommonDataSource::applyPrevWell()
+{
+    if (m_trajectoryType() == RimWellLogExtractionCurve::WELL_PATH)
+    {
+        modifyCurrentIndex(&m_wellPath, -1);
+    }
+    else if (m_trajectoryType() == RimWellLogExtractionCurve::SIMULATION_WELL)
+    {
+        modifyCurrentIndex(&m_simWellName, -1);
+    }    
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogCurveCommonDataSource::applyNextWell()
+{
+    if (m_trajectoryType() == RimWellLogExtractionCurve::WELL_PATH)
+    {
+        modifyCurrentIndex(&m_wellPath, 1);
+    }
+    else if (m_trajectoryType() == RimWellLogExtractionCurve::SIMULATION_WELL)
+    {
+        modifyCurrentIndex(&m_simWellName, 1);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogCurveCommonDataSource::applyPrevTimeStep()
+{
+    modifyCurrentIndex(&m_timeStep, -1);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogCurveCommonDataSource::applyNextTimeStep()
+{
+    modifyCurrentIndex(&m_timeStep, 1);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimWellLogCurveCommonDataSource::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
     RimWellLogPlot* parentPlot = nullptr;
@@ -544,4 +608,55 @@ void RimWellLogCurveCommonDataSource::defineUiOrdering(QString uiConfigName, caf
     }
     group->add(&m_timeStep);
     uiOrdering.skipRemainingFields(true);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogCurveCommonDataSource::defineEditorAttribute(const caf::PdmFieldHandle* field,
+                                                            QString                    uiConfigName,
+                                                            caf::PdmUiEditorAttribute* attribute)
+{
+    caf::PdmUiComboBoxEditorAttribute* myAttr = dynamic_cast<caf::PdmUiComboBoxEditorAttribute*>(attribute);
+    if (myAttr)
+    {
+        if (field == &m_case ||
+            field == &m_simWellName ||
+            field == &m_wellPath ||
+            field == &m_timeStep)
+        {
+            myAttr->showPreviousAndNextButtons = true;
+        }
+
+        QString modifierText;
+
+        if (field == &m_case)
+        {
+            modifierText = ("(Shift+");
+        }
+        else if (field == &m_wellPath || field == &m_simWellName)
+        {
+            modifierText = ("(Ctrl+");
+        }
+        else if (field == &m_timeStep)
+        {
+            modifierText = ("(");
+        }
+
+        if (!modifierText.isEmpty())
+        {
+            myAttr->nextButtonText = "Next " + modifierText + "PgDown)";
+            myAttr->prevButtonText = "Previous " + modifierText + "PgUp)";
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogCurveCommonDataSource::modifyCurrentIndex(caf::PdmValueField* field, int indexOffset)
+{
+    bool useOptionsOnly;
+    QList<caf::PdmOptionItemInfo> options = calculateValueOptions(field, &useOptionsOnly);
+    RimDataSourceSteppingTools::modifyCurrentIndex(field, options, indexOffset);    
 }

@@ -116,6 +116,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RimWellLogPlotNameConfig.h
 ${CMAKE_CURRENT_LIST_DIR}/RimWellLogExtractionCurveNameConfig.h
 ${CMAKE_CURRENT_LIST_DIR}/RimWellLogFileCurveNameConfig.h
 ${CMAKE_CURRENT_LIST_DIR}/RimWellLogRftCurveNameConfig.h
+${CMAKE_CURRENT_LIST_DIR}/RimDataSourceSteppingTools.h
 ${CMAKE_CURRENT_LIST_DIR}/RimWellLogCurveCommonDataSource.h
 )
 
@@ -237,6 +238,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RimWellLogPlotNameConfig.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimWellLogExtractionCurveNameConfig.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimWellLogFileCurveNameConfig.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimWellLogRftCurveNameConfig.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimDataSourceSteppingTools.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimWellLogCurveCommonDataSource.cpp
 )
 

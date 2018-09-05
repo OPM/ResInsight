@@ -40,6 +40,8 @@
 #include "cafPdmUiComboBoxEditor.h"
 #include "cvfAssert.h"
 
+#include <QKeyEvent>
+
 #include <math.h>
 
 #define RI_LOGPLOT_MINDEPTH_DEFAULT 0.0
@@ -703,6 +705,49 @@ void RimWellLogPlot::updateHolder()
 {
     this->m_commonDataSource->updateDefaultOptions();
     this->updatePlotTitle();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogPlot::handleKeyPressEvent(QKeyEvent* keyEvent)
+{
+    if (keyEvent->key() == Qt::Key_PageUp)
+    {
+        if (keyEvent->modifiers() & Qt::ShiftModifier)
+        {
+            m_commonDataSource->applyPrevCase();
+            keyEvent->accept();
+        }
+        else if (keyEvent->modifiers() & Qt::ControlModifier)
+        {
+            m_commonDataSource->applyPrevWell();
+            keyEvent->accept();
+        }
+        else
+        {
+            m_commonDataSource->applyPrevTimeStep();
+            keyEvent->accept();
+        }
+    }
+    else if (keyEvent->key() == Qt::Key_PageDown)
+    {
+        if (keyEvent->modifiers() & Qt::ShiftModifier)
+        {
+            m_commonDataSource->applyNextCase();
+            keyEvent->accept();
+        }
+        else if (keyEvent->modifiers() & Qt::ControlModifier)
+        {
+            m_commonDataSource->applyNextWell();
+            keyEvent->accept();
+        }
+        else
+        {
+            m_commonDataSource->applyNextTimeStep();
+            keyEvent->accept();
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -399,8 +399,13 @@ void RiuSummaryQwtPlot::setCommonPlotBehaviour(QwtPlot* plot)
     plot->setAxisTitle(QwtPlot::yLeft,   axisTitle);
     plot->setAxisTitle(QwtPlot::yRight,  axisTitle);
 
-    // Enable mousetracking and event filter
+    // Set a focus policy to allow it taking key press events.
+    // This is not strictly necessary since this widget inherit QwtPlot
+    // which already has a focus policy.
+    // However, for completeness we still do it here.
+    plot->setFocusPolicy(Qt::WheelFocus);
 
+    // Enable mousetracking and event filter
     plot->canvas()->setMouseTracking(true);
     plot->canvas()->installEventFilter(plot);
     plot->plotLayout()->setAlignCanvasToScales(true);

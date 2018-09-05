@@ -36,7 +36,7 @@ class RiuWellLogPlot;
 class RimWellLogTrack;
 class RimWellRftPlot;
 class RimWellPltPlot;
-
+class QKeyEvent;
 
 //==================================================================================================
 ///  
@@ -124,6 +124,8 @@ public:
 
     virtual QString                                 createAutoName() const override;
     void                                            updateHolder() override;
+
+    void                                            handleKeyPressEvent(QKeyEvent* keyEvent);
 
 protected:
 

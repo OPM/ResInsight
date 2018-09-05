@@ -60,13 +60,26 @@ public:
     void         updateDefaultOptions(const std::vector<RimWellLogCurve*>& curves);
     void         updateDefaultOptions();
     void         updateCurves(std::vector<RimWellLogCurve*>& curves);
-    virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+
+    void         applyPrevCase();
+    void         applyNextCase();
+
+    void         applyPrevWell();
+    void         applyNextWell();
+
+    void         applyPrevTimeStep();
+    void         applyNextTimeStep();
 protected:
+    virtual void                          fieldChangedByUi(const caf::PdmFieldHandle* changedField,
+                                                           const QVariant& oldValue,
+                                                           const QVariant& newValue) override;
     virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions,
                                                                 bool*                      useOptionsOnly) override;
-
     virtual void                          defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
-
+    virtual void                          defineEditorAttribute(const caf::PdmFieldHandle* field,
+                                                                QString uiConfigName,
+                                                                caf::PdmUiEditorAttribute* attribute) override;
+    void                                  modifyCurrentIndex(caf::PdmValueField* field, int indexOffset);
 private:
     caf::PdmPtrField<RimCase*>                 m_case;
     caf::PdmField<int>                         m_trajectoryType;
