@@ -2008,13 +2008,18 @@ double RicWellPathExportCompletionDataFeatureImpl::calculateTransmissibility(Rim
     cvf::ref<RigResultAccessor> permzAccessObject =
         RigResultAccessorFactory::createFromUiResultName(eclipseCaseData, 0, RiaDefines::MATRIX_MODEL, 0, "PERMZ");
 
-    double ntg       = 1.0;
-    size_t ntgResIdx = eclipseCase->results(RiaDefines::MATRIX_MODEL)->findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, "NTG");
-    if (ntgResIdx != cvf::UNDEFINED_SIZE_T)
+    double ntg = 1.0;
     {
+        // Trigger loading from file
+        eclipseCase->results(RiaDefines::MATRIX_MODEL)->findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, "NTG");
+
         cvf::ref<RigResultAccessor> ntgAccessObject =
             RigResultAccessorFactory::createFromUiResultName(eclipseCaseData, 0, RiaDefines::MATRIX_MODEL, 0, "NTG");
-        ntg = ntgAccessObject->cellScalarGlobIdx(globalCellIndex);
+
+        if (ntgAccessObject.notNull())
+        {
+            ntg = ntgAccessObject->cellScalarGlobIdx(globalCellIndex);
+        }
     }
     double latNtg = useLateralNTG ? ntg : 1.0;
 
