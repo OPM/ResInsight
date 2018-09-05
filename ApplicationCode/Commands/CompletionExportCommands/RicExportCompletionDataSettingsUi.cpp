@@ -35,6 +35,7 @@ namespace caf
     {
         addItem(RicExportCompletionDataSettingsUi::TRANSMISSIBILITIES, "TRANSMISSIBILITIES", "Calculated Transmissibilities");
         addItem(RicExportCompletionDataSettingsUi::WPIMULT_AND_DEFAULT_CONNECTION_FACTORS, "WPIMULT_AND_DEFAULT_CONNECTION_FACTORS", "Default Connection Factors and WPIMULT (Fractures Not Supported)");
+        addItem(RicExportCompletionDataSettingsUi::MULTI_SEGMENT_WELL, "MULTI_SEGMENT_WELL", "Multi Segment Well");
         setDefault(RicExportCompletionDataSettingsUi::TRANSMISSIBILITIES);
     }
 
@@ -72,7 +73,7 @@ RicExportCompletionDataSettingsUi::RicExportCompletionDataSettingsUi()
     CAF_PDM_InitField(&m_includeFracturesSummaryHeader,
                       "IncludeFracturesSummaryHeader",
                       false,
-                      "Append Detailed Text Summary (BETA)",
+                      "  Append Detailed Text Summary (BETA)",
                       "",
                       "",
                       "");
@@ -215,19 +216,19 @@ QList<caf::PdmOptionItemInfo>
 void RicExportCompletionDataSettingsUi::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
     {
-        caf::PdmUiGroup* group = uiOrdering.addNewGroup("File Settings");
+        caf::PdmUiGroup* group = uiOrdering.addNewGroup("Export Settings");
 
-        group->add(&folder);
-        group->add(&fileSplit);
-        group->add(&m_reportCompletionTypesSeparately);
-    }
-
-    {
-        caf::PdmUiGroup* group = uiOrdering.addNewGroup("Settings");
-
-        group->add(&caseToApply);
         group->add(&compdatExport);
         group->add(&useLateralNTG);
+        group->add(&caseToApply);
+        group->add(&fileSplit);
+        group->add(&m_reportCompletionTypesSeparately);
+        group->add(&folder);
+
+        // Set visibility
+        useLateralNTG.uiCapability()->setUiHidden(compdatExport == MULTI_SEGMENT_WELL);
+        fileSplit.uiCapability()->setUiHidden(compdatExport == MULTI_SEGMENT_WELL);
+        m_reportCompletionTypesSeparately.uiCapability()->setUiHidden(compdatExport == MULTI_SEGMENT_WELL);
     }
 
     {
@@ -250,6 +251,7 @@ void RicExportCompletionDataSettingsUi::defineUiOrdering(QString uiConfigName, c
             group->add(&includeFractures);
             group->add(&m_includeFracturesSummaryHeader);
 
+            // Set visibility
             if (compdatExport == WPIMULT_AND_DEFAULT_CONNECTION_FACTORS)
             {
                 includeFractures.uiCapability()->setUiReadOnly(true);
@@ -258,6 +260,8 @@ void RicExportCompletionDataSettingsUi::defineUiOrdering(QString uiConfigName, c
             {
                 includeFractures.uiCapability()->setUiReadOnly(false);
             }
+
+            m_includeFracturesSummaryHeader.uiCapability()->setUiHidden(compdatExport == MULTI_SEGMENT_WELL);
         }
 
         if (!m_displayForSimWell)
@@ -266,10 +270,14 @@ void RicExportCompletionDataSettingsUi::defineUiOrdering(QString uiConfigName, c
             {
                 group->add(&includeFishbones);
                 group->add(&excludeMainBoreForFishbones);
+
+                // Set visibility
                 if (!includeFishbones)
                     excludeMainBoreForFishbones.uiCapability()->setUiReadOnly(true);
                 else
                     excludeMainBoreForFishbones.uiCapability()->setUiReadOnly(false);
+
+                excludeMainBoreForFishbones.uiCapability()->setUiHidden(compdatExport == MULTI_SEGMENT_WELL);
             }
         }
     }
