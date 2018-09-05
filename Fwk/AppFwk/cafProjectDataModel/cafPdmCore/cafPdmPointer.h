@@ -92,13 +92,15 @@ public :
     T*                 operator->() const                   { return  static_cast<T*>(const_cast<PdmObjectHandle*>(m_object)); }
     PdmPointer<T> & operator= ( const PdmPointer<T>& p ) { if (this != &p)    PdmPointerImpl::removeReference(&m_object); m_object = p.m_object; PdmPointerImpl::addReference(&m_object); return *this; }
     PdmPointer<T> & operator= ( T* p )                   { if (m_object != p) PdmPointerImpl::removeReference(&m_object); m_object = p;          PdmPointerImpl::addReference(&m_object); return *this; }
-
+    template <class S>
+    bool            operator==(const PdmPointer<S>& rhs) const { return m_object == rhs.rawPtr(); }
     // Private methods used by PdmField<T*> and PdmPointersField<T*>. Do not use unless you mean it !
     PdmObjectHandle*      rawPtr() const                       { return m_object; }
     void            setRawPtr( PdmObjectHandle* p)             { if (m_object != p) PdmPointerImpl::removeReference(&m_object); m_object = p;          PdmPointerImpl::addReference(&m_object);  }    
 };
 
-
-
 } // End of namespace caf
+
+#include <QMetaType>
+Q_DECLARE_METATYPE(caf::PdmPointer<caf::PdmObjectHandle>);
 
