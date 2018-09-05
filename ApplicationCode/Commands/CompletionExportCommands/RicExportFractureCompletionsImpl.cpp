@@ -67,7 +67,7 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
 
     if (wellPath->fractureCollection()->isChecked())
     {
-        for (auto& frac : wellPath->fractureCollection()->fractures)
+        for (auto& frac : wellPath->fractureCollection()->fractures())
         {
             if (frac->isChecked())
             {

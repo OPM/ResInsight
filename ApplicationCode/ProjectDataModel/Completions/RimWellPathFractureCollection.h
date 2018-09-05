@@ -26,6 +26,8 @@
 #include "cafPdmObject.h"
 #include "cafPdmChildArrayField.h"
 
+#include <vector>
+
 class RimWellPathFracture;
 
 //==================================================================================================
@@ -48,13 +50,12 @@ public:
     virtual ~RimWellPathFractureCollection(void);
     
     const RimMswCompletionParameters* mswParameters() const;
+    void                              addFracture(RimWellPathFracture* fracture);
     void                              deleteFractures();
     void                              setUnitSystemSpecificDefaults();
     ReferenceMDType                   referenceMDType() const;
     double                            manualReferenceMD() const;
-
-public:
-    caf::PdmChildArrayField<RimWellPathFracture*>   fractures;
+    std::vector<RimWellPathFracture*> fractures() const;
 
 protected:
     virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
@@ -62,6 +63,7 @@ protected:
 private:
     virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
 
+    caf::PdmChildArrayField<RimWellPathFracture*>   m_fractures;
     caf::PdmField<ReferenceMDEnum>                  m_refMDType;
     caf::PdmField<double>                           m_refMD;
     caf::PdmChildField<RimMswCompletionParameters*> m_mswParameters;

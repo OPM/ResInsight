@@ -44,8 +44,8 @@ RimWellPathFractureCollection::RimWellPathFractureCollection(void)
 {
     CAF_PDM_InitObject("Fractures", ":/FractureLayout16x16.png", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&fractures, "Fractures", "", "", "", "");
-    fractures.uiCapability()->setUiHidden(true);
+    CAF_PDM_InitFieldNoDefault(&m_fractures, "Fractures", "", "", "", "");
+    m_fractures.uiCapability()->setUiHidden(true);
 
     setName("Fractures");
     nameField()->uiCapability()->setUiHidden(true);
@@ -76,9 +76,17 @@ const RimMswCompletionParameters* RimWellPathFractureCollection::mswParameters()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimWellPathFractureCollection::addFracture(RimWellPathFracture* fracture)
+{
+    m_fractures.push_back(fracture);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimWellPathFractureCollection::deleteFractures()
 {
-    fractures.deleteAllChildObjects();
+    m_fractures.deleteAllChildObjects();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -107,6 +115,14 @@ double RimWellPathFractureCollection::manualReferenceMD() const
         return std::numeric_limits<double>::infinity();
     }
     return m_refMD;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<RimWellPathFracture*> RimWellPathFractureCollection::fractures() const
+{
+    return m_fractures.childObjects();
 }
 
 //--------------------------------------------------------------------------------------------------
