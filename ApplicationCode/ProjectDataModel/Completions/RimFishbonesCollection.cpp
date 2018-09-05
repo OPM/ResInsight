@@ -44,9 +44,9 @@ RimFishbonesCollection::RimFishbonesCollection()
     nameField()->uiCapability()->setUiHidden(true);
     this->setName("Fishbones");
 
-    CAF_PDM_InitFieldNoDefault(&fishbonesSubs, "FishbonesSubs", "fishbonesSubs", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_fishbonesSubs, "FishbonesSubs", "fishbonesSubs", "", "", "");
 
-    fishbonesSubs.uiCapability()->setUiHidden(true);
+    m_fishbonesSubs.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&m_wellPathCollection, "WellPathCollection", "Imported Laterals", "", "", "");
     m_wellPathCollection = new RimFishboneWellPathCollection;
@@ -166,7 +166,7 @@ void RimFishbonesCollection::initAfterRead()
 void RimFishbonesCollection::appendFishbonesSubs(RimFishbonesMultipleSubs* subs)
 {
     subs->fishbonesColor = nextFishbonesColor();
-    fishbonesSubs.push_back(subs);
+    m_fishbonesSubs.push_back(subs);
 
     subs->setUnitSystemSpecificDefaults();
     subs->recomputeLateralLocations();
@@ -178,6 +178,14 @@ void RimFishbonesCollection::appendFishbonesSubs(RimFishbonesMultipleSubs* subs)
 const RimMswCompletionParameters* RimFishbonesCollection::mswParameters() const
 {
     return m_mswParameters;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<RimFishbonesMultipleSubs*> RimFishbonesCollection::fishbonesSubs() const
+{
+    return m_fishbonesSubs.childObjects();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -199,7 +207,7 @@ cvf::Color3f RimFishbonesCollection::nextFishbonesColor() const
 
     QColor qFishbonesColor;
 
-    int newIndex = static_cast<int>(fishbonesSubs.size());
+    int newIndex = static_cast<int>(m_fishbonesSubs.size());
 
     if (qWellPathColor.lightnessF() < 0.5)
     {
@@ -220,7 +228,7 @@ void RimFishbonesCollection::recalculateStartMD()
 {
     double minStartMD = HUGE_VAL;
 
-    for (const RimFishbonesMultipleSubs* sub : fishbonesSubs())
+    for (const RimFishbonesMultipleSubs* sub : m_fishbonesSubs())
     {
         for (auto& index : sub->installedLateralIndices())
         {

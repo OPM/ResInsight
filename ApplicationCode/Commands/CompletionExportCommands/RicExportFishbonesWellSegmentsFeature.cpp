@@ -90,7 +90,7 @@ void RicExportFishbonesWellSegmentsFeature::onActionTriggered(bool isChecked)
         RiaApplication::instance()->setLastUsedDialogDirectory("COMPLETIONS", QFileInfo(exportSettings.folder).absolutePath());
 
         std::vector<RimFishbonesMultipleSubs*> fishbonesSubs;
-        for (RimFishbonesMultipleSubs* subs : fishbonesCollection->fishbonesSubs)
+        for (RimFishbonesMultipleSubs* subs : fishbonesCollection->fishbonesSubs())
         {
             fishbonesSubs.push_back(subs);
         }

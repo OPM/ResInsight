@@ -49,8 +49,8 @@ public:
     RimFishboneWellPathCollection*    wellPathCollection() const;
     void                              appendFishbonesSubs(RimFishbonesMultipleSubs* subs);
     const RimMswCompletionParameters* mswParameters() const;
-    caf::PdmChildArrayField<RimFishbonesMultipleSubs*>  fishbonesSubs;
 
+    std::vector<RimFishbonesMultipleSubs*> fishbonesSubs() const;
     void         recalculateStartMD();
     double       startMD() const;
     double       mainBoreSkinFactor() const { return m_skinFactor; }
@@ -66,6 +66,7 @@ private:
     cvf::Color3f nextFishbonesColor() const;
 
 private:
+    caf::PdmChildArrayField<RimFishbonesMultipleSubs*>  m_fishbonesSubs;
     caf::PdmChildField<RimFishboneWellPathCollection*>  m_wellPathCollection;
 
     caf::PdmField<double>                               m_startMD;
