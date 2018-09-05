@@ -1501,9 +1501,13 @@ void RimWellLogTrack::findFormationNamesToPlot(const CurveSamplingPointData&    
 
     for (double nameIdx : curveData.data)
     {
-        if (nameIdx != HUGE_VAL)
+        if (nameIdx != std::numeric_limits<double>::infinity())
         {
-            formationNameIndicesFromCurve.push_back(round(nameIdx));
+            formationNameIndicesFromCurve.push_back(static_cast<size_t>(round(nameIdx)));
+        }
+        else
+        {
+            formationNameIndicesFromCurve.push_back(std::numeric_limits<size_t>::max());
         }
     }
 
@@ -1523,13 +1527,13 @@ void RimWellLogTrack::findFormationNamesToPlot(const CurveSamplingPointData&    
     if (depthVector.empty()) return;
 
     double currentYStart = depthVector[0];
-    double prevNameIndex = formationNameIndicesFromCurve[0];
-    double currentNameIndex;
+    size_t prevNameIndex = formationNameIndicesFromCurve[0];
+    size_t currentNameIndex;
 
     for (size_t i = 1; i < formationNameIndicesFromCurve.size(); i++)
     {
         currentNameIndex = formationNameIndicesFromCurve[i];
-        if (currentNameIndex != prevNameIndex)
+        if (currentNameIndex != std::numeric_limits<size_t>::max() && currentNameIndex != prevNameIndex)
         {
             if (prevNameIndex < formationNamesVector.size())
             {
@@ -1542,10 +1546,12 @@ void RimWellLogTrack::findFormationNamesToPlot(const CurveSamplingPointData&    
         }
     }
 
-    size_t lastIdx = formationNameIndicesFromCurve.size() - 1;
-
-    formationNamesToPlot->push_back(formationNamesVector[formationNameIndicesFromCurve[lastIdx]]);
-    yValues->push_back(std::make_pair(currentYStart, depthVector[lastIdx]));
+    size_t lastFormationIdx = formationNameIndicesFromCurve.back();
+    if (lastFormationIdx < formationNamesVector.size())
+    {
+        formationNamesToPlot->push_back(formationNamesVector[lastFormationIdx]);
+        yValues->push_back(std::make_pair(currentYStart, depthVector.back()));
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

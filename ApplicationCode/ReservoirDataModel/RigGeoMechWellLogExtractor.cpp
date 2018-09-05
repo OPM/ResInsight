@@ -492,6 +492,10 @@ T RigGeoMechWellLogExtractor::interpolateGridResultValue(RigFemResultPosEnum   r
 
     if (!(elmType == HEX8 || elmType == HEX8P)) return T();
 
+    if (resultPosType == RIG_FORMATION_NAMES)
+    {
+        resultPosType = RIG_ELEMENT_NODAL; // formation indices are stored per element node result.
+    }
 
     if (resultPosType == RIG_ELEMENT)
     {
