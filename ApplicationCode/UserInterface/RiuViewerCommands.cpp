@@ -568,12 +568,12 @@ void RiuViewerCommands::handlePickAction(int winPosX, int winPosY, Qt::KeyboardM
 
         if ( pickItemInfos.size() )
         {
-            size_t indexToFirstNoneNncItem = -1;
-            size_t indexToNncItemNearFirstItem = -1;
+            size_t indexToFirstNoneNncItem = cvf::UNDEFINED_SIZE_T;;
+            size_t indexToNncItemNearFirstItem = cvf::UNDEFINED_SIZE_T;;
 
             findFirstItems(pickItemInfos, &indexToFirstNoneNncItem, &indexToNncItemNearFirstItem);
 
-            if ( indexToFirstNoneNncItem != -1 )
+            if ( indexToFirstNoneNncItem != cvf::UNDEFINED_SIZE_T )
             {
                 localIntersectionPoint = pickItemInfos[indexToFirstNoneNncItem].localPickedPoint();
                 globalIntersectionPoint = pickItemInfos[indexToFirstNoneNncItem].globalPickedPoint();
@@ -581,7 +581,7 @@ void RiuViewerCommands::handlePickAction(int winPosX, int winPosY, Qt::KeyboardM
                 firstPartTriangleIndex = pickItemInfos[indexToFirstNoneNncItem].faceIdx();
             }
 
-            if ( indexToNncItemNearFirstItem != -1 )
+            if ( indexToNncItemNearFirstItem != cvf::UNDEFINED_SIZE_T )
             {
                 firstNncHitPart = pickItemInfos[indexToNncItemNearFirstItem].pickedPart();
                 nncPartTriangleIndex = pickItemInfos[indexToNncItemNearFirstItem].faceIdx();
