@@ -1,7 +1,7 @@
 #include "gtest/gtest.h"
 
 #include "RiaWeightedGeometricMeanCalculator.h"
-
+#include <cmath>
 
 //--------------------------------------------------------------------------------------------------
 /// 
