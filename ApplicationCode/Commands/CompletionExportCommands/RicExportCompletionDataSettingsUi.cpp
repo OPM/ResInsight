@@ -172,12 +172,10 @@ void RicExportCompletionDataSettingsUi::fieldChangedByUi(const caf::PdmFieldHand
         if (compdatExport == WPIMULT_AND_DEFAULT_CONNECTION_FACTORS)
         {
             includeFractures = false;
-            includeFractures.uiCapability()->setUiReadOnly(true);
         }
-        else if (compdatExport == TRANSMISSIBILITIES)
+        else if (compdatExport == TRANSMISSIBILITIES || compdatExport == MULTI_SEGMENT_WELL)
         {
             includeFractures = true;
-            includeFractures.uiCapability()->setUiReadOnly(false);
         }
     }
 }
@@ -244,6 +242,10 @@ void RicExportCompletionDataSettingsUi::defineUiOrdering(QString uiConfigName, c
                 else
                     timeStep.uiCapability()->setUiReadOnly(false);
             }
+
+            // Set visibility
+            includePerforations.uiCapability()->setUiHidden(compdatExport == MULTI_SEGMENT_WELL);
+            timeStep.uiCapability()->setUiHidden(compdatExport == MULTI_SEGMENT_WELL);
         }
 
         if (m_fracturesEnabled)
@@ -252,16 +254,9 @@ void RicExportCompletionDataSettingsUi::defineUiOrdering(QString uiConfigName, c
             group->add(&m_includeFracturesSummaryHeader);
 
             // Set visibility
-            if (compdatExport == WPIMULT_AND_DEFAULT_CONNECTION_FACTORS)
-            {
-                includeFractures.uiCapability()->setUiReadOnly(true);
-            }
-            else if (compdatExport == TRANSMISSIBILITIES)
-            {
-                includeFractures.uiCapability()->setUiReadOnly(false);
-            }
-
-            m_includeFracturesSummaryHeader.uiCapability()->setUiHidden(compdatExport == MULTI_SEGMENT_WELL);
+            includeFractures.uiCapability()->setUiHidden(compdatExport == WPIMULT_AND_DEFAULT_CONNECTION_FACTORS);
+            m_includeFracturesSummaryHeader.uiCapability()->setUiHidden(compdatExport == MULTI_SEGMENT_WELL ||
+                                                                        compdatExport == WPIMULT_AND_DEFAULT_CONNECTION_FACTORS);
         }
 
         if (!m_displayForSimWell)

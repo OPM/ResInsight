@@ -192,4 +192,14 @@ private:
                                                                const std::vector<RigCompletionData>& data);
 
     static cvf::Vec2i                     wellPathUpperGridIntersectionIJ(const RimEclipseCase* gridCase, const RimWellPath* wellPath, const QString& gridName = "");
+
+    static void                           exportWellSegments(RimEclipseCase* eclipseCase,
+                                                             const QString& exportFolder,
+                                                             const RimWellPath* wellPath,
+                                                             const std::vector<RimWellPathFracture*>& fractures);
+
+    static void                           exportWellSegments(RimEclipseCase* eclipseCase,
+                                                             const QString& exportFolder,
+                                                             const RimWellPath* wellPath,
+                                                             const std::vector<RimFishbonesMultipleSubs*>& fishbonesSubs);
 };
