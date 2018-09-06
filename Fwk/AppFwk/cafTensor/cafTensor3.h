@@ -29,7 +29,7 @@ class Tensor3
 {
     S m_tensor[6]; // SXX, SYY, SZZ, SXY, SYZ, SZX
 public:
-    Tensor3() {}
+    Tensor3();
     Tensor3(S sxx, S syy, S szz, S sxy, S syz, S szx); 
     Tensor3(const Tensor3& other);
     template<typename T>

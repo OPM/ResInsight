@@ -66,7 +66,7 @@ private:
         TangentConstantWithinCell
     };
 
-    float                        calculatePorePressureInSegment(int64_t intersectionIdx, float averageSegmentPorePressureBars, double hydroStaticPorePressureBars, double effectiveDepthMeters, const std::vector<float>& poreElementPressuresPascal) const;
+    float                        calculatePorePressureInSegment(int64_t intersectionIdx, float averageSegmentPorePressureBar, double hydroStaticPorePressureBar, double effectiveDepthMeters, const std::vector<float>& poreElementPressuresPascal) const;
     float                        calculatePoissonRatio(int64_t intersectionIdx, const std::vector<float>& poissonRatios) const;
     float                        calculateUcs(int64_t intersectionIdx, const std::vector<float>& ucsValuesPascal) const;
 
@@ -88,11 +88,11 @@ private:
     static caf::Ten3d            transformTensorToWellPathOrientation(const cvf::Vec3d& wellPathTangent,
                                                                       const caf::Ten3d& wellPathTensor);
 
-    static cvf::Vec3f            cellCentroid(const int* elmNodeIndices, const std::vector<cvf::Vec3f>& nodeCoords);
+    cvf::Vec3f                   cellCentroid(size_t intersectionIdx) const;
     double                       getWellLogSegmentValue(size_t intersectionIdx, const std::vector<std::pair<double, double>>& wellLogValues) const;
 
     template<typename T>
-    static bool                  averageIntersectionValuesToSegmentValue(size_t intersectionIdx, const std::vector<T>& intersectionValues, const T& invalidValue, T* averagedSegmentValue);
+    bool                         averageIntersectionValuesToSegmentValue(size_t intersectionIdx, const std::vector<T>& intersectionValues, const T& invalidValue, T* averagedSegmentValue) const;
     static double                pascalToBar(double pascalValue);
 private:
     cvf::ref<RigGeoMechCaseData> m_caseData;
