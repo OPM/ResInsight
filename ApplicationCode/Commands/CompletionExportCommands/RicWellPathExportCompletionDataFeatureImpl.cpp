@@ -361,22 +361,50 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions(const std::ve
     }
     else if (exportSettings.compdatExport == RicExportCompletionDataSettingsUi::MULTI_SEGMENT_WELL)
     {
-        RimWellPath* wellPath = wellPaths.front();
-        
         if (exportSettings.includeFractures())
         {
-            auto fractures = wellPath->fractureCollection()->fractures();
-            exportWellSegments(exportSettings.caseToApply,
-                               exportSettings.folder,
-                               wellPath, fractures);
+            QString fileName = QString("%1-Fracture-Welsegs").arg(exportSettings.caseToApply->caseUserDescription());
+            QFilePtr exportFile = openFileForExport(exportSettings.folder, fileName);
+
+            for (const auto wellPath : wellPaths)
+            {
+                auto fractures = wellPath->fractureCollection()->fractures();
+                exportWellSegments(exportSettings.caseToApply,
+                                   exportFile,
+                                   wellPath, fractures);
+            }
+            exportFile->close();
         }
 
         if (exportSettings.includeFishbones())
         {
-            auto fishbones = wellPath->fishbonesCollection()->fishbonesSubs();
-            exportWellSegments(exportSettings.caseToApply,
-                               exportSettings.folder,
-                               wellPath, fishbones);
+            QString fileName = QString("%1-Fishbone-Welsegs").arg(exportSettings.caseToApply->caseUserDescription());
+            QFilePtr exportFile = openFileForExport(exportSettings.folder, fileName);
+
+            for (const auto wellPath : wellPaths)
+            {
+                auto fishbones = wellPath->fishbonesCollection()->fishbonesSubs();
+                exportWellSegments(exportSettings.caseToApply,
+                                   exportFile,
+                                   wellPath, fishbones);
+            }
+
+            exportFile->close();
+        }
+
+        if (false && exportSettings.includePerforations())
+        {
+            QString fileName = QString("%1-Perforation-Welsegs").arg(exportSettings.caseToApply->caseUserDescription());
+            QFilePtr exportFile = openFileForExport(exportSettings.folder, fileName);
+
+            for (const auto wellPath : wellPaths)
+            {
+                auto perforations = wellPath->perforationIntervalCollection()->perforations();
+                exportWellSegments(exportSettings.caseToApply,
+                                   exportFile,
+                                   wellPath, perforations);
+            }
+            exportFile->close();
         }
     }
 }
@@ -1741,6 +1769,18 @@ RicMswExportInfo
 }
 
 //--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RicMswExportInfo RicWellPathExportCompletionDataFeatureImpl::generatePerforationsMswExportInfo(RimEclipseCase* caseToApply,
+                                                                                               const RimWellPath* wellPath,
+                                                                                               const std::vector<const RimPerforationInterval*>& perforationIntervals)
+{
+
+
+    return RicMswExportInfo(wellPath, RiaEclipseUnitTools::UNITS_METRIC, 0, "LENdep", "pRES");
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 void RicWellPathExportCompletionDataFeatureImpl::assignFishbonesLateralIntersections(
@@ -2173,7 +2213,7 @@ cvf::Vec2i RicWellPathExportCompletionDataFeatureImpl::wellPathUpperGridIntersec
 ///
 //--------------------------------------------------------------------------------------------------
 void RicWellPathExportCompletionDataFeatureImpl::exportWellSegments(RimEclipseCase* eclipseCase,
-                                                                    const QString& exportFolder,
+                                                                    QFilePtr exportFile,
                                                                     const RimWellPath* wellPath,
                                                                     const std::vector<RimWellPathFracture*>& fractures)
 {
@@ -2183,30 +2223,9 @@ void RicWellPathExportCompletionDataFeatureImpl::exportWellSegments(RimEclipseCa
         return;
     }
 
-    QString fileName = QString("%1-Fracture-Welsegs").arg(eclipseCase->caseUserDescription());
-    fileName = caf::Utils::makeValidFileBasename(fileName);
-
-    QDir dir(exportFolder);
-    if (!dir.exists())
-    {
-        bool createdPath = dir.mkpath(".");
-        if (createdPath)
-            RiaLogging::info("Export Fracture Well Segments: Created export folder " + exportFolder);
-        else
-            RiaLogging::error("Export Fracture Well Segments: Selected output folder does not exist, and could not be created.");
-    }
-
-    QString filePath = dir.filePath(fileName);
-    QFile   exportFile(filePath);
-    if (!exportFile.open(QIODevice::WriteOnly))
-    {
-        RiaLogging::error(QString("Export Fracture Well Segments: Could not open the file: %1").arg(filePath));
-        return;
-    }
-
     RicMswExportInfo exportInfo = RicWellPathExportCompletionDataFeatureImpl::generateFracturesMswExportInfo(eclipseCase, wellPath, fractures);
 
-    QTextStream stream(&exportFile);
+    QTextStream stream(exportFile.get());
     RifEclipseDataTableFormatter formatter(stream);
     RicWellPathExportCompletionDataFeatureImpl::generateWelsegsTable(formatter, exportInfo);
     RicWellPathExportCompletionDataFeatureImpl::generateCompsegTables(formatter, exportInfo);
@@ -2216,7 +2235,7 @@ void RicWellPathExportCompletionDataFeatureImpl::exportWellSegments(RimEclipseCa
 /// 
 //--------------------------------------------------------------------------------------------------
 void RicWellPathExportCompletionDataFeatureImpl::exportWellSegments(RimEclipseCase* eclipseCase,
-                                                                    const QString& exportFolder,
+                                                                    QFilePtr exportFile,
                                                                     const RimWellPath* wellPath,
                                                                     const std::vector<RimFishbonesMultipleSubs*>& fishbonesSubs)
 {
@@ -2226,30 +2245,9 @@ void RicWellPathExportCompletionDataFeatureImpl::exportWellSegments(RimEclipseCa
         return;
     }
 
-    QString fileName = QString("%1-Fishbone-Welsegs").arg(eclipseCase->caseUserDescription());
-    fileName = caf::Utils::makeValidFileBasename(fileName);
-
-    QDir dir(exportFolder);
-    if (!dir.exists())
-    {
-        bool createdPath = dir.mkpath(".");
-        if (createdPath)
-            RiaLogging::info("Created export folder " + exportFolder);
-        else
-            RiaLogging::error("Selected output folder does not exist, and could not be created.");
-    }
-
-    QString filePath = dir.filePath(fileName);
-    QFile   exportFile(filePath);
-    if (!exportFile.open(QIODevice::WriteOnly))
-    {
-        RiaLogging::error(QString("Export Well Segments: Could not open the file: %1").arg(filePath));
-        return;
-    }
-
     RicMswExportInfo exportInfo = RicWellPathExportCompletionDataFeatureImpl::generateFishbonesMswExportInfo(eclipseCase, wellPath, fishbonesSubs);
 
-    QTextStream stream(&exportFile);
+    QTextStream stream(exportFile.get());
     RifEclipseDataTableFormatter formatter(stream);
     RicWellPathExportCompletionDataFeatureImpl::generateWelsegsTable(formatter, exportInfo);
     RicWellPathExportCompletionDataFeatureImpl::generateCompsegTables(formatter, exportInfo);
@@ -2257,6 +2255,28 @@ void RicWellPathExportCompletionDataFeatureImpl::exportWellSegments(RimEclipseCa
 }
 
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicWellPathExportCompletionDataFeatureImpl::exportWellSegments(RimEclipseCase* eclipseCase,
+                                                                    QFilePtr exportFile,
+                                                                    const RimWellPath* wellPath,
+                                                                    const std::vector<const RimPerforationInterval*>& perforationIntervals)
+{
+    if (eclipseCase == nullptr)
+    {
+        RiaLogging::error("Export Well Segments: Cannot export completions data without specified eclipse case");
+        return;
+    }
+
+    RicMswExportInfo exportInfo = RicWellPathExportCompletionDataFeatureImpl::generatePerforationsMswExportInfo(eclipseCase, wellPath, perforationIntervals);
+
+    QTextStream stream(exportFile.get());
+    RifEclipseDataTableFormatter formatter(stream);
+    RicWellPathExportCompletionDataFeatureImpl::generateWelsegsTable(formatter, exportInfo);
+    RicWellPathExportCompletionDataFeatureImpl::generateCompsegTables(formatter, exportInfo);
+    RicWellPathExportCompletionDataFeatureImpl::generateWsegvalvTable(formatter, exportInfo);
+}
 //--------------------------------------------------------------------------------------------------
 /// Internal function
 //--------------------------------------------------------------------------------------------------

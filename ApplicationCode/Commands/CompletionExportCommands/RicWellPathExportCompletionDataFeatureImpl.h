@@ -38,6 +38,7 @@ class RigMainGrid;
 class RimEclipseCase;
 class RimFishbonesMultipleSubs;
 class RimSimWellInView;
+class RimPerforationInterval;
 class RimWellPath;
 class RimWellPathFracture;
 class RifEclipseDataTableFormatter;
@@ -69,7 +70,11 @@ public:
                                                                          const RimWellPath*                       wellPath,
                                                                          const std::vector<RimWellPathFracture*>& fractures);
 
-    static CellDirection                  calculateDirectionInCell(RimEclipseCase* eclipseCase, 
+    static RicMswExportInfo               generatePerforationsMswExportInfo(RimEclipseCase*                          caseToApply,
+                                                                            const RimWellPath*                       wellPath,
+                                                                            const std::vector<const RimPerforationInterval*>& perforationIntervals);
+
+    static CellDirection                  calculateDirectionInCell(RimEclipseCase* eclipseCase,
                                                                    size_t globalCellIndex, 
                                                                    const cvf::Vec3d& lengthsInCell);
     
@@ -194,12 +199,17 @@ private:
     static cvf::Vec2i                     wellPathUpperGridIntersectionIJ(const RimEclipseCase* gridCase, const RimWellPath* wellPath, const QString& gridName = "");
 
     static void                           exportWellSegments(RimEclipseCase* eclipseCase,
-                                                             const QString& exportFolder,
+                                                             QFilePtr exportFile,
                                                              const RimWellPath* wellPath,
                                                              const std::vector<RimWellPathFracture*>& fractures);
 
     static void                           exportWellSegments(RimEclipseCase* eclipseCase,
-                                                             const QString& exportFolder,
+                                                             QFilePtr exportFile,
                                                              const RimWellPath* wellPath,
                                                              const std::vector<RimFishbonesMultipleSubs*>& fishbonesSubs);
+
+    static void                           exportWellSegments(RimEclipseCase* eclipseCase,
+                                                             QFilePtr exportFile,
+                                                             const RimWellPath* wellPath,
+                                                             const std::vector<const RimPerforationInterval*>& perforationIntervals);
 };
