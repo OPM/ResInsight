@@ -1256,7 +1256,7 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompdatTableUsingFormatte
 
     if (gridName.isEmpty())
     {
-        header = {RifEclipseOutputTableColumn("Well"),
+        header = { RifEclipseOutputTableColumn("Well"),
                   RifEclipseOutputTableColumn("I"),
                   RifEclipseOutputTableColumn("J"),
                   RifEclipseOutputTableColumn("K1"),
@@ -1271,8 +1271,7 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompdatTableUsingFormatte
                   RifEclipseOutputTableColumn("S"),
                   RifEclipseOutputTableColumn(
                       "Df", RifEclipseOutputTableDoubleFormatting(RifEclipseOutputTableDoubleFormat::RIF_SCIENTIFIC)),
-                  RifEclipseOutputTableColumn("DIR"),
-                  RifEclipseOutputTableColumn("r0")};
+                  RifEclipseOutputTableColumn("DIR") };
 
         formatter.keyword("COMPDAT");
     }
@@ -1294,8 +1293,7 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompdatTableUsingFormatte
                   RifEclipseOutputTableColumn("S"),
                   RifEclipseOutputTableColumn(
                       "Df", RifEclipseOutputTableDoubleFormatting(RifEclipseOutputTableDoubleFormat::RIF_SCIENTIFIC)),
-                  RifEclipseOutputTableColumn("DIR"),
-                  RifEclipseOutputTableColumn("r0")};
+                  RifEclipseOutputTableColumn("DIR") };
 
         formatter.keyword("COMPDATL");
     }
@@ -1354,43 +1352,27 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompdatTableUsingFormatte
         }
 
         formatter.addValueOrDefaultMarker(data.saturation(), RigCompletionData::defaultValue());
-
-        if (data.isNonDarcyFlow() || RigCompletionData::isDefaultValue(data.transmissibility()))
-        {
-            formatter.addValueOrDefaultMarker(data.transmissibility(), RigCompletionData::defaultValue());
-            formatter.addValueOrDefaultMarker(data.diameter(), RigCompletionData::defaultValue());
-            formatter.addValueOrDefaultMarker(data.kh(), RigCompletionData::defaultValue());
-            formatter.addValueOrDefaultMarker(data.skinFactor(), RigCompletionData::defaultValue());
-            if (RigCompletionData::isDefaultValue(data.dFactor()))
-                formatter.add("1*");
-            else
-                formatter.add(-data.dFactor());
-
-            switch (data.direction())
-            {
-                case DIR_I:
-                    formatter.add("'X'");
-                    break;
-                case DIR_J:
-                    formatter.add("'Y'");
-                    break;
-                case DIR_K:
-                    formatter.add("'Z'");
-                    break;
-                default:
-                    formatter.add("'Z'");
-                    break;
-            }
-        }
+        formatter.addValueOrDefaultMarker(data.transmissibility(), RigCompletionData::defaultValue());
+        formatter.addValueOrDefaultMarker(data.diameter(), RigCompletionData::defaultValue());
+        formatter.addValueOrDefaultMarker(data.kh(), RigCompletionData::defaultValue());
+        formatter.addValueOrDefaultMarker(data.skinFactor(), RigCompletionData::defaultValue());
+        if (RigCompletionData::isDefaultValue(data.dFactor()))
+            formatter.add("1*");
         else
-        {
-            formatter.add(data.transmissibility());
+            formatter.add(-data.dFactor());
 
-            // Based on feedback from Shunping for COMPDATL, hhgs required COMPDAT
-            // Always include diameter
-            // See https://github.com/OPM/ResInsight/issues/2517
-            // See https://github.com/OPM/ResInsight/issues/2709
-            formatter.addValueOrDefaultMarker(data.diameter(), RigCompletionData::defaultValue());
+        switch (data.direction())
+        {
+            case DIR_I:
+                formatter.add("'X'");
+                break;
+            case DIR_J:
+                formatter.add("'Y'");
+                break;
+            case DIR_K:
+            default:
+                formatter.add("'Z'");
+                break;
         }
 
         formatter.rowCompleted();
