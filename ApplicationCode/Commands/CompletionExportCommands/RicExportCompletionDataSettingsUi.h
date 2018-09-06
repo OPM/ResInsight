@@ -40,8 +40,7 @@ public:
 
     enum CompdatExport {
         TRANSMISSIBILITIES,
-        WPIMULT_AND_DEFAULT_CONNECTION_FACTORS,
-        MULTI_SEGMENT_WELL
+        WPIMULT_AND_DEFAULT_CONNECTION_FACTORS
     };
     typedef caf::AppEnum<CompdatExport> CompdatExportType;
 
@@ -60,6 +59,7 @@ public:
     caf::PdmField<ExportSplitType>          fileSplit;
     caf::PdmField<CompdatExportType>        compdatExport;
 
+    caf::PdmField<bool>                     includeMsw;
     caf::PdmField<bool>                     useLateralNTG;
     caf::PdmField<bool>                     includePerforations;
     caf::PdmField<bool>                     includeFishbones;

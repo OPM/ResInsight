@@ -35,7 +35,6 @@ namespace caf
     {
         addItem(RicExportCompletionDataSettingsUi::TRANSMISSIBILITIES, "TRANSMISSIBILITIES", "Calculated Transmissibilities");
         addItem(RicExportCompletionDataSettingsUi::WPIMULT_AND_DEFAULT_CONNECTION_FACTORS, "WPIMULT_AND_DEFAULT_CONNECTION_FACTORS", "Default Connection Factors and WPIMULT (Fractures Not Supported)");
-        addItem(RicExportCompletionDataSettingsUi::MULTI_SEGMENT_WELL, "MULTI_SEGMENT_WELL", "Multi Segment Well");
         setDefault(RicExportCompletionDataSettingsUi::TRANSMISSIBILITIES);
     }
 
@@ -63,6 +62,8 @@ RicExportCompletionDataSettingsUi::RicExportCompletionDataSettingsUi()
     CAF_PDM_InitFieldNoDefault(&compdatExport, "compdatExport", "Export", "", " ", "");
 
     CAF_PDM_InitField(&timeStep, "TimeStepIndex", 0, "  Time Step", "", "", "");
+
+    CAF_PDM_InitField(&includeMsw, "IncludeMSW", false, "Include MSW", "", "", "");
 
     CAF_PDM_InitField(&useLateralNTG, "UseLateralNTG", false, "Use NTG Horizontally", "", "", "");
 
@@ -173,7 +174,7 @@ void RicExportCompletionDataSettingsUi::fieldChangedByUi(const caf::PdmFieldHand
         {
             includeFractures = false;
         }
-        else if (compdatExport == TRANSMISSIBILITIES || compdatExport == MULTI_SEGMENT_WELL)
+        else if (compdatExport == TRANSMISSIBILITIES || includeMsw)
         {
             includeFractures = true;
         }
@@ -217,20 +218,16 @@ void RicExportCompletionDataSettingsUi::defineUiOrdering(QString uiConfigName, c
         caf::PdmUiGroup* group = uiOrdering.addNewGroup("Export Settings");
 
         group->add(&compdatExport);
+        group->add(&includeMsw);
         group->add(&useLateralNTG);
         group->add(&caseToApply);
         group->add(&fileSplit);
         group->add(&m_reportCompletionTypesSeparately);
         group->add(&folder);
-
-        // Set visibility
-        useLateralNTG.uiCapability()->setUiHidden(compdatExport == MULTI_SEGMENT_WELL);
-        fileSplit.uiCapability()->setUiHidden(compdatExport == MULTI_SEGMENT_WELL);
-        m_reportCompletionTypesSeparately.uiCapability()->setUiHidden(compdatExport == MULTI_SEGMENT_WELL);
     }
 
     {
-        caf::PdmUiGroup* group = uiOrdering.addNewGroup("Visible Completions");
+        caf::PdmUiGroup* group = uiOrdering.addNewGroup("Completions Export Selection");
         if (!m_displayForSimWell)
         {
             if (m_perforationsEnabled)
@@ -242,10 +239,6 @@ void RicExportCompletionDataSettingsUi::defineUiOrdering(QString uiConfigName, c
                 else
                     timeStep.uiCapability()->setUiReadOnly(false);
             }
-
-            // Set visibility
-            includePerforations.uiCapability()->setUiHidden(compdatExport == MULTI_SEGMENT_WELL);
-            timeStep.uiCapability()->setUiHidden(compdatExport == MULTI_SEGMENT_WELL);
         }
 
         if (m_fracturesEnabled)
@@ -254,9 +247,8 @@ void RicExportCompletionDataSettingsUi::defineUiOrdering(QString uiConfigName, c
             group->add(&m_includeFracturesSummaryHeader);
 
             // Set visibility
-            includeFractures.uiCapability()->setUiHidden(compdatExport == WPIMULT_AND_DEFAULT_CONNECTION_FACTORS);
-            m_includeFracturesSummaryHeader.uiCapability()->setUiHidden(compdatExport == MULTI_SEGMENT_WELL ||
-                                                                        compdatExport == WPIMULT_AND_DEFAULT_CONNECTION_FACTORS);
+            includeFractures.uiCapability()->setUiHidden(compdatExport == WPIMULT_AND_DEFAULT_CONNECTION_FACTORS && !includeMsw);
+            m_includeFracturesSummaryHeader.uiCapability()->setUiHidden(compdatExport == WPIMULT_AND_DEFAULT_CONNECTION_FACTORS);
         }
 
         if (!m_displayForSimWell)
@@ -271,8 +263,6 @@ void RicExportCompletionDataSettingsUi::defineUiOrdering(QString uiConfigName, c
                     excludeMainBoreForFishbones.uiCapability()->setUiReadOnly(true);
                 else
                     excludeMainBoreForFishbones.uiCapability()->setUiReadOnly(false);
-
-                excludeMainBoreForFishbones.uiCapability()->setUiHidden(compdatExport == MULTI_SEGMENT_WELL);
             }
         }
     }

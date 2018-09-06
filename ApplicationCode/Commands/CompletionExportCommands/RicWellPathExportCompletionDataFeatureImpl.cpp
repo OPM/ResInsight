@@ -359,7 +359,8 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions(const std::ve
             }
         }
     }
-    else if (exportSettings.compdatExport == RicExportCompletionDataSettingsUi::MULTI_SEGMENT_WELL)
+    
+    if (exportSettings.includeMsw)
     {
         if (exportSettings.includeFractures())
         {
