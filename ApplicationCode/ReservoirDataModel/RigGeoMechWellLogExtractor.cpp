@@ -111,8 +111,15 @@ void RigGeoMechWellLogExtractor::curveData(const RigFemResultAddress& resAddr, i
 float RigGeoMechWellLogExtractor::calculatePorePressureInSegment(int64_t intersectionIdx, float averageSegmentPorePressureBars, double hydroStaticPorePressureBars, double effectiveDepthMeters, const std::vector<float>& poreElementPressuresPascal) const
 {
     double porePressure = hydroStaticPorePressureBars;
-    // 1: Try mud weight from LAS-file to generate pore pressure
-    if (!m_wellLogMdAndMudWeightKgPerM3.empty())
+
+    // 1: Try pore pressure from the grid
+    if (porePressure == hydroStaticPorePressureBars && averageSegmentPorePressureBars != std::numeric_limits<float>::infinity())
+    {
+        porePressure = averageSegmentPorePressureBars;
+    }
+
+    // 2: Try mud weight from LAS-file to generate pore pressure
+    if (porePressure == hydroStaticPorePressureBars && !m_wellLogMdAndMudWeightKgPerM3.empty())
     {
         double lasMudWeightKgPerM3 = getWellLogSegmentValue(intersectionIdx, m_wellLogMdAndMudWeightKgPerM3);
         if (lasMudWeightKgPerM3 != std::numeric_limits<double>::infinity())
@@ -123,16 +130,11 @@ float RigGeoMechWellLogExtractor::calculatePorePressureInSegment(int64_t interse
         }
     }
     size_t elmIdx = m_intersectedCellsGlobIdx[intersectionIdx];
-    // 2: Try pore pressure from element property tables
+    // 3: Try pore pressure from element property tables
     if (porePressure == hydroStaticPorePressureBars && elmIdx < poreElementPressuresPascal.size())
     {
         // Pore pressure from element property tables are in pascal.
         porePressure = pascalToBar(poreElementPressuresPascal[elmIdx]);
-    }
-    // 3: Try pore pressure from the grid
-    if (porePressure == hydroStaticPorePressureBars && averageSegmentPorePressureBars != std::numeric_limits<float>::infinity())
-    {
-        porePressure = averageSegmentPorePressureBars;
     }
     // 4: If no pore-pressure was found, the default value of hydrostatic pore pressure is used.
     return porePressure;
@@ -398,7 +400,7 @@ void RigGeoMechWellLogExtractor::wellBoreWallCurveData(const RigFemResultAddress
         double hydroStaticPorePressureBars = pascalToBar(effectiveDepthMeters * UNIT_WEIGHT_OF_WATER);
 
         float averageUnscaledPP = std::numeric_limits<float>::infinity();
-        averageIntersectionValuesToSegmentValue(intersectionIdx, interpolatedInterfacePP, std::numeric_limits<float>::infinity(), &averageUnscaledPP);
+        bool validGridPP = averageIntersectionValuesToSegmentValue(intersectionIdx, interpolatedInterfacePP, std::numeric_limits<float>::infinity(), &averageUnscaledPP);
 
         double porePressureBars = calculatePorePressureInSegment(intersectionIdx, averageUnscaledPP, hydroStaticPorePressureBars, effectiveDepthMeters, poreElementPressuresPascal);
         double poissonRatio     = calculatePoissonRatio(intersectionIdx, poissonRatios);
@@ -412,25 +414,33 @@ void RigGeoMechWellLogExtractor::wellBoreWallCurveData(const RigFemResultAddress
         caf::Ten3d wellPathStressDouble(wellPathStressFloat);
 
         RigGeoMechBoreHoleStressCalculator sigmaCalculator(wellPathStressDouble, porePressureBars, poissonRatio, ucsBars, 32);
-        double resultValue = 0.0;
+        double resultValue = std::numeric_limits<double>::infinity();
         if (resAddr.fieldName == RiaDefines::wellPathFGResultName().toStdString())
         {
-            resultValue = sigmaCalculator.solveFractureGradient();
+            if (validGridPP)
+            {
+                resultValue = sigmaCalculator.solveFractureGradient();
+            }
         }
         else
         {
             CVF_ASSERT(resAddr.fieldName == RiaDefines::wellPathSFGResultName().toStdString());
-            resultValue = sigmaCalculator.solveStassiDalia();
+            if (!validGridPP)
+            {
+                resultValue = sigmaCalculator.solveStassiDalia();
+            }
         }
-        if (hydroStaticPorePressureBars > 1.0e-8)
+        if (resultValue != std::numeric_limits<double>::infinity())
         {
-            resultValue /= hydroStaticPorePressureBars;
+            if (hydroStaticPorePressureBars > 1.0e-8)
+            {
+                resultValue /= hydroStaticPorePressureBars;
+            }
+            else
+            {
+                resultValue = std::numeric_limits<double>::infinity();
+            }
         }
-        else
-        {
-            resultValue = std::numeric_limits<double>::infinity();
-        }
-
         (*values)[intersectionIdx] = resultValue;
     }
 }
