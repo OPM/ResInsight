@@ -109,7 +109,7 @@ void RicNewWellBoreStabilityPlotFeature::onActionTriggered(bool isChecked)
     QString         plotName("Well Bore Stability");
     RimWellLogPlot* plot = RicNewWellLogPlotFeatureImpl::createWellLogPlot(false, plotName);
     createFormationTrack(plot, wellPath, geoMechCase);
-    progInfo.incrementProgressAndUpdateNextStep(3, "Creating casing shoe size track");
+    progInfo.incrementProgressAndUpdateNextStep(3, "Creating well design track");
     createCasingShoeTrack(plot, wellPath, geoMechCase);
     progInfo.incrementProgressAndUpdateNextStep(75, "Creating stability curves track");
     createStabilityCurvesTrack(plot, wellPath, geoMechView);
@@ -159,7 +159,7 @@ void RicNewWellBoreStabilityPlotFeature::createFormationTrack(RimWellLogPlot* pl
 //--------------------------------------------------------------------------------------------------
 void RicNewWellBoreStabilityPlotFeature::createCasingShoeTrack(RimWellLogPlot* plot, RimWellPath* wellPath, RimGeoMechCase* geoMechCase)
 {
-    RimWellLogTrack* casingShoeTrack = RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack(false, "Casing Shoe", plot);
+    RimWellLogTrack* casingShoeTrack = RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack(false, "Well Design", plot);
     casingShoeTrack->setWidthScaleFactor(RimWellLogTrack::NARROW_TRACK);
     casingShoeTrack->setFormationWellPath(wellPath);
     casingShoeTrack->setFormationCase(geoMechCase);
