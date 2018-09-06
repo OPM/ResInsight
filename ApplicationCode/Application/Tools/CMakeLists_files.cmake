@@ -34,6 +34,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RiaArcCurveCalculator.h
 ${CMAKE_CURRENT_LIST_DIR}/RiaJCurveCalculator.h
 ${CMAKE_CURRENT_LIST_DIR}/RiaOffshoreSphericalCoords.h
 ${CMAKE_CURRENT_LIST_DIR}/RiaWeightedAverageCalculator.h
+${CMAKE_CURRENT_LIST_DIR}/RiaWeightedAverageCalculator.inl
 ${CMAKE_CURRENT_LIST_DIR}/RiaWeightedGeometricMeanCalculator.h
 )
 
@@ -70,7 +71,6 @@ ${CMAKE_CURRENT_LIST_DIR}/RiaPolyArcLineSampler.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiaSCurveCalculator.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiaArcCurveCalculator.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiaJCurveCalculator.cpp
-${CMAKE_CURRENT_LIST_DIR}/RiaWeightedAverageCalculator.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiaWeightedGeometricMeanCalculator.cpp
 )
 

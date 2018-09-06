@@ -21,17 +21,20 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+template<class T>
 class RiaWeightedAverageCalculator
 {
 public:
     RiaWeightedAverageCalculator();
 
-    void addValueAndWeight(double value, double weight);
+    void   addValueAndWeight(T value, double weight);
 
-    double weightedAverage() const;
+    T      weightedAverage() const;
     double aggregatedWeight() const;
-
+    bool   validAggregatedWeight() const;
 private:
-    double m_aggregatedValue;
+    T      m_aggregatedValue;
     double m_aggregatedWeight;
 };
+
+#include "RiaWeightedAverageCalculator.inl"

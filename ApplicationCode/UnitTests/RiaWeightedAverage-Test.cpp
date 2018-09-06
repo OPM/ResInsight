@@ -9,15 +9,14 @@
 TEST(RiaWeightedAverageCalculator, BasicUsage)
 {
     {
-        RiaWeightedAverageCalculator calc;
+        RiaWeightedAverageCalculator<double> calc;
 
         EXPECT_DOUBLE_EQ(0.0, calc.aggregatedWeight());
-        EXPECT_DOUBLE_EQ(0.0, calc.weightedAverage());
+        EXPECT_FALSE(calc.validAggregatedWeight());
     }
 
-
     {
-        RiaWeightedAverageCalculator calc;
+        RiaWeightedAverageCalculator<double> calc;
 
         std::vector<double> values {3.0, 6.0};
         std::vector<double> weights {1.0, 2.0};
@@ -26,7 +25,7 @@ TEST(RiaWeightedAverageCalculator, BasicUsage)
         {
             calc.addValueAndWeight(values[i], weights[i]);
         }
-
+        EXPECT_TRUE(calc.validAggregatedWeight());
         EXPECT_DOUBLE_EQ(3.0, calc.aggregatedWeight());
         EXPECT_DOUBLE_EQ(5.0, calc.weightedAverage());
     }

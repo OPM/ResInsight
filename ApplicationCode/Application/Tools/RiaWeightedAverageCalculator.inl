@@ -16,15 +16,14 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RiaWeightedAverageCalculator.h"
-
 #include "cvfAssert.h"
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiaWeightedAverageCalculator::RiaWeightedAverageCalculator()
-    : m_aggregatedValue(0.0)
+template<class T>
+RiaWeightedAverageCalculator<T>::RiaWeightedAverageCalculator()
+    : m_aggregatedValue(T{})
     , m_aggregatedWeight(0.0)
 {
 }
@@ -32,31 +31,45 @@ RiaWeightedAverageCalculator::RiaWeightedAverageCalculator()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaWeightedAverageCalculator::addValueAndWeight(double value, double weight)
+template<class T>
+void RiaWeightedAverageCalculator<T>::addValueAndWeight(T value, double weight)
 {
     CVF_ASSERT(weight >= 0.0);
 
-    m_aggregatedValue += value * weight;
+    m_aggregatedValue = m_aggregatedValue + value * weight;
     m_aggregatedWeight += weight;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RiaWeightedAverageCalculator::weightedAverage() const
+template<class T>
+T RiaWeightedAverageCalculator<T>::weightedAverage() const
 {
-    if (m_aggregatedWeight > 1e-7)
+    bool validWeights = validAggregatedWeight();
+    CVF_TIGHT_ASSERT(validWeights);
+    if (validWeights)
     {
-        return m_aggregatedValue / m_aggregatedWeight;
+        return m_aggregatedValue * (1.0 / m_aggregatedWeight);
     }
-
-    return 0.0;
+    return T{};
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RiaWeightedAverageCalculator::aggregatedWeight() const
+template<class T>
+double RiaWeightedAverageCalculator<T>::aggregatedWeight() const
 {
     return m_aggregatedWeight;
+}
+
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+template<class T>
+bool RiaWeightedAverageCalculator<T>::validAggregatedWeight() const
+{
+    return m_aggregatedWeight > 1.0e-12;
 }

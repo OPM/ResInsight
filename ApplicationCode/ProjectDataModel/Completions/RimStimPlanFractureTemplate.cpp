@@ -477,8 +477,8 @@ FractureWidthAndConductivity
                             nameUnit.first, nameUnit.second, m_activeTimeStepIndex, fractureTemplateUnit());
                     }
 
-                    RiaWeightedAverageCalculator widthCalc;
-                    RiaWeightedAverageCalculator conductivityCalc;
+                    RiaWeightedAverageCalculator<double> widthCalc;
+                    RiaWeightedAverageCalculator<double> conductivityCalc;
 
                     RigWellPathStimplanIntersector intersector(rimWellPath->wellPathGeometry(), fractureInstance);
                     for (const auto& v : intersector.intersections())
@@ -497,10 +497,15 @@ FractureWidthAndConductivity
                                                                intersectionLength);
                         }
                     }
-
-                    weightedConductivity = conductivityCalc.weightedAverage();
-                    weightedWidth        = widthCalc.weightedAverage();
-                    totalLength          = widthCalc.aggregatedWeight();
+                    if (conductivityCalc.validAggregatedWeight())
+                    {
+                        weightedConductivity = conductivityCalc.weightedAverage();
+                    }
+                    if (widthCalc.validAggregatedWeight())
+                    {
+                        weightedWidth = widthCalc.weightedAverage();
+                        totalLength   = widthCalc.aggregatedWeight();
+                    }
                 }
 
                 if (totalLength > 1e-7)
