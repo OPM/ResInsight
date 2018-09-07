@@ -152,7 +152,7 @@ void RivWellPathPartMgr::appendFishboneSubsPartsToModel(cvf::ModelBasicList* mod
 {
     if ( !m_rimWellPath || !m_rimWellPath->fishbonesCollection()->isChecked() ) return;
 
-    for (const auto& rimFishboneSubs : m_rimWellPath->fishbonesCollection()->fishbonesSubs() )
+    for (const auto& rimFishboneSubs : m_rimWellPath->fishbonesCollection()->activeFishbonesSubs() )
     {
         cvf::ref<RivFishbonesSubsPartMgr> fishbSubPartMgr = new RivFishbonesSubsPartMgr(rimFishboneSubs);
         fishbSubPartMgr->appendGeometryPartsToModel(model, displayCoordTransform, characteristicCellSize);

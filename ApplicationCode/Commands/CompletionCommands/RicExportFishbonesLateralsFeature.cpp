@@ -78,10 +78,8 @@ void RicExportFishbonesLateralsFeature::onActionTriggered(bool isChecked)
     // separate laterals using -999 on a single line
 
     QTextStream stream(&exportFile);
-    for (RimFishbonesMultipleSubs* fishbone : fishbonesCollection->fishbonesSubs())
+    for (RimFishbonesMultipleSubs* fishbone : fishbonesCollection->activeFishbonesSubs())
     {
-        if (!fishbone->isActive()) continue;
-
         const QString fishboneName = fishbone->generatedName();
 
         for (auto& sub : fishbone->installedLateralIndices())

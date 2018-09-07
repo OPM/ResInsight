@@ -183,6 +183,27 @@ const RimMswCompletionParameters* RimFishbonesCollection::mswParameters() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+std::vector<RimFishbonesMultipleSubs*> RimFishbonesCollection::activeFishbonesSubs() const
+{
+    std::vector<RimFishbonesMultipleSubs*> active;
+
+    if (isChecked())
+    {
+        for (const auto& f : fishbonesSubs())
+        {
+            if (f->isActive())
+            {
+                active.push_back(f);
+            }
+        }
+    }
+
+    return active;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 std::vector<RimFishbonesMultipleSubs*> RimFishbonesCollection::fishbonesSubs() const
 {
     return m_fishbonesSubs.childObjects();

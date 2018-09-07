@@ -87,7 +87,7 @@ void RicfExportMsw::execute()
 
     std::vector<RimFishbonesMultipleSubs*> fishbonesSubs;
     
-    for (RimFishbonesMultipleSubs* fishbones : wellPath->fishbonesCollection()->fishbonesSubs())
+    for (RimFishbonesMultipleSubs* fishbones : wellPath->fishbonesCollection()->activeFishbonesSubs())
     {
         fishbonesSubs.push_back(fishbones);
     }

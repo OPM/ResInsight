@@ -384,7 +384,7 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions(const std::ve
 
             for (const auto wellPath : wellPaths)
             {
-                auto fishbones = wellPath->fishbonesCollection()->fishbonesSubs();
+                auto fishbones = wellPath->fishbonesCollection()->activeFishbonesSubs();
                 exportWellSegments(exportSettings.caseToApply,
                                    exportFile,
                                    wellPath, fishbones);
@@ -1561,18 +1561,7 @@ std::vector<RigCompletionData> RicWellPathExportCompletionDataFeatureImpl::gener
 RicMswExportInfo RicWellPathExportCompletionDataFeatureImpl::generateFishbonesMswExportInfo(const RimEclipseCase* caseToApply,
                                                                                             const RimWellPath*    wellPath)
 {
-    std::vector<RimFishbonesMultipleSubs*> fishbonesSubs;
-
-    if (wellPath->fishbonesCollection()->isChecked())
-    {
-        for (RimFishbonesMultipleSubs* subs : wellPath->fishbonesCollection()->fishbonesSubs())
-        {
-            if (subs->isActive())
-            {
-                fishbonesSubs.push_back(subs);
-            }
-        }
-    }
+    std::vector<RimFishbonesMultipleSubs*> fishbonesSubs = wellPath->fishbonesCollection()->activeFishbonesSubs();
 
     return generateFishbonesMswExportInfo(caseToApply, wellPath, fishbonesSubs);
 }

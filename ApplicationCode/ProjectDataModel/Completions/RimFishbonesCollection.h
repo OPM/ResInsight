@@ -42,15 +42,15 @@ class RimFishbonesCollection : public RimCheckableNamedObject
     CAF_PDM_HEADER_INIT;
 
 public:
-
-
     RimFishbonesCollection();
 
     RimFishboneWellPathCollection*    wellPathCollection() const;
     void                              appendFishbonesSubs(RimFishbonesMultipleSubs* subs);
     const RimMswCompletionParameters* mswParameters() const;
 
+    std::vector<RimFishbonesMultipleSubs*> activeFishbonesSubs() const;
     std::vector<RimFishbonesMultipleSubs*> fishbonesSubs() const;
+
     void         recalculateStartMD();
     double       startMD() const;
     double       mainBoreSkinFactor() const { return m_skinFactor; }
@@ -58,9 +58,9 @@ public:
     void         setUnitSystemSpecificDefaults();
 
 protected:
-    virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
-    virtual void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering );
-    virtual void initAfterRead() override;
+    void        fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    void        defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    void        initAfterRead() override;
 
 private:
     cvf::Color3f nextFishbonesColor() const;

@@ -168,8 +168,8 @@ void RicFishbonesTransmissibilityCalculationFeatureImp::findFishboneLateralsWell
     if (!wellPath) return;
 
     // Generate data
-    const RigEclipseCaseData*     caseData = settings.caseToApply()->eclipseCaseData();
-    RicMswExportInfo exportInfo =
+    const RigEclipseCaseData* caseData = settings.caseToApply()->eclipseCaseData();
+    RicMswExportInfo          exportInfo =
         RicWellPathExportCompletionDataFeatureImpl::generateFishbonesMswExportInfo(settings.caseToApply(), wellPath);
 
     RiaEclipseUnitTools::UnitSystem unitSystem = caseData->unitsType();
@@ -209,18 +209,15 @@ void RicFishbonesTransmissibilityCalculationFeatureImp::findFishboneLateralsWell
             double holeRadius = wellPath->fishbonesCollection()->mainBoreDiameter(unitSystem) / 2.0;
             double skinFactor = wellPath->fishbonesCollection()->mainBoreSkinFactor();
 
-            for (const auto& fishboneDefinition : wellPath->fishbonesCollection()->fishbonesSubs())
+            for (const auto& fishboneDefinition : wellPath->fishbonesCollection()->activeFishbonesSubs())
             {
-                if (fishboneDefinition->isActive())
-                {
-                    appendMainWellBoreParts(wellBorePartsInCells,
-                                            wellPath,
-                                            settings,
-                                            skinFactor,
-                                            holeRadius,
-                                            fishboneDefinition->startOfSubMD(),
-                                            fishboneDefinition->endOfSubMD());
-                }
+                appendMainWellBoreParts(wellBorePartsInCells,
+                                        wellPath,
+                                        settings,
+                                        skinFactor,
+                                        holeRadius,
+                                        fishboneDefinition->startOfSubMD(),
+                                        fishboneDefinition->endOfSubMD());
             }
         }
     }
