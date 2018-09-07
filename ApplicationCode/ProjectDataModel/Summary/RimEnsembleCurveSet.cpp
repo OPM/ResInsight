@@ -261,6 +261,26 @@ void RimEnsembleCurveSet::detachQwtCurves()
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEnsembleCurveSet::reattachQwtCurves()
+{
+    for (RimSummaryCurve* curve : m_curves)
+    {
+        curve->reattachQwtCurve();
+    }
+
+    m_qwtPlotCurveForLegendText->detach();
+
+    RimSummaryPlot* plot = nullptr;
+    firstAncestorOrThisOfType(plot);
+    if (plot)
+    {
+        m_qwtPlotCurveForLegendText->attach(plot->qwtPlot());
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleCurveSet::addCurve(RimSummaryCurve* curve)

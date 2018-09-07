@@ -74,6 +74,7 @@ public:
     void                                    loadDataAndUpdate(bool updateParentPlot);
     void                                    setParentQwtPlotNoReplot(QwtPlot* plot);
     void                                    detachQwtCurves();
+    void                                    reattachQwtCurves();
 
     void                                    addCurve(RimSummaryCurve* curve);
     void                                    deleteCurve(RimSummaryCurve* curve);

@@ -113,6 +113,17 @@ void RimEnsembleCurveSetCollection::detachQwtCurves()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimEnsembleCurveSetCollection::reattachQwtCurves()
+{
+    for (const auto& curveSet : m_curveSets)
+    {
+        curveSet->reattachQwtCurves();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RimEnsembleCurveSet* RimEnsembleCurveSetCollection::findRimCurveSetFromQwtCurve(const QwtPlotCurve* qwtCurve) const
 {
     for (RimEnsembleCurveSet* curveSet : m_curveSets)

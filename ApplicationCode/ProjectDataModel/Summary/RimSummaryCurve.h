@@ -85,6 +85,9 @@ protected:
     virtual void                            updateZoomInParentPlot() override;
     virtual void                            onLoadDataAndUpdate(bool updateParentPlot) override;
 
+
+    virtual void                            updateLegendsInPlot() override;
+
 private:
     RifSummaryReaderInterface*              valuesSummaryReaderX() const;
     RifSummaryReaderInterface*              valuesSummaryReaderY() const;

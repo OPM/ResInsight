@@ -480,6 +480,15 @@ void RimSummaryPlot::updateAll()
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlot::updateAllLegendItems()
+{
+    reattachAllCurves();
+    qwtPlot()->updateLegend();
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::setPlotInfoLabel(const QString& label)
@@ -1570,6 +1579,29 @@ void RimSummaryPlot::detachAllCurves()
     for (RimAsciiDataCurve* curve : m_asciiDataCurves)
     {
         curve->detachQwtCurve();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlot::reattachAllCurves()
+{
+    if (m_summaryCurveCollection)
+    {
+        m_summaryCurveCollection->reattachQwtCurves();
+    }
+
+    m_ensembleCurveSetCollection->reattachQwtCurves();
+
+    for (RimGridTimeHistoryCurve* curve : m_gridTimeHistoryCurves)
+    {
+        curve->reattachQwtCurve();
+    }
+
+    for (RimAsciiDataCurve* curve : m_asciiDataCurves)
+    {
+        curve->reattachQwtCurve();
     }
 }
 

@@ -44,6 +44,7 @@ public:
     void                                    loadDataAndUpdate(bool updateParentPlot);
     void                                    setParentQwtPlotAndReplot(QwtPlot* plot);
     void                                    detachQwtCurves();
+    void                                    reattachQwtCurves();
 
     RimEnsembleCurveSet*                    findRimCurveSetFromQwtCurve(const QwtPlotCurve* qwtCurve) const;
 

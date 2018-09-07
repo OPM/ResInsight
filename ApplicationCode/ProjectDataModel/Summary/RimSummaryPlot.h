@@ -87,6 +87,7 @@ public:
     size_t                                          curveCount() const;
     
     void                                            detachAllCurves();
+    void                                            reattachAllCurves();
     void                                            updateCaseNameHasChanged();
 
     void                                            updateAxes();
@@ -123,13 +124,13 @@ public:
     void                                            copyAxisPropertiesFromOther(const RimSummaryPlot& sourceSummaryPlot);
 
     void                                            updateAll();
+    void                                            updateAllLegendItems();
 
     void                                            setPlotInfoLabel(const QString& label);
     void                                            showPlotInfoLabel(bool show);
     void                                            updatePlotInfoLabel();
 
     bool                                            containsResamplableCurves() const;
-
     // RimViewWindow overrides
 public:
     virtual QWidget*                                createViewWidget(QWidget* mainWindowParent) override; 

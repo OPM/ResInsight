@@ -134,6 +134,17 @@ void RimSummaryCurveCollection::detachQwtCurves()
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCurveCollection::reattachQwtCurves()
+{
+    for (RimSummaryCurve* curve : m_curves)
+    {
+        curve->reattachQwtCurve();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 RimSummaryCurve* RimSummaryCurveCollection::findRimCurveFromQwtCurve(const QwtPlotCurve* qwtCurve) const
