@@ -345,7 +345,7 @@ void RigGeoMechWellLogExtractor::wellBoreWallCurveData(const RigFemResultAddress
     RigFemResultAddress porBarResAddr(RIG_ELEMENT_NODAL, "POR-Bar", "");
     // Allow POR as an element property value
     RigFemResultAddress porElementResAddr(RIG_ELEMENT, "POR", "");
-    RigFemResultAddress poissonResAddr(RIG_ELEMENT, "POISSONS_RATIO", "");
+    RigFemResultAddress poissonResAddr(RIG_ELEMENT, "RATIO", "");
     RigFemResultAddress ucsResAddr(RIG_ELEMENT, "UCS", "");
     
     const RigFemPart* femPart = m_caseData->femParts()->part(0);
