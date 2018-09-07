@@ -115,7 +115,7 @@ void RicCreateMultipleFracturesFeature::slotAppendFractures()
             RimWellPathFractureCollection* fractureCollection = item.wellPath->fractureCollection();
 
             // If this is the first fracture, set default result name
-            if (fractureCollection->fractures().empty())
+            if (fractureCollection->allFractures().empty())
             {
                 RimEclipseView* activeView = dynamic_cast<RimEclipseView*>(RiaApplication::instance()->activeReservoirView());
                 if (activeView)

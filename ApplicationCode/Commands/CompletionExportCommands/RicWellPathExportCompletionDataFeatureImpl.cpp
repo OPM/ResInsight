@@ -1102,7 +1102,7 @@ void RicWellPathExportCompletionDataFeatureImpl::exportWellPathFractureReport(
         {
             std::set<RimWellPath*> wellPathsSet;
 
-            auto allWellPaths = RicWellPathFractureTextReportFeatureImpl::wellPathsWithFractures();
+            auto allWellPaths = RicWellPathFractureTextReportFeatureImpl::wellPathsWithActiveFractures();
             for (const auto& wellPath : allWellPaths)
             {
                 for (const auto& reportItem : wellPathFractureReportItems)

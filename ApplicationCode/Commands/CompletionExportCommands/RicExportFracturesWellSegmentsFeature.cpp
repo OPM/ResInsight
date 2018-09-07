@@ -130,12 +130,9 @@ void RicExportFracturesWellSegmentsFeature::onActionTriggered(bool isChecked)
         }
         else
         {
-            for (RimWellPathFracture* fracture : collection->fractures())
+            for (RimWellPathFracture* fracture : collection->activeFractures())
             {
-                if (fracture->isChecked())
-                {
-                    fractures.push_back(fracture);
-                }
+                fractures.push_back(fracture);
             }
         }
 

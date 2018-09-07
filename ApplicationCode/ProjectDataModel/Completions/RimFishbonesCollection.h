@@ -49,7 +49,7 @@ public:
     const RimMswCompletionParameters* mswParameters() const;
 
     std::vector<RimFishbonesMultipleSubs*> activeFishbonesSubs() const;
-    std::vector<RimFishbonesMultipleSubs*> fishbonesSubs() const;
+    std::vector<RimFishbonesMultipleSubs*> allFishbonesSubs() const;
 
     void         recalculateStartMD();
     double       startMD() const;

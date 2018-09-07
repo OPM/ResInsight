@@ -56,15 +56,14 @@ public:
     ReferenceMDType                   referenceMDType() const;
     double                            manualReferenceMD() const;
     
-    std::vector<RimWellPathFracture*> fractures() const;
+    std::vector<RimWellPathFracture*> allFractures() const;
     std::vector<RimWellPathFracture*> activeFractures() const;
 
-protected:
-    virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
+private:
+    void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
 
 private:
-    virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
-
     caf::PdmChildArrayField<RimWellPathFracture*>   m_fractures;
     caf::PdmField<ReferenceMDEnum>                  m_refMDType;
     caf::PdmField<double>                           m_refMD;

@@ -39,7 +39,7 @@ public:
                                    const std::vector<RimWellPath*>&                  wellPaths,
                                    const std::vector<RicWellPathFractureReportItem>& wellPathFractureReportItems);
 
-    static std::vector<RimWellPath*> wellPathsWithFractures();
+    static std::vector<RimWellPath*> wellPathsWithActiveFractures();
 
 private:
     QString createWellFileLocationText(const std::vector<RimWellPath*>& wellPaths) const;

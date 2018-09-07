@@ -131,7 +131,7 @@ bool RicDeleteSubItemsFeature::hasDeletableSubItems(caf::PdmUiItem* uiItem)
 
     {
         auto collection = dynamic_cast<RimWellPathFractureCollection*>(uiItem);
-        if (collection && !collection->fractures().empty())
+        if (collection && !collection->allFractures().empty())
         {
             return true;
         }

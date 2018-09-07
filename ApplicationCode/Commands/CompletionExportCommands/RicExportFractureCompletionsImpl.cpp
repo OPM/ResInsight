@@ -65,17 +65,11 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
 {
     std::vector<const RimFracture*> fracturesAlongWellPath;
 
-    if (wellPath->fractureCollection()->isChecked())
+    for (auto& frac : wellPath->fractureCollection()->activeFractures())
     {
-        for (auto& frac : wellPath->fractureCollection()->fractures())
-        {
-            if (frac->isChecked())
-            {
-                frac->ensureValidNonDarcyProperties();
+        frac->ensureValidNonDarcyProperties();
 
-                fracturesAlongWellPath.push_back(frac);
-            }
-        }
+        fracturesAlongWellPath.push_back(frac);
     }
 
     return generateCompdatValues(caseToApply,
@@ -444,11 +438,11 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
 
             reportItem.setData(transmissibility, allCompletionsForOneFracture.size(), fcd, area);
 
-            double conductivity = 0.0;
-            double width        = 0.0;
-            double height       = 0.0;
-            double halfLength   = 0.0;
-            RiaEclipseUnitTools::UnitSystem unitSystem = RiaEclipseUnitTools::UNITS_METRIC;
+            double                          conductivity = 0.0;
+            double                          width        = 0.0;
+            double                          height       = 0.0;
+            double                          halfLength   = 0.0;
+            RiaEclipseUnitTools::UnitSystem unitSystem   = RiaEclipseUnitTools::UNITS_METRIC;
 
             {
                 auto* ellipseTemplate = dynamic_cast<const RimEllipseFractureTemplate*>(fracTemplate);

@@ -148,7 +148,7 @@ QString RicWellPathFractureTextReportFeatureImpl::wellPathFractureReport(
         std::vector<RimWellPathFracture*> wellPathFractures;
         for (const auto& w : wellPaths)
         {
-            for (const auto& frac : w->fractureCollection()->fractures())
+            for (const auto& frac : w->fractureCollection()->activeFractures())
             {
                 wellPathFractures.push_back(frac);
             }
@@ -182,7 +182,7 @@ QString RicWellPathFractureTextReportFeatureImpl::wellPathFractureReport(
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimWellPath*> RicWellPathFractureTextReportFeatureImpl::wellPathsWithFractures()
+std::vector<RimWellPath*> RicWellPathFractureTextReportFeatureImpl::wellPathsWithActiveFractures()
 {
     std::vector<RimWellPath*> wellPaths;
 
@@ -191,7 +191,7 @@ std::vector<RimWellPath*> RicWellPathFractureTextReportFeatureImpl::wellPathsWit
     {
         for (const auto& wellPath : wellPathColl->wellPaths())
         {
-            if (!wellPath->fractureCollection()->fractures().empty())
+            if (!wellPath->fractureCollection()->activeFractures().empty())
             {
                 wellPaths.push_back(wellPath);
             }

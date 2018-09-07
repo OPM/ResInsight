@@ -61,7 +61,7 @@ void RicNewWellPathFractureFeature::addFracture(RimWellPath* wellPath, double me
     RimWellPathFractureCollection* fractureCollection = wellPath->fractureCollection();
     CVF_ASSERT(fractureCollection);
 
-    if (fractureCollection->fractures().empty())
+    if (fractureCollection->allFractures().empty())
     {
         RimEclipseView* activeView = dynamic_cast<RimEclipseView*>(RiaApplication::instance()->activeReservoirView());
         if (activeView)

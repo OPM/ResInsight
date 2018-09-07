@@ -135,7 +135,7 @@ void RivWellPathPartMgr::appendStaticFracturePartsToModel(cvf::ModelBasicList*  
 
     if (!isWellPathWithinBoundingBox(wellPathClipBoundingBox)) return;
 
-    for (RimWellPathFracture* f : m_rimWellPath->fractureCollection()->fractures())
+    for (RimWellPathFracture* f : m_rimWellPath->fractureCollection()->activeFractures())
     {
         CVF_ASSERT(f);
 

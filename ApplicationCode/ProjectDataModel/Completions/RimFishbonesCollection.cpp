@@ -190,7 +190,7 @@ std::vector<RimFishbonesMultipleSubs*> RimFishbonesCollection::activeFishbonesSu
 
     if (isChecked())
     {
-        for (const auto& f : fishbonesSubs())
+        for (const auto& f : allFishbonesSubs())
         {
             if (f->isActive())
             {
@@ -205,7 +205,7 @@ std::vector<RimFishbonesMultipleSubs*> RimFishbonesCollection::activeFishbonesSu
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimFishbonesMultipleSubs*> RimFishbonesCollection::fishbonesSubs() const
+std::vector<RimFishbonesMultipleSubs*> RimFishbonesCollection::allFishbonesSubs() const
 {
     return m_fishbonesSubs.childObjects();
 }

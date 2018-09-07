@@ -120,7 +120,7 @@ double RimWellPathFractureCollection::manualReferenceMD() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<RimWellPathFracture*> RimWellPathFractureCollection::fractures() const
+std::vector<RimWellPathFracture*> RimWellPathFractureCollection::allFractures() const
 {
     return m_fractures.childObjects();
 }
@@ -134,7 +134,7 @@ std::vector<RimWellPathFracture*> RimWellPathFractureCollection::activeFractures
 
     if (isChecked())
     {
-        for (const auto& f : fractures())
+        for (const auto& f : allFractures())
         {
             if (f->isChecked())
             {

@@ -170,12 +170,12 @@ RimWellPathFractureCollection* RimWellPathCompletions::fractureCollection() cons
 //--------------------------------------------------------------------------------------------------
 bool RimWellPathCompletions::hasCompletions() const
 {
-    if (!fractureCollection()->fractures().empty())
+    if (!fractureCollection()->allFractures().empty())
     {
         return true;
     }
 
-    return !fishbonesCollection()->fishbonesSubs().empty() ||
+    return !fishbonesCollection()->allFishbonesSubs().empty() ||
            !fishbonesCollection()->wellPathCollection()->wellPaths().empty() ||
            !perforationCollection()->perforations().empty();
 }
@@ -201,13 +201,13 @@ void RimWellPathCompletions::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTree
         uiTreeOrdering.add(&m_perforationCollection);
     }
 
-    if (!fishbonesCollection()->fishbonesSubs().empty() ||
+    if (!fishbonesCollection()->allFishbonesSubs().empty() ||
         !fishbonesCollection()->wellPathCollection()->wellPaths().empty())
     {
         uiTreeOrdering.add(&m_fishbonesCollection);
     }
 
-    if (!fractureCollection()->fractures().empty())
+    if (!fractureCollection()->allFractures().empty())
     {
         uiTreeOrdering.add(&m_fractureCollection);
     }
