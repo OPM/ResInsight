@@ -556,6 +556,7 @@ void RicWellPathExportCompletionDataFeatureImpl::generateWelsegsTable(RifEclipse
     {
         double prevMD  = exportInfo.initialMD();
         double prevTVD = exportInfo.initialTVD();
+        formatter.comment("Main Stem Segments");
         for (const RicMswSegment& location : exportInfo.wellSegmentLocations())
         {
             double depth  = 0;
@@ -571,12 +572,13 @@ void RicWellPathExportCompletionDataFeatureImpl::generateWelsegsTable(RifEclipse
                 depth  = location.endTVD();
                 length = location.endMD();
             }
-            QString comment = location.label();
+
             if (location.subIndex() != cvf::UNDEFINED_SIZE_T)
             {
-                comment += QString(", sub %1").arg(location.subIndex());
+                QString comment = location.label() + QString(", sub %1").arg(location.subIndex());
+                formatter.comment(comment);
             }
-            formatter.comment(comment);
+            
             formatter.add(location.segmentNumber()).add(location.segmentNumber());
             formatter.add(1); // All segments on main stem are branch 1
             formatter.add(location.segmentNumber() - 1); // All main stem segments are connected to the segment below them
@@ -793,8 +795,10 @@ void RicWellPathExportCompletionDataFeatureImpl::generateCompsegTable(
             }
         }
     }
-
-    formatter.tableCompleted();
+    if (generatedHeader)
+    {
+        formatter.tableCompleted();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
