@@ -128,6 +128,27 @@ std::vector<RimWellPathFracture*> RimWellPathFractureCollection::fractures() con
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::vector<RimWellPathFracture*> RimWellPathFractureCollection::activeFractures() const
+{
+    std::vector<RimWellPathFracture*> active;
+
+    if (isChecked())
+    {
+        for (const auto& f : fractures())
+        {
+            if (f->isChecked())
+            {
+                active.push_back(f);
+            }
+        }
+    }
+
+    return active;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimWellPathFractureCollection::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
     caf::PdmUiGroup* mswGroup = uiOrdering.addNewGroup("Multi Segment Well Properties");

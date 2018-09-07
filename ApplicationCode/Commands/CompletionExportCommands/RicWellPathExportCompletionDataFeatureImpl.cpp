@@ -373,29 +373,61 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions(const std::ve
     {
         if (exportSettings.includeFractures())
         {
-            QString  fileName   = QString("%1-Fracture-Welsegs").arg(exportSettings.caseToApply->caseUserDescription());
-            QFilePtr exportFile = openFileForExport(exportSettings.folder, fileName);
+            bool anyActiveFractures = false;
 
-            for (const auto wellPath : wellPaths)
+            for (const auto& wellPath : wellPaths)
             {
-                auto fractures = wellPath->fractureCollection()->fractures();
-                exportWellSegments(exportSettings.caseToApply, exportFile, wellPath, fractures);
+                if (!wellPath->fractureCollection()->activeFractures().empty())
+                {
+                    anyActiveFractures = true;
+                }
             }
-            exportFile->close();
+
+            if (anyActiveFractures)
+            {
+                QString  fileName   = QString("%1-Fracture-Welsegs").arg(exportSettings.caseToApply->caseUserDescription());
+                QFilePtr exportFile = openFileForExport(exportSettings.folder, fileName);
+
+                for (const auto wellPath : wellPaths)
+                {
+                    auto fractures = wellPath->fractureCollection()->activeFractures();
+                    if (!fractures.empty())
+                    {
+                        exportWellSegments(exportSettings.caseToApply, exportFile, wellPath, fractures);
+                    }
+                }
+                exportFile->close();
+            }
         }
 
         if (exportSettings.includeFishbones())
         {
-            QString  fileName   = QString("%1-Fishbone-Welsegs").arg(exportSettings.caseToApply->caseUserDescription());
-            QFilePtr exportFile = openFileForExport(exportSettings.folder, fileName);
+            bool anyFishbones = false;
 
-            for (const auto wellPath : wellPaths)
+            for (const auto& wellPath : wellPaths)
             {
-                auto fishbones = wellPath->fishbonesCollection()->activeFishbonesSubs();
-                exportWellSegments(exportSettings.caseToApply, exportFile, wellPath, fishbones);
+                if (!wellPath->fishbonesCollection()->activeFishbonesSubs().empty())
+                {
+                    anyFishbones = true;
+                }
             }
 
-            exportFile->close();
+            if (anyFishbones)
+            {
+                QString  fileName   = QString("%1-Fishbone-Welsegs").arg(exportSettings.caseToApply->caseUserDescription());
+                QFilePtr exportFile = openFileForExport(exportSettings.folder, fileName);
+
+                for (const auto wellPath : wellPaths)
+                {
+                    auto fishbones = wellPath->fishbonesCollection()->activeFishbonesSubs();
+                    if (!fishbones.empty())
+                    {
+                        exportWellSegments(exportSettings.caseToApply, exportFile, wellPath, fishbones);
+                    }
+                }
+
+                exportFile->close();
+            }
         }
 
         if (false && exportSettings.includePerforations())
@@ -1636,18 +1668,7 @@ RicMswExportInfo RicWellPathExportCompletionDataFeatureImpl::generateFishbonesMs
 RicMswExportInfo RicWellPathExportCompletionDataFeatureImpl::generateFracturesMswExportInfo(RimEclipseCase*    caseToApply,
                                                                                             const RimWellPath* wellPath)
 {
-    std::vector<RimWellPathFracture*> fractures;
-
-    if (wellPath->fractureCollection()->isChecked())
-    {
-        for (RimWellPathFracture* fracture : wellPath->fractureCollection()->fractures())
-        {
-            if (fracture->isChecked())
-            {
-                fractures.push_back(fracture);
-            }
-        }
-    }
+    std::vector<RimWellPathFracture*> fractures = wellPath->fractureCollection()->activeFractures();
 
     return generateFracturesMswExportInfo(caseToApply, wellPath, fractures);
 }

@@ -55,7 +55,9 @@ public:
     void                              setUnitSystemSpecificDefaults();
     ReferenceMDType                   referenceMDType() const;
     double                            manualReferenceMD() const;
+    
     std::vector<RimWellPathFracture*> fractures() const;
+    std::vector<RimWellPathFracture*> activeFractures() const;
 
 protected:
     virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
