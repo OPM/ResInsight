@@ -609,7 +609,7 @@ QString RicWellPathFractureTextReportFeatureImpl::createFractureCompletionSummar
         formatter.add("Well");
         formatter.add("Fracture");
         formatter.add("Template");
-        formatter.add(isFieldUnits ? "[cP.rb/day/psi]" : "[Sm3/d/bar]"); // Tr
+        formatter.add(isFieldUnits ? "[cP.rb/day/psi]" : "[cP.rm3/day/bars]"); // Tr
         formatter.add(""); // #con
         formatter.add("[]"); // Fcd
         formatter.add(isFieldUnits ? "[ft2]" : "[m2]"); // Area
