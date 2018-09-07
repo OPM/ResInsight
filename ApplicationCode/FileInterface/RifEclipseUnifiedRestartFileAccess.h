@@ -26,7 +26,7 @@ class RifEclipseOutputFileTools;
 
 //typedef struct ecl_file_struct ecl_file_type;
 
-#include "ert/ecl_well/well_info.h"
+#include "ert/ecl_well/well_info.hpp"
 
 
 
