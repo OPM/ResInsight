@@ -29,6 +29,7 @@
 class RimCase;
 class RimWellLogCurve;
 class RimWellLogPlot;
+class RimWellLogTrack;
 class RimWellPath;
 
 //==================================================================================================
@@ -57,10 +58,10 @@ public:
     void         setTimeStepToApply(int val);
 
     void         resetDefaultOptions();
-    void         updateDefaultOptions(const std::vector<RimWellLogCurve*>& curves);
+    void         updateDefaultOptions(const std::vector<RimWellLogCurve*>& curves, const std::vector<RimWellLogTrack*>& tracks);
     void         updateDefaultOptions();
-    void         updateCurves(std::vector<RimWellLogCurve*>& curves);
-
+    void         updateCurvesAndTracks(std::vector<RimWellLogCurve*>& curves, std::vector<RimWellLogTrack*>& tracks);
+    void         updateCurvesAndTracks();
     void         applyPrevCase();
     void         applyNextCase();
 

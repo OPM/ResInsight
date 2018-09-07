@@ -89,6 +89,7 @@ public:
     void    setWidthScaleFactor(WidthScaleFactor scaleFactor);
 
     void setFormationWellPath(RimWellPath* wellPath);
+    RimWellPath* formationWellPath() const;
     void setFormationSimWellName(const QString& simWellName);
     void setFormationBranchIndex(int branchIndex);
     void setFormationCase(RimCase* rimCase);
@@ -116,15 +117,18 @@ public:
     void setTickIntervals(double majorTickInterval, double minorTickInterval);
     void setXAxisGridVisibility(RimWellLogPlot::AxisGridVisibility gridLines);
     void setShowFormations(bool on);
+    bool showFormations() const;
     void setShowFormationLabels(bool on);
     void setShowWellPathAttributes(bool on);
+    bool showWellPathAttributes() const;
     void setWellPathAttributesSource(RimWellPath* wellPath);
-
+    
+    RimWellPath*     wellPathAttributeSource() const;
     RiuWellLogTrack* viewer();
     
     RimWellLogCurve* curveDefinitionFromCurve(const QwtPlotCurve* curve) const;
 
-    void setLogarithmicScale(bool enable);
+    void             setLogarithmicScale(bool enable);
 
     std::map<int, std::vector<RimWellFlowRateCurve*>> visibleStackedCurves();
 

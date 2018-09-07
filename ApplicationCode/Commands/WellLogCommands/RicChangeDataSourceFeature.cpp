@@ -24,9 +24,13 @@
 #include "RimWellLogCurve.h"
 #include "RimWellLogCurveCommonDataSource.h"
 #include "RimWellLogExtractionCurve.h"
+#include "RimWellLogFileCurve.h"
+#include "RimWellLogPlot.h"
+#include "RimWellLogTrack.h"
 #include "RimWellPath.h"
 
 #include "cafPdmUiPropertyViewDialog.h"
+#include "cafSelectionManager.h"
 
 #include <QAction>
 
@@ -42,9 +46,10 @@ bool RicChangeDataSourceFeature::isCommandEnabled()
     if (RicWellLogPlotCurveFeatureImpl::parentWellAllocationPlot()) return false;
     if (RicWellLogPlotCurveFeatureImpl::parentWellRftPlot()) return false;
 
-    std::vector<RimWellLogCurve*> curves = RicWellLogPlotCurveFeatureImpl::selectedWellLogCurves();
+    std::vector<RimWellLogCurve*> curves;
+    std::vector<RimWellLogTrack*> tracks;
 
-    return curves.size() > 0;
+    return selectedTracksAndCurves(&curves, &tracks);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -52,21 +57,25 @@ bool RicChangeDataSourceFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicChangeDataSourceFeature::onActionTriggered(bool isChecked)
 {
-    if (RicWellLogPlotCurveFeatureImpl::parentWellAllocationPlot()) return;
+    std::vector<caf::PdmObject*> selectedObjects;
+    caf::SelectionManager::instance()->objectsByType(&selectedObjects);
 
-    std::vector<RimWellLogCurve*> curves = RicWellLogPlotCurveFeatureImpl::selectedWellLogCurves();
-    if (curves.size() == 0) return;
+    std::vector<RimWellLogCurve*> curves;
+    std::vector<RimWellLogTrack*> tracks;
 
-    RimWellLogCurveCommonDataSource featureUi;
-    featureUi.updateDefaultOptions(curves);
-
-    caf::PdmUiPropertyViewDialog propertyDialog(nullptr, &featureUi, "Change Data Source for Multiple Curves", "");
-    propertyDialog.resize(QSize(500, 200));
-
-    if (propertyDialog.exec() == QDialog::Accepted)
+    if (selectedTracksAndCurves(&curves, &tracks))
     {
-        featureUi.updateCurves(curves);
-    }
+        RimWellLogCurveCommonDataSource featureUi;
+        featureUi.updateDefaultOptions(curves, tracks);
+
+        caf::PdmUiPropertyViewDialog propertyDialog(nullptr, &featureUi, "Change Data Source for Multiple Curves", "");
+        propertyDialog.resize(QSize(500, 200));
+
+        if (propertyDialog.exec() == QDialog::Accepted)
+        {
+            featureUi.updateCurvesAndTracks(curves, tracks);
+        }
+    }    
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -75,5 +84,38 @@ void RicChangeDataSourceFeature::onActionTriggered(bool isChecked)
 void RicChangeDataSourceFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setText("Change Data Source");
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RicChangeDataSourceFeature::selectedTracksAndCurves(std::vector<RimWellLogCurve*>* curves, std::vector<RimWellLogTrack*>* tracks)
+{
+    CVF_ASSERT(curves && tracks);
+    std::vector<caf::PdmObject*> selectedObjects;
+    caf::SelectionManager::instance()->objectsByType(&selectedObjects);
+
+    if (selectedObjects.empty()) return false;
+
+    for (caf::PdmObject* selectedObject : selectedObjects)
+    {
+        RimWellLogTrack*           wellLogTrack = dynamic_cast<RimWellLogTrack*>(selectedObject);
+        RimWellLogExtractionCurve* wellLogExtractionCurve = dynamic_cast<RimWellLogExtractionCurve*>(selectedObject);
+        RimWellLogFileCurve*       wellLogFileCurve = dynamic_cast<RimWellLogFileCurve*>(selectedObject);
+        if (wellLogTrack)
+        {
+            tracks->push_back(wellLogTrack);
+        }
+        else if (wellLogExtractionCurve)
+        {
+            curves->push_back(wellLogExtractionCurve);
+        }
+        else if (wellLogFileCurve)
+        {
+            curves->push_back(wellLogFileCurve);
+        }
+    }
+
+    return selectedObjects.size() == (curves->size() + tracks->size());
 }
 

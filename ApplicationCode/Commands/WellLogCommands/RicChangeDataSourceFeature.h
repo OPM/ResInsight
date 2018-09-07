@@ -23,7 +23,7 @@
 #include <vector>
 
 class RimWellLogCurve;
-
+class RimWellLogTrack;
 //==================================================================================================
 /// 
 //==================================================================================================
@@ -34,4 +34,7 @@ protected:
     virtual bool isCommandEnabled() override;
     virtual void onActionTriggered( bool isChecked ) override;
     virtual void setupActionLook(QAction* actionToSetup) override;
+
+private:
+    static bool  selectedTracksAndCurves(std::vector<RimWellLogCurve*>* curves, std::vector<RimWellLogTrack*>* tracks);
 };

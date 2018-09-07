@@ -28,6 +28,7 @@
 #include "RimWellLogFileCurve.h"
 #include "RimWellLogPlot.h"
 #include "RimWellLogPlotCollection.h"
+#include "RimWellLogTrack.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 
@@ -193,7 +194,7 @@ void RimWellLogCurveCommonDataSource::resetDefaultOptions()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellLogCurveCommonDataSource::updateDefaultOptions(const std::vector<RimWellLogCurve*>& curves)
+void RimWellLogCurveCommonDataSource::updateDefaultOptions(const std::vector<RimWellLogCurve*>& curves, const std::vector<RimWellLogTrack*>& tracks)
 {
     // Reset all options in the UI
     resetDefaultOptions();
@@ -225,6 +226,13 @@ void RimWellLogCurveCommonDataSource::updateDefaultOptions(const std::vector<Rim
             uniqueWellPaths.insert(fileCurve->wellPath());
             uniqueWellNames.insert(fileCurve->wellName());
         }
+    }
+    for (RimWellLogTrack* track : tracks)
+    {
+        uniqueTrajectoryTypes.insert(static_cast<int>(RimWellLogExtractionCurve::WELL_PATH));
+        uniqueWellPaths.insert(track->wellPathAttributeSource());
+        uniqueCases.insert(track->formationNamesCase());
+        uniqueWellPaths.insert(track->formationWellPath());
     }
 
     
@@ -273,14 +281,18 @@ void RimWellLogCurveCommonDataSource::updateDefaultOptions()
     {
         std::vector<RimWellLogCurve*> curves;
         parentPlot->descendantsIncludingThisOfType(curves);
-        this->updateDefaultOptions(curves);
+
+        std::vector<RimWellLogTrack*> tracks;
+        parentPlot->descendantsIncludingThisOfType(tracks);
+        
+        this->updateDefaultOptions(curves, tracks);
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellLogCurveCommonDataSource::updateCurves(std::vector<RimWellLogCurve*>& curves)
+void RimWellLogCurveCommonDataSource::updateCurvesAndTracks(std::vector<RimWellLogCurve*>& curves, std::vector<RimWellLogTrack*>& tracks)
 {
     std::set<RimWellLogPlot*> plots;
     for (RimWellLogCurve* curve : curves)
@@ -359,9 +371,52 @@ void RimWellLogCurveCommonDataSource::updateCurves(std::vector<RimWellLogCurve*>
         }
     }
 
+    for (RimWellLogTrack* track : tracks)
+    {
+        bool updatedSomething = false;
+        if (caseToApply() != nullptr)
+        {
+            track->setFormationCase(caseToApply());
+            updatedSomething = true;
+        }
+
+        if (wellPathToApply() != nullptr)
+        {
+            track->setWellPathAttributesSource(wellPathToApply());
+            track->setFormationWellPath(wellPathToApply());
+            updatedSomething = true;
+        }
+
+        if (updatedSomething)
+        {
+            RimWellLogPlot* parentPlot = nullptr;
+            track->firstAncestorOrThisOfTypeAsserted(parentPlot);
+            plots.insert(parentPlot);
+        }
+    }
+
     for (RimWellLogPlot* plot : plots)
     {
         plot->loadDataAndUpdate();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogCurveCommonDataSource::updateCurvesAndTracks()
+{
+    RimWellLogPlot* parentPlot = nullptr;
+    this->firstAncestorOrThisOfType(parentPlot);
+    if (parentPlot)
+    {
+        std::vector<RimWellLogCurve*> curves;
+        parentPlot->descendantsIncludingThisOfType(curves);
+
+        std::vector<RimWellLogTrack*> tracks;
+        parentPlot->descendantsIncludingThisOfType(tracks);
+
+        this->updateCurvesAndTracks(curves, tracks);
     }
 }
 
@@ -445,13 +500,7 @@ void RimWellLogCurveCommonDataSource::fieldChangedByUi(const caf::PdmFieldHandle
         }
     }
 
-    if (parentPlot)
-    {
-        std::vector<RimWellLogCurve*> wellLogCurves;
-        parentPlot->descendantsIncludingThisOfType(wellLogCurves);
-        this->updateCurves(wellLogCurves);
-        parentPlot->updateConnectedEditors();
-    }
+    this->updateCurvesAndTracks();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -461,14 +510,7 @@ QList<caf::PdmOptionItemInfo> RimWellLogCurveCommonDataSource::calculateValueOpt
 {
     QList<caf::PdmOptionItemInfo> options;
 
-    RimWellLogPlot* parentPlot = nullptr;
-    this->firstAncestorOrThisOfType(parentPlot);
-    if (parentPlot)
-    {
-        std::vector<RimWellLogCurve*> wellLogCurves;
-        parentPlot->descendantsIncludingThisOfType(wellLogCurves);
-        this->updateDefaultOptions(wellLogCurves);
-    }
+    this->updateDefaultOptions();
 
     if (fieldNeedingOptions == &m_case)
     {
