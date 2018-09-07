@@ -130,10 +130,10 @@ void PdmObjectHandle::firstAncestorOrThisOfType(T*& ancestor) const
 
     // Check if this matches the type
 
-    const T* objectOfType = dynamic_cast<const T*>(this);
-    if (objectOfType)
+    const T* objectOfTypeConst = dynamic_cast<const T*>(this);
+    if (objectOfTypeConst)
     {
-        ancestor = const_cast<T*>(objectOfType);
+        ancestor = const_cast<T*>(objectOfTypeConst);
         return;
     }
 
