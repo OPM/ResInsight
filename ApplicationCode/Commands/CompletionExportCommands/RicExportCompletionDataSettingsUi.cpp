@@ -65,7 +65,7 @@ RicExportCompletionDataSettingsUi::RicExportCompletionDataSettingsUi()
 
     CAF_PDM_InitField(&includeMsw, "IncludeMSW", false, "Include MSW", "", "", "");
 
-    CAF_PDM_InitField(&useLateralNTG, "UseLateralNTG", false, "Use NTG Horizontally", "", "", "");
+    CAF_PDM_InitField(&useLateralNTG, "UseLateralNTG", false, "    Use NTG Horizontally", "", "", "");
 
     CAF_PDM_InitField(&includePerforations, "IncludePerforations", true, "Perforations", "", "", "");
     CAF_PDM_InitField(&includeFishbones, "IncludeFishbones", true, "Fishbones", "", "", "");
@@ -218,8 +218,8 @@ void RicExportCompletionDataSettingsUi::defineUiOrdering(QString uiConfigName, c
         caf::PdmUiGroup* group = uiOrdering.addNewGroup("Export Settings");
 
         group->add(&compdatExport);
-        group->add(&includeMsw);
         group->add(&useLateralNTG);
+        group->add(&includeMsw);
         group->add(&caseToApply);
         group->add(&fileSplit);
         group->add(&m_reportCompletionTypesSeparately);
