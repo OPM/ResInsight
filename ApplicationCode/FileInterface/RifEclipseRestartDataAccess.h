@@ -28,7 +28,7 @@
 
 #include <vector>
 
-#include "ert/ecl_well/well_info.h"
+#include "ert/ecl_well/well_info.hpp"
 
 #include "RifReaderInterface.h"
 
