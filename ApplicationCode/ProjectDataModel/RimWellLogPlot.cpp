@@ -53,7 +53,7 @@ namespace caf {
     void caf::AppEnum< RimWellLogPlot::DepthTypeEnum >::setUp()
     {
         addItem(RimWellLogPlot::MEASURED_DEPTH,       "MEASURED_DEPTH",       "Measured Depth");
-        addItem(RimWellLogPlot::TRUE_VERTICAL_DEPTH,  "TRUE_VERTICAL_DEPTH",  "True Vertical Depth");
+        addItem(RimWellLogPlot::TRUE_VERTICAL_DEPTH,  "TRUE_VERTICAL_DEPTH",  "True Vertical Depth (MSL)");
         addItem(RimWellLogPlot::PSEUDO_LENGTH,        "PSEUDO_LENGTH",        "Pseudo Length");
         addItem(RimWellLogPlot::CONNECTION_NUMBER,    "CONNECTION_NUMBER",    "Connection Number");
         setDefault(RimWellLogPlot::MEASURED_DEPTH);
@@ -989,7 +989,7 @@ QString RimWellLogPlot::depthPlotTitle() const
         break;
 
         case TRUE_VERTICAL_DEPTH:
-        depthTitle = "TVD";
+        depthTitle = "TVDMSL";
         break;
 
         case PSEUDO_LENGTH:
