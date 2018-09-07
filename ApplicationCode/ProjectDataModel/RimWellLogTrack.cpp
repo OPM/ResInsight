@@ -524,7 +524,10 @@ void RimWellLogTrack::updateAxisAndGridTickIntervals()
 void RimWellLogTrack::updateAllLegendItems()
 {
     reattachAllCurves();
-    m_wellLogTrackPlotWidget->updateLegend();
+    if (m_wellLogTrackPlotWidget)
+    {
+        m_wellLogTrackPlotWidget->updateLegend();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
