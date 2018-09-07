@@ -85,12 +85,8 @@ void RicfExportMsw::execute()
         return;
     }
 
-    std::vector<RimFishbonesMultipleSubs*> fishbonesSubs;
-    
-    for (RimFishbonesMultipleSubs* fishbones : wellPath->fishbonesCollection()->activeFishbonesSubs())
+    if (!wellPath->fishbonesCollection()->activeFishbonesSubs().empty())
     {
-        fishbonesSubs.push_back(fishbones);
+        RicExportFishbonesWellSegmentsFeature::exportWellSegments(wellPath, wellPath->fishbonesCollection()->activeFishbonesSubs(), exportSettings);
     }
-
-    RicExportFishbonesWellSegmentsFeature::exportWellSegments(wellPath, fishbonesSubs, exportSettings);
 }

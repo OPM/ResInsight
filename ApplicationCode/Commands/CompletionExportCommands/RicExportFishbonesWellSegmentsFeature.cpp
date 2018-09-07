@@ -122,6 +122,8 @@ bool RicExportFishbonesWellSegmentsFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicExportFishbonesWellSegmentsFeature::exportWellSegments(const RimWellPath* wellPath, const std::vector<RimFishbonesMultipleSubs*>& fishbonesSubs, const RicCaseAndFileExportSettingsUi& settings)
 {
+    if (fishbonesSubs.empty()) return;
+
     if (settings.caseToApply() == nullptr)
     {
         RiaLogging::error("Export Well Segments: Cannot export completions data without specified eclipse case");
