@@ -279,7 +279,7 @@ set( EXE_FILES
 add_executable( ResInsight ${EXE_FILES} )
 
 if (MSVC) 
-    set_target_properties(ResInsight PROPERTIES COMPILE_FLAGS "/wd4190") 
+    set_target_properties(ResInsight PROPERTIES COMPILE_FLAGS "/W4 /wd4190 /wd4100 /wd4127") 
 endif() 
 
 #############################################################################
