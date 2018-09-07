@@ -141,7 +141,6 @@ protected:
     virtual QWidget*                                createViewWidget(QWidget* mainWindowParent) override;
     virtual void                                    deleteViewWidget() override;
 
-
     virtual void                                    initAfterRead() override;
 
 private:

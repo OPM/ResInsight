@@ -519,6 +519,15 @@ void RimWellLogTrack::updateAxisAndGridTickIntervals()
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogTrack::updateAllLegendItems()
+{
+    reattachAllCurves();
+    m_wellLogTrackPlotWidget->updateLegend();
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo> RimWellLogTrack::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly)
@@ -743,6 +752,8 @@ void RimWellLogTrack::loadDataAndUpdate()
     bool emptyRange = std::abs(m_visibleXRangeMax() - m_visibleXRangeMin) < 1.0e-6 * std::max(1.0, std::max(m_visibleXRangeMax(), m_visibleXRangeMin()));
     m_explicitTickIntervals.uiCapability()->setUiReadOnly(emptyRange);
     m_xAxisGridVisibility.uiCapability()->setUiReadOnly(emptyRange);
+
+    updateAllLegendItems();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -916,9 +927,28 @@ void RimWellLogTrack::recreateViewer()
 //--------------------------------------------------------------------------------------------------
 void RimWellLogTrack::detachAllCurves()
 {
-    for (size_t cIdx = 0; cIdx < curves.size(); ++cIdx)
+    for (RimPlotCurve* curve : curves)
     {
-        curves[cIdx]->detachQwtCurve();
+        curve->detachQwtCurve();
+    }
+    for (RimPlotCurve* curve : m_wellPathAttributeCurves)
+    {
+        curve->detachQwtCurve();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogTrack::reattachAllCurves()
+{
+    for (RimPlotCurve* curve : curves)
+    {
+        curve->reattachQwtCurve();
+    }
+    for (RimPlotCurve* curve : m_wellPathAttributeCurves)
+    {
+        curve->reattachQwtCurve();
     }
 }
 

@@ -72,6 +72,15 @@ bool RimWellLogCurve::valueRange(double* minimumValue, double* maximumValue) con
     return xValueRange(minimumValue, maximumValue);
 }
 
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const RigWellLogCurveData* RimWellLogCurve::curveData() const
+{
+    return m_curveData.p();
+}
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -95,9 +104,14 @@ void RimWellLogCurve::updateZoomInParentPlot()
 
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-const RigWellLogCurveData* RimWellLogCurve::curveData() const
+void RimWellLogCurve::updateLegendsInPlot()
 {
-    return m_curveData.p();
+    RimWellLogTrack* wellLogTrack;
+    firstAncestorOrThisOfType(wellLogTrack);
+    if (wellLogTrack)
+    {
+        wellLogTrack->updateAllLegendItems();
+    }
 }

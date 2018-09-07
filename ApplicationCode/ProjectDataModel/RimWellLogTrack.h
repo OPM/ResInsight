@@ -98,6 +98,7 @@ public:
 
     void recreateViewer();
     void detachAllCurves();
+    void reattachAllCurves();
 
     void loadDataAndUpdate();
     
@@ -141,6 +142,7 @@ public:
     void setFormationsForCaseWithSimWellOnly(bool caseWithSimWellOnly);
     void updateAxisAndGridTickIntervals();
 
+    void updateAllLegendItems();
 private:
     virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
     void         updateParentPlotLayout();

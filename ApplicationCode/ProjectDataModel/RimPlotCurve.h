@@ -54,6 +54,7 @@ public:
     void                            setParentQwtPlotAndReplot(QwtPlot* plot);
     void                            setParentQwtPlotNoReplot(QwtPlot* plot);
     void                            detachQwtCurve();
+    void                            reattachQwtCurve();
     QwtPlotCurve*                   qwtPlotCurve() const;
 
     void                            setColor(const cvf::Color3f& color);
@@ -97,7 +98,7 @@ protected:
 
     void                            updateOptionSensitivity();
     void                            updatePlotTitle();
-
+    virtual void                    updateLegendsInPlot();
 protected:
 
     // Overridden PDM methods
@@ -110,7 +111,7 @@ protected:
 
 protected:
     QPointer<QwtPlot>                 m_parentQwtPlot;
-    RiuQwtPlotCurve*       m_qwtPlotCurve;
+    RiuQwtPlotCurve*                  m_qwtPlotCurve;
 
     caf::PdmField<bool>               m_showCurve;
     caf::PdmField<QString>            m_curveName;
@@ -128,7 +129,7 @@ protected:
     caf::PdmField<PointSymbol>        m_pointSymbol;
     caf::PdmField<LineStyle>          m_lineStyle;
     caf::PdmField<CurveInterpolation> m_curveInterpolation;
-    RiuQwtSymbol::LabelPosition  m_symbolLabelPosition;
+    RiuQwtSymbol::LabelPosition       m_symbolLabelPosition;
 };
 
 

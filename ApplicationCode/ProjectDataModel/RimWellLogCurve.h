@@ -49,5 +49,8 @@ public:
 
 protected:
     virtual void                    updateZoomInParentPlot() override;
-    cvf::ref<RigWellLogCurveData>   m_curveData;
+    virtual void                    updateLegendsInPlot() override;
+
+protected:
+    cvf::ref<RigWellLogCurveData>   m_curveData;    
 };

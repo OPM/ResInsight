@@ -324,6 +324,18 @@ void RimPlotCurve::detachQwtCurve()
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotCurve::reattachQwtCurve()
+{
+    detachQwtCurve();
+    if (m_parentQwtPlot && m_showCurve)
+    {
+        m_qwtPlotCurve->attach(m_parentQwtPlot);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 QwtPlotCurve* RimPlotCurve::qwtPlotCurve() const
@@ -402,6 +414,17 @@ void RimPlotCurve::updatePlotTitle()
     if (nameConfigHolder)
     {
         nameConfigHolder->updateHolder();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotCurve::updateLegendsInPlot()
+{
+    if (m_parentQwtPlot != nullptr)
+    {
+        m_parentQwtPlot->updateLegend();
     }
 }
 
@@ -641,11 +664,7 @@ void RimPlotCurve::setZOrder(double z)
 void RimPlotCurve::updateLegendEntryVisibilityAndPlotLegend()
 {
     updateLegendEntryVisibilityNoPlotUpdate();
-
-    if (m_parentQwtPlot != nullptr)
-    {
-        m_parentQwtPlot->updateLegend();
-    }
+    updateLegendsInPlot();
 }
 
 //--------------------------------------------------------------------------------------------------
