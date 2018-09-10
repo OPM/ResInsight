@@ -20,17 +20,22 @@
 
 #include "RigCompletionData.h"
 
+#include <map>
 #include <vector>
 
+class RigFractureGrid;
 class RicWellPathFractureReportItem;
 class RigWellPath;
+class RigTransmissibilityCondenser;
+
 class RimEclipseCase;
 class RimFracture;
+class RimFractureTemplate;
 class RimSimWellInView;
 class RimWellPath;
 
 class QTextStream;
-
+class QString;
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -63,4 +68,22 @@ private:
                                    const std::vector<const RimFracture*>&      fractures,
                                    std::vector<RicWellPathFractureReportItem>* fractureDataReportItems,
                                    QTextStream*                                outputStreamForIntermediateResultsText);
+
+    static bool checkForStimPlanConductivity(const RimFractureTemplate* fracTemplate, const RimFracture* fracture);
+
+    static void calculateInternalFractureTransmissibilities(const RigFractureGrid* fractureGrid, double cDarcyInCorrectUnit, RigTransmissibilityCondenser &transCondenser);
+    static void calculateFractureToWellTransmissibilities(const RimFractureTemplate* fracTemplate, const RigFractureGrid* fractureGrid, const RimFracture* fracture, double cDarcyInCorrectUnit, const RigWellPath* wellPathGeometry, RigTransmissibilityCondenser &transCondenser);
+
+    static std::map<size_t, double>       calculateMatrixToWellTransmissibilities(RigTransmissibilityCondenser &transCondenser);
+    static std::vector<RigCompletionData> generateCompdatValuesForFracture(const std::map<size_t, double>& matrixToWellTransmissibilites, const QString& wellPathName, const RimEclipseCase* caseToApply, const RimFracture* fracture, const RimFractureTemplate* fracTemplate);
+
+    static void computeNonDarcyFlowParameters(const RimFracture* fracture, std::vector<RigCompletionData> allCompletionsForOneFracture);
+
+    static double sumUpCellAreas(const std::map<size_t, double>& cellAreas);
+    static double sumUpTransmissibilities(const std::vector<RigCompletionData>& allCompletionsForOneFracture);
+
+    static void calculateAndSetLengthsAndConductivity(const RimFractureTemplate* fracTemplate, double area, RicWellPathFractureReportItem &reportItem);
+    static void calculateAndSetAreaWeightedTransmissibility(const RimEclipseCase* caseToApply, std::map<size_t, double> cellAreas, double area, RicWellPathFractureReportItem &reportItem);
+
+    static void outputIntermediateResultsText(QTextStream* outputStreamForIntermediateResultsText, const RimFracture* fracture, RigTransmissibilityCondenser &transCondenser, const RigMainGrid* mainGrid, const RigFractureGrid* fractureGrid);
 };
