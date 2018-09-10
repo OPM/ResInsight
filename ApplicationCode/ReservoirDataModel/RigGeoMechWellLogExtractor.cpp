@@ -400,6 +400,7 @@ void RigGeoMechWellLogExtractor::wellBoreWallCurveData(const RigFemResultAddress
 
         float averagePorePressureBar = std::numeric_limits<float>::infinity();
         bool validGridPorePressure = averageIntersectionValuesToSegmentValue(intersectionIdx, interpolatedInterfacePorePressureBar, std::numeric_limits<float>::infinity(), &averagePorePressureBar);
+        bool isFGregion = validGridPorePressure; // FG is for sands, SFG for shale. Sands has PP, shale does not.
 
         double porePressureBar = calculatePorePressureInSegment(intersectionIdx, averagePorePressureBar, hydroStaticPorePressureBar, effectiveDepthMeters, poreElementPressuresPascal);
         double poissonRatio    = calculatePoissonRatio(intersectionIdx, poissonRatios);
@@ -416,7 +417,7 @@ void RigGeoMechWellLogExtractor::wellBoreWallCurveData(const RigFemResultAddress
         double resultValue = std::numeric_limits<double>::infinity();
         if (resAddr.fieldName == RiaDefines::wellPathFGResultName().toStdString())
         {
-            if (validGridPorePressure)
+            if (isFGregion && validSegmentStress)
             {
                 resultValue = sigmaCalculator.solveFractureGradient();
             }
@@ -424,7 +425,7 @@ void RigGeoMechWellLogExtractor::wellBoreWallCurveData(const RigFemResultAddress
         else
         {
             CVF_ASSERT(resAddr.fieldName == RiaDefines::wellPathSFGResultName().toStdString());
-            if (!validGridPorePressure)
+            if (!isFGregion && validSegmentStress)
             {
                 resultValue = sigmaCalculator.solveStassiDalia();
             }
