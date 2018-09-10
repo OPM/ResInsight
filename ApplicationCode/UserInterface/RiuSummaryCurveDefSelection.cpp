@@ -690,7 +690,6 @@ QList<caf::PdmOptionItemInfo> RiuSummaryCurveDefSelection::calculateValueOptions
                 itemNames[OBS_DATA].clear();
             }
 
-            auto pdmField = identifierAndField->pdmField();
             for(int i = 0; i < itemCount; i++)
             {
                 // Create headers only for vector fields when observed data is selected
@@ -972,8 +971,6 @@ std::set<RifEclipseSummaryAddress> RiuSummaryCurveDefSelection::findPossibleSumm
         {
             allAddresses = currEnsemble->calculateUnionOfSummaryAddresses();
         }
-
-        int addressCount = static_cast<int>(allAddresses.size());
 
         bool applySelections = identifierAndField == nullptr || (!isVectorField && controllingIdentifierAndField != nullptr);
         std::vector<SummaryIdentifierAndField*> controllingFields;

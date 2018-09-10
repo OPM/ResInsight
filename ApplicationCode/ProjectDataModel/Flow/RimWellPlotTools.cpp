@@ -566,7 +566,6 @@ RiaRftPltCurveDefinition RimWellPlotTools::curveDefFromCurve(const RimWellLogCur
     }
     else if (wellLogFileCurve != nullptr)
     {
-        const RimWellPath* const wellPath    = wellLogFileCurve->wellPath();
         RimWellLogFile* const    wellLogFile = wellLogFileCurve->wellLogFile();
 
         if (wellLogFile != nullptr)

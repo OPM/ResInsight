@@ -51,7 +51,7 @@ void RicNewEnsembleCurveFilterFeature::onActionTriggered(bool isChecked)
 
     if (filterColls.size() == 1)
     {
-        auto newFilter = filterColls[0]->addFilter();
+        filterColls[0]->addFilter();
         filterColls[0]->updateConnectedEditors();
         RiuPlotMainWindowTools::selectAsCurrentItem(filterColls.front());
     }

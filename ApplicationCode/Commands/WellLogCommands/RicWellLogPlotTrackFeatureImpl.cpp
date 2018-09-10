@@ -107,7 +107,6 @@ void RicWellLogPlotTrackFeatureImpl::moveTracksToWellLogPlot(RimWellLogPlot* dst
         if (srcPlot)
         {
             srcPlot->removeTrack(track);
-            RiuPlotMainWindow* plotWindow = RiaApplication::instance()->getOrCreateMainPlotWindow();
 
             srcPlots.insert(srcPlot);
         }

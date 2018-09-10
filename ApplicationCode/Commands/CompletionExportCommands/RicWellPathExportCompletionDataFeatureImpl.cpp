@@ -1876,9 +1876,7 @@ void RicWellPathExportCompletionDataFeatureImpl::assignFractureIntersections(con
                                                                              bool* foundSubGridIntersections)
 {
     CVF_ASSERT(foundSubGridIntersections != nullptr);
-    const RigMainGrid* grid = caseToApply->eclipseCaseData()->mainGrid();
 
-    double           fractureMD = fracture->fractureMD();
     RicMswCompletion fractureCompletion(RigCompletionData::FRACTURE, fracture->name());
     double           position = fracture->fractureMD();
     double           width    = fracture->fractureTemplate()->computeFractureWidth(fracture);

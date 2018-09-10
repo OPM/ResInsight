@@ -502,9 +502,6 @@ void RimWellPltPlot::syncCurvesFromUiSelection()
 
     int curveGroupId = 0;
 
-    RimProject* proj = RiaApplication::instance()->project();
-    RimWellPath* wellPath = RimWellPlotTools::wellPathByWellPathNameOrSimWellName(m_wellPathName);
-
     QString dateFormatString;
     {
         std::vector<QDateTime> allTimeSteps;
@@ -626,7 +623,6 @@ void RimWellPltPlot::syncCurvesFromUiSelection()
         }
         else if ( sourceDef.sourceType() == RifDataSourceForRftPlt::OBSERVED )
         {
-            RimWellLogFile* const wellLogFile = sourceDef.wellLogFile();
             if ( sourceDef.wellLogFile() && sourceDef.wellLogFile()->wellLogFileData() )
             {
                 RimWellLogFile::WellFlowCondition flowCondition = sourceDef.wellLogFile()->wellFlowRateCondition();

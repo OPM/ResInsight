@@ -43,8 +43,6 @@ bool Ric3dWellLogCurvePickEventHandler::handlePickEvent(const Ric3DPickEvent& ev
 {
     if (eventObject.m_pickItemInfos.empty()) return false;
 
-    cvf::uint triangleIndex = cvf::UNDEFINED_UINT;
-
     const auto&      firstPickedItem = eventObject.m_pickItemInfos.front();
     const cvf::Part* firstPickedPart            = firstPickedItem.pickedPart();
 

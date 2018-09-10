@@ -166,8 +166,6 @@ void RivIntersectionPartMgr::updateCellResultColor(size_t timeStepIndex,
         CVF_ASSERT(cellResultColors);
         CVF_ASSERT(ternaryColorMapper);
 
-        RigEclipseCaseData* eclipseCase = eclipseView->eclipseCase()->eclipseCaseData();
-
         // CrossSections
         if (m_crossSectionFaces.notNull())
         {

@@ -94,8 +94,6 @@ void RivIntersectionBoxPartMgr::updateCellResultColor(size_t timeStepIndex)
         RimEclipseCellColors* cellResultColors = eclipseView->cellResult();
         CVF_ASSERT(cellResultColors);
 
-        RigEclipseCaseData* eclipseCase = eclipseView->eclipseCase()->eclipseCaseData();
-
         // CrossSections
         if (m_intersectionBoxFaces.notNull())
         {

@@ -36,7 +36,6 @@ RiuPickItemInfo RiuPickItemInfo::extractPickItemInfo(const cvf::HitItem* hitItem
     pickInfo.m_globalPickedPoint = hitItem->intersectionPoint();
     if ( pickInfo.m_pickedPart ) pickInfo.m_sourceInfo = pickInfo.m_pickedPart->sourceInfo();
 
-    cvf::uint faceIdx = -1;
     const cvf::HitDetailDrawableGeo* detail = dynamic_cast<const cvf::HitDetailDrawableGeo*>(hitItem->detail());
     if ( detail ) pickInfo.m_faceIdx = detail->faceIndex();
 

@@ -106,7 +106,6 @@ void RivFaultPartMgr::updateCellResultColor(size_t timeStepIndex, RimEclipseCell
     updateNNCColors(timeStepIndex, cellResultColors);
 
     RimEclipseView* eclipseView = cellResultColors->reservoirView();
-    RigEclipseCaseData* eclipseCase = eclipseView->eclipseCase()->eclipseCaseData();
 
     // Faults
     if (m_nativeFaultFaces.notNull())

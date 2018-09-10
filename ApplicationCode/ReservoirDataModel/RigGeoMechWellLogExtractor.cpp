@@ -93,7 +93,6 @@ void RigGeoMechWellLogExtractor::curveData(const RigFemResultAddress& resAddr, i
 
     CVF_ASSERT(resAddr.resultPosType != RIG_WELLPATH_DERIVED);
 
-    const RigFemPart* femPart                 = m_caseData->femParts()->part(0);
     const std::vector<float>& resultValues    = m_caseData->femPartResults()->resultValues(convResAddr, 0, frameIndex);
 
     if (!resultValues.size()) return;
@@ -210,8 +209,6 @@ void RigGeoMechWellLogExtractor::wellPathAngles(const RigFemResultAddress& resAd
     const cvf::Vec3d up(0.0, 0.0, 1.0);
     for (int64_t intersectionIdx = 0; intersectionIdx < (int64_t)m_intersections.size(); ++intersectionIdx)
     {
-        size_t elmIdx = m_intersectedCellsGlobIdx[intersectionIdx];
-
         cvf::Vec3d wellPathTangent = calculateWellPathTangent(intersectionIdx, TangentFollowWellPathSegments);
    
         // Deviation from vertical. Since well path is tending downwards we compare with negative z.
@@ -258,8 +255,6 @@ void RigGeoMechWellLogExtractor::wellPathScaledCurveData(const RigFemResultAddre
     CVF_ASSERT(values);
 
     const RigFemPart* femPart = m_caseData->femParts()->part(0);
-    const RigFemPartGrid* femPartGrid = femPart->getOrCreateStructGrid();
-    const std::vector<cvf::Vec3f>& nodeCoords = femPart->nodes().coordinates;
     RigFemPartResultsCollection* resultCollection = m_caseData->femPartResults();
 
     std::string nativeFieldName;
@@ -349,7 +344,6 @@ void RigGeoMechWellLogExtractor::wellBoreWallCurveData(const RigFemResultAddress
     RigFemResultAddress ucsResAddr(RIG_ELEMENT, "UCS", "");
     
     const RigFemPart* femPart = m_caseData->femParts()->part(0);
-    const std::vector<cvf::Vec3f>& nodeCoords = femPart->nodes().coordinates;
     RigFemPartResultsCollection* resultCollection = m_caseData->femPartResults();
 
     // Load results
@@ -770,8 +764,6 @@ cvf::Vec3f RigGeoMechWellLogExtractor::cellCentroid(size_t intersectionIdx) cons
 //--------------------------------------------------------------------------------------------------
 double RigGeoMechWellLogExtractor::getWellLogSegmentValue(size_t intersectionIdx, const std::vector<std::pair<double, double>>& wellLogValues) const
 {
-    const RigFemPart* femPart = m_caseData->femParts()->part(0);
-
     double startMD, endMD;
     if (intersectionIdx % 2 == 0)
     {

@@ -54,7 +54,6 @@ bool RicImportSummaryCaseFeature::isCommandEnabled()
 void RicImportSummaryCaseFeature::onActionTriggered(bool isChecked)
 {
     RiaApplication* app = RiaApplication::instance();
-    RiaPreferences* prefs = app->preferences();
     QString defaultDir = app->lastUsedDialogDirectory("INPUT_FILES");
     QStringList fileNames_ = QFileDialog::getOpenFileNames(nullptr, "Import Summary Case", defaultDir, "Eclipse Summary File (*.SMSPEC);;All Files (*.*)");
 

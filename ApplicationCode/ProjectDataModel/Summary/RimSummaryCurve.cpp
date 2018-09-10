@@ -992,7 +992,6 @@ void RimSummaryCurve::calculateCurveInterpolationFromAddress()
 {
     if (m_yValuesCurveVariable())
     {
-        auto category = m_yValuesCurveVariable()->address().category();
         auto address = m_yValuesCurveVariable()->address();
         if (address.hasAccumulatedData())
         {

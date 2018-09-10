@@ -243,7 +243,6 @@ void RimDerivedEnsembleCaseCollection::fieldChangedByUi(const caf::PdmFieldHandl
 {
     bool doUpdate = false;
     bool doUpdateCases = false;
-    bool doClearAllData = false;
     bool doShowDialog = false;
 
     if (changedField == &m_ensemble1 || changedField == &m_ensemble2)

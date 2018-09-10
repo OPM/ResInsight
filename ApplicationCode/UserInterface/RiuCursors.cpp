@@ -72,7 +72,7 @@ QCursor    RiuCursors::cursorFromFile(const QString& fileName, int hotspotX, int
         return QCursor();
     }
 
-    QRgb maskClr = image.pixel(0, 0);
+    //QRgb maskClr = image.pixel(0, 0);
     //QImage imgMask = image.createMaskFromColor(maskClr, Qt::MaskInColor);
     QImage imgMask = image.createHeuristicMask(true);
 

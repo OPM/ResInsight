@@ -219,7 +219,6 @@ void RimSimWellInView::wellHeadTopBottomPosition(int frameIndex, cvf::Vec3d* top
         whCellPtr = &(rigReservoir->cellFromWellResultCell(wellResultFramePtr->wellHeadOrStartCell()));
     }
 
-    const RigWellResultFrame& wellResultFrame = *wellResultFramePtr;
     const RigCell& whCell = *whCellPtr;
 
     // Match this position with pipe start position in RivWellPipesPartMgr::calculateWellPipeCenterline()

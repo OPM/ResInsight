@@ -260,7 +260,6 @@ bool RimSummaryCalculation::calculate()
             return false;
         }
 
-        RimSummaryAddress* sumAdr = v->summaryAddress();
         RiaSummaryCurveDefinition curveDef(v->summaryCase(), v->summaryAddress()->address());
 
         std::vector<double> curveValues;

@@ -422,7 +422,6 @@ void RicSummaryCurveCreator::updatePreviewCurvesFromCurveDefinitions(
 {
     static bool                         warningDisplayed               = false;
 
-    RimSummaryCase*                     prevCase = nullptr;
     std::set<RiaSummaryCurveDefinition> summaryCurveDefsToDisplay;
 
     // Ignore curve sets when assigning colors to singe summary curves

@@ -267,7 +267,6 @@ QString RiuResultTextBuilder::gridResultDetails()
     if (m_reservoirView->eclipseCase() && m_reservoirView->eclipseCase()->eclipseCaseData())
     {
         RigEclipseCaseData* eclipseCaseData = m_reservoirView->eclipseCase()->eclipseCaseData();
-        RigGridBase* grid = eclipseCaseData->grid(m_gridIndex);
 
         this->appendTextFromResultColors(eclipseCaseData, m_gridIndex, m_cellIndex, m_timeStepIndex, m_reservoirView->cellResult(), &text);
 
@@ -744,7 +743,6 @@ QString RiuResultTextBuilder::cellResultText(RimEclipseCellColors* resultColors)
     if (m_reservoirView->eclipseCase() && m_reservoirView->eclipseCase()->eclipseCaseData())
     {
         RigEclipseCaseData* eclipseCaseData = m_reservoirView->eclipseCase()->eclipseCaseData();
-        RigGridBase* grid = eclipseCaseData->grid(m_gridIndex);
 
         if (resultColors->isTernarySaturationSelected())
         {

@@ -148,8 +148,10 @@ TEST(RiaProjectFileVersionTools, OrderKnownVersionStrings)
         qSort(sortedVersionList.begin(), sortedVersionList.end(), RiaProjectFileVersionTools::isCandidateVersionNewerThanOther);
     }
 
+/*
     for (const auto& s : sortedVersionList)
     {
-        // std::cout << s.toStdString() << "\n";
+        std::cout << s.toStdString() << "\n";
     }
+*/
 }

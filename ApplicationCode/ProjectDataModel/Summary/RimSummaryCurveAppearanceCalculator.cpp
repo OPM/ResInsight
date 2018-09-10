@@ -153,7 +153,6 @@ void RimSummaryCurveAppearanceCalculator::updateApperanceIndices()
 {
     {
         std::map<std::string, size_t> caseAppearanceIndices = mapNameToAppearanceIndex(m_caseAppearanceType, m_allSummaryCaseNames);
-        int idx = 0;
         for (auto& pair : m_caseToAppearanceIdxMap)
         {
             pair.second = static_cast<int>(caseAppearanceIndices[pair.first->summaryHeaderFilename().toUtf8().constData()]);
@@ -161,7 +160,6 @@ void RimSummaryCurveAppearanceCalculator::updateApperanceIndices()
     }
     {
         std::map<std::string, size_t> wellAppearanceIndices = mapNameToAppearanceIndex(m_wellAppearanceType, m_allSummaryWellNames);
-        int idx = 0;
         for (auto& pair : m_welToAppearanceIdxMap)
         {
             pair.second = static_cast<int>(wellAppearanceIndices[pair.first]);

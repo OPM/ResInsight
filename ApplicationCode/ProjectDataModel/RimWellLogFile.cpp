@@ -303,8 +303,6 @@ void RimWellLogFile::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
     uiOrdering.add(&m_date);
     m_date.uiCapability()->setUiReadOnly(m_lasFileHasValidDate);
 
-    auto timespec = m_date().timeSpec();
-
     if (!isDateValid(m_date()))
     {
         uiOrdering.add(&m_invalidDateMessage);

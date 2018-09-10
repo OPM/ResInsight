@@ -609,7 +609,6 @@ void RicSummaryCaseRestartDialog::slotShowFullPathToggled(int state)
 //--------------------------------------------------------------------------------------------------
 void RicSummaryCaseRestartDialog::slotDialogButtonClicked(QAbstractButton* button)
 {
-    bool okButtonClicked        = m_buttons->button(QDialogButtonBox::Ok) == button;
     bool cancelButtonClicked    = m_buttons->button(QDialogButtonBox::Cancel) == button;
     bool okToAllButtonClicked   = m_buttons->button(QDialogButtonBox::Apply) == button;
 

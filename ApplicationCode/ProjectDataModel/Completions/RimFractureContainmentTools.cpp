@@ -91,8 +91,6 @@ double computeAverageZForTwoDeepestZ(const RigMainGrid*                 mainGrid
                                      size_t                             globalReservoirCellIndex,
                                      cvf::StructGridInterface::FaceType face)
 {
-    const RigCell& currentCell = mainGrid->globalCellArray()[globalReservoirCellIndex];
-
     cvf::Vec3d hexCorners[8];
     mainGrid->cellCornerVertices(globalReservoirCellIndex, hexCorners);
 

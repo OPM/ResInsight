@@ -661,9 +661,6 @@ QString RicWellPathFractureTextReportFeatureImpl::createConnectionsPerWellText(c
 {
     QString tableText;
 
-    RiaEclipseUnitTools::UnitSystem unitSystem = wellPathFractureReportItems.front().unitSystem();
-    bool isFieldUnits = unitSystem == RiaEclipseUnitTools::UNITS_FIELD;
-
     QTextStream                  stream(&tableText);
     RifEclipseDataTableFormatter formatter(stream);
     configureFormatter(&formatter);

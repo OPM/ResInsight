@@ -688,7 +688,6 @@ TEST(RiaTimeHistoryCurveResampler, Test_PeriodEndValues_SamplesStartBeforePeriod
     time_t t0 = toTime_t("2018-01-30");
     time_t t1 = toTime_t("2018-02-10");
     time_t t2 = toTime_t("2018-03-05");
-    time_t t3 = toTime_t("2018-03-02");
     time_t tp0 = toTime_t("2018-02-01");
     time_t tp1 = toTime_t("2018-03-01");
     time_t tp2 = toTime_t("2018-04-01");

@@ -629,8 +629,6 @@ QString RimWellLogPlot::createAutoName() const
     }
 
     RimCase* commonCase = m_commonDataSource->caseToApply();
-    RimGeoMechCase* geomCase = dynamic_cast<RimGeoMechCase*>(commonCase);
-    RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>(commonCase);
     RimWellPath* commonWellPath = m_commonDataSource->wellPathToApply();
 
     QStringList generatedAutoTags;

@@ -357,8 +357,6 @@ void RimSummaryFilter::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering
 {
     uiOrdering.add(&m_filterType);
 
-    caf::PdmUiGroup* curveVarFilterGroup = nullptr;
-
     if(m_filterType() == SUM_FILTER_VAR_STRING)
     {
         uiOrdering.add(&m_completeVarStringFilter);

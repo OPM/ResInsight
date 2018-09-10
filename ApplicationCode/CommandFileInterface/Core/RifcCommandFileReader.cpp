@@ -40,7 +40,6 @@ std::vector<RicfCommandObject*> RicfCommandFileReader::readCommands(QTextStream&
         errorMessageContainer->skipWhiteSpaceWithLineNumberCount(inputStream);
         // Read command name
         QString commandName;
-        bool foundStartBracet = false;
         {
             errorMessageContainer->skipWhiteSpaceWithLineNumberCount(inputStream);
             while ( !inputStream.atEnd() )

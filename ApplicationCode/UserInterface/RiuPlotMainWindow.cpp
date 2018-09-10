@@ -436,7 +436,6 @@ void RiuPlotMainWindow::setWidthOfMdiWindow(QWidget* mdiWindowWidget, int newWid
     if (mdiWindow)
     {
         QSize subWindowSize = mdiWindow->size();
-        int   currentWidth  = subWindowSize.width();
 
         subWindowSize.setWidth(std::max(newWidth, 100));
         mdiWindow->resize(subWindowSize);

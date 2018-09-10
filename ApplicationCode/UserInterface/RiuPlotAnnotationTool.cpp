@@ -83,8 +83,6 @@ void RiuPlotAnnotationTool::attachWellPicks(QwtPlot* plot, const std::vector<QSt
     if (names.size() != yPositions.size()) return;
     m_plot = plot;
 
-    double delta = 0.5;
-
     for (size_t i = 0; i < names.size(); i++)
     {
         QwtPlotMarker* line(new QwtPlotMarker());
