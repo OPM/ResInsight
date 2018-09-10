@@ -56,6 +56,7 @@
 #include "RimWellPathCollection.h"
 #include "RimWellPlotTools.h"
 
+#include "RiuPlotMainWindowTools.h"
 #include "RiuQwtPlotCurve.h"
 #include "RiuWellLogTrack.h"
 

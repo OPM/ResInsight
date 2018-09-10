@@ -202,6 +202,8 @@ void RicDeleteItemExec::redo()
         {
             wellLogPlot->calculateAvailableDepthRange();
             wellLogPlot->updateDepthZoom();
+            RiuPlotMainWindow* mainPlotWindow = RiaApplication::instance()->mainPlotWindow();
+            mainPlotWindow->updateWellLogPlotToolBar();
         }
 
         RimWellLogTrack* wellLogPlotTrack;
@@ -209,6 +211,8 @@ void RicDeleteItemExec::redo()
         if (wellLogPlotTrack)
         {
             wellLogPlotTrack->calculateXZoomRangeAndUpdateQwt();
+            RiuPlotMainWindow* mainPlotWindow = RiaApplication::instance()->mainPlotWindow();
+            mainPlotWindow->updateWellLogPlotToolBar();
         }
         
         // Update due to delete plots
@@ -226,6 +230,8 @@ void RicDeleteItemExec::redo()
                     project->updateConnectedEditors();
                 }
             }
+            RiuPlotMainWindow* mainPlotWindow = RiaApplication::instance()->mainPlotWindow();
+            mainPlotWindow->updateWellLogPlotToolBar();
         }
         
         // Linked views

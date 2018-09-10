@@ -27,6 +27,7 @@
 #include "RimSummaryPlot.h"
 #include "RimViewWindow.h"
 #include "RimWellAllocationPlot.h"
+#include "RimWellLogCurveCommonDataSource.h"
 #include "RimWellLogPlot.h"
 
 #include "RiuDragDrop.h"
@@ -114,6 +115,7 @@ void RiuPlotMainWindow::cleanupGuiBeforeProjectClose()
 
     cleanUpTemporaryWidgets();
 
+    m_wellLogPlotToolBarEditor->clear();
     m_summaryPlotToolBarEditor->clear();
 
     setWindowTitle("Plots - ResInsight");
@@ -317,6 +319,9 @@ void RiuPlotMainWindow::createToolBars()
         }
     }
 
+    m_wellLogPlotToolBarEditor = new caf::PdmUiToolBarEditor("Well Log Plot", this);
+    m_wellLogPlotToolBarEditor->hide();
+
     m_summaryPlotToolBarEditor = new caf::PdmUiToolBarEditor("Summary Plot", this);
     m_summaryPlotToolBarEditor->hide();
 }
@@ -462,6 +467,32 @@ void RiuPlotMainWindow::addToTemporaryWidgets(QWidget* widget)
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuPlotMainWindow::updateWellLogPlotToolBar()
+{
+    RimWellLogPlot* wellLogPlot = dynamic_cast<RimWellLogPlot*>(m_activePlotViewWindow.p());
+    if (wellLogPlot)
+    {
+        std::vector<caf::PdmFieldHandle*> toolBarFields;
+        toolBarFields = wellLogPlot->commonDataSource()->fieldsToShowInToolbar();
+
+        m_wellLogPlotToolBarEditor->setFields(toolBarFields);
+        m_wellLogPlotToolBarEditor->updateUi();
+
+        m_wellLogPlotToolBarEditor->show();
+    }
+    else
+    {
+        m_wellLogPlotToolBarEditor->clear();
+
+        m_wellLogPlotToolBarEditor->hide();
+    }
+
+    refreshToolbars();
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void RiuPlotMainWindow::updateSummaryPlotToolBar()
@@ -603,6 +634,7 @@ void RiuPlotMainWindow::slotSubWindowActivated(QMdiSubWindow* subWindow)
         m_activePlotViewWindow = viewWindow;
     }
 
+    updateWellLogPlotToolBar();
     updateSummaryPlotToolBar();
 }
 

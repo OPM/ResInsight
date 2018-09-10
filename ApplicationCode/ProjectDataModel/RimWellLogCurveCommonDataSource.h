@@ -70,6 +70,7 @@ public:
 
     void         applyPrevTimeStep();
     void         applyNextTimeStep();
+    std::vector<caf::PdmFieldHandle *>    fieldsToShowInToolbar();
 protected:
     virtual void                          fieldChangedByUi(const caf::PdmFieldHandle* changedField,
                                                            const QVariant& oldValue,

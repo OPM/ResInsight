@@ -209,6 +209,10 @@ void RimWellLogCurveCommonDataSource::updateDefaultOptions(const std::vector<Rim
     std::set<int>          uniqueBranchIndex;
     for (RimWellLogCurve* curve : curves)
     {
+        if (!curve->isCurveVisible())
+        {
+            continue;
+        }
         RimWellLogExtractionCurve* extractionCurve = dynamic_cast<RimWellLogExtractionCurve*>(curve);
         RimWellLogFileCurve*       fileCurve       = dynamic_cast<RimWellLogFileCurve*>(curve);
         if (extractionCurve)
@@ -229,10 +233,16 @@ void RimWellLogCurveCommonDataSource::updateDefaultOptions(const std::vector<Rim
     }
     for (RimWellLogTrack* track : tracks)
     {
-        uniqueTrajectoryTypes.insert(static_cast<int>(RimWellLogExtractionCurve::WELL_PATH));
-        uniqueWellPaths.insert(track->wellPathAttributeSource());
-        uniqueCases.insert(track->formationNamesCase());
-        uniqueWellPaths.insert(track->formationWellPath());
+        if (track->showWellPathAttributes())
+        {
+            uniqueTrajectoryTypes.insert(static_cast<int>(RimWellLogExtractionCurve::WELL_PATH));
+            uniqueWellPaths.insert(track->wellPathAttributeSource());
+        }
+        if (track->showFormations())
+        {
+            uniqueCases.insert(track->formationNamesCase());
+            uniqueWellPaths.insert(track->formationWellPath());
+        }
     }
 
     
@@ -297,6 +307,10 @@ void RimWellLogCurveCommonDataSource::updateCurvesAndTracks(std::vector<RimWellL
     std::set<RimWellLogPlot*> plots;
     for (RimWellLogCurve* curve : curves)
     {
+        if (!curve->isCurveVisible())
+        {
+            continue;
+        }
         RimWellLogFileCurve*       fileCurve = dynamic_cast<RimWellLogFileCurve*>(curve);
         RimWellLogExtractionCurve* extractionCurve = dynamic_cast<RimWellLogExtractionCurve*>(curve);
         if (fileCurve)
@@ -367,6 +381,7 @@ void RimWellLogCurveCommonDataSource::updateCurvesAndTracks(std::vector<RimWellL
                 RimWellLogPlot* parentPlot = nullptr;
                 extractionCurve->firstAncestorOrThisOfTypeAsserted(parentPlot);
                 plots.insert(parentPlot);
+                curve->updateConnectedEditors();
             }
         }
     }
@@ -376,15 +391,25 @@ void RimWellLogCurveCommonDataSource::updateCurvesAndTracks(std::vector<RimWellL
         bool updatedSomething = false;
         if (caseToApply() != nullptr)
         {
-            track->setFormationCase(caseToApply());
-            updatedSomething = true;
+            if (track->showFormations())
+            {
+                track->setFormationCase(caseToApply());
+                updatedSomething = true;
+            }
         }
 
         if (wellPathToApply() != nullptr)
         {
-            track->setWellPathAttributesSource(wellPathToApply());
-            track->setFormationWellPath(wellPathToApply());
-            updatedSomething = true;
+            if (track->showWellPathAttributes())
+            {
+                track->setWellPathAttributesSource(wellPathToApply());
+                updatedSomething = true;
+            }
+            if (track->showFormations())
+            {
+                track->setFormationWellPath(wellPathToApply());
+                updatedSomething = true;
+            }
         }
 
         if (updatedSomething)
@@ -392,6 +417,7 @@ void RimWellLogCurveCommonDataSource::updateCurvesAndTracks(std::vector<RimWellL
             RimWellLogPlot* parentPlot = nullptr;
             track->firstAncestorOrThisOfTypeAsserted(parentPlot);
             plots.insert(parentPlot);
+            track->updateConnectedEditors();
         }
     }
 
@@ -480,6 +506,28 @@ void RimWellLogCurveCommonDataSource::applyPrevTimeStep()
 void RimWellLogCurveCommonDataSource::applyNextTimeStep()
 {
     modifyCurrentIndex(&m_timeStep, 1);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<caf::PdmFieldHandle *> RimWellLogCurveCommonDataSource::fieldsToShowInToolbar()
+{
+    updateDefaultOptions();
+
+    std::vector<caf::PdmFieldHandle*> fieldsToDisplay;
+    fieldsToDisplay.push_back(&m_case);
+    if (trajectoryTypeToApply() == RimWellLogExtractionCurve::WELL_PATH)
+    {
+        fieldsToDisplay.push_back(&m_wellPath);
+    }
+    else if (trajectoryTypeToApply() == RimWellLogExtractionCurve::SIMULATION_WELL)
+    {
+        fieldsToDisplay.push_back(&m_simWellName);
+    }
+    fieldsToDisplay.push_back(&m_timeStep);
+
+    return fieldsToDisplay;
 }
 
 //--------------------------------------------------------------------------------------------------

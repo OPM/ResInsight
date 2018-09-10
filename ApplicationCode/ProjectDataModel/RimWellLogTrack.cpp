@@ -58,6 +58,7 @@
 
 #include "RiuMainWindow.h"
 #include "RiuPlotAnnotationTool.h"
+#include "RiuPlotMainWindowTools.h"
 #include "RiuWellLogPlot.h"
 #include "RiuWellLogTrack.h"
 
@@ -337,7 +338,8 @@ void RimWellLogTrack::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
             }
         }
 
-        loadDataAndUpdate();
+        loadDataAndUpdate(true);
+
         RimWellRftPlot* rftPlot(nullptr);
 
         firstAncestorOrThisOfType(rftPlot);
@@ -371,15 +373,15 @@ void RimWellLogTrack::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
             m_formationSimWellName = QString("None");
         }
 
-        loadDataAndUpdate();
+        loadDataAndUpdate(true);
     }
     else if (changedField == &m_formationWellPathForSourceCase)
     {
-        loadDataAndUpdate();
+        loadDataAndUpdate(true);
     }
     else if (changedField == &m_formationSimWellName)
     {
-        loadDataAndUpdate();
+        loadDataAndUpdate(true);
     }
     else if (changedField == &m_formationTrajectoryType)
     {
@@ -396,18 +398,18 @@ void RimWellLogTrack::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
             }
         }
 
-        loadDataAndUpdate();
+        loadDataAndUpdate(true);
     }
     else if (changedField == &m_formationBranchIndex || 
              changedField == &m_formationBranchDetection)
     {
         m_formationBranchIndex = RiaSimWellBranchTools::clampBranchIndex(m_formationSimWellName, m_formationBranchIndex, m_formationBranchDetection);
 
-        loadDataAndUpdate();
+        loadDataAndUpdate(true);
     }
     else if (changedField == &m_formationWellPathForSourceWellPath)
     {
-        loadDataAndUpdate();
+        loadDataAndUpdate(true);
     }
     else if (changedField == &m_formationLevel)
     {
@@ -422,11 +424,15 @@ void RimWellLogTrack::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
              changedField == &m_wellPathAttributesInLegend)
     {
         updateWellPathAttributesOnPlot();
+        updateParentPlotLayout();
+        RiuPlotMainWindowTools::refreshToolbars();
     }
     else if (changedField == &m_wellPathAttributeSource)
     {      
         updateWellPathAttributesCollection();
         updateWellPathAttributesOnPlot();
+        updateParentPlotLayout();
+        RiuPlotMainWindowTools::refreshToolbars();
     }
 }
 
@@ -709,7 +715,7 @@ void RimWellLogTrack::availableDepthRange(double* minimumDepth, double* maximumD
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellLogTrack::loadDataAndUpdate()
+void RimWellLogTrack::loadDataAndUpdate(bool updateParentPlotAndToolbars)
 {
     RimWellLogPlot* wellLogPlot = nullptr;
     firstAncestorOrThisOfType(wellLogPlot);
@@ -757,6 +763,12 @@ void RimWellLogTrack::loadDataAndUpdate()
     m_xAxisGridVisibility.uiCapability()->setUiReadOnly(emptyRange);
 
     updateAllLegendItems();
+
+    if (updateParentPlotAndToolbars)
+    {
+        updateParentPlotLayout();
+        RiuPlotMainWindowTools::refreshToolbars();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

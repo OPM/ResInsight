@@ -100,7 +100,7 @@ public:
     void detachAllCurves();
     void reattachAllCurves();
 
-    void loadDataAndUpdate();
+    void loadDataAndUpdate(bool updateParentPlotAndToolbars = false);
     
     void setAndUpdateWellPathFormationNamesData(RimCase* rimCase, RimWellPath* wellPath);
     

@@ -750,6 +750,14 @@ void RimWellLogPlot::handleKeyPressEvent(QKeyEvent* keyEvent)
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimWellLogCurveCommonDataSource* RimWellLogPlot::commonDataSource() const
+{
+    return m_commonDataSource;
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void RimWellLogPlot::depthZoomMinMax(double* minimumDepth, double* maximumDepth) const

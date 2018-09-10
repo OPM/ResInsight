@@ -27,6 +27,7 @@
 #include "RimSummaryCurveFilter.h"
 #include "RimSummaryPlot.h"
 
+#include "RiuPlotMainWindowTools.h"
 #include "RiuRimQwtPlotCurve.h"
 
 #include "cafPdmUiComboBoxEditor.h"
@@ -191,6 +192,7 @@ void RimPlotCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField, con
         m_qwtPlotCurve->showErrorBars(m_showErrorBars);
         updateCurveAppearance();
     }
+    RiuPlotMainWindowTools::refreshToolbars();
     if (m_parentQwtPlot) m_parentQwtPlot->replot();
 }
 

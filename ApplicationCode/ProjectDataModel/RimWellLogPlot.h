@@ -126,7 +126,7 @@ public:
     void                                            updateHolder() override;
 
     void                                            handleKeyPressEvent(QKeyEvent* keyEvent);
-
+    RimWellLogCurveCommonDataSource*                commonDataSource() const;
 protected:
 
     // Overridden PDM methods

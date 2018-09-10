@@ -65,7 +65,11 @@ void RiuPlotMainWindowTools::refreshToolbars()
 {
     RiuPlotMainWindow* mpw = RiaApplication::instance()->mainPlotWindow();
 
-    if (mpw) mpw->updateSummaryPlotToolBar();
+    if (mpw)
+    {
+        mpw->updateSummaryPlotToolBar();        
+        mpw->updateWellLogPlotToolBar();
+    }
 }
 
 

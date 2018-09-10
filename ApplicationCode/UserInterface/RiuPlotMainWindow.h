@@ -80,6 +80,7 @@ public:
     void                setWidthOfMdiWindow(QWidget* mdiWindowWidget, int newWidth);
     void                addToTemporaryWidgets(QWidget* widget);
 
+    void                updateWellLogPlotToolBar();
     void                updateSummaryPlotToolBar();
 
 protected:
@@ -117,6 +118,7 @@ private:
 
     QMenu*              m_windowMenu;
 
+    caf::PdmUiToolBarEditor*    m_wellLogPlotToolBarEditor;
     caf::PdmUiToolBarEditor*    m_summaryPlotToolBarEditor;
     std::unique_ptr<caf::PdmUiDragDropInterface> m_dragDropInterface;
     
