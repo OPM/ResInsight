@@ -661,7 +661,9 @@ void RiuMainWindow::createDockPanels()
     QDockWidget* resultPlotDock = nullptr;
     QDockWidget* relPermPlotDock = nullptr;
     QDockWidget* pvtPlotDock = nullptr;
+#ifdef USE_ODB_API
     QDockWidget* mohrsCirclePlotDock = nullptr;
+#endif
 
     {
         QDockWidget* dockWidget = new RiuDockWidget("Property Editor", this);
