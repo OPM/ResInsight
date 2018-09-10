@@ -77,6 +77,7 @@ bool RicCreateWellTargetsPickEventHandler::handlePickEvent(const Ric3DPickEvent&
         }
         cvf::Vec3d referencePoint = m_geometryToAddTargetsTo->referencePointXyz();
         cvf::Vec3d relativeTagetPoint = domainCoord - referencePoint;
+
         RimWellPathTarget* newTarget = new RimWellPathTarget;
         newTarget->setAsPointTargetXYD(cvf::Vec3d(relativeTagetPoint.x(), relativeTagetPoint.y(), -relativeTagetPoint.z()));
 

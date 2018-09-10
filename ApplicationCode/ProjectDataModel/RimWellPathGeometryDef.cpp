@@ -392,6 +392,7 @@ std::vector<cvf::Vec3d> RimWellPathGeometryDef::lineArcEndpoints() const
             prevSegmentEndAzi = jCurve.endAzimuth();
             prevSegmentEndInc = jCurve.endInclination();
 
+            target2->setDerivedTangent(prevSegmentEndAzi, prevSegmentEndInc);
         }
 
         else if (   target1->targetType() == RimWellPathTarget::POINT
@@ -409,6 +410,8 @@ std::vector<cvf::Vec3d> RimWellPathGeometryDef::lineArcEndpoints() const
             endPoints.push_back( target2->targetPointXYZ() + m_referencePointXyz() );
             prevSegmentEndAzi = jCurve.endAzimuth();
             prevSegmentEndInc = jCurve.endInclination();
+            
+            target2->setDerivedTangent(prevSegmentEndAzi, prevSegmentEndInc);
         }
         else
         {
