@@ -2361,7 +2361,7 @@ std::vector<SubSegmentIntersectionInfo> spiltIntersectionSegmentsToMaxLength(con
 
     if (!pathGeometry) return out;
 
-    for (int i = 0; i < intersections.size(); i++)
+    for (size_t i = 0; i < intersections.size(); i++)
     {
         const auto& intersection = intersections[i];
         double segLen = intersection.endMD - intersection.startMD;
