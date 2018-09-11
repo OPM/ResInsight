@@ -60,11 +60,8 @@ RimWellPathGeometryDef::RimWellPathGeometryDef()
 {
     CAF_PDM_InitObject("Trajectory", ":/Well.png", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&m_wellStartType, "WellStartType", "Start Type", "", "", "");
-    CAF_PDM_InitField(&m_referencePointXyz, "ReferencePos", cvf::Vec3d(0,0,0), "UTM Reference Point", "", "", "");
+    CAF_PDM_InitField(&m_referencePointUtmXyd, "ReferencePosUtmXyd", cvf::Vec3d(0,0,0), "UTM Reference Point", "", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&m_parentWell, "ParentWell", "Parent Well", "", "", "");
-    CAF_PDM_InitField(&m_kickoffDepthOrMD, "KickoffDepthOrMD", 100.0, "Kickoff Depth", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_wellTargets, "WellPathTargets", "Well Targets", "", "", "");
     m_wellTargets.uiCapability()->setUiEditorTypeName(caf::PdmUiTableViewEditor::uiEditorTypeName());
@@ -75,6 +72,21 @@ RimWellPathGeometryDef::RimWellPathGeometryDef()
 
     CAF_PDM_InitField(&m_pickPointsEnabled, "m_pickPointsEnabled", false, "", "", "", "");
     caf::PdmUiPushButtonEditor::configureEditorForField(&m_pickPointsEnabled);
+
+    // Temp conversion field. 
+    CAF_PDM_InitField(&m_referencePointXyz_OBSOLETE, "ReferencePos", cvf::Vec3d(0,0,0), "UTM Reference Point", "", "", "");
+    m_referencePointXyz_OBSOLETE.uiCapability()->setUiHidden(true);
+    m_referencePointXyz_OBSOLETE.xmlCapability()->setIOWritable(false);
+
+    /// To be removed ?
+
+    CAF_PDM_InitFieldNoDefault(&m_wellStartType, "WellStartType", "Start Type", "", "", "");
+    m_wellStartType.xmlCapability()->disableIO();
+    CAF_PDM_InitFieldNoDefault(&m_parentWell, "ParentWell", "Parent Well", "", "", "");
+    m_parentWell.xmlCapability()->disableIO();
+    CAF_PDM_InitField(&m_kickoffDepthOrMD, "KickoffDepthOrMD", 100.0, "Kickoff Depth", "", "", "");
+    m_kickoffDepthOrMD.xmlCapability()->disableIO();
+
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -87,6 +99,26 @@ RimWellPathGeometryDef::~RimWellPathGeometryDef()
     delete m_pickTargetsEventHandler;
 
     m_pickTargetsEventHandler = nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::Vec3d RimWellPathGeometryDef::referencePointXyz() const
+{
+    cvf::Vec3d xyz(m_referencePointUtmXyd()); 
+    xyz.z() = -xyz.z(); 
+    return xyz;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellPathGeometryDef::setReferencePointXyz(const cvf::Vec3d& refPointXyz)
+{
+    cvf::Vec3d xyd(refPointXyz); 
+    xyd.z() = -xyd.z(); 
+    m_referencePointUtmXyd = xyd;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -273,7 +305,7 @@ void RimWellPathGeometryDef::fieldChangedByUi(const caf::PdmFieldHandle* changed
                                               const QVariant& oldValue, 
                                               const QVariant& newValue)
 {
-    if (&m_referencePointXyz == changedField)
+    if (&m_referencePointUtmXyd == changedField)
     {
         std::cout << "fieldChanged" << std::endl;
     }
@@ -304,7 +336,7 @@ void RimWellPathGeometryDef::defineUiOrdering(QString uiConfigName, caf::PdmUiOr
         uiOrdering.add(&m_kickoffDepthOrMD);
     }
 
-    uiOrdering.add(&m_referencePointXyz);
+    uiOrdering.add(&m_referencePointUtmXyd);
     uiOrdering.add(&m_wellTargets);
     uiOrdering.add(&m_pickPointsEnabled);
     uiOrdering.skipRemainingFields(true);
@@ -348,7 +380,7 @@ std::vector<cvf::Vec3d> RimWellPathGeometryDef::lineArcEndpoints() const
     CVF_ASSERT(activeWellPathTargets.size() > 1);
 
     std::vector<cvf::Vec3d> endPoints;
-    endPoints.push_back(  activeWellPathTargets[0]->targetPointXYZ() + m_referencePointXyz() );
+    endPoints.push_back(  activeWellPathTargets[0]->targetPointXYZ() + referencePointXyz() );
 
     for ( size_t tIdx = 0; tIdx < activeWellPathTargets.size() - 1; ++tIdx)
     {
@@ -382,9 +414,9 @@ std::vector<cvf::Vec3d> RimWellPathGeometryDef::lineArcEndpoints() const
                 RiaLogging::warning("Using fall-back calculation of well path geometry between active target number: " + QString::number(tIdx+1) + " and " + QString::number(tIdx+2));
             }
 
-            endPoints.push_back( sCurveCalc.firstArcEndpoint() + m_referencePointXyz() );
-            endPoints.push_back( sCurveCalc.secondArcStartpoint() + m_referencePointXyz() );
-            endPoints.push_back( target2->targetPointXYZ() + m_referencePointXyz() );
+            endPoints.push_back( sCurveCalc.firstArcEndpoint() + referencePointXyz() );
+            endPoints.push_back( sCurveCalc.secondArcStartpoint() + referencePointXyz() );
+            endPoints.push_back( target2->targetPointXYZ() + referencePointXyz() );
 
         }
         else if (   target1->targetType() == RimWellPathTarget::POINT
@@ -414,9 +446,9 @@ std::vector<cvf::Vec3d> RimWellPathGeometryDef::lineArcEndpoints() const
                 RiaLogging::warning("Using fall-back calculation of well path geometry between active target number: " + QString::number(tIdx+1) + " and " + QString::number(tIdx+2));
             }
 
-            endPoints.push_back( sCurveCalc.firstArcEndpoint() + m_referencePointXyz() );
-            endPoints.push_back( sCurveCalc.secondArcStartpoint() + m_referencePointXyz() );
-            endPoints.push_back( target2->targetPointXYZ() + m_referencePointXyz() );
+            endPoints.push_back( sCurveCalc.firstArcEndpoint() + referencePointXyz() );
+            endPoints.push_back( sCurveCalc.secondArcStartpoint() + referencePointXyz() );
+            endPoints.push_back( target2->targetPointXYZ() + referencePointXyz() );
         }
         else if (   target1->targetType() == RimWellPathTarget::POINT_AND_TANGENT
                  && target2->targetType() == RimWellPathTarget::POINT)
@@ -428,9 +460,9 @@ std::vector<cvf::Vec3d> RimWellPathGeometryDef::lineArcEndpoints() const
                                        target2->targetPointXYZ());
             if ( jCurve.isOk() )
             {
-                endPoints.push_back(jCurve.firstArcEndpoint() + m_referencePointXyz());
+                endPoints.push_back(jCurve.firstArcEndpoint() + referencePointXyz());
             }
-            endPoints.push_back( target2->targetPointXYZ() + m_referencePointXyz() );
+            endPoints.push_back( target2->targetPointXYZ() + referencePointXyz() );
             prevSegmentEndAzi = jCurve.endAzimuth();
             prevSegmentEndInc = jCurve.endInclination();
 
@@ -447,9 +479,9 @@ std::vector<cvf::Vec3d> RimWellPathGeometryDef::lineArcEndpoints() const
                                        target2->targetPointXYZ());
             if ( jCurve.isOk() )
             {
-                endPoints.push_back(jCurve.firstArcEndpoint() + m_referencePointXyz());
+                endPoints.push_back(jCurve.firstArcEndpoint() + referencePointXyz());
             }
-            endPoints.push_back( target2->targetPointXYZ() + m_referencePointXyz() );
+            endPoints.push_back( target2->targetPointXYZ() + referencePointXyz() );
             prevSegmentEndAzi = jCurve.endAzimuth();
             prevSegmentEndInc = jCurve.endInclination();
             
@@ -526,5 +558,18 @@ void RimWellPathGeometryDef::defineEditorAttribute(const caf::PdmFieldHandle* fi
             tvAttribute->baseColor.setRgb(255, 220, 255);
             tvAttribute->forceColumnWidthResize = true;
         }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellPathGeometryDef::initAfterRead()
+{
+    // To be removed before release 2018.11
+
+    if (m_referencePointXyz_OBSOLETE != cvf::Vec3d::ZERO && m_referencePointUtmXyd == cvf::Vec3d::ZERO)
+    {
+        m_referencePointUtmXyd = cvf::Vec3d(m_referencePointXyz_OBSOLETE().x(), m_referencePointXyz_OBSOLETE().y(), -m_referencePointXyz_OBSOLETE().z());
     }
 }

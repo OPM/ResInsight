@@ -73,7 +73,7 @@ bool RicCreateWellTargetsPickEventHandler::handlePickEvent(const Ric3DPickEvent&
         cvf::Vec3d domainCoord = transForm->transformToDomainCoord(eventObject.m_pickItemInfos.front().globalPickedPoint());
         if (!m_geometryToAddTargetsTo->firstActiveTarget())
         {
-            m_geometryToAddTargetsTo->setReferencePoint(domainCoord);
+            m_geometryToAddTargetsTo->setReferencePointXyz(domainCoord);
         }
         cvf::Vec3d referencePoint = m_geometryToAddTargetsTo->referencePointXyz();
         cvf::Vec3d relativeTagetPoint = domainCoord - referencePoint;

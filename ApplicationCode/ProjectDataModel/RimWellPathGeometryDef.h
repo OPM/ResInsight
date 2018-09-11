@@ -43,8 +43,8 @@ public:
 
     enum WellStartType { START_AT_FIRST_TARGET, START_AT_SURFACE, START_FROM_OTHER_WELL, START_AT_AUTO_SURFACE };
 
-    cvf::Vec3d                      referencePointXyz() { return m_referencePointXyz;}
-    void                            setReferencePoint(const cvf::Vec3d& refPointXyz ) {m_referencePointXyz = refPointXyz;}
+    cvf::Vec3d                      referencePointXyz() const;
+    void                            setReferencePointXyz(const cvf::Vec3d& refPointXyz );
 
     cvf::ref<RigWellPath>           createWellPathGeometry();
     
@@ -73,7 +73,9 @@ protected:
                                                           QString uiConfigName, 
                                                           caf::PdmUiEditorAttribute* attribute) override;
                                     
-private:                            
+
+
+private:
     void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
                                                      const QVariant& oldValue, 
                                                      const QVariant& newValue) override;
@@ -81,20 +83,24 @@ private:
                                                      caf::PdmUiOrdering& uiOrdering) override;
     void                            defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, 
                                                          QString uiConfigName) override;
+    void                            initAfterRead() override;
     QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
 
     std::vector<cvf::Vec3d>         lineArcEndpoints() const;
     cvf::Vec3d                      startTangent() const;
 
 private:
-    caf::PdmField<caf::AppEnum<WellStartType> >      m_wellStartType;
-    caf::PdmField<cvf::Vec3d>                        m_referencePointXyz;
-
-    caf::PdmField<double>                            m_kickoffDepthOrMD;
-    caf::PdmPtrField<RimWellPath*>                   m_parentWell;
-
-    caf::PdmField< bool >                            m_pickPointsEnabled;
+    caf::PdmField<cvf::Vec3d>                        m_referencePointUtmXyd;
+    caf::PdmField<cvf::Vec3d>                        m_referencePointXyz_OBSOLETE;
 
     caf::PdmChildArrayField<RimWellPathTarget*>      m_wellTargets;
+
+    caf::PdmField< bool >                            m_pickPointsEnabled;
     RicCreateWellTargetsPickEventHandler*            m_pickTargetsEventHandler;
+
+    // Unused for now. Remove when dust settles
+
+    caf::PdmField<caf::AppEnum<WellStartType> >      m_wellStartType;
+    caf::PdmField<double>                            m_kickoffDepthOrMD;
+    caf::PdmPtrField<RimWellPath*>                   m_parentWell;
 };
