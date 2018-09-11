@@ -35,7 +35,7 @@ public:
     bool isEnabled() const;
 
     void setAsPointTargetXYD(const cvf::Vec3d& point);
-    void setAsPointAndTangentTarget(const cvf::Vec3d& point, double azimuth, double inclination);
+    void setAsPointXYZAndTangentTarget(const cvf::Vec3d& point, double azimuth, double inclination);
     void setDerivedTangent(double azimuth, double inclination);
 
     enum TargetTypeEnum { POINT_AND_TANGENT, POINT };

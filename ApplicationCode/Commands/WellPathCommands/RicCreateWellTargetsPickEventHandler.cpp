@@ -83,6 +83,8 @@ bool RicCreateWellTargetsPickEventHandler::handlePickEvent(const Ric3DPickEvent&
 
         m_geometryToAddTargetsTo->insertTarget(nullptr, newTarget);
 
+        m_geometryToAddTargetsTo->addSmootheningTangentToNextToLastTargetIfSensible();
+
         m_geometryToAddTargetsTo->updateConnectedEditors();
         m_geometryToAddTargetsTo->updateWellPathVisualization();
 

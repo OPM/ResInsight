@@ -66,12 +66,12 @@ void RimWellPathTarget::setAsPointTargetXYD(const cvf::Vec3d& point)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellPathTarget::setAsPointAndTangentTarget(const cvf::Vec3d& point, 
-                                                   double azimuth, 
-                                                   double inclination)
+void RimWellPathTarget::setAsPointXYZAndTangentTarget(const cvf::Vec3d& point,
+                                                      double azimuth,
+                                                      double inclination)
 {
-    m_targetType =  POINT_AND_TANGENT; 
-    m_targetPoint = point; 
+    m_targetType =  POINT_AND_TANGENT;
+    m_targetPoint = cvf::Vec3d(point.x(), point.y(), -point.z());
     m_azimuth = cvf::Math::toDegrees(azimuth); 
     m_inclination = cvf::Math::toDegrees(inclination);
 }
