@@ -151,7 +151,7 @@ void RicExportFishbonesWellSegmentsFeature::exportWellSegments(const RimWellPath
         return;
     }
     
-    RicMswExportInfo exportInfo = RicWellPathExportCompletionDataFeatureImpl::generateFishbonesMswExportInfo(settings.caseToApply, wellPath, fishbonesSubs);
+    RicMswExportInfo exportInfo = RicWellPathExportCompletionDataFeatureImpl::generateFishbonesMswExportInfo(settings.caseToApply, wellPath, fishbonesSubs, true);
 
     QTextStream stream(&exportFile);
     RifEclipseDataTableFormatter formatter(stream);

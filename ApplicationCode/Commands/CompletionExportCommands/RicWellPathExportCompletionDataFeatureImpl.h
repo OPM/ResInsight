@@ -57,11 +57,13 @@ class RicWellPathExportCompletionDataFeatureImpl
 
 public:
     static RicMswExportInfo               generateFishbonesMswExportInfo(const RimEclipseCase* caseToApply,
-                                                                         const RimWellPath*    wellPath);
+                                                                         const RimWellPath*    wellPath,
+                                                                         bool                  enableSegmentSplitting);
 
     static RicMswExportInfo               generateFishbonesMswExportInfo(const RimEclipseCase*                         caseToApply,
                                                                          const RimWellPath*                            wellPath,
-                                                                         const std::vector<RimFishbonesMultipleSubs*>& fishbonesSubs);
+                                                                         const std::vector<RimFishbonesMultipleSubs*>& fishbonesSubs,
+                                                                         bool                                          enableSegmentSplitting);
 
     static RicMswExportInfo               generateFracturesMswExportInfo(RimEclipseCase*    caseToApply,
                                                                          const RimWellPath* wellPath);
@@ -178,7 +180,8 @@ private:
     static void                           assignFishbonesLateralIntersections(const RimEclipseCase*           caseToApply,
                                                                               const RimFishbonesMultipleSubs* fishbonesSubs,
                                                                               RicMswSegment*                  location,
-                                                                              bool*                           foundSubGridIntersections);
+                                                                              bool*                           foundSubGridIntersections,
+                                                                              double                          maxSegmentLength);
 
     static void                           assignFractureIntersections(const RimEclipseCase*                 caseToApply,
                                                                       const RimWellPathFracture*            fracture,

@@ -70,9 +70,28 @@
 #include <QDir>
 
 //--------------------------------------------------------------------------------------------------
-/// Internal functions
+/// Internal definitions
 //--------------------------------------------------------------------------------------------------
+class SubSegmentIntersectionInfo
+{
+public:
+    SubSegmentIntersectionInfo(size_t globCellIndex, double startTVD, double endTVD, double startMD, double endMD, cvf::Vec3d lengthsInCell)
+        : globCellIndex(globCellIndex),  startTVD(startTVD), endTVD(endTVD), startMD(startMD), endMD(endMD), intersectionLengthsInCellCS(lengthsInCell) {}
+
+    size_t                             globCellIndex;
+    double                             startTVD;
+    double                             endTVD;
+    double                             startMD;
+    double                             endMD;
+    cvf::Vec3d                         intersectionLengthsInCellCS;
+};
+
 const RimWellPath* findWellPathFromExportName(const QString& wellNameForExport);
+std::vector<SubSegmentIntersectionInfo>
+    spiltIntersectionSegmentsToMaxLength(const RigWellPath* pathGeometry,
+                                         const std::vector<WellPathCellIntersectionInfo>& intersections,
+                                         double maxSegmentLength);
+int numberOfSplittedSegments(double startMd, double endMd, double maxSegmentLength);
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -1594,11 +1613,12 @@ std::vector<RigCompletionData> RicWellPathExportCompletionDataFeatureImpl::gener
 ///
 //--------------------------------------------------------------------------------------------------
 RicMswExportInfo RicWellPathExportCompletionDataFeatureImpl::generateFishbonesMswExportInfo(const RimEclipseCase* caseToApply,
-                                                                                            const RimWellPath*    wellPath)
+                                                                                            const RimWellPath*    wellPath,
+                                                                                            bool                  enableSegmentSplitting)
 {
     std::vector<RimFishbonesMultipleSubs*> fishbonesSubs = wellPath->fishbonesCollection()->activeFishbonesSubs();
 
-    return generateFishbonesMswExportInfo(caseToApply, wellPath, fishbonesSubs);
+    return generateFishbonesMswExportInfo(caseToApply, wellPath, fishbonesSubs, enableSegmentSplitting);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1607,7 +1627,8 @@ RicMswExportInfo RicWellPathExportCompletionDataFeatureImpl::generateFishbonesMs
 RicMswExportInfo RicWellPathExportCompletionDataFeatureImpl::generateFishbonesMswExportInfo(
     const RimEclipseCase*                         caseToApply,
     const RimWellPath*                            wellPath,
-    const std::vector<RimFishbonesMultipleSubs*>& fishbonesSubs)
+    const std::vector<RimFishbonesMultipleSubs*>& fishbonesSubs,
+    bool                                          enableSegmentSplitting)
 {
     RiaEclipseUnitTools::UnitSystem unitSystem = caseToApply->eclipseCaseData()->unitsType();
 
@@ -1619,43 +1640,57 @@ RicMswExportInfo RicWellPathExportCompletionDataFeatureImpl::generateFishbonesMs
     exportInfo.setLinerDiameter(wellPath->fishbonesCollection()->mswParameters()->linerDiameter(unitSystem));
     exportInfo.setRoughnessFactor(wellPath->fishbonesCollection()->mswParameters()->roughnessFactor(unitSystem));
 
+    double maxSegmentLength = enableSegmentSplitting ? 500 : std::numeric_limits<double>::max();  // Fetch value from fishbones collection
     bool   foundSubGridIntersections = false;
-    double startMD                   = wellPath->fishbonesCollection()->startMD();
+    double subStartMD                   = wellPath->fishbonesCollection()->startMD();
     for (RimFishbonesMultipleSubs* subs : fishbonesSubs)
     {
         for (auto& sub : subs->installedLateralIndices())
         {
-            double     endMD       = subs->measuredDepth(sub.subIndex);
-            cvf::Vec3d position    = wellPath->wellPathGeometry()->interpolatedPointAlongWellPath(startMD);
-            cvf::Vec3d endPosition = wellPath->wellPathGeometry()->interpolatedPointAlongWellPath(endMD);
-            double     startTVD    = -position.z();
-            double     endTVD      = -endPosition.z();
+            double  subEndMD    = subs->measuredDepth(sub.subIndex);
+            double  subEndTVD = -wellPath->wellPathGeometry()->interpolatedPointAlongWellPath(subEndMD).z();
+            int     subSegCount = numberOfSplittedSegments(subStartMD, subEndMD, maxSegmentLength);
+            double  subSegLen = (subEndMD - subStartMD) / subSegCount;
 
-            RicMswSegment location = RicMswSegment(subs->generatedName(), startMD, endMD, startTVD, endTVD, sub.subIndex);
-            location.setEffectiveDiameter(subs->effectiveDiameter(unitSystem));
-            location.setHoleDiameter(subs->holeDiameter(unitSystem));
-            location.setOpenHoleRoughnessFactor(subs->openHoleRoughnessFactor(unitSystem));
-            location.setSkinFactor(subs->skinFactor());
-            location.setIcdFlowCoefficient(subs->icdFlowCoefficient());
-            double icdOrificeRadius = subs->icdOrificeDiameter(unitSystem) / 2;
-            location.setIcdArea(icdOrificeRadius * icdOrificeRadius * cvf::PI_D * subs->icdCount());
-
-            // Add completion for ICD
-            RicMswCompletion icdCompletion(RigCompletionData::ICD, QString("ICD"));
-            RicMswSubSegment icdSegment(endMD, 0.1, endTVD, 0.0);
-            icdCompletion.addSubSegment(icdSegment);
-            location.addCompletion(icdCompletion);
-
-            for (size_t lateralIndex : sub.lateralIndices)
+            double startMd = subStartMD;
+            double startTvd = -wellPath->wellPathGeometry()->interpolatedPointAlongWellPath(startMd).z();
+            for (int ssi = 0; ssi < subSegCount; ssi++)
             {
-                QString label = QString("Lateral %1").arg(lateralIndex);
-                location.addCompletion(RicMswCompletion(RigCompletionData::FISHBONES, label, lateralIndex));
+                double endMd = startMd + subSegLen;
+                double endTvd = -wellPath->wellPathGeometry()->interpolatedPointAlongWellPath(endMd).z();
+
+                RicMswSegment location = RicMswSegment(subs->generatedName(), startMd, endMd, startTvd, endTvd, sub.subIndex);
+                location.setEffectiveDiameter(subs->effectiveDiameter(unitSystem));
+                location.setHoleDiameter(subs->holeDiameter(unitSystem));
+                location.setOpenHoleRoughnessFactor(subs->openHoleRoughnessFactor(unitSystem));
+                location.setSkinFactor(subs->skinFactor());
+                location.setIcdFlowCoefficient(subs->icdFlowCoefficient());
+                double icdOrificeRadius = subs->icdOrificeDiameter(unitSystem) / 2;
+                location.setIcdArea(icdOrificeRadius * icdOrificeRadius * cvf::PI_D * subs->icdCount());
+
+                if (ssi == 0)
+                {
+                    // Add completion for ICD
+                    RicMswCompletion icdCompletion(RigCompletionData::ICD, QString("ICD"));
+                    RicMswSubSegment icdSegment(subEndMD, 0.1, subEndTVD, 0.0);
+                    icdCompletion.addSubSegment(icdSegment);
+                    location.addCompletion(icdCompletion);
+
+                    for (size_t lateralIndex : sub.lateralIndices)
+                    {
+                        QString label = QString("Lateral %1").arg(lateralIndex);
+                        location.addCompletion(RicMswCompletion(RigCompletionData::FISHBONES, label, lateralIndex));
+                    }
+                    assignFishbonesLateralIntersections(caseToApply, subs, &location, &foundSubGridIntersections, maxSegmentLength);
+                }
+
+                exportInfo.addWellSegmentLocation(location);
+
+                startMd = endMd;
+                startTvd = endTvd;
             }
-            assignFishbonesLateralIntersections(caseToApply, subs, &location, &foundSubGridIntersections);
 
-            exportInfo.addWellSegmentLocation(location);
-
-            startMD = endMD;
+            subStartMD = subEndMD;
         }
     }
     exportInfo.setHasSubGridIntersections(foundSubGridIntersections);
@@ -1697,6 +1732,9 @@ RicMswExportInfo
     std::vector<WellPathCellIntersectionInfo> intersections =
         RigWellPathIntersectionTools::findCellIntersectionInfosAlongPath(caseToApply->eclipseCaseData(), coords, mds);
 
+    double maxSegmentLength = 500;  // Fetch value from fractures collection
+    std::vector<SubSegmentIntersectionInfo> subSegIntersections = spiltIntersectionSegmentsToMaxLength(wellPathGeometry, intersections, maxSegmentLength);
+
     double initialMD = 0.0;
     if (wellPath->fractureCollection()->referenceMDType() == RimWellPathFractureCollection::MANUAL_REFERENCE_MD)
     {
@@ -1726,11 +1764,11 @@ RicMswExportInfo
     bool foundSubGridIntersections = false;
 
     // Main bore
-    int mainBoreSegment = 0;
-    for (const auto& cellIntInfo : intersections)
+    int mainBoreSegment = 1;
+    for (const auto& cellIntInfo : subSegIntersections)
     {
-        double startTVD = -cellIntInfo.startPoint.z();
-        double endTVD   = -cellIntInfo.endPoint.z();
+        double startTVD = cellIntInfo.startTVD;
+        double endTVD = cellIntInfo.endTVD;
 
         size_t             localGridIdx = 0u;
         const RigGridBase* localGrid    = grid->gridAndGridLocalIdxFromGlobalCellIdx(cellIntInfo.globCellIndex, &localGridIdx);
@@ -1758,14 +1796,11 @@ RicMswExportInfo
 
             if (cvf::Math::valueInRange(fractureStartMD, cellIntInfo.startMD, cellIntInfo.endMD))
             {
-                cvf::Vec3d position = wellPath->wellPathGeometry()->interpolatedPointAlongWellPath(fractureStartMD);
-
-                std::vector<const RimFracture*> fractureVector(1, fracture);
                 std::vector<RigCompletionData>  completionData =
                     RicExportFractureCompletionsImpl::generateCompdatValues(caseToApply,
                                                                             wellPath->completions()->wellNameForExport(),
                                                                             wellPath->wellPathGeometry(),
-                                                                            fractureVector,
+                                                                            { fracture },
                                                                             nullptr,
                                                                             nullptr);
 
@@ -1800,7 +1835,8 @@ void RicWellPathExportCompletionDataFeatureImpl::assignFishbonesLateralIntersect
     const RimEclipseCase*           caseToApply,
     const RimFishbonesMultipleSubs* fishbonesSubs,
     RicMswSegment*                  location,
-    bool*                           foundSubGridIntersections)
+    bool*                           foundSubGridIntersections,
+    double                          maxSegmentLength)
 {
     CVF_ASSERT(foundSubGridIntersections != nullptr);
 
@@ -1836,10 +1872,16 @@ void RicWellPathExportCompletionDataFeatureImpl::assignFishbonesLateralIntersect
         std::vector<WellPathCellIntersectionInfo> intersections =
             RigWellPathIntersectionTools::findCellIntersectionInfosAlongPath(
                 caseToApply->eclipseCaseData(), lateralCoords, lateralMDs);
+
+        RigWellPath pathGeometry;
+        pathGeometry.m_wellPathPoints = lateralCoords;
+        pathGeometry.m_measuredDepths = lateralMDs;
+        std::vector<SubSegmentIntersectionInfo> subSegIntersections = spiltIntersectionSegmentsToMaxLength(&pathGeometry, intersections, maxSegmentLength);
+
         double previousExitMD  = lateralMDs.front();
         double previousExitTVD = lateralCoords.front().z();
 
-        for (const auto& cellIntInfo : intersections)
+        for (const auto& cellIntInfo : subSegIntersections)
         {
             size_t             localGridIdx = 0u;
             const RigGridBase* localGrid = grid->gridAndGridLocalIdxFromGlobalCellIdx(cellIntInfo.globCellIndex, &localGridIdx);
@@ -1853,15 +1895,15 @@ void RicWellPathExportCompletionDataFeatureImpl::assignFishbonesLateralIntersect
             size_t i = 0u, j = 0u, k = 0u;
             localGrid->ijkFromCellIndex(localGridIdx, &i, &j, &k);
             RicMswSubSegment subSegment(
-                previousExitMD, cellIntInfo.endMD - previousExitMD, previousExitTVD, cellIntInfo.endPoint.z() - previousExitTVD);
+                previousExitMD, cellIntInfo.endMD - previousExitMD, previousExitTVD, -cellIntInfo.endTVD - previousExitTVD);
 
             RicMswSubSegmentCellIntersection intersection(
                 gridName, cellIntInfo.globCellIndex, cvf::Vec3st(i, j, k), cellIntInfo.intersectionLengthsInCellCS);
             subSegment.addIntersection(intersection);
             completion.addSubSegment(subSegment);
 
-            previousExitMD  = cellIntInfo.endMD;
-            previousExitTVD = cellIntInfo.endPoint.z();
+            previousExitMD = cellIntInfo.endMD;
+            previousExitTVD = -cellIntInfo.endTVD;
         }
     }
 }
@@ -2258,7 +2300,7 @@ void RicWellPathExportCompletionDataFeatureImpl::exportWellSegments(RimEclipseCa
     }
 
     RicMswExportInfo exportInfo =
-        RicWellPathExportCompletionDataFeatureImpl::generateFishbonesMswExportInfo(eclipseCase, wellPath, fishbonesSubs);
+        RicWellPathExportCompletionDataFeatureImpl::generateFishbonesMswExportInfo(eclipseCase, wellPath, fishbonesSubs, true);
 
     QTextStream                  stream(exportFile.get());
     RifEclipseDataTableFormatter formatter(stream);
@@ -2291,6 +2333,7 @@ void RicWellPathExportCompletionDataFeatureImpl::exportWellSegments(
     RicWellPathExportCompletionDataFeatureImpl::generateCompsegTables(formatter, exportInfo);
     RicWellPathExportCompletionDataFeatureImpl::generateWsegvalvTable(formatter, exportInfo);
 }
+
 //--------------------------------------------------------------------------------------------------
 /// Internal function
 //--------------------------------------------------------------------------------------------------
@@ -2303,4 +2346,68 @@ const RimWellPath* findWellPathFromExportName(const QString& wellNameForExport)
         if (wellPath->completions()->wellNameForExport() == wellNameForExport) return wellPath;
     }
     return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<SubSegmentIntersectionInfo> spiltIntersectionSegmentsToMaxLength(const RigWellPath* pathGeometry,
+                                                                             const std::vector<WellPathCellIntersectionInfo>& intersections,
+                                                                             double maxSegmentLength)
+{
+    std::vector<SubSegmentIntersectionInfo> out;
+
+    if (!pathGeometry) return out;
+
+    for (int i = 0; i < intersections.size(); i++)
+    {
+        const auto& intersection = intersections[i];
+        double segLen = intersection.endMD - intersection.startMD;
+        int segCount = (int)std::trunc(segLen / maxSegmentLength) + 1;
+
+        // Calc effective max length
+        double effectiveMaxSegLen = segLen / segCount;
+
+        if (segCount == 1)
+        {
+            out.push_back(SubSegmentIntersectionInfo(intersection.globCellIndex,
+                                                     -intersection.startPoint.z(),
+                                                     -intersection.endPoint.z(),
+                                                     intersection.startMD,
+                                                     intersection.endMD,
+                                                     intersection.intersectionLengthsInCellCS));
+        }
+        else
+        {
+            double currStartMd = intersection.startMD;
+            double currEndMd = currStartMd;
+            double lastTvd = -intersection.startPoint.z();
+
+            for(int i = 0; i < segCount; i++)
+            {
+                bool lasti = i == (segCount - 1);
+                currEndMd = currStartMd + effectiveMaxSegLen;
+
+                cvf::Vec3d segEndPoint = pathGeometry->interpolatedPointAlongWellPath(currEndMd);
+                out.push_back(SubSegmentIntersectionInfo(intersection.globCellIndex,
+                                                            lastTvd,
+                                                            lasti ? -intersection.endPoint.z() : -segEndPoint.z(),
+                                                            currStartMd,
+                                                            lasti ? intersection.endMD : currEndMd,
+                                                            intersection.intersectionLengthsInCellCS / segCount));
+
+                currStartMd = currEndMd;
+                lastTvd = -segEndPoint.z();
+            }
+        }
+    }
+    return out;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+int numberOfSplittedSegments(double startMd, double endMd, double maxSegmentLength)
+{
+    return (int)(std::trunc((endMd - startMd) / maxSegmentLength) + 1);
 }

@@ -170,7 +170,7 @@ void RicFishbonesTransmissibilityCalculationFeatureImp::findFishboneLateralsWell
     // Generate data
     const RigEclipseCaseData* caseData = settings.caseToApply()->eclipseCaseData();
     RicMswExportInfo          exportInfo =
-        RicWellPathExportCompletionDataFeatureImpl::generateFishbonesMswExportInfo(settings.caseToApply(), wellPath);
+        RicWellPathExportCompletionDataFeatureImpl::generateFishbonesMswExportInfo(settings.caseToApply(), wellPath, false);
 
     RiaEclipseUnitTools::UnitSystem unitSystem = caseData->unitsType();
     bool                            isMainBore = false;

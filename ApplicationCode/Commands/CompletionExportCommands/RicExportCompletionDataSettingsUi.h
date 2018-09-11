@@ -40,7 +40,11 @@ public:
 
     enum CompdatExport {
         TRANSMISSIBILITIES,
-        WPIMULT_AND_DEFAULT_CONNECTION_FACTORS
+        WPIMULT_AND_DEFAULT_CONNECTION_FACTORS,
+
+#ifdef _DEBUG
+        NO_COMPLETIONS
+#endif
     };
     typedef caf::AppEnum<CompdatExport> CompdatExportType;
 

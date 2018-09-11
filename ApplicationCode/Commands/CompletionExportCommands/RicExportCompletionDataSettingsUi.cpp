@@ -35,6 +35,9 @@ namespace caf
     {
         addItem(RicExportCompletionDataSettingsUi::TRANSMISSIBILITIES, "TRANSMISSIBILITIES", "Calculated Transmissibilities");
         addItem(RicExportCompletionDataSettingsUi::WPIMULT_AND_DEFAULT_CONNECTION_FACTORS, "WPIMULT_AND_DEFAULT_CONNECTION_FACTORS", "Default Connection Factors and WPIMULT (Fractures Not Supported)");
+#ifdef _DEBUG
+        addItem(RicExportCompletionDataSettingsUi::NO_COMPLETIONS, "NO_COMPLETIONS", "None");
+#endif
         setDefault(RicExportCompletionDataSettingsUi::TRANSMISSIBILITIES);
     }
 
