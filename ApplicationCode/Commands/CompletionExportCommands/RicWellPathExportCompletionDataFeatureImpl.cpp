@@ -1881,7 +1881,7 @@ void RicWellPathExportCompletionDataFeatureImpl::assignFishbonesLateralIntersect
         std::vector<SubSegmentIntersectionInfo> subSegIntersections = spiltIntersectionSegmentsToMaxLength(&pathGeometry, intersections, maxSegmentLength);
 
         double previousExitMD  = lateralMDs.front();
-        double previousExitTVD = lateralCoords.front().z();
+        double previousExitTVD = -lateralCoords.front().z();
 
         for (const auto& cellIntInfo : subSegIntersections)
         {
@@ -1897,7 +1897,7 @@ void RicWellPathExportCompletionDataFeatureImpl::assignFishbonesLateralIntersect
             size_t i = 0u, j = 0u, k = 0u;
             localGrid->ijkFromCellIndex(localGridIdx, &i, &j, &k);
             RicMswSubSegment subSegment(
-                previousExitMD, cellIntInfo.endMD - previousExitMD, previousExitTVD, -cellIntInfo.endTVD - previousExitTVD);
+                previousExitMD, cellIntInfo.endMD - previousExitMD, previousExitTVD, cellIntInfo.endTVD - previousExitTVD);
 
             RicMswSubSegmentCellIntersection intersection(
                 gridName, cellIntInfo.globCellIndex, cvf::Vec3st(i, j, k), cellIntInfo.intersectionLengthsInCellCS);
@@ -1905,7 +1905,7 @@ void RicWellPathExportCompletionDataFeatureImpl::assignFishbonesLateralIntersect
             completion.addSubSegment(subSegment);
 
             previousExitMD = cellIntInfo.endMD;
-            previousExitTVD = -cellIntInfo.endTVD;
+            previousExitTVD = cellIntInfo.endTVD;
         }
     }
 }
