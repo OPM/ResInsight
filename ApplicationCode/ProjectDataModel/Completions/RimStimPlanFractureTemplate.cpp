@@ -19,6 +19,7 @@
 #include "RimStimPlanFractureTemplate.h"
 
 #include "RiaApplication.h"
+#include "RiaCompletionTypeCalculationScheduler.h"
 #include "RiaFractureDefines.h"
 #include "RiaLogging.h"
 #include "RiaWeightedAverageCalculator.h"
@@ -693,6 +694,8 @@ void RimStimPlanFractureTemplate::reload()
     if (proj)
     {
         proj->createDisplayModelAndRedrawAllViews();
+
+        RiaCompletionTypeCalculationScheduler::instance()->scheduleRecalculateCompletionTypeAndRedrawAllViews();
     }
 }
 

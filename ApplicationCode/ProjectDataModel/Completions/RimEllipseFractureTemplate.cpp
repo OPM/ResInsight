@@ -19,6 +19,7 @@
 #include "RimEllipseFractureTemplate.h"
 
 #include "RiaApplication.h"
+#include "RiaCompletionTypeCalculationScheduler.h"
 #include "RiaEclipseUnitTools.h"
 #include "RiaFractureDefines.h"
 #include "RiaLogging.h"
@@ -29,6 +30,7 @@
 #include "RigStatisticsMath.h"
 #include "RigTesselatorTools.h"
 
+#include "RimEclipseCase.h"
 #include "RimEclipseView.h"
 #include "RimFracture.h"
 #include "RimFractureContainment.h"
@@ -231,7 +233,8 @@ void RimEllipseFractureTemplate::assignConductivityToCellsInsideEllipse()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-FractureWidthAndConductivity RimEllipseFractureTemplate::widthAndConductivityAtWellPathIntersection(const RimFracture* fractureInstance) const
+FractureWidthAndConductivity
+    RimEllipseFractureTemplate::widthAndConductivityAtWellPathIntersection(const RimFracture* fractureInstance) const
 {
     FractureWidthAndConductivity values;
     values.m_width        = m_width;
@@ -348,13 +351,18 @@ std::vector<std::pair<QString, QString>> RimEllipseFractureTemplate::uiResultNam
 //--------------------------------------------------------------------------------------------------
 void RimEllipseFractureTemplate::reload()
 {
-    RimProject* proj;
-    this->firstAncestorOrThisOfType(proj);
-    if (proj)
+    RimEclipseCase* eclipseCase = nullptr;
+    this->firstAncestorOrThisOfType(eclipseCase);
+    if (eclipseCase)
     {
-        proj->reloadCompletionTypeResultsInAllViews();
-        assignConductivityToCellsInsideEllipse();
+        RiaCompletionTypeCalculationScheduler::instance()->scheduleRecalculateCompletionTypeAndRedrawAllViews(eclipseCase);
     }
+    else
+    {
+        RiaCompletionTypeCalculationScheduler::instance()->scheduleRecalculateCompletionTypeAndRedrawAllViews();
+    }
+
+    assignConductivityToCellsInsideEllipse();
 }
 
 //--------------------------------------------------------------------------------------------------
