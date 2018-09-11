@@ -1640,7 +1640,9 @@ RicMswExportInfo RicWellPathExportCompletionDataFeatureImpl::generateFishbonesMs
     exportInfo.setLinerDiameter(wellPath->fishbonesCollection()->mswParameters()->linerDiameter(unitSystem));
     exportInfo.setRoughnessFactor(wellPath->fishbonesCollection()->mswParameters()->roughnessFactor(unitSystem));
 
-    double maxSegmentLength = enableSegmentSplitting ? 500 : std::numeric_limits<double>::max();  // Fetch value from fishbones collection
+    double maxSegmentLength = enableSegmentSplitting
+        ? wellPath->fishbonesCollection()->mswParameters()->maxSegmentLength()
+        : std::numeric_limits<double>::infinity();
     bool   foundSubGridIntersections = false;
     double subStartMD                   = wellPath->fishbonesCollection()->startMD();
     for (RimFishbonesMultipleSubs* subs : fishbonesSubs)
@@ -1732,7 +1734,7 @@ RicMswExportInfo
     std::vector<WellPathCellIntersectionInfo> intersections =
         RigWellPathIntersectionTools::findCellIntersectionInfosAlongPath(caseToApply->eclipseCaseData(), coords, mds);
 
-    double maxSegmentLength = 500;  // Fetch value from fractures collection
+    double maxSegmentLength = wellPath->fractureCollection()->mswParameters()->maxSegmentLength();
     std::vector<SubSegmentIntersectionInfo> subSegIntersections = spiltIntersectionSegmentsToMaxLength(wellPathGeometry, intersections, maxSegmentLength);
 
     double initialMD = 0.0;

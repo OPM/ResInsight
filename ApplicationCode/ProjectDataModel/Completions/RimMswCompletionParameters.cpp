@@ -19,6 +19,9 @@
 
 #include "RimWellPath.h"
 
+#include "cafPdmUiObjectEditorHandle.h"
+
+#include <limits>
 
 namespace caf {
     template<>
@@ -52,6 +55,10 @@ RimMswCompletionParameters::RimMswCompletionParameters()
 
     CAF_PDM_InitFieldNoDefault(&m_pressureDrop, "PressureDrop", "Pressure Drop", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_lengthAndDepth, "LengthAndDepth", "Length and Depth", "", "", "");
+
+    CAF_PDM_InitField(&m_enforceMaxSegmentLength, "EnforceMaxSegmentLength", false, "Enforce Max Segment Length", "", "", "");
+    CAF_PDM_InitField(&m_maxSegmentLength, "MaxSegmentLength", 10.0, "Max Segment Length", "", "", "");
+    m_maxSegmentLength.uiCapability()->setUiHidden(true);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -145,6 +152,14 @@ RimMswCompletionParameters::LengthAndDepthEnum RimMswCompletionParameters::lengt
 }
 
 //--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+double RimMswCompletionParameters::maxSegmentLength() const
+{
+    return m_enforceMaxSegmentLength ? m_maxSegmentLength : std::numeric_limits<double>::infinity();
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 void RimMswCompletionParameters::setLinerDiameter(double diameter)
@@ -177,6 +192,18 @@ void RimMswCompletionParameters::setLengthAndDepth(LengthAndDepthType lengthAndD
 }
 
 //--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimMswCompletionParameters::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+{
+    if (changedField == &m_enforceMaxSegmentLength)
+    {
+        m_maxSegmentLength.uiCapability()->setUiHidden(!m_enforceMaxSegmentLength());
+        caf::PdmUiObjectEditorHandle::updateUiAllObjectEditors();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 void RimMswCompletionParameters::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
@@ -203,6 +230,10 @@ void RimMswCompletionParameters::defineUiOrdering(QString uiConfigName, caf::Pdm
     uiOrdering.add(&m_roughnessFactor);
     uiOrdering.add(&m_pressureDrop);
     uiOrdering.add(&m_lengthAndDepth);
+    uiOrdering.add(&m_enforceMaxSegmentLength);
+    uiOrdering.add(&m_maxSegmentLength);
+
+    uiOrdering.skipRemainingFields(true);
 }
 
 //--------------------------------------------------------------------------------------------------

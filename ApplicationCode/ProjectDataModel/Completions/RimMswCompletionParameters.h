@@ -51,6 +51,7 @@ public:
     static double      defaultRoughnessFactor(RiaEclipseUnitTools::UnitSystem unitSystem);
     PressureDropEnum   pressureDrop() const;
     LengthAndDepthEnum lengthAndDepth() const;
+    double             maxSegmentLength() const;
     void               setLinerDiameter(double diameter);
     void               setRoughnessFactor(double roughnessFactor);
     void               setPressureDrop(PressureDropType pressureDropType);
@@ -60,6 +61,9 @@ public:
     void               setUnitSystemSpecificDefaults();
 
 protected:
+    virtual void       fieldChangedByUi(const caf::PdmFieldHandle* changedField,
+                                        const QVariant& oldValue,
+                                        const QVariant& newValue);
     void               defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
     virtual void       initAfterRead() override;
 
@@ -69,4 +73,7 @@ private:
 
     caf::PdmField<PressureDropEnum>   m_pressureDrop;
     caf::PdmField<LengthAndDepthEnum> m_lengthAndDepth;
+
+    caf::PdmField<bool>               m_enforceMaxSegmentLength;
+    caf::PdmField<double>             m_maxSegmentLength;
 };
