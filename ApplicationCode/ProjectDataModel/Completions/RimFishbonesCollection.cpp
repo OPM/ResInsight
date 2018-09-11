@@ -102,7 +102,7 @@ void RimFishbonesCollection::fieldChangedByUi(const caf::PdmFieldHandle* changed
     }
     else
     {
-        proj->createDisplayModelAndRedrawAllViews();
+        proj->scheduleCreateDisplayModelAndRedrawAllViews();
     }
 }
 

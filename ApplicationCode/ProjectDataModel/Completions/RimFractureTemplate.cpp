@@ -734,7 +734,7 @@ void RimFractureTemplate::disconnectAllFracturesAndRedrawViews() const
     this->firstAncestorOrThisOfType(proj);
     if (proj)
     {
-        proj->createDisplayModelAndRedrawAllViews();
+        proj->scheduleCreateDisplayModelAndRedrawAllViews();
     }
 }
 

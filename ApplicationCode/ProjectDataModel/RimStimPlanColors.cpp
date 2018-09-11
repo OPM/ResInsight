@@ -208,7 +208,7 @@ void RimStimPlanColors::fieldChangedByUi(const caf::PdmFieldHandle* changedField
         this->firstAncestorOrThisOfType(proj);
         if (proj)
         {
-            proj->createDisplayModelAndRedrawAllViews();
+            proj->scheduleCreateDisplayModelAndRedrawAllViews();
         }
     }
 
@@ -314,7 +314,7 @@ void RimStimPlanColors::updateStimPlanTemplates() const
         {
             stimPlanFracTemplate->updateFractureGrid();
         }
-        proj->createDisplayModelAndRedrawAllViews();
+        proj->scheduleCreateDisplayModelAndRedrawAllViews();
     }
 }
 

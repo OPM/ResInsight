@@ -718,7 +718,7 @@ void RimProject::allVisibleGridViews(std::vector<RimGridView*>& views)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimProject::createDisplayModelAndRedrawAllViews()
+void RimProject::scheduleCreateDisplayModelAndRedrawAllViews()
 {
     std::vector<RimCase*> cases;
     allCases(cases);
@@ -846,7 +846,7 @@ bool RimProject::showPlotWindow() const
 //--------------------------------------------------------------------------------------------------
 void RimProject::reloadCompletionTypeResultsInAllViews()
 {
-    createDisplayModelAndRedrawAllViews();
+    scheduleCreateDisplayModelAndRedrawAllViews();
     RiaCompletionTypeCalculationScheduler::instance()->scheduleRecalculateCompletionTypeAndRedrawAllViews();
 }
 

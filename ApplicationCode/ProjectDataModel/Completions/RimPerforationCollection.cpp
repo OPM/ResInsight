@@ -70,7 +70,7 @@ void RimPerforationCollection::fieldChangedByUi(const caf::PdmFieldHandle* chang
     }
     else
     {
-        proj->createDisplayModelAndRedrawAllViews();
+        proj->scheduleCreateDisplayModelAndRedrawAllViews();
     }
 }
 

@@ -139,7 +139,7 @@ void Rim3dWellLogCurveCollection::redrawAffectedViewsAndEditors()
     this->firstAncestorOrThisOfType(proj);
     if (proj)
     {
-        proj->createDisplayModelAndRedrawAllViews();
+        proj->scheduleCreateDisplayModelAndRedrawAllViews();
     }
     RimWellPath* path = nullptr;
     this->firstAncestorOrThisOfType(path);
@@ -186,7 +186,7 @@ void Rim3dWellLogCurveCollection::fieldChangedByUi(const caf::PdmFieldHandle* ch
 {
     RimProject* proj;
     this->firstAncestorOrThisOfTypeAsserted(proj);
-    proj->createDisplayModelAndRedrawAllViews();
+    proj->scheduleCreateDisplayModelAndRedrawAllViews();
 }
 
 //--------------------------------------------------------------------------------------------------

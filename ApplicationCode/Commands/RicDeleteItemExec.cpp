@@ -160,7 +160,7 @@ void RicDeleteItemExec::redo()
             parentObj->firstAncestorOrThisOfType(proj);
             if (proj)
             {
-                proj->createDisplayModelAndRedrawAllViews();
+                proj->scheduleCreateDisplayModelAndRedrawAllViews();
             }
 
             std::vector<Rim3dView*> views;

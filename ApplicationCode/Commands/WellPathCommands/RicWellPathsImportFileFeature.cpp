@@ -63,7 +63,7 @@ void RicWellPathsImportFileFeature::onActionTriggered(bool isChecked)
 
     if (project)
     {
-        project->createDisplayModelAndRedrawAllViews();
+        project->scheduleCreateDisplayModelAndRedrawAllViews();
         RimOilField* oilField = project->activeOilField();
 
         if (!oilField) return;

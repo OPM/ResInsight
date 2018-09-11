@@ -133,7 +133,7 @@ void RimStimPlanFractureTemplate::fieldChangedByUi(const caf::PdmFieldHandle* ch
                     fracture->setStimPlanTimeIndexToPlot(m_activeTimeStepIndex);
                 }
             }
-            proj->createDisplayModelAndRedrawAllViews();
+            proj->scheduleCreateDisplayModelAndRedrawAllViews();
         }
     }
 
@@ -147,7 +147,7 @@ void RimStimPlanFractureTemplate::fieldChangedByUi(const caf::PdmFieldHandle* ch
         this->firstAncestorOrThisOfType(proj);
         if (proj)
         {
-            proj->createDisplayModelAndRedrawAllViews();
+            proj->scheduleCreateDisplayModelAndRedrawAllViews();
         }
     }
 
@@ -693,8 +693,7 @@ void RimStimPlanFractureTemplate::reload()
     this->firstAncestorOrThisOfType(proj);
     if (proj)
     {
-        proj->createDisplayModelAndRedrawAllViews();
-
+        proj->scheduleCreateDisplayModelAndRedrawAllViews();
         RiaCompletionTypeCalculationScheduler::instance()->scheduleRecalculateCompletionTypeAndRedrawAllViews();
     }
 }

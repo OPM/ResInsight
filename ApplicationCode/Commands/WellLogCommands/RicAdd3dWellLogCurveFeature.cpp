@@ -65,7 +65,7 @@ void RicAdd3dWellLogCurveFeature::onActionTriggered(bool isChecked)
     
     selectedWellPath->add3dWellLogCurve(rim3dWellLogExtractionCurve);
     
-    RiaApplication::instance()->project()->createDisplayModelAndRedrawAllViews();
+    RiaApplication::instance()->project()->scheduleCreateDisplayModelAndRedrawAllViews();
 
     RiaApplication::instance()->project()->updateConnectedEditors();
 

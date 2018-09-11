@@ -287,7 +287,7 @@ void RimWellPath::fieldChangedByUi(const caf::PdmFieldHandle* changedField, cons
     }
     else
     {
-        proj->createDisplayModelAndRedrawAllViews();
+        proj->scheduleCreateDisplayModelAndRedrawAllViews();
     }
 }
 

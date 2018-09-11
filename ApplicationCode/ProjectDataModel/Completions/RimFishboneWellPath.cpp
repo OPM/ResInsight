@@ -77,7 +77,7 @@ void RimFishboneWellPath::fieldChangedByUi(const caf::PdmFieldHandle* changedFie
 {
     RimProject* proj;
     this->firstAncestorOrThisOfType(proj);
-    if (proj) proj->createDisplayModelAndRedrawAllViews();
+    if (proj) proj->scheduleCreateDisplayModelAndRedrawAllViews();
 }
 
 //--------------------------------------------------------------------------------------------------

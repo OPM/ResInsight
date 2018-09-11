@@ -81,7 +81,7 @@ void RicNewEditableWellPathFeature::onActionTriggered(bool isChecked)
 
             RimProject* project;
             wellPathCollection->firstAncestorOrThisOfTypeAsserted(project);
-            project->createDisplayModelAndRedrawAllViews();
+            project->scheduleCreateDisplayModelAndRedrawAllViews();
 
             Riu3DMainWindowTools::selectAsCurrentItem(newModeledWellPath->geometryDefinition());
         }

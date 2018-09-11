@@ -69,7 +69,7 @@ void RimModeledWellPath::updateWellPathVisualization()
     this->setWellPathGeometry(m_geometryDefinition->createWellPathGeometry().p());
     RimProject* proj;
     this->firstAncestorOrThisOfTypeAsserted(proj);
-    proj->createDisplayModelAndRedrawAllViews();
+    proj->scheduleCreateDisplayModelAndRedrawAllViews();
     
     std::vector<RimPlotCurve*> refferingCurves;
     this->objectsWithReferringPtrFieldsOfType(refferingCurves);

@@ -173,6 +173,6 @@ void RimWellPathFractureCollection::fieldChangedByUi(const caf::PdmFieldHandle* 
     }
     else
     {
-        proj->createDisplayModelAndRedrawAllViews();
+        proj->scheduleCreateDisplayModelAndRedrawAllViews();
     }
 }

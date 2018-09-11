@@ -90,7 +90,7 @@ void RimFishboneWellPathCollection::fieldChangedByUi(const caf::PdmFieldHandle* 
 {
     RimProject* proj;
     this->firstAncestorOrThisOfTypeAsserted(proj);
-    proj->createDisplayModelAndRedrawAllViews();
+    proj->scheduleCreateDisplayModelAndRedrawAllViews();
 }
 
 //--------------------------------------------------------------------------------------------------

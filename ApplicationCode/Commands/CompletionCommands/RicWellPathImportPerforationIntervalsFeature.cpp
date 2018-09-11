@@ -101,7 +101,7 @@ void RicWellPathImportPerforationIntervalsFeature::onActionTriggered(bool isChec
 
     if (app->project())
     {
-        app->project()->createDisplayModelAndRedrawAllViews();
+        app->project()->scheduleCreateDisplayModelAndRedrawAllViews();
     }
 
     if (lastPerforationInterval)

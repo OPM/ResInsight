@@ -65,7 +65,7 @@ void RicWellPathFormationsImportFileFeature::onActionTriggered(bool isChecked)
 
     if (project)
     {
-        project->createDisplayModelAndRedrawAllViews();
+        project->scheduleCreateDisplayModelAndRedrawAllViews();
         if (project->mainPlotCollection())
         {
             project->mainPlotCollection->updatePlotsWithFormations();
