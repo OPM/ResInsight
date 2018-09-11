@@ -58,7 +58,7 @@ CAF_PDM_SOURCE_INIT(RimWellPathGeometryDef, "WellPathGeometryDef");
 RimWellPathGeometryDef::RimWellPathGeometryDef()
     : m_pickTargetsEventHandler(new RicCreateWellTargetsPickEventHandler(this))
 {
-    CAF_PDM_InitObject("Trajectory", ":/Well.png", "", "");
+    CAF_PDM_InitObject("Well Targets", ":/Well.png", "", "");
 
     CAF_PDM_InitField(&m_referencePointUtmXyd, "ReferencePosUtmXyd", cvf::Vec3d(0,0,0), "UTM Reference Point", "", "", "");
 
