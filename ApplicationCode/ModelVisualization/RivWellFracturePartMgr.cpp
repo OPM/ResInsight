@@ -87,6 +87,8 @@ void RivWellFracturePartMgr::appendGeometryPartsToModel(cvf::ModelBasicList* mod
 
     if (!m_rimFracture->fractureTemplate()) return;
 
+    m_visibleFracturePolygons.clear();
+
     double characteristicCellSize = eclView.ownerCase()->characteristicCellSize();
 
     cvf::Collection<cvf::Part>   parts;
