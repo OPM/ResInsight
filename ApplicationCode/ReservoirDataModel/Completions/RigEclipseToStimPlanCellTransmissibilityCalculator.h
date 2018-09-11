@@ -31,6 +31,7 @@ class QString;
 class RimEclipseCase;
 class RigFractureCell;
 class RigResultAccessor;
+class RimFracture;
 
 //==================================================================================================
 ///
@@ -47,7 +48,8 @@ public:
                                                                 double                  skinFactor,
                                                                 double                  cDarcy,
                                                                 const RigFractureCell&  stimPlanCell,
-                                                                const std::set<size_t>& reservoirCellIndicesOpenForFlow);
+                                                                const std::set<size_t>& reservoirCellIndicesOpenForFlow,
+                                                                const RimFracture*      fracture);
 
     // These three vectors have the same size
     const std::vector<size_t>& globalIndiciesToContributingEclipseCells() const;
@@ -69,7 +71,9 @@ private:
     static cvf::ref<RigResultAccessor> createResultAccessor(const RimEclipseCase* eclipseCase, const QString& uiResultName);
 
 private:
-    const RimEclipseCase*  m_case;
+    const RimEclipseCase*   m_case;
+    const RimFracture*      m_fracture;
+
     double                 m_cDarcy;
     double                 m_fractureSkinFactor;
     cvf::Mat4d             m_fractureTransform;

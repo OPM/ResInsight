@@ -29,6 +29,7 @@
 #include "RigResultAccessorFactory.h"
 
 #include "RimEclipseCase.h"
+#include "RimFracture.h"
 
 #include "RiaLogging.h"
 
@@ -43,12 +44,14 @@ RigEclipseToStimPlanCellTransmissibilityCalculator::RigEclipseToStimPlanCellTran
     double                  skinFactor,
     double                  cDarcy,
     const RigFractureCell&  stimPlanCell,
-    const std::set<size_t>& reservoirCellIndicesOpenForFlow)
+    const std::set<size_t>& reservoirCellIndicesOpenForFlow,
+    const RimFracture*      fracture)
     : m_case(caseToApply)
     , m_fractureTransform(fractureTransform)
     , m_fractureSkinFactor(skinFactor)
     , m_cDarcy(cDarcy)
     , m_stimPlanCell(stimPlanCell)
+    , m_fracture(fracture)
 {
     calculateStimPlanCellsMatrixTransmissibility(reservoirCellIndicesOpenForFlow);
 }
@@ -191,9 +194,9 @@ void RigEclipseToStimPlanCellTransmissibilityCalculator::calculateStimPlanCellsM
     std::vector<size_t> reservoirCellIndices = getPotentiallyFracturedCellsForPolygon(stimPlanPolygonTransformed);
     for (size_t reservoirCellIndex : reservoirCellIndices)
     {
-        if (reservoirCellIndicesOpenForFlow.count(reservoirCellIndex) == 0) continue;
+        const RigMainGrid* mainGrid = m_case->eclipseCaseData()->mainGrid();
+        if (!m_fracture->isEclipseCellOpenForFlow(mainGrid, reservoirCellIndicesOpenForFlow, reservoirCellIndex)) continue;
 
-        const RigMainGrid*        mainGrid = m_case->eclipseCaseData()->mainGrid();
         std::array<cvf::Vec3d, 8> hexCorners;
         mainGrid->cellCornerVertices(reservoirCellIndex, hexCorners.data());
 

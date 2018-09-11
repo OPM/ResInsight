@@ -72,7 +72,7 @@ void RigEclipseToStimPlanCalculator::computeValues()
         if (!fractureCell.hasNonZeroConductivity()) continue;
 
         RigEclipseToStimPlanCellTransmissibilityCalculator eclToFractureTransCalc(
-            m_case, m_fractureTransform, m_fractureSkinFactor, m_cDarcy, fractureCell, reservoirCellIndicesOpenForFlow);
+            m_case, m_fractureTransform, m_fractureSkinFactor, m_cDarcy, fractureCell, reservoirCellIndicesOpenForFlow, m_fracture);
 
         const std::vector<size_t>& fractureCellContributingEclipseCells =
             eclToFractureTransCalc.globalIndiciesToContributingEclipseCells();
