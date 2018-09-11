@@ -243,7 +243,6 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         }
         else if (dynamic_cast<RimWellPathCollection*>(uiItem))
         {
-            menuBuilder << "RicNewEditableWellPathFeature";
             menuBuilder.subMenuStart("Import");
             menuBuilder << "RicWellPathsImportFileFeature";
             menuBuilder << "RicWellPathsImportSsihubFeature";
@@ -252,6 +251,10 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicReloadWellPathFormationNamesFeature";
             menuBuilder << "RicWellPathImportPerforationIntervalsFeature";
             menuBuilder.subMenuEnd();
+         
+            menuBuilder.addSeparator();
+         
+            menuBuilder << "RicNewEditableWellPathFeature";
         }
         else if (dynamic_cast<RimWellPath*>(uiItem))
         {
@@ -282,7 +285,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicAdd3dWellLogRftCurveFeature";
 
             menuBuilder.subMenuEnd();
-
+            menuBuilder << "RicNewEditableWellPathFeature";
             menuBuilder << "RicNewWellPathIntersectionFeature";
 
             menuBuilder.addSeparator();
