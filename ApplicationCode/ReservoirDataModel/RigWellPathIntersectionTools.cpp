@@ -39,7 +39,6 @@ std::vector<WellPathCellIntersectionInfo> RigWellPathIntersectionTools::findCell
                                                                                                            const std::vector<double>& pathMds)
 {
     std::vector<WellPathCellIntersectionInfo> intersectionInfos;
-    const RigMainGrid* grid = caseData->mainGrid();
 
     if (pathCoords.size() < 2) return intersectionInfos;
 

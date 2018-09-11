@@ -1929,7 +1929,7 @@ void RigCaseCellResultsData::computeNncCombRiTrans()
         cvf::StructGridInterface::FaceType faceId = nncConnections[connIdx].m_c1Face;
 
         ResultIndexFunction permIdxFunc = nullptr;
-        std::vector<double> * permResults;
+        std::vector<double> * permResults = nullptr;
 
         switch (faceId)
         {

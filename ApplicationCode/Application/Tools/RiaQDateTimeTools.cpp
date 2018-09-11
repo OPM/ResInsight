@@ -249,7 +249,6 @@ bool RiaQDateTimeTools::equalTo(const QDateTime& dt1, const QDateTime& dt2)
 bool RiaQDateTimeTools::lessThan(const QDateTime& dt1, const QDateTime& dt2)
 {
     // dt1 < dt2
-    auto i = dt1.secsTo(dt2);
     return dt1.secsTo(dt2) > 0;
 }
 

@@ -1405,8 +1405,6 @@ private:
     {
         if (gridCellIndex == cvf::UNDEFINED_SIZE_T) return;
 
-        size_t reservoirCellIdx =  m_mainGrid->reservoirCellIndexByGridAndGridLocalCellIndex(gridIndex, gridCellIndex);
-
         // Traverse parent gridcells, and add them to the map
 
         while ( gridIndex > 0 ) // is lgr

@@ -58,7 +58,7 @@ RicfExportProperty::RicfExportProperty()
 void RicfExportProperty::execute()
 {
 
-    RimEclipseCase* eclipseCase;
+    RimEclipseCase* eclipseCase = nullptr;
     {
         bool foundCase = false;
         for (RimEclipseCase* c : RiaApplication::instance()->project()->activeOilField()->analysisModels()->cases)
@@ -87,7 +87,7 @@ void RicfExportProperty::execute()
     }
 
     // FIXME : Select correct view?
-    RimEclipseView* view;
+    RimEclipseView* view = nullptr;
     for (Rim3dView* v : eclipseCase->views())
     {
         view = dynamic_cast<RimEclipseView*>(v);

@@ -414,8 +414,6 @@ RigWellPathFormations::FormationLevel RigWellPathFormations::detectLevel(QString
 
     int dotCount = levelDescriptor.count('.');
 
-    size_t level = dotCount + 1;
-
     switch (dotCount)
     {
         case 0: return RigWellPathFormations::LEVEL1;

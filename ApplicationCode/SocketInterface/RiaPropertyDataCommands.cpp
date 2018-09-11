@@ -1261,9 +1261,6 @@ public:
 
         for (size_t timeStep : requestedTimesteps)
         {
-            const std::vector<double>& scalarResults = rimCase->results(porosityModel)->cellScalarResults(scalarResultIndex, timeStep);
-
-
             for (const std::pair<size_t, size_t> selectedCell : selectedCells)
             {
                 cvf::ref<RigResultAccessor> resultAccessor = RigResultAccessorFactory::createFromUiResultName(rimCase->eclipseCaseData(), selectedCell.first, porosityModel, timeStep, propertyName);

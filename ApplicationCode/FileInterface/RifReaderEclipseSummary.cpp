@@ -382,7 +382,6 @@ bool RifReaderEclipseSummary::values(const RifEclipseSummaryAddress& resultAddre
     if ( variableIndex < 0 ) return false;
 
     values->clear();
-    int tsCount = timeStepCount();
     values->reserve(timeStepCount());
 
     if (m_ecl_SmSpec)
