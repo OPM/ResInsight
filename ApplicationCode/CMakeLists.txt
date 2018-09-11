@@ -285,10 +285,14 @@ if (MSVC)
     #  warning C4458: declaration of 'name' hides class member 
     #  warning C4457: declaration of 'min' hides function parameter
 
+	# The following warning is generated over 800 times from a qwt header only using VS2015
+	# Disabling temporarily
+	# warning C4505 'function' : unreferenced local function has been removed 
+	
     # If possible, the following command is supposed to be the final target
     # set_target_properties(ResInsight PROPERTIES COMPILE_FLAGS "/W4 /wd4190 /wd4100 /wd4127")    
     
-    set_target_properties(ResInsight PROPERTIES COMPILE_FLAGS "/W4 /wd4190 /wd4100 /wd4127 /wd4245 /wd4456 /wd4458 /wd4457")
+    set_target_properties(ResInsight PROPERTIES COMPILE_FLAGS "/W4 /wd4190 /wd4100 /wd4127 /wd4505 /wd4245 /wd4456 /wd4458 /wd4457")
 endif() 
 
 #############################################################################
