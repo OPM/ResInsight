@@ -350,7 +350,7 @@ void RigMainGrid::calculateFaults(const RigActiveCellInfo* activeCellInfo)
 
         size_t neighborReservoirCellIdx;
         size_t neighborGridCellIdx;
-        size_t i, j, k;
+        size_t i = 0, j = 0, k = 0;
         RigGridBase* hostGrid = nullptr; 
         bool firstNO_FAULTFaceForCell = true;
         bool isCellActive = true;
