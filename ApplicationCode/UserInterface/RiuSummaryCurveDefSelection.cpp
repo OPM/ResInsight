@@ -231,6 +231,9 @@ RiuSummaryCurveDefSelection::RiuSummaryCurveDefSelection() : m_identifierFieldsM
     m_multiSelectionMode = false;
     m_hideEnsembles = false;
     m_hideSummaryCases = false;
+
+    m_prevCurveCount = 0;
+    m_prevCurveSetCount = 0;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -553,9 +556,15 @@ void RiuSummaryCurveDefSelection::fieldChangedByUi(const caf::PdmFieldHandle* ch
         }
     }
 
-    if (m_toggleChangedHandler != nullptr)
+    size_t curveCount = allCurveDefinitionsFromSelection().size();
+    size_t curveSetCount = allCurveSetDefinitionsFromSelections().size();
+
+    if (m_toggleChangedHandler != nullptr && (curveCount != m_prevCurveCount || curveSetCount != m_prevCurveSetCount))
     {
         m_toggleChangedHandler();
+
+        m_prevCurveCount = curveCount;
+        m_prevCurveSetCount = curveSetCount;
     }
 }
 

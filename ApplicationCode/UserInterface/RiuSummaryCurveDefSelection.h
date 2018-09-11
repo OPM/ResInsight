@@ -116,4 +116,7 @@ private:
     bool                                                                                                m_hideSummaryCases;
 
     std::function<void()>                                                                               m_toggleChangedHandler;
+
+    size_t                                                                                              m_prevCurveCount;
+    size_t                                                                                              m_prevCurveSetCount;
 };
