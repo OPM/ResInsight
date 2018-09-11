@@ -57,7 +57,7 @@ RimMswCompletionParameters::RimMswCompletionParameters()
     CAF_PDM_InitFieldNoDefault(&m_lengthAndDepth, "LengthAndDepth", "Length and Depth", "", "", "");
 
     CAF_PDM_InitField(&m_enforceMaxSegmentLength, "EnforceMaxSegmentLength", false, "Enforce Max Segment Length", "", "", "");
-    CAF_PDM_InitField(&m_maxSegmentLength, "MaxSegmentLength", 10.0, "Max Segment Length", "", "", "");
+    CAF_PDM_InitField(&m_maxSegmentLength, "MaxSegmentLength", 200.0, "Max Segment Length", "", "", "");
     m_maxSegmentLength.uiCapability()->setUiHidden(true);
 }
 
