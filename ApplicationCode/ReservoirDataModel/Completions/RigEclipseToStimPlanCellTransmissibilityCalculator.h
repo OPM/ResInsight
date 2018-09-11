@@ -34,31 +34,39 @@ class RigResultAccessor;
 
 //==================================================================================================
 ///
+///  Calculator used to compute the intersection areas between one RigFractureCell and Eclipse cells
+///  Both active and inactive Eclipse cells are included. The transmissibility value for inactive cells are set to zero.
+///  Eclipse reservoir cells open for flow is defined by reservoirCellIndicesOpenForFlow
+///
 //==================================================================================================
-
 class RigEclipseToStimPlanCellTransmissibilityCalculator
 {
 public:
-    explicit RigEclipseToStimPlanCellTransmissibilityCalculator(const RimEclipseCase*  caseToApply,
-                                                                cvf::Mat4d             fractureTransform,
-                                                                double                 skinFactor,
-                                                                double                 cDarcy,
-                                                                const RigFractureCell& stimPlanCell);
+    explicit RigEclipseToStimPlanCellTransmissibilityCalculator(const RimEclipseCase*   caseToApply,
+                                                                cvf::Mat4d              fractureTransform,
+                                                                double                  skinFactor,
+                                                                double                  cDarcy,
+                                                                const RigFractureCell&  stimPlanCell,
+                                                                const std::set<size_t>& reservoirCellIndicesOpenForFlow);
 
+    // These three vectors have the same size
     const std::vector<size_t>& globalIndiciesToContributingEclipseCells() const;
     const std::vector<double>& contributingEclipseCellTransmissibilities() const;
     const std::vector<double>& contributingEclipseCellAreas() const;
-    const RigFractureCell&     fractureCell() const;
+
+    double areaOpenForFlow() const;
+    double aggregatedMatrixTransmissibility() const;
+
+    const RigFractureCell& fractureCell() const;
 
     static std::vector<QString> requiredResultNames();
     static std::vector<QString> optionalResultNames();
 
 private:
-    void                calculateStimPlanCellsMatrixTransmissibility();
+    void                calculateStimPlanCellsMatrixTransmissibility(const std::set<size_t>& reservoirCellIndicesOpenForFlow);
     std::vector<size_t> getPotentiallyFracturedCellsForPolygon(const std::vector<cvf::Vec3d>& polygon) const;
 
-    static cvf::ref<RigResultAccessor> createResultAccessor(const RimEclipseCase*         eclipseCase,
-                                                                         const QString&                uiResultName);
+    static cvf::ref<RigResultAccessor> createResultAccessor(const RimEclipseCase* eclipseCase, const QString& uiResultName);
 
 private:
     const RimEclipseCase*  m_case;
@@ -66,7 +74,9 @@ private:
     double                 m_fractureSkinFactor;
     cvf::Mat4d             m_fractureTransform;
     const RigFractureCell& m_stimPlanCell;
-    std::vector<size_t>    m_globalIndiciesToContributingEclipseCells;
-    std::vector<double>    m_contributingEclipseCellTransmissibilities;
-    std::vector<double>    m_contributingEclipseCellAreas;
+
+    // These three vectors have the same size
+    std::vector<size_t> m_globalIndiciesToContributingEclipseCells;
+    std::vector<double> m_contributingEclipseCellTransmissibilities;
+    std::vector<double> m_contributingEclipseCellAreas;
 };

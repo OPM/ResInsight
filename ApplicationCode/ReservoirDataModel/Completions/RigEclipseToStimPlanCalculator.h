@@ -26,7 +26,6 @@
 #include "cvfMatrix4.h"
 
 #include <map>
-#include <vector>
 
 class QString;
 
@@ -45,24 +44,31 @@ public:
                                             cvf::Mat4d             fractureTransform,
                                             double                 skinFactor,
                                             double                 cDarcy,
-                                            const RigFractureGrid& fractureGrid);
+                                            const RigFractureGrid& fractureGrid,
+                                            const RimFracture*     fracture);
 
-    void appendDataToTransmissibilityCondenser(const RimFracture*            fracture,
-                                               bool                          useFiniteConductivityInFracture,
+    void appendDataToTransmissibilityCondenser(bool                          useFiniteConductivityInFracture,
                                                RigTransmissibilityCondenser* condenser) const;
 
-    // Returns the area of each stimplan cell intersecting eclipse cells
-    std::map<size_t, double> eclipseCellAreas() const;
+    // Returns the area intersecting eclipse cells open for flow, from both active and inactive cells
+    // Truncated parts of the fracture are not included
+    double totalEclipseAreaOpenForFlow() const;
+
+    double areaWeightedMatrixTransmissibility() const;
+    double areaWeightedWidth() const;
+    double areaWeightedConductivity() const;
+    double longestYSectionOpenForFlow() const;
 
 private:
     void computeValues();
 
 private:
     const RimEclipseCase*  m_case;
+    const RimFracture*     m_fracture;
     double                 m_cDarcy;
     double                 m_fractureSkinFactor;
     cvf::Mat4d             m_fractureTransform;
     const RigFractureGrid& m_fractureGrid;
 
-    std::vector<RigEclipseToStimPlanCellTransmissibilityCalculator> m_singleFractureCellCalculators;
+    std::map<size_t, RigEclipseToStimPlanCellTransmissibilityCalculator> m_singleFractureCellCalculators;
 };

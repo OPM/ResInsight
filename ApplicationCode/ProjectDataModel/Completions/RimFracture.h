@@ -90,9 +90,9 @@ public:
     RiaEclipseUnitTools::UnitSystem fractureUnit() const;
     void                            setFractureUnit(RiaEclipseUnitTools::UnitSystem unitSystem);
 
-    bool                            isEclipseCellWithinContainment(const RigMainGrid* mainGrid, 
-                                                                   const std::set<size_t>& containmentCells,
-                                                                   size_t globalCellIndex) const;
+    bool                            isEclipseCellOpenForFlow(const RigMainGrid* mainGrid,
+                                                             const std::set<size_t>& reservoirCellIndicesOpenForFlow,
+                                                             size_t globalCellIndex) const;
 
     cvf::Mat4d                      transformMatrix() const;
     double                          dip() const;

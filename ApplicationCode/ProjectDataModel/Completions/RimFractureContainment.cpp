@@ -69,10 +69,9 @@ bool RimFractureContainment::isEnabled() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimFractureContainment::isEclipseCellWithinContainment(const RigMainGrid*      mainGrid,
-                                                            size_t                  anchorEclipseCell,
-                                                            size_t                  globalCellIndex,
-                                                            const std::set<size_t>& containmentCells) const
+bool RimFractureContainment::isEclipseCellOpenForFlow(const RigMainGrid*      mainGrid,
+                                                      size_t                  globalCellIndex,
+                                                      const std::set<size_t>& reservoirCellIndicesOpenForFlow) const
 {
     if (!isEnabled()) return true;
 
@@ -82,7 +81,7 @@ bool RimFractureContainment::isEclipseCellWithinContainment(const RigMainGrid*  
 
         if (globalCellIndex >= mainGrid->globalCellArray().size()) return false;
 
-        auto cell = mainGrid->globalCellArray()[globalCellIndex];
+        auto cell              = mainGrid->globalCellArray()[globalCellIndex];
         auto mainGridCellIndex = cell.mainGridCellIndex();
 
         size_t i, j, k;
@@ -101,7 +100,7 @@ bool RimFractureContainment::isEclipseCellWithinContainment(const RigMainGrid*  
 
     if (m_truncateAtFaults())
     {
-        if (containmentCells.count(globalCellIndex) > 0)
+        if (reservoirCellIndicesOpenForFlow.count(globalCellIndex) > 0)
         {
             return true;
         }
@@ -123,7 +122,7 @@ void RimFractureContainment::setTopKLayer(int topKLayer)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 int RimFractureContainment::topKLayer() const
 {
@@ -139,7 +138,7 @@ void RimFractureContainment::setBaseKLayer(int baseKLayer)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 int RimFractureContainment::baseKLayer() const
 {

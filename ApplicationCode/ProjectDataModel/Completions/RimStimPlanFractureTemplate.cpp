@@ -84,10 +84,6 @@ RimStimPlanFractureTemplate::RimStimPlanFractureTemplate()
     m_fractureGrid = new RigFractureGrid();
     m_readError    = false;
 
-    m_areaWeightedConductivity = 0.0;
-    m_areaWeightedWidth = 0.0;
-    m_longestYRangeAboveConductivityThreshold = 0.0;
-
     // clang-format on
 }
 
@@ -824,25 +820,18 @@ double RimStimPlanFractureTemplate::resultValueAtIJ(const QString& uiResultName,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RimStimPlanFractureTemplate::areaWeightedWidth() const
+std::vector<double> RimStimPlanFractureTemplate::widthResultValues() const
 {
-    return m_areaWeightedWidth;
-}
+    std::vector<double> resultValues;
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-double RimStimPlanFractureTemplate::areaWeightedConductivity() const
-{
-    return m_areaWeightedConductivity;
-}
+    auto nameUnit = widthParameterNameAndUnit();
+    if (!nameUnit.first.isEmpty())
+    {
+        resultValues =
+            fractureGridResultsForUnitSystem(nameUnit.first, nameUnit.second, m_activeTimeStepIndex, fractureTemplateUnit());
+    }
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-double RimStimPlanFractureTemplate::longestYRange() const
-{
-    return m_longestYRangeAboveConductivityThreshold;
+    return resultValues;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -875,80 +864,12 @@ const RigFractureGrid* RimStimPlanFractureTemplate::fractureGrid() const
 //--------------------------------------------------------------------------------------------------
 void RimStimPlanFractureTemplate::updateFractureGrid()
 {
-    m_fractureGrid                            = nullptr;
-    m_areaWeightedConductivity                = 0.0;
-    m_areaWeightedWidth                       = 0.0;
-    m_longestYRangeAboveConductivityThreshold = 0.0;
+    m_fractureGrid = nullptr;
 
     if (m_stimPlanFractureDefinitionData.notNull())
     {
         m_fractureGrid = m_stimPlanFractureDefinitionData->createFractureGrid(
             m_conductivityResultNameOnFile, m_activeTimeStepIndex, m_wellPathDepthAtFracture, m_fractureTemplateUnit());
-        if (m_fractureGrid.notNull())
-        {
-            std::vector<double> areaPerCell;
-
-            double totalArea = 0.0;
-
-            for (const auto& c : m_fractureGrid->fractureCells())
-            {
-                double cellArea = c.cellSizeX() * c.cellSizeZ();
-
-                areaPerCell.push_back(cellArea);
-                totalArea += cellArea;
-            }
-
-            for (size_t i = 0; i < areaPerCell.size(); i++)
-            {
-                const auto& c = m_fractureGrid->fractureCells()[i];
-
-                double perCellValue = c.getConductivityValue() * areaPerCell[i] / totalArea;
-
-                m_areaWeightedConductivity += perCellValue;
-            }
-
-            auto nameUnit = widthParameterNameAndUnit();
-            if (!nameUnit.first.isEmpty())
-            {
-                auto resultValues = fractureGridResultsForUnitSystem(
-                    nameUnit.first, nameUnit.second, m_activeTimeStepIndex, fractureTemplateUnit());
-
-                for (size_t i = 0; i < areaPerCell.size(); i++)
-                {
-                    double perCellValue = resultValues[i] * areaPerCell[i] / totalArea;
-
-                    m_areaWeightedWidth += perCellValue;
-                }
-            }
-
-            // Compute longest y-range with continuous non-zero conductivity
-            {
-                double longestYRange = 0.0;
-
-                for (size_t i = 0; i < m_fractureGrid->iCellCount(); i++)
-                {
-                    double currentYRange = 0.0;
-                    for (size_t j = 0; j < m_fractureGrid->jCellCount(); j++)
-                    {
-                        size_t      globalIndex = m_fractureGrid->getGlobalIndexFromIJ(i, j);
-                        const auto& cell        = m_fractureGrid->cellFromIndex(globalIndex);
-                        if (cell.hasNonZeroConductivity())
-                        {
-                            currentYRange += cell.cellSizeZ();
-                        }
-                        else
-                        {
-                            longestYRange = std::max(longestYRange, currentYRange);
-                            currentYRange = 0.0;
-                        }
-                    }
-
-                    longestYRange = std::max(longestYRange, currentYRange);
-                }
-
-                m_longestYRangeAboveConductivityThreshold = longestYRange;
-            }
-        }
     }
 }
 

@@ -662,11 +662,11 @@ cvf::ref<cvf::Part> RivWellFracturePartMgr::createContainmentMaskPart(const RimE
 
     RimEclipseCase* eclipseCase = nullptr;
     activeView.firstAncestorOrThisOfType(eclipseCase);
-    auto containedFractureCells = RimFractureContainmentTools::fracturedCellsTruncatedByFaults(eclipseCase, m_rimFracture);
+    auto reservoirCellIndicesOpenForFlow = RimFractureContainmentTools::reservoirCellIndicesOpenForFlow(eclipseCase, m_rimFracture);
 
     for (size_t resCellIdx : cellCandidates)
     {
-        if (!m_rimFracture->isEclipseCellWithinContainment(activeView.mainGrid(), containedFractureCells, resCellIdx))
+        if (!m_rimFracture->isEclipseCellOpenForFlow(activeView.mainGrid(), reservoirCellIndicesOpenForFlow, resCellIdx))
         {
             // Calculate Eclipse cell intersection with fracture plane
 

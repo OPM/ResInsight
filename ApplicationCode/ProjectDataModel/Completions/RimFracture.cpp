@@ -646,17 +646,15 @@ void RimFracture::setFractureUnit(RiaEclipseUnitTools::UnitSystem unitSystem)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimFracture::isEclipseCellWithinContainment(const RigMainGrid*      mainGrid,
-                                                 const std::set<size_t>& containmentCells,
-                                                 size_t                  globalCellIndex) const
+bool RimFracture::isEclipseCellOpenForFlow(const RigMainGrid*      mainGrid,
+                                           const std::set<size_t>& reservoirCellIndicesOpenForFlow,
+                                           size_t                  globalCellIndex) const
 {
     CVF_ASSERT(fractureTemplate());
     if (!fractureTemplate()->fractureContainment()->isEnabled()) return true;
 
-    size_t anchorEclipseCell = mainGrid->findReservoirCellIndexFromPoint(m_anchorPosition);
-
-    return fractureTemplate()->fractureContainment()->isEclipseCellWithinContainment(
-        mainGrid, anchorEclipseCell, globalCellIndex, containmentCells);
+    return fractureTemplate()->fractureContainment()->isEclipseCellOpenForFlow(
+        mainGrid, globalCellIndex, reservoirCellIndicesOpenForFlow);
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -201,10 +201,10 @@ void RimFractureContainmentTools::appendNeighborCells(const std::set<size_t>& al
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::set<size_t> RimFractureContainmentTools::fracturedCellsTruncatedByFaults(const RimEclipseCase* eclipseCase,
+std::set<size_t> RimFractureContainmentTools::reservoirCellIndicesOpenForFlow(const RimEclipseCase* eclipseCase,
                                                                               const RimFracture*    fracture)
 {
-    std::set<size_t> fracturedCellsContainedByFaults;
+    std::set<size_t> cellsOpenForFlow;
 
     if (eclipseCase && fracture)
     {
@@ -230,12 +230,12 @@ std::set<size_t> RimFractureContainmentTools::fracturedCellsTruncatedByFaults(co
                     appendNeighborCells(cellsIntersectingFracturePlane,
                                         mainGrid,
                                         anchorCellGlobalIndex,
-                                        fracturedCellsContainedByFaults,
+                                        cellsOpenForFlow,
                                         maximumFaultThrow);
                 }
                 else
                 {
-                    fracturedCellsContainedByFaults = cellsIntersectingFracturePlane;
+                    cellsOpenForFlow = cellsIntersectingFracturePlane;
                 }
             }
 
@@ -250,7 +250,7 @@ std::set<size_t> RimFractureContainmentTools::fracturedCellsTruncatedByFaults(co
         }
     }
 
-    return fracturedCellsContainedByFaults;
+    return cellsOpenForFlow;
 }
 
 //--------------------------------------------------------------------------------------------------

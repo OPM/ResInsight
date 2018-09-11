@@ -27,6 +27,7 @@ class RigFractureGrid;
 class RicWellPathFractureReportItem;
 class RigWellPath;
 class RigTransmissibilityCondenser;
+class RigEclipseToStimPlanCalculator;
 
 class RimEclipseCase;
 class RimFracture;
@@ -79,11 +80,9 @@ private:
 
     static void computeNonDarcyFlowParameters(const RimFracture* fracture, std::vector<RigCompletionData> allCompletionsForOneFracture);
 
-    static double sumUpCellAreas(const std::map<size_t, double>& cellAreas);
     static double sumUpTransmissibilities(const std::vector<RigCompletionData>& allCompletionsForOneFracture);
 
-    static void calculateAndSetLengthsAndConductivity(const RimFractureTemplate* fracTemplate, double area, RicWellPathFractureReportItem &reportItem);
-    static void calculateAndSetAreaWeightedTransmissibility(const RimEclipseCase* caseToApply, std::map<size_t, double> cellAreas, double area, RicWellPathFractureReportItem &reportItem);
+    static void calculateAndSetReportItemData(const std::vector<RigCompletionData>& allCompletionsForOneFracture, const RigEclipseToStimPlanCalculator& calculator, RicWellPathFractureReportItem& reportItem);
 
     static void outputIntermediateResultsText(QTextStream* outputStreamForIntermediateResultsText, const RimFracture* fracture, RigTransmissibilityCondenser &transCondenser, const RigMainGrid* mainGrid, const RigFractureGrid* fractureGrid);
 };

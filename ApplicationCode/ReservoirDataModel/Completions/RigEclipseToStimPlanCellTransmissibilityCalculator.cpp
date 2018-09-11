@@ -38,18 +38,19 @@
 ///
 //--------------------------------------------------------------------------------------------------
 RigEclipseToStimPlanCellTransmissibilityCalculator::RigEclipseToStimPlanCellTransmissibilityCalculator(
-    const RimEclipseCase*  caseToApply,
-    cvf::Mat4d             fractureTransform,
-    double                 skinFactor,
-    double                 cDarcy,
-    const RigFractureCell& stimPlanCell)
+    const RimEclipseCase*   caseToApply,
+    cvf::Mat4d              fractureTransform,
+    double                  skinFactor,
+    double                  cDarcy,
+    const RigFractureCell&  stimPlanCell,
+    const std::set<size_t>& reservoirCellIndicesOpenForFlow)
     : m_case(caseToApply)
     , m_fractureTransform(fractureTransform)
     , m_fractureSkinFactor(skinFactor)
     , m_cDarcy(cDarcy)
     , m_stimPlanCell(stimPlanCell)
 {
-    calculateStimPlanCellsMatrixTransmissibility();
+    calculateStimPlanCellsMatrixTransmissibility(reservoirCellIndicesOpenForFlow);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -74,6 +75,36 @@ const std::vector<double>& RigEclipseToStimPlanCellTransmissibilityCalculator::c
 const std::vector<double>& RigEclipseToStimPlanCellTransmissibilityCalculator::contributingEclipseCellAreas() const
 {
     return m_contributingEclipseCellAreas;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RigEclipseToStimPlanCellTransmissibilityCalculator::areaOpenForFlow() const
+{
+    double area = 0.0;
+
+    for (const auto& areaForOneEclipseCell : m_contributingEclipseCellAreas)
+    {
+        area += areaForOneEclipseCell;
+    }
+
+    return area;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RigEclipseToStimPlanCellTransmissibilityCalculator::aggregatedMatrixTransmissibility() const
+{
+    double totalTransmissibility = 0.0;
+
+    for (const auto& trans : m_contributingEclipseCellTransmissibilities)
+    {
+        totalTransmissibility += trans;
+    }
+
+    return totalTransmissibility;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -115,7 +146,8 @@ std::vector<QString> RigEclipseToStimPlanCellTransmissibilityCalculator::optiona
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigEclipseToStimPlanCellTransmissibilityCalculator::calculateStimPlanCellsMatrixTransmissibility()
+void RigEclipseToStimPlanCellTransmissibilityCalculator::calculateStimPlanCellsMatrixTransmissibility(
+    const std::set<size_t>& reservoirCellIndicesOpenForFlow)
 {
     // Not calculating flow into fracture if stimPlan cell cond value is 0 (assumed to be outside the fracture):
     if (m_stimPlanCell.getConductivityValue() < 1e-7) return;
@@ -159,22 +191,7 @@ void RigEclipseToStimPlanCellTransmissibilityCalculator::calculateStimPlanCellsM
     std::vector<size_t> reservoirCellIndices = getPotentiallyFracturedCellsForPolygon(stimPlanPolygonTransformed);
     for (size_t reservoirCellIndex : reservoirCellIndices)
     {
-        bool cellIsActive = activeCellInfo->isActive(reservoirCellIndex);
-        if (!cellIsActive) continue;
-
-        double permX = dataAccessObjectPermX->cellScalarGlobIdx(reservoirCellIndex);
-        double permY = dataAccessObjectPermY->cellScalarGlobIdx(reservoirCellIndex);
-        double permZ = dataAccessObjectPermZ->cellScalarGlobIdx(reservoirCellIndex);
-
-        double dx = dataAccessObjectDx->cellScalarGlobIdx(reservoirCellIndex);
-        double dy = dataAccessObjectDy->cellScalarGlobIdx(reservoirCellIndex);
-        double dz = dataAccessObjectDz->cellScalarGlobIdx(reservoirCellIndex);
-
-        double NTG = 1.0;
-        if (dataAccessObjectNTG.notNull())
-        {
-            NTG = dataAccessObjectNTG->cellScalarGlobIdx(reservoirCellIndex);
-        }
+        if (reservoirCellIndicesOpenForFlow.count(reservoirCellIndex) == 0) continue;
 
         const RigMainGrid*        mainGrid = m_case->eclipseCaseData()->mainGrid();
         std::array<cvf::Vec3d, 8> hexCorners;
@@ -252,15 +269,35 @@ void RigEclipseToStimPlanCellTransmissibilityCalculator::calculateStimPlanCellsM
 
         double fractureAreaWeightedlength = totalAreaXLength / fractureArea;
 
-        double transmissibility_X = RigFractureTransmissibilityEquations::matrixToFractureTrans(
-            permY, NTG, Ay, dx, m_fractureSkinFactor, fractureAreaWeightedlength, m_cDarcy);
-        double transmissibility_Y = RigFractureTransmissibilityEquations::matrixToFractureTrans(
-            permX, NTG, Ax, dy, m_fractureSkinFactor, fractureAreaWeightedlength, m_cDarcy);
-        double transmissibility_Z = RigFractureTransmissibilityEquations::matrixToFractureTrans(
-            permZ, 1.0, Az, dz, m_fractureSkinFactor, fractureAreaWeightedlength, m_cDarcy);
+        // Transmissibility for inactive cells is set to zero
+        double transmissibility = 0.0;
 
-        double transmissibility = sqrt(transmissibility_X * transmissibility_X + transmissibility_Y * transmissibility_Y +
-                                       transmissibility_Z * transmissibility_Z);
+        if (activeCellInfo->isActive(reservoirCellIndex))
+        {
+            double permX = dataAccessObjectPermX->cellScalarGlobIdx(reservoirCellIndex);
+            double permY = dataAccessObjectPermY->cellScalarGlobIdx(reservoirCellIndex);
+            double permZ = dataAccessObjectPermZ->cellScalarGlobIdx(reservoirCellIndex);
+
+            double dx = dataAccessObjectDx->cellScalarGlobIdx(reservoirCellIndex);
+            double dy = dataAccessObjectDy->cellScalarGlobIdx(reservoirCellIndex);
+            double dz = dataAccessObjectDz->cellScalarGlobIdx(reservoirCellIndex);
+
+            double NTG = 1.0;
+            if (dataAccessObjectNTG.notNull())
+            {
+                NTG = dataAccessObjectNTG->cellScalarGlobIdx(reservoirCellIndex);
+            }
+
+            double transmissibility_X = RigFractureTransmissibilityEquations::matrixToFractureTrans(
+                permY, NTG, Ay, dx, m_fractureSkinFactor, fractureAreaWeightedlength, m_cDarcy);
+            double transmissibility_Y = RigFractureTransmissibilityEquations::matrixToFractureTrans(
+                permX, NTG, Ax, dy, m_fractureSkinFactor, fractureAreaWeightedlength, m_cDarcy);
+            double transmissibility_Z = RigFractureTransmissibilityEquations::matrixToFractureTrans(
+                permZ, 1.0, Az, dz, m_fractureSkinFactor, fractureAreaWeightedlength, m_cDarcy);
+
+            transmissibility = sqrt(transmissibility_X * transmissibility_X + transmissibility_Y * transmissibility_Y +
+                                    transmissibility_Z * transmissibility_Z);
+        }
 
         m_globalIndiciesToContributingEclipseCells.push_back(reservoirCellIndex);
         m_contributingEclipseCellTransmissibilities.push_back(transmissibility);

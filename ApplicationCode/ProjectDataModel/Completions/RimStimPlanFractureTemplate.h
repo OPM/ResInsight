@@ -79,9 +79,7 @@ public:
     bool                                    hasConductivity() const;
     double                                  resultValueAtIJ(const QString& uiResultName, const QString& unitName, size_t timeStepIndex, size_t i, size_t j);
 
-    double                                  areaWeightedWidth() const;
-    double                                  areaWeightedConductivity() const;
-    double                                  longestYRange() const;
+    std::vector<double>                     widthResultValues() const;
 
     void                                    appendDataToResultStatistics(const QString& uiResultName, 
                                                                          const QString& unit,
@@ -127,10 +125,6 @@ private:
     cvf::ref<RigStimPlanFractureDefinition> m_stimPlanFractureDefinitionData;
     cvf::ref<RigFractureGrid>               m_fractureGrid;
     bool                                    m_readError;
-
-    double                                  m_areaWeightedConductivity;
-    double                                  m_areaWeightedWidth;
-    double                                  m_longestYRangeAboveConductivityThreshold;
 
     caf::PdmField<bool>                     m_showStimPlanMesh_OBSOLETE;
 };

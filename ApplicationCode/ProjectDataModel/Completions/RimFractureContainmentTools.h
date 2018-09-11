@@ -30,7 +30,7 @@ class RimEclipseCase;
 class RimFractureContainmentTools
 {
 public:
-    static std::set<size_t> fracturedCellsTruncatedByFaults(const RimEclipseCase* eclipseCase, const RimFracture* fracture);
+    static std::set<size_t> reservoirCellIndicesOpenForFlow(const RimEclipseCase* eclipseCase, const RimFracture* fracture);
 
 private:
     static std::set<size_t> getCellsIntersectingFracturePlane(const RigMainGrid* mainGrid, const RimFracture* fracture);
