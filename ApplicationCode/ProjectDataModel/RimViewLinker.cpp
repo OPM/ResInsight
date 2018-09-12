@@ -2,17 +2,17 @@
 //
 //  Copyright (C) 2015-     Statoil ASA
 //  Copyright (C) 2015-     Ceetron Solutions AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,7 @@
 
 #include "RigMainGrid.h"
 
+#include "Rim3dView.h"
 #include "RimCase.h"
 #include "RimEclipseCellColors.h"
 #include "RimEclipseInputCase.h"
@@ -34,29 +35,27 @@
 #include "RimGeoMechResultDefinition.h"
 #include "RimGeoMechView.h"
 #include "RimIntersectionCollection.h"
-#include "RimRegularLegendConfig.h"
 #include "RimProject.h"
+#include "RimRegularLegendConfig.h"
 #include "RimTernaryLegendConfig.h"
-#include "Rim3dView.h"
 #include "RimViewController.h"
 #include "RimViewLinkerCollection.h"
 #include "RimViewManipulator.h"
 
 #include "RiuViewer.h"
 
-#include "cvfCamera.h"
-#include "cvfScene.h"
-#include "cvfMatrix4.h"
 #include "cafPdmUiTreeOrdering.h"
-
-
+#include "cvfCamera.h"
+#include "cvfMatrix4.h"
+#include "cvfScene.h"
 
 CAF_PDM_SOURCE_INIT(RimViewLinker, "ViewLinker");
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RimViewLinker::RimViewLinker(void)
+RimViewLinker::RimViewLinker()
 {
+    // clang-format off
     CAF_PDM_InitObject("Linked Views", "", "", "");
 
     CAF_PDM_InitField(&m_name, "Name", QString("View Group Name"), "View Group Name", "", "", "");
@@ -69,12 +68,13 @@ RimViewLinker::RimViewLinker(void)
     CAF_PDM_InitFieldNoDefault(&m_viewControllers, "ManagedViews", "Managed Views", "", "", "");
     m_viewControllers.uiCapability()->setUiHidden(true);
     m_viewControllers.uiCapability()->setUiTreeChildrenHidden(true);
+    // clang-format on
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RimViewLinker::~RimViewLinker(void)
+RimViewLinker::~RimViewLinker()
 {
     removeOverrides();
 
@@ -82,7 +82,7 @@ RimViewLinker::~RimViewLinker(void)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimViewLinker::updateTimeStep(RimGridView* sourceView, int timeStep)
 {
@@ -112,9 +112,7 @@ void RimViewLinker::updateTimeStep(RimGridView* sourceView, int timeStep)
 
         if (!viewLink->isTimeStepLinked()) continue;
 
-        if (   viewLink->managedView()
-            && viewLink->managedView() != sourceView
-            && viewLink->managedView()->viewer())
+        if (viewLink->managedView() && viewLink->managedView() != sourceView && viewLink->managedView()->viewer())
         {
             viewLink->managedView()->viewer()->setCurrentFrame(timeStep);
         }
@@ -122,11 +120,11 @@ void RimViewLinker::updateTimeStep(RimGridView* sourceView, int timeStep)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimViewLinker::updateCellResult()
 {
-    Rim3dView* rimView = m_masterView;
+    Rim3dView*      rimView           = m_masterView;
     RimEclipseView* masterEclipseView = dynamic_cast<RimEclipseView*>(rimView);
     if (masterEclipseView && masterEclipseView->cellResult())
     {
@@ -138,7 +136,7 @@ void RimViewLinker::updateCellResult()
 
             if (viewLink->managedView())
             {
-                Rim3dView* rimView = viewLink->managedView();
+                Rim3dView*      rimView     = viewLink->managedView();
                 RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>(rimView);
                 if (eclipseView)
                 {
@@ -149,16 +147,18 @@ void RimViewLinker::updateCellResult()
 
                         if (viewLink->isLegendDefinitionsControlled())
                         {
-                            eclipseView->cellResult()->legendConfig()->setUiValuesFromLegendConfig(masterEclipseView->cellResult()->legendConfig());
+                            eclipseView->cellResult()->legendConfig()->setUiValuesFromLegendConfig(
+                                masterEclipseView->cellResult()->legendConfig());
                             eclipseView->cellResult()->legendConfig()->updateLegend();
 
-                            eclipseView->cellResult()->ternaryLegendConfig()->setUiValuesFromLegendConfig(masterEclipseView->cellResult()->ternaryLegendConfig());
+                            eclipseView->cellResult()->ternaryLegendConfig()->setUiValuesFromLegendConfig(
+                                masterEclipseView->cellResult()->ternaryLegendConfig());
                         }
 
                         eclipseView->scheduleCreateDisplayModelAndRedraw();
                         eclipseView->crossSectionCollection()->scheduleCreateDisplayModelAndRedraw2dIntersectionViews();
                     }
-                    
+
                     eclipseView->cellResult()->updateIconState();
                 }
             }
@@ -176,7 +176,7 @@ void RimViewLinker::updateCellResult()
 
             if (viewLink->managedView())
             {
-                Rim3dView* rimView = viewLink->managedView();
+                Rim3dView*      rimView = viewLink->managedView();
                 RimGeoMechView* geoView = dynamic_cast<RimGeoMechView*>(rimView);
                 if (geoView)
                 {
@@ -186,7 +186,8 @@ void RimViewLinker::updateCellResult()
 
                         if (viewLink->isLegendDefinitionsControlled())
                         {
-                            geoView->cellResult()->legendConfig()->setUiValuesFromLegendConfig(masterGeoView->cellResult()->legendConfig());
+                            geoView->cellResult()->legendConfig()->setUiValuesFromLegendConfig(
+                                masterGeoView->cellResult()->legendConfig());
                             geoView->cellResult()->legendConfig()->updateLegend();
                         }
 
@@ -202,7 +203,7 @@ void RimViewLinker::updateCellResult()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimViewLinker::updateRangeFilters(RimCellRangeFilter* changedRangeFilter)
 {
@@ -214,7 +215,7 @@ void RimViewLinker::updateRangeFilters(RimCellRangeFilter* changedRangeFilter)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimViewLinker::updateOverrides()
 {
@@ -233,7 +234,7 @@ void RimViewLinker::updateOverrides()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimViewLinker::removeOverrides()
 {
@@ -247,7 +248,7 @@ void RimViewLinker::removeOverrides()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimViewLinker::allViewsForCameraSync(const RimGridView* source, std::vector<RimGridView*>& views) const
 {
@@ -271,7 +272,7 @@ void RimViewLinker::allViewsForCameraSync(const RimGridView* source, std::vector
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimViewLinker::updateDependentViews()
 {
@@ -283,7 +284,7 @@ void RimViewLinker::updateDependentViews()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString RimViewLinker::displayNameForView(RimGridView* view)
 {
@@ -303,7 +304,7 @@ QString RimViewLinker::displayNameForView(RimGridView* view)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimViewLinker::setMasterView(RimGridView* view)
 {
@@ -324,7 +325,7 @@ void RimViewLinker::setMasterView(RimGridView* view)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimGridView* RimViewLinker::masterView() const
 {
@@ -332,7 +333,7 @@ RimGridView* RimViewLinker::masterView() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimViewLinker::allViews(std::vector<RimGridView*>& views) const
 {
@@ -348,7 +349,7 @@ void RimViewLinker::allViews(std::vector<RimGridView*>& views) const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimViewLinker::initAfterRead()
 {
@@ -356,7 +357,7 @@ void RimViewLinker::initAfterRead()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimViewLinker::updateScaleZ(RimGridView* sourceView, double scaleZ)
 {
@@ -384,13 +385,13 @@ void RimViewLinker::updateScaleZ(RimGridView* sourceView, double scaleZ)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RimViewLinker::isActive() const
 {
     RimViewLinkerCollection* viewLinkerCollection = nullptr;
     this->firstAncestorOrThisOfType(viewLinkerCollection);
-    
+
     if (!viewLinkerCollection)
     {
         // This will happen when the all linked views are about to be deleted
@@ -420,9 +421,8 @@ void RimViewLinker::applyIconEnabledState(caf::PdmObject* obj, const QIcon& icon
     obj->setUiIcon(newIcon);
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimViewLinker::updateUiNameAndIcon()
 {
@@ -431,7 +431,7 @@ void RimViewLinker::updateUiNameAndIcon()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimViewLinker::scheduleGeometryRegenForDepViews(RivCellSetEnum geometryType)
 {
@@ -442,7 +442,7 @@ void RimViewLinker::scheduleGeometryRegenForDepViews(RivCellSetEnum geometryType
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimViewLinker::scheduleCreateDisplayModelAndRedrawForDependentViews()
 {
@@ -452,9 +452,8 @@ void RimViewLinker::scheduleCreateDisplayModelAndRedrawForDependentViews()
     }
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimViewLinker::findNameAndIconFromView(QString* name, QIcon* icon, RimGridView* view)
 {
@@ -487,7 +486,7 @@ void RimViewLinker::findNameAndIconFromView(QString* name, QIcon* icon, RimGridV
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimViewLinker::updateCursorPosition(const RimGridView* sourceView, const cvf::Vec3d& domainCoord)
 {
@@ -521,12 +520,12 @@ void RimViewLinker::updateCursorPosition(const RimGridView* sourceView, const cv
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimViewLinker::updateCamera(RimGridView* sourceView)
 {
     if (!sourceView->viewer()) return;
-    
+
     if (!isActive()) return;
 
     RimViewController* viewLink = sourceView->viewController();
@@ -545,12 +544,12 @@ void RimViewLinker::updateCamera(RimGridView* sourceView)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimViewLinker::addDependentView(RimGridView* view)
 {
     CVF_ASSERT(view && view != m_masterView);
-     
+
     RimViewController* viewContr = new RimViewController;
     this->m_viewControllers.push_back(viewContr);
 
@@ -558,7 +557,7 @@ void RimViewLinker::addDependentView(RimGridView* view)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimViewLinker::addViewControllers(caf::PdmUiTreeOrdering& uiTreeOrdering) const
 {
@@ -569,7 +568,7 @@ void RimViewLinker::addViewControllers(caf::PdmUiTreeOrdering& uiTreeOrdering) c
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimViewLinker::applyRangeFilterCollectionByUserChoice()
 {
@@ -580,10 +579,9 @@ void RimViewLinker::applyRangeFilterCollectionByUserChoice()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimViewLinker::removeViewController(RimViewController* viewController)
 {
     m_viewControllers.removeChildObject(viewController);
 }
-

@@ -44,15 +44,15 @@ class RimViewController : public caf::PdmObject
      CAF_PDM_HEADER_INIT;
 
 public:
-    RimViewController(void);
-    virtual ~RimViewController(void);
+    RimViewController();
+    virtual ~RimViewController();
 
     bool                                    isActive() const;
 
-    RimGridView*                                managedView() const;
+    RimGridView*                            managedView() const;
     void                                    setManagedView(RimGridView* view);
 
-    RimGridView*                                masterView() const;
+    RimGridView*                            masterView() const;
     RimViewLinker*                          ownerViewLinker() const;
 
     const RigCaseToCaseCellMapper*          cellMapper();
@@ -80,13 +80,13 @@ public:
 
 
 protected:  // Pdm overridden methods
-    virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
-    virtual QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly);
-    virtual void                            defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "");
-    virtual void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
+    void                                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    QList<caf::PdmOptionItemInfo>           calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
+    void                                    defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
+    void                                    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
 
-    virtual caf::PdmFieldHandle*            userDescriptionField()  { return &m_name; }
-    virtual caf::PdmFieldHandle*            objectToggleField()     { return &m_isActive; }
+    caf::PdmFieldHandle*                    userDescriptionField() override  { return &m_name; }
+    caf::PdmFieldHandle*                    objectToggleField() override     { return &m_isActive; }
 
 private:
     void                                    updateCameraLink();
@@ -107,7 +107,7 @@ private:
 
 private:
     caf::PdmField<QString>                  m_name;
-    caf::PdmPtrField<RimGridView*>              m_managedView;
+    caf::PdmPtrField<RimGridView*>          m_managedView;
 
     caf::PdmField<bool>                     m_isActive;
     caf::PdmField<bool>                     m_syncCamera;

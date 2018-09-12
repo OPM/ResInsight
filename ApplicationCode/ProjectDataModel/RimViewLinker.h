@@ -48,13 +48,13 @@ class RimViewLinker : public caf::PdmObject
      CAF_PDM_HEADER_INIT;
 
 public:
-    RimViewLinker(void);
-    virtual ~RimViewLinker(void);
+    RimViewLinker();
+    virtual ~RimViewLinker();
     
     bool                                    isActive() const;
 
     void                                    setMasterView(RimGridView* view);
-    RimGridView*                                masterView() const;
+    RimGridView*                            masterView() const;
 
     void                                    addDependentView(RimGridView* view);
     void                                    updateDependentViews();
@@ -85,20 +85,20 @@ public:
 
     void                                    updateCursorPosition(const RimGridView* sourceView, const cvf::Vec3d& domainCoord);
 
-
 protected:
-    virtual caf::PdmFieldHandle*            userDescriptionField()  { return &m_name; }
-    virtual void                            initAfterRead();
-    static QString                          displayNameForView(RimGridView* view);
+    caf::PdmFieldHandle*                    userDescriptionField() override  { return &m_name; }
+    void                                    initAfterRead() override;
 
 private:
+    static QString                          displayNameForView(RimGridView* view);
+
     void                                    allViewsForCameraSync(const RimGridView* source, std::vector<RimGridView*>& views) const;
     
     void                                    removeOverrides();
 
 private:
     caf::PdmChildArrayField<RimViewController*>   m_viewControllers;
-    caf::PdmPtrField<RimGridView*>                    m_masterView;
+    caf::PdmPtrField<RimGridView*>                m_masterView;
     caf::PdmField<QString>                        m_name;
     QIcon                                         m_originalIcon;
 };
