@@ -106,10 +106,8 @@ void RimViewLinker::updateTimeStep(RimGridView* sourceView, int timeStep)
         m_masterView->viewer()->setCurrentFrame(timeStep);
     }
 
-    for (size_t i = 0; i < m_viewControllers.size(); i++)
+    for (RimViewController* viewLink : m_viewControllers)
     {
-        RimViewController* viewLink = m_viewControllers[i];
-
         if (!viewLink->isTimeStepLinked()) continue;
 
         if (viewLink->managedView() && viewLink->managedView() != sourceView && viewLink->managedView()->viewer())
@@ -130,10 +128,8 @@ void RimViewLinker::updateCellResult()
     {
         RimEclipseResultDefinition* eclipseCellResultDefinition = masterEclipseView->cellResult();
 
-        for (size_t i = 0; i < m_viewControllers.size(); i++)
+        for (RimViewController* viewLink : m_viewControllers)
         {
-            RimViewController* viewLink = m_viewControllers[i];
-
             if (viewLink->managedView())
             {
                 Rim3dView*      rimView     = viewLink->managedView();
@@ -170,10 +166,8 @@ void RimViewLinker::updateCellResult()
     {
         RimGeoMechResultDefinition* geoMechResultDefinition = masterGeoView->cellResult();
 
-        for (size_t i = 0; i < m_viewControllers.size(); i++)
+        for (RimViewController* viewLink : m_viewControllers)
         {
-            RimViewController* viewLink = m_viewControllers[i];
-
             if (viewLink->managedView())
             {
                 Rim3dView*      rimView = viewLink->managedView();
@@ -207,9 +201,8 @@ void RimViewLinker::updateCellResult()
 //--------------------------------------------------------------------------------------------------
 void RimViewLinker::updateRangeFilters(RimCellRangeFilter* changedRangeFilter)
 {
-    for (size_t i = 0; i < m_viewControllers.size(); i++)
+    for (RimViewController* viewLink : m_viewControllers)
     {
-        RimViewController* viewLink = m_viewControllers[i];
         viewLink->updateRangeFilterOverrides(changedRangeFilter);
     }
 }
@@ -219,9 +212,8 @@ void RimViewLinker::updateRangeFilters(RimCellRangeFilter* changedRangeFilter)
 //--------------------------------------------------------------------------------------------------
 void RimViewLinker::updateOverrides()
 {
-    for (size_t i = 0; i < m_viewControllers.size(); i++)
+    for (RimViewController* viewLink : m_viewControllers)
     {
-        RimViewController* viewLink = m_viewControllers[i];
         if (viewLink->isActive())
         {
             viewLink->updateOverrides();
@@ -238,11 +230,11 @@ void RimViewLinker::updateOverrides()
 //--------------------------------------------------------------------------------------------------
 void RimViewLinker::removeOverrides()
 {
-    for (size_t i = 0; i < m_viewControllers.size(); i++)
+    for (const auto& viewController : m_viewControllers)
     {
-        if (m_viewControllers[i]->managedView())
+        if (viewController->managedView())
         {
-            m_viewControllers[i]->removeOverrides();
+            viewController->removeOverrides();
         }
     }
 }
@@ -259,13 +251,13 @@ void RimViewLinker::allViewsForCameraSync(const RimGridView* source, std::vector
         views.push_back(m_masterView());
     }
 
-    for (size_t i = 0; i < m_viewControllers.size(); i++)
+    for (const auto& viewController : m_viewControllers)
     {
-        if (m_viewControllers[i]->managedView() && source != m_viewControllers[i]->managedView())
+        if (viewController->managedView() && source != viewController->managedView())
         {
-            if (m_viewControllers[i]->isCameraLinked())
+            if (viewController->isCameraLinked())
             {
-                views.push_back(m_viewControllers[i]->managedView());
+                views.push_back(viewController->managedView());
             }
         }
     }
@@ -339,11 +331,11 @@ void RimViewLinker::allViews(std::vector<RimGridView*>& views) const
 {
     views.push_back(m_masterView());
 
-    for (size_t i = 0; i < m_viewControllers.size(); i++)
+    for (const auto& viewController : m_viewControllers)
     {
-        if (m_viewControllers[i]->managedView())
+        if (viewController->managedView())
         {
-            views.push_back(m_viewControllers[i]->managedView());
+            views.push_back(viewController->managedView());
         }
     }
 }
@@ -378,9 +370,9 @@ void RimViewLinker::updateScaleZ(RimGridView* sourceView, double scaleZ)
     allViewsForCameraSync(sourceView, views);
 
     // Make sure scale factors are identical
-    for (size_t i = 0; i < views.size(); i++)
+    for (auto & view : views)
     {
-        views[i]->setScaleZAndUpdate(scaleZ);
+        view->setScaleZAndUpdate(scaleZ);
     }
 }
 
@@ -435,9 +427,9 @@ void RimViewLinker::updateUiNameAndIcon()
 //--------------------------------------------------------------------------------------------------
 void RimViewLinker::scheduleGeometryRegenForDepViews(RivCellSetEnum geometryType)
 {
-    for (size_t i = 0; i < m_viewControllers.size(); i++)
+    for (const auto& viewController : m_viewControllers)
     {
-        m_viewControllers[i]->scheduleGeometryRegenForDepViews(geometryType);
+        viewController->scheduleGeometryRegenForDepViews(geometryType);
     }
 }
 
@@ -446,9 +438,9 @@ void RimViewLinker::scheduleGeometryRegenForDepViews(RivCellSetEnum geometryType
 //--------------------------------------------------------------------------------------------------
 void RimViewLinker::scheduleCreateDisplayModelAndRedrawForDependentViews()
 {
-    for (size_t i = 0; i < m_viewControllers.size(); i++)
+    for (const auto& viewController : m_viewControllers)
     {
-        m_viewControllers[i]->scheduleCreateDisplayModelAndRedrawForDependentView();
+        viewController->scheduleCreateDisplayModelAndRedrawForDependentView();
     }
 }
 
@@ -561,9 +553,9 @@ void RimViewLinker::addDependentView(RimGridView* view)
 //--------------------------------------------------------------------------------------------------
 void RimViewLinker::addViewControllers(caf::PdmUiTreeOrdering& uiTreeOrdering) const
 {
-    for (size_t j = 0; j < m_viewControllers.size(); j++)
+    for (const auto& viewController : m_viewControllers)
     {
-        uiTreeOrdering.add(m_viewControllers[j]);
+        uiTreeOrdering.add(viewController);
     }
 }
 
@@ -572,9 +564,9 @@ void RimViewLinker::addViewControllers(caf::PdmUiTreeOrdering& uiTreeOrdering) c
 //--------------------------------------------------------------------------------------------------
 void RimViewLinker::applyRangeFilterCollectionByUserChoice()
 {
-    for (size_t j = 0; j < m_viewControllers.size(); j++)
+    for (const auto& viewController : m_viewControllers)
     {
-        m_viewControllers[j]->applyRangeFilterCollectionByUserChoice();
+        viewController->applyRangeFilterCollectionByUserChoice();
     }
 }
 
