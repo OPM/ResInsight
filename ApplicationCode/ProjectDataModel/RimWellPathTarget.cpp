@@ -24,6 +24,7 @@ RimWellPathTarget::RimWellPathTarget()
     , m_targetPoint(cvf::Vec3d::ZERO)
     , m_azimuth(0.0)
     , m_inclination(0.0)
+    , m_isFullUpdateEnabled(true)
 {
     
     CAF_PDM_InitField(&m_isEnabled, "IsEnabled", true, "", "", "", "");
@@ -176,6 +177,14 @@ double RimWellPathTarget::radius2() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimWellPathTarget::enableFullUpdate(bool enable)
+{
+    m_isFullUpdateEnabled = enable;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo> RimWellPathTarget::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly)
 {
     QList<caf::PdmOptionItemInfo> options;
@@ -195,6 +204,10 @@ void RimWellPathTarget::fieldChangedByUi(const caf::PdmFieldHandle* changedField
     RimModeledWellPath* wellPath;
     firstAncestorOrThisOfTypeAsserted(wellPath);
     wellPath->updateWellPathVisualization();
+    if (m_isFullUpdateEnabled)
+    {
+        wellPath->scheduleUpdateOfDependentVisualization();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

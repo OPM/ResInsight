@@ -32,6 +32,7 @@
 #include <QMouseEvent>
 #include "RivPartPriority.h"
 #include "cafPdmUiCommandSystemProxy.h"
+#include "RimModeledWellPath.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -58,8 +59,6 @@ RicPointTangentManipulator::~RicPointTangentManipulator()
 void RicPointTangentManipulator::setOrigin(const cvf::Vec3d& origin)
 {
     m_partManager->setOrigin(origin);
-
-    emit notifyRedraw();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -68,8 +67,6 @@ void RicPointTangentManipulator::setOrigin(const cvf::Vec3d& origin)
 void RicPointTangentManipulator::setTangent(const cvf::Vec3d& tangent)
 {
     m_partManager->setTangent(tangent);
-    
-    emit notifyRedraw();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -78,7 +75,6 @@ void RicPointTangentManipulator::setTangent(const cvf::Vec3d& tangent)
 void RicPointTangentManipulator::setHandleSize(double handleSize)
 {
     m_partManager->setHandleSize(handleSize);
-    emit notifyRedraw();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -108,7 +104,6 @@ bool RicPointTangentManipulator::eventFilter(QObject *obj, QEvent* inputEvent)
                 if(m_partManager->isManipulatorActive())
                 {
                     emit notifySelected();
-                    emit notifyRedraw();
 
                     return true;
                 }
@@ -137,8 +132,6 @@ bool RicPointTangentManipulator::eventFilter(QObject *obj, QEvent* inputEvent)
 
                 emit notifyUpdate(origin, tangent);
 
-                emit notifyRedraw();
-
                 return true;
             }
         }
@@ -154,6 +147,7 @@ bool RicPointTangentManipulator::eventFilter(QObject *obj, QEvent* inputEvent)
             m_partManager->originAndTangent(&origin, &tangent);
 
             emit notifyUpdate(origin, tangent);
+            emit notifyDragFinished();
 
             return true;
         }
@@ -809,6 +803,10 @@ void RicWellTarget3dEditor::configureAndUpdateUi(const QString& uiConfigName)
                          SIGNAL( notifySelected() ),
                          this,
                          SLOT( slotSelectedIn3D() ) );
+        QObject::connect(m_manipulator,
+                         SIGNAL( notifyDragFinished() ),
+                         this,
+                         SLOT( slotDragFinished() ) );
         m_cvfModel = new cvf::ModelBasicList;
         m_ownerViewer->addStaticModelOnce(m_cvfModel.p());
     }
@@ -871,11 +869,9 @@ void RicWellTarget3dEditor::slotUpdated(const cvf::Vec3d& origin, const cvf::Vec
     domainOrigin.z() = -domainOrigin.z();
     QVariant originVariant = caf::PdmValueFieldSpecialization < cvf::Vec3d >::convert(domainOrigin);
 
-    std::cout << "RicWellTarget3dEditor::slotUpdated() start" << std::endl;
-
+    target->enableFullUpdate(false);
     caf::PdmUiCommandSystemProxy::instance()->setUiValueToField(target->m_targetPoint.uiCapability(), originVariant);
-    std::cout << "RicWellTarget3dEditor::slotUpdated() end" << std::endl;
-
+    target->enableFullUpdate(true);
 }
 
 void RicWellTarget3dEditor::slotSelectedIn3D()
@@ -887,4 +883,20 @@ void RicWellTarget3dEditor::slotSelectedIn3D()
     }
 
     caf::SelectionManager::instance()->setSelectedItemAtLevel(target, caf::SelectionManager::FIRST_LEVEL);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicWellTarget3dEditor::slotDragFinished()
+{
+    RimWellPathTarget* target = dynamic_cast<RimWellPathTarget*>(this->pdmObject());
+    if ( !target)
+    {
+        return;
+    }
+
+    RimModeledWellPath* wellpath;
+    target->firstAncestorOrThisOfTypeAsserted(wellpath);
+    wellpath->scheduleUpdateOfDependentVisualization();
 }

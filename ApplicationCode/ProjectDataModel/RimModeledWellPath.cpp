@@ -25,6 +25,11 @@
 
 #include "cafPdmUiTreeOrdering.h"
 #include "RimPlotCurve.h"
+#include "RiaCompletionTypeCalculationScheduler.h"
+#include "RimIntersection.h"
+#include "RimWellPath.h"
+#include "RimWellPathFractureCollection.h"
+#include "RimWellPathFracture.h"
 
 
 CAF_PDM_SOURCE_INIT(RimModeledWellPath, "ModeledWellPath");
@@ -67,9 +72,6 @@ void RimModeledWellPath::createWellPathGeometry()
 void RimModeledWellPath::updateWellPathVisualization()
 {
     this->setWellPathGeometry(m_geometryDefinition->createWellPathGeometry().p());
-    RimProject* proj;
-    this->firstAncestorOrThisOfTypeAsserted(proj);
-    proj->scheduleCreateDisplayModelAndRedrawAllViews();
     
     std::vector<RimPlotCurve*> refferingCurves;
     this->objectsWithReferringPtrFieldsOfType(refferingCurves);
@@ -78,6 +80,32 @@ void RimModeledWellPath::updateWellPathVisualization()
     {
         curve->loadDataAndUpdate(false);
     }
+
+    for ( auto fracture : this->fractureCollection()->activeFractures() )
+    {
+        fracture->loadDataAndUpdate();
+    }
+
+    std::vector<RimIntersection*> refferingIntersections;
+    this->objectsWithReferringPtrFieldsOfType(refferingIntersections);
+
+    for (auto intersection: refferingIntersections)
+    {
+        intersection->rebuildGeometryAndScheduleCreateDisplayModel();
+    }
+
+    RimProject* proj;
+    this->firstAncestorOrThisOfTypeAsserted(proj);
+    proj->scheduleCreateDisplayModelAndRedrawAllViews();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimModeledWellPath::scheduleUpdateOfDependentVisualization()
+{
+
+    RiaCompletionTypeCalculationScheduler::instance()->scheduleRecalculateCompletionTypeAndRedrawAllViews();
 }
 
 //--------------------------------------------------------------------------------------------------

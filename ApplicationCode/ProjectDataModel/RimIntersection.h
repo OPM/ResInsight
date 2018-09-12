@@ -105,6 +105,8 @@ public:
     bool                                                 hasDefiningPoints() const;
 
     int                                                  branchIndex() const;
+    void                                                 rebuildGeometryAndScheduleCreateDisplayModel();
+
 protected:
     virtual caf::PdmFieldHandle*            userDescriptionField();
     virtual caf::PdmFieldHandle*            objectToggleField();
@@ -140,7 +142,6 @@ private:
     void                                    updateWellExtentDefaultValue();
     void                                    addExtents(std::vector<cvf::Vec3d> &polyLine) const;
     void                                    updateName();
-    void                                    rebuildGeometryAndScheduleCreateDisplayModel();
     static double                           azimuthInRadians(cvf::Vec3d vec);
 private:                                    
     cvf::ref<RivIntersectionPartMgr>        m_crossSectionPartMgr;

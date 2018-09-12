@@ -54,6 +54,8 @@ private:
 
 private:
     friend class RicWellTarget3dEditor;
+    void                                         enableFullUpdate(bool enable);
+    bool                                         m_isFullUpdateEnabled;
     caf::PdmField<bool>                          m_isEnabled;
     caf::PdmField<caf::AppEnum<TargetTypeEnum> > m_targetType;
     caf::PdmField<cvf::Vec3d>                    m_targetPoint;

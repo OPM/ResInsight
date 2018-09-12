@@ -209,30 +209,26 @@ void RimFracture::fieldChangedByUi(const caf::PdmFieldHandle* changedField, cons
         setDefaultFractureColorResult();
     }
 
-    if (changedField == &m_azimuth || changedField == &m_fractureTemplate || changedField == &m_stimPlanTimeIndexToPlot ||
-        changedField == this->objectToggleField() || changedField == &m_dip || changedField == &m_tilt ||
-        changedField == &m_perforationLength)
+    if (   changedField == &m_azimuth 
+        || changedField == &m_fractureTemplate 
+        || changedField == &m_stimPlanTimeIndexToPlot 
+        || changedField == this->objectToggleField() 
+        || changedField == &m_dip 
+        || changedField == &m_tilt 
+        || changedField == &m_perforationLength)
     {
         clearCachedNonDarcyProperties();
 
-        RimEclipseView* rimView = nullptr;
-        this->firstAncestorOrThisOfType(rimView);
-        if (rimView)
+        RimEclipseCase* eclipseCase = nullptr;
+        this->firstAncestorOrThisOfType(eclipseCase);
+        if ( eclipseCase )
         {
-            RimEclipseCase* eclipseCase = nullptr;
-            rimView->firstAncestorOrThisOfType(eclipseCase);
-            if (eclipseCase)
-            {
-                RiaCompletionTypeCalculationScheduler::instance()->scheduleRecalculateCompletionTypeAndRedrawAllViews(
-                    eclipseCase);
-            }
+            RiaCompletionTypeCalculationScheduler::instance()->scheduleRecalculateCompletionTypeAndRedrawAllViews(
+                eclipseCase);
         }
         else
         {
-            // Can be triggered from well path, find active view
-            RimProject* proj;
-            this->firstAncestorOrThisOfTypeAsserted(proj);
-            proj->reloadCompletionTypeResultsInAllViews();
+            RiaCompletionTypeCalculationScheduler::instance()->scheduleRecalculateCompletionTypeAndRedrawAllViews();
         }
     }
 }

@@ -60,7 +60,7 @@ public:
 
 signals:
     void        notifySelected();
-    void        notifyRedraw();
+    void        notifyDragFinished();
     void        notifyUpdate(const cvf::Vec3d& origin, const cvf::Vec3d& tangent);
 
 protected:
@@ -286,6 +286,7 @@ protected:
 private slots:
     void slotUpdated(const cvf::Vec3d& origin, const cvf::Vec3d& tangent);
     void slotSelectedIn3D();
+    void slotDragFinished();
 private:
     QPointer<RicPointTangentManipulator> m_manipulator;
     cvf::ref<cvf::ModelBasicList> m_cvfModel;

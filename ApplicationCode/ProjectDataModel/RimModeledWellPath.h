@@ -35,6 +35,7 @@ public:
 
     void                    createWellPathGeometry();
     void                    updateWellPathVisualization();
+    void                    scheduleUpdateOfDependentVisualization();
     RimWellPathGeometryDef* geometryDefinition();
 
 private:
