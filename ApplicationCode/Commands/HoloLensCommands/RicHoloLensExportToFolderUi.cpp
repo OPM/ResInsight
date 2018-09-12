@@ -19,6 +19,7 @@
 #include "RicHoloLensExportToFolderUi.h"
 
 #include "RiaApplication.h"
+#include "RiaOptionItemFactory.h"
 
 #include "RimCase.h"
 #include "RimGridView.h"
@@ -81,16 +82,7 @@ QList<caf::PdmOptionItemInfo> RicHoloLensExportToFolderUi::calculateValueOptions
 
         for (RimGridView* v : visibleViews)
         {
-            RimCase* rimCase = nullptr;
-            v->firstAncestorOrThisOfType(rimCase);
-
-            QIcon icon;
-            if (rimCase)
-            {
-                icon = rimCase->uiCapability()->uiIcon();
-            }
-
-            options.push_back(caf::PdmOptionItemInfo(v->name(), v, false, icon));
+            RiaOptionItemFactory::appendOptionItemFromViewNameAndCaseName(v, &options);
         }
     }
 

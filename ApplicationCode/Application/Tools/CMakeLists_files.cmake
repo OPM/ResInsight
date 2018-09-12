@@ -36,6 +36,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RiaOffshoreSphericalCoords.h
 ${CMAKE_CURRENT_LIST_DIR}/RiaWeightedAverageCalculator.h
 ${CMAKE_CURRENT_LIST_DIR}/RiaWeightedAverageCalculator.inl
 ${CMAKE_CURRENT_LIST_DIR}/RiaWeightedGeometricMeanCalculator.h
+${CMAKE_CURRENT_LIST_DIR}/RiaOptionItemFactory.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -72,6 +73,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RiaSCurveCalculator.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiaArcCurveCalculator.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiaJCurveCalculator.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiaWeightedGeometricMeanCalculator.cpp
+${CMAKE_CURRENT_LIST_DIR}/RiaOptionItemFactory.cpp
 )
 
 list(APPEND CODE_HEADER_FILES
