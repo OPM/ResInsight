@@ -96,6 +96,7 @@
 #include <QMessageBox>
 
 #include <limits.h>
+#include "Rim2dIntersectionView.h"
 
 
 
@@ -1414,6 +1415,15 @@ void RimEclipseView::calculateCompletionTypeAndRedrawIfRequired()
     if (isDependingOnCompletionType)
     {
         this->loadDataAndUpdate();
+
+        std::vector<RimIntersection*> intersections = m_crossSectionCollection->intersections();
+        for (auto intersection : intersections)
+        {
+            if ( intersection && intersection->correspondingIntersectionView() )
+            {
+                intersection->correspondingIntersectionView()->scheduleCreateDisplayModelAndRedraw();
+            }
+        }
     }
 
     for (const auto& propFilter : m_propertyFilterCollection()->propertyFilters)
