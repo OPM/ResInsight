@@ -19,11 +19,13 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
+
+#include "RigGridBase.h"
+
 #include "cvfBase.h"
 #include "cvfObject.h"
 
 #include "cvfStructGridGeometryGenerator.h"
-#include "RigGridBase.h"
 
 namespace cvf
 {
@@ -59,29 +61,30 @@ public:
     void updateCellColor(cvf::Color4f color);
     void updateCellResultColor(size_t timeStepIndex, RimEclipseCellColors* cellResultColors);
 
-    void updateCellEdgeResultColor(size_t timeStepIndex, RimEclipseCellColors* cellResultColors, 
-        RimCellEdgeColors* cellEdgeResultColors);
+    void updateCellEdgeResultColor(size_t                timeStepIndex,
+                                   RimEclipseCellColors* cellResultColors,
+                                   RimCellEdgeColors*    cellEdgeResultColors);
 
     void appendPartsToModel(cvf::ModelBasicList* model);
 
 private:
-    void                    generatePartGeometry(cvf::StructGridGeometryGenerator& geoBuilder);
+    void generatePartGeometry(cvf::StructGridGeometryGenerator& geoBuilder);
 
 private:
-    size_t                                      m_gridIdx;
-    cvf::cref<RigGridBase>                      m_grid;
+    size_t                              m_gridIdx;
+    cvf::cref<RigGridBase>              m_grid;
 
-    cvf::ref<cvf::Transform>                    m_scaleTransform;
-    float                                       m_opacityLevel;
-    cvf::Color3f                                m_defaultColor;
+    cvf::ref<cvf::Transform>            m_scaleTransform;
+    float                               m_opacityLevel;
+    cvf::Color3f                        m_defaultColor;
 
     // Surface visualization
-    cvf::StructGridGeometryGenerator            m_surfaceGenerator;
-    RigGridCellFaceVisibilityFilter             m_surfaceFaceFilter;
-    cvf::ref<cvf::Part>                         m_surfaceFaces;
-    cvf::ref<cvf::Vec2fArray>                   m_surfaceFacesTextureCoords;
+    cvf::StructGridGeometryGenerator    m_surfaceGenerator;
+    RigGridCellFaceVisibilityFilter     m_surfaceFaceFilter;
+    cvf::ref<cvf::Part>                 m_surfaceFaces;
+    cvf::ref<cvf::Vec2fArray>           m_surfaceFacesTextureCoords;
 
-    cvf::ref<cvf::Part>                         m_surfaceGridLines;
+    cvf::ref<cvf::Part>                 m_surfaceGridLines;
 
-    cvf::ref<cvf::UByteArray>                   m_cellVisibility;
+    cvf::ref<cvf::UByteArray>           m_cellVisibility;
 };
