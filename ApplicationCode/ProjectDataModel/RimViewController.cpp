@@ -20,6 +20,7 @@
 #include "RimViewController.h"
 
 #include "RiaApplication.h"
+#include "RiaOptionItemFactory.h"
 
 #include "RigCaseToCaseCellMapper.h"
 #include "RigCaseToCaseRangeFilterMapper.h"
@@ -42,13 +43,13 @@
 #include "Rim3dView.h"
 #include "RimViewLinker.h"
 #include "RimViewLinkerCollection.h"
+#include "RimIntersectionCollection.h"
 
 #include "RiuViewer.h"
 
 #include "cafPdmUiTreeOrdering.h"
 
 #include <QMessageBox>
-#include "RimIntersectionCollection.h"
 
 CAF_PDM_SOURCE_INIT(RimViewController, "ViewController");
 //--------------------------------------------------------------------------------------------------
@@ -119,15 +120,7 @@ QList<caf::PdmOptionItemInfo> RimViewController::calculateValueOptions(const caf
         {
             if (view != viewLinker->masterView())
             {
-                RimCase* rimCase = nullptr;
-                view->firstAncestorOrThisOfType(rimCase);
-                QIcon icon;
-                if (rimCase)
-                {
-                    icon = rimCase->uiCapability()->uiIcon();
-                }
-
-                options.push_back(caf::PdmOptionItemInfo(RimViewLinker::displayNameForView(view), view, false, icon));
+                RiaOptionItemFactory::appendOptionItemFromViewNameAndCaseName(view, &options);
             }
         }
 

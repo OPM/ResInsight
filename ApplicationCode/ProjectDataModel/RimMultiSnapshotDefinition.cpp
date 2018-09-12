@@ -19,6 +19,7 @@
 #include "RimMultiSnapshotDefinition.h"
 
 #include "RiaApplication.h"
+#include "RiaOptionItemFactory.h"
 
 #include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
@@ -108,8 +109,7 @@ QList<caf::PdmOptionItemInfo> RimMultiSnapshotDefinition::calculateValueOptions(
 
         for (Rim3dView* view : views)
         {
-            QString caseAndView = view->ownerCase()->caseUserDescription() + " - " + view->name();
-            options.push_back(caf::PdmOptionItemInfo(caseAndView, view));
+            RiaOptionItemFactory::appendOptionItemFromViewNameAndCaseName(view, &options);
         }
     }
     else if (fieldNeedingOptions == &eclipseResultType)

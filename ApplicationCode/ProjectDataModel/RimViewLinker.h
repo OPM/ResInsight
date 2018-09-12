@@ -85,12 +85,11 @@ public:
 
     void                                    updateCursorPosition(const RimGridView* sourceView, const cvf::Vec3d& domainCoord);
 
-public:
-    static QString                          displayNameForView(RimGridView* view);
 
 protected:
     virtual caf::PdmFieldHandle*            userDescriptionField()  { return &m_name; }
     virtual void                            initAfterRead();
+    static QString                          displayNameForView(RimGridView* view);
 
 private:
     void                                    allViewsForCameraSync(const RimGridView* source, std::vector<RimGridView*>& views) const;
