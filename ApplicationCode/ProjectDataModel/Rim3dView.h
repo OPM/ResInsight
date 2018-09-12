@@ -98,7 +98,7 @@ public:
     caf::PdmField< caf::AppEnum< MeshModeType > >    meshMode;
     caf::PdmField< caf::AppEnum< SurfaceModeType > > surfaceMode;
 
-    RiuViewer*                              viewer();
+    RiuViewer*                              viewer() const;
 
     void                                    setMeshOnlyDrawstyle();
     void                                    setMeshSurfDrawstyle();
