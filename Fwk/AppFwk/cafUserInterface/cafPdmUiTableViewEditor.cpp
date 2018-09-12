@@ -71,7 +71,7 @@ PdmUiTableViewEditor::PdmUiTableViewEditor()
 
     m_useDefaultContextMenu = false;
 
-    m_checkboxDelegate = new PdmUiCheckBoxDelegate(this);
+    m_checkboxDelegate = new PdmUiCheckBoxDelegate();
 
     m_tableSelectionLevel = SelectionManager::BASE_LEVEL;
     m_rowSelectionLevel  = SelectionManager::FIRST_LEVEL;
@@ -83,6 +83,8 @@ PdmUiTableViewEditor::PdmUiTableViewEditor()
 //--------------------------------------------------------------------------------------------------
 PdmUiTableViewEditor::~PdmUiTableViewEditor()
 {
+    if (m_checkboxDelegate) m_checkboxDelegate->deleteLater();
+    if (m_delegate) m_delegate->deleteLater();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -92,7 +94,7 @@ QWidget* PdmUiTableViewEditor::createEditorWidget(QWidget* parent)
 {
     m_tableModelPdm = new PdmUiTableViewQModel(parent);
 
-    m_delegate = new PdmUiTableViewDelegate(this, m_tableModelPdm);
+    m_delegate = new PdmUiTableViewDelegate(nullptr, m_tableModelPdm);
 
     m_tableView = new QTableView(parent);
     m_tableView->setShowGrid(true);
