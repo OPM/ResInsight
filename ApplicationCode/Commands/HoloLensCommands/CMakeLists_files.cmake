@@ -1,0 +1,23 @@
+
+set (SOURCE_GROUP_HEADER_FILES
+${CMAKE_CURRENT_LIST_DIR}/RicHoloLensExportToFolderFeature.h
+${CMAKE_CURRENT_LIST_DIR}/RicHoloLensExportToFolderUi.h
+${CMAKE_CURRENT_LIST_DIR}/RicHoloLensExportImpl.h
+)
+
+set (SOURCE_GROUP_SOURCE_FILES
+${CMAKE_CURRENT_LIST_DIR}/RicHoloLensExportToFolderFeature.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicHoloLensExportImpl.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicHoloLensExportToFolderUi.cpp 
+)
+
+
+list(APPEND CODE_HEADER_FILES
+${SOURCE_GROUP_HEADER_FILES}
+)
+
+list(APPEND CODE_SOURCE_FILES
+${SOURCE_GROUP_SOURCE_FILES}
+)
+
+source_group( "CommandFeature\\HoloLens" FILES ${SOURCE_GROUP_HEADER_FILES} ${SOURCE_GROUP_SOURCE_FILES} ${CMAKE_CURRENT_LIST_DIR}/CMakeLists_files.cmake )

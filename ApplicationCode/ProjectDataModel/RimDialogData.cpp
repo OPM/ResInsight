@@ -21,6 +21,7 @@
 #include "ExportCommands/RicExportCarfinUi.h"
 #include "CompletionExportCommands/RicExportCompletionDataSettingsUi.h"
 #include "FractureCommands/RicCreateMultipleFracturesUi.h"
+#include "HoloLensCommands/RicHoloLensExportToFolderUi.h"
 
 CAF_PDM_SOURCE_INIT(RimDialogData, "RimDialogData");
 
@@ -39,6 +40,9 @@ RimDialogData::RimDialogData()
 
     CAF_PDM_InitFieldNoDefault(&m_multipleFractionsData, "MultipleFractionsData", "Multiple Fractures Data", "", "", "");
     m_multipleFractionsData = new RiuCreateMultipleFractionsUi();
+
+    CAF_PDM_InitFieldNoDefault(&m_holoLenseExportToFolderData, "HoloLenseExportToFolderData", "Holo Lens Export To Folder Data", "", "", "");
+    m_holoLenseExportToFolderData = new RicHoloLensExportToFolderUi();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -88,5 +92,13 @@ RicExportCompletionDataSettingsUi* RimDialogData::exportCompletionData() const
 RiuCreateMultipleFractionsUi* RimDialogData::multipleFractionsData() const
 {
     return m_multipleFractionsData;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RicHoloLensExportToFolderUi* RimDialogData::holoLensExportToFolderData() const
+{
+    return m_holoLenseExportToFolderData;
 }
 

@@ -494,6 +494,9 @@ void RiuMainWindow::createMenus()
     testMenu->addAction(m_executePaintEventPerformanceTest);
     testMenu->addAction(cmdFeatureMgr->action("RicLaunchUnitTestsFeature"));
     testMenu->addAction(cmdFeatureMgr->action("RicRunCommandFileFeature"));
+    testMenu->addSeparator();
+
+    testMenu->addAction(cmdFeatureMgr->action("RicHoloLensExportToFolderFeature"));
 
     // Windows menu
     m_windowMenu = menuBar()->addMenu("&Windows");
