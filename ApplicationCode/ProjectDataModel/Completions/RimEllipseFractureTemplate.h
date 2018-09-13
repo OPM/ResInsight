@@ -66,14 +66,14 @@ public:
 
     void                    loadDataAndUpdate() override;
     std::vector<std::pair<QString, QString>> uiResultNamesWithUnit() const override;
-    virtual void            reload() override;
 
-protected:
+private:
     void                    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
     void                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
 
-private:
-    void                    assignConductivityToCellsInsideEllipse();
+    void                    onLoadDataAndUpdateGeometryHasChanged() override;
+
+    void                    createFractureGridAndAssignConductivities();
     std::vector<cvf::Vec3f> fractureBorderPolygon() const;
 
     FractureWidthAndConductivity widthAndConductivityAtWellPathIntersection(const RimFracture* fractureInstance) const override;

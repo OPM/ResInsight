@@ -60,7 +60,7 @@ RimEllipseFractureTemplate::RimEllipseFractureTemplate()
     CAF_PDM_InitField(&m_permeability,"Permeability",     0.0,   "Permeability [mD]", "", "", ""); 
 
     m_fractureGrid = new RigFractureGrid();
-    assignConductivityToCellsInsideEllipse();
+    createFractureGridAndAssignConductivities();
 
     // clang-format on
 }
@@ -75,7 +75,7 @@ RimEllipseFractureTemplate::~RimEllipseFractureTemplate() {}
 //--------------------------------------------------------------------------------------------------
 void RimEllipseFractureTemplate::loadDataAndUpdate()
 {
-    assignConductivityToCellsInsideEllipse();
+    createFractureGridAndAssignConductivities();
 
     RimEclipseView* activeView = dynamic_cast<RimEclipseView*>(RiaApplication::instance()->activeReservoirView());
     if (activeView) activeView->loadDataAndUpdate();
@@ -96,12 +96,7 @@ void RimEllipseFractureTemplate::fieldChangedByUi(const caf::PdmFieldHandle* cha
         m_scaleApplyButton = false;
 
         // Changes to one of these parameters should change all fractures with this fracture template attached.
-        reload();
-    }
-
-    if (changedField == &m_width || changedField == &m_permeability)
-    {
-        assignConductivityToCellsInsideEllipse();
+        onLoadDataAndUpdateGeometryHasChanged();
     }
 }
 
@@ -159,7 +154,7 @@ void RimEllipseFractureTemplate::changeUnits()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEllipseFractureTemplate::assignConductivityToCellsInsideEllipse()
+void RimEllipseFractureTemplate::createFractureGridAndAssignConductivities()
 {
     std::vector<RigFractureCell> fractureCells;
 
@@ -349,8 +344,10 @@ std::vector<std::pair<QString, QString>> RimEllipseFractureTemplate::uiResultNam
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEllipseFractureTemplate::reload()
+void RimEllipseFractureTemplate::onLoadDataAndUpdateGeometryHasChanged()
 {
+    loadDataAndUpdate();
+
     RimEclipseCase* eclipseCase = nullptr;
     this->firstAncestorOrThisOfType(eclipseCase);
     if (eclipseCase)
@@ -361,8 +358,6 @@ void RimEllipseFractureTemplate::reload()
     {
         RiaCompletionTypeCalculationScheduler::instance()->scheduleRecalculateCompletionTypeAndRedrawAllViews();
     }
-
-    assignConductivityToCellsInsideEllipse();
 }
 
 //--------------------------------------------------------------------------------------------------

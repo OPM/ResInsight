@@ -69,5 +69,5 @@ void RicfScaleFractureTemplate::execute()
     }
 
     templ->setScaleFactors(m_widthScaleFactor, m_heightScaleFactor, m_dFactorScaleFactor, m_conductivityScaleFactor);
-    templ->reload();
+    templ->loadDataAndUpdateGeometryHasChanged();
 }

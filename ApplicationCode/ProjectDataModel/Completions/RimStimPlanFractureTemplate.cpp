@@ -154,7 +154,7 @@ void RimStimPlanFractureTemplate::fieldChangedByUi(const caf::PdmFieldHandle* ch
     if (changedField == &m_scaleApplyButton)
     {
         m_scaleApplyButton = false;
-        reload();
+        onLoadDataAndUpdateGeometryHasChanged();
     }
 }
 
@@ -685,7 +685,7 @@ void RimStimPlanFractureTemplate::convertToUnitSystem(RiaEclipseUnitTools::UnitS
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimStimPlanFractureTemplate::reload()
+void RimStimPlanFractureTemplate::onLoadDataAndUpdateGeometryHasChanged()
 {
     loadDataAndUpdate();
 

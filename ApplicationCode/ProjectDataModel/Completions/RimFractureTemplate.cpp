@@ -810,6 +810,14 @@ double RimFractureTemplate::computeFractureWidth(const RimFracture* fractureInst
 }
 
 //--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimFractureTemplate::loadDataAndUpdateGeometryHasChanged()
+{
+    onLoadDataAndUpdateGeometryHasChanged();
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 std::vector<RimFracture*> RimFractureTemplate::fracturesUsingThisTemplate() const

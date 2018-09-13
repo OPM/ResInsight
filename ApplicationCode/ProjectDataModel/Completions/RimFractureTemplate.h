@@ -156,7 +156,6 @@ public:
     void                            setId(int id);
     void                            setScaleFactors(double widthScale, double heightScale, double dFactorScale, double conductivityScale);
     void                            scaleFactors(double* widthScale, double* heightScale, double* dFactorScale, double* conductivityScale) const;
-    virtual void                    reload() {}
 
     void                            setContainmentTopKLayer(int topKLayer);
     void                            setContainmentBaseKLayer(int baseKLayer);
@@ -167,6 +166,8 @@ public:
     double                          computeWellRadiusForDFactorCalculation(const RimFracture* fractureInstance) const;
     double                          computeFractureWidth(const RimFracture* fractureInstance) const;
 
+    void                            loadDataAndUpdateGeometryHasChanged();
+
 protected:
     virtual caf::PdmFieldHandle*    userDescriptionField() override;
     virtual void                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
@@ -175,6 +176,7 @@ protected:
     virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
 
     std::vector<RimFracture*>       fracturesUsingThisTemplate() const;
+    virtual void                    onLoadDataAndUpdateGeometryHasChanged() = 0;
 
 private:
     void                            prepareFieldsForUiDisplay();
