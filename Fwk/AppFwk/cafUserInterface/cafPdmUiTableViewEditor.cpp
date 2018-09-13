@@ -216,7 +216,7 @@ void PdmUiTableViewEditor::configureAndUpdateUi(const QString& uiConfigName)
         if (editorAttribLoaded)
         {
             int colCount = m_tableModelPdm->columnCount();
-            for (int c = 0; c < colCount && c < editorAttrib.columnWidths.size(); c++)
+            for (int c = 0; c < colCount && c < static_cast<int>(editorAttrib.columnWidths.size()); c++)
             {
                 auto w = editorAttrib.columnWidths[c];
                 if (w > 0) m_tableView->setColumnWidth(c, w);
