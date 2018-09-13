@@ -274,7 +274,8 @@ void RifWellPathImporter::readAllAsciiWellData(const QString& filePath)
                     // name <WellNameA>
                     // wellname: <WellNameA>
                     std::string lineLowerCase = line;
-                    transform(lineLowerCase.begin(), lineLowerCase.end(), lineLowerCase.begin(), ::tolower);
+                    transform(lineLowerCase.begin(), lineLowerCase.end(), lineLowerCase.begin(),
+                              [](const char c) -> char { return (char)::tolower(c); });
 
                     std::string tokenName = "name";
                     std::size_t foundNameIdx = lineLowerCase.find(tokenName);
