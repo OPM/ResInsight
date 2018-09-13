@@ -345,6 +345,7 @@ std::vector<LocationForNewFracture> RiuCreateMultipleFractionsUi::locationsForNe
         }
     }
 
+    std::sort(items.begin(), items.end());
     return items;
 }
 
