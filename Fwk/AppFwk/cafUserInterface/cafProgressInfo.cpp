@@ -204,7 +204,6 @@ namespace caf {
         uint64_t    totalPhysicalMemory = caf::MemoryInspector::getTotalPhysicalMemoryMiB();
 
         float currentUsageFraction = 0.0f;
-        float availVirtualFraction = 1.0f;
         if (currentUsage > 0u && totalPhysicalMemory > 0u)
         {
             currentUsageFraction = std::min(1.0f, static_cast<float>(currentUsage) / totalPhysicalMemory);

@@ -331,7 +331,6 @@ void PdmUiListEditor::slotSelectionChanged(const QItemSelection & selected, cons
     {
         QModelIndexList idxList = m_listView->selectionModel()->selectedIndexes();
 
-        QVariant fieldValue = uiField()->uiValue();
         QList<QVariant> valuesSelectedInField = fieldValue.toList();
 
         if (idxList.size() == 1 && valuesSelectedInField.size() == 1)

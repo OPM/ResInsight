@@ -173,7 +173,6 @@ private:
         QRect lineRect(r.x() + horizontalMargin, vscroll, r.width() - 2*horizontalMargin, fm.height());
 
         int minLB = qMax(0, -fm.minLeftBearing());
-        int minRB = qMax(0, -fm.minRightBearing());
 
         if (text().isEmpty())
         {

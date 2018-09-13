@@ -207,14 +207,14 @@ QVariant PdmUiTableViewQModel::data(const QModelIndex &index, int role /*= Qt::D
 
                     for (const QVariant& v : valuesSelectedInField)
                     {
-                        int index = v.toInt();
-                        if (index != -1)
+                        int optionIndex = v.toInt();
+                        if (optionIndex != -1)
                         {
                             if (!displayText.isEmpty()) displayText += ", ";
 
-                            if (index < options.size())
+                            if (optionIndex < options.size())
                             {
-                                displayText += options.at(index).optionUiText();
+                                displayText += options.at(optionIndex).optionUiText();
                             }
                         }
                     }
@@ -385,7 +385,6 @@ void PdmUiTableViewQModel::setArrayFieldAndBuildEditors(PdmChildArrayFieldHandle
             PdmUiFieldEditorHandle* fieldEditor = nullptr;
 
             // Find or create FieldEditor
-            std::map<QString, PdmUiFieldEditorHandle*>::iterator it;
             it = m_fieldEditors.find(field->fieldHandle()->keyword());
 
             if (it == m_fieldEditors.end())

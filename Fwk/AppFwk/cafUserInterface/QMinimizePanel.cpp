@@ -34,6 +34,8 @@
 //
 //##################################################################################################
 
+#pragma warning( disable : 4125 )
+
 #include "QMinimizePanel.h"
 
 #include <QApplication>
