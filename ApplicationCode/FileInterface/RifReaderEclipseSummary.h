@@ -27,6 +27,8 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <set>
+#include <memory>
 
 
 //==================================================================================================
@@ -68,6 +70,9 @@ public:
 
     QStringList                         warnings() const { return m_warnings; }
 
+    virtual void                        markForCachePurge(const RifEclipseSummaryAddress& address) override;
+    static void                         purgeCache();
+
 private:
     int                                 timeStepCount() const;
     int                                 indexFromAddress(const RifEclipseSummaryAddress& resultAddress) const;
@@ -86,5 +91,33 @@ private:
     std::map<RifEclipseSummaryAddress, int> m_resultAddressToErtNodeIdx;
 
     QStringList                 m_warnings;
+
+
+    //==================================================================================================
+    //
+    //==================================================================================================
+    class ValuesCache
+    {
+        static const std::vector<double> EMPTY_VECTOR;
+
+    public:
+        ValuesCache();
+        ~ValuesCache();
+
+        void                        insertValues(const RifEclipseSummaryAddress& address, const std::vector<double>& values);
+        const std::vector<double>&  getValues(const RifEclipseSummaryAddress& address) const;
+        void                        markAddressForPurge(const RifEclipseSummaryAddress& address);
+        static void                 purge();
+
+    private:
+        void                        purgeData();
+
+        std::map<const RifEclipseSummaryAddress, std::vector<double>> m_cachedValues;
+        std::set<RifEclipseSummaryAddress> m_purgeList;
+
+        static std::set<ValuesCache*>      m_instances;
+    };
+
+    std::unique_ptr<ValuesCache>             m_valuesCache;
 };
 

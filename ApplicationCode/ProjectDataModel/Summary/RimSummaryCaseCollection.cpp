@@ -53,6 +53,8 @@ RimSummaryCaseCollection::RimSummaryCaseCollection()
 
     CAF_PDM_InitField(&m_isEnsemble, "IsEnsemble", false, "Is Ensemble", "", "", "");
     m_isEnsemble.uiCapability()->setUiHidden(true);
+
+    m_commonAddressCount = 0;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -182,6 +184,10 @@ std::set<RifEclipseSummaryAddress> RimSummaryCaseCollection::calculateUnionOfSum
 
        const std::set<RifEclipseSummaryAddress>& readerAddresses = reader->allResultAddresses();
        addressUnion.insert(readerAddresses.begin(), readerAddresses.end());
+
+       // We assume that all cases have the same addresses when they have equal number of addresses.
+       // In that case there is no need to calculate the union, we only use the addresses from the first case
+       if (m_commonAddressCount > 0) break;
     }
     return addressUnion;
 }
@@ -313,6 +319,27 @@ void RimSummaryCaseCollection::calculateEnsembleParametersIntersectionHash()
     {
         auto crp = sumCase->caseRealizationParameters();
         if(crp) crp->calculateParametersHash(paramNames);
+    }
+
+    // Find common addess count
+    for (const auto sumCase : sumCases)
+    {
+        const auto reader = sumCase->summaryReader();
+        if(!reader) continue;
+        auto currAddrCount = reader->allResultAddresses().size();
+
+        if (m_commonAddressCount == 0)
+        {
+            m_commonAddressCount = currAddrCount;
+        }
+        else
+        {
+            if (currAddrCount != m_commonAddressCount)
+            {
+                m_commonAddressCount = 0;
+                break;
+            }
+        }
     }
 }
 

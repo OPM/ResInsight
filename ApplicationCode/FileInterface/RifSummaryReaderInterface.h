@@ -51,6 +51,8 @@ public:
     // TODO: Move this to a tools class with static members
     static std::vector<QDateTime>                   fromTimeT(const std::vector<time_t>& timeSteps);
     
+    virtual void                                    markForCachePurge(const RifEclipseSummaryAddress& address) {}
+
 protected:
     std::set<RifEclipseSummaryAddress>    m_allResultAddresses;     // Result and error addresses
     std::set<RifEclipseSummaryAddress>    m_allErrorAddresses;      // Error addresses

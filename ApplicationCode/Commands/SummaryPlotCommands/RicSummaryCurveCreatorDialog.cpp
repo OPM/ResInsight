@@ -23,6 +23,8 @@
 #include "RicSummaryCurveCreator.h"
 #include "RicSummaryCurveCreatorSplitterUi.h"
 
+#include "RifReaderEclipseSummary.h"
+
 #include "RiuPlotMainWindow.h"
 #include "RiuTools.h"
 
@@ -84,4 +86,5 @@ void RicSummaryCurveCreatorDialog::slotDialogFinished()
     {
         plotwindow->cleanUpTemporaryWidgets();
     }
+    RifReaderEclipseSummary::purgeCache();
 }

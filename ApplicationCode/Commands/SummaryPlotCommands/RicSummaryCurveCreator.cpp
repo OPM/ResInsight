@@ -77,6 +77,7 @@ const QString RicSummaryCurveCreator::CONFIGURATION_NAME = "CurveCreatorCfg";
 /// Internal functions
 //--------------------------------------------------------------------------------------------------
 int  ensembleCurveCount(const std::set<RiaSummaryCurveDefinition>& allCurveDefs);
+template <typename T> std::vector<T> toVector(const std::set<T>& set);
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -360,7 +361,9 @@ void RicSummaryCurveCreator::syncPreviewCurvesFromUiSelection()
             for (const auto& curve : currentCurvesInPreviewPlot)
             {
                 RimSummaryCase* sumCase = curve->summaryCaseY();
-                RiaSummaryCurveDefinition curveDef = RiaSummaryCurveDefinition(sumCase, curve->summaryAddressY(), sumCase ? sumCase->ensemble() : nullptr);
+
+                if (sumCase->ensemble()) continue;
+                RiaSummaryCurveDefinition curveDef = RiaSummaryCurveDefinition(sumCase, curve->summaryAddressY());
                 if (deleteCurveDefs.count(curveDef) > 0) curvesToDelete.insert(curve);
             }
         }
@@ -435,13 +438,13 @@ void RicSummaryCurveCreator::updatePreviewCurvesFromCurveDefinitions(
     initCurveAppearanceCalculator(curveLookCalc);
 
     // Delete curves
-    for (const auto& curveSet : curveSetsToDelete)
+    if(!curveSetsToDelete.empty())
     {
-        m_previewPlot->ensembleCurveSetCollection()->deleteCurveSet(curveSet);
+        m_previewPlot->ensembleCurveSetCollection()->deleteCurveSets(toVector(curveSetsToDelete));
     }
-    for (const auto& curve : curvesToDelete)
+    if(!curvesToDelete.empty())
     {
-        m_previewPlot->deleteCurve(curve);
+        m_previewPlot->deleteCurves(toVector(curvesToDelete));
     }
 
     size_t ensembleCurveCnt = ensembleCurveCount(allCurveDefsToDisplay);
@@ -1007,4 +1010,12 @@ int ensembleCurveCount(const std::set<RiaSummaryCurveDefinition>& allCurveDefs)
 {
     return std::count_if(
         allCurveDefs.begin(), allCurveDefs.end(), [](const RiaSummaryCurveDefinition& def) { return def.isEnsembleCurve(); });
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+template <typename T> std::vector<T> toVector(const std::set<T>& set)
+{
+    return std::vector<T>(set.begin(), set.end());
 }

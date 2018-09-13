@@ -39,7 +39,7 @@ class RifEclipseSummaryAddress
 public:
 
     // Based on list in ecl_smspec.c and list of types taken from Eclipse Reference Manual ecl_rm_2011.1.pdf 
-    enum SummaryVarCategory
+    enum SummaryVarCategory : int8_t
     {
         SUMMARY_INVALID,
         SUMMARY_FIELD,              
@@ -91,16 +91,16 @@ public:
     
     RifEclipseSummaryAddress(SummaryVarCategory category, 
                              const std::string& quantityName, 
-                             int                regionNumber,
-                             int                regionNumber2,
+                             int16_t            regionNumber,
+                             int16_t            regionNumber2,
                              const std::string& wellGroupName,
                              const std::string& wellName,
-                             int                wellSegmentNumber,
+                             int16_t            wellSegmentNumber,
                              const std::string& lgrName,
-                             int                cellI,
-                             int                cellJ,
-                             int                cellK,
-                             int                aquiferNumber,
+                             int32_t            cellI,
+                             int32_t            cellJ,
+                             int32_t            cellK,
+                             int16_t            aquiferNumber,
                              bool               isErrorResult): 
         m_variableCategory(category),
         m_quantityName(quantityName),
@@ -172,34 +172,33 @@ public:
     void            setQuantityName(const std::string& quantity)        { m_quantityName = quantity; }
     void            setWellName(const std::string& wellName)            { m_wellName = wellName; }
     void            setWellGroupName(const std::string& wellGroupName)  { m_wellGroupName = wellGroupName; }
-    void            setRegion(int region)                               { m_regionNumber = region; }
-    void            setAquiferNumber(int aquiferNumber)                 { m_aquiferNumber = aquiferNumber; }
+    void            setRegion(int region)                               { m_regionNumber = (int16_t)region; }
+    void            setAquiferNumber(int aquiferNumber)                 { m_aquiferNumber = (int16_t)aquiferNumber; }
 
     void            setAsErrorResult()                                  { m_isErrorResult = true; }
     bool            isErrorResult() const                               { return m_isErrorResult; }
     bool            hasAccumulatedData() const;
 
 private:
-    bool                                isValidEclipseCategory() const;
-    static std::string                  baseQuantityName(const std::string& quantityName);
-    std::string                         formatUiTextIJK() const;
-    static std::tuple<int, int, int>    ijkTupleFromUiText(const std::string &s);
-    std::string                         formatUiTextRegionToRegion() const;
-    std::pair<int, int>                 regionToRegionPairFromUiText(const std::string &s);
+    bool                                            isValidEclipseCategory() const;
+    static std::string                              baseQuantityName(const std::string& quantityName);
+    std::string                                     formatUiTextIJK() const;
+    static std::tuple<int32_t, int32_t, int32_t>    ijkTupleFromUiText(const std::string &s);
+    std::string                                     formatUiTextRegionToRegion() const;
+    std::pair<int16_t, int16_t>                     regionToRegionPairFromUiText(const std::string &s);
 
-    SummaryVarCategory  m_variableCategory;
     std::string         m_quantityName;
-    int                 m_regionNumber;
-    int                 m_regionNumber2;
     std::string         m_wellGroupName;
     std::string         m_wellName;
-    int                 m_wellSegmentNumber;
     std::string         m_lgrName;
-    int                 m_cellI;
-    int                 m_cellJ;
-    int                 m_cellK;
-    int                 m_aquiferNumber;
-
+    int32_t             m_cellI;
+    int32_t             m_cellJ;
+    int32_t             m_cellK;
+    int16_t             m_regionNumber;
+    int16_t             m_regionNumber2;
+    int16_t             m_wellSegmentNumber;
+    int16_t             m_aquiferNumber;
+    SummaryVarCategory  m_variableCategory;
     bool                m_isErrorResult;
 };
 

@@ -160,11 +160,21 @@ void RimEnsembleCurveSetCollection::addCurveSet(RimEnsembleCurveSet* curveSet)
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleCurveSetCollection::deleteCurveSet(RimEnsembleCurveSet* curveSet)
 {
-    if (curveSet)
+    deleteCurveSets({ curveSet });
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimEnsembleCurveSetCollection::deleteCurveSets(const std::vector<RimEnsembleCurveSet*> curveSets)
+{
+    for(const auto curveSet : curveSets)
     {
         m_curveSets.removeChildObject(curveSet);
+        curveSet->markCachedDataForPurge();
         delete curveSet;
     }
+
 }
 
 //--------------------------------------------------------------------------------------------------

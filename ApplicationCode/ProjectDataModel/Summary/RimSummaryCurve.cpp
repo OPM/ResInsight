@@ -741,6 +741,14 @@ void RimSummaryCurve::forceUpdateCurveAppearanceFromCaseType()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimSummaryCurve::markCachedDataForPurge()
+{
+    valuesSummaryReaderY()->markForCachePurge(m_yValuesCurveVariable->address());
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimSummaryCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
     this->RimPlotCurve::fieldChangedByUi(changedField, oldValue, newValue);

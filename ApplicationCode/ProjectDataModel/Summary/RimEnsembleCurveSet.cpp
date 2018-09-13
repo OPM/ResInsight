@@ -304,6 +304,7 @@ void RimEnsembleCurveSet::deleteCurve(RimSummaryCurve* curve)
     if (curve)
     {
         m_curves.removeChildObject(curve);
+        curve->markCachedDataForPurge();
         delete curve;
     }
 }
@@ -1095,6 +1096,17 @@ RimEnsembleCurveSet* RimEnsembleCurveSet::clone() const
 void RimEnsembleCurveSet::showCurves(bool show)
 {
     m_showCurves = show;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimEnsembleCurveSet::markCachedDataForPurge()
+{
+    for (const auto curve : m_curves)
+    {
+        curve->markCachedDataForPurge();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

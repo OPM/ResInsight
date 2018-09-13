@@ -100,5 +100,7 @@ protected:
 private:
     caf::PdmField<QString>                   m_name;
     caf::PdmProxyValueField<QString>         m_nameAndItemCount;
-    caf::PdmField<bool>                      m_isEnsemble; 
+    caf::PdmField<bool>                      m_isEnsemble;
+
+    size_t                                   m_commonAddressCount;      // if different address count among cases, set to 0
 };

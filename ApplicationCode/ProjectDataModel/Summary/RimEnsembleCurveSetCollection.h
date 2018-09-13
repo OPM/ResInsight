@@ -50,6 +50,7 @@ public:
 
     void                                    addCurveSet(RimEnsembleCurveSet* curveSet);
     void                                    deleteCurveSet(RimEnsembleCurveSet* curveSet);
+    void                                    deleteCurveSets(const std::vector<RimEnsembleCurveSet*> curveSets);
 
     std::vector<RimEnsembleCurveSet*>       curveSets() const;
     size_t                                  curveSetCount() const;

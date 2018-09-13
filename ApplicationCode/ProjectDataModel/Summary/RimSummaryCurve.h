@@ -79,6 +79,8 @@ public:
     virtual QString                         curveExportDescription(const RifEclipseSummaryAddress& address = RifEclipseSummaryAddress()) const override;
     void                                    forceUpdateCurveAppearanceFromCaseType();
 
+    void                                    markCachedDataForPurge();
+
 protected:
     // RimPlotCurve overrides
     virtual QString                         createCurveAutoName() override;

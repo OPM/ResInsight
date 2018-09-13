@@ -43,12 +43,12 @@ RifEclipseSummaryAddress::RifEclipseSummaryAddress(SummaryVarCategory category,
     m_aquiferNumber(-1),
     m_isErrorResult(false)
 {
-    std::tuple<int, int, int> ijkTuple;
-    std::pair<int, int> reg2regPair;
+    std::tuple<int32_t, int32_t, int32_t> ijkTuple;
+    std::pair<int16_t, int16_t> reg2regPair;
     switch (category)
     {
     case SUMMARY_REGION:
-        m_regionNumber = RiaStdStringTools::toInt(identifiers[INPUT_REGION_NUMBER]);
+        m_regionNumber = RiaStdStringTools::toInt16(identifiers[INPUT_REGION_NUMBER]);
         break;
     case SUMMARY_REGION_2_REGION:
         reg2regPair = regionToRegionPairFromUiText(identifiers[INPUT_REGION_2_REGION]);
@@ -783,14 +783,14 @@ std::string RifEclipseSummaryAddress::formatUiTextRegionToRegion() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::pair<int, int> RifEclipseSummaryAddress::regionToRegionPairFromUiText(const std::string &s)
+std::pair<int16_t, int16_t> RifEclipseSummaryAddress::regionToRegionPairFromUiText(const std::string &s)
 {
     QStringList r2r = QString().fromStdString(s).trimmed().split(QRegExp("[-]"));
 
-    if (r2r.size() != 2) return std::make_pair(-1, -1);
+    if (r2r.size() != 2) return std::make_pair((int16_t)-1, (int16_t)-1);
 
-    return std::make_pair(RiaStdStringTools::toInt(r2r[0].trimmed().toStdString()),
-                          RiaStdStringTools::toInt(r2r[1].trimmed().toStdString()));
+    return std::make_pair(RiaStdStringTools::toInt16(r2r[0].trimmed().toStdString()),
+                          RiaStdStringTools::toInt16(r2r[1].trimmed().toStdString()));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -890,7 +890,6 @@ bool operator!=(const RifEclipseSummaryAddress& first, const RifEclipseSummaryAd
 //--------------------------------------------------------------------------------------------------
 bool operator<(const RifEclipseSummaryAddress& first, const RifEclipseSummaryAddress& second)
 {
-    if(first.category() != second.category())         return first.category() < second.category();
     if(first.quantityName() != second.quantityName()) return first.quantityName() < second.quantityName();
 
     switch(first.category())

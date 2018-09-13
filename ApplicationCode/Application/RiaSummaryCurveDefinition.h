@@ -37,7 +37,7 @@ public:
     RiaSummaryCurveDefinition();
     explicit RiaSummaryCurveDefinition(RimSummaryCase* summaryCase,
                                        const RifEclipseSummaryAddress& summaryAddress,
-                                       RimSummaryCaseCollection* emsemble = nullptr);
+                                       RimSummaryCaseCollection* ensemble = nullptr);
 
     RimSummaryCase*                 summaryCase() const;
     const RifEclipseSummaryAddress& summaryAddress() const;

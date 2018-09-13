@@ -60,7 +60,7 @@
 
 #include <set>
 #include <limits>
-
+#include <QDebug>
 
 CAF_PDM_SOURCE_INIT(RimSummaryPlot, "SummaryPlot");
 
@@ -953,7 +953,15 @@ void RimSummaryPlot::addCurveNoUpdate(RimSummaryCurve* curve)
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::deleteCurve(RimSummaryCurve* curve)
 {
-    if (curve)
+    deleteCurves({ curve });
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlot::deleteCurves(const std::vector<RimSummaryCurve*>& curves)
+{
+    for(const auto curve : curves)
     {
         if (m_summaryCurveCollection)
         {
@@ -962,7 +970,7 @@ void RimSummaryPlot::deleteCurve(RimSummaryCurve* curve)
                 if (c == curve)
                 {
                     m_summaryCurveCollection->deleteCurve(curve);
-                    return;
+                    continue;
                 }
             }
         }
@@ -983,12 +991,13 @@ void RimSummaryPlot::deleteCurve(RimSummaryCurve* curve)
                             }
                             m_ensembleCurveSetCollection->deleteCurveSet(curveSet);
                         }
-                        return;
+                        continue;
                     }
                 }
             }
         }
     }
+    updateCaseNameHasChanged();
 }
 
 //--------------------------------------------------------------------------------------------------

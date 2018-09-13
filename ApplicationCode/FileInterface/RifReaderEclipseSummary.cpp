@@ -105,7 +105,7 @@ RifReaderEclipseSummary::RifReaderEclipseSummary()
     : m_ecl_sum(nullptr), 
       m_ecl_SmSpec(nullptr)
 {
-
+    m_valuesCache.reset(new ValuesCache());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -384,7 +384,12 @@ bool RifReaderEclipseSummary::values(const RifEclipseSummaryAddress& resultAddre
     values->clear();
     values->reserve(timeStepCount());
 
-    if (m_ecl_SmSpec)
+    const std::vector<double>& cachedValues = m_valuesCache->getValues(resultAddress);
+    if (!cachedValues.empty())
+    {
+        values->insert(values->begin(), cachedValues.begin(), cachedValues.end());
+    }
+    else if (m_ecl_SmSpec)
     {
         const smspec_node_type* ertSumVarNode = ecl_smspec_iget_node(m_ecl_SmSpec, variableIndex);
         int paramsIndex = smspec_node_get_params_index(ertSumVarNode);
@@ -398,6 +403,8 @@ bool RifReaderEclipseSummary::values(const RifEclipseSummaryAddress& resultAddre
                 values->push_back(double_vector_iget(dataValues, i));
             }
             free(dataValues);
+
+            m_valuesCache->insertValues(resultAddress, *values);
         }
     }
 
@@ -519,6 +526,22 @@ std::string RifReaderEclipseSummary::unitName(const RifEclipseSummaryAddress& re
     return smspec_node_get_unit(ertSumVarNode);
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RifReaderEclipseSummary::markForCachePurge(const RifEclipseSummaryAddress& address)
+{
+    m_valuesCache->markAddressForPurge(address);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RifReaderEclipseSummary::purgeCache()
+{
+    ValuesCache::purge();
+}
+
 #if 0
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -534,3 +557,76 @@ void RifReaderEclipseSummary::populateVectorFromStringList(stringlist_type* stri
 }
 
 #endif
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const std::vector<double>                       RifReaderEclipseSummary::ValuesCache::EMPTY_VECTOR;
+std::set<RifReaderEclipseSummary::ValuesCache*> RifReaderEclipseSummary::ValuesCache::m_instances;
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RifReaderEclipseSummary::ValuesCache::ValuesCache()
+{
+    // Register instance
+    m_instances.insert(this);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RifReaderEclipseSummary::ValuesCache::~ValuesCache()
+{
+    // Deregister instance
+    m_instances.erase(this);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RifReaderEclipseSummary::ValuesCache::insertValues(const RifEclipseSummaryAddress& address, const std::vector<double>& values)
+{
+    m_cachedValues[address] = values;
+    m_purgeList.erase(address);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const std::vector<double>& RifReaderEclipseSummary::ValuesCache::getValues(const RifEclipseSummaryAddress& address) const
+{
+    if (m_cachedValues.find(address) != m_cachedValues.end())
+    {
+        return m_cachedValues.at(address);
+    }
+    return EMPTY_VECTOR;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RifReaderEclipseSummary::ValuesCache::markAddressForPurge(const RifEclipseSummaryAddress& address)
+{
+    m_purgeList.insert(address);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RifReaderEclipseSummary::ValuesCache::purge()
+{
+    for (auto instance : m_instances) instance->purgeData();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RifReaderEclipseSummary::ValuesCache::purgeData()
+{
+    for (const auto purgeAddr : m_purgeList)
+    {
+        m_cachedValues.erase(purgeAddr);
+    }
+    m_purgeList.clear();
+}

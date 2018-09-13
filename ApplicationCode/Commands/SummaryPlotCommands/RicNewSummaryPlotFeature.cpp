@@ -34,6 +34,8 @@
 #include "RimSummaryPlotCollection.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseCollection.h"
+#include "RimProject.h"
+#include "RimSummaryCaseMainCollection.h"
 
 #include "RiuPlotMainWindow.h"
 
@@ -88,6 +90,23 @@ void RicNewSummaryPlotFeature::onActionTriggered(bool isChecked)
     std::vector<RimSummaryCaseCollection*> selectedGroups = caf::selectedObjectsByType<RimSummaryCaseCollection*>();
 
     std::vector<caf::PdmObject*> sourcesToSelect(selectedCases.begin(), selectedCases.end());
+
+    if (sourcesToSelect.empty() && selectedGroups.empty())
+    {
+        const auto allSingleCases = project->firstSummaryCaseMainCollection()->topLevelSummaryCases();
+        const auto allGroups = project->summaryGroups();
+        std::vector<RimSummaryCaseCollection*> allEnsembles;
+        for (const auto group : allGroups) if (group->isEnsemble()) allEnsembles.push_back(group);
+
+        if (!allSingleCases.empty())
+        {
+            sourcesToSelect.push_back(allSingleCases.front());
+        }
+        else if (!allEnsembles.empty())
+        {
+            sourcesToSelect.push_back(allEnsembles.front());
+        }
+    }
 
     // Append grouped cases
     for (auto group : selectedGroups)

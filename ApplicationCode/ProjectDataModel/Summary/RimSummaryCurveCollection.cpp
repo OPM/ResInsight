@@ -179,8 +179,8 @@ void RimSummaryCurveCollection::deleteCurve(RimSummaryCurve* curve)
     if (curve)
     {
         m_curves.removeChildObject(curve);
+        curve->markCachedDataForPurge();
         delete curve;
-        updateCaseNameHasChanged();
     }
 }
 
