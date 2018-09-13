@@ -100,11 +100,7 @@ bool RimFractureContainment::isEclipseCellOpenForFlow(const RigMainGrid*      ma
 
     if (m_truncateAtFaults())
     {
-        if (reservoirCellIndicesOpenForFlow.count(globalCellIndex) > 0)
-        {
-            return true;
-        }
-        else
+        if (reservoirCellIndicesOpenForFlow.count(globalCellIndex) == 0)
         {
             return false;
         }
