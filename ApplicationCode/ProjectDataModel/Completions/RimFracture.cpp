@@ -230,6 +230,8 @@ void RimFracture::fieldChangedByUi(const caf::PdmFieldHandle* changedField, cons
         {
             RiaCompletionTypeCalculationScheduler::instance()->scheduleRecalculateCompletionTypeAndRedrawAllViews();
         }
+
+        RiaApplication::instance()->project()->scheduleCreateDisplayModelAndRedrawAllViews();
     }
 }
 
