@@ -596,7 +596,7 @@ QString RicWellPathFractureTextReportFeatureImpl::createFractureCompletionSummar
         floatNumberColumn("Area"),
         floatNumberColumn("KfWf"),
         floatNumberColumn("Kf"),
-        floatNumberColumn("wf"),
+        floatNumberColumn("Wf"),
         floatNumberColumn("Xf"),
         floatNumberColumn("H"),
         floatNumberColumn("Km"),
