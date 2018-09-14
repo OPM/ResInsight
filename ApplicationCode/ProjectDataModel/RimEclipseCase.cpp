@@ -303,6 +303,7 @@ RimEclipseView* RimEclipseCase::createCopyAndAddView(const RimEclipseView* sourc
 const RigVirtualPerforationTransmissibilities* RimEclipseCase::computeAndGetVirtualPerforationTransmissibilities()
 {
     RigEclipseCaseData* rigEclipseCase = eclipseCaseData();
+    if (!rigEclipseCase) return nullptr;
 
     if (rigEclipseCase->virtualPerforationTransmissibilities() == nullptr)
     {
