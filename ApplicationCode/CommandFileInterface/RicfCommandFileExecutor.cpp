@@ -80,6 +80,11 @@ void RicfCommandFileExecutor::executeCommands(QTextStream& stream)
             }
         }
 
+        for (auto fileCommand : fileCommands)
+        {
+            fileCommand->initAfterReadRecursively();
+        }
+
         executableCommands = RicfCommandFileExecutor::prepareFileCommandsForExecution(fileCommands);
     }
 
