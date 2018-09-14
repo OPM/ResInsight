@@ -77,7 +77,7 @@ const std::map<size_t, RigWellPathStimplanIntersector::RigWellPathStimplanInters
 }
 
 //--------------------------------------------------------------------------------------------------
-///  Todo: Use only the perforated parts of the well path
+///
 //--------------------------------------------------------------------------------------------------
 void RigWellPathStimplanIntersector::calculate(const cvf::Mat4d&                           fractureXf,
                                                const std::vector<cvf::Vec3d>&              wellPathPointsDomainCoords,
