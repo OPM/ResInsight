@@ -100,7 +100,7 @@ void RimCellEdgeColors::setReservoirView(RimEclipseView* ownerReservoirView)
 //--------------------------------------------------------------------------------------------------
 void RimCellEdgeColors::loadResult()
 {
-    CVF_ASSERT(m_reservoirView && m_reservoirView->currentGridCellResults());
+    if (!m_reservoirView->currentGridCellResults()) return;
 
     if (isUsingSingleVariable())
     {
@@ -438,33 +438,35 @@ void RimCellEdgeColors::minMaxCellEdgeValues(double& min, double& max)
     globalMin = HUGE_VAL;
     globalMax = -HUGE_VAL;
 
-    if (isUsingSingleVariable() && singleVarEdgeResultColors()->isFlowDiagOrInjectionFlooding())
+    if (m_reservoirView->currentGridCellResults())
     {
-        int currentTimeStep = m_reservoirView->currentTimeStep();
-
-        RigFlowDiagResults* fldResults = singleVarEdgeResultColors()->flowDiagSolution()->flowDiagResults();
-        RigFlowDiagResultAddress resAddr = singleVarEdgeResultColors()->flowDiagResAddress();
-
-        fldResults->minMaxScalarValues(resAddr, currentTimeStep, &globalMin, &globalMax);
-    }
-    else
-    {
-        size_t resultIndices[6];
-        this->gridScalarIndices(resultIndices);
-
-        size_t idx;
-        for (idx = 0; idx < 6; idx++)
+        if (isUsingSingleVariable() && singleVarEdgeResultColors()->isFlowDiagOrInjectionFlooding())
         {
-            if (resultIndices[idx] == cvf::UNDEFINED_SIZE_T) continue;
+            int currentTimeStep = m_reservoirView->currentTimeStep();
 
+            RigFlowDiagResults*      fldResults = singleVarEdgeResultColors()->flowDiagSolution()->flowDiagResults();
+            RigFlowDiagResultAddress resAddr    = singleVarEdgeResultColors()->flowDiagResAddress();
+
+            fldResults->minMaxScalarValues(resAddr, currentTimeStep, &globalMin, &globalMax);
+        }
+        else
+        {
+            size_t resultIndices[6];
+            this->gridScalarIndices(resultIndices);
+
+            size_t idx;
+            for (idx = 0; idx < 6; idx++)
             {
-                double cMin, cMax;
-                m_reservoirView->currentGridCellResults()->minMaxCellScalarValues(resultIndices[idx], cMin, cMax);
+                if (resultIndices[idx] == cvf::UNDEFINED_SIZE_T) continue;
 
-                globalMin = CVF_MIN(globalMin, cMin);
-                globalMax = CVF_MAX(globalMax, cMax);
+                {
+                    double cMin, cMax;
+                    m_reservoirView->currentGridCellResults()->minMaxCellScalarValues(resultIndices[idx], cMin, cMax);
+
+                    globalMin = CVF_MIN(globalMin, cMin);
+                    globalMax = CVF_MAX(globalMax, cMax);
+                }
             }
-
         }
     }
 
