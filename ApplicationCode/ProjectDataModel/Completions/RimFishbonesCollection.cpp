@@ -133,7 +133,7 @@ void RimFishbonesCollection::defineUiOrdering(QString uiConfigName, caf::PdmUiOr
     wellGroup->add(&m_startMD);
     wellGroup->add(&m_mainBoreDiameter);
     wellGroup->add(&m_skinFactor);
-    caf::PdmUiGroup* mswGroup = uiOrdering.addNewGroup("Multi Segment Well Properties");
+    caf::PdmUiGroup* mswGroup = uiOrdering.addNewGroup("Multi Segment Well Options");
     m_mswParameters->uiOrdering(uiConfigName, *mswGroup);
     uiOrdering.skipRemainingFields(true);
 }

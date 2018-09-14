@@ -28,8 +28,8 @@ namespace caf {
     template<>
     void RimWellPathFractureCollection::ReferenceMDEnum::setUp()
     {
-        addItem(RimWellPathFractureCollection::AUTO_REFERENCE_MD, "GridIntersectionRefMD", "Use depth where the well path meets grid");
-        addItem(RimWellPathFractureCollection::MANUAL_REFERENCE_MD, "ManualRefMD", "Set Manually");
+        addItem(RimWellPathFractureCollection::AUTO_REFERENCE_MD, "GridIntersectionRefMD", "Grid Entry Point");
+        addItem(RimWellPathFractureCollection::MANUAL_REFERENCE_MD, "ManualRefMD", "User Defined");
         setDefault(RimWellPathFractureCollection::AUTO_REFERENCE_MD);
     }
 }
@@ -50,8 +50,8 @@ RimWellPathFractureCollection::RimWellPathFractureCollection(void)
     setName("Fractures");
     nameField()->uiCapability()->setUiHidden(true);
 
-    CAF_PDM_InitFieldNoDefault(&m_refMDType, "RefMDType", "Reference Depth", "", "", "");
-    CAF_PDM_InitField(&m_refMD, "RefMD", 0.0, "Reference MD", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_refMDType, "RefMDType", "Reference MD", "", "", "");
+    CAF_PDM_InitField(&m_refMD, "RefMD", 0.0, "", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_mswParameters, "MswParameters", "Multi Segment Well Parameters", "", "", "");
     m_mswParameters = new RimMswCompletionParameters;
     m_mswParameters.uiCapability()->setUiTreeHidden(true);
@@ -151,7 +151,7 @@ std::vector<RimWellPathFracture*> RimWellPathFractureCollection::activeFractures
 //--------------------------------------------------------------------------------------------------
 void RimWellPathFractureCollection::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
-    caf::PdmUiGroup* mswGroup = uiOrdering.addNewGroup("Multi Segment Well Properties");
+    caf::PdmUiGroup* mswGroup = uiOrdering.addNewGroup("Multi Segment Well Options");
 
     mswGroup->add(&m_refMDType);
     mswGroup->add(&m_refMD);
