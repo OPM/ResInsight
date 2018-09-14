@@ -35,6 +35,7 @@
 #include "cafPdmUiTableViewEditor.h"
 #include "cafPdmUiTextEditor.h"
 #include "cafSelectionManagerTools.h"
+#include "cafPdmUiPropertyViewDialog.h"
 
 #include "cvfBoundingBox.h"
 
@@ -67,6 +68,12 @@ RicCreateMultipleFracturesOptionItemUi* firstUiOptionContainingK(size_t k,
 
 
 //--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const QString RiuCreateMultipleFractionsUi::ADD_FRACTURES_BUTTON_TEXT = "Add Fractures";
+const QString RiuCreateMultipleFractionsUi::REPLACE_FRACTURES_BUTTON_TEXT = "Replace Fractures";
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RiuCreateMultipleFractionsUi::RiuCreateMultipleFractionsUi()
@@ -85,6 +92,14 @@ RiuCreateMultipleFractionsUi::RiuCreateMultipleFractionsUi()
     m_fractureCreationSummary.registerGetMethod(this, &RiuCreateMultipleFractionsUi::summaryText);
     m_fractureCreationSummary.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::TOP);
     m_fractureCreationSummary.uiCapability()->setUiEditorTypeName(caf::PdmUiTextEditor::uiEditorTypeName());
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuCreateMultipleFractionsUi::setParentDialog(QPointer<caf::PdmUiPropertyViewDialog> dialog)
+{
+    m_dialog = dialog;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -117,13 +132,13 @@ std::vector<RicCreateMultipleFracturesOptionItemUi*> RiuCreateMultipleFractionsU
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuCreateMultipleFractionsUi::insertOptionItem(RicCreateMultipleFracturesOptionItemUi* insertBeforeThisObject,
+void RiuCreateMultipleFractionsUi::insertOptionItem(RicCreateMultipleFracturesOptionItemUi* insertAfterThisObject,
                                                     RicCreateMultipleFracturesOptionItemUi* objectToInsert)
 {
-    size_t index = m_options.index(insertBeforeThisObject);
-    if (index < m_options.size())
+    size_t index = m_options.index(insertAfterThisObject);
+    if (index < m_options.size() - 1)
     {
-        m_options.insert(index, objectToInsert);
+        m_options.insert(index + 1, objectToInsert);
     }
     else
     {
@@ -349,6 +364,41 @@ std::vector<LocationForNewFracture> RiuCreateMultipleFractionsUi::locationsForNe
     return items;
 }
 
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuCreateMultipleFractionsUi::updateButtonsEnableState()
+{
+    if (m_dialog)
+    {
+        bool hasOverlappingK = false;
+        const auto& opts = options();
+        for (int i = 0; i < opts.size(); i++)
+        {
+            for (int j = i + 1; j < opts.size(); j++)
+            {
+                int absMin = std::min(opts[i]->topKLayer(), opts[j]->topKLayer());
+                int absMax = std::max(opts[i]->baseKLayer(), opts[j]->baseKLayer());
+                int leni = opts[i]->baseKLayer() - opts[i]->topKLayer() + 1;
+                int lenj = opts[j]->baseKLayer() - opts[j]->topKLayer() + 1;
+                if (absMax - absMin + 1 < leni + lenj)
+                {
+                    hasOverlappingK = true;
+                    break;
+                }
+            }
+        }
+
+        for (auto button : m_dialog->dialogButtonBox()->buttons())
+        {
+            if (button->text() == ADD_FRACTURES_BUTTON_TEXT || button->text() == REPLACE_FRACTURES_BUTTON_TEXT)
+            {
+                button->setEnabled(!hasOverlappingK);
+            }
+        }
+    }
+}
 
 //--------------------------------------------------------------------------------------------------
 /// Internal definitions

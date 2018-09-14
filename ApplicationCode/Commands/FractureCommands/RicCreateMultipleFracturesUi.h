@@ -20,6 +20,8 @@
 
 #include "RicCreateMultipleFracturesOptionItemUi.h"
 
+#include <QPointer>
+
 #include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
@@ -28,6 +30,11 @@
 class RimEclipseCase;
 class RimWellPath;
 class RigMainGrid;
+
+namespace caf
+{
+    class PdmUiPropertyViewDialog;
+}
 
 //==================================================================================================
 ///
@@ -60,14 +67,18 @@ class RiuCreateMultipleFractionsUi : public caf::PdmObject
     CAF_PDM_HEADER_INIT;
 
 public:
+    static const QString ADD_FRACTURES_BUTTON_TEXT;
+    static const QString REPLACE_FRACTURES_BUTTON_TEXT;
+
     RiuCreateMultipleFractionsUi();
 
+    void setParentDialog(QPointer<caf::PdmUiPropertyViewDialog> dialog);
     void setValues(RimEclipseCase* eclipseCase, double minimumDistanceFromWellTip, int maxFracturesPerWell);
     void resetValues();
 
     std::vector<RicCreateMultipleFracturesOptionItemUi*> options() const;
 
-    void insertOptionItem(RicCreateMultipleFracturesOptionItemUi* insertBeforeThisObject,
+    void insertOptionItem(RicCreateMultipleFracturesOptionItemUi* insertAfterThisObject,
                           RicCreateMultipleFracturesOptionItemUi* objectToInsert);
 
     void deleteOptionItem(RicCreateMultipleFracturesOptionItemUi* optionsItem);
@@ -79,6 +90,8 @@ public:
     void clearWellPaths();
 
     std::vector<LocationForNewFracture> locationsForNewFractures() const;
+
+    void updateButtonsEnableState();
 
 private:
     virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions,
@@ -100,4 +113,6 @@ private:
     caf::PdmProxyValueField<QString> m_fractureCreationSummary;
 
     std::vector<RimWellPath*>       m_wellPaths;
+
+    QPointer<caf::PdmUiPropertyViewDialog> m_dialog;
 };

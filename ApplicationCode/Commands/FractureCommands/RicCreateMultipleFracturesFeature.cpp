@@ -47,6 +47,7 @@
 
 CAF_CMD_SOURCE_INIT(RicCreateMultipleFracturesFeature, "RicCreateMultipleFracturesFeature");
 
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -231,6 +232,7 @@ void RicCreateMultipleFracturesFeature::onActionTriggered(bool isChecked)
             Riu3DMainWindowTools::mainWindowWidget(), multipleFractionsUi, "Create Multiple Fractures", "");
 
         m_dialog = &propertyDialog;
+        multipleFractionsUi->setParentDialog(m_dialog);
 
         propertyDialog.resize(QSize(700, 450));
 
@@ -239,7 +241,7 @@ void RicCreateMultipleFracturesFeature::onActionTriggered(bool isChecked)
         dialogButtonBox->clear();
 
         {
-            QPushButton* pushButton = dialogButtonBox->addButton("Replace Fractures", QDialogButtonBox::ActionRole);
+            QPushButton* pushButton = dialogButtonBox->addButton(RiuCreateMultipleFractionsUi::REPLACE_FRACTURES_BUTTON_TEXT, QDialogButtonBox::ActionRole);
             connect(pushButton, SIGNAL(clicked()), this, SLOT(slotDeleteAndAppendFractures()));
             pushButton->setDefault(false);
             pushButton->setAutoDefault(false);
@@ -247,18 +249,11 @@ void RicCreateMultipleFracturesFeature::onActionTriggered(bool isChecked)
         }
 
         {
-            QPushButton* pushButton = dialogButtonBox->addButton("Add Fractures", QDialogButtonBox::ActionRole);
+            QPushButton* pushButton = dialogButtonBox->addButton(RiuCreateMultipleFractionsUi::ADD_FRACTURES_BUTTON_TEXT, QDialogButtonBox::ActionRole);
             connect(pushButton, SIGNAL(clicked()), this, SLOT(slotAppendFractures()));
             pushButton->setDefault(false);
             pushButton->setAutoDefault(false);
             pushButton->setToolTip("Add new fractures");
-        }
-
-        {
-            QPushButton* pushButton = dialogButtonBox->addButton("Cancel", QDialogButtonBox::ActionRole);
-            connect(pushButton, SIGNAL(clicked()), this, SLOT(slotCancel()));
-            pushButton->setDefault(false);
-            pushButton->setAutoDefault(false);
         }
 
         {

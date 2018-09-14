@@ -76,14 +76,16 @@ void RicNewOptionItemFeature::onActionTriggered(bool isChecked)
     if (multipleFractionUi)
     {
         auto newItem = new RicCreateMultipleFracturesOptionItemUi();
+
         if (selectedOptionItem)
         {
-            newItem->setValues(selectedOptionItem->topKLayer(),
-                               selectedOptionItem->baseKLayer(),
+            newItem->setValues(selectedOptionItem->baseKLayer() + 1,
+                               selectedOptionItem->baseKLayer() + 1,
                                selectedOptionItem->fractureTemplate(),
                                selectedOptionItem->minimumSpacing());
         }
         multipleFractionUi->insertOptionItem(selectedOptionItem, newItem);
+        multipleFractionUi->updateButtonsEnableState();
         multipleFractionUi->updateConnectedEditors();
     }
 }

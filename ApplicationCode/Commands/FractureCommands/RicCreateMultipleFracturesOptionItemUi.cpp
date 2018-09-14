@@ -105,10 +105,20 @@ void RicCreateMultipleFracturesOptionItemUi::fieldChangedByUi(const caf::PdmFiel
                                                               const QVariant&            oldValue,
                                                               const QVariant&            newValue)
 {
+    if (changedField == &m_topKOneBased)
+    {
+        if (m_topKOneBased > m_baseKOneBased) m_baseKOneBased = m_topKOneBased;
+    }
+    else if (changedField = &m_baseKOneBased)
+    {
+        if (m_baseKOneBased < m_topKOneBased) m_topKOneBased = m_baseKOneBased;
+    }
+
     RiuCreateMultipleFractionsUi* parent = nullptr;
     this->firstAncestorOrThisOfType(parent);
     if (parent)
     {
+        parent->updateButtonsEnableState();
         parent->updateConnectedEditors();
     }
 }
