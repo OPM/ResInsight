@@ -110,6 +110,11 @@ std::vector<RigCompletionData>
 
         for (WellBorePartForTransCalc wellBorePart : wellBoreParts)
         {
+            if (wellBorePart.isMainBore && settings.excludeMainBoreForFishbones())
+            {
+                continue;
+            }
+
             RigCompletionData completion(wellPath->completions()->wellNameForExport(),
                                          RigCompletionDataGridCell(globalCellIndex, settings.caseToApply->mainGrid()),
                                          wellBorePart.intersectionWithWellMeasuredDepth);
@@ -199,10 +204,9 @@ void RicFishbonesTransmissibilityCalculationFeatureImp::findFishboneLateralsWell
         }
     }
 
-    if (!settings.excludeMainBoreForFishbones())
     {
         // Note that it is not supported to export main bore perforation intervals for Imported Laterals, only for fishbones
-        // defined by ResInsight
+        // defined by ResInsight. It is not trivial to define the open section of the main bore for imported laterals.
 
         if (wellPath->fishbonesCollection()->isChecked())
         {
