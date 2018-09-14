@@ -21,7 +21,6 @@
 #include "RicWellPathFractureReportItem.h"
 
 #include "RiaLogging.h"
-#include "RiaWeightedAverageCalculator.h"
 
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"

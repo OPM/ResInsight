@@ -32,7 +32,7 @@
 #include "RigResultAccessorFactory.h"
 #include "RigTransmissibilityCondenser.h"
 
-#include "RiaWeightedAverageCalculator.h"
+#include "RiaWeightedMeanCalculator.h"
 #include "RimEclipseCase.h"
 #include "RimEllipseFractureTemplate.h"
 #include "RimFracture.h"
@@ -146,7 +146,7 @@ double RigEclipseToStimPlanCalculator::totalEclipseAreaOpenForFlow() const
 //--------------------------------------------------------------------------------------------------
 double RigEclipseToStimPlanCalculator::areaWeightedMatrixTransmissibility() const
 {
-    RiaWeightedAverageCalculator<double> calc;
+    RiaWeightedMeanCalculator<double> calc;
 
     for (const auto& singleCellCalc : m_singleFractureCellCalculators)
     {
@@ -155,7 +155,7 @@ double RigEclipseToStimPlanCalculator::areaWeightedMatrixTransmissibility() cons
         calc.addValueAndWeight(calulator.aggregatedMatrixTransmissibility(), calulator.areaOpenForFlow());
     }
 
-    return calc.weightedAverage();
+    return calc.weightedMean();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -174,7 +174,7 @@ double RigEclipseToStimPlanCalculator::areaWeightedWidth() const
     auto stimPlanFractureTemplate = dynamic_cast<const RimStimPlanFractureTemplate*>(m_fracture->fractureTemplate());
     if (stimPlanFractureTemplate)
     {
-        RiaWeightedAverageCalculator<double> calc;
+        RiaWeightedMeanCalculator<double> calc;
 
         auto widthValues = stimPlanFractureTemplate->widthResultValues();
 
@@ -188,7 +188,7 @@ double RigEclipseToStimPlanCalculator::areaWeightedWidth() const
             calc.addValueAndWeight(widthValue, cellArea);
         }
 
-        width = calc.weightedAverage();
+        width = calc.weightedMean();
     }
 
     return width;
@@ -199,7 +199,7 @@ double RigEclipseToStimPlanCalculator::areaWeightedWidth() const
 //--------------------------------------------------------------------------------------------------
 double RigEclipseToStimPlanCalculator::areaWeightedConductivity() const
 {
-    RiaWeightedAverageCalculator<double> calc;
+    RiaWeightedMeanCalculator<double> calc;
 
     for (const auto& singleCellCalc : m_singleFractureCellCalculators)
     {
@@ -208,7 +208,7 @@ double RigEclipseToStimPlanCalculator::areaWeightedConductivity() const
         calc.addValueAndWeight(singleCellCalc.second.fractureCell().getConductivityValue(), cellArea);
     }
 
-    return calc.weightedAverage();
+    return calc.weightedMean();
 }
 
 //--------------------------------------------------------------------------------------------------

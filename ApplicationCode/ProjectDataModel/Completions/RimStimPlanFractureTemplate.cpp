@@ -22,7 +22,7 @@
 #include "RiaCompletionTypeCalculationScheduler.h"
 #include "RiaFractureDefines.h"
 #include "RiaLogging.h"
-#include "RiaWeightedAverageCalculator.h"
+#include "RiaWeightedMeanCalculator.h"
 
 #include "RifStimPlanXmlReader.h"
 
@@ -474,8 +474,8 @@ FractureWidthAndConductivity
                             nameUnit.first, nameUnit.second, m_activeTimeStepIndex, fractureTemplateUnit());
                     }
 
-                    RiaWeightedAverageCalculator<double> widthCalc;
-                    RiaWeightedAverageCalculator<double> conductivityCalc;
+                    RiaWeightedMeanCalculator<double> widthCalc;
+                    RiaWeightedMeanCalculator<double> conductivityCalc;
 
                     RigWellPathStimplanIntersector intersector(rimWellPath->wellPathGeometry(), fractureInstance);
                     for (const auto& v : intersector.intersections())
@@ -496,11 +496,11 @@ FractureWidthAndConductivity
                     }
                     if (conductivityCalc.validAggregatedWeight())
                     {
-                        weightedConductivity = conductivityCalc.weightedAverage();
+                        weightedConductivity = conductivityCalc.weightedMean();
                     }
                     if (widthCalc.validAggregatedWeight())
                     {
-                        weightedWidth = widthCalc.weightedAverage();
+                        weightedWidth = widthCalc.weightedMean();
                         totalLength   = widthCalc.aggregatedWeight();
                     }
                 }

@@ -16,14 +16,17 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
+#include "RiaWeightedHarmonicMeanCalculator.h"
+
 #include "cvfAssert.h"
+
+#include <cmath>
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-template<class T>
-RiaWeightedAverageCalculator<T>::RiaWeightedAverageCalculator()
-    : m_aggregatedValue(T{})
+RiaWeightedHarmonicMeanCalculator::RiaWeightedHarmonicMeanCalculator()
+    : m_aggregatedWeightedValue(0.0)
     , m_aggregatedWeight(0.0)
 {
 }
@@ -31,45 +34,39 @@ RiaWeightedAverageCalculator<T>::RiaWeightedAverageCalculator()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-template<class T>
-void RiaWeightedAverageCalculator<T>::addValueAndWeight(T value, double weight)
+void RiaWeightedHarmonicMeanCalculator::addValueAndWeight(double value, double weight)
 {
-    CVF_ASSERT(weight >= 0.0);
+    CVF_ASSERT(weight > 1.0e-12 && std::abs(value) > 1.0e-12);
 
-    m_aggregatedValue = m_aggregatedValue + value * weight;
+    m_aggregatedWeightedValue += weight / value;
     m_aggregatedWeight += weight;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-template<class T>
-T RiaWeightedAverageCalculator<T>::weightedAverage() const
-{
-    bool validWeights = validAggregatedWeight();
-    CVF_TIGHT_ASSERT(validWeights);
-    if (validWeights)
+double RiaWeightedHarmonicMeanCalculator::weightedMean() const
+{    
+    if (validAggregatedWeight())
     {
-        return m_aggregatedValue * (1.0 / m_aggregatedWeight);
+        return m_aggregatedWeight / m_aggregatedWeightedValue;
     }
-    return T{};
+    CVF_ASSERT(false);
+    return 0.0;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-template<class T>
-double RiaWeightedAverageCalculator<T>::aggregatedWeight() const
+double RiaWeightedHarmonicMeanCalculator::aggregatedWeight() const
 {
     return m_aggregatedWeight;
 }
 
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-template<class T>
-bool RiaWeightedAverageCalculator<T>::validAggregatedWeight() const
+bool RiaWeightedHarmonicMeanCalculator::validAggregatedWeight() const
 {
     return m_aggregatedWeight > 1.0e-12;
 }

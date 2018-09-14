@@ -23,7 +23,7 @@
 #include "RigGeoMechWellLogExtractor.h"
 
 #include "RiaDefines.h"
-#include "RiaWeightedAverageCalculator.h"
+#include "RiaWeightedMeanCalculator.h"
 #include "RigFemTypes.h"
 #include "RigGeoMechBoreHoleStressCalculator.h"
 #include "RigFemPart.h"
@@ -316,7 +316,7 @@ void RigGeoMechWellLogExtractor::wellPathScaledCurveData(const RigFemResultAddre
         float averageUnscaledValue = std::numeric_limits<float>::infinity();
         bool validAverage = averageIntersectionValuesToSegmentValue(intersectionIdx, interpolatedInterfaceValues, std::numeric_limits<float>::infinity(), &averageUnscaledValue);
 
-        if (resAddr.fieldName == "PP")
+        if (resAddr.fieldName == "PP" && validAverage)
         {
             double segmentPorePressureFromGrid = averageUnscaledValue;
             averageUnscaledValue = calculatePorePressureInSegment(intersectionIdx, segmentPorePressureFromGrid, hydroStaticPorePressureBar, effectiveDepthMeters, poreElementPressuresPascal);
@@ -776,7 +776,7 @@ double RigGeoMechWellLogExtractor::getWellLogSegmentValue(size_t intersectionIdx
         endMD = m_intersectionMeasuredDepths[intersectionIdx];
     }
 
-    RiaWeightedAverageCalculator<double> averageCalc;
+    RiaWeightedMeanCalculator<double> averageCalc;
     for (auto& depthAndValue : wellLogValues)
     {
         if (cvf::Math::valueInRange(depthAndValue.first, startMD, endMD))
@@ -794,7 +794,7 @@ double RigGeoMechWellLogExtractor::getWellLogSegmentValue(size_t intersectionIdx
     }
     if (averageCalc.validAggregatedWeight())
     {
-        return averageCalc.weightedAverage();
+        return averageCalc.weightedMean();
     }
 
     return std::numeric_limits<double>::infinity();
@@ -842,12 +842,12 @@ bool RigGeoMechWellLogExtractor::averageIntersectionValuesToSegmentValue(size_t 
         return false;
     }
 
-    RiaWeightedAverageCalculator<T> averageCalc;
+    RiaWeightedMeanCalculator<T> averageCalc;
     averageCalc.addValueAndWeight(value1, dist2);
     averageCalc.addValueAndWeight(value2, dist1);
     if (averageCalc.validAggregatedWeight())
     {
-        *averagedCellValue = averageCalc.weightedAverage();
+        *averagedCellValue = averageCalc.weightedMean();
     }
     return true;
 }
