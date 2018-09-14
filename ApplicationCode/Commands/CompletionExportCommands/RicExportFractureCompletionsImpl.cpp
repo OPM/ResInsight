@@ -61,7 +61,9 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
     RimWellPath*                                wellPath,
     RimEclipseCase*                             caseToApply,
     std::vector<RicWellPathFractureReportItem>* fractureDataForReport,
-    QTextStream*                                outputStreamForIntermediateResultsText)
+    QTextStream*                                outputStreamForIntermediateResultsText,
+    PressureDepletionTransScaling               pressureDropScaling,
+    PressureDepletionTransCorrection            transCorrection)
 {
     std::vector<const RimFracture*> fracturesAlongWellPath;
 
@@ -77,7 +79,7 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
                                  wellPath->wellPathGeometry(),
                                  fracturesAlongWellPath,
                                  fractureDataForReport,
-                                 outputStreamForIntermediateResultsText);
+                                 outputStreamForIntermediateResultsText, pressureDropScaling, transCorrection);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -86,7 +88,9 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
 std::vector<RigCompletionData>
     RicExportFractureCompletionsImpl::generateCompdatValuesForSimWell(RimEclipseCase*         eclipseCase,
                                                                       const RimSimWellInView* well,
-                                                                      QTextStream* outputStreamForIntermediateResultsText)
+                                                                      QTextStream* outputStreamForIntermediateResultsText,
+                                                                      PressureDepletionTransScaling    pressureDropScaling,
+                                                                      PressureDepletionTransCorrection transCorrection)
 {
     std::vector<RigCompletionData> completionData;
 
@@ -104,7 +108,7 @@ std::vector<RigCompletionData>
         }
 
         std::vector<RigCompletionData> branchCompletions = generateCompdatValues(
-            eclipseCase, well->name(), branches[branchIndex], fractures, nullptr, outputStreamForIntermediateResultsText);
+            eclipseCase, well->name(), branches[branchIndex], fractures, nullptr, outputStreamForIntermediateResultsText, pressureDropScaling, transCorrection);
 
         completionData.insert(completionData.end(), branchCompletions.begin(), branchCompletions.end());
     }
@@ -121,7 +125,9 @@ std::vector<RigCompletionData>
                                                             const RigWellPath*                          wellPathGeometry,
                                                             const std::vector<const RimFracture*>&      fractures,
                                                             std::vector<RicWellPathFractureReportItem>* fractureDataReportItems,
-                                                            QTextStream* outputStreamForIntermediateResultsText)
+                                                            QTextStream*                  outputStreamForIntermediateResultsText,
+                                                            PressureDepletionTransScaling pressureDropScaling,
+                                                            PressureDepletionTransCorrection transCorrection)
 {
     std::vector<RigCompletionData> fractureCompletions;
 
@@ -166,8 +172,14 @@ std::vector<RigCompletionData>
         caseToApply->loadStaticResultsByName(resultNames);
     }
 
+    if (pressureDropScaling != NO_SCALING)
+    {
+        RigCaseCellResultsData* results = caseToApply->results(RiaDefines::MATRIX_MODEL);
+        results->findOrLoadScalarResult(RiaDefines::DYNAMIC_NATIVE, "PRESSURE");
+    }
+
     return generateCompdatValuesConst(
-        caseToApply, wellPathName, wellPathGeometry, fractures, fractureDataReportItems, outputStreamForIntermediateResultsText);
+        caseToApply, wellPathName, wellPathGeometry, fractures, fractureDataReportItems, outputStreamForIntermediateResultsText, pressureDropScaling, transCorrection);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -179,7 +191,9 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
     const RigWellPath*                          wellPathGeometry,
     const std::vector<const RimFracture*>&      fractures,
     std::vector<RicWellPathFractureReportItem>* fractureDataReportItems,
-    QTextStream*                                outputStreamForIntermediateResultsText)
+    QTextStream*                                outputStreamForIntermediateResultsText,
+    PressureDepletionTransScaling               pressureDropScaling,
+    PressureDepletionTransCorrection            transCorrection)
 {
     std::vector<RigCompletionData> fractureCompletions;
 
@@ -190,6 +204,17 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
 
     double             cDarcyInCorrectUnit = RiaEclipseUnitTools::darcysConstant(caseToApply->eclipseCaseData()->unitsType());
     const RigMainGrid* mainGrid            = caseToApply->eclipseCaseData()->mainGrid();
+
+    const RigCaseCellResultsData* results = caseToApply->results(RiaDefines::MATRIX_MODEL);
+    size_t pressureResultIndex = results->findScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, "PRESSURE");
+    const RigActiveCellInfo* actCellInfo = caseToApply->eclipseCaseData()->activeCellInfo(RiaDefines::MATRIX_MODEL);
+    
+    const std::vector<double>& originalMatrixPressures = results->cellScalarResults(pressureResultIndex).front();
+    const std::vector<double>& currentMatrixPressures = results->cellScalarResults(pressureResultIndex).back();
+
+    // TODO: extract well pressure
+    double originalWellPressure = 200;
+    double currentWellPressure  = 200;
 
     // To handle several fractures in the same eclipse cell we need to keep track of the transmissibility
     // to the well from each fracture intersecting the cell and sum these transmissibilities at the end.
@@ -239,7 +264,67 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
 
         /////
         // Insert total transmissibility from eclipse-cell to well for this fracture into the map
-        std::map<size_t, double>       matrixToWellTrans = calculateMatrixToWellTransmissibilities(transCondenser);
+        std::map<size_t, double> matrixToWellTrans = calculateMatrixToWellTransmissibilities(transCondenser);
+
+        if (pressureDropScaling == MATRIX_TO_FRACTURE_DP_OVER_MAX_DP || pressureDropScaling == MATRIX_TO_FRACTURE_DP_OVER_AVG_DP)
+        {
+            RigTransmissibilityCondenser scaledCondenser = transCondenser;
+            // 1. Scale matrix to fracture transmissibilities by matrix to fracture pressure
+            std::map<size_t, double> originalLumpedMatrixToFractureTrans =
+                scaledCondenser.scaleMatrixTransmissibilitiesByPressureMatrixFracture(actCellInfo,
+                                                                                      currentWellPressure,
+                                                                                      currentMatrixPressures,
+                                                                                      pressureDropScaling ==
+                                                                                          MATRIX_TO_FRACTURE_DP_OVER_AVG_DP);
+            // 2: Calculate new external transmissibilities
+            scaledCondenser.calculateCondensedTransmissibilities();
+
+            if (transCorrection == NO_CORRECTION)
+            {
+                // Calculate effective matrix to well transmissibilities.
+                std::map<size_t, double> effectiveMatrixToWellTransBeforeCorrection = calculateMatrixToWellTransmissibilities(scaledCondenser);
+                matrixToWellTrans = effectiveMatrixToWellTransBeforeCorrection;
+            }
+            else if (transCorrection == HOGSTOL_CORRECTION)
+            {
+                // Høgstøl correction.
+                // 1. Calculate new effective fracture to well transmissiblities
+                std::map<size_t, double> fictitiousFractureToWellTransmissibilities = scaledCondenser.calculateFicticiousFractureToWellTransmissibilities();
+                // 2. Calculate new effective matrix to well transmissibilities
+                std::map<size_t, double> effectiveMatrixToWellTrans = scaledCondenser.calculateEffectiveMatrixToWellTransmissibilities(
+                    originalLumpedMatrixToFractureTrans, fictitiousFractureToWellTransmissibilities);
+                matrixToWellTrans = effectiveMatrixToWellTrans;
+            }
+        }
+        else if (pressureDropScaling == MATRIX_TO_WELL_DP_OVER_INITIAL_DP)
+        {
+            RigTransmissibilityCondenser scaledCondenser = transCondenser;
+            // From Høgstøl "Hydraulic Fracturing SoW 2.8 outside contractFracture Transmissibility Calculations for Differential Depletion":
+            // 1. Scale matrix to fracture transmissibilities by matrix to well pressure
+            std::map<size_t, double> originalLumpedMatrixToFractureTrans =
+                scaledCondenser.scaleMatrixTransmissibilitiesByPressureMatrixWell(
+                    actCellInfo, originalWellPressure, currentWellPressure, originalMatrixPressures, currentMatrixPressures);
+            // 2: Calculate new external transmissibilities
+            scaledCondenser.calculateCondensedTransmissibilities();
+
+            if (transCorrection == NO_CORRECTION)
+            {
+                // Calculate effective matrix to well transmissibilities.
+                std::map<size_t, double> effectiveMatrixToWellTransBeforeCorrection = calculateMatrixToWellTransmissibilities(scaledCondenser);
+                matrixToWellTrans = effectiveMatrixToWellTransBeforeCorrection;
+            }
+            else if (transCorrection == HOGSTOL_CORRECTION)
+            {
+                // Høgstøl correction.
+                // 1. Calculate new effective fracture to well transmissiblities
+                std::map<size_t, double> fictitiousFractureToWellTransmissibilities = scaledCondenser.calculateFicticiousFractureToWellTransmissibilities();
+                // 2. Calculate new effective matrix to well transmissibilities
+                std::map<size_t, double> effectiveMatrixToWellTrans = scaledCondenser.calculateEffectiveMatrixToWellTransmissibilities(
+                    originalLumpedMatrixToFractureTrans, fictitiousFractureToWellTransmissibilities);
+                matrixToWellTrans = effectiveMatrixToWellTrans;
+            }
+        }
+
         std::vector<RigCompletionData> allCompletionsForOneFracture =
             generateCompdatValuesForFracture(matrixToWellTrans, wellPathName, caseToApply, fracture, fracTemplate);
 

@@ -20,10 +20,13 @@
 
 #include "cafAssert.h"
 
+#include <Eigen/Core>
+
 #include <map>
 #include <vector>
 #include <set>
 
+class RigActiveCellInfo;
 class RigMainGrid;
 class RimStimPlanFractureTemplate;
 class RigFractureGrid;
@@ -34,6 +37,10 @@ class RigFractureGrid;
 class RigTransmissibilityCondenser
 {
 public:
+    RigTransmissibilityCondenser();
+    RigTransmissibilityCondenser(const RigTransmissibilityCondenser& copyFrom);
+    RigTransmissibilityCondenser& operator=(const RigTransmissibilityCondenser& rhs);
+
     class CellAddress
     {
      public:
@@ -81,10 +88,24 @@ public:
     std::string neighborTransDebugOutput(const RigMainGrid* mainGrid, const RigFractureGrid* fractureGrid);
     std::string condensedTransDebugOutput(const RigMainGrid* mainGrid, const RigFractureGrid* fractureGrid);
 
-private:
-    void calculateCondensedTransmissibilitiesIfNeeded();
+    std::map<size_t, double> scaleMatrixTransmissibilitiesByPressureMatrixWell(const RigActiveCellInfo* actCellInfo, double originalWellPressure, double currentWellPressure, const std::vector<double>& originalMatrixPressures, const std::vector<double>& currentMatrixPressures);
+    std::map<size_t, double> scaleMatrixTransmissibilitiesByPressureMatrixFracture(const RigActiveCellInfo* actCellInfo, double currentWellPressure, const std::vector<double>& currentMatrixPressures, bool divideByAverageDP);
+    std::map<size_t, double> calculateFicticiousFractureToWellTransmissibilities();
+    std::map<size_t, double> calculateEffectiveMatrixToWellTransmissibilities(const std::map<size_t, double>& originalLumpedMatrixToFractureTrans,
+                                                                              const std::map<size_t, double>& ficticuousFractureToWellTransMap);
 
-    std::map<CellAddress, std::map<CellAddress, double> > m_neighborTransmissibilities;
-    std::map<CellAddress, std::map<CellAddress, double> > m_condensedTransmissibilities;
-    std::set<CellAddress> m_externalCellAddrSet;
-};  
+    void calculateCondensedTransmissibilities();
+
+protected:
+
+    typedef std::pair<CellAddress, std::map<CellAddress, double>> ConnectionTransmissibility;
+    typedef std::map<CellAddress, std::map<CellAddress, double>>  ConnectionTransmissibilities;
+    
+    ConnectionTransmissibilities m_neighborTransmissibilities;
+    ConnectionTransmissibilities m_condensedTransmissibilities;
+
+    std::set<CellAddress>        m_externalCellAddrSet;
+
+    Eigen::MatrixXd              m_TiiInv;
+    Eigen::MatrixXd              m_Tie;
+};

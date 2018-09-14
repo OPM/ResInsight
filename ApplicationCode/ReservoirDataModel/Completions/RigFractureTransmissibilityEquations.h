@@ -57,11 +57,25 @@ public:
                                         double fractureAreaWeightedlength, 
                                         double cDarcy);
 
+    static double pressureScalingMatrixToFractureTrans(double originalWellPressure,
+                                                      double wellPressure,
+                                                      double originalMatrixPressure,
+                                                      double matrixPressure);
+
+        
+    static double effectiveInternalFractureToWellTrans(double scaledMatrixToFractureTrans,
+                                                       double scaledMatrixToWellTrans);
+
+    static double effectiveMatrixToWellTrans(double originalMatrixToFractureTrans,
+                                             double effectiveInternalFractureToWellTrans);
+
 private:
     static double centerToEdgeFractureCellTrans(double conductivity, 
                                                 double sideLengthParallellTrans, 
                                                 double sideLengthNormalTrans,
                                                 double cDarcyForRelevantUnit);
 
+private:
+    static const double EPSILON;
 
 };

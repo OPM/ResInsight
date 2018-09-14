@@ -23,6 +23,7 @@
 
 #include <cmath>
 
+const double RigFractureTransmissibilityEquations::EPSILON = 1.0e-9;
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -44,7 +45,7 @@ double RigFractureTransmissibilityEquations::centerToCenterFractureCellTrans(dou
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+/// T_16
 //--------------------------------------------------------------------------------------------------
 double RigFractureTransmissibilityEquations::fractureCellToWellRadialTrans(double fractureCellConductivity, 
                                                                            double fractureCellSizeX,
@@ -69,7 +70,7 @@ double RigFractureTransmissibilityEquations::fractureCellToWellRadialTrans(doubl
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+/// T_16
 //--------------------------------------------------------------------------------------------------
 double RigFractureTransmissibilityEquations::fractureCellToWellLinearTrans(double fractureCellConductivity, 
                                                                            double fractureCellSizeX,
@@ -97,7 +98,7 @@ double RigFractureTransmissibilityEquations::fractureCellToWellLinearTrans(doubl
 
 
 //--------------------------------------------------------------------------------------------------
-/// 
+/// T_51
 //--------------------------------------------------------------------------------------------------
 double RigFractureTransmissibilityEquations::matrixToFractureTrans(double perm, 
                                                                    double NTG, 
@@ -110,7 +111,7 @@ double RigFractureTransmissibilityEquations::matrixToFractureTrans(double perm,
     double transmissibility;
 
     double slDivPi = 0.0;
-    if ( cvf::Math::abs(skinfactor) > 1e-9)
+    if ( cvf::Math::abs(skinfactor) > EPSILON)
     {
         slDivPi = (skinfactor * fractureAreaWeightedlength) / cvf::PI_D;
     }
@@ -119,6 +120,45 @@ double RigFractureTransmissibilityEquations::matrixToFractureTrans(double perm,
 
     CVF_ASSERT(transmissibility == transmissibility);
     return transmissibility;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// T'_51
+//--------------------------------------------------------------------------------------------------
+double RigFractureTransmissibilityEquations::pressureScalingMatrixToFractureTrans(double originalWellPressure, double wellPressure, double originalMatrixPressure, double matrixPressure)
+{
+    double pressureDelta = originalMatrixPressure - originalWellPressure;
+    if (cvf::Math::abs(pressureDelta) > EPSILON)
+    {
+        return (matrixPressure - wellPressure) / pressureDelta;
+    }
+    return 0.0;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// T'_16
+//--------------------------------------------------------------------------------------------------
+double RigFractureTransmissibilityEquations::effectiveInternalFractureToWellTrans(double scaledMatrixToFractureTrans, double scaledMatrixToWellTrans)
+{
+    double divisor = scaledMatrixToFractureTrans - scaledMatrixToWellTrans;
+    if (cvf::Math::abs(divisor) > EPSILON)
+    {
+        return (scaledMatrixToFractureTrans * scaledMatrixToWellTrans) / divisor;
+    }
+    return 0.0;
+}
+
+//--------------------------------------------------------------------------------------------------
+///T^dp_56
+//--------------------------------------------------------------------------------------------------
+double RigFractureTransmissibilityEquations::effectiveMatrixToWellTrans(double originalMatrixToFractureTrans, double effectiveInternalFractureToWellTrans)
+{
+    double divisor = originalMatrixToFractureTrans + effectiveInternalFractureToWellTrans;
+    if (cvf::Math::abs(divisor) > EPSILON)
+    {
+        return (originalMatrixToFractureTrans * effectiveInternalFractureToWellTrans) / divisor;
+    }
+    return 0.0;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -132,4 +172,5 @@ double RigFractureTransmissibilityEquations::centerToEdgeFractureCellTrans(doubl
     double transmissibility = cDarcyForRelevantUnit * conductivity * sideLengthNormalTrans / (sideLengthParallellTrans / 2);
     return transmissibility;
 }
+
 

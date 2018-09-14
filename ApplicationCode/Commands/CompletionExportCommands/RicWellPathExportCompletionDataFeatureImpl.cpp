@@ -225,7 +225,9 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions(const std::ve
                         wellPath,
                         exportSettings.caseToApply(),
                         reportItems,
-                        fractureTransmissibilityExportInformationStream.get());
+                        fractureTransmissibilityExportInformationStream.get(),
+                        exportSettings.transScalingType(),
+                        exportSettings.transScalingCorrection());
 
                 appendCompletionData(&completionsPerEclipseCellAllCompletionTypes, fractureCompletionData);
                 appendCompletionData(&completionsPerEclipseCellFracture, fractureCompletionData);
@@ -1804,7 +1806,9 @@ RicMswExportInfo
                                                                             wellPath->wellPathGeometry(),
                                                                             { fracture },
                                                                             nullptr,
-                                                                            nullptr);
+                                                                            nullptr,
+                                                                            RicExportFractureCompletionsImpl::NO_SCALING,
+                                                                            RicExportFractureCompletionsImpl::NO_CORRECTION);
 
                 assignFractureIntersections(caseToApply, fracture, completionData, &location, &foundSubGridIntersections);
             }
