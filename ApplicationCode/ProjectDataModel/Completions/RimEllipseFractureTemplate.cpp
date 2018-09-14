@@ -54,7 +54,7 @@ RimEllipseFractureTemplate::RimEllipseFractureTemplate()
 
    CAF_PDM_InitObject("Fracture Template", ":/FractureTemplate16x16.png", "", "");
 
-    CAF_PDM_InitField(&m_halfLength,  "HalfLength",       0.0,   "Halflength X<sub>f</sub>", "", "", "");
+    CAF_PDM_InitField(&m_halfLength,  "HalfLength",       0.0,   "Half Length X<sub>f</sub>", "", "", "");
     CAF_PDM_InitField(&m_height,      "Height",           0.0,   "Height", "", "", "");
     CAF_PDM_InitField(&m_width,       "Width",            0.0,   "Width", "", "", "");
     CAF_PDM_InitField(&m_permeability,"Permeability",     0.0,   "Permeability [mD]", "", "", ""); 
@@ -108,7 +108,7 @@ void RimEllipseFractureTemplate::fractureTriangleGeometry(std::vector<cvf::Vec3f
 {
     RigEllipsisTesselator tesselator(20);
 
-    float a = m_halfLength * m_widthScaleFactor;
+    float a = m_halfLength * m_halfLengthScaleFactor;
     float b = m_height / 2.0f * m_heightScaleFactor;
 
     tesselator.tesselateEllipsis(a, b, triangleIndices, nodeCoords);
@@ -162,9 +162,9 @@ void RimEllipseFractureTemplate::createFractureGridAndAssignConductivities()
     int numberOfCellsJ = 35;
 
     double height     = m_height * m_heightScaleFactor;
-    double halfLength = m_halfLength * m_widthScaleFactor;
+    double halfLength = m_halfLength * m_halfLengthScaleFactor;
 
-    double cellSizeX = (halfLength * 2) / numberOfCellsI * m_widthScaleFactor;
+    double cellSizeX = (halfLength * 2) / numberOfCellsI * m_halfLengthScaleFactor;
     double cellSizeZ = height / numberOfCellsJ * m_heightScaleFactor;
 
     double cellArea                     = cellSizeX * cellSizeZ;

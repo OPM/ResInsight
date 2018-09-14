@@ -39,9 +39,14 @@ public:
     virtual void execute() override;
 
 private:
+    void initAfterRead() override;
+
+private:
     caf::PdmField<int>              m_id;
-    caf::PdmField<double>           m_widthScaleFactor;
+    caf::PdmField<double>           m_halfLengthScaleFactor;
     caf::PdmField<double>           m_heightScaleFactor;
     caf::PdmField<double>           m_dFactorScaleFactor;
     caf::PdmField<double>           m_conductivityScaleFactor;
+
+    caf::PdmField<double>           m_OBSOLETE_widthScaleFactor;
 };

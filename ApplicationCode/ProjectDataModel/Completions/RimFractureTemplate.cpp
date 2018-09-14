@@ -161,7 +161,7 @@ RimFractureTemplate::RimFractureTemplate()
     m_dFactorSummaryText.xmlCapability()->disableIO();
 
     CAF_PDM_InitField(&m_heightScaleFactor, "HeightScaleFactor", 1.0, "Height", "", "", "");
-    CAF_PDM_InitField(&m_widthScaleFactor,  "WidthScaleFactor",  1.0, "Width", "", "", "");
+    CAF_PDM_InitField(&m_halfLengthScaleFactor,  "WidthScaleFactor",  1.0, "Half Length", "", "", "");
     CAF_PDM_InitField(&m_dFactorScaleFactor, "DFactorScaleFactor", 1.0, "D-factor", "", "", "");
     CAF_PDM_InitField(&m_conductivityScaleFactor, "ConductivityFactor", 1.0, "Conductivity", "", "The conductivity values read from file will be scaled with this parameters", "");
     CAF_PDM_InitField(&m_scaleApplyButton, "ScaleApplyButton", false, "Apply", "", "", "");
@@ -319,7 +319,7 @@ void RimFractureTemplate::defineUiOrdering(QString uiConfigName, caf::PdmUiOrder
         auto group = uiOrdering.addNewGroup("Sensitivity Scale Factors");
         group->setCollapsedByDefault(false);
         group->add(&m_heightScaleFactor);
-        group->add(&m_widthScaleFactor);
+        group->add(&m_halfLengthScaleFactor);
         group->add(&m_dFactorScaleFactor);
         group->add(&m_conductivityScaleFactor);
 
@@ -749,9 +749,12 @@ void RimFractureTemplate::setId(int id)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimFractureTemplate::setScaleFactors(double widthScale, double heightScale, double dFactorScale, double conductivityScale)
+void RimFractureTemplate::setScaleFactors(double halfLengthScale,
+                                          double heightScale,
+                                          double dFactorScale,
+                                          double conductivityScale)
 {
-    m_widthScaleFactor        = widthScale;
+    m_halfLengthScaleFactor   = halfLengthScale;
     m_heightScaleFactor       = heightScale;
     m_dFactorScaleFactor      = dFactorScale;
     m_conductivityScaleFactor = conductivityScale;
@@ -765,15 +768,15 @@ void RimFractureTemplate::setScaleFactors(double widthScale, double heightScale,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimFractureTemplate::scaleFactors(double* widthScale,
+void RimFractureTemplate::scaleFactors(double* halfLengthScale,
                                        double* heightScale,
                                        double* dFactorScale,
                                        double* conductivityScale) const
 {
-    CVF_ASSERT(widthScale && heightScale && dFactorScale && conductivityScale);
+    CVF_ASSERT(halfLengthScale && heightScale && dFactorScale && conductivityScale);
 
-    *widthScale        = m_widthScaleFactor;
-    *heightScale       = m_widthScaleFactor;
+    *halfLengthScale   = m_halfLengthScaleFactor;
+    *heightScale       = m_heightScaleFactor;
     *dFactorScale      = m_dFactorScaleFactor;
     *conductivityScale = m_conductivityScaleFactor;
 }
@@ -810,7 +813,7 @@ double RimFractureTemplate::computeFractureWidth(const RimFracture* fractureInst
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimFractureTemplate::loadDataAndUpdateGeometryHasChanged()
 {

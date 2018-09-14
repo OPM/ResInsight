@@ -418,7 +418,7 @@ QString
         floatNumberColumn("Bot"),
         floatNumberColumn("Fault"),
         floatNumberColumn("Height"),
-        floatNumberColumn("Width"),
+        floatNumberColumn("Half Length"),
         floatNumberColumn("DFac"),
         floatNumberColumn("Conductivity"),
     };
@@ -464,10 +464,10 @@ QString
             formatter.add("NA");
         }
 
-        double heightScale, widthScale, dfactorScale, conductivityScale;
-        fracTemplate->scaleFactors(&heightScale, &widthScale, &dfactorScale, &conductivityScale);
+        double halfLengthScale, heightScale, dfactorScale, conductivityScale;
+        fracTemplate->scaleFactors(&halfLengthScale, &heightScale, &dfactorScale, &conductivityScale);
         formatter.add(heightScale);
-        formatter.add(widthScale);
+        formatter.add(halfLengthScale);
         formatter.add(dfactorScale);
         formatter.add(conductivityScale);
 

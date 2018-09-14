@@ -252,7 +252,7 @@ void RimStimPlanFractureTemplate::loadDataAndUpdate()
 
     m_stimPlanFractureDefinitionData = RifStimPlanXmlReader::readStimPlanXMLFile(m_stimPlanFileName(),
                                                                                  m_conductivityScaleFactor(),
-                                                                                 m_widthScaleFactor(),
+                                                                                 m_halfLengthScaleFactor(),
                                                                                  m_heightScaleFactor(),
                                                                                  -m_wellPathDepthAtFracture(),
                                                                                  RifStimPlanXmlReader::MIRROR_AUTO,

@@ -154,8 +154,8 @@ public:
 
     void                            disconnectAllFracturesAndRedrawViews() const;
     void                            setId(int id);
-    void                            setScaleFactors(double widthScale, double heightScale, double dFactorScale, double conductivityScale);
-    void                            scaleFactors(double* widthScale, double* heightScale, double* dFactorScale, double* conductivityScale) const;
+    void                            setScaleFactors(double halfLengthScale, double heightScale, double dFactorScale, double conductivityScale);
+    void                            scaleFactors(double* halfLengthScale, double* heightScale, double* dFactorScale, double* conductivityScale) const;
 
     void                            setContainmentTopKLayer(int topKLayer);
     void                            setContainmentBaseKLayer(int baseKLayer);
@@ -217,7 +217,7 @@ protected:
     caf::PdmProxyValueField<QString>                   m_dFactorSummaryText;
 
     caf::PdmField<double>                              m_heightScaleFactor;
-    caf::PdmField<double>                              m_widthScaleFactor;
+    caf::PdmField<double>                              m_halfLengthScaleFactor;
     caf::PdmField<double>                              m_dFactorScaleFactor;
     caf::PdmField<double>                              m_conductivityScaleFactor;
     caf::PdmField<bool>                                m_scaleApplyButton;
