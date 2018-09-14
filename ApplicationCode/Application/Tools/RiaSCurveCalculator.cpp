@@ -39,6 +39,11 @@ RiaSCurveCalculator::RiaSCurveCalculator(cvf::Vec3d p1, double azi1, double inc1
                                          , m_r1(rad1)
                                          , m_r2(rad2)
 {
+    #if 1
+    initializeWithoutSolveSpace(p1, azi1, inc1, rad1, p2, azi2, inc2, rad2);
+    return;
+    #else
+    
     // Estimate 
 
     double est_p_c1x  =  10.0;
@@ -93,7 +98,7 @@ RiaSCurveCalculator::RiaSCurveCalculator(cvf::Vec3d p1, double azi1, double inc1
             return;
         }
 
-        #if 1
+        #if 0
         std::cout << "Estimate:"  << std::endl;
         estimatedCurveCalc.dump();
         #endif
@@ -581,6 +586,7 @@ RiaSCurveCalculator::RiaSCurveCalculator(cvf::Vec3d p1, double azi1, double inc1
         m_isCalculationOK =  false;
     }
 
+    #endif
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -692,5 +698,96 @@ RiaSCurveCalculator RiaSCurveCalculator::fromTangentsAndLength(cvf::Vec3d p1, do
                                                p2, Q2);
 
     return curveFromControlPoints;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiaSCurveCalculator::initializeWithoutSolveSpace(cvf::Vec3d p1, double azi1, double inc1, double r1, 
+                                                      cvf::Vec3d p2, double azi2, double inc2, double r2)
+{
+    cvf::Vec3d p1p2 = p2 - p1;
+
+    double p1p2Length =  (p1p2).length();
+    
+    // Iterating with changing q1, q2 (lengths along tangent) to find solution with R1 = r1 and R2 = r2
+    // R1(q1, q2), R2(q1, q2)
+    // Needs the initial partial derivatives to see the direction of change
+    // dR1/dq1, dR1/dq2, dR2/dq1, dR2/dq2
+    // Selects a sensible point in the domain for the evaluation
+
+    double delta =  0.01 * p1p2Length;
+    double initialq1q2 = 0.2 * p1p2Length;
+    double deltaPos = initialq1q2 + delta;
+
+
+
+    RiaSCurveCalculator ev_0 = RiaSCurveCalculator::fromTangentsAndLength(p1, azi1, inc1, initialq1q2,
+                                                                          p2, azi2, inc2, initialq1q2);
+    RiaSCurveCalculator ev_dq1 = RiaSCurveCalculator::fromTangentsAndLength(p1, azi1, inc1, deltaPos,
+                                                                          p2, azi2, inc2, initialq1q2);
+    RiaSCurveCalculator ev_dq2 = RiaSCurveCalculator::fromTangentsAndLength(p1, azi1, inc1, initialq1q2,
+                                                                            p2, azi2, inc2, deltaPos);
+
+    double dR1_dq1 = (ev_dq1.firstRadius() - ev_0.firstRadius())/delta;
+    //double dR1_dq2 = (ev_dq2.firstRadius() - ev_0.firstRadius())/delta;
+    //double dR2_dq1 = (ev_dq1.secondRadius() - ev_0.secondRadius())/delta;
+    double dR2_dq2 = (ev_dq2.secondRadius() - ev_0.secondRadius())/delta;
+
+    
+    double R1_error = r1 - ev_0.firstRadius();
+    double R2_error = r2 - ev_0.secondRadius();
+
+    double q1R1Step = R1_error/dR1_dq1;
+    //double q1R2Step = R2_error/dR2_dq1;
+    //double q2R1Step = R1_error/dR1_dq2;
+    double q2R2Step = R2_error/dR2_dq2;
+
+    double q1 = initialq1q2;
+    double q2 = initialq1q2;
+    
+    const int maxIterations = 40;
+    const double maxError = 0.01;
+    const double maxStepSize = 1.0e9;
+    const double maxLengthToQ = 1.0e10;
+
+    std::cout << std::endl;
+    std::cout << 0 << ":" << 0 << "," << 0 << ":" 
+              << ev_0.isOk() << ":" << ev_0.firstRadius() << "," << ev_0.secondRadius() << std::endl;
+
+    for (int iter = 1; iter < maxIterations; ++iter)
+    {
+
+        q1 += q1R1Step;
+        q2 += q2R2Step;
+
+        if (fabs(q1) > maxLengthToQ || fabs(q2) > maxLengthToQ) break;
+
+        std::cout << iter << ": " << q1R1Step << ", " << q2R2Step << ": " ;
+        RiaSCurveCalculator ev_1 = RiaSCurveCalculator::fromTangentsAndLength(p1, azi1, inc1, q1,
+                                                                              p2, azi2, inc2, q2);
+
+        std::cout << ": " << q1 << "," << q2 << " | " << ev_1.isOk() << ": " << ev_1.firstRadius() << ", " << ev_1.secondRadius() << std::endl;
+
+        dR1_dq1 = (ev_1.firstRadius() - ev_0.firstRadius())/q1R1Step;
+        dR2_dq2 = (ev_1.secondRadius() - ev_0.secondRadius())/q2R2Step;
+
+        R1_error = r1 - ev_1.firstRadius();
+        R2_error = r2 - ev_1.secondRadius();
+
+        q1R1Step = R1_error/dR1_dq1;
+        q2R2Step = R2_error/dR2_dq2;
+
+        ev_0 = ev_1;
+
+        if ( ( fabs(R1_error) < maxError    && fabs(R2_error) < maxError)
+            || fabs(q1R1Step) > maxStepSize || fabs(q2R2Step) > maxStepSize )
+        {
+            break;
+        }
+    }
+
+    *this = ev_0;
+
 }
 
