@@ -48,6 +48,25 @@ namespace caf
         addItem(RicExportCompletionDataSettingsUi::COMBINED,        "COMBINED",     "Combined");
         setDefault(RicExportCompletionDataSettingsUi::INDIVIDUALLY);
     }
+
+    template<>
+    void RicExportCompletionDataSettingsUi::TransScalingType::setUp()
+    {
+        addItem(RicExportFractureCompletionsImpl::NO_SCALING, "NO_SCALING", "No scaling");
+        addItem(RicExportFractureCompletionsImpl::MATRIX_TO_FRACTURE_DP_OVER_MAX_DP, "MATFRAC_DP_OVER_MAXDP", "Matrix to Fracture dP over max dP");
+        addItem(RicExportFractureCompletionsImpl::MATRIX_TO_FRACTURE_DP_OVER_AVG_DP, "MATFRAC_DP_OVER_AVGDP", "Matrix to Fracture dP over avg dP");
+        addItem(RicExportFractureCompletionsImpl::MATRIX_TO_WELL_DP_OVER_INITIAL_DP, "MATWELL_DP_OVER_INITIALDP", "Matrix to Well dP over initial dP");
+        setDefault(RicExportFractureCompletionsImpl::NO_SCALING);
+    }
+
+    template<>
+    void RicExportCompletionDataSettingsUi::TransScalingCorrection::setUp()
+    {
+        addItem(RicExportFractureCompletionsImpl::NO_CORRECTION, "NO_CORRECTION", "No correction");
+        addItem(RicExportFractureCompletionsImpl::HOGSTOL_CORRECTION, "HOGSTOL_CORRECTION", "Høgstøl Correction");
+        setDefault(RicExportFractureCompletionsImpl::NO_CORRECTION);
+    }
+
 }
 // clang-format on
 
@@ -73,6 +92,10 @@ RicExportCompletionDataSettingsUi::RicExportCompletionDataSettingsUi()
     CAF_PDM_InitField(&includePerforations, "IncludePerforations", true, "Perforations", "", "", "");
     CAF_PDM_InitField(&includeFishbones, "IncludeFishbones", true, "Fishbones", "", "", "");
     CAF_PDM_InitField(&includeFractures, "IncludeFractures", true, "Fractures", "", "", "");
+
+    CAF_PDM_InitFieldNoDefault(&transScalingType, "TransScalingType", "  PDD Transmissibility Scaling", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&transScalingCorrection, "TransScalingCorrection", "  PDD Transmissibility Scaling Correction", "", "", "");
+    CAF_PDM_InitField(&transScalingPressureTimeStep, "TransScalingTimeStep", 0, "  PDD Pressure Scaling Time Step", "", "", "");
 
     CAF_PDM_InitField(&m_includeFracturesSummaryHeader,
                       "IncludeFracturesSummaryHeader",
@@ -191,7 +214,7 @@ QList<caf::PdmOptionItemInfo>
     RicExportCompletionDataSettingsUi::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly)
 {
     QList<caf::PdmOptionItemInfo> options;
-    if (fieldNeedingOptions == &timeStep)
+    if (fieldNeedingOptions == &timeStep || fieldNeedingOptions == &transScalingPressureTimeStep)
     {
         QStringList timeStepNames;
 
@@ -247,6 +270,13 @@ void RicExportCompletionDataSettingsUi::defineUiOrdering(QString uiConfigName, c
         if (m_fracturesEnabled)
         {
             group->add(&includeFractures);
+            group->add(&transScalingType);
+            if (transScalingType() != RicExportFractureCompletionsImpl::NO_SCALING)
+            {
+                group->add(&transScalingCorrection);
+                group->add(&transScalingPressureTimeStep);
+                
+            }
             group->add(&m_includeFracturesSummaryHeader);
 
             // Set visibility

@@ -19,6 +19,7 @@
 #pragma once
 
 #include "RicCaseAndFileExportSettingsUi.h"
+#include "RicExportFractureCompletionsImpl.h"
 
 #include "cafPdmField.h"
 #include "cafAppEnum.h"
@@ -55,6 +56,8 @@ public:
     };
     typedef caf::AppEnum<CombinationMode> CombinationModeType;
 
+    typedef caf::AppEnum<RicExportFractureCompletionsImpl::PressureDepletionTransScaling> TransScalingType;
+    typedef caf::AppEnum<RicExportFractureCompletionsImpl::PressureDepletionTransCorrection> TransScalingCorrection;
 
     RicExportCompletionDataSettingsUi();
 
@@ -62,6 +65,10 @@ public:
 
     caf::PdmField<ExportSplitType>          fileSplit;
     caf::PdmField<CompdatExportType>        compdatExport;
+
+    caf::PdmField<TransScalingType>         transScalingType;
+    caf::PdmField<TransScalingCorrection>   transScalingCorrection;
+    caf::PdmField<int>                      transScalingPressureTimeStep;
 
     caf::PdmField<bool>                     includeMsw;
     caf::PdmField<bool>                     useLateralNTG;

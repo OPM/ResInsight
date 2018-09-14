@@ -227,7 +227,8 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions(const std::ve
                         reportItems,
                         fractureTransmissibilityExportInformationStream.get(),
                         exportSettings.transScalingType(),
-                        exportSettings.transScalingCorrection());
+                        exportSettings.transScalingCorrection(),
+                        exportSettings.transScalingPressureTimeStep());
 
                 appendCompletionData(&completionsPerEclipseCellAllCompletionTypes, fractureCompletionData);
                 appendCompletionData(&completionsPerEclipseCellFracture, fractureCompletionData);
@@ -267,7 +268,8 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions(const std::ve
 
             std::vector<RigCompletionData> fractureCompletionData =
                 RicExportFractureCompletionsImpl::generateCompdatValuesForSimWell(
-                    exportSettings.caseToApply(), simWell, fractureTransmissibilityExportInformationStream.get());
+                    exportSettings.caseToApply(), simWell, fractureTransmissibilityExportInformationStream.get(),
+                    exportSettings.transScalingType(), exportSettings.transScalingCorrection(), exportSettings.transScalingPressureTimeStep());
             appendCompletionData(&completionsPerEclipseCell, fractureCompletionData);
 
             for (auto& data : completionsPerEclipseCell)
@@ -1808,7 +1810,8 @@ RicMswExportInfo
                                                                             nullptr,
                                                                             nullptr,
                                                                             RicExportFractureCompletionsImpl::NO_SCALING,
-                                                                            RicExportFractureCompletionsImpl::NO_CORRECTION);
+                                                                            RicExportFractureCompletionsImpl::NO_CORRECTION,
+                                                                            0);
 
                 assignFractureIntersections(caseToApply, fracture, completionData, &location, &foundSubGridIntersections);
             }

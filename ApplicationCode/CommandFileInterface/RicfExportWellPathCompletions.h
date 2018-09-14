@@ -48,6 +48,10 @@ private:
     caf::PdmField<RicExportCompletionDataSettingsUi::CompdatExportType>   m_compdatExport;
     caf::PdmField<RicExportCompletionDataSettingsUi::CombinationModeType> m_combinationMode;
 
+    caf::PdmField<RicExportCompletionDataSettingsUi::TransScalingType>       m_transScalingType;
+    caf::PdmField<RicExportCompletionDataSettingsUi::TransScalingCorrection> m_transScalingCorrection;
+    caf::PdmField<int>                                                       m_transScalingTimeStep;
+
     caf::PdmField<bool> m_useLateralNTG;
     caf::PdmField<bool> m_includePerforations;
     caf::PdmField<bool> m_includeFishbones;

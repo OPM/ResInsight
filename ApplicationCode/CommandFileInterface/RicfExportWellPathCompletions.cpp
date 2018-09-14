@@ -54,6 +54,10 @@ RicfExportWellPathCompletions::RicfExportWellPathCompletions()
     RICF_InitField(&m_includeFractures,            "includeFractures",            true,  "Include Fractures",  "", "", "");
     
     RICF_InitField(&m_excludeMainBoreForFishbones, "excludeMainBoreForFishbones", false, "Exclude Main Bore for Fishbones",  "", "", "");
+
+    RICF_InitField(&m_transScalingType, "transScalingType", RicExportCompletionDataSettingsUi::TransScalingType(), "Transmissibility Scaling Type", "", "", "");
+    RICF_InitField(&m_transScalingCorrection, "transScalingCorrection", RicExportCompletionDataSettingsUi::TransScalingCorrection(), "Transmissibility Scaling Correction", "", "", "");
+    RICF_InitField(&m_transScalingTimeStep, "transScalingTimeStep", 0, "Transmissibility Scaling Correction", "", "", "");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -75,6 +79,10 @@ void RicfExportWellPathCompletions::execute()
 
     exportSettings->fileSplit = m_fileSplit;
     exportSettings->compdatExport = m_compdatExport;
+
+    exportSettings->transScalingType = m_transScalingType;
+    exportSettings->transScalingCorrection = m_transScalingCorrection;
+    exportSettings->transScalingPressureTimeStep = m_transScalingTimeStep;
 
     exportSettings->useLateralNTG = m_useLateralNTG;
     exportSettings->includePerforations = m_includePerforations;

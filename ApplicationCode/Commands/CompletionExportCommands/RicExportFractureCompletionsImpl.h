@@ -61,14 +61,16 @@ public:
                                                                            RimEclipseCase* caseToApply,
                                                                            std::vector<RicWellPathFractureReportItem>* fractureDataForReport,
                                                                            QTextStream* outputStreamForIntermediateResultsText,
-                                                                           PressureDepletionTransScaling pressureDropScaling = MATRIX_TO_WELL_DP_OVER_INITIAL_DP,
-                                                                           PressureDepletionTransCorrection transCorrection = HOGSTOL_CORRECTION);
+                                                                           PressureDepletionTransScaling pressureDropScaling = NO_SCALING,
+                                                                           PressureDepletionTransCorrection transCorrection = NO_CORRECTION,
+                                                                           int pressureScalingTimeStep = 0);
 
     static std::vector<RigCompletionData> generateCompdatValuesForSimWell(RimEclipseCase* eclipseCase,
                                                                           const RimSimWellInView* well,
                                                                           QTextStream* outputStreamForIntermediateResultsText,
-                                                                          PressureDepletionTransScaling pressureDropScaling = MATRIX_TO_WELL_DP_OVER_INITIAL_DP,
-                                                                          PressureDepletionTransCorrection transCorrection = HOGSTOL_CORRECTION);
+                                                                          PressureDepletionTransScaling pressureDropScaling,
+                                                                          PressureDepletionTransCorrection transCorrection,
+                                                                          int pressureScalingTimeStep);
 
     static std::vector<RigCompletionData> generateCompdatValues(RimEclipseCase* caseToApply,
                                                                 const QString& wellPathName,
@@ -77,7 +79,8 @@ public:
                                                                 std::vector<RicWellPathFractureReportItem>* fractureDataReportItems,
                                                                 QTextStream* outputStreamForIntermediateResultsText,
                                                                 PressureDepletionTransScaling pressureDropScaling,
-                                                                PressureDepletionTransCorrection transCorrection);
+                                                                PressureDepletionTransCorrection transCorrection,
+                                                                int pressureScalingTimeStep);
 
 private:
     static std::vector<RigCompletionData> generateCompdatValuesConst(const RimEclipseCase* caseToApply,
@@ -87,7 +90,8 @@ private:
                                                                      std::vector<RicWellPathFractureReportItem>* fractureDataReportItems,
                                                                      QTextStream* outputStreamForIntermediateResultsText,
                                                                      PressureDepletionTransScaling pressureDropScaling,
-                                                                     PressureDepletionTransCorrection transCorrection);
+                                                                     PressureDepletionTransCorrection transCorrection,
+                                                                     int pressureScalingTimeStep);
 
     static bool checkForStimPlanConductivity(const RimFractureTemplate* fracTemplate, const RimFracture* fracture);
 
