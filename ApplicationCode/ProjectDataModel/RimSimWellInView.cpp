@@ -587,10 +587,6 @@ bool RimSimWellInView::isWellSpheresVisible(size_t frameIndex) const
     {
         return true;
     }
-
-    CVF_ASSERT(false); // Never end here. have you added new pipe visibility modes ?
-
-    return false;
 }
 
 //--------------------------------------------------------------------------------------------------

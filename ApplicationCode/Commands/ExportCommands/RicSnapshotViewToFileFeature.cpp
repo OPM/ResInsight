@@ -136,6 +136,7 @@ void RicSnapshotViewToFileFeature::onActionTriggered(bool isChecked)
     // Get active view window before displaying the file selection dialog
     // If this is done after the file save dialog is displayed (and closed)
     // app->activeViewWindow() returns NULL on Linux
+
     RimViewWindow* viewWindow = app->activeViewWindow();
     if (!viewWindow)
     {
