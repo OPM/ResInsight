@@ -57,7 +57,6 @@ public:
     RimFaultInViewCollection();
     virtual ~RimFaultInViewCollection();
 
-    void                                setReservoirView(RimEclipseView* ownerReservoirView);
     void                                syncronizeFaults();
 
     bool                                isGridVisualizationMode() const;
@@ -82,13 +81,13 @@ public:
 
     caf::PdmChildField<RimNoCommonAreaNncCollection*> noCommonAreaNnncCollection;
 
-    virtual void                        fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
-    virtual caf::PdmFieldHandle*        objectToggleField();
 
 private:
-    virtual void                        defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering );
+    void                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    caf::PdmFieldHandle*    objectToggleField() override;
+    void                    defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    RimEclipseView*         parentView() const;
 
 private:
     caf::PdmField<bool>     m_showFaultsOutsideFilters;
-    RimEclipseView*         m_reservoirView;
 };

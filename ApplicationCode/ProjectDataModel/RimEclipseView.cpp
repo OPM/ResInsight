@@ -823,7 +823,6 @@ void RimEclipseView::onLoadDataAndUpdate()
 
     this->m_propertyFilterCollection()->loadAndInitializePropertyFilters();
 
-    this->faultCollection()->setReservoirView(this);
     this->faultCollection()->syncronizeFaults();
 
     m_reservoirGridPartManager->clearGeometryCache();
