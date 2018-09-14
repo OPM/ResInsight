@@ -302,11 +302,11 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
             RigTransmissibilityCondenser scaledCondenser = transCondenser;
             // 1. Scale matrix to fracture transmissibilities by matrix to fracture pressure
             std::map<size_t, double> originalLumpedMatrixToFractureTrans =
-                scaledCondenser.scaleMatrixTransmissibilitiesByPressureMatrixFracture(actCellInfo,
-                                                                                      currentWellPressure,
-                                                                                      *currentMatrixPressures,
-                                                                                      pressureDropScaling ==
-                                                                                          MATRIX_TO_FRACTURE_DP_OVER_AVG_DP);
+                scaledCondenser.scaleMatrixToFracTransByMatrixFracDP(actCellInfo,
+                                                                     currentWellPressure,
+                                                                     *currentMatrixPressures,
+                                                                     pressureDropScaling ==
+                                                                          MATRIX_TO_FRACTURE_DP_OVER_AVG_DP);
             // 2: Calculate new external transmissibilities
             scaledCondenser.calculateCondensedTransmissibilities();
 
@@ -333,7 +333,7 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
             // From Høgstøl "Hydraulic Fracturing SoW 2.8 outside contractFracture Transmissibility Calculations for Differential Depletion":
             // 1. Scale matrix to fracture transmissibilities by matrix to well pressure
             std::map<size_t, double> originalLumpedMatrixToFractureTrans =
-                scaledCondenser.scaleMatrixTransmissibilitiesByPressureMatrixWell(
+                scaledCondenser.scaleMatrixToFracTransByMatrixWellDP(
                     actCellInfo, originalWellPressure, currentWellPressure, *originalMatrixPressures, *currentMatrixPressures);
             // 2: Calculate new external transmissibilities
             scaledCondenser.calculateCondensedTransmissibilities();

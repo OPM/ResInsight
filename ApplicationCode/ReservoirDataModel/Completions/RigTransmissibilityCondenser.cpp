@@ -123,7 +123,7 @@ double RigTransmissibilityCondenser::condensedTransmissibility(CellAddress exter
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::map<size_t, double> RigTransmissibilityCondenser::scaleMatrixTransmissibilitiesByPressureMatrixWell(
+std::map<size_t, double> RigTransmissibilityCondenser::scaleMatrixToFracTransByMatrixWellDP(
     const RigActiveCellInfo* actCellInfo,
     double originalWellPressure,
     double currentWellPressure,
@@ -148,7 +148,7 @@ std::map<size_t, double> RigTransmissibilityCondenser::scaleMatrixTransmissibili
 
                     originalLumpedMatrixToFractureTrans[globalMatrixCellIdx] += jt->second;
 
-                    jt->second *= RigFractureTransmissibilityEquations::pressureScalingMatrixToFractureTrans(
+                    jt->second *= RigFractureTransmissibilityEquations::pressureScalingMatrixToFractureTransPDDHC(
                         originalWellPressure,
                         currentWellPressure,
                         originalMatrixPressures[eclipseResultIndex],
@@ -164,7 +164,7 @@ std::map<size_t, double> RigTransmissibilityCondenser::scaleMatrixTransmissibili
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::map<size_t, double> RigTransmissibilityCondenser::scaleMatrixTransmissibilitiesByPressureMatrixFracture(const RigActiveCellInfo* actCellInfo, double currentWellPressure, const std::vector<double>& currentMatrixPressures, bool divideByAverageDP)
+std::map<size_t, double> RigTransmissibilityCondenser::scaleMatrixToFracTransByMatrixFracDP(const RigActiveCellInfo* actCellInfo, double currentWellPressure, const std::vector<double>& currentMatrixPressures, bool divideByAverageDP)
 {
     // Solve for fracture pressures
     Eigen::VectorXd matrixPressures(m_Tie.cols());
@@ -188,14 +188,14 @@ std::map<size_t, double> RigTransmissibilityCondenser::scaleMatrixTransmissibili
     Eigen::VectorXd fracturePressures = m_TiiInv * (m_Tie * matrixPressures * -1.0);
 
     // Extract fracture pressures into a map
-    std::map<size_t, double> fracturePressureMap;
+    std::map<size_t, double> fractureCellToPressureMap;
     {
         size_t rowIndex = 0u;
         for (const ConnectionTransmissibility& connectionTrans : m_neighborTransmissibilities)
         {
             if (connectionTrans.first.m_cellIndexSpace == CellAddress::STIMPLAN)
             {
-                fracturePressureMap[connectionTrans.first.m_globalCellIdx] = fracturePressures[rowIndex++];
+                fractureCellToPressureMap[connectionTrans.first.m_globalCellIdx] = fracturePressures[rowIndex++];
             }
         }
     }
@@ -208,15 +208,17 @@ std::map<size_t, double> RigTransmissibilityCondenser::scaleMatrixTransmissibili
         if (it->first.m_cellIndexSpace == CellAddress::STIMPLAN)
         {
             size_t globalFractureCellIdx = it->first.m_globalCellIdx;
-            double fracturePressure = fracturePressureMap[globalFractureCellIdx];
+            double fracturePressure = fractureCellToPressureMap[globalFractureCellIdx];
 
             for (auto jt = it->second.begin(); jt != it->second.end(); ++jt)
             {
                 if (jt->first.m_cellIndexSpace == CellAddress::ECLIPSE)
                 {
                     size_t globalMatrixCellIdx = jt->first.m_globalCellIdx;
+
                     size_t eclipseResultIndex = actCellInfo->cellResultIndex(globalMatrixCellIdx);
                     CVF_ASSERT(eclipseResultIndex < currentMatrixPressures.size());
+
                     double matrixPressure = currentMatrixPressures[eclipseResultIndex];
                     double pressureDrop = std::abs(matrixPressure - fracturePressure);
                     meanCalculator.addValueAndWeight(pressureDrop, 1.0);
@@ -241,15 +243,17 @@ std::map<size_t, double> RigTransmissibilityCondenser::scaleMatrixTransmissibili
         if (it->first.m_cellIndexSpace == CellAddress::STIMPLAN)
         {
             size_t globalFractureCellIdx = it->first.m_globalCellIdx;
-            double fracturePressure = fracturePressureMap[globalFractureCellIdx];
+            double fracturePressure = fractureCellToPressureMap[globalFractureCellIdx];
 
             for (auto jt = it->second.begin(); jt != it->second.end(); ++jt)
             {
                 if (jt->first.m_cellIndexSpace == CellAddress::ECLIPSE)
                 {
                     size_t globalMatrixCellIdx = jt->first.m_globalCellIdx;
+
                     size_t eclipseResultIndex = actCellInfo->cellResultIndex(globalMatrixCellIdx);
                     CVF_ASSERT(eclipseResultIndex < currentMatrixPressures.size());
+
                     double matrixPressure = currentMatrixPressures[eclipseResultIndex];
                     double pressureDrop = std::abs(matrixPressure - fracturePressure);
 
@@ -301,7 +305,7 @@ std::map<size_t, double> RigTransmissibilityCondenser::calculateFicticiousFractu
             double scaledMatrixToWellTrans = condensedTransmissibility(externalCell, { true, RigTransmissibilityCondenser::CellAddress::WELL, 1 });
             // T'_fjw
             fictitiousFractureToWellTrans[globalMatrixCellIdx] =
-                RigFractureTransmissibilityEquations::effectiveInternalFractureToWellTrans(scaledMatrixToFractureTrans, scaledMatrixToWellTrans);
+                RigFractureTransmissibilityEquations::effectiveInternalFractureToWellTransPDDHC(scaledMatrixToFractureTrans, scaledMatrixToWellTrans);
         }
     }
     return fictitiousFractureToWellTrans;
@@ -331,7 +335,7 @@ std::map<size_t, double> RigTransmissibilityCondenser::calculateEffectiveMatrixT
             double fictitiousFractureToWellTrans = fictitiousFractureToWellIt->second;
             // T^dp_mw
             effectiveMatrixToWellTrans[globalMatrixCellIdx] =
-                RigFractureTransmissibilityEquations::effectiveMatrixToWellTrans(lumpedOriginalMatrixToFractureT, fictitiousFractureToWellTrans);
+                RigFractureTransmissibilityEquations::effectiveMatrixToWellTransPDDHC(lumpedOriginalMatrixToFractureT, fictitiousFractureToWellTrans);
         }
     }
     return effectiveMatrixToWellTrans;
