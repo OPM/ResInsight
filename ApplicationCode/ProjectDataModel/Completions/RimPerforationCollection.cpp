@@ -25,6 +25,7 @@
 #include "RimEclipseCase.h"
 #include "RimPerforationInterval.h"
 #include "RimProject.h"
+#include "RimMswCompletionParameters.h"
 
 #include "RigWellPath.h"
 
@@ -47,6 +48,11 @@ RimPerforationCollection::RimPerforationCollection()
 
     CAF_PDM_InitFieldNoDefault(&m_perforations, "Perforations", "Perforations", "", "", "");
     m_perforations.uiCapability()->setUiHidden(true);
+
+    CAF_PDM_InitFieldNoDefault(&m_mswParameters, "MswParameters", "Multi Segment Well Parameters", "", "", "");
+    m_mswParameters = new RimMswCompletionParameters;
+    m_mswParameters.uiCapability()->setUiTreeHidden(true);
+    m_mswParameters.uiCapability()->setUiTreeChildrenHidden(true);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -55,6 +61,32 @@ RimPerforationCollection::RimPerforationCollection()
 RimPerforationCollection::~RimPerforationCollection()
 {
     m_perforations.deleteAllChildObjects();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const RimMswCompletionParameters* RimPerforationCollection::mswParameters() const
+{
+    return m_mswParameters;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimPerforationCollection::setUnitSystemSpecificDefaults()
+{
+    m_mswParameters->setUnitSystemSpecificDefaults();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimPerforationCollection::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+{
+    caf::PdmUiGroup* mswGroup = uiOrdering.addNewGroup("Multi Segment Well Options");
+    m_mswParameters->uiOrdering(uiConfigName, *mswGroup);
+    uiOrdering.skipRemainingFields(true);
 }
 
 //--------------------------------------------------------------------------------------------------
