@@ -76,6 +76,7 @@ PdmUiTableViewEditor::PdmUiTableViewEditor()
     m_tableSelectionLevel = SelectionManager::BASE_LEVEL;
     m_rowSelectionLevel  = SelectionManager::FIRST_LEVEL;
     m_isBlockingSelectionManagerChanged = false;
+    m_isUpdatingSelectionQModel = false;
 }
 
 //--------------------------------------------------------------------------------------------------
