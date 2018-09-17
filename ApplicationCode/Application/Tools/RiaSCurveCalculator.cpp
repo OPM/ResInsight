@@ -703,6 +703,35 @@ RiaSCurveCalculator RiaSCurveCalculator::fromTangentsAndLength(cvf::Vec3d p1, do
 
 //--------------------------------------------------------------------------------------------------
 /// 
+/// Needs to calculate J^-1 * [R1_error, R2_error]
+///       | dR1_dq1   dR1_dq2  |                           1                   |  dR2_dq2  -dR1_dq2 | 
+///  J =  |                    |    J^-1 = ----------------------------------  |                    | 
+///       | dR2_dq1   dR2_dq2  |           dR1_dq1*dR2_dq2 - dR1_dq2*dR2_dq1   | -dR2_dq1   dR1_dq1 | 
+///
+/// | q1_step |           | R1_Error |
+/// |         |  = - J^-1 |          |
+/// | q2_step |           | R2_Error |
+///
+//--------------------------------------------------------------------------------------------------
+void calculateNewStepsFromJacobi(double dR1_dq1, double dR1_dq2,
+                                 double dR2_dq1, double dR2_dq2, 
+                                 double R1_error, 
+                                 double R2_error,
+                                 double * newStepq1, 
+                                 double * newStepq2)
+{
+    double invJacobiScale = 1.0/ (dR1_dq1*dR2_dq2 - dR2_dq1*dR1_dq2);
+    double invJacobi_R1q1 =  invJacobiScale * dR2_dq2;
+    double invJacobi_R1q2 =  invJacobiScale * -dR1_dq2;
+    double invJacobi_R2q1 =  invJacobiScale * -dR2_dq1;
+    double invJacobi_R2q2 =  invJacobiScale * dR1_dq1;
+
+    (*newStepq1) = - (invJacobi_R1q1 * R1_error + invJacobi_R1q2 * R2_error);
+    (*newStepq2) = - (invJacobi_R2q1 * R1_error + invJacobi_R2q2 * R2_error) ;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
 //--------------------------------------------------------------------------------------------------
 void RiaSCurveCalculator::initializeWithoutSolveSpace(cvf::Vec3d p1, double azi1, double inc1, double r1, 
                                                       cvf::Vec3d p2, double azi2, double inc2, double r2)
@@ -721,8 +750,6 @@ void RiaSCurveCalculator::initializeWithoutSolveSpace(cvf::Vec3d p1, double azi1
     double initialq1q2 = 0.2 * p1p2Length;
     double deltaPos = initialq1q2 + delta;
 
-
-
     RiaSCurveCalculator ev_0 = RiaSCurveCalculator::fromTangentsAndLength(p1, azi1, inc1, initialq1q2,
                                                                           p2, azi2, inc2, initialq1q2);
     RiaSCurveCalculator ev_dq1 = RiaSCurveCalculator::fromTangentsAndLength(p1, azi1, inc1, deltaPos,
@@ -740,48 +767,36 @@ void RiaSCurveCalculator::initializeWithoutSolveSpace(cvf::Vec3d p1, double azi1
     double R1_error = r1 - ev_0.firstRadius();
     double R2_error = r2 - ev_0.secondRadius();
 
-    // Needs to calculate J^-1 * [R1_error, R2_error]
-    //       | dR1_dq1   dR1_dq2  |                           1                   |  dR2_dq2  -dR1_dq2 | 
-    //  J =  |                    |    J^-1 = ----------------------------------  |                    | 
-    //       | dR2_dq1   dR2_dq2  |           dR1_dq1*dR2_dq2 - dR1_dq2*dR2_dq1   | -dR2_dq1   dR1_dq1 | 
-    //
-    // | q1_step |           | R1_Error |
-    // |         |  = - J^-1 |          |
-    // | q2_step |           | R2_Error |
-    //    
-    //               (R_error_n-Rerror_n-1) - Jn-1*dq
-    //  J_n = Jn-1 + --------------------------------- (dq)T
-    //                      | dqn |^2
-    // 
+    double q1StepJ;
+    double q2StepJ;
 
-    
-    double invJacobiScale = 1.0/ (dR1_dq1*dR2_dq2 - dR2_dq1*dR1_dq2);
-    double invJacobi_R1q1 =  invJacobiScale * dR2_dq2;
-    double invJacobi_R1q2 =  invJacobiScale * -dR1_dq2;
-    double invJacobi_R2q1 =  invJacobiScale * -dR2_dq1;
-    double invJacobi_R2q2 =  invJacobiScale * dR1_dq1;
-
-    double q1StepJ = - (invJacobi_R1q1 * R1_error + invJacobi_R1q2 * R2_error);
-    double q2StepJ = - (invJacobi_R2q1 * R1_error + invJacobi_R2q2 * R2_error) ;
-
-
-    double q1R1Step = -R1_error/dR1_dq1;
-    //double q1R2Step = R2_error/dR2_dq1;
-    //double q2R1Step = R1_error/dR1_dq2;
-    double q2R2Step = -R2_error/dR2_dq2;
+    calculateNewStepsFromJacobi(dR1_dq1, dR1_dq2, 
+                                dR2_dq1, dR2_dq2, 
+                                R1_error, R2_error, 
+                                &q1StepJ, &q2StepJ);
+    #define USE_JACOBI_UPDATE
+    #ifdef USE_JACOBI_UPDATE
+    double q1Step = q1StepJ;
+    double q2Step = q2StepJ;
+    #else
+    double q1Step = -R1_error/dR1_dq1;
+    double q2Step = -R2_error/dR2_dq2;
+    #endif
 
     double q1 = initialq1q2;
     double q2 = initialq1q2;
     
     const int maxIterations = 40;
     const double maxError = 0.01;
+    const double closeError = 40*maxError;
     const double maxStepSize = 1.0e9;
     const double maxLengthToQ = 1.0e10;
 
     std::cout << std::endl;
     std::cout << "Targets: R1, R2: " << r1 << " , " << r2 << std::endl;
     std::cout << "Jacobi Steps: " << q1StepJ << ", " << q2StepJ << std::endl;
-    std::cout << 0 << ": " << q1R1Step << " , " << q2R2Step << " : " << q1 << " , " << q2 << " | " 
+    std::cout << 0 << ": " << q1Step << " , " << q2Step 
+              << " : " << q1 << " , " << q2 << " | "
               << ev_0.isOk() << " : " << ev_0.firstRadius() << " , " << ev_0.secondRadius() << std::endl;
 
     for (int iter = 1; iter < maxIterations; ++iter)
@@ -789,41 +804,62 @@ void RiaSCurveCalculator::initializeWithoutSolveSpace(cvf::Vec3d p1, double azi1
         std::string q1R1StepCorrMarker;
         std::string q2R2StepCorrMarker;
 
-        if (q1 + q1R1Step < 0) { q1R1Step =  -0.9*q1; q1R1StepCorrMarker = "*";}
-        if (q2 + q2R2Step < 0) { q2R2Step =  -0.9*q2; q2R2StepCorrMarker = "*"; }
+        if (q1 + q1Step < 0) { q1Step =  -0.9*q1; q1R1StepCorrMarker = "*";}
+        if (q2 + q2Step < 0) { q2Step =  -0.9*q2; q2R2StepCorrMarker = "*"; }
 
-        q1 += q1R1Step;
-        q2 += q2R2Step;
+        q1 += q1Step;
+        q2 += q2Step;
 
         if (fabs(q1) > maxLengthToQ || fabs(q2) > maxLengthToQ) break;
 
-        std::cout << iter << ": " << q1R1Step << q1R1StepCorrMarker << " , " << q2R2Step<< q2R2StepCorrMarker  ;
+        std::cout << iter << ": " << q1Step << q1R1StepCorrMarker << " , " << q2Step<< q2R2StepCorrMarker  ;
         
         RiaSCurveCalculator ev_1 = RiaSCurveCalculator::fromTangentsAndLength(p1, azi1, inc1, q1,
                                                                               p2, azi2, inc2, q2);
 
-        std::cout << " : " << q1 << " , " << q2 << " | " << ev_1.isOk() << " : " << ev_1.firstRadius() << " , " << ev_1.secondRadius() << std::endl;
+        std::cout << " : " << q1 << " , " << q2 << " | " 
+                  << ev_1.isOk() << " : " << ev_1.firstRadius() << " , " << ev_1.secondRadius() << std::endl;
  
-        /// Update Jacobi using Broyden
-        //double dR1_error =  (r1 - ev_1.firstRadius()) - R1_error;
-        //double dR2_error =  (r2 - ev_1.secondRadius()) - R2_error;
-        //
-        //dR1_dq1 = dR1_error - ;
+        #ifdef USE_JACOBI_UPDATE
 
+        /// Update Jacobi using Broyden
+        //               (R_error_n-Rerror_n-1) - Jn-1*dq
+        //  J_n = Jn-1 + --------------------------------- (dq)T
+        //                      | dqn |^2
+        // 
+
+        double dR1_error =  (r1 - ev_1.firstRadius()) - R1_error;
+        double dR2_error =  (r2 - ev_1.secondRadius()) - R2_error;
+        R1_error = r1 - ev_1.firstRadius();
+        R2_error = r2 - ev_1.secondRadius();
+
+        double stepNormScale = 1.0/(q1Step*q1Step + q2Step*q2Step);
+
+        dR1_dq1 = dR1_dq1 + stepNormScale * (q1Step * (dR1_error - q1Step * dR1_dq1 + q2Step * dR1_dq2) );
+        dR1_dq2 = dR1_dq2 + stepNormScale * (q2Step * (dR1_error - q1Step * dR1_dq1 + q2Step * dR1_dq2) );
+        dR2_dq1 = dR2_dq1 + stepNormScale * (q1Step * (dR2_error - q1Step * dR2_dq1 + q2Step * dR2_dq2) );
+        dR2_dq2 = dR2_dq2 + stepNormScale * (q2Step * (dR2_error - q1Step * dR2_dq1 + q2Step * dR2_dq2) );
+
+        calculateNewStepsFromJacobi(dR1_dq1, dR1_dq2, 
+                                    dR2_dq1, dR2_dq2, 
+                                    R1_error, R2_error, 
+                                    &q1Step, &q2Step);
+
+        #else
+        dR1_dq1 = ((r1 - ev_1.firstRadius()) - (r1 - ev_0.firstRadius()))/q1Step;
+        dR2_dq2 = ((r2 - ev_1.secondRadius()) - (r2 - ev_0.secondRadius()))/q2Step;
 
         R1_error = r1 - ev_1.firstRadius();
         R2_error = r2 - ev_1.secondRadius();
 
-        dR1_dq1 = ((r1 - ev_1.firstRadius()) - (r1 - ev_0.firstRadius()))/q1R1Step;
-        dR2_dq2 = ((r2 - ev_1.secondRadius()) - (r2 - ev_0.secondRadius()))/q2R2Step;
-
-        q1R1Step = -R1_error/dR1_dq1;
-        q2R2Step = -R2_error/dR2_dq2;
+        q1Step = -R1_error/dR1_dq1;
+        q2Step = -R2_error/dR2_dq2;
+        #endif
 
         ev_0 = ev_1;
 
         if ( ( fabs(R1_error) < maxError    && fabs(R2_error) < maxError)
-            || fabs(q1R1Step) > maxStepSize || fabs(q2R2Step) > maxStepSize )
+            || fabs(q1Step) > maxStepSize || fabs(q2Step) > maxStepSize )
         {
             break;
         }
