@@ -85,7 +85,7 @@ RimSummaryCaseMainCollection::~RimSummaryCaseMainCollection()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimSummaryCase* RimSummaryCaseMainCollection::findSummaryCaseFromEclipseResultCase(RimEclipseResultCase* eclipseResultCase) const
+RimSummaryCase* RimSummaryCaseMainCollection::findSummaryCaseFromEclipseResultCase(const RimEclipseResultCase* eclipseResultCase) const
 {
     for (RimSummaryCase* summaryCase : m_cases)
     {
