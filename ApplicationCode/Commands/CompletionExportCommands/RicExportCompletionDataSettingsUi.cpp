@@ -93,9 +93,10 @@ RicExportCompletionDataSettingsUi::RicExportCompletionDataSettingsUi()
     CAF_PDM_InitField(&includeFishbones, "IncludeFishbones", true, "Fishbones", "", "", "");
     CAF_PDM_InitField(&includeFractures, "IncludeFractures", true, "Fractures", "", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&transScalingType, "TransScalingType", "  PDD Transmissibility Scaling", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&transScalingCorrection, "TransScalingCorrection", "  PDD Transmissibility Scaling Correction", "", "", "");
-    CAF_PDM_InitField(&transScalingPressureTimeStep, "TransScalingTimeStep", 0, "  PDD Pressure Scaling Time Step", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&transScalingType, "TransScalingType", "  Pressure Diff. Depletion Transmissibility Scaling (BETA)", "", "", "");
+    CAF_PDM_InitField(&transScalingWBHPTimeStep, "TransScalingTimeStep", -1, "  PDD WBHP from Summary Case Time Step (BETA)", "", "", "");
+    CAF_PDM_InitField(&transScalingWBHP, "TransScalingWBHP", 200.0, "  PDD Constant WBHP (BETA)", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&transScalingCorrection, "TransScalingCorrection", "  PDD Transmissibility Scaling Correction (BETA)", "", "", "");
 
     CAF_PDM_InitField(&m_includeFracturesSummaryHeader,
                       "IncludeFracturesSummaryHeader",
@@ -205,6 +206,17 @@ void RicExportCompletionDataSettingsUi::fieldChangedByUi(const caf::PdmFieldHand
             includeFractures = true;
         }
     }
+    else if (changedField == &transScalingType)
+    {
+        if (transScalingType == RicExportFractureCompletionsImpl::MATRIX_TO_WELL_DP_OVER_INITIAL_DP)
+        {
+            transScalingCorrection = RicExportFractureCompletionsImpl::HOGSTOL_CORRECTION;
+        }
+        else
+        {
+            transScalingCorrection = RicExportFractureCompletionsImpl::NO_CORRECTION;
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -214,7 +226,7 @@ QList<caf::PdmOptionItemInfo>
     RicExportCompletionDataSettingsUi::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly)
 {
     QList<caf::PdmOptionItemInfo> options;
-    if (fieldNeedingOptions == &timeStep || fieldNeedingOptions == &transScalingPressureTimeStep)
+    if (fieldNeedingOptions == &timeStep || fieldNeedingOptions == &transScalingWBHPTimeStep)
     {
         QStringList timeStepNames;
 
@@ -222,7 +234,7 @@ QList<caf::PdmOptionItemInfo>
         {
             timeStepNames = caseToApply->timeStepStrings();
         }
-
+        options.push_back(caf::PdmOptionItemInfo("Use Constant WBHP", -1));
         for (int i = 0; i < timeStepNames.size(); i++)
         {
             options.push_back(caf::PdmOptionItemInfo(timeStepNames[i], i));
@@ -270,14 +282,19 @@ void RicExportCompletionDataSettingsUi::defineUiOrdering(QString uiConfigName, c
         if (m_fracturesEnabled)
         {
             group->add(&includeFractures);
-            group->add(&transScalingType);
-            if (transScalingType() != RicExportFractureCompletionsImpl::NO_SCALING)
-            {
-                group->add(&transScalingCorrection);
-                group->add(&transScalingPressureTimeStep);
-                
-            }
             group->add(&m_includeFracturesSummaryHeader);
+
+            group->add(&transScalingType);
+            group->add(&transScalingWBHPTimeStep);
+            group->add(&transScalingWBHP);
+            group->add(&transScalingCorrection);
+
+            transScalingWBHPTimeStep.uiCapability()->setUiReadOnly(transScalingType() == RicExportFractureCompletionsImpl::NO_SCALING ||
+                                                                       transScalingType() != RicExportFractureCompletionsImpl::MATRIX_TO_WELL_DP_OVER_INITIAL_DP);
+            transScalingWBHP.uiCapability()->setUiReadOnly(transScalingWBHPTimeStep.uiCapability()->isUiReadOnly() ||
+                                                           transScalingWBHPTimeStep() != -1);
+            transScalingCorrection.uiCapability()->setUiReadOnly(transScalingType() == RicExportFractureCompletionsImpl::NO_SCALING);
+
 
             // Set visibility
             includeFractures.uiCapability()->setUiHidden(compdatExport == WPIMULT_AND_DEFAULT_CONNECTION_FACTORS && !includeMsw);

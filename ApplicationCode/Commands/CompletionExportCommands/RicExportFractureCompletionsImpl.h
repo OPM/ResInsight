@@ -63,14 +63,16 @@ public:
                                                                            QTextStream* outputStreamForIntermediateResultsText,
                                                                            PressureDepletionTransScaling pressureDropScaling = NO_SCALING,
                                                                            PressureDepletionTransCorrection transCorrection = NO_CORRECTION,
-                                                                           int pressureScalingTimeStep = 0);
+                                                                           int pressureScalingTimeStep = 0,
+                                                                           double pressureScalingWBHP = 200.0);
 
     static std::vector<RigCompletionData> generateCompdatValuesForSimWell(RimEclipseCase* eclipseCase,
                                                                           const RimSimWellInView* well,
                                                                           QTextStream* outputStreamForIntermediateResultsText,
                                                                           PressureDepletionTransScaling pressureDropScaling,
                                                                           PressureDepletionTransCorrection transCorrection,
-                                                                          int pressureScalingTimeStep);
+                                                                          int pressureScalingTimeStep,
+                                                                          double pressureScalingWBHP = 200.0);
 
     static std::vector<RigCompletionData> generateCompdatValues(RimEclipseCase* caseToApply,
                                                                 const QString& wellPathName,
@@ -78,9 +80,10 @@ public:
                                                                 const std::vector<const RimFracture*>& fractures,
                                                                 std::vector<RicWellPathFractureReportItem>* fractureDataReportItems,
                                                                 QTextStream* outputStreamForIntermediateResultsText,
-                                                                PressureDepletionTransScaling pressureDropScaling,
-                                                                PressureDepletionTransCorrection transCorrection,
-                                                                int pressureScalingTimeStep);
+                                                                PressureDepletionTransScaling pressureDropScaling = NO_SCALING,
+                                                                PressureDepletionTransCorrection transCorrection = NO_CORRECTION,
+                                                                int pressureScalingTimeStep = 0,
+                                                                double pressureScalingWBHP = 200.0);
 
 private:
     static std::vector<RigCompletionData> generateCompdatValuesConst(const RimEclipseCase* caseToApply,
@@ -91,7 +94,10 @@ private:
                                                                      QTextStream* outputStreamForIntermediateResultsText,
                                                                      PressureDepletionTransScaling pressureDropScaling,
                                                                      PressureDepletionTransCorrection transCorrection,
-                                                                     int pressureScalingTimeStep);
+                                                                     int pressureScalingTimeStep,
+                                                                     double pressureScalingWBHP);
+
+    static void getWellPressuresFromSummaryData(const RimEclipseCase* caseToApply, const QString &wellPathName, int currentTimeStep, double* originalWellPressure, double* currentWellPressure);
 
     static bool checkForStimPlanConductivity(const RimFractureTemplate* fracTemplate, const RimFracture* fracture);
 

@@ -67,8 +67,9 @@ public:
     caf::PdmField<CompdatExportType>        compdatExport;
 
     caf::PdmField<TransScalingType>         transScalingType;
+    caf::PdmField<int>                      transScalingWBHPTimeStep;
+    caf::PdmField<double>                   transScalingWBHP;
     caf::PdmField<TransScalingCorrection>   transScalingCorrection;
-    caf::PdmField<int>                      transScalingPressureTimeStep;
 
     caf::PdmField<bool>                     includeMsw;
     caf::PdmField<bool>                     useLateralNTG;
