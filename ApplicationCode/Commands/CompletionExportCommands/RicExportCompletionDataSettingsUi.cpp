@@ -289,8 +289,7 @@ void RicExportCompletionDataSettingsUi::defineUiOrdering(QString uiConfigName, c
             group->add(&transScalingWBHP);
             group->add(&transScalingCorrection);
 
-            transScalingWBHPTimeStep.uiCapability()->setUiReadOnly(transScalingType() == RicExportFractureCompletionsImpl::NO_SCALING ||
-                                                                       transScalingType() != RicExportFractureCompletionsImpl::MATRIX_TO_WELL_DP_OVER_INITIAL_DP);
+            transScalingWBHPTimeStep.uiCapability()->setUiReadOnly(transScalingType() == RicExportFractureCompletionsImpl::NO_SCALING);
             transScalingWBHP.uiCapability()->setUiReadOnly(transScalingWBHPTimeStep.uiCapability()->isUiReadOnly() ||
                                                            transScalingWBHPTimeStep() != -1);
             transScalingCorrection.uiCapability()->setUiReadOnly(transScalingType() == RicExportFractureCompletionsImpl::NO_SCALING);
