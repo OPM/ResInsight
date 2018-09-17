@@ -25,6 +25,7 @@
 #include "cvfMatrix4.h"
 #include <iostream>
 #include <algorithm>
+#include <string>
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -729,19 +730,45 @@ void RiaSCurveCalculator::initializeWithoutSolveSpace(cvf::Vec3d p1, double azi1
     RiaSCurveCalculator ev_dq2 = RiaSCurveCalculator::fromTangentsAndLength(p1, azi1, inc1, initialq1q2,
                                                                             p2, azi2, inc2, deltaPos);
 
-    double dR1_dq1 = (ev_dq1.firstRadius() - ev_0.firstRadius())/delta;
-    //double dR1_dq2 = (ev_dq2.firstRadius() - ev_0.firstRadius())/delta;
-    //double dR2_dq1 = (ev_dq1.secondRadius() - ev_0.secondRadius())/delta;
-    double dR2_dq2 = (ev_dq2.secondRadius() - ev_0.secondRadius())/delta;
+    // Initial Jacobi
+    double dR1_dq1 = ((r1 - ev_dq1.firstRadius()) - (r1 - ev_0.firstRadius()))/delta;
+    double dR1_dq2 = ((r1 - ev_dq2.firstRadius()) - (r1 - ev_0.firstRadius()))/delta;
+    double dR2_dq1 = ((r2 - ev_dq1.secondRadius()) - (r2 - ev_0.secondRadius()))/delta;
+    double dR2_dq2 = ((r2 - ev_dq2.secondRadius()) - (r2 - ev_0.secondRadius()))/delta;
 
-    
+    // Initial function value (error)
     double R1_error = r1 - ev_0.firstRadius();
     double R2_error = r2 - ev_0.secondRadius();
 
-    double q1R1Step = R1_error/dR1_dq1;
+    // Needs to calculate J^-1 * [R1_error, R2_error]
+    //       | dR1_dq1   dR1_dq2  |                           1                   |  dR2_dq2  -dR1_dq2 | 
+    //  J =  |                    |    J^-1 = ----------------------------------  |                    | 
+    //       | dR2_dq1   dR2_dq2  |           dR1_dq1*dR2_dq2 - dR1_dq2*dR2_dq1   | -dR2_dq1   dR1_dq1 | 
+    //
+    // | q1_step |           | R1_Error |
+    // |         |  = - J^-1 |          |
+    // | q2_step |           | R2_Error |
+    //    
+    //               (R_error_n-Rerror_n-1) - Jn-1*dq
+    //  J_n = Jn-1 + --------------------------------- (dq)T
+    //                      | dqn |^2
+    // 
+
+    
+    double invJacobiScale = 1.0/ (dR1_dq1*dR2_dq2 - dR2_dq1*dR1_dq2);
+    double invJacobi_R1q1 =  invJacobiScale * dR2_dq2;
+    double invJacobi_R1q2 =  invJacobiScale * -dR1_dq2;
+    double invJacobi_R2q1 =  invJacobiScale * -dR2_dq1;
+    double invJacobi_R2q2 =  invJacobiScale * dR1_dq1;
+
+    double q1StepJ = - (invJacobi_R1q1 * R1_error + invJacobi_R1q2 * R2_error);
+    double q2StepJ = - (invJacobi_R2q1 * R1_error + invJacobi_R2q2 * R2_error) ;
+
+
+    double q1R1Step = -R1_error/dR1_dq1;
     //double q1R2Step = R2_error/dR2_dq1;
     //double q2R1Step = R1_error/dR1_dq2;
-    double q2R2Step = R2_error/dR2_dq2;
+    double q2R2Step = -R2_error/dR2_dq2;
 
     double q1 = initialq1q2;
     double q2 = initialq1q2;
@@ -752,31 +779,46 @@ void RiaSCurveCalculator::initializeWithoutSolveSpace(cvf::Vec3d p1, double azi1
     const double maxLengthToQ = 1.0e10;
 
     std::cout << std::endl;
-    std::cout << 0 << ":" << 0 << "," << 0 << ":" 
-              << ev_0.isOk() << ":" << ev_0.firstRadius() << "," << ev_0.secondRadius() << std::endl;
+    std::cout << "Targets: R1, R2: " << r1 << " , " << r2 << std::endl;
+    std::cout << "Jacobi Steps: " << q1StepJ << ", " << q2StepJ << std::endl;
+    std::cout << 0 << ": " << q1R1Step << " , " << q2R2Step << " : " << q1 << " , " << q2 << " | " 
+              << ev_0.isOk() << " : " << ev_0.firstRadius() << " , " << ev_0.secondRadius() << std::endl;
 
     for (int iter = 1; iter < maxIterations; ++iter)
     {
+        std::string q1R1StepCorrMarker;
+        std::string q2R2StepCorrMarker;
+
+        if (q1 + q1R1Step < 0) { q1R1Step =  -0.9*q1; q1R1StepCorrMarker = "*";}
+        if (q2 + q2R2Step < 0) { q2R2Step =  -0.9*q2; q2R2StepCorrMarker = "*"; }
 
         q1 += q1R1Step;
         q2 += q2R2Step;
 
         if (fabs(q1) > maxLengthToQ || fabs(q2) > maxLengthToQ) break;
 
-        std::cout << iter << ": " << q1R1Step << ", " << q2R2Step << ": " ;
+        std::cout << iter << ": " << q1R1Step << q1R1StepCorrMarker << " , " << q2R2Step<< q2R2StepCorrMarker  ;
+        
         RiaSCurveCalculator ev_1 = RiaSCurveCalculator::fromTangentsAndLength(p1, azi1, inc1, q1,
                                                                               p2, azi2, inc2, q2);
 
-        std::cout << ": " << q1 << "," << q2 << " | " << ev_1.isOk() << ": " << ev_1.firstRadius() << ", " << ev_1.secondRadius() << std::endl;
+        std::cout << " : " << q1 << " , " << q2 << " | " << ev_1.isOk() << " : " << ev_1.firstRadius() << " , " << ev_1.secondRadius() << std::endl;
+ 
+        /// Update Jacobi using Broyden
+        //double dR1_error =  (r1 - ev_1.firstRadius()) - R1_error;
+        //double dR2_error =  (r2 - ev_1.secondRadius()) - R2_error;
+        //
+        //dR1_dq1 = dR1_error - ;
 
-        dR1_dq1 = (ev_1.firstRadius() - ev_0.firstRadius())/q1R1Step;
-        dR2_dq2 = (ev_1.secondRadius() - ev_0.secondRadius())/q2R2Step;
 
         R1_error = r1 - ev_1.firstRadius();
         R2_error = r2 - ev_1.secondRadius();
 
-        q1R1Step = R1_error/dR1_dq1;
-        q2R2Step = R2_error/dR2_dq2;
+        dR1_dq1 = ((r1 - ev_1.firstRadius()) - (r1 - ev_0.firstRadius()))/q1R1Step;
+        dR2_dq2 = ((r2 - ev_1.secondRadius()) - (r2 - ev_0.secondRadius()))/q2R2Step;
+
+        q1R1Step = -R1_error/dR1_dq1;
+        q2R2Step = -R2_error/dR2_dq2;
 
         ev_0 = ev_1;
 
@@ -785,6 +827,7 @@ void RiaSCurveCalculator::initializeWithoutSolveSpace(cvf::Vec3d p1, double azi1
         {
             break;
         }
+
     }
 
     *this = ev_0;
