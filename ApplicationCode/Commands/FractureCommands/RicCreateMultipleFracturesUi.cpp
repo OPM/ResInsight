@@ -374,9 +374,9 @@ void RiuCreateMultipleFractionsUi::updateButtonsEnableState()
     {
         bool hasOverlappingK = false;
         const auto& opts = options();
-        for (int i = 0; i < opts.size(); i++)
+        for (size_t i = 0; i < opts.size(); i++)
         {
-            for (int j = i + 1; j < opts.size(); j++)
+            for (size_t j = i + 1; j < opts.size(); j++)
             {
                 int absMin = std::min(opts[i]->topKLayer(), opts[j]->topKLayer());
                 int absMax = std::max(opts[i]->baseKLayer(), opts[j]->baseKLayer());
