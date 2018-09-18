@@ -141,6 +141,14 @@ void RimSummaryCase::copyFrom(const RimSummaryCase& rhs)
 }
 
 //--------------------------------------------------------------------------------------------------
+/// Sorting operator for sets and maps. Sorts by summary case short name.
+//--------------------------------------------------------------------------------------------------
+bool RimSummaryCase::operator<(const RimSummaryCase& rhs) const
+{
+    return this->caseName() < rhs.caseName();
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCase::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)

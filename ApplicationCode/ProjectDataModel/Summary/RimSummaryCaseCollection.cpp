@@ -426,6 +426,14 @@ bool RimSummaryCaseCollection::validateEnsembleCases(const std::vector<RimSummar
 }
 
 //--------------------------------------------------------------------------------------------------
+/// Sorting operator for sets and maps. Sorts by name.
+//--------------------------------------------------------------------------------------------------
+bool RimSummaryCaseCollection::operator<(const RimSummaryCaseCollection& rhs) const
+{
+    return name() < rhs.name();
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 caf::PdmFieldHandle* RimSummaryCaseCollection::userDescriptionField()

@@ -37,7 +37,7 @@ public:
     virtual ~RimFileSummaryCase();
 
     virtual QString        summaryHeaderFilename() const  override;
-    virtual QString        caseName() override;
+    virtual QString        caseName() const override;
     virtual void           updateFilePathsFromProjectPath(const QString& newProjectPath, const QString& oldProjectPath) override;
 
     virtual void            createSummaryReaderInterface() override;

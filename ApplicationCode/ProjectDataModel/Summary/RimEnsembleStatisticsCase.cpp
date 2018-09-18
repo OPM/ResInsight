@@ -86,7 +86,7 @@ const std::vector<double>& RimEnsembleStatisticsCase::mean() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RimEnsembleStatisticsCase::caseName()
+QString RimEnsembleStatisticsCase::caseName() const
 {
     return "Ensemble Statistics";
 }

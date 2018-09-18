@@ -50,7 +50,7 @@ RimObservedData::RimObservedData()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RimObservedData::caseName()
+QString RimObservedData::caseName() const
 {
     QFileInfo caseFileName(this->summaryHeaderFilename());
 

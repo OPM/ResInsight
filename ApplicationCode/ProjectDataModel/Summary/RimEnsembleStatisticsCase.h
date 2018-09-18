@@ -46,7 +46,7 @@ public:
     bool                                hasP90Data() const { return !m_p90Data.empty(); }
     bool                                hasMeanData() const { return !m_meanData.empty(); }
 
-    virtual QString                     caseName() override;
+    virtual QString                     caseName() const override;
     virtual void                        createSummaryReaderInterface() override;
     virtual RifSummaryReaderInterface*  summaryReader() override;
 

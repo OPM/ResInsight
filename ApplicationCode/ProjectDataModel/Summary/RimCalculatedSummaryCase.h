@@ -40,7 +40,7 @@ public:
     RimCalculatedSummaryCase();
     virtual ~RimCalculatedSummaryCase();
 
-    virtual QString                         caseName() override;
+    virtual QString                         caseName() const override;
     virtual void                            createSummaryReaderInterface() override;
     virtual RifSummaryReaderInterface*      summaryReader() override;
     virtual void                            updateFilePathsFromProjectPath(const QString& newProjectPath, const QString& oldProjectPath) override;

@@ -36,7 +36,7 @@ class RimObservedData : public RimSummaryCase
 public:
     RimObservedData();
 
-    virtual QString         caseName() override;
+    virtual QString         caseName() const override;
     virtual void            updateFilePathsFromProjectPath(const QString& newProjectPath, const QString& oldProjectPath) override;
 
     QString                                      identifierName() const;

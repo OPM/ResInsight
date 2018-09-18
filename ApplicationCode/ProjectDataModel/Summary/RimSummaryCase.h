@@ -41,7 +41,7 @@ public:
     virtual ~RimSummaryCase();
     
     virtual QString     summaryHeaderFilename() const; 
-    virtual QString     caseName() = 0; 
+    virtual QString     caseName() const = 0; 
     QString             shortName() const;
 
     void                updateAutoShortName();
@@ -63,6 +63,7 @@ public:
     RimSummaryCaseCollection* ensemble() const;
     bool                isEnsembleCase() const;
     void                copyFrom(const RimSummaryCase& rhs);
+    bool                operator<(const RimSummaryCase& rhs) const;
 
 protected:
     virtual void        fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);

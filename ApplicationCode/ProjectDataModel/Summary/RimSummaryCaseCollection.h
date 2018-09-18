@@ -80,7 +80,7 @@ public:
     void                            loadDataAndUpdate();
 
     static bool                     validateEnsembleCases(const std::vector<RimSummaryCase*> cases);
-
+    bool                            operator<(const RimSummaryCaseCollection& rhs) const;
 private:
     caf::PdmFieldHandle*            userDescriptionField() override;
     QString                         nameAndItemCount() const;
