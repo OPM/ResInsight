@@ -215,13 +215,23 @@ void RicFishbonesTransmissibilityCalculationFeatureImp::findFishboneLateralsWell
 
             for (const auto& fishboneDefinition : wellPath->fishbonesCollection()->activeFishbonesSubs())
             {
+                double startMD = fishboneDefinition->startOfSubMD();
+                double endMD = fishboneDefinition->endOfSubMD();
+
+                if (fabs(startMD - endMD) < 1e-3)
+                {
+                    // Start and end md are close, adjust to be sure we get an intersection along the well path
+                    startMD -= 0.5;
+                    endMD += 0.5;
+                }
+                
                 appendMainWellBoreParts(wellBorePartsInCells,
                                         wellPath,
                                         settings,
                                         skinFactor,
                                         holeRadius,
-                                        fishboneDefinition->startOfSubMD(),
-                                        fishboneDefinition->endOfSubMD());
+                                        startMD,
+                                        endMD);
             }
         }
     }
