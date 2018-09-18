@@ -361,8 +361,8 @@ void RicSummaryCurveCreator::syncPreviewCurvesFromUiSelection()
             for (const auto& curve : currentCurvesInPreviewPlot)
             {
                 RimSummaryCase* sumCase = curve->summaryCaseY();
+                if (sumCase && sumCase->ensemble()) continue;
 
-                if (sumCase->ensemble()) continue;
                 RiaSummaryCurveDefinition curveDef = RiaSummaryCurveDefinition(sumCase, curve->summaryAddressY());
                 if (deleteCurveDefs.count(curveDef) > 0) curvesToDelete.insert(curve);
             }

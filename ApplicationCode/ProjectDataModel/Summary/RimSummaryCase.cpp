@@ -115,7 +115,7 @@ RimSummaryCaseCollection* RimSummaryCase::ensemble() const
 {
     RimSummaryCaseCollection* e;
     firstAncestorOrThisOfType(e);
-    return e;
+    return e && e->isEnsemble() ? e : nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

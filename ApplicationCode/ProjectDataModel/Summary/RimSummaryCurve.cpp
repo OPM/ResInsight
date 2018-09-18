@@ -743,7 +743,8 @@ void RimSummaryCurve::forceUpdateCurveAppearanceFromCaseType()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCurve::markCachedDataForPurge()
 {
-    valuesSummaryReaderY()->markForCachePurge(m_yValuesCurveVariable->address());
+    auto reader = valuesSummaryReaderY();
+    if(reader) reader->markForCachePurge(m_yValuesCurveVariable->address());
 }
 
 //--------------------------------------------------------------------------------------------------
