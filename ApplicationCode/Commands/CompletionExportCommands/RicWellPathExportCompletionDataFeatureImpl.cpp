@@ -296,7 +296,8 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions(const std::ve
         progress.setProgressDescription("Write Export Files");
         if (exportSettings.fileSplit == RicExportCompletionDataSettingsUi::UNIFIED_FILE)
         {
-            const QString fileName = QString("UnifiedCompletions_%1").arg(eclipseCaseName);
+            QString fileName = QString("UnifiedCompletions_%1").arg(eclipseCaseName);
+            fileName += createPressureDepletionFileNameSuffix(exportSettings);
             sortAndExportCompletionsToFile(exportSettings.caseToApply,
                                            exportSettings.folder,
                                            fileName,
@@ -321,6 +322,7 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions(const std::ve
                 if (wellCompletions.empty()) continue;
 
                 QString fileName = QString("%1_unifiedCompletions_%2").arg(wellPath->name()).arg(eclipseCaseName);
+                fileName += createPressureDepletionFileNameSuffix(exportSettings);
                 sortAndExportCompletionsToFile(exportSettings.caseToApply,
                                                exportSettings.folder,
                                                fileName,
@@ -360,6 +362,10 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions(const std::ve
                         if (completionType == RigCompletionData::PERFORATION) completionTypeText = "Perforation";
 
                         QString fileName = QString("%1_%2_%3").arg(wellPath->name()).arg(completionTypeText).arg(eclipseCaseName);
+                        if (completionType == RigCompletionData::FRACTURE)
+                        {
+                            fileName += createPressureDepletionFileNameSuffix(exportSettings);
+                        }
                         sortAndExportCompletionsToFile(exportSettings.caseToApply,
                                                        exportSettings.folder,
                                                        fileName,
@@ -391,6 +397,7 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions(const std::ve
                 if (wellCompletions.empty()) continue;
 
                 QString fileName = QString("%1_Fractures_%2").arg(simWell->name()).arg(eclipseCaseName);
+                fileName += createPressureDepletionFileNameSuffix(exportSettings);
                 sortAndExportCompletionsToFile(exportSettings.caseToApply,
                                                exportSettings.folder,
                                                fileName,
@@ -2349,6 +2356,47 @@ void RicWellPathExportCompletionDataFeatureImpl::exportWellSegments(
     RicWellPathExportCompletionDataFeatureImpl::generateWelsegsTable(formatter, exportInfo);
     RicWellPathExportCompletionDataFeatureImpl::generateCompsegTables(formatter, exportInfo);
     RicWellPathExportCompletionDataFeatureImpl::generateWsegvalvTable(formatter, exportInfo);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RicWellPathExportCompletionDataFeatureImpl::createPressureDepletionFileNameSuffix(const RicExportCompletionDataSettingsUi& exportSettings)
+{
+    QString suffix;
+    if (exportSettings.transScalingType() != RicExportFractureCompletionsImpl::NO_CORRECTION)
+    {
+        if (exportSettings.transScalingType() == RicExportFractureCompletionsImpl::MATRIX_TO_FRACTURE_DP_OVER_AVG_DP)
+        {
+            suffix += QString("_PAVG_");
+        }
+        else if (exportSettings.transScalingType() == RicExportFractureCompletionsImpl::MATRIX_TO_FRACTURE_DP_OVER_MAX_DP)
+        {
+            suffix += QString("_PMAX_");
+        }
+        else
+        {
+            suffix += QString("_PMWD_");
+        }
+
+        if (exportSettings.transScalingCorrection() == RicExportFractureCompletionsImpl::HOGSTOL_CORRECTION)
+        {
+            suffix += QString("_HC_");
+        }
+
+        if (exportSettings.transScalingSummaryWBHP())
+        {
+            suffix += QString("_SUMM_");
+        }
+
+        RimEclipseCase* eclipseCase = exportSettings.caseToApply();
+        if (eclipseCase)
+        {
+            QString date = eclipseCase->timeStepStrings()[exportSettings.transScalingTimeStep()];
+            suffix += QString("_%1").arg(date);
+        }
+    }
+    return suffix;
 }
 
 //--------------------------------------------------------------------------------------------------

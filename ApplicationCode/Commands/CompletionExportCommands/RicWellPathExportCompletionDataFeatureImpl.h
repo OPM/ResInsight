@@ -215,4 +215,5 @@ private:
                                                              QFilePtr exportFile,
                                                              const RimWellPath* wellPath,
                                                              const std::vector<const RimPerforationInterval*>& perforationIntervals);
+    static QString                        createPressureDepletionFileNameSuffix(const RicExportCompletionDataSettingsUi& exportSettings);
 };
