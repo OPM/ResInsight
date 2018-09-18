@@ -20,6 +20,7 @@
 
 #include <cstddef>
 #include <vector>
+#include <string>
 
 
 //==================================================================================================
@@ -33,34 +34,78 @@ public:
     enum ElementType
     {
         Unknown = 0,
-        Uint32,
-        Float32
+        Uint32  = 1,
+        Float32 = 2
     };
 
 public:
-    ElementType             elementType() const;
-    size_t                  elementSize() const;
-    size_t                  elementCount() const;
-    const char*             arrayData() const;
-
-    size_t                  fullPacketSize() const;
-    const char*             fullPacketRawPtr() const;
-
-    static VdeArrayDataPacket  fromFloat32Arr(int packetId, const float* srcArr, size_t srcArrElementCount);
-    static VdeArrayDataPacket  fromUint32Arr(int packetId, const unsigned int* srcArr, size_t srcArrElementCount);
-
-    static VdeArrayDataPacket  fromRawPacketBuffer(const char* rawPacketBuffer, size_t bufferByteSize);
-
-private:
     VdeArrayDataPacket();
 
-    bool    assign(int packetId, ElementType elementType, size_t elementCount, const char* payloadPtr, size_t payloadSizeInBytes);
+    bool                        isValid() const;
+    int                         arrayId() const;
+
+    ElementType                 elementType() const;
+    size_t                      elementSize() const;
+    size_t                      elementCount() const;
+    const char*                 arrayData() const;
+
+    size_t                      fullPacketSize() const;
+    const char*                 fullPacketRawPtr() const;
+
+    static VdeArrayDataPacket   fromFloat32Arr(int arrayId, const float* srcArr, size_t srcArrElementCount);
+    static VdeArrayDataPacket   fromUint32Arr(int arrayId, const unsigned int* srcArr, size_t srcArrElementCount);
+
+    static VdeArrayDataPacket   fromRawPacketBuffer(const char* rawPacketBuffer, size_t bufferSize, std::string* errString);
 
 private:
-    int                 m_packetId;
+    bool    assign(int arrayId, ElementType elementType, size_t elementCount, const char* payloadPtr, size_t payloadSizeInBytes);
+
+private:
+    int                 m_arrayId;
     ElementType         m_elementType;
     size_t              m_elementCount;
 
-    std::vector<char>   m_dataBytes;
+    std::vector<char>   m_packetBytes;
+};
+
+
+
+//==================================================================================================
+//
+//
+//
+//==================================================================================================
+class VdeBufferReader
+{
+public:
+    VdeBufferReader(const char* buffer, size_t bufferSize);
+
+    unsigned int    getUint32(size_t byteOffset) const;
+    unsigned short  getUint16(size_t byteOffset) const;
+    unsigned char   getUint8(size_t byteOffset) const;
+
+private:
+    const char*     m_buffer;
+    const size_t    m_bufferSize;
+};
+
+
+//==================================================================================================
+//
+//
+//
+//==================================================================================================
+class VdeBufferWriter
+{
+public:
+    VdeBufferWriter(char* buffer, size_t bufferSize);
+
+    void    setUint32(size_t byteOffset, unsigned int val);
+    void    setUint16(size_t byteOffset, unsigned short val);
+    void    setUint8(size_t byteOffset, unsigned char val);
+
+private:
+    char*           m_buffer;
+    const size_t    m_bufferSize;
 };
 

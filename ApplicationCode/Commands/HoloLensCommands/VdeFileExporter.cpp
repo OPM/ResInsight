@@ -62,6 +62,16 @@ bool VdeFileExporter::exportViewContents(const RimGridView& view)
 
     std::vector<VdeMesh> meshArr;
 
+    std::vector<cvf::Color3f> colorArr;
+    colorArr.push_back(cvf::Color3f::fromByteColor( 81, 134, 148));
+    colorArr.push_back(cvf::Color3f::fromByteColor(212, 158,  97));
+    colorArr.push_back(cvf::Color3f::fromByteColor(217,  82,  28));
+    colorArr.push_back(cvf::Color3f::fromByteColor(212, 148, 138));
+    colorArr.push_back(cvf::Color3f::fromByteColor(115, 173, 181));
+    colorArr.push_back(cvf::Color3f::fromByteColor(125,  84,  56));
+    colorArr.push_back(cvf::Color3f::fromByteColor(206, 193,  55));
+    colorArr.push_back(cvf::Color3f::fromByteColor(252, 209, 158));
+
     for (size_t i = 0; i < allPartsColl.size(); i++)
     {
         const cvf::Part* part = allPartsColl.at(i);
@@ -70,6 +80,7 @@ bool VdeFileExporter::exportViewContents(const RimGridView& view)
             VdeMesh mesh;
             if (extractMeshFromPart(view, *part, &mesh))
             {
+                mesh.color = colorArr[i % colorArr.size()];
                 meshArr.push_back(mesh);
             }
         }
@@ -118,7 +129,7 @@ bool VdeFileExporter::exportViewContents(const RimGridView& view)
 
             // Testing decoding
             {
-                VdeArrayDataPacket testPacket = VdeArrayDataPacket::fromRawPacketBuffer(dataPacket.fullPacketRawPtr(), dataPacket.fullPacketSize());
+                VdeArrayDataPacket testPacket = VdeArrayDataPacket::fromRawPacketBuffer(dataPacket.fullPacketRawPtr(), dataPacket.fullPacketSize(), nullptr);
                 CVF_ASSERT(dataPacket.elementCount() == testPacket.elementCount());
                 CVF_ASSERT(dataPacket.elementSize() == testPacket.elementSize());
                 CVF_ASSERT(dataPacket.elementType() == testPacket.elementType());
@@ -147,7 +158,7 @@ bool VdeFileExporter::exportViewContents(const RimGridView& view)
 
             // Testing decoding
             {
-                VdeArrayDataPacket testPacket = VdeArrayDataPacket::fromRawPacketBuffer(dataPacket.fullPacketRawPtr(), dataPacket.fullPacketSize());
+                VdeArrayDataPacket testPacket = VdeArrayDataPacket::fromRawPacketBuffer(dataPacket.fullPacketRawPtr(), dataPacket.fullPacketSize(), nullptr);
                 CVF_ASSERT(dataPacket.elementCount() == testPacket.elementCount());
                 CVF_ASSERT(dataPacket.elementSize() == testPacket.elementSize());
                 CVF_ASSERT(dataPacket.elementType() == testPacket.elementType());
@@ -164,29 +175,42 @@ bool VdeFileExporter::exportViewContents(const RimGridView& view)
 
 
     {
-        QVariantList meshVariantList;
+        QVariantList jsonMeshMetaList;
 
         for (size_t i = 0; i < meshArr.size(); i++)
         {
             const VdeMesh& mesh = meshArr[i];
             const MeshIds& meshIds = meshIdsArr[i];
 
-            QMap<QString, QVariant> meshMeta;
-            meshMeta["meshSourceObjType"] = mesh.meshSourceObjTypeStr;
-            meshMeta["meshSourceObjName"] = mesh.meshSourceObjName;
-            meshMeta["verticesPerPrimitive"] = mesh.verticesPerPrimitive;
-            meshMeta["vertexArrId"] = meshIds.vertexArrId;
-            meshMeta["connArrId"] = meshIds.connArrId;
+            QMap<QString, QVariant> jsonMeshMeta;
+            jsonMeshMeta["meshSourceObjType"] = mesh.meshSourceObjTypeStr;
+            jsonMeshMeta["meshSourceObjName"] = mesh.meshSourceObjName;
 
-            meshVariantList.push_back(meshMeta);
+            jsonMeshMeta["verticesPerPrimitive"] = mesh.verticesPerPrimitive;
+            jsonMeshMeta["vertexArrId"] = meshIds.vertexArrId;
+            jsonMeshMeta["connArrId"] = meshIds.connArrId;
+
+            {
+                QMap<QString, QVariant> jsonColor;
+                jsonColor["r"] = mesh.color.r();
+                jsonColor["g"] = mesh.color.g();
+                jsonColor["b"] = mesh.color.b();
+
+                jsonMeshMeta["color"] = jsonColor;
+            }
+
+            jsonMeshMeta["opacity"] = 1.0;
+
+            jsonMeshMetaList.push_back(jsonMeshMeta);
         }
 
-        QMap<QString, QVariant> modelMetaJson;
-        modelMetaJson["meshArr"] = meshVariantList;
+        QMap<QString, QVariant> jsonModelMeta;
+        jsonModelMeta["modelName"] = "ResInsightExport";
+        jsonModelMeta["meshArr"] = jsonMeshMetaList;
 
         ResInsightInternalJson::Json jsonCodec;
         const bool prettifyJson = true;
-        QByteArray jsonStr = jsonCodec.encode(modelMetaJson, prettifyJson).toLatin1();
+        QByteArray jsonStr = jsonCodec.encode(jsonModelMeta, prettifyJson).toLatin1();
 
         QString jsonFileName = outputDir.absoluteFilePath("modelMeta.json");
         QFile file(jsonFileName);

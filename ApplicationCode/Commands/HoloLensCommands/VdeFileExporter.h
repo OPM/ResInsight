@@ -43,6 +43,8 @@ struct VdeMesh
     QString                     meshSourceObjTypeStr;
     QString                     meshSourceObjName;
 
+    cvf::Color3f                color;
+
     int                         verticesPerPrimitive;
     cvf::cref<cvf::Vec3fArray>  vertexArr;
     std::vector<cvf::uint>      connArr;

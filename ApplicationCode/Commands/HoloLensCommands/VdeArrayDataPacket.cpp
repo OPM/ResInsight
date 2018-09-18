@@ -20,18 +20,44 @@
 
 
 
+//==================================================================================================
+//
+//
+//
+//==================================================================================================
 
-//==================================================================================================
+// Binary package format/layout
 //
-//
-//
-//==================================================================================================
+//  packetVersion:          2 bytes
+//  arrayId:                4 bytes     ID of this array
+//  elementCount:           4 bytes     number of elements in array
+//  elementType:            1 byte      data type of each element in the array(float32, uint32, uint8, int8)
+//  imageComponentCount:    1 byte      number of image components for texture image(currently always 0 or 3)
+//  imageWidth:             2 bytes     only used for texture images, otherwise 0
+//  imageHeight:            2 bytes     :
+//  arrayData:              ...
+
+
+// Header offsets in bytes
+static const size_t VDE_BYTEOFFSET_PACKET_VERSION       = 0;
+static const size_t VDE_BYTEOFFSET_ARRAY_ID             = 2;
+static const size_t VDE_BYTEOFFSET_ELEMENT_COUNT        = 6;
+static const size_t VDE_BYTEOFFSET_ELEMENT_TYPE         = 10;
+static const size_t VDE_BYTEOFFSET_IMAGE_COMPONENT_COUNT= 11;
+static const size_t VDE_BYTEOFFSET_IMAGE_WIDTH          = 12;
+static const size_t VDE_BYTEOFFSET_IMAGE_HEIGHT         = 14;
+
+// Header size in bytes
+static const size_t VDE_HEADER_SIZE = 2 + 4 + 4 + 1 + 1 + 2 + 2;
+
+static const size_t VDE_PACKET_VERSION = 1;
+
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 VdeArrayDataPacket::VdeArrayDataPacket()
-:   m_packetId(-1),
+:   m_arrayId(-1),
     m_elementType(Unknown),
     m_elementCount(0)
 {
@@ -40,25 +66,27 @@ VdeArrayDataPacket::VdeArrayDataPacket()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool VdeArrayDataPacket::assign(int packetId, ElementType elementType, size_t elementCount, const char* payloadPtr, size_t payloadSizeInBytes)
+bool VdeArrayDataPacket::isValid() const
 {
-    const size_t headerByteCount = 3*sizeof(int);
-    const size_t totalSizeBytes = headerByteCount + payloadSizeInBytes;
+    if (m_elementType != Unknown && 
+        m_packetBytes.size() >= VDE_HEADER_SIZE &&
+        m_arrayId >= 0)
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
 
-    m_dataBytes.resize(totalSizeBytes);
+}
 
-    int* headerIntPtr = reinterpret_cast<int*>(m_dataBytes.data());
-    headerIntPtr[0] = packetId;
-    headerIntPtr[1] = elementType;
-    headerIntPtr[2] = static_cast<int>(elementCount);
-
-    m_dataBytes.insert(m_dataBytes.begin() + headerByteCount, payloadPtr, payloadPtr + payloadSizeInBytes);
-
-    m_packetId = packetId;
-    m_elementType = elementType;
-    m_elementCount = elementCount;
-
-    return true;
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int VdeArrayDataPacket::arrayId() const
+{
+    return m_arrayId;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -97,59 +125,99 @@ size_t VdeArrayDataPacket::elementCount() const
 //--------------------------------------------------------------------------------------------------
 const char* VdeArrayDataPacket::arrayData() const
 {
-    const size_t headerByteCount = 3*sizeof(int);
-    const char* ptr = m_dataBytes.data();
-    return ptr + headerByteCount;
+    if (m_packetBytes.size() > VDE_HEADER_SIZE)
+    {
+        const char* ptr = m_packetBytes.data();
+        return ptr + VDE_HEADER_SIZE;
+    }
+    else
+    {
+        return nullptr;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-VdeArrayDataPacket VdeArrayDataPacket::fromFloat32Arr(int packetId, const float* srcArr, size_t srcArrElementCount)
+VdeArrayDataPacket VdeArrayDataPacket::fromFloat32Arr(int arrayId, const float* srcArr, size_t srcArrElementCount)
 {
     size_t payloadByteCount = srcArrElementCount*sizeof(float);
     const char* rawSrcPtr = reinterpret_cast<const char*>(srcArr);
 
     VdeArrayDataPacket packet;
-    packet.assign(packetId, Float32, srcArrElementCount, rawSrcPtr, payloadByteCount);
+    packet.assign(arrayId, Float32, srcArrElementCount, rawSrcPtr, payloadByteCount);
     return packet;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-VdeArrayDataPacket VdeArrayDataPacket::fromUint32Arr(int packetId, const unsigned int* srcArr, size_t srcArrElementCount)
+VdeArrayDataPacket VdeArrayDataPacket::fromUint32Arr(int arrayId, const unsigned int* srcArr, size_t srcArrElementCount)
 {
     size_t payloadByteCount = srcArrElementCount*sizeof(unsigned int);
     const char* rawSrcPtr = reinterpret_cast<const char*>(srcArr);
 
     VdeArrayDataPacket packet;
-    packet.assign(packetId, Uint32, srcArrElementCount, rawSrcPtr, payloadByteCount);
+    packet.assign(arrayId, Uint32, srcArrElementCount, rawSrcPtr, payloadByteCount);
     return packet;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-VdeArrayDataPacket VdeArrayDataPacket::fromRawPacketBuffer(const char* rawPacketBuffer, size_t bufferByteSize)
+VdeArrayDataPacket VdeArrayDataPacket::fromRawPacketBuffer(const char* rawPacketBuffer, size_t bufferSize, std::string* errString)
 {
-    const size_t headerByteCount = 3*sizeof(int);
-    if (bufferByteSize < headerByteCount)
+    if (bufferSize < VDE_HEADER_SIZE)
     {
+        if (errString) *errString = "Buffer size is less than fixed header size";
         return VdeArrayDataPacket();
     }
 
-    const int* headerIntPtr = reinterpret_cast<const int*>(rawPacketBuffer);
-    const int packetId = headerIntPtr[0];
-    const ElementType elementType = static_cast<ElementType>(headerIntPtr[1]);
-    const size_t elementCount = headerIntPtr[2];
+    VdeBufferReader bufferReader(rawPacketBuffer, bufferSize);
+    const unsigned short packetVersion = bufferReader.getUint16(VDE_BYTEOFFSET_PACKET_VERSION);
+    if (packetVersion != VDE_PACKET_VERSION)
+    {
+        if (errString) *errString = "Wrong packet version";
+        return VdeArrayDataPacket();
+    }
 
-    const char* payloadPtr = rawPacketBuffer + headerByteCount;
-    const size_t payloadSizeInBytes = bufferByteSize - headerByteCount;
+    const int packetId              = bufferReader.getUint32(VDE_BYTEOFFSET_ARRAY_ID);
+    const ElementType elementType   = static_cast<ElementType>(bufferReader.getUint8(VDE_BYTEOFFSET_ELEMENT_TYPE));
+    const size_t elementCount       = bufferReader.getUint32(VDE_BYTEOFFSET_ELEMENT_COUNT);
+
+    const char* payloadPtr = rawPacketBuffer + VDE_HEADER_SIZE;
+    const size_t payloadSizeInBytes = bufferSize - VDE_HEADER_SIZE;
 
     VdeArrayDataPacket packet;
     packet.assign(packetId, elementType, elementCount, payloadPtr, payloadSizeInBytes);
+
     return packet;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool VdeArrayDataPacket::assign(int arrayId, ElementType elementType, size_t elementCount, const char* payloadPtr, size_t payloadSizeInBytes)
+{
+    const size_t totalSizeBytes = VDE_HEADER_SIZE + payloadSizeInBytes;
+    m_packetBytes.resize(totalSizeBytes);
+
+    VdeBufferWriter bufferWriter(m_packetBytes.data(), m_packetBytes.size());
+    bufferWriter.setUint16(VDE_BYTEOFFSET_PACKET_VERSION,           VDE_PACKET_VERSION);
+    bufferWriter.setUint32(VDE_BYTEOFFSET_ARRAY_ID,                 arrayId);
+    bufferWriter.setUint32(VDE_BYTEOFFSET_ELEMENT_COUNT,            static_cast<unsigned int>(elementCount));
+    bufferWriter.setUint8( VDE_BYTEOFFSET_ELEMENT_TYPE,             static_cast<unsigned char>(elementType));
+    bufferWriter.setUint16(VDE_BYTEOFFSET_IMAGE_COMPONENT_COUNT,    0);
+    bufferWriter.setUint16(VDE_BYTEOFFSET_IMAGE_WIDTH,              0);
+    bufferWriter.setUint16(VDE_BYTEOFFSET_IMAGE_HEIGHT,             0);
+
+    m_packetBytes.insert(m_packetBytes.begin() + VDE_HEADER_SIZE, payloadPtr, payloadPtr + payloadSizeInBytes);
+
+    m_arrayId = arrayId;
+    m_elementType = elementType;
+    m_elementCount = elementCount;
+
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -157,7 +225,7 @@ VdeArrayDataPacket VdeArrayDataPacket::fromRawPacketBuffer(const char* rawPacket
 //--------------------------------------------------------------------------------------------------
 size_t VdeArrayDataPacket::fullPacketSize() const
 {
-    return m_dataBytes.size();
+    return m_packetBytes.size();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -165,6 +233,112 @@ size_t VdeArrayDataPacket::fullPacketSize() const
 //--------------------------------------------------------------------------------------------------
 const char* VdeArrayDataPacket::fullPacketRawPtr() const
 {
-    return m_dataBytes.data();
+    return m_packetBytes.data();
+}
+
+
+
+//==================================================================================================
+//
+//
+//
+//==================================================================================================
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+VdeBufferReader::VdeBufferReader(const char* buffer, size_t bufferSize)
+:   m_buffer(buffer),
+    m_bufferSize(bufferSize)
+{
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+unsigned int VdeBufferReader::getUint32(size_t byteOffset) const
+{
+    if (byteOffset + sizeof(unsigned int) <= m_bufferSize)
+    {
+        return *reinterpret_cast<const unsigned int*>(&m_buffer[byteOffset]);
+    }
+
+    return 0;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+unsigned short VdeBufferReader::getUint16(size_t byteOffset) const
+{
+    if (byteOffset + sizeof(unsigned short) <= m_bufferSize)
+    {
+        return *reinterpret_cast<const unsigned short*>(&m_buffer[byteOffset]);
+    }
+
+    return 0;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+unsigned char VdeBufferReader::getUint8(size_t byteOffset) const
+{
+    if (byteOffset + 1 <= m_bufferSize)
+    {
+        return *reinterpret_cast<const unsigned char*>(&m_buffer[byteOffset]);
+    }
+
+    return 0;
+}
+
+
+
+//==================================================================================================
+//
+//
+//
+//==================================================================================================
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+VdeBufferWriter::VdeBufferWriter(char* buffer, size_t bufferSize)
+:   m_buffer(buffer),
+    m_bufferSize(bufferSize)
+{
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void VdeBufferWriter::setUint32(size_t byteOffset, unsigned int val)
+{
+    if (byteOffset + sizeof(unsigned int) <= m_bufferSize)
+    {
+        *reinterpret_cast<unsigned int*>(&m_buffer[byteOffset]) = val;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void VdeBufferWriter::setUint16(size_t byteOffset, unsigned short val)
+{
+    if (byteOffset + sizeof(unsigned short) <= m_bufferSize)
+    {
+        *reinterpret_cast<unsigned short*>(&m_buffer[byteOffset]) = val;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void VdeBufferWriter::setUint8(size_t byteOffset, unsigned char val)
+{
+    if (byteOffset + 1 <= m_bufferSize)
+    {
+        *reinterpret_cast<unsigned char*>(&m_buffer[byteOffset]) = val;
+    }
 }
 
