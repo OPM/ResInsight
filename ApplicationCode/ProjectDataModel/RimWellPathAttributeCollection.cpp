@@ -115,6 +115,21 @@ void RimWellPathAttributeCollection::defineCustomContextMenu(const caf::PdmField
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimWellPathAttributeCollection::defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute)
+{
+    if (field == &m_attributes)
+    {
+        auto tvAttribute = dynamic_cast<caf::PdmUiTableViewEditorAttribute*>(attribute);
+        if (tvAttribute)
+        {
+            tvAttribute->forceColumnWidthResize = true;
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimWellPathAttributeCollection::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
     caf::PdmUiGroup* attrGroup = uiOrdering.addNewGroup("Well Path Attributes");
