@@ -94,9 +94,10 @@ RicExportCompletionDataSettingsUi::RicExportCompletionDataSettingsUi()
     CAF_PDM_InitField(&includeFractures, "IncludeFractures", true, "Fractures", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&transScalingType, "TransScalingType", "  Pressure Diff. Depletion Transmissibility Scaling (BETA)", "", "", "");
-    CAF_PDM_InitField(&transScalingWBHPTimeStep, "TransScalingTimeStep", -1, "  PDD WBHP from Summary Case Time Step (BETA)", "", "", "");
-    CAF_PDM_InitField(&transScalingWBHP, "TransScalingWBHP", 200.0, "  PDD Constant WBHP (BETA)", "", "", "");
     CAF_PDM_InitFieldNoDefault(&transScalingCorrection, "TransScalingCorrection", "  PDD Transmissibility Scaling Correction (BETA)", "", "", "");
+    CAF_PDM_InitField(&transScalingTimeStep, "TransScalingTimeStep", 0, "  PDD Current Pressure Time Step (BETA)", "", "", "");
+    CAF_PDM_InitField(&transScalingWBHP, "TransScalingWBHP", 200.0, "  PDD Default WBHP Value (BETA)", "", "", "");
+    CAF_PDM_InitField(&transScalingSummaryWBHP, "TransScalingWBHPFromCurrentTime", true, "  PDD WBHP from Summary File at Current Time (BETA)", "", "", "");
 
     CAF_PDM_InitField(&m_includeFracturesSummaryHeader,
                       "IncludeFracturesSummaryHeader",
@@ -226,7 +227,7 @@ QList<caf::PdmOptionItemInfo>
     RicExportCompletionDataSettingsUi::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly)
 {
     QList<caf::PdmOptionItemInfo> options;
-    if (fieldNeedingOptions == &timeStep || fieldNeedingOptions == &transScalingWBHPTimeStep)
+    if (fieldNeedingOptions == &timeStep || fieldNeedingOptions == &transScalingTimeStep)
     {
         QStringList timeStepNames;
 
@@ -234,7 +235,6 @@ QList<caf::PdmOptionItemInfo>
         {
             timeStepNames = caseToApply->timeStepStrings();
         }
-        options.push_back(caf::PdmOptionItemInfo("Use Constant WBHP", -1));
         for (int i = 0; i < timeStepNames.size(); i++)
         {
             options.push_back(caf::PdmOptionItemInfo(timeStepNames[i], i));
@@ -285,14 +285,15 @@ void RicExportCompletionDataSettingsUi::defineUiOrdering(QString uiConfigName, c
             group->add(&m_includeFracturesSummaryHeader);
 
             group->add(&transScalingType);
-            group->add(&transScalingWBHPTimeStep);
-            group->add(&transScalingWBHP);
             group->add(&transScalingCorrection);
+            group->add(&transScalingTimeStep);
+            group->add(&transScalingWBHP);
+            group->add(&transScalingSummaryWBHP);
 
-            transScalingWBHPTimeStep.uiCapability()->setUiReadOnly(transScalingType() == RicExportFractureCompletionsImpl::NO_SCALING);
-            transScalingWBHP.uiCapability()->setUiReadOnly(transScalingWBHPTimeStep.uiCapability()->isUiReadOnly() ||
-                                                           transScalingWBHPTimeStep() != -1);
             transScalingCorrection.uiCapability()->setUiReadOnly(transScalingType() == RicExportFractureCompletionsImpl::NO_SCALING);
+            transScalingTimeStep.uiCapability()->setUiReadOnly(transScalingType() == RicExportFractureCompletionsImpl::NO_SCALING);
+            transScalingWBHP.uiCapability()->setUiReadOnly(transScalingType() == RicExportFractureCompletionsImpl::NO_SCALING);
+            transScalingSummaryWBHP.uiCapability()->setUiReadOnly(transScalingType() == RicExportFractureCompletionsImpl::NO_SCALING);
 
 
             // Set visibility

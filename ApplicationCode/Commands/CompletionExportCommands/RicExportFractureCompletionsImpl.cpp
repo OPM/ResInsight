@@ -71,10 +71,7 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
     RimEclipseCase*                             caseToApply,
     std::vector<RicWellPathFractureReportItem>* fractureDataForReport,
     QTextStream*                                outputStreamForIntermediateResultsText,
-    PressureDepletionTransScaling               pressureDropScaling,
-    PressureDepletionTransCorrection            transCorrection,
-    int                                         pressureScalingTimeStep,
-    double                                      pressureScalingWBHP)
+    PressureDepletionParameters                 pdParams)
 {
     std::vector<const RimFracture*> fracturesAlongWellPath;
 
@@ -90,21 +87,18 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
                                  wellPath->wellPathGeometry(),
                                  fracturesAlongWellPath,
                                  fractureDataForReport,
-                                 outputStreamForIntermediateResultsText, pressureDropScaling,
-                                 transCorrection, pressureScalingTimeStep, pressureScalingWBHP);
+                                 outputStreamForIntermediateResultsText,
+                                 pdParams);
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 std::vector<RigCompletionData>
-    RicExportFractureCompletionsImpl::generateCompdatValuesForSimWell(RimEclipseCase*                  eclipseCase,
-                                                                      const RimSimWellInView*          well,
-                                                                      QTextStream*                     outputStreamForIntermediateResultsText,
-                                                                      PressureDepletionTransScaling    pressureDropScaling,
-                                                                      PressureDepletionTransCorrection transCorrection,
-                                                                      int                              pressureScalingTimeStep,
-                                                                      double                           pressureScalingWBHP)
+    RicExportFractureCompletionsImpl::generateCompdatValuesForSimWell(RimEclipseCase*         eclipseCase,
+                                                                      const RimSimWellInView* well,
+                                                                      QTextStream* outputStreamForIntermediateResultsText,
+                                                                      PressureDepletionParameters pdParams)
 {
     std::vector<RigCompletionData> completionData;
 
@@ -121,16 +115,8 @@ std::vector<RigCompletionData>
             }
         }
 
-        std::vector<RigCompletionData> branchCompletions = generateCompdatValues(eclipseCase,
-                                                                                 well->name(),
-                                                                                 branches[branchIndex],
-                                                                                 fractures,
-                                                                                 nullptr,
-                                                                                 outputStreamForIntermediateResultsText,
-                                                                                 pressureDropScaling,
-                                                                                 transCorrection,
-                                                                                 pressureScalingTimeStep,
-                                                                                 pressureScalingWBHP);
+        std::vector<RigCompletionData> branchCompletions = generateCompdatValues(
+            eclipseCase, well->name(), branches[branchIndex], fractures, nullptr, outputStreamForIntermediateResultsText, pdParams);
 
         completionData.insert(completionData.end(), branchCompletions.begin(), branchCompletions.end());
     }
@@ -147,11 +133,8 @@ std::vector<RigCompletionData>
                                                             const RigWellPath*                          wellPathGeometry,
                                                             const std::vector<const RimFracture*>&      fractures,
                                                             std::vector<RicWellPathFractureReportItem>* fractureDataReportItems,
-                                                            QTextStream*                                outputStreamForIntermediateResultsText,
-                                                            PressureDepletionTransScaling               pressureDropScaling,
-                                                            PressureDepletionTransCorrection            transCorrection,
-                                                            int                                         pressureScalingTimeStep,
-                                                            double                                      pressureScalingWBHP)
+                                                            QTextStream*                outputStreamForIntermediateResultsText,
+                                                            PressureDepletionParameters pdParams)
 {
     std::vector<RigCompletionData> fractureCompletions;
 
@@ -196,7 +179,7 @@ std::vector<RigCompletionData>
         caseToApply->loadStaticResultsByName(resultNames);
     }
 
-    if (pressureDropScaling != NO_SCALING)
+    if (pdParams.pressureDropScaling != NO_SCALING)
     {
         RigCaseCellResultsData* results = caseToApply->results(RiaDefines::MATRIX_MODEL);
         results->findOrLoadScalarResult(RiaDefines::DYNAMIC_NATIVE, "PRESSURE");
@@ -208,10 +191,7 @@ std::vector<RigCompletionData>
                                       fractures,
                                       fractureDataReportItems,
                                       outputStreamForIntermediateResultsText,
-                                      pressureDropScaling,
-                                      transCorrection,
-                                      pressureScalingTimeStep,
-                                      pressureScalingWBHP);
+                                      pdParams);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -224,10 +204,7 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
     const std::vector<const RimFracture*>&      fractures,
     std::vector<RicWellPathFractureReportItem>* fractureDataReportItems,
     QTextStream*                                outputStreamForIntermediateResultsText,
-    PressureDepletionTransScaling               pressureDropScaling,
-    PressureDepletionTransCorrection            transCorrection,
-    int                                         pressureScalingTimeStep,
-    double                                      pressureScalingWBHP)
+    PressureDepletionParameters                 pdParams)
 {
     std::vector<RigCompletionData> fractureCompletions;
 
@@ -239,32 +216,33 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
     double             cDarcyInCorrectUnit = RiaEclipseUnitTools::darcysConstant(caseToApply->eclipseCaseData()->unitsType());
     const RigMainGrid* mainGrid            = caseToApply->eclipseCaseData()->mainGrid();
 
-    const RigCaseCellResultsData* results = caseToApply->results(RiaDefines::MATRIX_MODEL);
-    size_t pressureResultIndex = results->findScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, "PRESSURE");
-    const RigActiveCellInfo* actCellInfo = caseToApply->eclipseCaseData()->activeCellInfo(RiaDefines::MATRIX_MODEL);
-    
-    const std::vector<std::vector<double>>* pressureResultVector = nullptr;
-    const std::vector<double>* originalMatrixPressures = nullptr;
-    const std::vector<double>* currentMatrixPressures = nullptr;
-    if (pressureDropScaling != NO_SCALING)
+    const RigCaseCellResultsData* results             = caseToApply->results(RiaDefines::MATRIX_MODEL);
+    size_t                        pressureResultIndex = results->findScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, "PRESSURE");
+    const RigActiveCellInfo*      actCellInfo         = caseToApply->eclipseCaseData()->activeCellInfo(RiaDefines::MATRIX_MODEL);
+
+    const std::vector<std::vector<double>>* pressureResultVector    = nullptr;
+    const std::vector<double>*              originalMatrixPressures = nullptr;
+    const std::vector<double>*              currentMatrixPressures  = nullptr;
+    if (pdParams.pressureDropScaling != NO_SCALING)
     {
         pressureResultVector = &results->cellScalarResults(pressureResultIndex);
         CVF_ASSERT(!pressureResultVector->empty());
 
         originalMatrixPressures = &(pressureResultVector->front());
-        currentMatrixPressures = originalMatrixPressures;
-        if (pressureScalingTimeStep < pressureResultVector->size())
+        currentMatrixPressures  = originalMatrixPressures;
+        if (pdParams.pressureScalingTimeStep < pressureResultVector->size())
         {
-            currentMatrixPressures = &pressureResultVector->at(pressureScalingTimeStep);
+            currentMatrixPressures = &pressureResultVector->at(pdParams.pressureScalingTimeStep);
         }
     }
 
-    double originalWellPressure = pressureScalingWBHP;
-    double currentWellPressure  = pressureScalingWBHP;
-    if (pressureDropScaling == MATRIX_TO_WELL_DP_OVER_INITIAL_DP && pressureScalingTimeStep != -1)
+    double originalWellPressure = pdParams.pressureScalingWBHP;
+    double currentWellPressure  = pdParams.pressureScalingWBHP;
+    if (pdParams.pressureDropScaling != NO_SCALING && pdParams.wbhpFromSummaryCase)
     {
         // Find well pressures (WBHP) from summary case.
-        getWellPressuresFromSummaryData(caseToApply, wellPathName, pressureScalingTimeStep, &originalWellPressure, &currentWellPressure);
+        getWellPressuresFromSummaryData(
+            caseToApply, wellPathName, pdParams.pressureScalingTimeStep, &originalWellPressure, &currentWellPressure);
     }
     // To handle several fractures in the same eclipse cell we need to keep track of the transmissibility
     // to the well from each fracture intersecting the cell and sum these transmissibilities at the end.
@@ -316,7 +294,7 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
         // Insert total transmissibility from eclipse-cell to well for this fracture into the map
         std::map<size_t, double> matrixToWellTrans = calculateMatrixToWellTransmissibilities(transCondenser);
 
-        if (pressureDropScaling == MATRIX_TO_FRACTURE_DP_OVER_MAX_DP || pressureDropScaling == MATRIX_TO_FRACTURE_DP_OVER_AVG_DP)
+        if (pdParams.pressureDropScaling == MATRIX_TO_FRACTURE_DP_OVER_MAX_DP || pdParams.pressureDropScaling == MATRIX_TO_FRACTURE_DP_OVER_AVG_DP)
         {
             RigTransmissibilityCondenser scaledCondenser = transCondenser;
             // 1. Scale matrix to fracture transmissibilities by matrix to fracture pressure
@@ -324,18 +302,17 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
                 scaledCondenser.scaleMatrixToFracTransByMatrixFracDP(actCellInfo,
                                                                      currentWellPressure,
                                                                      *currentMatrixPressures,
-                                                                     pressureDropScaling ==
-                                                                          MATRIX_TO_FRACTURE_DP_OVER_AVG_DP);
+                                                                     pdParams.pressureDropScaling == MATRIX_TO_FRACTURE_DP_OVER_AVG_DP);
             // 2: Calculate new external transmissibilities
             scaledCondenser.calculateCondensedTransmissibilities();
 
-            if (transCorrection == NO_CORRECTION)
+            if (pdParams.transCorrection == NO_CORRECTION)
             {
                 // Calculate effective matrix to well transmissibilities.
                 std::map<size_t, double> effectiveMatrixToWellTransBeforeCorrection = calculateMatrixToWellTransmissibilities(scaledCondenser);
                 matrixToWellTrans = effectiveMatrixToWellTransBeforeCorrection;
             }
-            else if (transCorrection == HOGSTOL_CORRECTION)
+            else if (pdParams.transCorrection == HOGSTOL_CORRECTION)
             {
                 // Høgstøl correction.
                 // 1. Calculate new effective fracture to well transmissiblities
@@ -346,10 +323,10 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
                 matrixToWellTrans = effectiveMatrixToWellTrans;
             }
         }
-        else if (pressureDropScaling == MATRIX_TO_WELL_DP_OVER_INITIAL_DP)
+        else if (pdParams.pressureDropScaling == MATRIX_TO_WELL_DP_OVER_INITIAL_DP)
         {
             RigTransmissibilityCondenser scaledCondenser = transCondenser;
-            // From Høgstøl "Hydraulic Fracturing SoW 2.8 outside contractFracture Transmissibility Calculations for Differential Depletion":
+            // From Høgstøl "Hydraulic Fracturing SoW 2.8 outside contract fracture Transmissibility Calculations for Differential Depletion":
             // 1. Scale matrix to fracture transmissibilities by matrix to well pressure
             std::map<size_t, double> originalLumpedMatrixToFractureTrans =
                 scaledCondenser.scaleMatrixToFracTransByMatrixWellDP(
@@ -357,13 +334,13 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
             // 2: Calculate new external transmissibilities
             scaledCondenser.calculateCondensedTransmissibilities();
 
-            if (transCorrection == NO_CORRECTION)
+            if (pdParams.transCorrection == NO_CORRECTION)
             {
                 // Calculate effective matrix to well transmissibilities.
                 std::map<size_t, double> effectiveMatrixToWellTransBeforeCorrection = calculateMatrixToWellTransmissibilities(scaledCondenser);
                 matrixToWellTrans = effectiveMatrixToWellTransBeforeCorrection;
             }
-            else if (transCorrection == HOGSTOL_CORRECTION)
+            else if (pdParams.transCorrection == HOGSTOL_CORRECTION)
             {
                 // Høgstøl correction.
                 // 1. Calculate new effective fracture to well transmissiblities
@@ -418,14 +395,18 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicExportFractureCompletionsImpl::getWellPressuresFromSummaryData(const RimEclipseCase* caseToApply, const QString &wellPathName, int currentTimeStep, double* originalWellPressure, double* currentWellPressure)
+void RicExportFractureCompletionsImpl::getWellPressuresFromSummaryData(const RimEclipseCase* caseToApply,
+                                                                       const QString&        wellPathName,
+                                                                       int                   currentTimeStep,
+                                                                       double*               originalWellPressure,
+                                                                       double*               currentWellPressure)
 {
     const RimEclipseResultCase* resultCase = dynamic_cast<const RimEclipseResultCase*>(caseToApply);
     if (resultCase)
     {
         std::vector<QDateTime> caseTimeSteps = resultCase->timeStepDates();
-        QDateTime originalDate = caseTimeSteps.front();
-        QDateTime currentDate = caseTimeSteps[currentTimeStep];
+        QDateTime              originalDate  = caseTimeSteps.front();
+        QDateTime              currentDate   = caseTimeSteps[currentTimeStep];
 
         RifEclipseSummaryAddress wbhpPressureAddress = RifEclipseSummaryAddress::wellAddress("WBHP", wellPathName.toStdString());
         RimSummaryCaseMainCollection* mainCollection = RiaSummaryTools::summaryCaseMainCollection();

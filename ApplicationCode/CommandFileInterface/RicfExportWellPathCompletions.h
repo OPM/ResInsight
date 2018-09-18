@@ -50,6 +50,7 @@ private:
 
     caf::PdmField<RicExportCompletionDataSettingsUi::TransScalingType>       m_transScalingType;
     caf::PdmField<int>                                                       m_transScalingTimeStep;
+    caf::PdmField<bool>                                                      m_transScalingSummaryWBHP;
     caf::PdmField<double>                                                    m_transScalingWBHP;
     caf::PdmField<RicExportCompletionDataSettingsUi::TransScalingCorrection> m_transScalingCorrection;
 

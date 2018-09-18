@@ -37,6 +37,7 @@ class RimWellPath;
 
 class QTextStream;
 class QString;
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -57,22 +58,40 @@ public:
         HOGSTOL_CORRECTION
     };
 
+    //--------------------------------------------------------------------------------------------------
+    ///
+    //--------------------------------------------------------------------------------------------------
+    struct PressureDepletionParameters
+    {
+        PressureDepletionParameters(PressureDepletionTransScaling pressureDropScaling = NO_SCALING,
+                                    PressureDepletionTransCorrection transCorrection = NO_CORRECTION,
+                                    int pressureScalingTimeStep = 0,
+                                    bool wbhpFromSummaryCase = false,
+                                    double pressureScalingWBHP = 200.0)
+            : pressureDropScaling(pressureDropScaling)
+            , transCorrection(transCorrection)
+            , pressureScalingTimeStep(pressureScalingTimeStep)
+            , wbhpFromSummaryCase(wbhpFromSummaryCase)
+            , pressureScalingWBHP(pressureScalingWBHP)
+        {}
+
+        PressureDepletionTransScaling    pressureDropScaling;
+        PressureDepletionTransCorrection transCorrection;
+        int                              pressureScalingTimeStep;
+        bool                             wbhpFromSummaryCase;
+        double                           pressureScalingWBHP;
+    };     
+
     static std::vector<RigCompletionData> generateCompdatValuesForWellPath(RimWellPath* wellPath,
                                                                            RimEclipseCase* caseToApply,
                                                                            std::vector<RicWellPathFractureReportItem>* fractureDataForReport,
                                                                            QTextStream* outputStreamForIntermediateResultsText,
-                                                                           PressureDepletionTransScaling pressureDropScaling = NO_SCALING,
-                                                                           PressureDepletionTransCorrection transCorrection = NO_CORRECTION,
-                                                                           int pressureScalingTimeStep = 0,
-                                                                           double pressureScalingWBHP = 200.0);
+                                                                           PressureDepletionParameters pdParams = PressureDepletionParameters());
 
     static std::vector<RigCompletionData> generateCompdatValuesForSimWell(RimEclipseCase* eclipseCase,
                                                                           const RimSimWellInView* well,
                                                                           QTextStream* outputStreamForIntermediateResultsText,
-                                                                          PressureDepletionTransScaling pressureDropScaling,
-                                                                          PressureDepletionTransCorrection transCorrection,
-                                                                          int pressureScalingTimeStep,
-                                                                          double pressureScalingWBHP = 200.0);
+                                                                          PressureDepletionParameters pdParams = PressureDepletionParameters());
 
     static std::vector<RigCompletionData> generateCompdatValues(RimEclipseCase* caseToApply,
                                                                 const QString& wellPathName,
@@ -80,10 +99,7 @@ public:
                                                                 const std::vector<const RimFracture*>& fractures,
                                                                 std::vector<RicWellPathFractureReportItem>* fractureDataReportItems,
                                                                 QTextStream* outputStreamForIntermediateResultsText,
-                                                                PressureDepletionTransScaling pressureDropScaling = NO_SCALING,
-                                                                PressureDepletionTransCorrection transCorrection = NO_CORRECTION,
-                                                                int pressureScalingTimeStep = 0,
-                                                                double pressureScalingWBHP = 200.0);
+                                                                PressureDepletionParameters pdParams = PressureDepletionParameters());
 
 private:
     static std::vector<RigCompletionData> generateCompdatValuesConst(const RimEclipseCase* caseToApply,
@@ -92,10 +108,7 @@ private:
                                                                      const std::vector<const RimFracture*>& fractures,
                                                                      std::vector<RicWellPathFractureReportItem>* fractureDataReportItems,
                                                                      QTextStream* outputStreamForIntermediateResultsText,
-                                                                     PressureDepletionTransScaling pressureDropScaling,
-                                                                     PressureDepletionTransCorrection transCorrection,
-                                                                     int pressureScalingTimeStep,
-                                                                     double pressureScalingWBHP);
+                                                                     PressureDepletionParameters pdParams);
 
     static void getWellPressuresFromSummaryData(const RimEclipseCase* caseToApply, const QString &wellPathName, int currentTimeStep, double* originalWellPressure, double* currentWellPressure);
 

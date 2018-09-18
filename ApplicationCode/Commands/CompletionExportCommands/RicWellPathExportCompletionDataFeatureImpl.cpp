@@ -226,10 +226,12 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions(const std::ve
                         exportSettings.caseToApply(),
                         reportItems,
                         fractureTransmissibilityExportInformationStream.get(),
-                        exportSettings.transScalingType(),
-                        exportSettings.transScalingCorrection(),
-                        exportSettings.transScalingWBHPTimeStep(),
-                        exportSettings.transScalingWBHP());
+                        RicExportFractureCompletionsImpl::PressureDepletionParameters(
+                            exportSettings.transScalingType(),
+                            exportSettings.transScalingCorrection(),
+                            exportSettings.transScalingTimeStep(),
+                            exportSettings.transScalingSummaryWBHP(),
+                            exportSettings.transScalingWBHP()));
 
                 appendCompletionData(&completionsPerEclipseCellAllCompletionTypes, fractureCompletionData);
                 appendCompletionData(&completionsPerEclipseCellFracture, fractureCompletionData);
@@ -269,9 +271,16 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions(const std::ve
 
             std::vector<RigCompletionData> fractureCompletionData =
                 RicExportFractureCompletionsImpl::generateCompdatValuesForSimWell(
-                    exportSettings.caseToApply(), simWell, fractureTransmissibilityExportInformationStream.get(),
-                    exportSettings.transScalingType(), exportSettings.transScalingCorrection(),
-                    exportSettings.transScalingWBHPTimeStep(), exportSettings.transScalingWBHP());
+                    exportSettings.caseToApply(),
+                    simWell,
+                    fractureTransmissibilityExportInformationStream.get(),
+                    RicExportFractureCompletionsImpl::PressureDepletionParameters(
+                        exportSettings.transScalingType(),
+                        exportSettings.transScalingCorrection(),
+                        exportSettings.transScalingTimeStep(),
+                        exportSettings.transScalingSummaryWBHP(),
+                        exportSettings.transScalingWBHP()));
+
             appendCompletionData(&completionsPerEclipseCell, fractureCompletionData);
 
             for (auto& data : completionsPerEclipseCell)

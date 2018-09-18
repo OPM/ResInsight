@@ -67,7 +67,8 @@ public:
     caf::PdmField<CompdatExportType>        compdatExport;
 
     caf::PdmField<TransScalingType>         transScalingType;
-    caf::PdmField<int>                      transScalingWBHPTimeStep;
+    caf::PdmField<int>                      transScalingTimeStep;
+    caf::PdmField<bool>                     transScalingSummaryWBHP;
     caf::PdmField<double>                   transScalingWBHP;
     caf::PdmField<TransScalingCorrection>   transScalingCorrection;
 
