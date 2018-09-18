@@ -19,29 +19,49 @@
 #pragma once
 
 #include "cvfBase.h"
-#include "cvfCollection.h"
-#include "VdeExportPart.h"
+#include "cvfObject.h"
+#include "cvfPart.h"
 
-class QString;
-class RimGridView;
-
-namespace cvf
-{
-class Part;
-} // namespace cvf
+#include <QString>
 
 //==================================================================================================
 ///
 //==================================================================================================
-class RicHoloLensExportImpl
+class VdeExportPart
 {
 public:
-    static void partsForExport(const RimGridView* view, cvf::Collection<cvf::Part>* partCollection);
+    enum SourceObjectType
+    {
+        OBJ_TYPE_GRID,
+        OBJ_TYPE_PIPE,
+        OBJ_TYPE_GRID_MESH,
+        OBJ_TYPE_UNKNOWN
+    };
 
-    static std::vector<VdeExportPart> partsForExport(const RimGridView* view);
+    enum Winding
+    {
+        CLOCKWISE,
+        COUNTERCLOCKWISE
+    };
 
-    static QString nameFromPart(const cvf::Part* part);
+public:
+    VdeExportPart(cvf::Part* part);
 
-    static bool isGrid(const cvf::Part* part);
-    static bool isPipe(const cvf::Part* part);
+    void setSourceObjectType(SourceObjectType sourceObjectType);
+    void setSourceObjectName(const QString& sourceObjectName);
+    void setColor(cvf::Color3ub color);
+    void setWinding(Winding winding);
+
+    QString          sourceObjectName() const;
+    SourceObjectType sourceObjectType() const;
+    cvf::Part*       part();
+    cvf::Color3ub    color() const;
+    Winding          winding() const;
+
+private:
+    QString             m_sourceObjectName;
+    SourceObjectType    m_sourceObjectType;
+    cvf::Color3ub       m_color;
+    cvf::ref<cvf::Part> m_part;
+    Winding             m_winding;
 };

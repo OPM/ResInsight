@@ -62,6 +62,44 @@ void RicHoloLensExportImpl::partsForExport(const RimGridView* view, cvf::Collect
 }
 
 //--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<VdeExportPart> RicHoloLensExportImpl::partsForExport(const RimGridView* view)
+{
+    std::vector<VdeExportPart> exportParts;
+
+    if (view->viewer())
+    {
+        cvf::Scene* scene = view->viewer()->mainScene();
+        if (scene)
+        {
+            cvf::Collection<cvf::Part> sceneParts;
+            scene->allParts(&sceneParts);
+
+            for (auto& scenePart : sceneParts)
+            {
+                if (RicHoloLensExportImpl::isGrid(scenePart.p()))
+                {
+                    VdeExportPart part(scenePart.p());
+                    part.setSourceObjectType(VdeExportPart::OBJ_TYPE_GRID);
+
+                    exportParts.push_back(part);
+                }
+                else if (RicHoloLensExportImpl::isPipe(scenePart.p()))
+                {
+                    VdeExportPart part(scenePart.p());
+                    part.setSourceObjectType(VdeExportPart::OBJ_TYPE_PIPE);
+
+                    exportParts.push_back(part);
+                }
+            }
+        }
+    }
+
+    return exportParts;
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 QString RicHoloLensExportImpl::nameFromPart(const cvf::Part* part)
