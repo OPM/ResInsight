@@ -37,7 +37,7 @@ RimWellLogPlotNameConfig::RimWellLogPlotNameConfig(const RimNameConfigHolderInte
     CAF_PDM_InitField(&m_addWellName,   "AddWellName",   false, "Add Well Name",   "", "", "");
     CAF_PDM_InitField(&m_addTimestep,   "AddTimeStep",   false, "Add Time Step",   "", "", "");
     CAF_PDM_InitField(&m_addAirGap,     "AddAirGap",     false, "Add Air Gap",     "", "", "");
-    CAF_PDM_InitField(&m_addWaterDepth, "AddWaterDepth", false, "Add Water Depth To Auto Name", "", "", "");
+    CAF_PDM_InitField(&m_addWaterDepth, "AddWaterDepth", false, "Add Water Depth", "", "", "");
 
     m_customName = "Well Log Plot";
 }
