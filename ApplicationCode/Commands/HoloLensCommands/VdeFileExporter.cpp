@@ -21,17 +21,9 @@
 
 #include "RicHoloLensExportImpl.h"
 
-#include "RimGridView.h"
-#include "RimSimWellInView.h"
-#include "RimWellPath.h"
-
-#include "RivSimWellPipeSourceInfo.h"
-#include "RivSourceInfo.h"
-#include "RivWellPathSourceInfo.h"
-
-#include "RiuViewer.h"
-
 #include "RifJsonEncodeDecode.h"
+
+#include "RiaLogging.h"
 
 #include "cvfPart.h"
 #include "cvfScene.h"
@@ -120,16 +112,11 @@ bool VdeFileExporter::exportViewContents(const RimGridView& view)
                 return false;
             }
 
-
-            cvf::cref<cvf::Vec3fArray> vertexArrToExport;
-
-            vertexArrToExport = mesh.vertexArr;
-
-
-            const float* floatArr = reinterpret_cast<const float*>(vertexArrToExport->ptr());
-            VdeArrayDataPacket dataPacket = VdeArrayDataPacket::fromFloat32Arr(meshIds.vertexArrId, floatArr, 3*vertexArrToExport->size());
+            const float* floatArr = reinterpret_cast<const float*>(mesh.vertexArr->ptr());
+            VdeArrayDataPacket dataPacket = VdeArrayDataPacket::fromFloat32Arr(meshIds.vertexArrId, floatArr, 3*mesh.vertexArr->size());
             file.write(dataPacket.fullPacketRawPtr(), dataPacket.fullPacketSize());
 
+            // Testing decoding
             {
                 VdeArrayDataPacket testPacket = VdeArrayDataPacket::fromRawPacketBuffer(dataPacket.fullPacketRawPtr(), dataPacket.fullPacketSize());
                 CVF_ASSERT(dataPacket.elementCount() == testPacket.elementCount());
@@ -158,6 +145,7 @@ bool VdeFileExporter::exportViewContents(const RimGridView& view)
             VdeArrayDataPacket dataPacket = VdeArrayDataPacket::fromUint32Arr(meshIds.connArrId, uintArr, mesh.connArr.size());
             file.write(dataPacket.fullPacketRawPtr(), dataPacket.fullPacketSize());
 
+            // Testing decoding
             {
                 VdeArrayDataPacket testPacket = VdeArrayDataPacket::fromRawPacketBuffer(dataPacket.fullPacketRawPtr(), dataPacket.fullPacketSize());
                 CVF_ASSERT(dataPacket.elementCount() == testPacket.elementCount());
@@ -184,7 +172,7 @@ bool VdeFileExporter::exportViewContents(const RimGridView& view)
             const MeshIds& meshIds = meshIdsArr[i];
 
             QMap<QString, QVariant> meshMeta;
-            meshMeta["meshSourceObjType"] = "grid";
+            meshMeta["meshSourceObjType"] = mesh.meshSourceObjTypeStr;
             meshMeta["meshSourceObjName"] = mesh.meshSourceObjName;
             meshMeta["verticesPerPrimitive"] = mesh.verticesPerPrimitive;
             meshMeta["vertexArrId"] = meshIds.vertexArrId;
@@ -213,48 +201,6 @@ bool VdeFileExporter::exportViewContents(const RimGridView& view)
         }
     }
 
-
-    /*
-    QDir outputDir(m_absOutputFolder);
-
-    //QByteArray jsonStr = "Dette er en test\nlinje2";
-
-    QMap<QString, QVariant> json;
-    json["sigurd"] = "er kul";
-    json["testDouble"] = 1.23;
-    json["testInt"] = 1;
-
-    QMap<QString, QVariant> sub;
-    sub["keyA"] = 123;
-
-    QVariantList l;
-    l.push_back(1);
-    l.push_back(2);
-    l.push_back(3);
-    sub["keyB"] = l;
-
-
-    json["theSub"] = sub;
-
-
-    ResInsightInternalJson::Json jsonCodec;
-    QByteArray jsonStr = jsonCodec.encode(json).toLatin1();
-
-
-    QString jsonFileName = outputDir.absoluteFilePath("modelMeta.json");
-    QFile file(jsonFileName);
-    if (!file.open(QIODevice::WriteOnly))
-    {
-        return false;
-    }
-
-    if (file.write(jsonStr) == -1)
-    {
-        return false;
-    }
-    */
-
-
     return true;
 }
 
@@ -269,20 +215,29 @@ bool VdeFileExporter::extractMeshFromPart(const RimGridView& view, const cvf::Pa
         return false;
     }
 
+    if (geo->primitiveSetCount() != 1)
+    {
+        RiaLogging::debug("Only geometries with exactly one primitive set is supported");
+        return false;
+    }
+
     const cvf::Vec3fArray* vertexArr = geo->vertexArray();
-    const cvf::PrimitiveSet* primSet = geo->primitiveSetCount() > 0 ? geo->primitiveSet(0) : nullptr;
-    if (!vertexArr || !primSet)
+    const cvf::PrimitiveSet* primSet = geo->primitiveSet(0);
+    if (!vertexArr || !primSet || primSet->faceCount() == 0)
     {
         return false;
     }
 
-    if (primSet->primitiveType() != cvf::PT_TRIANGLES || primSet->faceCount() == 0)
+
+    if (primSet->primitiveType() != cvf::PT_TRIANGLES)
     {
+        RiaLogging::debug("Currently only triangle primitive sets are supported");
         return false;
     }
 
     mesh->verticesPerPrimitive = 3;
 
+    // Possibly transform the vertices
     if (part.transform())
     {
         const size_t vertexCount = vertexArr->size();
@@ -303,13 +258,26 @@ bool VdeFileExporter::extractMeshFromPart(const RimGridView& view, const cvf::Pa
 
     cvf::UIntArray faceConn;
     const size_t faceCount = primSet->faceCount();
-    for (size_t i = 0; i < faceCount; i++)
+    for (size_t iface = 0; iface < faceCount; iface++)
     {
-        primSet->getFaceIndices(i, &faceConn);
-        mesh->connArr.insert(mesh->connArr.end(), faceConn.begin(), faceConn.end());
+        primSet->getFaceIndices(iface, &faceConn);
+        //mesh->connArr.insert(mesh->connArr.end(), faceConn.begin(), faceConn.end());
+
+        // Reverse the winding
+        const size_t numConn = faceConn.size();
+        for (size_t i = 0; i < numConn; i++)
+        {
+            mesh->connArr.push_back(faceConn[numConn - i - 1]);
+        }
     }
 
     const QString nameOfObject = RicHoloLensExportImpl::nameFromPart(&part);
+
+    QString srcObjType = "unknown";
+    if      (RicHoloLensExportImpl::isGrid(&part)) srcObjType = "grid";
+    else if (RicHoloLensExportImpl::isPipe(&part)) srcObjType = "pipe";
+
+    mesh->meshSourceObjTypeStr = srcObjType;
     mesh->meshSourceObjName = nameOfObject;
 
     return true;

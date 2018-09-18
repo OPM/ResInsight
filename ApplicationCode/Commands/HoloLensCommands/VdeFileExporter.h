@@ -40,6 +40,7 @@ class Part;
 //==================================================================================================
 struct VdeMesh
 {
+    QString                     meshSourceObjTypeStr;
     QString                     meshSourceObjName;
 
     int                         verticesPerPrimitive;
