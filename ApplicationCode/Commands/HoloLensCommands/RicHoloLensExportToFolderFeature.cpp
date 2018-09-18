@@ -21,6 +21,7 @@
 #include "RicHoloLensExportToFolderUi.h"
 
 #include "RiaApplication.h"
+#include "RimCase.h"
 #include "RimDialogData.h"
 #include "RimGridView.h"
 #include "RimProject.h"
@@ -65,7 +66,17 @@ void RicHoloLensExportToFolderFeature::onActionTriggered(bool isChecked)
         cvf::Collection<cvf::Part> allPartsColl;
 
         RimGridView* viewForExport = featureUi->viewForExport();
+        if (!viewForExport) return;
 
+        QString caseName("Unnamed Case");
+        {
+            RimCase* rimCase = nullptr;
+            viewForExport->firstAncestorOrThisOfType(rimCase);
+            if (rimCase)
+            {
+                caseName = rimCase->caseUserDescription();
+            }
+        }
         RicHoloLensExportImpl::partsForExport(viewForExport, &allPartsColl);
 
         QDir dir(featureUi->exportFolder());
@@ -77,6 +88,8 @@ void RicHoloLensExportToFolderFeature::onActionTriggered(bool isChecked)
             if (part)
             {
                 QString nameOfObject = RicHoloLensExportImpl::nameFromPart(part);
+                // caseName is relevant to combine with name of object
+
                 // bool isGrid = RicHoloLensExportImpl::isGrid(part);
 
                 QString absolutePath = dir.absoluteFilePath(nameOfObject);

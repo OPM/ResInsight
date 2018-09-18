@@ -78,7 +78,7 @@ QString RicHoloLensExportImpl::nameFromPart(const cvf::Part* part)
         {
             size_t gridIndex = gridSourceInfo->gridIndex();
 
-            nameOfObject = QString::number(gridIndex);
+            nameOfObject = "Grid " + QString::number(gridIndex);
         }
     }
 
