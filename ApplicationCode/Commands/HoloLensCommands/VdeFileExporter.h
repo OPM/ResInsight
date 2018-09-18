@@ -38,7 +38,7 @@ class Part;
 //
 //
 //==================================================================================================
-struct RicHoloLensMesh
+struct VdeMesh
 {
     QString                     meshSourceObjName;
 
@@ -46,7 +46,7 @@ struct RicHoloLensMesh
     cvf::cref<cvf::Vec3fArray>  vertexArr;
     std::vector<cvf::uint>      connArr;
 
-    RicHoloLensMesh()
+    VdeMesh()
     :   verticesPerPrimitive(-1)
     {}
 };
@@ -66,7 +66,7 @@ public:
     bool exportViewContents(const RimGridView& view);
 
 private:
-    static bool extractMeshFromPart(const RimGridView& view, const cvf::Part& part, RicHoloLensMesh* mesh);
+    static bool extractMeshFromPart(const RimGridView& view, const cvf::Part& part, VdeMesh* mesh);
 
 private:
     QString     m_absOutputFolder;

@@ -37,6 +37,7 @@
 #include "cvfScene.h"
 #include "cvfDrawableGeo.h"
 #include "cvfPrimitiveSet.h"
+#include "cvfTransform.h"
 #include "cvfTrace.h"
 
 #include <QString>
@@ -67,14 +68,14 @@ bool VdeFileExporter::exportViewContents(const RimGridView& view)
     cvf::Collection<cvf::Part> allPartsColl;
     RicHoloLensExportImpl::partsForExport(&view, &allPartsColl);
 
-    std::vector<RicHoloLensMesh> meshArr;
+    std::vector<VdeMesh> meshArr;
 
     for (size_t i = 0; i < allPartsColl.size(); i++)
     {
         const cvf::Part* part = allPartsColl.at(i);
         if (part)
         {
-            RicHoloLensMesh mesh;
+            VdeMesh mesh;
             if (extractMeshFromPart(view, *part, &mesh))
             {
                 meshArr.push_back(mesh);
@@ -102,7 +103,7 @@ bool VdeFileExporter::exportViewContents(const RimGridView& view)
     int nextArrayId = 0;
     for (size_t i = 0; i < meshArr.size(); i++)
     {
-        const RicHoloLensMesh& mesh = meshArr[i];
+        const VdeMesh& mesh = meshArr[i];
         const size_t primCount = mesh.connArr.size()/3;
         cvf::Trace::show("%d:  primCount=%d  meshSourceObjName='%s'", i, primCount, mesh.meshSourceObjName.toLatin1().constData());
 
@@ -179,7 +180,7 @@ bool VdeFileExporter::exportViewContents(const RimGridView& view)
 
         for (size_t i = 0; i < meshArr.size(); i++)
         {
-            const RicHoloLensMesh& mesh = meshArr[i];
+            const VdeMesh& mesh = meshArr[i];
             const MeshIds& meshIds = meshIdsArr[i];
 
             QMap<QString, QVariant> meshMeta;
@@ -260,7 +261,7 @@ bool VdeFileExporter::exportViewContents(const RimGridView& view)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool VdeFileExporter::extractMeshFromPart(const RimGridView& view, const cvf::Part& part, RicHoloLensMesh* mesh)
+bool VdeFileExporter::extractMeshFromPart(const RimGridView& view, const cvf::Part& part, VdeMesh* mesh)
 {
     const cvf::DrawableGeo* geo = dynamic_cast<const cvf::DrawableGeo*>(part.drawable());
     if (!geo)
@@ -281,7 +282,24 @@ bool VdeFileExporter::extractMeshFromPart(const RimGridView& view, const cvf::Pa
     }
 
     mesh->verticesPerPrimitive = 3;
-    mesh->vertexArr = vertexArr;
+
+    if (part.transform())
+    {
+        const size_t vertexCount = vertexArr->size();
+        cvf::ref<cvf::Vec3fArray> transVertexArr = new cvf::Vec3fArray(vertexArr->size());
+
+        cvf::Mat4f m = cvf::Mat4f(part.transform()->worldTransform());
+        for (size_t i = 0; i < vertexCount; i++)
+        {
+            transVertexArr->set(i, vertexArr->get(i).getTransformedPoint(m));
+        }
+
+        mesh->vertexArr = transVertexArr.p();
+    }
+    else
+    {
+        mesh->vertexArr = vertexArr;
+    }
 
     cvf::UIntArray faceConn;
     const size_t faceCount = primSet->faceCount();
