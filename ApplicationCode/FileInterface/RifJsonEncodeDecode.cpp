@@ -60,10 +60,17 @@ void JsonReader::dumpToFile(std::vector<cvf::Vec3d>& points, QString filePath)
 #endif
 
 
-QString Json::encode(const QMap<QString,QVariant> &map)
+QString Json::encode(const QMap<QString,QVariant>& map, bool prettify)
 {
     QScriptEngine engine;
-    engine.evaluate("function toString() { return JSON.stringify(this) }");
+    if (prettify)
+    {
+        engine.evaluate("function toString() { return JSON.stringify(this, null, '  ') }");
+    }
+    else
+    {
+        engine.evaluate("function toString() { return JSON.stringify(this) }");
+    }
 
     QScriptValue toString = engine.globalObject().property("toString");
     QScriptValue obj = encodeInner(map, &engine);

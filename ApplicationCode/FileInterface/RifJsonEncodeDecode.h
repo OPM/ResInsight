@@ -53,7 +53,7 @@ class Json
 {
 public:
     Json() {};
-    QString encode(const QMap<QString,QVariant> &map);
+    QString encode(const QMap<QString, QVariant>& map, bool prettify);
     QMap<QString, QVariant> decode(const QString &jsonStr);
 
 private:
