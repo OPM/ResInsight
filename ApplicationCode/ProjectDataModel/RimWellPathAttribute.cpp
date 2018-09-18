@@ -48,8 +48,8 @@ RimWellPathAttribute::RimWellPathAttribute()
 {
     CAF_PDM_InitObject("RimWellPathAttribute", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_type, "AttributeType", "Type    ", "", "", "");
-    CAF_PDM_InitField(&m_depthStart, "DepthStart", 0.0, "Depth Start", "", "", "");
-    CAF_PDM_InitField(&m_depthEnd,   "DepthEnd",   0.0, "Depth End",   "", "", "");
+    CAF_PDM_InitField(&m_depthStart, "DepthStart", 0.0, "Start MD", "", "", "");
+    CAF_PDM_InitField(&m_depthEnd,   "DepthEnd",   0.0, "End MD",   "", "", "");
     CAF_PDM_InitField(&m_diameterInInches, "DiameterInInches", MAX_DIAMETER_IN_INCHES, "Diameter", "", "", "");
     m_diameterInInches.uiCapability()->setUiEditorTypeName(caf::PdmUiComboBoxEditor::uiEditorTypeName());
 }
