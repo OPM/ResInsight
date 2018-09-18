@@ -733,19 +733,41 @@ void calculateNewStepsFromJacobi(double dR1_dq1, double dR1_dq2,
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+bool isZeroCrossing(double newError, double oldError, double maxError)
+{
+    if ( (newError < -maxError &&  maxError < oldError) ||  (newError > maxError &&  -maxError > oldError) )
+    {
+        return true;
+    }    
+
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RiaSCurveCalculator::initializeWithoutSolveSpace(cvf::Vec3d p1, double azi1, double inc1, double r1, 
                                                       cvf::Vec3d p2, double azi2, double inc2, double r2)
 {
-    cvf::Vec3d p1p2 = p2 - p1;
+    // Algorithm options
 
-    double p1p2Length =  (p1p2).length();
-    
+    const int maxIterations = 40;
+    const double maxError = 0.01;
+    const double closeError = 40*maxError;
+    const double maxStepSize = 1.0e9;
+    const double maxLengthToQ = 1.0e10;
+    bool enableBackstepping = false;
+    //#define USE_JACOBI_UPDATE
+    //#define DEBUG_OUTPUT_ON
+
     // Iterating with changing q1, q2 (lengths along tangent) to find solution with R1 = r1 and R2 = r2
     // R1(q1, q2), R2(q1, q2)
+
     // Needs the initial partial derivatives to see the direction of change
     // dR1/dq1, dR1/dq2, dR2/dq1, dR2/dq2
     // Selects a sensible point in the domain for the evaluation
 
+    double p1p2Length =  (p2 - p1).length();
     double delta =  0.01 * p1p2Length;
     double initialq1q2 = 0.2 * p1p2Length;
     double deltaPos = initialq1q2 + delta;
@@ -759,46 +781,41 @@ void RiaSCurveCalculator::initializeWithoutSolveSpace(cvf::Vec3d p1, double azi1
 
     // Initial Jacobi
     double dR1_dq1 = ((r1 - ev_dq1.firstRadius()) - (r1 - ev_0.firstRadius()))/delta;
-    double dR1_dq2 = ((r1 - ev_dq2.firstRadius()) - (r1 - ev_0.firstRadius()))/delta;
-    double dR2_dq1 = ((r2 - ev_dq1.secondRadius()) - (r2 - ev_0.secondRadius()))/delta;
     double dR2_dq2 = ((r2 - ev_dq2.secondRadius()) - (r2 - ev_0.secondRadius()))/delta;
 
     // Initial function value (error)
     double R1_error = r1 - ev_0.firstRadius();
     double R2_error = r2 - ev_0.secondRadius();
 
-    double q1StepJ;
-    double q2StepJ;
+    // First steps
+    double q1Step = -R1_error/dR1_dq1;
+    double q2Step = -R2_error/dR2_dq2;
+
+    #ifdef USE_JACOBI_UPDATE
+    double dR1_dq2 = ((r1 - ev_dq2.firstRadius()) - (r1 - ev_0.firstRadius()))/delta;
+    double dR2_dq1 = ((r2 - ev_dq1.secondRadius()) - (r2 - ev_0.secondRadius()))/delta;
 
     calculateNewStepsFromJacobi(dR1_dq1, dR1_dq2, 
                                 dR2_dq1, dR2_dq2, 
                                 R1_error, R2_error, 
-                                &q1StepJ, &q2StepJ);
-    #define USE_JACOBI_UPDATE
-    #ifdef USE_JACOBI_UPDATE
-    double q1Step = q1StepJ;
-    double q2Step = q2StepJ;
-    #else
-    double q1Step = -R1_error/dR1_dq1;
-    double q2Step = -R2_error/dR2_dq2;
+                                &q1Step, &q2Step);
     #endif
 
     double q1 = initialq1q2;
     double q2 = initialq1q2;
     
-    const int maxIterations = 40;
-    const double maxError = 0.01;
-    const double closeError = 40*maxError;
-    const double maxStepSize = 1.0e9;
-    const double maxLengthToQ = 1.0e10;
 
+    #ifdef DEBUG_OUTPUT_ON
     std::cout << std::endl;
     std::cout << "Targets: R1, R2: " << r1 << " , " << r2 << std::endl;
-    std::cout << "Jacobi Steps: " << q1StepJ << ", " << q2StepJ << std::endl;
+
     std::cout << 0 << ": " << q1Step << " , " << q2Step 
               << " : " << q1 << " , " << q2 << " | "
-              << ev_0.isOk() << " : " << ev_0.firstRadius() << " , " << ev_0.secondRadius() << std::endl;
+              << ev_0.isOk() << " : " << ev_0.firstRadius() << " , " << ev_0.secondRadius()
+              << " : " << R1_error << " , " << R2_error  << std::endl;
+    #endif
 
+    int backstepLevel = 0;
     for (int iter = 1; iter < maxIterations; ++iter)
     {
         std::string q1R1StepCorrMarker;
@@ -812,13 +829,62 @@ void RiaSCurveCalculator::initializeWithoutSolveSpace(cvf::Vec3d p1, double azi1
 
         if (fabs(q1) > maxLengthToQ || fabs(q2) > maxLengthToQ) break;
 
-        std::cout << iter << ": " << q1Step << q1R1StepCorrMarker << " , " << q2Step<< q2R2StepCorrMarker  ;
-        
         RiaSCurveCalculator ev_1 = RiaSCurveCalculator::fromTangentsAndLength(p1, azi1, inc1, q1,
                                                                               p2, azi2, inc2, q2);
 
-        std::cout << " : " << q1 << " , " << q2 << " | " 
-                  << ev_1.isOk() << " : " << ev_1.firstRadius() << " , " << ev_1.secondRadius() << std::endl;
+        double R1_error_new = r1 - ev_1.firstRadius();
+        double R2_error_new = r2 - ev_1.secondRadius();
+
+        #ifdef DEBUG_OUTPUT_ON
+        std::cout << iter << ": " << q1Step << q1R1StepCorrMarker << " , " << q2Step<< q2R2StepCorrMarker 
+            << " : " << q1 << " , " << q2 << " | "
+            << ev_1.isOk() << " : " << ev_1.firstRadius() << " , " << ev_1.secondRadius() 
+            << " : " << R1_error_new << " , " << R2_error_new ;
+        #endif
+
+        if ( (fabs(R1_error_new) < maxError && fabs(R2_error_new) < maxError) )
+        {
+            ev_0 = ev_1;
+
+            #ifdef DEBUG_OUTPUT_ON
+            std::cout << std::endl;
+            #endif
+
+            break;
+        }
+
+        if (enableBackstepping) // Experimental back-stepping 
+        {
+            bool isZeroCrossingR1 = isZeroCrossing(R1_error_new, R1_error, maxError);
+            bool isZeroCrossingR2 = isZeroCrossing(R2_error_new, R2_error, maxError);
+
+            if ( isZeroCrossingR2 || isZeroCrossingR1 )
+            {
+                q1 -= q1Step;
+                q2 -= q2Step;
+
+                //if (isZeroCrossingR1) 
+                q1Step = 0.9* q1Step * fabs(R1_error) /(fabs(R1_error_new) + fabs(R1_error));
+                //if (isZeroCrossingR2) 
+                q2Step = 0.9* q2Step * fabs(R2_error) /(fabs(R2_error_new) + fabs(R2_error));
+
+                ++backstepLevel;
+
+                #ifdef DEBUG_OUTPUT_ON
+                std::cout << " Backstep needed. "<< std::endl;
+                #endif
+
+                continue;
+            }
+            else
+            {
+                backstepLevel = 0;
+            }
+        }
+
+        #ifdef DEBUG_OUTPUT_ON
+        std::cout << std::endl;
+        #endif
  
         #ifdef USE_JACOBI_UPDATE
 
@@ -828,10 +894,10 @@ void RiaSCurveCalculator::initializeWithoutSolveSpace(cvf::Vec3d p1, double azi1
         //                      | dqn |^2
         // 
 
-        double dR1_error =  (r1 - ev_1.firstRadius()) - R1_error;
-        double dR2_error =  (r2 - ev_1.secondRadius()) - R2_error;
-        R1_error = r1 - ev_1.firstRadius();
-        R2_error = r2 - ev_1.secondRadius();
+        double dR1_error =  R1_error_new - R1_error;
+        double dR2_error =  R2_error_new - R2_error;
+        R1_error = R1_error_new;
+        R2_error = R2_error_new;
 
         double stepNormScale = 1.0/(q1Step*q1Step + q2Step*q2Step);
 
@@ -846,14 +912,16 @@ void RiaSCurveCalculator::initializeWithoutSolveSpace(cvf::Vec3d p1, double azi1
                                     &q1Step, &q2Step);
 
         #else
+
         dR1_dq1 = ((r1 - ev_1.firstRadius()) - (r1 - ev_0.firstRadius()))/q1Step;
         dR2_dq2 = ((r2 - ev_1.secondRadius()) - (r2 - ev_0.secondRadius()))/q2Step;
 
-        R1_error = r1 - ev_1.firstRadius();
-        R2_error = r2 - ev_1.secondRadius();
+        R1_error = R1_error_new;
+        R2_error = R2_error_new;
 
         q1Step = -R1_error/dR1_dq1;
         q2Step = -R2_error/dR2_dq2;
+
         #endif
 
         ev_0 = ev_1;
