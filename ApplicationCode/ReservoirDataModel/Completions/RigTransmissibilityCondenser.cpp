@@ -415,12 +415,21 @@ void RigTransmissibilityCondenser::calculateCondensedTransmissibilities()
 
     int externalEquationCount =  totalEquationCount - internalEquationCount;
 
+    MatrixXd condensedSystem;
     MatrixXd Tee = totalSystem.bottomRightCorner(externalEquationCount, externalEquationCount);
-    MatrixXd Tei = totalSystem.bottomLeftCorner(externalEquationCount, internalEquationCount);
-    m_TiiInv     = totalSystem.topLeftCorner(internalEquationCount, internalEquationCount).inverse();
-    m_Tie        = totalSystem.topRightCorner(internalEquationCount, externalEquationCount);
 
-    MatrixXd condensedSystem = Tee - Tei * m_TiiInv * m_Tie;
+    if (internalEquationCount == 0)
+    {
+        condensedSystem = Tee;
+    }
+    else
+    {
+        MatrixXd Tei = totalSystem.bottomLeftCorner(externalEquationCount, internalEquationCount);
+        m_TiiInv = totalSystem.topLeftCorner(internalEquationCount, internalEquationCount).inverse();
+        m_Tie = totalSystem.topRightCorner(internalEquationCount, externalEquationCount);
+        condensedSystem = Tee - Tei * m_TiiInv * m_Tie;
+    }
+     
     
     // std::cout  << "Te = " << std::endl <<  condensedSystem << std::endl << std::endl;
 
