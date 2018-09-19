@@ -230,7 +230,7 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
 
         originalMatrixPressures = &(pressureResultVector->front());
         currentMatrixPressures  = originalMatrixPressures;
-        if (pdParams.pressureScalingTimeStep < pressureResultVector->size())
+        if (pdParams.pressureScalingTimeStep < static_cast<int>(pressureResultVector->size()))
         {
             currentMatrixPressures = &pressureResultVector->at(pdParams.pressureScalingTimeStep);
         }
@@ -407,7 +407,7 @@ void RicExportFractureCompletionsImpl::getWellPressuresFromSummaryData(const Rim
         std::vector<QDateTime> caseTimeSteps = resultCase->timeStepDates();
         QDateTime              originalDate  = caseTimeSteps.front();
         QDateTime              currentDate;
-        if (currentTimeStep < caseTimeSteps.size())
+        if (currentTimeStep < static_cast<int>(caseTimeSteps.size()))
         {
             currentDate = caseTimeSteps[currentTimeStep];
         }
