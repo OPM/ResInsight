@@ -36,7 +36,7 @@ public:
         Unknown = 0,
         Float32 = 1,
         Uint32  = 2,
-        
+        Uint8   = 4,
     };
 
 public:
@@ -55,6 +55,8 @@ public:
 
     static VdeArrayDataPacket   fromFloat32Arr(int arrayId, const float* srcArr, size_t srcArrElementCount);
     static VdeArrayDataPacket   fromUint32Arr(int arrayId, const unsigned int* srcArr, size_t srcArrElementCount);
+    
+    //static VdeArrayDataPacket   fromUint8ImageRGBArr(int arrayId, unsigned short imageWidth, unsigned short imageHeight, const unsigned char* srcArr, size_t srcArrElementCount);
 
     static VdeArrayDataPacket   fromRawPacketBuffer(const char* rawPacketBuffer, size_t bufferSize, std::string* errString);
 

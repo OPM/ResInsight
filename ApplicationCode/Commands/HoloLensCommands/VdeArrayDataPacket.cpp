@@ -31,7 +31,7 @@
 //  packetVersion:          2 bytes
 //  arrayId:                4 bytes     ID of this array
 //  elementCount:           4 bytes     number of elements in array
-//  elementType:            1 byte      data type of each element in the array(float32=1, uint32=2, uint8=?, int8=?)
+//  elementType:            1 byte      data type of each element in the array(float32=1, uint32=2, uint8=4, int8=?)
 //  imageComponentCount:    1 byte      number of image components per pixel for texture image (currently always 0 or 3)
 //  imageWidth:             2 bytes     only used for texture images, otherwise 0
 //  imageHeight:            2 bytes     :
