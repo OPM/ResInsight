@@ -22,6 +22,8 @@
 
 #include "RigGridBase.h"
 
+#include "RivCellSetEnum.h"
+
 #include "cafPdmPointer.h"
 
 #include "cvfBase.h"
@@ -41,6 +43,7 @@ namespace cvf
 class RimEclipseCellColors;
 class RimCellEdgeColors;
 class RimEclipseCase;
+class RivSourceInfo;
 
 
 
@@ -55,8 +58,9 @@ class RimEclipseCase;
 class RivGridPartMgr: public cvf::Object
 {
 public:
-    RivGridPartMgr(RimEclipseCase* eclipseCase, const RigGridBase* grid, size_t gridIdx);
+    RivGridPartMgr(RivCellSetEnum cellSetType, RimEclipseCase* eclipseCase, const RigGridBase* grid, size_t gridIdx);
     ~RivGridPartMgr();
+    
     void setTransform(cvf::Transform* scaleTransform);
     void setCellVisibility(cvf::UByteArray* cellVisibilities );
     cvf::ref<cvf::UByteArray>  cellVisibility() { return  m_cellVisibility;}
@@ -72,6 +76,8 @@ public:
 
 private:
     void generatePartGeometry(cvf::StructGridGeometryGenerator& geoBuilder);
+    
+    RivSourceInfo* createSourceInfo();
 
 private:
     size_t                              m_gridIdx;
@@ -92,4 +98,5 @@ private:
     cvf::ref<cvf::UByteArray>           m_cellVisibility;
 
     caf::PdmPointer<RimEclipseCase>     m_eclipseCase;
+    RivCellSetEnum                      m_cellSetType;
 };

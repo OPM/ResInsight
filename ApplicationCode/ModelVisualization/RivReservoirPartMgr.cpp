@@ -32,10 +32,9 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivReservoirPartMgr::clearAndSetReservoir(RimEclipseCase* eclipseCase, RimEclipseView* reservoirView)
+void RivReservoirPartMgr::clearAndSetReservoir(RivCellSetEnum cellSetType, RimEclipseCase* eclipseCase, RimEclipseView* reservoirView)
 {
     m_allGrids.clear();
-
 
     if (eclipseCase && eclipseCase->eclipseCaseData())
     {
@@ -45,7 +44,7 @@ void RivReservoirPartMgr::clearAndSetReservoir(RimEclipseCase* eclipseCase, RimE
         eclipseCaseData->allGrids(&grids);
         for (size_t i = 0; i < grids.size() ; ++i)
         {
-            m_allGrids.push_back(new RivGridPartMgr(eclipseCase, grids[i], i));
+            m_allGrids.push_back(new RivGridPartMgr(cellSetType, eclipseCase, grids[i], i));
         }
 
         if (eclipseCase->mainGrid())

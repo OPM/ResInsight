@@ -69,7 +69,7 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RivGridPartMgr::RivGridPartMgr(RimEclipseCase* eclipseCase, const RigGridBase* grid, size_t gridIdx)
+RivGridPartMgr::RivGridPartMgr(RivCellSetEnum cellSetType, RimEclipseCase* eclipseCase, const RigGridBase* grid, size_t gridIdx)
     : m_surfaceGenerator(grid)
     , m_gridIdx(gridIdx)
     , m_grid(grid)
@@ -77,6 +77,7 @@ RivGridPartMgr::RivGridPartMgr(RimEclipseCase* eclipseCase, const RigGridBase* g
     , m_opacityLevel(1.0f)
     , m_defaultColor(cvf::Color3::WHITE)
     , m_eclipseCase(eclipseCase)
+    , m_cellSetType(cellSetType)
 {
     CVF_ASSERT(grid);
     m_cellVisibility            = new cvf::UByteArray;
@@ -132,7 +133,9 @@ void RivGridPartMgr::generatePartGeometry(cvf::StructGridGeometryGenerator& geoB
             part->setTransform(m_scaleTransform.p());
 
             // Set mapping from triangle face index to cell index
-            cvf::ref<RivSourceInfo> si       = new RivSourceInfo(m_eclipseCase, m_gridIdx);
+            cvf::ref<RivSourceInfo> si = new RivSourceInfo(m_eclipseCase, m_gridIdx);
+            si->setCellSetType(m_cellSetType);
+
             si->m_cellFaceFromTriangleMapper = geoBuilder.triangleToCellFaceMapper();
 
             part->setSourceInfo(si.p());
@@ -184,6 +187,17 @@ void RivGridPartMgr::generatePartGeometry(cvf::StructGridGeometryGenerator& geoB
             m_surfaceGridLines = part;
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RivSourceInfo* RivGridPartMgr::createSourceInfo()
+{
+    auto si = new RivSourceInfo(m_eclipseCase, m_gridIdx);
+    si->setCellSetType(m_cellSetType);
+
+    return si;
 }
 
 //--------------------------------------------------------------------------------------------------

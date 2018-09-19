@@ -19,6 +19,7 @@
 
 #pragma once
 
+#include "RivCellSetEnum.h"
 #include "RivObjectSourceInfo.h"
 
 #include "cvfArray.h"
@@ -40,10 +41,14 @@ public:
     bool   hasCellFaceMapping() const;
     bool   hasNNCIndices() const;
 
+    RivCellSetEnum cellSetType() const;
+    void           setCellSetType(RivCellSetEnum cellSetType);
+
 public:
     cvf::cref<cvf::StuctGridTriangleToCellFaceMapper> m_cellFaceFromTriangleMapper;
     cvf::ref<cvf::Array<size_t>>                      m_NNCIndices;
 
 private:
-    size_t m_gridIndex;
+    size_t         m_gridIndex;
+    RivCellSetEnum m_cellSetType;
 };

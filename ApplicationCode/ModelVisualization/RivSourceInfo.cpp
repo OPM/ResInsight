@@ -27,6 +27,7 @@
 RivSourceInfo::RivSourceInfo(caf::PdmObject* pdmObject, size_t gridIndex)
     : RivObjectSourceInfo(pdmObject)
     , m_gridIndex(gridIndex)
+    , m_cellSetType(ALL_CELLS)
 {
 }
 
@@ -52,4 +53,20 @@ bool RivSourceInfo::hasCellFaceMapping() const
 bool RivSourceInfo::hasNNCIndices() const
 {
     return m_NNCIndices.notNull();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RivCellSetEnum RivSourceInfo::cellSetType() const
+{
+    return m_cellSetType;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RivSourceInfo::setCellSetType(RivCellSetEnum cellSetEnum)
+{
+    m_cellSetType = cellSetEnum;
 }
