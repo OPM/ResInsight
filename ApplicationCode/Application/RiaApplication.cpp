@@ -99,6 +99,7 @@
 #include <QFileDialog>
 #include <QMdiSubWindow>
 #include <QMessageBox>
+#include <QProcessEnvironment>
 #include <QTreeView>
 
 
@@ -1594,6 +1595,15 @@ void RiaApplication::saveWinGeoAndDockToolBarLayout()
         RiuMainWindow::instance()->saveWinGeoAndDockToolBarLayout();
     }
 
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiaApplication::enableDevelopmentFeatures()
+{
+    QString environmentVar = QProcessEnvironment::systemEnvironment().value("RESINSIGHT_DEVEL", QString("0"));
+    return environmentVar.toInt() == 1;
 }
 
 //--------------------------------------------------------------------------------------------------

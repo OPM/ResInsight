@@ -106,7 +106,7 @@ public:
 
     RimViewWindow*      activePlotWindow() const;
 
-    RimProject*            project(); 
+    RimProject*         project(); 
 
     void                createMockModel();
     void                createResultsMockModel();
@@ -202,6 +202,8 @@ public:
 
     void                waitUntilCommandObjectsHasBeenProcessed();
     void                saveWinGeoAndDockToolBarLayout();
+
+    static bool         enableDevelopmentFeatures();
 
 private:
     void                    onProjectOpenedOrClosed();

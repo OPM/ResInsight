@@ -47,6 +47,12 @@ public:
 
     const RifReaderSettings* readerSettings() const;
 
+    // Debug settings
+    bool appendClassNameToUiText() const;
+    bool appendFieldKeywordToToolTipText() const;
+    bool showTestToolbar() const;
+    bool includeFractureDebugInfoFile() const;
+
 public: // Pdm Fields
     caf::PdmField<caf::AppEnum< RiaApplication::RINavigationPolicy > > navigationPolicy;
 
@@ -69,11 +75,7 @@ public: // Pdm Fields
     caf::PdmField<bool>     showLegendBackground;
 
     caf::PdmField<bool>     useShaders;
-    caf::PdmField<bool>     showHud;
-    caf::PdmField<bool>     appendClassNameToUiText;
-    caf::PdmField<bool>     appendFieldKeywordToToolTipText;
-    caf::PdmField<bool>     showTestToolbar;
-    caf::PdmField<bool>     includeFractureDebugInfoFile;
+    caf::PdmField<bool>     showHud;    
 
     caf::PdmField<QString>  lastUsedProjectFileName;
 
@@ -91,6 +93,9 @@ protected:
 
 private:
     caf::PdmChildField<RifReaderSettings*> m_readerSettings;
-
+    caf::PdmField<bool>                    m_appendClassNameToUiText;
+    caf::PdmField<bool>                    m_appendFieldKeywordToToolTipText;
+    caf::PdmField<bool>                    m_showTestToolbar;
+    caf::PdmField<bool>                    m_includeFractureDebugInfoFile;
     QStringList m_tabNames;
 };
