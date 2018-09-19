@@ -140,6 +140,7 @@ public:
     virtual void                                    calculateCurrentTotalCellVisibility(cvf::UByteArray* totalVisibility, int timeStep) override;
     
     std::vector<RimLegendConfig*>                   legendConfigs() const override;
+    cvf::Color4f                                    colorFromCellCategory(RivCellSetEnum geometryType) const;
 
 protected:
     virtual void                                    initAfterRead() override;
@@ -161,6 +162,7 @@ private:
 
     virtual void                                    updateStaticCellColors() override;
     void                                            updateStaticCellColors(RivCellSetEnum geometryType);
+
     void                                            updateLegends() override;
     void                                            updateMinMaxValuesAndAddLegendToView(QString legendLabel, RimEclipseCellColors* resultColors, RigCaseCellResultsData* cellResultsData);
     virtual void                                    resetLegendsInViewer() override;

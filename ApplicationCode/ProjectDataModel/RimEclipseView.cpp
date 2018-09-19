@@ -889,24 +889,7 @@ void RimEclipseView::updateStaticCellColors()
 //--------------------------------------------------------------------------------------------------
 void RimEclipseView::updateStaticCellColors(RivCellSetEnum geometryType)
 {
-    float opacity = static_cast< float> (1 - cvf::Math::clamp(this->wellCollection()->wellCellTransparencyLevel(), 0.0, 1.0));
-    cvf::Color4f color(cvf::Color3::ORANGE);
-
-    switch (geometryType)
-    {
-        case ACTIVE:                      color = cvf::Color4f(cvf::Color3::ORANGE);      break;
-        case ALL_WELL_CELLS:              color = cvf::Color4f(cvf::Color3f(cvf::Color3::BROWN), opacity ); break;
-        case VISIBLE_WELL_CELLS:          color = cvf::Color4f(cvf::Color3f(cvf::Color3::BROWN), opacity ); break;
-        case VISIBLE_WELL_FENCE_CELLS:    color = cvf::Color4f(cvf::Color3::ORANGE);      break;
-        case VISIBLE_WELL_CELLS_OUTSIDE_RANGE_FILTER:         
-                                                                    color = cvf::Color4f(cvf::Color3f(cvf::Color3::BROWN), opacity ); break;
-        case VISIBLE_WELL_FENCE_CELLS_OUTSIDE_RANGE_FILTER:   
-                                                                    color = cvf::Color4f(cvf::Color3::ORANGE);      break;
-        case INACTIVE:                    color = cvf::Color4f(RiaColorTables::undefinedCellColor());  break;
-        case RANGE_FILTERED:              color = cvf::Color4f(cvf::Color3::ORANGE);      break;
-        case RANGE_FILTERED_WELL_CELLS:   color = cvf::Color4f(cvf::Color3f(cvf::Color3::BROWN), opacity ); break;
-        case RANGE_FILTERED_INACTIVE:     color = cvf::Color4f(RiaColorTables::undefinedCellColor());  break;   
-    }
+    cvf::Color4f color = colorFromCellCategory(geometryType);
 
     if (geometryType == PROPERTY_FILTERED || geometryType == PROPERTY_FILTERED_WELL_CELLS)
     {
@@ -918,6 +901,33 @@ void RimEclipseView::updateStaticCellColors(RivCellSetEnum geometryType)
         // Use static timestep (timestep 0) for geometry with no change between time steps
         m_reservoirGridPartManager->updateCellColor(geometryType, 0, color);
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::Color4f RimEclipseView::colorFromCellCategory(RivCellSetEnum geometryType) const
+{
+    float opacity = static_cast<float> (1 - cvf::Math::clamp(this->wellCollection()->wellCellTransparencyLevel(), 0.0, 1.0));
+    cvf::Color4f color(cvf::Color3::ORANGE);
+
+    switch (geometryType)
+    {
+    case ACTIVE:                      color = cvf::Color4f(cvf::Color3::ORANGE);      break;
+    case ALL_WELL_CELLS:              color = cvf::Color4f(cvf::Color3f(cvf::Color3::BROWN), opacity); break;
+    case VISIBLE_WELL_CELLS:          color = cvf::Color4f(cvf::Color3f(cvf::Color3::BROWN), opacity); break;
+    case VISIBLE_WELL_FENCE_CELLS:    color = cvf::Color4f(cvf::Color3::ORANGE);      break;
+    case VISIBLE_WELL_CELLS_OUTSIDE_RANGE_FILTER:
+        color = cvf::Color4f(cvf::Color3f(cvf::Color3::BROWN), opacity); break;
+    case VISIBLE_WELL_FENCE_CELLS_OUTSIDE_RANGE_FILTER:
+        color = cvf::Color4f(cvf::Color3::ORANGE);      break;
+    case INACTIVE:                    color = cvf::Color4f(RiaColorTables::undefinedCellColor());  break;
+    case RANGE_FILTERED:              color = cvf::Color4f(cvf::Color3::ORANGE);      break;
+    case RANGE_FILTERED_WELL_CELLS:   color = cvf::Color4f(cvf::Color3f(cvf::Color3::BROWN), opacity); break;
+    case RANGE_FILTERED_INACTIVE:     color = cvf::Color4f(RiaColorTables::undefinedCellColor());  break;
+    }
+
+    return color;
 }
 
 //--------------------------------------------------------------------------------------------------
