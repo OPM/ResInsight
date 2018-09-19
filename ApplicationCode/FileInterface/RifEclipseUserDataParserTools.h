@@ -60,7 +60,7 @@ public:
     size_t                          itemCount() const;
 
 public:
-    static Column createColumnInfoFromRsmData(const std::string& quantity, const std::string& unit, const RifEclipseSummaryAddress& adr);
+    static Column createColumnInfoFromRsmData(const std::string& quantity, const std::string& unit, const RifEclipseSummaryAddress& addr);
     static Column createColumnInfoFromCsvData(const RifEclipseSummaryAddress& addr, const std::string& unit);
 
     RifEclipseSummaryAddress                        summaryAddress;
@@ -71,7 +71,10 @@ public:
     // Data containers
     std::vector<double>                             values;
     std::vector<std::string >                       textValues;
-    std::vector<QDateTime>                          dateTimeValues;
+    //std::vector<QDateTime>                          dateTimeValues;
+    std::vector<time_t>                             dateTimeValues;
+
+    std::vector<QDateTime>      qDateTimeValues() const;
 };
 
 
@@ -89,8 +92,17 @@ public:
               const std::vector<Column>& columnInfos)
         : m_origin(origin),
         m_startDate(startDate),
+        m_dateTimeColumnIndex(-1),
         m_columnInfos(columnInfos)
     {
+        for (size_t i = 0; i < columnInfos.size(); i++)
+        {
+            if (columnInfos[i].dataType == Column::DATETIME)
+            {
+                m_dateTimeColumnIndex = (int)i;
+                break;
+            }
+        }
     }
 
     std::string origin() const
@@ -113,11 +125,13 @@ public:
         return m_columnInfos;
     }
 
+    int       dateTimeColumnIndex() const;
     QDateTime findFirstDate() const;
 
 private:
     std::string             m_origin;
     std::string             m_startDate;
+    int                     m_dateTimeColumnIndex;
 
     std::vector<Column> m_columnInfos;
 };

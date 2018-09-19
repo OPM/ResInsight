@@ -188,10 +188,17 @@ RicPasteAsciiDataToSummaryPlotFeatureUi::RicPasteAsciiDataToSummaryPlotFeatureUi
 //--------------------------------------------------------------------------------------------------
 void RicPasteAsciiDataToSummaryPlotFeatureUi::setUiModeImport(const QString& fileName)
 {
-    m_uiMode = UI_MODE_IMPORT;
-
     m_parser = std::unique_ptr<RifCsvUserDataParser>(new RifCsvUserDataFileParser(fileName));
-    initialize(m_parser.get());
+
+    if (m_parser->determineCsvLayout() != RifCsvUserDataParser::LineBased)
+    {
+        m_uiMode = UI_MODE_IMPORT;
+        initialize(m_parser.get());
+    }
+    else
+    {
+        m_uiMode = UI_MODE_SILENT;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -203,6 +210,14 @@ void RicPasteAsciiDataToSummaryPlotFeatureUi::setUiModePasteText(const QString& 
 
     m_parser = std::unique_ptr<RifCsvUserDataParser>(new RifCsvUserDataPastedTextParser(text));
     initialize(m_parser.get());
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RicPasteAsciiDataToSummaryPlotFeatureUi::UiMode RicPasteAsciiDataToSummaryPlotFeatureUi::uiModeImport() const
+{
+    return m_uiMode;
 }
 
 //--------------------------------------------------------------------------------------------------

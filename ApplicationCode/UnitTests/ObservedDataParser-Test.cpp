@@ -36,7 +36,7 @@ TEST(RifColumnBasedAsciiParserTest, TestDateFormatYyyymmddWithDash)
     ASSERT_TRUE(parser.parse(parseOptions));
     ASSERT_TRUE(parser.dateTimeColumn() != nullptr);
 
-    std::vector<QDateTime> timeSteps = parser.dateTimeColumn()->dateTimeValues;
+    std::vector<QDateTime> timeSteps = parser.dateTimeColumn()->qDateTimeValues();
 
     ASSERT_EQ(size_t(4), timeSteps.size());
     EXPECT_EQ("1993-02-23", timeSteps[0].toString(parseOptions.dateFormat).toStdString());
@@ -69,7 +69,7 @@ TEST(RifColumnBasedAsciiParserTest, TestDateFormatYymmddWithDot)
     ASSERT_TRUE(parser.parse(parseOptions));
     ASSERT_TRUE(parser.dateTimeColumn() != nullptr);
 
-    std::vector<QDateTime> timeSteps = parser.dateTimeColumn()->dateTimeValues;
+    std::vector<QDateTime> timeSteps = parser.dateTimeColumn()->qDateTimeValues();
 
     ASSERT_EQ(size_t(4), timeSteps.size());
     EXPECT_EQ("93.02.23", timeSteps[0].toString(parseOptions.dateFormat).toStdString());
@@ -98,7 +98,7 @@ TEST(RifColumnBasedAsciiParserTest, TestDateFormatDdmmyyWithDot)
     ASSERT_TRUE(parser.parse(parseOptions));
     ASSERT_TRUE(parser.dateTimeColumn() != nullptr);
 
-    std::vector<QDateTime> timeSteps = parser.dateTimeColumn()->dateTimeValues;
+    std::vector<QDateTime> timeSteps = parser.dateTimeColumn()->qDateTimeValues();
 
     ASSERT_EQ(size_t(4), timeSteps.size());
     EXPECT_EQ("23.02.93", timeSteps[0].toString(parseOptions.dateFormat).toStdString());

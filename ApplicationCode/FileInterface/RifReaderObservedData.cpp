@@ -70,10 +70,9 @@ bool RifReaderObservedData::open(const QString& headerFileName,
     {
         if (m_asciiParser && m_asciiParser->dateTimeColumn())
         {
-            for (QDateTime timeStep : m_asciiParser->dateTimeColumn()->dateTimeValues)
+            for (time_t timeStep : m_asciiParser->dateTimeColumn()->dateTimeValues)
             {
-                time_t t = timeStep.toTime_t();
-                m_timeSteps.push_back(t);
+                m_timeSteps.push_back(timeStep);
             }
 
             m_allResultAddresses.clear();

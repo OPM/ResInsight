@@ -184,7 +184,7 @@ std::vector<RimAsciiDataCurve*> RicPasteAsciiDataToSummaryPlotFeature::parseCurv
         if (col->dataType != Column::NUMERIC) continue;
 
         RimAsciiDataCurve* curve = new RimAsciiDataCurve();
-        curve->setTimeSteps(parser.dateTimeColumn()->dateTimeValues);
+        curve->setTimeSteps(parser.dateTimeColumn()->qDateTimeValues());
         curve->setValues(parser.columnInfo(i)->values);
         if (curvePrefix.isEmpty())
         {

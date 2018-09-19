@@ -40,17 +40,22 @@ class AsciiDataParseOptions;
 class RifCsvUserDataParser
 {
 public:
+    enum CsvLayout { ColumnBased, LineBased };
+
+public:
     RifCsvUserDataParser(QString* errorText = nullptr);
     virtual ~RifCsvUserDataParser();
 
     bool                parse(const AsciiDataParseOptions& parseOptions);
     const TableData&    tableData() const;
 
-    const Column*   columnInfo(size_t columnIndex) const;
-    const Column*   dateTimeColumn() const;
+    const Column*       columnInfo(size_t columnIndex) const;
+    const Column*       dateTimeColumn() const;
 
     bool                parseColumnInfo(const AsciiDataParseOptions& parseOptions);
     QString             previewText(int lineCount, const AsciiDataParseOptions& parseOptions);
+
+    CsvLayout           determineCsvLayout();
 
     QString             tryDetermineCellSeparator();
     QString             tryDetermineDecimalSeparator(const QString& cellSeparator);
@@ -59,13 +64,16 @@ public:
 
 protected:
     virtual QTextStream* openDataStream() = 0;
-    virtual void         closeDataStream() = 0;
+    virtual void         closeDataStream() = 0; 
 
 private:
+    std::vector<int>    parseLineBasedHeader(QStringList headerCols);
+
     bool                parseColumnInfo(QTextStream* dataStream,
                                         const AsciiDataParseOptions& parseOptions,
                                         std::vector<Column>* columnInfoList);
-    bool                parseData(const AsciiDataParseOptions& parseOptions);
+    bool                parseColumnBasedData(const AsciiDataParseOptions& parseOptions);
+    bool                parseLineBasedData();
     static QDateTime    tryParseDateTime(const std::string& colData, const QString& format);
 
 private:

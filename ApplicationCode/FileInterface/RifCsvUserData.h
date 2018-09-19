@@ -54,12 +54,9 @@ public:
 
 private:
     void                                buildTimeStepsAndMappings();
-    static std::vector<time_t>          createTimeSteps(const TableData& table);
 
 private:
     std::unique_ptr<RifCsvUserDataParser>            m_parser;
-    std::vector<time_t>                              m_timeSteps;
 
-    std::map<RifEclipseSummaryAddress, size_t >      m_mapFromAddressToTimeStepIndex;
     std::map<RifEclipseSummaryAddress, size_t >      m_mapFromAddressToResultIndex;
 };

@@ -73,7 +73,8 @@ public:
     {
         UI_MODE_NONE,
         UI_MODE_IMPORT,
-        UI_MODE_PASTE
+        UI_MODE_PASTE,
+        UI_MODE_SILENT
     };
 
     enum DecimalSeparator
@@ -123,6 +124,7 @@ public:
     void    setUiModeImport(const QString& fileName);
     void    setUiModePasteText(const QString& text);
 
+    UiMode  uiModeImport() const;
     const AsciiDataParseOptions    parseOptions() const;
     void    createNewPlot();
 

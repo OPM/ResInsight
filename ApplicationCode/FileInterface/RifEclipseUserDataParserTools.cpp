@@ -942,9 +942,9 @@ size_t Column::itemCount() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-Column Column::createColumnInfoFromRsmData(const std::string& quantity, const std::string& unit, const RifEclipseSummaryAddress& adr)
+Column Column::createColumnInfoFromRsmData(const std::string& quantity, const std::string& unit, const RifEclipseSummaryAddress& addr)
 {
-    Column ci(adr, unit);
+    Column ci(addr, unit);
 
     if (RifEclipseUserDataKeywordTools::isDate(quantity))
     {
@@ -968,6 +968,24 @@ Column Column::createColumnInfoFromCsvData(const RifEclipseSummaryAddress& addr,
 {
     Column col(addr, unit);
     return col;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<QDateTime> Column::qDateTimeValues() const
+{
+    std::vector<QDateTime> output;
+    for (auto t : dateTimeValues) output.push_back(RiaQDateTimeTools::fromTime_t(t));
+    return output;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+int TableData::dateTimeColumnIndex() const
+{
+    return m_dateTimeColumnIndex;
 }
 
 //--------------------------------------------------------------------------------------------------
