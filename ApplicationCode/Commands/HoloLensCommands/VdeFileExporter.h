@@ -26,6 +26,7 @@
 #include <QString>
 
 class VdeArrayDataPacket;
+class VdeExportPart;
 
 class RimGridView;
 
@@ -47,6 +48,7 @@ struct VdeMesh
     QString                         meshSourceObjName;
 
     cvf::Color3f                    color;
+    float                           opacity;
 
     int                             verticesPerPrimitive;
     cvf::cref<cvf::Vec3fArray>      vertexArr;
@@ -55,7 +57,9 @@ struct VdeMesh
     cvf::cref<cvf::TextureImage>    texImage;
 
     VdeMesh()
-    :   verticesPerPrimitive(-1)
+    :   color(1,1,1),
+        opacity(1),
+        verticesPerPrimitive(-1)
     {}
 };
 
@@ -65,14 +69,14 @@ struct VdeMesh
 //
 //
 //==================================================================================================
-struct VdeMeshContentIds
+struct VdeMeshArrayIds
 {
     int vertexArrId;
     int connArrId;
     int texImageArrId;
     int texCoordsArrId;
 
-    VdeMeshContentIds()
+    VdeMeshArrayIds()
     :   vertexArrId(-1),
         connArrId(-1),
         texImageArrId(-1),
@@ -95,13 +99,13 @@ public:
     bool exportViewContents(const RimGridView& view);
 
 private:
-    static bool extractMeshFromPart(const RimGridView& view, const cvf::Part& part, VdeMesh* mesh);
-    static bool writeModelMetaJsonFile(const std::vector<VdeMesh>& meshArr, const std::vector<VdeMeshContentIds>& meshContentIdsArr, QString fileName);
+    static bool extractMeshFromExportPart(const VdeExportPart& exportPart, VdeMesh* mesh);
+    static bool writeModelMetaJsonFile(const std::vector<VdeMesh>& meshArr, const std::vector<VdeMeshArrayIds>& meshContentIdsArr, QString fileName);
     static void debugComparePackets(const VdeArrayDataPacket& packetA, const VdeArrayDataPacket& packetB);
 
     bool        writeDataPacketToFile(int arrayId, const VdeArrayDataPacket& packet) const;
 
 private:
-    QString     m_absOutputFolder;
+    QString  m_absOutputFolder;
 
 };

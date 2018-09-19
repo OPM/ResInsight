@@ -18,6 +18,8 @@
 
 #include "VdeArrayDataPacket.h"
 
+#include <cassert>
+
 
 
 //==================================================================================================
@@ -194,11 +196,12 @@ VdeArrayDataPacket VdeArrayDataPacket::fromUint32Arr(int arrayId, const unsigned
 //--------------------------------------------------------------------------------------------------
 VdeArrayDataPacket VdeArrayDataPacket::fromUint8ImageRGBArr(int arrayId, unsigned short imageWidth, unsigned short imageHeight, const unsigned char* srcArr, size_t srcArrElementCount)
 {
-    size_t payloadByteCount = srcArrElementCount*sizeof(unsigned int);
     const char* rawSrcPtr = reinterpret_cast<const char*>(srcArr);
 
+    assert(3*imageWidth*imageHeight == srcArrElementCount);
+
     VdeArrayDataPacket packet;
-    packet.assign(arrayId, Uint8, srcArrElementCount, imageWidth, imageHeight, 3, rawSrcPtr, payloadByteCount);
+    packet.assign(arrayId, Uint8, srcArrElementCount, imageWidth, imageHeight, 3, rawSrcPtr, srcArrElementCount);
     return packet;
 }
 

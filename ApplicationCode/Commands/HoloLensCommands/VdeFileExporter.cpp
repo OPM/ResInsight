@@ -30,6 +30,9 @@
 #include "cvfDrawableGeo.h"
 #include "cvfPrimitiveSet.h"
 #include "cvfTransform.h"
+#include "cvfRenderStateTextureBindings.h"
+#include "cvfTexture.h"
+#include "cvfEffect.h"
 #include "cvfTrace.h"
 
 #include <QString>
@@ -57,91 +60,84 @@ VdeFileExporter::VdeFileExporter(QString absOutputFolder)
 //--------------------------------------------------------------------------------------------------
 bool VdeFileExporter::exportViewContents(const RimGridView& view)
 {
+    std::vector<VdeExportPart> exportPartsArr = RicHoloLensExportImpl::partsForExport(view);
     std::vector<VdeMesh> meshArr;
+    for (const auto& exportPart : exportPartsArr)
     {
-        std::vector<VdeExportPart> exportParts = RicHoloLensExportImpl::partsForExport(view);
-        for (const auto& exportPart : exportParts)
+        VdeMesh mesh;
+        if (extractMeshFromExportPart(exportPart, &mesh))
         {
-            const cvf::Part* part = exportPart.part();
-            if (part)
-            {
-                VdeMesh mesh;
-                if (extractMeshFromPart(view, *part, &mesh))
-                {
-                    QString srcObjType = "unknown";
-                    if (exportPart.sourceObjectType() == VdeExportPart::OBJ_TYPE_GRID) srcObjType = "grid";
-                    else if (exportPart.sourceObjectType() == VdeExportPart::OBJ_TYPE_PIPE) srcObjType = "pipe";
-                    mesh.meshSourceObjTypeStr = srcObjType;
-                    
-                    mesh.meshSourceObjName = exportPart.sourceObjectName();
-                    mesh.color = exportPart.color();
-                    
-                    meshArr.push_back(mesh);
-                }
-            }
+            meshArr.push_back(mesh);
         }
     }
 
-    std::vector<VdeMeshContentIds> meshContentIdsArr;
+    std::vector<VdeMeshArrayIds> meshArrayIdsArr;
 
+    const size_t meshCount = meshArr.size();
+    cvf::Trace::show("Exporting %d meshes", meshCount);
+    size_t totNumPrimitives = 0;
     int nextArrayId = 0;
-    for (size_t i = 0; i < meshArr.size(); i++)
+    for (size_t i = 0; i < meshCount; i++)
     {
         const VdeMesh& mesh = meshArr[i];
-        const size_t primCount = mesh.connArr.size()/3;
-        cvf::Trace::show("%d:  primCount=%d  meshSourceObjName='%s'", i, primCount, mesh.meshSourceObjName.toLatin1().constData());
 
-        VdeMeshContentIds meshContentIds;
+        const size_t primCount = mesh.connArr.size()/mesh.verticesPerPrimitive;
+        totNumPrimitives += primCount;
+        cvf::Trace::show("  %2d:  primCount=%d  meshSourceObjName='%s'", i, primCount, mesh.meshSourceObjName.toLatin1().constData());
+
+        VdeMeshArrayIds meshArrayIds;
 
         {
-            meshContentIds.vertexArrId = nextArrayId++;
+            meshArrayIds.vertexArrId = nextArrayId++;
             const float* floatArr = reinterpret_cast<const float*>(mesh.vertexArr->ptr());
-            VdeArrayDataPacket dataPacket = VdeArrayDataPacket::fromFloat32Arr(meshContentIds.vertexArrId, floatArr, 3*mesh.vertexArr->size());
+            VdeArrayDataPacket dataPacket = VdeArrayDataPacket::fromFloat32Arr(meshArrayIds.vertexArrId, floatArr, 3*mesh.vertexArr->size());
             writeDataPacketToFile(dataPacket.arrayId(), dataPacket);
 
             // Debug testing of decoding
-            debugComparePackets(dataPacket, VdeArrayDataPacket::fromRawPacketBuffer(dataPacket.fullPacketRawPtr(), dataPacket.fullPacketSize(), nullptr));
+            //debugComparePackets(dataPacket, VdeArrayDataPacket::fromRawPacketBuffer(dataPacket.fullPacketRawPtr(), dataPacket.fullPacketSize(), nullptr));
         }
         {
-            meshContentIds.connArrId = nextArrayId++;
+            meshArrayIds.connArrId = nextArrayId++;
             const unsigned int* uintArr = mesh.connArr.data();
-            VdeArrayDataPacket dataPacket = VdeArrayDataPacket::fromUint32Arr(meshContentIds.connArrId, uintArr, mesh.connArr.size());
+            VdeArrayDataPacket dataPacket = VdeArrayDataPacket::fromUint32Arr(meshArrayIds.connArrId, uintArr, mesh.connArr.size());
             writeDataPacketToFile(dataPacket.arrayId(), dataPacket);
 
             // Debug testing of decoding
-            debugComparePackets(dataPacket, VdeArrayDataPacket::fromRawPacketBuffer(dataPacket.fullPacketRawPtr(), dataPacket.fullPacketSize(), nullptr));
+            //debugComparePackets(dataPacket, VdeArrayDataPacket::fromRawPacketBuffer(dataPacket.fullPacketRawPtr(), dataPacket.fullPacketSize(), nullptr));
         }
 
         if (mesh.texCoordArr.notNull() && mesh.texImage.notNull())
         {
             {
-                meshContentIds.texCoordsArrId = nextArrayId++;
+                meshArrayIds.texCoordsArrId = nextArrayId++;
                 const float* floatArr = reinterpret_cast<const float*>(mesh.texCoordArr->ptr());
-                VdeArrayDataPacket dataPacket = VdeArrayDataPacket::fromFloat32Arr(meshContentIds.texCoordsArrId, floatArr, 3*mesh.vertexArr->size());
+                VdeArrayDataPacket dataPacket = VdeArrayDataPacket::fromFloat32Arr(meshArrayIds.texCoordsArrId, floatArr, 3*mesh.vertexArr->size());
                 writeDataPacketToFile(dataPacket.arrayId(), dataPacket);
 
                 // Debug testing of decoding
-                debugComparePackets(dataPacket, VdeArrayDataPacket::fromRawPacketBuffer(dataPacket.fullPacketRawPtr(), dataPacket.fullPacketSize(), nullptr));
+                //debugComparePackets(dataPacket, VdeArrayDataPacket::fromRawPacketBuffer(dataPacket.fullPacketRawPtr(), dataPacket.fullPacketSize(), nullptr));
             }
             {
-                meshContentIds.texImageArrId = nextArrayId++;
+                meshArrayIds.texImageArrId = nextArrayId++;
                 cvf::ref<cvf::UByteArray> byteArr = mesh.texImage->toRgb();
-                VdeArrayDataPacket dataPacket = VdeArrayDataPacket::fromUint8ImageRGBArr(meshContentIds.texImageArrId, mesh.texImage->width(), mesh.texImage->height(), byteArr->ptr(), byteArr->size());
+                VdeArrayDataPacket dataPacket = VdeArrayDataPacket::fromUint8ImageRGBArr(meshArrayIds.texImageArrId, mesh.texImage->width(), mesh.texImage->height(), byteArr->ptr(), byteArr->size());
                 writeDataPacketToFile(dataPacket.arrayId(), dataPacket);
 
                 // Debug testing of decoding
-                debugComparePackets(dataPacket, VdeArrayDataPacket::fromRawPacketBuffer(dataPacket.fullPacketRawPtr(), dataPacket.fullPacketSize(), nullptr));
+                //debugComparePackets(dataPacket, VdeArrayDataPacket::fromRawPacketBuffer(dataPacket.fullPacketRawPtr(), dataPacket.fullPacketSize(), nullptr));
             }
         }
 
-        meshContentIdsArr.push_back(meshContentIds);
+        meshArrayIdsArr.push_back(meshArrayIds);
     }
 
     QString jsonFileName = m_absOutputFolder + "/modelMeta.json";
-    if (!writeModelMetaJsonFile(meshArr, meshContentIdsArr, jsonFileName))
+    if (!writeModelMetaJsonFile(meshArr, meshArrayIdsArr, jsonFileName))
     {
         return false;
     }
+
+    cvf::Trace::show("Total number of primitives exported: %d", totNumPrimitives);
 
     return true;
 }
@@ -149,9 +145,10 @@ bool VdeFileExporter::exportViewContents(const RimGridView& view)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool VdeFileExporter::extractMeshFromPart(const RimGridView& view, const cvf::Part& part, VdeMesh* mesh)
+bool VdeFileExporter::extractMeshFromExportPart(const VdeExportPart& exportPart, VdeMesh* mesh)
 {
-    const cvf::DrawableGeo* geo = dynamic_cast<const cvf::DrawableGeo*>(part.drawable());
+    const cvf::Part* cvfPart = exportPart.part();
+    const cvf::DrawableGeo* geo = dynamic_cast<const cvf::DrawableGeo*>(cvfPart ? cvfPart->drawable() : nullptr);
     if (!geo)
     {
         return false;
@@ -173,19 +170,19 @@ bool VdeFileExporter::extractMeshFromPart(const RimGridView& view, const cvf::Pa
 
     if (primSet->primitiveType() != cvf::PT_TRIANGLES)
     {
-        RiaLogging::debug("Currently only triangle primitive sets are supported");
+        RiaLogging::debug(QString("Currently only triangle primitive sets are supported (saw primitive type: %1)").arg(primSet->primitiveType()));
         return false;
     }
 
     mesh->verticesPerPrimitive = 3;
 
     // Possibly transform the vertices
-    if (part.transform())
+    if (cvfPart->transform())
     {
         const size_t vertexCount = vertexArr->size();
         cvf::ref<cvf::Vec3fArray> transVertexArr = new cvf::Vec3fArray(vertexArr->size());
 
-        cvf::Mat4f m = cvf::Mat4f(part.transform()->worldTransform());
+        cvf::Mat4f m = cvf::Mat4f(cvfPart->transform()->worldTransform());
         for (size_t i = 0; i < vertexCount; i++)
         {
             transVertexArr->set(i, vertexArr->get(i).getTransformedPoint(m));
@@ -212,6 +209,36 @@ bool VdeFileExporter::extractMeshFromPart(const RimGridView& view, const cvf::Pa
             mesh->connArr.push_back(faceConn[numConn - i - 1]);
         }
     }
+
+
+    // !!!!
+    // Experiment with texture fringes
+    //if (geo->textureCoordArray())
+    //{
+    //    cvf::Part* nonConstPart = const_cast<cvf::Part*>(cvfPart);
+    //    cvf::Effect* eff = nonConstPart->effect();
+    //    cvf::RenderStateTextureBindings* rsTexBindings = dynamic_cast<cvf::RenderStateTextureBindings*>(eff->renderStateOfType(cvf::RenderState::TEXTURE_BINDINGS));
+    //    if (rsTexBindings && rsTexBindings->bindingCount() > 0)
+    //    {
+    //        cvf::TextureImage* texImg = rsTexBindings->texture(0)->image();
+    //        if (texImg)
+    //        {
+    //            mesh->texCoordArr = geo->textureCoordArray();
+    //            mesh->texImage = texImg;
+    //        }
+    //    }
+    //}
+
+
+    QString srcObjType = "unknown";
+    if      (exportPart.sourceObjectType() == VdeExportPart::OBJ_TYPE_GRID) srcObjType = "grid";
+    else if (exportPart.sourceObjectType() == VdeExportPart::OBJ_TYPE_PIPE) srcObjType = "pipe";
+    mesh->meshSourceObjTypeStr = srcObjType;
+
+    mesh->meshSourceObjName = exportPart.sourceObjectName();
+
+    mesh->color = exportPart.color();
+    mesh->opacity = exportPart.opacity();
 
     return true;
 }
@@ -241,14 +268,14 @@ bool VdeFileExporter::writeDataPacketToFile(int arrayId, const VdeArrayDataPacke
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool VdeFileExporter::writeModelMetaJsonFile(const std::vector<VdeMesh>& meshArr, const std::vector<VdeMeshContentIds>& meshContentIdsArr, QString fileName)
+bool VdeFileExporter::writeModelMetaJsonFile(const std::vector<VdeMesh>& meshArr, const std::vector<VdeMeshArrayIds>& meshContentIdsArr, QString fileName)
 {
     QVariantList jsonMeshMetaList;
 
     for (size_t i = 0; i < meshArr.size(); i++)
     {
         const VdeMesh& mesh = meshArr[i];
-        const VdeMeshContentIds& meshIds = meshContentIdsArr[i];
+        const VdeMeshArrayIds& meshIds = meshContentIdsArr[i];
 
         QMap<QString, QVariant> jsonMeshMeta;
         jsonMeshMeta["meshSourceObjType"] = mesh.meshSourceObjTypeStr;
@@ -273,7 +300,7 @@ bool VdeFileExporter::writeModelMetaJsonFile(const std::vector<VdeMesh>& meshArr
             jsonMeshMeta["color"] = jsonColor;
         }
 
-        jsonMeshMeta["opacity"] = 1.0;
+        jsonMeshMeta["opacity"] = mesh.opacity;
 
         jsonMeshMetaList.push_back(jsonMeshMeta);
     }
