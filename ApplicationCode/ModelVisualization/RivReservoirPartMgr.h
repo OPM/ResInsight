@@ -32,6 +32,7 @@ namespace cvf
 
 class RimEclipseCellColors;
 class RimCellEdgeColors;
+class RimEclipseCase;
 class RigEclipseCaseData;
 class RimEclipseView;
 class RivReservoirFaultsPartMgr;
@@ -47,7 +48,7 @@ class RivGridPartMgr;
 class RivReservoirPartMgr: public cvf::Object
 {
 public:
-    void   clearAndSetReservoir(const RigEclipseCaseData* eclipseCase, RimEclipseView* reservoirView);
+    void   clearAndSetReservoir(RimEclipseCase* eclipseCase, RimEclipseView* reservoirView);
     void   setTransform(cvf::Transform* scaleTransform);
     void   setCellVisibility(size_t gridIndex, cvf::UByteArray* cellVisibilities );
     

@@ -22,6 +22,8 @@
 
 #include "RigEclipseCaseData.h"
 
+#include "RimEclipseCase.h"
+
 #include "RivGridPartMgr.h"
 #include "RivReservoirFaultsPartMgr.h"
 
@@ -30,17 +32,20 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivReservoirPartMgr::clearAndSetReservoir(const RigEclipseCaseData* eclipseCase, RimEclipseView* reservoirView)
+void RivReservoirPartMgr::clearAndSetReservoir(RimEclipseCase* eclipseCase, RimEclipseView* reservoirView)
 {
     m_allGrids.clear();
 
-    if (eclipseCase)
+
+    if (eclipseCase && eclipseCase->eclipseCaseData())
     {
+        RigEclipseCaseData* eclipseCaseData = eclipseCase->eclipseCaseData();
+
         std::vector<const RigGridBase*> grids;
-        eclipseCase->allGrids(&grids);
+        eclipseCaseData->allGrids(&grids);
         for (size_t i = 0; i < grids.size() ; ++i)
         {
-            m_allGrids.push_back(new RivGridPartMgr(grids[i], i));
+            m_allGrids.push_back(new RivGridPartMgr(eclipseCase, grids[i], i));
         }
 
         if (eclipseCase->mainGrid())
