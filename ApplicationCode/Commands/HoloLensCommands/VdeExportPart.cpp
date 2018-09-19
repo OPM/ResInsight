@@ -106,7 +106,7 @@ VdeExportPart::SourceObjectType VdeExportPart::sourceObjectType() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::Part* VdeExportPart::part()
+const cvf::Part* VdeExportPart::part() const
 {
     return m_part.p();
 }

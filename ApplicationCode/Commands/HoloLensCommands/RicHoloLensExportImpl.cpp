@@ -21,6 +21,7 @@
 #include "RigMainGrid.h"
 
 #include "RimEclipseCase.h"
+#include "RimEclipseView.h"
 #include "RimFaultInView.h"
 #include "RimGridView.h"
 #include "RimSimWellInView.h"
@@ -103,13 +104,11 @@ std::vector<VdeExportPart> RicHoloLensExportImpl::partsForExport(const RimGridVi
                         }
                     }
 
-                    auto* singleColorEffect = dynamic_cast<caf::SurfaceEffectGenerator*>(scenePart->effect());
-
                     auto* si = dynamic_cast<RivSourceInfo*>(scenePart->sourceInfo());
                     if (si)
                     {
                         RimFaultInView* faultInView = dynamic_cast<RimFaultInView*>(si->object());
-                        if (faultInView && singleColorEffect)
+                        if (faultInView)
                         {
                             partForExport.setSourceObjectName(faultInView->name());
                             partForExport.setColor(faultInView->faultColor());
@@ -127,10 +126,18 @@ std::vector<VdeExportPart> RicHoloLensExportImpl::partsForExport(const RimGridVi
                                 nameOfObject += " Grid " + QString::number(gridIndex);
                             }
 
-                            partForExport.setSourceObjectName(nameOfObject);
+                            const RimEclipseView* eclipseView = dynamic_cast<const RimEclipseView*>(&view);
+                            if (eclipseView)
+                            {
+                                cvf::Color4f color = eclipseView->colorFromCellCategory(si->cellSetType());
+                                partForExport.setColor(color.toColor3f());
+                                partForExport.setOpacity(color.a());
 
-                            QString text = RicHoloLensExportImpl::gridCellSetTypeText(si->cellSetType());
-                            partForExport.setSourceObjectCellSetType(text);
+                                QString text = RicHoloLensExportImpl::gridCellSetTypeText(si->cellSetType());
+                                partForExport.setSourceObjectCellSetType(text);
+                            }
+
+                            partForExport.setSourceObjectName(nameOfObject);
                         }
                     }
 
@@ -170,48 +177,6 @@ std::vector<VdeExportPart> RicHoloLensExportImpl::partsForExport(const RimGridVi
     }
 
     return exportParts;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RicHoloLensExportImpl::nameFromPart(const cvf::Part* part)
-{
-    if (!part) return "";
-
-    QString nameOfObject;
-
-    auto sourceInfo = part->sourceInfo();
-
-    {
-        auto gridSourceInfo = dynamic_cast<const RivSourceInfo*>(sourceInfo);
-        if (gridSourceInfo)
-        {
-            size_t gridIndex = gridSourceInfo->gridIndex();
-
-            nameOfObject = "Grid " + QString::number(gridIndex);
-        }
-    }
-
-    {
-        auto simWellSourceInfo = dynamic_cast<const RivSimWellPipeSourceInfo*>(sourceInfo);
-        if (simWellSourceInfo)
-        {
-            RimSimWellInView* simulationWell = simWellSourceInfo->well();
-            nameOfObject                     = simulationWell->name();
-        }
-    }
-
-    {
-        auto wellPathSourceInfo = dynamic_cast<const RivWellPathSourceInfo*>(sourceInfo);
-        if (wellPathSourceInfo)
-        {
-            RimWellPath* wellPath = wellPathSourceInfo->wellPath();
-            nameOfObject          = wellPath->name();
-        }
-    }
-
-    return nameOfObject;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -54,7 +54,7 @@ public:
     void setOpacity(float opacity);
     void setWinding(Winding winding);
 
-    cvf::Part*       part();
+    const cvf::Part* part() const;
     QString          sourceObjectName() const;
     QString          sourceObjectCellSetType() const;
     SourceObjectType sourceObjectType() const;
@@ -63,7 +63,7 @@ public:
     Winding          winding() const;
 
 private:
-    cvf::ref<cvf::Part> m_part;
+    cvf::cref<cvf::Part> m_part;
 
     QString          m_sourceObjectName;
     QString          m_sourceObjectCellSetType;

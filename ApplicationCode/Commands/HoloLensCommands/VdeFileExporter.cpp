@@ -57,35 +57,30 @@ VdeFileExporter::VdeFileExporter(QString absOutputFolder)
 //--------------------------------------------------------------------------------------------------
 bool VdeFileExporter::exportViewContents(const RimGridView& view)
 {
-    cvf::Collection<cvf::Part> allPartsColl;
-    RicHoloLensExportImpl::partsForExport(&view, &allPartsColl);
-
     std::vector<VdeMesh> meshArr;
-
-    std::vector<cvf::Color3f> colorArr;
-    colorArr.push_back(cvf::Color3f::fromByteColor( 81, 134, 148));
-    colorArr.push_back(cvf::Color3f::fromByteColor(212, 158,  97));
-    colorArr.push_back(cvf::Color3f::fromByteColor(217,  82,  28));
-    colorArr.push_back(cvf::Color3f::fromByteColor(212, 148, 138));
-    colorArr.push_back(cvf::Color3f::fromByteColor(115, 173, 181));
-    colorArr.push_back(cvf::Color3f::fromByteColor(125,  84,  56));
-    colorArr.push_back(cvf::Color3f::fromByteColor(206, 193,  55));
-    colorArr.push_back(cvf::Color3f::fromByteColor(252, 209, 158));
-
-    for (size_t i = 0; i < allPartsColl.size(); i++)
     {
-        const cvf::Part* part = allPartsColl.at(i);
-        if (part)
+        std::vector<VdeExportPart> exportParts = RicHoloLensExportImpl::partsForExport(view);
+        for (const auto& exportPart : exportParts)
         {
-            VdeMesh mesh;
-            if (extractMeshFromPart(view, *part, &mesh))
+            const cvf::Part* part = exportPart.part();
+            if (part)
             {
-                mesh.color = colorArr[i % colorArr.size()];
-                meshArr.push_back(mesh);
+                VdeMesh mesh;
+                if (extractMeshFromPart(view, *part, &mesh))
+                {
+                    QString srcObjType = "unknown";
+                    if (exportPart.sourceObjectType() == VdeExportPart::OBJ_TYPE_GRID) srcObjType = "grid";
+                    else if (exportPart.sourceObjectType() == VdeExportPart::OBJ_TYPE_PIPE) srcObjType = "pipe";
+                    mesh.meshSourceObjTypeStr = srcObjType;
+                    
+                    mesh.meshSourceObjName = exportPart.sourceObjectName();
+                    mesh.color = exportPart.color();
+                    
+                    meshArr.push_back(mesh);
+                }
             }
         }
     }
-
 
     std::vector<VdeMeshContentIds> meshContentIdsArr;
 
@@ -217,15 +212,6 @@ bool VdeFileExporter::extractMeshFromPart(const RimGridView& view, const cvf::Pa
             mesh->connArr.push_back(faceConn[numConn - i - 1]);
         }
     }
-
-    const QString nameOfObject = RicHoloLensExportImpl::nameFromPart(&part);
-
-    QString srcObjType = "unknown";
-    if      (RicHoloLensExportImpl::isGrid(&part)) srcObjType = "grid";
-    else if (RicHoloLensExportImpl::isPipe(&part)) srcObjType = "pipe";
-
-    mesh->meshSourceObjTypeStr = srcObjType;
-    mesh->meshSourceObjName = nameOfObject;
 
     return true;
 }
