@@ -34,8 +34,9 @@ public:
     enum ElementType
     {
         Unknown = 0,
-        Uint32  = 1,
-        Float32 = 2
+        Float32 = 1,
+        Uint32  = 2,
+        
     };
 
 public:
