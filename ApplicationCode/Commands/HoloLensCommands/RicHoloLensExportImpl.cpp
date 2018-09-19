@@ -79,7 +79,7 @@ std::vector<VdeExportPart> RicHoloLensExportImpl::partsForExport(const RimGridVi
 
     if (view.viewer())
     {
-        cvf::Scene* scene = view.viewer()->mainScene();
+        cvf::Scene* scene = view.viewer()->currentScene();
         if (scene)
         {
             cvf::Collection<cvf::Part> sceneParts;
