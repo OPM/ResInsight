@@ -56,7 +56,7 @@ RicfExportWellPathCompletions::RicfExportWellPathCompletions()
     RICF_InitField(&m_excludeMainBoreForFishbones, "excludeMainBoreForFishbones", false, "Exclude Main Bore for Fishbones",  "", "", "");
 
     RICF_InitField(&m_transScalingType, "transScalingType", RicExportCompletionDataSettingsUi::TransScalingType(), "Transmissibility Scaling Type", "", "", "");
-    RICF_InitField(&m_transScalingTimeStep, "transScalingTimeStep", -1, "Transmissibility Scaling Pressure Time Step", "", "", "");
+    RICF_InitField(&m_transScalingTimeStep, "transScalingTimeStep", 0, "Transmissibility Scaling Pressure Time Step", "", "", "");
     RICF_InitField(&m_transScalingSummaryWBHP, "transScalingWBHPFromSummary", true, "Transmissibility Scaling WBHP from summary", "", "", "");
     RICF_InitField(&m_transScalingWBHP,     "transScalingWBHP", 200.0, "Transmissibility Scaling Constant WBHP Value", "", "", "");
     RICF_InitField(&m_transScalingCorrection, "transScalingCorrection", RicExportCompletionDataSettingsUi::TransScalingCorrection(), "Transmissibility Scaling Correction", "", "", "");

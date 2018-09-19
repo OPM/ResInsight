@@ -406,7 +406,15 @@ void RicExportFractureCompletionsImpl::getWellPressuresFromSummaryData(const Rim
     {
         std::vector<QDateTime> caseTimeSteps = resultCase->timeStepDates();
         QDateTime              originalDate  = caseTimeSteps.front();
-        QDateTime              currentDate   = caseTimeSteps[currentTimeStep];
+        QDateTime              currentDate;
+        if (currentTimeStep < caseTimeSteps.size())
+        {
+            currentDate = caseTimeSteps[currentTimeStep];
+        }
+        else
+        {
+            currentDate = caseTimeSteps.back();
+        }
 
         RifEclipseSummaryAddress wbhpPressureAddress = RifEclipseSummaryAddress::wellAddress("WBHP", wellPathName.toStdString());
         RimSummaryCaseMainCollection* mainCollection = RiaSummaryTools::summaryCaseMainCollection();
