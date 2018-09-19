@@ -65,6 +65,19 @@ struct RicfFieldWriter<QString>
     static void    writeFieldData(const QString & fieldValue, QTextStream&  outputStream);
 };
 
+template <>
+struct RicfFieldReader<bool>
+{
+    static void    readFieldData(bool& fieldValue, QTextStream& inputStream, RicfMessages* errorMessageContainer);
+};
+
+template <>
+struct RicfFieldWriter<bool>
+{
+    static void    writeFieldData(const bool& fieldValue, QTextStream&  outputStream);
+};
+
+
 template <typename T>
 struct RicfFieldReader< caf::AppEnum<T> >
 {
