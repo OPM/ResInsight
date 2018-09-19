@@ -18,6 +18,9 @@
 
 #include "RicHoloLensExportImpl.h"
 
+#include "RigMainGrid.h"
+
+#include "RimEclipseCase.h"
 #include "RimGridView.h"
 #include "RimSimWellInView.h"
 #include "RimWellPath.h"
@@ -31,6 +34,8 @@
 #include "cvfPart.h"
 #include "cvfScene.h"
 
+#include "RimFaultInView.h"
+#include "cafEffectGenerator.h"
 #include <QString>
 
 //--------------------------------------------------------------------------------------------------
@@ -62,15 +67,18 @@ void RicHoloLensExportImpl::partsForExport(const RimGridView* view, cvf::Collect
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-std::vector<VdeExportPart> RicHoloLensExportImpl::partsForExport(const RimGridView* view)
+std::vector<VdeExportPart> RicHoloLensExportImpl::partsForExport(const RimGridView& view)
 {
     std::vector<VdeExportPart> exportParts;
 
-    if (view->viewer())
+    RimEclipseCase* rimEclipseCase = nullptr;
+    view.firstAncestorOrThisOfType(rimEclipseCase);
+
+    if (view.viewer())
     {
-        cvf::Scene* scene = view->viewer()->mainScene();
+        cvf::Scene* scene = view.viewer()->mainScene();
         if (scene)
         {
             cvf::Collection<cvf::Part> sceneParts;
@@ -80,17 +88,82 @@ std::vector<VdeExportPart> RicHoloLensExportImpl::partsForExport(const RimGridVi
             {
                 if (RicHoloLensExportImpl::isGrid(scenePart.p()))
                 {
-                    VdeExportPart part(scenePart.p());
-                    part.setSourceObjectType(VdeExportPart::OBJ_TYPE_GRID);
+                    VdeExportPart partForExport(scenePart.p());
+                    partForExport.setSourceObjectType(VdeExportPart::OBJ_TYPE_GRID);
 
-                    exportParts.push_back(part);
+                    if (rimEclipseCase && rimEclipseCase->mainGrid())
+                    {
+                        if (rimEclipseCase->mainGrid()->isFaceNormalsOutwards())
+                        {
+                            partForExport.setWinding(VdeExportPart::CLOCKWISE);
+                        }
+                        else
+                        {
+                            partForExport.setWinding(VdeExportPart::COUNTERCLOCKWISE);
+                        }
+                    }
+
+                    auto* singleColorEffect = dynamic_cast<caf::SurfaceEffectGenerator*>(scenePart->effect());
+
+                    auto* si = dynamic_cast<RivSourceInfo*>(scenePart->sourceInfo());
+                    if (si)
+                    {
+                        RimFaultInView* faultInView = dynamic_cast<RimFaultInView*>(si->object());
+                        if (faultInView && singleColorEffect)
+                        {
+                            partForExport.setSourceObjectName(faultInView->name());
+                            partForExport.setColor(faultInView->faultColor());
+                        }
+
+                        RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>(si->object());
+                        if (eclipseCase)
+                        {
+                            QString nameOfObject = rimEclipseCase->gridFileName();
+                            auto gridSourceInfo = dynamic_cast<const RivSourceInfo*>(scenePart->sourceInfo());
+                            if (gridSourceInfo)
+                            {
+                                size_t gridIndex = gridSourceInfo->gridIndex();
+
+                                nameOfObject += " Grid " + QString::number(gridIndex);
+                            }
+
+                            partForExport.setSourceObjectName(nameOfObject);
+
+                            QString text = RicHoloLensExportImpl::gridCellSetTypeText(si->cellSetType());
+                            partForExport.setSourceObjectCellSetType(text);
+                        }
+                    }
+
+                    exportParts.push_back(partForExport);
                 }
                 else if (RicHoloLensExportImpl::isPipe(scenePart.p()))
                 {
-                    VdeExportPart part(scenePart.p());
-                    part.setSourceObjectType(VdeExportPart::OBJ_TYPE_PIPE);
+                    VdeExportPart partForExport(scenePart.p());
+                    partForExport.setSourceObjectType(VdeExportPart::OBJ_TYPE_PIPE);
 
-                    exportParts.push_back(part);
+                    auto simWellSourceInfo = dynamic_cast<const RivSimWellPipeSourceInfo*>(scenePart->sourceInfo());
+                    if (simWellSourceInfo)
+                    {
+                        auto simWell = simWellSourceInfo->well();
+                        if (simWell)
+                        {
+                            partForExport.setSourceObjectName(simWell->name());
+                            partForExport.setColor(simWell->wellPipeColor());
+                        }
+                    }
+
+                    auto wellPathSourceInfo = dynamic_cast<const RivWellPathSourceInfo*>(scenePart->sourceInfo());
+                    if (wellPathSourceInfo)
+                    {
+                        RimWellPath* wellPath = wellPathSourceInfo->wellPath();
+                        if (wellPath)
+                        {
+                            partForExport.setSourceObjectName(wellPath->name());
+                            partForExport.setColor(wellPath->wellPathColor());
+                        }
+                    }
+
+                    exportParts.push_back(partForExport);
                 }
             }
         }
@@ -139,6 +212,62 @@ QString RicHoloLensExportImpl::nameFromPart(const cvf::Part* part)
     }
 
     return nameOfObject;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RicHoloLensExportImpl::gridCellSetTypeText(RivCellSetEnum cellSetType)
+{
+    switch (cellSetType)
+    {
+        case OVERRIDDEN_CELL_VISIBILITY:
+            return "OVERRIDDEN_CELL_VISIBILITY";
+            break;
+        case ALL_CELLS:
+            return "ALL_CELLS";
+            break;
+        case ACTIVE:
+            return "ACTIVE";
+            break;
+        case ALL_WELL_CELLS:
+            return "ALL_WELL_CELLS";
+            break;
+        case VISIBLE_WELL_CELLS:
+            return "VISIBLE_WELL_CELLS";
+            break;
+        case VISIBLE_WELL_FENCE_CELLS:
+            return "VISIBLE_WELL_FENCE_CELLS";
+            break;
+        case INACTIVE:
+            return "INACTIVE";
+            break;
+        case RANGE_FILTERED:
+            return "RANGE_FILTERED";
+            break;
+        case RANGE_FILTERED_INACTIVE:
+            return "RANGE_FILTERED_INACTIVE";
+            break;
+        case RANGE_FILTERED_WELL_CELLS:
+            return "RANGE_FILTERED_WELL_CELLS";
+            break;
+        case VISIBLE_WELL_CELLS_OUTSIDE_RANGE_FILTER:
+            return "VISIBLE_WELL_CELLS_OUTSIDE_RANGE_FILTER";
+            break;
+        case VISIBLE_WELL_FENCE_CELLS_OUTSIDE_RANGE_FILTER:
+            return "VISIBLE_WELL_FENCE_CELLS_OUTSIDE_RANGE_FILTER";
+            break;
+        case PROPERTY_FILTERED:
+            return "PROPERTY_FILTERED";
+            break;
+        case PROPERTY_FILTERED_WELL_CELLS:
+            return "PROPERTY_FILTERED_WELL_CELLS";
+            break;
+        default:
+            break;
+    }
+
+    return "INVALID_CELL_SET_TYPE";
 }
 
 //--------------------------------------------------------------------------------------------------

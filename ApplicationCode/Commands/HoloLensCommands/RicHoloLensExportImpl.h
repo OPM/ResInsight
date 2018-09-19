@@ -18,9 +18,12 @@
 
 #pragma once
 
+#include "RivCellSetEnum.h"
+
+#include "VdeExportPart.h"
+
 #include "cvfBase.h"
 #include "cvfCollection.h"
-#include "VdeExportPart.h"
 
 class QString;
 class RimGridView;
@@ -38,9 +41,10 @@ class RicHoloLensExportImpl
 public:
     static void partsForExport(const RimGridView* view, cvf::Collection<cvf::Part>* partCollection);
 
-    static std::vector<VdeExportPart> partsForExport(const RimGridView* view);
+    static std::vector<VdeExportPart> partsForExport(const RimGridView& view);
 
     static QString nameFromPart(const cvf::Part* part);
+    static QString gridCellSetTypeText(RivCellSetEnum cellSetType);
 
     static bool isGrid(const cvf::Part* part);
     static bool isPipe(const cvf::Part* part);

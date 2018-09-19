@@ -49,19 +49,23 @@ public:
 
     void setSourceObjectType(SourceObjectType sourceObjectType);
     void setSourceObjectName(const QString& sourceObjectName);
-    void setColor(cvf::Color3ub color);
+    void setSourceObjectCellSetType(const QString& sourceObjectCellSetType);
+    void setColor(const cvf::Color3f& color);
     void setWinding(Winding winding);
 
-    QString          sourceObjectName() const;
-    SourceObjectType sourceObjectType() const;
     cvf::Part*       part();
-    cvf::Color3ub    color() const;
+    QString          sourceObjectName() const;
+    QString          sourceObjectCellSetType() const;
+    SourceObjectType sourceObjectType() const;
+    cvf::Color3f     color() const;
     Winding          winding() const;
 
 private:
-    QString             m_sourceObjectName;
-    SourceObjectType    m_sourceObjectType;
-    cvf::Color3ub       m_color;
     cvf::ref<cvf::Part> m_part;
-    Winding             m_winding;
+
+    QString          m_sourceObjectName;
+    QString          m_sourceObjectCellSetType;
+    SourceObjectType m_sourceObjectType;
+    cvf::Color3f     m_color;
+    Winding          m_winding;
 };
