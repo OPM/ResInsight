@@ -29,7 +29,29 @@ public:
     RiaSCurveCalculator( cvf::Vec3d p1, cvf::Vec3d q1,
                          cvf::Vec3d p2, cvf::Vec3d q2 );
 
+    enum CurveStatus
+    {
+        NOT_SET,
+        OK,
+        OK_INFINITE_RADIUS1,
+        OK_INFINITE_RADIUS2,
+        OK_INFINITE_RADIUS12,
+        FAILED_INPUT_OVERLAP,
+        FAILED_ARC_OVERLAP
+    };
+    enum SolveStatus 
+    {
+        NOT_SOLVED,
+        CONVERGED, 
+        FAILED_MAX_LENGTH_ALONG_TANGENT_REACHED,
+        FAILED_MAX_TANGENT_STEP_REACHED,
+        FAILED_MAX_ITERATIONS_REACHED
+    };
+
     bool       isOk()                const { return m_isCalculationOK;     }
+    CurveStatus curveStatus()        const { return m_ctrlPpointCurveStatus;}
+    SolveStatus solveStatus()        const { return m_solveStatus;}
+
     cvf::Vec3d firstArcEndpoint()    const { return m_firstArcEndpoint;    }
     cvf::Vec3d secondArcStartpoint() const { return m_secondArcStartpoint; }
     cvf::Vec3d firstCenter()         const { return m_c1;                  }
@@ -51,6 +73,9 @@ private:
 
 
     bool m_isCalculationOK;
+
+    CurveStatus m_ctrlPpointCurveStatus;
+    SolveStatus m_solveStatus;
 
     cvf::Vec3d m_p1;
     cvf::Vec3d m_p2;

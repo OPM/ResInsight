@@ -428,22 +428,24 @@ TEST(RiaSCurveCalculator, Test4)
 double curveRadius = 115;
 double angleEpsilon = 0.01;
 
-TEST(DISABLED_RiaSCurveCalculator, Config1 ) 
+TEST(RiaSCurveCalculator, Config1 ) 
 { 
     RiaSCurveCalculator sCurveCalc(
     { 0,0,0 }, 0, 0, curveRadius,
     { 0,0,-1000 }, 0, 0, curveRadius);
     sCurveCalc.dump();
-    EXPECT_TRUE(sCurveCalc.isOk() );
+    EXPECT_EQ(RiaSCurveCalculator::OK_INFINITE_RADIUS12, sCurveCalc.curveStatus());
+    EXPECT_EQ(RiaSCurveCalculator::CONVERGED, sCurveCalc.solveStatus());
 }
 
-TEST(DISABLED_RiaSCurveCalculator, Config1a ) 
+TEST(RiaSCurveCalculator, Config1a ) 
 { 
     RiaSCurveCalculator sCurveCalc(
     { 0,0,0 }, 0, 0, curveRadius,
     { 0,0,-1000 }, 0, angleEpsilon, curveRadius);
     sCurveCalc.dump();
-    EXPECT_TRUE(sCurveCalc.isOk() );
+    EXPECT_EQ(RiaSCurveCalculator::OK, sCurveCalc.curveStatus());
+    EXPECT_EQ(RiaSCurveCalculator::CONVERGED, sCurveCalc.solveStatus());
 }
 TEST(RiaSCurveCalculator, Config2 ) 
 { 
@@ -451,7 +453,8 @@ TEST(RiaSCurveCalculator, Config2 )
     { 0,0,0 }, 0, 0, curveRadius,
     { 0,0,-1000 }, 0, M_PI/2.0, curveRadius);
     sCurveCalc.dump();
-    EXPECT_TRUE(sCurveCalc.isOk() );
+    EXPECT_EQ(RiaSCurveCalculator::OK, sCurveCalc.curveStatus());
+    EXPECT_EQ(RiaSCurveCalculator::CONVERGED, sCurveCalc.solveStatus());
 }
 TEST(DISABLED_RiaSCurveCalculator, Config3 ) 
 { 
@@ -459,7 +462,8 @@ TEST(DISABLED_RiaSCurveCalculator, Config3 )
     { 0,0,0 }, 0, 0, curveRadius,
     { 0,0,-1000 }, 0, M_PI, curveRadius);
     sCurveCalc.dump();
-    EXPECT_TRUE(sCurveCalc.isOk() );
+    EXPECT_EQ(RiaSCurveCalculator::OK, sCurveCalc.curveStatus());
+    EXPECT_EQ(RiaSCurveCalculator::CONVERGED, sCurveCalc.solveStatus());
 }
 TEST(DISABLED_RiaSCurveCalculator, Config3a ) 
 { 
@@ -467,7 +471,8 @@ TEST(DISABLED_RiaSCurveCalculator, Config3a )
     { 0,0,0 }, 0, 0, curveRadius,
     { 0,0,-1000 }, 0, M_PI-angleEpsilon, curveRadius);
     sCurveCalc.dump();
-    EXPECT_TRUE(sCurveCalc.isOk() );
+    EXPECT_EQ(RiaSCurveCalculator::OK, sCurveCalc.curveStatus());
+    EXPECT_EQ(RiaSCurveCalculator::CONVERGED, sCurveCalc.solveStatus());
 }
 TEST(RiaSCurveCalculator, Config4 ) 
 { 
@@ -475,7 +480,8 @@ TEST(RiaSCurveCalculator, Config4 )
     { 0,0,0 }, 0,  M_PI/2.0, curveRadius,
     { 0,0,-1000 }, 0,  M_PI/2.0, curveRadius);
     sCurveCalc.dump();
-    EXPECT_TRUE(sCurveCalc.isOk() );
+    EXPECT_EQ(RiaSCurveCalculator::OK, sCurveCalc.curveStatus());
+    EXPECT_EQ(RiaSCurveCalculator::CONVERGED, sCurveCalc.solveStatus());
 }
 TEST(RiaSCurveCalculator, Config5 ) 
 { 
@@ -483,7 +489,8 @@ TEST(RiaSCurveCalculator, Config5 )
     { 0,0,0 }, 0,  M_PI/2.0, curveRadius,
     { 0,0,-1000 }, M_PI,  M_PI/2.0, curveRadius);
     sCurveCalc.dump();
-    EXPECT_TRUE(sCurveCalc.isOk() );
+    EXPECT_EQ(RiaSCurveCalculator::OK, sCurveCalc.curveStatus());
+    EXPECT_EQ(RiaSCurveCalculator::CONVERGED, sCurveCalc.solveStatus());
 }
 TEST(DISABLED_RiaSCurveCalculator, Config6 ) 
 { 
@@ -491,7 +498,8 @@ TEST(DISABLED_RiaSCurveCalculator, Config6 )
     { 0,0,0 }, 0,  M_PI, curveRadius,
     { 0,0,-1000 }, 0,  0, curveRadius);
     sCurveCalc.dump();
-    EXPECT_TRUE(sCurveCalc.isOk() );
+    EXPECT_EQ(RiaSCurveCalculator::OK, sCurveCalc.curveStatus());
+    EXPECT_EQ(RiaSCurveCalculator::CONVERGED, sCurveCalc.solveStatus());
 }
 TEST(DISABLED_RiaSCurveCalculator, Config6a ) 
 { 
@@ -499,7 +507,8 @@ TEST(DISABLED_RiaSCurveCalculator, Config6a )
     { 0,0,0 }, 0,  M_PI, curveRadius,
     { 0,0,-1000 }, 0,  angleEpsilon, curveRadius);
     sCurveCalc.dump();
-    EXPECT_TRUE(sCurveCalc.isOk() );
+    EXPECT_EQ(RiaSCurveCalculator::OK, sCurveCalc.curveStatus());
+    EXPECT_EQ(RiaSCurveCalculator::CONVERGED, sCurveCalc.solveStatus());
 }
 TEST(DISABLED_RiaSCurveCalculator, Config6b ) 
 { 
@@ -507,15 +516,17 @@ TEST(DISABLED_RiaSCurveCalculator, Config6b )
     { 0,0,0 }, 0,  M_PI-angleEpsilon, curveRadius,
     { 0,0,-1000 }, 0,  0.00, curveRadius);
     sCurveCalc.dump();
-    EXPECT_TRUE(sCurveCalc.isOk() );
+    EXPECT_EQ(RiaSCurveCalculator::OK, sCurveCalc.curveStatus());
+    EXPECT_EQ(RiaSCurveCalculator::CONVERGED, sCurveCalc.solveStatus());
 }
-TEST(RiaSCurveCalculator, Config7 ) 
+TEST(DISABLED_RiaSCurveCalculator, Config7 ) 
 { 
     RiaSCurveCalculator sCurveCalc(
     { 0,0,0 }, 0,  M_PI, curveRadius,
-    { 0,0,-1000 }, 0,   M_PI/2.0, curveRadius);
+    { 0,0,-1000 }, 0,   M_PI/2.0, curveRadius+20);
     sCurveCalc.dump();
-    EXPECT_TRUE(sCurveCalc.isOk() );
+    EXPECT_EQ(RiaSCurveCalculator::OK, sCurveCalc.curveStatus());
+    EXPECT_EQ(RiaSCurveCalculator::CONVERGED, sCurveCalc.solveStatus());
 }
 TEST(DISABLED_RiaSCurveCalculator, Config8 ) 
 { 
@@ -523,23 +534,26 @@ TEST(DISABLED_RiaSCurveCalculator, Config8 )
     { 0,0,0 }, 0,  M_PI, curveRadius,
     { 0,0,-1000 }, 0,   M_PI, curveRadius);
     sCurveCalc.dump();
-    EXPECT_TRUE(sCurveCalc.isOk() );
+    EXPECT_EQ(RiaSCurveCalculator::OK, sCurveCalc.curveStatus());
+    EXPECT_EQ(RiaSCurveCalculator::CONVERGED, sCurveCalc.solveStatus());
 }
-TEST(RiaSCurveCalculator, Config8a ) 
+TEST(DISABLED_RiaSCurveCalculator, Config8a ) 
 { 
     RiaSCurveCalculator sCurveCalc(
     { 0,0,0 }, 0,  M_PI, curveRadius,
     { 0,0,-1000 }, 0,   M_PI-angleEpsilon, curveRadius);
     sCurveCalc.dump();
-    EXPECT_TRUE(sCurveCalc.isOk() );
+    EXPECT_EQ(RiaSCurveCalculator::OK, sCurveCalc.curveStatus());
+    EXPECT_EQ(RiaSCurveCalculator::CONVERGED, sCurveCalc.solveStatus());
 }
-TEST(RiaSCurveCalculator, Config8b ) 
+TEST(DISABLED_RiaSCurveCalculator, Config8b ) 
 { 
     RiaSCurveCalculator sCurveCalc(
     { 0,0,0 }, 0,  M_PI-angleEpsilon, curveRadius,
     { 0,0,-1000 }, 0,   M_PI, curveRadius);
     sCurveCalc.dump();
-    EXPECT_TRUE(sCurveCalc.isOk() );
+    EXPECT_EQ(RiaSCurveCalculator::OK, sCurveCalc.curveStatus());
+    EXPECT_EQ(RiaSCurveCalculator::CONVERGED, sCurveCalc.solveStatus());
 }
 TEST(RiaSCurveCalculator, Config9 ) 
 { 
@@ -547,7 +561,29 @@ TEST(RiaSCurveCalculator, Config9 )
     { 0,0,0 }, 0,  M_PI/2, curveRadius,
     { 0,0,-1000 }, M_PI/2,   M_PI/2, curveRadius);
     sCurveCalc.dump();
-    EXPECT_TRUE(sCurveCalc.isOk() );
+    EXPECT_EQ(RiaSCurveCalculator::OK, sCurveCalc.curveStatus());
+    EXPECT_EQ(RiaSCurveCalculator::CONVERGED, sCurveCalc.solveStatus());
+}
+
+TEST(RiaSCurveCalculator, InfiniteStartRadius ) 
+{
+    {
+        RiaSCurveCalculator sCurveCalc(
+        { 0,0,0 }, 0, 0, curveRadius,
+        { 0,curveRadius,-1000 }, 0, M_PI/2, curveRadius);
+        sCurveCalc.dump();
+        EXPECT_EQ(RiaSCurveCalculator::OK_INFINITE_RADIUS1, sCurveCalc.curveStatus());
+        EXPECT_EQ(RiaSCurveCalculator::CONVERGED, sCurveCalc.solveStatus());
+    }
+
+    {
+        RiaSCurveCalculator sCurveCalc(
+        { 0,0,0 }, 0, 0, curveRadius,
+        { 0,curveRadius+0.01,-1000 }, 0, M_PI/2, curveRadius);
+        sCurveCalc.dump();
+        EXPECT_EQ(RiaSCurveCalculator::OK, sCurveCalc.curveStatus());
+        EXPECT_EQ(RiaSCurveCalculator::CONVERGED, sCurveCalc.solveStatus());
+    }
 }
 
 void printQ1Q2R1R2Matrix(cvf::Vec3d p1, double azi1, double inc1,
@@ -714,6 +750,54 @@ TEST(DISABLED_RiaSCurveCalculator, q_r_relation)
     { 0,0,0 }, 0,  M_PI/2,
     { 0,0,-1000 }, M_PI/2,   M_PI/2);
 
+}
+
+TEST(RiaSCurveCalculator, ControlPointCurve)
+{
+    {
+        RiaSCurveCalculator sCurveCalc(
+        { 0,0,0 }, { 0, 0, -100 },
+        { 0,500,-1000 }, { 0, 0, -500 });
+
+        EXPECT_EQ(RiaSCurveCalculator::FAILED_ARC_OVERLAP, sCurveCalc.curveStatus());
+        EXPECT_EQ(RiaSCurveCalculator::NOT_SOLVED, sCurveCalc.solveStatus());
+        //sCurveCalc.dump();
+    }
+
+    {
+        RiaSCurveCalculator sCurveCalc(
+        { 0,0,0 }, { 0, 0, -100 },
+        { 0,100,-1000 }, { 0, 0, -900 });
+        EXPECT_EQ(RiaSCurveCalculator::OK_INFINITE_RADIUS1, sCurveCalc.curveStatus());
+    }
+    {
+        RiaSCurveCalculator sCurveCalc(
+        { 0,100,0 }, { 0, 0, -100 },
+        { 0,0,-1000 }, { 0, 0, -900 });
+        EXPECT_EQ(RiaSCurveCalculator::OK_INFINITE_RADIUS2, sCurveCalc.curveStatus());
+    }
+    {
+        RiaSCurveCalculator sCurveCalc(
+        { 0,0,0 }, { 0, 0, -100},
+        { 0,0,-1000 }, { 0, 0, -900 });
+        EXPECT_EQ(RiaSCurveCalculator::OK_INFINITE_RADIUS12, sCurveCalc.curveStatus());
+    }
+
+    {
+        RiaSCurveCalculator sCurveCalc(
+        { 0,0,0 }, { 0, 0, -100},
+        { 0,0, 0 }, { 0, 0, -900 });
+        EXPECT_EQ(RiaSCurveCalculator::FAILED_ARC_OVERLAP, sCurveCalc.curveStatus());
+        //sCurveCalc.dump();
+    }
+
+    {
+        RiaSCurveCalculator sCurveCalc(
+        { 0,0,0 }, { 0, 0, 0},
+        { 0,0, -1000 }, { 0, 0, -900 });
+        EXPECT_EQ(RiaSCurveCalculator::FAILED_INPUT_OVERLAP, sCurveCalc.curveStatus());
+        //sCurveCalc.dump();
+    }
 }
 
 #include "RiaJCurveCalculator.h"

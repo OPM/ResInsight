@@ -39,6 +39,8 @@ RiaSCurveCalculator::RiaSCurveCalculator(cvf::Vec3d p1, double azi1, double inc1
                                          , m_secondArcStartpoint(p1 + 0.6*(p2-p1))
                                          , m_r1(rad1)
                                          , m_r2(rad2)
+                                         , m_ctrlPpointCurveStatus(NOT_SET)
+                                         , m_solveStatus(NOT_SOLVED)
 {
     #if 1
     initializeWithoutSolveSpace(p1, azi1, inc1, rad1, p2, azi2, inc2, rad2);
@@ -598,6 +600,8 @@ RiaSCurveCalculator::RiaSCurveCalculator(cvf::Vec3d p1, cvf::Vec3d q1,
     : m_isCalculationOK(true)
     , m_p1(p1)
     , m_p2(p2)
+    , m_ctrlPpointCurveStatus(NOT_SET)
+    , m_solveStatus(NOT_SOLVED)
 {
     using Vec3d = cvf::Vec3d;
     bool isOk = true;
@@ -609,6 +613,11 @@ RiaSCurveCalculator::RiaSCurveCalculator(cvf::Vec3d p1, cvf::Vec3d q1,
     m_isCalculationOK = m_isCalculationOK && isOk;
     Vec3d t2    = (p2 - q2).getNormalized(&isOk); // !ok means no tangent specified. Could fallback to use only one circle segment + one line or only one straight line if both tangents are missing
     m_isCalculationOK = m_isCalculationOK && isOk;
+
+    if (!m_isCalculationOK)
+    {
+        m_ctrlPpointCurveStatus = FAILED_INPUT_OVERLAP;
+    }
 
     {
         Vec3d td1 = (tq1q2 - t1);
@@ -624,6 +633,11 @@ RiaSCurveCalculator::RiaSCurveCalculator(cvf::Vec3d p1, cvf::Vec3d q1,
         {
             m_c1 = cvf::Vec3d::UNDEFINED;
             m_r1 = std::numeric_limits<double>::infinity();
+
+            if (m_ctrlPpointCurveStatus == NOT_SET)
+            {
+                m_ctrlPpointCurveStatus = OK_INFINITE_RADIUS1;
+            }
         }
     }
 
@@ -641,6 +655,15 @@ RiaSCurveCalculator::RiaSCurveCalculator(cvf::Vec3d p1, cvf::Vec3d q1,
         {
             m_c2 = cvf::Vec3d::UNDEFINED;
             m_r2 = std::numeric_limits<double>::infinity();
+
+            if (m_ctrlPpointCurveStatus == NOT_SET)
+            {
+                m_ctrlPpointCurveStatus = OK_INFINITE_RADIUS2;
+            }
+            else if (m_ctrlPpointCurveStatus == OK_INFINITE_RADIUS1)
+            {
+                m_ctrlPpointCurveStatus = OK_INFINITE_RADIUS12;
+            }
         }
     }
 
@@ -649,7 +672,13 @@ RiaSCurveCalculator::RiaSCurveCalculator(cvf::Vec3d p1, cvf::Vec3d q1,
 
     if (((q1 - p1).length() + (q2 - p2).length()) > (q2 - q1).length()) // first arc end and second arc start is overlapping
     {
+        m_ctrlPpointCurveStatus = FAILED_ARC_OVERLAP;
         m_isCalculationOK = false;
+    }
+
+    if (m_ctrlPpointCurveStatus == NOT_SET)
+    {
+        m_ctrlPpointCurveStatus = OK;
     }
 
     // The Circle normals. Will be set to cvf::Vec3d::ZERO if undefined.
@@ -680,6 +709,7 @@ void RiaSCurveCalculator::dump() const
     std::cout << "  N2:  " << "[ " << v_N2[0]  << "  " << v_N2[1]  << "  " << v_N2[2]  << " " << std::endl;
     std::cout << "  R1:  " << "[ " << firstRadius()  << " ]" << std::endl;
     std::cout << "  R2:  " << "[ " << secondRadius() << " ]" << std::endl;
+    std::cout << "  CtrPointStatus: " << m_ctrlPpointCurveStatus << " SolveStatus: " <<  m_solveStatus << std::endl;
 
 }
 
@@ -774,6 +804,14 @@ void RiaSCurveCalculator::initializeWithoutSolveSpace(cvf::Vec3d p1, double azi1
 
     RiaSCurveCalculator ev_0 = RiaSCurveCalculator::fromTangentsAndLength(p1, azi1, inc1, initialq1q2,
                                                                           p2, azi2, inc2, initialq1q2);
+
+    if ( ev_0.curveStatus() == RiaSCurveCalculator::OK_INFINITE_RADIUS12 )
+    {
+        *this = ev_0;
+        this->m_solveStatus = CONVERGED;
+        return;
+    } // Todo: Handle infinite radius in one place
+    
     RiaSCurveCalculator ev_dq1 = RiaSCurveCalculator::fromTangentsAndLength(p1, azi1, inc1, deltaPos,
                                                                           p2, azi2, inc2, initialq1q2);
     RiaSCurveCalculator ev_dq2 = RiaSCurveCalculator::fromTangentsAndLength(p1, azi1, inc1, initialq1q2,
@@ -814,10 +852,20 @@ void RiaSCurveCalculator::initializeWithoutSolveSpace(cvf::Vec3d p1, double azi1
               << ev_0.isOk() << " : " << ev_0.firstRadius() << " , " << ev_0.secondRadius()
               << " : " << R1_error << " , " << R2_error  << std::endl;
     #endif
+    
+    SolveStatus solveResultStatus = NOT_SOLVED;
 
     int backstepLevel = 0;
-    for (int iter = 1; iter < maxIterations; ++iter)
+    int iteration = 1;
+    for ( iteration = 1; iteration < maxIterations; ++iteration)
     {
+        if ( fabs(q1Step) > maxStepSize || fabs(q2Step) > maxStepSize )
+        {
+            solveResultStatus = FAILED_MAX_TANGENT_STEP_REACHED;
+
+            break;
+        }
+
         std::string q1R1StepCorrMarker;
         std::string q2R2StepCorrMarker;
 
@@ -827,7 +875,12 @@ void RiaSCurveCalculator::initializeWithoutSolveSpace(cvf::Vec3d p1, double azi1
         q1 += q1Step;
         q2 += q2Step;
 
-        if (fabs(q1) > maxLengthToQ || fabs(q2) > maxLengthToQ) break;
+        if (fabs(q1) > maxLengthToQ || fabs(q2) > maxLengthToQ)
+        {
+            /// Max length along tangent reached
+            solveResultStatus = FAILED_MAX_LENGTH_ALONG_TANGENT_REACHED;
+            break;
+        }
 
         RiaSCurveCalculator ev_1 = RiaSCurveCalculator::fromTangentsAndLength(p1, azi1, inc1, q1,
                                                                               p2, azi2, inc2, q2);
@@ -836,15 +889,20 @@ void RiaSCurveCalculator::initializeWithoutSolveSpace(cvf::Vec3d p1, double azi1
         double R2_error_new = r2 - ev_1.secondRadius();
 
         #ifdef DEBUG_OUTPUT_ON
-        std::cout << iter << ": " << q1Step << q1R1StepCorrMarker << " , " << q2Step<< q2R2StepCorrMarker 
+        std::cout << iteration << ": " << q1Step << q1R1StepCorrMarker << " , " << q2Step<< q2R2StepCorrMarker 
             << " : " << q1 << " , " << q2 << " | "
             << ev_1.isOk() << " : " << ev_1.firstRadius() << " , " << ev_1.secondRadius() 
             << " : " << R1_error_new << " , " << R2_error_new ;
         #endif
 
-        if ( (fabs(R1_error_new) < maxError && fabs(R2_error_new) < maxError) )
+        if  ( ( fabs(R1_error_new) < maxError || ev_1.curveStatus() == OK_INFINITE_RADIUS1 ) 
+           && ( fabs(R2_error_new) < maxError || ev_1.curveStatus() == OK_INFINITE_RADIUS2 ) )
         {
             ev_0 = ev_1;
+
+            // Result ok !
+            
+            solveResultStatus = CONVERGED;
 
             #ifdef DEBUG_OUTPUT_ON
             std::cout << std::endl;
@@ -925,16 +983,19 @@ void RiaSCurveCalculator::initializeWithoutSolveSpace(cvf::Vec3d p1, double azi1
         #endif
 
         ev_0 = ev_1;
-
-        if ( ( fabs(R1_error) < maxError    && fabs(R2_error) < maxError)
-            || fabs(q1Step) > maxStepSize || fabs(q2Step) > maxStepSize )
-        {
-            break;
-        }
-
     }
 
-    *this = ev_0;
 
+    *this = ev_0;
+    if ( iteration >= maxIterations )
+    {
+        m_solveStatus = FAILED_MAX_ITERATIONS_REACHED;
+        // Max iterations reached
+    }
+    else
+    {
+        m_solveStatus = solveResultStatus;
+    }
+  
 }
 
