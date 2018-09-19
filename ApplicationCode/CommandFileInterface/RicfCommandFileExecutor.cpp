@@ -57,10 +57,11 @@ RicfCommandFileExecutor::~RicfCommandFileExecutor()
 //--------------------------------------------------------------------------------------------------
 void RicfCommandFileExecutor::executeCommands(QTextStream& stream)
 {
+    RicfMessages messages;
     std::vector<RicfCommandObject*> executableCommands;
     {
-        std::vector<RicfCommandObject*> fileCommands = RicfCommandFileReader::readCommands(stream, caf::PdmDefaultObjectFactory::instance(), &m_messages);
-        for (auto message : m_messages.m_messages)
+        std::vector<RicfCommandObject*> fileCommands = RicfCommandFileReader::readCommands(stream, caf::PdmDefaultObjectFactory::instance(), &messages);
+        for (auto message : messages.m_messages)
         {
             if (message.first == RicfMessages::MESSAGE_WARNING)
             {
