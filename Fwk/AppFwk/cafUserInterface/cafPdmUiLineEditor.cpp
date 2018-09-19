@@ -98,9 +98,7 @@ public:
 
         if (m_usedIds.find(currentValue) != m_usedIds.end())
         {
-            QApplication* qapplication = qobject_cast<QApplication*>(qApp);
-
-            foreach(QWidget* widget, qapplication->topLevelWidgets())
+            foreach(QWidget* widget, QApplication::topLevelWidgets())
             {
                 if (widget->inherits("QMainWindow"))
                 {
