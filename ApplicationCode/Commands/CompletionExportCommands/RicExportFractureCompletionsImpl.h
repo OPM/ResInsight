@@ -110,21 +110,45 @@ private:
                                                                      QTextStream* outputStreamForIntermediateResultsText,
                                                                      PressureDepletionParameters pdParams);
 
-    static void getWellPressuresFromSummaryData(const RimEclipseCase* caseToApply, const QString &wellPathName, int currentTimeStep, double* originalWellPressure, double* currentWellPressure);
+    static void getWellPressuresAndInitialProductionTimeStepFromSummaryData(const RimEclipseCase* caseToApply,
+                                                                            const QString&        wellPathName,
+                                                                            int                   currentTimeStep,
+                                                                            int*                  initialTimeStep,
+                                                                            double*               initialWellPressure,
+                                                                            double*               currentWellPressure);
 
     static bool checkForStimPlanConductivity(const RimFractureTemplate* fracTemplate, const RimFracture* fracture);
 
-    static void calculateInternalFractureTransmissibilities(const RigFractureGrid* fractureGrid, double cDarcyInCorrectUnit, RigTransmissibilityCondenser &transCondenser);
-    static void calculateFractureToWellTransmissibilities(const RimFractureTemplate* fracTemplate, const RigFractureGrid* fractureGrid, const RimFracture* fracture, double cDarcyInCorrectUnit, const RigWellPath* wellPathGeometry, RigTransmissibilityCondenser &transCondenser);
+    static void calculateInternalFractureTransmissibilities(const RigFractureGrid*        fractureGrid,
+                                                            double                        cDarcyInCorrectUnit,
+                                                            RigTransmissibilityCondenser& transCondenser);
 
-    static std::map<size_t, double>       calculateMatrixToWellTransmissibilities(RigTransmissibilityCondenser &transCondenser);
-    static std::vector<RigCompletionData> generateCompdatValuesForFracture(const std::map<size_t, double>& matrixToWellTransmissibilites, const QString& wellPathName, const RimEclipseCase* caseToApply, const RimFracture* fracture, const RimFractureTemplate* fracTemplate);
+    static void calculateFractureToWellTransmissibilities(const RimFractureTemplate*    fracTemplate,
+                                                          const RigFractureGrid*        fractureGrid,
+                                                          const RimFracture*            fracture,
+                                                          double                        cDarcyInCorrectUnit,
+                                                          const RigWellPath*            wellPathGeometry,
+                                                          RigTransmissibilityCondenser& transCondenser);
+
+    static std::map<size_t, double> calculateMatrixToWellTransmissibilities(RigTransmissibilityCondenser& transCondenser);
+
+    static std::vector<RigCompletionData> generateCompdatValuesForFracture(const std::map<size_t, double>& matrixToWellTransmissibilites,
+                                                                           const QString&                  wellPathName,
+                                                                           const RimEclipseCase*           caseToApply,
+                                                                           const RimFracture*              fracture,
+                                                                           const RimFractureTemplate*      fracTemplate);
 
     static void computeNonDarcyFlowParameters(const RimFracture* fracture, std::vector<RigCompletionData> allCompletionsForOneFracture);
 
-    static double sumUpTransmissibilities(const std::vector<RigCompletionData>& allCompletionsForOneFracture); 
-    
-    static void calculateAndSetReportItemData(const std::vector<RigCompletionData>& allCompletionsForOneFracture, const RigEclipseToStimPlanCalculator& calculator, RicWellPathFractureReportItem& reportItem);
+    static double sumUpTransmissibilities(const std::vector<RigCompletionData>& allCompletionsForOneFracture);
 
-    static void outputIntermediateResultsText(QTextStream* outputStreamForIntermediateResultsText, const RimFracture* fracture, RigTransmissibilityCondenser &transCondenser, const RigMainGrid* mainGrid, const RigFractureGrid* fractureGrid);
+    static void calculateAndSetReportItemData(const std::vector<RigCompletionData>& allCompletionsForOneFracture,
+                                              const RigEclipseToStimPlanCalculator& calculator,
+                                              RicWellPathFractureReportItem&        reportItem);
+
+    static void outputIntermediateResultsText(QTextStream*                  outputStreamForIntermediateResultsText,
+                                              const RimFracture*            fracture,
+                                              RigTransmissibilityCondenser& transCondenser,
+                                              const RigMainGrid*            mainGrid,
+                                              const RigFractureGrid*        fractureGrid);
 };
