@@ -16,6 +16,8 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
+#include "RiaApplication.h"
+
 #include "RicExportCompletionDataSettingsUi.h"
 
 // clang-format off
@@ -282,19 +284,22 @@ void RicExportCompletionDataSettingsUi::defineUiOrdering(QString uiConfigName, c
         if (m_fracturesEnabled)
         {
             group->add(&includeFractures);
-            group->add(&m_includeFracturesSummaryHeader);
 
-            group->add(&transScalingType);
-            group->add(&transScalingCorrection);
-            group->add(&transScalingTimeStep);
-            group->add(&transScalingWBHP);
-            group->add(&transScalingSummaryWBHP);
+            if (RiaApplication::enableDevelopmentFeatures())
+            {
+                group->add(&m_includeFracturesSummaryHeader);
 
-            transScalingCorrection.uiCapability()->setUiReadOnly(transScalingType() == RicExportFractureCompletionsImpl::NO_SCALING);
-            transScalingTimeStep.uiCapability()->setUiReadOnly(transScalingType() == RicExportFractureCompletionsImpl::NO_SCALING);
-            transScalingWBHP.uiCapability()->setUiReadOnly(transScalingType() == RicExportFractureCompletionsImpl::NO_SCALING);
-            transScalingSummaryWBHP.uiCapability()->setUiReadOnly(transScalingType() == RicExportFractureCompletionsImpl::NO_SCALING);
+                group->add(&transScalingType);
+                group->add(&transScalingCorrection);
+                group->add(&transScalingTimeStep);
+                group->add(&transScalingWBHP);
+                group->add(&transScalingSummaryWBHP);
 
+                transScalingCorrection.uiCapability()->setUiReadOnly(transScalingType() == RicExportFractureCompletionsImpl::NO_SCALING);
+                transScalingTimeStep.uiCapability()->setUiReadOnly(transScalingType() == RicExportFractureCompletionsImpl::NO_SCALING);
+                transScalingWBHP.uiCapability()->setUiReadOnly(transScalingType() == RicExportFractureCompletionsImpl::NO_SCALING);
+                transScalingSummaryWBHP.uiCapability()->setUiReadOnly(transScalingType() == RicExportFractureCompletionsImpl::NO_SCALING);
+            }
 
             // Set visibility
             includeFractures.uiCapability()->setUiHidden(compdatExport == WPIMULT_AND_DEFAULT_CONNECTION_FACTORS && !includeMsw);
