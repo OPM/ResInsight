@@ -27,7 +27,7 @@ VdeExportPart::VdeExportPart(cvf::Part* part)
     , m_sourceObjectType(OBJ_TYPE_UNKNOWN)
     , m_color(cvf::Color3f::MAGENTA)
     , m_winding(COUNTERCLOCKWISE)
-    , m_opacity(0.0)
+    , m_opacity(1.0)
 {
 }
 
@@ -117,4 +117,12 @@ const cvf::Part* VdeExportPart::part() const
 cvf::Color3f VdeExportPart::color() const
 {
     return m_color;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+float VdeExportPart::opacity() const
+{
+    return m_opacity;
 }
