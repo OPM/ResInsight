@@ -56,7 +56,7 @@ TEST(RiaWeightedHarmonicMeanCalculator, WeightedValues)
 
 
         EXPECT_DOUBLE_EQ(sumWeights, calc.aggregatedWeight());
-        EXPECT_NEAR(sumWeights, calc.weightedMean(), 1e-8);
+        EXPECT_NEAR(sumWeights / weights.size(), calc.weightedMean(), 1e-8);
     }
     {
         RiaWeightedHarmonicMeanCalculator calc;
