@@ -160,7 +160,7 @@ void RicExportFracturesWellSegmentsFeature::setupActionLook(QAction* actionToSet
 //--------------------------------------------------------------------------------------------------
 bool RicExportFracturesWellSegmentsFeature::isCommandEnabled()
 {
-    if (caf::SelectionManager::instance()->selectedItemAncestorOfType<RimWellPathFractureCollection>())
+    if (RiaApplication::enableDevelopmentFeatures() && caf::SelectionManager::instance()->selectedItemAncestorOfType<RimWellPathFractureCollection>())
     {
         return true;
     }
