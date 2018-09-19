@@ -27,6 +27,7 @@ VdeExportPart::VdeExportPart(cvf::Part* part)
     , m_sourceObjectType(OBJ_TYPE_UNKNOWN)
     , m_color(cvf::Color3f::MAGENTA)
     , m_winding(COUNTERCLOCKWISE)
+    , m_opacity(0.0)
 {
 }
 
@@ -60,6 +61,14 @@ void VdeExportPart::setSourceObjectCellSetType(const QString& sourceObjectCellSe
 void VdeExportPart::setColor(const cvf::Color3f& color)
 {
     m_color = color;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void VdeExportPart::setOpacity(float opacity)
+{
+    m_opacity = opacity;
 }
 
 //--------------------------------------------------------------------------------------------------

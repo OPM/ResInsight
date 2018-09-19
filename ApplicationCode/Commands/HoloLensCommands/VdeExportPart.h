@@ -51,6 +51,7 @@ public:
     void setSourceObjectName(const QString& sourceObjectName);
     void setSourceObjectCellSetType(const QString& sourceObjectCellSetType);
     void setColor(const cvf::Color3f& color);
+    void setOpacity(float opacity);
     void setWinding(Winding winding);
 
     cvf::Part*       part();
@@ -58,6 +59,7 @@ public:
     QString          sourceObjectCellSetType() const;
     SourceObjectType sourceObjectType() const;
     cvf::Color3f     color() const;
+    float            opacity() const;
     Winding          winding() const;
 
 private:
@@ -67,5 +69,6 @@ private:
     QString          m_sourceObjectCellSetType;
     SourceObjectType m_sourceObjectType;
     cvf::Color3f     m_color;
+    float            m_opacity;
     Winding          m_winding;
 };

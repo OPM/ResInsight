@@ -21,21 +21,21 @@
 #include "RigMainGrid.h"
 
 #include "RimEclipseCase.h"
+#include "RimFaultInView.h"
 #include "RimGridView.h"
 #include "RimSimWellInView.h"
 #include "RimWellPath.h"
 
+#include "RiuViewer.h"
 #include "RivSimWellPipeSourceInfo.h"
 #include "RivSourceInfo.h"
 #include "RivWellPathSourceInfo.h"
 
-#include "RiuViewer.h"
+#include "cafEffectGenerator.h"
 
 #include "cvfPart.h"
 #include "cvfScene.h"
 
-#include "RimFaultInView.h"
-#include "cafEffectGenerator.h"
 #include <QString>
 
 //--------------------------------------------------------------------------------------------------
@@ -118,8 +118,8 @@ std::vector<VdeExportPart> RicHoloLensExportImpl::partsForExport(const RimGridVi
                         RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>(si->object());
                         if (eclipseCase)
                         {
-                            QString nameOfObject = rimEclipseCase->gridFileName();
-                            auto gridSourceInfo = dynamic_cast<const RivSourceInfo*>(scenePart->sourceInfo());
+                            QString nameOfObject   = rimEclipseCase->gridFileName();
+                            auto    gridSourceInfo = dynamic_cast<const RivSourceInfo*>(scenePart->sourceInfo());
                             if (gridSourceInfo)
                             {
                                 size_t gridIndex = gridSourceInfo->gridIndex();
