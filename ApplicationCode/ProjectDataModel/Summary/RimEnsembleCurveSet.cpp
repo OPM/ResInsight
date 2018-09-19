@@ -965,6 +965,7 @@ void RimEnsembleCurveSet::updateEnsembleCurves(const std::vector<RimSummaryCase*
 
                 curve->updateCurveVisibility(false);
                 curve->loadDataAndUpdate(false);
+                curve->updateQwtPlotAxis();
 
                 if (curve->qwtPlotCurve())
                 {
@@ -1052,16 +1053,17 @@ void RimEnsembleCurveSet::updateStatisticsCurves(const std::vector<RimSummaryCas
         curve->setLineStyle(RiuQwtPlotCurve::STYLE_SOLID);
         curve->setSummaryCaseY(m_ensembleStatCase.get());
         curve->setSummaryAddressY(address);
+        curve->setLeftOrRightAxisY(m_plotAxis());
         curve->setZOrder(1000);
 
         curve->updateCurveVisibility(false);
         curve->loadDataAndUpdate(false);
+        curve->updateQwtPlotAxis();
     }
 
     if (plot->qwtPlot())
     {
         plot->qwtPlot()->updateLegend();
-        plot->qwtPlot()->replot();
         plot->updateAxes();
     }
 }
