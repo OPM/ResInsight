@@ -21,8 +21,11 @@
 #include "cvfBase.h"
 #include "cvfCollection.h"
 #include "cvfArray.h"
+#include "cvfTextureImage.h"
 
 #include <QString>
+
+class VdeArrayDataPacket;
 
 class RimGridView;
 
@@ -40,17 +43,40 @@ class Part;
 //==================================================================================================
 struct VdeMesh
 {
-    QString                     meshSourceObjTypeStr;
-    QString                     meshSourceObjName;
+    QString                         meshSourceObjTypeStr;
+    QString                         meshSourceObjName;
 
-    cvf::Color3f                color;
+    cvf::Color3f                    color;
 
-    int                         verticesPerPrimitive;
-    cvf::cref<cvf::Vec3fArray>  vertexArr;
-    std::vector<cvf::uint>      connArr;
+    int                             verticesPerPrimitive;
+    cvf::cref<cvf::Vec3fArray>      vertexArr;
+    cvf::cref<cvf::Vec2fArray>      texCoordArr;
+    std::vector<cvf::uint>          connArr;
+    cvf::cref<cvf::TextureImage>    texImage;
 
     VdeMesh()
     :   verticesPerPrimitive(-1)
+    {}
+};
+
+
+//==================================================================================================
+//
+//
+//
+//==================================================================================================
+struct VdeMeshContentIds
+{
+    int vertexArrId;
+    int connArrId;
+    int texImageArrId;
+    int texCoordsArrId;
+
+    VdeMeshContentIds()
+    :   vertexArrId(-1),
+        connArrId(-1),
+        texImageArrId(-1),
+        texCoordsArrId(-1)
     {}
 };
 
@@ -70,6 +96,10 @@ public:
 
 private:
     static bool extractMeshFromPart(const RimGridView& view, const cvf::Part& part, VdeMesh* mesh);
+    static bool writeModelMetaJsonFile(const std::vector<VdeMesh>& meshArr, const std::vector<VdeMeshContentIds>& meshContentIdsArr, QString fileName);
+    static void debugComparePackets(const VdeArrayDataPacket& packetA, const VdeArrayDataPacket& packetB);
+
+    bool        writeDataPacketToFile(int arrayId, const VdeArrayDataPacket& packet) const;
 
 private:
     QString     m_absOutputFolder;

@@ -59,7 +59,10 @@ static const size_t VDE_PACKET_VERSION = 1;
 VdeArrayDataPacket::VdeArrayDataPacket()
 :   m_arrayId(-1),
     m_elementType(Unknown),
-    m_elementCount(0)
+    m_elementCount(0),
+    m_imageWidth(0),
+    m_imageHeight(0),
+    m_imageComponentCount(0)
 {
 }
 
@@ -139,13 +142,37 @@ const char* VdeArrayDataPacket::arrayData() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+unsigned short VdeArrayDataPacket::imageWidth() const
+{
+    return m_imageWidth;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+unsigned short VdeArrayDataPacket::imageHeight() const
+{
+    return m_imageHeight;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+unsigned char VdeArrayDataPacket::imageComponentCount() const
+{
+    return m_imageComponentCount;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 VdeArrayDataPacket VdeArrayDataPacket::fromFloat32Arr(int arrayId, const float* srcArr, size_t srcArrElementCount)
 {
     size_t payloadByteCount = srcArrElementCount*sizeof(float);
     const char* rawSrcPtr = reinterpret_cast<const char*>(srcArr);
 
     VdeArrayDataPacket packet;
-    packet.assign(arrayId, Float32, srcArrElementCount, rawSrcPtr, payloadByteCount);
+    packet.assign(arrayId, Float32, srcArrElementCount, 0, 0, 0, rawSrcPtr, payloadByteCount);
     return packet;
 }
 
@@ -158,7 +185,20 @@ VdeArrayDataPacket VdeArrayDataPacket::fromUint32Arr(int arrayId, const unsigned
     const char* rawSrcPtr = reinterpret_cast<const char*>(srcArr);
 
     VdeArrayDataPacket packet;
-    packet.assign(arrayId, Uint32, srcArrElementCount, rawSrcPtr, payloadByteCount);
+    packet.assign(arrayId, Uint32, srcArrElementCount, 0, 0, 0, rawSrcPtr, payloadByteCount);
+    return packet;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+VdeArrayDataPacket VdeArrayDataPacket::fromUint8ImageRGBArr(int arrayId, unsigned short imageWidth, unsigned short imageHeight, const unsigned char* srcArr, size_t srcArrElementCount)
+{
+    size_t payloadByteCount = srcArrElementCount*sizeof(unsigned int);
+    const char* rawSrcPtr = reinterpret_cast<const char*>(srcArr);
+
+    VdeArrayDataPacket packet;
+    packet.assign(arrayId, Uint8, srcArrElementCount, imageWidth, imageHeight, 3, rawSrcPtr, payloadByteCount);
     return packet;
 }
 
@@ -185,11 +225,15 @@ VdeArrayDataPacket VdeArrayDataPacket::fromRawPacketBuffer(const char* rawPacket
     const ElementType elementType   = static_cast<ElementType>(bufferReader.getUint8(VDE_BYTEOFFSET_ELEMENT_TYPE));
     const size_t elementCount       = bufferReader.getUint32(VDE_BYTEOFFSET_ELEMENT_COUNT);
 
+    const unsigned char imageCompCount  = bufferReader.getUint8(VDE_BYTEOFFSET_IMAGE_COMPONENT_COUNT);
+    const unsigned short imageWidth     = bufferReader.getUint16(VDE_BYTEOFFSET_IMAGE_WIDTH);
+    const unsigned short imageHeight    = bufferReader.getUint16(VDE_BYTEOFFSET_IMAGE_HEIGHT);
+
     const char* payloadPtr = rawPacketBuffer + VDE_HEADER_SIZE;
     const size_t payloadSizeInBytes = bufferSize - VDE_HEADER_SIZE;
 
     VdeArrayDataPacket packet;
-    packet.assign(packetId, elementType, elementCount, payloadPtr, payloadSizeInBytes);
+    packet.assign(packetId, elementType, elementCount, imageWidth, imageHeight, imageCompCount, payloadPtr, payloadSizeInBytes);
 
     return packet;
 }
@@ -197,9 +241,9 @@ VdeArrayDataPacket VdeArrayDataPacket::fromRawPacketBuffer(const char* rawPacket
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool VdeArrayDataPacket::assign(int arrayId, ElementType elementType, size_t elementCount, const char* payloadPtr, size_t payloadSizeInBytes)
+bool VdeArrayDataPacket::assign(int arrayId, ElementType elementType, size_t elementCount, unsigned short imageWidth, unsigned short imageHeight, unsigned char imageCompCount, const char* arrayDataPtr, size_t arrayDataSizeInBytes)
 {
-    const size_t totalSizeBytes = VDE_HEADER_SIZE + payloadSizeInBytes;
+    const size_t totalSizeBytes = VDE_HEADER_SIZE + arrayDataSizeInBytes;
     m_packetBytes.resize(totalSizeBytes);
 
     VdeBufferWriter bufferWriter(m_packetBytes.data(), m_packetBytes.size());
@@ -207,15 +251,19 @@ bool VdeArrayDataPacket::assign(int arrayId, ElementType elementType, size_t ele
     bufferWriter.setUint32(VDE_BYTEOFFSET_ARRAY_ID,                 arrayId);
     bufferWriter.setUint32(VDE_BYTEOFFSET_ELEMENT_COUNT,            static_cast<unsigned int>(elementCount));
     bufferWriter.setUint8( VDE_BYTEOFFSET_ELEMENT_TYPE,             static_cast<unsigned char>(elementType));
-    bufferWriter.setUint16(VDE_BYTEOFFSET_IMAGE_COMPONENT_COUNT,    0);
-    bufferWriter.setUint16(VDE_BYTEOFFSET_IMAGE_WIDTH,              0);
-    bufferWriter.setUint16(VDE_BYTEOFFSET_IMAGE_HEIGHT,             0);
+    bufferWriter.setUint16(VDE_BYTEOFFSET_IMAGE_COMPONENT_COUNT,    imageCompCount);
+    bufferWriter.setUint16(VDE_BYTEOFFSET_IMAGE_WIDTH,              imageWidth);
+    bufferWriter.setUint16(VDE_BYTEOFFSET_IMAGE_HEIGHT,             imageHeight);
 
-    m_packetBytes.insert(m_packetBytes.begin() + VDE_HEADER_SIZE, payloadPtr, payloadPtr + payloadSizeInBytes);
+    m_packetBytes.insert(m_packetBytes.begin() + VDE_HEADER_SIZE, arrayDataPtr, arrayDataPtr + arrayDataSizeInBytes);
 
     m_arrayId = arrayId;
     m_elementType = elementType;
     m_elementCount = elementCount;
+
+    m_imageComponentCount = imageCompCount;
+    m_imageWidth = imageWidth;
+    m_imageHeight = imageHeight;
 
     return true;
 }

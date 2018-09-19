@@ -87,21 +87,7 @@ bool VdeFileExporter::exportViewContents(const RimGridView& view)
     }
 
 
-    const QDir outputDir(m_absOutputFolder);
-    const QString arrayDataFileNameTrunk = outputDir.absoluteFilePath("arrayData_");
-
-    struct MeshIds
-    {
-        int vertexArrId;
-        int connArrId;
-
-        MeshIds()
-        :   vertexArrId(-1),
-            connArrId(-1)
-        {}
-    };
-
-    std::vector<MeshIds> meshIdsArr;
+    std::vector<VdeMeshContentIds> meshContentIdsArr;
 
     int nextArrayId = 0;
     for (size_t i = 0; i < meshArr.size(); i++)
@@ -110,119 +96,56 @@ bool VdeFileExporter::exportViewContents(const RimGridView& view)
         const size_t primCount = mesh.connArr.size()/3;
         cvf::Trace::show("%d:  primCount=%d  meshSourceObjName='%s'", i, primCount, mesh.meshSourceObjName.toLatin1().constData());
 
-        MeshIds meshIds;
+        VdeMeshContentIds meshContentIds;
 
         {
-            meshIds.vertexArrId = nextArrayId++;
-
-            QString fileName = arrayDataFileNameTrunk + QString::number(meshIds.vertexArrId) + ".bin";
-
-            QFile file(fileName);
-            if (!file.open(QIODevice::WriteOnly))
-            {
-                return false;
-            }
-
+            meshContentIds.vertexArrId = nextArrayId++;
             const float* floatArr = reinterpret_cast<const float*>(mesh.vertexArr->ptr());
-            VdeArrayDataPacket dataPacket = VdeArrayDataPacket::fromFloat32Arr(meshIds.vertexArrId, floatArr, 3*mesh.vertexArr->size());
-            file.write(dataPacket.fullPacketRawPtr(), dataPacket.fullPacketSize());
+            VdeArrayDataPacket dataPacket = VdeArrayDataPacket::fromFloat32Arr(meshContentIds.vertexArrId, floatArr, 3*mesh.vertexArr->size());
+            writeDataPacketToFile(dataPacket.arrayId(), dataPacket);
 
-            // Testing decoding
-            {
-                VdeArrayDataPacket testPacket = VdeArrayDataPacket::fromRawPacketBuffer(dataPacket.fullPacketRawPtr(), dataPacket.fullPacketSize(), nullptr);
-                CVF_ASSERT(dataPacket.elementCount() == testPacket.elementCount());
-                CVF_ASSERT(dataPacket.elementSize() == testPacket.elementSize());
-                CVF_ASSERT(dataPacket.elementType() == testPacket.elementType());
-                const float* testArr = reinterpret_cast<const float*>(testPacket.arrayData());
-                for (size_t j = 0; j < testPacket.elementCount(); j++)
-                {
-                    CVF_ASSERT(testArr[j] == floatArr[j]);
-                }
-            }
+            // Debug testing of decoding
+            debugComparePackets(dataPacket, VdeArrayDataPacket::fromRawPacketBuffer(dataPacket.fullPacketRawPtr(), dataPacket.fullPacketSize(), nullptr));
         }
-
         {
-            meshIds.connArrId = nextArrayId++;
-
-            QString fileName = arrayDataFileNameTrunk + QString::number(meshIds.connArrId) + ".bin";
-
-            QFile file(fileName);
-            if (!file.open(QIODevice::WriteOnly))
-            {
-                return false;
-            }
-
+            meshContentIds.connArrId = nextArrayId++;
             const unsigned int* uintArr = mesh.connArr.data();
-            VdeArrayDataPacket dataPacket = VdeArrayDataPacket::fromUint32Arr(meshIds.connArrId, uintArr, mesh.connArr.size());
-            file.write(dataPacket.fullPacketRawPtr(), dataPacket.fullPacketSize());
+            VdeArrayDataPacket dataPacket = VdeArrayDataPacket::fromUint32Arr(meshContentIds.connArrId, uintArr, mesh.connArr.size());
+            writeDataPacketToFile(dataPacket.arrayId(), dataPacket);
 
-            // Testing decoding
+            // Debug testing of decoding
+            debugComparePackets(dataPacket, VdeArrayDataPacket::fromRawPacketBuffer(dataPacket.fullPacketRawPtr(), dataPacket.fullPacketSize(), nullptr));
+        }
+
+        if (mesh.texCoordArr.notNull() && mesh.texImage.notNull())
+        {
             {
-                VdeArrayDataPacket testPacket = VdeArrayDataPacket::fromRawPacketBuffer(dataPacket.fullPacketRawPtr(), dataPacket.fullPacketSize(), nullptr);
-                CVF_ASSERT(dataPacket.elementCount() == testPacket.elementCount());
-                CVF_ASSERT(dataPacket.elementSize() == testPacket.elementSize());
-                CVF_ASSERT(dataPacket.elementType() == testPacket.elementType());
-                const unsigned int* testArr = reinterpret_cast<const unsigned int*>(testPacket.arrayData());
-                for (size_t j = 0; j < testPacket.elementCount(); j++)
-                {
-                    CVF_ASSERT(testArr[j] == uintArr[j]);
-                }
+                meshContentIds.texCoordsArrId = nextArrayId++;
+                const float* floatArr = reinterpret_cast<const float*>(mesh.texCoordArr->ptr());
+                VdeArrayDataPacket dataPacket = VdeArrayDataPacket::fromFloat32Arr(meshContentIds.texCoordsArrId, floatArr, 3*mesh.vertexArr->size());
+                writeDataPacketToFile(dataPacket.arrayId(), dataPacket);
+
+                // Debug testing of decoding
+                debugComparePackets(dataPacket, VdeArrayDataPacket::fromRawPacketBuffer(dataPacket.fullPacketRawPtr(), dataPacket.fullPacketSize(), nullptr));
+            }
+            {
+                meshContentIds.texImageArrId = nextArrayId++;
+                cvf::ref<cvf::UByteArray> byteArr = mesh.texImage->toRgb();
+                VdeArrayDataPacket dataPacket = VdeArrayDataPacket::fromUint8ImageRGBArr(meshContentIds.texImageArrId, mesh.texImage->width(), mesh.texImage->height(), byteArr->ptr(), byteArr->size());
+                writeDataPacketToFile(dataPacket.arrayId(), dataPacket);
+
+                // Debug testing of decoding
+                debugComparePackets(dataPacket, VdeArrayDataPacket::fromRawPacketBuffer(dataPacket.fullPacketRawPtr(), dataPacket.fullPacketSize(), nullptr));
             }
         }
 
-        meshIdsArr.push_back(meshIds);
+        meshContentIdsArr.push_back(meshContentIds);
     }
 
-
+    QString jsonFileName = m_absOutputFolder + "/modelMeta.json";
+    if (!writeModelMetaJsonFile(meshArr, meshContentIdsArr, jsonFileName))
     {
-        QVariantList jsonMeshMetaList;
-
-        for (size_t i = 0; i < meshArr.size(); i++)
-        {
-            const VdeMesh& mesh = meshArr[i];
-            const MeshIds& meshIds = meshIdsArr[i];
-
-            QMap<QString, QVariant> jsonMeshMeta;
-            jsonMeshMeta["meshSourceObjType"] = mesh.meshSourceObjTypeStr;
-            jsonMeshMeta["meshSourceObjName"] = mesh.meshSourceObjName;
-
-            jsonMeshMeta["verticesPerPrimitive"] = mesh.verticesPerPrimitive;
-            jsonMeshMeta["vertexArrId"] = meshIds.vertexArrId;
-            jsonMeshMeta["connArrId"] = meshIds.connArrId;
-
-            {
-                QMap<QString, QVariant> jsonColor;
-                jsonColor["r"] = mesh.color.r();
-                jsonColor["g"] = mesh.color.g();
-                jsonColor["b"] = mesh.color.b();
-
-                jsonMeshMeta["color"] = jsonColor;
-            }
-
-            jsonMeshMeta["opacity"] = 1.0;
-
-            jsonMeshMetaList.push_back(jsonMeshMeta);
-        }
-
-        QMap<QString, QVariant> jsonModelMeta;
-        jsonModelMeta["modelName"] = "ResInsightExport";
-        jsonModelMeta["meshArr"] = jsonMeshMetaList;
-
-        ResInsightInternalJson::Json jsonCodec;
-        const bool prettifyJson = true;
-        QByteArray jsonStr = jsonCodec.encode(jsonModelMeta, prettifyJson).toLatin1();
-
-        QString jsonFileName = outputDir.absoluteFilePath("modelMeta.json");
-        QFile file(jsonFileName);
-        if (!file.open(QIODevice::WriteOnly))
-        {
-            return false;
-        }
-
-        if (file.write(jsonStr) == -1)
-        {
-            return false;
-        }
+        return false;
     }
 
     return true;
@@ -307,4 +230,104 @@ bool VdeFileExporter::extractMeshFromPart(const RimGridView& view, const cvf::Pa
     return true;
 }
 
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool VdeFileExporter::writeDataPacketToFile(int arrayId, const VdeArrayDataPacket& packet) const
+{
+    const QString fileName = m_absOutputFolder + QString("/arrayData_%1.bin").arg(arrayId);
+
+    QFile file(fileName);
+    if (!file.open(QIODevice::WriteOnly))
+    {
+        return false;
+    }
+
+    if (file.write(packet.fullPacketRawPtr(), packet.fullPacketSize()) == -1)
+    {
+        return false;
+    }
+
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool VdeFileExporter::writeModelMetaJsonFile(const std::vector<VdeMesh>& meshArr, const std::vector<VdeMeshContentIds>& meshContentIdsArr, QString fileName)
+{
+    QVariantList jsonMeshMetaList;
+
+    for (size_t i = 0; i < meshArr.size(); i++)
+    {
+        const VdeMesh& mesh = meshArr[i];
+        const VdeMeshContentIds& meshIds = meshContentIdsArr[i];
+
+        QMap<QString, QVariant> jsonMeshMeta;
+        jsonMeshMeta["meshSourceObjType"] = mesh.meshSourceObjTypeStr;
+        jsonMeshMeta["meshSourceObjName"] = mesh.meshSourceObjName;
+
+        jsonMeshMeta["verticesPerPrimitive"] = mesh.verticesPerPrimitive;
+        jsonMeshMeta["vertexArrId"] = meshIds.vertexArrId;
+        jsonMeshMeta["connArrId"] = meshIds.connArrId;
+
+        if (meshIds.texCoordsArrId >= 0 && meshIds.texImageArrId >= 0)
+        {
+            jsonMeshMeta["texCoordsArrId"] = meshIds.texCoordsArrId;
+            jsonMeshMeta["texImageArrId"] = meshIds.texImageArrId;
+        }
+        else
+        {
+            QMap<QString, QVariant> jsonColor;
+            jsonColor["r"] = mesh.color.r();
+            jsonColor["g"] = mesh.color.g();
+            jsonColor["b"] = mesh.color.b();
+
+            jsonMeshMeta["color"] = jsonColor;
+        }
+
+        jsonMeshMeta["opacity"] = 1.0;
+
+        jsonMeshMetaList.push_back(jsonMeshMeta);
+    }
+
+    QMap<QString, QVariant> jsonModelMeta;
+    jsonModelMeta["modelName"] = "ResInsightExport";
+    jsonModelMeta["meshArr"] = jsonMeshMetaList;
+
+    ResInsightInternalJson::Json jsonCodec;
+    const bool prettifyJson = true;
+    QByteArray jsonStr = jsonCodec.encode(jsonModelMeta, prettifyJson).toLatin1();
+
+    QFile file(fileName);
+    if (!file.open(QIODevice::WriteOnly))
+    {
+        return false;
+    }
+
+    if (file.write(jsonStr) == -1)
+    {
+        return false;
+    }
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void VdeFileExporter::debugComparePackets(const VdeArrayDataPacket& packetA, const VdeArrayDataPacket& packetB)
+{
+    CVF_ASSERT(packetA.elementCount() == packetB.elementCount());
+    CVF_ASSERT(packetA.elementSize() == packetB.elementSize());
+    CVF_ASSERT(packetA.elementType() == packetB.elementType());
+
+    const char* arrA = packetA.arrayData();
+    const char* arrB = packetB.arrayData();
+    for (size_t i = 0; i < packetA.elementCount(); i++)
+    {
+        CVF_ASSERT(arrA[i] == arrB[i]);
+    }
+}
 
