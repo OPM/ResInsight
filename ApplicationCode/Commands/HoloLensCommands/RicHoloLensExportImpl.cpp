@@ -73,11 +73,11 @@ std::vector<VdeExportPart> RicHoloLensExportImpl::partsForExport(const RimGridVi
                     {
                         if (rimEclipseCase->mainGrid()->isFaceNormalsOutwards())
                         {
-                            partForExport.setWinding(VdeExportPart::CLOCKWISE);
+                            partForExport.setWinding(VdeExportPart::COUNTERCLOCKWISE);
                         }
                         else
                         {
-                            partForExport.setWinding(VdeExportPart::COUNTERCLOCKWISE);
+                            partForExport.setWinding(VdeExportPart::CLOCKWISE);
                         }
                     }
 
