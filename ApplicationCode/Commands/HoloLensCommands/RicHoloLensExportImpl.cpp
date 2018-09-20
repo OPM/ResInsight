@@ -175,13 +175,6 @@ std::vector<VdeExportPart> RicHoloLensExportImpl::partsForExport(const RimGridVi
 
                     exportParts.push_back(partForExport);
                 }
-                else
-                {
-                    VdeExportPart partForExport(scenePart.p());
-                    partForExport.setSourceObjectType(VdeExportPart::OBJ_TYPE_GRID_MESH);
-
-                    exportParts.push_back(partForExport);
-                }
             }
         }
     }
