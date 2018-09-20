@@ -498,8 +498,6 @@ cvf::ref<cvf::Part> RivWellFracturePartMgr::createStimPlanColorInterpolatedSurfa
 
         return createSingleColorSurfacePart(triangleIndices, nodeDisplayCoords, activeView.fractureColors()->defaultColor());
     }
-
-    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
