@@ -136,13 +136,19 @@ size_t RigCaseRealizationParameters::parameterHash(const QString& name) const
     std::hash<std::string>  stringHasher;
     std::hash<double>       doubleHasher;
     size_t                  nameHash;
-    size_t                  valueHash;
+    size_t                  valueHash = 0;
 
     nameHash = stringHasher(name.toStdString());
 
     auto value = itr->second;
-    if (value.isNumeric())  valueHash = doubleHasher(value.numericValue());
-    else if (value.isText()) valueHash = stringHasher(value.textValue().toStdString());
+    if (value.isNumeric())
+    {
+        valueHash = doubleHasher(value.numericValue());
+    }
+    else if (value.isText()) 
+    {
+        valueHash = stringHasher(value.textValue().toStdString());
+    }
 
     QString s = QString::number(nameHash) + QString::number(valueHash);
     return stringHasher((QString::number(nameHash) + QString::number(valueHash)).toStdString());

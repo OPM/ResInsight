@@ -130,7 +130,7 @@ void RiaPolyArcLineSampler::sampleArc(cvf::Vec3d t1, cvf::Vec3d p1, cvf::Vec3d p
     // Find arc CS
     auto CS_rad = calculateArcCSAndRadius(t1, p1, p2);
 
-    double radius = CS_rad.second;
+    //double radius = CS_rad.second;
     
     //if (radius > 1e)
     // Find sampleLength angle
