@@ -42,9 +42,9 @@ public:
     static std::vector<VdeExportPart> partsForExport(const RimGridView& view);
 
 private:
-    static void partsForExport(const RimGridView* view, cvf::Collection<cvf::Part>* partCollection);
     static QString gridCellSetTypeText(RivCellSetEnum cellSetType);
 
     static bool isGrid(const cvf::Part* part);
     static bool isPipe(const cvf::Part* part);
+    static bool isMeshLines(const cvf::Part* part);
 };

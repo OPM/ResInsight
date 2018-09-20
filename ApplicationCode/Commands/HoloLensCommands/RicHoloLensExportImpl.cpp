@@ -35,37 +35,14 @@
 #include "cafEffectGenerator.h"
 
 #include "cvfPart.h"
+#include "cvfRenderState.h"
+#include "cvfRenderStateTextureBindings.h"
+#include "cvfRenderState_FF.h"
 #include "cvfScene.h"
+#include "cvfTexture.h"
+#include "cvfTexture2D_FF.h"
 
 #include <QString>
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RicHoloLensExportImpl::partsForExport(const RimGridView* view, cvf::Collection<cvf::Part>* partCollection)
-{
-    CVF_ASSERT(partCollection);
-
-    if (!view) return;
-
-    if (view->viewer())
-    {
-        cvf::Scene* scene = view->viewer()->mainScene();
-        if (scene)
-        {
-            cvf::Collection<cvf::Part> sceneParts;
-            scene->allParts(&sceneParts);
-
-            for (auto& scenePart : sceneParts)
-            {
-                if (RicHoloLensExportImpl::isGrid(scenePart.p()) || RicHoloLensExportImpl::isPipe(scenePart.p()))
-                {
-                    partCollection->push_back(scenePart.p());
-                }
-            }
-        }
-    }
-}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -138,6 +115,32 @@ std::vector<VdeExportPart> RicHoloLensExportImpl::partsForExport(const RimGridVi
                             }
 
                             partForExport.setSourceObjectName(nameOfObject);
+                        }
+                    }
+
+                    // Check if texture image is present
+                    if (scenePart->effect())
+                    {
+                        {
+                            auto textureBindings = dynamic_cast<cvf::RenderStateTextureBindings*>(
+                                scenePart->effect()->renderStateOfType(cvf::RenderState::TEXTURE_BINDINGS));
+
+                            if (textureBindings && textureBindings->bindingCount() > 0)
+                            {
+                                cvf::Texture* textureBinding = textureBindings->texture(0);
+                                partForExport.setTextureImage(textureBinding->image());
+                            }
+                        }
+
+                        {
+                            auto textureMappingFF = dynamic_cast<cvf::RenderStateTextureMapping_FF*>(
+                                scenePart->effect()->renderStateOfType(cvf::RenderState::TEXTURE_MAPPING_FF));
+
+                            if (textureMappingFF && textureMappingFF->texture())
+                            {
+                                auto* texture = textureMappingFF->texture();
+                                partForExport.setTextureImage(texture->image());
+                            }
                         }
                     }
 
@@ -282,5 +285,13 @@ bool RicHoloLensExportImpl::isPipe(const cvf::Part* part)
         }
     }
 
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RicHoloLensExportImpl::isMeshLines(const cvf::Part* part)
+{
     return false;
 }

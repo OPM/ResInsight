@@ -21,6 +21,7 @@
 #include "cvfBase.h"
 #include "cvfObject.h"
 #include "cvfPart.h"
+#include "cvfTextureImage.h"
 
 #include <QString>
 
@@ -47,6 +48,7 @@ public:
 public:
     VdeExportPart(cvf::Part* part);
 
+    void setTextureImage(const cvf::TextureImage* textureImage);
     void setSourceObjectType(SourceObjectType sourceObjectType);
     void setSourceObjectName(const QString& sourceObjectName);
     void setSourceObjectCellSetType(const QString& sourceObjectCellSetType);
@@ -54,7 +56,9 @@ public:
     void setOpacity(float opacity);
     void setWinding(Winding winding);
 
-    const cvf::Part* part() const;
+    const cvf::Part*         part() const;
+    const cvf::TextureImage* textureImage() const;
+
     QString          sourceObjectName() const;
     QString          sourceObjectCellSetType() const;
     SourceObjectType sourceObjectType() const;
@@ -63,7 +67,8 @@ public:
     Winding          winding() const;
 
 private:
-    cvf::cref<cvf::Part> m_part;
+    cvf::cref<cvf::Part>         m_part;
+    cvf::cref<cvf::TextureImage> m_textureImage;
 
     QString          m_sourceObjectName;
     QString          m_sourceObjectCellSetType;
