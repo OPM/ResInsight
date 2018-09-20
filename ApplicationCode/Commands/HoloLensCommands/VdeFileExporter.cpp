@@ -168,13 +168,17 @@ bool VdeFileExporter::extractMeshFromExportPart(const VdeExportPart& exportPart,
     }
 
 
-    if (primSet->primitiveType() != cvf::PT_TRIANGLES)
+    // Support 2 or 3 vertices per primitive
+    const cvf::PrimitiveType primType = primSet->primitiveType();
+    if (primType != cvf::PT_TRIANGLES && primType != cvf::PT_LINES)
     {
-        RiaLogging::debug(QString("Currently only triangle primitive sets are supported (saw primitive type: %1)").arg(primSet->primitiveType()));
+        RiaLogging::debug(QString("Currently only triangle and line primitive sets are supported (saw primitive type: %1)").arg(primType));
         return false;
     }
 
-    mesh->verticesPerPrimitive = 3;
+    const int vertsPerPrimitive = (primType == cvf::PT_TRIANGLES) ? 3 : 2;
+    
+    mesh->verticesPerPrimitive = vertsPerPrimitive;
 
     // Possibly transform the vertices
     if (cvfPart->transform())
@@ -195,39 +199,37 @@ bool VdeFileExporter::extractMeshFromExportPart(const VdeExportPart& exportPart,
         mesh->vertexArr = vertexArr;
     }
 
+    // Fetch connectivities
+    // Using getFaceIndices() allows us to access strips and fans in the same way as triangles
+    // Note that HoloLens visualization wants triangles in clockwise order so we try and fix the winding
+    // This point might be moot if the HoloLens visualization always has to use two-sideded lighting to get good results
     cvf::UIntArray faceConn;
     const size_t faceCount = primSet->faceCount();
     for (size_t iface = 0; iface < faceCount; iface++)
     {
         primSet->getFaceIndices(iface, &faceConn);
-        //mesh->connArr.insert(mesh->connArr.end(), faceConn.begin(), faceConn.end());
 
-        // Reverse the winding
-        const size_t numConn = faceConn.size();
-        for (size_t i = 0; i < numConn; i++)
+        if (vertsPerPrimitive == 3 && exportPart.winding() == VdeExportPart::COUNTERCLOCKWISE)
         {
-            mesh->connArr.push_back(faceConn[numConn - i - 1]);
+            // Reverse the winding
+            const size_t numConn = faceConn.size();
+            for (size_t i = 0; i < numConn; i++)
+            {
+                mesh->connArr.push_back(faceConn[numConn - i - 1]);
+            }
+        }
+        else
+        {
+            mesh->connArr.insert(mesh->connArr.end(), faceConn.begin(), faceConn.end());
         }
     }
 
 
-    // !!!!
-    // Experiment with texture fringes
-    //if (geo->textureCoordArray())
-    //{
-    //    cvf::Part* nonConstPart = const_cast<cvf::Part*>(cvfPart);
-    //    cvf::Effect* eff = nonConstPart->effect();
-    //    cvf::RenderStateTextureBindings* rsTexBindings = dynamic_cast<cvf::RenderStateTextureBindings*>(eff->renderStateOfType(cvf::RenderState::TEXTURE_BINDINGS));
-    //    if (rsTexBindings && rsTexBindings->bindingCount() > 0)
-    //    {
-    //        cvf::TextureImage* texImg = rsTexBindings->texture(0)->image();
-    //        if (texImg)
-    //        {
-    //            mesh->texCoordArr = geo->textureCoordArray();
-    //            mesh->texImage = texImg;
-    //        }
-    //    }
-    //}
+    if (exportPart.textureImage() && geo->textureCoordArray())
+    {
+        mesh->texCoordArr = geo->textureCoordArray();
+        mesh->texImage = exportPart.textureImage();
+    }
 
 
     QString srcObjType = "unknown";
