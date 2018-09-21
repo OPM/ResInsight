@@ -32,6 +32,7 @@
 
 #include "RiuViewer.h"
 #include "RivFemPickSourceInfo.h"
+#include "RivGeoMechVizLogic.h"
 #include "RivIntersectionBoxSourceInfo.h"
 #include "RivIntersectionSourceInfo.h"
 #include "RivMeshLinesSourceInfo.h"
@@ -83,40 +84,50 @@ std::vector<VdeExportPart> RicHoloLensExportImpl::partsForExport(const RimGridVi
                     }
                 }
 
-                auto* si = dynamic_cast<RivSourceInfo*>(visiblePart->sourceInfo());
-                if (si)
                 {
-                    RimFaultInView* faultInView = dynamic_cast<RimFaultInView*>(si->object());
-                    if (faultInView)
+                    auto* sourceInfo = dynamic_cast<RivSourceInfo*>(visiblePart->sourceInfo());
+                    if (sourceInfo)
                     {
-                        exportPart.setSourceObjectName(faultInView->name());
-                        exportPart.setColor(faultInView->faultColor());
+                        RimFaultInView* faultInView = dynamic_cast<RimFaultInView*>(sourceInfo->object());
+                        if (faultInView)
+                        {
+                            exportPart.setSourceObjectName(faultInView->name());
+                            exportPart.setColor(faultInView->faultColor());
+                        }
+
+                        RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>(sourceInfo->object());
+                        if (eclipseCase)
+                        {
+                            QString nameOfObject   = rimEclipseCase->gridFileName();
+                            auto    gridSourceInfo = dynamic_cast<const RivSourceInfo*>(visiblePart->sourceInfo());
+                            if (gridSourceInfo)
+                            {
+                                size_t gridIndex = gridSourceInfo->gridIndex();
+
+                                nameOfObject += " Grid " + QString::number(gridIndex);
+                            }
+
+                            const RimEclipseView* eclipseView = dynamic_cast<const RimEclipseView*>(&view);
+                            if (eclipseView)
+                            {
+                                cvf::Color4f color = eclipseView->colorFromCellCategory(sourceInfo->cellSetType());
+                                exportPart.setColor(color.toColor3f());
+                                exportPart.setOpacity(color.a());
+
+                                QString text = RicHoloLensExportImpl::gridCellSetTypeText(sourceInfo->cellSetType());
+                                exportPart.setSourceObjectCellSetType(text);
+                            }
+
+                            exportPart.setSourceObjectName(nameOfObject);
+                        }
                     }
+                }
 
-                    RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>(si->object());
-                    if (eclipseCase)
+                {
+                    auto femPartPickInfo = dynamic_cast<RivFemPickSourceInfo*>(visiblePart->sourceInfo());
+                    if (femPartPickInfo)
                     {
-                        QString nameOfObject   = rimEclipseCase->gridFileName();
-                        auto    gridSourceInfo = dynamic_cast<const RivSourceInfo*>(visiblePart->sourceInfo());
-                        if (gridSourceInfo)
-                        {
-                            size_t gridIndex = gridSourceInfo->gridIndex();
-
-                            nameOfObject += " Grid " + QString::number(gridIndex);
-                        }
-
-                        const RimEclipseView* eclipseView = dynamic_cast<const RimEclipseView*>(&view);
-                        if (eclipseView)
-                        {
-                            cvf::Color4f color = eclipseView->colorFromCellCategory(si->cellSetType());
-                            exportPart.setColor(color.toColor3f());
-                            exportPart.setOpacity(color.a());
-
-                            QString text = RicHoloLensExportImpl::gridCellSetTypeText(si->cellSetType());
-                            exportPart.setSourceObjectCellSetType(text);
-                        }
-
-                        exportPart.setSourceObjectName(nameOfObject);
+                        exportPart.setColor(RivGeoMechVizLogic::staticCellColor());
                     }
                 }
 

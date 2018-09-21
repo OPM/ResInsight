@@ -51,6 +51,8 @@ public:
     void                                     calculateCurrentTotalCellVisibility(cvf::UByteArray* totalVisibility, int timeStepIndex);
     std::vector<RivGeoMechPartMgrCache::Key> keysToVisiblePartMgrs(int timeStepIndex) const;
     const cvf::ref<RivGeoMechPartMgrCache>   partMgrCache() const;
+
+    static cvf::Color3f                      staticCellColor();
 private:
 
     RivGeoMechPartMgr*                       getUpdatedPartMgr(RivGeoMechPartMgrCache::Key partMgrKey);

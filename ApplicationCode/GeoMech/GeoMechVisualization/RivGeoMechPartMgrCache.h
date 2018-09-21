@@ -20,6 +20,7 @@
 #pragma once
 
 #include "RivCellSetEnum.h"
+#include "RivGeoMechPartMgr.h"
 
 #include "cvfBase.h"
 #include "cvfObject.h"
@@ -27,7 +28,6 @@
 #include <cstddef>
 #include <map>
 
-class RivGeoMechPartMgr;
 class RivGeoMechPartMgrGeneratorInterface;
 
 class RivGeoMechPartMgrCache : public cvf::Object
