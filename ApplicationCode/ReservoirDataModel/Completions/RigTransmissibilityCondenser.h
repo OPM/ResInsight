@@ -104,6 +104,11 @@ public:
                                                                   double                     currentWellPressure,
                                                                   const std::vector<double>& currentMatrixPressures,
                                                                   bool                       divideByAverageDP);
+    std::map<size_t, double> scaleMatrixToFracTransByMatrixFracFlux(const RigActiveCellInfo*   actCellInfo,
+                                                                    double                     currentWellPressure,
+                                                                    const std::vector<double>& currentMatrixPressures,
+                                                                    bool                       divideByAverageFlux);
+
     std::map<size_t, double> calculateFicticiousFractureToWellTransmissibilities();
     std::map<size_t, double>
         calculateEffectiveMatrixToWellTransmissibilities(const std::map<size_t, double>& originalLumpedMatrixToFractureTrans,

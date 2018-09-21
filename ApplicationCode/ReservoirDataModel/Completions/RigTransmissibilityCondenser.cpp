@@ -272,6 +272,115 @@ std::map<size_t, double> RigTransmissibilityCondenser::scaleMatrixToFracTransByM
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::map<size_t, double> RigTransmissibilityCondenser::scaleMatrixToFracTransByMatrixFracFlux(const RigActiveCellInfo* actCellInfo, double currentWellPressure, const std::vector<double>& currentMatrixPressures, bool divideByAverageFlux)
+{
+    // Solve for fracture pressures
+    Eigen::VectorXd matrixPressures(m_Tie.cols());
+    {
+        size_t rowIndex = 0u;
+        for (const CellAddress& externalCell : m_externalCellAddrSet)
+        {
+            if (externalCell.m_cellIndexSpace == CellAddress::ECLIPSE)
+            {
+                size_t eclipseResultIndex = actCellInfo->cellResultIndex(externalCell.m_globalCellIdx);
+                CVF_ASSERT(eclipseResultIndex < currentMatrixPressures.size());
+                matrixPressures[rowIndex++] = currentMatrixPressures[eclipseResultIndex];
+            }
+            else
+            {
+                CVF_ASSERT(externalCell.m_cellIndexSpace == CellAddress::WELL);
+                matrixPressures[rowIndex++] = currentWellPressure;
+            }
+        }
+    }
+    Eigen::VectorXd fracturePressures = m_TiiInv * (m_Tie * matrixPressures * -1.0);
+
+    // Extract fracture pressures into a map
+    std::map<size_t, double> fractureCellToPressureMap;
+    {
+        size_t rowIndex = 0u;
+        for (const ConnectionTransmissibility& connectionTrans : m_neighborTransmissibilities)
+        {
+            if (connectionTrans.first.m_cellIndexSpace == CellAddress::STIMPLAN)
+            {
+                fractureCellToPressureMap[connectionTrans.first.m_globalCellIdx] = fracturePressures[rowIndex++];
+            }
+        }
+    }
+
+    // Calculate maximum and average pressure drop
+    double maxFlux = 0.0;
+    RiaWeightedMeanCalculator<double> meanCalculator;
+    for (auto it = m_neighborTransmissibilities.begin(); it != m_neighborTransmissibilities.end(); ++it)
+    {
+        if (it->first.m_cellIndexSpace == CellAddress::STIMPLAN)
+        {
+            size_t globalFractureCellIdx = it->first.m_globalCellIdx;
+            double fracturePressure = fractureCellToPressureMap[globalFractureCellIdx];
+
+            for (auto jt = it->second.begin(); jt != it->second.end(); ++jt)
+            {
+                if (jt->first.m_cellIndexSpace == CellAddress::ECLIPSE)
+                {
+                    size_t globalMatrixCellIdx = jt->first.m_globalCellIdx;
+
+                    size_t eclipseResultIndex = actCellInfo->cellResultIndex(globalMatrixCellIdx);
+                    CVF_ASSERT(eclipseResultIndex < currentMatrixPressures.size());
+
+                    double matrixPressure = currentMatrixPressures[eclipseResultIndex];
+                    double pressureDrop = std::abs(matrixPressure - fracturePressure);
+                    double flux = pressureDrop * jt->second;
+                    meanCalculator.addValueAndWeight(flux, 1.0);
+                    maxFlux = std::max(maxFlux, flux);
+                }
+            }
+        }
+    }
+    if (divideByAverageFlux && !meanCalculator.validAggregatedWeight())
+    {
+        return std::map<size_t, double>();
+    }
+    else if (!divideByAverageFlux && maxFlux < 1.0e-9)
+    {
+        return std::map<size_t, double>();
+    }
+    double averageFlux = meanCalculator.weightedMean();
+
+    std::map<size_t, double> originalLumpedMatrixToFractureTrans; // Sum(T_mf)
+    for (auto it = m_neighborTransmissibilities.begin(); it != m_neighborTransmissibilities.end(); ++it)
+    {
+        if (it->first.m_cellIndexSpace == CellAddress::STIMPLAN)
+        {
+            size_t globalFractureCellIdx = it->first.m_globalCellIdx;
+            double fracturePressure = fractureCellToPressureMap[globalFractureCellIdx];
+
+            for (auto jt = it->second.begin(); jt != it->second.end(); ++jt)
+            {
+                if (jt->first.m_cellIndexSpace == CellAddress::ECLIPSE)
+                {
+                    size_t globalMatrixCellIdx = jt->first.m_globalCellIdx;
+
+                    size_t eclipseResultIndex = actCellInfo->cellResultIndex(globalMatrixCellIdx);
+                    CVF_ASSERT(eclipseResultIndex < currentMatrixPressures.size());
+
+                    double matrixPressure = currentMatrixPressures[eclipseResultIndex];
+                    double pressureDrop = std::abs(matrixPressure - fracturePressure);
+                    double flux = jt->second * pressureDrop;
+                    // Add to Sum(T_mf)
+                    originalLumpedMatrixToFractureTrans[globalMatrixCellIdx] += jt->second;
+
+                    double pressureScaling = flux / (divideByAverageFlux ? averageFlux : maxFlux);
+                    jt->second *= pressureScaling;
+                }
+            }
+        }
+    }
+    return originalLumpedMatrixToFractureTrans;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::map<size_t, double> RigTransmissibilityCondenser::calculateFicticiousFractureToWellTransmissibilities()
 {
     std::map<size_t, double> matrixToAllFracturesTrans;

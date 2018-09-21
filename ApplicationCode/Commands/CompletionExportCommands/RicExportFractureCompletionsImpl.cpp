@@ -350,6 +350,36 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
                 matrixToWellTrans = effectiveMatrixToWellTrans;
             }
         }
+        else if (currentPressureDropScaling == MATRIX_TO_FRACTURE_FLUX_OVER_MAX_FLUX ||
+            currentPressureDropScaling == MATRIX_TO_FRACTURE_FLUX_OVER_AVG_FLUX)
+        {
+            RigTransmissibilityCondenser scaledCondenser = transCondenser;
+            // 1. Scale matrix to fracture transmissibilities by matrix to fracture pressure
+            std::map<size_t, double> originalLumpedMatrixToFractureTrans =
+                scaledCondenser.scaleMatrixToFracTransByMatrixFracFlux(actCellInfo,
+                    currentWellPressure,
+                    *currentMatrixPressures,
+                    currentPressureDropScaling == MATRIX_TO_FRACTURE_FLUX_OVER_AVG_FLUX);
+            // 2: Calculate new external transmissibilities
+            scaledCondenser.calculateCondensedTransmissibilities();
+
+            if (pdParams.transCorrection == NO_CORRECTION)
+            {
+                // Calculate effective matrix to well transmissibilities.
+                std::map<size_t, double> effectiveMatrixToWellTransBeforeCorrection = calculateMatrixToWellTransmissibilities(scaledCondenser);
+                matrixToWellTrans = effectiveMatrixToWellTransBeforeCorrection;
+            }
+            else if (pdParams.transCorrection == HOGSTOL_CORRECTION)
+            {
+                // Høgstøl correction.
+                // 1. Calculate new effective fracture to well transmissiblities
+                std::map<size_t, double> fictitiousFractureToWellTransmissibilities = scaledCondenser.calculateFicticiousFractureToWellTransmissibilities();
+                // 2. Calculate new effective matrix to well transmissibilities
+                std::map<size_t, double> effectiveMatrixToWellTrans = scaledCondenser.calculateEffectiveMatrixToWellTransmissibilities(
+                    originalLumpedMatrixToFractureTrans, fictitiousFractureToWellTransmissibilities);
+                matrixToWellTrans = effectiveMatrixToWellTrans;
+            }
+        }
         else if (currentPressureDropScaling == MATRIX_TO_WELL_DP_OVER_INITIAL_DP)
         {
             RigTransmissibilityCondenser scaledCondenser = transCondenser;

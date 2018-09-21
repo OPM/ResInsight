@@ -57,6 +57,8 @@ namespace caf
         addItem(RicExportFractureCompletionsImpl::NO_SCALING, "NO_SCALING", "No scaling");
         addItem(RicExportFractureCompletionsImpl::MATRIX_TO_FRACTURE_DP_OVER_MAX_DP, "MATFRAC_DP_OVER_MAXDP", "Matrix to Fracture dP over max dP");
         addItem(RicExportFractureCompletionsImpl::MATRIX_TO_FRACTURE_DP_OVER_AVG_DP, "MATFRAC_DP_OVER_AVGDP", "Matrix to Fracture dP over avg dP");
+        addItem(RicExportFractureCompletionsImpl::MATRIX_TO_FRACTURE_FLUX_OVER_MAX_FLUX, "MATFRAC_FLUX_OVER_MAXFLUX", "Matrix to Fracture Flux over max Flux");
+        addItem(RicExportFractureCompletionsImpl::MATRIX_TO_FRACTURE_FLUX_OVER_AVG_FLUX, "MATFRAC_FLUX_OVER_AVGFLUX", "Matrix to Fracture Flux over avg Flux");
         addItem(RicExportFractureCompletionsImpl::MATRIX_TO_WELL_DP_OVER_INITIAL_DP, "MATWELL_DP_OVER_INITIALDP", "Matrix to Well dP over initial dP");
         setDefault(RicExportFractureCompletionsImpl::NO_SCALING);
     }
