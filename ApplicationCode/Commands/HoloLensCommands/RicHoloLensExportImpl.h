@@ -41,6 +41,8 @@ class RicHoloLensExportImpl
 public:
     static std::vector<VdeExportPart> partsForExport(const RimGridView& view);
 
+    static void appendTextureImage(VdeExportPart& exportPart, cvf::Part* part);
+
 private:
     static QString gridCellSetTypeText(RivCellSetEnum cellSetType);
 
