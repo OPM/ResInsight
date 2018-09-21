@@ -101,7 +101,7 @@ public:
     void            enableNavigationRotation(bool disable); 
     void            updateNavigationPolicy();
 
-    virtual void    navigationPolicyUpdate();               // Override of caf::Viewer::navigationPolicyUpdate()
+    void            navigationPolicyUpdate() override;
 
     void            setCurrentFrame(int frameIndex);
 
@@ -117,12 +117,12 @@ public:
     void            setCursorPosition(const cvf::Vec3d& domainCoord);
 
 public slots:
-    virtual void    slotSetCurrentFrame(int frameIndex);
-    virtual void    slotEndAnimation();
+    void            slotSetCurrentFrame(int frameIndex) override;
+    void            slotEndAnimation() override;
 
 protected:
-    virtual void    optimizeClippingPlanes();
-    virtual void    resizeGL(int width, int height);
+    void            optimizeClippingPlanes() override;
+    void            resizeGL(int width, int height) override;
     virtual void    mouseMoveEvent(QMouseEvent* e) override;
     virtual void    leaveEvent(QEvent *) override;
 
@@ -135,10 +135,10 @@ private:
 
     void            updateAxisCrossTextColor();
 
-    void            paintOverlayItems(QPainter* painter);
+    void            paintOverlayItems(QPainter* painter) override;
 
-    void            mouseReleaseEvent(QMouseEvent* event);
-    void            mousePressEvent(QMouseEvent* event);
+    void            mouseReleaseEvent(QMouseEvent* event) override;
+    void            mousePressEvent(QMouseEvent* event) override;
 
 private:
     QLabel*         m_infoLabel;
