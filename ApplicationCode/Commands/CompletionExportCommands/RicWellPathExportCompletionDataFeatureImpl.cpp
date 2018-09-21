@@ -2393,7 +2393,8 @@ QString RicWellPathExportCompletionDataFeatureImpl::createPressureDepletionFileN
         if (eclipseCase)
         {
             QString date = eclipseCase->timeStepStrings()[exportSettings.transScalingTimeStep()];
-            suffix += QString("_%1").arg(date);
+            date.replace(QRegExp("[\\.\\s]"), "_");
+            suffix += QString("%1").arg(date);
         }
     }
     return suffix;
