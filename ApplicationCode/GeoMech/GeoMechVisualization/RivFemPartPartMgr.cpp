@@ -2,17 +2,17 @@
 //
 //  Copyright (C) 2015-     Statoil ASA
 //  Copyright (C) 2015-     Ceetron Solutions AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -49,9 +49,9 @@
 #include "cvfMath.h"
 #include "cvfModelBasicList.h"
 #include "cvfPart.h"
-#include "cvfRenderState_FF.h"
 #include "cvfRenderStateBlending.h"
 #include "cvfRenderStatePolygonOffset.h"
+#include "cvfRenderState_FF.h"
 #include "cvfShaderProgram.h"
 #include "cvfShaderProgramGenerator.h"
 #include "cvfShaderSourceProvider.h"
@@ -60,25 +60,23 @@
 #include "cvfTransform.h"
 #include "cvfUniform.h"
 
-
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RivFemPartPartMgr::RivFemPartPartMgr(const RigFemPart* grid)
-:   m_surfaceGenerator(grid), 
-    m_grid(grid),
-    m_opacityLevel(1.0f),
-    m_defaultColor(cvf::Color3::WHITE)
+    : m_surfaceGenerator(grid)
+    , m_grid(grid)
+    , m_opacityLevel(1.0f)
+    , m_defaultColor(cvf::Color3::WHITE)
 {
     CVF_ASSERT(grid);
-    m_gridIdx = grid->elementPartId();
-    m_cellVisibility = new cvf::UByteArray;
+    m_gridIdx                   = grid->elementPartId();
+    m_cellVisibility            = new cvf::UByteArray;
     m_surfaceFacesTextureCoords = new cvf::Vec2fArray;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RivFemPartPartMgr::setTransform(cvf::Transform* scaleTransform)
 {
@@ -86,7 +84,7 @@ void RivFemPartPartMgr::setTransform(cvf::Transform* scaleTransform)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RivFemPartPartMgr::setCellVisibility(cvf::UByteArray* cellVisibilities)
 {
@@ -101,13 +99,13 @@ void RivFemPartPartMgr::setCellVisibility(cvf::UByteArray* cellVisibilities)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RivFemPartPartMgr::generatePartGeometry(RivFemPartGeometryGenerator& geoBuilder)
 {
     bool useBufferObjects = true;
     // Surface geometry
-    {   
+    {
         m_surfaceFaces = nullptr; // To possibly free memory before adding the new stuff
 
         cvf::ref<cvf::DrawableGeo> geo = geoBuilder.generateSurface();
@@ -122,7 +120,7 @@ void RivFemPartPartMgr::generatePartGeometry(RivFemPartGeometryGenerator& geoBui
 
             cvf::ref<cvf::Part> part = new cvf::Part;
             part->setName("FemPart " + cvf::String(m_gridIdx));
-            part->setId(m_gridIdx);       // Use grid index as part ID 
+            part->setId(m_gridIdx); // Use grid index as part ID
             part->setDrawable(geo.p());
             part->setTransform(m_scaleTransform.p());
 
@@ -131,10 +129,10 @@ void RivFemPartPartMgr::generatePartGeometry(RivFemPartGeometryGenerator& geoBui
             part->setSourceInfo(si.p());
 
             part->updateBoundingBox();
-            
+
             // Set default effect
             caf::SurfaceEffectGenerator geometryEffgen(cvf::Color4f(cvf::Color3f::WHITE), caf::PO_1);
-            cvf::ref<cvf::Effect> geometryOnlyEffect = geometryEffgen.generateCachedEffect();
+            cvf::ref<cvf::Effect>       geometryOnlyEffect = geometryEffgen.generateCachedEffect();
             part->setEffect(geometryOnlyEffect.p());
             part->setEnableMask(surfaceBit);
             m_surfaceFaces = part;
@@ -162,7 +160,7 @@ void RivFemPartPartMgr::generatePartGeometry(RivFemPartGeometryGenerator& geoBui
 
             RiaPreferences* prefs = RiaApplication::instance()->preferences();
 
-            cvf::ref<cvf::Effect> eff;
+            cvf::ref<cvf::Effect>    eff;
             caf::MeshEffectGenerator effGen(prefs->defaultGridLineColors());
             eff = effGen.generateCachedEffect();
 
@@ -179,18 +177,18 @@ void RivFemPartPartMgr::generatePartGeometry(RivFemPartGeometryGenerator& geoBui
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RivFemPartPartMgr::appendPartsToModel(cvf::ModelBasicList* model)
 {
     CVF_ASSERT(model != nullptr);
 
-    if(m_surfaceFaces.notNull()    ) model->addPart(m_surfaceFaces.p()    );
-    if(m_surfaceGridLines.notNull()) model->addPart(m_surfaceGridLines.p());
+    if (m_surfaceFaces.notNull()) model->addPart(m_surfaceFaces.p());
+    if (m_surfaceGridLines.notNull()) model->addPart(m_surfaceGridLines.p());
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 const RivFemPartGeometryGenerator* RivFemPartPartMgr::surfaceGenerator() const
 {
@@ -198,7 +196,7 @@ const RivFemPartGeometryGenerator* RivFemPartPartMgr::surfaceGenerator() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RivFemPartPartMgr::updateCellColor(cvf::Color4f color)
 {
@@ -206,7 +204,7 @@ void RivFemPartPartMgr::updateCellColor(cvf::Color4f color)
 
     // Set default effect
     caf::SurfaceEffectGenerator geometryEffgen(color, caf::PO_1);
-    cvf::ref<cvf::Effect> geometryOnlyEffect = geometryEffgen.generateCachedEffect();
+    cvf::ref<cvf::Effect>       geometryOnlyEffect = geometryEffgen.generateCachedEffect();
 
     if (m_surfaceFaces.notNull()) m_surfaceFaces->setEffect(geometryOnlyEffect.p());
 
@@ -232,7 +230,7 @@ void RivFemPartPartMgr::updateCellColor(cvf::Color4f color)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RivFemPartPartMgr::updateCellResultColor(size_t timeStepIndex, RimGeoMechCellColors* cellResultColors)
 {
@@ -243,34 +241,36 @@ void RivFemPartPartMgr::updateCellResultColor(size_t timeStepIndex, RimGeoMechCe
     // Outer surface
     if (m_surfaceFaces.notNull())
     {
-
         const cvf::ScalarMapper* mapper = cellResultColors->legendConfig()->scalarMapper();
 
         RigGeoMechCaseData* caseData = cellResultColors->ownerCaseData();
-        
+
         if (!caseData) return;
 
         RigFemResultAddress resVarAddress = cellResultColors->resultAddress();
 
         // Do a "Hack" to show elm nodal and not nodal POR results
-        if (resVarAddress.resultPosType == RIG_NODAL && resVarAddress.fieldName == "POR-Bar") resVarAddress.resultPosType = RIG_ELEMENT_NODAL;
+        if (resVarAddress.resultPosType == RIG_NODAL && resVarAddress.fieldName == "POR-Bar")
+        {
+            resVarAddress.resultPosType = RIG_ELEMENT_NODAL;
+        }
 
-        const std::vector<float>& resultValues = caseData->femPartResults()->resultValues(resVarAddress, m_gridIdx, (int)timeStepIndex);
+        const std::vector<float>& resultValues =
+            caseData->femPartResults()->resultValues(resVarAddress, m_gridIdx, (int)timeStepIndex);
 
         const std::vector<size_t>* vxToResultMapping = nullptr;
-        int vxCount = 0;
+        int                        vxCount           = 0;
 
         if (resVarAddress.resultPosType == RIG_NODAL)
         {
             vxToResultMapping = &(m_surfaceGenerator.quadVerticesToNodeIdxMapping());
         }
-        else if (   resVarAddress.resultPosType == RIG_ELEMENT_NODAL 
-                 || resVarAddress.resultPosType == RIG_INTEGRATION_POINT
-                 || resVarAddress.resultPosType == RIG_FORMATION_NAMES)
+        else if (resVarAddress.resultPosType == RIG_ELEMENT_NODAL || resVarAddress.resultPosType == RIG_INTEGRATION_POINT ||
+                 resVarAddress.resultPosType == RIG_FORMATION_NAMES)
         {
             vxToResultMapping = &(m_surfaceGenerator.quadVerticesToGlobalElmNodeIdx());
         }
-        else if(resVarAddress.resultPosType == RIG_ELEMENT_NODAL_FACE)
+        else if (resVarAddress.resultPosType == RIG_ELEMENT_NODAL_FACE)
         {
             vxToResultMapping = &(m_surfaceGenerator.quadVerticesToGlobalElmFaceNodeIdx());
         }
@@ -278,9 +278,9 @@ void RivFemPartPartMgr::updateCellResultColor(size_t timeStepIndex, RimGeoMechCe
         {
             vxToResultMapping = &(m_surfaceGenerator.quadVerticesToGlobalElmIdx());
         }
-        
+
         if (!vxToResultMapping) return;
-        
+
         vxCount = static_cast<int>(vxToResultMapping->size());
         m_surfaceFacesTextureCoords->resize(vxCount);
 
@@ -292,7 +292,7 @@ void RivFemPartPartMgr::updateCellResultColor(size_t timeStepIndex, RimGeoMechCe
         {
             cvf::Vec2f* rawPtr = m_surfaceFacesTextureCoords->ptr();
 
-            #pragma omp parallel for schedule(dynamic)
+#pragma omp parallel for schedule(dynamic)
             for (int quadStartIdx = 0; quadStartIdx < vxCount; quadStartIdx += 4)
             {
                 float resultValue1 = resultValues[(*vxToResultMapping)[quadStartIdx + 0]];
@@ -300,22 +300,21 @@ void RivFemPartPartMgr::updateCellResultColor(size_t timeStepIndex, RimGeoMechCe
                 float resultValue3 = resultValues[(*vxToResultMapping)[quadStartIdx + 2]];
                 float resultValue4 = resultValues[(*vxToResultMapping)[quadStartIdx + 3]];
 
-                if (    resultValue1 == HUGE_VAL || resultValue1 != resultValue1    // a != a is true for NAN's
-                    ||  resultValue2 == HUGE_VAL || resultValue2 != resultValue2 
-                    ||  resultValue3 == HUGE_VAL || resultValue3 != resultValue3 
-                    ||  resultValue4 == HUGE_VAL || resultValue4 != resultValue4)
+                if (resultValue1 == HUGE_VAL || resultValue1 != resultValue1 // a != a is true for NAN's
+                    || resultValue2 == HUGE_VAL || resultValue2 != resultValue2 || resultValue3 == HUGE_VAL ||
+                    resultValue3 != resultValue3 || resultValue4 == HUGE_VAL || resultValue4 != resultValue4)
                 {
-                    rawPtr[quadStartIdx][1]       = 1.0f;
-                    rawPtr[quadStartIdx + 1][1]   = 1.0f;
-                    rawPtr[quadStartIdx + 2][1]   = 1.0f;
-                    rawPtr[quadStartIdx + 3][1]   = 1.0f;
+                    rawPtr[quadStartIdx][1]     = 1.0f;
+                    rawPtr[quadStartIdx + 1][1] = 1.0f;
+                    rawPtr[quadStartIdx + 2][1] = 1.0f;
+                    rawPtr[quadStartIdx + 3][1] = 1.0f;
                 }
                 else
                 {
-                    rawPtr[quadStartIdx]        = mapper->mapToTextureCoord(resultValue1);
-                    rawPtr[quadStartIdx + 1]    = mapper->mapToTextureCoord(resultValue2);
-                    rawPtr[quadStartIdx + 2]    = mapper->mapToTextureCoord(resultValue3);
-                    rawPtr[quadStartIdx + 3]    = mapper->mapToTextureCoord(resultValue4);
+                    rawPtr[quadStartIdx]     = mapper->mapToTextureCoord(resultValue1);
+                    rawPtr[quadStartIdx + 1] = mapper->mapToTextureCoord(resultValue2);
+                    rawPtr[quadStartIdx + 2] = mapper->mapToTextureCoord(resultValue3);
+                    rawPtr[quadStartIdx + 3] = mapper->mapToTextureCoord(resultValue4);
                 }
             }
         }
@@ -324,22 +323,16 @@ void RivFemPartPartMgr::updateCellResultColor(size_t timeStepIndex, RimGeoMechCe
         cellResultColors->firstAncestorOrThisOfType(view);
         CVF_ASSERT(view);
 
-        RivScalarMapperUtils::applyTextureResultsToPart(m_surfaceFaces.p(), 
-                                                        m_surfaceFacesTextureCoords.p(), 
-                                                        mapper, 
-                                                        m_opacityLevel, 
-                                                        caf::FC_NONE, 
+        RivScalarMapperUtils::applyTextureResultsToPart(m_surfaceFaces.p(),
+                                                        m_surfaceFacesTextureCoords.p(),
+                                                        mapper,
+                                                        m_opacityLevel,
+                                                        caf::FC_NONE,
                                                         view->isLightingDisabled());
     }
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RivFemPartPartMgr::~RivFemPartPartMgr()
-{
-
-}
-
-
+RivFemPartPartMgr::~RivFemPartPartMgr() {}
