@@ -150,17 +150,11 @@ void RivReservoirViewPartMgr::scheduleGeometryRegen(RivCellSetEnum geometryType)
 //--------------------------------------------------------------------------------------------------
 void RivReservoirViewPartMgr::clearGeometryCache(RivCellSetEnum geomType)
 {
-    RigEclipseCaseData* eclipseCase = nullptr;
     RimEclipseCase* rimEclipseCase = nullptr;
 
     if (m_reservoirView)
     {
         m_reservoirView->firstAncestorOrThisOfType(rimEclipseCase);
-    }
-
-    if (m_reservoirView != nullptr && m_reservoirView->eclipseCase())
-    {
-        eclipseCase = m_reservoirView->eclipseCase()->eclipseCaseData();
     }
 
     if (geomType == PROPERTY_FILTERED)

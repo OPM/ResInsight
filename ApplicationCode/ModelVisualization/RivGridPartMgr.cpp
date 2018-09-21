@@ -196,17 +196,6 @@ void RivGridPartMgr::generatePartGeometry(cvf::StructGridGeometryGenerator& geoB
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RivSourceInfo* RivGridPartMgr::createSourceInfo()
-{
-    auto si = new RivSourceInfo(m_eclipseCase, m_gridIdx);
-    si->setCellSetType(m_cellSetType);
-
-    return si;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RivGridPartMgr::appendPartsToModel(cvf::ModelBasicList* model)
 {
     CVF_ASSERT(model != nullptr);

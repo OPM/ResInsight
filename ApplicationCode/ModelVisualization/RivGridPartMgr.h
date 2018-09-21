@@ -77,8 +77,6 @@ public:
 private:
     void generatePartGeometry(cvf::StructGridGeometryGenerator& geoBuilder);
     
-    RivSourceInfo* createSourceInfo();
-
 private:
     size_t                              m_gridIdx;
     cvf::cref<RigGridBase>              m_grid;
