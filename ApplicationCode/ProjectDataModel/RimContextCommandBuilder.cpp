@@ -302,6 +302,11 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicWellPathExportCompletionDataFeature";
             menuBuilder.subMenuEnd();
 
+            menuBuilder.subMenuStart("Export Well Paths");
+            menuBuilder << "RicExportSelectedWellPathsFeature";
+            menuBuilder << "RicExportVisibleWellPathsFeature";
+            menuBuilder.subMenuEnd();
+
             menuBuilder << "RicCreateMultipleFracturesFeature"; 
 
             menuBuilder << "Separator";
@@ -728,7 +733,33 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
                 {
                     menuBuilder << text;
                 }
-        
+
+                menuBuilder.subMenuEnd();
+            }
+        }
+
+        {
+            QStringList candidates;
+
+            if (!menuBuilder.isCmdFeatureAdded("RicExportSelectedWellPathsFeature"))
+            {
+                candidates << "RicExportSelectedWellPathsFeature";
+
+            }
+            if (!menuBuilder.isCmdFeatureAdded("RicExportVisibleWellPathsFeature"))
+            {
+                candidates << "RicExportVisibleWellPathsFeature";
+            }
+
+            if (!candidates.isEmpty())
+            {
+                menuBuilder.subMenuStart("Export Well Paths", QIcon(":/WellLogCurve16x16.png"));
+
+                for (const auto& text : candidates)
+                {
+                    menuBuilder << text;
+                }
+
                 menuBuilder.subMenuEnd();
             }
         }

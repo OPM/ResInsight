@@ -25,6 +25,7 @@ class RicExportCarfinUi;
 class RicExportCompletionDataSettingsUi;
 class RiuCreateMultipleFractionsUi;
 class RicHoloLensExportToFolderUi;
+class RicExportWellPathsUi;
 
 //==================================================================================================
 ///
@@ -53,10 +54,12 @@ public:
 
     RiuCreateMultipleFractionsUi* multipleFractionsData() const;
     RicHoloLensExportToFolderUi*  holoLensExportToFolderData() const;
+    RicExportWellPathsUi*         wellPathsExportData() const;
 
 private:
     caf::PdmChildField<RicExportCarfinUi*>                 m_exportCarfin;
     caf::PdmChildField<RicExportCompletionDataSettingsUi*> m_exportCompletionData;
     caf::PdmChildField<RiuCreateMultipleFractionsUi*>      m_multipleFractionsData;
     caf::PdmChildField<RicHoloLensExportToFolderUi*>       m_holoLenseExportToFolderData;
+    caf::PdmChildField<RicExportWellPathsUi*>              m_exportWellPathsData;
 };

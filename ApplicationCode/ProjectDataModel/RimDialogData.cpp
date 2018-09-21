@@ -22,6 +22,7 @@
 #include "CompletionExportCommands/RicExportCompletionDataSettingsUi.h"
 #include "FractureCommands/RicCreateMultipleFracturesUi.h"
 #include "HoloLensCommands/RicHoloLensExportToFolderUi.h"
+#include "ExportCommands/RicExportWellPathsUi.h"
 
 CAF_PDM_SOURCE_INIT(RimDialogData, "RimDialogData");
 
@@ -43,6 +44,9 @@ RimDialogData::RimDialogData()
 
     CAF_PDM_InitFieldNoDefault(&m_holoLenseExportToFolderData, "HoloLenseExportToFolderData", "Holo Lens Export To Folder Data", "", "", "");
     m_holoLenseExportToFolderData = new RicHoloLensExportToFolderUi();
+
+    CAF_PDM_InitFieldNoDefault(&m_exportWellPathsData, "ExportwellPathsData", "Export Well Paths Data", "", "", "");
+    m_exportWellPathsData = new RicExportWellPathsUi();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -100,5 +104,13 @@ RiuCreateMultipleFractionsUi* RimDialogData::multipleFractionsData() const
 RicHoloLensExportToFolderUi* RimDialogData::holoLensExportToFolderData() const
 {
     return m_holoLenseExportToFolderData;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RicExportWellPathsUi* RimDialogData::wellPathsExportData() const
+{
+    return m_exportWellPathsData;
 }
 
