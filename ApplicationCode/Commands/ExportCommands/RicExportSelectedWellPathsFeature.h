@@ -18,9 +18,11 @@
 
 #pragma once
 
+#include "cafCmdFeature.h"
+
 #include <QFile>
 
-#include "cafCmdFeature.h"
+#include <memory>
 
 class RimWellPath;
 class RicExportWellPathsUi;
@@ -41,12 +43,10 @@ class RicExportSelectedWellPathsFeature : public caf::CmdFeature
     static QFilePtr openFileForExport(const QString& folderName, const QString& fileName);
     static void handleAction(const std::vector<RimWellPath*>& wellPaths);
 
-protected:
-    // Overrides
-    virtual bool isCommandEnabled();
-    virtual void onActionTriggered( bool isChecked );
-    virtual void setupActionLook(QAction* actionToSetup);
-
 private:
+    bool isCommandEnabled() override;
+    void onActionTriggered( bool isChecked ) override;
+    void setupActionLook(QAction* actionToSetup) override;
+
     static RicExportWellPathsUi* openDialog();
 };
