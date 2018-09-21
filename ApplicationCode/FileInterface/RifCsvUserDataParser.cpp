@@ -425,7 +425,6 @@ bool RifCsvUserDataParser::parseLineBasedData()
 {
     bool errors = false;
     QTextStream* dataStream = openDataStream();
-    std::vector<CsvLineBasedColumnType> columns;
     std::map<RifEclipseSummaryAddress, std::vector<std::pair<time_t, double>>> addressesAndData;
     std::vector<int> colIndexes;
 
