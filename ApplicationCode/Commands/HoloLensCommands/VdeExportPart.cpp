@@ -26,8 +26,9 @@ VdeExportPart::VdeExportPart(cvf::Part* part)
     , m_sourceObjectName("Unnamed Object")
     , m_sourceObjectType(OBJ_TYPE_UNKNOWN)
     , m_color(cvf::Color3f::MAGENTA)
-    , m_winding(COUNTERCLOCKWISE)
     , m_opacity(1.0)
+    , m_winding(COUNTERCLOCKWISE)
+    , m_role(GEOMETRY)
 {
 }
 
@@ -85,6 +86,14 @@ void VdeExportPart::setOpacity(float opacity)
 void VdeExportPart::setWinding(Winding winding)
 {
     m_winding = winding;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void VdeExportPart::setRole(Role role)
+{
+    m_role = role;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -149,4 +158,12 @@ float VdeExportPart::opacity() const
 VdeExportPart::Winding VdeExportPart::winding() const
 {
     return m_winding;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+VdeExportPart::Role VdeExportPart::role() const
+{
+    return m_role;
 }

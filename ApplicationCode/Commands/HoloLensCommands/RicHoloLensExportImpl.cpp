@@ -158,7 +158,7 @@ std::vector<VdeExportPart> RicHoloLensExportImpl::partsForExport(const RimGridVi
             else if (RicHoloLensExportImpl::isMeshLines(visiblePart.p()))
             {
                 VdeExportPart exportPart(visiblePart.p());
-                exportPart.setSourceObjectType(VdeExportPart::OBJ_TYPE_GRID_MESH);
+                exportPart.setSourceObjectType(VdeExportPart::OBJ_TYPE_GRID);
 
                 cvf::Color3f lineColor = RiaApplication::instance()->preferences()->defaultGridLineColors();
 
@@ -172,6 +172,7 @@ std::vector<VdeExportPart> RicHoloLensExportImpl::partsForExport(const RimGridVi
                 }
 
                 exportPart.setColor(lineColor);
+                exportPart.setRole(VdeExportPart::MESH_LINES);
 
                 appendTextureImage(exportPart, visiblePart.p());
 

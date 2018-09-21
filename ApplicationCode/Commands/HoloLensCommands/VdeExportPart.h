@@ -35,7 +35,6 @@ public:
     {
         OBJ_TYPE_GRID,
         OBJ_TYPE_PIPE,
-        OBJ_TYPE_GRID_MESH,
         OBJ_TYPE_UNKNOWN
     };
 
@@ -43,6 +42,12 @@ public:
     {
         CLOCKWISE,
         COUNTERCLOCKWISE
+    };
+
+    enum Role
+    {
+        GEOMETRY,
+        MESH_LINES
     };
 
 public:
@@ -55,6 +60,7 @@ public:
     void setColor(const cvf::Color3f& color);
     void setOpacity(float opacity);
     void setWinding(Winding winding);
+    void setRole(Role role);
 
     const cvf::Part*         part() const;
     const cvf::TextureImage* textureImage() const;
@@ -65,6 +71,7 @@ public:
     cvf::Color3f     color() const;
     float            opacity() const;
     Winding          winding() const;
+    Role             role() const;
 
 private:
     cvf::cref<cvf::Part>         m_part;
@@ -76,4 +83,5 @@ private:
     cvf::Color3f     m_color;
     float            m_opacity;
     Winding          m_winding;
+    Role             m_role;
 };
