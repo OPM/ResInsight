@@ -45,7 +45,6 @@
 #include "cvfRenderState.h"
 #include "cvfRenderStateTextureBindings.h"
 #include "cvfRenderState_FF.h"
-#include "cvfScene.h"
 #include "cvfTexture.h"
 #include "cvfTexture2D_FF.h"
 
@@ -63,145 +62,140 @@ std::vector<VdeExportPart> RicHoloLensExportImpl::partsForExport(const RimGridVi
 
     if (view.viewer())
     {
-        cvf::Scene* scene = view.viewer()->currentScene();
-        if (scene)
+        auto visibleParts = view.viewer()->visibleParts();
+
+        for (auto& scenePart : visibleParts)
         {
-            cvf::Collection<cvf::Part> sceneParts;
-            scene->allParts(&sceneParts);
-
-            for (auto& scenePart : sceneParts)
+            if (RicHoloLensExportImpl::isGrid(scenePart.p()))
             {
-                if (RicHoloLensExportImpl::isGrid(scenePart.p()))
+                VdeExportPart partForExport(scenePart.p());
+                partForExport.setSourceObjectType(VdeExportPart::OBJ_TYPE_GRID);
+
+                if (rimEclipseCase && rimEclipseCase->mainGrid())
                 {
-                    VdeExportPart partForExport(scenePart.p());
-                    partForExport.setSourceObjectType(VdeExportPart::OBJ_TYPE_GRID);
-
-                    if (rimEclipseCase && rimEclipseCase->mainGrid())
+                    if (rimEclipseCase->mainGrid()->isFaceNormalsOutwards())
                     {
-                        if (rimEclipseCase->mainGrid()->isFaceNormalsOutwards())
-                        {
-                            partForExport.setWinding(VdeExportPart::COUNTERCLOCKWISE);
-                        }
-                        else
-                        {
-                            partForExport.setWinding(VdeExportPart::CLOCKWISE);
-                        }
+                        partForExport.setWinding(VdeExportPart::COUNTERCLOCKWISE);
                     }
-
-                    auto* si = dynamic_cast<RivSourceInfo*>(scenePart->sourceInfo());
-                    if (si)
+                    else
                     {
-                        RimFaultInView* faultInView = dynamic_cast<RimFaultInView*>(si->object());
-                        if (faultInView)
-                        {
-                            partForExport.setSourceObjectName(faultInView->name());
-                            partForExport.setColor(faultInView->faultColor());
-                        }
-
-                        RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>(si->object());
-                        if (eclipseCase)
-                        {
-                            QString nameOfObject   = rimEclipseCase->gridFileName();
-                            auto    gridSourceInfo = dynamic_cast<const RivSourceInfo*>(scenePart->sourceInfo());
-                            if (gridSourceInfo)
-                            {
-                                size_t gridIndex = gridSourceInfo->gridIndex();
-
-                                nameOfObject += " Grid " + QString::number(gridIndex);
-                            }
-
-                            const RimEclipseView* eclipseView = dynamic_cast<const RimEclipseView*>(&view);
-                            if (eclipseView)
-                            {
-                                cvf::Color4f color = eclipseView->colorFromCellCategory(si->cellSetType());
-                                partForExport.setColor(color.toColor3f());
-                                partForExport.setOpacity(color.a());
-
-                                QString text = RicHoloLensExportImpl::gridCellSetTypeText(si->cellSetType());
-                                partForExport.setSourceObjectCellSetType(text);
-                            }
-
-                            partForExport.setSourceObjectName(nameOfObject);
-                        }
+                        partForExport.setWinding(VdeExportPart::CLOCKWISE);
                     }
-
-                    // Check if texture image is present
-                    if (scenePart->effect())
-                    {
-                        {
-                            auto textureBindings = dynamic_cast<cvf::RenderStateTextureBindings*>(
-                                scenePart->effect()->renderStateOfType(cvf::RenderState::TEXTURE_BINDINGS));
-
-                            if (textureBindings && textureBindings->bindingCount() > 0)
-                            {
-                                cvf::Texture* textureBinding = textureBindings->texture(0);
-                                partForExport.setTextureImage(textureBinding->image());
-                            }
-                        }
-
-                        {
-                            auto textureMappingFF = dynamic_cast<cvf::RenderStateTextureMapping_FF*>(
-                                scenePart->effect()->renderStateOfType(cvf::RenderState::TEXTURE_MAPPING_FF));
-
-                            if (textureMappingFF && textureMappingFF->texture())
-                            {
-                                auto* texture = textureMappingFF->texture();
-                                partForExport.setTextureImage(texture->image());
-                            }
-                        }
-                    }
-
-                    exportParts.push_back(partForExport);
                 }
-                else if (RicHoloLensExportImpl::isPipe(scenePart.p()))
+
+                auto* si = dynamic_cast<RivSourceInfo*>(scenePart->sourceInfo());
+                if (si)
                 {
-                    VdeExportPart partForExport(scenePart.p());
-                    partForExport.setSourceObjectType(VdeExportPart::OBJ_TYPE_PIPE);
-
-                    auto simWellSourceInfo = dynamic_cast<const RivSimWellPipeSourceInfo*>(scenePart->sourceInfo());
-                    if (simWellSourceInfo)
+                    RimFaultInView* faultInView = dynamic_cast<RimFaultInView*>(si->object());
+                    if (faultInView)
                     {
-                        auto simWell = simWellSourceInfo->well();
-                        if (simWell)
-                        {
-                            partForExport.setSourceObjectName(simWell->name());
-                            partForExport.setColor(simWell->wellPipeColor());
-                        }
+                        partForExport.setSourceObjectName(faultInView->name());
+                        partForExport.setColor(faultInView->faultColor());
                     }
 
-                    auto wellPathSourceInfo = dynamic_cast<const RivWellPathSourceInfo*>(scenePart->sourceInfo());
-                    if (wellPathSourceInfo)
+                    RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>(si->object());
+                    if (eclipseCase)
                     {
-                        RimWellPath* wellPath = wellPathSourceInfo->wellPath();
-                        if (wellPath)
+                        QString nameOfObject   = rimEclipseCase->gridFileName();
+                        auto    gridSourceInfo = dynamic_cast<const RivSourceInfo*>(scenePart->sourceInfo());
+                        if (gridSourceInfo)
                         {
-                            partForExport.setSourceObjectName(wellPath->name());
-                            partForExport.setColor(wellPath->wellPathColor());
-                        }
-                    }
+                            size_t gridIndex = gridSourceInfo->gridIndex();
 
-                    exportParts.push_back(partForExport);
+                            nameOfObject += " Grid " + QString::number(gridIndex);
+                        }
+
+                        const RimEclipseView* eclipseView = dynamic_cast<const RimEclipseView*>(&view);
+                        if (eclipseView)
+                        {
+                            cvf::Color4f color = eclipseView->colorFromCellCategory(si->cellSetType());
+                            partForExport.setColor(color.toColor3f());
+                            partForExport.setOpacity(color.a());
+
+                            QString text = RicHoloLensExportImpl::gridCellSetTypeText(si->cellSetType());
+                            partForExport.setSourceObjectCellSetType(text);
+                        }
+
+                        partForExport.setSourceObjectName(nameOfObject);
+                    }
                 }
-                else if (RicHoloLensExportImpl::isMeshLines(scenePart.p()))
+
+                // Check if texture image is present
+                if (scenePart->effect())
                 {
-                    VdeExportPart partForExport(scenePart.p());
-                    partForExport.setSourceObjectType(VdeExportPart::OBJ_TYPE_GRID_MESH);
-
-                    cvf::Color3f lineColor = RiaApplication::instance()->preferences()->defaultGridLineColors();
-
-                    auto linesSourceInfo = dynamic_cast<const RivMeshLinesSourceInfo*>(scenePart->sourceInfo());
-                    if (linesSourceInfo)
                     {
-                        if (dynamic_cast<RimFaultInView*>(linesSourceInfo->object()))
+                        auto textureBindings = dynamic_cast<cvf::RenderStateTextureBindings*>(
+                            scenePart->effect()->renderStateOfType(cvf::RenderState::TEXTURE_BINDINGS));
+
+                        if (textureBindings && textureBindings->bindingCount() > 0)
                         {
-                            lineColor = RiaApplication::instance()->preferences()->defaultFaultGridLineColors();
+                            cvf::Texture* textureBinding = textureBindings->texture(0);
+                            partForExport.setTextureImage(textureBinding->image());
                         }
                     }
 
-                    partForExport.setColor(lineColor);
+                    {
+                        auto textureMappingFF = dynamic_cast<cvf::RenderStateTextureMapping_FF*>(
+                            scenePart->effect()->renderStateOfType(cvf::RenderState::TEXTURE_MAPPING_FF));
 
-                    exportParts.push_back(partForExport);
+                        if (textureMappingFF && textureMappingFF->texture())
+                        {
+                            auto* texture = textureMappingFF->texture();
+                            partForExport.setTextureImage(texture->image());
+                        }
+                    }
                 }
+
+                exportParts.push_back(partForExport);
+            }
+            else if (RicHoloLensExportImpl::isPipe(scenePart.p()))
+            {
+                VdeExportPart partForExport(scenePart.p());
+                partForExport.setSourceObjectType(VdeExportPart::OBJ_TYPE_PIPE);
+
+                auto simWellSourceInfo = dynamic_cast<const RivSimWellPipeSourceInfo*>(scenePart->sourceInfo());
+                if (simWellSourceInfo)
+                {
+                    auto simWell = simWellSourceInfo->well();
+                    if (simWell)
+                    {
+                        partForExport.setSourceObjectName(simWell->name());
+                        partForExport.setColor(simWell->wellPipeColor());
+                    }
+                }
+
+                auto wellPathSourceInfo = dynamic_cast<const RivWellPathSourceInfo*>(scenePart->sourceInfo());
+                if (wellPathSourceInfo)
+                {
+                    RimWellPath* wellPath = wellPathSourceInfo->wellPath();
+                    if (wellPath)
+                    {
+                        partForExport.setSourceObjectName(wellPath->name());
+                        partForExport.setColor(wellPath->wellPathColor());
+                    }
+                }
+
+                exportParts.push_back(partForExport);
+            }
+            else if (RicHoloLensExportImpl::isMeshLines(scenePart.p()))
+            {
+                VdeExportPart partForExport(scenePart.p());
+                partForExport.setSourceObjectType(VdeExportPart::OBJ_TYPE_GRID_MESH);
+
+                cvf::Color3f lineColor = RiaApplication::instance()->preferences()->defaultGridLineColors();
+
+                auto linesSourceInfo = dynamic_cast<const RivMeshLinesSourceInfo*>(scenePart->sourceInfo());
+                if (linesSourceInfo)
+                {
+                    if (dynamic_cast<RimFaultInView*>(linesSourceInfo->object()))
+                    {
+                        lineColor = RiaApplication::instance()->preferences()->defaultFaultGridLineColors();
+                    }
+                }
+
+                partForExport.setColor(lineColor);
+
+                exportParts.push_back(partForExport);
             }
         }
     }

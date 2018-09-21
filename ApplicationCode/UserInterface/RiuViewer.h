@@ -116,6 +116,8 @@ public:
 
     void            setCursorPosition(const cvf::Vec3d& domainCoord);
 
+    std::vector<cvf::ref<cvf::Part>> visibleParts();
+
 public slots:
     void            slotSetCurrentFrame(int frameIndex) override;
     void            slotEndAnimation() override;

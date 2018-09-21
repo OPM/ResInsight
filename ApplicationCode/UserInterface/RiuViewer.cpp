@@ -53,6 +53,7 @@
 #include "cvfFont.h"
 #include "cvfOpenGLResourceManager.h"
 #include "cvfOverlayAxisCross.h"
+#include "cvfPartRenderHintCollection.h"
 #include "cvfRenderQueueSorter.h"
 #include "cvfRenderSequence.h"
 #include "cvfRendering.h"
@@ -919,6 +920,40 @@ void RiuViewer::setCursorPosition(const cvf::Vec3d& domainCoord)
 
         update();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<cvf::ref<cvf::Part>> RiuViewer::visibleParts()
+{
+    std::vector<cvf::ref<cvf::Part>> partsMatchingEnableMask;
+
+    if (m_mainRendering.notNull())
+    {
+        auto enableMask = m_mainRendering->enableMask();
+        cvf::Scene* scene = currentScene();
+
+        for (cvf::uint i = 0; i < scene->modelCount(); i++)
+        {
+            cvf::Model* model = scene->model(i);
+            if (enableMask & model->partEnableMask())
+            {
+                cvf::Collection<cvf::Part> partCollection;
+                model->allParts(&partCollection);
+
+                for (const auto& p : partCollection)
+                {
+                    if (enableMask & p->enableMask())
+                    {
+                        partsMatchingEnableMask.push_back(p);
+                    }
+                }
+            }
+        }
+    }
+
+    return partsMatchingEnableMask;
 }
 
 //--------------------------------------------------------------------------------------------------
