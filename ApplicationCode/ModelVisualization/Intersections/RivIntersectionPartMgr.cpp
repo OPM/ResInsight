@@ -19,6 +19,10 @@
 
 #include "RivIntersectionPartMgr.h"
 
+#include "RiaApplication.h"
+#include "RiaOffshoreSphericalCoords.h"
+#include "RiaPreferences.h"
+
 #include "RigCaseCellResultsData.h"
 #include "RigFemPartCollection.h"
 #include "RigFemPartResultsCollection.h"
@@ -27,14 +31,15 @@
 #include "RigResultAccessorFactory.h"
 
 #include "Rim2dIntersectionView.h"
-#include "RimIntersection.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
 #include "RimEclipseView.h"
+#include "RimFaultInView.h"
 #include "RimFaultInViewCollection.h"
 #include "RimGeoMechCase.h"
 #include "RimGeoMechCellColors.h"
 #include "RimGeoMechView.h"
+#include "RimIntersection.h"
 #include "RimRegularLegendConfig.h"
 #include "RimSimWellInView.h"
 #include "RimSimWellInViewCollection.h"
@@ -42,10 +47,13 @@
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 
+#include "RiuGeoMechXfTensorResultAccessor.h"
+
 #include "RivHexGridIntersectionTools.h"
 #include "RivIntersectionGeometryGenerator.h"
-#include "RivObjectSourceInfo.h"
 #include "RivIntersectionSourceInfo.h"
+#include "RivMeshLinesSourceInfo.h"
+#include "RivObjectSourceInfo.h"
 #include "RivPartPriority.h"
 #include "RivPipeGeometryGenerator.h"
 #include "RivResultToTextureMapper.h"
@@ -54,8 +62,6 @@
 #include "RivTernaryScalarMapper.h"
 #include "RivTernaryTextureCoordsCreator.h"
 #include "RivWellPathSourceInfo.h"
-
-#include "RiuGeoMechXfTensorResultAccessor.h"
 
 #include "cafTensor3.h"
 
@@ -73,10 +79,6 @@
 #include "cvfTransform.h"
 
 #include <functional>
-#include "RiaApplication.h"
-#include "RiaPreferences.h"
-#include "RimFaultInView.h"
-#include "RiaOffshoreSphericalCoords.h"
 
 
 //--------------------------------------------------------------------------------------------------
@@ -556,6 +558,8 @@ void RivIntersectionPartMgr::generatePartGeometry()
             part->setEnableMask(intersectionCellMeshBit);
             part->setPriority(RivPartPriority::PartType::MeshLines);
 
+            part->setSourceInfo(new RivMeshLinesSourceInfo(m_rimCrossSection));
+
             m_crossSectionGridLines = part;
         }
     }
@@ -577,6 +581,8 @@ void RivIntersectionPartMgr::generatePartGeometry()
             part->updateBoundingBox();
             part->setEnableMask(intersectionFaultMeshBit);
             part->setPriority(RivPartPriority::PartType::FaultMeshLines);
+
+            part->setSourceInfo(new RivMeshLinesSourceInfo(m_rimCrossSection));
 
             m_crossSectionFaultGridLines = part;
         }

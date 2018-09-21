@@ -38,6 +38,7 @@
 
 #include "RivCellEdgeEffectGenerator.h"
 #include "RivCompletionTypeResultToTextureMapper.h"
+#include "RivMeshLinesSourceInfo.h"
 #include "RivPartPriority.h"
 #include "RivResultToTextureMapper.h"
 #include "RivScalarMapperUtils.h"
@@ -184,6 +185,9 @@ void RivGridPartMgr::generatePartGeometry(cvf::StructGridGeometryGenerator& geoB
 
             part->setEnableMask(meshSurfaceBit);
             part->setEffect(eff.p());
+
+            part->setSourceInfo(new RivMeshLinesSourceInfo(m_eclipseCase));
+
             m_surfaceGridLines = part;
         }
     }

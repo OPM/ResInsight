@@ -37,6 +37,7 @@
 
 #include "RivIntersectionBoxSourceInfo.h"
 #include "RivIntersectionPartMgr.h"
+#include "RivMeshLinesSourceInfo.h"
 #include "RivPartPriority.h"
 #include "RivResultToTextureMapper.h"
 #include "RivScalarMapperUtils.h"
@@ -277,6 +278,8 @@ void RivIntersectionBoxPartMgr::generatePartGeometry()
             part->updateBoundingBox();
             part->setEnableMask(intersectionCellMeshBit);
             part->setPriority(RivPartPriority::PartType::MeshLines);
+
+            part->setSourceInfo(new RivMeshLinesSourceInfo(m_rimIntersectionBox));
 
             m_intersectionBoxGridLines = part;
         }

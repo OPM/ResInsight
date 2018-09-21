@@ -36,6 +36,7 @@
 #include "RimRegularLegendConfig.h"
 
 #include "RivFemPickSourceInfo.h"
+#include "RivMeshLinesSourceInfo.h"
 #include "RivPartPriority.h"
 #include "RivResultToTextureMapper.h"
 #include "RivScalarMapperUtils.h"
@@ -99,6 +100,9 @@ void RivFemPartPartMgr::setCellVisibility(cvf::UByteArray* cellVisibilities)
     generatePartGeometry(m_surfaceGenerator);
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RivFemPartPartMgr::generatePartGeometry(RivFemPartGeometryGenerator& geoBuilder)
 {
     bool useBufferObjects = true;
@@ -166,6 +170,9 @@ void RivFemPartPartMgr::generatePartGeometry(RivFemPartGeometryGenerator& geoBui
 
             part->setEnableMask(meshSurfaceBit);
             part->setEffect(eff.p());
+
+            part->setSourceInfo(new RivMeshLinesSourceInfo(nullptr));
+
             m_surfaceGridLines = part;
         }
     }

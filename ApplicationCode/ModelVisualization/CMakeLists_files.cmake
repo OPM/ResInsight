@@ -44,6 +44,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RivWellConnectionFactorGeometryGenerator.h
 ${CMAKE_CURRENT_LIST_DIR}/RivWellConnectionSourceInfo.h
 ${CMAKE_CURRENT_LIST_DIR}/RivSimWellConnectionSourceInfo.h
 ${CMAKE_CURRENT_LIST_DIR}/Riv3dWellLogDrawSurfaceGenerator.h
+${CMAKE_CURRENT_LIST_DIR}/RivMeshLinesSourceInfo.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -86,6 +87,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RivWellConnectionFactorGeometryGenerator.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RivWellConnectionSourceInfo.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RivSimWellConnectionSourceInfo.cpp
 ${CMAKE_CURRENT_LIST_DIR}/Riv3dWellLogDrawSurfaceGenerator.cpp
+${CMAKE_CURRENT_LIST_DIR}/RivMeshLinesSourceInfo.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

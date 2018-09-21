@@ -20,15 +20,16 @@
 
 #include "RiaApplication.h"
 
-#include "RiuViewer.h"
 #include "Rim3dView.h"
 #include "Rim3dWellLogCurveCollection.h"
 #include "RimCase.h"
 #include "RimGridView.h"
 #include "RimWellPath.h"
+#include "RiuViewer.h"
 
 #include "Riv3dWellLogCurveGeometryGenerator.h"
 #include "Riv3dWellLogDrawSurfaceGenerator.h"
+#include "RivMeshLinesSourceInfo.h"
 #include "RivObjectSourceInfo.h"
 
 #include "cafDisplayCoordTransform.h"
@@ -118,14 +119,13 @@ void Riv3dWellLogPlanePartMgr::append3dWellLogCurveToModel(cvf::ModelBasicList* 
     }
 
     generator->createCurveDrawables(displayCoordTransform,
-        wellPathClipBoundingBox,
-        rim3dWellLogCurve,
-        wellPathCenterToPlotStartOffset(rim3dWellLogCurve->drawPlane()),
-        planeWidth(),
-        drawSurfaceVertices,
-        m_gridView->currentTimeStep());
+                                    wellPathClipBoundingBox,
+                                    rim3dWellLogCurve,
+                                    wellPathCenterToPlotStartOffset(rim3dWellLogCurve->drawPlane()),
+                                    planeWidth(),
+                                    drawSurfaceVertices,
+                                    m_gridView->currentTimeStep());
 
-    
     cvf::ref<cvf::DrawableGeo> curveDrawable = generator->curveDrawable();
     if (curveDrawable.notNull() && curveDrawable->boundingBox().isValid())
     {
@@ -133,14 +133,13 @@ void Riv3dWellLogPlanePartMgr::append3dWellLogCurveToModel(cvf::ModelBasicList* 
         meshEffectGen.setLineWidth(3.0f);
         cvf::ref<cvf::Effect> effect = meshEffectGen.generateCachedEffect();
 
-	    cvf::ref<cvf::Part> part = new cvf::Part;
-	    part->setDrawable(curveDrawable.p());
-	    part->setEffect(effect.p());
-	
-	    if (part.notNull())
-	    {
-	        model->addPart(part.p());
-	    }
+        cvf::ref<cvf::Part> part = new cvf::Part;
+        part->setDrawable(curveDrawable.p());
+        part->setEffect(effect.p());
+
+        part->setSourceInfo(new RivMeshLinesSourceInfo(rim3dWellLogCurve));
+
+        model->addPart(part.p());
     }
 }
 
@@ -165,14 +164,13 @@ cvf::ref<cvf::Part> Riv3dWellLogPlanePartMgr::createPart(cvf::Drawable* drawable
 //--------------------------------------------------------------------------------------------------
 double Riv3dWellLogPlanePartMgr::wellPathCenterToPlotStartOffset(Rim3dWellLogCurve::DrawPlane drawPlane) const
 {
-    if (drawPlane == Rim3dWellLogCurve::HORIZONTAL_CENTER ||
-        drawPlane == Rim3dWellLogCurve::VERTICAL_CENTER)
+    if (drawPlane == Rim3dWellLogCurve::HORIZONTAL_CENTER || drawPlane == Rim3dWellLogCurve::VERTICAL_CENTER)
     {
-        return -0.5*planeWidth();
+        return -0.5 * planeWidth();
     }
     else
     {
-        double cellSize = m_gridView->ownerCase()->characteristicCellSize();
+        double cellSize       = m_gridView->ownerCase()->characteristicCellSize();
         double wellPathOffset = std::min(m_wellPath->wellPathRadius(cellSize), 0.1 * planeWidth());
         return m_wellPath->wellPathRadius(cellSize) + wellPathOffset;
     }
@@ -185,32 +183,32 @@ double Riv3dWellLogPlanePartMgr::planeWidth() const
 {
     if (!m_gridView) return 0;
 
-    double cellSize = m_gridView->ownerCase()->characteristicCellSize();
-    const Rim3dWellLogCurveCollection*         curveCollection = m_wellPath->rim3dWellLogCurveCollection();
+    double                             cellSize        = m_gridView->ownerCase()->characteristicCellSize();
+    const Rim3dWellLogCurveCollection* curveCollection = m_wellPath->rim3dWellLogCurveCollection();
     return cellSize * curveCollection->planeWidthScaling();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void Riv3dWellLogPlanePartMgr::appendDrawSurfaceToModel(cvf::ModelBasicList*                model,
-                                                        const caf::DisplayCoordTransform*   displayCoordTransform,
-                                                        const cvf::BoundingBox&             wellPathClipBoundingBox,
-                                                        Rim3dWellLogCurve::DrawPlane        drawPlane,
-                                                        double                              samplingInterval)
+void Riv3dWellLogPlanePartMgr::appendDrawSurfaceToModel(cvf::ModelBasicList*              model,
+                                                        const caf::DisplayCoordTransform* displayCoordTransform,
+                                                        const cvf::BoundingBox&           wellPathClipBoundingBox,
+                                                        Rim3dWellLogCurve::DrawPlane      drawPlane,
+                                                        double                            samplingInterval)
 {
-    Rim3dWellLogCurveCollection* curveCollection = m_wellPath->rim3dWellLogCurveCollection();
-    cvf::ref<RivObjectSourceInfo> sourceInfo = new RivObjectSourceInfo(curveCollection);
+    Rim3dWellLogCurveCollection*  curveCollection = m_wellPath->rim3dWellLogCurveCollection();
+    cvf::ref<RivObjectSourceInfo> sourceInfo      = new RivObjectSourceInfo(curveCollection);
 
     bool showCoordinateSystemMesh = curveCollection->isShowingGrid();
     bool showBackground           = curveCollection->isShowingBackground();
 
-    cvf::Color3f borderColor(0.4f, 0.4f, 0.4f);
+    cvf::Color3f                borderColor(0.4f, 0.4f, 0.4f);
     caf::SurfaceEffectGenerator backgroundEffectGen(cvf::Color4f(1.0, 1.0, 1.0, 1.0), caf::PO_2);
     caf::MeshEffectGenerator    borderEffectGen(borderColor);
     caf::VectorEffectGenerator  curveNormalsEffectGen;
     backgroundEffectGen.enableLighting(false);
-    
+
     if (!showBackground)
     {
         // Make the background invisible but still present for picking.
@@ -219,20 +217,21 @@ void Riv3dWellLogPlanePartMgr::appendDrawSurfaceToModel(cvf::ModelBasicList*    
         backgroundEffectGen.enableDepthWrite(false);
     }
 
-    bool drawSurfaceCreated = m_3dWellLogDrawSurfaceGeometryGenerators[drawPlane]->createDrawSurface(displayCoordTransform,
-        wellPathClipBoundingBox,
-        Rim3dWellLogCurve::drawPlaneAngle(drawPlane),
-        wellPathCenterToPlotStartOffset(drawPlane),
-        planeWidth(),
-        samplingInterval);
+    bool drawSurfaceCreated =
+        m_3dWellLogDrawSurfaceGeometryGenerators[drawPlane]->createDrawSurface(displayCoordTransform,
+                                                                               wellPathClipBoundingBox,
+                                                                               Rim3dWellLogCurve::drawPlaneAngle(drawPlane),
+                                                                               wellPathCenterToPlotStartOffset(drawPlane),
+                                                                               planeWidth(),
+                                                                               samplingInterval);
     if (!drawSurfaceCreated) return;
 
-    cvf::ref<cvf::Effect> backgroundEffect = backgroundEffectGen.generateCachedEffect();
-    cvf::ref<cvf::Effect> borderEffect = borderEffectGen.generateCachedEffect();
+    cvf::ref<cvf::Effect> backgroundEffect   = backgroundEffectGen.generateCachedEffect();
+    cvf::ref<cvf::Effect> borderEffect       = borderEffectGen.generateCachedEffect();
     cvf::ref<cvf::Effect> curveNormalsEffect = curveNormalsEffectGen.generateCachedEffect();
-    
+
     cvf::ref<cvf::DrawableGeo> background = m_3dWellLogDrawSurfaceGeometryGenerators[drawPlane]->background();
-    
+
     if (background.notNull())
     {
         cvf::ref<cvf::Part> part = createPart(background.p(), backgroundEffect.p());

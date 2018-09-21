@@ -18,6 +18,9 @@
 
 #include "RicHoloLensExportImpl.h"
 
+#include "RiaApplication.h"
+#include "RiaPreferences.h"
+
 #include "RigMainGrid.h"
 
 #include "RimEclipseCase.h"
@@ -28,6 +31,10 @@
 #include "RimWellPath.h"
 
 #include "RiuViewer.h"
+#include "RivFemPickSourceInfo.h"
+#include "RivIntersectionBoxSourceInfo.h"
+#include "RivIntersectionSourceInfo.h"
+#include "RivMeshLinesSourceInfo.h"
 #include "RivSimWellPipeSourceInfo.h"
 #include "RivSourceInfo.h"
 #include "RivWellPathSourceInfo.h"
@@ -175,6 +182,26 @@ std::vector<VdeExportPart> RicHoloLensExportImpl::partsForExport(const RimGridVi
 
                     exportParts.push_back(partForExport);
                 }
+                else if (RicHoloLensExportImpl::isMeshLines(scenePart.p()))
+                {
+                    VdeExportPart partForExport(scenePart.p());
+                    partForExport.setSourceObjectType(VdeExportPart::OBJ_TYPE_GRID_MESH);
+
+                    cvf::Color3f lineColor = RiaApplication::instance()->preferences()->defaultGridLineColors();
+
+                    auto linesSourceInfo = dynamic_cast<const RivMeshLinesSourceInfo*>(scenePart->sourceInfo());
+                    if (linesSourceInfo)
+                    {
+                        if (dynamic_cast<RimFaultInView*>(linesSourceInfo->object()))
+                        {
+                            lineColor = RiaApplication::instance()->preferences()->defaultFaultGridLineColors();
+                        }
+                    }
+
+                    partForExport.setColor(lineColor);
+
+                    exportParts.push_back(partForExport);
+                }
             }
         }
     }
@@ -248,10 +275,36 @@ bool RicHoloLensExportImpl::isGrid(const cvf::Part* part)
     auto sourceInfo = part->sourceInfo();
 
     {
-        auto gridSourceInfo = dynamic_cast<const RivSourceInfo*>(sourceInfo);
-        if (gridSourceInfo)
         {
-            return true;
+            auto sourceInfoOfType = dynamic_cast<const RivSourceInfo*>(sourceInfo);
+            if (sourceInfoOfType)
+            {
+                return true;
+            }
+        }
+
+        {
+            auto sourceInfoOfType = dynamic_cast<const RivIntersectionSourceInfo*>(sourceInfo);
+            if (sourceInfoOfType)
+            {
+                return true;
+            }
+        }
+
+        {
+            auto sourceInfoOfType = dynamic_cast<const RivIntersectionBoxSourceInfo*>(sourceInfo);
+            if (sourceInfoOfType)
+            {
+                return true;
+            }
+        }
+
+        {
+            auto sourceInfoOfType = dynamic_cast<const RivFemPickSourceInfo*>(sourceInfo);
+            if (sourceInfoOfType)
+            {
+                return true;
+            }
         }
     }
 
@@ -263,9 +316,7 @@ bool RicHoloLensExportImpl::isGrid(const cvf::Part* part)
 //--------------------------------------------------------------------------------------------------
 bool RicHoloLensExportImpl::isPipe(const cvf::Part* part)
 {
-    if (!part) return "";
-
-    QString nameOfObject;
+    if (!part) return false;
 
     auto sourceInfo = part->sourceInfo();
 
@@ -293,5 +344,17 @@ bool RicHoloLensExportImpl::isPipe(const cvf::Part* part)
 //--------------------------------------------------------------------------------------------------
 bool RicHoloLensExportImpl::isMeshLines(const cvf::Part* part)
 {
+    if (!part) return false;
+
+    auto sourceInfo = part->sourceInfo();
+
+    {
+        auto linesSourceInfo = dynamic_cast<const RivMeshLinesSourceInfo*>(sourceInfo);
+        if (linesSourceInfo)
+        {
+            return true;
+        }
+    }
+
     return false;
 }

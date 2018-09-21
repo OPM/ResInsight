@@ -50,12 +50,13 @@
 #include "cvfPart.h"
 #include "cvfPrimitiveSetDirect.h"
 #include "cvfqtUtils.h"
+#include "RivMeshLinesSourceInfo.h"
 
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RivFaultPartMgr::RivFaultPartMgr(const RigGridBase* grid, const RimFaultInViewCollection* rimFaultCollection, const RimFaultInView* rimFault)
+RivFaultPartMgr::RivFaultPartMgr(const RigGridBase* grid, const RimFaultInViewCollection* rimFaultCollection, RimFaultInView* rimFault)
     :   m_grid(grid),
         m_rimFaultCollection(rimFaultCollection),
         m_rimFault(rimFault),
@@ -232,7 +233,7 @@ void RivFaultPartMgr::generatePartGeometry()
             part->setDrawable(geo.p());
 
             // Set mapping from triangle face index to cell index
-            cvf::ref<RivSourceInfo> si = new RivSourceInfo(const_cast<RimFaultInView*>(m_rimFault), m_grid->gridIndex());
+            cvf::ref<RivSourceInfo> si = new RivSourceInfo(m_rimFault, m_grid->gridIndex());
             si->m_cellFaceFromTriangleMapper = m_nativeFaultGenerator->triangleToCellFaceMapper();
             part->setSourceInfo(si.p());
 
@@ -262,6 +263,8 @@ void RivFaultPartMgr::generatePartGeometry()
             part->setEnableMask(meshFaultBit);
             part->setPriority(RivPartPriority::PartType::FaultMeshLines);
 
+            part->setSourceInfo(new RivMeshLinesSourceInfo(m_rimFault));
+
             m_nativeFaultGridLines = part;
         }
     }
@@ -284,7 +287,7 @@ void RivFaultPartMgr::generatePartGeometry()
             part->setDrawable(geo.p());
 
             // Set mapping from triangle face index to cell index
-            cvf::ref<RivSourceInfo> si = new RivSourceInfo(const_cast<RimFaultInView*>(m_rimFault), m_grid->gridIndex());
+            cvf::ref<RivSourceInfo> si = new RivSourceInfo(m_rimFault, m_grid->gridIndex());
             si->m_cellFaceFromTriangleMapper = m_oppositeFaultGenerator->triangleToCellFaceMapper();
             part->setSourceInfo(si.p());
 
@@ -314,6 +317,8 @@ void RivFaultPartMgr::generatePartGeometry()
             part->setEnableMask(meshFaultBit);
             part->setPriority(RivPartPriority::PartType::FaultMeshLines);
 
+            part->setSourceInfo(new RivMeshLinesSourceInfo(m_rimFault));
+
             m_oppositeFaultGridLines = part;
         }
     }
@@ -334,7 +339,7 @@ void RivFaultPartMgr::generatePartGeometry()
             part->setDrawable(geo.p());
 
             // Set mapping from triangle face index to cell index
-            cvf::ref<RivSourceInfo> si = new RivSourceInfo(const_cast<RimFaultInView*>(m_rimFault), m_grid->gridIndex());
+            cvf::ref<RivSourceInfo> si = new RivSourceInfo(m_rimFault, m_grid->gridIndex());
             si->m_NNCIndices = m_NNCGenerator->triangleToNNCIndex().p();
             part->setSourceInfo(si.p());
 
@@ -450,11 +455,9 @@ void RivFaultPartMgr::createLabelWithAnchorLine(const cvf::Part* part)
         
         cvf::Color3f defWellLabelColor = RiaApplication::instance()->preferences()->defaultWellLabelColor();
         {
-            RimFaultInView* noConstRimFault = const_cast<RimFaultInView*>(m_rimFault);
-            if (noConstRimFault)
             {
                 RimFaultInViewCollection* parentObject;
-                noConstRimFault->firstAncestorOrThisOfType(parentObject);
+                m_rimFault->firstAncestorOrThisOfType(parentObject);
                 if (parentObject)
                 {
                     defWellLabelColor = parentObject->faultLabelColor();;
