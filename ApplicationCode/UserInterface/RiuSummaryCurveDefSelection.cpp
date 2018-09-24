@@ -273,7 +273,7 @@ std::vector<RiaSummaryCurveDefinition> RiuSummaryCurveDefSelection::allCurveDefi
             // Build case list
             if (ensemble)
             {
-                auto addresses = ensemble->calculateUnionOfSummaryAddresses();
+                auto addresses = ensemble->ensembleSummaryAddresses();
                 addressesFromSource.insert(addresses.begin(), addresses.end());
                 auto ensembleCases = ensemble->allSummaryCases();
                 casesFromSource.insert(casesFromSource.end(), ensembleCases.begin(), ensembleCases.end());
@@ -324,7 +324,7 @@ std::vector<RiaCurveSetDefinition> RiuSummaryCurveDefSelection::allCurveSetDefin
         std::set<RifEclipseSummaryAddress> addressesFromSource;
 
         // Build case list
-        auto addresses = ensemble->calculateUnionOfSummaryAddresses();
+        auto addresses = ensemble->ensembleSummaryAddresses();
         addressesFromSource.insert(addresses.begin(), addresses.end());
 
         for (const auto& addressFromSource : addressesFromSource)
@@ -354,7 +354,7 @@ std::vector<RiaSummaryCurveDefinition> RiuSummaryCurveDefSelection::selection() 
 
         if (ensemble)
         {
-            std::set<RifEclipseSummaryAddress> addressUnion = ensemble->calculateUnionOfSummaryAddresses();
+            std::set<RifEclipseSummaryAddress> addressUnion = ensemble->ensembleSummaryAddresses();
             for ( const auto& addr : selectedAddressesFromUi)
             {
                 if (addressUnion.count(addr))
@@ -978,7 +978,7 @@ std::set<RifEclipseSummaryAddress> RiuSummaryCurveDefSelection::findPossibleSumm
         }
         else if (currEnsemble)
         {
-            allAddresses = currEnsemble->calculateUnionOfSummaryAddresses();
+            allAddresses = currEnsemble->ensembleSummaryAddresses();
         }
 
         bool applySelections = identifierAndField == nullptr || (!isVectorField && controllingIdentifierAndField != nullptr);

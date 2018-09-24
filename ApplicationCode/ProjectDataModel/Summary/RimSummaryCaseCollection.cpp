@@ -170,26 +170,34 @@ void RimSummaryCaseCollection::setAsEnsemble(bool isEnsemble)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::set<RifEclipseSummaryAddress> RimSummaryCaseCollection::calculateUnionOfSummaryAddresses() const
+std::set<RifEclipseSummaryAddress> RimSummaryCaseCollection::ensembleSummaryAddresses() const
 {
-   std::set<RifEclipseSummaryAddress> addressUnion;
+   std::set<RifEclipseSummaryAddress> addresses;
+   size_t maxAddrCount = 0;
+   int maxAddrIndex = -1;
 
-   for (RimSummaryCase* currCase: m_cases)
+   for (int i = 0; i < (int)m_cases.size(); i++)
    {
-       if ( !currCase ) continue;
-       
+       RimSummaryCase* currCase = m_cases[i];
+       if (!currCase) continue;
+
        RifSummaryReaderInterface* reader = currCase->summaryReader();
+       if (!reader) continue;
 
-       if ( !reader ) continue;
+       size_t addrCount = reader->allResultAddresses().size();
+       if (addrCount > maxAddrCount)
+       {
+           maxAddrCount = addrCount;
+           maxAddrIndex = (int)i;
+       }
+   }
 
-       const std::set<RifEclipseSummaryAddress>& readerAddresses = reader->allResultAddresses();
-       addressUnion.insert(readerAddresses.begin(), readerAddresses.end());
-
-       // We assume that all cases have the same addresses when they have equal number of addresses.
-       // In that case there is no need to calculate the union, we only use the addresses from the first case
-       if (m_commonAddressCount > 0) break;
-    }
-    return addressUnion;
+   if (maxAddrIndex >= 0)
+   {
+       const std::set<RifEclipseSummaryAddress>& addrs = m_cases[maxAddrIndex]->summaryReader()->allResultAddresses();
+       addresses.insert(addrs.begin(), addrs.end());
+   }
+   return addresses;
 }
 
 //--------------------------------------------------------------------------------------------------

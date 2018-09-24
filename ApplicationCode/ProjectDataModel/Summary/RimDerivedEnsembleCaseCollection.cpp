@@ -120,13 +120,13 @@ std::vector<RimSummaryCase*> RimDerivedEnsembleCaseCollection::allSummaryCases()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::set<RifEclipseSummaryAddress> RimDerivedEnsembleCaseCollection::calculateUnionOfSummaryAddresses() const
+std::set<RifEclipseSummaryAddress> RimDerivedEnsembleCaseCollection::ensembleSummaryAddresses() const
 {
     std::set<RifEclipseSummaryAddress> addresses;
     if (!m_ensemble1 || !m_ensemble2) return addresses;
 
-    addresses = m_ensemble1->calculateUnionOfSummaryAddresses();
-    auto addrs2 = m_ensemble2->calculateUnionOfSummaryAddresses();
+    addresses = m_ensemble1->ensembleSummaryAddresses();
+    auto addrs2 = m_ensemble2->ensembleSummaryAddresses();
     addresses.insert(addrs2.begin(), addrs2.end());
     return addresses;
 }

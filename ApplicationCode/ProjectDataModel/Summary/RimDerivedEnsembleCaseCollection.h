@@ -53,7 +53,7 @@ public:
     void                        setEnsemble2(RimSummaryCaseCollection* ensemble);
 
     virtual std::vector<RimSummaryCase*>    allSummaryCases() const override;
-    virtual std::set<RifEclipseSummaryAddress> calculateUnionOfSummaryAddresses() const override;
+    virtual std::set<RifEclipseSummaryAddress> ensembleSummaryAddresses() const override;
     void                                    updateDerivedEnsembleCases();
     bool                                    hasCaseReference(const RimSummaryCase* sumCase) const;
 

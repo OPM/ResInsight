@@ -72,7 +72,7 @@ public:
     QString                         name() const;
     bool                            isEnsemble() const;
     void                            setAsEnsemble(bool isEnsemble);
-    virtual std::set<RifEclipseSummaryAddress> calculateUnionOfSummaryAddresses() const;
+    virtual std::set<RifEclipseSummaryAddress> ensembleSummaryAddresses() const;
     EnsembleParameter               ensembleParameter(const QString& paramName) const;
     void                            calculateEnsembleParametersIntersectionHash();
     void                            clearEnsembleParametersHashes();
