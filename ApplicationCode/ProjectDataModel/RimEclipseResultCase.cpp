@@ -526,19 +526,18 @@ RifReaderEclipseRft* RimEclipseResultCase::rftReader()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimEclipseResultCase::setGridFileName(const QString& caseFileName)
+void RimEclipseResultCase::setGridFileName(const QString& fileName)
 {
-    this->caseFileName = caseFileName;
+    this->caseFileName = fileName;
 }
-
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimEclipseResultCase::setCaseInfo(const QString& userDescription, const QString& caseFileName)
+void RimEclipseResultCase::setCaseInfo(const QString& userDescription, const QString& fileName)
 {
     this->caseUserDescription = userDescription;
-    this->caseFileName = caseFileName;
+    this->caseFileName = fileName;
 
     RimProject* proj = RiaApplication::instance()->project();
     proj->assignCaseIdToCase(this);

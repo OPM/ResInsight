@@ -302,9 +302,9 @@ void RimWellPathCollection::readAndAddWellPaths(std::vector<RimFileWellPath*>& w
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellPathCollection::addWellPaths(const std::vector<RimWellPath*> wellPaths)
+void RimWellPathCollection::addWellPaths(const std::vector<RimWellPath*> incomingWellPaths)
 {
-    for(const auto& wellPath : wellPaths)
+    for(const auto& wellPath : incomingWellPaths)
     {
         this->wellPaths.push_back(wellPath);
     }

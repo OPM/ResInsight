@@ -101,7 +101,7 @@ public:
     bool            isProjectFileVersionEqualOrOlderThan(const QString& otherProjectFileVersion) const;
     void            close();
 
-    void            setProjectFileNameAndUpdateDependencies(const QString& fileName);
+    void setProjectFileNameAndUpdateDependencies(const QString& projectFileName);
 
     void            assignCaseIdToCase(RimCase* reservoirCase);
     void            assignIdToCaseGroup(RimIdenticalGridCaseGroup* caseGroup);
@@ -120,7 +120,7 @@ public:
 
     void            computeUtmAreaOfInterest();
 
-    void                allOilFields(std::vector<RimOilField*>& oilFields) const;
+    void            allOilFields(std::vector<RimOilField*>& allOilFields) const;
     RimOilField*        activeOilField();
     const RimOilField*  activeOilField() const;
 

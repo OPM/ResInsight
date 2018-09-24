@@ -41,8 +41,8 @@ public:
     RimEclipseResultCase();
     virtual ~RimEclipseResultCase();
 
-    void                        setGridFileName(const QString& caseFileName);
-    void                        setCaseInfo(const QString& userDescription, const QString& caseFileName);
+    void                        setGridFileName(const QString& fileName);
+    void                        setCaseInfo(const QString& userDescription, const QString& fileName);
     void                        setSourSimFileName(const QString& fileName);
     bool                        hasSourSimFile();
 

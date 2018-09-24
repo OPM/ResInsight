@@ -428,14 +428,14 @@ bool RimProject::isProjectFileVersionEqualOrOlderThan(const QString& otherProjec
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimProject::setProjectFileNameAndUpdateDependencies(const QString& fileName)
+void RimProject::setProjectFileNameAndUpdateDependencies(const QString& projectFileName)
 {
     // Extract the filename of the project file when it was saved 
     QString oldProjectFileName =  this->fileName;
     // Replace with the new actual filename
-    this->fileName = fileName;
+    this->fileName = projectFileName;
 
-    QFileInfo fileInfo(fileName);
+    QFileInfo fileInfo(projectFileName);
     QString newProjectPath = fileInfo.path();
 
     QFileInfo fileInfoOld(oldProjectFileName);
@@ -738,12 +738,12 @@ void RimProject::scheduleCreateDisplayModelAndRedrawAllViews()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimProject::allOilFields(std::vector<RimOilField*>& oilFields) const
+void RimProject::allOilFields(std::vector<RimOilField*>& allOilFields) const
 {
-    oilFields.clear();
+    allOilFields.clear();
     for (const auto& oilField : this->oilFields)
     {
-        oilFields.push_back(oilField);
+        allOilFields.push_back(oilField);
     }
 }
 
@@ -986,10 +986,10 @@ std::vector<RimGeoMechCase*> RimProject::geoMechCases() const
 std::vector<RimFractureTemplateCollection*> RimProject::allFractureTemplateCollections() const
 {
     std::vector<RimFractureTemplateCollection*> templColls;
-    std::vector<RimOilField*> oilFields;
+    std::vector<RimOilField*> rimOilFields;
 
-    allOilFields(oilFields);
-    for (RimOilField* oilField : oilFields)
+    allOilFields(rimOilFields);
+    for (RimOilField* oilField : rimOilFields)
     {
         templColls.push_back(oilField->fractureDefinitionCollection());
     }
@@ -1002,9 +1002,6 @@ std::vector<RimFractureTemplateCollection*> RimProject::allFractureTemplateColle
 std::vector<RimFractureTemplate*> RimProject::allFractureTemplates() const
 {
     std::vector<RimFractureTemplate*> templates;
-    std::vector<RimOilField*> oilFields;
-
-    allOilFields(oilFields);
     for (RimFractureTemplateCollection* templColl : allFractureTemplateCollections())
     {
         for (RimFractureTemplate* templ : templColl->fractureTemplates())
