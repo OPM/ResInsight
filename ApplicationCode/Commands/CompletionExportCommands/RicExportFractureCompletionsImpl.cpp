@@ -426,11 +426,6 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
         std::vector<RigCompletionData> allCompletionsForOneFracture =
             generateCompdatValuesForFracture(matrixToWellTrans, wellPathName, caseToApply, fracture, fracTemplate);
 
-        if (fracTemplate->isNonDarcyFlowEnabled())
-        {
-            computeNonDarcyFlowParameters(fracture, allCompletionsForOneFracture);
-        }
-
         if (fractureDataReportItems)
         {
             RicWellPathFractureReportItem reportItem(wellPathName, fracture->name(), fracTemplate->name());
@@ -729,6 +724,12 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
         compDat.addMetadata(fracture->name(), QString::number(trans));
         allCompletionsForOneFracture.push_back(compDat);
     }
+
+    if (fracTemplate->isNonDarcyFlowEnabled())
+    {
+        computeNonDarcyFlowParameters(fracture, allCompletionsForOneFracture);
+    }
+
     return allCompletionsForOneFracture;
 }
 
