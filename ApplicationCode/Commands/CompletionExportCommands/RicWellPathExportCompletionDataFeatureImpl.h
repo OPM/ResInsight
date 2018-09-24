@@ -43,6 +43,7 @@ class RimWellPath;
 class RimWellPathFracture;
 class RifEclipseDataTableFormatter;
 class RigVirtualPerforationTransmissibilities;
+class SubSegmentIntersectionInfo;
 
 //==================================================================================================
 /// 
@@ -72,7 +73,7 @@ public:
                                                                          const RimWellPath*                       wellPath,
                                                                          const std::vector<RimWellPathFracture*>& fractures);
 
-    static RicMswExportInfo               generatePerforationsMswExportInfo(RimEclipseCase*                          caseToApply,
+    static RicMswExportInfo               generatePerforationsMswExportInfo(const RicExportCompletionDataSettingsUi& exportSettings,
                                                                             const RimWellPath*                       wellPath,
                                                                             const std::vector<const RimPerforationInterval*>& perforationIntervals);
 
@@ -175,7 +176,8 @@ private:
                                                                            const std::vector<RigCompletionData>& completionData);
 
     static std::vector<RigCompletionData> generatePerforationsCompdatValues(const RimWellPath* wellPath,
-                                                                                   const RicExportCompletionDataSettingsUi& settings);
+                                                                            const std::vector<const RimPerforationInterval*>& intervals,
+                                                                            const RicExportCompletionDataSettingsUi& settings);
 
     static void                           assignFishbonesLateralIntersections(const RimEclipseCase*           caseToApply,
                                                                               const RimFishbonesMultipleSubs* fishbonesSubs,
@@ -188,6 +190,13 @@ private:
                                                                       const std::vector<RigCompletionData>& completionData,
                                                                       RicMswSegment*                        location,
                                                                       bool*                                 foundSubGridIntersections);
+
+    static void                           assignPerforationIntervalIntersections(const RimEclipseCase*                 caseToApply,
+                                                                                 const RimPerforationInterval*         interval,
+                                                                                 const std::vector<RigCompletionData>& completionData,
+                                                                                 RicMswSegment*                        location,
+                                                                                 const SubSegmentIntersectionInfo*     cellIntInfo,
+                                                                                 bool* foundSubGridIntersections);
 
     static void                           assignBranchAndSegmentNumbers(const RimEclipseCase* caseToApply,
                                                                         RicMswSegment*        location,
@@ -211,7 +220,7 @@ private:
                                                              const RimWellPath* wellPath,
                                                              const std::vector<RimFishbonesMultipleSubs*>& fishbonesSubs);
 
-    static void                           exportWellSegments(RimEclipseCase* eclipseCase,
+    static void                           exportWellSegments(const RicExportCompletionDataSettingsUi& exportSettings,
                                                              QFilePtr exportFile,
                                                              const RimWellPath* wellPath,
                                                              const std::vector<const RimPerforationInterval*>& perforationIntervals);

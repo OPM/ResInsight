@@ -194,7 +194,7 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions(const std::ve
             if (exportSettings.includePerforations)
             {
                 std::vector<RigCompletionData> perforationCompletionData =
-                    generatePerforationsCompdatValues(wellPath, exportSettings);
+                    generatePerforationsCompdatValues(wellPath, wellPath->perforationIntervalCollection()->perforations(), exportSettings);
 
                 appendCompletionData(&completionsPerEclipseCellAllCompletionTypes, perforationCompletionData);
                 appendCompletionData(&completionsPerEclipseCellPerforations, perforationCompletionData);
@@ -471,7 +471,7 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions(const std::ve
             }
         }
 
-        if (false && exportSettings.includePerforations())
+        if (exportSettings.includePerforations())
         {
             QString  fileName   = QString("%1-Perforation-Welsegs").arg(exportSettings.caseToApply->caseUserDescription());
             QFilePtr exportFile = openFileForExport(exportSettings.folder, fileName);
@@ -479,7 +479,7 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions(const std::ve
             for (const auto wellPath : wellPaths)
             {
                 auto perforations = wellPath->perforationIntervalCollection()->perforations();
-                exportWellSegments(exportSettings.caseToApply, exportFile, wellPath, perforations);
+                exportWellSegments(exportSettings, exportFile, wellPath, perforations);
             }
             exportFile->close();
         }
@@ -542,7 +542,7 @@ std::vector<RigCompletionData>
         exportSettings.includePerforations = true;
         exportSettings.includeFractures    = true;
 
-        completionsPerEclipseCell = generatePerforationsCompdatValues(wellPath, exportSettings);
+        completionsPerEclipseCell = generatePerforationsCompdatValues(wellPath, wellPath->perforationIntervalCollection()->perforations(), exportSettings);
     }
 
     return completionsPerEclipseCell;
@@ -774,6 +774,15 @@ void RicWellPathExportCompletionDataFeatureImpl::generateCompsegTables(RifEclips
             generateCompsegTable(formatter, exportInfo, true, fractureTypes);
         }
     }
+
+    {
+        std::set<RigCompletionData::CompletionType> completionTypes = { RigCompletionData::PERFORATION };
+        generateCompsegTable(formatter, exportInfo, false, completionTypes);
+        if (exportInfo.hasSubGridIntersections())
+        {
+            generateCompsegTable(formatter, exportInfo, true, completionTypes);
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -822,7 +831,8 @@ void RicWellPathExportCompletionDataFeatureImpl::generateCompsegTable(
                             formatter.add(completion.branchNumber());
 
                             double startLength = segment.startMD();
-                            if (exportInfo.lengthAndDepthText() == QString("INC"))
+                            if (exportInfo.lengthAndDepthText() == QString("INC") &&
+                                completion.completionType() != RigCompletionData::PERFORATION)
                             {
                                 startLength -= startMD;
                             }
@@ -1574,8 +1584,9 @@ void RicWellPathExportCompletionDataFeatureImpl::exportWpimultTableUsingFormatte
 ///
 //--------------------------------------------------------------------------------------------------
 std::vector<RigCompletionData> RicWellPathExportCompletionDataFeatureImpl::generatePerforationsCompdatValues(
-    const RimWellPath*                       wellPath,
-    const RicExportCompletionDataSettingsUi& settings)
+    const RimWellPath*                                  wellPath,
+    const std::vector<const RimPerforationInterval*>&   intervals,
+    const RicExportCompletionDataSettingsUi&            settings)
 {
     RiaEclipseUnitTools::UnitSystem unitSystem = settings.caseToApply->eclipseCaseData()->unitsType();
 
@@ -1584,7 +1595,7 @@ std::vector<RigCompletionData> RicWellPathExportCompletionDataFeatureImpl::gener
 
     if (wellPath->perforationIntervalCollection()->isChecked())
     {
-        for (const RimPerforationInterval* interval : wellPath->perforationIntervalCollection()->perforations())
+        for (const RimPerforationInterval* interval : intervals)
         {
             if (!interval->isChecked()) continue;
             if (!interval->isActiveOnDate(settings.caseToApply->timeStepDates()[settings.timeStep])) continue;
@@ -1845,11 +1856,88 @@ RicMswExportInfo
 ///
 //--------------------------------------------------------------------------------------------------
 RicMswExportInfo RicWellPathExportCompletionDataFeatureImpl::generatePerforationsMswExportInfo(
-    RimEclipseCase*                                   caseToApply,
+    const RicExportCompletionDataSettingsUi&          exportSettings,
     const RimWellPath*                                wellPath,
     const std::vector<const RimPerforationInterval*>& perforationIntervals)
 {
-    return RicMswExportInfo(wellPath, RiaEclipseUnitTools::UNITS_METRIC, 0, "LENdep", "pRES");
+    const RimEclipseCase*           caseToApply = exportSettings.caseToApply;
+    const RigMainGrid*              grid = caseToApply->eclipseCaseData()->mainGrid();
+    const RigActiveCellInfo*        activeCellInfo = caseToApply->eclipseCaseData()->activeCellInfo(RiaDefines::MATRIX_MODEL);
+    RiaEclipseUnitTools::UnitSystem unitSystem = caseToApply->eclipseCaseData()->unitsType();
+
+    const RigWellPath*             wellPathGeometry = wellPath->wellPathGeometry();
+    const std::vector<cvf::Vec3d>& coords = wellPathGeometry->wellPathPoints();
+    const std::vector<double>&     mds = wellPathGeometry->measureDepths();
+    CVF_ASSERT(!coords.empty() && !mds.empty());
+
+    std::vector<WellPathCellIntersectionInfo> intersections =
+        RigWellPathIntersectionTools::findCellIntersectionInfosAlongPath(caseToApply->eclipseCaseData(), coords, mds);
+
+    double maxSegmentLength = wellPath->perforationIntervalCollection()->mswParameters()->maxSegmentLength();
+    std::vector<SubSegmentIntersectionInfo> subSegIntersections = spiltIntersectionSegmentsToMaxLength(wellPathGeometry, intersections, maxSegmentLength);
+
+    double initialMD = 0.0;
+    for (WellPathCellIntersectionInfo intersection : intersections)
+    {
+        if (activeCellInfo->isActive(intersection.globCellIndex))
+        {
+            initialMD = intersection.startMD;
+            break;
+        }
+    }
+
+    RicMswExportInfo exportInfo(wellPath,
+                                unitSystem,
+                                initialMD,
+                                wellPath->perforationIntervalCollection()->mswParameters()->lengthAndDepth().text(),
+                                wellPath->perforationIntervalCollection()->mswParameters()->pressureDrop().text());
+
+    exportInfo.setLinerDiameter(wellPath->perforationIntervalCollection()->mswParameters()->linerDiameter(unitSystem));
+    exportInfo.setRoughnessFactor(wellPath->perforationIntervalCollection()->mswParameters()->roughnessFactor(unitSystem));
+
+    bool foundSubGridIntersections = false;
+
+    // Main bore
+    int mainBoreSegment = 1;
+    for (const auto& cellIntInfo : subSegIntersections)
+    {
+        double startTVD = cellIntInfo.startTVD;
+        double endTVD = cellIntInfo.endTVD;
+
+        size_t             localGridIdx = 0u;
+        const RigGridBase* localGrid = grid->gridAndGridLocalIdxFromGlobalCellIdx(cellIntInfo.globCellIndex, &localGridIdx);
+        QString            gridName;
+        if (localGrid != grid)
+        {
+            gridName = QString::fromStdString(localGrid->gridName());
+            foundSubGridIntersections = true;
+        }
+
+        size_t i = 0u, j = 0u, k = 0u;
+        localGrid->ijkFromCellIndex(localGridIdx, &i, &j, &k);
+        QString       label = QString("Main stem segment %1").arg(++mainBoreSegment);
+        RicMswSegment location(label, cellIntInfo.startMD, cellIntInfo.endMD, startTVD, endTVD);
+
+        // Check if fractures are to be assigned to current main bore segment
+        for (const RimPerforationInterval* interval : perforationIntervals)
+        {
+            double intervalStartMD = interval->startMD();
+            double intervalEndMD = interval->endMD();
+
+            if(cellIntInfo.endMD > intervalStartMD && cellIntInfo.startMD < intervalEndMD)
+            {
+                std::vector<RigCompletionData>  completionData = generatePerforationsCompdatValues(wellPath, {interval}, exportSettings);
+                assignPerforationIntervalIntersections(caseToApply, interval, completionData, &location, &cellIntInfo, &foundSubGridIntersections);
+            }
+        }
+
+        exportInfo.addWellSegmentLocation(location);
+    }
+    exportInfo.setHasSubGridIntersections(foundSubGridIntersections);
+    exportInfo.sortLocations();
+    assignBranchAndSegmentNumbers(caseToApply, &exportInfo);
+
+    return exportInfo;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1968,6 +2056,40 @@ void RicWellPathExportCompletionDataFeatureImpl::assignFractureIntersections(con
 }
 
 //--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicWellPathExportCompletionDataFeatureImpl::assignPerforationIntervalIntersections(const RimEclipseCase*                 caseToApply,
+                                                                                        const RimPerforationInterval*         interval,
+                                                                                        const std::vector<RigCompletionData>& completionData,
+                                                                                        RicMswSegment*                        location,
+                                                                                        const SubSegmentIntersectionInfo*     cellIntInfo,
+                                                                                        bool* foundSubGridIntersections)
+{
+    CVF_ASSERT(foundSubGridIntersections != nullptr);
+
+    RicMswCompletion intervalCompletion(RigCompletionData::PERFORATION, interval->name());
+    double           startMd = std::max(location->startMD(), interval->startMD());
+    double           endMd = std::min(location->endMD(), interval->endMD());
+    RicMswSubSegment subSegment(startMd, endMd - startMd, 0.0, 0.0);
+
+    size_t currCellId = cellIntInfo->globCellIndex;
+
+    for (const RigCompletionData& compIntersection : completionData)
+    {
+        const RigCompletionDataGridCell& cell = compIntersection.completionDataGridCell();
+
+        if (cell.globalCellIndex() != currCellId) continue;
+
+        cvf::Vec3st                      localIJK(cell.localCellIndexI(), cell.localCellIndexJ(), cell.localCellIndexK());
+
+        RicMswSubSegmentCellIntersection intersection(cell.lgrName(), cell.globalCellIndex(), localIJK, cellIntInfo->intersectionLengthsInCellCS);
+        subSegment.addIntersection(intersection);
+    }
+    intervalCompletion.addSubSegment(subSegment);
+    location->addCompletion(intervalCompletion);
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 void RicWellPathExportCompletionDataFeatureImpl::assignBranchAndSegmentNumbers(const RimEclipseCase* caseToApply,
@@ -1978,7 +2100,11 @@ void RicWellPathExportCompletionDataFeatureImpl::assignBranchAndSegmentNumbers(c
     int icdSegmentNumber = cvf::UNDEFINED_INT;
     for (RicMswCompletion& completion : location->completions())
     {
-        if (completion.completionType() != RigCompletionData::ICD)
+        if (completion.completionType() == RigCompletionData::PERFORATION)
+        {
+            completion.setBranchNumber(1);
+        }
+        else if (completion.completionType() != RigCompletionData::ICD)
         {
             ++(*branchNum);
             completion.setBranchNumber(*branchNum);
@@ -2337,25 +2463,24 @@ void RicWellPathExportCompletionDataFeatureImpl::exportWellSegments(RimEclipseCa
 ///
 //--------------------------------------------------------------------------------------------------
 void RicWellPathExportCompletionDataFeatureImpl::exportWellSegments(
-    RimEclipseCase*                                   eclipseCase,
+    const RicExportCompletionDataSettingsUi&          exportSettings,
     QFilePtr                                          exportFile,
     const RimWellPath*                                wellPath,
     const std::vector<const RimPerforationInterval*>& perforationIntervals)
 {
-    if (eclipseCase == nullptr)
+    if (exportSettings.caseToApply == nullptr)
     {
         RiaLogging::error("Export Well Segments: Cannot export completions data without specified eclipse case");
         return;
     }
 
     RicMswExportInfo exportInfo = RicWellPathExportCompletionDataFeatureImpl::generatePerforationsMswExportInfo(
-        eclipseCase, wellPath, perforationIntervals);
+        exportSettings, wellPath, perforationIntervals);
 
     QTextStream                  stream(exportFile.get());
     RifEclipseDataTableFormatter formatter(stream);
     RicWellPathExportCompletionDataFeatureImpl::generateWelsegsTable(formatter, exportInfo);
     RicWellPathExportCompletionDataFeatureImpl::generateCompsegTables(formatter, exportInfo);
-    RicWellPathExportCompletionDataFeatureImpl::generateWsegvalvTable(formatter, exportInfo);
 }
 
 //--------------------------------------------------------------------------------------------------
