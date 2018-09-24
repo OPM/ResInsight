@@ -665,9 +665,9 @@ void Rim3dView::addDynamicWellPathsToModel(cvf::ModelBasicList* wellPathModelBas
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void Rim3dView::setScaleZAndUpdate(double scaleZ)
+void Rim3dView::setScaleZAndUpdate(double scalingFactor)
 {
-    this->scaleZ = scaleZ;
+    this->scaleZ = scalingFactor;
     updateScaleTransform();
 
     this->updateGridBoxData();
