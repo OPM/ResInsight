@@ -110,9 +110,9 @@ QList<caf::PdmOptionItemInfo> RimMultiSnapshotDefinition::calculateValueOptions(
             }
         }
 
-        for (Rim3dView* view : views)
+        for (Rim3dView* rim3dView : views)
         {
-            RiaOptionItemFactory::appendOptionItemFromViewNameAndCaseName(view, &options);
+            RiaOptionItemFactory::appendOptionItemFromViewNameAndCaseName(rim3dView, &options);
         }
     }
     else if (fieldNeedingOptions == &eclipseResultType)

@@ -93,7 +93,7 @@ public:
 
 private:
     void childObjects(caf::PdmObject* pdmObject, std::vector<caf::PdmObjectHandle*>& children);
-    caf::PdmObjectHandle* findObjectByName(caf::PdmObjectHandle* root, const QString& objectName);
+    caf::PdmObjectHandle* findObjectByName(caf::PdmObjectHandle* root, const QString& name);
     caf::PdmFieldHandle* findFieldByKeyword(caf::PdmObjectHandle* pdmObject, const QString& fieldName);
 
 };

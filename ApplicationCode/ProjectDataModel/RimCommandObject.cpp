@@ -278,14 +278,14 @@ void RimCommandIssueFieldChanged::childObjects(caf::PdmObject* pdmObject, std::v
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-caf::PdmObjectHandle* RimCommandIssueFieldChanged::findObjectByName(caf::PdmObjectHandle* pdmObject, const QString& objectName)
+caf::PdmObjectHandle* RimCommandIssueFieldChanged::findObjectByName(caf::PdmObjectHandle* pdmObject, const QString& name)
 {
     std::vector<caf::PdmFieldHandle*> fields;
     pdmObject->fields(fields);
 
     caf::PdmUiObjectHandle* uiObjectHandle = uiObj(pdmObject);
 
-    if (uiObjectHandle && uiObjectHandle->uiName() == objectName)
+    if (uiObjectHandle && uiObjectHandle->uiName() == name)
     {
         return pdmObject;
     }
@@ -299,7 +299,7 @@ caf::PdmObjectHandle* RimCommandIssueFieldChanged::findObjectByName(caf::PdmObje
 
             for (size_t cIdx = 0; cIdx < children.size(); cIdx++)
             {
-                PdmObjectHandle* candidateObj = findObjectByName(children[cIdx], objectName);
+                PdmObjectHandle* candidateObj = findObjectByName(children[cIdx], name);
                 if (candidateObj)
                 {
                     return candidateObj;
