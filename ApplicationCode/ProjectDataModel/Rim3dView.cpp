@@ -86,7 +86,7 @@ Rim3dView::Rim3dView(void)
     CVF_ASSERT(preferences);
 
 
-    CAF_PDM_InitField(&name, "UserDescription", QString(""), "Name", "", "", "");
+    CAF_PDM_InitField(&m_name, "UserDescription", QString(""), "Name", "", "", "");
 
     CAF_PDM_InitField(&m_cameraPosition, "CameraPosition", cvf::Mat4d::IDENTITY, "", "", "", "");
     m_cameraPosition.uiCapability()->setUiHidden(true);
@@ -154,6 +154,22 @@ RiuViewer* Rim3dView::viewer() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void Rim3dView::setName(const QString& name)
+{
+    m_name = name;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString Rim3dView::name() const
+{
+    return m_name;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 QWidget* Rim3dView::createViewWidget(QWidget* mainWindowParent)
 {
     QGLFormat glFormat;
@@ -207,11 +223,11 @@ void Rim3dView::updateMdiWindowTitle()
         QString windowTitle;
         if (ownerCase())
         {
-            windowTitle = QString("%1 - %2").arg(ownerCase()->caseUserDescription()).arg(name);
+            windowTitle = QString("%1 - %2").arg(ownerCase()->caseUserDescription()).arg(m_name);
         }
         else
         {
-            windowTitle = name;
+            windowTitle = m_name;
         }
 
         m_viewer->layoutWidget()->setWindowTitle(windowTitle);
@@ -236,7 +252,7 @@ void Rim3dView::deleteViewWidget()
 void Rim3dView::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
     caf::PdmUiGroup* viewGroup = uiOrdering.addNewGroup("Viewer");
-    viewGroup->add(&name);
+    viewGroup->add(&m_name);
     viewGroup->add(&m_backgroundColor);
     viewGroup->add(&m_showGridBox);
     viewGroup->add(&isPerspectiveView);
@@ -567,7 +583,7 @@ void Rim3dView::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const 
         RiuMainWindow::instance()->refreshDrawStyleActions();
         RiuMainWindow::instance()->refreshAnimationActions();
     }
-    else if (changedField == &name)
+    else if (changedField == &m_name)
     {
         updateMdiWindowTitle();
 

@@ -1018,7 +1018,7 @@ void RimViewController::applyRangeFilterCollectionByUserChoice()
         return;
     }
 
-    bool restoreOriginal = askUserToRestoreOriginalRangeFilterCollection(m_managedView->name);
+    bool restoreOriginal = askUserToRestoreOriginalRangeFilterCollection(m_managedView->name());
     if (restoreOriginal)
     {
         m_managedView->setOverrideRangeFilterCollection(nullptr);

@@ -92,8 +92,8 @@ void RicPasteEclipseViewsFeature::onActionTriggered(bool isChecked)
         RimEclipseView* rimReservoirView = dynamic_cast<RimEclipseView*>(eclipseViews[i]->xmlCapability()->copyByXmlSerialization(caf::PdmDefaultObjectFactory::instance()));
         CVF_ASSERT(rimReservoirView);
 
-        QString nameOfCopy = QString("Copy of ") + rimReservoirView->name;
-        rimReservoirView->name = nameOfCopy;
+        QString nameOfCopy = QString("Copy of ") + rimReservoirView->name();
+        rimReservoirView->setName(nameOfCopy);
         eclipseCase->reservoirViews().push_back(rimReservoirView);
 
         rimReservoirView->setEclipseCase(eclipseCase);

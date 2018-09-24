@@ -84,8 +84,8 @@ void RicPasteGeoMechViewsFeature::onActionTriggered(bool isChecked)
     for (size_t i = 0; i < geomViews.size(); i++)
     {
         RimGeoMechView* rimReservoirView = dynamic_cast<RimGeoMechView*>(geomViews[i]->xmlCapability()->copyByXmlSerialization(caf::PdmDefaultObjectFactory::instance()));
-        QString nameOfCopy = QString("Copy of ") + rimReservoirView->name;
-        rimReservoirView->name = nameOfCopy;
+        QString nameOfCopy = QString("Copy of ") + rimReservoirView->name();
+        rimReservoirView->setName(nameOfCopy);
         geomCase->geoMechViews().push_back(rimReservoirView);
 
         rimReservoirView->setGeoMechCase(geomCase);

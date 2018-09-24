@@ -56,7 +56,7 @@ RimEclipseView* RicSelectOrCreateViewFeatureImpl::showViewSelection(RimEclipseRe
     if (featureUi.createNewView())
     {
         RimEclipseView* createdView = resultCase->createAndAddReservoirView();
-        createdView->name = featureUi.newViewName();
+        createdView->setName(featureUi.newViewName());
 
         // Must be run before buildViewItems, as wells are created in this function
         createdView->loadDataAndUpdate();

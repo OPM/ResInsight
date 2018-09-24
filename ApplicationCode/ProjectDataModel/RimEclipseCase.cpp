@@ -267,7 +267,7 @@ RimEclipseView* RimEclipseCase::createAndAddReservoirView()
     caf::PdmDocument::updateUiIconStateRecursively(rimEclipseView);
 
     size_t i = reservoirViews().size();
-    rimEclipseView->name = QString("View %1").arg(i + 1);
+    rimEclipseView->setName(QString("View %1").arg(i + 1));
 
     reservoirViews().push_back(rimEclipseView);
 

@@ -302,7 +302,7 @@ void Rim2dIntersectionView::updateName()
     {
         Rim3dView * parentView = nullptr;
         m_intersection->firstAncestorOrThisOfTypeAsserted(parentView);
-        name = parentView->name() + ": " + m_intersection->name();
+        this->setName(parentView->name() + ": " + m_intersection->name());
     }
 }
 

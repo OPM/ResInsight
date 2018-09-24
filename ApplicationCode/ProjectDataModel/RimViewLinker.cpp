@@ -288,7 +288,7 @@ QString RimViewLinker::displayNameForView(RimGridView* view)
         view->firstAncestorOrThisOfType(rimCase);
         if (rimCase)
         {
-            displayName = rimCase->caseUserDescription() + ": " + view->name;
+            displayName = rimCase->caseUserDescription() + ": " + view->name();
         }
     }
 

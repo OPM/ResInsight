@@ -84,7 +84,6 @@ public:
 
     // Public fields: 
 
-    caf::PdmField<QString>                  name;
     caf::PdmField<double>                   scaleZ;
     caf::PdmField<bool>                     isPerspectiveView;
     caf::PdmField<int>                      maximumFrameRate;
@@ -100,6 +99,8 @@ public:
 
     RiuViewer*                              viewer() const;
 
+    void                                    setName(const QString& name);
+    QString                                 name() const;
     void                                    setMeshOnlyDrawstyle();
     void                                    setMeshSurfDrawstyle();
     void                                    setSurfOnlyDrawstyle();
@@ -199,7 +200,7 @@ protected:
 private:
     // Overridden PdmObject methods:
 
-    virtual caf::PdmFieldHandle*            userDescriptionField() override { return &name; }
+    virtual caf::PdmFieldHandle*            userDescriptionField() override { return &m_name; }
     virtual void                            setupBeforeSave() override;
 protected:
     virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
@@ -225,6 +226,7 @@ private:
     virtual void                            setMdiWindowGeometry(const RimMdiWindowGeometry& windowGeometry) override;
 
 private:
+    caf::PdmField<QString>                  m_name;
     caf::PdmField<bool>                     m_disableLighting;
     caf::PdmField<cvf::Mat4d>               m_cameraPosition;
     caf::PdmField<cvf::Vec3d>               m_cameraPointOfInterest;
