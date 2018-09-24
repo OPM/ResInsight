@@ -210,6 +210,30 @@ void PdmUiItem::setUiIcon(const QIcon& uiIcon, const QString& uiConfigName /*= "
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+const QColor PdmUiItem::uiContentTextColor(const QString& uiConfigName) const
+{
+    const PdmUiItemInfo* conInfo = configInfo(uiConfigName);
+    const PdmUiItemInfo* defInfo = defaultInfo();
+    const PdmUiItemInfo* sttInfo = m_staticItemInfo;
+
+    if (conInfo && (conInfo->m_contentTextColor.isValid())) return conInfo->m_contentTextColor;
+    if (defInfo && (defInfo->m_contentTextColor.isValid())) return defInfo->m_contentTextColor;
+    if (sttInfo && (sttInfo->m_contentTextColor.isValid())) return sttInfo->m_contentTextColor;
+
+    return QColor();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void PdmUiItem::setUiContentTextColor(const QColor& color, const QString& uiConfigName /*= ""*/)
+{
+    m_configItemInfos[uiConfigName].m_contentTextColor = color;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 const QString PdmUiItem::uiToolTip(const QString& uiConfigName) const
 {
     const PdmUiItemInfo* conInfo = configInfo(uiConfigName);

@@ -69,7 +69,8 @@ public:
 private: 
     friend class PdmUiItem;
     QString         m_uiName;
-    QIcon           m_icon;         
+    QIcon           m_icon;
+    QColor          m_contentTextColor;     ///< Color of a fields value text. Invalid by default. An Invalid color is not used.
     QString         m_toolTip;
     QString         m_whatsThis;
     QString         m_extraDebugText;
@@ -203,6 +204,9 @@ public:
 
     const QIcon      uiIcon(const QString& uiConfigName = "") const;
     void             setUiIcon(const QIcon& uiIcon, const QString& uiConfigName = ""); 
+
+    const QColor     uiContentTextColor(const QString& uiConfigName = "") const;
+    void             setUiContentTextColor(const QColor& uiIcon, const QString& uiConfigName = ""); 
 
     const QString    uiToolTip(const QString& uiConfigName = "") const;
     void             setUiToolTip(const QString& uiToolTip, const QString& uiConfigName = ""); 
