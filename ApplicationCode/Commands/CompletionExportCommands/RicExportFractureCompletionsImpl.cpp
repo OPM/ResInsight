@@ -721,7 +721,7 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
 ///
 //--------------------------------------------------------------------------------------------------
 void RicExportFractureCompletionsImpl::computeNonDarcyFlowParameters(const RimFracture*             fracture,
-                                                                     std::vector<RigCompletionData> allCompletionsForOneFracture)
+                                                                     std::vector<RigCompletionData>& allCompletionsForOneFracture)
 {
     double dFactorForFracture = fracture->nonDarcyProperties().dFactor;
     double khForFracture      = fracture->nonDarcyProperties().conductivity;

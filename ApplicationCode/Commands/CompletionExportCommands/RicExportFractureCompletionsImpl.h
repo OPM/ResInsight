@@ -140,7 +140,7 @@ private:
                                                                            const RimFracture*              fracture,
                                                                            const RimFractureTemplate*      fracTemplate);
 
-    static void computeNonDarcyFlowParameters(const RimFracture* fracture, std::vector<RigCompletionData> allCompletionsForOneFracture);
+    static void computeNonDarcyFlowParameters(const RimFracture* fracture, std::vector<RigCompletionData>& allCompletionsForOneFracture);
 
     static double sumUpTransmissibilities(const std::vector<RigCompletionData>& allCompletionsForOneFracture);
 
