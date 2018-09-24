@@ -19,6 +19,7 @@
 #include "RiaPolyArcLineSampler.h"
 #include "cvfGeometryTools.h"
 #include "cvfMatrix4.h"
+#include "RiaArcCurveCalculator.h"
 
 
 //--------------------------------------------------------------------------------------------------
@@ -123,25 +124,21 @@ void RiaPolyArcLineSampler::sampleLine(cvf::Vec3d p1, cvf::Vec3d p2, cvf::Vec3d*
     (*endTangent) = p1p2.getNormalized();
 }
 
-std::pair<cvf::Mat4d, double> calculateArcCSAndRadius(cvf::Vec3d t1, cvf::Vec3d p1, cvf::Vec3d p2);
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void RiaPolyArcLineSampler::sampleArc(cvf::Vec3d t1, cvf::Vec3d p1, cvf::Vec3d p2, cvf::Vec3d* endTangent)
 {
     // Find arc CS
-    auto CS_rad = calculateArcCSAndRadius(t1, p1, p2);
+    RiaArcCurveCalculator CS_rad(p1, t1, p2);
 
-    //double radius = CS_rad.second;
-    
-    //if (radius > 1e)
-    // Find sampleLength angle
+    double radius = CS_rad.radius();
+    cvf::Mat4d arcCS = CS_rad.arcCS();
 
-    double angleInc = m_samplingsInterval/ CS_rad.second;
+    double angleInc = m_samplingsInterval/ radius;
 
-    cvf::Vec3d C = CS_rad.first.translation();
-    cvf::Vec3d N(CS_rad.first.col(2));
+    cvf::Vec3d C = arcCS.translation();
+    cvf::Vec3d N(arcCS.col(2));
     cvf::Vec3d tr2 = (C - p2).getNormalized();
     cvf::Vec3d t2 = tr2 ^ N;
 
@@ -157,44 +154,18 @@ void RiaPolyArcLineSampler::sampleArc(cvf::Vec3d t1, cvf::Vec3d p1, cvf::Vec3d p
     for ( double angle = angleInc; angle < arcAngle; angle += angleInc )
     {
         cvf::Vec3d C_to_incP = cvf::Vec3d::X_AXIS;
-        C_to_incP *= CS_rad.second;
+        C_to_incP *= radius;
         C_to_incP.transformVector(cvf::Mat3d::fromRotation(cvf::Vec3d::Z_AXIS, angle));
 
-        C_to_incP.transformPoint(CS_rad.first);
+        C_to_incP.transformPoint(arcCS);
 
         m_points->push_back(C_to_incP);
-        m_meshDs->push_back(m_totalMD + angle * CS_rad.second);
+        m_meshDs->push_back(m_totalMD + angle * radius);
 
     }
-    m_totalMD += arcAngle*CS_rad.second;
+    m_totalMD += arcAngle*radius;
     m_points->push_back(p2);
     m_meshDs->push_back(m_totalMD);
 
     (*endTangent) = t2;
 }
-
-//--------------------------------------------------------------------------------------------------
-///                + p1 
-///           t1 // 
-///              |      + C   
-///               \
-///                + p2
-//--------------------------------------------------------------------------------------------------
-std::pair<cvf::Mat4d, double> calculateArcCSAndRadius(cvf::Vec3d t1, cvf::Vec3d p1, cvf::Vec3d p2)
-{
-    t1.normalize();
-    cvf::Vec3d p1p2 = p2 - p1;
-    cvf::Vec3d t12 = p1p2.getNormalized();
-    cvf::Vec3d N = (t1 ^ t12).getNormalized();
-    cvf::Vec3d tr1 = (N ^ t1).getNormalized();
-    double radius = 0.5*p1p2.length()/(tr1.dot(t12));
-    cvf::Vec3d C = p1 + radius * tr1;
-
-    cvf::Vec3d nTr1 = -tr1;
-    cvf::Mat4d CS = cvf::Mat4d::fromCoordSystemAxes(&nTr1, &t1, &N);
-    CS.setTranslation(C);
-
-    return std::make_pair(CS, radius);
-}
-
-
