@@ -46,6 +46,8 @@ public:
     cvf::Vec3d     tangent() const;
     double         radius1() const;
     double         radius2() const;
+    void           flagRadius1AsIncorrect(bool isIncorrect, double actualRadius);
+    void           flagRadius2AsIncorrect(bool isIncorrect, double actualRadius);
 
 private:
     virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;

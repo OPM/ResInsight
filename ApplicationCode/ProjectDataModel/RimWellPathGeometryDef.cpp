@@ -387,6 +387,9 @@ std::vector<cvf::Vec3d> RimWellPathGeometryDef::lineArcEndpoints() const
         RimWellPathTarget* target1 = activeWellPathTargets[tIdx];
         RimWellPathTarget* target2 = activeWellPathTargets[tIdx+1];
 
+        target1->flagRadius2AsIncorrect(false, 0);
+        target2->flagRadius1AsIncorrect(false, 0);
+
         if (   target1->targetType() == RimWellPathTarget::POINT_AND_TANGENT
             && target2->targetType() == RimWellPathTarget::POINT_AND_TANGENT)
         {
@@ -399,7 +402,7 @@ std::vector<cvf::Vec3d> RimWellPathGeometryDef::lineArcEndpoints() const
                                            target2->inclination(),
                                            target2->radius1());
 
-            if (!sCurveCalc.isOk())
+            if ( sCurveCalc.solveStatus() != RiaSCurveCalculator::CONVERGED )
             {
                 double p1p2Length = (target2->targetPointXYZ() - target1->targetPointXYZ()).length();
                 sCurveCalc = RiaSCurveCalculator::fromTangentsAndLength(target1->targetPointXYZ(),
@@ -412,6 +415,9 @@ std::vector<cvf::Vec3d> RimWellPathGeometryDef::lineArcEndpoints() const
                                                                         0.2*p1p2Length);
 
                 RiaLogging::warning("Using fall-back calculation of well path geometry between active target number: " + QString::number(tIdx+1) + " and " + QString::number(tIdx+2));
+
+                target1->flagRadius2AsIncorrect(true, sCurveCalc.firstRadius());
+                target2->flagRadius1AsIncorrect(true, sCurveCalc.secondRadius());
             }
 
             endPoints.push_back( sCurveCalc.firstArcEndpoint() + referencePointXyz() );
@@ -431,7 +437,7 @@ std::vector<cvf::Vec3d> RimWellPathGeometryDef::lineArcEndpoints() const
                                            target2->inclination(),
                                            target2->radius1());
 
-            if (!sCurveCalc.isOk())
+            if ( sCurveCalc.solveStatus() != RiaSCurveCalculator::CONVERGED )
             {
                 double p1p2Length = (target2->targetPointXYZ() - target1->targetPointXYZ()).length();
                 sCurveCalc = RiaSCurveCalculator::fromTangentsAndLength(target1->targetPointXYZ(),
@@ -444,6 +450,9 @@ std::vector<cvf::Vec3d> RimWellPathGeometryDef::lineArcEndpoints() const
                                                                         0.2*p1p2Length);
 
                 RiaLogging::warning("Using fall-back calculation of well path geometry between active target number: " + QString::number(tIdx+1) + " and " + QString::number(tIdx+2));
+
+                target1->flagRadius2AsIncorrect(true, sCurveCalc.firstRadius());
+                target2->flagRadius1AsIncorrect(true, sCurveCalc.secondRadius());
             }
 
             endPoints.push_back( sCurveCalc.firstArcEndpoint() + referencePointXyz() );
@@ -458,10 +467,16 @@ std::vector<cvf::Vec3d> RimWellPathGeometryDef::lineArcEndpoints() const
                                        target1->inclination(),
                                        target1->radius2(),
                                        target2->targetPointXYZ());
-            if ( jCurve.isOk() )
+
+            if ( jCurve.curveStatus() == RiaJCurveCalculator::OK )
             {
                 endPoints.push_back(jCurve.firstArcEndpoint() + referencePointXyz());
             }
+            else if ( jCurve.curveStatus() == RiaJCurveCalculator::FAILED_RADIUS_TOO_LARGE )
+            {
+                target1->flagRadius2AsIncorrect(true, jCurve.radius());
+            }
+            
             endPoints.push_back( target2->targetPointXYZ() + referencePointXyz() );
             prevSegmentEndAzi = jCurve.endAzimuth();
             prevSegmentEndInc = jCurve.endInclination();
@@ -477,10 +492,16 @@ std::vector<cvf::Vec3d> RimWellPathGeometryDef::lineArcEndpoints() const
                                        prevSegmentEndInc,
                                        target1->radius2(),
                                        target2->targetPointXYZ());
-            if ( jCurve.isOk() )
+
+            if ( jCurve.curveStatus() == RiaJCurveCalculator::OK )
             {
                 endPoints.push_back(jCurve.firstArcEndpoint() + referencePointXyz());
             }
+            else if ( jCurve.curveStatus() == RiaJCurveCalculator::FAILED_RADIUS_TOO_LARGE )
+            {
+                target1->flagRadius2AsIncorrect(true, jCurve.radius());
+            }
+
             endPoints.push_back( target2->targetPointXYZ() + referencePointXyz() );
             prevSegmentEndAzi = jCurve.endAzimuth();
             prevSegmentEndInc = jCurve.endInclination();

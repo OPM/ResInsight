@@ -804,23 +804,31 @@ TEST(RiaSCurveCalculator, ControlPointCurve)
 
 TEST(RiaJCurveCalculator, Basic)
 {
-    RiaJCurveCalculator calc({ 0,0,0 }, 0,  M_PI/2, 100, { 0,100,-1000 });
+    {
+        RiaJCurveCalculator calc({ 0,0,0 }, 0, M_PI/2, 100, { 0,100,-1000 });
 
-    EXPECT_TRUE(calc.isOk() );
-    
-    cvf::Vec3d p11 = calc.firstArcEndpoint();
-    EXPECT_NEAR(    0, p11.x(), 1e-5);
-    EXPECT_NEAR(  100, p11.y(), 1e-5);
-    EXPECT_NEAR( -100, p11.z(), 1e-5);
+        EXPECT_TRUE(calc.curveStatus() == RiaJCurveCalculator::OK);
 
-    cvf::Vec3d n = calc.firstNormal();
-    EXPECT_NEAR(-1, n.x(), 1e-5);
-    EXPECT_NEAR( 0, n.y(), 1e-5);
-    EXPECT_NEAR( 0, n.z(), 1e-5);
+        cvf::Vec3d p11 = calc.firstArcEndpoint();
+        EXPECT_NEAR(0, p11.x(), 1e-5);
+        EXPECT_NEAR(100, p11.y(), 1e-5);
+        EXPECT_NEAR(-100, p11.z(), 1e-5);
 
-    cvf::Vec3d c = calc.firstCenter();
-    EXPECT_NEAR(   0, c.x(), 1e-5);
-    EXPECT_NEAR(   0, c.y(), 1e-5);
-    EXPECT_NEAR(-100, c.z(), 1e-5);
-    
+        cvf::Vec3d n = calc.firstNormal();
+        EXPECT_NEAR(-1, n.x(), 1e-5);
+        EXPECT_NEAR(0, n.y(), 1e-5);
+        EXPECT_NEAR(0, n.z(), 1e-5);
+
+        cvf::Vec3d c = calc.firstCenter();
+        EXPECT_NEAR(0, c.x(), 1e-5);
+        EXPECT_NEAR(0, c.y(), 1e-5);
+        EXPECT_NEAR(-100, c.z(), 1e-5);
+    }
+
+    {
+        RiaJCurveCalculator calc({ 0,0,0 }, 0, 0, 100, { 0, 0,-1000 });
+
+        EXPECT_TRUE(calc.curveStatus() == RiaJCurveCalculator::OK_STRAIGHT_LINE);
+    }
+
 }

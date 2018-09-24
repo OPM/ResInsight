@@ -27,16 +27,17 @@
 ///                + p2
 //--------------------------------------------------------------------------------------------------
 RiaArcCurveCalculator::RiaArcCurveCalculator(cvf::Vec3d p1, cvf::Vec3d t1, cvf::Vec3d p2)
-    : m_isCalculationOK(false)
-    , m_radius(std::numeric_limits<double>::infinity())
+    : m_radius(std::numeric_limits<double>::infinity())
     , m_arcCS(cvf::Mat4d::ZERO)
     , m_endAzi(0)
     , m_endInc(0)
+    , m_curveStatus(OK)
 {
     bool isOk = t1.normalize();
     if (!isOk)
     {
         // No tangent. Bail out
+        m_curveStatus = FAILED_INPUT_OVERLAP;
         return;
     }
 
@@ -45,6 +46,8 @@ RiaArcCurveCalculator::RiaArcCurveCalculator(cvf::Vec3d p1, cvf::Vec3d t1, cvf::
     if (!isOk)
     {
         // p1 and p2 in the same place.
+        m_curveStatus = FAILED_INPUT_OVERLAP;
+
         return;
     }
 
@@ -52,9 +55,12 @@ RiaArcCurveCalculator::RiaArcCurveCalculator(cvf::Vec3d p1, cvf::Vec3d t1, cvf::
     if (!isOk)
     {
         // P2 is on the p1 + k*t1 line. We have a straight line
+        m_curveStatus = OK_STRAIGHT_LINE;
+
         RiaOffshoreSphericalCoords endTangent(t1);
         m_endAzi = endTangent.azi();
         m_endInc = endTangent.inc();
+        m_radius = std::numeric_limits<double>::infinity();
         return;
     }
 
@@ -74,8 +80,6 @@ RiaArcCurveCalculator::RiaArcCurveCalculator(cvf::Vec3d p1, cvf::Vec3d t1, cvf::
     RiaOffshoreSphericalCoords endTangent(t2);
     m_endAzi = endTangent.azi();
     m_endInc = endTangent.inc();
-
-    m_isCalculationOK = true;
 }
 
 //--------------------------------------------------------------------------------------------------

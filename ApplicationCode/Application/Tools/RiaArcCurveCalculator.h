@@ -34,25 +34,31 @@ public:
     RiaArcCurveCalculator(cvf::Vec3d p1, cvf::Vec3d t1,  cvf::Vec3d p2);
     RiaArcCurveCalculator(cvf::Vec3d p1, double azi1, double inc1, cvf::Vec3d p2);
 
-    bool       isOk()   const { return m_isCalculationOK;}
+    enum CurveStatus
+    {
+        OK,
+        OK_STRAIGHT_LINE,
+        FAILED_INPUT_OVERLAP
+    };
+    
+    CurveStatus curveStatus()    const { return m_curveStatus;}
 
-    cvf::Mat4d arcCS()  const { return m_arcCS; }
-    double     radius() const { return m_radius;}
-    cvf::Vec3d center() const { return m_arcCS.translation();}
-    cvf::Vec3d normal() const { return cvf::Vec3d(m_arcCS.col(2));}
-
-    double     endAzimuth()       const  { return m_endAzi; }
-    double     endInclination()   const  { return m_endInc; }
+    cvf::Mat4d  arcCS()          const { return m_arcCS; }
+    double      radius()         const { return m_radius;}
+    cvf::Vec3d  center()         const { return m_arcCS.translation();}
+    cvf::Vec3d  normal()         const { return cvf::Vec3d(m_arcCS.col(2));}
+                
+    double      endAzimuth()     const { return m_endAzi; }
+    double      endInclination() const { return m_endInc; }
 
 private:
-    bool m_isCalculationOK;
+    CurveStatus m_curveStatus;
 
-    double m_radius;
-    cvf::Mat4d m_arcCS;
+    double      m_radius;
+    cvf::Mat4d  m_arcCS;
 
-    double     m_endAzi;
-    double     m_endInc;
-
+    double      m_endAzi;
+    double      m_endInc;
 };
 
 

@@ -26,10 +26,10 @@
 //--------------------------------------------------------------------------------------------------
 RiaJCurveCalculator::RiaJCurveCalculator(cvf::Vec3d p1, double azi1, double inc1, double r1, 
                                          cvf::Vec3d p2)
-    : m_isCalculationOK(false)
-    , m_c1( cvf::Vec3d::UNDEFINED)
+    : m_c1( cvf::Vec3d::UNDEFINED)
     , m_n1( cvf::Vec3d::UNDEFINED)
-
+    , m_radius( std::numeric_limits<double>::infinity())
+    , m_curveStatus(OK)
 {
     cvf::Vec3d t1 (RiaOffshoreSphericalCoords::unitVectorFromAziInc(azi1, inc1));
 
@@ -40,9 +40,11 @@ RiaJCurveCalculator::RiaJCurveCalculator(cvf::Vec3d p1, double azi1, double inc1
     if (!isOk)
     {
         // p2 is on the p1 + t12 line. Degenerates to a line.
+        m_curveStatus = OK_STRAIGHT_LINE; 
         m_firstArcEndpoint = p2;
         m_endAzi = azi1;
         m_endInc = inc1;
+
         return;
     }
 
@@ -53,15 +55,18 @@ RiaJCurveCalculator::RiaJCurveCalculator(cvf::Vec3d p1, double azi1, double inc1
     if (p2c1Length < r1)
     {
         // Radius is too big. We can not get to point 2 using the requested radius.
-        m_isCalculationOK = false;
+        m_curveStatus = FAILED_RADIUS_TOO_LARGE; 
+
         RiaArcCurveCalculator arc(p1, t1, p2);
-        if ( arc.isOk() )
+        if (   arc.curveStatus() == RiaArcCurveCalculator::OK 
+            || arc.curveStatus() == RiaArcCurveCalculator::OK_STRAIGHT_LINE )
         {
             m_c1 = arc.center();
             m_n1 = arc.normal();
             m_firstArcEndpoint = p2;
             m_endAzi = arc.endAzimuth();
             m_endInc = arc.endInclination();
+            m_radius = arc.radius();
         }
         else
         {
@@ -83,7 +88,6 @@ RiaJCurveCalculator::RiaJCurveCalculator(cvf::Vec3d p1, double azi1, double inc1
     m_firstArcEndpoint = p2 - d*tp11p2;
     m_c1 = c1;
     m_n1 = nc1;
-    m_isCalculationOK = true;
 
     RiaOffshoreSphericalCoords endTangent(tp11p2);
     m_endAzi = endTangent.azi();

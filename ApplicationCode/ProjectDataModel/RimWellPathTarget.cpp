@@ -157,10 +157,11 @@ double RimWellPathTarget::radius1() const
     // Needs to be aware of unit to select correct DLS conversion
     // Degrees pr 100 ft
     // Degrees pr 10m
-    // Degrees pr 30m
 
+    // Degrees pr 30m
     return 30.0/cvf::Math::toRadians(m_dogleg1);
 }
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -169,9 +170,48 @@ double RimWellPathTarget::radius2() const
     // Needs to be aware of unit to select correct DLS conversion
     // Degrees pr 100 ft
     // Degrees pr 10m
-    // Degrees pr 30m
 
+    // Degrees pr 30m
     return 30.0/cvf::Math::toRadians(m_dogleg2);
+}
+
+double doglegFromRadius(double radius)
+{
+    return cvf::Math::toDegrees(30.0/radius);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellPathTarget::flagRadius1AsIncorrect(bool isIncorrect, double actualRadius)
+{
+    if (isIncorrect)
+    {
+        m_dogleg1.uiCapability()->setUiContentTextColor(Qt::red);
+        m_dogleg1.uiCapability()->setUiToolTip("The dogleg constraint is not satisfied! Actual Dogleg: " + QString::number(doglegFromRadius(actualRadius)));
+    }
+    else
+    {
+        m_dogleg1.uiCapability()->setUiContentTextColor(QColor());
+        m_dogleg1.uiCapability()->setUiToolTip("");
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellPathTarget::flagRadius2AsIncorrect(bool isIncorrect, double actualRadius)
+{
+    if (isIncorrect)
+    {
+        m_dogleg2.uiCapability()->setUiContentTextColor(Qt::red);
+        m_dogleg2.uiCapability()->setUiToolTip("The dogleg constraint is not satisfied! Actual Dogleg: " + QString::number(doglegFromRadius(actualRadius)));
+    }
+    else
+    {
+        m_dogleg2.uiCapability()->setUiContentTextColor(QColor());
+        m_dogleg2.uiCapability()->setUiToolTip("");
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
