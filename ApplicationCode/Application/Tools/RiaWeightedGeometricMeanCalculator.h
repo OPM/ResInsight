@@ -30,6 +30,7 @@ public:
 
     double weightedMean() const;
     double aggregatedWeight() const;
+    bool  validAggregatedWeight() const;
 
 private:
     double m_aggregatedWeightedValue;

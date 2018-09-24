@@ -63,3 +63,11 @@ double RiaWeightedGeometricMeanCalculator::aggregatedWeight() const
 {
     return m_aggregatedWeight;
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RiaWeightedGeometricMeanCalculator::validAggregatedWeight() const
+{
+    return m_aggregatedWeight > 1.0e-12;
+}
