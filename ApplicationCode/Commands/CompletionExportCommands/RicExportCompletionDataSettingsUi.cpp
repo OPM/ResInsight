@@ -88,11 +88,11 @@ RicExportCompletionDataSettingsUi::RicExportCompletionDataSettingsUi()
 
     CAF_PDM_InitFieldNoDefault(&compdatExport, "compdatExport", "Export", "", " ", "");
 
-    CAF_PDM_InitField(&timeStep, "TimeStepIndex", 0, "  Time Step", "", "", "");
+    CAF_PDM_InitField(&timeStep, "TimeStepIndex", 0, "    Time Step", "", "", "");
 
-    CAF_PDM_InitField(&includeMsw, "IncludeMSW", false, "Include MSW", "", "", "");
+    CAF_PDM_InitField(&includeMsw, "IncludeMSW", false, "Include Multi Segment Well Model", "", "", "");
 
-    CAF_PDM_InitField(&useLateralNTG, "UseLateralNTG", false, "    Use NTG Horizontally", "", "", "");
+    CAF_PDM_InitField(&useLateralNTG, "UseLateralNTG", false, "Use NTG Horizontally", "", "", "");
 
     CAF_PDM_InitField(&includePerforations, "IncludePerforations", true, "Perforations", "", "", "");
     CAF_PDM_InitField(&includeFishbones, "IncludeFishbones", true, "Fishbones", "", "", "");
@@ -115,7 +115,7 @@ RicExportCompletionDataSettingsUi::RicExportCompletionDataSettingsUi()
     CAF_PDM_InitField(&excludeMainBoreForFishbones,
                       "ExcludeMainBoreForFishbones",
                       false,
-                      "  Exclude Main Bore Transmissibility",
+                      "    Exclude Main Bore Transmissibility",
                       "",
                       "Main bore perforation intervals are defined by start/end MD of each active fishbone sub definition",
                       "");
@@ -248,11 +248,14 @@ void RicExportCompletionDataSettingsUi::defineUiOrdering(QString uiConfigName, c
 {
     {
         caf::PdmUiGroup* group = uiOrdering.addNewGroup("Export Settings");
-
         group->add(&compdatExport);
+        group->add(&caseToApply);
         group->add(&useLateralNTG);
         group->add(&includeMsw);
-        group->add(&caseToApply);
+    }
+
+    {
+        caf::PdmUiGroup* group = uiOrdering.addNewGroup("File Settings");
         group->add(&fileSplit);
         group->add(&m_reportCompletionTypesSeparately);
         group->add(&folder);
