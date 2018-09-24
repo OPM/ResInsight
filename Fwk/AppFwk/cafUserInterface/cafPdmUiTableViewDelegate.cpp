@@ -112,6 +112,22 @@ bool PdmUiTableViewDelegate::isEditorOpen() const
     return m_activeEditorCount > 0;
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void PdmUiTableViewDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
+{
+    QStyleOptionViewItemV4 viewItemOption(option);
+
+    QVariant fgText = index.data(Qt::ForegroundRole);
+
+    if (fgText.canConvert<QColor>()){
+        viewItemOption.palette.setColor(QPalette::Active, QPalette::HighlightedText, qvariant_cast<QColor>(fgText));
+        viewItemOption.palette.setColor(QPalette::Inactive, QPalette::HighlightedText, qvariant_cast<QColor>(fgText));
+    }
+  
+    this->QStyledItemDelegate::paint(painter, viewItemOption, index);
+}
 
 } // end namespace caf
 

@@ -173,14 +173,27 @@ bool PdmUiTableViewQModel::setData(const QModelIndex &index, const QVariant &val
 //--------------------------------------------------------------------------------------------------
 QVariant PdmUiTableViewQModel::data(const QModelIndex &index, int role /*= Qt::DisplayRole */) const
 {
-    if (role == Qt::TextColorRole)
+    if (role == Qt::ForegroundRole)
     {
         PdmFieldHandle* fieldHandle = getField(index);
         if (fieldHandle && fieldHandle->uiCapability())
         {
+            QColor textColor = fieldHandle->uiCapability()->uiContentTextColor(m_currentConfigName);
+
             if (fieldHandle->uiCapability()->isUiReadOnly(m_currentConfigName))
             {
-                return Qt::lightGray;
+                if (textColor.isValid())
+                {
+                    return textColor.lighter(150);
+                }
+                else
+                {
+                    return Qt::lightGray;
+                }
+            }
+            else if (textColor.isValid())
+            {
+                return textColor;
             }
         }
     }
@@ -317,7 +330,18 @@ QVariant PdmUiTableViewQModel::data(const QModelIndex &index, int role /*= Qt::D
             }
         }
     }
-
+    else if ( role == Qt::ToolTipRole )
+    {
+        PdmUiFieldHandle* uiFieldHandle = getField(index)->uiCapability();
+        if ( uiFieldHandle )
+        {
+            return uiFieldHandle->uiToolTip();
+        }
+        else
+        {
+            return QVariant();
+        }
+    }
     return QVariant();
 }
 

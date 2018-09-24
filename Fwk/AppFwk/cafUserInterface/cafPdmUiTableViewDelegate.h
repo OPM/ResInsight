@@ -63,8 +63,11 @@ public:
 
     bool        isEditorOpen() const;
 
-protected slots:
+    protected slots:
     void        slotEditorDestroyed(QObject* obj);
+
+protected:
+    virtual void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const override;
 
 private:
     PdmUiTableViewQModel* m_model;
