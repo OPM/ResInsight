@@ -1144,10 +1144,10 @@ void RimEclipseView::updateMinMaxValuesAndAddLegendToView(QString legendLabel,
     size_t maxTimeStepCount = cellResultsData->maxTimeStepCount();
     if (resultColors->isTernarySaturationSelected() && maxTimeStepCount > 1)
     {
-        if (resultColors->ternaryLegendConfig->showLegend() && resultColors->ternaryLegendConfig->titledOverlayFrame())
+        if (resultColors->ternaryLegendConfig()->showLegend() && resultColors->ternaryLegendConfig()->titledOverlayFrame())
         {
-            resultColors->ternaryLegendConfig->setTitle(legendLabel);
-            m_viewer->addColorLegendToBottomLeftCorner(resultColors->ternaryLegendConfig->titledOverlayFrame());
+            resultColors->ternaryLegendConfig()->setTitle(legendLabel);
+            m_viewer->addColorLegendToBottomLeftCorner(resultColors->ternaryLegendConfig()->titledOverlayFrame());
         }
     }
 }
@@ -1611,7 +1611,7 @@ void RimEclipseView::resetLegendsInViewer()
     RimRegularLegendConfig* cellResultNormalLegendConfig = this->cellResult()->legendConfig();
     if (cellResultNormalLegendConfig) cellResultNormalLegendConfig->recreateLegend();
 
-    this->cellResult()->ternaryLegendConfig->recreateLegend();
+    this->cellResult()->ternaryLegendConfig()->recreateLegend();
     this->cellEdgeResult()->legendConfig()->recreateLegend();
 
     m_viewer->removeAllColorLegends();

@@ -56,8 +56,8 @@ RimEclipseCellColors::RimEclipseCellColors()
 
     CAF_PDM_InitFieldNoDefault(&m_legendConfigData, "ResultVarLegendDefinitionList", "", "", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&ternaryLegendConfig, "TernaryLegendDefinition", "Ternary Legend Definition", "", "", "");
-    this->ternaryLegendConfig = new RimTernaryLegendConfig();
+    CAF_PDM_InitFieldNoDefault(&m_ternaryLegendConfig, "TernaryLegendDefinition", "Ternary Legend Definition", "", "", "");
+    this->m_ternaryLegendConfig = new RimTernaryLegendConfig();
 
     CAF_PDM_InitFieldNoDefault(&m_legendConfigPtrField, "LegendDefinitionPtrField", "Legend Definition PtrField", "", "", "");
 
@@ -74,7 +74,7 @@ RimEclipseCellColors::~RimEclipseCellColors()
 
     m_legendConfigData.deleteAllChildObjects();
 
-    delete ternaryLegendConfig();
+    delete m_ternaryLegendConfig();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -189,7 +189,7 @@ void RimEclipseCellColors::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOr
 {
     if (this->resultVariable() == RiaDefines::ternarySaturationResultName())
     {
-        uiTreeOrdering.add(ternaryLegendConfig());
+        uiTreeOrdering.add(m_ternaryLegendConfig());
     }
     else
     {
@@ -278,7 +278,7 @@ void RimEclipseCellColors::updateLegendData(size_t currentTimeStep,
                                             RimTernaryLegendConfig* ternaryLegendConfig)
 {
     if (!legendConfig) legendConfig = this->legendConfig();
-    if (!ternaryLegendConfig) ternaryLegendConfig = this->ternaryLegendConfig();
+    if (!ternaryLegendConfig) ternaryLegendConfig = this->m_ternaryLegendConfig();
 
     if ( this->hasResult() )
     {
@@ -517,6 +517,14 @@ void RimEclipseCellColors::setResultVariable(const QString& val)
 RimRegularLegendConfig* RimEclipseCellColors::legendConfig()
 {
     return m_legendConfigPtrField;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimTernaryLegendConfig* RimEclipseCellColors::ternaryLegendConfig()
+{
+    return m_ternaryLegendConfig;
 }
 
 //--------------------------------------------------------------------------------------------------

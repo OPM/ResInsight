@@ -46,8 +46,9 @@ public:
     void                                        updateLegendData(size_t timestep, 
                                                                  RimRegularLegendConfig* legendConfig = nullptr,
                                                                  RimTernaryLegendConfig* ternaryLegendConfig = nullptr);
+    
     RimRegularLegendConfig*                            legendConfig();
-    caf::PdmChildField<RimTernaryLegendConfig*> ternaryLegendConfig;
+    RimTernaryLegendConfig*                            ternaryLegendConfig();
 
     virtual void                                setResultVariable(const QString& resultName);
     
@@ -69,6 +70,7 @@ private:
 
     caf::PdmChildArrayField<RimRegularLegendConfig*>   m_legendConfigData;
     caf::PdmPtrField<RimRegularLegendConfig*>          m_legendConfigPtrField;
+    caf::PdmChildField<RimTernaryLegendConfig*>        m_ternaryLegendConfig;
 
     caf::PdmPointer<RimEclipseView>             m_reservoirView;
 
