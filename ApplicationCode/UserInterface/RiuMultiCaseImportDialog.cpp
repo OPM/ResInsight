@@ -230,9 +230,9 @@ void RiuMultiCaseImportDialog::appendEGRIDFilesRecursively(const QString& folder
 
         for (int i = 0; i < subFolders.size(); ++i)
         {
-            QString folderName = subFolders[i];
+            QString subFolderName = subFolders[i];
 
-            QString absoluteFolderName = baseDir.absoluteFilePath(folderName);
+            QString absoluteFolderName = baseDir.absoluteFilePath(subFolderName);
             appendEGRIDFilesRecursively(absoluteFolderName, gridFileNames);
         }
     }

@@ -1218,15 +1218,15 @@ void RicWellPathExportCompletionDataFeatureImpl::exportWelspecsToFile(RimEclipse
     // Export
     for (const auto wellPath : wellPathSet)
     {
-        auto       completions    = wellPath->completions();
-        cvf::Vec2i ijIntersection = wellPathUpperGridIntersectionIJ(gridCase, wellPath);
+        auto       rimCcompletions = wellPath->completions();
+        cvf::Vec2i ijIntersection  = wellPathUpperGridIntersectionIJ(gridCase, wellPath);
 
-        formatter.add(completions->wellNameForExport())
-            .add(completions->wellGroupNameForExport())
+        formatter.add(rimCcompletions->wellNameForExport())
+            .add(rimCcompletions->wellGroupNameForExport())
             .addOneBasedCellIndex(ijIntersection.x())
             .addOneBasedCellIndex(ijIntersection.y())
-            .add(completions->referenceDepthForExport())
-            .add(completions->wellTypeNameForExport())
+            .add(rimCcompletions->referenceDepthForExport())
+            .add(rimCcompletions->wellTypeNameForExport())
             .rowCompleted();
     }
 
@@ -1281,16 +1281,16 @@ void RicWellPathExportCompletionDataFeatureImpl::exportWelspeclToFile(
         // Export
         for (const auto wellPath : wellPathsForLgr.second)
         {
-            auto       completions    = wellPath->completions();
+            auto       rimCompletions = wellPath->completions();
             cvf::Vec2i ijIntersection = wellPathUpperGridIntersectionIJ(gridCase, wellPath, lgrName);
 
-            formatter.add(completions->wellNameForExport())
-                .add(completions->wellGroupNameForExport())
+            formatter.add(rimCompletions->wellNameForExport())
+                .add(rimCompletions->wellGroupNameForExport())
                 .add(lgrName)
                 .addOneBasedCellIndex(ijIntersection.x())
                 .addOneBasedCellIndex(ijIntersection.y())
-                .add(completions->referenceDepthForExport())
-                .add(completions->wellTypeNameForExport())
+                .add(rimCompletions->referenceDepthForExport())
+                .add(rimCompletions->wellTypeNameForExport())
                 .rowCompleted();
         }
     }

@@ -208,10 +208,10 @@ void RigWellPath::twoClosestPoints(const cvf::Vec3d& position, cvf::Vec3d* p1, c
 
     for ( size_t i = 1; i < m_wellPathPoints.size(); i++ )
     {
-        cvf::Vec3d p1 = m_wellPathPoints[i - 1];
-        cvf::Vec3d p2 = m_wellPathPoints[i - 0];
+        cvf::Vec3d point1 = m_wellPathPoints[i - 1];
+        cvf::Vec3d point2 = m_wellPathPoints[i - 0];
 
-        double candidateDistance = cvf::GeometryTools::linePointSquareDist(p1, p2, position);
+        double candidateDistance = cvf::GeometryTools::linePointSquareDist(point1, point2, position);
         if ( candidateDistance < closestDistance )
         {
             closestDistance = candidateDistance;

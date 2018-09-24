@@ -541,12 +541,12 @@ bool RifEclipseUserDataParserTools::hasCompleteDataForAllHeaderColumns(const std
 
     bool headerDataComplete = true;
     {
-        auto lines = RifEclipseUserDataParserTools::findValidHeaderLines(streamData);
-        if (lines.size() > 0)
+        auto headerLines = RifEclipseUserDataParserTools::findValidHeaderLines(streamData);
+        if (headerLines.size() > 0)
         {
-            size_t wordsFirstLine = lines[0].size();
+            size_t wordsFirstLine = headerLines[0].size();
 
-            for (auto line : lines)
+            for (auto line : headerLines)
             {
                 if (wordsFirstLine != line.size())
                 {

@@ -511,16 +511,16 @@ void RivFaultPartMgr::createLabelWithAnchorLine(const cvf::Part* part)
 
         drawableText->addText(cvfString, textCoord);
 
-        cvf::ref<cvf::Part> part = new cvf::Part;
-        part->setName("RivFaultPart : text " + cvfString);
-        part->setDrawable(drawableText.p());
+        cvf::ref<cvf::Part> labelPart = new cvf::Part;
+        labelPart->setName("RivFaultPart : text " + cvfString);
+        labelPart->setDrawable(drawableText.p());
 
         cvf::ref<cvf::Effect> eff = new cvf::Effect;
 
-        part->setEffect(eff.p());
-        part->setPriority(RivPartPriority::PartType::Text);
+        labelPart->setEffect(eff.p());
+        labelPart->setPriority(RivPartPriority::PartType::Text);
 
-        m_faultLabelPart = part;
+        m_faultLabelPart = labelPart;
     }
 
     // Line from fault geometry to label

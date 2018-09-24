@@ -83,10 +83,10 @@ void RigReservoirBuilderMock::appendNodes(const cvf::Vec3d& min, const cvf::Vec3
             size_t i;
             for (i = 0; i < cubeDimension.x(); i++)
             {
-                cvf::Vec3d min(xPos, yPos, zPos);
-                cvf::Vec3d max(xPos + dx, yPos + dy, zPos + dz);
+                cvf::Vec3d cornerA(xPos, yPos, zPos);
+                cvf::Vec3d cornerB(xPos + dx, yPos + dy, zPos + dz);
 
-                appendCubeNodes(min, max, nodes);
+                appendCubeNodes(cornerA, cornerB, nodes);
 
                 xPos += dx;
             }
