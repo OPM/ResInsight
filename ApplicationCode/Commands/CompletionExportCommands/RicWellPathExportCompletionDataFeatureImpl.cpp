@@ -149,7 +149,12 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions(const std::ve
         if (prefs->includeFractureDebugInfoFile())
         {
             QDir outputDir = QDir(exportSettings.folder);
-            outputDir.mkpath(".");
+            if (!outputDir.mkpath("."))
+            {
+                QString errMsg = QString("Could not create export folder: %1").arg(exportSettings.folder);
+                RiaLogging::error(errMsg);
+                return;
+            }
 
             QString fractureTransmisibillityExportInformationPath =
                 QDir(exportSettings.folder).absoluteFilePath("FractureTransmissibilityExportInformation");
