@@ -500,6 +500,26 @@ const caf::ColorTable& RiaColorTables::timestepsPaletteColors()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+const caf::ColorTable& RiaColorTables::editableWellPathsPaletteColors()
+{
+    static std::vector<cvf::Color3ub> colors{
+        cvf::Color3ub( 204, 0, 204),   // Dark magenta
+        cvf::Color3ub( 173, 23, 212), // Strong Purple
+        cvf::Color3ub( 143, 46, 219),   //Purple
+        cvf::Color3ub( 102, 76, 230),   // Gray Blue
+        cvf::Color3ub(  71, 99, 237),   // Lighter Gray Blue
+        cvf::Color3ub(  31, 130, 247),   // Strong Blue
+        cvf::Color3ub(   0, 153, 255),   // Dark Turquise
+    };
+
+    static caf::ColorTable colorTable = caf::ColorTable(colors);
+
+    return colorTable;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 cvf::Color3f RiaColorTables::undefinedCellColor()
 {
     return cvf::Color3::GRAY;

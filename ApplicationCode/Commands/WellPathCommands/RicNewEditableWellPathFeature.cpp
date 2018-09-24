@@ -29,6 +29,7 @@ CAF_CMD_SOURCE_INIT(RicNewEditableWellPathFeature, "RicNewEditableWellPathFeatur
 #include "RimOilField.h"
 #include "Riu3DMainWindowTools.h"
 #include "RimWellPathGeometryDef.h"
+#include "RiaColorTables.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -71,9 +72,15 @@ void RicNewEditableWellPathFeature::onActionTriggered(bool isChecked)
         {
             std::vector<RimWellPath*> newWellPaths;
             auto newModeledWellPath = new RimModeledWellPath();
-            newModeledWellPath->setUnitSystem(project->commonUnitSystemForAllCases());
             newWellPaths.push_back(newModeledWellPath);
-            newWellPaths.back()->setName("UWell-" + QString::number(wellPathCollection->modelledWellPathCount()+1));
+
+            newModeledWellPath->setUnitSystem(project->commonUnitSystemForAllCases());
+
+            size_t modelledWellpathCount = wellPathCollection->modelledWellPathCount();
+
+            newWellPaths.back()->setName("UWell-" + QString::number(modelledWellpathCount+1));
+            newModeledWellPath->setWellPathColor(RiaColorTables::editableWellPathsPaletteColors().cycledColor3f(modelledWellpathCount));
+
             wellPathCollection->addWellPaths(newWellPaths);
             wellPathCollection->uiCapability()->updateConnectedEditors();
             
