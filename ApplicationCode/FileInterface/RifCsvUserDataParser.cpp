@@ -55,7 +55,7 @@ using SampleList = std::vector<Sample>;
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-enum CsvLineBasedColumnType { DATE, VECTOR, VALUE, ERROR_VALUE, COMMENTS };
+enum class CsvLineBasedColumnType { DATE, VECTOR, VALUE, ERROR_VALUE, COMMENTS };
 const std::vector<QString> CSV_LINE_BASED_COL_NAMES = { "DATE", "VECTOR", "VALUE", "ERROR", "COMMENTS" };
 
 //--------------------------------------------------------------------------------------------------
@@ -237,9 +237,9 @@ RifCsvUserDataParser::CsvLayout RifCsvUserDataParser::determineCsvLayout()
     }
     closeDataStream();
 
-    if (headers.contains(CSV_LINE_BASED_COL_NAMES[DATE])
-        && headers.contains(CSV_LINE_BASED_COL_NAMES[VECTOR])
-        && headers.contains(CSV_LINE_BASED_COL_NAMES[VALUE])) return LineBased;
+    if (headers.contains(CSV_LINE_BASED_COL_NAMES[(size_t)CsvLineBasedColumnType::DATE])
+        && headers.contains(CSV_LINE_BASED_COL_NAMES[(size_t)CsvLineBasedColumnType::VECTOR])
+        && headers.contains(CSV_LINE_BASED_COL_NAMES[(size_t)CsvLineBasedColumnType::VALUE])) return LineBased;
     return ColumnBased;
 }
 
@@ -449,7 +449,7 @@ bool RifCsvUserDataParser::parseLineBasedData()
             if (!colIndexes.empty())
             {
                 headerFound = true;
-                expectErrorValue = colIndexes.size() > ERROR_VALUE && colIndexes[ERROR_VALUE] >= 0;
+                expectErrorValue = colIndexes.size() > (size_t)CsvLineBasedColumnType::ERROR_VALUE && colIndexes[(size_t)CsvLineBasedColumnType::ERROR_VALUE] >= 0;
             }
             continue;
         }
@@ -457,7 +457,7 @@ bool RifCsvUserDataParser::parseLineBasedData()
         if(dataItems.size() != (int)colIndexes.size()) continue;
 
         {
-            auto textAddr = dataItems[colIndexes[VECTOR]];
+            auto textAddr = dataItems[colIndexes[(size_t)CsvLineBasedColumnType::VECTOR]];
             auto addr = RifEclipseSummaryAddress::fromEclipseTextAddress(textAddr.toStdString());
             auto errAddr = addr;
             errAddr.setAsErrorResult();
@@ -484,7 +484,7 @@ bool RifCsvUserDataParser::parseLineBasedData()
             // DATE
             QDateTime dateTime;
             {
-                auto dateText = dataItems[colIndexes[DATE]].toStdString();
+                auto dateText = dataItems[colIndexes[(size_t)CsvLineBasedColumnType::DATE]].toStdString();
 
                 dateTime = tryParseDateTime(dateText, ISO_DATE_FORMAT);
                 if (!dateTime.isValid())
@@ -503,7 +503,7 @@ bool RifCsvUserDataParser::parseLineBasedData()
             // VALUE
             {
                 bool parseOk = true;
-                double value = QLocale::c().toDouble(dataItems[colIndexes[VALUE]], &parseOk);
+                double value = QLocale::c().toDouble(dataItems[colIndexes[(size_t)CsvLineBasedColumnType::VALUE]], &parseOk);
 
                 if (!parseOk)
                 {
@@ -519,7 +519,7 @@ bool RifCsvUserDataParser::parseLineBasedData()
             if(expectErrorValue)
             {
                 bool parseOk = true;
-                double value = QLocale::c().toDouble(dataItems[colIndexes[ERROR_VALUE]], &parseOk);
+                double value = QLocale::c().toDouble(dataItems[colIndexes[(size_t)CsvLineBasedColumnType::ERROR_VALUE]], &parseOk);
 
                 if (!parseOk) value = DOUBLE_INF;
 
