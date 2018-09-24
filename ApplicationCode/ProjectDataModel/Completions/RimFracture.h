@@ -50,6 +50,7 @@ public:
         , effectivePermeability(std::numeric_limits<double>::infinity())
         , dFactor(std::numeric_limits<double>::infinity())
         , eqWellRadius(std::numeric_limits<double>::infinity())
+        , betaFactor(std::numeric_limits<double>::infinity())
         , isDataDirty(true)
     {
     }
@@ -64,6 +65,7 @@ public:
     double conductivity;
     double effectivePermeability;
     double dFactor;
+    double betaFactor;
     bool   isDataDirty;
 };
 

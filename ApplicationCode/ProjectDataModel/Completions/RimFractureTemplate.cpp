@@ -85,6 +85,16 @@ namespace caf
 
         setDefault(RimFractureTemplate::NON_DARCY_NONE);
     }
+
+    template<>
+    void caf::AppEnum< RimFractureTemplate::BetaFactorEnum>::setUp()
+    {
+        addItem(RimFractureTemplate::USER_DEFINED_BETA_FACTOR, "UserDefinedBetaFactor", "User Defined");
+        addItem(RimFractureTemplate::BETA_FACTOR_FROM_FRACTURE, "FractureBetaFactor", "Use Fracture Beta Factor");
+
+        setDefault(RimFractureTemplate::USER_DEFINED_BETA_FACTOR);
+    }
+
 }
 
 // TODO Move to cafPdmObject.h
@@ -138,6 +148,7 @@ RimFractureTemplate::RimFractureTemplate()
     CAF_PDM_InitFieldNoDefault(&m_fractureWidthType,    "FractureWidthType",     "Type", "", "", "");
     CAF_PDM_InitField_Basic(&m_fractureWidth,           "FractureWidth",  0.01,    "Fracture Width (h)");
 
+    CAF_PDM_InitFieldNoDefault(&m_betaFactorType,       "BetaFactorType", "Type", "", "", "");
     CAF_PDM_InitField_Basic(&m_inertialCoefficient,     "InertialCoefficient",  0.006083236,    "<html>Inertial Coefficient (&beta;)</html> [Forch. unit]");
 
     CAF_PDM_InitFieldNoDefault(&m_permeabilityType,         "PermeabilityType",     "Type", "", "", "");
@@ -336,7 +347,11 @@ void RimFractureTemplate::defineUiOrdering(QString uiConfigName, caf::PdmUiOrder
 
     if (m_nonDarcyFlowType == RimFractureTemplate::NON_DARCY_COMPUTED)
     {
-        nonDarcyFlowGroup->add(&m_inertialCoefficient);
+        {
+            auto group = nonDarcyFlowGroup->addNewGroup("<html>Inertial Coefficient(&beta;-factor)</html>");
+            group->add(&m_betaFactorType);
+            group->add(&m_inertialCoefficient);
+        }
 
         {
             auto group = nonDarcyFlowGroup->addNewGroup("Effective Permeability");
@@ -424,6 +439,18 @@ QList<caf::PdmOptionItemInfo> RimFractureTemplate::calculateValueOptions(const c
         options.push_back(caf::PdmOptionItemInfo(caf::AppEnum<WidthEnum>::uiText(WIDTH_FROM_FRACTURE), WIDTH_FROM_FRACTURE));
     }
 
+    if (fieldNeedingOptions == &m_betaFactorType)
+    {
+        options.push_back(
+            caf::PdmOptionItemInfo(caf::AppEnum<BetaFactorEnum>::uiText(USER_DEFINED_BETA_FACTOR), USER_DEFINED_BETA_FACTOR));
+
+        if (isBetaFactorAvailableOnFile())
+        {
+            options.push_back(caf::PdmOptionItemInfo(caf::AppEnum<BetaFactorEnum>::uiText(BETA_FACTOR_FROM_FRACTURE),
+                                                     BETA_FACTOR_FROM_FRACTURE));
+        }
+    }
+
     return options;
 }
 
@@ -477,13 +504,24 @@ void RimFractureTemplate::prepareFieldsForUiDisplay()
 
     // Non Darcy Flow
 
-    if (m_fractureWidthType == RimFractureTemplate::USER_DEFINED_WIDTH)
     {
-        m_fractureWidth.uiCapability()->setUiReadOnly(false);
-    }
-    else
-    {
-        m_fractureWidth.uiCapability()->setUiReadOnly(true);
+        if (m_fractureWidthType == RimFractureTemplate::USER_DEFINED_WIDTH)
+        {
+            m_fractureWidth.uiCapability()->setUiReadOnly(false);
+        }
+        else
+        {
+            m_fractureWidth.uiCapability()->setUiReadOnly(true);
+        }
+
+        if (m_betaFactorType == RimFractureTemplate::USER_DEFINED_BETA_FACTOR)
+        {
+            m_inertialCoefficient.uiCapability()->setUiReadOnly(false);
+        }
+        else
+        {
+            m_inertialCoefficient.uiCapability()->setUiReadOnly(true);
+        }
     }
 
     if (m_permeabilityType == RimFractureTemplate::USER_DEFINED_PERMEABILITY)
@@ -545,7 +583,7 @@ QString RimFractureTemplate::dFactorSummary() const
             auto alpha = RiaDefines::nonDarcyFlowAlpha(m_fractureTemplateUnit());
             text += indentedText(QString("&alpha;  : %1").arg(alpha));
 
-            auto beta = m_inertialCoefficient;
+            auto beta = getOrComputeBetaFactor(f);
             text += indentedText(QString("&beta;  : %1").arg(beta));
 
             double effPerm = f->nonDarcyProperties().effectivePermeability;
@@ -596,7 +634,7 @@ double RimFractureTemplate::computeEffectivePermeability(const RimFracture* frac
     else
     {
         double fracPermeability = 0.0;
-        auto   values           = widthAndConductivityAtWellPathIntersection(fractureInstance);
+        auto   values           = wellFractureIntersectionData(fractureInstance);
         if (values.isWidthAndPermeabilityDefined())
         {
             fracPermeability = values.m_permeability;
@@ -606,7 +644,7 @@ double RimFractureTemplate::computeEffectivePermeability(const RimFracture* frac
             auto conductivity = values.m_conductivity;
             auto width        = computeFractureWidth(fractureInstance);
 
-            if (fabs(width) < 1e-10) return HUGE_VAL;
+            if (fabs(width) < 1e-10) return std::numeric_limits<double>::infinity();
 
             fracPermeability = conductivity / width;
         }
@@ -651,7 +689,7 @@ double RimFractureTemplate::computeDFactor(const RimFracture* fractureInstance) 
     {
         double radius  = computeWellRadiusForDFactorCalculation(fractureInstance);
         double alpha   = RiaDefines::nonDarcyFlowAlpha(m_fractureTemplateUnit());
-        double beta    = m_inertialCoefficient;
+        double beta    = getOrComputeBetaFactor(fractureInstance);
         double effPerm = computeEffectivePermeability(fractureInstance);
         double gamma   = m_relativeGasDensity;
 
@@ -661,7 +699,7 @@ double RimFractureTemplate::computeDFactor(const RimFracture* fractureInstance) 
         double numerator   = alpha * beta * effPerm * gamma;
         double denumerator = h * radius * mu;
 
-        if (denumerator < 1e-10) return HUGE_VAL;
+        if (denumerator < 1e-10) return std::numeric_limits<double>::infinity();
 
         d = numerator / denumerator;
 
@@ -685,7 +723,7 @@ double RimFractureTemplate::computeKh(const RimFracture* fractureInstance) const
     // kh           = permeability * h
     // conductivity = permeability * h
 
-    auto values = widthAndConductivityAtWellPathIntersection(fractureInstance);
+    auto values = wellFractureIntersectionData(fractureInstance);
     if (values.isConductivityDefined())
     {
         // If conductivity is found in stim plan file, use this directly
@@ -804,12 +842,27 @@ double RimFractureTemplate::computeFractureWidth(const RimFracture* fractureInst
 {
     if (m_fractureWidthType == RimFractureTemplate::WIDTH_FROM_FRACTURE)
     {
-        auto values = widthAndConductivityAtWellPathIntersection(fractureInstance);
+        auto values = wellFractureIntersectionData(fractureInstance);
 
         return values.m_width;
     }
 
     return m_fractureWidth;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimFractureTemplate::getOrComputeBetaFactor(const RimFracture* fractureInstance) const
+{
+    if (m_betaFactorType == RimFractureTemplate::BETA_FACTOR_FROM_FRACTURE)
+    {
+        auto values = wellFractureIntersectionData(fractureInstance);
+
+        return values.m_betaFactorInForcheimerUnits;
+    }
+
+    return m_inertialCoefficient;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -829,6 +882,14 @@ std::vector<RimFracture*> RimFractureTemplate::fracturesUsingThisTemplate() cons
     this->objectsWithReferringPtrFieldsOfType(fractures);
 
     return fractures;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimFractureTemplate::isBetaFactorAvailableOnFile() const
+{
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------

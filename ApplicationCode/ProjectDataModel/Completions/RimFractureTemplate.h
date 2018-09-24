@@ -32,7 +32,7 @@
 #include "cvfVector3.h"
 
 #include <vector>
-#include <cmath>
+#include <limits>
 
 class RigFractureGrid;
 class RimFractureContainment;
@@ -40,13 +40,14 @@ class MinMaxAccumulator;
 class PosNegAccumulator;
 class RimFracture;
 
-class FractureWidthAndConductivity
+class WellFractureIntersectionData
 {
 public:
-    FractureWidthAndConductivity()
+    WellFractureIntersectionData()
         : m_width(0.0)
         , m_permeability(0.0)
-        , m_conductivity(HUGE_VAL)
+        , m_conductivity(std::numeric_limits<double>::infinity())
+        , m_betaFactorInForcheimerUnits(std::numeric_limits<double>::infinity())
     {
     }
 
@@ -60,7 +61,7 @@ public:
 
     bool isConductivityDefined() const
     {
-        return (m_conductivity != HUGE_VAL);
+        return (m_conductivity != std::numeric_limits<double>::infinity());
     }
 
     // Unit : meter or feet
@@ -70,6 +71,9 @@ public:
     double m_permeability;
 
     double m_conductivity;
+
+    // Unit : Forcheimer unit
+    double m_betaFactorInForcheimerUnits;
 };
 
 //==================================================================================================
@@ -104,6 +108,12 @@ public:
     {
         USER_DEFINED_WIDTH,
         WIDTH_FROM_FRACTURE,
+    };
+
+    enum BetaFactorEnum
+    {
+        USER_DEFINED_BETA_FACTOR,
+        BETA_FACTOR_FROM_FRACTURE,
     };
 
     enum NonDarcyFlowEnum
@@ -165,6 +175,7 @@ public:
     double                          computeEffectivePermeability(const RimFracture* fractureInstance) const;
     double                          computeWellRadiusForDFactorCalculation(const RimFracture* fractureInstance) const;
     double                          computeFractureWidth(const RimFracture* fractureInstance) const;
+    double                          getOrComputeBetaFactor(const RimFracture* fractureInstance) const;
 
     void                            loadDataAndUpdateGeometryHasChanged();
 
@@ -177,10 +188,12 @@ protected:
 
     std::vector<RimFracture*>       fracturesUsingThisTemplate() const;
     virtual void                    onLoadDataAndUpdateGeometryHasChanged() = 0;
+    
+    virtual bool                    isBetaFactorAvailableOnFile() const;
 
 private:
     void                            prepareFieldsForUiDisplay();
-    virtual FractureWidthAndConductivity widthAndConductivityAtWellPathIntersection(const RimFracture* fractureInstance) const = 0;
+    virtual WellFractureIntersectionData wellFractureIntersectionData(const RimFracture* fractureInstance) const = 0;
 
     QString                         dFactorSummary() const;
     double                          dFactorForTemplate() const;
@@ -205,6 +218,8 @@ protected:
 
     caf::PdmField<caf::AppEnum<WidthEnum>>             m_fractureWidthType;
     caf::PdmField<double>                              m_fractureWidth;
+
+    caf::PdmField<caf::AppEnum<BetaFactorEnum>>        m_betaFactorType;
     caf::PdmField<double>                              m_inertialCoefficient;
 
     caf::PdmField<caf::AppEnum<PermeabilityEnum>>      m_permeabilityType;

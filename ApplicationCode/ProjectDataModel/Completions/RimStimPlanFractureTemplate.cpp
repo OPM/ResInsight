@@ -22,6 +22,7 @@
 #include "RiaCompletionTypeCalculationScheduler.h"
 #include "RiaFractureDefines.h"
 #include "RiaLogging.h"
+#include "RiaWeightedGeometricMeanCalculator.h"
 #include "RiaWeightedMeanCalculator.h"
 
 #include "RifStimPlanXmlReader.h"
@@ -439,10 +440,9 @@ std::vector<double>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-FractureWidthAndConductivity
-    RimStimPlanFractureTemplate::widthAndConductivityAtWellPathIntersection(const RimFracture* fractureInstance) const
+WellFractureIntersectionData RimStimPlanFractureTemplate::wellFractureIntersectionData(const RimFracture* fractureInstance) const
 {
-    FractureWidthAndConductivity values;
+    WellFractureIntersectionData values;
 
     if (m_fractureGrid.notNull())
     {
@@ -455,9 +455,11 @@ FractureWidthAndConductivity
 
             if (rimWellPath && rimWellPath->wellPathGeometry())
             {
-                double totalLength          = 0.0;
-                double weightedConductivity = 0.0;
-                double weightedWidth        = 0.0;
+                double totalLength              = 0.0;
+                double weightedConductivity     = 0.0;
+                double weightedWidth            = 0.0;
+                double weightedBetaFactorOnFile = 0.0;
+                double conversionFactorForBeta  = 1.0;
 
                 {
                     std::vector<double> widthResultValues;
@@ -474,8 +476,30 @@ FractureWidthAndConductivity
                             nameUnit.first, nameUnit.second, m_activeTimeStepIndex, fractureTemplateUnit());
                     }
 
-                    RiaWeightedMeanCalculator<double> widthCalc;
-                    RiaWeightedMeanCalculator<double> conductivityCalc;
+                    std::vector<double> betaFactorResultValues;
+                    {
+                        auto nameUnit          = betaFactorParameterNameAndUnit();
+                        betaFactorResultValues = m_stimPlanFractureDefinitionData->fractureGridResults(
+                            nameUnit.first, nameUnit.second, m_activeTimeStepIndex);
+
+                        QString trimmedUnit = nameUnit.second.trimmed().toLower();
+                        if (trimmedUnit == "/m")
+                        {
+                            conversionFactorForBeta = 1.01325E+08;
+                        }
+                        else if (trimmedUnit == "/cm")
+                        {
+                            conversionFactorForBeta = 1.01325E+06;
+                        }
+                        else if (trimmedUnit == "/ft")
+                        {
+                            conversionFactorForBeta = 3.088386E+07;
+                        }
+                    }
+
+                    RiaWeightedMeanCalculator<double>  widthCalc;
+                    RiaWeightedMeanCalculator<double>  conductivityCalc;
+                    RiaWeightedGeometricMeanCalculator betaFactorCalc;
 
                     RigWellPathStimplanIntersector intersector(rimWellPath->wellPathGeometry(), fractureInstance);
                     for (const auto& v : intersector.intersections())
@@ -493,6 +517,11 @@ FractureWidthAndConductivity
                             conductivityCalc.addValueAndWeight(conductivityResultValues[fractureGlobalCellIndex],
                                                                intersectionLength);
                         }
+
+                        if (fractureGlobalCellIndex < betaFactorResultValues.size())
+                        {
+                            betaFactorCalc.addValueAndWeight(betaFactorResultValues[fractureGlobalCellIndex], intersectionLength);
+                        }
                     }
                     if (conductivityCalc.validAggregatedWeight())
                     {
@@ -503,12 +532,19 @@ FractureWidthAndConductivity
                         weightedWidth = widthCalc.weightedMean();
                         totalLength   = widthCalc.aggregatedWeight();
                     }
+                    if (betaFactorCalc.validAggregatedWeight())
+                    {
+                        weightedBetaFactorOnFile = betaFactorCalc.weightedMean();
+                    }
                 }
 
                 if (totalLength > 1e-7)
                 {
                     values.m_width        = weightedWidth;
                     values.m_conductivity = weightedConductivity;
+
+                    double betaFactorForcheimer          = weightedBetaFactorOnFile / conversionFactorForBeta;
+                    values.m_betaFactorInForcheimerUnits = betaFactorForcheimer;
                 }
 
                 if (weightedWidth > 1e-7)
@@ -599,6 +635,38 @@ std::pair<QString, QString> RimStimPlanFractureTemplate::conductivityParameterNa
     }
 
     return std::pair<QString, QString>();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::pair<QString, QString> RimStimPlanFractureTemplate::betaFactorParameterNameAndUnit() const
+{
+    if (m_stimPlanFractureDefinitionData.notNull())
+    {
+        std::vector<std::pair<QString, QString>> propertyNamesUnitsOnFile =
+            m_stimPlanFractureDefinitionData->getStimPlanPropertyNamesUnits();
+
+        for (const auto& nameUnit : propertyNamesUnitsOnFile)
+        {
+            if (nameUnit.first.contains("beta", Qt::CaseInsensitive))
+            {
+                return nameUnit;
+            }
+        }
+    }
+
+    return std::pair<QString, QString>();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimStimPlanFractureTemplate::isBetaFactorAvailableOnFile() const
+{
+    auto nameAndUnit = betaFactorParameterNameAndUnit();
+
+    return !nameAndUnit.first.isEmpty();
 }
 
 //--------------------------------------------------------------------------------------------------

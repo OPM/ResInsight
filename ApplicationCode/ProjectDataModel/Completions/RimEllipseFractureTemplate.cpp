@@ -228,10 +228,10 @@ void RimEllipseFractureTemplate::createFractureGridAndAssignConductivities()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-FractureWidthAndConductivity
-    RimEllipseFractureTemplate::widthAndConductivityAtWellPathIntersection(const RimFracture* fractureInstance) const
+WellFractureIntersectionData
+    RimEllipseFractureTemplate::wellFractureIntersectionData(const RimFracture* fractureInstance) const
 {
-    FractureWidthAndConductivity values;
+    WellFractureIntersectionData values;
     values.m_width        = m_width;
     values.m_permeability = m_permeability;
 

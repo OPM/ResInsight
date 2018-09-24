@@ -76,7 +76,7 @@ private:
     void                    createFractureGridAndAssignConductivities();
     std::vector<cvf::Vec3f> fractureBorderPolygon() const;
 
-    FractureWidthAndConductivity widthAndConductivityAtWellPathIntersection(const RimFracture* fractureInstance) const override;
+    WellFractureIntersectionData wellFractureIntersectionData(const RimFracture* fractureInstance) const override;
 
 private:
     cvf::ref<RigFractureGrid>   m_fractureGrid;

@@ -108,10 +108,12 @@ private:
 
     std::vector<double>                     fractureGridResultsForUnitSystem(const QString& resultName, const QString& unitName, size_t timeStepIndex, RiaEclipseUnitTools::UnitSystem requiredUnitSystem) const;
 
-    virtual FractureWidthAndConductivity    widthAndConductivityAtWellPathIntersection(const RimFracture* fractureInstance) const override;
+    virtual WellFractureIntersectionData    wellFractureIntersectionData(const RimFracture* fractureInstance) const override;
 
     std::pair<QString, QString>             widthParameterNameAndUnit() const;
     std::pair<QString, QString>             conductivityParameterNameAndUnit() const;
+    std::pair<QString, QString>             betaFactorParameterNameAndUnit() const;
+    bool                                    isBetaFactorAvailableOnFile() const override;
 
 private:
     caf::PdmField<int>                      m_activeTimeStepIndex;

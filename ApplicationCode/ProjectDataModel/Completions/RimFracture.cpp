@@ -269,6 +269,7 @@ void RimFracture::ensureValidNonDarcyProperties()
             props.dFactor               = m_fractureTemplate->computeDFactor(this);
             props.effectivePermeability = m_fractureTemplate->computeEffectivePermeability(this);
             props.eqWellRadius          = m_fractureTemplate->computeWellRadiusForDFactorCalculation(this);
+            props.betaFactor            = m_fractureTemplate->getOrComputeBetaFactor(this);
 
             props.isDataDirty = false;
         }
