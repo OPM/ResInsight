@@ -41,7 +41,7 @@ RimEnsembleStatistics::RimEnsembleStatistics()
     CAF_PDM_InitField(&m_hideEnsembleCurves, "HideEnsembleCurves", false, "Hide Ensemble Curves", "", "", "");
     CAF_PDM_InitField(&m_basedOnFilteredCases, "BasedOnFilteredCases", false, "Based on Filtered Cases", "", "", "");
     CAF_PDM_InitField(&m_showP10Curve, "ShowP10Curve", true, "P90", "", "", "");    // Yes, P90
-    CAF_PDM_InitField(&m_showP50Curve, "ShowP50Curve", true, "P50", "", "", "");
+    CAF_PDM_InitField(&m_showP50Curve, "ShowP50Curve", false, "P50", "", "", "");
     CAF_PDM_InitField(&m_showP90Curve, "ShowP90Curve", true, "P10", "", "", "");    // Yes, P10
     CAF_PDM_InitField(&m_showMeanCurve, "ShowMeanCurve", true, "Mean", "", "", "");
     CAF_PDM_InitField(&m_showCurveLabels, "ShowCurveLabels", true, "Show Curve Labels", "", "", "");
