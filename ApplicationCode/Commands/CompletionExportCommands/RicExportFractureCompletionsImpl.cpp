@@ -20,8 +20,8 @@
 
 #include "RicWellPathFractureReportItem.h"
 
-#include "RiaQDateTimeTools.h"
 #include "RiaLogging.h"
+#include "RiaQDateTimeTools.h"
 #include "RiaSummaryTools.h"
 
 #include "RimEclipseCase.h"
@@ -35,9 +35,9 @@
 #include "RimSimWellFracture.h"
 #include "RimSimWellFractureCollection.h"
 #include "RimSimWellInView.h"
+#include "RimStimPlanFractureTemplate.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseMainCollection.h"
-#include "RimStimPlanFractureTemplate.h"
 #include "RimWellPath.h"
 #include "RimWellPathCompletions.h"
 #include "RimWellPathFracture.h"
@@ -115,8 +115,13 @@ std::vector<RigCompletionData>
             }
         }
 
-        std::vector<RigCompletionData> branchCompletions = generateCompdatValues(
-            eclipseCase, well->name(), branches[branchIndex], fractures, nullptr, outputStreamForIntermediateResultsText, pdParams);
+        std::vector<RigCompletionData> branchCompletions = generateCompdatValues(eclipseCase,
+                                                                                 well->name(),
+                                                                                 branches[branchIndex],
+                                                                                 fractures,
+                                                                                 nullptr,
+                                                                                 outputStreamForIntermediateResultsText,
+                                                                                 pdParams);
 
         completionData.insert(completionData.end(), branchCompletions.begin(), branchCompletions.end());
     }
@@ -222,9 +227,9 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
 
     PressureDepletionTransScaling currentPressureDropScaling = pdParams.pressureDropScaling;
 
-    int    initialWellProductionTimeStep  = 0;
-    double initialWellPressure            = pdParams.pressureScalingWBHP;
-    double currentWellPressure            = pdParams.pressureScalingWBHP;
+    int    initialWellProductionTimeStep = 0;
+    double initialWellPressure           = pdParams.pressureScalingWBHP;
+    double currentWellPressure           = pdParams.pressureScalingWBHP;
     if (currentPressureDropScaling != NO_SCALING && pdParams.wbhpFromSummaryCase)
     {
         // Find well pressures (WBHP) from summary case.
@@ -242,9 +247,9 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
         }
     }
 
-    const std::vector<std::vector<double>>* pressureResultVector    = nullptr;
-    const std::vector<double>*              initialMatrixPressures  = nullptr;
-    const std::vector<double>*              currentMatrixPressures  = nullptr;
+    const std::vector<std::vector<double>>* pressureResultVector   = nullptr;
+    const std::vector<double>*              initialMatrixPressures = nullptr;
+    const std::vector<double>*              currentMatrixPressures = nullptr;
     if (currentPressureDropScaling != NO_SCALING)
     {
         pressureResultVector = &results->cellScalarResults(pressureResultIndex);
@@ -269,7 +274,7 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
             currentPressureDropScaling = NO_SCALING;
         }
     }
-  
+
     // To handle several fractures in the same eclipse cell we need to keep track of the transmissibility
     // to the well from each fracture intersecting the cell and sum these transmissibilities at the end.
     // std::map <eclipseCellIndex ,map< fracture, trans> >
@@ -325,86 +330,95 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
         {
             RigTransmissibilityCondenser scaledCondenser = transCondenser;
             // 1. Scale matrix to fracture transmissibilities by matrix to fracture pressure
-            std::map<size_t, double> originalLumpedMatrixToFractureTrans =
-                scaledCondenser.scaleMatrixToFracTransByMatrixFracDP(actCellInfo,
-                                                                     currentWellPressure,
-                                                                     *currentMatrixPressures,
-                                                                     currentPressureDropScaling == MATRIX_TO_FRACTURE_DP_OVER_AVG_DP);
+            std::map<size_t, double> originalLumpedMatrixToFractureTrans = scaledCondenser.scaleMatrixToFracTransByMatrixFracDP(
+                actCellInfo,
+                currentWellPressure,
+                *currentMatrixPressures,
+                currentPressureDropScaling == MATRIX_TO_FRACTURE_DP_OVER_AVG_DP);
             // 2: Calculate new external transmissibilities
             scaledCondenser.calculateCondensedTransmissibilities();
 
             if (pdParams.transCorrection == NO_CORRECTION)
             {
                 // Calculate effective matrix to well transmissibilities.
-                std::map<size_t, double> effectiveMatrixToWellTransBeforeCorrection = calculateMatrixToWellTransmissibilities(scaledCondenser);
+                std::map<size_t, double> effectiveMatrixToWellTransBeforeCorrection =
+                    calculateMatrixToWellTransmissibilities(scaledCondenser);
                 matrixToWellTrans = effectiveMatrixToWellTransBeforeCorrection;
             }
             else if (pdParams.transCorrection == HOGSTOL_CORRECTION)
             {
                 // Høgstøl correction.
                 // 1. Calculate new effective fracture to well transmissiblities
-                std::map<size_t, double> fictitiousFractureToWellTransmissibilities = scaledCondenser.calculateFicticiousFractureToWellTransmissibilities();
+                std::map<size_t, double> fictitiousFractureToWellTransmissibilities =
+                    scaledCondenser.calculateFicticiousFractureToWellTransmissibilities();
                 // 2. Calculate new effective matrix to well transmissibilities
-                std::map<size_t, double> effectiveMatrixToWellTrans = scaledCondenser.calculateEffectiveMatrixToWellTransmissibilities(
-                    originalLumpedMatrixToFractureTrans, fictitiousFractureToWellTransmissibilities);
+                std::map<size_t, double> effectiveMatrixToWellTrans =
+                    scaledCondenser.calculateEffectiveMatrixToWellTransmissibilities(originalLumpedMatrixToFractureTrans,
+                                                                                     fictitiousFractureToWellTransmissibilities);
                 matrixToWellTrans = effectiveMatrixToWellTrans;
             }
         }
         else if (currentPressureDropScaling == MATRIX_TO_FRACTURE_FLUX_OVER_MAX_FLUX ||
-            currentPressureDropScaling == MATRIX_TO_FRACTURE_FLUX_OVER_AVG_FLUX)
+                 currentPressureDropScaling == MATRIX_TO_FRACTURE_FLUX_OVER_AVG_FLUX)
         {
             RigTransmissibilityCondenser scaledCondenser = transCondenser;
             // 1. Scale matrix to fracture transmissibilities by matrix to fracture pressure
-            std::map<size_t, double> originalLumpedMatrixToFractureTrans =
-                scaledCondenser.scaleMatrixToFracTransByMatrixFracFlux(actCellInfo,
-                    currentWellPressure,
-                    *currentMatrixPressures,
-                    currentPressureDropScaling == MATRIX_TO_FRACTURE_FLUX_OVER_AVG_FLUX);
+            std::map<size_t, double> originalLumpedMatrixToFractureTrans = scaledCondenser.scaleMatrixToFracTransByMatrixFracFlux(
+                actCellInfo,
+                currentWellPressure,
+                *currentMatrixPressures,
+                currentPressureDropScaling == MATRIX_TO_FRACTURE_FLUX_OVER_AVG_FLUX);
             // 2: Calculate new external transmissibilities
             scaledCondenser.calculateCondensedTransmissibilities();
 
             if (pdParams.transCorrection == NO_CORRECTION)
             {
                 // Calculate effective matrix to well transmissibilities.
-                std::map<size_t, double> effectiveMatrixToWellTransBeforeCorrection = calculateMatrixToWellTransmissibilities(scaledCondenser);
+                std::map<size_t, double> effectiveMatrixToWellTransBeforeCorrection =
+                    calculateMatrixToWellTransmissibilities(scaledCondenser);
                 matrixToWellTrans = effectiveMatrixToWellTransBeforeCorrection;
             }
             else if (pdParams.transCorrection == HOGSTOL_CORRECTION)
             {
                 // Høgstøl correction.
                 // 1. Calculate new effective fracture to well transmissiblities
-                std::map<size_t, double> fictitiousFractureToWellTransmissibilities = scaledCondenser.calculateFicticiousFractureToWellTransmissibilities();
+                std::map<size_t, double> fictitiousFractureToWellTransmissibilities =
+                    scaledCondenser.calculateFicticiousFractureToWellTransmissibilities();
                 // 2. Calculate new effective matrix to well transmissibilities
-                std::map<size_t, double> effectiveMatrixToWellTrans = scaledCondenser.calculateEffectiveMatrixToWellTransmissibilities(
-                    originalLumpedMatrixToFractureTrans, fictitiousFractureToWellTransmissibilities);
+                std::map<size_t, double> effectiveMatrixToWellTrans =
+                    scaledCondenser.calculateEffectiveMatrixToWellTransmissibilities(originalLumpedMatrixToFractureTrans,
+                                                                                     fictitiousFractureToWellTransmissibilities);
                 matrixToWellTrans = effectiveMatrixToWellTrans;
             }
         }
         else if (currentPressureDropScaling == MATRIX_TO_WELL_DP_OVER_INITIAL_DP)
         {
             RigTransmissibilityCondenser scaledCondenser = transCondenser;
-            // From Høgstøl "Hydraulic Fracturing SoW 2.8 outside contract fracture Transmissibility Calculations for Differential Depletion":
+            // From Høgstøl "Hydraulic Fracturing SoW 2.8 outside contract fracture Transmissibility Calculations for Differential
+            // Depletion":
             // 1. Scale matrix to fracture transmissibilities by matrix to well pressure
-            std::map<size_t, double> originalLumpedMatrixToFractureTrans =
-                scaledCondenser.scaleMatrixToFracTransByMatrixWellDP(
-                    actCellInfo, initialWellPressure, currentWellPressure, *initialMatrixPressures, *currentMatrixPressures);
+            std::map<size_t, double> originalLumpedMatrixToFractureTrans = scaledCondenser.scaleMatrixToFracTransByMatrixWellDP(
+                actCellInfo, initialWellPressure, currentWellPressure, *initialMatrixPressures, *currentMatrixPressures);
             // 2: Calculate new external transmissibilities
             scaledCondenser.calculateCondensedTransmissibilities();
 
             if (pdParams.transCorrection == NO_CORRECTION)
             {
                 // Calculate effective matrix to well transmissibilities.
-                std::map<size_t, double> effectiveMatrixToWellTransBeforeCorrection = calculateMatrixToWellTransmissibilities(scaledCondenser);
+                std::map<size_t, double> effectiveMatrixToWellTransBeforeCorrection =
+                    calculateMatrixToWellTransmissibilities(scaledCondenser);
                 matrixToWellTrans = effectiveMatrixToWellTransBeforeCorrection;
             }
             else if (pdParams.transCorrection == HOGSTOL_CORRECTION)
             {
                 // Høgstøl correction.
                 // 1. Calculate new effective fracture to well transmissiblities
-                std::map<size_t, double> fictitiousFractureToWellTransmissibilities = scaledCondenser.calculateFicticiousFractureToWellTransmissibilities();
+                std::map<size_t, double> fictitiousFractureToWellTransmissibilities =
+                    scaledCondenser.calculateFicticiousFractureToWellTransmissibilities();
                 // 2. Calculate new effective matrix to well transmissibilities
-                std::map<size_t, double> effectiveMatrixToWellTrans = scaledCondenser.calculateEffectiveMatrixToWellTransmissibilities(
-                    originalLumpedMatrixToFractureTrans, fictitiousFractureToWellTransmissibilities);
+                std::map<size_t, double> effectiveMatrixToWellTrans =
+                    scaledCondenser.calculateEffectiveMatrixToWellTransmissibilities(originalLumpedMatrixToFractureTrans,
+                                                                                     fictitiousFractureToWellTransmissibilities);
                 matrixToWellTrans = effectiveMatrixToWellTrans;
             }
         }
@@ -452,12 +466,13 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicExportFractureCompletionsImpl::getWellPressuresAndInitialProductionTimeStepFromSummaryData(const RimEclipseCase* caseToApply,
-                                                                                                   const QString&        wellPathName,
-                                                                                                   int                   currentTimeStep,
-                                                                                                   int*                  initialCaseTimeStep,
-                                                                                                   double*               initialWellPressure,
-                                                                                                   double*               currentWellPressure)
+void RicExportFractureCompletionsImpl::getWellPressuresAndInitialProductionTimeStepFromSummaryData(
+    const RimEclipseCase* caseToApply,
+    const QString&        wellPathName,
+    int                   currentTimeStep,
+    int*                  initialCaseTimeStep,
+    double*               initialWellPressure,
+    double*               currentWellPressure)
 {
     const RimEclipseResultCase* resultCase = dynamic_cast<const RimEclipseResultCase*>(caseToApply);
     if (resultCase)
@@ -493,7 +508,7 @@ void RicExportFractureCompletionsImpl::getWellPressuresAndInitialProductionTimeS
                         if (initialProductionDate.isNull() && values[i] > 0.0)
                         {
                             initialProductionDate = summaryDate;
-                            *initialWellPressure = values[i];
+                            *initialWellPressure  = values[i];
                         }
                         if (summaryDate == currentDate)
                         {
@@ -720,17 +735,13 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicExportFractureCompletionsImpl::computeNonDarcyFlowParameters(const RimFracture*             fracture,
+void RicExportFractureCompletionsImpl::computeNonDarcyFlowParameters(const RimFracture*              fracture,
                                                                      std::vector<RigCompletionData>& allCompletionsForOneFracture)
 {
     double dFactorForFracture = fracture->nonDarcyProperties().dFactor;
     double khForFracture      = fracture->nonDarcyProperties().conductivity;
 
-    double sumOfTransmissibilitiesInFracture = 0.0;
-    for (const auto& c : allCompletionsForOneFracture)
-    {
-        sumOfTransmissibilitiesInFracture += c.transmissibility();
-    }
+    double sumOfTransmissibilitiesInFracture = sumUpTransmissibilities(allCompletionsForOneFracture);
 
     for (auto& c : allCompletionsForOneFracture)
     {
