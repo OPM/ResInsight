@@ -327,6 +327,7 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
 
 
         ////////////////////////////////////////////////////////
+        // clang-format off
         // WARNING!!!                                         //
         // PROTOTYPE-CODE for Pressure Differential Depletion //
         // MAY CHANGE A LOT                                   //
@@ -435,6 +436,7 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
             }
         }
         ////////////////////////////////////////////////////////////
+        // clang-format on
         // END PROTOTYPE CODE FOR PRESSURE DIFFERENTIAL DEPLETION //
         ////////////////////////////////////////////////////////////
 
