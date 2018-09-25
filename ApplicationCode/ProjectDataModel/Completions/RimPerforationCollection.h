@@ -28,6 +28,7 @@
 
 class RimPerforationInterval;
 class RimMswCompletionParameters;
+class RimNonDarcyPerforationParameters;
 
 //==================================================================================================
 //
@@ -43,6 +44,7 @@ public:
     ~RimPerforationCollection();
 
     const RimMswCompletionParameters*          mswParameters() const;
+    const RimNonDarcyPerforationParameters*    nonDarcyParameters() const;
     void                                       setUnitSystemSpecificDefaults();
     void                                       appendPerforation(RimPerforationInterval* perforation);
     std::vector<const RimPerforationInterval*> perforations() const;
@@ -54,6 +56,7 @@ private:
     friend class RiuEditPerforationCollectionWidget;
 
 private:
-    caf::PdmChildArrayField<RimPerforationInterval*>    m_perforations;
-    caf::PdmChildField<RimMswCompletionParameters*>     m_mswParameters;
+    caf::PdmChildArrayField<RimPerforationInterval*>      m_perforations;
+    caf::PdmChildField<RimMswCompletionParameters*>       m_mswParameters;
+    caf::PdmChildField<RimNonDarcyPerforationParameters*> m_nonDarcyParameters;
 };

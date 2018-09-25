@@ -23,6 +23,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RimWellPathFracture.h
 ${CMAKE_CURRENT_LIST_DIR}/RimWellPathFractureCollection.h
 ${CMAKE_CURRENT_LIST_DIR}/Rim3dWellLogCurveCollection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimMswCompletionParameters.h
+${CMAKE_CURRENT_LIST_DIR}/RimNonDarcyPerforationParameters.h
 )
 
 
@@ -50,6 +51,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RimWellPathFracture.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimWellPathFractureCollection.cpp
 ${CMAKE_CURRENT_LIST_DIR}/Rim3dWellLogCurveCollection.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimMswCompletionParameters.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimNonDarcyPerforationParameters.cpp
 )
 
 list(APPEND CODE_HEADER_FILES
