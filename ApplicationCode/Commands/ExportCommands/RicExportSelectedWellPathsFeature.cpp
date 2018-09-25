@@ -83,6 +83,13 @@ void RicExportSelectedWellPathsFeature::exportWellPath(const RimWellPath* wellPa
 QFilePtr RicExportSelectedWellPathsFeature::openFileForExport(const QString& folderName, const QString& fileName)
 {
     QDir exportFolder = QDir(folderName);
+    if (!exportFolder.exists())
+    {
+        bool createdPath = exportFolder.mkpath(".");
+        if (createdPath)
+            RiaLogging::info("Created export folder " + folderName);
+    }
+
     QString  filePath = exportFolder.filePath(fileName);
     QFilePtr exportFile(new QFile(filePath));
     if (!exportFile->open(QIODevice::WriteOnly))

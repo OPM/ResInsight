@@ -39,7 +39,8 @@ public:
         COMPLETIONS,
         SNAPSHOTS,
         PROPERTIES,
-        STATISTICS
+        STATISTICS,
+        WELLPATHS
     };
 
     typedef caf::AppEnum<ExportType> ExportTypeEnum;

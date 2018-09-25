@@ -40,7 +40,6 @@ class RicExportVisibleWellPathsFeature : public caf::CmdFeature
     CAF_CMD_HEADER_INIT;
 
     void exportWellPath(const RimWellPath* wellPath, double mdStepSize, const QString& folder);
-    QFilePtr openFileForExport(const QString& folderName, const QString& fileName);
 
 private:
     bool isCommandEnabled() override;

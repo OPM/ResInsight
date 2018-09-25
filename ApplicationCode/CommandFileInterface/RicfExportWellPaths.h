@@ -23,18 +23,6 @@
 #include "cafPdmField.h"
 #include "cafAppEnum.h"
 
-namespace MultipleFractures
-{
-    enum Action
-    {
-        NONE,
-        APPEND_FRACTURES,
-        REPLACE_FRACTURES
-    };
-}
-
-class RimEclipseCase;
-class RimFractureTemplate;
 class RimWellPath;
 
 //==================================================================================================
@@ -42,28 +30,16 @@ class RimWellPath;
 //
 //
 //==================================================================================================
-class RicfCreateMultipleFractures : public RicfCommandObject
+class RicfExportWellPaths : public RicfCommandObject
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    RicfCreateMultipleFractures();
+    RicfExportWellPaths();
 
     virtual void execute() override;
-    static std::vector<RimWellPath*>   wellPaths(const std::vector<QString>& wellPathNames);
 
 private:
-    bool                        validateArguments() const;
-    RimEclipseCase*             caseFromId(int caseId)const ;
-    RimFractureTemplate*        fractureTemplateFromId(int templateId) const;
-
-    caf::PdmField<int>                      m_caseId;
     caf::PdmField<std::vector<QString>>     m_wellPathNames;
-    caf::PdmField<double>                   m_minDistFromWellTd;
-    caf::PdmField<int>                      m_maxFracturesPerWell;
-    caf::PdmField<int>                      m_templateId;
-    caf::PdmField<int>                      m_topLayer;
-    caf::PdmField<int>                      m_baseLayer;
-    caf::PdmField<double>                   m_spacing;
-    caf::PdmField<caf::AppEnum<MultipleFractures::Action>> m_action;
+    caf::PdmField<double>                   m_mdStepSize;
 };

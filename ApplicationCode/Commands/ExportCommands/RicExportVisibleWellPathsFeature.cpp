@@ -55,7 +55,7 @@ void RicExportVisibleWellPathsFeature::exportWellPath(const RimWellPath* wellPat
     double endMd = geom->measureDepths().back();
 
     auto fileName = wellPath->name() + ".dev";
-    auto filePtr = openFileForExport(folder, fileName);
+    auto filePtr = RicExportSelectedWellPathsFeature::openFileForExport(folder, fileName);
     QTextStream stream(filePtr.get());
     stream.setRealNumberNotation(QTextStream::FixedNotation);
 
@@ -74,22 +74,6 @@ void RicExportVisibleWellPathsFeature::exportWellPath(const RimWellPath* wellPat
     }
     
     filePtr->close();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QFilePtr RicExportVisibleWellPathsFeature::openFileForExport(const QString& folderName, const QString& fileName)
-{
-    QDir exportFolder = QDir(folderName);
-    QString  filePath = exportFolder.filePath(fileName);
-    QFilePtr exportFile(new QFile(filePath));
-    if (!exportFile->open(QIODevice::WriteOnly))
-    {
-        auto errorMessage = QString("Export Well Path: Could not open the file: %1").arg(filePath);
-        RiaLogging::error(errorMessage);
-    }
-    return exportFile;
 }
 
 //--------------------------------------------------------------------------------------------------

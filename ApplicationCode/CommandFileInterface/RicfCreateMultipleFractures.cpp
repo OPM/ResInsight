@@ -81,7 +81,7 @@ void RicfCreateMultipleFractures::execute()
     // Get case and fracture template
     auto gridCase = caseFromId(m_caseId);
     auto fractureTemplate = fractureTemplateFromId(m_templateId);
-    auto wellPaths = this->wellPaths();
+    auto wellPaths = this->wellPaths(m_wellPathNames);
 
     if (gridCase && fractureTemplate && !wellPaths.empty() && validateArguments())
     {
@@ -166,18 +166,18 @@ RimFractureTemplate* RicfCreateMultipleFractures::fractureTemplateFromId(int tem
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<RimWellPath*> RicfCreateMultipleFractures::wellPaths() const
+std::vector<RimWellPath*> RicfCreateMultipleFractures::wellPaths(const std::vector<QString>& wellPathNames)
 {
     std::vector<RimWellPath*> wellPaths;
     auto allWellPaths = RiaApplication::instance()->project()->allWellPaths();
 
-    if (!m_wellPathNames.v().empty())
+    if (!wellPathNames.empty())
     {
-        std::set<QString> wellPathNameSet(m_wellPathNames.v().begin(), m_wellPathNames.v().end());
+        std::set<QString> wellPathNameSet(wellPathNames.begin(), wellPathNames.end());
 
         for (auto wellPath : allWellPaths)
         {
-            if (!RiaWellNameComparer::tryMatchNameInList(wellPath->name(), m_wellPathNames.v()).isEmpty())
+            if (!RiaWellNameComparer::tryMatchNameInList(wellPath->name(), wellPathNames).isEmpty())
                 wellPaths.push_back(wellPath);
         }
     }
@@ -186,7 +186,7 @@ std::vector<RimWellPath*> RicfCreateMultipleFractures::wellPaths() const
         wellPaths = allWellPaths;
     }
 
-    if (wellPaths.empty() || wellPaths.size() < m_wellPathNames.v().size())
+    if (wellPaths.empty() || wellPaths.size() < wellPathNames.size())
     {
         RiaLogging::error(QString("createMultipleFractures: One or more well paths was not found"));
         std::this_thread::sleep_for(std::chrono::seconds(2));
