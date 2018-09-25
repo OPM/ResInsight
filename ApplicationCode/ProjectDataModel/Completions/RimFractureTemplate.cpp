@@ -328,7 +328,7 @@ void RimFractureTemplate::defineUiOrdering(QString uiConfigName, caf::PdmUiOrder
 
     {
         auto group = uiOrdering.addNewGroup("Sensitivity Scale Factors");
-        group->setCollapsedByDefault(false);
+        group->setCollapsedByDefault(true);
         group->add(&m_heightScaleFactor);
         group->add(&m_halfLengthScaleFactor);
         group->add(&m_dFactorScaleFactor);

@@ -228,8 +228,7 @@ void RimEllipseFractureTemplate::createFractureGridAndAssignConductivities()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-WellFractureIntersectionData
-    RimEllipseFractureTemplate::wellFractureIntersectionData(const RimFracture* fractureInstance) const
+WellFractureIntersectionData RimEllipseFractureTemplate::wellFractureIntersectionData(const RimFracture* fractureInstance) const
 {
     WellFractureIntersectionData values;
     values.m_width        = m_width;
@@ -416,23 +415,31 @@ void RimEllipseFractureTemplate::defineUiOrdering(QString uiConfigName, caf::Pdm
     uiOrdering.add(&m_name);
     uiOrdering.add(&m_id);
 
-    caf::PdmUiGroup* geometryGroup = uiOrdering.addNewGroup("Geometry");
-    geometryGroup->add(&m_halfLength);
-    geometryGroup->add(&m_height);
-    geometryGroup->add(&m_orientationType);
-    geometryGroup->add(&m_azimuthAngle);
+    {
+        caf::PdmUiGroup* group = uiOrdering.addNewGroup("Geometry");
+        group->add(&m_halfLength);
+        group->add(&m_height);
+        group->add(&m_orientationType);
+        group->add(&m_azimuthAngle);
+    }
 
-    caf::PdmUiGroup* trGr = uiOrdering.addNewGroup("Fracture Truncation");
-    m_fractureContainment()->uiOrdering(uiConfigName, *trGr);
+    {
+        caf::PdmUiGroup* group = uiOrdering.addNewGroup("Fracture Truncation");
+        group->setCollapsedByDefault(true);
 
-    caf::PdmUiGroup* propertyGroup = uiOrdering.addNewGroup("Properties");
-    propertyGroup->add(&m_conductivityType);
-    propertyGroup->add(&m_permeability);
-    propertyGroup->add(&m_width);
-    propertyGroup->add(&m_skinFactor);
-    propertyGroup->add(&m_perforationLength);
-    propertyGroup->add(&m_perforationEfficiency);
-    propertyGroup->add(&m_wellDiameter);
+        m_fractureContainment()->uiOrdering(uiConfigName, *group);
+    }
+
+    {
+        caf::PdmUiGroup* group = uiOrdering.addNewGroup("Properties");
+        group->add(&m_conductivityType);
+        group->add(&m_permeability);
+        group->add(&m_width);
+        group->add(&m_skinFactor);
+        group->add(&m_perforationLength);
+        group->add(&m_perforationEfficiency);
+        group->add(&m_wellDiameter);
+    }
 
     RimFractureTemplate::defineUiOrdering(uiConfigName, uiOrdering);
 }
