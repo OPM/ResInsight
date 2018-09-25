@@ -52,8 +52,8 @@ public:
     RicSummaryCurveCalculator* calculator() const;
 
 private:
-    virtual void        recursivelyConfigureAndUpdateTopLevelUiItems(const std::vector<caf::PdmUiItem *>& topLevelUiItems,
-                                                                         const QString& uiConfigName) override;
+    virtual void        recursivelyConfigureAndUpdateTopLevelUiOrdering(const caf::PdmUiOrdering& topLevelUiItems,
+                                                                        const QString& uiConfigName) override;
     
     virtual QWidget*    createWidget(QWidget* parent) override;
 

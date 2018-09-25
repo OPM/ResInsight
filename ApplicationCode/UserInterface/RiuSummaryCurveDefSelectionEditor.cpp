@@ -59,9 +59,11 @@ RiuSummaryCurveDefSelection* RiuSummaryCurveDefSelectionEditor::summaryAddressSe
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuSummaryCurveDefSelectionEditor::recursivelyConfigureAndUpdateTopLevelUiItems(const std::vector<caf::PdmUiItem *>& topLevelUiItems, const QString& uiConfigName)
+void RiuSummaryCurveDefSelectionEditor::recursivelyConfigureAndUpdateTopLevelUiOrdering(const caf::PdmUiOrdering& topLevelUiOrdering, const QString& uiConfigName)
 {
     if (!m_firstRowLeftLayout || !m_firstRowRightLayout) return;
+
+    const std::vector<caf::PdmUiItem *>& topLevelUiItems = topLevelUiOrdering.uiItems();
 
     for (size_t i = 0; i < topLevelUiItems.size(); ++i)
     {
@@ -214,7 +216,6 @@ QMinimizePanel* RiuSummaryCurveDefSelectionEditor::createGroupBoxWithContent(caf
 {
     QMinimizePanel* groupBox = findOrCreateGroupBox(this->widget(), group, uiConfigName);
 
-    const std::vector<caf::PdmUiItem*>& groupChildren = group->uiItems();
-    recursivelyConfigureAndUpdateUiItemsInGridLayoutColumn(groupChildren, groupBox->contentFrame(), uiConfigName);
+    recursivelyConfigureAndUpdateUiOrderingInGridLayoutColumn(*group, groupBox->contentFrame(), uiConfigName);
     return groupBox;
 }

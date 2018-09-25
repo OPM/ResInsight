@@ -78,8 +78,8 @@ public:
 
 private:
     virtual QWidget*    createWidget(QWidget* parent) override;
-    virtual void        recursivelyConfigureAndUpdateTopLevelUiItems(const std::vector<PdmUiItem*>& topLevelUiItems,
-                                                                     const QString& uiConfigName) override;
+    virtual void        recursivelyConfigureAndUpdateTopLevelUiOrdering(const PdmUiOrdering& topLevelUiOrdering,
+                                                                        const QString& uiConfigName) override;
 
     bool                isAreaAvailable(int row, int column, int rowSpan, int columnSpan) const;
     bool                isCellIdAvailable(int cellId) const;

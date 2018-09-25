@@ -101,11 +101,11 @@ QWidget* PdmUiDefaultObjectEditor::createWidget(QWidget* parent)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void PdmUiDefaultObjectEditor::recursivelyConfigureAndUpdateTopLevelUiItems(const std::vector<PdmUiItem*>& topLevelUiItems, const QString& uiConfigName)
+void PdmUiDefaultObjectEditor::recursivelyConfigureAndUpdateTopLevelUiOrdering(const PdmUiOrdering& topLevelUiOrdering, const QString& uiConfigName)
 {
     CAF_ASSERT(this->widget());
 
-    recursivelyConfigureAndUpdateUiItemsInGridLayoutColumn(topLevelUiItems, this->widget(), uiConfigName);
+    recursivelyConfigureAndUpdateUiOrderingInGridLayoutColumn(topLevelUiOrdering, this->widget(), uiConfigName);
 }
 
 } // end namespace caf

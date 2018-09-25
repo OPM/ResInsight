@@ -57,8 +57,8 @@ public:
     void                    updateFromDefaultSources(const std::vector<caf::PdmObject*> defaultSources);
 
 private:
-    virtual void            recursivelyConfigureAndUpdateTopLevelUiItems(const std::vector<caf::PdmUiItem *>& topLevelUiItems,
-                                                                         const QString& uiConfigName) override;
+    virtual void            recursivelyConfigureAndUpdateTopLevelUiOrdering(const caf::PdmUiOrdering& topLevelUiOrdering,
+                                                                            const QString& uiConfigName) override;
     
     virtual QWidget*        createWidget(QWidget* parent) override;
 

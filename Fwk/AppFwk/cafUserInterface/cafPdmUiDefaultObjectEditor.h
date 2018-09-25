@@ -64,8 +64,8 @@ public:
 
 private:
     virtual QWidget* createWidget(QWidget* parent) override;
-    virtual void     recursivelyConfigureAndUpdateTopLevelUiItems(const std::vector<PdmUiItem*>& topLevelUiItems,
-                                                                  const QString& uiConfigName) override;
+    virtual void     recursivelyConfigureAndUpdateTopLevelUiOrdering(const PdmUiOrdering& topLevelUiItems,
+                                                                     const QString& uiConfigName) override;
 
 };
 

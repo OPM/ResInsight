@@ -45,6 +45,8 @@
 #include "cafPdmUiOrdering.h"
 #include "cafPdmXmlObjectHandle.h"
 
+#include "cafAssert.h"
+
 #include "QMinimizePanel.h"
 
 #include <QGridLayout>
@@ -71,38 +73,69 @@ caf::PdmUiFormLayoutObjectEditor::~PdmUiFormLayoutObjectEditor()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void caf::PdmUiFormLayoutObjectEditor::recursivelyConfigureAndUpdateUiItemsInGridLayoutColumn(const std::vector<PdmUiItem*>& uiItems, QWidget* containerWidgetWithGridLayout, const QString& uiConfigName)
+void caf::PdmUiFormLayoutObjectEditor::recursivelyConfigureAndUpdateUiOrderingInGridLayoutColumn(
+    const PdmUiOrdering& uiOrdering,
+    QWidget*             containerWidgetWithGridLayout,
+    const QString&       uiConfigName)
 {
     CAF_ASSERT(containerWidgetWithGridLayout);
 
-    int currentRowIndex = 0;
+    int currentRowIndex = -1;
     QWidget* previousTabOrderWidget = nullptr;
 
     // Currently, only QGridLayout is supported
-    QGridLayout* parentLayout = dynamic_cast<QGridLayout*>(containerWidgetWithGridLayout->layout());
+    QGridLayout* parentLayout = dynamic_cast<QGridLayout*>(containerWidgetWithGridLayout->layout());    
     CAF_ASSERT(parentLayout);
 
+    const std::vector<PdmUiOrdering::FieldAndLayout>& uiItems = uiOrdering.uiItemsWithLayout();
+
+    int columnsPerRow = uiOrdering.nrOfColumns();
+
+    int currentColumn = 0;
+    int itemsInCurrentRow = 1;
     for (size_t i = 0; i < uiItems.size(); ++i)
     {
-        if (uiItems[i]->isUiHidden(uiConfigName)) continue;
+        PdmUiItem*                    currentItem    = uiItems[i].first;
+        PdmUiOrdering::LayoutOptions  currentLayout  = uiItems[i].second;
+        int                           itemColumnSpan = currentLayout.totalColumnSpan;
 
-        if (uiItems[i]->isUiGroup())
+        if (currentRowIndex == -1 || currentLayout.newRow)
         {
-            PdmUiGroup* group = static_cast<PdmUiGroup*>(uiItems[i]);
+            currentRowIndex++;
+            parentLayout->setRowStretch(currentRowIndex, 0);
+
+            currentColumn = 0;
+            itemsInCurrentRow = 1;
+            for (size_t j = i+1; j < uiItems.size(); ++j)
+            {
+                if (uiItems[j].second.newRow) break;
+                itemsInCurrentRow++;
+            }
+        }        
+
+        if (itemColumnSpan == PdmUiOrdering::LayoutOptions::MAX_COLUMN_SPAN)
+        {
+            itemColumnSpan = columnsPerRow / itemsInCurrentRow;
+        }
+
+        if (currentItem->isUiHidden(uiConfigName)) continue;
+
+        if (currentItem->isUiGroup())
+        {
+            PdmUiGroup* group = static_cast<PdmUiGroup*>(currentItem);
 
             QMinimizePanel* groupBox = findOrCreateGroupBox(containerWidgetWithGridLayout, group, uiConfigName);
 
             /// Insert the group box at the correct position of the parent layout
-            parentLayout->addWidget(groupBox, currentRowIndex, 0, 1, 2);
+            parentLayout->addWidget(groupBox, currentRowIndex, currentColumn, 1, itemColumnSpan);
+            
+            recursivelyConfigureAndUpdateUiOrderingInGridLayoutColumn(*group, groupBox->contentFrame(), uiConfigName);
 
-            const std::vector<PdmUiItem*>& groupChildren = group->uiItems();
-            recursivelyConfigureAndUpdateUiItemsInGridLayoutColumn(groupChildren, groupBox->contentFrame(), uiConfigName);
-
-            currentRowIndex++;
+            currentColumn += itemColumnSpan;
         }
         else
         {
-            PdmUiFieldHandle* field = dynamic_cast<PdmUiFieldHandle*>(uiItems[i]);
+            PdmUiFieldHandle* field = dynamic_cast<PdmUiFieldHandle*>(currentItem);
 
             PdmUiFieldEditorHandle* fieldEditor = findOrCreateFieldEditor(containerWidgetWithGridLayout, field, uiConfigName);
 
@@ -116,64 +149,109 @@ void caf::PdmUiFormLayoutObjectEditor::recursivelyConfigureAndUpdateUiItemsInGri
                 if (fieldCombinedWidget)
                 {
                     fieldCombinedWidget->setParent(containerWidgetWithGridLayout);
-                    parentLayout->addWidget(fieldCombinedWidget, currentRowIndex, 0, 1, 2);
+                    parentLayout->addWidget(fieldCombinedWidget, currentRowIndex, currentColumn, 1, itemColumnSpan);
                 }
                 else
                 {
                     PdmUiItemInfo::LabelPosType labelPos = field->uiLabelPosition(uiConfigName);
-                    bool labelOnTop = (labelPos == PdmUiItemInfo::TOP);
-                    bool editorSpanBoth = labelOnTop;
 
                     QWidget* fieldEditorWidget = fieldEditor->editorWidget();
-
-                    if (labelPos != PdmUiItemInfo::HIDDEN)
-                    {
-                        QWidget* fieldLabelWidget = fieldEditor->labelWidget();
-                        if (fieldLabelWidget)
-                        {
-                            fieldLabelWidget->setParent(containerWidgetWithGridLayout);
-
-                            // Label widget will span two columns if aligned on top
-                            int colSpan = labelOnTop ? 2 : 1;
-                            // If the label is on the side, and the editor can expand vertically, allign the label with the top edge of the editor
-                            if (!labelOnTop && (fieldEditorWidget->sizePolicy().verticalPolicy() & QSizePolicy::ExpandFlag))
-                                parentLayout->addWidget(fieldLabelWidget, currentRowIndex, 0, 1, colSpan, Qt::AlignTop);
-                            else
-                                parentLayout->addWidget(fieldLabelWidget, currentRowIndex, 0, 1, colSpan, Qt::AlignVCenter);
-
-                            fieldLabelWidget->show();
-
-                            if (labelOnTop) currentRowIndex++;
-                        }
-                    }
-                    else
-                    {
-                        QWidget* fieldLabelWidget = fieldEditor->labelWidget();
-                        if (fieldLabelWidget) fieldLabelWidget->hide();
-                        editorSpanBoth = true; // To span both columns when there is no label
-                    }
-
                     if (fieldEditorWidget)
                     {
-                        fieldEditorWidget->setParent(containerWidgetWithGridLayout); // To make sure this widget has the current group box as parent.
+                        // Hide label
+                        if (labelPos == PdmUiItemInfo::HIDDEN)
+                        {
+                            QWidget* fieldLabelWidget = fieldEditor->labelWidget();
+                            if (fieldLabelWidget)
+                            {
+                                fieldLabelWidget->hide();
+                            }
 
-                        // Label widget will span two columns if aligned on top
-                        int colSpan = editorSpanBoth ? 2 : 1;
-                        int colIndex = editorSpanBoth ? 0 : 1;
-                        parentLayout->addWidget(fieldEditorWidget, currentRowIndex, colIndex, 1, colSpan, Qt::AlignTop);
+                            fieldEditorWidget->setParent(containerWidgetWithGridLayout); // To make sure this widget has the current group box as parent.
+                            parentLayout->addWidget(fieldEditorWidget, currentRowIndex, currentColumn, 1, itemColumnSpan, Qt::AlignTop);
 
-                        if (previousTabOrderWidget) QWidget::setTabOrder(previousTabOrderWidget, fieldEditorWidget);
+                            currentColumn += itemColumnSpan;
+                        }
+                        else // Add label
+                        {
+                            QWidget* fieldLabelWidget = fieldEditor->labelWidget();
 
-                        previousTabOrderWidget = fieldEditorWidget;
+                            // For label on top we add another layer of QLayouts to avoid messing with the global rows.
+                            if (labelPos == PdmUiItemInfo::TOP)
+                            {
+                                QVBoxLayout* labelAndFieldVLayout = new QVBoxLayout();
+                                parentLayout->addLayout(labelAndFieldVLayout, currentRowIndex, currentColumn, 1, itemColumnSpan, Qt::AlignTop);
+                                if (fieldLabelWidget)
+                                {
+                                    labelAndFieldVLayout->addWidget(fieldLabelWidget, 0, Qt::AlignTop);
+                                }
+                                labelAndFieldVLayout->addWidget(fieldEditorWidget, 1, Qt::AlignTop);
+
+                                currentColumn += itemColumnSpan;
+                            }
+                            else
+                            {
+                                int fieldColumnSpan     = currentLayout.totalColumnSpan;
+                                int leftLabelColumnSpan = 0;
+                                if (fieldLabelWidget)
+                                {
+                                    leftLabelColumnSpan = currentLayout.leftLabelColumnSpan;
+                                    if (fieldColumnSpan == PdmUiOrdering::LayoutOptions::MAX_COLUMN_SPAN &&
+                                        leftLabelColumnSpan == PdmUiOrdering::LayoutOptions::MAX_COLUMN_SPAN)
+                                    {
+                                        // Rounded up half for field. Rest for left label.
+                                        fieldColumnSpan = itemColumnSpan / 2 + itemColumnSpan % 2;
+                                        leftLabelColumnSpan = itemColumnSpan - fieldColumnSpan;
+                                    }
+                                    else if (fieldColumnSpan == PdmUiOrdering::LayoutOptions::MAX_COLUMN_SPAN)
+                                    {
+                                        fieldColumnSpan = itemColumnSpan - leftLabelColumnSpan;
+                                    }
+                                    else if (leftLabelColumnSpan == PdmUiOrdering::LayoutOptions::MAX_COLUMN_SPAN)
+                                    {
+                                        fieldColumnSpan     = 1;
+                                        leftLabelColumnSpan = itemColumnSpan - fieldColumnSpan;
+                                    }
+                                    else
+                                    {
+                                        fieldColumnSpan = itemColumnSpan - leftLabelColumnSpan;
+                                    }
+                                    CAF_ASSERT(fieldColumnSpan >= 1 && "Need at least one column for the field");
+                                    fieldColumnSpan = std::max(1, fieldColumnSpan);
+                                    fieldLabelWidget->setParent(containerWidgetWithGridLayout);
+                                    parentLayout->addWidget(fieldLabelWidget, currentRowIndex, currentColumn, 1, leftLabelColumnSpan, Qt::AlignTop);
+
+                                    // Shift label a bit to make it appear centered on the field. Using Qt::AlignVCenter will
+                                    // cause both label and field to appear in the vertical centre of the row.
+                                    // That isn't the intention.
+                                    int labelHeight = fieldLabelWidget->sizeHint().height();
+                                    int fieldHeight = fieldEditorWidget->sizeHint().height();
+                                    int heightDiff = std::max(0, fieldHeight - labelHeight);
+                                    QMargins contentMargins = fieldLabelWidget->contentsMargins();
+                                    contentMargins.setTop(heightDiff / 2);
+                                    contentMargins.setBottom(heightDiff / 2);
+                                    fieldLabelWidget->setContentsMargins(contentMargins);
+                                }
+                                fieldEditorWidget->setParent(containerWidgetWithGridLayout); // To make sure this widget has the current group box as parent.
+                                parentLayout->addWidget(fieldEditorWidget, currentRowIndex, currentColumn + leftLabelColumnSpan, 1, fieldColumnSpan, Qt::AlignTop);
+
+                                currentColumn += itemColumnSpan;
+                            }
+                        }
+
+                        if (previousTabOrderWidget)
+                        {
+                            QWidget::setTabOrder(previousTabOrderWidget, fieldEditorWidget);
+                        }             
                     }
                 }
-
                 fieldEditor->updateUi(uiConfigName);
-
-                currentRowIndex++;
             }
         }
     }
+    // Set last row to stretch
+    parentLayout->setRowStretch(currentRowIndex, 10);
+    
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -214,9 +292,15 @@ QMinimizePanel* caf::PdmUiFormLayoutObjectEditor::findOrCreateGroupBox(QWidget* 
     if (it == m_groupBoxes.end())
     {
         groupBox = new QMinimizePanel(parent);
+        groupBox->enableFrame(group->enableFrame());
         groupBox->setTitle(group->uiName(uiConfigName));
         groupBox->setObjectName(group->keyword());
         groupBoxLayout = new QGridLayout();
+        if (!group->enableFrame())
+        {
+            groupBoxLayout->setContentsMargins(0, 0, 0, 0);
+            groupBoxLayout->setHorizontalSpacing(0);
+        }
         groupBox->contentFrame()->setLayout(groupBoxLayout);
         connect(groupBox, SIGNAL(expandedChanged(bool)), this, SLOT(groupBoxExpandedStateToggled(bool)));
 
@@ -344,8 +428,7 @@ void caf::PdmUiFormLayoutObjectEditor::configureAndUpdateUi(const QString& uiCon
     // Set all group Boxes to be unvisited
     m_newGroupBoxes.clear();
 
-    const std::vector<PdmUiItem*>& uiItems = config.uiItems();
-    recursivelyConfigureAndUpdateTopLevelUiItems(uiItems, uiConfigName);
+    recursivelyConfigureAndUpdateTopLevelUiOrdering(config, uiConfigName);
 
     // Remove all fieldViews not mentioned by the configuration from the layout
 

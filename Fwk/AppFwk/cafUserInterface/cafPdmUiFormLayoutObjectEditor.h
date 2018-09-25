@@ -38,6 +38,7 @@
 #pragma once
 
 #include "cafPdmUiObjectEditorHandle.h"
+#include "cafPdmUiOrdering.h"
 
 #include <QPointer>
 #include <QString>
@@ -51,6 +52,7 @@ namespace caf {
 
 class PdmUiFieldEditorHandle;
 class PdmUiGroup;
+class PdmUiOrdering;
 
 
 //==================================================================================================
@@ -66,12 +68,12 @@ public:
 protected:
     /// When overriding this function, use findOrCreateGroupBox() or findOrCreateFieldEditor() for detailed control
     /// Use recursivelyConfigureAndUpdateUiItemsInGridLayoutColumn() for automatic layout of group and field widgets
-    virtual void            recursivelyConfigureAndUpdateTopLevelUiItems(const std::vector<PdmUiItem*>& topLevelUiItems,
+    virtual void            recursivelyConfigureAndUpdateTopLevelUiOrdering(const PdmUiOrdering& topLevelUiOrdering,
                                                                          const QString& uiConfigName) = 0;
     
-    void                    recursivelyConfigureAndUpdateUiItemsInGridLayoutColumn(const std::vector<PdmUiItem*>& uiItems,
-                                                                                   QWidget* containerWidgetWithGridLayout,
-                                                                                   const QString& uiConfigName);
+    void                    recursivelyConfigureAndUpdateUiOrderingInGridLayoutColumn(const PdmUiOrdering& uiOrdering,
+                                                                                      QWidget* containerWidgetWithGridLayout,
+                                                                                      const QString& uiConfigName);
 
     QMinimizePanel*         findOrCreateGroupBox(QWidget* parent, PdmUiGroup* group, const QString& uiConfigName);
     PdmUiFieldEditorHandle* findOrCreateFieldEditor(QWidget* parent, PdmUiFieldHandle* field, const QString& uiConfigName);

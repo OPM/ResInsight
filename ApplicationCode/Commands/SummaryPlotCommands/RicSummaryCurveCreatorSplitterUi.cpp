@@ -78,8 +78,9 @@ void RicSummaryCurveCreatorSplitterUi::updateFromDefaultSources(const std::vecto
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicSummaryCurveCreatorSplitterUi::recursivelyConfigureAndUpdateTopLevelUiItems(const std::vector<caf::PdmUiItem *>& topLevelUiItems, const QString& uiConfigName)
+void RicSummaryCurveCreatorSplitterUi::recursivelyConfigureAndUpdateTopLevelUiOrdering(const caf::PdmUiOrdering& topLevelUiOrdering, const QString& uiConfigName)
 {
+    const std::vector<caf::PdmUiItem *>& topLevelUiItems = topLevelUiOrdering.uiItems();
     if (m_summaryCurveCreator->isCloseButtonPressed())
     {
         m_summaryCurveCreator->clearCloseButton();
@@ -298,7 +299,6 @@ QMinimizePanel* RicSummaryCurveCreatorSplitterUi::createGroupBoxWithContent(caf:
 {
     QMinimizePanel* groupBox = findOrCreateGroupBox(this->widget(), group, uiConfigName);
 
-    const std::vector<caf::PdmUiItem*>& groupChildren = group->uiItems();
-    recursivelyConfigureAndUpdateUiItemsInGridLayoutColumn(groupChildren, groupBox->contentFrame(), uiConfigName);
+    recursivelyConfigureAndUpdateUiOrderingInGridLayoutColumn(*group, groupBox->contentFrame(), uiConfigName);
     return groupBox;
 }

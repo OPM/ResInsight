@@ -62,9 +62,11 @@ RicSummaryCurveCalculatorEditor::~RicSummaryCurveCalculatorEditor()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicSummaryCurveCalculatorEditor::recursivelyConfigureAndUpdateTopLevelUiItems(const std::vector<caf::PdmUiItem *>& topLevelUiItems, const QString& uiConfigName)
+void RicSummaryCurveCalculatorEditor::recursivelyConfigureAndUpdateTopLevelUiOrdering(const caf::PdmUiOrdering& topLevelUiOrdering, const QString& uiConfigName)
 {
     if (!m_firstRowLeftLayout || !m_firstRowRightLayout) return;
+
+    const std::vector<caf::PdmUiItem *>& topLevelUiItems = topLevelUiOrdering.uiItems();
 
     int layoutItemIndex = 0;
     for (size_t i = 0; i < topLevelUiItems.size(); ++i)
@@ -185,8 +187,7 @@ QMinimizePanel* RicSummaryCurveCalculatorEditor::updateGroupBoxWithContent(caf::
 {
     QMinimizePanel* groupBox = findOrCreateGroupBox(this->widget(), group, uiConfigName);
 
-    const std::vector<caf::PdmUiItem*>& groupChildren = group->uiItems();
-    recursivelyConfigureAndUpdateUiItemsInGridLayoutColumn(groupChildren, groupBox->contentFrame(), uiConfigName);
+    recursivelyConfigureAndUpdateUiOrderingInGridLayoutColumn(*group, groupBox->contentFrame(), uiConfigName);
     return groupBox;
 }
 

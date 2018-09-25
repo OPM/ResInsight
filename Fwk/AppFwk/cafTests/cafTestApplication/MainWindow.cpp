@@ -27,6 +27,7 @@
 #include "cafPdmReferenceHelper.h"
 #include "cafPdmUiComboBoxEditor.h"
 #include "cafPdmUiFilePathEditor.h"
+#include "cafPdmUiOrdering.h"
 #include "cafPdmUiItem.h"
 #include "cafPdmUiListEditor.h"
 #include "cafPdmUiPropertyView.h"
@@ -106,6 +107,7 @@ public:
     caf::PdmField<double>  m_doubleField;
     caf::PdmField<int>     m_intField;
     caf::PdmField<QString> m_textField;
+
     caf::PdmProxyValueField<double> m_proxyDoubleField;
     caf::PdmField<caf::FilePath> m_fileName;
     caf::PdmField<std::vector<caf::FilePath>> m_fileNameList;
@@ -218,7 +220,6 @@ protected:
     {
         uiOrdering.add(&m_doubleField);
         uiOrdering.add(&m_intField);
-
         QString dynamicGroupName = QString("Dynamic Group Text (%1)").arg(m_intField);
 
         caf::PdmUiGroup* group = uiOrdering.addNewGroupWithKeyword(dynamicGroupName, "MyTest");
@@ -229,6 +230,151 @@ protected:
 
 CAF_PDM_SOURCE_INIT(SmallDemoPdmObject, "SmallDemoPdmObject");
 
+
+class SmallGridDemoPdmObject : public caf::PdmObject
+{
+    CAF_PDM_HEADER_INIT;
+public:
+
+    SmallGridDemoPdmObject()
+    {
+        CAF_PDM_InitObject("Small Grid Demo Object", "", "This object is a demo of the CAF framework", "This object is a demo of the CAF framework");
+
+        CAF_PDM_InitField(&m_intFieldStandard, "Standard", 0, "Standard", "", "Enter some small number here", "This is a place you can enter a small integer value if you want");
+        CAF_PDM_InitField(&m_intFieldUseFullSpace, "FullSpace", 0, "Use Full Space For Both", "", "Enter some small number here", "This is a place you can enter a small integer value if you want");
+        CAF_PDM_InitField(&m_intFieldUseFullSpaceLabel, "FullSpaceLabel", 0, "Total 3, Label MAX", "", "Enter some small number here", "This is a place you can enter a small integer value if you want");
+        CAF_PDM_InitField(&m_intFieldUseFullSpaceField, "FullSpaceField", 0, "Total MAX, Label 1", "", "Enter some small number here", "This is a place you can enter a small integer value if you want");
+        CAF_PDM_InitField(&m_intFieldWideLabel,"WideLabel", 0, "Wide Label", "", "Enter some small number here", "This is a place you can enter a small integer value if you want");
+        CAF_PDM_InitField(&m_intFieldWideField,"WideField", 0, "Wide Field", "", "Enter some small number here", "This is a place you can enter a small integer value if you want");
+        CAF_PDM_InitField(&m_intFieldLeft, "LeftField", 0, "Left Field", "", "Enter some small number here", "This is a place you can enter a small integer value if you want");
+        CAF_PDM_InitField(&m_intFieldRight, "RightField", 0, "Right Field With More Text", "", "Enter some small number here", "This is a place you can enter a small integer value if you want");
+        CAF_PDM_InitField(&m_intFieldWideBoth, "WideBoth", 0, "Wide Both", "", "Enter some small number here", "This is a place you can enter a small integer value if you want");
+
+        CAF_PDM_InitField(&m_intFieldWideBoth2, "WideBoth2", 0, "Wide Both", "", "Enter some small number here", "This is a place you can enter a small integer value if you want");
+        CAF_PDM_InitField(&m_intFieldLeft2, "LeftFieldInGrp", 0, "Left Field", "", "Enter some small number here", "This is a place you can enter a small integer value if you want");
+        CAF_PDM_InitField(&m_intFieldCenter, "CenterFieldInGrp", 0, "Center Field", "", "Enter some small number here", "This is a place you can enter a small integer value if you want");
+        CAF_PDM_InitField(&m_intFieldRight2, "RightFieldInGrp", 0, "Right Field", "", "Enter some small number here", "This is a place you can enter a small integer value if you want");
+        CAF_PDM_InitField(&m_intFieldLabelTop, "FieldLabelTop", 0, "Field Label Top", "", "Enter some small number here", "This is a place you can enter a small integer value if you want");
+        m_intFieldLabelTop.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::TOP);
+        CAF_PDM_InitField(&m_stringFieldLabelHidden, "FieldLabelHidden", QString("Hidden Label Field"), "Field Label Hidden", "", "Enter some small number here", "This is a place you can enter a small integer value if you want");
+        m_stringFieldLabelHidden.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
+
+        CAF_PDM_InitField(&m_intFieldWideBothAuto, "WideBothAuto", 0, "Wide ", "", "Enter some small number here", "This is a place you can enter a small integer value if you want");
+        CAF_PDM_InitField(&m_intFieldLeftAuto, "LeftFieldInGrpAuto", 0, "Left Field", "", "Enter some small number here", "This is a place you can enter a small integer value if you want");
+        CAF_PDM_InitField(&m_intFieldCenterAuto, "CenterFieldInGrpAuto", 0, "Center Field", "", "Enter some small number here", "This is a place you can enter a small integer value if you want");
+        CAF_PDM_InitField(&m_intFieldRightAuto, "RightFieldInGrpAuto", 0, "Right Field", "", "Enter some small number here", "This is a place you can enter a small integer value if you want");
+        CAF_PDM_InitField(&m_intFieldLabelTopAuto, "FieldLabelTopAuto", 0, "Field Label Top", "", "Enter some small number here", "This is a place you can enter a small integer value if you want");
+        m_intFieldLabelTopAuto.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::TOP);
+        CAF_PDM_InitField(&m_stringFieldLabelHiddenAuto, "FieldLabelHiddenAuto", QString("Hidden Label Field"), "Field Label Hidden", "", "Enter some small number here", "This is a place you can enter a small integer value if you want");
+        m_stringFieldLabelHiddenAuto.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
+
+        CAF_PDM_InitField(&m_intFieldLeftOfGroup, "FieldLeftOfGrp", 0, "Left of group", "", "Enter some small number here", "This is a place you can enter a small integer value if you want");
+        CAF_PDM_InitField(&m_intFieldRightOfGroup, "FieldRightOfGrp", 0, "Right of group wide label", "", "Enter some small number here", "This is a place you can enter a small integer value if you want");
+
+        CAF_PDM_InitField(&m_intFieldInsideGroup1, "FieldInGrp1", 0, "Inside Group", "", "Enter some small number here", "This is a place you can enter a small integer value if you want");
+        CAF_PDM_InitField(&m_intFieldInsideGroup2, "FieldInGrp2", 0, "Inside Group", "", "Enter some small number here", "This is a place you can enter a small integer value if you want");
+        CAF_PDM_InitField(&m_intFieldInsideGroup3, "FieldInGrp3", 0, "Inside Group", "", "Enter some small number here", "This is a place you can enter a small integer value if you want");
+        CAF_PDM_InitField(&m_intFieldInsideGroup4, "FieldInGrp4", 0, "Inside Group", "", "Enter some small number here", "This is a place you can enter a small integer value if you want");
+        CAF_PDM_InitField(&m_intFieldInsideGroup5, "FieldInGrp5", 0, "Inside Group", "", "Enter some small number here", "This is a place you can enter a small integer value if you want");
+        CAF_PDM_InitField(&m_intFieldInsideGroup6, "FieldInGrp6", 0, "Inside Group", "", "Enter some small number here", "This is a place you can enter a small integer value if you want");
+
+    }
+
+    // Outside group
+    caf::PdmField<int>     m_intFieldStandard;
+    caf::PdmField<int>     m_intFieldUseFullSpace;
+    caf::PdmField<int>     m_intFieldUseFullSpaceLabel;
+    caf::PdmField<int>     m_intFieldUseFullSpaceField;
+    caf::PdmField<int>     m_intFieldWideLabel;
+    caf::PdmField<int>     m_intFieldWideField;
+    caf::PdmField<int>     m_intFieldWideBoth;
+    caf::PdmField<int>     m_intFieldLeft;
+    caf::PdmField<int>     m_intFieldRight;
+
+    // First group
+    caf::PdmField<int>     m_intFieldWideBoth2;
+    caf::PdmField<int>     m_intFieldLeft2;
+    caf::PdmField<int>     m_intFieldCenter;
+    caf::PdmField<int>     m_intFieldRight2;
+    caf::PdmField<int>     m_intFieldLabelTop;
+    caf::PdmField<QString> m_stringFieldLabelHidden;
+
+    // Auto group
+    caf::PdmField<int>     m_intFieldWideBothAuto;
+    caf::PdmField<int>     m_intFieldLeftAuto;
+    caf::PdmField<int>     m_intFieldCenterAuto;
+    caf::PdmField<int>     m_intFieldRightAuto;
+    caf::PdmField<int>     m_intFieldLabelTopAuto;
+    caf::PdmField<QString> m_stringFieldLabelHiddenAuto;
+
+    // Combination with groups
+    caf::PdmField<int>     m_intFieldLeftOfGroup;
+    caf::PdmField<int>     m_intFieldRightOfGroup;
+    caf::PdmField<int>     m_intFieldInsideGroup1;
+    caf::PdmField<int>     m_intFieldInsideGroup2;
+
+    // Side-by-side groups
+    caf::PdmField<int>     m_intFieldInsideGroup3;
+    caf::PdmField<int>     m_intFieldInsideGroup4;
+    caf::PdmField<int>     m_intFieldInsideGroup5;
+    caf::PdmField<int>     m_intFieldInsideGroup6;
+
+protected:
+    //--------------------------------------------------------------------------------------------------
+    /// 
+    //--------------------------------------------------------------------------------------------------
+    virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override
+    {
+        uiOrdering.add(&m_intFieldStandard);
+        uiOrdering.add(&m_intFieldUseFullSpace, caf::PdmUiOrdering::LayoutOptions(true, caf::PdmUiOrdering::LayoutOptions::MAX_COLUMN_SPAN, caf::PdmUiOrdering::LayoutOptions::MAX_COLUMN_SPAN));
+        uiOrdering.add(&m_intFieldUseFullSpaceLabel, caf::PdmUiOrdering::LayoutOptions(true, 3, caf::PdmUiOrdering::LayoutOptions::MAX_COLUMN_SPAN));
+        uiOrdering.add(&m_intFieldUseFullSpaceField, caf::PdmUiOrdering::LayoutOptions(true, caf::PdmUiOrdering::LayoutOptions::MAX_COLUMN_SPAN, 1));
+        uiOrdering.add(&m_intFieldWideLabel, caf::PdmUiOrdering::LayoutOptions(true, 4, 3));
+        uiOrdering.add(&m_intFieldWideField, caf::PdmUiOrdering::LayoutOptions(true, 4, 1));
+        uiOrdering.add(&m_intFieldLeft, caf::PdmUiOrdering::LayoutOptions(true));
+        uiOrdering.add(&m_intFieldRight, caf::PdmUiOrdering::LayoutOptions(false));
+        uiOrdering.add(&m_intFieldWideBoth, caf::PdmUiOrdering::LayoutOptions(true, 4, 2));
+
+        QString dynamicGroupName = QString("Dynamic Group Text (%1)").arg(m_intFieldStandard);
+
+        caf::PdmUiGroup* group = uiOrdering.addNewGroup("Wide Group", { true, 4 });
+        group->add(&m_intFieldWideBoth2, caf::PdmUiOrdering::LayoutOptions(true, 6, 3));
+        group->add(&m_intFieldLeft2, caf::PdmUiOrdering::LayoutOptions(true));
+        group->add(&m_intFieldCenter, caf::PdmUiOrdering::LayoutOptions(false));
+        group->add(&m_intFieldRight2, caf::PdmUiOrdering::LayoutOptions(false));
+        group->add(&m_intFieldLabelTop, caf::PdmUiOrdering::LayoutOptions(true, 6));
+        group->add(&m_stringFieldLabelHidden, caf::PdmUiOrdering::LayoutOptions(true, 6));
+
+        caf::PdmUiGroup* autoGroup = uiOrdering.addNewGroup("Automatic Full Width Group", caf::PdmUiOrdering::LayoutOptions(true));
+        autoGroup->add(&m_intFieldWideBothAuto, caf::PdmUiOrdering::LayoutOptions(true));
+        autoGroup->add(&m_intFieldLeftAuto, caf::PdmUiOrdering::LayoutOptions(true));
+        autoGroup->add(&m_intFieldCenterAuto, false);
+        autoGroup->add(&m_intFieldRightAuto, caf::PdmUiOrdering::LayoutOptions(false));
+        autoGroup->add(&m_intFieldLabelTopAuto, true);
+        autoGroup->add(&m_stringFieldLabelHiddenAuto, true);
+
+
+        uiOrdering.add(&m_intFieldLeftOfGroup);
+        caf::PdmUiGroup* group2 = uiOrdering.addNewGroup("Right Group", caf::PdmUiOrdering::LayoutOptions(false, 2, 0));
+        group2->setEnableFrame(false);
+        group2->add(&m_intFieldInsideGroup1);
+
+        caf::PdmUiGroup* group3 = uiOrdering.addNewGroup("Narrow L", caf::PdmUiOrdering::LayoutOptions(true, 1));
+        group3->add(&m_intFieldInsideGroup2);
+        uiOrdering.add(&m_intFieldRightOfGroup, caf::PdmUiOrdering::LayoutOptions(false, 3, 2));
+
+        caf::PdmUiGroup* groupL = uiOrdering.addNewGroup("Left Group", caf::PdmUiOrdering::LayoutOptions(true, 1));
+        groupL->add(&m_intFieldInsideGroup3);
+        groupL->add(&m_intFieldInsideGroup5);
+        caf::PdmUiGroup* groupR = uiOrdering.addNewGroup("Right Wide Group", caf::PdmUiOrdering::LayoutOptions(false, 3));
+        groupR->setEnableFrame(false);
+        groupR->add(&m_intFieldInsideGroup4);
+        groupR->add(&m_intFieldInsideGroup6);
+        
+    }
+};
+
+CAF_PDM_SOURCE_INIT(SmallGridDemoPdmObject, "SmallGridDemoPdmObject");
 
 class SmallDemoPdmObjectA: public caf::PdmObject
 {
@@ -723,6 +869,9 @@ void MainWindow::buildTestModel()
 
     SmallDemoPdmObjectA* smallObj2 = new SmallDemoPdmObjectA;
     m_testRoot->objects.push_back(smallObj2);
+
+    SmallGridDemoPdmObject* smallGridObj = new SmallGridDemoPdmObject;
+    m_testRoot->objects.push_back(smallGridObj);
 
     DemoPdmObject* demoObj2 = new DemoPdmObject;
    

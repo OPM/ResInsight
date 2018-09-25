@@ -40,6 +40,7 @@
 
 class QFrame;
 class QLabel;
+class QPalette;
 class QPushButton;
 
 //==================================================================================================
@@ -55,10 +56,12 @@ public:
     explicit QMinimizePanel(const QString &title, QWidget* parent=nullptr);
     ~QMinimizePanel();
 
-    QFrame*         contentFrame() { return m_contentFrame; }  
+    QFrame*         contentFrame();  
     void            setTitle (const QString& title);
     QString         title() const;
+    void            enableFrame(bool showFrame);
 
+    virtual QSize   minimumSizeHint() const override;
     virtual QSize   sizeHint() const override;
 
 public slots:
@@ -69,17 +72,19 @@ signals:
     void            expandedChanged(bool isExpanded);
 
 public:
-    virtual QSize   minimumSizeHint() const override;
 
 protected:
+
     QFrame*         m_titleFrame;
     QLabel*         m_titleLabel;
     QPushButton*    m_collapseButton;
     QFrame*         m_contentFrame;
+    QPalette        m_contentPalette;
 
     virtual void    resizeEvent(QResizeEvent *) override;
     virtual bool    event(QEvent* event) override; // To catch QEvent::LayoutRequest
 
 private:
     void            initialize(const QString &title);
+    QSize           calculateSizeHint(bool minimumSizeHint) const;
 };
