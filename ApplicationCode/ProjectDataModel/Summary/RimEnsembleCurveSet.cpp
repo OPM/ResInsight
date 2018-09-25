@@ -977,8 +977,6 @@ void RimEnsembleCurveSet::updateEnsembleCurves(const std::vector<RimSummaryCase*
             if (plot->qwtPlot()) m_qwtPlotCurveForLegendText->attach(plot->qwtPlot());
         }
 
-        RimSummaryPlot* plot;
-        firstAncestorOrThisOfType(plot);
         if (plot->qwtPlot())
         {
             plot->qwtPlot()->updateLegend();
