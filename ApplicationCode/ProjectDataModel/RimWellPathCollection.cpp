@@ -255,15 +255,6 @@ void RimWellPathCollection::readAndAddWellPaths(std::vector<RimFileWellPath*>& w
 {
     caf::ProgressInfo progress(wellPathArray.size(), "Reading well paths from file");
 
-    const caf::ColorTable& colorTable = RiaColorTables::wellLogPlotPaletteColors();
-    cvf::Color3ubArray wellColors = colorTable.color3ubArray();
-    cvf::Color3ubArray interpolatedWellColors = wellColors;
-
-    if (wellPathArray.size() > 1)
-    {
-        interpolatedWellColors = caf::ColorTable::interpolateColorArray(wellColors, wellPathArray.size());
-    }
-
     for (size_t wpIdx = 0; wpIdx < wellPathArray.size(); wpIdx++)
     {
         RimFileWellPath* wellPath = wellPathArray[wpIdx];
@@ -287,7 +278,7 @@ void RimWellPathCollection::readAndAddWellPaths(std::vector<RimFileWellPath*>& w
         }
         else
         {
-            wellPath->setWellPathColor(cvf::Color3f(interpolatedWellColors[wpIdx]));
+            wellPath->setWellPathColor(RiaColorTables::wellPathsPaletteColors().cycledColor3f(wellPaths.size()));
             wellPath->setUnitSystem(findUnitSystemForWellPath(wellPath));
             m_mostRecentlyUpdatedWellPath = wellPath;
             wellPaths.push_back(wellPath);

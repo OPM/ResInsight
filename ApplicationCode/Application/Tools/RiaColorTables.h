@@ -54,7 +54,12 @@ public:
     static const caf::ColorTable& selectionPaletteColors();
     static const caf::ColorTable& timestepsPaletteColors();
     static const caf::ColorTable& editableWellPathsPaletteColors();
+    static const caf::ColorTable& wellPathsPaletteColors();
 
     static cvf::Color3f undefinedCellColor();
     static cvf::Color3f perforationLengthColor();
+
+private:
+    static std::vector<cvf::Color3ub> categoryColors();
+    static std::vector<cvf::Color3ub> invertedCategoryColors();
 };
