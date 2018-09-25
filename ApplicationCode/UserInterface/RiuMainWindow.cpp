@@ -436,6 +436,7 @@ void RiuMainWindow::createMenus()
     exportMenu->addSeparator();
     exportMenu->addAction(cmdFeatureMgr->action("RicSaveEclipseInputActiveVisibleCellsFeature"));
     exportMenu->addAction(cmdFeatureMgr->action("RicExportCompletionsForVisibleWellPathsFeature"));
+    exportMenu->addAction(cmdFeatureMgr->action("RicExportVisibleWellPathsFeature"));
 
     fileMenu->addSeparator();
     fileMenu->addAction(cmdFeatureMgr->action("RicSaveProjectFeature"));
@@ -808,6 +809,7 @@ void RiuMainWindow::slotRefreshFileActions()
 
     QStringList commandIdList;
     commandIdList << "RicExportCompletionsForVisibleWellPathsFeature";
+    commandIdList << "RicExportVisibleWellPathsFeature";
     cmdFeatureMgr->refreshStates(commandIdList);
 }
 
