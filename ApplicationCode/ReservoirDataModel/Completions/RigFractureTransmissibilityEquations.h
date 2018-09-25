@@ -56,12 +56,6 @@ public:
                                         double fractureAreaWeightedlength,
                                         double cDarcy);
 
-    // Pressure Differential Depletion Høgstøl-correction (PDDHC) methods.
-    static double pressureScalingMatrixToFractureTransPDDHC(double originalWellPressure,
-                                                            double wellPressure,
-                                                            double originalMatrixPressure,
-                                                            double matrixPressure);
-
     static double effectiveInternalFractureToWellTransPDDHC(double sumScaledMatrixToFractureTrans,
                                                             double scaledMatrixToWellTrans);
 

@@ -125,23 +125,6 @@ double RigFractureTransmissibilityEquations::matrixToFractureTrans(double perm,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RigFractureTransmissibilityEquations::pressureScalingMatrixToFractureTransPDDHC(double originalWellPressure,
-                                                                                       double wellPressure,
-                                                                                       double originalMatrixPressure,
-                                                                                       double matrixPressure)
-{
-    double pressureDelta = originalMatrixPressure - originalWellPressure;
-    if (cvf::Math::abs(pressureDelta) > EPSILON)
-    {
-        return (matrixPressure - wellPressure) / pressureDelta;
-    }
-    CVF_ASSERT(false);
-    return 0.0;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 double RigFractureTransmissibilityEquations::effectiveInternalFractureToWellTransPDDHC(double sumScaledMatrixToFractureTrans,
                                                                                        double scaledMatrixToWellTrans)
 {

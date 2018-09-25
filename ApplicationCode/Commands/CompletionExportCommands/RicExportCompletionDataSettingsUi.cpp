@@ -55,11 +55,12 @@ namespace caf
     void RicExportCompletionDataSettingsUi::TransScalingType::setUp()
     {
         addItem(RicExportFractureCompletionsImpl::NO_SCALING, "NO_SCALING", "No scaling");
-        addItem(RicExportFractureCompletionsImpl::MATRIX_TO_FRACTURE_DP_OVER_MAX_DP, "MATFRAC_DP_OVER_MAXDP", "Matrix to Fracture dP over max dP");
-        addItem(RicExportFractureCompletionsImpl::MATRIX_TO_FRACTURE_DP_OVER_AVG_DP, "MATFRAC_DP_OVER_AVGDP", "Matrix to Fracture dP over avg dP");
-        addItem(RicExportFractureCompletionsImpl::MATRIX_TO_FRACTURE_FLUX_OVER_MAX_FLUX, "MATFRAC_FLUX_OVER_MAXFLUX", "Matrix to Fracture Flux over max Flux");
-        addItem(RicExportFractureCompletionsImpl::MATRIX_TO_FRACTURE_FLUX_OVER_AVG_FLUX, "MATFRAC_FLUX_OVER_AVGFLUX", "Matrix to Fracture Flux over avg Flux");
+        addItem(RicExportFractureCompletionsImpl::MATRIX_TO_FRACTURE_DP_OVER_INITIAL_DP, "MATFRAC_DP_OVER_INITIALDP", "Matrix to Fracture dP over initial dP");
+        addItem(RicExportFractureCompletionsImpl::MATRIX_TO_FRACTURE_DP_OVER_MAX_INITIAL_DP, "MATFRAC_DP_OVER_MAX_INITIALDP", "Matrix to Fracture dP over max initial dP");
         addItem(RicExportFractureCompletionsImpl::MATRIX_TO_WELL_DP_OVER_INITIAL_DP, "MATWELL_DP_OVER_INITIALDP", "Matrix to Well dP over initial dP");
+        addItem(RicExportFractureCompletionsImpl::MATRIX_TO_WELL_DP_OVER_MAX_INITIAL_DP, "MATWELL_DP_OVER_MAX_INITIALDP", "Matrix to Well dP over max initial dP");
+        addItem(RicExportFractureCompletionsImpl::MATRIX_TO_FRACTURE_FLUX_OVER_MAX_FLUX, "MATFRAC_FLUX_OVER_MAXFLUX", "Matrix to Fracture Flux over max Flux");
+
         setDefault(RicExportFractureCompletionsImpl::NO_SCALING);
     }
 
@@ -209,17 +210,6 @@ void RicExportCompletionDataSettingsUi::fieldChangedByUi(const caf::PdmFieldHand
         else if (compdatExport == TRANSMISSIBILITIES || includeMsw)
         {
             includeFractures = true;
-        }
-    }
-    else if (changedField == &transScalingType)
-    {
-        if (transScalingType == RicExportFractureCompletionsImpl::MATRIX_TO_WELL_DP_OVER_INITIAL_DP)
-        {
-            transScalingCorrection = RicExportFractureCompletionsImpl::HOGSTOL_CORRECTION;
-        }
-        else
-        {
-            transScalingCorrection = RicExportFractureCompletionsImpl::NO_CORRECTION;
         }
     }
 }

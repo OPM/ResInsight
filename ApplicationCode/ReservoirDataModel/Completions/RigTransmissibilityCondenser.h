@@ -96,14 +96,22 @@ public:
     std::string condensedTransDebugOutput(const RigMainGrid* mainGrid, const RigFractureGrid* fractureGrid);
 
     std::map<size_t, double> scaleMatrixToFracTransByMatrixWellDP(const RigActiveCellInfo*   actCellInfo,
-                                                                  double                     originalWellPressure,
+                                                                  double                     initialWellPressure,
                                                                   double                     currentWellPressure,
-                                                                  const std::vector<double>& originalMatrixPressures,
-                                                                  const std::vector<double>& currentMatrixPressures);
-    std::map<size_t, double> scaleMatrixToFracTransByMatrixFracDP(const RigActiveCellInfo*   actCellInfo,
-                                                                  double                     currentWellPressure,
+                                                                  const std::vector<double>& initialMatrixPressures,
                                                                   const std::vector<double>& currentMatrixPressures,
-                                                                  bool                       divideByAverageDP);
+                                                                  bool                       normalizeByMax);
+
+    std::map<size_t, double> scaleMatrixToFracTransByMatrixFracInitialDP(const RigActiveCellInfo*   actCellInfo,
+                                                                         double                     initialWellPressure,
+                                                                         double                     currentWellPressure,
+                                                                         const std::vector<double>& initialMatrixPressures,
+                                                                         const std::vector<double>& currentMatrixPressures,
+                                                                         bool                       normalizeByMax);
+
+    std::map<size_t, double> solveForFracturePressures(const RigActiveCellInfo* actCellInfo, const std::vector<double> &currentMatrixPressures, double currentWellPressure);
+
+
     std::map<size_t, double> scaleMatrixToFracTransByMatrixFracFlux(const RigActiveCellInfo*   actCellInfo,
                                                                     double                     currentWellPressure,
                                                                     const std::vector<double>& currentMatrixPressures,

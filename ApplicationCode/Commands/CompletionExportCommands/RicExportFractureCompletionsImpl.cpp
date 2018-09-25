@@ -325,16 +325,25 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
         // Insert total transmissibility from eclipse-cell to well for this fracture into the map
         std::map<size_t, double> matrixToWellTrans = calculateMatrixToWellTransmissibilities(transCondenser);
 
-        if (currentPressureDropScaling == MATRIX_TO_FRACTURE_DP_OVER_MAX_DP ||
-            currentPressureDropScaling == MATRIX_TO_FRACTURE_DP_OVER_AVG_DP)
+
+        ////////////////////////////////////////////////////////
+        // WARNING!!!                                         //
+        // PROTOTYPE-CODE for Pressure Differential Depletion //
+        // MAY CHANGE A LOT                                   //
+        ////////////////////////////////////////////////////////
+        if (currentPressureDropScaling == MATRIX_TO_FRACTURE_DP_OVER_INITIAL_DP ||
+            currentPressureDropScaling == MATRIX_TO_FRACTURE_DP_OVER_MAX_INITIAL_DP)
         {
             RigTransmissibilityCondenser scaledCondenser = transCondenser;
             // 1. Scale matrix to fracture transmissibilities by matrix to fracture pressure
-            std::map<size_t, double> originalLumpedMatrixToFractureTrans = scaledCondenser.scaleMatrixToFracTransByMatrixFracDP(
-                actCellInfo,
-                currentWellPressure,
-                *currentMatrixPressures,
-                currentPressureDropScaling == MATRIX_TO_FRACTURE_DP_OVER_AVG_DP);
+            std::map<size_t, double> originalLumpedMatrixToFractureTrans =
+                scaledCondenser.scaleMatrixToFracTransByMatrixFracInitialDP(actCellInfo,
+                                                                            initialWellPressure,
+                                                                            currentWellPressure,
+                                                                            *initialMatrixPressures,
+                                                                            *currentMatrixPressures,
+                                                                            currentPressureDropScaling ==
+                                                                                MATRIX_TO_FRACTURE_DP_OVER_MAX_INITIAL_DP);
             // 2: Calculate new external transmissibilities
             scaledCondenser.calculateCondensedTransmissibilities();
 
@@ -358,47 +367,18 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
                 matrixToWellTrans = effectiveMatrixToWellTrans;
             }
         }
-        else if (currentPressureDropScaling == MATRIX_TO_FRACTURE_FLUX_OVER_MAX_FLUX ||
-                 currentPressureDropScaling == MATRIX_TO_FRACTURE_FLUX_OVER_AVG_FLUX)
+        else if (currentPressureDropScaling == MATRIX_TO_WELL_DP_OVER_INITIAL_DP ||
+                 currentPressureDropScaling == MATRIX_TO_WELL_DP_OVER_MAX_INITIAL_DP)
         {
             RigTransmissibilityCondenser scaledCondenser = transCondenser;
             // 1. Scale matrix to fracture transmissibilities by matrix to fracture pressure
-            std::map<size_t, double> originalLumpedMatrixToFractureTrans = scaledCondenser.scaleMatrixToFracTransByMatrixFracFlux(
-                actCellInfo,
-                currentWellPressure,
-                *currentMatrixPressures,
-                currentPressureDropScaling == MATRIX_TO_FRACTURE_FLUX_OVER_AVG_FLUX);
-            // 2: Calculate new external transmissibilities
-            scaledCondenser.calculateCondensedTransmissibilities();
-
-            if (pdParams.transCorrection == NO_CORRECTION)
-            {
-                // Calculate effective matrix to well transmissibilities.
-                std::map<size_t, double> effectiveMatrixToWellTransBeforeCorrection =
-                    calculateMatrixToWellTransmissibilities(scaledCondenser);
-                matrixToWellTrans = effectiveMatrixToWellTransBeforeCorrection;
-            }
-            else if (pdParams.transCorrection == HOGSTOL_CORRECTION)
-            {
-                // Høgstøl correction.
-                // 1. Calculate new effective fracture to well transmissiblities
-                std::map<size_t, double> fictitiousFractureToWellTransmissibilities =
-                    scaledCondenser.calculateFicticiousFractureToWellTransmissibilities();
-                // 2. Calculate new effective matrix to well transmissibilities
-                std::map<size_t, double> effectiveMatrixToWellTrans =
-                    scaledCondenser.calculateEffectiveMatrixToWellTransmissibilities(originalLumpedMatrixToFractureTrans,
-                                                                                     fictitiousFractureToWellTransmissibilities);
-                matrixToWellTrans = effectiveMatrixToWellTrans;
-            }
-        }
-        else if (currentPressureDropScaling == MATRIX_TO_WELL_DP_OVER_INITIAL_DP)
-        {
-            RigTransmissibilityCondenser scaledCondenser = transCondenser;
-            // From Høgstøl "Hydraulic Fracturing SoW 2.8 outside contract fracture Transmissibility Calculations for Differential
-            // Depletion":
-            // 1. Scale matrix to fracture transmissibilities by matrix to well pressure
             std::map<size_t, double> originalLumpedMatrixToFractureTrans = scaledCondenser.scaleMatrixToFracTransByMatrixWellDP(
-                actCellInfo, initialWellPressure, currentWellPressure, *initialMatrixPressures, *currentMatrixPressures);
+                actCellInfo,
+                initialWellPressure,
+                currentWellPressure,
+                *initialMatrixPressures,
+                *currentMatrixPressures,
+                currentPressureDropScaling == MATRIX_TO_FRACTURE_DP_OVER_MAX_INITIAL_DP);
             // 2: Calculate new external transmissibilities
             scaledCondenser.calculateCondensedTransmissibilities();
 
@@ -422,6 +402,41 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
                 matrixToWellTrans = effectiveMatrixToWellTrans;
             }
         }
+        else if (currentPressureDropScaling == MATRIX_TO_FRACTURE_FLUX_OVER_MAX_FLUX)
+        {
+            RigTransmissibilityCondenser scaledCondenser = transCondenser;
+            // 1. Scale matrix to fracture transmissibilities by matrix to fracture pressure Depletion:
+            std::map<size_t, double> originalLumpedMatrixToFractureTrans =
+                scaledCondenser.scaleMatrixToFracTransByMatrixFracFlux(actCellInfo,
+                    currentWellPressure,
+                    *currentMatrixPressures,
+                    false);
+            // 2: Calculate new external transmissibilities
+            scaledCondenser.calculateCondensedTransmissibilities();
+
+            if (pdParams.transCorrection == NO_CORRECTION)
+            {
+                // Calculate effective matrix to well transmissibilities.
+                std::map<size_t, double> effectiveMatrixToWellTransBeforeCorrection =
+                    calculateMatrixToWellTransmissibilities(scaledCondenser);
+                matrixToWellTrans = effectiveMatrixToWellTransBeforeCorrection;
+            }
+            else if (pdParams.transCorrection == HOGSTOL_CORRECTION)
+            {
+                // Høgstøl correction.
+                // 1. Calculate new effective fracture to well transmissiblities
+                std::map<size_t, double> fictitiousFractureToWellTransmissibilities =
+                    scaledCondenser.calculateFicticiousFractureToWellTransmissibilities();
+                // 2. Calculate new effective matrix to well transmissibilities
+                std::map<size_t, double> effectiveMatrixToWellTrans =
+                    scaledCondenser.calculateEffectiveMatrixToWellTransmissibilities(originalLumpedMatrixToFractureTrans,
+                                                                                     fictitiousFractureToWellTransmissibilities);
+                matrixToWellTrans = effectiveMatrixToWellTrans;
+            }
+        }
+        ////////////////////////////////////////////////////////////
+        // END PROTOTYPE CODE FOR PRESSURE DIFFERENTIAL DEPLETION //
+        ////////////////////////////////////////////////////////////
 
         std::vector<RigCompletionData> allCompletionsForOneFracture =
             generateCompdatValuesForFracture(matrixToWellTrans, wellPathName, caseToApply, fracture, fracTemplate);

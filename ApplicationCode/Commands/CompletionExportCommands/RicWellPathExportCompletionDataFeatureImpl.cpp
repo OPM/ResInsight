@@ -2491,22 +2491,34 @@ QString RicWellPathExportCompletionDataFeatureImpl::createPressureDepletionFileN
     QString suffix;
     if (exportSettings.transScalingType() != RicExportFractureCompletionsImpl::NO_CORRECTION)
     {
-        if (exportSettings.transScalingType() == RicExportFractureCompletionsImpl::MATRIX_TO_FRACTURE_DP_OVER_AVG_DP)
+        if (exportSettings.transScalingType() == RicExportFractureCompletionsImpl::MATRIX_TO_FRACTURE_DP_OVER_INITIAL_DP)
         {
-            suffix += QString("_PAVG_");
+            suffix += QString("_1");
         }
-        else if (exportSettings.transScalingType() == RicExportFractureCompletionsImpl::MATRIX_TO_FRACTURE_DP_OVER_MAX_DP)
+        else if (exportSettings.transScalingType() == RicExportFractureCompletionsImpl::MATRIX_TO_FRACTURE_DP_OVER_MAX_INITIAL_DP)
         {
-            suffix += QString("_PMAX_");
+            suffix += QString("_2");
         }
-        else
+        else if (exportSettings.transScalingType() == RicExportFractureCompletionsImpl::MATRIX_TO_WELL_DP_OVER_INITIAL_DP)
         {
-            suffix += QString("_PMWD_");
+            suffix += QString("_3");
+        }
+        else if (exportSettings.transScalingType() == RicExportFractureCompletionsImpl::MATRIX_TO_WELL_DP_OVER_MAX_INITIAL_DP)
+        {
+            suffix += QString("_4");
+        }
+        else if (exportSettings.transScalingType() == RicExportFractureCompletionsImpl::MATRIX_TO_FRACTURE_FLUX_OVER_MAX_FLUX)
+        {
+            suffix += QString("_5");
         }
 
         if (exportSettings.transScalingCorrection() == RicExportFractureCompletionsImpl::HOGSTOL_CORRECTION)
         {
-            suffix += QString("_HC_");
+            suffix += QString("B_");
+        }
+        else
+        {
+            suffix += QString("A_");
         }
 
         if (exportSettings.transScalingSummaryWBHP())
