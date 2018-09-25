@@ -61,11 +61,8 @@ class RimWellPathCollection : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 public:
-
     RimWellPathCollection();
     virtual ~RimWellPathCollection();
-
-    void                                setProject(RimProject* project);
 
     enum WellVisibilityType
     {
