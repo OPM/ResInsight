@@ -136,10 +136,10 @@ RimEclipseCase* RiaSocketServer::findReservoir(int caseId)
 
     if (currCaseId < 0)
     {
-        RimEclipseView* riv = dynamic_cast<RimEclipseView*>(RiaApplication::instance()->activeReservoirView());
-        if (riv)
+        RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>(RiaApplication::instance()->activeReservoirView());
+        if (eclipseView)
         {
-            return riv->eclipseCase();
+            return eclipseView->eclipseCase();
         }
 
         // If the active mdi window is different from an Eclipse view, search through available mdi windows to find the last activated

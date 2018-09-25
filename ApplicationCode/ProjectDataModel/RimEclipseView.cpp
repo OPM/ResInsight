@@ -628,9 +628,6 @@ void RimEclipseView::updateCurrentTimeStep()
 
         if (this->showInactiveCells())
         {
-            std::vector<size_t> gridIndices;
-            this->indicesToVisibleGrids(&gridIndices);
- 
             if (this->rangeFilterCollection()->hasActiveFilters() ) // Wells not considered, because we do not have a INACTIVE_WELL_CELLS group yet.
             {
                 m_reservoirGridPartManager->appendStaticGeometryPartsToModel(frameParts.p(), RANGE_FILTERED_INACTIVE, gridIndices); 
@@ -1189,7 +1186,7 @@ void RimEclipseView::syncronizeWellsWithResults()
 {
     if (!(m_eclipseCase && m_eclipseCase->eclipseCaseData()) ) return;
 
-    cvf::Collection<RigSimWellData> simWellData = m_eclipseCase->eclipseCaseData()->wellResults();
+    cvf::Collection<RigSimWellData> wellResults = m_eclipseCase->eclipseCaseData()->wellResults();
 
  
     std::vector<caf::PdmPointer<RimSimWellInView> > newWells;
@@ -1205,20 +1202,20 @@ void RimEclipseView::syncronizeWellsWithResults()
 
     // Find corresponding well from well result, or create a new
 
-    for (size_t wIdx = 0; wIdx < simWellData.size(); ++wIdx)
+    for (size_t wIdx = 0; wIdx < wellResults.size(); ++wIdx)
     {
-        RimSimWellInView* well = this->wellCollection()->findWell(simWellData[wIdx]->m_wellName);
+        RimSimWellInView* well = this->wellCollection()->findWell(wellResults[wIdx]->m_wellName);
 
         if (!well)
         {
             well = new RimSimWellInView;
-            well->name = simWellData[wIdx]->m_wellName;
+            well->name = wellResults[wIdx]->m_wellName;
 
             isAnyWellCreated = true;
         }
         newWells.push_back(well);
 
-        well->setSimWellData(simWellData[wIdx].p(), wIdx);
+        well->setSimWellData(wellResults[wIdx].p(), wIdx);
     }
 
     // Delete all wells that does not have a result

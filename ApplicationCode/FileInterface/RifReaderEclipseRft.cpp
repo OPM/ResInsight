@@ -246,8 +246,8 @@ void RifReaderEclipseRft::cellIndices(const RifEclipseRftAddress& rftAddress, st
         int i, j, k;
         ecl_rft_node_iget_ijk(node, cellIdx, &i, &j, &k);
         
-        caf::VecIjk index( (size_t)i, (size_t)j, (size_t)k );
-        indices->push_back(index);
+        caf::VecIjk ijk( (size_t)i, (size_t)j, (size_t)k );
+        indices->push_back(ijk);
     }
 }
 

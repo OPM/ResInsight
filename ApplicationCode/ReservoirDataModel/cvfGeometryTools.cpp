@@ -201,7 +201,6 @@ GeometryTools::IntersectionStatus inPlaneLineIntersect(
       
        if (length12 < EPS )
        {
-           cvf::Vec3d p34(x4-x3, y4-y3, 0);
            *x = x1;
            *y = y1;
            *fractionAlongLine1 = 1;

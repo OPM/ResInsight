@@ -269,10 +269,10 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate(size_t timeStepI
         QString gridFileName = m_eclipseCase->gridFileName();
         if ( !RifEclipseOutputFileTools::findSiblingFilesWithSameBaseName(gridFileName, &m_filesWithSameBaseName) ) return result;
 
-        QString restartFileName = RifEclipseOutputFileTools::firstFileNameOfType(m_filesWithSameBaseName, ECL_UNIFIED_RESTART_FILE);
-        if ( !restartFileName.isEmpty() )
+        QString firstRestartFileName = RifEclipseOutputFileTools::firstFileNameOfType(m_filesWithSameBaseName, ECL_UNIFIED_RESTART_FILE);
+        if ( !firstRestartFileName.isEmpty() )
         {
-            m_opmFlowDiagStaticData->m_unifiedRestartData.reset(new Opm::ECLRestartData(Opm::ECLRestartData(restartFileName.toStdString())));
+            m_opmFlowDiagStaticData->m_unifiedRestartData.reset(new Opm::ECLRestartData(Opm::ECLRestartData(firstRestartFileName.toStdString())));
             m_opmFlowDiagStaticData->m_hasUnifiedRestartFile = true;
         }
         else
@@ -291,7 +291,7 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate(size_t timeStepI
             restartFileNames.sort(); // To make sure they are sorted in increasing *.X000N order. Hack. Should probably be actual time stored on file.
             m_opmFlowDiagStaticData->m_hasUnifiedRestartFile = false;
 
-            for (auto restartFileName : restartFileNames)
+            for (const auto& restartFileName : restartFileNames)
             {
                 m_opmFlowDiagStaticData->m_singleRestartDataTimeSteps.push_back(Opm::ECLRestartData(restartFileName.toStdString()));
             }

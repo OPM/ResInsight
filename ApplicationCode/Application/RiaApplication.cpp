@@ -2155,20 +2155,22 @@ void RiaApplication::addCommandObject(RimCommandObject* commandObject)
 //--------------------------------------------------------------------------------------------------
 void RiaApplication::executeCommandObjects()
 {
-    std::list< RimCommandObject* >::iterator it = m_commandQueue.begin();
-    while (it != m_commandQueue.end())
     {
-        RimCommandObject* toBeRemoved = *it;
-        if (!toBeRemoved->isAsyncronous())
+        std::list<RimCommandObject*>::iterator it = m_commandQueue.begin();
+        while (it != m_commandQueue.end())
         {
-            toBeRemoved->redo();
+            RimCommandObject* toBeRemoved = *it;
+            if (!toBeRemoved->isAsyncronous())
+            {
+                toBeRemoved->redo();
 
-            ++it;
-            m_commandQueue.remove(toBeRemoved);
-        }
-        else
-        {
-            ++it;
+                ++it;
+                m_commandQueue.remove(toBeRemoved);
+            }
+            else
+            {
+                ++it;
+            }
         }
     }
 

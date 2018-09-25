@@ -236,7 +236,6 @@ void RigEclipseToStimPlanCellTransmissibilityCalculator::calculateStimPlanCellsM
 
         if (polygonsForStimPlanCellInEclipseCell.empty()) continue;
 
-        double              area;
         std::vector<double> areaOfFractureParts;
         double              length;
         std::vector<double> lengthXareaOfFractureParts;
@@ -246,8 +245,8 @@ void RigEclipseToStimPlanCellTransmissibilityCalculator::calculateStimPlanCellsM
 
         for (const std::vector<cvf::Vec3d>& fracturePartPolygon : polygonsForStimPlanCellInEclipseCell)
         {
-            areaVector = cvf::GeometryTools::polygonAreaNormal3D(fracturePartPolygon);
-            area       = areaVector.length();
+            areaVector  = cvf::GeometryTools::polygonAreaNormal3D(fracturePartPolygon);
+            double area = areaVector.length();
             areaOfFractureParts.push_back(area);
 
             length = RigCellGeometryTools::polygonLengthInLocalXdirWeightedByArea(fracturePartPolygon);

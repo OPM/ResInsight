@@ -236,8 +236,6 @@ void RimIdenticalGridCaseGroup::loadMainCaseAndActiveCellInfo()
     // for all cases
 
     {
-        RiaDefines::PorosityModelType poroModel = RiaDefines::MATRIX_MODEL;
-
         std::vector<RigEclipseTimeStepInfo> timeStepInfos = rigCaseData->results(poroModel)->timeStepInfos(0);
 
         const std::vector<RigEclipseResultInfo> resultInfos = rigCaseData->results(poroModel)->infoForEachResultIndex();
@@ -259,7 +257,7 @@ void RimIdenticalGridCaseGroup::loadMainCaseAndActiveCellInfo()
                 size_t scalarResultIndex = cellResultsStorage->findScalarResultIndex(resultType, resultName);
                 if (scalarResultIndex == cvf::UNDEFINED_SIZE_T)
                 {
-                    size_t scalarResultIndex = cellResultsStorage->findOrCreateScalarResultIndex(resultType, resultName, needsToBeStored);
+                    scalarResultIndex = cellResultsStorage->findOrCreateScalarResultIndex(resultType, resultName, needsToBeStored);
                     
                     if (mustBeCalculated) cellResultsStorage->setMustBeCalculated(scalarResultIndex);
 

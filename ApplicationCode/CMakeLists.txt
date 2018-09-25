@@ -291,7 +291,7 @@ if (MSVC)
     # If possible, the following command is supposed to be the final target
     # set_target_properties(ResInsight PROPERTIES COMPILE_FLAGS "/W4 /wd4190 /wd4100 /wd4127")    
     
-    set_target_properties(ResInsight PROPERTIES COMPILE_FLAGS "/W4 /wd4190 /wd4100 /wd4127 /wd4505 /wd4245 /wd4456")
+    set_target_properties(ResInsight PROPERTIES COMPILE_FLAGS "/W4 /wd4190 /wd4100 /wd4127 /wd4505 /wd4245")
 endif() 
 
 #############################################################################
