@@ -250,8 +250,10 @@ void caf::PdmUiFormLayoutObjectEditor::recursivelyConfigureAndUpdateUiOrderingIn
         }
     }
     // Set last row to stretch
-    parentLayout->setRowStretch(currentRowIndex, 10);
-    
+    if (currentRowIndex >= 0)
+    {
+        parentLayout->setRowStretch(currentRowIndex, 1);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
