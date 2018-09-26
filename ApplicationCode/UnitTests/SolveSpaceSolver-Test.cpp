@@ -832,3 +832,45 @@ TEST(RiaJCurveCalculator, Basic)
     }
 
 }
+
+
+#include "RiaArcCurveCalculator.h"
+
+TEST(RiaArcCurveCalculator, Basic)
+{
+    {
+        RiaArcCurveCalculator calc({ 0,0,0 }, 0, M_PI/2, { 0,1000,-1000 });
+
+        EXPECT_TRUE(calc.curveStatus() == RiaArcCurveCalculator::OK);
+        EXPECT_NEAR(1000.0, calc.radius(), 1e-5);
+        EXPECT_NEAR(M_PI/2, calc.arcAngle(), 1e-5);
+        EXPECT_NEAR(M_PI/2*1000, calc.arcLength(), 1e-5);
+
+        cvf::Vec3d center = calc.center();
+        EXPECT_NEAR(    0, center.x(), 1e-5);
+        EXPECT_NEAR(    0, center.y(), 1e-5);
+        EXPECT_NEAR(-1000, center.z(), 1e-5);
+
+        cvf::Vec3d n = calc.normal();
+        EXPECT_NEAR(-1, n.x(), 1e-5);
+        EXPECT_NEAR( 0, n.y(), 1e-5);
+        EXPECT_NEAR( 0, n.z(), 1e-5);
+
+        cvf::Vec3d te = calc.endTangent();
+        EXPECT_NEAR( 0,  te.x(), 1e-5);
+        EXPECT_NEAR( 0,  te.y(), 1e-5);
+        EXPECT_NEAR(-1, te.z(), 1e-5);
+    }
+
+    {
+        RiaArcCurveCalculator calc({ 0,0,0 }, 0, 0, { 0, 0,-1000 });
+
+        EXPECT_TRUE(calc.curveStatus() == RiaJCurveCalculator::OK_STRAIGHT_LINE);
+
+        cvf::Vec3d te = calc.endTangent();
+        EXPECT_NEAR(0, te.x(), 1e-5);
+        EXPECT_NEAR(0, te.y(), 1e-5);
+        EXPECT_NEAR(-1, te.z(), 1e-5);
+    }
+
+}

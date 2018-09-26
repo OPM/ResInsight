@@ -137,15 +137,13 @@ void RiaPolyArcLineSampler::sampleArc(cvf::Vec3d t1, cvf::Vec3d p1, cvf::Vec3d p
 
     double angleInc = m_samplingsInterval/ radius;
 
-    cvf::Vec3d C = arcCS.translation();
-    cvf::Vec3d N(arcCS.col(2));
-    cvf::Vec3d tr2 = (C - p2).getNormalized();
-    cvf::Vec3d t2 = tr2 ^ N;
+    cvf::Vec3d C = CS_rad.center();
+    cvf::Vec3d N = CS_rad.normal();
 
     // Sample arc by 
     // Rotate vector an increment, and transform to arc CS
 
-    double arcAngle = cvf::GeometryTools::getAngle(N, p1-C, p2-C);
+    double arcAngle = cvf::GeometryTools::getAngle(N, p1 - C, p2 - C);
     if (arcAngle/angleInc > 5000)
     {
         angleInc = arcAngle/5000;
@@ -167,5 +165,5 @@ void RiaPolyArcLineSampler::sampleArc(cvf::Vec3d t1, cvf::Vec3d p1, cvf::Vec3d p
     m_points->push_back(p2);
     m_meshDs->push_back(m_totalMD);
 
-    (*endTangent) = t2;
+    (*endTangent) = CS_rad.endTangent();
 }

@@ -18,6 +18,7 @@
 #include "RiaArcCurveCalculator.h"
 
 #include "RiaOffshoreSphericalCoords.h"
+#include "cvfGeometryTools.h"
 
 //--------------------------------------------------------------------------------------------------
 ///                + p1 
@@ -58,9 +59,12 @@ RiaArcCurveCalculator::RiaArcCurveCalculator(cvf::Vec3d p1, cvf::Vec3d t1, cvf::
         m_curveStatus = OK_STRAIGHT_LINE;
 
         RiaOffshoreSphericalCoords endTangent(t1);
+        m_endTangent = t1;
         m_endAzi = endTangent.azi();
         m_endInc = endTangent.inc();
         m_radius = std::numeric_limits<double>::infinity();
+        m_arcAngle = 0;
+        m_arcLength = p1p2.length();
         return;
     }
 
@@ -75,9 +79,13 @@ RiaArcCurveCalculator::RiaArcCurveCalculator(cvf::Vec3d p1, cvf::Vec3d t1, cvf::
 
     m_arcCS.setTranslation(C);
 
-    cvf::Vec3d t2 = N ^ (p2 - C).getNormalized();
+    m_arcAngle = cvf::GeometryTools::getAngle(N, p1 - C, p2 - C);
 
-    RiaOffshoreSphericalCoords endTangent(t2);
+    m_arcLength = m_radius*m_arcAngle;
+
+    m_endTangent = N ^ (p2 - C).getNormalized();
+
+    RiaOffshoreSphericalCoords endTangent(m_endTangent);
     m_endAzi = endTangent.azi();
     m_endInc = endTangent.inc();
 }

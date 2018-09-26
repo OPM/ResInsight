@@ -45,20 +45,25 @@ public:
 
     cvf::Mat4d  arcCS()          const { return m_arcCS; }
     double      radius()         const { return m_radius;}
+    double      arcAngle()       const { return m_arcAngle; }
+    double      arcLength()      const { return m_arcLength; }
     cvf::Vec3d  center()         const { return m_arcCS.translation();}
     cvf::Vec3d  normal()         const { return cvf::Vec3d(m_arcCS.col(2));}
                 
     double      endAzimuth()     const { return m_endAzi; }
     double      endInclination() const { return m_endInc; }
-
+    cvf::Vec3d  endTangent()     const { return m_endTangent; }
 private:
     CurveStatus m_curveStatus;
 
     double      m_radius;
+    double      m_arcLength;
+    double      m_arcAngle;
     cvf::Mat4d  m_arcCS;
 
     double      m_endAzi;
     double      m_endInc;
+    cvf::Vec3d  m_endTangent;
 };
 
 
