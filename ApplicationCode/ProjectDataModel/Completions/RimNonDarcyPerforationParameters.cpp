@@ -182,7 +182,7 @@ void RimNonDarcyPerforationParameters::defineUiOrdering(QString uiConfigName, ca
     else if (m_nonDarcyFlowType == NON_DARCY_COMPUTED)
     {
         {
-            auto group = nonDarcyFlowGroup->addNewGroup("Input");
+            auto group = nonDarcyFlowGroup->addNewGroup("Parameters");
             group->add(&m_unitConstant);
             group->add(&m_inertialCoefficient);
             group->add(&m_effectivePermeability);
