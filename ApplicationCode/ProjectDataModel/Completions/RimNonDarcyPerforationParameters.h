@@ -38,14 +38,23 @@ public:
     RimNonDarcyPerforationParameters();
     ~RimNonDarcyPerforationParameters();
 
-    void               setUnitSystemSpecificDefaults();
+    NonDarcyFlowEnum    nonDarcyFlowType() const;
+    double              userDefinedDFactor() const;
+    double              unitConstant() const;
+    double              inertialCoefficient() const;
+    double              effectivePermeability() const;
+    double              wellRadius() const;
+    double              relativeGasDensity() const;
+    double              gasViscosity() const;
+    double              inertialCoefficientBeta0() const;
+    double              permeabilityScalingFactor() const;
+    double              porosityScalingFactor() const;
 
 protected:
     virtual void       fieldChangedByUi(const caf::PdmFieldHandle* changedField,
                                         const QVariant& oldValue,
                                         const QVariant& newValue);
     void               defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
-    virtual void       initAfterRead() override;
 
 private:
     caf::PdmField<caf::AppEnum<NonDarcyFlowEnum>>       m_nonDarcyFlowType;

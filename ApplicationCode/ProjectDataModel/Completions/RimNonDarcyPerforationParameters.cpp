@@ -71,6 +71,94 @@ RimNonDarcyPerforationParameters::~RimNonDarcyPerforationParameters()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+RimNonDarcyPerforationParameters::NonDarcyFlowEnum RimNonDarcyPerforationParameters::nonDarcyFlowType() const
+{
+    return m_nonDarcyFlowType();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+double RimNonDarcyPerforationParameters::userDefinedDFactor() const
+{
+    return m_userDefinedDFactor;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+double RimNonDarcyPerforationParameters::unitConstant() const
+{
+    return m_unitConstant;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+double RimNonDarcyPerforationParameters::inertialCoefficient() const
+{
+    return m_inertialCoefficient;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+double RimNonDarcyPerforationParameters::effectivePermeability() const
+{
+    return m_effectivePermeability;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+double RimNonDarcyPerforationParameters::wellRadius() const
+{
+    return m_wellRadius;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+double RimNonDarcyPerforationParameters::relativeGasDensity() const
+{
+    return m_relativeGasDensity;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+double RimNonDarcyPerforationParameters::gasViscosity() const
+{
+    return m_gasViscosity;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+double RimNonDarcyPerforationParameters::inertialCoefficientBeta0() const
+{
+    return m_inertialCoefficientBeta0;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+double RimNonDarcyPerforationParameters::permeabilityScalingFactor() const
+{
+    return m_permeabilityScalingFactor;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+double RimNonDarcyPerforationParameters::porosityScalingFactor() const
+{
+    return m_porosityScalingFactor;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimNonDarcyPerforationParameters::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
     if (changedField == &m_nonDarcyFlowType)
@@ -111,30 +199,3 @@ void RimNonDarcyPerforationParameters::defineUiOrdering(QString uiConfigName, ca
     }
     uiOrdering.skipRemainingFields(true);
 }
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimNonDarcyPerforationParameters::initAfterRead()
-{
-    //if (m_linerDiameter() == std::numeric_limits<double>::infinity() &&
-    //    m_roughnessFactor() == std::numeric_limits<double>::infinity())
-    //{
-    //    setUnitSystemSpecificDefaults();
-    //}
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimNonDarcyPerforationParameters::setUnitSystemSpecificDefaults()
-{
-    RimWellPath* wellPath;
-    firstAncestorOrThisOfType(wellPath);
-    if (wellPath)
-    {
-        //m_linerDiameter   = defaultLinerDiameter(wellPath->unitSystem());
-        //m_roughnessFactor = defaultRoughnessFactor(wellPath->unitSystem());
-    }
-}
-
