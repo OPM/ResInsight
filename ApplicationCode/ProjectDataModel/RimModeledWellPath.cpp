@@ -30,6 +30,7 @@
 #include "RimWellPath.h"
 #include "RimWellPathFractureCollection.h"
 #include "RimWellPathFracture.h"
+#include "RifEclipseDataTableFormatter.h"
 
 
 CAF_PDM_SOURCE_INIT(RimModeledWellPath, "ModeledWellPath");
@@ -114,6 +115,54 @@ void RimModeledWellPath::scheduleUpdateOfDependentVisualization()
 RimWellPathGeometryDef* RimModeledWellPath::geometryDefinition()
 {
     return m_geometryDefinition;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RimModeledWellPath::wellPlanText()
+{
+    QString planText;
+    QTextStream qtxtStream(&planText);
+
+    RifEclipseDataTableFormatter formatter(qtxtStream);
+    formatter.setTableRowPrependText("");
+    formatter.setTableRowLineAppendText("");
+
+    std::vector<RifEclipseOutputTableColumn> tableHeader;
+    tableHeader.push_back({"MD"});
+    tableHeader.push_back({"CL"});
+    tableHeader.push_back({"Inc"});
+    tableHeader.push_back({"Azi"});
+    tableHeader.push_back({"TVD"});
+    tableHeader.push_back({"NS"});
+    tableHeader.push_back({"EW"});
+    tableHeader.push_back({"Dogleg"});
+    tableHeader.push_back({"Build"});
+    tableHeader.push_back({"Turn"});
+    formatter.header(tableHeader);
+    
+    if (m_geometryDefinition)
+    {
+        std::vector<RiaWellPlanCalculator::WellPlanSegment> wellPlan = m_geometryDefinition->wellPlan();
+        for (const auto& segment : wellPlan)
+        {
+            formatter.add(segment.MD);
+            formatter.add(segment.CL);
+            formatter.add(segment.inc);
+            formatter.add(segment.azi);
+            formatter.add(segment.TVD);
+            formatter.add(segment.NS);
+            formatter.add(segment.EW);
+            formatter.add(segment.dogleg);
+            formatter.add(segment.build);
+            formatter.add(segment.turn);
+            formatter.rowCompleted();
+        }
+    }
+    formatter.tableCompleted();
+
+    return planText;
 }
 
 //--------------------------------------------------------------------------------------------------

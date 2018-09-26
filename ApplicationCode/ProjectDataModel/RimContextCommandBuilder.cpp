@@ -93,6 +93,7 @@
 #include "RimSimWellFracture.h"
 #include "RimWellPathFracture.h"
 #include "RimWellPathFractureCollection.h"
+#include "RimModeledWellPath.h"
 
 #include "RiuMainWindow.h"
 
@@ -279,12 +280,11 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder.addSeparator();
 
             menuBuilder.subMenuStart("3D Well Log Curves", QIcon(":/WellLogCurve16x16.png"));
-
             menuBuilder << "RicAdd3dWellLogCurveFeature";
             menuBuilder << "RicAdd3dWellLogFileCurveFeature";
             menuBuilder << "RicAdd3dWellLogRftCurveFeature";
-
             menuBuilder.subMenuEnd();
+
             menuBuilder << "RicNewEditableWellPathFeature";
             menuBuilder << "RicNewWellPathIntersectionFeature";
 
@@ -307,6 +307,10 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicExportVisibleWellPathsFeature";
             menuBuilder.subMenuEnd();
 
+            if ( dynamic_cast<RimModeledWellPath*>(uiItem) )
+            {
+                menuBuilder << "RicShowWellPlanFeature";
+            }
             menuBuilder << "RicCreateMultipleFracturesFeature"; 
 
             menuBuilder << "Separator";

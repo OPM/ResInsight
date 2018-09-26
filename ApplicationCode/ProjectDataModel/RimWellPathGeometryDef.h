@@ -25,6 +25,7 @@
 #include "cafPdmFieldCvfVec3d.h"
 #include "cafPdmPtrField.h"
 #include "cafPdmChildArrayField.h"
+#include "RiaWellPlanCalculator.h"
 
 
 class RimWellPath;
@@ -62,6 +63,7 @@ public:
 
     void                            enableTargetPointPicking(bool isEnabling);
 
+    std::vector<RiaWellPlanCalculator::WellPlanSegment> wellPlan() const; 
     std::vector<RimWellPathTarget*> activeWellTargets() const;
 protected:
     void                            defineCustomContextMenu(const caf::PdmFieldHandle* fieldNeedingMenu, 

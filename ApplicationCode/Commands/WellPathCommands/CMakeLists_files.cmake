@@ -4,6 +4,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RicWellPathDeleteFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicWellPathsImportFileFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicWellPathsImportSsihubFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicNewEditableWellPathFeature.h
+${CMAKE_CURRENT_LIST_DIR}/RicShowWellPlanFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicNewWellPathListTargetFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicNewWellPathAttributeFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicDeleteWellPathTargetFeature.h
@@ -22,6 +23,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RicWellPathDeleteFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicWellPathsImportFileFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicWellPathsImportSsihubFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicNewEditableWellPathFeature.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicShowWellPlanFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicNewWellPathListTargetFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicNewWellPathAttributeFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicDeleteWellPathTargetFeature.cpp

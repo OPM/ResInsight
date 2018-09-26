@@ -37,6 +37,7 @@ public:
     void                    updateWellPathVisualization();
     void                    scheduleUpdateOfDependentVisualization();
     RimWellPathGeometryDef* geometryDefinition();
+    QString                 wellPlanText();
 
 private:
     virtual void defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName) override;

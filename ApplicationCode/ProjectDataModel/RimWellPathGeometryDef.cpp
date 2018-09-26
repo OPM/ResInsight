@@ -139,6 +139,14 @@ cvf::ref<RigWellPath> RimWellPathGeometryDef::createWellPathGeometry()
 
     return wellPathGeometry;
 }
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<RiaWellPlanCalculator::WellPlanSegment> RimWellPathGeometryDef::wellPlan() const
+{
+    RiaWellPlanCalculator wpCalc(startTangent(),  lineArcEndpoints());
+    return wpCalc.wellPlan();
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 

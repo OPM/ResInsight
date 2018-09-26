@@ -29,6 +29,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RiaCurveDataTools.h
 ${CMAKE_CURRENT_LIST_DIR}/RiaTimeHistoryCurveResampler.h
 ${CMAKE_CURRENT_LIST_DIR}/RiaStatisticsTools.h
 ${CMAKE_CURRENT_LIST_DIR}/RiaPolyArcLineSampler.h
+${CMAKE_CURRENT_LIST_DIR}/RiaWellPlanCalculator.h
 ${CMAKE_CURRENT_LIST_DIR}/RiaSCurveCalculator.h
 ${CMAKE_CURRENT_LIST_DIR}/RiaArcCurveCalculator.h
 ${CMAKE_CURRENT_LIST_DIR}/RiaJCurveCalculator.h
@@ -70,6 +71,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RiaCurveDataTools.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiaTimeHistoryCurveResampler.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiaStatisticsTools.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiaPolyArcLineSampler.cpp
+${CMAKE_CURRENT_LIST_DIR}/RiaWellPlanCalculator.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiaSCurveCalculator.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiaArcCurveCalculator.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiaJCurveCalculator.cpp
