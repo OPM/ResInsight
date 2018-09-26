@@ -51,13 +51,13 @@ RimNonDarcyPerforationParameters::RimNonDarcyPerforationParameters()
                       "<html>Unit:[cP*Day*m<sup>2</sup>/(Forch*mD*Sm<sup>3</sup>)]</html>", "");
     CAF_PDM_InitField(&m_inertialCoefficient, "InertialCoefficient", 0.006083236, "<html>Inertial Coefficient (&beta;)</html> [Forch. unit]", "", "", "");
     CAF_PDM_InitField(&m_effectivePermeability, "EffectivePermeability", 0.0, "<html>Effective Permeability (K<sub>e</sub>) [mD]</html>", "", "", "");
-    CAF_PDM_InitField(&m_wellRadius, "WellRadius", 0.8, "<html>Well Radius (r<sub>w</sub>)</html> [m]", "", "", "");
+    CAF_PDM_InitField(&m_wellRadius, "WellRadius", 0.15, "<html>Well Radius (r<sub>w</sub>)</html> [m]", "", "", "");
     CAF_PDM_InitField(&m_relativeGasDensity, "RelativeGasDensity", 0.8, "<html>Relative Gas Density (&gamma;)</html>", "", "Relative density of gas at surface conditions with respect to air at STP", "");
     CAF_PDM_InitField(&m_gasViscosity, "GasViscosity", 0.02, "<html>Gas Viscosity (&mu;)</html> [cP]", "", "Gas viscosity at bottom hole pressure", "");
 
-    CAF_PDM_InitField(&m_inertialCoefficientBeta0, "InertialCoefficientBeta0", 0.006083236, "<html>Inertial Coefficient (&beta;<sub>0</sub>)</html> [Forch. unit]", "", "", "");
-    CAF_PDM_InitField(&m_permeabilityScalingFactor, "PermeabilityScalingFactor", 1.0, "Permeability Scaling Factor (B)", "", "", "");
-    CAF_PDM_InitField(&m_porosityScalingFactor, "PorosityScalingFactor", 1.0, "Porosity Scaling Factor (C)", "", "", "");
+    CAF_PDM_InitField(&m_inertialCoefficientBeta0, "InertialCoefficientBeta0", 883.90, "<html>Inertial Coefficient (&beta;<sub>0</sub>)</html> [Forch. unit]", "", "", "");
+    CAF_PDM_InitField(&m_permeabilityScalingFactor, "PermeabilityScalingFactor", -1.1045, "Permeability Scaling Factor (B)", "", "", "");
+    CAF_PDM_InitField(&m_porosityScalingFactor, "PorosityScalingFactor", 0.0, "Porosity Scaling Factor (C)", "", "", "");
 }
 
 //--------------------------------------------------------------------------------------------------
