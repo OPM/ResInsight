@@ -86,8 +86,6 @@ void RicNewEditableWellPathFeature::onActionTriggered(bool isChecked)
             
             newModeledWellPath->geometryDefinition()->enableTargetPointPicking(true);
 
-            RimProject* project;
-            wellPathCollection->firstAncestorOrThisOfTypeAsserted(project);
             project->scheduleCreateDisplayModelAndRedrawAllViews();
 
             Riu3DMainWindowTools::selectAsCurrentItem(newModeledWellPath->geometryDefinition());
