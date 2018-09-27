@@ -48,7 +48,7 @@ public:
     bool                        hasDatumElevation() const;
     double                      datumElevation() const;
     double                      rkbDiff() const;
-    cvf::Vec3d                  interpolatedVectorAlongWellPath(const std::vector<cvf::Vec3d>& vectors,
+    cvf::Vec3d                  interpolatedVectorValuesAlongWellPath(const std::vector<cvf::Vec3d>& vectors,
                                                                 double measuredDepth,
                                                                 double * horizontalLengthAlongWellToStartClipPoint = nullptr) const;
     cvf::Vec3d                  interpolatedPointAlongWellPath(double measuredDepth,

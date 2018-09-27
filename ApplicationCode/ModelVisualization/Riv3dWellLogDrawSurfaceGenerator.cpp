@@ -193,7 +193,7 @@ void Riv3dWellLogDrawSurfaceGenerator::createCurveNormalVectors(const caf::Displ
     {
         cvf::Vec3d point = wellPathGeometry()->interpolatedPointAlongWellPath(md);
         point = displayCoordTransform->transformToDisplayCoord(point);
-        cvf::Vec3d curveNormal = wellPathGeometry()->interpolatedVectorAlongWellPath(segmentNormals, md);
+        cvf::Vec3d curveNormal = wellPathGeometry()->interpolatedVectorValuesAlongWellPath(segmentNormals, md);
         interpolatedWellPathPoints.push_back(point);
         interpolatedWellPathNormals.push_back(curveNormal.getNormalized());
         md -= samplingIntervalSize;

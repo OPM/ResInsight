@@ -110,8 +110,8 @@ void Riv3dWellLogCurveGeometryGenerator::createCurveDrawables(const caf::Display
     // Iterate from bottom of well path and up to be able to stop at given Z max clipping height
     for (auto md = resultMds.rbegin(); md != resultMds.rend(); md++)
     {
-        cvf::Vec3d point  = wellPathGeometry()->interpolatedVectorAlongWellPath(wellPathPoints, *md);
-        cvf::Vec3d normal = wellPathGeometry()->interpolatedVectorAlongWellPath(wellPathCurveNormals, *md);
+        cvf::Vec3d point  = wellPathGeometry()->interpolatedVectorValuesAlongWellPath(wellPathPoints, *md);
+        cvf::Vec3d normal = wellPathGeometry()->interpolatedVectorValuesAlongWellPath(wellPathCurveNormals, *md);
         if (point.z() > clipLocation.z()) break;
 
         interpolatedWellPathPoints.push_back(point);
