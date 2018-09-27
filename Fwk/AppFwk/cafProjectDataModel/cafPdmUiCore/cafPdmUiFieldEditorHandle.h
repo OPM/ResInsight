@@ -97,6 +97,7 @@ public:
     QWidget*            combinedWidget()                        { return m_combinedWidget; }
     QWidget*            editorWidget()                          { return m_editorWidget; }
     QWidget*            labelWidget()                           { return m_labelWidget; }
+    QMargins            labelContentMargins() const;
 
 protected: // Virtual interface to override
     /// Implement one of these, or both editor and label. The widgets will be used in the parent layout according to 
@@ -109,6 +110,7 @@ protected: // Virtual interface to override
     void                setValueToField(const QVariant& value);
 
     void                updateLabelFromField(QLabel* label, const QString& uiConfigName = "") const;
+    virtual QMargins    calculateLabelContentMargins() const;
 
 private slots:
     void                customMenuRequested(QPoint pos);

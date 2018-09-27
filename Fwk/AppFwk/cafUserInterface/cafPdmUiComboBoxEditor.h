@@ -87,6 +87,7 @@ protected:
     virtual QWidget*    createEditorWidget(QWidget * parent);
     virtual QWidget*    createLabelWidget(QWidget * parent);
     virtual void        configureAndUpdateUi(const QString& uiConfigName);
+    QMargins            calculateLabelContentMargins() const override;
 
 protected slots:
     void                slotIndexActivated(int index);

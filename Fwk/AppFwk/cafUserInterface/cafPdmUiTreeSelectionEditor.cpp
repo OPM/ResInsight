@@ -392,6 +392,23 @@ QWidget* PdmUiTreeSelectionEditor::createLabelWidget(QWidget * parent)
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QMargins PdmUiTreeSelectionEditor::calculateLabelContentMargins() const
+{
+    QSize editorSize = m_textFilterLineEdit->sizeHint();
+    QSize labelSize = m_label->sizeHint();
+    int heightDiff = editorSize.height() - labelSize.height();
+    QMargins contentMargins = m_label->contentsMargins();
+    if (heightDiff > 0)
+    {
+        contentMargins.setTop(contentMargins.top() + heightDiff / 2);
+        contentMargins.setBottom(contentMargins.bottom() + heightDiff / 2);
+    }
+    return contentMargins;
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void PdmUiTreeSelectionEditor::customMenuRequested(const QPoint& pos)

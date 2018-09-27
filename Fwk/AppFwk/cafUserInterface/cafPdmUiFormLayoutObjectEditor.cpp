@@ -224,13 +224,7 @@ void caf::PdmUiFormLayoutObjectEditor::recursivelyConfigureAndUpdateUiOrderingIn
                                     // Shift label a bit to make it appear centered on the field. Using Qt::AlignVCenter will
                                     // cause both label and field to appear in the vertical centre of the row.
                                     // That isn't the intention.
-                                    int labelHeight = fieldLabelWidget->sizeHint().height();
-                                    int fieldHeight = fieldEditorWidget->sizeHint().height();
-                                    int heightDiff = std::max(0, fieldHeight - labelHeight);
-                                    QMargins contentMargins = fieldLabelWidget->contentsMargins();
-                                    contentMargins.setTop(heightDiff / 2);
-                                    contentMargins.setBottom(heightDiff / 2);
-                                    fieldLabelWidget->setContentsMargins(contentMargins);
+                                    fieldLabelWidget->setContentsMargins(fieldEditor->labelContentMargins());
                                 }
                                 fieldEditorWidget->setParent(containerWidgetWithGridLayout); // To make sure this widget has the current group box as parent.
                                 parentLayout->addWidget(fieldEditorWidget, currentRowIndex, currentColumn + leftLabelColumnSpan, 1, fieldColumnSpan, Qt::AlignTop);

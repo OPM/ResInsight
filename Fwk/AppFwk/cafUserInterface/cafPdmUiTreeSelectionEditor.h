@@ -98,6 +98,7 @@ protected:
     virtual void        configureAndUpdateUi(const QString& uiConfigName);
     virtual QWidget*    createEditorWidget(QWidget* parent);
     virtual QWidget*    createLabelWidget(QWidget* parent);
+    QMargins            calculateLabelContentMargins() const override;
 
 private slots:
     void                customMenuRequested(const QPoint& pos);

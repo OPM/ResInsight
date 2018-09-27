@@ -151,6 +151,26 @@ namespace caf
 
 CAF_PDM_UI_FIELD_EDITOR_SOURCE_INIT(PdmUiLineEditor);
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QWidget* PdmUiLineEditor::createEditorWidget(QWidget * parent)
+{
+    m_lineEdit = new PdmUiLineEdit(parent);
+
+    connect(m_lineEdit, SIGNAL(editingFinished()), this, SLOT(slotEditingFinished()));
+
+    return m_lineEdit;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QWidget* PdmUiLineEditor::createLabelWidget(QWidget * parent)
+{
+    m_label = new QLabel(parent);
+    return m_label;
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -253,26 +273,22 @@ void PdmUiLineEditor::configureAndUpdateUi(const QString& uiConfigName)
     }
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-QWidget* PdmUiLineEditor::createEditorWidget(QWidget * parent)
+QMargins PdmUiLineEditor::calculateLabelContentMargins() const
 {
-    m_lineEdit = new PdmUiLineEdit(parent);
+    QSize editorSize = m_lineEdit->sizeHint();
+    QSize labelSize  = m_label->sizeHint();
+    int heightDiff   = editorSize.height() - labelSize.height();
 
-    connect(m_lineEdit, SIGNAL(editingFinished()), this, SLOT(slotEditingFinished()));
-
-    return m_lineEdit;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-QWidget* PdmUiLineEditor::createLabelWidget(QWidget * parent)
-{
-    m_label = new QLabel(parent);
-    return m_label;
+    QMargins contentMargins = m_label->contentsMargins();
+    if (heightDiff > 0)
+    {
+        contentMargins.setTop(contentMargins.top() + heightDiff / 2);
+        contentMargins.setBottom(contentMargins.bottom() + heightDiff / 2);
+    }
+    return contentMargins;
 }
 
 //--------------------------------------------------------------------------------------------------

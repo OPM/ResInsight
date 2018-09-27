@@ -115,6 +115,14 @@ void PdmUiFieldEditorHandle::createWidgets(QWidget * parent)
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QMargins PdmUiFieldEditorHandle::labelContentMargins() const
+{
+    return calculateLabelContentMargins();
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void PdmUiFieldEditorHandle::setValueToField(const QVariant& newUiValue)
@@ -146,6 +154,15 @@ void PdmUiFieldEditorHandle::updateLabelFromField(QLabel* label, const QString& 
         label->setEnabled(!fieldHandle->isUiReadOnly(uiConfigName));
         label->setToolTip(fieldHandle->uiToolTip(uiConfigName));
     }
+}
+
+//------------------------------------------------------------------------------------------------------------
+/// Re-implement this virtual method if a custom PdmUiField is misaligned with its label.
+/// See cafPdmUiLineEditor for an example.
+//------------------------------------------------------------------------------------------------------------
+QMargins PdmUiFieldEditorHandle::calculateLabelContentMargins() const
+{
+    return m_labelWidget->contentsMargins();
 }
 
 //--------------------------------------------------------------------------------------------------

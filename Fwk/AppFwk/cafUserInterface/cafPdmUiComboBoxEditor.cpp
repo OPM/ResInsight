@@ -176,6 +176,24 @@ void PdmUiComboBoxEditor::configureAndUpdateUi(const QString& uiConfigName)
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QMargins PdmUiComboBoxEditor::calculateLabelContentMargins() const
+{
+    QSize editorSize = m_comboBox->sizeHint();
+    QSize labelSize  = m_label->sizeHint();
+    int heightDiff   = editorSize.height() - labelSize.height();
+
+    QMargins contentMargins = m_label->contentsMargins();
+    if (heightDiff > 0)
+    {
+        contentMargins.setTop(contentMargins.top() + heightDiff / 2);
+        contentMargins.setBottom(contentMargins.bottom() + heightDiff / 2);
+    }
+    return contentMargins;
+}
+
+//--------------------------------------------------------------------------------------------------
 // Special class used to prevent a combo box to steal focus when scrolling
 // the QScrollArea using the mouse wheel
 //
