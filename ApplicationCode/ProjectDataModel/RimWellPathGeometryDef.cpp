@@ -395,6 +395,9 @@ std::vector<cvf::Vec3d> RimWellPathGeometryDef::lineArcEndpoints() const
         RimWellPathTarget* target1 = activeWellPathTargets[tIdx];
         RimWellPathTarget* target2 = activeWellPathTargets[tIdx+1];
 
+        // Ignore targets in the same place
+        if ((target1->targetPointXYZ() - target2->targetPointXYZ()).length() < 1e-6) continue;
+
         target1->flagRadius2AsIncorrect(false, 0);
         target2->flagRadius1AsIncorrect(false, 0);
 

@@ -35,9 +35,10 @@ RiaJCurveCalculator::RiaJCurveCalculator(cvf::Vec3d p1, double azi1, double inc1
 
     cvf::Vec3d p1p2 = p2 - p1;
     bool isOk = true;
-    cvf::Vec3d tr1 = (p1p2 - (p1p2.dot(t1)) * t1).getNormalized(&isOk);
 
-    if (!isOk)
+    cvf::Vec3d tr1 = p1p2 - (p1p2.dot(t1)) * t1;
+    double tr1Length = tr1.length();
+    if (tr1Length < 1e-9)
     {
         // p2 is on the p1 + t12 line. Degenerates to a line.
         m_curveStatus = OK_STRAIGHT_LINE; 
@@ -47,6 +48,8 @@ RiaJCurveCalculator::RiaJCurveCalculator(cvf::Vec3d p1, double azi1, double inc1
 
         return;
     }
+    
+    tr1 /= tr1Length;
 
     cvf::Vec3d c1 = p1 + r1 * tr1;
     cvf::Vec3d p2c1 = c1 - p2;
