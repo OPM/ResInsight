@@ -1691,7 +1691,6 @@ void RimWellLogTrack::updateFormationNamesOnPlot()
     }
 
     std::vector<QString> formationNamesToPlot;
-    std::vector<std::pair<double, double>> yValues;
 
     RimWellLogPlot* plot = nullptr;
     firstAncestorOrThisOfTypeAsserted(plot);
@@ -1747,6 +1746,7 @@ void RimWellLogTrack::updateFormationNamesOnPlot()
                                                                 RigFemResultAddress(RIG_FORMATION_NAMES, activeFormationNamesResultName, ""));
         }
 
+        std::vector<std::pair<double, double>> yValues;
         std::vector<QString> formationNamesVector = RimWellLogTrack::formationNamesVector(m_formationCase);
 
         RimWellLogTrack::findFormationNamesToPlot(curveData,

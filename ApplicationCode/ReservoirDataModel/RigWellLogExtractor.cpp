@@ -295,8 +295,6 @@ void RigWellLogExtractor::populateReturnArrays(std::map<RigMDCellIdxEnterLeaveKe
                     ++it1; // Discard 10 and jump to 11 and hope that recovers us 
                     continue;
                 }
-
-                CVF_ASSERT(false); // Should never end here
             }
         }
     }
