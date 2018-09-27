@@ -101,16 +101,19 @@ void RiaRegressionTestRunner::runRegressionTest(const QString& testRootPath, con
 {
     m_runningRegressionTests = true;
 
-    RiaRegressionTest regressionTestConfig;
-    regressionTestConfig.readSettingsFromApplicationStore();
-
     QString currentApplicationPath = QDir::currentPath();
-    if (!regressionTestConfig.folderContainingCompareTool().isEmpty())
-    {
-        // Windows Only : The image compare tool requires current working directory to be at the folder
-        // containing the image compare tool
 
-        QDir::setCurrent(regressionTestConfig.folderContainingCompareTool());
+    {
+        RiaRegressionTest regressionTestConfig;
+        regressionTestConfig.readSettingsFromApplicationStore();
+
+        if (!regressionTestConfig.folderContainingCompareTool().isEmpty())
+        {
+            // Windows Only : The image compare tool requires current working directory to be at the folder
+            // containing the image compare tool
+
+            QDir::setCurrent(regressionTestConfig.folderContainingCompareTool());
+        }
     }
 
     QString generatedFolderName = RegTestNames::generatedFolderName;
@@ -225,7 +228,7 @@ void RiaRegressionTestRunner::runRegressionTest(const QString& testRootPath, con
         QFileInfoList commandFileEntries = testCaseFolder.entryInfoList(filterList);
         if (!commandFileEntries.empty())
         {
-            QString currentApplicationPath = QDir::current().absolutePath();
+            QString currentAbsolutePath = QDir::current().absolutePath();
 
             // Set current path to the folder containing the command file, as this is required when using file references
             // in the command file
@@ -247,7 +250,7 @@ void RiaRegressionTestRunner::runRegressionTest(const QString& testRootPath, con
                 }
             }
 
-            QDir::setCurrent(currentApplicationPath);
+            QDir::setCurrent(currentAbsolutePath);
 
             // Create diff based on generated folders
             {

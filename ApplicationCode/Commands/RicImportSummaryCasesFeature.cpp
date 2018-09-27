@@ -127,10 +127,10 @@ bool RicImportSummaryCasesFeature::createAndAddSummaryCasesFromFiles(const QStri
             mainPlotWindow->updateSummaryPlotToolBar();
 
             // Close main window if there are no eclipse cases imported
-            std::vector<RimCase*> cases;
-            app->project()->allCases(cases);
+            std::vector<RimCase*> allCases;
+            app->project()->allCases(allCases);
 
-            if (cases.size() == 0)
+            if (allCases.size() == 0)
             {
                 RiuMainWindow::instance()->close();
             }

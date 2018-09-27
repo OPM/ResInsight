@@ -361,24 +361,24 @@ void RivIntersectionGeometryGenerator::calculateArrays()
 
                     // Accumulate triangle vertices
 
-                    cvf::Vec3d p0(clippedTriangleVxes[triVxIdx+0].vx);
-                    cvf::Vec3d p1(clippedTriangleVxes[triVxIdx+1].vx);
-                    cvf::Vec3d p2(clippedTriangleVxes[triVxIdx+2].vx);
+                    cvf::Vec3d point0(clippedTriangleVxes[triVxIdx+0].vx);
+                    cvf::Vec3d point1(clippedTriangleVxes[triVxIdx+1].vx);
+                    cvf::Vec3d point2(clippedTriangleVxes[triVxIdx+2].vx);
 
-                    p0 = p0.getTransformedPoint(invSectionCS);
-                    p1 = p1.getTransformedPoint(invSectionCS);
-                    p2 = p2.getTransformedPoint(invSectionCS);
+                    point0 = point0.getTransformedPoint(invSectionCS);
+                    point1 = point1.getTransformedPoint(invSectionCS);
+                    point2 = point2.getTransformedPoint(invSectionCS);
 
-                    triangleVertices.emplace_back(p0);
-                    triangleVertices.emplace_back(p1);
-                    triangleVertices.emplace_back(p2);
+                    triangleVertices.emplace_back(point0);
+                    triangleVertices.emplace_back(point1);
+                    triangleVertices.emplace_back(point2);
 
 
                     // Accumulate mesh lines
 
-                    meshAcc.accumulateMeshLines(cellFaceForEachClippedTriangleEdge, triVxIdx + 0, globalCellIdx, p0, p1);
-                    meshAcc.accumulateMeshLines(cellFaceForEachClippedTriangleEdge, triVxIdx + 1, globalCellIdx, p1, p2);
-                    meshAcc.accumulateMeshLines(cellFaceForEachClippedTriangleEdge, triVxIdx + 2, globalCellIdx, p2, p0);
+                    meshAcc.accumulateMeshLines(cellFaceForEachClippedTriangleEdge, triVxIdx + 0, globalCellIdx, point0, point1);
+                    meshAcc.accumulateMeshLines(cellFaceForEachClippedTriangleEdge, triVxIdx + 1, globalCellIdx, point1, point2);
+                    meshAcc.accumulateMeshLines(cellFaceForEachClippedTriangleEdge, triVxIdx + 2, globalCellIdx, point2, point0);
                     
                     
                     // Mapping to cell index

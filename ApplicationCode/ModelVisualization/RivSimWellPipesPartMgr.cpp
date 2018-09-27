@@ -333,8 +333,8 @@ void RivSimWellPipesPartMgr::buildWellPipeParts(const caf::DisplayCoordTransform
                     cvf::ref<cvf::Part> part = pbd.m_connectionFactorGeometryGenerator->createSurfacePart(scalarMapper, eclipseView->isLightingDisabled());
                     if (part.notNull())
                     {
-                        cvf::ref<RivSimWellConnectionSourceInfo> sourceInfo = new RivSimWellConnectionSourceInfo(m_simWellInView, pbd.m_connectionFactorGeometryGenerator.p());
-                        part->setSourceInfo(sourceInfo.p());
+                        cvf::ref<RivSimWellConnectionSourceInfo> simWellSourceInfo = new RivSimWellConnectionSourceInfo(m_simWellInView, pbd.m_connectionFactorGeometryGenerator.p());
+                        part->setSourceInfo(simWellSourceInfo.p());
                     }
 
                     pbd.m_connectionFactorsPart = part;

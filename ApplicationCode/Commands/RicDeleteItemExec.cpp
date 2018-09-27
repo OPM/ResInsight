@@ -165,11 +165,11 @@ void RicDeleteItemExec::redo()
 
             std::vector<Rim3dView*> views;
             proj->allVisibleViews(views);
-            for (Rim3dView* view : views)
+            for (Rim3dView* visibleView : views)
             {
-                if (dynamic_cast<RimEclipseView*>(view))
+                if (dynamic_cast<RimEclipseView*>(visibleView))
                 {
-                    view->updateConnectedEditors();
+                    visibleView->updateConnectedEditors();
                 }
             }
         }

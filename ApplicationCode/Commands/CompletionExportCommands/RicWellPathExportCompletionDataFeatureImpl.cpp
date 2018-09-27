@@ -2591,9 +2591,9 @@ std::vector<SubSegmentIntersectionInfo> spiltIntersectionSegmentsToMaxLength(con
             double currEndMd = currStartMd;
             double lastTvd = -intersection.startPoint.z();
 
-            for(int i = 0; i < segCount; i++)
+            for(int segIndex = 0; segIndex < segCount; segIndex++)
             {
-                bool lasti = i == (segCount - 1);
+                bool lasti = segIndex == (segCount - 1);
                 currEndMd = currStartMd + effectiveMaxSegLen;
 
                 cvf::Vec3d segEndPoint = pathGeometry->interpolatedPointAlongWellPath(currEndMd);

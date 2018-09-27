@@ -362,18 +362,17 @@ cvf::ref<cvf::DrawableGeo> RivPipeGeometryGenerator::generateExtrudedCylinder(do
     size_t segmentIdx = 0;
     for (segmentIdx = 0; segmentIdx < segmentCount; segmentIdx++)
     {
-        size_t i;
-        for (i = 0; i < crossSectionNodeCount - 1; i++)
+        for (size_t nodeIdx = 0; nodeIdx < crossSectionNodeCount - 1; nodeIdx++)
         {
-            quadVertexArray->add(crossSectionVertices[( (segmentIdx + 0) * crossSectionNodeCount) + i + 0]);
-            quadVertexArray->add(crossSectionVertices[( (segmentIdx + 0) * crossSectionNodeCount) + i + 1]);
-            quadVertexArray->add(crossSectionVertices[( (segmentIdx + 1) * crossSectionNodeCount) + i + 1]);
-            quadVertexArray->add(crossSectionVertices[( (segmentIdx + 1) * crossSectionNodeCount) + i + 0]);
+            quadVertexArray->add(crossSectionVertices[( (segmentIdx + 0) * crossSectionNodeCount) + nodeIdx + 0]);
+            quadVertexArray->add(crossSectionVertices[( (segmentIdx + 0) * crossSectionNodeCount) + nodeIdx + 1]);
+            quadVertexArray->add(crossSectionVertices[( (segmentIdx + 1) * crossSectionNodeCount) + nodeIdx + 1]);
+            quadVertexArray->add(crossSectionVertices[( (segmentIdx + 1) * crossSectionNodeCount) + nodeIdx + 0]);
 
-            quadNormalArray->add(cylinderSegmentNormals[( (segmentIdx + 0) * crossSectionNodeCount) + i + 0]);
-            quadNormalArray->add(cylinderSegmentNormals[( (segmentIdx + 0) * crossSectionNodeCount) + i + 1]);
-            quadNormalArray->add(cylinderSegmentNormals[( (segmentIdx + 0) * crossSectionNodeCount) + i + 1]);
-            quadNormalArray->add(cylinderSegmentNormals[( (segmentIdx + 0) * crossSectionNodeCount) + i + 0]);
+            quadNormalArray->add(cylinderSegmentNormals[( (segmentIdx + 0) * crossSectionNodeCount) + nodeIdx + 0]);
+            quadNormalArray->add(cylinderSegmentNormals[( (segmentIdx + 0) * crossSectionNodeCount) + nodeIdx + 1]);
+            quadNormalArray->add(cylinderSegmentNormals[( (segmentIdx + 0) * crossSectionNodeCount) + nodeIdx + 1]);
+            quadNormalArray->add(cylinderSegmentNormals[( (segmentIdx + 0) * crossSectionNodeCount) + nodeIdx + 0]);
         }
 
         // Last quad closing the cylinder

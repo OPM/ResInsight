@@ -620,9 +620,9 @@ void RiuViewer::updateLegendLayout()
             yPos = border + edgeAxisBorderHeight;
 
             // Set same width to all legends in the column
-            for (caf::TitledOverlayFrame* legend : columnLegends )
+            for (caf::TitledOverlayFrame* columnLegend : columnLegends )
             {
-                legend->setRenderSize(cvf::Vec2ui(maxColumnWidht, legend->renderSize().y())); 
+                columnLegend->setRenderSize(cvf::Vec2ui(maxColumnWidht, columnLegend->renderSize().y())); 
             }
             maxColumnWidht = 0;
             columnLegends.clear();

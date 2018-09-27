@@ -83,13 +83,13 @@ void RicNewWellLogRftCurveFeature::onActionTriggered(bool isChecked)
         RimSimWellInView* simWell = RicWellLogTools::selectedSimulationWell(&branchIndex);
         if (simWell)
         {
-            RimWellLogTrack* wellLogPlotTrack = RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack();
-            RimWellLogRftCurve* plotCurve = RicWellLogTools::addRftCurve(wellLogPlotTrack, simWell);
+            RimWellLogTrack* newWellLogPlotTrack = RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack();
+            RimWellLogRftCurve* plotCurve = RicWellLogTools::addRftCurve(newWellLogPlotTrack, simWell);
 
             plotCurve->loadDataAndUpdate(true);
 
             RimWellLogPlot* plot = nullptr;
-            wellLogPlotTrack->firstAncestorOrThisOfType(plot);
+            newWellLogPlotTrack->firstAncestorOrThisOfType(plot);
             if (plot && plotCurve->curveData())
             {
                 plot->setDepthUnit(plotCurve->curveData()->depthUnit());

@@ -68,8 +68,8 @@ void RicNewWellLogFileCurveFeature::onActionTriggered(bool isChecked)
         RimWellPath* wellPath = RicWellLogTools::selectedWellPathWithLogFile();
         if (wellPath)
         {
-            RimWellLogTrack* wellLogPlotTrack = RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack();
-            RimWellLogFileCurve* plotCurve = RicWellLogTools::addFileCurve(wellLogPlotTrack);
+            RimWellLogTrack* newWellLogPlotTrack = RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack();
+            RimWellLogFileCurve* plotCurve = RicWellLogTools::addFileCurve(newWellLogPlotTrack);
             plotCurve->setWellPath(wellPath);
 
             if (wellPath->wellLogFiles().size() == 1)

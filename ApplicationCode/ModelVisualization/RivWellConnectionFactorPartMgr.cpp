@@ -129,30 +129,32 @@ void RivWellConnectionFactorPartMgr::appendDynamicGeometryPartsToModel(cvf::Mode
         cvf::Vec3d direction             = cvf::Vec3d::X_AXIS;
         bool       foundLocation         = false;
 
-        size_t i = 0;
-        while (!foundLocation && (i < wellPathCellIntersections.size()))
         {
-            const WellPathCellIntersectionInfo& intersectionInfo = wellPathCellIntersections[i];
-
-            if (intersectionInfo.globCellIndex == completionsForCell.first.globalCellIndex())
+            size_t i = 0;
+            while (!foundLocation && (i < wellPathCellIntersections.size()))
             {
-                double startMD = intersectionInfo.startMD;
-                double endMD   = intersectionInfo.endMD;
+                const WellPathCellIntersectionInfo& intersectionInfo = wellPathCellIntersections[i];
 
-                double middleMD = (startMD + endMD) / 2.0;
+                if (intersectionInfo.globCellIndex == completionsForCell.first.globalCellIndex())
+                {
+                    double startMD = intersectionInfo.startMD;
+                    double endMD   = intersectionInfo.endMD;
 
-                locationInDomainCoord = m_rimWellPath->wellPathGeometry()->interpolatedPointAlongWellPath(middleMD);
+                    double middleMD = (startMD + endMD) / 2.0;
 
-                cvf::Vec3d p1;
-                cvf::Vec3d p2;
-                m_rimWellPath->wellPathGeometry()->twoClosestPoints(locationInDomainCoord, &p1, &p2);
+                    locationInDomainCoord = m_rimWellPath->wellPathGeometry()->interpolatedPointAlongWellPath(middleMD);
 
-                direction = (p2 - p1).getNormalized();
+                    cvf::Vec3d p1;
+                    cvf::Vec3d p2;
+                    m_rimWellPath->wellPathGeometry()->twoClosestPoints(locationInDomainCoord, &p1, &p2);
 
-                foundLocation = true;
+                    direction = (p2 - p1).getNormalized();
+
+                    foundLocation = true;
+                }
+
+                i++;
             }
-
-            i++;
         }
 
         cvf::Vec3d displayCoord = coordTransform->transformToDisplayCoord(locationInDomainCoord);
