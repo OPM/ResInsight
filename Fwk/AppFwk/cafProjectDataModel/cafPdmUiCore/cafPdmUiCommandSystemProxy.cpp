@@ -118,10 +118,10 @@ void PdmUiCommandSystemProxy::setUiValueToField(PdmUiFieldHandle* uiFieldHandle,
                 {
                     // Todo Remove when dust has settled. Selection manager is not supposed to select single fields
                     // A field is selected, check if keywords are identical
-                    PdmUiFieldHandle* uiFieldHandle = dynamic_cast<PdmUiFieldHandle*>(items[i]);
-                    if (uiFieldHandle)
+                    PdmUiFieldHandle* itemFieldHandle = dynamic_cast<PdmUiFieldHandle*>(items[i]);
+                    if (itemFieldHandle)
                     {
-                        PdmFieldHandle* field = uiFieldHandle->fieldHandle();
+                        PdmFieldHandle* field = itemFieldHandle->fieldHandle();
                         if (field && field != editorField && field->keyword() == editorField->keyword())
                         {
                             fieldsToUpdate.push_back(field);

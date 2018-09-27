@@ -52,4 +52,8 @@ target_link_libraries ( ${PROJECT_NAME}
     ${QT_LIBRARIES}
 )
 
+if (MSVC) 
+    set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "/W4 /wd4100 /wd4127")
+endif() 
+
 source_group("" FILES ${PROJECT_FILES})
