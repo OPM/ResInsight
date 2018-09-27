@@ -23,6 +23,7 @@
 #include "RimCase.h"
 #include "RimTools.h"
 #include "Rim3dView.h"
+#include "RimWellLogTrack.h"
 
 #include "cafPdmUiFilePathEditor.h"
 
@@ -126,6 +127,17 @@ void RimFormationNames::updateConnectedViews()
         if (caseObj)
         {
             caseObj->updateFormationNamesData();
+
+            std::vector<RimWellLogTrack*> tracks;
+            caseObj->objectsWithReferringPtrFieldsOfType(tracks);
+            for (RimWellLogTrack* track : tracks)
+            {
+                // The track may be referring to the case for other reasons than formations.
+                if (track->formationNamesCase() == caseObj)
+                {
+                    track->loadDataAndUpdate(true);
+                }
+            }
         }
     }
 }
