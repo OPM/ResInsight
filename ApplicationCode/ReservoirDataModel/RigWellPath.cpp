@@ -124,7 +124,7 @@ cvf::Vec3d RigWellPath::interpolatedVectorAlongWellPath(const std::vector<cvf::V
             if ( horizontalLengthAlongWellToStartClipPoint )
             {
                 segment[2] = 0.0;
-                *horizontalLengthAlongWellToStartClipPoint += segment.length();
+                *horizontalLengthAlongWellToStartClipPoint += segment.length() * segmentFraction;
             }
         }
     }
