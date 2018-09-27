@@ -31,6 +31,7 @@
 #include "cafPdmObject.h"
 #include "cafPdmPointer.h"
 #include "cafPdmPtrField.h"
+#include "cafPdmUiItem.h"
 
 class RigCaseCellResultsData;
 class RimEclipseCase;
@@ -55,6 +56,13 @@ public:
         FLOW_TR_BY_SELECTION
     };
     typedef caf::AppEnum<RimEclipseResultDefinition::FlowTracerSelectionType> FlowTracerSelectionEnum;
+
+    enum FlowTracerSelectionNumbers
+    {
+        NONE_SELECTED,
+        ONE_SELECTED,
+        MULTIPLE_SELECTED
+    };
 
 public:
     RimEclipseResultDefinition();
@@ -157,6 +165,8 @@ private:
 
     QList<caf::PdmOptionItemInfo>   calcOptionsForVariableUiFieldStandard();
     QList<caf::PdmOptionItemInfo>   calcOptionsForSelectedTracerField(bool injector);
+    caf::PdmOptionItemInfo          calcOptionForTimeOfFlightField();
+    caf::PdmOptionItemInfo          calcOptionForMaxFractionTracerField();
 
     void                            updateSelectedTracersFromFilter();
     void                            changedTracerSelectionField(bool injector);
@@ -165,5 +175,8 @@ private:
 
     std::vector<QString>            tracerNamesMatchingFilter() const;
     void                            toggleAllTracersSelection(const caf::PdmField<bool>* changedField);
+
+    FlowTracerSelectionNumbers      injectorTracersSelected() const;
+    FlowTracerSelectionNumbers      producerTracersSelected() const;
 };
 

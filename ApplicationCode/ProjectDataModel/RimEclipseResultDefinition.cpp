@@ -44,6 +44,8 @@
 #include "cafPdmUiListEditor.h"
 #include "cafUtils.h"
 
+#include <QList>
+
 namespace caf
 {
     template<>
@@ -621,11 +623,11 @@ QList<caf::PdmOptionItemInfo> RimEclipseResultDefinition::calculateValueOptions(
     {
         if ( fieldNeedingOptions == &m_resultVariableUiField )
         {
-            options.push_back(caf::PdmOptionItemInfo("Time Of Flight (Average)", RIG_FLD_TOF_RESNAME));
+            options.push_back(calcOptionForTimeOfFlightField());
             if (m_phaseSelection() == RigFlowDiagResultAddress::PHASE_ALL)
             {
                 options.push_back(caf::PdmOptionItemInfo("Tracer Cell Fraction (Sum)", RIG_FLD_CELL_FRACTION_RESNAME));
-                options.push_back(caf::PdmOptionItemInfo("Max Fraction Tracer", RIG_FLD_MAX_FRACTION_TRACER_RESNAME));
+                options.push_back(calcOptionForMaxFractionTracerField());
                 options.push_back(caf::PdmOptionItemInfo("Injector Producer Communication", RIG_FLD_COMMUNICATION_RESNAME));
             }
         }
@@ -689,9 +691,6 @@ QList<caf::PdmOptionItemInfo> RimEclipseResultDefinition::calculateValueOptions(
     return options;
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo> RimEclipseResultDefinition::calcOptionsForVariableUiFieldStandard()
 {
     CVF_ASSERT(m_resultTypeUiField() != RiaDefines::FLOW_DIAGNOSTICS && m_resultTypeUiField() != RiaDefines::INJECTION_FLOODING);
@@ -704,7 +703,7 @@ QList<caf::PdmOptionItemInfo> RimEclipseResultDefinition::calcOptionsForVariable
         QStringList cellFaceResultNames;
 
         RigCaseCellResultsData* results = this->currentGridCellResults();
-        foreach(QString s, getResultNamesForCurrentUiResultType())
+        foreach (QString s, getResultNamesForCurrentUiResultType())
         {
             if (s == RiaDefines::completionTypeResultName() && results->timeStepDates().empty()) continue;
 
@@ -722,20 +721,24 @@ QList<caf::PdmOptionItemInfo> RimEclipseResultDefinition::calcOptionsForVariable
         cellFaceResultNames.sort();
 
         // Cell Center result names
-        foreach(QString s, cellCenterResultNames)
+        foreach (QString s, cellCenterResultNames)
         {
             optionList.push_back(caf::PdmOptionItemInfo(s, s));
         }
 
         // Ternary Result
         bool hasAtLeastOneTernaryComponent = false;
-        if (cellCenterResultNames.contains("SOIL")) hasAtLeastOneTernaryComponent = true;
-        else if (cellCenterResultNames.contains("SGAS")) hasAtLeastOneTernaryComponent = true;
-        else if (cellCenterResultNames.contains("SWAT")) hasAtLeastOneTernaryComponent = true;
+        if (cellCenterResultNames.contains("SOIL"))
+            hasAtLeastOneTernaryComponent = true;
+        else if (cellCenterResultNames.contains("SGAS"))
+            hasAtLeastOneTernaryComponent = true;
+        else if (cellCenterResultNames.contains("SWAT"))
+            hasAtLeastOneTernaryComponent = true;
 
         if (m_resultTypeUiField == RiaDefines::DYNAMIC_NATIVE && hasAtLeastOneTernaryComponent)
         {
-            optionList.push_front(caf::PdmOptionItemInfo(RiaDefines::ternarySaturationResultName(), RiaDefines::ternarySaturationResultName()));
+            optionList.push_front(
+                caf::PdmOptionItemInfo(RiaDefines::ternarySaturationResultName(), RiaDefines::ternarySaturationResultName()));
         }
 
         // Cell Face result names
@@ -744,10 +747,10 @@ QList<caf::PdmOptionItemInfo> RimEclipseResultDefinition::calcOptionsForVariable
             RimEclipseFaultColors* rimEclipseFaultColors = nullptr;
             this->firstAncestorOrThisOfType(rimEclipseFaultColors);
 
-            if ( rimEclipseFaultColors ) showDerivedResultsFirstInList = true;
+            if (rimEclipseFaultColors) showDerivedResultsFirstInList = true;
         }
 
-        foreach(QString s, cellFaceResultNames)
+        foreach (QString s, cellFaceResultNames)
         {
             if (showDerivedResultsFirstInList)
             {
@@ -772,7 +775,7 @@ QList<caf::PdmOptionItemInfo> RimEclipseResultDefinition::calcOptionsForVariable
             RimCellEdgeColors* cellEdge = nullptr;
             this->firstAncestorOrThisOfType(cellEdge);
 
-            if ( propFilter || curve || cellEdge )
+            if (propFilter || curve || cellEdge)
             {
                 removePerCellFaceOptionItems(optionList);
             }
@@ -841,6 +844,58 @@ QList<caf::PdmOptionItemInfo> RimEclipseResultDefinition::calcOptionsForSelected
         }
     }
     return options;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+caf::PdmOptionItemInfo RimEclipseResultDefinition::calcOptionForTimeOfFlightField()
+{
+    if (injectorTracersSelected() != NONE_SELECTED && producerTracersSelected() != NONE_SELECTED)
+    {
+        return caf::PdmOptionItemInfo("Residence Time (Average)", RIG_FLD_TOF_RESNAME);
+    }
+    else if (injectorTracersSelected() == ONE_SELECTED && producerTracersSelected() == NONE_SELECTED)
+    {
+        return caf::PdmOptionItemInfo("Forward Time Of Flight", RIG_FLD_TOF_RESNAME);
+    }
+    else if (injectorTracersSelected() == MULTIPLE_SELECTED && producerTracersSelected() == NONE_SELECTED)
+    {
+        return caf::PdmOptionItemInfo("Forward Time Of Flight (Average)", RIG_FLD_TOF_RESNAME);
+    }
+    else if (injectorTracersSelected() == NONE_SELECTED && producerTracersSelected() == ONE_SELECTED)
+    {
+        return caf::PdmOptionItemInfo("Reverse Time Of Flight", RIG_FLD_TOF_RESNAME);
+    }
+    else if (injectorTracersSelected() == NONE_SELECTED && producerTracersSelected() == MULTIPLE_SELECTED)
+    {
+        return caf::PdmOptionItemInfo("Reverse Time Of Flight (Average)", RIG_FLD_TOF_RESNAME);
+    }
+    return caf::PdmOptionItemInfo("Time Of Flight", RIG_FLD_TOF_RESNAME);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+caf::PdmOptionItemInfo RimEclipseResultDefinition::calcOptionForMaxFractionTracerField()
+{
+    if (injectorTracersSelected() == ONE_SELECTED && producerTracersSelected() == NONE_SELECTED)
+    {
+        return caf::PdmOptionItemInfo("Flooding Region", RIG_FLD_MAX_FRACTION_TRACER_RESNAME);
+    }
+    else if (injectorTracersSelected() == MULTIPLE_SELECTED && producerTracersSelected() == NONE_SELECTED)
+    {
+        return caf::PdmOptionItemInfo("Flooding Regions", RIG_FLD_MAX_FRACTION_TRACER_RESNAME);
+    }
+    else if (injectorTracersSelected() == NONE_SELECTED && producerTracersSelected() == ONE_SELECTED)
+    {
+        return caf::PdmOptionItemInfo("Drainage Region", RIG_FLD_MAX_FRACTION_TRACER_RESNAME);
+    }
+    else if (injectorTracersSelected() == NONE_SELECTED && producerTracersSelected() == MULTIPLE_SELECTED)
+    {
+        return caf::PdmOptionItemInfo("Drainage Regions", RIG_FLD_MAX_FRACTION_TRACER_RESNAME);
+    }
+    return caf::PdmOptionItemInfo("Drainage/Flooding Regions", RIG_FLD_MAX_FRACTION_TRACER_RESNAME);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1368,7 +1423,6 @@ bool RimEclipseResultDefinition::hasDualPorFractureResult()
     return false;
 }
 
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -1415,7 +1469,17 @@ void RimEclipseResultDefinition::defineUiOrdering(QString uiConfigName, caf::Pdm
         uiOrdering.add(&m_selectedSouringTracersUiField);
     }
 
-    uiOrdering.add(&m_resultVariableUiField);
+    if (m_resultTypeUiField() == RiaDefines::FLOW_DIAGNOSTICS)
+    {
+        if (injectorTracersSelected() != NONE_SELECTED || producerTracersSelected() != NONE_SELECTED)
+        {
+            uiOrdering.add(&m_resultVariableUiField);
+        }
+    }
+    else
+    {
+        uiOrdering.add(&m_resultVariableUiField);
+    }
 
     uiOrdering.skipRemainingFields(true);
 }
@@ -1516,4 +1580,51 @@ void RimEclipseResultDefinition::toggleAllTracersSelection(const caf::PdmField<b
     {
         setSelectedProducerTracers(tracerNames);
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimEclipseResultDefinition::FlowTracerSelectionNumbers RimEclipseResultDefinition::injectorTracersSelected() const
+{
+    if (m_flowTracerSelectionMode == FLOW_TR_INJECTORS || m_flowTracerSelectionMode == FLOW_TR_INJ_AND_PROD)
+    {
+        return MULTIPLE_SELECTED;
+    }
+    else if (m_flowTracerSelectionMode == FLOW_TR_BY_SELECTION)
+    {
+        if (m_selectedInjectorTracers().size() == 1)
+        {
+            return ONE_SELECTED;
+        }
+        else if (m_selectedInjectorTracers().size() > 1)
+        {
+            return MULTIPLE_SELECTED;
+        }
+    }
+    return NONE_SELECTED;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimEclipseResultDefinition::FlowTracerSelectionNumbers RimEclipseResultDefinition::producerTracersSelected() const
+{
+    if (m_flowTracerSelectionMode == FLOW_TR_PRODUCERS || m_flowTracerSelectionMode == FLOW_TR_INJ_AND_PROD)
+    {
+        return MULTIPLE_SELECTED;
+    }
+    else if (m_flowTracerSelectionMode == FLOW_TR_BY_SELECTION)
+    {
+        if (m_selectedProducerTracers().size() == 1)
+        {
+            return ONE_SELECTED;
+        }
+        else if (m_selectedProducerTracers().size() > 1)
+        {
+            return MULTIPLE_SELECTED;
+        }
+    }
+    return NONE_SELECTED;
+
 }
