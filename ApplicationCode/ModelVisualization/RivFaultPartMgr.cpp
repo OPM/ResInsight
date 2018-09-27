@@ -530,17 +530,17 @@ void RivFaultPartMgr::createLabelWithAnchorLine(const cvf::Part* part)
         vertices->add(faultVertexToAttachLabel);
         vertices->add(labelPosition);
 
-        cvf::ref<cvf::DrawableGeo> geo = new cvf::DrawableGeo;
-        geo->setVertexArray(vertices.p());
+        cvf::ref<cvf::DrawableGeo> lineGeo = new cvf::DrawableGeo;
+        lineGeo->setVertexArray(vertices.p());
 
         cvf::ref<cvf::PrimitiveSetDirect> primSet = new cvf::PrimitiveSetDirect(cvf::PT_LINES);
         primSet->setStartIndex(0);
         primSet->setIndexCount(vertices->size());
-        geo->addPrimitiveSet(primSet.p());
+        lineGeo->addPrimitiveSet(primSet.p());
 
         m_faultLabelLinePart = new cvf::Part;
         m_faultLabelLinePart->setName("Anchor line for label" + cvf::String(static_cast<int>(m_grid->gridIndex())));
-        m_faultLabelLinePart->setDrawable(geo.p());
+        m_faultLabelLinePart->setDrawable(lineGeo.p());
 
         m_faultLabelLinePart->updateBoundingBox();
 

@@ -88,16 +88,16 @@ void RicNewWellLogCurveExtractionFeature::onActionTriggered(bool isChecked)
 
         if (wellPath || simWell)
         {
-            RimWellLogTrack* wellLogPlotTrack = RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack();
+            RimWellLogTrack* newWellLogPlotTrack = RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack();
 
             RimWellLogExtractionCurve* plotCurve =
-                RicWellLogTools::addExtractionCurve(wellLogPlotTrack, RiaApplication::instance()->activeReservoirView(), wellPath,
+                RicWellLogTools::addExtractionCurve(newWellLogPlotTrack, RiaApplication::instance()->activeReservoirView(), wellPath,
                                                     simWell, branchIndex, useBranchDetection);
 
             plotCurve->loadDataAndUpdate(true);
 
             RimWellLogPlot* plot = nullptr;
-            wellLogPlotTrack->firstAncestorOrThisOfType(plot);
+            newWellLogPlotTrack->firstAncestorOrThisOfType(plot);
             if (plot && plotCurve->curveData())
             {
                 plot->setDepthUnit(plotCurve->curveData()->depthUnit());

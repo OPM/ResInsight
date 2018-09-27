@@ -132,8 +132,8 @@ void RimViewLinker::updateCellResult()
         {
             if (viewLink->managedView())
             {
-                Rim3dView*      rimView     = viewLink->managedView();
-                RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>(rimView);
+                Rim3dView*      managedView = viewLink->managedView();
+                RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>(managedView);
                 if (eclipseView)
                 {
                     if (viewLink->isResultColorControlled())
@@ -170,8 +170,8 @@ void RimViewLinker::updateCellResult()
         {
             if (viewLink->managedView())
             {
-                Rim3dView*      rimView = viewLink->managedView();
-                RimGeoMechView* geoView = dynamic_cast<RimGeoMechView*>(rimView);
+                Rim3dView*      managedView = viewLink->managedView();
+                RimGeoMechView* geoView     = dynamic_cast<RimGeoMechView*>(managedView);
                 if (geoView)
                 {
                     if (viewLink->isResultColorControlled())
@@ -370,7 +370,7 @@ void RimViewLinker::updateScaleZ(RimGridView* sourceView, double scaleZ)
     allViewsForCameraSync(sourceView, views);
 
     // Make sure scale factors are identical
-    for (auto & view : views)
+    for (auto& view : views)
     {
         view->setScaleZAndUpdate(scaleZ);
     }

@@ -101,7 +101,7 @@ void RicNewPltPlotFeature::onActionTriggered(bool isChecked)
         }
         else if ((eclipseWell = caf::firstAncestorOfTypeFromSelectedObject<RimSimWellInView*>()) != nullptr)
         {
-            RimWellPath* wellPath = proj->wellPathFromSimWellName(eclipseWell->name());
+            wellPath = proj->wellPathFromSimWellName(eclipseWell->name());
             if (!wellPath ) return;
 
             wellPathName = wellPath->name();
