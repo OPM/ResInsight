@@ -282,16 +282,18 @@ add_executable( ResInsight ${EXE_FILES} )
 if (MSVC) 
     # The following warnings are supposed to be used in ResInsight, but temporarily disabled to avoid too much noise
     #  warning C4245: 'return': conversion from 'int' to 'size_t', signed/unsigned mismatch
-    #  warning C4456: declaration of 'sourceInfo' hides previous local declaration 
 
-	# The following warning is generated over 800 times from a qwt header only using VS2015
-	# Disabling temporarily
-	# warning C4505 'function' : unreferenced local function has been removed 
-	
     # If possible, the following command is supposed to be the final target
     # set_target_properties(ResInsight PROPERTIES COMPILE_FLAGS "/W4 /wd4190 /wd4100 /wd4127")    
     
-    set_target_properties(ResInsight PROPERTIES COMPILE_FLAGS "/W4 /wd4190 /wd4100 /wd4127 /wd4505 /wd4245")
+    set_target_properties(ResInsight PROPERTIES COMPILE_FLAGS "/W4 /wd4190 /wd4100 /wd4127 /wd4245")
+    if (CMAKE_CXX_COMPILER_VERSION LESS_EQUAL 19.11)
+    	# The following warning is generated over 800 times from a qwt header only using VS2015
+	    # Disabling temporarily
+    	# warning C4505 'function' : unreferenced local function has been removed 
+        set_target_properties(ResInsight PROPERTIES COMPILE_FLAGS "/wd4505")
+    endif()
+
 endif() 
 
 #############################################################################
