@@ -24,6 +24,7 @@
 #include "RiaPorosityModel.h"
 
 #include "RigFlowDiagResultAddress.h"
+#include "RimFlowDiagSolution.h"
 
 #include "cafAppEnum.h"
 #include "cafPdmField.h"
@@ -35,7 +36,6 @@ class RigCaseCellResultsData;
 class RimEclipseCase;
 class RimEclipseView;
 class RimReservoirCellResultsStorage;
-class RimFlowDiagSolution;
 
 
 //==================================================================================================
@@ -97,6 +97,8 @@ public:
 
     void                            setTofAndSelectTracer(const QString& tracerName);
     void                            setSelectedTracers(const std::vector<QString>& selectedTracers);
+    void                            setSelectedInjectorTracers(const std::vector<QString>& selectedTracers);
+    void                            setSelectedProducerTracers(const std::vector<QString>& selectedTracers);
     void                            setSelectedSouringTracers(const std::vector<QString>& selectedTracers);
 
     void                            updateUiFieldsFromActiveResult();
@@ -106,6 +108,7 @@ protected:
 
     virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly);
     virtual void                          fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
+
     virtual void                          initAfterRead();
     virtual void                          defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
     virtual void                          defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override;
@@ -115,9 +118,11 @@ protected:
     caf::PdmField< caf::AppEnum< RiaDefines::PorosityModelType > >  m_porosityModel;
     caf::PdmField<QString>                                          m_resultVariable;
 
-    caf::PdmPtrField<RimFlowDiagSolution*>                          m_flowSolution;
-    caf::PdmField<std::vector<QString> >                            m_selectedTracers;
-
+    caf::PdmPtrField<RimFlowDiagSolution*>                          m_flowSolution;    
+    caf::PdmField<bool>                                             m_selectAllInjectorTracers;
+    caf::PdmField<bool>                                             m_selectAllProducerTracers;
+    caf::PdmField<std::vector<QString> >                            m_selectedInjectorTracers;
+    caf::PdmField<std::vector<QString> >                            m_selectedProducerTracers;
     caf::PdmField<std::vector<QString> >                            m_selectedSouringTracers;
 
     friend class RimEclipsePropertyFilter;
@@ -135,12 +140,15 @@ protected:
     caf::PdmField< RigFlowDiagResultAddress::PhaseSelectionEnum >   m_phaseSelection;
     
     caf::PdmField<QString>                                          m_selectedTracersUiFieldFilter;
-    caf::PdmField<std::vector<QString> >                            m_selectedTracersUiField;
+    caf::PdmField<std::vector<QString> >                            m_selectedInjectorTracersUiField;
+    caf::PdmField<std::vector<QString> >                            m_selectedProducerTracersUiField;
 
     caf::PdmField<std::vector<QString> >                            m_selectedSouringTracersUiField;
 
 
     caf::PdmPointer<RimEclipseCase>                                 m_eclipseCase;
+
+    caf::PdmField<std::vector<QString> >                            m_selectedTracers_OBSOLETE;
 
 private:
     void                            assignFlowSolutionFromCase();
@@ -148,9 +156,14 @@ private:
     bool                            hasDualPorFractureResult();
 
     QList<caf::PdmOptionItemInfo>   calcOptionsForVariableUiFieldStandard();
+    QList<caf::PdmOptionItemInfo>   calcOptionsForSelectedTracerField(bool injector);
+
+    void                            updateSelectedTracersFromFilter();
+    void                            changedTracerSelectionField(bool injector);
     QStringList                     getResultNamesForCurrentUiResultType();
     static void                     removePerCellFaceOptionItems(QList<caf::PdmOptionItemInfo>& optionItems);
 
     std::vector<QString>            tracerNamesMatchingFilter() const;
+    void                            toggleAllTracersSelection(const caf::PdmField<bool>* changedField);
 };
 
