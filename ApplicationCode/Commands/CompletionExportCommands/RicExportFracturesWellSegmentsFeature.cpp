@@ -71,7 +71,7 @@ void RicExportFracturesWellSegmentsFeature::exportWellSegments(const RimWellPath
 
     QString filePath = exportFolder.filePath(fileName);
     QFile   exportFile(filePath);
-    if (!exportFile.open(QIODevice::WriteOnly))
+    if (!exportFile.open(QIODevice::WriteOnly | QIODevice::Text))
     {
         RiaLogging::error(QString("Export Fracture Well Segments: Could not open the file: %1").arg(filePath));
         return;

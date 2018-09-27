@@ -160,7 +160,7 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions(const std::ve
                 QDir(exportSettings.folder).absoluteFilePath("FractureTransmissibilityExportInformation");
 
             fractureTransmissibilityExportInformationFile.setFileName(fractureTransmisibillityExportInformationPath);
-            if (!fractureTransmissibilityExportInformationFile.open(QIODevice::WriteOnly))
+            if (!fractureTransmissibilityExportInformationFile.open(QIODevice::WriteOnly | QIODevice::Text))
             {
                 RiaLogging::error(QString("Export Completions Data: Could not open the file: %1")
                                       .arg(fractureTransmisibillityExportInformationPath));
@@ -1091,7 +1091,7 @@ QFilePtr RicWellPathExportCompletionDataFeatureImpl::openFileForExport(const QSt
 
     QString  filePath = exportFolder.filePath(fileName);
     QFilePtr exportFile(new QFile(filePath));
-    if (!exportFile->open(QIODevice::WriteOnly))
+    if (!exportFile->open(QIODevice::WriteOnly | QIODevice::Text))
     {
         auto errorMessage = QString("Export Completions Data: Could not open the file: %1").arg(filePath);
         RiaLogging::error(errorMessage);

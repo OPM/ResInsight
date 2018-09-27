@@ -191,7 +191,7 @@ void RicExportFaultsFeature::saveFault(QString completeFilename, const RigMainGr
 {
     QFile exportFile(completeFilename);
     
-    if (!exportFile.open(QIODevice::WriteOnly) )
+    if (!exportFile.open(QIODevice::WriteOnly | QIODevice::Text) )
     {
         RiaLogging::error("Could not open the file : " + completeFilename);
     }

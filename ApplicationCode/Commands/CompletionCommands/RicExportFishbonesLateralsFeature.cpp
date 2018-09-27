@@ -59,7 +59,7 @@ void RicExportFishbonesLateralsFeature::onActionTriggered(bool isChecked)
     RiaLogging::info("Starting export of Fishbones well path laterals to : " + completeFilename);
 
     QFile exportFile(completeFilename);
-    if (!exportFile.open(QIODevice::WriteOnly))
+    if (!exportFile.open(QIODevice::WriteOnly | QIODevice::Text))
     {
         RiaLogging::error("Could not open the file :\n" + completeFilename);
         return;

@@ -92,7 +92,7 @@ QFilePtr RicExportSelectedWellPathsFeature::openFileForExport(const QString& fol
 
     QString  filePath = exportFolder.filePath(fileName);
     QFilePtr exportFile(new QFile(filePath));
-    if (!exportFile->open(QIODevice::WriteOnly))
+    if (!exportFile->open(QIODevice::WriteOnly | QIODevice::Text))
     {
         auto errorMessage = QString("Export Well Path: Could not open the file: %1").arg(filePath);
         RiaLogging::error(errorMessage);

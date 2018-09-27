@@ -316,7 +316,7 @@ bool VdeFileExporter::writeModelMetaJsonFile(const std::vector<VdeMesh>& meshArr
     QByteArray jsonStr = jsonCodec.encode(jsonModelMeta, prettifyJson).toLatin1();
 
     QFile file(fileName);
-    if (!file.open(QIODevice::WriteOnly))
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
     {
         return false;
     }
