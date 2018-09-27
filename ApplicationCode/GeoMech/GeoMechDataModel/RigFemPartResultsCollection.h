@@ -159,7 +159,7 @@ public:
                                        RigFemResultPosEnum resultPosition,
                                        int elementIndex,
                                        int m_face,
-                                       const cvf::Vec3d& m_intersectionPoint);
+                                       const cvf::Vec3d& intersectionPointInDomain);
 
     int resultIndexToClosestResult() { return m_resultIndexToClosestResult; }
     int closestNodeId() { return m_closestNodeId; }

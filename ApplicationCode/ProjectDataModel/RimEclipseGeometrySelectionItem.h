@@ -51,6 +51,6 @@ private:
 
     caf::PdmField<size_t> m_gridIndex;
     caf::PdmField<size_t> m_cellIndex;
-    caf::PdmField<cvf::Vec3d> m_localIntersectionPoint;
+    caf::PdmField<cvf::Vec3d> m_localIntersectionPointInDisplay;
 };
 

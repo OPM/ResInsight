@@ -2625,7 +2625,7 @@ RigFemClosestResultIndexCalculator::RigFemClosestResultIndexCalculator(RigFemPar
                                                                        RigFemResultPosEnum resultPosition,
                                                                        int elementIndex,
                                                                        int m_face,
-                                                                       const cvf::Vec3d& m_intersectionPoint)
+                                                                       const cvf::Vec3d& intersectionPointInDomain)
 {
     m_resultIndexToClosestResult = -1;
     m_closestNodeId = -1;
@@ -2643,8 +2643,8 @@ RigFemClosestResultIndexCalculator::RigFemClosestResultIndexCalculator(RigFemPar
         for ( int lNodeIdx = 0; lNodeIdx < elmNodeCount; ++lNodeIdx )
         {
             int nodeIdx = elmentConn[lNodeIdx];
-            cvf::Vec3f nodePos = femPart->nodes().coordinates[nodeIdx];
-            float dist = (nodePos - cvf::Vec3f(m_intersectionPoint)).lengthSquared();
+            cvf::Vec3f nodePosInDomain = femPart->nodes().coordinates[nodeIdx];
+            float dist = (nodePosInDomain - cvf::Vec3f(intersectionPointInDomain)).lengthSquared();
             if ( dist < minDist )
             {
                 closestLocalNode = lNodeIdx;
@@ -2694,8 +2694,8 @@ RigFemClosestResultIndexCalculator::RigFemClosestResultIndexCalculator(RigFemPar
                 for ( int faceNodIdx = 0; faceNodIdx < faceNodeCount; ++faceNodIdx )
                 {
                     int nodeIdx = elmNodeIndices[localElmNodeIndicesForFace[faceNodIdx]];
-                    cvf::Vec3f nodePos = femPart->nodes().coordinates[nodeIdx];
-                    float dist = (nodePos - cvf::Vec3f(m_intersectionPoint)).lengthSquared();
+                    cvf::Vec3f nodePosInDomain = femPart->nodes().coordinates[nodeIdx];
+                    float dist = (nodePosInDomain - cvf::Vec3f(intersectionPointInDomain)).lengthSquared();
                     if ( dist < minDist )
                     {
                         closestLocFaceNode = faceNodIdx;

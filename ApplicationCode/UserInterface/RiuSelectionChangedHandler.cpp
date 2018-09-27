@@ -52,6 +52,8 @@
 
 #include <QStatusBar>
 
+#include <cafDisplayCoordTransform.h>
+
 #include <assert.h>
 
 
@@ -160,7 +162,9 @@ void RiuSelectionChangedHandler::addCurveFromSelectionItem(const RiuEclipseSelec
         curveName += ", ";
         curveName += QString("Grid index %1").arg(eclipseSelectionItem->m_gridIndex);
         curveName += ", ";
-        curveName += RigTimeHistoryResultAccessor::geometrySelectionText(eclipseView->eclipseCase()->eclipseCaseData(), eclipseSelectionItem->m_gridIndex, eclipseSelectionItem->m_gridLocalCellIndex);
+        curveName += RigTimeHistoryResultAccessor::geometrySelectionText(eclipseView->eclipseCase()->eclipseCaseData(), 
+                                                                         eclipseSelectionItem->m_gridIndex, 
+                                                                         eclipseSelectionItem->m_gridLocalCellIndex);
 
 
         std::vector<double> timeHistoryValues = RigTimeHistoryResultAccessor::timeHistoryValues(eclipseView->eclipseCase()->eclipseCaseData(), eclipseView->cellResult(), eclipseSelectionItem->m_gridIndex, eclipseSelectionItem->m_gridLocalCellIndex, timeStepDates.size());
@@ -185,6 +189,8 @@ void RiuSelectionChangedHandler::addCurveFromSelectionItem(const RiuGeoMechSelec
     {
         std::unique_ptr<RiuFemTimeHistoryResultAccessor> timeHistResultAccessor;
 
+        cvf::Vec3d intersectionPointInDomain = geoMechView->displayCoordTransform()->translateToDomainCoord(geomSelectionItem->m_localIntersectionPointInDisplay);
+
         if ( geomSelectionItem->m_hasIntersectionTriangle )
         {
             timeHistResultAccessor = std::unique_ptr<RiuFemTimeHistoryResultAccessor>(
@@ -193,7 +199,7 @@ void RiuSelectionChangedHandler::addCurveFromSelectionItem(const RiuGeoMechSelec
                                                     geomSelectionItem->m_gridIndex,
                                                     static_cast<int>(geomSelectionItem->m_cellIndex),
                                                     geomSelectionItem->m_elementFace,
-                                                    geomSelectionItem->m_localIntersectionPoint,
+                                                    intersectionPointInDomain,
                                                     geomSelectionItem->m_intersectionTriangle));
         }
         else
@@ -204,7 +210,7 @@ void RiuSelectionChangedHandler::addCurveFromSelectionItem(const RiuGeoMechSelec
                                                     geomSelectionItem->m_gridIndex,
                                                     static_cast<int>(geomSelectionItem->m_cellIndex),
                                                     geomSelectionItem->m_elementFace,
-                                                    geomSelectionItem->m_localIntersectionPoint));
+                                                    intersectionPointInDomain));
         }
 
         QString curveName;
@@ -348,7 +354,7 @@ void RiuSelectionChangedHandler::updateResultInfo(const RiuSelectionItem* itemAd
             RiuResultTextBuilder textBuilder(eclipseView, eclipseSelectionItem->m_gridIndex, eclipseSelectionItem->m_gridLocalCellIndex, eclipseView->currentTimeStep());
             textBuilder.setFace(eclipseSelectionItem->m_face);
             textBuilder.setNncIndex(eclipseSelectionItem->m_nncIndex);
-            textBuilder.setIntersectionPoint(eclipseSelectionItem->m_localIntersectionPoint);
+            textBuilder.setIntersectionPointInDisplay(eclipseSelectionItem->m_localIntersectionPointInDisplay);
             textBuilder.set2dIntersectionView(intersectionView);
 
             resultInfo = textBuilder.mainResultText();
@@ -361,7 +367,7 @@ void RiuSelectionChangedHandler::updateResultInfo(const RiuSelectionItem* itemAd
 
             RimGeoMechView* geomView = geomSelectionItem->m_view.p();
             RiuFemResultTextBuilder textBuilder(geomView, (int)geomSelectionItem->m_gridIndex, (int)geomSelectionItem->m_cellIndex, geomView->currentTimeStep());
-            textBuilder.setIntersectionPoint(geomSelectionItem->m_localIntersectionPoint);
+            textBuilder.setIntersectionPointInDisplay(geomSelectionItem->m_localIntersectionPointInDisplay);
             textBuilder.setFace(geomSelectionItem->m_elementFace);
             textBuilder.set2dIntersectionView(intersectionView);
             if (geomSelectionItem->m_hasIntersectionTriangle) textBuilder.setIntersectionTriangle(geomSelectionItem->m_intersectionTriangle);

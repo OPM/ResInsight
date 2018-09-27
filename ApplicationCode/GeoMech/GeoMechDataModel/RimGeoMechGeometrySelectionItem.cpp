@@ -69,7 +69,7 @@ void RimGeoMechGeometrySelectionItem::setFromSelectionItem(const RiuGeoMechSelec
     m_intersectionTriangle_1 = cvf::Vec3d(selectionItem->m_intersectionTriangle[1]);
     m_intersectionTriangle_2 = cvf::Vec3d(selectionItem->m_intersectionTriangle[2]);
 
-    m_localIntersectionPoint = selectionItem->m_localIntersectionPoint;
+    m_localIntersectionPoint = selectionItem->m_localIntersectionPointInDisplay;
 }
 
 //--------------------------------------------------------------------------------------------------
