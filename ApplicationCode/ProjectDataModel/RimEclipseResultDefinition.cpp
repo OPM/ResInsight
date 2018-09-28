@@ -24,6 +24,7 @@
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
 #include "RigFlowDiagResultAddress.h"
+#include "RigFlowDiagResults.h"
 
 #include "Rim3dView.h"
 #include "Rim3dWellLogCurve.h"
@@ -34,6 +35,7 @@
 #include "RimEclipsePropertyFilter.h"
 #include "RimEclipseResultCase.h"
 #include "RimEclipseView.h"
+#include "RimFlowDiagSolution.h"
 #include "RimGridTimeHistoryCurve.h"
 #include "RimIntersectionCollection.h"
 #include "RimPlotCurve.h"
@@ -42,6 +44,7 @@
 #include "RimWellLogExtractionCurve.h"
 
 #include "cafPdmUiListEditor.h"
+#include "cafPdmUiToolButtonEditor.h"
 #include "cafPdmUiTreeSelectionEditor.h"
 #include "cafUtils.h"
 
@@ -122,6 +125,13 @@ RimEclipseResultDefinition::RimEclipseResultDefinition()
     m_flowSolutionUiField.xmlCapability()->setIOWritable(false);
     m_flowSolutionUiField.uiCapability()->setUiHidden(true); // For now since there are only one to choose from
  
+    CAF_PDM_InitField(&m_syncInjectorToProducerSelection, "MSyncSelectedInjProd", false, "Add Communicators ->", "", "", "");
+    m_syncInjectorToProducerSelection.uiCapability()->setUiEditorTypeName(caf::PdmUiToolButtonEditor::uiEditorTypeName());
+
+    CAF_PDM_InitField(&m_syncProducerToInjectorSelection, "MSyncSelectedProdInj", false, "<- Add Communicators", "", "", "");
+    m_syncProducerToInjectorSelection.uiCapability()->setUiEditorTypeName(caf::PdmUiToolButtonEditor::uiEditorTypeName());
+
+
     CAF_PDM_InitFieldNoDefault(&m_selectedInjectorTracersUiField, "MSelectedInjectorTracers", "Injector Tracers", "", "", "");
     m_selectedInjectorTracersUiField.xmlCapability()->setIOReadable(false);
     m_selectedInjectorTracersUiField.xmlCapability()->setIOWritable(false);
@@ -265,6 +275,18 @@ void RimEclipseResultDefinition::fieldChangedByUi(const caf::PdmFieldHandle* cha
         changedTracerSelectionField(false);
     }
 
+    if (&m_syncInjectorToProducerSelection == changedField)
+    {
+        syncInjectorToProducerSelection();    
+        m_syncInjectorToProducerSelection = false;
+    }
+
+    if (&m_syncProducerToInjectorSelection == changedField)
+    {
+        syncProducerToInjectorSelection();
+        m_syncProducerToInjectorSelection = false;
+    }
+
 
     if (&m_selectedSouringTracersUiField == changedField)
     {
@@ -383,22 +405,6 @@ void RimEclipseResultDefinition::setTofAndSelectTracer(const QString& tracerName
             setSelectedProducerTracers(tracers);
         }
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimEclipseResultDefinition::assignFlowSolutionFromCase()
-{
-    RimFlowDiagSolution* defaultFlowDiagSolution = nullptr;
-
-    RimEclipseResultCase* eclCase = dynamic_cast<RimEclipseResultCase*>(m_eclipseCase.p());
-
-    if (eclCase)
-    {
-        defaultFlowDiagSolution = eclCase->defaultFlowDiagSolution();
-    }
-    this->setFlowSolution(defaultFlowDiagSolution);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -612,237 +618,6 @@ QList<caf::PdmOptionItemInfo> RimEclipseResultDefinition::calculateValueOptions(
     (*useOptionsOnly) = true;
     
     return options;
-}
-
-QList<caf::PdmOptionItemInfo> RimEclipseResultDefinition::calcOptionsForVariableUiFieldStandard()
-{
-    CVF_ASSERT(m_resultTypeUiField() != RiaDefines::FLOW_DIAGNOSTICS && m_resultTypeUiField() != RiaDefines::INJECTION_FLOODING);
-
-    if (this->currentGridCellResults())
-    {
-        QList<caf::PdmOptionItemInfo> optionList;
-
-        QStringList cellCenterResultNames;
-        QStringList cellFaceResultNames;
-
-        RigCaseCellResultsData* results = this->currentGridCellResults();
-        foreach (QString s, getResultNamesForCurrentUiResultType())
-        {
-            if (s == RiaDefines::completionTypeResultName() && results->timeStepDates().empty()) continue;
-
-            if (RiaDefines::isPerCellFaceResult(s))
-            {
-                cellFaceResultNames.push_back(s);
-            }
-            else
-            {
-                cellCenterResultNames.push_back(s);
-            }
-        }
-
-        cellCenterResultNames.sort();
-        cellFaceResultNames.sort();
-
-        // Cell Center result names
-        foreach (QString s, cellCenterResultNames)
-        {
-            optionList.push_back(caf::PdmOptionItemInfo(s, s));
-        }
-
-        // Ternary Result
-        bool hasAtLeastOneTernaryComponent = false;
-        if (cellCenterResultNames.contains("SOIL"))
-            hasAtLeastOneTernaryComponent = true;
-        else if (cellCenterResultNames.contains("SGAS"))
-            hasAtLeastOneTernaryComponent = true;
-        else if (cellCenterResultNames.contains("SWAT"))
-            hasAtLeastOneTernaryComponent = true;
-
-        if (m_resultTypeUiField == RiaDefines::DYNAMIC_NATIVE && hasAtLeastOneTernaryComponent)
-        {
-            optionList.push_front(
-                caf::PdmOptionItemInfo(RiaDefines::ternarySaturationResultName(), RiaDefines::ternarySaturationResultName()));
-        }
-
-        // Cell Face result names
-        bool showDerivedResultsFirstInList = false;
-        {
-            RimEclipseFaultColors* rimEclipseFaultColors = nullptr;
-            this->firstAncestorOrThisOfType(rimEclipseFaultColors);
-
-            if (rimEclipseFaultColors) showDerivedResultsFirstInList = true;
-        }
-
-        foreach (QString s, cellFaceResultNames)
-        {
-            if (showDerivedResultsFirstInList)
-            {
-                optionList.push_front(caf::PdmOptionItemInfo(s, s));
-            }
-            else
-            {
-                optionList.push_back(caf::PdmOptionItemInfo(s, s));
-            }
-        }
-
-        optionList.push_front(caf::PdmOptionItemInfo(RiaDefines::undefinedResultName(), RiaDefines::undefinedResultName()));
-
-        // Remove Per Cell Face options
-        {
-            RimPlotCurve* curve = nullptr;
-            this->firstAncestorOrThisOfType(curve);
-
-            RimEclipsePropertyFilter* propFilter = nullptr;
-            this->firstAncestorOrThisOfType(propFilter);
-
-            RimCellEdgeColors* cellEdge = nullptr;
-            this->firstAncestorOrThisOfType(cellEdge);
-
-            if (propFilter || curve || cellEdge)
-            {
-                removePerCellFaceOptionItems(optionList);
-            }
-        }
-
-        return optionList;
-    }
-
-    return QList<caf::PdmOptionItemInfo>();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RimEclipseResultDefinition::calcOptionsForSelectedTracerField(bool injector)
-{
-    QList<caf::PdmOptionItemInfo> options;
-
-    RimFlowDiagSolution* flowSol = m_flowSolutionUiField();
-    if (flowSol)
-    {
-        std::vector<QString> tracerNames = allTracerNames();
-        std::list<QString> sortedTracers;
-
-        for (const QString& tracerName : tracerNames)
-        {
-            RimFlowDiagSolution::TracerStatusType status = flowSol->tracerStatusOverall(tracerName);
-            bool includeTracer = status == RimFlowDiagSolution::VARYING || status == RimFlowDiagSolution::UNDEFINED;
-            includeTracer |= injector && status == RimFlowDiagSolution::INJECTOR;
-            includeTracer |= !injector && status == RimFlowDiagSolution::PRODUCER;
-
-            if (includeTracer)
-            {
-                auto it = std::upper_bound(sortedTracers.begin(), sortedTracers.end(), tracerName, 
-                    [](const QString& lhs, const QString& rhs)
-                {
-                    if (!lhs.endsWith("-XF") && rhs.endsWith("-XF"))
-                    {
-                        return true;
-                    }
-                    else if (lhs.endsWith("-XF") && !rhs.endsWith("-XF"))
-                    {
-                        return false;
-                    }
-                    else
-                    {
-                        return lhs < rhs;
-                    }
-                });
-                sortedTracers.insert(it, tracerName);
-            }
-        }
-        for (const QString& tracerName : sortedTracers)
-        {
-            QString postfix;
-            RimFlowDiagSolution::TracerStatusType status = flowSol->tracerStatusOverall(tracerName);
-            if (status == RimFlowDiagSolution::VARYING)
-            {
-                postfix = " [I/P]";
-            }
-            else if (status == RimFlowDiagSolution::UNDEFINED)
-            {
-                postfix = " [U]";
-            }
-            options.push_back(caf::PdmOptionItemInfo(tracerName + postfix, tracerName));
-        }
-    }
-    return options;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-caf::PdmOptionItemInfo RimEclipseResultDefinition::calcOptionForTimeOfFlightField()
-{
-    if (injectorTracersSelected() != NONE_SELECTED && producerTracersSelected() != NONE_SELECTED)
-    {
-        return caf::PdmOptionItemInfo("Residence Time (Average)", RIG_FLD_TOF_RESNAME);
-    }
-    else if (injectorTracersSelected() == ONE_SELECTED && producerTracersSelected() == NONE_SELECTED)
-    {
-        return caf::PdmOptionItemInfo("Forward Time Of Flight", RIG_FLD_TOF_RESNAME);
-    }
-    else if (injectorTracersSelected() == MULTIPLE_SELECTED && producerTracersSelected() == NONE_SELECTED)
-    {
-        return caf::PdmOptionItemInfo("Forward Time Of Flight (Average)", RIG_FLD_TOF_RESNAME);
-    }
-    else if (injectorTracersSelected() == NONE_SELECTED && producerTracersSelected() == ONE_SELECTED)
-    {
-        return caf::PdmOptionItemInfo("Reverse Time Of Flight", RIG_FLD_TOF_RESNAME);
-    }
-    else if (injectorTracersSelected() == NONE_SELECTED && producerTracersSelected() == MULTIPLE_SELECTED)
-    {
-        return caf::PdmOptionItemInfo("Reverse Time Of Flight (Average)", RIG_FLD_TOF_RESNAME);
-    }
-    return caf::PdmOptionItemInfo("Time Of Flight", RIG_FLD_TOF_RESNAME);
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-caf::PdmOptionItemInfo RimEclipseResultDefinition::calcOptionForMaxFractionTracerField()
-{
-    if (injectorTracersSelected() == ONE_SELECTED && producerTracersSelected() == NONE_SELECTED)
-    {
-        return caf::PdmOptionItemInfo("Flooding Region", RIG_FLD_MAX_FRACTION_TRACER_RESNAME);
-    }
-    else if (injectorTracersSelected() == MULTIPLE_SELECTED && producerTracersSelected() == NONE_SELECTED)
-    {
-        return caf::PdmOptionItemInfo("Flooding Regions", RIG_FLD_MAX_FRACTION_TRACER_RESNAME);
-    }
-    else if (injectorTracersSelected() == NONE_SELECTED && producerTracersSelected() == ONE_SELECTED)
-    {
-        return caf::PdmOptionItemInfo("Drainage Region", RIG_FLD_MAX_FRACTION_TRACER_RESNAME);
-    }
-    else if (injectorTracersSelected() == NONE_SELECTED && producerTracersSelected() == MULTIPLE_SELECTED)
-    {
-        return caf::PdmOptionItemInfo("Drainage Regions", RIG_FLD_MAX_FRACTION_TRACER_RESNAME);
-    }
-    return caf::PdmOptionItemInfo("Drainage/Flooding Regions", RIG_FLD_MAX_FRACTION_TRACER_RESNAME);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-QStringList RimEclipseResultDefinition::getResultNamesForCurrentUiResultType()
-{
-    if ( m_resultTypeUiField() != RiaDefines::FLOW_DIAGNOSTICS )
-    {
-        RigCaseCellResultsData* cellResultsStorage = currentGridCellResults();
-
-        if ( !cellResultsStorage ) return QStringList();
-
-        return cellResultsStorage->resultNames(m_resultTypeUiField());
-    }
-    else
-    {
-        QStringList flowVars;
-        flowVars.push_back(RIG_FLD_TOF_RESNAME);
-        flowVars.push_back(RIG_FLD_CELL_FRACTION_RESNAME);
-        flowVars.push_back(RIG_FLD_MAX_FRACTION_TRACER_RESNAME);
-        flowVars.push_back(RIG_FLD_COMMUNICATION_RESNAME);
-        return flowVars;
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1335,20 +1110,6 @@ bool RimEclipseResultDefinition::isFlowDiagOrInjectionFlooding() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RimEclipseResultDefinition::hasDualPorFractureResult()
-{
-    if (m_eclipseCase
-        && m_eclipseCase->eclipseCaseData())
-    {
-        return m_eclipseCase->eclipseCaseData()->hasFractureResults();
-    }
-
-    return false;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 void RimEclipseResultDefinition::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
     uiOrdering.add(&m_resultTypeUiField);
@@ -1371,9 +1132,11 @@ void RimEclipseResultDefinition::defineUiOrdering(QString uiConfigName, caf::Pdm
             caf::PdmUiGroup* injectorGroup = selectionGroup->addNewGroup("Injectors");
 //            injectorGroup->setEnableFrame(false);
             injectorGroup->add(&m_selectedInjectorTracersUiField);
+            injectorGroup->add(&m_syncInjectorToProducerSelection);
             caf::PdmUiGroup* producerGroup = selectionGroup->addNewGroup("Producers", false);
 //            producerGroup->setEnableFrame(false);
             producerGroup->add(&m_selectedProducerTracersUiField);
+            producerGroup->add(&m_syncProducerToInjectorSelection);
         }
 
         uiOrdering.add(&m_phaseSelection);
@@ -1406,14 +1169,276 @@ void RimEclipseResultDefinition::defineUiOrdering(QString uiConfigName, caf::Pdm
 //--------------------------------------------------------------------------------------------------
 void RimEclipseResultDefinition::defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute)
 {
-    if (m_resultTypeUiField() == RiaDefines::FLOW_DIAGNOSTICS
-        && field == &m_resultVariableUiField)
+    if (m_resultTypeUiField() == RiaDefines::FLOW_DIAGNOSTICS)
     {
-        caf::PdmUiListEditorAttribute* listEditAttr = dynamic_cast<caf::PdmUiListEditorAttribute*>(attribute);
-        if (listEditAttr)
+        if (field == &m_resultVariableUiField)
         {
-            listEditAttr->m_heightHint = 50;
+            caf::PdmUiListEditorAttribute* listEditAttr = dynamic_cast<caf::PdmUiListEditorAttribute*>(attribute);
+            if (listEditAttr)
+            {
+                listEditAttr->m_heightHint = 50;
+            }
         }
+        else if (field == &m_syncInjectorToProducerSelection ||
+                 field == &m_syncProducerToInjectorSelection)
+        {
+            caf::PdmUiToolButtonEditorAttribute* toolButtonAttr = dynamic_cast<caf::PdmUiToolButtonEditorAttribute*>(attribute);
+            if (toolButtonAttr)
+            {
+                toolButtonAttr->m_sizePolicy.setHorizontalPolicy(QSizePolicy::MinimumExpanding);
+            }
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimEclipseResultDefinition::TracerComp::operator()(const QString& lhs, const QString& rhs) const
+{
+    if (!lhs.endsWith("-XF") && rhs.endsWith("-XF"))
+    {
+        return true;
+    }
+    else if (lhs.endsWith("-XF") && !rhs.endsWith("-XF"))
+    {
+        return false;
+    }
+    else
+    {
+        return lhs < rhs;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimEclipseResultDefinition::assignFlowSolutionFromCase()
+{
+    RimFlowDiagSolution* defaultFlowDiagSolution = nullptr;
+
+    RimEclipseResultCase* eclCase = dynamic_cast<RimEclipseResultCase*>(m_eclipseCase.p());
+
+    if (eclCase)
+    {
+        defaultFlowDiagSolution = eclCase->defaultFlowDiagSolution();
+    }
+    this->setFlowSolution(defaultFlowDiagSolution);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimEclipseResultDefinition::hasDualPorFractureResult()
+{
+    if (m_eclipseCase
+        && m_eclipseCase->eclipseCaseData())
+    {
+        return m_eclipseCase->eclipseCaseData()->hasFractureResults();
+    }
+
+    return false;
+}
+
+QList<caf::PdmOptionItemInfo> RimEclipseResultDefinition::calcOptionsForVariableUiFieldStandard()
+{
+    CVF_ASSERT(m_resultTypeUiField() != RiaDefines::FLOW_DIAGNOSTICS && m_resultTypeUiField() != RiaDefines::INJECTION_FLOODING);
+
+    if (this->currentGridCellResults())
+    {
+        QList<caf::PdmOptionItemInfo> optionList;
+
+        QStringList cellCenterResultNames;
+        QStringList cellFaceResultNames;
+
+        RigCaseCellResultsData* results = this->currentGridCellResults();
+        foreach(QString s, getResultNamesForCurrentUiResultType())
+        {
+            if (s == RiaDefines::completionTypeResultName() && results->timeStepDates().empty()) continue;
+
+            if (RiaDefines::isPerCellFaceResult(s))
+            {
+                cellFaceResultNames.push_back(s);
+            }
+            else
+            {
+                cellCenterResultNames.push_back(s);
+            }
+        }
+
+        cellCenterResultNames.sort();
+        cellFaceResultNames.sort();
+
+        // Cell Center result names
+        foreach(QString s, cellCenterResultNames)
+        {
+            optionList.push_back(caf::PdmOptionItemInfo(s, s));
+        }
+
+        // Ternary Result
+        bool hasAtLeastOneTernaryComponent = false;
+        if (cellCenterResultNames.contains("SOIL"))
+            hasAtLeastOneTernaryComponent = true;
+        else if (cellCenterResultNames.contains("SGAS"))
+            hasAtLeastOneTernaryComponent = true;
+        else if (cellCenterResultNames.contains("SWAT"))
+            hasAtLeastOneTernaryComponent = true;
+
+        if (m_resultTypeUiField == RiaDefines::DYNAMIC_NATIVE && hasAtLeastOneTernaryComponent)
+        {
+            optionList.push_front(
+                caf::PdmOptionItemInfo(RiaDefines::ternarySaturationResultName(), RiaDefines::ternarySaturationResultName()));
+        }
+
+        // Cell Face result names
+        bool showDerivedResultsFirstInList = false;
+        {
+            RimEclipseFaultColors* rimEclipseFaultColors = nullptr;
+            this->firstAncestorOrThisOfType(rimEclipseFaultColors);
+
+            if (rimEclipseFaultColors) showDerivedResultsFirstInList = true;
+        }
+
+        foreach(QString s, cellFaceResultNames)
+        {
+            if (showDerivedResultsFirstInList)
+            {
+                optionList.push_front(caf::PdmOptionItemInfo(s, s));
+            }
+            else
+            {
+                optionList.push_back(caf::PdmOptionItemInfo(s, s));
+            }
+        }
+
+        optionList.push_front(caf::PdmOptionItemInfo(RiaDefines::undefinedResultName(), RiaDefines::undefinedResultName()));
+
+        // Remove Per Cell Face options
+        {
+            RimPlotCurve* curve = nullptr;
+            this->firstAncestorOrThisOfType(curve);
+
+            RimEclipsePropertyFilter* propFilter = nullptr;
+            this->firstAncestorOrThisOfType(propFilter);
+
+            RimCellEdgeColors* cellEdge = nullptr;
+            this->firstAncestorOrThisOfType(cellEdge);
+
+            if (propFilter || curve || cellEdge)
+            {
+                removePerCellFaceOptionItems(optionList);
+            }
+        }
+
+        return optionList;
+    }
+
+    return QList<caf::PdmOptionItemInfo>();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QList<caf::PdmOptionItemInfo> RimEclipseResultDefinition::calcOptionsForSelectedTracerField(bool injector)
+{
+    QList<caf::PdmOptionItemInfo> options;
+
+    RimFlowDiagSolution* flowSol = m_flowSolutionUiField();
+    if (flowSol)
+    {
+        std::set<QString, TracerComp> sortedTracers = setOfTracersOfType(injector);
+
+        for (const QString& tracerName : sortedTracers)
+        {
+            QString postfix;
+            RimFlowDiagSolution::TracerStatusType status = flowSol->tracerStatusOverall(tracerName);
+            if (status == RimFlowDiagSolution::VARYING)
+            {
+                postfix = " [I/P]";
+            }
+            else if (status == RimFlowDiagSolution::UNDEFINED)
+            {
+                postfix = " [U]";
+            }
+            options.push_back(caf::PdmOptionItemInfo(tracerName + postfix, tracerName));
+        }
+    }
+    return options;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+caf::PdmOptionItemInfo RimEclipseResultDefinition::calcOptionForTimeOfFlightField()
+{
+    if (injectorTracersSelected() != NONE_SELECTED && producerTracersSelected() != NONE_SELECTED)
+    {
+        return caf::PdmOptionItemInfo("Residence Time (Average)", RIG_FLD_TOF_RESNAME);
+    }
+    else if (injectorTracersSelected() == ONE_SELECTED && producerTracersSelected() == NONE_SELECTED)
+    {
+        return caf::PdmOptionItemInfo("Forward Time Of Flight", RIG_FLD_TOF_RESNAME);
+    }
+    else if (injectorTracersSelected() == MULTIPLE_SELECTED && producerTracersSelected() == NONE_SELECTED)
+    {
+        return caf::PdmOptionItemInfo("Forward Time Of Flight (Average)", RIG_FLD_TOF_RESNAME);
+    }
+    else if (injectorTracersSelected() == NONE_SELECTED && producerTracersSelected() == ONE_SELECTED)
+    {
+        return caf::PdmOptionItemInfo("Reverse Time Of Flight", RIG_FLD_TOF_RESNAME);
+    }
+    else if (injectorTracersSelected() == NONE_SELECTED && producerTracersSelected() == MULTIPLE_SELECTED)
+    {
+        return caf::PdmOptionItemInfo("Reverse Time Of Flight (Average)", RIG_FLD_TOF_RESNAME);
+    }
+    return caf::PdmOptionItemInfo("Time Of Flight", RIG_FLD_TOF_RESNAME);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+caf::PdmOptionItemInfo RimEclipseResultDefinition::calcOptionForMaxFractionTracerField()
+{
+    if (injectorTracersSelected() == ONE_SELECTED && producerTracersSelected() == NONE_SELECTED)
+    {
+        return caf::PdmOptionItemInfo("Flooding Region", RIG_FLD_MAX_FRACTION_TRACER_RESNAME);
+    }
+    else if (injectorTracersSelected() == MULTIPLE_SELECTED && producerTracersSelected() == NONE_SELECTED)
+    {
+        return caf::PdmOptionItemInfo("Flooding Regions", RIG_FLD_MAX_FRACTION_TRACER_RESNAME);
+    }
+    else if (injectorTracersSelected() == NONE_SELECTED && producerTracersSelected() == ONE_SELECTED)
+    {
+        return caf::PdmOptionItemInfo("Drainage Region", RIG_FLD_MAX_FRACTION_TRACER_RESNAME);
+    }
+    else if (injectorTracersSelected() == NONE_SELECTED && producerTracersSelected() == MULTIPLE_SELECTED)
+    {
+        return caf::PdmOptionItemInfo("Drainage Regions", RIG_FLD_MAX_FRACTION_TRACER_RESNAME);
+    }
+    return caf::PdmOptionItemInfo("Drainage/Flooding Regions", RIG_FLD_MAX_FRACTION_TRACER_RESNAME);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QStringList RimEclipseResultDefinition::getResultNamesForCurrentUiResultType()
+{
+    if (m_resultTypeUiField() != RiaDefines::FLOW_DIAGNOSTICS)
+    {
+        RigCaseCellResultsData* cellResultsStorage = currentGridCellResults();
+
+        if (!cellResultsStorage) return QStringList();
+
+        return cellResultsStorage->resultNames(m_resultTypeUiField());
+    }
+    else
+    {
+        QStringList flowVars;
+        flowVars.push_back(RIG_FLD_TOF_RESNAME);
+        flowVars.push_back(RIG_FLD_CELL_FRACTION_RESNAME);
+        flowVars.push_back(RIG_FLD_MAX_FRACTION_TRACER_RESNAME);
+        flowVars.push_back(RIG_FLD_COMMUNICATION_RESNAME);
+        return flowVars;
     }
 }
 
@@ -1461,6 +1486,33 @@ std::vector<QString> RimEclipseResultDefinition::allTracerNames() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::set<QString, RimEclipseResultDefinition::TracerComp> RimEclipseResultDefinition::setOfTracersOfType(bool injector) const
+{
+    std::set<QString, TracerComp> sortedTracers;
+
+    RimFlowDiagSolution* flowSol = m_flowSolutionUiField();
+    if (flowSol)
+    {
+        std::vector<QString> tracerNames = allTracerNames();
+        for (const QString& tracerName : tracerNames)
+        {
+            RimFlowDiagSolution::TracerStatusType status = flowSol->tracerStatusOverall(tracerName);
+            bool includeTracer = status == RimFlowDiagSolution::VARYING || status == RimFlowDiagSolution::UNDEFINED;
+            includeTracer |= injector && status == RimFlowDiagSolution::INJECTOR;
+            includeTracer |= !injector && status == RimFlowDiagSolution::PRODUCER;
+
+            if (includeTracer)
+            {             
+                sortedTracers.insert(tracerName);
+            }
+        }
+    }
+    return sortedTracers;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RimEclipseResultDefinition::FlowTracerSelectionNumbers RimEclipseResultDefinition::injectorTracersSelected() const
 {
     if (m_flowTracerSelectionMode == FLOW_TR_INJECTORS || m_flowTracerSelectionMode == FLOW_TR_INJ_AND_PROD)
@@ -1503,4 +1555,92 @@ RimEclipseResultDefinition::FlowTracerSelectionNumbers RimEclipseResultDefinitio
     }
     return NONE_SELECTED;
 
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseResultDefinition::syncInjectorToProducerSelection()
+{
+    const double epsilon = 1.0e-8;
+
+    int timeStep = 0;
+
+    Rim3dView* rimView = nullptr;
+    this->firstAncestorOrThisOfType(rimView);
+    if (rimView)
+    {
+        timeStep = rimView->currentTimeStep();
+    }
+
+    RimFlowDiagSolution* flowSol = m_flowSolution();
+    if (flowSol && m_flowTracerSelectionMode == FLOW_TR_BY_SELECTION)
+    {
+        std::set<QString, TracerComp> producers = setOfTracersOfType(false);
+        
+        std::set<QString, TracerComp> newProducerSelection;
+        for (const QString& selectedInjector : m_selectedInjectorTracers())
+        {
+            for (const QString& producer : producers)
+            {
+                std::pair<double, double> commFluxes = flowSol->flowDiagResults()->injectorProducerPairFluxes(
+                    selectedInjector.toStdString(), producer.toStdString(), timeStep);
+                if (std::abs(commFluxes.first) > epsilon || std::abs(commFluxes.second) > epsilon)
+                {
+                    newProducerSelection.insert(producer);
+                }
+            }
+        }
+        // Add all currently selected producers to set
+        for (const QString& selectedProducer : m_selectedProducerTracers())
+        {
+            newProducerSelection.insert(selectedProducer);
+        }
+        std::vector<QString> newProducerVector(newProducerSelection.begin(), newProducerSelection.end());
+        setSelectedProducerTracers(newProducerVector);
+    } 
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseResultDefinition::syncProducerToInjectorSelection()
+{
+    const double epsilon = 1.0e-8;
+
+    int timeStep = 0;
+
+    Rim3dView* rimView = nullptr;
+    this->firstAncestorOrThisOfType(rimView);
+    if (rimView)
+    {
+        timeStep = rimView->currentTimeStep();
+    }
+
+    RimFlowDiagSolution* flowSol = m_flowSolution();
+    if (flowSol && m_flowTracerSelectionMode == FLOW_TR_BY_SELECTION)
+    {
+        std::set<QString, TracerComp> injectors = setOfTracersOfType(true);
+
+        std::set<QString, TracerComp> newInjectorSelection;
+        for (const QString& selectedProducer : m_selectedProducerTracers())
+        {
+            for (const QString& injector : injectors)
+            {
+                std::pair<double, double> commFluxes = flowSol->flowDiagResults()->injectorProducerPairFluxes(
+                    injector.toStdString(), selectedProducer.toStdString(), timeStep);
+                if (std::abs(commFluxes.first) > epsilon || std::abs(commFluxes.second) > epsilon)
+                {
+                    newInjectorSelection.insert(injector);
+                }
+            }
+        }
+        // Add all currently selected injectors to set
+        for (const QString& selectedInjector : m_selectedInjectorTracers())
+        {
+            newInjectorSelection.insert(selectedInjector);
+        }
+        std::vector<QString> newInjectorVector(newInjectorSelection.begin(), newInjectorSelection.end());
+        setSelectedInjectorTracers(newInjectorVector);
+    }
 }

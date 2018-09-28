@@ -77,6 +77,7 @@ void PdmUiToolButtonEditor::configureAndUpdateUi(const QString& uiConfigName)
     }
     bool isCheckable = attributes.m_checkable;
     m_toolButton->setCheckable(isCheckable);
+    m_toolButton->setSizePolicy(attributes.m_sizePolicy);
 
     QVariant variantFieldValue = uiField()->uiValue();
     if (isCheckable)

@@ -56,6 +56,7 @@ public:
 
 public:
     bool m_checkable;
+    QSizePolicy m_sizePolicy;
 };
 
 

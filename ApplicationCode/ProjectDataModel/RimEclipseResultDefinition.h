@@ -126,7 +126,7 @@ protected:
     caf::PdmField< caf::AppEnum< RiaDefines::PorosityModelType > >  m_porosityModel;
     caf::PdmField<QString>                                          m_resultVariable;
 
-    caf::PdmPtrField<RimFlowDiagSolution*>                          m_flowSolution;    
+    caf::PdmPtrField<RimFlowDiagSolution*>                          m_flowSolution;
     caf::PdmField<std::vector<QString> >                            m_selectedInjectorTracers;
     caf::PdmField<std::vector<QString> >                            m_selectedProducerTracers;
     caf::PdmField<std::vector<QString> >                            m_selectedSouringTracers;
@@ -145,6 +145,8 @@ protected:
     caf::PdmPtrField<RimFlowDiagSolution*>                          m_flowSolutionUiField;
     caf::PdmField< RigFlowDiagResultAddress::PhaseSelectionEnum >   m_phaseSelection;
     
+    caf::PdmField<bool>                                             m_syncInjectorToProducerSelection;
+    caf::PdmField<bool>                                             m_syncProducerToInjectorSelection;
     caf::PdmField<std::vector<QString> >                            m_selectedInjectorTracersUiField;
     caf::PdmField<std::vector<QString> >                            m_selectedProducerTracersUiField;
 
@@ -154,8 +156,13 @@ protected:
     caf::PdmPointer<RimEclipseCase>                                 m_eclipseCase;
 
     caf::PdmField<std::vector<QString> >                            m_selectedTracers_OBSOLETE;
-
 private:
+    struct TracerComp
+    {
+        bool operator()(const QString& lhs, const QString& rhs) const;
+    };
+
+private:    
     void                            assignFlowSolutionFromCase();
 
     bool                            hasDualPorFractureResult();
@@ -170,8 +177,11 @@ private:
     static void                     removePerCellFaceOptionItems(QList<caf::PdmOptionItemInfo>& optionItems);
 
     std::vector<QString>            allTracerNames() const;
+    std::set<QString, TracerComp>   setOfTracersOfType(bool injector) const;
     
     FlowTracerSelectionNumbers      injectorTracersSelected() const;
     FlowTracerSelectionNumbers      producerTracersSelected() const;
+    void                            syncInjectorToProducerSelection();
+    void                            syncProducerToInjectorSelection();
 };
 
