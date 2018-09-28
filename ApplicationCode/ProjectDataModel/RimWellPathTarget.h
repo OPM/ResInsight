@@ -24,6 +24,7 @@
 #include "cafAppEnum.h"
 #include "cafPdmField.h"
 #include "cafPdmCoreVec3d.h"
+#include "RiaLineArcWellPathCalculator.h"
 
 class RimWellPathTarget : public caf::PdmObject
 {
@@ -37,6 +38,8 @@ public:
     void setAsPointTargetXYD(const cvf::Vec3d& point);
     void setAsPointXYZAndTangentTarget(const cvf::Vec3d& point, double azimuth, double inclination);
     void setDerivedTangent(double azimuth, double inclination);
+
+    RiaLineArcWellPathCalculator::WellTarget wellTargetData();
 
     enum TargetTypeEnum { POINT_AND_TANGENT, POINT };
     TargetTypeEnum targetType() const;

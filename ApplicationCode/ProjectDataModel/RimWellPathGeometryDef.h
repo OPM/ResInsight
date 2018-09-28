@@ -26,6 +26,7 @@
 #include "cafPdmPtrField.h"
 #include "cafPdmChildArrayField.h"
 #include "RiaWellPlanCalculator.h"
+#include "RiaLineArcWellPathCalculator.h"
 
 
 class RimWellPath;
@@ -88,8 +89,7 @@ private:
     void                            initAfterRead() override;
     QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
 
-    std::vector<cvf::Vec3d>         lineArcEndpoints() const;
-    cvf::Vec3d                      startTangent() const;
+    RiaLineArcWellPathCalculator    lineArcWellPathCalculator() const;
 
 private:
     caf::PdmField<cvf::Vec3d>                        m_referencePointUtmXyd;

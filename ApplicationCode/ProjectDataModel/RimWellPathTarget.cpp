@@ -92,6 +92,23 @@ void RimWellPathTarget::setDerivedTangent(double azimuth, double inclination)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+RiaLineArcWellPathCalculator::WellTarget RimWellPathTarget::wellTargetData()
+{
+    RiaLineArcWellPathCalculator::WellTarget targetData;
+    
+    targetData.targetPointXYZ = targetPointXYZ();
+    targetData.isTangentConstrained = (targetType() == POINT_AND_TANGENT);
+    targetData.azimuth = azimuth();
+    targetData.inclination = inclination();
+    targetData.radius1 = radius1();
+    targetData.radius2 = radius2();
+
+    return targetData;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 RimWellPathTarget::TargetTypeEnum RimWellPathTarget::targetType() const
 {
     return m_targetType();
@@ -159,6 +176,8 @@ double RimWellPathTarget::radius1() const
     // Degrees pr 10m
 
     // Degrees pr 30m
+    if (fabs(m_dogleg1) < 1e-6) return std::numeric_limits<double>::infinity();
+
     return 30.0/cvf::Math::toRadians(m_dogleg1);
 }
 
@@ -172,6 +191,9 @@ double RimWellPathTarget::radius2() const
     // Degrees pr 10m
 
     // Degrees pr 30m
+
+    if (fabs(m_dogleg2) < 1e-6) return std::numeric_limits<double>::infinity();
+
     return 30.0/cvf::Math::toRadians(m_dogleg2);
 }
 

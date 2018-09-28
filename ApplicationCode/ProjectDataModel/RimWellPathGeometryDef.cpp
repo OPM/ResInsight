@@ -128,9 +128,12 @@ cvf::ref<RigWellPath> RimWellPathGeometryDef::createWellPathGeometry()
 {
     cvf::ref<RigWellPath> wellPathGeometry = new RigWellPath; 
     
-    if (activeWellTargets().size() < 2) return wellPathGeometry;
+    RiaLineArcWellPathCalculator wellPathCalculator = lineArcWellPathCalculator();
 
-    RiaPolyArcLineSampler arcLineSampler(startTangent(),  lineArcEndpoints());
+    if (wellPathCalculator.lineArcEndpoints().size() < 2) return wellPathGeometry;
+
+    RiaPolyArcLineSampler arcLineSampler(wellPathCalculator.startTangent(),  wellPathCalculator.lineArcEndpoints());
+
 
     arcLineSampler.sampledPointsAndMDs(30,
                                          false,
@@ -144,7 +147,10 @@ cvf::ref<RigWellPath> RimWellPathGeometryDef::createWellPathGeometry()
 //--------------------------------------------------------------------------------------------------
 std::vector<RiaWellPlanCalculator::WellPlanSegment> RimWellPathGeometryDef::wellPlan() const
 {
-    RiaWellPlanCalculator wpCalc(startTangent(),  lineArcEndpoints());
+    RiaLineArcWellPathCalculator wellPathCalculator = lineArcWellPathCalculator();
+
+    RiaWellPlanCalculator wpCalc(wellPathCalculator.startTangent(),  wellPathCalculator.lineArcEndpoints());
+
     return wpCalc.wellPlan();
 }
 
@@ -375,6 +381,7 @@ std::vector<RimWellPathTarget*> RimWellPathGeometryDef::activeWellTargets() cons
     return active;
 }
 
+#if 0 // Kept for reference a bit longer
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -528,21 +535,47 @@ std::vector<cvf::Vec3d> RimWellPathGeometryDef::lineArcEndpoints() const
     return endPoints;
 }
 
+#endif
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-cvf::Vec3d RimWellPathGeometryDef::startTangent() const
+RiaLineArcWellPathCalculator RimWellPathGeometryDef::lineArcWellPathCalculator() const
 {
-    std::vector<RimWellPathTarget*> wellTargets = activeWellTargets();
+    std::vector<RimWellPathTarget*>  wellTargets = activeWellTargets();
 
-    if (!wellTargets.empty() && wellTargets[0]->targetType() == RimWellPathTarget::POINT_AND_TANGENT)
+    std::vector< RiaLineArcWellPathCalculator::WellTarget> targetDatas;
+
+    for (auto wellTarget : wellTargets)
     {
-        return wellTargets[0]->tangent();
+        targetDatas.push_back(wellTarget->wellTargetData());
     }
-    else
+
+    RiaLineArcWellPathCalculator wellPathCalculator(referencePointXyz(), targetDatas);
+    const std::vector<RiaLineArcWellPathCalculator::WellTargetStatus>& targetStatuses = wellPathCalculator.targetStatuses();
+
+    for ( size_t tIdx = 0 ; tIdx < wellTargets.size(); ++tIdx )
     {
-        return { 0, 0, -1 };
+        wellTargets[tIdx]->flagRadius1AsIncorrect(false, 0 );
+        wellTargets[tIdx]->flagRadius2AsIncorrect(false, 0 );
+
+        if ( targetStatuses[tIdx].hasDerivedTangent )
+        {
+            wellTargets[tIdx]->setDerivedTangent(targetStatuses[tIdx].resultAzimuth, targetStatuses[tIdx].resultInclination);
+        }
+
+        if ( targetStatuses[tIdx].hasOverriddenRadius1 )
+        {
+            wellTargets[tIdx]->flagRadius1AsIncorrect(true, targetStatuses[tIdx].resultRadius1);
+        }
+
+        if ( targetStatuses[tIdx].hasOverriddenRadius2 )
+        {
+            wellTargets[tIdx]->flagRadius2AsIncorrect(true, targetStatuses[tIdx].resultRadius2);
+        }
     }
+
+    return wellPathCalculator;
 }
 
 //--------------------------------------------------------------------------------------------------
