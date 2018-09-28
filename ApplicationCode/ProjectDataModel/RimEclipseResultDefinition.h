@@ -57,11 +57,12 @@ public:
     };
     typedef caf::AppEnum<RimEclipseResultDefinition::FlowTracerSelectionType> FlowTracerSelectionEnum;
 
-    enum FlowTracerSelectionNumbers
+    enum FlowTracerSelectionState
     {
         NONE_SELECTED,
         ONE_SELECTED,
-        MULTIPLE_SELECTED
+        MULTIPLE_SELECTED,
+        ALL_SELECTED
     };
 
 public:
@@ -169,8 +170,8 @@ private:
 
     QList<caf::PdmOptionItemInfo>   calcOptionsForVariableUiFieldStandard();
     QList<caf::PdmOptionItemInfo>   calcOptionsForSelectedTracerField(bool injector);
-    caf::PdmOptionItemInfo          calcOptionForTimeOfFlightField();
-    caf::PdmOptionItemInfo          calcOptionForMaxFractionTracerField();
+    caf::PdmOptionItemInfo          calcTimeOfFlightOptionItem();
+    caf::PdmOptionItemInfo          calcMaxFractionTracerOptionItem();
 
     void                            changedTracerSelectionField(bool injector);
     QStringList                     getResultNamesForCurrentUiResultType();
@@ -179,8 +180,9 @@ private:
     std::vector<QString>            allTracerNames() const;
     std::set<QString, TracerComp>   setOfTracersOfType(bool injector) const;
     
-    FlowTracerSelectionNumbers      injectorTracersSelected() const;
-    FlowTracerSelectionNumbers      producerTracersSelected() const;
+    FlowTracerSelectionState        injectorSelectionState() const;
+    FlowTracerSelectionState        producerSelectionState() const;
+    
     void                            syncInjectorToProducerSelection();
     void                            syncProducerToInjectorSelection();
 };
