@@ -219,6 +219,14 @@ bool caf::PdmUiTreeSelectionQModel::isChecked(const QModelIndex& index) const
 }
 
 //--------------------------------------------------------------------------------------------------
+/// Checks if this is a real tree with grand children or just a list of children.
+//--------------------------------------------------------------------------------------------------
+bool caf::PdmUiTreeSelectionQModel::hasGrandChildren() const
+{
+    return m_tree && m_tree->hasGrandChildren();
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 const caf::PdmOptionItemInfo* caf::PdmUiTreeSelectionQModel::optionItem(const QModelIndex &index) const

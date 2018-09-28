@@ -74,6 +74,8 @@ public:
     bool                    isReadOnly(const QModelIndex& index) const;
     bool                    isChecked(const QModelIndex& index) const;
 
+    bool                    hasGrandChildren() const;
+
     virtual Qt::ItemFlags   flags(const QModelIndex &index) const override;
     virtual QModelIndex     index(int row, int column, const QModelIndex &parent = QModelIndex()) const override;
     virtual int             columnCount(const QModelIndex &parent = QModelIndex()) const override;
@@ -83,8 +85,8 @@ public:
     virtual bool            setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole) override;
 
     // Consider moving these functions to PdmUiFieldHandle
-    static bool                            isSingleValueField(const QVariant& fieldValue);
-    static bool                            isMultipleValueField(const QVariant& fieldValue);
+    static bool             isSingleValueField(const QVariant& fieldValue);
+    static bool             isMultipleValueField(const QVariant& fieldValue);
 
 private:
     typedef caf::UiTreeItem<int> TreeItemType;

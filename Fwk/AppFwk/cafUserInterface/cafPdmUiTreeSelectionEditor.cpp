@@ -332,7 +332,9 @@ void PdmUiTreeSelectionEditor::configureAndUpdateUi(const QString& uiConfigName)
             }
         }
     }
-    
+    // If the tree doesn't have grand children we treat this as a straight list
+    m_treeView->setRootIsDecorated(m_model->hasGrandChildren());
+
     m_model->resetUiValueCache();
 }
 
