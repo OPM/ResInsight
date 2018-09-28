@@ -55,7 +55,7 @@ RiaJCurveCalculator::RiaJCurveCalculator(cvf::Vec3d p1, double azi1, double inc1
     cvf::Vec3d p2c1 = c1 - p2;
 
     double p2c1Length = p2c1.length();
-    if (p2c1Length < r1)
+    if (p2c1Length < r1 || r1 == std::numeric_limits<double>::infinity())
     {
         // Radius is too big. We can not get to point 2 using the requested radius.
         m_curveStatus = FAILED_RADIUS_TOO_LARGE; 
