@@ -104,14 +104,6 @@ RicExportCompletionDataSettingsUi::RicExportCompletionDataSettingsUi()
     CAF_PDM_InitField(&transScalingWBHP, "TransScalingWBHP", 200.0, "  PDD Default WBHP Value (BETA)", "", "", "");
     CAF_PDM_InitField(&transScalingSummaryWBHP, "TransScalingWBHPFromCurrentTime", true, "  PDD WBHP from Summary File at Current Time (BETA)", "", "", "");
 
-    CAF_PDM_InitField(&m_includeFracturesSummaryHeader,
-                      "IncludeFracturesSummaryHeader",
-                      false,
-                      "  Append Detailed Text Summary (BETA)",
-                      "",
-                      "",
-                      "");
-
     CAF_PDM_InitField(&excludeMainBoreForFishbones,
                       "ExcludeMainBoreForFishbones",
                       false,
@@ -184,14 +176,6 @@ void RicExportCompletionDataSettingsUi::showFishbonesInUi(bool enable)
 bool RicExportCompletionDataSettingsUi::reportCompletionsTypesIndividually() const
 {
     return m_reportCompletionTypesSeparately() == INDIVIDUALLY;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RicExportCompletionDataSettingsUi::includeFracturesSummaryHeader() const
-{
-    return m_includeFracturesSummaryHeader;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -282,8 +266,6 @@ void RicExportCompletionDataSettingsUi::defineUiOrdering(QString uiConfigName, c
 
             if (RiaApplication::enableDevelopmentFeatures())
             {
-                group->add(&m_includeFracturesSummaryHeader);
-
                 group->add(&transScalingType);
                 group->add(&transScalingCorrection);
                 group->add(&transScalingTimeStep);
@@ -298,7 +280,6 @@ void RicExportCompletionDataSettingsUi::defineUiOrdering(QString uiConfigName, c
 
             // Set visibility
             includeFractures.uiCapability()->setUiHidden(compdatExport == WPIMULT_AND_DEFAULT_CONNECTION_FACTORS && !includeMsw);
-            m_includeFracturesSummaryHeader.uiCapability()->setUiHidden(compdatExport == WPIMULT_AND_DEFAULT_CONNECTION_FACTORS);
         }
 
         if (!m_displayForSimWell)

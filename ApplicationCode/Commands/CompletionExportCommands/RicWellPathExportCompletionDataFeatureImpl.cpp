@@ -219,11 +219,8 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions(const std::ve
 
             if (exportSettings.includeFractures())
             {
-                std::vector<RicWellPathFractureReportItem>* reportItems = nullptr;
-                if (exportSettings.includeFracturesSummaryHeader())
-                {
-                    reportItems = &fractureDataReportItems;
-                }
+                // If no report is wanted, set reportItems = nullptr
+                std::vector<RicWellPathFractureReportItem>* reportItems = &fractureDataReportItems;
 
                 std::vector<RigCompletionData> fractureCompletionData =
                     RicExportFractureCompletionsImpl::generateCompdatValuesForWellPath(

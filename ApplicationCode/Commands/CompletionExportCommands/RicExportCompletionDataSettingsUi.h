@@ -90,7 +90,6 @@ public:
     void                                    showFishbonesInUi(bool enable);
 
     bool                                    reportCompletionsTypesIndividually() const;
-    bool                                    includeFracturesSummaryHeader() const;
 
     virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
 
@@ -100,7 +99,6 @@ protected:
 
 private:
     caf::PdmField<CombinationModeType>  m_reportCompletionTypesSeparately;
-    caf::PdmField<bool>                 m_includeFracturesSummaryHeader;
 
     bool                m_displayForSimWell;
     bool                m_fracturesEnabled;
