@@ -75,14 +75,6 @@ const std::vector<double>& RigEclipseToStimPlanCellTransmissibilityCalculator::c
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::vector<double>& RigEclipseToStimPlanCellTransmissibilityCalculator::contributingEclipseCellAreas() const
-{
-    return m_contributingEclipseCellAreas;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 double RigEclipseToStimPlanCellTransmissibilityCalculator::areaOpenForFlow() const
 {
     double area = 0.0;

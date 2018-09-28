@@ -55,7 +55,6 @@ RigEclipseToStimPlanCalculator::RigEclipseToStimPlanCalculator(const RimEclipseC
     , m_fractureGrid(fractureGrid)
     , m_fracture(fracture)
 {
-
     computeValues();
 }
 
@@ -71,8 +70,13 @@ void RigEclipseToStimPlanCalculator::computeValues()
         const RigFractureCell& fractureCell = m_fractureGrid.fractureCells()[i];
         if (!fractureCell.hasNonZeroConductivity()) continue;
 
-        RigEclipseToStimPlanCellTransmissibilityCalculator eclToFractureTransCalc(
-            m_case, m_fractureTransform, m_fractureSkinFactor, m_cDarcy, fractureCell, reservoirCellIndicesOpenForFlow, m_fracture);
+        RigEclipseToStimPlanCellTransmissibilityCalculator eclToFractureTransCalc(m_case,
+                                                                                  m_fractureTransform,
+                                                                                  m_fractureSkinFactor,
+                                                                                  m_cDarcy,
+                                                                                  fractureCell,
+                                                                                  reservoirCellIndicesOpenForFlow,
+                                                                                  m_fracture);
 
         const std::vector<size_t>& fractureCellContributingEclipseCells =
             eclToFractureTransCalc.globalIndiciesToContributingEclipseCells();
@@ -121,7 +125,7 @@ void RigEclipseToStimPlanCalculator::appendDataToTransmissibilityCondenser(bool 
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 double RigEclipseToStimPlanCalculator::totalEclipseAreaOpenForFlow() const
 {
@@ -129,16 +133,12 @@ double RigEclipseToStimPlanCalculator::totalEclipseAreaOpenForFlow() const
 
     for (const auto& singleCellCalc : m_singleFractureCellCalculators)
     {
-        const auto& cellAreas = singleCellCalc.second.contributingEclipseCellAreas();
+        double cellArea = singleCellCalc.second.areaOpenForFlow();
 
-        for (const auto& cellArea : cellAreas)
-        {
-            area += cellArea;
-        }
+        area += cellArea;
     }
 
     return area;
-
 }
 
 //--------------------------------------------------------------------------------------------------

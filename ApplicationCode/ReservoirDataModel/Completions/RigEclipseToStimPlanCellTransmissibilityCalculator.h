@@ -54,7 +54,6 @@ public:
     // These three vectors have the same size
     const std::vector<size_t>& globalIndiciesToContributingEclipseCells() const;
     const std::vector<double>& contributingEclipseCellTransmissibilities() const;
-    const std::vector<double>& contributingEclipseCellAreas() const;
 
     double areaOpenForFlow() const;
     double aggregatedMatrixTransmissibility() const;
