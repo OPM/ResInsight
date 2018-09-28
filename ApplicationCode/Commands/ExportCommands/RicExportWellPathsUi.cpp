@@ -46,6 +46,14 @@ RicExportWellPathsUi::RicExportWellPathsUi()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RicExportWellPathsUi::setExportFolder(const QString& exportFolder)
+{
+    m_exportFolder = exportFolder;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RicExportWellPathsUi::setMdStepSize(double mdStepSize)
 {
     m_mdStepSize = mdStepSize;
@@ -66,28 +74,6 @@ double RicExportWellPathsUi::mdStepSize() const
 {
     return m_mdStepSize;
 }
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-//QList<caf::PdmOptionItemInfo> RicExportWellPathsUi::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions,
-//                                                                                 bool*                      useOptionsOnly)
-//{
-//    QList<caf::PdmOptionItemInfo> options;
-//
-//    if (fieldNeedingOptions == &m_mdStepSize)
-//    {
-//        std::vector<RimGridView*> visibleViews;
-//        RiaApplication::instance()->project()->allVisibleGridViews(visibleViews);
-//
-//        for (RimGridView* v : visibleViews)
-//        {
-//            RiaOptionItemFactory::appendOptionItemFromViewNameAndCaseName(v, &options);
-//        }
-//    }
-//
-//    return options;
-//}
 
 //--------------------------------------------------------------------------------------------------
 ///

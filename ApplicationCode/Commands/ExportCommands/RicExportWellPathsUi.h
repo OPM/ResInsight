@@ -34,14 +34,13 @@ class RicExportWellPathsUi : public caf::PdmObject
 public:
     RicExportWellPathsUi();
 
+    void setExportFolder(const QString& exportFolder);
     void setMdStepSize(double mdStepSize);
 
     QString      exportFolder() const;
     double       mdStepSize() const;
 
 private:
-    //QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions,
-    //                                                    bool*                      useOptionsOnly) override;
     void                          defineEditorAttribute(const caf::PdmFieldHandle* field,
                                                         QString                    uiConfigName,
                                                         caf::PdmUiEditorAttribute* attribute) override;

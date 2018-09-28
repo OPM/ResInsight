@@ -172,6 +172,7 @@ RicExportWellPathsUi* RicExportSelectedWellPathsFeature::openDialog()
     }
 
     RicExportWellPathsUi* featureUi = app->project()->dialogData()->wellPathsExportData();
+    featureUi->setExportFolder(startPath);
 
     caf::PdmUiPropertyViewDialog propertyDialog(nullptr, featureUi, "Export Well Paths", "", QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
     propertyDialog.resize(QSize(600, 60));
