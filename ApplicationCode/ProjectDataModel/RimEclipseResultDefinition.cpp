@@ -42,6 +42,7 @@
 #include "RimWellLogExtractionCurve.h"
 
 #include "cafPdmUiListEditor.h"
+#include "cafPdmUiTreeSelectionEditor.h"
 #include "cafUtils.h"
 
 #include <QList>
@@ -87,10 +88,10 @@ RimEclipseResultDefinition::RimEclipseResultDefinition()
     CAF_PDM_InitFieldNoDefault(&m_selectedTracers_OBSOLETE, "SelectedTracers", "Tracers", "", "", "");
     m_selectedTracers_OBSOLETE.uiCapability()->setUiHidden(true);
 
-    CAF_PDM_InitFieldNoDefault(&m_selectedInjectorTracers, "SelectedInjectorTracers", "Tracers", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_selectedInjectorTracers, "SelectedInjectorTracers", "Injector Tracers", "", "", "");
     m_selectedInjectorTracers.uiCapability()->setUiHidden(true);
 
-    CAF_PDM_InitFieldNoDefault(&m_selectedProducerTracers, "SelectedProducerTracers", "Tracers", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_selectedProducerTracers, "SelectedProducerTracers", "Producer Tracers", "", "", "");
     m_selectedProducerTracers.uiCapability()->setUiHidden(true);
 
 
@@ -121,27 +122,22 @@ RimEclipseResultDefinition::RimEclipseResultDefinition()
     m_flowSolutionUiField.xmlCapability()->setIOWritable(false);
     m_flowSolutionUiField.uiCapability()->setUiHidden(true); // For now since there are only one to choose from
  
-    CAF_PDM_InitField(&m_selectAllInjectorTracers, "MSelectAllInjectorTracers", false, "Injectors, All ", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_selectedInjectorTracersUiField, "MSelectedInjectorTracers", "Injector Tracers", "", "", "");
     m_selectedInjectorTracersUiField.xmlCapability()->setIOReadable(false);
     m_selectedInjectorTracersUiField.xmlCapability()->setIOWritable(false);
-    m_selectedInjectorTracersUiField.uiCapability()->setUiEditorTypeName(caf::PdmUiListEditor::uiEditorTypeName());
+    m_selectedInjectorTracersUiField.uiCapability()->setUiEditorTypeName(caf::PdmUiTreeSelectionEditor::uiEditorTypeName());
     m_selectedInjectorTracersUiField.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
-
-    CAF_PDM_InitField(&m_selectAllProducerTracers, "MSelectAllProducerTracers", false, "Producers, All ", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_selectedProducerTracersUiField, "MSelectedProducerTracers", "Producer Tracers", "", "", "");
     m_selectedProducerTracersUiField.xmlCapability()->setIOReadable(false);
     m_selectedProducerTracersUiField.xmlCapability()->setIOWritable(false);
-    m_selectedProducerTracersUiField.uiCapability()->setUiEditorTypeName(caf::PdmUiListEditor::uiEditorTypeName());
+    m_selectedProducerTracersUiField.uiCapability()->setUiEditorTypeName(caf::PdmUiTreeSelectionEditor::uiEditorTypeName());
     m_selectedProducerTracersUiField.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
 
     CAF_PDM_InitFieldNoDefault(&m_selectedSouringTracersUiField, "MSelectedSouringTracers", "Tracers", "", "", "");
     m_selectedSouringTracersUiField.xmlCapability()->setIOReadable(false);
     m_selectedSouringTracersUiField.xmlCapability()->setIOWritable(false);
     m_selectedSouringTracersUiField.uiCapability()->setUiEditorTypeName(caf::PdmUiListEditor::uiEditorTypeName());
-
-    CAF_PDM_InitFieldNoDefault(&m_selectedTracersUiFieldFilter, "SelectedTracersFilter", "Filter", "", "", "");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -253,25 +249,20 @@ void RimEclipseResultDefinition::fieldChangedByUi(const caf::PdmFieldHandle* cha
         loadDataAndUpdate();
     }
 
-    if (&m_selectAllInjectorTracers == changedField)
+    if (&m_flowTracerSelectionMode == changedField)
     {
-        toggleAllTracersSelection(&m_selectAllInjectorTracers);
-    }
-    if (&m_selectAllProducerTracers == changedField)
-    {
-        toggleAllTracersSelection(&m_selectAllProducerTracers);
+        loadDataAndUpdate();
     }
 
-    if ( &m_selectedInjectorTracersUiField == changedField )
+
+    if (&m_selectedInjectorTracersUiField == changedField )
     {
         changedTracerSelectionField(true);
-        m_selectAllInjectorTracers = false;
     }
 
     if (&m_selectedProducerTracersUiField == changedField)
     {
         changedTracerSelectionField(false);
-        m_selectAllProducerTracers = false;
     }
 
 
@@ -295,51 +286,7 @@ void RimEclipseResultDefinition::fieldChangedByUi(const caf::PdmFieldHandle* cha
         loadDataAndUpdate();
     }
 
-    // TODO: Fix this to deal with the injector producer fields
-    if (&m_selectedTracersUiFieldFilter == changedField)
-    {
-        updateSelectedTracersFromFilter();
-    }
-
     updateAnyFieldHasChanged();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimEclipseResultDefinition::updateSelectedTracersFromFilter()
-{
-    auto visibleTracerNames = tracerNamesMatchingFilter();
-
-    {
-        std::vector<QString> subSelection;
-        // Remove hidden items from selection in injector tracers
-        for (auto selectedTracer : m_selectedInjectorTracers())
-        {
-            if (std::find(begin(visibleTracerNames), end(visibleTracerNames), selectedTracer) != end(visibleTracerNames))
-            {
-                subSelection.push_back(selectedTracer);
-            }
-        }
-
-        m_selectedInjectorTracersUiField = subSelection;
-    }
-
-    {
-        std::vector<QString> subSelection;
-        // Remove hidden items from selection in producer tracers
-        for (auto selectedTracer : m_selectedProducerTracers())
-        {
-            if (std::find(begin(visibleTracerNames), end(visibleTracerNames), selectedTracer) != end(visibleTracerNames))
-            {
-                subSelection.push_back(selectedTracer);
-            }
-        }
-
-        m_selectedProducerTracersUiField = subSelection;
-    }
-
-    updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -354,31 +301,7 @@ void RimEclipseResultDefinition::changedTracerSelectionField(bool injector)
     std::vector<QString>& selectedTracersUi = injector ? m_selectedInjectorTracersUiField.v()
                                                        : m_selectedProducerTracersUiField.v();
 
-    if (m_selectedTracersUiFieldFilter().isEmpty())
-    {
-        selectedTracers = selectedTracersUi;
-    }
-    else
-    {
-        auto filteredTracerNames = tracerNamesMatchingFilter();
-
-        // Keep selected strings not part of currently visible selection items
-        std::vector<QString> newSelection;
-        for (auto selectedTracer : selectedTracers)
-        {
-            if (std::find(begin(filteredTracerNames), end(filteredTracerNames), selectedTracer) == end(filteredTracerNames))
-            {
-                newSelection.push_back(selectedTracer);
-            }
-        }
-
-        for (auto selectedTracerUi : selectedTracersUi)
-        {
-            newSelection.push_back(selectedTracerUi);
-        }
-
-        selectedTracers = newSelection;
-    }
+    selectedTracers = selectedTracersUi;
 
     loadDataAndUpdate();
 }
@@ -797,7 +720,7 @@ QList<caf::PdmOptionItemInfo> RimEclipseResultDefinition::calcOptionsForSelected
     RimFlowDiagSolution* flowSol = m_flowSolutionUiField();
     if (flowSol)
     {
-        std::vector<QString> tracerNames = tracerNamesMatchingFilter();
+        std::vector<QString> tracerNames = allTracerNames();
         std::list<QString> sortedTracers;
 
         for (const QString& tracerName : tracerNames)
@@ -1445,14 +1368,11 @@ void RimEclipseResultDefinition::defineUiOrdering(QString uiConfigName, caf::Pdm
         {
             caf::PdmUiGroup* selectionGroup = uiOrdering.addNewGroup("Tracer Selection");
             selectionGroup->setEnableFrame(false);
-            selectionGroup->add(&m_selectedTracersUiFieldFilter);
             caf::PdmUiGroup* injectorGroup = selectionGroup->addNewGroup("Injectors");
-            injectorGroup->setEnableFrame(false);
-            injectorGroup->add(&m_selectAllInjectorTracers);            
+//            injectorGroup->setEnableFrame(false);
             injectorGroup->add(&m_selectedInjectorTracersUiField);
             caf::PdmUiGroup* producerGroup = selectionGroup->addNewGroup("Producers", false);
-            producerGroup->setEnableFrame(false);
-            producerGroup->add(&m_selectAllProducerTracers);
+//            producerGroup->setEnableFrame(false);
             producerGroup->add(&m_selectedProducerTracersUiField);
         }
 
@@ -1471,10 +1391,7 @@ void RimEclipseResultDefinition::defineUiOrdering(QString uiConfigName, caf::Pdm
 
     if (m_resultTypeUiField() == RiaDefines::FLOW_DIAGNOSTICS)
     {
-        if (injectorTracersSelected() != NONE_SELECTED || producerTracersSelected() != NONE_SELECTED)
-        {
-            uiOrdering.add(&m_resultVariableUiField);
-        }
+        uiOrdering.add(&m_resultVariableUiField);
     }
     else
     {
@@ -1528,58 +1445,17 @@ void RimEclipseResultDefinition::removePerCellFaceOptionItems(QList<caf::PdmOpti
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<QString> RimEclipseResultDefinition::tracerNamesMatchingFilter() const
+std::vector<QString> RimEclipseResultDefinition::allTracerNames() const
 {
-    std::vector<QString> matchingNames;
+    std::vector<QString> tracerNames;
 
     RimFlowDiagSolution* flowSol = m_flowSolutionUiField();
     if (flowSol)
     {
-        std::vector<QString> tracerNames = flowSol->tracerNames();
-        if (m_selectedTracersUiFieldFilter().isEmpty())
-        {
-            matchingNames = tracerNames;
-        }
-        else
-        {
-            for (const QString& tracerName : tracerNames)
-            {
-                if (caf::Utils::isStringMatch(m_selectedTracersUiFieldFilter, tracerName))
-                {
-                    matchingNames.push_back(tracerName);
-                }
-            }
-        }
+        tracerNames = flowSol->tracerNames();        
     }
 
-    return matchingNames;
-}
-
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimEclipseResultDefinition::toggleAllTracersSelection(const caf::PdmField<bool>* changedField)
-{
-    bool injector = &m_selectAllInjectorTracers == changedField;
-    std::vector<QString> tracerNames;
-    if (changedField->v())
-    {
-        QList<caf::PdmOptionItemInfo> options = calcOptionsForSelectedTracerField(injector);
-
-        for (const caf::PdmOptionItemInfo& itemInfo : options)
-        {
-            tracerNames.push_back(itemInfo.value().toString());
-        }
-    }
-    if (injector)
-    {
-        setSelectedInjectorTracers(tracerNames);
-    }
-    else
-    {
-        setSelectedProducerTracers(tracerNames);
-    }
+    return tracerNames;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1593,11 +1469,11 @@ RimEclipseResultDefinition::FlowTracerSelectionNumbers RimEclipseResultDefinitio
     }
     else if (m_flowTracerSelectionMode == FLOW_TR_BY_SELECTION)
     {
-        if (m_selectedInjectorTracers().size() == 1)
+        if (m_selectedInjectorTracers().size() == (size_t) 1)
         {
             return ONE_SELECTED;
         }
-        else if (m_selectedInjectorTracers().size() > 1)
+        else if (m_selectedInjectorTracers().size() > (size_t) 1)
         {
             return MULTIPLE_SELECTED;
         }
@@ -1616,11 +1492,11 @@ RimEclipseResultDefinition::FlowTracerSelectionNumbers RimEclipseResultDefinitio
     }
     else if (m_flowTracerSelectionMode == FLOW_TR_BY_SELECTION)
     {
-        if (m_selectedProducerTracers().size() == 1)
+        if (m_selectedProducerTracers().size() == (size_t) 1)
         {
             return ONE_SELECTED;
         }
-        else if (m_selectedProducerTracers().size() > 1)
+        else if (m_selectedProducerTracers().size() > (size_t) 1)
         {
             return MULTIPLE_SELECTED;
         }

@@ -127,8 +127,6 @@ protected:
     caf::PdmField<QString>                                          m_resultVariable;
 
     caf::PdmPtrField<RimFlowDiagSolution*>                          m_flowSolution;    
-    caf::PdmField<bool>                                             m_selectAllInjectorTracers;
-    caf::PdmField<bool>                                             m_selectAllProducerTracers;
     caf::PdmField<std::vector<QString> >                            m_selectedInjectorTracers;
     caf::PdmField<std::vector<QString> >                            m_selectedProducerTracers;
     caf::PdmField<std::vector<QString> >                            m_selectedSouringTracers;
@@ -147,7 +145,6 @@ protected:
     caf::PdmPtrField<RimFlowDiagSolution*>                          m_flowSolutionUiField;
     caf::PdmField< RigFlowDiagResultAddress::PhaseSelectionEnum >   m_phaseSelection;
     
-    caf::PdmField<QString>                                          m_selectedTracersUiFieldFilter;
     caf::PdmField<std::vector<QString> >                            m_selectedInjectorTracersUiField;
     caf::PdmField<std::vector<QString> >                            m_selectedProducerTracersUiField;
 
@@ -168,14 +165,12 @@ private:
     caf::PdmOptionItemInfo          calcOptionForTimeOfFlightField();
     caf::PdmOptionItemInfo          calcOptionForMaxFractionTracerField();
 
-    void                            updateSelectedTracersFromFilter();
     void                            changedTracerSelectionField(bool injector);
     QStringList                     getResultNamesForCurrentUiResultType();
     static void                     removePerCellFaceOptionItems(QList<caf::PdmOptionItemInfo>& optionItems);
 
-    std::vector<QString>            tracerNamesMatchingFilter() const;
-    void                            toggleAllTracersSelection(const caf::PdmField<bool>* changedField);
-
+    std::vector<QString>            allTracerNames() const;
+    
     FlowTracerSelectionNumbers      injectorTracersSelected() const;
     FlowTracerSelectionNumbers      producerTracersSelected() const;
 };
