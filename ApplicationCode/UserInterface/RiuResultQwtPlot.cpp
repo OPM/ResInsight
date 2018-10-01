@@ -20,6 +20,7 @@
 #include "RiuResultQwtPlot.h"
 
 #include "RiaCurveDataTools.h"
+#include "RiaQDateTimeTools.h"
 
 #include "RimContextCommandBuilder.h"
 #include "RimCase.h"
@@ -214,7 +215,10 @@ QString RiuResultQwtPlot::asciiDataForUiSelectedCurves() const
                 }
             }
             out += "\n";
-            out += m_timeSteps.at(caseId)[i].toString("yyyy-MM-dd hh:mm:ss ");
+
+            QString dateString = RiaQDateTimeTools::toStringUsingApplicationLocale(m_timeSteps.at(caseId)[i], "yyyy-MM-dd hh:mm:ss ");
+
+            out += dateString;
 
             for (size_t j = 0; j < m_curveData.at(caseId).size(); j++) // curves
             {

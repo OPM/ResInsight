@@ -19,6 +19,7 @@
 #include "RimWellPlotTools.h"
 
 #include "RiaApplication.h"
+#include "RiaQDateTimeTools.h"
 #include "RiaWellNameComparer.h"
 
 #include "RifReaderEclipseRft.h"
@@ -31,6 +32,7 @@
 #include "RimEclipseResultCase.h"
 #include "RimOilField.h"
 #include "RimProject.h"
+#include "RimTools.h"
 #include "RimWellLogExtractionCurve.h"
 #include "RimWellLogFile.h"
 #include "RimWellLogFileChannel.h"
@@ -39,7 +41,6 @@
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 
-#include "RimTools.h"
 #include <regex>
 
 //--------------------------------------------------------------------------------------------------
@@ -986,7 +987,8 @@ void RimWellPlotTools::calculateValueOptionsForTimeSteps(
 
     for (const std::pair<QDateTime, std::set<RifDataSourceForRftPlt>>& timeStepPair : timestepsToShowWithSources)
     {
-        QString optionText = timeStepPair.first.toString(dateFormatString);
+        QString optionText = RiaQDateTimeTools::toStringUsingApplicationLocale(timeStepPair.first, dateFormatString);
+
         bool    hasObs     = false;
         bool    hasRft     = false;
         bool    hasGrid    = false;

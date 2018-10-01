@@ -20,6 +20,8 @@
 
 #include "Rim3dOverlayInfoConfig.h"
 
+#include "RiaQDateTimeTools.h"
+
 #include "RicGridStatisticsDialog.h"
 
 #include "RigCaseCellResultsData.h"
@@ -899,9 +901,12 @@ QString Rim3dOverlayInfoConfig::timeStepText(RimEclipseView* eclipseView)
     if (currTimeStepIndex >= 0 && currTimeStepIndex < (int)timeSteps.size())
     {
         QString dateFormat = RimTools::createTimeFormatStringFromDates(timeSteps);
+
+        QString dateString = RiaQDateTimeTools::toStringUsingApplicationLocale(timeSteps[currTimeStepIndex], dateFormat);
+
         dateTimeString = QString("Time Step: %1/%2  %3").arg(QString::number(currTimeStepIndex), 
                                                              QString::number(timeSteps.size() - 1),
-                                                             timeSteps[currTimeStepIndex].toString(dateFormat));
+                                                             dateString);
     }
 
     return QString("<p><b><center>-- %1 --</center></b>").arg(dateTimeString) +

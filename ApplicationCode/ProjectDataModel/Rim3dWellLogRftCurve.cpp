@@ -18,7 +18,10 @@
 
 #include "Rim3dWellLogRftCurve.h"
 
+#include "RiaQDateTimeTools.h"
+
 #include "RifReaderEclipseRft.h"
+
 #include "RigWellLogCurveData.h"
 
 #include "RimWellLogRftCurveNameConfig.h"
@@ -191,7 +194,9 @@ QList<caf::PdmOptionItemInfo> Rim3dWellLogRftCurve::calculateValueOptions(const 
                 std::vector<QDateTime> timeStamps = reader->availableTimeSteps(wellName(), m_wellLogChannelName());
                 for (const QDateTime& dt : timeStamps)
                 {
-                    options.push_back(caf::PdmOptionItemInfo(dt.toString(dateFormat), dt));
+                    QString dateString = RiaQDateTimeTools::toStringUsingApplicationLocale(dt, dateFormat);
+
+                    options.push_back(caf::PdmOptionItemInfo(dateString, dt));
                 }
             }
 

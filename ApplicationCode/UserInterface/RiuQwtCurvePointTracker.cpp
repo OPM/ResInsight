@@ -18,6 +18,8 @@
 
 #include "RiuQwtCurvePointTracker.h"
 
+#include "RiaQDateTimeTools.h"
+
 #include "qwt_plot_marker.h"
 #include "qwt_symbol.h"
 
@@ -176,7 +178,9 @@ QPointF RiuQwtCurvePointTracker::closestCurvePoint(const QPoint& cursorPosition,
         if ( dateScaleDraw )
         {
             QDateTime date = dateScaleDraw->toDateTime(mainAxisSampleVal);
-            *mainAxisValueString = date.toString("hh:mm dd.MMMM.yyyy");
+            
+            QString dateString = RiaQDateTimeTools::toStringUsingApplicationLocale(date, "hh:mm dd.MMMM.yyyy");
+            *mainAxisValueString = dateString;
         }
         else if ( mainAxisScaleDraw )
         {

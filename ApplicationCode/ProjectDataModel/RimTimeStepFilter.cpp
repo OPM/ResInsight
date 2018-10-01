@@ -18,7 +18,10 @@
 
 #include "RimTimeStepFilter.h"
 
+#include "RiaQDateTimeTools.h"
+
 #include "RifReaderEclipseOutput.h"
+
 #include "RigCaseCellResultsData.h"
 
 #include "RimEclipseResultCase.h"
@@ -91,10 +94,13 @@ RimTimeStepFilter::RimTimeStepFilter()
 void RimTimeStepFilter::setTimeStepsFromFile(const std::vector<QDateTime>& timeSteps)
 {
     m_dateFormat = RimTools::createTimeFormatStringFromDates(timeSteps);
+    
     std::vector<QString> timeStepStrings;
     for (const QDateTime& date : timeSteps)
     {
-        timeStepStrings.push_back(date.toString(m_dateFormat));
+        QString dateString = RiaQDateTimeTools::toStringUsingApplicationLocale(date, m_dateFormat);
+
+        timeStepStrings.push_back(dateString);
     }
 
     m_timeStepNamesFromFile = timeStepStrings;
@@ -128,7 +134,7 @@ void RimTimeStepFilter::setTimeStepsFromFile(const std::vector<std::pair<QString
         QString stepString = stringDatePair.first;
         if (stringDatePair.second.isValid())
         {
-            stepString = stringDatePair.second.toString(m_dateFormat);
+            stepString = RiaQDateTimeTools::toStringUsingApplicationLocale(stringDatePair.second, m_dateFormat);
         }
         timeStepStrings.push_back(stepString);
     }

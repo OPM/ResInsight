@@ -21,6 +21,7 @@
 
 #include "RiaApplication.h"
 #include "RiaEclipseUnitTools.h"
+#include "RiaQDateTimeTools.h"
 #include "RiaSimWellBranchTools.h"
 
 #include "RifEclipseRftAddress.h"
@@ -430,7 +431,9 @@ QList<caf::PdmOptionItemInfo> RimWellLogRftCurve::calculateValueOptions(const ca
             std::vector<QDateTime> timeStamps = reader->availableTimeSteps(m_wellName, m_wellLogChannelName());
             for (const QDateTime& dt : timeStamps)
             {
-                options.push_back(caf::PdmOptionItemInfo(dt.toString(dateFormat), dt));
+                QString dateString = RiaQDateTimeTools::toStringUsingApplicationLocale(dt, dateFormat);
+
+                options.push_back(caf::PdmOptionItemInfo(dateString, dt));
             }
         }
 

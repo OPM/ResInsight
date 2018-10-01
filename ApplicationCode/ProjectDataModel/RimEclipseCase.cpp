@@ -851,8 +851,10 @@ QString RimEclipseCase::timeStepName(int frameIdx) const
     if (frameIdx < static_cast<int>(timeStepDates.size()))
     {
         QDateTime date = timeStepDates.at(frameIdx);
-        return date.toString(m_timeStepFormatString);
+
+        return RiaQDateTimeTools::toStringUsingApplicationLocale(date, m_timeStepFormatString);
     }
+
     return QString("");
 }
 

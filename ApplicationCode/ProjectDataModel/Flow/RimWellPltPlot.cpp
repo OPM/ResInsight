@@ -21,6 +21,7 @@
 #include "RiaApplication.h"
 #include "RiaColorTables.h"
 #include "RiaDateStringParser.h"
+#include "RiaQDateTimeTools.h"
 #include "RiaWellNameComparer.h"
 
 #include "RifReaderEclipseRft.h"
@@ -528,7 +529,8 @@ void RimWellPltPlot::syncCurvesFromUiSelection()
             curveName += sourceDef.eclCase()     ? sourceDef.eclCase()->caseUserDescription() : "";
             curveName += sourceDef.wellLogFile() ? sourceDef.wellLogFile()->name() : "";
             if ( sourceDef.sourceType() == RifDataSourceForRftPlt::RFT ) curveName += ", RFT";
-            curveName += ", " + timeStep.toString(dateFormatString);
+
+            curveName += ", " + RiaQDateTimeTools::toStringUsingApplicationLocale(timeStep, dateFormatString);
         }
 
         RimEclipseResultCase* rimEclipseResultCase = dynamic_cast<RimEclipseResultCase*>(sourceDef.eclCase());
