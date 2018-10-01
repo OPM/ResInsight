@@ -485,7 +485,10 @@ void RimSummaryPlot::updateAll()
 void RimSummaryPlot::updateAllLegendItems()
 {
     reattachAllCurves();
-    qwtPlot()->updateLegend();
+    if (qwtPlot())
+    {
+        qwtPlot()->updateLegend();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -985,7 +988,7 @@ void RimSummaryPlot::deleteCurves(const std::vector<RimSummaryCurve*>& curves)
                         curveSet->deleteCurve(curve);
                         if (curveSet->curves().empty())
                         {
-                            if (curveSet->colorMode() == RimEnsembleCurveSet::BY_ENSEMBLE_PARAM)
+                            if (curveSet->colorMode() == RimEnsembleCurveSet::BY_ENSEMBLE_PARAM && qwtPlot())
                             {
                                 qwtPlot()->removeEnsembleCurveSetLegend(curveSet);
                             }
