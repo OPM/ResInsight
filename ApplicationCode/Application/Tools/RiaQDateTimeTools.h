@@ -101,6 +101,10 @@ public:
     static std::vector<DateTimePeriod>  dateTimePeriods();
     static QString                      dateTimePeriodName(DateTimePeriod period);
 
+    // This function uses C locale to make sure the text representation of a date is stable, independent of the locale
+    // settings on local machine. Required for stable regression testing.
+    static QString toStringUsingApplicationLocale(const QDateTime& dt, const QString& format);
+
 private:
     static quint64  secondsInDay();
     static quint64  secondsInYear();

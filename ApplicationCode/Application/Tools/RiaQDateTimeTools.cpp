@@ -18,8 +18,9 @@
 
 #include "RiaQDateTimeTools.h"
 
-#include <QString>
 #include <QDateTime>
+#include <QLocale>
+#include <QString>
 
 #include <cvfAssert.h>
 
@@ -356,4 +357,19 @@ QString RiaQDateTimeTools::dateTimePeriodName(DateTimePeriod period)
     case DateTimePeriod::DECADE:    return TIMESPAN_DECADE_NAME;
     default:                        return "None";
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RiaQDateTimeTools::toStringUsingApplicationLocale(const QDateTime& dt, const QString& format)
+{
+    // Default application locale is set in RiaMain
+    // QLocale::setDefault(QLocale(QLocale::English, QLocale::UnitedStates));
+    //
+    // QDate/QDateTime use system locale for toString() functions
+
+    QLocale defaultApplicationLocale;
+
+    return defaultApplicationLocale.toString(dt, format);
 }
