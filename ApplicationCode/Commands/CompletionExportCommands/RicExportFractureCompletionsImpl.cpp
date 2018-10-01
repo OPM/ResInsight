@@ -685,7 +685,8 @@ void RicExportFractureCompletionsImpl::calculateFractureToWellTransmissibilities
                                                                                         intersection.hlength,
                                                                                         fracture->perforationEfficiency(),
                                                                                         fracTemplate->skinFactor(),
-                                                                                        cDarcyInCorrectUnit);
+                                                                                        cDarcyInCorrectUnit,
+                                                                                        fracture->wellRadius());
             }
 
             transCondenser.addNeighborTransmissibility(

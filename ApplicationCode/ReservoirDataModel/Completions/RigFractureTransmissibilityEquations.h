@@ -46,7 +46,8 @@ public:
                                                 double perforationLengthHorizontal,
                                                 double perforationEfficiency,
                                                 double skinfactor,
-                                                double cDarcyForRelevantUnit);
+                                                double cDarcyForRelevantUnit,
+                                                double wellRadius);
 
     static double matrixToFractureTrans(double permX,
                                         double NTG,

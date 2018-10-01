@@ -20,6 +20,7 @@
 
 #include "cvfBase.h"
 #include "cvfMath.h"
+#include "cvfVector2.h"
 
 #include <cmath>
 
@@ -72,25 +73,50 @@ double RigFractureTransmissibilityEquations::fractureCellToWellRadialTrans(doubl
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RigFractureTransmissibilityEquations::fractureCellToWellLinearTrans(double fractureCellConductivity, 
+double RigFractureTransmissibilityEquations::fractureCellToWellLinearTrans(double fractureConductivity, 
                                                                            double fractureCellSizeX,
                                                                            double fractureCellSizeZ, 
                                                                            double perforationLengthVertical,
                                                                            double perforationLengthHorizontal,
                                                                            double perforationEfficiency, 
                                                                            double skinfactor, 
-                                                                           double cDarcyForRelevantUnit)
+                                                                           double cDarcyForRelevantUnit,
+                                                                           double wellRadius)
 {
-    double TcPrefix = 8 * cDarcyForRelevantUnit * fractureCellConductivity;
+    const double invalidTrans = 1.0e9;
+    const double epsilon      = 1.0e-8;
 
-    double DzPerf = perforationLengthVertical * perforationEfficiency;
+    double TcPrefix = 8 * cDarcyForRelevantUnit * fractureConductivity;
+
+    cvf::Vec2d wellOrientation  = cvf::Vec2d(perforationLengthHorizontal, perforationLengthVertical).getNormalized();
+    cvf::Vec2d wellRadialVector = wellOrientation.perpendicularVector() * wellRadius;
+
+    double DzPerf = perforationLengthVertical   * perforationEfficiency;
     double DxPerf = perforationLengthHorizontal * perforationEfficiency;
 
-    double TcZ = TcPrefix * DzPerf /
-        (fractureCellSizeX + skinfactor * DzPerf / cvf::PI_D);
+    double TcZ = 0.0;
+    if (DzPerf > epsilon)
+    {
+        double effectiveFlowLengthHorizontal = fractureCellSizeX - 4.0 * std::abs(wellRadialVector.x());
+        double denominatorZ = effectiveFlowLengthHorizontal + skinfactor * DzPerf / cvf::PI_D;
+        if (denominatorZ < epsilon)
+        {
+            return invalidTrans;
+        }
+        TcZ = TcPrefix * DzPerf / denominatorZ;
+    }
 
-    double TcX = TcPrefix * DxPerf /
-        (fractureCellSizeZ + skinfactor* DxPerf / cvf::PI_D);
+    double TcX = 0.0;
+    if (DxPerf > epsilon)
+    {
+        double effectiveFlowLengthVertical = fractureCellSizeZ - 4.0 * std::abs(wellRadialVector.y());
+        double denominatorX = effectiveFlowLengthVertical + skinfactor * DxPerf / cvf::PI_D;
+        if (denominatorX < epsilon)
+        {
+            return invalidTrans;
+        }
+        TcX = TcPrefix * DxPerf / denominatorX;
+    }
 
     double Tc = cvf::Math::sqrt(pow(TcX, 2) + pow(TcZ, 2));
     return Tc;
