@@ -23,6 +23,7 @@
 #include "cafPdmPointer.h"
 
 class RimWellPathGeometryDef;
+class RigWellPath;
 
 //==================================================================================================
 /// 
@@ -38,5 +39,11 @@ protected:
 
     virtual bool handlePickEvent(const Ric3DPickEvent& eventObject) override;
     virtual void notifyUnregistered() override;
+
+private:
+    bool calculateAzimuthAndInclinationAtMd(double measuredDepth,
+                                            const RigWellPath* wellPathGeometry,
+                                            double *azimuth,
+                                            double *inclination) const;
 };
 

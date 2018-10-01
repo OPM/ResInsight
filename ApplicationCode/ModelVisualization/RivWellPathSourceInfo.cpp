@@ -61,12 +61,12 @@ RimWellPath* RivWellPathSourceInfo::wellPath() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-double RivWellPathSourceInfo::measuredDepth(size_t triangleIndex, const cvf::Vec3d& globalIntersection) const
+double RivWellPathSourceInfo::measuredDepth(size_t triangleIndex, const cvf::Vec3d& globalIntersectionInDomain) const
 {
     size_t firstSegmentIndex = cvf::UNDEFINED_SIZE_T;
     double norm = 0.0;
 
-    normalizedIntersection(triangleIndex, globalIntersection, &firstSegmentIndex, &norm);
+    normalizedIntersection(triangleIndex, globalIntersectionInDomain, &firstSegmentIndex, &norm);
 
     double firstDepth = m_wellPath->wellPathGeometry()->m_measuredDepths[firstSegmentIndex];
     double secDepth = m_wellPath->wellPathGeometry()->m_measuredDepths[firstSegmentIndex + 1];
@@ -77,12 +77,12 @@ double RivWellPathSourceInfo::measuredDepth(size_t triangleIndex, const cvf::Vec
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-cvf::Vec3d RivWellPathSourceInfo::closestPointOnCenterLine(size_t triangleIndex, const cvf::Vec3d& globalIntersection) const
+cvf::Vec3d RivWellPathSourceInfo::closestPointOnCenterLine(size_t triangleIndex, const cvf::Vec3d& globalIntersectionInDomain) const
 {
     size_t firstSegmentIndex = cvf::UNDEFINED_SIZE_T;
     double norm = 0.0;
 
-    normalizedIntersection(triangleIndex, globalIntersection, &firstSegmentIndex, &norm);
+    normalizedIntersection(triangleIndex, globalIntersectionInDomain, &firstSegmentIndex, &norm);
 
     cvf::Vec3d firstDepth = m_wellPath->wellPathGeometry()->m_wellPathPoints[firstSegmentIndex];
     cvf::Vec3d secDepth = m_wellPath->wellPathGeometry()->m_wellPathPoints[firstSegmentIndex + 1];
@@ -93,18 +93,17 @@ cvf::Vec3d RivWellPathSourceInfo::closestPointOnCenterLine(size_t triangleIndex,
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivWellPathSourceInfo::normalizedIntersection(size_t triangleIndex, const cvf::Vec3d& globalIntersection,
+void RivWellPathSourceInfo::normalizedIntersection(size_t triangleIndex, const cvf::Vec3d& globalIntersectionInDomain,
                                                     size_t* firstSegmentIndex, double* normalizedSegmentIntersection) const
 {
     size_t segIndex = segmentIndex(triangleIndex);
-
     RigWellPath* rigWellPath = m_wellPath->wellPathGeometry();
 
     cvf::Vec3d segmentStart = rigWellPath->m_wellPathPoints[segIndex];
     cvf::Vec3d segmentEnd = rigWellPath->m_wellPathPoints[segIndex + 1];
 
     double norm = 0.0;
-    cvf::Vec3d pointOnLine = cvf::GeometryTools::projectPointOnLine(segmentStart, segmentEnd, globalIntersection, &norm);
+    cvf::Vec3d pointOnLine = cvf::GeometryTools::projectPointOnLine(segmentStart, segmentEnd, globalIntersectionInDomain, &norm);
     norm = cvf::Math::clamp(norm, 0.0, 1.0);
 
     *firstSegmentIndex = segIndex;

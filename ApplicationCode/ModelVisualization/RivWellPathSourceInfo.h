@@ -40,12 +40,12 @@ public:
     RimWellPath* wellPath() const;
 
     size_t segmentIndex(size_t triangleIndex) const;
-    double measuredDepth(size_t triangleIndex, const cvf::Vec3d& globalIntersection) const;
-    cvf::Vec3d closestPointOnCenterLine(size_t triangleIndex, const cvf::Vec3d& globalIntersection) const;
+    double measuredDepth(size_t triangleIndex, const cvf::Vec3d& globalIntersectionInDomain) const;
+    cvf::Vec3d closestPointOnCenterLine(size_t triangleIndex, const cvf::Vec3d& globalIntersectionInDomain) const;
 
 private:
     void normalizedIntersection(size_t triangleIndex, 
-                                const cvf::Vec3d& globalIntersection,
+                                const cvf::Vec3d& globalIntersectionInDomain,
                                 size_t* firstSegmentIndex, 
                                 double* normalizedSegmentIntersection) const;
 
