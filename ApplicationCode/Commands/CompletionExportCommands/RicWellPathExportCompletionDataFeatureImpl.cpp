@@ -35,6 +35,7 @@
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
 #include "RigMainGrid.h"
+#include "RigPerforationTransmissibilityEquations.h"
 #include "RigResultAccessorFactory.h"
 #include "RigTransmissibilityEquations.h"
 #include "RigWellLogExtractionTools.h"
@@ -46,6 +47,7 @@
 #include "RimFishbonesCollection.h"
 #include "RimFishbonesMultipleSubs.h"
 #include "RimFractureTemplate.h"
+#include "RimNonDarcyPerforationParameters.h"
 #include "RimPerforationCollection.h"
 #include "RimPerforationInterval.h"
 #include "RimProject.h"
@@ -1632,17 +1634,26 @@ std::vector<RigCompletionData> RicWellPathExportCompletionDataFeatureImpl::gener
                 CellDirection direction =
                     calculateDirectionInCell(settings.caseToApply, cell.globCellIndex, cell.intersectionLengthsInCellCS);
 
-                double transmissibility =
-                    RicWellPathExportCompletionDataFeatureImpl::calculateTransmissibility(settings.caseToApply,
-                                                                                          wellPath,
-                                                                                          cell.intersectionLengthsInCellCS,
-                                                                                          interval->skinFactor(),
-                                                                                          interval->diameter(unitSystem) / 2,
-                                                                                          cell.globCellIndex,
-                                                                                          settings.useLateralNTG);
+                double transmissibility = calculateTransmissibility(settings.caseToApply,
+                                                                    wellPath,
+                                                                    cell.intersectionLengthsInCellCS,
+                                                                    interval->skinFactor(),
+                                                                    interval->diameter(unitSystem) / 2,
+                                                                    cell.globCellIndex,
+                                                                    settings.useLateralNTG);
+
+                double dFactor = calculateDFactor(settings.caseToApply,
+                                                  cell.intersectionLengthsInCellCS,
+                                                  interval->diameter(unitSystem) / 2,
+                                                  cell.globCellIndex,
+                                                  wellPath->perforationIntervalCollection()->nonDarcyParameters());
+
+                double kh = calculateKh(settings.caseToApply,
+                                        cell.intersectionLengthsInCellCS,
+                                        cell.globCellIndex);
 
                 completion.setTransAndWPImultBackgroundDataFromPerforation(
-                    transmissibility, interval->skinFactor(), interval->diameter(unitSystem), direction);
+                    transmissibility, interval->skinFactor(), interval->diameter(unitSystem), dFactor, kh, direction);
                 completion.addMetadata("Perforation Completion",
                                        QString("MD In: %1 - MD Out: %2").arg(cell.startMD).arg(cell.endMD) +
                                            QString(" Transmissibility: ") + QString::number(transmissibility));
@@ -2309,6 +2320,94 @@ double RicWellPathExportCompletionDataFeatureImpl::calculateTransmissibility(Rim
         internalCellLengths.z() * ntg, permy, permx, dy, dx, wellRadius, skinFactor, darcy);
 
     return RigTransmissibilityEquations::totalConnectionFactor(transx, transy, transz);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+double RicWellPathExportCompletionDataFeatureImpl::calculateDFactor(RimEclipseCase* eclipseCase,
+                                                                    const cvf::Vec3d&  internalCellLengths,
+                                                                    double wellRadius,
+                                                                    size_t globalCellIndex,
+                                                                    const RimNonDarcyPerforationParameters* nonDarcyParameters)
+{
+    using EQ = RigPerforationTransmissibilityEquations;
+
+    // Fetch data
+    RigEclipseCaseData* eclipseCaseData = eclipseCase->eclipseCaseData();
+
+    eclipseCase->results(RiaDefines::MATRIX_MODEL)->findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, "PERMX");
+    cvf::ref<RigResultAccessor> permxAccessObject =
+        RigResultAccessorFactory::createFromUiResultName(eclipseCaseData, 0, RiaDefines::MATRIX_MODEL, 0, "PERMX");
+    eclipseCase->results(RiaDefines::MATRIX_MODEL)->findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, "PERMY");
+    cvf::ref<RigResultAccessor> permyAccessObject =
+        RigResultAccessorFactory::createFromUiResultName(eclipseCaseData, 0, RiaDefines::MATRIX_MODEL, 0, "PERMY");
+    eclipseCase->results(RiaDefines::MATRIX_MODEL)->findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, "PERMZ");
+    cvf::ref<RigResultAccessor> permzAccessObject =
+        RigResultAccessorFactory::createFromUiResultName(eclipseCaseData, 0, RiaDefines::MATRIX_MODEL, 0, "PERMZ");
+
+    double permx = permxAccessObject->cellScalarGlobIdx(globalCellIndex);
+    double permy = permyAccessObject->cellScalarGlobIdx(globalCellIndex);
+    double permz = permzAccessObject->cellScalarGlobIdx(globalCellIndex);
+    double totalPerm = permx + 0*permy + 0*permz;   // TODO: Calculate total perm
+
+    eclipseCase->results(RiaDefines::MATRIX_MODEL)->findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, "PORO");
+    cvf::ref<RigResultAccessor> poroAccessObject =
+        RigResultAccessorFactory::createFromUiResultName(eclipseCaseData, 0, RiaDefines::MATRIX_MODEL, 0, "PORO");
+
+    double porosity = poroAccessObject->cellScalar(globalCellIndex);
+
+    // Calculations
+    double krFactor = 1.0;
+    double effPerm = EQ::effectivePermeability(totalPerm, krFactor);
+
+    double betaFactor = EQ::betaFactor(nonDarcyParameters->inertialCoefficientBeta0(),
+                                       effPerm,
+                                       nonDarcyParameters->permeabilityScalingFactor(),
+                                       porosity,
+                                       nonDarcyParameters->porosityScalingFactor());
+
+    return EQ::dFactor(nonDarcyParameters->unitConstant(),
+                       betaFactor,
+                       effPerm,
+                       internalCellLengths.length(),
+                       wellRadius,
+                       nonDarcyParameters->relativeGasDensity(),
+                       nonDarcyParameters->gasViscosity());
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+double RicWellPathExportCompletionDataFeatureImpl::calculateKh(RimEclipseCase* eclipseCase,
+                                                               const cvf::Vec3d& internalCellLengths,
+                                                               size_t globalCellIndex)
+{
+    using EQ = RigPerforationTransmissibilityEquations;
+
+    // Fetch data
+    RigEclipseCaseData* eclipseCaseData = eclipseCase->eclipseCaseData();
+
+    eclipseCase->results(RiaDefines::MATRIX_MODEL)->findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, "PERMX");
+    cvf::ref<RigResultAccessor> permxAccessObject =
+        RigResultAccessorFactory::createFromUiResultName(eclipseCaseData, 0, RiaDefines::MATRIX_MODEL, 0, "PERMX");
+    eclipseCase->results(RiaDefines::MATRIX_MODEL)->findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, "PERMY");
+    cvf::ref<RigResultAccessor> permyAccessObject =
+        RigResultAccessorFactory::createFromUiResultName(eclipseCaseData, 0, RiaDefines::MATRIX_MODEL, 0, "PERMY");
+    eclipseCase->results(RiaDefines::MATRIX_MODEL)->findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, "PERMZ");
+    cvf::ref<RigResultAccessor> permzAccessObject =
+        RigResultAccessorFactory::createFromUiResultName(eclipseCaseData, 0, RiaDefines::MATRIX_MODEL, 0, "PERMZ");
+
+    double permx = permxAccessObject->cellScalarGlobIdx(globalCellIndex);
+    double permy = permyAccessObject->cellScalarGlobIdx(globalCellIndex);
+    double permz = permzAccessObject->cellScalarGlobIdx(globalCellIndex);
+    double totalPerm = permx + 0 * permy + 0 * permz;   // TODO: Calculate total perm
+
+    // Calculations
+    double krFactor = 1.0;
+    double effPerm = EQ::effectivePermeability(totalPerm, krFactor);
+
+    return EQ::kh(effPerm, internalCellLengths.length());
 }
 
 //--------------------------------------------------------------------------------------------------

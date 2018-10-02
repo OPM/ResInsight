@@ -41,6 +41,7 @@ class RimSimWellInView;
 class RimPerforationInterval;
 class RimWellPath;
 class RimWellPathFracture;
+class RimNonDarcyPerforationParameters;
 class RifEclipseDataTableFormatter;
 class RigVirtualPerforationTransmissibilities;
 class SubSegmentIntersectionInfo;
@@ -91,6 +92,15 @@ public:
                                                                     size_t volumeScaleConstant = 1, 
                                                                     CellDirection directionForVolumeScaling = CellDirection::DIR_I);
 
+    static double                         calculateDFactor(RimEclipseCase* eclipseCase,
+                                                           const cvf::Vec3d&  internalCellLengths,
+                                                           double wellRadius,
+                                                           size_t globalCellIndex,
+                                                           const RimNonDarcyPerforationParameters* nonDarcyParameters);
+
+    static double                         calculateKh(RimEclipseCase* eclipseCase,
+                                                      const cvf::Vec3d&  internalCellLengths,
+                                                      size_t globalCellIndex);
 
     static void                           exportCompletions(const std::vector<RimWellPath*>& wellPaths, 
                                                             const std::vector<RimSimWellInView*>& simWells, 

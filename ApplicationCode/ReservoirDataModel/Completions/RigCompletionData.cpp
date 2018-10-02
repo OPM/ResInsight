@@ -160,13 +160,17 @@ void RigCompletionData::setTransAndWPImultBackgroundDataFromFishbone(double     
 void RigCompletionData::setTransAndWPImultBackgroundDataFromPerforation(double        transmissibility,
                                                                         double        skinFactor,
                                                                         double        diameter,
+                                                                        double        dFactor,
+                                                                        double        kh,
                                                                         CellDirection direction)
 {
     m_completionType   = PERFORATION;
     m_transmissibility = transmissibility;
     m_skinFactor       = skinFactor;
     m_diameter         = diameter;
+    m_dFactor          = dFactor;
     m_direction        = direction;
+    m_kh               = kh;
     m_isMainBore       = true;
 }
 

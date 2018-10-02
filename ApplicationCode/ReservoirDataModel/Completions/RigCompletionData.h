@@ -89,6 +89,8 @@ public:
     void        setTransAndWPImultBackgroundDataFromPerforation(double transmissibility, 
                                                                 double skinFactor, 
                                                                 double diameter,
+                                                                double dFactor,
+                                                                double kh,
                                                                 CellDirection direction);
 
     void        setCombinedValuesExplicitTrans(double         transmissibility,

@@ -8,6 +8,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RigFractureTransmissibilityEquations.h
 ${CMAKE_CURRENT_LIST_DIR}/RigWellPathStimplanIntersector.h
 ${CMAKE_CURRENT_LIST_DIR}/RigVirtualPerforationTransmissibilities.h
 ${CMAKE_CURRENT_LIST_DIR}/RigEclipseToStimPlanCalculator.h
+${CMAKE_CURRENT_LIST_DIR}/RigPerforationTransmissibilityEquations.h
 )
 
 
@@ -20,6 +21,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RigFractureTransmissibilityEquations.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RigWellPathStimplanIntersector.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RigVirtualPerforationTransmissibilities.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RigEclipseToStimPlanCalculator.cpp
+${CMAKE_CURRENT_LIST_DIR}/RigPerforationTransmissibilityEquations.cpp
 )
 
 list(APPEND CODE_HEADER_FILES
