@@ -51,6 +51,7 @@ public:
     cvf::ref<RigWellPath>           createWellPathGeometry();
     
     void                            updateWellPathVisualization();
+    std::pair<RimWellPathTarget*, RimWellPathTarget*> findActiveTargetsAroundInsertionPoint(const RimWellPathTarget* targetToInsertBefore);
 
     void                            insertTarget(const RimWellPathTarget* targetToInsertBefore, 
                                                  RimWellPathTarget* targetToInsert);

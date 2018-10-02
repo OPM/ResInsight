@@ -58,7 +58,7 @@ CAF_PDM_SOURCE_INIT(RimWellPathGeometryDef, "WellPathGeometryDef");
 RimWellPathGeometryDef::RimWellPathGeometryDef()
     : m_pickTargetsEventHandler(new RicCreateWellTargetsPickEventHandler(this))
 {
-    CAF_PDM_InitObject("Well Targets", ":/Well.png", "", "");
+    CAF_PDM_InitObject("Well Targets", ":/WellTargets.png", "", "");
 
     CAF_PDM_InitField(&m_referencePointUtmXyd, "ReferencePosUtmXyd", cvf::Vec3d(0,0,0), "UTM Reference Point", "", "", "");
 
@@ -162,6 +162,31 @@ void RimWellPathGeometryDef::updateWellPathVisualization()
     RimModeledWellPath* modWellPath;
     this->firstAncestorOrThisOfTypeAsserted(modWellPath);
     modWellPath->updateWellPathVisualization();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::pair<RimWellPathTarget*, RimWellPathTarget*> 
+RimWellPathGeometryDef::findActiveTargetsAroundInsertionPoint(const RimWellPathTarget* targetToInsertBefore)
+{
+    RimWellPathTarget* before = nullptr;
+    RimWellPathTarget* after  = nullptr;
+
+    bool foundTarget = false;
+    for (const auto& wt : m_wellTargets)
+    {
+        if ( wt == targetToInsertBefore )
+        {
+            foundTarget = true;
+        }
+
+        if ( wt->isEnabled() && !after && foundTarget ) after = wt;
+
+        if ( wt->isEnabled() && !foundTarget ) before = wt;
+    }
+
+    return { before, after};
 }
 
 //--------------------------------------------------------------------------------------------------

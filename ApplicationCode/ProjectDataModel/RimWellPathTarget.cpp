@@ -3,6 +3,7 @@
 
 #include <cmath>
 #include "RimWellPathGeometryDef.h"
+#include "cafPdmUiCheckBoxEditor.h"
 
 CAF_PDM_SOURCE_INIT(RimWellPathTarget, "WellPathTarget");
 
@@ -28,13 +29,16 @@ RimWellPathTarget::RimWellPathTarget()
 {
     
     CAF_PDM_InitField(&m_isEnabled, "IsEnabled", true, "", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&m_targetType, "TargetType", "Type", "", "", "");
     //m_targetType.uiCapability()->setUiHidden(true);
-    CAF_PDM_InitField(&m_dogleg1, "Dogleg1", 3.0, "DLS 1", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_targetPoint, "TargetPoint", "Point", "", "", "");
+    CAF_PDM_InitField(&m_dogleg1, "Dogleg1", 3.0, "DLh", "", "", "");
+    CAF_PDM_InitField(&m_dogleg2, "Dogleg2", 3.0, "DLl", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_targetType, "TargetType", "Type", "", "", "");
+    m_targetType.uiCapability()->setUiHidden(true);
+    CAF_PDM_InitField(&m_hasTangentConstraintUiField, "HasTangentConstraint", false, "Dir", "", "", "");
+    m_hasTangentConstraintUiField.xmlCapability()->disableIO();
     CAF_PDM_InitField(&m_azimuth, "Azimuth", 0.0, "Azi(deg)", "", "", "");
     CAF_PDM_InitField(&m_inclination, "Inclination", 0.0, "Inc(deg)", "", "", "");
-    CAF_PDM_InitField(&m_dogleg2, "Dogleg2", 3.0, "DLS 2", "", "", "");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -252,8 +256,8 @@ QList<caf::PdmOptionItemInfo> RimWellPathTarget::calculateValueOptions(const caf
     QList<caf::PdmOptionItemInfo> options;
     if (fieldNeedingOptions == & m_targetType)
     {
-        options.push_back(caf::PdmOptionItemInfo("o->",RimWellPathTarget::POINT_AND_TANGENT, false, QIcon(":/WellTargetPointTangent16x16.png") ));
-        options.push_back(caf::PdmOptionItemInfo("o", RimWellPathTarget::POINT, false, QIcon(":/WellTargetPoint16x16.png")));
+        options.push_back(caf::PdmOptionItemInfo("o->",RimWellPathTarget::POINT_AND_TANGENT));//, false, QIcon(":/WellTargetPointTangent16x16.png") ));
+        options.push_back(caf::PdmOptionItemInfo("o", RimWellPathTarget::POINT));//, false, QIcon(":/WellTargetPoint16x16.png")));
     }
     return options;
 }
@@ -263,6 +267,12 @@ QList<caf::PdmOptionItemInfo> RimWellPathTarget::calculateValueOptions(const caf
 //--------------------------------------------------------------------------------------------------
 void RimWellPathTarget::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
+    if (changedField == &m_hasTangentConstraintUiField)
+    {
+        if (m_hasTangentConstraintUiField) m_targetType = POINT_AND_TANGENT;
+        else m_targetType = POINT;
+    }
+
     RimModeledWellPath* wellPath;
     firstAncestorOrThisOfTypeAsserted(wellPath);
     wellPath->updateWellPathVisualization();
@@ -270,6 +280,7 @@ void RimWellPathTarget::fieldChangedByUi(const caf::PdmFieldHandle* changedField
     {
         wellPath->scheduleUpdateOfDependentVisualization();
     }
+
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -277,9 +288,11 @@ void RimWellPathTarget::fieldChangedByUi(const caf::PdmFieldHandle* changedField
 //--------------------------------------------------------------------------------------------------
 void RimWellPathTarget::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
+    m_hasTangentConstraintUiField = (m_targetType == POINT_AND_TANGENT);
+
     if (m_isEnabled())
     {
-
+        m_hasTangentConstraintUiField.uiCapability()->setUiReadOnly(false);
         m_targetType.uiCapability()->setUiReadOnly(false);
         m_targetPoint.uiCapability()->setUiReadOnly(false);
         m_dogleg2.uiCapability()->setUiReadOnly(false);
@@ -318,5 +331,6 @@ void RimWellPathTarget::defineUiOrdering(QString uiConfigName, caf::PdmUiOrderin
         m_azimuth.uiCapability()->setUiReadOnly(true);
         m_inclination.uiCapability()->setUiReadOnly(true);
         m_dogleg2.uiCapability()->setUiReadOnly(true);
+        m_hasTangentConstraintUiField.uiCapability()->setUiReadOnly(true);
     }
 }

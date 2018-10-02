@@ -68,6 +68,7 @@ private:
     caf::PdmField<double>                        m_inclination;
     caf::PdmField<double>                        m_dogleg1;
     caf::PdmField<double>                        m_dogleg2;
+    caf::PdmField<bool>                          m_hasTangentConstraintUiField;
 
 };
 

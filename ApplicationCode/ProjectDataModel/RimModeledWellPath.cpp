@@ -40,7 +40,7 @@ CAF_PDM_SOURCE_INIT(RimModeledWellPath, "ModeledWellPath");
 //--------------------------------------------------------------------------------------------------
 RimModeledWellPath::RimModeledWellPath()
 {
-    CAF_PDM_InitObject("Modeled WellPath", ":/Well.png", "", "");
+    CAF_PDM_InitObject("Modeled WellPath", ":/EditableWell.png", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_geometryDefinition, "WellPathGeometryDef", "Trajectory", "", "", "");
     m_geometryDefinition = new RimWellPathGeometryDef;

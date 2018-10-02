@@ -57,18 +57,50 @@ bool RicNewWellPathListTargetFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicNewWellPathListTargetFeature::onActionTriggered(bool isChecked)
 {
-    std::vector<RimWellPathTarget*> targets;
-    caf::SelectionManager::instance()->objectsByType(&targets, caf::SelectionManager::FIRST_LEVEL);
-    if (targets.size() > 0)
+    std::vector<RimWellPathTarget*> selectedTargets;
+    caf::SelectionManager::instance()->objectsByType(&selectedTargets, caf::SelectionManager::FIRST_LEVEL);
+    if (selectedTargets.size() > 0)
     {
-        auto firstTarget = targets.front();
+        auto firstTarget = selectedTargets.front();
         RimWellPathGeometryDef* wellGeomDef = nullptr;
         firstTarget->firstAncestorOrThisOfTypeAsserted(wellGeomDef);
         
-        RimWellPathTarget* duplicate = dynamic_cast<RimWellPathTarget*>(firstTarget->xmlCapability()->copyByXmlSerialization(caf::PdmDefaultObjectFactory::instance()));
-        wellGeomDef->insertTarget(firstTarget, duplicate);
+        auto afterBeforePair = wellGeomDef->findActiveTargetsAroundInsertionPoint(firstTarget);
+        
+        cvf::Vec3d newPos = cvf::Vec3d::ZERO;
+
+        if (!afterBeforePair.first && afterBeforePair.second)
+        {
+            newPos = afterBeforePair.second->targetPointXYZ();
+            newPos.z() = -wellGeomDef->referencePointXyz().z();
+        } 
+        else if (afterBeforePair.first && afterBeforePair.second)
+        {
+            newPos = 0.5*(afterBeforePair.first->targetPointXYZ() + afterBeforePair.second->targetPointXYZ());
+        }
+        else if (afterBeforePair.first && !afterBeforePair.second)
+        {
+            std::vector<RimWellPathTarget*> activeTargets =  wellGeomDef->activeWellTargets();
+            size_t targetCount = activeTargets.size();
+            if (targetCount > 1)
+            {
+                newPos = activeTargets[targetCount-1]->targetPointXYZ();
+                cvf::Vec3d nextLastToLast = newPos - activeTargets[targetCount-2]->targetPointXYZ();
+                newPos += 0.5*nextLastToLast;
+            }
+            else
+            {
+                newPos = afterBeforePair.first->targetPointXYZ() + cvf::Vec3d(0, 0, 200);
+            }
+        }
+
+        RimWellPathTarget* newTarget = new RimWellPathTarget;
+        newTarget->setAsPointTargetXYD({ newPos[0], newPos[1], -newPos[2] });
+
+        wellGeomDef->insertTarget(firstTarget, newTarget);
         wellGeomDef->updateConnectedEditors();
         wellGeomDef->updateWellPathVisualization();
+
         return;
     }
 
@@ -77,8 +109,34 @@ void RicNewWellPathListTargetFeature::onActionTriggered(bool isChecked)
     if (geomDefs.size() > 0)
     {
         RimWellPathGeometryDef* wellGeomDef = geomDefs[0];
+        std::vector<RimWellPathTarget*> activeTargets =  wellGeomDef->activeWellTargets();
+        
+        size_t targetCount = activeTargets.size();
 
-        wellGeomDef->appendTarget();
+        if ( targetCount == 0 )
+        {
+            wellGeomDef->appendTarget();
+        }
+        else
+        {
+            cvf::Vec3d newPos = cvf::Vec3d::ZERO;
+
+            if ( targetCount > 1 )
+            {
+                newPos = activeTargets[targetCount-1]->targetPointXYZ();
+                cvf::Vec3d nextLastToLast = newPos - activeTargets[targetCount-2]->targetPointXYZ();
+                newPos += 0.5*nextLastToLast;
+            }
+            else if ( targetCount > 0 )
+            {
+                newPos = activeTargets[targetCount-1]->targetPointXYZ() + cvf::Vec3d(0, 0, 200);
+            }
+
+            RimWellPathTarget* newTarget = new RimWellPathTarget;
+            newTarget->setAsPointTargetXYD({ newPos[0], newPos[1], -newPos[2] });
+            wellGeomDef->insertTarget(nullptr, newTarget);
+        }
+
         wellGeomDef->updateConnectedEditors();
         wellGeomDef->updateWellPathVisualization();
     }
