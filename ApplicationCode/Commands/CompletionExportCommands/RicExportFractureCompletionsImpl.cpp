@@ -451,7 +451,10 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
             RicExportFractureCompletionsImpl::calculateAndSetReportItemData(
                 allCompletionsForOneFracture, eclToFractureCalc, reportItem);
 
-            fractureDataReportItems->push_back(reportItem);
+#pragma omp critical(critical_section_fractureDataReportItems)
+            {
+                fractureDataReportItems->push_back(reportItem);
+            }
         }
 
         std::copy(allCompletionsForOneFracture.begin(),
