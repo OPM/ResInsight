@@ -135,9 +135,16 @@ Qt::ItemFlags PdmUiTableViewQModel::flags(const QModelIndex &index) const
     PdmUiFieldHandle* uiFieldHandle = getUiFieldHandle(index);
     if (uiFieldHandle)
     {
-        if (uiFieldHandle->isUiReadOnly(m_currentConfigName))
+        if ( uiFieldHandle->isUiReadOnly(m_currentConfigName) )
         {
-            flagMask = flagMask ^ Qt::ItemIsEditable;
+            if ( flagMask & Qt::ItemIsUserCheckable )
+            {
+                flagMask = flagMask & (~Qt::ItemIsEnabled);
+            }
+            else
+            {
+                flagMask = flagMask ^ Qt::ItemIsEditable; // To make it selectable, but not editable
+            }
         }
     }
     return flagMask;
