@@ -47,6 +47,7 @@
 #include <QApplication>
 #include <QEvent>
 #include <QGridLayout>
+#include <QHeaderView>
 #include <QLabel>
 #include <QMenu>
 #include <QTableView>
@@ -208,15 +209,13 @@ void PdmUiTableViewEditor::configureAndUpdateUi(const QString& uiConfigName)
         }
     }
 
-    if ( m_previousFieldHandle != childArrayFH || editorAttrib.forceColumnWidthResize )
+    if ( m_previousFieldHandle != childArrayFH)
     {
-        // Set default column widths
-        m_tableView->resizeColumnsToContents();
+        int colCount = m_tableModelPdm->columnCount();
 
         // Set specified widths (if any)
         if (editorAttribLoaded)
         {
-            int colCount = m_tableModelPdm->columnCount();
             for (int c = 0; c < colCount && c < static_cast<int>(editorAttrib.columnWidths.size()); c++)
             {
                 auto w = editorAttrib.columnWidths[c];
@@ -224,6 +223,16 @@ void PdmUiTableViewEditor::configureAndUpdateUi(const QString& uiConfigName)
             }
         }
 
+        if (editorAttrib.autoResizeColumnsToFitContent)
+        {
+            // Set default column widths
+            m_tableView->resizeColumnsToContents();
+        }
+
+        if (editorAttrib.autoResizeColumnsToFillContainer)
+        {
+            m_tableView->horizontalHeader()->setResizeMode(QHeaderView::Stretch);
+        }      
     }
 
     m_previousFieldHandle = childArrayFH;

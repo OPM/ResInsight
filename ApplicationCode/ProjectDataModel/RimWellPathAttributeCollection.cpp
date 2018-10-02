@@ -122,7 +122,7 @@ void RimWellPathAttributeCollection::defineEditorAttribute(const caf::PdmFieldHa
         auto tvAttribute = dynamic_cast<caf::PdmUiTableViewEditorAttribute*>(attribute);
         if (tvAttribute)
         {
-            tvAttribute->forceColumnWidthResize = true;
+            tvAttribute->autoResizeColumnsToFillContainer = true;
         }
     }
 }
