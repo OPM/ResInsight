@@ -138,7 +138,7 @@ bool RicCreateWellTargetsPickEventHandler::calculateAzimuthAndInclinationAtMd(do
     int mdIndex = -1;
     auto mdList = wellPathGeometry->measureDepths();
 
-    for (int i = 0; i < mdList.size(); i++)
+    for (int i = 0; i < (int)mdList.size(); i++)
     {
         if (mdList[i] > measuredDepth)
         {
@@ -148,7 +148,7 @@ bool RicCreateWellTargetsPickEventHandler::calculateAzimuthAndInclinationAtMd(do
     }
 
     auto ptList = wellPathGeometry->wellPathPoints();
-    if (mdIndex > 0 && mdIndex < ptList.size() - 2)
+    if (mdIndex > 0 && mdIndex < (int)ptList.size() - 2)
     {
         auto v1 = cvf::Vec3d(ptList[mdIndex - 1]);
         auto v2 = cvf::Vec3d(ptList[mdIndex]);
