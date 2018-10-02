@@ -634,6 +634,17 @@ PdmUiSelectionVisualizer3d::~PdmUiSelectionVisualizer3d()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void PdmUiSelectionVisualizer3d::updateVisibleEditors()
+{
+    for (auto editor: m_active3DEditors)
+    {
+        if (editor) editor->updateUi();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void PdmUiSelectionVisualizer3d::onSelectionManagerSelectionChanged( const std::set<int>& changedSelectionLevels )
 {
     if (!changedSelectionLevels.count(0)) return;

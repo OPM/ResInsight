@@ -229,6 +229,8 @@ class PdmUiSelectionVisualizer3d : public QObject, caf::SelectionChangedReceiver
 public:
     PdmUiSelectionVisualizer3d(caf::Viewer* ownerViewer);
     ~PdmUiSelectionVisualizer3d(); 
+
+    void updateVisibleEditors();
 protected:
     virtual void onSelectionManagerSelectionChanged( const std::set<int>& changedSelectionLevels ) override;
 

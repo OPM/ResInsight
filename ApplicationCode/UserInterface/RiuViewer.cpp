@@ -187,7 +187,7 @@ RiuViewer::RiuViewer(const QGLFormat& format, QWidget* parent)
     m_windowEdgeAxisOverlay = new RivWindowEdgeAxesOverlayItem(standardFont);
     m_showWindowEdgeAxes = false;
 
-    new caf::PdmUiSelectionVisualizer3d(this);
+    m_selectionVisualizerManager = new caf::PdmUiSelectionVisualizer3d(this);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -834,6 +834,8 @@ void RiuViewer::updateGridBoxData(double scaleZ,
     m_gridBoxGenerator->setGridBoxDomainCoordBoundingBox(domainCoordBoundingBox);
 
     m_gridBoxGenerator->createGridBoxParts();
+
+    m_selectionVisualizerManager->updateVisibleEditors();
 }
 
 //--------------------------------------------------------------------------------------------------

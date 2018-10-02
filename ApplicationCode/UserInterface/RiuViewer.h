@@ -45,6 +45,7 @@ class QProgressBar;
 namespace caf
 {
     class TitledOverlayFrame;
+    class PdmUiSelectionVisualizer3d;
 }
 
 namespace cvf
@@ -170,6 +171,8 @@ private:
     RivGridBoxGenerator*        m_gridBoxGenerator;
     cvf::ref<RivWindowEdgeAxesOverlayItem> m_windowEdgeAxisOverlay;
     bool                        m_showWindowEdgeAxes;
+
+    caf::PdmUiSelectionVisualizer3d* m_selectionVisualizerManager;
 
     cvf::Vec3d                  m_cursorPositionDomainCoords;
     bool                        m_isNavigationRotationEnabled;
