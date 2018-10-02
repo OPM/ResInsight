@@ -34,7 +34,6 @@ RiaJCurveCalculator::RiaJCurveCalculator(cvf::Vec3d p1, double azi1, double inc1
     cvf::Vec3d t1 (RiaOffshoreSphericalCoords::unitVectorFromAziInc(azi1, inc1));
 
     cvf::Vec3d p1p2 = p2 - p1;
-    bool isOk = true;
 
     cvf::Vec3d tr1 = p1p2 - (p1p2.dot(t1)) * t1;
     double tr1Length = tr1.length();
