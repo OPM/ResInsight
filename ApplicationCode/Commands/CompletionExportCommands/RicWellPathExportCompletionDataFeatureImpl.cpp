@@ -367,13 +367,23 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions(const std::ve
                         if (completionType == RigCompletionData::FRACTURE)
                         {
                             fileName += createPressureDepletionFileNameSuffix(exportSettings);
+                            sortAndExportCompletionsToFile(exportSettings.caseToApply,
+                                                           exportSettings.folder,
+                                                           fileName,
+                                                           wellCompletions,
+                                                           fractureDataReportItems,
+                                                           exportSettings.compdatExport);
                         }
-                        sortAndExportCompletionsToFile(exportSettings.caseToApply,
-                                                       exportSettings.folder,
-                                                       fileName,
-                                                       wellCompletions,
-                                                       fractureDataReportItems,
-                                                       exportSettings.compdatExport);
+                        else
+                        {
+                            std::vector<RicWellPathFractureReportItem> emptyReportItemVector;
+                            sortAndExportCompletionsToFile(exportSettings.caseToApply,
+                                                           exportSettings.folder,
+                                                           fileName,
+                                                           wellCompletions,
+                                                           emptyReportItemVector,
+                                                           exportSettings.compdatExport);
+                        }
                     }
 
                     progress.incrementProgress();
