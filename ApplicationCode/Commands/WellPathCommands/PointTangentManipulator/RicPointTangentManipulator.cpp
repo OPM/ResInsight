@@ -123,6 +123,7 @@ bool RicPointTangentManipulator::eventFilter(QObject *obj, QEvent* inputEvent)
             int translatedMousePosY = m_viewer->height() - mouseEvent->pos().y();
 
             cvf::ref<cvf::Ray> ray = m_viewer->mainCamera()->rayFromWindowCoordinates(translatedMousePosX, translatedMousePosY);
+            if (!ray.isNull())
             {
                 m_partManager->updateManipulatorFromRay(ray.p());
 
@@ -778,7 +779,7 @@ void RicWellTarget3dEditor::configureAndUpdateUi(const QString& uiConfigName)
 {
     RimWellPathTarget* target = dynamic_cast<RimWellPathTarget*>(this->pdmObject());
 
-    if ( !target)
+    if ( !target || !target->isEnabled())
     {
         m_cvfModel->removeAllParts();
         return;
