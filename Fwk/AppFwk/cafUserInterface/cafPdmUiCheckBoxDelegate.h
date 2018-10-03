@@ -57,6 +57,9 @@ public:
 
     virtual void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const;
     virtual bool editorEvent(QEvent *event, QAbstractItemModel *model, const QStyleOptionViewItem &option, const QModelIndex &index);
+
+    virtual QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const override;
+
 };
 
 
