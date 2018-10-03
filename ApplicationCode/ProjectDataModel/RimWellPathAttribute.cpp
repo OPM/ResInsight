@@ -17,7 +17,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 #include "RimWellPathAttribute.h"
 
-#include "RimWellPathAttributeCurve.h"
 #include "RimWellPathAttributeCollection.h"
 #include "RimWellPath.h"
 
@@ -34,6 +33,7 @@ void caf::AppEnum<RimWellPathAttribute::AttributeType>::setUp()
 {
     addItem(RimWellPathAttribute::AttributeCasing, "CASING", "Casing");
     addItem(RimWellPathAttribute::AttributeLiner, "LINER", "Liner");
+    addItem(RimWellPathAttribute::AttributePacker, "PACKER", "Packer");
     setDefault(RimWellPathAttribute::AttributeCasing);
 }
 }
@@ -103,9 +103,13 @@ QString RimWellPathAttribute::label() const
     {
         return QString("Casing %1").arg(diameterLabel());
     }
-    else
+    else if (m_type == AttributeLiner)
     {
         return QString("Liner %1").arg(diameterLabel());
+    }
+    else
+    {
+        return m_type().uiText();
     }
 }
 
@@ -114,7 +118,19 @@ QString RimWellPathAttribute::label() const
 //--------------------------------------------------------------------------------------------------
 QString RimWellPathAttribute::diameterLabel() const
 {
-    return generateInchesLabel(m_diameterInInches());
+    return generateInchesLabel(m_diameterInInches());    
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimWellPathAttribute::operator<(const RimWellPathAttribute& rhs) const
+{
+    if (type() != rhs.type())
+    {
+        return type() < rhs.type();
+    }
+    return depthEnd() > rhs.depthEnd();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -123,18 +139,20 @@ QString RimWellPathAttribute::diameterLabel() const
 QList<caf::PdmOptionItemInfo> RimWellPathAttribute::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly)
 {
     QList<caf::PdmOptionItemInfo> options;
-    if (fieldNeedingOptions == &m_type)
+    if (fieldNeedingOptions == &m_diameterInInches)
     {
-        options.push_back(caf::PdmOptionItemInfo(AttributeTypeEnum::uiText(AttributeCasing), AttributeCasing));
-        options.push_back(caf::PdmOptionItemInfo(AttributeTypeEnum::uiText(AttributeLiner), AttributeLiner));
-    }
-    else if (fieldNeedingOptions == &m_diameterInInches)
-    {
-        std::vector<double> values = { MAX_DIAMETER_IN_INCHES, 22.0, 20.0, 18.0 + 5.0 / 8.0, 16.0, 14.0, 13.0 + 3.0 / 8.0, 10.0 + 3.0 / 4.0, 9.0 + 7.0 / 8.0, 9.0 + 5.0 / 8.0, MIN_DIAMETER_IN_INCHES };
-
-        for (double value : values)
+        if (m_type() == AttributeCasing || m_type() == AttributeLiner)
         {
-            options.push_back(caf::PdmOptionItemInfo(generateInchesLabel(value), value));
+            std::vector<double> values = { MAX_DIAMETER_IN_INCHES, 22.0, 20.0, 18.0 + 5.0 / 8.0, 16.0, 14.0, 13.0 + 3.0 / 8.0, 10.0 + 3.0 / 4.0, 9.0 + 7.0 / 8.0, 9.0 + 5.0 / 8.0, MIN_DIAMETER_IN_INCHES };
+
+            for (double value : values)
+            {
+                options.push_back(caf::PdmOptionItemInfo(generateInchesLabel(value), value));
+            }
+        }
+        else
+        {
+            options.push_back(caf::PdmOptionItemInfo("N/A", MAX_DIAMETER_IN_INCHES));
         }
     }
     return options;
@@ -184,5 +202,11 @@ void RimWellPathAttribute::fieldChangedByUi(const caf::PdmFieldHandle* changedFi
 //--------------------------------------------------------------------------------------------------
 void RimWellPathAttribute::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
-    m_depthStart.uiCapability()->setUiReadOnly(m_type() == AttributeCasing);
+    bool startDepthAvailable = m_type() != AttributeCasing;
+    bool endDepthAvailable = true;
+    bool diameterAvailable = m_type() == AttributeCasing || m_type() == AttributeLiner;
+
+    m_depthStart.uiCapability()->setUiReadOnly(!startDepthAvailable);    
+    m_depthEnd.uiCapability()->setUiReadOnly(!endDepthAvailable);
+    m_diameterInInches.uiCapability()->setUiReadOnly(!diameterAvailable);    
 }

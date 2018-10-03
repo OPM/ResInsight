@@ -116,7 +116,7 @@ public:
     void            allVisibleGridViews(std::vector<RimGridView*>& views);
     void            allNotLinkedViews(std::vector<RimGridView*>& views);
 
-    void            scheduleCreateDisplayModelAndRedrawAllViews(); 
+    void            scheduleCreateDisplayModelAndRedrawAllViews();
 
     void            computeUtmAreaOfInterest();
 

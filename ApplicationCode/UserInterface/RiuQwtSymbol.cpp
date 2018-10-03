@@ -56,6 +56,30 @@ RiuQwtSymbol::RiuQwtSymbol(PointSymbolEnum riuStyle, const QString& label, Label
         style = QwtSymbol::Path;
         {
             QPainterPath path;
+            path.moveTo(0, -10);
+            path.lineTo(-10, 0);
+            path.lineTo(0, 10);
+            path.lineTo(0, -10);
+            setPath(path);
+            setPinPoint(QPointF(0, 0));
+        }
+        break;
+    case SYMBOL_RIGHT_TRIANGLE:
+        style = QwtSymbol::Path;
+        {
+            QPainterPath path;
+            path.moveTo(0, -10);
+            path.lineTo(10, 0);
+            path.lineTo(0, 10);
+            path.lineTo(0, -10);
+            setPath(path);
+            setPinPoint(QPointF(0, 0));
+        }
+        break;
+    case SYMBOL_LEFT_ANGLED_TRIANGLE:
+        style = QwtSymbol::Path;
+        {
+            QPainterPath path;
             path.moveTo(0, 0);
             path.lineTo(-10, 0);
             path.lineTo(0, -10);
@@ -64,7 +88,7 @@ RiuQwtSymbol::RiuQwtSymbol(PointSymbolEnum riuStyle, const QString& label, Label
             setPinPoint(QPointF(0, 0));
         }
         break;
-    case SYMBOL_RIGHT_TRIANGLE:
+    case SYMBOL_RIGHT_ANGLED_TRIANGLE:
         style = QwtSymbol::Path;
         {
             QPainterPath path;
@@ -104,11 +128,15 @@ void RiuQwtSymbol::renderSymbols(QPainter *painter, const QPointF *points, int n
 //--------------------------------------------------------------------------------------------------
 void RiuQwtSymbol::renderSymbolLabel(QPainter *painter, const QPointF& position) const
 {
-    int symbolWidth = this->size().width();
-    int labelWidth = painter->fontMetrics().width(m_label);
+    int symbolWidth  = this->size().width();
+    int labelWidth   = painter->fontMetrics().width(m_label);
     if (m_labelPosition == LabelAboveSymbol)
     {
         painter->drawText(position.x() - labelWidth / 2, position.y() - 5, m_label);
+    }
+    else if (m_labelPosition == LabelLeftOfSymbol)
+    {
+        painter->drawText(position.x() - labelWidth - symbolWidth, position.y(), m_label);
     }
     else if (m_labelPosition == LabelRightOfSymbol)
     {
@@ -123,5 +151,4 @@ void RiuQwtSymbol::setLabelPosition(LabelPosition labelPosition)
 {
     m_labelPosition = labelPosition;
 }
-
 

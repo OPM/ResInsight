@@ -34,6 +34,7 @@ public:
     enum LabelPosition
     {
         LabelAboveSymbol,
+        LabelLeftOfSymbol,
         LabelRightOfSymbol
     };
     enum PointSymbolEnum
@@ -47,7 +48,9 @@ public:
         SYMBOL_XCROSS,
         SYMBOL_DOWN_TRIANGLE,
         SYMBOL_LEFT_TRIANGLE,
-        SYMBOL_RIGHT_TRIANGLE
+        SYMBOL_RIGHT_TRIANGLE,
+        SYMBOL_LEFT_ANGLED_TRIANGLE,
+        SYMBOL_RIGHT_ANGLED_TRIANGLE
     };
 
     RiuQwtSymbol(PointSymbolEnum riuStyle, const QString& label, LabelPosition labelPosition = LabelAboveSymbol);

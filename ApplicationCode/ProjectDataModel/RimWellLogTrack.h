@@ -36,12 +36,12 @@
 
 class RigWellPath;
 class RimCase;
-class RimWellPathAttributeCurve;
 class RimWellPathAttributeCollection;
 class RimWellFlowRateCurve;
 class RimWellLogCurve;
 class RimWellPath;
 class RiuPlotAnnotationTool;
+class RiuWellPathAttributePlotObject;
 class RiuWellLogTrack;
 class RigEclipseWellLogExtractor;
 class RimWellLogPlotCollection;
@@ -120,8 +120,10 @@ public:
     void setShowFormations(bool on);
     bool showFormations() const;
     void setShowFormationLabels(bool on);
-    void setShowWellPathAttributes(bool on);
+    
     bool showWellPathAttributes() const;
+    bool showWellPathAttributesBothSides() const;
+    void setShowWellPathAttributes(bool on);
     void setWellPathAttributesSource(RimWellPath* wellPath);
     
     RimWellPath*     wellPathAttributeSource() const;
@@ -211,11 +213,14 @@ private:
     caf::PdmField<caf::AppEnum<WidthScaleFactor>>                      m_widthScaleFactor;
     caf::PdmField<bool>                                                m_formationBranchDetection;
     caf::PdmField<bool>                                                m_showWellPathAttributes;
+    caf::PdmField<bool>                                                m_showWellPathAttributesFromCompletions;
     caf::PdmField<bool>                                                m_showWellPathAttributeBothSides;
+    caf::PdmField<bool>                                                m_showWellPathAttributeLabels;
     caf::PdmField<bool>                                                m_wellPathAttributesInLegend;
     caf::PdmPtrField<RimWellPath*>                                     m_wellPathAttributeSource;
     caf::PdmPtrField<RimWellPathAttributeCollection*>                  m_wellPathAttributeCollection;
-    caf::PdmChildArrayField<RimWellPathAttributeCurve*>                m_wellPathAttributeCurves;
+    
+    std::vector<RiuWellPathAttributePlotObject>                        m_wellPathAttributePlotObjects;
 
     bool m_formationsForCaseWithSimWellOnly;
 

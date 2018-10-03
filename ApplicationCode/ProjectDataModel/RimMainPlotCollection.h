@@ -59,7 +59,7 @@ public:
     void                            deleteAllContainedObjects();
     void                            updateCurrentTimeStepInPlots();
     void                            updatePlotsWithFormations();
-
+    void                            updatePlotsWithCompletions();
 private:
 
     // Overridden PDM methods

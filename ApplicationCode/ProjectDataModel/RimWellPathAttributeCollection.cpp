@@ -85,6 +85,8 @@ void RimWellPathAttributeCollection::insertAttribute(RimWellPathAttribute* inser
         m_attributes.insert(index, attribute);
     else
         m_attributes.push_back(attribute);
+
+    this->updateAllReferringTracks();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -94,6 +96,8 @@ void RimWellPathAttributeCollection::deleteAttribute(RimWellPathAttribute* attri
 {
     m_attributes.removeChildObject(attributeToDelete);
     delete attributeToDelete;    
+
+    this->updateAllReferringTracks();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -123,6 +127,7 @@ void RimWellPathAttributeCollection::defineEditorAttribute(const caf::PdmFieldHa
         if (tvAttribute)
         {
             tvAttribute->autoResizeColumnsToFillContainer = true;
+            tvAttribute->minimumHeight = 300;
         }
     }
 }

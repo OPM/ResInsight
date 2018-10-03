@@ -34,8 +34,18 @@ public:
 
     enum AttributeType
     {
+        // Visible and selectable attributes
         AttributeCasing,
-        AttributeLiner
+        AttributeLiner,
+        AttributePacker,
+        // Attribute types generated from well path and completions
+        AttributeWellTube,
+        AttributeFracture,
+        AttributePerforationInterval,
+        AttributeFishbonesInterval,
+        AttributeAICD,
+        AttributeICD,
+        AttributeICV,
     };
     typedef caf::AppEnum<AttributeType> AttributeTypeEnum;
 
@@ -48,6 +58,7 @@ public:
     double        diameterInInches() const;
     QString       label() const;
     QString       diameterLabel() const;
+    bool          operator<(const RimWellPathAttribute& rhs) const;
 
 private:
     virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
@@ -61,4 +72,5 @@ private:
     caf::PdmField<double>            m_depthEnd;
     caf::PdmField<double>            m_diameterInInches;
 };
+
 

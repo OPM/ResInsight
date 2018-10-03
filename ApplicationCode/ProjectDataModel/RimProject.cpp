@@ -848,6 +848,8 @@ void RimProject::reloadCompletionTypeResultsInAllViews()
 {
     scheduleCreateDisplayModelAndRedrawAllViews();
     RiaCompletionTypeCalculationScheduler::instance()->scheduleRecalculateCompletionTypeAndRedrawAllViews();
+
+    this->mainPlotCollection()->updatePlotsWithCompletions();
 }
 
 //--------------------------------------------------------------------------------------------------

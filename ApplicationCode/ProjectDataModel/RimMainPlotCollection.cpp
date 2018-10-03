@@ -210,3 +210,17 @@ void RimMainPlotCollection::updatePlotsWithFormations()
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimMainPlotCollection::updatePlotsWithCompletions()
+{
+    if (m_wellLogPlotCollection)
+    {
+        for (RimWellLogPlot* wellLogPlot : m_wellLogPlotCollection->wellLogPlots())
+        {
+            wellLogPlot->loadDataAndUpdate();
+        }
+    }
+}
+
