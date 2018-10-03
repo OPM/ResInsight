@@ -35,7 +35,9 @@ namespace RiaDefines
         FORMATION_NAMES,
         FLOW_DIAGNOSTICS,
         INJECTION_FLOODING,
-        REMOVED
+        REMOVED,
+
+        UNDEFINED = 999
     };
 
     enum CompletionType {

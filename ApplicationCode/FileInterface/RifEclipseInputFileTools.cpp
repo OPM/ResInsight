@@ -521,6 +521,18 @@ bool RifEclipseInputFileTools::writeBinaryResultToTextFile(const QString& fileNa
         return false;
     }
 
+    return writeResultToTextFile(fileName, eclipseCase, resultAccessor, eclipseKeyWord, undefinedValue);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RifEclipseInputFileTools::writeResultToTextFile(const QString& fileName,
+                                                     RigEclipseCaseData* eclipseCase,
+                                                     cvf::ref<RigResultAccessor> resultAccessor,
+                                                     const QString& eclipseKeyWord,
+                                                     const double undefinedValue)
+{
     QFile file(fileName);
     if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
     {
@@ -547,7 +559,6 @@ bool RifEclipseInputFileTools::writeBinaryResultToTextFile(const QString& fileNa
     }
 
     writeDataToTextFile(&file, eclipseKeyWord, resultData);
-
     return true;
 }
 

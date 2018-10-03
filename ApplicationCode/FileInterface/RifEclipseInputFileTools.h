@@ -37,7 +37,7 @@
 class RigEclipseCaseData;
 class QFile;
 class RimEclipseResultDefinition;
-
+class RigResultAccessor;
 
 //--------------------------------------------------------------------------------------------------
 /// Structure used to cache file position of keywords
@@ -78,6 +78,7 @@ public:
 
     static bool     writePropertyToTextFile(const QString& fileName, RigEclipseCaseData* eclipseCase, size_t timeStep, const QString& resultName, const QString& eclipseKeyWord);
     static bool     writeBinaryResultToTextFile(const QString& fileName, RigEclipseCaseData* eclipseCase, size_t timeStep, RimEclipseResultDefinition* resultdefinition, const QString& eclipseKeyWord, const double undefinedValue);
+    static bool     writeResultToTextFile(const QString& fileName, RigEclipseCaseData* eclipseCase, cvf::ref<RigResultAccessor> resultAccessor, const QString& eclipseKeyWord, const double undefinedValue);
 
     static bool     readFaultsAndParseIncludeStatementsRecursively( QFile& file, 
                                                                     qint64 startPos, 

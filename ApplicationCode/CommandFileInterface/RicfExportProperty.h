@@ -22,7 +22,15 @@
 
 #include "RicfCommandObject.h"
 
+#include <QString>
+
 #include "cafPdmField.h"
+
+#include <cvfObject.h>
+
+class RigResultAccessor;
+class RimEclipseCase;
+class RimEclipseView;
 
 //==================================================================================================
 //
@@ -37,6 +45,12 @@ public:
     RicfExportProperty();
 
     virtual void execute() override;
+
+    cvf::ref<RigResultAccessor> findResult(RimEclipseView* view,
+                                           RimEclipseCase* eclipseCase,
+                                           size_t timeStep,
+                                           RiaDefines::ResultCatType resultType,
+                                           const QString& property);
 
 private:
     caf::PdmField<int>                                       m_caseId;

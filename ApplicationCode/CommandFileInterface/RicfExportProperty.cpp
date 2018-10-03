@@ -23,6 +23,12 @@
 #include "RiaApplication.h"
 #include "RiaLogging.h"
 
+#include "RigCaseCellResultsData.h"
+#include "RigEclipseCaseData.h"
+#include "RigMainGrid.h"
+#include "RigResultAccessor.h"
+#include "RigResultAccessorFactory.h"
+
 #include "RimProject.h"
 #include "RimOilField.h"
 #include "RimEclipseCaseCollection.h"
@@ -46,7 +52,7 @@ RicfExportProperty::RicfExportProperty()
     RICF_InitField(&m_caseId,         "caseId",         -1,                                                                  "Case ID", "", "", "");
     RICF_InitField(&m_timeStepIndex,  "timeStep",       -1,                                                                  "Time Step Index", "", "", "");
     RICF_InitField(&m_propertyName,   "property",       QString(),                                                           "Property Name", "", "", "");
-    RICF_InitField(&m_type,           "type",           caf::AppEnum<RiaDefines::ResultCatType>(RiaDefines::DYNAMIC_NATIVE), "Property type", "", "", "");
+    RICF_InitField(&m_type,           "type",           caf::AppEnum<RiaDefines::ResultCatType>(RiaDefines::UNDEFINED),      "Property type", "", "", "");
     RICF_InitField(&m_eclipseKeyword, "eclipseKeyword", QString(),                                                           "Eclipse Keyword", "", "", "");
     RICF_InitField(&m_undefinedValue, "undefinedValue", 0.0,                                                                 "Undefined Value", "", "", "");
     RICF_InitField(&m_path,           "exportFile",     QString(),                                                           "Export File", "", "", "");
@@ -104,9 +110,42 @@ void RicfExportProperty::execute()
         m_eclipseKeyword = m_propertyName;
     }
 
-    view->cellResult()->setResultType(m_type());
-    view->cellResult()->setResultVariable(m_propertyName());
-    view->loadDataAndUpdate();
+    auto resultAccessor = findResult(view, eclipseCase, m_timeStepIndex, m_type(), m_propertyName);
+    if (!resultAccessor.isNull())
+    {
+        RifEclipseInputFileTools::writeResultToTextFile(filePath, eclipseCase->eclipseCaseData(), resultAccessor, m_eclipseKeyword, m_undefinedValue);
+    }
+}
 
-    RifEclipseInputFileTools::writeBinaryResultToTextFile(filePath, eclipseCase->eclipseCaseData(), m_timeStepIndex, view->cellResult(), m_eclipseKeyword, m_undefinedValue);
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::ref<RigResultAccessor> RicfExportProperty::findResult(RimEclipseView* view,
+                                                           RimEclipseCase* eclipseCase,
+                                                           size_t timeStep,
+                                                           RiaDefines::ResultCatType resultType,
+                                                           const QString& property)
+{
+    size_t resultIndex = cvf::UNDEFINED_SIZE_T;
+
+    if (resultType == RiaDefines::UNDEFINED)
+    {
+        resultIndex = eclipseCase->results(RiaDefines::MATRIX_MODEL)->findOrLoadScalarResult(property);
+    }
+    else
+    {
+        resultIndex = eclipseCase->results(RiaDefines::MATRIX_MODEL)->findOrLoadScalarResult(resultType, property);
+    }
+
+    cvf::ref<RigResultAccessor> resultAccessor = nullptr;
+    if (resultIndex != cvf::UNDEFINED_SIZE_T)
+    {
+        resultAccessor = RigResultAccessorFactory::createFromResultIdx(eclipseCase->eclipseCaseData(),
+                                                                       0,
+                                                                       RiaDefines::MATRIX_MODEL,
+                                                                       timeStep,
+                                                                       resultIndex);
+    }
+
+    return resultAccessor;
 }
