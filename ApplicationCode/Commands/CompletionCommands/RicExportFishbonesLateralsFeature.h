@@ -18,9 +18,22 @@
 
 #pragma once
 
+#include <QFile>
+
 #include "cafCmdFeature.h"
 
+#include <memory>
+
 class RimFishbonesCollection;
+class RimWellPath;
+class QTextStream;
+
+//==================================================================================================
+/// 
+//==================================================================================================
+#ifndef DOUBLE_INF
+#define DOUBLE_INF  std::numeric_limits<double>::infinity()
+#endif
 
 //==================================================================================================
 /// 
@@ -28,6 +41,8 @@ class RimFishbonesCollection;
 class RicExportFishbonesLateralsFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
+
+    //static void exportFishboneLaterals(const RimWellPath* wellPath, QTextStream& stream, double mdStepSize);
 
 protected:
     virtual void onActionTriggered(bool isChecked) override;

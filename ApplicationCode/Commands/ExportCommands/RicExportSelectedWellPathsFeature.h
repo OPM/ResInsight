@@ -24,13 +24,16 @@
 
 #include <memory>
 
+class RigWellPath;
 class RimWellPath;
 class RicExportWellPathsUi;
+class QTextStream;
 
 //==================================================================================================
 /// 
 //==================================================================================================
 typedef std::shared_ptr<QFile> QFilePtr;
+typedef std::shared_ptr<QTextStream> QTextStreamPtr;
 
 //==================================================================================================
 /// 
@@ -39,14 +42,16 @@ class RicExportSelectedWellPathsFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
 
-    static void exportWellPath(const RimWellPath* wellPath, double mdStepSize, const QString& folder);
-    static QFilePtr openFileForExport(const QString& folderName, const QString& fileName);
     static void handleAction(const std::vector<RimWellPath*>& wellPaths);
+    static void exportWellPath(const RimWellPath* wellPath, double mdStepSize, const QString& folder);
+
+    static RicExportWellPathsUi* openDialog();
+    static QFilePtr openFileForExport(const QString& folderName, const QString& fileName);
+    static QTextStreamPtr createOutputFileStream(QFile& file);
+    static void writeWellPathGeometryToStream(QTextStream& stream, const RigWellPath* geometry, const QString& wellName, double mdStepSize);
 
 private:
     bool isCommandEnabled() override;
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook(QAction* actionToSetup) override;
-
-    static RicExportWellPathsUi* openDialog();
 };
