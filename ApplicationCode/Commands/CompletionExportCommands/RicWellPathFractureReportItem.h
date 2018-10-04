@@ -34,12 +34,12 @@ public:
     void setWidthAndConductivity(double width, double conductivity);
     void setHeightAndHalfLength(double height, double halfLength);
     void setAreaWeightedTransmissibility(double transmissibility);
+    void setUnitSystem(RiaEclipseUnitTools::UnitSystem unitSystem);
 
-    QString wellPathName() const;
+    QString wellPathNameForExport() const;
+    QString fractureName() const;
+    QString fractureTemplateName() const;
 
-    void getNames(QString& wellPathName, QString& fractureName, QString& fractureTemplateName) const;
-
-    void                            setUnitSystem(RiaEclipseUnitTools::UnitSystem unitSystem);
     RiaEclipseUnitTools::UnitSystem unitSystem() const;
 
     double transmissibility() const;
@@ -56,9 +56,9 @@ public:
 
 private:
     RiaEclipseUnitTools::UnitSystem m_unitSystem;
-    QString m_wellPath;
-    QString m_wellPathFracture;
-    QString m_wellPathFractureTemplate;
+    QString                         m_wellPathNameForExport;
+    QString                         m_wellPathFracture;
+    QString                         m_wellPathFractureTemplate;
 
     double m_transmissibility;
     size_t m_connectionCount;

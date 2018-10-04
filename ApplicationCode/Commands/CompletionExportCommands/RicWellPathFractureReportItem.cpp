@@ -24,7 +24,7 @@
 RicWellPathFractureReportItem::RicWellPathFractureReportItem(const QString& wellPathName,
                                                              const QString& fractureName,
                                                              const QString& fractureTemplateName)
-    : m_wellPath(wellPathName)
+    : m_wellPathNameForExport(wellPathName)
     , m_wellPathFracture(fractureName)
     , m_wellPathFractureTemplate(fractureTemplateName)
     , m_transmissibility(0.0)
@@ -82,23 +82,29 @@ void RicWellPathFractureReportItem::setAreaWeightedTransmissibility(double trans
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RicWellPathFractureReportItem::wellPathName() const
+QString RicWellPathFractureReportItem::wellPathNameForExport() const
 {
-    return m_wellPath;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RicWellPathFractureReportItem::getNames(QString& wellPathName, QString& fractureName, QString& fractureTemplateName) const
-{
-    wellPathName         = m_wellPath;
-    fractureName         = m_wellPathFracture;
-    fractureTemplateName = m_wellPathFractureTemplate;
+    return m_wellPathNameForExport;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
+//--------------------------------------------------------------------------------------------------
+QString RicWellPathFractureReportItem::fractureName() const
+{
+    return m_wellPathFracture;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RicWellPathFractureReportItem::fractureTemplateName() const
+{
+    return m_wellPathFractureTemplate;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
 //--------------------------------------------------------------------------------------------------
 void RicWellPathFractureReportItem::setUnitSystem(RiaEclipseUnitTools::UnitSystem unitSystem)
 {
@@ -106,7 +112,7 @@ void RicWellPathFractureReportItem::setUnitSystem(RiaEclipseUnitTools::UnitSyste
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RiaEclipseUnitTools::UnitSystem RicWellPathFractureReportItem::unitSystem() const
 {

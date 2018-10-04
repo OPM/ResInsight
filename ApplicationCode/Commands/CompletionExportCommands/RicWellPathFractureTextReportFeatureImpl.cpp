@@ -626,12 +626,9 @@ QString RicWellPathFractureTextReportFeatureImpl::createFractureCompletionSummar
 
     for (const auto& reportItem : wellPathFractureReportItems)
     {
-        QString wellPathName, fractureName, fractureTemplateName;
-        reportItem.getNames(wellPathName, fractureName, fractureTemplateName);
-
-        formatter.add(wellPathName);
-        formatter.add(fractureName);
-        formatter.add(fractureTemplateName);
+        formatter.add(reportItem.wellPathNameForExport());
+        formatter.add(reportItem.fractureName());
+        formatter.add(reportItem.fractureTemplateName());
 
         formatter.add(reportItem.transmissibility());
         formatter.add(reportItem.connectionCount());
@@ -676,8 +673,7 @@ QString RicWellPathFractureTextReportFeatureImpl::createConnectionsPerWellText(c
     std::map<QString /*Well*/, size_t> wellConnectionCounts;
     for (const auto& reportItem : wellPathFractureReportItems)
     {
-        QString wellPathName, fractureName, fractureTemplateName;
-        reportItem.getNames(wellPathName, fractureName, fractureTemplateName);
+        QString wellPathName = reportItem.wellPathNameForExport();
         if (wellConnectionCounts.find(wellPathName) == wellConnectionCounts.end())
         {
             wellConnectionCounts.insert(std::make_pair(wellPathName, 0));

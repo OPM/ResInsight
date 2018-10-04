@@ -1176,7 +1176,7 @@ void RicWellPathExportCompletionDataFeatureImpl::exportWellPathFractureReport(
             {
                 for (const auto& reportItem : wellPathFractureReportItems)
                 {
-                    if (reportItem.wellPathName() == wellPath->name())
+                    if (reportItem.wellPathNameForExport() == wellPath->completions()->wellNameForExport())
                     {
                         wellPathsSet.insert(wellPath);
                     }
