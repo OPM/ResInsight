@@ -22,6 +22,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RicfScaleFractureTemplate.h
 ${CMAKE_CURRENT_LIST_DIR}/RicfSetFractureContainment.h
 ${CMAKE_CURRENT_LIST_DIR}/RicfCreateMultipleFractures.h
 ${CMAKE_CURRENT_LIST_DIR}/RicfExportWellPaths.h
+${CMAKE_CURRENT_LIST_DIR}/RicfExportVisibleCells.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -47,6 +48,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RicfScaleFractureTemplate.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicfSetFractureContainment.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicfCreateMultipleFractures.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicfExportWellPaths.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicfExportVisibleCells.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

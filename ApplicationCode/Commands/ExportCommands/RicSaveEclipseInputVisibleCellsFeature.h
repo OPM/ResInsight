@@ -20,8 +20,8 @@
 
 #include "cafCmdFeature.h"
 
-class RimEclipseInputProperty;
 class RimEclipseView;
+class RicSaveEclipseInputVisibleCellsUi;
 
 //==================================================================================================
 /// 
@@ -29,6 +29,12 @@ class RimEclipseView;
 class RicSaveEclipseInputVisibleCellsFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
+
+public :
+    static void openDialogAndExecuteCommand(RimEclipseView* view);
+    static void executeCommand(RimEclipseView* view,
+                               const RicSaveEclipseInputVisibleCellsUi& exportSettings,
+                               const QString& logPrefix);
 
 protected:
     virtual bool isCommandEnabled() override;

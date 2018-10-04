@@ -18,51 +18,39 @@
 
 #pragma once
 
-#include "RicfMessages.h"
+#include "RiaDefines.h"
 
-#include "cafAppEnum.h"
+#include "RicfCommandObject.h"
 
-#include <map>
-#include <vector>
+#include "cafPdmField.h"
 
-class RicfCommandObject;
+class RimEclipseView;
+class RicSaveEclipseInputVisibleCellsUi;
 
 //==================================================================================================
 //
 //
 //
 //==================================================================================================
-class RicfCommandFileExecutor
+class RicfExportVisibleCells : public RicfCommandObject
 {
-public:
-    enum ExportType {
-        COMPLETIONS,
-        SNAPSHOTS,
-        PROPERTIES,
-        STATISTICS,
-        WELLPATHS,
-        CELLS
-    };
+    CAF_PDM_HEADER_INIT;
 
-    typedef caf::AppEnum<ExportType> ExportTypeEnum;
+    enum ExportKeyword {FLUXNUM, MULTNUM};
 
 public:
-    RicfCommandFileExecutor();
-    ~RicfCommandFileExecutor();
+    RicfExportVisibleCells();
 
-    void    executeCommands(QTextStream& stream);
-    void    setExportPath(ExportType type, QString path);
-    QString getExportPath(ExportType type) const;
-    void    setLastProjectPath(const QString& path);
-    QString getLastProjectPath() const;
-
-    static RicfCommandFileExecutor* instance();
-
-    static std::vector<RicfCommandObject*> prepareFileCommandsForExecution(const std::vector<RicfCommandObject*>& commandsReadFromFile);
+    virtual void execute() override;
 
 private:
-    void    clearCachedData();
+    RimEclipseView* viewFromCaseIdAndViewName(int caseId, const QString& viewName);
+    void buildExportSettings(const QString& exportFolder, RicSaveEclipseInputVisibleCellsUi* exportSettings);
 
-    std::map<ExportType, QString> m_exportPaths;
-    QString                       m_lastProjectPath;
+    caf::PdmField<int>                          m_caseId;
+    caf::PdmField<QString>                      m_viewName;
+    caf::PdmField<caf::AppEnum<ExportKeyword>>  m_exportKeyword;
+    caf::PdmField<int>                          m_visibleActiveCellsValue;
+    caf::PdmField<int>                          m_hiddenActiveCellsValue;
+    caf::PdmField<int>                          m_inactiveCellsValue;
 };

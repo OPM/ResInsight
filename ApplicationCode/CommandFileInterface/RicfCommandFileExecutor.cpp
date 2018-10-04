@@ -35,6 +35,7 @@ namespace caf {
         addItem(RicfCommandFileExecutor::SNAPSHOTS,   "SNAPSHOTS",   "Snapshots");
         addItem(RicfCommandFileExecutor::STATISTICS,  "STATISTICS",  "Statistics");
         addItem(RicfCommandFileExecutor::WELLPATHS,   "WELLPATHS",   "Well Path");
+        addItem(RicfCommandFileExecutor::CELLS,       "CELLS",       "Cells");
         setDefault(RicfCommandFileExecutor::COMPLETIONS);
     }
 }
