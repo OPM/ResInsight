@@ -61,6 +61,8 @@ void RicfCommandFileExecutor::executeCommands(QTextStream& stream)
     RicfMessages messages;
     std::vector<RicfCommandObject*> executableCommands;
     {
+        clearCachedData();
+
         std::vector<RicfCommandObject*> fileCommands = RicfCommandFileReader::readCommands(stream, caf::PdmDefaultObjectFactory::instance(), &messages);
         for (auto message : messages.m_messages)
         {
@@ -213,4 +215,13 @@ std::vector<RicfCommandObject*> RicfCommandFileExecutor::prepareFileCommandsForE
     }
 
     return executableCommands;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicfCommandFileExecutor::clearCachedData()
+{
+    m_exportPaths.clear();
+    m_lastProjectPath.clear();
 }

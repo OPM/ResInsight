@@ -60,6 +60,8 @@ public:
     static std::vector<RicfCommandObject*> prepareFileCommandsForExecution(const std::vector<RicfCommandObject*>& commandsReadFromFile);
 
 private:
+    void    clearCachedData();
+
     std::map<ExportType, QString> m_exportPaths;
     QString                       m_lastProjectPath;
 };
