@@ -445,7 +445,7 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
 
         if (fractureDataReportItems)
         {
-            RicWellPathFractureReportItem reportItem(wellPathName, fracture->name(), fracTemplate->name());
+            RicWellPathFractureReportItem reportItem(wellPathName, fracture->name(), fracTemplate->name(), fracture->fractureMD());
             reportItem.setUnitSystem(fracTemplate->fractureTemplateUnit());
 
             RicExportFractureCompletionsImpl::calculateAndSetReportItemData(

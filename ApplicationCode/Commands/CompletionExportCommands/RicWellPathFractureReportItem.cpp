@@ -23,10 +23,12 @@
 //--------------------------------------------------------------------------------------------------
 RicWellPathFractureReportItem::RicWellPathFractureReportItem(const QString& wellPathName,
                                                              const QString& fractureName,
-                                                             const QString& fractureTemplateName)
+                                                             const QString& fractureTemplateName,
+                                                             double         measuredDepth)
     : m_wellPathNameForExport(wellPathName)
     , m_wellPathFracture(fractureName)
     , m_wellPathFractureTemplate(fractureTemplateName)
+    , m_mesuredDepth(measuredDepth)
     , m_transmissibility(0.0)
     , m_connectionCount(0)
     , m_fcd(0.0)
@@ -88,7 +90,7 @@ QString RicWellPathFractureReportItem::wellPathNameForExport() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString RicWellPathFractureReportItem::fractureName() const
 {
@@ -96,7 +98,7 @@ QString RicWellPathFractureReportItem::fractureName() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString RicWellPathFractureReportItem::fractureTemplateName() const
 {
@@ -197,4 +199,17 @@ double RicWellPathFractureReportItem::h() const
 double RicWellPathFractureReportItem::km() const
 {
     return m_km;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RicWellPathFractureReportItem::operator<(const RicWellPathFractureReportItem& other) const
+{
+    if (this->wellPathNameForExport() != other.wellPathNameForExport())
+    {
+        return this->wellPathNameForExport() < other.wellPathNameForExport();
+    }
+
+    return this->m_mesuredDepth < other.m_mesuredDepth;
 }

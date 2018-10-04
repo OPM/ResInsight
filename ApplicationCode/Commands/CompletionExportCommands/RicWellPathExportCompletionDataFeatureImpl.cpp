@@ -1167,6 +1167,21 @@ void RicWellPathExportCompletionDataFeatureImpl::exportWellPathFractureReport(
 
     if (!wellPathFractureReportItems.empty())
     {
+        std::vector<RicWellPathFractureReportItem> sortedReportItems;
+        {
+            std::set<RicWellPathFractureReportItem> fractureReportItemsSet;
+
+            for (const auto& reportItem : wellPathFractureReportItems)
+            {
+                fractureReportItemsSet.insert(reportItem);
+            }
+
+            for (const auto& reportItem : fractureReportItemsSet)
+            {
+                sortedReportItems.emplace_back(reportItem);
+            }
+        }
+
         std::vector<RimWellPath*> wellPathsToReport;
         {
             std::set<RimWellPath*> wellPathsSet;
@@ -1174,7 +1189,7 @@ void RicWellPathExportCompletionDataFeatureImpl::exportWellPathFractureReport(
             auto allWellPaths = RicWellPathFractureTextReportFeatureImpl::wellPathsWithActiveFractures();
             for (const auto& wellPath : allWellPaths)
             {
-                for (const auto& reportItem : wellPathFractureReportItems)
+                for (const auto& reportItem : sortedReportItems)
                 {
                     if (reportItem.wellPathNameForExport() == wellPath->completions()->wellNameForExport())
                     {
@@ -1184,14 +1199,12 @@ void RicWellPathExportCompletionDataFeatureImpl::exportWellPathFractureReport(
             }
 
             std::copy(wellPathsSet.begin(), wellPathsSet.end(), std::back_inserter(wellPathsToReport));
-
-            RicWellPathFractureTextReportFeatureImpl reportGenerator;
-
-            QString summaryText =
-                reportGenerator.wellPathFractureReport(sourceCase, wellPathsToReport, wellPathFractureReportItems);
-
-            stream << summaryText;
         }
+
+        RicWellPathFractureTextReportFeatureImpl reportGenerator;
+        QString summaryText = reportGenerator.wellPathFractureReport(sourceCase, wellPathsToReport, sortedReportItems);
+
+        stream << summaryText;
     }
 }
 

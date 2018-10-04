@@ -148,9 +148,16 @@ QString RicWellPathFractureTextReportFeatureImpl::wellPathFractureReport(
         std::vector<RimWellPathFracture*> wellPathFractures;
         for (const auto& w : wellPaths)
         {
+            std::set<std::pair<double, RimWellPathFracture*>> sortedFracturesByMd;
+
             for (const auto& frac : w->fractureCollection()->activeFractures())
             {
-                wellPathFractures.push_back(frac);
+                sortedFracturesByMd.insert(std::make_pair(frac->fractureMD(), frac));
+            }
+
+            for (const auto& mdAndFracture : sortedFracturesByMd)
+            {
+                wellPathFractures.push_back(mdAndFracture.second);
             }
         }
 

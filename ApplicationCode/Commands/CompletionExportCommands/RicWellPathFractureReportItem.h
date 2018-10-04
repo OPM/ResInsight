@@ -28,7 +28,7 @@
 class RicWellPathFractureReportItem
 {
 public:
-    RicWellPathFractureReportItem(const QString& wellPathName, const QString& fractureName, const QString& fractureTemplateName);
+    RicWellPathFractureReportItem(const QString& wellPathName, const QString& fractureName, const QString& fractureTemplateName, double measuredDepth);
 
     void setData(double trans, size_t connCount, double fcd, double area);
     void setWidthAndConductivity(double width, double conductivity);
@@ -54,11 +54,14 @@ public:
     double h() const;
     double km() const;
 
+    bool operator < (const RicWellPathFractureReportItem& other) const;
+
 private:
     RiaEclipseUnitTools::UnitSystem m_unitSystem;
     QString                         m_wellPathNameForExport;
     QString                         m_wellPathFracture;
     QString                         m_wellPathFractureTemplate;
+    double                          m_mesuredDepth;
 
     double m_transmissibility;
     size_t m_connectionCount;
