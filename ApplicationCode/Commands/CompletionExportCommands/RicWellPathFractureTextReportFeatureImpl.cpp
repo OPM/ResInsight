@@ -574,7 +574,14 @@ QString RicWellPathFractureTextReportFeatureImpl::createFractureInstancesText(
         formatter.add(fracture->perforationLength());
         formatter.add(fracture->perforationEfficiency());
         formatter.add(fracture->wellRadius() * 2.0);
-        formatter.add(fracture->nonDarcyProperties().dFactor);
+        if (fracture->fractureTemplate() && fracture->fractureTemplate()->isNonDarcyFlowEnabled())
+        {
+            formatter.add(fracture->nonDarcyProperties().dFactor);
+        }
+        else
+        {
+            formatter.add("N/A");
+        }
 
         formatter.rowCompleted();
     }
