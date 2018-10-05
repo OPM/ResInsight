@@ -25,6 +25,8 @@
 
 #include <QString>
 
+class RimWellPath;
+
 class RimWellPathAttribute : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
@@ -45,7 +47,7 @@ public:
         AttributeFishbonesInterval,
         AttributeAICD,
         AttributeICD,
-        AttributeICV,
+        AttributeICV
     };
     typedef caf::AppEnum<AttributeType> AttributeTypeEnum;
 
@@ -59,6 +61,7 @@ public:
     QString       label() const;
     QString       diameterLabel() const;
     bool          operator<(const RimWellPathAttribute& rhs) const;
+    void          setDepthsFromWellPath(const RimWellPath* wellPath);
 
 private:
     virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;

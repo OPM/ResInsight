@@ -62,7 +62,14 @@ void RicNewWellPathAttributeFeature::onActionTriggered(bool isChecked)
     {
         RimWellPathAttributeCollection* attributeCollection = nullptr;
         attributes[0]->firstAncestorOrThisOfTypeAsserted(attributeCollection);
-        attributeCollection->insertAttribute(attributes[0], new RimWellPathAttribute);
+
+        RimWellPathAttribute* attribute = new RimWellPathAttribute;
+        RimWellPath* wellPath = nullptr;
+        attributeCollection->firstAncestorOrThisOfTypeAsserted(wellPath);
+
+        attribute->setDepthsFromWellPath(wellPath);
+        attributeCollection->insertAttribute(attributes[0], attribute);
+
         attributeCollection->updateAllRequiredEditors();
         return;
     }
@@ -74,7 +81,10 @@ void RicNewWellPathAttributeFeature::onActionTriggered(bool isChecked)
         wellPath->descendantsIncludingThisOfType(attributeCollections);
         if (!attributeCollections.empty())
         {
-            attributeCollections[0]->insertAttribute(nullptr, new RimWellPathAttribute);
+            RimWellPathAttribute* attribute = new RimWellPathAttribute;
+            attribute->setDepthsFromWellPath(wellPath);
+
+            attributeCollections[0]->insertAttribute(nullptr, attribute);
             attributeCollections[0]->updateAllRequiredEditors();
         }
     }

@@ -17,6 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 #include "RimWellPathAttribute.h"
 
+#include "RigWellPath.h"
 #include "RimWellPathAttributeCollection.h"
 #include "RimWellPath.h"
 
@@ -48,8 +49,8 @@ RimWellPathAttribute::RimWellPathAttribute()
 {
     CAF_PDM_InitObject("RimWellPathAttribute", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_type, "AttributeType", "Type    ", "", "", "");
-    CAF_PDM_InitField(&m_depthStart, "DepthStart", 0.0, "Start MD", "", "", "");
-    CAF_PDM_InitField(&m_depthEnd,   "DepthEnd",   0.0, "End MD",   "", "", "");
+    CAF_PDM_InitField(&m_depthStart, "DepthStart", -1.0, "Start MD", "", "", "");
+    CAF_PDM_InitField(&m_depthEnd,   "DepthEnd",   -1.0, "End MD",   "", "", "");
     CAF_PDM_InitField(&m_diameterInInches, "DiameterInInches", MAX_DIAMETER_IN_INCHES, "Diameter", "", "", "");
     m_diameterInInches.uiCapability()->setUiEditorTypeName(caf::PdmUiComboBoxEditor::uiEditorTypeName());
 }
@@ -136,6 +137,15 @@ bool RimWellPathAttribute::operator<(const RimWellPathAttribute& rhs) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimWellPathAttribute::setDepthsFromWellPath(const RimWellPath* wellPath)
+{
+    m_depthStart = wellPath->wellPathGeometry()->measureDepths().front();
+    m_depthEnd = wellPath->wellPathGeometry()->measureDepths().back();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo> RimWellPathAttribute::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly)
 {
     QList<caf::PdmOptionItemInfo> options;
@@ -186,7 +196,9 @@ void RimWellPathAttribute::fieldChangedByUi(const caf::PdmFieldHandle* changedFi
     {
         if (m_type() == AttributeCasing)
         {
-            m_depthStart = 0;
+            RimWellPath* wellPath = nullptr;
+            this->firstAncestorOrThisOfTypeAsserted(wellPath);
+            m_depthStart = wellPath->wellPathGeometry()->measureDepths().front();
         }
     }
 
@@ -201,7 +213,7 @@ void RimWellPathAttribute::fieldChangedByUi(const caf::PdmFieldHandle* changedFi
 ///
 //--------------------------------------------------------------------------------------------------
 void RimWellPathAttribute::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
-{
+{ 
     bool startDepthAvailable = m_type() != AttributeCasing;
     bool endDepthAvailable = true;
     bool diameterAvailable = m_type() == AttributeCasing || m_type() == AttributeLiner;
