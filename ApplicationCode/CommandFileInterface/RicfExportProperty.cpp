@@ -92,7 +92,9 @@ void RicfExportProperty::execute()
 
         auto timeStepIndex = m_timeStepIndex >= 0 ? m_timeStepIndex : view->currentTimeStep();
         auto propertyName = !m_propertyName().isEmpty() ? m_propertyName : view->cellResult()->resultVariable();
-        auto propertyType = !m_propertyName().isEmpty() ? m_type() : view->cellResult()->resultType();
+        RiaDefines::ResultCatType propertyType;
+        if (!m_propertyName().isEmpty()) propertyType = m_type();
+        else propertyType = view->cellResult()->resultType();
 
         QString filePath = m_path;
         if (filePath.isNull())
