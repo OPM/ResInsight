@@ -116,7 +116,12 @@ void RicfExportProperty::execute()
         auto resultAccessor = findResult(view, timeStepIndex, propertyType, propertyName);
         if (!resultAccessor.isNull())
         {
-            RifEclipseInputFileTools::writeResultToTextFile(filePath, eclipseCase->eclipseCaseData(), resultAccessor, eclipseKeyword, m_undefinedValue);
+            RifEclipseInputFileTools::writeResultToTextFile(filePath, eclipseCase->eclipseCaseData(), resultAccessor, eclipseKeyword, m_undefinedValue, "exportProperty");
+        }
+        else
+        {
+            RiaLogging::error(QString("exportProperty: Could not find property. Case ID %1, time step %2, property '%3'")
+                .arg(m_caseId).arg(timeStepIndex).arg(propertyName));
         }
 
         if (fullySpecified) break;
@@ -124,8 +129,7 @@ void RicfExportProperty::execute()
 
     if (!anyViewsFound)
     {
-        RiaLogging::error(QString("exportProperty: Could not find a view for case with ID %1").arg(m_caseId()));
-        return;
+        RiaLogging::error(QString("exportProperty: Could not find any views for case ID %1").arg(m_caseId()));
     }
 }
 

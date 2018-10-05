@@ -99,7 +99,7 @@ void RicSaveEclipseResultAsInputPropertyExec::redo()
     {
         size_t timeStep = m_cellColors->reservoirView()->currentTimeStep();
 
-        bool isOk = RifEclipseInputFileTools::writeBinaryResultToTextFile(exportSettings.fileName, m_cellColors->reservoirView()->eclipseCase()->eclipseCaseData(), timeStep, m_cellColors, exportSettings.eclipseKeyword, exportSettings.undefinedValue);
+        bool isOk = RifEclipseInputFileTools::writeBinaryResultToTextFile(exportSettings.fileName, m_cellColors->reservoirView()->eclipseCase()->eclipseCaseData(), timeStep, m_cellColors, exportSettings.eclipseKeyword, exportSettings.undefinedValue, "saveEclipseResultAsInputPropertyExec");
         if (!isOk)
         {
             RiaLogging::error("Failed to exported current result to " + exportSettings.fileName);

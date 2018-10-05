@@ -511,7 +511,8 @@ bool RifEclipseInputFileTools::writeBinaryResultToTextFile(const QString& fileNa
                                                            size_t timeStep,
                                                            RimEclipseResultDefinition* resultDefinition,
                                                            const QString& eclipseKeyWord,
-                                                           const double undefinedValue)
+                                                           const double undefinedValue,
+                                                           const QString& logPrefix)
 {
     CVF_ASSERT(eclipseCase);
 
@@ -521,7 +522,7 @@ bool RifEclipseInputFileTools::writeBinaryResultToTextFile(const QString& fileNa
         return false;
     }
 
-    return writeResultToTextFile(fileName, eclipseCase, resultAccessor, eclipseKeyWord, undefinedValue);
+    return writeResultToTextFile(fileName, eclipseCase, resultAccessor, eclipseKeyWord, undefinedValue, logPrefix);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -531,11 +532,13 @@ bool RifEclipseInputFileTools::writeResultToTextFile(const QString& fileName,
                                                      RigEclipseCaseData* eclipseCase,
                                                      cvf::ref<RigResultAccessor> resultAccessor,
                                                      const QString& eclipseKeyWord,
-                                                     const double undefinedValue)
+                                                     const double undefinedValue,
+                                                     const QString& logPrefix)
 {
     QFile file(fileName);
     if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
     {
+        RiaLogging::error(QString("Could not open file '%1'. Do the folder exist?"). arg(fileName));
         return false;
     }
 
