@@ -19,6 +19,7 @@
 #include "RicWellPathFractureTextReportFeatureImpl.h"
 
 #include "RiaApplication.h"
+#include "RiaRegressionTestRunner.h"
 
 #include "RicExportFractureCompletionsImpl.h"
 #include "RicWellPathFractureReportItem.h"
@@ -86,20 +87,7 @@ QString RicWellPathFractureTextReportFeatureImpl::wellPathFractureReport(
 
     textStream << lineStart << "\n";
 
-    if (sourceCase)
-    {
-        textStream << lineStart << " Grid Model:\n";
-        textStream << lineStart << " " << sourceCase->gridFileName() << "\n";
-        textStream << lineStart << "\n";
-    }
-
-    {
-        QString tableText = createWellFileLocationText(wellPaths);
-        textStream << tableText;
-        textStream << lineStart << "\n";
-    }
-
-    auto proj              = RiaApplication::instance()->project();
+    auto proj = RiaApplication::instance()->project();
     auto fractureTemplates = proj->activeOilField()->fractureDefinitionCollection()->fractureTemplates();
 
     std::vector<RimStimPlanFractureTemplate*> stimPlanTemplates;
@@ -120,10 +108,28 @@ QString RicWellPathFractureTextReportFeatureImpl::wellPathFractureReport(
         }
     }
 
+
+    if (!RiaRegressionTestRunner::instance()->isRunningRegressionTests())
     {
-        QString tableText = createStimPlanFileLocationText(stimPlanTemplates);
-        textStream << tableText;
-        textStream << lineStart << "\n";
+        if (sourceCase)
+        {
+            textStream << lineStart << " Grid Model:\n";
+            textStream << lineStart << " " << sourceCase->gridFileName() << "\n";
+            textStream << lineStart << "\n";
+        }
+
+        {
+            QString tableText = createWellFileLocationText(wellPaths);
+            textStream << tableText;
+            textStream << lineStart << "\n";
+        }
+
+
+        {
+            QString tableText = createStimPlanFileLocationText(stimPlanTemplates);
+            textStream << tableText;
+            textStream << lineStart << "\n";
+        }
     }
 
     {
