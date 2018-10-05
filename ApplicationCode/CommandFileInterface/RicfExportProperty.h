@@ -47,7 +47,6 @@ public:
     virtual void execute() override;
 
     cvf::ref<RigResultAccessor> findResult(RimEclipseView* view,
-                                           RimEclipseCase* eclipseCase,
                                            size_t timeStep,
                                            RiaDefines::ResultCatType resultType,
                                            const QString& property);

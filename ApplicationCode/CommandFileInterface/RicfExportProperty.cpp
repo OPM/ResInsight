@@ -55,7 +55,6 @@ RicfExportProperty::RicfExportProperty()
     RICF_InitField(&m_type,           "type",           caf::AppEnum<RiaDefines::ResultCatType>(RiaDefines::UNDEFINED),      "Property type", "", "", "");
     RICF_InitField(&m_eclipseKeyword, "eclipseKeyword", QString(),                                                           "Eclipse Keyword", "", "", "");
     RICF_InitField(&m_undefinedValue, "undefinedValue", 0.0,                                                                 "Undefined Value", "", "", "");
-    RICF_InitField(&m_path,           "exportFile",     QString(),                                                           "Export File", "", "", "");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -83,37 +82,50 @@ void RicfExportProperty::execute()
         }
     }
 
-    QString filePath = m_path;
-    if (filePath.isNull())
-    {
-        QDir propertiesDir(RicfCommandFileExecutor::instance()->getExportPath(RicfCommandFileExecutor::PROPERTIES));
-        QString fileName = QString("%1-%2").arg(eclipseCase->caseUserDescription()).arg(m_propertyName);
-        fileName = caf::Utils::makeValidFileBasename(fileName);
-        filePath = propertiesDir.filePath(fileName);
-    }
-
-    // FIXME : Select correct view?
-    RimEclipseView* view = nullptr;
+    bool fullySpecified = m_caseId >= 0 && m_timeStepIndex >= 0 && !m_propertyName().isEmpty();
+    bool anyViewsFound = false;
     for (Rim3dView* v : eclipseCase->views())
     {
-        view = dynamic_cast<RimEclipseView*>(v);
-        if (view) break;
+        RimEclipseView* view = dynamic_cast<RimEclipseView*>(v);
+        if (!view) continue;
+        anyViewsFound = true;
+
+        auto timeStepIndex = m_timeStepIndex >= 0 ? m_timeStepIndex : view->currentTimeStep();
+        auto propertyName = !m_propertyName().isEmpty() ? m_propertyName : view->cellResult()->resultVariable();
+        auto propertyType = !m_propertyName().isEmpty() ? m_type() : view->cellResult()->resultType();
+
+        QString filePath = m_path;
+        if (filePath.isNull())
+        {
+            QDir propertiesDir(RicfCommandFileExecutor::instance()->getExportPath(RicfCommandFileExecutor::PROPERTIES));
+            QString fileName;
+
+            if (fullySpecified) fileName = QString("%1-T%2-%3").arg(eclipseCase->caseUserDescription()).arg(timeStepIndex).arg(propertyName);
+            else fileName = QString("%1-%2-T%3-%4").arg(eclipseCase->caseUserDescription()).arg(view->name()).arg(timeStepIndex).arg(propertyName);
+
+            fileName = caf::Utils::makeValidFileBasename(fileName);
+            filePath = propertiesDir.filePath(fileName);
+        }
+
+        auto eclipseKeyword = m_eclipseKeyword();
+        if (m_eclipseKeyword().isNull())
+        {
+            eclipseKeyword = propertyName;
+        }
+
+        auto resultAccessor = findResult(view, timeStepIndex, propertyType, propertyName);
+        if (!resultAccessor.isNull())
+        {
+            RifEclipseInputFileTools::writeResultToTextFile(filePath, eclipseCase->eclipseCaseData(), resultAccessor, eclipseKeyword, m_undefinedValue);
+        }
+
+        if (fullySpecified) break;
     }
-    if (!view)
+
+    if (!anyViewsFound)
     {
         RiaLogging::error(QString("exportProperty: Could not find a view for case with ID %1").arg(m_caseId()));
         return;
-    }
-
-    if (m_eclipseKeyword().isNull())
-    {
-        m_eclipseKeyword = m_propertyName;
-    }
-
-    auto resultAccessor = findResult(view, eclipseCase, m_timeStepIndex, m_type(), m_propertyName);
-    if (!resultAccessor.isNull())
-    {
-        RifEclipseInputFileTools::writeResultToTextFile(filePath, eclipseCase->eclipseCaseData(), resultAccessor, m_eclipseKeyword, m_undefinedValue);
     }
 }
 
@@ -121,11 +133,11 @@ void RicfExportProperty::execute()
 /// 
 //--------------------------------------------------------------------------------------------------
 cvf::ref<RigResultAccessor> RicfExportProperty::findResult(RimEclipseView* view,
-                                                           RimEclipseCase* eclipseCase,
                                                            size_t timeStep,
                                                            RiaDefines::ResultCatType resultType,
                                                            const QString& property)
 {
+    auto eclipseCase = view->eclipseCase();
     size_t resultIndex = cvf::UNDEFINED_SIZE_T;
 
     if (resultType == RiaDefines::UNDEFINED)
