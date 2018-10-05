@@ -60,7 +60,7 @@ public:
     QString label() const { return m_label; }
 
     void setLabelPosition(LabelPosition labelPosition);
-
+    
 private:
     QString       m_label;
     LabelPosition m_labelPosition;

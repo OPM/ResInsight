@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include "RiuQwtPlotItemGroup.h"
+
 #include "RimPlotCurve.h"
 #include "RimWellLogPlot.h"
 #include "RimWellPathAttribute.h"
@@ -27,6 +29,7 @@
 #include "cafPdmPtrField.h"
 
 #include "cvfColor4.h"
+#include "cvfObject.h"
 
 #include <QBrush>
 #include <QString>
@@ -38,11 +41,13 @@ class RimPerforationInterval;
 class RimWellPath;
 class QwtPlotItem;
 
+
+
 //==================================================================================================
 ///  
 ///  
 //==================================================================================================
-class RiuWellPathAttributePlotObject
+class RiuWellPathAttributePlotObject : public cvf::Object
 {
    
 public:
@@ -62,7 +67,9 @@ public:
 
     ~RiuWellPathAttributePlotObject();
 
-    QString label();
+    QString label() const;
+    QString legendTitle() const;
+
     void    loadDataAndUpdate(bool updateParentPlot);
 
     RimWellPathAttribute::AttributeType attributeType() const;
@@ -74,28 +81,39 @@ public:
     void setDepthType(RimWellLogPlot::DepthTypeEnum depthType);
     void setBaseColor(const cvf::Color3f& baseColor);
     void setBaseColor(const cvf::Color4f& baseColor);
+    void setContributeToLegend(bool contributeToLegend);
 
     void setParentQwtPlotAndReplot(QwtPlot* plot);
     void setParentQwtPlotNoReplot(QwtPlot* plot);
     void attachToQwt();
     void detachFromQwt();
     void reattachToQwt();
-
 private:
+
     void onLoadDataAndUpdate(bool updateParentPlot);
 
     std::pair<double, double> depthsOfDepthType() const;
 
-    void addMarker(double                        posX,
-                   double                        depth,
-                   int                           size,
-                   RiuQwtSymbol::PointSymbolEnum symbolType,
-                   cvf::Color4f                  baseColor,
-                   QString                       label             = QString(""),
-                   Qt::Alignment                 labelAlignment    = Qt::AlignTop,
-                   Qt::Orientation               labelOrientation  = Qt::Vertical,
-                   bool                          drawLine          = false,
-                   bool                          contrastTextColor = true);
+    void         addMarker(double                        posX,
+                           double                        depth,
+                           int                           size,
+                           RiuQwtSymbol::PointSymbolEnum symbolType,
+                           cvf::Color4f                  baseColor,
+                           QString                       label             = QString(""),
+                           Qt::Alignment                 labelAlignment    = Qt::AlignVCenter | Qt::AlignRight,
+                           Qt::Orientation               labelOrientation  = Qt::Horizontal,
+                           bool                          drawLine          = false,
+                           bool                          contrastTextColor = false);
+    QwtPlotItem* createMarker(double                        posX,
+                              double                        depth,
+                              int                           size,
+                              RiuQwtSymbol::PointSymbolEnum symbolType,
+                              cvf::Color4f                  baseColor,
+                              QString                       label             = QString(""),
+                              Qt::Alignment                 labelAlignment    = Qt::AlignVCenter | Qt::AlignRight,
+                              Qt::Orientation               labelOrientation  = Qt::Horizontal,
+                              bool                          drawLine          = false,
+                              bool                          contrastTextColor = false);
     void addColumnFeature(double startX,
                           double endX,
                           double startDepth,
@@ -103,12 +121,12 @@ private:
                           cvf::Color4f baseColor,
                           Qt::BrushStyle brushStyle = Qt::SolidPattern);
 
-    void drawColumnFeature(double         startX,
-                           double         endX,
-                           double         startDepth,
-                           double         endDepth,
-                           cvf::Color4f   baseColor,
-                           Qt::BrushStyle brushStyle = Qt::SolidPattern);
+    QwtPlotItem* createColumnShape(double         startX,
+                                   double         endX,
+                                   double         startDepth,
+                                   double         endDepth,
+                                   cvf::Color4f   baseColor,
+                                   Qt::BrushStyle brushStyle = Qt::SolidPattern);
 
 private:
     const RimWellPath*                      m_wellPath;
@@ -117,11 +135,12 @@ private:
     double                                  m_startMD;
     double                                  m_endMD;
     QString                                 m_label;
+    QString                                 m_legendTitle;
 
     RimWellLogPlot::DepthTypeEnum           m_depthType;
     QPointer<QwtPlot>                       m_parentQwtPlot;
-    std::vector<QwtPlotItem*>               m_plotFeatures;
+    RiuQwtPlotItemGroup                     m_combinedAttributeGroup;
     cvf::Color4f                            m_baseColor;
 
-    bool                                    m_showLabel;
+    bool                                    m_showLabel;    
 };

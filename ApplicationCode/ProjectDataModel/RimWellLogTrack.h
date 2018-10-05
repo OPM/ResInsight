@@ -220,7 +220,7 @@ private:
     caf::PdmPtrField<RimWellPath*>                                     m_wellPathAttributeSource;
     caf::PdmPtrField<RimWellPathAttributeCollection*>                  m_wellPathAttributeCollection;
     
-    std::vector<RiuWellPathAttributePlotObject>                        m_wellPathAttributePlotObjects;
+    std::vector<cvf::ref<RiuWellPathAttributePlotObject>>              m_wellPathAttributePlotObjects;
 
     bool m_formationsForCaseWithSimWellOnly;
 

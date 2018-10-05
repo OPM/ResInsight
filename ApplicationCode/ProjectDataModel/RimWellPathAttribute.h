@@ -54,14 +54,15 @@ public:
     RimWellPathAttribute();
     ~RimWellPathAttribute();
 
-    AttributeType type() const;
-    double        depthStart() const;
-    double        depthEnd() const;
-    double        diameterInInches() const;
-    QString       label() const;
-    QString       diameterLabel() const;
-    bool          operator<(const RimWellPathAttribute& rhs) const;
-    void          setDepthsFromWellPath(const RimWellPath* wellPath);
+    AttributeType  type() const;
+    double         depthStart() const;
+    double         depthEnd() const;
+    double         diameterInInches() const;
+    QString        label() const;
+    static QString typeLabel(AttributeType type);
+    QString        diameterLabel() const;
+    bool           operator<(const RimWellPathAttribute& rhs) const;
+    void           setDepthsFromWellPath(const RimWellPath* wellPath);
 
 private:
     virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;

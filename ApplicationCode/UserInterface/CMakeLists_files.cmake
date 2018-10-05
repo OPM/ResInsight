@@ -74,6 +74,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RiuMohrsCirclePlot.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuPlotMainWindowTools.h
 ${CMAKE_CURRENT_LIST_DIR}/Riu3DMainWindowTools.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuDockWidgetTools.h
+${CMAKE_CURRENT_LIST_DIR}/RiuQwtPlotItemGroup.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuWellPathAttributePlotObject.h
 )
 
@@ -149,6 +150,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RiuMohrsCirclePlot.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuPlotMainWindowTools.cpp
 ${CMAKE_CURRENT_LIST_DIR}/Riu3DMainWindowTools.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuDockWidgetTools.cpp
+${CMAKE_CURRENT_LIST_DIR}/RiuQwtPlotItemGroup.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuWellPathAttributePlotObject.cpp
 )
 

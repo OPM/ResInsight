@@ -56,10 +56,10 @@ RiuQwtSymbol::RiuQwtSymbol(PointSymbolEnum riuStyle, const QString& label, Label
         style = QwtSymbol::Path;
         {
             QPainterPath path;
-            path.moveTo(0, -10);
-            path.lineTo(-10, 0);
-            path.lineTo(0, 10);
-            path.lineTo(0, -10);
+            path.moveTo(0, 0);
+            path.lineTo(-10, 10);
+            path.lineTo(0, 20);
+            path.lineTo(0, 0);
             setPath(path);
             setPinPoint(QPointF(0, 0));
         }
@@ -68,10 +68,10 @@ RiuQwtSymbol::RiuQwtSymbol(PointSymbolEnum riuStyle, const QString& label, Label
         style = QwtSymbol::Path;
         {
             QPainterPath path;
-            path.moveTo(0, -10);
-            path.lineTo(10, 0);
-            path.lineTo(0, 10);
-            path.lineTo(0, -10);
+            path.moveTo(0, 0);
+            path.lineTo(10, 10);
+            path.lineTo(0, 20);
+            path.lineTo(0, 0);
             setPath(path);
             setPinPoint(QPointF(0, 0));
         }
@@ -81,11 +81,11 @@ RiuQwtSymbol::RiuQwtSymbol(PointSymbolEnum riuStyle, const QString& label, Label
         {
             QPainterPath path;
             path.moveTo(0, 0);
-            path.lineTo(-10, 0);
-            path.lineTo(0, -10);
+            path.lineTo(0, 10);
+            path.lineTo(-10, 10);
             path.lineTo(0, 0);
             setPath(path);
-            setPinPoint(QPointF(0, 0));
+            setPinPoint(QPointF(0, 10));
         }
         break;
     case SYMBOL_RIGHT_ANGLED_TRIANGLE:
@@ -93,11 +93,11 @@ RiuQwtSymbol::RiuQwtSymbol(PointSymbolEnum riuStyle, const QString& label, Label
         {
             QPainterPath path;
             path.moveTo(0, 0);
-            path.lineTo(10, 0);
-            path.lineTo(0, -10);
+            path.lineTo(0, 10);
+            path.lineTo(10, 10);
             path.lineTo(0, 0);
             setPath(path);
-            setPinPoint(QPointF(0, 0));
+            setPinPoint(QPointF(0, 10));
         }
         break;
     default:
@@ -151,4 +151,3 @@ void RiuQwtSymbol::setLabelPosition(LabelPosition labelPosition)
 {
     m_labelPosition = labelPosition;
 }
-

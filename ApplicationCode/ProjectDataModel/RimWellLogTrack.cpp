@@ -268,6 +268,7 @@ void RimWellLogTrack::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
     {
         updateParentPlotLayout();
         updateAxisAndGridTickIntervals();
+        applyXZoomFromVisibleRange();
     }
     else if (changedField == &m_explicitTickIntervals)
     {
@@ -713,11 +714,11 @@ void RimWellLogTrack::availableDepthRange(double* minimumDepth, double* maximumD
 
     if (m_showWellPathAttributes)
     {
-        for (RiuWellPathAttributePlotObject& plotObject : m_wellPathAttributePlotObjects)
+        for (cvf::ref<RiuWellPathAttributePlotObject> plotObject : m_wellPathAttributePlotObjects)
         {
             double minObjectDepth = HUGE_VAL;
             double maxObjectDepth = -HUGE_VAL;
-            if (plotObject.yValueRange(&minObjectDepth, &maxObjectDepth))
+            if (plotObject->yValueRange(&minObjectDepth, &maxObjectDepth))
             {
                 if (minObjectDepth < minDepth)
                 {
@@ -970,9 +971,9 @@ void RimWellLogTrack::detachAllCurves()
     {
         curve->detachQwtCurve();
     }
-    for (RiuWellPathAttributePlotObject& plotObjects : m_wellPathAttributePlotObjects)
+    for (cvf::ref<RiuWellPathAttributePlotObject> plotObjects : m_wellPathAttributePlotObjects)
     {
-        plotObjects.detachFromQwt();
+        plotObjects->detachFromQwt();
     }
 }
 
@@ -985,9 +986,9 @@ void RimWellLogTrack::reattachAllCurves()
     {
         curve->reattachQwtCurve();
     }
-    for (RiuWellPathAttributePlotObject& plotObjects : m_wellPathAttributePlotObjects)
+    for (cvf::ref<RiuWellPathAttributePlotObject> plotObjects : m_wellPathAttributePlotObjects)
     {
-        plotObjects.reattachToQwt();
+        plotObjects->reattachToQwt();
     }
 }
 
@@ -1025,12 +1026,13 @@ void RimWellLogTrack::applyXZoomFromVisibleRange()
 
     m_wellLogTrackPlotWidget->setXRange(m_visibleXRangeMin, m_visibleXRangeMax);
 
-    // Attribute range. Double the width of the radius (thus same as diameter) to allow for labels and casing shoe.
-    double attributeRangeMax = 1.0;
+    // Attribute range. Fixed range where well attributes are positioned [-1, 1].
+    // Set an extended range here to allow for some label space.
+    double attributeRangeMax = 1.5 * (10.0 / (m_widthScaleFactor()));
     double attributeRangeMin = -0.25;
     if (m_showWellPathAttributeBothSides)
     {
-        attributeRangeMin = -attributeRangeMax;
+        attributeRangeMin = -1.0;
     }
 
     m_wellLogTrackPlotWidget->setXRange(attributeRangeMin, attributeRangeMax, QwtPlot::xBottom);
@@ -1813,7 +1815,7 @@ void RimWellLogTrack::updateWellPathAttributesOnPlot()
 
     if (m_showWellPathAttributes && wellPathAttributeSource())
     {      
-        m_wellPathAttributePlotObjects.push_back(RiuWellPathAttributePlotObject(wellPathAttributeSource()));
+        m_wellPathAttributePlotObjects.push_back(new RiuWellPathAttributePlotObject(wellPathAttributeSource()));
         
         if (m_wellPathAttributeCollection)
         {
@@ -1826,7 +1828,7 @@ void RimWellLogTrack::updateWellPathAttributesOnPlot()
 
             for (RimWellPathAttribute* attribute : attributes)
             {
-                m_wellPathAttributePlotObjects.push_back(RiuWellPathAttributePlotObject(wellPathAttributeSource(), attribute));
+                m_wellPathAttributePlotObjects.push_back(new RiuWellPathAttributePlotObject(wellPathAttributeSource(), attribute));
             }
         }
         if (m_showWellPathAttributesFromCompletions())
@@ -1836,21 +1838,21 @@ void RimWellLogTrack::updateWellPathAttributesOnPlot()
                 RimPerforationCollection* perforationsCollection = completions->perforationCollection();
                 for (const RimPerforationInterval* perforationInterval : perforationsCollection->perforations())
                 {
-                    m_wellPathAttributePlotObjects.push_back(RiuWellPathAttributePlotObject(wellPathAttributeSource(), perforationInterval));
+                    m_wellPathAttributePlotObjects.push_back(new RiuWellPathAttributePlotObject(wellPathAttributeSource(), perforationInterval));
                 }
             }
             {
                 RimFishbonesCollection* fishbonesCollection = completions->fishbonesCollection();
                 for (const RimFishbonesMultipleSubs* fishbones : fishbonesCollection->activeFishbonesSubs())
                 {
-                    m_wellPathAttributePlotObjects.push_back(RiuWellPathAttributePlotObject(wellPathAttributeSource(), fishbones));
+                    m_wellPathAttributePlotObjects.push_back(new RiuWellPathAttributePlotObject(wellPathAttributeSource(), fishbones));
                 }
             }
             {
                 RimWellPathFractureCollection* fractureCollection = completions->fractureCollection();
                 for (const RimFracture* fracture : fractureCollection->activeFractures())
                 {
-                    m_wellPathAttributePlotObjects.push_back(RiuWellPathAttributePlotObject(wellPathAttributeSource(), fracture));
+                    m_wellPathAttributePlotObjects.push_back(new RiuWellPathAttributePlotObject(wellPathAttributeSource(), fracture));
                 }
             }
         }
@@ -1860,18 +1862,24 @@ void RimWellLogTrack::updateWellPathAttributesOnPlot()
         RimWellLogPlot::DepthTypeEnum depthType = wellLogPlot->depthType();
 
         int index = 0;
-        for (RiuWellPathAttributePlotObject& attributePlotObject : m_wellPathAttributePlotObjects)
+        std::set<QString> attributesAssignedToLegend;
+        for (cvf::ref<RiuWellPathAttributePlotObject> attributePlotObject : m_wellPathAttributePlotObjects)
         {
             cvf::Color3f attributeColor = cvf::Color3::LIGHT_GRAY;
-            if (attributePlotObject.attributeType() != RimWellPathAttribute::AttributeWellTube)
+            if (attributePlotObject->attributeType() != RimWellPathAttribute::AttributeWellTube)
             {
                 attributeColor = RiaColorTables::wellLogPlotPaletteColors().cycledColor3f(++index);
             }
-            attributePlotObject.setBaseColor(attributeColor);
-            attributePlotObject.setDepthType(depthType);
-            attributePlotObject.setShowLabel(m_showWellPathAttributeLabels());
-            attributePlotObject.loadDataAndUpdate(false);
-            attributePlotObject.setParentQwtPlotNoReplot(m_wellLogTrackPlotWidget);
+            attributePlotObject->setBaseColor(attributeColor);
+            attributePlotObject->setDepthType(depthType);
+            attributePlotObject->setShowLabel(m_showWellPathAttributeLabels());
+            QString legendTitle = attributePlotObject->legendTitle();
+            bool contributeToLegend = m_wellPathAttributesInLegend() && 
+                                      !attributesAssignedToLegend.count(legendTitle);
+            attributePlotObject->setContributeToLegend(contributeToLegend);            
+            attributesAssignedToLegend.insert(legendTitle);
+            attributePlotObject->loadDataAndUpdate(false);
+            attributePlotObject->setParentQwtPlotNoReplot(m_wellLogTrackPlotWidget);
         }        
     }
     applyXZoomFromVisibleRange();

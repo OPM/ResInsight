@@ -30,7 +30,6 @@
 #include "RimWellPath.h"
 
 #include "RigWellPath.h"
-#include "RiuQwtPlotCurve.h"
 
 #include "qwt_plot.h"
 #include "qwt_plot_marker.h"
@@ -38,6 +37,7 @@
 
 #include <QBrush>
 #include <Qt>
+
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -77,6 +77,7 @@ RiuWellPathAttributePlotObject::RiuWellPathAttributePlotObject(const RimWellPath
         m_startMD        = wellPathAttribute->depthStart();
         m_endMD          = wellPathAttribute->depthEnd();
         m_label          = wellPathAttribute->label();
+        m_legendTitle    = wellPathAttribute->label();
     }
 }
 
@@ -94,9 +95,10 @@ RiuWellPathAttributePlotObject::RiuWellPathAttributePlotObject(
 {
     CVF_ASSERT(wellPath && perforationInterval);
 
-    m_startMD = perforationInterval->startMD();
-    m_endMD   = perforationInterval->endMD();
-    m_label   = QString("Perforations: %1").arg(perforationInterval->name());
+    m_startMD     = perforationInterval->startMD();
+    m_endMD       = perforationInterval->endMD();
+    m_label       = QString("Perforation Interval\n%1").arg(perforationInterval->name());
+    m_legendTitle = "Perforations";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -116,6 +118,7 @@ RiuWellPathAttributePlotObject::RiuWellPathAttributePlotObject(
     m_startMD = fishbones->startOfSubMD();
     m_endMD   = fishbones->endOfSubMD();
     m_label   = fishbones->generatedName();
+    m_legendTitle = "Fishbones";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -134,7 +137,7 @@ RiuWellPathAttributePlotObject::RiuWellPathAttributePlotObject(
 
     if (fracture->fractureTemplate()->orientationType() == RimFractureTemplate::ALONG_WELL_PATH)
     {
-        m_startMD = fracture->fractureMD() + 0.5*fracture->perforationLength();
+        m_startMD = fracture->fractureMD() - 0.5*fracture->perforationLength();
         m_endMD = m_startMD + fracture->perforationLength();
     }
     else
@@ -143,6 +146,7 @@ RiuWellPathAttributePlotObject::RiuWellPathAttributePlotObject(
         m_endMD   = m_startMD + fracture->fractureTemplate()->computeFractureWidth(fracture);
     }
     m_label = fracture->name();
+    m_legendTitle = "Fracture";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -151,10 +155,6 @@ RiuWellPathAttributePlotObject::RiuWellPathAttributePlotObject(
 RiuWellPathAttributePlotObject::~RiuWellPathAttributePlotObject()
 {
     detachFromQwt();
-    for (QwtPlotItem* plotFeature : m_plotFeatures)
-    {
-        delete plotFeature;
-    }
 
     if (m_parentQwtPlot)
     {
@@ -165,7 +165,7 @@ RiuWellPathAttributePlotObject::~RiuWellPathAttributePlotObject()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiuWellPathAttributePlotObject::label()
+QString RiuWellPathAttributePlotObject::label() const
 {
     return m_label;
 }
@@ -193,6 +193,7 @@ void RiuWellPathAttributePlotObject::onLoadDataAndUpdate(bool updateParentPlot)
 {   
     double startDepth, endDepth;
     std::tie(startDepth, endDepth) = depthsOfDepthType();
+    double midDepth = 0.5 * (startDepth + endDepth);
 
     float columnAlpha = 0.9f;
 
@@ -207,24 +208,22 @@ void RiuWellPathAttributePlotObject::onLoadDataAndUpdate(bool updateParentPlot)
         addColumnFeature(-0.75, -0.5, startDepth, endDepth, m_baseColor);
         addColumnFeature(0.5, 0.75, startDepth, endDepth, m_baseColor);
         addMarker(-0.75, endDepth,10, RiuQwtSymbol::SYMBOL_LEFT_ANGLED_TRIANGLE,  m_baseColor);
-        addMarker(0.75, endDepth, 10, RiuQwtSymbol::SYMBOL_RIGHT_ANGLED_TRIANGLE, m_baseColor);
-        addMarker(0.625, endDepth, 10, RiuQwtSymbol::SYMBOL_NONE, m_baseColor, label());
+        addMarker(0.75, endDepth, 10, RiuQwtSymbol::SYMBOL_RIGHT_ANGLED_TRIANGLE, m_baseColor, label());
     }
     else if (m_attributeType == RimWellPathAttribute::AttributeLiner)
     {            
         addColumnFeature(-0.5, -0.25, startDepth, endDepth, m_baseColor);
         addColumnFeature(0.25, 0.5, startDepth, endDepth, m_baseColor);
-        addMarker(0.375, endDepth, 10, RiuQwtSymbol::SYMBOL_NONE, transparentBaseColor, label(), Qt::AlignTop);
+        addMarker(0.75, endDepth, 10, RiuQwtSymbol::SYMBOL_RIGHT_ANGLED_TRIANGLE, transparentBaseColor, label());
     }
     else if (m_attributeType == RimWellPathAttribute::AttributePerforationInterval)
     {
         addColumnFeature(-0.75, -0.25, startDepth, endDepth, cvf::Color4f(cvf::Color3::WHITE, columnAlpha), Qt::Dense6Pattern);
         addColumnFeature(0.25, 0.75, startDepth, endDepth, cvf::Color4f(cvf::Color3::WHITE, columnAlpha), Qt::Dense6Pattern);
-        addMarker(0.626, endDepth, 10, RiuQwtSymbol::SYMBOL_NONE, cvf::Color4f(cvf::Color3::WHITE, 0.0), label(), Qt::AlignTop);
         // Empirically a spacing of around 30 in depth between symbols looks good in the most relevant zoom levels.
         const double markerSpacing = 30;
         const int    markerSize    = 6;
-        double markerDepth = startDepth + 0.5 * markerSpacing;
+        double markerDepth = startDepth;
         while (markerDepth <= endDepth)
         {
             addMarker(-0.75, markerDepth, markerSize, RiuQwtSymbol::SYMBOL_LEFT_TRIANGLE, cvf::Color4f(cvf::Color3::BLACK, 1.0f));
@@ -232,26 +231,28 @@ void RiuWellPathAttributePlotObject::onLoadDataAndUpdate(bool updateParentPlot)
 
             markerDepth += markerSpacing;
         }
+        addMarker(0.75, midDepth, 10, RiuQwtSymbol::SYMBOL_RIGHT_TRIANGLE, cvf::Color4f(cvf::Color3::BLACK, 0.0), label());
+
+        QwtPlotItem* legendItem1 = createMarker(16.0, 0.0, 6, RiuQwtSymbol::SYMBOL_RIGHT_TRIANGLE, cvf::Color4f(cvf::Color3::BLACK, 1.0f));
+        legendItem1->setLegendIconSize(QSize(4, 8));
+        QwtPlotItem* legendItem2 = createMarker(16.0, 8.0, 6, RiuQwtSymbol::SYMBOL_RIGHT_TRIANGLE, cvf::Color4f(cvf::Color3::BLACK, 1.0f));
+        legendItem2->setLegendIconSize(QSize(4, 8));
+        m_combinedAttributeGroup.addLegendItem(legendItem1);
+        m_combinedAttributeGroup.addLegendItem(legendItem2);
     }
     else if (m_attributeType == RimWellPathAttribute::AttributeFishbonesInterval)
     {
         addColumnFeature(-0.75, -0.25, startDepth, endDepth, cvf::Color4f(cvf::Color3::WHITE, columnAlpha), Qt::BDiagPattern);
         addColumnFeature(0.25, 0.75, startDepth, endDepth, cvf::Color4f(cvf::Color3::WHITE, columnAlpha), Qt::FDiagPattern);
-        addMarker(0.625, endDepth, 10, RiuQwtSymbol::SYMBOL_NONE, cvf::Color4f(cvf::Color3::WHITE, 0.0f), label(), Qt::AlignTop);      
+        addMarker(0.75, midDepth, 10, RiuQwtSymbol::SYMBOL_RIGHT_ANGLED_TRIANGLE, cvf::Color4f(cvf::Color3::BLACK, 0.0f), label());      
     }
     else if (m_attributeType == RimWellPathAttribute::AttributeFracture)
     {
-        if (std::abs(m_endMD - m_startMD) < 20)
-        {
-            addMarker(0.625, endDepth, 10, RiuQwtSymbol::SYMBOL_NONE, cvf::Color4f(cvf::Color3::ORANGE_RED, 1.0f), label(), Qt::AlignTop, Qt::Horizontal, true, false);
-        }
-        else
-        {
-            addColumnFeature(-0.75, -0.25, startDepth, endDepth, cvf::Color4f(cvf::Color3::ORANGE_RED, columnAlpha), Qt::HorPattern);
-            addColumnFeature(0.25, 0.75, startDepth, endDepth, cvf::Color4f(cvf::Color3::ORANGE_RED, columnAlpha), Qt::HorPattern);
-            addMarker(0.625, endDepth, 10, RiuQwtSymbol::SYMBOL_NONE, cvf::Color4f(cvf::Color3::ORANGE_RED, 0.0f), label(), Qt::AlignTop);
-        }
-        
+        addColumnFeature(-0.75, -0.25, startDepth, endDepth, cvf::Color4f(cvf::Color3::ORANGE_RED, columnAlpha), Qt::SolidPattern);
+        addColumnFeature(0.25, 0.75, startDepth, endDepth, cvf::Color4f(cvf::Color3::ORANGE_RED, columnAlpha), Qt::SolidPattern);
+        addMarker(0.75, startDepth, 10, RiuQwtSymbol::SYMBOL_NONE, cvf::Color4f(cvf::Color3::ORANGE_RED, 1.0f), "", Qt::AlignTop | Qt::AlignRight, Qt::Horizontal, true);
+        addMarker(0.75, endDepth, 10, RiuQwtSymbol::SYMBOL_NONE, cvf::Color4f(cvf::Color3::ORANGE_RED, 1.0f), "", Qt::AlignTop | Qt::AlignRight, Qt::Horizontal, true);
+        addMarker(0.75, startDepth, 1, RiuQwtSymbol::SYMBOL_RIGHT_ANGLED_TRIANGLE, cvf::Color4f(cvf::Color3::ORANGE_RED, 0.0f), label(), Qt::AlignTop | Qt::AlignRight);
     }
     else if (m_attributeType == RimWellPathAttribute::AttributeICD)
     {
@@ -259,9 +260,11 @@ void RiuWellPathAttributePlotObject::onLoadDataAndUpdate(bool updateParentPlot)
     }
     else if (m_attributeType == RimWellPathAttribute::AttributePacker)
     {
-        addColumnFeature(-1.0, -0.25, startDepth, endDepth, cvf::Color4f(cvf::Color3::GRAY, 1.0f), Qt::SolidPattern);
-        addColumnFeature(0.25, 1.0,   startDepth, endDepth, cvf::Color4f(cvf::Color3::GRAY, 1.0f), Qt::SolidPattern);
+        addColumnFeature(-1.0, -0.25, startDepth, endDepth, cvf::Color4f(cvf::Color3::GRAY, 1.0f), Qt::DiagCrossPattern);
+        addColumnFeature(0.25, 1.0, startDepth,   endDepth, cvf::Color4f(cvf::Color3::GRAY, 1.0f), Qt::DiagCrossPattern);
     }
+    m_combinedAttributeGroup.setTitle(legendTitle());
+    m_combinedAttributeGroup.setLegendIconSize(QSize(20, 16));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -285,29 +288,38 @@ std::pair<double, double> RiuWellPathAttributePlotObject::depthsOfDepthType() co
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuWellPathAttributePlotObject::addMarker(double                        posX,
-                                               double                        depth,
-                                               int                           size,
+void RiuWellPathAttributePlotObject::addMarker(double posX,
+                                               double depth,
+                                               int size,
                                                RiuQwtSymbol::PointSymbolEnum symbolType,
-                                               cvf::Color4f                  baseColor,
-                                               QString                       label /*= QString("")*/,
-                                               Qt::Alignment                 labelAlignment /*= Qt::AlignTop*/,
-                                               Qt::Orientation               labelOrientation /*= Qt::Vertical*/,
-                                               bool                          drawLine /*= false*/,
-                                               bool                          contrastTextColor /*= true*/)
+                                               cvf::Color4f baseColor,
+                                               QString label /*= QString("")*/,
+                                               Qt::Alignment labelAlignment /*= Qt::AlignTop*/,
+                                               Qt::Orientation labelOrientation /*= Qt::Vertical*/,
+                                               bool drawLine /*= false*/,
+                                               bool contrastTextColor /*= true*/)
 {
-    QColor         bgColor       = RiaColorTools::toQColor(baseColor);
-    QColor         textColor     = bgColor;
+    QwtPlotItem* marker = createMarker(posX, depth, size, symbolType, baseColor, label, labelAlignment, labelOrientation, drawLine, contrastTextColor);
+    m_combinedAttributeGroup.addPlotItem(marker);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QwtPlotItem* RiuWellPathAttributePlotObject::createMarker(double posX, double depth, int size, RiuQwtSymbol::PointSymbolEnum symbolType, cvf::Color4f baseColor, QString label /*= QString("")*/, Qt::Alignment labelAlignment /*= Qt::AlignTop*/, Qt::Orientation labelOrientation /*= Qt::Vertical*/, bool drawLine /*= false*/, bool contrastTextColor /*= true*/)
+{
+    QColor         bgColor = RiaColorTools::toQColor(baseColor);
+    QColor         textColor = RiaColorTools::toQColor(baseColor.toColor3f(), 1.0);
     if (contrastTextColor)
     {
         textColor = RiaColorTools::toQColor(RiaColorTools::constrastColor(baseColor.toColor3f()));
     }
-    QwtPlotMarker* marker        = new QwtPlotMarker(label);
-    RiuQwtSymbol*  symbol        = new RiuQwtSymbol(symbolType, "", RiuQwtSymbol::LabelRightOfSymbol);
+    QwtPlotMarker* marker = new QwtPlotMarker(label);
+    RiuQwtSymbol*  symbol = new RiuQwtSymbol(symbolType, "", RiuQwtSymbol::LabelRightOfSymbol);
     symbol->setSize(size);
     symbol->setColor(bgColor);
     marker->setSymbol(symbol);
-    marker->setSpacing(2);
+    marker->setSpacing(6);
     marker->setXValue(posX);
     marker->setYValue(depth);
 
@@ -326,36 +338,52 @@ void RiuWellPathAttributePlotObject::addMarker(double                        pos
     if (drawLine)
     {
         marker->setLineStyle(QwtPlotMarker::HLine);
-        marker->setLinePen(bgColor, 5.0, Qt::DashLine);
+        marker->setLinePen(bgColor, 2.0, Qt::SolidLine);
     }
-    m_plotFeatures.push_back(marker);
+    return marker;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuWellPathAttributePlotObject::addColumnFeature(double startX, double endX, double startDepth, double endDepth, cvf::Color4f baseColor, Qt::BrushStyle brushStyle)
-{  
-    drawColumnFeature(startX, endX, startDepth, endDepth, baseColor, Qt::SolidPattern);
-
+void RiuWellPathAttributePlotObject::addColumnFeature(double startX,
+                                                      double endX,
+                                                      double startDepth,
+                                                      double endDepth,
+                                                      cvf::Color4f baseColor,
+                                                      Qt::BrushStyle brushStyle /*= Qt::SolidPattern*/)
+{
+    QwtPlotItem* backgroundShape = createColumnShape(startX, endX, startDepth, endDepth, baseColor, Qt::SolidPattern);
+    m_combinedAttributeGroup.addPlotItem(backgroundShape);
+    if (startX >= 0.0)
+    {
+        QwtPlotItem* legendShape = createColumnShape(0.0, 16.0, 0.0, 16.0, baseColor, Qt::SolidPattern);
+        m_combinedAttributeGroup.addLegendItem(legendShape);
+    }
     if (brushStyle != Qt::SolidPattern)
     {
         // If we're doing a special pattern, draw the pattern in black over the existing pattern
-        drawColumnFeature(startX, endX, startDepth, endDepth, cvf::Color4f(cvf::Color3::BLACK), brushStyle);
+        QwtPlotItem* patternShape = createColumnShape(startX, endX, startDepth, endDepth, cvf::Color4f(cvf::Color3::BLACK), brushStyle);
+        m_combinedAttributeGroup.addPlotItem(patternShape);
+        if (startX >= 0.0)
+        {
+            QwtPlotItem* legendShape = createColumnShape(0.0, 16.0, 0.0, 16.0, cvf::Color4f(cvf::Color3::BLACK), brushStyle);
+            m_combinedAttributeGroup.addLegendItem(legendShape);
+        }
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuWellPathAttributePlotObject::drawColumnFeature(double         startX,
-                                                       double         endX,
-                                                       double         startDepth,
-                                                       double         endDepth,
-                                                       cvf::Color4f   baseColor,
-                                                       Qt::BrushStyle brushStyle)
+QwtPlotItem* RiuWellPathAttributePlotObject::createColumnShape(double         startX,
+                                                                 double         endX,
+                                                                 double         startDepth,
+                                                                 double         endDepth,
+                                                                 cvf::Color4f   baseColor,
+                                                                 Qt::BrushStyle brushStyle)
 {
-    QwtPlotShapeItem* rightSide = new QwtPlotShapeItem(label());
+    QwtPlotShapeItem* columnShape = new QwtPlotShapeItem(label());
     QPolygonF         polygon;
     QColor            color = RiaColorTools::toQColor(baseColor);
 
@@ -364,10 +392,12 @@ void RiuWellPathAttributePlotObject::drawColumnFeature(double         startX,
     polygon.push_back(QPointF(endX, endDepth));
     polygon.push_back(QPointF(startX, endDepth));
     polygon.push_back(QPointF(startX, startDepth));
-    rightSide->setPolygon(polygon);
-    rightSide->setXAxis(QwtPlot::xBottom);
-    rightSide->setBrush(QBrush(color, brushStyle));
-    m_plotFeatures.push_back(rightSide);
+    columnShape->setPolygon(polygon);
+    columnShape->setXAxis(QwtPlot::xBottom);
+    columnShape->setBrush(QBrush(color, brushStyle));
+    columnShape->setLegendMode(QwtPlotShapeItem::LegendShape);
+    columnShape->setLegendIconSize(QSize(16, 16));
+    return columnShape;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -431,6 +461,18 @@ void RiuWellPathAttributePlotObject::setBaseColor(const cvf::Color4f& baseColor)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RiuWellPathAttributePlotObject::setContributeToLegend(bool contributeToLegend)
+{
+    bool actuallyContributeToLegend = contributeToLegend && (m_attributeType == RimWellPathAttribute::AttributeFishbonesInterval ||
+                                                             m_attributeType == RimWellPathAttribute::AttributeFracture ||
+                                                             m_attributeType == RimWellPathAttribute::AttributePerforationInterval ||
+                                                             m_attributeType == RimWellPathAttribute::AttributePacker);
+    m_combinedAttributeGroup.setItemAttribute(QwtPlotItem::Legend, actuallyContributeToLegend);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiuWellPathAttributePlotObject::setParentQwtPlotAndReplot(QwtPlot* plot)
 {
     setParentQwtPlotNoReplot(plot);
@@ -456,10 +498,7 @@ void RiuWellPathAttributePlotObject::attachToQwt()
 {    
     if (m_parentQwtPlot)
     {
-        for (QwtPlotItem* plotFeature : m_plotFeatures)
-        {
-            plotFeature->attach(m_parentQwtPlot);            
-        }
+        m_combinedAttributeGroup.attach(m_parentQwtPlot);
     }
 }
 
@@ -468,10 +507,7 @@ void RiuWellPathAttributePlotObject::attachToQwt()
 //--------------------------------------------------------------------------------------------------
 void RiuWellPathAttributePlotObject::detachFromQwt()
 {
-    for (QwtPlotItem* plotFeature : m_plotFeatures)
-    {
-        plotFeature->detach();
-    }
+    m_combinedAttributeGroup.detach();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -481,4 +517,12 @@ void RiuWellPathAttributePlotObject::reattachToQwt()
 {
     detachFromQwt();
     attachToQwt();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RiuWellPathAttributePlotObject::legendTitle() const
+{
+    return m_legendTitle;
 }

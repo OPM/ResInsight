@@ -100,17 +100,55 @@ double RimWellPathAttribute::diameterInInches() const
 //--------------------------------------------------------------------------------------------------
 QString RimWellPathAttribute::label() const
 {
-    if (m_type == AttributeCasing)
+    QString fullLabel = typeLabel(m_type());
+    if (m_type() == AttributeCasing || m_type() == AttributeLiner)
     {
-        return QString("Casing %1").arg(diameterLabel());
+        fullLabel += QString(" %1").arg(diameterLabel());
     }
-    else if (m_type == AttributeLiner)
+    return fullLabel;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimWellPathAttribute::typeLabel(AttributeType type)
+{
+    switch (type)
     {
-        return QString("Liner %1").arg(diameterLabel());
-    }
-    else
-    {
-        return m_type().uiText();
+    case AttributeCasing:
+        return QString("Casing");
+        break;
+    case AttributeLiner:
+        return QString("Liner");
+        break;
+    case AttributePacker:
+        return QString("Packer");
+        break;
+    case AttributeWellTube:
+        return QString("Production Tube");
+        break;
+    case AttributeFracture:
+        return QString("Fracture");
+        break;
+    case AttributePerforationInterval:
+        return QString("Perforations");
+        break;
+    case AttributeFishbonesInterval:
+        return QString("Fishbones");
+        break;
+    case AttributeAICD:
+        return QString("AICD");
+        break;
+    case AttributeICD:
+        return QString("ICD");
+        break;
+    case AttributeICV:
+        return QString("ICV");
+        break;
+    default:
+        CVF_ASSERT(false);
+        return QString("UNKNOWN TYPE");
+        break;        
     }
 }
 
