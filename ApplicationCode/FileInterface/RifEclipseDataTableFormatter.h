@@ -58,6 +58,8 @@ struct RifEclipseOutputTableLine
 {
     RifEclipseOutputTableLineType lineType;
     std::vector<QString>          data;
+    bool                          appendTextSet;
+    QString                       appendText;
 };
 
 //==================================================================================================
@@ -121,7 +123,11 @@ public:
     RifEclipseDataTableFormatter& comment(const QString& str);
     RifEclipseDataTableFormatter& addHorizontalLine(const QChar& str);
     void                          rowCompleted();
+    void                          rowCompleted(const QString& appendText);
     void                          tableCompleted();
+    void                          tableCompleted(const QString& appendText, bool appendNewline);
+
+    static void                   addValueTable(QTextStream& stream, const QString& keyword, size_t columns, const std::vector<double>& values);
 
 private:
     int measure(const QString str);
@@ -139,6 +145,8 @@ private:
     void outputBuffer();
     void outputComment(RifEclipseOutputTableLine& comment);
     void outputHorizontalLine(RifEclipseOutputTableLine& comment);
+
+    bool isAllHeadersEmpty(const std::vector<RifEclipseOutputTableColumn>& headers);
 
 private:
     std::vector<RifEclipseOutputTableColumn> m_columns;

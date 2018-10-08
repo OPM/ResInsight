@@ -69,7 +69,7 @@ void RifEclipseDataTableFormatter::setTableRowLineAppendText(const QString& text
 //--------------------------------------------------------------------------------------------------
 void RifEclipseDataTableFormatter::outputBuffer()
 {
-    if (!m_columns.empty())
+    if (!m_columns.empty() && !isAllHeadersEmpty(m_columns))
     {
         m_out << "-- ";
         for (RifEclipseOutputTableColumn& column : m_columns)
@@ -98,7 +98,7 @@ void RifEclipseDataTableFormatter::outputBuffer()
                 m_out << formatColumn(line.data[i], m_columns[i]);
             }
 
-            m_out << m_tableRowAppendText << "\n";
+            m_out << (line.appendTextSet ? line.appendText : m_tableRowAppendText) << "\n";
         }
     }
     m_columns.clear();
@@ -140,6 +140,18 @@ void RifEclipseDataTableFormatter::outputHorizontalLine(RifEclipseOutputTableLin
 }
 
 //--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RifEclipseDataTableFormatter::isAllHeadersEmpty(const std::vector<RifEclipseOutputTableColumn>& headers)
+{
+    for (auto& header : headers)
+    {
+        if (!header.title.isEmpty()) return false;
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 void RifEclipseDataTableFormatter::tableCompleted()
@@ -148,6 +160,43 @@ void RifEclipseDataTableFormatter::tableCompleted()
 
     // Output an "empty" line after a finished table
     m_out << m_tableRowPrependText << m_tableRowAppendText << "\n";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RifEclipseDataTableFormatter::tableCompleted(const QString& appendText, bool appendNewline)
+{
+    outputBuffer();
+
+    // Output an "empty" line after a finished table
+    if (!appendText.isEmpty() || appendNewline)
+    {
+        m_out << m_tableRowPrependText << appendText << (appendNewline ? "\n" : "");
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RifEclipseDataTableFormatter::addValueTable(QTextStream& stream, const QString& name, size_t columns, const std::vector<double>& values)
+{
+    RifEclipseDataTableFormatter subFormatter(stream);
+
+    std::vector<RifEclipseOutputTableColumn> cols(columns, RifEclipseOutputTableColumn(""));
+
+    subFormatter.setTableRowPrependText("");
+    subFormatter.keyword(name);
+    subFormatter.header(cols);
+
+    int colCount = 0;
+    for (int i = 0; i < values.size(); i++)
+    {
+        subFormatter.add(values[i]);
+        if (++colCount % columns == 0 && i < values.size() - 1) subFormatter.rowCompleted("");
+    }
+    subFormatter.rowCompleted();
+    subFormatter.tableCompleted("", false);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -183,6 +232,7 @@ RifEclipseDataTableFormatter& RifEclipseDataTableFormatter::comment(const QStrin
     RifEclipseOutputTableLine line;
     line.data.push_back(comment);
     line.lineType = COMMENT;
+    line.appendTextSet = false;
     if (m_columns.empty())
     {
         outputComment(line);
@@ -204,6 +254,7 @@ RifEclipseDataTableFormatter& RifEclipseDataTableFormatter::addHorizontalLine(co
     data += character;
     line.data.push_back(data);
     line.lineType = HORIZONTAL_LINE;
+    line.appendTextSet = false;
     if (m_columns.empty())
     {
         outputComment(line);
@@ -297,8 +348,23 @@ RifEclipseDataTableFormatter& RifEclipseDataTableFormatter::addValueOrDefaultMar
 void RifEclipseDataTableFormatter::rowCompleted()
 {
     RifEclipseOutputTableLine line;
+    line.data = m_lineBuffer;
+    line.lineType = CONTENTS;
+    line.appendTextSet = false;
+    m_buffer.push_back(line);
+    m_lineBuffer.clear();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RifEclipseDataTableFormatter::rowCompleted(const QString& appendText)
+{
+    RifEclipseOutputTableLine line;
     line.data     = m_lineBuffer;
     line.lineType = CONTENTS;
+    line.appendTextSet = true;
+    line.appendText = appendText;
     m_buffer.push_back(line);
     m_lineBuffer.clear();
 }
