@@ -28,7 +28,7 @@ public:
     virtual ~RiaImageCompareReporter();
 
     void addImageDirectoryComparisonSet(const std::string& title, const std::string& baseImageDir, const std::string& newImagesDir, const std::string& diffImagesDir  );
-    void generateHTMLReport(const std::string& filenName);
+    void generateHTMLReport(const std::string& filenName, const std::string& pathToDiff2html);
 
     void showInteractiveOnly();
 

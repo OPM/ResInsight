@@ -36,6 +36,9 @@ RiaRegressionTest::RiaRegressionTest(void)
     CAF_PDM_InitFieldNoDefault(&folderContainingDiffTool, "folderContainingDiffTool", "Folder containing <b>diff</b>", "", "Location of diff tool used for text compare", "");
     folderContainingDiffTool.uiCapability()->setUiEditorTypeName(caf::PdmUiFilePathEditor::uiEditorTypeName());
 
+    CAF_PDM_InitFieldNoDefault(&folderContainingGitTool, "folderContainingGitTool", "Folder containing <b>git</b>", "", "Location of git tool used for text compare", "");
+    folderContainingGitTool.uiCapability()->setUiEditorTypeName(caf::PdmUiFilePathEditor::uiEditorTypeName());
+
     CAF_PDM_InitFieldNoDefault(&regressionTestFolder, "regressionTestFolder", "Regression Test Folder", "", "", "");
     regressionTestFolder.uiCapability()->setUiEditorTypeName(caf::PdmUiFilePathEditor::uiEditorTypeName());
 
@@ -74,7 +77,7 @@ void RiaRegressionTest::readSettingsFromApplicationStore()
 //--------------------------------------------------------------------------------------------------
 void RiaRegressionTest::defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute)
 {
-    if (field == &folderContainingDiffTool || field == &folderContainingCompareTool || field == &regressionTestFolder)
+    if (field == &folderContainingDiffTool || field == &folderContainingCompareTool || field == &regressionTestFolder || field == &folderContainingGitTool)
     {
         caf::PdmUiFilePathEditorAttribute* myAttr = dynamic_cast<caf::PdmUiFilePathEditorAttribute*>(attribute);
         if (myAttr)

@@ -19,6 +19,7 @@
 #include "RiaRegressionTestRunner.h"
 
 #include "RiaApplication.h"
+#include "RiaGitDiff.h"
 #include "RiaImageCompareReporter.h"
 #include "RiaImageFileCompare.h"
 #include "RiaLogging.h"
@@ -103,17 +104,14 @@ void RiaRegressionTestRunner::runRegressionTest(const QString& testRootPath, con
 
     QString currentApplicationPath = QDir::currentPath();
 
+    RiaRegressionTest regressionTestConfig;
+    regressionTestConfig.readSettingsFromApplicationStore();
+    if (!regressionTestConfig.folderContainingCompareTool().isEmpty())
     {
-        RiaRegressionTest regressionTestConfig;
-        regressionTestConfig.readSettingsFromApplicationStore();
+        // Windows Only : The image compare tool requires current working directory to be at the folder
+        // containing the image compare tool
 
-        if (!regressionTestConfig.folderContainingCompareTool().isEmpty())
-        {
-            // Windows Only : The image compare tool requires current working directory to be at the folder
-            // containing the image compare tool
-
-            QDir::setCurrent(regressionTestConfig.folderContainingCompareTool());
-        }
+        QDir::setCurrent(regressionTestConfig.folderContainingCompareTool());
     }
 
     QString generatedFolderName = RegTestNames::generatedFolderName;
@@ -212,7 +210,9 @@ void RiaRegressionTestRunner::runRegressionTest(const QString& testRootPath, con
     }
 
     QString htmlReportFileName = testDir.filePath(RegTestNames::reportFileName);
-    imageCompareReporter.generateHTMLReport(htmlReportFileName.toStdString());
+
+    QString htmldiff2htmlText = diff2htmlHeaderText(testRootPath);
+    imageCompareReporter.generateHTMLReport(htmlReportFileName.toStdString(), htmldiff2htmlText.toStdString());
 
     // Open HTML report
     QDesktopServices::openUrl(htmlReportFileName);
@@ -255,9 +255,6 @@ void RiaRegressionTestRunner::runRegressionTest(const QString& testRootPath, con
             // Create diff based on generated folders
             {
                 QString html;
-
-                RiaRegressionTest regressionTestConfig;
-                regressionTestConfig.readSettingsFromApplicationStore();
 
                 RiaTextFileCompare textFileCompare(regressionTestConfig.folderContainingDiffTool());
 
@@ -379,6 +376,61 @@ void RiaRegressionTestRunner::runRegressionTest(const QString& testRootPath, con
         }
     }
 
+    // Invoke git diff
+
+    {
+        QString    folderContainingGit = regressionTestConfig.folderContainingGitTool();
+        RiaGitDiff gitDiff(folderContainingGit);
+        gitDiff.executeDiff(testRootPath);
+
+        QString diffText = gitDiff.diffOutput();
+        if (!diffText.isEmpty())
+        {
+            QFile file(htmlReportFileName);
+            if (file.open(QIODevice::Append | QIODevice::Text))
+            {
+                QTextStream stream(&file);
+
+                QString divSectionForDiff = R"(
+<div id = "destination-elem-id"[innerHtml] = "outputHtml">
+original
+</div>
+
+)";
+                stream << divSectionForDiff;
+                stream << "</body>";
+
+                {
+                    QString generateDiffString = R"(
+<script type="text/javascript">
+
+function generateDiff() {
+return `
+)";
+
+                    generateDiffString += diffText;
+
+                    generateDiffString += R"(
+`;
+};
+)";
+
+                    generateDiffString += R"(
+var diffHtml = Diff2Html.getPrettyHtml(
+    generateDiff(),
+    {inputFormat: 'diff', showFiles: true, matching: 'lines', outputFormat: 'side-by-side'}
+);
+
+document.getElementById("destination-elem-id").innerHTML = diffHtml;
+</script>
+</html>
+)";
+                    stream << generateDiffString;
+                }
+            }
+        }
+    }
+
     RiaLogging::info("\n");
     logInfoTextWithTimeInSeconds(timeStamp, "Completed regression tests");
 
@@ -481,6 +533,41 @@ void RiaRegressionTestRunner::resizeMaximizedPlotWindows()
 QSize RiaRegressionTestRunner::regressionDefaultImageSize()
 {
     return QSize(1000, 745);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RiaRegressionTestRunner::diff2htmlHeaderText(const QString& testRootPath)
+{
+    QString html;
+
+    QString     oldProjPath = QDir::fromNativeSeparators(testRootPath);
+    QStringList pathFolders = oldProjPath.split("/", QString::KeepEmptyParts);
+
+    QString path;
+    for (const auto& f : pathFolders)
+    {
+        path += f;
+        path += "/";
+        if (f == "ResInsight-regression-test") break;
+    }
+
+    {
+        html = R"(
+<!-- CSS -->
+<link rel = "stylesheet" type = "text/css" href = "dist/diff2html.css">
+
+<!--Javascripts-->
+<script type = "text/javascript" src = "dist/diff2html.js"></script>
+<script type = "text/javascript" src = "dist/diff2html-ui.js"></script>
+)";
+
+        QString pathToDiff2html = path + "diff2html/dist/";
+        html                    = html.replace("dist/", pathToDiff2html);
+    }
+
+    return html;
 }
 
 //--------------------------------------------------------------------------------------------------

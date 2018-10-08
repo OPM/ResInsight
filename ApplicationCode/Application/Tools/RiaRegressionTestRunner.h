@@ -47,6 +47,7 @@ private:
     static void  regressionTestConfigureProject();
     static void  resizeMaximizedPlotWindows();
     static QSize regressionDefaultImageSize();
+    static QString diff2htmlHeaderText(const QString& testRootPath);
 
 private:
     const QString     m_rootPath;

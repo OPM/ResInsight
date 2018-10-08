@@ -55,7 +55,7 @@ std::string removeCommonStart(const std::string& mask, const std::string& filena
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiaImageCompareReporter::generateHTMLReport(const std::string& fileName)
+void RiaImageCompareReporter::generateHTMLReport(const std::string& fileName, const std::string& diff2htmlHeaderText)
 {
     if (m_directorySets.size() == 0) return;
 
@@ -70,16 +70,18 @@ void RiaImageCompareReporter::generateHTMLReport(const std::string& fileName)
 
     html += "<html>\n";
     html += "<head>\n";
-    html += "<title>Regression-Test Report</title>\n";
 
     if (m_showInteractiveDiff)
     {
         html += cssString();
     }
 
+    html += diff2htmlHeaderText;
+
     html += "</head>\n";
     html += "\n";
     html += "<body>\n";
+    html += "<title>Regression-Test Report</title>\n";
     html += "\n";
 
     for (size_t dsIdx = 0; dsIdx < m_directorySets.size(); ++dsIdx)
