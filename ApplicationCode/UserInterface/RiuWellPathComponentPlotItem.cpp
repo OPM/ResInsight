@@ -179,7 +179,18 @@ void RiuWellPathComponentPlotItem::onLoadDataAndUpdate(bool updateParentPlot)
     }
     else if (m_componentType == RiaDefines::ICD)
     {
-        addMarker(0.0, startDepth, 30, RiuQwtSymbol::SYMBOL_ELLIPSE, componentColor(), label(), Qt::AlignCenter, Qt::Horizontal);
+        addMarker(0.0, startDepth, 26, RiuQwtSymbol::SYMBOL_ELLIPSE, componentColor(), label(), Qt::AlignCenter, Qt::Horizontal, false, true);
+        m_combinedComponentGroup.addLegendItem(createMarker(0.0, 0.0, 12.0, RiuQwtSymbol::SYMBOL_ELLIPSE, componentColor()));
+    }
+    else if (m_componentType == RiaDefines::ICV)
+    {
+        addMarker(0.0, startDepth, 26, RiuQwtSymbol::SYMBOL_ELLIPSE, componentColor(), label(), Qt::AlignCenter, Qt::Horizontal, false, true);
+        m_combinedComponentGroup.addLegendItem(createMarker(0.0, 0.0, 12.0, RiuQwtSymbol::SYMBOL_ELLIPSE, componentColor()));
+    }
+    else if (m_componentType == RiaDefines::AICD)
+    {
+        addMarker(0.0, startDepth, 26, RiuQwtSymbol::SYMBOL_ELLIPSE, componentColor(), label(), Qt::AlignCenter, Qt::Horizontal, false, true);
+        m_combinedComponentGroup.addLegendItem(createMarker(0.0, 0.0, 12.0, RiuQwtSymbol::SYMBOL_ELLIPSE, componentColor()));
     }
     else if (m_componentType == RiaDefines::PACKER)
     {
@@ -338,9 +349,9 @@ cvf::Color4f RiuWellPathComponentPlotItem::componentColor(float alpha /*= 1.0*/)
             {RiaDefines::PERFORATION_INTERVAL, cvf::Color3::WHITE},
             {RiaDefines::FISHBONES,            cvf::Color3::WHITE},
             {RiaDefines::FRACTURE,             cvf::Color3::ORANGE_RED},
-            {RiaDefines::ICD,                  cvf::Color3::GREEN},
-            {RiaDefines::AICD,                 cvf::Color3::BLUE},
-            {RiaDefines::ICV,                  cvf::Color3::YELLOW}
+            {RiaDefines::ICD,                  cvf::Color3::DARK_BLUE},
+            {RiaDefines::AICD,                 cvf::Color3::BROWN},
+            {RiaDefines::ICV,                  cvf::Color3::DARK_VIOLET}
     };
     return cvf::Color4f(cvf::Color3f(colors.at(m_componentType)), alpha);
 }
