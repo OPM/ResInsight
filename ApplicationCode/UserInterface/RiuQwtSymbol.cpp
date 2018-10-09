@@ -128,20 +128,10 @@ void RiuQwtSymbol::renderSymbols(QPainter *painter, const QPointF *points, int n
 //--------------------------------------------------------------------------------------------------
 void RiuQwtSymbol::renderSymbolLabel(QPainter *painter, const QPointF& position) const
 {
-    int symbolWidth  = this->size().width();
-    int labelWidth   = painter->fontMetrics().width(m_label);
-    if (m_labelPosition == LabelAboveSymbol)
-    {
-        painter->drawText(position.x() - labelWidth / 2, position.y() - 5, m_label);
-    }
-    else if (m_labelPosition == LabelLeftOfSymbol)
-    {
-        painter->drawText(position.x() - labelWidth - symbolWidth, position.y(), m_label);
-    }
-    else if (m_labelPosition == LabelRightOfSymbol)
-    {
-        painter->drawText(position.x() + symbolWidth + 3, position.y(), m_label);
-    }
+    QSize symbolSize = QwtSymbol::size();
+    QRect symbolRect (position.x(), position.y(), symbolSize.width(), symbolSize.height());
+    QRect labelRect  = labelBoundingRect(symbolRect);
+    painter->drawText(labelRect.topLeft(), m_label);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -150,4 +140,42 @@ void RiuQwtSymbol::renderSymbolLabel(QPainter *painter, const QPointF& position)
 void RiuQwtSymbol::setLabelPosition(LabelPosition labelPosition)
 {
     m_labelPosition = labelPosition;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QRect RiuQwtSymbol::boundingRect() const
+{
+    QRect symbolRect  = QwtSymbol::boundingRect();
+    QRect labelRect = labelBoundingRect(symbolRect);
+    return symbolRect.united(labelRect);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QRect RiuQwtSymbol::labelBoundingRect(const QRect& symbolRect) const
+{
+    QPoint symbolPosition = symbolRect.topLeft();
+
+    int symbolWidth = symbolRect.width();
+    
+    int labelWidth = QPainter().fontMetrics().width(m_label);
+    int labelHeight = QPainter().fontMetrics().height();
+
+    QPoint labelPosition;
+    if (m_labelPosition == LabelAboveSymbol)
+    {
+        labelPosition = QPoint(symbolPosition.x() - labelWidth / 2, symbolPosition.y() - 5);
+    }
+    else if (m_labelPosition == LabelLeftOfSymbol)
+    {
+        labelPosition = QPoint(symbolPosition.x() - labelWidth - symbolWidth, symbolPosition.y());
+    }
+    else if (m_labelPosition == LabelRightOfSymbol)
+    {
+        labelPosition = QPoint(symbolPosition.x() + symbolWidth + 3, symbolPosition.y());
+    }
+    return QRect(labelPosition.x(), labelPosition.y(), labelWidth, labelHeight);
 }

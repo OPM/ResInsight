@@ -59,8 +59,12 @@ public:
     void         renderSymbolLabel(QPainter *painter, const QPointF& position) const;
     QString label() const { return m_label; }
 
-    void setLabelPosition(LabelPosition labelPosition);
-    
+    void    setLabelPosition(LabelPosition labelPosition);
+    virtual QRect boundingRect() const override;
+
+private:
+    QRect   labelBoundingRect(const QRect& symbolRect) const;
+
 private:
     QString       m_label;
     LabelPosition m_labelPosition;
