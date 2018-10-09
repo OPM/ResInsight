@@ -22,6 +22,8 @@
 
 #include "RiaLogging.h"
 #include "RiaPreferences.h"
+#include "RiaRegressionTestRunner.h"
+#include "RiaApplication.h"
 
 #include "RifEclipseOutputFileTools.h"
 #include "RifReaderEclipseOutput.h"
@@ -34,10 +36,12 @@
 #include "RigFlowDiagSolverInterface.h"
 #include "RigMainGrid.h"
 
+#include "RimDialogData.h"
 #include "RimEclipseCellColors.h"
 #include "RimEclipseView.h"
 #include "RimFlowDiagSolution.h"
 #include "RimMockModelSettings.h"
+#include "RimProject.h"
 #include "RimProject.h"
 #include "RimReservoirCellResultsStorage.h"
 #include "RimTimeStepFilter.h"
@@ -387,16 +391,17 @@ cvf::ref<RifReaderInterface> RimEclipseResultCase::createMockModel(QString model
     {
         QApplication::setOverrideCursor(QCursor(Qt::ArrowCursor));
 
-        RimMockModelSettings rimMockModelSettings;
-        caf::PdmSettings::readFieldsFromApplicationStore(&rimMockModelSettings);
+        RimMockModelSettings* mockModelSettings = RiaApplication::instance()->project()->dialogData()->mockModelSettings();
 
-        caf::PdmUiPropertyViewDialog propertyDialog(nullptr, &rimMockModelSettings, "Customize Mock Model", "");
-        if (propertyDialog.exec() == QDialog::Accepted)
+        if (!RiaRegressionTestRunner::instance()->isRunningRegressionTests())
         {
-            QApplication::restoreOverrideCursor();
+            caf::PdmUiPropertyViewDialog propertyDialog(nullptr, mockModelSettings, "Customize Mock Model", "");
+            if (propertyDialog.exec() == QDialog::Accepted)
+            {
+            }
+        }
 
-            caf::PdmSettings::writeFieldsToApplicationStore(&rimMockModelSettings);
-
+        {
             double startX = 0;
             double startY = 0;
             double startZ = 0;
@@ -411,16 +416,14 @@ cvf::ref<RifReaderInterface> RimEclipseResultCase::createMockModel(QString model
             double offsetZ = 0;
 
             mockFileInterface->setWorldCoordinates(cvf::Vec3d(startX + offsetX, startY + offsetY, startZ + offsetZ), cvf::Vec3d(startX + widthX + offsetX, startY + widthY + offsetY, startZ + widthZ + offsetZ));
-            mockFileInterface->setGridPointDimensions(cvf::Vec3st(rimMockModelSettings.cellCountX + 1, rimMockModelSettings.cellCountY + 1, rimMockModelSettings.cellCountZ + 1));
-            mockFileInterface->setResultInfo(rimMockModelSettings.resultCount, rimMockModelSettings.timeStepCount);
+            mockFileInterface->setGridPointDimensions(cvf::Vec3st(mockModelSettings->cellCountX + 1, mockModelSettings->cellCountY + 1, mockModelSettings->cellCountZ + 1));
+            mockFileInterface->setResultInfo(mockModelSettings->resultCount, mockModelSettings->timeStepCount);
             mockFileInterface->enableWellData(false);
 
             mockFileInterface->open("", reservoir.p());
         }
-        else
-        {
-             QApplication::restoreOverrideCursor();
-        }
+
+        QApplication::restoreOverrideCursor();
     }
 
     this->setReservoirData( reservoir.p() );

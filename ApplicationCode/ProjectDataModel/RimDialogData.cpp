@@ -18,6 +18,8 @@
 
 #include "RimDialogData.h"
 
+#include "RimMockModelSettings.h"
+
 #include "ExportCommands/RicExportCarfinUi.h"
 #include "CompletionExportCommands/RicExportCompletionDataSettingsUi.h"
 #include "FractureCommands/RicCreateMultipleFracturesUi.h"
@@ -51,6 +53,9 @@ RimDialogData::RimDialogData()
 
     CAF_PDM_InitFieldNoDefault(&m_exportLgrData, "ExportLgr", "LGR Export", "", "", "");
     m_exportLgrData = new RicExportLgrUi();
+
+    CAF_PDM_InitFieldNoDefault(&m_mockModelSettings, "MockModelSettings", "Mock Model Settings", "", "", "");
+    m_mockModelSettings = new RimMockModelSettings();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -124,5 +129,13 @@ RicExportWellPathsUi* RimDialogData::wellPathsExportData() const
 RicExportLgrUi* RimDialogData::exportLgrData() const
 {
     return m_exportLgrData;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimMockModelSettings* RimDialogData::mockModelSettings() const
+{
+    return m_mockModelSettings;
 }
 
