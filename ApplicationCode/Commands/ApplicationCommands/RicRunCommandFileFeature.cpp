@@ -41,7 +41,7 @@ bool RicRunCommandFileFeature::isCommandEnabled()
 void RicRunCommandFileFeature::onActionTriggered(bool isChecked)
 {
     RiaApplication* app = RiaApplication::instance();
-    QString defaultDir = app->lastUsedDialogDirectory("COMMAND_FILE");
+    QString defaultDir = app->lastUsedDialogDirectoryWithFallbackToProjectFolder("COMMAND_FILE");
 
     QString fileName = QFileDialog::getOpenFileName(nullptr, "Open ResInsight Command File", defaultDir, "ResInsight Command File (*.txt);;All files(*.*)");
 
