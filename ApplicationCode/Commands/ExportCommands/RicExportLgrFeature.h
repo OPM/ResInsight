@@ -62,7 +62,5 @@ protected:
     virtual void setupActionLook(QAction* actionToSetup) override;
 
 private:
-
-public:
-    static std::vector<RimWellPath*> visibleWellPaths();
+    static std::vector<RimWellPath*> selectedWellPaths();
 };

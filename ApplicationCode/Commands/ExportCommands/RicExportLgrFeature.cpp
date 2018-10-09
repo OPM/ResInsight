@@ -196,7 +196,7 @@ bool RicExportLgrFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicExportLgrFeature::onActionTriggered(bool isChecked)
 {
-    std::vector<RimWellPath*> wellPaths = visibleWellPaths();
+    std::vector<RimWellPath*> wellPaths = selectedWellPaths();
     CVF_ASSERT(wellPaths.size() > 0);
 
     std::vector<RimSimWellInView*> simWells;
@@ -274,63 +274,19 @@ void RicExportLgrFeature::setupActionLook(QAction* actionToSetup)
 }
 
 //--------------------------------------------------------------------------------------------------
-///
+/// 
 //--------------------------------------------------------------------------------------------------
-std::vector<RimWellPath*> RicExportLgrFeature::visibleWellPaths()
+std::vector<RimWellPath*> RicExportLgrFeature::selectedWellPaths()
 {
+    std::vector<RimWellPathCompletions*> selectedCompletions = caf::selectedObjectsByTypeStrict<RimWellPathCompletions*>();
     std::vector<RimWellPath*> wellPaths;
 
+    for (auto completion : selectedCompletions)
     {
-        std::vector<RimWellPathCollection*> wellPathCollections;
-        caf::SelectionManager::instance()->objectsByType(&wellPathCollections);
+        RimWellPath* parentWellPath;
+        completion->firstAncestorOrThisOfType(parentWellPath);
 
-        if (wellPathCollections.empty())
-        {
-            std::vector<RimWellPath*> selectedWellPaths;
-            caf::SelectionManager::instance()->objectsByType(&selectedWellPaths);
-
-            if (!selectedWellPaths.empty())
-            {
-                RimWellPathCollection* parent = nullptr;
-                selectedWellPaths[0]->firstAncestorOrThisOfType(parent);
-                if (parent)
-                {
-                    wellPathCollections.push_back(parent);
-                }
-            }
-        }
-
-        if (!wellPathCollections.empty())
-        {
-            for (auto wellPathCollection : wellPathCollections)
-            {
-                for (const auto& wellPath : wellPathCollection->wellPaths())
-                {
-                    if (wellPath->showWellPath())
-                    {
-                        wellPaths.push_back(wellPath);
-                    }
-                }
-            }
-        }
-        else
-        {
-            // No well path or well path collection selected 
-
-            auto allWellPaths = RiaApplication::instance()->project()->allWellPaths();
-            for (const auto& w : allWellPaths)
-            {
-                if (w->showWellPath())
-                {
-                    wellPaths.push_back(w);
-                }
-            }
-
-        }
+        if (parentWellPath) wellPaths.push_back(parentWellPath);
     }
-
-    std::set<RimWellPath*> uniqueWellPaths(wellPaths.begin(), wellPaths.end());
-    wellPaths.assign(uniqueWellPaths.begin(), uniqueWellPaths.end());
-
     return wellPaths;
 }
