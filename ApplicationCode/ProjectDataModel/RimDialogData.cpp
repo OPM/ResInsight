@@ -23,7 +23,7 @@
 #include "FractureCommands/RicCreateMultipleFracturesUi.h"
 #include "HoloLensCommands/RicHoloLensExportToFolderUi.h"
 #include "ExportCommands/RicExportWellPathsUi.h"
-#include "ExportCommands/RicExportCarfinForCompletionsUi.h"
+#include "ExportCommands/RicExportLgrUi.h"
 
 CAF_PDM_SOURCE_INIT(RimDialogData, "RimDialogData");
 
@@ -49,8 +49,8 @@ RimDialogData::RimDialogData()
     CAF_PDM_InitFieldNoDefault(&m_exportWellPathsData, "ExportwellPathsData", "Export Well Paths Data", "", "", "");
     m_exportWellPathsData = new RicExportWellPathsUi();
 
-    CAF_PDM_InitFieldNoDefault(&m_exportCarfinForCompletionsData, "ExportCarfinForCompletions", "Export Carfin", "", "", "");
-    m_exportCarfinForCompletionsData = new RicExportCarfinForCompletionsUi();
+    CAF_PDM_InitFieldNoDefault(&m_exportLgrData, "ExportLgr", "LGR Export", "", "", "");
+    m_exportLgrData = new RicExportLgrUi();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -121,8 +121,8 @@ RicExportWellPathsUi* RimDialogData::wellPathsExportData() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RicExportCarfinForCompletionsUi* RimDialogData::exportCarfinForCompletionsData() const
+RicExportLgrUi* RimDialogData::exportLgrData() const
 {
-    return m_exportCarfinForCompletionsData;
+    return m_exportLgrData;
 }
 

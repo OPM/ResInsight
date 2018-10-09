@@ -302,13 +302,6 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicWellPathExportCompletionDataFeature";
             menuBuilder.subMenuEnd();
 
-            menuBuilder.subMenuStart("Export Well Paths");
-            menuBuilder << "RicExportSelectedWellPathsFeature";
-            menuBuilder << "RicExportVisibleWellPathsFeature";
-            menuBuilder.subMenuEnd();
-
-            menuBuilder << "RicExportCarfinForCompletionsFeature";
-
             if ( dynamic_cast<RimModeledWellPath*>(uiItem) )
             {
                 menuBuilder << "RicShowWellPlanFeature";
@@ -769,7 +762,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
                 menuBuilder.subMenuEnd();
             }
 
-            menuBuilder << "RicExportCarfinForCompletionsFeature";
+            menuBuilder << "RicExportLgrFeature";
         }
 
         menuBuilder << "RicCreateMultipleFracturesFeature";

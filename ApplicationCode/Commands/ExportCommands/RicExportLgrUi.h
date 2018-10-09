@@ -33,7 +33,7 @@ namespace caf {
 //==================================================================================================
 /// 
 //==================================================================================================
-class RicExportCarfinForCompletionsUi : public caf::PdmObject
+class RicExportLgrUi : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 
@@ -41,7 +41,7 @@ public:
     enum LgrSplitType { PER_CELL_LGR, SINGLE_LGR};
     typedef caf::AppEnum<LgrSplitType> LgrSplitTypeEnum;
 
-    RicExportCarfinForCompletionsUi();
+    RicExportLgrUi();
 
     void setCase(RimEclipseCase* rimCase);
 

@@ -16,13 +16,13 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicExportCarfinForCompletionsFeature.h"
+#include "RicExportLgrFeature.h"
 
 #include "RiaApplication.h"
 #include "RiaLogging.h"
 
 #include "CompletionExportCommands/RicWellPathExportCompletionDataFeature.h"
-#include "RicExportCarfinForCompletionsUi.h"
+#include "RicExportLgrUi.h"
 
 #include "RifEclipseDataTableFormatter.h"
 
@@ -37,13 +37,9 @@
 #include "RimWellPath.h"
 #include "RimProject.h"
 #include "RimWellPathCollection.h"
+#include "RimWellPathCompletions.h"
 
 #include "RiuPlotMainWindow.h"
-
-#include <cafPdmUiPropertyViewDialog.h>
-#include <cafSelectionManager.h>
-#include <cafSelectionManagerTools.h>
-#include <cafVecIjk.h>
 
 #include <QAction>
 #include <QFileInfo>
@@ -51,13 +47,19 @@
 #include <QFile>
 #include <QTextStream>
 
+#include <cafPdmUiPropertyViewDialog.h>
+#include <cafSelectionManager.h>
+#include <cafSelectionManagerTools.h>
+#include <cafVecIjk.h>
+#include <cafUtils.h>
 
-CAF_CMD_SOURCE_INIT(RicExportCarfinForCompletionsFeature, "RicExportCarfinForCompletionsFeature");
+
+CAF_CMD_SOURCE_INIT(RicExportLgrFeature, "RicExportLgrFeature");
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RicExportCarfinForCompletionsUi* RicExportCarfinForCompletionsFeature::openDialog()
+RicExportLgrUi* RicExportLgrFeature::openDialog()
 {
     RiaApplication* app = RiaApplication::instance();
     RimProject* proj = app->project();
@@ -69,7 +71,7 @@ RicExportCarfinForCompletionsUi* RicExportCarfinForCompletionsFeature::openDialo
         startPath = fi.absolutePath();
     }
 
-    RicExportCarfinForCompletionsUi* featureUi = app->project()->dialogData()->exportCarfinForCompletionsData();
+    RicExportLgrUi* featureUi = app->project()->dialogData()->exportLgrData();
     if (featureUi->exportFolder().isEmpty())
     {
         featureUi->setExportFolder(startPath);
@@ -104,7 +106,7 @@ RicExportCarfinForCompletionsUi* RicExportCarfinForCompletionsFeature::openDialo
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicExportCarfinForCompletionsFeature::openFileForExport(const QString& folderName, const QString& fileName, QFile* exportFile)
+bool RicExportLgrFeature::openFileForExport(const QString& folderName, const QString& fileName, QFile* exportFile)
 {
     QDir exportFolder = QDir(folderName);
     if (!exportFolder.exists())
@@ -128,7 +130,7 @@ bool RicExportCarfinForCompletionsFeature::openFileForExport(const QString& fold
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicExportCarfinForCompletionsFeature::exportCarfin(QTextStream& stream, const std::map<RigCompletionDataGridCell, LgrInfo>& lgrInfos)
+void RicExportLgrFeature::exportCarfin(QTextStream& stream, const std::map<RigCompletionDataGridCell, LgrInfo>& lgrInfos)
 {
     int count = 0;
     for (auto lgr : lgrInfos)
@@ -182,23 +184,23 @@ void RicExportCarfinForCompletionsFeature::exportCarfin(QTextStream& stream, con
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicExportCarfinForCompletionsFeature::isCommandEnabled()
+bool RicExportLgrFeature::isCommandEnabled()
 {
-    std::vector<RimWellPath*> wellPaths = caf::selectedObjectsByTypeStrict<RimWellPath*>();
+    std::vector<RimWellPathCompletions*> completions = caf::selectedObjectsByTypeStrict<RimWellPathCompletions*>();
 
-    return !wellPaths.empty();
+    return !completions.empty();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicExportCarfinForCompletionsFeature::onActionTriggered(bool isChecked)
+void RicExportLgrFeature::onActionTriggered(bool isChecked)
 {
     std::vector<RimWellPath*> wellPaths = visibleWellPaths();
     CVF_ASSERT(wellPaths.size() > 0);
 
     std::vector<RimSimWellInView*> simWells;
-    QString                        dialogTitle = "Export Carfin";
+    QString                        dialogTitle = "LGR Export";
 
     auto dialogData = openDialog();
     if (dialogData)
@@ -248,32 +250,33 @@ void RicExportCarfinForCompletionsFeature::onActionTriggered(bool isChecked)
                     lgrInfo.values = lgrValues;
                     lgrs.insert(std::make_pair(completionsForWell.first, lgrInfo));
                 }
+
+                // Export
+                QFile file;
+                QString fileName = caf::Utils::makeValidFileBasename(QString("LGR_%1.dat").arg(wellPath->name()));
+                openFileForExport(dialogData->exportFolder(), fileName, &file);
+                QTextStream stream(&file);
+                stream.setRealNumberNotation(QTextStream::FixedNotation);
+                stream.setRealNumberPrecision(2);
+                exportCarfin(stream, lgrs);
+                file.close();
             }
         }
-
-        // Export
-        QFile file;
-        openFileForExport(dialogData->exportFolder(), "CARFIN.dat", &file);
-        QTextStream stream(&file);
-        stream.setRealNumberNotation(QTextStream::FixedNotation);
-        stream.setRealNumberPrecision(2);
-        exportCarfin(stream, lgrs);
-        file.close();
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicExportCarfinForCompletionsFeature::setupActionLook(QAction* actionToSetup)
+void RicExportLgrFeature::setupActionLook(QAction* actionToSetup)
 {
-    actionToSetup->setText("Export Carfin");
+    actionToSetup->setText("LGR Export");
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimWellPath*> RicExportCarfinForCompletionsFeature::visibleWellPaths()
+std::vector<RimWellPath*> RicExportLgrFeature::visibleWellPaths()
 {
     std::vector<RimWellPath*> wellPaths;
 

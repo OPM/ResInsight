@@ -16,7 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicExportCarfinForCompletionsUi.h"
+#include "RicExportLgrUi.h"
 
 #include "RicCellRangeUi.h"
 
@@ -27,7 +27,7 @@
 #include "cafVecIjk.h"
 
 
-CAF_PDM_SOURCE_INIT(RicExportCarfinForCompletionsUi, "RicExportCarfinForCompletionsUi");
+CAF_PDM_SOURCE_INIT(RicExportLgrUi, "RicExportLgrUi");
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -35,19 +35,19 @@ CAF_PDM_SOURCE_INIT(RicExportCarfinForCompletionsUi, "RicExportCarfinForCompleti
 namespace caf
 {
     template<>
-    void RicExportCarfinForCompletionsUi::LgrSplitTypeEnum::setUp()
+    void RicExportLgrUi::LgrSplitTypeEnum::setUp()
     {
-        addItem(RicExportCarfinForCompletionsUi::PER_CELL_LGR, "PER_CELL_LGR", "LGR Per Cell");
-        addItem(RicExportCarfinForCompletionsUi::SINGLE_LGR, "SINGLE_LGR", "Single LGR");
+        addItem(RicExportLgrUi::PER_CELL_LGR, "PER_CELL_LGR", "LGR Per Cell");
+        addItem(RicExportLgrUi::SINGLE_LGR, "SINGLE_LGR", "Single LGR");
 
-        setDefault(RicExportCarfinForCompletionsUi::PER_CELL_LGR);
+        setDefault(RicExportLgrUi::PER_CELL_LGR);
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RicExportCarfinForCompletionsUi::RicExportCarfinForCompletionsUi()
+RicExportLgrUi::RicExportLgrUi()
 {
     CAF_PDM_InitObject("Export CARFIN", "", "", "");
 
@@ -66,7 +66,7 @@ RicExportCarfinForCompletionsUi::RicExportCarfinForCompletionsUi()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicExportCarfinForCompletionsUi::setCase(RimEclipseCase* rimCase)
+void RicExportLgrUi::setCase(RimEclipseCase* rimCase)
 {
     bool isDifferent = (rimCase != m_caseToApply);
 
@@ -80,7 +80,7 @@ void RicExportCarfinForCompletionsUi::setCase(RimEclipseCase* rimCase)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-caf::VecIjk RicExportCarfinForCompletionsUi::lgrCellCount() const
+caf::VecIjk RicExportLgrUi::lgrCellCount() const
 {
     return caf::VecIjk (m_cellCountI, m_cellCountJ, m_cellCountK);
 }
@@ -88,7 +88,7 @@ caf::VecIjk RicExportCarfinForCompletionsUi::lgrCellCount() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RicExportCarfinForCompletionsUi::exportFolder() const
+QString RicExportLgrUi::exportFolder() const
 {
     return m_exportFolder();
 }
@@ -96,7 +96,7 @@ QString RicExportCarfinForCompletionsUi::exportFolder() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimEclipseCase* RicExportCarfinForCompletionsUi::caseToApply() const
+RimEclipseCase* RicExportLgrUi::caseToApply() const
 {
     return m_caseToApply();
 }
@@ -104,7 +104,7 @@ RimEclipseCase* RicExportCarfinForCompletionsUi::caseToApply() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RicExportCarfinForCompletionsUi::singleLgrSplit() const
+bool RicExportLgrUi::singleLgrSplit() const
 {
     return m_splitType == SINGLE_LGR;
 }
@@ -112,7 +112,7 @@ bool RicExportCarfinForCompletionsUi::singleLgrSplit() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicExportCarfinForCompletionsUi::setExportFolder(const QString& folder)
+void RicExportLgrUi::setExportFolder(const QString& folder)
 {
     m_exportFolder = folder;
 }
@@ -120,7 +120,7 @@ void RicExportCarfinForCompletionsUi::setExportFolder(const QString& folder)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicExportCarfinForCompletionsUi::setDefaultValuesFromCase()
+void RicExportLgrUi::setDefaultValuesFromCase()
 {
     if (m_caseToApply)
     {
@@ -136,7 +136,7 @@ void RicExportCarfinForCompletionsUi::setDefaultValuesFromCase()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RicExportCarfinForCompletionsUi::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly)
+QList<caf::PdmOptionItemInfo> RicExportLgrUi::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly)
 {
     QList<caf::PdmOptionItemInfo> options;
 
@@ -151,7 +151,7 @@ QList<caf::PdmOptionItemInfo> RicExportCarfinForCompletionsUi::calculateValueOpt
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicExportCarfinForCompletionsUi::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+void RicExportLgrUi::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
     if (changedField == &m_caseToApply)
     {
@@ -162,7 +162,7 @@ void RicExportCarfinForCompletionsUi::fieldChangedByUi(const caf::PdmFieldHandle
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicExportCarfinForCompletionsUi::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+void RicExportLgrUi::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
     uiOrdering.add(&m_caseToApply);
     uiOrdering.add(&m_exportFolder);
@@ -176,7 +176,7 @@ void RicExportCarfinForCompletionsUi::defineUiOrdering(QString uiConfigName, caf
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicExportCarfinForCompletionsUi::defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute)
+void RicExportLgrUi::defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute)
 {
     if (field == &m_exportFolder)
     {

@@ -25,7 +25,7 @@
 
 class RimSimWellInView;
 class RimWellPath;
-class RicExportCarfinForCompletionsUi;
+class RicExportLgrUi;
 class QFile;
 class QTextStream;
 
@@ -48,11 +48,11 @@ public:
 //==================================================================================================
 ///
 //==================================================================================================
-class RicExportCarfinForCompletionsFeature : public caf::CmdFeature
+class RicExportLgrFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
 
-    static RicExportCarfinForCompletionsUi* openDialog();
+    static RicExportLgrUi* openDialog();
     static bool openFileForExport(const QString& folderName, const QString& fileName, QFile* exportFile);
     static void exportCarfin(QTextStream& stream, const std::map<RigCompletionDataGridCell, LgrInfo>& lgrInfos);
 

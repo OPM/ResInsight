@@ -19,8 +19,8 @@ ${CMAKE_CURRENT_LIST_DIR}/RicSnapshotViewToFileFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicExportSelectedWellPathsFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicExportVisibleWellPathsFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicExportWellPathsUi.h
-${CMAKE_CURRENT_LIST_DIR}/RicExportCarfinForCompletionsFeature.h
-${CMAKE_CURRENT_LIST_DIR}/RicExportCarfinForCompletionsUi.h
+${CMAKE_CURRENT_LIST_DIR}/RicExportLgrFeature.h
+${CMAKE_CURRENT_LIST_DIR}/RicExportLgrUi.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -44,8 +44,8 @@ ${CMAKE_CURRENT_LIST_DIR}/RicSnapshotViewToFileFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicExportSelectedWellPathsFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicExportVisibleWellPathsFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicExportWellPathsUi.cpp
-${CMAKE_CURRENT_LIST_DIR}/RicExportCarfinForCompletionsFeature.cpp
-${CMAKE_CURRENT_LIST_DIR}/RicExportCarfinForCompletionsUi.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicExportLgrFeature.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicExportLgrUi.cpp
 )
 
 list(APPEND CODE_HEADER_FILES
