@@ -158,12 +158,12 @@ void RicExportLgrFeature::exportLgr(QTextStream& stream, const std::map<RigCompl
             );
 
             formatter.add(lgrInfo.name);
-            formatter.add(dataGridCell.localCellIndexI() + 1);
-            formatter.add(dataGridCell.localCellIndexI() + 1);
-            formatter.add(dataGridCell.localCellIndexJ() + 1);
-            formatter.add(dataGridCell.localCellIndexJ() + 1);
-            formatter.add(dataGridCell.localCellIndexK() + 1);
-            formatter.add(dataGridCell.localCellIndexK() + 1);
+            formatter.addOneBasedCellIndex(dataGridCell.localCellIndexI());
+            formatter.addOneBasedCellIndex(dataGridCell.localCellIndexI());
+            formatter.addOneBasedCellIndex(dataGridCell.localCellIndexJ());
+            formatter.addOneBasedCellIndex(dataGridCell.localCellIndexJ());
+            formatter.addOneBasedCellIndex(dataGridCell.localCellIndexK());
+            formatter.addOneBasedCellIndex(dataGridCell.localCellIndexK());
             formatter.add(lgrInfo.sizes.i());
             formatter.add(lgrInfo.sizes.j());
             formatter.add(lgrInfo.sizes.k());
