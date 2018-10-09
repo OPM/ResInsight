@@ -17,6 +17,8 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
+#include "RimWellPathCompletionInterface.h"
+
 #include "cafPdmObject.h"
 
 #include "cafAppEnum.h"
@@ -27,54 +29,41 @@
 
 class RimWellPath;
 
-class RimWellPathAttribute : public caf::PdmObject
+class RimWellPathAttribute : public caf::PdmObject, public RimWellPathCompletionInterface
 {
     CAF_PDM_HEADER_INIT;
 public:
     static double MAX_DIAMETER_IN_INCHES;
     static double MIN_DIAMETER_IN_INCHES;
-
-    enum AttributeType
-    {
-        // Visible and selectable attributes
-        AttributeCasing,
-        AttributeLiner,
-        AttributePacker,
-        // Attribute types generated from well path and completions
-        AttributeWellTube,
-        AttributeFracture,
-        AttributePerforationInterval,
-        AttributeFishbonesInterval,
-        AttributeAICD,
-        AttributeICD,
-        AttributeICV
-    };
-    typedef caf::AppEnum<AttributeType> AttributeTypeEnum;
+    typedef caf::AppEnum<RiaDefines::CompletionType> CompletionTypeEnum;
 
     RimWellPathAttribute();
     ~RimWellPathAttribute();
 
-    AttributeType  type() const;
-    double         depthStart() const;
-    double         depthEnd() const;
     double         diameterInInches() const;
-    QString        label() const;
-    static QString typeLabel(AttributeType type);
     QString        diameterLabel() const;
     bool           operator<(const RimWellPathAttribute& rhs) const;
     void           setDepthsFromWellPath(const RimWellPath* wellPath);
 
+    // Overrides from RimWellPathCompletionInterface
+    virtual RiaDefines::CompletionType type() const override;
+    virtual double                     startMD() const override;
+    virtual double                     endMD() const override;
+    virtual QString                    completionLabel() const override;
+    virtual QString                    completionTypeLabel() const override;   
+    
 private:
+    bool                                  isDiameterSupported() const;
     virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
-    static QString generateInchesLabel(double diameter);
-    virtual void   fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
-    virtual void   defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    static QString                        generateInchesLabel(double diameter);
+    virtual void                          fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    virtual void                          defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
 
 private:
-    caf::PdmField<AttributeTypeEnum> m_type;
-    caf::PdmField<double>            m_depthStart;
-    caf::PdmField<double>            m_depthEnd;
-    caf::PdmField<double>            m_diameterInInches;
+    caf::PdmField<CompletionTypeEnum>         m_type;
+    caf::PdmField<double>                     m_startMD;
+    caf::PdmField<double>                     m_endMD;
+    caf::PdmField<double>                     m_diameterInInches;
 };
 
 

@@ -194,34 +194,6 @@ double RimFishbonesMultipleSubs::rotationAngle(size_t index) const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-double RimFishbonesMultipleSubs::startOfSubMD() const
-{
-    double measuredDepth = 0.0;
-    if (!m_locationOfSubs().empty())
-    {
-        measuredDepth = m_locationOfSubs().front();
-    }
-
-    return measuredDepth;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-double RimFishbonesMultipleSubs::endOfSubMD() const
-{
-    double measuredDepth = 0.0;
-    if (!m_locationOfSubs().empty())
-    {
-        measuredDepth = m_locationOfSubs().back();
-    }
-
-    return measuredDepth;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 double RimFishbonesMultipleSubs::exitAngle() const
 {
     return m_lateralExitAngle;
@@ -426,6 +398,58 @@ void RimFishbonesMultipleSubs::setUnitSystemSpecificDefaults()
         }
         m_pipeProperties->setUnitSystemSpecificDefaults();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiaDefines::CompletionType RimFishbonesMultipleSubs::type() const
+{
+    return RiaDefines::FISHBONES;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+double RimFishbonesMultipleSubs::startMD() const
+{
+    double measuredDepth = 0.0;
+    if (!m_locationOfSubs().empty())
+    {
+        measuredDepth = m_locationOfSubs().front();
+    }
+
+    return measuredDepth;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+double RimFishbonesMultipleSubs::endMD() const
+{
+    double measuredDepth = 0.0;
+    if (!m_locationOfSubs().empty())
+    {
+        measuredDepth = m_locationOfSubs().back();
+    }
+
+    return measuredDepth;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimFishbonesMultipleSubs::completionLabel() const
+{
+    return generatedName();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimFishbonesMultipleSubs::completionTypeLabel() const
+{
+    return "Fishbones";
 }
 
 //--------------------------------------------------------------------------------------------------

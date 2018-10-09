@@ -27,18 +27,6 @@
 
 CAF_PDM_SOURCE_INIT(RimWellPathAttribute, "WellPathAttribute");
 
-namespace caf
-{
-template<>
-void caf::AppEnum<RimWellPathAttribute::AttributeType>::setUp()
-{
-    addItem(RimWellPathAttribute::AttributeCasing, "CASING", "Casing");
-    addItem(RimWellPathAttribute::AttributeLiner, "LINER", "Liner");
-    addItem(RimWellPathAttribute::AttributePacker, "PACKER", "Packer");
-    setDefault(RimWellPathAttribute::AttributeCasing);
-}
-}
-
 double RimWellPathAttribute::MAX_DIAMETER_IN_INCHES = 30.0;
 double RimWellPathAttribute::MIN_DIAMETER_IN_INCHES = 7.0;
 
@@ -48,10 +36,11 @@ double RimWellPathAttribute::MIN_DIAMETER_IN_INCHES = 7.0;
 RimWellPathAttribute::RimWellPathAttribute()
 {
     CAF_PDM_InitObject("RimWellPathAttribute", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&m_type, "AttributeType", "Type    ", "", "", "");
-    CAF_PDM_InitField(&m_depthStart, "DepthStart", -1.0, "Start MD", "", "", "");
-    CAF_PDM_InitField(&m_depthEnd,   "DepthEnd",   -1.0, "End MD",   "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_type, "CompletionType", "Type    ", "", "", "");
+    CAF_PDM_InitField(&m_startMD, "DepthStart", -1.0, "Start MD", "", "", "");
+    CAF_PDM_InitField(&m_endMD,   "DepthEnd",   -1.0, "End MD",   "", "", "");
     CAF_PDM_InitField(&m_diameterInInches, "DiameterInInches", MAX_DIAMETER_IN_INCHES, "Diameter", "", "", "");
+    m_type = RiaDefines::CASING;
     m_diameterInInches.uiCapability()->setUiEditorTypeName(caf::PdmUiComboBoxEditor::uiEditorTypeName());
 }
 
@@ -62,94 +51,12 @@ RimWellPathAttribute::~RimWellPathAttribute()
 {
 
 }
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RimWellPathAttribute::AttributeType RimWellPathAttribute::type() const
-{
-    return m_type();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-double RimWellPathAttribute::depthStart() const
-{
-    return m_depthStart();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-double RimWellPathAttribute::depthEnd() const
-{
-    return m_depthEnd();
-}
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 double RimWellPathAttribute::diameterInInches() const
 {
     return m_diameterInInches;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RimWellPathAttribute::label() const
-{
-    QString fullLabel = typeLabel(m_type());
-    if (m_type() == AttributeCasing || m_type() == AttributeLiner)
-    {
-        fullLabel += QString(" %1").arg(diameterLabel());
-    }
-    return fullLabel;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RimWellPathAttribute::typeLabel(AttributeType type)
-{
-    switch (type)
-    {
-    case AttributeCasing:
-        return QString("Casing");
-        break;
-    case AttributeLiner:
-        return QString("Liner");
-        break;
-    case AttributePacker:
-        return QString("Packer");
-        break;
-    case AttributeWellTube:
-        return QString("Production Tube");
-        break;
-    case AttributeFracture:
-        return QString("Fracture");
-        break;
-    case AttributePerforationInterval:
-        return QString("Perforations");
-        break;
-    case AttributeFishbonesInterval:
-        return QString("Fishbones");
-        break;
-    case AttributeAICD:
-        return QString("AICD");
-        break;
-    case AttributeICD:
-        return QString("ICD");
-        break;
-    case AttributeICV:
-        return QString("ICV");
-        break;
-    default:
-        CVF_ASSERT(false);
-        return QString("UNKNOWN TYPE");
-        break;        
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -169,7 +76,7 @@ bool RimWellPathAttribute::operator<(const RimWellPathAttribute& rhs) const
     {
         return type() < rhs.type();
     }
-    return depthEnd() > rhs.depthEnd();
+    return endMD() > rhs.endMD();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -177,8 +84,61 @@ bool RimWellPathAttribute::operator<(const RimWellPathAttribute& rhs) const
 //--------------------------------------------------------------------------------------------------
 void RimWellPathAttribute::setDepthsFromWellPath(const RimWellPath* wellPath)
 {
-    m_depthStart = wellPath->wellPathGeometry()->measureDepths().front();
-    m_depthEnd = wellPath->wellPathGeometry()->measureDepths().back();
+    m_startMD = wellPath->wellPathGeometry()->measureDepths().front();
+    m_endMD = wellPath->wellPathGeometry()->measureDepths().back();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiaDefines::CompletionType RimWellPathAttribute::type() const
+{
+    return m_type();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimWellPathAttribute::startMD() const
+{
+    return m_startMD();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimWellPathAttribute::endMD() const
+{
+    return m_endMD();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimWellPathAttribute::completionLabel() const
+{
+    QString fullLabel = completionTypeLabel();
+    if (m_type() == RiaDefines::CASING || m_type() == RiaDefines::LINER)
+    {
+        fullLabel += QString(" %1").arg(diameterLabel());
+    }
+    return fullLabel;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimWellPathAttribute::completionTypeLabel() const
+{
+    return m_type().uiText();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimWellPathAttribute::isDiameterSupported() const
+{
+    return m_type() == RiaDefines::CASING || m_type() == RiaDefines::LINER;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -187,9 +147,17 @@ void RimWellPathAttribute::setDepthsFromWellPath(const RimWellPath* wellPath)
 QList<caf::PdmOptionItemInfo> RimWellPathAttribute::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly)
 {
     QList<caf::PdmOptionItemInfo> options;
-    if (fieldNeedingOptions == &m_diameterInInches)
+    if (fieldNeedingOptions == &m_type)
     {
-        if (m_type() == AttributeCasing || m_type() == AttributeLiner)
+        std::set<RiaDefines::CompletionType> supportedTypes = { RiaDefines::CASING, RiaDefines::LINER, RiaDefines::PACKER };
+        for (RiaDefines::CompletionType type : supportedTypes)
+        {
+            options.push_back(caf::PdmOptionItemInfo(CompletionTypeEnum::uiText(type), type));
+        }
+    }
+    else if (fieldNeedingOptions == &m_diameterInInches)
+    {
+        if (isDiameterSupported())
         {
             std::vector<double> values = { MAX_DIAMETER_IN_INCHES, 22.0, 20.0, 18.0 + 5.0 / 8.0, 16.0, 14.0, 13.0 + 3.0 / 8.0, 10.0 + 3.0 / 4.0, 9.0 + 7.0 / 8.0, 9.0 + 5.0 / 8.0, MIN_DIAMETER_IN_INCHES };
 
@@ -232,11 +200,11 @@ void RimWellPathAttribute::fieldChangedByUi(const caf::PdmFieldHandle* changedFi
 {
     if (changedField == &m_type)
     {
-        if (m_type() == AttributeCasing)
+        if (m_type() == RiaDefines::CASING)
         {
             RimWellPath* wellPath = nullptr;
             this->firstAncestorOrThisOfTypeAsserted(wellPath);
-            m_depthStart = wellPath->wellPathGeometry()->measureDepths().front();
+            m_startMD = wellPath->wellPathGeometry()->measureDepths().front();
         }
     }
 
@@ -252,11 +220,10 @@ void RimWellPathAttribute::fieldChangedByUi(const caf::PdmFieldHandle* changedFi
 //--------------------------------------------------------------------------------------------------
 void RimWellPathAttribute::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 { 
-    bool startDepthAvailable = m_type() != AttributeCasing;
+    bool startDepthAvailable = m_type() != RiaDefines::CASING;
     bool endDepthAvailable = true;
-    bool diameterAvailable = m_type() == AttributeCasing || m_type() == AttributeLiner;
 
-    m_depthStart.uiCapability()->setUiReadOnly(!startDepthAvailable);    
-    m_depthEnd.uiCapability()->setUiReadOnly(!endDepthAvailable);
-    m_diameterInInches.uiCapability()->setUiReadOnly(!diameterAvailable);    
+    m_startMD.uiCapability()->setUiReadOnly(!startDepthAvailable);    
+    m_endMD.uiCapability()->setUiReadOnly(!endDepthAvailable);
+    m_diameterInInches.uiCapability()->setUiReadOnly(!isDiameterSupported());    
 }

@@ -1819,7 +1819,6 @@ void RimWellLogTrack::updateWellPathAttributesOnPlot()
         
         if (m_wellPathAttributeCollection)
         {
-
             std::vector<RimWellPathAttribute*> attributes = m_wellPathAttributeCollection->attributes();
             std::sort(attributes.begin(), attributes.end(), [](const RimWellPathAttribute* lhs, const RimWellPathAttribute* rhs)
             {
@@ -1833,27 +1832,11 @@ void RimWellLogTrack::updateWellPathAttributesOnPlot()
         }
         if (m_showWellPathAttributesFromCompletions())
         {
-            const RimWellPathCompletions* completions = wellPathAttributeSource()->completions();
+            const RimWellPathCompletions* completionsCollection = wellPathAttributeSource()->completions();
+            std::vector<const RimWellPathCompletionInterface*> allCompletions = completionsCollection->allCompletions();
+            for (const RimWellPathCompletionInterface* completion : allCompletions)
             {
-                RimPerforationCollection* perforationsCollection = completions->perforationCollection();
-                for (const RimPerforationInterval* perforationInterval : perforationsCollection->perforations())
-                {
-                    m_wellPathAttributePlotObjects.push_back(new RiuWellPathAttributePlotObject(wellPathAttributeSource(), perforationInterval));
-                }
-            }
-            {
-                RimFishbonesCollection* fishbonesCollection = completions->fishbonesCollection();
-                for (const RimFishbonesMultipleSubs* fishbones : fishbonesCollection->activeFishbonesSubs())
-                {
-                    m_wellPathAttributePlotObjects.push_back(new RiuWellPathAttributePlotObject(wellPathAttributeSource(), fishbones));
-                }
-            }
-            {
-                RimWellPathFractureCollection* fractureCollection = completions->fractureCollection();
-                for (const RimFracture* fracture : fractureCollection->activeFractures())
-                {
-                    m_wellPathAttributePlotObjects.push_back(new RiuWellPathAttributePlotObject(wellPathAttributeSource(), fracture));
-                }
+                m_wellPathAttributePlotObjects.push_back(new RiuWellPathAttributePlotObject(wellPathAttributeSource(), completion));
             }
         }
 
@@ -1866,7 +1849,7 @@ void RimWellLogTrack::updateWellPathAttributesOnPlot()
         for (cvf::ref<RiuWellPathAttributePlotObject> attributePlotObject : m_wellPathAttributePlotObjects)
         {
             cvf::Color3f attributeColor = cvf::Color3::LIGHT_GRAY;
-            if (attributePlotObject->attributeType() != RimWellPathAttribute::AttributeWellTube)
+            if (attributePlotObject->completionType() != RiaDefines::WELL_PATH)
             {
                 attributeColor = RiaColorTables::wellLogPlotPaletteColors().cycledColor3f(++index);
             }
@@ -1877,9 +1860,10 @@ void RimWellLogTrack::updateWellPathAttributesOnPlot()
             bool contributeToLegend = m_wellPathAttributesInLegend() && 
                                       !attributesAssignedToLegend.count(legendTitle);
             attributePlotObject->setContributeToLegend(contributeToLegend);            
-            attributesAssignedToLegend.insert(legendTitle);
             attributePlotObject->loadDataAndUpdate(false);
             attributePlotObject->setParentQwtPlotNoReplot(m_wellLogTrackPlotWidget);
+            
+            attributesAssignedToLegend.insert(legendTitle);
         }        
     }
     applyXZoomFromVisibleRange();

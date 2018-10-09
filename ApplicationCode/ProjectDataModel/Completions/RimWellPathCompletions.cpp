@@ -22,8 +22,12 @@
 
 #include "RimFishbonesCollection.h"
 #include "RimFishboneWellPathCollection.h"
+#include "RimFishbonesMultipleSubs.h"
 #include "RimPerforationCollection.h"
+#include "RimPerforationInterval.h"
 #include "RimWellPathFractureCollection.h"
+#include "RimWellPathFracture.h"
+#include "RimWellPathCompletionInterface.h"
 
 #include "cvfAssert.h"
 
@@ -163,6 +167,29 @@ RimWellPathFractureCollection* RimWellPathCompletions::fractureCollection() cons
     CVF_ASSERT(m_fractureCollection);
 
     return m_fractureCollection;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<const RimWellPathCompletionInterface*> RimWellPathCompletions::allCompletions() const
+{
+    std::vector<const RimWellPathCompletionInterface*> completions;
+
+    for (const RimWellPathFracture* fracture : fractureCollection()->allFractures())
+    {
+        completions.push_back(fracture);
+    }
+    for (const RimFishbonesMultipleSubs* fishbones : fishbonesCollection()->allFishbonesSubs())
+    {
+        completions.push_back(fishbones);
+    }
+    for (const RimPerforationInterval* perforation : perforationCollection()->perforations())
+    {
+        completions.push_back(perforation);
+    }
+
+    return completions;
 }
 
 //--------------------------------------------------------------------------------------------------

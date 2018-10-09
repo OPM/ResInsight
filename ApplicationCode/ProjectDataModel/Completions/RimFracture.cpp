@@ -288,6 +288,60 @@ void RimFracture::clearCachedNonDarcyProperties()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RiaDefines::CompletionType RimFracture::type() const
+{
+    return RiaDefines::FRACTURE;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimFracture::startMD() const
+{
+    if (fractureTemplate()->orientationType() == RimFractureTemplate::ALONG_WELL_PATH)
+    {
+        return fractureMD() - 0.5*perforationLength();
+    }
+    else
+    {
+        return fractureMD();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimFracture::endMD() const
+{
+    if (fractureTemplate()->orientationType() == RimFractureTemplate::ALONG_WELL_PATH)
+    {
+        return startMD() + perforationLength();
+    }
+    else
+    {
+        return startMD() + fractureTemplate()->computeFractureWidth(this);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimFracture::completionLabel() const
+{
+    return name();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimFracture::completionTypeLabel() const
+{
+    return "Fracture";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 double RimFracture::wellFractureAzimuthDiff() const
 {
     double wellDifference = fabs(wellAzimuthAtFracturePosition() - m_azimuth);

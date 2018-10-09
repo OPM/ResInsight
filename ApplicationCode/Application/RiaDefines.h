@@ -41,10 +41,18 @@ namespace RiaDefines
     };
 
     enum CompletionType {
+        // Well path construction features
         WELL_PATH,
+        CASING,
+        LINER,
+        PACKER,
+        // Well path flow completions
         PERFORATION_INTERVAL,
         FISHBONES,
         FRACTURE,
+        ICD,
+        AICD,
+        ICV
     };
 
     bool isPerCellFaceResult(const QString& resultName);

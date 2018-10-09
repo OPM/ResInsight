@@ -18,11 +18,12 @@
 
 #pragma once
 
+#include "RiaEclipseUnitTools.h"
+
 #include "RimCheckableNamedObject.h"
 #include "Rim3dPropertiesInterface.h"
 #include "RimFishbonesPipeProperties.h"
-
-#include "RiaEclipseUnitTools.h"
+#include "RimWellPathCompletionInterface.h"
 
 #include "cvfBase.h"
 #include "cvfVector3.h"
@@ -51,7 +52,7 @@ struct SubLateralIndex {
 ///  
 ///  
 //==================================================================================================
-class RimFishbonesMultipleSubs : public caf::PdmObject, public Rim3dPropertiesInterface
+class RimFishbonesMultipleSubs : public caf::PdmObject, public Rim3dPropertiesInterface, public RimWellPathCompletionInterface
 {
     CAF_PDM_HEADER_INIT;
 
@@ -81,9 +82,6 @@ public:
     double              measuredDepth(size_t subIndex) const;
     double              rotationAngle(size_t subIndex) const;
 
-    double              startOfSubMD() const;
-    double              endOfSubMD() const;
-
     double              exitAngle() const;
     double              buildAngle() const;
 
@@ -106,6 +104,14 @@ public:
     
     // Override from Rim3dPropertiesInterface
     virtual cvf::BoundingBox boundingBoxInDomainCoords() const override;
+
+    // Overrides from RimWellPathCompletionsInterface
+    virtual RiaDefines::CompletionType type() const override;
+    virtual double startMD() const override;
+    virtual double endMD() const override;
+    virtual QString completionLabel() const override;
+    virtual QString completionTypeLabel() const override;
+
 
 public:
     caf::PdmField<cvf::Color3f>         fishbonesColor;

@@ -44,7 +44,7 @@
 //--------------------------------------------------------------------------------------------------
 RiuWellPathAttributePlotObject::RiuWellPathAttributePlotObject(const RimWellPath* wellPath)
     : m_wellPath(wellPath)
-    , m_attributeType(RimWellPathAttribute::AttributeWellTube)
+    , m_completionType(RiaDefines::WELL_PATH)
     , m_depthType(RimWellLogPlot::MEASURED_DEPTH)
     , m_baseColor(cvf::Color4f(cvf::Color3::BLACK))
     , m_showLabel(false)
@@ -60,93 +60,15 @@ RiuWellPathAttributePlotObject::RiuWellPathAttributePlotObject(const RimWellPath
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuWellPathAttributePlotObject::RiuWellPathAttributePlotObject(const RimWellPath* wellPath,
-                                                               const RimWellPathAttribute* wellPathAttribute)
-    : m_wellPath(wellPath) 
-    , m_attributeType(RimWellPathAttribute::AttributeCasing)
-    , m_startMD(0.0)
-    , m_endMD(0.0)
-    , m_depthType(RimWellLogPlot::MEASURED_DEPTH)
-    , m_baseColor(cvf::Color4f(cvf::Color3::BLACK))
-    , m_showLabel(false)
+RiuWellPathAttributePlotObject::RiuWellPathAttributePlotObject(const RimWellPath* wellPath, const RimWellPathCompletionInterface* completion)
 {
-    CVF_ASSERT(wellPathAttribute);
-    if (wellPathAttribute)
-    {
-        m_attributeType  = wellPathAttribute->type();
-        m_startMD        = wellPathAttribute->depthStart();
-        m_endMD          = wellPathAttribute->depthEnd();
-        m_label          = wellPathAttribute->label();
-        m_legendTitle    = wellPathAttribute->label();
-    }
-}
+    CVF_ASSERT(wellPath && completion);
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RiuWellPathAttributePlotObject::RiuWellPathAttributePlotObject(
-    const RimWellPath*            wellPath,
-    const RimPerforationInterval* perforationInterval)
-    : m_wellPath(wellPath)
-    , m_attributeType(RimWellPathAttribute::AttributePerforationInterval)
-    , m_depthType(RimWellLogPlot::MEASURED_DEPTH)
-    , m_baseColor(cvf::Color4f(cvf::Color3::BLACK))
-    , m_showLabel(false)
-{
-    CVF_ASSERT(wellPath && perforationInterval);
-
-    m_startMD     = perforationInterval->startMD();
-    m_endMD       = perforationInterval->endMD();
-    m_label       = QString("Perforation Interval\n%1").arg(perforationInterval->name());
-    m_legendTitle = "Perforations";
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RiuWellPathAttributePlotObject::RiuWellPathAttributePlotObject(
-    const RimWellPath*              wellPath,
-    const RimFishbonesMultipleSubs* fishbones)
-    : m_wellPath(wellPath)
-    , m_attributeType(RimWellPathAttribute::AttributeFishbonesInterval)
-    , m_depthType(RimWellLogPlot::MEASURED_DEPTH)
-    , m_baseColor(cvf::Color4f(cvf::Color3::BLACK))
-    , m_showLabel(false)
-{
-    CVF_ASSERT(wellPath && fishbones);
-
-    m_startMD = fishbones->startOfSubMD();
-    m_endMD   = fishbones->endOfSubMD();
-    m_label   = fishbones->generatedName();
-    m_legendTitle = "Fishbones";
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RiuWellPathAttributePlotObject::RiuWellPathAttributePlotObject(
-    const RimWellPath*            wellPath,
-    const RimFracture*            fracture)
-    : m_wellPath(wellPath)
-    , m_attributeType(RimWellPathAttribute::AttributeFracture)
-    , m_depthType(RimWellLogPlot::MEASURED_DEPTH)
-    , m_baseColor(cvf::Color4f(cvf::Color3::BLACK))
-    , m_showLabel(false)
-{
-    CVF_ASSERT(wellPath && fracture);
-
-    if (fracture->fractureTemplate()->orientationType() == RimFractureTemplate::ALONG_WELL_PATH)
-    {
-        m_startMD = fracture->fractureMD() - 0.5*fracture->perforationLength();
-        m_endMD = m_startMD + fracture->perforationLength();
-    }
-    else
-    {
-        m_startMD = fracture->fractureMD();
-        m_endMD   = m_startMD + fracture->fractureTemplate()->computeFractureWidth(fracture);
-    }
-    m_label = fracture->name();
-    m_legendTitle = "Fracture";
+    m_completionType = completion->type();
+    m_startMD       = completion->startMD();
+    m_endMD         = completion->endMD();
+    m_label         = completion->completionLabel();
+    m_legendTitle   = completion->completionTypeLabel();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -181,9 +103,9 @@ void RiuWellPathAttributePlotObject::loadDataAndUpdate(bool updateParentPlot)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimWellPathAttribute::AttributeType RiuWellPathAttributePlotObject::attributeType() const
+RiaDefines::CompletionType RiuWellPathAttributePlotObject::completionType() const
 {
-    return m_attributeType;
+    return m_completionType;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -199,24 +121,24 @@ void RiuWellPathAttributePlotObject::onLoadDataAndUpdate(bool updateParentPlot)
 
     cvf::Color4f transparentBaseColor = m_baseColor;
     transparentBaseColor.a() = 0.0;
-    if (m_attributeType == RimWellPathAttribute::AttributeWellTube)
+    if (m_completionType == RiaDefines::WELL_PATH)
     {
         addColumnFeature(-0.25, 0.25, startDepth, endDepth, m_baseColor);
     }
-    else if (m_attributeType == RimWellPathAttribute::AttributeCasing)
+    else if (m_completionType == RiaDefines::CASING)
     {
         addColumnFeature(-0.75, -0.5, startDepth, endDepth, m_baseColor);
         addColumnFeature(0.5, 0.75, startDepth, endDepth, m_baseColor);
         addMarker(-0.75, endDepth,10, RiuQwtSymbol::SYMBOL_LEFT_ANGLED_TRIANGLE,  m_baseColor);
         addMarker(0.75, endDepth, 10, RiuQwtSymbol::SYMBOL_RIGHT_ANGLED_TRIANGLE, m_baseColor, label());
     }
-    else if (m_attributeType == RimWellPathAttribute::AttributeLiner)
+    else if (m_completionType == RiaDefines::LINER)
     {            
         addColumnFeature(-0.5, -0.25, startDepth, endDepth, m_baseColor);
         addColumnFeature(0.25, 0.5, startDepth, endDepth, m_baseColor);
         addMarker(0.75, endDepth, 10, RiuQwtSymbol::SYMBOL_RIGHT_ANGLED_TRIANGLE, transparentBaseColor, label());
     }
-    else if (m_attributeType == RimWellPathAttribute::AttributePerforationInterval)
+    else if (m_completionType == RiaDefines::PERFORATION_INTERVAL)
     {
         addColumnFeature(-0.75, -0.25, startDepth, endDepth, cvf::Color4f(cvf::Color3::WHITE, columnAlpha), Qt::Dense6Pattern);
         addColumnFeature(0.25, 0.75, startDepth, endDepth, cvf::Color4f(cvf::Color3::WHITE, columnAlpha), Qt::Dense6Pattern);
@@ -240,13 +162,13 @@ void RiuWellPathAttributePlotObject::onLoadDataAndUpdate(bool updateParentPlot)
         m_combinedAttributeGroup.addLegendItem(legendItem1);
         m_combinedAttributeGroup.addLegendItem(legendItem2);
     }
-    else if (m_attributeType == RimWellPathAttribute::AttributeFishbonesInterval)
+    else if (m_completionType == RiaDefines::FISHBONES)
     {
         addColumnFeature(-0.75, -0.25, startDepth, endDepth, cvf::Color4f(cvf::Color3::WHITE, columnAlpha), Qt::BDiagPattern);
         addColumnFeature(0.25, 0.75, startDepth, endDepth, cvf::Color4f(cvf::Color3::WHITE, columnAlpha), Qt::FDiagPattern);
         addMarker(0.75, midDepth, 10, RiuQwtSymbol::SYMBOL_RIGHT_ANGLED_TRIANGLE, cvf::Color4f(cvf::Color3::BLACK, 0.0f), label());      
     }
-    else if (m_attributeType == RimWellPathAttribute::AttributeFracture)
+    else if (m_completionType == RiaDefines::FRACTURE)
     {
         addColumnFeature(-0.75, -0.25, startDepth, endDepth, cvf::Color4f(cvf::Color3::ORANGE_RED, columnAlpha), Qt::SolidPattern);
         addColumnFeature(0.25, 0.75, startDepth, endDepth, cvf::Color4f(cvf::Color3::ORANGE_RED, columnAlpha), Qt::SolidPattern);
@@ -254,11 +176,11 @@ void RiuWellPathAttributePlotObject::onLoadDataAndUpdate(bool updateParentPlot)
         addMarker(0.75, endDepth, 10, RiuQwtSymbol::SYMBOL_NONE, cvf::Color4f(cvf::Color3::ORANGE_RED, 1.0f), "", Qt::AlignTop | Qt::AlignRight, Qt::Horizontal, true);
         addMarker(0.75, startDepth, 1, RiuQwtSymbol::SYMBOL_RIGHT_ANGLED_TRIANGLE, cvf::Color4f(cvf::Color3::ORANGE_RED, 0.0f), label(), Qt::AlignTop | Qt::AlignRight);
     }
-    else if (m_attributeType == RimWellPathAttribute::AttributeICD)
+    else if (m_completionType == RiaDefines::ICD)
     {
         addMarker(0.0, startDepth, 30, RiuQwtSymbol::SYMBOL_ELLIPSE, m_baseColor, label(), Qt::AlignCenter, Qt::Horizontal);
     }
-    else if (m_attributeType == RimWellPathAttribute::AttributePacker)
+    else if (m_completionType == RiaDefines::PACKER)
     {
         addColumnFeature(-1.0, -0.25, startDepth, endDepth, cvf::Color4f(cvf::Color3::GRAY, 1.0f), Qt::DiagCrossPattern);
         addColumnFeature(0.25, 1.0, startDepth,   endDepth, cvf::Color4f(cvf::Color3::GRAY, 1.0f), Qt::DiagCrossPattern);
@@ -463,10 +385,10 @@ void RiuWellPathAttributePlotObject::setBaseColor(const cvf::Color4f& baseColor)
 //--------------------------------------------------------------------------------------------------
 void RiuWellPathAttributePlotObject::setContributeToLegend(bool contributeToLegend)
 {
-    bool actuallyContributeToLegend = contributeToLegend && (m_attributeType == RimWellPathAttribute::AttributeFishbonesInterval ||
-                                                             m_attributeType == RimWellPathAttribute::AttributeFracture ||
-                                                             m_attributeType == RimWellPathAttribute::AttributePerforationInterval ||
-                                                             m_attributeType == RimWellPathAttribute::AttributePacker);
+    bool actuallyContributeToLegend = contributeToLegend && (m_completionType == RiaDefines::FISHBONES ||
+                                                             m_completionType == RiaDefines::FRACTURE ||
+                                                             m_completionType == RiaDefines::PERFORATION_INTERVAL ||
+                                                             m_completionType == RiaDefines::PACKER);
     m_combinedAttributeGroup.setItemAttribute(QwtPlotItem::Legend, actuallyContributeToLegend);
 }
 

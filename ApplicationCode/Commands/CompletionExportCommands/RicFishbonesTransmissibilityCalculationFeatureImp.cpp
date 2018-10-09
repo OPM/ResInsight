@@ -215,8 +215,8 @@ void RicFishbonesTransmissibilityCalculationFeatureImp::findFishboneLateralsWell
 
             for (const auto& fishboneDefinition : wellPath->fishbonesCollection()->activeFishbonesSubs())
             {
-                double startMD = fishboneDefinition->startOfSubMD();
-                double endMD = fishboneDefinition->endOfSubMD();
+                double startMD = fishboneDefinition->startMD();
+                double endMD   = fishboneDefinition->endMD();
 
                 if (fabs(startMD - endMD) < 1e-3)
                 {

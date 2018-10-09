@@ -22,6 +22,7 @@
 
 #include "Rim3dPropertiesInterface.h"
 #include "RimCheckableNamedObject.h"
+#include "RimWellPathCompletionInterface.h"
 
 #include "cvfBase.h"
 #include "cvfObject.h"
@@ -73,7 +74,7 @@ public:
 ///  
 ///  
 //==================================================================================================
-class RimFracture : public RimCheckableNamedObject, public Rim3dPropertiesInterface
+class RimFracture : public RimCheckableNamedObject, public Rim3dPropertiesInterface, public RimWellPathCompletionInterface
 {
      CAF_PDM_HEADER_INIT;
 
@@ -126,6 +127,13 @@ public:
     void                            clearCachedNonDarcyProperties();
     
     friend class RimFractureTemplate;
+
+    // RimWellPathCompletionsInterface overrides.
+    virtual RiaDefines::CompletionType type() const override;
+    virtual double                     startMD() const override;
+    virtual double                     endMD() const override;
+    virtual QString                    completionLabel() const override;
+    virtual QString                    completionTypeLabel() const override;
 
 protected:
     virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;

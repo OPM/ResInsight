@@ -18,11 +18,13 @@
 
 #pragma once
 
+#include "RiaDefines.h"
 #include "RiuQwtPlotItemGroup.h"
 
 #include "RimPlotCurve.h"
 #include "RimWellLogPlot.h"
 #include "RimWellPathAttribute.h"
+#include "RimWellPathCompletionInterface.h"
 
 #include "cafPdmBase.h"
 #include "cafPdmObject.h"
@@ -35,9 +37,6 @@
 #include <QString>
 
 class RigWellLogCurveData;
-class RimFishbonesMultipleSubs;
-class RimFracture;
-class RimPerforationInterval;
 class RimWellPath;
 class QwtPlotItem;
 
@@ -53,17 +52,8 @@ class RiuWellPathAttributePlotObject : public cvf::Object
 public:
     RiuWellPathAttributePlotObject(const RimWellPath*              wellPath);
 
-    RiuWellPathAttributePlotObject(const RimWellPath*              wellPath,
-                                   const RimWellPathAttribute*     wellPathAttribute);
-
-    RiuWellPathAttributePlotObject(const RimWellPath*              wellPath,
-                                   const RimPerforationInterval*   perforationInterval);
-
-    RiuWellPathAttributePlotObject(const RimWellPath*              wellPath,
-                                   const RimFishbonesMultipleSubs* fishbones);
-
-    RiuWellPathAttributePlotObject(const RimWellPath*              wellPath,
-                                   const RimFracture*              fracture);
+    RiuWellPathAttributePlotObject(const RimWellPath*                      wellPath,
+                                   const RimWellPathCompletionInterface*   completion);
 
     ~RiuWellPathAttributePlotObject();
 
@@ -72,7 +62,7 @@ public:
 
     void    loadDataAndUpdate(bool updateParentPlot);
 
-    RimWellPathAttribute::AttributeType attributeType() const;
+    RiaDefines::CompletionType completionType() const;
 
     bool xValueRange(double* minimumValue, double* maximumValue) const;
     bool yValueRange(double* minimumValue, double* maximumValue) const;
@@ -131,7 +121,7 @@ private:
 private:
     const RimWellPath*                      m_wellPath;
 
-    RimWellPathAttribute::AttributeType     m_attributeType;
+    RiaDefines::CompletionType              m_completionType;
     double                                  m_startMD;
     double                                  m_endMD;
     QString                                 m_label;

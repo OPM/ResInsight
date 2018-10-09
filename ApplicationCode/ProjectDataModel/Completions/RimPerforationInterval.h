@@ -21,6 +21,7 @@
 
 #include "RimCheckableNamedObject.h"
 #include "Rim3dPropertiesInterface.h"
+#include "RimWellPathCompletionInterface.h"
 
 #include "RiaEclipseUnitTools.h"
 
@@ -32,7 +33,7 @@
 //==================================================================================================
 ///  
 //==================================================================================================
-class RimPerforationInterval : public RimCheckableNamedObject, public Rim3dPropertiesInterface
+class RimPerforationInterval : public RimCheckableNamedObject, public Rim3dPropertiesInterface, public RimWellPathCompletionInterface
 {
     CAF_PDM_HEADER_INIT;
 public:
@@ -50,8 +51,6 @@ public:
 
     void                                setDiameter(double diameter);
     void                                setSkinFactor(double skinFactor);
-    double                              startMD() const;
-    double                              endMD() const;
     double                              diameter(RiaEclipseUnitTools::UnitSystem unitSystem) const;
     double                              skinFactor() const;
 
@@ -60,6 +59,13 @@ public:
     virtual cvf::BoundingBox            boundingBoxInDomainCoords() const override;
 
     void                                setUnitSystemSpecificDefaults();
+
+    // RimWellPathCompletionInterface overrides
+    virtual RiaDefines::CompletionType type() const override;
+    virtual double                     startMD() const;
+    virtual double                     endMD() const;
+    virtual QString                    completionLabel() const override;
+    virtual QString                    completionTypeLabel() const override;
 
 protected:
     virtual void                        defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;

@@ -25,6 +25,7 @@
 class RimFishbonesCollection;
 class RimPerforationCollection;
 class RimWellPathFractureCollection;
+class RimWellPathCompletionInterface;
 
 
 //==================================================================================================
@@ -44,6 +45,8 @@ public:
     RimFishbonesCollection*        fishbonesCollection() const;
     RimPerforationCollection*      perforationCollection() const;
     RimWellPathFractureCollection* fractureCollection() const;
+
+    std::vector<const RimWellPathCompletionInterface*> allCompletions() const;
 
     void                        setWellNameForExport(const QString& name);
     QString                     wellNameForExport() const;
