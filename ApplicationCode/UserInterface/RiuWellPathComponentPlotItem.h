@@ -53,7 +53,7 @@ public:
     RiuWellPathComponentPlotItem(const RimWellPath*              wellPath);
 
     RiuWellPathComponentPlotItem(const RimWellPath*                      wellPath,
-                                   const RimWellPathComponentInterface*   completion);
+                                 const RimWellPathComponentInterface*   completion);
 
     ~RiuWellPathComponentPlotItem();
 
@@ -69,8 +69,6 @@ public:
 
     void setShowLabel(bool showLabel);
     void setDepthType(RimWellLogPlot::DepthTypeEnum depthType);
-    void setBaseColor(const cvf::Color3f& baseColor);
-    void setBaseColor(const cvf::Color4f& baseColor);
     void setContributeToLegend(bool contributeToLegend);
 
     void setParentQwtPlotAndReplot(QwtPlot* plot);
@@ -118,10 +116,12 @@ private:
                                    cvf::Color4f   baseColor,
                                    Qt::BrushStyle brushStyle = Qt::SolidPattern);
 
+    cvf::Color4f componentColor(float alpha = 1.0) const;
+    cvf::Color4f symbolColor(float alpha = 1.0) const;
 private:
     const RimWellPath*                      m_wellPath;
 
-    RiaDefines::WellPathComponentType              m_completionType;
+    RiaDefines::WellPathComponentType       m_componentType;
     double                                  m_startMD;
     double                                  m_endMD;
     QString                                 m_label;
@@ -129,8 +129,7 @@ private:
 
     RimWellLogPlot::DepthTypeEnum           m_depthType;
     QPointer<QwtPlot>                       m_parentQwtPlot;
-    RiuQwtPlotItemGroup                     m_combinedAttributeGroup;
-    cvf::Color4f                            m_baseColor;
+    RiuQwtPlotItemGroup                     m_combinedComponentGroup;
 
     bool                                    m_showLabel;    
 };

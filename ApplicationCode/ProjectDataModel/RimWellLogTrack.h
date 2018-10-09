@@ -213,11 +213,12 @@ private:
     caf::PdmField<caf::AppEnum<WidthScaleFactor>>                      m_widthScaleFactor;
     caf::PdmField<bool>                                                m_formationBranchDetection;
     caf::PdmField<bool>                                                m_showWellPathAttributes;
-    caf::PdmField<bool>                                                m_showWellPathAttributesFromCompletions;
-    caf::PdmField<bool>                                                m_showWellPathAttributeBothSides;
-    caf::PdmField<bool>                                                m_showWellPathAttributeLabels;
+    caf::PdmField<bool>                                                m_showWellPathCompletions;
+    caf::PdmField<bool>                                                m_showWellPathComponentsBothSides;
+    caf::PdmField<bool>                                                m_showWellPathComponentLabels;
     caf::PdmField<bool>                                                m_wellPathAttributesInLegend;
-    caf::PdmPtrField<RimWellPath*>                                     m_wellPathAttributeSource;
+    caf::PdmField<bool>                                                m_wellPathCompletionsInLegend;
+    caf::PdmPtrField<RimWellPath*>                                     m_wellPathComponentSource;
     caf::PdmPtrField<RimWellPathAttributeCollection*>                  m_wellPathAttributeCollection;
     
     std::vector<std::unique_ptr<RiuWellPathComponentPlotItem>>         m_wellPathAttributePlotObjects;
