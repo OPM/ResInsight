@@ -29,6 +29,20 @@
 
 CAF_PDM_SOURCE_INIT(RicExportCarfinForCompletionsUi, "RicExportCarfinForCompletionsUi");
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+namespace caf
+{
+    template<>
+    void RicExportCarfinForCompletionsUi::LgrSplitTypeEnum::setUp()
+    {
+        addItem(RicExportCarfinForCompletionsUi::PER_CELL_LGR, "PER_CELL_LGR", "LGR Per Cell");
+        addItem(RicExportCarfinForCompletionsUi::SINGLE_LGR, "SINGLE_LGR", "Single LGR");
+
+        setDefault(RicExportCarfinForCompletionsUi::PER_CELL_LGR);
+    }
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -45,6 +59,8 @@ RicExportCarfinForCompletionsUi::RicExportCarfinForCompletionsUi()
     CAF_PDM_InitField(&m_cellCountI,    "CellCountI",   2, "Cell Count I", "", "", "");
     CAF_PDM_InitField(&m_cellCountJ,    "CellCountJ",   2, "Cell Count J", "", "", "");
     CAF_PDM_InitField(&m_cellCountK,    "CellCountK",   2, "Cell Count K", "", "", "");
+
+    CAF_PDM_InitField(&m_splitType,     "SplitType", LgrSplitTypeEnum(), "Split Type", "", "", "");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -83,6 +99,14 @@ QString RicExportCarfinForCompletionsUi::exportFolder() const
 RimEclipseCase* RicExportCarfinForCompletionsUi::caseToApply() const
 {
     return m_caseToApply();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RicExportCarfinForCompletionsUi::singleLgrSplit() const
+{
+    return m_splitType == SINGLE_LGR;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -159,7 +183,7 @@ void RicExportCarfinForCompletionsUi::defineEditorAttribute(const caf::PdmFieldH
         caf::PdmUiFilePathEditorAttribute* myAttr = dynamic_cast<caf::PdmUiFilePathEditorAttribute*>(attribute);
         if (myAttr)
         {
-            myAttr->m_selectSaveFileName = true;
+            myAttr->m_selectDirectory = true;
         }
     }
 }

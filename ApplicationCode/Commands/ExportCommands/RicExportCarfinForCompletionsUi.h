@@ -39,6 +39,7 @@ class RicExportCarfinForCompletionsUi : public caf::PdmObject
 
 public:
     enum LgrSplitType { PER_CELL_LGR, SINGLE_LGR};
+    typedef caf::AppEnum<LgrSplitType> LgrSplitTypeEnum;
 
     RicExportCarfinForCompletionsUi();
 
@@ -47,6 +48,7 @@ public:
     caf::VecIjk             lgrCellCount() const;
     QString                 exportFolder() const;
     RimEclipseCase*         caseToApply() const;
+    bool                    singleLgrSplit() const;
 
     void                    setExportFolder(const QString& folder);
 
@@ -66,4 +68,6 @@ private:
     caf::PdmField<int>  m_cellCountI;
     caf::PdmField<int>  m_cellCountJ;
     caf::PdmField<int>  m_cellCountK;
+
+    caf::PdmField<LgrSplitTypeEnum> m_splitType;
 };

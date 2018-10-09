@@ -19,12 +19,21 @@
 #include "RicExportCarfinForCompletionsFeature.h"
 
 #include "RiaApplication.h"
+#include "RiaLogging.h"
 
 #include "CompletionExportCommands/RicWellPathExportCompletionDataFeature.h"
 #include "RicExportCarfinForCompletionsUi.h"
 
+#include "RifEclipseDataTableFormatter.h"
+
+#include "RigCaseCellResultsData.h"
+#include "RigResultAccessor.h"
+#include "RigResultAccessorFactory.h"
+#include "RigVirtualPerforationTransmissibilities.h"
+
 #include "RimDialogData.h"
 #include "RimEclipseCase.h"
+#include "RimEclipseView.h"
 #include "RimWellPath.h"
 #include "RimProject.h"
 #include "RimWellPathCollection.h"
@@ -34,9 +43,13 @@
 #include <cafPdmUiPropertyViewDialog.h>
 #include <cafSelectionManager.h>
 #include <cafSelectionManagerTools.h>
+#include <cafVecIjk.h>
 
 #include <QAction>
 #include <QFileInfo>
+#include <QDir>
+#include <QFile>
+#include <QTextStream>
 
 
 CAF_CMD_SOURCE_INIT(RicExportCarfinForCompletionsFeature, "RicExportCarfinForCompletionsFeature");
@@ -49,7 +62,7 @@ RicExportCarfinForCompletionsUi* RicExportCarfinForCompletionsFeature::openDialo
     RiaApplication* app = RiaApplication::instance();
     RimProject* proj = app->project();
 
-    QString startPath = app->lastUsedDialogDirectory("WELL_PATH_EXPORT_DIR");
+    QString startPath = app->lastUsedDialogDirectory("CARFIN_DIR");
     if (startPath.isEmpty())
     {
         QFileInfo fi(proj->fileName());
@@ -82,10 +95,88 @@ RicExportCarfinForCompletionsUi* RicExportCarfinForCompletionsFeature::openDialo
 
     if (propertyDialog.exec() == QDialog::Accepted && !featureUi->exportFolder().isEmpty())
     {
-        app->setLastUsedDialogDirectory("WELL_PATH_EXPORT_DIR", featureUi->exportFolder());
+        app->setLastUsedDialogDirectory("CARFIN_DIR", featureUi->exportFolder());
         return featureUi;
     }
     return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RicExportCarfinForCompletionsFeature::openFileForExport(const QString& folderName, const QString& fileName, QFile* exportFile)
+{
+    QDir exportFolder = QDir(folderName);
+    if (!exportFolder.exists())
+    {
+        bool createdPath = exportFolder.mkpath(".");
+        if (createdPath)
+            RiaLogging::info("Created export folder " + folderName);
+    }
+
+    QString  filePath = exportFolder.filePath(fileName);
+    exportFile->setFileName(filePath);
+    if (!exportFile->open(QIODevice::WriteOnly | QIODevice::Text))
+    {
+        auto errorMessage = QString("Export Well Path: Could not open the file: %1").arg(filePath);
+        RiaLogging::error(errorMessage);
+        return false;
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicExportCarfinForCompletionsFeature::exportCarfin(QTextStream& stream, const std::map<RigCompletionDataGridCell, LgrInfo>& lgrInfos)
+{
+    int count = 0;
+    for (auto lgr : lgrInfos)
+    {
+        auto lgrName = QString("LGR_%1").arg(++count);
+        auto dataGridCell = lgr.first;
+        auto lgrInfo = lgr.second;
+
+        {
+            RifEclipseDataTableFormatter formatter(stream);
+            formatter.keyword("CARFIN");
+            formatter.header(
+                {
+                    RifEclipseOutputTableColumn("Name"),
+                    RifEclipseOutputTableColumn("I1"),
+                    RifEclipseOutputTableColumn("I2"),
+                    RifEclipseOutputTableColumn("J1"),
+                    RifEclipseOutputTableColumn("J2"),
+                    RifEclipseOutputTableColumn("K1"),
+                    RifEclipseOutputTableColumn("K2"),
+                    RifEclipseOutputTableColumn("NX"),
+                    RifEclipseOutputTableColumn("NY"),
+                    RifEclipseOutputTableColumn("NZ")
+                }
+            );
+
+            formatter.add(lgrInfo.name);
+            formatter.add(dataGridCell.localCellIndexI());
+            formatter.add(dataGridCell.localCellIndexI());
+            formatter.add(dataGridCell.localCellIndexJ());
+            formatter.add(dataGridCell.localCellIndexJ());
+            formatter.add(dataGridCell.localCellIndexK());
+            formatter.add(dataGridCell.localCellIndexK());
+            formatter.add(lgrInfo.sizes.i());
+            formatter.add(lgrInfo.sizes.j());
+            formatter.add(lgrInfo.sizes.k());
+            formatter.rowCompleted();
+            formatter.tableCompleted("", false);
+        }
+
+        RifEclipseDataTableFormatter::addValueTable(stream, "PORO", lgrInfo.sizes.i(), lgrInfo.values);
+
+        {
+            RifEclipseDataTableFormatter formatter(stream);
+            formatter.keyword("ENDFIN");
+            formatter.tableCompleted("", true);
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -112,7 +203,62 @@ void RicExportCarfinForCompletionsFeature::onActionTriggered(bool isChecked)
     auto dialogData = openDialog();
     if (dialogData)
     {
+        // Per cell LGR
+        std::map<RigCompletionDataGridCell, LgrInfo> lgrs;
 
+        auto activeView = dynamic_cast<RimEclipseView*>(RiaApplication::instance()->activeGridView());
+        if (!activeView) return;
+
+        auto eclipseCase = dialogData->caseToApply();
+
+        eclipseCase->results(RiaDefines::MATRIX_MODEL)->findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, "PORO");
+        cvf::ref<RigResultAccessor> poroAccessObject =
+            RigResultAccessorFactory::createFromUiResultName(eclipseCase->eclipseCaseData(), 0, RiaDefines::MATRIX_MODEL, 0, "PORO");
+
+        auto lgrCellCounts = dialogData->lgrCellCount();
+
+        auto completions = eclipseCase->computeAndGetVirtualPerforationTransmissibilities();
+        if (completions)
+        {
+            size_t timeStep = activeView->currentTimeStep();
+
+            for (const auto& wellPath : wellPaths)
+            {
+                int lgrCount = 0;
+
+                for (const auto& completionsForWell : completions->multipleCompletionsPerEclipseCell(wellPath, timeStep))
+                {
+                    size_t globCellIndex = completionsForWell.first.globalCellIndex();
+                    double poro = poroAccessObject->cellScalarGlobIdx(globCellIndex);
+
+                    std::vector<double> lgrValues;
+
+                    for (int k = 0; k < lgrCellCounts.k(); k++)
+                    {
+                        for (int j = 0; j < lgrCellCounts.j(); j++)
+                        {
+                            for (int i = 0; i < lgrCellCounts.i(); i++)
+                            {
+                                lgrValues.push_back(poro);
+                            }
+                        }
+                    }
+
+                    LgrInfo lgrInfo(QString("LGR_%1").arg(++lgrCount), lgrCellCounts);
+                    lgrInfo.values = lgrValues;
+                    lgrs.insert(std::make_pair(completionsForWell.first, lgrInfo));
+                }
+            }
+        }
+
+        // Export
+        QFile file;
+        openFileForExport(dialogData->exportFolder(), "CARFIN.dat", &file);
+        QTextStream stream(&file);
+        stream.setRealNumberNotation(QTextStream::FixedNotation);
+        stream.setRealNumberPrecision(2);
+        exportCarfin(stream, lgrs);
+        file.close();
     }
 }
 

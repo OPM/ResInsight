@@ -18,11 +18,32 @@
 
 #pragma once
 
+#include "RigCompletionDataGridCell.h"
 #include "cafCmdFeature.h"
+#include <cafVecIjk.h>
+#include <memory>
 
 class RimSimWellInView;
 class RimWellPath;
 class RicExportCarfinForCompletionsUi;
+class QFile;
+class QTextStream;
+
+
+//==================================================================================================
+///
+//==================================================================================================
+class LgrInfo
+{
+public:
+    LgrInfo(const QString&name, caf::VecIjk& sizes) : name(name), sizes(sizes)
+    {
+    }
+
+    QString             name;
+    caf::VecIjk         sizes;
+    std::vector<double> values;
+};
 
 //==================================================================================================
 ///
@@ -32,11 +53,15 @@ class RicExportCarfinForCompletionsFeature : public caf::CmdFeature
     CAF_CMD_HEADER_INIT;
 
     static RicExportCarfinForCompletionsUi* openDialog();
+    static bool openFileForExport(const QString& folderName, const QString& fileName, QFile* exportFile);
+    static void exportCarfin(QTextStream& stream, const std::map<RigCompletionDataGridCell, LgrInfo>& lgrInfos);
 
 protected:
     virtual bool isCommandEnabled() override;
     virtual void onActionTriggered(bool isChecked) override;
     virtual void setupActionLook(QAction* actionToSetup) override;
+
+private:
 
 public:
     static std::vector<RimWellPath*> visibleWellPaths();
