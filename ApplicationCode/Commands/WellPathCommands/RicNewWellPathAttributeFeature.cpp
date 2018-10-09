@@ -99,7 +99,7 @@ void RicNewWellPathAttributeFeature::setupActionLook(QAction* actionToSetup)
     caf::SelectionManager::instance()->objectsByType(&attributes, caf::SelectionManager::FIRST_LEVEL);
     if (attributes.size() == 1u)
     {
-        actionToSetup->setText(QString("Insert New Attribute before %1").arg(attributes[0]->completionTypeLabel()));
+        actionToSetup->setText(QString("Insert New Attribute before %1").arg(attributes[0]->componentTypeLabel()));
         actionToSetup->setIcon(QIcon(":/Well.png"));
     }
     else

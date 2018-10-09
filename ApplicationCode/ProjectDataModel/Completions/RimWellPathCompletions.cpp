@@ -27,7 +27,7 @@
 #include "RimPerforationInterval.h"
 #include "RimWellPathFractureCollection.h"
 #include "RimWellPathFracture.h"
-#include "RimWellPathCompletionInterface.h"
+#include "RimWellPathComponentInterface.h"
 
 #include "cvfAssert.h"
 
@@ -172,9 +172,9 @@ RimWellPathFractureCollection* RimWellPathCompletions::fractureCollection() cons
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<const RimWellPathCompletionInterface*> RimWellPathCompletions::allCompletions() const
+std::vector<const RimWellPathComponentInterface*> RimWellPathCompletions::allCompletions() const
 {
-    std::vector<const RimWellPathCompletionInterface*> completions;
+    std::vector<const RimWellPathComponentInterface*> completions;
 
     for (const RimWellPathFracture* fracture : fractureCollection()->allFractures())
     {

@@ -24,7 +24,7 @@
 #include "RimPlotCurve.h"
 #include "RimWellLogPlot.h"
 #include "RimWellPathAttribute.h"
-#include "RimWellPathCompletionInterface.h"
+#include "RimWellPathComponentInterface.h"
 
 #include "cafPdmBase.h"
 #include "cafPdmObject.h"
@@ -46,23 +46,23 @@ class QwtPlotItem;
 ///  
 ///  
 //==================================================================================================
-class RiuWellPathAttributePlotObject : public cvf::Object
+class RiuWellPathComponentPlotItem
 {
    
 public:
-    RiuWellPathAttributePlotObject(const RimWellPath*              wellPath);
+    RiuWellPathComponentPlotItem(const RimWellPath*              wellPath);
 
-    RiuWellPathAttributePlotObject(const RimWellPath*                      wellPath,
-                                   const RimWellPathCompletionInterface*   completion);
+    RiuWellPathComponentPlotItem(const RimWellPath*                      wellPath,
+                                   const RimWellPathComponentInterface*   completion);
 
-    ~RiuWellPathAttributePlotObject();
+    ~RiuWellPathComponentPlotItem();
 
     QString label() const;
     QString legendTitle() const;
 
     void    loadDataAndUpdate(bool updateParentPlot);
 
-    RiaDefines::CompletionType completionType() const;
+    RiaDefines::WellPathComponentType completionType() const;
 
     bool xValueRange(double* minimumValue, double* maximumValue) const;
     bool yValueRange(double* minimumValue, double* maximumValue) const;
@@ -121,7 +121,7 @@ private:
 private:
     const RimWellPath*                      m_wellPath;
 
-    RiaDefines::CompletionType              m_completionType;
+    RiaDefines::WellPathComponentType              m_completionType;
     double                                  m_startMD;
     double                                  m_endMD;
     QString                                 m_label;

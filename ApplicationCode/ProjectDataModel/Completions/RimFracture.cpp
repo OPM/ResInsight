@@ -288,7 +288,7 @@ void RimFracture::clearCachedNonDarcyProperties()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiaDefines::CompletionType RimFracture::type() const
+RiaDefines::WellPathComponentType RimFracture::componentType() const
 {
     return RiaDefines::FRACTURE;
 }
@@ -326,7 +326,7 @@ double RimFracture::endMD() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimFracture::completionLabel() const
+QString RimFracture::componentLabel() const
 {
     return name();
 }
@@ -334,7 +334,7 @@ QString RimFracture::completionLabel() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimFracture::completionTypeLabel() const
+QString RimFracture::componentTypeLabel() const
 {
     return "Fracture";
 }

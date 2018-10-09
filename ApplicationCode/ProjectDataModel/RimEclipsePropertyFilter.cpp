@@ -390,7 +390,7 @@ void RimEclipsePropertyFilter::computeResultValueRange()
                     else if (resultDefinition->resultVariable() == RiaDefines::completionTypeResultName())
                     {
                         std::vector<QString> ctNames;
-                        for (const QString& ctName : caf::AppEnum<RiaDefines::CompletionType>::uiTexts())
+                        for (const QString& ctName : caf::AppEnum<RiaDefines::WellPathComponentType>::uiTexts())
                         {
                             ctNames.push_back(ctName);
                         }

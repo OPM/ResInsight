@@ -21,7 +21,7 @@
 
 #include "RimCheckableNamedObject.h"
 #include "Rim3dPropertiesInterface.h"
-#include "RimWellPathCompletionInterface.h"
+#include "RimWellPathComponentInterface.h"
 
 #include "RiaEclipseUnitTools.h"
 
@@ -33,7 +33,7 @@
 //==================================================================================================
 ///  
 //==================================================================================================
-class RimPerforationInterval : public RimCheckableNamedObject, public Rim3dPropertiesInterface, public RimWellPathCompletionInterface
+class RimPerforationInterval : public RimCheckableNamedObject, public Rim3dPropertiesInterface, public RimWellPathComponentInterface
 {
     CAF_PDM_HEADER_INIT;
 public:
@@ -61,11 +61,11 @@ public:
     void                                setUnitSystemSpecificDefaults();
 
     // RimWellPathCompletionInterface overrides
-    virtual RiaDefines::CompletionType type() const override;
-    virtual double                     startMD() const;
-    virtual double                     endMD() const;
-    virtual QString                    completionLabel() const override;
-    virtual QString                    completionTypeLabel() const override;
+    virtual RiaDefines::WellPathComponentType componentType() const override;
+    virtual double                            startMD() const;
+    virtual double                            endMD() const;
+    virtual QString                           componentLabel() const override;
+    virtual QString                           componentTypeLabel() const override;
 
 protected:
     virtual void                        defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;

@@ -17,7 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
-#include "RimWellPathCompletionInterface.h"
+#include "RimWellPathComponentInterface.h"
 
 #include "cafPdmObject.h"
 
@@ -29,13 +29,13 @@
 
 class RimWellPath;
 
-class RimWellPathAttribute : public caf::PdmObject, public RimWellPathCompletionInterface
+class RimWellPathAttribute : public caf::PdmObject, public RimWellPathComponentInterface
 {
     CAF_PDM_HEADER_INIT;
 public:
     static double MAX_DIAMETER_IN_INCHES;
     static double MIN_DIAMETER_IN_INCHES;
-    typedef caf::AppEnum<RiaDefines::CompletionType> CompletionTypeEnum;
+    typedef caf::AppEnum<RiaDefines::WellPathComponentType> CompletionTypeEnum;
 
     RimWellPathAttribute();
     ~RimWellPathAttribute();
@@ -46,11 +46,11 @@ public:
     void           setDepthsFromWellPath(const RimWellPath* wellPath);
 
     // Overrides from RimWellPathCompletionInterface
-    virtual RiaDefines::CompletionType type() const override;
-    virtual double                     startMD() const override;
-    virtual double                     endMD() const override;
-    virtual QString                    completionLabel() const override;
-    virtual QString                    completionTypeLabel() const override;   
+    virtual RiaDefines::WellPathComponentType componentType() const override;
+    virtual double                            startMD() const override;
+    virtual double                            endMD() const override;
+    virtual QString                           componentLabel() const override;
+    virtual QString                           componentTypeLabel() const override;   
     
 private:
     bool                                  isDiameterSupported() const;

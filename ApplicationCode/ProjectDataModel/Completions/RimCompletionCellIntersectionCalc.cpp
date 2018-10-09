@@ -34,9 +34,9 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RiaDefines::CompletionType> fromCompletionData(const std::vector<RigCompletionData>& data)
+std::vector<RiaDefines::WellPathComponentType> fromCompletionData(const std::vector<RigCompletionData>& data)
 {
-    std::vector<RiaDefines::CompletionType> appCompletionTypes;
+    std::vector<RiaDefines::WellPathComponentType> appCompletionTypes;
 
     for (const auto& d : data)
     {
@@ -92,7 +92,7 @@ void RimCompletionCellIntersectionCalc::calculateCompletionTypeResult(RimEclipse
                 {
                     for (const auto& completionsForWell : completions->multipleCompletionsPerEclipseCell(wellPath, timeStep))
                     {
-                        RiaDefines::CompletionType appCompletionType = RiaDefines::WELL_PATH;
+                        RiaDefines::WellPathComponentType appCompletionType = RiaDefines::WELL_PATH;
 
                         auto appCompletionTypes = fromCompletionData(completionsForWell.second);
 

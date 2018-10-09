@@ -21,18 +21,18 @@
 #include "RiaDefines.h"
 
 //==================================================================================================
-// Interface implemented by all well path completions
+// Interface implemented by all well path construction components and completions
 // 
 //
 //==================================================================================================
-class RimWellPathCompletionInterface
+class RimWellPathComponentInterface
 {
 public:
-    virtual RiaDefines::CompletionType type() const = 0;
-    virtual double                     startMD() const = 0;
-    virtual double                     endMD() const = 0;
-    virtual QString                    completionLabel() const = 0;
-    virtual QString                    completionTypeLabel() const = 0;
+    virtual RiaDefines::WellPathComponentType componentType() const = 0;
+    virtual double                            startMD() const = 0;
+    virtual double                            endMD() const = 0;
+    virtual QString                           componentLabel() const = 0;
+    virtual QString                           componentTypeLabel() const = 0;
 };
 
 

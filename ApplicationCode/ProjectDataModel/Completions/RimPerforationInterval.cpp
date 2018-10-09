@@ -208,7 +208,7 @@ void RimPerforationInterval::setUnitSystemSpecificDefaults()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiaDefines::CompletionType RimPerforationInterval::type() const
+RiaDefines::WellPathComponentType RimPerforationInterval::componentType() const
 {
     return RiaDefines::PERFORATION_INTERVAL;
 }
@@ -232,7 +232,7 @@ double RimPerforationInterval::endMD() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimPerforationInterval::completionLabel() const
+QString RimPerforationInterval::componentLabel() const
 {
     return QString("Perforation Interval\n%1").arg(name());
 }
@@ -240,7 +240,7 @@ QString RimPerforationInterval::completionLabel() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimPerforationInterval::completionTypeLabel() const
+QString RimPerforationInterval::componentTypeLabel() const
 {
     return "Perforations";
 }

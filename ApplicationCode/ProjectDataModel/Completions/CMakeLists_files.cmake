@@ -24,6 +24,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RimWellPathFractureCollection.h
 ${CMAKE_CURRENT_LIST_DIR}/Rim3dWellLogCurveCollection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimMswCompletionParameters.h
 ${CMAKE_CURRENT_LIST_DIR}/RimNonDarcyPerforationParameters.h
+${CMAKE_CURRENT_LIST_DIR}/RimWellPathComponentInterface.h
 )
 
 

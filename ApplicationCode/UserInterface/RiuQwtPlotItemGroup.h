@@ -43,7 +43,6 @@ public:
     virtual QwtGraphic legendIcon(int index, const QSizeF &size) const override;
 
 private:
-
     std::vector<QwtPlotItem*> m_plotItems;
     std::vector<QwtPlotItem*> m_legendItems;
 };

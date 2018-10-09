@@ -395,10 +395,10 @@ void RimEclipseCellColors::updateLegendData(size_t currentTimeStep,
                 {
                     std::vector< std::tuple<QString, int, cvf::Color3ub> > categories;
 
-                    caf::AppEnum<RiaDefines::CompletionType> wellPath(RiaDefines::WELL_PATH);
-                    caf::AppEnum<RiaDefines::CompletionType> fishbone(RiaDefines::FISHBONES);
-                    caf::AppEnum<RiaDefines::CompletionType> perforationInterval(RiaDefines::PERFORATION_INTERVAL);
-                    caf::AppEnum<RiaDefines::CompletionType> fracture(RiaDefines::FRACTURE);
+                    caf::AppEnum<RiaDefines::WellPathComponentType> wellPath(RiaDefines::WELL_PATH);
+                    caf::AppEnum<RiaDefines::WellPathComponentType> fishbone(RiaDefines::FISHBONES);
+                    caf::AppEnum<RiaDefines::WellPathComponentType> perforationInterval(RiaDefines::PERFORATION_INTERVAL);
+                    caf::AppEnum<RiaDefines::WellPathComponentType> fracture(RiaDefines::FRACTURE);
 
                     const std::vector<int>& visibleCatetories = cellResultsData->uniqueCellScalarValues(this->scalarResultIndex());
 

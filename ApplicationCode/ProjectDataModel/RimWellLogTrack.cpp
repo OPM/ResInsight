@@ -65,7 +65,7 @@
 #include "RiuMainWindow.h"
 #include "RiuPlotAnnotationTool.h"
 #include "RiuPlotMainWindowTools.h"
-#include "RiuWellPathAttributePlotObject.h"
+#include "RiuWellPathComponentPlotItem.h"
 #include "RiuWellLogPlot.h"
 #include "RiuWellLogTrack.h"
 
@@ -714,7 +714,7 @@ void RimWellLogTrack::availableDepthRange(double* minimumDepth, double* maximumD
 
     if (m_showWellPathAttributes)
     {
-        for (cvf::ref<RiuWellPathAttributePlotObject> plotObject : m_wellPathAttributePlotObjects)
+        for (const std::unique_ptr<RiuWellPathComponentPlotItem>& plotObject : m_wellPathAttributePlotObjects)
         {
             double minObjectDepth = HUGE_VAL;
             double maxObjectDepth = -HUGE_VAL;
@@ -971,7 +971,7 @@ void RimWellLogTrack::detachAllCurves()
     {
         curve->detachQwtCurve();
     }
-    for (cvf::ref<RiuWellPathAttributePlotObject> plotObjects : m_wellPathAttributePlotObjects)
+    for (auto& plotObjects : m_wellPathAttributePlotObjects)
     {
         plotObjects->detachFromQwt();
     }
@@ -986,7 +986,7 @@ void RimWellLogTrack::reattachAllCurves()
     {
         curve->reattachQwtCurve();
     }
-    for (cvf::ref<RiuWellPathAttributePlotObject> plotObjects : m_wellPathAttributePlotObjects)
+    for (auto& plotObjects : m_wellPathAttributePlotObjects)
     {
         plotObjects->reattachToQwt();
     }
@@ -1815,7 +1815,7 @@ void RimWellLogTrack::updateWellPathAttributesOnPlot()
 
     if (m_showWellPathAttributes && wellPathAttributeSource())
     {      
-        m_wellPathAttributePlotObjects.push_back(new RiuWellPathAttributePlotObject(wellPathAttributeSource()));
+        m_wellPathAttributePlotObjects.push_back(std::unique_ptr<RiuWellPathComponentPlotItem>(new RiuWellPathComponentPlotItem(wellPathAttributeSource())));
         
         if (m_wellPathAttributeCollection)
         {
@@ -1827,16 +1827,16 @@ void RimWellLogTrack::updateWellPathAttributesOnPlot()
 
             for (RimWellPathAttribute* attribute : attributes)
             {
-                m_wellPathAttributePlotObjects.push_back(new RiuWellPathAttributePlotObject(wellPathAttributeSource(), attribute));
+                m_wellPathAttributePlotObjects.push_back(std::unique_ptr<RiuWellPathComponentPlotItem>(new RiuWellPathComponentPlotItem(wellPathAttributeSource(), attribute)));
             }
         }
         if (m_showWellPathAttributesFromCompletions())
         {
             const RimWellPathCompletions* completionsCollection = wellPathAttributeSource()->completions();
-            std::vector<const RimWellPathCompletionInterface*> allCompletions = completionsCollection->allCompletions();
-            for (const RimWellPathCompletionInterface* completion : allCompletions)
+            std::vector<const RimWellPathComponentInterface*> allCompletions = completionsCollection->allCompletions();
+            for (const RimWellPathComponentInterface* completion : allCompletions)
             {
-                m_wellPathAttributePlotObjects.push_back(new RiuWellPathAttributePlotObject(wellPathAttributeSource(), completion));
+                m_wellPathAttributePlotObjects.push_back(std::unique_ptr<RiuWellPathComponentPlotItem>(new RiuWellPathComponentPlotItem(wellPathAttributeSource(), completion)));
             }
         }
 
@@ -1846,7 +1846,7 @@ void RimWellLogTrack::updateWellPathAttributesOnPlot()
 
         int index = 0;
         std::set<QString> attributesAssignedToLegend;
-        for (cvf::ref<RiuWellPathAttributePlotObject> attributePlotObject : m_wellPathAttributePlotObjects)
+        for (auto& attributePlotObject : m_wellPathAttributePlotObjects)
         {
             cvf::Color3f attributeColor = cvf::Color3::LIGHT_GRAY;
             if (attributePlotObject->completionType() != RiaDefines::WELL_PATH)

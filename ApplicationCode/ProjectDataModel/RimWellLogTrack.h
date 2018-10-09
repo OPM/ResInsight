@@ -41,7 +41,7 @@ class RimWellFlowRateCurve;
 class RimWellLogCurve;
 class RimWellPath;
 class RiuPlotAnnotationTool;
-class RiuWellPathAttributePlotObject;
+class RiuWellPathComponentPlotItem;
 class RiuWellLogTrack;
 class RigEclipseWellLogExtractor;
 class RimWellLogPlotCollection;
@@ -220,7 +220,7 @@ private:
     caf::PdmPtrField<RimWellPath*>                                     m_wellPathAttributeSource;
     caf::PdmPtrField<RimWellPathAttributeCollection*>                  m_wellPathAttributeCollection;
     
-    std::vector<cvf::ref<RiuWellPathAttributePlotObject>>              m_wellPathAttributePlotObjects;
+    std::vector<std::unique_ptr<RiuWellPathComponentPlotItem>>         m_wellPathAttributePlotObjects;
 
     bool m_formationsForCaseWithSimWellOnly;
 

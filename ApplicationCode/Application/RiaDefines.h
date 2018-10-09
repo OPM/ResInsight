@@ -40,7 +40,7 @@ namespace RiaDefines
         UNDEFINED = 999
     };
 
-    enum CompletionType {
+    enum WellPathComponentType {
         // Well path construction features
         WELL_PATH,
         CASING,

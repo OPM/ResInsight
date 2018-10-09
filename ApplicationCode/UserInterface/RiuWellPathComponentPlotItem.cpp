@@ -16,7 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RiuWellPathAttributePlotObject.h"
+#include "RiuWellPathComponentPlotItem.h"
 
 #include "RiaColorTools.h"
 
@@ -42,7 +42,7 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuWellPathAttributePlotObject::RiuWellPathAttributePlotObject(const RimWellPath* wellPath)
+RiuWellPathComponentPlotItem::RiuWellPathComponentPlotItem(const RimWellPath* wellPath)
     : m_wellPath(wellPath)
     , m_completionType(RiaDefines::WELL_PATH)
     , m_depthType(RimWellLogPlot::MEASURED_DEPTH)
@@ -60,21 +60,21 @@ RiuWellPathAttributePlotObject::RiuWellPathAttributePlotObject(const RimWellPath
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuWellPathAttributePlotObject::RiuWellPathAttributePlotObject(const RimWellPath* wellPath, const RimWellPathCompletionInterface* completion)
+RiuWellPathComponentPlotItem::RiuWellPathComponentPlotItem(const RimWellPath* wellPath, const RimWellPathComponentInterface* completion)
 {
     CVF_ASSERT(wellPath && completion);
 
-    m_completionType = completion->type();
+    m_completionType = completion->componentType();
     m_startMD       = completion->startMD();
     m_endMD         = completion->endMD();
-    m_label         = completion->completionLabel();
-    m_legendTitle   = completion->completionTypeLabel();
+    m_label         = completion->componentLabel();
+    m_legendTitle   = completion->componentTypeLabel();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuWellPathAttributePlotObject::~RiuWellPathAttributePlotObject()
+RiuWellPathComponentPlotItem::~RiuWellPathComponentPlotItem()
 {
     detachFromQwt();
 
@@ -87,7 +87,7 @@ RiuWellPathAttributePlotObject::~RiuWellPathAttributePlotObject()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiuWellPathAttributePlotObject::label() const
+QString RiuWellPathComponentPlotItem::label() const
 {
     return m_label;
 }
@@ -95,7 +95,7 @@ QString RiuWellPathAttributePlotObject::label() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuWellPathAttributePlotObject::loadDataAndUpdate(bool updateParentPlot)
+void RiuWellPathComponentPlotItem::loadDataAndUpdate(bool updateParentPlot)
 {
     onLoadDataAndUpdate(updateParentPlot);
 }
@@ -103,7 +103,7 @@ void RiuWellPathAttributePlotObject::loadDataAndUpdate(bool updateParentPlot)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiaDefines::CompletionType RiuWellPathAttributePlotObject::completionType() const
+RiaDefines::WellPathComponentType RiuWellPathComponentPlotItem::completionType() const
 {
     return m_completionType;
 }
@@ -111,7 +111,7 @@ RiaDefines::CompletionType RiuWellPathAttributePlotObject::completionType() cons
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuWellPathAttributePlotObject::onLoadDataAndUpdate(bool updateParentPlot)
+void RiuWellPathComponentPlotItem::onLoadDataAndUpdate(bool updateParentPlot)
 {   
     double startDepth, endDepth;
     std::tie(startDepth, endDepth) = depthsOfDepthType();
@@ -192,7 +192,7 @@ void RiuWellPathAttributePlotObject::onLoadDataAndUpdate(bool updateParentPlot)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<double, double> RiuWellPathAttributePlotObject::depthsOfDepthType() const
+std::pair<double, double> RiuWellPathComponentPlotItem::depthsOfDepthType() const
 {
     double startDepth = m_startMD;
     double endDepth   = m_endMD;
@@ -210,7 +210,7 @@ std::pair<double, double> RiuWellPathAttributePlotObject::depthsOfDepthType() co
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuWellPathAttributePlotObject::addMarker(double posX,
+void RiuWellPathComponentPlotItem::addMarker(double posX,
                                                double depth,
                                                int size,
                                                RiuQwtSymbol::PointSymbolEnum symbolType,
@@ -228,7 +228,7 @@ void RiuWellPathAttributePlotObject::addMarker(double posX,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QwtPlotItem* RiuWellPathAttributePlotObject::createMarker(double posX, double depth, int size, RiuQwtSymbol::PointSymbolEnum symbolType, cvf::Color4f baseColor, QString label /*= QString("")*/, Qt::Alignment labelAlignment /*= Qt::AlignTop*/, Qt::Orientation labelOrientation /*= Qt::Vertical*/, bool drawLine /*= false*/, bool contrastTextColor /*= true*/)
+QwtPlotItem* RiuWellPathComponentPlotItem::createMarker(double posX, double depth, int size, RiuQwtSymbol::PointSymbolEnum symbolType, cvf::Color4f baseColor, QString label /*= QString("")*/, Qt::Alignment labelAlignment /*= Qt::AlignTop*/, Qt::Orientation labelOrientation /*= Qt::Vertical*/, bool drawLine /*= false*/, bool contrastTextColor /*= true*/)
 {
     QColor         bgColor = RiaColorTools::toQColor(baseColor);
     QColor         textColor = RiaColorTools::toQColor(baseColor.toColor3f(), 1.0);
@@ -268,7 +268,7 @@ QwtPlotItem* RiuWellPathAttributePlotObject::createMarker(double posX, double de
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuWellPathAttributePlotObject::addColumnFeature(double startX,
+void RiuWellPathComponentPlotItem::addColumnFeature(double startX,
                                                       double endX,
                                                       double startDepth,
                                                       double endDepth,
@@ -298,7 +298,7 @@ void RiuWellPathAttributePlotObject::addColumnFeature(double startX,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QwtPlotItem* RiuWellPathAttributePlotObject::createColumnShape(double         startX,
+QwtPlotItem* RiuWellPathComponentPlotItem::createColumnShape(double         startX,
                                                                  double         endX,
                                                                  double         startDepth,
                                                                  double         endDepth,
@@ -325,7 +325,7 @@ QwtPlotItem* RiuWellPathAttributePlotObject::createColumnShape(double         st
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RiuWellPathAttributePlotObject::xValueRange(double* minimumValue, double* maximumValue) const
+bool RiuWellPathComponentPlotItem::xValueRange(double* minimumValue, double* maximumValue) const
 {
     CVF_ASSERT(minimumValue && maximumValue);
     *maximumValue =  1.0;
@@ -336,7 +336,7 @@ bool RiuWellPathAttributePlotObject::xValueRange(double* minimumValue, double* m
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RiuWellPathAttributePlotObject::yValueRange(double* minimumValue, double* maximumValue) const
+bool RiuWellPathComponentPlotItem::yValueRange(double* minimumValue, double* maximumValue) const
 {
     CVF_ASSERT(minimumValue && maximumValue);
 
@@ -351,7 +351,7 @@ bool RiuWellPathAttributePlotObject::yValueRange(double* minimumValue, double* m
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuWellPathAttributePlotObject::setShowLabel(bool showLabel)
+void RiuWellPathComponentPlotItem::setShowLabel(bool showLabel)
 {
     m_showLabel = showLabel;
 }
@@ -359,7 +359,7 @@ void RiuWellPathAttributePlotObject::setShowLabel(bool showLabel)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuWellPathAttributePlotObject::setDepthType(RimWellLogPlot::DepthTypeEnum depthType)
+void RiuWellPathComponentPlotItem::setDepthType(RimWellLogPlot::DepthTypeEnum depthType)
 {
     m_depthType = depthType;
 }
@@ -367,7 +367,7 @@ void RiuWellPathAttributePlotObject::setDepthType(RimWellLogPlot::DepthTypeEnum 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuWellPathAttributePlotObject::setBaseColor(const cvf::Color3f& baseColor)
+void RiuWellPathComponentPlotItem::setBaseColor(const cvf::Color3f& baseColor)
 {
     m_baseColor = cvf::Color4f(baseColor);
 }
@@ -375,7 +375,7 @@ void RiuWellPathAttributePlotObject::setBaseColor(const cvf::Color3f& baseColor)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuWellPathAttributePlotObject::setBaseColor(const cvf::Color4f& baseColor)
+void RiuWellPathComponentPlotItem::setBaseColor(const cvf::Color4f& baseColor)
 {
     m_baseColor = baseColor;
 }
@@ -383,7 +383,7 @@ void RiuWellPathAttributePlotObject::setBaseColor(const cvf::Color4f& baseColor)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuWellPathAttributePlotObject::setContributeToLegend(bool contributeToLegend)
+void RiuWellPathComponentPlotItem::setContributeToLegend(bool contributeToLegend)
 {
     bool actuallyContributeToLegend = contributeToLegend && (m_completionType == RiaDefines::FISHBONES ||
                                                              m_completionType == RiaDefines::FRACTURE ||
@@ -395,7 +395,7 @@ void RiuWellPathAttributePlotObject::setContributeToLegend(bool contributeToLege
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuWellPathAttributePlotObject::setParentQwtPlotAndReplot(QwtPlot* plot)
+void RiuWellPathComponentPlotItem::setParentQwtPlotAndReplot(QwtPlot* plot)
 {
     setParentQwtPlotNoReplot(plot);
     if (m_parentQwtPlot)
@@ -407,7 +407,7 @@ void RiuWellPathAttributePlotObject::setParentQwtPlotAndReplot(QwtPlot* plot)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuWellPathAttributePlotObject::setParentQwtPlotNoReplot(QwtPlot* plot)
+void RiuWellPathComponentPlotItem::setParentQwtPlotNoReplot(QwtPlot* plot)
 {
     m_parentQwtPlot = plot;
     attachToQwt();
@@ -416,7 +416,7 @@ void RiuWellPathAttributePlotObject::setParentQwtPlotNoReplot(QwtPlot* plot)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuWellPathAttributePlotObject::attachToQwt()
+void RiuWellPathComponentPlotItem::attachToQwt()
 {    
     if (m_parentQwtPlot)
     {
@@ -427,7 +427,7 @@ void RiuWellPathAttributePlotObject::attachToQwt()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuWellPathAttributePlotObject::detachFromQwt()
+void RiuWellPathComponentPlotItem::detachFromQwt()
 {
     m_combinedAttributeGroup.detach();
 }
@@ -435,7 +435,7 @@ void RiuWellPathAttributePlotObject::detachFromQwt()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuWellPathAttributePlotObject::reattachToQwt()
+void RiuWellPathComponentPlotItem::reattachToQwt()
 {
     detachFromQwt();
     attachToQwt();
@@ -444,7 +444,7 @@ void RiuWellPathAttributePlotObject::reattachToQwt()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiuWellPathAttributePlotObject::legendTitle() const
+QString RiuWellPathComponentPlotItem::legendTitle() const
 {
     return m_legendTitle;
 }

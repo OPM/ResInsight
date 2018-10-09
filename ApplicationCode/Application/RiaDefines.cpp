@@ -60,7 +60,7 @@ namespace caf
     }
 
     template<>
-    void caf::AppEnum< RiaDefines::CompletionType >::setUp()
+    void caf::AppEnum< RiaDefines::WellPathComponentType >::setUp()
     {
         addItem(RiaDefines::WELL_PATH, "WELL_PATH", "Well Path");
         addItem(RiaDefines::CASING, "CASING", "Casing");

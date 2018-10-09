@@ -72,9 +72,9 @@ QString RimWellPathAttribute::diameterLabel() const
 //--------------------------------------------------------------------------------------------------
 bool RimWellPathAttribute::operator<(const RimWellPathAttribute& rhs) const
 {
-    if (type() != rhs.type())
+    if (componentType() != rhs.componentType())
     {
-        return type() < rhs.type();
+        return componentType() < rhs.componentType();
     }
     return endMD() > rhs.endMD();
 }
@@ -91,7 +91,7 @@ void RimWellPathAttribute::setDepthsFromWellPath(const RimWellPath* wellPath)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiaDefines::CompletionType RimWellPathAttribute::type() const
+RiaDefines::WellPathComponentType RimWellPathAttribute::componentType() const
 {
     return m_type();
 }
@@ -115,9 +115,9 @@ double RimWellPathAttribute::endMD() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimWellPathAttribute::completionLabel() const
+QString RimWellPathAttribute::componentLabel() const
 {
-    QString fullLabel = completionTypeLabel();
+    QString fullLabel = componentTypeLabel();
     if (m_type() == RiaDefines::CASING || m_type() == RiaDefines::LINER)
     {
         fullLabel += QString(" %1").arg(diameterLabel());
@@ -128,7 +128,7 @@ QString RimWellPathAttribute::completionLabel() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimWellPathAttribute::completionTypeLabel() const
+QString RimWellPathAttribute::componentTypeLabel() const
 {
     return m_type().uiText();
 }
@@ -149,8 +149,8 @@ QList<caf::PdmOptionItemInfo> RimWellPathAttribute::calculateValueOptions(const 
     QList<caf::PdmOptionItemInfo> options;
     if (fieldNeedingOptions == &m_type)
     {
-        std::set<RiaDefines::CompletionType> supportedTypes = { RiaDefines::CASING, RiaDefines::LINER, RiaDefines::PACKER };
-        for (RiaDefines::CompletionType type : supportedTypes)
+        std::set<RiaDefines::WellPathComponentType> supportedTypes = { RiaDefines::CASING, RiaDefines::LINER, RiaDefines::PACKER };
+        for (RiaDefines::WellPathComponentType type : supportedTypes)
         {
             options.push_back(caf::PdmOptionItemInfo(CompletionTypeEnum::uiText(type), type));
         }

@@ -403,7 +403,7 @@ void RimFishbonesMultipleSubs::setUnitSystemSpecificDefaults()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiaDefines::CompletionType RimFishbonesMultipleSubs::type() const
+RiaDefines::WellPathComponentType RimFishbonesMultipleSubs::componentType() const
 {
     return RiaDefines::FISHBONES;
 }
@@ -439,7 +439,7 @@ double RimFishbonesMultipleSubs::endMD() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimFishbonesMultipleSubs::completionLabel() const
+QString RimFishbonesMultipleSubs::componentLabel() const
 {
     return generatedName();
 }
@@ -447,7 +447,7 @@ QString RimFishbonesMultipleSubs::completionLabel() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimFishbonesMultipleSubs::completionTypeLabel() const
+QString RimFishbonesMultipleSubs::componentTypeLabel() const
 {
     return "Fishbones";
 }
