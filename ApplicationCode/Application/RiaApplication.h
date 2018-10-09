@@ -115,7 +115,6 @@ public:
     void                createInputMockModel();
 
     QString             lastUsedDialogDirectory(const QString& dialogName);
-    QString             lastUsedDialogDirectoryWithFallback(const QString& dialogName, const QString& fallbackDirectory);
     QString             lastUsedDialogDirectoryWithFallbackToProjectFolder(const QString& dialogName);
     void                setLastUsedDialogDirectory(const QString& dialogName, const QString& directory);
 
@@ -215,6 +214,8 @@ private:
     
     void                    loadAndUpdatePlotData();
     
+    QString                 lastUsedDialogDirectoryWithFallback(const QString& dialogName, const QString& fallbackDirectory);
+
     void                    storeTreeViewState();
 
     friend RiaArgumentParser;
@@ -226,7 +227,7 @@ private slots:
     void                    slotWorkerProcessFinished(int exitCode, QProcess::ExitStatus exitStatus);
 
 private:
-    caf::PdmPointer<Rim3dView>            m_activeReservoirView;
+    caf::PdmPointer<Rim3dView>          m_activeReservoirView;
     caf::PdmPointer<RimProject>         m_project;
 
     RiaSocketServer*                    m_socketServer;

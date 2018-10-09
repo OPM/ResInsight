@@ -64,10 +64,7 @@ void RicExportFaultsFeature::onActionTriggered(bool isChecked)
 
     if (selectedFaults.size() == 0) return;
 
-    RiaApplication* app = RiaApplication::instance();
-
-    QString projectFolder = app->currentProjectPath();
-    QString defaultDir = RiaApplication::instance()->lastUsedDialogDirectoryWithFallback("FAULTS", projectFolder);
+    QString defaultDir = RiaApplication::instance()->lastUsedDialogDirectoryWithFallbackToProjectFolder("FAULTS");
 
     QString selectedDir = QFileDialog::getExistingDirectory(nullptr, tr("Select Directory"), defaultDir);
 

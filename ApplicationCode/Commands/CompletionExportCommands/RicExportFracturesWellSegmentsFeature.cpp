@@ -99,8 +99,7 @@ void RicExportFracturesWellSegmentsFeature::onActionTriggered(bool isChecked)
 
     RiaApplication* app = RiaApplication::instance();
 
-    QString projectFolder = app->currentProjectPath();
-    QString defaultDir = RiaApplication::instance()->lastUsedDialogDirectoryWithFallback("COMPLETIONS", projectFolder);
+    QString defaultDir = RiaApplication::instance()->lastUsedDialogDirectoryWithFallbackToProjectFolder("COMPLETIONS");
 
     RicCaseAndFileExportSettingsUi exportSettings;
     std::vector<RimCase*> cases;

@@ -122,9 +122,7 @@ void RicAsciiExportSummaryPlotFeature::setupActionLook(QAction* actionToSetup)
 //--------------------------------------------------------------------------------------------------
 QString RicAsciiExportSummaryPlotFeature::defaultExportDir()
 {
-    RiaApplication* app = RiaApplication::instance();
-    QString projectFolder = app->currentProjectPath();
-    return RiaApplication::instance()->lastUsedDialogDirectoryWithFallback("PLOT_ASCIIEXPORT_DIR", projectFolder);
+    return RiaApplication::instance()->lastUsedDialogDirectoryWithFallbackToProjectFolder("PLOT_ASCIIEXPORT_DIR");
 }
 
 //--------------------------------------------------------------------------------------------------
