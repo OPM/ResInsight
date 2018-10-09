@@ -54,7 +54,7 @@ class RicExportLgrFeature : public caf::CmdFeature
 
     static RicExportLgrUi* openDialog();
     static bool openFileForExport(const QString& folderName, const QString& fileName, QFile* exportFile);
-    static void exportCarfin(QTextStream& stream, const std::map<RigCompletionDataGridCell, LgrInfo>& lgrInfos);
+    static void exportLgr(QTextStream& stream, const std::map<RigCompletionDataGridCell, LgrInfo>& lgrInfos);
 
 protected:
     virtual bool isCommandEnabled() override;

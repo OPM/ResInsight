@@ -130,7 +130,7 @@ bool RicExportLgrFeature::openFileForExport(const QString& folderName, const QSt
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicExportLgrFeature::exportCarfin(QTextStream& stream, const std::map<RigCompletionDataGridCell, LgrInfo>& lgrInfos)
+void RicExportLgrFeature::exportLgr(QTextStream& stream, const std::map<RigCompletionDataGridCell, LgrInfo>& lgrInfos)
 {
     int count = 0;
     for (auto lgr : lgrInfos)
@@ -158,12 +158,12 @@ void RicExportLgrFeature::exportCarfin(QTextStream& stream, const std::map<RigCo
             );
 
             formatter.add(lgrInfo.name);
-            formatter.add(dataGridCell.localCellIndexI());
-            formatter.add(dataGridCell.localCellIndexI());
-            formatter.add(dataGridCell.localCellIndexJ());
-            formatter.add(dataGridCell.localCellIndexJ());
-            formatter.add(dataGridCell.localCellIndexK());
-            formatter.add(dataGridCell.localCellIndexK());
+            formatter.add(dataGridCell.localCellIndexI() + 1);
+            formatter.add(dataGridCell.localCellIndexI() + 1);
+            formatter.add(dataGridCell.localCellIndexJ() + 1);
+            formatter.add(dataGridCell.localCellIndexJ() + 1);
+            formatter.add(dataGridCell.localCellIndexK() + 1);
+            formatter.add(dataGridCell.localCellIndexK() + 1);
             formatter.add(lgrInfo.sizes.i());
             formatter.add(lgrInfo.sizes.j());
             formatter.add(lgrInfo.sizes.k());
@@ -258,7 +258,7 @@ void RicExportLgrFeature::onActionTriggered(bool isChecked)
                 QTextStream stream(&file);
                 stream.setRealNumberNotation(QTextStream::FixedNotation);
                 stream.setRealNumberPrecision(2);
-                exportCarfin(stream, lgrs);
+                exportLgr(stream, lgrs);
                 file.close();
             }
         }
