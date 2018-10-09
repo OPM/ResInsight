@@ -1945,6 +1945,14 @@ QString RiaApplication::lastUsedDialogDirectoryWithFallback(const QString& dialo
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+QString RiaApplication::lastUsedDialogDirectoryWithFallbackToProjectFolder(const QString& dialogName)
+{
+    return lastUsedDialogDirectoryWithFallback(this->currentProjectPath());
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RiaApplication::setLastUsedDialogDirectory(const QString& dialogName, const QString& directory)
 {
     m_fileDialogDefaultDirectories[dialogName] = directory;

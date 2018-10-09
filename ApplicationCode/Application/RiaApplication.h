@@ -116,6 +116,7 @@ public:
 
     QString             lastUsedDialogDirectory(const QString& dialogName);
     QString             lastUsedDialogDirectoryWithFallback(const QString& dialogName, const QString& fallbackDirectory);
+    QString             lastUsedDialogDirectoryWithFallbackToProjectFolder(const QString& dialogName);
     void                setLastUsedDialogDirectory(const QString& dialogName, const QString& directory);
 
     bool                openFile(const QString& fileName);
