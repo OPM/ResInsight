@@ -148,7 +148,7 @@ public:
     std::vector<RimFractureTemplateCollection*> allFractureTemplateCollections() const;
     std::vector<RimFractureTemplate*> allFractureTemplates() const;
 
-    RiaEclipseUnitTools::UnitSystem commonUnitSystemForAllCases() const;
+    RiaEclipseUnitTools::UnitSystemType commonUnitSystemForAllCases() const;
 
 protected:
     // Overridden methods

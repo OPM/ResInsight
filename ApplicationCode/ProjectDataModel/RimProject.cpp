@@ -1017,7 +1017,7 @@ std::vector<RimFractureTemplate*> RimProject::allFractureTemplates() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RiaEclipseUnitTools::UnitSystem RimProject::commonUnitSystemForAllCases() const
+RiaEclipseUnitTools::UnitSystemType RimProject::commonUnitSystemForAllCases() const
 {
     std::vector<RimCase*> rimCases;
     allCases(rimCases);

@@ -56,7 +56,6 @@
 #include <fstream>
 
 
-
 CAF_PDM_SOURCE_INIT(RimEclipseResultCase, "EclipseCase");
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -68,6 +67,10 @@ RimEclipseResultCase::RimEclipseResultCase()
 
     CAF_PDM_InitField(&caseFileName, "CaseFileName",  QString(), "Case File Name", "", "" ,"");
     caseFileName.uiCapability()->setUiReadOnly(true);
+
+    CAF_PDM_InitFieldNoDefault(&m_unitSystem, "UnitSystem", "Unit System", "", "", "");
+    m_unitSystem.registerGetMethod(RiaApplication::instance()->project(), &RimProject::commonUnitSystemForAllCases);
+    m_unitSystem.uiCapability()->setUiReadOnly(true);
 
     CAF_PDM_InitFieldNoDefault (&m_flowDiagSolutions, "FlowDiagSolutions", "Flow Diagnostics Solutions", "", "", "");
     m_flowDiagSolutions.uiCapability()->setUiHidden(true);
@@ -586,6 +589,7 @@ void RimEclipseResultCase::defineUiOrdering(QString uiConfigName, caf::PdmUiOrde
     uiOrdering.add(&caseUserDescription);
     uiOrdering.add(&caseId);
     uiOrdering.add(&caseFileName);
+    uiOrdering.add(&m_unitSystem);
 
     auto group = uiOrdering.addNewGroup("Case Options");
     group->add(&activeFormationNames);

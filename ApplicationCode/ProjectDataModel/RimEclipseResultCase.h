@@ -20,7 +20,11 @@
 
 #pragma once
 
+#include "RiaEclipseUnitTools.h"
+
 #include "RimEclipseCase.h"
+
+#include <cafPdmProxyValueField.h>
 
 class RifReaderInterface;
 class RigMainGrid;
@@ -85,6 +89,7 @@ private:
 
     // Fields:                        
     caf::PdmField<QString>      caseFileName;
+    caf::PdmProxyValueField<RiaEclipseUnitTools::UnitSystemType> m_unitSystem;
     caf::PdmChildArrayField<RimFlowDiagSolution*> m_flowDiagSolutions;
     caf::PdmField<QString>      m_sourSimFileName;
 
