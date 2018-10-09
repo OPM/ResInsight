@@ -190,7 +190,7 @@ void RifEclipseDataTableFormatter::addValueTable(QTextStream& stream, const QStr
     subFormatter.header(cols);
 
     int colCount = 0;
-    for (int i = 0; i < values.size(); i++)
+    for (size_t i = 0; i < values.size(); i++)
     {
         subFormatter.add(values[i]);
         if (++colCount % columns == 0 && i < values.size() - 1) subFormatter.rowCompleted("");

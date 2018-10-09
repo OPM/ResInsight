@@ -233,11 +233,11 @@ void RicExportCarfinForCompletionsFeature::onActionTriggered(bool isChecked)
 
                     std::vector<double> lgrValues;
 
-                    for (int k = 0; k < lgrCellCounts.k(); k++)
+                    for (size_t k = 0; k < lgrCellCounts.k(); k++)
                     {
-                        for (int j = 0; j < lgrCellCounts.j(); j++)
+                        for (size_t j = 0; j < lgrCellCounts.j(); j++)
                         {
-                            for (int i = 0; i < lgrCellCounts.i(); i++)
+                            for (size_t i = 0; i < lgrCellCounts.i(); i++)
                             {
                                 lgrValues.push_back(poro);
                             }
