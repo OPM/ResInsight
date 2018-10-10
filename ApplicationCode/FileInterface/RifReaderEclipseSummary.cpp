@@ -125,7 +125,7 @@ RifReaderEclipseSummary::~RifReaderEclipseSummary()
 //--------------------------------------------------------------------------------------------------
 bool RifReaderEclipseSummary::open(const QString& headerFileName, bool includeRestartFiles)
 {
-    assert(m_ecl_sum == NULL); 
+    assert(m_ecl_sum == nullptr); 
     
     m_ecl_sum = openEclSum(headerFileName, includeRestartFiles);
 
@@ -375,7 +375,7 @@ RifEclipseSummaryAddress addressFromErtSmSpecNode(const smspec_node_type * ertSu
 //--------------------------------------------------------------------------------------------------
 bool RifReaderEclipseSummary::values(const RifEclipseSummaryAddress& resultAddress, std::vector<double>* values) const
 {
-    assert(m_ecl_sum != NULL);
+    assert(m_ecl_sum != nullptr);
 
     int variableIndex = indexFromAddress(resultAddress);
 
@@ -428,7 +428,7 @@ int RifReaderEclipseSummary::timeStepCount() const
 //--------------------------------------------------------------------------------------------------
 const std::vector<time_t>& RifReaderEclipseSummary::timeSteps(const RifEclipseSummaryAddress& resultAddress) const
 {
-    assert(m_ecl_sum != NULL);
+    assert(m_ecl_sum != nullptr);
 
     return m_timeSteps;
 }

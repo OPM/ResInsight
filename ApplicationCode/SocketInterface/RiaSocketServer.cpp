@@ -82,7 +82,7 @@ RiaSocketServer::RiaSocketServer(QObject* parent)
 //--------------------------------------------------------------------------------------------------
 RiaSocketServer::~RiaSocketServer()
 {
-    assert (m_currentCommand == NULL);
+    assert (m_currentCommand == nullptr);
 }
 
 //--------------------------------------------------------------------------------------------------

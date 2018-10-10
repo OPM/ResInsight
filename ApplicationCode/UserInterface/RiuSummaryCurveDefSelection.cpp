@@ -1043,7 +1043,7 @@ SummaryIdentifierAndField* RiuSummaryCurveDefSelection::lookupIdentifierAndField
 //--------------------------------------------------------------------------------------------------
 /// Returns the Controlling pdm field info for the specified pdm field info.
 /// Controlling means the field controlling the dependent field
-/// If the specified pdm field info is the topmost (i.e. index is 0), null pointer is returned
+/// If the specified pdm field info is the topmost (i.e. index is 0), nullptr is returned
 //--------------------------------------------------------------------------------------------------
 SummaryIdentifierAndField* RiuSummaryCurveDefSelection::lookupControllingField(const SummaryIdentifierAndField *dependentField) const
 {

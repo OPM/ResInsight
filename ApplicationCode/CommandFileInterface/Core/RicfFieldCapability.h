@@ -211,7 +211,7 @@ private:
 template<typename FieldType>
 void AddRicfCapabilityToField(FieldType* field)
 {
-    if(field->template capability< RicfFieldCapability<FieldType> >() == NULL)
+    if(field->template capability< RicfFieldCapability<FieldType> >() == nullptr)
     {
         new RicfFieldCapability<FieldType>(field, true);
     }

@@ -80,7 +80,7 @@ public:
         size_t reservoirCellIndex = m_grid->reservoirCellIndex(gridLocalCellIndex);
         size_t resultValueIndex = m_activeCellInfo->cellResultIndex(reservoirCellIndex);
 
-        CVF_TIGHT_ASSERT(m_reservoirResultValues != NULL && resultValueIndex < m_reservoirResultValues->size());
+        CVF_TIGHT_ASSERT(m_reservoirResultValues != nullptr && resultValueIndex < m_reservoirResultValues->size());
 
         (*m_reservoirResultValues)[resultValueIndex] = scalarValue;
     }

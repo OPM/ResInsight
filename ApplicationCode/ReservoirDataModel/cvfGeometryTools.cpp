@@ -428,8 +428,8 @@ int GeometryTools::intersectLineSegmentTriangle( const cvf::Vec3d p0, const cvf:
                                                  const cvf::Vec3d t0, const cvf::Vec3d t1, const cvf::Vec3d t2,
                                                  cvf::Vec3d* intersectionPoint , bool * isLineDirDotNormalNegative)
 {
-    CVF_TIGHT_ASSERT(intersectionPoint != NULL);
-    CVF_TIGHT_ASSERT(isLineDirDotNormalNegative != NULL);
+    CVF_TIGHT_ASSERT(intersectionPoint != nullptr);
+    CVF_TIGHT_ASSERT(isLineDirDotNormalNegative != nullptr);
 
     cvf::Vec3d u, v, n;             // triangle vectors
     cvf::Vec3d dir, w0, w;          // ray vectors

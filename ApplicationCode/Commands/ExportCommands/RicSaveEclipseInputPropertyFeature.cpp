@@ -134,7 +134,7 @@ RimEclipseInputProperty* RicSaveEclipseInputPropertyFeature::selectedInputProper
     std::vector<RimEclipseInputProperty*> selection;
     caf::SelectionManager::instance()->objectsByType(&selection);
 
-    return selection.size() > 0 ? selection[0] : NULL;
+    return selection.size() > 0 ? selection[0] : nullptr;
 }
 
 

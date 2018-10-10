@@ -50,7 +50,7 @@ RifEclipseRestartFilesetAccess::~RifEclipseRestartFilesetAccess()
             ecl_file_close(m_ecl_files[i]);
         }
 
-        m_ecl_files[i] = NULL;
+        m_ecl_files[i] = nullptr;
     }
 
 }
@@ -91,7 +91,7 @@ void RifEclipseRestartFilesetAccess::setRestartFiles(const QStringList& fileSet)
 
     for (int i = 0; i < m_fileNames.size(); i++)
     {
-        m_ecl_files.push_back(NULL);
+        m_ecl_files.push_back(nullptr);
     }
 
     CVF_ASSERT(m_fileNames.size() == static_cast<int>(m_ecl_files.size()));
@@ -269,7 +269,7 @@ void RifEclipseRestartFilesetAccess::openTimeStep(size_t timeStep)
 {
     CVF_ASSERT(timeStep < m_ecl_files.size());
 
-    if (m_ecl_files[timeStep] == NULL)
+    if (m_ecl_files[timeStep] == nullptr)
     {
         int index = static_cast<int>(timeStep);
         ecl_file_type* ecl_file = ecl_file_open(RiaStringEncodingTools::toNativeEncoded(m_fileNames[index]).data(), ECL_FILE_CLOSE_STREAM);

@@ -153,7 +153,7 @@ bool RifEclipseInputFileTools::openGridFile(const QString& fileName, RigEclipseC
     allKwReadOk = allKwReadOk && nullptr != (coordKw    = ecl_kw_fscanf_alloc_current_grdecl__(gridFilePointer, false , ecl_type_create_from_type(ECL_FLOAT_TYPE)));
     progress.setProgress(3);
 
-    // If ACTNUM is not defined, this pointer will be NULL, which is a valid condition
+    // If ACTNUM is not defined, this pointer will be nullptr, which is a valid condition
     if (actnumPos >= 0)
     {
         fseek(gridFilePointer, actnumPos, SEEK_SET);
@@ -161,7 +161,7 @@ bool RifEclipseInputFileTools::openGridFile(const QString& fileName, RigEclipseC
         progress.setProgress(4);
     }
 
-    // If MAPAXES is not defined, this pointer will be NULL, which is a valid condition
+    // If MAPAXES is not defined, this pointer will be nullptr, which is a valid condition
     if (mapaxesPos >= 0)
     {
         fseek(gridFilePointer, mapaxesPos, SEEK_SET);

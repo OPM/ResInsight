@@ -170,7 +170,7 @@ void RimEclipseCellColors::initAfterRead()
         // The current legend config is NOT stored in <ResultVarLegendDefinitionList> in ResInsight up to v 1.3.7-dev
         RimRegularLegendConfig* obsoleteLegend = obsoleteField_legendConfig();
 
-        // set to NULL before pushing into container
+        // set to nullptr before pushing into container
         obsoleteField_legendConfig = nullptr;
 
         m_legendConfigData.push_back(obsoleteLegend);

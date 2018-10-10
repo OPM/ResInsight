@@ -171,7 +171,7 @@ bool RicImportSummaryCasesFeature::createSummaryCasesFromFiles(const QStringList
     {
         QString errorMessage = fileSelector.createCombinedErrorMessage();
         RiaLogging::error(errorMessage);
-        QMessageBox::warning(NULL, QString("Problem Importing Summary Case File(s)"), errorMessage);
+        QMessageBox::warning(nullptr, QString("Problem Importing Summary Case File(s)"), errorMessage);
     }
 
     return true;

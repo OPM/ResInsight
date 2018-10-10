@@ -236,7 +236,7 @@ caf::EffectGenerator* RivTernaryScalarMapperEffectGenerator::copy() const
 
 //--------------------------------------------------------------------------------------------------
 /// Tests whether two texture images are equal. It might in some rare cases not detect the difference
-/// but to make the comparison fast only some sampling points are used. If both pointers are NULL,
+/// but to make the comparison fast only some sampling points are used. If both pointers are nullptr,
 /// they are considered equal.
 //--------------------------------------------------------------------------------------------------
 bool RivTernaryScalarMapperEffectGenerator::isImagesEqual(const cvf::TextureImage* texImg1, const cvf::TextureImage* texImg2)

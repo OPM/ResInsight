@@ -234,7 +234,7 @@ bool RifEclipseOutputFileTools::keywordData(ecl_file_type* ecl_file, const QStri
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Get first occurrence of file of given type in given list of filenames, as filename or NULL if not found
+/// Get first occurrence of file of given type in given list of filenames, as filename or nullptr if not found
 //--------------------------------------------------------------------------------------------------
 QString RifEclipseOutputFileTools::firstFileNameOfType(const QStringList& fileSet, ecl_file_enum fileType)
 {

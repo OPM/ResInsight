@@ -363,7 +363,7 @@ bool RifCsvUserDataParser::parseColumnBasedData(const AsciiDataParseOptions& par
                                 throw 0;
                             }
 
-                            // Add NULL value
+                            // Add nullptr value
                             value = HUGE_VAL;
                         }
                         col.values.push_back(value);
