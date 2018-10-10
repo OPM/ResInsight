@@ -41,19 +41,22 @@ namespace RiaDefines
     };
 
     enum WellPathComponentType {
-        // Well path construction features
+        // Production Tube
         WELL_PATH,
-        CASING,
-        LINER,
-        PACKER,
         // Well path flow completions
         PERFORATION_INTERVAL,
         FISHBONES,
         FRACTURE,
         ICD,
         AICD,
-        ICV
+        ICV,
+        // Well path construction features
+        CASING,
+        LINER,
+        PACKER
     };
+    std::vector<WellPathComponentType> wellPathCompletionTypes();
+    std::vector<WellPathComponentType> wellPathAttributeTypes();
 
     bool isPerCellFaceResult(const QString& resultName);
 

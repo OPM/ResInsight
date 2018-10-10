@@ -20,6 +20,8 @@
 
 #include "RimEclipsePropertyFilter.h"
 
+#include "RiaDefines.h"
+
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
 #include "RigFlowDiagResults.h"
@@ -390,9 +392,10 @@ void RimEclipsePropertyFilter::computeResultValueRange()
                     else if (resultDefinition->resultVariable() == RiaDefines::completionTypeResultName())
                     {
                         std::vector<QString> ctNames;
-                        for (const QString& ctName : caf::AppEnum<RiaDefines::WellPathComponentType>::uiTexts())
+                        ctNames.push_back(caf::AppEnum<RiaDefines::WellPathComponentType>::uiText(RiaDefines::WELL_PATH));
+                        for (RiaDefines::WellPathComponentType type : RiaDefines::wellPathCompletionTypes())
                         {
-                            ctNames.push_back(ctName);
+                            ctNames.push_back(caf::AppEnum<RiaDefines::WellPathComponentType>::uiText(type));
                         }
                         setCategoryNames(ctNames);
                     }
