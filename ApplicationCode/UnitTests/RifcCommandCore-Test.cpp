@@ -80,29 +80,29 @@ TEST(RicfCommands, Test1)
     auto tc1 = dynamic_cast<TestCommand1*>(objects[0]);
     EXPECT_EQ(39, tc1->m_textArgument().size());
     EXPECT_EQ(5.0e3, tc1->m_doubleArgument());
-    EXPECT_EQ(false, tc1->m_boolArgument());
+    EXPECT_FALSE(tc1->m_boolArgument());
     
     tc1 = dynamic_cast<TestCommand1*>(objects[1]);
     EXPECT_EQ(39, tc1->m_textArgument().size());
     EXPECT_EQ(5e-3, tc1->m_doubleArgument());
-    EXPECT_EQ(false, tc1->m_boolArgument());
+    EXPECT_FALSE(tc1->m_boolArgument());
     
     tc1 = dynamic_cast<TestCommand1*>(objects[2]);
     EXPECT_EQ(19, tc1->m_textArgument().size());
     EXPECT_EQ(0.0, tc1->m_doubleArgument());
-    EXPECT_EQ(true, tc1->m_boolArgument());
+    EXPECT_TRUE(tc1->m_boolArgument());
 
     auto tc2 = dynamic_cast<TC2*>(objects[3]);
     EXPECT_EQ(5, tc2->m_textArgument().size());
     EXPECT_EQ(-662.518, tc2->m_doubleArgument());
     EXPECT_EQ(-12, tc2->m_intArgument());
-    EXPECT_EQ(true, tc2->m_boolArgument());
+    EXPECT_TRUE(tc2->m_boolArgument());
 
     tc2 = dynamic_cast<TC2*>(objects[4]);
     EXPECT_EQ(4, tc2->m_textArgument().size());
     EXPECT_EQ(0.123, tc2->m_doubleArgument());
     EXPECT_EQ(3, tc2->m_intArgument());
-    EXPECT_EQ(false, tc2->m_boolArgument());
+    EXPECT_FALSE(tc2->m_boolArgument());
 
     for (auto obj: objects)
     {
