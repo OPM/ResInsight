@@ -25,11 +25,11 @@ public:
     explicit RigLocalGrid(RigMainGrid* mainGrid);
     ~RigLocalGrid() override;
 
-    RigGridBase *   parentGrid() const { return m_parentGrid; }
-    void            setParentGrid(RigGridBase * parentGrid) { m_parentGrid = parentGrid; }
+    RigGridBase *   parentGrid() const;
+    void            setParentGrid(RigGridBase * parentGrid);
 
-    size_t          positionInParentGrid() const { return m_positionInParentGrid; }
-    void            setPositionInParentGrid(size_t positionInParentGrid) { m_positionInParentGrid = positionInParentGrid; }
+    size_t          positionInParentGrid() const;
+    void            setPositionInParentGrid(size_t positionInParentGrid);
 
 private:
     RigGridBase *   m_parentGrid;
