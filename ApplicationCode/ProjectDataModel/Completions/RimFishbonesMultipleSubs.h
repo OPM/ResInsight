@@ -107,11 +107,11 @@ public:
 
     // Overrides from RimWellPathCompletionsInterface
     RiaDefines::WellPathComponentType componentType() const override;
-    double                            startMD() const override;
-    double                            endMD() const override;
     QString                           componentLabel() const override;
     QString                           componentTypeLabel() const override;
-
+    cvf::Color3f                      defaultComponentColor() const override;
+    double                            startMD() const override;
+    double                            endMD() const override;
 
 public:
     caf::PdmField<cvf::Color3f>         fishbonesColor;

@@ -68,10 +68,11 @@ public:
 
     // RimWellPathCompletionInterface overrides
     RiaDefines::WellPathComponentType   componentType() const override;
-    double                              startMD() const;
-    double                              endMD() const;
     QString                             componentLabel() const override;
     QString                             componentTypeLabel() const override;
+    cvf::Color3f                        defaultComponentColor() const override;
+    double                              startMD() const;
+    double                              endMD() const;
 
 protected:
     virtual void                        defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;

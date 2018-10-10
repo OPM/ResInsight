@@ -43,6 +43,7 @@ class RivPipeGeometryGenerator;
 class RimProject;
 class RimWellPath;
 class RivFishbonesSubsPartMgr;
+class RimPerforationInterval;
 class RimWellPathCollection;
 class Rim3dView;
 class Riv3dWellLogPlanePartMgr;
@@ -88,6 +89,10 @@ private:
                                         const caf::DisplayCoordTransform* displayCoordTransform,
                                         double                            characteristicCellSize);
 
+    void appendCasingShoesToModel(cvf::ModelBasicList*              model,
+                                  const caf::DisplayCoordTransform* displayCoordTransform,
+                                  double                            characteristicCellSize);
+
     void appendImportedFishbonesToModel(cvf::ModelBasicList*              model,
                                         const caf::DisplayCoordTransform* displayCoordTransform,
                                         double                            characteristicCellSize);
@@ -97,6 +102,12 @@ private:
                                    const caf::DisplayCoordTransform* displayCoordTransform,
                                    double                            characteristicCellSize,
                                    bool                              doFlatten);
+
+    void appendPerforationValvesToModel(cvf::ModelBasicList*              model,
+                                        RimPerforationInterval*           perforation,
+                                        double                            wellPathRadius,
+                                        const caf::DisplayCoordTransform* displayCoordTransform,
+                                        RivPipeGeometryGenerator&         geoGenerator);
 
     void appendVirtualTransmissibilitiesToModel(cvf::ModelBasicList*              model,
                                                 size_t                            timeStepIndex,

@@ -20,6 +20,9 @@
 
 #include "RiaDefines.h"
 
+#include "cvfBase.h"
+#include "cvfColor3.h"
+
 //==================================================================================================
 // Interface implemented by all well path construction components and completions
 // 
@@ -29,10 +32,11 @@ class RimWellPathComponentInterface
 {
 public:
     virtual RiaDefines::WellPathComponentType componentType() const = 0;
-    virtual double                            startMD() const = 0;
-    virtual double                            endMD() const = 0;
     virtual QString                           componentLabel() const = 0;
     virtual QString                           componentTypeLabel() const = 0;
+    virtual cvf::Color3f                      defaultComponentColor() const = 0;
+    virtual double                            startMD() const = 0;
+    virtual double                            endMD() const = 0;
 };
 
 

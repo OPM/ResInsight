@@ -64,7 +64,16 @@ public:
     void    setFirstVisibleSegmentIndex(size_t segmentIndex);
     size_t  segmentIndexFromTriangleIndex(size_t triangleIndex) const;
 
-    void cylinderWithCenterLineParts(cvf::Collection<cvf::Part>* destinationParts, const std::vector<cvf::Vec3d>& centerCoords, const cvf::Color3f& color, double radius);
+    void cylinderWithCenterLineParts(cvf::Collection<cvf::Part>*    destinationParts,
+                                     const std::vector<cvf::Vec3d>& centerCoords,
+                                     const cvf::Color3f&            color,
+                                     double                         radius);
+
+    void tubeWithCenterLinePartsAndVariableWidth(cvf::Collection<cvf::Part>*    destinationParts,
+                                                 const std::vector<cvf::Vec3d>& centerCoords,
+                                                 const std::vector<double>&     radii,
+                                                 const cvf::Color3f&            color);
+
 private:
     void clearComputedData();
     void updateFilteredPipeCenterCoords();
@@ -75,6 +84,7 @@ private:
 
     static cvf::ref<cvf::DrawableGeo> generateLine(const cvf::Vec3dArray* coords);
     static cvf::ref<cvf::DrawableGeo> generateExtrudedCylinder(double radius, size_t crossSectionNodeCount,const cvf::Vec3dArray* cylinderCenterCoords);
+    static cvf::ref<cvf::DrawableGeo> generateVariableRadiusTube(size_t crossSectionNodeCount, const cvf::Vec3dArray* cylinderCenterCoords, const std::vector<double>& radii);
 
     static void computeExtrudedCoordsAndNormals(cvf::Vec3d intersectionCoord,
                                                 cvf::Vec3d intersectionPlaneNormal,

@@ -52,8 +52,8 @@ class RiuWellPathComponentPlotItem
 public:
     RiuWellPathComponentPlotItem(const RimWellPath*              wellPath);
 
-    RiuWellPathComponentPlotItem(const RimWellPath*                      wellPath,
-                                 const RimWellPathComponentInterface*   completion);
+    RiuWellPathComponentPlotItem(const RimWellPath*                   wellPath,
+                                 const RimWellPathComponentInterface* completion);
 
     ~RiuWellPathComponentPlotItem();
 
@@ -62,7 +62,7 @@ public:
 
     void    loadDataAndUpdate(bool updateParentPlot);
 
-    RiaDefines::WellPathComponentType completionType() const;
+    RiaDefines::WellPathComponentType componentType() const;
 
     bool xValueRange(double* minimumValue, double* maximumValue) const;
     bool yValueRange(double* minimumValue, double* maximumValue) const;
@@ -126,6 +126,7 @@ private:
     double                                  m_endMD;
     QString                                 m_label;
     QString                                 m_legendTitle;
+    cvf::Color3f                            m_baseColor;
 
     RimWellLogPlot::DepthTypeEnum           m_depthType;
     QPointer<QwtPlot>                       m_parentQwtPlot;

@@ -23,7 +23,6 @@
 #include "cafPdmObject.h"
 
 #include "cafAppEnum.h"
-#include "cvfBase.h"
 #include "cafPdmField.h"
 
 #include <QList>
@@ -44,11 +43,12 @@ public:
 
     // Overrides from RimWellPathCompletionInterface
     RiaDefines::WellPathComponentType componentType() const override;
+    QString                           componentLabel() const override;
+    QString                           componentTypeLabel() const override;
+    cvf::Color3f                      defaultComponentColor() const override;
     double                            startMD() const override;
     double                            endMD() const override;
-    QString                           componentLabel() const override;
-    QString                           componentTypeLabel() const override;   
-    
+
 private:
     virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
     virtual void                          fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;

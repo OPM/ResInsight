@@ -38,7 +38,10 @@
 #include "RimPerforationCollection.h"
 #include "RimPerforationInterval.h"
 #include "RimWellPath.h"
+#include "RimWellPathAttribute.h"
+#include "RimWellPathAttributeCollection.h"
 #include "RimWellPathCollection.h"
+#include "RimWellPathValve.h"
 
 #include "RimWellPathFractureCollection.h"
 #include "RimWellPathFracture.h"
@@ -158,6 +161,52 @@ void RivWellPathPartMgr::appendFishboneSubsPartsToModel(cvf::ModelBasicList* mod
         fishbSubPartMgr->appendGeometryPartsToModel(model, displayCoordTransform, characteristicCellSize);
     }
 }
+
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RivWellPathPartMgr::appendCasingShoesToModel(cvf::ModelBasicList*              model,
+                                                  const caf::DisplayCoordTransform* displayCoordTransform,
+                                                  double                            characteristicCellSize)
+{
+    if (!m_rimWellPath) return;
+
+    RivPipeGeometryGenerator          geoGenerator;
+    std::vector<RimWellPathAttribute*> attributes = m_rimWellPath->attributeCollection()->attributes();
+    
+    for (RimWellPathAttribute* attribute : attributes)
+    {
+        if (attribute->componentType() == RiaDefines::CASING)
+        {
+            double wellPathRadius = this->wellPathRadius(characteristicCellSize, this->wellPathCollection());
+            double endMD = attribute->endMD();
+            double shoeStartMD = endMD - 2.5;
+
+            std::vector<cvf::Vec3d> displayCoords;
+            displayCoords.push_back(displayCoordTransform->transformToDisplayCoord(m_rimWellPath->wellPathGeometry()->interpolatedPointAlongWellPath(shoeStartMD)));
+            displayCoords.push_back(displayCoordTransform->transformToDisplayCoord(m_rimWellPath->wellPathGeometry()->interpolatedPointAlongWellPath(endMD)));
+            displayCoords.push_back(displayCoordTransform->transformToDisplayCoord(m_rimWellPath->wellPathGeometry()->interpolatedPointAlongWellPath(endMD)));
+
+            std::vector<double> radii;
+            radii.push_back(wellPathRadius);
+            radii.push_back(wellPathRadius * 2.0);
+            radii.push_back(wellPathRadius * 1.1);
+
+            cvf::ref<RivObjectSourceInfo> objectSourceInfo = new RivObjectSourceInfo(attribute);
+
+            cvf::Collection<cvf::Part> parts;
+            geoGenerator.tubeWithCenterLinePartsAndVariableWidth(&parts, displayCoords, radii, attribute->defaultComponentColor());
+            for (auto part : parts)
+            {
+                part->setSourceInfo(objectSourceInfo.p());
+                model->addPart(part.p());
+            }
+
+        }        
+    }
+}
+
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -282,15 +331,95 @@ void RivWellPathPartMgr::appendPerforationsToModel(cvf::ModelBasicList* model,
                 perfIntervalCLDiplayCS.push_back( displayCoordTransform->transformToDisplayCoord(point));
             }
         }
-
-        cvf::ref<RivObjectSourceInfo> objectSourceInfo = new RivObjectSourceInfo(perforation);
-
-        cvf::Collection<cvf::Part> parts;
-        geoGenerator.cylinderWithCenterLineParts(&parts, perfIntervalCLDiplayCS, cvf::Color3f::GREEN, perforationRadius);
-        for (auto part : parts)
         {
-            part->setSourceInfo(objectSourceInfo.p());
-            model->addPart(part.p());
+            cvf::ref<RivObjectSourceInfo> objectSourceInfo = new RivObjectSourceInfo(perforation);
+
+            cvf::Collection<cvf::Part> parts;
+            geoGenerator.cylinderWithCenterLineParts(&parts, perfIntervalCLDiplayCS, cvf::Color3f::GREEN, perforationRadius);
+            for (auto part : parts)
+            {
+                part->setSourceInfo(objectSourceInfo.p());
+                model->addPart(part.p());
+            }
+        }
+
+        appendPerforationValvesToModel(model, perforation, wellPathRadius, displayCoordTransform, geoGenerator);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RivWellPathPartMgr::appendPerforationValvesToModel(cvf::ModelBasicList* model, RimPerforationInterval* perforation, double wellPathRadius, const caf::DisplayCoordTransform* displayCoordTransform, RivPipeGeometryGenerator &geoGenerator)
+{
+    // Valves
+    {
+        for (RimWellPathValve* valve : perforation->valves())
+        {
+            if (!valve->isChecked()) continue;
+
+            std::vector<double> measuredDepthsRelativeToStartMD;
+            std::vector<double> radii;
+            cvf::Color3f valveColor = valve->defaultComponentColor();
+            if (valve->componentType() == RiaDefines::ICV)
+            {
+                measuredDepthsRelativeToStartMD = { 0.0, 1.0, 1.5, 4.0, 5.0, 5.5, 8.0, 9.0 };
+                radii = { wellPathRadius, wellPathRadius * 1.8, wellPathRadius * 2.0,
+                          wellPathRadius * 2.0, wellPathRadius * 1.8,
+                          wellPathRadius * 1.7, wellPathRadius * 1.7, wellPathRadius };
+            }
+            else if (valve->componentType() == RiaDefines::ICD || valve->componentType() == RiaDefines::AICD)
+            {
+                int size = 16;
+
+                measuredDepthsRelativeToStartMD.resize(size);
+                radii.resize(size);
+                for (int i = 0; i < size; i += 2)
+                {
+                    measuredDepthsRelativeToStartMD[i] = double(i / 2);
+                    measuredDepthsRelativeToStartMD[i + 1] = double(i / 2 + 0.5);
+                }
+                radii[0] = wellPathRadius;
+                bool inner  = false;
+                int nInners = 0;
+                for (size_t i = 1; i < size; i += 2)
+                {
+                    if (inner && valve->componentType() == RiaDefines::AICD && nInners > 0)
+                    {
+                        radii[i + 1] = radii[i] = wellPathRadius * 1.7;
+                        nInners = 0;
+                    }
+                    else if (inner)
+                    {
+                        radii[i + 1] = radii[i] = wellPathRadius * 1.9;
+                        nInners++;
+                    }
+                    else
+                    {
+                        radii[i + 1] = radii[i] = wellPathRadius * 2.0;
+                    }
+                    inner = !inner;
+                }
+                radii[size - 1] = wellPathRadius;
+            }
+            double startMD = valve->startMD();
+
+            std::vector<cvf::Vec3d> displayCoords;
+            for (double mdRelativeToStart : measuredDepthsRelativeToStartMD)
+            {
+                displayCoords.push_back(displayCoordTransform->transformToDisplayCoord(
+                    m_rimWellPath->wellPathGeometry()->interpolatedPointAlongWellPath(mdRelativeToStart + startMD)));
+            }
+
+            cvf::ref<RivObjectSourceInfo> objectSourceInfo = new RivObjectSourceInfo(valve);
+
+            cvf::Collection<cvf::Part> parts;
+            geoGenerator.tubeWithCenterLinePartsAndVariableWidth(&parts, displayCoords, radii, valveColor);
+            for (auto part : parts)
+            {
+                part->setSourceInfo(objectSourceInfo.p());
+                model->addPart(part.p());
+            }
         }
     }
 }
@@ -502,6 +631,7 @@ void RivWellPathPartMgr::appendStaticGeometryPartsToModel(cvf::ModelBasicList*  
 
     appendFishboneSubsPartsToModel(model, displayCoordTransform, characteristicCellSize);
     appendImportedFishbonesToModel(model, displayCoordTransform, characteristicCellSize);
+    appendCasingShoesToModel(model, displayCoordTransform, characteristicCellSize);
 
     RimGridView* gridView = dynamic_cast<RimGridView*>(m_rimView.p());
     if (!gridView) return;

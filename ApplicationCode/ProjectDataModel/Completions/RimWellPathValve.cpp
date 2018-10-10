@@ -71,22 +71,6 @@ RiaDefines::WellPathComponentType RimWellPathValve::componentType() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RimWellPathValve::startMD() const
-{
-    return m_measuredDepth;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-double RimWellPathValve::endMD() const
-{
-    return m_measuredDepth + 0.5;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 QString RimWellPathValve::componentLabel() const
 {
     return m_type().uiText();
@@ -98,6 +82,42 @@ QString RimWellPathValve::componentLabel() const
 QString RimWellPathValve::componentTypeLabel() const
 {
     return m_type().uiText();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+cvf::Color3f RimWellPathValve::defaultComponentColor() const
+{
+    switch (m_type())
+    {
+    case RiaDefines::ICD:
+        return cvf::Color3f(cvf::Color3::DARK_BLUE);
+    case RiaDefines::AICD:
+        return cvf::Color3f(cvf::Color3::BROWN);
+    case RiaDefines::ICV:
+        return cvf::Color3f(cvf::Color3::DARK_VIOLET);
+    default:
+        break;
+    }
+    CVF_ASSERT(false);
+    return cvf::Color3f(cvf::Color3::BLACK);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimWellPathValve::startMD() const
+{
+    return m_measuredDepth;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimWellPathValve::endMD() const
+{
+    return m_measuredDepth + 0.5;
 }
 
 //--------------------------------------------------------------------------------------------------

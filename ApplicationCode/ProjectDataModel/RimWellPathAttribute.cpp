@@ -18,6 +18,8 @@
 #include "RimWellPathAttribute.h"
 
 #include "RigWellPath.h"
+
+#include "RimProject.h"
 #include "RimWellPathAttributeCollection.h"
 #include "RimWellPath.h"
 
@@ -99,22 +101,6 @@ RiaDefines::WellPathComponentType RimWellPathAttribute::componentType() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RimWellPathAttribute::startMD() const
-{
-    return m_startMD();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-double RimWellPathAttribute::endMD() const
-{
-    return m_endMD();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 QString RimWellPathAttribute::componentLabel() const
 {
     QString fullLabel = componentTypeLabel();
@@ -131,6 +117,42 @@ QString RimWellPathAttribute::componentLabel() const
 QString RimWellPathAttribute::componentTypeLabel() const
 {
     return m_type().uiText();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+cvf::Color3f RimWellPathAttribute::defaultComponentColor() const
+{
+    switch (m_type())
+    {
+    case RiaDefines::CASING:
+        return cvf::Color3::FOREST_GREEN;
+    case RiaDefines::LINER:
+        return cvf::Color3::OLIVE;
+    case RiaDefines::PACKER:
+        return cvf::Color3::GRAY;
+    default:
+        break;
+    }
+    CVF_ASSERT(false);
+    return cvf::Color3f(cvf::Color3::BLACK);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimWellPathAttribute::startMD() const
+{
+    return m_startMD();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimWellPathAttribute::endMD() const
+{
+    return m_endMD();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -212,6 +234,11 @@ void RimWellPathAttribute::fieldChangedByUi(const caf::PdmFieldHandle* changedFi
         RimWellPathAttributeCollection* collection = nullptr;
         this->firstAncestorOrThisOfTypeAsserted(collection);
         collection->updateAllReferringTracks();
+    }
+    {
+        RimProject* proj;
+        this->firstAncestorOrThisOfTypeAsserted(proj);
+        proj->reloadCompletionTypeResultsInAllViews();
     }
 }
 

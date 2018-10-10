@@ -130,10 +130,11 @@ public:
 
     // RimWellPathCompletionsInterface overrides.
     RiaDefines::WellPathComponentType componentType() const override;
-    double                            startMD() const override;
-    double                            endMD() const override;
     QString                           componentLabel() const override;
     QString                           componentTypeLabel() const override;
+    cvf::Color3f                      defaultComponentColor() const override;
+    double                            startMD() const override;
+    double                            endMD() const override;
 
 protected:
     virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;

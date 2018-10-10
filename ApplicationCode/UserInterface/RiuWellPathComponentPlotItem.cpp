@@ -45,6 +45,7 @@
 RiuWellPathComponentPlotItem::RiuWellPathComponentPlotItem(const RimWellPath* wellPath)
     : m_wellPath(wellPath)
     , m_componentType(RiaDefines::WELL_PATH)
+    , m_baseColor(cvf::Color3f(cvf::Color3::LIGHT_GRAY))
     , m_depthType(RimWellLogPlot::MEASURED_DEPTH)
     , m_showLabel(false)
 {
@@ -60,18 +61,19 @@ RiuWellPathComponentPlotItem::RiuWellPathComponentPlotItem(const RimWellPath* we
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuWellPathComponentPlotItem::RiuWellPathComponentPlotItem(const RimWellPath* wellPath, const RimWellPathComponentInterface* completion)
+RiuWellPathComponentPlotItem::RiuWellPathComponentPlotItem(const RimWellPath* wellPath, const RimWellPathComponentInterface* component)
     : m_wellPath(wellPath)
     , m_depthType(RimWellLogPlot::MEASURED_DEPTH)
     , m_showLabel(false)
 {
-    CVF_ASSERT(wellPath && completion);
+    CVF_ASSERT(wellPath && component);
 
-    m_componentType = completion->componentType();
-    m_startMD       = completion->startMD();
-    m_endMD         = completion->endMD();
-    m_label         = completion->componentLabel();
-    m_legendTitle   = completion->componentTypeLabel();
+    m_componentType = component->componentType();
+    m_label         = component->componentLabel();
+    m_legendTitle   = component->componentTypeLabel();
+    m_baseColor     = component->defaultComponentColor();
+    m_startMD       = component->startMD();
+    m_endMD         = component->endMD();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -106,7 +108,7 @@ void RiuWellPathComponentPlotItem::loadDataAndUpdate(bool updateParentPlot)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiaDefines::WellPathComponentType RiuWellPathComponentPlotItem::completionType() const
+RiaDefines::WellPathComponentType RiuWellPathComponentPlotItem::componentType() const
 {
     return m_componentType;
 }
@@ -119,8 +121,6 @@ void RiuWellPathComponentPlotItem::onLoadDataAndUpdate(bool updateParentPlot)
     double startDepth, endDepth;
     std::tie(startDepth, endDepth) = depthsOfDepthType();
     double midDepth = 0.5 * (startDepth + endDepth);
-
-    float completionAlpha = 0.9f;
 
     if (m_componentType == RiaDefines::WELL_PATH)
     {
@@ -141,8 +141,8 @@ void RiuWellPathComponentPlotItem::onLoadDataAndUpdate(bool updateParentPlot)
     }
     else if (m_componentType == RiaDefines::PERFORATION_INTERVAL)
     {
-        addColumnFeature(-0.75, -0.25, startDepth, endDepth, componentColor(completionAlpha), Qt::Dense6Pattern);
-        addColumnFeature(0.25, 0.75, startDepth, endDepth, componentColor(completionAlpha), Qt::Dense6Pattern);
+        addColumnFeature(-0.75, -0.25, startDepth, endDepth, componentColor(), Qt::Dense6Pattern);
+        addColumnFeature(0.25, 0.75, startDepth, endDepth, componentColor(), Qt::Dense6Pattern);
         // Empirically a spacing of around 30 in depth between symbols looks good in the most relevant zoom levels.
         const double markerSpacing = 30;
         const int    markerSize    = 6;
@@ -165,16 +165,16 @@ void RiuWellPathComponentPlotItem::onLoadDataAndUpdate(bool updateParentPlot)
     }
     else if (m_componentType == RiaDefines::FISHBONES)
     {
-        addColumnFeature(-0.75, -0.25, startDepth, endDepth, componentColor(completionAlpha), Qt::BDiagPattern);
-        addColumnFeature(0.25, 0.75, startDepth, endDepth, componentColor(completionAlpha), Qt::FDiagPattern);
+        addColumnFeature(-0.75, -0.25, startDepth, endDepth, componentColor(), Qt::BDiagPattern);
+        addColumnFeature(0.25, 0.75, startDepth, endDepth, componentColor(), Qt::FDiagPattern);
         addMarker(0.75, midDepth, 10, RiuQwtSymbol::SYMBOL_RIGHT_ANGLED_TRIANGLE, componentColor(0.0), label());      
     }
     else if (m_componentType == RiaDefines::FRACTURE)
     {
-        addColumnFeature(-0.75, -0.25, startDepth, endDepth, componentColor(completionAlpha), Qt::SolidPattern);
-        addColumnFeature(0.25, 0.75, startDepth, endDepth, componentColor(completionAlpha), Qt::SolidPattern);
-        addMarker(0.75, startDepth, 10, RiuQwtSymbol::SYMBOL_NONE, componentColor(completionAlpha), "", Qt::AlignTop | Qt::AlignRight, Qt::Horizontal, true);
-        addMarker(0.75, endDepth, 10, RiuQwtSymbol::SYMBOL_NONE, componentColor(completionAlpha), "", Qt::AlignTop | Qt::AlignRight, Qt::Horizontal, true);
+        addColumnFeature(-0.75, -0.25, startDepth, endDepth, componentColor(), Qt::SolidPattern);
+        addColumnFeature(0.25, 0.75, startDepth, endDepth, componentColor(), Qt::SolidPattern);
+        addMarker(0.75, startDepth, 10, RiuQwtSymbol::SYMBOL_NONE, componentColor(), "", Qt::AlignTop | Qt::AlignRight, Qt::Horizontal, true);
+        addMarker(0.75, endDepth, 10, RiuQwtSymbol::SYMBOL_NONE, componentColor(), "", Qt::AlignTop | Qt::AlignRight, Qt::Horizontal, true);
         addMarker(0.75, startDepth, 1, RiuQwtSymbol::SYMBOL_RIGHT_ANGLED_TRIANGLE, cvf::Color4f(cvf::Color3::ORANGE_RED, 0.0f), label(), Qt::AlignTop | Qt::AlignRight);
     }
     else if (m_componentType == RiaDefines::ICD)
@@ -287,22 +287,33 @@ void RiuWellPathComponentPlotItem::addColumnFeature(double startX,
                                                     double endDepth,
                                                     cvf::Color4f baseColor,
                                                     Qt::BrushStyle brushStyle /*= Qt::SolidPattern*/)
-{
-    QwtPlotItem* backgroundShape = createColumnShape(startX, endX, startDepth, endDepth, baseColor, Qt::SolidPattern);
-    m_combinedComponentGroup.addPlotItem(backgroundShape);
-    if (endX >= 0.0)
-    {
-        QwtPlotItem* legendShape = createColumnShape(0.0, 16.0, 0.0, 16.0, baseColor, Qt::SolidPattern);
-        m_combinedComponentGroup.addLegendItem(legendShape);
-    }
+{   
     if (brushStyle != Qt::SolidPattern)
     {
-        // If we're doing a special pattern, draw the pattern in black over the existing pattern
+        // If we're doing a special pattern, draw the background in white first over the existing pattern
+        cvf::Color4f semiTransparentWhite(cvf::Color3f(cvf::Color3::WHITE), 0.9f);
+        QwtPlotItem* backgroundShape = createColumnShape(startX, endX, startDepth, endDepth, semiTransparentWhite, Qt::SolidPattern);
+        m_combinedComponentGroup.addPlotItem(backgroundShape);
+
         QwtPlotItem* patternShape = createColumnShape(startX, endX, startDepth, endDepth, cvf::Color4f(cvf::Color3::BLACK), brushStyle);
         m_combinedComponentGroup.addPlotItem(patternShape);
         if (endX >= 0.0)
         {
+            QwtPlotItem* legendBGShape = createColumnShape(0.0, 16.0, 0.0, 16.0, semiTransparentWhite, Qt::SolidPattern);
+            m_combinedComponentGroup.addLegendItem(legendBGShape);
+
             QwtPlotItem* legendShape = createColumnShape(0.0, 16.0, 0.0, 16.0, cvf::Color4f(cvf::Color3::BLACK), brushStyle);
+            m_combinedComponentGroup.addLegendItem(legendShape);
+        }
+    }
+    else
+    {
+        QwtPlotItem* backgroundShape = createColumnShape(startX, endX, startDepth, endDepth, baseColor, Qt::SolidPattern);
+        m_combinedComponentGroup.addPlotItem(backgroundShape);
+
+        if (endX >= 0.0)
+        {
+            QwtPlotItem* legendShape = createColumnShape(0.0, 16.0, 0.0, 16.0, baseColor, Qt::SolidPattern);
             m_combinedComponentGroup.addLegendItem(legendShape);
         }
     }
@@ -340,20 +351,7 @@ QwtPlotItem* RiuWellPathComponentPlotItem::createColumnShape(double         star
 //--------------------------------------------------------------------------------------------------
 cvf::Color4f RiuWellPathComponentPlotItem::componentColor(float alpha /*= 1.0*/) const
 {
-    const std::map<RiaDefines::WellPathComponentType, cvf::Color3::ColorIdent> colors
-        = {
-            {RiaDefines::WELL_PATH,            cvf::Color3::LIGHT_GRAY},
-            {RiaDefines::CASING,               cvf::Color3::SEA_GREEN},
-            {RiaDefines::LINER,                cvf::Color3::OLIVE},
-            {RiaDefines::PACKER,               cvf::Color3::GRAY},
-            {RiaDefines::PERFORATION_INTERVAL, cvf::Color3::WHITE},
-            {RiaDefines::FISHBONES,            cvf::Color3::WHITE},
-            {RiaDefines::FRACTURE,             cvf::Color3::ORANGE_RED},
-            {RiaDefines::ICD,                  cvf::Color3::DARK_BLUE},
-            {RiaDefines::AICD,                 cvf::Color3::BROWN},
-            {RiaDefines::ICV,                  cvf::Color3::DARK_VIOLET}
-    };
-    return cvf::Color4f(cvf::Color3f(colors.at(m_componentType)), alpha);
+    return cvf::Color4f(m_baseColor, alpha);
 }
 
 //--------------------------------------------------------------------------------------------------
