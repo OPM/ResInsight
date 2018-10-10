@@ -61,11 +61,11 @@ public:
     void                                setUnitSystemSpecificDefaults();
 
     // RimWellPathCompletionInterface overrides
-    virtual RiaDefines::WellPathComponentType componentType() const override;
-    virtual double                            startMD() const;
-    virtual double                            endMD() const;
-    virtual QString                           componentLabel() const override;
-    virtual QString                           componentTypeLabel() const override;
+    RiaDefines::WellPathComponentType componentType() const override;
+    double                            startMD() const;
+    double                            endMD() const;
+    QString                           componentLabel() const override;
+    QString                           componentTypeLabel() const override;
 
 protected:
     virtual void                        defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;

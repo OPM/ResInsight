@@ -46,11 +46,11 @@ public:
     void           setDepthsFromWellPath(const RimWellPath* wellPath);
 
     // Overrides from RimWellPathCompletionInterface
-    virtual RiaDefines::WellPathComponentType componentType() const override;
-    virtual double                            startMD() const override;
-    virtual double                            endMD() const override;
-    virtual QString                           componentLabel() const override;
-    virtual QString                           componentTypeLabel() const override;   
+    RiaDefines::WellPathComponentType componentType() const override;
+    double                            startMD() const override;
+    double                            endMD() const override;
+    QString                           componentLabel() const override;
+    QString                           componentTypeLabel() const override;   
     
 private:
     bool                                  isDiameterSupported() const;
