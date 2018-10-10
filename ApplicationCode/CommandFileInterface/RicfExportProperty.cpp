@@ -20,6 +20,8 @@
 
 #include "RicfCommandFileExecutor.h"
 
+#include "../Commands/ExportCommands/RicEclipseCellResultToFileImpl.h"
+
 #include "RiaApplication.h"
 #include "RiaLogging.h"
 
@@ -35,8 +37,6 @@
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
 #include "RimEclipseCellColors.h"
-
-#include "RifEclipseInputFileTools.h"
 
 #include "cafUtils.h"
 
@@ -118,7 +118,7 @@ void RicfExportProperty::execute()
         auto resultAccessor = findResult(view, timeStepIndex, propertyType, propertyName);
         if (!resultAccessor.isNull())
         {
-            RifEclipseInputFileTools::writeResultToTextFile(filePath, eclipseCase->eclipseCaseData(), resultAccessor, eclipseKeyword, m_undefinedValue, "exportProperty");
+            RicEclipseCellResultToFileImpl::writeResultToTextFile(filePath, eclipseCase->eclipseCaseData(), resultAccessor.p(), eclipseKeyword, m_undefinedValue, "exportProperty");
         }
         else
         {

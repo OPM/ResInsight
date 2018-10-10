@@ -22,8 +22,7 @@
 #include "RiaApplication.h"
 
 #include "RicExportFeatureImpl.h"
-
-#include "RifEclipseInputFileTools.h"
+#include "RicEclipseCellResultToFileImpl.h"
 
 #include "RimEclipseInputCase.h"
 #include "RimEclipseInputProperty.h"
@@ -106,7 +105,7 @@ void RicSaveEclipseInputPropertyFeature::onActionTriggered(bool isChecked)
 
     if (propertyDialog.exec() == QDialog::Accepted)
     {
-        bool isOk = RifEclipseInputFileTools::writePropertyToTextFile(exportSettings.fileName, inputReservoir->eclipseCaseData(), 0, inputProperty->resultName, exportSettings.eclipseKeyword);
+        bool isOk = RicEclipseCellResultToFileImpl::writePropertyToTextFile(exportSettings.fileName, inputReservoir->eclipseCaseData(), 0, inputProperty->resultName, exportSettings.eclipseKeyword);
         if (isOk)
         {
             inputProperty->fileName = exportSettings.fileName;

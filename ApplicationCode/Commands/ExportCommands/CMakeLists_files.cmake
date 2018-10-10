@@ -21,6 +21,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RicExportVisibleWellPathsFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicExportWellPathsUi.h
 ${CMAKE_CURRENT_LIST_DIR}/RicExportLgrFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicExportLgrUi.h
+${CMAKE_CURRENT_LIST_DIR}/RicEclipseCellResultToFileImpl.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -46,6 +47,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RicExportVisibleWellPathsFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicExportWellPathsUi.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicExportLgrFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicExportLgrUi.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicEclipseCellResultToFileImpl.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

@@ -22,10 +22,8 @@
 #include "RiaLogging.h"
 
 #include "RicExportFeatureImpl.h"
-
+#include "RicEclipseCellResultToFileImpl.h"
 #include "RicSaveEclipseInputVisibleCellsUi.h"
-
-#include "RifEclipseInputFileTools.h"
 
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
@@ -99,7 +97,8 @@ void RicSaveEclipseInputVisibleCellsFeature::executeCommand(RimEclipseView* view
         RiaLogging::error(QString("%1: Unable to open file '%2' for writing.").arg(logPrefix).arg(exportSettings.exportFilename));
         return;
     }
-    RifEclipseInputFileTools::writeDataToTextFile(&exportFile, exportSettings.exportKeyword().text(), values);
+
+    RicEclipseCellResultToFileImpl::writeDataToTextFile(&exportFile, exportSettings.exportKeyword().text(), values);
 }
 
 //--------------------------------------------------------------------------------------------------
