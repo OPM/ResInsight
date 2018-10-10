@@ -22,7 +22,9 @@
 #include "cafCmdFeature.h"
 #include <cafVecIjk.h>
 #include <memory>
+#include <limits>
 
+class RimEclipseCase;
 class RimSimWellInView;
 class RimWellPath;
 class RicExportLgrUi;
@@ -36,13 +38,20 @@ class QTextStream;
 class LgrInfo
 {
 public:
-    LgrInfo(const QString&name, caf::VecIjk& sizes) : name(name), sizes(sizes)
+    LgrInfo(const QString&name,
+            const caf::VecIjk& sizes,
+            const caf::VecIjk& mainGridStartCell,
+            const caf::VecIjk& mainGridEndCell)
+        : name(name), sizes(sizes), mainGridStartCell(mainGridStartCell), mainGridEndCell(mainGridEndCell)
     {
     }
 
     QString             name;
     caf::VecIjk         sizes;
     std::vector<double> values;
+
+    caf::VecIjk         mainGridStartCell;
+    caf::VecIjk         mainGridEndCell;
 };
 
 //==================================================================================================
@@ -52,9 +61,23 @@ class RicExportLgrFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
 
+    typedef std::pair<size_t, size_t> Range;
+    static Range initRange() { return std::make_pair(std::numeric_limits<size_t>::max(), 0); }
+
     static RicExportLgrUi* openDialog();
     static bool openFileForExport(const QString& folderName, const QString& fileName, QFile* exportFile);
-    static void exportLgr(QTextStream& stream, const std::map<RigCompletionDataGridCell, LgrInfo>& lgrInfos);
+    static void exportLgr(QTextStream& stream, const std::vector<LgrInfo>& lgrInfos);
+
+    static std::vector<LgrInfo> buildOneLgrPerMainCell(RimEclipseCase* eclipseCase,
+                                                       const std::vector<RigCompletionDataGridCell>& intersectingCells,
+                                                       const caf::VecIjk& lgrSizes);
+    static std::vector<LgrInfo> buildSingleLgr(RimEclipseCase* eclipseCase,
+                                               const std::vector<RigCompletionDataGridCell>& intersectingCells,
+                                               const caf::VecIjk& lgrSizes);
+
+    static std::vector<RigCompletionDataGridCell> cellsIntersectingCompletions(RimEclipseCase* eclipseCase,
+                                                                              const RimWellPath* wellPath,
+                                                                               size_t timeStep);
 
 protected:
     virtual bool isCommandEnabled() override;
@@ -63,4 +86,5 @@ protected:
 
 private:
     static std::vector<RimWellPath*> selectedWellPaths();
+    static bool containsAnyNonMainGridCells(const std::vector<RigCompletionDataGridCell>& cells);
 };

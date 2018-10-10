@@ -131,3 +131,11 @@ QString RigCompletionDataGridCell::lgrName() const
 {
     return m_lgrName;
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RigCompletionDataGridCell::isMainGridCell() const
+{
+    return m_lgrName.isEmpty();
+}
