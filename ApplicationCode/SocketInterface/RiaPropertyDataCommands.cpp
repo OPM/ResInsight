@@ -641,15 +641,15 @@ public:
                 RimEclipseInputCase* inputRes = dynamic_cast<RimEclipseInputCase*>(m_currentReservoir);
                 if (inputRes)
                 {
-                    RimEclipseInputProperty* inputProperty = inputRes->m_inputPropertyCollection->findInputProperty(m_currentPropertyName);
+                    RimEclipseInputProperty* inputProperty = inputRes->inputPropertyCollection()->findInputProperty(m_currentPropertyName);
                     if (!inputProperty)
                     {
                         inputProperty = new RimEclipseInputProperty;
                         inputProperty->resultName = m_currentPropertyName;
                         inputProperty->eclipseKeyword = "";
                         inputProperty->fileName = "";
-                        inputRes->m_inputPropertyCollection->inputProperties.push_back(inputProperty);
-                        inputRes->m_inputPropertyCollection()->updateConnectedEditors();
+                        inputRes->inputPropertyCollection()->inputProperties.push_back(inputProperty);
+                        inputRes->inputPropertyCollection()->updateConnectedEditors();
                     }
                     inputProperty->resolvedState = RimEclipseInputProperty::RESOLVED_NOT_SAVED;
                 }
@@ -1005,15 +1005,15 @@ public:
                 RimEclipseInputCase* inputRes = dynamic_cast<RimEclipseInputCase*>(m_currentReservoir);
                 if (inputRes)
                 {
-                    RimEclipseInputProperty* inputProperty = inputRes->m_inputPropertyCollection->findInputProperty(m_currentPropertyName);
+                    RimEclipseInputProperty* inputProperty = inputRes->inputPropertyCollection()->findInputProperty(m_currentPropertyName);
                     if (!inputProperty)
                     {
                         inputProperty = new RimEclipseInputProperty;
                         inputProperty->resultName = m_currentPropertyName;
                         inputProperty->eclipseKeyword = "";
                         inputProperty->fileName = "";
-                        inputRes->m_inputPropertyCollection->inputProperties.push_back(inputProperty);
-                        inputRes->m_inputPropertyCollection()->updateConnectedEditors();
+                        inputRes->inputPropertyCollection()->inputProperties.push_back(inputProperty);
+                        inputRes->inputPropertyCollection()->updateConnectedEditors();
                     }
                     inputProperty->resolvedState = RimEclipseInputProperty::RESOLVED_NOT_SAVED;
                 }

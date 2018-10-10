@@ -39,6 +39,7 @@
 #include "RimReservoirCellResultsStorage.h"
 #include "RimTools.h"
 
+#include "cafPdmUiTreeOrdering.h"
 #include "cafProgressInfo.h"
 
 #include <QFileInfo>
@@ -311,7 +312,7 @@ void RimEclipseInputCase::loadAndSyncronizeInputProperties()
         progInfo.setProgress(static_cast<int>(progress +  inputPropCount));
         // Check if there are more known property keywords left on file. If it is, read them and create inputProperty objects
 
-        for (const QString fileKeyword : fileKeywordSet)
+        for (const QString& fileKeyword : fileKeywordSet)
         {
             {
                 QString resultName = this->eclipseCaseData()->results(RiaDefines::MATRIX_MODEL)->makeResultNameUnique(fileKeyword);
@@ -337,6 +338,14 @@ void RimEclipseInputCase::loadAndSyncronizeInputProperties()
             m_inputPropertyCollection->inputProperties[i]->resolvedState = RimEclipseInputProperty::FILE_MISSING;
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimEclipseInputPropertyCollection* RimEclipseInputCase::inputPropertyCollection()
+{
+    return m_inputPropertyCollection();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -400,6 +409,16 @@ void RimEclipseInputCase::defineUiOrdering(QString uiConfigName, caf::PdmUiOrder
     group->add(&m_flipXAxis);
     group->add(&m_flipYAxis);
 
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimEclipseInputCase::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/)
+{
+    uiTreeOrdering.add(&m_inputPropertyCollection);
+
+    RimEclipseCase::defineUiTreeOrdering(uiTreeOrdering, uiConfigName);
 }
 
 //--------------------------------------------------------------------------------------------------
