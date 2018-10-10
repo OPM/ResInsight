@@ -2294,6 +2294,9 @@ double RicWellPathExportCompletionDataFeatureImpl::calculateTransmissibility(Rim
     cvf::ref<RigResultAccessor> permzAccessObject =
         RigResultAccessorFactory::createFromUiResultName(eclipseCaseData, 0, RiaDefines::MATRIX_MODEL, 0, "PERMZ");
 
+    if (dxAccessObject.isNull() || dyAccessObject.isNull() || dzAccessObject.isNull() ||
+        permxAccessObject.isNull() || permyAccessObject.isNull() || permzAccessObject.isNull()) return std::numeric_limits<double>::infinity();
+
     double ntg = 1.0;
     {
         // Trigger loading from file
@@ -2359,6 +2362,8 @@ double RicWellPathExportCompletionDataFeatureImpl::calculateDFactor(RimEclipseCa
     cvf::ref<RigResultAccessor> permzAccessObject =
         RigResultAccessorFactory::createFromUiResultName(eclipseCaseData, 0, RiaDefines::MATRIX_MODEL, 0, "PERMZ");
 
+    if (permxAccessObject.isNull() || permyAccessObject.isNull() || permzAccessObject.isNull()) return std::numeric_limits<double>::infinity();
+
     double permx = permxAccessObject->cellScalarGlobIdx(globalCellIndex);
     double permy = permyAccessObject->cellScalarGlobIdx(globalCellIndex);
     double permz = permzAccessObject->cellScalarGlobIdx(globalCellIndex);
@@ -2410,6 +2415,8 @@ double RicWellPathExportCompletionDataFeatureImpl::calculateKh(RimEclipseCase* e
     eclipseCase->results(RiaDefines::MATRIX_MODEL)->findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, "PERMZ");
     cvf::ref<RigResultAccessor> permzAccessObject =
         RigResultAccessorFactory::createFromUiResultName(eclipseCaseData, 0, RiaDefines::MATRIX_MODEL, 0, "PERMZ");
+
+    if (permxAccessObject.isNull() || permyAccessObject.isNull() || permzAccessObject.isNull()) return std::numeric_limits<double>::infinity();
 
     double permx = permxAccessObject->cellScalarGlobIdx(globalCellIndex);
     double permy = permyAccessObject->cellScalarGlobIdx(globalCellIndex);
