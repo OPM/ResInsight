@@ -26,9 +26,12 @@
 #include "RiaEclipseUnitTools.h"
 
 #include "cafPdmField.h"
+#include "cafPdmChildArrayField.h"
 #include "cafPdmObject.h"
 
 #include <QDate>
+
+class RimWellPathValve;
 
 //==================================================================================================
 ///  
@@ -60,12 +63,15 @@ public:
 
     void                                setUnitSystemSpecificDefaults();
 
+    void                                addValve(RimWellPathValve* valve);
+    std::vector<RimWellPathValve*>      valves() const;
+
     // RimWellPathCompletionInterface overrides
-    RiaDefines::WellPathComponentType componentType() const override;
-    double                            startMD() const;
-    double                            endMD() const;
-    QString                           componentLabel() const override;
-    QString                           componentTypeLabel() const override;
+    RiaDefines::WellPathComponentType   componentType() const override;
+    double                              startMD() const;
+    double                              endMD() const;
+    QString                             componentLabel() const override;
+    QString                             componentTypeLabel() const override;
 
 protected:
     virtual void                        defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
@@ -85,6 +91,8 @@ private:
 
     caf::PdmField< bool >               m_useCustomEndDate;
     caf::PdmField< QDateTime >          m_endDate;
+
+    caf::PdmChildArrayField<RimWellPathValve*> m_valves;
 
     caf::PdmField< bool >               m_startOfHistory_OBSOLETE;
 };

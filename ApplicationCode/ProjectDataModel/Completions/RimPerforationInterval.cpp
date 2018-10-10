@@ -24,6 +24,7 @@
 
 #include "RimProject.h"
 #include "RimWellPath.h"
+#include "RimWellPathValve.h"
 
 #include "cafPdmUiDateEditor.h"
 #include "cafPdmUiDoubleSliderEditor.h"
@@ -50,6 +51,9 @@ RimPerforationInterval::RimPerforationInterval()
 
     CAF_PDM_InitField(&m_useCustomEndDate,  "UseCustomEndDate", false,                          "Custom End Date", "", "", "");
     CAF_PDM_InitField(&m_endDate,           "EndDate",            QDateTime::currentDateTime(), "End Date", "", "", "");
+
+    CAF_PDM_InitFieldNoDefault(&m_valves, "Valves", "Valves", "", "", "");
+    m_valves.uiCapability()->setUiHidden(true);
 
     nameField()->uiCapability()->setUiReadOnly(true);
 
@@ -203,6 +207,27 @@ void RimPerforationInterval::setUnitSystemSpecificDefaults()
             m_diameter = 0.709;
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPerforationInterval::addValve(RimWellPathValve* valve)
+{
+    m_valves.push_back(valve);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimWellPathValve*> RimPerforationInterval::valves() const
+{
+    std::vector<RimWellPathValve*> allValves;
+    for (RimWellPathValve* valve : m_valves())
+    {
+        allValves.push_back(valve);
+    }
+    return allValves;
 }
 
 //--------------------------------------------------------------------------------------------------

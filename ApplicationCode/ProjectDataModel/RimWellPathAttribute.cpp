@@ -149,7 +149,7 @@ QList<caf::PdmOptionItemInfo> RimWellPathAttribute::calculateValueOptions(const 
     QList<caf::PdmOptionItemInfo> options;
     if (fieldNeedingOptions == &m_type)
     {
-        std::set<RiaDefines::WellPathComponentType> supportedTypes = { RiaDefines::CASING, RiaDefines::LINER, RiaDefines::PACKER };
+        std::set<RiaDefines::WellPathComponentType> supportedTypes = { RiaDefines::CASING, RiaDefines::LINER, RiaDefines::PACKER, RiaDefines::ICD, RiaDefines::AICD, RiaDefines::ICV };
         for (RiaDefines::WellPathComponentType type : supportedTypes)
         {
             options.push_back(caf::PdmOptionItemInfo(CompletionTypeEnum::uiText(type), type));

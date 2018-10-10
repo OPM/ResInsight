@@ -6,6 +6,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RicNewFishbonesSubsAtMeasuredDepthFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicNewFishbonesSubsFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicNewPerforationIntervalFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicNewPerforationIntervalAtMeasuredDepthFeature.h
+${CMAKE_CURRENT_LIST_DIR}/RicNewValveFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicWellPathImportCompletionsFileFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicWellPathImportPerforationIntervalsFeature.h
 )
@@ -17,6 +18,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RicNewFishbonesSubsAtMeasuredDepthFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicNewFishbonesSubsFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicNewPerforationIntervalFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicNewPerforationIntervalAtMeasuredDepthFeature.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicNewValveFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicWellPathImportCompletionsFileFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicWellPathImportPerforationIntervalsFeature.cpp
 )

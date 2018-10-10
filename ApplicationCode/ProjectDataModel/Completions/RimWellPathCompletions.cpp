@@ -28,6 +28,7 @@
 #include "RimWellPathFractureCollection.h"
 #include "RimWellPathFracture.h"
 #include "RimWellPathComponentInterface.h"
+#include "RimWellPathValve.h"
 
 #include "cvfAssert.h"
 
@@ -172,6 +173,16 @@ RimWellPathFractureCollection* RimWellPathCompletions::fractureCollection() cons
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::vector<RimWellPathValve*> RimWellPathCompletions::valves() const
+{
+    std::vector<RimWellPathValve*> allValves;
+    this->descendantsIncludingThisOfType(allValves);
+    return allValves;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::vector<const RimWellPathComponentInterface*> RimWellPathCompletions::allCompletions() const
 {
     std::vector<const RimWellPathComponentInterface*> completions;
@@ -187,6 +198,12 @@ std::vector<const RimWellPathComponentInterface*> RimWellPathCompletions::allCom
     for (const RimPerforationInterval* perforation : perforationCollection()->perforations())
     {
         completions.push_back(perforation);
+    }
+
+    std::vector<RimWellPathValve*> allValves = valves();
+    for (const RimWellPathValve* valve : allValves)
+    {
+        completions.push_back(valve);
     }
 
     return completions;

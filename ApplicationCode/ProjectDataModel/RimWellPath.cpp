@@ -400,6 +400,22 @@ RimWellLogFile* RimWellPath::firstWellLogFileMatchingChannelName(const QString& 
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimWellPathAttributeCollection* RimWellPath::attributeCollection()
+{
+    return m_wellPathAttributes;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const RimWellPathAttributeCollection* RimWellPath::attributeCollection() const
+{
+    return m_wellPathAttributes;
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 bool RimWellPath::showWellPathLabel() const

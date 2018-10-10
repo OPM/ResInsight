@@ -294,6 +294,8 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicNewWellPathFractureFeature";
             menuBuilder << "RicNewFishbonesSubsFeature";
             menuBuilder << "RicNewPerforationIntervalFeature";
+            menuBuilder << "RicNewValveFeature";
+
             menuBuilder << "RicEditPerforationCollectionFeature";
             menuBuilder.subMenuEnd();
 
@@ -706,6 +708,10 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         if (!menuBuilder.isCmdFeatureAdded("RicNewPerforationIntervalFeature"))
         {
             menuBuilder << "RicNewPerforationIntervalFeature";
+        }
+        if (!menuBuilder.isCmdFeatureAdded("RicNewValveFeature"))
+        {
+            menuBuilder << "RicNewValveFeature";
         }
 
         menuBuilder << "RicEditPerforationCollectionFeature";

@@ -101,13 +101,15 @@ public:
     void                                add3dWellLogCurve(Rim3dWellLogCurve* rim3dWellLogCurve);
     Rim3dWellLogCurveCollection*        rim3dWellLogCurveCollection() const;
 
-    const RimWellPathCompletions*        completions() const;
-    RimFishbonesCollection*              fishbonesCollection();
-    const RimFishbonesCollection*        fishbonesCollection() const;
-    RimPerforationCollection*            perforationIntervalCollection();
-    const RimPerforationCollection*      perforationIntervalCollection() const;
-    RimWellPathFractureCollection*       fractureCollection();
-    const RimWellPathFractureCollection* fractureCollection() const;
+    const RimWellPathCompletions*         completions() const;
+    RimFishbonesCollection*               fishbonesCollection();
+    const RimFishbonesCollection*         fishbonesCollection() const;
+    RimPerforationCollection*             perforationIntervalCollection();
+    const RimPerforationCollection*       perforationIntervalCollection() const;
+    RimWellPathFractureCollection*        fractureCollection();
+    const RimWellPathFractureCollection*  fractureCollection() const;
+    RimWellPathAttributeCollection*       attributeCollection();
+    const RimWellPathAttributeCollection* attributeCollection() const;
 
     bool                                showWellPathLabel() const;
     bool                                showWellPath() const;

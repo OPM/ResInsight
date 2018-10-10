@@ -26,7 +26,7 @@ class RimFishbonesCollection;
 class RimPerforationCollection;
 class RimWellPathFractureCollection;
 class RimWellPathComponentInterface;
-
+class RimWellPathValve;
 
 //==================================================================================================
 ///  
@@ -45,6 +45,7 @@ public:
     RimFishbonesCollection*        fishbonesCollection() const;
     RimPerforationCollection*      perforationCollection() const;
     RimWellPathFractureCollection* fractureCollection() const;
+    std::vector<RimWellPathValve*> valves() const;
 
     std::vector<const RimWellPathComponentInterface*> allCompletions() const;
 
