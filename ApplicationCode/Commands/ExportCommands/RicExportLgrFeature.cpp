@@ -55,6 +55,7 @@
 #include <cafVecIjk.h>
 #include <cafUtils.h>
 
+#include <limits>
 
 CAF_CMD_SOURCE_INIT(RicExportLgrFeature, "RicExportLgrFeature");
 
@@ -132,7 +133,7 @@ bool RicExportLgrFeature::openFileForExport(const QString& folderName, const QSt
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicExportLgrFeature::exportLgr(QTextStream& stream, const std::vector<LgrInfo>& lgrInfos)
+void RicExportLgrFeature::exportLgrs(QTextStream& stream, const std::vector<LgrInfo>& lgrInfos)
 {
     int count = 0;
     for (auto lgrInfo : lgrInfos)
@@ -171,7 +172,10 @@ void RicExportLgrFeature::exportLgr(QTextStream& stream, const std::vector<LgrIn
             formatter.tableCompleted("", false);
         }
 
-        RifEclipseDataTableFormatter::addValueTable(stream, "PORO", 8, lgrInfo.values);
+        if (!lgrInfo.values.empty())
+        {
+            RifEclipseDataTableFormatter::addValueTable(stream, "PORO", 8, lgrInfo.values);
+        }
 
         {
             RifEclipseDataTableFormatter formatter(stream);
@@ -195,10 +199,11 @@ std::vector<LgrInfo> RicExportLgrFeature::buildOneLgrPerMainCell(RimEclipseCase*
     cvf::ref<RigResultAccessor> poroAccessObject =
         RigResultAccessorFactory::createFromUiResultName(eclipseCase->eclipseCaseData(), 0, RiaDefines::MATRIX_MODEL, 0, "PORO");
 
+    bool poroExists = !poroAccessObject.isNull();
     for (const auto& intersectingCell : intersectingCells)
     {
         size_t globCellIndex = intersectingCell.globalCellIndex();
-        double poro = poroAccessObject->cellScalarGlobIdx(globCellIndex);
+        double poro = poroExists ? poroAccessObject->cellScalarGlobIdx(globCellIndex) : std::numeric_limits<double>::infinity();
 
         std::vector<double> lgrValues;
 
@@ -221,7 +226,7 @@ std::vector<LgrInfo> RicExportLgrFeature::buildOneLgrPerMainCell(RimEclipseCase*
                                     intersectingCell.localCellIndexK());
 
         LgrInfo lgrInfo(QString("LGR_%1").arg(++lgrCount), lgrSizes, mainGridFirstCell, mainGridEndCell);
-        lgrInfo.values = lgrValues;
+        if(poroExists) lgrInfo.values = lgrValues;
         lgrs.push_back(lgrInfo);
     }
 
@@ -256,6 +261,7 @@ std::vector<LgrInfo> RicExportLgrFeature::buildSingleLgr(RimEclipseCase* eclipse
         kRange.second = std::max(cell.localCellIndexK(), kRange.second);
     }
 
+    bool poroExists = !poroAccessObject.isNull();
     auto mainGrid = eclipseCase->mainGrid();
     std::vector<double> lgrValues;
     for (size_t mainK = kRange.first; mainK <= kRange.second; mainK++)
@@ -266,7 +272,7 @@ std::vector<LgrInfo> RicExportLgrFeature::buildSingleLgr(RimEclipseCase* eclipse
             {
                 size_t globCellIndex = mainGrid->cellIndexFromIJK(mainI, mainJ, mainK);
 
-                double poro = poroAccessObject->cellScalarGlobIdx(globCellIndex);
+                double poro = poroExists ? poroAccessObject->cellScalarGlobIdx(globCellIndex) : std::numeric_limits<double>::infinity();
 
                 for (size_t k = 0; k < lgrSizes.k(); k++)
                 {
@@ -287,7 +293,7 @@ std::vector<LgrInfo> RicExportLgrFeature::buildSingleLgr(RimEclipseCase* eclipse
     caf::VecIjk mainGridEndCell(iRange.second, jRange.second, kRange.second);
 
     LgrInfo lgrInfo(QString("LGR_1"), lgrSizes, mainGridStartCell, mainGridEndCell);
-    lgrInfo.values = lgrValues;
+    if(poroExists) lgrInfo.values = lgrValues;
     lgrs.push_back(lgrInfo);
 
     return lgrs;
@@ -369,7 +375,7 @@ void RicExportLgrFeature::onActionTriggered(bool isChecked)
             QTextStream stream(&file);
             stream.setRealNumberNotation(QTextStream::FixedNotation);
             stream.setRealNumberPrecision(2);
-            exportLgr(stream, lgrs);
+            exportLgrs(stream, lgrs);
             file.close();
         }
 

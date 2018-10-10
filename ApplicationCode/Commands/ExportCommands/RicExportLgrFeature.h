@@ -66,7 +66,7 @@ class RicExportLgrFeature : public caf::CmdFeature
 
     static RicExportLgrUi* openDialog();
     static bool openFileForExport(const QString& folderName, const QString& fileName, QFile* exportFile);
-    static void exportLgr(QTextStream& stream, const std::vector<LgrInfo>& lgrInfos);
+    static void exportLgrs(QTextStream& stream, const std::vector<LgrInfo>& lgrInfos);
 
     static std::vector<LgrInfo> buildOneLgrPerMainCell(RimEclipseCase* eclipseCase,
                                                        const std::vector<RigCompletionDataGridCell>& intersectingCells,
