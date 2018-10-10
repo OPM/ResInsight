@@ -81,9 +81,10 @@ void RicExportVisibleWellPathsFeature::exportWellPath(const RimWellPath* wellPat
 //--------------------------------------------------------------------------------------------------
 bool RicExportVisibleWellPathsFeature::isCommandEnabled()
 {
-    std::vector<RimWellPath*> wellPaths = RicExportCompletionsForVisibleWellPathsFeature::visibleWellPaths();
+    std::vector<RimWellPath*> selectedWellPaths = caf::selectedObjectsByTypeStrict<RimWellPath*>();
+    std::vector<RimWellPath*> visibleWellPaths = RicExportCompletionsForVisibleWellPathsFeature::visibleWellPaths();
 
-    return !wellPaths.empty();
+    return !selectedWellPaths.empty() && !visibleWellPaths.empty();
 }
 
 //--------------------------------------------------------------------------------------------------
