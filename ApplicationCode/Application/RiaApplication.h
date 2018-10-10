@@ -116,6 +116,7 @@ public:
 
     QString             lastUsedDialogDirectory(const QString& dialogName);
     QString             lastUsedDialogDirectoryWithFallbackToProjectFolder(const QString& dialogName);
+    QString             lastUsedDialogDirectoryWithFallback(const QString& dialogName, const QString& fallbackDirectory);
     void                setLastUsedDialogDirectory(const QString& dialogName, const QString& directory);
 
     bool                openFile(const QString& fileName);
@@ -214,8 +215,6 @@ private:
     
     void                    loadAndUpdatePlotData();
     
-    QString                 lastUsedDialogDirectoryWithFallback(const QString& dialogName, const QString& fallbackDirectory);
-
     void                    storeTreeViewState();
 
     friend RiaArgumentParser;
