@@ -18,6 +18,7 @@
 
 #include "RiuWellPathComponentPlotItem.h"
 
+#include "RiaColorTables.h"
 #include "RiaColorTools.h"
 
 #include "RimFishbonesMultipleSubs.h"
@@ -45,7 +46,6 @@
 RiuWellPathComponentPlotItem::RiuWellPathComponentPlotItem(const RimWellPath* wellPath)
     : m_wellPath(wellPath)
     , m_componentType(RiaDefines::WELL_PATH)
-    , m_baseColor(cvf::Color3f(cvf::Color3::LIGHT_GRAY))
     , m_depthType(RimWellLogPlot::MEASURED_DEPTH)
     , m_showLabel(false)
 {
@@ -71,7 +71,6 @@ RiuWellPathComponentPlotItem::RiuWellPathComponentPlotItem(const RimWellPath* we
     m_componentType = component->componentType();
     m_label         = component->componentLabel();
     m_legendTitle   = component->componentTypeLabel();
-    m_baseColor     = component->defaultComponentColor();
     m_startMD       = component->startMD();
     m_endMD         = component->endMD();
 }
@@ -149,16 +148,16 @@ void RiuWellPathComponentPlotItem::onLoadDataAndUpdate(bool updateParentPlot)
         double markerDepth = startDepth;
         while (markerDepth < endDepth - 5)
         {
-            addMarker(-0.75, markerDepth, markerSize, RiuQwtSymbol::SYMBOL_LEFT_TRIANGLE, symbolColor());
-            addMarker(0.75,  markerDepth, markerSize, RiuQwtSymbol::SYMBOL_RIGHT_TRIANGLE, symbolColor());
+            addMarker(-0.75, markerDepth, markerSize, RiuQwtSymbol::SYMBOL_LEFT_TRIANGLE, componentColor());
+            addMarker(0.75,  markerDepth, markerSize, RiuQwtSymbol::SYMBOL_RIGHT_TRIANGLE, componentColor());
 
             markerDepth += markerSpacing;
         }
-        addMarker(0.75, midDepth, 10, RiuQwtSymbol::SYMBOL_RIGHT_TRIANGLE, symbolColor(0.0), label());
+        addMarker(0.75, midDepth, 10, RiuQwtSymbol::SYMBOL_RIGHT_TRIANGLE, componentColor(0.0), label());
 
-        QwtPlotItem* legendItem1 = createMarker(16.0, 0.0, 6, RiuQwtSymbol::SYMBOL_RIGHT_TRIANGLE, symbolColor());
+        QwtPlotItem* legendItem1 = createMarker(16.0, 0.0, 6, RiuQwtSymbol::SYMBOL_RIGHT_TRIANGLE, componentColor());
         legendItem1->setLegendIconSize(QSize(4, 8));
-        QwtPlotItem* legendItem2 = createMarker(16.0, 8.0, 6, RiuQwtSymbol::SYMBOL_RIGHT_TRIANGLE, symbolColor());
+        QwtPlotItem* legendItem2 = createMarker(16.0, 8.0, 6, RiuQwtSymbol::SYMBOL_RIGHT_TRIANGLE, componentColor());
         legendItem2->setLegendIconSize(QSize(4, 8));
         m_combinedComponentGroup.addLegendItem(legendItem1);
         m_combinedComponentGroup.addLegendItem(legendItem2);
@@ -175,7 +174,7 @@ void RiuWellPathComponentPlotItem::onLoadDataAndUpdate(bool updateParentPlot)
         addColumnFeature(0.25, 0.75, startDepth, endDepth, componentColor(), Qt::SolidPattern);
         addMarker(0.75, startDepth, 10, RiuQwtSymbol::SYMBOL_NONE, componentColor(), "", Qt::AlignTop | Qt::AlignRight, Qt::Horizontal, true);
         addMarker(0.75, endDepth, 10, RiuQwtSymbol::SYMBOL_NONE, componentColor(), "", Qt::AlignTop | Qt::AlignRight, Qt::Horizontal, true);
-        addMarker(0.75, startDepth, 1, RiuQwtSymbol::SYMBOL_RIGHT_ANGLED_TRIANGLE, cvf::Color4f(cvf::Color3::ORANGE_RED, 0.0f), label(), Qt::AlignTop | Qt::AlignRight);
+        addMarker(0.75, startDepth, 1, RiuQwtSymbol::SYMBOL_RIGHT_ANGLED_TRIANGLE, componentColor(0.0f), label(), Qt::AlignTop | Qt::AlignRight);
     }
     else if (m_componentType == RiaDefines::ICD)
     {
@@ -295,14 +294,14 @@ void RiuWellPathComponentPlotItem::addColumnFeature(double startX,
         QwtPlotItem* backgroundShape = createColumnShape(startX, endX, startDepth, endDepth, semiTransparentWhite, Qt::SolidPattern);
         m_combinedComponentGroup.addPlotItem(backgroundShape);
 
-        QwtPlotItem* patternShape = createColumnShape(startX, endX, startDepth, endDepth, cvf::Color4f(cvf::Color3::BLACK), brushStyle);
+        QwtPlotItem* patternShape = createColumnShape(startX, endX, startDepth, endDepth, baseColor, brushStyle);
         m_combinedComponentGroup.addPlotItem(patternShape);
         if (endX >= 0.0)
         {
             QwtPlotItem* legendBGShape = createColumnShape(0.0, 16.0, 0.0, 16.0, semiTransparentWhite, Qt::SolidPattern);
             m_combinedComponentGroup.addLegendItem(legendBGShape);
 
-            QwtPlotItem* legendShape = createColumnShape(0.0, 16.0, 0.0, 16.0, cvf::Color4f(cvf::Color3::BLACK), brushStyle);
+            QwtPlotItem* legendShape = createColumnShape(0.0, 16.0, 0.0, 16.0, baseColor, brushStyle);
             m_combinedComponentGroup.addLegendItem(legendShape);
         }
     }
@@ -351,15 +350,7 @@ QwtPlotItem* RiuWellPathComponentPlotItem::createColumnShape(double         star
 //--------------------------------------------------------------------------------------------------
 cvf::Color4f RiuWellPathComponentPlotItem::componentColor(float alpha /*= 1.0*/) const
 {
-    return cvf::Color4f(m_baseColor, alpha);
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-cvf::Color4f RiuWellPathComponentPlotItem::symbolColor(float alpha) const
-{
-    return cvf::Color4f(cvf::Color3f(cvf::Color3::BLACK), alpha);
+    return cvf::Color4f(RiaColorTables::wellPathComponentColors()[m_componentType], alpha);
 }
 
 //--------------------------------------------------------------------------------------------------

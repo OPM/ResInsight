@@ -20,6 +20,7 @@
 
 #include "RimEclipseCellColors.h"
 
+#include "RiaColorTables.h"
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
 #include "RigFlowDiagResults.h"
@@ -392,34 +393,22 @@ void RimEclipseCellColors::updateLegendData(size_t currentTimeStep,
                     legendConfig->setNamedCategoriesInverse(fnVector);
                 }
                 else if ( this->resultType() == RiaDefines::DYNAMIC_NATIVE && this->resultVariable() == RiaDefines::completionTypeResultName() )
-                {
-                    std::vector< std::tuple<QString, int, cvf::Color3ub> > categories;
-
-                    caf::AppEnum<RiaDefines::WellPathComponentType> wellPath(RiaDefines::WELL_PATH);
-                    caf::AppEnum<RiaDefines::WellPathComponentType> fishbone(RiaDefines::FISHBONES);
-                    caf::AppEnum<RiaDefines::WellPathComponentType> perforationInterval(RiaDefines::PERFORATION_INTERVAL);
-                    caf::AppEnum<RiaDefines::WellPathComponentType> fracture(RiaDefines::FRACTURE);
-
+                {   
                     const std::vector<int>& visibleCategories = cellResultsData->uniqueCellScalarValues(this->scalarResultIndex());
 
-                    if (std::find(visibleCategories.begin(), visibleCategories.end(), wellPath.index()) != visibleCategories.end())
+                    std::vector<RiaDefines::WellPathComponentType> supportedCompletionTypes =
+                        { RiaDefines::WELL_PATH, RiaDefines::FISHBONES, RiaDefines::PERFORATION_INTERVAL, RiaDefines::FRACTURE };
+                    
+                    RiaColorTables::WellPathComponentColors colors = RiaColorTables::wellPathComponentColors();
+                    
+                    std::vector< std::tuple<QString, int, cvf::Color3ub> > categories;
+                    for (auto completionType : supportedCompletionTypes)
                     {
-                        categories.push_back(std::make_tuple(wellPath.uiText(), static_cast<int>(wellPath.index()), cvf::Color3::RED));
-                    }
-
-                    if (std::find(visibleCategories.begin(), visibleCategories.end(), fishbone.index()) != visibleCategories.end())
-                    {
-                        categories.push_back(std::make_tuple(fishbone.uiText(), static_cast<int>(fishbone.index()), cvf::Color3::DARK_GREEN));
-                    }
-
-                    if (std::find(visibleCategories.begin(), visibleCategories.end(), perforationInterval.index()) != visibleCategories.end())
-                    {
-                        categories.push_back(std::make_tuple(perforationInterval.uiText(), static_cast<int>(perforationInterval.index()), cvf::Color3::GREEN));
-                    }
-
-                    if (std::find(visibleCategories.begin(), visibleCategories.end(), fracture.index()) != visibleCategories.end())
-                    {
-                        categories.push_back(std::make_tuple(fracture.uiText(), static_cast<int>(fracture.index()), cvf::Color3::YELLOW_GREEN));
+                        if (std::find(visibleCategories.begin(), visibleCategories.end(), completionType) != visibleCategories.end())
+                        {
+                            QString categoryText = caf::AppEnum<RiaDefines::WellPathComponentType>::uiText(completionType);
+                            categories.push_back(std::make_tuple(categoryText, completionType, colors[completionType]));
+                        }
                     }
 
                     legendConfig->setCategoryItems(categories);

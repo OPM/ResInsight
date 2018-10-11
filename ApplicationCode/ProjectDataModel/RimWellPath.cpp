@@ -21,6 +21,7 @@
 #include "RimWellPath.h"
 
 #include "RiaApplication.h"
+#include "RiaColorTables.h"
 #include "RiaSimWellBranchTools.h"
 #include "RiaWellNameComparer.h"
 
@@ -188,6 +189,62 @@ double RimWellPath::wellPathRadius(double characteristicCellSize) const
 double RimWellPath::wellPathRadiusScaleFactor() const
 {
     return m_wellPathRadiusScaleFactor();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiaDefines::WellPathComponentType RimWellPath::componentType() const
+{
+    return RiaDefines::WELL_PATH;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimWellPath::componentLabel() const
+{
+    return name();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimWellPath::componentTypeLabel() const
+{
+    return "Well Path";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+cvf::Color3f RimWellPath::defaultComponentColor() const
+{
+    return RiaColorTables::wellPathComponentColors()[componentType()];
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimWellPath::startMD() const
+{
+    if (wellPathGeometry())
+    {
+        return wellPathGeometry()->measureDepths().front();
+    }
+    return 0.0;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimWellPath::endMD() const
+{
+    if (wellPathGeometry())
+    {
+        return wellPathGeometry()->measureDepths().back();
+    }
+    return 0.0;
 }
 
 //--------------------------------------------------------------------------------------------------

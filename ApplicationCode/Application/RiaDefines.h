@@ -55,8 +55,6 @@ namespace RiaDefines
         LINER,
         PACKER
     };
-    std::vector<WellPathComponentType> wellPathCompletionTypes();
-    std::vector<WellPathComponentType> wellPathAttributeTypes();
 
     bool isPerCellFaceResult(const QString& resultName);
 

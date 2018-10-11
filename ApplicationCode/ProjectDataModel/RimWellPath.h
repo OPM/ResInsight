@@ -22,7 +22,7 @@
 
 #include "RiaEclipseUnitTools.h"
 
-#include "Rim3dWellLogCurve.h"
+#include "RimWellPathComponentInterface.h"
 
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
@@ -53,13 +53,14 @@ class RimWellPathCompletions;
 class RigWellPathFormations;
 
 class RimWellPathFractureCollection;
+class Rim3dWellLogCurve;
 class Rim3dWellLogCurveCollection;
 
 //==================================================================================================
 ///  
 ///  
 //==================================================================================================
-class RimWellPath : public caf::PdmObject
+class RimWellPath : public caf::PdmObject, public RimWellPathComponentInterface
 {
     CAF_PDM_HEADER_INIT;
 
@@ -120,6 +121,15 @@ public:
     double                              combinedScaleFactor() const;
     double                              wellPathRadius(double characteristicCellSize) const;
     double                              wellPathRadiusScaleFactor() const;
+    
+
+    // RimWellPathComponentInterface overrides
+    RiaDefines::WellPathComponentType   componentType() const override;
+    QString                             componentLabel() const override;
+    QString                             componentTypeLabel() const override;
+    cvf::Color3f                        defaultComponentColor() const override;
+    double                              startMD() const override;
+    double                              endMD() const override;
 
 protected:
 

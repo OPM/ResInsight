@@ -19,6 +19,7 @@
 #include "RimWellPathValve.h"
 
 #include "RiaDefines.h"
+#include "RiaColorTables.h"
 #include "RiaEclipseUnitTools.h"
 
 #include "RigWellPath.h"
@@ -89,19 +90,7 @@ QString RimWellPathValve::componentTypeLabel() const
 //--------------------------------------------------------------------------------------------------
 cvf::Color3f RimWellPathValve::defaultComponentColor() const
 {
-    switch (m_type())
-    {
-    case RiaDefines::ICD:
-        return cvf::Color3f(cvf::Color3::DARK_BLUE);
-    case RiaDefines::AICD:
-        return cvf::Color3f(cvf::Color3::BROWN);
-    case RiaDefines::ICV:
-        return cvf::Color3f(cvf::Color3::DARK_VIOLET);
-    default:
-        break;
-    }
-    CVF_ASSERT(false);
-    return cvf::Color3f(cvf::Color3::BLACK);
+    return RiaColorTables::wellPathComponentColors()[componentType()];
 }
 
 //--------------------------------------------------------------------------------------------------

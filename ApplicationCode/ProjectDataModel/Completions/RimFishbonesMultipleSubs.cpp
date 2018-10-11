@@ -18,6 +18,7 @@
 
 #include "RimFishbonesMultipleSubs.h"
 
+#include "RiaColorTables.h"
 #include "RigFishbonesGeometry.h"
 #include "RigWellPath.h"
 #include "RimProject.h"
@@ -71,7 +72,8 @@ RimFishbonesMultipleSubs::RimFishbonesMultipleSubs()
     m_name.uiCapability()->setUiReadOnly(true);
     m_name.xmlCapability()->setIOWritable(false);
 
-    CAF_PDM_InitField(&fishbonesColor,                  "Color", cvf::Color3f(0.999f, 0.333f, 0.999f), "Fishbones Color", "", "", "");
+    cvf::Color3f defaultColor = RiaColorTables::wellPathComponentColors()[RiaDefines::FISHBONES];
+    CAF_PDM_InitField(&fishbonesColor,                  "Color", defaultColor, "Fishbones Color", "", "", "");
 
     CAF_PDM_InitField(&m_lateralCountPerSub,            "LateralCountPerSub", 3,            "Laterals Per Sub", "", "", "");
     CAF_PDM_InitField(&m_lateralLength,                 "LateralLength",  QString("11.0"),  "Length(s) [m]", "", "Specify multiple length values if the sub lengths differ", "");

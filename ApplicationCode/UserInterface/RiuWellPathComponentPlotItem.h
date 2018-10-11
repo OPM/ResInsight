@@ -117,7 +117,7 @@ private:
                                    Qt::BrushStyle brushStyle = Qt::SolidPattern);
 
     cvf::Color4f componentColor(float alpha = 1.0) const;
-    cvf::Color4f symbolColor(float alpha = 1.0) const;
+
 private:
     const RimWellPath*                      m_wellPath;
 
@@ -126,7 +126,6 @@ private:
     double                                  m_endMD;
     QString                                 m_label;
     QString                                 m_legendTitle;
-    cvf::Color3f                            m_baseColor;
 
     RimWellLogPlot::DepthTypeEnum           m_depthType;
     QPointer<QwtPlot>                       m_parentQwtPlot;

@@ -19,6 +19,7 @@
 #include "RimFracture.h"
 
 #include "RiaApplication.h"
+#include "RiaColorTables.h"
 #include "RiaCompletionTypeCalculationScheduler.h"
 #include "RiaEclipseUnitTools.h"
 #include "RiaLogging.h"
@@ -314,7 +315,7 @@ QString RimFracture::componentTypeLabel() const
 //--------------------------------------------------------------------------------------------------
 cvf::Color3f RimFracture::defaultComponentColor() const
 {
-    return cvf::Color3f(cvf::Color3::ORANGE_RED);
+    return RiaColorTables::wellPathComponentColors()[componentType()];
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -18,12 +18,14 @@
 
 #include "Riv3dWellLogCurveGeometryGenerator.h"
 
-#include "RimWellPath.h"
-#include "RimWellPathCollection.h"
-
 #include "RiaCurveDataTools.h"
 #include "RigWellPath.h"
 #include "RigWellPathGeometryTools.h"
+
+#include "Rim3dWellLogCurve.h"
+#include "RimWellPath.h"
+#include "RimWellPathCollection.h"
+
 
 #include "cafLine.h"
 #include "cafDisplayCoordTransform.h"

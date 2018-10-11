@@ -17,6 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 #include "RimWellPathAttribute.h"
 
+#include "RiaColorTables.h"
 #include "RigWellPath.h"
 
 #include "RimProject.h"
@@ -124,19 +125,7 @@ QString RimWellPathAttribute::componentTypeLabel() const
 //--------------------------------------------------------------------------------------------------
 cvf::Color3f RimWellPathAttribute::defaultComponentColor() const
 {
-    switch (m_type())
-    {
-    case RiaDefines::CASING:
-        return cvf::Color3::FOREST_GREEN;
-    case RiaDefines::LINER:
-        return cvf::Color3::OLIVE;
-    case RiaDefines::PACKER:
-        return cvf::Color3::GRAY;
-    default:
-        break;
-    }
-    CVF_ASSERT(false);
-    return cvf::Color3f(cvf::Color3::BLACK);
+    return RiaColorTables::wellPathComponentColors()[componentType()];
 }
 
 //--------------------------------------------------------------------------------------------------

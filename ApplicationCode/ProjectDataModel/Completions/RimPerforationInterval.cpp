@@ -19,6 +19,7 @@
 
 #include "RimPerforationInterval.h"
 
+#include "RiaColorTables.h"
 #include "RigWellPath.h"
 #include "RigCaseCellResultsData.h"
 
@@ -259,7 +260,7 @@ QString RimPerforationInterval::componentTypeLabel() const
 //--------------------------------------------------------------------------------------------------
 cvf::Color3f RimPerforationInterval::defaultComponentColor() const
 {
-    return cvf::Color3f(cvf::Color3::GREEN);
+    return RiaColorTables::wellPathComponentColors()[componentType()];
 }
 
 //--------------------------------------------------------------------------------------------------

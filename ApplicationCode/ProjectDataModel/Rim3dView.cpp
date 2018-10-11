@@ -23,6 +23,7 @@
 #include "RiaPreferences.h"
 #include "RiaViewRedrawScheduler.h"
 
+#include "Rim3dWellLogCurve.h"
 #include "RimCase.h" 
 #include "RimGridView.h"
 #include "RimMainPlotCollection.h"

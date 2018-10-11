@@ -511,15 +511,20 @@ cvf::Color3f RiaColorTables::undefinedCellColor()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-cvf::Color3f RiaColorTables::perforationLengthColor()
+RiaColorTables::WellPathComponentColors RiaColorTables::wellPathComponentColors()
 {
-    // based on hwb ( 85,  9%, 67%) dark_olive_green
-    // added 10 to each component
-    cvf::Color3ub color(69, 94, 33);
-
-    return cvf::Color3f(color);
+    return {{RiaDefines::WELL_PATH, cvf::Color3::CEETRON},            
+            {RiaDefines::PERFORATION_INTERVAL, cvf::Color3::DARK_MAGENTA},
+            {RiaDefines::FISHBONES, cvf::Color3::DARK_GREEN},
+            {RiaDefines::FRACTURE, cvf::Color3::CRIMSON},
+            {RiaDefines::ICD, cvf::Color3::DARK_ORANGE},
+            {RiaDefines::AICD, cvf::Color3::INDIGO},
+            {RiaDefines::ICV, cvf::Color3::ORCHID},
+            {RiaDefines::CASING, cvf::Color3::SEA_GREEN},
+            {RiaDefines::LINER, cvf::Color3::OLIVE},
+            {RiaDefines::PACKER, cvf::Color3::GRAY}};
 }
 
 //--------------------------------------------------------------------------------------------------

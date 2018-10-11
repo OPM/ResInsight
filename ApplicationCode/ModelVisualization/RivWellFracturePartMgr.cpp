@@ -967,7 +967,7 @@ void RivWellFracturePartMgr::appendFracturePerforationLengthParts(const RimEclip
 
         RivPipeGeometryGenerator geoGenerator;
         geoGenerator.cylinderWithCenterLineParts(
-            &parts, displayCoords, RiaColorTables::perforationLengthColor(), perforationRadius);
+            &parts, displayCoords, RiaColorTables::wellPathComponentColors()[RiaDefines::PERFORATION_INTERVAL], perforationRadius);
 
         for (auto part : parts)
         {

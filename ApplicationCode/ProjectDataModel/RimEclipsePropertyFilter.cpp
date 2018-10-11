@@ -391,13 +391,17 @@ void RimEclipsePropertyFilter::computeResultValueRange()
                     }
                     else if (resultDefinition->resultVariable() == RiaDefines::completionTypeResultName())
                     {
-                        std::vector<QString> ctNames;
-                        ctNames.push_back(caf::AppEnum<RiaDefines::WellPathComponentType>::uiText(RiaDefines::WELL_PATH));
-                        for (RiaDefines::WellPathComponentType type : RiaDefines::wellPathCompletionTypes())
+                        std::vector<RiaDefines::WellPathComponentType> componentTypes =
+                        { 
+                            RiaDefines::WELL_PATH, RiaDefines::PERFORATION_INTERVAL,
+                            RiaDefines::FISHBONES, RiaDefines::FRACTURE
+                        };
+                        std::vector<std::pair<QString, int>> ctNamesAndValues;
+                        for (RiaDefines::WellPathComponentType type : componentTypes)
                         {
-                            ctNames.push_back(caf::AppEnum<RiaDefines::WellPathComponentType>::uiText(type));
+                            ctNamesAndValues.push_back(std::make_pair(caf::AppEnum<RiaDefines::WellPathComponentType>::uiText(type), type));
                         }
-                        setCategoryNames(ctNames);
+                        setCategoryNamesAndValues(ctNamesAndValues);
                     }
                     else
                     {
