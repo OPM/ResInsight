@@ -47,5 +47,5 @@ private:
     caf::PdmField<caf::AppEnum<RiaDefines::ResultCatType>> m_type;
     caf::PdmField<QString>                                 m_eclipseKeyword;
     caf::PdmField<double>                                  m_undefinedValue;
-    caf::PdmField<QString>                                 m_path;
+    caf::PdmField<QString>                                 m_exportFileName;
 };
