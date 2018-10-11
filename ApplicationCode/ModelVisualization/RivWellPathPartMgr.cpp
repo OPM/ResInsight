@@ -409,7 +409,7 @@ void RivWellPathPartMgr::appendPerforationValvesToModel(cvf::ModelBasicList* mod
                 radii[0] = wellPathRadius;
                 bool inner  = false;
                 int nInners = 0;
-                for (size_t i = 1; i < size; i += 2)
+                for (int i = 1; i < size - 1; i += 2)
                 {
                     if (inner && valve->componentType() == RiaDefines::AICD && nInners > 0)
                     {
