@@ -103,7 +103,7 @@ std::vector<RigCompletionData>
             }
             else
             {
-                mainBoreDirection = RicWellPathExportCompletionDataFeatureImpl::calculateDirectionInCell(
+                mainBoreDirection = RicWellPathExportCompletionDataFeatureImpl::calculateCellMainDirection(
                     settings.caseToApply, globalCellIndex, wellBorePart.lengthsInCell);
             }
         }
@@ -148,7 +148,7 @@ std::vector<RigCompletionData>
                                                                                           mainBoreDirection);
             }
 
-            CellDirection direction = RicWellPathExportCompletionDataFeatureImpl::calculateDirectionInCell(
+            CellDirection direction = RicWellPathExportCompletionDataFeatureImpl::calculateCellMainDirection(
                 settings.caseToApply, globalCellIndex, wellBorePart.lengthsInCell);
 
             completion.setTransAndWPImultBackgroundDataFromFishbone(

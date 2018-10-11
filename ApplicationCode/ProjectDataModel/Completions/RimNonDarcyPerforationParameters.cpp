@@ -67,7 +67,7 @@ RimNonDarcyPerforationParameters::RimNonDarcyPerforationParameters()
 
     CAF_PDM_InitField(&m_gridPermeabilityScalingFactor,
                       "GridPermeabilityScalingFactor",
-                      0.0,
+                      1.0,
                       "<html>Grid Permeability Scaling Factor (K<sub>r</sub>) [0..1]</html>",
                       "",
                       "",

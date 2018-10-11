@@ -78,9 +78,9 @@ public:
                                                                             const RimWellPath*                       wellPath,
                                                                             const std::vector<const RimPerforationInterval*>& perforationIntervals);
 
-    static CellDirection                  calculateDirectionInCell(RimEclipseCase* eclipseCase,
-                                                                   size_t globalCellIndex, 
-                                                                   const cvf::Vec3d& lengthsInCell);
+    static CellDirection                  calculateCellMainDirection(RimEclipseCase* eclipseCase,
+                                                                     size_t globalCellIndex, 
+                                                                     const cvf::Vec3d& lengthsInCell);
     
     static double                         calculateTransmissibility(RimEclipseCase* eclipseCase, 
                                                                     const RimWellPath* wellPath, 
@@ -94,7 +94,6 @@ public:
 
     static double                         calculateDFactor(RimEclipseCase* eclipseCase,
                                                            const cvf::Vec3d&  internalCellLengths,
-                                                           const double wellRadius,
                                                            size_t globalCellIndex,
                                                            const RimNonDarcyPerforationParameters* nonDarcyParameters,
                                                            const double effectiveTransmissibilityForCell);
