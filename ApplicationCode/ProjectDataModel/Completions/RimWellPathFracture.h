@@ -49,6 +49,8 @@ public:
 
     virtual std::vector<cvf::Vec3d> perforationLengthCenterLineCoords() const override;
 
+    static bool                     compareByWellPathNameAndMD(const RimWellPathFracture* lhs, const RimWellPathFracture* rhs);
+
 protected:
     virtual void                    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
     virtual void                    defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute * attribute) override;

@@ -165,6 +165,30 @@ std::vector<cvf::Vec3d> RimWellPathFracture::perforationLengthCenterLineCoords()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+bool RimWellPathFracture::compareByWellPathNameAndMD(const RimWellPathFracture* lhs, const RimWellPathFracture* rhs)
+{
+    CVF_TIGHT_ASSERT(lhs && rhs);
+
+    RimWellPath* lhsWellPath = nullptr;
+    lhs->firstAncestorOrThisOfType(lhsWellPath);
+
+    RimWellPath* rhsWellPath = nullptr;
+    rhs->firstAncestorOrThisOfType(rhsWellPath);
+
+    if (lhsWellPath && rhsWellPath)
+    {
+        if (lhsWellPath->name() != rhsWellPath->name())
+        {
+            return lhsWellPath->name() < rhsWellPath->name();
+        }
+    }
+
+    return lhs->fractureMD() < rhs->fractureMD();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimWellPathFracture::updatePositionFromMeasuredDepth()
 {
     cvf::Vec3d positionAlongWellpath = cvf::Vec3d::ZERO;

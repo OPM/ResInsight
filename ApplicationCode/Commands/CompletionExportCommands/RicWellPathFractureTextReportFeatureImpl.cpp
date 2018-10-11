@@ -87,7 +87,7 @@ QString RicWellPathFractureTextReportFeatureImpl::wellPathFractureReport(
 
     textStream << lineStart << "\n";
 
-    auto proj = RiaApplication::instance()->project();
+    auto proj              = RiaApplication::instance()->project();
     auto fractureTemplates = proj->activeOilField()->fractureDefinitionCollection()->fractureTemplates();
 
     std::vector<RimStimPlanFractureTemplate*> stimPlanTemplates;
@@ -108,7 +108,6 @@ QString RicWellPathFractureTextReportFeatureImpl::wellPathFractureReport(
         }
     }
 
-
     if (!RiaRegressionTestRunner::instance()->isRunningRegressionTests())
     {
         if (sourceCase)
@@ -123,7 +122,6 @@ QString RicWellPathFractureTextReportFeatureImpl::wellPathFractureReport(
             textStream << tableText;
             textStream << lineStart << "\n";
         }
-
 
         {
             QString tableText = createStimPlanFileLocationText(stimPlanTemplates);
@@ -154,18 +152,13 @@ QString RicWellPathFractureTextReportFeatureImpl::wellPathFractureReport(
         std::vector<RimWellPathFracture*> wellPathFractures;
         for (const auto& w : wellPaths)
         {
-            std::set<std::pair<double, RimWellPathFracture*>> sortedFracturesByMd;
-
             for (const auto& frac : w->fractureCollection()->activeFractures())
             {
-                sortedFracturesByMd.insert(std::make_pair(frac->fractureMD(), frac));
-            }
-
-            for (const auto& mdAndFracture : sortedFracturesByMd)
-            {
-                wellPathFractures.push_back(mdAndFracture.second);
+                wellPathFractures.push_back(frac);
             }
         }
+
+        std::sort(wellPathFractures.begin(), wellPathFractures.end(), RimWellPathFracture::compareByWellPathNameAndMD);
 
         {
             QString tableText = createFractureInstancesText(wellPathFractures);
@@ -303,8 +296,8 @@ QString RicWellPathFractureTextReportFeatureImpl::createStimPlanFractureText(
 
     QString tableText;
 
-    RiaEclipseUnitTools::UnitSystem unitSystem = stimPlanTemplates.front()->fractureTemplateUnit();
-    bool isFieldUnits = unitSystem == RiaEclipseUnitTools::UNITS_FIELD;
+    RiaEclipseUnitTools::UnitSystem unitSystem   = stimPlanTemplates.front()->fractureTemplateUnit();
+    bool                            isFieldUnits = unitSystem == RiaEclipseUnitTools::UNITS_FIELD;
 
     QTextStream                  stream(&tableText);
     RifEclipseDataTableFormatter formatter(stream);
@@ -355,8 +348,8 @@ QString RicWellPathFractureTextReportFeatureImpl::createEllipseFractureText(
 
     QString tableText;
 
-    RiaEclipseUnitTools::UnitSystem unitSystem = ellipseTemplates.front()->fractureTemplateUnit();
-    bool isFieldUnits = unitSystem == RiaEclipseUnitTools::UNITS_FIELD;
+    RiaEclipseUnitTools::UnitSystem unitSystem   = ellipseTemplates.front()->fractureTemplateUnit();
+    bool                            isFieldUnits = unitSystem == RiaEclipseUnitTools::UNITS_FIELD;
 
     QTextStream                  stream(&tableText);
     RifEclipseDataTableFormatter formatter(stream);
@@ -500,8 +493,8 @@ QString RicWellPathFractureTextReportFeatureImpl::createFractureInstancesText(
 {
     if (fractures.empty()) return "";
 
-    RiaEclipseUnitTools::UnitSystem unitSystem = fractures.front()->fractureUnit(); // Fix
-    bool isFieldUnits = unitSystem == RiaEclipseUnitTools::UNITS_FIELD;
+    RiaEclipseUnitTools::UnitSystem unitSystem   = fractures.front()->fractureUnit(); // Fix
+    bool                            isFieldUnits = unitSystem == RiaEclipseUnitTools::UNITS_FIELD;
 
     QString tableText;
 
@@ -599,8 +592,8 @@ QString RicWellPathFractureTextReportFeatureImpl::createFractureCompletionSummar
 {
     QString tableText;
 
-    RiaEclipseUnitTools::UnitSystem unitSystem = wellPathFractureReportItems.front().unitSystem();
-    bool isFieldUnits = unitSystem == RiaEclipseUnitTools::UNITS_FIELD;
+    RiaEclipseUnitTools::UnitSystem unitSystem   = wellPathFractureReportItems.front().unitSystem();
+    bool                            isFieldUnits = unitSystem == RiaEclipseUnitTools::UNITS_FIELD;
 
     QTextStream                  stream(&tableText);
     RifEclipseDataTableFormatter formatter(stream);
@@ -672,9 +665,10 @@ QString RicWellPathFractureTextReportFeatureImpl::createFractureCompletionSummar
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-QString RicWellPathFractureTextReportFeatureImpl::createConnectionsPerWellText(const std::vector<RicWellPathFractureReportItem>& wellPathFractureReportItems) const
+QString RicWellPathFractureTextReportFeatureImpl::createConnectionsPerWellText(
+    const std::vector<RicWellPathFractureReportItem>& wellPathFractureReportItems) const
 {
     QString tableText;
 
@@ -682,10 +676,7 @@ QString RicWellPathFractureTextReportFeatureImpl::createConnectionsPerWellText(c
     RifEclipseDataTableFormatter formatter(stream);
     configureFormatter(&formatter);
 
-    std::vector<RifEclipseOutputTableColumn> header = {
-        RifEclipseOutputTableColumn("Well"),
-        floatNumberColumn("ConnCount")
-    };
+    std::vector<RifEclipseOutputTableColumn> header = {RifEclipseOutputTableColumn("Well"), floatNumberColumn("ConnCount")};
 
     formatter.header(header);
     formatter.addHorizontalLine('-');
