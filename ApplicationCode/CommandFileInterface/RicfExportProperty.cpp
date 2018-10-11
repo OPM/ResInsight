@@ -52,7 +52,7 @@ RicfExportProperty::RicfExportProperty()
     RICF_InitField(&m_type,             "type",             caf::AppEnum<RiaDefines::ResultCatType>(RiaDefines::DYNAMIC_NATIVE), "Property type", "", "", "");
     RICF_InitField(&m_eclipseKeyword,   "eclipseKeyword",   QString(), "Eclipse Keyword", "", "", "");
     RICF_InitField(&m_undefinedValue,   "undefinedValue",   0.0, "Undefined Value", "", "", "");
-    RICF_InitField(&m_path,             "exportFile",       QString(), "Export File", "", "", "");
+    RICF_InitField(&m_exportFileName,   "exportFile",       QString(), "Export FileName", "", "", "");
     // clang-format on
 }
 
@@ -103,7 +103,7 @@ void RicfExportProperty::execute()
         return;
     }
 
-    QString filePath = m_path;
+    QString filePath = m_exportFileName;
     if (filePath.isNull())
     {
         QDir    propertiesDir(RicfCommandFileExecutor::instance()->getExportPath(RicfCommandFileExecutor::PROPERTIES));
