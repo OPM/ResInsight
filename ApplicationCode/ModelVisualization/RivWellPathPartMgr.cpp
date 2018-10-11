@@ -166,7 +166,7 @@ void RivWellPathPartMgr::appendFishboneSubsPartsToModel(cvf::ModelBasicList* mod
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivWellPathPartMgr::appendCasingShoesToModel(cvf::ModelBasicList*              model,
+void RivWellPathPartMgr::appendWellPathAttributesToModel(cvf::ModelBasicList*              model,
                                                   const caf::DisplayCoordTransform* displayCoordTransform,
                                                   double                            characteristicCellSize)
 {
@@ -181,7 +181,7 @@ void RivWellPathPartMgr::appendCasingShoesToModel(cvf::ModelBasicList*          
         {
             double wellPathRadius = this->wellPathRadius(characteristicCellSize, this->wellPathCollection());
             double endMD = attribute->endMD();
-            double shoeStartMD = endMD - 2.5;
+            double shoeStartMD = endMD - 5.0;
 
             std::vector<cvf::Vec3d> displayCoords;
             displayCoords.push_back(displayCoordTransform->transformToDisplayCoord(m_rimWellPath->wellPathGeometry()->interpolatedPointAlongWellPath(shoeStartMD)));
@@ -190,7 +190,7 @@ void RivWellPathPartMgr::appendCasingShoesToModel(cvf::ModelBasicList*          
 
             std::vector<double> radii;
             radii.push_back(wellPathRadius);
-            radii.push_back(wellPathRadius * 2.0);
+            radii.push_back(wellPathRadius * 2.5);
             radii.push_back(wellPathRadius * 1.1);
 
             cvf::ref<RivObjectSourceInfo> objectSourceInfo = new RivObjectSourceInfo(attribute);
@@ -202,8 +202,35 @@ void RivWellPathPartMgr::appendCasingShoesToModel(cvf::ModelBasicList*          
                 part->setSourceInfo(objectSourceInfo.p());
                 model->addPart(part.p());
             }
+        }
+        else if (attribute->componentType() == RiaDefines::PACKER)
+        {
+            double wellPathRadius = this->wellPathRadius(characteristicCellSize, this->wellPathCollection());
+            double startMD = attribute->startMD();
+            double endMD   = attribute->startMD() + 3.0;
 
-        }        
+            std::vector<cvf::Vec3d> displayCoords;
+            displayCoords.push_back(displayCoordTransform->transformToDisplayCoord(m_rimWellPath->wellPathGeometry()->interpolatedPointAlongWellPath(startMD)));
+            displayCoords.push_back(displayCoordTransform->transformToDisplayCoord(m_rimWellPath->wellPathGeometry()->interpolatedPointAlongWellPath(startMD)));
+            displayCoords.push_back(displayCoordTransform->transformToDisplayCoord(m_rimWellPath->wellPathGeometry()->interpolatedPointAlongWellPath(endMD)));
+            displayCoords.push_back(displayCoordTransform->transformToDisplayCoord(m_rimWellPath->wellPathGeometry()->interpolatedPointAlongWellPath(endMD)));
+
+            std::vector<double> radii;
+            radii.push_back(wellPathRadius);
+            radii.push_back(wellPathRadius * 2.5);
+            radii.push_back(wellPathRadius * 2.5);
+            radii.push_back(wellPathRadius);
+
+            cvf::ref<RivObjectSourceInfo> objectSourceInfo = new RivObjectSourceInfo(attribute);
+
+            cvf::Collection<cvf::Part> parts;
+            geoGenerator.tubeWithCenterLinePartsAndVariableWidth(&parts, displayCoords, radii, attribute->defaultComponentColor());
+            for (auto part : parts)
+            {
+                part->setSourceInfo(objectSourceInfo.p());
+                model->addPart(part.p());
+            }
+        }
     }
 }
 
@@ -631,7 +658,7 @@ void RivWellPathPartMgr::appendStaticGeometryPartsToModel(cvf::ModelBasicList*  
 
     appendFishboneSubsPartsToModel(model, displayCoordTransform, characteristicCellSize);
     appendImportedFishbonesToModel(model, displayCoordTransform, characteristicCellSize);
-    appendCasingShoesToModel(model, displayCoordTransform, characteristicCellSize);
+    appendWellPathAttributesToModel(model, displayCoordTransform, characteristicCellSize);
 
     RimGridView* gridView = dynamic_cast<RimGridView*>(m_rimView.p());
     if (!gridView) return;

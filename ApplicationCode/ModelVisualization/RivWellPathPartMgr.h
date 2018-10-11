@@ -89,9 +89,9 @@ private:
                                         const caf::DisplayCoordTransform* displayCoordTransform,
                                         double                            characteristicCellSize);
 
-    void appendCasingShoesToModel(cvf::ModelBasicList*              model,
-                                  const caf::DisplayCoordTransform* displayCoordTransform,
-                                  double                            characteristicCellSize);
+    void appendWellPathAttributesToModel(cvf::ModelBasicList*              model,
+                                         const caf::DisplayCoordTransform* displayCoordTransform,
+                                         double                            characteristicCellSize);
 
     void appendImportedFishbonesToModel(cvf::ModelBasicList*              model,
                                         const caf::DisplayCoordTransform* displayCoordTransform,
