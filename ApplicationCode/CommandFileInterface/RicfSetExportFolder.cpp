@@ -48,7 +48,7 @@ void RicfSetExportFolder::execute()
 
         if (!dir.exists(m_path))
         {
-            dir.mkdir(m_path);
+            dir.mkpath(m_path);
 
             if (!dir.exists(m_path))
             {
