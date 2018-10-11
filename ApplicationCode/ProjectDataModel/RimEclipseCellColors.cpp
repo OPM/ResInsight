@@ -400,24 +400,24 @@ void RimEclipseCellColors::updateLegendData(size_t currentTimeStep,
                     caf::AppEnum<RiaDefines::WellPathComponentType> perforationInterval(RiaDefines::PERFORATION_INTERVAL);
                     caf::AppEnum<RiaDefines::WellPathComponentType> fracture(RiaDefines::FRACTURE);
 
-                    const std::vector<int>& visibleCatetories = cellResultsData->uniqueCellScalarValues(this->scalarResultIndex());
+                    const std::vector<int>& visibleCategories = cellResultsData->uniqueCellScalarValues(this->scalarResultIndex());
 
-                    if (std::find(visibleCatetories.begin(), visibleCatetories.end(), wellPath.index()) != visibleCatetories.end())
+                    if (std::find(visibleCategories.begin(), visibleCategories.end(), wellPath.index()) != visibleCategories.end())
                     {
                         categories.push_back(std::make_tuple(wellPath.uiText(), static_cast<int>(wellPath.index()), cvf::Color3::RED));
                     }
 
-                    if (std::find(visibleCatetories.begin(), visibleCatetories.end(), fishbone.index()) != visibleCatetories.end())
+                    if (std::find(visibleCategories.begin(), visibleCategories.end(), fishbone.index()) != visibleCategories.end())
                     {
                         categories.push_back(std::make_tuple(fishbone.uiText(), static_cast<int>(fishbone.index()), cvf::Color3::DARK_GREEN));
                     }
 
-                    if (std::find(visibleCatetories.begin(), visibleCatetories.end(), perforationInterval.index()) != visibleCatetories.end())
+                    if (std::find(visibleCategories.begin(), visibleCategories.end(), perforationInterval.index()) != visibleCategories.end())
                     {
                         categories.push_back(std::make_tuple(perforationInterval.uiText(), static_cast<int>(perforationInterval.index()), cvf::Color3::GREEN));
                     }
 
-                    if (std::find(visibleCatetories.begin(), visibleCatetories.end(), fracture.index()) != visibleCatetories.end())
+                    if (std::find(visibleCategories.begin(), visibleCategories.end(), fracture.index()) != visibleCategories.end())
                     {
                         categories.push_back(std::make_tuple(fracture.uiText(), static_cast<int>(fracture.index()), cvf::Color3::YELLOW_GREEN));
                     }

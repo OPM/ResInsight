@@ -63,15 +63,15 @@ namespace caf
     void caf::AppEnum< RiaDefines::WellPathComponentType >::setUp()
     {
         addItem(RiaDefines::WELL_PATH, "WELL_PATH", "Well Path");
-        addItem(RiaDefines::CASING, "CASING", "Casing");
-        addItem(RiaDefines::LINER, "LINER", "Liner");
-        addItem(RiaDefines::PACKER, "PACKER", "Packer");
         addItem(RiaDefines::PERFORATION_INTERVAL, "PERFORATION_INTERVAL", "Perforation Interval");
         addItem(RiaDefines::FISHBONES, "FISHBONES", "Fishbones");
         addItem(RiaDefines::FRACTURE, "FRACTURE", "Fracture");
         addItem(RiaDefines::ICD, "ICD", "ICD");
         addItem(RiaDefines::AICD, "AICD", "AICD");
         addItem(RiaDefines::ICV, "ICV", "ICV");
+        addItem(RiaDefines::CASING, "CASING", "Casing");
+        addItem(RiaDefines::LINER, "LINER", "Liner");
+        addItem(RiaDefines::PACKER, "PACKER", "Packer");
         setDefault(RiaDefines::WELL_PATH);
     }
 }
