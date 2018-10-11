@@ -55,6 +55,7 @@ RicExportLgrUi::RicExportLgrUi()
     m_exportFolder.uiCapability()->setUiEditorTypeName(caf::PdmUiFilePathEditor::uiEditorTypeName());
 
     CAF_PDM_InitFieldNoDefault(&m_caseToApply, "CaseToApply", "Source Case", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_timeStep, "TimeStepIndex", "Time Step", "", "", "");
 
     CAF_PDM_InitField(&m_cellCountI,    "CellCountI",   2, "Cell Count I", "", "", "");
     CAF_PDM_InitField(&m_cellCountJ,    "CellCountJ",   2, "Cell Count J", "", "", "");
@@ -73,6 +74,20 @@ void RicExportLgrUi::setCase(RimEclipseCase* rimCase)
     if (isDifferent)
     {
         m_caseToApply = rimCase;
+        setDefaultValuesFromCase();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicExportLgrUi::setTimeStep(int timeStep)
+{
+    bool isDifferent = timeStep != m_timeStep;
+
+    if (isDifferent)
+    {
+        m_timeStep = timeStep;
         setDefaultValuesFromCase();
     }
 }
@@ -99,6 +114,14 @@ QString RicExportLgrUi::exportFolder() const
 RimEclipseCase* RicExportLgrUi::caseToApply() const
 {
     return m_caseToApply();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+int RicExportLgrUi::timeStep() const
+{
+    return m_timeStep;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -144,6 +167,19 @@ QList<caf::PdmOptionItemInfo> RicExportLgrUi::calculateValueOptions(const caf::P
     {
         RimTools::caseOptionItems(&options);
     }
+    else if (fieldNeedingOptions == &m_timeStep)
+    {
+        QStringList timeStepNames;
+
+        if (m_caseToApply)
+        {
+            timeStepNames = m_caseToApply->timeStepStrings();
+        }
+        for (int i = 0; i < timeStepNames.size(); i++)
+        {
+            options.push_back(caf::PdmOptionItemInfo(timeStepNames[i], i));
+        }
+    }
 
     return options;
 }
@@ -165,12 +201,15 @@ void RicExportLgrUi::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
 void RicExportLgrUi::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
     uiOrdering.add(&m_caseToApply);
+    uiOrdering.add(&m_timeStep);
     uiOrdering.add(&m_exportFolder);
     
     caf::PdmUiGroup* gridRefinement = uiOrdering.addNewGroup("Grid Refinement");
     gridRefinement->add(&m_cellCountI);
     gridRefinement->add(&m_cellCountJ);
     gridRefinement->add(&m_cellCountK);
+
+    uiOrdering.skipRemainingFields(true);
 }
 
 //--------------------------------------------------------------------------------------------------

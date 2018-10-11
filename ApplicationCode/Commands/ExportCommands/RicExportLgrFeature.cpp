@@ -62,7 +62,7 @@ CAF_CMD_SOURCE_INIT(RicExportLgrFeature, "RicExportLgrFeature");
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RicExportLgrUi* RicExportLgrFeature::openDialog()
+RicExportLgrUi* RicExportLgrFeature::openDialog(RimEclipseCase* defaultCase, int defaultTimeStep)
 {
     RiaApplication* app = RiaApplication::instance();
     RimProject* proj = app->project();
@@ -80,7 +80,7 @@ RicExportLgrUi* RicExportLgrFeature::openDialog()
         featureUi->setExportFolder(startPath);
     }
 
-    if (!featureUi->caseToApply())
+    if (!featureUi->caseToApply() && !defaultCase)
     {
         std::vector<RimCase*> cases;
         app->project()->allCases(cases);
@@ -94,9 +94,11 @@ RicExportLgrUi* RicExportLgrFeature::openDialog()
             }
         }
     }
+    if (defaultCase) featureUi->setCase(defaultCase);
+    featureUi->setTimeStep(defaultTimeStep);
 
     caf::PdmUiPropertyViewDialog propertyDialog(nullptr, featureUi, "LGR Export", "", QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
-    propertyDialog.resize(QSize(600, 250));
+    propertyDialog.resize(QSize(600, 255));
 
     if (propertyDialog.exec() == QDialog::Accepted && !featureUi->exportFolder().isEmpty())
     {
@@ -342,15 +344,17 @@ void RicExportLgrFeature::onActionTriggered(bool isChecked)
     std::vector<RimSimWellInView*> simWells;
     QString                        dialogTitle = "LGR Export";
 
-    auto dialogData = openDialog();
+    int defaultTimeStep = 0;
+    auto activeView = dynamic_cast<RimEclipseView*>(RiaApplication::instance()->activeGridView());
+    if (activeView) defaultTimeStep = activeView->currentTimeStep();
+
+    auto dialogData = openDialog(nullptr, defaultTimeStep);
     if (dialogData)
     {
-        auto activeView = dynamic_cast<RimEclipseView*>(RiaApplication::instance()->activeGridView());
-        if (!activeView) return;
 
         auto eclipseCase = dialogData->caseToApply();
         auto lgrCellCounts = dialogData->lgrCellCount();
-        size_t timeStep = activeView->currentTimeStep();
+        size_t timeStep = dialogData->timeStep();
 
         bool lgrIntersected = false;
         for (const auto& wellPath : wellPaths)

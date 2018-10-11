@@ -44,10 +44,12 @@ public:
     RicExportLgrUi();
 
     void setCase(RimEclipseCase* rimCase);
+    void setTimeStep(int timeStep);
 
     caf::VecIjk             lgrCellCount() const;
     QString                 exportFolder() const;
     RimEclipseCase*         caseToApply() const;
+    int                     timeStep() const;
     bool                    singleLgrSplit() const;
 
     void                    setExportFolder(const QString& folder);
@@ -64,6 +66,7 @@ private:
 private:
     caf::PdmField<QString>              m_exportFolder;
     caf::PdmPtrField<RimEclipseCase*>   m_caseToApply;
+    caf::PdmField<int>                  m_timeStep;
 
     caf::PdmField<int>  m_cellCountI;
     caf::PdmField<int>  m_cellCountJ;
