@@ -94,13 +94,10 @@ public:
 
     static double                         calculateDFactor(RimEclipseCase* eclipseCase,
                                                            const cvf::Vec3d&  internalCellLengths,
-                                                           double wellRadius,
+                                                           const double wellRadius,
                                                            size_t globalCellIndex,
-                                                           const RimNonDarcyPerforationParameters* nonDarcyParameters);
-
-    static double                         calculateKh(RimEclipseCase* eclipseCase,
-                                                      const cvf::Vec3d&  internalCellLengths,
-                                                      size_t globalCellIndex);
+                                                           const RimNonDarcyPerforationParameters* nonDarcyParameters,
+                                                           const double effectiveTransmissibilityForCell);
 
     static void                           exportCompletions(const std::vector<RimWellPath*>& wellPaths, 
                                                             const std::vector<RimSimWellInView*>& simWells, 
