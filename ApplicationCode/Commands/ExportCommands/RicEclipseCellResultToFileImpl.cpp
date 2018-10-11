@@ -38,7 +38,8 @@ bool RicEclipseCellResultToFileImpl::writePropertyToTextFile(const QString&     
                                                              RigEclipseCaseData* eclipseCase,
                                                              size_t              timeStep,
                                                              const QString&      resultName,
-                                                             const QString&      eclipseKeyword)
+                                                             const QString&      eclipseKeyword,
+                                                             const double        undefinedValue)
 {
     CVF_TIGHT_ASSERT(eclipseCase);
     if (!eclipseCase) return false;
@@ -49,8 +50,6 @@ bool RicEclipseCellResultToFileImpl::writePropertyToTextFile(const QString&     
     {
         return false;
     }
-
-    const double undefinedValue = 0.0;
 
     return writeResultToTextFile(
         fileName, eclipseCase, resultAccessor.p(), eclipseKeyword, undefinedValue, "writePropertyToTextFile");

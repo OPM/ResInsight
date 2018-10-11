@@ -105,7 +105,14 @@ void RicSaveEclipseInputPropertyFeature::onActionTriggered(bool isChecked)
 
     if (propertyDialog.exec() == QDialog::Accepted)
     {
-        bool isOk = RicEclipseCellResultToFileImpl::writePropertyToTextFile(exportSettings.fileName, inputReservoir->eclipseCaseData(), 0, inputProperty->resultName, exportSettings.eclipseKeyword);
+        const double undefinedValue = 0.0;
+
+        bool isOk = RicEclipseCellResultToFileImpl::writePropertyToTextFile(exportSettings.fileName,
+                                                                            inputReservoir->eclipseCaseData(),
+                                                                            0,
+                                                                            inputProperty->resultName,
+                                                                            exportSettings.eclipseKeyword,
+                                                                            undefinedValue);
         if (isOk)
         {
             inputProperty->fileName = exportSettings.fileName;

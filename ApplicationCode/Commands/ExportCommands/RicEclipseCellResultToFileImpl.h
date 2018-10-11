@@ -38,7 +38,8 @@ public:
                                         RigEclipseCaseData* eclipseCase,
                                         size_t              timeStep,
                                         const QString&      resultName,
-                                        const QString&      eclipseKeyword);
+                                        const QString&      eclipseKeyword,
+                                        const double        undefinedValue);
 
     static bool writeBinaryResultToTextFile(const QString&              fileName,
                                             RigEclipseCaseData*         eclipseCase,
