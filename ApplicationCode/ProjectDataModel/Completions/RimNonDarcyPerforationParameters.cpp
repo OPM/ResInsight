@@ -57,14 +57,6 @@ RimNonDarcyPerforationParameters::RimNonDarcyPerforationParameters()
                       "<html>Unit:[cP*Day*m<sup>2</sup>/(Forch*mD*Sm<sup>3</sup>)]</html>",
                       "");
 
-    CAF_PDM_InitField(&m_inertialCoefficient,
-                      "InertialCoefficient",
-                      0.006083236,
-                      "<html>Inertial Coefficient (&beta;)</html> [Forch. unit]",
-                      "",
-                      "",
-                      "");
-
     CAF_PDM_InitField(&m_gridPermeabilityScalingFactor,
                       "GridPermeabilityScalingFactor",
                       1.0,
@@ -131,14 +123,6 @@ double RimNonDarcyPerforationParameters::userDefinedDFactor() const
 double RimNonDarcyPerforationParameters::unitConstant() const
 {
     return m_unitConstant;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-double RimNonDarcyPerforationParameters::inertialCoefficient() const
-{
-    return m_inertialCoefficient;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -227,7 +211,6 @@ void RimNonDarcyPerforationParameters::defineUiOrdering(QString uiConfigName, ca
         {
             auto group = nonDarcyFlowGroup->addNewGroup("Parameters");
             group->add(&m_unitConstant);
-            group->add(&m_inertialCoefficient);
             group->add(&m_gridPermeabilityScalingFactor);
             group->add(&m_wellRadius);
             group->add(&m_relativeGasDensity);

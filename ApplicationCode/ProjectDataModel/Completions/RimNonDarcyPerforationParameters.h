@@ -41,7 +41,6 @@ public:
     NonDarcyFlowEnum nonDarcyFlowType() const;
     double           userDefinedDFactor() const;
     double           unitConstant() const;
-    double           inertialCoefficient() const;
     double           gridPermeabilityScalingFactor() const;
     double           wellRadius() const;
     double           relativeGasDensity() const;
@@ -59,7 +58,6 @@ private:
     caf::PdmField<double>                         m_userDefinedDFactor;
 
     caf::PdmField<double> m_unitConstant;
-    caf::PdmField<double> m_inertialCoefficient;
     caf::PdmField<double> m_gridPermeabilityScalingFactor;
     caf::PdmField<double> m_wellRadius;
     caf::PdmField<double> m_relativeGasDensity;
