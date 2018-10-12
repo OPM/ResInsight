@@ -37,7 +37,7 @@ class RicWellPathFractureTextReportFeatureImpl
 public:
     QString wellPathFractureReport(RimEclipseCase*                                   sourceCase,
                                    const std::vector<RimWellPath*>&                  wellPaths,
-                                   const std::vector<RicWellPathFractureReportItem>& wellPathFractureReportItems);
+                                   const std::vector<RicWellPathFractureReportItem>& wellPathFractureReportItems) const;
 
     static std::vector<RimWellPath*> wellPathsWithActiveFractures();
 

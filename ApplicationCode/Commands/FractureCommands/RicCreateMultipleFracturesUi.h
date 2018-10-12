@@ -49,7 +49,7 @@ public:
     {
     }
 
-    bool operator<(const LocationForNewFracture& loc)
+    bool operator<(const LocationForNewFracture& loc) const
     {
         return measuredDepth < loc.measuredDepth;
     }

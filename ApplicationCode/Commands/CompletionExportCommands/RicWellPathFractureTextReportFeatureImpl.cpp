@@ -73,7 +73,7 @@ RifEclipseOutputTableColumn floatNumberColumn(const QString& text)
 QString RicWellPathFractureTextReportFeatureImpl::wellPathFractureReport(
     RimEclipseCase*                                   sourceCase,
     const std::vector<RimWellPath*>&                  wellPaths,
-    const std::vector<RicWellPathFractureReportItem>& wellPathFractureReportItems)
+    const std::vector<RicWellPathFractureReportItem>& wellPathFractureReportItems) const
 {
     QString lineStart = "--";
 
