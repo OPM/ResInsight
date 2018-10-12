@@ -617,7 +617,6 @@ QString RifCsvUserDataParser::tryDetermineCellSeparator()
 QString RifCsvUserDataParser::tryDetermineDecimalSeparator(const QString& cellSeparator)
 {
     QTextStream* dataStream = openDataStream();
-    std::vector<QString> lines;
     int iLine = 0;
 
     int successfulParsesDot = 0;
@@ -641,6 +640,8 @@ QString RifCsvUserDataParser::tryDetermineDecimalSeparator(const QString& cellSe
             locale.toDouble(cellData, &parseOk);
             if (parseOk) successfulParsesComma++;
         }
+
+        iLine++;
     }
     closeDataStream();
 
