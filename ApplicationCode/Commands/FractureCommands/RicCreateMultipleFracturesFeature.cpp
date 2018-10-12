@@ -193,15 +193,13 @@ void RicCreateMultipleFracturesFeature::onActionTriggered(bool isChecked)
             RimProject*     proj = app->project();
 
             RimEclipseCase* firstSourceCase = nullptr;
-            int             topK            = 0;
-            int             baseK           = 0;
             if (!proj->eclipseCases().empty())
             {
                 firstSourceCase = proj->eclipseCases().front();
 
                 auto ijkRange = ijkRangeForGrid(firstSourceCase);
-                topK  = static_cast<int>(ijkRange.first.z());
-                baseK = static_cast<int>(ijkRange.second.z());
+                int topK  = static_cast<int>(ijkRange.first.z());
+                int baseK = static_cast<int>(ijkRange.second.z());
 
                 double minimumDistanceFromTip = 100.0;
                 int    maxFractureCount       = 100;

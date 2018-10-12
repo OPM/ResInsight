@@ -319,10 +319,10 @@ std::vector<LocationForNewFracture> RiuCreateMultipleFractionsUi::locationsForNe
     {
         for (auto w : m_wellPaths)
         {
-            int fractureCountForWell = 0;
             auto wellPathGeometry = w->wellPathGeometry();
             if (wellPathGeometry)
             {
+                int     fractureCountForWell = 0;
                 auto    options = fractureOptions(m_sourceCase->eclipseCaseData(), w, this->options());
                 auto    mdOfWellPathTip = wellPathGeometry->measureDepths().back();
                 double  lastFracMd = mdOfWellPathTip;
