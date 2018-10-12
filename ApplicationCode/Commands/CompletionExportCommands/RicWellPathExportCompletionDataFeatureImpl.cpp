@@ -1682,8 +1682,8 @@ std::vector<RigCompletionData> RicWellPathExportCompletionDataFeatureImpl::gener
                     }
                 }
 
-                double dFactor = std::numeric_limits<double>::infinity();
-                double kh      = std::numeric_limits<double>::infinity();
+                double dFactor = RigCompletionData::defaultValue();
+                double kh      = RigCompletionData::defaultValue();
 
                 if (nonDarcyParameters->nonDarcyFlowType() == RimNonDarcyPerforationParameters::NON_DARCY_USER_DEFINED)
                 {
