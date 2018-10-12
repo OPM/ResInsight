@@ -215,7 +215,6 @@ void RicNewWellBoreStabilityPlotFeature::createAnglesTrack(RimWellLogPlot* plot,
 {
     RimWellLogTrack* wellPathAnglesTrack = RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack(false, "Well Path Angles", plot);
     double minValue = 360.0, maxValue = 0.0;
-    const double epsilon = 1.0e-3;
     const double angleIncrement = 90.0;
     std::vector<QString> resultNames = RiaDefines::wellPathAngleResultNames();
     

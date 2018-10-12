@@ -60,7 +60,6 @@ bool RicCloseCaseFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicCloseCaseFeature::onActionTriggered(bool isChecked)
 {
-    std::vector<RimCase*> rimCases = selectedCases();
     std::vector<RimEclipseCase*> eclipseCases;
     std::vector<RimGeoMechCase*> geoMechCases;
     for (RimCase* rimCase : selectedCases())

@@ -341,7 +341,6 @@ void RicExportLgrFeature::onActionTriggered(bool isChecked)
     std::vector<RimWellPath*> wellPaths = selectedWellPaths();
     CVF_ASSERT(wellPaths.size() > 0);
 
-    std::vector<RimSimWellInView*> simWells;
     QString                        dialogTitle = "LGR Export";
 
     int defaultTimeStep = 0;
