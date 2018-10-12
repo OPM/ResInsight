@@ -548,9 +548,9 @@ QString RiaRegressionTestRunner::diff2htmlHeaderText(const QString& testRootPath
     QString path;
     for (const auto& f : pathFolders)
     {
+        if (f.compare("ProjectFiles", Qt::CaseInsensitive) == 0) break;
         path += f;
         path += "/";
-        if (f == "ResInsight-regression-test") break;
     }
 
     {
