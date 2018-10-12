@@ -81,22 +81,23 @@ public:
     static CellDirection                  calculateCellMainDirection(RimEclipseCase* eclipseCase,
                                                                      size_t globalCellIndex, 
                                                                      const cvf::Vec3d& lengthsInCell);
-    
-    static double                         calculateTransmissibility(RimEclipseCase* eclipseCase, 
-                                                                    const RimWellPath* wellPath, 
-                                                                    const cvf::Vec3d& internalCellLengths, 
-                                                                    double skinFactor, 
-                                                                    double wellRadius, 
-                                                                    size_t globalCellIndex, 
-                                                                    bool useLateralNTG, 
-                                                                    size_t volumeScaleConstant = 1, 
-                                                                    CellDirection directionForVolumeScaling = CellDirection::DIR_I);
+
+    static std::pair<double, double>
+        calculateTransmissibilityAndPermeability(RimEclipseCase*    eclipseCase,
+                                                 const RimWellPath* wellPath,
+                                                 const cvf::Vec3d&  internalCellLengths,
+                                                 double             skinFactor,
+                                                 double             wellRadius,
+                                                 size_t             globalCellIndex,
+                                                 bool               useLateralNTG,
+                                                 size_t             volumeScaleConstant       = 1,
+                                                 CellDirection      directionForVolumeScaling = CellDirection::DIR_I);
 
     static double                         calculateDFactor(RimEclipseCase* eclipseCase,
                                                            const cvf::Vec3d&  internalCellLengths,
                                                            size_t globalCellIndex,
                                                            const RimNonDarcyPerforationParameters* nonDarcyParameters,
-                                                           const double effectiveTransmissibilityForCell);
+                                                           const double effectivePermeability);
 
     static void                           exportCompletions(const std::vector<RimWellPath*>& wellPaths, 
                                                             const std::vector<RimSimWellInView*>& simWells, 

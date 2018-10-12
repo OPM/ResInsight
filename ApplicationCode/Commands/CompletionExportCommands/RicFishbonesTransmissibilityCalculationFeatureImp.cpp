@@ -124,28 +124,34 @@ std::vector<RigCompletionData>
             if (wellBorePart.isMainBore)
             {
                 // No change in transmissibility for main bore
-                transmissibility =
-                    RicWellPathExportCompletionDataFeatureImpl::calculateTransmissibility(settings.caseToApply,
-                                                                                          wellPath,
-                                                                                          wellBorePart.lengthsInCell,
-                                                                                          wellBorePart.skinFactor,
-                                                                                          wellBorePart.wellRadius,
-                                                                                          globalCellIndex,
-                                                                                          settings.useLateralNTG);
+                auto transmissibilityAndPermeability =
+                    RicWellPathExportCompletionDataFeatureImpl::calculateTransmissibilityAndPermeability(
+                        settings.caseToApply,
+                        wellPath,
+                        wellBorePart.lengthsInCell,
+                        wellBorePart.skinFactor,
+                        wellBorePart.wellRadius,
+                        globalCellIndex,
+                        settings.useLateralNTG);
+
+                transmissibility = transmissibilityAndPermeability.first;
             }
             else
             {
                 // Adjust transmissibility for fishbone laterals
-                transmissibility =
-                    RicWellPathExportCompletionDataFeatureImpl::calculateTransmissibility(settings.caseToApply,
-                                                                                          wellPath,
-                                                                                          wellBorePart.lengthsInCell,
-                                                                                          wellBorePart.skinFactor,
-                                                                                          wellBorePart.wellRadius,
-                                                                                          globalCellIndex,
-                                                                                          settings.useLateralNTG,
-                                                                                          numberOfLaterals,
-                                                                                          mainBoreDirection);
+                auto transmissibilityAndPermeability =
+                    RicWellPathExportCompletionDataFeatureImpl::calculateTransmissibilityAndPermeability(
+                        settings.caseToApply,
+                        wellPath,
+                        wellBorePart.lengthsInCell,
+                        wellBorePart.skinFactor,
+                        wellBorePart.wellRadius,
+                        globalCellIndex,
+                        settings.useLateralNTG,
+                        numberOfLaterals,
+                        mainBoreDirection);
+
+                transmissibility = transmissibilityAndPermeability.first;
             }
 
             CellDirection direction = RicWellPathExportCompletionDataFeatureImpl::calculateCellMainDirection(
@@ -224,14 +230,8 @@ void RicFishbonesTransmissibilityCalculationFeatureImp::findFishboneLateralsWell
                     startMD -= 0.5;
                     endMD += 0.5;
                 }
-                
-                appendMainWellBoreParts(wellBorePartsInCells,
-                                        wellPath,
-                                        settings,
-                                        skinFactor,
-                                        holeRadius,
-                                        startMD,
-                                        endMD);
+
+                appendMainWellBoreParts(wellBorePartsInCells, wellPath, settings, skinFactor, holeRadius, startMD, endMD);
             }
         }
     }

@@ -59,6 +59,20 @@ double RigTransmissibilityEquations::totalConnectionFactor(double transX, double
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+double RigTransmissibilityEquations::totalPermeability(const double permx, const double permy, const double permz)
+{
+    const double kx = cvf::Math::sqrt(permy * permz);
+    const double ky = cvf::Math::sqrt(permx * permz);
+    const double kz = cvf::Math::sqrt(permy * permx);
+
+    const double totalPerm = cvf::Math::sqrt(kx * kx + ky * ky + kz * kz);
+
+    return totalPerm;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 double RigTransmissibilityEquations::peacemanRadius(double permeabilityNormalDirection1,
                                                     double permeabilityNormalDirection2,
                                                     double cellSizeNormalDirection1,

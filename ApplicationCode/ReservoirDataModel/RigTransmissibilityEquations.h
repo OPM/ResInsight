@@ -34,6 +34,8 @@ public:
 
     static double totalConnectionFactor(double transX, double transY, double transZ);
 
+    static double totalPermeability(const double permx, const double permy, const double permz);
+
 private:
     // If using wellBoreTransmissibilityComponent to calculate Tx (transmissibility in x direction),
     // perforationVectorComponent is the x component (in the cell local coordinate system) of the perforation vector

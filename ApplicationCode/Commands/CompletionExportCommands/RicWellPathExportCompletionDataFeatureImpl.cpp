@@ -1661,24 +1661,24 @@ std::vector<RigCompletionData> RicWellPathExportCompletionDataFeatureImpl::gener
                 const RimNonDarcyPerforationParameters* nonDarcyParameters =
                     wellPath->perforationIntervalCollection()->nonDarcyParameters();
 
-                double effectiveTransmissibilityForCell = 0.0;
+                double transmissibility      = 0.0;
+                double effectivePermeability = 0.0;
                 {
-                    const double transmissibilityForCell = calculateTransmissibility(settings.caseToApply,
-                                                                                     wellPath,
-                                                                                     cell.intersectionLengthsInCellCS,
-                                                                                     interval->skinFactor(),
-                                                                                     interval->diameter(unitSystem) / 2,
-                                                                                     cell.globCellIndex,
-                                                                                     settings.useLateralNTG);
+                    auto transmissibilityAndPermeability =
+                        calculateTransmissibilityAndPermeability(settings.caseToApply,
+                                                                 wellPath,
+                                                                 cell.intersectionLengthsInCellCS,
+                                                                 interval->skinFactor(),
+                                                                 interval->diameter(unitSystem) / 2,
+                                                                 cell.globCellIndex,
+                                                                 settings.useLateralNTG);
+
+                    transmissibility = transmissibilityAndPermeability.first;
 
                     if (nonDarcyParameters->nonDarcyFlowType() != RimNonDarcyPerforationParameters::NON_DARCY_NONE)
                     {
-                        effectiveTransmissibilityForCell =
-                            transmissibilityForCell * nonDarcyParameters->gridPermeabilityScalingFactor();
-                    }
-                    else
-                    {
-                        effectiveTransmissibilityForCell = transmissibilityForCell;
+                        effectivePermeability =
+                            transmissibilityAndPermeability.second * nonDarcyParameters->gridPermeabilityScalingFactor();
                     }
                 }
 
@@ -1695,23 +1695,19 @@ std::vector<RigCompletionData> RicWellPathExportCompletionDataFeatureImpl::gener
                                                cell.intersectionLengthsInCellCS,
                                                cell.globCellIndex,
                                                wellPath->perforationIntervalCollection()->nonDarcyParameters(),
-                                               effectiveTransmissibilityForCell);
+                                               effectivePermeability);
                 }
 
                 if (nonDarcyParameters->nonDarcyFlowType() != RimNonDarcyPerforationParameters::NON_DARCY_NONE)
                 {
-                    kh = effectiveTransmissibilityForCell * cell.intersectionLengthsInCellCS.length();
+                    kh = effectivePermeability * cell.intersectionLengthsInCellCS.length();
                 }
 
-                completion.setTransAndWPImultBackgroundDataFromPerforation(effectiveTransmissibilityForCell,
-                                                                           interval->skinFactor(),
-                                                                           interval->diameter(unitSystem),
-                                                                           dFactor,
-                                                                           kh,
-                                                                           direction);
+                completion.setTransAndWPImultBackgroundDataFromPerforation(
+                    transmissibility, interval->skinFactor(), interval->diameter(unitSystem), dFactor, kh, direction);
                 completion.addMetadata("Perforation Completion",
                                        QString("MD In: %1 - MD Out: %2").arg(cell.startMD).arg(cell.endMD) +
-                                           QString(" Transmissibility: ") + QString::number(effectiveTransmissibilityForCell));
+                                           QString(" Transmissibility: ") + QString::number(transmissibility));
                 completionData.push_back(completion);
             }
         }
@@ -2311,15 +2307,16 @@ CellDirection RicWellPathExportCompletionDataFeatureImpl::calculateCellMainDirec
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RicWellPathExportCompletionDataFeatureImpl::calculateTransmissibility(RimEclipseCase*    eclipseCase,
-                                                                             const RimWellPath* wellPath,
-                                                                             const cvf::Vec3d&  internalCellLengths,
-                                                                             double             skinFactor,
-                                                                             double             wellRadius,
-                                                                             size_t             globalCellIndex,
-                                                                             bool               useLateralNTG,
-                                                                             size_t             volumeScaleConstant,
-                                                                             CellDirection      directionForVolumeScaling)
+std::pair<double, double>
+    RicWellPathExportCompletionDataFeatureImpl::calculateTransmissibilityAndPermeability(RimEclipseCase*    eclipseCase,
+                                                                                         const RimWellPath* wellPath,
+                                                                                         const cvf::Vec3d&  internalCellLengths,
+                                                                                         double             skinFactor,
+                                                                                         double             wellRadius,
+                                                                                         size_t             globalCellIndex,
+                                                                                         bool               useLateralNTG,
+                                                                                         size_t             volumeScaleConstant,
+                                                                                         CellDirection directionForVolumeScaling)
 {
     RigEclipseCaseData* eclipseCaseData = eclipseCase->eclipseCaseData();
 
@@ -2345,7 +2342,9 @@ double RicWellPathExportCompletionDataFeatureImpl::calculateTransmissibility(Rim
 
     if (dxAccessObject.isNull() || dyAccessObject.isNull() || dzAccessObject.isNull() || permxAccessObject.isNull() ||
         permyAccessObject.isNull() || permzAccessObject.isNull())
-        return std::numeric_limits<double>::infinity();
+    {
+        return std::make_pair(std::numeric_limits<double>::infinity(), std::numeric_limits<double>::infinity());
+    }
 
     double ntg = 1.0;
     {
@@ -2369,6 +2368,8 @@ double RicWellPathExportCompletionDataFeatureImpl::calculateTransmissibility(Rim
     double permy = permyAccessObject->cellScalarGlobIdx(globalCellIndex);
     double permz = permzAccessObject->cellScalarGlobIdx(globalCellIndex);
 
+    const double totalPermeabilityForCell = RigTransmissibilityEquations::totalPermeability(permx, permy, permz);
+
     double darcy = RiaEclipseUnitTools::darcysConstant(wellPath->unitSystem());
 
     if (volumeScaleConstant != 1)
@@ -2378,14 +2379,16 @@ double RicWellPathExportCompletionDataFeatureImpl::calculateTransmissibility(Rim
         if (directionForVolumeScaling == CellDirection::DIR_K) dz = dz / volumeScaleConstant;
     }
 
-    double transx = RigTransmissibilityEquations::wellBoreTransmissibilityComponent(
+    const double transx = RigTransmissibilityEquations::wellBoreTransmissibilityComponent(
         internalCellLengths.x() * latNtg, permy, permz, dy, dz, wellRadius, skinFactor, darcy);
-    double transy = RigTransmissibilityEquations::wellBoreTransmissibilityComponent(
+    const double transy = RigTransmissibilityEquations::wellBoreTransmissibilityComponent(
         internalCellLengths.y() * latNtg, permx, permz, dx, dz, wellRadius, skinFactor, darcy);
-    double transz = RigTransmissibilityEquations::wellBoreTransmissibilityComponent(
+    const double transz = RigTransmissibilityEquations::wellBoreTransmissibilityComponent(
         internalCellLengths.z() * ntg, permy, permx, dy, dx, wellRadius, skinFactor, darcy);
 
-    return RigTransmissibilityEquations::totalConnectionFactor(transx, transy, transz);
+    const double totalConnectionFactor = RigTransmissibilityEquations::totalConnectionFactor(transx, transy, transz);
+
+    return std::make_pair(totalConnectionFactor, totalPermeabilityForCell);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -2395,7 +2398,7 @@ double RicWellPathExportCompletionDataFeatureImpl::calculateDFactor(RimEclipseCa
                                                                     const cvf::Vec3d&                       internalCellLengths,
                                                                     size_t                                  globalCellIndex,
                                                                     const RimNonDarcyPerforationParameters* nonDarcyParameters,
-                                                                    const double effectiveTransmissibilityForCell)
+                                                                    const double                            effectivePermeability)
 {
     using EQ = RigPerforationTransmissibilityEquations;
 
@@ -2414,14 +2417,14 @@ double RicWellPathExportCompletionDataFeatureImpl::calculateDFactor(RimEclipseCa
     }
 
     const double betaFactor = EQ::betaFactor(nonDarcyParameters->inertialCoefficientBeta0(),
-                                             effectiveTransmissibilityForCell,
+                                             effectivePermeability,
                                              nonDarcyParameters->permeabilityScalingFactor(),
                                              porosity,
                                              nonDarcyParameters->porosityScalingFactor());
 
     return EQ::dFactor(nonDarcyParameters->unitConstant(),
                        betaFactor,
-                       effectiveTransmissibilityForCell,
+                       effectivePermeability,
                        internalCellLengths.length(),
                        nonDarcyParameters->wellRadius(),
                        nonDarcyParameters->relativeGasDensity(),
