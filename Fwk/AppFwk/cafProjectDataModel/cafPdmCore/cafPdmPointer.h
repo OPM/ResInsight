@@ -78,7 +78,7 @@ class PdmPointer
 {
     PdmObjectHandle* m_object;
 public :
-    inline PdmPointer () : m_object(NULL)                { }
+    inline PdmPointer () : m_object(nullptr)                { }
     inline PdmPointer ( T * p ) : m_object(p)            { PdmPointerImpl::addReference(&m_object); }
     inline PdmPointer ( const PdmPointer<T> & p ) : m_object ( p.m_object ) 
                                                          { PdmPointerImpl::addReference(&m_object); }
