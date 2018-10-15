@@ -64,7 +64,8 @@ public:
     static VdeArrayDataPacket   fromRawPacketBuffer(const char* rawPacketBuffer, size_t bufferSize, std::string* errString);
 
 private:
-    bool    assign(int arrayId, ElementType elementType, size_t elementCount, unsigned short imageWidth, unsigned short imageHeight, unsigned char imageCompCount, const char* arrayDataPtr, size_t arrayDataSizeInBytes);
+    bool            assign(int arrayId, ElementType elementType, size_t elementCount, unsigned short imageWidth, unsigned short imageHeight, unsigned char imageCompCount, const char* arrayDataPtr, size_t arrayDataSizeInBytes);
+    static size_t   sizeOfElement(ElementType elementType);
 
 private:
     int                 m_arrayId;

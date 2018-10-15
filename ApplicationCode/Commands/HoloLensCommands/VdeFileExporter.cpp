@@ -88,6 +88,7 @@ bool VdeFileExporter::exportViewContents(const RimGridView& view)
         VdeMeshArrayIds meshArrayIds;
 
         {
+            cvf::Trace::show("    exporting vertices");
             meshArrayIds.vertexArrId = nextArrayId++;
             const float* floatArr = reinterpret_cast<const float*>(mesh.vertexArr->ptr());
             VdeArrayDataPacket dataPacket = VdeArrayDataPacket::fromFloat32Arr(meshArrayIds.vertexArrId, floatArr, 3*mesh.vertexArr->size());
@@ -97,6 +98,7 @@ bool VdeFileExporter::exportViewContents(const RimGridView& view)
             //debugComparePackets(dataPacket, VdeArrayDataPacket::fromRawPacketBuffer(dataPacket.fullPacketRawPtr(), dataPacket.fullPacketSize(), nullptr));
         }
         {
+            cvf::Trace::show("    exporting connectivities");
             meshArrayIds.connArrId = nextArrayId++;
             const unsigned int* uintArr = mesh.connArr.data();
             VdeArrayDataPacket dataPacket = VdeArrayDataPacket::fromUint32Arr(meshArrayIds.connArrId, uintArr, mesh.connArr.size());
@@ -109,15 +111,17 @@ bool VdeFileExporter::exportViewContents(const RimGridView& view)
         if (mesh.texCoordArr.notNull() && mesh.texImage.notNull())
         {
             {
+                cvf::Trace::show("    exporting texture coords");
                 meshArrayIds.texCoordsArrId = nextArrayId++;
                 const float* floatArr = reinterpret_cast<const float*>(mesh.texCoordArr->ptr());
-                VdeArrayDataPacket dataPacket = VdeArrayDataPacket::fromFloat32Arr(meshArrayIds.texCoordsArrId, floatArr, 3*mesh.vertexArr->size());
+                VdeArrayDataPacket dataPacket = VdeArrayDataPacket::fromFloat32Arr(meshArrayIds.texCoordsArrId, floatArr, 2*mesh.texCoordArr->size());
                 writeDataPacketToFile(dataPacket.arrayId(), dataPacket);
 
                 // Debug testing of decoding
                 //debugComparePackets(dataPacket, VdeArrayDataPacket::fromRawPacketBuffer(dataPacket.fullPacketRawPtr(), dataPacket.fullPacketSize(), nullptr));
             }
             {
+                cvf::Trace::show("    exporting texture image");
                 meshArrayIds.texImageArrId = nextArrayId++;
                 cvf::ref<cvf::UByteArray> byteArr = mesh.texImage->toRgb();
                 VdeArrayDataPacket dataPacket = VdeArrayDataPacket::fromUint8ImageRGBArr(meshArrayIds.texImageArrId, mesh.texImage->width(), mesh.texImage->height(), byteArr->ptr(), byteArr->size());
@@ -264,7 +268,7 @@ bool VdeFileExporter::writeDataPacketToFile(int arrayId, const VdeArrayDataPacke
         return false;
     }
 
-    return false;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------

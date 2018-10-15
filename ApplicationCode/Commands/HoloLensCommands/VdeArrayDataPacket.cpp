@@ -18,6 +18,7 @@
 
 #include "VdeArrayDataPacket.h"
 
+#include <algorithm>
 #include <cassert>
 
 
@@ -107,11 +108,20 @@ VdeArrayDataPacket::ElementType VdeArrayDataPacket::elementType() const
 //--------------------------------------------------------------------------------------------------
 size_t VdeArrayDataPacket::elementSize() const
 {
-    switch (m_elementType)
+    return sizeOfElement(m_elementType);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Size of specified element type in bytes
+//--------------------------------------------------------------------------------------------------
+size_t VdeArrayDataPacket::sizeOfElement(ElementType elementType)
+{
+    switch (elementType)
     {
-        case Uint32:    return sizeof(unsigned int);
-        case Float32:   return sizeof(float);
         case Unknown:   return 0;
+        case Float32:   return sizeof(float);
+        case Uint32:    return sizeof(unsigned int);
+        case Uint8:     return sizeof(unsigned char);
     }
 
     return 0;
@@ -235,6 +245,9 @@ VdeArrayDataPacket VdeArrayDataPacket::fromRawPacketBuffer(const char* rawPacket
     const char* payloadPtr = rawPacketBuffer + VDE_HEADER_SIZE;
     const size_t payloadSizeInBytes = bufferSize - VDE_HEADER_SIZE;
 
+    const size_t payloadSizeInBytesFromPacketFields = elementCount*sizeOfElement(elementType);
+    assert(payloadSizeInBytes == payloadSizeInBytesFromPacketFields);
+
     VdeArrayDataPacket packet;
     packet.assign(packetId, elementType, elementCount, imageWidth, imageHeight, imageCompCount, payloadPtr, payloadSizeInBytes);
 
@@ -246,6 +259,8 @@ VdeArrayDataPacket VdeArrayDataPacket::fromRawPacketBuffer(const char* rawPacket
 //--------------------------------------------------------------------------------------------------
 bool VdeArrayDataPacket::assign(int arrayId, ElementType elementType, size_t elementCount, unsigned short imageWidth, unsigned short imageHeight, unsigned char imageCompCount, const char* arrayDataPtr, size_t arrayDataSizeInBytes)
 {
+    assert(arrayDataSizeInBytes > 0);
+
     const size_t totalSizeBytes = VDE_HEADER_SIZE + arrayDataSizeInBytes;
     m_packetBytes.resize(totalSizeBytes);
 
@@ -258,7 +273,11 @@ bool VdeArrayDataPacket::assign(int arrayId, ElementType elementType, size_t ele
     bufferWriter.setUint16(VDE_BYTEOFFSET_IMAGE_WIDTH,              imageWidth);
     bufferWriter.setUint16(VDE_BYTEOFFSET_IMAGE_HEIGHT,             imageHeight);
 
-    m_packetBytes.insert(m_packetBytes.begin() + VDE_HEADER_SIZE, arrayDataPtr, arrayDataPtr + arrayDataSizeInBytes);
+    const size_t calcArraySizeInBytes = elementCount*sizeOfElement(elementType);
+    assert(arrayDataSizeInBytes == calcArraySizeInBytes);
+
+    std::copy(arrayDataPtr, arrayDataPtr + arrayDataSizeInBytes, m_packetBytes.begin() + VDE_HEADER_SIZE);
+    assert(m_packetBytes.size() == totalSizeBytes);
 
     m_arrayId = arrayId;
     m_elementType = elementType;
