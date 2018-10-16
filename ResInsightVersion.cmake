@@ -30,9 +30,5 @@ set(OPM_FLOWDIAGNOSTICS_APPLICATIONS_SHA "24ff768dc509b6c6bbd0121ef46a5932fae929
 # This file was moved from opm-core to opm-parser october 2016
 # sha for Units.hpp 9a679071dd0066236154852c39a9e0b3c3ac4873
 
-# https://github.com/JacobStoren/SolveSpaceLib
-set(LIB_SLVS_SHA "c16d0e875f91e8e2e07842d71d37305c042c35e6")
-# Which is based on https://github.com/solvespace/solvespace master from early march 2018
-
 set(STRPRODUCTVER ${RESINSIGHT_MAJOR_VERSION}.${RESINSIGHT_MINOR_VERSION}.${RESINSIGHT_PATCH_VERSION}${RESINSIGHT_VERSION_TEXT}${RESINSIGHT_DEV_VERSION})
 

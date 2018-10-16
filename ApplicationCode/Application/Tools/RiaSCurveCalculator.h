@@ -68,7 +68,7 @@ public:
                                                      cvf::Vec3d p2, double azi2, double inc2, double lengthToQ2 );
 
 private:
-    void initializeWithoutSolveSpace( cvf::Vec3d p1, double azi1, double inc1, double r1,
+    void initializeByFinding_q1q2( cvf::Vec3d p1, double azi1, double inc1, double r1,
                                       cvf::Vec3d p2, double azi2, double inc2, double r2 );
 
 
