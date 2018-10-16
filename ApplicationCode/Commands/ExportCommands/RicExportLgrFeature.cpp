@@ -98,7 +98,7 @@ RicExportLgrUi* RicExportLgrFeature::openDialog(RimEclipseCase* defaultCase, int
     featureUi->setTimeStep(defaultTimeStep);
 
     caf::PdmUiPropertyViewDialog propertyDialog(nullptr, featureUi, "LGR Export", "", QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
-    propertyDialog.resize(QSize(600, 255));
+    propertyDialog.resize(QSize(600, 300));
 
     if (propertyDialog.exec() == QDialog::Accepted && !featureUi->exportFolder().isEmpty())
     {
