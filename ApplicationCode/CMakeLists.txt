@@ -23,6 +23,8 @@ include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/Adm
     ${CMAKE_CURRENT_SOURCE_DIR}/Application
     ${CMAKE_CURRENT_SOURCE_DIR}/Application/Tools
+    ${CMAKE_CURRENT_SOURCE_DIR}/Application/Tools/WellPathTools
+
     ${CMAKE_CURRENT_SOURCE_DIR}/Commands
     ${CMAKE_CURRENT_SOURCE_DIR}/Commands/EclipseCommands
     ${CMAKE_CURRENT_SOURCE_DIR}/FileInterface
@@ -77,7 +79,8 @@ list( APPEND CPP_SOURCES
 
 list( APPEND REFERENCED_CMAKE_FILES
     Application/CMakeLists_files.cmake
-    Application/Tools/CMakeLists_files.cmake
+    Application/Tools/CMakeLists_files.cmake 
+    Application/Tools/WellPathTools/CMakeLists_files.cmake
 
     ReservoirDataModel/CMakeLists_files.cmake
     ReservoirDataModel/CMakeLists_filesNotToUnitTest.cmake
