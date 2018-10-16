@@ -23,7 +23,7 @@
 #include "RigEclipseCaseData.h"
 #include "RigPipeInCellEvaluator.h"
 #include "RigResultAccessorFactory.h"
-#include "RigTernaryResultAccessor2d.h"
+#include "RigTernaryResultAccessor.h"
 
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"

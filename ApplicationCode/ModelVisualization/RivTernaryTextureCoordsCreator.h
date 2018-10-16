@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "RigTernaryResultAccessor2d.h"
+#include "RigTernaryResultAccessor.h"
 #include "RivTernaryResultToTextureMapper.h"
 
 #include "cvfBase.h"

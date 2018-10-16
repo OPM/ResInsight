@@ -37,7 +37,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RigNNCData.h
 ${CMAKE_CURRENT_LIST_DIR}/cvfGeometryTools.h
 ${CMAKE_CURRENT_LIST_DIR}/cvfGeometryTools.inl
 ${CMAKE_CURRENT_LIST_DIR}/RigPipeInCellEvaluator.h
-${CMAKE_CURRENT_LIST_DIR}/RigTernaryResultAccessor2d.h
+${CMAKE_CURRENT_LIST_DIR}/RigTernaryResultAccessor.h
 ${CMAKE_CURRENT_LIST_DIR}/RigEclipseNativeStatCalc.h
 ${CMAKE_CURRENT_LIST_DIR}/RigEclipseNativeVisibleCellsStatCalc.h
 ${CMAKE_CURRENT_LIST_DIR}/RigEclipseMultiPropertyStatCalc.h
@@ -102,7 +102,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RigWellPath.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RigFault.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RigNNCData.cpp
 ${CMAKE_CURRENT_LIST_DIR}/cvfGeometryTools.cpp
-${CMAKE_CURRENT_LIST_DIR}/RigTernaryResultAccessor2d.cpp
+${CMAKE_CURRENT_LIST_DIR}/RigTernaryResultAccessor.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RigEclipseNativeStatCalc.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RigEclipseNativeVisibleCellsStatCalc.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RigEclipseMultiPropertyStatCalc.cpp

@@ -17,7 +17,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RigTernaryResultAccessor2d.h"
+#include "RigTernaryResultAccessor.h"
 
 #include "RigResultAccessor.h"
 
