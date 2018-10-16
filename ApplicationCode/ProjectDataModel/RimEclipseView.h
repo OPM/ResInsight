@@ -57,6 +57,7 @@ class RimStimPlanColors;
 class RimVirtualPerforationResults;
 class RiuViewer;
 class RivReservoirSimWellsPartMgr;
+class Riv2dGridProjectionPartMgr;
 class RivIntersectionPartMgr;
 class RivReservoirViewPartMgr;
 
@@ -198,6 +199,7 @@ private:
 
     cvf::ref<RivReservoirViewPartMgr>               m_reservoirGridPartManager;
     cvf::ref<RivReservoirSimWellsPartMgr>           m_simWellsPartManager;
+    cvf::ref<Riv2dGridProjectionPartMgr>            m_grid2dProjectionPartMgr;
     
     std::vector<RivCellSetEnum>                     m_visibleGridParts;
 };

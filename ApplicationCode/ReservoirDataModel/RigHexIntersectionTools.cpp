@@ -81,6 +81,42 @@ int RigHexIntersectionTools::lineHexCellIntersection(const cvf::Vec3d p1,
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RigHexIntersectionTools::lineIntersectsHexCell(const cvf::Vec3d p1, const cvf::Vec3d p2, const cvf::Vec3d hexCorners[8])
+{
+    for (int face = 0; face < 6; ++face)
+    {
+        cvf::ubyte faceVertexIndices[4];
+        cvf::StructGridInterface::cellFaceVertexIndices(static_cast<cvf::StructGridInterface::FaceType>(face), faceVertexIndices);
+
+        cvf::Vec3d intersection;
+        bool isEntering = false;
+        cvf::Vec3d faceCenter = cvf::GeometryTools::computeFaceCenter(hexCorners[faceVertexIndices[0]],
+            hexCorners[faceVertexIndices[1]],
+            hexCorners[faceVertexIndices[2]],
+            hexCorners[faceVertexIndices[3]]);
+
+        for (int i = 0; i < 4; ++i)
+        {
+            int next = i < 3 ? i + 1 : 0;
+
+            int intsStatus = cvf::GeometryTools::intersectLineSegmentTriangle(p1, p2,
+                hexCorners[faceVertexIndices[i]],
+                hexCorners[faceVertexIndices[next]],
+                faceCenter,
+                &intersection,
+                &isEntering);
+            if (intsStatus == 1)
+            {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 bool RigHexIntersectionTools::isPointInCell(const cvf::Vec3d point, 

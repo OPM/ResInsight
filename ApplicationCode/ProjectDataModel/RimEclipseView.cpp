@@ -35,6 +35,7 @@
 #include "RigSimWellData.h"
 #include "RigVirtualPerforationTransmissibilities.h"
 
+#include "Rim2dGridProjection.h"
 #include "Rim3dOverlayInfoConfig.h"
 #include "RimCellEdgeColors.h"
 #include "RimCellRangeFilterCollection.h"
@@ -67,6 +68,7 @@
 #include "RiuSelectionManager.h"
 #include "RiuViewer.h"
 
+#include "Riv2dGridProjectionPartMgr.h"
 #include "RivReservoirSimWellsPartMgr.h"
 #include "RivReservoirViewPartMgr.h"
 #include "RivSingleCellPartGenerator.h"
@@ -158,7 +160,7 @@ RimEclipseView::RimEclipseView()
 
     m_reservoirGridPartManager = new RivReservoirViewPartMgr(this);
     m_simWellsPartManager = new RivReservoirSimWellsPartMgr(this);
-    
+    m_grid2dProjectionPartMgr = new Riv2dGridProjectionPartMgr(grid2dProjection());
     m_eclipseCase = nullptr;
 }
 
@@ -778,9 +780,23 @@ void RimEclipseView::updateCurrentTimeStep()
                 simWellFracturesModelBasicList->updateBoundingBoxesRecursive();
                 frameScene->addModel(simWellFracturesModelBasicList.p());
             }
+            if (m_2dGridProjection->isChecked())
+            {
+                cvf::String name = "Grid2dProjection";
+                this->removeModelByName(frameScene, name);
+
+                cvf::ref<cvf::ModelBasicList> grid2dProjectionModelBasicList = new cvf::ModelBasicList;
+                grid2dProjectionModelBasicList->setName(name);
+
+                cvf::ref<caf::DisplayCoordTransform> transForm = this->displayCoordTransform();
+
+                m_grid2dProjectionPartMgr->appendProjectionToModel(grid2dProjectionModelBasicList.p(), transForm.p());
+                grid2dProjectionModelBasicList->updateBoundingBoxesRecursive();
+                frameScene->addModel(grid2dProjectionModelBasicList.p());
+            }
         }
     }
-
+    
     m_overlayInfoConfig()->update3DInfo();
 
     // Invisible Wells are marked as read only when "show wells intersecting visible cells" is enabled
@@ -1508,7 +1524,7 @@ void RimEclipseView::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering
     
     uiTreeOrdering.add(m_rangeFilterCollection());
     uiTreeOrdering.add(m_propertyFilterCollection());
-
+    uiTreeOrdering.add(m_2dGridProjection());
     uiTreeOrdering.skipRemainingChildren(true);
 }
 

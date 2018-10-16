@@ -20,6 +20,7 @@
 
 #include "RiaApplication.h"
 
+#include "Rim2dGridProjection.h"
 #include "Rim3dOverlayInfoConfig.h"
 #include "RimCellRangeFilterCollection.h"
 #include "RimGridCollection.h"
@@ -62,12 +63,16 @@ RimGridView::RimGridView()
     m_gridCollection.uiCapability()->setUiHidden(true);
     m_gridCollection = new RimGridCollection();
 
+    CAF_PDM_InitFieldNoDefault(&m_2dGridProjection, "Grid2dProjection", "2d Grid Projection", "", "", "");
+    m_2dGridProjection = new Rim2dGridProjection();
+
     m_previousGridModeMeshLinesWasFaults = false;
 
     CAF_PDM_InitFieldNoDefault(&m_overlayInfoConfig, "OverlayInfoConfig", "Info Box", "", "", "");
     m_overlayInfoConfig = new Rim3dOverlayInfoConfig();
     m_overlayInfoConfig->setReservoirView(this);
     m_overlayInfoConfig.uiCapability()->setUiHidden(true);
+
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -259,6 +264,14 @@ RimViewLinker* RimGridView::assosiatedViewLinker() const
 bool RimGridView::isGridVisualizationMode() const
 {
     return this->m_gridCollection->isActive();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+Rim2dGridProjection* RimGridView::grid2dProjection() const
+{
+    return m_2dGridProjection().p();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -120,6 +120,36 @@ size_t RigMainGrid::findReservoirCellIndexFromPoint(const cvf::Vec3d& point) con
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<size_t> RigMainGrid::findAllReservoirCellIndicesMatching2dPoint(const cvf::Vec2d& point2d) const
+{
+    cvf::BoundingBox gridBoundingVox = boundingBox();
+    cvf::Vec3d highestPoint(point2d, gridBoundingVox.max().z());
+    cvf::Vec3d lowestPoint (point2d, gridBoundingVox.min().z());
+
+    cvf::BoundingBox rayBBox;
+    rayBBox.add(highestPoint);
+    rayBBox.add(lowestPoint);
+
+    std::vector<size_t> cellIndices;
+    m_mainGrid->findIntersectingCells(rayBBox, &cellIndices);
+
+    cvf::Vec3d hexCorners[8];
+    for (size_t cellIndex : cellIndices)
+    {
+        m_mainGrid->cellCornerVertices(cellIndex, hexCorners);
+
+        if (RigHexIntersectionTools::lineIntersectsHexCell(highestPoint, lowestPoint, hexCorners))
+        {
+            cellIndices.push_back(cellIndex);
+        }
+    }
+
+    return cellIndices;
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void RigMainGrid::addLocalGrid(RigLocalGrid* localGrid)

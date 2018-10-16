@@ -23,6 +23,7 @@
 #include "cvfBase.h"
 #include "cvfArray.h"
 
+class Rim2dGridProjection;
 class Rim3dOverlayInfoConfig;
 class RimIntersectionCollection;
 class RimPropertyFilterCollection;
@@ -58,6 +59,8 @@ public:
 
     virtual bool                                      isGridVisualizationMode() const override;
 
+    Rim2dGridProjection*                              grid2dProjection() const;
+
 protected:
     virtual void                                      initAfterRead() override;
     virtual void                                      onTimeStepChanged() override;
@@ -72,7 +75,7 @@ protected: // Fields
     caf::PdmChildField<RimCellRangeFilterCollection*> m_rangeFilterCollection;
     caf::PdmChildField<RimCellRangeFilterCollection*> m_overrideRangeFilterCollection;
     caf::PdmChildField<RimGridCollection*>            m_gridCollection;
-
+    caf::PdmChildField<Rim2dGridProjection*>          m_2dGridProjection;
 protected:
     cvf::ref<cvf::UByteArray>                         m_currentReservoirCellVisibility;
 
