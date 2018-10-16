@@ -208,6 +208,7 @@ void RicExportLgrUi::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
     gridRefinement->add(&m_cellCountI);
     gridRefinement->add(&m_cellCountJ);
     gridRefinement->add(&m_cellCountK);
+    gridRefinement->add(&m_splitType);
 
     uiOrdering.skipRemainingFields(true);
 }
