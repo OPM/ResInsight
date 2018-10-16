@@ -5,7 +5,6 @@
 #include "RigMainGrid.h"
 #include "RigResultAccessor.h"
 #include "RigResultAccessorFactory.h"
-#include "RigTernaryResultAccessor2d.h"
 
 #include "RimEclipseCellColors.h"
 #include "RimEclipseView.h"
