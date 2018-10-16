@@ -68,6 +68,7 @@ public:
 
     size_t                      gridIndex(uint i, uint j) const;
     cvf::Vec2ui                 ijFromGridIndex(size_t gridIndex) const;
+    void                        updateLegendData();
 protected:
     cvf::Vec2d                  globalPos2d(uint i, uint j) const;
     const std::vector<size_t>&  cellsAtPos2d(uint i, uint j) const;    

@@ -1137,6 +1137,16 @@ void RimEclipseView::updateLegends()
         RimRegularLegendConfig* virtLegend = m_virtualPerforationResult->legendConfig();
         m_viewer->addColorLegendToBottomLeftCorner(virtLegend->titledOverlayFrame());
     }
+
+    if (m_2dGridProjection && m_2dGridProjection->isChecked())
+    {
+        RimRegularLegendConfig* projectionLegend = m_2dGridProjection->legendConfig();
+        if (projectionLegend && projectionLegend->showLegend())
+        {
+            m_2dGridProjection->updateLegendData();
+            m_viewer->addColorLegendToBottomLeftCorner(projectionLegend->titledOverlayFrame());
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

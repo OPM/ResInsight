@@ -48,6 +48,7 @@ Rim2dGridProjection::Rim2dGridProjection()
 
     setName("2d Grid Projection");
     nameField()->uiCapability()->setUiReadOnly(true);
+    setCheckState(false); // Default is off
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -63,10 +64,17 @@ Rim2dGridProjection::~Rim2dGridProjection()
 //--------------------------------------------------------------------------------------------------
 void Rim2dGridProjection::extractGridData()
 {
+    updateDefaultSampleSpacingFromGrid();
+
+    if (vertexCount() == m_projected3dGridIndices.size())
+    {
+        return;
+    }
+
     cvf::BoundingBox boundingBox = eclipseCase()->activeCellsBoundingBox();
     cvf::Vec3d gridExtent = boundingBox.extent();
 
-    cvf::Vec2ui gridSize2d = surfaceGridSize();
+    cvf::Vec2ui gridSize2d = surfaceGridSize();    
 
     RimEclipseResultCase* eclipseCase = nullptr;
     firstAncestorOrThisOfTypeAsserted(eclipseCase);
@@ -93,8 +101,7 @@ void Rim2dGridProjection::extractGridData()
             m_projected3dGridIndices[gridIndex(i, j)] = activeCellMatches;
                 
         }
-    }
-    m_legendConfig->setAutomaticRanges(minValue(), maxValue(), minValue(), maxValue());
+    }    
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -221,6 +228,14 @@ double Rim2dGridProjection::value(uint i, uint j) const
 //--------------------------------------------------------------------------------------------------
 bool Rim2dGridProjection::hasResultAt(uint i, uint j) const
 {
+    RimEclipseView* view = nullptr;
+    firstAncestorOrThisOfTypeAsserted(view);
+    RimEclipseCellColors* cellColors = view->cellResult();
+
+    if (cellColors->isTernarySaturationSelected())
+    {
+        return false;
+    }
     return !cellsAtPos2d(i, j).empty();
 }
 
@@ -309,10 +324,24 @@ cvf::Vec2ui Rim2dGridProjection::ijFromGridIndex(size_t index) const
 
     cvf::Vec2ui gridSize2d = surfaceGridSize();
 
-    unsigned int quotientX  = index / gridSize2d.x();
-    unsigned int remainderX = index % gridSize2d.x();
+    uint quotientX  = static_cast<uint>(index) / gridSize2d.x();
+    uint remainderX = static_cast<uint>(index) % gridSize2d.x();
 
     return cvf::Vec2ui(remainderX, quotientX);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void Rim2dGridProjection::updateLegendData()
+{
+    RimEclipseView* view = nullptr;
+    firstAncestorOrThisOfTypeAsserted(view);
+    RimEclipseCellColors* cellColors = view->cellResult();
+
+    extractGridData();
+    m_legendConfig->setAutomaticRanges(minValue(), maxValue(), minValue(), maxValue());
+    m_legendConfig->setTitle(QString("2d Projection:\n%1").arg(cellColors->resultVariableUiShortName()));
 }
 
 //--------------------------------------------------------------------------------------------------
