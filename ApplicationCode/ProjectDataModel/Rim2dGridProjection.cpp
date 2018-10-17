@@ -129,7 +129,10 @@ double Rim2dGridProjection::maxValue() const
     {
         for (uint j = 0; j < gridSize.y(); ++j)
         {
-            maxV = std::max(maxV, value(i, j));
+            if (hasResultAt(i, j))
+            {
+                maxV = std::max(maxV, value(i, j));
+            }
         }
     }
     return maxV;
@@ -146,7 +149,10 @@ double Rim2dGridProjection::minValue() const
     {
         for (uint j = 0; j < gridSize.y(); ++j)
         {
-            minV = std::min(minV, value(i, j));
+            if (hasResultAt(i, j))
+            {
+                minV = std::min(minV, value(i, j));
+            }
         }
     }
     return minV;
@@ -211,20 +217,19 @@ double Rim2dGridProjection::value(uint i, uint j) const
         }
         avgValue = calculator.weightedMean();
 
+        switch (m_resultAggregation())
+        {
+        case RESULTS_MEAN_VALUE:
+            return avgValue;
+        case RESULTS_MAX_VALUE:
+            return maxValue;
+        case RESULTS_MIN_VALUE:
+            return minValue;
+        default:
+            CVF_TIGHT_ASSERT(false);
+        }
     }
-    
-    switch (m_resultAggregation())
-    {
-    case RESULTS_MEAN_VALUE:
-        return avgValue;
-    case RESULTS_MAX_VALUE:
-        return maxValue;
-    case RESULTS_MIN_VALUE:
-        return minValue;
-    default:
-        CVF_TIGHT_ASSERT(false);
-    }
-    return 0.0;
+    return std::numeric_limits<double>::infinity();
 }
 
 //--------------------------------------------------------------------------------------------------
