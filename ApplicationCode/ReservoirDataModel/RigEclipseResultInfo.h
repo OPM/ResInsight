@@ -60,11 +60,9 @@ public:
     const QString&              resultName() const;
     void                        setResultName(const QString& name);
     bool                        needsToBeStored() const;
-    void                        setNeedsToBeStored(bool store);    
     bool                        mustBeCalculated() const;
     void                        setMustBeCalculated(bool mustCalculate);
     size_t                      gridScalarResultIndex() const;
-    void                        setGridScalarResultIndex(size_t index);
     
     const std::vector<RigEclipseTimeStepInfo>& timeStepInfos() const;
     void                                       setTimeStepInfos(const std::vector<RigEclipseTimeStepInfo>& timeSteps);

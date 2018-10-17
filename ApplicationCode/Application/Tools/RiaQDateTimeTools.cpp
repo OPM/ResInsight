@@ -265,24 +265,6 @@ bool RiaQDateTimeTools::lessThanOrEqualTo(const QDateTime& dt1, const QDateTime&
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RiaQDateTimeTools::biggerThan(const QDateTime& dt1, const QDateTime& dt2)
-{
-    // dt1 > dt2
-    return dt1.secsTo(dt2) < 0;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-bool RiaQDateTimeTools::biggerThanOrEqualTo(const QDateTime& dt1, const QDateTime& dt2)
-{
-    // dt1 >= dt2
-    return dt1.secsTo(dt2) <= 0;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 const DateTimeSpan RiaQDateTimeTools::timeSpan(DateTimePeriod period)
 {
     switch (period)

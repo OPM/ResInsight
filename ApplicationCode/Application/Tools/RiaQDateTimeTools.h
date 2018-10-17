@@ -92,8 +92,6 @@ public:
     static bool      equalTo(const QDateTime& dt1, const QDateTime& dt2);
     static bool      lessThan(const QDateTime& dt1, const QDateTime& dt2);
     static bool      lessThanOrEqualTo(const QDateTime& dt1, const QDateTime& dt2);
-    static bool      biggerThan(const QDateTime& dt1, const QDateTime& dt2);
-    static bool      biggerThanOrEqualTo(const QDateTime& dt1, const QDateTime& dt2);
 
     static const DateTimeSpan   timeSpan(DateTimePeriod period);
     static QDateTime            truncateTime(const QDateTime& dt, DateTimePeriod period);

@@ -116,14 +116,6 @@ void RimWellLogCurveCommonDataSource::setWellPathToApply(RimWellPath* val)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int RimWellLogCurveCommonDataSource::branchIndexToApply() const
-{
-    return m_branchIndex;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimWellLogCurveCommonDataSource::setBranchIndexToApply(int val)
 {
     m_branchIndex = val;

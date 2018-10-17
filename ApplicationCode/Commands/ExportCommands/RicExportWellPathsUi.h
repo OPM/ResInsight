@@ -35,7 +35,6 @@ public:
     RicExportWellPathsUi();
 
     void setExportFolder(const QString& exportFolder);
-    void setMdStepSize(double mdStepSize);
 
     QString      exportFolder() const;
     double       mdStepSize() const;

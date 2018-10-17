@@ -461,12 +461,3 @@ void RimSummaryFilter::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
     }
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimSummaryFilter::setCompleteVarStringFilter(const QString& stringFilter)
-{
-    m_filterType = SUM_FILTER_VAR_STRING;
-    m_completeVarStringFilter = stringFilter;
-}
-

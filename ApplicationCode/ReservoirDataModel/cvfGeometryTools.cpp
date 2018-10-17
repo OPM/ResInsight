@@ -984,14 +984,6 @@ FanEarClipTesselator::FanEarClipTesselator() :
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void FanEarClipTesselator::setCenterNode(size_t centerNodeIndex)
-{
-    m_centerNodeIndex = centerNodeIndex;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 bool FanEarClipTesselator::calculateTriangles(std::vector<size_t>* triangles)
 {
     CVF_ASSERT(m_centerNodeIndex != std::numeric_limits<size_t>::max());

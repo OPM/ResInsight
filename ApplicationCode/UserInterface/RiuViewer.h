@@ -113,8 +113,6 @@ public:
 
     cvf::OverlayItem*   pickFixedPositionedLegend(int winPosX, int winPosY);
 
-    void            updateParallelProjectionSettings(RiuViewer* sourceViewer);
-
     void            setCursorPosition(const cvf::Vec3d& domainCoord);
 
     std::vector<cvf::ref<cvf::Part>> visibleParts();
@@ -160,8 +158,6 @@ private:
     cvf::ref<cvf::OverlayAxisCross> m_axisCross;
     bool                            m_showAxisCross;
     cvf::Collection<caf::TitledOverlayFrame> m_visibleLegends;
-    cvf::Collection<cvf::OverlayItem> allOverlayItems();
-
 
     caf::PdmInterfacePointer<RiuViewerToViewInterface>    m_rimView;
     QPoint                      m_lastMousePressPosition;

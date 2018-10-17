@@ -341,14 +341,6 @@ void RicFileHierarchyDialog::updateStatus(Status status, const QString& extraTex
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RicFileHierarchyDialog::currentStatus() const
-{
-    return m_fileList->item(0) ? m_fileList->item(0)->text() : "";
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 QStringList RicFileHierarchyDialog::findMatchingFiles()
 {
     if (m_rootDir->text().isEmpty()) return QStringList();

@@ -852,48 +852,6 @@ void RivIntersectionPartMgr::createExtrusionDirParts(bool useBufferObjects)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::ref<cvf::Part>
-    createStdSurfacePart(cvf::DrawableGeo* geometry, const cvf::Color3f& color, cvf::String name, cvf::Object* sourceInfo)
-{
-    if (!geometry) return nullptr;
-
-    cvf::ref<cvf::Part> part = new cvf::Part;
-    part->setName(name);
-    part->setDrawable(geometry);
-
-    caf::SurfaceEffectGenerator surfaceGen(color, caf::PO_1);
-    cvf::ref<cvf::Effect>       eff = surfaceGen.generateCachedEffect();
-    part->setEffect(eff.p());
-
-    part->setSourceInfo(sourceInfo);
-    part->updateBoundingBox();
-
-    return part;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-cvf::ref<cvf::Part> createStdLinePart(cvf::DrawableGeo* geometry, const cvf::Color3f& color, cvf::String name)
-{
-    if (!geometry) return nullptr;
-
-    cvf::ref<cvf::Part> part = new cvf::Part;
-    part->setName(name);
-    part->setDrawable(geometry);
-
-    caf::MeshEffectGenerator gen(color);
-    cvf::ref<cvf::Effect>    eff = gen.generateCachedEffect();
-
-    part->setEffect(eff.p());
-    part->updateBoundingBox();
-
-    return part;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RivIntersectionPartMgr::appendNativeCrossSectionFacesToModel(cvf::ModelBasicList* model, cvf::Transform* scaleTransform)
 {
     if (m_crossSectionFaces.isNull())

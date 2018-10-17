@@ -187,7 +187,6 @@ class FanEarClipTesselator : public EarClipTesselator
 {
 public:
     FanEarClipTesselator();
-    void setCenterNode(size_t centerNodeIndex );
 
     virtual bool calculateTriangles(std::vector<size_t>* triangles);
 private:

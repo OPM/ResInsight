@@ -117,19 +117,6 @@ QString RimObservedData::customWellName() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RimObservedData::customWellGroupName() const
-{
-    if (m_useCustomIdentifier() && m_summaryCategory() == RifEclipseSummaryAddress::SUMMARY_WELL_GROUP)
-    {
-        return m_identifierName();
-    }
-
-    return "";
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo> RimObservedData::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly)
 {
     if (fieldNeedingOptions == &m_summaryCategory)

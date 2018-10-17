@@ -510,21 +510,6 @@ void RiuViewer::mousePressEvent(QMouseEvent* event)
     m_lastMousePressPosition = event->pos();
 }
 
-
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-cvf::Collection<cvf::OverlayItem> RiuViewer::allOverlayItems()
-{
-    cvf::Collection<cvf::OverlayItem> allOverLays;
-    for (size_t oIdx = 0; oIdx < m_mainRendering->overlayItemCount(); ++oIdx)
-    {
-        allOverLays.push_back(m_mainRendering->overlayItem(oIdx));
-    }
-    return allOverLays;
-}
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -897,18 +882,6 @@ cvf::OverlayItem* RiuViewer::pickFixedPositionedLegend(int winPosX, int winPosY)
     }
 
     return nullptr;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiuViewer::updateParallelProjectionSettings(RiuViewer* sourceViewer)
-{
-    if (!sourceViewer || sourceViewer->m_navigationPolicy.isNull()) return;
-
-    cvf::Vec3d poi = sourceViewer->m_navigationPolicy->pointOfInterest();
-    this->updateParallelProjectionHeightFromMoveZoom(poi);
-    this->updateParallelProjectionCameraPosFromPointOfInterestMove(poi);
 }
 
 //--------------------------------------------------------------------------------------------------

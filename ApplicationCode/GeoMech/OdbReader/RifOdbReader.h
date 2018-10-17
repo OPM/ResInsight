@@ -96,7 +96,6 @@ private:
     const odb_Frame&                                        stepFrame(int stepIndex, int frameIndex) const;
     odb_Instance*                                           instance(int instanceIndex);
 
-    int                                                     componentIndex(const RifOdbResultKey& result, const std::string& componentName);
     std::vector<std::string>                                componentNames(const RifOdbResultKey& result);
     std::map< std::string, std::vector<std::string> >       fieldAndComponentNames(ResultPosition position); 
     std::map< RifOdbResultKey, std::vector<std::string> >   readResultsMetaData(odb_Odb* odb);

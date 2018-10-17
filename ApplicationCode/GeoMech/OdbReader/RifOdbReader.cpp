@@ -682,29 +682,6 @@ size_t RifOdbReader::componentsCount(const std::string& fieldName, ResultPositio
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-int RifOdbReader::componentIndex(const RifOdbResultKey& result, const std::string& componentName)
-{
-    std::vector<std::string> compNames = componentNames(result);
-
-    // If there are no component names, we expect the field to be a pure scalar.
-    // Then an empty string is the valid component name
-    if (!compNames.size() && componentName == "") return 0;
-
-    for (size_t i = 0; i < compNames.size(); i++)
-    {
-        if (compNames[i] == componentName)
-        {
-            return static_cast<int>(i);
-        }
-    }
-
-    return -1;
-}
-
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 std::vector<std::string> RifOdbReader::componentNames(const RifOdbResultKey& result)
 {
     assertMetaDataLoaded();

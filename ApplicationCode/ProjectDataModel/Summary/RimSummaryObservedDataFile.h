@@ -36,8 +36,6 @@ public:
     RimSummaryObservedDataFile();
     virtual ~RimSummaryObservedDataFile();
 
-    void setSummaryHeaderFilename(const QString& fileName);
-
     virtual void createSummaryReaderInterface() override;
     virtual RifSummaryReaderInterface* summaryReader() override;
 

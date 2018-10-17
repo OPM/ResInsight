@@ -48,7 +48,6 @@ public:
     void         setTrajectoryTypeToApply(int val);
     RimWellPath* wellPathToApply() const;
     void         setWellPathToApply(RimWellPath* val);
-    int          branchIndexToApply() const;
     void         setBranchIndexToApply(int val);
     caf::Tristate branchDetectionToApply() const;
     void         setBranchDetectionToApply(caf::Tristate::State val);

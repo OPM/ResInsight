@@ -46,7 +46,6 @@ public:
 
 protected:
     QString                 customWellName() const;
-    QString                 customWellGroupName() const;
 
 private:
     virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;

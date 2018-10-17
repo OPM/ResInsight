@@ -75,14 +75,6 @@ void RimObservedDataCollection::removeObservedData(RimObservedData* observedData
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimObservedDataCollection::addObservedData(RimObservedData* observedData)
-{
-    m_observedDataArray.push_back(observedData);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 std::vector<RimSummaryCase*> RimObservedDataCollection::allObservedData()
 {
     std::vector<RimSummaryCase*> allObservedData;
@@ -109,6 +101,9 @@ bool RimObservedDataCollection::fileExists(const QString& fileName, QString* err
     return true;
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void updateNewSummaryObjectCreated(caf::PdmObject* object)
 {
     RiuPlotMainWindowTools::showPlotMainWindow();

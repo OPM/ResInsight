@@ -79,7 +79,6 @@ public:
     RimWellLogPlot*                                 wellLogPlot() const;
 
     void                                            setCurrentWellName(const QString& currWellName);
-    QString                                         currentWellName() const;
     
     static const char*                              plotNameFormatString();
 

@@ -58,7 +58,6 @@ public:
     void                                removeCase(RimEclipseCase* reservoir);
 
     bool                                contains(RimEclipseCase* reservoir) const;
-    bool                                canCaseBeAdded(RimEclipseCase* reservoir) const;
 
     RimEclipseStatisticsCase*                  createAndAppendStatisticsCase();
 

@@ -66,7 +66,6 @@ private:
     void        appendToFileList(const QString& fileName);
     void        clearFileList();
     void        updateStatus(Status status, const QString& extraText = "");
-    QString     currentStatus() const;
 
     QStringList findMatchingFiles();
 

@@ -52,7 +52,6 @@ public:
     virtual ~RimSummaryFilter();
 
     void            updateFromAddress(const RifEclipseSummaryAddress& address);
-    void            setCompleteVarStringFilter(const QString& stringFilter);
 
     bool            isIncludedByFilter(const RifEclipseSummaryAddress& addr) const;
 

@@ -234,45 +234,6 @@ void RimWellPathGeometryDef::appendTarget()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellPathGeometryDef::addSmootheningTangentToNextToLastTargetIfSensible()
-{
-    if (m_wellTargets.size() < 3) return;
-    size_t targetMaxIdx = m_wellTargets.size() - 1;
-
-    RimWellPathTarget* t1 = m_wellTargets[targetMaxIdx - 2];
-    RimWellPathTarget* t2 = m_wellTargets[targetMaxIdx - 1];
-    RimWellPathTarget* t3 = m_wellTargets[targetMaxIdx - 0];
-
-    if ( t2->targetType() != RimWellPathTarget::POINT ) return;
-
-    cvf::Vec3d t1t2 = t2->targetPointXYZ() - t1->targetPointXYZ();
-    cvf::Vec3d t2t3 = t3->targetPointXYZ() - t2->targetPointXYZ();
-
-    double angle = cvf::GeometryTools::getAngle(t1t2, t2t3);
-
-    if (angle < 0.3927) return; //  pi/8
-
-    double length12 = t1t2.length();
-    double length23 = t2t3.length();
-
-    t1t2 /= length12; // Normalize
-    t2t3 /= length23; // Normalize
-
-    // Inverse distance:
-
-    t1t2 /= length12; // Weight
-    t2t3 /= length23; // Weight
-
-    cvf::Vec3d averageTangent = 1.0/(1.0/length12 + 1.0/length23) * (t1t2 + t2t3);
-
-    RiaOffshoreSphericalCoords aziInc(averageTangent);
-    t2->setAsPointXYZAndTangentTarget(t2->targetPointXYZ(), aziInc.azi(), aziInc.inc());
-
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 const RimWellPathTarget* RimWellPathGeometryDef::firstActiveTarget() const
 {
     for (const RimWellPathTarget* target: m_wellTargets)

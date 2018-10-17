@@ -43,14 +43,7 @@ public:
 
     // Coordinates and orientations
     void setPipeCenterCoords(const cvf::Vec3dArray* coords);
-        
-    // Pipe bends with a opening angle below given angle is modified with extra bend coordinates
-    void setMinimumBendAngle(double degrees);
     
-    // Scaling factor used to control how far from original pipe position the extra bend coordinates are located
-    // This will affect how sharp or smooth bend will appear
-    void setBendScalingFactor(double scaleFactor);
-
     // Appearance
     void setRadius(double radius);
     void setCrossSectionVertexCount(size_t vertexCount);
@@ -106,7 +99,13 @@ private:
     size_t                      m_firstVisibleSegmentIndex;
 
     double                      m_radius;
+
+    // Pipe bends with a opening angle below given angle is modified with extra bend coordinates
     double                      m_minimumBendAngle;
+
+    // Scaling factor used to control how far from original pipe position the extra bend coordinates are located
+    // This will affect how sharp or smooth bend will appear
     double                      m_bendScalingFactor;
+
     size_t                      m_crossSectionNodeCount;
 };

@@ -105,14 +105,6 @@ bool RigEclipseResultInfo::needsToBeStored() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigEclipseResultInfo::setNeedsToBeStored(bool store)
-{
-    m_needsToBeStored = store;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 bool RigEclipseResultInfo::mustBeCalculated() const
 {
     return m_mustBeCalculated;
@@ -132,14 +124,6 @@ void RigEclipseResultInfo::setMustBeCalculated(bool mustCalculate)
 size_t RigEclipseResultInfo::gridScalarResultIndex() const
 {
     return m_gridScalarResultIndex;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RigEclipseResultInfo::setGridScalarResultIndex(size_t index)
-{
-    m_gridScalarResultIndex = index;
 }
 
 //--------------------------------------------------------------------------------------------------

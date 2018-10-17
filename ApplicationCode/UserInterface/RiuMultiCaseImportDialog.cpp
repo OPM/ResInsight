@@ -68,11 +68,6 @@ public:
         }
     }
 
-    void setItemsEditable(bool isEditable)
-    {
-        m_isItemsEditable = isEditable;
-    }
-
 private:
     bool m_isItemsEditable;
 };

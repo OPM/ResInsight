@@ -62,26 +62,6 @@ void RivPipeGeometryGenerator::setPipeCenterCoords(const cvf::Vec3dArray* coords
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivPipeGeometryGenerator::setMinimumBendAngle(double degrees)
-{
-    m_minimumBendAngle = degrees;
-
-    clearComputedData();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RivPipeGeometryGenerator::setBendScalingFactor(double scaleFactor)
-{
-    m_bendScalingFactor = scaleFactor;
-
-    clearComputedData();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 void RivPipeGeometryGenerator::setRadius(double radius)
 {
     CVF_ASSERT(0 <= radius && radius < 1e100);

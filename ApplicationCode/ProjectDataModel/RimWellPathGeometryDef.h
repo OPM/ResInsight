@@ -58,8 +58,6 @@ public:
     void                            deleteTarget(RimWellPathTarget* targetTodelete);
     void                            appendTarget();
 
-    void                            addSmootheningTangentToNextToLastTargetIfSensible();
-
     const RimWellPathTarget*        firstActiveTarget() const;
     const RimWellPathTarget*        lastActiveTarget() const;
 

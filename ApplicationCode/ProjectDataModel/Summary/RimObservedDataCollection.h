@@ -37,7 +37,6 @@ public:
     virtual ~RimObservedDataCollection();
 
     void                            removeObservedData(RimObservedData* observedData);
-    void                            addObservedData(RimObservedData* observedData);
     RimObservedData*                createAndAddRsmObservedDataFromFile(const QString& fileName, QString* errorText = nullptr);
     RimObservedData*                createAndAddCvsObservedDataFromFile(const QString& fileName, bool useSavedFieldsValuesInDialog, QString* errorText = nullptr);
     std::vector<RimSummaryCase*>    allObservedData();

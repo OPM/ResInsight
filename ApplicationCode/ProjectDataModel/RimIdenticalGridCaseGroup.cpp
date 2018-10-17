@@ -514,25 +514,3 @@ RimEclipseCase* RimIdenticalGridCaseGroup::mainCase()
     }
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-bool RimIdenticalGridCaseGroup::canCaseBeAdded(RimEclipseCase* reservoir) const
-{
-    CVF_ASSERT(reservoir && reservoir->eclipseCaseData() && reservoir->eclipseCaseData()->mainGrid());
-
-    if (!m_mainGrid)
-    {
-        // Empty case group, reservoir can be added
-        return true;
-    }
-
-    RigMainGrid* incomingMainGrid = reservoir->eclipseCaseData()->mainGrid();
-    
-    if (RigGridManager::isEqual(m_mainGrid, incomingMainGrid))
-    {
-        return true;
-    }
-
-    return false;
-}

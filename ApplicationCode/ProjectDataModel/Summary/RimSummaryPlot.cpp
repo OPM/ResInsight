@@ -1025,25 +1025,6 @@ RimEnsembleCurveSetCollection* RimSummaryPlot::ensembleCurveSetCollection() cons
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimSummaryPlot::setCurveCollection(RimSummaryCurveCollection* curveCollection)
-{
-    if (curveCollection)
-    {
-        // Delete current curve coll ?
-
-
-        m_summaryCurveCollection = curveCollection;
-        if (m_qwtPlot)
-        {
-            m_summaryCurveCollection->setParentQwtPlotAndReplot(m_qwtPlot);
-            this->updateAxes();
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::addGridTimeHistoryCurve(RimGridTimeHistoryCurve* curve)
 {
     CVF_ASSERT(curve);

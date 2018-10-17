@@ -76,7 +76,6 @@ public:
     void                                            deleteCurve(RimSummaryCurve* curve);
     void                                            deleteCurves(const std::vector<RimSummaryCurve*>& curves);
 
-    void                                            setCurveCollection(RimSummaryCurveCollection* curveCollection);
     void                                            deleteCurvesAssosiatedWithCase(RimSummaryCase* summaryCase);
 
     RimEnsembleCurveSetCollection*                  ensembleCurveSetCollection() const;
