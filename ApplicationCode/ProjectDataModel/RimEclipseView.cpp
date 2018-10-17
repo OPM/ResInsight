@@ -566,6 +566,10 @@ void RimEclipseView::createDisplayModel()
 void RimEclipseView::updateCurrentTimeStep()
 {
     m_propertyFilterCollection()->updateFromCurrentTimeStep();
+    if (m_2dGridProjection->isChecked())
+    {
+        m_2dGridProjection->generateResults();
+    }
 
     updateLegends(); // To make sure the scalar mappers are set up correctly
 
@@ -1143,7 +1147,7 @@ void RimEclipseView::updateLegends()
         RimRegularLegendConfig* projectionLegend = m_2dGridProjection->legendConfig();
         if (projectionLegend && projectionLegend->showLegend())
         {
-            m_2dGridProjection->updateLegendData();
+            m_2dGridProjection->updateLegend();
             m_viewer->addColorLegendToBottomLeftCorner(projectionLegend->titledOverlayFrame());
         }
     }

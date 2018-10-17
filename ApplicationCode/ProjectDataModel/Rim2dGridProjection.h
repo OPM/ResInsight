@@ -52,8 +52,8 @@ public:
     Rim2dGridProjection();
     ~Rim2dGridProjection() override;
 
-    void                        extractGridData();
     void                        generateVertices(cvf::Vec3fArray* vertices, const caf::DisplayCoordTransform* displayCoordTransform);
+    void                        generateResults();
     double                      maxValue() const;
     double                      minValue() const;
     double                      sampleSpacing() const;
@@ -68,9 +68,11 @@ public:
 
     size_t                      gridIndex(uint i, uint j) const;
     cvf::Vec2ui                 ijFromGridIndex(size_t gridIndex) const;
-    void                        updateLegendData();
+    void                        updateLegend();
 
 protected:
+    void                                           generateGridMapping();
+    void                                           calculateCellRangeVisibility();
     cvf::Vec2d                                     globalPos2d(uint i, uint j) const;
     const std::vector<std::pair<size_t, float>>&   cellsAtPos2d(uint i, uint j) const;    
     std::vector<std::pair<size_t, float>>          visibleCellsAndWeightMatching2dPoint(const cvf::Vec2d& globalPos2d) const;
@@ -86,7 +88,9 @@ protected:
     caf::PdmField<double>                              m_sampleSpacing;
     caf::PdmField<ResultAggregation>                   m_resultAggregation;
     caf::PdmChildField<RimRegularLegendConfig*>        m_legendConfig;
+    cvf::ref<cvf::UByteArray>                          m_cellVisibility;
 
+    std::vector<double>                                m_aggregatedResults;
     std::vector<std::vector<std::pair<size_t, float>>> m_projected3dGridIndices;
 
 

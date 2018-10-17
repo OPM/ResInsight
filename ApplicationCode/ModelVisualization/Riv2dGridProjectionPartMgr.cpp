@@ -103,8 +103,6 @@ void Riv2dGridProjectionPartMgr::removeTrianglesWithNoResult(cvf::UIntArray* ver
 //--------------------------------------------------------------------------------------------------
 cvf::ref<cvf::DrawableGeo> Riv2dGridProjectionPartMgr::createDrawable(const caf::DisplayCoordTransform* displayCoordTransform) const
 {
-    m_2dGridProjection->extractGridData();
-
     cvf::ref<cvf::Vec3fArray> vertexArray = new cvf::Vec3fArray;
     m_2dGridProjection->generateVertices(vertexArray.p(), displayCoordTransform);
     cvf::Vec2ui patchSize = m_2dGridProjection->surfaceGridSize();
