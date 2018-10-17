@@ -312,8 +312,13 @@ std::vector<std::pair<size_t, float>> Rim2dGridProjection::visibleCellsAndWeight
 
     std::vector<RimCellRangeFilterCollection*> rangeFilterCollections;
     view->descendantsIncludingThisOfType(rangeFilterCollections);
+
+    bool hasActiveFilters = rangeFilterCollections.front()->hasActiveFilters();
     cvf::CellRangeFilter cellRangeFilter;
-    rangeFilterCollections.front()->compoundCellRangeFilter(&cellRangeFilter, mainGrid()->gridIndex());
+    if (hasActiveFilters)
+    {
+        rangeFilterCollections.front()->compoundCellRangeFilter(&cellRangeFilter, mainGrid()->gridIndex());
+    }
 
     const RigActiveCellInfo* activeCellInfo = eclipseCase()->eclipseCaseData()->activeCellInfo(RiaDefines::MATRIX_MODEL);
 
@@ -338,7 +343,7 @@ std::vector<std::pair<size_t, float>> Rim2dGridProjection::visibleCellsAndWeight
             RigGridBase* localGrid = mainGrid()->gridAndGridLocalIdxFromGlobalCellIdx(globalCellIdx, &localCellIdx);
             size_t i, j, k;
             localGrid->ijkFromCellIndex(localCellIdx, &i, &j, &k);
-            if (cellRangeFilter.isCellVisible(i, j, k, !localGrid->isMainGrid()))
+            if (!hasActiveFilters || cellRangeFilter.isCellVisible(i, j, k, !localGrid->isMainGrid()))
             {
                 localGrid->cellCornerVertices(localCellIdx, hexCorners);
                 std::vector<HexIntersectionInfo> intersections;
