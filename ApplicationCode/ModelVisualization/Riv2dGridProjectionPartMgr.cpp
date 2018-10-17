@@ -34,7 +34,7 @@ void Riv2dGridProjectionPartMgr::appendProjectionToModel(cvf::ModelBasicList* mo
 
         cvf::ref<cvf::Vec2fArray> textureCoords = createTextureCoords();
         cvf::ScalarMapper* mapper = m_2dGridProjection->legendConfig()->scalarMapper();
-        RivScalarMapperUtils::applyTextureResultsToPart(part.p(), textureCoords.p(), mapper, 1.0, caf::FC_NONE, true);
+        RivScalarMapperUtils::applyTextureResultsToPart(part.p(), textureCoords.p(), mapper, 1.0f, caf::FC_NONE, true);
 
         part->setSourceInfo(new RivMeshLinesSourceInfo(m_2dGridProjection.p()));
 
@@ -55,9 +55,16 @@ cvf::ref<cvf::Vec2fArray> Riv2dGridProjectionPartMgr::createTextureCoords() cons
     {
         for (uint i = 0; i < patchSize.x(); ++i)
         {
-            double value = m_2dGridProjection->value(i, j);
-            (*textureCoords)[i + j * patchSize.x()] =
-                m_2dGridProjection->legendConfig()->scalarMapper()->mapToTextureCoord(value);
+            if (m_2dGridProjection->hasResultAt(i, j))
+            {
+                double value = m_2dGridProjection->value(i, j);
+                (*textureCoords)[i + j * patchSize.x()] =
+                    m_2dGridProjection->legendConfig()->scalarMapper()->mapToTextureCoord(value);
+            }
+            else
+            {
+                (*textureCoords)[i + j * patchSize.x()] = cvf::Vec2f(1.0, 1.0);
+            }
         }
     }
     return textureCoords;

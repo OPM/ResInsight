@@ -1,18 +1,29 @@
 #include "Rim2dGridProjection.h"
 
+#include "RiaWeightedMeanCalculator.h"
+
 #include "RigActiveCellInfo.h"
 #include "RigEclipseCaseData.h"
+#include "RigHexIntersectionTools.h"
 #include "RigMainGrid.h"
 #include "RigResultAccessor.h"
 #include "RigResultAccessorFactory.h"
+
+#include "RivReservoirViewPartMgr.h"
 
 #include "RimEclipseCellColors.h"
 #include "RimEclipseView.h"
 #include "RimEclipseResultCase.h"
 #include "RimProject.h"
+#include "RimCellRangeFilterCollection.h"
 
 #include "cafPdmUiDoubleSliderEditor.h"
 #include "cafPdmUiTreeOrdering.h"
+#include "cvfArray.h"
+#include "cvfCellRange.h"
+#include "cvfStructGridGeometryGenerator.h"
+
+#include <QDebug>
 
 #include <algorithm>
 
@@ -65,11 +76,6 @@ void Rim2dGridProjection::extractGridData()
 {
     updateDefaultSampleSpacingFromGrid();
 
-    if (vertexCount() == m_projected3dGridIndices.size())
-    {
-        return;
-    }
-
     cvf::BoundingBox boundingBox = eclipseCase()->activeCellsBoundingBox();
     cvf::Vec3d gridExtent = boundingBox.extent();
 
@@ -78,27 +84,13 @@ void Rim2dGridProjection::extractGridData()
     RimEclipseResultCase* eclipseCase = nullptr;
     firstAncestorOrThisOfTypeAsserted(eclipseCase);
 
-    RigActiveCellInfo* activeCellInfo = eclipseCase->eclipseCaseData()->activeCellInfo(RiaDefines::MATRIX_MODEL);
-
     m_projected3dGridIndices.resize(vertexCount());
     for (uint j = 0; j < gridSize2d.y(); ++j)
     {
         for (uint i = 0; i < gridSize2d.x(); ++i)
         {            
             cvf::Vec2d globalPos = globalPos2d(i, j);
-            std::vector<size_t> allCellMatches =
-                mainGrid()->findAllReservoirCellIndicesMatching2dPoint(globalPos);
-
-            std::vector<size_t> activeCellMatches;
-            for (size_t cellIdx : allCellMatches)
-            {
-                if (activeCellInfo->isActive(cellIdx))
-                {
-                    activeCellMatches.push_back(cellIdx);
-                }                
-            }
-            m_projected3dGridIndices[gridIndex(i, j)] = activeCellMatches;
-                
+            m_projected3dGridIndices[gridIndex(i, j)] = visibleCellsAndWeightMatching2dPoint(globalPos);                
         }
     }    
 }
@@ -148,7 +140,16 @@ double Rim2dGridProjection::maxValue() const
 //--------------------------------------------------------------------------------------------------
 double Rim2dGridProjection::minValue() const
 {
-    return 0.0;
+    double minV = std::numeric_limits<double>::infinity();
+    cvf::Vec2ui gridSize = surfaceGridSize();
+    for (uint i = 0; i < gridSize.x(); ++i)
+    {
+        for (uint j = 0; j < gridSize.y(); ++j)
+        {
+            minV = std::min(minV, value(i, j));
+        }
+    }
+    return minV;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -195,17 +196,21 @@ double Rim2dGridProjection::value(uint i, uint j) const
     double minValue =  std::numeric_limits<double>::infinity();
     double maxValue = -std::numeric_limits<double>::infinity();
     double avgValue = 0.0;
-    std::vector<size_t> matchingCells = cellsAtPos2d(i, j);
+    
+    std::vector<std::pair<size_t, float>> matchingCells = cellsAtPos2d(i, j);
     if (!matchingCells.empty())
     {
-        for (size_t cellIdx : matchingCells)
+        RiaWeightedMeanCalculator<float> calculator;
+        for (auto cellIdxAndWeight : matchingCells)
         {
+            size_t cellIdx = cellIdxAndWeight.first;
             double cellValue = resultAccessor->cellScalarGlobIdx(cellIdx);
             minValue = std::min(minValue, cellValue);
             maxValue = std::max(maxValue, cellValue);
-            avgValue += cellValue;
+            calculator.addValueAndWeight(cellValue, cellIdxAndWeight.second);
         }
-        avgValue /= matchingCells.size();
+        avgValue = calculator.weightedMean();
+
     }
     
     switch (m_resultAggregation())
@@ -286,9 +291,63 @@ cvf::Vec2d Rim2dGridProjection::globalPos2d(uint i, uint j) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::vector<size_t>& Rim2dGridProjection::cellsAtPos2d(uint i, uint j) const
+const std::vector<std::pair<size_t, float>>& Rim2dGridProjection::cellsAtPos2d(uint i, uint j) const
 {
     return m_projected3dGridIndices[gridIndex(i, j)];
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<std::pair<size_t, float>> Rim2dGridProjection::visibleCellsAndWeightMatching2dPoint(const cvf::Vec2d& globalPos2d) const
+{
+    RimEclipseView* view = nullptr;
+    firstAncestorOrThisOfTypeAsserted(view);
+    //int timeStep = view->currentTimeStep();
+
+    std::vector<RimCellRangeFilterCollection*> rangeFilterCollections;
+    view->descendantsIncludingThisOfType(rangeFilterCollections);
+    cvf::CellRangeFilter cellRangeFilter;
+    rangeFilterCollections.front()->compoundCellRangeFilter(&cellRangeFilter, mainGrid()->gridIndex());
+
+    const RigActiveCellInfo* activeCellInfo = eclipseCase()->eclipseCaseData()->activeCellInfo(RiaDefines::MATRIX_MODEL);
+
+    cvf::BoundingBox boundingBox = eclipseCase()->allCellsBoundingBox();
+    cvf::Vec3d highestPoint(globalPos2d, boundingBox.max().z());
+    cvf::Vec3d lowestPoint(globalPos2d, boundingBox.min().z());
+
+    cvf::BoundingBox rayBBox;
+    rayBBox.add(highestPoint);
+    rayBBox.add(lowestPoint);
+
+    std::vector<size_t> allCellIndices;
+    mainGrid()->findIntersectingCells(rayBBox, &allCellIndices);
+
+    std::vector<std::pair<size_t, float>> visibleCellIndices;
+    cvf::Vec3d hexCorners[8];
+    for (size_t globalCellIdx : allCellIndices)
+    {
+        if (activeCellInfo->isActive(globalCellIdx))
+        {
+            size_t localCellIdx = 0u;
+            RigGridBase* localGrid = mainGrid()->gridAndGridLocalIdxFromGlobalCellIdx(globalCellIdx, &localCellIdx);
+            size_t i, j, k;
+            localGrid->ijkFromCellIndex(localCellIdx, &i, &j, &k);
+            if (cellRangeFilter.isCellVisible(i, j, k, !localGrid->isMainGrid()))
+            {
+                localGrid->cellCornerVertices(localCellIdx, hexCorners);
+                std::vector<HexIntersectionInfo> intersections;
+                float weight = 1.0f;
+                if (RigHexIntersectionTools::lineHexCellIntersection(highestPoint, lowestPoint, hexCorners, 0, &intersections))
+                {
+                    weight = std::max(1.0, (intersections.back().m_intersectionPoint - intersections.front().m_intersectionPoint).length());                    
+                }
+                visibleCellIndices.push_back(std::make_pair(globalCellIdx, weight));
+            }
+        }
+    }
+
+    return visibleCellIndices;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -378,7 +437,7 @@ void Rim2dGridProjection::defineEditorAttribute(const caf::PdmFieldHandle* field
         if (myAttr)
         {
             double characteristicSize = mainGrid()->characteristicIJCellSize();
-            myAttr->m_minimum = 0.2 * characteristicSize;
+            myAttr->m_minimum = 0.1 * characteristicSize;
             myAttr->m_maximum = 5.0 * characteristicSize;
         }        
     }

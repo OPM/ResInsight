@@ -69,9 +69,11 @@ public:
     size_t                      gridIndex(uint i, uint j) const;
     cvf::Vec2ui                 ijFromGridIndex(size_t gridIndex) const;
     void                        updateLegendData();
+
 protected:
-    cvf::Vec2d                  globalPos2d(uint i, uint j) const;
-    const std::vector<size_t>&  cellsAtPos2d(uint i, uint j) const;    
+    cvf::Vec2d                                     globalPos2d(uint i, uint j) const;
+    const std::vector<std::pair<size_t, float>>&   cellsAtPos2d(uint i, uint j) const;    
+    std::vector<std::pair<size_t, float>>          visibleCellsAndWeightMatching2dPoint(const cvf::Vec2d& globalPos2d) const;
 
     const RimEclipseResultCase* eclipseCase() const;
     RigMainGrid*                mainGrid() const;
@@ -81,11 +83,11 @@ protected:
     virtual void defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
 
 protected:
-    caf::PdmField<double>                        m_sampleSpacing;
-    caf::PdmField<ResultAggregation>             m_resultAggregation;
-    caf::PdmChildField<RimRegularLegendConfig*>  m_legendConfig;
+    caf::PdmField<double>                              m_sampleSpacing;
+    caf::PdmField<ResultAggregation>                   m_resultAggregation;
+    caf::PdmChildField<RimRegularLegendConfig*>        m_legendConfig;
 
-    std::vector<std::vector<size_t>>             m_projected3dGridIndices;
+    std::vector<std::vector<std::pair<size_t, float>>> m_projected3dGridIndices;
 
 
 };
