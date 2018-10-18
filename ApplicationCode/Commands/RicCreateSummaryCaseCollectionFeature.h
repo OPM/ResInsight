@@ -35,7 +35,7 @@ class RicCreateSummaryCaseCollectionFeature : public caf::CmdFeature
     static RimSummaryCaseCollection* groupSummaryCases(std::vector<RimSummaryCase*> cases, const QString& groupName, bool isEnsemble = false);
 
 private:
-    virtual bool isCommandEnabled() override;
-    virtual void onActionTriggered(bool isChecked) override;
-    virtual void setupActionLook(QAction* actionToSetup) override;
+    bool isCommandEnabled() override;
+    void onActionTriggered(bool isChecked) override;
+    void setupActionLook(QAction* actionToSetup) override;
 };

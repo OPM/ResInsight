@@ -57,7 +57,7 @@ class RigWellLogExtractor : public cvf::Object
 {
 public:
     RigWellLogExtractor(const RigWellPath* wellpath, const std::string& wellCaseErrorMsgName);
-    virtual ~RigWellLogExtractor();
+    ~RigWellLogExtractor() override;
 
     const std::vector<double>&  cellIntersectionMDs();
     const std::vector<double>&  cellIntersectionTVDs();

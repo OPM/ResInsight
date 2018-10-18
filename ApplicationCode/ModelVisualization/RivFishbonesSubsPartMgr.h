@@ -51,7 +51,7 @@ class RivFishbonesSubsPartMgr : public cvf::Object
 {
 public:
     RivFishbonesSubsPartMgr(RimFishbonesMultipleSubs* subs);
-    ~RivFishbonesSubsPartMgr();
+    ~RivFishbonesSubsPartMgr() override;
 
     void        appendGeometryPartsToModel(cvf::ModelBasicList* model, const caf::DisplayCoordTransform* displayCoordTransform, double characteristicCellSize);
     void        clearGeometryCache();

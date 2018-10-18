@@ -47,15 +47,15 @@ class RiuSummaryCurveDefSelectionEditor : public caf::PdmUiFormLayoutObjectEdito
 {
 public:
     RiuSummaryCurveDefSelectionEditor();
-    ~RiuSummaryCurveDefSelectionEditor();
+    ~RiuSummaryCurveDefSelectionEditor() override;
 
     RiuSummaryCurveDefSelection* summaryAddressSelection() const;
 
 private:
-    virtual void        recursivelyConfigureAndUpdateTopLevelUiOrdering(const caf::PdmUiOrdering& topLevelUiOrdering,
+    void        recursivelyConfigureAndUpdateTopLevelUiOrdering(const caf::PdmUiOrdering& topLevelUiOrdering,
                                                                         const QString& uiConfigName) override;
     
-    virtual QWidget*    createWidget(QWidget* parent) override;
+    QWidget*    createWidget(QWidget* parent) override;
 
     void                configureAndUpdateFields(int widgetStartIndex, 
                                                  QBoxLayout* layout,

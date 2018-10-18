@@ -49,7 +49,7 @@ class RicfCreateMultipleFractures : public RicfCommandObject
 public:
     RicfCreateMultipleFractures();
 
-    virtual void execute() override;
+    void execute() override;
     static std::vector<RimWellPath*>   wellPaths(const std::vector<QString>& wellPathNames);
 
 private:

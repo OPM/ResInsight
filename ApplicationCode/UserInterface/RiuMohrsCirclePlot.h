@@ -45,7 +45,7 @@ class RiuMohrsCirclePlot : public QwtPlot
 
 public:
     RiuMohrsCirclePlot(QWidget* parent);
-    ~RiuMohrsCirclePlot();
+    ~RiuMohrsCirclePlot() override;
 
     void appendSelection(const RiuSelectionItem* selectionItem);
     void clearPlot();
@@ -84,9 +84,9 @@ private:
     };
 
 private:
-    virtual QSize sizeHint() const override;
-    virtual QSize minimumSizeHint() const override;
-    virtual void  resizeEvent(QResizeEvent* e) override;
+    QSize sizeHint() const override;
+    QSize minimumSizeHint() const override;
+    void  resizeEvent(QResizeEvent* e) override;
 
     void idealAxesEndPoints(double* xMin, double* xMax, double* yMax) const;
 

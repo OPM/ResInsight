@@ -67,7 +67,7 @@ class RivFemPartGeometryGenerator : public cvf::Object
 {
 public:
     explicit RivFemPartGeometryGenerator(const RigFemPart* part);
-    ~RivFemPartGeometryGenerator();
+    ~RivFemPartGeometryGenerator() override;
 
     // Setup methods
 

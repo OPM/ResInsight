@@ -44,7 +44,7 @@ public:
 public:
     RicfExportSnapshots();
 
-    virtual void execute() override;
+    void execute() override;
 
 private:
     caf::PdmField<SnapshotsTypeEnum> m_type;

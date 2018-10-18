@@ -32,14 +32,14 @@ class RimGridCollection : public caf::PdmObject
     CAF_PDM_HEADER_INIT;
 public:
     RimGridCollection();
-    virtual ~RimGridCollection();
+    ~RimGridCollection() override;
 
-    virtual caf::PdmFieldHandle*        objectToggleField();
+    caf::PdmFieldHandle*        objectToggleField() override;
 
     caf::PdmField<bool>                 isActive;
 
 protected:
-    virtual void                        fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
-    virtual void                        initAfterRead();
+    void                        fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    void                        initAfterRead() override;
 
 };

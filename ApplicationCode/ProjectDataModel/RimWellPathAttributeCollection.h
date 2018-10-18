@@ -30,7 +30,7 @@ class RimWellPathAttributeCollection : public caf::PdmObject
     CAF_PDM_HEADER_INIT;
 public:
     RimWellPathAttributeCollection();
-    ~RimWellPathAttributeCollection();
+    ~RimWellPathAttributeCollection() override;
 
     void                               updateAllReferringTracks();
     std::vector<RimWellPathAttribute*> attributes() const;
@@ -38,9 +38,9 @@ public:
     void                               deleteAttribute(RimWellPathAttribute* attributeToDelete);
 
 protected:
-    virtual void defineCustomContextMenu(const caf::PdmFieldHandle* fieldNeedingMenu, QMenu* menu, QWidget* fieldEditorWidget) override;
+    void defineCustomContextMenu(const caf::PdmFieldHandle* fieldNeedingMenu, QMenu* menu, QWidget* fieldEditorWidget) override;
     void    defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override;
-    virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
 private:
     caf::PdmChildArrayField<RimWellPathAttribute*> m_attributes;
 };

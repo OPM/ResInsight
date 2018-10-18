@@ -23,7 +23,7 @@ class RigLocalGrid : public RigGridBase
 {
 public:
     explicit RigLocalGrid(RigMainGrid* mainGrid);
-    virtual ~RigLocalGrid();
+    ~RigLocalGrid() override;
 
     RigGridBase *   parentGrid() const { return m_parentGrid; }
     void            setParentGrid(RigGridBase * parentGrid) { m_parentGrid = parentGrid; }

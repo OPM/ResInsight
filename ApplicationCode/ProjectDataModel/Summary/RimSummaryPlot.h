@@ -61,7 +61,7 @@ class RimSummaryPlot : public RimViewWindow
 
 public:
     RimSummaryPlot();
-    virtual ~RimSummaryPlot();
+    ~RimSummaryPlot() override;
 
     void                                            setDescription(const QString& description);
     QString                                         description() const;
@@ -92,7 +92,7 @@ public:
     void                                            updateCaseNameHasChanged();
 
     void                                            updateAxes();
-    virtual void                                    zoomAll() override;
+    void                                    zoomAll() override;
 
     void                                            updateZoomInQwt();
     void                                            updateZoomWindowFromQwt();
@@ -104,7 +104,7 @@ public:
 
     void                                            selectAxisInPropertyEditor(int axis);
 
-    virtual QWidget*                                viewWidget() override;
+    QWidget*                                viewWidget() override;
 
     QString                                         asciiDataForPlotExport(DateTimePeriod resamplingPeriod = DateTimePeriod::NONE) const;
 
@@ -134,9 +134,9 @@ public:
     bool                                            containsResamplableCurves() const;
     // RimViewWindow overrides
 public:
-    virtual QWidget*                                createViewWidget(QWidget* mainWindowParent) override; 
-    virtual void                                    deleteViewWidget() override; 
-    virtual void                                    initAfterRead() override;
+    QWidget*                                createViewWidget(QWidget* mainWindowParent) override; 
+    void                                    deleteViewWidget() override; 
+    void                                    initAfterRead() override;
 
 private:
     void                                            updateMdiWindowTitle() override;
@@ -144,15 +144,15 @@ private:
 
 protected:
     // Overridden PDM methods
-    virtual caf::PdmFieldHandle*                    userDescriptionField() override;
-    virtual QList<caf::PdmOptionItemInfo>           calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
-    virtual void                                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
-    virtual void                                    defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
-    virtual void                                    defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override;
-    virtual void                                    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
-    virtual void                                    onLoadDataAndUpdate() override;
+    caf::PdmFieldHandle*                    userDescriptionField() override;
+    QList<caf::PdmOptionItemInfo>           calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
+    void                                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    void                                    defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
+    void                                    defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override;
+    void                                    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    void                                    onLoadDataAndUpdate() override;
 
-    virtual QImage                                  snapshotWindowContent() override;
+    QImage                                  snapshotWindowContent() override;
 
     void                                            setAsCrossPlot();
 

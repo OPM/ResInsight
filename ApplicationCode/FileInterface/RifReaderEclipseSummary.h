@@ -56,21 +56,21 @@ class RifReaderEclipseSummary : public RifSummaryReaderInterface
 {
 public:
     RifReaderEclipseSummary();
-    ~RifReaderEclipseSummary();
+    ~RifReaderEclipseSummary() override;
 
     bool                                open(const QString& headerFileName, bool includeRestartFiles);
 
     std::vector<RifRestartFileInfo>     getRestartFiles(const QString& headerFileName, bool* hasWarnings);
     RifRestartFileInfo                  getFileInfo(const QString& headerFileName);
 
-    virtual const std::vector<time_t>&  timeSteps(const RifEclipseSummaryAddress& resultAddress) const override;
+    const std::vector<time_t>&  timeSteps(const RifEclipseSummaryAddress& resultAddress) const override;
 
-    virtual bool                        values(const RifEclipseSummaryAddress& resultAddress, std::vector<double>* values) const override;
-    virtual std::string                 unitName(const RifEclipseSummaryAddress& resultAddress) const override;
+    bool                        values(const RifEclipseSummaryAddress& resultAddress, std::vector<double>* values) const override;
+    std::string                 unitName(const RifEclipseSummaryAddress& resultAddress) const override;
 
     QStringList                         warnings() const { return m_warnings; }
 
-    virtual void                        markForCachePurge(const RifEclipseSummaryAddress& address) override;
+    void                        markForCachePurge(const RifEclipseSummaryAddress& address) override;
     static void                         purgeCache();
 
 private:

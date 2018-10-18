@@ -49,7 +49,7 @@ class RimEclipseStatisticsCase : public RimEclipseCase
 
 public:
     RimEclipseStatisticsCase();
-    virtual ~RimEclipseStatisticsCase();
+    ~RimEclipseStatisticsCase() override;
 
     void setMainGrid(RigMainGrid* mainGrid);
 
@@ -60,8 +60,8 @@ public:
 
     void updateConnectedEditorsAndReservoirViews();
 
-    virtual bool openEclipseGridFile();
-    virtual void reloadEclipseGridFile();
+    bool openEclipseGridFile() override;
+    void reloadEclipseGridFile() override;
 
     RimCaseCollection* parentStatisticsCaseCollection() const;
 
@@ -73,7 +73,7 @@ public:
     };
 
     caf::PdmField< bool >                                          m_calculateEditCommand;
-    virtual void  updateFilePathsFromProjectPath(const QString& projectPath, const QString& oldProjectPath){}
+    void  updateFilePathsFromProjectPath(const QString& projectPath, const QString& oldProjectPath) override{}
 
     void populateResultSelectionAfterLoadingGrid();
  
@@ -91,11 +91,11 @@ private:
 
     void setWellResultsAndUpdateViews(const cvf::Collection<RigSimWellData>& sourceCaseSimWellData);
 
-    virtual void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) ;
-    virtual QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly );
-    virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
+    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override ;
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly ) override;
+    void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
 
-    virtual void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute * attribute );
+    void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute * attribute ) override;
 
 private:
     caf::PdmField< caf::AppEnum< RiaDefines::ResultCatType > >      m_resultType;

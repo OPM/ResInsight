@@ -36,9 +36,9 @@ class RifCalculatedSummaryCurveReader : public RifSummaryReaderInterface
 public:
     explicit RifCalculatedSummaryCurveReader(RimSummaryCalculationCollection* calculationCollection);
 
-    virtual const std::vector<time_t>&  timeSteps(const RifEclipseSummaryAddress& resultAddress) const override;
-    virtual bool                        values(const RifEclipseSummaryAddress& resultAddress, std::vector<double>* values) const override;
-    virtual std::string                 unitName(const RifEclipseSummaryAddress& resultAddress) const override;
+    const std::vector<time_t>&  timeSteps(const RifEclipseSummaryAddress& resultAddress) const override;
+    bool                        values(const RifEclipseSummaryAddress& resultAddress, std::vector<double>* values) const override;
+    std::string                 unitName(const RifEclipseSummaryAddress& resultAddress) const override;
 
     void                                buildMetaData();
 

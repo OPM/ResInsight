@@ -49,10 +49,10 @@ class RiuSummaryQwtPlot : public QwtPlot, public RiuInterfaceToViewWindow
     Q_OBJECT;
 public:
     RiuSummaryQwtPlot(RimSummaryPlot* plotDefinition, QWidget* parent = nullptr);
-    virtual ~RiuSummaryQwtPlot();
+    ~RiuSummaryQwtPlot() override;
 
     RimSummaryPlot*                 ownerPlotDefinition();
-    virtual RimViewWindow*          ownerViewWindow() const override;
+    RimViewWindow*          ownerViewWindow() const override;
 
     void                            useDateBasedTimeAxis();
     void                            useTimeBasedTimeAxis();
@@ -68,13 +68,13 @@ public:
     static void                     enableDateBasedBottomXAxis(QwtPlot* plot);
 
 protected:
-    virtual bool                    eventFilter(QObject* watched, QEvent* event) override;
-    virtual void                    keyPressEvent(QKeyEvent *) override;
+    bool                    eventFilter(QObject* watched, QEvent* event) override;
+    void                    keyPressEvent(QKeyEvent *) override;
 
-    virtual QSize                   sizeHint() const override;
-    virtual QSize                   minimumSizeHint() const override;
-    virtual void                    contextMenuEvent(QContextMenuEvent *) override;
-    virtual void                    updateLayout() override;
+    QSize                   sizeHint() const override;
+    QSize                   minimumSizeHint() const override;
+    void                    contextMenuEvent(QContextMenuEvent *) override;
+    void                    updateLayout() override;
 
 private:
     void                            setDefaults();

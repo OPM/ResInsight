@@ -35,7 +35,7 @@ class RivWellPathSourceInfo : public cvf::Object
 {
 public:
     explicit RivWellPathSourceInfo(RimWellPath* wellPath, RivPipeGeometryGenerator* pipeGeomGenerator);
-    ~RivWellPathSourceInfo();
+    ~RivWellPathSourceInfo() override;
 
     RimWellPath* wellPath() const;
 

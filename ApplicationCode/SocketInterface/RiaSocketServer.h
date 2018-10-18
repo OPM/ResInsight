@@ -48,7 +48,7 @@ public:
 
 public:
     explicit RiaSocketServer(QObject *parent = nullptr);
-    ~RiaSocketServer();
+    ~RiaSocketServer() override;
 
     unsigned short      serverPort();
     RimEclipseCase*            findReservoir(int caseId);

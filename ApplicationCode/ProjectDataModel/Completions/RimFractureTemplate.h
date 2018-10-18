@@ -125,7 +125,7 @@ public:
 
 public:
     RimFractureTemplate();
-    virtual ~RimFractureTemplate();
+    ~RimFractureTemplate() override;
 
     int                             id() const;
     QString                         name() const;
@@ -180,11 +180,11 @@ public:
     void                            loadDataAndUpdateGeometryHasChanged();
 
 protected:
-    virtual caf::PdmFieldHandle*    userDescriptionField() override;
-    virtual void                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
-    virtual void                    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
-    virtual void                    defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override;
-    virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
+    caf::PdmFieldHandle*    userDescriptionField() override;
+    void                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    void                    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    void                    defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override;
+    QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
 
     std::vector<RimFracture*>       fracturesUsingThisTemplate() const;
     virtual void                    onLoadDataAndUpdateGeometryHasChanged() = 0;

@@ -189,7 +189,7 @@ public:
 
     // Xml Serializing
 public:
-    virtual void        readFieldData (QTextStream& inputStream, caf::PdmObjectFactory* objectFactory, RicfMessages* errorMessageContainer) override
+    void        readFieldData (QTextStream& inputStream, caf::PdmObjectFactory* objectFactory, RicfMessages* errorMessageContainer) override
     {
         //m_field->xmlCapability()->assertValid(); 
         typename FieldType::FieldDataType value; 
@@ -197,7 +197,7 @@ public:
         m_field->setValue(value); 
     }
 
-    virtual void        writeFieldData(QTextStream& outputStream) const override
+    void        writeFieldData(QTextStream& outputStream) const override
     { 
         //m_field->xmlCapability()->assertValid(); 
         RicfFieldWriter<typename FieldType::FieldDataType>::writeFieldData(m_field->value(), outputStream); 

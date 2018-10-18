@@ -32,7 +32,7 @@ class RimFormationNames : public caf::PdmObject
 
 public:
     RimFormationNames();
-    ~RimFormationNames();
+    ~RimFormationNames() override;
 
     void                        setFileName(const QString& fileName);
     const QString&              fileName();
@@ -45,8 +45,8 @@ public:
     void                        updateFilePathsFromProjectPath(const QString& newProjectPath, const QString& oldProjectPath);
 
 protected:
-    virtual void                fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
-    virtual void                initAfterRead() override;
+    void                fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    void                initAfterRead() override;
 
 private:
     void                        updateUiTreeName();

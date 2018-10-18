@@ -34,10 +34,10 @@ class RimSummaryObservedDataFile : public RimObservedData
     CAF_PDM_HEADER_INIT;
 public:
     RimSummaryObservedDataFile();
-    virtual ~RimSummaryObservedDataFile();
+    ~RimSummaryObservedDataFile() override;
 
-    virtual void createSummaryReaderInterface() override;
-    virtual RifSummaryReaderInterface* summaryReader() override;
+    void createSummaryReaderInterface() override;
+    RifSummaryReaderInterface* summaryReader() override;
 
 private:
     cvf::ref<RifReaderObservedData> m_summaryReader;

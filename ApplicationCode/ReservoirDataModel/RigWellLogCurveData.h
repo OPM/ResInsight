@@ -35,7 +35,7 @@ class RigWellLogCurveData : public cvf::Object
 {
 public:
     RigWellLogCurveData();
-    virtual ~RigWellLogCurveData();
+    ~RigWellLogCurveData() override;
 
     void                                      setValuesAndMD(const std::vector<double>& xValues, 
                                                              const std::vector<double>& measuredDepths,

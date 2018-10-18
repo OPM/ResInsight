@@ -44,7 +44,7 @@ class RiuRelativePermeabilityPlotPanel : public QWidget
 
 public:
     RiuRelativePermeabilityPlotPanel(QDockWidget* parent);
-    virtual ~RiuRelativePermeabilityPlotPanel();
+    ~RiuRelativePermeabilityPlotPanel() override;
 
     void                                setPlotData(RiaEclipseUnitTools::UnitSystem unitSystem,
                                                     const std::vector<RigFlowDiagSolverInterface::RelPermCurve>& relPermCurves, 
@@ -108,7 +108,7 @@ private:
     std::vector<RigFlowDiagSolverInterface::RelPermCurve> gatherUiSelectedCurves() const;
     QString                                               asciiDataForUiSelectedCurves() const;
 
-    virtual void contextMenuEvent(QContextMenuEvent* event) override;
+    void contextMenuEvent(QContextMenuEvent* event) override;
 
 private slots:
     void slotButtonInButtonGroupClicked(int);

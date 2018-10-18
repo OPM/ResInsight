@@ -38,7 +38,7 @@ class RimEclipseCellColors : public RimEclipseResultDefinition
     CAF_PDM_HEADER_INIT;
 public:
     RimEclipseCellColors();
-    virtual ~RimEclipseCellColors();
+    ~RimEclipseCellColors() override;
 
     void                                        setReservoirView(RimEclipseView* ownerReservoirView);
     RimEclipseView*                             reservoirView();
@@ -50,20 +50,20 @@ public:
     RimRegularLegendConfig*                            legendConfig();
     RimTernaryLegendConfig*                            ternaryLegendConfig();
 
-    virtual void                                setResultVariable(const QString& resultName);
+    void                                setResultVariable(const QString& resultName) override;
     
     void                                        updateIconState();
 
-    virtual void                                updateLegendCategorySettings() override;
+    void                                updateLegendCategorySettings() override;
 
 protected:
     // Overridden methods
-    virtual void                                fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
-    virtual void                                defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
+    void                                fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    void                                defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
 
     friend class RimEclipseFaultColors;
     friend class RimCellEdgeColors;
-    virtual void                                initAfterRead();
+    void                                initAfterRead() override;
 
 private:
     void                                        changeLegendConfig(QString resultVarNameOfNewLegend);

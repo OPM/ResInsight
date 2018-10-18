@@ -41,7 +41,7 @@ class RicfExportVisibleCells : public RicfCommandObject
 public:
     RicfExportVisibleCells();
 
-    virtual void execute() override;
+    void execute() override;
 
 private:
     RimEclipseView* viewFromCaseIdAndViewName(int caseId, const QString& viewName);

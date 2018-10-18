@@ -69,7 +69,7 @@ class RimWellPath : public caf::PdmObject, public RimWellPathComponentInterface
 public:
 
     RimWellPath();
-    virtual ~RimWellPath();
+    ~RimWellPath() override;
 
     QString                             name() const;
     void                                setName(const QString& name);
@@ -135,14 +135,14 @@ protected:
 
     // Override PdmObject
 
-    virtual caf::PdmFieldHandle*        userDescriptionField() override;
-    virtual caf::PdmFieldHandle*        objectToggleField() override;
+    caf::PdmFieldHandle*        userDescriptionField() override;
+    caf::PdmFieldHandle*        objectToggleField() override;
 
-    virtual void                        fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
-    virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
-    virtual void                        initAfterRead() override;
-    virtual void                        defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
-    virtual void                        defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName) override;
+    void                        fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+    QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
+    void                        initAfterRead() override;
+    void                        defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    void                        defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName) override;
 
     void                                setWellPathGeometry(RigWellPath* wellPathModel);
 

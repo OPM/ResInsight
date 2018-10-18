@@ -48,7 +48,7 @@ public:
     void                                rebuildCaseMetaData();
 
 private:
-    virtual void                        initAfterRead() override;
+    void                        initAfterRead() override;
 
 private:
     caf::PdmChildArrayField<RimSummaryCalculation*> m_calcuations;

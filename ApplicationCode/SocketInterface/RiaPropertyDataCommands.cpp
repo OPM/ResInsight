@@ -58,7 +58,7 @@ class RiaGetActiveCellProperty: public RiaSocketCommand
 public:
     static QString commandName () { return QString("GetActiveCellProperty"); }
 
-    virtual bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>&  args, QDataStream& socketStream)
+    bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>&  args, QDataStream& socketStream) override
     {
         RimEclipseCase* rimCase = RiaSocketTools::findCaseFromArgs(server, args);
 
@@ -222,7 +222,7 @@ class RiaGetGridProperty: public RiaSocketCommand
 public:
     static QString commandName () { return QString("GetGridProperty"); }
 
-    virtual bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>&  args, QDataStream& socketStream)
+    bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>&  args, QDataStream& socketStream) override
     {
         int caseId                = args[1].toInt();
         int gridIdx               = args[2].toInt();
@@ -394,7 +394,7 @@ public:
 
     static QString commandName () { return QString("SetActiveCellProperty"); }
 
-    virtual bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>&  args, QDataStream& socketStream)
+    bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>&  args, QDataStream& socketStream) override
     {
         RimEclipseCase* rimCase = RiaSocketTools::findCaseFromArgs(server, args);
 
@@ -510,7 +510,7 @@ public:
         return false;
     }
 
-    virtual bool interpretMore(RiaSocketServer* server, QTcpSocket* currentClient)
+    bool interpretMore(RiaSocketServer* server, QTcpSocket* currentClient) override
     {
 //        std::cout << "RiaSetActiveCellProperty, interpretMore: scalarIndex : " << m_currentScalarIndex;
 
@@ -741,7 +741,7 @@ public:
 
     static QString commandName () { return QString("SetGridProperty"); }
 
-    virtual bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>& args, QDataStream& socketStream)
+    bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>& args, QDataStream& socketStream) override
     {
         int caseId = args[1].toInt();
         RimEclipseCase* rimCase = server->findReservoir(caseId);
@@ -887,7 +887,7 @@ public:
         return false;
     }
 
-    virtual bool interpretMore(RiaSocketServer* server, QTcpSocket* currentClient)
+    bool interpretMore(RiaSocketServer* server, QTcpSocket* currentClient) override
     {
 
         if (m_invalidDataDetected){
@@ -1094,7 +1094,7 @@ class RiaGetPropertyNames : public RiaSocketCommand
 public:
     static QString commandName () { return QString("GetPropertyNames"); }
 
-    virtual bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>&  args, QDataStream& socketStream)
+    bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>&  args, QDataStream& socketStream) override
     {
         int caseId = args[1].toInt();
         RimEclipseCase* rimCase = server->findReservoir(caseId);
@@ -1180,7 +1180,7 @@ class RiaGetGridPropertyForSelectedCells: public RiaSocketCommand
 public:
     static QString commandName() { return QString("GetGridPropertyForSelectedCells"); }
 
-    virtual bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>& args, QDataStream& socketStream)
+    bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>& args, QDataStream& socketStream) override
     {
         RimEclipseCase* rimCase = RiaSocketTools::findCaseFromArgs(server, args);
         if (!rimCase) return true;

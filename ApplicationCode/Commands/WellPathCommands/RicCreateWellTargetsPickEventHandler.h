@@ -37,8 +37,8 @@ public:
 protected:
     caf::PdmPointer<RimWellPathGeometryDef> m_geometryToAddTargetsTo;
 
-    virtual bool handlePickEvent(const Ric3DPickEvent& eventObject) override;
-    virtual void notifyUnregistered() override;
+    bool handlePickEvent(const Ric3DPickEvent& eventObject) override;
+    void notifyUnregistered() override;
 
 private:
     bool calculateAzimuthAndInclinationAtMd(double measuredDepth,

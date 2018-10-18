@@ -36,7 +36,7 @@ class RicfScaleFractureTemplate : public RicfCommandObject
 public:
     RicfScaleFractureTemplate();
 
-    virtual void execute() override;
+    void execute() override;
 
 private:
     void initAfterRead() override;

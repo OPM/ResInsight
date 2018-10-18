@@ -66,7 +66,7 @@ public:
     enum ColorMode {SINGLE_COLOR, BY_ENSEMBLE_PARAM};
 
     RimEnsembleCurveSet();
-    virtual ~RimEnsembleCurveSet();
+    ~RimEnsembleCurveSet() override;
 
     bool                                    isCurvesVisible();
     void                                    setColor(cvf::Color3f color);
@@ -123,14 +123,14 @@ private:
     void                                    updateStatisticsCurves(const std::vector<RimSummaryCase*>& sumCases);
 
     caf::PdmFieldHandle*                    userDescriptionField() override;
-    caf::PdmFieldHandle*                    objectToggleField();
-    virtual void                            defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override;
+    caf::PdmFieldHandle*                    objectToggleField() override;
+    void                            defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override;
 
-    virtual QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly);
-    virtual void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
-    virtual void                            defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
+    QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
+    void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    void                            defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
 
-    virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField,
+    void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField,
                                                              const QVariant& oldValue, const QVariant& newValue) override;
 
     void                                    appendOptionItemsForSummaryAddresses(QList<caf::PdmOptionItemInfo>* options,

@@ -68,7 +68,7 @@ class RimWellLogTrack : public caf::PdmObject
     CAF_PDM_HEADER_INIT;
 public:
     RimWellLogTrack();
-    virtual ~RimWellLogTrack();
+    ~RimWellLogTrack() override;
 
     enum TrajectoryType   { WELL_PATH, SIMULATION_WELL };
     enum FormationSource  { CASE, WELL_PICK_FILTER };
@@ -145,13 +145,13 @@ public:
 
     void updateAllLegendItems();
 private:
-    virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
     void         updateParentPlotLayout();
-    virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
+    QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
 
-    virtual caf::PdmFieldHandle* objectToggleField() override;
-    virtual caf::PdmFieldHandle* userDescriptionField() override;
-    virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    caf::PdmFieldHandle* objectToggleField() override;
+    caf::PdmFieldHandle* userDescriptionField() override;
+    void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
 
     void computeAndSetXRangeMinForLogarithmicScale();
     

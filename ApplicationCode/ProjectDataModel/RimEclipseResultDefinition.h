@@ -67,7 +67,7 @@ public:
 
 public:
     RimEclipseResultDefinition();
-    virtual ~RimEclipseResultDefinition();
+    ~RimEclipseResultDefinition() override;
 
     void                            simpleCopy(const RimEclipseResultDefinition* other);
 
@@ -115,12 +115,12 @@ public:
 protected:
     virtual void                    updateLegendCategorySettings() {};
 
-    virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly);
-    virtual void                          fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
+    QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
+    void                          fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
 
-    virtual void                          initAfterRead();
-    virtual void                          defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
-    virtual void                          defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override;
+    void                          initAfterRead() override;
+    void                          defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    void                          defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override;
 
 protected:
     caf::PdmField< caf::AppEnum< RiaDefines::ResultCatType > >      m_resultType;

@@ -72,7 +72,7 @@ public:
 
 public:
     RimFishbonesMultipleSubs();
-    virtual ~RimFishbonesMultipleSubs();
+    ~RimFishbonesMultipleSubs() override;
 
     bool                isActive() const;
     QString             generatedName() const;
@@ -103,7 +103,7 @@ public:
     void                                        setUnitSystemSpecificDefaults();
     
     // Override from Rim3dPropertiesInterface
-    virtual cvf::BoundingBox boundingBoxInDomainCoords() const override;
+    cvf::BoundingBox boundingBoxInDomainCoords() const override;
 
     // Overrides from RimWellPathCompletionsInterface
     RiaDefines::WellPathComponentType componentType() const override;
@@ -117,12 +117,12 @@ public:
     caf::PdmField<cvf::Color3f>         fishbonesColor;
 
 protected:
-    virtual void                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
-    virtual caf::PdmFieldHandle*    userDescriptionField() override;
-    virtual caf::PdmFieldHandle*    objectToggleField() override;
+    void                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    caf::PdmFieldHandle*    userDescriptionField() override;
+    caf::PdmFieldHandle*    objectToggleField() override;
 
-    virtual void                    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
-    virtual void                    initAfterRead() override;
+    void                    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    void                    initAfterRead() override;
 
 private:
     void                        computeRangesAndLocations();

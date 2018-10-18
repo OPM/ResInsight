@@ -52,7 +52,7 @@ class RimDerivedEnsembleCase : public RimSummaryCase
 
 public:
     RimDerivedEnsembleCase();
-    ~RimDerivedEnsembleCase();
+    ~RimDerivedEnsembleCase() override;
 
     void                            setInUse(bool inUse);
     bool                            isInUse() const;
@@ -63,10 +63,10 @@ public:
 
     void                            calculate(const RifEclipseSummaryAddress& address);
 
-    virtual QString caseName() const override;
-    virtual void createSummaryReaderInterface() override;
-    virtual RifSummaryReaderInterface* summaryReader() override;
-    virtual void updateFilePathsFromProjectPath(const QString& newProjectPath, const QString& oldProjectPath) override;
+    QString caseName() const override;
+    void createSummaryReaderInterface() override;
+    RifSummaryReaderInterface* summaryReader() override;
+    void updateFilePathsFromProjectPath(const QString& newProjectPath, const QString& oldProjectPath) override;
 
     RimDerivedEnsembleCaseCollection*           parentEnsemble() const;
 

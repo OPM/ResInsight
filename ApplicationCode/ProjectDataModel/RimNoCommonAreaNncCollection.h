@@ -35,11 +35,11 @@ class RimNoCommonAreaNncCollection : public caf::PdmObject
     CAF_PDM_HEADER_INIT;
 public:
     RimNoCommonAreaNncCollection();
-    virtual ~RimNoCommonAreaNncCollection();
+    ~RimNoCommonAreaNncCollection() override;
 
     void                        updateName();
 
-    virtual caf::PdmFieldHandle* userDescriptionField();
+    caf::PdmFieldHandle* userDescriptionField() override;
     
     caf::PdmField<QString>                      name;
     caf::PdmChildArrayField<RimNoCommonAreaNNC*>  noCommonAreaNncs;

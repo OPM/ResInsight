@@ -44,7 +44,7 @@ class RimEclipseCaseCollection : public caf::PdmObject
 
 public:
     RimEclipseCaseCollection(void);
-    virtual ~RimEclipseCaseCollection(void);
+    ~RimEclipseCaseCollection(void) override;
 
     caf::PdmChildArrayField<RimEclipseCase*>                     cases;
     caf::PdmChildArrayField<RimIdenticalGridCaseGroup*>   caseGroups;

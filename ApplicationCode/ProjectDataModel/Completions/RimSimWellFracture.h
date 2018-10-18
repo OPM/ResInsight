@@ -34,11 +34,11 @@ class RimSimWellFracture : public RimFracture
 
 public:
     RimSimWellFracture(void);
-    virtual ~RimSimWellFracture(void);
+    ~RimSimWellFracture(void) override;
 
     void                                            setClosestWellCoord(cvf::Vec3d& position, size_t branchIndex);
 
-    virtual void                                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    void                                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
 
     void                                            recomputeWellCenterlineCoordinates();
     void                                            updateFracturePositionFromLocation();
@@ -50,14 +50,14 @@ public:
 
     int                                             branchIndex() const { return m_branchIndex(); }
 
-    virtual void                                    loadDataAndUpdate() override;
+    void                                    loadDataAndUpdate() override;
 
-    virtual std::vector<cvf::Vec3d>                 perforationLengthCenterLineCoords() const override;
+    std::vector<cvf::Vec3d>                 perforationLengthCenterLineCoords() const override;
 
 protected:
-    virtual void                                    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
-    virtual void                                    defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override;
-    virtual QList<caf::PdmOptionItemInfo>           calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
+    void                                    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    void                                    defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override;
+    QList<caf::PdmOptionItemInfo>           calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
 
     RigMainGrid*                                    ownerCaseMainGrid() const;
 

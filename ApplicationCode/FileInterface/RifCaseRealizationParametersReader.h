@@ -71,9 +71,9 @@ class RifCaseRealizationParametersReader : public RifCaseRealizationReader
 {
 public:
     RifCaseRealizationParametersReader(const QString& fileName);
-    virtual ~RifCaseRealizationParametersReader();
+    ~RifCaseRealizationParametersReader() override;
 
-    virtual void                    parse() override;
+    void                    parse() override;
 
 private:
     QTextStream*                    openDataStream();
@@ -92,9 +92,9 @@ class RifCaseRealizationRunspecificationReader : public RifCaseRealizationReader
 {
 public:
     RifCaseRealizationRunspecificationReader(const QString& fileName);
-    virtual ~RifCaseRealizationRunspecificationReader();
+    ~RifCaseRealizationRunspecificationReader() override;
 
-    virtual void                    parse() override;
+    void                    parse() override;
 
 private:
     QXmlStreamReader *              openDataStream();

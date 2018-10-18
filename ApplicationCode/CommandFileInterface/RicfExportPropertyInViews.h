@@ -40,7 +40,7 @@ class RicfExportPropertyInViews : public RicfCommandObject
 public:
     RicfExportPropertyInViews();
 
-    virtual void execute() override;
+    void execute() override;
 
 private:
     caf::PdmField<int>                  m_caseId;

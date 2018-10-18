@@ -83,7 +83,7 @@ class RivWindowEdgeAxesOverlayItem : public cvf::OverlayItem
     using Camera = cvf::Camera;
 public:
     RivWindowEdgeAxesOverlayItem(Font* font);
-    virtual ~RivWindowEdgeAxesOverlayItem();
+    ~RivWindowEdgeAxesOverlayItem() override;
 
     void            setDisplayCoordTransform(const caf::DisplayCoordTransform* displayCoordTransform);
     void            updateFromCamera(const Camera* camera);

@@ -53,7 +53,7 @@ class RiuViewerCommands: public QObject
 
 public:
     explicit RiuViewerCommands(RiuViewer* ownerViewer);
-    ~RiuViewerCommands();
+    ~RiuViewerCommands() override;
 
     void            setOwnerView(Rim3dView * owner);
 

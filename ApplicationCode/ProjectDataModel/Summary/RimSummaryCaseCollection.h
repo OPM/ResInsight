@@ -62,7 +62,7 @@ class RimSummaryCaseCollection : public caf::PdmObject
 
 public:
     RimSummaryCaseCollection();
-    virtual ~RimSummaryCaseCollection();
+    ~RimSummaryCaseCollection() override;
 
     void                            removeCase(RimSummaryCase* summaryCase);
     void                            addCase(RimSummaryCase* summaryCase, bool updateCurveSets = true);
@@ -85,13 +85,13 @@ private:
     QString                         nameAndItemCount() const;
     void                            updateIcon();
 
-    virtual void                    initAfterRead() override;
-    virtual void                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    void                    initAfterRead() override;
+    void                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
 
 protected:
     virtual void                    onLoadDataAndUpdate();
     void                            updateReferringCurveSets();
-    virtual void                    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    void                    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
     void                            setNameAsReadOnly();
 
     caf::PdmChildArrayField<RimSummaryCase*> m_cases;

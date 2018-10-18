@@ -41,7 +41,7 @@ class RimSimWellInViewCollection : public caf::PdmObject
 public:
 
     RimSimWellInViewCollection();
-    virtual ~RimSimWellInViewCollection();
+    ~RimSimWellInViewCollection() override;
     
     void                                setReservoirView(RimEclipseView* ownerReservoirView);
 
@@ -127,15 +127,15 @@ public:
     static void                         updateWellAllocationPlots();
 
 protected:
-    virtual void                        fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    void                        fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
 
 
-    virtual void                        defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    void                        defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
 
 
-    virtual caf::PdmFieldHandle*        objectToggleField() override;
-    virtual void                        initAfterRead() override;
-    virtual void                        defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override;
+    caf::PdmFieldHandle*        objectToggleField() override;
+    void                        initAfterRead() override;
+    void                        defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override;
 
 private:
     void                                calculateWellGeometryVisibility(size_t frameIndex);

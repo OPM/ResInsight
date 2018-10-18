@@ -62,7 +62,7 @@ class RimWellPathCollection : public caf::PdmObject
     CAF_PDM_HEADER_INIT;
 public:
     RimWellPathCollection();
-    virtual ~RimWellPathCollection();
+    ~RimWellPathCollection() override;
 
     enum WellVisibilityType
     {
@@ -108,11 +108,11 @@ public:
     bool                                anyWellsContainingPerforationIntervals() const;
     size_t                              modelledWellPathCount() const;
 protected:
-    virtual void                        fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+    void                        fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
 private:
-    virtual void                        defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
-    virtual caf::PdmFieldHandle*        objectToggleField() override;
+    void                        defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    caf::PdmFieldHandle*        objectToggleField() override;
 
     void                                readAndAddWellPaths(std::vector<RimFileWellPath*>& wellPathArray);
     void                                sortWellsByName();

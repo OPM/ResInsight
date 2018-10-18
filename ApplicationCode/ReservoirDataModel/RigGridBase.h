@@ -42,7 +42,7 @@ class RigGridBase : public cvf::StructGridInterface
 {
 public:
     explicit RigGridBase(RigMainGrid* mainGrid);
-    virtual ~RigGridBase();
+    ~RigGridBase() override;
 
     void                        setGridPointDimensions(const cvf::Vec3st& gridDimensions)   { m_gridPointDimensions = gridDimensions;}
     cvf::Vec3st                 gridPointDimensions()                                       { return m_gridPointDimensions; }

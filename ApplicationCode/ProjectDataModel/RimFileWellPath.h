@@ -24,7 +24,7 @@ class RimFileWellPath : public RimWellPath
 public:
 
     RimFileWellPath();
-    ~RimFileWellPath();
+    ~RimFileWellPath() override;
 
     QString                             filepath() const;
     void                                setFilepath(const QString& path);
@@ -40,7 +40,7 @@ private:
     QString                             getCacheFileName();
     QString                             getCacheDirectoryPath();
 
-    virtual void                        setupBeforeSave() override;
+    void                        setupBeforeSave() override;
 
     caf::PdmField<QString>              m_filepath;
     caf::PdmField<int>                  m_wellPathIndexInFile; // -1 means none.
@@ -53,7 +53,7 @@ private:
     caf::PdmField<QString>              m_surveyType;
 
 
-    virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
 
 };
 

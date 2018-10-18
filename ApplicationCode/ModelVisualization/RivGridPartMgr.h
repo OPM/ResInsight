@@ -59,7 +59,7 @@ class RivGridPartMgr: public cvf::Object
 {
 public:
     RivGridPartMgr(RivCellSetEnum cellSetType, RimEclipseCase* eclipseCase, const RigGridBase* grid, size_t gridIdx);
-    ~RivGridPartMgr();
+    ~RivGridPartMgr() override;
     
     void setTransform(cvf::Transform* scaleTransform);
     void setCellVisibility(cvf::UByteArray* cellVisibilities );

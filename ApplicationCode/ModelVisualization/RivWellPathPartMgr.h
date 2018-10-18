@@ -58,7 +58,7 @@ class RivWellPathPartMgr : public cvf::Object
 {
 public:
     explicit RivWellPathPartMgr(RimWellPath* wellPath, Rim3dView* view);
-    ~RivWellPathPartMgr();
+    ~RivWellPathPartMgr() override;
 
     void appendStaticGeometryPartsToModel(cvf::ModelBasicList*              model,
                                           const caf::DisplayCoordTransform* displayCoordTransform,

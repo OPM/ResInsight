@@ -44,7 +44,7 @@ class RicResampleDialog : public QDialog
 
 public:
     RicResampleDialog(QWidget* parent);
-    ~RicResampleDialog();
+    ~RicResampleDialog() override;
 
     static RicResampleDialogResult  openDialog(QWidget *parent = nullptr,
                                                              const QString& caption = QString());

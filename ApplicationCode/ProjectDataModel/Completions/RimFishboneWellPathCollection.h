@@ -44,7 +44,7 @@ public:
 
     void                                    importCompletionsFromFile(const QStringList& filePaths);
 
-    void                                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
+    void                                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
 
     std::vector<const RimFishboneWellPath*> wellPaths() const;
     double                                  holeDiameter(RiaEclipseUnitTools::UnitSystem unitSystem) const { return m_pipeProperties->holeDiameter(unitSystem); }
@@ -53,7 +53,7 @@ public:
     void                                    setUnitSystemSpecificDefaults();
 
 protected:
-    virtual void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
 
 private:
     void                                    appendCompletion(RimFishboneWellPath* completion);

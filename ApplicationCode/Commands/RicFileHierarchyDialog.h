@@ -44,7 +44,7 @@ class RicFileHierarchyDialog : public QDialog
 
 public:
     RicFileHierarchyDialog(QWidget* parent);
-    ~RicFileHierarchyDialog();
+    ~RicFileHierarchyDialog() override;
 
     static RicFileHierarchyDialogResult  runRecursiveSearchDialog(QWidget *parent = nullptr,
                                                                   const QString& caption = QString(),

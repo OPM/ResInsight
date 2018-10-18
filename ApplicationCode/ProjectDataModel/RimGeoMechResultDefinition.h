@@ -42,7 +42,7 @@ class RimGeoMechResultDefinition : public RimFemResultObserver
      CAF_PDM_HEADER_INIT;
 public:
     RimGeoMechResultDefinition(void);
-    virtual ~RimGeoMechResultDefinition(void);
+    ~RimGeoMechResultDefinition(void) override;
 
     void                                              setGeoMechCase(RimGeoMechCase* geomCase);
 
@@ -52,7 +52,7 @@ public:
     void                                              setAddWellPathDerivedResults(bool addWellPathDerivedResults);
 
     RigFemResultAddress                               resultAddress() const;
-    virtual std::vector<RigFemResultAddress>          observedResults() const override;
+    std::vector<RigFemResultAddress>          observedResults() const override;
 
     RigFemResultPosEnum                               resultPositionType() const;
     QString                                           resultFieldName() const;
@@ -66,18 +66,18 @@ public:
 
 protected:
     virtual void                                      updateLegendCategorySettings() {};
-    virtual void                                      defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    void                                      defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
 
 private:
 
     // Overridden PDM methods
 
-    virtual QList<caf::PdmOptionItemInfo>             calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, 
+    QList<caf::PdmOptionItemInfo>             calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, 
                                                                             bool * useOptionsOnly) override;
-    virtual void                                      fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
+    void                                      fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
                                                                        const QVariant& oldValue, 
                                                                        const QVariant& newValue) override;
-    virtual void                                      initAfterRead() override;
+    void                                      initAfterRead() override;
 
     // Metadata and option build tools
 

@@ -37,7 +37,7 @@ class RimSummaryCaseMainCollection : public caf::PdmObject
     CAF_PDM_HEADER_INIT;
 public:
     RimSummaryCaseMainCollection();
-    virtual ~RimSummaryCaseMainCollection();
+    ~RimSummaryCaseMainCollection() override;
 
     RimSummaryCase*     summaryCase(size_t idx);
     size_t              summaryCaseCount() const;

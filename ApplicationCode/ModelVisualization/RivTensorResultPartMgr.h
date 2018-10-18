@@ -49,7 +49,7 @@ class RivTensorResultPartMgr : public cvf::Object
 {
 public:
     RivTensorResultPartMgr(RimGeoMechView* reservoirView);
-    ~RivTensorResultPartMgr();
+    ~RivTensorResultPartMgr() override;
 
     void appendDynamicGeometryPartsToModel(cvf::ModelBasicList* model, size_t frameIndex) const;
 

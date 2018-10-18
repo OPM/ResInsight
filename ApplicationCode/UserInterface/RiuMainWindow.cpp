@@ -607,7 +607,7 @@ void RiuMainWindow::createToolBars()
 class RiuDockWidget : public QDockWidget
 {
 public:
-    explicit RiuDockWidget(const QString& title, QWidget* parent = 0, Qt::WindowFlags flags = 0)
+    explicit RiuDockWidget(const QString& title, QWidget* parent = nullptr, Qt::WindowFlags flags = nullptr)
         : QDockWidget(title, parent, flags)
     {
     }

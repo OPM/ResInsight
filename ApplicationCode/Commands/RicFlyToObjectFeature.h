@@ -35,9 +35,9 @@ class RicFlyToObjectFeature : public caf::CmdFeature
     CAF_CMD_HEADER_INIT;
 
 protected:
-    virtual void onActionTriggered( bool isChecked ) override;
-    virtual bool isCommandEnabled() override;
-    virtual void setupActionLook( QAction* actionToSetup ) override;
+    void onActionTriggered( bool isChecked ) override;
+    bool isCommandEnabled() override;
+    void setupActionLook( QAction* actionToSetup ) override;
 
 private:
     static cvf::BoundingBox boundingBoxForSelectedObjects();

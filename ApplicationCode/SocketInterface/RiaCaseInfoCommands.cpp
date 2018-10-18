@@ -63,7 +63,7 @@ class RiaGetMainGridDimensions: public RiaSocketCommand
 public:
     static QString commandName () { return QString("GetMainGridDimensions"); }
 
-    virtual bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>&  args, QDataStream& socketStream)
+    bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>&  args, QDataStream& socketStream) override
     {
 
         RimEclipseCase* rimCase = RiaSocketTools::findCaseFromArgs(server, args);
@@ -100,7 +100,7 @@ class RiaGetActiveCellInfo: public RiaSocketCommand
 public:
     static QString commandName () { return QString("GetActiveCellInfo"); }
 
-    virtual bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>&  args, QDataStream& socketStream)
+    bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>&  args, QDataStream& socketStream) override
     {
         RimEclipseCase* rimCase = RiaSocketTools::findCaseFromArgs(server, args);
         if (!rimCase) return true;
@@ -270,7 +270,7 @@ class RiaGetCoarseningInfo : public RiaSocketCommand
 public:
     static QString commandName () { return QString("GetCoarseningInfo"); }
 
-    virtual bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>&  args, QDataStream& socketStream)
+    bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>&  args, QDataStream& socketStream) override
     {
         int argCaseGroupId = -1;
 
@@ -342,7 +342,7 @@ class RiaGetGridDimensions : public RiaSocketCommand
 public:
     static QString commandName () { return QString("GetGridDimensions"); }
 
-    virtual bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>&  args, QDataStream& socketStream)
+    bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>&  args, QDataStream& socketStream) override
     {
         int argCaseGroupId = -1;
 
@@ -401,7 +401,7 @@ class RiaGetTimeStepDates : public RiaSocketCommand
 {
 public:
     static QString commandName () { return QString("GetTimeStepDates"); }
-    virtual bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>& args, QDataStream& socketStream)
+    bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>& args, QDataStream& socketStream) override
     {
         int argCaseGroupId = -1;
 
@@ -488,7 +488,7 @@ class RiaGetTimeStepDays : public RiaSocketCommand
 {
 public:
     static QString commandName () { return QString("GetTimeStepDays"); }
-    virtual bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>& args, QDataStream& socketStream)
+    bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>& args, QDataStream& socketStream) override
     {
         int argCaseGroupId = -1;
 
@@ -556,7 +556,7 @@ class RiaGetSelectedCells: public RiaSocketCommand
 public:
     static QString commandName () { return QString("GetSelectedCells"); }
 
-    virtual bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>& args, QDataStream& socketStream)
+    bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>& args, QDataStream& socketStream) override
     {
         // findCaseFromArgs only returns RimEclipseCase, so geomech cases are not supported because of this.
         // The rest of the function supports geomech cases, so using a findCaseFromArgs that supports geomech

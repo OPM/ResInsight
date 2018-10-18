@@ -59,7 +59,7 @@ class RimEclipseCase : public RimCase
     CAF_PDM_HEADER_INIT;
 public:
     RimEclipseCase();
-    virtual ~RimEclipseCase();
+    ~RimEclipseCase() override;
 
     // Fields:                                        
     caf::PdmChildArrayField<RimEclipseView*>    reservoirViews;
@@ -94,9 +94,9 @@ public:
 
     RimCaseCollection*                          parentCaseCollection();
                                                      
-    virtual QStringList                         timeStepStrings() const override;
-    virtual QString                             timeStepName(int frameIdx) const override;
-    virtual std::vector<QDateTime>              timeStepDates() const override;
+    QStringList                         timeStepStrings() const override;
+    QString                             timeStepName(int frameIdx) const override;
+    std::vector<QDateTime>              timeStepDates() const override;
 
 
     cvf::BoundingBox                            activeCellsBoundingBox() const override;
@@ -107,18 +107,18 @@ public:
     virtual void                                reloadEclipseGridFile() = 0;
 
 
-    virtual double                              characteristicCellSize() const override;
+    double                              characteristicCellSize() const override;
 
-    virtual void                                setFormationNames(RimFormationNames* formationNames) override;
+    void                                setFormationNames(RimFormationNames* formationNames) override;
 
     std::set<QString>                           sortedSimWellNames() const;
 
 protected:
     void                                        initAfterRead() override;
     void                                        fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
-    virtual void                                defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
+    void                                defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
 
-    virtual void                                updateFormationNamesData() override;
+    void                                updateFormationNamesData() override;
 
     // Internal methods
 protected:
@@ -127,7 +127,7 @@ protected:
 
 private:
     void                                        createTimeStepFormatString();
-    virtual std::vector<Rim3dView*>             allSpecialViews() const override;
+    std::vector<Rim3dView*>             allSpecialViews() const override;
 
 protected:
     caf::PdmField<bool>                         m_flipXAxis;

@@ -47,7 +47,7 @@ private:
 
 public:
     explicit RiuProcessMonitor(QDockWidget* pParent);
-    ~RiuProcessMonitor();
+    ~RiuProcessMonitor() override;
 
     void                    startMonitorWorkProcess(caf::UiProcess* process);
     void                    stopMonitorWorkProcess();

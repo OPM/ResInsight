@@ -37,7 +37,7 @@ class RimEnsembleCurveSetCollection : public caf::PdmObject
 
 public:
     RimEnsembleCurveSetCollection();
-    virtual ~RimEnsembleCurveSetCollection();
+    ~RimEnsembleCurveSetCollection() override;
 
     bool                                    isCurveSetsVisible();
 
@@ -62,7 +62,7 @@ public:
 private:
     caf::PdmFieldHandle*                    objectToggleField() override;
     
-    virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField,
+    void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField,
                                                              const QVariant& oldValue, const QVariant& newValue) override;
 
 private:

@@ -44,7 +44,7 @@ class RimWellLogPlotCollection : public caf::PdmObject
     CAF_PDM_HEADER_INIT;
 public:
     RimWellLogPlotCollection();
-    virtual ~RimWellLogPlotCollection();
+    ~RimWellLogPlotCollection() override;
 
     RigEclipseWellLogExtractor* findOrCreateSimWellExtractor(const QString& simWellName, 
                                                              const QString& caseUserDescription, 

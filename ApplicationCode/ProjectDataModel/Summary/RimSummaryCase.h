@@ -38,7 +38,7 @@ class RimSummaryCase : public caf::PdmObject
     CAF_PDM_HEADER_INIT;
 public:
     RimSummaryCase();
-    virtual ~RimSummaryCase();
+    ~RimSummaryCase() override;
     
     virtual QString     summaryHeaderFilename() const; 
     virtual QString     caseName() const = 0; 
@@ -65,7 +65,7 @@ public:
     bool                operator<(const RimSummaryCase& rhs) const;
 
 protected:
-    virtual void        fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
+    void        fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
     void                updateTreeItemName();
 
     caf::PdmField<QString>          m_shortName;
@@ -76,5 +76,5 @@ protected:
     std::shared_ptr<RigCaseRealizationParameters> m_crlParameters;
 
 private:
-    virtual void        initAfterRead() override;
+    void        initAfterRead() override;
 };

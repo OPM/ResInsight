@@ -43,7 +43,7 @@ public:
     typedef caf::AppEnum<LengthAndDepthType> LengthAndDepthEnum;
 
     RimMswCompletionParameters();
-    ~RimMswCompletionParameters();
+    ~RimMswCompletionParameters() override;
 
     double             linerDiameter(RiaEclipseUnitTools::UnitSystem unitSystem) const;
     static double      defaultLinerDiameter(RiaEclipseUnitTools::UnitSystem unitSystem);
@@ -61,11 +61,11 @@ public:
     void               setUnitSystemSpecificDefaults();
 
 protected:
-    virtual void       fieldChangedByUi(const caf::PdmFieldHandle* changedField,
+    void       fieldChangedByUi(const caf::PdmFieldHandle* changedField,
                                         const QVariant& oldValue,
-                                        const QVariant& newValue);
+                                        const QVariant& newValue) override;
     void               defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
-    virtual void       initAfterRead() override;
+    void       initAfterRead() override;
 
 private:
     caf::PdmField<double>             m_linerDiameter;

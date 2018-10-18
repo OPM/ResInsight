@@ -47,10 +47,10 @@ class RimFishboneWellPath : public RimCheckableNamedObject
 public:
 
     RimFishboneWellPath();
-    virtual ~RimFishboneWellPath();
+    ~RimFishboneWellPath() override;
 
-    virtual void                        defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
-    virtual void                        fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+    void                        defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    void                        fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
     void                                setCoordinates(std::vector< cvf::Vec3d > coordinates);
     void                                setMeasuredDepths(std::vector< double > measuredDepths);

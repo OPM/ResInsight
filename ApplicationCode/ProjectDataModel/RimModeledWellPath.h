@@ -31,7 +31,7 @@ class RimModeledWellPath: public RimWellPath
 public:
 
     RimModeledWellPath();
-    ~RimModeledWellPath();
+    ~RimModeledWellPath() override;
 
     void                    createWellPathGeometry();
     void                    updateWellPathVisualization();
@@ -40,7 +40,7 @@ public:
     QString                 wellPlanText();
 
 private:
-    virtual void defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName) override;
+    void defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName) override;
 
     caf::PdmChildField<RimWellPathGeometryDef*> m_geometryDefinition;
 

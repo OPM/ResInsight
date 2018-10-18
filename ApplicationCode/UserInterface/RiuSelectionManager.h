@@ -139,9 +139,9 @@ public:
                                      cvf::StructGridInterface::FaceType face,
                                      const cvf::Vec3d& localIntersectionPointInDisplay);
     
-    virtual ~RiuEclipseSelectionItem() {};
+    ~RiuEclipseSelectionItem() override {};
 
-    virtual RiuSelectionType type() const
+    RiuSelectionType type() const override
     {
         return ECLIPSE_SELECTION_OBJECT;
     }
@@ -179,9 +179,9 @@ public:
                                      int elementFace,
                                      const cvf::Vec3d& localIntersectionPointInDisplay,
                                      const std::array<cvf::Vec3f, 3>& intersectionTriangle );
-    virtual ~RiuGeoMechSelectionItem() {};
+    ~RiuGeoMechSelectionItem() override {};
 
-    virtual RiuSelectionType type() const
+    RiuSelectionType type() const override
     {
         return GEOMECH_SELECTION_OBJECT;
     }
@@ -208,9 +208,9 @@ class Riu2dIntersectionSelectionItem : public RiuSelectionItem
 public:
     explicit Riu2dIntersectionSelectionItem(Rim2dIntersectionView* view, RiuSelectionItem *selItem);
 
-    virtual ~Riu2dIntersectionSelectionItem();
+    ~Riu2dIntersectionSelectionItem() override;
 
-    virtual RiuSelectionType type() const
+    RiuSelectionType type() const override
     {
         return INTERSECTION_SELECTION_OBJECT;
     }
@@ -239,9 +239,9 @@ public:
                                       const cvf::Vec3d& pipeCenterLineIntersectionInDomainCoords,
                                       double measuredDepth);
 
-    virtual ~RiuWellPathSelectionItem() {};
+    ~RiuWellPathSelectionItem() override {};
 
-    virtual RiuSelectionType type() const
+    RiuSelectionType type() const override
     {
         return WELLPATH_SELECTION_OBJECT;
     }
@@ -265,9 +265,9 @@ public:
     explicit RiuSimWellSelectionItem(RimSimWellInView* simwell, cvf::Vec3d domainCoord, size_t branchIndex);
 
 
-    virtual ~RiuSimWellSelectionItem() {};
+    ~RiuSimWellSelectionItem() override {};
 
-    virtual RiuSelectionType type() const
+    RiuSelectionType type() const override
     {
         return SIMWELL_SELECTION_OBJECT;
     }
@@ -289,9 +289,9 @@ class RiuGeneralSelectionItem : public RiuSelectionItem
 public:
     RiuGeneralSelectionItem(caf::PdmObject* object);
 
-    virtual ~RiuGeneralSelectionItem() {};
+    ~RiuGeneralSelectionItem() override {};
 
-    virtual RiuSelectionType type() const
+    RiuSelectionType type() const override
     {
         return GENERAL_SELECTION_OBJECT;
     }

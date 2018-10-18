@@ -75,7 +75,7 @@ class RiaGetCellCenters : public RiaSocketCommand
 public:
     static QString commandName () { return QString("GetCellCenters"); }
 
-    virtual bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>&  args, QDataStream& socketStream)
+    bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>&  args, QDataStream& socketStream) override
     {
         RimEclipseCase* rimCase = RiaSocketTools::findCaseFromArgs(server, args);
         size_t argGridIndex = args[2].toUInt();
@@ -158,7 +158,7 @@ class RiaGetActiveCellCenters : public RiaSocketCommand
 public:
     static QString commandName () { return QString("GetActiveCellCenters"); }
 
-    virtual bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>&  args, QDataStream& socketStream)
+    bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>&  args, QDataStream& socketStream) override
     {
         RimEclipseCase* rimCase = RiaSocketTools::findCaseFromArgs(server, args);
 
@@ -240,7 +240,7 @@ class RiaGetCellCorners : public RiaSocketCommand
 public:
     static QString commandName () { return QString("GetCellCorners"); }
 
-    virtual bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>&  args, QDataStream& socketStream)
+    bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>&  args, QDataStream& socketStream) override
     {
         RimEclipseCase* rimCase = RiaSocketTools::findCaseFromArgs(server, args);
         size_t argGridIndex = args[2].toUInt();
@@ -329,7 +329,7 @@ class RiaGetActiveCellCorners : public RiaSocketCommand
 public:
     static QString commandName () { return QString("GetActiveCellCorners"); }
 
-    virtual bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>&  args, QDataStream& socketStream)
+    bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>&  args, QDataStream& socketStream) override
     {
         RimEclipseCase* rimCase = RiaSocketTools::findCaseFromArgs(server, args);
 

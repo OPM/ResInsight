@@ -44,7 +44,7 @@ class RimEllipseFractureTemplate : public RimFractureTemplate
 
 public:
     RimEllipseFractureTemplate();
-    virtual ~RimEllipseFractureTemplate();
+    ~RimEllipseFractureTemplate() override;
 
     void fractureTriangleGeometry(std::vector<cvf::Vec3f>* nodeCoords, std::vector<cvf::uint>* polygonIndices) const override;
 

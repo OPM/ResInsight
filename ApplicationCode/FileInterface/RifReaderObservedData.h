@@ -40,15 +40,15 @@ class RifReaderObservedData : public RifSummaryReaderInterface
 {
 public:
     RifReaderObservedData();
-    ~RifReaderObservedData();
+    ~RifReaderObservedData() override;
 
     bool                                open(const QString& headerFileName,
                                              const QString& identifierName,
                                              RifEclipseSummaryAddress::SummaryVarCategory summaryCategory);
 
-    virtual const std::vector<time_t>&  timeSteps(const RifEclipseSummaryAddress& resultAddress) const override;
+    const std::vector<time_t>&  timeSteps(const RifEclipseSummaryAddress& resultAddress) const override;
 
-    virtual bool                        values(const RifEclipseSummaryAddress& resultAddress,
+    bool                        values(const RifEclipseSummaryAddress& resultAddress,
                                                std::vector<double>* values) const override;
 
     std::string                         unitName(const RifEclipseSummaryAddress& resultAddress) const override;

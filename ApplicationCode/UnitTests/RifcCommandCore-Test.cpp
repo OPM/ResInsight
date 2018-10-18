@@ -19,7 +19,7 @@ public:
         RICF_InitField(&m_boolArgument,   "BoolArgument", false, "BoolArgument", "", "", "");
     }
 
-    virtual void execute() override { std::cout << "TestCommand1::execute(" << "\"" << m_textArgument().toStdString() << "\", " 
+    void execute() override { std::cout << "TestCommand1::execute(" << "\"" << m_textArgument().toStdString() << "\", " 
                                                                                     << m_doubleArgument() << ", " 
                                                                                     << m_intArgument << ", "
                                                                                     << m_boolArgument << ");" << std::endl; }
@@ -45,7 +45,7 @@ public:
         RICF_InitField(&m_boolArgument,   "ba",        false,"BoolArgument", "", "", "");
     }
 
-    virtual void execute() override { std::cout << "TC2::execute(" << "\"" << m_textArgument().toStdString() << "\", " 
+    void execute() override { std::cout << "TC2::execute(" << "\"" << m_textArgument().toStdString() << "\", " 
         << m_doubleArgument() << ", " 
         << m_intArgument() << ", " << m_boolArgument() << ");" << std::endl; }
 

@@ -33,11 +33,11 @@ class RicRangeFilterExecImpl : public caf::CmdExecuteCommand
 public:
     RicRangeFilterExecImpl(RimCellRangeFilterCollection* rangeFilterCollection, 
                            RimCellRangeFilter* insertBeforeCellRangeFilter = nullptr);
-    virtual ~RicRangeFilterExecImpl();
+    ~RicRangeFilterExecImpl() override;
 
-    virtual QString name() = 0;
-    virtual void redo() = 0;
-    virtual void undo() = 0;
+    QString name() override = 0;
+    void redo() override = 0;
+    void undo() override = 0;
 
 public:
     bool m_iSlice;

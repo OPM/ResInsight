@@ -80,14 +80,14 @@ public:
     bool isActive() const;
 
 protected:
-    virtual void                 initAfterRead() override;
-    virtual caf::PdmFieldHandle* userDescriptionField() override;
-    virtual caf::PdmFieldHandle* objectToggleField() override;
-    virtual void                 fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue,
+    void                 initAfterRead() override;
+    caf::PdmFieldHandle* userDescriptionField() override;
+    caf::PdmFieldHandle* objectToggleField() override;
+    void                 fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue,
                                                   const QVariant& newValue) override;
-    virtual void                 defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    void                 defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
 
-    virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions,
+    QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions,
                                                                 bool*                      useOptionsOnly) override;
 
 private:

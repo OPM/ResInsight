@@ -28,7 +28,7 @@ class RicDeleteOptionItemFeature : public caf::CmdFeature
     CAF_CMD_HEADER_INIT;
 
 private:
-    virtual bool isCommandEnabled() override;
-    virtual void setupActionLook(QAction* actionToSetup) override;
-    virtual void onActionTriggered(bool isChecked) override;
+    bool isCommandEnabled() override;
+    void setupActionLook(QAction* actionToSetup) override;
+    void onActionTriggered(bool isChecked) override;
 };

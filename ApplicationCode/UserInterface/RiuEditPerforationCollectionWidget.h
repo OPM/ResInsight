@@ -36,7 +36,7 @@ class RiuEditPerforationCollectionWidget : public QDialog
     Q_OBJECT
 public:
     RiuEditPerforationCollectionWidget(QWidget* parent, RimPerforationCollection* perforationCollection);
-    ~RiuEditPerforationCollectionWidget();
+    ~RiuEditPerforationCollectionWidget() override;
 
 private slots:
     void customMenuRequested(QPoint pos);

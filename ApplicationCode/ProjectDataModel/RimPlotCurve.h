@@ -44,7 +44,7 @@ public:
 
 public:
     RimPlotCurve();
-    virtual ~RimPlotCurve();
+    ~RimPlotCurve() override;
 
     void                            loadDataAndUpdate(bool updateParentPlot);
 
@@ -93,7 +93,7 @@ protected:
     virtual QString                 createCurveAutoName() = 0;
     virtual void                    updateZoomInParentPlot() = 0;
     virtual void                    onLoadDataAndUpdate(bool updateParentPlot) = 0;
-    virtual void                    initAfterRead() override;
+    void                    initAfterRead() override;
     void                            updateCurvePresentation(bool updatePlotLegendAndTitle);
 
     void                            updateOptionSensitivity();
@@ -102,10 +102,10 @@ protected:
 protected:
 
     // Overridden PDM methods
-    virtual void                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
-    virtual caf::PdmFieldHandle*    objectToggleField();
-    virtual caf::PdmFieldHandle*    userDescriptionField();
-    virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly);
+    void                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    caf::PdmFieldHandle*    objectToggleField() override;
+    caf::PdmFieldHandle*    userDescriptionField() override;
+    QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
     void                            appearanceUiOrdering(caf::PdmUiOrdering& uiOrdering);
     void                            curveNameUiOrdering(caf::PdmUiOrdering& uiOrdering);
 

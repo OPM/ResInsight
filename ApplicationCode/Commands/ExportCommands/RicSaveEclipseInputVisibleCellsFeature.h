@@ -37,9 +37,9 @@ public :
                                const QString& logPrefix);
 
 protected:
-    virtual bool isCommandEnabled() override;
-    virtual void onActionTriggered(bool isChecked) override;
-    virtual void setupActionLook(QAction* actionToSetup) override;
+    bool isCommandEnabled() override;
+    void onActionTriggered(bool isChecked) override;
+    void setupActionLook(QAction* actionToSetup) override;
 
 private:
     RimEclipseView* selectedView() const;
@@ -53,9 +53,9 @@ class RicSaveEclipseInputActiveVisibleCellsFeature : public caf::CmdFeature
     CAF_CMD_HEADER_INIT;
 
 protected:
-    virtual bool isCommandEnabled() override;
-    virtual void onActionTriggered( bool isChecked ) override;
-    virtual void setupActionLook( QAction* actionToSetup ) override;
+    bool isCommandEnabled() override;
+    void onActionTriggered( bool isChecked ) override;
+    void setupActionLook( QAction* actionToSetup ) override;
 
 private:
     static RimEclipseView* getEclipseActiveView();

@@ -36,6 +36,6 @@ public:
 
     caf::PdmField<QString> name;
 
-    caf::PdmFieldHandle* userDescriptionField();
+    caf::PdmFieldHandle* userDescriptionField() override;
 
 };

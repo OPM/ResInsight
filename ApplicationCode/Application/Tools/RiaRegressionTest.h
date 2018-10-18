@@ -30,7 +30,7 @@ class RiaRegressionTest : public caf::PdmObject
 
 public:
     RiaRegressionTest(void);
-    virtual ~RiaRegressionTest(void);
+    ~RiaRegressionTest(void) override;
 
     void writeSettingsToApplicationStore() const;
     void readSettingsFromApplicationStore();
@@ -44,5 +44,5 @@ public:
     caf::PdmField<bool>     showInteractiveDiffImages;
 
 protected:
-    virtual void defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute);
+    void defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override;
 };

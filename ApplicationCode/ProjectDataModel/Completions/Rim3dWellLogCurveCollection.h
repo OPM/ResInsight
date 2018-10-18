@@ -38,7 +38,7 @@ class Rim3dWellLogCurveCollection : public caf::PdmObject
 
 public:
     Rim3dWellLogCurveCollection();
-    virtual ~Rim3dWellLogCurveCollection();
+    ~Rim3dWellLogCurveCollection() override;
 
     bool has3dWellLogCurves() const;
     void add3dWellLogCurve(Rim3dWellLogCurve* curve);
@@ -58,10 +58,10 @@ public:
                                                               double*           valueAtPoint);
 
 private:
-    virtual void                 fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
-    virtual caf::PdmFieldHandle* objectToggleField() override;
-    virtual void                 defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
-    virtual void                 defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute);
+    void                 fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    caf::PdmFieldHandle* objectToggleField() override;
+    void                 defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    void                 defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override;
 private:
     caf::PdmField<bool>                         m_showPlot;
     caf::PdmField<float>                        m_planeWidthScaling;

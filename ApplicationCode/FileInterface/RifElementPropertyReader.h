@@ -37,7 +37,7 @@ class RifElementPropertyReader : public cvf::Object
 {
 public:
     RifElementPropertyReader(const std::vector<int>& elementIdxToId);
-    virtual ~RifElementPropertyReader();
+    ~RifElementPropertyReader() override;
 
     void addFile(const std::string& fileName);
     void removeFile(const std::string& fileName);

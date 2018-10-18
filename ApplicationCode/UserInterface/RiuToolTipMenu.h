@@ -28,5 +28,5 @@ class RiuToolTipMenu : public QMenu
 public:
     explicit RiuToolTipMenu(QWidget * parent);
 
-    bool event(QEvent* e);
+    bool event(QEvent* e) override;
 };

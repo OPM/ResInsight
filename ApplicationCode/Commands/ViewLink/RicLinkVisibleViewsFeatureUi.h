@@ -41,8 +41,8 @@ public:
     RimGridView*                masterView();
 
 protected:
-    virtual QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, 
-                                                                  bool * useOptionsOnly);
+    QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, 
+                                                                  bool * useOptionsOnly) override;
 
 private:
     caf::PdmPtrField<RimGridView*>  m_masterView;

@@ -36,11 +36,11 @@ class RimEclipseGeometrySelectionItem : public RimGeometrySelectionItem
     CAF_PDM_HEADER_INIT;
 public:
     RimEclipseGeometrySelectionItem();
-    virtual ~RimEclipseGeometrySelectionItem() override;
+    ~RimEclipseGeometrySelectionItem() override;
 
     void            setFromSelectionItem(const RiuEclipseSelectionItem* selectionItem);
 
-    virtual QString geometrySelectionText() const override;
+    QString geometrySelectionText() const override;
 
     RimEclipseCase* eclipseCase() const;
     size_t          gridIndex() const;

@@ -41,7 +41,7 @@ class RimPerforationCollection : public RimCheckableNamedObject
 
 public:
     RimPerforationCollection();
-    ~RimPerforationCollection();
+    ~RimPerforationCollection() override;
 
     const RimMswCompletionParameters*          mswParameters() const;
     const RimNonDarcyPerforationParameters*    nonDarcyParameters() const;
@@ -51,7 +51,7 @@ public:
 
 private:
     void                                       defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
-    void                                       fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
+    void                                       fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
 
     friend class RiuEditPerforationCollectionWidget;
 

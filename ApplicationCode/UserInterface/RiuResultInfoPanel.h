@@ -39,7 +39,7 @@ public:
 
     void            setInfo(const QString& info);
 
-    virtual QSize    sizeHint () const;
+    QSize    sizeHint () const override;
 
 private:
     static void        convertStringToHTML(QString* str);

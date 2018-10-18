@@ -35,7 +35,7 @@ class RimCommandObject : public caf::PdmObject
     CAF_PDM_HEADER_INIT;
 public:
     RimCommandObject();
-    virtual ~RimCommandObject();
+    ~RimCommandObject() override;
 
     virtual bool isAsyncronous() { return false; };
 
@@ -52,23 +52,23 @@ class RimCommandExecuteScript : public RimCommandObject
     CAF_PDM_HEADER_INIT;
 public:
     RimCommandExecuteScript();
-    virtual ~RimCommandExecuteScript();
+    ~RimCommandExecuteScript() override;
 
     caf::PdmField<QString>  name;
     caf::PdmField<bool>     isEnabled;
     caf::PdmField<bool>     execute;
     caf::PdmField<QString>  scriptText;
 
-    virtual void redo();
-    virtual void undo();
+    void redo() override;
+    void undo() override;
 
-    virtual void defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute);
+    void defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override;
 
-    virtual caf::PdmFieldHandle* userDescriptionField();
+    caf::PdmFieldHandle* userDescriptionField() override;
 
-    virtual void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue );
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
-    virtual bool isAsyncronous();
+    bool isAsyncronous() override;
 };
 
 //--------------------------------------------------------------------------------------------------
@@ -79,17 +79,17 @@ class RimCommandIssueFieldChanged : public RimCommandObject
     CAF_PDM_HEADER_INIT;
 public:
     RimCommandIssueFieldChanged();
-    virtual ~RimCommandIssueFieldChanged();
+    ~RimCommandIssueFieldChanged() override;
 
     caf::PdmField<QString>  commandName;
     caf::PdmField<QString>  objectName;
     caf::PdmField<QString>  fieldName;
     caf::PdmField<QString>  fieldValueToApply;
 
-    virtual void redo();
-    virtual void undo();
+    void redo() override;
+    void undo() override;
 
-    virtual caf::PdmFieldHandle* userDescriptionField();
+    caf::PdmFieldHandle* userDescriptionField() override;
 
 private:
     void childObjects(caf::PdmObject* pdmObject, std::vector<caf::PdmObjectHandle*>& children);

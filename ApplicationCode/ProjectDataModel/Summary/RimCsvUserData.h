@@ -37,13 +37,13 @@ class RimCsvUserData : public RimObservedData
     CAF_PDM_HEADER_INIT;
 public:
     RimCsvUserData();
-    virtual ~RimCsvUserData();
+    ~RimCsvUserData() override;
 
-    virtual void createSummaryReaderInterface() override;
+    void createSummaryReaderInterface() override;
 
-    virtual RifSummaryReaderInterface* summaryReader() override;
+    RifSummaryReaderInterface* summaryReader() override;
 
-    virtual QString errorMessagesFromReader() override;
+    QString errorMessagesFromReader() override;
 
     RicPasteAsciiDataToSummaryPlotFeatureUi* parseOptions() const;
 

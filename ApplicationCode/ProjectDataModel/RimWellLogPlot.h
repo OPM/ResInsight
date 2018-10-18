@@ -61,10 +61,10 @@ public:
 
 public:
     RimWellLogPlot();
-    virtual ~RimWellLogPlot();
+    ~RimWellLogPlot() override;
 
     QWidget*                                        createPlotWidget();
-    virtual QWidget*                                viewWidget() override;
+    QWidget*                                viewWidget() override;
 
     void                                            setDescription(const QString& description);
     QString                                         description() const;
@@ -108,7 +108,7 @@ public:
     void                                            availableDepthRange(double* minimumDepth, double* maximumDepth) const;
     bool                                            hasAvailableDepthRange() const;
 
-    virtual void                                    zoomAll() override;
+    void                                    zoomAll() override;
     void                                            setDepthAutoZoom(bool on);
     void                                            enableAllAutoNameTags(bool enable);
 
@@ -122,7 +122,7 @@ public:
     void                                            uiOrderingForDepthAxis(caf::PdmUiOrdering& uiOrdering);
     void                                            uiOrderingForPlotSettings(caf::PdmUiOrdering& uiOrdering);
 
-    virtual QString                                 createAutoName() const override;
+    QString                                 createAutoName() const override;
     void                                            updateHolder() override;
 
     void                                            handleKeyPressEvent(QKeyEvent* keyEvent);
@@ -130,18 +130,18 @@ public:
 protected:
 
     // Overridden PDM methods
-    virtual void                                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
-    virtual void                                    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
-    virtual caf::PdmFieldHandle*                    userDescriptionField() override;
-    virtual QList<caf::PdmOptionItemInfo>           calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
-    virtual void                                    onLoadDataAndUpdate() override;
+    void                                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    void                                    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    caf::PdmFieldHandle*                    userDescriptionField() override;
+    QList<caf::PdmOptionItemInfo>           calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
+    void                                    onLoadDataAndUpdate() override;
 
-    virtual QImage                                  snapshotWindowContent() override;
+    QImage                                  snapshotWindowContent() override;
 
-    virtual QWidget*                                createViewWidget(QWidget* mainWindowParent) override;
-    virtual void                                    deleteViewWidget() override;
+    QWidget*                                createViewWidget(QWidget* mainWindowParent) override;
+    void                                    deleteViewWidget() override;
 
-    virtual void                                    initAfterRead() override;
+    void                                    initAfterRead() override;
 
 private:
     void                                            applyZoomAllDepths();

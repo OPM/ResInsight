@@ -39,7 +39,7 @@ class RivPipeGeometryGenerator : public cvf::Object
 {
 public:
     RivPipeGeometryGenerator();
-    ~RivPipeGeometryGenerator();
+    ~RivPipeGeometryGenerator() override;
 
     // Coordinates and orientations
     void setPipeCenterCoords(const cvf::Vec3dArray* coords);

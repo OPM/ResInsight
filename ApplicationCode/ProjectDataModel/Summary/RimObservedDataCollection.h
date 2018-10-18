@@ -34,7 +34,7 @@ class RimObservedDataCollection : public caf::PdmObject
 
 public:
     RimObservedDataCollection();
-    virtual ~RimObservedDataCollection();
+    ~RimObservedDataCollection() override;
 
     void                            removeObservedData(RimObservedData* observedData);
     RimObservedData*                createAndAddRsmObservedDataFromFile(const QString& fileName, QString* errorText = nullptr);

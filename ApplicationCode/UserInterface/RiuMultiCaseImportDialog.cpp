@@ -38,7 +38,7 @@ public:
     {
     }
 
-    virtual Qt::ItemFlags flags (const QModelIndex& index) const
+    Qt::ItemFlags flags (const QModelIndex& index) const override
     {
         if (m_isItemsEditable)
             return Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsEditable;
@@ -46,7 +46,7 @@ public:
             return Qt::ItemIsSelectable | Qt::ItemIsEnabled;
     }
 
-    virtual QVariant data ( const QModelIndex & index, int role ) const
+    QVariant data ( const QModelIndex & index, int role ) const override
     {
         if (role == Qt::DecorationRole)
         {

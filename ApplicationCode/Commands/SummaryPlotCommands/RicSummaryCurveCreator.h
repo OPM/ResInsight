@@ -63,7 +63,7 @@ private:
 
 public:
     RicSummaryCurveCreator();
-    virtual ~RicSummaryCurveCreator();
+    ~RicSummaryCurveCreator() override;
 
     RimSummaryPlot*                         previewPlot() const;
     void                                    updateFromSummaryPlot(RimSummaryPlot* targetPlot, 
@@ -76,12 +76,12 @@ public:
     void                                    updateCurveNames();
 
 private:
-    virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
+    void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
                                                              const QVariant& oldValue, 
-                                                             const QVariant& newValue);
-    virtual QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly);
-    virtual void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
-    virtual void                            defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName,
+                                                             const QVariant& newValue) override;
+    QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
+    void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    void                            defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName,
                                                                   caf::PdmUiEditorAttribute* attribute) override;
 
     void                                    syncPreviewCurvesFromUiSelection();

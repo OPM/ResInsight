@@ -41,7 +41,7 @@ public:
     typedef caf::AppEnum<SummaryRestartFilesImportMode> SummaryRestartFilesImportModeType;
 
     RiaPreferences(void);
-    virtual ~RiaPreferences(void);
+    ~RiaPreferences(void) override;
 
     QStringList tabNames();
 
@@ -87,9 +87,9 @@ public: // Pdm Fields
     caf::PdmField<SummaryRestartFilesImportModeType>    gridImportMode;
 
 protected:
-    virtual void                            defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute);
-    virtual void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
-    virtual QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly);
+    void                            defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override;
+    void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
 
 private:
     caf::PdmChildField<RifReaderSettings*> m_readerSettings;

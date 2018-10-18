@@ -80,7 +80,7 @@ class Rim3dView : public RimViewWindow, public RiuViewerToViewInterface
     CAF_PDM_HEADER_INIT;
 public:
     Rim3dView(void);
-    virtual ~Rim3dView(void);
+    ~Rim3dView(void) override;
 
     // Public fields: 
 
@@ -116,8 +116,8 @@ public:
     virtual bool                            showActiveCellsOnly();
     virtual bool                            isUsingFormationNames() const = 0;
 
-    virtual QImage                          snapshotWindowContent() override;
-    virtual void                            zoomAll() override;
+    QImage                          snapshotWindowContent() override;
+    void                            zoomAll() override;
     void                                    forceShowWindowOn();
 
     // Animation
@@ -163,7 +163,7 @@ protected:
     void                                    createHighlightAndGridBoxDisplayModel();
 
     // Implementation of RiuViewerToViewInterface
-    virtual cvf::Color3f                    backgroundColor() const override { return m_backgroundColor(); }
+    cvf::Color3f                    backgroundColor() const override { return m_backgroundColor(); }
     void                                    applyBackgroundColor();
 
     // Abstract methods to implement in subclasses
@@ -200,30 +200,30 @@ protected:
 private:
     // Overridden PdmObject methods:
 
-    virtual caf::PdmFieldHandle*            userDescriptionField() override { return &m_name; }
-    virtual void                            setupBeforeSave() override;
+    caf::PdmFieldHandle*            userDescriptionField() override { return &m_name; }
+    void                            setupBeforeSave() override;
 protected:
-    virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
-    virtual void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
 
 private:
     // Overridden ViewWindow methods:
 
-    virtual QWidget*                        createViewWidget(QWidget* mainWindowParent) override; 
-    virtual void                            updateViewWidgetAfterCreation() override; 
-    virtual void                            updateMdiWindowTitle() override;
-    virtual void                            deleteViewWidget() override;
-    virtual QWidget*                        viewWidget() override;
+    QWidget*                        createViewWidget(QWidget* mainWindowParent) override; 
+    void                            updateViewWidgetAfterCreation() override; 
+    void                            updateMdiWindowTitle() override;
+    void                            deleteViewWidget() override;
+    QWidget*                        viewWidget() override;
 
     // Implementation of RiuViewerToViewInterface
 
-    virtual void                            setCameraPosition(const cvf::Mat4d& cameraPosition) override               { m_cameraPosition = cameraPosition; }
-    virtual void                            setCameraPointOfInterest(const cvf::Vec3d& cameraPointOfInterest) override { m_cameraPointOfInterest = cameraPointOfInterest;}
-    virtual QString                         timeStepName(int frameIdx) const override;
-    virtual void                            endAnimation() override;
-    virtual caf::PdmObjectHandle*           implementingPdmObject() override  { return this; }
-    virtual void                            handleMdiWindowClosed() override;
-    virtual void                            setMdiWindowGeometry(const RimMdiWindowGeometry& windowGeometry) override;
+    void                            setCameraPosition(const cvf::Mat4d& cameraPosition) override               { m_cameraPosition = cameraPosition; }
+    void                            setCameraPointOfInterest(const cvf::Vec3d& cameraPointOfInterest) override { m_cameraPointOfInterest = cameraPointOfInterest;}
+    QString                         timeStepName(int frameIdx) const override;
+    void                            endAnimation() override;
+    caf::PdmObjectHandle*           implementingPdmObject() override  { return this; }
+    void                            handleMdiWindowClosed() override;
+    void                            setMdiWindowGeometry(const RimMdiWindowGeometry& windowGeometry) override;
 
 private:
     caf::PdmField<QString>                  m_name;

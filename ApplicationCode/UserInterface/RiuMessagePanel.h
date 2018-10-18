@@ -40,7 +40,7 @@ public:
     explicit RiuMessagePanel(QDockWidget* parent);
 
     void            addMessage(RILogLevel messageLevel, const QString& msg);
-    virtual QSize    sizeHint () const;
+    QSize    sizeHint () const override;
 
 private slots:
     void            slotShowContextMenu(const QPoint& pos);
@@ -62,13 +62,13 @@ class RiuMessagePanelLogger : public RiaLogger
 public:
     explicit RiuMessagePanelLogger(RiuMessagePanel* messagePanel);
 
-    virtual int     level() const override;
-    virtual void    setLevel(int logLevel) override;
+    int     level() const override;
+    void    setLevel(int logLevel) override;
 
-    virtual void    error(  const char* message) override;
-    virtual void    warning(const char* message) override;
-    virtual void    info(   const char* message) override;
-    virtual void    debug(  const char* message) override;
+    void    error(  const char* message) override;
+    void    warning(const char* message) override;
+    void    info(   const char* message) override;
+    void    debug(  const char* message) override;
 
 private:
     void            writeToMessagePanel(RILogLevel messageLevel, const char* message);

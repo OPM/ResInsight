@@ -25,7 +25,7 @@ class RiuCadNavigation : public caf::TrackBallBasedNavigation
 {
 public:
     RiuCadNavigation();
-    virtual ~RiuCadNavigation();
+    ~RiuCadNavigation() override;
 protected:
-    virtual bool   handleInputEvent(QInputEvent* inputEvent);
+    bool   handleInputEvent(QInputEvent* inputEvent) override;
 };

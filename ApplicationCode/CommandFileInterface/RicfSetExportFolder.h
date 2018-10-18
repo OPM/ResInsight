@@ -36,7 +36,7 @@ class RicfSetExportFolder : public RicfCommandObject
 public:
     RicfSetExportFolder();
 
-    virtual void execute() override;
+    void execute() override;
 
 private:
     caf::PdmField<RicfCommandFileExecutor::ExportTypeEnum> m_type;

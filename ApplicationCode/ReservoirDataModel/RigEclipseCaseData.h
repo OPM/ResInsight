@@ -58,7 +58,7 @@ class RigEclipseCaseData : public cvf::Object
 {
 public:
     explicit RigEclipseCaseData(RimEclipseCase* ownerCase);
-    ~RigEclipseCaseData();
+    ~RigEclipseCaseData() override;
 
     RimEclipseCase*                             ownerCase() const { return m_ownerCase; }
 

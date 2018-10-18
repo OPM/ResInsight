@@ -36,7 +36,7 @@ class RimVirtualPerforationResults : public caf::PdmObject
 
 public:
     RimVirtualPerforationResults();
-    virtual ~RimVirtualPerforationResults();
+    ~RimVirtualPerforationResults() override;
 
     bool             showConnectionFactors() const;
     bool             showConnectionFactorsOnClosedConnections() const;
@@ -45,10 +45,10 @@ public:
     void             loadData();
 
 private:
-    virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
-    virtual caf::PdmFieldHandle*            objectToggleField() override;
-    virtual void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
-    virtual void                            initAfterRead() override;
+    void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    caf::PdmFieldHandle*            objectToggleField() override;
+    void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    void                            initAfterRead() override;
 
 private:
     caf::PdmField<bool>                     m_isActive;

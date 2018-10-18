@@ -31,7 +31,7 @@ class RimFractureContainment : public caf::PdmObject
 
 public:
     RimFractureContainment();
-    ~RimFractureContainment();
+    ~RimFractureContainment() override;
 
     bool isEnabled() const;
     bool isEclipseCellOpenForFlow(const RigMainGrid*      mainGrid,

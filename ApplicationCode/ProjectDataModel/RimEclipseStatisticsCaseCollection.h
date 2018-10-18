@@ -42,7 +42,7 @@ class RimEclipseStatisticsCaseCollection : public caf::PdmObject
 
 public:
     RimEclipseStatisticsCaseCollection();
-    virtual ~RimEclipseStatisticsCaseCollection();
+    ~RimEclipseStatisticsCaseCollection() override;
 
     caf::PdmChildArrayField<RimEclipseStatisticsCase*> cases;
 

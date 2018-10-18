@@ -46,10 +46,10 @@ class RiuWellAllocationPlot : public QFrame, public RiuInterfaceToViewWindow
     Q_OBJECT;
 public:
     RiuWellAllocationPlot(RimWellAllocationPlot* plotDefinition, QWidget* parent = nullptr);
-    virtual ~RiuWellAllocationPlot();
+    ~RiuWellAllocationPlot() override;
 
     RimWellAllocationPlot*          ownerPlotDefinition();
-    virtual RimViewWindow*          ownerViewWindow() const override;
+    RimViewWindow*          ownerViewWindow() const override;
 
     void                            showTitle(const QString& title);
     void                            hideTitle();
@@ -59,10 +59,10 @@ public:
 
 
 protected:
-    virtual QSize                   sizeHint() const override;
-    virtual QSize                   minimumSizeHint() const override;
+    QSize                   sizeHint() const override;
+    QSize                   minimumSizeHint() const override;
 
-    virtual void                    contextMenuEvent(QContextMenuEvent *) override;
+    void                    contextMenuEvent(QContextMenuEvent *) override;
 
 private:
     void                            setDefaults();

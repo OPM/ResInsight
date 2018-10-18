@@ -56,7 +56,7 @@ class RifEclipseInputFileTools : public cvf::Object
 {
 public:
     RifEclipseInputFileTools();
-    virtual ~RifEclipseInputFileTools();
+    ~RifEclipseInputFileTools() override;
 
     static bool openGridFile(const QString& fileName, RigEclipseCaseData* eclipseCase, bool readFaultData);
     

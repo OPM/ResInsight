@@ -70,13 +70,13 @@ public:
     void         applyNextTimeStep();
     std::vector<caf::PdmFieldHandle *>    fieldsToShowInToolbar();
 protected:
-    virtual void                          fieldChangedByUi(const caf::PdmFieldHandle* changedField,
+    void                          fieldChangedByUi(const caf::PdmFieldHandle* changedField,
                                                            const QVariant& oldValue,
                                                            const QVariant& newValue) override;
-    virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions,
+    QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions,
                                                                 bool*                      useOptionsOnly) override;
-    virtual void                          defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
-    virtual void                          defineEditorAttribute(const caf::PdmFieldHandle* field,
+    void                          defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    void                          defineEditorAttribute(const caf::PdmFieldHandle* field,
                                                                 QString uiConfigName,
                                                                 caf::PdmUiEditorAttribute* attribute) override;
     void                                  modifyCurrentIndex(caf::PdmValueField* field, int indexOffset);

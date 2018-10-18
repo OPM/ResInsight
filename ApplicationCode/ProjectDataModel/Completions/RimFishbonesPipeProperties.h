@@ -40,7 +40,7 @@ class RimFishbonesPipeProperties : public caf::PdmObject
 
 public:
     RimFishbonesPipeProperties();
-    virtual ~RimFishbonesPipeProperties();
+    ~RimFishbonesPipeProperties() override;
 
     double                              skinFactor() const { return m_skinFactor(); }
     double                              holeDiameter(RiaEclipseUnitTools::UnitSystem unitSystem) const;
@@ -48,7 +48,7 @@ public:
     void                                setUnitSystemSpecificDefaults();
 
 protected:
-    virtual void                        defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    void                        defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
 
 private:
     caf::PdmField<double>               m_skinFactor;

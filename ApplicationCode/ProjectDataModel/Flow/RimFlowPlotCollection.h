@@ -34,7 +34,7 @@ class RimFlowPlotCollection : public caf::PdmObject
     CAF_PDM_HEADER_INIT;
 public:
     RimFlowPlotCollection();
-    virtual ~RimFlowPlotCollection();
+    ~RimFlowPlotCollection() override;
 
     void closeDefaultPlotWindowAndDeletePlots();
     void loadDataAndUpdate();

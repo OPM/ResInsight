@@ -25,7 +25,7 @@ public:
     RiuQwtPlotZoomer(QWidget * canvas, bool doReplot=true) : QwtPlotZoomer(canvas, doReplot) {}
 
 protected:
-    virtual QSizeF minZoomSize() const override
+    QSizeF minZoomSize() const override
     {
         return QwtPlotZoomer::minZoomSize() / 10.0e6;
     }

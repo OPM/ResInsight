@@ -43,7 +43,7 @@ class RimEclipseInputCase : public RimEclipseCase
 
 public:
     RimEclipseInputCase();
-    virtual ~RimEclipseInputCase();
+    ~RimEclipseInputCase() override;
 
     // File open methods
     bool                        openDataFileSet(const QStringList& fileNames);
@@ -67,8 +67,8 @@ private:
     std::vector<QString>        additionalFiles() const;
 
 protected:
-    virtual void                defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
-    virtual void                defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
+    void                defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    void                defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
 
 private:
     cvf::ref<RifReaderInterface> createMockModel(QString modelName);

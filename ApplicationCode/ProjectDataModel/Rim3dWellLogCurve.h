@@ -54,7 +54,7 @@ public:
 
 public:
     Rim3dWellLogCurve();
-    virtual ~Rim3dWellLogCurve();
+    ~Rim3dWellLogCurve() override;
 
     void updateCurveIn3dView();
 
@@ -87,11 +87,11 @@ public:
     cvf::ref<Riv3dWellLogCurveGeometryGenerator> geometryGenerator();
 
 protected:
-    virtual caf::PdmFieldHandle*            objectToggleField() override;
-    virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    caf::PdmFieldHandle*            objectToggleField() override;
+    void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
     void                                    configurationUiOrdering(caf::PdmUiOrdering& uiOrdering);
-    virtual void                            defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute);    
-    virtual void                            initAfterRead();
+    void                            defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override;    
+    void                            initAfterRead() override;
 private:
     void                                    resetMinMaxValues();
 protected:

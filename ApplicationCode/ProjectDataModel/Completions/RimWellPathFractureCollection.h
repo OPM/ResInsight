@@ -47,7 +47,7 @@ public:
     typedef caf::AppEnum<ReferenceMDType> ReferenceMDEnum;
 
     RimWellPathFractureCollection(void);
-    virtual ~RimWellPathFractureCollection(void);
+    ~RimWellPathFractureCollection(void) override;
     
     const RimMswCompletionParameters* mswParameters() const;
     void                              addFracture(RimWellPathFracture* fracture);

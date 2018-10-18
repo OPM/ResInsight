@@ -63,7 +63,7 @@ class Rim3dOverlayInfoConfig : public caf::PdmObject
 
 public:
     Rim3dOverlayInfoConfig();
-    virtual ~Rim3dOverlayInfoConfig();
+    ~Rim3dOverlayInfoConfig() override;
 
     void update3DInfo();
 
@@ -97,10 +97,10 @@ public:
     };
 
 protected:
-    virtual void                                fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
-    virtual caf::PdmFieldHandle*                objectToggleField();
+    void                                fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    caf::PdmFieldHandle*                objectToggleField() override;
 
-    virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
 
 private:
     void updateEclipse3DInfo(RimEclipseView * reservoirView);

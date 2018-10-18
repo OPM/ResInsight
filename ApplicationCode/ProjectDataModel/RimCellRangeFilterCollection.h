@@ -38,7 +38,7 @@ class RimCellRangeFilterCollection : public caf::PdmObject
     CAF_PDM_HEADER_INIT;
 public:
     RimCellRangeFilterCollection();
-    virtual ~RimCellRangeFilterCollection();
+    ~RimCellRangeFilterCollection() override;
 
     // Fields
     caf::PdmField<bool> isActive;
@@ -53,9 +53,9 @@ public:
     void                            updateIconState();
 
 protected:
-    virtual void                    fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue );
-    virtual void                    defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName);
-    virtual caf::PdmFieldHandle*    objectToggleField();
+    void                    fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+    void                    defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName) override;
+    caf::PdmFieldHandle*    objectToggleField() override;
 
 private:
     Rim3dView*                        baseView() const;

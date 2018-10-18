@@ -42,7 +42,7 @@ class RimDerivedEnsembleCaseCollection : public RimSummaryCaseCollection
 
 public:
     RimDerivedEnsembleCaseCollection();
-    virtual ~RimDerivedEnsembleCaseCollection();
+    ~RimDerivedEnsembleCaseCollection() override;
 
     RimSummaryCaseCollection*   ensemble1() const { return m_ensemble1; }
     RimSummaryCaseCollection*   ensemble2() const { return m_ensemble2; }
@@ -52,18 +52,18 @@ public:
     void                        setEnsemble1(RimSummaryCaseCollection* ensemble);
     void                        setEnsemble2(RimSummaryCaseCollection* ensemble);
 
-    virtual std::vector<RimSummaryCase*>    allSummaryCases() const override;
-    virtual std::set<RifEclipseSummaryAddress> ensembleSummaryAddresses() const override;
+    std::vector<RimSummaryCase*>    allSummaryCases() const override;
+    std::set<RifEclipseSummaryAddress> ensembleSummaryAddresses() const override;
     void                                    updateDerivedEnsembleCases();
     bool                                    hasCaseReference(const RimSummaryCase* sumCase) const;
 
-    virtual void                            onLoadDataAndUpdate() override;
+    void                            onLoadDataAndUpdate() override;
 
 private:
-    virtual QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
-    virtual void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
-    virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
-    virtual void                            defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName,
+    QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
+    void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    void                            defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName,
                                                                   caf::PdmUiEditorAttribute* attribute) override;
 
     void                                    setAllCasesNotInUse();

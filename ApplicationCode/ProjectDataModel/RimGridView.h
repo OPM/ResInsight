@@ -35,7 +35,7 @@ class RimGridView : public Rim3dView
     CAF_PDM_HEADER_INIT;
 public:
     RimGridView();
-    virtual ~RimGridView(void);
+    ~RimGridView(void) override;
 
     void                                              showGridCells(bool enableGridCells);
                                                       
@@ -57,17 +57,17 @@ public:
     RimViewLinker*                                    assosiatedViewLinker() const override;
                                                       
 
-    virtual bool                                      isGridVisualizationMode() const override;
+    bool                                      isGridVisualizationMode() const override;
 
     Rim2dGridProjection*                              grid2dProjection() const;
 
 protected:
-    virtual void                                      initAfterRead() override;
-    virtual void                                      onTimeStepChanged() override;
+    void                                      initAfterRead() override;
+    void                                      onTimeStepChanged() override;
     virtual void                                      calculateCurrentTotalCellVisibility(cvf::UByteArray* totalVisibility, int timeStep) = 0;
-    virtual void                                      selectOverlayInfoConfig() override;
+    void                                      selectOverlayInfoConfig() override;
                                                       
-    virtual void                                      fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    void                                      fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
 
 protected: // Fields
     caf::PdmChildField<RimIntersectionCollection*>    m_crossSectionCollection;

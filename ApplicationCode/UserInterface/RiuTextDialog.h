@@ -39,7 +39,7 @@ public:
     explicit RiuQPlainTextEdit(QWidget *parent = nullptr) : QPlainTextEdit(parent) {}
 
 protected:
-    virtual void keyPressEvent(QKeyEvent *e) override;
+    void keyPressEvent(QKeyEvent *e) override;
 
 private slots:
     void slotCopyContentToClipboard();
@@ -63,7 +63,7 @@ public:
 private:
     RiuQPlainTextEdit* m_textEdit;
 protected:
-    virtual void contextMenuEvent(QContextMenuEvent *) override;
+    void contextMenuEvent(QContextMenuEvent *) override;
 
 };
 
@@ -94,6 +94,6 @@ private slots:
     void slotTabChanged(int index);
 
 protected:
-    virtual void contextMenuEvent(QContextMenuEvent *) override;
+    void contextMenuEvent(QContextMenuEvent *) override;
 };
 

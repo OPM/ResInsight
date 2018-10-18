@@ -34,9 +34,9 @@ class RicNewWellBoreStabilityPlotFeature : public caf::CmdFeature
 
 protected:
     // Overrides
-    virtual bool isCommandEnabled();
-    virtual void onActionTriggered( bool isChecked );
-    virtual void setupActionLook( QAction* actionToSetup );
+    bool isCommandEnabled() override;
+    void onActionTriggered( bool isChecked ) override;
+    void setupActionLook( QAction* actionToSetup ) override;
 
 private:
     void createFormationTrack(RimWellLogPlot* plot, RimWellPath* wellPath, RimGeoMechCase* geoMechCase);

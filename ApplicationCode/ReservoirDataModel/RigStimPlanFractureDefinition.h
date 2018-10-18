@@ -59,7 +59,7 @@ public:
     static const double THRESHOLD_VALUE;
 
     RigStimPlanFractureDefinition();
-    ~RigStimPlanFractureDefinition();
+    ~RigStimPlanFractureDefinition() override;
 
     RiaEclipseUnitTools::UnitSystem unitSet() const;
     size_t                          xCount() const;

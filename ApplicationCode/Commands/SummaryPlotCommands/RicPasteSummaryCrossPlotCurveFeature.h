@@ -37,7 +37,7 @@ class RicPasteSummaryCrossPlotCurveFeature : public RicPasteSummaryCurveFeature
 
 protected:
     // Overrides
-    virtual bool isCommandEnabled() override;
+    bool isCommandEnabled() override;
     //virtual void onActionTriggered( bool isChecked ) override;
-    virtual void setupActionLook(QAction* actionToSetup) override;
+    void setupActionLook(QAction* actionToSetup) override;
 };

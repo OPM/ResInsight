@@ -54,7 +54,7 @@ class RiaGetNNCConnections: public RiaSocketCommand
 public:
     static QString commandName () { return QString("GetNNCConnections"); }
 
-    virtual bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>&  args, QDataStream& socketStream)
+    bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>&  args, QDataStream& socketStream) override
     {
         RimEclipseCase* rimCase = RiaSocketTools::findCaseFromArgs(server, args);
         // Write data back to octave: columnCount, GridNr I J K GridNr I J K
@@ -105,7 +105,7 @@ class RiaGetDynamicNNCValues: public RiaSocketCommand
 public:
     static QString commandName () { return QString("GetDynamicNNCValues"); }
 
-    virtual bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>&  args, QDataStream& socketStream)
+    bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>&  args, QDataStream& socketStream) override
     {
         RimEclipseCase* rimCase = RiaSocketTools::findCaseFromArgs(server, args);
         // Write data back to octave: connectionCount, timeStepCount, property values
@@ -186,7 +186,7 @@ class RiaGetStaticNNCValues: public RiaSocketCommand
 public:
     static QString commandName () { return QString("GetStaticNNCValues"); }
 
-    virtual bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>&  args, QDataStream& socketStream)
+    bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>&  args, QDataStream& socketStream) override
     {
         RimEclipseCase* rimCase = RiaSocketTools::findCaseFromArgs(server, args);
         QString propertyName = args[2];
@@ -228,7 +228,7 @@ class RiaGetNNCPropertyNames: public RiaSocketCommand
 public:
     static QString commandName () { return QString("GetNNCPropertyNames"); }
 
-    virtual bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>&  args, QDataStream& socketStream)
+    bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>&  args, QDataStream& socketStream) override
     {
         RimEclipseCase* rimCase = RiaSocketTools::findCaseFromArgs(server, args);
 
@@ -309,7 +309,7 @@ public:
 
     static QString commandName () { return QString("SetNNCProperty"); }
 
-    virtual bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>& args, QDataStream& socketStream)
+    bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>& args, QDataStream& socketStream) override
     {
         RimEclipseCase* rimCase = RiaSocketTools::findCaseFromArgs(server, args);
 
@@ -443,7 +443,7 @@ public:
         return false;
     }
 
-    virtual bool interpretMore(RiaSocketServer* server, QTcpSocket* currentClient)
+    bool interpretMore(RiaSocketServer* server, QTcpSocket* currentClient) override
     {
         if (m_invalidConnectionCountDetected) return true;
 

@@ -92,7 +92,7 @@ public:
 
 public:
     RiaApplication(int& argc, char** argv);
-    ~RiaApplication();
+    ~RiaApplication() override;
     
     static RiaApplication* instance();
 
@@ -218,7 +218,7 @@ private:
     friend RiaArgumentParser;
     void                    setHelpText(const QString& helpText);
 
-    virtual bool            notify(QObject *, QEvent *) override;
+    bool            notify(QObject *, QEvent *) override;
 
 private slots:
     void                    slotWorkerProcessFinished(int exitCode, QProcess::ExitStatus exitStatus);

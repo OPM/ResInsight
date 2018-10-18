@@ -36,7 +36,7 @@ public:
     };
 
     RimNonDarcyPerforationParameters();
-    ~RimNonDarcyPerforationParameters();
+    ~RimNonDarcyPerforationParameters() override;
 
     NonDarcyFlowEnum nonDarcyFlowType() const;
     double           userDefinedDFactor() const;

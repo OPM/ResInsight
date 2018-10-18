@@ -51,16 +51,16 @@ class RicSummaryCurveCreatorSplitterUi : public caf::PdmUiFormLayoutObjectEditor
         
 public:
     RicSummaryCurveCreatorSplitterUi(QWidget* parent);
-    ~RicSummaryCurveCreatorSplitterUi();
+    ~RicSummaryCurveCreatorSplitterUi() override;
 
     void                    updateFromSummaryPlot(RimSummaryPlot* summaryPlot);
     void                    updateFromDefaultSources(const std::vector<caf::PdmObject*> defaultSources);
 
 private:
-    virtual void            recursivelyConfigureAndUpdateTopLevelUiOrdering(const caf::PdmUiOrdering& topLevelUiOrdering,
+    void            recursivelyConfigureAndUpdateTopLevelUiOrdering(const caf::PdmUiOrdering& topLevelUiOrdering,
                                                                             const QString& uiConfigName) override;
     
-    virtual QWidget*        createWidget(QWidget* parent) override;
+    QWidget*        createWidget(QWidget* parent) override;
 
     QWidget*                getOrCreateCurveTreeWidget();
     QWidget*                getOrCreatePlotWidget();

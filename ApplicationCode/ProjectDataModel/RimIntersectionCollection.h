@@ -47,7 +47,7 @@ class RimIntersectionCollection : public caf::PdmObject
 
 public:
     RimIntersectionCollection();
-    ~RimIntersectionCollection();
+    ~RimIntersectionCollection() override;
 
     caf::PdmField<bool> isActive;
 
@@ -77,8 +77,8 @@ public:
     std::vector<RimIntersectionBox*>    intersectionBoxes() const;
 
 protected:
-    virtual void                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
-    virtual caf::PdmFieldHandle*    objectToggleField();
+    void                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    caf::PdmFieldHandle*    objectToggleField() override;
 
 private:
     caf::PdmChildArrayField<RimIntersection*>    m_intersections;

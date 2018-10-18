@@ -53,7 +53,7 @@ public:
 
 public:
     RimTernaryLegendConfig();
-    virtual ~RimTernaryLegendConfig();
+    ~RimTernaryLegendConfig() override;
 
     void setUiValuesFromLegendConfig(const RimTernaryLegendConfig* otherLegendConfig);
     void setAutomaticRanges(TernaryArrayIndex ternaryIndex, double globalMin, double globalMax, double localMin, double localMax);

@@ -43,7 +43,7 @@ class RimWellLogExtractionCurve : public RimWellLogCurve
     CAF_PDM_HEADER_INIT;
 public:
     RimWellLogExtractionCurve();
-    virtual ~RimWellLogExtractionCurve();
+    ~RimWellLogExtractionCurve() override;
     
     enum TrajectoryType { WELL_PATH, SIMULATION_WELL};
 
@@ -58,9 +58,9 @@ public:
     void            setPropertiesFromView(Rim3dView* view);
 
     TrajectoryType  trajectoryType() const;
-    virtual QString wellName() const;
-    virtual QString wellLogChannelName() const;
-    virtual QString wellDate() const;
+    QString wellName() const override;
+    QString wellLogChannelName() const override;
+    QString wellDate() const override;
     int             branchIndex() const;
     bool            branchDetection() const;
 
@@ -81,14 +81,14 @@ public:
 
     static void     findAndLoadWbsParametersFromLasFiles(const RimWellPath* wellPath, RigGeoMechWellLogExtractor* geomExtractor);
 protected:
-    virtual QString                                createCurveAutoName() override;
-    virtual void                                   onLoadDataAndUpdate(bool updateParentPlot) override;
+    QString                                createCurveAutoName() override;
+    void                                   onLoadDataAndUpdate(bool updateParentPlot) override;
 
-    virtual void                                   fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
-    virtual void                                   defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
-    virtual void                                   defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
-    virtual QList<caf::PdmOptionItemInfo>          calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
-    virtual void                                   initAfterRead() override;
+    void                                   fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    void                                   defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    void                                   defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
+    QList<caf::PdmOptionItemInfo>          calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
+    void                                   initAfterRead() override;
 
 private:
     void                                           setLogScaleFromSelectedResult();

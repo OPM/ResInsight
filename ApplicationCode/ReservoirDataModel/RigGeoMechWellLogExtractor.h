@@ -81,7 +81,7 @@ private:
     size_t                       gridResultIndexFace(size_t elementIdx, cvf::StructGridInterface::FaceType cellFace, int faceLocalNodeIdx) const;
     void                         calculateIntersection();
     std::vector<size_t>          findCloseCells(const cvf::BoundingBox& bb);
-    virtual cvf::Vec3d           calculateLengthInCell(size_t cellIndex, 
+    cvf::Vec3d           calculateLengthInCell(size_t cellIndex, 
                                                        const cvf::Vec3d& startPoint, 
                                                        const cvf::Vec3d& endPoint) const override;
     cvf::Vec3d                   calculateWellPathTangent(int64_t intersectionIdx, WellPathTangentCalculation calculationType) const;

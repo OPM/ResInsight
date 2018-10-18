@@ -75,7 +75,7 @@ public:
     //--------------------------------------------------------------------------------------------------
     /// 
     //--------------------------------------------------------------------------------------------------
-    virtual QString curveInfoText(QwtPlotCurve* curve) override
+    QString curveInfoText(QwtPlotCurve* curve) override
     {
         RiuRimQwtPlotCurve*  riuCurve = dynamic_cast<RiuRimQwtPlotCurve*>(curve);
         RimSummaryCurve* sumCurve = nullptr;

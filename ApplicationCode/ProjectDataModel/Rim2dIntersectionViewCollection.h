@@ -29,7 +29,7 @@ class Rim2dIntersectionViewCollection : public caf::PdmObject
     CAF_PDM_HEADER_INIT;    
 public:
     Rim2dIntersectionViewCollection();
-    virtual ~Rim2dIntersectionViewCollection();
+    ~Rim2dIntersectionViewCollection() override;
 
     void                                syncFromExistingIntersections( bool doUpdate );
 

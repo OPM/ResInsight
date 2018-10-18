@@ -30,7 +30,7 @@ class RimPropertyFilter : public RimCellFilter
     CAF_PDM_HEADER_INIT;
 public:
     RimPropertyFilter();
-    virtual ~RimPropertyFilter();
+    ~RimPropertyFilter() override;
 
     std::vector<int>                        selectedCategoryValues() const;
 
@@ -40,7 +40,7 @@ protected:
     void                                    setCategoryNamesAndValues(const std::vector<std::pair<QString, int>>& categoryNamesAndValues);
     void                                    clearCategories();
     
-    virtual QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
+    QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
 
 protected:
     caf::PdmField< std::vector<int> >   m_selectedCategoryValues;

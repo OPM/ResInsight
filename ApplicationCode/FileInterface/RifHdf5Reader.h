@@ -36,7 +36,7 @@ public:
     virtual ~RifHdf5Reader();
 
     std::vector<QDateTime>  timeSteps() const override;
-    virtual QStringList     propertyNames() const override;
+    QStringList     propertyNames() const override;
     bool                    dynamicResult(const QString& result, size_t stepIndex, std::vector<double>* values) const override;
 
 private:

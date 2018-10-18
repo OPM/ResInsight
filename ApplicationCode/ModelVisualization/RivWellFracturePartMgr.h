@@ -56,7 +56,7 @@ class RivWellFracturePartMgr : public cvf::Object
 {
 public:
     RivWellFracturePartMgr(RimFracture* well);
-    ~RivWellFracturePartMgr();
+    ~RivWellFracturePartMgr() override;
 
     void                                appendGeometryPartsToModel(cvf::ModelBasicList* model, const RimEclipseView& eclView);
 

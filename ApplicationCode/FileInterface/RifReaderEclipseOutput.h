@@ -51,16 +51,16 @@ class RifReaderEclipseOutput : public RifReaderInterface
 {
 public:
     RifReaderEclipseOutput();
-    virtual ~RifReaderEclipseOutput();
+    ~RifReaderEclipseOutput() override;
 
-    bool                    open(const QString& fileName, RigEclipseCaseData* eclipseCase);
+    bool                    open(const QString& fileName, RigEclipseCaseData* eclipseCase) override;
     void                    setHdf5FileName(const QString& fileName);
     void                    setFileDataAccess(RifEclipseRestartDataAccess* restartDataAccess);
 
     virtual bool            openAndReadActiveCellData(const QString& fileName, const std::vector<QDateTime>& mainCaseTimeSteps, RigEclipseCaseData* eclipseCase);
 
-    bool                    staticResult(const QString& result, RiaDefines::PorosityModelType matrixOrFracture, std::vector<double>* values);
-    bool                    dynamicResult(const QString& result, RiaDefines::PorosityModelType matrixOrFracture, size_t stepIndex, std::vector<double>* values);
+    bool                    staticResult(const QString& result, RiaDefines::PorosityModelType matrixOrFracture, std::vector<double>* values) override;
+    bool                    dynamicResult(const QString& result, RiaDefines::PorosityModelType matrixOrFracture, size_t stepIndex, std::vector<double>* values) override;
     void                    sourSimRlResult(const QString& result, size_t stepIndex, std::vector<double>* values);
 
     std::vector<QDateTime>  allTimeSteps() const;
@@ -68,7 +68,7 @@ public:
     static bool             transferGeometry(const ecl_grid_type* mainEclGrid, RigEclipseCaseData* eclipseCase);
     static void             transferCoarseningInfo(const ecl_grid_type* eclGrid, RigGridBase* grid);
 
-    virtual std::set<RiaDefines::PhaseType> availablePhases() const override;
+    std::set<RiaDefines::PhaseType> availablePhases() const override;
 
 private:
     bool                    readActiveCellInfo();

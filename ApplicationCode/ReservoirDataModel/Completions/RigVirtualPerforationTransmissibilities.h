@@ -54,7 +54,7 @@ class RigVirtualPerforationTransmissibilities : public cvf::Object
 {
 public:
     RigVirtualPerforationTransmissibilities();
-    ~RigVirtualPerforationTransmissibilities();
+    ~RigVirtualPerforationTransmissibilities() override;
 
     void setCompletionDataForWellPath(const RimWellPath* wellPath, const std::vector<std::vector<RigCompletionData>>& completionsPerTimeStep);
 

@@ -43,7 +43,7 @@ class RivReservoirSimWellsPartMgr : public cvf::Object
 {
 public:
     explicit RivReservoirSimWellsPartMgr(RimEclipseView* reservoirView);
-    ~RivReservoirSimWellsPartMgr();
+    ~RivReservoirSimWellsPartMgr() override;
 
     void clearGeometryCache();
     void scheduleGeometryRegen();

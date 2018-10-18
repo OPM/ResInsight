@@ -54,7 +54,7 @@ public:
     typedef caf::AppEnum<CellFilter> CellFilterEnum;
 public:
     RigFlowDiagResults(RimFlowDiagSolution* flowSolution, size_t timeStepCount);
-    virtual ~RigFlowDiagResults();
+    ~RigFlowDiagResults() override;
 
     const std::vector<double>*               resultValues(const RigFlowDiagResultAddress& resVarAddr,  size_t timeStepIndex);
     size_t                                   timeStepCount() { return m_timeStepCount; }

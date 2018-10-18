@@ -57,17 +57,17 @@ public:
     bool                            calculate();
     void                            updateDependentCurvesAndPlots();
 
-    virtual caf::PdmFieldHandle*    userDescriptionField() override;
+    caf::PdmFieldHandle*    userDescriptionField() override;
 
     static QString                  findLeftHandSide(const QString& expresion);
     void                            attachToWidget();
 
 
 private:
-    virtual void                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue,
+    void                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue,
                                                      const QVariant& newValue) override;
 
-    virtual void                    defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, 
+    void                    defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, 
                                                           caf::PdmUiEditorAttribute* attribute) override;
     RimSummaryCalculationVariable*  findByName(const QString& name) const;
     RimSummaryCalculationVariable*  addVariable(const QString& name);

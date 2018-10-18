@@ -37,7 +37,7 @@ class RimFlowDiagSolution : public caf::PdmObject
 public:
 
     RimFlowDiagSolution();
-    virtual ~RimFlowDiagSolution();
+    ~RimFlowDiagSolution() override;
 
     QString                 userDescription() const; 
     RigFlowDiagResults*     flowDiagResults();
@@ -65,7 +65,7 @@ public:
 private:
     std::map<std::string, std::vector<int> > allTracerActiveCellIndices(size_t timeStepIndex, bool useInjectors) const;
 
-    virtual caf::PdmFieldHandle* userDescriptionField() override;
+    caf::PdmFieldHandle* userDescriptionField() override;
     caf::PdmField<QString> m_userDescription;
 
     cvf::ref<RigFlowDiagResults> m_flowDiagResults;

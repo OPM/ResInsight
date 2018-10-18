@@ -34,7 +34,7 @@ class RivGeoMechPartMgrCache : public cvf::Object
 {
 public:
     RivGeoMechPartMgrCache();
-    ~RivGeoMechPartMgrCache();
+    ~RivGeoMechPartMgrCache() override;
 
     class Key
     {

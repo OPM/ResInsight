@@ -44,7 +44,7 @@ class RicGridStatisticsDialog : public QDialog
 
 public:
     RicGridStatisticsDialog(QWidget* parent);
-    ~RicGridStatisticsDialog();
+    ~RicGridStatisticsDialog() override;
 
     void                    setLabel(const QString& labelText);
     void                    updateFromRimView(RimGridView* rimView);

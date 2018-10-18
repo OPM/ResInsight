@@ -29,13 +29,13 @@ class RimCheckableNamedObject : public RimNamedObject
     CAF_PDM_HEADER_INIT;
 public:
     RimCheckableNamedObject(void);
-    virtual ~RimCheckableNamedObject(void);
+    ~RimCheckableNamedObject(void) override;
 
     bool isChecked() const;
     void setCheckState(bool checkState);
 
 protected:
-    virtual caf::PdmFieldHandle* objectToggleField() override;
+    caf::PdmFieldHandle* objectToggleField() override;
 
 protected:
     caf::PdmField<bool> m_isChecked;

@@ -44,7 +44,7 @@ class RimCellRangeFilter : public RimCellFilter
     CAF_PDM_HEADER_INIT;
 public:
     RimCellRangeFilter();
-    virtual ~RimCellRangeFilter();
+    ~RimCellRangeFilter() override;
 
     caf::PdmField<int>      gridIndex;      // The index of the grid that this filter applies to
     caf::PdmField<bool>     propagateToSubGrids; // Do propagate the effects to the sub-grids
@@ -63,12 +63,12 @@ public:
     const std::vector<cvf::Vec3d>& individualCellIndices() const;
 
 protected:
-    virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
-    virtual void defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute);
-    virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) ;
-    virtual void defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName);
+    void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    void defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override;
+    void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override ;
+    void defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName) override;
 
-    virtual QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly );
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly ) override;
 
 private:
     RimCellRangeFilterCollection*   parentContainer();

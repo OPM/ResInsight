@@ -34,9 +34,9 @@ public:
 
     RicDeleteItemExecData* commandData();
 
-    virtual QString name();
-    virtual void redo();
-    virtual void undo();
+    QString name() override;
+    void redo() override;
+    void undo() override;
 
 private:
     RicDeleteItemExecData* m_commandData;

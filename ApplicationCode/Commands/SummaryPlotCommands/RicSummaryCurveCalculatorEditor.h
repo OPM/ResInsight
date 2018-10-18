@@ -47,15 +47,15 @@ class RicSummaryCurveCalculatorEditor : public caf::PdmUiFormLayoutObjectEditor
 
 public:
     RicSummaryCurveCalculatorEditor();
-    ~RicSummaryCurveCalculatorEditor();
+    ~RicSummaryCurveCalculatorEditor() override;
 
     RicSummaryCurveCalculator* calculator() const;
 
 private:
-    virtual void        recursivelyConfigureAndUpdateTopLevelUiOrdering(const caf::PdmUiOrdering& topLevelUiItems,
+    void        recursivelyConfigureAndUpdateTopLevelUiOrdering(const caf::PdmUiOrdering& topLevelUiItems,
                                                                         const QString& uiConfigName) override;
     
-    virtual QWidget*    createWidget(QWidget* parent) override;
+    QWidget*    createWidget(QWidget* parent) override;
 
     QMinimizePanel*     updateGroupBoxWithContent(caf::PdmUiGroup* group, const QString& uiConfigName);
 

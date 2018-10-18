@@ -48,7 +48,7 @@ class RiuFlowCharacteristicsPlot : public QFrame, public RiuInterfaceToViewWindo
     Q_OBJECT;
 public:
     RiuFlowCharacteristicsPlot(RimFlowCharacteristicsPlot* plotDefinition, QWidget* parent = nullptr);
-    virtual ~RiuFlowCharacteristicsPlot();
+    ~RiuFlowCharacteristicsPlot() override;
 
     void setLorenzCurve(const QStringList& dateTimeStrings, const std::vector<QDateTime>& dateTimes, const std::vector<double>& timeHistoryValues);
     void addFlowCapStorageCapCurve(const QDateTime& dateTime, const std::vector<double>& xVals, const std::vector<double>& yVals);
@@ -60,14 +60,14 @@ public:
     void showLegend(bool show);
 
     RimFlowCharacteristicsPlot*     ownerPlotDefinition();
-    virtual RimViewWindow*          ownerViewWindow() const override;
+    RimViewWindow*          ownerViewWindow() const override;
 
     static void                        addWindowZoom(QwtPlot* plot);
     static RiuQwtPlotCurve* createEmptyCurve(QwtPlot* plot, const QString& curveName, const QColor& curveColor);
 
 protected:
-    virtual QSize                   sizeHint() const override;
-    virtual QSize                   minimumSizeHint() const override;
+    QSize                   sizeHint() const override;
+    QSize                   minimumSizeHint() const override;
 
 private:
     void                            setDefaults();

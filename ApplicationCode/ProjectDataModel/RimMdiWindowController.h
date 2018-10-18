@@ -37,7 +37,7 @@ class RimMdiWindowController : public caf::PdmObject
 
 public:
     RimMdiWindowController();
-    virtual ~RimMdiWindowController();
+    ~RimMdiWindowController() override;
 
     void                      setMdiWindowGeometry(const RimMdiWindowGeometry& windowGeometry);
     RimMdiWindowGeometry      mdiWindowGeometry();
@@ -53,7 +53,7 @@ protected:
     RiuMainWindowBase*        getMainWindow();
  
     // Overridden PDM methods
-    virtual void              setupBeforeSave() override;
+    void              setupBeforeSave() override;
 
 private:
     

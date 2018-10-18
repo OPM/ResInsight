@@ -49,7 +49,7 @@ class RimViewLinker : public caf::PdmObject
 
 public:
     RimViewLinker();
-    virtual ~RimViewLinker();
+    ~RimViewLinker() override;
     
     bool                                    isActive() const;
 

@@ -31,7 +31,7 @@ class RimWellPathTarget : public caf::PdmObject
     CAF_PDM_HEADER_INIT;
 public:
     RimWellPathTarget();
-    ~RimWellPathTarget();
+    ~RimWellPathTarget() override;
 
     bool isEnabled() const;
 
@@ -53,9 +53,9 @@ public:
     void           flagRadius2AsIncorrect(bool isIncorrect, double actualRadius);
 
 private:
-    virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
-    virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
-    virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
+    void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
 
 private:
     friend class RicWellTarget3dEditor;

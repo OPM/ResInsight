@@ -50,7 +50,7 @@ class RicPointTangentManipulator : public QObject
 
 public:
     explicit RicPointTangentManipulator(caf::Viewer* viewer);
-    ~RicPointTangentManipulator();
+    ~RicPointTangentManipulator() override;
 
     void setOrigin(const cvf::Vec3d& origin);
     void setTangent(const cvf::Vec3d& tangent);
@@ -64,7 +64,7 @@ signals:
     void        notifyUpdate(const cvf::Vec3d& origin, const cvf::Vec3d& tangent);
 
 protected:
-    bool        eventFilter(QObject *obj, QEvent *event);
+    bool        eventFilter(QObject *obj, QEvent *event) override;
 
 private:
     QPointer<caf::Viewer>           m_viewer;
@@ -111,7 +111,7 @@ public:
 
 public:
     RicPointTangentManipulatorPartMgr();
-    ~RicPointTangentManipulatorPartMgr();
+    ~RicPointTangentManipulatorPartMgr() override;
 
     void    setOrigin(const cvf::Vec3d& origin);
     void    setTangent(const cvf::Vec3d& tangent);
@@ -210,7 +210,7 @@ public:
 
 protected:
     // To be removed when splitting the PdmUiObjectEditorHandle
-    virtual QWidget* createWidget(QWidget* parent) override { return nullptr;} 
+    QWidget* createWidget(QWidget* parent) override { return nullptr;} 
 
     QPointer<caf::Viewer>                   m_ownerViewer;
 };
@@ -228,11 +228,11 @@ class PdmUiSelectionVisualizer3d : public QObject, caf::SelectionChangedReceiver
     Q_OBJECT
 public:
     PdmUiSelectionVisualizer3d(caf::Viewer* ownerViewer);
-    ~PdmUiSelectionVisualizer3d(); 
+    ~PdmUiSelectionVisualizer3d() override; 
 
     void updateVisibleEditors();
 protected:
-    virtual void onSelectionManagerSelectionChanged( const std::set<int>& changedSelectionLevels ) override;
+    void onSelectionManagerSelectionChanged( const std::set<int>& changedSelectionLevels ) override;
 
     std::vector< QPointer<PdmUi3dObjectEditorHandle> > m_active3DEditors;
 
@@ -259,7 +259,7 @@ public:
     ~RicWellPathGeometry3dEditor() override;
 
 protected:
-    virtual void configureAndUpdateUi(const QString& uiConfigName) override;
+    void configureAndUpdateUi(const QString& uiConfigName) override;
 
 private:
     
@@ -282,8 +282,8 @@ public:
     ~RicWellTarget3dEditor() override;
 
 protected:
-    virtual void configureAndUpdateUi(const QString& uiConfigName) override;
-    virtual void cleanupBeforeSettingPdmObject() override;
+    void configureAndUpdateUi(const QString& uiConfigName) override;
+    void cleanupBeforeSettingPdmObject() override;
 
 private slots:
     void slotUpdated(const cvf::Vec3d& origin, const cvf::Vec3d& tangent);

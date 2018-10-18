@@ -80,7 +80,7 @@ class RimFracture : public RimCheckableNamedObject, public Rim3dPropertiesInterf
 
 public:
     RimFracture(void);
-    virtual ~RimFracture(void);
+    ~RimFracture(void) override;
 
     double                          perforationLength() const;
     double                          perforationEfficiency() const;
@@ -110,7 +110,7 @@ public:
 
     std::vector<size_t>             getPotentiallyFracturedCells(const RigMainGrid* mainGrid) const;
 
-    virtual void                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    void                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
     cvf::Vec3d                      fracturePosition() const;
 
     virtual void                    updateAzimuthBasedOnWellAzimuthAngle() = 0;
@@ -137,9 +137,9 @@ public:
     double                            endMD() const override;
 
 protected:
-    virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
-    virtual void                    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
-    virtual void                    defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute * attribute) override;
+    QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
+    void                    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    void                    defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute * attribute) override;
 
 private:
     cvf::Vec3d                      fracturePositionForUi() const;
@@ -149,7 +149,7 @@ private:
     QString                         wellFractureAzimuthDiffText() const;
     QString                         wellAzimuthAtFracturePositionText() const;
 
-    virtual cvf::BoundingBox        boundingBoxInDomainCoords() const override;
+    cvf::BoundingBox        boundingBoxInDomainCoords() const override;
 
 protected:
     caf::PdmPtrField<RimFractureTemplate*>          m_fractureTemplate;

@@ -44,21 +44,21 @@ class Rim2dIntersectionView : public Rim3dView
     CAF_PDM_HEADER_INIT;
 public:
     Rim2dIntersectionView(void);
-    virtual ~Rim2dIntersectionView(void);
+    ~Rim2dIntersectionView(void) override;
 
     void                       setVisible(bool isVisible);
     void                       setIntersection(RimIntersection* intersection);
     RimIntersection*           intersection() const;
 
-    virtual bool               isUsingFormationNames() const override;
-    virtual void               scheduleGeometryRegen(RivCellSetEnum geometryType) override;
-    virtual RimCase*           ownerCase() const override;
-    virtual void               selectOverlayInfoConfig() override {}
+    bool               isUsingFormationNames() const override;
+    void               scheduleGeometryRegen(RivCellSetEnum geometryType) override;
+    RimCase*           ownerCase() const override;
+    void               selectOverlayInfoConfig() override {}
 
-    virtual RimViewLinker*     assosiatedViewLinker() const override { return nullptr; }
-    virtual RimViewController* viewController() const override       { return nullptr; }
+    RimViewLinker*     assosiatedViewLinker() const override { return nullptr; }
+    RimViewController* viewController() const override       { return nullptr; }
 
-    virtual bool               isTimeStepDependentDataVisible() const override;
+    bool               isTimeStepDependentDataVisible() const override;
 
     void                       update3dInfo();
     void                       updateName();
@@ -66,7 +66,7 @@ public:
     cvf::ref<RivIntersectionPartMgr>  flatIntersectionPartMgr() const;
     cvf::Vec3d                 transformToUtm(const cvf::Vec3d& unscaledPointInFlatDomain) const;
 
-    virtual cvf::ref<caf::DisplayCoordTransform> displayCoordTransform() const override;
+    cvf::ref<caf::DisplayCoordTransform> displayCoordTransform() const override;
 
     bool                       showDefiningPoints() const;
 
@@ -76,23 +76,23 @@ public:
 protected:
     void                       updateLegends() override;
 
-    virtual bool               isGridVisualizationMode() const override;
-    virtual void               axisLabels(cvf::String* xLabel, cvf::String* yLabel, cvf::String* zLabel) override;
-    virtual void               createDisplayModel() override;
-    virtual void               createPartCollectionFromSelection(cvf::Collection<cvf::Part>* parts) override;
-    virtual void               clampCurrentTimestep() override;
-    virtual void               updateCurrentTimeStep() override;
-    virtual void               onTimeStepChanged() override;
-    virtual void               updateStaticCellColors() override;
-    virtual void               updateScaleTransform() override;
-    virtual cvf::Transform*    scaleTransform() override;
-    virtual void               resetLegendsInViewer() override;
-    virtual void               onLoadDataAndUpdate() override;
-    virtual bool               isWindowVisible() override;
+    bool               isGridVisualizationMode() const override;
+    void               axisLabels(cvf::String* xLabel, cvf::String* yLabel, cvf::String* zLabel) override;
+    void               createDisplayModel() override;
+    void               createPartCollectionFromSelection(cvf::Collection<cvf::Part>* parts) override;
+    void               clampCurrentTimestep() override;
+    void               updateCurrentTimeStep() override;
+    void               onTimeStepChanged() override;
+    void               updateStaticCellColors() override;
+    void               updateScaleTransform() override;
+    cvf::Transform*    scaleTransform() override;
+    void               resetLegendsInViewer() override;
+    void               onLoadDataAndUpdate() override;
+    bool               isWindowVisible() override;
 
-    virtual void               fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
-    virtual void               defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
-    virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
+    void               fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    void               defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
 
     bool                       hasResults();
     int                        timeStepCount();

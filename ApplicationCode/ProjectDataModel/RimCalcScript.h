@@ -31,7 +31,7 @@ class RimCalcScript : public caf::PdmObject
 
 public:
     RimCalcScript();
-    virtual ~RimCalcScript();
+    ~RimCalcScript() override;
 
     caf::PdmField<QString>  absolutePath;
     caf::PdmField<QString>  content;    // TODO: Obsolete field, can be deleted on next project file revision.

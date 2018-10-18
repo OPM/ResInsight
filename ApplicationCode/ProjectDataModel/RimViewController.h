@@ -45,7 +45,7 @@ class RimViewController : public caf::PdmObject
 
 public:
     RimViewController();
-    virtual ~RimViewController();
+    ~RimViewController() override;
 
     bool                                    isActive() const;
 

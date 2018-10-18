@@ -50,7 +50,7 @@ class RivSimWellPipesPartMgr : public cvf::Object
 public:
     RivSimWellPipesPartMgr(RimSimWellInView* well);
 
-    ~RivSimWellPipesPartMgr();
+    ~RivSimWellPipesPartMgr() override;
 
     void       appendDynamicGeometryPartsToModel(cvf::ModelBasicList* model, 
                                                  size_t frameIndex, 

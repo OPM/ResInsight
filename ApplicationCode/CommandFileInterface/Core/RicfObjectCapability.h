@@ -38,7 +38,7 @@ class RicfObjectCapability : public caf::PdmObjectCapability
 public:
     RicfObjectCapability(caf::PdmObjectHandle* owner, bool giveOwnership);
 
-    virtual ~RicfObjectCapability();
+    ~RicfObjectCapability() override;
 
     void             readFields(QTextStream& inputStream, caf::PdmObjectFactory* objectFactory, RicfMessages* errorMessageContainer);
     void             writeFields(QTextStream& outputStream) const;

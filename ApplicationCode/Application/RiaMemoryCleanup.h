@@ -39,17 +39,17 @@ public:
     void                                  setPropertiesFromView(Rim3dView* view);
     void                                  clearSelectedResultsFromMemory();
 protected:
-    virtual void                          fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    void                          fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
 private:
     std::vector<RigFemResultAddress>      selectedGeoMechResults() const;
     std::vector<RigEclipseResultInfo>     selectedEclipseResults() const;
     std::set<RigFemResultAddress>         findGeoMechCaseResultsInUse() const;
     std::set<RigEclipseResultInfo>        findEclipseResultsInUse() const;
 
-    virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions,
+    QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions,
                                                                 bool*                      useOptionsOnly) override;
-    virtual void                          defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
-    virtual void                          defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override;
+    void                          defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    void                          defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override;
 private:
     caf::PdmPtrField<RimCase*>                      m_case;
     caf::PdmField<std::vector<size_t>>              m_resultsToDelete;

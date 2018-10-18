@@ -59,8 +59,8 @@ class RelPermQwtPlot : public QwtPlot
 {
 public:
     RelPermQwtPlot(QWidget* parent) : QwtPlot(parent) {}
-    virtual QSize sizeHint() const { return QSize(100, 100); }
-    virtual QSize minimumSizeHint() const { return QSize(0, 0); }
+    QSize sizeHint() const override { return QSize(100, 100); }
+    QSize minimumSizeHint() const override { return QSize(0, 0); }
 };
 
 

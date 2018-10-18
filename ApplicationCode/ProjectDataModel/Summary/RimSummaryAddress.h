@@ -43,7 +43,7 @@ class RimSummaryAddress: public caf::PdmObject
     CAF_PDM_HEADER_INIT;
 public:
     RimSummaryAddress();;
-    virtual ~RimSummaryAddress();
+    ~RimSummaryAddress() override;
 
     void setAddress(const RifEclipseSummaryAddress& addr);
     RifEclipseSummaryAddress address();

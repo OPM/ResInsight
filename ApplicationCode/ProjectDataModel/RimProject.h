@@ -78,7 +78,7 @@ class RimProject : public caf::PdmDocument
 
 public:
     RimProject(void);
-    virtual ~RimProject(void);
+    ~RimProject(void) override;
 
     caf::PdmChildArrayField<RimOilField*>               oilFields;
     caf::PdmChildField<RimScriptCollection*>            scriptCollection;
@@ -153,10 +153,10 @@ public:
 protected:
     // Overridden methods
     void            initScriptDirectories();
-    virtual void    initAfterRead();
-    virtual void    setupBeforeSave();
+    void    initAfterRead() override;
+    void    setupBeforeSave() override;
 
-    virtual void    defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "");
+    void    defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
 
 private:
     template <typename T>

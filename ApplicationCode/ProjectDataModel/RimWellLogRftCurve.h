@@ -46,10 +46,10 @@ class RimWellLogRftCurve : public RimWellLogCurve
 
 public:
     RimWellLogRftCurve();
-    virtual ~RimWellLogRftCurve();
+    ~RimWellLogRftCurve() override;
 
-    virtual QString       wellName() const override;
-    virtual QString       wellLogChannelName() const override;
+    QString       wellName() const override;
+    QString       wellLogChannelName() const override;
 
     void                  setEclipseResultCase(RimEclipseResultCase* eclipseResultCase);
     RimEclipseResultCase* eclipseResultCase() const;
@@ -64,13 +64,13 @@ public:
 
 protected:
     // Overrides from RimWellLogPlotCurve
-    virtual QString                         createCurveAutoName() override;
-    virtual void                            onLoadDataAndUpdate(bool updateParentPlot) override;
+    QString                         createCurveAutoName() override;
+    void                            onLoadDataAndUpdate(bool updateParentPlot) override;
 
     // Pdm overrrides
-    virtual void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
-    virtual QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
-    virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
+    void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
 
 private:
     RifReaderEclipseRft* rftReader() const;

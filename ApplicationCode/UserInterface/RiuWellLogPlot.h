@@ -48,10 +48,10 @@ class RiuWellLogPlot : public QWidget, public RiuInterfaceToViewWindow
 
 public:
     RiuWellLogPlot(RimWellLogPlot* plotDefinition, QWidget* parent = nullptr);
-    virtual ~RiuWellLogPlot();
+    ~RiuWellLogPlot() override;
 
     RimWellLogPlot*                 ownerPlotDefinition();
-    virtual RimViewWindow*          ownerViewWindow() const override;
+    RimViewWindow*          ownerViewWindow() const override;
 
     void                            addTrackPlot(RiuWellLogTrack* trackPlot);
     void                            insertTrackPlot(RiuWellLogTrack* trackPlot, size_t index);
@@ -64,14 +64,14 @@ public slots:
     void                            updateChildrenLayout();
 
 protected:
-    virtual void                    resizeEvent(QResizeEvent *event);
-    virtual void                    showEvent(QShowEvent *);
-    virtual void                    changeEvent(QEvent *);
-    virtual void                    contextMenuEvent(QContextMenuEvent *) override;
-    virtual QSize                   sizeHint() const override;
+    void                    resizeEvent(QResizeEvent *event) override;
+    void                    showEvent(QShowEvent *) override;
+    void                    changeEvent(QEvent *) override;
+    void                    contextMenuEvent(QContextMenuEvent *) override;
+    QSize                   sizeHint() const override;
 
 
-    virtual void                    keyPressEvent(QKeyEvent* keyEvent) override;
+    void                    keyPressEvent(QKeyEvent* keyEvent) override;
 
 private:
     void                            updateScrollBar(double minDepth, double maxDepth);

@@ -50,7 +50,7 @@ public:
     typedef caf::AppEnum<ResultAggregationEnum> ResultAggregation;
 
     Rim2dGridProjection();
-    virtual ~Rim2dGridProjection();
+    ~Rim2dGridProjection() override;
 
     void                        extractGridData();
     void                        generateVertices(cvf::Vec3fArray* vertices, const caf::DisplayCoordTransform* displayCoordTransform);
@@ -78,9 +78,9 @@ protected:
     const RimEclipseResultCase* eclipseCase() const;
     RigMainGrid*                mainGrid() const;
     
-    virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
-    virtual void defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override;
-    virtual void defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
+    void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    void defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override;
+    void defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
 
 protected:
     caf::PdmField<double>                              m_sampleSpacing;

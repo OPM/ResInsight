@@ -34,14 +34,14 @@ class RimFileSummaryCase: public RimSummaryCase
     CAF_PDM_HEADER_INIT;
 public:
     RimFileSummaryCase();
-    virtual ~RimFileSummaryCase();
+    ~RimFileSummaryCase() override;
 
-    virtual QString        summaryHeaderFilename() const  override;
-    virtual QString        caseName() const override;
-    virtual void           updateFilePathsFromProjectPath(const QString& newProjectPath, const QString& oldProjectPath) override;
+    QString        summaryHeaderFilename() const  override;
+    QString        caseName() const override;
+    void           updateFilePathsFromProjectPath(const QString& newProjectPath, const QString& oldProjectPath) override;
 
-    virtual void            createSummaryReaderInterface() override;
-    virtual RifSummaryReaderInterface* summaryReader() override;
+    void            createSummaryReaderInterface() override;
+    RifSummaryReaderInterface* summaryReader() override;
 
     void                    setIncludeRestartFiles(bool includeRestartFiles);
 

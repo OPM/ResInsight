@@ -14,7 +14,7 @@ class RiuQwtScalePicker : public QObject
 public:
     explicit RiuQwtScalePicker(QwtPlot *plot);
     
-    virtual bool eventFilter( QObject *, QEvent * );
+    bool eventFilter( QObject *, QEvent * ) override;
 
 Q_SIGNALS:
     void clicked( int axis, double value );

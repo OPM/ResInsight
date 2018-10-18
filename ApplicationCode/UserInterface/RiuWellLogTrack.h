@@ -43,7 +43,7 @@ class RiuWellLogTrack : public QwtPlot
 
 public:
     RiuWellLogTrack(RimWellLogTrack* plotTrackDefinition, QWidget* parent = nullptr);
-    virtual ~RiuWellLogTrack();
+    ~RiuWellLogTrack() override;
 
     void                                    setDepthZoom(double minDepth, double maxDepth);
     void                                    setDepthTitle(const QString& title);
@@ -61,9 +61,9 @@ public:
     double                                  getCurrentMajorTickInterval() const;
     double                                  getCurrentMinorTickInterval() const;
 protected:
-    virtual bool                            eventFilter(QObject* watched, QEvent* event);
-    virtual QSize                           sizeHint() const;
-    virtual QSize                           minimumSizeHint() const;
+    bool                            eventFilter(QObject* watched, QEvent* event) override;
+    QSize                           sizeHint() const override;
+    QSize                           minimumSizeHint() const override;
 
 private:
     void                                    setDefaults();

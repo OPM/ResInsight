@@ -34,14 +34,14 @@ class RiuQwtCurvePointTracker : public QwtPlotPicker
 {
 public:
     explicit RiuQwtCurvePointTracker(QwtPlot* plot, bool isMainAxisHorizontal, IPlotCurveInfoTextProvider* curveInfoTextProvider = nullptr);
-    ~RiuQwtCurvePointTracker();
+    ~RiuQwtCurvePointTracker() override;
 
 protected:
 
-    virtual bool      eventFilter(QObject *, QEvent *) override;
+    bool      eventFilter(QObject *, QEvent *) override;
     void              removeMarkerOnFocusLeave();
 
-    virtual QwtText   trackerText(const QPoint& pos) const override;
+    QwtText   trackerText(const QPoint& pos) const override;
     QPointF           closestCurvePoint(const QPoint& cursorPosition,
                                         QString* curveInfoText,
                                         QString* valueAxisValueString, 

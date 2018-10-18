@@ -40,7 +40,7 @@ private slots:
 
 private:
     RiaCompletionTypeCalculationScheduler() : m_recalculateCompletionTypeTimer(nullptr)  {}
-    ~RiaCompletionTypeCalculationScheduler();
+    ~RiaCompletionTypeCalculationScheduler() override;
 
     RiaCompletionTypeCalculationScheduler(const RiaCompletionTypeCalculationScheduler& o) = delete;
     void operator=(const RiaCompletionTypeCalculationScheduler& o) = delete;

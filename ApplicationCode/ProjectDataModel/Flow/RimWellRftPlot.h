@@ -71,13 +71,13 @@ class RimWellRftPlot : public RimViewWindow
 
 public:
     RimWellRftPlot();
-    virtual ~RimWellRftPlot();
+    ~RimWellRftPlot() override;
 
     void                                            setDescription(const QString& description);
     QString                                         description() const;
 
-    virtual QWidget*                                viewWidget() override;
-    virtual void                                    zoomAll() override;
+    QWidget*                                viewWidget() override;
+    void                                    zoomAll() override;
 
     RimWellLogPlot*                                 wellLogPlot() const;
 
@@ -90,17 +90,17 @@ public:
 
 protected:
     // Overridden PDM methods
-    virtual caf::PdmFieldHandle*                    userDescriptionField() override { return &m_userName; }
-    virtual void                                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    caf::PdmFieldHandle*                    userDescriptionField() override { return &m_userName; }
+    void                                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
     void                                            defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName) override;
 
-    virtual QList<caf::PdmOptionItemInfo>           calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
+    QList<caf::PdmOptionItemInfo>           calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
 
-    virtual QImage                                  snapshotWindowContent() override;
+    QImage                                  snapshotWindowContent() override;
 
 
-    virtual void                                    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
-    virtual void                                    onLoadDataAndUpdate() override;
+    void                                    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    void                                    onLoadDataAndUpdate() override;
 
 private:
     void                                            calculateValueOptionsForWells(QList<caf::PdmOptionItemInfo>& options);
@@ -120,8 +120,8 @@ private:
 
     // RimViewWindow overrides
 
-    virtual QWidget*                                createViewWidget(QWidget* mainWindowParent) override; 
-    virtual void                                    deleteViewWidget() override; 
+    QWidget*                                createViewWidget(QWidget* mainWindowParent) override; 
+    void                                    deleteViewWidget() override; 
 
     void                                            applyCurveAppearance(RimWellLogCurve* newCurve);
 

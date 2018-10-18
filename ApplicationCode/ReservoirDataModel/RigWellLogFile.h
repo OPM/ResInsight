@@ -41,7 +41,7 @@ class RigWellLogFile : public cvf::Object
 {
 public:
     RigWellLogFile();
-    virtual ~RigWellLogFile();
+    ~RigWellLogFile() override;
 
     bool open(const QString& fileName, QString* errorMessage);
 

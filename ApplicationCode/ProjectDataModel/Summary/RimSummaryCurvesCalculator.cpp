@@ -53,7 +53,7 @@ public:
         m_numberOfDecimals = numberOfDecimals;
     }
 
-    virtual QwtText label(double value) const override
+    QwtText label(double value) const override
     {
         if (qFuzzyCompare(scaledValue(value) + 1.0, 1.0))
             value = 0.0;
@@ -83,7 +83,7 @@ public:
         m_numberOfDecimals = numberOfDecimals;
     }
 
-    virtual QwtText label(double value) const override
+    QwtText label(double value) const override
     {
         if (qFuzzyCompare(scaledValue(value) + 1.0, 1.0))
             value = 0.0;

@@ -59,7 +59,7 @@ class RimRegularLegendConfig : public RimLegendConfig
     CAF_PDM_HEADER_INIT;
 public:
     RimRegularLegendConfig();
-    virtual ~RimRegularLegendConfig();
+    ~RimRegularLegendConfig() override;
 
     caf::PdmField<QString>                      resultVariableName; // Used internally to describe the variable this legend setup is used for
 

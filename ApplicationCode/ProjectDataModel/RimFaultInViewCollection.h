@@ -55,7 +55,7 @@ public:
 
 public:
     RimFaultInViewCollection();
-    virtual ~RimFaultInViewCollection();
+    ~RimFaultInViewCollection() override;
 
     void                                syncronizeFaults();
 

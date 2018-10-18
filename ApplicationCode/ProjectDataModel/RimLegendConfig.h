@@ -36,7 +36,7 @@ class RimLegendConfig : public caf::PdmObject
 
 public:
     RimLegendConfig();
-    virtual ~RimLegendConfig();
+    ~RimLegendConfig() override;
 
     enum RangeModeType
     {

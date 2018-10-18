@@ -45,12 +45,12 @@ class RiaDefaultConsoleLogger : public RiaLogger
 public:
     RiaDefaultConsoleLogger();
 
-    virtual int     level() const override;
-    virtual void    setLevel(int logLevel) override;
-    virtual void    error(  const char* message) override;
-    virtual void    warning(const char* message) override;
-    virtual void    info(   const char* message) override;
-    virtual void    debug(  const char* message) override;
+    int     level() const override;
+    void    setLevel(int logLevel) override;
+    void    error(  const char* message) override;
+    void    warning(const char* message) override;
+    void    info(   const char* message) override;
+    void    debug(  const char* message) override;
 
 private:
     static void         writeMessageToConsole(const char* prefix, const char* message);

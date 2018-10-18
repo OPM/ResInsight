@@ -63,7 +63,7 @@ public:
     bool useCell(size_t cellIndex) const override;
     void cellCornerVertices(size_t cellIndex, cvf::Vec3d cellCorners[8]) const override;
     void cellCornerIndices(size_t cellIndex, size_t cornerIndices[8]) const override;
-    virtual const RigFault* findFaultFromCellIndexAndCellFace(size_t reservoirCellIndex, 
+    const RigFault* findFaultFromCellIndexAndCellFace(size_t reservoirCellIndex, 
                                                               cvf::StructGridInterface::FaceType face) const override;
 
 private:
@@ -86,7 +86,7 @@ public:
     bool useCell(size_t cellIndex) const override;
     void cellCornerVertices(size_t cellIndex, cvf::Vec3d cellCorners[8]) const override;
     void cellCornerIndices(size_t cellIndex, size_t cornerIndices[8]) const override;
-    virtual const RigFault* findFaultFromCellIndexAndCellFace(size_t reservoirCellIndex, 
+    const RigFault* findFaultFromCellIndexAndCellFace(size_t reservoirCellIndex, 
                                                               cvf::StructGridInterface::FaceType face) const override;
 
 private:

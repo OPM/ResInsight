@@ -42,7 +42,7 @@ class RigMainGrid : public RigGridBase
 {
 public:
     RigMainGrid();
-    virtual ~RigMainGrid();
+    ~RigMainGrid() override;
 
 public:
     std::vector<cvf::Vec3d>&                nodes() {return m_nodes;}
@@ -78,7 +78,7 @@ public:
     void                                    initAllSubGridsParentGridPointer();
 
     // Overrides
-    virtual cvf::Vec3d                      displayModelOffset() const;
+    cvf::Vec3d                      displayModelOffset() const override;
     void                                    setDisplayModelOffset(cvf::Vec3d offset);
 
     void                                    setFlipAxis(bool flipXAxis, bool flipYAxis);

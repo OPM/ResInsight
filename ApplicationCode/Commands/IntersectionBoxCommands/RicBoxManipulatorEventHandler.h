@@ -52,7 +52,7 @@ class RicBoxManipulatorEventHandler : public QObject
 
 public:
     explicit RicBoxManipulatorEventHandler(caf::Viewer* viewer);
-    ~RicBoxManipulatorEventHandler();
+    ~RicBoxManipulatorEventHandler() override;
 
     void setOrigin(const cvf::Vec3d& origin);
     void setSize(const cvf::Vec3d& size);
@@ -64,7 +64,7 @@ signals:
     void        notifyUpdate(const cvf::Vec3d& origin, const cvf::Vec3d& size);
 
 protected:
-    bool        eventFilter(QObject *obj, QEvent *event);
+    bool        eventFilter(QObject *obj, QEvent *event) override;
 
 private:
     QPointer<caf::Viewer>           m_viewer;

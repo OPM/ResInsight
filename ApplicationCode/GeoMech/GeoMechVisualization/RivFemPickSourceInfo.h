@@ -28,7 +28,7 @@ class RivFemPickSourceInfo : public cvf::Object
 {
 public:
     RivFemPickSourceInfo(int partIndex, RivFemPartTriangleToElmMapper * triangleToElmMapper);
-    ~RivFemPickSourceInfo();
+    ~RivFemPickSourceInfo() override;
 
     int                                      femPartIndex() const { return m_fempartIndex; }
     const RivFemPartTriangleToElmMapper*     triangleToElmMapper() const { return m_triangleToElmMapper.p(); }

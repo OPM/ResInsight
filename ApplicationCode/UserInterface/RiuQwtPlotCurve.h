@@ -65,7 +65,7 @@ public:
 
 public:
     explicit RiuQwtPlotCurve(const QString &title = QString::null);
-    virtual ~RiuQwtPlotCurve();
+    ~RiuQwtPlotCurve() override;
 
     void         setSamplesFromXValuesAndYValues(const std::vector<double>& xValues,
                                                  const std::vector<double>& yValues,
@@ -105,13 +105,13 @@ public:
                                const QColor& curveColor);
 
 protected:
-    virtual void drawCurve(QPainter* p, int style,
+    void drawCurve(QPainter* p, int style,
                             const QwtScaleMap& xMap, const QwtScaleMap& yMap,
                             const QRectF& canvasRect, 
-                            int from, int to) const;
+                            int from, int to) const override;
  
 
-    virtual void drawSymbols(QPainter *p, const QwtSymbol &symbol, 
+    void drawSymbols(QPainter *p, const QwtSymbol &symbol, 
                              const QwtScaleMap &xMap, 
                              const QwtScaleMap &yMap, 
                              const QRectF &canvasRect, 

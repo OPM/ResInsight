@@ -69,7 +69,7 @@ class RiuViewer : public caf::Viewer, public RiuInterfaceToViewWindow
 
 public:
     RiuViewer(const QGLFormat& format, QWidget* parent);
-    ~RiuViewer();
+    ~RiuViewer() override;
 
     void            setDefaultView();
     cvf::Vec3d      pointOfInterest();
@@ -124,8 +124,8 @@ public slots:
 protected:
     void            optimizeClippingPlanes() override;
     void            resizeGL(int width, int height) override;
-    virtual void    mouseMoveEvent(QMouseEvent* e) override;
-    virtual void    leaveEvent(QEvent *) override;
+    void    mouseMoveEvent(QMouseEvent* e) override;
+    void    leaveEvent(QEvent *) override;
 
 private:
     void            updateLegendLayout();

@@ -88,11 +88,11 @@ class RifCsvUserDataFileParser : public RifCsvUserDataParser
 {
 public:
     RifCsvUserDataFileParser(const QString& fileName, QString* errorText = nullptr);
-    virtual ~RifCsvUserDataFileParser();
+    ~RifCsvUserDataFileParser() override;
 
 protected:
-    virtual QTextStream* openDataStream() override;
-    virtual void         closeDataStream() override;
+    QTextStream* openDataStream() override;
+    void         closeDataStream() override;
 
 private:
     bool                openFile();
@@ -112,11 +112,11 @@ class RifCsvUserDataPastedTextParser : public RifCsvUserDataParser
 {
 public:
     RifCsvUserDataPastedTextParser(const QString& text, QString* errorText = nullptr);
-    virtual ~RifCsvUserDataPastedTextParser();
+    ~RifCsvUserDataPastedTextParser() override;
 
 protected:
-    virtual QTextStream* openDataStream() override;
-    virtual void         closeDataStream() override;
+    QTextStream* openDataStream() override;
+    void         closeDataStream() override;
 
 private:
     QString                 m_text;

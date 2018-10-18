@@ -36,9 +36,9 @@ public:
     static void addFracture(RimWellPath* wellPath, double measuredDepth);
 
 protected:
-    virtual void onActionTriggered(bool isChecked) override;
-    virtual void setupActionLook(QAction* actionToSetup) override;
-    virtual bool isCommandEnabled() override;
+    void onActionTriggered(bool isChecked) override;
+    void setupActionLook(QAction* actionToSetup) override;
+    bool isCommandEnabled() override;
 
 private:
     static RimWellPathFractureCollection* selectedWellPathFractureCollection();

@@ -50,7 +50,7 @@ class RimCellEdgeColors :  public caf::PdmObject
     CAF_PDM_HEADER_INIT;
 public:
     RimCellEdgeColors();
-    virtual ~RimCellEdgeColors();
+    ~RimCellEdgeColors() override;
 
     enum EdgeFaceType
     {
@@ -97,11 +97,11 @@ public:
 
 protected:
 
-    virtual void                          initAfterRead();
-    virtual void                          fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
-    virtual QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly );
-    virtual void                          defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
-    virtual void                          defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "");
+    void                          initAfterRead() override;
+    void                          fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly ) override;
+    void                          defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    void                          defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
 
     QStringList                           findResultVariableNames();
 
@@ -111,7 +111,7 @@ private:
 
     void                                  gridScalarResultNames(std::vector<QString>* resultNames);
 
-    virtual caf::PdmFieldHandle*          objectToggleField();
+    caf::PdmFieldHandle*          objectToggleField() override;
 
     caf::PdmField<QString>                m_resultVariable;
     caf::PdmField<bool>                   useXVariable;

@@ -42,7 +42,7 @@ class RimPerforationInterval : public RimCheckableNamedObject, public Rim3dPrope
 public:
 
     RimPerforationInterval();
-    virtual ~RimPerforationInterval();
+    ~RimPerforationInterval() override;
 
     void                                setStartAndEndMD(double startMD, double endMD);
 
@@ -59,7 +59,7 @@ public:
 
     bool                                isActiveOnDate(const QDateTime& date) const;
 
-    virtual cvf::BoundingBox            boundingBoxInDomainCoords() const override;
+    cvf::BoundingBox            boundingBoxInDomainCoords() const override;
 
     void                                setUnitSystemSpecificDefaults();
 
@@ -71,15 +71,15 @@ public:
     QString                             componentLabel() const override;
     QString                             componentTypeLabel() const override;
     cvf::Color3f                        defaultComponentColor() const override;
-    double                              startMD() const;
-    double                              endMD() const;
+    double                              startMD() const override;
+    double                              endMD() const override;
 
 protected:
-    virtual void                        defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
-    virtual void                        fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
-    virtual void                        defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
-    virtual void                        defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override;
-    virtual void                        initAfterRead() override;
+    void                        defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    void                        fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+    void                        defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
+    void                        defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override;
+    void                        initAfterRead() override;
 
 private:
     caf::PdmField< double >             m_startMD;

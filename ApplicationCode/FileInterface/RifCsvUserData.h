@@ -41,13 +41,13 @@ class RifCsvUserData : public RifSummaryReaderInterface
 {
 public:
     RifCsvUserData();
-    ~RifCsvUserData();
+    ~RifCsvUserData() override;
 
     bool                                parse(const QString& fileName, const AsciiDataParseOptions& parseOptions, QString* errorText = nullptr);
 
-    virtual const std::vector<time_t>&  timeSteps(const RifEclipseSummaryAddress& resultAddress) const override;
+    const std::vector<time_t>&  timeSteps(const RifEclipseSummaryAddress& resultAddress) const override;
 
-    virtual bool                        values(const RifEclipseSummaryAddress& resultAddress,
+    bool                        values(const RifEclipseSummaryAddress& resultAddress,
                                                std::vector<double>* values) const override;
 
     std::string                         unitName(const RifEclipseSummaryAddress& resultAddress) const override;

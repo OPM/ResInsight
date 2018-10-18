@@ -46,10 +46,10 @@ public:
     QString                 ensembleParameterName() const;
     QString                 filterId() const;
 
-    virtual QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
-    virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
-    virtual void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
-    virtual void                            defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute);
+    QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
+    void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    void                            defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override;
 
     std::vector<RimSummaryCase*>            applyFilter(const std::vector<RimSummaryCase*>& allSumCases);
 
@@ -57,7 +57,7 @@ public:
     EnsembleParameter                       selectedEnsembleParameter() const;
 
 protected:
-    virtual caf::PdmFieldHandle*  objectToggleField();
+    caf::PdmFieldHandle*  objectToggleField() override;
 
 private:
     RimEnsembleCurveSet * parentCurveSet() const;

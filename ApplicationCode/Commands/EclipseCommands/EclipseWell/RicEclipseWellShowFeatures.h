@@ -29,10 +29,10 @@ class RicEclipseWellShowLabelFeature : public caf::CmdFeature
     CAF_CMD_HEADER_INIT;
 
 protected:
-    virtual void onActionTriggered(bool isChecked) override;
-    virtual void setupActionLook(QAction* actionToSetup) override;
-    virtual bool isCommandEnabled() override;
-    virtual bool isCommandChecked() override;
+    void onActionTriggered(bool isChecked) override;
+    void setupActionLook(QAction* actionToSetup) override;
+    bool isCommandEnabled() override;
+    bool isCommandChecked() override;
 };
 
 //==================================================================================================
@@ -43,10 +43,10 @@ class RicEclipseWellShowHeadFeature : public caf::CmdFeature
     CAF_CMD_HEADER_INIT;
 
 protected:
-    virtual void onActionTriggered(bool isChecked) override;
-    virtual void setupActionLook(QAction* actionToSetup) override;
-    virtual bool isCommandEnabled() override;
-    virtual bool isCommandChecked() override;
+    void onActionTriggered(bool isChecked) override;
+    void setupActionLook(QAction* actionToSetup) override;
+    bool isCommandEnabled() override;
+    bool isCommandChecked() override;
 };
 
 //==================================================================================================
@@ -57,10 +57,10 @@ class RicEclipseWellShowPipeFeature : public caf::CmdFeature
     CAF_CMD_HEADER_INIT;
 
 protected:
-    virtual void onActionTriggered(bool isChecked) override;
-    virtual void setupActionLook(QAction* actionToSetup) override;
-    virtual bool isCommandEnabled() override;
-    virtual bool isCommandChecked() override;
+    void onActionTriggered(bool isChecked) override;
+    void setupActionLook(QAction* actionToSetup) override;
+    bool isCommandEnabled() override;
+    bool isCommandChecked() override;
 };
 
 //==================================================================================================
@@ -71,10 +71,10 @@ class RicEclipseWellShowSpheresFeature : public caf::CmdFeature
     CAF_CMD_HEADER_INIT;
 
 protected:
-    virtual void onActionTriggered(bool isChecked) override;
-    virtual void setupActionLook(QAction* actionToSetup) override;
-    virtual bool isCommandEnabled() override;
-    virtual bool isCommandChecked() override;
+    void onActionTriggered(bool isChecked) override;
+    void setupActionLook(QAction* actionToSetup) override;
+    bool isCommandEnabled() override;
+    bool isCommandChecked() override;
 };
 
 //==================================================================================================
@@ -85,10 +85,10 @@ class RicEclipseWellShowWellCellsFeature : public caf::CmdFeature
     CAF_CMD_HEADER_INIT;
 
 protected:
-    virtual void onActionTriggered(bool isChecked) override;
-    virtual void setupActionLook(QAction* actionToSetup) override;
-    virtual bool isCommandEnabled() override;
-    virtual bool isCommandChecked() override;
+    void onActionTriggered(bool isChecked) override;
+    void setupActionLook(QAction* actionToSetup) override;
+    bool isCommandEnabled() override;
+    bool isCommandChecked() override;
 };
 
 //==================================================================================================
@@ -99,9 +99,9 @@ class RicEclipseWellShowWellCellFenceFeature : public caf::CmdFeature
     CAF_CMD_HEADER_INIT;
 
 protected:
-    virtual void onActionTriggered(bool isChecked) override;
-    virtual void setupActionLook(QAction* actionToSetup) override;
-    virtual bool isCommandEnabled() override;
-    virtual bool isCommandChecked() override;
+    void onActionTriggered(bool isChecked) override;
+    void setupActionLook(QAction* actionToSetup) override;
+    bool isCommandEnabled() override;
+    bool isCommandChecked() override;
 };
 

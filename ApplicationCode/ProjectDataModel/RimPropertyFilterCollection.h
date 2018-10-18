@@ -30,7 +30,7 @@ class RimPropertyFilterCollection : public caf::PdmObject
     CAF_PDM_HEADER_INIT;
 public:
     RimPropertyFilterCollection();
-    virtual ~RimPropertyFilterCollection();
+    ~RimPropertyFilterCollection() override;
 
     // Fields:
     caf::PdmField<bool> isActive;
@@ -46,8 +46,8 @@ public:
 
 protected:
     // Overridden methods
-    virtual void                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
-    virtual void                    defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName);
-    virtual caf::PdmFieldHandle*    objectToggleField();
+    void                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    void                    defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName) override;
+    caf::PdmFieldHandle*    objectToggleField() override;
 };
 

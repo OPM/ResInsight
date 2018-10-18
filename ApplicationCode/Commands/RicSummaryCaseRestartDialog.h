@@ -59,7 +59,7 @@ public:
     enum ImportOptions { IMPORT_ALL, SEPARATE_CASES, NOT_IMPORT };
 
     RicSummaryCaseRestartDialog(QWidget* parent);
-    ~RicSummaryCaseRestartDialog();
+    ~RicSummaryCaseRestartDialog() override;
 
     static RicSummaryCaseRestartDialogResult    openDialog(const QString& initialSummaryFile,
                                                            const QString& initialGridFile,

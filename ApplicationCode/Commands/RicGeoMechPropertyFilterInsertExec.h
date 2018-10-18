@@ -31,11 +31,11 @@ class RicGeoMechPropertyFilterInsertExec : public caf::CmdExecuteCommand
 {
 public:
     explicit RicGeoMechPropertyFilterInsertExec(RimGeoMechPropertyFilter* propertyFilter);
-    virtual ~RicGeoMechPropertyFilterInsertExec();
+    ~RicGeoMechPropertyFilterInsertExec() override;
 
-    virtual QString name();
-    virtual void redo();
-    virtual void undo();
+    QString name() override;
+    void redo() override;
+    void undo() override;
 
 private:
     caf::PdmPointer<RimGeoMechPropertyFilter> m_propertyFilter;

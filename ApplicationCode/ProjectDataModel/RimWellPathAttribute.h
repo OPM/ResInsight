@@ -38,7 +38,7 @@ public:
     typedef caf::AppEnum<RiaDefines::WellPathComponentType> CompletionTypeEnum;
 
     RimWellPathAttribute();
-    ~RimWellPathAttribute();
+    ~RimWellPathAttribute() override;
 
     double         diameterInInches() const;
     QString        diameterLabel() const;
@@ -55,10 +55,10 @@ public:
 
 private:
     bool                                  isDiameterSupported() const;
-    virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
+    QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
     static QString                        generateInchesLabel(double diameter);
-    virtual void                          fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
-    virtual void                          defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    void                          fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    void                          defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
 
 private:
     caf::PdmField<CompletionTypeEnum>         m_type;

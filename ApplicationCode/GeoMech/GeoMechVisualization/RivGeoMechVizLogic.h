@@ -41,7 +41,7 @@ class RivGeoMechVizLogic : public cvf::Object
 public:
 
     explicit RivGeoMechVizLogic(RimGeoMechView * geomView);
-    virtual ~RivGeoMechVizLogic();
+    ~RivGeoMechVizLogic() override;
 
     void                                     appendNoAnimPartsToModel(cvf::ModelBasicList* model);
     void                                     appendPartsToModel(int timeStepIndex, cvf::ModelBasicList* model);
