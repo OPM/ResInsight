@@ -111,7 +111,7 @@ void Rim2dGridProjection::generateVertices(cvf::Vec3fArray* vertices, const caf:
         for (uint i = 0; i < gridSize2d.x(); ++i)
         {
             cvf::Vec2d globalPos = globalPos2d(i, j);
-            cvf::Vec3d globalVertexPos(globalPos, boundingBox.max().z() + 10.0);
+            cvf::Vec3d globalVertexPos(globalPos, boundingBox.min().z() - 1.0);
             cvf::Vec3f displayVertexPos(displayCoordTransform->transformToDisplayCoord(globalVertexPos));
             (*vertices)[gridIndex(i, j)] = displayVertexPos;
         }
