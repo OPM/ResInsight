@@ -581,6 +581,17 @@ void RiuMainWindow::createToolBars()
         dsToolBar->addAction(m_drawStyleHideGridCellsAction);
         dsToolBar->addAction(m_toggleFaultsLabelAction);
         dsToolBar->addAction(m_showWellCellsAction);
+        dsToolBar->hide();
+    }
+
+    {
+        QToolBar* toolbar = addToolBar(tr("HoloLens"));
+        toolbar->setObjectName(toolbar->windowTitle());
+
+        toolbar->addAction(cmdFeatureMgr->action("RicHoloLensCreateSessionFeature"));
+        toolbar->addAction(cmdFeatureMgr->action("RicHoloLensTerminateSessionFeature"));
+        toolbar->addAction(cmdFeatureMgr->action("RicHoloLensExportToSharingServerFeature"));
+        toolbar->hide();
     }
 
     RiaApplication* app = RiaApplication::instance();

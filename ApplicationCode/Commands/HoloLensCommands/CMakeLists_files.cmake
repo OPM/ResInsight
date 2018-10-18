@@ -3,6 +3,12 @@ set (SOURCE_GROUP_HEADER_FILES
 ${CMAKE_CURRENT_LIST_DIR}/RicHoloLensExportToFolderFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicHoloLensExportToFolderUi.h
 ${CMAKE_CURRENT_LIST_DIR}/RicHoloLensExportImpl.h
+${CMAKE_CURRENT_LIST_DIR}/RicHoloLensExportToSharingServerFeature.h
+${CMAKE_CURRENT_LIST_DIR}/RicHoloLensCreateSessionFeature.h
+${CMAKE_CURRENT_LIST_DIR}/RicHoloLensTerminateSessionFeature.h
+${CMAKE_CURRENT_LIST_DIR}/RicHoloLensServerSettings.h
+${CMAKE_CURRENT_LIST_DIR}/RicHoloLensCreateSessionUi.h
+
 
 ${CMAKE_CURRENT_LIST_DIR}/VdeArrayDataPacket.h
 ${CMAKE_CURRENT_LIST_DIR}/VdeExportPart.h
@@ -13,6 +19,11 @@ set (SOURCE_GROUP_SOURCE_FILES
 ${CMAKE_CURRENT_LIST_DIR}/RicHoloLensExportToFolderFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicHoloLensExportImpl.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicHoloLensExportToFolderUi.cpp 
+${CMAKE_CURRENT_LIST_DIR}/RicHoloLensExportToSharingServerFeature.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicHoloLensCreateSessionFeature.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicHoloLensTerminateSessionFeature.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicHoloLensServerSettings.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicHoloLensCreateSessionUi.cpp
 
 ${CMAKE_CURRENT_LIST_DIR}/VdeArrayDataPacket.cpp
 ${CMAKE_CURRENT_LIST_DIR}/VdeExportPart.cpp
