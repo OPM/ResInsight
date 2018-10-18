@@ -40,7 +40,6 @@ public:
     RiaCurveDataTools::CurveIntervals   validIntervalsForAllTimeSteps() const;
     const std::vector<time_t>&          allTimeSteps() const;
     const std::vector<double>&          interpolatedCurveValuesForAllTimeSteps(size_t curveIdx) const;
-    int                                 interploatedCurveCount() const;
 
     // Non-const access is not required by any clients, but the expression parser has no available const interface
     // for specifying a data source for an expression variable. Allow non-const access to avoid copy of the contained 

@@ -743,30 +743,6 @@ QList<caf::PdmOptionItemInfo> RimEnsembleCurveSet::calculateValueOptions(const c
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimEnsembleCurveSet::getOptionsForSummaryAddresses(std::map<QString, RifEclipseSummaryAddress>* options,
-                                                            RimSummaryCase* summaryCase,
-                                                            RimSummaryFilter* summaryFilter)
-{
-    if (summaryCase)
-    {
-        RifSummaryReaderInterface* reader = summaryCase->summaryReader();
-        if (reader)
-        {
-            for (const auto& address : reader->allResultAddresses())
-            {
-                if (summaryFilter && !summaryFilter->isIncludedByFilter(address)) continue;
-
-                std::string name = address.uiText();
-                QString s = QString::fromStdString(name);
-                options->insert(std::make_pair(s, address));
-            }
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
 /// Optimization candidate
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleCurveSet::appendOptionItemsForSummaryAddresses(QList<caf::PdmOptionItemInfo>* options,

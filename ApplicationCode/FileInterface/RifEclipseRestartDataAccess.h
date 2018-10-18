@@ -60,7 +60,6 @@ public:
 
     void appendKeyword(const std::string& keyword, size_t itemCount, int globalIndex);
 
-    std::vector<std::string> keywordsWithItemCountFactorOf(const std::vector<size_t>& factorCandidates);
     std::vector<std::pair<std::string, size_t> > keywordsWithAggregatedItemCount();
 
 private:

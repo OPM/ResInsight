@@ -133,10 +133,6 @@ private:
     virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField,
                                                              const QVariant& oldValue, const QVariant& newValue) override;
 
-    static void                             getOptionsForSummaryAddresses(std::map<QString, RifEclipseSummaryAddress>* options,
-                                                                              RimSummaryCase* summaryCase,
-                                                                              RimSummaryFilter* summaryFilter);
-
     void                                    appendOptionItemsForSummaryAddresses(QList<caf::PdmOptionItemInfo>* options,
                                                                                  RimSummaryCaseCollection* summaryCaseGroup,
                                                                                  RimSummaryFilter* summaryFilter);

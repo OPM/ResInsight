@@ -89,19 +89,6 @@ void RifEclipseSummaryTools::findSummaryFiles(const QString& inputFile,
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RifEclipseSummaryTools::hasSummaryFiles(const QString& gridFileName)
-{
-    QString headerFileName;
-    QStringList dataFileNames;
-    RifEclipseSummaryTools::findSummaryFiles(gridFileName, &headerFileName, &dataFileNames);
-    if (!headerFileName.isEmpty() && dataFileNames.size()) return true;
-
-    return false;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 QStringList RifEclipseSummaryTools::findSummaryDataFiles(const QString& caseFile)
 {
     QStringList fileNames;

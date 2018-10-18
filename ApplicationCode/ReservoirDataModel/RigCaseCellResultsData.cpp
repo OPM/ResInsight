@@ -475,17 +475,6 @@ std::vector<QDateTime> RigCaseCellResultsData::allTimeStepDatesFromEclipseReader
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QDateTime RigCaseCellResultsData::timeStepDate(size_t scalarResultIndex, size_t timeStepIndex) const
-{
-    if (scalarResultIndex < m_resultInfos.size() && m_resultInfos[scalarResultIndex].timeStepInfos().size() > timeStepIndex)
-        return m_resultInfos[scalarResultIndex].timeStepInfos()[timeStepIndex].m_date;
-    else
-        return QDateTime();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 std::vector<QDateTime> RigCaseCellResultsData::timeStepDates(size_t scalarResultIndex) const
 {
     if (scalarResultIndex < m_resultInfos.size())
@@ -542,17 +531,6 @@ int RigCaseCellResultsData::reportStepNumber(size_t scalarResultIndex, size_t ti
         return m_resultInfos[scalarResultIndex].timeStepInfos()[timeStepIndex].m_reportNumber;
     else
         return -1;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-std::vector<int> RigCaseCellResultsData::reportStepNumbers(size_t scalarResultIndex) const
-{
-    if (scalarResultIndex < m_resultInfos.size() )
-        return m_resultInfos[scalarResultIndex].reportNumbers();
-    else
-        return std::vector<int>();
 }
 
 //--------------------------------------------------------------------------------------------------

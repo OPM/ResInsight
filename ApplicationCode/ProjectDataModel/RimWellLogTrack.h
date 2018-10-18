@@ -122,7 +122,6 @@ public:
     void setShowFormationLabels(bool on);
     
     bool showWellPathAttributes() const;
-    bool showWellPathAttributesBothSides() const;
     void setShowWellPathAttributes(bool on);
     void setWellPathAttributesSource(RimWellPath* wellPath);
     
@@ -162,8 +161,6 @@ private:
 
     static CurveSamplingPointData curveSamplingPointData(RigEclipseWellLogExtractor* extractor, RigResultAccessor* resultAccessor);
     static CurveSamplingPointData curveSamplingPointData(RigGeoMechWellLogExtractor* extractor, const RigFemResultAddress& resultAddress);
-
-    static std::vector<QString> formationNameIndexToName(RimCase* rimCase, const std::vector<int>& formationNameInidces);
 
     static void findFormationNamesToPlot(const CurveSamplingPointData&           curveData,
                                          const std::vector<QString>&             formationNamesVector,

@@ -79,14 +79,6 @@ std::vector<double>& RiaTimeHistoryCurveMerger::interpolatedCurveValuesForAllTim
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-int RiaTimeHistoryCurveMerger::interploatedCurveCount() const
-{
-    return static_cast<int>(m_interpolatedValuesForAllCurves.size());
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 void RiaTimeHistoryCurveMerger::computeInterpolatedValues()
 {
     m_validIntervalsForAllTimeSteps.clear();

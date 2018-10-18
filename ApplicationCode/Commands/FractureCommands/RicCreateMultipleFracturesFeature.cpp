@@ -163,21 +163,6 @@ void RicCreateMultipleFracturesFeature::slotClose()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicCreateMultipleFracturesFeature::slotCancel()
-{
-    RiuCreateMultipleFractionsUi* multipleFractionsUi = this->multipleFractionsUi();
-    if (multipleFractionsUi)
-    {
-        multipleFractionsUi->readObjectFromXmlString(m_copyOfObject, caf::PdmDefaultObjectFactory::instance());
-        multipleFractionsUi->resolveReferencesRecursively();
-    }
-
-    slotClose();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RicCreateMultipleFracturesFeature::onActionTriggered(bool isChecked)
 {
     m_dialog = nullptr;

@@ -48,10 +48,8 @@ public:
     std::vector<RifSummaryCaseFileResultInfo> summaryFileInfos() const;
     QStringList                               gridCaseFiles() const;
     bool                                      foundErrors() const;
-    const QStringList&                        summaryFilesWithErrors() const;
     QString                                   createCombinedErrorMessage() const;
 
-    static QStringList getSummaryFilesFromGridFiles(const QStringList& gridFiles);
     static QString     getSummaryFileFromGridFile(const QString& gridFile);
 
 private:

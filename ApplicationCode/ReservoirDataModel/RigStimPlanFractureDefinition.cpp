@@ -492,35 +492,6 @@ void RigStimPlanFractureDefinition::createFractureTriangleGeometry(double wellPa
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void sortPolygon(std::vector<cvf::Vec3f> &polygon)
-{
-    if (polygon.empty()) return;
-
-    for (int i = 1; i < static_cast<int>(polygon.size()) - 1; i++)
-    {
-        cvf::Vec3f lastNode = polygon[i - 1];
-        cvf::Vec3f node = polygon[i];
-        cvf::Vec3f nextNode = polygon[i + 1];
-
-        if (node.y() == nextNode.y())
-        {
-            if (lastNode.x() < node.x() && node.x() > nextNode.x())
-            {
-                polygon[i] = nextNode;
-                polygon[i + 1] = node;
-            }
-            else if (lastNode.x() > node.x() && node.x() < nextNode.x())
-            {
-                polygon[i] = nextNode;
-                polygon[i + 1] = node;
-            }
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 const std::vector<double>& RigStimPlanFractureDefinition::timeSteps() const
 {
     return m_timeSteps;

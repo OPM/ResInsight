@@ -1206,14 +1206,6 @@ bool RimWellLogTrack::showWellPathAttributes() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimWellLogTrack::showWellPathAttributesBothSides() const
-{
-    return m_showWellPathComponentsBothSides;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimWellLogTrack::setShowWellPathAttributes(bool on)
 {
     m_showWellPathAttributes = on;
@@ -1577,23 +1569,6 @@ CurveSamplingPointData RimWellLogTrack::curveSamplingPointData(RigGeoMechWellLog
 
     extractor->curveData(resultAddress, 0, &curveData.data);
     return curveData;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-std::vector<QString> RimWellLogTrack::formationNameIndexToName(RimCase* rimCase, const std::vector<int>& formationNameInidces)
-{
-    std::vector<QString> availableFormationNames = RimWellLogTrack::formationNamesVector(rimCase);
-
-    std::vector<QString> formationNames;
-
-    for (int index : formationNameInidces)
-    {
-        formationNames.push_back(availableFormationNames[index]);
-    }
-
-    return formationNames;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -397,30 +397,6 @@ std::vector<std::string> RifHdf5Reader::getSubGroupNames(H5::H5File file, std::s
 
 
 
-//--------------------------------------------------------------------------------------------------
-/// Intended for finding all timesteps of one SourSimRL result file
-//--------------------------------------------------------------------------------------------------
-std::vector<double> RifHdf5Reader::getStepTimeValues(H5::H5File file, std::string baseGroupName) const
-{
-	std::vector<std::string> subGroupNames = getSubGroupNames(file, baseGroupName);
-	std::vector<double>		 stepTimeValues;
-
-	for (std::vector<std::string>::iterator it = subGroupNames.begin(); it != subGroupNames.end(); it++)
-	{
-		if (it->find("Timestep_") != std::string::npos)
-		{
-			std::string groupName = baseGroupName + *it;
-
-			double timestep_value = getDoubleAttribute(file, groupName, "timestep");
-
-			stepTimeValues.push_back(timestep_value);
-		}
-	}
-
-	return stepTimeValues;
-}
-
-
 
 
 //--------------------------------------------------------------------------------------------------

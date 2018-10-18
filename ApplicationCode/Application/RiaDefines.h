@@ -106,9 +106,6 @@ namespace RiaDefines
     QString wellPathFGResultName();
     QString wellPathSFGResultName();
 
-    // Well path casing shoe size
-    QString wellPathCasingShoeSizeChannelName();
-    
     // List of well path derived results
     std::vector<QString> wellPathAngleResultNames();
     std::vector<QString> wellPathStabilityResultNames();

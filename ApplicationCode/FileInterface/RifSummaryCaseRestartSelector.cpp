@@ -317,14 +317,6 @@ bool RifSummaryCaseRestartSelector::foundErrors() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const QStringList& RifSummaryCaseRestartSelector::summaryFilesWithErrors() const
-{
-    return m_summaryFileErrors;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 QString RifSummaryCaseRestartSelector::createCombinedErrorMessage() const
 {
     QString errorMessage;
@@ -342,25 +334,6 @@ QString RifSummaryCaseRestartSelector::createCombinedErrorMessage() const
         }
     }
     return errorMessage;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-QStringList RifSummaryCaseRestartSelector::getSummaryFilesFromGridFiles(const QStringList& gridFiles)
-{
-    QStringList summaryFiles;
-
-    // Find summary header file names from eclipse case file names
-    for (const auto& gridFile : gridFiles)
-    {
-        QString sumFile = getSummaryFileFromGridFile(gridFile);
-        if (!sumFile.isEmpty())
-        {
-            summaryFiles.push_back(sumFile);
-        }
-    }
-    return summaryFiles;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -43,21 +43,6 @@ double RigGeoMechBoreHoleStressCalculator::solveStassiDalia(double* thetaOut)
 }
 
 //--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-cvf::Vec3d RigGeoMechBoreHoleStressCalculator::principleStressesAtWall(double pw, double theta) const
-{
-    cvf::Vec4d stressComponentsForAngle = calculateStressComponentsForSegmentAngle(theta);
-    double sigma_theta = stressComponentsForAngle[1] - pw;
-    const double& sigma_z = stressComponentsForAngle[2];
-    double tauSqrx4 = std::pow(stressComponentsForAngle[3], 2) * 4.0;
-
-    double sigmaComponent1 = sigma_z + sigma_theta;
-    double sigmaComponent2 = std::sqrt(std::pow(sigma_z - sigma_theta, 2) + tauSqrx4);    
-    return cvf::Vec3d(pw - m_porePressure, 0.5 * (sigmaComponent1 + sigmaComponent2) - m_porePressure, 0.5 * (sigmaComponent1 - sigmaComponent2) - m_porePressure);
-}
-
-//--------------------------------------------------------------------------------------------------
 /// Bi-section root finding method: https://en.wikipedia.org/wiki/Bisection_method
 /// Used as fall-back in case the secant method doesn't converge.
 //--------------------------------------------------------------------------------------------------

@@ -68,9 +68,6 @@ public:
     static std::vector<RimWellLogFile*>             wellLogFilesContainingPressure(const QString& wellPathNameOrSimWellName);
     static RimWellLogFileChannel*                   getPressureChannelFromWellFile(const RimWellLogFile* wellLogFile);
     static RimWellPath*                             wellPathFromWellLogFile(const RimWellLogFile* wellLogFile);
-    static std::set<QDateTime>                      timeStepsFromRftCase(RimEclipseResultCase* rftCase, const QString& simWellName);
-    static std::set<QDateTime>                      timeStepsFromGridCase(RimEclipseCase* gridCase);
-    static QDateTime                                timeStepFromWellLogFile(RimWellLogFile* wellLogFile);
     static std::map<QDateTime, std::set<RifDataSourceForRftPlt>> timeStepsMapFromGridCase(RimEclipseCase* gridCase);
     static RiaRftPltCurveDefinition                 curveDefFromCurve(const RimWellLogCurve* curve);
 

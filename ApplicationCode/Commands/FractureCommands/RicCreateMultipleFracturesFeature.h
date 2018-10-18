@@ -51,7 +51,6 @@ private slots:
     void slotDeleteAndAppendFractures();
     void slotAppendFractures();
     void slotClose();
-    void slotCancel();
 
 private:
     virtual void onActionTriggered(bool isChecked) override;

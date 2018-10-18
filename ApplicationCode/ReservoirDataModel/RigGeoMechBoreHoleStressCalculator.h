@@ -30,7 +30,7 @@ public:
     RigGeoMechBoreHoleStressCalculator(const caf::Ten3d& tensor, double porePressure, double poissonRatio, double uniaxialCompressiveStrength, int nThetaSubSamples);
     double solveFractureGradient(double* thetaOut = nullptr);
     double solveStassiDalia(double* thetaOut = nullptr);
-    cvf::Vec3d principleStressesAtWall(double pw, double theta) const;
+
 private:
     typedef double (RigGeoMechBoreHoleStressCalculator::*MemberFunc)(double pw, double* thetaOut) const;
     double solveBisection(double minPw, double maxPw, MemberFunc fn, double* thetaOut);

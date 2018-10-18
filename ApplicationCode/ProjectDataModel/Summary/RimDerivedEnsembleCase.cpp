@@ -217,16 +217,6 @@ RimDerivedEnsembleCaseCollection * RimDerivedEnsembleCase::parentEnsemble() cons
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::pair<std::vector<time_t>, std::vector<double>> RimDerivedEnsembleCase::lookupCachedData(const RifEclipseSummaryAddress& address)
-{
-    auto itr = m_data.find(address);
-    if (itr == m_data.end()) return std::make_pair(std::vector<time_t>(), std::vector<double>());
-    return itr->second;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 void RimDerivedEnsembleCase::clearData(const RifEclipseSummaryAddress& address)
 {
     m_data.erase(address);

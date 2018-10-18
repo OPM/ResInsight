@@ -157,6 +157,5 @@ private:
     double                               m_secondOrderingValue;
 
 private:
-    static bool                          onlyOneIsDefaulted(double first, double second);
     static void                          copy(RigCompletionData& target, const RigCompletionData& from);
 };

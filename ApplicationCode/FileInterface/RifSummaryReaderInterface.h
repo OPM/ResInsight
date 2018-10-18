@@ -48,9 +48,7 @@ public:
 
     virtual std::string                             unitName(const RifEclipseSummaryAddress& resultAddress) const = 0;
 
-    // TODO: Move this to a tools class with static members
-    static std::vector<QDateTime>                   fromTimeT(const std::vector<time_t>& timeSteps);
-    
+   
     virtual void                                    markForCachePurge(const RifEclipseSummaryAddress& address) {}
 
 protected:

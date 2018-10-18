@@ -396,34 +396,6 @@ double RigCompletionData::secondOrderingValue() const
 //==================================================================================================
 ///
 //==================================================================================================
-bool RigCompletionData::onlyOneIsDefaulted(double first, double second)
-{
-    if (first == std::numeric_limits<double>::infinity())
-    {
-        if (second == std::numeric_limits<double>::infinity())
-        {
-            // Both have default values
-            return false;
-        }
-        else
-        {
-            // First has default value, second does not
-            return true;
-        }
-    }
-    if (second == std::numeric_limits<double>::infinity())
-    {
-        // Second has default value, first does not
-        return true;
-    }
-
-    // Neither has default values
-    return false;
-}
-
-//==================================================================================================
-///
-//==================================================================================================
 void RigCompletionData::copy(RigCompletionData& target, const RigCompletionData& from)
 {
     target.m_metadata            = from.m_metadata;

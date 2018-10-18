@@ -596,7 +596,6 @@ void RiuMainWindow::createToolBars()
     // Create animation toolbar
     m_animationToolBar = new caf::AnimationToolBar("Animation", this);
     addToolBar(m_animationToolBar);
-    //connect(m_animationToolBar, SIGNAL(signalFrameRateChanged(double)), SLOT(slotFramerateChanged(double)));
 
     refreshAnimationActions();
     refreshDrawStyleActions();
@@ -1284,22 +1283,6 @@ void RiuMainWindow::slotSubWindowActivated(QMdiSubWindow* subWindow)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindow::slotUseShaders(bool enable)
-{
-    RiaApplication::instance()->setUseShaders(enable);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiuMainWindow::slotShowPerformanceInfo(bool enable)
-{
-    RiaApplication::instance()->setShowPerformanceInfo(enable);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 void RiuMainWindow::setActiveViewer(QWidget* viewer)
 {
    m_blockSlotSubWindowActivated = true;
@@ -1308,17 +1291,6 @@ void RiuMainWindow::setActiveViewer(QWidget* viewer)
    if (swin) m_mdiArea->setActiveSubWindow(swin);
    
    m_blockSlotSubWindowActivated = false;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiuMainWindow::slotFramerateChanged(double frameRate)
-{
-    if (RiaApplication::instance()->activeReservoirView() != nullptr)
-    {
-        RiaApplication::instance()->activeReservoirView()->maximumFrameRate.setValueWithFieldChanged(frameRate);
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

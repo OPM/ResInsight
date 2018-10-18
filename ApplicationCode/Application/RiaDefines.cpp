@@ -416,14 +416,6 @@ QString RiaDefines::wellPathSFGResultName()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiaDefines::wellPathCasingShoeSizeChannelName()
-{
-    return "CASING_SIZE";
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 std::vector<QString> RiaDefines::wellPathAngleResultNames()
 {
     return { RiaDefines::wellPathAzimuthResultName(), RiaDefines::wellPathInclinationResultName() };

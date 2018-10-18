@@ -53,7 +53,6 @@ public:
 
     RimIdenticalGridCaseGroup*                          createIdenticalCaseGroupFromMainCase(RimEclipseCase* mainCase);
     void                                                insertCaseInCaseGroup(RimIdenticalGridCaseGroup* caseGroup, RimEclipseCase* rimReservoir);
-    void                                                moveEclipseCaseIntoCaseGroup(RimEclipseCase* rimReservoir);
     void                                                removeCaseFromAllGroups(RimEclipseCase* rimReservoir);
 
     void                                                recomputeStatisticsForAllCaseGroups();

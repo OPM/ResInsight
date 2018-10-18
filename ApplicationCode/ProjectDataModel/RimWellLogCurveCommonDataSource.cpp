@@ -124,14 +124,6 @@ void RimWellLogCurveCommonDataSource::setBranchIndexToApply(int val)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::Tristate RimWellLogCurveCommonDataSource::branchDetectionToApply() const
-{
-    return m_branchDetection.v();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimWellLogCurveCommonDataSource::setBranchDetectionToApply(caf::Tristate::State val)
 {
     m_branchDetection.v() = val;

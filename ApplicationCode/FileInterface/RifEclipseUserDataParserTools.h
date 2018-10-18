@@ -145,7 +145,6 @@ public:
     static bool                                         isLineSkippable(const std::string& line);
     static bool                                         isAComment(const std::string& word);
     static std::vector<std::string>                     splitLineAndRemoveComments(const std::string& line);
-    static RifEclipseSummaryAddress::SummaryVarCategory identifyCategory(const std::string& word);
     static std::vector<double>                          splitLineToDoubles(const std::string& line);
     static size_t                                       findFirstNonEmptyEntryIndex(std::vector<std::string>& list);
     static bool                                         keywordParser(const std::string& line, std::string& origin, std::string& dateFormat, std::string& startDate);
@@ -162,11 +161,10 @@ public:
     // Fixed width functions
 
     static bool                                         isFixedWidthHeader(const std::string& lines);
-    static bool                                         hasCompleteDataForAllHeaderColumns(const std::string& lines);
-    static std::vector<Column>                      columnInfoForFixedColumnWidth(std::stringstream& streamData);
+    static std::vector<Column>                          columnInfoForFixedColumnWidth(std::stringstream& streamData);
     static std::vector<std::string>                     findValidHeaderLines(std::stringstream& streamData);
     static std::vector<std::vector<std::string>>        splitIntoColumnHeaders(const std::vector<std::string>& headerLines);
-    static std::vector<Column>                      columnInfoFromColumnHeaders(const std::vector<std::vector<std::string>>& columnData);
+    static std::vector<Column>                          columnInfoFromColumnHeaders(const std::vector<std::vector<std::string>>& columnData);
     static std::vector<size_t>                          columnIndexForWords(const std::string& line);
 
     static std::vector<TableData>                       mergeEqualTimeSteps(const std::vector<TableData>& tables);

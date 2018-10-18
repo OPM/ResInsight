@@ -67,38 +67,6 @@
 //--------------------------------------------------------------------------------------------------
 /// Internal functions
 //--------------------------------------------------------------------------------------------------
-std::vector<std::vector<std::pair<RifRestartFileInfo, QString>>> removeCommonRootPath(const std::vector<std::vector<RifRestartFileInfo>>& fileInfoLists)
-{
-    // Find common root path among all paths
-    QStringList allPaths;
-    for (const auto& fileInfoList : fileInfoLists)
-    {
-        for (const auto fi : fileInfoList) allPaths.push_back(fi.fileName);
-    }
-    QString commonRoot = RiaFilePathTools::commonRootPath(allPaths);
-    int commonRootSize = commonRoot.size();
-
-    // Build output lists
-    std::vector<std::vector<std::pair<RifRestartFileInfo, QString>>> output;
-    for (const auto& fileInfoList : fileInfoLists)
-    {
-        std::vector<std::pair<RifRestartFileInfo, QString>> currList;
-
-        for (auto& fi : fileInfoList)
-        {
-            std::pair<RifRestartFileInfo, QString> newFi;
-            newFi = std::make_pair(fi, fi.fileName);
-            newFi.first.fileName.remove(0, commonRootSize);
-            currList.push_back(newFi);
-        }
-        output.push_back(currList);
-    }
-    return output;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// Internal functions
-//--------------------------------------------------------------------------------------------------
 std::vector<std::vector<std::pair<RifRestartFileInfo, QString>>> makeShortPath(const std::vector<std::vector<RifRestartFileInfo>>& fileInfoLists)
 {
     // Build output lists

@@ -81,12 +81,10 @@ public:
 
     std::vector<QDateTime>                             allTimeStepDatesFromEclipseReader() const;
     std::vector<QDateTime>                             timeStepDates() const;
-    QDateTime                                          timeStepDate(size_t scalarResultIndex, size_t timeStepIndex) const;
     std::vector<QDateTime>                             timeStepDates(size_t scalarResultIndex) const;
     std::vector<double>                                daysSinceSimulationStart() const;
     std::vector<double>                                daysSinceSimulationStart(size_t scalarResultIndex) const;
     int                                                reportStepNumber(size_t scalarResultIndex, size_t timeStepIndex) const;
-    std::vector<int>                                   reportStepNumbers(size_t scalarResultIndex) const;
     
     std::vector<RigEclipseTimeStepInfo>                timeStepInfos(size_t scalarResultIndex) const;
     void                                               setTimeStepInfos(size_t scalarResultIndex, const std::vector<RigEclipseTimeStepInfo>& timeStepInfos);

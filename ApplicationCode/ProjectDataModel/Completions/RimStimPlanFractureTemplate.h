@@ -104,7 +104,6 @@ private:
     bool                                    setBorderPolygonResultNameToDefault();
     void                                    computeDepthOfWellPathAtFracture();
     void                                    computePerforationLength();
-    QString                                 getUnitForStimPlanParameter(QString parameterName);
 
     std::vector<double>                     fractureGridResultsForUnitSystem(const QString& resultName, const QString& unitName, size_t timeStepIndex, RiaEclipseUnitTools::UnitSystem requiredUnitSystem) const;
 

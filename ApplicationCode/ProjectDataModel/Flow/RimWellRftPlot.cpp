@@ -587,14 +587,6 @@ void RimWellRftPlot::setSimWellOrWellPathName(const QString& currWellName)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimWellRftPlot::simWellOrWellPathName() const
-{
-    return m_wellPathNameOrSimWellName;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 int RimWellRftPlot::branchIndex() const
 {
     return m_branchIndex;

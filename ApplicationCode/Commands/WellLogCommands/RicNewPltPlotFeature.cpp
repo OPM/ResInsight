@@ -141,15 +141,6 @@ void RicNewPltPlotFeature::setupActionLook(QAction* actionToSetup)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimWellLogTrack* RicNewPltPlotFeature::selectedWellLogPlotTrack() const
-{
-    auto selection = caf::selectedObjectsByType<RimWellLogTrack*>();
-    return selection.size() > 0 ? selection[0] : nullptr;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 RimWellPath* RicNewPltPlotFeature::selectedWellPath() const
 {
     auto selection = caf::selectedObjectsByType<RimWellPath*>();

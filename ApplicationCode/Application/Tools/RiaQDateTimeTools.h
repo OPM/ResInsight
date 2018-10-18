@@ -89,9 +89,7 @@ public:
     static QDateTime createUtcDateTime(const QDate& date, const QTime& time);
     static QDateTime createUtcDateTime(const QDateTime& dt);
 
-    static bool      equalTo(const QDateTime& dt1, const QDateTime& dt2);
     static bool      lessThan(const QDateTime& dt1, const QDateTime& dt2);
-    static bool      lessThanOrEqualTo(const QDateTime& dt1, const QDateTime& dt2);
 
     static const DateTimeSpan   timeSpan(DateTimePeriod period);
     static QDateTime            truncateTime(const QDateTime& dt, DateTimePeriod period);

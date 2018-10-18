@@ -387,30 +387,6 @@ void RimStimPlanFractureTemplate::computePerforationLength()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimStimPlanFractureTemplate::getUnitForStimPlanParameter(QString parameterName)
-{
-    QString unit;
-    bool    found         = false;
-    bool    foundMultiple = false;
-
-    for (std::pair<QString, QString> nameUnit : uiResultNamesWithUnit())
-    {
-        if (nameUnit.first == parameterName)
-        {
-            unit = nameUnit.second;
-            if (found) foundMultiple = true;
-            found = true;
-        }
-    }
-
-    if (foundMultiple) RiaLogging::error(QString("Multiple units found for same parameter"));
-    if (!found) RiaLogging::error(QString("Requested unit / parameter not found for %1 template").arg(name()));
-    return unit;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 std::vector<double>
     RimStimPlanFractureTemplate::fractureGridResultsForUnitSystem(const QString&                  resultName,
                                                                   const QString&                  unitName,

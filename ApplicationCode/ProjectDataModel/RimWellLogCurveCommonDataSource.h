@@ -49,7 +49,6 @@ public:
     RimWellPath* wellPathToApply() const;
     void         setWellPathToApply(RimWellPath* val);
     void         setBranchIndexToApply(int val);
-    caf::Tristate branchDetectionToApply() const;
     void         setBranchDetectionToApply(caf::Tristate::State val);
     QString      simWellNameToApply() const;
     void         setSimWellNameToApply(const QString& val);

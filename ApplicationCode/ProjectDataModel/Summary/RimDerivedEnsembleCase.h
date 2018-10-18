@@ -71,7 +71,6 @@ public:
     RimDerivedEnsembleCaseCollection*           parentEnsemble() const;
 
 private:
-    std::pair<std::vector<time_t>, std::vector<double>> lookupCachedData(const RifEclipseSummaryAddress& address);
     void                                        clearData(const RifEclipseSummaryAddress& address);
 
     std::unique_ptr<RifDerivedEnsembleReader>   m_reader;

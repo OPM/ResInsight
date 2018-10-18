@@ -61,7 +61,6 @@ public:
     std::shared_ptr<RigCaseRealizationParameters> caseRealizationParameters() const;
     bool                hasCaseRealizationParameters() const;
     RimSummaryCaseCollection* ensemble() const;
-    bool                isEnsembleCase() const;
     void                copyFrom(const RimSummaryCase& rhs);
     bool                operator<(const RimSummaryCase& rhs) const;
 

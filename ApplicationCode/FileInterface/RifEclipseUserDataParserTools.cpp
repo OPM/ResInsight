@@ -535,33 +535,6 @@ bool RifEclipseUserDataParserTools::isFixedWidthHeader(const std::string& lines)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RifEclipseUserDataParserTools::hasCompleteDataForAllHeaderColumns(const std::string& lines)
-{
-    std::stringstream streamData(lines);
-
-    bool headerDataComplete = true;
-    {
-        auto headerLines = RifEclipseUserDataParserTools::findValidHeaderLines(streamData);
-        if (headerLines.size() > 0)
-        {
-            size_t wordsFirstLine = headerLines[0].size();
-
-            for (auto line : headerLines)
-            {
-                if (wordsFirstLine != line.size())
-                {
-                    headerDataComplete = false;
-                }
-            }
-        }
-    }
-
-    return headerDataComplete;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 std::vector<Column> RifEclipseUserDataParserTools::columnInfoForFixedColumnWidth(std::stringstream& streamData)
 {
     auto headerLines = RifEclipseUserDataParserTools::findValidHeaderLines(streamData);

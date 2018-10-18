@@ -471,23 +471,6 @@ void RifReaderEclipseSummary::buildMetaData()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-time_t getStartDate(ecl_file_type * header)
-{
-    time_t startDate = 0;
-    ecl_kw_type *startdat = ecl_file_iget_named_kw(header, STARTDAT_KW, 0);
-    if (startdat)
-    {
-        int * date = ecl_kw_get_int_ptr(startdat);
-        startDate = ecl_util_make_date(date[STARTDAT_DAY_INDEX],
-                                       date[STARTDAT_MONTH_INDEX],
-                                       date[STARTDAT_YEAR_INDEX]);
-    }
-    return startDate;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 RifRestartFileInfo RifReaderEclipseSummary::getRestartFile(const QString& headerFileName)
 {
     ecl_sum_type* ecl_sum = openEclSum(headerFileName, true);

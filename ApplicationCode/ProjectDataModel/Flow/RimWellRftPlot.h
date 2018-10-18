@@ -82,7 +82,6 @@ public:
     RimWellLogPlot*                                 wellLogPlot() const;
 
     void                                            setSimWellOrWellPathName(const QString& currWellName);
-    QString                                         simWellOrWellPathName() const;
     int                                             branchIndex() const;
 
     static const char*                              plotNameFormatString();

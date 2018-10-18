@@ -221,9 +221,6 @@ private slots:
     void slotShowWellCellsAction(bool doAdd);
 
     // Debug slots
-    void    slotUseShaders(bool enable);
-    void    slotShowPerformanceInfo(bool enable);
-    
     void    slotSnapshotAllViewsToFile();
 
     void    slotCreateCommandObject();
@@ -245,10 +242,6 @@ private slots:
 
     void    selectedObjectsChanged();
     void    customMenuRequested(const QPoint& pos);
-
-
-    // Animation slots
-    void    slotFramerateChanged(double frameRate);
 
     // Pdm System :
 public:
