@@ -88,7 +88,7 @@ class PdmUiFieldEditorHandle : public PdmUiEditorHandle
 public:
 
     PdmUiFieldEditorHandle();
-    ~PdmUiFieldEditorHandle();
+    ~PdmUiFieldEditorHandle() override;
 
     PdmUiFieldHandle*   uiField(); 
     void                setUiField(PdmUiFieldHandle* uiFieldHandle);

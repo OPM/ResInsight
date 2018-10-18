@@ -98,22 +98,22 @@ private:
 
     // Overrides from QAbstractItemModel
 
-    virtual QModelIndex     index(int row, int column, const QModelIndex &parentIndex = QModelIndex( )) const;
-    virtual QModelIndex     parent(const QModelIndex &index) const;
+    QModelIndex     index(int row, int column, const QModelIndex &parentIndex = QModelIndex( )) const override;
+    QModelIndex     parent(const QModelIndex &index) const override;
 
-    virtual int             rowCount(const QModelIndex &parentIndex = QModelIndex( ) ) const;
-    virtual int             columnCount(const QModelIndex &parentIndex = QModelIndex( ) ) const;
+    int             rowCount(const QModelIndex &parentIndex = QModelIndex( ) ) const override;
+    int             columnCount(const QModelIndex &parentIndex = QModelIndex( ) ) const override;
 
-    virtual QVariant        data(const QModelIndex &index, int role = Qt::DisplayRole ) const;
-    virtual bool            setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole);
-    virtual QVariant        headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole ) const;
+    QVariant        data(const QModelIndex &index, int role = Qt::DisplayRole ) const override;
+    bool            setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole) override;
+    QVariant        headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole ) const override;
 
-    virtual Qt::ItemFlags   flags(const QModelIndex &index) const;
+    Qt::ItemFlags   flags(const QModelIndex &index) const override;
 
-    virtual QStringList     mimeTypes() const;
-    virtual QMimeData*      mimeData(const QModelIndexList &indexes) const;
-    virtual bool            dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent);
-    virtual Qt::DropActions supportedDropActions() const;
+    QStringList     mimeTypes() const override;
+    QMimeData*      mimeData(const QModelIndexList &indexes) const override;
+    bool            dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent) override;
+    Qt::DropActions supportedDropActions() const override;
 };
 
 

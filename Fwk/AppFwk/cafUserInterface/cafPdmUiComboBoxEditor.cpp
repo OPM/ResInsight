@@ -210,7 +210,7 @@ public:
     //--------------------------------------------------------------------------------------------------
     /// 
     //--------------------------------------------------------------------------------------------------
-    void wheelEvent(QWheelEvent *e)
+    void wheelEvent(QWheelEvent *e) override
     {
         if (hasFocus())
         {
@@ -227,7 +227,7 @@ protected:
     //--------------------------------------------------------------------------------------------------
     /// 
     //--------------------------------------------------------------------------------------------------
-    virtual void focusInEvent(QFocusEvent* e) override
+    void focusInEvent(QFocusEvent* e) override
     {
         setFocusPolicy(Qt::WheelFocus);
         QComboBox::focusInEvent(e);
@@ -236,7 +236,7 @@ protected:
     //--------------------------------------------------------------------------------------------------
     /// 
     //--------------------------------------------------------------------------------------------------
-    virtual void focusOutEvent(QFocusEvent* e) override
+    void focusOutEvent(QFocusEvent* e) override
     {
         setFocusPolicy(Qt::StrongFocus);
         QComboBox::focusOutEvent(e);

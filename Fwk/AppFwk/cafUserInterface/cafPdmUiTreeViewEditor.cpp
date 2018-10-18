@@ -65,7 +65,7 @@ class PdmUiTreeViewWidget : public QTreeView
 {
 public:
     explicit PdmUiTreeViewWidget(QWidget* parent = nullptr) : QTreeView(parent) {};
-    virtual ~PdmUiTreeViewWidget() {};
+    ~PdmUiTreeViewWidget() override {};
 
     bool isTreeItemEditWidgetActive() const
     {
@@ -73,7 +73,7 @@ public:
     }
 
 protected:
-    virtual void dragMoveEvent(QDragMoveEvent* event)
+    void dragMoveEvent(QDragMoveEvent* event) override
     {
         caf::PdmUiTreeViewQModel* treeViewModel = dynamic_cast<caf::PdmUiTreeViewQModel*>(model());
         if (treeViewModel && treeViewModel->dragDropInterface())
@@ -84,7 +84,7 @@ protected:
         QTreeView::dragMoveEvent(event);
     }
 
-    virtual void dragLeaveEvent(QDragLeaveEvent* event)
+    void dragLeaveEvent(QDragLeaveEvent* event) override
     {
         caf::PdmUiTreeViewQModel* treeViewModel = dynamic_cast<caf::PdmUiTreeViewQModel*>(model());
         if (treeViewModel && treeViewModel->dragDropInterface())

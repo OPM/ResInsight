@@ -27,7 +27,7 @@ class MainWindow : public QMainWindow
 
 public:
     MainWindow();
-    ~MainWindow();
+    ~MainWindow() override;
 
     static MainWindow* instance();
     void setPdmRoot(caf::PdmObjectHandle* pdmRoot);

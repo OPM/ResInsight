@@ -66,7 +66,7 @@ class CustomObjectEditor : public PdmUiFormLayoutObjectEditor
     Q_OBJECT
 public:
     CustomObjectEditor();
-    ~CustomObjectEditor();
+    ~CustomObjectEditor() override;
 
     void defineGridLayout(int rowCount, int columnCount);
 
@@ -77,8 +77,8 @@ public:
     void addBlankCell(int row, int column);
 
 private:
-    virtual QWidget*    createWidget(QWidget* parent) override;
-    virtual void        recursivelyConfigureAndUpdateTopLevelUiOrdering(const PdmUiOrdering& topLevelUiOrdering,
+    QWidget*    createWidget(QWidget* parent) override;
+    void        recursivelyConfigureAndUpdateTopLevelUiOrdering(const PdmUiOrdering& topLevelUiOrdering,
                                                                         const QString& uiConfigName) override;
 
     bool                isAreaAvailable(int row, int column, int rowSpan, int columnSpan) const;

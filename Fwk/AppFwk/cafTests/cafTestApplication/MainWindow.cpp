@@ -116,12 +116,12 @@ public:
 
     
     caf::PdmField<bool>     m_toggleField;
-    virtual caf::PdmFieldHandle* objectToggleField() 
+    caf::PdmFieldHandle* objectToggleField() override 
     {
         return &m_toggleField;
     }
 
-    virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) 
+    void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override 
     {
         if (changedField == &m_toggleField)
         {
@@ -136,7 +136,7 @@ public:
     //--------------------------------------------------------------------------------------------------
     /// 
     //--------------------------------------------------------------------------------------------------
-    virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override
+    QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override
     {
         QList<caf::PdmOptionItemInfo> options;
 
@@ -201,7 +201,7 @@ public:
     //--------------------------------------------------------------------------------------------------
     /// 
     //--------------------------------------------------------------------------------------------------
-    virtual void defineCustomContextMenu(const caf::PdmFieldHandle* fieldNeedingMenu,
+    void defineCustomContextMenu(const caf::PdmFieldHandle* fieldNeedingMenu,
                                          QMenu* menu,
                                          QWidget* fieldEditorWidget) override
     {
@@ -216,7 +216,7 @@ protected:
     //--------------------------------------------------------------------------------------------------
     /// 
     //--------------------------------------------------------------------------------------------------
-    virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override
+    void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override
     {
         uiOrdering.add(&m_doubleField);
         uiOrdering.add(&m_intField);
@@ -323,7 +323,7 @@ protected:
     //--------------------------------------------------------------------------------------------------
     /// 
     //--------------------------------------------------------------------------------------------------
-    virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override
+    void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override
     {
         uiOrdering.add(&m_intFieldStandard);
         uiOrdering.add(&m_intFieldUseFullSpace, caf::PdmUiOrdering::LayoutOptions(true, caf::PdmUiOrdering::LayoutOptions::MAX_COLUMN_SPAN, caf::PdmUiOrdering::LayoutOptions::MAX_COLUMN_SPAN));
@@ -431,12 +431,12 @@ public:
     caf::PdmField<bool>     m_toggleField;
     caf::PdmField<bool>     m_pushButtonField;
 
-    virtual caf::PdmFieldHandle* objectToggleField() 
+    caf::PdmFieldHandle* objectToggleField() override 
     {
         return &m_toggleField;
     }
 
-    virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) 
+    void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override 
     {
         if (changedField == &m_toggleField)
         {
@@ -452,7 +452,7 @@ public:
         }
     }
 
-    virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly)
+    QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override
     {
         QList<caf::PdmOptionItemInfo> options;
        
@@ -500,7 +500,7 @@ public:
     //--------------------------------------------------------------------------------------------------
     /// 
     //--------------------------------------------------------------------------------------------------
-    virtual caf::PdmFieldHandle* userDescriptionField()
+    caf::PdmFieldHandle* userDescriptionField() override
     {
         return &m_textField;
     }
@@ -509,7 +509,7 @@ protected:
     //--------------------------------------------------------------------------------------------------
     /// 
     //--------------------------------------------------------------------------------------------------
-    virtual void defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override
+    void defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override
     {
         if (field == &m_multipleAppEnum)
         {
@@ -533,7 +533,7 @@ protected:
     //--------------------------------------------------------------------------------------------------
     /// 
     //--------------------------------------------------------------------------------------------------
-    virtual void defineObjectEditorAttribute(QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override
+    void defineObjectEditorAttribute(QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override
     {
         caf::PdmUiTableViewPushButtonEditorAttribute* attr = dynamic_cast<caf::PdmUiTableViewPushButtonEditorAttribute*>(attribute);
         if (attr)
@@ -598,7 +598,7 @@ public:
     //--------------------------------------------------------------------------------------------------
     /// 
     //--------------------------------------------------------------------------------------------------
-    virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) 
+    void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override 
     {
         uiOrdering.add(&m_objectListOfSameType);
         uiOrdering.add(&m_ptrField);
@@ -616,7 +616,7 @@ public:
     //--------------------------------------------------------------------------------------------------
     /// 
     //--------------------------------------------------------------------------------------------------
-    virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) 
+    QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override 
     {
         QList<caf::PdmOptionItemInfo> options;
         if (&m_multiSelectList == fieldNeedingOptions)
@@ -651,7 +651,7 @@ public:
     //--------------------------------------------------------------------------------------------------
     /// 
     //--------------------------------------------------------------------------------------------------
-    virtual caf::PdmFieldHandle* userDescriptionField() 
+    caf::PdmFieldHandle* userDescriptionField() override 
     {
         return &m_textField;
     }
@@ -679,12 +679,12 @@ public:
 
     MenuItemProducer* m_menuItemProducer;
 
-    virtual caf::PdmFieldHandle* objectToggleField() 
+    caf::PdmFieldHandle* objectToggleField() override 
     {
         return &m_toggleField;
     }
 
-    virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) 
+    void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override 
     {
        if (changedField == &m_toggleField)
        {
@@ -696,7 +696,7 @@ public:
     //--------------------------------------------------------------------------------------------------
     /// 
     //--------------------------------------------------------------------------------------------------
-    virtual void onEditorWidgetsCreated() override
+    void onEditorWidgetsCreated() override
     {
         for (auto e : m_longText.uiCapability()->connectedEditors())
         {
@@ -720,7 +720,7 @@ protected:
     //--------------------------------------------------------------------------------------------------
     /// 
     //--------------------------------------------------------------------------------------------------
-    virtual void defineCustomContextMenu(const caf::PdmFieldHandle* fieldNeedingMenu, QMenu* menu, QWidget* fieldEditorWidget) override
+    void defineCustomContextMenu(const caf::PdmFieldHandle* fieldNeedingMenu, QMenu* menu, QWidget* fieldEditorWidget) override
     {
         if (fieldNeedingMenu == &m_objectListOfSameType)
         {

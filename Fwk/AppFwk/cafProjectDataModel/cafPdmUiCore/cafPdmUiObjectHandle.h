@@ -20,7 +20,7 @@ class PdmUiObjectHandle : public PdmUiItem, public PdmObjectCapability
 {
 public:
     PdmUiObjectHandle(PdmObjectHandle* owner, bool giveOwnership);
-    virtual ~PdmUiObjectHandle() { }
+    ~PdmUiObjectHandle() override { }
 
     PdmObjectHandle*        objectHandle()       { return m_owner; }
     const PdmObjectHandle*  objectHandle() const { return m_owner; }

@@ -27,7 +27,7 @@ class PdmXmlObjectHandle : public PdmObjectCapability
 public:
 
     PdmXmlObjectHandle(PdmObjectHandle* owner, bool giveOwnership);
-    virtual ~PdmXmlObjectHandle() { }
+    ~PdmXmlObjectHandle() override { }
 
     /// The classKeyword method is overridden in subclasses by the CAF_PDM_XML_HEADER_INIT macro
     virtual QString         classKeyword() const = 0;

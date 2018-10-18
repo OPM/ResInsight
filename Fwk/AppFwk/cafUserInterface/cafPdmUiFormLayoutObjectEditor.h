@@ -63,15 +63,15 @@ class PdmUiFormLayoutObjectEditor : public PdmUiObjectEditorHandle
     Q_OBJECT
 public:
     PdmUiFormLayoutObjectEditor();
-    ~PdmUiFormLayoutObjectEditor();
+    ~PdmUiFormLayoutObjectEditor() override;
 
 protected:
     /// When overriding this function, use findOrCreateGroupBox() or findOrCreateFieldEditor() for detailed control
     /// Use recursivelyConfigureAndUpdateUiItemsInGridLayoutColumn() for automatic layout of group and field widgets
-    virtual void            recursivelyConfigureAndUpdateTopLevelUiOrdering(const PdmUiOrdering& topLevelUiOrdering,
-                                                                         const QString& uiConfigName) = 0;
+    virtual void    recursivelyConfigureAndUpdateTopLevelUiOrdering(const PdmUiOrdering& topLevelUiOrdering,
+                                                                    const QString& uiConfigName) = 0;
     
-    void                    recursivelyConfigureAndUpdateUiOrderingInGridLayoutColumn(const PdmUiOrdering& uiOrdering,
+    void            recursivelyConfigureAndUpdateUiOrderingInGridLayoutColumn(const PdmUiOrdering& uiOrdering,
                                                                                       QWidget* containerWidgetWithGridLayout,
                                                                                       const QString& uiConfigName);
 
@@ -79,17 +79,17 @@ protected:
     PdmUiFieldEditorHandle* findOrCreateFieldEditor(QWidget* parent, PdmUiFieldHandle* field, const QString& uiConfigName);
 
 private slots:
-    void                    groupBoxExpandedStateToggled(bool isExpanded);
+    void            groupBoxExpandedStateToggled(bool isExpanded);
 
 private:
-    bool                    isUiGroupExpanded(const PdmUiGroup* uiGroup) const;
-    virtual void            cleanupBeforeSettingPdmObject() override;
-    virtual void            configureAndUpdateUi(const QString& uiConfigName) override;
+    bool            isUiGroupExpanded(const PdmUiGroup* uiGroup) const;
+    void            cleanupBeforeSettingPdmObject() override;
+    void            configureAndUpdateUi(const QString& uiConfigName) override;
     
-    static void             recursiveVerifyUniqueNames(const std::vector<PdmUiItem*>& uiItems,
-                                                       const QString& uiConfigName,
-                                                       std::set<QString>* fieldKeywordNames,
-                                                       std::set<QString>* groupNames);
+    static void     recursiveVerifyUniqueNames(const std::vector<PdmUiItem*>& uiItems,
+                                               const QString& uiConfigName,
+                                               std::set<QString>* fieldKeywordNames,
+                                               std::set<QString>* groupNames);
 
 private:
     std::map<PdmFieldHandle*, PdmUiFieldEditorHandle*>  m_fieldViews; 

@@ -72,7 +72,7 @@ class PdmUiDoubleValueEditor : public PdmUiFieldEditorHandle
 
 public:
     PdmUiDoubleValueEditor();
-    virtual ~PdmUiDoubleValueEditor();
+    ~PdmUiDoubleValueEditor() override;
 
 protected:
     void     configureAndUpdateUi(const QString& uiConfigName) override;

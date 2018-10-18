@@ -54,7 +54,7 @@ class PdmUiEditorHandle : public QObject
 {
 public:
     PdmUiEditorHandle();
-    virtual ~PdmUiEditorHandle();
+    ~PdmUiEditorHandle() override;
 
 public:
     void        updateUi(const QString& uiConfigName);;
@@ -92,7 +92,7 @@ class PdmUiProxyEditorHandle: public PdmUiEditorHandle
 {
 public:
     explicit PdmUiProxyEditorHandle(PdmUiEditorHandle* mainEditorHandle) : PdmUiEditorHandle() { m_mainEditorHandle = mainEditorHandle; }
-    virtual ~PdmUiProxyEditorHandle() {};
+    ~PdmUiProxyEditorHandle() override {};
 
 protected: // Interface to override:
 

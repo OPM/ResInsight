@@ -52,7 +52,7 @@ class PdmUiTableRowEditor : public PdmUiEditorHandle
 {
 public:
     PdmUiTableRowEditor(PdmUiTableViewQModel* model, caf::PdmObjectHandle* pdmObject, int row);
-    virtual ~PdmUiTableRowEditor();
+    ~PdmUiTableRowEditor() override;
 
 protected:
     void configureAndUpdateUi(const QString& uiConfigName) override;

@@ -116,7 +116,7 @@ class PdmUiTableViewEditor : public PdmUiFieldEditorHandle, public SelectionChan
 
 public:
     PdmUiTableViewEditor();
-    ~PdmUiTableViewEditor();
+    ~PdmUiTableViewEditor() override;
 
     void            enableHeaderText(bool enable);
     void            setTableSelectionLevel(int selectionLevel);
@@ -128,16 +128,16 @@ public:
 protected:
     QWidget*        createEditorWidget(QWidget * parent) override;
     QWidget*        createLabelWidget(QWidget * parent) override;
-    virtual void    configureAndUpdateUi(const QString& uiConfigName) override;
+    void            configureAndUpdateUi(const QString& uiConfigName) override;
 
-    virtual void    onSelectionManagerSelectionChanged( const std::set<int>& changedSelectionLevels ) override;
+    void            onSelectionManagerSelectionChanged( const std::set<int>& changedSelectionLevels ) override;
 
 private:
     void            selectedUiItems(const QModelIndexList& modelIndexList, std::vector<PdmUiItem*>& objects);
     bool            isSelectionRoleDefined() const;
     void            updateSelectionManagerFromTableSelection();
 
-    bool            eventFilter(QObject* obj, QEvent* event);
+    bool            eventFilter(QObject* obj, QEvent* event) override;
     PdmChildArrayFieldHandle* childArrayFieldHandle();
 
 private slots:

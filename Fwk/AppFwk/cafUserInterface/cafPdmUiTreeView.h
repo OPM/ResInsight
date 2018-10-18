@@ -62,7 +62,7 @@ class PdmUiTreeView : public QWidget
     Q_OBJECT
 public:
     PdmUiTreeView(QWidget* parent = nullptr, Qt::WindowFlags f = nullptr);
-    ~PdmUiTreeView();
+    ~PdmUiTreeView() override;
 
     void        enableDefaultContextMenu(bool enable);
     void        enableSelectionManagerUpdating(bool enable); // TODO: rename

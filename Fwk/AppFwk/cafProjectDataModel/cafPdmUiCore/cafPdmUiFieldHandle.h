@@ -12,7 +12,7 @@ class PdmUiFieldHandle : public PdmUiItem, public PdmFieldCapability, public Pdm
 {
 public:
     PdmUiFieldHandle(PdmFieldHandle* owner, bool giveOwnership);
-    virtual ~PdmUiFieldHandle();
+    ~PdmUiFieldHandle() override;
 
     PdmFieldHandle* fieldHandle();
 

@@ -78,13 +78,13 @@ class CmdSelectionChangeExec : public CmdExecuteCommand
 {
 public:
     explicit CmdSelectionChangeExec(NotificationCenter* notificationCenter);
-    virtual ~CmdSelectionChangeExec();;
+    ~CmdSelectionChangeExec() override;;
 
     CmdSelectionChangeExecData* commandData();
 
-    virtual QString name();
-    virtual void redo();
-    virtual void undo();
+    QString name() override;
+    void redo() override;
+    void undo() override;
 
 private:
     CmdSelectionChangeExecData* m_commandData;

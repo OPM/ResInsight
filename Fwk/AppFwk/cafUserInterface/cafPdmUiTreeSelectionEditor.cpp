@@ -69,7 +69,7 @@ public:
     //--------------------------------------------------------------------------------------------------
     /// 
     //--------------------------------------------------------------------------------------------------
-    virtual QSize sizeHint() const override
+    QSize sizeHint() const override
     {
         QSize mySize = QTreeView::sizeHint();
 
@@ -109,7 +109,7 @@ protected:
     //--------------------------------------------------------------------------------------------------
     /// 
     //--------------------------------------------------------------------------------------------------
-    virtual bool filterAcceptsRow(int source_row, const QModelIndex& source_parent) const override
+    bool filterAcceptsRow(int source_row, const QModelIndex& source_parent) const override
     {
         QModelIndex index = sourceModel()->index(source_row, 0, source_parent);
 
@@ -141,7 +141,7 @@ private:
     //--------------------------------------------------------------------------------------------------
     /// 
     //--------------------------------------------------------------------------------------------------
-    virtual void paintEvent(QPaintEvent* paintEvent) override
+    void paintEvent(QPaintEvent* paintEvent) override
     {
         QPainter p(this);
 

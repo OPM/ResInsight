@@ -60,11 +60,11 @@ class PdmUiDefaultObjectEditor : public PdmUiFormLayoutObjectEditor
     Q_OBJECT
 public:
     PdmUiDefaultObjectEditor();
-    ~PdmUiDefaultObjectEditor();
+    ~PdmUiDefaultObjectEditor() override;
 
 private:
-    virtual QWidget* createWidget(QWidget* parent) override;
-    virtual void     recursivelyConfigureAndUpdateTopLevelUiOrdering(const PdmUiOrdering& topLevelUiItems,
+    QWidget* createWidget(QWidget* parent) override;
+    void     recursivelyConfigureAndUpdateTopLevelUiOrdering(const PdmUiOrdering& topLevelUiItems,
                                                                      const QString& uiConfigName) override;
 
 };

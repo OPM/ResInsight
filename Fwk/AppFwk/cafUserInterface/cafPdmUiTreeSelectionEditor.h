@@ -92,12 +92,12 @@ class PdmUiTreeSelectionEditor : public PdmUiFieldEditorHandle
 
 public:
     PdmUiTreeSelectionEditor();
-    virtual ~PdmUiTreeSelectionEditor();
+    ~PdmUiTreeSelectionEditor() override;
 
 protected:
-    virtual void        configureAndUpdateUi(const QString& uiConfigName);
-    virtual QWidget*    createEditorWidget(QWidget* parent);
-    virtual QWidget*    createLabelWidget(QWidget* parent);
+    void                configureAndUpdateUi(const QString& uiConfigName) override;
+    QWidget*            createEditorWidget(QWidget* parent) override;
+    QWidget*            createLabelWidget(QWidget* parent) override;
     QMargins            calculateLabelContentMargins() const override;
 
 private slots:

@@ -71,7 +71,7 @@ public:
         computeNextValidId();
     }
 
-    virtual State validate(QString& currentString, int &) const
+    State validate(QString& currentString, int &) const override
     {
         if (m_multipleSelectionOfSameFieldsSelected)
         {
@@ -116,7 +116,7 @@ public:
         return QValidator::Acceptable;
     }
 
-    virtual void fixup(QString& editorText) const
+    void fixup(QString& editorText) const override
     {
         editorText = QString::number(m_nextValidValue);
     }

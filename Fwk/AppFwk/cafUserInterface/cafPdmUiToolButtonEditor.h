@@ -67,15 +67,15 @@ class PdmUiToolButtonEditor : public PdmUiFieldEditorHandle
 
 public:
     PdmUiToolButtonEditor()          {} 
-    virtual ~PdmUiToolButtonEditor() {} 
+    ~PdmUiToolButtonEditor() override {} 
 
 protected:
-    virtual QWidget*    createEditorWidget(QWidget * parent);
-    virtual QWidget*    createLabelWidget(QWidget * parent);
-    virtual void        configureAndUpdateUi(const QString& uiConfigName);
+    QWidget*    createEditorWidget(QWidget * parent) override;
+    QWidget*    createLabelWidget(QWidget * parent) override;
+    void        configureAndUpdateUi(const QString& uiConfigName) override;
 
 protected slots:
-    void                slotClicked(bool checked);
+    void        slotClicked(bool checked);
 
 private:
     QPointer<QToolButton> m_toolButton;

@@ -66,7 +66,7 @@ class MyStringListModel : public QStringListModel
 public:
     explicit MyStringListModel(QObject *parent = nullptr) : QStringListModel(parent), m_isItemsEditable(false)  { }
 
-    virtual Qt::ItemFlags flags (const QModelIndex& index) const
+    Qt::ItemFlags flags (const QModelIndex& index) const override
     {
         if (m_isItemsEditable)
             return Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsEditable;
@@ -98,7 +98,7 @@ public:
     //--------------------------------------------------------------------------------------------------
     /// 
     //--------------------------------------------------------------------------------------------------
-    virtual QSize sizeHint() const override
+    QSize sizeHint() const override
     {
         QSize mySize = QListView::sizeHint();
 

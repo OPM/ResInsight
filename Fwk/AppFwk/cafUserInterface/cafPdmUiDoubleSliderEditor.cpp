@@ -60,14 +60,14 @@ public:
     {
     }
 
-    ~PdmDoubleValidator()
+    ~PdmDoubleValidator() override
     {
     }
 
     //--------------------------------------------------------------------------------------------------
     /// 
     //--------------------------------------------------------------------------------------------------
-    virtual void fixup(QString& stringValue) const override
+    void fixup(QString& stringValue) const override
     {
         double doubleValue = stringValue.toDouble();
         doubleValue = qBound(bottom(), doubleValue, top());

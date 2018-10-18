@@ -50,8 +50,8 @@ class CmdUiCommandSystemImpl : public PdmUiCommandSystemInterface
 public:
     CmdUiCommandSystemImpl();
 
-    virtual void fieldChangedCommand(const std::vector<PdmFieldHandle*>& fieldsToUpdate, const QVariant& newUiValue);
-    virtual void populateMenuWithDefaultCommands(const QString& uiConfigName, QMenu* menu);
+    void fieldChangedCommand(const std::vector<PdmFieldHandle*>& fieldsToUpdate, const QVariant& newUiValue) override;
+    void populateMenuWithDefaultCommands(const QString& uiConfigName, QMenu* menu) override;
     
     bool isUndoEnabled();
     void enableUndoFeature(bool enable);

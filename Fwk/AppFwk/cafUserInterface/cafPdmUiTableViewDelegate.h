@@ -55,11 +55,11 @@ class PdmUiTableViewDelegate : public QStyledItemDelegate
 
 public:
     PdmUiTableViewDelegate(QObject* parent, PdmUiTableViewQModel* model);
-    ~PdmUiTableViewDelegate();
+    ~PdmUiTableViewDelegate() override;
 
-    QWidget*    createEditor(QWidget* parent, const QStyleOptionViewItem& option, const QModelIndex& index) const;
-    void        setEditorData(QWidget* editor, const QModelIndex& index) const;
-    void        updateEditorGeometry(QWidget* editor, const QStyleOptionViewItem& option, const QModelIndex& index) const;
+    QWidget*    createEditor(QWidget* parent, const QStyleOptionViewItem& option, const QModelIndex& index) const override;
+    void        setEditorData(QWidget* editor, const QModelIndex& index) const override;
+    void        updateEditorGeometry(QWidget* editor, const QStyleOptionViewItem& option, const QModelIndex& index) const override;
 
     bool        isEditorOpen() const;
 
@@ -67,7 +67,7 @@ public:
     void        slotEditorDestroyed(QObject* obj);
 
 protected:
-    virtual void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const override;
+    void        paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const override;
 
 private:
     PdmUiTableViewQModel* m_model;

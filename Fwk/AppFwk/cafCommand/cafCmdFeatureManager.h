@@ -60,7 +60,7 @@ class CmdFeatureManager : public QObject
 
 public:
     static CmdFeatureManager* instance();
-    virtual ~CmdFeatureManager();
+    ~CmdFeatureManager() override;
 
     QAction* action(const QString& commandId);
     QAction* action(const QString& commandId, const QString& customActionText);

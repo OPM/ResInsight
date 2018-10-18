@@ -14,7 +14,7 @@ class WidgetLayoutTest : public QWidget
 
 public:
     WidgetLayoutTest(QWidget* parent = nullptr, Qt::WindowFlags f = nullptr);
-    ~WidgetLayoutTest();
+    ~WidgetLayoutTest() override;
 
 private:
     QGridLayout* m_mainLayout;

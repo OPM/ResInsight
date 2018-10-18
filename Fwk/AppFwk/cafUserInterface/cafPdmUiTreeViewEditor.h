@@ -90,48 +90,48 @@ class PdmUiTreeViewEditor : public PdmUiTreeEditorHandle
     Q_OBJECT
 public:
     PdmUiTreeViewEditor();
-    ~PdmUiTreeViewEditor();
+    ~PdmUiTreeViewEditor() override;
 
-    void                enableDefaultContextMenu(bool enable);
-    void                enableSelectionManagerUpdating(bool enable);
+    void        enableDefaultContextMenu(bool enable);
+    void        enableSelectionManagerUpdating(bool enable);
     
-    void                enableAppendOfClassNameToUiItemText(bool enable);
-    bool                isAppendOfClassNameToUiItemTextEnabled();
+    void        enableAppendOfClassNameToUiItemText(bool enable);
+    bool        isAppendOfClassNameToUiItemTextEnabled();
 
-    QTreeView*          treeView();
-    bool                isTreeItemEditWidgetActive() const;
+    QTreeView*  treeView();
+    bool        isTreeItemEditWidgetActive() const;
 
-    void                selectAsCurrentItem(const PdmUiItem* uiItem);
-    void                selectedUiItems(std::vector<PdmUiItem*>& objects);
-    void                setExpanded(const PdmUiItem* uiItem, bool doExpand) const;
+    void        selectAsCurrentItem(const PdmUiItem* uiItem);
+    void        selectedUiItems(std::vector<PdmUiItem*>& objects);
+    void        setExpanded(const PdmUiItem* uiItem, bool doExpand) const;
 
-    PdmUiItem*          uiItemFromModelIndex(const QModelIndex& index) const;
-    QModelIndex         findModelIndex(const PdmUiItem* object) const;
+    PdmUiItem*  uiItemFromModelIndex(const QModelIndex& index) const;
+    QModelIndex findModelIndex(const PdmUiItem* object) const;
 
-    QWidget*            createWidget(QWidget* parent);
+    QWidget*    createWidget(QWidget* parent) override;
 
-    void                setDragDropInterface(PdmUiDragDropInterface* dragDropInterface);
+    void        setDragDropInterface(PdmUiDragDropInterface* dragDropInterface);
 
 signals:
-    void                selectionChanged();
+    void        selectionChanged();
 
 protected:
-    virtual void        configureAndUpdateUi(const QString& uiConfigName);
+    void        configureAndUpdateUi(const QString& uiConfigName) override;
 
-    virtual void        updateMySubTree(PdmUiItem* uiItem);
+    void        updateMySubTree(PdmUiItem* uiItem) override;
 
-    void                updateContextMenuSignals();
+    void        updateContextMenuSignals();
 
 private slots:
-    void                customMenuRequested(QPoint pos);
-    void                slotOnSelectionChanged(const QItemSelection & selected, const QItemSelection & deselected);
+    void        customMenuRequested(QPoint pos);
+    void        slotOnSelectionChanged(const QItemSelection & selected, const QItemSelection & deselected);
 
 private:
     PdmChildArrayFieldHandle* currentChildArrayFieldHandle();
 
-    void                updateSelectionManager();
+    void        updateSelectionManager();
 
-    virtual bool        eventFilter(QObject *obj, QEvent *event);
+    bool        eventFilter(QObject *obj, QEvent *event) override;
 
 private:
     QPointer<QWidget>               m_mainWidget;
