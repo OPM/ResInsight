@@ -48,7 +48,6 @@ public:
     int             groupId() const;
 
     void            setDoFillCurve(bool doFill);
-    bool            doFillCurve() const;
 
 protected:
     virtual QString createCurveAutoName() override;

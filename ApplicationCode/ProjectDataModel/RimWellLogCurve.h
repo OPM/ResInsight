@@ -38,7 +38,6 @@ public:
     RimWellLogCurve();
     virtual ~RimWellLogCurve();
 
-    bool                            depthRange(double* minimumDepth, double* maximumDepth) const;
     bool                            valueRange(double* minimumValue, double* maximumValue) const;
     
     const RigWellLogCurveData*      curveData() const;

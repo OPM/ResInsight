@@ -46,7 +46,6 @@ public:
     RiuSummaryVectorInfo                         vectorInfo(const std::string& vectorName);
     std::string                                  vectorLongName(const std::string& vectorName,
                                                                 bool returnVectorNameIfNotFound = false);
-    RifEclipseSummaryAddress::SummaryVarCategory vectorCategory(const std::string& vectorName);
 
 private:
     RiuSummaryVectorDescriptionMap();

@@ -83,9 +83,6 @@ bool RicEditSummaryPlotFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicEditSummaryPlotFeature::onActionTriggered(bool isChecked)
 {
-    RimProject* project = RiaApplication::instance()->project();
-    CVF_ASSERT(project);
-
     auto dialog = RicEditSummaryPlotFeature::curveCreatorDialog();
 
     if (!dialog->isVisible())

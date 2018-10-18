@@ -31,5 +31,4 @@ class RicEclipseWellFeatureImpl
 public:
     static bool                           isAnyWellSelected();
     static std::vector<RimSimWellInView*> selectedWells();
-    static RimSimWellInViewCollection*      wellCollectionFromSelection();
 };

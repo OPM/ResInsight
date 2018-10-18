@@ -168,36 +168,6 @@ void RiuSummaryQwtPlot::currentVisibleWindow(QwtInterval* leftAxis, QwtInterval*
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuSummaryQwtPlot::setZoomWindow(const QwtInterval& leftAxis, const QwtInterval& rightAxis, const QwtInterval& timeAxis)
-{
-    {
-        QRectF zoomWindow;
-        zoomWindow.setLeft(timeAxis.minValue());
-        zoomWindow.setRight(timeAxis.maxValue());
-        zoomWindow.setTop(leftAxis.maxValue());
-        zoomWindow.setBottom(leftAxis.minValue());
-
-        m_zoomerLeft->blockSignals(true);
-        m_zoomerLeft->zoom(zoomWindow);
-        m_zoomerLeft->blockSignals(false);
-    }
-
-    {
-        QRectF zoomWindow;
-        zoomWindow.setLeft(timeAxis.minValue());
-        zoomWindow.setRight(timeAxis.maxValue());
-        zoomWindow.setTop(rightAxis.maxValue());
-        zoomWindow.setBottom(rightAxis.minValue());
-
-        // No need to block signal since there is no connected slot
-        m_zoomerRight->zoom(zoomWindow);
-    }
-
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 void RiuSummaryQwtPlot::updateEnsembleLegendLayout()
 {
     const int spacing = 5;

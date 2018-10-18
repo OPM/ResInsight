@@ -57,14 +57,6 @@ RimWellLogCurve::~RimWellLogCurve()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-bool RimWellLogCurve::depthRange(double* minimumDepth, double* maximumDepth) const
-{
-    return yValueRange(minimumDepth, maximumDepth);
-}
-
-//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 bool RimWellLogCurve::valueRange(double* minimumValue, double* maximumValue) const

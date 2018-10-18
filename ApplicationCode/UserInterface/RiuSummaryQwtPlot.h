@@ -61,10 +61,6 @@ public:
                                                          QwtInterval* rightAxis,
                                                          QwtInterval* timeAxis) const;
 
-    void                            setZoomWindow(const QwtInterval& leftAxis,
-                                                  const QwtInterval& rightAxis,
-                                                  const QwtInterval& timeAxis);
-
     void                            addOrUpdateEnsembleCurveSetLegend(RimEnsembleCurveSet * curveSetToShowLegendFor);
     void                            removeEnsembleCurveSetLegend(RimEnsembleCurveSet * curveSetToShowLegendFor);
 

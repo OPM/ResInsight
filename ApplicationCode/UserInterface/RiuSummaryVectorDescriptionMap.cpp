@@ -84,14 +84,6 @@ std::string RiuSummaryVectorDescriptionMap::vectorLongName(const std::string& ve
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RifEclipseSummaryAddress::SummaryVarCategory RiuSummaryVectorDescriptionMap::vectorCategory(const std::string& vectorName)
-{
-    return vectorInfo(vectorName).category;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 RiuSummaryVectorDescriptionMap::RiuSummaryVectorDescriptionMap()
 {
     populateFieldToInfoMap();

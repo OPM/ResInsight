@@ -1,4 +1,7 @@
 
+2018-10-18 : Based on list of unused functions from cppcheck on build server
+
+
 Nothing to do
 -------------
 unchanged	ApplicationCode\UnitTests\ListKeywordsForObjectsAndFields-Test.cpp	16	style	unusedFunction	false	The function 'writeTextToFile' is never used.
@@ -43,7 +46,17 @@ unchanged	ApplicationCode\GeoMech\GeoMechDataModel\RigFemPartGrid.cpp	371	style	
 unchanged	ApplicationCode\GeoMech\GeoMechDataModel\RigFemPartGrid.cpp	362	style	unusedFunction	false	The function 'gridPointCountI' is never used.
 unchanged	ApplicationCode\GeoMech\GeoMechDataModel\RigFemPartGrid.cpp	497	style	unusedFunction	false	The function 'gridPointCoordinate' is never used.
 unchanged	ApplicationCode\Commands\HoloLensCommands\VdeArrayDataPacket.cpp	221	style	unusedFunction	false	The function 'fromRawPacketBuffer' is never used.
-
+unchanged	ApplicationCode\UserInterface\RiuWellLogPlot.cpp	520	style	unusedFunction	false	The function 'showEvent' is never used.
+unchanged	ApplicationCode\ProjectDataModel\Flow\RimWellPltPlot.cpp	1056	style	unusedFunction	false	The function 'setupBeforeSave' is never used.
+unchanged	ApplicationCode\Commands\ApplicationCommands\RicCloseProjectFeature.cpp	52	style	unusedFunction	false	The function 'setupActionLook' is never used.
+unchanged	ApplicationCode\ProjectDataModel\Completions\RimPerforationInterval.cpp	103	style	unusedFunction	false	The function 'enableCustomEndDate' is never used.
+unchanged	ApplicationCode\GeoMech\OdbReader\RifOdbReader.cpp	551	style	unusedFunction	false	The function 'elementSet' is never used.
+unchanged	ApplicationCode\FileInterface\RifJsonEncodeDecode.cpp	45	style	unusedFunction	false	The function 'dumpToFile' is never used.
+unchanged	ApplicationCode\FileInterface\RifEclipseSummaryTools.cpp	168	style	unusedFunction	false	The function 'dumpMetaData' is never used.
+unchanged	ApplicationCode\UserInterface\RiuDragDrop.cpp	254	style	unusedFunction	false	The function 'dropMimeData' is never used.
+unchanged	ApplicationCode\ProjectDataModel\RimWellPathAttribute.cpp	60	style	unusedFunction	false	The function 'diameterInInches' is never used.
+unchanged	ApplicationCode\ProjectDataModel\RimSummaryCalculationVariable.cpp	170	style	unusedFunction	false	The function 'defineObjectEditorAttribute' is never used.
+unchanged	ApplicationCode\Commands\FractureCommands\RicCreateMultipleFracturesUi.cpp	201	style	unusedFunction
 
 WIP
 ---
@@ -132,30 +145,19 @@ unchanged	ApplicationCode\ProjectDataModel\Summary\RimEnsembleCurveSet.cpp	748	s
 unchanged	ApplicationCode\FileInterface\RifSummaryReaderInterface.cpp	48	style	unusedFunction	false	The function 'fromTimeT' is never used.
 unchanged	ApplicationCode\ProjectDataModel\RimWellLogTrack.cpp	1209	style	unusedFunction	false	The function 'showWellPathAttributesBothSides' is never used.
 unchanged	ApplicationCode\ProjectDataModel\RimWellLogTrack.cpp	1585	style	unusedFunction	false	The function 'formationNameIndexToName' is never used.
+unchanged	ApplicationCode\Commands\CompletionCommands\RicExportFishbonesLateralsFeature.cpp	118	style	unusedFunction	false	The function 'formatNumber' is never used.
+unchanged	ApplicationCode\Commands\CompletionExportCommands\RicWellPathFractureTextReportFeatureImpl.cpp	57	style	unusedFunction	false	The function 'floatWithThreeDigits' is never used.
+unchanged	ApplicationCode\FileInterface\RifEclipseSummaryTools.cpp	105	style	unusedFunction	false	The function 'findSummaryDataFiles' is never used.
+unchanged	ApplicationCode\FileInterface\RifEclipseUserDataParserTools.cpp	159	style	unusedFunction	false	The function 'findFirstNonEmptyEntryIndex' is never used.
+unchanged	ApplicationCode\ReservoirDataModel\RigWellLogFile.cpp	271	style	unusedFunction	false	The function 'exportToLasFile' is never used.
+unchanged	ApplicationCode\Application\Tools\RiaQDateTimeTools.cpp	242	style	unusedFunction	false	The function 'equalTo' is never used.
+unchanged	ApplicationCode\UserInterface\RiuSummaryQwtPlot.cpp	171	style	unusedFunction	false	The function 'setZoomWindow' is never used.
+unchanged	ApplicationCode\ProjectDataModel\Flow\RimWellFlowRateCurve.cpp	119	style	unusedFunction	false	The function 'doFillCurve' is never used.
+unchanged	ApplicationCode\ProjectDataModel\RimWellLogCurve.cpp	62	style	unusedFunction	false	The function 'depthRange' is never used.
+unchanged	ApplicationCode\ProjectDataModel\Summary\RimSummaryCaseCollection.cpp	88	style	unusedFunction	false	The function 'deleteAllCases' is never used.
+unchanged	ApplicationCode\Commands\EclipseCommands\EclipseWell\RicEclipseWellFeatureImpl.cpp	56	style	unusedFunction	false	The function 'wellCollectionFromSelection' is never used.
+unchanged	ApplicationCode\UserInterface\RiuSummaryVectorDescriptionMap.cpp	87	style	unusedFunction	false	The function 'vectorCategory' is never used.
 
 
 Backlog
 -------
-unchanged	ApplicationCode\Commands\CompletionCommands\RicExportFishbonesLateralsFeature.cpp	118	style	unusedFunction	false	The function 'formatNumber' is never used.
-unchanged	ApplicationCode\Commands\CompletionExportCommands\RicWellPathFractureTextReportFeatureImpl.cpp	57	style	unusedFunction	false	The function 'floatWithThreeDigits' is never used.
-unchanged	ApplicationCode\FileInterface\RifEclipseSummaryTools.cpp	105	style	unusedFunction	false	The function 'findSummaryDataFiles' is never used.
-unchanged	ApplicationCode\UserInterface\RiuWellLogPlot.cpp	520	style	unusedFunction	false	The function 'showEvent' is never used.
-unchanged	ApplicationCode\FileInterface\RifEclipseUserDataParserTools.cpp	159	style	unusedFunction	false	The function 'findFirstNonEmptyEntryIndex' is never used.
-unchanged	ApplicationCode\ReservoirDataModel\RigWellLogFile.cpp	271	style	unusedFunction	false	The function 'exportToLasFile' is never used.
-unchanged	ApplicationCode\ProjectDataModel\Flow\RimWellPltPlot.cpp	1056	style	unusedFunction	false	The function 'setupBeforeSave' is never used.
-unchanged	ApplicationCode\Commands\ApplicationCommands\RicCloseProjectFeature.cpp	52	style	unusedFunction	false	The function 'setupActionLook' is never used.
-unchanged	ApplicationCode\Application\Tools\RiaQDateTimeTools.cpp	242	style	unusedFunction	false	The function 'equalTo' is never used.
-unchanged	ApplicationCode\UserInterface\RiuSummaryQwtPlot.cpp	171	style	unusedFunction	false	The function 'setZoomWindow' is never used.
-unchanged	ApplicationCode\ProjectDataModel\Completions\RimPerforationInterval.cpp	103	style	unusedFunction	false	The function 'enableCustomEndDate' is never used.
-unchanged	ApplicationCode\GeoMech\OdbReader\RifOdbReader.cpp	551	style	unusedFunction	false	The function 'elementSet' is never used.
-unchanged	ApplicationCode\FileInterface\RifJsonEncodeDecode.cpp	45	style	unusedFunction	false	The function 'dumpToFile' is never used.
-unchanged	ApplicationCode\FileInterface\RifEclipseSummaryTools.cpp	168	style	unusedFunction	false	The function 'dumpMetaData' is never used.
-unchanged	ApplicationCode\UserInterface\RiuDragDrop.cpp	254	style	unusedFunction	false	The function 'dropMimeData' is never used.
-unchanged	ApplicationCode\ProjectDataModel\Flow\RimWellFlowRateCurve.cpp	119	style	unusedFunction	false	The function 'doFillCurve' is never used.
-unchanged	ApplicationCode\ProjectDataModel\RimWellPathAttribute.cpp	60	style	unusedFunction	false	The function 'diameterInInches' is never used.
-unchanged	ApplicationCode\ProjectDataModel\RimWellLogCurve.cpp	62	style	unusedFunction	false	The function 'depthRange' is never used.
-unchanged	ApplicationCode\ProjectDataModel\Summary\RimSummaryCaseCollection.cpp	88	style	unusedFunction	false	The function 'deleteAllCases' is never used.
-unchanged	ApplicationCode\ProjectDataModel\RimSummaryCalculationVariable.cpp	170	style	unusedFunction	false	The function 'defineObjectEditorAttribute' is never used.
-unchanged	ApplicationCode\Commands\EclipseCommands\EclipseWell\RicEclipseWellFeatureImpl.cpp	56	style	unusedFunction	false	The function 'wellCollectionFromSelection' is never used.
-unchanged	ApplicationCode\UserInterface\RiuSummaryVectorDescriptionMap.cpp	87	style	unusedFunction	false	The function 'vectorCategory' is never used.
-unchanged	ApplicationCode\Commands\FractureCommands\RicCreateMultipleFracturesUi.cpp	201	style	unusedFunction

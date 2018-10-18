@@ -65,7 +65,6 @@ public:
     virtual ~RimSummaryCaseCollection();
 
     void                            removeCase(RimSummaryCase* summaryCase);
-    void                            deleteAllCases();
     void                            addCase(RimSummaryCase* summaryCase, bool updateCurveSets = true);
     virtual std::vector<RimSummaryCase*> allSummaryCases() const;
     void                            setName(const QString& name);

@@ -85,38 +85,6 @@ void RifEclipseSummaryTools::findSummaryFiles(const QString& inputFile,
     return;
 }
 
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-QStringList RifEclipseSummaryTools::findSummaryDataFiles(const QString& caseFile)
-{
-    QStringList fileNames;
-
-    QString path;
-    QString base;
-
-    findSummaryHeaderFileInfo(caseFile, nullptr, &path, &base, nullptr);
-    if (path.isEmpty() || base.isEmpty()) return fileNames;
-
-    char* header_file = nullptr;
-    stringlist_type* summary_file_list = stringlist_alloc_new();
-
-    ecl_util_alloc_summary_files(RiaStringEncodingTools::toNativeEncoded(path).data(), RiaStringEncodingTools::toNativeEncoded(base).data(), nullptr, &header_file, summary_file_list);
-    if (stringlist_get_size( summary_file_list ) > 0)
-    {
-        for (int i = 0; i < stringlist_get_size(summary_file_list); i++)
-        {
-            fileNames.push_back(RiaStringEncodingTools::fromNativeEncoded(stringlist_iget(summary_file_list, i)));
-        }
-    }
-
-    free(header_file);
-    stringlist_free(summary_file_list);
-
-    return fileNames;
-}
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------

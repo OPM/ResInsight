@@ -50,6 +50,5 @@ protected:
     virtual bool isCommandEnabled() override;
 
 private:
-    static QString formatNumber(double val, int numberOfDecimals);
     static RimFishbonesCollection* selectedFishbonesCollection();
 };

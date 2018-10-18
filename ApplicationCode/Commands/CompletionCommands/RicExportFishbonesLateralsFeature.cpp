@@ -115,14 +115,6 @@ void RicExportFishbonesLateralsFeature::onActionTriggered(bool isChecked)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RicExportFishbonesLateralsFeature::formatNumber(double val, int numberOfDecimals)
-{
-    return QString("%1").arg(val, 0, 'f', numberOfDecimals);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 RimFishbonesCollection* RicExportFishbonesLateralsFeature::selectedFishbonesCollection()
 {
     RimFishbonesCollection* objToFind = nullptr;

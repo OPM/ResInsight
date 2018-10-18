@@ -81,9 +81,6 @@ bool RicEditSummaryCrossPlotFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicEditSummaryCrossPlotFeature::onActionTriggered(bool isChecked)
 {
-    RimProject* project = RiaApplication::instance()->project();
-    CVF_ASSERT(project);
-
     auto dialog = RicEditSummaryCrossPlotFeature::curveCreatorDialog();
 
     if (!dialog->isVisible())

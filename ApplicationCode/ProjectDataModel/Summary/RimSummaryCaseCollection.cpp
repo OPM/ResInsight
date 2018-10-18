@@ -83,14 +83,6 @@ void RimSummaryCaseCollection::removeCase(RimSummaryCase* summaryCase)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimSummaryCaseCollection::deleteAllCases()
-{
-    m_cases.deleteAllChildObjects();
-}
-
-//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCaseCollection::addCase(RimSummaryCase* summaryCase, bool updateCurveSets)

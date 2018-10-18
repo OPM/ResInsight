@@ -146,7 +146,6 @@ public:
     static bool                                         isAComment(const std::string& word);
     static std::vector<std::string>                     splitLineAndRemoveComments(const std::string& line);
     static std::vector<double>                          splitLineToDoubles(const std::string& line);
-    static size_t                                       findFirstNonEmptyEntryIndex(std::vector<std::string>& list);
     static bool                                         keywordParser(const std::string& line, std::string& origin, std::string& dateFormat, std::string& startDate);
     static bool                                         isANumber(const std::string& line);
     static std::vector<std::string>                     headerReader(std::stringstream& streamData, std::string& line);

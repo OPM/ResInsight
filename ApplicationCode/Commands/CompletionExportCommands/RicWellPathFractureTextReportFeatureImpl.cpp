@@ -54,14 +54,6 @@ QString orientationText(RimFractureTemplate::FracOrientationEnum orientation)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifEclipseOutputTableDoubleFormatting floatWithThreeDigits()
-{
-    return RifEclipseOutputTableDoubleFormatting(RIF_FLOAT, 3);
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 RifEclipseOutputTableColumn floatNumberColumn(const QString& text)
 {
     return RifEclipseOutputTableColumn(text, RifEclipseOutputTableDoubleFormatting(RIF_FLOAT, 3), RIGHT);

@@ -56,8 +56,6 @@ public:
     QString wellLogChannelUnitString(const QString& wellLogChannelName, RiaDefines::DepthUnitType displayDepthUnit) const;
     RiaDefines::DepthUnitType depthUnit() const;
 
-    static bool exportToLasFile(const RimWellLogCurve* curve, const QString& fileName);
-
     bool        hasTvdChannel() const;
 
 private:
