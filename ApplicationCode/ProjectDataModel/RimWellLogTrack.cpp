@@ -1034,7 +1034,7 @@ void RimWellLogTrack::applyXZoomFromVisibleRange()
     double componentRangeMin = -0.25;
     if (m_showWellPathComponentsBothSides)
     {
-        componentRangeMin = -1.0;
+        componentRangeMin = -1.5;
     }
 
     m_wellLogTrackPlotWidget->setXRange(componentRangeMin, componentRangeMax, QwtPlot::xBottom);

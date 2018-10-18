@@ -76,9 +76,11 @@ public:
     void attachToQwt();
     void detachFromQwt();
     void reattachToQwt();
-private:
 
-    void onLoadDataAndUpdate(bool updateParentPlot);
+private:
+    void calculateColumnOffsets(const RimWellPathComponentInterface* component);
+
+    void   onLoadDataAndUpdate(bool updateParentPlot);
 
     std::pair<double, double> depthsOfDepthType() const;
 
@@ -126,6 +128,8 @@ private:
     double                                  m_endMD;
     QString                                 m_label;
     QString                                 m_legendTitle;
+    double                                  m_columnOffset;
+    double                                  m_maxColumnOffset;
 
     RimWellLogPlot::DepthTypeEnum           m_depthType;
     QPointer<QwtPlot>                       m_parentQwtPlot;
