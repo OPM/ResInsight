@@ -81,8 +81,8 @@ Must be changed
 unchanged	ApplicationCode\CommandFileInterface\Core\RicfObjectCapability.cpp	186	style	unusedFunction	false	The function 'writeFields' is never used.
 Comment : Add unit test for writeObject
 
-Fixed by removal
-----------------
+Deleted
+-------
 unchanged	ApplicationCode\ProjectDataModel\Summary\RimObservedData.cpp	120	style	unusedFunction	false	The function 'customWellGroupName' is never used.
 unchanged	ApplicationCode\ProjectDataModel\Flow\RimWellPltPlot.cpp	794	style	unusedFunction	false	The function 'currentWellName' is never used.
 unchanged	ApplicationCode\Commands\RicFileHierarchyDialog.cpp	344	style	unusedFunction	false	The function 'currentStatus' is never used.
