@@ -145,10 +145,8 @@ public:
 
     static const char*  getVersionStringApp(bool includeCrtInfo);
 
-    void                setUseShaders(bool enable);
     bool                useShaders() const;
 
-    void                setShowPerformanceInfo(bool enable);
     bool                showPerformanceInfo() const;
 
     RINavigationPolicy  navigationPolicy() const;

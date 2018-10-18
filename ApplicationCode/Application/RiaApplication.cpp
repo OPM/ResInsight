@@ -1237,15 +1237,6 @@ void RiaApplication::setActiveReservoirView(Rim3dView* rv)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiaApplication::setUseShaders(bool enable)
-{
-    m_preferences->useShaders = enable;
-    caf::PdmSettings::writeFieldsToApplicationStore(m_preferences);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 bool RiaApplication::useShaders() const
 {
     if (!m_preferences->useShaders) return false;
@@ -1263,16 +1254,6 @@ bool RiaApplication::useShaders() const
 RiaApplication::RINavigationPolicy RiaApplication::navigationPolicy() const
 {
     return m_preferences->navigationPolicy();
-}
-
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiaApplication::setShowPerformanceInfo(bool enable)
-{
-    m_preferences->showHud = enable;
-    caf::PdmSettings::writeFieldsToApplicationStore(m_preferences);
 }
 
 
