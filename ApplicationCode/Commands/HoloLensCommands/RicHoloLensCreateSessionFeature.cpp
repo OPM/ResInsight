@@ -54,6 +54,6 @@ void RicHoloLensCreateSessionFeature::onActionTriggered(bool isChecked)
 //--------------------------------------------------------------------------------------------------
 void RicHoloLensCreateSessionFeature::setupActionLook(QAction* actionToSetup)
 {
-    // actionToSetup->setIcon(QIcon(":/Save.png"));
+    actionToSetup->setIcon(QIcon(":/hololens.png"));
     actionToSetup->setText("HoloLens : Create Session");
 }
