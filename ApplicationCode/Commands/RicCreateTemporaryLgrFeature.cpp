@@ -125,8 +125,6 @@ void RicCreateTemporaryLgrFeature::onActionTriggered(bool isChecked)
                 lgrs = RicExportLgrFeature::buildOneLgrPerMainCell(eclipseCase, intersectingCells, lgrCellCounts);
 
             auto mainGrid = eclipseCase->eclipseCaseData()->mainGrid();
-            //activeCellInfo->setGridCount(mainGrid->gridCount() + lgrs.size());
-            //fractureActiveCellInfo->setGridCount(mainGrid->gridCount() + lgrs.size());
 
             for (auto lgr : lgrs)
             {
@@ -135,18 +133,11 @@ void RicCreateTemporaryLgrFeature::onActionTriggered(bool isChecked)
                 createLgr(lgr, eclipseCase->eclipseCaseData()->mainGrid());
 
                 int lgrCellCount = lgr.cellCount();
-                //activeCellInfo->setGridActiveCellCounts(lgr.id, lgrCellCount);
-                //fractureActiveCellInfo->setGridActiveCellCounts(lgr.id, lgrCellCount);
-
-                //activeCellInfo->computeDerivedData();
-                //fractureActiveCellInfo->computeDerivedData();
 
 				activeCellInfo->addLgr(totalCellCountBeforLgr, lgrCellCount);
 				fractureActiveCellInfo->addLgr(totalCellCountBeforLgr, lgrCellCount);
             }
 
-            //activeCellInfo->setReservoirCellCount(mainGrid->globalCellArray().size());
-            //for (int i = 0; i < mainGrid->globalCellArray().size(); i++) activeCellInfo->setCellResultIndex(i, i);
             mainGrid->calculateFaults(activeCellInfo, true);
         }
 
