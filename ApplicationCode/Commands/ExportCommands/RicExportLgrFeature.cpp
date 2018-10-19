@@ -200,7 +200,10 @@ std::vector<LgrInfo> RicExportLgrFeature::buildOneLgrPerMainCell(RimEclipseCase*
     cvf::ref<RigResultAccessor> poroAccessObject =
         RigResultAccessorFactory::createFromUiResultName(eclipseCase->eclipseCaseData(), 0, RiaDefines::MATRIX_MODEL, 0, "PORO");
 
+    int firstLgrId = firstAvailableLgrId(eclipseCase->mainGrid());
+
     bool poroExists = !poroAccessObject.isNull();
+    int lgrCount = 0;
     for (const auto& intersectingCell : intersectingCells)
     {
         size_t globCellIndex = intersectingCell.globalCellIndex();
@@ -219,7 +222,6 @@ std::vector<LgrInfo> RicExportLgrFeature::buildOneLgrPerMainCell(RimEclipseCase*
             }
         }
 
-        int lgrId = firstAvailableLgrId(eclipseCase->mainGrid());
         caf::VecIjk mainGridFirstCell(intersectingCell.localCellIndexI(),
                                       intersectingCell.localCellIndexJ(),
                                       intersectingCell.localCellIndexK());
@@ -227,7 +229,8 @@ std::vector<LgrInfo> RicExportLgrFeature::buildOneLgrPerMainCell(RimEclipseCase*
                                     intersectingCell.localCellIndexJ(),
                                     intersectingCell.localCellIndexK());
 
-        LgrInfo lgrInfo(lgrId, QString("LGR_%1").arg(lgrId), lgrSizes, mainGridFirstCell, mainGridEndCell);
+        int currLgrId = firstLgrId + lgrCount++;
+        LgrInfo lgrInfo(currLgrId, QString("LGR_%1").arg(currLgrId), lgrSizes, mainGridFirstCell, mainGridEndCell);
         if(poroExists) lgrInfo.values = lgrValues;
         lgrs.push_back(lgrInfo);
     }
