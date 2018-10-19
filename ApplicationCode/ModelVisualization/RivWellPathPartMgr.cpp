@@ -181,7 +181,8 @@ void RivWellPathPartMgr::appendWellPathAttributesToModel(cvf::ModelBasicList*   
         {
             double wellPathRadius = this->wellPathRadius(characteristicCellSize, this->wellPathCollection());
             double endMD = attribute->endMD();
-            double shoeStartMD = endMD - 5.0;
+            double shoeLength = wellPathRadius;
+            double shoeStartMD = endMD - shoeLength;
 
             std::vector<cvf::Vec3d> displayCoords;
             displayCoords.push_back(displayCoordTransform->transformToDisplayCoord(m_rimWellPath->wellPathGeometry()->interpolatedPointAlongWellPath(shoeStartMD)));
@@ -207,7 +208,8 @@ void RivWellPathPartMgr::appendWellPathAttributesToModel(cvf::ModelBasicList*   
         {
             double wellPathRadius = this->wellPathRadius(characteristicCellSize, this->wellPathCollection());
             double startMD = attribute->startMD();
-            double endMD   = attribute->startMD() + 3.0;
+            double packerLength = wellPathRadius;
+            double endMD = attribute->startMD() + packerLength;
 
             std::vector<cvf::Vec3d> displayCoords;
             displayCoords.push_back(displayCoordTransform->transformToDisplayCoord(m_rimWellPath->wellPathGeometry()->interpolatedPointAlongWellPath(startMD)));
@@ -435,7 +437,7 @@ void RivWellPathPartMgr::appendPerforationValvesToModel(cvf::ModelBasicList* mod
             for (double mdRelativeToStart : measuredDepthsRelativeToStartMD)
             {
                 displayCoords.push_back(displayCoordTransform->transformToDisplayCoord(
-                    m_rimWellPath->wellPathGeometry()->interpolatedPointAlongWellPath(mdRelativeToStart + startMD)));
+                    m_rimWellPath->wellPathGeometry()->interpolatedPointAlongWellPath(mdRelativeToStart * 0.333 * wellPathRadius + startMD)));
             }
 
             cvf::ref<RivObjectSourceInfo> objectSourceInfo = new RivObjectSourceInfo(valve);
