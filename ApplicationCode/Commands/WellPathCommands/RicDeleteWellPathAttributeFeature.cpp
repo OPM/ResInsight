@@ -17,9 +17,11 @@
 /////////////////////////////////////////////////////////////////////////////////
 #include "RicDeleteWellPathAttributeFeature.h"
 
+#include "RimProject.h"
 #include "RimWellPath.h"
 #include "RimWellPathAttribute.h"
 #include "RimWellPathAttributeCollection.h"
+#include "Riu3DMainWindowTools.h"
 
 #include "cafSelectionManager.h"
 #include <QAction>
@@ -60,6 +62,14 @@ void RicDeleteWellPathAttributeFeature::onActionTriggered(bool isChecked)
             wellPathAttributeCollection->deleteAttribute(attributeToDelete);
         }
         wellPathAttributeCollection->updateAllRequiredEditors();
+
+        if (wellPathAttributeCollection->attributes().empty())
+        {
+            RimWellPath* wellPath = nullptr;
+            wellPathAttributeCollection->firstAncestorOrThisOfTypeAsserted(wellPath);
+            wellPath->updateConnectedEditors();
+            Riu3DMainWindowTools::selectAsCurrentItem(wellPath);
+        }
     }
 }
 

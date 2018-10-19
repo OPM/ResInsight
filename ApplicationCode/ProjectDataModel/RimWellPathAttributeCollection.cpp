@@ -22,6 +22,7 @@
 
 #include "cafCmdFeatureMenuBuilder.h"
 #include "cafPdmUiTableViewEditor.h"
+#include "cafPdmUiTreeOrdering.h"
 
 CAF_PDM_SOURCE_INIT(RimWellPathAttributeCollection, "WellPathAttributes");
 
@@ -30,12 +31,11 @@ CAF_PDM_SOURCE_INIT(RimWellPathAttributeCollection, "WellPathAttributes");
 //--------------------------------------------------------------------------------------------------
 RimWellPathAttributeCollection::RimWellPathAttributeCollection()
 {
-    CAF_PDM_InitObject("WellPathAttributes", ":/Well.png", "", "");
+    CAF_PDM_InitObject("Casing Design", ":/CompletionsSymbol16x16", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&m_attributes, "Attributes", "", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_attributes, "Attributes", "Casing Design Attributes", "", "", "");
     m_attributes.uiCapability()->setUiEditorTypeName(caf::PdmUiTableViewEditor::uiEditorTypeName());
-    m_attributes.uiCapability()->setUiTreeChildrenHidden(true);
-    m_attributes.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
+    m_attributes.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::TOP);
     m_attributes.uiCapability()->setCustomContextMenuEnabled(true);
 }
 
@@ -137,6 +137,13 @@ void RimWellPathAttributeCollection::defineEditorAttribute(const caf::PdmFieldHa
 //--------------------------------------------------------------------------------------------------
 void RimWellPathAttributeCollection::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
-    caf::PdmUiGroup* attrGroup = uiOrdering.addNewGroup("Well Path Attributes");
-    attrGroup->add(&m_attributes);
+    uiOrdering.add(&m_attributes);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellPathAttributeCollection::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/)
+{
+    uiTreeOrdering.skipRemainingChildren(true);
 }

@@ -118,10 +118,9 @@ RimWellPath::RimWellPath()
     m_wellLogFile_OBSOLETE.uiCapability()->setUiHidden(true);
     m_wellLogFile_OBSOLETE.xmlCapability()->setIOWritable(false);
 
-    CAF_PDM_InitFieldNoDefault(&m_wellPathAttributes, "WellPathAttributes", "", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_wellPathAttributes, "WellPathAttributes", "Casing Design Rubbish", "", "", "");
     m_wellPathAttributes = new RimWellPathAttributeCollection;
     m_wellPathAttributes->uiCapability()->setUiTreeHidden(true);
-    m_wellPathAttributes->uiCapability()->setUiTreeChildrenHidden(true);
 
     m_wellPath = nullptr;
 }
@@ -564,8 +563,6 @@ void RimWellPath::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiO
     formationFileInfoGroup->add(&m_wellPathFormationFilePath);
     formationFileInfoGroup->add(&m_formationKeyInFile);
 
-    m_wellPathAttributes->uiOrdering(uiConfigName, uiOrdering);
-
     uiOrdering.skipRemainingFields(true);
 }
 
@@ -578,12 +575,17 @@ void RimWellPath::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, Q
 
     if (m_completions->hasCompletions())
     {
-        uiTreeOrdering.add(&m_completions);
+        uiTreeOrdering.add(m_completions());
     }
 
     if (m_3dWellLogCurves->has3dWellLogCurves())
     {
-        uiTreeOrdering.add(&m_3dWellLogCurves);
+        uiTreeOrdering.add(m_3dWellLogCurves());
+    }
+
+    if (!m_wellPathAttributes->attributes().empty())
+    {
+        uiTreeOrdering.add(m_wellPathAttributes());
     }
 
     uiTreeOrdering.skipRemainingChildren(true);

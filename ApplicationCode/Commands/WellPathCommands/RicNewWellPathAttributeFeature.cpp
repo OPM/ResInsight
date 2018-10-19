@@ -17,9 +17,11 @@
 /////////////////////////////////////////////////////////////////////////////////
 #include "RicNewWellPathAttributeFeature.h"
 
+#include "RimProject.h"
 #include "RimWellPath.h"
 #include "RimWellPathAttribute.h"
 #include "RimWellPathAttributeCollection.h"
+#include "Riu3DMainWindowTools.h"
 
 #include "cafSelectionManager.h"
 
@@ -86,6 +88,10 @@ void RicNewWellPathAttributeFeature::onActionTriggered(bool isChecked)
 
             attributeCollections[0]->insertAttribute(nullptr, attribute);
             attributeCollections[0]->updateAllRequiredEditors();
+
+            wellPath->updateConnectedEditors();
+            Riu3DMainWindowTools::selectAsCurrentItem(attributeCollections[0]);
+
         }
     }
 }
@@ -101,10 +107,15 @@ void RicNewWellPathAttributeFeature::setupActionLook(QAction* actionToSetup)
     {
         actionToSetup->setText(QString("Insert New Attribute before %1").arg(attributes[0]->componentTypeLabel()));
         actionToSetup->setIcon(QIcon(":/Well.png"));
-    }
-    else
+    }    
+    else if (caf::SelectionManager::instance()->selectedItemOfType<RimWellPathAttributeCollection>())
     {
         actionToSetup->setText("Append New Attribute");
+        actionToSetup->setIcon(QIcon(":/Well.png"));
+    }
+    else if(caf::SelectionManager::instance()->selectedItemOfType<RimWellPath>())
+    {
+        actionToSetup->setText("Create Casing Design");
         actionToSetup->setIcon(QIcon(":/Well.png"));
     }
 }

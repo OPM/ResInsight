@@ -289,13 +289,11 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicNewWellPathIntersectionFeature";
 
             menuBuilder.addSeparator();
-
             menuBuilder.subMenuStart("Completions", QIcon(":/FishBoneGroup16x16.png"));
             menuBuilder << "RicNewWellPathFractureFeature";
             menuBuilder << "RicNewFishbonesSubsFeature";
             menuBuilder << "RicNewPerforationIntervalFeature";
             menuBuilder << "RicNewValveFeature";
-
             menuBuilder << "RicEditPerforationCollectionFeature";
             menuBuilder.subMenuEnd();
 
@@ -309,6 +307,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
                 menuBuilder << "RicShowWellPlanFeature";
             }
             menuBuilder << "RicCreateMultipleFracturesFeature"; 
+            menuBuilder << "RicNewWellPathAttributeFeature";
 
             menuBuilder << "Separator";
 

@@ -405,9 +405,9 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
                 menuBuilder.subMenuEnd();
 
                 menuBuilder.addSeparator();
-
+                menuBuilder << "RicNewWellPathAttributeFeature";
                 menuBuilder.subMenuStart("Completions", QIcon(":/FishBoneGroup16x16.png"));
-
+                
                 menuBuilder << "RicNewWellPathFractureAtPosFeature";
                 menuBuilder << "RicNewFishbonesSubsAtMeasuredDepthFeature";
                 menuBuilder << "RicNewPerforationIntervalAtMeasuredDepthFeature";
