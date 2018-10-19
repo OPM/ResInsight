@@ -174,11 +174,6 @@ void RicExportLgrFeature::exportLgrs(QTextStream& stream, const std::vector<LgrI
             formatter.tableCompleted("", false);
         }
 
-        if (!lgrInfo.values.empty())
-        {
-            RifEclipseDataTableFormatter::addValueTable(stream, "PORO", 8, lgrInfo.values);
-        }
-
         {
             RifEclipseDataTableFormatter formatter(stream);
             formatter.keyword("ENDFIN");
