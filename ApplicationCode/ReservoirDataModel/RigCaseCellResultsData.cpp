@@ -1115,7 +1115,7 @@ size_t RigCaseCellResultsData::findOrLoadScalarResult(RiaDefines::ResultCatType 
         for (int i = 1; i < m_ownerMainGrid->gridCount(); i++)
         {
             auto grid = m_ownerMainGrid->gridByIndex(i);
-            if (grid->isTempGrid()) tempGridCellCount += grid->cellCount();
+            if (grid->isTempGrid()) tempGridCellCount += (int)grid->cellCount();
         }
 
 
