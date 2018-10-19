@@ -160,7 +160,7 @@ QList<caf::PdmOptionItemInfo> RimWellPathAttribute::calculateValueOptions(const 
     QList<caf::PdmOptionItemInfo> options;
     if (fieldNeedingOptions == &m_type)
     {
-        std::set<RiaDefines::WellPathComponentType> supportedTypes = { RiaDefines::CASING, RiaDefines::LINER, RiaDefines::PACKER, RiaDefines::ICD, RiaDefines::AICD, RiaDefines::ICV };
+        std::set<RiaDefines::WellPathComponentType> supportedTypes = { RiaDefines::CASING, RiaDefines::LINER, RiaDefines::PACKER };
         for (RiaDefines::WellPathComponentType type : supportedTypes)
         {
             options.push_back(caf::PdmOptionItemInfo(CompletionTypeEnum::uiText(type), type));
@@ -237,7 +237,7 @@ void RimWellPathAttribute::fieldChangedByUi(const caf::PdmFieldHandle* changedFi
 void RimWellPathAttribute::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 { 
     bool startDepthAvailable = m_type() != RiaDefines::CASING;
-    bool endDepthAvailable = true;
+    bool endDepthAvailable = m_type() != RiaDefines::PACKER;
 
     m_startMD.uiCapability()->setUiReadOnly(!startDepthAvailable);    
     m_endMD.uiCapability()->setUiReadOnly(!endDepthAvailable);
