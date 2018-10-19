@@ -103,6 +103,15 @@ void RimWellPathAttributeCollection::deleteAttribute(RimWellPathAttribute* attri
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimWellPathAttributeCollection::deleteAllAttributes()
+{
+    m_attributes.deleteAllChildObjects();
+    this->updateAllReferringTracks();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimWellPathAttributeCollection::defineCustomContextMenu(const caf::PdmFieldHandle* fieldNeedingMenu,
                                                     QMenu*                     menu,
                                                     QWidget*                   fieldEditorWidget)

@@ -82,6 +82,7 @@
 #include "RimWellLogPlotCollection.h"
 #include "RimWellLogTrack.h"
 #include "RimWellPath.h"
+#include "RimWellPathAttributeCollection.h"
 #include "RimWellPathCollection.h"
 #include "RimWellPltPlot.h"
 #include "RimWellRftPlot.h"
@@ -311,6 +312,10 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
 
             menuBuilder << "Separator";
 
+        }
+        else if (dynamic_cast<RimWellPathAttributeCollection*>(uiItem))
+        {
+            menuBuilder << "RicDeleteWellPathAttributeFeature";
         }
         else if (dynamic_cast<Rim3dWellLogCurveCollection*>(uiItem) ||
                  dynamic_cast<Rim3dWellLogExtractionCurve*>(uiItem) ||

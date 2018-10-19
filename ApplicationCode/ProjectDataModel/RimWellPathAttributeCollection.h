@@ -36,7 +36,7 @@ public:
     std::vector<RimWellPathAttribute*> attributes() const;
     void                               insertAttribute(RimWellPathAttribute* insertBefore, RimWellPathAttribute* attribute);
     void                               deleteAttribute(RimWellPathAttribute* attributeToDelete);
-
+    void                               deleteAllAttributes();
 protected:
     void defineCustomContextMenu(const caf::PdmFieldHandle* fieldNeedingMenu, QMenu* menu, QWidget* fieldEditorWidget) override;
     void defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override;
