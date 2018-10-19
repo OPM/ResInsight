@@ -83,7 +83,7 @@ class RicExportLgrFeature : public caf::CmdFeature
     typedef std::pair<size_t, size_t> Range;
     static Range initRange() { return std::make_pair(std::numeric_limits<size_t>::max(), 0); }
 
-    static RicExportLgrUi* openDialog(RimEclipseCase* defaultCase = nullptr, int defaultTimeStep = 0);
+    static RicExportLgrUi* openDialog(const QString& dialogTitle, RimEclipseCase* defaultCase = nullptr, int defaultTimeStep = 0);
     static bool openFileForExport(const QString& folderName, const QString& fileName, QFile* exportFile);
     static void exportLgrs(QTextStream& stream, const std::vector<LgrInfo>& lgrInfos);
 

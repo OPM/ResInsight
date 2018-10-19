@@ -62,7 +62,7 @@ CAF_CMD_SOURCE_INIT(RicExportLgrFeature, "RicExportLgrFeature");
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RicExportLgrUi* RicExportLgrFeature::openDialog(RimEclipseCase* defaultCase, int defaultTimeStep)
+RicExportLgrUi* RicExportLgrFeature::openDialog(const QString& dialogTitle, RimEclipseCase* defaultCase, int defaultTimeStep)
 {
     RiaApplication* app = RiaApplication::instance();
     RimProject* proj = app->project();
@@ -97,7 +97,7 @@ RicExportLgrUi* RicExportLgrFeature::openDialog(RimEclipseCase* defaultCase, int
     if (defaultCase) featureUi->setCase(defaultCase);
     featureUi->setTimeStep(defaultTimeStep);
 
-    caf::PdmUiPropertyViewDialog propertyDialog(nullptr, featureUi, "LGR Export", "", QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
+    caf::PdmUiPropertyViewDialog propertyDialog(nullptr, featureUi, dialogTitle, "", QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
     propertyDialog.resize(QSize(600, 275));
 
     if (propertyDialog.exec() == QDialog::Accepted && !featureUi->exportFolder().isEmpty())
@@ -354,7 +354,7 @@ void RicExportLgrFeature::onActionTriggered(bool isChecked)
         defaultTimeStep = activeView->currentTimeStep();
     }
 
-    auto dialogData = openDialog(defaultEclipseCase, defaultTimeStep);
+    auto dialogData = openDialog("LGR Export", defaultEclipseCase, defaultTimeStep);
     if (dialogData)
     {
         auto eclipseCase = dialogData->caseToApply();

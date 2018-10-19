@@ -95,7 +95,7 @@ void RicCreateTemporaryLgrFeature::onActionTriggered(bool isChecked)
         defaultTimeStep = activeView->currentTimeStep();
     }
 
-    auto dialogData = RicExportLgrFeature::openDialog(defaultEclipseCase, defaultTimeStep);
+    auto dialogData = RicExportLgrFeature::openDialog(dialogTitle, defaultEclipseCase, defaultTimeStep);
     if (dialogData)
     {
         auto eclipseCase = dialogData->caseToApply();
