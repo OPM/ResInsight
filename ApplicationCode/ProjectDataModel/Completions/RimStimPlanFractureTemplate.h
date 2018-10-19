@@ -107,7 +107,7 @@ private:
 
     std::vector<double>                     fractureGridResultsForUnitSystem(const QString& resultName, const QString& unitName, size_t timeStepIndex, RiaEclipseUnitTools::UnitSystem requiredUnitSystem) const;
 
-    WellFractureIntersectionData    wellFractureIntersectionData(const RimFracture* fractureInstance) const override;
+    WellFractureIntersectionData            wellFractureIntersectionData(const RimFracture* fractureInstance) const override;
 
     std::pair<QString, QString>             widthParameterNameAndUnit() const;
     std::pair<QString, QString>             conductivityParameterNameAndUnit() const;

@@ -110,7 +110,7 @@ public:
 
     std::vector<size_t>             getPotentiallyFracturedCells(const RigMainGrid* mainGrid) const;
 
-    void                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
     cvf::Vec3d                      fracturePosition() const;
 
     virtual void                    updateAzimuthBasedOnWellAzimuthAngle() = 0;
@@ -137,9 +137,9 @@ public:
     double                            endMD() const override;
 
 protected:
-    QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
-    void                    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
-    void                    defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute * attribute) override;
+    QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
+    void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    void                            defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute * attribute) override;
 
 private:
     cvf::Vec3d                      fracturePositionForUi() const;
@@ -149,7 +149,7 @@ private:
     QString                         wellFractureAzimuthDiffText() const;
     QString                         wellAzimuthAtFracturePositionText() const;
 
-    cvf::BoundingBox        boundingBoxInDomainCoords() const override;
+    cvf::BoundingBox                boundingBoxInDomainCoords() const override;
 
 protected:
     caf::PdmPtrField<RimFractureTemplate*>          m_fractureTemplate;

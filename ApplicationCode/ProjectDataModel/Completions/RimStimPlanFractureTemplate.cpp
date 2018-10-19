@@ -323,7 +323,7 @@ QList<caf::PdmOptionItemInfo> RimStimPlanFractureTemplate::calculateValueOptions
         if (isBetaFactorAvailableOnFile())
         {
             options.push_back(caf::PdmOptionItemInfo(caf::AppEnum<BetaFactorEnum>::uiText(BETA_FACTOR_FROM_FRACTURE),
-                              BETA_FACTOR_FROM_FRACTURE));
+                                                     BETA_FACTOR_FROM_FRACTURE));
         }
     }
 
