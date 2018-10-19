@@ -38,14 +38,33 @@ class QTextStream;
 class LgrInfo
 {
 public:
-    LgrInfo(const QString&name,
+    LgrInfo(int id,
+            const QString&name,
             const caf::VecIjk& sizes,
             const caf::VecIjk& mainGridStartCell,
             const caf::VecIjk& mainGridEndCell)
-        : name(name), sizes(sizes), mainGridStartCell(mainGridStartCell), mainGridEndCell(mainGridEndCell)
+        : id(id), name(name), sizes(sizes), mainGridStartCell(mainGridStartCell), mainGridEndCell(mainGridEndCell)
     {
     }
 
+    caf::VecIjk sizesPerMainGridCell() const
+    {
+        return caf::VecIjk(sizes.i() / (mainGridEndCell.i() - mainGridStartCell.i() + 1),
+                           sizes.j() / (mainGridEndCell.j() - mainGridStartCell.j() + 1),
+                           sizes.k() / (mainGridEndCell.k() - mainGridStartCell.k() + 1));
+    }
+
+    int cellCount() const
+    {
+        return (int)(sizes.i() * sizes.j() * sizes.k());
+    }
+    int cellCountPerMainGridCell() const
+    {
+        auto s = sizesPerMainGridCell();
+        return (int)(s.i() * s.j() * s.k());
+    }
+
+    int                 id;
     QString             name;
     caf::VecIjk         sizes;
     std::vector<double> values;
@@ -73,7 +92,7 @@ class RicExportLgrFeature : public caf::CmdFeature
                                                        const caf::VecIjk& lgrSizes);
     static std::vector<LgrInfo> buildSingleLgr(RimEclipseCase* eclipseCase,
                                                const std::vector<RigCompletionDataGridCell>& intersectingCells,
-                                               const caf::VecIjk& lgrSizes);
+                                               const caf::VecIjk& lgrSizesPerMainGridCell);
 
     static std::vector<RigCompletionDataGridCell> cellsIntersectingCompletions(RimEclipseCase* eclipseCase,
                                                                               const RimWellPath* wellPath,
@@ -87,4 +106,5 @@ protected:
 private:
     static std::vector<RimWellPath*> selectedWellPaths();
     static bool containsAnyNonMainGridCells(const std::vector<RigCompletionDataGridCell>& cells);
+    static int firstAvailableLgrId(const RigMainGrid* mainGrid);
 };

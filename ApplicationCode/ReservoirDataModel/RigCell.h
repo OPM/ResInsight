@@ -51,6 +51,7 @@ public:
 
     RigLocalGrid*           subGrid() const                                     { return m_subGrid; }
     void                    setSubGrid(RigLocalGrid* subGrid)                   { m_subGrid = subGrid; }
+    void                    removeSubGrid(RigLocalGrid* subGrid)                { m_subGrid = nullptr; }
 
     RigGridBase*            hostGrid() const                                    { return m_hostGrid; }
     void                    setHostGrid(RigGridBase* hostGrid)                  { m_hostGrid = hostGrid; }

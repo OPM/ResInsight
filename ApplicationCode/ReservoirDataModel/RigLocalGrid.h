@@ -34,6 +34,5 @@ public:
 private:
     RigGridBase *   m_parentGrid;
     size_t          m_positionInParentGrid;
-
 };
 

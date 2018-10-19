@@ -2203,6 +2203,8 @@ void RifReaderEclipseOutput::extractResultValuesBasedOnPorosityModel(RiaDefines:
 
         for (size_t i = 0; i < m_eclipseCase->mainGrid()->gridCount(); i++)
         {
+            if(m_eclipseCase->mainGrid()->gridByIndex(i)->isTempGrid()) continue;
+
             size_t matrixActiveCellCount = 0;
             size_t fractureActiveCellCount = 0;
            

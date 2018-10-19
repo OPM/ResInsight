@@ -28,7 +28,6 @@
 #include <vector>
 
 
-
 class RigActiveCellInfo : public cvf::Object
 {
 public:
@@ -56,6 +55,8 @@ public:
     void                setGeometryBoundingBox(cvf::BoundingBox bb);
 
     void                clear();
+
+    void                addLgr(int lgrStartIndex, int cellCount);
 
 private:
     class GridActiveCellCounts

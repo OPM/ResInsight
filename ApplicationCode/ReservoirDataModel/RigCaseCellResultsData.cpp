@@ -1111,6 +1111,14 @@ size_t RigCaseCellResultsData::findOrLoadScalarResult(RiaDefines::ResultCatType 
 
         bool resultLoadingSucess = true;
 
+        int tempGridCellCount = 0;
+        for (int i = 1; i < m_ownerMainGrid->gridCount(); i++)
+        {
+            auto grid = m_ownerMainGrid->gridByIndex(i);
+            if (grid->isTempGrid()) tempGridCellCount += grid->cellCount();
+        }
+
+
         if (type == RiaDefines::DYNAMIC_NATIVE && timeStepCount > 0)
         {
             this->cellScalarResults(scalarResultIndex).resize(timeStepCount);
@@ -1123,6 +1131,10 @@ size_t RigCaseCellResultsData::findOrLoadScalarResult(RiaDefines::ResultCatType 
                 {
                     resultLoadingSucess = false;
                 }
+                else
+                {
+                    values.resize(values.size() + tempGridCellCount);
+                }
             }
         }
         else if (type == RiaDefines::STATIC_NATIVE)
@@ -1133,6 +1145,10 @@ size_t RigCaseCellResultsData::findOrLoadScalarResult(RiaDefines::ResultCatType 
             if (!m_readerInterface->staticResult(resultName, RiaDefines::MATRIX_MODEL, &values))
             {
                 resultLoadingSucess = false;
+            }
+            else
+            {
+                values.resize(values.size() + tempGridCellCount);
             }
         }
 

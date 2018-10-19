@@ -115,6 +115,8 @@ public:
     void                                        setVirtualPerforationTransmissibilities(RigVirtualPerforationTransmissibilities* virtualPerforationTransmissibilities);
     const RigVirtualPerforationTransmissibilities*    virtualPerforationTransmissibilities() const;
 
+    void                                        clearWellCellsInGridCache() { m_wellCellsInGrid.clear(); }
+
 private:
     void                                        computeActiveCellIJKBBox();
     void                                        computeWellCellsPrGrid();

@@ -340,14 +340,19 @@ bool RigMainGrid::hasFaultWithName(const QString& name) const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigMainGrid::calculateFaults(const RigActiveCellInfo* activeCellInfo)
+void RigMainGrid::calculateFaults(const RigActiveCellInfo* activeCellInfo, bool forceCalculation)
 {
-    if (hasFaultWithName(RiaDefines::undefinedGridFaultName())
+    if (!forceCalculation &&
+        hasFaultWithName(RiaDefines::undefinedGridFaultName())
         && hasFaultWithName(RiaDefines::undefinedGridFaultWithInactiveName()))
     {
         //RiaLogging::debug(QString("Calculate faults already run for grid."));
+
         return;
     }
+
+    m_faults.clear();
+
     m_faultsPrCellAcc = new RigFaultsPrCellAccumulator(m_cells.size());
 
     // Spread fault idx'es on the cells from the faults

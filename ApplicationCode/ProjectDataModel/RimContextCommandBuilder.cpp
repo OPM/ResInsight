@@ -769,6 +769,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             }
 
             menuBuilder << "RicExportLgrFeature";
+            menuBuilder << "RicCreateTemporaryLgrFeature";
         }
 
         menuBuilder << "RicCreateMultipleFracturesFeature";
