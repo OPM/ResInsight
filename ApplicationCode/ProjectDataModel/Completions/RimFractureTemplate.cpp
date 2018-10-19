@@ -428,35 +428,6 @@ void RimFractureTemplate::defineEditorAttribute(const caf::PdmFieldHandle* field
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RimFractureTemplate::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                                         bool*                      useOptionsOnly)
-{
-    QList<caf::PdmOptionItemInfo> options;
-
-    if (fieldNeedingOptions == &m_fractureWidthType)
-    {
-        options.push_back(caf::PdmOptionItemInfo(caf::AppEnum<WidthEnum>::uiText(USER_DEFINED_WIDTH), USER_DEFINED_WIDTH));
-        options.push_back(caf::PdmOptionItemInfo(caf::AppEnum<WidthEnum>::uiText(WIDTH_FROM_FRACTURE), WIDTH_FROM_FRACTURE));
-    }
-
-    if (fieldNeedingOptions == &m_betaFactorType)
-    {
-        options.push_back(
-            caf::PdmOptionItemInfo(caf::AppEnum<BetaFactorEnum>::uiText(USER_DEFINED_BETA_FACTOR), USER_DEFINED_BETA_FACTOR));
-
-        if (isBetaFactorAvailableOnFile())
-        {
-            options.push_back(caf::PdmOptionItemInfo(caf::AppEnum<BetaFactorEnum>::uiText(BETA_FACTOR_FROM_FRACTURE),
-                                                     BETA_FACTOR_FROM_FRACTURE));
-        }
-    }
-
-    return options;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimFractureTemplate::prepareFieldsForUiDisplay()
 {
     if (m_fractureTemplateUnit == RiaEclipseUnitTools::UNITS_METRIC)

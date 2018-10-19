@@ -285,6 +285,11 @@ void RimStimPlanFractureTemplate::loadDataAndUpdate()
         fracture->clearCachedNonDarcyProperties();
     }
 
+    if (widthResultValues().empty())
+    {
+        m_fractureWidthType = USER_DEFINED_WIDTH;
+    }
+
     // Todo: Must update all views using this fracture template
     RimEclipseView* activeView = dynamic_cast<RimEclipseView*>(RiaApplication::instance()->activeReservoirView());
     if (activeView) activeView->fractureColors()->loadDataAndUpdate();
@@ -300,7 +305,27 @@ QList<caf::PdmOptionItemInfo> RimStimPlanFractureTemplate::calculateValueOptions
 {
     QList<caf::PdmOptionItemInfo> options;
 
-    options = RimFractureTemplate::calculateValueOptions(fieldNeedingOptions, useOptionsOnly);
+    if (fieldNeedingOptions == &m_fractureWidthType)
+    {
+        options.push_back(caf::PdmOptionItemInfo(caf::AppEnum<WidthEnum>::uiText(USER_DEFINED_WIDTH), USER_DEFINED_WIDTH));
+
+        if (!widthResultValues().empty())
+        {
+            options.push_back(caf::PdmOptionItemInfo(caf::AppEnum<WidthEnum>::uiText(WIDTH_FROM_FRACTURE), WIDTH_FROM_FRACTURE));
+        }
+    }
+
+    if (fieldNeedingOptions == &m_betaFactorType)
+    {
+        options.push_back(
+            caf::PdmOptionItemInfo(caf::AppEnum<BetaFactorEnum>::uiText(USER_DEFINED_BETA_FACTOR), USER_DEFINED_BETA_FACTOR));
+
+        if (isBetaFactorAvailableOnFile())
+        {
+            options.push_back(caf::PdmOptionItemInfo(caf::AppEnum<BetaFactorEnum>::uiText(BETA_FACTOR_FROM_FRACTURE),
+                              BETA_FACTOR_FROM_FRACTURE));
+        }
+    }
 
     if (fieldNeedingOptions == &m_borderPolygonResultName)
     {
@@ -967,6 +992,11 @@ void RimStimPlanFractureTemplate::defineUiOrdering(QString uiConfigName, caf::Pd
         group->add(&m_perforationLength);
         group->add(&m_perforationEfficiency);
         group->add(&m_wellDiameter);
+    }
+
+    if (widthResultValues().empty())
+    {
+        m_fractureWidthType = USER_DEFINED_WIDTH;
     }
 
     RimFractureTemplate::defineUiOrdering(uiConfigName, uiOrdering);
