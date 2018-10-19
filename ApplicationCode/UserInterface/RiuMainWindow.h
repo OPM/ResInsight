@@ -123,6 +123,7 @@ public:
     RiuMessagePanel*                    messagePanel();
 
     void            showProcessMonitorDockPanel();
+    void            setDefaultToolbarVisibility();
 
 protected:
     void    closeEvent(QCloseEvent* event) override;
@@ -213,12 +214,12 @@ private slots:
     void    slotViewFromBelow();
     void    slotScaleChanged(int scaleValue);
 
-    void slotDrawStyleChanged(QAction* activatedAction);
-    void slotToggleHideGridCellsAction(bool);
-    void slotToggleFaultLabelsAction(bool);
-    void slotDisableLightingAction(bool);
+    void    slotDrawStyleChanged(QAction* activatedAction);
+    void    slotToggleHideGridCellsAction(bool);
+    void    slotToggleFaultLabelsAction(bool);
+    void    slotDisableLightingAction(bool);
 
-    void slotShowWellCellsAction(bool doAdd);
+    void    slotShowWellCellsAction(bool doAdd);
 
     // Debug slots
     void    slotSnapshotAllViewsToFile();
@@ -266,6 +267,8 @@ private:
     QAction*                    m_drawStyleFaultLinesSolidAction;
     QAction*                    m_drawStyleSurfOnlyAction;
     QAction*                    m_showWellCellsAction;
+
+    QToolBar*                   m_holoLensToolBar;
 
     std::vector<QPointer<QDockWidget> > additionalProjectViews;
 

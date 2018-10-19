@@ -116,7 +116,8 @@ RiuMainWindow::RiuMainWindow()
     m_pvtPlotPanel(nullptr),
     m_mohrsCirclePlot(nullptr),
     m_windowMenu(nullptr),
-    m_blockSlotSubWindowActivated(false)
+    m_blockSlotSubWindowActivated(false),
+    m_holoLensToolBar(nullptr)
 {
     CVF_ASSERT(sm_mainWindowInstance == nullptr);
 
@@ -581,17 +582,15 @@ void RiuMainWindow::createToolBars()
         dsToolBar->addAction(m_drawStyleHideGridCellsAction);
         dsToolBar->addAction(m_toggleFaultsLabelAction);
         dsToolBar->addAction(m_showWellCellsAction);
-        dsToolBar->hide();
     }
 
     {
-        QToolBar* toolbar = addToolBar(tr("HoloLens"));
-        toolbar->setObjectName(toolbar->windowTitle());
+        m_holoLensToolBar = addToolBar(tr("HoloLens"));
+        m_holoLensToolBar->setObjectName(m_holoLensToolBar->windowTitle());
 
-        toolbar->addAction(cmdFeatureMgr->action("RicHoloLensCreateSessionFeature"));
-        toolbar->addAction(cmdFeatureMgr->action("RicHoloLensTerminateSessionFeature"));
-        toolbar->addAction(cmdFeatureMgr->action("RicHoloLensExportToSharingServerFeature"));
-        toolbar->hide();
+        m_holoLensToolBar->addAction(cmdFeatureMgr->action("RicHoloLensCreateSessionFeature"));
+        m_holoLensToolBar->addAction(cmdFeatureMgr->action("RicHoloLensTerminateSessionFeature"));
+        m_holoLensToolBar->addAction(cmdFeatureMgr->action("RicHoloLensExportToSharingServerFeature"));
     }
 
     RiaApplication* app = RiaApplication::instance();
@@ -1742,6 +1741,14 @@ void RiuMainWindow::updateMemoryUsage()
 void RiuMainWindow::showProcessMonitorDockPanel()
 {
     showDockPanel(RiuDockWidgetTools::instance()->processMonitorName());
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindow::setDefaultToolbarVisibility()
+{
+    m_holoLensToolBar->hide();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -21,6 +21,8 @@
 #include "VdeFileExporter.h"
 
 #include "RiaApplication.h"
+#include "RiaQIconTools.h"
+
 #include "RimGridView.h"
 
 #include <QAction>
@@ -34,7 +36,7 @@ bool RicHoloLensExportToSharingServerFeature::isCommandEnabled()
 {
     // Return true if a valid session is active
 
-    return false;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -55,6 +57,11 @@ void RicHoloLensExportToSharingServerFeature::onActionTriggered(bool isChecked)
 //--------------------------------------------------------------------------------------------------
 void RicHoloLensExportToSharingServerFeature::setupActionLook(QAction* actionToSetup)
 {
-    //actionToSetup->setIcon(QIcon(":/Save.png"));
-    actionToSetup->setText("HoloLens : Export to Sharing Server");
+    QPixmap pixmap(":/hololens.png");
+    QPixmap overlayPixmap(":/arrow-right-green.png");
+
+    QPixmap combinedPixmap = RiaQIconTools::appendPixmapUpperLeft(pixmap, overlayPixmap);
+    actionToSetup->setIcon(QIcon(combinedPixmap));
+
+    actionToSetup->setText("Export to Sharing Server");
 }

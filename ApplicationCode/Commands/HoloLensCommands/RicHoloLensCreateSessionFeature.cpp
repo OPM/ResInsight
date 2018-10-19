@@ -18,6 +18,8 @@
 
 #include "RicHoloLensCreateSessionFeature.h"
 
+#include "RiaQIconTools.h"
+
 #include "RicHoloLensCreateSessionUi.h"
 #include "RicHoloLensServerSettings.h"
 
@@ -54,6 +56,11 @@ void RicHoloLensCreateSessionFeature::onActionTriggered(bool isChecked)
 //--------------------------------------------------------------------------------------------------
 void RicHoloLensCreateSessionFeature::setupActionLook(QAction* actionToSetup)
 {
-    actionToSetup->setIcon(QIcon(":/hololens.png"));
-    actionToSetup->setText("HoloLens : Create Session");
+    QPixmap pixmap(":/hololens.png");
+    QPixmap overlayPixmap(":/plus-sign-green.png");
+
+    QPixmap combinedPixmap = RiaQIconTools::appendPixmapUpperLeft(pixmap, overlayPixmap);
+    actionToSetup->setIcon(QIcon(combinedPixmap));
+
+    actionToSetup->setText("Create Session");
 }

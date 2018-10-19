@@ -19,6 +19,7 @@
 #include "RicHoloLensTerminateSessionFeature.h"
 
 #include "RiaLogging.h"
+#include "RiaQIconTools.h"
 
 #include <QAction>
 
@@ -47,6 +48,11 @@ void RicHoloLensTerminateSessionFeature::onActionTriggered(bool isChecked)
 //--------------------------------------------------------------------------------------------------
 void RicHoloLensTerminateSessionFeature::setupActionLook(QAction* actionToSetup)
 {
-    //actionToSetup->setIcon(QIcon(":/Save.png"));
-    actionToSetup->setText("HoloLens : Terminate Session");
+    QPixmap pixmap(":/hololens.png");
+    QPixmap overlayPixmap(":/minus-sign-red.png");
+
+    QPixmap combinedPixmap = RiaQIconTools::appendPixmapUpperLeft(pixmap, overlayPixmap);
+    actionToSetup->setIcon(QIcon(combinedPixmap));
+
+    actionToSetup->setText("Terminate Session");
 }

@@ -35,6 +35,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RiaWeightedGeometricMeanCalculator.h
 ${CMAKE_CURRENT_LIST_DIR}/RiaWeightedHarmonicMeanCalculator.h
 ${CMAKE_CURRENT_LIST_DIR}/RiaOptionItemFactory.h
 ${CMAKE_CURRENT_LIST_DIR}/RiaGitDiff.h
+${CMAKE_CURRENT_LIST_DIR}/RiaQIconTools.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -70,6 +71,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RiaWeightedGeometricMeanCalculator.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiaWeightedHarmonicMeanCalculator.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiaOptionItemFactory.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiaGitDiff.cpp
+${CMAKE_CURRENT_LIST_DIR}/RiaQIconTools.cpp
 )
 
 list(APPEND CODE_HEADER_FILES
