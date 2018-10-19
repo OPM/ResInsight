@@ -38,6 +38,7 @@
 #include <memory>
 
 class RigFisbonesGeometry;
+class RimMultipleValveLocations;
 
 //==================================================================================================
 ///  
@@ -61,7 +62,8 @@ public:
     {
         FB_SUB_COUNT_END,
         FB_SUB_SPACING_END,
-        FB_SUB_USER_DEFINED
+        FB_SUB_USER_DEFINED,
+        FB_SUB_UNDEFINED
     };
 
     enum LateralsOrientationType
@@ -94,6 +96,8 @@ public:
     double              icdFlowCoefficient() const { return m_icdFlowCoefficient(); }
     size_t              icdCount() const { return m_icdCount(); }
     std::vector<double> lateralLengths() const;
+
+    void                valveLocationsUpdated();
 
     const std::vector<SubLateralIndex>&         installedLateralIndices() const { return m_subLateralIndices; };
     std::vector<cvf::Vec3d>                     coordsForLateral(size_t subIndex, size_t lateralIndex) const;
@@ -129,9 +133,10 @@ private:
     void                        computeRotationAngles();
     void                        computeSubLateralIndices();
 
-    static std::vector<double>  locationsFromStartSpacingAndCount(double start, double spacing, size_t count);
     static int                  randomValueFromRange(int min, int max);
-    
+    void                        initialiseObsoleteFields();
+    void                        initValveLocationFromLegacyData();
+
 private:
     caf::PdmField<bool>                 m_isActive;
     caf::PdmProxyValueField<QString>    m_name;
@@ -153,15 +158,8 @@ private:
     caf::PdmField<double>               m_icdOrificeDiameter;
     caf::PdmField<double>               m_icdFlowCoefficient;
 
-    caf::PdmField<caf::AppEnum<LocationType> >    m_subsLocationMode;
-    caf::PdmField<double>               m_rangeStart;
-    caf::PdmField<double>               m_rangeEnd;
-    caf::PdmField<double>               m_rangeSubSpacing;
-    caf::PdmField<int>                  m_rangeSubCount;
-
+    caf::PdmChildField<RimMultipleValveLocations*>           m_valveLocations;
     caf::PdmField<caf::AppEnum<LateralsOrientationType> >    m_subsOrientationMode;
-
-    caf::PdmField<std::vector<double>>  m_locationOfSubs; // Given in measured depth
 
     caf::PdmField<std::vector<double>>  m_installationRotationAngles;
     caf::PdmField<double>               m_fixedInstallationRotationAngle;
@@ -172,4 +170,13 @@ private:
 
     std::unique_ptr<RigFisbonesGeometry>    m_rigFishbonesGeometry;
     std::vector<SubLateralIndex>            m_subLateralIndices;
+
+    // Moved to RimMultipleValveLocations
+    caf::PdmField<caf::AppEnum<LocationType> > m_subsLocationMode_OBSOLETE;
+    caf::PdmField<double>                      m_rangeStart_OBSOLETE;
+    caf::PdmField<double>                      m_rangeEnd_OBSOLETE;
+    caf::PdmField<double>                      m_rangeSubSpacing_OBSOLETE;
+    caf::PdmField<int>                         m_rangeSubCount_OBSOLETE;
+    caf::PdmField<std::vector<double>>         m_locationOfSubs_OBSOLETE; // Given in measured depth
+
 };

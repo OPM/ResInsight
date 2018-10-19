@@ -24,6 +24,7 @@
 #include "RimProject.h"
 #include "RimWellPath.h"
 #include "RimFishbonesCollection.h"
+#include "RimMultipleValveLocations.h"
 
 #include "cafPdmUiDoubleValueEditor.h"
 #include "cafPdmUiListEditor.h"
@@ -34,6 +35,7 @@
 #include <cstdlib>
 #include <cmath>
 #include "cvfMath.h"
+
 
 
 CAF_PDM_SOURCE_INIT(RimFishbonesMultipleSubs, "FishbonesMultipleSubs");
@@ -92,20 +94,11 @@ RimFishbonesMultipleSubs::RimFishbonesMultipleSubs()
     CAF_PDM_InitField(&m_icdOrificeDiameter,            "IcdOrificeDiameter", 7.0,          "ICD Orifice Diameter [mm]", "", "", "");
     CAF_PDM_InitField(&m_icdFlowCoefficient,            "IcdFlowCoefficient", 1.5,          "ICD Flow Coefficient", "", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&m_locationOfSubs,       "LocationOfSubs",                   "Measured Depths [m]", "", "", "");
-    m_locationOfSubs.uiCapability()->setUiEditorTypeName(caf::PdmUiListEditor::uiEditorTypeName());
-
-    CAF_PDM_InitField(&m_subsLocationMode,              "SubsLocationMode", caf::AppEnum<LocationType>(FB_SUB_COUNT_END), "Location Defined By", "", "", "");
-    CAF_PDM_InitField(&m_rangeStart,                    "RangeStart",       100.0,          "Start MD [m]", "", "", "");
-    m_rangeStart.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleValueEditor::uiEditorTypeName());
-
-    CAF_PDM_InitField(&m_rangeEnd,                      "RangeEnd",         250.0,          "End MD [m]", "", "", "");
-    m_rangeEnd.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleValueEditor::uiEditorTypeName());
-
-    CAF_PDM_InitFieldNoDefault(&m_rangeSubSpacing,      "RangeSubSpacing",                  "Spacing [m]", "", "", "");
-    m_rangeSubSpacing.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleValueEditor::uiEditorTypeName());
-
-    CAF_PDM_InitField(&m_rangeSubCount,                 "RangeSubCount",    13,             "Number of Subs", "", "", "");
+    initialiseObsoleteFields();
+    CAF_PDM_InitFieldNoDefault(&m_valveLocations, "ValveLocations", "Valve Locations", "", "", "");
+    m_valveLocations = new RimMultipleValveLocations();
+    m_valveLocations.uiCapability()->setUiHidden(true);
+    m_valveLocations.uiCapability()->setUiTreeChildrenHidden(true);
 
     CAF_PDM_InitField(&m_subsOrientationMode,           "SubsOrientationMode", caf::AppEnum<LateralsOrientationType>(FB_LATERAL_ORIENTATION_RANDOM), "Orientation", "", "", "");
     
@@ -156,11 +149,7 @@ QString RimFishbonesMultipleSubs::generatedName() const
 //--------------------------------------------------------------------------------------------------
 void RimFishbonesMultipleSubs::setMeasuredDepthAndCount(double measuredDepth, double spacing, int subCount)
 {
-    m_subsLocationMode = FB_SUB_SPACING_END;
-
-    m_rangeStart = measuredDepth;
-    m_rangeEnd = measuredDepth + spacing * subCount;
-    m_rangeSubCount = subCount;
+    m_valveLocations->setMeasuredDepthAndCount(measuredDepth, spacing, subCount);
 
     computeRangesAndLocations();
     computeRotationAngles();
@@ -171,9 +160,7 @@ void RimFishbonesMultipleSubs::setMeasuredDepthAndCount(double measuredDepth, do
 //--------------------------------------------------------------------------------------------------
 double RimFishbonesMultipleSubs::measuredDepth(size_t subIndex) const
 {
-    CVF_ASSERT(subIndex < m_locationOfSubs().size());
-
-    return m_locationOfSubs()[subIndex];
+    return m_valveLocations->measuredDepth(subIndex);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -339,6 +326,25 @@ std::vector<double> RimFishbonesMultipleSubs::lateralLengths() const
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFishbonesMultipleSubs::valveLocationsUpdated()
+{
+    RimFishbonesCollection* collection;
+    this->firstAncestorOrThisOfTypeAsserted(collection);
+    computeSubLateralIndices();
+    collection->recalculateStartMD();
+
+    computeRotationAngles();
+    computeSubLateralIndices();
+
+    RimProject* proj;
+    this->firstAncestorOrThisOfTypeAsserted(proj);
+    proj->reloadCompletionTypeResultsInAllViews();
+
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 std::vector<cvf::Vec3d> RimFishbonesMultipleSubs::coordsForLateral(size_t subIndex, size_t lateralIndex) const
@@ -440,9 +446,9 @@ cvf::Color3f RimFishbonesMultipleSubs::defaultComponentColor() const
 double RimFishbonesMultipleSubs::startMD() const
 {
     double measuredDepth = 0.0;
-    if (!m_locationOfSubs().empty())
+    if (!m_valveLocations->locationOfValves().empty())
     {
-        measuredDepth = m_locationOfSubs().front();
+        measuredDepth = m_valveLocations->locationOfValves().front();
     }
 
     return measuredDepth;
@@ -454,9 +460,9 @@ double RimFishbonesMultipleSubs::startMD() const
 double RimFishbonesMultipleSubs::endMD() const
 {
     double measuredDepth = 0.0;
-    if (!m_locationOfSubs().empty())
+    if (!m_valveLocations->locationOfValves().empty())
     {
-        measuredDepth = m_locationOfSubs().back();
+        measuredDepth = m_valveLocations->locationOfValves().back();
     }
 
     return measuredDepth;
@@ -467,78 +473,18 @@ double RimFishbonesMultipleSubs::endMD() const
 //--------------------------------------------------------------------------------------------------
 void RimFishbonesMultipleSubs::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
-    bool recomputeLocations = false;
-
-    if (changedField == &m_subsLocationMode)
-    {
-        if (m_subsLocationMode == FB_SUB_COUNT_END || m_subsLocationMode == FB_SUB_SPACING_END)
-        {
-            recomputeLocations = true;
-        }
-    }
-    
-    if (changedField == &m_rangeStart ||
-        changedField == &m_rangeEnd ||
-        changedField == &m_rangeSubCount ||
-        changedField == &m_rangeSubSpacing)
-    {
-        recomputeLocations = true;
-
-        RimWellPath* wellPath = nullptr;
-        this->firstAncestorOrThisOfTypeAsserted(wellPath);
-        
-        RigWellPath* rigWellPathGeo = wellPath->wellPathGeometry();
-        if (rigWellPathGeo && !rigWellPathGeo->m_measuredDepths.empty())
-        {
-            double lastWellPathMD = rigWellPathGeo->m_measuredDepths.back();
-
-            m_rangeStart = cvf::Math::clamp(m_rangeStart(), 0.0, lastWellPathMD);
-            m_rangeEnd = cvf::Math::clamp(m_rangeEnd(), m_rangeStart(), lastWellPathMD);
-        }
-    }
-
-    if (changedField == &m_rangeSubSpacing)
-    {
-        // Minimum distance between fishbones is 13.0m
-        // Use 10.0m to allow for some flexibility
-
-        double minimumDistanceMeter = 10.0;
-
-        RimWellPath* wellPath = nullptr;
-        this->firstAncestorOrThisOfTypeAsserted(wellPath);
-        if (wellPath->unitSystem() == RiaEclipseUnitTools::UNITS_FIELD)
-        {
-            double minimumDistanceFeet = RiaEclipseUnitTools::meterToFeet(minimumDistanceMeter);
-            m_rangeSubSpacing = cvf::Math::clamp(m_rangeSubSpacing(), minimumDistanceFeet, std::max(m_rangeSubSpacing(), minimumDistanceFeet));
-        }
-        else
-        {
-            m_rangeSubSpacing = cvf::Math::clamp(m_rangeSubSpacing(), minimumDistanceMeter, std::max(m_rangeSubSpacing(), minimumDistanceMeter));
-        }
-    }
-
-    if (recomputeLocations)
-    {
-        computeRangesAndLocations();
-    }
-
-    if (recomputeLocations ||
-        changedField == &m_locationOfSubs ||
-        changedField == &m_subsOrientationMode)
+    if (changedField == &m_subsOrientationMode)
     {
         computeRotationAngles();
     }
 
-    if (changedField == &m_locationOfSubs ||
-        changedField == &m_lateralInstallSuccessFraction ||
+    if (changedField == &m_lateralInstallSuccessFraction ||
         changedField == &m_lateralCountPerSub)
     {
         computeSubLateralIndices();
     }
 
-    RimProject* proj;
-    this->firstAncestorOrThisOfTypeAsserted(proj);
-    proj->reloadCompletionTypeResultsInAllViews();
+    valveLocationsUpdated();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -562,53 +508,8 @@ caf::PdmFieldHandle* RimFishbonesMultipleSubs::objectToggleField()
 //--------------------------------------------------------------------------------------------------
 void RimFishbonesMultipleSubs::computeRangesAndLocations()
 {
-    if (m_subsLocationMode == FB_SUB_COUNT_END)
-    {
-        int divisor = 1;
-        if (m_rangeSubCount > 2) divisor = m_rangeSubCount - 1;
-
-        m_rangeSubSpacing = fabs(m_rangeStart - m_rangeEnd) / divisor;
-    }
-    else if (m_subsLocationMode == FB_SUB_SPACING_END)
-    {
-        m_rangeSubCount = (fabs(m_rangeStart - m_rangeEnd) / m_rangeSubSpacing) + 1;
-
-        if (m_rangeSubCount < 1)
-        {
-            m_rangeSubCount = 1;
-        }
-    }
-
-    if (m_subsLocationMode == FB_SUB_COUNT_END || m_subsLocationMode == FB_SUB_SPACING_END)
-    {
-        std::vector<double> validMeasuredDepths; 
-        {
-            RimWellPath* wellPath = nullptr;
-            this->firstAncestorOrThisOfTypeAsserted(wellPath);
-        
-            RigWellPath* rigWellPathGeo = wellPath->wellPathGeometry();
-            if (rigWellPathGeo && rigWellPathGeo->m_measuredDepths.size() > 1)
-            {
-                double firstWellPathMD = rigWellPathGeo->m_measuredDepths.front();
-                double lastWellPathMD = rigWellPathGeo->m_measuredDepths.back();
-
-                for (auto md : locationsFromStartSpacingAndCount(m_rangeStart, m_rangeSubSpacing, m_rangeSubCount))
-                {
-                    if (md >= firstWellPathMD && md <= lastWellPathMD)
-                    {
-                        validMeasuredDepths.push_back(md);
-                    }
-                }
-            }
-        }
-        
-        m_locationOfSubs = validMeasuredDepths;
-    }
-
-    RimFishbonesCollection* collection;
-    this->firstAncestorOrThisOfTypeAsserted(collection);
-    computeSubLateralIndices();
-    collection->recalculateStartMD();
+    m_valveLocations->computeRangesAndLocations();
+    valveLocationsUpdated();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -630,11 +531,6 @@ void RimFishbonesMultipleSubs::defineUiOrdering(QString uiConfigName, caf::PdmUi
                 m_lateralTubingRoghnessFactor.uiCapability()->setUiName("Tubing Roughness Factor [m]");
 
                 m_icdOrificeDiameter.uiCapability()->setUiName("ICD Orifice Diameter [mm]");
-
-                m_locationOfSubs.uiCapability()->setUiName("Measured Depths [m]");
-                m_rangeStart.uiCapability()->setUiName("Start MD [m]");
-                m_rangeEnd.uiCapability()->setUiName("End MD [m]");
-                m_rangeSubSpacing.uiCapability()->setUiName("Spacing [m]");
             }
             else if (wellPath->unitSystem() == RiaEclipseUnitTools::UNITS_FIELD)
             {
@@ -645,11 +541,6 @@ void RimFishbonesMultipleSubs::defineUiOrdering(QString uiConfigName, caf::PdmUi
                 m_lateralTubingRoghnessFactor.uiCapability()->setUiName("Tubing Roughness Factor [ft]");
 
                 m_icdOrificeDiameter.uiCapability()->setUiName("ICD Orifice Diameter [in]");
-
-                m_locationOfSubs.uiCapability()->setUiName("Measured Depths [ft]");
-                m_rangeStart.uiCapability()->setUiName("Start MD [ft]");
-                m_rangeEnd.uiCapability()->setUiName("End MD [ft]");
-                m_rangeSubSpacing.uiCapability()->setUiName("Spacing [ft]");
             }
         }
     }
@@ -660,28 +551,9 @@ void RimFishbonesMultipleSubs::defineUiOrdering(QString uiConfigName, caf::PdmUi
         group->add(&fishbonesColor);
     }
 
-    {
+    {        
         caf::PdmUiGroup* group = uiOrdering.addNewGroup("Location");
-
-        group->add(&m_subsLocationMode);
-        if (m_subsLocationMode() != FB_SUB_USER_DEFINED)
-        {
-            group->add(&m_rangeStart);
-            group->add(&m_rangeEnd);
-
-            if (m_subsLocationMode() == FB_SUB_COUNT_END)
-            {
-                group->add(&m_rangeSubCount);
-                group->add(&m_rangeSubSpacing);
-            }
-            else if (m_subsLocationMode() == FB_SUB_SPACING_END)
-            {
-                group->add(&m_rangeSubSpacing);
-                group->add(&m_rangeSubCount);
-            }
-        }
-
-        group->add(&m_locationOfSubs);
+        m_valveLocations->uiOrdering(uiConfigName, *group);
     }
     
     {
@@ -720,38 +592,6 @@ void RimFishbonesMultipleSubs::defineUiOrdering(QString uiConfigName, caf::PdmUi
         mswGroup->add(&m_icdFlowCoefficient);
     }
 
-    // Visibility
-
-    if (m_subsLocationMode == FB_SUB_USER_DEFINED)
-    {
-        m_locationOfSubs.uiCapability()->setUiReadOnly(false);
-
-        m_rangeSubSpacing.uiCapability()->setUiReadOnly(true);
-        m_rangeSubCount.uiCapability()->setUiReadOnly(true);
-        m_rangeStart.uiCapability()->setUiReadOnly(true);
-        m_rangeEnd.uiCapability()->setUiReadOnly(true);
-    }
-    else
-    {
-        m_locationOfSubs.uiCapability()->setUiReadOnly(true);
-
-        m_rangeSubSpacing.uiCapability()->setUiReadOnly(false);
-        m_rangeSubCount.uiCapability()->setUiReadOnly(false);
-        m_rangeStart.uiCapability()->setUiReadOnly(false);
-        m_rangeEnd.uiCapability()->setUiReadOnly(false);
-
-        if (m_subsLocationMode == FB_SUB_COUNT_END)
-        {
-            m_rangeSubSpacing.uiCapability()->setUiReadOnly(true);
-            m_rangeSubCount.uiCapability()->setUiReadOnly(false);
-        }
-        else
-        {
-            m_rangeSubSpacing.uiCapability()->setUiReadOnly(false);
-            m_rangeSubCount.uiCapability()->setUiReadOnly(true);
-        }
-    }
-
     uiOrdering.skipRemainingFields();
 }
 
@@ -760,7 +600,9 @@ void RimFishbonesMultipleSubs::defineUiOrdering(QString uiConfigName, caf::PdmUi
 //--------------------------------------------------------------------------------------------------
 void RimFishbonesMultipleSubs::initAfterRead()
 {
-    if (m_locationOfSubs().size() != m_installationRotationAngles().size())
+    initValveLocationFromLegacyData();
+
+    if (m_valveLocations->locationOfValves().size() != m_installationRotationAngles().size())
     {
         computeRotationAngles();
     }
@@ -797,7 +639,7 @@ void RimFishbonesMultipleSubs::computeRotationAngles()
 {
     std::vector<double> vals;
 
-    for (size_t i = 0; i < m_locationOfSubs().size(); i++)
+    for (size_t i = 0; i < m_valveLocations->locationOfValves().size(); i++)
     {
         vals.push_back(RimFishbonesMultipleSubs::randomValueFromRange(0, 360));
     }
@@ -811,7 +653,7 @@ void RimFishbonesMultipleSubs::computeRotationAngles()
 void RimFishbonesMultipleSubs::computeSubLateralIndices()
 {
     m_subLateralIndices.clear();
-    for (size_t subIndex = 0; subIndex < m_locationOfSubs().size(); ++subIndex)
+    for (size_t subIndex = 0; subIndex < m_valveLocations->locationOfValves().size(); ++subIndex)
     {
         SubLateralIndex subLateralIndex;
         subLateralIndex.subIndex = subIndex;
@@ -822,7 +664,7 @@ void RimFishbonesMultipleSubs::computeSubLateralIndices()
         }
         m_subLateralIndices.push_back(subLateralIndex);
     }
-    double numLaterals = static_cast<double>(m_locationOfSubs().size() * m_lateralCountPerSub);
+    double numLaterals = static_cast<double>(m_valveLocations->locationOfValves().size() * m_lateralCountPerSub);
     int numToRemove = static_cast<int>(std::round((1 - m_lateralInstallSuccessFraction) * numLaterals));
     srand(m_randomSeed());
     while (numToRemove > 0)
@@ -840,21 +682,6 @@ void RimFishbonesMultipleSubs::computeSubLateralIndices()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<double> RimFishbonesMultipleSubs::locationsFromStartSpacingAndCount(double start, double spacing, size_t count)
-{
-    std::vector<double> measuredDepths;
-    
-    for (size_t i = 0; i < count; i++)
-    {
-        measuredDepths.push_back(start + spacing * i);
-    }
-
-    return measuredDepths;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 int RimFishbonesMultipleSubs::randomValueFromRange(int min, int max)
 {
     // See http://www.cplusplus.com/reference/cstdlib/rand/ 
@@ -865,4 +692,55 @@ int RimFishbonesMultipleSubs::randomValueFromRange(int min, int max)
     int randomValue = min + randomNumberInRange;
 
     return randomValue;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFishbonesMultipleSubs::initialiseObsoleteFields()
+{
+    CAF_PDM_InitField(&m_subsLocationMode_OBSOLETE, "SubsLocationMode", caf::AppEnum<LocationType>(FB_SUB_UNDEFINED), "Location Defined By", "", "", "");
+    m_subsLocationMode_OBSOLETE.xmlCapability()->setIOWritable(false);
+
+    CAF_PDM_InitField(&m_rangeStart_OBSOLETE, "RangeStart", std::numeric_limits<double>::infinity(), "Start MD [m]", "", "", "");
+    m_rangeStart_OBSOLETE.xmlCapability()->setIOWritable(false);
+
+    CAF_PDM_InitField(&m_rangeEnd_OBSOLETE, "RangeEnd", std::numeric_limits<double>::infinity(), "End MD [m]", "", "", "");
+    m_rangeEnd_OBSOLETE.xmlCapability()->setIOWritable(false);
+
+    CAF_PDM_InitField(&m_rangeSubSpacing_OBSOLETE, "RangeSubSpacing", std::numeric_limits<double>::infinity(), "Spacing [m]", "", "", "");
+    m_rangeSubSpacing_OBSOLETE.xmlCapability()->setIOWritable(false);
+    
+    CAF_PDM_InitField(&m_rangeSubCount_OBSOLETE, "RangeSubCount", -1, "Number of Subs", "", "", "");
+    m_rangeSubCount_OBSOLETE.xmlCapability()->setIOWritable(false);
+
+    CAF_PDM_InitFieldNoDefault(&m_locationOfSubs_OBSOLETE, "LocationOfSubs", "Measured Depths [m]", "", "", "");
+    m_locationOfSubs_OBSOLETE.xmlCapability()->setIOWritable(false);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFishbonesMultipleSubs::initValveLocationFromLegacyData()
+{
+    RimMultipleValveLocations::LocationType locationType = RimMultipleValveLocations::VALVE_UNDEFINED;
+    if (m_subsLocationMode_OBSOLETE() == FB_SUB_COUNT_END)
+    {
+        locationType = RimMultipleValveLocations::VALVE_COUNT;
+    }
+    else if (m_subsLocationMode_OBSOLETE() == FB_SUB_SPACING_END)
+    {
+        locationType = RimMultipleValveLocations::VALVE_SPACING;
+    }
+    else if (m_subsLocationMode_OBSOLETE() == FB_SUB_USER_DEFINED)
+    {
+        locationType = RimMultipleValveLocations::VALVE_CUSTOM;
+    }
+        
+    m_valveLocations->initFieldsFromFishbones(locationType,
+                                              m_rangeStart_OBSOLETE(),
+                                              m_rangeEnd_OBSOLETE(),
+                                              m_rangeSubSpacing_OBSOLETE(),
+                                              m_rangeSubCount_OBSOLETE(),
+                                              m_locationOfSubs_OBSOLETE());
 }
