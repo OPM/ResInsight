@@ -98,7 +98,7 @@ RicExportLgrUi* RicExportLgrFeature::openDialog(const QString& dialogTitle, RimE
     featureUi->setTimeStep(defaultTimeStep);
 
     caf::PdmUiPropertyViewDialog propertyDialog(nullptr, featureUi, dialogTitle, "", QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
-    propertyDialog.resize(QSize(600, 275));
+    propertyDialog.resize(QSize(600, 230));
 
     if (propertyDialog.exec() == QDialog::Accepted && !featureUi->exportFolder().isEmpty())
     {

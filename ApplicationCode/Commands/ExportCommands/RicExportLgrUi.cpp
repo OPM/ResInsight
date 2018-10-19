@@ -57,9 +57,13 @@ RicExportLgrUi::RicExportLgrUi()
     CAF_PDM_InitFieldNoDefault(&m_caseToApply, "CaseToApply", "Source Case", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_timeStep, "TimeStepIndex", "Time Step", "", "", "");
 
-    CAF_PDM_InitField(&m_cellCountI,    "CellCountI",   2, "Cell Count I", "", "", "");
+    QString ijkLabel = "Cell Count I, J, K";
+    CAF_PDM_InitField(&m_cellCountI,    "CellCountI",   2, ijkLabel, "", "", "");
     CAF_PDM_InitField(&m_cellCountJ,    "CellCountJ",   2, "Cell Count J", "", "", "");
     CAF_PDM_InitField(&m_cellCountK,    "CellCountK",   2, "Cell Count K", "", "", "");
+
+    m_cellCountJ.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
+    m_cellCountK.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
 
     CAF_PDM_InitField(&m_splitType,     "SplitType", LgrSplitTypeEnum(), "Split Type", "", "", "");
 }
@@ -205,10 +209,10 @@ void RicExportLgrUi::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
     uiOrdering.add(&m_exportFolder);
     
     caf::PdmUiGroup* gridRefinement = uiOrdering.addNewGroup("Grid Refinement");
-    gridRefinement->add(&m_cellCountI);
-    gridRefinement->add(&m_cellCountJ);
-    gridRefinement->add(&m_cellCountK);
-    gridRefinement->add(&m_splitType);
+    gridRefinement->add(&m_cellCountI, {true, 2, 1});
+    gridRefinement->add(&m_cellCountJ, false);
+    gridRefinement->add(&m_cellCountK, false);
+    gridRefinement->add(&m_splitType, { true,  2});
 
     uiOrdering.skipRemainingFields(true);
 }
