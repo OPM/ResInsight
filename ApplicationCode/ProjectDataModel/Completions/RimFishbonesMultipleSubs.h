@@ -79,7 +79,7 @@ public:
     bool                isActive() const;
     QString             generatedName() const;
 
-    void                setMeasuredDepthAndCount(double measuredDepth, double spacing, int subCount);
+    void                setMeasuredDepthAndCount(double startMD, double spacing, int subCount);
 
     double              measuredDepth(size_t subIndex) const;
     double              rotationAngle(size_t subIndex) const;
@@ -97,7 +97,7 @@ public:
     size_t              icdCount() const { return m_icdCount(); }
     std::vector<double> lateralLengths() const;
 
-    void                valveLocationsUpdated();
+    void                geometryUpdated();
 
     const std::vector<SubLateralIndex>&         installedLateralIndices() const { return m_subLateralIndices; };
     std::vector<cvf::Vec3d>                     coordsForLateral(size_t subIndex, size_t lateralIndex) const;

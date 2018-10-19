@@ -21,7 +21,9 @@
 #include "RigWellPath.h"
 
 #include "RimFishbonesMultipleSubs.h"
+#include "RimPerforationInterval.h"
 #include "RimWellPath.h"
+#include "RimWellPathValve.h"
 
 #include "cafPdmUiDoubleValueEditor.h"
 #include "cafPdmUiListEditor.h"
@@ -76,7 +78,23 @@ double RimMultipleValveLocations::measuredDepth(size_t valveIndex) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::vector<double>& RimMultipleValveLocations::locationOfValves() const
+double RimMultipleValveLocations::rangeStart() const
+{
+    return m_rangeStart;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimMultipleValveLocations::rangeEnd() const
+{
+    return m_rangeEnd;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const std::vector<double>& RimMultipleValveLocations::valveLocations() const
 {
     return m_locationOfValves();
 }
@@ -92,19 +110,6 @@ void RimMultipleValveLocations::setLocationType(LocationType locationType)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimMultipleValveLocations::setMeasuredDepthAndCount(double measuredDepth, double spacing, int valveCount)
-{
-    m_locationType = RimMultipleValveLocations::VALVE_SPACING;
-
-    m_rangeStart = measuredDepth;
-    m_rangeEnd = measuredDepth + spacing * valveCount;
-    m_rangeValveCount = valveCount;
-
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimMultipleValveLocations::computeRangesAndLocations()
 {
     if (m_locationType == VALVE_COUNT)
@@ -113,15 +118,15 @@ void RimMultipleValveLocations::computeRangesAndLocations()
         if (m_rangeValveCount > 2) divisor = m_rangeValveCount - 1;
 
         m_rangeValveSpacing = fabs(m_rangeStart - m_rangeEnd) / divisor;
+        if (m_rangeValveSpacing < minimumSpacingMeters())
+        {
+            m_rangeValveSpacing = minimumSpacingMeters();
+            m_rangeValveCount = rangeCountFromSpacing();
+        }
     }
     else if (m_locationType == VALVE_SPACING)
     {
-        m_rangeValveCount = (fabs(m_rangeStart - m_rangeEnd) / m_rangeValveSpacing) + 1;
-
-        if (m_rangeValveCount < 1)
-        {
-            m_rangeValveCount = 1;
-        }
+        m_rangeValveCount = rangeCountFromSpacing();
     }
 
     if (m_locationType == VALVE_COUNT || m_locationType == VALVE_SPACING)
@@ -155,7 +160,7 @@ void RimMultipleValveLocations::computeRangesAndLocations()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimMultipleValveLocations::initFieldsFromFishbones(LocationType locationType, double rangeStart, double rangeEnd, double valveSpacing, int valveCount, const std::vector<double>& locationOfValves)
+void RimMultipleValveLocations::initFields(LocationType locationType, double rangeStart, double rangeEnd, double valveSpacing, int valveCount, const std::vector<double>& locationOfValves)
 {
     if (locationType != VALVE_UNDEFINED)
     {
@@ -284,26 +289,13 @@ void RimMultipleValveLocations::fieldChangedByUi(const caf::PdmFieldHandle* chan
         changedField == &m_rangeValveSpacing)
     {
         recomputeLocations = true;
-
-        RimWellPath* wellPath = nullptr;
-        this->firstAncestorOrThisOfTypeAsserted(wellPath);
-
-        RigWellPath* rigWellPathGeo = wellPath->wellPathGeometry();
-        if (rigWellPathGeo && !rigWellPathGeo->m_measuredDepths.empty())
-        {
-            double lastWellPathMD = rigWellPathGeo->m_measuredDepths.back();
-
-            m_rangeStart = cvf::Math::clamp(m_rangeStart(), 0.0, lastWellPathMD);
-            m_rangeEnd = cvf::Math::clamp(m_rangeEnd(), m_rangeStart(), lastWellPathMD);
-        }
+        m_rangeStart = cvf::Math::clamp(m_rangeStart(), rangeMin(), rangeMax());
+        m_rangeEnd   = cvf::Math::clamp(m_rangeEnd(),   rangeMin(), rangeMax());
     }
 
     if (changedField == &m_rangeValveSpacing)
     {
-        // Minimum distance between fishbones is 13.0m
-        // Use 10.0m to allow for some flexibility
-
-        double minimumDistanceMeter = 10.0;
+        double minimumDistanceMeter = minimumSpacingMeters();
 
         RimWellPath* wellPath = nullptr;
         this->firstAncestorOrThisOfTypeAsserted(wellPath);
@@ -332,10 +324,16 @@ void RimMultipleValveLocations::fieldChangedByUi(const caf::PdmFieldHandle* chan
         if (parentCompletion)
         {
             RimFishbonesMultipleSubs* fishbones = dynamic_cast<RimFishbonesMultipleSubs*>(parentCompletion);
+            RimWellPathValve*         valve     = dynamic_cast<RimWellPathValve*>(parentCompletion);
             if (fishbones)
             {
-                fishbones->valveLocationsUpdated();
+                fishbones->geometryUpdated();
             }
+            else if (valve)
+            {
+                valve->geometryUpdated();
+            }
+            
         }
     }
     
@@ -344,6 +342,71 @@ void RimMultipleValveLocations::fieldChangedByUi(const caf::PdmFieldHandle* chan
         pdmParent->updateConnectedEditors();
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RimMultipleValveLocations::rangeCountFromSpacing() const
+{
+    int rangeCount = (fabs(m_rangeStart - m_rangeEnd) / m_rangeValveSpacing) + 1;
+
+    if (rangeCount < 1)
+    {
+        rangeCount = 1;
+    }
+    return rangeCount;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimMultipleValveLocations::minimumSpacingMeters() const
+{
+    // Minimum distance between fishbones is 13.0m
+    // Use 10.0m to allow for some flexibility
+    return 10.0;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimMultipleValveLocations::rangeMin() const
+{
+    const RimPerforationInterval* perfInterval = nullptr;
+    this->firstAncestorOrThisOfType(perfInterval);
+
+    if (perfInterval)
+    {
+        return perfInterval->startMD();
+    }
+    return 0.0;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimMultipleValveLocations::rangeMax() const
+{
+    const RimPerforationInterval* perfInterval = nullptr;
+    this->firstAncestorOrThisOfType(perfInterval);
+
+    if (perfInterval)
+    {
+        return perfInterval->endMD();
+    }
+
+    RimWellPath* wellPath = nullptr;
+    this->firstAncestorOrThisOfTypeAsserted(wellPath);
+
+    RigWellPath* rigWellPathGeo = wellPath->wellPathGeometry();
+    if (rigWellPathGeo && !rigWellPathGeo->m_measuredDepths.empty())
+    {
+        double lastWellPathMD = rigWellPathGeo->m_measuredDepths.back();
+        return lastWellPathMD;
+    }
+    return std::numeric_limits<double>::infinity();
+}
+
 
 //--------------------------------------------------------------------------------------------------
 ///

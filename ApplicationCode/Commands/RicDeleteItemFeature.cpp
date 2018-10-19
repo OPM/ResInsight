@@ -52,6 +52,7 @@
 #include "RimAsciiDataCurve.h"
 #include "RimWellLogRftCurve.h"
 #include "RimWellRftPlot.h"
+#include "RimWellPathValve.h"
 
 #include "RimEllipseFractureTemplate.h"
 #include "RimSimWellFracture.h"
@@ -123,6 +124,7 @@ bool isDeletable(caf::PdmUiItem* uiItem)
     if (dynamic_cast<RimEnsembleCurveSet*>(uiItem))             return true;
     if (dynamic_cast<RimEnsembleCurveFilter*>(uiItem))          return true;
     if (dynamic_cast<RimDerivedEnsembleCaseCollection*>(uiItem)) return true;
+    if (dynamic_cast<RimWellPathValve*>(uiItem))                 return true;
 
     return false;    
 }

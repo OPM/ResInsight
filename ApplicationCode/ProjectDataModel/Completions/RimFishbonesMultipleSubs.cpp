@@ -147,9 +147,10 @@ QString RimFishbonesMultipleSubs::generatedName() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimFishbonesMultipleSubs::setMeasuredDepthAndCount(double measuredDepth, double spacing, int subCount)
+void RimFishbonesMultipleSubs::setMeasuredDepthAndCount(double startMD, double spacing, int subCount)
 {
-    m_valveLocations->setMeasuredDepthAndCount(measuredDepth, spacing, subCount);
+    double endMD = startMD + spacing * subCount;
+    m_valveLocations->initFields(RimMultipleValveLocations::VALVE_COUNT, startMD, endMD, spacing, subCount, {});
 
     computeRangesAndLocations();
     computeRotationAngles();
@@ -328,11 +329,10 @@ std::vector<double> RimFishbonesMultipleSubs::lateralLengths() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimFishbonesMultipleSubs::valveLocationsUpdated()
+void RimFishbonesMultipleSubs::geometryUpdated()
 {
     RimFishbonesCollection* collection;
     this->firstAncestorOrThisOfTypeAsserted(collection);
-    computeSubLateralIndices();
     collection->recalculateStartMD();
 
     computeRotationAngles();
@@ -446,9 +446,9 @@ cvf::Color3f RimFishbonesMultipleSubs::defaultComponentColor() const
 double RimFishbonesMultipleSubs::startMD() const
 {
     double measuredDepth = 0.0;
-    if (!m_valveLocations->locationOfValves().empty())
+    if (!m_valveLocations->valveLocations().empty())
     {
-        measuredDepth = m_valveLocations->locationOfValves().front();
+        measuredDepth = m_valveLocations->valveLocations().front();
     }
 
     return measuredDepth;
@@ -460,9 +460,9 @@ double RimFishbonesMultipleSubs::startMD() const
 double RimFishbonesMultipleSubs::endMD() const
 {
     double measuredDepth = 0.0;
-    if (!m_valveLocations->locationOfValves().empty())
+    if (!m_valveLocations->valveLocations().empty())
     {
-        measuredDepth = m_valveLocations->locationOfValves().back();
+        measuredDepth = m_valveLocations->valveLocations().back();
     }
 
     return measuredDepth;
@@ -484,7 +484,7 @@ void RimFishbonesMultipleSubs::fieldChangedByUi(const caf::PdmFieldHandle* chang
         computeSubLateralIndices();
     }
 
-    valveLocationsUpdated();
+    geometryUpdated();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -509,7 +509,7 @@ caf::PdmFieldHandle* RimFishbonesMultipleSubs::objectToggleField()
 void RimFishbonesMultipleSubs::computeRangesAndLocations()
 {
     m_valveLocations->computeRangesAndLocations();
-    valveLocationsUpdated();
+    geometryUpdated();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -602,7 +602,7 @@ void RimFishbonesMultipleSubs::initAfterRead()
 {
     initValveLocationFromLegacyData();
 
-    if (m_valveLocations->locationOfValves().size() != m_installationRotationAngles().size())
+    if (m_valveLocations->valveLocations().size() != m_installationRotationAngles().size())
     {
         computeRotationAngles();
     }
@@ -639,7 +639,7 @@ void RimFishbonesMultipleSubs::computeRotationAngles()
 {
     std::vector<double> vals;
 
-    for (size_t i = 0; i < m_valveLocations->locationOfValves().size(); i++)
+    for (size_t i = 0; i < m_valveLocations->valveLocations().size(); i++)
     {
         vals.push_back(RimFishbonesMultipleSubs::randomValueFromRange(0, 360));
     }
@@ -653,7 +653,7 @@ void RimFishbonesMultipleSubs::computeRotationAngles()
 void RimFishbonesMultipleSubs::computeSubLateralIndices()
 {
     m_subLateralIndices.clear();
-    for (size_t subIndex = 0; subIndex < m_valveLocations->locationOfValves().size(); ++subIndex)
+    for (size_t subIndex = 0; subIndex < m_valveLocations->valveLocations().size(); ++subIndex)
     {
         SubLateralIndex subLateralIndex;
         subLateralIndex.subIndex = subIndex;
@@ -664,7 +664,7 @@ void RimFishbonesMultipleSubs::computeSubLateralIndices()
         }
         m_subLateralIndices.push_back(subLateralIndex);
     }
-    double numLaterals = static_cast<double>(m_valveLocations->locationOfValves().size() * m_lateralCountPerSub);
+    double numLaterals = static_cast<double>(m_valveLocations->valveLocations().size() * m_lateralCountPerSub);
     int numToRemove = static_cast<int>(std::round((1 - m_lateralInstallSuccessFraction) * numLaterals));
     srand(m_randomSeed());
     while (numToRemove > 0)
@@ -737,7 +737,7 @@ void RimFishbonesMultipleSubs::initValveLocationFromLegacyData()
         locationType = RimMultipleValveLocations::VALVE_CUSTOM;
     }
         
-    m_valveLocations->initFieldsFromFishbones(locationType,
+    m_valveLocations->initFields(locationType,
                                               m_rangeStart_OBSOLETE(),
                                               m_rangeEnd_OBSOLETE(),
                                               m_rangeSubSpacing_OBSOLETE(),

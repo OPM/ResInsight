@@ -42,23 +42,28 @@ public:
     RimMultipleValveLocations();
 
     double                     measuredDepth(size_t valveIndex) const;
-    const std::vector<double>& locationOfValves() const;
+    double                     rangeStart() const;
+    double                     rangeEnd() const;
+    const std::vector<double>& valveLocations() const;
 
     void setLocationType(LocationType locationType);
-    void setMeasuredDepthAndCount(double measuredDepth, double spacing, int subCount);
     void computeRangesAndLocations();
 
-    void initFieldsFromFishbones(LocationType                           locationType,
-                                 double                                 rangeStart,
-                                 double                                 rangeEnd,
-                                 double                                 valveSpacing,
-                                 int                                    valveCount,
-                                 const std::vector<double>&             locationOfValves);
+    void initFields(LocationType                           locationType,
+                    double                                 rangeStart,
+                    double                                 rangeEnd,
+                    double                                 valveSpacing,
+                    int                                    valveCount,
+                    const std::vector<double>&             locationOfValves);
 protected:
     virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
     virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
 
 private:
+    int rangeCountFromSpacing() const;
+    double minimumSpacingMeters() const;
+    double rangeMin() const;
+    double rangeMax() const;
     static std::vector<double>  locationsFromStartSpacingAndCount(double start, double spacing, size_t count);
 
 private:
@@ -68,5 +73,5 @@ private:
     caf::PdmField<double>                         m_rangeValveSpacing;
     caf::PdmField<int>                            m_rangeValveCount;
 
-    caf::PdmField<std::vector<double>>  m_locationOfValves; // Given in measured depth
+    caf::PdmField<std::vector<double>>  m_locationOfValves; // Given in measured depth    
 };

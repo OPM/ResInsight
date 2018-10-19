@@ -24,6 +24,7 @@
 
 #include "RigWellPath.h"
 
+#include "RimMultipleValveLocations.h"
 #include "RimPerforationInterval.h"
 #include "RimProject.h"
 #include "RimWellPath.h"
@@ -38,11 +39,19 @@ CAF_PDM_SOURCE_INIT(RimWellPathValve, "WellPathValve");
 RimWellPathValve::RimWellPathValve()
 {
     CAF_PDM_InitObject("WellPathValve", ":/PerforationInterval16x16.png", "", "");
+
     CAF_PDM_InitFieldNoDefault(&m_type, "CompletionType", "Type    ", "", "", "");
+    m_type = RiaDefines::ICD;
+
     CAF_PDM_InitField(&m_measuredDepth, "StartMeasuredDepth", 0.0, "Start MD", "", "", "");
     m_measuredDepth.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
+
+    CAF_PDM_InitFieldNoDefault(&m_multipleValveLocations, "ValveLocations", "Valve Locations", "", "", "");
+    m_multipleValveLocations = new RimMultipleValveLocations;
+    m_multipleValveLocations.uiCapability()->setUiTreeHidden(true);
+    m_multipleValveLocations.uiCapability()->setUiTreeChildrenHidden(true);
     nameField()->uiCapability()->setUiReadOnly(true);
-    m_type = RiaDefines::ICD;
+
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -56,9 +65,42 @@ RimWellPathValve::~RimWellPathValve()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellPathValve::setMeasuredDepth(double measuredDepth)
+void RimWellPathValve::setMeasuredDepthAndCount(double startMD, double spacing, int valveCount)
 {
-    m_measuredDepth = measuredDepth;
+    m_measuredDepth = startMD;
+    double endMD = startMD + spacing * valveCount;
+    m_multipleValveLocations->initFields(RimMultipleValveLocations::VALVE_COUNT, startMD, endMD, spacing, valveCount, {});
+    m_multipleValveLocations->computeRangesAndLocations();
+}
+
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellPathValve::geometryUpdated()
+{
+    m_measuredDepth = m_multipleValveLocations->valveLocations().front();
+
+    RimProject* proj;
+    this->firstAncestorOrThisOfTypeAsserted(proj);
+    proj->reloadCompletionTypeResultsInAllViews();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<double> RimWellPathValve::valveLocations() const
+{
+    std::vector<double> valveDepths;
+    if (m_type() == RiaDefines::ICV)
+    {
+        valveDepths.push_back(m_measuredDepth);
+    }
+    else
+    {
+        valveDepths = m_multipleValveLocations->valveLocations();
+    }
+    return valveDepths;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -98,7 +140,18 @@ cvf::Color3f RimWellPathValve::defaultComponentColor() const
 //--------------------------------------------------------------------------------------------------
 double RimWellPathValve::startMD() const
 {
-    return m_measuredDepth;
+    if (m_type() == RiaDefines::ICV)
+    {
+        return m_measuredDepth;
+    }
+    else if (m_multipleValveLocations()->valveLocations().empty())
+    {
+        return m_multipleValveLocations->rangeStart();
+    }
+    else
+    {
+        return m_multipleValveLocations()->valveLocations().front();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -106,7 +159,18 @@ double RimWellPathValve::startMD() const
 //--------------------------------------------------------------------------------------------------
 double RimWellPathValve::endMD() const
 {
-    return m_measuredDepth + 0.5;
+    if (m_type() == RiaDefines::ICV)
+    {
+        return m_measuredDepth + 0.5;
+    }
+    else if (m_multipleValveLocations()->valveLocations().empty())
+    {
+        return m_multipleValveLocations->rangeEnd();
+    }
+    else
+    {
+        return m_multipleValveLocations()->valveLocations().back();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -144,6 +208,7 @@ void RimWellPathValve::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering
 {
     uiOrdering.add(&m_type);
 
+    if (m_type() == RiaDefines::ICV)
     {
         RimWellPath* wellPath;
         firstAncestorOrThisOfType(wellPath);
@@ -158,9 +223,14 @@ void RimWellPathValve::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering
                 m_measuredDepth.uiCapability()->setUiName("Measured Depth [ft]");
             }
         }
+        uiOrdering.add(&m_measuredDepth);
     }
-
-    uiOrdering.add(&m_measuredDepth);
+    else
+    {
+        caf::PdmUiGroup* group = uiOrdering.addNewGroup("Multiple Valve Locations");
+        m_multipleValveLocations->uiOrdering(uiConfigName, *group);
+    }
+    uiOrdering.skipRemainingFields(true);
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -29,8 +29,8 @@ void RicNewValveFeature::onActionTriggered(bool isChecked)
     if (perfInterval)
     {
         RimWellPathValve* valve = new RimWellPathValve;
-        valve->setMeasuredDepth(perfInterval->startMD());
         perfInterval->addValve(valve);
+        valve->setMeasuredDepthAndCount(perfInterval->startMD(), perfInterval->endMD() - perfInterval->startMD(), 1);
 
         RimWellPathCollection* wellPathCollection = nullptr;
         perfInterval->firstAncestorOrThisOfType(wellPathCollection);

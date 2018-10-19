@@ -126,6 +126,7 @@ private:
     RiaDefines::WellPathComponentType       m_componentType;
     double                                  m_startMD;
     double                                  m_endMD;
+    std::vector<double>                     m_subMDs;
     QString                                 m_label;
     QString                                 m_legendTitle;
     double                                  m_columnOffset;

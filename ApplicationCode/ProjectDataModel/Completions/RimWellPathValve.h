@@ -23,11 +23,13 @@
 #include "cafPdmObject.h"
 
 #include "cafAppEnum.h"
+#include "cafPdmChildField.h"
 #include "cafPdmField.h"
 
 #include <QList>
 #include <QString>
 
+class RimMultipleValveLocations;
 class RimWellPath;
 
 class RimWellPathValve : public RimCheckableNamedObject, public RimWellPathComponentInterface
@@ -39,7 +41,9 @@ public:
     RimWellPathValve();
     ~RimWellPathValve() override;
 
-    void setMeasuredDepth(double measuredDepth);
+    void                       setMeasuredDepthAndCount(double startMD, double spacing, int valveCount);
+    void                       geometryUpdated();
+    std::vector<double>        valveLocations() const;
 
     // Overrides from RimWellPathCompletionInterface
     RiaDefines::WellPathComponentType componentType() const override;
@@ -48,7 +52,7 @@ public:
     cvf::Color3f                      defaultComponentColor() const override;
     double                            startMD() const override;
     double                            endMD() const override;
-
+    
 private:
     QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
     void                          fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
@@ -57,10 +61,10 @@ private:
     void                          defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
 
 private:
-    caf::PdmField<CompletionTypeEnum>     m_type;
-    caf::PdmField<double>                 m_measuredDepth;
+    caf::PdmField<CompletionTypeEnum>              m_type;
+    caf::PdmField<double>                          m_measuredDepth;
+    caf::PdmChildField<RimMultipleValveLocations*> m_multipleValveLocations;
 
-protected:
 };
 
 

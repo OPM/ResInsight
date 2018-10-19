@@ -396,59 +396,81 @@ void RivWellPathPartMgr::appendPerforationValvesToModel(cvf::ModelBasicList* mod
                 radii = { wellPathRadius, wellPathRadius * 1.8, wellPathRadius * 2.0,
                           wellPathRadius * 2.0, wellPathRadius * 1.8,
                           wellPathRadius * 1.7, wellPathRadius * 1.7, wellPathRadius };
+                
+                double startMD = valve->startMD();
+                std::vector<cvf::Vec3d> displayCoords;
+                for (double mdRelativeToStart : measuredDepthsRelativeToStartMD)
+                {
+                    displayCoords.push_back(displayCoordTransform->transformToDisplayCoord(
+                        m_rimWellPath->wellPathGeometry()->interpolatedPointAlongWellPath(mdRelativeToStart * 0.333 * wellPathRadius + startMD)));
+                }
+                
+                cvf::ref<RivObjectSourceInfo> objectSourceInfo = new RivObjectSourceInfo(valve);
+
+                cvf::Collection<cvf::Part> parts;
+                geoGenerator.tubeWithCenterLinePartsAndVariableWidth(&parts, displayCoords, radii, valveColor);
+                for (auto part : parts)
+                {
+                    part->setSourceInfo(objectSourceInfo.p());
+                    model->addPart(part.p());
+                }
             }
             else if (valve->componentType() == RiaDefines::ICD || valve->componentType() == RiaDefines::AICD)
             {
-                int size = 16;
-
-                measuredDepthsRelativeToStartMD.resize(size);
-                radii.resize(size);
-                for (int i = 0; i < size; i += 2)
+                std::vector<double> valveLocations = valve->valveLocations();
+                for (double startMD : valveLocations)
                 {
-                    measuredDepthsRelativeToStartMD[i] = double(i / 2);
-                    measuredDepthsRelativeToStartMD[i + 1] = double(i / 2 + 0.5);
+                    int size = 16;
+
+                    measuredDepthsRelativeToStartMD.resize(size);
+                    radii.resize(size);
+                    for (int i = 0; i < size; i += 2)
+                    {
+                        measuredDepthsRelativeToStartMD[i] = double(i / 2);
+                        measuredDepthsRelativeToStartMD[i + 1] = double(i / 2 + 0.5);
+                    }
+                    radii[0] = wellPathRadius;
+                    bool inner = false;
+                    int nInners = 0;
+                    for (int i = 1; i < size - 1; i += 2)
+                    {
+                        if (inner && valve->componentType() == RiaDefines::AICD && nInners > 0)
+                        {
+                            radii[i + 1] = radii[i] = wellPathRadius * 1.7;
+                            nInners = 0;
+                        }
+                        else if (inner)
+                        {
+                            radii[i + 1] = radii[i] = wellPathRadius * 1.9;
+                            nInners++;
+                        }
+                        else
+                        {
+                            radii[i + 1] = radii[i] = wellPathRadius * 2.0;
+                        }
+                        inner = !inner;
+                    }
+                    radii[size - 1] = wellPathRadius;
+
+                    std::vector<cvf::Vec3d> displayCoords;
+                    for (double mdRelativeToStart : measuredDepthsRelativeToStartMD)
+                    {
+                        displayCoords.push_back(displayCoordTransform->transformToDisplayCoord(
+                            m_rimWellPath->wellPathGeometry()->interpolatedPointAlongWellPath(mdRelativeToStart * 0.333 * wellPathRadius + startMD)));
+                    }
+
+                    cvf::ref<RivObjectSourceInfo> objectSourceInfo = new RivObjectSourceInfo(valve);
+
+                    cvf::Collection<cvf::Part> parts;
+                    geoGenerator.tubeWithCenterLinePartsAndVariableWidth(&parts, displayCoords, radii, valveColor);
+                    for (auto part : parts)
+                    {
+                        part->setSourceInfo(objectSourceInfo.p());
+                        model->addPart(part.p());
+                    }
                 }
-                radii[0] = wellPathRadius;
-                bool inner  = false;
-                int nInners = 0;
-                for (int i = 1; i < size - 1; i += 2)
-                {
-                    if (inner && valve->componentType() == RiaDefines::AICD && nInners > 0)
-                    {
-                        radii[i + 1] = radii[i] = wellPathRadius * 1.7;
-                        nInners = 0;
-                    }
-                    else if (inner)
-                    {
-                        radii[i + 1] = radii[i] = wellPathRadius * 1.9;
-                        nInners++;
-                    }
-                    else
-                    {
-                        radii[i + 1] = radii[i] = wellPathRadius * 2.0;
-                    }
-                    inner = !inner;
-                }
-                radii[size - 1] = wellPathRadius;
             }
-            double startMD = valve->startMD();
-
-            std::vector<cvf::Vec3d> displayCoords;
-            for (double mdRelativeToStart : measuredDepthsRelativeToStartMD)
-            {
-                displayCoords.push_back(displayCoordTransform->transformToDisplayCoord(
-                    m_rimWellPath->wellPathGeometry()->interpolatedPointAlongWellPath(mdRelativeToStart * 0.333 * wellPathRadius + startMD)));
-            }
-
-            cvf::ref<RivObjectSourceInfo> objectSourceInfo = new RivObjectSourceInfo(valve);
-
-            cvf::Collection<cvf::Part> parts;
-            geoGenerator.tubeWithCenterLinePartsAndVariableWidth(&parts, displayCoords, radii, valveColor);
-            for (auto part : parts)
-            {
-                part->setSourceInfo(objectSourceInfo.p());
-                model->addPart(part.p());
-            }
+           
         }
     }
 }

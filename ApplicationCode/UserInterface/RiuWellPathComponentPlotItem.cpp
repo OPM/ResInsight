@@ -30,6 +30,7 @@
 #include "RimWellPathAttribute.h"
 #include "RimWellPathAttributeCollection.h"
 #include "RimWellPath.h"
+#include "RimWellPathValve.h"
 
 #include "RigWellPath.h"
 
@@ -78,6 +79,11 @@ RiuWellPathComponentPlotItem::RiuWellPathComponentPlotItem(const RimWellPath* we
     m_endMD         = component->endMD();
 
     calculateColumnOffsets(component);
+    const RimWellPathValve* valve = dynamic_cast<const RimWellPathValve*>(component);
+    if (valve)
+    {
+        m_subMDs = valve->valveLocations();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -223,17 +229,26 @@ void RiuWellPathComponentPlotItem::onLoadDataAndUpdate(bool updateParentPlot)
     }
     else if (m_componentType == RiaDefines::ICD)
     {
-        addMarker(0.0, startDepth, 26, RiuQwtSymbol::SYMBOL_ELLIPSE, componentColor(), label(), Qt::AlignCenter, Qt::Horizontal, false, true);
+        for (double md : m_subMDs)
+        {
+            addMarker(0.0, md, 16, RiuQwtSymbol::SYMBOL_ELLIPSE, componentColor(), "", Qt::AlignCenter, Qt::Horizontal, false, true);
+        }
         m_combinedComponentGroup.addLegendItem(createMarker(0.0, 0.0, 12.0, RiuQwtSymbol::SYMBOL_ELLIPSE, componentColor()));
     }
     else if (m_componentType == RiaDefines::ICV)
     {
-        addMarker(0.0, startDepth, 26, RiuQwtSymbol::SYMBOL_ELLIPSE, componentColor(), label(), Qt::AlignCenter, Qt::Horizontal, false, true);
+        for (double md : m_subMDs)
+        {
+            addMarker(0.0, md, 16, RiuQwtSymbol::SYMBOL_ELLIPSE, componentColor(), "", Qt::AlignCenter, Qt::Horizontal, false, true);
+        }
         m_combinedComponentGroup.addLegendItem(createMarker(0.0, 0.0, 12.0, RiuQwtSymbol::SYMBOL_ELLIPSE, componentColor()));
     }
     else if (m_componentType == RiaDefines::AICD)
     {
-        addMarker(0.0, startDepth, 26, RiuQwtSymbol::SYMBOL_ELLIPSE, componentColor(), label(), Qt::AlignCenter, Qt::Horizontal, false, true);
+        for (double md : m_subMDs)
+        {
+            addMarker(0.0, md, 16, RiuQwtSymbol::SYMBOL_ELLIPSE, componentColor(), "", Qt::AlignCenter, Qt::Horizontal, false, true);
+        }
         m_combinedComponentGroup.addLegendItem(createMarker(0.0, 0.0, 12.0, RiuQwtSymbol::SYMBOL_ELLIPSE, componentColor()));
     }
     else if (m_componentType == RiaDefines::PACKER)
