@@ -174,21 +174,27 @@ double RigEclipseToStimPlanCalculator::areaWeightedWidth() const
     auto stimPlanFractureTemplate = dynamic_cast<const RimStimPlanFractureTemplate*>(m_fracture->fractureTemplate());
     if (stimPlanFractureTemplate)
     {
-        RiaWeightedMeanCalculator<double> calc;
-
         auto widthValues = stimPlanFractureTemplate->widthResultValues();
-
-        for (const auto& singleCellCalc : m_singleFractureCellCalculators)
+        if (!widthValues.empty())
         {
-            double cellArea = singleCellCalc.second.areaOpenForFlow();
+            RiaWeightedMeanCalculator<double> calc;
 
-            size_t globalStimPlanCellIndex = singleCellCalc.first;
-            double widthValue              = widthValues[globalStimPlanCellIndex];
+            for (const auto& singleCellCalc : m_singleFractureCellCalculators)
+            {
+                double cellArea = singleCellCalc.second.areaOpenForFlow();
 
-            calc.addValueAndWeight(widthValue, cellArea);
+                size_t globalStimPlanCellIndex = singleCellCalc.first;
+                double widthValue              = widthValues[globalStimPlanCellIndex];
+
+                calc.addValueAndWeight(widthValue, cellArea);
+            }
+
+            width = calc.weightedMean();
         }
-
-        width = calc.weightedMean();
+        else
+        {
+            width = stimPlanFractureTemplate->computeFractureWidth(m_fracture);
+        }
     }
 
     return width;
