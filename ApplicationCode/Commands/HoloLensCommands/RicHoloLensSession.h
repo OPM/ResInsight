@@ -40,6 +40,8 @@ public:
     void updateSessionDataFromView(RimGridView* activeView);
     void terminateSession();
 
+    static void refreshToolbarState();
+
 private:
     bool m_isSessionValid;
     bool m_isDummySession;

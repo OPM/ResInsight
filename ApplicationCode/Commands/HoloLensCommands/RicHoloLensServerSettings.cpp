@@ -31,3 +31,11 @@ RicHoloLensServerSettings::RicHoloLensServerSettings()
     CAF_PDM_InitField(&m_serverAddress, "ServerAddress", QString(), "Server Address", "", "", "");
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RicHoloLensServerSettings::serverUrl() const
+{
+    return m_serverAddress;
+}
+

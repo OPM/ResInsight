@@ -21,7 +21,6 @@
 #include "cafPdmChildField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
-#include "cafPdmProxyValueField.h"
 #include "cafPdmPtrField.h"
 
 class RicHoloLensServerSettings;
@@ -37,24 +36,16 @@ public:
     RicHoloLensCreateSessionUi();
     ~RicHoloLensCreateSessionUi() override;
 
-protected:
-    void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
-    void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
-    void defineEditorAttribute(const caf::PdmFieldHandle* field,
-                               QString                    uiConfigName,
-                               caf::PdmUiEditorAttribute* attribute) override;
+    QString serverUrl() const;
+    QString sessionName() const;
+    QString sessionPinCode() const;
 
-private:
-    QString getStatusText() const;
-    void    setStatusText(const QString& statusText);
+protected:
+    void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
 
 private:
     caf::PdmChildField<RicHoloLensServerSettings*> m_serverSettings;
-    caf::PdmField<bool>                            m_createSession;
 
-    caf::PdmField<QString>           m_sessionName;
-    caf::PdmField<QString>           m_sessionPinCode;
-    caf::PdmProxyValueField<QString> m_statusTextProxy;
-
-    QString m_statusText;
+    caf::PdmField<QString> m_sessionName;
+    caf::PdmField<QString> m_sessionPinCode;
 };

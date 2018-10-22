@@ -22,11 +22,13 @@
 
 #include "RicHoloLensCreateSessionUi.h"
 #include "RicHoloLensServerSettings.h"
+#include "RicHoloLensSession.h"
 
 #include "cafPdmSettings.h"
 #include "cafPdmUiPropertyViewDialog.h"
 
 #include <QAction>
+#include <QPushButton>
 
 CAF_CMD_SOURCE_INIT(RicHoloLensCreateSessionFeature, "RicHoloLensCreateSessionFeature");
 
@@ -35,7 +37,7 @@ CAF_CMD_SOURCE_INIT(RicHoloLensCreateSessionFeature, "RicHoloLensCreateSessionFe
 //--------------------------------------------------------------------------------------------------
 bool RicHoloLensCreateSessionFeature::isCommandEnabled()
 {
-    return true;
+    return !RicHoloLensSession::instance()->isSessionValid();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -45,10 +47,24 @@ void RicHoloLensCreateSessionFeature::onActionTriggered(bool isChecked)
 {
     RicHoloLensCreateSessionUi createSessionUi;
 
-    caf::PdmUiPropertyViewDialog propertyDialog(
-        nullptr, &createSessionUi, "HoloLens - Export Data Folder", "", QDialogButtonBox::Close);
-    propertyDialog.resize(QSize(400, 400));
+    caf::PdmUiPropertyViewDialog propertyDialog(nullptr, &createSessionUi, "HoloLens - Create Session", "");
+    propertyDialog.resize(QSize(400, 330));
+
+    {
+        QDialogButtonBox* dialogButtonBox = propertyDialog.dialogButtonBox();
+        dialogButtonBox->clear();
+
+        QPushButton* pushButton = dialogButtonBox->addButton("Create Session", QDialogButtonBox::ActionRole);
+        connect(pushButton, SIGNAL(clicked()), &propertyDialog, SLOT(close()));
+    }
+
     propertyDialog.exec();
+
+    RicHoloLensSession::instance()->createSession(
+        createSessionUi.serverUrl(), createSessionUi.sessionName(), createSessionUi.sessionPinCode());
+
+    RicHoloLensSession::refreshToolbarState();
+
 }
 
 //--------------------------------------------------------------------------------------------------

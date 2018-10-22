@@ -33,6 +33,8 @@ class RicHoloLensServerSettings : public caf::PdmObject
 public:
     RicHoloLensServerSettings();
 
+    QString serverUrl() const;
+
 private:
     caf::PdmField<QString>         m_serverAddress;
 };

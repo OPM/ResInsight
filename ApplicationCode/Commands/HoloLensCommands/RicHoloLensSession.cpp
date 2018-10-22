@@ -18,6 +18,10 @@
 
 #include "RicHoloLensSession.h"
 
+#include "RiaLogging.h"
+
+#include "cafCmdFeatureManager.h"
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -44,8 +48,14 @@ bool RicHoloLensSession::createSession(const QString& serverUrl, const QString& 
 {
     if (isSessionValid())
     {
+        RiaLogging::error("Terminate existing session before creating a new session");
+        
         return false;
     }
+
+    RiaLogging::info("url : " + serverUrl + " name : " + sessionName + " pinCode : " + sessionPinCode);
+
+    m_isSessionValid = true;
 
     return true;
 }
@@ -57,6 +67,8 @@ bool RicHoloLensSession::createDummyFileBackedSession()
 {
     if (isSessionValid())
     {
+        RiaLogging::error("Terminate existing session before creating a new session");
+
         return false;
     }
 
@@ -78,13 +90,34 @@ bool RicHoloLensSession::isSessionValid() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicHoloLensSession::updateSessionDataFromView(RimGridView* activeView) {}
+void RicHoloLensSession::updateSessionDataFromView(RimGridView* activeView)
+{
+    RiaLogging::info("HoloLens : updateSessionDataFromView");
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 void RicHoloLensSession::terminateSession()
 {
+    if (!isSessionValid()) return;
+
+    RiaLogging::info("Terminating HoloLens Session");
+
     m_isDummySession = false;
     m_isSessionValid = false;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicHoloLensSession::refreshToolbarState()
+{
+    QStringList commandIds;
+
+    commandIds << "RicHoloLensCreateSessionFeature";
+    commandIds << "RicHoloLensExportToSharingServerFeature";
+    commandIds << "RicHoloLensTerminateSessionFeature";
+
+    caf::CmdFeatureManager::instance()->refreshEnabledState(commandIds);
 }

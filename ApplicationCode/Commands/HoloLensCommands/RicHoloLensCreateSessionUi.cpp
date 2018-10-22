@@ -25,10 +25,7 @@
 #include "RicHoloLensServerSettings.h"
 
 #include "cafPdmSettings.h"
-#include "cafPdmUiFilePathEditor.h"
 #include "cafPdmUiOrdering.h"
-#include "cafPdmUiPushButtonEditor.h"
-#include "cafPdmUiTextEditor.h"
 
 CAF_PDM_SOURCE_INIT(RicHoloLensCreateSessionUi, "RicHoloLensCreateSessionUi");
 
@@ -39,23 +36,13 @@ RicHoloLensCreateSessionUi::RicHoloLensCreateSessionUi()
 {
     CAF_PDM_InitObject("HoloLens Create Session", "", "", "");
 
-    CAF_PDM_InitField(&m_createSession, "CreateSession", false, "", "", "", "");
-    caf::PdmUiPushButtonEditor::configureEditorForField(&m_createSession);
-
     CAF_PDM_InitField(&m_sessionName, "SessionName", QString("DummySessionName"), "Session Name", "", "", "");
     CAF_PDM_InitField(&m_sessionPinCode, "SessionPinCode", QString("1234"), "Session Pin Code", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_serverSettings, "ServerSettings", "Server Settings", "", "", "");
     m_serverSettings = new RicHoloLensServerSettings;
 
-    CAF_PDM_InitFieldNoDefault(&m_statusTextProxy, "StatusText", "Status Text", "", "", "");
-    m_statusTextProxy.registerGetMethod(this, &RicHoloLensCreateSessionUi::getStatusText);
-    m_statusTextProxy.uiCapability()->setUiEditorTypeName(caf::PdmUiTextEditor::uiEditorTypeName());
-    m_statusTextProxy.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::TOP);
-
     caf::PdmSettings::readFieldsFromApplicationStore(m_serverSettings);
-
-    m_statusText = "Server Status Unknown";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -67,24 +54,30 @@ RicHoloLensCreateSessionUi::~RicHoloLensCreateSessionUi()
 }
 
 //--------------------------------------------------------------------------------------------------
-///
+/// 
 //--------------------------------------------------------------------------------------------------
-void RicHoloLensCreateSessionUi::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
-                                                  const QVariant&            oldValue,
-                                                  const QVariant&            newValue)
+QString RicHoloLensCreateSessionUi::serverUrl() const
 {
-    if (changedField == &m_createSession)
-    {
-        if (m_createSession)
-        {
-            QString msg = "Created Session : " + m_sessionName;
-            setStatusText(msg);
+    CVF_ASSERT(m_serverSettings());
 
-            RiaLogging::info(msg);
-        }
+    return m_serverSettings->serverUrl();
+}
 
-        m_createSession = false;
-    }
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RicHoloLensCreateSessionUi::sessionName() const
+{
+    return m_sessionName;
+
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RicHoloLensCreateSessionUi::sessionPinCode() const
+{
+    return m_sessionPinCode;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -103,39 +96,5 @@ void RicHoloLensCreateSessionUi::defineUiOrdering(QString uiConfigName, caf::Pdm
 
         group->add(&m_sessionName);
         group->add(&m_sessionPinCode);
-        group->add(&m_createSession);
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RicHoloLensCreateSessionUi::defineEditorAttribute(const caf::PdmFieldHandle* field,
-                                                       QString                    uiConfigName,
-                                                       caf::PdmUiEditorAttribute* attribute)
-{
-    if (field == &m_createSession)
-    {
-        caf::PdmUiPushButtonEditorAttribute* pbAttribute = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>(attribute);
-        if (pbAttribute)
-        {
-            pbAttribute->m_buttonText = "Create Session";
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RicHoloLensCreateSessionUi::getStatusText() const
-{
-    return m_statusText;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RicHoloLensCreateSessionUi::setStatusText(const QString& statusText)
-{
-    m_statusText = statusText;
 }

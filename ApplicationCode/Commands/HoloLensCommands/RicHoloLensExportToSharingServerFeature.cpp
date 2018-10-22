@@ -18,6 +18,8 @@
 
 #include "RicHoloLensExportToSharingServerFeature.h"
 
+#include "RicHoloLensSession.h"
+
 #include "VdeFileExporter.h"
 
 #include "RiaApplication.h"
@@ -34,9 +36,7 @@ CAF_CMD_SOURCE_INIT(RicHoloLensExportToSharingServerFeature, "RicHoloLensExportT
 //--------------------------------------------------------------------------------------------------
 bool RicHoloLensExportToSharingServerFeature::isCommandEnabled()
 {
-    // Return true if a valid session is active
-
-    return true;
+    return RicHoloLensSession::instance()->isSessionValid();
 }
 
 //--------------------------------------------------------------------------------------------------
