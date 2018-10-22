@@ -18,32 +18,17 @@
 
 #pragma once
 
-#include <QString>
-
-class RimGridView;
+#include "cafCmdFeature.h"
 
 //==================================================================================================
 ///
 //==================================================================================================
-class RicHoloLensSession
+class RicHoloLensCreateDummyFiledBackedSessionFeature : public caf::CmdFeature
 {
-public:
-    RicHoloLensSession();
-
-    static RicHoloLensSession* instance();
-
-    bool createSession(const QString& serverUrl, const QString& sessionName, const QString& sessionPinCode);
-    bool createDummyFileBackedSession();
-
-    bool isSessionValid() const;
-    bool isFileBackedSessionValid() const;
-
-    void updateSessionDataFromView(RimGridView* activeView);
-    void terminateSession();
-
-    static void refreshToolbarState();
+    CAF_CMD_HEADER_INIT;
 
 private:
-    bool m_isSessionValid;
-    bool m_isIsFileBackedSessionValid;
+    bool isCommandEnabled() override;
+    void onActionTriggered(bool isChecked) override;
+    void setupActionLook(QAction* actionToSetup) override;
 };

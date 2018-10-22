@@ -27,7 +27,7 @@
 //--------------------------------------------------------------------------------------------------
 RicHoloLensSession::RicHoloLensSession()
     : m_isSessionValid(false)
-    , m_isDummySession(false)
+    , m_isIsFileBackedSessionValid(false)
 {
 }
 
@@ -72,7 +72,7 @@ bool RicHoloLensSession::createDummyFileBackedSession()
         return false;
     }
 
-    m_isDummySession = true;
+    m_isIsFileBackedSessionValid = true;
 
     return true;
 }
@@ -82,9 +82,17 @@ bool RicHoloLensSession::createDummyFileBackedSession()
 //--------------------------------------------------------------------------------------------------
 bool RicHoloLensSession::isSessionValid() const
 {
-    if (m_isDummySession) return true;
+    if (m_isIsFileBackedSessionValid) return true;
 
     return m_isSessionValid;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RicHoloLensSession::isFileBackedSessionValid() const
+{
+    return m_isIsFileBackedSessionValid;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -104,7 +112,7 @@ void RicHoloLensSession::terminateSession()
 
     RiaLogging::info("Terminating HoloLens Session");
 
-    m_isDummySession = false;
+    m_isIsFileBackedSessionValid = false;
     m_isSessionValid = false;
 }
 

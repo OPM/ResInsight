@@ -499,6 +499,7 @@ void RiuMainWindow::createMenus()
     testMenu->addSeparator();
 
     testMenu->addAction(cmdFeatureMgr->action("RicHoloLensExportToFolderFeature"));
+    testMenu->addAction(cmdFeatureMgr->action("RicHoloLensCreateDummyFiledBackedSessionFeature"));
 
     // Windows menu
     m_windowMenu = menuBar()->addMenu("&Windows");

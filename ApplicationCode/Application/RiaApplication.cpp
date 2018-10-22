@@ -997,6 +997,7 @@ bool RiaApplication::saveProjectAs(const QString& fileName)
 void RiaApplication::closeProject()
 {
     RicHoloLensSession::instance()->terminateSession();
+    RicHoloLensSession::refreshToolbarState();
 
     RiuMainWindow* mainWnd = RiuMainWindow::instance();
 
