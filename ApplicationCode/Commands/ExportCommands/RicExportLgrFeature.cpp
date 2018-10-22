@@ -183,6 +183,40 @@ void RicExportLgrFeature::exportLgrs(QTextStream& stream, const std::vector<LgrI
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RicExportLgrFeature::exportLgrsForWellPath(const QString& exportFolder,
+                                                RimWellPath* wellPath,
+                                                RimEclipseCase* eclipseCase,
+                                                size_t timeStep,
+                                                caf::VecIjk lgrCellCounts,
+                                                bool oneSingleLgr)
+{
+    auto intersectingCells = cellsIntersectingCompletions(eclipseCase, wellPath, timeStep);
+    if (containsAnyNonMainGridCells(intersectingCells))
+    {
+        return false;
+    }
+
+    std::vector<LgrInfo> lgrs;
+    if (oneSingleLgr)
+        lgrs = buildSingleLgr(eclipseCase, intersectingCells, lgrCellCounts);
+    else
+        lgrs = buildOneLgrPerMainCell(eclipseCase, intersectingCells, lgrCellCounts);
+
+    // Export
+    QFile   file;
+    QString fileName = caf::Utils::makeValidFileBasename(QString("LGR_%1").arg(wellPath->name())) + ".dat";
+    openFileForExport(exportFolder, fileName, &file);
+    QTextStream stream(&file);
+    stream.setRealNumberNotation(QTextStream::FixedNotation);
+    stream.setRealNumberPrecision(2);
+    exportLgrs(stream, lgrs);
+    file.close();
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 std::vector<LgrInfo> RicExportLgrFeature::buildOneLgrPerMainCell(RimEclipseCase* eclipseCase,
@@ -364,28 +398,10 @@ void RicExportLgrFeature::onActionTriggered(bool isChecked)
         bool lgrIntersected = false;
         for (const auto& wellPath : wellPaths)
         {
-            auto intersectingCells = cellsIntersectingCompletions(eclipseCase, wellPath, timeStep);
-            if (containsAnyNonMainGridCells(intersectingCells))
+            if (!exportLgrsForWellPath(dialogData->exportFolder(), wellPath, eclipseCase, timeStep, lgrCellCounts, dialogData->singleLgrSplit()))
             {
                 lgrIntersected = true;
-                continue;
             }
-
-            std::vector<LgrInfo> lgrs;
-            if(dialogData->singleLgrSplit())
-                lgrs = buildSingleLgr(eclipseCase, intersectingCells, lgrCellCounts);
-            else
-                lgrs = buildOneLgrPerMainCell(eclipseCase, intersectingCells, lgrCellCounts);
-
-            // Export
-            QFile file;
-            QString fileName = caf::Utils::makeValidFileBasename(QString("LGR_%1").arg(wellPath->name())) + ".dat";
-            openFileForExport(dialogData->exportFolder(), fileName, &file);
-            QTextStream stream(&file);
-            stream.setRealNumberNotation(QTextStream::FixedNotation);
-            stream.setRealNumberPrecision(2);
-            exportLgrs(stream, lgrs);
-            file.close();
         }
 
         if (lgrIntersected)

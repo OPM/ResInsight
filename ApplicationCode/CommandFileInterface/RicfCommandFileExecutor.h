@@ -41,7 +41,8 @@ public:
         PROPERTIES,
         STATISTICS,
         WELLPATHS,
-        CELLS
+        CELLS,
+        LGRS
     };
 
     typedef caf::AppEnum<ExportType> ExportTypeEnum;
