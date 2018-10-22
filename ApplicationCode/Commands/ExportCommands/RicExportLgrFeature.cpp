@@ -224,33 +224,11 @@ std::vector<LgrInfo> RicExportLgrFeature::buildOneLgrPerMainCell(RimEclipseCase*
                                                                 const caf::VecIjk& lgrSizes)
 {
     std::vector<LgrInfo> lgrs;
-
-    eclipseCase->results(RiaDefines::MATRIX_MODEL)->findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, "PORO");
-    cvf::ref<RigResultAccessor> poroAccessObject =
-        RigResultAccessorFactory::createFromUiResultName(eclipseCase->eclipseCaseData(), 0, RiaDefines::MATRIX_MODEL, 0, "PORO");
-
     int firstLgrId = firstAvailableLgrId(eclipseCase->mainGrid());
 
-    bool poroExists = !poroAccessObject.isNull();
     int lgrCount = 0;
     for (const auto& intersectingCell : intersectingCells)
     {
-        size_t globCellIndex = intersectingCell.globalCellIndex();
-        double poro = poroExists ? poroAccessObject->cellScalarGlobIdx(globCellIndex) : std::numeric_limits<double>::infinity();
-
-        std::vector<double> lgrValues;
-
-        for (size_t k = 0; k < lgrSizes.k(); k++)
-        {
-            for (size_t j = 0; j < lgrSizes.j(); j++)
-            {
-                for (size_t i = 0; i < lgrSizes.i(); i++)
-                {
-                    lgrValues.push_back(poro);
-                }
-            }
-        }
-
         caf::VecIjk mainGridFirstCell(intersectingCell.localCellIndexI(),
                                       intersectingCell.localCellIndexJ(),
                                       intersectingCell.localCellIndexK());
@@ -260,7 +238,6 @@ std::vector<LgrInfo> RicExportLgrFeature::buildOneLgrPerMainCell(RimEclipseCase*
 
         int currLgrId = firstLgrId + lgrCount++;
         LgrInfo lgrInfo(currLgrId, QString("LGR_%1").arg(currLgrId), lgrSizes, mainGridFirstCell, mainGridEndCell);
-        if(poroExists) lgrInfo.values = lgrValues;
         lgrs.push_back(lgrInfo);
     }
 
@@ -275,10 +252,6 @@ std::vector<LgrInfo> RicExportLgrFeature::buildSingleLgr(RimEclipseCase* eclipse
                                                          const caf::VecIjk& lgrSizesPerMainGridCell)
 {
     std::vector<LgrInfo> lgrs;
-
-    eclipseCase->results(RiaDefines::MATRIX_MODEL)->findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, "PORO");
-    cvf::ref<RigResultAccessor> poroAccessObject =
-        RigResultAccessorFactory::createFromUiResultName(eclipseCase->eclipseCaseData(), 0, RiaDefines::MATRIX_MODEL, 0, "PORO");
 
     // Find min and max IJK
     auto iRange = initRange();
@@ -295,34 +268,6 @@ std::vector<LgrInfo> RicExportLgrFeature::buildSingleLgr(RimEclipseCase* eclipse
         kRange.second = std::max(cell.localCellIndexK(), kRange.second);
     }
 
-    bool poroExists = !poroAccessObject.isNull();
-    auto mainGrid = eclipseCase->mainGrid();
-    std::vector<double> lgrValues;
-    for (size_t mainK = kRange.first; mainK <= kRange.second; mainK++)
-    {
-        for (size_t mainJ = jRange.first; mainJ <= jRange.second; mainJ++)
-        {
-            for (size_t mainI = iRange.first; mainI <= iRange.second; mainI++)
-            {
-                size_t globCellIndex = mainGrid->cellIndexFromIJK(mainI, mainJ, mainK);
-
-                double poro = poroExists ? poroAccessObject->cellScalarGlobIdx(globCellIndex) : std::numeric_limits<double>::infinity();
-
-                for (size_t k = 0; k < lgrSizesPerMainGridCell.k(); k++)
-                {
-                    for (size_t j = 0; j < lgrSizesPerMainGridCell.j(); j++)
-                    {
-                        for (size_t i = 0; i < lgrSizesPerMainGridCell.i(); i++)
-                        {
-                            lgrValues.push_back(poro);
-                        }
-                    }
-                }
-
-            }
-        }
-    }
-
     int lgrId = firstAvailableLgrId(eclipseCase->mainGrid());
     caf::VecIjk lgrSizes((iRange.second - iRange.first + 1) * lgrSizesPerMainGridCell.i(),
                          (jRange.second - jRange.first + 1) * lgrSizesPerMainGridCell.j(),
@@ -331,7 +276,6 @@ std::vector<LgrInfo> RicExportLgrFeature::buildSingleLgr(RimEclipseCase* eclipse
     caf::VecIjk mainGridEndCell(iRange.second, jRange.second, kRange.second);
 
     LgrInfo lgrInfo(lgrId, QString("LGR_%1").arg(lgrId), lgrSizes, mainGridStartCell, mainGridEndCell);
-    if(poroExists) lgrInfo.values = lgrValues;
     lgrs.push_back(lgrInfo);
 
     return lgrs;

@@ -209,16 +209,7 @@ void RicCreateTemporaryLgrFeature::createLgr(LgrInfo& lgrInfo, RigMainGrid* main
 
                 RigCell& cell = mainGrid->globalCellArray()[cellStartIndex + gridLocalCellIndex];
                 cell.setGridLocalCellIndex(gridLocalCellIndex);
-
-                // Set parent cell
-                if (mainCellIndex == -1)
-                {
-                    cell.setParentCellIndex(cvf::UNDEFINED_SIZE_T);
-                }
-                else
-                {
-                    cell.setParentCellIndex(mainCellIndex);
-                }
+                cell.setParentCellIndex(mainCellIndex);
 
                 // Corner coordinates
                 {
@@ -227,8 +218,10 @@ void RicCreateTemporaryLgrFeature::createLgr(LgrInfo& lgrInfo, RigMainGrid* main
                     mainGrid->cellCornerVertices(mainCellIndex, vertices.data());
 
                     auto cellCounts = lgrInfo.sizesPerMainGridCell();
-                    auto lgrCoords =
-                        RigCellGeometryTools::createHexCornerCoords(vertices, cellCounts.i(), cellCounts.j(), cellCounts.k());
+                    auto lgrCoords = RigCellGeometryTools::createHexCornerCoords(vertices,
+                                                                                 cellCounts.i(),
+                                                                                 cellCounts.j(),
+                                                                                 cellCounts.k());
 
                     size_t subI = lgrI % lgrSizePerMainCell.i();
                     size_t subJ = lgrJ % lgrSizePerMainCell.j();

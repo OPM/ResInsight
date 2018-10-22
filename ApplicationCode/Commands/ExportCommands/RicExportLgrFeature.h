@@ -67,7 +67,7 @@ public:
     int                 id;
     QString             name;
     caf::VecIjk         sizes;
-    std::vector<double> values;
+    //std::vector<double> values;
 
     caf::VecIjk         mainGridStartCell;
     caf::VecIjk         mainGridEndCell;
