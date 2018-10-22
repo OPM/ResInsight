@@ -100,7 +100,7 @@ public:
     bool                parseArguments();
 
     void                setActiveReservoirView(Rim3dView*);
-    Rim3dView*            activeReservoirView();
+    Rim3dView*          activeReservoirView();
     const Rim3dView*    activeReservoirView() const;
     RimGridView*        activeGridView();
 
@@ -205,23 +205,23 @@ public:
     static bool         enableDevelopmentFeatures();
 
 private:
-    void                    onProjectOpenedOrClosed();
-    void                    setWindowCaptionFromAppState();
+    void                onProjectOpenedOrClosed();
+    void                setWindowCaptionFromAppState();
 
-    void                    createMainPlotWindow();
-    void                    deleteMainPlotWindow();
+    void                createMainPlotWindow();
+    void                deleteMainPlotWindow();
     
-    void                    loadAndUpdatePlotData();
+    void                loadAndUpdatePlotData();
     
-    void                    storeTreeViewState();
+    void                storeTreeViewState();
 
     friend RiaArgumentParser;
-    void                    setHelpText(const QString& helpText);
+    void                setHelpText(const QString& helpText);
 
-    bool            notify(QObject *, QEvent *) override;
+    bool                notify(QObject *, QEvent *) override;
 
 private slots:
-    void                    slotWorkerProcessFinished(int exitCode, QProcess::ExitStatus exitStatus);
+    void                slotWorkerProcessFinished(int exitCode, QProcess::ExitStatus exitStatus);
 
 private:
     caf::PdmPointer<Rim3dView>          m_activeReservoirView;
