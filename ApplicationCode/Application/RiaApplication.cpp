@@ -34,6 +34,7 @@
 #include "RicImportInputEclipseCaseFeature.h"
 #include "RicImportSummaryCasesFeature.h"
 #include "ExportCommands/RicSnapshotAllViewsToFileFeature.h"
+#include "HoloLensCommands/RicHoloLensSession.h"
 
 #include "Rim2dIntersectionViewCollection.h"
 #include "RimCellRangeFilterCollection.h"
@@ -995,6 +996,8 @@ bool RiaApplication::saveProjectAs(const QString& fileName)
 //--------------------------------------------------------------------------------------------------
 void RiaApplication::closeProject()
 {
+    RicHoloLensSession::instance()->terminateSession();
+
     RiuMainWindow* mainWnd = RiuMainWindow::instance();
 
     RiaViewRedrawScheduler::instance()->clearViewsScheduledForUpdate();

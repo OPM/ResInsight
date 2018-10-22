@@ -8,6 +8,8 @@ ${CMAKE_CURRENT_LIST_DIR}/RicHoloLensCreateSessionFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicHoloLensTerminateSessionFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicHoloLensServerSettings.h
 ${CMAKE_CURRENT_LIST_DIR}/RicHoloLensCreateSessionUi.h
+${CMAKE_CURRENT_LIST_DIR}/RicHoloLensSession.h
+
 
 
 ${CMAKE_CURRENT_LIST_DIR}/VdeArrayDataPacket.h
@@ -24,6 +26,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RicHoloLensCreateSessionFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicHoloLensTerminateSessionFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicHoloLensServerSettings.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicHoloLensCreateSessionUi.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicHoloLensSession.cpp
 
 ${CMAKE_CURRENT_LIST_DIR}/VdeArrayDataPacket.cpp
 ${CMAKE_CURRENT_LIST_DIR}/VdeExportPart.cpp
