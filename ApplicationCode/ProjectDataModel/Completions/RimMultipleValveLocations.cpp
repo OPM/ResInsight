@@ -28,6 +28,8 @@
 #include "cafPdmUiDoubleValueEditor.h"
 #include "cafPdmUiListEditor.h"
 
+#include <cmath>
+
 CAF_PDM_SOURCE_INIT(RimMultipleValveLocations, "RimMultipleValveLocations");
 
 namespace caf {
@@ -117,7 +119,7 @@ void RimMultipleValveLocations::computeRangesAndLocations()
         int divisor = 1;
         if (m_rangeValveCount > 2) divisor = m_rangeValveCount - 1;
 
-        m_rangeValveSpacing = fabs(m_rangeStart - m_rangeEnd) / divisor;
+        m_rangeValveSpacing = std::abs(m_rangeStart - m_rangeEnd) / divisor;
         if (m_rangeValveSpacing < minimumSpacingMeters())
         {
             m_rangeValveSpacing = minimumSpacingMeters();
@@ -348,7 +350,7 @@ void RimMultipleValveLocations::fieldChangedByUi(const caf::PdmFieldHandle* chan
 //--------------------------------------------------------------------------------------------------
 int RimMultipleValveLocations::rangeCountFromSpacing() const
 {
-    int rangeCount = (fabs(m_rangeStart - m_rangeEnd) / m_rangeValveSpacing) + 1;
+    int rangeCount = (std::fabs(m_rangeStart - m_rangeEnd) / m_rangeValveSpacing) + 1;
 
     if (rangeCount < 1)
     {
