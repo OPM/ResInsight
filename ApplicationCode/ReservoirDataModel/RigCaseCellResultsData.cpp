@@ -1125,9 +1125,11 @@ size_t RigCaseCellResultsData::findOrLoadScalarResult(RiaDefines::ResultCatType 
                 {
                     resultLoadingSucess = false;
                 }
-                else
+                else if (tempGridCellCount > 0)
                 {
                     values.resize(values.size() + tempGridCellCount);
+
+                    assignValuesToTemporaryLgrs(values);
                 }
             }
         }
@@ -1140,9 +1142,10 @@ size_t RigCaseCellResultsData::findOrLoadScalarResult(RiaDefines::ResultCatType 
             {
                 resultLoadingSucess = false;
             }
-            else
+            else if (tempGridCellCount > 0)
             {
                 values.resize(values.size() + tempGridCellCount);
+                assignValuesToTemporaryLgrs(values);
             }
         }
 
@@ -2396,5 +2399,42 @@ bool RigCaseCellResultsData::isDataPresent(size_t scalarResultIndex) const
     }
 
     return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigCaseCellResultsData::assignValuesToTemporaryLgrs(std::vector<double>& valuesForAllReservoirCells)
+{
+    CVF_ASSERT(m_activeCellInfo);
+
+    for (size_t gridIdx = 0; gridIdx < m_ownerMainGrid->gridCount(); gridIdx++)
+    {
+        const auto& grid = m_ownerMainGrid->gridByIndex(gridIdx);
+        if (grid->isTempGrid())
+        {
+            for (size_t localCellIdx = 0; localCellIdx < grid->cellCount(); localCellIdx++)
+            {
+                const RigCell& cell = grid->cell(localCellIdx);
+                
+                size_t mainGridCellIndex = cell.mainGridCellIndex();
+                size_t reservoirCellIndex = grid->reservoirCellIndex(localCellIdx);
+
+                size_t mainGridCellResultIndex = m_activeCellInfo->cellResultIndex(mainGridCellIndex);
+                size_t cellResultIndex         = m_activeCellInfo->cellResultIndex(reservoirCellIndex);
+
+                if (mainGridCellResultIndex != cvf::UNDEFINED_SIZE_T && cellResultIndex != cvf::UNDEFINED_SIZE_T)
+                {
+                    double mainGridValue = valuesForAllReservoirCells[mainGridCellResultIndex];
+
+                    valuesForAllReservoirCells[cellResultIndex] = mainGridValue;
+                }
+                else
+                {
+                    RiaLogging::warning("Detected invalid/undefined cells when assigning result values to temporary LGRs");
+                }
+            }
+        }
+    }
 }
 
