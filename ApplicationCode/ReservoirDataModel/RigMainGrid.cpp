@@ -3,17 +3,17 @@
 //  Copyright (C) 2011-     Statoil ASA
 //  Copyright (C) 2013-     Ceetron Solutions AS
 //  Copyright (C) 2011-2012 Ceetron AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -23,68 +23,98 @@
 #include "RiaDefines.h"
 #include "RiaLogging.h"
 #include "RigActiveCellInfo.h"
-#include "RigFault.h"
 #include "RigHexIntersectionTools.h"
 
-#include "cvfBoundingBoxTree.h"
 #include "cvfAssert.h"
+#include "cvfBoundingBoxTree.h"
 
-
-RigMainGrid::RigMainGrid(void)
+RigMainGrid::RigMainGrid()
     : RigGridBase(this)
 {
     m_displayModelOffset = cvf::Vec3d::ZERO;
-    
+
     m_gridIndex = 0;
-    m_gridId = 0;
-    m_gridIdToIndexMapping.push_back(0); 
+    m_gridId    = 0;
+    m_gridIdToIndexMapping.push_back(0);
 
     m_flipXAxis = false;
     m_flipYAxis = false;
-} 
+}
 
+RigMainGrid::~RigMainGrid() {}
 
-RigMainGrid::~RigMainGrid(void)
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<cvf::Vec3d>& RigMainGrid::nodes()
 {
+    return m_nodes;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
+//--------------------------------------------------------------------------------------------------
+const std::vector<cvf::Vec3d>& RigMainGrid::nodes() const
+{
+    return m_nodes;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RigCell>& RigMainGrid::globalCellArray()
+{
+    return m_cells;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const std::vector<RigCell>& RigMainGrid::globalCellArray() const
+{
+    return m_cells;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
 //--------------------------------------------------------------------------------------------------
 RigGridBase* RigMainGrid::gridAndGridLocalIdxFromGlobalCellIdx(size_t globalCellIdx, size_t* gridLocalCellIdx)
 {
     CVF_ASSERT(globalCellIdx < m_cells.size());
-    RigCell& cell = m_cells[globalCellIdx];
+
+    RigCell&     cell     = m_cells[globalCellIdx];
     RigGridBase* hostGrid = cell.hostGrid();
     CVF_ASSERT(hostGrid);
+
     *gridLocalCellIdx = cell.gridLocalCellIndex();
     return hostGrid;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 const RigGridBase* RigMainGrid::gridAndGridLocalIdxFromGlobalCellIdx(size_t globalCellIdx, size_t* gridLocalCellIdx) const
 {
     CVF_ASSERT(globalCellIdx < m_cells.size());
-    const RigCell& cell = m_cells[globalCellIdx];
+
+    const RigCell&     cell     = m_cells[globalCellIdx];
     const RigGridBase* hostGrid = cell.hostGrid();
     CVF_ASSERT(hostGrid);
+
     *gridLocalCellIdx = cell.gridLocalCellIndex();
     return hostGrid;
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 const RigCell& RigMainGrid::cellByGridAndGridLocalCellIdx(size_t gridIdx, size_t gridLocalCellIdx) const
 {
-     return gridByIndex(gridIdx)->cell(gridLocalCellIdx);
+    return gridByIndex(gridIdx)->cell(gridLocalCellIdx);
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 size_t RigMainGrid::reservoirCellIndexByGridAndGridLocalCellIndex(size_t gridIdx, size_t gridLocalCellIdx) const
 {
@@ -92,7 +122,7 @@ size_t RigMainGrid::reservoirCellIndexByGridAndGridLocalCellIndex(size_t gridIdx
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 size_t RigMainGrid::findReservoirCellIndexFromPoint(const cvf::Vec3d& point) const
 {
@@ -125,8 +155,8 @@ size_t RigMainGrid::findReservoirCellIndexFromPoint(const cvf::Vec3d& point) con
 std::vector<size_t> RigMainGrid::findAllReservoirCellIndicesMatching2dPoint(const cvf::Vec2d& point2d) const
 {
     cvf::BoundingBox gridBoundingVox = boundingBox();
-    cvf::Vec3d highestPoint(point2d, gridBoundingVox.max().z());
-    cvf::Vec3d lowestPoint (point2d, gridBoundingVox.min().z());
+    cvf::Vec3d       highestPoint(point2d, gridBoundingVox.max().z());
+    cvf::Vec3d       lowestPoint(point2d, gridBoundingVox.min().z());
 
     cvf::BoundingBox rayBBox;
     rayBBox.add(highestPoint);
@@ -150,7 +180,7 @@ std::vector<size_t> RigMainGrid::findAllReservoirCellIndicesMatching2dPoint(cons
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RigMainGrid::addLocalGrid(RigLocalGrid* localGrid)
 {
@@ -160,7 +190,6 @@ void RigMainGrid::addLocalGrid(RigLocalGrid* localGrid)
     m_localGrids.push_back(localGrid);
     localGrid->setGridIndex(m_localGrids.size()); // Maingrid itself has grid index 0
 
-    
     if (m_gridIdToIndexMapping.size() <= static_cast<size_t>(localGrid->gridId()))
     {
         m_gridIdToIndexMapping.resize(localGrid->gridId() + 1, cvf::UNDEFINED_SIZE_T);
@@ -170,24 +199,31 @@ void RigMainGrid::addLocalGrid(RigLocalGrid* localGrid)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
+//--------------------------------------------------------------------------------------------------
+size_t RigMainGrid::gridCount() const
+{
+    return m_localGrids.size() + 1;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
 //--------------------------------------------------------------------------------------------------
 void RigMainGrid::initAllSubGridsParentGridPointer()
 {
-    if ( m_localGrids.size() && m_localGrids[0]->parentGrid() == nullptr )
+    if (m_localGrids.size() && m_localGrids[0]->parentGrid() == nullptr)
     {
         initSubGridParentPointer();
         size_t i;
-        for ( i = 0; i < m_localGrids.size(); ++i )
+        for (i = 0; i < m_localGrids.size(); ++i)
         {
             m_localGrids[i]->initSubGridParentPointer();
         }
     }
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RigMainGrid::initAllSubCellsMainGridCellIndex()
 {
@@ -195,12 +231,12 @@ void RigMainGrid::initAllSubCellsMainGridCellIndex()
     size_t i;
     for (i = 0; i < m_localGrids.size(); ++i)
     {
-        m_localGrids[i]->initSubCellsMainGridCellIndex(); 
+        m_localGrids[i]->initSubCellsMainGridCellIndex();
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 cvf::Vec3d RigMainGrid::displayModelOffset() const
 {
@@ -208,7 +244,7 @@ cvf::Vec3d RigMainGrid::displayModelOffset() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RigMainGrid::setDisplayModelOffset(cvf::Vec3d offset)
 {
@@ -234,8 +270,8 @@ void RigMainGrid::computeCachedData()
 RigGridBase* RigMainGrid::gridByIndex(size_t localGridIndex)
 {
     if (localGridIndex == 0) return this;
-    CVF_ASSERT(localGridIndex - 1 < m_localGrids.size()) ;
-    return m_localGrids[localGridIndex-1].p();
+    CVF_ASSERT(localGridIndex - 1 < m_localGrids.size());
+    return m_localGrids[localGridIndex - 1].p();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -244,12 +280,12 @@ RigGridBase* RigMainGrid::gridByIndex(size_t localGridIndex)
 const RigGridBase* RigMainGrid::gridByIndex(size_t localGridIndex) const
 {
     if (localGridIndex == 0) return this;
-    CVF_ASSERT(localGridIndex - 1 < m_localGrids.size()) ;
-    return m_localGrids[localGridIndex-1].p();
+    CVF_ASSERT(localGridIndex - 1 < m_localGrids.size());
+    return m_localGrids[localGridIndex - 1].p();
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RigMainGrid::setFlipAxis(bool flipXAxis, bool flipYAxis)
 {
@@ -287,35 +323,35 @@ void RigMainGrid::setFlipAxis(bool flipXAxis, bool flipYAxis)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RigGridBase* RigMainGrid::gridById(int localGridId)
 {
-    CVF_ASSERT (localGridId >= 0 && static_cast<size_t>(localGridId) < m_gridIdToIndexMapping.size());
+    CVF_ASSERT(localGridId >= 0 && static_cast<size_t>(localGridId) < m_gridIdToIndexMapping.size());
     return this->gridByIndex(m_gridIdToIndexMapping[localGridId]);
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RigNNCData* RigMainGrid::nncData()
 {
-    if (m_nncData.isNull()) 
-    { 
+    if (m_nncData.isNull())
+    {
         m_nncData = new RigNNCData;
-    }  
-    
+    }
+
     return m_nncData.p();
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RigMainGrid::setFaults(const cvf::Collection<RigFault>& faults)
 {
     m_faults = faults;
 
-#pragma omp parallel for 
+#pragma omp parallel for
     for (int i = 0; i < static_cast<int>(m_faults.size()); i++)
     {
         m_faults[i]->computeFaultFacesFromCellRanges(this->mainGrid());
@@ -323,7 +359,15 @@ void RigMainGrid::setFaults(const cvf::Collection<RigFault>& faults)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
+//--------------------------------------------------------------------------------------------------
+const cvf::Collection<RigFault>& RigMainGrid::faults()
+{
+    return m_faults;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
 //--------------------------------------------------------------------------------------------------
 bool RigMainGrid::hasFaultWithName(const QString& name) const
 {
@@ -338,15 +382,14 @@ bool RigMainGrid::hasFaultWithName(const QString& name) const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RigMainGrid::calculateFaults(const RigActiveCellInfo* activeCellInfo, bool forceCalculation)
 {
-    if (!forceCalculation &&
-        hasFaultWithName(RiaDefines::undefinedGridFaultName())
-        && hasFaultWithName(RiaDefines::undefinedGridFaultWithInactiveName()))
+    if (!forceCalculation && hasFaultWithName(RiaDefines::undefinedGridFaultName()) &&
+        hasFaultWithName(RiaDefines::undefinedGridFaultWithInactiveName()))
     {
-        //RiaLogging::debug(QString("Calculate faults already run for grid."));
+        // RiaLogging::debug(QString("Calculate faults already run for grid."));
 
         return;
     }
@@ -356,7 +399,7 @@ void RigMainGrid::calculateFaults(const RigActiveCellInfo* activeCellInfo, bool 
     m_faultsPrCellAcc = new RigFaultsPrCellAccumulator(m_cells.size());
 
     // Spread fault idx'es on the cells from the faults
-    for (size_t fIdx = 0 ; fIdx < m_faults.size(); ++fIdx)
+    for (size_t fIdx = 0; fIdx < m_faults.size(); ++fIdx)
     {
         m_faults[fIdx]->accumulateFaultsPrCell(m_faultsPrCellAcc.p(), static_cast<int>(fIdx));
     }
@@ -376,19 +419,22 @@ void RigMainGrid::calculateFaults(const RigActiveCellInfo* activeCellInfo, bool 
 
     const std::vector<cvf::Vec3d>& vxs = m_mainGrid->nodes();
 
-    for (int gcIdx = 0 ; gcIdx < static_cast<int>(m_cells.size()); ++gcIdx)
+    for (int gcIdx = 0; gcIdx < static_cast<int>(m_cells.size()); ++gcIdx)
     {
-        if ( m_cells[gcIdx].isInvalid())
+        if (m_cells[gcIdx].isInvalid())
         {
             continue;
         }
 
         size_t neighborReservoirCellIdx;
         size_t neighborGridCellIdx;
-        size_t i = 0, j = 0, k = 0;
-        RigGridBase* hostGrid = nullptr; 
-        bool firstNO_FAULTFaceForCell = true;
-        bool isCellActive = true;
+        size_t i = 0;
+        size_t j = 0;
+        size_t k = 0;
+
+        RigGridBase* hostGrid                 = nullptr;
+        bool         firstNO_FAULTFaceForCell = true;
+        bool         isCellActive             = true;
 
         char upperLimitForFaceType = cvf::StructGridInterface::FaceType::POS_K;
 
@@ -407,13 +453,13 @@ void RigMainGrid::calculateFaults(const RigActiveCellInfo* activeCellInfo, bool 
                     size_t gridLocalCellIndex;
                     hostGrid = this->gridAndGridLocalIdxFromGlobalCellIdx(gcIdx, &gridLocalCellIndex);
 
-                    hostGrid->ijkFromCellIndex(gridLocalCellIndex, &i,&j, &k);
+                    hostGrid->ijkFromCellIndex(gridLocalCellIndex, &i, &j, &k);
                     isCellActive = activeCellInfo->isActive(gcIdx);
 
                     firstNO_FAULTFaceForCell = false;
                 }
 
-                if(!hostGrid->cellIJKNeighbor(i, j, k, face, &neighborGridCellIdx))
+                if (!hostGrid->cellIJKNeighbor(i, j, k, face, &neighborGridCellIdx))
                 {
                     continue;
                 }
@@ -433,19 +479,22 @@ void RigMainGrid::calculateFaults(const RigActiveCellInfo* activeCellInfo, bool 
                 std::array<size_t, 4> nbFaceIdxs;
                 m_cells[neighborReservoirCellIdx].faceIndices(StructGridInterface::oppositeFace(face), &nbFaceIdxs);
 
-
                 bool sharedFaceVertices = true;
-                if (sharedFaceVertices && vxs[faceIdxs[0]].pointDistance(vxs[nbFaceIdxs[0]]) > tolerance ) sharedFaceVertices = false;
-                if (sharedFaceVertices && vxs[faceIdxs[1]].pointDistance(vxs[nbFaceIdxs[3]]) > tolerance ) sharedFaceVertices = false;
-                if (sharedFaceVertices && vxs[faceIdxs[2]].pointDistance(vxs[nbFaceIdxs[2]]) > tolerance ) sharedFaceVertices = false;
-                if (sharedFaceVertices && vxs[faceIdxs[3]].pointDistance(vxs[nbFaceIdxs[1]]) > tolerance ) sharedFaceVertices = false;
+                if (sharedFaceVertices && vxs[faceIdxs[0]].pointDistance(vxs[nbFaceIdxs[0]]) > tolerance)
+                    sharedFaceVertices = false;
+                if (sharedFaceVertices && vxs[faceIdxs[1]].pointDistance(vxs[nbFaceIdxs[3]]) > tolerance)
+                    sharedFaceVertices = false;
+                if (sharedFaceVertices && vxs[faceIdxs[2]].pointDistance(vxs[nbFaceIdxs[2]]) > tolerance)
+                    sharedFaceVertices = false;
+                if (sharedFaceVertices && vxs[faceIdxs[3]].pointDistance(vxs[nbFaceIdxs[1]]) > tolerance)
+                    sharedFaceVertices = false;
 
                 if (sharedFaceVertices)
                 {
                     continue;
                 }
 
-                // To avoid doing this calculation for the opposite face 
+                // To avoid doing this calculation for the opposite face
                 int faultIdx = unNamedFaultIdx;
                 if (!(isCellActive && isNeighborCellActive)) faultIdx = unNamedFaultWithInactiveIdx;
 
@@ -457,7 +506,7 @@ void RigMainGrid::calculateFaults(const RigActiveCellInfo* activeCellInfo, bool 
                 if (static_cast<size_t>(gcIdx) < neighborReservoirCellIdx)
                 {
                     RigFault::FaultFace ff(gcIdx, cvf::StructGridInterface::FaceType(faceIdx), neighborReservoirCellIdx);
-                    if(isCellActive && isNeighborCellActive)
+                    if (isCellActive && isNeighborCellActive)
                     {
                         unNamedFault->faultFaces().push_back(ff);
                     }
@@ -468,7 +517,10 @@ void RigMainGrid::calculateFaults(const RigActiveCellInfo* activeCellInfo, bool 
                 }
                 else
                 {
-                    CVF_FAIL_MSG("Found fault with global neighbor index less than the native index. "); // Should never occur. because we flag the opposite face in the faultsPrCellAcc
+                    CVF_FAIL_MSG(
+                        "Found fault with global neighbor index less than the native index. "); // Should never occur. because we
+                                                                                                // flag the opposite face in the
+                                                                                                // faultsPrCellAcc
                 }
             }
         }
@@ -478,7 +530,7 @@ void RigMainGrid::calculateFaults(const RigActiveCellInfo* activeCellInfo, bool 
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RigMainGrid::distributeNNCsToFaults()
 {
@@ -486,9 +538,9 @@ void RigMainGrid::distributeNNCsToFaults()
     for (size_t nncIdx = 0; nncIdx < nncs.size(); ++nncIdx)
     {
         // Find the fault for each side of the nnc
-        const RigConnection& conn = nncs[nncIdx];
-        int fIdx1 = RigFaultsPrCellAccumulator::NO_FAULT;
-        int fIdx2 = RigFaultsPrCellAccumulator::NO_FAULT;
+        const RigConnection& conn  = nncs[nncIdx];
+        int                  fIdx1 = RigFaultsPrCellAccumulator::NO_FAULT;
+        int                  fIdx2 = RigFaultsPrCellAccumulator::NO_FAULT;
 
         if (conn.m_c1Face != StructGridInterface::NO_FACE)
         {
@@ -504,7 +556,8 @@ void RigMainGrid::distributeNNCsToFaults()
                 lgrString = "Different Grid";
             }
 
-            //cvf::Trace::show("NNC: No Fault for NNC C1: " + cvf::String((int)conn.m_c1GlobIdx) + " C2: " + cvf::String((int)conn.m_c2GlobIdx) + " Grid: " + lgrString);
+            // cvf::Trace::show("NNC: No Fault for NNC C1: " + cvf::String((int)conn.m_c1GlobIdx) + " C2: " +
+            // cvf::String((int)conn.m_c2GlobIdx) + " Grid: " + lgrString);
         }
 
         if (fIdx1 >= 0)
@@ -524,13 +577,12 @@ void RigMainGrid::distributeNNCsToFaults()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// The cell is normally inverted due to Depth becoming -Z at import, 
+/// The cell is normally inverted due to Depth becoming -Z at import,
 /// but if (only) one of the flipX/Y is done, the cell is back to normal
 //--------------------------------------------------------------------------------------------------
 bool RigMainGrid::isFaceNormalsOutwards() const
 {
-   
-    for (int gcIdx = 0 ; gcIdx < static_cast<int>(m_cells.size()); ++gcIdx)
+    for (int gcIdx = 0; gcIdx < static_cast<int>(m_cells.size()); ++gcIdx)
     {
         if (!m_cells[gcIdx].isInvalid())
         {
@@ -538,12 +590,12 @@ bool RigMainGrid::isFaceNormalsOutwards() const
             cvf::Vec3d faceCenter = m_cells[gcIdx].faceCenter(StructGridInterface::POS_I);
             cvf::Vec3d faceNormal = m_cells[gcIdx].faceNormalWithAreaLenght(StructGridInterface::POS_I);
 
-            double typicalIJCellSize =  characteristicIJCellSize();
+            double typicalIJCellSize = characteristicIJCellSize();
             double dummy, dummy2, typicalKSize;
             characteristicCellSizes(&dummy, &dummy2, &typicalKSize);
 
-            if (   (faceCenter - cellCenter).length() > 0.2 * typicalIJCellSize
-                && (faceNormal.length() > (0.2 * typicalIJCellSize * 0.2* typicalKSize)))
+            if ((faceCenter - cellCenter).length() > 0.2 * typicalIJCellSize &&
+                (faceNormal.length() > (0.2 * typicalIJCellSize * 0.2 * typicalKSize)))
             {
                 // Cell is assumed ok to use, so calculate whether the normals are outwards or inwards
 
@@ -563,16 +615,17 @@ bool RigMainGrid::isFaceNormalsOutwards() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-const RigFault* RigMainGrid::findFaultFromCellIndexAndCellFace(size_t reservoirCellIndex, cvf::StructGridInterface::FaceType face) const
+const RigFault* RigMainGrid::findFaultFromCellIndexAndCellFace(size_t                             reservoirCellIndex,
+                                                               cvf::StructGridInterface::FaceType face) const
 {
     CVF_TIGHT_ASSERT(m_faultsPrCellAcc.notNull());
 
     if (face == cvf::StructGridInterface::NO_FACE) return nullptr;
 
     int faultIdx = m_faultsPrCellAcc->faultIdx(reservoirCellIndex, face);
-    if (faultIdx !=  RigFaultsPrCellAccumulator::NO_FAULT )
+    if (faultIdx != RigFaultsPrCellAccumulator::NO_FAULT)
     {
         return m_faults.at(faultIdx);
     }
@@ -607,7 +660,7 @@ const RigFault* RigMainGrid::findFaultFromCellIndexAndCellFace(size_t reservoirC
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RigMainGrid::findIntersectingCells(const cvf::BoundingBox& inputBB, std::vector<size_t>* cellIndices) const
 {
@@ -617,7 +670,7 @@ void RigMainGrid::findIntersectingCells(const cvf::BoundingBox& inputBB, std::ve
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RigMainGrid::buildCellSearchTree()
 {
@@ -653,15 +706,16 @@ void RigMainGrid::buildCellSearchTree()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 cvf::BoundingBox RigMainGrid::boundingBox() const
 {
     if (m_boundingBox.isValid()) return m_boundingBox;
 
-    for (size_t i = 0; i < m_nodes.size(); ++i)
+    for (const auto& node : m_nodes)
     {
-        m_boundingBox.add(m_nodes[i]);
+        m_boundingBox.add(node);
     }
+
     return m_boundingBox;
 }
