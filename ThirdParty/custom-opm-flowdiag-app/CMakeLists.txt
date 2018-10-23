@@ -5,7 +5,6 @@ project (custom-opm-flowdiag-app)
 include_directories(
     ../custom-opm-flowdiagnostics/opm-flowdiagnostics
     opm-flowdiagnostics-applications
-	opmCore
 )
 
 include (opm-flowdiagnostics-applications/CMakeLists_files.cmake)

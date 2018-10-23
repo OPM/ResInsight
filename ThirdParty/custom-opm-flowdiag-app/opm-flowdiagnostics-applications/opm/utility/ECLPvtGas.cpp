@@ -90,6 +90,8 @@ namespace {
 class PVxGBase
 {
 public:
+    virtual ~PVxGBase() {}
+
     virtual std::vector<double>
     formationVolumeFactor(const std::vector<double>& rv,
                           const std::vector<double>& pg) const = 0;
