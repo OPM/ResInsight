@@ -407,9 +407,9 @@ std::map<CompletionInfo, std::vector<RigCompletionDataGridCell>>
 
             if (name.isEmpty()) continue;
 
-            for (auto compl : intCell.second)
+            for (auto completion : intCell.second)
             {
-                completionToCells[CompletionInfo(compl.completionType(), name)].push_back(intCell.first);
+                completionToCells[CompletionInfo(completion.completionType(), name)].push_back(intCell.first);
             }
         }
     }
