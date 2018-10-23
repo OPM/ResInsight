@@ -50,9 +50,9 @@ public:
     void                                               setHdf5Filename(const QString& hdf5SourSimFilename );
 
     void                                               setMainGrid(RigMainGrid* ownerGrid);
-    void                                               setActiveCellInfo(RigActiveCellInfo* activeCellInfo) { m_activeCellInfo = activeCellInfo;}
-    RigActiveCellInfo*                                 activeCellInfo() { return m_activeCellInfo;}
-    const RigActiveCellInfo*                           activeCellInfo() const { return m_activeCellInfo;}
+    void                                               setActiveCellInfo(RigActiveCellInfo* activeCellInfo);
+    RigActiveCellInfo*                                 activeCellInfo();
+    const RigActiveCellInfo*                           activeCellInfo() const;
 
     // Max and min values of the results
     void                                               recalculateStatistics(size_t scalarResultIndex);
@@ -125,7 +125,7 @@ public:
                                                                                       std::vector<double> &activeCellsResultsTempContainer);
 
 public:
-    const std::vector<RigEclipseResultInfo>&           infoForEachResultIndex() { return m_resultInfos;}
+    const std::vector<RigEclipseResultInfo>&           infoForEachResultIndex();
 
     bool                                               mustBeCalculated(size_t scalarResultIndex) const;
     void                                               setMustBeCalculated(size_t scalarResultIndex);
