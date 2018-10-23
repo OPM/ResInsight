@@ -223,7 +223,10 @@ void RimIntersectionCollection::scheduleCreateDisplayModelAndRedraw2dIntersectio
 {
     for (RimIntersection* isection: m_intersections)
     {
-        isection->correspondingIntersectionView()->scheduleCreateDisplayModelAndRedraw();
+        if (isection->correspondingIntersectionView())
+        {
+            isection->correspondingIntersectionView()->scheduleCreateDisplayModelAndRedraw();
+        }
     }
 }
 

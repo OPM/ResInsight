@@ -573,6 +573,17 @@ void RimViewLinker::applyRangeFilterCollectionByUserChoice()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimViewLinker::updatePropertyFilters(RimPropertyFilter* changedPropertyFilter)
+{
+    for (RimViewController* viewLink : m_viewControllers)
+    {
+        viewLink->updatePropertyFilterOverrides(changedPropertyFilter);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimViewLinker::removeViewController(RimViewController* viewController)
 {
     m_viewControllers.removeChildObject(viewController);

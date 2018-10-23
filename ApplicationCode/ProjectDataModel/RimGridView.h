@@ -38,7 +38,7 @@ public:
     ~RimGridView(void) override;
 
     void                                              showGridCells(bool enableGridCells);
-                                                      
+    
     Rim3dOverlayInfoConfig*                           overlayInfoConfig() const;
                                                       
     cvf::ref<cvf::UByteArray>                         currentTotalCellVisibility();
@@ -46,6 +46,8 @@ public:
     RimIntersectionCollection*                        crossSectionCollection() const;
                                                       
     virtual const RimPropertyFilterCollection*        propertyFilterCollection() const = 0;
+
+    void                                              rangeFiltersUpdated();
     RimCellRangeFilterCollection*                     rangeFilterCollection();
     const RimCellRangeFilterCollection*               rangeFilterCollection() const;
                                                       
@@ -57,11 +59,10 @@ public:
     RimViewLinker*                                    assosiatedViewLinker() const override;
                                                       
 
-    bool                                      isGridVisualizationMode() const override;
-
-    Rim2dGridProjection*                              grid2dProjection() const;
+    bool                                              isGridVisualizationMode() const override;
 
 protected:
+    virtual void                              updateViewFollowingRangeFilterUpdates();
     void                                      initAfterRead() override;
     void                                      onTimeStepChanged() override;
     virtual void                                      calculateCurrentTotalCellVisibility(cvf::UByteArray* totalVisibility, int timeStep) = 0;
@@ -75,7 +76,6 @@ protected: // Fields
     caf::PdmChildField<RimCellRangeFilterCollection*> m_rangeFilterCollection;
     caf::PdmChildField<RimCellRangeFilterCollection*> m_overrideRangeFilterCollection;
     caf::PdmChildField<RimGridCollection*>            m_gridCollection;
-    caf::PdmChildField<Rim2dGridProjection*>          m_2dGridProjection;
 protected:
     cvf::ref<cvf::UByteArray>                         m_currentReservoirCellVisibility;
 

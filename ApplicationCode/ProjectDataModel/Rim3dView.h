@@ -148,6 +148,7 @@ protected:
     virtual void                            setDefaultView();
     void                                    disableGridBoxField();
     void                                    disablePerspectiveProjectionField();
+    void                                    enablePerspectiveProjectionField();
     cvf::Mat4d                              cameraPosition() const;
     cvf::Vec3d                              cameraPointOfInterest() const;
 
@@ -205,18 +206,17 @@ private:
 protected:
     void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
     void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
-
+    virtual void                    updateViewWidgetAfterCreation() override; 
+    
 private:
     // Overridden ViewWindow methods:
 
     QWidget*                        createViewWidget(QWidget* mainWindowParent) override; 
-    void                            updateViewWidgetAfterCreation() override; 
     void                            updateMdiWindowTitle() override;
     void                            deleteViewWidget() override;
     QWidget*                        viewWidget() override;
 
     // Implementation of RiuViewerToViewInterface
-
     void                            setCameraPosition(const cvf::Mat4d& cameraPosition) override               { m_cameraPosition = cameraPosition; }
     void                            setCameraPointOfInterest(const cvf::Vec3d& cameraPointOfInterest) override { m_cameraPointOfInterest = cameraPointOfInterest;}
     QString                         timeStepName(int frameIdx) const override;

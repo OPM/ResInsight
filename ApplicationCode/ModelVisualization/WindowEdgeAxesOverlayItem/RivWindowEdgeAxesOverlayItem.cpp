@@ -68,7 +68,8 @@ RivWindowEdgeAxesOverlayItem::RivWindowEdgeAxesOverlayItem(Font* font)
     m_frameColor(Color3::WHITE),
     m_lineWidth(1),
     m_font(font),
-    m_isSwitchingYAxisValueSign(true)
+    m_isSwitchingYAxisValueSign(true),
+    m_domainAxes(XZ_AXES)
 {
     CVF_ASSERT(font);
     CVF_ASSERT(!font->isEmpty());
@@ -99,7 +100,7 @@ void RivWindowEdgeAxesOverlayItem::setDisplayCoordTransform(const caf::DisplayCo
 //--------------------------------------------------------------------------------------------------
 void RivWindowEdgeAxesOverlayItem::updateGeomerySizes()
 {
-    String str = String::number(99999.0);
+    String str = String::number(-1.999e-17);
     m_textSize =  m_font->textExtent(str);
     m_pixelSpacing = 2.0f;
     m_tickLineLength = m_textSize.y() *0.3f;
@@ -137,8 +138,8 @@ void RivWindowEdgeAxesOverlayItem::updateFromCamera(const Camera* camera)
     double domainMinX = windowOrigoInDomain.x();
     double domainMaxX = windowMaxInDomain.x();
 
-    double domainMinY = windowOrigoInDomain.z();
-    double domainMaxY = windowMaxInDomain.z();
+    double domainMinY = m_domainAxes == XY_AXES ? windowOrigoInDomain.y() : windowOrigoInDomain.z();
+    double domainMaxY = m_domainAxes == XY_AXES ? windowMaxInDomain.y() : windowMaxInDomain.z();
 
     int xTickMaxCount = m_windowSize.x()/(2*m_textSize.x());
     int yTickMaxCount = m_windowSize.y()/(2*m_textSize.x());
@@ -156,7 +157,15 @@ void RivWindowEdgeAxesOverlayItem::updateFromCamera(const Camera* camera)
     Vec3d windowPoint;
     for (double domainX : m_domainCoordsXValues)
     {
-        Vec3d displayDomainTick(domainX, 0, domainMinY);
+        Vec3d displayDomainTick;
+        if (m_domainAxes == XY_AXES)
+        {
+            displayDomainTick = Vec3d(domainX, domainMinY, 0);
+        }
+        else
+        {
+            displayDomainTick = Vec3d(domainX, 0, domainMinY);
+        }
         if ( m_dispalyCoordsTransform.notNull() )
         {
             displayDomainTick = m_dispalyCoordsTransform->transformToDisplayCoord(displayDomainTick);
@@ -168,7 +177,17 @@ void RivWindowEdgeAxesOverlayItem::updateFromCamera(const Camera* camera)
     m_windowTickYValues.clear();
     for (double domainY : m_domainCoordsYValues)
     {
-        Vec3d displayDomainTick(domainMinX, 0, domainY);
+        Vec3d displayDomainTick;
+
+        if (m_domainAxes == XY_AXES)
+        {
+            displayDomainTick = Vec3d(domainMinX, domainY, 0);
+        }
+        else
+        {
+            displayDomainTick = Vec3d(domainMinX, 0, domainY);
+        }
+
         if ( m_dispalyCoordsTransform.notNull() )
         {
             displayDomainTick = m_dispalyCoordsTransform->transformToDisplayCoord(displayDomainTick);
@@ -612,5 +631,21 @@ void RivWindowEdgeAxesOverlayItem::setLineColor(const Color3f& lineColor)
 const Color3f& RivWindowEdgeAxesOverlayItem::lineColor() const
 {
     return m_lineColor;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RivWindowEdgeAxesOverlayItem::setDomainAxes(DomainAxes axes)
+{
+    m_domainAxes = axes;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RivWindowEdgeAxesOverlayItem::setIsSwitchingYAxisSign(bool switchSign)
+{
+    m_isSwitchingYAxisValueSign = switchSign;
 }
 

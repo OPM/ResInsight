@@ -31,6 +31,7 @@
 #include "cvfVector2.h"
 
 class RigMainGrid;
+class RigResultAccessor;
 class RimEclipseResultCase;
 
 //==================================================================================================
@@ -93,5 +94,5 @@ protected:
     std::vector<double>                                m_aggregatedResults;
     std::vector<std::vector<std::pair<size_t, float>>> m_projected3dGridIndices;
 
-
+    cvf::ref<RigResultAccessor>                        m_resultAccessor;
 };

@@ -824,14 +824,33 @@ void RiuViewer::updateGridBoxData(double scaleZ,
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RiuViewer::showEdgeTickMarks(bool enable)
+void RiuViewer::showEdgeTickMarksXY(bool enable)
 {
     m_mainRendering->removeOverlayItem(m_windowEdgeAxisOverlay.p());
 
     if (enable)
     {
+        m_windowEdgeAxisOverlay->setDomainAxes(RivWindowEdgeAxesOverlayItem::XY_AXES);
+        m_windowEdgeAxisOverlay->setIsSwitchingYAxisSign(false);
+        m_mainRendering->addOverlayItem(m_windowEdgeAxisOverlay.p());
+    }
+
+    m_showWindowEdgeAxes = enable;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuViewer::showEdgeTickMarksXZ(bool enable)
+{
+    m_mainRendering->removeOverlayItem(m_windowEdgeAxisOverlay.p());
+
+    if (enable)
+    {
+        m_windowEdgeAxisOverlay->setDomainAxes(RivWindowEdgeAxesOverlayItem::XZ_AXES);
+        m_windowEdgeAxisOverlay->setIsSwitchingYAxisSign(true);
         m_mainRendering->addOverlayItem(m_windowEdgeAxisOverlay.p());
     }
 

@@ -21,6 +21,8 @@
 #include "cafPdmObject.h"
 #include "cafPdmField.h"
 
+class RimPropertyFilter;
+
 //==================================================================================================
 ///  
 ///  
@@ -41,7 +43,7 @@ public:
 
     virtual void                    loadAndInitializePropertyFilters() = 0;
 
-    void                            updateDisplayModelNotifyManagedViews() const;
+    void                            updateDisplayModelNotifyManagedViews(RimPropertyFilter* changedFilter) const;
     virtual void                    updateIconState() = 0;
 
 protected:

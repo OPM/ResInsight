@@ -45,6 +45,8 @@ class RigMainGrid;
 class RimCaseCollection;
 class RimIdenticalGridCaseGroup;
 class RimReservoirCellResultsStorage;
+class Rim2dEclipseView;
+class Rim2dEclipseViewCollection;
 class RimEclipseView;
 class RigVirtualPerforationTransmissibilities;
 
@@ -85,6 +87,8 @@ public:
                                                       
     RimEclipseView*                             createAndAddReservoirView();
     RimEclipseView*                             createCopyAndAddView(const RimEclipseView* sourceView);
+    Rim2dEclipseView*                           create2dContourMapFrom3dView(const RimEclipseView* reservoirView);
+    Rim2dEclipseView*                           create2dContourMap();
 
     const RigVirtualPerforationTransmissibilities*  computeAndGetVirtualPerforationTransmissibilities();
 
@@ -111,8 +115,8 @@ public:
 
     void                                setFormationNames(RimFormationNames* formationNames) override;
 
-    std::set<QString>                           sortedSimWellNames() const;
-
+    std::set<QString>                           sortedSimWellNames() const;    
+    
 protected:
     void                                        initAfterRead() override;
     void                                        fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
@@ -136,6 +140,8 @@ protected:
 private:
     caf::PdmField<QString>                      m_filesContainingFaultsSemColSeparated;
     caf::PdmField<bool>                         m_releaseResultMemory;
+
+    caf::PdmChildField<Rim2dEclipseViewCollection*> m_2dContourMapsCollection;
 
     cvf::ref<RigEclipseCaseData>                m_rigEclipseCase;
     QString                                     m_timeStepFormatString;

@@ -20,7 +20,9 @@
 #include "RicTogglePerspectiveViewFeature.h"
 
 #include "RiuViewer.h"
+#include "Rim2dEclipseView.h"
 #include "Rim3dView.h"
+#include "RimGridView.h"
 #include "RiuMainWindow.h"
 #include "RiaApplication.h"
 
@@ -34,7 +36,9 @@ CAF_CMD_SOURCE_INIT(RicTogglePerspectiveViewFeature, "RicTogglePerspectiveViewFe
 bool RicTogglePerspectiveViewFeature::isCommandEnabled()
 {
     this->action(); // Retrieve the action to update the looks
-    return RiaApplication::instance()->activeGridView() &&  RiaApplication::instance()->activeReservoirView()->viewer();
+    RimGridView* activeGridView = RiaApplication::instance()->activeGridView();
+    Rim2dEclipseView* view2d = dynamic_cast<Rim2dEclipseView*>(activeGridView);
+    return !view2d && activeGridView && RiaApplication::instance()->activeReservoirView()->viewer();
 }
 
 //--------------------------------------------------------------------------------------------------

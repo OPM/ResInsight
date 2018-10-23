@@ -717,6 +717,8 @@ void RimGeoMechView::scheduleGeometryRegen(RivCellSetEnum geometryType)
 void RimGeoMechView::setOverridePropertyFilterCollection(RimGeoMechPropertyFilterCollection* pfc)
 {
     m_overridePropertyFilterCollection = pfc;
+    m_propertyFilterCollection->isActive = m_overridePropertyFilterCollection->isActive;
+    m_propertyFilterCollection.uiCapability()->updateConnectedEditors();
     
     this->scheduleGeometryRegen(PROPERTY_FILTERED);
     this->scheduleCreateDisplayModelAndRedraw();

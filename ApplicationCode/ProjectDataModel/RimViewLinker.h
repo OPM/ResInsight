@@ -38,6 +38,7 @@ class RimViewController;
 class RiuViewer;
 class RimGridView;
 class RimCellRangeFilter;
+class RimPropertyFilter;
 
 //==================================================================================================
 ///  
@@ -70,6 +71,8 @@ public:
 
     void                                    updateRangeFilters(RimCellRangeFilter* changedRangeFilter);
     void                                    applyRangeFilterCollectionByUserChoice();
+
+    void                                    updatePropertyFilters(RimPropertyFilter* changedPropertyFilter);
 
     void                                    scheduleGeometryRegenForDepViews(RivCellSetEnum geometryType);
     void                                    scheduleCreateDisplayModelAndRedrawForDependentViews();

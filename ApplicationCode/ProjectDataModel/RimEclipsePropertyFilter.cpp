@@ -145,7 +145,7 @@ void RimEclipsePropertyFilter::fieldChangedByUi(const caf::PdmFieldHandle* chang
         this->updateIconState();
         this->uiCapability()->updateConnectedEditors();
 
-        parentContainer()->updateDisplayModelNotifyManagedViews();
+        parentContainer()->updateDisplayModelNotifyManagedViews(this);
     }
 }
 

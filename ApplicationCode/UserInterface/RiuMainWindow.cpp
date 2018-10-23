@@ -26,6 +26,7 @@
 #include "RiaRegressionTest.h"
 #include "RiaRegressionTestRunner.h"
 
+#include "Rim2dEclipseView.h"
 #include "Rim2dIntersectionView.h"
 #include "Rim3dView.h"
 #include "RimCellEdgeColors.h"
@@ -795,6 +796,14 @@ void RiuMainWindow::setResultInfo(const QString& info) const
     m_resultInfoPanel->setInfo(info);
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindow::refreshViewActions()
+{
+    this->slotRefreshViewActions();
+}
+
 //==================================================================================================
 //
 // Action slots
@@ -839,7 +848,9 @@ void RiuMainWindow::slotRefreshEditActions()
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindow::slotRefreshViewActions()
 {
-    bool enabled = RiaApplication::instance()->activeGridView() != nullptr;
+    RimGridView* gridView = RiaApplication::instance()->activeGridView();
+    Rim2dEclipseView* view2d = dynamic_cast<Rim2dEclipseView*>(gridView);
+    bool enabled = gridView != nullptr && view2d == nullptr;
     m_viewFromNorth->setEnabled(enabled);
     m_viewFromSouth->setEnabled(enabled);
     m_viewFromEast->setEnabled(enabled);
@@ -1543,15 +1554,20 @@ void RiuMainWindow::slotToggleFaultLabelsAction(bool showLabels)
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindow::refreshDrawStyleActions()
 {
-    Rim3dView* view = RiaApplication::instance()->activeReservoirView();
-    bool is3DView = view != nullptr;
-    bool isGridView = RiaApplication::instance()->activeGridView() != nullptr;
+    RimGridView* gridView = RiaApplication::instance()->activeGridView();
+    Rim2dEclipseView* view2d = dynamic_cast<Rim2dEclipseView*>(gridView);
+    bool is2dMap = view2d != nullptr;
+    bool is3dGridView = gridView != nullptr && !is2dMap;
 
-    m_drawStyleLinesAction->setEnabled(is3DView);
-    m_drawStyleLinesSolidAction->setEnabled(is3DView);
-    m_drawStyleSurfOnlyAction->setEnabled(is3DView);
-    m_drawStyleFaultLinesSolidAction->setEnabled(is3DView);
-    m_disableLightingAction->setEnabled(is3DView);
+    Rim3dView* view = RiaApplication::instance()->activeReservoirView();
+    bool is3dView = view != nullptr && !is2dMap;
+
+
+    m_drawStyleLinesAction->setEnabled(is3dView);
+    m_drawStyleLinesSolidAction->setEnabled(is3dView);
+    m_drawStyleSurfOnlyAction->setEnabled(is3dView);
+    m_drawStyleFaultLinesSolidAction->setEnabled(is3dView);
+    m_disableLightingAction->setEnabled(is3dView);
 
     bool lightingDisabledInView = view ? view->isLightingDisabled() : false;
 
@@ -1559,8 +1575,8 @@ void RiuMainWindow::refreshDrawStyleActions()
     m_disableLightingAction->setChecked(lightingDisabledInView);
     m_disableLightingAction->blockSignals(false);
 
-    m_drawStyleHideGridCellsAction->setEnabled(isGridView);
-    if (isGridView)
+    m_drawStyleHideGridCellsAction->setEnabled(is3dGridView);
+    if (is3dGridView)
     {
         m_drawStyleHideGridCellsAction->blockSignals(true);
         m_drawStyleHideGridCellsAction->setChecked(!view->isGridVisualizationMode());
@@ -1570,9 +1586,9 @@ void RiuMainWindow::refreshDrawStyleActions()
     RimEclipseView* eclView = dynamic_cast<RimEclipseView*>(view);
 
     bool hasEclipseView = eclView != nullptr;
-    m_showWellCellsAction->setEnabled(hasEclipseView);
+    m_showWellCellsAction->setEnabled(hasEclipseView && !is2dMap);
 
-    if (hasEclipseView) 
+    if (hasEclipseView && !is2dMap) 
     {   
         m_showWellCellsAction->blockSignals(true);
         eclView->wellCollection()->updateStateForVisibilityCheckboxes();

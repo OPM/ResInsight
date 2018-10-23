@@ -34,6 +34,8 @@
 #include "RigSimWellData.h"
 #include "RigVirtualPerforationTransmissibilities.h"
 
+#include "Rim2dEclipseView.h"
+#include "Rim2dEclipseViewCollection.h"
 #include "Rim2dIntersectionViewCollection.h"
 #include "RimCaseCollection.h"
 #include "RimCellEdgeColors.h"
@@ -97,6 +99,10 @@ RimEclipseCase::RimEclipseCase()
 
     CAF_PDM_InitFieldNoDefault(&m_filesContainingFaultsSemColSeparated,    "CachedFileNamesContainingFaults", "", "", "", "");
     m_filesContainingFaultsSemColSeparated.uiCapability()->setUiHidden(true);
+
+    CAF_PDM_InitFieldNoDefault(&m_2dContourMapsCollection, "ContourMaps", "2d Contour Maps", "", "", "");
+    m_2dContourMapsCollection = new Rim2dEclipseViewCollection;
+    m_2dContourMapsCollection.uiCapability()->setUiTreeHidden(true);
 
     // Obsolete fields
     CAF_PDM_InitFieldNoDefault(&m_filesContainingFaults_OBSOLETE,    "FilesContainingFaults", "", "", "", "");
@@ -234,6 +240,11 @@ void RimEclipseCase::initAfterRead()
 
         riv->setEclipseCase(this);
     }
+    for (Rim2dEclipseView* contourMap : m_2dContourMapsCollection->views())
+    {
+        contourMap->setEclipseCase(this);
+    }
+
 
     if (caseUserDescription().isEmpty() && !m_caseName_OBSOLETE().isEmpty())
     {
@@ -296,6 +307,66 @@ RimEclipseView* RimEclipseCase::createCopyAndAddView(const RimEclipseView* sourc
     rimEclipseView->initAfterReadRecursively();
 
     return rimEclipseView;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+Rim2dEclipseView* RimEclipseCase::create2dContourMapFrom3dView(const RimEclipseView* sourceView)
+{
+    Rim2dEclipseView* contourMap =
+        dynamic_cast<Rim2dEclipseView*>(sourceView->xmlCapability()->copyAndCastByXmlSerialization(
+            Rim2dEclipseView::classKeywordStatic(),
+            sourceView->classKeyword(),
+            caf::PdmDefaultObjectFactory::instance()));
+    CVF_ASSERT(contourMap);
+
+    contourMap->setEclipseCase(this);
+
+    caf::PdmDocument::updateUiIconStateRecursively(contourMap);
+
+    size_t i = m_2dContourMapsCollection->views().size();
+    contourMap->setName(QString("Contour Map %1").arg(i + 1));
+    m_2dContourMapsCollection->push_back(contourMap);
+
+    // Resolve references after contour map has been inserted into Rim structures
+    contourMap->resolveReferencesRecursively();
+    contourMap->initAfterReadRecursively();
+
+    return contourMap;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+Rim2dEclipseView* RimEclipseCase::create2dContourMap()
+{
+    Rim2dEclipseView* contourMap = new Rim2dEclipseView();
+    contourMap->setEclipseCase(this);
+
+    // Set default values
+    {
+        contourMap->cellResult()->setResultType(RiaDefines::DYNAMIC_NATIVE);
+
+        if (RiaApplication::instance()->preferences()->loadAndShowSoil)
+        {
+            contourMap->cellResult()->setResultVariable("SOIL");
+        }
+
+        contourMap->hasUserRequestedAnimation = true;
+
+        contourMap->cellEdgeResult()->setResultVariable("MULT");
+        contourMap->cellEdgeResult()->enableCellEdgeColors = false;
+        contourMap->fractureColors()->setDefaultResultName();
+    }
+
+    caf::PdmDocument::updateUiIconStateRecursively(contourMap);
+
+    size_t i = m_2dContourMapsCollection->views().size();
+    contourMap->setName(QString("Contour Map %1").arg(i + 1));
+    m_2dContourMapsCollection->push_back(contourMap);
+
+    return contourMap;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -504,7 +575,10 @@ void RimEclipseCase::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering
     {
         uiTreeOrdering.add(&m_2dIntersectionViewCollection);
     }
-
+    if (!m_2dContourMapsCollection->views().empty())
+    {
+        uiTreeOrdering.add(&m_2dContourMapsCollection);
+    }
     uiTreeOrdering.skipRemainingChildren(true);
 }
 
@@ -830,9 +904,14 @@ bool RimEclipseCase::openReserviorCase()
 std::vector<Rim3dView*> RimEclipseCase::allSpecialViews() const
 {
     std::vector<Rim3dView*> views;
-    for (size_t vIdx = 0; vIdx < reservoirViews.size(); ++vIdx)
+    for (RimEclipseView* view : reservoirViews)
     {
-        views.push_back(reservoirViews[vIdx]);
+        views.push_back(view);
+    }
+
+    for (Rim2dEclipseView* view : m_2dContourMapsCollection->views())
+    {
+        views.push_back(view);
     }
  
     return views;
@@ -898,6 +977,14 @@ void RimEclipseCase::reloadDataAndUpdate()
             reservoirView->loadDataAndUpdate();
             reservoirView->updateGridBoxData();
             reservoirView->updateAnnotationItems();
+        }
+
+        for (Rim2dEclipseView* contourMap : m_2dContourMapsCollection->views())
+        {
+            CVF_ASSERT(contourMap);
+            contourMap->loadDataAndUpdate();
+            contourMap->updateGridBoxData();
+            contourMap->updateAnnotationItems();
         }
 
         RimProject* project = RiaApplication::instance()->project();

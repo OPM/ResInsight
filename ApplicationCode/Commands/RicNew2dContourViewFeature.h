@@ -19,34 +19,18 @@
 
 #pragma once
 
-#include "cafPdmField.h"
-#include "cafPdmObject.h"
-#include "cafPdmPtrField.h"
-
-#include <vector>
-
-class RimGridView;
+#include "cafCmdFeature.h"
 
 //==================================================================================================
 /// 
 //==================================================================================================
-class RicLinkVisibleViewsFeatureUi : public caf::PdmObject
+class RicNew2dContourViewFeature : public caf::CmdFeature
 {
-    CAF_PDM_HEADER_INIT;
-
-public:
-    RicLinkVisibleViewsFeatureUi(void);
-
-    void                      setViews(const std::vector<RimGridView*>& allViews);
-    RimGridView*              masterView();
-    std::vector<RimGridView*> masterViewCandidates() const;
+    CAF_CMD_HEADER_INIT;
 
 protected:
-    QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, 
-                                                                  bool * useOptionsOnly) override;
-
-private:
-    caf::PdmPtrField<RimGridView*>  m_masterView;
-
-    std::vector<RimGridView*>       m_allViews;
+    // Overrides
+    bool isCommandEnabled() override;
+    void onActionTriggered( bool isChecked ) override;
+    void setupActionLook( QAction* actionToSetup ) override;
 };

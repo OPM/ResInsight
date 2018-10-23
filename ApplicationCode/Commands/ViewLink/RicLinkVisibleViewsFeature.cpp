@@ -63,7 +63,14 @@ bool RicLinkVisibleViewsFeature::isCommandEnabled()
     }
 
 
-    if (visibleGridViews.size() >= 2 && (linkedviews.size() < visibleGridViews.size())) return true;
+    if (visibleGridViews.size() >= 2 && (linkedviews.size() < visibleGridViews.size()))
+    {
+        std::vector<RimGridView*> views;
+        findNotLinkedVisibleViews(views);
+        RicLinkVisibleViewsFeatureUi testUi;
+        testUi.setViews(views);
+        return !testUi.masterViewCandidates().empty();
+    }
 
     return false;
 }

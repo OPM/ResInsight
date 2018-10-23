@@ -58,7 +58,6 @@ Rim2dGridProjection::Rim2dGridProjection()
 
     setName("2d Grid Projection");
     nameField()->uiCapability()->setUiReadOnly(true);
-    setCheckState(false); // Default is off
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -134,13 +133,27 @@ void Rim2dGridProjection::generateResults()
 {
     generateGridMapping();
     int nVertices = vertexCount();
-    m_aggregatedResults.resize(nVertices);
+    m_aggregatedResults.resize(nVertices, std::numeric_limits<double>::infinity());
 
-#pragma omp parallel for
-    for (int index = 0; index < nVertices; ++index)
+    RimEclipseView* view = nullptr;
+    firstAncestorOrThisOfTypeAsserted(view);
+    int timeStep = view->currentTimeStep();
+
+    RimEclipseResultCase* eclipseCase = nullptr;
+    firstAncestorOrThisOfTypeAsserted(eclipseCase);
+    RimEclipseCellColors* cellColors = view->cellResult();
+
+    m_resultAccessor = RigResultAccessorFactory::createFromResultDefinition(eclipseCase->eclipseCaseData(), 0, timeStep, cellColors);
+    CVF_ASSERT(m_resultAccessor.notNull());
+
+    if (!cellColors->isTernarySaturationSelected())
     {
-        cvf::Vec2ui ij = ijFromGridIndex(index);
-        m_aggregatedResults[index] = value(ij.x(), ij.y());
+#pragma omp parallel for
+        for (int index = 0; index < nVertices; ++index)
+        {
+            cvf::Vec2ui ij = ijFromGridIndex(index);
+            m_aggregatedResults[index] = value(ij.x(), ij.y());
+        }
     }
 }
 
@@ -197,7 +210,7 @@ void Rim2dGridProjection::updateDefaultSampleSpacingFromGrid()
 {
     if (m_sampleSpacing < 0.0)
     {
-        m_sampleSpacing = mainGrid()->characteristicIJCellSize();
+        m_sampleSpacing = mainGrid()->characteristicIJCellSize() * 0.5;
     }
 }
 
@@ -206,24 +219,6 @@ void Rim2dGridProjection::updateDefaultSampleSpacingFromGrid()
 //--------------------------------------------------------------------------------------------------
 double Rim2dGridProjection::value(uint i, uint j) const
 {
-    RimEclipseView* view = nullptr;
-    firstAncestorOrThisOfTypeAsserted(view);
-    int timeStep = view->currentTimeStep();
-
-    RimEclipseResultCase* eclipseCase = nullptr;
-    firstAncestorOrThisOfTypeAsserted(eclipseCase);
-    RimEclipseCellColors* cellColors = view->cellResult();
-
-    if (cellColors->isTernarySaturationSelected())
-    {
-        return std::numeric_limits<double>::infinity();
-    }
-
-    cvf::ref<RigResultAccessor> resultAccessor =
-        RigResultAccessorFactory::createFromResultDefinition(eclipseCase->eclipseCaseData(), 0, timeStep, cellColors);
-    
-    CVF_ASSERT(resultAccessor.notNull());
-
     const std::vector<std::pair<size_t, float>>& matchingCells = cellsAtPos2d(i, j);
     if (!matchingCells.empty())
     {
@@ -235,7 +230,7 @@ double Rim2dGridProjection::value(uint i, uint j) const
             for (auto cellIdxAndWeight : matchingCells)
             {
                 size_t cellIdx = cellIdxAndWeight.first;
-                double cellValue = resultAccessor->cellScalarGlobIdx(cellIdx);
+                double cellValue = m_resultAccessor->cellScalarGlobIdx(cellIdx);
                 calculator.addValueAndWeight(cellValue, cellIdxAndWeight.second);
             }
             return calculator.weightedMean();
@@ -246,7 +241,7 @@ double Rim2dGridProjection::value(uint i, uint j) const
             for (auto cellIdxAndWeight : matchingCells)
             {
                 size_t cellIdx = cellIdxAndWeight.first;
-                double cellValue = resultAccessor->cellScalarGlobIdx(cellIdx);
+                double cellValue = m_resultAccessor->cellScalarGlobIdx(cellIdx);
                 maxValue = std::max(maxValue, cellValue);
             }
             return maxValue;
@@ -257,7 +252,7 @@ double Rim2dGridProjection::value(uint i, uint j) const
             for (auto cellIdxAndWeight : matchingCells)
             {
                 size_t cellIdx = cellIdxAndWeight.first;
-                double cellValue = resultAccessor->cellScalarGlobIdx(cellIdx);
+                double cellValue = m_resultAccessor->cellScalarGlobIdx(cellIdx);
                 minValue = std::min(minValue, cellValue);
             }
             return minValue;
@@ -324,8 +319,10 @@ void Rim2dGridProjection::calculateCellRangeVisibility()
     const RigMainGrid* grid = mainGrid();
     m_cellVisibility = new cvf::UByteArray(grid->cellCount());
 
-    std::vector<RimCellRangeFilterCollection*> rangeFilterCollections;
-    eclipseCase()->descendantsIncludingThisOfType(rangeFilterCollections);
+    RimEclipseView* view = nullptr;
+    firstAncestorOrThisOfTypeAsserted(view);
+    
+    RimCellRangeFilterCollection* rangeFilterCollection = view->rangeFilterCollection();
 
     const RigActiveCellInfo* activeCellInfo = eclipseCase()->eclipseCaseData()->activeCellInfo(RiaDefines::MATRIX_MODEL);
 
@@ -335,17 +332,30 @@ void Rim2dGridProjection::calculateCellRangeVisibility()
         (*m_cellVisibility)[cellIndex] = activeCellInfo->isActive(cellIndex);
     }
 
-    if (rangeFilterCollections.front()->hasActiveFilters())
+    if (rangeFilterCollection && rangeFilterCollection->isActive())
     {
         cvf::CellRangeFilter cellRangeFilter;
-        rangeFilterCollections.front()->compoundCellRangeFilter(&cellRangeFilter, grid->gridIndex());
+        rangeFilterCollection->compoundCellRangeFilter(&cellRangeFilter, grid->gridIndex());
 
-#pragma omp parallel for
-        for (int cellIndex = 0; cellIndex < static_cast<int>(grid->cellCount()); ++cellIndex)
+        if (cellRangeFilter.hasIncludeRanges())
         {
-            size_t i, j, k;
-            grid->ijkFromCellIndex(cellIndex, &i, &j, &k);
-            (*m_cellVisibility)[cellIndex] = (*m_cellVisibility)[cellIndex] && cellRangeFilter.isCellVisible(i, j, k, false);
+#pragma omp parallel for
+            for (int cellIndex = 0; cellIndex < static_cast<int>(grid->cellCount()); ++cellIndex)
+            {
+                size_t i, j, k;
+                grid->ijkFromCellIndex(cellIndex, &i, &j, &k);
+                (*m_cellVisibility)[cellIndex] = (*m_cellVisibility)[cellIndex] && cellRangeFilter.isCellVisible(i, j, k, false);
+            }
+        }
+        else
+        {
+#pragma omp parallel for
+            for (int cellIndex = 0; cellIndex < static_cast<int>(grid->cellCount()); ++cellIndex)
+            {
+                size_t i, j, k;
+                grid->ijkFromCellIndex(cellIndex, &i, &j, &k);
+                (*m_cellVisibility)[cellIndex] = (*m_cellVisibility)[cellIndex] && !cellRangeFilter.isCellExcluded(i, j, k, false);
+            }
         }
     }    
 }
@@ -391,9 +401,8 @@ std::vector<std::pair<size_t, float>> Rim2dGridProjection::visibleCellsAndWeight
     std::vector<std::pair<size_t, float>> matchingVisibleCellsAndWeight;
 
     cvf::Vec3d hexCorners[8];
-    for (int i = 0; i < allCellIndices.size(); ++i)
+    for (size_t globalCellIdx : allCellIndices)
     {
-        size_t globalCellIdx = allCellIndices[i];
         if ((*m_cellVisibility)[globalCellIdx])
         {
             size_t localCellIdx = 0u;
@@ -499,7 +508,7 @@ void Rim2dGridProjection::defineEditorAttribute(const caf::PdmFieldHandle* field
         if (myAttr)
         {
             double characteristicSize = mainGrid()->characteristicIJCellSize();
-            myAttr->m_minimum = 0.25 * characteristicSize;
+            myAttr->m_minimum = 0.2 * characteristicSize;
             myAttr->m_maximum = 2.0 * characteristicSize;
         }        
     }

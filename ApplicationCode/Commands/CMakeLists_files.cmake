@@ -13,6 +13,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RicGeoMechPropertyFilterNewFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicGeoMechPropertyFilterNewInViewFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicGeoMechPropertyFilterNewExec.h
 ${CMAKE_CURRENT_LIST_DIR}/RicNewViewFeature.h
+${CMAKE_CURRENT_LIST_DIR}/RicNew2dContourViewFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicPropertyFilterNewExec.h
 ${CMAKE_CURRENT_LIST_DIR}/RicRangeFilterExecImpl.h
 ${CMAKE_CURRENT_LIST_DIR}/RicRangeFilterInsertExec.h
@@ -91,6 +92,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RicGeoMechPropertyFilterNewFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicGeoMechPropertyFilterNewInViewFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicGeoMechPropertyFilterNewExec.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicNewViewFeature.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicNew2dContourViewFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicRangeFilterExecImpl.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicRangeFilterInsertExec.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicRangeFilterInsertFeature.cpp

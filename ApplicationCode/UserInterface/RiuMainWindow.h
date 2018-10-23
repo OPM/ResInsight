@@ -93,7 +93,8 @@ public:
 
     void            setResultInfo(const QString& info) const;
 
-    void            refreshAnimationActions();
+    void            refreshViewActions();
+    void            refreshAnimationActions();    
     void            updateScaleValue();
 
     RiuProcessMonitor* processMonitor();

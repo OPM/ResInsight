@@ -35,7 +35,6 @@
 #include "RigSimWellData.h"
 #include "RigVirtualPerforationTransmissibilities.h"
 
-#include "Rim2dGridProjection.h"
 #include "Rim3dOverlayInfoConfig.h"
 #include "RimCellEdgeColors.h"
 #include "RimCellRangeFilterCollection.h"
@@ -68,7 +67,6 @@
 #include "RiuSelectionManager.h"
 #include "RiuViewer.h"
 
-#include "Riv2dGridProjectionPartMgr.h"
 #include "RivReservoirSimWellsPartMgr.h"
 #include "RivReservoirViewPartMgr.h"
 #include "RivSingleCellPartGenerator.h"
@@ -160,7 +158,6 @@ RimEclipseView::RimEclipseView()
 
     m_reservoirGridPartManager = new RivReservoirViewPartMgr(this);
     m_simWellsPartManager = new RivReservoirSimWellsPartMgr(this);
-    m_grid2dProjectionPartMgr = new Riv2dGridProjectionPartMgr(grid2dProjection());
     m_eclipseCase = nullptr;
 }
 
@@ -313,7 +310,7 @@ void RimEclipseView::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
         this->scheduleGeometryRegen(PROPERTY_FILTERED);
 
         scheduleCreateDisplayModelAndRedraw();
-    }
+    }   
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -566,10 +563,6 @@ void RimEclipseView::createDisplayModel()
 void RimEclipseView::updateCurrentTimeStep()
 {
     m_propertyFilterCollection()->updateFromCurrentTimeStep();
-    if (m_2dGridProjection->isChecked())
-    {
-        m_2dGridProjection->generateResults();
-    }
 
     updateLegends(); // To make sure the scalar mappers are set up correctly
 
@@ -783,21 +776,7 @@ void RimEclipseView::updateCurrentTimeStep()
 
                 simWellFracturesModelBasicList->updateBoundingBoxesRecursive();
                 frameScene->addModel(simWellFracturesModelBasicList.p());
-            }
-            if (m_2dGridProjection->isChecked())
-            {
-                cvf::String name = "Grid2dProjection";
-                this->removeModelByName(frameScene, name);
-
-                cvf::ref<cvf::ModelBasicList> grid2dProjectionModelBasicList = new cvf::ModelBasicList;
-                grid2dProjectionModelBasicList->setName(name);
-
-                cvf::ref<caf::DisplayCoordTransform> transForm = this->displayCoordTransform();
-
-                m_grid2dProjectionPartMgr->appendProjectionToModel(grid2dProjectionModelBasicList.p(), transForm.p());
-                grid2dProjectionModelBasicList->updateBoundingBoxesRecursive();
-                frameScene->addModel(grid2dProjectionModelBasicList.p());
-            }
+            }         
         }
     }
     
@@ -1140,16 +1119,6 @@ void RimEclipseView::updateLegends()
 
         RimRegularLegendConfig* virtLegend = m_virtualPerforationResult->legendConfig();
         m_viewer->addColorLegendToBottomLeftCorner(virtLegend->titledOverlayFrame());
-    }
-
-    if (m_2dGridProjection && m_2dGridProjection->isChecked())
-    {
-        RimRegularLegendConfig* projectionLegend = m_2dGridProjection->legendConfig();
-        if (projectionLegend && projectionLegend->showLegend())
-        {
-            m_2dGridProjection->updateLegend();
-            m_viewer->addColorLegendToBottomLeftCorner(projectionLegend->titledOverlayFrame());
-        }
     }
 }
 
@@ -1538,7 +1507,6 @@ void RimEclipseView::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering
     
     uiTreeOrdering.add(m_rangeFilterCollection());
     uiTreeOrdering.add(m_propertyFilterCollection());
-    uiTreeOrdering.add(m_2dGridProjection());
     uiTreeOrdering.skipRemainingChildren(true);
 }
 
@@ -1743,7 +1711,11 @@ const RimEclipsePropertyFilterCollection* RimEclipseView::eclipsePropertyFilterC
 void RimEclipseView::setOverridePropertyFilterCollection(RimEclipsePropertyFilterCollection* pfc)
 {
     m_overridePropertyFilterCollection = pfc;
-
+    if (m_overridePropertyFilterCollection != nullptr)
+    {
+        m_propertyFilterCollection->isActive = m_overridePropertyFilterCollection->isActive;
+    }
+    uiCapability()->updateConnectedEditors();
     this->scheduleGeometryRegen(PROPERTY_FILTERED);
     this->scheduleCreateDisplayModelAndRedraw();
 }

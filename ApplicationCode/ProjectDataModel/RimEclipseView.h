@@ -57,7 +57,6 @@ class RimStimPlanColors;
 class RimVirtualPerforationResults;
 class RiuViewer;
 class RivReservoirSimWellsPartMgr;
-class Riv2dGridProjectionPartMgr;
 class RivIntersectionPartMgr;
 class RivReservoirViewPartMgr;
 
@@ -93,7 +92,7 @@ public:
     bool                                            showMainGrid() const;
 
     // Access internal objects
-    const RimPropertyFilterCollection*      propertyFilterCollection() const override;
+    const RimPropertyFilterCollection*              propertyFilterCollection() const override;
 
     RimEclipsePropertyFilterCollection*             eclipsePropertyFilterCollection();
     const RimEclipsePropertyFilterCollection*       eclipsePropertyFilterCollection() const;
@@ -105,7 +104,7 @@ public:
 
     void                                            setEclipseCase(RimEclipseCase* reservoir);
     RimEclipseCase*                                 eclipseCase() const;
-    RimCase*                                ownerCase() const override;
+    RimCase*                                        ownerCase() const override;
 
     RigMainGrid*                                    mainGrid() const;
 
@@ -113,7 +112,7 @@ public:
 
     bool                                            isTimeStepDependentDataVisible() const override;
 
-    void                                    scheduleGeometryRegen(RivCellSetEnum geometryType) override;
+    void                                            scheduleGeometryRegen(RivCellSetEnum geometryType) override;
     void                                            scheduleReservoirGridGeometryRegen();
     void                                            scheduleSimWellGeometryRegen();
     void                                            updateDisplayModelForWellResults();
@@ -121,7 +120,6 @@ public:
     void                                            calculateCompletionTypeAndRedrawIfRequired();
 
     bool                                            isVirtualConnectionFactorGeometryVisible() const;
-
 
     const std::vector<RivCellSetEnum>&              visibleGridParts() const;
     const RivReservoirViewPartMgr*                  reservoirGridPartManager() const;
@@ -131,42 +129,42 @@ public:
     void                                            calculateVisibleWellCellsIncFence(cvf::UByteArray* visibleCells, RigGridBase * grid);
 
     // Overridden PDM methods:
-    void                                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    void                                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
     void                                            updateIconStateForFilterCollections();
 
-    void                                    axisLabels(cvf::String* xLabel, cvf::String* yLabel, cvf::String* zLabel) override;
+    void                                            axisLabels(cvf::String* xLabel, cvf::String* yLabel, cvf::String* zLabel) override;
 
-    bool                                    isUsingFormationNames() const override;
+    bool                                            isUsingFormationNames() const override;
 
-    void                                    calculateCurrentTotalCellVisibility(cvf::UByteArray* totalVisibility, int timeStep) override;
+    void                                            calculateCurrentTotalCellVisibility(cvf::UByteArray* totalVisibility, int timeStep) override;
     
-    std::vector<RimLegendConfig*>                   legendConfigs() const override;
+    virtual std::vector<RimLegendConfig*>           legendConfigs() const override;
     cvf::Color4f                                    colorFromCellCategory(RivCellSetEnum geometryType) const;
 
 protected:
     void                                    initAfterRead() override;
-    void                                    defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
-    void                                    defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
-    void                                    onLoadDataAndUpdate() override;
+    virtual void                            defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    virtual void                            defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
+    virtual void                            onLoadDataAndUpdate() override;
 
     void                                    createPartCollectionFromSelection(cvf::Collection<cvf::Part>* parts) override;
     bool                                    showActiveCellsOnly() override;
+    virtual void                            updateCurrentTimeStep() override;
+    virtual void                            createDisplayModel() override;
 
 private:
-    void                                            createDisplayModel() override;
     void                                            updateDisplayModelVisibility() override;
-    void                                    updateCurrentTimeStep() override;
 
     void                                            indicesToVisibleGrids(std::vector<size_t>* gridIndices);
-    void                                    updateScaleTransform() override;
-    cvf::Transform*                         scaleTransform() override;
+    void                                            updateScaleTransform() override;
+    cvf::Transform*                                 scaleTransform() override;
 
-    void                                    updateStaticCellColors() override;
+    void                                            updateStaticCellColors() override;
     void                                            updateStaticCellColors(RivCellSetEnum geometryType);
 
-    void                                            updateLegends() override;
+    virtual void                                    updateLegends() override;
     void                                            updateMinMaxValuesAndAddLegendToView(QString legendLabel, RimEclipseCellColors* resultColors, RigCaseCellResultsData* cellResultsData);
-    void                                    resetLegendsInViewer() override;
+    void                                            resetLegendsInViewer() override;
     void                                            updateVirtualConnectionLegendRanges();
 
     std::set<RivCellSetEnum>                        allVisibleFaultGeometryTypes() const;
@@ -199,7 +197,6 @@ private:
 
     cvf::ref<RivReservoirViewPartMgr>               m_reservoirGridPartManager;
     cvf::ref<RivReservoirSimWellsPartMgr>           m_simWellsPartManager;
-    cvf::ref<Riv2dGridProjectionPartMgr>            m_grid2dProjectionPartMgr;
     
     std::vector<RivCellSetEnum>                     m_visibleGridParts;
 };

@@ -20,7 +20,6 @@
 
 #include "RiaApplication.h"
 
-#include "Rim2dGridProjection.h"
 #include "Rim3dOverlayInfoConfig.h"
 #include "RimCellRangeFilterCollection.h"
 #include "RimGridCollection.h"
@@ -62,9 +61,6 @@ RimGridView::RimGridView()
     CAF_PDM_InitFieldNoDefault(&m_gridCollection, "GridCollection", "GridCollection", "", "", "");
     m_gridCollection.uiCapability()->setUiHidden(true);
     m_gridCollection = new RimGridCollection();
-
-    CAF_PDM_InitFieldNoDefault(&m_2dGridProjection, "Grid2dProjection", "2d Grid Projection", "", "", "");
-    m_2dGridProjection = new Rim2dGridProjection();
 
     m_previousGridModeMeshLinesWasFaults = false;
 
@@ -113,7 +109,6 @@ RimGridView::~RimGridView(void)
 //--------------------------------------------------------------------------------------------------
 void RimGridView::showGridCells(bool enableGridCells)
 {
-
     m_gridCollection->setActive(enableGridCells);
 
     createDisplayModel();
@@ -145,6 +140,14 @@ cvf::ref<cvf::UByteArray> RimGridView::currentTotalCellVisibility()
 RimIntersectionCollection* RimGridView::crossSectionCollection() const
 {
     return m_crossSectionCollection();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGridView::rangeFiltersUpdated()
+{
+    updateViewFollowingRangeFilterUpdates();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -193,6 +196,13 @@ void RimGridView::setOverrideRangeFilterCollection(RimCellRangeFilterCollection*
     if (m_overrideRangeFilterCollection()) delete m_overrideRangeFilterCollection();
 
     m_overrideRangeFilterCollection = rfc;
+    // Maintain a link in the active-selection
+    if (m_overrideRangeFilterCollection)
+    {
+        m_rangeFilterCollection->isActive = m_overrideRangeFilterCollection->isActive;
+        m_rangeFilterCollection()->uiCapability()->updateConnectedEditors();
+    }
+
     this->scheduleGeometryRegen(RANGE_FILTERED);
     this->scheduleGeometryRegen(RANGE_FILTERED_INACTIVE);
 
@@ -267,19 +277,19 @@ bool RimGridView::isGridVisualizationMode() const
 }
 
 //--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-Rim2dGridProjection* RimGridView::grid2dProjection() const
-{
-    return m_2dGridProjection().p();
-}
-
-//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 Rim3dOverlayInfoConfig* RimGridView::overlayInfoConfig() const
 {
     return m_overlayInfoConfig;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGridView::updateViewFollowingRangeFilterUpdates()
+{
+    showGridCells(true);
 }
 
 //--------------------------------------------------------------------------------------------------

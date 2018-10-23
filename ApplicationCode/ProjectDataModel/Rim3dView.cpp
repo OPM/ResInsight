@@ -918,6 +918,15 @@ void Rim3dView::disablePerspectiveProjectionField()
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void Rim3dView::enablePerspectiveProjectionField()
+{
+    isPerspectiveView.uiCapability()->setUiHidden(false);
+    isPerspectiveView.xmlCapability()->setIOWritable(true);
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void Rim3dView::handleMdiWindowClosed()

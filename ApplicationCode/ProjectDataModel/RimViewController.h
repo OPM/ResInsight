@@ -34,6 +34,7 @@ class RimGeoMechView;
 class RimViewLinker;
 class RigCaseToCaseCellMapper;
 class RimCellRangeFilter;
+class RimPropertyFilter;
 
 //==================================================================================================
 ///  
@@ -77,7 +78,7 @@ public:
 
     void                                    updateRangeFilterOverrides(RimCellRangeFilter* changedRangeFilter);
     void                                    applyRangeFilterCollectionByUserChoice();
-
+    void                                    updatePropertyFilterOverrides(RimPropertyFilter* changedPropertyFilter);
 
 protected:  // Pdm overridden methods
     void                                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
@@ -94,10 +95,16 @@ private:
     void                                    updateResultColorsControl();
     void                                    updateLegendDefinitions();
 
+    void                                    updateDefaultOptions();
+
+    bool                                    isCameraControlPossible() const;
     bool                                    isMasterAndDepViewDifferentType() const;
     bool                                    isRangeFilterControlPossible() const;
     bool                                    isPropertyFilterControlPossible() const;
-    bool                                    isRangeFilterMappingApliccable() const;
+    bool                                    isRangeFilterMappingApplicable() const;
+    bool                                    isCellResultControlAdvisable() const;
+    bool                                    isRangeFilterControlAdvisable() const;
+    bool                                    isPropertyFilterControlAdvisable() const;
 
     RimEclipseView*                         managedEclipseView() const;
     RimGeoMechView*                         managedGeoView() const;

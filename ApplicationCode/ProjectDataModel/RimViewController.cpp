@@ -28,6 +28,7 @@
 #include "RigGeoMechCaseData.h"
 #include "RigMainGrid.h"
 
+#include "Rim2dEclipseView.h"
 #include "Rim3dView.h"
 #include "RimCase.h"
 #include "RimCellRangeFilter.h"
@@ -411,6 +412,16 @@ void RimViewController::updateOptionSensitivity()
         }
     }
 
+    if (isCameraControlPossible())
+    {
+        this->m_syncCamera.uiCapability()->setUiReadOnly(false);
+    }
+    else
+    {
+        this->m_syncCamera.uiCapability()->setUiReadOnly(true);
+        this->m_syncCamera = false;        
+    }
+
     if (isPropertyFilterControlPossible())
     {
         this->m_syncPropertyFilters.uiCapability()->setUiReadOnly(false);
@@ -442,6 +453,7 @@ void RimViewController::updateOptionSensitivity()
     }
 
     m_syncVisibleCells.uiCapability()->setUiReadOnly(!this->isMasterAndDepViewDifferentType());
+
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -460,6 +472,7 @@ void RimViewController::setManagedView(RimGridView* view)
     m_managedView = view;
 
     updateOptionSensitivity();
+    updateDefaultOptions();
     updateOverrides();
     updateResultColorsControl();
     updateCameraLink();
@@ -548,6 +561,16 @@ void RimViewController::updateLegendDefinitions()
 
     RimViewLinker* viewLinker = ownerViewLinker();
     viewLinker->updateCellResult();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimViewController::updateDefaultOptions()
+{
+    m_syncCellResult = isCellResultControlAdvisable();
+    m_syncRangeFilters = isRangeFilterControlAdvisable();
+    m_syncPropertyFilters = isPropertyFilterControlAdvisable();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -642,6 +665,16 @@ const RigCaseToCaseCellMapper* RimViewController::cellMapper()
 RimGridView* RimViewController::masterView() const
 {
     return ownerViewLinker()->masterView();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimViewController::isCameraControlPossible() const
+{
+    Rim2dEclipseView* contourMapMasterView  = dynamic_cast<Rim2dEclipseView*>(masterView());
+    Rim2dEclipseView* contourMapManagedView = dynamic_cast<Rim2dEclipseView*>(managedEclipseView());
+    return !(contourMapMasterView || contourMapManagedView);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -844,7 +877,7 @@ bool RimViewController::isRangeFilterControlPossible() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimViewController::isRangeFilterMappingApliccable() const
+bool RimViewController::isRangeFilterMappingApplicable() const
 {
     if (!isMasterAndDepViewDifferentType()) return false;
 
@@ -871,6 +904,36 @@ bool RimViewController::isRangeFilterMappingApliccable() const
     }
 
     return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimViewController::isCellResultControlAdvisable() const
+{
+    bool contourMapMasterView = dynamic_cast<Rim2dEclipseView*>(masterView()) != nullptr;
+    bool contourMapManagedView = dynamic_cast<Rim2dEclipseView*>(managedEclipseView()) != nullptr;
+    return !isMasterAndDepViewDifferentType() && contourMapMasterView != contourMapManagedView;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimViewController::isRangeFilterControlAdvisable() const
+{
+    bool contourMapMasterView  = dynamic_cast<Rim2dEclipseView*>(masterView()) != nullptr;
+    bool contourMapManagedView = dynamic_cast<Rim2dEclipseView*>(managedEclipseView()) != nullptr;
+    return isRangeFilterControlPossible() && contourMapMasterView != contourMapManagedView;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimViewController::isPropertyFilterControlAdvisable() const
+{
+    bool contourMapMasterView = dynamic_cast<Rim2dEclipseView*>(masterView()) != nullptr;
+    bool contourMapManagedView = dynamic_cast<Rim2dEclipseView*>(managedEclipseView()) != nullptr;
+    return isPropertyFilterControlPossible() && contourMapMasterView != contourMapManagedView;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -963,7 +1026,7 @@ void RimViewController::updateRangeFilterOverrides(RimCellRangeFilter* changedRa
         RimCellRangeFilterCollection* overrideRangeFilterColl = dynamic_cast<RimCellRangeFilterCollection*>(objectCopy);
 
         // Convert the range filter to fit in the managed view if needed
-        if (isRangeFilterMappingApliccable())
+        if (isRangeFilterMappingApplicable())
         {
             RimEclipseView* eclipseMasterView = dynamic_cast<RimEclipseView*>(masterView());
             RimGeoMechView* geoMasterView     = dynamic_cast<RimGeoMechView*>(masterView());
@@ -1005,6 +1068,16 @@ void RimViewController::updateRangeFilterOverrides(RimCellRangeFilter* changedRa
         m_managedView->setOverrideRangeFilterCollection(overrideRangeFilterColl);
     }
 }
+
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimViewController::updatePropertyFilterOverrides(RimPropertyFilter* changedPropertyFilter)
+{
+    updateOverrides();
+}
+
 
 //--------------------------------------------------------------------------------------------------
 ///

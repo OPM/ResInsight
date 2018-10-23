@@ -18,6 +18,7 @@
 
 #include "RimPropertyFilter.h"
 
+#include "RimPropertyFilterCollection.h"
 
 CAF_PDM_SOURCE_INIT(RimPropertyFilter, "PropertyFilter");
 

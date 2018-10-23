@@ -21,6 +21,7 @@
 
 #include "RiaApplication.h"
 
+#include "Rim2dEclipseViewCollection.h"
 #include "Rim3dOverlayInfoConfig.h"
 #include "Rim3dWellLogCurveCollection.h"
 #include "Rim3dWellLogExtractionCurve.h"
@@ -155,9 +156,14 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicPasteEclipseViewsFeature";
             menuBuilder << "Separator";
             menuBuilder << "RicNewViewFeature";
+            menuBuilder << "RicNew2dContourViewFeature";
             menuBuilder << "Separator";
             menuBuilder << "RicCopyReferencesToClipboardFeature";
             menuBuilder << "RicSaveEclipseInputVisibleCellsFeature";
+        }
+        else if (dynamic_cast<Rim2dEclipseViewCollection*>(uiItem))
+        {
+            menuBuilder << "RicNew2dContourViewFeature";
         }
         else if (dynamic_cast<RimCaseCollection*>(uiItem))
         {
@@ -178,6 +184,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "Separator";
 
             menuBuilder << "RicNewViewFeature";
+            menuBuilder << "RicNew2dContourViewFeature";
             menuBuilder << "RicShowFlowCharacteristicsPlotFeature";
             menuBuilder << "RicEclipseCaseNewGroupFeature";
             menuBuilder << "Separator";

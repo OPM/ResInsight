@@ -51,7 +51,7 @@
 
 CAF_PDM_SOURCE_INIT(Rim2dIntersectionView, "Intersection2dView"); 
 
-const cvf::Mat4d defaultIntersectinoViewMatrix(1, 0, 0, 0,
+const cvf::Mat4d defaultViewMatrix(1, 0, 0, 0,
                                                0, 0, 1, 0,
                                                0, -1, 0, 1000,
                                                0, 0, 0, 1);
@@ -86,7 +86,7 @@ Rim2dIntersectionView::Rim2dIntersectionView(void)
 
     hasUserRequestedAnimation = true;
     
-    ((RiuViewerToViewInterface*)this)->setCameraPosition(defaultIntersectinoViewMatrix );
+    ((RiuViewerToViewInterface*)this)->setCameraPosition(defaultViewMatrix );
 
     disableGridBoxField();
     disablePerspectiveProjectionField();
@@ -513,7 +513,7 @@ void Rim2dIntersectionView::createDisplayModel()
         updateCurrentTimeStep();
     }
 
-    if ( this->viewer()->mainCamera()->viewMatrix() == defaultIntersectinoViewMatrix )
+    if ( this->viewer()->mainCamera()->viewMatrix() == defaultViewMatrix )
     {
         this->zoomAll();
     }
@@ -663,7 +663,7 @@ void Rim2dIntersectionView::resetLegendsInViewer()
     m_viewer->showAnimationProgress(true);
     m_viewer->showHistogram(false);
     m_viewer->showInfoText(false);
-    m_viewer->showEdgeTickMarks(true);
+    m_viewer->showEdgeTickMarksXZ(true);
 
     m_viewer->setMainScene(new cvf::Scene());
     m_viewer->enableNavigationRotation(false);

@@ -118,6 +118,8 @@ ${CMAKE_CURRENT_LIST_DIR}/RimWellLogRftCurveNameConfig.h
 ${CMAKE_CURRENT_LIST_DIR}/RimDataSourceSteppingTools.h
 ${CMAKE_CURRENT_LIST_DIR}/RimWellLogCurveCommonDataSource.h
 ${CMAKE_CURRENT_LIST_DIR}/Rim2dGridProjection.h
+${CMAKE_CURRENT_LIST_DIR}/Rim2dEclipseView.h
+${CMAKE_CURRENT_LIST_DIR}/Rim2dEclipseViewCollection.h
 )
 
 
@@ -240,6 +242,8 @@ ${CMAKE_CURRENT_LIST_DIR}/RimWellLogRftCurveNameConfig.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimDataSourceSteppingTools.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimWellLogCurveCommonDataSource.cpp
 ${CMAKE_CURRENT_LIST_DIR}/Rim2dGridProjection.cpp
+${CMAKE_CURRENT_LIST_DIR}/Rim2dEclipseView.cpp
+${CMAKE_CURRENT_LIST_DIR}/Rim2dEclipseViewCollection.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

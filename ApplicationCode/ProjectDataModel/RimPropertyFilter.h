@@ -39,7 +39,7 @@ protected:
     void                                    setCategoryNames(const std::vector<QString>& categoryNames);
     void                                    setCategoryNamesAndValues(const std::vector<std::pair<QString, int>>& categoryNamesAndValues);
     void                                    clearCategories();
-    
+
     QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
 
 protected:
