@@ -142,6 +142,9 @@ void RicCreateTemporaryLgrFeature::onActionTriggered(bool isChecked)
             }
         }
 
+        eclipseCase->results(RiaDefines::MATRIX_MODEL)->freeAllocatedResultsData();
+        eclipseCase->results(RiaDefines::FRACTURE_MODEL)->freeAllocatedResultsData();
+
         eclipseCase->eclipseCaseData()->clearWellCellsInGridCache();
         eclipseCase->eclipseCaseData()->mainGrid()->computeCachedData();
         activeView->loadDataAndUpdate();
