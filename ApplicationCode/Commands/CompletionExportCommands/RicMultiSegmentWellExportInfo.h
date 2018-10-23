@@ -161,6 +161,9 @@ public:
     void setSegmentNumber(int segmentNumber);
     void addCompletion(const RicMswCompletion& completion);
 
+    void setSourcePdmObject(const caf::PdmObject* object);
+    const caf::PdmObject* sourcePdmObject() const;
+
     bool operator<(const RicMswSegment& rhs) const;
     
 private:
@@ -181,6 +184,8 @@ private:
     int                             m_segmentNumber;
 
     std::vector<RicMswCompletion> m_completions;
+
+    caf::PdmPointer<caf::PdmObject> m_sourcePdmObject;
 };
 
 class RicMswExportInfo

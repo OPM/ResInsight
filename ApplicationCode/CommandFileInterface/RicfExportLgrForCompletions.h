@@ -20,20 +20,13 @@
 
 #include "RicfCommandObject.h"
 
+#include "ExportCommands/RicExportLgrUi.h"
+
 #include "cafAppEnum.h"
 #include "cafPdmField.h"
 
 class RimWellPath;
 
-namespace ExportLgr
-{
-    enum SplitType
-    {
-        NONE,
-        ONE_LGR_PER_GRID_CELL,
-        SINGLE_LGR_ALL_GRID_CELLS
-    };
-}
 
 //==================================================================================================
 //
@@ -44,7 +37,7 @@ class RicfExportLgrForCompletions : public RicfCommandObject
 {
     CAF_PDM_HEADER_INIT;
 
-    typedef caf::AppEnum<ExportLgr::SplitType> LgrSplitType;
+    typedef caf::AppEnum<RicExportLgrUi::SplitType> LgrSplitType;
 
 public:
     RicfExportLgrForCompletions();

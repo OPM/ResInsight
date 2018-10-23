@@ -36,6 +36,9 @@
 #include "RimWellPath.h"
 #include "RimWellPathCompletions.h"
 
+#include <cafPdmObject.h>
+#include <cafPdmPointer.h>
+
 //==================================================================================================
 ///
 //==================================================================================================
@@ -60,6 +63,9 @@ struct WellBorePartForTransCalc
 
     double intersectionWithWellMeasuredDepth;
     size_t lateralIndex;
+
+    void setSourcePdmObject(const caf::PdmObject* sourcePdmObj) { this->sourcePdmObject = const_cast<caf::PdmObject*>(sourcePdmObj); }
+    caf::PdmPointer<caf::PdmObject> sourcePdmObject;
 };
 
 //--------------------------------------------------------------------------------------------------
@@ -161,7 +167,7 @@ std::vector<RigCompletionData>
                 transmissibility, wellBorePart.skinFactor, wellBorePart.wellRadius * 2, direction, wellBorePart.isMainBore);
 
             completion.addMetadata(wellBorePart.metaData, QString::number(transmissibility));
-
+            completion.setSourcePdmObject(wellBorePart.sourcePdmObject);
             completionData.push_back(completion);
         }
     }
@@ -203,6 +209,7 @@ void RicFishbonesTransmissibilityCalculationFeatureImp::findFishboneLateralsWell
 
                     wellBorePart.intersectionWithWellMeasuredDepth = location.endMD();
                     wellBorePart.lateralIndex                      = completion.index();
+                    wellBorePart.setSourcePdmObject(location.sourcePdmObject());
 
                     wellBorePartsInCells[intersection.globalCellIndex()].push_back(wellBorePart);
                 }
@@ -231,7 +238,7 @@ void RicFishbonesTransmissibilityCalculationFeatureImp::findFishboneLateralsWell
                     endMD += 0.5;
                 }
 
-                appendMainWellBoreParts(wellBorePartsInCells, wellPath, settings, skinFactor, holeRadius, startMD, endMD);
+                appendMainWellBoreParts(wellBorePartsInCells, wellPath, settings, skinFactor, holeRadius, startMD, endMD, fishboneDefinition);
             }
         }
     }
@@ -290,7 +297,8 @@ void RicFishbonesTransmissibilityCalculationFeatureImp::appendMainWellBoreParts(
     double                                                   skinFactor,
     double                                                   holeRadius,
     double                                                   startMeasuredDepth,
-    double                                                   endMeasuredDepth)
+    double                                                   endMeasuredDepth,
+    const RimFishbonesMultipleSubs*                          fishbonesDefintions)
 {
     if (!wellPath) return;
     if (!wellPath->wellPathGeometry()) return;
@@ -299,7 +307,7 @@ void RicFishbonesTransmissibilityCalculationFeatureImp::appendMainWellBoreParts(
     bool isMainBore = true;
 
     std::pair<std::vector<cvf::Vec3d>, std::vector<double>> fishbonePerfWellPathCoords =
-        wellPath->wellPathGeometry()->clippedPointSubset(startMeasuredDepth, endMeasuredDepth);
+        wellPath->wellPathGeometry()->clippedPointSubset(startMeasuredDepth, endMeasuredDepth); 
 
     std::vector<WellPathCellIntersectionInfo> intersectedCellsIntersectionInfo =
         RigWellPathIntersectionTools::findCellIntersectionInfosAlongPath(
@@ -313,6 +321,7 @@ void RicFishbonesTransmissibilityCalculationFeatureImp::appendMainWellBoreParts(
 
         wellBorePart.intersectionWithWellMeasuredDepth = cellIntersectionInfo.startMD;
 
+        wellBorePart.setSourcePdmObject(fishbonesDefintions);
         wellBorePartsInCells[cellIntersectionInfo.globCellIndex].push_back(wellBorePart);
     }
 }

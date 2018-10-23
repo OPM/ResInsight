@@ -101,49 +101,57 @@ void RicCreateTemporaryLgrFeature::onActionTriggered(bool isChecked)
         auto eclipseCase = dialogData->caseToApply();
         auto lgrCellCounts = dialogData->lgrCellCount();
         size_t timeStep = dialogData->timeStep();
+        auto splitType = dialogData->splitType();
 
         auto eclipseCaseData = eclipseCase->eclipseCaseData();
         RigActiveCellInfo* activeCellInfo = eclipseCaseData->activeCellInfo(RiaDefines::MATRIX_MODEL);
         RigActiveCellInfo* fractureActiveCellInfo = eclipseCaseData->activeCellInfo(RiaDefines::FRACTURE_MODEL);
 
-        bool lgrIntersected = false;
+        bool intersectsExistingLgr = false;
         for (const auto& wellPath : wellPaths)
         {
-            auto intersectingCells = RicExportLgrFeature::cellsIntersectingCompletions(eclipseCase, wellPath, timeStep);
-            if (containsAnyNonMainGridCells(intersectingCells))
-            {
-                lgrIntersected = true;
-                continue;
-            }
-
-            eclipseCase->eclipseCaseData()->results(RiaDefines::MATRIX_MODEL)->freeAllocatedResultsData();
-
             std::vector<LgrInfo> lgrs;
-            if (dialogData->singleLgrSplit())
-                lgrs = RicExportLgrFeature::buildSingleLgr(eclipseCase, intersectingCells, lgrCellCounts);
-            else
-                lgrs = RicExportLgrFeature::buildOneLgrPerMainCell(eclipseCase, intersectingCells, lgrCellCounts);
 
-            auto mainGrid = eclipseCase->eclipseCaseData()->mainGrid();
-
-            for (auto lgr : lgrs)
+            try
             {
-				int totalCellCountBeforLgr = (int)mainGrid->globalCellArray().size();
+                lgrs = RicExportLgrFeature::buildLgrsForWellPath(wellPath,
+                                                                 eclipseCase,
+                                                                 timeStep,
+                                                                 lgrCellCounts,
+                                                                 splitType);
 
-                createLgr(lgr, eclipseCase->eclipseCaseData()->mainGrid());
+                auto mainGrid = eclipseCase->eclipseCaseData()->mainGrid();
 
-                int lgrCellCount = lgr.cellCount();
+                for (auto lgr : lgrs)
+                {
+                    int totalCellCountBeforLgr = (int)mainGrid->globalCellArray().size();
 
-				activeCellInfo->addLgr(totalCellCountBeforLgr, lgrCellCount);
-				fractureActiveCellInfo->addLgr(totalCellCountBeforLgr, lgrCellCount);
+                    createLgr(lgr, eclipseCase->eclipseCaseData()->mainGrid());
+
+                    int lgrCellCount = lgr.cellCount();
+
+                    activeCellInfo->addLgr(totalCellCountBeforLgr, lgrCellCount);
+                    fractureActiveCellInfo->addLgr(totalCellCountBeforLgr, lgrCellCount);
+                }
+
+                mainGrid->calculateFaults(activeCellInfo, true);
             }
-
-            mainGrid->calculateFaults(activeCellInfo, true);
+            catch (CreateLgrException e)
+            {
+                intersectsExistingLgr = true;
+            }
         }
 
         eclipseCase->eclipseCaseData()->clearWellCellsInGridCache();
         eclipseCase->eclipseCaseData()->mainGrid()->computeCachedData();
         activeView->loadDataAndUpdate();
+
+        if (intersectsExistingLgr)
+        {
+            QMessageBox::warning(nullptr,
+                                 "LGR cells intersected",
+                                 "At least one completion intersects with an LGR. No output for those completions produced");
+        }
     }
 }
 

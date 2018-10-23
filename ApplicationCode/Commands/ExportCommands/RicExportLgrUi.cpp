@@ -37,10 +37,11 @@ namespace caf
     template<>
     void RicExportLgrUi::LgrSplitTypeEnum::setUp()
     {
-        addItem(RicExportLgrUi::PER_CELL_LGR, "PER_CELL_LGR", "LGR Per Cell");
-        addItem(RicExportLgrUi::SINGLE_LGR, "SINGLE_LGR", "Single LGR");
+        addItem(RicExportLgrUi::LGR_PER_CELL,       "LGR_PER_CELL",         "LGR Per Cell");
+        addItem(RicExportLgrUi::LGR_PER_COMPLETION, "LGR_PER_COMPLETION",   "LGR Per Completion");
+        addItem(RicExportLgrUi::LGR_PER_WELL,       "LGR_PER_WELL",         "LGR Per Well");
 
-        setDefault(RicExportLgrUi::PER_CELL_LGR);
+        setDefault(RicExportLgrUi::LGR_PER_COMPLETION);
     }
 }
 
@@ -131,9 +132,9 @@ int RicExportLgrUi::timeStep() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RicExportLgrUi::singleLgrSplit() const
+RicExportLgrUi::SplitType RicExportLgrUi::splitType() const
 {
-    return m_splitType == SINGLE_LGR;
+    return m_splitType();
 }
 
 //--------------------------------------------------------------------------------------------------

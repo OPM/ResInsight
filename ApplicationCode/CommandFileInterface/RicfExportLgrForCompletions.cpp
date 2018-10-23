@@ -41,18 +41,6 @@
 CAF_PDM_SOURCE_INIT(RicfExportLgrForCompletions, "exportLgrForCompletions");
 
 
-namespace caf
-{
-    template<>
-    void RicfExportLgrForCompletions::LgrSplitType::setUp()
-    {
-        addItem(ExportLgr::ONE_LGR_PER_GRID_CELL, "ONE_LGR_PER_GRID_CELL", "One LGR per Main Grid Cell");
-        addItem(ExportLgr::SINGLE_LGR_ALL_GRID_CELLS, "SINGLE_LGR_ALL_GRID_CELLS", "One Single LGR for all Main Grid Cells");
-
-        setDefault(ExportLgr::NONE);
-    }
-} // namespace caf
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -64,7 +52,7 @@ RicfExportLgrForCompletions::RicfExportLgrForCompletions()
     RICF_InitField(&m_refinementI,          "refinementI",          -1,                     "RefinementI",      "", "", "");
     RICF_InitField(&m_refinementJ,          "refinementJ",          -1,                     "RefinementJ",      "", "", "");
     RICF_InitField(&m_refinementK,          "refinementK",          -1,                     "RefinementK",      "", "", "");
-    RICF_InitField(&m_splitType,            "splitType",            LgrSplitType(ExportLgr::ONE_LGR_PER_GRID_CELL), "SplitType", "", "", "");
+    RICF_InitField(&m_splitType,            "splitType",            LgrSplitType(),         "SplitType", "", "", "");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -107,7 +95,11 @@ void RicfExportLgrForCompletions::execute()
         {
             if (wellPath)
             {
-                if (!feature->exportLgrsForWellPath(exportFolder, wellPath, eclipseCase, m_timeStep, lgrCellCounts, m_splitType == ExportLgr::SINGLE_LGR_ALL_GRID_CELLS))
+                try
+                {
+                    feature->exportLgrsForWellPath(exportFolder, wellPath, eclipseCase, m_timeStep, lgrCellCounts, m_splitType());
+                }
+                catch(CreateLgrException e)
                 {
                     lgrIntersected = true;
                 }

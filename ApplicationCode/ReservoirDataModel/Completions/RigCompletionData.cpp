@@ -393,6 +393,22 @@ double RigCompletionData::secondOrderingValue() const
     return m_secondOrderingValue;
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigCompletionData::setSourcePdmObject(const caf::PdmObject* object)
+{
+    m_sourcePdmObject = const_cast<caf::PdmObject*>(object);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const caf::PdmObject* RigCompletionData::sourcePdmObject() const
+{
+    return m_sourcePdmObject;
+}
+
 //==================================================================================================
 ///
 //==================================================================================================
@@ -415,4 +431,5 @@ void RigCompletionData::copy(RigCompletionData& target, const RigCompletionData&
     target.m_completionType      = from.m_completionType;
     target.m_firstOrderingValue  = from.m_firstOrderingValue;
     target.m_secondOrderingValue = from.m_secondOrderingValue;
+    target.m_sourcePdmObject     = from.m_sourcePdmObject;
 }

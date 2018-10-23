@@ -1708,6 +1708,7 @@ std::vector<RigCompletionData> RicWellPathExportCompletionDataFeatureImpl::gener
                 completion.addMetadata("Perforation Completion",
                                        QString("MD In: %1 - MD Out: %2").arg(cell.startMD).arg(cell.endMD) +
                                            QString(" Transmissibility: ") + QString::number(transmissibility));
+                completion.setSourcePdmObject(interval);
                 completionData.push_back(completion);
             }
         }
@@ -1775,6 +1776,7 @@ RicMswExportInfo RicWellPathExportCompletionDataFeatureImpl::generateFishbonesMs
                 location.setIcdFlowCoefficient(subs->icdFlowCoefficient());
                 double icdOrificeRadius = subs->icdOrificeDiameter(unitSystem) / 2;
                 location.setIcdArea(icdOrificeRadius * icdOrificeRadius * cvf::PI_D * subs->icdCount());
+                location.setSourcePdmObject(subs);
 
                 if (ssi == 0)
                 {

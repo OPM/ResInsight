@@ -743,6 +743,7 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
         double diameter = 2.0 * fracture->wellRadius();
         compDat.setFromFracture(trans, fracTemplate->skinFactor(), diameter);
         compDat.addMetadata(fracture->name(), QString::number(trans));
+        compDat.setSourcePdmObject(fracture);
         allCompletionsForOneFracture.push_back(compDat);
     }
 

@@ -27,6 +27,7 @@
 
 class RigCompletionData;
 class RimWellPath;
+class RimFishbonesMultipleSubs;
 class RicExportCompletionDataSettingsUi;
 class RigEclipseCaseData;
 
@@ -58,5 +59,6 @@ private:
                                         double                                                   skinFactor,
                                         double                                                   holeRadius,
                                         double                                                   startMeasuredDepth,
-                                        double                                                   endMeasuredDepth);
+                                        double                                                   endMeasuredDepth,
+                                        const RimFishbonesMultipleSubs*                          fishbonesDefintions);
 };

@@ -22,6 +22,9 @@
 
 #include <QString>
 
+#include <cafPdmPointer.h>
+#include <cafPdmObject.h>
+
 #include <vector>
 
 //==================================================================================================
@@ -132,6 +135,9 @@ public:
     double                                  firstOrderingValue() const;
     double                                  secondOrderingValue() const;
 
+    void                                    setSourcePdmObject(const caf::PdmObject* object);
+    const caf::PdmObject*                   sourcePdmObject() const;
+
     std::vector<RigCompletionMetaData>   m_metadata; 
 
 private:
@@ -155,6 +161,8 @@ private:
 
     double                               m_firstOrderingValue;
     double                               m_secondOrderingValue;
+
+    caf::PdmPointer<caf::PdmObject>      m_sourcePdmObject;
 
 private:
     static void                          copy(RigCompletionData& target, const RigCompletionData& from);

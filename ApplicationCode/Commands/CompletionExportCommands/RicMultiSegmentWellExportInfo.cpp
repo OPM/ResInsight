@@ -462,6 +462,22 @@ void RicMswSegment::addCompletion(const RicMswCompletion& completion)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RicMswSegment::setSourcePdmObject(const caf::PdmObject* object)
+{
+    m_sourcePdmObject = const_cast<caf::PdmObject*>(object);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const caf::PdmObject* RicMswSegment::sourcePdmObject() const
+{
+    return m_sourcePdmObject;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RicMswSegment::operator<(const RicMswSegment& rhs) const
 {
     return startMD() < rhs.startMD();

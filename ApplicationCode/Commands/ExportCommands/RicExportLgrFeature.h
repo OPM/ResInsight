@@ -19,6 +19,10 @@
 #pragma once
 
 #include "RigCompletionDataGridCell.h"
+#include "RigCompletionData.h"
+
+#include "RicExportLgrUi.h"
+
 #include "cafCmdFeature.h"
 #include <cafVecIjk.h>
 #include <memory>
@@ -27,10 +31,21 @@
 class RimEclipseCase;
 class RimSimWellInView;
 class RimWellPath;
-class RicExportLgrUi;
 class QFile;
 class QTextStream;
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+class CreateLgrException
+{
+public:
+    CreateLgrException(const QString& message)
+        : message(message)
+    {
+    }
+    QString message;
+};
 
 //==================================================================================================
 ///
@@ -76,6 +91,24 @@ public:
 //==================================================================================================
 ///
 //==================================================================================================
+class CompletionInfo
+{
+public:
+    CompletionInfo(RigCompletionData::CompletionType type, QString name)
+        : type(type), name(name) {}
+
+    RigCompletionData::CompletionType type;
+    QString name;
+
+    bool operator<(const CompletionInfo& other) const
+    {
+        return type < other.type || name < other.name;
+    }
+};
+
+//==================================================================================================
+///
+//==================================================================================================
 class RicExportLgrFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
@@ -85,23 +118,18 @@ class RicExportLgrFeature : public caf::CmdFeature
 
     static RicExportLgrUi* openDialog(const QString& dialogTitle, RimEclipseCase* defaultCase = nullptr, int defaultTimeStep = 0);
     static bool openFileForExport(const QString& folderName, const QString& fileName, QFile* exportFile);
-    static void exportLgrs(QTextStream& stream, const std::vector<LgrInfo>& lgrInfos);
-    static bool exportLgrsForWellPath(const QString& exportFolder,
+    static void exportLgrsForWellPath(const QString& exportFolder,
                                       RimWellPath* wellPath,
                                       RimEclipseCase* eclipseCase,
                                       size_t timeStep,
                                       caf::VecIjk lgrCellCounts,
-                                      bool oneSingleLgr);
-    static std::vector<LgrInfo> buildOneLgrPerMainCell(RimEclipseCase* eclipseCase,
-                                                       const std::vector<RigCompletionDataGridCell>& intersectingCells,
-                                                       const caf::VecIjk& lgrSizes);
-    static std::vector<LgrInfo> buildSingleLgr(RimEclipseCase* eclipseCase,
-                                               const std::vector<RigCompletionDataGridCell>& intersectingCells,
-                                               const caf::VecIjk& lgrSizesPerMainGridCell);
+                                      RicExportLgrUi::SplitType splitType);
 
-    static std::vector<RigCompletionDataGridCell> cellsIntersectingCompletions(RimEclipseCase* eclipseCase,
-                                                                              const RimWellPath* wellPath,
-                                                                               size_t timeStep);
+    static std::vector<LgrInfo> buildLgrsForWellPath(RimWellPath*                 wellPath,
+                                                     RimEclipseCase*              eclipseCase,
+                                                     size_t                       timeStep,
+                                                     caf::VecIjk                  lgrCellCounts,
+                                                     RicExportLgrUi::SplitType    splitType);
 
 protected:
     bool isCommandEnabled() override;
@@ -109,7 +137,26 @@ protected:
     void setupActionLook(QAction* actionToSetup) override;
 
 private:
+    static void exportLgrs(QTextStream& stream, const std::vector<LgrInfo>& lgrInfos);
+
+    static std::vector<LgrInfo> buildLgrsPerMainCell(RimEclipseCase*                               eclipseCase,
+                                                     const std::vector<RigCompletionDataGridCell>& intersectingCells,
+                                                     const caf::VecIjk&                            lgrSizes);
+    static std::vector<LgrInfo>
+                   buildLgrsPerCompletion(RimEclipseCase*                                                         eclipseCase,
+                                          const std::map<CompletionInfo, std::vector<RigCompletionDataGridCell>>& intersectingCells,
+                                          const caf::VecIjk&                                                      lgrSizesPerMainGridCell);
+    static LgrInfo buildLgr(int                                           lgrId,
+                            RimEclipseCase*                               eclipseCase,
+                            const std::vector<RigCompletionDataGridCell>& intersectingCells,
+                            const caf::VecIjk&                            lgrSizesPerMainGridCell);
+
+    static std::vector<RigCompletionDataGridCell>
+        cellsIntersectingCompletions(RimEclipseCase* eclipseCase, const RimWellPath* wellPath, size_t timeStep);
+    static std::map<CompletionInfo, std::vector<RigCompletionDataGridCell>>
+                                     cellsIntersectingCompletions_PerCompletion(RimEclipseCase* eclipseCase, const RimWellPath* wellPath, size_t timeStep);
     static std::vector<RimWellPath*> selectedWellPaths();
+    static bool containsAnyNonMainGridCells(const std::map<CompletionInfo, std::vector<RigCompletionDataGridCell>>& cellsPerCompletion);
     static bool containsAnyNonMainGridCells(const std::vector<RigCompletionDataGridCell>& cells);
     static int firstAvailableLgrId(const RigMainGrid* mainGrid);
 };

@@ -38,8 +38,8 @@ class RicExportLgrUi : public caf::PdmObject
     CAF_PDM_HEADER_INIT;
 
 public:
-    enum LgrSplitType { PER_CELL_LGR, SINGLE_LGR};
-    typedef caf::AppEnum<LgrSplitType> LgrSplitTypeEnum;
+    enum SplitType { LGR_PER_CELL, LGR_PER_COMPLETION, LGR_PER_WELL};
+    typedef caf::AppEnum<RicExportLgrUi::SplitType> LgrSplitTypeEnum;
 
     RicExportLgrUi();
 
@@ -50,7 +50,7 @@ public:
     QString                 exportFolder() const;
     RimEclipseCase*         caseToApply() const;
     int                     timeStep() const;
-    bool                    singleLgrSplit() const;
+    SplitType               splitType() const;
 
     void                    setExportFolder(const QString& folder);
 
