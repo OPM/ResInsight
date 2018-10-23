@@ -60,10 +60,14 @@ public:
     size_t                                  findReservoirCellIndexFromPoint(const cvf::Vec3d& point) const;
     std::vector<size_t>                     findAllReservoirCellIndicesMatching2dPoint(const cvf::Vec2d& point2d) const;
     void                                    addLocalGrid(RigLocalGrid* localGrid);
+    
+    size_t                                  gridCountOnFile() const;
     size_t                                  gridCount() const;
     RigGridBase*                            gridByIndex(size_t localGridIndex);
     const RigGridBase*                      gridByIndex(size_t localGridIndex) const;
     RigGridBase*                            gridById(int localGridId);
+    
+    size_t                                  totalTemporaryGridCellCount() const;
    
     RigNNCData*                             nncData();
     void                                    setFaults(const cvf::Collection<RigFault>& faults);

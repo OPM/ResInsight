@@ -1111,13 +1111,7 @@ size_t RigCaseCellResultsData::findOrLoadScalarResult(RiaDefines::ResultCatType 
 
         bool resultLoadingSucess = true;
 
-        int tempGridCellCount = 0;
-        for (int i = 1; i < m_ownerMainGrid->gridCount(); i++)
-        {
-            auto grid = m_ownerMainGrid->gridByIndex(i);
-            if (grid->isTempGrid()) tempGridCellCount += (int)grid->cellCount();
-        }
-
+        size_t tempGridCellCount = m_ownerMainGrid->totalTemporaryGridCellCount();
 
         if (type == RiaDefines::DYNAMIC_NATIVE && timeStepCount > 0)
         {

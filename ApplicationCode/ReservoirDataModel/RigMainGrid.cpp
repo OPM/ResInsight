@@ -201,6 +201,24 @@ void RigMainGrid::addLocalGrid(RigLocalGrid* localGrid)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+size_t RigMainGrid::gridCountOnFile() const
+{
+    size_t gridCount = 1;
+
+    for (const auto& grid : m_localGrids)
+    {
+        if (!grid->isTempGrid())
+        {
+            gridCount++;
+        }
+    }
+
+    return gridCount;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 size_t RigMainGrid::gridCount() const
 {
     return m_localGrids.size() + 1;
@@ -329,6 +347,24 @@ RigGridBase* RigMainGrid::gridById(int localGridId)
 {
     CVF_ASSERT(localGridId >= 0 && static_cast<size_t>(localGridId) < m_gridIdToIndexMapping.size());
     return this->gridByIndex(m_gridIdToIndexMapping[localGridId]);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+size_t RigMainGrid::totalTemporaryGridCellCount() const
+{
+    size_t cellCount = 0;
+
+    for (const auto& grid : m_localGrids)
+    {
+        if (grid->isTempGrid())
+        {
+            cellCount += grid->cellCount();
+        }
+    }
+
+    return cellCount;
 }
 
 //--------------------------------------------------------------------------------------------------

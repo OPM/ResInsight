@@ -1060,7 +1060,7 @@ bool RifReaderEclipseOutput::dynamicResult(const QString& result, RiaDefines::Po
         size_t indexOnFile = timeStepIndexOnFile(stepIndex);
 
         std::vector<double> fileValues;
-        if (!m_dynamicResultsAccess->results(result, indexOnFile, m_eclipseCase->mainGrid()->gridCount(), &fileValues))
+        if (!m_dynamicResultsAccess->results(result, indexOnFile, m_eclipseCase->mainGrid()->gridCountOnFile(), &fileValues))
         {
             return false;
         }
@@ -1349,7 +1349,7 @@ class WellResultPointHasSubCellConnectionCalculator
 public:
     explicit WellResultPointHasSubCellConnectionCalculator(const RigMainGrid* mainGrid, well_state_type* ert_well_state): m_mainGrid(mainGrid) 
     {
-        int lastGridNr = static_cast<int>(m_mainGrid->gridCount()) - 1;
+        int lastGridNr = static_cast<int>(m_mainGrid->gridCountOnFile()) - 1;
 
         for ( int gridNr = lastGridNr; gridNr >= 0; --gridNr )
         {
