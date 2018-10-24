@@ -683,7 +683,6 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         {
             menuBuilder << "Separator";
             menuBuilder << "RicLinkVisibleViewsFeature";
-            menuBuilder << "RicLinkViewFeature";
             menuBuilder << "RicShowLinkOptionsFeature";
             menuBuilder << "RicSetMasterViewFeature";
             menuBuilder << "RicUnLinkViewFeature";
@@ -699,13 +698,14 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         // is aware of multiple selected items, move the command to this list
         // without using dyncamic_cast.
 
-
         menuBuilder << "RicPasteTimeHistoryCurveFeature";
         menuBuilder << "RicPasteAsciiDataCurveFeature";
         menuBuilder << "RicPasteSummaryCaseFeature";
         menuBuilder.addSeparator();
         menuBuilder << "RicCopyReferencesToClipboardFeature";
         
+        menuBuilder << "RicLinkViewFeature";
+
         menuBuilder << "RicShowPlotDataFeature";
         menuBuilder << "RicShowTotalAllocationDataFeature";
         
