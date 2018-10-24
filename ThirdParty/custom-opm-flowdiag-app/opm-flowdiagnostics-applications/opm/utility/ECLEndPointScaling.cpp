@@ -516,7 +516,9 @@ vertScale(const FunctionValues&   f,
             // s \in [sr, sm), sm > sr; normal case: Kr(Smax) > Kr(Sr).
             //
             // Linear function between (sr,fr) and (sm,fm) in terms of
-            // function value 'y'.
+            // function value 'y'.  This usually alters the shape of the
+            // relative permeability function in this interval (e.g.,
+            // roughly quadratic to linear).
             const auto t = (y - fdisp) / (fmax - fdisp);
 
             y = fr + t*(fm - fr);
@@ -525,7 +527,9 @@ vertScale(const FunctionValues&   f,
             // s \in [sr, sm), sm > sr; special case: Kr(Smax) == Kr(Sr).
             //
             // Use linear function between (sr,fr) and (sm,fm) in terms of
-            // saturation value 's'.
+            // saturation value 's'.  This usually alters the shape of the
+            // relative permeability function in this interval (e.g.,
+            // roughly quadratic to linear).
             const auto t = (s - sr) / (sm - sr);
 
             y = fr + t*(fm - fr);
