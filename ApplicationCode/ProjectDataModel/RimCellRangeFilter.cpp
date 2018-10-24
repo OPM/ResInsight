@@ -43,7 +43,7 @@ RimCellRangeFilter::RimCellRangeFilter()
 {
     CAF_PDM_InitObject("Cell Range Filter", ":/CellFilter_Range.png", "", "");
 
-    CAF_PDM_InitField(&gridIndex, "GridIndex",  0,  "Grid", "", "","");
+    CAF_PDM_InitField(&m_gridIndex, "GridIndex",  0,  "Grid", "", "","");
     CAF_PDM_InitField(&propagateToSubGrids, "PropagateToSubGrids",  true,  "Apply to Subgrids", "", "","");
 
     CAF_PDM_InitField(&startIndexI, "StartIndexI",  1,  "Start Index I", "", "","");
@@ -78,11 +78,27 @@ RimCellRangeFilter::~RimCellRangeFilter()
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimCellRangeFilter::setGridIndex(int gridIndex)
+{
+    m_gridIndex = gridIndex;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RimCellRangeFilter::gridIndex() const
+{
+    return m_gridIndex;
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void RimCellRangeFilter::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
-    if (changedField == &gridIndex)
+    if (changedField == &m_gridIndex)
     {
         const cvf::StructGridInterface* grid = selectedGrid();
 
@@ -306,7 +322,7 @@ void RimCellRangeFilter::defineUiOrdering(QString uiConfigName, caf::PdmUiOrderi
     
     uiOrdering.add(&name);
     uiOrdering.add(&filterMode);
-    uiOrdering.add(&gridIndex);
+    uiOrdering.add(&m_gridIndex);
     uiOrdering.add(&propagateToSubGrids);
     uiOrdering.add(&startIndexI);
     uiOrdering.add(&cellCountI);
@@ -346,7 +362,7 @@ QList<caf::PdmOptionItemInfo> RimCellRangeFilter::calculateValueOptions(const ca
 
     if (useOptionsOnly) (*useOptionsOnly) = true;
 
-    if (&gridIndex == fieldNeedingOptions)
+    if (&m_gridIndex == fieldNeedingOptions)
     {
         RimCase* rimCase = nullptr;
         this->firstAncestorOrThisOfTypeAsserted(rimCase);

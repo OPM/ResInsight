@@ -46,7 +46,13 @@ public:
     RimCellRangeFilter();
     ~RimCellRangeFilter() override;
 
-    caf::PdmField<int>      gridIndex;      // The index of the grid that this filter applies to
+    void setGridIndex(int gridIndex);
+    int gridIndex() const;
+
+private:
+    caf::PdmField<int>      m_gridIndex;      // The index of the grid that this filter applies to
+
+public:
     caf::PdmField<bool>     propagateToSubGrids; // Do propagate the effects to the sub-grids
 
     caf::PdmField<int>      startIndexI;    // Eclipse indexing, first index is 1

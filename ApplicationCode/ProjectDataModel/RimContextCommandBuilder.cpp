@@ -52,6 +52,7 @@
 #include "RimGeoMechPropertyFilter.h"
 #include "RimGeoMechPropertyFilterCollection.h"
 #include "RimGeoMechView.h"
+#include "RimGridCollection.h"
 #include "RimIdenticalGridCaseGroup.h"
 #include "RimIntersection.h"
 #include "RimIntersectionBox.h"
@@ -182,6 +183,10 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "Separator";
             menuBuilder << "RicCopyReferencesToClipboardFeature";
             menuBuilder << "Separator";
+        }
+        else if (dynamic_cast<RimGridInfoCollection*>(uiItem))
+        {
+            menuBuilder << "RicDeleteTemporaryLgrsFeature";
         }
         else if (dynamic_cast<RimGeoMechCase*>(uiItem))
         {

@@ -46,6 +46,7 @@
 #include "RimFlowCharacteristicsPlot.h"
 #include "RimFlowPlotCollection.h"
 #include "RimFormationNames.h"
+#include "RimGridCollection.h"
 #include "RimIntersectionCollection.h"
 #include "RimRegularLegendConfig.h"
 #include "RimMainPlotCollection.h"
@@ -809,6 +810,17 @@ bool RimEclipseCase::openReserviorCase()
             }
         }
     }
+
+    // Update grids node
+    {
+        std::vector<RimGridCollection*> gridColls;
+        descendantsIncludingThisOfType(gridColls);
+        if (!gridColls.empty())
+        {
+            gridColls.front()->syncFromMainGrid();
+        }
+    }
+
     return true;
 }
 

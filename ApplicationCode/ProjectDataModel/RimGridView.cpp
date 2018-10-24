@@ -114,7 +114,7 @@ RimGridView::~RimGridView(void)
 void RimGridView::showGridCells(bool enableGridCells)
 {
 
-    m_gridCollection->isActive = enableGridCells;
+    m_gridCollection->setActive(enableGridCells);
 
     createDisplayModel();
     updateDisplayModelVisibility();
@@ -299,7 +299,7 @@ void RimGridView::initAfterRead()
 
         bool isGridVisualizationModeBefore_2018_1_1 = ((surfaceMode() == RimGridView::SURFACE) || (meshMode() == RimGridView::FULL_MESH));
 
-        m_gridCollection->isActive = isGridVisualizationModeBefore_2018_1_1;
+        m_gridCollection->setActive(isGridVisualizationModeBefore_2018_1_1);
         if (!isGridVisualizationModeBefore_2018_1_1)
         {
             // Was showing faults and intersections. 

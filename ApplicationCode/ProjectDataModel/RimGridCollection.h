@@ -21,7 +21,68 @@
 
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
+#include "cafPdmChildField.h"
+#include "cafPdmChildArrayField.h"
 
+#include <QString>
+
+class RigMainGrid;
+
+//==================================================================================================
+///  
+//==================================================================================================
+class RimGridInfo : public caf::PdmObject
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    RimGridInfo();
+    ~RimGridInfo() {}
+
+    caf::PdmFieldHandle* objectToggleField() override;
+
+    void setActive(bool active);
+    void setName(const QString& name);
+    void setIndex(int index);
+
+    QString name() const;
+    int index() const;
+
+protected:
+    caf::PdmFieldHandle*  userDescriptionField() override;
+    void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+
+private:
+    caf::PdmField<bool>     m_isActive;
+    caf::PdmField<QString>  m_gridName;
+    caf::PdmField<int>      m_gridIndex;
+};
+
+//==================================================================================================
+///
+//==================================================================================================
+class RimGridInfoCollection : public caf::PdmObject
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    RimGridInfoCollection();
+    ~RimGridInfoCollection() {}
+
+    void addGridInfo(const QString& name, size_t gridIndex);
+    void clear();
+    bool containsGrid(const QString& gridName) const;
+    void deleteGridInfo(const QString& gridName);
+    std::vector<RimGridInfo*> gridInfos() const;
+
+protected:
+    caf::PdmFieldHandle* objectToggleField() override;
+    void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+
+private:
+    caf::PdmField<bool>                   m_isActive;
+    caf::PdmChildArrayField<RimGridInfo*> m_gridInfos;
+};
 
 //==================================================================================================
 ///  
@@ -31,15 +92,27 @@ class RimGridCollection : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 public:
+    static const QString PERSISTENT_LGR_UI_NAME;
+    static const QString TEMPORARY_LGR_UI_NAME;
+
     RimGridCollection();
     ~RimGridCollection() override;
 
+    void                        setActive(bool active);
+    bool                        isActive() const;
     caf::PdmFieldHandle*        objectToggleField() override;
-
-    caf::PdmField<bool>                 isActive;
+    void                        syncFromMainGrid();
 
 protected:
     void                        fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
     void                        initAfterRead() override;
+    void                        defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
 
+private:
+    const RigMainGrid*          mainGrid() const;
+
+    caf::PdmField<bool>                         m_isActive;
+    caf::PdmChildField<RimGridInfo*>            m_mainGrid;
+    caf::PdmChildField<RimGridInfoCollection*>  m_persistentLgrs;
+    caf::PdmChildField<RimGridInfoCollection*>  m_temporaryLgrs;
 };
