@@ -18,15 +18,16 @@
 
 #pragma once
 
-#include "RigCompletionDataGridCell.h"
 #include "RigCompletionData.h"
+#include "RigCompletionDataGridCell.h"
 
 #include "RicExportLgrUi.h"
 
 #include "cafCmdFeature.h"
-#include <cafVecIjk.h>
-#include <memory>
+#include "cafVecIjk.h"
+
 #include <limits>
+#include <memory>
 
 class RimEclipseCase;
 class RimSimWellInView;

@@ -35,29 +35,29 @@
 #include "RimDialogData.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
-#include "RimWellPath.h"
 #include "RimProject.h"
+#include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 #include "RimWellPathCompletions.h"
 
 #include "RiuPlotMainWindow.h"
 
-#include "RimPerforationInterval.h"
-#include "RimFracture.h"
 #include "RimFishbonesMultipleSubs.h"
+#include "RimFracture.h"
+#include "RimPerforationInterval.h"
 
 #include <QAction>
-#include <QFileInfo>
 #include <QDir>
 #include <QFile>
-#include <QTextStream>
+#include <QFileInfo>
 #include <QMessageBox>
+#include <QTextStream>
 
 #include <cafPdmUiPropertyViewDialog.h>
 #include <cafSelectionManager.h>
 #include <cafSelectionManagerTools.h>
-#include <cafVecIjk.h>
 #include <cafUtils.h>
+#include <cafVecIjk.h>
 
 #include <limits>
 
@@ -66,12 +66,12 @@
 CAF_CMD_SOURCE_INIT(RicExportLgrFeature, "RicExportLgrFeature");
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RicExportLgrUi* RicExportLgrFeature::openDialog(const QString& dialogTitle, RimEclipseCase* defaultCase, int defaultTimeStep)
 {
-    RiaApplication* app = RiaApplication::instance();
-    RimProject* proj = app->project();
+    RiaApplication* app  = RiaApplication::instance();
+    RimProject*     proj = app->project();
 
     QString startPath = app->lastUsedDialogDirectory("LGR_EXPORT_DIR");
     if (startPath.isEmpty())
@@ -103,7 +103,8 @@ RicExportLgrUi* RicExportLgrFeature::openDialog(const QString& dialogTitle, RimE
     if (defaultCase) featureUi->setCase(defaultCase);
     featureUi->setTimeStep(defaultTimeStep);
 
-    caf::PdmUiPropertyViewDialog propertyDialog(nullptr, featureUi, dialogTitle, "", QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
+    caf::PdmUiPropertyViewDialog propertyDialog(
+        nullptr, featureUi, dialogTitle, "", QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
     propertyDialog.resize(QSize(600, 230));
 
     if (propertyDialog.exec() == QDialog::Accepted && !featureUi->exportFolder().isEmpty())
@@ -123,11 +124,10 @@ bool RicExportLgrFeature::openFileForExport(const QString& folderName, const QSt
     if (!exportFolder.exists())
     {
         bool createdPath = exportFolder.mkpath(".");
-        if (createdPath)
-            RiaLogging::info("Created export folder " + folderName);
+        if (createdPath) RiaLogging::info("Created export folder " + folderName);
     }
 
-    QString  filePath = exportFolder.filePath(fileName);
+    QString filePath = exportFolder.filePath(fileName);
     exportFile->setFileName(filePath);
     if (!exportFile->open(QIODevice::WriteOnly | QIODevice::Text))
     {
@@ -139,7 +139,7 @@ bool RicExportLgrFeature::openFileForExport(const QString& folderName, const QSt
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicExportLgrFeature::exportLgrs(QTextStream& stream, const std::vector<LgrInfo>& lgrInfos)
 {
@@ -151,20 +151,16 @@ void RicExportLgrFeature::exportLgrs(QTextStream& stream, const std::vector<LgrI
         {
             RifEclipseDataTableFormatter formatter(stream);
             formatter.keyword("CARFIN");
-            formatter.header(
-                {
-                    RifEclipseOutputTableColumn("Name"),
-                    RifEclipseOutputTableColumn("I1"),
-                    RifEclipseOutputTableColumn("I2"),
-                    RifEclipseOutputTableColumn("J1"),
-                    RifEclipseOutputTableColumn("J2"),
-                    RifEclipseOutputTableColumn("K1"),
-                    RifEclipseOutputTableColumn("K2"),
-                    RifEclipseOutputTableColumn("NX"),
-                    RifEclipseOutputTableColumn("NY"),
-                    RifEclipseOutputTableColumn("NZ")
-                }
-            );
+            formatter.header({RifEclipseOutputTableColumn("Name"),
+                              RifEclipseOutputTableColumn("I1"),
+                              RifEclipseOutputTableColumn("I2"),
+                              RifEclipseOutputTableColumn("J1"),
+                              RifEclipseOutputTableColumn("J2"),
+                              RifEclipseOutputTableColumn("K1"),
+                              RifEclipseOutputTableColumn("K2"),
+                              RifEclipseOutputTableColumn("NX"),
+                              RifEclipseOutputTableColumn("NY"),
+                              RifEclipseOutputTableColumn("NZ")});
 
             formatter.add(lgrInfo.name);
             formatter.addOneBasedCellIndex(lgrInfo.mainGridStartCell.i());
@@ -191,22 +187,18 @@ void RicExportLgrFeature::exportLgrs(QTextStream& stream, const std::vector<LgrI
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicExportLgrFeature::exportLgrsForWellPath(const QString& exportFolder,
-                                                RimWellPath* wellPath,
-                                                RimEclipseCase* eclipseCase,
-                                                size_t timeStep,
-                                                caf::VecIjk lgrCellCounts,
+void RicExportLgrFeature::exportLgrsForWellPath(const QString&            exportFolder,
+                                                RimWellPath*              wellPath,
+                                                RimEclipseCase*           eclipseCase,
+                                                size_t                    timeStep,
+                                                caf::VecIjk               lgrCellCounts,
                                                 RicExportLgrUi::SplitType splitType)
 {
     std::vector<LgrInfo> lgrs;
-    
+
     try
     {
-        lgrs = buildLgrsForWellPath(wellPath,
-                                    eclipseCase,
-                                    timeStep,
-                                    lgrCellCounts,
-                                    splitType);
+        lgrs = buildLgrsForWellPath(wellPath, eclipseCase, timeStep, lgrCellCounts, splitType);
 
         // Export
         QFile   file;
@@ -227,14 +219,14 @@ void RicExportLgrFeature::exportLgrsForWellPath(const QString& exportFolder,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<LgrInfo> RicExportLgrFeature::buildLgrsForWellPath(RimWellPath*                 wellPath,
-                                                               RimEclipseCase*              eclipseCase,
-                                                               size_t                       timeStep,
-                                                               caf::VecIjk                  lgrCellCounts,
-                                                               RicExportLgrUi::SplitType    splitType)
+std::vector<LgrInfo> RicExportLgrFeature::buildLgrsForWellPath(RimWellPath*              wellPath,
+                                                               RimEclipseCase*           eclipseCase,
+                                                               size_t                    timeStep,
+                                                               caf::VecIjk               lgrCellCounts,
+                                                               RicExportLgrUi::SplitType splitType)
 {
     std::vector<LgrInfo> lgrs;
-    bool intersectsWithExistingLgr = false;
+    bool                 intersectsWithExistingLgr = false;
 
     if (splitType == RicExportLgrUi::LGR_PER_CELL)
     {
@@ -285,18 +277,18 @@ std::vector<LgrInfo> RicExportLgrFeature::buildLgrsForWellPath(RimWellPath*     
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-std::vector<LgrInfo> RicExportLgrFeature::buildLgrsPerMainCell(RimEclipseCase* eclipseCase,
+std::vector<LgrInfo> RicExportLgrFeature::buildLgrsPerMainCell(RimEclipseCase*                               eclipseCase,
                                                                const std::vector<RigCompletionDataGridCell>& intersectingCells,
-                                                               const caf::VecIjk& lgrSizes)
+                                                               const caf::VecIjk&                            lgrSizes)
 {
     std::vector<LgrInfo> lgrs;
 
     int lgrId = firstAvailableLgrId(eclipseCase->mainGrid());
     for (auto intersectionCell : intersectingCells)
     {
-        lgrs.push_back(buildLgr(lgrId++, eclipseCase, { intersectionCell }, lgrSizes));
+        lgrs.push_back(buildLgr(lgrId++, eclipseCase, {intersectionCell}, lgrSizes));
     }
     return lgrs;
 }
@@ -304,12 +296,13 @@ std::vector<LgrInfo> RicExportLgrFeature::buildLgrsPerMainCell(RimEclipseCase* e
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<LgrInfo> RicExportLgrFeature::buildLgrsPerCompletion(RimEclipseCase* eclipseCase,
-                                                                 const std::map<CompletionInfo, std::vector<RigCompletionDataGridCell>>& intersectingCells,
-                                                                 const caf::VecIjk& lgrSizesPerMainGridCell)
+std::vector<LgrInfo> RicExportLgrFeature::buildLgrsPerCompletion(
+    RimEclipseCase*                                                         eclipseCase,
+    const std::map<CompletionInfo, std::vector<RigCompletionDataGridCell>>& intersectingCells,
+    const caf::VecIjk&                                                      lgrSizesPerMainGridCell)
 {
     std::vector<LgrInfo> lgrs;
-   
+
     int lgrId = firstAvailableLgrId(eclipseCase->mainGrid());
     for (auto intersectionInfo : intersectingCells)
     {
@@ -319,12 +312,12 @@ std::vector<LgrInfo> RicExportLgrFeature::buildLgrsPerCompletion(RimEclipseCase*
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-LgrInfo RicExportLgrFeature::buildLgr(int lgrId,
-                                                   RimEclipseCase* eclipseCase,
-                                                   const std::vector<RigCompletionDataGridCell>& intersectingCells,
-                                                   const caf::VecIjk& lgrSizesPerMainGridCell)
+LgrInfo RicExportLgrFeature::buildLgr(int                                           lgrId,
+                                      RimEclipseCase*                               eclipseCase,
+                                      const std::vector<RigCompletionDataGridCell>& intersectingCells,
+                                      const caf::VecIjk&                            lgrSizesPerMainGridCell)
 {
     std::vector<LgrInfo> lgrs;
 
@@ -335,11 +328,11 @@ LgrInfo RicExportLgrFeature::buildLgr(int lgrId,
 
     for (auto cell : intersectingCells)
     {
-        iRange.first = std::min(cell.localCellIndexI(), iRange.first);
+        iRange.first  = std::min(cell.localCellIndexI(), iRange.first);
         iRange.second = std::max(cell.localCellIndexI(), iRange.second);
-        jRange.first = std::min(cell.localCellIndexJ(), jRange.first);
+        jRange.first  = std::min(cell.localCellIndexJ(), jRange.first);
         jRange.second = std::max(cell.localCellIndexJ(), jRange.second);
-        kRange.first = std::min(cell.localCellIndexK(), kRange.first);
+        kRange.first  = std::min(cell.localCellIndexK(), kRange.first);
         kRange.second = std::max(cell.localCellIndexK(), kRange.second);
     }
 
@@ -353,12 +346,10 @@ LgrInfo RicExportLgrFeature::buildLgr(int lgrId,
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 std::vector<RigCompletionDataGridCell>
-RicExportLgrFeature::cellsIntersectingCompletions(RimEclipseCase* eclipseCase,
-                                                  const RimWellPath* wellPath,
-                                                  size_t timeStep)
+    RicExportLgrFeature::cellsIntersectingCompletions(RimEclipseCase* eclipseCase, const RimWellPath* wellPath, size_t timeStep)
 {
     std::vector<RigCompletionDataGridCell> cells;
 
@@ -434,32 +425,33 @@ void RicExportLgrFeature::onActionTriggered(bool isChecked)
     std::vector<RimWellPath*> wellPaths = selectedWellPaths();
     CVF_ASSERT(wellPaths.size() > 0);
 
-    QString                        dialogTitle = "LGR Export";
+    QString dialogTitle = "LGR Export";
 
     RimEclipseCase* defaultEclipseCase = nullptr;
-    int defaultTimeStep = 0;
-    auto activeView = dynamic_cast<RimEclipseView*>(RiaApplication::instance()->activeGridView());
+    int             defaultTimeStep    = 0;
+    auto            activeView         = dynamic_cast<RimEclipseView*>(RiaApplication::instance()->activeGridView());
     if (activeView)
     {
         defaultEclipseCase = activeView->eclipseCase();
-        defaultTimeStep = activeView->currentTimeStep();
+        defaultTimeStep    = activeView->currentTimeStep();
     }
 
     auto dialogData = openDialog("LGR Export", defaultEclipseCase, defaultTimeStep);
     if (dialogData)
     {
-        auto eclipseCase = dialogData->caseToApply();
-        auto lgrCellCounts = dialogData->lgrCellCount();
-        size_t timeStep = dialogData->timeStep();
+        auto   eclipseCase   = dialogData->caseToApply();
+        auto   lgrCellCounts = dialogData->lgrCellCount();
+        size_t timeStep      = dialogData->timeStep();
 
         bool intersectsExistingLgr = false;
         for (const auto& wellPath : wellPaths)
         {
             try
             {
-                exportLgrsForWellPath(dialogData->exportFolder(), wellPath, eclipseCase, timeStep, lgrCellCounts, dialogData->splitType());
+                exportLgrsForWellPath(
+                    dialogData->exportFolder(), wellPath, eclipseCase, timeStep, lgrCellCounts, dialogData->splitType());
             }
-            catch(CreateLgrException e)
+            catch (CreateLgrException e)
             {
                 intersectsExistingLgr = true;
             }
@@ -467,7 +459,9 @@ void RicExportLgrFeature::onActionTriggered(bool isChecked)
 
         if (intersectsExistingLgr)
         {
-            QMessageBox::warning(nullptr, "LGR cells intersected", "At least one completion intersects with an LGR. No output for those completions produced");
+            QMessageBox::warning(nullptr,
+                                 "LGR cells intersected",
+                                 "At least one completion intersects with an LGR. No output for those completions produced");
         }
     }
 }
@@ -481,12 +475,12 @@ void RicExportLgrFeature::setupActionLook(QAction* actionToSetup)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 std::vector<RimWellPath*> RicExportLgrFeature::selectedWellPaths()
 {
     std::vector<RimWellPathCompletions*> selectedCompletions = caf::selectedObjectsByTypeStrict<RimWellPathCompletions*>();
-    std::vector<RimWellPath*> wellPaths;
+    std::vector<RimWellPath*>            wellPaths;
 
     for (auto completion : selectedCompletions)
     {
@@ -512,22 +506,21 @@ bool RicExportLgrFeature::containsAnyNonMainGridCells(
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicExportLgrFeature::containsAnyNonMainGridCells(const std::vector<RigCompletionDataGridCell>& cells)
 {
-    return std::find_if(cells.begin(), cells.end(), [](const RigCompletionDataGridCell& cell)
-    {
-        return !cell.isMainGridCell();
-    }) != cells.end();
+    return std::find_if(cells.begin(), cells.end(), [](const RigCompletionDataGridCell& cell) {
+               return !cell.isMainGridCell();
+           }) != cells.end();
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 int RicExportLgrFeature::firstAvailableLgrId(const RigMainGrid* mainGrid)
 {
-    int gridCount = (int)mainGrid->gridCount();
+    int gridCount  = (int)mainGrid->gridCount();
     int lastUsedId = 0;
     for (int i = 0; i < gridCount; i++)
     {
