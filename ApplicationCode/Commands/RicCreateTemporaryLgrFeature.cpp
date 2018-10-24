@@ -19,6 +19,7 @@
 #include "RicCreateTemporaryLgrFeature.h"
 
 #include "RiaApplication.h"
+#include "RiaCompletionTypeCalculationScheduler.h"
 #include "RiaLogging.h"
 
 #include "CompletionExportCommands/RicWellPathExportCompletionDataFeature.h"
@@ -147,7 +148,7 @@ void RicCreateTemporaryLgrFeature::onActionTriggered(bool isChecked)
         computeCachedData(eclipseCase);
         RiaApplication::instance()->project()->mainPlotCollection()->wellLogPlotCollection()->reloadAllPlots();
 
-        activeView->loadDataAndUpdate();
+        RiaCompletionTypeCalculationScheduler::instance()->scheduleRecalculateCompletionTypeAndRedrawAllViews(eclipseCase);
 
         if (intersectsExistingLgr)
         {
