@@ -279,6 +279,7 @@ void RigMainGrid::computeCachedData()
     initAllSubGridsParentGridPointer();
     initAllSubCellsMainGridCellIndex();
 
+    m_cellSearchTree = nullptr;
     buildCellSearchTree();
 }
 
