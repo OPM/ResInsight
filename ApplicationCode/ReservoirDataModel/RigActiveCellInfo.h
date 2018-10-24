@@ -56,7 +56,7 @@ public:
 
     void                clear();
 
-    void                addLgr(int lgrStartIndex, int cellCount);
+    void                addLgr(size_t cellCount);
 
 private:
     class GridActiveCellCounts

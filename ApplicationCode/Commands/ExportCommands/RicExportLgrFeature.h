@@ -69,20 +69,14 @@ public:
                            sizes.k() / (mainGridEndCell.k() - mainGridStartCell.k() + 1));
     }
 
-    int cellCount() const
+    size_t cellCount() const
     {
-        return (int)(sizes.i() * sizes.j() * sizes.k());
-    }
-    int cellCountPerMainGridCell() const
-    {
-        auto s = sizesPerMainGridCell();
-        return (int)(s.i() * s.j() * s.k());
+        return sizes.i() * sizes.j() * sizes.k();
     }
 
     int                 id;
     QString             name;
     caf::VecIjk         sizes;
-    //std::vector<double> values;
 
     caf::VecIjk         mainGridStartCell;
     caf::VecIjk         mainGridEndCell;

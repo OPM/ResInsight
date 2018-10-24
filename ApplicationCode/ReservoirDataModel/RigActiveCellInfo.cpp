@@ -196,21 +196,21 @@ void RigActiveCellInfo::clear()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigActiveCellInfo::addLgr(int lgrStartIndex, int cellCount)
+void RigActiveCellInfo::addLgr(size_t cellCount)
 {
-    GridActiveCellCounts count;
-    count.setActiveCellCount(cellCount);
-    m_perGridActiveCellInfo.push_back(count);
+    size_t currentGridCount          = m_perGridActiveCellInfo.size();
+    size_t currentActiveCellCount    = reservoirActiveCellCount();
+    size_t currentReservoirCellCount = reservoirCellCount();
 
-    auto prevActiveCount = m_reservoirActiveCellCount;
-    auto newActiveCount  = prevActiveCount + cellCount;
-    m_cellIndexToResultIndex.resize(lgrStartIndex + cellCount, cvf::UNDEFINED_SIZE_T);
-    m_reservoirActiveCellCount = newActiveCount;
-    m_reservoirCellResultCount = newActiveCount;
+    setGridCount(currentGridCount + 1);
+    setGridActiveCellCounts(currentGridCount, cellCount);
+    setReservoirCellCount(currentReservoirCellCount + cellCount);
 
-    for (int i = 0; i < cellCount; i++)
+    computeDerivedData();
+
+    for (size_t i = 0; i < cellCount; i++)
     {
-        m_cellIndexToResultIndex[lgrStartIndex + i] = prevActiveCount + i;
+        setCellResultIndex(currentReservoirCellCount + i, currentActiveCellCount + i);
     }
 }
 

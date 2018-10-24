@@ -124,14 +124,12 @@ void RicCreateTemporaryLgrFeature::onActionTriggered(bool isChecked)
 
                 for (auto lgr : lgrs)
                 {
-                    int totalCellCountBeforLgr = (int)mainGrid->globalCellArray().size();
-
                     createLgr(lgr, eclipseCase->eclipseCaseData()->mainGrid());
 
-                    int lgrCellCount = lgr.cellCount();
+                    size_t lgrCellCount = lgr.cellCount();
 
-                    activeCellInfo->addLgr(totalCellCountBeforLgr, lgrCellCount);
-                    fractureActiveCellInfo->addLgr(totalCellCountBeforLgr, lgrCellCount);
+                    activeCellInfo->addLgr(lgrCellCount);
+                    fractureActiveCellInfo->addLgr(lgrCellCount);
                 }
 
                 mainGrid->calculateFaults(activeCellInfo, true);
@@ -143,6 +141,7 @@ void RicCreateTemporaryLgrFeature::onActionTriggered(bool isChecked)
         }
 
         deleteAllCachedData(eclipseCase);
+        computeCachedData(eclipseCase);
 
         activeView->loadDataAndUpdate();
 
@@ -274,6 +273,23 @@ void RicCreateTemporaryLgrFeature::deleteAllCachedData(RimEclipseCase* eclipseCa
         if (eclipseCaseData)
         {
             eclipseCaseData->clearWellCellsInGridCache();
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicCreateTemporaryLgrFeature::computeCachedData(RimEclipseCase* eclipseCase)
+{
+    if (eclipseCase)
+    {
+        RigCaseCellResultsData* cellResultsDataMatrix = eclipseCase->results(RiaDefines::MATRIX_MODEL);
+        RigCaseCellResultsData* cellResultsDataFracture = eclipseCase->results(RiaDefines::FRACTURE_MODEL);
+
+        RigEclipseCaseData* eclipseCaseData = eclipseCase->eclipseCaseData();
+        if (eclipseCaseData)
+        {
             eclipseCaseData->mainGrid()->computeCachedData();
             eclipseCaseData->computeActiveCellBoundingBoxes();
         }
@@ -282,12 +298,13 @@ void RicCreateTemporaryLgrFeature::deleteAllCachedData(RimEclipseCase* eclipseCa
         {
             cellResultsDataMatrix->computeDepthRelatedResults();
         }
-        
+
         if (cellResultsDataFracture)
         {
             cellResultsDataFracture->computeDepthRelatedResults();
         }
     }
+
 }
 
 //--------------------------------------------------------------------------------------------------

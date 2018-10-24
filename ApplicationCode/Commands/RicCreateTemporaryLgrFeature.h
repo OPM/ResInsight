@@ -49,6 +49,7 @@ protected:
 private:
     static void createLgr(LgrInfo& lgrInfo, RigMainGrid* mainGrid);
     static void deleteAllCachedData(RimEclipseCase* eclipseCase);
+    static void computeCachedData(RimEclipseCase* eclipseCase);
 
     static std::vector<RimWellPath*> selectedWellPaths();
     static bool containsAnyNonMainGridCells(const std::vector<RigCompletionDataGridCell>& cells);
