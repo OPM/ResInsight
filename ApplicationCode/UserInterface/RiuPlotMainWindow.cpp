@@ -822,18 +822,35 @@ RimMdiWindowGeometry RiuPlotMainWindow::windowGeometryForViewer(QWidget* viewer)
 //--------------------------------------------------------------------------------------------------
 void RiuPlotMainWindow::tileWindows()
 {
+    QMdiArea::WindowOrder currentActivationOrder = m_mdiArea->activationOrder();
+
+    std::list<QMdiSubWindow*> windowList;
+    for (QMdiSubWindow* subWindow : m_mdiArea->subWindowList(currentActivationOrder))
+    {
+        windowList.push_back(subWindow);
+    }
+
+    // Perform stable sort of list so we first sort by window position but retain activation order
+    // for windows with the same position. Needs to be sorted in decreasing order for workaround below.
+    windowList.sort([](const QMdiSubWindow* lhs, const QMdiSubWindow* rhs)
+    {   
+        return lhs->frameGeometry().topLeft().rx() > rhs->frameGeometry().topLeft().rx();
+    });
+
     // Based on workaround described here
     // https://forum.qt.io/topic/50053/qmdiarea-tilesubwindows-always-places-widgets-in-activationhistoryorder-in-subwindowview-mode
 
     QMdiSubWindow* a = m_mdiArea->activeSubWindow();
-
-    QList<QMdiSubWindow*> list = m_mdiArea->subWindowList(m_mdiArea->activationOrder());
-    for (int i = 0; i < list.count(); i++)
+    // Force activation order so they end up in the order of the loop.
+    m_mdiArea->setActivationOrder(QMdiArea::ActivationHistoryOrder);
+    for (QMdiSubWindow* subWindow : windowList)
     {
-        m_mdiArea->setActiveSubWindow(list[i]);
+        m_mdiArea->setActiveSubWindow(subWindow);
     }
 
     m_mdiArea->tileSubWindows();
+    // Set back the original activation order to avoid messing with the standard ordering
+    m_mdiArea->setActivationOrder(currentActivationOrder);
     m_mdiArea->setActiveSubWindow(a);
 }
 

@@ -56,8 +56,8 @@ public:
 
     void                                    setMasterView(RimGridView* view);
     RimGridView*                            masterView() const;
-
     void                                    addDependentView(RimGridView* view);
+    bool                                    isFirstViewDependentOnSecondView(const RimGridView* firstView, const RimGridView* secondView) const;
     void                                    updateDependentViews();
     void                                    removeViewController(RimViewController* viewController);
 

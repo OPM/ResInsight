@@ -42,6 +42,9 @@
 #include "RimIntersection.h"
 #include "RimProject.h"
 #include "RimSimWellInViewCollection.h"
+#include "RimViewLinker.h"
+#include "RimViewLinkerCollection.h"
+#include "RimViewWindow.h"
 
 #include "RiuDockWidgetTools.h"
 #include "RiuDragDrop.h"
@@ -989,6 +992,26 @@ QMdiSubWindow* RiuMainWindow::findMdiSubWindow(QWidget* viewer)
 
     return nullptr;
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimViewWindow* RiuMainWindow::findViewWindowFromSubWindow(QMdiSubWindow* subWindow)
+{
+    std::vector<RimViewWindow*> allViewWindows;
+    RiaApplication::instance()->project()->descendantsIncludingThisOfType(allViewWindows);
+
+    for (RimViewWindow* viewWindow : allViewWindows)
+    {
+        if (viewWindow->viewWidget() == subWindow->widget())
+        {
+            return viewWindow;
+        }
+    }
+    return nullptr;
+}
+
+
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -1958,17 +1981,61 @@ RimMdiWindowGeometry RiuMainWindow::windowGeometryForViewer(QWidget* viewer)
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindow::tileWindows()
 {
+    QMdiArea::WindowOrder currentActivationOrder = m_mdiArea->activationOrder();
+    
+    // Tile Windows so the one with the leftmost left edge gets sorted first.
+    std::list<QMdiSubWindow*> windowList;
+    for (QMdiSubWindow* subWindow : m_mdiArea->subWindowList(currentActivationOrder))
+    {
+        windowList.push_back(subWindow);
+    }
+
+    // Get the active view linker if there is one
+    RimProject * proj = RiaApplication::instance()->project();
+    RimViewLinkerCollection* viewLinkerCollection = proj->viewLinkerCollection();
+    RimViewLinker* viewLinker = nullptr;
+    if (viewLinkerCollection && viewLinkerCollection->isActive())
+    {
+        viewLinker = viewLinkerCollection->viewLinker();
+    }
+
+    // Perform stable sort of list so we first sort by window position but retain activation order
+    // for windows with the same position. Needs to be sorted in decreasing order for the workaround below.
+    windowList.sort([this, viewLinker](QMdiSubWindow* lhs, QMdiSubWindow* rhs)
+    {
+        RimViewWindow* lhsViewWindow = findViewWindowFromSubWindow(lhs);
+        RimViewWindow* rhsViewWindow = findViewWindowFromSubWindow(rhs);
+        RimGridView* lhsGridView = dynamic_cast<RimGridView*>(lhsViewWindow);
+        RimGridView* rhsGridView = dynamic_cast<RimGridView*>(rhsViewWindow);
+
+        if (viewLinker)
+        {
+            if (viewLinker->isFirstViewDependentOnSecondView(lhsGridView, rhsGridView))
+            {
+                return true;
+            }
+            else if (viewLinker->isFirstViewDependentOnSecondView(rhsGridView, lhsGridView))
+            {
+                return false;
+            }
+        }
+        return lhs->frameGeometry().topLeft().rx() > rhs->frameGeometry().topLeft().rx();
+    });
+
     // Based on workaround described here
     // https://forum.qt.io/topic/50053/qmdiarea-tilesubwindows-always-places-widgets-in-activationhistoryorder-in-subwindowview-mode
 
+    // Force activation order so they end up in the order of the loop.
+    m_mdiArea->setActivationOrder(QMdiArea::ActivationHistoryOrder);
     QMdiSubWindow *a = m_mdiArea->activeSubWindow();
-    QList<QMdiSubWindow *> list = m_mdiArea->subWindowList(m_mdiArea->activationOrder());
-    for (int i = 0; i < list.count(); i++)
+    for (QMdiSubWindow* subWindow : windowList)
     {
-        m_mdiArea->setActiveSubWindow(list[i]);
+        m_mdiArea->setActiveSubWindow(subWindow);
     }
 
     m_mdiArea->tileSubWindows();
+    // Set back the original activation order to avoid messing with the standard ordering
+    m_mdiArea->setActivationOrder(currentActivationOrder);
     m_mdiArea->setActiveSubWindow(a);
 }
 

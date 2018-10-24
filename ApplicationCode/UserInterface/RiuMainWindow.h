@@ -41,6 +41,7 @@ class QTimer;
 class QUndoView;
 
 class RimCase;
+class RimViewWindow;
 
 class RiuMessagePanel;
 class RiuProcessMonitor;
@@ -115,6 +116,7 @@ public:
     void            tileWindows();
     bool            isAnyMdiSubWindowVisible();
     QMdiSubWindow*  findMdiSubWindow(QWidget* viewer);
+    RimViewWindow*  findViewWindowFromSubWindow(QMdiSubWindow* lhs);
     QList<QMdiSubWindow*> subWindowList(QMdiArea::WindowOrder order);
 
     RiuResultQwtPlot*                   resultPlot();

@@ -551,6 +551,21 @@ void RimViewLinker::addDependentView(RimGridView* view)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RimViewLinker::isFirstViewDependentOnSecondView(const RimGridView* firstView, const RimGridView* secondView) const
+{
+    for (const RimViewController* controller : m_viewControllers())
+    {
+        if (controller->masterView() == secondView && controller->managedView() == firstView)
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimViewLinker::addViewControllers(caf::PdmUiTreeOrdering& uiTreeOrdering) const
 {
     for (const auto& viewController : m_viewControllers)
