@@ -142,11 +142,8 @@ void RicCreateTemporaryLgrFeature::onActionTriggered(bool isChecked)
             }
         }
 
-        eclipseCase->results(RiaDefines::MATRIX_MODEL)->freeAllocatedResultsData();
-        eclipseCase->results(RiaDefines::FRACTURE_MODEL)->freeAllocatedResultsData();
+        deleteAllCachedData(eclipseCase);
 
-        eclipseCase->eclipseCaseData()->clearWellCellsInGridCache();
-        eclipseCase->eclipseCaseData()->mainGrid()->computeCachedData();
         activeView->loadDataAndUpdate();
 
         if (intersectsExistingLgr)
@@ -252,6 +249,45 @@ void RicCreateTemporaryLgrFeature::createLgr(LgrInfo& lgrInfo, RigMainGrid* main
     }
 
     localGrid->setParentGrid(mainGrid);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicCreateTemporaryLgrFeature::deleteAllCachedData(RimEclipseCase* eclipseCase)
+{
+    if (eclipseCase)
+    {
+        RigCaseCellResultsData* cellResultsDataMatrix = eclipseCase->results(RiaDefines::MATRIX_MODEL);
+        if (cellResultsDataMatrix)
+        {
+            cellResultsDataMatrix->freeAllocatedResultsData();
+        }
+
+        RigCaseCellResultsData* cellResultsDataFracture = eclipseCase->results(RiaDefines::FRACTURE_MODEL);
+        if (cellResultsDataFracture)
+        {
+            cellResultsDataFracture->freeAllocatedResultsData();
+        }
+
+        RigEclipseCaseData* eclipseCaseData = eclipseCase->eclipseCaseData();
+        if (eclipseCaseData)
+        {
+            eclipseCaseData->clearWellCellsInGridCache();
+            eclipseCaseData->mainGrid()->computeCachedData();
+            eclipseCaseData->computeActiveCellBoundingBoxes();
+        }
+
+        if (cellResultsDataMatrix)
+        {
+            cellResultsDataMatrix->computeDepthRelatedResults();
+        }
+        
+        if (cellResultsDataFracture)
+        {
+            cellResultsDataFracture->computeDepthRelatedResults();
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
