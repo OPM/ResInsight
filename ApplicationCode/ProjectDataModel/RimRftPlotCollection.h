@@ -58,6 +58,7 @@ public:
     void removeExtractors(const RigWellPath* wellPath);
     void removeExtractors(const RigEclipseCaseData* caseData);
     void removeExtractors(const RigGeoMechCaseData* caseData);
+    void deleteAllExtractors();
 
     const std::vector<RimWellRftPlot*>  rftPlots() const;
     void                                addPlot(RimWellRftPlot* newPlot);

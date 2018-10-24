@@ -440,7 +440,7 @@ QStringList RigCaseCellResultsData::resultNames(RiaDefines::ResultCatType resTyp
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RigActiveCellInfo* RigCaseCellResultsData::activeCellInfo()
 {
@@ -448,7 +448,7 @@ RigActiveCellInfo* RigCaseCellResultsData::activeCellInfo()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 const RigActiveCellInfo* RigCaseCellResultsData::activeCellInfo() const
 {
@@ -783,7 +783,7 @@ const std::vector<double>*
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 const std::vector<RigEclipseResultInfo>& RigCaseCellResultsData::infoForEachResultIndex()
 {

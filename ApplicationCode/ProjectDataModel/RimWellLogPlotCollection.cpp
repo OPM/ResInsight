@@ -137,6 +137,26 @@ RigGeoMechWellLogExtractor* RimWellLogPlotCollection::findOrCreateExtractor(RimW
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimWellLogPlotCollection::reloadAllPlots()
+{
+    for (const auto& w : wellLogPlots())
+    {
+        w->loadDataAndUpdate();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellLogPlotCollection::deleteAllExtractors()
+{
+    m_extractors.clear();
+    m_geomExtractors.clear();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimWellLogPlotCollection::removeExtractors(const RigWellPath* wellPath)
 {
     for (int eIdx = (int) m_extractors.size() - 1; eIdx >= 0; eIdx--)

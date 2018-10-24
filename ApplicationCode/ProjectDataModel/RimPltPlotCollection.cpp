@@ -188,6 +188,15 @@ void RimPltPlotCollection::removeExtractors(const RigGeoMechCaseData* caseData)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimPltPlotCollection::deleteAllExtractors()
+{
+    m_extractors.clear();
+    m_geomExtractors.clear();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 const std::vector<RimWellPltPlot*> RimPltPlotCollection::pltPlots() const
 {
     std::vector<RimWellPltPlot*> plots;

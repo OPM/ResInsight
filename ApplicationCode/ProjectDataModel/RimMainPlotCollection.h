@@ -60,6 +60,7 @@ public:
     void                            updateCurrentTimeStepInPlots();
     void                            updatePlotsWithFormations();
     void                            updatePlotsWithCompletions();
+    void                            deleteAllCachedData();
 private:
 
     // Overridden PDM methods

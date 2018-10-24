@@ -54,6 +54,9 @@ public:
     RigEclipseWellLogExtractor* findOrCreateExtractor(RimWellPath* wellPath, RimEclipseCase* eclCase);
     RigGeoMechWellLogExtractor* findOrCreateExtractor(RimWellPath* wellPath, RimGeoMechCase* eclCase);
 
+    void reloadAllPlots();
+
+    void deleteAllExtractors();
     void removeExtractors(const RigWellPath* wellPath);
     void removeExtractors(const RigEclipseCaseData* caseData);
     void removeExtractors(const RigGeoMechCaseData* caseData);

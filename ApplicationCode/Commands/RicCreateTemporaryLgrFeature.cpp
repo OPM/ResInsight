@@ -43,6 +43,8 @@
 #include "RimProject.h"
 #include "RimWellPathCollection.h"
 #include "RimWellPathCompletions.h"
+#include "RimMainPlotCollection.h"
+#include "RimWellLogPlotCollection.h"
 
 #include "RiuPlotMainWindow.h"
 
@@ -141,7 +143,9 @@ void RicCreateTemporaryLgrFeature::onActionTriggered(bool isChecked)
         }
 
         deleteAllCachedData(eclipseCase);
+        RiaApplication::instance()->project()->mainPlotCollection()->deleteAllCachedData();
         computeCachedData(eclipseCase);
+        RiaApplication::instance()->project()->mainPlotCollection()->wellLogPlotCollection()->reloadAllPlots();
 
         activeView->loadDataAndUpdate();
 
