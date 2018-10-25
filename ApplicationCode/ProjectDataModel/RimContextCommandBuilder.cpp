@@ -783,9 +783,6 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
 
                 menuBuilder.subMenuEnd();
             }
-
-            menuBuilder << "RicExportLgrFeature";
-            menuBuilder << "RicCreateTemporaryLgrFeature";
         }
 
         menuBuilder << "RicCreateMultipleFracturesFeature";
@@ -803,6 +800,9 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         menuBuilder << "RicCloseSummaryCaseInCollectionFeature";
         menuBuilder << "RicDeleteSummaryCaseCollectionFeature";
         menuBuilder << "RicCloseObservedDataFeature";
+
+        menuBuilder << "RicExportLgrFeature";
+        menuBuilder << "RicCreateTemporaryLgrFeature";
 
         // Work in progress -- End
 

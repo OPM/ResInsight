@@ -24,6 +24,7 @@
 #include "RimTools.h"
 
 #include "cafPdmUiFilePathEditor.h"
+#include "cafPdmUiTextEditor.h"
 #include "cafVecIjk.h"
 
 
@@ -58,10 +59,14 @@ RicExportLgrUi::RicExportLgrUi()
     CAF_PDM_InitFieldNoDefault(&m_caseToApply, "CaseToApply", "Source Case", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_timeStep, "TimeStepIndex", "Time Step", "", "", "");
 
+    CAF_PDM_InitField(&m_includePerforations, "IncludePerforations", true, "Perforations", "", "", "");
+    CAF_PDM_InitField(&m_includeFractures, "IncludeFractures", true, "Fractures", "", "", "");
+    CAF_PDM_InitField(&m_includeFishbones, "IncludeFishbones", true, "Fishbones", "", "", "");
+
     QString ijkLabel = "Cell Count I, J, K";
     CAF_PDM_InitField(&m_cellCountI,    "CellCountI",   2, ijkLabel, "", "", "");
-    CAF_PDM_InitField(&m_cellCountJ,    "CellCountJ",   2, "Cell Count J", "", "", "");
-    CAF_PDM_InitField(&m_cellCountK,    "CellCountK",   2, "Cell Count K", "", "", "");
+    CAF_PDM_InitField(&m_cellCountJ,    "CellCountJ",   2, "", "", "", "");
+    CAF_PDM_InitField(&m_cellCountK,    "CellCountK",   2, "", "", "", "");
 
     m_cellCountJ.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
     m_cellCountK.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
@@ -130,11 +135,31 @@ int RicExportLgrUi::timeStep() const
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RicExportLgrUi::CompletionType RicExportLgrUi::completionTypes() const
+{
+    CompletionType ct = CT_NONE;
+    if (m_includePerforations()) ct = ct | CompletionType::CT_PERFORATION;
+    if (m_includeFractures()) ct = ct | CompletionType::CT_FRACTURE;
+    if (m_includeFishbones()) ct = ct | CompletionType::CT_FISHBONE;
+    return ct;
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 RicExportLgrUi::SplitType RicExportLgrUi::splitType() const
 {
     return m_splitType();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicExportLgrUi::hideExportFolderField(bool hide)
+{
+    m_exportFolder.uiCapability()->setUiHidden(hide);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -205,16 +230,21 @@ void RicExportLgrUi::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
 //--------------------------------------------------------------------------------------------------
 void RicExportLgrUi::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
-    uiOrdering.add(&m_caseToApply);
-    uiOrdering.add(&m_timeStep);
-    uiOrdering.add(&m_exportFolder);
-    
-    caf::PdmUiGroup* gridRefinement = uiOrdering.addNewGroup("Grid Refinement");
-    gridRefinement->add(&m_cellCountI, {true, 2, 1});
-    gridRefinement->add(&m_cellCountJ, false);
-    gridRefinement->add(&m_cellCountK, false);
-    gridRefinement->add(&m_splitType, { true,  2});
+    caf::PdmUiOrdering::LayoutOptions layout(true, 6, 1);
+    uiOrdering.add(&m_caseToApply, layout);
+    uiOrdering.add(&m_timeStep, layout);
+    uiOrdering.add(&m_exportFolder, layout);
+    uiOrdering.add(&m_includePerforations, layout);
+    uiOrdering.add(&m_includeFractures, layout);
+    uiOrdering.add(&m_includeFishbones, layout);
+    uiOrdering.add(&m_splitType, {true, 6, 1});
 
+    caf::PdmUiGroup* gridRefinement = uiOrdering.addNewGroup("Grid Refinement");
+    gridRefinement->add(&m_cellCountI, { true, 2, 1});
+    gridRefinement->add(&m_cellCountJ, { false });
+    gridRefinement->add(&m_cellCountK, { false });
+
+//    uiOrdering.add(&m_wellPathsInfo);
     uiOrdering.skipRemainingFields(true);
 }
 
@@ -232,4 +262,3 @@ void RicExportLgrUi::defineEditorAttribute(const caf::PdmFieldHandle* field, QSt
         }
     }
 }
-

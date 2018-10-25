@@ -22,6 +22,7 @@
 #include "RicfCreateMultipleFractures.h"
 
 #include "ExportCommands/RicExportLgrFeature.h"
+#include "ExportCommands/RicExportLgrUi.h"
 
 #include "RimProject.h"
 #include "RimDialogData.h"
@@ -97,7 +98,9 @@ void RicfExportLgrForCompletions::execute()
             {
                 try
                 {
-                    feature->exportLgrsForWellPath(exportFolder, wellPath, eclipseCase, m_timeStep, lgrCellCounts, m_splitType());
+                    auto completionTypes = (RicExportLgrUi::CompletionType)(RicExportLgrUi::CT_PERFORATION | RicExportLgrUi::CT_FRACTURE | RicExportLgrUi::CT_FISHBONE);
+                    feature->exportLgrsForWellPath(exportFolder, wellPath, eclipseCase, m_timeStep, lgrCellCounts, m_splitType(),
+                                                   completionTypes);
                 }
                 catch(CreateLgrException e)
                 {

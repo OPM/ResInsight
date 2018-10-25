@@ -73,8 +73,9 @@ CAF_CMD_SOURCE_INIT(RicCreateTemporaryLgrFeature, "RicCreateTemporaryLgrFeature"
 bool RicCreateTemporaryLgrFeature::isCommandEnabled()
 {
     std::vector<RimWellPathCompletions*> completions = caf::selectedObjectsByTypeStrict<RimWellPathCompletions*>();
+    std::vector<RimWellPath*>            wellPaths   = caf::selectedObjectsByTypeStrict<RimWellPath*>();
 
-    return !completions.empty();
+    return !completions.empty() || !wellPaths.empty();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -82,8 +83,8 @@ bool RicCreateTemporaryLgrFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicCreateTemporaryLgrFeature::onActionTriggered(bool isChecked)
 {
-    std::vector<RimWellPath*> wellPaths = selectedWellPaths();
-    CVF_ASSERT(wellPaths.size() > 0);
+    std::vector<RimWellPath*> wellPaths = RicExportLgrFeature::selectedWellPaths();
+    if(wellPaths.size() == 0) return;
 
     std::vector<RimSimWellInView*> simWells;
     QString                        dialogTitle = "Create Temporary LGR";
@@ -97,13 +98,14 @@ void RicCreateTemporaryLgrFeature::onActionTriggered(bool isChecked)
         defaultTimeStep    = activeView->currentTimeStep();
     }
 
-    auto dialogData = RicExportLgrFeature::openDialog(dialogTitle, defaultEclipseCase, defaultTimeStep);
+    auto dialogData = RicExportLgrFeature::openDialog(dialogTitle, defaultEclipseCase, defaultTimeStep, true);
     if (dialogData)
     {
-        auto   eclipseCase   = dialogData->caseToApply();
-        auto   lgrCellCounts = dialogData->lgrCellCount();
-        size_t timeStep      = dialogData->timeStep();
-        auto   splitType     = dialogData->splitType();
+        auto eclipseCase = dialogData->caseToApply();
+        auto lgrCellCounts = dialogData->lgrCellCount();
+        size_t timeStep = dialogData->timeStep();
+        auto splitType = dialogData->splitType();
+        auto completionTypes = dialogData->completionTypes();
 
         auto               eclipseCaseData        = eclipseCase->eclipseCaseData();
         RigActiveCellInfo* activeCellInfo         = eclipseCaseData->activeCellInfo(RiaDefines::MATRIX_MODEL);
@@ -116,7 +118,12 @@ void RicCreateTemporaryLgrFeature::onActionTriggered(bool isChecked)
 
             try
             {
-                lgrs = RicExportLgrFeature::buildLgrsForWellPath(wellPath, eclipseCase, timeStep, lgrCellCounts, splitType);
+                lgrs = RicExportLgrFeature::buildLgrsForWellPath(wellPath,
+                                                                 eclipseCase,
+                                                                 timeStep,
+                                                                 lgrCellCounts,
+                                                                 splitType,
+                                                                 completionTypes);
 
                 auto mainGrid = eclipseCase->eclipseCaseData()->mainGrid();
 
@@ -312,24 +319,6 @@ void RicCreateTemporaryLgrFeature::computeCachedData(RimEclipseCase* eclipseCase
             cellResultsDataFracture->computeDepthRelatedResults();
         }
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::vector<RimWellPath*> RicCreateTemporaryLgrFeature::selectedWellPaths()
-{
-    std::vector<RimWellPathCompletions*> selectedCompletions = caf::selectedObjectsByTypeStrict<RimWellPathCompletions*>();
-    std::vector<RimWellPath*>            wellPaths;
-
-    for (auto completion : selectedCompletions)
-    {
-        RimWellPath* parentWellPath;
-        completion->firstAncestorOrThisOfType(parentWellPath);
-
-        if (parentWellPath) wellPaths.push_back(parentWellPath);
-    }
-    return wellPaths;
 }
 
 //--------------------------------------------------------------------------------------------------

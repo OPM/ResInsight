@@ -111,20 +111,27 @@ class RicExportLgrFeature : public caf::CmdFeature
     typedef std::pair<size_t, size_t> Range;
     static Range initRange() { return std::make_pair(std::numeric_limits<size_t>::max(), 0); }
 
-    static RicExportLgrUi* openDialog(const QString& dialogTitle, RimEclipseCase* defaultCase = nullptr, int defaultTimeStep = 0);
+    static RicExportLgrUi* openDialog(const QString& dialogTitle,
+                                      RimEclipseCase* defaultCase = nullptr,
+                                      int defaultTimeStep = 0,
+                                      bool hideExportFolderField = false);
     static bool openFileForExport(const QString& folderName, const QString& fileName, QFile* exportFile);
     static void exportLgrsForWellPath(const QString& exportFolder,
                                       RimWellPath* wellPath,
                                       RimEclipseCase* eclipseCase,
                                       size_t timeStep,
                                       caf::VecIjk lgrCellCounts,
-                                      RicExportLgrUi::SplitType splitType);
+                                      RicExportLgrUi::SplitType splitType,
+                                      RicExportLgrUi::CompletionType completionTypes);
 
     static std::vector<LgrInfo> buildLgrsForWellPath(RimWellPath*                 wellPath,
                                                      RimEclipseCase*              eclipseCase,
                                                      size_t                       timeStep,
                                                      caf::VecIjk                  lgrCellCounts,
-                                                     RicExportLgrUi::SplitType    splitType);
+                                                     RicExportLgrUi::SplitType    splitType,
+                                                     RicExportLgrUi::CompletionType completionTypes);
+
+    static std::vector<RimWellPath*> selectedWellPaths();
 
 protected:
     bool isCommandEnabled() override;
@@ -146,12 +153,18 @@ private:
                             const std::vector<RigCompletionDataGridCell>& intersectingCells,
                             const caf::VecIjk&                            lgrSizesPerMainGridCell);
 
-    static std::vector<RigCompletionDataGridCell>
-        cellsIntersectingCompletions(RimEclipseCase* eclipseCase, const RimWellPath* wellPath, size_t timeStep);
+    static std::vector<RigCompletionDataGridCell> cellsIntersectingCompletions(RimEclipseCase* eclipseCase,
+                                                                               const RimWellPath* wellPath,
+                                                                               size_t timeStep,
+                                                                               RicExportLgrUi::CompletionType completionTypes);
     static std::map<CompletionInfo, std::vector<RigCompletionDataGridCell>>
-                                     cellsIntersectingCompletions_PerCompletion(RimEclipseCase* eclipseCase, const RimWellPath* wellPath, size_t timeStep);
-    static std::vector<RimWellPath*> selectedWellPaths();
+        cellsIntersectingCompletions_PerCompletion(RimEclipseCase* eclipseCase,
+                                                   const RimWellPath* wellPath,
+                                                   size_t timeStep,
+                                                   RicExportLgrUi::CompletionType completionTypes);
+
     static bool containsAnyNonMainGridCells(const std::map<CompletionInfo, std::vector<RigCompletionDataGridCell>>& cellsPerCompletion);
     static bool containsAnyNonMainGridCells(const std::vector<RigCompletionDataGridCell>& cells);
     static int firstAvailableLgrId(const RigMainGrid* mainGrid);
+    static QString completionNameIfIncluded(const caf::PdmObject* object, RicExportLgrUi::CompletionType includedCompletionTypes);
 };
