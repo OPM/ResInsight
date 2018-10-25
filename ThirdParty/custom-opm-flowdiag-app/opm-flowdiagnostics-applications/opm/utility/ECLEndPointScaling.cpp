@@ -1,4 +1,5 @@
 /*
+  Copyright 2018 Equinor ASA.
   Copyright 2017 Statoil ASA.
 
   This file is part of the Open Porous Media Project (OPM).
@@ -34,8 +35,8 @@
 #include <cassert>
 #include <cmath>
 #include <exception>
-#include <initializer_list>
 #include <iterator>
+#include <limits>
 #include <numeric>
 #include <stdexcept>
 #include <utility>
@@ -217,21 +218,6 @@ namespace {
         return (std::abs(s) < 1.0e+20) ? s : dflt;
     }
 
-    bool validSaturation(const double s)
-    {
-        return (! (s < 0.0)) && (! (s > 1.0));
-    }
-
-    bool validSaturations(std::initializer_list<double> sats)
-    {
-        return std::accumulate(std::begin(sats),
-                               std::end  (sats), true,
-            [](const bool result, const double s) -> bool
-        {
-            return result && validSaturation(s);
-        });
-    }
-
     bool
     haveScaledRelPermAtCritSat(const ::Opm::ECLGraph&                       G,
                                const ::Opm::ECLInitFileData&                init,
@@ -263,9 +249,7 @@ class Opm::SatFunc::TwoPointScaling::Impl
 public:
     Impl(std::vector<double> smin,
          std::vector<double> smax)
-        : smin_          (std::move(smin))
-        , smax_          (std::move(smax))
-        , handle_invalid_(InvalidEndpointBehaviour::UseUnscaled)
+        : smin_(std::move(smin)), smax_(std::move(smax))
     {
         if (this->smin_.size() != this->smax_.size()) {
             throw std::invalid_argument {
@@ -286,11 +270,6 @@ public:
 private:
     std::vector<double> smin_;
     std::vector<double> smax_;
-
-    InvalidEndpointBehaviour handle_invalid_;
-
-    void handleInvalidEndpoint(const SaturationAssoc& sp,
-                               std::vector<double>&   effsat) const;
 
     double sMin(const std::vector<int>::size_type cell,
                 const TableEndPoints&             tep) const
@@ -326,12 +305,6 @@ Impl::eval(const TableEndPoints&   tep,
 
         const auto sLO = this->sMin(cell, tep);
         const auto sHI = this->sMax(cell, tep);
-
-        if (! validSaturations({ sLO, sHI })) {
-            this->handleInvalidEndpoint(eval_pt, effsat);
-
-            continue;
-        }
 
         effsat.push_back(0.0);
         auto& s_eff = effsat.back();
@@ -372,12 +345,6 @@ Impl::reverse(const TableEndPoints&   tep,
         const auto sLO = this->sMin(cell, tep);
         const auto sHI = this->sMax(cell, tep);
 
-        if (! validSaturations({ sLO, sHI })) {
-            this->handleInvalidEndpoint(eval_pt, unscaledsat);
-
-            continue;
-        }
-
         unscaledsat.push_back(0.0);
         auto& s_unsc = unscaledsat.back();
 
@@ -404,26 +371,6 @@ Impl::reverse(const TableEndPoints&   tep,
     return unscaledsat;
 }
 
-void
-Opm::SatFunc::TwoPointScaling::Impl::
-handleInvalidEndpoint(const SaturationAssoc& sp,
-                      std::vector<double>&   effsat) const
-{
-    if (this->handle_invalid_ == InvalidEndpointBehaviour::UseUnscaled) {
-        // User requests that invalid scaling be treated as unscaled
-        // saturations.  Pick that.
-        effsat.push_back(sp.sat);
-        return;
-    }
-
-    if (this->handle_invalid_ == InvalidEndpointBehaviour::IgnorePoint) {
-        // User requests that invalid scaling be ignored.  Signal invalid
-        // scaled saturation to caller as NaN.
-        effsat.push_back(std::nan(""));
-        return;
-    }
-}
-
 // ---------------------------------------------------------------------
 // Class Opm::SatFunc::PureVerticalScaling::Impl
 // ---------------------------------------------------------------------
@@ -433,6 +380,9 @@ class Opm::SatFunc::PureVerticalScaling::Impl
 public:
     explicit Impl(std::vector<double> fmax)
         : fmax_(std::move(fmax))
+        , inf_ (std::numeric_limits<double>::has_infinity
+                ? std::numeric_limits<double>::infinity()
+                : std::numeric_limits<double>::max())
     {}
 
     std::vector<double>
@@ -442,6 +392,16 @@ public:
 
 private:
     std::vector<double> fmax_;
+
+    double inf_;
+
+    std::vector<double>
+    zeroMaxVal(const SaturationPoints& sp) const;
+
+    std::vector<double>
+    nonZeroMaxVal(const SaturationPoints& sp,
+                  const double            maxVal,
+                  std::vector<double>     val) const;
 };
 
 std::vector<double>
@@ -452,9 +412,39 @@ vertScale(const FunctionValues&   f,
 {
     assert (sp.size() == val.size() && "Internal Error in Vertical Scaling");
 
-    auto ret = std::move(val);
-
     const auto maxVal = f.max.val;
+
+    if (! (std::abs(maxVal) > 0.0)) {
+        return this->zeroMaxVal(sp);
+    }
+
+    return this->nonZeroMaxVal(sp, maxVal, std::move(val));
+}
+
+std::vector<double>
+Opm::SatFunc::PureVerticalScaling::Impl::
+zeroMaxVal(const SaturationPoints& sp) const
+{
+    auto ret = std::vector<double>(sp.size(), 0.0);
+
+    for (auto n = sp.size(), i = 0*n; i < n; ++i) {
+        const auto fmax = this->fmax_[ sp[i].cell ];
+
+        ret[i] = (std::abs(fmax) > 0.0)
+            ? (std::signbit(fmax) ? -this->inf_ : this->inf_)
+            : 0.0;
+    }
+
+    return ret;
+}
+
+std::vector<double>
+Opm::SatFunc::PureVerticalScaling::Impl::
+nonZeroMaxVal(const SaturationPoints& sp,
+              const double            maxVal,
+              std::vector<double>     val) const
+{
+    auto ret = std::move(val);
 
     for (auto n = sp.size(), i = 0*n; i < n; ++i) {
         ret[i] *= this->fmax_[ sp[i].cell ] / maxVal;
@@ -513,24 +503,33 @@ vertScale(const FunctionValues&   f,
 
         const auto c  = sp[i].cell;
         const auto s  = sp[i].sat;
-        const auto sr = this->sdisp_[c];
+        const auto sr = std::min(this->sdisp_[c], this->smax_[c]);
         const auto fr = this->fdisp_[c];
         const auto sm = this->smax_ [c];
         const auto fm = this->fmax_ [c];
 
-        if (! (s > sr)) {
-            // s <= sr: Pure vertical scaling in left interval.
+        if (s < sr) {
+            // s < sr: Pure vertical scaling in left interval.
             y *= fr / fdisp;
         }
         else if (sepfv) {
-            // s > sr; normal case: Kr(Smax) > Kr(Sr)
+            // s \in [sr, sm), sm > sr; normal case: Kr(Smax) > Kr(Sr).
+            //
+            // Linear function between (sr,fr) and (sm,fm) in terms of
+            // function value 'y'.  This usually alters the shape of the
+            // relative permeability function in this interval (e.g.,
+            // roughly quadratic to linear).
             const auto t = (y - fdisp) / (fmax - fdisp);
 
             y = fr + t*(fm - fr);
         }
         else if (s < sm) {
-            // s > sr; special case: Kr(Smax) == Kr(Sr) in table.  Use
-            // linear function between (sr,fr) and (sm,fm).
+            // s \in [sr, sm), sm > sr; special case: Kr(Smax) == Kr(Sr).
+            //
+            // Use linear function between (sr,fr) and (sm,fm) in terms of
+            // saturation value 's'.  This usually alters the shape of the
+            // relative permeability function in this interval (e.g.,
+            // roughly quadratic to linear).
             const auto t = (s - sr) / (sm - sr);
 
             y = fr + t*(fm - fr);
@@ -554,10 +553,7 @@ public:
     Impl(std::vector<double> smin ,
          std::vector<double> sdisp,
          std::vector<double> smax )
-        : smin_          (std::move(smin ))
-        , sdisp_         (std::move(sdisp))
-        , smax_          (std::move(smax ))
-        , handle_invalid_(InvalidEndpointBehaviour::UseUnscaled)
+        : smin_(std::move(smin)), sdisp_(std::move(sdisp)), smax_(std::move(smax))
     {
         if ((this->sdisp_.size() != this->smin_.size()) ||
             (this->sdisp_.size() != this->smax_.size()))
@@ -581,11 +577,6 @@ private:
     std::vector<double> smin_;
     std::vector<double> sdisp_;
     std::vector<double> smax_;
-
-    InvalidEndpointBehaviour handle_invalid_;
-
-    void handleInvalidEndpoint(const SaturationAssoc& sp,
-                               std::vector<double>&   effsat) const;
 
     double sMin(const std::vector<int>::size_type cell,
                 const TableEndPoints&             tep) const
@@ -630,12 +621,6 @@ Impl::eval(const TableEndPoints&   tep,
         const auto sR  = this->sDisp(cell, tep);
         const auto sHI = this->sMax (cell, tep);
 
-        if (! validSaturations({ sLO, sR, sHI })) {
-            this->handleInvalidEndpoint(eval_pt, effsat);
-
-            continue;
-        }
-
         effsat.push_back(0.0);
         auto& s_eff = effsat.back();
 
@@ -643,21 +628,25 @@ Impl::eval(const TableEndPoints&   tep,
             // s <= sLO
             s_eff = tep.low;
         }
-        else if (! (eval_pt.sat < sHI)) {
-            // s >= sHI
-            s_eff = tep.high;
-        }
-        else if (eval_pt.sat < sR) {
-            // s \in (sLO, sR)
+        else if (eval_pt.sat < std::min(sR, sHI)) {
+            // s in scaled interval [sLO, sR)
+            // Map to tabulated saturation in [tep.low, tep.disp)
             const auto t = (eval_pt.sat - sLO) / (sR - sLO);
 
             s_eff = tep.low + t*(tep.disp - tep.low);
         }
-        else {
-            // s \in (sR, sHI)
+        else if (eval_pt.sat < sHI) {
+            // s in scaled interval [sR, sHI)
+            // Map to tabulated saturation in [tep.disp, tep.high)
+            assert (sHI > sR);
+
             const auto t = (eval_pt.sat - sR) / (sHI - sR);
 
             s_eff = tep.disp + t*(tep.high - tep.disp);
+        }
+        else {
+            // s >= sHI
+            s_eff = tep.high;
         }
     }
 
@@ -679,12 +668,6 @@ Impl::reverse(const TableEndPoints&   tep,
         const auto sR  = this->sDisp(cell, tep);
         const auto sHI = this->sMax (cell, tep);
 
-        if (! validSaturations({ sLO, sR, sHI })) {
-            this->handleInvalidEndpoint(eval_pt, unscaledsat);
-
-            continue;
-        }
-
         unscaledsat.push_back(0.0);
         auto& s_unsc = unscaledsat.back();
 
@@ -693,52 +676,43 @@ Impl::reverse(const TableEndPoints&   tep,
             // Map to Minimum Input Saturation in cell (sLO).
             s_unsc = sLO;
         }
-        else if (! (eval_pt.sat < tep.high)) {
-            // s >= maximum tabulated saturation.
-            // Map to Maximum Input Saturation in cell (sHI).
-            s_unsc = sHI;
-        }
         else if (eval_pt.sat < tep.disp) {
-            // s in tabulated interval (tep.low, tep.disp)
+            // s in tabulated interval [tep.low, tep.disp)
             // Map to Input Saturation in (sLO, sR)
             const auto t =
                 (eval_pt.sat - tep.low)
                 / (tep.disp  - tep.low);
 
-            s_unsc = sLO + t*(sR - sLO);
+            s_unsc = std::min(sLO + t*(sR - sLO), sHI);
         }
-        else {
-            // s in tabulated interval (tep.disp, tep.high)
-            // Map to Input Saturation in (sR, sHI)
+        else if (eval_pt.sat < tep.high) {
+            // s in tabulated interval [tep.disp, tep.high)
+            // Map to Input Saturation in [sR, sHI)
+            assert (tep.high > tep.disp);
+
             const auto t =
                 (eval_pt.sat - tep.disp)
                 / (tep.high  - tep.disp);
 
-            s_unsc = sR + t*(sHI - sR);
+            s_unsc = std::min(sR + t*std::max(sHI - sR, 0.0), sHI);
+        }
+        else {
+            // s >= maximum tabulated saturation.
+            //
+            // Map to Maximum Input Saturation in cell (sHI) if maximum
+            // tabulated saturation is strictly greater than critical
+            // displacing saturation--otherwise map to critical displacing
+            // saturation.
+            //
+            // Needed to handle cases in which \code tep.disp==tep.high
+            // \endcode but scaled versions of these might differ, i.e. when
+            // sR < sHI, but the corresponding saturation points in the
+            // underlying input table coincide.
+            s_unsc = (tep.high > tep.disp) ? sHI : sR;
         }
     }
 
     return unscaledsat;
-}
-
-void
-Opm::SatFunc::ThreePointScaling::Impl::
-handleInvalidEndpoint(const SaturationAssoc& sp,
-                      std::vector<double>&   effsat) const
-{
-    if (this->handle_invalid_ == InvalidEndpointBehaviour::UseUnscaled) {
-        // User requests that invalid scaling be treated as unscaled
-        // saturations.  Pick that.
-        effsat.push_back(sp.sat);
-        return;
-    }
-
-    if (this->handle_invalid_ == InvalidEndpointBehaviour::IgnorePoint) {
-        // User requests that invalid scaling be ignored.  Signal invalid
-        // scaled saturation to caller as NaN.
-        effsat.push_back(std::nan(""));
-        return;
-    }
 }
 
 // ---------------------------------------------------------------------
@@ -749,7 +723,6 @@ namespace Create {
     using EPSOpt = ::Opm::SatFunc::CreateEPS::EPSOptions;
     using RTEP   = ::Opm::SatFunc::CreateEPS::RawTableEndPoints;
     using TEP    = ::Opm::SatFunc::EPSEvalInterface::TableEndPoints;
-    using InvBeh = ::Opm::SatFunc::EPSEvalInterface::InvalidEndpointBehaviour;
 
     namespace TwoPoint {
         using EPS    = ::Opm::SatFunc::TwoPointScaling;
@@ -1742,7 +1715,7 @@ KrGO::twoPointMethod(const ::Opm::ECLGraph&        G,
     auto t = std::vector<double>(sogcr.size(), 0.0);
     {
         const auto& sgco = tep.conn.gas;
-        const auto& swco = tep.conn.gas;
+        const auto& swco = tep.conn.water;
         const auto& sgcr = tep.crit.gas;
 
         for (auto n = sgcr.size(), i = 0*n; i < n; ++i) {
@@ -1790,7 +1763,7 @@ KrOW::twoPointMethod(const ::Opm::ECLGraph&        G,
     auto t = std::vector<double>(sowcr.size(), 0.0);
     {
         const auto& sgco = tep.conn.gas;
-        const auto& swco = tep.conn.gas;
+        const auto& swco = tep.conn.water;
         const auto& swcr = tep.crit.water;
 
         for (auto n = swcr.size(), i = 0*n; i < n; ++i) {

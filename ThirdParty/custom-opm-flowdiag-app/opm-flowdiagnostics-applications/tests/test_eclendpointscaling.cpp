@@ -972,6 +972,13 @@ BOOST_AUTO_TEST_CASE (KrOW_3pt)
     }
 
     // Reverse: Lookup/Table so -> Scaled SO.
+    //
+    // Note that "tep.disp" is equal to "tep.high" in the input table.  In
+    // this particular case, the reverse scaling will map high saturation
+    // values to 'Sr' rather than the maximum mobile So (= 0.85) in order to
+    // enable distinguishing scaled critical saturation from scaled maximum
+    // saturation for purpose of converting to "regular" phase saturations
+    // (i.e., SW or SG).
     {
         const auto SO = std::vector<double> {
             0.20000000000000001, // so = 0
@@ -993,10 +1000,10 @@ BOOST_AUTO_TEST_CASE (KrOW_3pt)
             0.6583231470163351,  // so = 0.75
             0.68888209801089018, // so = 0.80000000000000004
             0.71944104900544503, // so = 0.84999999999999998
-            0.84999999999999998, // so = 0.90000000000000002
-            0.84999999999999998, // so = 0.94999999999999996
-            0.84999999999999998, // so = 0.99990000000000001
-            0.84999999999999998, // so = 1
+            0.75,                // so = 0.90000000000000002
+            0.75,                // so = 0.94999999999999996
+            0.75,                // so = 0.99990000000000001
+            0.75,                // so = 1
         };
 
         const auto so     = interp.saturationPoints(Interp::InTable{0});

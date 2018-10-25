@@ -758,8 +758,7 @@ private:
                     const ActPh&           active)
         {
             auto opt = Create::EPSOptions{};
-            opt.use3PtScaling  = use3PtScaling;
-            opt.handle_invalid = SatFuncScaling::IEB::UseUnscaled;
+            opt.use3PtScaling = use3PtScaling;
 
             if (active.oil) {
                 this->create_oil_eps(host, G, init, ep, active, opt);

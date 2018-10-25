@@ -85,19 +85,12 @@ namespace Opm {
                 Vertical   = 1 << 1u,
             };
 
-            using IEB = SatFunc::EPSEvalInterface::InvalidEndpointBehaviour;
-
             SatFuncScaling()
-                : enable (Type::Horizontal | Type::Vertical)
-                , invalid(IEB::UseUnscaled)
+                : enable(Type::Horizontal | Type::Vertical)
             {}
 
             // Default: Use both Horizontal and Vertical if specified.
             unsigned char enable;
-
-            // Default: Use unscaled values in case of invalid scaled
-            // saturations occurring in the result set.
-            IEB invalid;
         };
 
         /// Constructor

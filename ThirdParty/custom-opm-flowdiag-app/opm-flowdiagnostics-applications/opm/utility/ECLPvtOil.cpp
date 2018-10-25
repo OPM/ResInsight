@@ -129,6 +129,8 @@ namespace {
 class PVxOBase
 {
 public:
+    virtual ~PVxOBase() {}
+
     virtual std::vector<double>
     formationVolumeFactor(const std::vector<double>& rs,
                           const std::vector<double>& po) const = 0;

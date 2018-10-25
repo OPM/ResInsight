@@ -67,19 +67,6 @@ namespace Opm { namespace SatFunc {
             double sat;
         };
 
-        /// Policy for how to handle an invalid end-point scaling (e.g., if
-        /// lower and/or upper scaled saturations have nonsensical values
-        /// like -1.0E+20).
-        enum class InvalidEndpointBehaviour {
-            /// Use the unscaled value for this point.
-            UseUnscaled,
-
-            /// Ignore this scaling request (e.g., produce no graphical
-            /// output for a scaled saturation function when the scaled
-            /// end-points are meaningless).
-            IgnorePoint,
-        };
-
         /// Convenience type alias.
         using SaturationPoints = std::vector<SaturationAssoc>;
 
@@ -574,13 +561,6 @@ namespace Opm { namespace SatFunc {
             ///   auto eps = CreateEPS::fromECLOutput(G, init, opt);
             /// \endcode
             ::Opm::ECLPhaseIndex thisPh;
-
-            /// How to handle an invalid end-point scaling (e.g., if lower
-            /// and/or upper scaled saturations have nonsensical values like
-            /// -1.0E+20).
-            EPSEvalInterface::InvalidEndpointBehaviour handle_invalid {
-                EPSEvalInterface::InvalidEndpointBehaviour::UseUnscaled
-            };
         };
 
         /// Collection of raw saturation table end points.
