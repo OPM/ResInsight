@@ -1522,6 +1522,9 @@ void RigCaseCellResultsData::testAndComputeSgasForTimeStep(size_t timeStepIndex)
 //--------------------------------------------------------------------------------------------------
 void RigCaseCellResultsData::computeDepthRelatedResults()
 {
+    size_t actCellCount = activeCellInfo()->reservoirActiveCellCount();
+    if (actCellCount == 0) return;
+
     size_t depthResultIndex  = findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, "DEPTH");
     size_t dxResultIndex     = findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, "DX");
     size_t dyResultIndex     = findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, "DY");
