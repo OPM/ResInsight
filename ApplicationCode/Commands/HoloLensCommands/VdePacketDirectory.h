@@ -18,15 +18,12 @@
 
 #pragma once
 
-#include "VdeVizDataExtractor.h"
+#include "VdeArrayDataPacket.h"
 
-#include <QString>
+#include <QByteArray>
 
-class VdeArrayDataPacket;
-class VdePacketDirectory;
-
-class RimGridView;
-
+#include <map>
+#include <memory>
 
 
 //==================================================================================================
@@ -34,19 +31,20 @@ class RimGridView;
 //
 //
 //==================================================================================================
-class VdeFileExporter
+class VdePacketDirectory
 {
 public:
-    VdeFileExporter(QString absOutputFolder);
+    VdePacketDirectory();
 
-    bool exportToFile(const QString& modelMetaJsonStr, const VdePacketDirectory& packetDirectory, const std::vector<int>& packetIdsToExport);
-    bool exportViewContents(const RimGridView& view);
+    void                        addPacket(const VdeArrayDataPacket& packet);
+    const VdeArrayDataPacket*   lookupPacket(int arrayId) const;
+    void                        clear();
+
+    bool                        getPacketsAsCombinedBuffer(const std::vector<int>& packetIdsToGet, QByteArray* combinedPacketArr) const;
 
 private:
-    static bool writeModelMetaJsonFile(const QString& modelMetaJsonStr, QString fileName);
-    bool        writeDataPacketToFile(int arrayId, const VdeArrayDataPacket& packet) const;
-
-private:
-    QString  m_absOutputFolder;
-
+    typedef std::map<int, std::unique_ptr<VdeArrayDataPacket>>  IdToPacketMap_T;
+    
+    IdToPacketMap_T   m_idToPacketMap;
 };
+

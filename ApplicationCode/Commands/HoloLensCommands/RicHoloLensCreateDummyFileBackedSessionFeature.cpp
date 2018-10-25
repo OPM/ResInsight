@@ -18,7 +18,7 @@
 
 #include "RicHoloLensCreateDummyFileBackedSessionFeature.h"
 
-#include "RicHoloLensSession.h"
+#include "RicHoloLensSessionManager.h"
 
 #include "RiaQIconTools.h"
 
@@ -31,7 +31,7 @@ CAF_CMD_SOURCE_INIT(RicHoloLensCreateDummyFiledBackedSessionFeature, "RicHoloLen
 //--------------------------------------------------------------------------------------------------
 bool RicHoloLensCreateDummyFiledBackedSessionFeature::isCommandEnabled()
 {
-    return !RicHoloLensSession::instance()->isSessionValid();
+    return RicHoloLensSessionManager::instance()->session() ? false : true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -39,9 +39,9 @@ bool RicHoloLensCreateDummyFiledBackedSessionFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicHoloLensCreateDummyFiledBackedSessionFeature::onActionTriggered(bool isChecked)
 {
-    RicHoloLensSession::instance()->createDummyFileBackedSession();
+    RicHoloLensSessionManager::instance()->createDummyFileBackedSession();
     
-    RicHoloLensSession::refreshToolbarState();
+    RicHoloLensSessionManager::refreshToolbarState();
 }
 
 //--------------------------------------------------------------------------------------------------

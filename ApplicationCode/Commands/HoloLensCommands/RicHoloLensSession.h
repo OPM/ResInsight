@@ -18,32 +18,54 @@
 
 #pragma once
 
+#include "RicHoloLensRestClient.h"
+
+#include "VdePacketDirectory.h"
+
 #include <QString>
+#include <QPointer>
+
+#include <vector>
 
 class RimGridView;
 
+
+
 //==================================================================================================
-///
+//
+//
+//
 //==================================================================================================
-class RicHoloLensSession
+class RicHoloLensSession : public QObject, private RicHoloLensRestResponseHandler
 {
 public:
-    RicHoloLensSession();
+    ~RicHoloLensSession();
 
-    static RicHoloLensSession* instance();
+    static RicHoloLensSession*  createSession(const QString& serverUrl, const QString& sessionName);
+    static RicHoloLensSession*  createDummyFileBackedSession();
+    void                        destroySession();
 
-    bool createSession(const QString& serverUrl, const QString& sessionName, const QString& sessionPinCode);
-    bool createDummyFileBackedSession();
+    bool                        isSessionValid() const;
 
-    bool isSessionValid() const;
-    bool isFileBackedSessionValid() const;
-
-    void updateSessionDataFromView(RimGridView* activeView);
-    void terminateSession();
-
-    static void refreshToolbarState();
+    void                        updateSessionDataFromView(const RimGridView& activeView);
 
 private:
-    bool m_isSessionValid;
-    bool m_isIsFileBackedSessionValid;
+    RicHoloLensSession();
+
+    virtual void    handleSuccessfulCreateSession() override;
+    virtual void    handleSuccessfulSendMetaData(int metaDataSequenceNumber) override;
+    virtual void    handleError(const QString& errMsg, const QString& url, const QString& serverData) override;
+
+private:
+    bool                            m_isSessionValid;
+    QPointer<RicHoloLensRestClient> m_restClient;
+
+    int                             m_lastExtractionMetaDataSequenceNumber;
+    std::vector<int>                m_lastExtractionAllReferencedPacketIdsArr;
+    VdePacketDirectory              m_packetDirectory;
+
+    bool                            m_dbgEnableFileExport;
 };
+
+
+

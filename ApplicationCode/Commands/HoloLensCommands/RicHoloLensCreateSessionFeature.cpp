@@ -22,7 +22,7 @@
 
 #include "RicHoloLensCreateSessionUi.h"
 #include "RicHoloLensServerSettings.h"
-#include "RicHoloLensSession.h"
+#include "RicHoloLensSessionManager.h"
 
 #include "cafPdmSettings.h"
 #include "cafPdmUiPropertyViewDialog.h"
@@ -37,7 +37,7 @@ CAF_CMD_SOURCE_INIT(RicHoloLensCreateSessionFeature, "RicHoloLensCreateSessionFe
 //--------------------------------------------------------------------------------------------------
 bool RicHoloLensCreateSessionFeature::isCommandEnabled()
 {
-    return !RicHoloLensSession::instance()->isSessionValid();
+    return RicHoloLensSessionManager::instance()->session() ? false : true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -60,10 +60,10 @@ void RicHoloLensCreateSessionFeature::onActionTriggered(bool isChecked)
 
     propertyDialog.exec();
 
-    RicHoloLensSession::instance()->createSession(
+    RicHoloLensSessionManager::instance()->createSession(
         createSessionUi.serverUrl(), createSessionUi.sessionName(), createSessionUi.sessionPinCode());
 
-    RicHoloLensSession::refreshToolbarState();
+    RicHoloLensSessionManager::refreshToolbarState();
 
 }
 

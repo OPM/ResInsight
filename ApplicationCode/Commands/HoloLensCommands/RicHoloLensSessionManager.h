@@ -18,14 +18,11 @@
 
 #pragma once
 
-#include "VdeVizDataExtractor.h"
+#include "RicHoloLensRestClient.h"
 
-#include <QString>
+#include <QPointer>
 
-class VdeArrayDataPacket;
-class VdePacketDirectory;
-
-class RimGridView;
+class RicHoloLensSession;
 
 
 
@@ -34,19 +31,23 @@ class RimGridView;
 //
 //
 //==================================================================================================
-class VdeFileExporter
+class RicHoloLensSessionManager
 {
 public:
-    VdeFileExporter(QString absOutputFolder);
+    static RicHoloLensSessionManager* instance();
 
-    bool exportToFile(const QString& modelMetaJsonStr, const VdePacketDirectory& packetDirectory, const std::vector<int>& packetIdsToExport);
-    bool exportViewContents(const RimGridView& view);
+    bool                createSession(const QString& serverUrl, const QString& sessionName, const QString& sessionPinCode);
+    bool                createDummyFileBackedSession();
+    void                terminateSession();
+
+    RicHoloLensSession* session();
+
+    static void         refreshToolbarState();
 
 private:
-    static bool writeModelMetaJsonFile(const QString& modelMetaJsonStr, QString fileName);
-    bool        writeDataPacketToFile(int arrayId, const VdeArrayDataPacket& packet) const;
+    RicHoloLensSessionManager();
 
 private:
-    QString  m_absOutputFolder;
-
+    QPointer<RicHoloLensSession>  m_session;
 };
+

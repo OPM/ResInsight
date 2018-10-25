@@ -17,13 +17,12 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RicHoloLensExportToSharingServerFeature.h"
-
+#include "RicHoloLensSessionManager.h"
 #include "RicHoloLensSession.h"
-
-#include "VdeFileExporter.h"
 
 #include "RiaApplication.h"
 #include "RiaQIconTools.h"
+#include "RiaLogging.h"
 
 #include "RimGridView.h"
 
@@ -36,7 +35,15 @@ CAF_CMD_SOURCE_INIT(RicHoloLensExportToSharingServerFeature, "RicHoloLensExportT
 //--------------------------------------------------------------------------------------------------
 bool RicHoloLensExportToSharingServerFeature::isCommandEnabled()
 {
-    return RicHoloLensSession::instance()->isSessionValid();
+    RicHoloLensSession* session = RicHoloLensSessionManager::instance()->session();
+    if (session && session->isSessionValid())
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -44,12 +51,22 @@ bool RicHoloLensExportToSharingServerFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicHoloLensExportToSharingServerFeature::onActionTriggered(bool isChecked)
 {
+    RicHoloLensSession* session = RicHoloLensSessionManager::instance()->session();
+    if (!session || !session->isSessionValid())
+    {
+        RiaLogging::error("No valid HoloLens session present");
+        return;
+    }
+
     RimGridView* activeView = RiaApplication::instance()->activeGridView();
+    if (!activeView)
+    {
+        RiaLogging::error("No active view");
+        return;
+    }
 
-    if (!activeView) return;
 
-    VdeFileExporter exporter("dummypath");
-    exporter.exportViewContents(*activeView);
+    session->updateSessionDataFromView(*activeView);
 }
 
 //--------------------------------------------------------------------------------------------------

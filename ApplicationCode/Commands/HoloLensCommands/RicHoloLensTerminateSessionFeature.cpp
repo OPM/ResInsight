@@ -18,7 +18,7 @@
 
 #include "RicHoloLensTerminateSessionFeature.h"
 
-#include "RicHoloLensSession.h"
+#include "RicHoloLensSessionManager.h"
 
 #include "RiaLogging.h"
 #include "RiaQIconTools.h"
@@ -32,7 +32,7 @@ CAF_CMD_SOURCE_INIT(RicHoloLensTerminateSessionFeature, "RicHoloLensTerminateSes
 //--------------------------------------------------------------------------------------------------
 bool RicHoloLensTerminateSessionFeature::isCommandEnabled()
 {
-    return RicHoloLensSession::instance()->isSessionValid();
+    return RicHoloLensSessionManager::instance()->session() ? true : false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -40,9 +40,9 @@ bool RicHoloLensTerminateSessionFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicHoloLensTerminateSessionFeature::onActionTriggered(bool isChecked)
 {
-    RicHoloLensSession::instance()->terminateSession();
+    RicHoloLensSessionManager::instance()->terminateSession();
 
-    RicHoloLensSession::refreshToolbarState();
+    RicHoloLensSessionManager::refreshToolbarState();
 }
 
 //--------------------------------------------------------------------------------------------------

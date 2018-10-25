@@ -17,64 +17,99 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RicHoloLensSession.h"
+#include "RicHoloLensSessionManager.h"
 
 #include "RiaLogging.h"
+#include "RiaPreferences.h"
 
-#include "cafCmdFeatureManager.h"
+#include "VdeVizDataExtractor.h"
+#include "VdeFileExporter.h"
+#include "VdePacketDirectory.h"
+#include "VdeArrayDataPacket.h"
+
+#include "cvfAssert.h"
+
+#include <QDir>
+
+
+
+//==================================================================================================
+//
+//
+//
+//==================================================================================================
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RicHoloLensSession::RicHoloLensSession()
-    : m_isSessionValid(false)
-    , m_isIsFileBackedSessionValid(false)
+:   m_isSessionValid(false),
+    m_lastExtractionMetaDataSequenceNumber(-1),
+    m_dbgEnableFileExport(false)
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicHoloLensSession* RicHoloLensSession::instance()
+RicHoloLensSession::~RicHoloLensSession()
 {
-    static RicHoloLensSession theInstance;
-
-    return &theInstance;
+    destroySession();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicHoloLensSession::createSession(const QString& serverUrl, const QString& sessionName, const QString& sessionPinCode)
+RicHoloLensSession* RicHoloLensSession::createSession(const QString& serverUrl, const QString& sessionName)
 {
-    if (isSessionValid())
+    RicHoloLensSession* newSession = new RicHoloLensSession;
+
+    newSession->m_restClient = new RicHoloLensRestClient(serverUrl, sessionName, newSession);
+    newSession->m_restClient->createSession();
+
+    // For now, leave this on!!!
+    // We probably want to export this as a preference parameter
+    newSession->m_dbgEnableFileExport = true;
+
+    return newSession;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RicHoloLensSession* RicHoloLensSession::createDummyFileBackedSession()
+{
+    RicHoloLensSession* newSession = new RicHoloLensSession;
+
+    newSession->m_isSessionValid = true;
+
+    newSession->m_dbgEnableFileExport = true;
+
+    return newSession;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicHoloLensSession::destroySession()
+{
+    if (m_restClient)
     {
-        RiaLogging::error("Terminate existing session before creating a new session");
-        
-        return false;
+        if (m_isSessionValid)
+        {
+            m_restClient->deleteSession();
+        }
+
+        m_restClient->clearResponseHandler();
+        m_restClient->deleteLater();
+        m_restClient = nullptr;
     }
 
-    RiaLogging::info("url : " + serverUrl + " name : " + sessionName + " pinCode : " + sessionPinCode);
+    m_isSessionValid = false;
 
-    m_isSessionValid = true;
-
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RicHoloLensSession::createDummyFileBackedSession()
-{
-    if (isSessionValid())
-    {
-        RiaLogging::error("Terminate existing session before creating a new session");
-
-        return false;
-    }
-
-    m_isIsFileBackedSessionValid = true;
-
-    return true;
+    m_lastExtractionMetaDataSequenceNumber = -1;
+    m_lastExtractionAllReferencedPacketIdsArr.clear();
+    m_packetDirectory.clear();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -82,50 +117,117 @@ bool RicHoloLensSession::createDummyFileBackedSession()
 //--------------------------------------------------------------------------------------------------
 bool RicHoloLensSession::isSessionValid() const
 {
-    if (m_isIsFileBackedSessionValid) return true;
-
     return m_isSessionValid;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-bool RicHoloLensSession::isFileBackedSessionValid() const
-{
-    return m_isIsFileBackedSessionValid;
-}
-
-//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicHoloLensSession::updateSessionDataFromView(RimGridView* activeView)
+void RicHoloLensSession::updateSessionDataFromView(const RimGridView& activeView)
 {
-    RiaLogging::info("HoloLens : updateSessionDataFromView");
-}
+    RiaLogging::info("HoloLens: Updating visualization data");
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RicHoloLensSession::terminateSession()
-{
-    if (!isSessionValid()) return;
+    QString modelMetaJsonStr;
+    std::vector<int> allReferencedPacketIds;
+    m_packetDirectory.clear();
 
-    RiaLogging::info("Terminating HoloLens Session");
+    VdeVizDataExtractor extractor(activeView);
+    extractor.extractViewContents(&modelMetaJsonStr, &allReferencedPacketIds, &m_packetDirectory);
 
-    m_isIsFileBackedSessionValid = false;
-    m_isSessionValid = false;
+    m_lastExtractionMetaDataSequenceNumber++;
+    m_lastExtractionAllReferencedPacketIdsArr = allReferencedPacketIds;
+
+    if (m_restClient)
+    {
+        RiaLogging::info(QString("HoloLens: Sending updated meta data to sharing server (sequenceNumber=%1)").arg(m_lastExtractionMetaDataSequenceNumber));
+        m_restClient->sendMetaData(m_lastExtractionMetaDataSequenceNumber, modelMetaJsonStr);
+    }
+
+    // Debug export to file
+    if (m_dbgEnableFileExport)
+    {
+        const QString folderName = RiaApplication::instance()->preferences()->holoLensExportFolder();
+        if (folderName.isEmpty())
+        {
+            RiaLogging::warning("HoloLens: Debug export to file enabled, but no export folder has been set");
+            return;
+        }
+
+        const QDir outputDir(folderName);
+        const QString absOutputFolder = outputDir.absolutePath();
+
+        if (!outputDir.mkpath("."))
+        {
+            RiaLogging::error(QString("HoloLens: Could not create debug file export folder: %1").arg(absOutputFolder));
+            return;
+        }
+
+        RiaLogging::info(QString("HoloLens: Doing debug export of data to folder: %1").arg(absOutputFolder));
+        VdeFileExporter fileExporter(absOutputFolder);
+        if (!fileExporter.exportToFile(modelMetaJsonStr, m_packetDirectory, allReferencedPacketIds))
+        {
+            RiaLogging::error("HoloLens: Error exporting debug data to folder");
+        }
+
+        RiaLogging::info("HoloLens: Done exporting debug data");
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicHoloLensSession::refreshToolbarState()
+void RicHoloLensSession::handleSuccessfulCreateSession()
 {
-    QStringList commandIds;
+    RiaLogging::info("HoloLens: Session successfully created");
+    m_isSessionValid = true;
 
-    commandIds << "RicHoloLensCreateSessionFeature";
-    commandIds << "RicHoloLensExportToSharingServerFeature";
-    commandIds << "RicHoloLensTerminateSessionFeature";
-
-    caf::CmdFeatureManager::instance()->refreshEnabledState(commandIds);
+    // Slight hack here - reaching out to the manager to update GUI
+    // We should really just be notifying the manager that our state has changed
+    RicHoloLensSessionManager::refreshToolbarState();
 }
+
+//--------------------------------------------------------------------------------------------------
+/// Handle the server response we receive after sending new meta data
+//--------------------------------------------------------------------------------------------------
+void RicHoloLensSession::handleSuccessfulSendMetaData(int metaDataSequenceNumber)
+{
+    RiaLogging::info(QString("HoloLens: Processing server response to meta data (sequenceNumber=%1)").arg(metaDataSequenceNumber));
+
+    if (m_lastExtractionMetaDataSequenceNumber != metaDataSequenceNumber)
+    {
+        RiaLogging::warning(QString("HoloLens: Ignoring server response, the sequenceNumber(%1) has been superseded").arg(metaDataSequenceNumber));
+        return;
+    }
+
+    if (m_lastExtractionAllReferencedPacketIdsArr.size() > 0)
+    {
+        QByteArray combinedPacketArr;
+        if (!m_packetDirectory.getPacketsAsCombinedBuffer(m_lastExtractionAllReferencedPacketIdsArr, &combinedPacketArr))
+        {
+            RiaLogging::warning("HoloLens: Error gathering the requested packets, no data will be sent");
+            return;
+        }
+
+        RiaLogging::info(QString("HoloLens: Sending new data to sharing server (%1 packets)").arg(m_lastExtractionAllReferencedPacketIdsArr.size()));
+
+        m_restClient->sendBinaryData(combinedPacketArr);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicHoloLensSession::handleError(const QString& errMsg, const QString& url, const QString& serverData)
+{
+    QString fullMsg = "HoloLens communication error: " + errMsg;
+
+    if (!serverData.isEmpty())
+    {
+        fullMsg += "\n    serverMsg: " + serverData;
+    }
+
+    fullMsg += "\n    url: " + url;
+
+    RiaLogging::error(fullMsg);
+}
+
