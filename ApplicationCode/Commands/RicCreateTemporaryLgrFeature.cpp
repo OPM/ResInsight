@@ -48,6 +48,7 @@
 #include "RimWellPathCompletions.h"
 
 #include "RiuPlotMainWindow.h"
+#include "RiuSelectionManager.h"
 
 #include <QAction>
 #include <QDir>
@@ -145,9 +146,14 @@ void RicCreateTemporaryLgrFeature::onActionTriggered(bool isChecked)
             }
         }
 
+        RiuSelectionManager::instance()->deleteAllItems(RiuSelectionManager::RUI_APPLICATION_GLOBAL);
+        RiuSelectionManager::instance()->deleteAllItems(RiuSelectionManager::RUI_TEMPORARY);
+        caf::SelectionManager::instance()->clearAll();
+
         deleteAllCachedData(eclipseCase);
         RiaApplication::instance()->project()->mainPlotCollection()->deleteAllCachedData();
         computeCachedData(eclipseCase);
+
         RiaApplication::instance()->project()->mainPlotCollection()->wellLogPlotCollection()->reloadAllPlots();
 
         for (const auto& v : eclipseCase->views())
