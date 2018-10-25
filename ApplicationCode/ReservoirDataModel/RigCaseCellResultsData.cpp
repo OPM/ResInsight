@@ -1522,12 +1522,12 @@ void RigCaseCellResultsData::testAndComputeSgasForTimeStep(size_t timeStepIndex)
 //--------------------------------------------------------------------------------------------------
 void RigCaseCellResultsData::computeDepthRelatedResults()
 {
-    size_t depthResultGridIndex  = findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, "DEPTH");
-    size_t dxResultGridIndex     = findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, "DX");
-    size_t dyResultGridIndex     = findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, "DY");
-    size_t dzResultGridIndex     = findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, "DZ");
-    size_t topsResultGridIndex   = findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, "TOPS");
-    size_t bottomResultGridIndex = findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, "BOTTOM");
+    size_t depthResultIndex  = findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, "DEPTH");
+    size_t dxResultIndex     = findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, "DX");
+    size_t dyResultIndex     = findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, "DY");
+    size_t dzResultIndex     = findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, "DZ");
+    size_t topsResultIndex   = findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, "TOPS");
+    size_t bottomResultIndex = findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, "BOTTOM");
 
     bool computeDepth  = false;
     bool computeDx     = false;
@@ -1536,54 +1536,53 @@ void RigCaseCellResultsData::computeDepthRelatedResults()
     bool computeTops   = false;
     bool computeBottom = false;
 
-    size_t resultValueCount = m_ownerMainGrid->globalCellArray().size();
+    size_t actCellCount = activeCellInfo()->reservoirActiveCellCount();
 
-    if (depthResultGridIndex == cvf::UNDEFINED_SIZE_T)
+    if (depthResultIndex == cvf::UNDEFINED_SIZE_T)
     {
-        depthResultGridIndex = this->addStaticScalarResult(RiaDefines::STATIC_NATIVE, "DEPTH", false, resultValueCount);
-        computeDepth         = true;
+        depthResultIndex = this->addStaticScalarResult(RiaDefines::STATIC_NATIVE, "DEPTH", false, actCellCount);
+        computeDepth     = true;
     }
 
-    if (dxResultGridIndex == cvf::UNDEFINED_SIZE_T)
+    if (dxResultIndex == cvf::UNDEFINED_SIZE_T)
     {
-        dxResultGridIndex = this->addStaticScalarResult(RiaDefines::STATIC_NATIVE, "DX", false, resultValueCount);
-        computeDx         = true;
+        dxResultIndex = this->addStaticScalarResult(RiaDefines::STATIC_NATIVE, "DX", false, actCellCount);
+        computeDx     = true;
     }
 
-    if (dyResultGridIndex == cvf::UNDEFINED_SIZE_T)
+    if (dyResultIndex == cvf::UNDEFINED_SIZE_T)
     {
-        dyResultGridIndex = this->addStaticScalarResult(RiaDefines::STATIC_NATIVE, "DY", false, resultValueCount);
-        computeDy         = true;
+        dyResultIndex = this->addStaticScalarResult(RiaDefines::STATIC_NATIVE, "DY", false, actCellCount);
+        computeDy     = true;
     }
 
-    if (dzResultGridIndex == cvf::UNDEFINED_SIZE_T)
+    if (dzResultIndex == cvf::UNDEFINED_SIZE_T)
     {
-        dzResultGridIndex = this->addStaticScalarResult(RiaDefines::STATIC_NATIVE, "DZ", false, resultValueCount);
-        computeDz         = true;
+        dzResultIndex = this->addStaticScalarResult(RiaDefines::STATIC_NATIVE, "DZ", false, actCellCount);
+        computeDz     = true;
     }
 
-    if (topsResultGridIndex == cvf::UNDEFINED_SIZE_T)
+    if (topsResultIndex == cvf::UNDEFINED_SIZE_T)
     {
-        topsResultGridIndex = this->addStaticScalarResult(RiaDefines::STATIC_NATIVE, "TOPS", false, resultValueCount);
-        computeTops         = true;
+        topsResultIndex = this->addStaticScalarResult(RiaDefines::STATIC_NATIVE, "TOPS", false, actCellCount);
+        computeTops     = true;
     }
 
-    if (bottomResultGridIndex == cvf::UNDEFINED_SIZE_T)
+    if (bottomResultIndex == cvf::UNDEFINED_SIZE_T)
     {
-        bottomResultGridIndex = this->addStaticScalarResult(RiaDefines::STATIC_NATIVE, "BOTTOM", false, resultValueCount);
-        computeBottom         = true;
+        bottomResultIndex = this->addStaticScalarResult(RiaDefines::STATIC_NATIVE, "BOTTOM", false, actCellCount);
+        computeBottom     = true;
     }
 
-    std::vector<std::vector<double>>& depth  = this->cellScalarResults(depthResultGridIndex);
-    std::vector<std::vector<double>>& dx     = this->cellScalarResults(dxResultGridIndex);
-    std::vector<std::vector<double>>& dy     = this->cellScalarResults(dyResultGridIndex);
-    std::vector<std::vector<double>>& dz     = this->cellScalarResults(dzResultGridIndex);
-    std::vector<std::vector<double>>& tops   = this->cellScalarResults(topsResultGridIndex);
-    std::vector<std::vector<double>>& bottom = this->cellScalarResults(bottomResultGridIndex);
+    std::vector<std::vector<double>>& depth  = this->cellScalarResults(depthResultIndex);
+    std::vector<std::vector<double>>& dx     = this->cellScalarResults(dxResultIndex);
+    std::vector<std::vector<double>>& dy     = this->cellScalarResults(dyResultIndex);
+    std::vector<std::vector<double>>& dz     = this->cellScalarResults(dzResultIndex);
+    std::vector<std::vector<double>>& tops   = this->cellScalarResults(topsResultIndex);
+    std::vector<std::vector<double>>& bottom = this->cellScalarResults(bottomResultIndex);
 
     // Make sure the size is at least active cells
     {
-        size_t actCellCount = activeCellInfo()->reservoirActiveCellCount();
         if (depth[0].size() < actCellCount) depth[0].resize(actCellCount, std::numeric_limits<double>::max());
         if (dx[0].size() < actCellCount) dx[0].resize(actCellCount, std::numeric_limits<double>::max());
         if (dy[0].size() < actCellCount) dy[0].resize(actCellCount, std::numeric_limits<double>::max());
@@ -1592,82 +1591,33 @@ void RigCaseCellResultsData::computeDepthRelatedResults()
         if (bottom[0].size() < actCellCount) bottom[0].resize(actCellCount, std::numeric_limits<double>::max());
     }
 
-    size_t cellIdx = 0;
-    for (cellIdx = 0; cellIdx < m_ownerMainGrid->globalCellArray().size(); cellIdx++)
+    for (size_t cellIdx = 0; cellIdx < m_ownerMainGrid->globalCellArray().size(); cellIdx++)
     {
         const RigCell& cell = m_ownerMainGrid->globalCellArray()[cellIdx];
 
-        bool isTemporaryGrid = cell.hostGrid()->isTempGrid();
-        if (isTemporaryGrid)
-        {
-            size_t resultIndex = activeCellInfo()->cellResultIndex(cellIdx);
-            if (resultIndex == cvf::UNDEFINED_SIZE_T) continue;
+        size_t resultIndex = activeCellInfo()->cellResultIndex(cellIdx);
+        if (resultIndex == cvf::UNDEFINED_SIZE_T) continue;
 
-            {
-                depth[0][resultIndex] = cvf::Math::abs(cell.center().z());
-            }
+        depth[0][resultIndex]  = cvf::Math::abs(cell.center().z());
+        tops[0][resultIndex]   = cvf::Math::abs(cell.faceCenter(cvf::StructGridInterface::NEG_K).z());
+        bottom[0][resultIndex] = cvf::Math::abs(cell.faceCenter(cvf::StructGridInterface::POS_K).z());
 
-            {
-                cvf::Vec3d cellWidth =
-                    cell.faceCenter(cvf::StructGridInterface::NEG_I) - cell.faceCenter(cvf::StructGridInterface::POS_I);
-                dx[0][resultIndex] = cellWidth.length();
-            }
-
-            {
-                cvf::Vec3d cellWidth =
-                    cell.faceCenter(cvf::StructGridInterface::NEG_J) - cell.faceCenter(cvf::StructGridInterface::POS_J);
-                dy[0][resultIndex] = cellWidth.length();
-            }
-
-            {
-                cvf::Vec3d cellWidth =
-                    cell.faceCenter(cvf::StructGridInterface::NEG_K) - cell.faceCenter(cvf::StructGridInterface::POS_K);
-                dz[0][resultIndex] = cellWidth.length();
-            }
-
-            {
-                tops[0][resultIndex] = cvf::Math::abs(cell.faceCenter(cvf::StructGridInterface::NEG_K).z());
-            }
-
-            {
-                bottom[0][resultIndex] = cvf::Math::abs(cell.faceCenter(cvf::StructGridInterface::POS_K).z());
-            }
-        }
-
-        if (computeDepth)
-        {
-            depth[0][cellIdx] = cvf::Math::abs(cell.center().z());
-        }
-
-        if (computeDx)
         {
             cvf::Vec3d cellWidth =
                 cell.faceCenter(cvf::StructGridInterface::NEG_I) - cell.faceCenter(cvf::StructGridInterface::POS_I);
-            dx[0][cellIdx] = cellWidth.length();
+            dx[0][resultIndex] = cellWidth.length();
         }
 
-        if (computeDy)
         {
             cvf::Vec3d cellWidth =
                 cell.faceCenter(cvf::StructGridInterface::NEG_J) - cell.faceCenter(cvf::StructGridInterface::POS_J);
-            dy[0][cellIdx] = cellWidth.length();
+            dy[0][resultIndex] = cellWidth.length();
         }
 
-        if (computeDz)
         {
             cvf::Vec3d cellWidth =
                 cell.faceCenter(cvf::StructGridInterface::NEG_K) - cell.faceCenter(cvf::StructGridInterface::POS_K);
-            dz[0][cellIdx] = cellWidth.length();
-        }
-
-        if (computeTops)
-        {
-            tops[0][cellIdx] = cvf::Math::abs(cell.faceCenter(cvf::StructGridInterface::NEG_K).z());
-        }
-
-        if (computeBottom)
-        {
-            bottom[0][cellIdx] = cvf::Math::abs(cell.faceCenter(cvf::StructGridInterface::POS_K).z());
+            dz[0][resultIndex] = cellWidth.length();
         }
     }
 }
