@@ -143,7 +143,15 @@ void RicCreateTemporaryLgrFeature::onActionTriggered(bool isChecked)
         computeCachedData(eclipseCase);
         RiaApplication::instance()->project()->mainPlotCollection()->wellLogPlotCollection()->reloadAllPlots();
 
-        RiaCompletionTypeCalculationScheduler::instance()->scheduleRecalculateCompletionTypeAndRedrawAllViews(eclipseCase);
+        for (const auto& v : eclipseCase->views())
+        {
+            RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>(v);
+            if (eclipseView)
+            {
+                eclipseView->scheduleReservoirGridGeometryRegen();
+                eclipseView->scheduleCreateDisplayModelAndRedraw();
+            }
+        }
 
         if (intersectsExistingLgr)
         {
@@ -272,6 +280,7 @@ void RicCreateTemporaryLgrFeature::deleteAllCachedData(RimEclipseCase* eclipseCa
         if (eclipseCaseData)
         {
             eclipseCaseData->clearWellCellsInGridCache();
+            eclipseCaseData->setVirtualPerforationTransmissibilities(nullptr);
         }
     }
 }
