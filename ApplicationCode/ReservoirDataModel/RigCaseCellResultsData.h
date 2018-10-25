@@ -158,7 +158,7 @@ private: // from RimReservoirCellResultsStorage
 
     bool                                               isDataPresent(size_t scalarResultIndex) const;
 
-    void                                               assignValuesToTemporaryLgrs(std::vector<double>& values);
+    void                                               assignValuesToTemporaryLgrs(const QString& resultName, std::vector<double>& values);
 
     cvf::ref<RifReaderInterface>                       m_readerInterface;
 

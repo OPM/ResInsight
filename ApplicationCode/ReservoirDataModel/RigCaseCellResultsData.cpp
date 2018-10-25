@@ -41,6 +41,7 @@
 
 #include <QDateTime>
 
+#include <algorithm>
 #include <math.h>
 
 //--------------------------------------------------------------------------------------------------
@@ -1174,9 +1175,9 @@ size_t RigCaseCellResultsData::findOrLoadScalarResult(RiaDefines::ResultCatType 
                 {
                     if (!values.empty())
                     {
-                        values.resize(values.size() + tempGridCellCount);
+                        values.resize(values.size() + tempGridCellCount, std::numeric_limits<double>::max());
 
-                        assignValuesToTemporaryLgrs(values);
+                        assignValuesToTemporaryLgrs(resultName, values);
                     }
                 }
             }
@@ -1194,9 +1195,9 @@ size_t RigCaseCellResultsData::findOrLoadScalarResult(RiaDefines::ResultCatType 
             {
                 if (!values.empty())
                 {
-                    values.resize(values.size() + tempGridCellCount);
+                    values.resize(values.size() + tempGridCellCount, std::numeric_limits<double>::max());
 
-                    assignValuesToTemporaryLgrs(values);
+                    assignValuesToTemporaryLgrs(resultName, values);
                 }
             }
         }
@@ -1539,8 +1540,6 @@ void RigCaseCellResultsData::computeDepthRelatedResults()
     bool computeTops   = false;
     bool computeBottom = false;
 
-    size_t actCellCount = activeCellInfo()->reservoirActiveCellCount();
-
     if (depthResultIndex == cvf::UNDEFINED_SIZE_T)
     {
         depthResultIndex = this->addStaticScalarResult(RiaDefines::STATIC_NATIVE, "DEPTH", false, actCellCount);
@@ -1629,7 +1628,7 @@ void RigCaseCellResultsData::computeDepthRelatedResults()
 
         size_t resultIndex = activeCellInfo()->cellResultIndex(cellIdx);
         if (resultIndex == cvf::UNDEFINED_SIZE_T) continue;
-        
+
         bool isTemporaryGrid = cell.hostGrid()->isTempGrid();
 
         if (computeDepth || isTemporaryGrid)
@@ -2509,9 +2508,23 @@ bool RigCaseCellResultsData::isDataPresent(size_t scalarResultIndex) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigCaseCellResultsData::assignValuesToTemporaryLgrs(std::vector<double>& valuesForAllReservoirCells)
+void RigCaseCellResultsData::assignValuesToTemporaryLgrs(const QString&       resultName,
+                                                         std::vector<double>& valuesForAllReservoirCells)
 {
     CVF_ASSERT(m_activeCellInfo);
+
+    static std::vector<QString> excludedProperties = {
+        "MOBPROV",  "PORV",     "FIPOIL",   "FIPGAS",   "FIPWAT",   "FLROILI+", "FLROILJ+", "FLROILK+", "FLRGASI+",
+        "FLRGASJ+", "FLRGASK+", "FLRWATI+", "FLRWATJ+", "FLRWATK+", "FLOOILI+", "FLOWATI+", "FLOGASI+", "FLOOILJ+",
+        "FLOWATJ+", "FLOGASJ+", "FLOOILK+", "FLOWATK+", "FLOGASK+", "SFIPGAS",  "SFIPOIL",  "SFIPWAT",  "AREAX",
+        "AREAY",    "AREAZ",    "DIFFX",    "DIFFY",    "DIFFZ",    "DZNET",    "HEATTX",   "HEATTY",   "HEATTZ",
+        "LX",       "LY",       "LZ",       "MINPVV",   "TRANX",    "TRANY",    "TRANZ",
+    };
+
+    if (std::find(excludedProperties.begin(), excludedProperties.end(), resultName) != excludedProperties.end())
+    {
+        return;
+    }
 
     for (size_t gridIdx = 0; gridIdx < m_ownerMainGrid->gridCount(); gridIdx++)
     {
