@@ -149,7 +149,7 @@ void RicCreateTemporaryLgrFeature::onActionTriggered(bool isChecked)
             if (eclipseView)
             {
                 eclipseView->scheduleReservoirGridGeometryRegen();
-                eclipseView->scheduleCreateDisplayModelAndRedraw();
+                eclipseView->loadDataAndUpdate();
             }
         }
 
