@@ -100,6 +100,7 @@ void RimCellEdgeColors::setReservoirView(RimEclipseView* ownerReservoirView)
 //--------------------------------------------------------------------------------------------------
 void RimCellEdgeColors::loadResult()
 {
+    if (!enableCellEdgeColors) return;
     if (!m_reservoirView->currentGridCellResults()) return;
 
     if (isUsingSingleVariable())
