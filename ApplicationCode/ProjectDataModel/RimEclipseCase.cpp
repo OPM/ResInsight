@@ -272,7 +272,7 @@ RimEclipseView* RimEclipseCase::createAndAddReservoirView()
         rimEclipseView->hasUserRequestedAnimation = true;
 
         rimEclipseView->cellEdgeResult()->setResultVariable("MULT");
-        rimEclipseView->cellEdgeResult()->enableCellEdgeColors = false;
+        rimEclipseView->cellEdgeResult()->setActive(false);
         rimEclipseView->fractureColors()->setDefaultResultName();
     }
 
@@ -356,7 +356,7 @@ Rim2dEclipseView* RimEclipseCase::create2dContourMap()
         contourMap->hasUserRequestedAnimation = true;
 
         contourMap->cellEdgeResult()->setResultVariable("MULT");
-        contourMap->cellEdgeResult()->enableCellEdgeColors = false;
+        contourMap->cellEdgeResult()->setActive(false);
         contourMap->fractureColors()->setDefaultResultName();
     }
 

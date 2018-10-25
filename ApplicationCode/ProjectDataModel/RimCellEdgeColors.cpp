@@ -55,7 +55,7 @@ RimCellEdgeColors::RimCellEdgeColors()
 {
     CAF_PDM_InitObject("Cell Edge Result", ":/EdgeResult_1.png", "", "");
 
-    CAF_PDM_InitField(&enableCellEdgeColors, "EnableCellEdgeColors", true, "Enable Cell Edge Results", "", "", "");
+    CAF_PDM_InitField(&m_enableCellEdgeColors, "EnableCellEdgeColors", true, "Enable Cell Edge Results", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_propertyType, "propertyType", "Property Type", "", "", "");
 
@@ -98,7 +98,7 @@ void RimCellEdgeColors::setReservoirView(RimEclipseView* ownerReservoirView)
 //--------------------------------------------------------------------------------------------------
 void RimCellEdgeColors::loadResult()
 {
-    if (!enableCellEdgeColors) return;
+    if (!m_enableCellEdgeColors) return;
     if (!m_reservoirView->currentGridCellResults()) return;
 
     if (isUsingSingleVariable())
@@ -396,7 +396,7 @@ void RimCellEdgeColors::resetResultIndices()
 //--------------------------------------------------------------------------------------------------
 bool RimCellEdgeColors::hasResult() const
 {
-    if (!enableCellEdgeColors()) return false;
+    if (!m_enableCellEdgeColors()) return false;
 
     if (isUsingSingleVariable() && m_singleVarEdgeResultColors->isFlowDiagOrInjectionFlooding())
     {
@@ -571,9 +571,17 @@ QString RimCellEdgeColors::resultVariableUiShortName() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimCellEdgeColors::setActive(bool active)
+{
+    m_enableCellEdgeColors = active;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 caf::PdmFieldHandle* RimCellEdgeColors::objectToggleField()
 {
-   return &enableCellEdgeColors;
+   return &m_enableCellEdgeColors;
 }
 
 //--------------------------------------------------------------------------------------------------
