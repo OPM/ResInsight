@@ -1172,9 +1172,12 @@ size_t RigCaseCellResultsData::findOrLoadScalarResult(RiaDefines::ResultCatType 
                 }
                 else if (tempGridCellCount > 0)
                 {
-                    values.resize(values.size() + tempGridCellCount);
+                    if (!values.empty())
+                    {
+                        values.resize(values.size() + tempGridCellCount);
 
-                    assignValuesToTemporaryLgrs(values);
+                        assignValuesToTemporaryLgrs(values);
+                    }
                 }
             }
         }
@@ -1189,8 +1192,12 @@ size_t RigCaseCellResultsData::findOrLoadScalarResult(RiaDefines::ResultCatType 
             }
             else if (tempGridCellCount > 0)
             {
-                values.resize(values.size() + tempGridCellCount);
-                assignValuesToTemporaryLgrs(values);
+                if (!values.empty())
+                {
+                    values.resize(values.size() + tempGridCellCount);
+
+                    assignValuesToTemporaryLgrs(values);
+                }
             }
         }
 
