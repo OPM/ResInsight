@@ -82,8 +82,6 @@ RimCellEdgeColors::RimCellEdgeColors()
 //--------------------------------------------------------------------------------------------------
 RimCellEdgeColors::~RimCellEdgeColors()
 {
-    delete m_legendConfig();
-    delete m_singleVarEdgeResultColors;
 }
 
 //--------------------------------------------------------------------------------------------------
