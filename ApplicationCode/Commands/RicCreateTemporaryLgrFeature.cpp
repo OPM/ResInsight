@@ -135,7 +135,10 @@ void RicCreateTemporaryLgrFeature::onActionTriggered(bool isChecked)
                     size_t lgrCellCount = lgr.cellCount();
 
                     activeCellInfo->addLgr(lgrCellCount);
-                    fractureActiveCellInfo->addLgr(lgrCellCount);
+                    if (fractureActiveCellInfo->reservoirActiveCellCount() > 0)
+                    {
+                        fractureActiveCellInfo->addLgr(lgrCellCount);
+                    }
                 }
 
                 mainGrid->calculateFaults(activeCellInfo, true);
