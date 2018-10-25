@@ -20,8 +20,6 @@
 
 #pragma once
 
-#include "RifReaderInterface.h"
-
 #include "RiaDefines.h"
 
 #include "cvfCollection.h"
@@ -37,6 +35,7 @@ class RigMainGrid;
 class RigEclipseResultInfo;
 class RigStatisticsDataCache;
 class RigEclipseTimeStepInfo;
+class RigEclipseCaseData;
 
 //==================================================================================================
 /// Class containing the results for the complete number of active cells. Both main grid and LGR's
