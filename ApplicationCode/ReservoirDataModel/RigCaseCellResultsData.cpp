@@ -1175,7 +1175,7 @@ size_t RigCaseCellResultsData::findOrLoadScalarResult(RiaDefines::ResultCatType 
                 {
                     if (!values.empty())
                     {
-                        values.resize(values.size() + tempGridCellCount, std::numeric_limits<double>::max());
+                        values.resize(values.size() + tempGridCellCount, std::numeric_limits<double>::infinity());
 
                         assignValuesToTemporaryLgrs(resultName, values);
                     }
@@ -1195,7 +1195,7 @@ size_t RigCaseCellResultsData::findOrLoadScalarResult(RiaDefines::ResultCatType 
             {
                 if (!values.empty())
                 {
-                    values.resize(values.size() + tempGridCellCount, std::numeric_limits<double>::max());
+                    values.resize(values.size() + tempGridCellCount, std::numeric_limits<double>::infinity());
 
                     assignValuesToTemporaryLgrs(resultName, values);
                 }
