@@ -1581,6 +1581,17 @@ void RigCaseCellResultsData::computeDepthRelatedResults()
     std::vector<std::vector<double>>& tops   = this->cellScalarResults(topsResultGridIndex);
     std::vector<std::vector<double>>& bottom = this->cellScalarResults(bottomResultGridIndex);
 
+    // Make sure the size is at least active cells
+    {
+        size_t actCellCount = activeCellInfo()->reservoirActiveCellCount();
+        if (depth[0].size() < actCellCount) depth[0].resize(actCellCount, std::numeric_limits<double>::max());
+        if (dx[0].size() < actCellCount) dx[0].resize(actCellCount, std::numeric_limits<double>::max());
+        if (dy[0].size() < actCellCount) dy[0].resize(actCellCount, std::numeric_limits<double>::max());
+        if (dz[0].size() < actCellCount) dz[0].resize(actCellCount, std::numeric_limits<double>::max());
+        if (tops[0].size() < actCellCount) tops[0].resize(actCellCount, std::numeric_limits<double>::max());
+        if (bottom[0].size() < actCellCount) bottom[0].resize(actCellCount, std::numeric_limits<double>::max());
+    }
+
     size_t cellIdx = 0;
     for (cellIdx = 0; cellIdx < m_ownerMainGrid->globalCellArray().size(); cellIdx++)
     {
