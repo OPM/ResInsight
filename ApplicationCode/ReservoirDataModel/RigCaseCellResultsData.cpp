@@ -1587,39 +1587,74 @@ void RigCaseCellResultsData::computeDepthRelatedResults()
         const RigCell& cell = m_ownerMainGrid->globalCellArray()[cellIdx];
 
         bool isTemporaryGrid = cell.hostGrid()->isTempGrid();
+        if (isTemporaryGrid)
+        {
+            size_t resultIndex = activeCellInfo()->cellResultIndex(cellIdx);
+            if (resultIndex == cvf::UNDEFINED_SIZE_T) continue;
 
-        if (computeDepth || isTemporaryGrid)
+            {
+                depth[0][resultIndex] = cvf::Math::abs(cell.center().z());
+            }
+
+            {
+                cvf::Vec3d cellWidth =
+                    cell.faceCenter(cvf::StructGridInterface::NEG_I) - cell.faceCenter(cvf::StructGridInterface::POS_I);
+                dx[0][resultIndex] = cellWidth.length();
+            }
+
+            {
+                cvf::Vec3d cellWidth =
+                    cell.faceCenter(cvf::StructGridInterface::NEG_J) - cell.faceCenter(cvf::StructGridInterface::POS_J);
+                dy[0][resultIndex] = cellWidth.length();
+            }
+
+            {
+                cvf::Vec3d cellWidth =
+                    cell.faceCenter(cvf::StructGridInterface::NEG_K) - cell.faceCenter(cvf::StructGridInterface::POS_K);
+                dz[0][resultIndex] = cellWidth.length();
+            }
+
+            {
+                tops[0][resultIndex] = cvf::Math::abs(cell.faceCenter(cvf::StructGridInterface::NEG_K).z());
+            }
+
+            {
+                bottom[0][resultIndex] = cvf::Math::abs(cell.faceCenter(cvf::StructGridInterface::POS_K).z());
+            }
+        }
+
+        if (computeDepth)
         {
             depth[0][cellIdx] = cvf::Math::abs(cell.center().z());
         }
 
-        if (computeDx || isTemporaryGrid)
+        if (computeDx)
         {
             cvf::Vec3d cellWidth =
                 cell.faceCenter(cvf::StructGridInterface::NEG_I) - cell.faceCenter(cvf::StructGridInterface::POS_I);
             dx[0][cellIdx] = cellWidth.length();
         }
 
-        if (computeDy || isTemporaryGrid)
+        if (computeDy)
         {
             cvf::Vec3d cellWidth =
                 cell.faceCenter(cvf::StructGridInterface::NEG_J) - cell.faceCenter(cvf::StructGridInterface::POS_J);
             dy[0][cellIdx] = cellWidth.length();
         }
 
-        if (computeDz || isTemporaryGrid)
+        if (computeDz)
         {
             cvf::Vec3d cellWidth =
                 cell.faceCenter(cvf::StructGridInterface::NEG_K) - cell.faceCenter(cvf::StructGridInterface::POS_K);
             dz[0][cellIdx] = cellWidth.length();
         }
 
-        if (computeTops || isTemporaryGrid)
+        if (computeTops)
         {
             tops[0][cellIdx] = cvf::Math::abs(cell.faceCenter(cvf::StructGridInterface::NEG_K).z());
         }
 
-        if (computeBottom || isTemporaryGrid)
+        if (computeBottom)
         {
             bottom[0][cellIdx] = cvf::Math::abs(cell.faceCenter(cvf::StructGridInterface::POS_K).z());
         }
