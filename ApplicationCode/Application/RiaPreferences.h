@@ -52,6 +52,7 @@ public:
     bool appendFieldKeywordToToolTipText() const;
     bool showTestToolbar() const;
     bool includeFractureDebugInfoFile() const;
+    QString holoLensExportFolder() const;
 
 public: // Pdm Fields
     caf::PdmField<caf::AppEnum< RiaApplication::RINavigationPolicy > > navigationPolicy;
@@ -97,5 +98,6 @@ private:
     caf::PdmField<bool>                    m_appendFieldKeywordToToolTipText;
     caf::PdmField<bool>                    m_showTestToolbar;
     caf::PdmField<bool>                    m_includeFractureDebugInfoFile;
+    caf::PdmField<QString>                 m_holoLensExportFolder;
     QStringList m_tabNames;
 };

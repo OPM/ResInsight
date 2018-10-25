@@ -105,6 +105,10 @@ RiaPreferences::RiaPreferences(void)
     CAF_PDM_InitField(&summaryImportMode, "summaryImportMode", SummaryRestartFilesImportModeType(RiaPreferences::IMPORT), "Default Summary Import Option", "", "", "");
     CAF_PDM_InitField(&gridImportMode, "gridImportMode", SummaryRestartFilesImportModeType(RiaPreferences::NOT_IMPORT), "Default Grid Import Option", "", "", "");
 
+    CAF_PDM_InitFieldNoDefault(&m_holoLensExportFolder, "holoLensExportFolder", "HoloLens Export Folder", "", "", "");
+    m_holoLensExportFolder.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::TOP);
+    m_holoLensExportFolder.uiCapability()->setUiEditorTypeName(caf::PdmUiFilePathEditor::uiEditorTypeName());
+
     CAF_PDM_InitFieldNoDefault(&m_readerSettings,        "readerSettings", "Reader Settings", "", "", "");
     m_readerSettings = new RifReaderSettings;
 
@@ -156,6 +160,14 @@ void RiaPreferences::defineEditorAttribute(const caf::PdmFieldHandle* field, QSt
         if (myAttr)
         {
             myAttr->m_useNativeCheckBoxLabel = true;
+        }
+    }
+    else if (field == &m_holoLensExportFolder)
+    {
+        caf::PdmUiFilePathEditorAttribute* myAttr = dynamic_cast<caf::PdmUiFilePathEditorAttribute*>(attribute);
+        if (myAttr)
+        {
+            myAttr->m_selectDirectory = true;
         }
     }
 }
@@ -219,6 +231,7 @@ void RiaPreferences::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
         uiOrdering.add(&m_appendFieldKeywordToToolTipText);
         uiOrdering.add(&m_showTestToolbar);
         uiOrdering.add(&m_includeFractureDebugInfoFile);
+        uiOrdering.add(&m_holoLensExportFolder);
     }
 
     uiOrdering.skipRemainingFields(true);
@@ -305,5 +318,13 @@ bool RiaPreferences::showTestToolbar() const
 bool RiaPreferences::includeFractureDebugInfoFile() const
 {
     return RiaApplication::enableDevelopmentFeatures() && m_includeFractureDebugInfoFile();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RiaPreferences::holoLensExportFolder() const
+{
+    return m_holoLensExportFolder();
 }
 
