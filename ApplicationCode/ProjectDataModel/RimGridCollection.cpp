@@ -250,6 +250,7 @@ RimGridCollection::RimGridCollection()
     m_persistentLgrs->setUiName(PERSISTENT_LGR_UI_NAME);
 
     CAF_PDM_InitFieldNoDefault(&m_temporaryLgrs, "TemporaryLgrs", "Temporary LGRs", "", "", "");
+    m_temporaryLgrs.xmlCapability()->disableIO();
     m_temporaryLgrs = new RimGridInfoCollection();
     m_temporaryLgrs->setUiName(TEMPORARY_LGR_UI_NAME);
 }
