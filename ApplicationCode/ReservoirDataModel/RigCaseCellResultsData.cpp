@@ -1583,12 +1583,41 @@ void RigCaseCellResultsData::computeDepthRelatedResults()
 
     // Make sure the size is at least active cells
     {
-        if (depth[0].size() < actCellCount) depth[0].resize(actCellCount, std::numeric_limits<double>::max());
-        if (dx[0].size() < actCellCount) dx[0].resize(actCellCount, std::numeric_limits<double>::max());
-        if (dy[0].size() < actCellCount) dy[0].resize(actCellCount, std::numeric_limits<double>::max());
-        if (dz[0].size() < actCellCount) dz[0].resize(actCellCount, std::numeric_limits<double>::max());
-        if (tops[0].size() < actCellCount) tops[0].resize(actCellCount, std::numeric_limits<double>::max());
-        if (bottom[0].size() < actCellCount) bottom[0].resize(actCellCount, std::numeric_limits<double>::max());
+        if (depth[0].size() < actCellCount)
+        {
+            depth[0].resize(actCellCount, std::numeric_limits<double>::max());
+            computeDepth = true;
+        }
+
+        if (dx[0].size() < actCellCount)
+        {
+            dx[0].resize(actCellCount, std::numeric_limits<double>::max());
+            computeDx = true;
+        }
+
+        if (dy[0].size() < actCellCount)
+        {
+            dy[0].resize(actCellCount, std::numeric_limits<double>::max());
+            computeDy = true;
+        }
+
+        if (dz[0].size() < actCellCount)
+        {
+            dz[0].resize(actCellCount, std::numeric_limits<double>::max());
+            computeDz = true;
+        }
+
+        if (tops[0].size() < actCellCount)
+        {
+            tops[0].resize(actCellCount, std::numeric_limits<double>::max());
+            computeTops = true;
+        }
+
+        if (bottom[0].size() < actCellCount)
+        {
+            bottom[0].resize(actCellCount, std::numeric_limits<double>::max());
+            computeBottom = true;
+        }
     }
 
     for (size_t cellIdx = 0; cellIdx < m_ownerMainGrid->globalCellArray().size(); cellIdx++)
@@ -1597,27 +1626,43 @@ void RigCaseCellResultsData::computeDepthRelatedResults()
 
         size_t resultIndex = activeCellInfo()->cellResultIndex(cellIdx);
         if (resultIndex == cvf::UNDEFINED_SIZE_T) continue;
+        
+        bool isTemporaryGrid = cell.hostGrid()->isTempGrid();
 
-        depth[0][resultIndex]  = cvf::Math::abs(cell.center().z());
-        tops[0][resultIndex]   = cvf::Math::abs(cell.faceCenter(cvf::StructGridInterface::NEG_K).z());
-        bottom[0][resultIndex] = cvf::Math::abs(cell.faceCenter(cvf::StructGridInterface::POS_K).z());
+        if (computeDepth || isTemporaryGrid)
+        {
+            depth[0][resultIndex] = cvf::Math::abs(cell.center().z());
+        }
 
+        if (computeDx || isTemporaryGrid)
         {
             cvf::Vec3d cellWidth =
                 cell.faceCenter(cvf::StructGridInterface::NEG_I) - cell.faceCenter(cvf::StructGridInterface::POS_I);
             dx[0][resultIndex] = cellWidth.length();
         }
 
+        if (computeDy || isTemporaryGrid)
         {
             cvf::Vec3d cellWidth =
                 cell.faceCenter(cvf::StructGridInterface::NEG_J) - cell.faceCenter(cvf::StructGridInterface::POS_J);
             dy[0][resultIndex] = cellWidth.length();
         }
 
+        if (computeDz || isTemporaryGrid)
         {
             cvf::Vec3d cellWidth =
                 cell.faceCenter(cvf::StructGridInterface::NEG_K) - cell.faceCenter(cvf::StructGridInterface::POS_K);
             dz[0][resultIndex] = cellWidth.length();
+        }
+
+        if (computeTops || isTemporaryGrid)
+        {
+            tops[0][resultIndex] = cvf::Math::abs(cell.faceCenter(cvf::StructGridInterface::NEG_K).z());
+        }
+
+        if (computeBottom || isTemporaryGrid)
+        {
+            bottom[0][resultIndex] = cvf::Math::abs(cell.faceCenter(cvf::StructGridInterface::POS_K).z());
         }
     }
 }
