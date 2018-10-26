@@ -89,15 +89,43 @@ public:
 class CompletionInfo
 {
 public:
-    CompletionInfo(RigCompletionData::CompletionType type, QString name)
-        : type(type), name(name) {}
+    CompletionInfo()
+        : type(RigCompletionData::CT_UNDEFINED), name(""), number(-1) {}
+    CompletionInfo(RigCompletionData::CompletionType type, QString name, int number)
+        : type(type), name(name), number(number) {}
 
     RigCompletionData::CompletionType type;
     QString name;
+    int number;
 
+    bool isValid() const { return type != RigCompletionData::CT_UNDEFINED && !name.isEmpty() && number >= 0; }
+
+    int priority() const
+    {
+        return type == RigCompletionData::FRACTURE ? 1 :
+            type == RigCompletionData::FISHBONES ? 2 :
+            type == RigCompletionData::PERFORATION ? 3 : 4;
+    }
+
+    // Sort by priority, then name, then number
     bool operator<(const CompletionInfo& other) const
     {
-        return type < other.type || name < other.name;
+        if (priority() == other.priority())
+        {
+            if (name == other.name) return number < other.number;
+            return name < other.name;
+        }
+        return priority() < other.priority();
+    }
+
+    bool operator==(const CompletionInfo& other) const
+    {
+        return type == other.type && name == other.name && number == other.number;
+    }
+
+    bool operator!=(const CompletionInfo& other) const
+    {
+        return !operator==(other);
     }
 };
 
@@ -122,14 +150,14 @@ class RicExportLgrFeature : public caf::CmdFeature
                                       size_t timeStep,
                                       caf::VecIjk lgrCellCounts,
                                       RicExportLgrUi::SplitType splitType,
-                                      RicExportLgrUi::CompletionType completionTypes);
+                                      const std::set<RigCompletionData::CompletionType>& completionTypes);
 
     static std::vector<LgrInfo> buildLgrsForWellPath(RimWellPath*                 wellPath,
                                                      RimEclipseCase*              eclipseCase,
                                                      size_t                       timeStep,
                                                      caf::VecIjk                  lgrCellCounts,
                                                      RicExportLgrUi::SplitType    splitType,
-                                                     RicExportLgrUi::CompletionType completionTypes);
+                                                     const std::set<RigCompletionData::CompletionType>& completionTypes);
 
     static std::vector<RimWellPath*> selectedWellPaths();
 
@@ -156,15 +184,14 @@ private:
     static std::vector<RigCompletionDataGridCell> cellsIntersectingCompletions(RimEclipseCase* eclipseCase,
                                                                                const RimWellPath* wellPath,
                                                                                size_t timeStep,
-                                                                               RicExportLgrUi::CompletionType completionTypes);
+                                                                               const std::set<RigCompletionData::CompletionType>& completionTypes);
     static std::map<CompletionInfo, std::vector<RigCompletionDataGridCell>>
         cellsIntersectingCompletions_PerCompletion(RimEclipseCase* eclipseCase,
                                                    const RimWellPath* wellPath,
                                                    size_t timeStep,
-                                                   RicExportLgrUi::CompletionType completionTypes);
+                                                   const std::set<RigCompletionData::CompletionType>& completionTypes);
 
     static bool containsAnyNonMainGridCells(const std::map<CompletionInfo, std::vector<RigCompletionDataGridCell>>& cellsPerCompletion);
     static bool containsAnyNonMainGridCells(const std::vector<RigCompletionDataGridCell>& cells);
     static int firstAvailableLgrId(const RigMainGrid* mainGrid);
-    static QString completionNameIfIncluded(const caf::PdmObject* object, RicExportLgrUi::CompletionType includedCompletionTypes);
 };

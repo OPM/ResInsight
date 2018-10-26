@@ -60,10 +60,85 @@
 #include <cafVecIjk.h>
 
 #include <limits>
-
-#include <QDebug>
+#include <array>
+#include <set>
 
 CAF_CMD_SOURCE_INIT(RicExportLgrFeature, "RicExportLgrFeature");
+
+//--------------------------------------------------------------------------------------------------
+//
+//--------------------------------------------------------------------------------------------------
+int completionPriority(const RigCompletionData& completion)
+{
+    return completion.completionType() == RigCompletionData::FRACTURE ? 1 :
+        completion.completionType() == RigCompletionData::FISHBONES ? 2 :
+        completion.completionType() == RigCompletionData::PERFORATION ? 3 : 4;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RigCompletionData> filterCompletionsOnType(const std::vector<RigCompletionData>& completions,
+                                                       const std::set<RigCompletionData::CompletionType>& includedCompletionTypes)
+{
+    std::vector<RigCompletionData> filtered;
+    for (auto completion : completions)
+    {
+        if (includedCompletionTypes.count(completion.completionType()) > 0) filtered.push_back(completion);
+    }
+    return filtered;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+//bool completionIncluded(const caf::PdmObject*          object,
+//                        RicExportLgrUi::CompletionType includedCompletionTypes)
+//{
+//    if (dynamic_cast<const RimPerforationInterval*>(object) && (includedCompletionTypes & RicExportLgrUi::CT_PERFORATION))
+//        return true;
+//    else if (dynamic_cast<const RimFracture*>(object) && (includedCompletionTypes & RicExportLgrUi::CT_FRACTURE))
+//        return true;
+//    else if (dynamic_cast<const RimFishbonesMultipleSubs*>(object) && (includedCompletionTypes & RicExportLgrUi::CT_FISHBONE))
+//        return true;
+//    return false;
+//}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString completionName(const caf::PdmObject* object)
+{
+    auto perf = dynamic_cast<const RimPerforationInterval*>(object);
+    auto frac = dynamic_cast<const RimFracture*>(object);
+    auto fish = dynamic_cast<const RimFishbonesMultipleSubs*>(object);
+
+    QString name;
+    if (perf) name = perf->name();
+    else if (frac) name = frac->name();
+    else if (fish) name = fish->generatedName();
+    return name;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Returns the completion having highest priority.
+/// Pri: 1. Fractures, 2. Fishbones, 3. Perforation intervals
+//--------------------------------------------------------------------------------------------------
+RigCompletionData findCompletionByPriority(const std::vector<RigCompletionData>& completions)
+{
+    std::vector<RigCompletionData> sorted = completions;
+
+    std::sort(sorted.begin(), sorted.end(),
+              [](const RigCompletionData& c1, const RigCompletionData& c2 )
+    { 
+        if (completionPriority(c1) == completionPriority(c2))
+        {
+            return completionName(c1.sourcePdmObject()) < completionName(c2.sourcePdmObject());
+        }
+        return completionPriority(c1) < completionPriority(c2);
+    });
+    return sorted.front();
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -197,7 +272,7 @@ void RicExportLgrFeature::exportLgrsForWellPath(const QString&            export
                                                 size_t                    timeStep,
                                                 caf::VecIjk               lgrCellCounts,
                                                 RicExportLgrUi::SplitType splitType,
-                                                RicExportLgrUi::CompletionType completionTypes)
+                                                const std::set<RigCompletionData::CompletionType>& completionTypes)
 {
     std::vector<LgrInfo> lgrs;
 
@@ -234,7 +309,7 @@ std::vector<LgrInfo> RicExportLgrFeature::buildLgrsForWellPath(RimWellPath*     
                                                                size_t                       timeStep,
                                                                caf::VecIjk                  lgrCellCounts,
                                                                RicExportLgrUi::SplitType    splitType,
-                                                               RicExportLgrUi::CompletionType completionTypes)
+                                                               const std::set<RigCompletionData::CompletionType>& completionTypes)
 {
     std::vector<LgrInfo> lgrs;
     bool                 intersectsWithExistingLgr = false;
@@ -363,7 +438,7 @@ std::vector<RigCompletionDataGridCell>
 RicExportLgrFeature::cellsIntersectingCompletions(RimEclipseCase* eclipseCase,
                                                   const RimWellPath* wellPath,
                                                   size_t timeStep,
-                                                  RicExportLgrUi::CompletionType completionTypes)
+                                                  const std::set<RigCompletionData::CompletionType>& completionTypes)
 {
     std::vector<RigCompletionDataGridCell> cells;
 
@@ -374,8 +449,9 @@ RicExportLgrFeature::cellsIntersectingCompletions(RimEclipseCase* eclipseCase,
 
         for (auto intCell : intCells)
         {
-            QString name = completionNameIfIncluded(intCell.second.front().sourcePdmObject(), completionTypes);
-            if (name.isEmpty()) continue;
+            auto filteredCompletions = filterCompletionsOnType(intCell.second, completionTypes);
+
+            if (filteredCompletions.empty()) continue;
 
             cells.push_back(intCell.first);
         }
@@ -390,7 +466,7 @@ std::map<CompletionInfo, std::vector<RigCompletionDataGridCell>>
     RicExportLgrFeature::cellsIntersectingCompletions_PerCompletion(RimEclipseCase*    eclipseCase,
                                                                     const RimWellPath* wellPath,
                                                                     size_t             timeStep,
-                                                                    RicExportLgrUi::CompletionType completionTypes)
+                                                                    const std::set<RigCompletionData::CompletionType>& completionTypes)
 {
     std::map<CompletionInfo, std::vector<RigCompletionDataGridCell>> completionToCells;
 
@@ -398,16 +474,27 @@ std::map<CompletionInfo, std::vector<RigCompletionDataGridCell>>
     if (completions)
     {
         auto intCells = completions->multipleCompletionsPerEclipseCell(wellPath, timeStep);
+        CompletionInfo lastCompletionInfo;
 
+        // This loop assumes that cells are ordered downwards along well path
         for (auto intCell : intCells)
         {
-            QString name = completionNameIfIncluded(intCell.second.front().sourcePdmObject(), completionTypes);
-            if (name.isEmpty()) continue;
+            auto filteredCompletions = filterCompletionsOnType(intCell.second, completionTypes);
+            if (filteredCompletions.empty()) continue;
 
-            for (auto completion : intCell.second)
+            auto completion = findCompletionByPriority(filteredCompletions);
+
+            QString        name = completionName(completion.sourcePdmObject());
+            CompletionInfo completionInfo(completion.completionType(), name, 0);
+
+            if (!lastCompletionInfo.isValid()) lastCompletionInfo = completionInfo;
+
+            if (completionInfo != lastCompletionInfo && completionToCells.count(completionInfo) > 0)
             {
-                completionToCells[CompletionInfo(completion.completionType(), name)].push_back(intCell.first);
+                completionInfo.number++;
             }
+            completionToCells[completionInfo].push_back(intCell.first);
+            lastCompletionInfo = completionInfo;
         }
     }
     return completionToCells;
@@ -535,22 +622,3 @@ int RicExportLgrFeature::firstAvailableLgrId(const RigMainGrid* mainGrid)
     return lastUsedId + 1;
 }
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RicExportLgrFeature::completionNameIfIncluded(const caf::PdmObject*                object,
-                                                      RicExportLgrUi::CompletionType includedCompletionTypes)
-{
-    auto perf      = dynamic_cast<const RimPerforationInterval*>(object);
-    auto frac      = dynamic_cast<const RimFracture*>(object);
-    auto fish      = dynamic_cast<const RimFishbonesMultipleSubs*>(object);
-
-    QString name;
-    if (perf && (includedCompletionTypes & RicExportLgrUi::CT_PERFORATION))
-        name = perf->name();
-    else if (frac && (includedCompletionTypes & RicExportLgrUi::CT_FRACTURE))
-        name = frac->name();
-    else if (fish && (includedCompletionTypes & RicExportLgrUi::CT_FISHBONE))
-        name = fish->generatedName();
-    return name;
-}

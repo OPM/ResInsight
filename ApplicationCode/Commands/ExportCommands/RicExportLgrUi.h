@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include "RigCompletionData.h"
+
 #include "cafPdmObject.h"
 #include "cafPdmChildField.h"
 #include "cafPdmField.h"
@@ -25,6 +27,8 @@
 #include "cafPdmProxyValueField.h"
 
 #include <QStringList>
+
+#include <set>
 
 class RimEclipseCase;
 class RicCellRangeUi;
@@ -44,8 +48,6 @@ public:
     enum SplitType { LGR_PER_CELL, LGR_PER_COMPLETION, LGR_PER_WELL};
     typedef caf::AppEnum<RicExportLgrUi::SplitType> LgrSplitTypeEnum;
 
-    enum CompletionType {CT_NONE = 0x0, CT_PERFORATION = 0x1, CT_FRACTURE = 0x2, CT_FISHBONE = 0x4};
-
     RicExportLgrUi();
 
     void setCase(RimEclipseCase* rimCase);
@@ -55,7 +57,7 @@ public:
     QString                 exportFolder() const;
     RimEclipseCase*         caseToApply() const;
     int                     timeStep() const;
-    CompletionType          completionTypes() const;
+    std::set<RigCompletionData::CompletionType> completionTypes() const;
     SplitType               splitType() const;
 
     void                    hideExportFolderField(bool hide);
@@ -84,8 +86,3 @@ private:
 
     caf::PdmField<LgrSplitTypeEnum> m_splitType;
 };
-
-inline RicExportLgrUi::CompletionType operator|(RicExportLgrUi::CompletionType a, RicExportLgrUi::CompletionType b)
-{
-    return static_cast<RicExportLgrUi::CompletionType>(static_cast<int>(a) | static_cast<int>(b));
-}

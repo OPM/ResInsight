@@ -98,9 +98,8 @@ void RicfExportLgrForCompletions::execute()
             {
                 try
                 {
-                    auto completionTypes = (RicExportLgrUi::CompletionType)(RicExportLgrUi::CT_PERFORATION | RicExportLgrUi::CT_FRACTURE | RicExportLgrUi::CT_FISHBONE);
                     feature->exportLgrsForWellPath(exportFolder, wellPath, eclipseCase, m_timeStep, lgrCellCounts, m_splitType(),
-                                                   completionTypes);
+                        {RigCompletionData::PERFORATION, RigCompletionData::FRACTURE, RigCompletionData::FISHBONES});
                 }
                 catch(CreateLgrException e)
                 {
