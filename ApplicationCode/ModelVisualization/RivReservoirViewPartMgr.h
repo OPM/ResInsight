@@ -122,8 +122,8 @@ private:
                                                           const cvf::UByteArray* cellIsInWellStatuses, 
                                                           bool invalidCellsIsVisible, 
                                                           bool inactiveCellsIsVisible, 
-                                                          bool activeCellsIsVisible, 
-                                                          bool mainGridIsVisible);
+                                                          bool activeCellsIsVisible);
+
     void                        computeRangeVisibility   (RivCellSetEnum geometryType, 
                                                           cvf::UByteArray* cellVisibilities, 
                                                           const RigGridBase* grid, 

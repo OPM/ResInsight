@@ -308,7 +308,7 @@ void RivReservoirViewPartMgr::computeVisibility(cvf::UByteArray* cellVisibility,
         computeOverriddenCellVisibility(cellVisibility, grid);
     break;
     case ACTIVE:
-        computeNativeVisibility(cellVisibility, grid, activeCellInfo, eclipseCase->wellCellsInGrid(gridIdx), false, false, true, m_reservoirView->showMainGrid() );
+        computeNativeVisibility(cellVisibility, grid, activeCellInfo, eclipseCase->wellCellsInGrid(gridIdx), false, false, true);
         break;
     case ALL_WELL_CELLS:
         copyByteArray(cellVisibility, eclipseCase->wellCellsInGrid(gridIdx));
@@ -346,7 +346,7 @@ void RivReservoirViewPartMgr::computeVisibility(cvf::UByteArray* cellVisibility,
         }
         break;
     case INACTIVE:
-        computeNativeVisibility(cellVisibility, grid, activeCellInfo, eclipseCase->wellCellsInGrid(gridIdx),  m_reservoirView->showInvalidCells(), true, false, m_reservoirView->showMainGrid());
+        computeNativeVisibility(cellVisibility, grid, activeCellInfo, eclipseCase->wellCellsInGrid(gridIdx),  m_reservoirView->showInvalidCells(), true, false);
         break;
     case RANGE_FILTERED:
         {
@@ -587,8 +587,7 @@ void RivReservoirViewPartMgr::createPropertyFilteredWellGeometry(size_t frameInd
 void RivReservoirViewPartMgr::computeNativeVisibility(cvf::UByteArray* cellVisibility, const RigGridBase* grid, const RigActiveCellInfo* activeCellInfo, const cvf::UByteArray* cellIsInWellStatuses,
     bool invalidCellsIsVisible, 
     bool inactiveCellsIsVisible, 
-    bool activeCellsIsVisible,
-    bool mainGridIsVisible) 
+    bool activeCellsIsVisible) 
 {
     CVF_ASSERT(cellVisibility != nullptr);
     CVF_ASSERT(grid != nullptr);
@@ -607,7 +606,6 @@ void RivReservoirViewPartMgr::computeNativeVisibility(cvf::UByteArray* cellVisib
         if (   !invalidCellsIsVisible && cell.isInvalid() 
             || !inactiveCellsIsVisible && !activeCellInfo->isActive(reservoirCellIndex)
             || !activeCellsIsVisible && activeCellInfo->isActive(reservoirCellIndex)
-            //|| mainGridIsVisible && (cell.subGrid() != NULL) // this is handled on global level instead
             || (*cellIsInWellStatuses)[cellIndex]
             )
         {

@@ -89,7 +89,6 @@ public:
 
     bool                                            showInvalidCells() const;
     bool                                            showInactiveCells() const;
-    bool                                            showMainGrid() const;
 
     // Access internal objects
     const RimPropertyFilterCollection*              propertyFilterCollection() const override;
@@ -155,7 +154,7 @@ protected:
 private:
     void                                            updateDisplayModelVisibility() override;
 
-    void                                            indicesToVisibleGrids(std::vector<size_t>* gridIndices);
+    std::vector<size_t>                             indicesToVisibleGrids() const;
     void                                            updateScaleTransform() override;
     cvf::Transform*                                 scaleTransform() override;
 
@@ -179,7 +178,6 @@ private:
 private:
     caf::PdmField<bool>                             m_showInvalidCells;
     caf::PdmField<bool>                             m_showInactiveCells;
-    caf::PdmField<bool>                             m_showMainGrid;
 
     caf::PdmChildField<RimEclipseCellColors*>       m_cellResult;
     caf::PdmChildField<RimCellEdgeColors*>          m_cellEdgeResult;

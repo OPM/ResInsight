@@ -145,7 +145,6 @@ RimEclipseView::RimEclipseView()
     m_propertyFilterCollection.uiCapability()->setUiHidden(true);
 
     // Visualization fields
-    CAF_PDM_InitField(&m_showMainGrid,        "ShowMainGrid",         true,   "Show Main Grid",   "", "", "");
     CAF_PDM_InitField(&m_showInactiveCells,   "ShowInactiveCells",    false,  "Show Inactive Cells",   "", "", "");
     CAF_PDM_InitField(&m_showInvalidCells,    "ShowInvalidCells",     false,  "Show Invalid Cells",   "", "", "");
    
@@ -294,10 +293,6 @@ void RimEclipseView::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
 
         scheduleCreateDisplayModelAndRedraw();
     }
-    else if (changedField == &m_showMainGrid)
-    {
-        scheduleCreateDisplayModelAndRedraw();
-    }
     else if (changedField == &m_rangeFilterCollection)
     {
         this->scheduleGeometryRegen(RANGE_FILTERED);
@@ -387,8 +382,7 @@ void RimEclipseView::createDisplayModel()
     wellCollection()->scheduleIsWellPipesVisibleRecalculation();
 
     // Create vector of grid indices to render
-    std::vector<size_t> gridIndices;
-    this->indicesToVisibleGrids(&gridIndices);
+    std::vector<size_t> gridIndices = this->indicesToVisibleGrids();
 
     ///
     // Get or create the parts for "static" type geometry. The same geometry is used 
@@ -577,8 +571,7 @@ void RimEclipseView::updateCurrentTimeStep()
         cvf::ref<cvf::ModelBasicList> frameParts = new cvf::ModelBasicList;
         frameParts->setName("GridModel");
 
-        std::vector<size_t> gridIndices;
-        this->indicesToVisibleGrids(&gridIndices);
+        std::vector<size_t> gridIndices = this->indicesToVisibleGrids();
 
         geometriesToRecolor.push_back( PROPERTY_FILTERED);
         geometriesToRecolor.push_back( PROPERTY_FILTERED_WELL_CELLS);
@@ -1011,30 +1004,11 @@ void RimEclipseView::scheduleSimWellGeometryRegen()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimEclipseView::indicesToVisibleGrids(std::vector<size_t>* gridIndices)
+std::vector<size_t> RimEclipseView::indicesToVisibleGrids() const
 {
-    CVF_ASSERT(gridIndices != nullptr);
+    CVF_ASSERT(gridCollection());
 
-    *gridIndices = gridCollection()->indicesToVisibleGrids();
-
-
-/*
-    // Create vector of grid indices to render
-    std::vector<RigGridBase*> grids;
-    if (this->m_eclipseCase && this->m_eclipseCase->eclipseCaseData() )
-    {
-        this->m_eclipseCase->eclipseCaseData()->allGrids(&grids);
-    }
-
-    size_t i;
-    for (i = 0; i < grids.size(); i++)
-    {
-        if (!grids[i]->isMainGrid() || this->showMainGrid() )
-        {
-            gridIndices->push_back(i);
-        }
-    }
-*/
+    return gridCollection()->indicesToVisibleGrids();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1475,7 +1449,6 @@ void RimEclipseView::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
     Rim3dView::defineUiOrdering(uiConfigName, uiOrdering);
 
     caf::PdmUiGroup* cellGroup = uiOrdering.addNewGroup("Cell Visibility");
-    cellGroup->add(&m_showMainGrid);
     cellGroup->add(&m_showInactiveCells);
     cellGroup->add(&m_showInvalidCells);
 }
@@ -1858,14 +1831,6 @@ bool RimEclipseView::showInvalidCells() const
 bool RimEclipseView::showInactiveCells() const
 {
     return m_showInactiveCells;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-bool RimEclipseView::showMainGrid() const
-{
-    return m_showMainGrid;
 }
 
 //--------------------------------------------------------------------------------------------------
