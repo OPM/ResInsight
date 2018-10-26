@@ -23,7 +23,7 @@
 
 #include "RigMainGrid.h"
 
-#include <cafPdmUiTreeOrdering.h>
+#include "cafPdmUiTreeOrdering.h"
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -68,14 +68,6 @@ caf::PdmFieldHandle* RimGridInfo::objectToggleField()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridInfo::setActive(bool active)
-{
-    m_isActive = active;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimGridInfo::setName(const QString& name)
 {
     m_gridName = name;
@@ -88,6 +80,14 @@ void RimGridInfo::setName(const QString& name)
 void RimGridInfo::setIndex(int index)
 {
     m_gridIndex = index;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimGridInfo::isActive() const
+{
+    return m_isActive();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -117,7 +117,13 @@ caf::PdmFieldHandle* RimGridInfo::userDescriptionField()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridInfo::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) {}
+void RimGridInfo::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+{
+    RimGridView* rimView = nullptr;
+    this->firstAncestorOrThisOfType(rimView);
+
+    rimView->scheduleCreateDisplayModelAndRedraw();
+}
 
 CAF_PDM_SOURCE_INIT(RimGridInfoCollection, "GridInfoCollection");
 
@@ -139,10 +145,17 @@ RimGridInfoCollection::RimGridInfoCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RimGridInfoCollection::isActive() const
+{
+    return m_isActive();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimGridInfoCollection::addGridInfo(const QString& name, size_t gridIndex)
 {
     auto gridInfo = new RimGridInfo();
-    gridInfo->setActive(true);
     gridInfo->setName(name);
     gridInfo->setIndex((int)gridIndex);
     m_gridInfos.push_back(gridInfo);
@@ -208,6 +221,10 @@ void RimGridInfoCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedF
                                              const QVariant&            oldValue,
                                              const QVariant&            newValue)
 {
+    RimGridView* rimView = nullptr;
+    this->firstAncestorOrThisOfType(rimView);
+
+    rimView->scheduleCreateDisplayModelAndRedraw();
 }
 
 CAF_PDM_SOURCE_INIT(RimGridCollection, "GridCollection");
@@ -256,6 +273,45 @@ const QString RimGridCollection::persistentGridUiName()
 const QString RimGridCollection::temporaryGridUiName()
 {
     return "Temporary LGRs";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<size_t> RimGridCollection::indicesToVisibleGrids() const
+{
+    std::vector<size_t> gridIndices;
+
+    if (!isActive()) return gridIndices;
+
+    if (m_mainGrid()->isActive())
+    {
+        gridIndices.push_back(m_mainGrid->index());
+    }
+
+    if (m_persistentLgrs()->isActive())
+    {
+        for (const auto& gridInfo : m_persistentLgrs->gridInfos())
+        {
+            if (gridInfo->isActive())
+            {
+                gridIndices.push_back(gridInfo->index());
+            }
+        }
+    }
+
+    if (m_temporaryLgrs()->isActive())
+    {
+        for (const auto& gridInfo : m_temporaryLgrs->gridInfos())
+        {
+            if (gridInfo->isActive())
+            {
+                gridIndices.push_back(gridInfo->index());
+            }
+        }
+    }
+
+    return gridIndices;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -360,6 +416,11 @@ void RimGridCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedField
 
         updateUiIconFromState(m_isActive);
     }
+
+    RimGridView* rimView = nullptr;
+    this->firstAncestorOrThisOfType(rimView);
+
+    rimView->scheduleCreateDisplayModelAndRedraw();
 }
 
 //--------------------------------------------------------------------------------------------------

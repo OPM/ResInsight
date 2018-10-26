@@ -366,6 +366,14 @@ void RimGridView::fieldChangedByUi(const caf::PdmFieldHandle* changedField, cons
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+RimGridCollection* RimGridView::gridCollection() const
+{
+    return m_gridCollection();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimGridView::selectOverlayInfoConfig()
 {
     Riu3DMainWindowTools::selectAsCurrentItem(m_overlayInfoConfig);

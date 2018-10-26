@@ -70,6 +70,8 @@ protected:
                                                       
     void                                      fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
 
+    RimGridCollection*                          gridCollection() const;
+
 protected: // Fields
     caf::PdmChildField<RimIntersectionCollection*>    m_crossSectionCollection;
     caf::PdmChildField<Rim3dOverlayInfoConfig*>       m_overlayInfoConfig;

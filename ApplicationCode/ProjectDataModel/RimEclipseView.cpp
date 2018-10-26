@@ -1015,6 +1015,10 @@ void RimEclipseView::indicesToVisibleGrids(std::vector<size_t>* gridIndices)
 {
     CVF_ASSERT(gridIndices != nullptr);
 
+    *gridIndices = gridCollection()->indicesToVisibleGrids();
+
+
+/*
     // Create vector of grid indices to render
     std::vector<RigGridBase*> grids;
     if (this->m_eclipseCase && this->m_eclipseCase->eclipseCaseData() )
@@ -1030,6 +1034,7 @@ void RimEclipseView::indicesToVisibleGrids(std::vector<size_t>* gridIndices)
             gridIndices->push_back(i);
         }
     }
+*/
 }
 
 //--------------------------------------------------------------------------------------------------
