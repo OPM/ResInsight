@@ -51,7 +51,10 @@ RimGridInfo::RimGridInfo()
 
     CAF_PDM_InitField(&m_isActive, "IsActive", true, "Show Grid Cells", "", "", "");
     CAF_PDM_InitField(&m_gridName, "GridName", QString(), "Grid Name", "", "", "");
+    m_gridName.uiCapability()->setUiReadOnly(true);
+
     CAF_PDM_InitField(&m_gridIndex, "GridIndex", 0, "Grid Index", "", "", "");
+    m_gridIndex.uiCapability()->setUiReadOnly(true);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -59,7 +62,7 @@ RimGridInfo::RimGridInfo()
 //--------------------------------------------------------------------------------------------------
 caf::PdmFieldHandle* RimGridInfo::objectToggleField()
 {
-    return nullptr; // &m_isActive;
+    return &m_isActive;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -195,7 +198,7 @@ std::vector<RimGridInfo*> RimGridInfoCollection::gridInfos() const
 //--------------------------------------------------------------------------------------------------
 caf::PdmFieldHandle* RimGridInfoCollection::objectToggleField()
 {
-    return nullptr; // &m_isActive;
+    return &m_isActive;
 }
 
 //--------------------------------------------------------------------------------------------------
