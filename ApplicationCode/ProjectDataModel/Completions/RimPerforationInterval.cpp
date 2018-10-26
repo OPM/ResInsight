@@ -364,18 +364,17 @@ void RimPerforationInterval::defineEditorAttribute(const caf::PdmFieldHandle* fi
             RigWellPath* wellPathGeo = rimWellPath->wellPathGeometry();
             if (!wellPathGeo) return;
 
-            if (wellPathGeo->m_measuredDepths.size() > 2)
+            if (wellPathGeo->m_measuredDepths.size() > 1)
             {
                 myAttr->m_minimum = wellPathGeo->m_measuredDepths.front();
                 myAttr->m_maximum = wellPathGeo->m_measuredDepths.back();
             }
         }
     }
-
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimPerforationInterval::initAfterRead()
 {
