@@ -19,10 +19,12 @@
 #pragma once
 
 #include "RigCompletionDataGridCell.h"
+
 #include "cafCmdFeature.h"
-#include <cafVecIjk.h>
-#include <memory>
+#include "cafVecIjk.h"
+
 #include <limits>
+#include <memory>
 
 class LgrInfo;
 class RigMainGrid;
@@ -33,7 +35,6 @@ class RicExportLgrUi;
 class QFile;
 class QTextStream;
 
-
 //==================================================================================================
 ///
 //==================================================================================================
@@ -42,13 +43,13 @@ class RicCreateTemporaryLgrFeature : public caf::CmdFeature
     CAF_CMD_HEADER_INIT;
 
 protected:
-    virtual bool isCommandEnabled() override;
-    virtual void onActionTriggered(bool isChecked) override;
-    virtual void setupActionLook(QAction* actionToSetup) override;
+    bool isCommandEnabled() override;
+    void onActionTriggered(bool isChecked) override;
+    void setupActionLook(QAction* actionToSetup) override;
 
 private:
-    static void createLgr(LgrInfo& lgrInfo, RigMainGrid* mainGrid);
-    static void computeCachedData(RimEclipseCase* eclipseCase); 
+    static void createLgr(const LgrInfo& lgrInfo, RigMainGrid* mainGrid);
+    static void computeCachedData(RimEclipseCase* eclipseCase);
     static void deleteAllCachedData(RimEclipseCase* eclipseCase);
     static bool containsAnyNonMainGridCells(const std::vector<RigCompletionDataGridCell>& cells);
 };

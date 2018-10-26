@@ -85,10 +85,9 @@ bool RicCreateTemporaryLgrFeature::isCommandEnabled()
 void RicCreateTemporaryLgrFeature::onActionTriggered(bool isChecked)
 {
     std::vector<RimWellPath*> wellPaths = RicExportLgrFeature::selectedWellPaths();
-    if(wellPaths.size() == 0) return;
+    if (wellPaths.empty()) return;
 
-    std::vector<RimSimWellInView*> simWells;
-    QString                        dialogTitle = "Create Temporary LGR";
+    QString dialogTitle = "Create Temporary LGR";
 
     RimEclipseCase* defaultEclipseCase = nullptr;
     int             defaultTimeStep    = 0;
@@ -102,11 +101,11 @@ void RicCreateTemporaryLgrFeature::onActionTriggered(bool isChecked)
     auto dialogData = RicExportLgrFeature::openDialog(dialogTitle, defaultEclipseCase, defaultTimeStep, true);
     if (dialogData)
     {
-        auto eclipseCase = dialogData->caseToApply();
-        auto lgrCellCounts = dialogData->lgrCellCount();
-        size_t timeStep = dialogData->timeStep();
-        auto splitType = dialogData->splitType();
-        auto completionTypes = dialogData->completionTypes();
+        auto   eclipseCase     = dialogData->caseToApply();
+        auto   lgrCellCounts   = dialogData->lgrCellCount();
+        size_t timeStep        = dialogData->timeStep();
+        auto   splitType       = dialogData->splitType();
+        auto   completionTypes = dialogData->completionTypes();
 
         auto               eclipseCaseData        = eclipseCase->eclipseCaseData();
         RigActiveCellInfo* activeCellInfo         = eclipseCaseData->activeCellInfo(RiaDefines::MATRIX_MODEL);
@@ -115,16 +114,10 @@ void RicCreateTemporaryLgrFeature::onActionTriggered(bool isChecked)
         bool intersectsExistingLgr = false;
         for (const auto& wellPath : wellPaths)
         {
-            std::vector<LgrInfo> lgrs;
-
             try
             {
-                lgrs = RicExportLgrFeature::buildLgrsForWellPath(wellPath,
-                                                                 eclipseCase,
-                                                                 timeStep,
-                                                                 lgrCellCounts,
-                                                                 splitType,
-                                                                 completionTypes);
+                std::vector<LgrInfo> lgrs = RicExportLgrFeature::buildLgrsForWellPath(
+                    wellPath, eclipseCase, timeStep, lgrCellCounts, splitType, completionTypes);
 
                 auto mainGrid = eclipseCase->eclipseCaseData()->mainGrid();
 
@@ -143,8 +136,10 @@ void RicCreateTemporaryLgrFeature::onActionTriggered(bool isChecked)
 
                 mainGrid->calculateFaults(activeCellInfo, true);
             }
-            catch (CreateLgrException e)
+            catch (CreateLgrException& e)
             {
+                RiaLogging::error(e.message);
+
                 intersectsExistingLgr = true;
             }
         }
@@ -189,7 +184,7 @@ void RicCreateTemporaryLgrFeature::setupActionLook(QAction* actionToSetup)
 //--------------------------------------------------------------------------------------------------
 /// Todo: Guarding, caching LGR corner nodes calculations
 //--------------------------------------------------------------------------------------------------
-void RicCreateTemporaryLgrFeature::createLgr(LgrInfo& lgrInfo, RigMainGrid* mainGrid)
+void RicCreateTemporaryLgrFeature::createLgr(const LgrInfo& lgrInfo, RigMainGrid* mainGrid)
 {
     auto app         = RiaApplication::instance();
     auto eclipseView = dynamic_cast<RimEclipseView*>(app->activeReservoirView());
