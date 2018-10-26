@@ -35,7 +35,7 @@ CAF_CMD_SOURCE_INIT(RicDeleteTemporaryLgrsFeature, "RicDeleteTemporaryLgrsFeatur
 bool RicDeleteTemporaryLgrsFeature::isCommandEnabled()
 {
     std::vector<RimGridInfoCollection*> selGridInfos = caf::selectedObjectsByTypeStrict<RimGridInfoCollection*>();
-    return selGridInfos.size() == 1 && selGridInfos.front()->uiName() == RimGridCollection::TEMPORARY_LGR_UI_NAME;
+    return selGridInfos.size() == 1 && selGridInfos.front()->uiName() == RimGridCollection::temporaryGridUiName();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -44,7 +44,7 @@ bool RicDeleteTemporaryLgrsFeature::isCommandEnabled()
 void RicDeleteTemporaryLgrsFeature::onActionTriggered(bool isChecked)
 {
     std::vector<RimGridInfoCollection*> selGridInfos = caf::selectedObjectsByTypeStrict<RimGridInfoCollection*>();
-    if (selGridInfos.size() == 1 && selGridInfos.front()->uiName() == RimGridCollection::TEMPORARY_LGR_UI_NAME)
+    if (selGridInfos.size() == 1 && selGridInfos.front()->uiName() == RimGridCollection::temporaryGridUiName())
     {
         RimEclipseCase* eclipseCase;
         selGridInfos.front()->firstAncestorOrThisOfType(eclipseCase);

@@ -2,24 +2,24 @@
 //
 //  Copyright (C) Statoil ASA
 //  Copyright (C) Ceetron Solutions AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RimGridCollection.h"
-#include "RimGridView.h"
 #include "RimEclipseCase.h"
+#include "RimGridView.h"
 
 #include "RigMainGrid.h"
 
@@ -39,7 +39,6 @@ void removeGridInfo(const QString& gridName, std::vector<RimGridInfo*>& collecti
         }
     }
 }
-
 
 CAF_PDM_SOURCE_INIT(RimGridInfo, "GridInfo");
 
@@ -112,16 +111,10 @@ caf::PdmFieldHandle* RimGridInfo::userDescriptionField()
     return &m_gridName;
 }
 
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridInfo::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
-                                   const QVariant& oldValue,
-                                   const QVariant& newValue)
-{
-
-}
+void RimGridInfo::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) {}
 
 CAF_PDM_SOURCE_INIT(RimGridInfoCollection, "GridInfoCollection");
 
@@ -139,7 +132,6 @@ RimGridInfoCollection::RimGridInfoCollection()
 
     m_gridInfos.uiCapability()->setUiTreeHidden(true);
 }
-
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -160,7 +152,6 @@ void RimGridInfoCollection::clear()
 {
     m_gridInfos.deleteAllChildObjects();
 }
-
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -204,9 +195,8 @@ std::vector<RimGridInfo*> RimGridInfoCollection::gridInfos() const
 //--------------------------------------------------------------------------------------------------
 caf::PdmFieldHandle* RimGridInfoCollection::objectToggleField()
 {
-    return nullptr;// &m_isActive;
+    return nullptr; // &m_isActive;
 }
-
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -222,12 +212,6 @@ CAF_PDM_SOURCE_INIT(RimGridCollection, "GridCollection");
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const QString RimGridCollection::PERSISTENT_LGR_UI_NAME = "Persistent LGRs";
-const QString RimGridCollection::TEMPORARY_LGR_UI_NAME = "Temporary LGRs";
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 RimGridCollection::RimGridCollection()
 {
     CAF_PDM_InitObject("Grids", ":/draw_style_meshlines_24x24.png", "", "");
@@ -242,20 +226,33 @@ RimGridCollection::RimGridCollection()
 
     CAF_PDM_InitFieldNoDefault(&m_persistentLgrs, "PersistentLgrs", "Persistent LGRs", "", "", "");
     m_persistentLgrs = new RimGridInfoCollection();
-    m_persistentLgrs->setUiName(PERSISTENT_LGR_UI_NAME);
+    m_persistentLgrs->setUiName(persistentGridUiName());
 
     CAF_PDM_InitFieldNoDefault(&m_temporaryLgrs, "TemporaryLgrs", "Temporary LGRs", "", "", "");
     m_temporaryLgrs.xmlCapability()->disableIO();
     m_temporaryLgrs = new RimGridInfoCollection();
-    m_temporaryLgrs->setUiName(TEMPORARY_LGR_UI_NAME);
+    m_temporaryLgrs->setUiName(temporaryGridUiName());
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RimGridCollection::~RimGridCollection()
-{
+RimGridCollection::~RimGridCollection() {}
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const QString RimGridCollection::persistentGridUiName()
+{
+    return "LGRs";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const QString RimGridCollection::temporaryGridUiName()
+{
+    return "Temporary LGRs";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -275,7 +272,7 @@ bool RimGridCollection::isActive() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 caf::PdmFieldHandle* RimGridCollection::objectToggleField()
 {
@@ -293,15 +290,15 @@ void RimGridCollection::syncFromMainGrid()
         m_mainGrid->setName("Main Grid");
         m_mainGrid->setIndex(0);
 
-        auto allTemporaryGrids = m_temporaryLgrs->gridInfos();
+        auto allTemporaryGrids  = m_temporaryLgrs->gridInfos();
         auto allPersistentGrids = m_persistentLgrs->gridInfos();
 
         size_t gridCount = mainGrid->gridCount();
         for (size_t i = 1; i < gridCount; i++)
         {
-            auto grid = mainGrid->gridByIndex(i);
-            QString gridName = QString::fromStdString(grid->gridName());
-            size_t gridIndex = grid->gridIndex();
+            auto    grid      = mainGrid->gridByIndex(i);
+            QString gridName  = QString::fromStdString(grid->gridName());
+            size_t  gridIndex = grid->gridIndex();
 
             if (grid->isTempGrid())
             {
@@ -344,9 +341,11 @@ void RimGridCollection::syncFromMainGrid()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RimGridCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+void RimGridCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
+                                         const QVariant&            oldValue,
+                                         const QVariant&            newValue)
 {
     if (changedField == &m_isActive)
     {
@@ -361,7 +360,7 @@ void RimGridCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedField
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimGridCollection::initAfterRead()
 {

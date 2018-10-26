@@ -92,9 +92,6 @@ class RimGridCollection : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 public:
-    static const QString PERSISTENT_LGR_UI_NAME;
-    static const QString TEMPORARY_LGR_UI_NAME;
-
     RimGridCollection();
     ~RimGridCollection() override;
 
@@ -102,6 +99,9 @@ public:
     bool                        isActive() const;
     caf::PdmFieldHandle*        objectToggleField() override;
     void                        syncFromMainGrid();
+
+    static const QString    persistentGridUiName();
+    static const QString    temporaryGridUiName();
 
 protected:
     void                        fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
