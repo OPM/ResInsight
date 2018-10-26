@@ -50,7 +50,6 @@
 
 namespace caf
 {
-
 // Register default field editor for selected types
 CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR(PdmUiCheckBoxEditor, bool);
 
@@ -68,42 +67,49 @@ CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR(PdmUiListEditor, std::vector<float>);
 
 CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR(PdmUiFilePathEditor, FilePath);
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+PdmUiDefaultObjectEditor::PdmUiDefaultObjectEditor() {}
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-PdmUiDefaultObjectEditor::PdmUiDefaultObjectEditor()
-{
-}
-
+PdmUiDefaultObjectEditor::~PdmUiDefaultObjectEditor() {}
 
 //--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-PdmUiDefaultObjectEditor::~PdmUiDefaultObjectEditor()
-{
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QWidget* PdmUiDefaultObjectEditor::createWidget(QWidget* parent)
 {
     QWidget* widget = new QWidget(parent);
-    
-    QGridLayout* gridLayout = new QGridLayout();
-    gridLayout->setContentsMargins(0, 0, 0, 0);
-    widget->setLayout(gridLayout);
-    
+
     return widget;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void PdmUiDefaultObjectEditor::recursivelyConfigureAndUpdateTopLevelUiOrdering(const PdmUiOrdering& topLevelUiOrdering, const QString& uiConfigName)
+void PdmUiDefaultObjectEditor::recursivelyConfigureAndUpdateTopLevelUiOrdering(const PdmUiOrdering& topLevelUiOrdering,
+                                                                               const QString&       uiConfigName)
 {
     CAF_ASSERT(this->widget());
+
+    // Recreate layout object, as the content of the grid layout grows. This causes Cell Result to have a lot of space at the
+    // bottom and no other solution has been found. Similar issues might also be the case for the grid layout inside group boxes
+    {
+        auto currentLayout = this->widget()->layout();
+        if (currentLayout)
+        {
+            delete currentLayout;
+        }
+    }
+
+    CAF_ASSERT(this->widget()->layout() == nullptr);
+
+    QGridLayout* gridLayout = new QGridLayout();
+    gridLayout->setContentsMargins(0, 0, 0, 0);
+    this->widget()->setLayout(gridLayout);
 
     recursivelyConfigureAndUpdateUiOrderingInGridLayoutColumn(topLevelUiOrdering, this->widget(), uiConfigName);
 }
