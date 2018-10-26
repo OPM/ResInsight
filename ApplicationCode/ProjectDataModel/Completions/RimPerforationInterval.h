@@ -36,9 +36,12 @@ class RimWellPathValve;
 //==================================================================================================
 ///  
 //==================================================================================================
-class RimPerforationInterval : public RimCheckableNamedObject, public Rim3dPropertiesInterface, public RimWellPathComponentInterface
+class RimPerforationInterval : public RimCheckableNamedObject,
+                               public Rim3dPropertiesInterface,
+                               public RimWellPathComponentInterface
 {
     CAF_PDM_HEADER_INIT;
+
 public:
 
     RimPerforationInterval();
@@ -59,7 +62,7 @@ public:
 
     bool                                isActiveOnDate(const QDateTime& date) const;
 
-    cvf::BoundingBox            boundingBoxInDomainCoords() const override;
+    cvf::BoundingBox                    boundingBoxInDomainCoords() const override;
 
     void                                setUnitSystemSpecificDefaults();
 
@@ -75,11 +78,13 @@ public:
     double                              endMD() const override;
 
 protected:
-    void                        defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
-    void                        fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
-    void                        defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
-    void                        defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override;
-    void                        initAfterRead() override;
+    void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    void defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
+    void defineEditorAttribute(const caf::PdmFieldHandle* field,
+                               QString                    uiConfigName,
+                               caf::PdmUiEditorAttribute* attribute) override;
+    void initAfterRead() override;
 
 private:
     caf::PdmField< double >             m_startMD;
