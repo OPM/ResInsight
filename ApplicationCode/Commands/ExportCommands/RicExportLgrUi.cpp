@@ -234,9 +234,9 @@ void RicExportLgrUi::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
     uiOrdering.add(&m_caseToApply, layout);
     uiOrdering.add(&m_timeStep, layout);
     uiOrdering.add(&m_exportFolder, layout);
-    uiOrdering.add(&m_includePerforations, layout);
     uiOrdering.add(&m_includeFractures, layout);
     uiOrdering.add(&m_includeFishbones, layout);
+    uiOrdering.add(&m_includePerforations, layout);
     uiOrdering.add(&m_splitType, {true, 6, 1});
 
     caf::PdmUiGroup* gridRefinement = uiOrdering.addNewGroup("Grid Refinement");
