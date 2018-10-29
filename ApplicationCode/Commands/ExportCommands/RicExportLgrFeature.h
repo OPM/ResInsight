@@ -174,14 +174,14 @@ private:
     static std::vector<RigCompletionDataGridCell> cellsIntersectingCompletions(RimEclipseCase* eclipseCase,
                                                                                const RimWellPath* wellPath,
                                                                                size_t timeStep,
-                                                                               const std::set<RigCompletionData::CompletionType>& completionTypes);
+                                                                               const std::set<RigCompletionData::CompletionType>& completionTypes,
+                                                                               bool* isIntersectingOtherLgrs);
     static std::map<CompletionInfo, std::vector<RigCompletionDataGridCell>>
         cellsIntersectingCompletions_PerCompletion(RimEclipseCase* eclipseCase,
                                                    const RimWellPath* wellPath,
                                                    size_t timeStep,
-                                                   const std::set<RigCompletionData::CompletionType>& completionTypes);
+                                                   const std::set<RigCompletionData::CompletionType>& completionTypes,
+                                                   bool* isIntersectingOtherLgrs);
 
-    static bool containsAnyNonMainGridCells(const std::map<CompletionInfo, std::vector<RigCompletionDataGridCell>>& cellsPerCompletion);
-    static bool containsAnyNonMainGridCells(const std::vector<RigCompletionDataGridCell>& cells);
     static int firstAvailableLgrId(const RigMainGrid* mainGrid);
 };

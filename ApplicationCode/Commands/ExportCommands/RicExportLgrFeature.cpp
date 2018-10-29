@@ -296,23 +296,17 @@ std::vector<LgrInfo> RicExportLgrFeature::buildLgrsForWellPath(RimWellPath*     
 
     if (splitType == RicExportLgrUi::LGR_PER_CELL)
     {
-        auto intersectingCells = cellsIntersectingCompletions(eclipseCase, wellPath, timeStep, completionTypes);
-
-        *intersectingOtherLgrs = containsAnyNonMainGridCells(intersectingCells);
+        auto intersectingCells = cellsIntersectingCompletions(eclipseCase, wellPath, timeStep, completionTypes, intersectingOtherLgrs);
         lgrs = buildLgrsPerMainCell(eclipseCase, intersectingCells, lgrCellCounts);
     }
     else if (splitType == RicExportLgrUi::LGR_PER_COMPLETION)
     {
-        auto intersectingCells = cellsIntersectingCompletions_PerCompletion(eclipseCase, wellPath, timeStep, completionTypes);
-
-        *intersectingOtherLgrs = containsAnyNonMainGridCells(intersectingCells);
+        auto intersectingCells = cellsIntersectingCompletions_PerCompletion(eclipseCase, wellPath, timeStep, completionTypes, intersectingOtherLgrs);
         lgrs = buildLgrsPerCompletion(eclipseCase, intersectingCells, lgrCellCounts);
     }
     else if (splitType == RicExportLgrUi::LGR_PER_WELL)
     {
-        auto intersectingCells = cellsIntersectingCompletions(eclipseCase, wellPath, timeStep, completionTypes);
-
-        *intersectingOtherLgrs = containsAnyNonMainGridCells(intersectingCells);
+        auto intersectingCells = cellsIntersectingCompletions(eclipseCase, wellPath, timeStep, completionTypes, intersectingOtherLgrs);
 
         int lgrId = firstAvailableLgrId(eclipseCase->mainGrid());
         lgrs.push_back(buildLgr(lgrId, eclipseCase, intersectingCells, lgrCellCounts));
@@ -396,10 +390,12 @@ std::vector<RigCompletionDataGridCell>
 RicExportLgrFeature::cellsIntersectingCompletions(RimEclipseCase* eclipseCase,
                                                   const RimWellPath* wellPath,
                                                   size_t timeStep,
-                                                  const std::set<RigCompletionData::CompletionType>& completionTypes)
+                                                  const std::set<RigCompletionData::CompletionType>& completionTypes,
+                                                  bool* isIntersectingOtherLgrs)
 {
     std::vector<RigCompletionDataGridCell> cells;
 
+    *isIntersectingOtherLgrs = false;
     auto completions = eclipseCase->computeAndGetVirtualPerforationTransmissibilities();
     if (completions)
     {
@@ -407,6 +403,12 @@ RicExportLgrFeature::cellsIntersectingCompletions(RimEclipseCase* eclipseCase,
 
         for (auto intCell : intCells)
         {
+            if (!intCell.first.isMainGridCell())
+            {
+                *isIntersectingOtherLgrs = true;
+                continue;
+            }
+
             auto filteredCompletions = filterCompletionsOnType(intCell.second, completionTypes);
 
             if (filteredCompletions.empty()) continue;
@@ -424,10 +426,12 @@ std::map<CompletionInfo, std::vector<RigCompletionDataGridCell>>
     RicExportLgrFeature::cellsIntersectingCompletions_PerCompletion(RimEclipseCase*    eclipseCase,
                                                                     const RimWellPath* wellPath,
                                                                     size_t             timeStep,
-                                                                    const std::set<RigCompletionData::CompletionType>& completionTypes)
+                                                                    const std::set<RigCompletionData::CompletionType>& completionTypes,
+                                                                    bool* isIntersectingOtherLgrs)
 {
     std::map<CompletionInfo, std::vector<RigCompletionDataGridCell>> completionToCells;
 
+    *isIntersectingOtherLgrs = false;
     auto completions = eclipseCase->computeAndGetVirtualPerforationTransmissibilities();
     if (completions)
     {
@@ -437,7 +441,11 @@ std::map<CompletionInfo, std::vector<RigCompletionDataGridCell>>
         // This loop assumes that cells are ordered downwards along well path
         for (auto intCell : intCells)
         {
-            if (!intCell.first.isMainGridCell()) continue;
+            if (!intCell.first.isMainGridCell())
+            {
+                *isIntersectingOtherLgrs = true;
+                continue;
+            }
 
             auto filteredCompletions = filterCompletionsOnType(intCell.second, completionTypes);
             if (filteredCompletions.empty()) continue;
@@ -546,29 +554,6 @@ std::vector<RimWellPath*> RicExportLgrFeature::selectedWellPaths()
         if (parentWellPath) wellPaths.push_back(parentWellPath);
     }
     return wellPaths;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RicExportLgrFeature::containsAnyNonMainGridCells(
-    const std::map<CompletionInfo, std::vector<RigCompletionDataGridCell>>& cellsPerCompletion)
-{
-    for (auto cells : cellsPerCompletion)
-    {
-        if (containsAnyNonMainGridCells(cells.second)) return true;
-    }
-    return false;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RicExportLgrFeature::containsAnyNonMainGridCells(const std::vector<RigCompletionDataGridCell>& cells)
-{
-    return std::find_if(cells.begin(), cells.end(), [](const RigCompletionDataGridCell& cell) {
-               return !cell.isMainGridCell();
-           }) != cells.end();
 }
 
 //--------------------------------------------------------------------------------------------------
