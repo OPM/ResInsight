@@ -212,7 +212,7 @@ QList<caf::PdmOptionItemInfo>
     }
     else if (fieldNeedingOptions == &transScalingTimeStep)
     {
-        std::map<int, QStringList> wellProductionStartStrings = generateWellProductionStartStrings();
+        std::map<int, std::vector<std::pair<QString, QString>>> wellProductionStartStrings = generateWellProductionStartStrings();
 
         QStringList timeStepNames;
 
@@ -226,7 +226,43 @@ QList<caf::PdmOptionItemInfo>
             auto it = wellProductionStartStrings.find(i);
             if (it != wellProductionStartStrings.end())
             {
-                timeStepString += QString(" [Start: %1]").arg(it->second.join(", "));
+                int numberOfWells = static_cast<int>(it->second.size());
+                QStringList wellList;
+                QStringList wellPressureList;
+                const int maxStringLength = 70;
+                QString startStringFormat(" [Start: %1]");
+
+                for (int w = 0; w < numberOfWells; ++w)
+                {
+                    QString wellString = it->second[w].first;
+                    QStringList candidateWellList = wellList; candidateWellList << wellString;
+
+                    if (startStringFormat.arg(candidateWellList.join(", ")).length() < maxStringLength)
+                    {
+                        wellList.swap(candidateWellList);
+                    }
+
+                    QString wellStringWithPressure = QString("%1 (%2)").arg(it->second[w].first).arg(it->second[w].second);
+                    QStringList candidateWellPressureList = wellPressureList; candidateWellPressureList << wellStringWithPressure;
+                    if (startStringFormat.arg(candidateWellPressureList.join(", ")).length() < maxStringLength)
+                    {
+                        wellPressureList.swap(candidateWellPressureList);
+                    }
+                }
+                
+                if (wellList.size() < numberOfWells)
+                {
+                    wellList += QString("+ %1 more").arg(numberOfWells - wellList.size());
+                    timeStepString += startStringFormat.arg(wellList.join(", "));
+                }
+                else if (wellPressureList.size() < numberOfWells)
+                {
+                    timeStepString += startStringFormat.arg(wellList.join(", "));
+                }
+                else
+                {
+                    timeStepString += startStringFormat.arg(wellPressureList.join(", "));
+                }
             }
 
             options.push_back(caf::PdmOptionItemInfo(timeStepString, i));
@@ -317,9 +353,9 @@ void RicExportCompletionDataSettingsUi::defineUiOrdering(QString uiConfigName, c
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::map<int, QStringList> RicExportCompletionDataSettingsUi::generateWellProductionStartStrings()
+std::map<int, std::vector<std::pair<QString, QString>>> RicExportCompletionDataSettingsUi::generateWellProductionStartStrings()
 {
-    std::map<int, QStringList> wellProductionStartStrings;
+    std::map<int, std::vector<std::pair<QString, QString>>> wellProductionStartStrings;
 
     const RimProject* project = nullptr;
     if (caseToApply)
@@ -338,7 +374,7 @@ std::map<int, QStringList> RicExportCompletionDataSettingsUi::generateWellProduc
                 &currentWellPressure);
             if (initialWellProductionTimeStep >= 0)
             {
-                wellProductionStartStrings[initialWellProductionTimeStep] += QString("%1 (%2 Bar)").arg(wellPath->name()).arg(initialWellPressure, 4, 'f', 1);
+                wellProductionStartStrings[initialWellProductionTimeStep].push_back(std::make_pair(wellPath->name(), QString("%1 Bar").arg(initialWellPressure, 4, 'f', 1)));
             }
         }
     }

@@ -95,7 +95,7 @@ protected:
     QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
     void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
 
-    std::map<int, QStringList>      generateWellProductionStartStrings();
+    std::map<int, std::vector<std::pair<QString, QString>>> generateWellProductionStartStrings();
 private:
     caf::PdmField<CombinationModeType>  m_reportCompletionTypesSeparately;
 
