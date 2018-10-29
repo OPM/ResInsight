@@ -239,14 +239,14 @@ QList<caf::PdmOptionItemInfo>
 
                     if (startStringFormat.arg(candidateWellList.join(", ")).length() < maxStringLength)
                     {
-                        wellList.swap(candidateWellList);
+                        wellList = candidateWellList;
                     }
 
                     QString wellStringWithPressure = QString("%1 (%2)").arg(it->second[w].first).arg(it->second[w].second);
                     QStringList candidateWellPressureList = wellPressureList; candidateWellPressureList << wellStringWithPressure;
                     if (startStringFormat.arg(candidateWellPressureList.join(", ")).length() < maxStringLength)
                     {
-                        wellPressureList.swap(candidateWellPressureList);
+                        wellPressureList = candidateWellPressureList;
                     }
                 }
                 
