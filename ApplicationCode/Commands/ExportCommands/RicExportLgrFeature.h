@@ -164,9 +164,10 @@ private:
                                                      const caf::VecIjk&                            lgrSizes);
     static std::vector<LgrInfo>
                    buildLgrsPerCompletion(RimEclipseCase*                                                         eclipseCase,
-                                          const std::map<CompletionInfo, std::vector<RigCompletionDataGridCell>>& intersectingCells,
+                                          const std::map<CompletionInfo, std::vector<RigCompletionDataGridCell>>& completionInfo,
                                           const caf::VecIjk&                                                      lgrSizesPerMainGridCell);
     static LgrInfo buildLgr(int                                           lgrId,
+                            const QString&                                lgrName,
                             RimEclipseCase*                               eclipseCase,
                             const std::vector<RigCompletionDataGridCell>& intersectingCells,
                             const caf::VecIjk&                            lgrSizesPerMainGridCell);
@@ -184,4 +185,5 @@ private:
                                                    bool* isIntersectingOtherLgrs);
 
     static int firstAvailableLgrId(const RigMainGrid* mainGrid);
+    static QString createLgrName(const QString& baseName, int number = 0);
 };

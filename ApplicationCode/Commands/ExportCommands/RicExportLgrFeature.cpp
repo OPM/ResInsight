@@ -309,7 +309,8 @@ std::vector<LgrInfo> RicExportLgrFeature::buildLgrsForWellPath(RimWellPath*     
         auto intersectingCells = cellsIntersectingCompletions(eclipseCase, wellPath, timeStep, completionTypes, intersectingOtherLgrs);
 
         int lgrId = firstAvailableLgrId(eclipseCase->mainGrid());
-        lgrs.push_back(buildLgr(lgrId, eclipseCase, intersectingCells, lgrCellCounts));
+        auto lgrName = createLgrName("", lgrId);
+        lgrs.push_back(buildLgr(lgrId, lgrName, eclipseCase, intersectingCells, lgrCellCounts));
     }
     return lgrs;
 }
@@ -326,7 +327,8 @@ std::vector<LgrInfo> RicExportLgrFeature::buildLgrsPerMainCell(RimEclipseCase*  
     int lgrId = firstAvailableLgrId(eclipseCase->mainGrid());
     for (auto intersectionCell : intersectingCells)
     {
-        lgrs.push_back(buildLgr(lgrId++, eclipseCase, {intersectionCell}, lgrSizes));
+        auto lgrName = createLgrName("", lgrId);
+        lgrs.push_back(buildLgr(lgrId++, lgrName, eclipseCase, {intersectionCell}, lgrSizes));
     }
     return lgrs;
 }
@@ -336,15 +338,16 @@ std::vector<LgrInfo> RicExportLgrFeature::buildLgrsPerMainCell(RimEclipseCase*  
 //--------------------------------------------------------------------------------------------------
 std::vector<LgrInfo> RicExportLgrFeature::buildLgrsPerCompletion(
     RimEclipseCase*                                                         eclipseCase,
-    const std::map<CompletionInfo, std::vector<RigCompletionDataGridCell>>& intersectingCells,
+    const std::map<CompletionInfo, std::vector<RigCompletionDataGridCell>>& completionInfo,
     const caf::VecIjk&                                                      lgrSizesPerMainGridCell)
 {
     std::vector<LgrInfo> lgrs;
 
     int lgrId = firstAvailableLgrId(eclipseCase->mainGrid());
-    for (auto intersectionInfo : intersectingCells)
+    for (auto complInfo : completionInfo)
     {
-        lgrs.push_back(buildLgr(lgrId++, eclipseCase, intersectionInfo.second, lgrSizesPerMainGridCell));
+        auto lgrName = createLgrName(complInfo.first.name, complInfo.first.number);
+        lgrs.push_back(buildLgr(lgrId++, lgrName, eclipseCase, complInfo.second, lgrSizesPerMainGridCell));
     }
     return lgrs;
 }
@@ -353,6 +356,7 @@ std::vector<LgrInfo> RicExportLgrFeature::buildLgrsPerCompletion(
 ///
 //--------------------------------------------------------------------------------------------------
 LgrInfo RicExportLgrFeature::buildLgr(int                                           lgrId,
+                                      const QString&                                lgrName,
                                       RimEclipseCase*                               eclipseCase,
                                       const std::vector<RigCompletionDataGridCell>& intersectingCells,
                                       const caf::VecIjk&                            lgrSizesPerMainGridCell)
@@ -380,7 +384,7 @@ LgrInfo RicExportLgrFeature::buildLgr(int                                       
     caf::VecIjk mainGridStartCell(iRange.first, jRange.first, kRange.first);
     caf::VecIjk mainGridEndCell(iRange.second, jRange.second, kRange.second);
 
-    return LgrInfo(lgrId, QString("LGR_%1").arg(lgrId), lgrSizes, mainGridStartCell, mainGridEndCell);
+    return LgrInfo(lgrId, lgrName, lgrSizes, mainGridStartCell, mainGridEndCell);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -568,5 +572,23 @@ int RicExportLgrFeature::firstAvailableLgrId(const RigMainGrid* mainGrid)
         lastUsedId = std::max(lastUsedId, mainGrid->gridByIndex(i)->gridId());
     }
     return lastUsedId + 1;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RicExportLgrFeature::createLgrName(const QString& baseName, int number)
+{
+    QString lgrName = "LGR";
+    
+    if (!baseName.isEmpty())
+    {
+        lgrName += "_" + baseName;
+    }
+    if (number > 0)
+    {
+        lgrName += "_" + QString::number(number);
+    }
+    return lgrName.replace(" ", "_");
 }
 
