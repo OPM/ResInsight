@@ -76,6 +76,7 @@ void Rim2dGridProjection::generateGridMapping()
     updateDefaultSampleSpacingFromGrid();
 
     calculateCellRangeVisibility();
+    calculatePropertyFilterVisibility();
     
     cvf::BoundingBox boundingBox = eclipseCase()->activeCellsBoundingBox();
     cvf::Vec3d gridExtent = boundingBox.extent();
@@ -358,6 +359,18 @@ void Rim2dGridProjection::calculateCellRangeVisibility()
             }
         }
     }    
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void Rim2dGridProjection::calculatePropertyFilterVisibility()
+{
+    RimEclipseView* view = nullptr;
+    firstAncestorOrThisOfTypeAsserted(view);
+    int timeStep = view->currentTimeStep();
+
+    RivReservoirViewPartMgr::computePropertyVisibility(m_cellVisibility.p(), mainGrid(), timeStep, m_cellVisibility.p(), view->eclipsePropertyFilterCollection());
 }
 
 //--------------------------------------------------------------------------------------------------

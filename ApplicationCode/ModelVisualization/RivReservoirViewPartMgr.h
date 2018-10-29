@@ -103,6 +103,12 @@ public:
     void                        forceWatertightGeometryOnForType(RivCellSetEnum geometryType);
     void                        clearWatertightGeometryFlags();
 
+    static void computePropertyVisibility(cvf::UByteArray*                    cellVisibilities,
+                                          const RigGridBase*                  grid,
+                                          size_t                              timeStepIndex,
+                                          const cvf::UByteArray*              rangeFilterVisibility,
+                                          RimEclipsePropertyFilterCollection* propFilterColl);
+
 private:
     void                        createGeometry(RivCellSetEnum geometryType);
     void                        computeVisibility(cvf::UByteArray* cellVisibility, 
@@ -129,11 +135,6 @@ private:
                                                           const RigGridBase* grid, 
                                                           const cvf::UByteArray* nativeVisibility, 
                                                           const RimCellRangeFilterCollection* rangeFilterColl);
-    static void                 computePropertyVisibility(cvf::UByteArray* cellVisibilities, 
-                                                          const RigGridBase* grid, 
-                                                          size_t timeStepIndex, 
-                                                          const cvf::UByteArray* rangeFilterVisibility, 
-                                                          RimEclipsePropertyFilterCollection* propFilterColl);
     void                        computeOverriddenCellVisibility(cvf::UByteArray* cellVisibility, 
                                                                 const RigGridBase* grid);
 

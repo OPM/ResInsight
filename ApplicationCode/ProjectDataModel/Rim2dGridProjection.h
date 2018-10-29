@@ -74,6 +74,7 @@ public:
 protected:
     void                                           generateGridMapping();
     void                                           calculateCellRangeVisibility();
+    void                                           calculatePropertyFilterVisibility();
     cvf::Vec2d                                     globalPos2d(uint i, uint j) const;
     const std::vector<std::pair<size_t, float>>&   cellsAtPos2d(uint i, uint j) const;    
     std::vector<std::pair<size_t, float>>          visibleCellsAndWeightMatching2dPoint(const cvf::Vec2d& globalPos2d) const;
