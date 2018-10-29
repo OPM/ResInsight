@@ -115,15 +115,23 @@ void RicCreateTemporaryLgrFeature::onActionTriggered(bool isChecked)
         bool intersectingOtherLgr = false;
         for (const auto& wellPath : wellPaths)
         {
+<<<<<<< HEAD
+            try
+            {
+                std::vector<LgrInfo> lgrs = RicExportLgrFeature::buildLgrsForWellPath(
+                    wellPath, eclipseCase, timeStep, lgrCellCounts, splitType, completionTypes);
+=======
+            std::vector<LgrInfo> lgrs;
             bool intersectingLgrs = false;
 
-            auto lgrs = RicExportLgrFeature::buildLgrsForWellPath(wellPath,
-                                                                  eclipseCase,
-                                                                  timeStep,
-                                                                  lgrCellCounts,
-                                                                  splitType,
-                                                                  completionTypes,
-                                                                  &intersectingLgrs);
+            lgrs = RicExportLgrFeature::buildLgrsForWellPath(wellPath,
+                                                                eclipseCase,
+                                                                timeStep,
+                                                                lgrCellCounts,
+                                                                splitType,
+                                                                completionTypes,
+                                                                &intersectingLgrs);
+>>>>>>> TEMP
 
             if (intersectingLgrs) intersectingOtherLgr = true;
 
@@ -135,11 +143,21 @@ void RicCreateTemporaryLgrFeature::onActionTriggered(bool isChecked)
 
                 size_t lgrCellCount = lgr.cellCount();
 
+<<<<<<< HEAD
+                mainGrid->calculateFaults(activeCellInfo, true);
+            }
+            catch (CreateLgrException& e)
+            {
+                RiaLogging::error(e.message);
+
+                intersectsExistingLgr = true;
+=======
                 activeCellInfo->addLgr(lgrCellCount);
                 if (fractureActiveCellInfo->reservoirActiveCellCount() > 0)
                 {
                     fractureActiveCellInfo->addLgr(lgrCellCount);
                 }
+>>>>>>> TEMP
             }
 
             mainGrid->calculateFaults(activeCellInfo, true);
@@ -233,6 +251,11 @@ void RicCreateTemporaryLgrFeature::createLgr(const LgrInfo& lgrInfo, RigMainGrid
 
                 size_t mainCellIndex = mainGrid->cellIndexFromIJK(mainI, mainJ, mainK);
                 auto mainGridCell = mainGrid->globalCellArray()[mainCellIndex];
+
+                if (mainGridCell.subGrid())
+                {
+                    continue;
+                }
                 mainGridCell.setSubGrid(localGrid);
 
                 RigCell& cell = mainGrid->globalCellArray()[cellStartIndex + gridLocalCellIndex];

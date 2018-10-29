@@ -91,24 +91,20 @@ void RicfExportLgrForCompletions::execute()
         }
 
         caf::VecIjk lgrCellCounts(m_refinementI, m_refinementJ, m_refinementK);
-        bool lgrIntersected = false;
+        bool intersectingOtherLgrs = false;
         for (const auto wellPath : wellPaths)
         {
             if (wellPath)
             {
-                try
-                {
-                    feature->exportLgrsForWellPath(exportFolder, wellPath, eclipseCase, m_timeStep, lgrCellCounts, m_splitType(),
-                        {RigCompletionData::PERFORATION, RigCompletionData::FRACTURE, RigCompletionData::FISHBONES});
-                }
-                catch(CreateLgrException e)
-                {
-                    lgrIntersected = true;
-                }
+                bool intersectingLgrs = false;
+                feature->exportLgrsForWellPath(exportFolder, wellPath, eclipseCase, m_timeStep, lgrCellCounts, m_splitType(),
+                    {RigCompletionData::PERFORATION, RigCompletionData::FRACTURE, RigCompletionData::FISHBONES}, &intersectingLgrs);
+                
+                if (intersectingLgrs) intersectingOtherLgrs = true;
             }
         }
 
-        if (lgrIntersected)
+        if (intersectingOtherLgrs)
         {
             RiaLogging::error("exportLgrForCompletions: At least one completion intersects with an LGR. No output for those completions produced");
         }

@@ -2526,6 +2526,7 @@ void RigCaseCellResultsData::assignValuesToTemporaryLgrs(const QString&       re
         return;
     }
 
+    bool invalidCellsDetected = false;
     for (size_t gridIdx = 0; gridIdx < m_ownerMainGrid->gridCount(); gridIdx++)
     {
         const auto& grid = m_ownerMainGrid->gridByIndex(gridIdx);
@@ -2549,9 +2550,14 @@ void RigCaseCellResultsData::assignValuesToTemporaryLgrs(const QString&       re
                 }
                 else
                 {
-                    RiaLogging::warning("Detected invalid/undefined cells when assigning result values to temporary LGRs");
+                    invalidCellsDetected = true;
                 }
             }
         }
+    }
+
+    if (invalidCellsDetected)
+    {
+        RiaLogging::warning("Detected invalid/undefined cells when assigning result values to temporary LGRs");
     }
 }

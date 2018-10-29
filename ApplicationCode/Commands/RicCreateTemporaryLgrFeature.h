@@ -28,6 +28,7 @@
 
 class LgrInfo;
 class RigMainGrid;
+class RigCell;
 class RimEclipseCase;
 class RimSimWellInView;
 class RimWellPath;

@@ -35,18 +35,6 @@ class RimWellPath;
 class QFile;
 class QTextStream;
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-class CreateLgrException
-{
-public:
-    CreateLgrException(const QString& message)
-        : message(message)
-    {
-    }
-    QString message;
-};
 
 //==================================================================================================
 ///
@@ -150,14 +138,16 @@ class RicExportLgrFeature : public caf::CmdFeature
                                       size_t timeStep,
                                       caf::VecIjk lgrCellCounts,
                                       RicExportLgrUi::SplitType splitType,
-                                      const std::set<RigCompletionData::CompletionType>& completionTypes);
+                                      const std::set<RigCompletionData::CompletionType>& completionTypes,
+                                      bool* intersectingOtherLgrs);
 
     static std::vector<LgrInfo> buildLgrsForWellPath(RimWellPath*                 wellPath,
                                                      RimEclipseCase*              eclipseCase,
                                                      size_t                       timeStep,
                                                      caf::VecIjk                  lgrCellCounts,
                                                      RicExportLgrUi::SplitType    splitType,
-                                                     const std::set<RigCompletionData::CompletionType>& completionTypes);
+                                                     const std::set<RigCompletionData::CompletionType>& completionTypes,
+                                                     bool* intersectingOtherLgrs);
 
     static std::vector<RimWellPath*> selectedWellPaths();
 
