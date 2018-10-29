@@ -332,44 +332,9 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
         // PROTOTYPE-CODE for Pressure Differential Depletion //
         // MAY CHANGE A LOT                                   //
         ////////////////////////////////////////////////////////
-        if (currentPressureDropScaling == MATRIX_TO_FRACTURE_DP_OVER_INITIAL_DP ||
-            currentPressureDropScaling == MATRIX_TO_FRACTURE_DP_OVER_MAX_INITIAL_DP)
-        {
-            RigTransmissibilityCondenser scaledCondenser = transCondenser;
-            // 1. Scale matrix to fracture transmissibilities by matrix to fracture pressure
-            std::map<size_t, double> originalLumpedMatrixToFractureTrans =
-                scaledCondenser.scaleMatrixToFracTransByMatrixFracInitialDP(actCellInfo,
-                                                                            initialWellPressure,
-                                                                            currentWellPressure,
-                                                                            *initialMatrixPressures,
-                                                                            *currentMatrixPressures,
-                                                                            currentPressureDropScaling ==
-                                                                                MATRIX_TO_FRACTURE_DP_OVER_MAX_INITIAL_DP);
-            // 2: Calculate new external transmissibilities
-            scaledCondenser.calculateCondensedTransmissibilities();
-
-            if (pdParams.transCorrection == NO_CORRECTION)
-            {
-                // Calculate effective matrix to well transmissibilities.
-                std::map<size_t, double> effectiveMatrixToWellTransBeforeCorrection =
-                    calculateMatrixToWellTransmissibilities(scaledCondenser);
-                matrixToWellTrans = effectiveMatrixToWellTransBeforeCorrection;
-            }
-            else if (pdParams.transCorrection == HOGSTOL_CORRECTION)
-            {
-                // Høgstøl correction.
-                // 1. Calculate new effective fracture to well transmissiblities
-                std::map<size_t, double> fictitiousFractureToWellTransmissibilities =
-                    scaledCondenser.calculateFicticiousFractureToWellTransmissibilities();
-                // 2. Calculate new effective matrix to well transmissibilities
-                std::map<size_t, double> effectiveMatrixToWellTrans =
-                    scaledCondenser.calculateEffectiveMatrixToWellTransmissibilities(originalLumpedMatrixToFractureTrans,
-                                                                                     fictitiousFractureToWellTransmissibilities);
-                matrixToWellTrans = effectiveMatrixToWellTrans;
-            }
-        }
-        else if (currentPressureDropScaling == MATRIX_TO_WELL_DP_OVER_INITIAL_DP ||
-                 currentPressureDropScaling == MATRIX_TO_WELL_DP_OVER_MAX_INITIAL_DP)
+       
+        if (currentPressureDropScaling == MATRIX_TO_WELL_DP_OVER_INITIAL_DP ||
+            currentPressureDropScaling == MATRIX_TO_WELL_DP_OVER_MAX_INITIAL_DP)
         {
             RigTransmissibilityCondenser scaledCondenser = transCondenser;
             // 1. Scale matrix to fracture transmissibilities by matrix to fracture pressure
@@ -383,58 +348,19 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
             // 2: Calculate new external transmissibilities
             scaledCondenser.calculateCondensedTransmissibilities();
 
-            if (pdParams.transCorrection == NO_CORRECTION)
-            {
-                // Calculate effective matrix to well transmissibilities.
-                std::map<size_t, double> effectiveMatrixToWellTransBeforeCorrection =
-                    calculateMatrixToWellTransmissibilities(scaledCondenser);
-                matrixToWellTrans = effectiveMatrixToWellTransBeforeCorrection;
-            }
-            else if (pdParams.transCorrection == HOGSTOL_CORRECTION)
-            {
-                // Høgstøl correction.
-                // 1. Calculate new effective fracture to well transmissiblities
+            { // 3: Høgstøl correction.
+                
+                // a. Calculate new effective fracture to well transmissiblities
                 std::map<size_t, double> fictitiousFractureToWellTransmissibilities =
                     scaledCondenser.calculateFicticiousFractureToWellTransmissibilities();
-                // 2. Calculate new effective matrix to well transmissibilities
+                // b. Calculate new effective matrix to well transmissibilities
                 std::map<size_t, double> effectiveMatrixToWellTrans =
                     scaledCondenser.calculateEffectiveMatrixToWellTransmissibilities(originalLumpedMatrixToFractureTrans,
                                                                                      fictitiousFractureToWellTransmissibilities);
                 matrixToWellTrans = effectiveMatrixToWellTrans;
             }
         }
-        else if (currentPressureDropScaling == MATRIX_TO_FRACTURE_FLUX_OVER_MAX_FLUX)
-        {
-            RigTransmissibilityCondenser scaledCondenser = transCondenser;
-            // 1. Scale matrix to fracture transmissibilities by matrix to fracture pressure Depletion:
-            std::map<size_t, double> originalLumpedMatrixToFractureTrans =
-                scaledCondenser.scaleMatrixToFracTransByMatrixFracFlux(actCellInfo,
-                    currentWellPressure,
-                    *currentMatrixPressures,
-                    false);
-            // 2: Calculate new external transmissibilities
-            scaledCondenser.calculateCondensedTransmissibilities();
-
-            if (pdParams.transCorrection == NO_CORRECTION)
-            {
-                // Calculate effective matrix to well transmissibilities.
-                std::map<size_t, double> effectiveMatrixToWellTransBeforeCorrection =
-                    calculateMatrixToWellTransmissibilities(scaledCondenser);
-                matrixToWellTrans = effectiveMatrixToWellTransBeforeCorrection;
-            }
-            else if (pdParams.transCorrection == HOGSTOL_CORRECTION)
-            {
-                // Høgstøl correction.
-                // 1. Calculate new effective fracture to well transmissiblities
-                std::map<size_t, double> fictitiousFractureToWellTransmissibilities =
-                    scaledCondenser.calculateFicticiousFractureToWellTransmissibilities();
-                // 2. Calculate new effective matrix to well transmissibilities
-                std::map<size_t, double> effectiveMatrixToWellTrans =
-                    scaledCondenser.calculateEffectiveMatrixToWellTransmissibilities(originalLumpedMatrixToFractureTrans,
-                                                                                     fictitiousFractureToWellTransmissibilities);
-                matrixToWellTrans = effectiveMatrixToWellTrans;
-            }
-        }
+       
         ////////////////////////////////////////////////////////////
         // clang-format on
         // END PROTOTYPE CODE FOR PRESSURE DIFFERENTIAL DEPLETION //

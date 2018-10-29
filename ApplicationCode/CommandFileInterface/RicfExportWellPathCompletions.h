@@ -52,7 +52,6 @@ private:
     caf::PdmField<int>                                                       m_transScalingTimeStep;
     caf::PdmField<bool>                                                      m_transScalingSummaryWBHP;
     caf::PdmField<double>                                                    m_transScalingWBHP;
-    caf::PdmField<RicExportCompletionDataSettingsUi::TransScalingCorrection> m_transScalingCorrection;
 
     caf::PdmField<bool> m_useLateralNTG;
     caf::PdmField<bool> m_includePerforations;

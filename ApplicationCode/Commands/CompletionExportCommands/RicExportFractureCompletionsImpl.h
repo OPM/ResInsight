@@ -47,17 +47,8 @@ public:
     enum PressureDepletionTransScaling
     {
         NO_SCALING = 0,
-        MATRIX_TO_FRACTURE_DP_OVER_INITIAL_DP,
-        MATRIX_TO_FRACTURE_DP_OVER_MAX_INITIAL_DP,
         MATRIX_TO_WELL_DP_OVER_INITIAL_DP,
-        MATRIX_TO_WELL_DP_OVER_MAX_INITIAL_DP,
-        MATRIX_TO_FRACTURE_FLUX_OVER_MAX_FLUX
-    };
-
-    enum PressureDepletionTransCorrection
-    {
-        NO_CORRECTION,
-        HOGSTOL_CORRECTION
+        MATRIX_TO_WELL_DP_OVER_MAX_INITIAL_DP
     };
 
     //--------------------------------------------------------------------------------------------------
@@ -66,19 +57,16 @@ public:
     struct PressureDepletionParameters
     {
         PressureDepletionParameters(PressureDepletionTransScaling pressureDropScaling = NO_SCALING,
-                                    PressureDepletionTransCorrection transCorrection = NO_CORRECTION,
                                     int pressureScalingTimeStep = 0,
                                     bool wbhpFromSummaryCase = false,
                                     double pressureScalingWBHP = 200.0)
             : pressureDropScaling(pressureDropScaling)
-            , transCorrection(transCorrection)
             , pressureScalingTimeStep(pressureScalingTimeStep)
             , wbhpFromSummaryCase(wbhpFromSummaryCase)
             , pressureScalingWBHP(pressureScalingWBHP)
         {}
 
         PressureDepletionTransScaling    pressureDropScaling;
-        PressureDepletionTransCorrection transCorrection;
         int                              pressureScalingTimeStep;
         bool                             wbhpFromSummaryCase;
         double                           pressureScalingWBHP;

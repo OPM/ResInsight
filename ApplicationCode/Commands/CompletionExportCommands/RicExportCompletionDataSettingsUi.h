@@ -57,7 +57,6 @@ public:
     typedef caf::AppEnum<CombinationMode> CombinationModeType;
 
     typedef caf::AppEnum<RicExportFractureCompletionsImpl::PressureDepletionTransScaling> TransScalingType;
-    typedef caf::AppEnum<RicExportFractureCompletionsImpl::PressureDepletionTransCorrection> TransScalingCorrection;
 
     RicExportCompletionDataSettingsUi();
 
@@ -70,7 +69,6 @@ public:
     caf::PdmField<int>                      transScalingTimeStep;
     caf::PdmField<bool>                     transScalingSummaryWBHP;
     caf::PdmField<double>                   transScalingWBHP;
-    caf::PdmField<TransScalingCorrection>   transScalingCorrection;
 
     caf::PdmField<bool>                     includeMsw;
     caf::PdmField<bool>                     useLateralNTG;

@@ -59,7 +59,6 @@ RicfExportWellPathCompletions::RicfExportWellPathCompletions()
     RICF_InitField(&m_transScalingTimeStep, "transScalingTimeStep", 0, "Transmissibility Scaling Pressure Time Step", "", "", "");
     RICF_InitField(&m_transScalingSummaryWBHP, "transScalingWBHPFromSummary", true, "Transmissibility Scaling WBHP from summary", "", "", "");
     RICF_InitField(&m_transScalingWBHP,     "transScalingWBHP", 200.0, "Transmissibility Scaling Constant WBHP Value", "", "", "");
-    RICF_InitField(&m_transScalingCorrection, "transScalingCorrection", RicExportCompletionDataSettingsUi::TransScalingCorrection(), "Transmissibility Scaling Correction", "", "", "");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -83,7 +82,6 @@ void RicfExportWellPathCompletions::execute()
     exportSettings->compdatExport = m_compdatExport;
 
     exportSettings->transScalingType = m_transScalingType;
-    exportSettings->transScalingCorrection = m_transScalingCorrection;
     exportSettings->transScalingTimeStep = m_transScalingTimeStep;
     exportSettings->transScalingSummaryWBHP = m_transScalingSummaryWBHP;
     exportSettings->transScalingWBHP = m_transScalingWBHP;

@@ -55,23 +55,11 @@ namespace caf
     void RicExportCompletionDataSettingsUi::TransScalingType::setUp()
     {
         addItem(RicExportFractureCompletionsImpl::NO_SCALING, "NO_SCALING", "No scaling");
-        addItem(RicExportFractureCompletionsImpl::MATRIX_TO_FRACTURE_DP_OVER_INITIAL_DP, "MATFRAC_DP_OVER_INITIALDP", "Matrix to Fracture dP over initial dP");
-        addItem(RicExportFractureCompletionsImpl::MATRIX_TO_FRACTURE_DP_OVER_MAX_INITIAL_DP, "MATFRAC_DP_OVER_MAX_INITIALDP", "Matrix to Fracture dP over max initial dP");
         addItem(RicExportFractureCompletionsImpl::MATRIX_TO_WELL_DP_OVER_INITIAL_DP, "MATWELL_DP_OVER_INITIALDP", "Matrix to Well dP over initial dP");
         addItem(RicExportFractureCompletionsImpl::MATRIX_TO_WELL_DP_OVER_MAX_INITIAL_DP, "MATWELL_DP_OVER_MAX_INITIALDP", "Matrix to Well dP over max initial dP");
-        addItem(RicExportFractureCompletionsImpl::MATRIX_TO_FRACTURE_FLUX_OVER_MAX_FLUX, "MATFRAC_FLUX_OVER_MAXFLUX", "Matrix to Fracture Flux over max Flux");
 
         setDefault(RicExportFractureCompletionsImpl::NO_SCALING);
     }
-
-    template<>
-    void RicExportCompletionDataSettingsUi::TransScalingCorrection::setUp()
-    {
-        addItem(RicExportFractureCompletionsImpl::NO_CORRECTION, "NO_CORRECTION", "No correction");
-        addItem(RicExportFractureCompletionsImpl::HOGSTOL_CORRECTION, "HOGSTOL_CORRECTION", "Høgstøl Correction");
-        setDefault(RicExportFractureCompletionsImpl::NO_CORRECTION);
-    }
-
 }
 // clang-format on
 
@@ -99,7 +87,6 @@ RicExportCompletionDataSettingsUi::RicExportCompletionDataSettingsUi()
     CAF_PDM_InitField(&includeFractures, "IncludeFractures", true, "Fractures", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&transScalingType, "TransScalingType", "  Pressure Diff. Depletion Transmissibility Scaling (BETA)", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&transScalingCorrection, "TransScalingCorrection", "  PDD Transmissibility Scaling Correction (BETA)", "", "", "");
     CAF_PDM_InitField(&transScalingTimeStep, "TransScalingTimeStep", 0, "  PDD Current Pressure Time Step (BETA)", "", "", "");
     CAF_PDM_InitField(&transScalingWBHP, "TransScalingWBHP", 200.0, "  PDD Default WBHP Value (BETA)", "", "", "");
     CAF_PDM_InitField(&transScalingSummaryWBHP, "TransScalingWBHPFromCurrentTime", true, "  PDD WBHP from Summary File at Current Time (BETA)", "", "", "");
@@ -267,12 +254,10 @@ void RicExportCompletionDataSettingsUi::defineUiOrdering(QString uiConfigName, c
             if (RiaApplication::enableDevelopmentFeatures())
             {
                 group->add(&transScalingType);
-                group->add(&transScalingCorrection);
                 group->add(&transScalingTimeStep);
                 group->add(&transScalingWBHP);
                 group->add(&transScalingSummaryWBHP);
 
-                transScalingCorrection.uiCapability()->setUiReadOnly(transScalingType() == RicExportFractureCompletionsImpl::NO_SCALING);
                 transScalingTimeStep.uiCapability()->setUiReadOnly(transScalingType() == RicExportFractureCompletionsImpl::NO_SCALING);
                 transScalingWBHP.uiCapability()->setUiReadOnly(transScalingType() == RicExportFractureCompletionsImpl::NO_SCALING);
                 transScalingSummaryWBHP.uiCapability()->setUiReadOnly(transScalingType() == RicExportFractureCompletionsImpl::NO_SCALING);
