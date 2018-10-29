@@ -119,6 +119,8 @@ public:
     void                                            calculateCompletionTypeAndRedrawIfRequired();
 
     bool                                            isVirtualConnectionFactorGeometryVisible() const;
+    bool                                            isMainGridVisible() const;
+
 
     const std::vector<RivCellSetEnum>&              visibleGridParts() const;
     const RivReservoirViewPartMgr*                  reservoirGridPartManager() const;

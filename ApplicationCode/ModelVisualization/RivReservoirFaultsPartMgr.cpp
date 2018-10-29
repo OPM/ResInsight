@@ -101,7 +101,7 @@ void RivReservoirFaultsPartMgr::appendPartsToModel(cvf::ModelBasicList* model)
     if (!faultCollection) return;
 
  
-    bool isShowingGrid = faultCollection->isGridVisualizationMode();
+    bool isShowingGrid = m_reservoirView->isMainGridVisible();
     if (!faultCollection->showFaultCollection() && !isShowingGrid) return;
     
     // Check match between model fault count and fault parts
