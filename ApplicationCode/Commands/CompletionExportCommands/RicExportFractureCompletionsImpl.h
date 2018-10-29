@@ -91,6 +91,13 @@ public:
                                                                 QTextStream* outputStreamForIntermediateResultsText,
                                                                 PressureDepletionParameters pdParams = PressureDepletionParameters());
 
+    static void getWellPressuresAndInitialProductionTimeStepFromSummaryData(const RimEclipseCase* caseToApply,
+                                                                            const QString&        wellPathName,
+                                                                            int                   currentTimeStep,
+                                                                            int*                  initialTimeStep,
+                                                                            double*               initialWellPressure,
+                                                                            double*               currentWellPressure);
+
 private:
     static std::vector<RigCompletionData> generateCompdatValuesConst(const RimEclipseCase* caseToApply,
                                                                      const QString& wellPathName,
@@ -99,13 +106,6 @@ private:
                                                                      std::vector<RicWellPathFractureReportItem>* fractureDataReportItems,
                                                                      QTextStream* outputStreamForIntermediateResultsText,
                                                                      PressureDepletionParameters pdParams);
-
-    static void getWellPressuresAndInitialProductionTimeStepFromSummaryData(const RimEclipseCase* caseToApply,
-                                                                            const QString&        wellPathName,
-                                                                            int                   currentTimeStep,
-                                                                            int*                  initialTimeStep,
-                                                                            double*               initialWellPressure,
-                                                                            double*               currentWellPressure);
 
     static bool checkForStimPlanConductivity(const RimFractureTemplate* fracTemplate, const RimFracture* fracture);
 

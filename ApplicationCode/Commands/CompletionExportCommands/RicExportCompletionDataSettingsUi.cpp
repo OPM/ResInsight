@@ -19,6 +19,11 @@
 #include "RiaApplication.h"
 
 #include "RicExportCompletionDataSettingsUi.h"
+#include "RicExportFractureCompletionsImpl.h"
+
+#include "RimProject.h"
+#include "RimWellPath.h"
+#include "RimWellPathCompletions.h"
 
 // clang-format off
 namespace caf
@@ -192,7 +197,7 @@ QList<caf::PdmOptionItemInfo>
     RicExportCompletionDataSettingsUi::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly)
 {
     QList<caf::PdmOptionItemInfo> options;
-    if (fieldNeedingOptions == &timeStep || fieldNeedingOptions == &transScalingTimeStep)
+    if (fieldNeedingOptions == &timeStep)
     {
         QStringList timeStepNames;
 
@@ -205,6 +210,29 @@ QList<caf::PdmOptionItemInfo>
             options.push_back(caf::PdmOptionItemInfo(timeStepNames[i], i));
         }
     }
+    else if (fieldNeedingOptions == &transScalingTimeStep)
+    {
+        std::map<int, QStringList> wellProductionStartStrings = generateWellProductionStartStrings();
+
+        QStringList timeStepNames;
+
+        if (caseToApply)
+        {
+            timeStepNames = caseToApply->timeStepStrings();
+        }
+        for (int i = 0; i < timeStepNames.size(); i++)
+        {
+            QString timeStepString = timeStepNames[i];
+            auto it = wellProductionStartStrings.find(i);
+            if (it != wellProductionStartStrings.end())
+            {
+                timeStepString += QString(" [Start: %1]").arg(it->second.join(", "));
+            }
+
+            options.push_back(caf::PdmOptionItemInfo(timeStepString, i));
+        }
+    }
+
     else
     {
         options = RicCaseAndFileExportSettingsUi::calculateValueOptions(fieldNeedingOptions, useOptionsOnly);
@@ -284,4 +312,35 @@ void RicExportCompletionDataSettingsUi::defineUiOrdering(QString uiConfigName, c
     }
 
     uiOrdering.skipRemainingFields();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::map<int, QStringList> RicExportCompletionDataSettingsUi::generateWellProductionStartStrings()
+{
+    std::map<int, QStringList> wellProductionStartStrings;
+
+    const RimProject* project = nullptr;
+    if (caseToApply)
+    {
+        caseToApply->firstAncestorOrThisOfTypeAsserted(project);
+        for (const RimWellPath* wellPath : project->allWellPaths())
+        {
+            int    initialWellProductionTimeStep = -1;
+            double initialWellPressure = 0.0;
+            double currentWellPressure = 0.0;
+            RicExportFractureCompletionsImpl::getWellPressuresAndInitialProductionTimeStepFromSummaryData(caseToApply,
+                wellPath->completions()->wellNameForExport(),
+                0,
+                &initialWellProductionTimeStep,
+                &initialWellPressure,
+                &currentWellPressure);
+            if (initialWellProductionTimeStep >= 0)
+            {
+                wellProductionStartStrings[initialWellProductionTimeStep] += QString("%1 (%2 Bar)").arg(wellPath->name()).arg(initialWellPressure, 4, 'f', 1);
+            }
+        }
+    }
+    return wellProductionStartStrings;
 }
