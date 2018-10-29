@@ -79,17 +79,17 @@ void Riv2dGridProjectionPartMgr::removeTrianglesWithNoResult(cvf::UIntArray* ver
     
     for (size_t n = 0; n < vertices->size(); n += 3)
     {
-        bool anyValid = false;
-        for (size_t t = 0; !anyValid && t < 3; ++t)
+        bool anyInvalid = false;
+        for (size_t t = 0; !anyInvalid && t < 3; ++t)
         {
             cvf::uint vertexNumber = (*vertices)[n + t];
             cvf::Vec2ui ij = m_2dGridProjection->ijFromGridIndex(vertexNumber);
-            if (m_2dGridProjection->hasResultAt(ij.x(), ij.y()))
+            if (!m_2dGridProjection->hasResultAt(ij.x(), ij.y()))
             {
-                anyValid = true;
+                anyInvalid = true;
             }
         }
-        for (size_t t = 0; anyValid && t < 3; ++t)
+        for (size_t t = 0; !anyInvalid && t < 3; ++t)
         {
             cvf::uint vertexNumber = (*vertices)[n + t];
             trianglesWithResult.push_back(vertexNumber);
