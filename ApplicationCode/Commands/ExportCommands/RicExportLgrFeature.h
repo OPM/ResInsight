@@ -137,7 +137,7 @@ class RicExportLgrFeature : public caf::CmdFeature
                                       RimEclipseCase* eclipseCase,
                                       size_t timeStep,
                                       caf::VecIjk lgrCellCounts,
-                                      RicExportLgrUi::SplitType splitType,
+                                      Lgr::SplitType splitType,
                                       const std::set<RigCompletionData::CompletionType>& completionTypes,
                                       bool* intersectingOtherLgrs);
 
@@ -145,7 +145,7 @@ class RicExportLgrFeature : public caf::CmdFeature
                                                      RimEclipseCase*              eclipseCase,
                                                      size_t                       timeStep,
                                                      caf::VecIjk                  lgrCellCounts,
-                                                     RicExportLgrUi::SplitType    splitType,
+                                                     Lgr::SplitType               splitType,
                                                      const std::set<RigCompletionData::CompletionType>& completionTypes,
                                                      bool* intersectingOtherLgrs);
 

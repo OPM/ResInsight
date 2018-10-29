@@ -20,6 +20,8 @@
 
 #include "RigCompletionData.h"
 
+#include "RicLgrSplitType.h"
+
 #include "cafPdmObject.h"
 #include "cafPdmChildField.h"
 #include "cafPdmField.h"
@@ -45,9 +47,6 @@ class RicExportLgrUi : public caf::PdmObject
     CAF_PDM_HEADER_INIT;
 
 public:
-    enum SplitType { LGR_PER_CELL, LGR_PER_COMPLETION, LGR_PER_WELL};
-    typedef caf::AppEnum<RicExportLgrUi::SplitType> LgrSplitTypeEnum;
-
     RicExportLgrUi();
 
     void setCase(RimEclipseCase* rimCase);
@@ -58,7 +57,7 @@ public:
     RimEclipseCase*         caseToApply() const;
     int                     timeStep() const;
     std::set<RigCompletionData::CompletionType> completionTypes() const;
-    SplitType               splitType() const;
+    Lgr::SplitType          splitType() const;
 
     void                    hideExportFolderField(bool hide);
     void                    setExportFolder(const QString& folder);
@@ -84,5 +83,5 @@ private:
     caf::PdmField<int>  m_cellCountJ;
     caf::PdmField<int>  m_cellCountK;
 
-    caf::PdmField<LgrSplitTypeEnum> m_splitType;
+    caf::PdmField<Lgr::SplitTypeEnum> m_splitType;
 };

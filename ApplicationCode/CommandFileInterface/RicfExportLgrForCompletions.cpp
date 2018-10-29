@@ -53,7 +53,7 @@ RicfExportLgrForCompletions::RicfExportLgrForCompletions()
     RICF_InitField(&m_refinementI,          "refinementI",          -1,                     "RefinementI",      "", "", "");
     RICF_InitField(&m_refinementJ,          "refinementJ",          -1,                     "RefinementJ",      "", "", "");
     RICF_InitField(&m_refinementK,          "refinementK",          -1,                     "RefinementK",      "", "", "");
-    RICF_InitField(&m_splitType,            "splitType",            LgrSplitType(),         "SplitType", "", "", "");
+    RICF_InitField(&m_splitType,            "splitType",            Lgr::SplitTypeEnum(),   "SplitType",        "", "", "");
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -256,7 +256,7 @@ void RicExportLgrFeature::exportLgrsForWellPath(const QString&            export
                                                 RimEclipseCase*           eclipseCase,
                                                 size_t                    timeStep,
                                                 caf::VecIjk               lgrCellCounts,
-                                                RicExportLgrUi::SplitType splitType,
+                                                Lgr::SplitType            splitType,
                                                 const std::set<RigCompletionData::CompletionType>& completionTypes,
                                                 bool* intersectingOtherLgrs)
 {
@@ -288,23 +288,23 @@ std::vector<LgrInfo> RicExportLgrFeature::buildLgrsForWellPath(RimWellPath*     
                                                                RimEclipseCase*              eclipseCase,
                                                                size_t                       timeStep,
                                                                caf::VecIjk                  lgrCellCounts,
-                                                               RicExportLgrUi::SplitType    splitType,
+                                                               Lgr::SplitType               splitType,
                                                                const std::set<RigCompletionData::CompletionType>& completionTypes,
                                                                bool* intersectingOtherLgrs)
 {
     std::vector<LgrInfo> lgrs;
 
-    if (splitType == RicExportLgrUi::LGR_PER_CELL)
+    if (splitType == Lgr::LGR_PER_CELL)
     {
         auto intersectingCells = cellsIntersectingCompletions(eclipseCase, wellPath, timeStep, completionTypes, intersectingOtherLgrs);
         lgrs = buildLgrsPerMainCell(eclipseCase, intersectingCells, lgrCellCounts);
     }
-    else if (splitType == RicExportLgrUi::LGR_PER_COMPLETION)
+    else if (splitType == Lgr::LGR_PER_COMPLETION)
     {
         auto intersectingCells = cellsIntersectingCompletions_PerCompletion(eclipseCase, wellPath, timeStep, completionTypes, intersectingOtherLgrs);
         lgrs = buildLgrsPerCompletion(eclipseCase, intersectingCells, lgrCellCounts);
     }
-    else if (splitType == RicExportLgrUi::LGR_PER_WELL)
+    else if (splitType == Lgr::LGR_PER_WELL)
     {
         auto intersectingCells = cellsIntersectingCompletions(eclipseCase, wellPath, timeStep, completionTypes, intersectingOtherLgrs);
 

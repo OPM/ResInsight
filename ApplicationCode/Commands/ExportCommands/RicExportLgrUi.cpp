@@ -36,13 +36,13 @@ CAF_PDM_SOURCE_INIT(RicExportLgrUi, "RicExportLgrUi");
 namespace caf
 {
     template<>
-    void RicExportLgrUi::LgrSplitTypeEnum::setUp()
+    void Lgr::SplitTypeEnum::setUp()
     {
-        addItem(RicExportLgrUi::LGR_PER_CELL,       "LGR_PER_CELL",         "LGR Per Cell");
-        addItem(RicExportLgrUi::LGR_PER_COMPLETION, "LGR_PER_COMPLETION",   "LGR Per Completion");
-        addItem(RicExportLgrUi::LGR_PER_WELL,       "LGR_PER_WELL",         "LGR Per Well");
+        addItem(Lgr::LGR_PER_CELL,       "LGR_PER_CELL",         "LGR Per Cell");
+        addItem(Lgr::LGR_PER_COMPLETION, "LGR_PER_COMPLETION",   "LGR Per Completion");
+        addItem(Lgr::LGR_PER_WELL,       "LGR_PER_WELL",         "LGR Per Well");
 
-        setDefault(RicExportLgrUi::LGR_PER_COMPLETION);
+        setDefault(Lgr::LGR_PER_COMPLETION);
     }
 }
 
@@ -71,7 +71,7 @@ RicExportLgrUi::RicExportLgrUi()
     m_cellCountJ.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
     m_cellCountK.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
 
-    CAF_PDM_InitField(&m_splitType,     "SplitType", LgrSplitTypeEnum(), "Split Type", "", "", "");
+    CAF_PDM_InitField(&m_splitType,     "SplitType", Lgr::SplitTypeEnum(), "Split Type", "", "", "");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -149,7 +149,7 @@ std::set<RigCompletionData::CompletionType> RicExportLgrUi::completionTypes() co
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RicExportLgrUi::SplitType RicExportLgrUi::splitType() const
+Lgr::SplitType RicExportLgrUi::splitType() const
 {
     return m_splitType();
 }

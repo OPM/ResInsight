@@ -22,6 +22,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RicExportWellPathsUi.h
 ${CMAKE_CURRENT_LIST_DIR}/RicExportLgrFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicExportLgrUi.h
 ${CMAKE_CURRENT_LIST_DIR}/RicEclipseCellResultToFileImpl.h
+${CMAKE_CURRENT_LIST_DIR}/RicLgrSplitType.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
