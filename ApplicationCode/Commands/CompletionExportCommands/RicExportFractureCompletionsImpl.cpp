@@ -379,7 +379,7 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
                 currentWellPressure,
                 *initialMatrixPressures,
                 *currentMatrixPressures,
-                currentPressureDropScaling == MATRIX_TO_FRACTURE_DP_OVER_MAX_INITIAL_DP);
+                currentPressureDropScaling == MATRIX_TO_WELL_DP_OVER_MAX_INITIAL_DP);
             // 2: Calculate new external transmissibilities
             scaledCondenser.calculateCondensedTransmissibilities();
 
