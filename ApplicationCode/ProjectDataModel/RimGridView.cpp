@@ -273,11 +273,6 @@ RimViewLinker* RimGridView::assosiatedViewLinker() const
 //--------------------------------------------------------------------------------------------------
 bool RimGridView::isGridVisualizationMode() const
 {
-    auto indicesToVisibleGrids = m_gridCollection->indicesToVisibleGrids();
-    bool isMainGridVisible = std::find(indicesToVisibleGrids.begin(), indicesToVisibleGrids.end(), 0) != indicesToVisibleGrids.end();
-
-    if (!isMainGridVisible) return false;
-
     return this->m_gridCollection->isActive();
 }
 
