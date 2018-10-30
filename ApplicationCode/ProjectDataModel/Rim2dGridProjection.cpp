@@ -11,16 +11,20 @@
 
 #include "RivReservoirViewPartMgr.h"
 
+#include "RimCellRangeFilterCollection.h"
 #include "RimEclipseCellColors.h"
 #include "RimEclipseView.h"
 #include "RimEclipseResultCase.h"
 #include "RimProject.h"
-#include "RimCellRangeFilterCollection.h"
+#include "RimRegularLegendConfig.h"
 
+#include "cafContourLines.h"
 #include "cafPdmUiDoubleSliderEditor.h"
 #include "cafPdmUiTreeOrdering.h"
+
 #include "cvfArray.h"
 #include "cvfCellRange.h"
+#include "cvfScalarMapper.h"
 #include "cvfStructGridGeometryGenerator.h"
 
 #include <QDebug>
@@ -130,6 +134,41 @@ void Rim2dGridProjection::generateVertices(cvf::Vec3fArray* vertices, const caf:
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+Rim2dGridProjection::ContourPolygons Rim2dGridProjection::generateContourPolygons(const caf::DisplayCoordTransform* displayCoordTransform)
+{
+    std::vector<cvf::ref<cvf::Vec3fArray>> contourPolygons;
+
+    cvf::BoundingBox boundingBox = eclipseCase()->activeCellsBoundingBox();
+
+    std::vector<double> contourLevels;
+    m_legendConfig->scalarMapper()->majorTickValues(&contourLevels);
+    int nContourLevels = static_cast<int>(contourLevels.size());
+    if (nContourLevels > 2)
+    {
+        contourLevels[0] += (contourLevels[1] - contourLevels[0]) * 0.01;
+        contourLevels[nContourLevels - 1] -= (contourLevels[nContourLevels - 1] - contourLevels[nContourLevels - 2]) * 0.01;
+        std::vector<std::vector<cvf::Vec2d>> contourLines;
+        caf::ContourLines::create(m_aggregatedResults, xPositions(), yPositions(), contourLevels, &contourLines);
+
+        contourPolygons.reserve(contourLines.size());
+        for (size_t i = 0; i < contourLines.size(); ++i)
+        {
+            cvf::ref<cvf::Vec3fArray> contourPolygon = new cvf::Vec3fArray(contourLines[i].size());
+            for (size_t j = 0; j < contourLines[i].size(); ++j)
+            {
+                cvf::Vec3d contourPoint3d = cvf::Vec3d(contourLines[i][j], boundingBox.min().z());
+                cvf::Vec3d displayPoint3d = displayCoordTransform->transformToDisplayCoord(contourPoint3d);
+                (*contourPolygon)[j] = cvf::Vec3f(displayPoint3d);
+            }
+            contourPolygons.push_back(contourPolygon);
+        }
+    }
+    return contourPolygons;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void Rim2dGridProjection::generateResults()
 {
     generateGridMapping();
@@ -213,6 +252,14 @@ void Rim2dGridProjection::updateDefaultSampleSpacingFromGrid()
     {
         m_sampleSpacing = mainGrid()->characteristicIJCellSize() * 0.5;
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const std::vector<double>& Rim2dGridProjection::aggregatedResults() const
+{
+    return m_aggregatedResults;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -485,6 +532,47 @@ void Rim2dGridProjection::updateLegend()
     generateResults();
     m_legendConfig->setAutomaticRanges(minValue(), maxValue(), minValue(), maxValue());
     m_legendConfig->setTitle(QString("2d Projection:\n%1").arg(cellColors->resultVariableUiShortName()));
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<double> Rim2dGridProjection::xPositions() const
+{
+    cvf::BoundingBox boundingBox = eclipseCase()->activeCellsBoundingBox();
+    cvf::Vec3d gridExtent = boundingBox.extent();
+    double origin = boundingBox.min().x();
+
+    cvf::Vec2ui gridSize2d = surfaceGridSize();
+
+    std::vector<double> positions;
+    positions.reserve(gridSize2d.x());
+    for (uint i = 0; i < gridSize2d.x(); ++i)
+    {
+        positions.push_back(origin + (i * gridExtent.x()) / (gridSize2d.x() - 1));
+    }
+    
+    return positions;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<double> Rim2dGridProjection::yPositions() const
+{
+    cvf::BoundingBox boundingBox = eclipseCase()->activeCellsBoundingBox();
+    cvf::Vec3d gridExtent = boundingBox.extent();
+    double origin = boundingBox.min().y();
+    cvf::Vec2ui gridSize2d = surfaceGridSize();
+
+    std::vector<double> positions;
+    positions.reserve(gridSize2d.y());
+    for (uint j = 0; j < gridSize2d.y(); ++j)
+    {
+        positions.push_back(origin + (j * gridExtent.y()) / (gridSize2d.y() - 1));
+    }
+
+    return positions;
 }
 
 //--------------------------------------------------------------------------------------------------

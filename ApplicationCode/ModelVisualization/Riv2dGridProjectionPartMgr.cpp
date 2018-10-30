@@ -40,6 +40,25 @@ void Riv2dGridProjectionPartMgr::appendProjectionToModel(cvf::ModelBasicList* mo
 
         model->addPart(part.p());
     }
+
+    std::vector<cvf::ref<cvf::DrawableGeo>> contourDrawables = createContourPolygons(displayCoordTransform);
+    for (cvf::ref<cvf::DrawableGeo> contourDrawable : contourDrawables)
+    {
+        if (contourDrawable.notNull() && contourDrawable->boundingBox().isValid())
+        {
+            caf::MeshEffectGenerator meshEffectGen(cvf::Color3::BLACK);
+            meshEffectGen.setLineWidth(1.0f);
+            meshEffectGen.createAndConfigurePolygonOffsetRenderState(caf::PO_2);
+            cvf::ref<cvf::Effect> effect = meshEffectGen.generateCachedEffect();
+
+            cvf::ref<cvf::Part> part = new cvf::Part;
+            part->setDrawable(contourDrawable.p());
+            part->setEffect(effect.p());
+            part->setSourceInfo(new RivMeshLinesSourceInfo(m_2dGridProjection.p()));
+
+            model->addPart(part.p());
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -119,4 +138,36 @@ cvf::ref<cvf::DrawableGeo> Riv2dGridProjectionPartMgr::createDrawable(const caf:
     geo->addPrimitiveSet(indexUInt.p());
     geo->setVertexArray(vertexArray.p());
     return geo;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<cvf::ref<cvf::DrawableGeo>> Riv2dGridProjectionPartMgr::createContourPolygons(const caf::DisplayCoordTransform* displayCoordTransform) const
+{
+    Rim2dGridProjection::ContourPolygons contourPolygons = m_2dGridProjection->generateContourPolygons(displayCoordTransform);
+
+    std::vector<cvf::ref<cvf::DrawableGeo>> contourDrawables;
+    contourDrawables.reserve(contourPolygons.size());
+    for (size_t i = 0; i < contourPolygons.size(); ++i)
+    {
+        cvf::ref<cvf::Vec3fArray> vertexArray = contourPolygons[i];
+        std::vector<cvf::uint> indices;
+        indices.reserve(contourPolygons[i]->size());
+        for (cvf::uint j = 0; j < contourPolygons[i]->size(); ++j)
+        {
+            indices.push_back(j);
+        }
+
+        cvf::ref<cvf::PrimitiveSetIndexedUInt> indexedUInt = new cvf::PrimitiveSetIndexedUInt(cvf::PrimitiveType::PT_LINES);
+        cvf::ref<cvf::UIntArray>               indexArray = new cvf::UIntArray(indices);
+        indexedUInt->setIndices(indexArray.p());
+
+        cvf::ref<cvf::DrawableGeo> geo = new cvf::DrawableGeo;
+
+        geo->addPrimitiveSet(indexedUInt.p());
+        geo->setVertexArray(vertexArray.p());
+        contourDrawables.push_back(geo);
+    }
+    return contourDrawables;
 }

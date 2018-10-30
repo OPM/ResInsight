@@ -41,6 +41,7 @@ public:
     void removeTrianglesWithNoResult(cvf::UIntArray* uintArray) const;
 private:
     cvf::ref<cvf::DrawableGeo> createDrawable(const caf::DisplayCoordTransform* displayCoordTransform) const;
+    std::vector<cvf::ref<cvf::DrawableGeo>> createContourPolygons(const caf::DisplayCoordTransform* displayCoordTransform) const;
 private:
     caf::PdmPointer<Rim2dGridProjection> m_2dGridProjection;
 };

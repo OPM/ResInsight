@@ -49,16 +49,20 @@ public:
         RESULTS_MAX_VALUE
     };
     typedef caf::AppEnum<ResultAggregationEnum> ResultAggregation;
+    typedef std::vector<cvf::ref<cvf::Vec3fArray>> ContourPolygons;
 
     Rim2dGridProjection();
     ~Rim2dGridProjection() override;
 
     void                        generateVertices(cvf::Vec3fArray* vertices, const caf::DisplayCoordTransform* displayCoordTransform);
+    
+    ContourPolygons             generateContourPolygons(const caf::DisplayCoordTransform* displayCoordTransform);
     void                        generateResults();
     double                      maxValue() const;
     double                      minValue() const;
     double                      sampleSpacing() const;
     void                        updateDefaultSampleSpacingFromGrid();
+    const std::vector<double>&  aggregatedResults() const;
 
     double                      value(uint i, uint j) const;
     bool                        hasResultAt(uint i, uint j) const;
@@ -72,12 +76,15 @@ public:
     void                        updateLegend();
 
 protected:
-    void                                           generateGridMapping();
-    void                                           calculateCellRangeVisibility();
-    void                                           calculatePropertyFilterVisibility();
-    cvf::Vec2d                                     globalPos2d(uint i, uint j) const;
-    const std::vector<std::pair<size_t, float>>&   cellsAtPos2d(uint i, uint j) const;    
-    std::vector<std::pair<size_t, float>>          visibleCellsAndWeightMatching2dPoint(const cvf::Vec2d& globalPos2d) const;
+    void                                         generateGridMapping();
+    void                                         calculateCellRangeVisibility();
+    void                                         calculatePropertyFilterVisibility();
+    cvf::Vec2d                                   globalPos2d(uint i, uint j) const;
+    const std::vector<std::pair<size_t, float>>& cellsAtPos2d(uint i, uint j) const;
+    std::vector<double>                          xPositions() const;
+    std::vector<double>                          yPositions() const;
+
+    std::vector<std::pair<size_t, float>>        visibleCellsAndWeightMatching2dPoint(const cvf::Vec2d& globalPos2d) const;
 
     const RimEclipseResultCase* eclipseCase() const;
     RigMainGrid*                mainGrid() const;
