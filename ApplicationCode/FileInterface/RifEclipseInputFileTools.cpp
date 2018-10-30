@@ -42,7 +42,7 @@
 #include <QTextStream>
 #include <QDebug>
 
-#include "ert/ecl/ecl_box.h"
+#include "ert/ecl/ecl_box.hpp"
 #include "ert/ecl/ecl_kw.h"
 
 QString includeKeyword("INCLUDE");
