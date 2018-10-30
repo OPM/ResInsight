@@ -36,6 +36,7 @@
 #include "RiaLogging.h"
 #include "RiaWellNameComparer.h"
 
+#include <QStringList>
 #include "cafCmdFeatureManager.h"
 
 
@@ -91,7 +92,7 @@ void RicfExportLgrForCompletions::execute()
         }
 
         caf::VecIjk lgrCellCounts(m_refinementI, m_refinementJ, m_refinementK);
-        bool intersectingOtherLgrs = false;
+        QStringList wellsWithIntersectingLgrs;
         for (const auto wellPath : wellPaths)
         {
             if (wellPath)
@@ -100,13 +101,14 @@ void RicfExportLgrForCompletions::execute()
                 feature->exportLgrsForWellPath(exportFolder, wellPath, eclipseCase, m_timeStep, lgrCellCounts, m_splitType(),
                     {RigCompletionData::PERFORATION, RigCompletionData::FRACTURE, RigCompletionData::FISHBONES}, &intersectingLgrs);
                 
-                if (intersectingLgrs) intersectingOtherLgrs = true;
+                if (intersectingLgrs) wellsWithIntersectingLgrs.push_back(wellPath->name());
             }
         }
 
-        if (intersectingOtherLgrs)
+        if (!wellsWithIntersectingLgrs.empty())
         {
-            RiaLogging::error("exportLgrForCompletions: At least one completion intersects with an LGR. No output for those completions produced");
+            auto wellsList = wellsWithIntersectingLgrs.join(", ");
+            RiaLogging::error("exportLgrForCompletions: No export for some wells due to existing intersecting LGR(s).Affected wells : " + wellsList);
         }
     }
 }

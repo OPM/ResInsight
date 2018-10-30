@@ -52,6 +52,7 @@
 #include <QFileInfo>
 #include <QMessageBox>
 #include <QTextStream>
+#include <QStringList>
 
 #include <cafPdmUiPropertyViewDialog.h>
 #include <cafSelectionManager.h>
@@ -270,15 +271,18 @@ void RicExportLgrFeature::exportLgrsForWellPath(const QString&            export
                                 completionTypes,
                                 intersectingOtherLgrs);
 
-    // Export
-    QFile   file;
-    QString fileName = caf::Utils::makeValidFileBasename(QString("LGR_%1").arg(wellPath->name())) + ".dat";
-    openFileForExport(exportFolder, fileName, &file);
-    QTextStream stream(&file);
-    stream.setRealNumberNotation(QTextStream::FixedNotation);
-    stream.setRealNumberPrecision(2);
-    exportLgrs(stream, lgrs);
-    file.close();
+    if (!*intersectingOtherLgrs)
+    {
+        // Export
+        QFile   file;
+        QString fileName = caf::Utils::makeValidFileBasename(QString("LGR_%1").arg(wellPath->name())) + ".dat";
+        openFileForExport(exportFolder, fileName, &file);
+        QTextStream stream(&file);
+        stream.setRealNumberNotation(QTextStream::FixedNotation);
+        stream.setRealNumberPrecision(2);
+        exportLgrs(stream, lgrs);
+        file.close();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -509,7 +513,7 @@ void RicExportLgrFeature::onActionTriggered(bool isChecked)
         auto   lgrCellCounts = dialogData->lgrCellCount();
         size_t timeStep      = dialogData->timeStep();
 
-        bool intersectingOtherLgrs = false;
+        QStringList wellsWithIntersectingLgrs;
         for (const auto& wellPath : wellPaths)
         {
             bool intersectingLgrs = false;
@@ -522,14 +526,15 @@ void RicExportLgrFeature::onActionTriggered(bool isChecked)
                                   dialogData->completionTypes(),
                                   &intersectingLgrs);
 
-            if (intersectingLgrs) intersectingOtherLgrs = true;
+            if (intersectingLgrs) wellsWithIntersectingLgrs.push_back(wellPath->name());
         }
 
-        if (intersectingOtherLgrs)
+        if (!wellsWithIntersectingLgrs.empty())
         {
+            auto wellsList = wellsWithIntersectingLgrs.join(", ");
             QMessageBox::warning(nullptr,
                                  "LGR cells intersected",
-                                 "At least one completion intersects with an LGR. No output for those completions produced");
+                                 "No export for some wells due to existing intersecting LGR(s). Affected wells: " + wellsList);
         }
     }
 }
