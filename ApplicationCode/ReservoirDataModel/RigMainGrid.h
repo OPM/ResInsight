@@ -72,7 +72,7 @@ public:
     RigNNCData*                             nncData();
     void                                    setFaults(const cvf::Collection<RigFault>& faults);
     const cvf::Collection<RigFault>&        faults();
-    void                                    calculateFaults(const RigActiveCellInfo* activeCellInfo, bool forceCalculation = false);
+    void                                    calculateFaults(const RigActiveCellInfo* activeCellInfo);
 
     void distributeNNCsToFaults();
 

@@ -50,7 +50,12 @@ public:
 
     inline int faultIdx(size_t reservoirCellIndex, cvf::StructGridInterface::FaceType face) const
     {
-        return m_faultIdxForCellFace[reservoirCellIndex][face];
+        // Ensure no crash after creating temporary LGRs
+        if (reservoirCellIndex < m_faultIdxForCellFace.size())
+        {
+            return m_faultIdxForCellFace[reservoirCellIndex][face];
+        }
+        return NO_FAULT;
     }
 
     inline void setFaultIdx(size_t reservoirCellIndex, cvf::StructGridInterface::FaceType face, int faultIdx)

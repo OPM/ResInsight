@@ -142,7 +142,7 @@ void RicCreateTemporaryLgrFeature::onActionTriggered(bool isChecked)
                 }
             }
 
-            mainGrid->calculateFaults(activeCellInfo, true);
+            mainGrid->calculateFaults(activeCellInfo);
         }
 
         RiuSelectionManager::instance()->deleteAllItems(RiuSelectionManager::RUI_APPLICATION_GLOBAL);
