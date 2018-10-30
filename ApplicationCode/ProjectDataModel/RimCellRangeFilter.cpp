@@ -21,6 +21,8 @@
 
 #include "RimCellRangeFilter.h"
 
+#include "RiaApplication.h"
+
 #include "RigActiveCellInfo.h"
 #include "RigReservoirGridTools.h"
 
@@ -331,6 +333,7 @@ void RimCellRangeFilter::defineUiOrdering(QString uiConfigName, caf::PdmUiOrderi
     uiOrdering.add(&startIndexK);
     uiOrdering.add(&cellCountK);
 
+    if(RiaApplication::enableDevelopmentFeatures())
     {
         auto group = uiOrdering.addNewGroup("Single Cell Filtering (TEST)");
         group->setCollapsedByDefault(true);
@@ -340,6 +343,7 @@ void RimCellRangeFilter::defineUiOrdering(QString uiConfigName, caf::PdmUiOrderi
 
         m_individualCellIndices.uiCapability()->setUiReadOnly(!m_useIndividualCellIndices);
     }
+    uiOrdering.skipRemainingFields(true);
 }
 
 //--------------------------------------------------------------------------------------------------
