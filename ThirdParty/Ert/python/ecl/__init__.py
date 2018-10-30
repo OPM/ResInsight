@@ -111,12 +111,16 @@ if ecl_lib_path:
     if not os.path.isdir( ecl_lib_path ):
         ecl_lib_path = None
 
-
 if sys.hexversion < required_version_hex:
     raise Exception("ERT Python requires Python 2.7.")
 
 def load(name):
-    return cwrapload(name, path=ecl_lib_path, so_version=ert_so_version)
+    try:
+        return cwrapload(name, path=ecl_lib_path, so_version=ert_so_version)
+    except ImportError:
+        # For pip installs, setup.py puts the shared lib in this directory
+        own_dir=os.path.dirname(os.path.abspath(__file__))
+        return cwrapload(name, path=own_dir, so_version=ert_so_version)
 
 class EclPrototype(Prototype):
     lib = load("libecl")

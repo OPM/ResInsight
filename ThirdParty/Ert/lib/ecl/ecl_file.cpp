@@ -505,24 +505,26 @@ ecl_file_view_type * ecl_file_get_summary_view( ecl_file_type * ecl_file , int r
 */
 
 /**
-   The ecl_file_scan() function will scan through the whole file and
-   build up an index of all the kewyords. The map created from this
-   scan will be stored under the 'global_view' field; and all
-   subsequent lookup operations will ultimately be based on the global
-   map.
+   The ecl_file_scan() function will scan through the whole file and build up an
+   index of all the kewyords. The map created from this scan will be stored
+   under the 'global_view' field; and all subsequent lookup operations will
+   ultimately be based on the global map.
+
+   The ecl_file_scan function will scan through the file as long as it finds
+   valid ecl_kw instances on the disk; it will return when EOF is encountered or
+   an invalid ecl_kw instance is detected. This implies that for a partly broken
+   file the ecl_file_scan function will index the valid keywords which are in
+   the file, possible garbage at the end will be ignored.
 */
 
-static bool ecl_file_scan( ecl_file_type * ecl_file ) {
-  bool scan_ok = false;
+static void ecl_file_scan( ecl_file_type * ecl_file ) {
   fortio_fseek( ecl_file->fortio , 0 , SEEK_SET );
   {
     ecl_kw_type * work_kw = ecl_kw_alloc_new("WORK-KW" , 0 , ECL_INT , NULL);
 
     while (true) {
-      if (fortio_read_at_eof(ecl_file->fortio)) {
-        scan_ok = true;
+      if (fortio_read_at_eof(ecl_file->fortio))
         break;
-      }
 
       {
         offset_type current_offset = fortio_ftell( ecl_file->fortio );
@@ -542,10 +544,7 @@ static bool ecl_file_scan( ecl_file_type * ecl_file ) {
 
     ecl_kw_free( work_kw );
   }
-  if (scan_ok)
-    ecl_file_view_make_index( ecl_file->global_view );
-
-  return scan_ok;
+  ecl_file_view_make_index( ecl_file->global_view );
 }
 
 
@@ -590,19 +589,16 @@ ecl_file_type * ecl_file_open( const char * filename , int flags) {
     ecl_file->fortio = fortio;
     ecl_file->global_view = ecl_file_view_alloc( ecl_file->fortio , &ecl_file->flags , ecl_file->inv_view , true );
 
-    if (ecl_file_scan( ecl_file )) {
-      ecl_file_select_global( ecl_file );
+    ecl_file_scan( ecl_file );
+    ecl_file_select_global( ecl_file );
 
-      if (ecl_file_view_check_flags( ecl_file->flags , ECL_FILE_CLOSE_STREAM))
-        fortio_fclose_stream( ecl_file->fortio );
+    if (ecl_file_view_check_flags( ecl_file->flags , ECL_FILE_CLOSE_STREAM))
+      fortio_fclose_stream( ecl_file->fortio );
 
-      return ecl_file;
-    } else {
-      ecl_file_close( ecl_file );
-      return NULL;
-    }
+    return ecl_file;
   } else
     return NULL;
+
 }
 
 

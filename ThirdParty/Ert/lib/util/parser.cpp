@@ -405,8 +405,9 @@ stringlist_type * basic_parser_tokenize_buffer(
     if( is_in_quoters( buffer[position], parser ) )  {
       int length   = length_of_quotation( &buffer[position] );
       char * token = alloc_quoted_token( &buffer[position], length, strip_quote_marks );
-      stringlist_append_owned_ref( tokens, token );
+      stringlist_append_copy( tokens, token );
       position += length;
+      free(token);
       continue;
     }
 
@@ -452,9 +453,9 @@ stringlist_type * basic_parser_tokenize_buffer(
 
       if (token_length > 0) { /* We do not insert empty tokens. */
         token[token_length] = '\0';
-        stringlist_append_owned_ref( tokens, token );
-      } else
-        free( token );    /* The whole thing is discarded. */
+        stringlist_append_copy( tokens, token );
+      }
+      free( token );
 
       position += length;
       continue;

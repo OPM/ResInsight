@@ -54,7 +54,7 @@ int main(int argc, char ** argv) {
 
 
     for (int iarg=3; iarg < argc; iarg++)
-      stringlist_append_ref(kw_set, argv[iarg]);
+      stringlist_append_copy(kw_set, argv[iarg]);
 
     if (!ecl_util_fmt_file(src_file, &fmt_src))
       util_exit("Hmm - could not determine formatted/unformatted status for:%s \n",src_file);

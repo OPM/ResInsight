@@ -161,7 +161,8 @@ void test_spawn_redirect_threaded() {
       util_make_path( path );
       char * script = util_alloc_filename( path , "script" , NULL);
       make_script(script, stdout_msg, stderr_msg);
-      stringlist_append_owned_ref(script_fullpaths, script);
+      stringlist_append_copy(script_fullpaths, script);
+      free(script);
       free(path);
    }
 

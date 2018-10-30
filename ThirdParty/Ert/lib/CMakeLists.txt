@@ -55,8 +55,7 @@ if (ZLIB_FOUND)
 endif ()
 
 if (ERT_BUILD_CXX)
-    list(APPEND opt_srcs util/TestArea.cpp
-                         ecl/FortIO.cpp
+    list(APPEND opt_srcs ecl/FortIO.cpp
                          ecl/Smspec.cpp
                          ecl/EclFilename.cpp
 )
@@ -73,6 +72,7 @@ add_library(ecl util/rng.cpp
                 util/mzran.cpp
                 util/hash_node.cpp
                 util/hash_sll.cpp
+                util/path.cpp
                 util/hash.cpp
                 util/node_data.cpp
                 util/node_ctype.cpp
@@ -90,6 +90,7 @@ add_library(ecl util/rng.cpp
                 util/ecl_version.cpp
                 util/perm_vector.cpp
                 util/test_util.cpp
+                util/cxx_string_util.cpp
                 ${opt_srcs}
 
                 ecl/ecl_rsthead.cpp
@@ -203,7 +204,7 @@ endif ()
 set_target_properties(ecl PROPERTIES
                           VERSION ${ECL_VERSION_MAJOR}.${ECL_VERSION_MINOR}
                           SOVERSION ${ECL_VERSION_MAJOR})
-if (INSTALL_ERT)
+
 install(TARGETS ecl
         EXPORT  ecl-config
         ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
@@ -228,7 +229,6 @@ if (ERT_BUILD_CXX)
             PATTERN *.hpp
 )
 endif ()
-endif()
 
 if (NOT BUILD_TESTS)
     return ()
@@ -245,6 +245,7 @@ target_link_libraries(ecl3-testsuite catch2 ecl)
 add_test(NAME ecl3 COMMAND ecl3-testsuite)
 
 foreach (name   ert_util_alloc_file_components
+                ert_util_split_path
                 ert_util_approx_equal
                 ert_util_before_after
                 ert_util_binary_split
@@ -271,6 +272,7 @@ foreach (name   ert_util_alloc_file_components
         )
 
     add_executable(${name} util/tests/${name}.cpp)
+    target_include_directories(${name} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/private-include)
     target_link_libraries(${name} ecl)
     add_test(NAME ${name} COMMAND ${name})
 endforeach ()
@@ -348,6 +350,9 @@ foreach (name   ecl_alloc_cpgrid
                 ecl_grid_init_fwrite
                 ecl_grid_reset_actnum
                 ecl_grid_ext_actnum
+                ecl_sum_data_intermediate_test
+                ecl_grid_cell_contains
+                ecl_unsmry_loader_test
                 ecl_init_file
                 ecl_kw_cmp_string
                 ecl_kw_equal
@@ -366,6 +371,7 @@ foreach (name   ecl_alloc_cpgrid
                 ecl_sum_writer
                 ecl_util_filenames
                 ecl_util_make_date_no_shift
+                ecl_util_make_date_shift
                 ecl_util_month_range
                 ecl_valid_basename
                 test_ecl_nnc_data
@@ -381,21 +387,9 @@ foreach (name   ecl_alloc_cpgrid
         )
         add_executable(${name} ecl/tests/${name}.cpp)
         target_link_libraries(${name} ecl)
+        target_include_directories(${name} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/private-include)
         add_test(NAME ${name} COMMAND ${name})
 endforeach ()
-
-add_executable(ecl_unsmry_loader ecl/tests/ecl_unsmry_loader_test.cpp)
-target_link_libraries(ecl_unsmry_loader ecl)
-target_include_directories(ecl_unsmry_loader PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/private-include)
-add_test(NAME ecl_unsmry_loader COMMAND ecl_unsmry_loader)
-
-add_executable(ecl_sum_data_intermediate ecl/tests/ecl_sum_data_intermediate_test.cpp)
-target_link_libraries(ecl_sum_data_intermediate ecl)
-add_test(NAME ecl_sum_data_intermediate COMMAND ecl_sum_data_intermediate)
-
-add_executable(ecl_grid_cell_contains ecl/tests/ecl_grid_cell_contains.cpp)
-target_link_libraries(ecl_grid_cell_contains ecl)
-add_test(NAME ecl_grid_cell_contains1 COMMAND ecl_grid_cell_contains)
 
 if (HAVE_UTIL_ABORT_INTERCEPT)
    add_executable(ecl_grid_corner ecl/tests/ecl_grid_corner.cpp)
@@ -435,7 +429,7 @@ foreach (name geo_util_xlines geo_polygon geo_polygon_collection)
 endforeach ()
 
 if (ERT_BUILD_CXX)
-    foreach (test ert_util_unique_ptr ert_util_test_area_xx)
+    foreach (test ert_util_unique_ptr)
         add_executable(${test} util/tests/${test}.cpp)
         target_link_libraries(${test} ecl)
         add_test(NAME ${test} COMMAND ${test})
@@ -448,6 +442,52 @@ if (ERT_BUILD_CXX)
     endforeach ()
 endif ()
 
+foreach(name ecl_coarse_test
+             ecl_grid_layer_contains
+             ecl_restart_test
+             ecl_nnc_export
+             ecl_nnc_export_get_tran
+             ecl_nnc_data_statoil_root
+             ecl_sum_case_exists
+             ecl_grid_lgr_name
+             ecl_region
+             ecl_grid_cell_contains_wellpath
+             ecl_region2region
+             ecl_grid_case
+             ecl_grid_simple
+             ecl_grid_volume
+             ecl_grid_dims
+             ecl_nnc_test
+             ecl_lgr_test
+             ecl_layer_statoil
+             ecl_dualp
+             ecl_grid_dx_dy_dz
+             ecl_sum_test
+             ecl_sum_report_step_equal
+             ecl_sum_report_step_compatible
+             ecl_file_statoil
+             ecl_fmt
+             ecl_rsthead
+             ecl_smspec
+             ecl_rft
+             ecl_grid_copy_statoil
+             ecl_fault_block_layer_statoil
+             well_state_load
+             well_state_load_missing_RSEG
+             well_segment_load
+             well_segment_branch_conn_load
+             well_info
+             well_conn_CF
+             well_conn_load
+             well_ts
+             well_dualp
+             well_lgr_load)
+
+  add_executable(${name} ecl/tests/${name}.cpp)
+  target_link_libraries(${name} ecl)
+  target_include_directories(${name} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/private-include)
+endforeach()
+
 
 if (NOT STATOIL_TESTDATA_ROOT)
     return ()
@@ -457,26 +497,21 @@ endif()
 # ecl
 #
 
+add_test(NAME ecl_grid_dx_dy_dz1 COMMAND ecl_grid_dx_dy_dz ${_eclpath}/Gurbat/ECLIPSE)
+add_test(NAME ecl_grid_dx_dy_dz3 COMMAND ecl_grid_dx_dy_dz ${_eclpath}/Troll/Ref2014/T07-4A-W2014-06)
 
-add_executable(ecl_coarse_test ecl/tests/ecl_coarse_test.cpp)
-target_link_libraries(ecl_coarse_test ecl)
 add_test(NAME ecl_coarse_test COMMAND ecl_coarse_test
     ${_eclpath}/LGCcase/LGC_TESTCASE2)
 
-add_executable(ecl_grid_layer_contains ecl/tests/ecl_grid_layer_contains.cpp)
-target_link_libraries(ecl_grid_layer_contains ecl)
 add_test(NAME ecl_grid_layer_contains1 COMMAND ecl_grid_layer_contains
     ${_eclpath}/Gurbat/ECLIPSE.EGRID)
+
 add_test(NAME ecl_grid_layer_contains2 COMMAND ecl_grid_layer_contains
     ${_eclpath}/Mariner/MARINER.EGRID)
 
-add_executable(ecl_restart_test ecl/tests/ecl_restart_test.cpp)
-target_link_libraries(ecl_restart_test ecl)
 add_test(NAME ecl_restart_test COMMAND ecl_restart_test
     ${_eclpath}/Gurbat/ECLIPSE.UNRST)
 
-add_executable(ecl_nnc_export ecl/tests/ecl_nnc_export.cpp)
-target_link_libraries(ecl_nnc_export ecl)
 add_test(NAME ecl_nnc_export1 COMMAND ecl_nnc_export ${_eclpath}/Gurbat/ECLIPSE TRUE)
 add_test(NAME ecl_nnc_export2 COMMAND ecl_nnc_export ${_eclpath}/10kcase/TEST10K_FLT_LGR_NNC TRUE)
 add_test(NAME ecl_nnc_export3 COMMAND ecl_nnc_export ${_eclpath}/Troll/MSW_LGR/2BRANCHES-CCEWELLPATH-NEW-SCH-TUNED-AR3 TRUE)
@@ -485,81 +520,53 @@ add_test(NAME ecl_nnc_export5 COMMAND ecl_nnc_export ${_eclpath}/DualPoro/DUALPO
 add_test(NAME ecl_nnc_export6 COMMAND ecl_nnc_export ${_eclpath}/nestedLGRcase/TESTCASE_NESTEDLGR TRUE)
 add_test(NAME ecl_nnc_export7 COMMAND ecl_nnc_export ${_eclpath}/TYRIHANS/BASE20150218_MULTFLT FALSE)
 
-add_executable(ecl_nnc_export_get_tran ecl/tests/ecl_nnc_export_get_tran.cpp)
-target_link_libraries(ecl_nnc_export_get_tran ecl)
 add_test(NAME ecl_nnc_export_get_tran COMMAND ecl_nnc_export_get_tran
     ${_eclpath}/Troll/MSW_LGR/2BRANCHES-CCEWELLPATH-NEW-SCH-TUNED-AR3)
 
-add_executable(ecl_nnc_data_statoil_root ecl/tests/test_ecl_nnc_data_statoil_root.cpp)
-target_link_libraries(ecl_nnc_data_statoil_root ecl)
 add_test(NAME ecl_nnc_data_statoil_root COMMAND ecl_nnc_data_statoil_root
     ${_eclpath}/Troll/MSW_LGR/2BRANCHES-CCEWELLPATH-NEW-SCH-TUNED-AR3
     ${_eclpath}/flow-nnc/Simple4/SIMPLE_SUMMARY4
     ${_eclpath}/flow-nnc/Gullfaks/GF_ACT_NEW_TEMP)
 
-add_executable(ecl_util_make_date_shift ecl/tests/ecl_util_make_date_shift.cpp)
-target_link_libraries(ecl_util_make_date_shift ecl)
-add_test(NAME ecl_util_make_date_shift COMMAND ecl_util_make_date_shift)
-
-add_executable(ecl_sum_case_exists ecl/tests/ecl_sum_case_exists.cpp)
-target_link_libraries(ecl_sum_case_exists ecl)
 add_test(NAME ecl_sum_case_exists COMMAND ecl_sum_case_exists
          ${_eclpath}/Gurbat/ECLIPSE
          ${_eclpath}/GurbatSummary/missingHeader/ECLIPSE
          ${_eclpath}/GurbatSummary/missingData/ECLIPSE)
 
 
-add_executable(ecl_grid_lgr_name ecl/tests/ecl_grid_lgr_name.cpp)
-target_link_libraries(ecl_grid_lgr_name ecl)
 add_test(NAME ecl_grid_lgr_name COMMAND ecl_grid_lgr_name
     ${_eclpath}/Troll/MSW_LGR/2BRANCHES-CCEWELLPATH-NEW-SCH-TUNED-AR3.EGRID)
 
-add_executable(ecl_region ecl/tests/ecl_region.cpp)
-target_link_libraries(ecl_region ecl)
 add_test(NAME ecl_region COMMAND ecl_region ${_eclpath}/Gurbat/ECLIPSE.EGRID)
 
 add_test(NAME ecl_grid_cell_contains2 COMMAND ecl_grid_cell_contains ${_eclpath}/Gurbat/ECLIPSE.EGRID)
 add_test(NAME ecl_grid_cell_contains3 COMMAND ecl_grid_cell_contains ${_eclpath}/FF12/FF12_2013B2.EGRID)
 add_test(NAME ecl_grid_cell_contains4 COMMAND ecl_grid_cell_contains ${_eclpath}/Brazil/R3_ICD.EGRID)
 
-add_executable(ecl_grid_cell_contains_wellpath ecl/tests/ecl_grid_cell_contains_wellpath.cpp)
-target_link_libraries(ecl_grid_cell_contains_wellpath ecl)
 add_test(NAME ecl_grid_cell_contains_wellpath1
         COMMAND ecl_grid_cell_contains_wellpath
             ${_eclpath}/CellContains/model/SMS-0.EGRID
             ${_eclpath}/CellContains/R_PB-4H.jira)
 
 
-add_executable(ecl_region2region ecl/tests/ecl_region2region_test.cpp)
-target_link_libraries(ecl_region2region ecl)
 add_test(NAME ecl_region2region COMMAND ecl_region2region ${_eclpath}/R2R/R2R.SMSPEC)
 
-add_executable(ecl_grid_case ecl/tests/ecl_grid_case.cpp)
-target_link_libraries(ecl_grid_case ecl)
 add_test(NAME ecl_grid_case COMMAND ecl_grid_case
     ${_eclpath}/Gurbat/ECLIPSE.EGRID
     ${_eclpath}/Gurbat/ECLIPSE)
 
-add_executable(ecl_lgr_test ecl/tests/ecl_lgr_test.cpp)
-target_link_libraries(ecl_lgr_test ecl)
 add_test(NAME ecl_lgr_test1 COMMAND ecl_lgr_test ${_eclpath}/10kcase/TEST10K_FLT_LGR_NNC.EGRID)
 add_test(NAME ecl_lgr_test2 COMMAND ecl_lgr_test ${_eclpath}/10kcase/TEST10K_FLT_LGR_NNC.GRID)
 add_test(NAME ecl_lgr_test3 COMMAND ecl_lgr_test ${_eclpath}/Troll/MSW_LGR/2BRANCHES-CCEWELLPATH-NEW-SCH-TUNED-AR3.EGRID)
 
-add_executable(ecl_grid_simple ecl/tests/ecl_grid_simple.cpp)
-target_link_libraries(ecl_grid_simple ecl)
 add_test(NAME ecl_grid_simple COMMAND ecl_grid_simple ${_eclpath}/Gurbat/ECLIPSE.EGRID)
 
 add_test(NAME ecl_grid_ecl2015_2 COMMAND ecl_grid_simple
     ${_eclpath}/Eclipse2015_NNC_BUG/FF15_2015B2_LGRM_RDI15_HIST_RDIREAL1_20142.EGRID)
 
-add_executable(ecl_grid_export_statoil ecl/tests/ecl_grid_export.cpp)
-target_link_libraries(ecl_grid_export_statoil ecl)
 add_test(NAME ecl_grid_export_statoil
-    COMMAND ecl_grid_export_statoil ${_eclpath}/Gurbat/ECLIPSE.EGRID)
+    COMMAND ecl_grid_export ${_eclpath}/Gurbat/ECLIPSE.EGRID)
 
-add_executable(ecl_grid_volume ecl/tests/ecl_grid_volume.cpp)
-target_link_libraries(ecl_grid_volume ecl)
 add_test(NAME ecl_grid_volume1 COMMAND ecl_grid_volume ${_eclpath}/Gurbat/ECLIPSE)
 add_test(NAME ecl_grid_volume2 COMMAND ecl_grid_volume ${_eclpath}/VolumeTest/TEST1)
 add_test(NAME ecl_grid_volume3 COMMAND ecl_grid_volume ${_eclpath}/OsebergSyd/Omega/OMEGA-0)
@@ -572,8 +579,6 @@ add_test(NAME ecl_grid_volume4 COMMAND ecl_grid_volume ${_eclpath}/Norne/reservo
 # algorithm gets volumes ~ 0 whereas ECLIPSE reports ~10^9 for the same cell.
 # add_test( ecl_grid_volume5 ${EXECUTABLE_OUTPUT_PATH}/ecl_grid_volume ${_eclpath}/Heidrun/Summary/FF12_2013B3_CLEAN_RS)
 
-add_executable(ecl_grid_dims ecl/tests/ecl_grid_dims.cpp)
-target_link_libraries(ecl_grid_dims ecl)
 add_test(NAME ecl_grid_dims0 COMMAND ecl_grid_dims)
 add_test(NAME ecl_grid_dims1 COMMAND ecl_grid_dims ${_eclpath}/Gurbat/ECLIPSE.EGRID ${_eclpath}/Gurbat/ECLIPSE.INIT)
 add_test(NAME ecl_grid_dims2 COMMAND ecl_grid_dims ${_eclpath}/Gurbat/ECLIPSE.GRID  ${_eclpath}/Gurbat/ECLIPSE.INIT)
@@ -581,31 +586,20 @@ add_test(NAME ecl_grid_dims3 COMMAND ecl_grid_dims ${_eclpath}/Gurbat/ECLIPSE.EG
 add_test(NAME ecl_grid_dims4 COMMAND ecl_grid_dims ${_eclpath}/Gurbat/ECLIPSE.GRID )
 add_test(NAME ecl_grid_dims5 COMMAND ecl_grid_dims ${_eclpath}/AmalgLGRcase/TESTCASE_AMALG_LGR.EGRID)
 
-add_executable(ecl_nnc_test ecl/tests/ecl_nnc_test.cpp)
-target_link_libraries(ecl_nnc_test ecl)
 add_test(NAME ecl_nnc_test1 COMMAND ecl_nnc_test ${_eclpath}/Gurbat/ECLIPSE.EGRID )
 add_test(NAME ecl_nnc_test2 COMMAND ecl_nnc_test ${_eclpath}/10kcase/TEST10K_FLT_LGR_NNC.EGRID )
 add_test(NAME ecl_nnc_test3 COMMAND ecl_nnc_test ${_eclpath}/Troll/MSW_LGR/2BRANCHES-CCEWELLPATH-NEW-SCH-TUNED-AR3.EGRID)
 add_test(NAME ecl_nnc_test4 COMMAND ecl_nnc_test ${_eclpath}/DualPoro/DUAL_DIFF.EGRID )
 add_test(NAME ecl_nnc_test5 COMMAND ecl_nnc_test ${_eclpath}/nestedLGRcase/TESTCASE_NESTEDLGR.EGRID)
 
-add_executable(ecl_layer_statoil ecl/tests/ecl_layer_statoil.cpp)
-target_include_directories(ecl_layer_statoil PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/private-include)
-target_link_libraries(ecl_layer_statoil ecl)
 add_test(NAME ecl_layer_statoil COMMAND ecl_layer_statoil
     ${_eclpath}/Mariner/MARINER.EGRID
     ${_eclpath}/Mariner/faultblock.grdecl)
 
-add_executable(ecl_dualp ecl/tests/ecl_dualp.cpp)
-target_link_libraries(ecl_dualp ecl)
 add_test(NAME ecl_dualp COMMAND ecl_dualp ${_eclpath}/LGCcase/LGC_TESTCASE2)
 
-add_executable(ecl_sum_test ecl/tests/ecl_sum_test.cpp)
-target_link_libraries(ecl_sum_test ecl)
 add_test(NAME ecl_sum_test COMMAND ecl_sum_test ${_eclpath}/Gurbat/ECLIPSE)
 
-add_executable(ecl_sum_report_step_equal ecl/tests/ecl_sum_report_step_equal.cpp)
-target_link_libraries(ecl_sum_report_step_equal ecl)
 add_test(NAME ecl_sum_report_step_equal1 COMMAND ecl_sum_report_step_equal ${_eclpath}/Gurbat/ECLIPSE ${_eclpath}/Snorre/SNORRE FALSE)
 add_test(NAME ecl_sum_report_step_equal2 COMMAND ecl_sum_report_step_equal ${_eclpath}/Gurbat/ECLIPSE ${_eclpath}/Gurbat/ECLIPSE TRUE)
 add_test(NAME ecl_sum_report_step_equal3 COMMAND ecl_sum_report_step_equal ${_eclpath}/Gurbat/ECLIPSE ${_eclpath}/modGurbat/extraMinistep/ECLIPSE TRUE)
@@ -613,8 +607,6 @@ add_test(NAME ecl_sum_report_step_equal4 COMMAND ecl_sum_report_step_equal ${_ec
 add_test(NAME ecl_sum_report_step_equal5 COMMAND ecl_sum_report_step_equal ${_eclpath}/Gurbat/ECLIPSE ${_eclpath}/modGurbat/enkf/ECLIPSE FALSE)
 add_test(NAME ecl_sum_report_step_equal6 COMMAND ecl_sum_report_step_equal ${_eclpath}/Snorre/SNORRE  ${_eclpath}/Snorre2/SNORRE2 FALSE)
 
-add_executable(ecl_sum_report_step_compatible ecl/tests/ecl_sum_report_step_compatible.cpp)
-target_link_libraries(ecl_sum_report_step_compatible ecl)
 add_test(NAME ecl_sum_report_step_compatible1 COMMAND ecl_sum_report_step_compatible ${_eclpath}/Gurbat/ECLIPSE ${_eclpath}/Snorre/SNORRE FALSE)
 add_test(NAME ecl_sum_report_step_compatible2 COMMAND ecl_sum_report_step_compatible ${_eclpath}/Gurbat/ECLIPSE ${_eclpath}/Gurbat/ECLIPSE TRUE)
 add_test(NAME ecl_sum_report_step_compatible3 COMMAND ecl_sum_report_step_compatible ${_eclpath}/Gurbat/ECLIPSE ${_eclpath}/modGurbat/extraMinistep/ECLIPSE TRUE)
@@ -622,49 +614,34 @@ add_test(NAME ecl_sum_report_step_compatible4 COMMAND ecl_sum_report_step_compat
 add_test(NAME ecl_sum_report_step_compatible5 COMMAND ecl_sum_report_step_compatible ${_eclpath}/Gurbat/ECLIPSE ${_eclpath}/modGurbat/enkf/ECLIPSE TRUE)
 add_test(NAME ecl_sum_report_step_compatible6 COMMAND ecl_sum_report_step_equal      ${_eclpath}/Snorre/SNORRE  ${_eclpath}/Snorre2/SNORRE2 FALSE)
 
-add_executable(ecl_file_statoil ecl/tests/ecl_file_statoil.cpp)
-target_link_libraries(ecl_file_statoil ecl)
 add_test(NAME ecl_file_statoil
          COMMAND ecl_file_statoil ${_eclpath}/Gurbat/ECLIPSE.UNRST ECLIPSE.UNRST)
 
-add_executable(ecl_fmt ecl/tests/ecl_fmt.cpp)
-target_link_libraries(ecl_fmt  ecl)
 add_test(NAME ecl_fmt COMMAND ecl_fmt
     ${_eclpath}/Gurbat/ECLIPSE.UNRST
     ${_eclpath}/Gurbat/ECLIPSE.DATA)
 
 
-add_executable(ecl_rsthead ecl/tests/ecl_rsthead.cpp)
-target_link_libraries(ecl_rsthead ecl)
 add_test(NAME ecl_rsthead COMMAND ecl_rsthead
     ${_eclpath}/Gurbat/ECLIPSE.UNRST
     ${_eclpath}/DualPoro/DUALPORO.X0005)
 
-add_executable(ecl_smspec ecl/tests/ecl_smspec.cpp)
-target_link_libraries(ecl_smspec ecl)
 add_test(NAME ecl_smspec COMMAND ecl_smspec
     ${_eclpath}/Gurbat/ECLIPSE.SMSPEC
     ${_eclpath}/Heidrun/Summary/FF12_2013B3_CLEAN_RS.SMSPEC)
 
 
-add_executable(ecl_rft ecl/tests/ecl_rft.cpp)
-target_link_libraries(ecl_rft ecl)
 add_test(NAME ecl_rft_rft    COMMAND ecl_rft ${_eclpath}/Gurbat/ECLIPSE.RFT RFT)
 add_test(NAME ecl_rft_rft_rw COMMAND ecl_rft ${_eclpath}/Gurbat/ECLIPSE.RFT RFT_RW)
 add_test(NAME ecl_rft_plt    COMMAND ecl_rft ${_eclpath}/RFT/TEST1_1A.RFT PLT)
 add_test(NAME ecl_rft_mswplt COMMAND ecl_rft ${_eclpath}/RFT/RFT2.RFT MSW-PLT)
 add_test(NAME ecl_rft_alloc  COMMAND ecl_rft ${_eclpath}/RFT/NORNE_ATW2013_RFTPLT_V2.RFT SIMPLE)
 
-add_executable(ecl_grid_copy_statoil ecl/tests/ecl_grid_copy_statoil.cpp)
-target_link_libraries(ecl_grid_copy_statoil ecl)
-
 add_test(NAME ecl_grid_copy_statoil1 COMMAND ecl_grid_copy_statoil ${_eclpath}/Gurbat/ECLIPSE.EGRID)
 add_test(NAME ecl_grid_copy_statoil2 COMMAND ecl_grid_copy_statoil ${_eclpath}/Mariner/MARINER.EGRID)
 add_test(NAME ecl_grid_copy_statoil3 COMMAND ecl_grid_copy_statoil ${_eclpath}/LGCcase/LGC_TESTCASE2.EGRID)
 add_test(NAME ecl_grid_copy_statoil4 COMMAND ecl_grid_copy_statoil ${_eclpath}/10kcase/TEST10K_FLT_LGR_NNC.EGRID)
 
-add_executable(ecl_fault_block_layer_statoil ecl/tests/ecl_fault_block_layer_statoil.cpp)
-target_link_libraries(ecl_fault_block_layer_statoil ecl)
 add_test(NAME ecl_fault_block_layer_statoil COMMAND ecl_fault_block_layer_statoil
     ${_eclpath}/Mariner/MARINER.EGRID
     ${_eclpath}/Mariner/faultblock.grdecl)
@@ -675,11 +652,6 @@ if (HAVE_UTIL_ABORT_INTERCEPT)
    add_test(NAME ecl_fortio COMMAND ecl_fortio ${_eclpath}/Gurbat/ECLIPSE.UNRST)
 endif()
 
-add_executable(well_state_load ecl/tests/well_state_load.cpp)
-target_link_libraries( well_state_load ecl)
-
-add_executable(well_state_load_missing_RSEG ecl/tests/well_state_load_missing_RSEG.cpp)
-target_link_libraries(well_state_load_missing_RSEG ecl)
 
 add_test(NAME well_state_load1 COMMAND well_state_load ${_eclpath}/Gurbat/ECLIPSE.EGRID
                                                        ${_eclpath}/Gurbat/ECLIPSE.X0030)
@@ -698,26 +670,16 @@ add_test(NAME well_state_load_missing_RSEG2
          COMMAND well_state_load_missing_RSEG ${_eclpath}/Troll/MSW/MSW.EGRID
                                               ${_eclpath}/Troll/MSW/MSW.X0123)
 
-add_executable(well_segment_load ecl/tests/well_segment_load.cpp)
-target_link_libraries(well_segment_load ecl)
 add_test(NAME well_segment_load
         COMMAND well_segment_load ${_eclpath}/MSWcase/MSW_CASE.X0021)
- 
-add_executable(well_segment_branch_conn_load ecl/tests/well_segment_branch_conn_load.cpp)
-target_link_libraries(well_segment_branch_conn_load ecl)
+
 add_test(NAME well_segment_branch_conn_load
          COMMAND well_segment_branch_conn_load ${_eclpath}/MSWcase/MSW_CASE.X0021)
 
-add_executable(well_info ecl/tests/well_info.cpp)
-target_link_libraries(well_info ecl)
 add_test(NAME well_info COMMAND well_info ${_eclpath}/Gurbat/ECLIPSE.EGRID)
 
-add_executable(well_conn_CF ecl/tests/well_conn_CF.cpp)
-target_link_libraries(well_conn_CF ecl)
 add_test(NAME well_conn_CF COMMAND well_conn_CF ${_eclpath}/Gurbat/ECLIPSE.X0060)
 
-add_executable(well_conn_load ecl/tests/well_conn_load.cpp)
-target_link_libraries(well_conn_load ecl)
 add_test(NAME well_conn_load1 COMMAND well_conn_load ${_eclpath}/Gurbat/ECLIPSE.X0030 F)
 add_test(NAME well_conn_load2 COMMAND well_conn_load ${_eclpath}/10kcase/TEST10K_FLT_LGR_NNC.X0021 F)
 add_test(NAME well_conn_load3 COMMAND well_conn_load ${_eclpath}/MSWcase/MSW_CASE.X0021 T)
@@ -725,18 +687,12 @@ add_test(NAME well_conn_load4 COMMAND well_conn_load ${_eclpath}/AmalgLGRcase/TE
 add_test(NAME well_conn_load5 COMMAND well_conn_load ${_eclpath}/DualPoro/DUALPORO.X0009 F)
 add_test(NAME well_conn_load6 COMMAND well_conn_load ${_eclpath}/0.9.2_LGR/BASE_REF_XY3Z1_T30_WI.X0003 F)
 
-add_executable(well_ts ecl/tests/well_ts.cpp)
-target_link_libraries(well_ts ecl)
 add_test(NAME well_ts COMMAND well_ts ${_eclpath}/CO2case/BASE_CASE)
 
-add_executable(well_dualp ecl/tests/well_dualp.cpp)
-target_link_libraries(well_dualp ecl)
 add_test(NAME well_dualp COMMAND well_dualp
     ${_eclpath}/Gurbat/ECLIPSE.UNRST
     ${_eclpath}/DualPoro/DUALPORO.X0005)
 
-add_executable(well_lgr_load ecl/tests/well_lgr_load.cpp)
-target_link_libraries(well_lgr_load ecl)
 
 add_test(NAME well_lgr_load1 COMMAND well_lgr_load ${_eclpath}/0.9.2_LGR/BASE_REF_XY3Z1_T30_WI.EGRID
                                                    ${_eclpath}/0.9.2_LGR/BASE_REF_XY3Z1_T30_WI.X0003)

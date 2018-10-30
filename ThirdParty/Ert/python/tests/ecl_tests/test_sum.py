@@ -576,3 +576,12 @@ class SumTest(EclTest):
         self.assertFalse(case.can_write())
         with self.assertRaises(NotImplementedError):
             case.fwrite( )
+
+
+
+    def test_directory_conflict(self):
+        with TestAreaContext("dir_conflict"):
+            case = create_case("UNITS")
+            case.fwrite()
+            os.mkdir("UNITS")
+            case2 = EclSum("./UNITS")

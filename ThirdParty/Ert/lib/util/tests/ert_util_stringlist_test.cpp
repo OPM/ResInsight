@@ -29,19 +29,15 @@ void test_char() {
   const char * S2 = "S2";
   const char * S3 = "S3";
   stringlist_type * s = stringlist_alloc_new();
-  stringlist_append_ref( s , S1 );
-  stringlist_append_ref( s , S2 );
-  stringlist_append_ref( s , S3 );
+  stringlist_append_copy( s , S1 );
+  stringlist_append_copy( s , S2 );
+  stringlist_append_copy( s , S3 );
 
   {
-    char ** ref = stringlist_alloc_char_ref( s );
     char ** copy = stringlist_alloc_char_copy( s );
     int i;
 
     for (i=0; i < stringlist_get_size( s ); i++) {
-      if (ref[i] != stringlist_iget(s , i))
-        exit(1);
-
       if (strcmp( stringlist_iget( s , i ) , copy[i]) != 0)
         exit(1);
 
@@ -67,9 +63,9 @@ void test_join() {
     test_assert_string_equal("", empty_join);
   }
 
-  stringlist_append_ref( s , elt0 );
-  stringlist_append_ref( s , elt1 );
-  stringlist_append_ref( s , elt2 );
+  stringlist_append_copy( s , elt0 );
+  stringlist_append_copy( s , elt1 );
+  stringlist_append_copy( s , elt2 );
 
   const char * sep0 = "";
   const char * sep1 = "!!!";
@@ -84,18 +80,18 @@ void test_join() {
   test_assert_string_equal( j2, "AAA abc BBB abc CCC");
 
   stringlist_type * s1 = stringlist_alloc_new();
-  stringlist_append_ref( s1 , elt0 );
+  stringlist_append_copy( s1 , elt0 );
   test_assert_string_equal( "AAA", stringlist_alloc_joined_string( s1, sep0));
   test_assert_string_equal( "AAA", stringlist_alloc_joined_string( s1, sep1));
   test_assert_string_equal( "AAA", stringlist_alloc_joined_string( s1, sep2));
 
   stringlist_type * sub = stringlist_alloc_new();
-  stringlist_append_ref( sub , elt0 );
-  stringlist_append_ref( sub , elt1 );
-  stringlist_append_ref( sub , elt2 );
-  stringlist_append_ref( sub , elt3 );
-  stringlist_append_ref( sub , elt4 );
-  stringlist_append_ref( sub , elt5 );
+  stringlist_append_copy( sub , elt0 );
+  stringlist_append_copy( sub , elt1 );
+  stringlist_append_copy( sub , elt2 );
+  stringlist_append_copy( sub , elt3 );
+  stringlist_append_copy( sub , elt4 );
+  stringlist_append_copy( sub , elt5 );
   test_assert_string_equal( "CCC:DDD:EEE", stringlist_alloc_joined_substring( sub, 2, 5, ":"));
 }
 
@@ -107,9 +103,9 @@ void test_reverse() {
   const char *s2 = "CCC";
 
   stringlist_type * s = stringlist_alloc_new();
-  stringlist_append_ref( s , s0 );
-  stringlist_append_ref( s , s1 );
-  stringlist_append_ref( s , s2 );
+  stringlist_append_copy( s , s0 );
+  stringlist_append_copy( s , s1 );
+  stringlist_append_copy( s , s2 );
 
   stringlist_reverse(s);
 
@@ -121,9 +117,9 @@ void test_reverse() {
 
 void test_iget_as_int() {
   stringlist_type * s = stringlist_alloc_new();
-  stringlist_append_ref(s , "1000" );
-  stringlist_append_ref(s , "1000X" );
-  stringlist_append_ref(s , "XXXX" );
+  stringlist_append_copy(s , "1000" );
+  stringlist_append_copy(s , "1000X" );
+  stringlist_append_copy(s , "XXXX" );
 
   {
     int value;
@@ -145,9 +141,9 @@ void test_iget_as_int() {
 
 void test_iget_as_double() {
   stringlist_type * s = stringlist_alloc_new();
-  stringlist_append_ref(s , "1000.90" );
-  stringlist_append_ref(s , "1000" );
-  stringlist_append_ref(s , "XXXX" );
+  stringlist_append_copy(s , "1000.90" );
+  stringlist_append_copy(s , "1000" );
+  stringlist_append_copy(s , "XXXX" );
 
   {
     double value;
@@ -170,20 +166,20 @@ void test_iget_as_double() {
 
 void test_iget_as_bool() {
   stringlist_type * s = stringlist_alloc_new();
-  stringlist_append_ref(s , "TRUE" );
-  stringlist_append_ref(s , "True" );
-  stringlist_append_ref(s , "true" );
-  stringlist_append_ref(s , "T" );
-  stringlist_append_ref(s , "1" );
+  stringlist_append_copy(s , "TRUE" );
+  stringlist_append_copy(s , "True" );
+  stringlist_append_copy(s , "true" );
+  stringlist_append_copy(s , "T" );
+  stringlist_append_copy(s , "1" );
 
-  stringlist_append_ref(s , "FALSE" );
-  stringlist_append_ref(s , "False" );
-  stringlist_append_ref(s , "false" );
-  stringlist_append_ref(s , "F" );
-  stringlist_append_ref(s , "0" );
+  stringlist_append_copy(s , "FALSE" );
+  stringlist_append_copy(s , "False" );
+  stringlist_append_copy(s , "false" );
+  stringlist_append_copy(s , "F" );
+  stringlist_append_copy(s , "0" );
 
-  stringlist_append_ref(s , "not_so_bool" );
-  stringlist_append_ref(s , "8" );
+  stringlist_append_copy(s , "not_so_bool" );
+  stringlist_append_copy(s , "8" );
 
 
   {
@@ -353,7 +349,7 @@ bool not_FILE_predicate(const char * name, const void * arg) {
 void test_predicate_matching() {
   test_work_area_type * work_area = test_work_area_alloc("predicate_test");
   stringlist_type * s = stringlist_alloc_new();
-  stringlist_append_ref(s, "s");
+  stringlist_append_copy(s, "s");
   stringlist_select_files(s, "does/not/exist", NULL, NULL);
   test_assert_int_equal(stringlist_get_size(s), 0);
 
@@ -395,13 +391,13 @@ void test_unique() {
 
   test_assert_true( stringlist_unique( s ));
 
-  stringlist_append_ref( s, "S1");
+  stringlist_append_copy( s, "S1");
   test_assert_true( stringlist_unique( s ));
 
-  stringlist_append_ref( s, "S2");
+  stringlist_append_copy( s, "S2");
   test_assert_true( stringlist_unique( s ));
 
-  stringlist_append_ref( s, "S2");
+  stringlist_append_copy( s, "S2");
   test_assert_false( stringlist_unique( s ));
 }
 

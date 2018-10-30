@@ -94,15 +94,10 @@ void stringlist_fprintf_fmt(const stringlist_type * stringlist, const stringlist
    This function appends a copy of s into the stringlist.
 */
 void stringlist_append_copy(stringlist_type * stringlist , const char * s) {
-  vector_append_buffer(stringlist->strings , s , strlen(s) + 1);
-}
-
-void stringlist_append_ref(stringlist_type * stringlist , const char * s) {
-  vector_append_ref(stringlist->strings , s);
-}
-
-void stringlist_append_owned_ref(stringlist_type * stringlist , const char * s) {
-  vector_append_owned_ref(stringlist->strings , s , free);
+  if (s)
+    vector_append_buffer(stringlist->strings , s , strlen(s) + 1);
+  else
+    vector_append_ref(stringlist->strings, NULL );
 }
 
 /*****************************************************************/
@@ -167,54 +162,7 @@ stringlist_type * stringlist_alloc_argv_copy(const char ** argv , int argc) {
 }
 
 
-stringlist_type * stringlist_alloc_argv_ref(const char ** argv , int argc) {
-  int iarg;
-  stringlist_type * stringlist = stringlist_alloc_empty( true );
-  for (iarg = 0; iarg < argc; iarg++)
-    stringlist_append_ref( stringlist , argv[iarg]);
 
-  return stringlist;
-}
-
-
-stringlist_type * stringlist_alloc_argv_owned_ref(const char ** argv , int argc) {
-  int iarg;
-  stringlist_type * stringlist = stringlist_alloc_empty( true );
-  for (iarg = 0; iarg < argc; iarg++)
-    stringlist_append_owned_ref( stringlist , argv[iarg]);
-
-  return stringlist;
-}
-
-
-
-/**
-    Allocates a new stringlist instance where all the new string are
-    references to the string found in the existing stringlist
-    instance.
-*/
-stringlist_type * stringlist_alloc_shallow_copy(const stringlist_type * src) {
-  stringlist_type * copy = stringlist_alloc_empty( false );
-  copy->strings = vector_alloc_copy( src->strings , false);
-  return copy;
-}
-
-
-/**
-  Allocates a new stringlist where the strings are references to the
-  num_strings found in stringlist from start.
-*/
-stringlist_type * stringlist_alloc_shallow_copy_with_limits(const stringlist_type * stringlist, int offset, int num_strings) {
-  stringlist_type * copy = stringlist_alloc_empty( true );
-  int i;
-  for( i=0; i<num_strings; i++)
-    {
-    const char * str = stringlist_iget(stringlist, i + offset);
-    vector_append_ref(copy->strings, str);
-  }
-
-  return copy;
-}
 
 
 /*
@@ -251,12 +199,6 @@ void stringlist_append_stringlist_copy(stringlist_type * stringlist , const stri
 }
 
 
-void stringlist_append_stringlist_ref(stringlist_type * stringlist , const stringlist_type * src) {
-  int i;
-  for (i = 0; i < stringlist_get_size( src ); i++)
-    stringlist_append_ref(stringlist , stringlist_iget(src , i));
-}
-
 
 /**
   Insert a copy of a stringlist in some position.
@@ -277,10 +219,10 @@ void stringlist_insert_stringlist_copy(stringlist_type * stringlist, const strin
   int i;
 
   for( i=0; i<pos; i++)
-    stringlist_append_ref(start, stringlist_iget(stringlist, i));
+    stringlist_append_copy(start, stringlist_iget(stringlist, i));
 
   for( i=pos; i<size_old; i++)
-    stringlist_append_ref(end  , stringlist_iget(stringlist, i));
+    stringlist_append_copy(end  , stringlist_iget(stringlist, i));
 
   stringlist_append_stringlist_copy(newList, start);
   stringlist_append_stringlist_copy(newList, src  );
@@ -643,8 +585,11 @@ void  stringlist_fread(stringlist_type * s, FILE * stream) {
   int size = util_fread_int(stream);
   int i;
   stringlist_clear(s);
-  for (i=0; i < size; i++)
-    stringlist_append_owned_ref( s , util_fread_alloc_string( stream ));
+  for (i=0; i < size; i++) {
+    char * tmp = util_fread_alloc_string(stream);
+    stringlist_append_copy( s , tmp);
+    free(tmp);
+  }
 }
 
 
@@ -750,7 +695,8 @@ int stringlist_select_matching_files(stringlist_type * names , const char * path
     if (file_handle != INVALID_HANDLE_VALUE) {
       do {
         char * full_path = util_alloc_filename( path , file_data.cFileName , NULL);
-        stringlist_append_owned_ref( names , full_path );
+        stringlist_append_copy( names , full_path );
+        free( full_path );
       } while (FindNextFile( file_handle , &file_data) != 0);
     }
     FindClose( file_handle );
@@ -787,7 +733,11 @@ int stringlist_select_files(stringlist_type * names, const char * path, file_pre
     if (predicate && !predicate(entry->d_name, pred_arg))
       continue;
 
-    stringlist_append_owned_ref(names, util_alloc_filename(path, entry->d_name, NULL));
+    {
+      char * fname = util_alloc_filename(path, entry->d_name, NULL);
+      stringlist_append_copy(names, fname);
+      free(fname);
+    }
   }
 
   closedir(dir);
@@ -809,8 +759,11 @@ int stringlist_select_files(stringlist_type * names, const char * path, file_pre
 
       if (predicate && !predicate(file_data.cFileName, pred_arg))
         continue;
-
-      stringlist_append_owned_ref(names, util_alloc_filename(path, file_data.cFileName, NULL));
+      {
+        char * tmp_fname = util_alloc_filename(path, file_data.cFileName, NULL);
+        stringlist_append_copy(names, tmp_fname);
+        free(tmp_fname);
+      }
     } while (FindNextFile( file_handle , &file_data) != 0);
     FindClose( file_handle );
   }
@@ -836,7 +789,7 @@ int stringlist_append_matching_elements(stringlist_type * target , const stringl
     return match_count;
 }
 
-  int stringlist_select_matching_elements(stringlist_type * target , const stringlist_type * src , const char * pattern) {
+int stringlist_select_matching_elements(stringlist_type * target , const stringlist_type * src , const char * pattern) {
   stringlist_clear( target );
   return stringlist_append_matching_elements( target , src , pattern );
 }
@@ -849,7 +802,7 @@ static int void_strcmp(const void* s1, const void *s2) {
 bool stringlist_unique(const stringlist_type * stringlist )
 {
   bool unique = true;
-  stringlist_type * cpy = stringlist_alloc_shallow_copy(stringlist);
+  stringlist_type * cpy = stringlist_alloc_deep_copy(stringlist);
 
   stringlist_sort(cpy, void_strcmp);
   for (int i = 0; i < stringlist_get_size(cpy) - 1; i++) {

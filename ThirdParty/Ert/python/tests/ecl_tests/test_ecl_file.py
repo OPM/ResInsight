@@ -183,10 +183,32 @@ class EclFileTest(EclTest):
         with TestAreaContext("test_broken_file"):
             with open("CASE.FINIT", "w") as f:
                 f.write("This - is not a ECLISPE file\nsdlcblhcdbjlwhc\naschscbasjhcasc\nascasck c s s aiasic asc")
+            f = EclFile("CASE.FINIT")
+            self.assertEqual(len(f), 0)
 
 
-            with self.assertRaises(IOError):
-                f = EclFile("CASE.FINIT")
+            kw = EclKW("HEADER", 100, EclDataType.ECL_INT)
+            with openFortIO("FILE",mode=FortIO.WRITE_MODE) as f:
+                kw.fwrite(f)
+                kw.fwrite(f)
+
+            with open("FILE", "a+") as f:
+                f.write("Seom random gibberish")
+
+            f = EclFile("FILE")
+            self.assertEqual(len(f), 2)
+
+
+            with openFortIO("FILE",mode=FortIO.WRITE_MODE) as f:
+                kw.fwrite(f)
+                kw.fwrite(f)
+
+            file_size = os.path.getsize("FILE")
+            with open("FILE", "a+") as f:
+                f.truncate(file_size * 0.75)
+
+            f = EclFile("FILE")
+            self.assertEqual(len(f), 1)
 
 
     def test_block_view(self):

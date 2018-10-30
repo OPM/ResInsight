@@ -24,7 +24,6 @@
 
 #include <ert/geometry/geo_polygon.hpp>
 
-#include <ert/ecl/ecl_box.hpp>
 #include <ert/ecl/ecl_grid.hpp>
 #include <ert/ecl/layer.hpp>
 
@@ -88,9 +87,6 @@ typedef struct ecl_region_struct ecl_region_type;
   void              ecl_region_deselect_inactive_cells( ecl_region_type * region );
   void              ecl_region_select_active_cells( ecl_region_type * region );
   void              ecl_region_deselect_active_cells( ecl_region_type * region );
-
-  void              ecl_region_select_from_box( ecl_region_type * region , const ecl_box_type * ecl_box );
-  void              ecl_region_deselect_from_box( ecl_region_type * region , const ecl_box_type * ecl_box );
 
   void              ecl_region_select_from_ijkbox( ecl_region_type * region , int i1 , int i2 , int j1 , int j2 , int k1 , int k2);
   void              ecl_region_deselect_from_ijkbox( ecl_region_type * region , int i1 , int i2 , int j1 , int j2 , int k1 , int k2);

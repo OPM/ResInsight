@@ -19,10 +19,12 @@
 #include <time.h>
 #include <stdbool.h>
 
+#include <string>
+#include <vector>
+
 #include <ert/util/util.h>
 #include <ert/util/hash.hpp>
 #include <ert/util/int_vector.hpp>
-#include <ert/util/stringlist.hpp>
 
 #include <ert/ecl/ecl_rsthead.hpp>
 #include <ert/ecl/ecl_file.hpp>
@@ -180,9 +182,9 @@
 
 
 struct well_info_struct {
-  hash_type           * wells;                /* Hash table of well_ts_type instances; indexed by well name. */
-  stringlist_type     * well_names;           /* A list of all the well names. */
-  const ecl_grid_type * grid;
+  hash_type                * wells;                /* Hash table of well_ts_type instances; indexed by well name. */
+  std::vector<std::string>   well_names;           /* A list of all the well names. */
+  const ecl_grid_type      * grid;
 };
 
 
@@ -192,9 +194,8 @@ struct well_info_struct {
 */
 
 well_info_type * well_info_alloc( const ecl_grid_type * grid) {
-  well_info_type * well_info = (well_info_type*)util_malloc( sizeof * well_info );
+  well_info_type * well_info = new well_info_type();
   well_info->wells      = hash_alloc();
-  well_info->well_names = stringlist_alloc_new();
   well_info->grid       = grid;
   return well_info;
 }
@@ -211,7 +212,7 @@ well_ts_type * well_info_get_ts( const well_info_type * well_info , const char *
 static void well_info_add_new_ts( well_info_type * well_info , const char * well_name) {
   well_ts_type * well_ts = well_ts_alloc( well_name ) ;
   hash_insert_hash_owned_ref( well_info->wells , well_name , well_ts , well_ts_free__);
-  stringlist_append_copy( well_info->well_names , well_name );
+  well_info->well_names.push_back( well_name );
 }
 
 static void well_info_add_state( well_info_type * well_info , well_state_type * well_state) {
@@ -353,8 +354,7 @@ void well_info_load_rst_eclfile( well_info_type * well_info , ecl_file_type * ec
 
 void well_info_free( well_info_type * well_info ) {
   hash_free( well_info->wells );
-  stringlist_free( well_info->well_names );
-  free( well_info );
+  delete well_info;
 }
 
 int well_info_get_well_size( const well_info_type * well_info , const char * well_name ) {
@@ -381,16 +381,17 @@ well_state_type * well_info_iget_state( const well_info_type * well_info , const
 }
 
 well_state_type * well_info_iiget_state( const well_info_type * well_info , int well_index , int time_index) {
-  const char * well_name = stringlist_iget( well_info->well_names , well_index );
-  return well_info_iget_state( well_info , well_name , time_index );
+  const std::string& well_name = well_info->well_names[well_index];
+  return well_info_iget_state( well_info , well_name.c_str() , time_index );
 }
 
 /*****************************************************************/
 
 int well_info_get_num_wells( const well_info_type * well_info ) {
-  return stringlist_get_size( well_info->well_names );
+  return well_info->well_names.size();
 }
 
 const char * well_info_iget_well_name( const well_info_type * well_info, int well_index) {
-  return stringlist_iget( well_info->well_names , well_index);
+  const std::string& well_name = well_info->well_names[well_index];
+  return well_name.c_str();
 }

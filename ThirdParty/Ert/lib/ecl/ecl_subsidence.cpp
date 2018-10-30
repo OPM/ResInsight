@@ -32,10 +32,10 @@
 #include <ert/ecl/ecl_grid.hpp>
 #include <ert/ecl/ecl_region.hpp>
 #include <ert/ecl/ecl_subsidence.hpp>
-#include <ert/ecl/ecl_grid_cache.hpp>
 #include <ert/ecl/ecl_kw_magic.hpp>
 #include <ert/ecl/ecl_grav_common.hpp>
 
+#include "detail/ecl/ecl_grid_cache.hpp"
 
 /**
    This file contains datastructures for calculating changes in
@@ -52,7 +52,7 @@
 
 struct ecl_subsidence_struct {
   const ecl_file_type  * init_file;    /* The init file - a shared reference owned by calling scope. */
-  ecl_grid_cache_type  * grid_cache;   /* An internal specialized structure to facilitate fast grid lookup. */
+  ecl::ecl_grid_cache  * grid_cache;
   bool                 * aquifer_cell;
   hash_type            * surveys;      /* A hash table containg ecl_subsidence_survey_type instances; one instance
                                           for each interesting time. */
@@ -70,7 +70,7 @@ struct ecl_subsidence_struct {
 #define ECL_SUBSIDENCE_SURVEY_ID 88517
 struct ecl_subsidence_survey_struct {
   UTIL_TYPE_ID_DECLARATION;
-  const ecl_grid_cache_type * grid_cache;
+  const ecl::ecl_grid_cache * grid_cache;
   const bool                * aquifer_cell;   /* Is this cell a numerical aquifer cell - must be disregarded. */
   char                      * name;           /* Name of the survey - arbitrary string. */
   double                    * porv;           /* Reference pore volume */
@@ -90,8 +90,8 @@ static ecl_subsidence_survey_type * ecl_subsidence_survey_alloc_empty(const ecl_
   survey->aquifer_cell = sub->aquifer_cell;
   survey->name         = util_alloc_string_copy( name );
 
-  survey->porv     = (double*)util_calloc( ecl_grid_cache_get_size( sub->grid_cache ) , sizeof * survey->porv     );
-  survey->pressure = (double*)util_calloc( ecl_grid_cache_get_size( sub->grid_cache ) , sizeof * survey->pressure );
+  survey->porv     = (double*) util_calloc( sub->grid_cache->size()  , sizeof * survey->porv     );
+  survey->pressure = (double*) util_calloc( sub->grid_cache->size()  , sizeof * survey->pressure );
 
   return survey;
 }
@@ -103,9 +103,10 @@ static ecl_subsidence_survey_type * ecl_subsidence_survey_alloc_PRESSURE(ecl_sub
                                                                          const char * name ) {
 
   ecl_subsidence_survey_type * survey = ecl_subsidence_survey_alloc_empty( ecl_subsidence , name );
-  ecl_grid_cache_type * grid_cache = ecl_subsidence->grid_cache;
-  const int * global_index = ecl_grid_cache_get_global_index( grid_cache );
-  const int size = ecl_grid_cache_get_size( grid_cache );
+  const ecl::ecl_grid_cache& grid_cache = *(ecl_subsidence->grid_cache);
+  const auto& global_index = grid_cache.global_index();
+  const int size = grid_cache.size();
+
   int active_index;
   ecl_kw_type * init_porv_kw = ecl_file_iget_named_kw( ecl_subsidence->init_file , PORV_KW , 0); /*Global indexing*/
   ecl_kw_type * pressure_kw = ecl_file_view_iget_named_kw( restart_view , PRESSURE_KW , 0); /*Active indexing*/
@@ -142,8 +143,8 @@ static double ecl_subsidence_survey_eval( const ecl_subsidence_survey_type * bas
                                           double utm_x , double utm_y , double depth,
                                           double compressibility, double poisson_ratio) {
 
-  const ecl_grid_cache_type * grid_cache = base_survey->grid_cache;
-  const int size  = ecl_grid_cache_get_size( grid_cache );
+  const ecl::ecl_grid_cache& grid_cache = *(base_survey->grid_cache);
+  const int size  = grid_cache.size();
   double * weight = (double*)util_calloc( size , sizeof * weight );
   double deltaz;
   int index;
@@ -170,9 +171,9 @@ static double ecl_subsidence_survey_eval_geertsma( const ecl_subsidence_survey_t
                                                    double utm_x , double utm_y , double depth,
                                                    double youngs_modulus, double poisson_ratio, double seabed) {
 
-  const ecl_grid_cache_type * grid_cache = base_survey->grid_cache;
-  const double * cell_volume = ecl_grid_cache_get_volume( grid_cache );
-  const int size  = ecl_grid_cache_get_size( grid_cache );
+  const ecl::ecl_grid_cache& grid_cache = *(base_survey->grid_cache);
+  const auto& cell_volume = grid_cache.volume();
+  const int size  = grid_cache.size();
   double scale_factor = 1e4 *(1 + poisson_ratio) * ( 1 - 2*poisson_ratio) / ( 4*M_PI*( 1 - poisson_ratio)  * youngs_modulus );
   double * weight = (double*)util_calloc( size , sizeof * weight );
   double deltaz;
@@ -204,8 +205,8 @@ static double ecl_subsidence_survey_eval_geertsma( const ecl_subsidence_survey_t
 ecl_subsidence_type * ecl_subsidence_alloc( const ecl_grid_type * ecl_grid, const ecl_file_type * init_file) {
   ecl_subsidence_type * ecl_subsidence = (ecl_subsidence_type*)util_malloc( sizeof * ecl_subsidence );
   ecl_subsidence->init_file      = init_file;
-  ecl_subsidence->grid_cache     = ecl_grid_cache_alloc( ecl_grid );
-  ecl_subsidence->aquifer_cell   = ecl_grav_common_alloc_aquifer_cell( ecl_subsidence->grid_cache , init_file );
+  ecl_subsidence->grid_cache     = new ecl::ecl_grid_cache(ecl_grid);
+  ecl_subsidence->aquifer_cell   = ecl_grav_common_alloc_aquifer_cell( *(ecl_subsidence->grid_cache) , init_file );
 
   ecl_subsidence->surveys        = hash_alloc();
   return ecl_subsidence;
@@ -254,7 +255,8 @@ double ecl_subsidence_eval_geertsma( const ecl_subsidence_type * subsidence , co
 }
 
 void ecl_subsidence_free( ecl_subsidence_type * ecl_subsidence ) {
-  ecl_grid_cache_free( ecl_subsidence->grid_cache );
+  delete ecl_subsidence->grid_cache;
+
   free( ecl_subsidence->aquifer_cell );
   hash_free( ecl_subsidence->surveys );
   free( ecl_subsidence );

@@ -1,18 +1,18 @@
-#  Copyright (C) 2011  Statoil ASA, Norway. 
-#   
-#  The file 'stringlist.py' is part of ERT - Ensemble based Reservoir Tool. 
-#   
-#  ERT is free software: you can redistribute it and/or modify 
-#  it under the terms of the GNU General Public License as published by 
-#  the Free Software Foundation, either version 3 of the License, or 
-#  (at your option) any later version. 
-#   
-#  ERT is distributed in the hope that it will be useful, but WITHOUT ANY 
-#  WARRANTY; without even the implied warranty of MERCHANTABILITY or 
-#  FITNESS FOR A PARTICULAR PURPOSE.   
-#   
-#  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
-#  for more details. 
+#  Copyright (C) 2011  Statoil ASA, Norway.
+#
+#  The file 'stringlist.py' is part of ERT - Ensemble based Reservoir Tool.
+#
+#  ERT is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
+#
+#  ERT is distributed in the hope that it will be useful, but WITHOUT ANY
+#  WARRANTY; without even the implied warranty of MERCHANTABILITY or
+#  FITNESS FOR A PARTICULAR PURPOSE.
+#
+#  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+#  for more details.
 """
 Simple wrapping of stringlist 'class' from C library.
 
@@ -23,7 +23,7 @@ higher level than the (char ** string , int size) convention.
 For a pure Python application you should just stick with a normal
 Python list of string objects; but when interfacing with the C
 libraries there are situations where you might need to instantiate a
-StringList object. 
+StringList object.
 
 The StringList constructor can take an optional argument which should
 be an iterable consisting of strings, and the strings property will
@@ -58,7 +58,7 @@ class StringList(BaseCClass):
     def __init__(self, initial=None):
         """
         Creates a new stringlist instance.
-        
+
         Creates a new stringlist instance. The optional argument
         @initial should be an iterable of strings which will be the
         initial content of the StringList; the content will be copied
@@ -124,7 +124,7 @@ class StringList(BaseCClass):
     def __getitem__(self, index):
         """
         Implements [] read operator on the stringlist.
-        
+
         The __getitem__ method supports negative, i.e. from the right,
         indexing; but not slices.
         """
@@ -157,7 +157,7 @@ class StringList(BaseCClass):
             self.append( s )
         return self
 
-    
+
     def __add__(self , other):
         copy = StringList( initial = self )
         copy += other
@@ -173,15 +173,15 @@ class StringList(BaseCClass):
             if not s in self:
                 self.append( s )
         return self
-    
-                
+
+
     def __or__(self , other):
         copy = StringList( initial = self )
         copy |= other
         return copy
 
-    
-    
+
+
     def contains(self, s):
         """
         Checks if the list contains @s.
@@ -222,8 +222,8 @@ class StringList(BaseCClass):
 
     def pop(self):
         """
-        Will remove the last element from the list and return it. 
-        
+        Will remove the last element from the list and return it.
+
         Will raise IndexError if list is empty.
         """
         if not self.empty():
@@ -275,7 +275,7 @@ class StringList(BaseCClass):
 
         The string comparison can be altered with the value of the
         optional cmp_flag parameter:
-        
+
              0 : Normal strcmp() string comparison
              1 : util_strcmp_int() string comparison
              2 : util_strcmp_float() string comparison

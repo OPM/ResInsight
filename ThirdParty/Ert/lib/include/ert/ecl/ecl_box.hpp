@@ -19,30 +19,23 @@
 #ifndef ERT_ECL_BOX_H
 #define ERT_ECL_BOX_H
 
+#include <vector>
 #include <ert/ecl/ecl_grid.hpp>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
 
-typedef struct ecl_box_struct ecl_box_type;
+namespace ecl {
 
+  class ecl_box {
+  public:
+    ecl_box(const ecl_grid_type * grid, int i1, int i2, int j1, int j2, int k1, int k2);
+    const std::vector<int>& active_list() const;
+  private:
+    const ecl_grid_type * grid;
 
-void           ecl_box_set_size       (ecl_box_type * , int , int , int , int , int , int );
-ecl_box_type * ecl_box_alloc(const ecl_grid_type * ecl_grid , int i1,int i2 , int j1 , int j2 , int k1, int k2);
-void           ecl_box_free            (ecl_box_type * );
-void           ecl_box_set_values(const ecl_box_type * , char * , const char * , int );
-int            ecl_box_get_total_size(const ecl_box_type * );
-int            ecl_box_get_active_size( const ecl_box_type * ecl_box );
-const int    * ecl_box_get_active_list( const ecl_box_type * ecl_box );
-int            ecl_box_get_global_size( const ecl_box_type * ecl_box );
-const int    * ecl_box_get_global_list( const ecl_box_type * ecl_box );
-bool           ecl_box_contains(const ecl_box_type * box , int i , int j , int k);
+    int     i1,i2,j1,j2,k1,k2;
+    std::vector<int> active_index_list;
+    std::vector<int> global_index_list;
+  };
 
-UTIL_IS_INSTANCE_HEADER( ecl_box );
-UTIL_SAFE_CAST_HEADER( ecl_box );
-
-#ifdef __cplusplus
 }
-#endif
 #endif

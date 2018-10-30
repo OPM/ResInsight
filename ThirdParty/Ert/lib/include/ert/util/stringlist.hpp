@@ -50,8 +50,6 @@ typedef bool ( file_pred_ftype) (const char *, const void *);
   void              stringlist_clear(stringlist_type * );
 
   void              stringlist_append_copy(stringlist_type * , const char *);
-  void              stringlist_append_ref(stringlist_type * , const char *);
-  void              stringlist_append_owned_ref(stringlist_type * , const char *);
 
   const      char * stringlist_safe_iget( const stringlist_type * stringlist , int index);
   bool              stringlist_unique(const stringlist_type * stringlist );
@@ -86,14 +84,10 @@ typedef bool ( file_pred_ftype) (const char *, const void *);
   stringlist_type * stringlist_alloc_argv_copy(const char **      , int );
   stringlist_type * stringlist_alloc_argv_ref (const char **      , int );
   stringlist_type * stringlist_alloc_argv_owned_ref(const char ** argv , int argc);
-  stringlist_type * stringlist_alloc_shallow_copy(const stringlist_type *);
-  stringlist_type * stringlist_alloc_shallow_copy_with_offset(const stringlist_type * stringlist, int offset);
-  stringlist_type * stringlist_alloc_shallow_copy_with_limits(const stringlist_type * stringlist, int offset , int num_strings);
   stringlist_type * stringlist_alloc_from_split( const char * input_string , const char * sep );
   stringlist_type * stringlist_fread_alloc(FILE * );
 
   void              stringlist_append_stringlist_copy(stringlist_type *  , const stringlist_type * );
-  void              stringlist_append_stringlist_ref(stringlist_type *   , const stringlist_type * );
   void              stringlist_insert_stringlist_copy(stringlist_type *  , const stringlist_type *, int);
 
   bool              stringlist_equal(const stringlist_type *  , const stringlist_type *);

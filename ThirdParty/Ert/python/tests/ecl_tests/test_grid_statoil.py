@@ -242,24 +242,6 @@ class GridTest(EclTest):
             g2 = self.create("test.grdecl")
             self.assertTrue(g1.equal(g2))
 
-    @skipIf(EclTest.slowTestShouldNotRun(), "Slow test of coarse grid skipped!")
-    def test_coarse(self):
-        #work_area = TestArea("python/grid-test/testCoarse")
-        with TestAreaContext("python/grid-test/testCoarse"):
-            testGRID = True
-            g1 = EclGrid(self.createTestPath("Statoil/ECLIPSE/LGCcase/LGC_TESTCASE2.EGRID"))
-
-            g1.save_EGRID("LGC.EGRID")
-            g2 = EclGrid("LGC.EGRID")
-            self.assertTrue(g1.equal(g2, verbose=True))
-
-            if testGRID:
-                g1.save_GRID("LGC.GRID")
-                g3 = EclGrid("LGC.GRID")
-                self.assertTrue(g1.equal(g3, verbose=True))
-
-            self.assertTrue(g1.coarse_groups() == 3384)
-
 
     def test_raise_IO_error(self):
         with self.assertRaises(IOError):
@@ -291,52 +273,6 @@ class GridTest(EclTest):
 
         bbox = grid.getBoundingBox2D( lower_left = (3,3) , upper_right = (7,7))
         self.assertEqual( bbox , ((3,3) , (7,3) , (7,7) , (3,7)))
-
-
-
-
-
-    @skipIf(EclTest.slowTestShouldNotRun(), "Slow test of dual grid skipped!")
-    def test_dual(self):
-        with TestAreaContext("python/grid-test/testDual"):
-            grid = EclGrid(self.egrid_file())
-            self.assertFalse(grid.dualGrid())
-            self.assertTrue(grid.getNumActiveFracture() == 0)
-
-            grid2 = EclGrid(self.grid_file())
-            self.assertFalse(grid.dualGrid())
-            self.assertTrue(grid.getNumActiveFracture() == 0)
-
-            dgrid = EclGrid(self.createTestPath("Statoil/ECLIPSE/DualPoro/DUALPOR_MSW.EGRID"))
-            self.assertTrue(dgrid.getNumActive() == dgrid.getNumActiveFracture())
-            self.assertTrue(dgrid.getNumActive() == 46118)
-
-            dgrid2 = EclGrid(self.createTestPath("Statoil/ECLIPSE/DualPoro/DUALPOR_MSW.GRID"))
-            self.assertTrue(dgrid.getNumActive() == dgrid.getNumActiveFracture())
-            self.assertTrue(dgrid.getNumActive() == 46118)
-            self.assertTrue(dgrid.equal(dgrid2))
-
-
-            # The DUAL_DIFF grid has been manipulated to create a
-            # situation where some cells are only matrix active, and some
-            # cells are only fracture active.
-            dgrid = EclGrid(self.createTestPath("Statoil/ECLIPSE/DualPoro/DUAL_DIFF.EGRID"))
-            self.assertTrue(dgrid.getNumActive() == 106)
-            self.assertTrue(dgrid.getNumActiveFracture() == 105)
-
-            self.assertTrue(dgrid.get_active_fracture_index(global_index=0) == -1)
-            self.assertTrue(dgrid.get_active_fracture_index(global_index=2) == -1)
-            self.assertTrue(dgrid.get_active_fracture_index(global_index=3) == 0)
-            self.assertTrue(dgrid.get_active_fracture_index(global_index=107) == 104)
-
-            self.assertTrue(dgrid.get_active_index(global_index=1) == 1)
-            self.assertTrue(dgrid.get_active_index(global_index=105) == 105)
-            self.assertTrue(dgrid.get_active_index(global_index=106) == -1)
-            self.assertTrue(dgrid.get_global_index1F(2) == 5)
-
-            dgrid.save_EGRID("DUAL_DIFF.EGRID")
-            dgrid2 = EclGrid("DUAL_DIFF.EGRID")
-            self.assertTrue(dgrid.equal(dgrid2 , verbose = True))
 
 
     @skipIf(EclTest.slowTestShouldNotRun(), "Slow test of numActive large memory skipped!")
@@ -389,12 +325,6 @@ class GridTest(EclTest):
         self.assertEqual( len(vol) , grid.getGlobalSize())
         for global_index , volume in enumerate(vol):
             self.assertEqual( volume , grid.cell_volume( global_index = global_index ))
-
-
-
-    def test_large_case(self):
-        grdecl_file = self.createTestPath("Statoil/ECLIPSE/1.6.0_issueGrdecl/test_aug2016_gridOnly.grdecl")
-        grid = EclGrid.loadFromGrdecl( grdecl_file )
 
 
     def test_lgr_get(self):

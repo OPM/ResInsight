@@ -35,7 +35,7 @@ unsmry_loader::unsmry_loader(const ecl_smspec_type * smspec, const std::string& 
   this->date_index = {{ ecl_smspec_get_date_day_index(smspec),
                         ecl_smspec_get_date_month_index(smspec),
                         ecl_smspec_get_date_year_index(smspec) }};
-  this->file = ecl_file_open(filename.c_str(), 0);
+  this->file = file;
   this->file_view = ecl_file_get_global_view( this->file );
   this->m_length = ecl_file_view_get_num_named_kw(this->file_view, PARAMS_KW);
 }

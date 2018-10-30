@@ -132,32 +132,6 @@ void test_writable(const char * src_file ) {
 
 
 
-void test_truncated() {
-  test_work_area_type * work_area = test_work_area_alloc("ecl_file_truncated" );
-  {
-    ecl_grid_type * grid = ecl_grid_alloc_rectangular(20,20,20,1,1,1,NULL);
-    ecl_grid_fwrite_EGRID2( grid , "TEST.EGRID", ECL_METRIC_UNITS );
-    ecl_grid_free( grid );
-  }
-  {
-    ecl_file_type * ecl_file = ecl_file_open("TEST.EGRID" , 0 );
-    test_assert_true( ecl_file_is_instance( ecl_file ) );
-    ecl_file_close( ecl_file );
-  }
-
-  {
-    offset_type file_size = util_file_size( "TEST.EGRID");
-    FILE * stream = util_fopen("TEST.EGRID" , "r+");
-    util_ftruncate( stream , file_size / 2 );
-    fclose( stream );
-  }
-  {
-    ecl_file_type * ecl_file = ecl_file_open("TEST.EGRID" , 0 );
-    test_assert_NULL( ecl_file );
-  }
-  test_work_area_free( work_area );
-}
-
 
 int main( int argc , char ** argv) {
   const char * src_file = argv[1];
@@ -175,6 +149,5 @@ int main( int argc , char ** argv) {
 
     test_work_area_free( work_area );
   }
-  test_truncated();
   exit(0);
 }

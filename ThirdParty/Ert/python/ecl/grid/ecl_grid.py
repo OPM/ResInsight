@@ -27,6 +27,7 @@ import ctypes
 
 import warnings
 import numpy
+import pandas
 import sys
 import os.path
 import math
@@ -36,7 +37,7 @@ from cwrap import CFILE, BaseCClass, load, open as copen
 from ecl import EclPrototype
 from ecl.util.util import monkey_the_camel
 from ecl.util.util import IntVector
-from ecl import  EclDataType, EclUnitTypeEnum
+from ecl import  EclDataType, EclUnitTypeEnum, EclTypeEnum
 from ecl.eclfile import EclKW, FortIO
 from ecl.grid import Cell
 
@@ -116,6 +117,12 @@ class EclGrid(BaseCClass):
     _export_actnum                = EclPrototype("ecl_kw_obj ecl_grid_alloc_actnum_kw(ecl_grid)")
     _export_mapaxes               = EclPrototype("ecl_kw_obj ecl_grid_alloc_mapaxes_kw(ecl_grid)")
     _get_unit_system              = EclPrototype("ecl_unit_enum ecl_grid_get_unit_system(ecl_grid)")
+    _export_index_frame           = EclPrototype("void ecl_grid_export_index(ecl_grid, int*, int*, bool)")
+    _export_data_as_int           = EclPrototype("void ecl_grid_export_data_as_int(int, int*, ecl_kw, int*)", bind = False)
+    _export_data_as_double        = EclPrototype("void ecl_grid_export_data_as_double(int, int*, ecl_kw, double*)", bind = False)
+    _export_volume                = EclPrototype("void ecl_grid_export_volume(ecl_grid, int, int*, double*)")
+    _export_position              = EclPrototype("void ecl_grid_export_position(ecl_grid, int, int*, double*)")
+    _export_corners               = EclPrototype("void export_corners(ecl_grid, int, int*, double*)")
 
 
 
@@ -1253,6 +1260,136 @@ class EclGrid(BaseCClass):
         """
 
         return self._create_volume_keyword(active_size)
+
+    def export_index(self, active_only = False):
+        """
+        Exports a pandas dataframe containing index data of grid cells.
+
+        The global_index of the cells is used as index in the pandas frame.
+        columns 0, 1, 2 are i, j, k, respectively
+        column 3 contains the active_index
+        if active_only == True, only active cells are listed, 
+        otherwise all cells are listed.
+        This index frame should typically be passed to the epxport_data(), 
+        export_volume() and export_corners() functions.
+        """
+        if active_only:
+            size = self.get_num_active()
+        else:
+            size = self.get_global_size()
+        indx = numpy.zeros(size, dtype=numpy.int32)
+        data = numpy.zeros([size, 4], dtype=numpy.int32)
+        self._export_index_frame( indx.ctypes.data_as(ctypes.POINTER(ctypes.c_int32)), data.ctypes.data_as(ctypes.POINTER(ctypes.c_int32)), active_only )
+        df = pandas.DataFrame(data=data, index=indx, columns=['i', 'j', 'k', 'active'])
+        return df
+        
+    def export_data(self, index_frame, kw, default = 0):
+        """
+        Exports keywoard data to a numpy vector. 
+
+        Index_fram must be a pandas dataframe with the same structure 
+        as obtained from export_index.
+        kw must have size of either global_size or num_active.
+        The length of the numpy vector is the number of rows in index_frame.
+        If kw is of length num_active, values in the output vector
+        corresponding to inactive cells are set to default.
+        """
+        if not isinstance(index_frame, pandas.DataFrame):
+            raise TypeError("index_frame must be pandas.DataFrame")
+        if len(kw) == self.get_global_size():
+            index = numpy.array( index_frame.index, dtype=numpy.int32 )
+        elif len(kw) == self.get_num_active():
+            index = numpy.array( index_frame["active"], dtype=numpy.int32 )
+        else:
+            raise ValueError("The keyword must have a 3D compatible length")
+
+        if kw.type is EclTypeEnum.ECL_INT_TYPE:
+            data = numpy.full( len(index), default, dtype=numpy.int32 )
+            self._export_data_as_int( len(index), 
+                                       index.ctypes.data_as(ctypes.POINTER(ctypes.c_int32)), 
+                                       kw, 
+                                       data.ctypes.data_as(ctypes.POINTER(ctypes.c_int32))   )
+            return data
+        elif kw.type is EclTypeEnum.ECL_FLOAT_TYPE or kw.type is EclTypeEnum.ECL_DOUBLE_TYPE:
+            data = numpy.full( len(index), default, dtype=numpy.float64 )
+            self._export_data_as_double( len(index), 
+                                         index.ctypes.data_as(ctypes.POINTER(ctypes.c_int32)), 
+                                         kw, 
+                                         data.ctypes.data_as(ctypes.POINTER(ctypes.c_double))   )            
+            return data
+        else:
+            raise TypeError("Keyword must be either int, float or double.")
+
+    def export_volume(self, index_frame):
+        """
+        Exports cell volume data to a numpy vector.
+
+        Index_fram must be a pandas dataframe with the same structure 
+        as obtained from export_index.  
+        """
+        index = numpy.array( index_frame.index, dtype=numpy.int32 )
+        data = numpy.zeros( len(index ), dtype=numpy.float64 )
+        self._export_volume( len(index), 
+                             index.ctypes.data_as(ctypes.POINTER(ctypes.c_int32)),
+                             data.ctypes.data_as(ctypes.POINTER(ctypes.c_double))  )
+        return data
+
+    def export_position(self, index_frame):
+        """Exports cell position coordinates to a numpy vector (matrix), with columns
+        0, 1, 2 denoting coordinates x, y, and z, respectively.
+
+        Index_fram must be a pandas dataframe with the same structure 
+        as obtained from export_index.  
+        """
+        index = numpy.array( index_frame.index, dtype=numpy.int32 )
+        data = numpy.zeros( [len(index), 3], dtype=numpy.float64 )
+        self._export_position( len(index), 
+                               index.ctypes.data_as(ctypes.POINTER(ctypes.c_int32)),
+                               data.ctypes.data_as(ctypes.POINTER(ctypes.c_double))  )
+        return data
+
+    def export_corners(self, index_frame):
+        """Exports cell corner position coordinates to a numpy vector (matrix). 
+     
+        Index_fram must be a pandas dataframe with the same structure 
+        as obtained from export_index. 
+        Example of a row of the output matrix:
+        0   1   2  ....   21   22   23
+        x1  y1  z1 ....   x8   y8   z8
+
+        In total there are eight 8 corners. They are described as follows:
+        The corners in a cell are numbered 0 - 7, where corners 0-3 constitute
+        one layer and the corners 4-7 consitute the other layer. Observe 
+        that the numbering does not follow a consistent rotation around the face:
+
+
+                                        j
+        6---7                        /|\    
+        |   |                         |
+        4---5                         |
+                                      |
+                                      o---------->  i
+        2---3
+        |   |
+        0---1
+
+        Many grids are left-handed, i.e. the direction of increasing z will
+        point down towards the center of the earth. Hence in the figure above
+        the layer 4-7 will be deeper down in the reservoir than layer 0-3, and
+        also have higher z-value.
+
+        Warning: The main author of this code suspects that the coordinate
+        system can be right-handed as well, giving a z axis which will
+        increase 'towards the sky'; the safest way is probably to check this
+        explicitly if it matters for the case at hand.
+        """
+        index = numpy.array( index_frame.index, dtype=numpy.int32 )
+        data = numpy.zeros( [len(index), 24], dtype=numpy.float64 )
+        self._export_corners( len(index),
+                              index.ctypes.data_as(ctypes.POINTER(ctypes.c_int32)),
+                              data.ctypes.data_as(ctypes.POINTER(ctypes.c_double))  )
+        return data
+
 
     def export_coord(self):
         return self._export_coord()

@@ -54,16 +54,20 @@ install:
   - if [[ $PYTHON_VERSION == 2.7 ]]; then
       export TRAVIS_PYTHON_VERSION="2.7";
     fi
+  - if [[ $PYTHON_VERSION == 3.6 ]]; then
+      export TRAVIS_PYTHON_VERSION="3.6";
+    fi
   # We do this conditionally because it saves us some downloading if the version is the same.
   - if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then
       wget https://repo.continuum.io/miniconda/Miniconda2-latest-${CONDA_OS}-x86_64.sh -O miniconda.sh;
     else
-      wget https://repo.continuum.io/miniconda/Miniconda3-latest-${CONDA_OS}-x86_64.sh -O miniconda.sh;
+      wget https://repo.continuum.io/miniconda/Miniconda3-4.4.10-${CONDA_OS}-x86_64.sh -O miniconda.sh;
     fi
   - bash miniconda.sh -b -p $HOME/miniconda
   - export CONDA_HOME="$HOME/miniconda"
   - export PATH="$CONDA_HOME/bin:$PATH"
   - hash -r
+  - python --version
   - pip install -r requirements.txt
   - conda config --set always_yes yes --set changeps1 no
   - conda update -q conda

@@ -26,7 +26,7 @@
 
 #include <ert/ecl/EclKW.hpp>
 #include <ert/ecl/FortIO.hpp>
-#include <ert/util/TestArea.hpp>
+#include <ert/util/test_work_area.hpp>
 
 void test_kw_name() {
     ERT::EclKW< int > kw1( "short", 1 );
@@ -170,7 +170,7 @@ void test_read_write() {
     std::vector<std::string> s_data = {"S1", "S2", "S3"};
 
     {
-        ERT::TestArea ta("test_fwrite");
+        test_work_area_type * work_area = test_work_area_alloc("READ_WRITE");
         {
           ERT::FortIO f("test_file", std::ios_base::out);
           ERT::write_kw(f, "DOUBLE", d_data);
@@ -208,6 +208,7 @@ void test_read_write() {
           }
 
           ecl_file_close(f);
+          test_work_area_free(work_area);
         }
     }
 }

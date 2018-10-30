@@ -48,16 +48,10 @@ int main(int argc , char ** argv) {
     if (util_is_cwd( path1 ))
       test_error_exit("Failed to chdir(%s) \n",path2 );
 
-    {
-      if (path_stack_size( path_stack ) != 2)
-        test_error_exit("Wrong stack size");
-
-      if (strcmp( path1 , path_stack_peek( path_stack )) != 0)
-        test_error_exit("peek error");
-    }
+    if (path_stack_size( path_stack ) != 2)
+      test_error_exit("Wrong stack size");
 
     path_stack_pop( path_stack );
-    printf("After pop: cwd:%s   path1:%s  \n",util_alloc_cwd() , path1);
     if (!util_is_cwd( path1 ))
       test_error_exit("path_stack_pop failed \n");
 

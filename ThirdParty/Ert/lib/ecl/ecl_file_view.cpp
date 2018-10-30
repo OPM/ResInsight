@@ -17,9 +17,11 @@
 */
 
 
+#include <vector>
+#include <string>
+
 #include <ert/util/vector.hpp>
 #include <ert/util/hash.hpp>
-#include <ert/util/stringlist.hpp>
 
 #include <ert/ecl/fortio.h>
 #include <ert/ecl/ecl_kw.hpp>
@@ -33,7 +35,7 @@
 struct ecl_file_view_struct {
   vector_type       * kw_list;      /* This is a vector of ecl_file_kw instances corresponding to the content of the file. */
   hash_type         * kw_index;     /* A hash table with integer vectors of indices - see comment below. */
-  stringlist_type   * distinct_kw;  /* A stringlist of the keywords occuring in the file - each string occurs ONLY ONCE. */
+  std::vector<std::string> distinct_kw;  /* A list of the keywords occuring in the file - each string occurs ONLY ONCE. */
   fortio_type       * fortio;       /* The same fortio instance pointer as in the ecl_file styructure. */
   bool                owner;        /* Is this map the owner of the ecl_file_kw instances; only true for the global_map. */
   inv_map_type      * inv_map;      /* Shared reference owned by the ecl_file structure. */
@@ -71,15 +73,16 @@ const char * ecl_file_view_get_src_file( const ecl_file_view_type * file_view ) 
 
 
 ecl_file_view_type * ecl_file_view_alloc( fortio_type * fortio , int * flags , inv_map_type * inv_map , bool owner ) {
-  ecl_file_view_type * ecl_file_view  = (ecl_file_view_type*)util_malloc( sizeof * ecl_file_view );
+  ecl_file_view_type * ecl_file_view  = new ecl_file_view_type();
+
   ecl_file_view->kw_list              = vector_alloc_new();
   ecl_file_view->kw_index             = hash_alloc();
-  ecl_file_view->distinct_kw          = stringlist_alloc_new();
   ecl_file_view->child_list           = vector_alloc_new();
   ecl_file_view->owner                = owner;
   ecl_file_view->fortio               = fortio;
   ecl_file_view->inv_map              = inv_map;
   ecl_file_view->flags                = flags;
+
   return ecl_file_view;
 }
 
@@ -101,7 +104,7 @@ int ecl_file_view_get_global_index( const ecl_file_view_type * ecl_file_view , c
 
 
 void ecl_file_view_make_index( ecl_file_view_type * ecl_file_view ) {
-  stringlist_clear( ecl_file_view->distinct_kw );
+  ecl_file_view->distinct_kw.clear();
   hash_clear( ecl_file_view->kw_index );
   {
     int i;
@@ -111,7 +114,7 @@ void ecl_file_view_make_index( ecl_file_view_type * ecl_file_view ) {
       if ( !hash_has_key( ecl_file_view->kw_index , header )) {
         int_vector_type * index_vector = int_vector_alloc( 0 , -1 );
         hash_insert_hash_owned_ref( ecl_file_view->kw_index , header , index_vector , int_vector_free__);
-        stringlist_append_copy( ecl_file_view->distinct_kw , header);
+        ecl_file_view->distinct_kw.push_back(header);
       }
 
       {
@@ -200,11 +203,12 @@ int ecl_file_view_find_kw_value( const ecl_file_view_type * ecl_file_view , cons
 }
 
 const char * ecl_file_view_iget_distinct_kw( const ecl_file_view_type * ecl_file_view , int index) {
-  return stringlist_iget( ecl_file_view->distinct_kw , index);
+  const std::string& string = ecl_file_view->distinct_kw[index];
+  return string.c_str();
 }
 
 int ecl_file_view_get_num_distinct_kw( const ecl_file_view_type * ecl_file_view ) {
-  return stringlist_get_size( ecl_file_view->distinct_kw );
+  return ecl_file_view->distinct_kw.size();
 }
 
 int ecl_file_view_get_size( const ecl_file_view_type * ecl_file_view ) {
@@ -301,9 +305,9 @@ void ecl_file_view_add_kw( ecl_file_view_type * ecl_file_view , ecl_file_kw_type
 void ecl_file_view_free( ecl_file_view_type * ecl_file_view ) {
   vector_free( ecl_file_view->child_list );
   hash_free( ecl_file_view->kw_index );
-  stringlist_free( ecl_file_view->distinct_kw );
   vector_free( ecl_file_view->kw_list );
-  free( ecl_file_view );
+
+  delete ecl_file_view;
 }
 
 void ecl_file_view_free__( void * arg ) {

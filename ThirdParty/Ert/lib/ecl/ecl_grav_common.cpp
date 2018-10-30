@@ -26,27 +26,27 @@
 #include <ert/ecl/ecl_kw.hpp>
 #include <ert/ecl/ecl_file.hpp>
 #include <ert/ecl/ecl_region.hpp>
-#include <ert/ecl/ecl_grid_cache.hpp>
 #include <ert/ecl/ecl_kw_magic.hpp>
 #include <ert/ecl/ecl_grav_common.hpp>
 
+#include "detail/ecl/ecl_grid_cache.hpp"
 /*
   This file contains code which is common to both the ecl_grav
   implementation for gravity changes, and the ecl_subsidence
   implementation for changes in subsidence.
 */
 
-bool * ecl_grav_common_alloc_aquifer_cell( const ecl_grid_cache_type * grid_cache , const ecl_file_type * init_file) {
-  bool * aquifer_cell = (bool*)util_calloc( ecl_grid_cache_get_size( grid_cache ) , sizeof * aquifer_cell  );
+bool * ecl_grav_common_alloc_aquifer_cell( const ecl::ecl_grid_cache& grid_cache , const ecl_file_type * init_file) {
+  bool * aquifer_cell = (bool*) util_calloc( grid_cache.size()  , sizeof * aquifer_cell  );
 
-  for (int active_index = 0; active_index < ecl_grid_cache_get_size( grid_cache ); active_index++)
+  for (int active_index = 0; active_index < grid_cache.size(); active_index++)
     aquifer_cell[ active_index ] = false;
 
   if (ecl_file_has_kw( init_file , AQUIFER_KW)) {
     ecl_kw_type * aquifer_kw = ecl_file_iget_named_kw( init_file , AQUIFER_KW , 0);
     const int * aquifer_data = ecl_kw_get_int_ptr( aquifer_kw );
 
-    for (int active_index = 0; active_index < ecl_grid_cache_get_size( grid_cache ); active_index++) {
+    for (int active_index = 0; active_index < grid_cache.size(); active_index++) {
       if (aquifer_data[ active_index ] < 0)
         aquifer_cell[ active_index ] = true;
     }
@@ -57,13 +57,13 @@ bool * ecl_grav_common_alloc_aquifer_cell( const ecl_grid_cache_type * grid_cach
 
 
 
-double ecl_grav_common_eval_biot_savart( const ecl_grid_cache_type * grid_cache , ecl_region_type * region , const bool * aquifer , const double * weight , double utm_x , double utm_y , double depth) {
-  const double * xpos      = ecl_grid_cache_get_xpos( grid_cache );
-  const double * ypos      = ecl_grid_cache_get_ypos( grid_cache );
-  const double * zpos      = ecl_grid_cache_get_zpos( grid_cache );
+double ecl_grav_common_eval_biot_savart( const ecl::ecl_grid_cache& grid_cache , ecl_region_type * region , const bool * aquifer , const double * weight , double utm_x , double utm_y , double depth) {
+  const auto& xpos      = grid_cache.xpos();
+  const auto& ypos      = grid_cache.ypos();
+  const auto& zpos      = grid_cache.zpos();
   double sum = 0;
   if (region == NULL) {
-    const int      size   = ecl_grid_cache_get_size( grid_cache );
+    const int      size   = grid_cache.size();
     int index;
     for ( index = 0; index < size; index++) {
       if (!aquifer[index]) {
@@ -125,18 +125,18 @@ static inline double ecl_grav_common_eval_geertsma_kernel(int index, const doubl
 }
 
 
-double ecl_grav_common_eval_geertsma( const ecl_grid_cache_type * grid_cache , ecl_region_type * region , const bool * aquifer , const double * weight , double utm_x , double utm_y , double depth, double poisson_ratio, double seabed) {
-  const double * xpos      = ecl_grid_cache_get_xpos( grid_cache );
-  const double * ypos      = ecl_grid_cache_get_ypos( grid_cache );
-  const double * zpos      = ecl_grid_cache_get_zpos( grid_cache );
+double ecl_grav_common_eval_geertsma( const ecl::ecl_grid_cache& grid_cache , ecl_region_type * region , const bool * aquifer , const double * weight , double utm_x , double utm_y , double depth, double poisson_ratio, double seabed) {
+  const auto& xpos      = grid_cache.xpos();
+  const auto& ypos      = grid_cache.ypos();
+  const auto& zpos      = grid_cache.zpos();
   double sum = 0;
   if (region == NULL) {
-    const int      size = ecl_grid_cache_get_size( grid_cache );
+    const int      size = grid_cache.size();
     int index;
     for ( index = 0; index < size; index++) {
       if (!aquifer[index]) {
 
-        double displacement = ecl_grav_common_eval_geertsma_kernel( index, xpos , ypos , zpos, utm_x, utm_y , depth, poisson_ratio, seabed);
+        double displacement = ecl_grav_common_eval_geertsma_kernel( index, xpos.data() , ypos.data() , zpos.data(), utm_x, utm_y , depth, poisson_ratio, seabed);
 
         /**
             For numerical precision it might be benficial to use the
@@ -153,7 +153,7 @@ double ecl_grav_common_eval_geertsma( const ecl_grid_cache_type * grid_cache , e
     for (i = 0; i < size; i++) {
       index = index_list[i];
       if (!aquifer[index]) {
-        double displacement = ecl_grav_common_eval_geertsma_kernel( index, xpos , ypos , zpos, utm_x, utm_y , depth , poisson_ratio, seabed);
+        double displacement = ecl_grav_common_eval_geertsma_kernel( index, xpos.data() , ypos.data() , zpos.data(), utm_x, utm_y , depth , poisson_ratio, seabed);
         sum += weight[index] * displacement;
       }
     }

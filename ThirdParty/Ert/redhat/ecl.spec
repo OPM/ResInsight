@@ -5,7 +5,7 @@
 %define tag final
 
 Name:           ecl
-Version:        2018.04
+Version:        2018.10
 Release:        0
 Summary:        ECL library
 License:        GPL-3+

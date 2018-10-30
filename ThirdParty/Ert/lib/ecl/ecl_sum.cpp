@@ -41,6 +41,7 @@
 #include <ert/ecl/ecl_sum_data.hpp>
 #include <ert/ecl/smspec_node.hpp>
 
+#include "detail/util/path.hpp"
 
 /**
    The ECLIPSE summary data is organised in a header file (.SMSPEC)
@@ -131,22 +132,31 @@ void ecl_sum_set_case( ecl_sum_type * ecl_sum , const char * input_arg) {
   free( ecl_sum->base );
   free( ecl_sum->ext );
   {
-    char  *path , *base, *ext;
+    std::string path = ecl::util::path::dirname(input_arg);
+    std::string base = ecl::util::path::basename(input_arg);
+    std::string ext = ecl::util::path::extension(input_arg);
 
-    util_alloc_file_components( input_arg, &path , &base , &ext);
+    ecl_sum->ecl_case = util_alloc_filename(path.c_str(), base.c_str(), NULL);
+    if (path.size())
+      ecl_sum->path = util_alloc_string_copy( path.c_str() );
+    else
+      ecl_sum->path = NULL;
 
-    ecl_sum->ecl_case = util_alloc_filename( path, base, NULL );
-    ecl_sum->path     = util_alloc_string_copy( path );
-    ecl_sum->base     = util_alloc_string_copy( base );
-    ecl_sum->ext      = util_alloc_string_copy( ext );
-    if (path != NULL)
-      ecl_sum->abs_path = util_alloc_abs_path( path );
+    if (base.size())
+      ecl_sum->base = util_alloc_string_copy( base.c_str() );
+    else
+      ecl_sum->base = NULL;
+
+    if (ext.size())
+      ecl_sum->ext  = util_alloc_string_copy( ext.c_str()  );
+    else
+      ecl_sum->ext = NULL;
+
+    if (path.size() > 0)
+      ecl_sum->abs_path = util_alloc_abs_path( path.c_str() );
     else
       ecl_sum->abs_path = util_alloc_cwd();
 
-    free( base );
-    free( path );
-    free( ext );
   }
 }
 

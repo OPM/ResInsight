@@ -453,8 +453,10 @@ stringlist_type * hash_alloc_stringlist(const hash_type * hash) {
   stringlist_type * stringlist = stringlist_alloc_new();
   char ** keylist = hash_alloc_keylist__(hash);
   int i;
-  for (i = 0; i < hash_get_size( hash ); i++)
-    stringlist_append_owned_ref( stringlist , keylist[i] );
+  for (i = 0; i < hash_get_size( hash ); i++) {
+    stringlist_append_copy( stringlist , keylist[i] );
+    free(keylist[i]);
+  }
 
   free( keylist );
   return stringlist;

@@ -59,6 +59,7 @@ void test_writable(size_t data_size) {
 
 void test_truncated() {
   test_work_area_type * work_area = test_work_area_alloc("ecl_file_truncated" );
+  int num_kw;
   {
     ecl_grid_type * grid = ecl_grid_alloc_rectangular(20,20,20,1,1,1,NULL);
     ecl_grid_fwrite_EGRID2( grid , "TEST.EGRID", ECL_METRIC_UNITS );
@@ -67,6 +68,7 @@ void test_truncated() {
   {
     ecl_file_type * ecl_file = ecl_file_open("TEST.EGRID" , 0 );
     test_assert_true( ecl_file_is_instance( ecl_file ) );
+    num_kw = ecl_file_get_size( ecl_file );
     ecl_file_close( ecl_file );
   }
 
@@ -78,7 +80,8 @@ void test_truncated() {
   }
   {
     ecl_file_type * ecl_file = ecl_file_open("TEST.EGRID" , 0 );
-    test_assert_NULL( ecl_file );
+    test_assert_true( ecl_file_get_size( ecl_file) < num_kw );
+    ecl_file_close( ecl_file );
   }
   test_work_area_free( work_area );
 }

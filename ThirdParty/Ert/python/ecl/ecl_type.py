@@ -13,6 +13,7 @@
 #
 #  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 #  for more details.
+from __future__ import absolute_import
 
 from cwrap import BaseCClass, BaseCEnum
 from ecl import EclPrototype

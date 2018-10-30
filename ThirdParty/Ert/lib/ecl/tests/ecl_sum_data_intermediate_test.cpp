@@ -60,6 +60,7 @@ void verify_CASE1() {
     for (int j=0; j < 4; j++) {
       test_assert_double_equal( double_vector_iget(d, j), (i - 1)*10 + (j + 1)*100);
     }
+    double_vector_free(d);
   }
   ecl_sum_free(sum);
 }
@@ -103,6 +104,7 @@ void verify_CASE2() {
     //test_assert_int_equal(4, double_vector_size(d));
     for (int j=1; j < 4; j++)
       test_assert_double_equal( double_vector_iget(d, j-1), (1 - i)*100 + j*1000);
+    double_vector_free(d);
   }
 
   ecl_sum_free(sum);
@@ -112,7 +114,6 @@ void verify_CASE2() {
   for (int i=0; i < 2; i++) {
     double_vector_type * d = ecl_sum_alloc_data_vector(sum, i+1, false);
     //test_assert_int_equal(double_vector_size(d), 7);
-    double_vector_fprintf(d, stdout, "d", "%g");
     ieq(d,0,(1 - i)*10  + 100);
     ieq(d,1,(1 - i)*10  + 200);
     ieq(d,2,(1 - i)*10  + 300);
@@ -162,6 +163,7 @@ void verify_CASE3() {
     for (int j=0; j < 4; j++) {
       test_assert_double_equal( double_vector_iget(d, j), (2 - i)*1000 + (j + 1)*10000);
     }
+    double_vector_free(d);
   }
   ecl_sum_free(sum);
 

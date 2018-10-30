@@ -528,3 +528,10 @@ class SumTest(EclTest):
 
     def test_summary_units(self):
         self.assertEqual(self.ecl_sum.unit_system, EclUnitTypeEnum.ECL_METRIC_UNITS)
+
+
+    # The case loaded in this test originates in a simulation
+    # which was shut down brutally. This test verifies that we
+    # can create a valid ecl_sum instance from what we find.
+    def test_broken_case(self):
+        ecl_sum = EclSum( self.createTestPath("Statoil/ECLIPSE/SummaryFail3/COMBINED-AUTUMN2018_CARBSENS-0"))
