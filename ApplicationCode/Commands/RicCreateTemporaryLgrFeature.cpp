@@ -145,9 +145,7 @@ void RicCreateTemporaryLgrFeature::onActionTriggered(bool isChecked)
             mainGrid->calculateFaults(activeCellInfo);
         }
 
-        RiuSelectionManager::instance()->deleteAllItems(RiuSelectionManager::RUI_APPLICATION_GLOBAL);
-        RiuSelectionManager::instance()->deleteAllItems(RiuSelectionManager::RUI_TEMPORARY);
-        caf::SelectionManager::instance()->clearAll();
+        RiaApplication::clearAllSelections();
 
         deleteAllCachedData(eclipseCase);
         RiaApplication::instance()->project()->mainPlotCollection()->deleteAllCachedData();

@@ -203,6 +203,7 @@ public:
     void                saveWinGeoAndDockToolBarLayout();
 
     static bool         enableDevelopmentFeatures();
+    static void         clearAllSelections();
 
 private:
     void                onProjectOpenedOrClosed();

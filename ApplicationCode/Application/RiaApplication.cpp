@@ -1005,8 +1005,7 @@ void RiaApplication::closeProject()
 
     terminateProcess();
 
-    RiuSelectionManager::instance()->deleteAllItems();
-    caf::SelectionManager::instance()->clearAll();
+    RiaApplication::clearAllSelections();
 
     mainWnd->cleanupGuiBeforeProjectClose();
 
@@ -1589,6 +1588,16 @@ bool RiaApplication::enableDevelopmentFeatures()
 {
     QString environmentVar = QProcessEnvironment::systemEnvironment().value("RESINSIGHT_DEVEL", QString("0"));
     return environmentVar.toInt() == 1;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiaApplication::clearAllSelections()
+{
+    RiuSelectionManager::instance()->deleteAllItems(RiuSelectionManager::RUI_APPLICATION_GLOBAL);
+    RiuSelectionManager::instance()->deleteAllItems(RiuSelectionManager::RUI_TEMPORARY);
+    caf::SelectionManager::instance()->clearAll();
 }
 
 //--------------------------------------------------------------------------------------------------
