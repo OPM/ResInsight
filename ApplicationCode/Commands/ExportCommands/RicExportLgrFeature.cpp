@@ -495,7 +495,7 @@ void RicExportLgrFeature::onActionTriggered(bool isChecked)
     std::vector<RimWellPath*> wellPaths = selectedWellPaths();
     if(wellPaths.size() == 0) return;
 
-    QString dialogTitle = "LGR Export";
+    QString dialogTitle = "Export LGR for Completions";
 
     RimEclipseCase* defaultEclipseCase = nullptr;
     int             defaultTimeStep    = 0;
@@ -506,7 +506,7 @@ void RicExportLgrFeature::onActionTriggered(bool isChecked)
         defaultTimeStep    = activeView->currentTimeStep();
     }
 
-    auto dialogData = openDialog("LGR Export", defaultEclipseCase, defaultTimeStep);
+    auto dialogData = openDialog(dialogTitle, defaultEclipseCase, defaultTimeStep);
     if (dialogData)
     {
         auto   eclipseCase   = dialogData->caseToApply();
@@ -544,7 +544,7 @@ void RicExportLgrFeature::onActionTriggered(bool isChecked)
 //--------------------------------------------------------------------------------------------------
 void RicExportLgrFeature::setupActionLook(QAction* actionToSetup)
 {
-    actionToSetup->setText("LGR Export");
+    actionToSetup->setText("Export LGR for completions");
 }
 
 //--------------------------------------------------------------------------------------------------
