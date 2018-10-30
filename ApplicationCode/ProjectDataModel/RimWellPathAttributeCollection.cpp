@@ -31,7 +31,7 @@ CAF_PDM_SOURCE_INIT(RimWellPathAttributeCollection, "WellPathAttributes");
 //--------------------------------------------------------------------------------------------------
 RimWellPathAttributeCollection::RimWellPathAttributeCollection()
 {
-    CAF_PDM_InitObject("Casing Design", ":/CompletionsSymbol16x16", "", "");
+    CAF_PDM_InitObject("Casing Design", ":/CasingDesign16x16", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_attributes, "Attributes", "Casing Design Attributes", "", "", "");
     m_attributes.uiCapability()->setUiEditorTypeName(caf::PdmUiTableViewEditor::uiEditorTypeName());

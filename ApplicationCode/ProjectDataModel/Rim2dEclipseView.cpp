@@ -46,7 +46,7 @@ const cvf::Mat4d defaultViewMatrix(1, 0, 0, 0,
 
 Rim2dEclipseView::Rim2dEclipseView()
 {
-    CAF_PDM_InitObject("2d Contour Map", ":/3DView16x16.png", "", "");
+    CAF_PDM_InitObject("2d Contour Map", ":/2DMap16x16.png", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_2dGridProjection, "Grid2dProjection", "2d Grid Projection", "", "", "");
     m_2dGridProjection = new Rim2dGridProjection();

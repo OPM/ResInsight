@@ -106,17 +106,17 @@ void RicNewWellPathAttributeFeature::setupActionLook(QAction* actionToSetup)
     if (attributes.size() == 1u)
     {
         actionToSetup->setText(QString("Insert New Attribute before %1").arg(attributes[0]->componentTypeLabel()));
-        actionToSetup->setIcon(QIcon(":/Well.png"));
+        actionToSetup->setIcon(QIcon(":/CasingDesign16x16.png"));
     }    
     else if (caf::SelectionManager::instance()->selectedItemOfType<RimWellPathAttributeCollection>())
     {
         actionToSetup->setText("Append New Attribute");
-        actionToSetup->setIcon(QIcon(":/Well.png"));
+        actionToSetup->setIcon(QIcon(":/CasingDesign16x16.png"));
     }
     else if(caf::SelectionManager::instance()->selectedItemOfType<RimWellPath>())
     {
         actionToSetup->setText("Create Casing Design");
-        actionToSetup->setIcon(QIcon(":/Well.png"));
+        actionToSetup->setIcon(QIcon(":/CasingDesign16x16.png"));
     }
 }
 

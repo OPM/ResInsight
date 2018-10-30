@@ -95,5 +95,5 @@ void RicNew2dContourViewFeature::setupActionLook(QAction* actionToSetup)
     {
         actionToSetup->setText("New Contour Map");
     }
-    actionToSetup->setIcon(QIcon(":/3DView16x16.png"));
+    actionToSetup->setIcon(QIcon(":/2DMap16x16.png"));
 }    
