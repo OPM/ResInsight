@@ -135,7 +135,8 @@ void RimWellPathAttributeCollection::defineEditorAttribute(const caf::PdmFieldHa
         auto tvAttribute = dynamic_cast<caf::PdmUiTableViewEditorAttribute*>(attribute);
         if (tvAttribute)
         {
-            tvAttribute->autoResizeColumnsToFillContainer = true;
+            tvAttribute->resizePolicy = caf::PdmUiTableViewEditorAttribute::RESIZE_TO_FILL_CONTAINER;
+            tvAttribute->alwaysEnforceResizePolicy = true;
             tvAttribute->minimumHeight = 300;
         }
     }

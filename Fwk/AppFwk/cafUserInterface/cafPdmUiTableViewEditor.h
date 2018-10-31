@@ -81,13 +81,20 @@ private:
 class PdmUiTableViewEditorAttribute : public PdmUiEditorAttribute
 {
 public:
+    enum ResizePolicy
+    {
+        NO_AUTOMATIC_RESIZE,
+        RESIZE_TO_FIT_CONTENT,
+        RESIZE_TO_FILL_CONTAINER
+    };
+
     PdmUiTableViewEditorAttribute()
         : tableSelectionLevel(0)
         , rowSelectionLevel(1)
         , enableHeaderText(true)
         , minimumHeight(-1)
-        , autoResizeColumnsToFitContent(false)
-        , autoResizeColumnsToFillContainer(false)
+        , alwaysEnforceResizePolicy(false)
+        , resizePolicy(NO_AUTOMATIC_RESIZE)
     {
         QPalette myPalette;
         baseColor = myPalette.color(QPalette::Active, QPalette::Base);
@@ -100,8 +107,8 @@ public:
     std::vector<int>    columnWidths;
     int                 minimumHeight; ///< Not used if If < 0 
     QColor              baseColor;
-    bool                autoResizeColumnsToFitContent; 
-    bool                autoResizeColumnsToFillContainer;
+    bool                alwaysEnforceResizePolicy;
+    ResizePolicy        resizePolicy;
 };
 
 

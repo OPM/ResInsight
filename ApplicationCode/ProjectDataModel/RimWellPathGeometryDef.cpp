@@ -604,10 +604,15 @@ void RimWellPathGeometryDef::defineEditorAttribute(const caf::PdmFieldHandle* fi
     if (field == &m_wellTargets)
     {
         auto tvAttribute = dynamic_cast<caf::PdmUiTableViewEditorAttribute*>(attribute);
-        if (tvAttribute && m_pickPointsEnabled)
+        if (tvAttribute)
         {
-            tvAttribute->baseColor.setRgb(255, 220, 255);
-            tvAttribute->autoResizeColumnsToFitContent = true;
+            tvAttribute->resizePolicy = caf::PdmUiTableViewEditorAttribute::RESIZE_TO_FIT_CONTENT;
+
+            if (m_pickPointsEnabled)
+            {
+                tvAttribute->baseColor.setRgb(255, 220, 255);
+                tvAttribute->alwaysEnforceResizePolicy = true;
+            }
         }
     }
 }

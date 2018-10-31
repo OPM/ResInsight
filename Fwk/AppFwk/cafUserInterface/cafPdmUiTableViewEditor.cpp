@@ -201,35 +201,35 @@ void PdmUiTableViewEditor::configureAndUpdateUi(const QString& uiConfigName)
         m_tableHeadingIcon->setPixmap(QPixmap());
     }
 
-    if (m_previousFieldHandle != childArrayFH )
+    bool firstTimeConfiguringField = m_previousFieldHandle != childArrayFH;
+
+    if (firstTimeConfiguringField)
     {
         if (editorAttrib.minimumHeight > 0)
         {
             m_tableView->setMinimumHeight(editorAttrib.minimumHeight);
         }
-    }
-
-    if ( m_previousFieldHandle != childArrayFH)
-    {
-        int colCount = m_tableModelPdm->columnCount();
 
         // Set specified widths (if any)
         if (editorAttribLoaded)
         {
+            int colCount = m_tableModelPdm->columnCount();
             for (int c = 0; c < colCount && c < static_cast<int>(editorAttrib.columnWidths.size()); c++)
             {
                 auto w = editorAttrib.columnWidths[c];
                 if (w > 0) m_tableView->setColumnWidth(c, w);
             }
         }
+    }
 
-        if (editorAttrib.autoResizeColumnsToFitContent)
+    if (firstTimeConfiguringField || editorAttrib.alwaysEnforceResizePolicy)
+    {
+        if (editorAttrib.resizePolicy == PdmUiTableViewEditorAttribute::RESIZE_TO_FIT_CONTENT)
         {
             // Set default column widths
             m_tableView->resizeColumnsToContents();
         }
-
-        if (editorAttrib.autoResizeColumnsToFillContainer)
+        else if (editorAttrib.resizePolicy == PdmUiTableViewEditorAttribute::RESIZE_TO_FILL_CONTAINER)
         {
             m_tableView->horizontalHeader()->setResizeMode(QHeaderView::Stretch);
         }      
