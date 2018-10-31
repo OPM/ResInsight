@@ -105,6 +105,7 @@ public:
     int             frameBorderWidth()  { return static_cast<int>( m_frameBorderWidth); }
     int             frameBorderHeight() { return static_cast<int>( m_frameBorderHeight); }
 
+    void            setShowAxisLines(bool showAxisLines);
 protected:
     Vec2ui          sizeHint() override;
     void            render(OpenGLContext* oglContext, const Vec2i& position, const Vec2ui& size) override;
@@ -135,6 +136,7 @@ private:
     float               m_tickLineLength;
     float               m_pixelSpacing;
     bool                m_isSwitchingYAxisValueSign;
+    bool                m_showAxisLines;
     DomainAxes          m_domainAxes;
 
     std::vector<double> m_domainCoordsXValues;

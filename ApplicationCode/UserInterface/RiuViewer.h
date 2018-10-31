@@ -90,8 +90,8 @@ public:
                                       const cvf::Vec3d& displayModelOffset,
                                       const cvf::Color3f&  backgroundColor,
                                       const cvf::BoundingBox& domainCoordBoundingBox);
-    void            showEdgeTickMarksXY(bool enable);
-    void            showEdgeTickMarksXZ(bool enable);
+    void            showEdgeTickMarksXY(bool enable, bool showAxisLines = false);
+    void            showEdgeTickMarksXZ(bool enable, bool showAxisLines = false);
 
     void            updateAnnotationItems();
 

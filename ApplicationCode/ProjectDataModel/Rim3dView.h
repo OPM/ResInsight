@@ -107,6 +107,7 @@ public:
     void                                    setFaultMeshSurfDrawstyle();
     void                                    setSurfaceDrawstyle();
     void                                    setBackgroundColor(const cvf::Color3f& newBackgroundColor);
+    void                                    setShowGridBox(bool showGridBox);
 
     void                                    disableLighting(bool disable);
     bool                                    isLightingDisabled() const;
@@ -206,7 +207,6 @@ private:
 protected:
     caf::PdmFieldHandle*            userDescriptionField() override { return &m_name; }
     caf::PdmFieldHandle*            backgroundColorField() { return &m_backgroundColor; }
-    caf::PdmFieldHandle*            showGridBoxField() { return &m_showGridBox; }
 
     void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
     void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;

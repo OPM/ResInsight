@@ -826,7 +826,7 @@ void RiuViewer::updateGridBoxData(double scaleZ,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuViewer::showEdgeTickMarksXY(bool enable)
+void RiuViewer::showEdgeTickMarksXY(bool enable, bool showAxisLines)
 {
     m_mainRendering->removeOverlayItem(m_windowEdgeAxisOverlay.p());
 
@@ -834,16 +834,16 @@ void RiuViewer::showEdgeTickMarksXY(bool enable)
     {
         m_windowEdgeAxisOverlay->setDomainAxes(RivWindowEdgeAxesOverlayItem::XY_AXES);
         m_windowEdgeAxisOverlay->setIsSwitchingYAxisSign(false);
+        m_windowEdgeAxisOverlay->setShowAxisLines(showAxisLines);
         m_mainRendering->addOverlayItem(m_windowEdgeAxisOverlay.p());
     }
-
     m_showWindowEdgeAxes = enable;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuViewer::showEdgeTickMarksXZ(bool enable)
+void RiuViewer::showEdgeTickMarksXZ(bool enable, bool showAxisLines)
 {
     m_mainRendering->removeOverlayItem(m_windowEdgeAxisOverlay.p());
 
@@ -851,9 +851,9 @@ void RiuViewer::showEdgeTickMarksXZ(bool enable)
     {
         m_windowEdgeAxisOverlay->setDomainAxes(RivWindowEdgeAxesOverlayItem::XZ_AXES);
         m_windowEdgeAxisOverlay->setIsSwitchingYAxisSign(true);
+        m_windowEdgeAxisOverlay->setShowAxisLines(showAxisLines);
         m_mainRendering->addOverlayItem(m_windowEdgeAxisOverlay.p());
     }
-
     m_showWindowEdgeAxes = enable;
 }
 

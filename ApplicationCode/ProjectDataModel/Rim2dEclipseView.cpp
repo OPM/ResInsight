@@ -51,6 +51,8 @@ Rim2dEclipseView::Rim2dEclipseView()
     CAF_PDM_InitFieldNoDefault(&m_2dGridProjection, "Grid2dProjection", "2d Grid Projection", "", "", "");
     m_2dGridProjection = new Rim2dGridProjection();
 
+    CAF_PDM_InitField(&m_showAxisLines, "ShowAxisLines", true, "Show Axis Lines", "", "", "");
+
     m_overlayInfoConfig->setIsActive(false);
     m_gridCollection->setActive(false); // This is also not added to the tree view, so cannot be enabled.
     wellCollection()->isActive = false;
@@ -76,6 +78,7 @@ void Rim2dEclipseView::initAfterRead()
 {
     m_gridCollection->setActive(false); // This is also not added to the tree view, so cannot be enabled.
     disablePerspectiveProjectionField();
+    setShowGridBox(false);
     meshMode.setValue(NO_MESH);
     surfaceMode.setValue(FAULTS);
 }
@@ -101,7 +104,7 @@ void Rim2dEclipseView::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering
     caf::PdmUiGroup* viewGroup = uiOrdering.addNewGroup("Viewer");
     viewGroup->add(this->userDescriptionField());
     viewGroup->add(this->backgroundColorField());
-    viewGroup->add(this->showGridBoxField());
+    viewGroup->add(&m_showAxisLines);
     uiOrdering.skipRemainingFields(true);
 }
 
@@ -177,7 +180,7 @@ void Rim2dEclipseView::updateLegends()
 void Rim2dEclipseView::updateViewWidgetAfterCreation()
 {
     m_viewer->showAxisCross(false);
-    m_viewer->showEdgeTickMarksXY(true);
+    m_viewer->showEdgeTickMarksXY(true, m_showAxisLines());
     m_viewer->enableNavigationRotation(false);
 
     Rim3dView::updateViewWidgetAfterCreation();
@@ -201,5 +204,21 @@ void Rim2dEclipseView::onLoadDataAndUpdate()
     if (m_viewer)
     {
         m_viewer->setView(cvf::Vec3d(0, 0, -1), cvf::Vec3d(0, 1, 0));
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void Rim2dEclipseView::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+{
+    if (changedField == &m_showAxisLines)
+    {
+        m_viewer->showEdgeTickMarksXY(true, m_showAxisLines());
+        scheduleCreateDisplayModelAndRedraw();
+    }
+    else
+    {
+        RimEclipseView::fieldChangedByUi(changedField, oldValue, newValue);
     }
 }

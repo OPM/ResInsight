@@ -39,10 +39,12 @@ protected:
     void updateViewWidgetAfterCreation() override;  
     void updateViewFollowingRangeFilterUpdates() override;
     void onLoadDataAndUpdate() override;
+    void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
 
 private:
     cvf::ref<Riv2dGridProjectionPartMgr>     m_grid2dProjectionPartMgr;
     caf::PdmChildField<Rim2dGridProjection*> m_2dGridProjection;
+    caf::PdmField<bool>                      m_showAxisLines;
 
 };
 
