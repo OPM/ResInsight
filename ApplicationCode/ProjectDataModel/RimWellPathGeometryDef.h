@@ -48,6 +48,8 @@ public:
     cvf::Vec3d                      referencePointXyz() const;
     void                            setReferencePointXyz(const cvf::Vec3d& refPointXyz );
 
+    double                          mdrkbAtFirstTarget() const;
+
     cvf::ref<RigWellPath>           createWellPathGeometry();
     
     void                            updateWellPathVisualization();
@@ -94,6 +96,7 @@ private:
     caf::PdmField<cvf::Vec3d>                        m_referencePointUtmXyd;
     caf::PdmField<cvf::Vec3d>                        m_referencePointXyz_OBSOLETE;
 
+    caf::PdmField<double>                            m_mdrkbAtFirstTarget;
     caf::PdmChildArrayField<RimWellPathTarget*>      m_wellTargets;
 
     caf::PdmField< bool >                            m_pickPointsEnabled;

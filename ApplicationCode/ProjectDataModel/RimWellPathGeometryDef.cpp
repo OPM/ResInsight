@@ -62,6 +62,7 @@ RimWellPathGeometryDef::RimWellPathGeometryDef()
 
     CAF_PDM_InitField(&m_referencePointUtmXyd, "ReferencePosUtmXyd", cvf::Vec3d(0,0,0), "UTM Reference Point", "", "", "");
 
+    CAF_PDM_InitField(&m_mdrkbAtFirstTarget, "MdrkbAtFirstTarget", 0.0, "MDRKB at First Target", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_wellTargets, "WellPathTargets", "Well Targets", "", "", "");
     m_wellTargets.uiCapability()->setUiEditorTypeName(caf::PdmUiTableViewEditor::uiEditorTypeName());
@@ -119,6 +120,14 @@ void RimWellPathGeometryDef::setReferencePointXyz(const cvf::Vec3d& refPointXyz)
     cvf::Vec3d xyd(refPointXyz); 
     xyd.z() = -xyd.z(); 
     m_referencePointUtmXyd = xyd;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimWellPathGeometryDef::mdrkbAtFirstTarget() const
+{
+    return m_mdrkbAtFirstTarget;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -337,6 +346,7 @@ void RimWellPathGeometryDef::defineUiOrdering(QString uiConfigName, caf::PdmUiOr
     }
 
     uiOrdering.add(&m_referencePointUtmXyd);
+    uiOrdering.add(&m_mdrkbAtFirstTarget);
     uiOrdering.add(&m_wellTargets);
     uiOrdering.add(&m_pickPointsEnabled);
     uiOrdering.skipRemainingFields(true);
