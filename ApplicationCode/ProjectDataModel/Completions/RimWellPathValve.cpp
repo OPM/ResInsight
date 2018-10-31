@@ -38,7 +38,7 @@ CAF_PDM_SOURCE_INIT(RimWellPathValve, "WellPathValve");
 //--------------------------------------------------------------------------------------------------
 RimWellPathValve::RimWellPathValve()
 {
-    CAF_PDM_InitObject("WellPathValve", ":/PerforationInterval16x16.png", "", "");
+    CAF_PDM_InitObject("WellPathValve", ":/ICDValve16x16.png", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_type, "CompletionType", "Type    ", "", "", "");
     m_type = RiaDefines::ICD;
@@ -280,4 +280,17 @@ void RimWellPathValve::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrderi
 {
     QString fullName = componentLabel() + QString(" %1").arg(m_measuredDepth());
     this->setName(fullName);
+
+    if ( m_type() == RiaDefines::ICD )
+    {
+        this->setUiIcon(QIcon(":/ICDValve16x16.png"));
+    } 
+    else if ( m_type() == RiaDefines::ICV )
+    {
+        this->setUiIcon(QIcon(":/ICVValve16x16.png"));
+    } 
+    else if ( m_type() == RiaDefines::AICD )
+    {
+        this->setUiIcon(QIcon(":/AICDValve16x16.png"));
+    }
 }

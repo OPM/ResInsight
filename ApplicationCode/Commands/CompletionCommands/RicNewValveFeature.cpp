@@ -49,6 +49,6 @@ void RicNewValveFeature::onActionTriggered(bool isChecked)
 //--------------------------------------------------------------------------------------------------
 void RicNewValveFeature::setupActionLook(QAction* actionToSetup)
 {
-    actionToSetup->setIcon(QIcon(":/PerforationInterval16x16.png"));
+    actionToSetup->setIcon(QIcon(":/ICDValve16x16.png"));
     actionToSetup->setText("New Valve");
 }
