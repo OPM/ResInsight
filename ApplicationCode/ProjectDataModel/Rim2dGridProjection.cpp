@@ -184,15 +184,16 @@ void Rim2dGridProjection::generateResults()
     RimEclipseCellColors* cellColors = view->cellResult();
 
     m_resultAccessor = RigResultAccessorFactory::createFromResultDefinition(eclipseCase->eclipseCaseData(), 0, timeStep, cellColors);
-    CVF_ASSERT(m_resultAccessor.notNull());
-
-    if (!cellColors->isTernarySaturationSelected())
+    if (m_resultAccessor.notNull())
     {
-#pragma omp parallel for
-        for (int index = 0; index < nVertices; ++index)
+        if (!cellColors->isTernarySaturationSelected())
         {
-            cvf::Vec2ui ij = ijFromGridIndex(index);
-            m_aggregatedResults[index] = value(ij.x(), ij.y());
+#pragma omp parallel for
+            for (int index = 0; index < nVertices; ++index)
+            {
+                cvf::Vec2ui ij = ijFromGridIndex(index);
+                m_aggregatedResults[index] = value(ij.x(), ij.y());
+            }
         }
     }
 }
