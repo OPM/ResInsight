@@ -302,7 +302,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicNewWellPathIntersectionFeature";
 
             menuBuilder.addSeparator();
-            menuBuilder.subMenuStart("Completions", QIcon(":/FishBoneGroup16x16.png"));
+            menuBuilder.subMenuStart("Completions", QIcon(":/CompletionsSymbol16x16.png"));
             menuBuilder << "RicNewWellPathFractureFeature";
             menuBuilder << "RicNewFishbonesSubsFeature";
             menuBuilder << "RicNewPerforationIntervalFeature";
@@ -310,7 +310,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicEditPerforationCollectionFeature";
             menuBuilder.subMenuEnd();
 
-            menuBuilder.subMenuStart("Export Completions", QIcon(":/FishBoneGroup16x16.png"));
+            menuBuilder.subMenuStart("Export Completions", QIcon(":/Save.png"));
             menuBuilder << "RicExportCompletionsForVisibleWellPathsFeature";
             menuBuilder << "RicWellPathExportCompletionDataFeature";
             menuBuilder.subMenuEnd();
@@ -748,7 +748,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
 
             if (!candidates.isEmpty())
             {
-                menuBuilder.subMenuStart("Export Completions", QIcon(":/FishBoneGroup16x16.png"));
+                menuBuilder.subMenuStart("Export Completions", QIcon(":/Save.png"));
 
                 for (const auto& text : candidates)
                 {
@@ -774,7 +774,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
 
             if (!candidates.isEmpty())
             {
-                menuBuilder.subMenuStart("Export Well Paths", QIcon(":/WellLogCurve16x16.png"));
+                menuBuilder.subMenuStart("Export Well Paths", QIcon(":/Save.png"));
 
                 for (const auto& text : candidates)
                 {
