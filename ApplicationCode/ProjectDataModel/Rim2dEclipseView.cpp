@@ -58,7 +58,7 @@ Rim2dEclipseView::Rim2dEclipseView()
     wellCollection()->isActive = false;
     faultCollection()->showFaultCollection = false;    
 
-    m_grid2dProjectionPartMgr = new Riv2dGridProjectionPartMgr(grid2dProjection());
+    m_grid2dProjectionPartMgr = new Riv2dGridProjectionPartMgr(grid2dProjection(), this);
     
     ((RiuViewerToViewInterface*)this)->setCameraPosition(defaultViewMatrix);
 }
@@ -81,6 +81,7 @@ void Rim2dEclipseView::initAfterRead()
     setShowGridBox(false);
     meshMode.setValue(NO_MESH);
     surfaceMode.setValue(FAULTS);
+    scheduleCreateDisplayModelAndRedraw();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -129,11 +130,12 @@ void Rim2dEclipseView::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrderi
 //--------------------------------------------------------------------------------------------------
 void Rim2dEclipseView::updateCurrentTimeStep()
 {
-    RimEclipseView::updateCurrentTimeStep();
     if (m_2dGridProjection->isChecked())
     {
         m_2dGridProjection->generateResults();
     }
+
+    RimEclipseView::updateCurrentTimeStep();
 
     cvf::Scene* frameScene = m_viewer->frame(m_currentTimeStep);
 
@@ -166,10 +168,13 @@ void Rim2dEclipseView::updateLegends()
     if (m_2dGridProjection && m_2dGridProjection->isChecked())
     {
         RimRegularLegendConfig* projectionLegend = m_2dGridProjection->legendConfig();
-        if (projectionLegend && projectionLegend->showLegend())
+        if (projectionLegend)
         {
             m_2dGridProjection->updateLegend();
-            m_viewer->addColorLegendToBottomLeftCorner(projectionLegend->titledOverlayFrame());
+            if (projectionLegend->showLegend())
+            {
+                m_viewer->addColorLegendToBottomLeftCorner(projectionLegend->titledOverlayFrame());
+            }
         }
     }
 }
@@ -212,13 +217,15 @@ void Rim2dEclipseView::onLoadDataAndUpdate()
 //--------------------------------------------------------------------------------------------------
 void Rim2dEclipseView::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
+    RimEclipseView::fieldChangedByUi(changedField, oldValue, newValue);
+
     if (changedField == &m_showAxisLines)
     {
         m_viewer->showEdgeTickMarksXY(true, m_showAxisLines());
         scheduleCreateDisplayModelAndRedraw();
     }
-    else
+    else if (changedField == backgroundColorField())
     {
-        RimEclipseView::fieldChangedByUi(changedField, oldValue, newValue);
+        scheduleCreateDisplayModelAndRedraw();
     }
 }

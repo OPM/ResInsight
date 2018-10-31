@@ -361,6 +361,7 @@ Rim2dEclipseView* RimEclipseCase::create2dContourMap()
         contourMap->fractureColors()->setDefaultResultName();
         contourMap->setBackgroundColor(cvf::Color3f(1.0f, 1.0f, 0.98f));
         contourMap->initAfterReadRecursively();
+        contourMap->zoomAll();
     }
 
     caf::PdmDocument::updateUiIconStateRecursively(contourMap);

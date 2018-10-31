@@ -27,6 +27,7 @@
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 
+#include "cvfBoundingBox.h"
 #include "cvfGeometryBuilderFaceList.h"
 #include "cvfVector2.h"
 
@@ -76,6 +77,7 @@ public:
     void                        updateLegend();
 
 protected:
+    cvf::BoundingBox                             expandedBoundingBox() const;
     void                                         generateGridMapping();
     void                                         calculateCellRangeVisibility();
     void                                         calculatePropertyFilterVisibility();

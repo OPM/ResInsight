@@ -67,7 +67,7 @@ void caf::ContourLines::create(const std::vector<double>& dataXY, const std::vec
             temp2 = std::max(saneValue(gridIndex1d(i + 1, j, nx), dataXY, contourLevels),
                              saneValue(gridIndex1d(i + 1, j + 1, nx), dataXY, contourLevels));
             double dmax  = std::max(temp1, temp2);
-            if (dmax < contourLevels[0] && dmin > contourLevels[nContourLevels - 1])
+            if (dmax < contourLevels[0] || dmin > contourLevels[nContourLevels - 1])
                 continue;
 
             for (int k = 0; k < nContourLevels; k++)
@@ -78,7 +78,15 @@ void caf::ContourLines::create(const std::vector<double>& dataXY, const std::vec
                 {
                     if (m > 0)
                     {
-                        h[m]  = saneValue(gridIndex1d(i + im[m - 1], j + jm[m - 1], nx), dataXY, contourLevels) - contourLevels[k];
+                        double value = saneValue(gridIndex1d(i + im[m - 1], j + jm[m - 1], nx), dataXY, contourLevels);
+                        if (value == invalidValue(contourLevels))
+                        {
+                            h[m] = invalidValue(contourLevels);
+                        }
+                        else
+                        {
+                            h[m] = value - contourLevels[k];
+                        }
                         xh[m] = xCoords[i + im[m - 1]];
                         yh[m] = yCoords[j + jm[m - 1]];
                     }
@@ -201,15 +209,31 @@ void caf::ContourLines::create(const std::vector<double>& dataXY, const std::vec
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+double caf::ContourLines::contourRange(const std::vector<double>& contourLevels)
+{
+    return std::max(1.0, contourLevels.back() - contourLevels.front());
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double caf::ContourLines::invalidValue(const std::vector<double>& contourLevels)
+{
+    return contourLevels.front() - 1000.0*contourRange(contourLevels);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 double caf::ContourLines::saneValue(int index, const std::vector<double>& dataXY, const std::vector<double>& contourLevels)
 {
     CVF_ASSERT(index >= 0 && index < static_cast<int>(dataXY.size()));
-    double range = std::max(1.0, contourLevels.back() - contourLevels.front());
+    
     // Place all invalid values below the bottom contour level.
     if (dataXY[index] == -std::numeric_limits<double>::infinity() ||
         dataXY[index] == std::numeric_limits<double>::infinity())
     {
-        return contourLevels.front() - range;
+        return invalidValue(contourLevels);
     }
     return dataXY[index];
 }

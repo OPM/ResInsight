@@ -19,6 +19,8 @@
 
 #pragma once
 
+#include "RiaColorTables.h"
+
 #include "cafEffectGenerator.h"
 
 #include "cvfBase.h"
@@ -43,7 +45,7 @@ class RimCellEdgeColors;
 class RivScalarMapperUtils
 {
 public:
-    static void applyTextureResultsToPart(cvf::Part* part, cvf::Vec2fArray* textureCoords, const cvf::ScalarMapper* mapper, float opacityLevel, caf::FaceCulling faceCulling, bool disableLighting);
+    static void applyTextureResultsToPart(cvf::Part* part, cvf::Vec2fArray* textureCoords, const cvf::ScalarMapper* mapper, float opacityLevel, caf::FaceCulling faceCulling, bool disableLighting, const cvf::Color3f& undefColor = cvf::Color3f(RiaColorTables::undefinedCellColor()));
     static void applyTernaryTextureResultsToPart(cvf::Part* part, cvf::Vec2fArray* textureCoords, const RivTernaryScalarMapper* mapper, float opacityLevel, caf::FaceCulling faceCulling, bool disableLighting);
 
     static cvf::ref<cvf::Effect> createCellEdgeEffect(cvf::DrawableGeo* dg,
@@ -58,7 +60,7 @@ public:
         bool disableLighting);
 
 private:
-    static cvf::ref<cvf::Effect> createScalarMapperEffect(const cvf::ScalarMapper* mapper, float opacityLevel, caf::FaceCulling faceCulling, bool disableLighting);
+    static cvf::ref<cvf::Effect> createScalarMapperEffect(const cvf::ScalarMapper* mapper, float opacityLevel, caf::FaceCulling faceCulling, bool disableLighting, const cvf::Color3f& undefColor = cvf::Color3f(RiaColorTables::undefinedCellColor()));
     static cvf::ref<cvf::Effect> createTernaryScalarMapperEffect(const RivTernaryScalarMapper* mapper, float opacityLevel, caf::FaceCulling faceCulling, bool disableLighting);
 };
 

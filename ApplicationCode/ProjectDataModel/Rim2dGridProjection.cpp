@@ -72,6 +72,16 @@ Rim2dGridProjection::~Rim2dGridProjection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+cvf::BoundingBox Rim2dGridProjection::expandedBoundingBox() const
+{
+    cvf::BoundingBox boundingBox = eclipseCase()->activeCellsBoundingBox();
+    //boundingBox.expand(m_sampleSpacing * 0.5);
+    return boundingBox;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void Rim2dGridProjection::generateGridMapping()
 {
     updateDefaultSampleSpacingFromGrid();
@@ -79,8 +89,7 @@ void Rim2dGridProjection::generateGridMapping()
     calculateCellRangeVisibility();
     calculatePropertyFilterVisibility();
     
-    cvf::BoundingBox boundingBox = eclipseCase()->activeCellsBoundingBox();
-    cvf::Vec3d gridExtent = boundingBox.extent();
+    cvf::Vec3d gridExtent = expandedBoundingBox().extent();
 
     cvf::Vec2ui gridSize2d = surfaceGridSize();    
 
@@ -110,7 +119,7 @@ void Rim2dGridProjection::generateVertices(cvf::Vec3fArray* vertices, const caf:
     vertices->resize(vertexCount());
 
     cvf::Vec2ui gridSize2d = surfaceGridSize();
-    cvf::BoundingBox boundingBox = eclipseCase()->activeCellsBoundingBox();
+    cvf::BoundingBox boundingBox = expandedBoundingBox();
 
     int nVertices = vertexCount();
 
@@ -135,7 +144,7 @@ Rim2dGridProjection::ContourPolygons Rim2dGridProjection::generateContourPolygon
 {
     std::vector<cvf::ref<cvf::Vec3fArray>> contourPolygons;
 
-    cvf::BoundingBox boundingBox = eclipseCase()->activeCellsBoundingBox();
+    cvf::BoundingBox boundingBox = expandedBoundingBox();
 
     std::vector<double> contourLevels;
     legendConfig()->scalarMapper()->majorTickValues(&contourLevels);
@@ -150,14 +159,17 @@ Rim2dGridProjection::ContourPolygons Rim2dGridProjection::generateContourPolygon
         contourPolygons.reserve(contourLines.size());
         for (size_t i = 0; i < contourLines.size(); ++i)
         {
-            cvf::ref<cvf::Vec3fArray> contourPolygon = new cvf::Vec3fArray(contourLines[i].size());
-            for (size_t j = 0; j < contourLines[i].size(); ++j)
+            if (!contourLines[i].empty())
             {
-                cvf::Vec3d contourPoint3d = cvf::Vec3d(contourLines[i][j], boundingBox.min().z());
-                cvf::Vec3d displayPoint3d = displayCoordTransform->transformToDisplayCoord(contourPoint3d);
-                (*contourPolygon)[j] = cvf::Vec3f(displayPoint3d);
+                cvf::ref<cvf::Vec3fArray> contourPolygon = new cvf::Vec3fArray(contourLines[i].size());
+                for (size_t j = 0; j < contourLines[i].size(); ++j)
+                {
+                    cvf::Vec3d contourPoint3d = cvf::Vec3d(contourLines[i][j], boundingBox.min().z());
+                    cvf::Vec3d displayPoint3d = displayCoordTransform->transformToDisplayCoord(contourPoint3d);
+                    (*contourPolygon)[j] = cvf::Vec3f(displayPoint3d);
+                }
+                contourPolygons.push_back(contourPolygon);
             }
-            contourPolygons.push_back(contourPolygon);
         }
     }
     return contourPolygons;
@@ -331,7 +343,7 @@ bool Rim2dGridProjection::hasResultAt(uint i, uint j) const
 //--------------------------------------------------------------------------------------------------
 cvf::Vec2ui Rim2dGridProjection::surfaceGridSize() const
 {
-    cvf::BoundingBox boundingBox = eclipseCase()->activeCellsBoundingBox();
+    cvf::BoundingBox boundingBox = expandedBoundingBox();
     cvf::Vec3d gridExtent = boundingBox.extent();
 
     uint projectionSizeX = static_cast<uint>(std::ceil(gridExtent.x() / m_sampleSpacing)) + 1u;
@@ -425,7 +437,7 @@ void Rim2dGridProjection::calculatePropertyFilterVisibility()
 //--------------------------------------------------------------------------------------------------
 cvf::Vec2d Rim2dGridProjection::globalPos2d(uint i, uint j) const
 {
-    cvf::BoundingBox boundingBox = eclipseCase()->activeCellsBoundingBox();
+    cvf::BoundingBox boundingBox = expandedBoundingBox();
     cvf::Vec3d gridExtent = boundingBox.extent();
     cvf::Vec2d origin(boundingBox.min().x(), boundingBox.min().y());
     cvf::Vec2ui gridSize2d = surfaceGridSize();
@@ -447,7 +459,7 @@ const std::vector<std::pair<size_t, float>>& Rim2dGridProjection::cellsAtPos2d(u
 //--------------------------------------------------------------------------------------------------
 std::vector<std::pair<size_t, float>> Rim2dGridProjection::visibleCellsAndWeightMatching2dPoint(const cvf::Vec2d& globalPos2d) const
 {   
-    cvf::BoundingBox boundingBox = eclipseCase()->activeCellsBoundingBox();
+    cvf::BoundingBox boundingBox = expandedBoundingBox();
     cvf::Vec3d highestPoint(globalPos2d, boundingBox.max().z());
     cvf::Vec3d lowestPoint(globalPos2d, boundingBox.min().z());
 
@@ -471,7 +483,7 @@ std::vector<std::pair<size_t, float>> Rim2dGridProjection::visibleCellsAndWeight
             localGrid->cellCornerVertices(localCellIdx, hexCorners);
             std::vector<HexIntersectionInfo> intersections;
             float weight = 1.0f;
-            if (false && RigHexIntersectionTools::lineHexCellIntersection(highestPoint, lowestPoint, hexCorners, 0, &intersections))
+            if (RigHexIntersectionTools::lineHexCellIntersection(highestPoint, lowestPoint, hexCorners, 0, &intersections))
             {
                 weight = std::max(1.0, (intersections.back().m_intersectionPoint - intersections.front().m_intersectionPoint).length());
             }
@@ -539,7 +551,7 @@ void Rim2dGridProjection::updateLegend()
 //--------------------------------------------------------------------------------------------------
 std::vector<double> Rim2dGridProjection::xPositions() const
 {
-    cvf::BoundingBox boundingBox = eclipseCase()->activeCellsBoundingBox();
+    cvf::BoundingBox boundingBox = expandedBoundingBox();
     cvf::Vec3d gridExtent = boundingBox.extent();
     double origin = boundingBox.min().x();
 
@@ -560,7 +572,7 @@ std::vector<double> Rim2dGridProjection::xPositions() const
 //--------------------------------------------------------------------------------------------------
 std::vector<double> Rim2dGridProjection::yPositions() const
 {
-    cvf::BoundingBox boundingBox = eclipseCase()->activeCellsBoundingBox();
+    cvf::BoundingBox boundingBox = expandedBoundingBox();
     cvf::Vec3d gridExtent = boundingBox.extent();
     double origin = boundingBox.min().y();
     cvf::Vec2ui gridSize2d = surfaceGridSize();

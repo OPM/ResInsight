@@ -101,6 +101,9 @@ public:
 
     void                                    setName(const QString& name);
     QString                                 name() const;
+    // Implementation of RiuViewerToViewInterface
+    cvf::Color3f                            backgroundColor() const override { return m_backgroundColor(); }
+
     void                                    setMeshOnlyDrawstyle();
     void                                    setMeshSurfDrawstyle();
     void                                    setSurfOnlyDrawstyle();
@@ -166,7 +169,6 @@ protected:
     void                                    createHighlightAndGridBoxDisplayModel();
 
     // Implementation of RiuViewerToViewInterface
-    cvf::Color3f                            backgroundColor() const override { return m_backgroundColor(); }
     void                                    applyBackgroundColor();
 
     // Abstract methods to implement in subclasses

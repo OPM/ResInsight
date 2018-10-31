@@ -26,12 +26,13 @@
 #include "cvfModelBasicList.h"
 #include "cvfObject.h"
 
+class Rim2dEclipseView;
 class Rim2dGridProjection;
 
 class Riv2dGridProjectionPartMgr : public cvf::Object
 {
 public:
-    Riv2dGridProjectionPartMgr(Rim2dGridProjection* gridProjection);
+    Riv2dGridProjectionPartMgr(Rim2dGridProjection* gridProjection, Rim2dEclipseView* contourMap);
 
     void appendProjectionToModel(cvf::ModelBasicList*              model,
                                  const caf::DisplayCoordTransform* displayCoordTransform) const;
@@ -43,6 +44,7 @@ private:
     cvf::ref<cvf::DrawableGeo> createDrawable(const caf::DisplayCoordTransform* displayCoordTransform) const;
     std::vector<cvf::ref<cvf::DrawableGeo>> createContourPolygons(const caf::DisplayCoordTransform* displayCoordTransform) const;
 private:
-    caf::PdmPointer<Rim2dGridProjection> m_2dGridProjection;
+    caf::PdmPointer<Rim2dGridProjection>    m_2dGridProjection;
+    caf::PdmPointer<Rim2dEclipseView> m_parentContourMap;
 };
 
