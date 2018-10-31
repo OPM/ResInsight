@@ -181,7 +181,7 @@ RicExportWellPathsUi* RicExportSelectedWellPathsFeature::openDialog()
     RiaApplication* app = RiaApplication::instance();
     RimProject* proj = app->project();
 
-    QString startPath = app->lastUsedDialogDirectory("WELL_PATH_EXPORT_DIR");
+    QString startPath = app->lastUsedDialogDirectoryWithFallbackToProjectFolder("WELL_PATH_EXPORT_DIR");
     if (startPath.isEmpty())
     {
         QFileInfo fi(proj->fileName());
