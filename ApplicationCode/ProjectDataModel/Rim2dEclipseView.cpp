@@ -54,8 +54,7 @@ Rim2dEclipseView::Rim2dEclipseView()
     m_overlayInfoConfig->setIsActive(false);
     m_gridCollection->setActive(false); // This is also not added to the tree view, so cannot be enabled.
     wellCollection()->isActive = false;
-    faultCollection()->showFaultCollection = false;
-
+    faultCollection()->showFaultCollection = false;    
 
     m_grid2dProjectionPartMgr = new Riv2dGridProjectionPartMgr(grid2dProjection());
     
@@ -77,6 +76,8 @@ void Rim2dEclipseView::initAfterRead()
 {
     m_gridCollection->setActive(false); // This is also not added to the tree view, so cannot be enabled.
     disablePerspectiveProjectionField();
+    meshMode.setValue(NO_MESH);
+    surfaceMode.setValue(FAULTS);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -90,6 +91,18 @@ void Rim2dEclipseView::createDisplayModel()
     {
         this->zoomAll();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void Rim2dEclipseView::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+{
+    caf::PdmUiGroup* viewGroup = uiOrdering.addNewGroup("Viewer");
+    viewGroup->add(this->userDescriptionField());
+    viewGroup->add(this->backgroundColorField());
+    viewGroup->add(this->showGridBoxField());
+    uiOrdering.skipRemainingFields(true);
 }
 
 //--------------------------------------------------------------------------------------------------

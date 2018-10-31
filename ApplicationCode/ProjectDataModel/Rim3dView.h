@@ -202,9 +202,12 @@ protected:
 private:
     // Overridden PdmObject methods:
 
-    caf::PdmFieldHandle*            userDescriptionField() override { return &m_name; }
     void                            setupBeforeSave() override;
 protected:
+    caf::PdmFieldHandle*            userDescriptionField() override { return &m_name; }
+    caf::PdmFieldHandle*            backgroundColorField() { return &m_backgroundColor; }
+    caf::PdmFieldHandle*            showGridBoxField() { return &m_showGridBox; }
+
     void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
     void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
     virtual void                    updateViewWidgetAfterCreation() override; 

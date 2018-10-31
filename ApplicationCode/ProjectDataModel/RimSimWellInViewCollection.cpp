@@ -27,6 +27,7 @@
 #include "RigEclipseCaseData.h"
 #include "RigSimWellData.h"
 
+#include "Rim2dEclipseView.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseResultCase.h"
 #include "RimEclipseView.h"
@@ -530,18 +531,26 @@ void RimSimWellInViewCollection::defineUiOrdering(QString uiConfigName, caf::Pdm
 {
     updateStateForVisibilityCheckboxes();
 
+    bool isContourMap = dynamic_cast<const Rim2dEclipseView*>(m_reservoirView) != nullptr;
+
     caf::PdmUiGroup* appearanceGroup = uiOrdering.addNewGroup("Visibility");
-    appearanceGroup->add(&showWellsIntersectingVisibleCells);
+    if (!isContourMap)
+    {
+        appearanceGroup->add(&showWellsIntersectingVisibleCells);
+    }
     appearanceGroup->add(&m_showWellLabel);
     appearanceGroup->add(&m_showWellHead);
     appearanceGroup->add(&m_showWellPipe);
     appearanceGroup->add(&m_showWellSpheres);
     appearanceGroup->add(&m_showWellCommunicationLines);
     
-    caf::PdmUiGroup* filterGroup = uiOrdering.addNewGroup("Well Cells and Fence");
-    filterGroup->add(&m_showWellCells);
-    filterGroup->add(&m_showWellCellFence);
-    filterGroup->add(&wellCellFenceType);
+    if (!isContourMap)
+    {
+        caf::PdmUiGroup* filterGroup = uiOrdering.addNewGroup("Well Cells and Fence");
+        filterGroup->add(&m_showWellCells);
+        filterGroup->add(&m_showWellCellFence);
+        filterGroup->add(&wellCellFenceType);
+    }
 
     caf::PdmUiGroup* sizeScalingGroup = uiOrdering.addNewGroup("Size Scaling");
     sizeScalingGroup->add(&wellHeadScaleFactor);
@@ -560,10 +569,13 @@ void RimSimWellInViewCollection::defineUiOrdering(QString uiConfigName, caf::Pdm
     wellPipeGroup->add(&wellPipeCoordType);
     wellPipeGroup->add(&isAutoDetectingBranches);
 
-    caf::PdmUiGroup* advancedGroup = uiOrdering.addNewGroup("Advanced");
-    advancedGroup->setCollapsedByDefault(true);
-    advancedGroup->add(&wellCellTransparencyLevel);
-    advancedGroup->add(&wellHeadPosition);
+    if (!isContourMap)
+    {
+        caf::PdmUiGroup* advancedGroup = uiOrdering.addNewGroup("Advanced");
+        advancedGroup->setCollapsedByDefault(true);
+        advancedGroup->add(&wellCellTransparencyLevel);
+        advancedGroup->add(&wellHeadPosition);
+    }
 
     RimEclipseResultCase* ownerCase = nullptr; 
     firstAncestorOrThisOfType(ownerCase);
@@ -574,6 +586,8 @@ void RimSimWellInViewCollection::defineUiOrdering(QString uiConfigName, caf::Pdm
 
     m_showWellCellFence.uiCapability()->setUiReadOnly(!showWellCells());
     wellCellFenceType.uiCapability()->setUiReadOnly(!showWellCells());
+
+    uiOrdering.skipRemainingFields(true);
 }
 
 //--------------------------------------------------------------------------------------------------
