@@ -119,7 +119,7 @@ void Rim2dEclipseView::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrderi
     uiTreeOrdering.add(wellCollection());
     uiTreeOrdering.add(faultCollection());
     uiTreeOrdering.add(m_rangeFilterCollection());
-    uiTreeOrdering.add(eclipsePropertyFilterCollection());
+    uiTreeOrdering.add(nonOverridePropertyFilterCollection());
 
     uiTreeOrdering.skipRemainingChildren();
 }

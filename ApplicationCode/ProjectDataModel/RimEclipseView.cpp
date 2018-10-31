@@ -1853,3 +1853,11 @@ const RimPropertyFilterCollection* RimEclipseView::propertyFilterCollection() co
 {
     return eclipsePropertyFilterCollection();
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimPropertyFilterCollection* RimEclipseView::nonOverridePropertyFilterCollection()
+{
+    return m_propertyFilterCollection();
+}

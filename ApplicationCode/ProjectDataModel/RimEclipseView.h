@@ -92,6 +92,7 @@ public:
 
     // Access internal objects
     const RimPropertyFilterCollection*              propertyFilterCollection() const override;
+    RimPropertyFilterCollection*                    nonOverridePropertyFilterCollection();
 
     RimEclipsePropertyFilterCollection*             eclipsePropertyFilterCollection();
     const RimEclipsePropertyFilterCollection*       eclipsePropertyFilterCollection() const;
