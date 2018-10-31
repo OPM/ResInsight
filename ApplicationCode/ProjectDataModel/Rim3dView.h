@@ -106,6 +106,7 @@ public:
     void                                    setSurfOnlyDrawstyle();
     void                                    setFaultMeshSurfDrawstyle();
     void                                    setSurfaceDrawstyle();
+    void                                    setBackgroundColor(const cvf::Color3f& newBackgroundColor);
 
     void                                    disableLighting(bool disable);
     bool                                    isLightingDisabled() const;
@@ -164,7 +165,7 @@ protected:
     void                                    createHighlightAndGridBoxDisplayModel();
 
     // Implementation of RiuViewerToViewInterface
-    cvf::Color3f                    backgroundColor() const override { return m_backgroundColor(); }
+    cvf::Color3f                            backgroundColor() const override { return m_backgroundColor(); }
     void                                    applyBackgroundColor();
 
     // Abstract methods to implement in subclasses

@@ -322,6 +322,7 @@ Rim2dEclipseView* RimEclipseCase::create2dContourMapFrom3dView(const RimEclipseV
     CVF_ASSERT(contourMap);
 
     contourMap->setEclipseCase(this);
+    contourMap->setBackgroundColor(cvf::Color3f(1.0f, 1.0f, 0.98f)); // Ignore original view background
 
     caf::PdmDocument::updateUiIconStateRecursively(contourMap);
 
@@ -358,6 +359,7 @@ Rim2dEclipseView* RimEclipseCase::create2dContourMap()
         contourMap->cellEdgeResult()->setResultVariable("MULT");
         contourMap->cellEdgeResult()->setActive(false);
         contourMap->fractureColors()->setDefaultResultName();
+        contourMap->setBackgroundColor(cvf::Color3f(1.0f, 1.0f, 0.98f));
     }
 
     caf::PdmDocument::updateUiIconStateRecursively(contourMap);
