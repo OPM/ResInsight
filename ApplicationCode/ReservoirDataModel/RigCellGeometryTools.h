@@ -57,8 +57,6 @@ public:
 
     static std::vector<cvf::Vec3d> unionOfPolygons(const std::vector<std::vector<cvf::Vec3d>>& polygons);
 
-    static std::vector<cvf::Vec3d> createHexCornerCoords(std::array<cvf::Vec3d, 8> mainCellCorners, size_t nx, size_t ny, size_t nz);
-
 private:
     static std::vector<cvf::Vec3d> ajustPolygonToAvoidIntersectionsAtVertex(const std::vector<cvf::Vec3d>& polyLine, 
                                                                             const std::vector<cvf::Vec3d>& polygon);

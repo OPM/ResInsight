@@ -19,6 +19,7 @@
 #include "RicCreateTemporaryLgrFeature.h"
 
 #include "RiaApplication.h"
+#include "RiaCellDividingTools.h"
 #include "RiaCompletionTypeCalculationScheduler.h"
 #include "RiaLogging.h"
 
@@ -245,7 +246,7 @@ void RicCreateTemporaryLgrFeature::createLgr(const LgrInfo& lgrInfo, RigMainGrid
 
                     auto cellCounts = lgrInfo.sizesPerMainGridCell();
                     auto lgrCoords =
-                        RigCellGeometryTools::createHexCornerCoords(vertices, cellCounts.i(), cellCounts.j(), cellCounts.k());
+                        RiaCellDividingTools::createHexCornerCoords(vertices, cellCounts.i(), cellCounts.j(), cellCounts.k());
 
                     size_t subI = lgrI % lgrSizePerMainCell.i();
                     size_t subJ = lgrJ % lgrSizePerMainCell.j();
