@@ -96,7 +96,6 @@ protected:
 protected:
     caf::PdmField<double>                              m_sampleSpacing;
     caf::PdmField<ResultAggregation>                   m_resultAggregation;
-    caf::PdmChildField<RimRegularLegendConfig*>        m_legendConfig;
     cvf::ref<cvf::UByteArray>                          m_cellVisibility;
 
     std::vector<double>                                m_aggregatedResults;

@@ -72,7 +72,7 @@ private:
     caf::PdmPtrField<RimRegularLegendConfig*>          m_legendConfigPtrField;
     caf::PdmChildField<RimTernaryLegendConfig*>        m_ternaryLegendConfig;
 
-    caf::PdmPointer<RimEclipseView>             m_reservoirView;
+    caf::PdmPointer<RimEclipseView>                    m_reservoirView;
 
     // Obsolete   
     caf::PdmChildField<RimRegularLegendConfig*>        obsoleteField_legendConfig;

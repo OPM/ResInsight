@@ -57,9 +57,6 @@ Rim2dGridProjection::Rim2dGridProjection()
 
     CAF_PDM_InitFieldNoDefault(&m_resultAggregation, "ResultAggregation", "Result Aggregation", "", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&m_legendConfig, "LegendDefinition", "Legend Definition", ":/Legend.png", "", "");
-    m_legendConfig = new RimRegularLegendConfig();
-
     setName("2d Grid Projection");
     nameField()->uiCapability()->setUiReadOnly(true);
 }
@@ -141,7 +138,7 @@ Rim2dGridProjection::ContourPolygons Rim2dGridProjection::generateContourPolygon
     cvf::BoundingBox boundingBox = eclipseCase()->activeCellsBoundingBox();
 
     std::vector<double> contourLevels;
-    m_legendConfig->scalarMapper()->majorTickValues(&contourLevels);
+    legendConfig()->scalarMapper()->majorTickValues(&contourLevels);
     int nContourLevels = static_cast<int>(contourLevels.size());
     if (nContourLevels > 2)
     {
@@ -357,7 +354,9 @@ uint Rim2dGridProjection::vertexCount() const
 //--------------------------------------------------------------------------------------------------
 RimRegularLegendConfig* Rim2dGridProjection::legendConfig() const
 {
-    return m_legendConfig;
+    RimEclipseView* view = nullptr;
+    this->firstAncestorOrThisOfTypeAsserted(view);
+    return view->cellResult()->legendConfig();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -531,8 +530,8 @@ void Rim2dGridProjection::updateLegend()
     RimEclipseCellColors* cellColors = view->cellResult();
 
     generateResults();
-    m_legendConfig->setAutomaticRanges(minValue(), maxValue(), minValue(), maxValue());
-    m_legendConfig->setTitle(QString("2d Projection:\n%1").arg(cellColors->resultVariableUiShortName()));
+    legendConfig()->setAutomaticRanges(minValue(), maxValue(), minValue(), maxValue());
+    legendConfig()->setTitle(QString("2d Projection:\n%1").arg(cellColors->resultVariableUiShortName()));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -621,6 +620,5 @@ void Rim2dGridProjection::defineEditorAttribute(const caf::PdmFieldHandle* field
 //--------------------------------------------------------------------------------------------------
 void Rim2dGridProjection::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/)
 {
-    uiTreeOrdering.add(legendConfig());
     uiTreeOrdering.skipRemainingChildren(true);
 }
