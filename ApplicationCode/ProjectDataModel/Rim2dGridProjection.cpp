@@ -1,5 +1,7 @@
 #include "Rim2dGridProjection.h"
 
+#include "RiaWeightedGeometricMeanCalculator.h"
+#include "RiaWeightedHarmonicMeanCalculator.h"
 #include "RiaWeightedMeanCalculator.h"
 
 #include "RigActiveCellInfo.h"
@@ -37,11 +39,15 @@ namespace caf
     template<>
     void Rim2dGridProjection::ResultAggregation::setUp()
     {
-        addItem(Rim2dGridProjection::RESULTS_MEAN_VALUE, "MEAN_VALUE", "Mean Value");
+        addItem(Rim2dGridProjection::RESULTS_TOP_VALUE, "TOP_VALUE", "Top  Value");
+        addItem(Rim2dGridProjection::RESULTS_MEAN_VALUE, "MEAN_VALUE", "Arithmetic Mean");
+        addItem(Rim2dGridProjection::RESULTS_HARM_VALUE, "HARM_VALUE", "Harmonic Mean");
+        addItem(Rim2dGridProjection::RESULTS_GEOM_VALUE, "GEOM_VALUE", "Geometric Mean");
         addItem(Rim2dGridProjection::RESULTS_MIN_VALUE, "MIN_VALUE", "Min Value");
         addItem(Rim2dGridProjection::RESULTS_MAX_VALUE, "MAX_VALUE", "Max Value");
+        addItem(Rim2dGridProjection::RESULTS_SUM, "SUM", "Sum");
 
-        setDefault(Rim2dGridProjection::RESULTS_MEAN_VALUE);
+        setDefault(Rim2dGridProjection::RESULTS_TOP_VALUE);
     }
 }
 CAF_PDM_SOURCE_INIT(Rim2dGridProjection, "Rim2dGridProjection");
@@ -283,12 +289,40 @@ double Rim2dGridProjection::value(uint i, uint j) const
     {
         switch (m_resultAggregation())
         {
+        case RESULTS_TOP_VALUE:
+        {
+            size_t cellIdx = matchingCells.front().first;
+            double cellValue = m_resultAccessor->cellScalarGlobIdx(cellIdx);
+            return cellValue;
+        }
         case RESULTS_MEAN_VALUE:
         {
             RiaWeightedMeanCalculator<float> calculator;
             for (auto cellIdxAndWeight : matchingCells)
             {
                 size_t cellIdx = cellIdxAndWeight.first;
+                double cellValue = m_resultAccessor->cellScalarGlobIdx(cellIdx);
+                calculator.addValueAndWeight(cellValue, cellIdxAndWeight.second);
+            }
+            return calculator.weightedMean();
+        }
+        case RESULTS_GEOM_VALUE:
+        {
+            RiaWeightedGeometricMeanCalculator calculator;
+            for (auto cellIdxAndWeight : matchingCells)
+            {
+                size_t cellIdx   = cellIdxAndWeight.first;
+                double cellValue = m_resultAccessor->cellScalarGlobIdx(cellIdx);
+                calculator.addValueAndWeight(cellValue, cellIdxAndWeight.second);
+            }
+            return calculator.weightedMean();
+        }
+        case RESULTS_HARM_VALUE:
+        {
+            RiaWeightedHarmonicMeanCalculator calculator;
+            for (auto cellIdxAndWeight : matchingCells)
+            {
+                size_t cellIdx   = cellIdxAndWeight.first;
                 double cellValue = m_resultAccessor->cellScalarGlobIdx(cellIdx);
                 calculator.addValueAndWeight(cellValue, cellIdxAndWeight.second);
             }
@@ -315,6 +349,17 @@ double Rim2dGridProjection::value(uint i, uint j) const
                 minValue = std::min(minValue, cellValue);
             }
             return minValue;
+        }
+        case RESULTS_SUM:
+        {
+            double sum = 0.0;
+            for (auto cellIdxAndWeight : matchingCells)
+            {
+                size_t cellIdx = cellIdxAndWeight.first;
+                double cellValue = m_resultAccessor->cellScalarGlobIdx(cellIdx);
+                sum += cellValue * cellIdxAndWeight.second;
+            }
+            return sum;
         }
         default:
             CVF_TIGHT_ASSERT(false);
@@ -377,48 +422,54 @@ RimRegularLegendConfig* Rim2dGridProjection::legendConfig() const
 //--------------------------------------------------------------------------------------------------
 void Rim2dGridProjection::calculateCellRangeVisibility()
 {
-    const RigMainGrid* grid = mainGrid();
-    m_cellVisibility = new cvf::UByteArray(grid->cellCount());
+    for (size_t gridIndex = 0u; gridIndex < mainGrid()->gridCount(); ++gridIndex)
+    {
+        const RigGridBase* grid = mainGrid()->gridByIndex(gridIndex);
+        m_cellGridIdxVisibilityMap[gridIndex] = new cvf::UByteArray(grid->cellCount());
 
-    RimEclipseView* view = nullptr;
-    firstAncestorOrThisOfTypeAsserted(view);
-    
-    RimCellRangeFilterCollection* rangeFilterCollection = view->rangeFilterCollection();
+        RimEclipseView* view = nullptr;
+        firstAncestorOrThisOfTypeAsserted(view);
 
-    const RigActiveCellInfo* activeCellInfo = eclipseCase()->eclipseCaseData()->activeCellInfo(RiaDefines::MATRIX_MODEL);
+        RimCellRangeFilterCollection* rangeFilterCollection = view->rangeFilterCollection();
+
+        const RigActiveCellInfo* activeCellInfo = eclipseCase()->eclipseCaseData()->activeCellInfo(RiaDefines::MATRIX_MODEL);
 
 #pragma omp parallel for
-    for (int cellIndex = 0; cellIndex < static_cast<int>(grid->cellCount()); ++cellIndex)
-    {
-        (*m_cellVisibility)[cellIndex] = activeCellInfo->isActive(cellIndex);
+        for (int cellIndex = 0; cellIndex < static_cast<int>(grid->cellCount()); ++cellIndex)
+        {
+            size_t globalCellIdx = grid->reservoirCellIndex(cellIndex);
+            (*m_cellGridIdxVisibilityMap[gridIndex])[cellIndex] = activeCellInfo->isActive(globalCellIdx);
+        }
+
+        if (rangeFilterCollection && rangeFilterCollection->isActive())
+        {
+            cvf::CellRangeFilter cellRangeFilter;
+            rangeFilterCollection->compoundCellRangeFilter(&cellRangeFilter, gridIndex);
+
+            if (cellRangeFilter.hasIncludeRanges())
+            {
+#pragma omp parallel for
+                for (int cellIndex = 0; cellIndex < static_cast<int>(grid->cellCount()); ++cellIndex)
+                {
+                    size_t i, j, k;
+                    grid->ijkFromCellIndex(cellIndex, &i, &j, &k);
+                    (*m_cellGridIdxVisibilityMap[gridIndex])[cellIndex] =
+                        (*m_cellGridIdxVisibilityMap[gridIndex])[cellIndex] && cellRangeFilter.isCellVisible(i, j, k, false);
+                }
+            }
+            else
+            {
+#pragma omp parallel for
+                for (int cellIndex = 0; cellIndex < static_cast<int>(grid->cellCount()); ++cellIndex)
+                {
+                    size_t i, j, k;
+                    grid->ijkFromCellIndex(cellIndex, &i, &j, &k);
+                    (*m_cellGridIdxVisibilityMap[gridIndex])[cellIndex] =
+                        (*m_cellGridIdxVisibilityMap[gridIndex])[cellIndex] && !cellRangeFilter.isCellExcluded(i, j, k, false);
+                }
+            }
+        }
     }
-
-    if (rangeFilterCollection && rangeFilterCollection->isActive())
-    {
-        cvf::CellRangeFilter cellRangeFilter;
-        rangeFilterCollection->compoundCellRangeFilter(&cellRangeFilter, grid->gridIndex());
-
-        if (cellRangeFilter.hasIncludeRanges())
-        {
-#pragma omp parallel for
-            for (int cellIndex = 0; cellIndex < static_cast<int>(grid->cellCount()); ++cellIndex)
-            {
-                size_t i, j, k;
-                grid->ijkFromCellIndex(cellIndex, &i, &j, &k);
-                (*m_cellVisibility)[cellIndex] = (*m_cellVisibility)[cellIndex] && cellRangeFilter.isCellVisible(i, j, k, false);
-            }
-        }
-        else
-        {
-#pragma omp parallel for
-            for (int cellIndex = 0; cellIndex < static_cast<int>(grid->cellCount()); ++cellIndex)
-            {
-                size_t i, j, k;
-                grid->ijkFromCellIndex(cellIndex, &i, &j, &k);
-                (*m_cellVisibility)[cellIndex] = (*m_cellVisibility)[cellIndex] && !cellRangeFilter.isCellExcluded(i, j, k, false);
-            }
-        }
-    }    
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -430,7 +481,11 @@ void Rim2dGridProjection::calculatePropertyFilterVisibility()
     firstAncestorOrThisOfTypeAsserted(view);
     int timeStep = view->currentTimeStep();
 
-    RivReservoirViewPartMgr::computePropertyVisibility(m_cellVisibility.p(), mainGrid(), timeStep, m_cellVisibility.p(), view->eclipsePropertyFilterCollection());
+    for (size_t gridIndex = 0u; gridIndex < mainGrid()->gridCount(); ++gridIndex)
+    {
+        const RigGridBase* grid = mainGrid()->gridByIndex(gridIndex);
+        RivReservoirViewPartMgr::computePropertyVisibility(m_cellGridIdxVisibilityMap[gridIndex].p(), grid, timeStep, m_cellGridIdxVisibilityMap[gridIndex].p(), view->eclipsePropertyFilterCollection());
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -471,28 +526,49 @@ std::vector<std::pair<size_t, float>> Rim2dGridProjection::visibleCellsAndWeight
     std::vector<size_t> allCellIndices;
     mainGrid()->findIntersectingCells(rayBBox, &allCellIndices);
 
-    std::vector<std::pair<size_t, float>> matchingVisibleCellsAndWeight;
+  
+    std::vector<std::tuple<size_t, float, float>> matchingVisibleCellsWeightAndHeight;
 
     cvf::Vec3d hexCorners[8];
     for (size_t globalCellIdx : allCellIndices)
     {
         size_t       localCellIdx = 0u;
         RigGridBase* localGrid    = mainGrid()->gridAndGridLocalIdxFromGlobalCellIdx(globalCellIdx, &localCellIdx);
-        if (localGrid == mainGrid())
+        if ((*m_cellGridIdxVisibilityMap.at(localGrid->gridIndex()))[localCellIdx])
         {
-            if ((*m_cellVisibility)[globalCellIdx])
+            localGrid->cellCornerVertices(localCellIdx, hexCorners);
+            std::vector<HexIntersectionInfo> intersections;
+            
+            double height = 0.0;
+            double weight = 1.0;
+            if (RigHexIntersectionTools::lineHexCellIntersection(highestPoint, lowestPoint, hexCorners, 0, &intersections))
             {
-                localGrid->cellCornerVertices(localCellIdx, hexCorners);
-                std::vector<HexIntersectionInfo> intersections;
-                float weight = 1.0f;
-                if (RigHexIntersectionTools::lineHexCellIntersection(highestPoint, lowestPoint, hexCorners, 0, &intersections))
-                {
-                    weight = std::max(1.0, (intersections.back().m_intersectionPoint - intersections.front().m_intersectionPoint).length());
-                }
-                matchingVisibleCellsAndWeight.push_back(std::make_pair(globalCellIdx, weight));
+                height = intersections.front().m_intersectionPoint.z();
+                weight = (intersections.back().m_intersectionPoint - intersections.front().m_intersectionPoint).length();
             }
+            else
+            {
+                for (cvf::Vec3d corner : hexCorners)
+                {
+                    height += corner.z();
+                }
+                height /= 8;
+            }
+            matchingVisibleCellsWeightAndHeight.push_back(std::make_tuple(globalCellIdx, weight, height));
         }
     }
+
+    std::sort(matchingVisibleCellsWeightAndHeight.begin(), matchingVisibleCellsWeightAndHeight.end(), [](const auto& lhs, const auto& rhs)
+    {
+        return std::get<2>(lhs) > std::get<2>(rhs);
+    });
+
+    std::vector<std::pair<size_t, float>> matchingVisibleCellsAndWeight;
+    for (const auto& visWeightHeight : matchingVisibleCellsWeightAndHeight)
+    {
+        matchingVisibleCellsAndWeight.push_back(std::make_pair(std::get<0>(visWeightHeight), std::get<1>(visWeightHeight)));
+    }
+
 
     return matchingVisibleCellsAndWeight;
 }

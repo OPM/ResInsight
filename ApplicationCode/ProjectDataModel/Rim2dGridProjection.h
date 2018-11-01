@@ -45,9 +45,13 @@ class Rim2dGridProjection : public RimCheckableNamedObject
 public:
     enum ResultAggregationEnum
     {
-        RESULTS_MEAN_VALUE = 0,
+        RESULTS_TOP_VALUE,
+        RESULTS_MEAN_VALUE,
+        RESULTS_GEOM_VALUE,
+        RESULTS_HARM_VALUE,
         RESULTS_MIN_VALUE,
-        RESULTS_MAX_VALUE
+        RESULTS_MAX_VALUE,
+        RESULTS_SUM
     };
     typedef caf::AppEnum<ResultAggregationEnum> ResultAggregation;
     typedef std::vector<cvf::ref<cvf::Vec3fArray>> ContourPolygons;
@@ -98,7 +102,7 @@ protected:
 protected:
     caf::PdmField<double>                              m_sampleSpacing;
     caf::PdmField<ResultAggregation>                   m_resultAggregation;
-    cvf::ref<cvf::UByteArray>                          m_cellVisibility;
+    std::map<size_t, cvf::ref<cvf::UByteArray>>        m_cellGridIdxVisibilityMap;
 
     std::vector<double>                                m_aggregatedResults;
     std::vector<std::vector<std::pair<size_t, float>>> m_projected3dGridIndices;
