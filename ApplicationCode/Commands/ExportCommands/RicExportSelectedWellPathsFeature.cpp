@@ -88,10 +88,10 @@ void RicExportSelectedWellPathsFeature::writeWellPathGeometryToStream(QTextStrea
     auto numberFormat = RifEclipseOutputTableDoubleFormatting(RIF_FLOAT, 2);
     formatter.header(
     {
-        RifEclipseOutputTableColumn("X", numberFormat, RIGHT),
-        RifEclipseOutputTableColumn("Y", numberFormat, RIGHT),
-        RifEclipseOutputTableColumn("TVD", numberFormat, RIGHT),
-        RifEclipseOutputTableColumn("MD", numberFormat, RIGHT)
+        {"X", numberFormat, RIGHT},
+        {"Y", numberFormat, RIGHT},
+        {"TVD", numberFormat, RIGHT},
+        {"MD", numberFormat, RIGHT}
     });
 
     while (currMd < endMd)
