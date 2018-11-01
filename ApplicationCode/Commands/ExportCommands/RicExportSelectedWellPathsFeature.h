@@ -43,12 +43,19 @@ class RicExportSelectedWellPathsFeature : public caf::CmdFeature
     CAF_CMD_HEADER_INIT;
 
     static void handleAction(const std::vector<RimWellPath*>& wellPaths);
-    static void exportWellPath(const RimWellPath* wellPath, double mdStepSize, const QString& folder);
+    static void exportWellPath(const RimWellPath* wellPath,
+                               double mdStepSize,
+                               const QString& folder,
+                               bool writeProjectInfo = true);
 
     static RicExportWellPathsUi* openDialog();
     static QFilePtr openFileForExport(const QString& folderName, const QString& fileName);
     static QTextStreamPtr createOutputFileStream(QFile& file);
-    static void writeWellPathGeometryToStream(QTextStream& stream, const RigWellPath* geometry, const QString& wellName, double mdStepSize);
+    static void writeWellPathGeometryToStream(QTextStream& stream,
+                                              const RigWellPath* geometry,
+                                              const QString& wellName,
+                                              double mdStepSize,
+                                              bool writeProjectInfo = true);
 
 private:
     bool isCommandEnabled() override;

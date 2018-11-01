@@ -70,7 +70,7 @@ void RicfExportWellPaths::execute()
         {
             if (wellPath)
             {
-                feature->exportWellPath(wellPath, m_mdStepSize, exportFolder);
+                feature->exportWellPath(wellPath, m_mdStepSize, exportFolder, false);
             }
         }
     }

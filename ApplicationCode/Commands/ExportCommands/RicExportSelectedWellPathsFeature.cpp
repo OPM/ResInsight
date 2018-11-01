@@ -23,6 +23,8 @@
 
 #include "RicExportWellPathsUi.h"
 
+#include "RifEclipseDataTableFormatter.h"
+
 #include "RigWellPath.h"
 
 #include "RimWellPath.h"
@@ -46,13 +48,16 @@ CAF_CMD_SOURCE_INIT(RicExportSelectedWellPathsFeature, "RicExportSelectedWellPat
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicExportSelectedWellPathsFeature::exportWellPath(const RimWellPath* wellPath, double mdStepSize, const QString& folder)
+void RicExportSelectedWellPathsFeature::exportWellPath(const RimWellPath* wellPath,
+                                                       double mdStepSize,
+                                                       const QString& folder,
+                                                       bool writeProjectInfo)
 {
     auto fileName = wellPath->name() + ".dev";
     auto filePtr = openFileForExport(folder, fileName);
     auto stream = createOutputFileStream(*filePtr);
 
-    writeWellPathGeometryToStream(*stream, wellPath->wellPathGeometry(), wellPath->name(), mdStepSize);
+    writeWellPathGeometryToStream(*stream, wellPath->wellPathGeometry(), wellPath->name(), mdStepSize, writeProjectInfo);
     filePtr->close();
 }
 
@@ -62,12 +67,32 @@ void RicExportSelectedWellPathsFeature::exportWellPath(const RimWellPath* wellPa
 void RicExportSelectedWellPathsFeature::writeWellPathGeometryToStream(QTextStream& stream,
                                                                       const RigWellPath* geometry,
                                                                       const QString& wellName,
-                                                                      double mdStepSize)
+                                                                      double mdStepSize,
+                                                                      bool writeProjectInfo)
 {
     double currMd = geometry->measureDepths().front() - mdStepSize;
     double endMd = geometry->measureDepths().back();
 
+    RifEclipseDataTableFormatter formatter(stream);
+    formatter.setCommentPrefix("#");
+    formatter.setTableRowPrependText("  ");
+
+    if (writeProjectInfo)
+    {
+        formatter.comment("Project: " + RiaApplication::instance()->project()->fileName);
+        stream << endl;
+    }
+
     stream << "WELLNAME: '" << caf::Utils::makeValidFileBasename(wellName) << "'" << endl;
+
+    auto numberFormat = RifEclipseOutputTableDoubleFormatting(RIF_FLOAT, 2);
+    formatter.header(
+    {
+        RifEclipseOutputTableColumn("X", numberFormat, RIGHT),
+        RifEclipseOutputTableColumn("Y", numberFormat, RIGHT),
+        RifEclipseOutputTableColumn("TVD", numberFormat, RIGHT),
+        RifEclipseOutputTableColumn("MD", numberFormat, RIGHT)
+    });
 
     while (currMd < endMd)
     {
@@ -78,8 +103,14 @@ void RicExportSelectedWellPathsFeature::writeWellPathGeometryToStream(QTextStrea
         double tvd = -pt.z();
 
         // Write to file
-        stream << pt.x() << " " << pt.y() << " " << tvd << " " << currMd << endl;
+        formatter.add(pt.x());
+        formatter.add(pt.y());
+        formatter.add(tvd);
+        formatter.add(currMd);
+        formatter.rowCompleted("");
     }
+    formatter.tableCompleted("", false);
+
     stream << -999 << endl << endl;
 }
 
