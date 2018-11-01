@@ -130,11 +130,11 @@ QString RimModeledWellPath::wellPlanText()
     formatter.setTableRowLineAppendText("");
 
     std::vector<RifEclipseOutputTableColumn> tableHeader;
-    tableHeader.push_back({"MD"});
+    tableHeader.push_back({"MDRKB"});
     tableHeader.push_back({"CL"});
     tableHeader.push_back({"Inc"});
     tableHeader.push_back({"Azi"});
-    tableHeader.push_back({"TVD"});
+    tableHeader.push_back({"TVDMSL"});
     tableHeader.push_back({"NS"});
     tableHeader.push_back({"EW"});
     tableHeader.push_back({"Dogleg"});
@@ -142,12 +142,13 @@ QString RimModeledWellPath::wellPlanText()
     tableHeader.push_back({"Turn"});
     formatter.header(tableHeader);
     
+    double mdrkbAtFirstTarget = m_geometryDefinition->mdrkbAtFirstTarget();
     if (m_geometryDefinition)
     {
         std::vector<RiaWellPlanCalculator::WellPlanSegment> wellPlan = m_geometryDefinition->wellPlan();
         for (const auto& segment : wellPlan)
         {
-            formatter.add(segment.MD);
+            formatter.add(segment.MD + mdrkbAtFirstTarget);
             formatter.add(segment.CL);
             formatter.add(segment.inc);
             formatter.add(segment.azi);
