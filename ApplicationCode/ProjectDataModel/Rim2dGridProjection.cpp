@@ -3,6 +3,7 @@
 #include "RiaWeightedMeanCalculator.h"
 
 #include "RigActiveCellInfo.h"
+#include "RigCell.h"
 #include "RigEclipseCaseData.h"
 #include "RigHexIntersectionTools.h"
 #include "RigMainGrid.h"
@@ -475,19 +476,21 @@ std::vector<std::pair<size_t, float>> Rim2dGridProjection::visibleCellsAndWeight
     cvf::Vec3d hexCorners[8];
     for (size_t globalCellIdx : allCellIndices)
     {
-        if ((*m_cellVisibility)[globalCellIdx])
+        size_t       localCellIdx = 0u;
+        RigGridBase* localGrid    = mainGrid()->gridAndGridLocalIdxFromGlobalCellIdx(globalCellIdx, &localCellIdx);
+        if (localGrid == mainGrid())
         {
-            size_t localCellIdx = 0u;
-            RigGridBase* localGrid = mainGrid()->gridAndGridLocalIdxFromGlobalCellIdx(globalCellIdx, &localCellIdx);
-
-            localGrid->cellCornerVertices(localCellIdx, hexCorners);
-            std::vector<HexIntersectionInfo> intersections;
-            float weight = 1.0f;
-            if (RigHexIntersectionTools::lineHexCellIntersection(highestPoint, lowestPoint, hexCorners, 0, &intersections))
+            if ((*m_cellVisibility)[globalCellIdx])
             {
-                weight = std::max(1.0, (intersections.back().m_intersectionPoint - intersections.front().m_intersectionPoint).length());
+                localGrid->cellCornerVertices(localCellIdx, hexCorners);
+                std::vector<HexIntersectionInfo> intersections;
+                float weight = 1.0f;
+                if (RigHexIntersectionTools::lineHexCellIntersection(highestPoint, lowestPoint, hexCorners, 0, &intersections))
+                {
+                    weight = std::max(1.0, (intersections.back().m_intersectionPoint - intersections.front().m_intersectionPoint).length());
+                }
+                matchingVisibleCellsAndWeight.push_back(std::make_pair(globalCellIdx, weight));
             }
-            matchingVisibleCellsAndWeight.push_back(std::make_pair(globalCellIdx, weight));
         }
     }
 
