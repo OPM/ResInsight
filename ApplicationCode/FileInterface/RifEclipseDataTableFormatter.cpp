@@ -28,6 +28,7 @@ RifEclipseDataTableFormatter::RifEclipseDataTableFormatter(QTextStream& out)
     , m_colSpacing(5)
     , m_tableRowPrependText("   ")
     , m_tableRowAppendText(" /")
+    , m_commentPrefix("--")
 {
 }
 
@@ -67,11 +68,19 @@ void RifEclipseDataTableFormatter::setTableRowLineAppendText(const QString& text
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RifEclipseDataTableFormatter::setCommentPrefix(const QString& commentPrefix)
+{
+    m_commentPrefix = commentPrefix;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RifEclipseDataTableFormatter::outputBuffer()
 {
     if (!m_columns.empty() && !isAllHeadersEmpty(m_columns))
     {
-        m_out << "-- ";
+        m_out << m_commentPrefix << " ";
         for (RifEclipseOutputTableColumn& column : m_columns)
         {
             m_out << formatColumn(column.title, column);
@@ -110,7 +119,7 @@ void RifEclipseDataTableFormatter::outputBuffer()
 //--------------------------------------------------------------------------------------------------
 void RifEclipseDataTableFormatter::outputComment(RifEclipseOutputTableLine& comment)
 {
-    m_out << "-- " << comment.data[0] << "\n";
+    m_out << m_commentPrefix << " " << comment.data[0] << "\n";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -135,7 +144,7 @@ void RifEclipseDataTableFormatter::outputHorizontalLine(RifEclipseOutputTableLin
         QString str;
         str.fill(fillChar, charCount);
 
-        m_out << "--" << str << "\n";
+        m_out << m_commentPrefix << str << "\n";
     }
 }
 

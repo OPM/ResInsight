@@ -111,6 +111,7 @@ public:
     void setColumnSpacing(int spacing);
     void setTableRowPrependText(const QString& text);
     void setTableRowLineAppendText(const QString& text);
+    void setCommentPrefix(const QString& commentPrefix);
 
     RifEclipseDataTableFormatter& keyword(const QString& keyword);
     RifEclipseDataTableFormatter& header(std::vector<RifEclipseOutputTableColumn> tableHeader);
@@ -156,4 +157,5 @@ private:
     int                                      m_colSpacing;
     QString                                  m_tableRowPrependText;
     QString                                  m_tableRowAppendText;
+    QString                                  m_commentPrefix;
 };
