@@ -21,7 +21,6 @@
 #include "cvfAssert.h"
 
 #include <cmath>
-#include <array>
 
 
 //--------------------------------------------------------------------------------------------------
@@ -95,7 +94,7 @@ RiaCellDividingTools::createHexCornerCoords(std::array<cvf::Vec3d, 8> mainCellCo
 
     nodes.push_back(xyFacePtsLow);
 
-    for (int z = 1; z < nz; z++)
+    for (size_t z = 1; z < nz; z++)
     {
         auto xyFacePoints = calcFacePoints(xzFacePtsLow[z], xzFacePtsHigh[z], yzFacePtsLow[z], yzFacePtsHigh[z]);
         nodes.push_back(xyFacePoints);
@@ -106,11 +105,11 @@ RiaCellDividingTools::createHexCornerCoords(std::array<cvf::Vec3d, 8> mainCellCo
     std::vector<cvf::Vec3d> coords;
     coords.reserve(nx * ny * nz * 8);
 
-    for (int z = 1; z < nz + 1; z++)
+    for (size_t z = 1; z < nz + 1; z++)
     {
-        for (int y = 1; y < ny + 1; y++)
+        for (size_t y = 1; y < ny + 1; y++)
         {
-            for (int x = 1; x < nx + 1; x++)
+            for (size_t x = 1; x < nx + 1; x++)
             {
                 std::array<cvf::Vec3d, 8> cs;
 
@@ -138,7 +137,7 @@ std::vector<cvf::Vec3d> splitLine(cvf::Vec3d ptStart, cvf::Vec3d ptEnd, size_t p
 {
     std::vector<cvf::Vec3d> pts = {ptStart};
 
-    for (int i = 1; i < partCount; i++)
+    for (size_t i = 1; i < partCount; i++)
     {
         pts.push_back(cvf::Vec3d(ptStart.x() + (ptEnd.x() - ptStart.x()) * i / partCount,
                                  ptStart.y() + (ptEnd.y() - ptStart.y()) * i / partCount,
@@ -167,13 +166,10 @@ std::vector<std::vector<cvf::Vec3d>> calcFacePoints(const std::vector<cvf::Vec3d
     pts.push_back(edgeXPtsLow);
 
     // Interior points
-    for (int y = 1; y < ySize - 1; y++)
+    for (size_t y = 1; y < ySize - 1; y++)
     {
-        // for (int x = 0; x < xSize; x++)
-        {
-            auto interiorPts = splitLine(edgeYPtsLow[y], edgeYPtsHigh[y], xSize - 1);
-            pts.push_back(interiorPts);
-        }
+        auto interiorPts = splitLine(edgeYPtsLow[y], edgeYPtsHigh[y], xSize - 1);
+        pts.push_back(interiorPts);
     }
 
     // Add low edge points
