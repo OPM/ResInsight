@@ -558,10 +558,11 @@ std::vector<std::pair<size_t, float>> Rim2dGridProjection::visibleCellsAndWeight
         }
     }
 
-    std::sort(matchingVisibleCellsWeightAndHeight.begin(), matchingVisibleCellsWeightAndHeight.end(), [](const auto& lhs, const auto& rhs)
-    {
-        return std::get<2>(lhs) > std::get<2>(rhs);
-    });
+    std::sort(matchingVisibleCellsWeightAndHeight.begin(),
+              matchingVisibleCellsWeightAndHeight.end(),
+              [](const std::tuple<size_t, float, float>& lhs, const std::tuple<size_t, float, float>& rhs) {
+                  return std::get<2>(lhs) > std::get<2>(rhs);
+              });
 
     std::vector<std::pair<size_t, float>> matchingVisibleCellsAndWeight;
     for (const auto& visWeightHeight : matchingVisibleCellsWeightAndHeight)
