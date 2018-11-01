@@ -34,28 +34,23 @@
 //
 //##################################################################################################
 
-
 #include "cafPdmUiCheckBoxEditor.h"
 
 #include "cafPdmUiDefaultObjectEditor.h"
 
+#include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmUiFieldEditorHandle.h"
 #include "cafPdmUiOrdering.h"
-#include "cafPdmField.h"
 
 #include "cafFactory.h"
 
-
-
 namespace caf
 {
-
 CAF_PDM_UI_FIELD_EDITOR_SOURCE_INIT(PdmUiCheckBoxEditor);
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void PdmUiCheckBoxEditor::configureAndUpdateUi(const QString& uiConfigName)
 {
@@ -63,7 +58,7 @@ void PdmUiCheckBoxEditor::configureAndUpdateUi(const QString& uiConfigName)
     CAF_ASSERT(!m_label.isNull());
 
     PdmUiCheckBoxEditorAttribute attributes;
-    caf::PdmUiObjectHandle* uiObject = uiObj(uiField()->fieldHandle()->ownerObject());
+    caf::PdmUiObjectHandle*      uiObject = uiObj(uiField()->fieldHandle()->ownerObject());
     if (uiObject)
     {
         uiObject->editorAttribute(uiField()->fieldHandle(), uiConfigName, &attributes);
@@ -78,7 +73,7 @@ void PdmUiCheckBoxEditor::configureAndUpdateUi(const QString& uiConfigName)
     }
     else
     {
-        PdmUiFieldEditorHandle::updateLabelFromField(m_label, uiConfigName); 
+        PdmUiFieldEditorHandle::updateLabelFromField(m_label, uiConfigName);
     }
 
     m_checkBox->setEnabled(!uiField()->isUiReadOnly(uiConfigName));
@@ -87,11 +82,10 @@ void PdmUiCheckBoxEditor::configureAndUpdateUi(const QString& uiConfigName)
     m_checkBox->setChecked(uiField()->uiValue().toBool());
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-QWidget* PdmUiCheckBoxEditor::createEditorWidget(QWidget * parent)
+QWidget* PdmUiCheckBoxEditor::createEditorWidget(QWidget* parent)
 {
     m_checkBox = new QCheckBox(parent);
     connect(m_checkBox, SIGNAL(clicked(bool)), this, SLOT(slotClicked(bool)));
@@ -99,16 +93,16 @@ QWidget* PdmUiCheckBoxEditor::createEditorWidget(QWidget * parent)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-QWidget* PdmUiCheckBoxEditor::createLabelWidget(QWidget * parent)
+QWidget* PdmUiCheckBoxEditor::createLabelWidget(QWidget* parent)
 {
     m_label = new QLabel(parent);
     return m_label;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void PdmUiCheckBoxEditor::slotClicked(bool checked)
 {
@@ -116,6 +110,5 @@ void PdmUiCheckBoxEditor::slotClicked(bool checked)
     v = checked;
     this->setValueToField(v);
 }
-
 
 } // end namespace caf
