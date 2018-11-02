@@ -28,7 +28,7 @@ if (MSVC)
     set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "/wd4996")
 endif()
 
-add_subdirectory(well_UnitTests)
+#add_subdirectory(well_UnitTests)
 
 target_include_directories(${PROJECT_NAME}
   PUBLIC
