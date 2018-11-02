@@ -87,38 +87,7 @@ cvf::ref<cvf::Vec2fArray> Riv2dGridProjectionPartMgr::createTextureCoords() cons
             }
             else
             {
-                // Perform weighted averaging of the valid neighbors
-                RiaWeightedMeanCalculator<double> calc;
-                for (int dj = -1; dj <= 1; ++dj)
-                {
-                    int fullJ = static_cast<int>(j) + dj;
-                    if (fullJ >= 0 && fullJ < static_cast<int>(patchSize.y()))
-                    {
-                        for (int di = -1; di <= 1; ++di)
-                        {
-                            if (di == 0 && dj == 0) continue;
-
-                            int fullI = static_cast<int>(i) + di;
-                            if (fullI >= 0 && fullI < static_cast<int>(patchSize.x()))
-                            {
-                                if (m_2dGridProjection->hasResultAt(fullI, fullJ))
-                                {
-                                    double value = m_2dGridProjection->value(fullI, fullJ);
-                                    calc.addValueAndWeight(value, 1.0 / std::sqrt(di*di + dj * dj));
-                                }
-                            }
-                        }
-                    }
-                }
-                if (calc.validAggregatedWeight())
-                {
-                    (*textureCoords)[i + j * patchSize.x()] =
-                        m_2dGridProjection->legendConfig()->scalarMapper()->mapToTextureCoord(calc.weightedMean());
-                }
-                else
-                {
-                    (*textureCoords)[i + j * patchSize.x()] = cvf::Vec2f(1.0, 1.0);
-                }
+                (*textureCoords)[i + j * patchSize.x()] = cvf::Vec2f(1.0, 1.0);
             }
         }
     }
@@ -134,17 +103,17 @@ void Riv2dGridProjectionPartMgr::removeTrianglesWithNoResult(cvf::UIntArray* ver
     
     for (size_t n = 0; n < vertices->size(); n += 3)
     {
-        bool anyValid = false;
-        for (size_t t = 0; !anyValid && t < 3; ++t)
+        bool anyInvalid = false;
+        for (size_t t = 0; !anyInvalid && t < 3; ++t)
         {
             cvf::uint vertexNumber = (*vertices)[n + t];
             cvf::Vec2ui ij = m_2dGridProjection->ijFromGridIndex(vertexNumber);
-            if (m_2dGridProjection->hasResultAt(ij.x(), ij.y()))
+            if (!m_2dGridProjection->hasResultAt(ij.x(), ij.y()))
             {
-                anyValid = true;
+                anyInvalid = true;
             }
         }
-        for (size_t t = 0; anyValid && t < 3; ++t)
+        for (size_t t = 0; !anyInvalid && t < 3; ++t)
         {
             cvf::uint vertexNumber = (*vertices)[n + t];
             trianglesWithResult.push_back(vertexNumber);
