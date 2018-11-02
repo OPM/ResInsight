@@ -329,7 +329,7 @@ void RimMultipleValveLocations::fieldChangedByUi(const caf::PdmFieldHandle* chan
             RimWellPathValve*         valve     = dynamic_cast<RimWellPathValve*>(parentCompletion);
             if (fishbones)
             {
-                fishbones->geometryUpdated();
+                fishbones->recomputeLateralLocations();
             }
             else if (valve)
             {

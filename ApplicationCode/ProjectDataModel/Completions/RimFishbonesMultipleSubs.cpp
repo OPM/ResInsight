@@ -331,12 +331,12 @@ std::vector<double> RimFishbonesMultipleSubs::lateralLengths() const
 //--------------------------------------------------------------------------------------------------
 void RimFishbonesMultipleSubs::geometryUpdated()
 {
+    computeRotationAngles();
+    computeSubLateralIndices();
+    
     RimFishbonesCollection* collection;
     this->firstAncestorOrThisOfTypeAsserted(collection);
     collection->recalculateStartMD();
-
-    computeRotationAngles();
-    computeSubLateralIndices();
 
     RimProject* proj;
     this->firstAncestorOrThisOfTypeAsserted(proj);
