@@ -21,7 +21,7 @@
 #include "cvfAssert.h"
 
 #include <cmath>
-
+#include <limits>
 
 //--------------------------------------------------------------------------------------------------
 /// Internal functions
@@ -128,6 +128,36 @@ RiaCellDividingTools::createHexCornerCoords(std::array<cvf::Vec3d, 8> mainCellCo
         }
     }
     return coords;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RiaCellDividingTools::computeFlowDistance(const std::array<cvf::Vec3d, 8>& cellVertices,
+                                                 const cvf::Vec3d& areaCenter)
+{
+    auto subCellCorners = createHexCornerCoords(cellVertices, 2, 2, 2);
+
+    double weightedDistanceTotal = 0.0;
+    double weightTotal = 0.0;
+
+    for (size_t c = 0; c < 8; c++)
+    {
+        double weight = 1.0;
+        weightTotal += weight;
+
+        cvf::Vec3d centerOfSubCell = cvf::Vec3d::ZERO;
+        {
+            cvf::Vec3d vertexSum = cvf::Vec3d::ZERO;
+            for (size_t v = 0; v < 8; v++) vertexSum += subCellCorners[c * 8 + v];
+            centerOfSubCell = vertexSum / 8;
+        }
+
+        auto dist = (centerOfSubCell - areaCenter).length();
+        weightedDistanceTotal += (dist * weight);
+    }
+
+    return weightedDistanceTotal / weightTotal;
 }
 
 //--------------------------------------------------------------------------------------------------

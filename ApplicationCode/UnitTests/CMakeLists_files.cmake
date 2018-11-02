@@ -50,6 +50,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RifEclipseDataTableFormatter-Test.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiaWeightedMean-Test.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiaWeightedGeometricMeanCalculator-Test.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiaWeightedHarmonicMeanCalculator-Test.cpp
+${CMAKE_CURRENT_LIST_DIR}/RiaCellDividingTools-Test.cpp
 )
 
 list(APPEND CODE_HEADER_FILES
