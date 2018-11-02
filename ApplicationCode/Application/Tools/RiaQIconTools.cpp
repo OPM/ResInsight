@@ -25,16 +25,20 @@
 //--------------------------------------------------------------------------------------------------
 QPixmap RiaQIconTools::appendPixmapUpperLeft(const QPixmap& pixmap, const QPixmap& overlayPixmap)
 {
-    QPixmap scaledToFitIncoming;
+    QPixmap scaledPixmap;
     {
-        QSize size = pixmap.size() / 2;
+        QSize size = pixmap.size() - pixmap.size() / 4;
 
-        scaledToFitIncoming = overlayPixmap.scaled(size);
+        scaledPixmap = overlayPixmap.scaled(size);
     }
 
-    QPixmap  pixmapWithSign(pixmap);
-    QPainter painter(&pixmapWithSign);
-    painter.drawPixmap(0, 0, scaledToFitIncoming);
+    QPixmap  combinedPixmap(pixmap);
+    QPainter painter(&combinedPixmap);
 
-    return pixmapWithSign;
+    int x = 0;
+    int y = -4;
+
+    painter.drawPixmap(x, y, scaledPixmap);
+
+    return combinedPixmap;
 }
