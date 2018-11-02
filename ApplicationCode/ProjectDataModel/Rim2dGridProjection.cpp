@@ -66,6 +66,8 @@ Rim2dGridProjection::Rim2dGridProjection()
 
     setName("2d Grid Projection");
     nameField()->uiCapability()->setUiReadOnly(true);
+
+    m_resultAccessor = new RigHugeValResultAccessor;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -200,7 +202,11 @@ void Rim2dGridProjection::generateResults()
     RimEclipseCellColors* cellColors = view->cellResult();
 
     m_resultAccessor = RigResultAccessorFactory::createFromResultDefinition(eclipseCase->eclipseCaseData(), 0, timeStep, cellColors);
-    if (m_resultAccessor.notNull())
+    if (m_resultAccessor.isNull())
+    {
+        m_resultAccessor = new RigHugeValResultAccessor;
+    }
+
     {
         if (!cellColors->isTernarySaturationSelected())
         {
