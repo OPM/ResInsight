@@ -893,9 +893,9 @@ bool RimEclipseCase::openReserviorCase()
     {
         std::vector<RimGridCollection*> gridColls;
         descendantsIncludingThisOfType(gridColls);
-        if (!gridColls.empty())
+        for (RimGridCollection* gridCollection : gridColls)
         {
-            gridColls.front()->syncFromMainGrid();
+            gridCollection->syncFromMainGrid();
         }
     }
 
