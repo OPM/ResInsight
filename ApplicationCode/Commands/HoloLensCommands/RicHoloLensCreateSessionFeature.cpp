@@ -55,16 +55,17 @@ void RicHoloLensCreateSessionFeature::onActionTriggered(bool isChecked)
         dialogButtonBox->clear();
 
         QPushButton* pushButton = dialogButtonBox->addButton("Create Session", QDialogButtonBox::ActionRole);
-        connect(pushButton, SIGNAL(clicked()), &propertyDialog, SLOT(close()));
+        connect(pushButton, SIGNAL(clicked()), &propertyDialog, SLOT(accept()));
     }
 
-    propertyDialog.exec();
-
-    RicHoloLensSessionManager::instance()->createSession(
-        createSessionUi.serverUrl(), createSessionUi.sessionName(), createSessionUi.sessionPinCode());
+    int ret = propertyDialog.exec();
+    if (ret == QDialog::Accepted)
+    {
+        RicHoloLensSessionManager::instance()->createSession(
+            createSessionUi.serverUrl(), createSessionUi.sessionName(), createSessionUi.sessionPinCode());
+    }
 
     RicHoloLensSessionManager::refreshToolbarState();
-
 }
 
 //--------------------------------------------------------------------------------------------------
