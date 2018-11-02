@@ -49,7 +49,8 @@ void RicWellPathsImportFileFeature::onActionTriggered(bool isChecked)
 {
     // Open dialog box to select well path files
     RiaApplication* app = RiaApplication::instance();
-    QString defaultDir = app->lastUsedDialogDirectory("WELLPATH_DIR");
+    QString lastUsedGridFolder = app->lastUsedDialogDirectory("BINARY_GRID");
+    QString defaultDir = app->lastUsedDialogDirectoryWithFallback("WELLPATH_DIR", lastUsedGridFolder);
     QStringList wellPathFilePaths = QFileDialog::getOpenFileNames(Riu3DMainWindowTools::mainWindowWidget(), "Import Well Paths", defaultDir, "Well Paths (*.json *.asc *.asci *.ascii *.dev);;All Files (*.*)");
 
     if (wellPathFilePaths.size() < 1) return;
