@@ -84,7 +84,7 @@ Rim2dGridProjection::~Rim2dGridProjection()
 cvf::BoundingBox Rim2dGridProjection::expandedBoundingBox() const
 {
     cvf::BoundingBox boundingBox = eclipseCase()->activeCellsBoundingBox();
-    //boundingBox.expand(m_sampleSpacing * 0.5);
+    boundingBox.expand(m_sampleSpacing * 0.5);
     return boundingBox;
 }
 
@@ -225,7 +225,7 @@ void Rim2dGridProjection::generateResults()
 //--------------------------------------------------------------------------------------------------
 double Rim2dGridProjection::maxValue() const
 {
-    double maxV = 0.0;
+    double maxV = -std::numeric_limits<double>::infinity();
 
     int nVertices = vertexCount();
 
@@ -539,18 +539,23 @@ const std::vector<std::pair<size_t, float>>& Rim2dGridProjection::cellsAtPos2d(u
 std::vector<std::pair<size_t, float>> Rim2dGridProjection::visibleCellsAndWeightMatching2dPoint(const cvf::Vec2d& globalPos2d) const
 {   
     cvf::BoundingBox boundingBox = expandedBoundingBox();
-    cvf::Vec3d highestPoint(globalPos2d, boundingBox.max().z());
-    cvf::Vec3d lowestPoint(globalPos2d, boundingBox.min().z());
+    cvf::Vec3d topCentroid(globalPos2d, boundingBox.max().z());
+    cvf::Vec3d bottomCentroid(globalPos2d, boundingBox.min().z());
+    cvf::Vec3d planarDiagonalVector(0.5 * m_sampleSpacing, 0.5 * m_sampleSpacing, 0.0);
+    cvf::Vec3d topNECorner = topCentroid + planarDiagonalVector;
+    cvf::Vec3d bottomSWCorner = bottomCentroid - planarDiagonalVector;
 
     cvf::BoundingBox rayBBox;
-    rayBBox.add(highestPoint);
-    rayBBox.add(lowestPoint);
+    rayBBox.add(topNECorner);
+    rayBBox.add(bottomSWCorner);
+    double rayBBoxVolume = rayBBox.extent().z() * m_sampleSpacing * m_sampleSpacing;
 
     std::vector<size_t> allCellIndices;
     mainGrid()->findIntersectingCells(rayBBox, &allCellIndices);
 
-  
     std::vector<std::tuple<size_t, float, float>> matchingVisibleCellsWeightAndHeight;
+
+    double totalOverlapVolume = 0.0;
 
     cvf::Vec3d hexCorners[8];
     for (size_t globalCellIdx : allCellIndices)
@@ -561,38 +566,49 @@ std::vector<std::pair<size_t, float>> Rim2dGridProjection::visibleCellsAndWeight
         {
             localGrid->cellCornerVertices(localCellIdx, hexCorners);
             std::vector<HexIntersectionInfo> intersections;
-            
-            double height = 0.0;
-            double weight = 1.0;
-            if (RigHexIntersectionTools::lineHexCellIntersection(highestPoint, lowestPoint, hexCorners, 0, &intersections))
+            cvf::BoundingBox cellBBox;
+            for (const cvf::Vec3d& corner : hexCorners)
             {
-                height = intersections.front().m_intersectionPoint.z();
-                weight = (intersections.back().m_intersectionPoint - intersections.front().m_intersectionPoint).length();
+                cellBBox.add(corner);
             }
-            else
+            cvf::Vec3d overlapMin, overlapMax;
+            for (int i = 0; i < 3; ++i)
             {
-                for (cvf::Vec3d corner : hexCorners)
-                {
-                    height += corner.z();
-                }
-                height /= 8;
+                overlapMin[i] = std::max(cellBBox.min()[i], rayBBox.min()[i]);
+                overlapMax[i] = std::min(cellBBox.max()[i], rayBBox.max()[i]);
             }
-            matchingVisibleCellsWeightAndHeight.push_back(std::make_tuple(globalCellIdx, weight, height));
+            cvf::Vec3d overlap = overlapMax - overlapMin;
+            double overlapVolume = 0.0;
+            if (overlap.x() > 0.0 && overlap.y() > 0.0 && overlap.z() > 0.0)
+            {
+                overlapVolume = overlap.x() * overlap.y() * overlap.z();
+            }
+
+            if (overlapVolume > 0.0)
+            {
+                double height = cellBBox.max().z();
+                matchingVisibleCellsWeightAndHeight.push_back(std::make_tuple(globalCellIdx, overlapVolume, height));
+                totalOverlapVolume += overlapVolume;
+            }
         }
     }
 
-    std::sort(matchingVisibleCellsWeightAndHeight.begin(),
-              matchingVisibleCellsWeightAndHeight.end(),
-              [](const std::tuple<size_t, float, float>& lhs, const std::tuple<size_t, float, float>& rhs) {
-                  return std::get<2>(lhs) > std::get<2>(rhs);
-              });
-
     std::vector<std::pair<size_t, float>> matchingVisibleCellsAndWeight;
-    for (const auto& visWeightHeight : matchingVisibleCellsWeightAndHeight)
+    if (totalOverlapVolume > 0.0)
     {
-        matchingVisibleCellsAndWeight.push_back(std::make_pair(std::get<0>(visWeightHeight), std::get<1>(visWeightHeight)));
-    }
+        std::sort(matchingVisibleCellsWeightAndHeight.begin(),
+            matchingVisibleCellsWeightAndHeight.end(),
+            [](const std::tuple<size_t, float, float>& lhs, const std::tuple<size_t, float, float>& rhs) {
+            return std::get<2>(lhs) > std::get<2>(rhs);
+        });
 
+        float adjustmentFactor = static_cast<float>(rayBBoxVolume / totalOverlapVolume);
+        CVF_ASSERT(adjustmentFactor > 0.0f);
+        for (const auto& visWeightHeight : matchingVisibleCellsWeightAndHeight)
+        {
+            matchingVisibleCellsAndWeight.push_back(std::make_pair(std::get<0>(visWeightHeight), std::get<1>(visWeightHeight) * adjustmentFactor));
+        }
+    }
 
     return matchingVisibleCellsAndWeight;
 }
@@ -645,8 +661,13 @@ void Rim2dGridProjection::updateLegend()
     RimEclipseCellColors* cellColors = view->cellResult();
 
     generateResults();
-    legendConfig()->setAutomaticRanges(minValue(), maxValue(), minValue(), maxValue());
-    legendConfig()->setTitle(QString("2d Projection:\n%1").arg(cellColors->resultVariableUiShortName()));
+    double minVal = minValue();
+    double maxVal = maxValue();
+    if (minVal != std::numeric_limits<double>::infinity() && maxVal != -std::numeric_limits<double>::infinity())
+    {
+        legendConfig()->setAutomaticRanges(minVal, maxVal, minVal, maxVal);
+        legendConfig()->setTitle(QString("2d Projection:\n%1").arg(cellColors->resultVariableUiShortName()));
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -724,7 +745,7 @@ void Rim2dGridProjection::defineEditorAttribute(const caf::PdmFieldHandle* field
         if (myAttr)
         {
             double characteristicSize = mainGrid()->characteristicIJCellSize();
-            myAttr->m_minimum = 0.2 * characteristicSize;
+            myAttr->m_minimum = 0.3333 * characteristicSize;
             myAttr->m_maximum = 2.0 * characteristicSize;
         }        
     }
