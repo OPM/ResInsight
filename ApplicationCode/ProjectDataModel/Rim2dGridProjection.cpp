@@ -428,17 +428,25 @@ RimRegularLegendConfig* Rim2dGridProjection::legendConfig() const
 //--------------------------------------------------------------------------------------------------
 void Rim2dGridProjection::calculateCellRangeVisibility()
 {
+    RimEclipseView* view = nullptr;
+    firstAncestorOrThisOfTypeAsserted(view);
+    RimCellRangeFilterCollection* rangeFilterCollection = view->rangeFilterCollection();
+    const RigActiveCellInfo* activeCellInfo = eclipseCase()->eclipseCaseData()->activeCellInfo(RiaDefines::MATRIX_MODEL);
+
     for (size_t gridIndex = 0u; gridIndex < mainGrid()->gridCount(); ++gridIndex)
     {
         const RigGridBase* grid = mainGrid()->gridByIndex(gridIndex);
+
+        cvf::ref<cvf::UByteArray> parentGridVisibilities;
+        bool isSubGrid = false;
+        if (!grid->isMainGrid())
+        {
+            size_t parentGridIndex = static_cast<const RigLocalGrid*>(grid)->parentGrid()->gridIndex();
+            parentGridVisibilities = m_cellGridIdxVisibilityMap[parentGridIndex];
+            isSubGrid = true;
+        }
+
         m_cellGridIdxVisibilityMap[gridIndex] = new cvf::UByteArray(grid->cellCount());
-
-        RimEclipseView* view = nullptr;
-        firstAncestorOrThisOfTypeAsserted(view);
-
-        RimCellRangeFilterCollection* rangeFilterCollection = view->rangeFilterCollection();
-
-        const RigActiveCellInfo* activeCellInfo = eclipseCase()->eclipseCaseData()->activeCellInfo(RiaDefines::MATRIX_MODEL);
 
 #pragma omp parallel for
         for (int cellIndex = 0; cellIndex < static_cast<int>(grid->cellCount()); ++cellIndex)
@@ -452,27 +460,36 @@ void Rim2dGridProjection::calculateCellRangeVisibility()
             cvf::CellRangeFilter cellRangeFilter;
             rangeFilterCollection->compoundCellRangeFilter(&cellRangeFilter, gridIndex);
 
-            if (cellRangeFilter.hasIncludeRanges())
+            if (rangeFilterCollection->hasActiveIncludeFilters())
             {
 #pragma omp parallel for
                 for (int cellIndex = 0; cellIndex < static_cast<int>(grid->cellCount()); ++cellIndex)
                 {
                     size_t i, j, k;
                     grid->ijkFromCellIndex(cellIndex, &i, &j, &k);
-                    (*m_cellGridIdxVisibilityMap[gridIndex])[cellIndex] =
-                        (*m_cellGridIdxVisibilityMap[gridIndex])[cellIndex] && cellRangeFilter.isCellVisible(i, j, k, false);
+                    if ((*m_cellGridIdxVisibilityMap[gridIndex])[cellIndex])
+                    {
+                        const RigCell& cell = grid->cell(cellIndex);
+                        bool visibleDueToParent = false;
+                        if (isSubGrid)
+                        {
+                            size_t parentGridCellIndex = cell.parentCellIndex();
+                            visibleDueToParent = parentGridVisibilities->get(parentGridCellIndex);
+                        }
+
+                        (*m_cellGridIdxVisibilityMap[gridIndex])[cellIndex] =
+                            visibleDueToParent || cellRangeFilter.isCellVisible(i, j, k, isSubGrid);
+                    }
                 }
             }
-            else
-            {
+
 #pragma omp parallel for
-                for (int cellIndex = 0; cellIndex < static_cast<int>(grid->cellCount()); ++cellIndex)
-                {
-                    size_t i, j, k;
-                    grid->ijkFromCellIndex(cellIndex, &i, &j, &k);
-                    (*m_cellGridIdxVisibilityMap[gridIndex])[cellIndex] =
-                        (*m_cellGridIdxVisibilityMap[gridIndex])[cellIndex] && !cellRangeFilter.isCellExcluded(i, j, k, false);
-                }
+            for (int cellIndex = 0; cellIndex < static_cast<int>(grid->cellCount()); ++cellIndex)
+            {
+                size_t i, j, k;
+                grid->ijkFromCellIndex(cellIndex, &i, &j, &k);
+                (*m_cellGridIdxVisibilityMap[gridIndex])[cellIndex] =
+                    (*m_cellGridIdxVisibilityMap[gridIndex])[cellIndex] && !cellRangeFilter.isCellExcluded(i, j, k, isSubGrid);
             }
         }
     }
