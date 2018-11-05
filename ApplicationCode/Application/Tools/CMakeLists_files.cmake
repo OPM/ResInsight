@@ -37,6 +37,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RiaOptionItemFactory.h
 ${CMAKE_CURRENT_LIST_DIR}/RiaGitDiff.h
 ${CMAKE_CURRENT_LIST_DIR}/RiaQIconTools.h
 ${CMAKE_CURRENT_LIST_DIR}/RiaCellDividingTools.h
+${CMAKE_CURRENT_LIST_DIR}/RiaFieldHandleTools.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -74,6 +75,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RiaOptionItemFactory.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiaGitDiff.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiaQIconTools.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiaCellDividingTools.cpp
+${CMAKE_CURRENT_LIST_DIR}/RiaFieldHandleTools.cpp
 )
 
 list(APPEND CODE_HEADER_FILES
