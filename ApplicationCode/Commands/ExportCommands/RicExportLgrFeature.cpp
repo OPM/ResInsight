@@ -31,6 +31,9 @@
 #include "RigResultAccessor.h"
 #include "RigResultAccessorFactory.h"
 #include "RigVirtualPerforationTransmissibilities.h"
+#include "RigWellLogExtractor.h"
+#include "RigWellPath.h"
+#include "RigWellPathIntersectionTools.h"
 
 #include "RimDialogData.h"
 #include "RimEclipseCase.h"
@@ -39,11 +42,14 @@
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 #include "RimWellPathCompletions.h"
+#include "RimWellPathFractureCollection.h"
+#include "RimFishbonesCollection.h"
+#include "RimPerforationCollection.h"
 
 #include "RiuPlotMainWindow.h"
 
 #include "RimFishbonesMultipleSubs.h"
-#include "RimFracture.h"
+#include "RimWellPathFracture.h"
 #include "RimPerforationInterval.h"
 
 #include <QAction>
@@ -63,11 +69,46 @@
 #include <limits>
 #include <array>
 #include <set>
+#include <algorithm>
 
 CAF_CMD_SOURCE_INIT(RicExportLgrFeature, "RicExportLgrFeature");
 
 //--------------------------------------------------------------------------------------------------
 //
+//--------------------------------------------------------------------------------------------------
+#define DOUBLE_INF  std::numeric_limits<double>::infinity()
+
+//--------------------------------------------------------------------------------------------------
+/// Internal class
+//--------------------------------------------------------------------------------------------------
+class CellInfo
+{
+public:
+    CellInfo(size_t globCellIndex)
+        : globCellIndex(globCellIndex)
+        , startMd(DOUBLE_INF)
+        , endMd(DOUBLE_INF)
+    {
+    }
+    CellInfo(size_t globCellIndex, double startMd, double endMd)
+        : globCellIndex(globCellIndex)
+        , startMd(startMd)
+        , endMd(endMd)
+    {
+    }
+
+    size_t globCellIndex;
+    double startMd;
+    double endMd;
+
+    bool operator<(const CellInfo& other) const
+    {
+        return startMd < other.startMd;
+    }
+};
+
+//--------------------------------------------------------------------------------------------------
+// Internal function
 //--------------------------------------------------------------------------------------------------
 int completionPriority(const RigCompletionData& completion)
 {
@@ -77,7 +118,7 @@ int completionPriority(const RigCompletionData& completion)
 }
 
 //--------------------------------------------------------------------------------------------------
-///
+// Internal function
 //--------------------------------------------------------------------------------------------------
 std::vector<RigCompletionData> filterCompletionsOnType(const std::vector<RigCompletionData>& completions,
                                                        const std::set<RigCompletionData::CompletionType>& includedCompletionTypes)
@@ -91,7 +132,7 @@ std::vector<RigCompletionData> filterCompletionsOnType(const std::vector<RigComp
 }
 
 //--------------------------------------------------------------------------------------------------
-///
+// Internal function
 //--------------------------------------------------------------------------------------------------
 QString completionName(const caf::PdmObject* object)
 {
@@ -107,6 +148,7 @@ QString completionName(const caf::PdmObject* object)
 }
 
 //--------------------------------------------------------------------------------------------------
+/// Internal function
 /// Returns the completion having highest priority.
 /// Pri: 1. Fractures, 2. Fishbones, 3. Perforation intervals
 //--------------------------------------------------------------------------------------------------
@@ -430,6 +472,109 @@ RicExportLgrFeature::cellsIntersectingCompletions(RimEclipseCase* eclipseCase,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::vector<RigCompletionDataGridCell> cellsIntersectingCompletion(const std::map<RigCompletionDataGridCell, std::vector<RigCompletionData>>& allCells,
+                                                                   caf::PdmObject* sourcePdmObject)
+{
+    std::vector<RigCompletionDataGridCell> cells;
+    for (const auto& intInfo : allCells)
+    {
+        for (const auto& compl : intInfo.second)
+        {
+            if (compl.sourcePdmObject() == sourcePdmObject) cells.push_back(intInfo.first);
+        }
+    }
+    return cells;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<std::pair<RigCompletionDataGridCell, std::vector<RigCompletionData>>>
+     createOrderedIntersectionList(const std::vector<WellPathCellIntersectionInfo>&                           allWellPathCells,
+                                   const std::map<RigCompletionDataGridCell, std::vector<RigCompletionData>>& completionCells)
+{
+    // All cell indices intersecting a completion and lookup into map
+    std::set<size_t>                            complCellIndices;
+    std::map<size_t, RigCompletionDataGridCell> complCellLookup;
+    std::set<CellInfo>                          cellsOnWellPath;
+    std::vector<std::pair<bool, CellInfo>>      cellsNotOnWellPath;
+    {
+        for (const auto& complCell : completionCells)
+        {
+            complCellIndices.insert(complCell.first.globalCellIndex());
+            complCellLookup.insert({complCell.first.globalCellIndex(), complCell.first});
+
+            bool cellFoundOnWellPath = false;
+            for (const auto& wellPathCell : allWellPathCells)
+            {
+                if (complCell.first.globalCellIndex() == wellPathCell.globCellIndex)
+                {
+                    cellsOnWellPath.insert(CellInfo(complCell.first.globalCellIndex(), wellPathCell.startMD, wellPathCell.endMD));
+                    cellFoundOnWellPath = true;
+                    break;
+                }
+            }
+
+            if (!cellFoundOnWellPath)
+            {
+                cellsNotOnWellPath.push_back({ true, CellInfo(complCell.first.globalCellIndex()) });
+            }
+        }
+    }
+
+    std::set<size_t> cellsTaken;
+    std::vector<std::pair<RigCompletionDataGridCell, std::vector<RigCompletionData>>> result;
+
+    // Walk along well path
+    for (const auto& cellOnWellPath : cellsOnWellPath)
+    {
+        // Add cell on well path first
+        auto complDataGridCell = complCellLookup.at(cellOnWellPath.globCellIndex);
+        auto complDataList = completionCells.at(complDataGridCell);
+        result.push_back({complDataGridCell, complDataList});
+
+        // Check intersected completions in current cell
+        RigCompletionData::CompletionType complTypes[] = { RigCompletionData::FRACTURE, RigCompletionData::FISHBONES, RigCompletionData::PERFORATION };
+
+        for (auto complType : complTypes)
+        {
+            const caf::PdmObject* completion = nullptr;
+            for (const auto& complData : complDataList)
+            {
+                if (complData.completionType() == complType)
+                {
+                    completion = complData.sourcePdmObject();
+                    break;
+                }
+            }
+
+            if (completion)
+            {
+                // Add all cells intersecting this completion
+                for (auto& cellNotOnWellPath : cellsNotOnWellPath)
+                {
+                    if (!cellNotOnWellPath.first) continue;
+
+                    auto complDataList2 = completionCells.at(complCellLookup.at(cellNotOnWellPath.second.globCellIndex));
+                    auto itr = std::find_if(complDataList2.begin(), complDataList2.end(),
+                                            [&completion](const RigCompletionData& cd) { return cd.sourcePdmObject() == completion; });
+
+                    if (itr != complDataList2.end())
+                    {
+                        result.push_back({ complCellLookup.at(cellNotOnWellPath.second.globCellIndex), complDataList2});
+                        cellNotOnWellPath.first = false;
+                    }
+                }
+            }
+        }
+    }
+
+    return result;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::map<CompletionInfo, std::vector<RigCompletionDataGridCell>>
     RicExportLgrFeature::cellsIntersectingCompletions_PerCompletion(RimEclipseCase*    eclipseCase,
                                                                     const RimWellPath* wellPath,
@@ -440,14 +585,22 @@ std::map<CompletionInfo, std::vector<RigCompletionDataGridCell>>
     std::map<CompletionInfo, std::vector<RigCompletionDataGridCell>> completionToCells;
 
     *isIntersectingOtherLgrs = false;
+
+    auto wellPathGeometry = wellPath->wellPathGeometry();
     auto completions = eclipseCase->computeAndGetVirtualPerforationTransmissibilities();
-    if (completions)
+    if (wellPathGeometry && completions)
     {
         auto intCells = completions->multipleCompletionsPerEclipseCell(wellPath, timeStep);
         CompletionInfo lastCompletionInfo;
 
+        auto wpIntCells = RigWellPathIntersectionTools::findCellIntersectionInfosAlongPath(eclipseCase->eclipseCaseData(),
+                                                                                           wellPathGeometry->wellPathPoints(),
+                                                                                           wellPathGeometry->measureDepths());
+
+        auto wpComplCells = createOrderedIntersectionList(wpIntCells, intCells);
+
         // This loop assumes that cells are ordered downwards along well path
-        for (auto intCell : intCells)
+        for (auto intCell : wpComplCells)
         {
             if (!intCell.first.isMainGridCell())
             {
