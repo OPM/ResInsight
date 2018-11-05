@@ -29,6 +29,7 @@
 
 #include "RigFractureGrid.h"
 #include "RigStimPlanFractureDefinition.h"
+#include "RigTransmissibilityEquations.h"
 #include "RigWellPathStimplanIntersector.h"
 
 #include "RigFractureCell.h"
@@ -548,10 +549,7 @@ WellFractureIntersectionData RimStimPlanFractureTemplate::wellFractureIntersecti
                     values.m_betaFactorInForcheimerUnits = betaFactorForcheimer;
                 }
 
-                if (weightedWidth > 1e-7)
-                {
-                    values.m_permeability = weightedConductivity / weightedWidth;
-                }
+                values.m_permeability = RigTransmissibilityEquations::permeability(weightedConductivity, weightedWidth);
             }
         }
         else
@@ -580,7 +578,7 @@ WellFractureIntersectionData RimStimPlanFractureTemplate::wellFractureIntersecti
                 if (widthInRequiredUnit != HUGE_VAL && fabs(widthInRequiredUnit) > 1e-20)
                 {
                     values.m_width        = widthInRequiredUnit;
-                    values.m_permeability = conductivity / widthInRequiredUnit;
+                    values.m_permeability = RigTransmissibilityEquations::permeability(conductivity, widthInRequiredUnit);
                 }
             }
         }
