@@ -22,6 +22,7 @@
 #include "cvfMath.h"
 
 #include <cmath>
+#include <limits>
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -68,6 +69,25 @@ double RigTransmissibilityEquations::totalPermeability(const double permx, const
     const double totalPerm = cvf::Math::sqrt(kx * kx + ky * ky + kz * kz);
 
     return totalPerm;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+double RigTransmissibilityEquations::permeability(const double conductivity, const double width)
+{
+    double threshold = 1e-7;
+
+    if (std::fabs(width) > threshold)
+    {
+        double perm = conductivity / width;
+
+        return perm;
+    }
+    else
+    {
+        return 0.0;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
