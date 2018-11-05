@@ -319,11 +319,12 @@ const std::vector<double>& Rim2dGridProjection::aggregatedResults() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool Rim2dGridProjection::isColumnResult() const
+bool Rim2dGridProjection::isSummationResult() const
 {
     return m_resultAggregation() == RESULTS_OIL_COLUMN ||
            m_resultAggregation() == RESULTS_GAS_COLUMN ||
-           m_resultAggregation() == RESULTS_HC_COLUMN;
+           m_resultAggregation() == RESULTS_HC_COLUMN ||
+           m_resultAggregation() == RESULTS_SUM;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -801,10 +802,18 @@ void Rim2dGridProjection::updateLegend()
     firstAncestorOrThisOfTypeAsserted(view);
     RimEclipseCellColors* cellColors = view->cellResult();
 
-    double minVal = minValue();
-    double maxVal = maxValue();
+    if (isSummationResult() || (m_resultAggregation != RESULTS_TOP_VALUE && legendConfig()->rangeMode() != RimLegendConfig::AUTOMATIC_ALLTIMESTEPS))
+    {
+        double minVal = minValue();
+        double maxVal = maxValue();
 
-    legendConfig()->setAutomaticRanges(minVal, maxVal, minVal, maxVal);
+        legendConfig()->setAutomaticRanges(minVal, maxVal, minVal, maxVal);
+    }
+    else
+    {
+        cellColors->updateLegendData(view->currentTimeStep(), legendConfig());
+    }
+
     if (m_resultAggregation() == RESULTS_OIL_COLUMN ||
         m_resultAggregation() == RESULTS_GAS_COLUMN ||
         m_resultAggregation() == RESULTS_HC_COLUMN)
@@ -883,6 +892,10 @@ void Rim2dGridProjection::fieldChangedByUi(const caf::PdmFieldHandle* changedFie
         view->firstAncestorOrThisOfTypeAsserted(proj);
         proj->scheduleCreateDisplayModelAndRedrawAllViews();
     }
+    if (changedField == &m_resultAggregation)
+    {
+        legendConfig()->disableAllTimeStepsRange(isSummationResult());
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -908,4 +921,12 @@ void Rim2dGridProjection::defineEditorAttribute(const caf::PdmFieldHandle* field
 void Rim2dGridProjection::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/)
 {
     uiTreeOrdering.skipRemainingChildren(true);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void Rim2dGridProjection::initAfterRead()
+{
+    legendConfig()->disableAllTimeStepsRange(isSummationResult());
 }

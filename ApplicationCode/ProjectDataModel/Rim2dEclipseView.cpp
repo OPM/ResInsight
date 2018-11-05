@@ -117,7 +117,7 @@ void Rim2dEclipseView::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrderi
     uiTreeOrdering.add(m_overlayInfoConfig());
     uiTreeOrdering.add(m_2dGridProjection);
     uiTreeOrdering.add(cellResult());
-    cellResult()->uiCapability()->setUiReadOnly(m_2dGridProjection->isColumnResult());
+    cellResult()->uiCapability()->setUiReadOnly(m_2dGridProjection->isSummationResult());
     uiTreeOrdering.add(wellCollection());
     uiTreeOrdering.add(faultCollection());
     uiTreeOrdering.add(m_rangeFilterCollection());

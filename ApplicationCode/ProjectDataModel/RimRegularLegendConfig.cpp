@@ -753,6 +753,14 @@ const caf::TitledOverlayFrame* RimRegularLegendConfig::titledOverlayFrame() cons
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimLegendConfig::RangeModeType RimRegularLegendConfig::rangeMode() const
+{
+    return m_rangeMode();
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void RimRegularLegendConfig::setUiValuesFromLegendConfig(const RimRegularLegendConfig* otherLegendConfig)

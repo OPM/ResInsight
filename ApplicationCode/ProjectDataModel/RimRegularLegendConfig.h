@@ -126,6 +126,8 @@ public:
     const caf::TitledOverlayFrame*              titledOverlayFrame() const override;
     caf::TitledOverlayFrame*                    titledOverlayFrame() override;
 
+    RangeModeType                               rangeMode() const;
+
 private:
     void                                        setNamedCategories(const std::vector<QString>& categoryNames, bool inverse);
     void                                        fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
