@@ -18,6 +18,8 @@
 
 #include "RicWellPathFractureReportItem.h"
 
+#include "RigTransmissibilityEquations.h"
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -59,9 +61,11 @@ void RicWellPathFractureReportItem::setData(double trans, size_t connCount, doub
 void RicWellPathFractureReportItem::setWidthAndConductivity(double width, double conductivity)
 {
     m_wf = width;
-    m_kf = conductivity;
+ 
+    double permeability = RigTransmissibilityEquations::permeability(conductivity, width);
+    m_kf = permeability;
 
-    m_kfwf = m_kf * m_wf;
+    m_kfwf = conductivity;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -27,6 +27,7 @@
 #include "RifEclipseDataTableFormatter.h"
 
 #include "RigCompletionData.h"
+#include "RigTransmissibilityEquations.h"
 
 #include "RimEclipseCase.h"
 #include "RimEllipseFractureTemplate.h"
@@ -382,7 +383,8 @@ QString RicWellPathFractureTextReportFeatureImpl::createEllipseFractureText(
 
         formatter.add(ellipseTemplate->halfLength());
         formatter.add(ellipseTemplate->height());
-        formatter.add(ellipseTemplate->conductivity());
+
+        formatter.add(RigTransmissibilityEquations::permeability(ellipseTemplate->conductivity(), ellipseTemplate->width()));
         formatter.add(ellipseTemplate->width());
 
         formatter.add(ellipseTemplate->wellDiameter());
