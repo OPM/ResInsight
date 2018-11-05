@@ -211,6 +211,7 @@ void caf::ContourLines::create(const std::vector<double>& dataXY, const std::vec
 //--------------------------------------------------------------------------------------------------
 double caf::ContourLines::contourRange(const std::vector<double>& contourLevels)
 {
+    CVF_ASSERT(!contourLevels.empty());
     return std::max(1.0e-6, contourLevels.back() - contourLevels.front());
 }
 
