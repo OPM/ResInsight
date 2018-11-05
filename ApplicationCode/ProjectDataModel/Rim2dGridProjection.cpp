@@ -538,25 +538,26 @@ const std::vector<std::pair<size_t, float>>& Rim2dGridProjection::cellsAtPos2d(u
 //--------------------------------------------------------------------------------------------------
 std::vector<std::pair<size_t, float>> Rim2dGridProjection::visibleCellsAndWeightMatching2dPoint(const cvf::Vec2d& globalPos2d) const
 {   
-    cvf::BoundingBox boundingBox = expandedBoundingBox();
-    cvf::Vec3d topCentroid(globalPos2d, boundingBox.max().z());
-    cvf::Vec3d bottomCentroid(globalPos2d, boundingBox.min().z());
+    cvf::BoundingBox gridBoundingBox = expandedBoundingBox();
+    cvf::Vec3d top2dElementCentroid(globalPos2d, gridBoundingBox.max().z());
+    cvf::Vec3d bottom2dElementCentroid(globalPos2d, gridBoundingBox.min().z());
     cvf::Vec3d planarDiagonalVector(0.5 * m_sampleSpacing, 0.5 * m_sampleSpacing, 0.0);
-    cvf::Vec3d topNECorner = topCentroid + planarDiagonalVector;
-    cvf::Vec3d bottomSWCorner = bottomCentroid - planarDiagonalVector;
+    cvf::Vec3d topNECorner = top2dElementCentroid + planarDiagonalVector;
+    cvf::Vec3d bottomSWCorner = bottom2dElementCentroid - planarDiagonalVector;
 
-    cvf::BoundingBox rayBBox;
-    rayBBox.add(topNECorner);
-    rayBBox.add(bottomSWCorner);
-    double rayBBoxVolume = rayBBox.extent().z() * m_sampleSpacing * m_sampleSpacing;
+    cvf::BoundingBox bbox2dElement;
+    bbox2dElement.add(topNECorner);
+    bbox2dElement.add(bottomSWCorner);
 
     std::vector<size_t> allCellIndices;
-    mainGrid()->findIntersectingCells(rayBBox, &allCellIndices);
+    mainGrid()->findIntersectingCells(bbox2dElement, &allCellIndices);
 
     std::vector<std::tuple<size_t, float, float>> matchingVisibleCellsWeightAndHeight;
 
-    double totalOverlapVolume = 0.0;
+    double maxHeight = -std::numeric_limits<double>::infinity();
+    double minHeight = std::numeric_limits<double>::infinity();
 
+    double totalOverlapVolume = 0.0;
     cvf::Vec3d hexCorners[8];
     for (size_t globalCellIdx : allCellIndices)
     {
@@ -574,24 +575,26 @@ std::vector<std::pair<size_t, float>> Rim2dGridProjection::visibleCellsAndWeight
             cvf::Vec3d overlapMin, overlapMax;
             for (int i = 0; i < 3; ++i)
             {
-                overlapMin[i] = std::max(cellBBox.min()[i], rayBBox.min()[i]);
-                overlapMax[i] = std::min(cellBBox.max()[i], rayBBox.max()[i]);
+                overlapMin[i] = std::max(cellBBox.min()[i], bbox2dElement.min()[i]);
+                overlapMax[i] = std::min(cellBBox.max()[i], bbox2dElement.max()[i]);
             }
             cvf::Vec3d overlap = overlapMax - overlapMin;
             double overlapVolume = 0.0;
             if (overlap.x() > 0.0 && overlap.y() > 0.0 && overlap.z() > 0.0)
             {
                 overlapVolume = overlap.x() * overlap.y() * overlap.z();
-            }
-
-            if (overlapVolume > 0.0)
-            {
+            
                 double height = cellBBox.max().z();
                 matchingVisibleCellsWeightAndHeight.push_back(std::make_tuple(globalCellIdx, overlapVolume, height));
                 totalOverlapVolume += overlapVolume;
+
+                maxHeight = std::max(cellBBox.max().z(), maxHeight);
+                minHeight = std::min(cellBBox.min().z(), minHeight);
             }
         }
     }
+
+    double chopped2dBBoxVolume = std::fabs(maxHeight - minHeight) * m_sampleSpacing * m_sampleSpacing;
 
     std::vector<std::pair<size_t, float>> matchingVisibleCellsAndWeight;
     if (totalOverlapVolume > 0.0)
@@ -602,7 +605,7 @@ std::vector<std::pair<size_t, float>> Rim2dGridProjection::visibleCellsAndWeight
             return std::get<2>(lhs) > std::get<2>(rhs);
         });
 
-        float adjustmentFactor = static_cast<float>(rayBBoxVolume / totalOverlapVolume);
+        float adjustmentFactor = static_cast<float>(chopped2dBBoxVolume / totalOverlapVolume);
         CVF_ASSERT(adjustmentFactor > 0.0f);
         for (const auto& visWeightHeight : matchingVisibleCellsWeightAndHeight)
         {
