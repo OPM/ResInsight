@@ -74,14 +74,12 @@ RimWellPath::RimWellPath()
 
     CAF_PDM_InitFieldNoDefault(&m_name,               "WellPathName",                         "Name", "", "", "");
     m_name.uiCapability()->setUiReadOnly(true);
-    m_name.xmlCapability()->setIOWritable(false);
-    m_name.xmlCapability()->setIOReadable(false);
     m_name.uiCapability()->setUiHidden(true);
+    m_name.xmlCapability()->disableIO();
 
     CAF_PDM_InitFieldNoDefault(&m_datumElevation, "DatumElevation", "Datum Elevation", "", "", "");
     m_datumElevation.uiCapability()->setUiReadOnly(true);
-    m_datumElevation.xmlCapability()->setIOWritable(false);
-    m_datumElevation.xmlCapability()->setIOReadable(false);
+    m_datumElevation.xmlCapability()->disableIO();
 
     CAF_PDM_InitFieldNoDefault(&m_unitSystem, "UnitSystem", "Unit System", "", "", "");
     m_unitSystem.uiCapability()->setUiReadOnly(true);

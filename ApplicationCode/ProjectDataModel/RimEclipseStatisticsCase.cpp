@@ -68,8 +68,7 @@ RimEclipseStatisticsCase::RimEclipseStatisticsCase()
     m_calculateEditCommand = false;
 
     CAF_PDM_InitField(&m_selectionSummary, "SelectionSummary", QString(""), "Summary of Calculation Setup", "", "", "");
-    m_selectionSummary.xmlCapability()->setIOWritable(false);
-    m_selectionSummary.xmlCapability()->setIOReadable(false);
+    m_selectionSummary.xmlCapability()->disableIO();
     m_selectionSummary.uiCapability()->setUiReadOnly(true);
     m_selectionSummary.uiCapability()->setUiEditorTypeName(caf::PdmUiTextEditor::uiEditorTypeName());
     m_selectionSummary.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);

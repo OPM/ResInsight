@@ -15,28 +15,22 @@ RimFileWellPath::RimFileWellPath()
 {
     CAF_PDM_InitFieldNoDefault(&id,                 "WellPathId",                           "Id", "", "", "");
     id.uiCapability()->setUiReadOnly(true);
-    id.xmlCapability()->setIOWritable(false);
-    id.xmlCapability()->setIOReadable(false);
+    id.xmlCapability()->disableIO();
     CAF_PDM_InitFieldNoDefault(&sourceSystem,       "SourceSystem",                         "Source System", "", "", "");
     sourceSystem.uiCapability()->setUiReadOnly(true);
-    sourceSystem.xmlCapability()->setIOWritable(false);
-    sourceSystem.xmlCapability()->setIOReadable(false);
+    sourceSystem.xmlCapability()->disableIO();
     CAF_PDM_InitFieldNoDefault(&utmZone,            "UTMZone",                              "UTM Zone", "", "", "");
     utmZone.uiCapability()->setUiReadOnly(true);
-    utmZone.xmlCapability()->setIOWritable(false);
-    utmZone.xmlCapability()->setIOReadable(false);
+    utmZone.xmlCapability()->disableIO();
     CAF_PDM_InitFieldNoDefault(&updateDate,         "WellPathUpdateDate",                   "Update Date", "", "", "");
     updateDate.uiCapability()->setUiReadOnly(true);
-    updateDate.xmlCapability()->setIOWritable(false);
-    updateDate.xmlCapability()->setIOReadable(false);
+    updateDate.xmlCapability()->disableIO();
     CAF_PDM_InitFieldNoDefault(&updateUser,         "WellPathUpdateUser",                   "Update User", "", "", "");
     updateUser.uiCapability()->setUiReadOnly(true);
-    updateUser.xmlCapability()->setIOWritable(false);
-    updateUser.xmlCapability()->setIOReadable(false);
+    updateUser.xmlCapability()->disableIO();
     CAF_PDM_InitFieldNoDefault(&m_surveyType,       "WellPathSurveyType",                   "Survey Type", "", "", "");
     m_surveyType.uiCapability()->setUiReadOnly(true);
-    m_surveyType.xmlCapability()->setIOWritable(false);
-    m_surveyType.xmlCapability()->setIOReadable(false);
+    m_surveyType.xmlCapability()->disableIO();
 
     CAF_PDM_InitField(&m_filepath,                    "WellPathFilepath",     QString(""),    "File Path", "", "", "");
     m_filepath.uiCapability()->setUiReadOnly(true);

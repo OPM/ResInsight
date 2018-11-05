@@ -79,8 +79,7 @@ RimEclipsePropertyFilter::RimEclipsePropertyFilter()
     resultDefinition.uiCapability()->setUiTreeChildrenHidden(true);
 
     CAF_PDM_InitField(&m_rangeLabelText, "Dummy_keyword", QString("Range Type"), "Range Type", "", "", "");
-    m_rangeLabelText.xmlCapability()->setIOReadable(false);
-    m_rangeLabelText.xmlCapability()->setIOWritable(false);
+    m_rangeLabelText.xmlCapability()->disableIO();
     m_rangeLabelText.uiCapability()->setUiReadOnly(true);
 
     CAF_PDM_InitField(&m_lowerBound, "LowerBound", 0.0, "Min", "", "", "");

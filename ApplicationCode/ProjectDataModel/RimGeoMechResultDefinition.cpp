@@ -86,27 +86,22 @@ RimGeoMechResultDefinition::RimGeoMechResultDefinition(void)
     m_compactionRefLayer.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&m_resultPositionTypeUiField, "ResultPositionTypeUi", "Result Position", "", "", "");
-    m_resultPositionTypeUiField.xmlCapability()->setIOWritable(false);
-    m_resultPositionTypeUiField.xmlCapability()->setIOReadable(false);
+    m_resultPositionTypeUiField.xmlCapability()->disableIO();
 
     CAF_PDM_InitField(&m_resultVariableUiField, "ResultVariableUI", QString(""), "Value", "", "", "");
-    m_resultVariableUiField.xmlCapability()->setIOWritable(false);
-    m_resultVariableUiField.xmlCapability()->setIOReadable(false);
+    m_resultVariableUiField.xmlCapability()->disableIO();
 
     CAF_PDM_InitField(&m_isTimeLapseResultUiField, "IsTimeLapseResultUI", false, "Enable Relative Result", "", "Use the difference with respect to a specific time step as the result variable to plot", "");
-    m_isTimeLapseResultUiField.xmlCapability()->setIOWritable(false);
-    m_isTimeLapseResultUiField.xmlCapability()->setIOReadable(false);
+    m_isTimeLapseResultUiField.xmlCapability()->disableIO();
 
     CAF_PDM_InitField(&m_timeLapseBaseTimestepUiField, "TimeLapseBaseTimeStepUI", 0, "Base Time Step", "", "", "");
-    m_timeLapseBaseTimestepUiField.xmlCapability()->setIOWritable(false);
-    m_timeLapseBaseTimestepUiField.xmlCapability()->setIOReadable(false);
+    m_timeLapseBaseTimestepUiField.xmlCapability()->disableIO();
 
     m_resultVariableUiField.uiCapability()->setUiEditorTypeName(caf::PdmUiListEditor::uiEditorTypeName());
     m_resultVariableUiField.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::TOP);
 
     CAF_PDM_InitField(&m_compactionRefLayerUiField, "CompactionRefLayerUi", (int)RigFemResultAddress::NO_COMPACTION, "Compaction Ref Layer", "", "The compaction is calculated with reference to this layer. Default layer is the topmost layer with POR", "");
-    m_compactionRefLayerUiField.xmlCapability()->setIOWritable(false);
-    m_compactionRefLayerUiField.xmlCapability()->setIOReadable(false);
+    m_compactionRefLayerUiField.xmlCapability()->disableIO();
 
     m_isChangedByField = false;
     m_addWellPathDerivedResults = false;

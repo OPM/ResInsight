@@ -81,8 +81,7 @@ RimViewController::RimViewController()
     CAF_PDM_InitField(&m_syncVisibleCells,    "SyncVisibleCells", false,  "Visible Cells", "", "", "");
     /// We do not support this. Consider to remove sometime
     m_syncVisibleCells.uiCapability()->setUiHidden(true);
-    m_syncVisibleCells.xmlCapability()->setIOWritable(false);
-    m_syncVisibleCells.xmlCapability()->setIOReadable(false);
+    m_syncVisibleCells.xmlCapability()->disableIO();
 
     CAF_PDM_InitField(&m_syncRangeFilters,    "SyncRangeFilters", false,   "Range Filters", "", "", "");
     CAF_PDM_InitField(&m_syncPropertyFilters, "SyncPropertyFilters", false,"Property Filters", "", "", "");

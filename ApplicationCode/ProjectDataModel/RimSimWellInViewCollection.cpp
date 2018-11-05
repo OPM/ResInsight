@@ -128,20 +128,16 @@ RimSimWellInViewCollection::RimSimWellInViewCollection()
     CAF_PDM_InitFieldNoDefault(&m_showWellSpheres,     "ShowWellSpheres",           "Spheres", "", "", "");
 
     m_showWellHead.uiCapability()->setUiEditorTypeName(caf::PdmUiCheckBoxTristateEditor::uiEditorTypeName());
-    m_showWellHead.xmlCapability()->setIOReadable(false);
-    m_showWellHead.xmlCapability()->setIOWritable(false);
+    m_showWellHead.xmlCapability()->disableIO();
 
     m_showWellLabel.uiCapability()->setUiEditorTypeName(caf::PdmUiCheckBoxTristateEditor::uiEditorTypeName());
-    m_showWellLabel.xmlCapability()->setIOReadable(false);
-    m_showWellLabel.xmlCapability()->setIOWritable(false);
+    m_showWellLabel.xmlCapability()->disableIO();
 
     m_showWellPipe.uiCapability()->setUiEditorTypeName(caf::PdmUiCheckBoxTristateEditor::uiEditorTypeName());
-    m_showWellPipe.xmlCapability()->setIOReadable(false);
-    m_showWellPipe.xmlCapability()->setIOWritable(false);
+    m_showWellPipe.xmlCapability()->disableIO();
 
     m_showWellSpheres.uiCapability()->setUiEditorTypeName(caf::PdmUiCheckBoxTristateEditor::uiEditorTypeName());
-    m_showWellSpheres.xmlCapability()->setIOReadable(false);
-    m_showWellSpheres.xmlCapability()->setIOWritable(false);
+    m_showWellSpheres.xmlCapability()->disableIO();
 
     // Scaling
     CAF_PDM_InitField(&wellHeadScaleFactor, "WellHeadScale",            1.0,    "Well Head Scale", "", "", "");
@@ -169,8 +165,7 @@ RimSimWellInViewCollection::RimSimWellInViewCollection()
 
     CAF_PDM_InitFieldNoDefault(&m_showWellCells,       "ShowWellCellsTristate", "Show Well Cells", "", "", "");
     m_showWellCells.uiCapability()->setUiEditorTypeName(caf::PdmUiCheckBoxTristateEditor::uiEditorTypeName());
-    m_showWellCells.xmlCapability()->setIOReadable(false);
-    m_showWellCells.xmlCapability()->setIOWritable(false);
+    m_showWellCells.xmlCapability()->disableIO();
 
     CAF_PDM_InitField(&wellCellFenceType,   "DefaultWellFenceDirection", WellFenceEnum(K_DIRECTION), "Well Fence Direction", "", "", "");
 
@@ -183,8 +178,7 @@ RimSimWellInViewCollection::RimSimWellInViewCollection()
 
     CAF_PDM_InitFieldNoDefault(&m_showWellCellFence, "ShowWellCellFenceTristate", "Show Well Cell Fence", "", "", "");
     m_showWellCellFence.uiCapability()->setUiEditorTypeName(caf::PdmUiCheckBoxTristateEditor::uiEditorTypeName());
-    m_showWellCellFence.xmlCapability()->setIOReadable(false);
-    m_showWellCellFence.xmlCapability()->setIOWritable(false);
+    m_showWellCellFence.xmlCapability()->disableIO();
 
     CAF_PDM_InitField(&obsoleteField_wellPipeVisibility,  "GlobalWellPipeVisibility", WellVisibilityEnum(PIPES_INDIVIDUALLY), "Global well pipe visibility",  "", "", "");
     obsoleteField_wellPipeVisibility.uiCapability()->setUiHidden(true);

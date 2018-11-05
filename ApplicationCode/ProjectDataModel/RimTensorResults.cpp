@@ -70,8 +70,7 @@ RimTensorResults::RimTensorResults()
     m_resultFieldName.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitField(&m_resultFieldNameUiField, "ResultVariableUI", QString("ST"), "Value", "", "", "");
-    m_resultFieldNameUiField.xmlCapability()->setIOWritable(false);
-    m_resultFieldNameUiField.xmlCapability()->setIOReadable(false);
+    m_resultFieldNameUiField.xmlCapability()->disableIO();
 
     CAF_PDM_InitField(&m_showTensors, "ShowTensors", false, "", "", "", "");
 

@@ -46,8 +46,7 @@ RimModeledWellPath::RimModeledWellPath()
     m_geometryDefinition = new RimWellPathGeometryDef;
 
     m_name.uiCapability()->setUiReadOnly(false);
-    m_name.xmlCapability()->setIOWritable(true);
-    m_name.xmlCapability()->setIOReadable(true);
+    m_name.xmlCapability()->disableIO();
 }
 
 //--------------------------------------------------------------------------------------------------

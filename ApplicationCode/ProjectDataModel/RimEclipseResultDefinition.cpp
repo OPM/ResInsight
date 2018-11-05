@@ -107,22 +107,18 @@ RimEclipseResultDefinition::RimEclipseResultDefinition()
     // Ui only fields
 
     CAF_PDM_InitFieldNoDefault(&m_resultTypeUiField,     "MResultType",           "Type", "", "", "");
-    m_resultTypeUiField.xmlCapability()->setIOReadable(false);
-    m_resultTypeUiField.xmlCapability()->setIOWritable(false);
+    m_resultTypeUiField.xmlCapability()->disableIO();
 
     CAF_PDM_InitFieldNoDefault(&m_porosityModelUiField,  "MPorosityModelType",    "Porosity", "", "", "");
-    m_porosityModelUiField.xmlCapability()->setIOReadable(false);
-    m_porosityModelUiField.xmlCapability()->setIOWritable(false);
+    m_porosityModelUiField.xmlCapability()->disableIO();
 
     CAF_PDM_InitField(&m_resultVariableUiField, "MResultVariable", RiaDefines::undefinedResultName(), "Result Property", "", "", "" );
-    m_resultVariableUiField.xmlCapability()->setIOReadable(false);
-    m_resultVariableUiField.xmlCapability()->setIOWritable(false);
+    m_resultVariableUiField.xmlCapability()->disableIO();
     m_resultVariableUiField.uiCapability()->setUiEditorTypeName(caf::PdmUiListEditor::uiEditorTypeName());
 
 
     CAF_PDM_InitFieldNoDefault(&m_flowSolutionUiField, "MFlowDiagSolution", "Solution", "", "", "");
-    m_flowSolutionUiField.xmlCapability()->setIOReadable(false);
-    m_flowSolutionUiField.xmlCapability()->setIOWritable(false);
+    m_flowSolutionUiField.xmlCapability()->disableIO();
     m_flowSolutionUiField.uiCapability()->setUiHidden(true); // For now since there are only one to choose from
  
     CAF_PDM_InitField(&m_syncInjectorToProducerSelection, "MSyncSelectedInjProd", false, "Add Communicators ->", "", "", "");
@@ -133,20 +129,17 @@ RimEclipseResultDefinition::RimEclipseResultDefinition()
 
 
     CAF_PDM_InitFieldNoDefault(&m_selectedInjectorTracersUiField, "MSelectedInjectorTracers", "Injector Tracers", "", "", "");
-    m_selectedInjectorTracersUiField.xmlCapability()->setIOReadable(false);
-    m_selectedInjectorTracersUiField.xmlCapability()->setIOWritable(false);
+    m_selectedInjectorTracersUiField.xmlCapability()->disableIO();
     m_selectedInjectorTracersUiField.uiCapability()->setUiEditorTypeName(caf::PdmUiTreeSelectionEditor::uiEditorTypeName());
     m_selectedInjectorTracersUiField.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
 
     CAF_PDM_InitFieldNoDefault(&m_selectedProducerTracersUiField, "MSelectedProducerTracers", "Producer Tracers", "", "", "");
-    m_selectedProducerTracersUiField.xmlCapability()->setIOReadable(false);
-    m_selectedProducerTracersUiField.xmlCapability()->setIOWritable(false);
+    m_selectedProducerTracersUiField.xmlCapability()->disableIO();
     m_selectedProducerTracersUiField.uiCapability()->setUiEditorTypeName(caf::PdmUiTreeSelectionEditor::uiEditorTypeName());
     m_selectedProducerTracersUiField.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
 
     CAF_PDM_InitFieldNoDefault(&m_selectedSouringTracersUiField, "MSelectedSouringTracers", "Tracers", "", "", "");
-    m_selectedSouringTracersUiField.xmlCapability()->setIOReadable(false);
-    m_selectedSouringTracersUiField.xmlCapability()->setIOWritable(false);
+    m_selectedSouringTracersUiField.xmlCapability()->disableIO();
     m_selectedSouringTracersUiField.uiCapability()->setUiEditorTypeName(caf::PdmUiListEditor::uiEditorTypeName());
 }
 

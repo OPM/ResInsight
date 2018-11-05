@@ -51,8 +51,7 @@ RimGridView::RimGridView()
 
     CAF_PDM_InitFieldNoDefault(&m_overrideRangeFilterCollection, "RangeFiltersControlled", "Range Filters (controlled)", "", "", "");
     m_overrideRangeFilterCollection.uiCapability()->setUiHidden(true);
-    m_overrideRangeFilterCollection.xmlCapability()->setIOWritable(false);
-    m_overrideRangeFilterCollection.xmlCapability()->setIOReadable(false);
+    m_overrideRangeFilterCollection.xmlCapability()->disableIO();
 
     CAF_PDM_InitFieldNoDefault(&m_crossSectionCollection, "CrossSections", "Intersections", "", "", "");
     m_crossSectionCollection.uiCapability()->setUiHidden(true);
