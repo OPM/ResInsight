@@ -117,6 +117,7 @@ void Rim2dEclipseView::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrderi
     uiTreeOrdering.add(m_overlayInfoConfig());
     uiTreeOrdering.add(m_2dGridProjection);
     uiTreeOrdering.add(cellResult());
+    cellResult()->uiCapability()->setUiReadOnly(m_2dGridProjection->isColumnResult());
     uiTreeOrdering.add(wellCollection());
     uiTreeOrdering.add(faultCollection());
     uiTreeOrdering.add(m_rangeFilterCollection());
@@ -135,7 +136,9 @@ void Rim2dEclipseView::updateCurrentTimeStep()
         m_2dGridProjection->generateResults();
     }
 
-    RimEclipseView::updateCurrentTimeStep();
+    static_cast<RimEclipsePropertyFilterCollection*>(nonOverridePropertyFilterCollection())->updateFromCurrentTimeStep();
+
+    updateLegends(); // To make sure the scalar mappers are set up correctly
 
     if (m_viewer && m_2dGridProjection->isChecked())
     {

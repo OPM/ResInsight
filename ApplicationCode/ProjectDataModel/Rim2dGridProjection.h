@@ -51,7 +51,10 @@ public:
         RESULTS_HARM_VALUE,
         RESULTS_MIN_VALUE,
         RESULTS_MAX_VALUE,
-        RESULTS_SUM
+        RESULTS_SUM,
+        RESULTS_OIL_COLUMN,
+        RESULTS_GAS_COLUMN,
+        RESULTS_HC_COLUMN
     };
     typedef caf::AppEnum<ResultAggregationEnum> ResultAggregation;
     typedef std::vector<cvf::ref<cvf::Vec3fArray>> ContourPolygons;
@@ -68,8 +71,10 @@ public:
     double                      sampleSpacing() const;
     void                        updateDefaultSampleSpacingFromGrid();
     const std::vector<double>&  aggregatedResults() const;
+    bool                        isColumnResult() const;
 
     double                      value(uint i, uint j) const;
+
     bool                        hasResultAt(uint i, uint j) const;
 
     cvf::Vec2ui                 surfaceGridSize() const;
@@ -81,6 +86,8 @@ public:
     void                        updateLegend();
 
 protected:
+    double                                       calculateValue(uint i, uint j) const;
+
     cvf::BoundingBox                             expandedBoundingBox() const;
     void                                         generateGridMapping();
     void                                         calculateCellRangeVisibility();
@@ -91,6 +98,7 @@ protected:
     std::vector<double>                          yPositions() const;
 
     std::vector<std::pair<size_t, float>>        visibleCellsAndWeightMatching2dPoint(const cvf::Vec2d& globalPos2d) const;
+    double                                       findColumnResult(ResultAggregation resultAggregation, size_t cellGlobalIdx) const;
 
     const RimEclipseResultCase* eclipseCase() const;
     RigMainGrid*                mainGrid() const;

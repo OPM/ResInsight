@@ -5,6 +5,7 @@
 #include "RiaWeightedMeanCalculator.h"
 
 #include "RigActiveCellInfo.h"
+#include "RigCaseCellResultsData.h"
 #include "RigCell.h"
 #include "RigEclipseCaseData.h"
 #include "RigHexIntersectionTools.h"
@@ -46,6 +47,9 @@ namespace caf
         addItem(Rim2dGridProjection::RESULTS_MIN_VALUE, "MIN_VALUE", "Min Value");
         addItem(Rim2dGridProjection::RESULTS_MAX_VALUE, "MAX_VALUE", "Max Value");
         addItem(Rim2dGridProjection::RESULTS_SUM, "SUM", "Sum");
+        addItem(Rim2dGridProjection::RESULTS_OIL_COLUMN, "OIL_COLUMN", "Oil Column");
+        addItem(Rim2dGridProjection::RESULTS_GAS_COLUMN, "GAS_COLUMN", "Gas Column");
+        addItem(Rim2dGridProjection::RESULTS_HC_COLUMN,  "HC_COLUMN", "Hydrocarbon Column");
 
         setDefault(Rim2dGridProjection::RESULTS_TOP_VALUE);
     }
@@ -150,34 +154,36 @@ void Rim2dGridProjection::generateVertices(cvf::Vec3fArray* vertices, const caf:
 ///
 //--------------------------------------------------------------------------------------------------
 Rim2dGridProjection::ContourPolygons Rim2dGridProjection::generateContourPolygons(const caf::DisplayCoordTransform* displayCoordTransform)
-{
+{    
     std::vector<cvf::ref<cvf::Vec3fArray>> contourPolygons;
-
-    cvf::BoundingBox boundingBox = expandedBoundingBox();
-
-    std::vector<double> contourLevels;
-    legendConfig()->scalarMapper()->majorTickValues(&contourLevels);
-    int nContourLevels = static_cast<int>(contourLevels.size());
-    if (nContourLevels > 2)
+    if (minValue() != std::numeric_limits<double>::infinity() && maxValue() != -std::numeric_limits<double>::infinity())
     {
-        contourLevels[0] += (contourLevels[1] - contourLevels[0]) * 0.01;
-        contourLevels[nContourLevels - 1] -= (contourLevels[nContourLevels - 1] - contourLevels[nContourLevels - 2]) * 0.01;
-        std::vector<std::vector<cvf::Vec2d>> contourLines;
-        caf::ContourLines::create(m_aggregatedResults, xPositions(), yPositions(), contourLevels, &contourLines);
+        cvf::BoundingBox boundingBox = expandedBoundingBox();
 
-        contourPolygons.reserve(contourLines.size());
-        for (size_t i = 0; i < contourLines.size(); ++i)
+        std::vector<double> contourLevels;
+        legendConfig()->scalarMapper()->majorTickValues(&contourLevels);
+        int nContourLevels = static_cast<int>(contourLevels.size());
+        if (nContourLevels > 2)
         {
-            if (!contourLines[i].empty())
+            contourLevels[0] += (contourLevels[1] - contourLevels[0]) * 0.01;
+            contourLevels[nContourLevels - 1] -= (contourLevels[nContourLevels - 1] - contourLevels[nContourLevels - 2]) * 0.01;
+            std::vector<std::vector<cvf::Vec2d>> contourLines;
+            caf::ContourLines::create(m_aggregatedResults, xPositions(), yPositions(), contourLevels, &contourLines);
+
+            contourPolygons.reserve(contourLines.size());
+            for (size_t i = 0; i < contourLines.size(); ++i)
             {
-                cvf::ref<cvf::Vec3fArray> contourPolygon = new cvf::Vec3fArray(contourLines[i].size());
-                for (size_t j = 0; j < contourLines[i].size(); ++j)
+                if (!contourLines[i].empty())
                 {
-                    cvf::Vec3d contourPoint3d = cvf::Vec3d(contourLines[i][j], boundingBox.min().z());
-                    cvf::Vec3d displayPoint3d = displayCoordTransform->transformToDisplayCoord(contourPoint3d);
-                    (*contourPolygon)[j] = cvf::Vec3f(displayPoint3d);
+                    cvf::ref<cvf::Vec3fArray> contourPolygon = new cvf::Vec3fArray(contourLines[i].size());
+                    for (size_t j = 0; j < contourLines[i].size(); ++j)
+                    {
+                        cvf::Vec3d contourPoint3d = cvf::Vec3d(contourLines[i][j], boundingBox.min().z());
+                        cvf::Vec3d displayPoint3d = displayCoordTransform->transformToDisplayCoord(contourPoint3d);
+                        (*contourPolygon)[j] = cvf::Vec3f(displayPoint3d);
+                    }
+                    contourPolygons.push_back(contourPolygon);
                 }
-                contourPolygons.push_back(contourPolygon);
             }
         }
     }
@@ -201,20 +207,45 @@ void Rim2dGridProjection::generateResults()
     firstAncestorOrThisOfTypeAsserted(eclipseCase);
     RimEclipseCellColors* cellColors = view->cellResult();
 
-    m_resultAccessor = RigResultAccessorFactory::createFromResultDefinition(eclipseCase->eclipseCaseData(), 0, timeStep, cellColors);
-    if (m_resultAccessor.isNull())
-    {
-        m_resultAccessor = new RigHugeValResultAccessor;
-    }
-
     {
         if (!cellColors->isTernarySaturationSelected())
         {
+            RigCaseCellResultsData* resultData = eclipseCase->results(RiaDefines::MATRIX_MODEL);
+
+            if (m_resultAggregation == RESULTS_OIL_COLUMN)
+            {
+                resultData->findOrLoadScalarResultForTimeStep(RiaDefines::DYNAMIC_NATIVE, "SOIL", timeStep);
+                resultData->findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, "PORO");
+                resultData->findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, "NTG");
+            }
+            else if (m_resultAggregation == RESULTS_GAS_COLUMN)
+            {
+                resultData->findOrLoadScalarResultForTimeStep(RiaDefines::DYNAMIC_NATIVE, "SGAS", timeStep);
+                resultData->findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, "PORO");
+                resultData->findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, "NTG");
+            }
+            else if (m_resultAggregation == RESULTS_HC_COLUMN)
+            {
+                resultData->findOrLoadScalarResultForTimeStep(RiaDefines::DYNAMIC_NATIVE, "SOIL", timeStep);
+                resultData->findOrLoadScalarResultForTimeStep(RiaDefines::DYNAMIC_NATIVE, "SGAS", timeStep);
+                resultData->findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, "PORO");
+                resultData->findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, "NTG");
+            }
+            else
+            {
+                m_resultAccessor = RigResultAccessorFactory::createFromResultDefinition(eclipseCase->eclipseCaseData(), 0, timeStep, cellColors);
+
+                if (m_resultAccessor.isNull())
+                {
+                    m_resultAccessor = new RigHugeValResultAccessor;
+                }
+            }
+
 #pragma omp parallel for
             for (int index = 0; index < nVertices; ++index)
             {
                 cvf::Vec2ui ij = ijFromGridIndex(index);
-                m_aggregatedResults[index] = value(ij.x(), ij.y());
+                m_aggregatedResults[index] = calculateValue(ij.x(), ij.y());
             }
         }
     }
@@ -288,7 +319,25 @@ const std::vector<double>& Rim2dGridProjection::aggregatedResults() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool Rim2dGridProjection::isColumnResult() const
+{
+    return m_resultAggregation() == RESULTS_OIL_COLUMN ||
+           m_resultAggregation() == RESULTS_GAS_COLUMN ||
+           m_resultAggregation() == RESULTS_HC_COLUMN;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 double Rim2dGridProjection::value(uint i, uint j) const
+{
+    return m_aggregatedResults.at(gridIndex(i, j));
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double Rim2dGridProjection::calculateValue(uint i, uint j) const
 {
     const std::vector<std::pair<size_t, float>>& matchingCells = cellsAtPos2d(i, j);
     if (!matchingCells.empty())
@@ -310,7 +359,11 @@ double Rim2dGridProjection::value(uint i, uint j) const
                 double cellValue = m_resultAccessor->cellScalarGlobIdx(cellIdx);
                 calculator.addValueAndWeight(cellValue, cellIdxAndWeight.second);
             }
-            return calculator.weightedMean();
+            if (calculator.validAggregatedWeight())
+            {
+                return calculator.weightedMean();
+            }
+            return std::numeric_limits<double>::infinity();
         }
         case RESULTS_GEOM_VALUE:
         {
@@ -319,9 +372,18 @@ double Rim2dGridProjection::value(uint i, uint j) const
             {
                 size_t cellIdx   = cellIdxAndWeight.first;
                 double cellValue = m_resultAccessor->cellScalarGlobIdx(cellIdx);
+                if (cellValue < 1.0e-8)
+                {
+                    return 0.0;
+                }
                 calculator.addValueAndWeight(cellValue, cellIdxAndWeight.second);
             }
-            return calculator.weightedMean();
+            if (calculator.validAggregatedWeight())
+            {
+                qDebug() << calculator.weightedMean();
+                return calculator.weightedMean();
+            }
+            return std::numeric_limits<double>::infinity();
         }
         case RESULTS_HARM_VALUE:
         {
@@ -330,9 +392,17 @@ double Rim2dGridProjection::value(uint i, uint j) const
             {
                 size_t cellIdx   = cellIdxAndWeight.first;
                 double cellValue = m_resultAccessor->cellScalarGlobIdx(cellIdx);
+                if (std::fabs(cellValue) < 1.0e-8)
+                {
+                    return 0.0;
+                }
                 calculator.addValueAndWeight(cellValue, cellIdxAndWeight.second);
             }
-            return calculator.weightedMean();
+            if (calculator.validAggregatedWeight())
+            {
+                return calculator.weightedMean();
+            }
+            return std::numeric_limits<double>::infinity();
         }
         case RESULTS_MAX_VALUE:
         {
@@ -363,6 +433,19 @@ double Rim2dGridProjection::value(uint i, uint j) const
             {
                 size_t cellIdx = cellIdxAndWeight.first;
                 double cellValue = m_resultAccessor->cellScalarGlobIdx(cellIdx);
+                sum += cellValue * cellIdxAndWeight.second;
+            }
+            return sum;
+        }
+        case RESULTS_OIL_COLUMN:
+        case RESULTS_GAS_COLUMN:
+        case RESULTS_HC_COLUMN:
+        {
+            double sum = 0.0;
+            for (auto cellIdxAndWeight : matchingCells)
+            {
+                size_t cellIdx = cellIdxAndWeight.first;
+                double cellValue = findColumnResult(m_resultAggregation(), cellIdx);
                 sum += cellValue * cellIdxAndWeight.second;
             }
             return sum;
@@ -619,6 +702,61 @@ std::vector<std::pair<size_t, float>> Rim2dGridProjection::visibleCellsAndWeight
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+double Rim2dGridProjection::findColumnResult(ResultAggregation resultAggregation, size_t cellGlobalIdx) const
+{
+    const RigCaseCellResultsData* resultData = eclipseCase()->results(RiaDefines::MATRIX_MODEL);
+    size_t poroResultIndex = resultData->findScalarResultIndex(RiaDefines::STATIC_NATIVE, "PORO");
+    size_t ntgResultIndex = resultData->findScalarResultIndex(RiaDefines::STATIC_NATIVE, "NTG");
+
+    if (poroResultIndex == cvf::UNDEFINED_SIZE_T || ntgResultIndex == cvf::UNDEFINED_SIZE_T)
+    {
+        return std::numeric_limits<double>::infinity();
+    }
+
+    const std::vector<double>& poroResults = resultData->cellScalarResults(poroResultIndex)[0];
+    const std::vector<double>& ntgResults  = resultData->cellScalarResults(ntgResultIndex)[0];
+
+    const RigActiveCellInfo* activeCellInfo = eclipseCase()->eclipseCaseData()->activeCellInfo(RiaDefines::MATRIX_MODEL);
+    size_t cellResultIdx = activeCellInfo->cellResultIndex(cellGlobalIdx);
+
+    if (cellResultIdx >= poroResults.size() || cellResultIdx >= ntgResults.size())
+    {
+        return std::numeric_limits<double>::infinity();
+    }
+
+    double poro = poroResults.at(cellResultIdx);
+    double ntg  = ntgResults.at(cellResultIdx);
+
+    RimEclipseView* view = nullptr;
+    firstAncestorOrThisOfTypeAsserted(view);
+    int timeStep = view->currentTimeStep();
+
+    double resultValue = 0.0;
+    if (resultAggregation == RESULTS_OIL_COLUMN || resultAggregation == RESULTS_HC_COLUMN)
+    {
+        size_t soilResultIndex = resultData->findScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, "SOIL");
+        const std::vector<double>& soilResults = resultData->cellScalarResults(soilResultIndex)[timeStep];
+        if (cellResultIdx < soilResults.size())
+        { 
+            resultValue = soilResults.at(cellResultIdx);
+        }
+    }
+    if (resultAggregation == RESULTS_GAS_COLUMN || resultAggregation == RESULTS_HC_COLUMN)
+    {
+        size_t sgasResultIndex = resultData->findScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, "SGAS");
+        const std::vector<double>& sgasResults = resultData->cellScalarResults(sgasResultIndex)[timeStep];
+        if (cellResultIdx < sgasResults.size())
+        {
+            resultValue += sgasResults.at(cellResultIdx);
+        }
+    }
+
+    return resultValue * poro * ntg;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 const RimEclipseResultCase* Rim2dGridProjection::eclipseCase() const
 {
     const RimEclipseResultCase* eclipseCase = nullptr;
@@ -663,13 +801,19 @@ void Rim2dGridProjection::updateLegend()
     firstAncestorOrThisOfTypeAsserted(view);
     RimEclipseCellColors* cellColors = view->cellResult();
 
-    generateResults();
     double minVal = minValue();
     double maxVal = maxValue();
-    if (minVal != std::numeric_limits<double>::infinity() && maxVal != -std::numeric_limits<double>::infinity())
+
+    legendConfig()->setAutomaticRanges(minVal, maxVal, minVal, maxVal);
+    if (m_resultAggregation() == RESULTS_OIL_COLUMN ||
+        m_resultAggregation() == RESULTS_GAS_COLUMN ||
+        m_resultAggregation() == RESULTS_HC_COLUMN)
     {
-        legendConfig()->setAutomaticRanges(minVal, maxVal, minVal, maxVal);
-        legendConfig()->setTitle(QString("2d Projection:\n%1").arg(cellColors->resultVariableUiShortName()));
+        legendConfig()->setTitle(QString("2d Projection:\n%1").arg(m_resultAggregation().uiText()));
+    }
+    else
+    {
+        legendConfig()->setTitle(QString("2d Projection:\n%1: %2").arg(m_resultAggregation().uiText()).arg(cellColors->resultVariableUiShortName()));
     }
 }
 
@@ -729,10 +873,14 @@ RigMainGrid* Rim2dGridProjection::mainGrid() const
 //--------------------------------------------------------------------------------------------------
 void Rim2dGridProjection::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
-    RimProject* proj;
-    this->firstAncestorOrThisOfTypeAsserted(proj);
     if (changedField == &m_isChecked || changedField == &m_sampleSpacing || changedField == &m_resultAggregation)
     {
+        RimEclipseView* view = nullptr;
+        this->firstAncestorOrThisOfTypeAsserted(view);
+        view->updateConnectedEditors();
+
+        RimProject* proj;
+        view->firstAncestorOrThisOfTypeAsserted(proj);
         proj->scheduleCreateDisplayModelAndRedrawAllViews();
     }
 }
