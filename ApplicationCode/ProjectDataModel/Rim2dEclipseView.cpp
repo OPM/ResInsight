@@ -137,10 +137,10 @@ void Rim2dEclipseView::updateCurrentTimeStep()
 
     RimEclipseView::updateCurrentTimeStep();
 
-    cvf::Scene* frameScene = m_viewer->frame(m_currentTimeStep);
-
-    if (m_2dGridProjection->isChecked())
+    if (m_viewer && m_2dGridProjection->isChecked())
     {
+        cvf::Scene* frameScene = m_viewer->frame(m_currentTimeStep);
+
         cvf::String name = "Grid2dProjection";
         this->removeModelByName(frameScene, name);
 
@@ -163,17 +163,17 @@ void Rim2dEclipseView::updateLegends()
     if (m_viewer)
     {
         m_viewer->removeAllColorLegends();
-    }
 
-    if (m_2dGridProjection && m_2dGridProjection->isChecked())
-    {
-        RimRegularLegendConfig* projectionLegend = m_2dGridProjection->legendConfig();
-        if (projectionLegend)
+        if (m_2dGridProjection && m_2dGridProjection->isChecked())
         {
-            m_2dGridProjection->updateLegend();
-            if (projectionLegend->showLegend())
+            RimRegularLegendConfig* projectionLegend = m_2dGridProjection->legendConfig();
+            if (projectionLegend)
             {
-                m_viewer->addColorLegendToBottomLeftCorner(projectionLegend->titledOverlayFrame());
+                m_2dGridProjection->updateLegend();
+                if (projectionLegend->showLegend())
+                {
+                    m_viewer->addColorLegendToBottomLeftCorner(projectionLegend->titledOverlayFrame());
+                }
             }
         }
     }
@@ -184,9 +184,12 @@ void Rim2dEclipseView::updateLegends()
 //--------------------------------------------------------------------------------------------------
 void Rim2dEclipseView::updateViewWidgetAfterCreation()
 {
-    m_viewer->showAxisCross(false);
-    m_viewer->showEdgeTickMarksXY(true, m_showAxisLines());
-    m_viewer->enableNavigationRotation(false);
+    if (m_viewer)
+    {
+        m_viewer->showAxisCross(false);
+        m_viewer->showEdgeTickMarksXY(true, m_showAxisLines());
+        m_viewer->enableNavigationRotation(false);
+    }
 
     Rim3dView::updateViewWidgetAfterCreation();
 }
