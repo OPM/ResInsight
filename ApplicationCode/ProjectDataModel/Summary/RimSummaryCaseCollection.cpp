@@ -18,6 +18,8 @@
 
 #include "RimSummaryCaseCollection.h"
 
+#include "RiaFieldHandleTools.h"
+
 #include "RimDerivedEnsembleCaseCollection.h"
 #include "RimEnsembleCurveSet.h"
 #include "RimGridSummaryCase.h"
@@ -48,8 +50,7 @@ RimSummaryCaseCollection::RimSummaryCaseCollection()
 
     CAF_PDM_InitFieldNoDefault(&m_nameAndItemCount, "NameCount", "Name", "", "", "");
     m_nameAndItemCount.registerGetMethod(this, &RimSummaryCaseCollection::nameAndItemCount);
-    m_nameAndItemCount.uiCapability()->setUiHidden(true);
-    m_nameAndItemCount.xmlCapability()->setIOWritable(false);
+    RiaFieldhandleTools::disableWriteAndSetFieldHidden(&m_nameAndItemCount);
 
     CAF_PDM_InitField(&m_isEnsemble, "IsEnsemble", false, "Is Ensemble", "", "", "");
     m_isEnsemble.uiCapability()->setUiHidden(true);

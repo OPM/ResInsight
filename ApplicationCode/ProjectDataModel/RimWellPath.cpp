@@ -22,6 +22,7 @@
 
 #include "RiaApplication.h"
 #include "RiaColorTables.h"
+#include "RiaFieldHandleTools.h"
 #include "RiaSimWellBranchTools.h"
 #include "RiaWellNameComparer.h"
 
@@ -113,8 +114,7 @@ RimWellPath::RimWellPath()
     m_wellPathFormationFilePath.uiCapability()->setUiReadOnly(true);
 
     CAF_PDM_InitFieldNoDefault(&m_wellLogFile_OBSOLETE,      "WellLogFile",  "Well Log File", "", "", "");
-    m_wellLogFile_OBSOLETE.uiCapability()->setUiHidden(true);
-    m_wellLogFile_OBSOLETE.xmlCapability()->setIOWritable(false);
+    RiaFieldhandleTools::disableWriteAndSetFieldHidden(&m_wellLogFile_OBSOLETE);
 
     CAF_PDM_InitFieldNoDefault(&m_wellPathAttributes, "WellPathAttributes", "Casing Design Rubbish", "", "", "");
     m_wellPathAttributes = new RimWellPathAttributeCollection;

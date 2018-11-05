@@ -22,6 +22,7 @@
 
 #include "RiaApplication.h"
 #include "RiaColorTables.h"
+#include "RiaFieldHandleTools.h"
 #include "RiaPreferences.h"
 
 #include "CompletionExportCommands/RicWellPathExportCompletionDataFeatureImpl.h"
@@ -106,12 +107,10 @@ RimEclipseCase::RimEclipseCase()
 
     // Obsolete fields
     CAF_PDM_InitFieldNoDefault(&m_filesContainingFaults_OBSOLETE,    "FilesContainingFaults", "", "", "", "");
-    m_filesContainingFaults_OBSOLETE.xmlCapability()->setIOWritable(false);
-    m_filesContainingFaults_OBSOLETE.uiCapability()->setUiHidden(true);
+    RiaFieldhandleTools::disableWriteAndSetFieldHidden(&m_filesContainingFaults_OBSOLETE);
 
     CAF_PDM_InitField(&m_caseName_OBSOLETE, "CaseName",  QString(), "Obsolete", "", "" ,"");
-    m_caseName_OBSOLETE.xmlCapability()->setIOWritable(false);
-    m_caseName_OBSOLETE.uiCapability()->setUiHidden(true);
+    RiaFieldhandleTools::disableWriteAndSetFieldHidden(&m_caseName_OBSOLETE);
 
     // Init
 

@@ -21,9 +21,11 @@
 #include "RimProject.h"
 
 #include "RiaApplication.h"
+#include "RiaCompletionTypeCalculationScheduler.h"
+#include "RiaFieldHandleTools.h"
+#include "RiaFilePathTools.h"
 #include "RiaProjectFileVersionTools.h"
 #include "RiaVersionInfo.h"
-#include "RiaFilePathTools.h"
 
 #include "RigEclipseCaseData.h"
 #include "RigGridBase.h"
@@ -78,7 +80,6 @@
 
 #include <QDir>
 #include <QMenu>
-#include "RiaCompletionTypeCalculationScheduler.h"
 
 
 CAF_PDM_SOURCE_INIT(RimProject, "ResInsightProject");
@@ -145,11 +146,10 @@ RimProject::RimProject(void)
 
     // Obsolete fields. The content is moved to OilFields and friends
     CAF_PDM_InitFieldNoDefault(&casesObsolete, "Reservoirs", "",  "", "", "");
-    casesObsolete.uiCapability()->setUiHidden(true);
-    casesObsolete.xmlCapability()->setIOWritable(false); // read but not write, they will be moved into RimAnalysisGroups
+    RiaFieldhandleTools::disableWriteAndSetFieldHidden(&casesObsolete);
+    
     CAF_PDM_InitFieldNoDefault(&caseGroupsObsolete, "CaseGroups", "",  "", "", "");
-    caseGroupsObsolete.uiCapability()->setUiHidden(true);
-    caseGroupsObsolete.xmlCapability()->setIOWritable(false); // read but not write, they will be moved into RimAnalysisGroups
+    RiaFieldhandleTools::disableWriteAndSetFieldHidden(&caseGroupsObsolete);
 
     // Initialization
 

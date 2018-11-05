@@ -17,24 +17,28 @@
 /////////////////////////////////////////////////////////////////////////////////
 #include "RimWellPathGeometryDef.h"
 
-#include "cafCmdFeatureMenuBuilder.h"
-#include "cafPdmUiTableViewEditor.h"
-#include "cafPdmUiTreeOrdering.h"
+#include "WellPathCommands/RicCreateWellTargetsPickEventHandler.h"
+
+#include "RiaFieldHandleTools.h"
+#include "RiaJCurveCalculator.h"
+#include "RiaLogging.h"
+#include "RiaOffshoreSphericalCoords.h"
+#include "RiaPolyArcLineSampler.h"
+#include "RiaSCurveCalculator.h"
 
 #include "RigWellPath.h"
-#include "RiaPolyArcLineSampler.h"
-#include "RiaOffshoreSphericalCoords.h"
 
-#include "RimWellPathTarget.h"
 #include "RimModeledWellPath.h"
-#include "RiaSCurveCalculator.h"
-#include "RiaLogging.h"
-#include "RiaJCurveCalculator.h"
-#include "cafPdmUiPushButtonEditor.h"
+#include "RimWellPathTarget.h"
 
-#include "WellPathCommands/RicCreateWellTargetsPickEventHandler.h"
 #include "RiuViewerCommands.h"
+
+#include "cafCmdFeatureMenuBuilder.h"
+#include "cafPdmUiPushButtonEditor.h"
+#include "cafPdmUiTableViewEditor.h"
+#include "cafPdmUiTreeOrdering.h"
 #include "cvfGeometryTools.h"
+
 
 namespace caf
 {
@@ -76,8 +80,7 @@ RimWellPathGeometryDef::RimWellPathGeometryDef()
 
     // Temp conversion field. 
     CAF_PDM_InitField(&m_referencePointXyz_OBSOLETE, "ReferencePos", cvf::Vec3d(0,0,0), "UTM Reference Point", "", "", "");
-    m_referencePointXyz_OBSOLETE.uiCapability()->setUiHidden(true);
-    m_referencePointXyz_OBSOLETE.xmlCapability()->setIOWritable(false);
+    RiaFieldhandleTools::disableWriteAndSetFieldHidden(&m_referencePointXyz_OBSOLETE);
 
     /// To be removed ?
 

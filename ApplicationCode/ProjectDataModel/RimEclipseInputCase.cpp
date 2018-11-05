@@ -20,6 +20,7 @@
 
 #include "RimEclipseInputCase.h"
 
+#include "RiaFieldHandleTools.h"
 #include "RiaPreferences.h"
 
 #include "RifEclipseInputFileTools.h"
@@ -67,8 +68,7 @@ RimEclipseInputCase::RimEclipseInputCase()
 
     CAF_PDM_InitFieldNoDefault(&m_additionalFilenames_OBSOLETE, "AdditionalFileNames", "Additional Files", "", "" ,"");
     m_additionalFilenames_OBSOLETE.uiCapability()->setUiReadOnly(true);
-    m_additionalFilenames_OBSOLETE.uiCapability()->setUiHidden(true);
-    m_additionalFilenames_OBSOLETE.xmlCapability()->setIOWritable(false);
+    RiaFieldhandleTools::disableWriteAndSetFieldHidden(&m_additionalFilenames_OBSOLETE);
 }
 
 

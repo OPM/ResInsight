@@ -20,6 +20,7 @@
 #include "Rim3dView.h"
 
 #include "RiaApplication.h"
+#include "RiaFieldHandleTools.h"
 #include "RiaPreferences.h"
 #include "RiaViewRedrawScheduler.h"
 
@@ -919,8 +920,8 @@ void Rim3dView::forceShowWindowOn()
 void Rim3dView::disableGridBoxField()
 {
     m_showGridBox = false;
-    m_showGridBox.uiCapability()->setUiHidden(true);
-    m_showGridBox.xmlCapability()->setIOWritable(false);
+
+    RiaFieldhandleTools::disableWriteAndSetFieldHidden(&m_showGridBox);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -929,8 +930,8 @@ void Rim3dView::disableGridBoxField()
 void Rim3dView::disablePerspectiveProjectionField()
 {
     isPerspectiveView = false;
-    isPerspectiveView.uiCapability()->setUiHidden(true);
-    isPerspectiveView.xmlCapability()->setIOWritable(false);
+
+    RiaFieldhandleTools::disableWriteAndSetFieldHidden(&isPerspectiveView);
 }
 
 //--------------------------------------------------------------------------------------------------

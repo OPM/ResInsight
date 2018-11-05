@@ -20,10 +20,11 @@
 
 #include "RimEclipseResultCase.h"
 
+#include "RiaApplication.h"
+#include "RiaFieldHandleTools.h"
 #include "RiaLogging.h"
 #include "RiaPreferences.h"
 #include "RiaRegressionTestRunner.h"
-#include "RiaApplication.h"
 
 #include "RifEclipseOutputFileTools.h"
 #include "RifReaderEclipseOutput.h"
@@ -83,8 +84,7 @@ RimEclipseResultCase::RimEclipseResultCase()
 
     // Obsolete, unused field
     CAF_PDM_InitField(&caseDirectory, "CaseFolder", QString(), "Directory", "", "" ,"");
-    caseDirectory.xmlCapability()->setIOWritable(false); 
-    caseDirectory.uiCapability()->setUiHidden(true);
+    RiaFieldhandleTools::disableWriteAndSetFieldHidden(&caseDirectory);
 
     m_flipXAxis.xmlCapability()->setIOWritable(true);
     //flipXAxis.uiCapability()->setUiHidden(true);

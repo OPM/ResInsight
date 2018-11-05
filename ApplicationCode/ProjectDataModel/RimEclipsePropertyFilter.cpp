@@ -21,6 +21,7 @@
 #include "RimEclipsePropertyFilter.h"
 
 #include "RiaDefines.h"
+#include "RiaFieldHandleTools.h"
 
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
@@ -67,8 +68,7 @@ RimEclipsePropertyFilter::RimEclipsePropertyFilter()
     CAF_PDM_InitObject("Cell Property Filter", ":/CellFilter_Values.png", "", "");
 
     CAF_PDM_InitFieldNoDefault(&obsoleteField_evaluationRegion, "EvaluationRegion", "Evaluation Region", "", "", "");
-    obsoleteField_evaluationRegion.uiCapability()->setUiHidden(true);
-    obsoleteField_evaluationRegion.xmlCapability()->setIOWritable(false);
+    RiaFieldhandleTools::disableWriteAndSetFieldHidden(&obsoleteField_evaluationRegion);
 
     CAF_PDM_InitFieldNoDefault(&resultDefinition, "ResultDefinition", "Result Definition", "", "", "");
     resultDefinition = new RimEclipseResultDefinition();

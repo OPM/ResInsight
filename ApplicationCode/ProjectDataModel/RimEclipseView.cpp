@@ -22,6 +22,7 @@
 
 #include "RiaApplication.h"
 #include "RiaColorTables.h"
+#include "RiaFieldHandleTools.h"
 #include "RiaPreferences.h"
 
 #include "RigActiveCellInfo.h"
@@ -35,6 +36,7 @@
 #include "RigSimWellData.h"
 #include "RigVirtualPerforationTransmissibilities.h"
 
+#include "Rim2dIntersectionView.h"
 #include "Rim3dOverlayInfoConfig.h"
 #include "RimCellEdgeColors.h"
 #include "RimCellRangeFilterCollection.h"
@@ -50,9 +52,9 @@
 #include "RimGridCollection.h"
 #include "RimIntersection.h"
 #include "RimIntersectionCollection.h"
-#include "RimRegularLegendConfig.h"
 #include "RimOilField.h"
 #include "RimProject.h"
+#include "RimRegularLegendConfig.h"
 #include "RimReservoirCellResultsStorage.h"
 #include "RimSimWellInView.h"
 #include "RimSimWellInViewCollection.h"
@@ -96,7 +98,6 @@
 #include <QMessageBox>
 
 #include <limits.h>
-#include "Rim2dIntersectionView.h"
 
 
 
@@ -146,8 +147,7 @@ RimEclipseView::RimEclipseView()
 
     // Visualization fields
     CAF_PDM_InitField(&m_showMainGrid_OBSOLETE,        "ShowMainGrid",         true,   "Show Main Grid",   "", "", "");
-    m_showMainGrid_OBSOLETE.uiCapability()->setUiHidden(true);
-    m_showMainGrid_OBSOLETE.xmlCapability()->setIOWritable(false);
+    RiaFieldhandleTools::disableWriteAndSetFieldHidden(&m_showMainGrid_OBSOLETE);
 
     CAF_PDM_InitField(&m_showInactiveCells,   "ShowInactiveCells",    false,  "Show Inactive Cells",   "", "", "");
     CAF_PDM_InitField(&m_showInvalidCells,    "ShowInvalidCells",     false,  "Show Invalid Cells",   "", "", "");

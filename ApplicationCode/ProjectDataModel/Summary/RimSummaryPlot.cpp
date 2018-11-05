@@ -19,6 +19,7 @@
 #include "RimSummaryPlot.h"
 
 #include "RiaApplication.h"
+#include "RiaFieldHandleTools.h"
 #include "RiaSummaryCurveAnalyzer.h"
 #include "RiaTimeHistoryCurveResampler.h"
 
@@ -177,8 +178,7 @@ RimSummaryPlot::RimSummaryPlot()
     m_timeAxisProperties = new RimSummaryTimeAxisProperties;
 
     CAF_PDM_InitField(&m_isAutoZoom_OBSOLETE, "AutoZoom", true, "Auto Zoom", "", "", "");
-    m_isAutoZoom_OBSOLETE.uiCapability()->setUiHidden(true);
-    m_isAutoZoom_OBSOLETE.xmlCapability()->setIOWritable(false);
+    RiaFieldhandleTools::disableWriteAndSetFieldHidden(&m_isAutoZoom_OBSOLETE);
 
     m_isCrossPlot = false;
 

@@ -18,25 +18,26 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RimWellLogFile.h"
-#include "RimWellLogFileChannel.h"
-#include "RimFileWellPath.h"
-#include "RimWellPathCollection.h"
-#include "RimTools.h"
-//#include "RimWellPltPlot.h"
-#include "RimWellPlotTools.h"
 
 #include "RiaDateStringParser.h"
+#include "RiaFieldHandleTools.h"
+#include "RiaQDateTimeTools.h"
 
 #include "RigWellLogFile.h"
+
+#include "RimFileWellPath.h"
+#include "RimTools.h"
+#include "RimWellLogFileChannel.h"
+#include "RimWellPathCollection.h"
+#include "RimWellPlotTools.h"
 
 #include "Riu3DMainWindowTools.h"
 
 #include "cafPdmUiDateEditor.h"
 
-#include <QStringList>
 #include <QFileInfo>
 #include <QMessageBox>
-#include "RiaQDateTimeTools.h"
+#include <QStringList>
 
 
 CAF_PDM_SOURCE_INIT(RimWellLogFile, "WellLogFile");
@@ -65,8 +66,7 @@ RimWellLogFile::RimWellLogFile()
 
     CAF_PDM_InitFieldNoDefault(&m_wellName, "WellName", "",  "", "", "");
     m_wellName.uiCapability()->setUiReadOnly(true);
-    m_wellName.uiCapability()->setUiHidden(true);
-    m_wellName.xmlCapability()->setIOWritable(false);
+    RiaFieldhandleTools::disableWriteAndSetFieldHidden(&m_wellName);
 
     CAF_PDM_InitFieldNoDefault(&m_date, "Date", "Date", "", "", "");
     m_date.uiCapability()->setUiReadOnly(true);
@@ -76,12 +76,10 @@ RimWellLogFile::RimWellLogFile()
 
     CAF_PDM_InitFieldNoDefault(&m_name, "Name", "",  "", "", "");
     m_name.uiCapability()->setUiReadOnly(true);
-    m_name.uiCapability()->setUiHidden(true);
-    m_name.xmlCapability()->setIOWritable(false);
+    RiaFieldhandleTools::disableWriteAndSetFieldHidden(&m_name);
 
     CAF_PDM_InitFieldNoDefault(&m_wellLogChannelNames, "WellLogFileChannels", "",  "", "", "");
-    m_wellLogChannelNames.uiCapability()->setUiHidden(true);
-    m_wellLogChannelNames.xmlCapability()->setIOWritable(false);
+    RiaFieldhandleTools::disableWriteAndSetFieldHidden(&m_wellLogChannelNames);
 
     CAF_PDM_InitField(&m_wellFlowCondition, "WellFlowCondition", caf::AppEnum<RimWellLogFile::WellFlowCondition>(RimWellLogFile::WELL_FLOW_COND_STANDARD), "Well Flow Rates", "", "", "");
 
