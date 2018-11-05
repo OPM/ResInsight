@@ -41,6 +41,7 @@ public:
 
     void    setName(const QString& name);
     void    setIndex(int index);
+    void    setActive(bool active);
     bool    isActive() const;
     QString name() const;
     int     index() const;
@@ -102,6 +103,8 @@ public:
 
     caf::PdmFieldHandle* objectToggleField() override;
     void                 syncFromMainGrid();
+    void                 setMainGridActive(bool active);
+
     static const QString persistentGridUiName();
     static const QString temporaryGridUiName();
 

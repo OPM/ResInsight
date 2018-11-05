@@ -145,6 +145,10 @@ RimEclipseView::RimEclipseView()
     m_propertyFilterCollection.uiCapability()->setUiHidden(true);
 
     // Visualization fields
+    CAF_PDM_InitField(&m_showMainGrid_OBSOLETE,        "ShowMainGrid",         true,   "Show Main Grid",   "", "", "");
+    m_showMainGrid_OBSOLETE.uiCapability()->setUiHidden(true);
+    m_showMainGrid_OBSOLETE.xmlCapability()->setIOWritable(false);
+
     CAF_PDM_InitField(&m_showInactiveCells,   "ShowInactiveCells",    false,  "Show Inactive Cells",   "", "", "");
     CAF_PDM_InitField(&m_showInvalidCells,    "ShowInvalidCells",     false,  "Show Invalid Cells",   "", "", "");
    
@@ -850,6 +854,11 @@ void RimEclipseView::initAfterRead()
     this->faultResultSettings()->setReservoirView(this);
     this->cellResult()->setReservoirView(this);
     this->cellEdgeResult()->setReservoirView(this);
+
+    if (!m_showMainGrid_OBSOLETE())
+    {
+        gridCollection()->setMainGridActive(false);
+    }
 
     this->updateUiIconFromToggleField();
 }
