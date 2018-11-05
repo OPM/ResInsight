@@ -46,22 +46,25 @@ void Riv2dGridProjectionPartMgr::appendProjectionToModel(cvf::ModelBasicList* mo
         model->addPart(part.p());
     }
 
-    std::vector<cvf::ref<cvf::DrawableGeo>> contourDrawables = createContourPolygons(displayCoordTransform);
-    for (cvf::ref<cvf::DrawableGeo> contourDrawable : contourDrawables)
+    if (m_2dGridProjection->showContourLines())
     {
-        if (contourDrawable.notNull() && contourDrawable->boundingBox().isValid())
+        std::vector<cvf::ref<cvf::DrawableGeo>> contourDrawables = createContourPolygons(displayCoordTransform);
+        for (cvf::ref<cvf::DrawableGeo> contourDrawable : contourDrawables)
         {
-            caf::MeshEffectGenerator meshEffectGen(cvf::Color3::BLACK);
-            meshEffectGen.setLineWidth(1.0f);
-            meshEffectGen.createAndConfigurePolygonOffsetRenderState(caf::PO_2);
-            cvf::ref<cvf::Effect> effect = meshEffectGen.generateCachedEffect();
+            if (contourDrawable.notNull() && contourDrawable->boundingBox().isValid())
+            {
+                caf::MeshEffectGenerator meshEffectGen(cvf::Color3::BLACK);
+                meshEffectGen.setLineWidth(1.0f);
+                meshEffectGen.createAndConfigurePolygonOffsetRenderState(caf::PO_2);
+                cvf::ref<cvf::Effect> effect = meshEffectGen.generateCachedEffect();
 
-            cvf::ref<cvf::Part> part = new cvf::Part;
-            part->setDrawable(contourDrawable.p());
-            part->setEffect(effect.p());
-            part->setSourceInfo(new RivMeshLinesSourceInfo(m_2dGridProjection.p()));
+                cvf::ref<cvf::Part> part = new cvf::Part;
+                part->setDrawable(contourDrawable.p());
+                part->setEffect(effect.p());
+                part->setSourceInfo(new RivMeshLinesSourceInfo(m_2dGridProjection.p()));
 
-            model->addPart(part.p());
+                model->addPart(part.p());
+            }
         }
     }
 }

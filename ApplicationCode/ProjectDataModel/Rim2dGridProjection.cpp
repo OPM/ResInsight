@@ -68,6 +68,8 @@ Rim2dGridProjection::Rim2dGridProjection()
 
     CAF_PDM_InitFieldNoDefault(&m_resultAggregation, "ResultAggregation", "Result Aggregation", "", "", "");
 
+    CAF_PDM_InitField(&m_showContourLines, "ContourLines", true, "Show Contour Lines", "", "", "");
+
     setName("2d Grid Projection");
     nameField()->uiCapability()->setUiReadOnly(true);
 
@@ -295,6 +297,14 @@ double Rim2dGridProjection::minValue() const
 double Rim2dGridProjection::sampleSpacing() const
 {
     return m_sampleSpacing;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool Rim2dGridProjection::showContourLines() const
+{
+    return m_showContourLines();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -882,20 +892,18 @@ RigMainGrid* Rim2dGridProjection::mainGrid() const
 //--------------------------------------------------------------------------------------------------
 void Rim2dGridProjection::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
-    if (changedField == &m_isChecked || changedField == &m_sampleSpacing || changedField == &m_resultAggregation)
-    {
-        RimEclipseView* view = nullptr;
-        this->firstAncestorOrThisOfTypeAsserted(view);
-        view->updateConnectedEditors();
-
-        RimProject* proj;
-        view->firstAncestorOrThisOfTypeAsserted(proj);
-        proj->scheduleCreateDisplayModelAndRedrawAllViews();
-    }
     if (changedField == &m_resultAggregation)
     {
         legendConfig()->disableAllTimeStepsRange(isSummationResult());
     }
+
+    RimEclipseView* view = nullptr;
+    this->firstAncestorOrThisOfTypeAsserted(view);
+    view->updateConnectedEditors();
+
+    RimProject* proj;
+    view->firstAncestorOrThisOfTypeAsserted(proj);
+    proj->scheduleCreateDisplayModelAndRedrawAllViews();
 }
 
 //--------------------------------------------------------------------------------------------------

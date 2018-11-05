@@ -69,6 +69,8 @@ public:
     double                      maxValue() const;
     double                      minValue() const;
     double                      sampleSpacing() const;
+    bool                        showContourLines() const;
+
     void                        updateDefaultSampleSpacingFromGrid();
     const std::vector<double>&  aggregatedResults() const;
     bool                        isSummationResult() const;
@@ -111,6 +113,8 @@ protected:
 protected:
     caf::PdmField<double>                              m_sampleSpacing;
     caf::PdmField<ResultAggregation>                   m_resultAggregation;
+    caf::PdmField<bool>                                m_showContourLines;
+
     std::map<size_t, cvf::ref<cvf::UByteArray>>        m_cellGridIdxVisibilityMap;
 
     std::vector<double>                                m_aggregatedResults;
