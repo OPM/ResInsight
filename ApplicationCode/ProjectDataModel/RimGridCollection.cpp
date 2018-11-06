@@ -402,17 +402,16 @@ void RimGridCollection::syncFromMainGrid()
             }
         }
 
-        while (!allPersistentGrids.empty())
+        for (const auto& grid : allPersistentGrids)
         {
-            auto gridName = allPersistentGrids.front()->name();
+            auto gridName = grid->name();
             m_persistentLgrs->deleteGridInfo(gridName);
-            removeGridInfo(gridName, allPersistentGrids);
         }
-        while (!allTemporaryGrids.empty())
+
+        for (const auto& grid : allTemporaryGrids)
         {
-            auto gridName = allTemporaryGrids.front()->name();
-            m_temporaryLgrs->deleteGridInfo(allTemporaryGrids.front()->name());
-            removeGridInfo(gridName, allTemporaryGrids);
+            auto gridName = grid->name();
+            m_temporaryLgrs->deleteGridInfo(gridName);
         }
     }
     updateConnectedEditors();
