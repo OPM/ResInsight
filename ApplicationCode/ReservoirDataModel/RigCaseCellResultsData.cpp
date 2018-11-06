@@ -961,6 +961,12 @@ void RigCaseCellResultsData::createPlaceholderResultEntries()
         }
     }
 
+    // Cell Volume
+    {
+        addStaticScalarResult(RiaDefines::STATIC_NATIVE, RiaDefines::riCellVolumeResultName(), false, 0);
+    }
+
+
     // Mobile Pore Volume
     {
         if (findScalarResultIndex(RiaDefines::STATIC_NATIVE, "PORV") != cvf::UNDEFINED_SIZE_T)
@@ -1139,6 +1145,10 @@ size_t RigCaseCellResultsData::findOrLoadScalarResult(RiaDefines::ResultCatType 
             computeCompletionTypeForTimeStep(timeStepIdx);
             progressInfo.incrementProgress();
         }
+    }
+    else if (resultName == RiaDefines::riCellVolumeResultName())
+    {
+        computeCellVolumes();
     }
     else if (resultName == RiaDefines::mobilePoreVolumeName())
     {
@@ -2402,6 +2412,30 @@ void RigCaseCellResultsData::computeCompletionTypeForTimeStep(size_t timeStep)
 double RigCaseCellResultsData::darchysValue()
 {
     return RiaEclipseUnitTools::darcysConstant(m_ownerCaseData->unitsType());
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigCaseCellResultsData::computeCellVolumes()
+{
+    size_t cellVolIdx = this->findOrCreateScalarResultIndex(RiaDefines::STATIC_NATIVE, RiaDefines::riCellVolumeResultName(), false);
+
+    std::vector<double>& cellVolumeResults = this->cellScalarResults(cellVolIdx)[0];
+
+    size_t cellResultCount = m_activeCellInfo->reservoirCellResultCount();
+    cellVolumeResults.resize(cellResultCount, 0u);
+
+#pragma omp parallel for
+    for (int nativeResvCellIndex = 0; nativeResvCellIndex < static_cast<int>(m_ownerMainGrid->globalCellArray().size()); nativeResvCellIndex++)
+    {
+        size_t resultIndex = activeCellInfo()->cellResultIndex(nativeResvCellIndex);
+        if (resultIndex != cvf::UNDEFINED_SIZE_T)
+        {
+            const RigCell& cell = m_ownerMainGrid->globalCellArray()[nativeResvCellIndex];
+            cellVolumeResults[resultIndex] = cell.volume();
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

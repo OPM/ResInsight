@@ -37,6 +37,8 @@
 #include "RigMainGrid.h"
 #include "RigStatisticsDataCache.h"
 
+#include "Rim2dEclipseView.h"
+#include "Rim2dGridProjection.h"
 #include "Rim2dIntersectionView.h"
 #include "Rim2dIntersectionViewCollection.h"
 #include "Rim3dView.h"
@@ -174,9 +176,11 @@ Rim3dOverlayInfoConfig::HistogramData Rim3dOverlayInfoConfig::histogramData()
 {
     auto eclipseView = dynamic_cast<RimEclipseView*>(m_viewDef.p());
     auto geoMechView = dynamic_cast<RimGeoMechView*>(m_viewDef.p());
+    auto contourMap = dynamic_cast<Rim2dEclipseView*>(eclipseView);
     
-    if (eclipseView) return histogramData(eclipseView);
-    if (geoMechView) return histogramData(geoMechView);
+    if (contourMap) return histogramData(contourMap);
+    else if (eclipseView) return histogramData(eclipseView);
+    else if (geoMechView) return histogramData(geoMechView);
     return HistogramData();
 }
 
@@ -270,6 +274,29 @@ void Rim3dOverlayInfoConfig::setIsActive(bool active)
 {
     m_active = active;
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+Rim3dOverlayInfoConfig::HistogramData Rim3dOverlayInfoConfig::histogramData(Rim2dEclipseView* contourMap)
+{
+    HistogramData histData;
+
+    if (contourMap)
+    {
+        bool isResultsInfoRelevant = contourMap->grid2dProjection()->validVertexCount() > 0u;
+
+        if (isResultsInfoRelevant)
+        {
+            histData.min = contourMap->grid2dProjection()->minValue();
+            histData.max = contourMap->grid2dProjection()->maxValue();
+            histData.mean = contourMap->grid2dProjection()->meanValue();
+            histData.sum = contourMap->grid2dProjection()->sumAllValues();
+        }
+    }
+    return histData;
+}
+
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -467,35 +494,46 @@ QString Rim3dOverlayInfoConfig::caseInfoText(RimEclipseView* eclipseView)
 
     if (eclipseView)
     {
-        QString caseName;
-        QString totCellCount;
-        QString activeCellCountText;
-        QString fractureActiveCellCount;
-        QString iSize, jSize, kSize;
-        QString zScale;
+        QString caseName = eclipseView->eclipseCase()->caseUserDescription();
 
-        if (eclipseView->mainGrid())
+        Rim2dEclipseView* contourMap = dynamic_cast<Rim2dEclipseView*>(eclipseView);
+        if (contourMap && contourMap->grid2dProjection())
         {
-            caseName = eclipseView->eclipseCase()->caseUserDescription();
-            totCellCount = QString::number(eclipseView->mainGrid()->globalCellArray().size());
+            QString totCellCount = QString::number(contourMap->grid2dProjection()->vertexCount());
+            cvf::uint validCellCount = contourMap->grid2dProjection()->validVertexCount();
+            QString activeCellCountText = QString::number(validCellCount);
+            QString iSize = QString::number(contourMap->grid2dProjection()->surfaceGridSize().x());
+            QString jSize = QString::number(contourMap->grid2dProjection()->surfaceGridSize().y());
+            QString aggregationType = contourMap->grid2dProjection()->resultAggregationText();
+
+            infoText += QString(
+                "<p><b>-- %1 --</b><p>  "
+                "<b>Cell count. Total:</b> %2 <b>Valid Result:</b> %3 <br>"
+                "<b>2d Projection [%4] I,J, Aggregation Type:</b> %5, %6 <br>").arg(caseName, totCellCount, activeCellCountText, aggregationType, iSize, jSize);
+        }
+        else if (eclipseView->mainGrid())
+        {
+            QString totCellCount = QString::number(eclipseView->mainGrid()->globalCellArray().size());
             size_t mxActCellCount = eclipseView->eclipseCase()->eclipseCaseData()->activeCellInfo(RiaDefines::MATRIX_MODEL)->reservoirActiveCellCount();
             size_t frActCellCount = eclipseView->eclipseCase()->eclipseCaseData()->activeCellInfo(RiaDefines::FRACTURE_MODEL)->reservoirActiveCellCount();
+            
+            QString activeCellCountText;
             if (frActCellCount > 0)  activeCellCountText += "Matrix : ";
             activeCellCountText += QString::number(mxActCellCount);
             if (frActCellCount > 0)  activeCellCountText += " Fracture : " + QString::number(frActCellCount);
 
-            iSize = QString::number(eclipseView->mainGrid()->cellCountI());
-            jSize = QString::number(eclipseView->mainGrid()->cellCountJ());
-            kSize = QString::number(eclipseView->mainGrid()->cellCountK());
+            QString iSize = QString::number(eclipseView->mainGrid()->cellCountI());
+            QString jSize = QString::number(eclipseView->mainGrid()->cellCountJ());
+            QString kSize = QString::number(eclipseView->mainGrid()->cellCountK());
 
-            zScale = QString::number(eclipseView->scaleZ());
+            QString zScale = QString::number(eclipseView->scaleZ());
+            infoText += QString(
+                "<p><b>-- %1 --</b><p>  "
+                "<b>Cell count. Total:</b> %2 <b>Active:</b> %3 <br>"
+                "<b>Main Grid I,J,K:</b> %4, %5, %6 <b>Z-Scale:</b> %7<br>").arg(caseName, totCellCount, activeCellCountText, iSize, jSize, kSize, zScale);
 
         }
 
-        infoText += QString(
-            "<p><b>-- %1 --</b><p>  "
-            "<b>Cell count. Total:</b> %2 <b>Active:</b> %3 <br>"
-            "<b>Main Grid I,J,K:</b> %4, %5, %6 <b>Z-Scale:</b> %7<br>").arg(caseName, totCellCount, activeCellCountText, iSize, jSize, kSize, zScale);
     }
 
     return infoText;
@@ -535,7 +573,23 @@ QString Rim3dOverlayInfoConfig::resultInfoText(const HistogramData& histData, Ri
 {
     QString infoText;
 
-    if (eclipseView)
+    Rim2dEclipseView* contourMap = dynamic_cast<Rim2dEclipseView*>(eclipseView);
+
+    if (contourMap)
+    {
+        bool isResultsInfoRelevant = contourMap->grid2dProjection()->validVertexCount() > 0u;
+        if (isResultsInfoRelevant)
+        {
+            QString propName = eclipseView->cellResult()->resultVariableUiShortName();
+            infoText += QString("<b>Cell Property:</b> %1 ").arg(propName);
+            infoText += QString("<br><b>Statistics:</b> ");
+            infoText += QString("<table border=0 cellspacing=5 >"
+                "<tr> <td>Min</td> <td>Mean</td> <td>Max</td> <td>Sum</td> </tr>"
+                "<tr> <td>%1</td>  <td> %2</td> <td>  %3</td> <td> %4</td> </tr>"
+                "</table>").arg(histData.min).arg(histData.mean).arg(histData.max).arg(histData.sum);
+        }
+    }
+    else if (eclipseView)
     {
         bool isResultsInfoRelevant = eclipseView->hasUserRequestedAnimation() && eclipseView->cellResult()->hasResult();
 

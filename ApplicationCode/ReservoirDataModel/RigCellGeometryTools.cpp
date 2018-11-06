@@ -23,11 +23,63 @@
 
 #include "cafHexGridIntersectionTools/cafHexGridIntersectionTools.h"
 #include "cvfBoundingBox.h"
+#include "cvfMatrix3.h"
 
 #include "clipper/clipper.hpp"
 
 #include <vector>
 #include <array>
+
+//--------------------------------------------------------------------------------------------------
+/// Efficient Computation of Volume of Hexahedral Cells
+/// Jeffrey Grandy, Lawrence Livermore National Laboratory
+/// https://www.osti.gov/servlets/purl/632793/
+///
+/// Note that in the paper the following vertex numbering is used
+///     6---------7               
+///    /|        /|     |k        
+///   / |       / |     | /j      
+///  4---------5  |     |/        
+///  |  2------|--3     *---i     
+///  | /       | /                
+///  |/        |/                 
+///  0---------1                     
+///
+/// While in ResInsight, this is the numbering. Thus 2<->3, 6<->7 from the paper.
+/// Note the negative k!
+///     7---------6               
+///    /|        /|     |-k        
+///   / |       / |     | /j      
+///  4---------5  |     |/        
+///  |  3------|--2     *---i     
+///  | /       | /                
+///  |/        |/                 
+///  0---------1                     
+//--------------------------------------------------------------------------------------------------
+double RigCellGeometryTools::calculateCellVolume(const std::array<cvf::Vec3d, 8>& x)
+{
+    // 6 * 3 flops = 18 flops
+
+    // Perform index swap when retrieving corners but keep indices in variable names matching paper.
+    cvf::Vec3d x3mx0 = x[6] - x[4]; // Swap 3->2, then negate z by 2->6 and 0->4
+    cvf::Vec3d x5mx0 = x[1] - x[4]; // Negate z by Swap 5->1 and 0->4
+    cvf::Vec3d x6mx0 = x[3] - x[4]; // Swap 6->7, then negate z by 7->3 and 0->4
+    cvf::Vec3d x7mx1 = x[2] - x[5]; // Swap 7->6, then negate z by 6->2 and 1->5
+    cvf::Vec3d x7mx2 = x[2] - x[7]; // Swap 7->6, 2->3, then negate z by 6->2 and 3->7
+    cvf::Vec3d x7mx4 = x[2] - x[0]; // Swap 7->6 then negate z by 6->2 and 4->0
+
+    // 3 flops for summation + 5 for dot product + 9 flops for cross product = 17 flops
+    double det1 = (x7mx1 + x6mx0) * (x7mx2 ^ x3mx0);
+    // 3 flops for summation + 5 for dot product + 9 flops for cross product = 17 flops
+    double det2 = x6mx0 * ((x7mx2 + x5mx0) ^ x7mx4);
+    // 3 flops for summation + 5 for dot product + 9 flops for cross product = 17 flops
+    double det3 = x7mx1 * (x5mx0 ^ (x7mx4 + x3mx0));
+
+    // 2 flops for summation + 1 for division = 3 flops
+    double volume = (det1 + det2 + det3) / 12.0;
+    CVF_ASSERT(volume > 0.0);
+    return volume;
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 

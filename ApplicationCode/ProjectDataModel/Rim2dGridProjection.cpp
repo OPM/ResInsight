@@ -294,6 +294,33 @@ double Rim2dGridProjection::minValue() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+double Rim2dGridProjection::meanValue() const
+{
+    return sumAllValues() / validVertexCount();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double Rim2dGridProjection::sumAllValues() const
+{
+    double sum = 0.0;
+
+    int nVertices = vertexCount();
+
+    for (int index = 0; index < nVertices; ++index)
+    {
+        if (m_aggregatedResults[index] != std::numeric_limits<double>::infinity())
+        {
+            sum += m_aggregatedResults[index];
+        }
+    }
+    return sum;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 double Rim2dGridProjection::sampleSpacing() const
 {
     return m_sampleSpacing;
@@ -443,7 +470,7 @@ double Rim2dGridProjection::calculateValue(uint i, uint j) const
             for (auto cellIdxAndWeight : matchingCells)
             {
                 size_t cellIdx = cellIdxAndWeight.first;
-                double cellValue = m_resultAccessor->cellScalarGlobIdx(cellIdx);
+                double cellValue = m_resultAccessor->cellScalarGlobIdx(cellIdx);                
                 sum += cellValue * cellIdxAndWeight.second;
             }
             return sum;
@@ -505,6 +532,23 @@ uint Rim2dGridProjection::vertexCount() const
 {
     cvf::Vec2ui gridSize2d = surfaceGridSize();
     return gridSize2d.x() * gridSize2d.y();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+uint Rim2dGridProjection::validVertexCount() const
+{
+    uint validCount = 0u;
+    for (uint i = 0; i < vertexCount(); ++i)
+    {
+        cvf::Vec2ui ij = ijFromGridIndex(i);
+        if (hasResultAt(ij.x(), ij.y()))
+        {
+            validCount++;
+        }
+    }
+    return validCount;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -699,7 +743,9 @@ std::vector<std::pair<size_t, float>> Rim2dGridProjection::visibleCellsAndWeight
             return std::get<2>(lhs) > std::get<2>(rhs);
         });
 
-        float adjustmentFactor = static_cast<float>(chopped2dBBoxVolume / totalOverlapVolume);
+        float adjustmentFactor = 1.0;
+        if (totalOverlapVolume > chopped2dBBoxVolume) // Don't scale up if overlap volume is smaller 2d extrusion!
+            adjustmentFactor = static_cast<float>(chopped2dBBoxVolume / totalOverlapVolume);
         CVF_ASSERT(adjustmentFactor > 0.0f);
         for (const auto& visWeightHeight : matchingVisibleCellsWeightAndHeight)
         {
@@ -834,6 +880,22 @@ void Rim2dGridProjection::updateLegend()
     {
         legendConfig()->setTitle(QString("2d Projection:\n%1: %2").arg(m_resultAggregation().uiText()).arg(cellColors->resultVariableUiShortName()));
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+Rim2dGridProjection::ResultAggregation Rim2dGridProjection::resultAggregation() const
+{
+    return m_resultAggregation();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString Rim2dGridProjection::resultAggregationText() const
+{
+    return m_resultAggregation().uiText();
 }
 
 //--------------------------------------------------------------------------------------------------

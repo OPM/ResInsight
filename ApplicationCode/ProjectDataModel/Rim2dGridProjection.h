@@ -68,6 +68,8 @@ public:
     void                        generateResults();
     double                      maxValue() const;
     double                      minValue() const;
+    double                      meanValue() const;
+    double                      sumAllValues() const;
     double                      sampleSpacing() const;
     bool                        showContourLines() const;
 
@@ -81,11 +83,15 @@ public:
 
     cvf::Vec2ui                 surfaceGridSize() const;
     uint                        vertexCount() const;
+    uint                        validVertexCount() const;
     RimRegularLegendConfig*     legendConfig() const;
 
     size_t                      gridIndex(uint i, uint j) const;
     cvf::Vec2ui                 ijFromGridIndex(size_t gridIndex) const;
     void                        updateLegend();
+
+    ResultAggregation           resultAggregation() const;
+    QString                     resultAggregationText() const;
 
 protected:
     double                                       calculateValue(uint i, uint j) const;

@@ -20,6 +20,7 @@
 
 
 #include "RigCell.h"
+#include "RigCellGeometryTools.h"
 #include "RigMainGrid.h"
 #include "cvfPlane.h"
 #include "cvfRay.h"
@@ -299,6 +300,21 @@ cvf::Vec3d RigCell::faceNormalWithAreaLenght(cvf::StructGridInterface::FaceType 
 
     return 0.5*( nodeCoords[m_cornerIndices[faceVertexIndices[2]]] - nodeCoords[m_cornerIndices[faceVertexIndices[0]]]) ^  
                ( nodeCoords[m_cornerIndices[faceVertexIndices[3]]] - nodeCoords[m_cornerIndices[faceVertexIndices[1]]]); 
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RigCell::volume() const
+{
+    const std::vector<cvf::Vec3d>& nodeCoords = m_hostGrid->mainGrid()->nodes();
+
+    std::array<cvf::Vec3d, 8> hexCorners;
+    for (size_t i = 0; i < 8; ++i)
+    {
+        hexCorners[i] = nodeCoords.at(m_cornerIndices[i]);
+    }
+    return RigCellGeometryTools::calculateCellVolume(hexCorners);
 }
 
 //--------------------------------------------------------------------------------------------------

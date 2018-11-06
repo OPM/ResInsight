@@ -33,6 +33,7 @@
 class RigCellGeometryTools
 {
 public:
+    static double calculateCellVolume(const std::array<cvf::Vec3d, 8>& hexCorners);
 
     static void createPolygonFromLineSegments(std::list<std::pair<cvf::Vec3d, cvf::Vec3d>> &intersectionLineSegments, std::vector<std::vector<cvf::Vec3d>> &polygons);
 

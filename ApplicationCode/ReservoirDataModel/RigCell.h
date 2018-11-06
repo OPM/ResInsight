@@ -70,6 +70,8 @@ public:
     cvf::Vec3d              center() const;
     cvf::Vec3d              faceCenter(cvf::StructGridInterface::FaceType face) const;
     cvf::Vec3d              faceNormalWithAreaLenght(cvf::StructGridInterface::FaceType face) const;
+    double                  volume() const;
+
 
     int                     firstIntersectionPoint(const cvf::Ray& ray, cvf::Vec3d* intersectionPoint) const;
     bool                    isLongPyramidCell(double maxHeightFactor = 5, double nodeNearTolerance = 1e-3 ) const;

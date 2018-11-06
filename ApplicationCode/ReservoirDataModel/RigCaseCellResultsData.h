@@ -154,6 +154,7 @@ private: // from RimReservoirCellResultsStorage
     void                                               computeCompletionTypeForTimeStep(size_t timeStep);
     double                                             darchysValue();
 
+    void                                               computeCellVolumes();
     void                                               computeMobilePV();
 
     bool                                               isDataPresent(size_t scalarResultIndex) const;
