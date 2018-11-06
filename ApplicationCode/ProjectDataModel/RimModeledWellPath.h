@@ -36,7 +36,7 @@ public:
     void                    createWellPathGeometry();
     void                    updateWellPathVisualization();
     void                    scheduleUpdateOfDependentVisualization();
-    RimWellPathGeometryDef* geometryDefinition();
+    RimWellPathGeometryDef* geometryDefinition() const;
     QString                 wellPlanText();
 
 private:

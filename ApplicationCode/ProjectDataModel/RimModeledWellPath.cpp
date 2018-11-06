@@ -113,7 +113,7 @@ void RimModeledWellPath::scheduleUpdateOfDependentVisualization()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimWellPathGeometryDef* RimModeledWellPath::geometryDefinition()
+RimWellPathGeometryDef* RimModeledWellPath::geometryDefinition() const
 {
     return m_geometryDefinition;
 }

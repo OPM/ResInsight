@@ -101,7 +101,7 @@ void RicExportFishbonesLateralsFeature::onActionTriggered(bool isChecked)
                     QString subIndexText = QString("%1").arg(sub.subIndex, 2, 10, QChar('0'));
                     QString lateralName = QString("%1_%2_Sub%3_Lat%4").arg(wellPath->name()).arg(fishboneName).arg(subIndexText).arg(lateralIndex);
     
-                    EXP::writeWellPathGeometryToStream(*stream, &geometry, lateralName, mdStepSize);
+                    EXP::writeWellPathGeometryToStream(*stream, wellPath, lateralName, mdStepSize);
                 }
             }
         }
