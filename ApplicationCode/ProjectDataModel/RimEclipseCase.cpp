@@ -37,6 +37,7 @@
 
 #include "Rim2dEclipseView.h"
 #include "Rim2dEclipseViewCollection.h"
+#include "Rim2dIntersectionView.h"
 #include "Rim2dIntersectionViewCollection.h"
 #include "RimCaseCollection.h"
 #include "RimCellEdgeColors.h"
@@ -997,6 +998,11 @@ void RimEclipseCase::reloadDataAndUpdate()
             contourMap->loadDataAndUpdate();
             contourMap->updateGridBoxData();
             contourMap->updateAnnotationItems();
+        }
+
+        for (Rim2dIntersectionView* view : intersectionViewCollection()->views())
+        {
+            view->createDisplayModelAndRedraw();
         }
 
         RimProject* project = RiaApplication::instance()->project();

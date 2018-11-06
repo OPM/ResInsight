@@ -160,8 +160,9 @@ void RicCreateTemporaryLgrFeature::onActionTriggered(bool isChecked)
             if (eclipseView)
             {
                 eclipseView->scheduleReservoirGridGeometryRegen();
-                eclipseView->loadDataAndUpdate();
             }
+            
+            v->loadDataAndUpdate();
         }
 
         if (intersectingOtherLgr)
