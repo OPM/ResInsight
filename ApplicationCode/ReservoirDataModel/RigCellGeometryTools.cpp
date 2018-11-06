@@ -45,8 +45,8 @@
 ///  |/        |/                 
 ///  0---------1                     
 ///
-/// While in ResInsight, this is the numbering. Thus 2<->3, 6<->7 from the paper.
-/// Note the negative k!
+/// While in ResInsight, this is the numbering. Thus we need to swap 2<->3, 6<->7 in the equations.
+/// Note the negative k! This causes an additional set of 0<->4, 1<->5, etc. index swaps.
 ///     7---------6               
 ///    /|        /|     |-k        
 ///   / |       / |     | /j      
@@ -77,8 +77,9 @@ double RigCellGeometryTools::calculateCellVolume(const std::array<cvf::Vec3d, 8>
 
     // 2 flops for summation + 1 for division = 3 flops
     double volume = (det1 + det2 + det3) / 12.0;
-    CVF_ASSERT(volume > 0.0);
-    return volume;
+    
+    // Assume 0 in volume for degenerate cells. 1 flop.
+    return std::max(0.0, volume); // Altogether 18 + 3*17 + 3 + 1 flops = 73 flops.
 }
 
 //--------------------------------------------------------------------------------------------------

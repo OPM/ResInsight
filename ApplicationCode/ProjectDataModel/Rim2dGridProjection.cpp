@@ -7,6 +7,7 @@
 #include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
 #include "RigCell.h"
+#include "RigCellGeometryTools.h"
 #include "RigEclipseCaseData.h"
 #include "RigHexIntersectionTools.h"
 #include "RigMainGrid.h"
@@ -243,11 +244,23 @@ void Rim2dGridProjection::generateResults()
                 }
             }
 
-#pragma omp parallel for
-            for (int index = 0; index < nVertices; ++index)
+            if (m_resultAggregation == RESULTS_SUM && view->cellResult()->resultVariable() == RiaDefines::riCellVolumeResultName())
             {
-                cvf::Vec2ui ij = ijFromGridIndex(index);
-                m_aggregatedResults[index] = calculateValue(ij.x(), ij.y());
+#pragma omp parallel for
+                for (int index = 0; index < nVertices; ++index)
+                {
+                    cvf::Vec2ui ij = ijFromGridIndex(index);
+                    m_aggregatedResults[index] = calculateVolumeSum(ij.x(), ij.y());
+                }
+            }
+            else
+            {
+#pragma omp parallel for
+                for (int index = 0; index < nVertices; ++index)
+                {
+                    cvf::Vec2ui ij = ijFromGridIndex(index);
+                    m_aggregatedResults[index] = calculateValue(ij.x(), ij.y());
+                }
             }
         }
     }
@@ -470,7 +483,7 @@ double Rim2dGridProjection::calculateValue(uint i, uint j) const
             for (auto cellIdxAndWeight : matchingCells)
             {
                 size_t cellIdx = cellIdxAndWeight.first;
-                double cellValue = m_resultAccessor->cellScalarGlobIdx(cellIdx);                
+                double cellValue = m_resultAccessor->cellScalarGlobIdx(cellIdx);
                 sum += cellValue * cellIdxAndWeight.second;
             }
             return sum;
@@ -491,6 +504,25 @@ double Rim2dGridProjection::calculateValue(uint i, uint j) const
         default:
             CVF_TIGHT_ASSERT(false);
         }
+    }
+    return std::numeric_limits<double>::infinity();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double Rim2dGridProjection::calculateVolumeSum(uint i, uint j) const
+{
+    const std::vector<std::pair<size_t, float>>& matchingCells = cellsAtPos2d(i, j);
+    if (!matchingCells.empty())
+    {
+        double sum = 0.0;
+        for (auto cellIdxAndWeight : matchingCells)
+        {
+            // Sum only the volume intersection, not the result!
+            sum += cellIdxAndWeight.second;
+        }
+        return sum;
     }
     return std::numeric_limits<double>::infinity();
 }

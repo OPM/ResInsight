@@ -95,6 +95,7 @@ public:
 
 protected:
     double                                       calculateValue(uint i, uint j) const;
+    double                                       calculateVolumeSum(uint i, uint j) const;
 
     cvf::BoundingBox                             expandedBoundingBox() const;
     void                                         generateGridMapping();
