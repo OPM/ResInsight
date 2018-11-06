@@ -478,9 +478,9 @@ std::vector<RigCompletionDataGridCell> cellsIntersectingCompletion(const std::ma
     std::vector<RigCompletionDataGridCell> cells;
     for (const auto& intInfo : allCells)
     {
-        for (const auto& compl : intInfo.second)
+        for (const auto& completion : intInfo.second)
         {
-            if (compl.sourcePdmObject() == sourcePdmObject) cells.push_back(intInfo.first);
+            if (completion.sourcePdmObject() == sourcePdmObject) cells.push_back(intInfo.first);
         }
     }
     return cells;
