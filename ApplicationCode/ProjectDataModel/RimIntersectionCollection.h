@@ -72,6 +72,7 @@ public:
                                const cvf::ScalarMapper* scalarColorMapper, 
                                const RivTernaryScalarMapper* ternaryColorMapper);
     void appendPartsToModel(Rim3dView& view, cvf::ModelBasicList* model, cvf::Transform* scaleTransform);
+    void rebuildGeometry();
 
     std::vector<RimIntersection*>       intersections() const;
     std::vector<RimIntersectionBox*>    intersectionBoxes() const;

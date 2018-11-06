@@ -89,6 +89,7 @@ public:
 
     Rim2dIntersectionView*                               correspondingIntersectionView();
     RivIntersectionPartMgr*                              intersectionPartMgr();
+    void                                                 rebuildGeometry();
 
     std::vector <cvf::Vec3d>                             polyLinesForExtrusionDirection() const;
     void                                                 appendPointToExtrusionDirection(const cvf::Vec3d& point);

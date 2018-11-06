@@ -503,6 +503,14 @@ RivIntersectionPartMgr* RimIntersection::intersectionPartMgr()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimIntersection::rebuildGeometry()
+{
+    m_crossSectionPartMgr = nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 std::vector <cvf::Vec3d> RimIntersection::polyLinesForExtrusionDirection() const
 {
     return m_customExtrusionPoints;

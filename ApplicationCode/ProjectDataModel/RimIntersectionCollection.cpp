@@ -154,6 +154,22 @@ void RimIntersectionCollection::appendPartsToModel(Rim3dView& view, cvf::ModelBa
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimIntersectionCollection::rebuildGeometry()
+{
+    for (RimIntersection* intersection : m_intersections)
+    {
+        intersection->rebuildGeometry();
+    }
+
+    for (RimIntersectionBox* intersectionBox : m_intersectionBoxes)
+    {
+        intersectionBox->rebuildGeometry();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 std::vector<RimIntersection*> RimIntersectionCollection::intersections() const
 {
     return m_intersections.childObjects();

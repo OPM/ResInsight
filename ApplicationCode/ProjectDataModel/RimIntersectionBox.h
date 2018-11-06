@@ -70,8 +70,10 @@ public:
     SinglePlaneState                singlePlaneState() const; 
 
     bool                            show3dManipulator() const;
+    
     RivIntersectionBoxPartMgr*      intersectionBoxPartMgr();
     void                            appendManipulatorPartsToModel(cvf::ModelBasicList* model);
+    void                            rebuildGeometry();
 
     void                            setToDefaultSizeBox();
     void                            setToDefaultSizeSlice(SinglePlaneState plane, const cvf::Vec3d& position);
