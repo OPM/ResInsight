@@ -966,6 +966,15 @@ void RigCaseCellResultsData::createPlaceholderResultEntries()
         addStaticScalarResult(RiaDefines::STATIC_NATIVE, RiaDefines::riCellVolumeResultName(), false, 0);
     }
 
+    // Oil Volume
+    {
+        size_t soilIndex = findOrCreateScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, "SOIL", false);
+        if (soilIndex != cvf::UNDEFINED_SIZE_T)
+        {
+            findOrCreateScalarResultIndex(RiaDefines::GENERATED, RiaDefines::riOilVolumeResultName(), false);
+        }
+    }
+
 
     // Mobile Pore Volume
     {
@@ -1149,6 +1158,11 @@ size_t RigCaseCellResultsData::findOrLoadScalarResult(RiaDefines::ResultCatType 
     else if (resultName == RiaDefines::riCellVolumeResultName())
     {
         computeCellVolumes();
+    }
+    else if (resultName == RiaDefines::riOilVolumeResultName())
+    {
+        computeCellVolumes();
+        computeOilVolumes();
     }
     else if (resultName == RiaDefines::mobilePoreVolumeName())
     {
@@ -2437,6 +2451,39 @@ void RigCaseCellResultsData::computeCellVolumes()
         }
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigCaseCellResultsData::computeOilVolumes()
+{
+    size_t cellVolIdx = this->findOrCreateScalarResultIndex(RiaDefines::STATIC_NATIVE, RiaDefines::riCellVolumeResultName(), false);
+    const std::vector<double>& cellVolumeResults = this->cellScalarResults(cellVolIdx)[0];
+
+    size_t soilIdx = this->findOrLoadScalarResult(RiaDefines::DYNAMIC_NATIVE, "SOIL");
+    size_t oilVolIdx = this->findOrCreateScalarResultIndex(RiaDefines::GENERATED, RiaDefines::riOilVolumeResultName(), false);
+    this->cellScalarResults(oilVolIdx).resize(this->maxTimeStepCount());
+
+    size_t cellResultCount = m_activeCellInfo->reservoirCellResultCount();
+    for (size_t timeStepIdx = 0; timeStepIdx < this->maxTimeStepCount(); timeStepIdx++)
+    {
+        const std::vector<double>& soilResults = this->cellScalarResults(soilIdx)[timeStepIdx];
+        std::vector<double>& oilVolumeResults = this->cellScalarResults(oilVolIdx)[timeStepIdx];
+        oilVolumeResults.resize(cellResultCount, 0u);
+
+#pragma omp parallel for
+        for (int nativeResvCellIndex = 0; nativeResvCellIndex < static_cast<int>(m_ownerMainGrid->globalCellArray().size()); nativeResvCellIndex++)
+        {
+            size_t resultIndex = activeCellInfo()->cellResultIndex(nativeResvCellIndex);
+            if (resultIndex != cvf::UNDEFINED_SIZE_T)
+            {
+                CVF_ASSERT(soilResults.at(resultIndex) <= 1.01);
+                oilVolumeResults[resultIndex] = std::max(0.0, soilResults.at(resultIndex) * cellVolumeResults.at(resultIndex));
+            }
+        }
+    }
+}
+
 
 //--------------------------------------------------------------------------------------------------
 ///

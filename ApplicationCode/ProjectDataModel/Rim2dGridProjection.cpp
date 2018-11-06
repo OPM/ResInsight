@@ -253,6 +253,17 @@ void Rim2dGridProjection::generateResults()
                     m_aggregatedResults[index] = calculateVolumeSum(ij.x(), ij.y());
                 }
             }
+            else if (m_resultAggregation == RESULTS_SUM && view->cellResult()->resultVariable() == RiaDefines::riOilVolumeResultName())
+            {
+                resultData->findOrLoadScalarResultForTimeStep(RiaDefines::DYNAMIC_NATIVE, "SOIL", timeStep);
+
+#pragma omp parallel for
+                for (int index = 0; index < nVertices; ++index)
+                {
+                    cvf::Vec2ui ij = ijFromGridIndex(index);
+                    m_aggregatedResults[index] = calculateSoilSum(ij.x(), ij.y());
+                }
+            }
             else
             {
 #pragma omp parallel for
@@ -371,10 +382,17 @@ const std::vector<double>& Rim2dGridProjection::aggregatedResults() const
 //--------------------------------------------------------------------------------------------------
 bool Rim2dGridProjection::isSummationResult() const
 {
+    return isColumnResult() || m_resultAggregation() == RESULTS_SUM;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool Rim2dGridProjection::isColumnResult() const
+{
     return m_resultAggregation() == RESULTS_OIL_COLUMN ||
            m_resultAggregation() == RESULTS_GAS_COLUMN ||
-           m_resultAggregation() == RESULTS_HC_COLUMN ||
-           m_resultAggregation() == RESULTS_SUM;
+           m_resultAggregation() == RESULTS_HC_COLUMN;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -525,6 +543,27 @@ double Rim2dGridProjection::calculateVolumeSum(uint i, uint j) const
         return sum;
     }
     return std::numeric_limits<double>::infinity();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double Rim2dGridProjection::calculateSoilSum(uint i, uint j) const
+{
+    const std::vector<std::pair<size_t, float>>& matchingCells = cellsAtPos2d(i, j);
+    if (!matchingCells.empty())
+    {
+        double sum = 0.0;
+        for (auto cellIdxAndWeight : matchingCells)
+        {
+            size_t cellIdx = cellIdxAndWeight.first;
+            double cellValue = findSoilResult(cellIdx);
+            sum += cellValue * cellIdxAndWeight.second;
+        }
+        return sum;
+    }
+    return std::numeric_limits<double>::infinity();
+
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -715,59 +754,36 @@ std::vector<std::pair<size_t, float>> Rim2dGridProjection::visibleCellsAndWeight
     cvf::Vec3d topNECorner = top2dElementCentroid + planarDiagonalVector;
     cvf::Vec3d bottomSWCorner = bottom2dElementCentroid - planarDiagonalVector;
 
-    cvf::BoundingBox bbox2dElement;
-    bbox2dElement.add(topNECorner);
-    bbox2dElement.add(bottomSWCorner);
+    cvf::BoundingBox bbox2dElement(bottomSWCorner, topNECorner);
 
     std::vector<size_t> allCellIndices;
     mainGrid()->findIntersectingCells(bbox2dElement, &allCellIndices);
 
     std::vector<std::tuple<size_t, float, float>> matchingVisibleCellsWeightAndHeight;
 
-    double maxHeight = -std::numeric_limits<double>::infinity();
-    double minHeight = std::numeric_limits<double>::infinity();
-
-    double totalOverlapVolume = 0.0;
-    cvf::Vec3d hexCorners[8];
+    std::array<cvf::Vec3d, 8> hexCorners;
     for (size_t globalCellIdx : allCellIndices)
     {
         size_t       localCellIdx = 0u;
         RigGridBase* localGrid    = mainGrid()->gridAndGridLocalIdxFromGlobalCellIdx(globalCellIdx, &localCellIdx);
         if ((*m_cellGridIdxVisibilityMap.at(localGrid->gridIndex()))[localCellIdx])
         {
-            localGrid->cellCornerVertices(localCellIdx, hexCorners);
-            std::vector<HexIntersectionInfo> intersections;
-            cvf::BoundingBox cellBBox;
-            for (const cvf::Vec3d& corner : hexCorners)
-            {
-                cellBBox.add(corner);
-            }
-            cvf::Vec3d overlapMin, overlapMax;
-            for (int i = 0; i < 3; ++i)
-            {
-                overlapMin[i] = std::max(cellBBox.min()[i], bbox2dElement.min()[i]);
-                overlapMax[i] = std::min(cellBBox.max()[i], bbox2dElement.max()[i]);
-            }
-            cvf::Vec3d overlap = overlapMax - overlapMin;
-            double overlapVolume = 0.0;
-            if (overlap.x() > 0.0 && overlap.y() > 0.0 && overlap.z() > 0.0)
-            {
-                overlapVolume = overlap.x() * overlap.y() * overlap.z();
-            
-                double height = cellBBox.max().z();
-                matchingVisibleCellsWeightAndHeight.push_back(std::make_tuple(globalCellIdx, overlapVolume, height));
-                totalOverlapVolume += overlapVolume;
+            localGrid->cellCornerVertices(localCellIdx, hexCorners.data());
 
-                maxHeight = std::max(cellBBox.max().z(), maxHeight);
-                minHeight = std::min(cellBBox.min().z(), minHeight);
+            cvf::BoundingBox overlapBBox = createHexOverlapEstimation(bbox2dElement, &hexCorners);
+            
+            double overlapVolume = RigCellGeometryTools::calculateCellVolume(hexCorners);
+
+            if (overlapVolume > 0.0)
+            {            
+                double height = overlapBBox.max().z();
+                matchingVisibleCellsWeightAndHeight.push_back(std::make_tuple(globalCellIdx, overlapVolume, height));
             }
         }
     }
 
-    double chopped2dBBoxVolume = std::fabs(maxHeight - minHeight) * m_sampleSpacing * m_sampleSpacing;
-
     std::vector<std::pair<size_t, float>> matchingVisibleCellsAndWeight;
-    if (totalOverlapVolume > 0.0)
+    if (!matchingVisibleCellsWeightAndHeight.empty())
     {
         std::sort(matchingVisibleCellsWeightAndHeight.begin(),
             matchingVisibleCellsWeightAndHeight.end(),
@@ -775,13 +791,9 @@ std::vector<std::pair<size_t, float>> Rim2dGridProjection::visibleCellsAndWeight
             return std::get<2>(lhs) > std::get<2>(rhs);
         });
 
-        float adjustmentFactor = 1.0;
-        if (totalOverlapVolume > chopped2dBBoxVolume) // Don't scale up if overlap volume is smaller 2d extrusion!
-            adjustmentFactor = static_cast<float>(chopped2dBBoxVolume / totalOverlapVolume);
-        CVF_ASSERT(adjustmentFactor > 0.0f);
         for (const auto& visWeightHeight : matchingVisibleCellsWeightAndHeight)
         {
-            matchingVisibleCellsAndWeight.push_back(std::make_pair(std::get<0>(visWeightHeight), std::get<1>(visWeightHeight) * adjustmentFactor));
+            matchingVisibleCellsAndWeight.push_back(std::make_pair(std::get<0>(visWeightHeight), std::get<1>(visWeightHeight)));
         }
     }
 
@@ -841,6 +853,62 @@ double Rim2dGridProjection::findColumnResult(ResultAggregation resultAggregation
     }
 
     return resultValue * poro * ntg;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double Rim2dGridProjection::findSoilResult(size_t cellGlobalIdx) const
+{
+    const RigCaseCellResultsData* resultData = eclipseCase()->results(RiaDefines::MATRIX_MODEL);
+    const RigActiveCellInfo* activeCellInfo = eclipseCase()->eclipseCaseData()->activeCellInfo(RiaDefines::MATRIX_MODEL);
+    size_t cellResultIdx = activeCellInfo->cellResultIndex(cellGlobalIdx);
+
+    RimEclipseView* view = nullptr;
+    firstAncestorOrThisOfTypeAsserted(view);
+    int timeStep = view->currentTimeStep();
+
+    size_t soilResultIndex = resultData->findScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, "SOIL");
+    const std::vector<double>& soilResults = resultData->cellScalarResults(soilResultIndex)[timeStep];
+    if (cellResultIdx < soilResults.size())
+    {
+        return soilResults.at(cellResultIdx);
+    }
+    return 0.0;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+cvf::BoundingBox Rim2dGridProjection::createHexOverlapEstimation(const cvf::BoundingBox& bbox2dElement, std::array<cvf::Vec3d, 8>* hexCornersToModify) const
+{
+    std::array<cvf::Vec3d, 8>& hexCorners = *hexCornersToModify;
+    // A reasonable approximation to the overlap volume
+    cvf::Plane topPlane;    topPlane.setFromPoints(hexCorners[0], hexCorners[1], hexCorners[2]);
+    cvf::Plane bottomPlane; bottomPlane.setFromPoints(hexCorners[4], hexCorners[5], hexCorners[6]);
+
+    cvf::BoundingBox overlapBBox;
+    for (size_t i = 0; i < 4; ++i)
+    {
+        cvf::Vec3d& corner = hexCorners[i];
+        corner.x() = cvf::Math::clamp(corner.x(), bbox2dElement.min().x(), bbox2dElement.max().x());
+        corner.y() = cvf::Math::clamp(corner.y(), bbox2dElement.min().y(), bbox2dElement.max().y());
+        cvf::Vec3d maxZCorner = corner; maxZCorner.z() = bbox2dElement.max().z();
+        cvf::Vec3d minZCorner = corner; minZCorner.z() = bbox2dElement.min().z();
+        topPlane.intersect(maxZCorner, minZCorner, &corner);
+        overlapBBox.add(corner);
+    }
+    for (size_t i = 4; i < 8; ++i)
+    {
+        cvf::Vec3d& corner = hexCorners[i];
+        corner.x() = cvf::Math::clamp(corner.x(), bbox2dElement.min().x(), bbox2dElement.max().x());
+        corner.y() = cvf::Math::clamp(corner.y(), bbox2dElement.min().y(), bbox2dElement.max().y());
+        cvf::Vec3d maxZCorner = corner; maxZCorner.z() = bbox2dElement.max().z();
+        cvf::Vec3d minZCorner = corner; minZCorner.z() = bbox2dElement.min().z();
+        bottomPlane.intersect(maxZCorner, minZCorner, &corner);
+        overlapBBox.add(corner);
+    }
+    return overlapBBox;
 }
 
 //--------------------------------------------------------------------------------------------------

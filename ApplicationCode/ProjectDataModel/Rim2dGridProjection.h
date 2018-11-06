@@ -76,6 +76,7 @@ public:
     void                        updateDefaultSampleSpacingFromGrid();
     const std::vector<double>&  aggregatedResults() const;
     bool                        isSummationResult() const;
+    bool                        isColumnResult() const;
 
     double                      value(uint i, uint j) const;
 
@@ -96,6 +97,7 @@ public:
 protected:
     double                                       calculateValue(uint i, uint j) const;
     double                                       calculateVolumeSum(uint i, uint j) const;
+    double                                       calculateSoilSum(uint i, uint j) const;
 
     cvf::BoundingBox                             expandedBoundingBox() const;
     void                                         generateGridMapping();
@@ -108,7 +110,8 @@ protected:
 
     std::vector<std::pair<size_t, float>>        visibleCellsAndWeightMatching2dPoint(const cvf::Vec2d& globalPos2d) const;
     double                                       findColumnResult(ResultAggregation resultAggregation, size_t cellGlobalIdx) const;
-
+    double                                       findSoilResult(size_t cellGlobalIdx) const;
+    cvf::BoundingBox                             createHexOverlapEstimation(const cvf::BoundingBox& bbox2dElement, std::array<cvf::Vec3d, 8>* hexCornersToModify) const;
     const RimEclipseResultCase* eclipseCase() const;
     RigMainGrid*                mainGrid() const;
     

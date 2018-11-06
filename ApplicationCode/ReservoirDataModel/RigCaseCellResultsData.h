@@ -155,6 +155,7 @@ private: // from RimReservoirCellResultsStorage
     double                                             darchysValue();
 
     void                                               computeCellVolumes();
+    void                                               computeOilVolumes();
     void                                               computeMobilePV();
 
     bool                                               isDataPresent(size_t scalarResultIndex) const;
@@ -172,5 +173,5 @@ private:
 
     RigMainGrid*                                       m_ownerMainGrid;
     RigEclipseCaseData*                                m_ownerCaseData;
-    RigActiveCellInfo*                                 m_activeCellInfo;
+    RigActiveCellInfo*                                 m_activeCellInfo;    
 };

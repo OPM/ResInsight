@@ -85,6 +85,7 @@ namespace RiaDefines
     QString combinedRiAreaNormTranResultName();
 
     QString riCellVolumeResultName();
+    QString riOilVolumeResultName();
     QString mobilePoreVolumeName();
 
     QString completionTypeResultName();
