@@ -133,6 +133,17 @@ void RimGridInfo::fieldChangedByUi(const caf::PdmFieldHandle* changedField, cons
     rimView->scheduleCreateDisplayModelAndRedraw();
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGridInfo::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+{
+    uiOrdering.add(&m_gridName);
+    uiOrdering.add(&m_gridIndex);
+
+    uiOrdering.skipRemainingFields();
+}
+
 CAF_PDM_SOURCE_INIT(RimGridInfoCollection, "GridInfoCollection");
 
 //--------------------------------------------------------------------------------------------------
