@@ -401,7 +401,6 @@ const caf::ColorTable& RiaColorTables::summaryCurveNoneRedGreenBlueBrownPaletteC
 const caf::ColorTable& RiaColorTables::wellLogPlotPaletteColors()
 {
     static std::vector<cvf::Color3ub> colors{
-        caf::ColorTable::fromQColor(Qt::GlobalColor(Qt::black)),
         caf::ColorTable::fromQColor(Qt::GlobalColor(Qt::darkBlue)),
         caf::ColorTable::fromQColor(Qt::GlobalColor(Qt::darkRed)),
         caf::ColorTable::fromQColor(Qt::GlobalColor(Qt::darkGreen)),
@@ -415,7 +414,8 @@ const caf::ColorTable& RiaColorTables::wellLogPlotPaletteColors()
         caf::ColorTable::fromQColor(Qt::GlobalColor(Qt::yellow)),
         caf::ColorTable::fromQColor(Qt::GlobalColor(Qt::magenta)),
         caf::ColorTable::fromQColor(Qt::GlobalColor(Qt::cyan)),
-        caf::ColorTable::fromQColor(Qt::GlobalColor(Qt::gray))
+        caf::ColorTable::fromQColor(Qt::GlobalColor(Qt::gray)),
+        caf::ColorTable::fromQColor(Qt::GlobalColor(Qt::black))
     };
 
     static caf::ColorTable colorTable = caf::ColorTable(colors);
