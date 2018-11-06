@@ -186,10 +186,6 @@ void RicCreateTemporaryLgrFeature::setupActionLook(QAction* actionToSetup)
 //--------------------------------------------------------------------------------------------------
 void RicCreateTemporaryLgrFeature::createLgr(const LgrInfo& lgrInfo, RigMainGrid* mainGrid)
 {
-    auto app         = RiaApplication::instance();
-    auto eclipseView = dynamic_cast<RimEclipseView*>(app->activeReservoirView());
-    if (!eclipseView) return;
-
     int    lgrId          = lgrInfo.id;
     size_t totalCellCount = mainGrid->globalCellArray().size();
     size_t lgrCellCount   = lgrInfo.cellCount();
