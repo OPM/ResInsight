@@ -231,7 +231,7 @@ void RicCreateTemporaryLgrFeature::createLgr(const LgrInfo& lgrInfo, RigMainGrid
                 size_t mainI = lgrInfo.mainGridStartCell.i() + lgrI / lgrSizePerMainCell.i();
 
                 size_t mainCellIndex = mainGrid->cellIndexFromIJK(mainI, mainJ, mainK);
-                auto mainGridCell = mainGrid->globalCellArray()[mainCellIndex];
+                auto& mainGridCell = mainGrid->globalCellArray()[mainCellIndex];
                 mainGridCell.setSubGrid(localGrid);
 
                 RigCell& cell = mainGrid->globalCellArray()[cellStartIndex + gridLocalCellIndex];
