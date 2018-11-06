@@ -155,6 +155,11 @@ void Rim2dEclipseView::updateCurrentTimeStep()
         m_grid2dProjectionPartMgr->appendProjectionToModel(grid2dProjectionModelBasicList.p(), transForm.p());
         grid2dProjectionModelBasicList->updateBoundingBoxesRecursive();
         frameScene->addModel(grid2dProjectionModelBasicList.p());
+
+        if (m_overlayInfoConfig->isActive())
+        {
+            m_overlayInfoConfig()->update3DInfo();
+        }
     }
 }
 

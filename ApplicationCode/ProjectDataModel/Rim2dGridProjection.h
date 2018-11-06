@@ -73,7 +73,6 @@ public:
     double                      sampleSpacing() const;
     bool                        showContourLines() const;
 
-    void                        updateDefaultSampleSpacingFromGrid();
     const std::vector<double>&  aggregatedResults() const;
     bool                        isSummationResult() const;
     bool                        isColumnResult() const;
@@ -121,7 +120,7 @@ protected:
     void initAfterRead() override;
 
 protected:
-    caf::PdmField<double>                              m_sampleSpacing;
+    caf::PdmField<double>                              m_relativeSampleSpacing;
     caf::PdmField<ResultAggregation>                   m_resultAggregation;
     caf::PdmField<bool>                                m_showContourLines;
 

@@ -582,7 +582,7 @@ QString Rim3dOverlayInfoConfig::resultInfoText(const HistogramData& histData, Ri
         {
             QString propName = eclipseView->cellResult()->resultVariableUiShortName();
             infoText += QString("<b>Cell Property:</b> %1 ").arg(propName);
-            infoText += QString("<br><b>Statistics:</b> ");
+            infoText += QString("<br><b>Statistics:</b> Current Time Step and Visible Cells");
             infoText += QString("<table border=0 cellspacing=5 >"
                 "<tr> <td>Min</td> <td>Mean</td> <td>Max</td> <td>Sum</td> </tr>"
                 "<tr> <td>%1</td>  <td> %2</td> <td>  %3</td> <td> %4</td> </tr>"
@@ -814,26 +814,38 @@ void Rim3dOverlayInfoConfig::defineUiOrdering(QString uiConfigName, caf::PdmUiOr
 {
     caf::PdmUiGroup* visGroup = uiOrdering.addNewGroup("Visibility");
 
+    RimEclipseView * eclipseView = dynamic_cast<RimEclipseView*>(m_viewDef.p());
+    Rim2dEclipseView* contourMap = dynamic_cast<Rim2dEclipseView*>(eclipseView);
+    RimGeoMechView * geoMechView = dynamic_cast<RimGeoMechView*>(m_viewDef.p());
+
     visGroup->add(&m_showAnimProgress);
     visGroup->add(&m_showCaseInfo);
     visGroup->add(&m_showResultInfo);
-    RimGeoMechView * geoMechView = dynamic_cast<RimGeoMechView*>(m_viewDef.p());
-    if (!geoMechView)
+    if (!geoMechView && !contourMap)
     {
         visGroup->add(&m_showVolumeWeightedMean);
     }
 
-    visGroup->add(&m_showHistogram);
-
-    caf::PdmUiGroup* statGroup = uiOrdering.addNewGroup("Statistics Options");
-    RimEclipseView * eclipseView = dynamic_cast<RimEclipseView*>(m_viewDef.p());
-
-    if (!eclipseView || !eclipseView->cellResult()->isFlowDiagOrInjectionFlooding())
+    if (!contourMap)
     {
-        statGroup->add(&m_statisticsTimeRange);
+        visGroup->add(&m_showHistogram);
     }
-    statGroup->add(&m_statisticsCellRange);
 
+    if (contourMap)
+    {
+        m_statisticsTimeRange = Rim3dOverlayInfoConfig::CURRENT_TIMESTEP;
+        m_statisticsCellRange = Rim3dOverlayInfoConfig::VISIBLE_CELLS;
+    }
+    else
+    {
+        caf::PdmUiGroup* statGroup = uiOrdering.addNewGroup("Statistics Options");
+
+        if (!eclipseView || !eclipseView->cellResult()->isFlowDiagOrInjectionFlooding())
+        {
+            statGroup->add(&m_statisticsTimeRange);
+        }
+        statGroup->add(&m_statisticsCellRange);
+    }
     uiOrdering.skipRemainingFields(true);
 }
 

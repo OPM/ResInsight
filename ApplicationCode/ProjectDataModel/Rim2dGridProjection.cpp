@@ -64,8 +64,8 @@ Rim2dGridProjection::Rim2dGridProjection()
 {
     CAF_PDM_InitObject("Rim2dGridProjection", ":/draw_style_meshlines_24x24.png", "", "");
 
-    CAF_PDM_InitField(&m_sampleSpacing, "SampleSpacing", -1.0, "Sample Spacing", "", "", "");
-    m_sampleSpacing.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
+    CAF_PDM_InitField(&m_relativeSampleSpacing, "SampleSpacing", 0.75, "Sample Spacing Factor", "", "", "");
+    m_relativeSampleSpacing.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
 
     CAF_PDM_InitFieldNoDefault(&m_resultAggregation, "ResultAggregation", "Result Aggregation", "", "", "");
 
@@ -91,7 +91,7 @@ Rim2dGridProjection::~Rim2dGridProjection()
 cvf::BoundingBox Rim2dGridProjection::expandedBoundingBox() const
 {
     cvf::BoundingBox boundingBox = eclipseCase()->activeCellsBoundingBox();
-    boundingBox.expand(m_sampleSpacing * 0.5);
+    boundingBox.expand(sampleSpacing() * 0.5);
     return boundingBox;
 }
 
@@ -100,8 +100,6 @@ cvf::BoundingBox Rim2dGridProjection::expandedBoundingBox() const
 //--------------------------------------------------------------------------------------------------
 void Rim2dGridProjection::generateGridMapping()
 {
-    updateDefaultSampleSpacingFromGrid();
-
     calculateCellRangeVisibility();
     calculatePropertyFilterVisibility();
     
@@ -347,7 +345,7 @@ double Rim2dGridProjection::sumAllValues() const
 //--------------------------------------------------------------------------------------------------
 double Rim2dGridProjection::sampleSpacing() const
 {
-    return m_sampleSpacing;
+    return m_relativeSampleSpacing * mainGrid()->characteristicIJCellSize();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -356,17 +354,6 @@ double Rim2dGridProjection::sampleSpacing() const
 bool Rim2dGridProjection::showContourLines() const
 {
     return m_showContourLines();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void Rim2dGridProjection::updateDefaultSampleSpacingFromGrid()
-{
-    if (m_sampleSpacing < 0.0)
-    {
-        m_sampleSpacing = mainGrid()->characteristicIJCellSize() * 0.5;
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -590,8 +577,8 @@ cvf::Vec2ui Rim2dGridProjection::surfaceGridSize() const
     cvf::BoundingBox boundingBox = expandedBoundingBox();
     cvf::Vec3d gridExtent = boundingBox.extent();
 
-    uint projectionSizeX = static_cast<uint>(std::ceil(gridExtent.x() / m_sampleSpacing)) + 1u;
-    uint projectionSizeY = static_cast<uint>(std::ceil(gridExtent.y() / m_sampleSpacing)) + 1u;
+    uint projectionSizeX = static_cast<uint>(std::ceil(gridExtent.x() / sampleSpacing())) + 1u;
+    uint projectionSizeY = static_cast<uint>(std::ceil(gridExtent.y() / sampleSpacing())) + 1u;
 
     return cvf::Vec2ui(projectionSizeX, projectionSizeY);
 }
@@ -750,7 +737,7 @@ std::vector<std::pair<size_t, float>> Rim2dGridProjection::visibleCellsAndWeight
     cvf::BoundingBox gridBoundingBox = expandedBoundingBox();
     cvf::Vec3d top2dElementCentroid(globalPos2d, gridBoundingBox.max().z());
     cvf::Vec3d bottom2dElementCentroid(globalPos2d, gridBoundingBox.min().z());
-    cvf::Vec3d planarDiagonalVector(0.5 * m_sampleSpacing, 0.5 * m_sampleSpacing, 0.0);
+    cvf::Vec3d planarDiagonalVector(0.5 * sampleSpacing(), 0.5 * sampleSpacing(), 0.0);
     cvf::Vec3d topNECorner = top2dElementCentroid + planarDiagonalVector;
     cvf::Vec3d bottomSWCorner = bottom2dElementCentroid - planarDiagonalVector;
 
@@ -1073,14 +1060,13 @@ void Rim2dGridProjection::fieldChangedByUi(const caf::PdmFieldHandle* changedFie
 //--------------------------------------------------------------------------------------------------
 void Rim2dGridProjection::defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute)
 {    
-    if (&m_sampleSpacing == field)
+    if (&m_relativeSampleSpacing == field)
     {
         caf::PdmUiDoubleSliderEditorAttribute* myAttr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>(attribute);
         if (myAttr)
         {
-            double characteristicSize = mainGrid()->characteristicIJCellSize();
-            myAttr->m_minimum = 0.3333 * characteristicSize;
-            myAttr->m_maximum = 2.0 * characteristicSize;
+            myAttr->m_minimum = 0.5;
+            myAttr->m_maximum = 2.0;
         }        
     }
 }
