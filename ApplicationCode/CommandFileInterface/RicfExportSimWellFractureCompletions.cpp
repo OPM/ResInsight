@@ -18,6 +18,7 @@
 
 #include "RicfExportSimWellFractureCompletions.h"
 
+#include "RicfApplicationTools.h"
 #include "RicfCommandFileExecutor.h"
 
 #include "RiaApplication.h"
@@ -57,6 +58,8 @@ RicfExportSimWellFractureCompletions::RicfExportSimWellFractureCompletions()
 //--------------------------------------------------------------------------------------------------
 void RicfExportSimWellFractureCompletions::execute()
 {
+    using TOOLS = RicfApplicationTools;
+
     RimProject* project = RiaApplication::instance()->project();
     RicExportCompletionDataSettingsUi* exportSettings = project->dialogData()->exportCompletionData();
     
@@ -65,21 +68,13 @@ void RicfExportSimWellFractureCompletions::execute()
     exportSettings->compdatExport = m_compdatExport;
 
     {
-        bool foundCase = false;
-        for (RimEclipseCase* c : RiaApplication::instance()->project()->activeOilField()->analysisModels->cases())
-        {
-            if (c->caseId() == m_caseId())
-            {
-                exportSettings->caseToApply = c;
-                foundCase = true;
-                break;
-            }
-        }
-        if (!foundCase)
+        auto eclipseCase = TOOLS::caseFromId(m_caseId());
+        if (!eclipseCase)
         {
             RiaLogging::error(QString("exportSimWellCompletions: Could not find case with ID %1").arg(m_caseId()));
             return;
         }
+        exportSettings->caseToApply = eclipseCase;
     }
 
     QString exportFolder = RicfCommandFileExecutor::instance()->getExportPath(RicfCommandFileExecutor::COMPLETIONS);

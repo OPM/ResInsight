@@ -18,8 +18,8 @@
 
 #include "RicfExportLgrForCompletions.h"
 
+#include "RicfApplicationTools.h"
 #include "RicfCommandFileExecutor.h"
-#include "RicfCreateMultipleFractures.h"
 
 #include "ExportCommands/RicExportLgrFeature.h"
 
@@ -61,7 +61,20 @@ RicfExportLgrForCompletions::RicfExportLgrForCompletions()
 //--------------------------------------------------------------------------------------------------
 void RicfExportLgrForCompletions::execute()
 {
-    const auto wellPaths = RicfCreateMultipleFractures::wellPaths(m_wellPathNames);
+    using TOOLS = RicfApplicationTools;
+
+    std::vector<RimWellPath*> wellPaths;
+
+    // Find well paths
+    {
+        QStringList wellsNotFound;
+        wellPaths = TOOLS::wellPathsFromNames(TOOLS::toQStringList(m_wellPathNames), &wellsNotFound);
+        if (!wellsNotFound.empty())
+        {
+            RiaLogging::error(QString("exportLgrForCompletions: These well paths were not found: ") + wellsNotFound.join(", "));
+        }
+    }
+
     if (!wellPaths.empty())
     {
         QString exportFolder = RicfCommandFileExecutor::instance()->getExportPath(RicfCommandFileExecutor::LGRS);
@@ -73,21 +86,11 @@ void RicfExportLgrForCompletions::execute()
         caf::CmdFeatureManager*                 commandManager = caf::CmdFeatureManager::instance();
         auto feature = dynamic_cast<RicExportLgrFeature*>(commandManager->getCommandFeature("RicExportLgrFeature"));
 
-        RimEclipseCase* eclipseCase = nullptr;
+        RimEclipseCase* eclipseCase = TOOLS::caseFromId(m_caseId());
+        if (!eclipseCase)
         {
-            for (RimEclipseCase* c : RiaApplication::instance()->project()->activeOilField()->analysisModels->cases())
-            {
-                if (c->caseId() == m_caseId())
-                {
-                    eclipseCase = c;
-                    break;
-                }
-            }
-            if (!eclipseCase)
-            {
-                RiaLogging::error(QString("exportLgrForCompletions: Could not find case with ID %1").arg(m_caseId()));
-                return;
-            }
+            RiaLogging::error(QString("exportLgrForCompletions: Could not find case with ID %1").arg(m_caseId()));
+            return;
         }
 
         caf::VecIjk lgrCellCounts(m_refinementI, m_refinementJ, m_refinementK);

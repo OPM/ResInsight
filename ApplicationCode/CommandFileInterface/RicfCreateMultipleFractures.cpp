@@ -18,6 +18,7 @@
 
 #include "RicfCreateMultipleFractures.h"
 
+#include "RicfApplicationTools.h"
 #include "RicfCommandFileExecutor.h"
 
 #include "FractureCommands/RicCreateMultipleFracturesFeature.h"
@@ -75,13 +76,35 @@ RicfCreateMultipleFractures::RicfCreateMultipleFractures()
 //--------------------------------------------------------------------------------------------------
 void RicfCreateMultipleFractures::execute()
 {
+    using TOOLS = RicfApplicationTools;
+
     RimProject* project = RiaApplication::instance()->project();
     RiuCreateMultipleFractionsUi* settings = project->dialogData()->multipleFractionsData();
 
     // Get case and fracture template
-    auto gridCase = caseFromId(m_caseId);
+    auto gridCase = TOOLS::caseFromId(m_caseId);
     auto fractureTemplate = fractureTemplateFromId(m_templateId);
-    auto wellPaths = this->wellPaths(m_wellPathNames);
+    std::vector<RimWellPath*> wellPaths;
+
+    // Find well paths
+    {
+        QStringList wellsNotFound;
+        wellPaths = TOOLS::wellPathsFromNames(TOOLS::toQStringList(m_wellPathNames), &wellsNotFound);
+        if (!wellsNotFound.empty())
+        {
+            RiaLogging::error(QString("createMultipleFractures: These well paths were not found: ") + wellsNotFound.join(", "));
+        }
+    }
+
+    if (!gridCase)
+    {
+        RiaLogging::error(QString("createMultipleFractures: Could not find case with ID %1").arg(m_caseId));
+    }
+
+    if (!fractureTemplate)
+    {
+        RiaLogging::error(QString("createMultipleFractures: Could not find fracture template with ID %1").arg(m_templateId));
+    }
 
     if (gridCase && fractureTemplate && !wellPaths.empty() && validateArguments())
     {
@@ -138,20 +161,6 @@ bool RicfCreateMultipleFractures::validateArguments() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimEclipseCase* RicfCreateMultipleFractures::caseFromId(int caseId) const
-{
-    for (RimEclipseCase* c : RiaApplication::instance()->project()->activeOilField()->analysisModels->cases())
-    {
-        if (c->caseId() == caseId)  return c;
-    }
-
-    RiaLogging::error(QString("createMultipleFractures: Could not find case with ID %1").arg(caseId));
-    return nullptr;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 RimFractureTemplate* RicfCreateMultipleFractures::fractureTemplateFromId(int templateId) const
 {
     for (RimFractureTemplate* t : RiaApplication::instance()->project()->allFractureTemplates())
@@ -162,35 +171,3 @@ RimFractureTemplate* RicfCreateMultipleFractures::fractureTemplateFromId(int tem
     RiaLogging::error(QString("createMultipleFractures: Could not find fracture template with ID %1").arg(templateId));
     return nullptr;
 }
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-std::vector<RimWellPath*> RicfCreateMultipleFractures::wellPaths(const std::vector<QString>& wellPathNames)
-{
-    std::vector<RimWellPath*> wellPaths;
-    auto allWellPaths = RiaApplication::instance()->project()->allWellPaths();
-
-    if (!wellPathNames.empty())
-    {
-        std::set<QString> wellPathNameSet(wellPathNames.begin(), wellPathNames.end());
-
-        for (auto wellPath : allWellPaths)
-        {
-            if (!RiaWellNameComparer::tryMatchNameInList(wellPath->name(), wellPathNames).isEmpty())
-                wellPaths.push_back(wellPath);
-        }
-    }
-    else
-    {
-        wellPaths = allWellPaths;
-    }
-
-    if (wellPaths.empty() || wellPaths.size() < wellPathNames.size())
-    {
-        RiaLogging::error(QString("createMultipleFractures: One or more well paths was not found"));
-        std::this_thread::sleep_for(std::chrono::seconds(2));
-    }
-    return wellPaths;
-}
-

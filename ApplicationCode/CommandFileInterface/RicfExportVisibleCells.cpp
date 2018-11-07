@@ -20,6 +20,7 @@
 
 #include "RiaFilePathTools.h"
 
+#include "RicfApplicationTools.h"
 #include "RicfCommandFileExecutor.h"
 #include "ExportCommands/RicSaveEclipseInputVisibleCellsFeature.h"
 #include "ExportCommands/RicSaveEclipseInputVisibleCellsUi.h"
@@ -80,7 +81,7 @@ void RicfExportVisibleCells::execute()
         return;
     }
 
-    auto eclipseView = viewFromCaseIdAndViewName(m_caseId, m_viewName);
+    auto eclipseView = RicfApplicationTools::viewFromCaseIdAndViewName(m_caseId, m_viewName);
     if (!eclipseView)
     {
         RiaLogging::error(QString("exportVisibleCells: Could not find view '%1' in case ID %2").arg(m_viewName).arg(m_caseId));
@@ -96,29 +97,6 @@ void RicfExportVisibleCells::execute()
     RicSaveEclipseInputVisibleCellsUi exportSettings;
     buildExportSettings(exportFolder, &exportSettings);
     RicSaveEclipseInputVisibleCellsFeature::executeCommand(eclipseView, exportSettings, "exportVisibleCells");
-}
-
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RimEclipseView* RicfExportVisibleCells::viewFromCaseIdAndViewName(int caseId, const QString& viewName)
-{
-    for (RimEclipseCase* c : RiaApplication::instance()->project()->activeOilField()->analysisModels->cases())
-    {
-        if (c->caseId() == caseId)
-        {
-            for (auto v : c->views())
-            {
-                auto eclipseView = dynamic_cast<RimEclipseView*>(v);
-                if (eclipseView && eclipseView->name().compare(viewName, Qt::CaseInsensitive) == 0)
-                {
-                    return eclipseView;
-                }
-            }
-        }
-    }
-    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

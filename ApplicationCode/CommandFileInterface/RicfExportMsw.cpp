@@ -18,6 +18,7 @@
 
 #include "RicfExportMsw.h"
 
+#include "RicfApplicationTools.h"
 #include "RicfCommandFileExecutor.h"
 
 #include "RiaApplication.h"
@@ -50,25 +51,15 @@ RicfExportMsw::RicfExportMsw()
 //--------------------------------------------------------------------------------------------------
 void RicfExportMsw::execute()
 {
+    using TOOLS = RicfApplicationTools;
+
     RicCaseAndFileExportSettingsUi exportSettings;
 
+    auto eclipseCase = TOOLS::caseFromId(m_caseId());
+    if (!eclipseCase)
     {
-        bool foundCase = false;
-        for (RimEclipseCase* c : RiaApplication::instance()->project()->activeOilField()->analysisModels->cases())
-        {
-            if (c->caseId() == m_caseId())
-            {
-                exportSettings.caseToApply = c;
-                foundCase = true;
-                break;
-            }
-        }
-
-        if (!foundCase)
-        {
-            RiaLogging::error(QString("exportMsw: Could not find case with ID %1.").arg(m_caseId()));
-            return;
-        }
+        RiaLogging::error(QString("exportMsw: Could not find case with ID %1.").arg(m_caseId()));
+        return;
     }
 
     QString exportFolder = RicfCommandFileExecutor::instance()->getExportPath(RicfCommandFileExecutor::COMPLETIONS);
@@ -78,7 +69,7 @@ void RicfExportMsw::execute()
     }
     exportSettings.folder = exportFolder;
 
-    RimWellPath* wellPath = RiaApplication::instance()->project()->activeOilField()->wellPathCollection->wellPathByName(m_wellPathName);
+    RimWellPath* wellPath = RiaApplication::instance()->project()->wellPathByName(m_wellPathName);
     if (!wellPath)
     {
         RiaLogging::error(QString("exportMsw: Could not find well path with name %1").arg(m_wellPathName()));

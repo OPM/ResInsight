@@ -18,38 +18,27 @@
 
 #pragma once
 
-#include "RiaDefines.h"
+#include <QString>
+#include <vector>
 
-#include "RicfCommandObject.h"
-
-#include "cafPdmField.h"
-
+class RimEclipseCase;
 class RimEclipseView;
-class RicSaveEclipseInputVisibleCellsUi;
+class RimWellPath;
+class QStringList;
 
 //==================================================================================================
 //
 //
 //
 //==================================================================================================
-class RicfExportVisibleCells : public RicfCommandObject
+class RicfApplicationTools
 {
-    CAF_PDM_HEADER_INIT;
-
-    enum ExportKeyword {FLUXNUM, MULTNUM};
-
 public:
-    RicfExportVisibleCells();
+    static std::vector<RimWellPath*> wellPathsFromNames(const QStringList& wellPathNames,
+                                                        QStringList*       wellsNotFound);
+    static RimEclipseCase*           caseFromId(int caseId);
+    static RimEclipseView*           viewFromCaseIdAndViewName(int caseId, const QString& viewName);
 
-    void execute() override;
-
-private:
-    void buildExportSettings(const QString& exportFolder, RicSaveEclipseInputVisibleCellsUi* exportSettings);
-
-    caf::PdmField<int>                          m_caseId;
-    caf::PdmField<QString>                      m_viewName;
-    caf::PdmField<caf::AppEnum<ExportKeyword>>  m_exportKeyword;
-    caf::PdmField<int>                          m_visibleActiveCellsValue;
-    caf::PdmField<int>                          m_hiddenActiveCellsValue;
-    caf::PdmField<int>                          m_inactiveCellsValue;
+    static std::vector<QString> toStringVector(const QStringList& stringList);
+    static QStringList          toQStringList(const std::vector<QString>& v);
 };

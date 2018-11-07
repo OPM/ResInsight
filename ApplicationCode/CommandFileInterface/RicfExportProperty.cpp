@@ -22,6 +22,7 @@
 #include "RiaLogging.h"
 
 #include "../Commands/ExportCommands/RicEclipseCellResultToFileImpl.h"
+#include "RicfApplicationTools.h"
 #include "RicfCommandFileExecutor.h"
 
 #include "RifEclipseInputFileTools.h"
@@ -61,21 +62,10 @@ RicfExportProperty::RicfExportProperty()
 //--------------------------------------------------------------------------------------------------
 void RicfExportProperty::execute()
 {
-    RimEclipseCase* eclipseCase = nullptr;
+    using TOOLS = RicfApplicationTools;
+
+    RimEclipseCase* eclipseCase = TOOLS::caseFromId(m_caseId());
     {
-        std::vector<RimCase*> cases;
-        RiaApplication::instance()->project()->allCases(cases);
-
-        for (auto* c : cases)
-        {
-            RimEclipseCase* eclCase = dynamic_cast<RimEclipseCase*>(c);
-            if (eclCase->caseId == m_caseId)
-            {
-                eclipseCase = eclCase;
-                break;
-            }
-        }
-
         if (!eclipseCase)
         {
             RiaLogging::error(QString("exportProperty: Could not find case with ID %1").arg(m_caseId()));

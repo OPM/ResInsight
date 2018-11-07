@@ -50,11 +50,9 @@ public:
     RicfCreateMultipleFractures();
 
     void execute() override;
-    static std::vector<RimWellPath*>   wellPaths(const std::vector<QString>& wellPathNames);
 
 private:
     bool                        validateArguments() const;
-    RimEclipseCase*             caseFromId(int caseId)const ;
     RimFractureTemplate*        fractureTemplateFromId(int templateId) const;
 
     caf::PdmField<int>                      m_caseId;

@@ -19,7 +19,7 @@
 #include "RicfCreateLgrForCompletions.h"
 
 #include "RicfCommandFileExecutor.h"
-#include "RicfCreateMultipleFractures.h"
+#include "RicfApplicationTools.h"
 
 #include "RicDeleteTemporaryLgrsFeature.h"
 #include "RicCreateTemporaryLgrFeature.h"
@@ -61,7 +61,20 @@ RicfCreateLgrForCompletions::RicfCreateLgrForCompletions()
 //--------------------------------------------------------------------------------------------------
 void RicfCreateLgrForCompletions::execute()
 {
-    const auto wellPaths = RicfCreateMultipleFractures::wellPaths(m_wellPathNames);
+    using TOOLS = RicfApplicationTools;
+
+    std::vector<RimWellPath*> wellPaths;
+
+    // Find well paths
+    {
+        QStringList wellsNotFound;
+        wellPaths = TOOLS::wellPathsFromNames(TOOLS::toQStringList(m_wellPathNames), &wellsNotFound);
+        if (!wellsNotFound.empty())
+        {
+            RiaLogging::error(QString("createLgrForCompletions: These well paths were not found: ") + wellsNotFound.join(", "));
+        }
+    }
+
     if (!wellPaths.empty())
     {
         caf::CmdFeatureManager* commandManager = caf::CmdFeatureManager::instance();

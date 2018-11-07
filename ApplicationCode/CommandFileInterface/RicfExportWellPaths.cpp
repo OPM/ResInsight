@@ -19,7 +19,7 @@
 #include "RicfExportWellPaths.h"
 
 #include "RicfCommandFileExecutor.h"
-#include "RicfCreateMultipleFractures.h"
+#include "RicfApplicationTools.h"
 
 #include "ExportCommands/RicExportSelectedWellPathsFeature.h"
 
@@ -54,7 +54,20 @@ RicfExportWellPaths::RicfExportWellPaths()
 //--------------------------------------------------------------------------------------------------
 void RicfExportWellPaths::execute()
 {
-    const auto wellPaths = RicfCreateMultipleFractures::wellPaths(m_wellPathNames);
+    using TOOLS = RicfApplicationTools;
+
+    std::vector<RimWellPath*> wellPaths;
+
+    // Find well paths
+    {
+        QStringList wellsNotFound;
+        wellPaths = TOOLS::wellPathsFromNames(TOOLS::toQStringList(m_wellPathNames), &wellsNotFound);
+        if (!wellsNotFound.empty())
+        {
+            RiaLogging::error(QString("exportWellPaths: These well paths were not found: ") + wellsNotFound.join(", "));
+        }
+    }
+
     if (!wellPaths.empty())
     {
         QString exportFolder = RicfCommandFileExecutor::instance()->getExportPath(RicfCommandFileExecutor::WELLPATHS);

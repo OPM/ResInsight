@@ -18,6 +18,7 @@
 
 #include "RicfExportWellPathCompletions.h"
 
+#include "RicfApplicationTools.h"
 #include "RicfCommandFileExecutor.h"
 
 #include "RiaApplication.h"
@@ -66,6 +67,8 @@ RicfExportWellPathCompletions::RicfExportWellPathCompletions()
 //--------------------------------------------------------------------------------------------------
 void RicfExportWellPathCompletions::execute()
 {
+    using TOOLS = RicfApplicationTools;
+
     RimProject* project = RiaApplication::instance()->project();
     RicExportCompletionDataSettingsUi* exportSettings = project->dialogData()->exportCompletionData();
     
@@ -95,21 +98,13 @@ void RicfExportWellPathCompletions::execute()
     exportSettings->setCombinationMode(m_combinationMode());
 
     {
-        bool foundCase = false;
-        for (RimEclipseCase* c : RiaApplication::instance()->project()->activeOilField()->analysisModels->cases())
-        {
-            if (c->caseId() == m_caseId())
-            {
-                exportSettings->caseToApply = c;
-                foundCase = true;
-                break;
-            }
-        }
-        if (!foundCase)
+        auto eclipseCase = TOOLS::caseFromId(m_caseId());
+        if (!eclipseCase)
         {
             RiaLogging::error(QString("exportWellPathCompletions: Could not find case with ID %1").arg(m_caseId()));
             return;
         }
+        exportSettings->caseToApply = eclipseCase;
     }
 
     QString exportFolder = RicfCommandFileExecutor::instance()->getExportPath(RicfCommandFileExecutor::COMPLETIONS);
