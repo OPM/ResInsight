@@ -67,8 +67,70 @@
 
 #include <algorithm>
 #include <limits>
+#include <set>
 
 CAF_CMD_SOURCE_INIT(RicCreateTemporaryLgrFeature, "RicCreateTemporaryLgrFeature");
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicCreateTemporaryLgrFeature::createLgrsForWellPath(RimWellPath*                                       wellPath,
+                                                         RimEclipseCase*                                    eclipseCase,
+                                                         size_t                                             timeStep,
+                                                         caf::VecIjk                                        lgrCellCounts,
+                                                         Lgr::SplitType                                     splitType,
+                                                         const std::set<RigCompletionData::CompletionType>& completionTypes,
+                                                         bool*                                              intersectingOtherLgrs)
+{
+    auto               eclipseCaseData        = eclipseCase->eclipseCaseData();
+    RigActiveCellInfo* activeCellInfo         = eclipseCaseData->activeCellInfo(RiaDefines::MATRIX_MODEL);
+    RigActiveCellInfo* fractureActiveCellInfo = eclipseCaseData->activeCellInfo(RiaDefines::FRACTURE_MODEL);
+    bool               intersectingLgrs       = false;
+
+    auto lgrs = RicExportLgrFeature::buildLgrsForWellPath(
+        wellPath, eclipseCase, timeStep, lgrCellCounts, splitType, completionTypes, &intersectingLgrs);
+
+    if (intersectingLgrs) *intersectingOtherLgrs = true;
+
+    for (const auto& lgr : lgrs)
+    {
+        createLgr(lgr, eclipseCase->eclipseCaseData()->mainGrid());
+
+        size_t lgrCellCount = lgr.cellCount();
+
+        activeCellInfo->addLgr(lgrCellCount);
+        if (fractureActiveCellInfo->reservoirActiveCellCount() > 0)
+        {
+            fractureActiveCellInfo->addLgr(lgrCellCount);
+        }
+    }
+}
+
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicCreateTemporaryLgrFeature::updateViews(RimEclipseCase* eclipseCase)
+{
+    RiaApplication::clearAllSelections();
+
+    deleteAllCachedData(eclipseCase);
+    RiaApplication::instance()->project()->mainPlotCollection()->deleteAllCachedData();
+    computeCachedData(eclipseCase);
+
+    RiaApplication::instance()->project()->mainPlotCollection()->wellLogPlotCollection()->reloadAllPlots();
+
+    for (const auto& v : eclipseCase->views())
+    {
+        RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>(v);
+        if (eclipseView)
+        {
+            eclipseView->scheduleReservoirGridGeometryRegen();
+        }
+
+        v->loadDataAndUpdate();
+    }
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -107,65 +169,26 @@ void RicCreateTemporaryLgrFeature::onActionTriggered(bool isChecked)
         auto   lgrCellCounts   = dialogData->lgrCellCount();
         size_t timeStep        = dialogData->timeStep();
         auto   splitType       = dialogData->splitType();
-        auto   completionTypes = dialogData->completionTypes();
+        const auto completionTypes = dialogData->completionTypes();
 
-        auto               eclipseCaseData        = eclipseCase->eclipseCaseData();
-        RigActiveCellInfo* activeCellInfo         = eclipseCaseData->activeCellInfo(RiaDefines::MATRIX_MODEL);
-        RigActiveCellInfo* fractureActiveCellInfo = eclipseCaseData->activeCellInfo(RiaDefines::FRACTURE_MODEL);
-
-        bool intersectingOtherLgr = false;
+        bool intersectingOtherLgrs = false;
         for (const auto& wellPath : wellPaths)
         {
             bool intersectingLgrs = false;
+            createLgrsForWellPath(wellPath,
+                                  eclipseCase,
+                                  timeStep,
+                                  lgrCellCounts,
+                                  splitType,
+                                  completionTypes,
+                                  &intersectingLgrs);
 
-            auto lgrs = RicExportLgrFeature::buildLgrsForWellPath(wellPath,
-                                                                  eclipseCase,
-                                                                  timeStep,
-                                                                  lgrCellCounts,
-                                                                  splitType,
-                                                                  completionTypes,
-                                                                  &intersectingLgrs);
-
-            if (intersectingLgrs) intersectingOtherLgr = true;
-
-            auto mainGrid = eclipseCase->eclipseCaseData()->mainGrid();
-
-            for (auto lgr : lgrs)
-            {
-                createLgr(lgr, eclipseCase->eclipseCaseData()->mainGrid());
-
-                size_t lgrCellCount = lgr.cellCount();
-
-                activeCellInfo->addLgr(lgrCellCount);
-                if (fractureActiveCellInfo->reservoirActiveCellCount() > 0)
-                {
-                    fractureActiveCellInfo->addLgr(lgrCellCount);
-                }
-            }
-
-            mainGrid->calculateFaults(activeCellInfo);
+            if (intersectingLgrs) intersectingOtherLgrs = true;
         }
 
-        RiaApplication::clearAllSelections();
+        updateViews(eclipseCase);
 
-        deleteAllCachedData(eclipseCase);
-        RiaApplication::instance()->project()->mainPlotCollection()->deleteAllCachedData();
-        computeCachedData(eclipseCase);
-
-        RiaApplication::instance()->project()->mainPlotCollection()->wellLogPlotCollection()->reloadAllPlots();
-
-        for (const auto& v : eclipseCase->views())
-        {
-            RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>(v);
-            if (eclipseView)
-            {
-                eclipseView->scheduleReservoirGridGeometryRegen();
-            }
-            
-            v->loadDataAndUpdate();
-        }
-
-        if (intersectingOtherLgr)
+        if (intersectingOtherLgrs)
         {
             QMessageBox::warning(nullptr,
                                  "LGR cells intersected",

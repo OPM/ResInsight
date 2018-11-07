@@ -25,6 +25,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RicfExportWellPaths.h
 ${CMAKE_CURRENT_LIST_DIR}/RicfExportVisibleCells.h
 ${CMAKE_CURRENT_LIST_DIR}/RicfExportPropertyInViews.h
 ${CMAKE_CURRENT_LIST_DIR}/RicfExportLgrForCompletions.h
+${CMAKE_CURRENT_LIST_DIR}/RicfCreateLgrForCompletions.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -53,6 +54,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RicfExportWellPaths.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicfExportVisibleCells.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicfExportPropertyInViews.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicfExportLgrForCompletions.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicfCreateLgrForCompletions.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

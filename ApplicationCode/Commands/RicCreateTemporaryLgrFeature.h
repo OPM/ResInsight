@@ -18,7 +18,9 @@
 
 #pragma once
 
+#include "ExportCommands/RicLgrSplitType.h"
 #include "RigCompletionDataGridCell.h"
+#include "RigCompletionData.h"
 
 #include "cafCmdFeature.h"
 #include "cafVecIjk.h"
@@ -43,14 +45,25 @@ class RicCreateTemporaryLgrFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
 
+public:
+    void createLgrsForWellPath(RimWellPath*                                       wellPath,
+                               RimEclipseCase*                                    eclipseCase,
+                               size_t                                             timeStep,
+                               caf::VecIjk                                        lgrCellCounts,
+                               Lgr::SplitType                                     splitType,
+                               const std::set<RigCompletionData::CompletionType>& completionTypes,
+                               bool*                                              intersectingOtherLgrs);
+
+    void updateViews(RimEclipseCase* eclipseCase);
+
 protected:
     bool isCommandEnabled() override;
     void onActionTriggered(bool isChecked) override;
     void setupActionLook(QAction* actionToSetup) override;
 
 private:
-    static void createLgr(const LgrInfo& lgrInfo, RigMainGrid* mainGrid);
-    static void computeCachedData(RimEclipseCase* eclipseCase);
-    static void deleteAllCachedData(RimEclipseCase* eclipseCase);
-    static bool containsAnyNonMainGridCells(const std::vector<RigCompletionDataGridCell>& cells);
+    void createLgr(const LgrInfo& lgrInfo, RigMainGrid* mainGrid);
+    void computeCachedData(RimEclipseCase* eclipseCase);
+    void deleteAllCachedData(RimEclipseCase* eclipseCase);
+    bool containsAnyNonMainGridCells(const std::vector<RigCompletionDataGridCell>& cells);
 };
