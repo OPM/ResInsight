@@ -108,9 +108,10 @@ public:
 
     void            allCases(std::vector<RimCase*>& cases) const;
 
-    std::vector<RimSummaryCase*>    allSummaryCases() const;
+    std::vector<RimEclipseCase*>           allEclipseCases() const;
+    std::vector<RimSummaryCase*>           allSummaryCases() const;
     std::vector<RimSummaryCaseCollection*> summaryGroups() const;
-    RimSummaryCaseMainCollection*   firstSummaryCaseMainCollection() const;
+    RimSummaryCaseMainCollection*          firstSummaryCaseMainCollection() const;
 
     void            allVisibleViews(std::vector<Rim3dView*>& views);
     void            allVisibleGridViews(std::vector<RimGridView*>& views);

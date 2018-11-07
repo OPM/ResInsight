@@ -580,6 +580,27 @@ void RimProject::allCases(std::vector<RimCase*>& cases) const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+std::vector<RimEclipseCase*> RimProject::allEclipseCases() const
+{
+    std::vector<RimEclipseCase*> eclCases;
+
+    std::vector<RimCase*> cases;
+    allCases(cases);
+    for (RimCase* c : cases)
+    {
+        RimEclipseCase* eclCase = dynamic_cast<RimEclipseCase*>(c);
+        if (eclCase)
+        {
+            eclCases.push_back(eclCase);
+        }
+    }
+
+    return eclCases;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 std::vector<RimSummaryCase*> RimProject::allSummaryCases() const
 {
     std::vector<RimSummaryCase*> sumCases;
