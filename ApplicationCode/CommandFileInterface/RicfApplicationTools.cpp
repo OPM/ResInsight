@@ -22,10 +22,10 @@
 #include "RiaLogging.h"
 #include "RiaWellNameComparer.h"
 
-#include "RimProject.h"
-#include "RimWellPath.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
+#include "RimProject.h"
+#include "RimWellPath.h"
 
 #include <QStringList>
 
