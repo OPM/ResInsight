@@ -19,6 +19,8 @@
 
 #include "RicDeleteTemporaryLgrsFeature.h"
 
+#include "RiaApplication.h"
+
 #include "RimEclipseCase.h"
 #include "RimGridCollection.h"
 
@@ -34,6 +36,8 @@ CAF_CMD_SOURCE_INIT(RicDeleteTemporaryLgrsFeature, "RicDeleteTemporaryLgrsFeatur
 //--------------------------------------------------------------------------------------------------
 void RicDeleteTemporaryLgrsFeature::deleteAllTemporaryLgrs(RimEclipseCase* eclipseCase)
 {
+    RiaApplication::clearAllSelections();
+
     if (eclipseCase) eclipseCase->reloadDataAndUpdate();
 }
 
