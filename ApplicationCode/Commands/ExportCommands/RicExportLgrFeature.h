@@ -43,11 +43,12 @@ class LgrInfo
 {
 public:
     LgrInfo(int id,
-            const QString&name,
+            const QString& name,
+            const QString& shortName,
             const caf::VecIjk& sizes,
             const caf::VecIjk& mainGridStartCell,
             const caf::VecIjk& mainGridEndCell)
-        : id(id), name(name), sizes(sizes), mainGridStartCell(mainGridStartCell), mainGridEndCell(mainGridEndCell)
+        : id(id), name(name), shortName(shortName), sizes(sizes), mainGridStartCell(mainGridStartCell), mainGridEndCell(mainGridEndCell)
     {
     }
 
@@ -65,6 +66,7 @@ public:
 
     int                 id;
     QString             name;
+    QString             shortName;
     caf::VecIjk         sizes;
 
     caf::VecIjk         mainGridStartCell;
@@ -168,6 +170,7 @@ private:
                                           const caf::VecIjk&                                                      lgrSizesPerMainGridCell);
     static LgrInfo buildLgr(int                                           lgrId,
                             const QString&                                lgrName,
+                            const QString&                                shortLgrName,
                             RimEclipseCase*                               eclipseCase,
                             const std::vector<RigCompletionDataGridCell>& intersectingCells,
                             const caf::VecIjk&                            lgrSizesPerMainGridCell);
@@ -186,4 +189,5 @@ private:
 
     static int firstAvailableLgrId(const RigMainGrid* mainGrid);
     static QString createLgrName(const QString& baseName, int number = 0);
+    static QString createShortLgrName(const QString& baseName, int number);
 };
