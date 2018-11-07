@@ -48,7 +48,7 @@ CAF_PDM_SOURCE_INIT(RicfCreateLgrForCompletions, "createLgrForCompletions");
 RicfCreateLgrForCompletions::RicfCreateLgrForCompletions()
 {
     RICF_InitField(&m_caseId, "caseId", -1, "Case ID", "", "", "");
-    RICF_InitField(&m_timeStep, "timeStep", -1, "Time Step Index", "", "", "");
+    RICF_InitField(&m_timeStep, "timeStep", 0, "Time Step Index", "", "", "");
     RICF_InitField(&m_wellPathNames, "wellPathNames", std::vector<QString>(), "Well Path Names", "", "", "");
     RICF_InitField(&m_refinementI, "refinementI", -1, "RefinementI", "", "", "");
     RICF_InitField(&m_refinementJ, "refinementJ", -1, "RefinementJ", "", "", "");
