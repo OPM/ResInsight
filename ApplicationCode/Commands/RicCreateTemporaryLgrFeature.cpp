@@ -23,6 +23,7 @@
 #include "RiaCompletionTypeCalculationScheduler.h"
 #include "RiaLogging.h"
 
+#include "RicDeleteTemporaryLgrsFeature.h"
 #include "CompletionExportCommands/RicWellPathExportCompletionDataFeature.h"
 #include "ExportCommands/RicExportLgrFeature.h"
 #include "ExportCommands/RicExportLgrUi.h"
@@ -170,6 +171,8 @@ void RicCreateTemporaryLgrFeature::onActionTriggered(bool isChecked)
         size_t timeStep        = dialogData->timeStep();
         auto   splitType       = dialogData->splitType();
         const auto completionTypes = dialogData->completionTypes();
+
+        RicDeleteTemporaryLgrsFeature::deleteAllTemporaryLgrs(eclipseCase);
 
         bool intersectingOtherLgrs = false;
         for (const auto& wellPath : wellPaths)

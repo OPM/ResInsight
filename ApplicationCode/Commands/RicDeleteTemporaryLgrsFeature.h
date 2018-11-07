@@ -21,9 +21,13 @@
 
 #include "cafCmdFeature.h"
 
+class RimEclipseCase;
+
 class RicDeleteTemporaryLgrsFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
+
+    static void deleteAllTemporaryLgrs(RimEclipseCase* eclipseCase);
 
 protected:
     bool isCommandEnabled() override;

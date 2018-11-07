@@ -21,6 +21,7 @@
 #include "RicfCommandFileExecutor.h"
 #include "RicfCreateMultipleFractures.h"
 
+#include "RicDeleteTemporaryLgrsFeature.h"
 #include "RicCreateTemporaryLgrFeature.h"
 #include "ExportCommands/RicExportLgrFeature.h"
 
@@ -82,6 +83,8 @@ void RicfCreateLgrForCompletions::execute()
                 return;
             }
         }
+
+        RicDeleteTemporaryLgrsFeature::deleteAllTemporaryLgrs(eclipseCase);
 
         caf::VecIjk lgrCellCounts(m_refinementI, m_refinementJ, m_refinementK);
         QStringList wellsWithIntersectingLgrs;

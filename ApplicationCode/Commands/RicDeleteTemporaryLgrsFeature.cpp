@@ -30,6 +30,14 @@
 CAF_CMD_SOURCE_INIT(RicDeleteTemporaryLgrsFeature, "RicDeleteTemporaryLgrsFeature");
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicDeleteTemporaryLgrsFeature::deleteAllTemporaryLgrs(RimEclipseCase* eclipseCase)
+{
+    if (eclipseCase) eclipseCase->reloadDataAndUpdate();
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 bool RicDeleteTemporaryLgrsFeature::isCommandEnabled()
@@ -49,7 +57,7 @@ void RicDeleteTemporaryLgrsFeature::onActionTriggered(bool isChecked)
         RimEclipseCase* eclipseCase;
         selGridInfos.front()->firstAncestorOrThisOfType(eclipseCase);
 
-        if (eclipseCase) eclipseCase->reloadDataAndUpdate();
+        deleteAllTemporaryLgrs(eclipseCase);
     }
 }
 
