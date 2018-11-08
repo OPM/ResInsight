@@ -21,6 +21,27 @@
 #include "RigCellGeometryTools.h"
 #include "RigMainGrid.h"
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+TEST(RigCellGeometryTools, calculateCellVolumeTest)
+{
+    cvf::BoundingBox bbox(cvf::Vec3d(1.0, -2.0, 5.0), cvf::Vec3d(200.0, 3.0, 1500.0));
+    cvf::Vec3d extent = bbox.extent();
+    double bboxVolume = extent.x() * extent.y() * extent.z();
+
+    std::array<cvf::Vec3d, 8> cornerVertices;
+    bbox.cornerVertices(cornerVertices.data());    
+
+    EXPECT_DOUBLE_EQ(bboxVolume, RigCellGeometryTools::calculateCellVolume(cornerVertices));
+
+    cornerVertices[1].x() += 100.0;
+    cornerVertices[2].x() += 100.0;
+
+    double extraVolume = 0.5 * extent.z() * 100 * extent.y();
+
+    EXPECT_DOUBLE_EQ(bboxVolume + extraVolume, RigCellGeometryTools::calculateCellVolume(cornerVertices));
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 

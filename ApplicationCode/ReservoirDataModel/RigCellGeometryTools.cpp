@@ -78,8 +78,8 @@ double RigCellGeometryTools::calculateCellVolume(const std::array<cvf::Vec3d, 8>
     // 2 flops for summation + 1 for division = 3 flops
     double volume = (det1 + det2 + det3) / 12.0;
     
-    // Assume 0 in volume for degenerate cells. 1 flop.
-    return std::max(0.0, volume); // Altogether 18 + 3*17 + 3 + 1 flops = 73 flops.
+    // In order for this to work in any rotation of the cell, we need the absolute value. 1 flop.
+    return std::abs(volume); // Altogether 18 + 3*17 + 3 + 1 flops = 73 flops.
 }
 
 //--------------------------------------------------------------------------------------------------
