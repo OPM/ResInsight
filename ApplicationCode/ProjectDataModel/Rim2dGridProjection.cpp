@@ -671,6 +671,9 @@ std::vector<std::pair<size_t, double>> Rim2dGridProjection::visibleCellsAndWeigh
     std::vector<std::tuple<size_t, double, double>> matchingVisibleCellsWeightAndHeight;
 
     std::array<cvf::Vec3d, 8> hexCorners;
+    double sumOverlapVolumes = 0.0;
+    double maxHeight = -std::numeric_limits<double>::infinity();
+    double minHeight = std::numeric_limits<double>::infinity();
     for (size_t globalCellIdx : allCellIndices)
     {
         if ((*m_cellGridIdxVisibility)[globalCellIdx])
@@ -689,9 +692,27 @@ std::vector<std::pair<size_t, double>> Rim2dGridProjection::visibleCellsAndWeigh
             {            
                 double height = overlapBBox.max().z();
                 matchingVisibleCellsWeightAndHeight.push_back(std::make_tuple(globalCellIdx, overlapVolume, height));
+                sumOverlapVolumes += overlapVolume;
+                maxHeight = std::max(maxHeight, height);
+                minHeight = std::min(minHeight, overlapBBox.min().z());
             }
         }
     }
+
+    cvf::Vec3d improvedBottomSwCorner = bottomSWCorner; improvedBottomSwCorner.z() = minHeight;
+    cvf::Vec3d improvedTopNECorner    = topNECorner;    improvedTopNECorner.z()    = maxHeight;
+    cvf::BoundingBox improvedBbox2dElement = cvf::BoundingBox(improvedBottomSwCorner, improvedTopNECorner);
+    cvf::Vec3d improvedBboxExtent = improvedBbox2dElement.extent();
+    double improvedBboxVolume = improvedBboxExtent.x() * improvedBboxExtent.y() * improvedBboxExtent.z();
+
+    double volAdjustmentFactor = 1.0;
+    
+    if (sumOverlapVolumes > improvedBboxVolume)
+    {
+        // Total volume weights for 2d Element should never be larger than the volume of the extruded 2d element.
+        volAdjustmentFactor = improvedBboxVolume / sumOverlapVolumes;
+    }
+    
 
     std::vector<std::pair<size_t, double>> matchingVisibleCellsAndWeight;
     if (!matchingVisibleCellsWeightAndHeight.empty())
@@ -704,7 +725,7 @@ std::vector<std::pair<size_t, double>> Rim2dGridProjection::visibleCellsAndWeigh
 
         for (const auto& visWeightHeight : matchingVisibleCellsWeightAndHeight)
         {
-            matchingVisibleCellsAndWeight.push_back(std::make_pair(std::get<0>(visWeightHeight), std::get<1>(visWeightHeight)));
+            matchingVisibleCellsAndWeight.push_back(std::make_pair(std::get<0>(visWeightHeight), std::get<1>(visWeightHeight) * volAdjustmentFactor));
         }
     }
 
