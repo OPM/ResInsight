@@ -684,7 +684,7 @@ std::vector<std::pair<size_t, double>> Rim2dGridProjection::visibleCellsAndWeigh
             localGrid->cellCornerVertices(localCellIdx, hexCorners.data());
 
             cvf::BoundingBox overlapBBox;
-            std::array<cvf::Vec3d, 8> overlapCorners = createHexOverlapEstimation(bbox2dElement, hexCorners, &overlapBBox);
+            std::array<cvf::Vec3d, 8> overlapCorners = RigCellGeometryTools::estimateHexOverlapWithBoundingBox(hexCorners, bbox2dElement, &overlapBBox);
             
             double overlapVolume = RigCellGeometryTools::calculateCellVolume(overlapCorners);
 
@@ -813,41 +813,6 @@ double Rim2dGridProjection::findSoilResult(size_t cellGlobalIdx) const
         return soilResults.at(cellResultIdx);
     }
     return 0.0;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::array<cvf::Vec3d, 8> Rim2dGridProjection::createHexOverlapEstimation(const cvf::BoundingBox& bbox2dElement, const std::array<cvf::Vec3d, 8>& hexCorners, cvf::BoundingBox* overlapBoundingBox) const
-{
-    CVF_ASSERT(overlapBoundingBox);
-    *overlapBoundingBox = cvf::BoundingBox();
-    std::array<cvf::Vec3d, 8> overlapCorners = hexCorners;
-    // A reasonable approximation to the overlap volume
-    cvf::Plane topPlane;    topPlane.setFromPoints(hexCorners[0], hexCorners[1], hexCorners[2]);
-    cvf::Plane bottomPlane; bottomPlane.setFromPoints(hexCorners[4], hexCorners[5], hexCorners[6]);
-
-    for (size_t i = 0; i < 4; ++i)
-    {
-        cvf::Vec3d& corner = overlapCorners[i];
-        corner.x() = cvf::Math::clamp(corner.x(), bbox2dElement.min().x(), bbox2dElement.max().x());
-        corner.y() = cvf::Math::clamp(corner.y(), bbox2dElement.min().y(), bbox2dElement.max().y());
-        cvf::Vec3d maxZCorner = corner; maxZCorner.z() = bbox2dElement.max().z();
-        cvf::Vec3d minZCorner = corner; minZCorner.z() = bbox2dElement.min().z();
-        topPlane.intersect(maxZCorner, minZCorner, &corner);
-        overlapBoundingBox->add(corner);
-    }
-    for (size_t i = 4; i < 8; ++i)
-    {
-        cvf::Vec3d& corner = overlapCorners[i];
-        corner.x() = cvf::Math::clamp(corner.x(), bbox2dElement.min().x(), bbox2dElement.max().x());
-        corner.y() = cvf::Math::clamp(corner.y(), bbox2dElement.min().y(), bbox2dElement.max().y());
-        cvf::Vec3d maxZCorner = corner; maxZCorner.z() = bbox2dElement.max().z();
-        cvf::Vec3d minZCorner = corner; minZCorner.z() = bbox2dElement.min().z();
-        bottomPlane.intersect(maxZCorner, minZCorner, &corner);
-        overlapBoundingBox->add(corner);
-    }
-    return overlapCorners;
 }
 
 //--------------------------------------------------------------------------------------------------

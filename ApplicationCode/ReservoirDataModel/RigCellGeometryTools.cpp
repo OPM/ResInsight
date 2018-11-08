@@ -27,6 +27,8 @@
 
 #include "clipper/clipper.hpp"
 
+#include "cvfMath.h"
+
 #include <vector>
 #include <array>
 
@@ -80,6 +82,43 @@ double RigCellGeometryTools::calculateCellVolume(const std::array<cvf::Vec3d, 8>
     
     // In order for this to work in any rotation of the cell, we need the absolute value. 1 flop.
     return std::abs(volume); // Altogether 18 + 3*17 + 3 + 1 flops = 73 flops.
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::array<cvf::Vec3d, 8> RigCellGeometryTools::estimateHexOverlapWithBoundingBox(const std::array<cvf::Vec3d, 8>& hexCorners, const cvf::BoundingBox& boundingBox, cvf::BoundingBox* overlapBoundingBox)
+{
+    CVF_ASSERT(overlapBoundingBox);
+    *overlapBoundingBox = cvf::BoundingBox();
+    std::array<cvf::Vec3d, 8> overlapCorners = hexCorners;
+    // A reasonable approximation to the overlap volume
+    cvf::Plane topPlane;    topPlane.setFromPoints(hexCorners[0], hexCorners[1], hexCorners[2]);
+    cvf::Plane bottomPlane; bottomPlane.setFromPoints(hexCorners[4], hexCorners[5], hexCorners[6]);
+
+    for (size_t i = 0; i < 4; ++i)
+    {
+        cvf::Vec3d& corner = overlapCorners[i];
+        corner.x() = cvf::Math::clamp(corner.x(), boundingBox.min().x(), boundingBox.max().x());
+        corner.y() = cvf::Math::clamp(corner.y(), boundingBox.min().y(), boundingBox.max().y());
+        corner.z() = cvf::Math::clamp(corner.z(), boundingBox.min().z(), boundingBox.max().z());
+        cvf::Vec3d maxZCorner = corner; maxZCorner.z() = boundingBox.max().z();
+        cvf::Vec3d minZCorner = corner; minZCorner.z() = boundingBox.min().z();
+        topPlane.intersect(minZCorner, maxZCorner, &corner);
+        overlapBoundingBox->add(corner);
+    }
+    for (size_t i = 4; i < 8; ++i)
+    {
+        cvf::Vec3d& corner = overlapCorners[i];
+        corner.x() = cvf::Math::clamp(corner.x(), boundingBox.min().x(), boundingBox.max().x());
+        corner.y() = cvf::Math::clamp(corner.y(), boundingBox.min().y(), boundingBox.max().y());
+        corner.z() = cvf::Math::clamp(corner.z(), boundingBox.min().z(), boundingBox.max().z());
+        cvf::Vec3d maxZCorner = corner; maxZCorner.z() = boundingBox.max().z();
+        cvf::Vec3d minZCorner = corner; minZCorner.z() = boundingBox.min().z();
+        bottomPlane.intersect(minZCorner, maxZCorner, &corner);
+        overlapBoundingBox->add(corner);
+    }
+    return overlapCorners;
 }
 
 //--------------------------------------------------------------------------------------------------
