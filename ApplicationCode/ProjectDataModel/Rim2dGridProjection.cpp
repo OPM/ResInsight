@@ -699,20 +699,26 @@ std::vector<std::pair<size_t, double>> Rim2dGridProjection::visibleCellsAndWeigh
         }
     }
 
-    cvf::Vec3d improvedBottomSwCorner = bottomSWCorner; improvedBottomSwCorner.z() = minHeight;
-    cvf::Vec3d improvedTopNECorner    = topNECorner;    improvedTopNECorner.z()    = maxHeight;
-    cvf::BoundingBox improvedBbox2dElement = cvf::BoundingBox(improvedBottomSwCorner, improvedTopNECorner);
-    cvf::Vec3d improvedBboxExtent = improvedBbox2dElement.extent();
-    double improvedBboxVolume = improvedBboxExtent.x() * improvedBboxExtent.y() * improvedBboxExtent.z();
-
     double volAdjustmentFactor = 1.0;
-    
-    if (sumOverlapVolumes > improvedBboxVolume)
+
+    if (sumOverlapVolumes > 0.0)
     {
-        // Total volume weights for 2d Element should never be larger than the volume of the extruded 2d element.
-        volAdjustmentFactor = improvedBboxVolume / sumOverlapVolumes;
+        cvf::Vec3d improvedBottomSwCorner = bottomSWCorner;
+        improvedBottomSwCorner.z()        = minHeight;
+
+        cvf::Vec3d improvedTopNECorner = topNECorner;
+        improvedTopNECorner.z()        = maxHeight;
+
+        cvf::BoundingBox improvedBbox2dElement = cvf::BoundingBox(improvedBottomSwCorner, improvedTopNECorner);
+        cvf::Vec3d       improvedBboxExtent    = improvedBbox2dElement.extent();
+        double           improvedBboxVolume    = improvedBboxExtent.x() * improvedBboxExtent.y() * improvedBboxExtent.z();
+
+        if (sumOverlapVolumes > improvedBboxVolume)
+        {
+            // Total volume weights for 2d Element should never be larger than the volume of the extruded 2d element.
+            volAdjustmentFactor = improvedBboxVolume / sumOverlapVolumes;
+        }
     }
-    
 
     std::vector<std::pair<size_t, double>> matchingVisibleCellsAndWeight;
     if (!matchingVisibleCellsWeightAndHeight.empty())
