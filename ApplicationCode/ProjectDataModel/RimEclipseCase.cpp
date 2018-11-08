@@ -311,67 +311,6 @@ RimEclipseView* RimEclipseCase::createCopyAndAddView(const RimEclipseView* sourc
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-Rim2dEclipseView* RimEclipseCase::create2dContourMapFrom3dView(const RimEclipseView* sourceView)
-{
-    Rim2dEclipseView* contourMap = dynamic_cast<Rim2dEclipseView*>(sourceView->xmlCapability()->copyAndCastByXmlSerialization(
-        Rim2dEclipseView::classKeywordStatic(), sourceView->classKeyword(), caf::PdmDefaultObjectFactory::instance()));
-    CVF_ASSERT(contourMap);
-
-    contourMap->setEclipseCase(this);
-    contourMap->setBackgroundColor(cvf::Color3f(1.0f, 1.0f, 0.98f)); // Ignore original view background
-
-    caf::PdmDocument::updateUiIconStateRecursively(contourMap);
-
-    size_t i = m_2dContourMapCollection->views().size();
-    contourMap->setName(QString("Contour Map %1").arg(i + 1));
-    m_2dContourMapCollection->push_back(contourMap);
-
-    // Resolve references after contour map has been inserted into Rim structures
-    contourMap->resolveReferencesRecursively();
-    contourMap->initAfterReadRecursively();
-
-    return contourMap;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-Rim2dEclipseView* RimEclipseCase::create2dContourMap()
-{
-    Rim2dEclipseView* contourMap = new Rim2dEclipseView();
-    contourMap->setEclipseCase(this);
-
-    // Set default values
-    {
-        contourMap->cellResult()->setResultType(RiaDefines::DYNAMIC_NATIVE);
-
-        if (RiaApplication::instance()->preferences()->loadAndShowSoil)
-        {
-            contourMap->cellResult()->setResultVariable("SOIL");
-        }
-
-        contourMap->hasUserRequestedAnimation = true;
-
-        contourMap->cellEdgeResult()->setResultVariable("MULT");
-        contourMap->cellEdgeResult()->setActive(false);
-        contourMap->fractureColors()->setDefaultResultName();
-        contourMap->setBackgroundColor(cvf::Color3f(1.0f, 1.0f, 0.98f));
-        contourMap->initAfterReadRecursively();
-        contourMap->zoomAll();
-    }
-
-    caf::PdmDocument::updateUiIconStateRecursively(contourMap);
-
-    size_t i = m_2dContourMapCollection->views().size();
-    contourMap->setName(QString("Contour Map %1").arg(i + 1));
-    m_2dContourMapCollection->push_back(contourMap);
-
-    return contourMap;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 const RigVirtualPerforationTransmissibilities* RimEclipseCase::computeAndGetVirtualPerforationTransmissibilities()
 {
     RigEclipseCaseData* rigEclipseCase = eclipseCaseData();
@@ -631,6 +570,14 @@ void RimEclipseCase::computeCachedData()
 RimCaseCollection* RimEclipseCase::parentCaseCollection()
 {
     return dynamic_cast<RimCaseCollection*>(this->parentField()->ownerObject());
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+Rim2dEclipseViewCollection* RimEclipseCase::contourMapCollection()
+{
+    return m_2dContourMapCollection;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -20,13 +20,19 @@
 
 #include "Rim2dEclipseView.h"
 #include "Rim2dEclipseViewCollection.h"
+#include "RimCellEdgeColors.h"
 #include "RimEclipseView.h"
 #include "RimEclipseCase.h"
+#include "RimEclipseCellColors.h"
 #include "Rim3dView.h"
 
 #include "Riu3DMainWindowTools.h"
-#include "RiaLogging.h"
 
+#include "RiaApplication.h"
+#include "RiaLogging.h"
+#include "RiaPreferences.h"
+
+#include "cafPdmDocument.h"
 #include "cafSelectionManager.h"
 
 #include <QAction>
@@ -56,11 +62,11 @@ void RicNew2dContourViewFeature::onActionTriggered(bool isChecked)
     // Find case to insert into
     if (reservoirView)
     {
-        contourMap = eclipseCase->create2dContourMapFrom3dView(reservoirView);
+        contourMap = create2dContourMapFrom3dView(eclipseCase, reservoirView);
     }
     else if (eclipseCase)
     {
-        contourMap = eclipseCase->create2dContourMap();
+        contourMap = create2dContourMap(eclipseCase);
     }
 
     if (contourMap)
@@ -97,3 +103,60 @@ void RicNew2dContourViewFeature::setupActionLook(QAction* actionToSetup)
     }
     actionToSetup->setIcon(QIcon(":/2DMap16x16.png"));
 }    
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+Rim2dEclipseView* RicNew2dContourViewFeature::create2dContourMapFrom3dView(RimEclipseCase* eclipseCase, const RimEclipseView* sourceView)
+{
+    Rim2dEclipseView* contourMap = dynamic_cast<Rim2dEclipseView*>(sourceView->xmlCapability()->copyAndCastByXmlSerialization(
+        Rim2dEclipseView::classKeywordStatic(), sourceView->classKeyword(), caf::PdmDefaultObjectFactory::instance()));
+    CVF_ASSERT(contourMap);
+
+    contourMap->setEclipseCase(eclipseCase);
+    contourMap->setBackgroundColor(cvf::Color3f(1.0f, 1.0f, 0.98f)); // Ignore original view background
+
+    caf::PdmDocument::updateUiIconStateRecursively(contourMap);
+
+    size_t i = eclipseCase->contourMapCollection()->views().size();
+    contourMap->setName(QString("Contour Map %1").arg(i + 1));
+    eclipseCase->contourMapCollection()->push_back(contourMap);
+
+    // Resolve references after contour map has been inserted into Rim structures
+    contourMap->resolveReferencesRecursively();
+    contourMap->initAfterReadRecursively();
+
+    return contourMap;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+Rim2dEclipseView* RicNew2dContourViewFeature::create2dContourMap(RimEclipseCase* eclipseCase)
+{
+    Rim2dEclipseView* contourMap = new Rim2dEclipseView();
+    contourMap->setEclipseCase(eclipseCase);
+
+    // Set default values
+    {
+        contourMap->cellResult()->setResultType(RiaDefines::DYNAMIC_NATIVE);
+
+        if (RiaApplication::instance()->preferences()->loadAndShowSoil)
+        {
+            contourMap->cellResult()->setResultVariable("SOIL");
+        }
+
+        contourMap->hasUserRequestedAnimation = true;
+        contourMap->setBackgroundColor(cvf::Color3f(1.0f, 1.0f, 0.98f));
+        contourMap->initAfterReadRecursively();
+        contourMap->zoomAll();
+    }
+
+    caf::PdmDocument::updateUiIconStateRecursively(contourMap);
+
+    size_t i = eclipseCase->contourMapCollection()->views().size();
+    contourMap->setName(QString("Contour Map %1").arg(i + 1));
+    eclipseCase->contourMapCollection()->push_back(contourMap);
+
+    return contourMap;
+}

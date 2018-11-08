@@ -21,6 +21,10 @@
 
 #include "cafCmdFeature.h"
 
+class RimEclipseCase;
+class Rim2dEclipseView;
+class RimEclipseView;
+
 //==================================================================================================
 /// 
 //==================================================================================================
@@ -33,4 +37,8 @@ protected:
     bool isCommandEnabled() override;
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
+
+    static Rim2dEclipseView* create2dContourMapFrom3dView(RimEclipseCase* eclipseCase, const RimEclipseView* reservoirView);
+    static Rim2dEclipseView* create2dContourMap(RimEclipseCase* eclipseCase);
+
 };

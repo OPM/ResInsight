@@ -87,8 +87,6 @@ public:
                                                       
     RimEclipseView*                             createAndAddReservoirView();
     RimEclipseView*                             createCopyAndAddView(const RimEclipseView* sourceView);
-    Rim2dEclipseView*                           create2dContourMapFrom3dView(const RimEclipseView* reservoirView);
-    Rim2dEclipseView*                           create2dContourMap();
 
     const RigVirtualPerforationTransmissibilities*  computeAndGetVirtualPerforationTransmissibilities();
 
@@ -97,7 +95,8 @@ public:
 
 
     RimCaseCollection*                          parentCaseCollection();
-                                                     
+    Rim2dEclipseViewCollection*                 contourMapCollection();
+
     QStringList                         timeStepStrings() const override;
     QString                             timeStepName(int frameIdx) const override;
     std::vector<QDateTime>              timeStepDates() const override;
