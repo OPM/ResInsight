@@ -140,6 +140,8 @@ void RimEclipsePropertyFilter::fieldChangedByUi(const caf::PdmFieldHandle* chang
         || &m_selectedCategoryValues == changedField
         || &m_useCategorySelection == changedField)
     {
+        this->resultDefinition->loadResult();
+        this->computeResultValueRange();
         updateFilterName();
         this->updateIconState();
         this->uiCapability()->updateConnectedEditors();

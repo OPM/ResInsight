@@ -72,8 +72,11 @@ void RimEclipsePropertyFilterCollection::loadAndInitializePropertyFilters()
         RimEclipsePropertyFilter* propertyFilter = propertyFilters[i];
         propertyFilter->resultDefinition->setEclipseCase(reservoirView()->eclipseCase());
         propertyFilter->initAfterRead();
-        propertyFilter->resultDefinition->loadResult();
-        propertyFilter->computeResultValueRange();
+        if (isActive() && propertyFilter->isActive())
+        {
+            propertyFilter->resultDefinition->loadResult();
+            propertyFilter->computeResultValueRange();
+        }
     }
 }
 
