@@ -141,7 +141,7 @@ private:
     caf::PdmField<QString>                      m_filesContainingFaultsSemColSeparated;
     caf::PdmField<bool>                         m_releaseResultMemory;
 
-    caf::PdmChildField<Rim2dEclipseViewCollection*> m_2dContourMapsCollection;
+    caf::PdmChildField<Rim2dEclipseViewCollection*> m_2dContourMapCollection;
 
     cvf::ref<RigEclipseCaseData>                m_rigEclipseCase;
     QString                                     m_timeStepFormatString;
