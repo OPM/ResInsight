@@ -508,8 +508,8 @@ QString Rim3dOverlayInfoConfig::caseInfoText(RimEclipseView* eclipseView)
 
             infoText += QString(
                 "<p><b>-- %1 --</b><p>  "
-                "<b>Cell count. Total:</b> %2 <b>Valid Result:</b> %3 <br>"
-                "<b>2d Projection [%4] I,J, Aggregation Type:</b> %5, %6 <br>").arg(caseName, totCellCount, activeCellCountText, aggregationType, iSize, jSize);
+                "<b>2d Sample Count. Total:</b> %2 <b>Valid Result:</b> %3 <br>"
+                "<b>2d %4 Projection, 2d Grid I,J:</b> %5, %6 <br>").arg(caseName, totCellCount, activeCellCountText, aggregationType, iSize, jSize);
         }
         else if (eclipseView->mainGrid())
         {

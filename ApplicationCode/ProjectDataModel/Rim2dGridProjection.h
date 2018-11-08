@@ -100,17 +100,16 @@ protected:
 
     cvf::BoundingBox                             expandedBoundingBox() const;
     void                                         generateGridMapping();
-    void                                         calculateCellRangeVisibility();
-    void                                         calculatePropertyFilterVisibility();
+    void                                         calculateTotalCellVisibility();
     cvf::Vec2d                                   globalPos2d(uint i, uint j) const;
-    const std::vector<std::pair<size_t, float>>& cellsAtPos2d(uint i, uint j) const;
+    const std::vector<std::pair<size_t, double>>& cellsAtPos2d(uint i, uint j) const;
     std::vector<double>                          xPositions() const;
     std::vector<double>                          yPositions() const;
 
-    std::vector<std::pair<size_t, float>>        visibleCellsAndWeightMatching2dPoint(const cvf::Vec2d& globalPos2d) const;
+    std::vector<std::pair<size_t, double>>        visibleCellsAndWeightMatching2dPoint(const cvf::Vec2d& globalPos2d) const;
     double                                       findColumnResult(ResultAggregation resultAggregation, size_t cellGlobalIdx) const;
     double                                       findSoilResult(size_t cellGlobalIdx) const;
-    cvf::BoundingBox                             createHexOverlapEstimation(const cvf::BoundingBox& bbox2dElement, std::array<cvf::Vec3d, 8>* hexCornersToModify) const;
+    std::array<cvf::Vec3d, 8>                    createHexOverlapEstimation(const cvf::BoundingBox& boundingBox2dExtrusion, const std::array<cvf::Vec3d, 8>& hexCorners, cvf::BoundingBox* overlapBoundingBox) const;
     const RimEclipseResultCase* eclipseCase() const;
     RigMainGrid*                mainGrid() const;
     
@@ -124,10 +123,10 @@ protected:
     caf::PdmField<ResultAggregation>                   m_resultAggregation;
     caf::PdmField<bool>                                m_showContourLines;
 
-    std::map<size_t, cvf::ref<cvf::UByteArray>>        m_cellGridIdxVisibilityMap;
+    cvf::ref<cvf::UByteArray>                          m_cellGridIdxVisibility;
 
-    std::vector<double>                                m_aggregatedResults;
-    std::vector<std::vector<std::pair<size_t, float>>> m_projected3dGridIndices;
+    std::vector<double>                                 m_aggregatedResults;
+    std::vector<std::vector<std::pair<size_t, double>>> m_projected3dGridIndices;
 
     cvf::ref<RigResultAccessor>                        m_resultAccessor;
 };

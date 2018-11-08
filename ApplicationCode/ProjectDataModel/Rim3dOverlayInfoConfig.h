@@ -58,8 +58,9 @@ class Rim3dOverlayInfoConfig : public caf::PdmObject
         double sum;
         double weightedMean;
         const std::vector<size_t>* histogram;
+        bool isValid(double parameter) { return parameter != HUGE_VAL && parameter != -HUGE_VAL; }
 
-        bool isValid() { return histogram && histogram->size() > 0 && min != HUGE_VAL && max != HUGE_VAL; }
+        bool isValid() { return histogram && histogram->size() > 0 && isValid(min) && isValid(max); }
     };
 
 public:

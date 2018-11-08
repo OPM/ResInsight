@@ -102,6 +102,7 @@ public:
 
     void                                               createPlaceholderResultEntries();
     void                                               computeDepthRelatedResults();
+    void                                               computeCellVolumes();
 
     void                                               clearScalarResult(RiaDefines::ResultCatType type, const QString & resultName);
     void                                               clearScalarResult(const RigEclipseResultInfo& resultInfo);
@@ -154,7 +155,6 @@ private: // from RimReservoirCellResultsStorage
     void                                               computeCompletionTypeForTimeStep(size_t timeStep);
     double                                             darchysValue();
 
-    void                                               computeCellVolumes();
     void                                               computeOilVolumes();
     void                                               computeMobilePV();
 

@@ -341,6 +341,7 @@ void RicCreateTemporaryLgrFeature::computeCachedData(RimEclipseCase* eclipseCase
         if (cellResultsDataMatrix)
         {
             cellResultsDataMatrix->computeDepthRelatedResults();
+            cellResultsDataMatrix->computeCellVolumes();
         }
 
         if (cellResultsDataFracture)

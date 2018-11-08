@@ -215,13 +215,14 @@ bool RimEclipseInputCase::openEclipseGridFile()
         loadAndSyncronizeInputProperties();
     }
 
-    
     RiaApplication* app = RiaApplication::instance();
     if (app->preferences()->autocomputeDepthRelatedProperties)
     {
         results(RiaDefines::MATRIX_MODEL)->computeDepthRelatedResults();
         results(RiaDefines::FRACTURE_MODEL)->computeDepthRelatedResults();
     }
+
+    results(RiaDefines::MATRIX_MODEL)->computeCellVolumes();
 
     return true;
  }

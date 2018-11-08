@@ -859,6 +859,15 @@ void RigCaseCellResultsData::createPlaceholderResultEntries()
         }
     }
 
+    // Oil Volume
+    {
+        size_t soilIndex = findOrCreateScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, "SOIL", false);
+        if (soilIndex != cvf::UNDEFINED_SIZE_T)
+        {
+            findOrCreateScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, RiaDefines::riOilVolumeResultName(), false);
+        }
+    }
+
     // Completion type
     {
         size_t completionTypeIndex = findScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, RiaDefines::completionTypeResultName());
@@ -965,16 +974,6 @@ void RigCaseCellResultsData::createPlaceholderResultEntries()
     {
         addStaticScalarResult(RiaDefines::STATIC_NATIVE, RiaDefines::riCellVolumeResultName(), false, 0);
     }
-
-    // Oil Volume
-    {
-        size_t soilIndex = findOrCreateScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, "SOIL", false);
-        if (soilIndex != cvf::UNDEFINED_SIZE_T)
-        {
-            findOrCreateScalarResultIndex(RiaDefines::GENERATED, RiaDefines::riOilVolumeResultName(), false);
-        }
-    }
-
 
     // Mobile Pore Volume
     {
@@ -1155,15 +1154,6 @@ size_t RigCaseCellResultsData::findOrLoadScalarResult(RiaDefines::ResultCatType 
             progressInfo.incrementProgress();
         }
     }
-    else if (resultName == RiaDefines::riCellVolumeResultName())
-    {
-        computeCellVolumes();
-    }
-    else if (resultName == RiaDefines::riOilVolumeResultName())
-    {
-        computeCellVolumes();
-        computeOilVolumes();
-    }
     else if (resultName == RiaDefines::mobilePoreVolumeName())
     {
         computeMobilePV();
@@ -1232,6 +1222,18 @@ size_t RigCaseCellResultsData::findOrLoadScalarResult(RiaDefines::ResultCatType 
             this->cellScalarResults(scalarResultIndex).clear();
         }
     }
+
+
+    if (resultName == RiaDefines::riCellVolumeResultName())
+    {
+        computeCellVolumes();
+    }
+    else if (resultName == RiaDefines::riOilVolumeResultName())
+    {
+        computeCellVolumes();
+        computeOilVolumes();
+    }
+
 
     // Handle SourSimRL reading
 
@@ -2435,10 +2437,14 @@ void RigCaseCellResultsData::computeCellVolumes()
 {
     size_t cellVolIdx = this->findOrCreateScalarResultIndex(RiaDefines::STATIC_NATIVE, RiaDefines::riCellVolumeResultName(), false);
 
+    if (this->cellScalarResults(cellVolIdx).empty())
+    {
+        this->cellScalarResults(cellVolIdx).resize(1);
+    }
     std::vector<double>& cellVolumeResults = this->cellScalarResults(cellVolIdx)[0];
 
     size_t cellResultCount = m_activeCellInfo->reservoirCellResultCount();
-    cellVolumeResults.resize(cellResultCount, 0u);
+    cellVolumeResults.resize(cellResultCount, std::numeric_limits<double>::infinity());
 
 #pragma omp parallel for
     for (int nativeResvCellIndex = 0; nativeResvCellIndex < static_cast<int>(m_ownerMainGrid->globalCellArray().size()); nativeResvCellIndex++)
@@ -2447,9 +2453,15 @@ void RigCaseCellResultsData::computeCellVolumes()
         if (resultIndex != cvf::UNDEFINED_SIZE_T)
         {
             const RigCell& cell = m_ownerMainGrid->globalCellArray()[nativeResvCellIndex];
-            cellVolumeResults[resultIndex] = cell.volume();
+            if (!cell.subGrid())
+            {
+                cellVolumeResults[resultIndex] = cell.volume();
+            }
         }
     }
+
+    // Clear oil volume so it will have to be recalculated.
+    clearScalarResult(RiaDefines::DYNAMIC_NATIVE, RiaDefines::riOilVolumeResultName());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -2461,7 +2473,7 @@ void RigCaseCellResultsData::computeOilVolumes()
     const std::vector<double>& cellVolumeResults = this->cellScalarResults(cellVolIdx)[0];
 
     size_t soilIdx = this->findOrLoadScalarResult(RiaDefines::DYNAMIC_NATIVE, "SOIL");
-    size_t oilVolIdx = this->findOrCreateScalarResultIndex(RiaDefines::GENERATED, RiaDefines::riOilVolumeResultName(), false);
+    size_t oilVolIdx = this->findOrCreateScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, RiaDefines::riOilVolumeResultName(), false);
     this->cellScalarResults(oilVolIdx).resize(this->maxTimeStepCount());
 
     size_t cellResultCount = m_activeCellInfo->reservoirCellResultCount();

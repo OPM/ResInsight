@@ -100,8 +100,7 @@ cvf::BoundingBox Rim2dGridProjection::expandedBoundingBox() const
 //--------------------------------------------------------------------------------------------------
 void Rim2dGridProjection::generateGridMapping()
 {
-    calculateCellRangeVisibility();
-    calculatePropertyFilterVisibility();
+    calculateTotalCellVisibility();
     
     cvf::Vec3d gridExtent = expandedBoundingBox().extent();
 
@@ -198,7 +197,7 @@ void Rim2dGridProjection::generateResults()
 {
     generateGridMapping();
     int nVertices = vertexCount();
-    m_aggregatedResults.resize(nVertices, std::numeric_limits<double>::infinity());
+    m_aggregatedResults = std::vector<double>(nVertices, std::numeric_limits<double>::infinity());
 
     RimEclipseView* view = nullptr;
     firstAncestorOrThisOfTypeAsserted(view);
@@ -395,7 +394,7 @@ double Rim2dGridProjection::value(uint i, uint j) const
 //--------------------------------------------------------------------------------------------------
 double Rim2dGridProjection::calculateValue(uint i, uint j) const
 {
-    const std::vector<std::pair<size_t, float>>& matchingCells = cellsAtPos2d(i, j);
+    const std::vector<std::pair<size_t, double>>& matchingCells = cellsAtPos2d(i, j);
     if (!matchingCells.empty())
     {
         switch (m_resultAggregation())
@@ -408,7 +407,7 @@ double Rim2dGridProjection::calculateValue(uint i, uint j) const
         }
         case RESULTS_MEAN_VALUE:
         {
-            RiaWeightedMeanCalculator<float> calculator;
+            RiaWeightedMeanCalculator<double> calculator;
             for (auto cellIdxAndWeight : matchingCells)
             {
                 size_t cellIdx = cellIdxAndWeight.first;
@@ -518,7 +517,7 @@ double Rim2dGridProjection::calculateValue(uint i, uint j) const
 //--------------------------------------------------------------------------------------------------
 double Rim2dGridProjection::calculateVolumeSum(uint i, uint j) const
 {
-    const std::vector<std::pair<size_t, float>>& matchingCells = cellsAtPos2d(i, j);
+    const std::vector<std::pair<size_t, double>>& matchingCells = cellsAtPos2d(i, j);
     if (!matchingCells.empty())
     {
         double sum = 0.0;
@@ -537,7 +536,7 @@ double Rim2dGridProjection::calculateVolumeSum(uint i, uint j) const
 //--------------------------------------------------------------------------------------------------
 double Rim2dGridProjection::calculateSoilSum(uint i, uint j) const
 {
-    const std::vector<std::pair<size_t, float>>& matchingCells = cellsAtPos2d(i, j);
+    const std::vector<std::pair<size_t, double>>& matchingCells = cellsAtPos2d(i, j);
     if (!matchingCells.empty())
     {
         double sum = 0.0;
@@ -622,89 +621,12 @@ RimRegularLegendConfig* Rim2dGridProjection::legendConfig() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void Rim2dGridProjection::calculateCellRangeVisibility()
+void Rim2dGridProjection::calculateTotalCellVisibility()
 {
     RimEclipseView* view = nullptr;
     firstAncestorOrThisOfTypeAsserted(view);
-    RimCellRangeFilterCollection* rangeFilterCollection = view->rangeFilterCollection();
-    const RigActiveCellInfo* activeCellInfo = eclipseCase()->eclipseCaseData()->activeCellInfo(RiaDefines::MATRIX_MODEL);
 
-    for (size_t gridIndex = 0u; gridIndex < mainGrid()->gridCount(); ++gridIndex)
-    {
-        const RigGridBase* grid = mainGrid()->gridByIndex(gridIndex);
-
-        cvf::ref<cvf::UByteArray> parentGridVisibilities;
-        bool isSubGrid = false;
-        if (!grid->isMainGrid())
-        {
-            size_t parentGridIndex = static_cast<const RigLocalGrid*>(grid)->parentGrid()->gridIndex();
-            parentGridVisibilities = m_cellGridIdxVisibilityMap[parentGridIndex];
-            isSubGrid = true;
-        }
-
-        m_cellGridIdxVisibilityMap[gridIndex] = new cvf::UByteArray(grid->cellCount());
-
-#pragma omp parallel for
-        for (int cellIndex = 0; cellIndex < static_cast<int>(grid->cellCount()); ++cellIndex)
-        {
-            size_t globalCellIdx = grid->reservoirCellIndex(cellIndex);
-            (*m_cellGridIdxVisibilityMap[gridIndex])[cellIndex] = activeCellInfo->isActive(globalCellIdx);
-        }
-
-        if (rangeFilterCollection && rangeFilterCollection->isActive())
-        {
-            cvf::CellRangeFilter cellRangeFilter;
-            rangeFilterCollection->compoundCellRangeFilter(&cellRangeFilter, gridIndex);
-
-            if (rangeFilterCollection->hasActiveIncludeFilters())
-            {
-#pragma omp parallel for
-                for (int cellIndex = 0; cellIndex < static_cast<int>(grid->cellCount()); ++cellIndex)
-                {
-                    size_t i, j, k;
-                    grid->ijkFromCellIndex(cellIndex, &i, &j, &k);
-                    if ((*m_cellGridIdxVisibilityMap[gridIndex])[cellIndex])
-                    {
-                        const RigCell& cell = grid->cell(cellIndex);
-                        bool visibleDueToParent = false;
-                        if (isSubGrid)
-                        {
-                            size_t parentGridCellIndex = cell.parentCellIndex();
-                            visibleDueToParent = parentGridVisibilities->get(parentGridCellIndex);
-                        }
-
-                        (*m_cellGridIdxVisibilityMap[gridIndex])[cellIndex] =
-                            visibleDueToParent || cellRangeFilter.isCellVisible(i, j, k, isSubGrid);
-                    }
-                }
-            }
-
-#pragma omp parallel for
-            for (int cellIndex = 0; cellIndex < static_cast<int>(grid->cellCount()); ++cellIndex)
-            {
-                size_t i, j, k;
-                grid->ijkFromCellIndex(cellIndex, &i, &j, &k);
-                (*m_cellGridIdxVisibilityMap[gridIndex])[cellIndex] =
-                    (*m_cellGridIdxVisibilityMap[gridIndex])[cellIndex] && !cellRangeFilter.isCellExcluded(i, j, k, isSubGrid);
-            }
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void Rim2dGridProjection::calculatePropertyFilterVisibility()
-{
-    RimEclipseView* view = nullptr;
-    firstAncestorOrThisOfTypeAsserted(view);
-    int timeStep = view->currentTimeStep();
-
-    for (size_t gridIndex = 0u; gridIndex < mainGrid()->gridCount(); ++gridIndex)
-    {
-        const RigGridBase* grid = mainGrid()->gridByIndex(gridIndex);
-        RivReservoirViewPartMgr::computePropertyVisibility(m_cellGridIdxVisibilityMap[gridIndex].p(), grid, timeStep, m_cellGridIdxVisibilityMap[gridIndex].p(), view->eclipsePropertyFilterCollection());
-    }
+    m_cellGridIdxVisibility = view->currentTotalCellVisibility();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -724,7 +646,7 @@ cvf::Vec2d Rim2dGridProjection::globalPos2d(uint i, uint j) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::vector<std::pair<size_t, float>>& Rim2dGridProjection::cellsAtPos2d(uint i, uint j) const
+const std::vector<std::pair<size_t, double>>& Rim2dGridProjection::cellsAtPos2d(uint i, uint j) const
 {
     return m_projected3dGridIndices[gridIndex(i, j)];
 }
@@ -732,7 +654,7 @@ const std::vector<std::pair<size_t, float>>& Rim2dGridProjection::cellsAtPos2d(u
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<std::pair<size_t, float>> Rim2dGridProjection::visibleCellsAndWeightMatching2dPoint(const cvf::Vec2d& globalPos2d) const
+std::vector<std::pair<size_t, double>> Rim2dGridProjection::visibleCellsAndWeightMatching2dPoint(const cvf::Vec2d& globalPos2d) const
 {   
     cvf::BoundingBox gridBoundingBox = expandedBoundingBox();
     cvf::Vec3d top2dElementCentroid(globalPos2d, gridBoundingBox.max().z());
@@ -746,20 +668,22 @@ std::vector<std::pair<size_t, float>> Rim2dGridProjection::visibleCellsAndWeight
     std::vector<size_t> allCellIndices;
     mainGrid()->findIntersectingCells(bbox2dElement, &allCellIndices);
 
-    std::vector<std::tuple<size_t, float, float>> matchingVisibleCellsWeightAndHeight;
+    std::vector<std::tuple<size_t, double, double>> matchingVisibleCellsWeightAndHeight;
 
     std::array<cvf::Vec3d, 8> hexCorners;
     for (size_t globalCellIdx : allCellIndices)
     {
-        size_t       localCellIdx = 0u;
-        RigGridBase* localGrid    = mainGrid()->gridAndGridLocalIdxFromGlobalCellIdx(globalCellIdx, &localCellIdx);
-        if ((*m_cellGridIdxVisibilityMap.at(localGrid->gridIndex()))[localCellIdx])
+        if ((*m_cellGridIdxVisibility)[globalCellIdx])
         {
+            size_t       localCellIdx = 0u;
+            RigGridBase* localGrid = mainGrid()->gridAndGridLocalIdxFromGlobalCellIdx(globalCellIdx, &localCellIdx);
+
             localGrid->cellCornerVertices(localCellIdx, hexCorners.data());
 
-            cvf::BoundingBox overlapBBox = createHexOverlapEstimation(bbox2dElement, &hexCorners);
+            cvf::BoundingBox overlapBBox;
+            std::array<cvf::Vec3d, 8> overlapCorners = createHexOverlapEstimation(bbox2dElement, hexCorners, &overlapBBox);
             
-            double overlapVolume = RigCellGeometryTools::calculateCellVolume(hexCorners);
+            double overlapVolume = RigCellGeometryTools::calculateCellVolume(overlapCorners);
 
             if (overlapVolume > 0.0)
             {            
@@ -769,12 +693,12 @@ std::vector<std::pair<size_t, float>> Rim2dGridProjection::visibleCellsAndWeight
         }
     }
 
-    std::vector<std::pair<size_t, float>> matchingVisibleCellsAndWeight;
+    std::vector<std::pair<size_t, double>> matchingVisibleCellsAndWeight;
     if (!matchingVisibleCellsWeightAndHeight.empty())
     {
         std::sort(matchingVisibleCellsWeightAndHeight.begin(),
             matchingVisibleCellsWeightAndHeight.end(),
-            [](const std::tuple<size_t, float, float>& lhs, const std::tuple<size_t, float, float>& rhs) {
+            [](const std::tuple<size_t, double, double>& lhs, const std::tuple<size_t, double, double>& rhs) {
             return std::get<2>(lhs) > std::get<2>(rhs);
         });
 
@@ -867,35 +791,36 @@ double Rim2dGridProjection::findSoilResult(size_t cellGlobalIdx) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::BoundingBox Rim2dGridProjection::createHexOverlapEstimation(const cvf::BoundingBox& bbox2dElement, std::array<cvf::Vec3d, 8>* hexCornersToModify) const
+std::array<cvf::Vec3d, 8> Rim2dGridProjection::createHexOverlapEstimation(const cvf::BoundingBox& bbox2dElement, const std::array<cvf::Vec3d, 8>& hexCorners, cvf::BoundingBox* overlapBoundingBox) const
 {
-    std::array<cvf::Vec3d, 8>& hexCorners = *hexCornersToModify;
+    CVF_ASSERT(overlapBoundingBox);
+    *overlapBoundingBox = cvf::BoundingBox();
+    std::array<cvf::Vec3d, 8> overlapCorners = hexCorners;
     // A reasonable approximation to the overlap volume
     cvf::Plane topPlane;    topPlane.setFromPoints(hexCorners[0], hexCorners[1], hexCorners[2]);
     cvf::Plane bottomPlane; bottomPlane.setFromPoints(hexCorners[4], hexCorners[5], hexCorners[6]);
 
-    cvf::BoundingBox overlapBBox;
     for (size_t i = 0; i < 4; ++i)
     {
-        cvf::Vec3d& corner = hexCorners[i];
+        cvf::Vec3d& corner = overlapCorners[i];
         corner.x() = cvf::Math::clamp(corner.x(), bbox2dElement.min().x(), bbox2dElement.max().x());
         corner.y() = cvf::Math::clamp(corner.y(), bbox2dElement.min().y(), bbox2dElement.max().y());
         cvf::Vec3d maxZCorner = corner; maxZCorner.z() = bbox2dElement.max().z();
         cvf::Vec3d minZCorner = corner; minZCorner.z() = bbox2dElement.min().z();
         topPlane.intersect(maxZCorner, minZCorner, &corner);
-        overlapBBox.add(corner);
+        overlapBoundingBox->add(corner);
     }
     for (size_t i = 4; i < 8; ++i)
     {
-        cvf::Vec3d& corner = hexCorners[i];
+        cvf::Vec3d& corner = overlapCorners[i];
         corner.x() = cvf::Math::clamp(corner.x(), bbox2dElement.min().x(), bbox2dElement.max().x());
         corner.y() = cvf::Math::clamp(corner.y(), bbox2dElement.min().y(), bbox2dElement.max().y());
         cvf::Vec3d maxZCorner = corner; maxZCorner.z() = bbox2dElement.max().z();
         cvf::Vec3d minZCorner = corner; minZCorner.z() = bbox2dElement.min().z();
         bottomPlane.intersect(maxZCorner, minZCorner, &corner);
-        overlapBBox.add(corner);
+        overlapBoundingBox->add(corner);
     }
-    return overlapBBox;
+    return overlapCorners;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1065,7 +990,7 @@ void Rim2dGridProjection::defineEditorAttribute(const caf::PdmFieldHandle* field
         caf::PdmUiDoubleSliderEditorAttribute* myAttr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>(attribute);
         if (myAttr)
         {
-            myAttr->m_minimum = 0.5;
+            myAttr->m_minimum = 0.25;
             myAttr->m_maximum = 2.0;
         }        
     }

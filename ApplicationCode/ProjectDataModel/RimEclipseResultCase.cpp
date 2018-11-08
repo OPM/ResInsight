@@ -230,6 +230,8 @@ bool RimEclipseResultCase::importGridAndResultMetaData(bool showTimeStepFilter)
         results(RiaDefines::FRACTURE_MODEL)->computeDepthRelatedResults();
     }
     
+    results(RiaDefines::MATRIX_MODEL)->computeCellVolumes();
+
     return true;
 }
 
