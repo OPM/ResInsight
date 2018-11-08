@@ -30,8 +30,7 @@
 RigGridBase::RigGridBase(RigMainGrid* mainGrid):
     m_gridPointDimensions(0,0,0),
     m_indexToStartOfCells(0),
-    m_mainGrid(mainGrid),
-    m_isTempGrid(false)
+    m_mainGrid(mainGrid)
 {
     if (mainGrid == nullptr)
     {

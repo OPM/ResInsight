@@ -90,6 +90,9 @@ public:
 
     cvf::BoundingBox                        boundingBox() const;
 
+    bool                                    isTempGrid() const override;
+    const std::string&                      associatedWellPathName() const override;
+
 private:
     void                                    initAllSubCellsMainGridCellIndex();
     void                                    buildCellSearchTree();

@@ -75,6 +75,9 @@ public:
 
     cvf::BoundingBox            boundingBox();
 
+    virtual bool                isTempGrid() const = 0;
+    virtual const std::string&  associatedWellPathName() const = 0;
+
 protected:
     friend class RigMainGrid;//::initAllSubGridsParentGridPointer();
     void                        initSubGridParentPointer();
@@ -105,10 +108,6 @@ public:
     bool isCellValid( size_t i, size_t j, size_t k ) const override;
     bool cellIJKNeighbor(size_t i, size_t j, size_t k, FaceType face, size_t* neighborCellIndex ) const override;
 
-    void setAsTempGrid(bool isTemp) { m_isTempGrid = isTemp; }
-    bool isTempGrid() const { return m_isTempGrid; }
-
-
 private:
     std::string                 m_gridName;
     cvf::Vec3st                 m_gridPointDimensions;
@@ -119,8 +118,6 @@ private:
     cvf::BoundingBox            m_boundingBox;
 
     std::vector<std::array<size_t, 6>>    m_coarseningBoxInfo;
-
-    bool            m_isTempGrid;
 };
 
 

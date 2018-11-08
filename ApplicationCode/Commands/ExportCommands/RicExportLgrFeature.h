@@ -45,10 +45,12 @@ public:
     LgrInfo(int id,
             const QString& name,
             const QString& shortName,
+            const QString& associatedWellPathName,
             const caf::VecIjk& sizes,
             const caf::VecIjk& mainGridStartCell,
             const caf::VecIjk& mainGridEndCell)
-        : id(id), name(name), shortName(shortName), sizes(sizes), mainGridStartCell(mainGridStartCell), mainGridEndCell(mainGridEndCell)
+        : id(id), name(name), shortName(shortName), associatedWellPathName(associatedWellPathName),
+        sizes(sizes), mainGridStartCell(mainGridStartCell), mainGridEndCell(mainGridEndCell)
     {
     }
 
@@ -67,6 +69,7 @@ public:
     int                 id;
     QString             name;
     QString             shortName;
+    QString             associatedWellPathName;
     caf::VecIjk         sizes;
 
     caf::VecIjk         mainGridStartCell;
@@ -162,16 +165,19 @@ private:
     static void exportLgrs(QTextStream& stream, const std::vector<LgrInfo>& lgrInfos);
 
     static std::vector<LgrInfo> buildLgrsPerMainCell(RimEclipseCase*                               eclipseCase,
+                                                     RimWellPath*                                  wellPath,
                                                      const std::vector<RigCompletionDataGridCell>& intersectingCells,
                                                      const caf::VecIjk&                            lgrSizes);
     static std::vector<LgrInfo>
                    buildLgrsPerCompletion(RimEclipseCase*                                                         eclipseCase,
+                                          RimWellPath*                                                            wellPath,
                                           const std::map<CompletionInfo, std::vector<RigCompletionDataGridCell>>& completionInfo,
                                           const caf::VecIjk&                                                      lgrSizesPerMainGridCell);
     static LgrInfo buildLgr(int                                           lgrId,
                             const QString&                                lgrName,
                             const QString&                                shortLgrName,
                             RimEclipseCase*                               eclipseCase,
+                            RimWellPath*                                  wellPath,
                             const std::vector<RigCompletionDataGridCell>& intersectingCells,
                             const caf::VecIjk&                            lgrSizesPerMainGridCell);
 

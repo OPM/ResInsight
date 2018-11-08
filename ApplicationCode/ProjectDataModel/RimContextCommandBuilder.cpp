@@ -193,6 +193,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         }
         else if (dynamic_cast<RimGridInfoCollection*>(uiItem))
         {
+            menuBuilder << "RicExportCompletionsForTemporaryLgrsFeature";
             menuBuilder << "RicDeleteTemporaryLgrsFeature";
         }
         else if (dynamic_cast<RimGeoMechCase*>(uiItem))

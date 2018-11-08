@@ -220,6 +220,7 @@ void RicCreateTemporaryLgrFeature::createLgr(const LgrInfo& lgrInfo, RigMainGrid
     // Create local grid and set properties
     RigLocalGrid* localGrid = new RigLocalGrid(mainGrid);
     localGrid->setAsTempGrid(true);
+    localGrid->setAssociatedWellPathName(lgrInfo.associatedWellPathName.toStdString());
     localGrid->setGridId(lgrId);
     localGrid->setIndexToStartOfCells(totalCellCount);
     localGrid->setGridName(lgrInfo.name.toStdString());
