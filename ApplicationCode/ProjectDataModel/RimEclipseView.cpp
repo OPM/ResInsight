@@ -819,7 +819,7 @@ void RimEclipseView::onLoadDataAndUpdate()
 
     this->faultCollection()->syncronizeFaults();
 
-    m_reservoirGridPartManager->clearGeometryCache();
+    scheduleReservoirGridGeometryRegen();
     m_simWellsPartManager->clearGeometryCache();
 
     syncronizeWellsWithResults();
@@ -1000,6 +1000,7 @@ void RimEclipseView::scheduleGeometryRegen(RivCellSetEnum geometryType)
 void RimEclipseView::scheduleReservoirGridGeometryRegen()
 {
     m_reservoirGridPartManager->clearGeometryCache();
+    m_currentReservoirCellVisibility = nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
