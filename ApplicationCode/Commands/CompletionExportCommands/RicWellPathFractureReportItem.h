@@ -30,7 +30,7 @@ class RicWellPathFractureReportItem
 public:
     RicWellPathFractureReportItem(const QString& wellPathName, const QString& fractureName, const QString& fractureTemplateName, double measuredDepth);
 
-    void setData(double trans, size_t connCount, double fcd, double area);
+    void setData(double trans, size_t connCount, double area);
     void setWidthAndConductivity(double width, double conductivity);
     void setHeightAndHalfLength(double height, double halfLength);
     void setAreaWeightedTransmissibility(double transmissibility);
@@ -50,9 +50,11 @@ public:
     double kfwf() const;
     double kf() const;
     double wf() const;
+
     double xf() const;
     double h() const;
     double km() const;
+    double kmxf() const;
 
     bool operator < (const RicWellPathFractureReportItem& other) const;
 
@@ -65,7 +67,6 @@ private:
 
     double m_transmissibility;
     size_t m_connectionCount;
-    double m_fcd;
     double m_area;
 
     double m_kfwf;

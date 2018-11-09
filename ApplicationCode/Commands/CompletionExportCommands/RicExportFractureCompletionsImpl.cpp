@@ -325,7 +325,6 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
         // Insert total transmissibility from eclipse-cell to well for this fracture into the map
         std::map<size_t, double> matrixToWellTrans = calculateMatrixToWellTransmissibilities(transCondenser);
 
-
         ////////////////////////////////////////////////////////
         // clang-format off
         // WARNING!!!                                         //
@@ -371,7 +370,8 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
 
         if (fractureDataReportItems)
         {
-            RicWellPathFractureReportItem reportItem(wellPathName, fracture->name(), fracTemplate->name(), fracture->fractureMD());
+            RicWellPathFractureReportItem reportItem(
+                wellPathName, fracture->name(), fracTemplate->name(), fracture->fractureMD());
             reportItem.setUnitSystem(fracTemplate->fractureTemplateUnit());
 
             RicExportFractureCompletionsImpl::calculateAndSetReportItemData(
@@ -735,20 +735,10 @@ void RicExportFractureCompletionsImpl::calculateAndSetReportItemData(
     double totalAreaOpenForFlow     = eclToFractureCalc.totalEclipseAreaOpenForFlow();
     double areaWeightedConductivity = eclToFractureCalc.areaWeightedConductivity();
 
-    double fcd = 0.0;
-    if (areaWeightedMatrixTransmissibility > 0.0)
-    {
-        fcd = areaWeightedConductivity / areaWeightedMatrixTransmissibility;
-    }
-
-    reportItem.setData(aggregatedTransmissibility, allCompletionsForOneFracture.size(), fcd, totalAreaOpenForFlow);
-
-    reportItem.setWidthAndConductivity(eclToFractureCalc.areaWeightedWidth(), areaWeightedConductivity);
-
     if (totalAreaOpenForFlow > 0.0)
     {
-        double height     = eclToFractureCalc.longestYSectionOpenForFlow();
         double halfLength = 0.0;
+        double height     = eclToFractureCalc.longestYSectionOpenForFlow();
         if (height > 0.0)
         {
             double length = totalAreaOpenForFlow / height;
@@ -757,6 +747,10 @@ void RicExportFractureCompletionsImpl::calculateAndSetReportItemData(
 
         reportItem.setHeightAndHalfLength(height, halfLength);
     }
+
+    reportItem.setData(aggregatedTransmissibility, allCompletionsForOneFracture.size(), totalAreaOpenForFlow);
+
+    reportItem.setWidthAndConductivity(eclToFractureCalc.areaWeightedWidth(), areaWeightedConductivity);
 }
 
 //--------------------------------------------------------------------------------------------------

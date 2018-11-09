@@ -33,7 +33,6 @@ RicWellPathFractureReportItem::RicWellPathFractureReportItem(const QString& well
     , m_mesuredDepth(measuredDepth)
     , m_transmissibility(0.0)
     , m_connectionCount(0)
-    , m_fcd(0.0)
     , m_area(0.0)
     , m_kfwf(0.0)
     , m_kf(0.0)
@@ -47,11 +46,10 @@ RicWellPathFractureReportItem::RicWellPathFractureReportItem(const QString& well
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicWellPathFractureReportItem::setData(double trans, size_t connCount, double fcd, double area)
+void RicWellPathFractureReportItem::setData(double trans, size_t connCount, double area)
 {
     m_transmissibility = trans;
     m_connectionCount  = connCount;
-    m_fcd              = fcd;
     m_area             = area;
 }
 
@@ -146,7 +144,15 @@ size_t RicWellPathFractureReportItem::connectionCount() const
 //--------------------------------------------------------------------------------------------------
 double RicWellPathFractureReportItem::fcd() const
 {
-    return m_fcd;
+    double myFcd = 0.0;
+
+    double threshold = 1.0e-7;
+    if (std::fabs(kmxf()) > threshold)
+    {
+        myFcd = kfwf() / kmxf();
+    }
+
+    return myFcd;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -203,6 +209,14 @@ double RicWellPathFractureReportItem::h() const
 double RicWellPathFractureReportItem::km() const
 {
     return m_km;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+double RicWellPathFractureReportItem::kmxf() const
+{
+    return m_km * m_xf;
 }
 
 //--------------------------------------------------------------------------------------------------
