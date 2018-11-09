@@ -38,6 +38,7 @@ protected:
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
 
+    static RimContourMapView* create2dContourMapFromExistingContourMap(RimEclipseCase* eclipseCase, RimContourMapView* existingContourMap);
     static RimContourMapView* create2dContourMapFrom3dView(RimEclipseCase* eclipseCase, const RimEclipseView* reservoirView);
     static RimContourMapView* create2dContourMap(RimEclipseCase* eclipseCase);
 

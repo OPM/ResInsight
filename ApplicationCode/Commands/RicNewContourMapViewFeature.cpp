@@ -56,11 +56,16 @@ bool RicNewContourMapViewFeature::isCommandEnabled()
 void RicNewContourMapViewFeature::onActionTriggered(bool isChecked)
 {
     RimEclipseView* reservoirView = caf::SelectionManager::instance()->selectedItemOfType<RimEclipseView>();
+    RimContourMapView* existingContourMap = caf::SelectionManager::instance()->selectedItemOfType<RimContourMapView>();
     RimEclipseCase* eclipseCase = caf::SelectionManager::instance()->selectedItemAncestorOfType<RimEclipseCase>();
     RimContourMapView* contourMap = nullptr;
 
     // Find case to insert into
-    if (reservoirView)
+    if (existingContourMap)
+    {
+        contourMap = create2dContourMapFromExistingContourMap(eclipseCase, existingContourMap);
+    }
+    else if (reservoirView)
     {
         contourMap = create2dContourMapFrom3dView(eclipseCase, reservoirView);
     }
@@ -79,6 +84,11 @@ void RicNewContourMapViewFeature::onActionTriggered(bool isChecked)
             eclipseCase->updateConnectedEditors();
         }
         caf::SelectionManager::instance()->setSelectedItem(contourMap);
+
+        contourMap->createDisplayModelAndRedraw();
+        contourMap->zoomAll();
+
+        Riu3DMainWindowTools::setExpanded(contourMap);
     }
 }
 
@@ -103,6 +113,31 @@ void RicNewContourMapViewFeature::setupActionLook(QAction* actionToSetup)
     }
     actionToSetup->setIcon(QIcon(":/2DMap16x16.png"));
 }    
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimContourMapView* RicNewContourMapViewFeature::create2dContourMapFromExistingContourMap(RimEclipseCase* eclipseCase, RimContourMapView* existingContourMap)
+{
+    RimContourMapView* contourMap =
+        dynamic_cast<RimContourMapView*>(existingContourMap->xmlCapability()->copyByXmlSerialization(caf::PdmDefaultObjectFactory::instance()));
+    CVF_ASSERT(contourMap);
+
+    contourMap->setEclipseCase(eclipseCase);
+    contourMap->setBackgroundColor(cvf::Color3f(1.0f, 1.0f, 0.98f)); // Ignore original view background
+
+    caf::PdmDocument::updateUiIconStateRecursively(contourMap);
+
+    size_t i = eclipseCase->contourMapCollection()->views().size();
+    contourMap->setName(QString("Contour Map %1").arg(i + 1));
+    eclipseCase->contourMapCollection()->push_back(contourMap);
+
+    // Resolve references after contour map has been inserted into Rim structures
+    contourMap->resolveReferencesRecursively();
+    contourMap->initAfterReadRecursively();
+
+    return contourMap;
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -149,7 +184,6 @@ RimContourMapView* RicNewContourMapViewFeature::create2dContourMap(RimEclipseCas
         contourMap->hasUserRequestedAnimation = true;
         contourMap->setBackgroundColor(cvf::Color3f(1.0f, 1.0f, 0.98f));
         contourMap->initAfterReadRecursively();
-        contourMap->zoomAll();
     }
 
     caf::PdmDocument::updateUiIconStateRecursively(contourMap);
