@@ -136,16 +136,6 @@ void RicWellPathExportCompletionDataFeature::prepareExportSettingsAndExportCompl
         RiaApplication::instance()->setLastUsedDialogDirectory("COMPLETIONS", exportSettings->folder);
 
         RicWellPathExportCompletionDataFeatureImpl::exportCompletions(wellPaths, simWells, *exportSettings);
-
-        const auto mainGrid = exportSettings->caseToApply->mainGrid();
-        if (!mainGrid) return;
-
-        const auto& lgrInfosForWells = RicExportLgrFeature::createLgrInfoListForTemporaryLgrs(mainGrid);
-
-        for (const auto& lgrInfoForWell : lgrInfosForWells)
-        {
-            RicExportLgrFeature::exportLgrs(exportSettings->folder, lgrInfoForWell.first, lgrInfoForWell.second);
-        }
     }
 }
 

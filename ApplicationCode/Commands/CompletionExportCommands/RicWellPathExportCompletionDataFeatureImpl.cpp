@@ -23,11 +23,13 @@
 #include "RiaLogging.h"
 #include "RiaPreferences.h"
 
+#include "../ExportCommands/RicExportLgrFeature.h"
 #include "RicExportCompletionDataSettingsUi.h"
 #include "RicExportFeatureImpl.h"
 #include "RicExportFractureCompletionsImpl.h"
 #include "RicFishbonesTransmissibilityCalculationFeatureImp.h"
 #include "RicWellPathFractureReportItem.h"
+#include "RicWellPathFractureTextReportFeatureImpl.h"
 
 #include "RifEclipseDataTableFormatter.h"
 
@@ -38,6 +40,7 @@
 #include "RigPerforationTransmissibilityEquations.h"
 #include "RigResultAccessorFactory.h"
 #include "RigTransmissibilityEquations.h"
+#include "RigVirtualPerforationTransmissibilities.h"
 #include "RigWellLogExtractionTools.h"
 #include "RigWellLogExtractor.h"
 #include "RigWellPath.h"
@@ -67,8 +70,6 @@
 
 #include "cvfPlane.h"
 
-#include "RicWellPathFractureTextReportFeatureImpl.h"
-#include "RigVirtualPerforationTransmissibilities.h"
 #include <QDir>
 
 //--------------------------------------------------------------------------------------------------
@@ -132,6 +133,8 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions(const std::ve
         RiaLogging::error("Export Completions Data: Cannot export completions data without specified eclipse case");
         return;
     }
+
+    exportCarfinForTemporaryLgrs(exportSettings.caseToApply(), exportSettings.folder);
 
     if (exportSettings.compdatExport == RicExportCompletionDataSettingsUi::TRANSMISSIBILITIES ||
         exportSettings.compdatExport == RicExportCompletionDataSettingsUi::WPIMULT_AND_DEFAULT_CONNECTION_FACTORS)
@@ -2649,6 +2652,23 @@ QString RicWellPathExportCompletionDataFeatureImpl::createPressureDepletionFileN
         }
     }
     return suffix;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicWellPathExportCompletionDataFeatureImpl::exportCarfinForTemporaryLgrs(const RimEclipseCase* sourceCase,
+                                                                              const QString&        folder)
+{
+    if (!sourceCase || !sourceCase->mainGrid()) return;
+
+    const auto  mainGrid         = sourceCase->mainGrid();
+    const auto& lgrInfosForWells = RicExportLgrFeature::createLgrInfoListForTemporaryLgrs(mainGrid);
+
+    for (const auto& lgrInfoForWell : lgrInfosForWells)
+    {
+        RicExportLgrFeature::exportLgrs(folder, lgrInfoForWell.first, lgrInfoForWell.second);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
