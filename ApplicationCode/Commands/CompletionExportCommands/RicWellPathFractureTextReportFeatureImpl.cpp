@@ -451,8 +451,8 @@ QString
         }
         else
         {
-            formatter.add("NA");
-            formatter.add("NA");
+            formatter.add("N/A");
+            formatter.add("N/A");
         }
 
         if (fracTemplate->fractureContainment()->minimumFaultThrow() >= 0.0)
@@ -461,7 +461,7 @@ QString
         }
         else
         {
-            formatter.add("NA");
+            formatter.add("N/A");
         }
 
         double halfLengthScale, heightScale, dfactorScale, conductivityScale;
@@ -552,7 +552,7 @@ QString RicWellPathFractureTextReportFeatureImpl::createFractureInstancesText(
         }
         else
         {
-            formatter.add("NA");
+            formatter.add("N/A");
         }
 
         formatter.add(fracture->fractureMD());
