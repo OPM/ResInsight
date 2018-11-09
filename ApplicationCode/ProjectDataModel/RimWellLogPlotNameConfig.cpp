@@ -45,20 +45,6 @@ RimWellLogPlotNameConfig::RimWellLogPlotNameConfig(const RimNameConfigHolderInte
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-caf::PdmUiGroup* RimWellLogPlotNameConfig::createUiGroup(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
-{
-    caf::PdmUiGroup* nameGroup = RimNameConfig::createUiGroup(uiConfigName, uiOrdering);
-    nameGroup->add(&m_addCaseName);
-    nameGroup->add(&m_addWellName);
-    nameGroup->add(&m_addTimestep);
-    nameGroup->add(&m_addAirGap);
-    nameGroup->add(&m_addWaterDepth);
-    return nameGroup;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 bool RimWellLogPlotNameConfig::addCaseName() const
 {
     return m_addCaseName();
@@ -106,5 +92,18 @@ void RimWellLogPlotNameConfig::enableAllAutoNameTags(bool enable)
     m_addTimestep   = enable;
     m_addAirGap     = enable;
     m_addWaterDepth = enable;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogPlotNameConfig::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+{
+    RimNameConfig::defineUiOrdering(uiConfigName, uiOrdering);
+    uiOrdering.add(&m_addCaseName);
+    uiOrdering.add(&m_addWellName);
+    uiOrdering.add(&m_addTimestep);
+    uiOrdering.add(&m_addAirGap);
+    uiOrdering.add(&m_addWaterDepth);
 }
 

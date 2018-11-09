@@ -77,14 +77,20 @@ QString RimNameConfig::name() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-caf::PdmUiGroup* RimNameConfig::createUiGroup(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+void RimNameConfig::uiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
-    caf::PdmUiGroup* nameGroup = uiOrdering.addNewGroup("Curve Name");
-    nameGroup->add(&m_customName);
-    nameGroup->add(&m_autoName);
-    return nameGroup;
+    defineUiOrdering(uiConfigName, uiOrdering);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimNameConfig::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+{
+    uiOrdering.add(&m_customName);
+    uiOrdering.add(&m_autoName);
 }
 
 //--------------------------------------------------------------------------------------------------

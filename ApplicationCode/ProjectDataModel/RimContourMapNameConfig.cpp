@@ -41,20 +41,6 @@ RimContourMapNameConfig::RimContourMapNameConfig(const RimNameConfigHolderInterf
     m_customName = "Contour Map";
 }
 
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-caf::PdmUiGroup* RimContourMapNameConfig::createUiGroup(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
-{
-    caf::PdmUiGroup* nameGroup = RimNameConfig::createUiGroup(uiConfigName, uiOrdering);
-    nameGroup->add(&m_addCaseName);
-    nameGroup->add(&m_addAggregationType);
-    nameGroup->add(&m_addProperty);
-    nameGroup->add(&m_addSampleSpacing);
-    return nameGroup;
-}
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -96,4 +82,16 @@ void RimContourMapNameConfig::enableAllAutoNameTags(bool enable)
     m_addAggregationType = enable;
     m_addProperty        = enable;
     m_addSampleSpacing   = enable;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimContourMapNameConfig::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+{
+    RimNameConfig::defineUiOrdering(uiConfigName, uiOrdering);
+    uiOrdering.add(&m_addCaseName);
+    uiOrdering.add(&m_addAggregationType);
+    uiOrdering.add(&m_addProperty);
+    uiOrdering.add(&m_addSampleSpacing);
 }

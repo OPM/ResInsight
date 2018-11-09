@@ -773,7 +773,10 @@ void RimWellLogPlot::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
     m_commonDataSource->uiOrdering(uiConfigName, uiOrdering);    
     uiOrderingForDepthAxis(uiOrdering);
     uiOrderingForPlotSettings(uiOrdering);
-    m_nameConfig()->createUiGroup(uiConfigName, uiOrdering);
+
+    caf::PdmUiGroup* nameGroup = uiOrdering.addNewGroup("Plot Name");
+    m_nameConfig->uiOrdering(uiConfigName, *nameGroup);
+
     uiOrdering.skipRemainingFields(true);
 }
 

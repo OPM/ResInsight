@@ -30,7 +30,6 @@ class RimWellLogExtractionCurveNameConfig : public RimNameConfig
 
 public:
     RimWellLogExtractionCurveNameConfig(const RimNameConfigHolderInterface* configHolder = nullptr);
-    caf::PdmUiGroup* createUiGroup(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
 
     bool                     addCaseName() const;
     bool                     addProperty() const;
@@ -39,6 +38,9 @@ public:
     bool                     addDate() const;
 
     void                     enableAllAutoNameTags(bool enable) override;
+
+protected:
+    void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
 
 private:
     caf::PdmField<bool>              m_addCaseName;

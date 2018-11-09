@@ -157,7 +157,9 @@ void RimContourMapView::defineUiOrdering(QString uiConfigName, caf::PdmUiOrderin
     viewGroup->add(this->backgroundColorField());
     viewGroup->add(&m_showAxisLines);
 
-    m_nameConfig()->createUiGroup(uiConfigName, uiOrdering);
+    caf::PdmUiGroup* nameGroup = uiOrdering.addNewGroup("Contour Map Name");
+    m_nameConfig->uiOrdering(uiConfigName, *nameGroup);
+
     uiOrdering.skipRemainingFields(true);
 }
 

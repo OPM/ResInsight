@@ -53,9 +53,10 @@ public:
 
     caf::PdmFieldHandle*             nameField();
     QString                          name() const;
-    virtual caf::PdmUiGroup*         createUiGroup(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
-    
+    void                             uiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
+
 protected:
+    virtual void                     defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
     void                             fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
     QString                          autoName() const;
     virtual void                     updateAllSettings();

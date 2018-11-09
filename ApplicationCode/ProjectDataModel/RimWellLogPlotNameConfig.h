@@ -30,14 +30,16 @@ class RimWellLogPlotNameConfig : public RimNameConfig
 
 public:
     RimWellLogPlotNameConfig(const RimNameConfigHolderInterface* configHolder = nullptr);
-    caf::PdmUiGroup* createUiGroup(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
 
-    bool                     addCaseName() const;
-    bool                     addWellName() const;
-    bool                     addTimeStep() const;
-    bool                     addAirGap() const;
-    bool                     addWaterDepth() const;
-    void             enableAllAutoNameTags(bool enable) override;
+    bool addCaseName() const;
+    bool addWellName() const;
+    bool addTimeStep() const;
+    bool addAirGap() const;
+    bool addWaterDepth() const;
+    void enableAllAutoNameTags(bool enable) override;
+
+protected:
+    void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
 
 private:
     caf::PdmField<bool>              m_addCaseName;

@@ -30,7 +30,6 @@ class RimContourMapNameConfig : public RimNameConfig
 
 public:
     RimContourMapNameConfig(const RimNameConfigHolderInterface* configHolder = nullptr);
-    caf::PdmUiGroup* createUiGroup(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
 
     bool                     addCaseName() const;
     bool                     addAggregationType() const;
@@ -38,6 +37,9 @@ public:
     bool                     addSampleSpacing() const;
 
     void                     enableAllAutoNameTags(bool enable) override;
+
+protected:
+    void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
 
 private:
     caf::PdmField<bool>              m_addCaseName;

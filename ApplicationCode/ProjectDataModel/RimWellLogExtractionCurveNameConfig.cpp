@@ -45,20 +45,6 @@ RimWellLogExtractionCurveNameConfig::RimWellLogExtractionCurveNameConfig(const R
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-caf::PdmUiGroup* RimWellLogExtractionCurveNameConfig::createUiGroup(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
-{
-    caf::PdmUiGroup* nameGroup = RimNameConfig::createUiGroup(uiConfigName, uiOrdering);
-    nameGroup->add(&m_addCaseName);
-    nameGroup->add(&m_addProperty);
-    nameGroup->add(&m_addWellName);
-    nameGroup->add(&m_addTimestep);
-    nameGroup->add(&m_addDate);
-    return nameGroup;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 bool RimWellLogExtractionCurveNameConfig::addCaseName() const
 {
     return m_addCaseName();
@@ -106,4 +92,17 @@ void RimWellLogExtractionCurveNameConfig::enableAllAutoNameTags(bool enable)
     m_addWellName = enable;
     m_addTimestep = enable;
     m_addDate     = enable;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogExtractionCurveNameConfig::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+{
+    RimNameConfig::defineUiOrdering(uiConfigName, uiOrdering);
+    uiOrdering.add(&m_addCaseName);
+    uiOrdering.add(&m_addProperty);
+    uiOrdering.add(&m_addWellName);
+    uiOrdering.add(&m_addTimestep);
+    uiOrdering.add(&m_addDate);
 }

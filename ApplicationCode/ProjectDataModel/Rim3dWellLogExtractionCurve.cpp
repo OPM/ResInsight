@@ -508,7 +508,8 @@ void Rim3dWellLogExtractionCurve::defineUiOrdering(QString uiConfigName, caf::Pd
 
     Rim3dWellLogCurve::configurationUiOrdering(uiOrdering);
 
-    m_nameConfig()->createUiGroup(uiConfigName, uiOrdering);
+    caf::PdmUiGroup* nameGroup = uiOrdering.addNewGroup("Curve Name");
+    m_nameConfig->uiOrdering(uiConfigName, *nameGroup);
 
     uiOrdering.skipRemainingFields(true);
 }
