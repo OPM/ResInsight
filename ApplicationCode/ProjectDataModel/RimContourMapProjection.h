@@ -39,7 +39,7 @@ class RimEclipseResultCase;
 ///  
 ///  
 //==================================================================================================
-class Rim2dGridProjection : public RimCheckableNamedObject
+class RimContourMapProjection : public RimCheckableNamedObject
 {
     CAF_PDM_HEADER_INIT;
 public:
@@ -59,8 +59,8 @@ public:
     typedef caf::AppEnum<ResultAggregationEnum> ResultAggregation;
     typedef std::vector<cvf::ref<cvf::Vec3fArray>> ContourPolygons;
 
-    Rim2dGridProjection();
-    ~Rim2dGridProjection() override;
+    RimContourMapProjection();
+    ~RimContourMapProjection() override;
 
     void                        generateVertices(cvf::Vec3fArray* vertices, const caf::DisplayCoordTransform* displayCoordTransform);
     
@@ -109,7 +109,6 @@ protected:
     std::vector<std::pair<size_t, double>>        visibleCellsAndWeightMatching2dPoint(const cvf::Vec2d& globalPos2d) const;
     double                                       findColumnResult(ResultAggregation resultAggregation, size_t cellGlobalIdx) const;
     double                                       findSoilResult(size_t cellGlobalIdx) const;
-    std::array<cvf::Vec3d, 8>                    createHexOverlapEstimation(const cvf::BoundingBox& boundingBox2dExtrusion, const std::array<cvf::Vec3d, 8>& hexCorners, cvf::BoundingBox* overlapBoundingBox) const;
     const RimEclipseResultCase* eclipseCase() const;
     RigMainGrid*                mainGrid() const;
     

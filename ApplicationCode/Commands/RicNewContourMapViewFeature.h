@@ -22,13 +22,13 @@
 #include "cafCmdFeature.h"
 
 class RimEclipseCase;
-class Rim2dEclipseView;
+class RimContourMapView;
 class RimEclipseView;
 
 //==================================================================================================
 /// 
 //==================================================================================================
-class RicNew2dContourViewFeature : public caf::CmdFeature
+class RicNewContourMapViewFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
 
@@ -38,7 +38,7 @@ protected:
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
 
-    static Rim2dEclipseView* create2dContourMapFrom3dView(RimEclipseCase* eclipseCase, const RimEclipseView* reservoirView);
-    static Rim2dEclipseView* create2dContourMap(RimEclipseCase* eclipseCase);
+    static RimContourMapView* create2dContourMapFrom3dView(RimEclipseCase* eclipseCase, const RimEclipseView* reservoirView);
+    static RimContourMapView* create2dContourMap(RimEclipseCase* eclipseCase);
 
 };

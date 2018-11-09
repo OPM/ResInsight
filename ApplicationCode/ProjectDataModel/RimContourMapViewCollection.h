@@ -22,19 +22,19 @@
 #include "cafPdmField.h"
 #include "cafPdmChildArrayField.h"
 
-class Rim2dEclipseView;
+class RimContourMapView;
 
-class Rim2dEclipseViewCollection : public caf::PdmObject
+class RimContourMapViewCollection : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;    
 public:
-    Rim2dEclipseViewCollection();
-    ~Rim2dEclipseViewCollection() override;
+    RimContourMapViewCollection();
+    ~RimContourMapViewCollection() override;
 
-    std::vector<Rim2dEclipseView*> views(); 
-    void push_back(Rim2dEclipseView* contourMap);
+    std::vector<RimContourMapView*> views(); 
+    void push_back(RimContourMapView* contourMap);
 private:
-    caf::PdmChildArrayField<Rim2dEclipseView*> m_2dEclipseViews;
+    caf::PdmChildArrayField<RimContourMapView*> m_contourMapViews;
 };
 
 

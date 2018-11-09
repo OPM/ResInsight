@@ -21,7 +21,6 @@
 
 #include "RiaApplication.h"
 
-#include "Rim2dEclipseViewCollection.h"
 #include "Rim3dOverlayInfoConfig.h"
 #include "Rim3dWellLogCurveCollection.h"
 #include "Rim3dWellLogExtractionCurve.h"
@@ -31,6 +30,7 @@
 #include "RimCaseCollection.h"
 #include "RimCellRangeFilter.h"
 #include "RimCellRangeFilterCollection.h"
+#include "RimContourMapViewCollection.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCaseCollection.h"
 #include "RimEclipseCellColors.h"
@@ -156,14 +156,14 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicPasteEclipseViewsFeature";
             menuBuilder << "Separator";
             menuBuilder << "RicNewViewFeature";
-            menuBuilder << "RicNew2dContourViewFeature";
+            menuBuilder << "RicNewContourMapViewFeature";
             menuBuilder << "Separator";
             menuBuilder << "RicCopyReferencesToClipboardFeature";
             menuBuilder << "RicSaveEclipseInputVisibleCellsFeature";
         }
-        else if (dynamic_cast<Rim2dEclipseViewCollection*>(uiItem))
+        else if (dynamic_cast<RimContourMapViewCollection*>(uiItem))
         {
-            menuBuilder << "RicNew2dContourViewFeature";
+            menuBuilder << "RicNewContourMapViewFeature";
         }
         else if (dynamic_cast<RimCaseCollection*>(uiItem))
         {
@@ -184,7 +184,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "Separator";
 
             menuBuilder << "RicNewViewFeature";
-            menuBuilder << "RicNew2dContourViewFeature";
+            menuBuilder << "RicNewContourMapViewFeature";
             menuBuilder << "RicShowFlowCharacteristicsPlotFeature";
             menuBuilder << "RicEclipseCaseNewGroupFeature";
             menuBuilder << "Separator";

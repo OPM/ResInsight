@@ -1,4 +1,4 @@
-#include "Rim2dGridProjection.h"
+#include "RimContourMapProjection.h"
 
 #include "RiaWeightedGeometricMeanCalculator.h"
 #include "RiaWeightedHarmonicMeanCalculator.h"
@@ -39,30 +39,30 @@
 namespace caf
 {
     template<>
-    void Rim2dGridProjection::ResultAggregation::setUp()
+    void RimContourMapProjection::ResultAggregation::setUp()
     {
-        addItem(Rim2dGridProjection::RESULTS_TOP_VALUE, "TOP_VALUE", "Top  Value");
-        addItem(Rim2dGridProjection::RESULTS_MEAN_VALUE, "MEAN_VALUE", "Arithmetic Mean");
-        addItem(Rim2dGridProjection::RESULTS_HARM_VALUE, "HARM_VALUE", "Harmonic Mean");
-        addItem(Rim2dGridProjection::RESULTS_GEOM_VALUE, "GEOM_VALUE", "Geometric Mean");
-        addItem(Rim2dGridProjection::RESULTS_MIN_VALUE, "MIN_VALUE", "Min Value");
-        addItem(Rim2dGridProjection::RESULTS_MAX_VALUE, "MAX_VALUE", "Max Value");
-        addItem(Rim2dGridProjection::RESULTS_SUM, "SUM", "Sum");
-        addItem(Rim2dGridProjection::RESULTS_OIL_COLUMN, "OIL_COLUMN", "Oil Column");
-        addItem(Rim2dGridProjection::RESULTS_GAS_COLUMN, "GAS_COLUMN", "Gas Column");
-        addItem(Rim2dGridProjection::RESULTS_HC_COLUMN,  "HC_COLUMN", "Hydrocarbon Column");
+        addItem(RimContourMapProjection::RESULTS_TOP_VALUE, "TOP_VALUE", "Top  Value");
+        addItem(RimContourMapProjection::RESULTS_MEAN_VALUE, "MEAN_VALUE", "Arithmetic Mean");
+        addItem(RimContourMapProjection::RESULTS_HARM_VALUE, "HARM_VALUE", "Harmonic Mean");
+        addItem(RimContourMapProjection::RESULTS_GEOM_VALUE, "GEOM_VALUE", "Geometric Mean");
+        addItem(RimContourMapProjection::RESULTS_MIN_VALUE, "MIN_VALUE", "Min Value");
+        addItem(RimContourMapProjection::RESULTS_MAX_VALUE, "MAX_VALUE", "Max Value");
+        addItem(RimContourMapProjection::RESULTS_SUM, "SUM", "Sum");
+        addItem(RimContourMapProjection::RESULTS_OIL_COLUMN, "OIL_COLUMN", "Oil Column");
+        addItem(RimContourMapProjection::RESULTS_GAS_COLUMN, "GAS_COLUMN", "Gas Column");
+        addItem(RimContourMapProjection::RESULTS_HC_COLUMN,  "HC_COLUMN", "Hydrocarbon Column");
 
-        setDefault(Rim2dGridProjection::RESULTS_TOP_VALUE);
+        setDefault(RimContourMapProjection::RESULTS_TOP_VALUE);
     }
 }
-CAF_PDM_SOURCE_INIT(Rim2dGridProjection, "Rim2dGridProjection");
+CAF_PDM_SOURCE_INIT(RimContourMapProjection, "RimContourMapProjection");
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-Rim2dGridProjection::Rim2dGridProjection()
+RimContourMapProjection::RimContourMapProjection()
 {
-    CAF_PDM_InitObject("Rim2dGridProjection", ":/draw_style_meshlines_24x24.png", "", "");
+    CAF_PDM_InitObject("RimContourMapProjection", ":/draw_style_meshlines_24x24.png", "", "");
 
     CAF_PDM_InitField(&m_relativeSampleSpacing, "SampleSpacing", 0.75, "Sample Spacing Factor", "", "", "");
     m_relativeSampleSpacing.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
@@ -71,7 +71,7 @@ Rim2dGridProjection::Rim2dGridProjection()
 
     CAF_PDM_InitField(&m_showContourLines, "ContourLines", true, "Show Contour Lines", "", "", "");
 
-    setName("2d Grid Projection");
+    setName("Map Projection");
     nameField()->uiCapability()->setUiReadOnly(true);
 
     m_resultAccessor = new RigHugeValResultAccessor;
@@ -80,7 +80,7 @@ Rim2dGridProjection::Rim2dGridProjection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-Rim2dGridProjection::~Rim2dGridProjection()
+RimContourMapProjection::~RimContourMapProjection()
 {
 
 }
@@ -88,7 +88,7 @@ Rim2dGridProjection::~Rim2dGridProjection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::BoundingBox Rim2dGridProjection::expandedBoundingBox() const
+cvf::BoundingBox RimContourMapProjection::expandedBoundingBox() const
 {
     cvf::BoundingBox boundingBox = eclipseCase()->activeCellsBoundingBox();
     boundingBox.expand(sampleSpacing() * 0.5);
@@ -98,7 +98,7 @@ cvf::BoundingBox Rim2dGridProjection::expandedBoundingBox() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void Rim2dGridProjection::generateGridMapping()
+void RimContourMapProjection::generateGridMapping()
 {
     calculateTotalCellVisibility();
     
@@ -126,7 +126,7 @@ void Rim2dGridProjection::generateGridMapping()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void Rim2dGridProjection::generateVertices(cvf::Vec3fArray* vertices, const caf::DisplayCoordTransform* displayCoordTransform)
+void RimContourMapProjection::generateVertices(cvf::Vec3fArray* vertices, const caf::DisplayCoordTransform* displayCoordTransform)
 {
     CVF_ASSERT(vertices);
     vertices->resize(vertexCount());
@@ -153,7 +153,7 @@ void Rim2dGridProjection::generateVertices(cvf::Vec3fArray* vertices, const caf:
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-Rim2dGridProjection::ContourPolygons Rim2dGridProjection::generateContourPolygons(const caf::DisplayCoordTransform* displayCoordTransform)
+RimContourMapProjection::ContourPolygons RimContourMapProjection::generateContourPolygons(const caf::DisplayCoordTransform* displayCoordTransform)
 {    
     std::vector<cvf::ref<cvf::Vec3fArray>> contourPolygons;
     if (minValue() != std::numeric_limits<double>::infinity() && maxValue() != -std::numeric_limits<double>::infinity())
@@ -193,7 +193,7 @@ Rim2dGridProjection::ContourPolygons Rim2dGridProjection::generateContourPolygon
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void Rim2dGridProjection::generateResults()
+void RimContourMapProjection::generateResults()
 {
     generateGridMapping();
     int nVertices = vertexCount();
@@ -277,7 +277,7 @@ void Rim2dGridProjection::generateResults()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double Rim2dGridProjection::maxValue() const
+double RimContourMapProjection::maxValue() const
 {
     double maxV = -std::numeric_limits<double>::infinity();
 
@@ -296,7 +296,7 @@ double Rim2dGridProjection::maxValue() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double Rim2dGridProjection::minValue() const
+double RimContourMapProjection::minValue() const
 {
     double minV = std::numeric_limits<double>::infinity();
 
@@ -315,7 +315,7 @@ double Rim2dGridProjection::minValue() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double Rim2dGridProjection::meanValue() const
+double RimContourMapProjection::meanValue() const
 {
     return sumAllValues() / validVertexCount();
 }
@@ -323,7 +323,7 @@ double Rim2dGridProjection::meanValue() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double Rim2dGridProjection::sumAllValues() const
+double RimContourMapProjection::sumAllValues() const
 {
     double sum = 0.0;
 
@@ -342,7 +342,7 @@ double Rim2dGridProjection::sumAllValues() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double Rim2dGridProjection::sampleSpacing() const
+double RimContourMapProjection::sampleSpacing() const
 {
     return m_relativeSampleSpacing * mainGrid()->characteristicIJCellSize();
 }
@@ -350,7 +350,7 @@ double Rim2dGridProjection::sampleSpacing() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool Rim2dGridProjection::showContourLines() const
+bool RimContourMapProjection::showContourLines() const
 {
     return m_showContourLines();
 }
@@ -358,7 +358,7 @@ bool Rim2dGridProjection::showContourLines() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::vector<double>& Rim2dGridProjection::aggregatedResults() const
+const std::vector<double>& RimContourMapProjection::aggregatedResults() const
 {
     return m_aggregatedResults;
 }
@@ -366,7 +366,7 @@ const std::vector<double>& Rim2dGridProjection::aggregatedResults() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool Rim2dGridProjection::isSummationResult() const
+bool RimContourMapProjection::isSummationResult() const
 {
     return isColumnResult() || m_resultAggregation() == RESULTS_SUM;
 }
@@ -374,7 +374,7 @@ bool Rim2dGridProjection::isSummationResult() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool Rim2dGridProjection::isColumnResult() const
+bool RimContourMapProjection::isColumnResult() const
 {
     return m_resultAggregation() == RESULTS_OIL_COLUMN ||
            m_resultAggregation() == RESULTS_GAS_COLUMN ||
@@ -384,7 +384,7 @@ bool Rim2dGridProjection::isColumnResult() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double Rim2dGridProjection::value(uint i, uint j) const
+double RimContourMapProjection::value(uint i, uint j) const
 {
     return m_aggregatedResults.at(gridIndex(i, j));
 }
@@ -392,7 +392,7 @@ double Rim2dGridProjection::value(uint i, uint j) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double Rim2dGridProjection::calculateValue(uint i, uint j) const
+double RimContourMapProjection::calculateValue(uint i, uint j) const
 {
     const std::vector<std::pair<size_t, double>>& matchingCells = cellsAtPos2d(i, j);
     if (!matchingCells.empty())
@@ -515,7 +515,7 @@ double Rim2dGridProjection::calculateValue(uint i, uint j) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double Rim2dGridProjection::calculateVolumeSum(uint i, uint j) const
+double RimContourMapProjection::calculateVolumeSum(uint i, uint j) const
 {
     const std::vector<std::pair<size_t, double>>& matchingCells = cellsAtPos2d(i, j);
     if (!matchingCells.empty())
@@ -534,7 +534,7 @@ double Rim2dGridProjection::calculateVolumeSum(uint i, uint j) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double Rim2dGridProjection::calculateSoilSum(uint i, uint j) const
+double RimContourMapProjection::calculateSoilSum(uint i, uint j) const
 {
     const std::vector<std::pair<size_t, double>>& matchingCells = cellsAtPos2d(i, j);
     if (!matchingCells.empty())
@@ -555,7 +555,7 @@ double Rim2dGridProjection::calculateSoilSum(uint i, uint j) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool Rim2dGridProjection::hasResultAt(uint i, uint j) const
+bool RimContourMapProjection::hasResultAt(uint i, uint j) const
 {
     RimEclipseView* view = nullptr;
     firstAncestorOrThisOfTypeAsserted(view);
@@ -571,7 +571,7 @@ bool Rim2dGridProjection::hasResultAt(uint i, uint j) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::Vec2ui Rim2dGridProjection::surfaceGridSize() const
+cvf::Vec2ui RimContourMapProjection::surfaceGridSize() const
 {
     cvf::BoundingBox boundingBox = expandedBoundingBox();
     cvf::Vec3d gridExtent = boundingBox.extent();
@@ -585,7 +585,7 @@ cvf::Vec2ui Rim2dGridProjection::surfaceGridSize() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-uint Rim2dGridProjection::vertexCount() const
+uint RimContourMapProjection::vertexCount() const
 {
     cvf::Vec2ui gridSize2d = surfaceGridSize();
     return gridSize2d.x() * gridSize2d.y();
@@ -594,7 +594,7 @@ uint Rim2dGridProjection::vertexCount() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-uint Rim2dGridProjection::validVertexCount() const
+uint RimContourMapProjection::validVertexCount() const
 {
     uint validCount = 0u;
     for (uint i = 0; i < vertexCount(); ++i)
@@ -611,7 +611,7 @@ uint Rim2dGridProjection::validVertexCount() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimRegularLegendConfig* Rim2dGridProjection::legendConfig() const
+RimRegularLegendConfig* RimContourMapProjection::legendConfig() const
 {
     RimEclipseView* view = nullptr;
     this->firstAncestorOrThisOfTypeAsserted(view);
@@ -621,7 +621,7 @@ RimRegularLegendConfig* Rim2dGridProjection::legendConfig() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void Rim2dGridProjection::calculateTotalCellVisibility()
+void RimContourMapProjection::calculateTotalCellVisibility()
 {
     RimEclipseView* view = nullptr;
     firstAncestorOrThisOfTypeAsserted(view);
@@ -632,7 +632,7 @@ void Rim2dGridProjection::calculateTotalCellVisibility()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::Vec2d Rim2dGridProjection::globalPos2d(uint i, uint j) const
+cvf::Vec2d RimContourMapProjection::globalPos2d(uint i, uint j) const
 {
     cvf::BoundingBox boundingBox = expandedBoundingBox();
     cvf::Vec3d gridExtent = boundingBox.extent();
@@ -646,7 +646,7 @@ cvf::Vec2d Rim2dGridProjection::globalPos2d(uint i, uint j) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::vector<std::pair<size_t, double>>& Rim2dGridProjection::cellsAtPos2d(uint i, uint j) const
+const std::vector<std::pair<size_t, double>>& RimContourMapProjection::cellsAtPos2d(uint i, uint j) const
 {
     return m_projected3dGridIndices[gridIndex(i, j)];
 }
@@ -654,7 +654,7 @@ const std::vector<std::pair<size_t, double>>& Rim2dGridProjection::cellsAtPos2d(
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<std::pair<size_t, double>> Rim2dGridProjection::visibleCellsAndWeightMatching2dPoint(const cvf::Vec2d& globalPos2d) const
+std::vector<std::pair<size_t, double>> RimContourMapProjection::visibleCellsAndWeightMatching2dPoint(const cvf::Vec2d& globalPos2d) const
 {   
     cvf::BoundingBox gridBoundingBox = expandedBoundingBox();
     cvf::Vec3d top2dElementCentroid(globalPos2d, gridBoundingBox.max().z());
@@ -741,7 +741,7 @@ std::vector<std::pair<size_t, double>> Rim2dGridProjection::visibleCellsAndWeigh
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double Rim2dGridProjection::findColumnResult(ResultAggregation resultAggregation, size_t cellGlobalIdx) const
+double RimContourMapProjection::findColumnResult(ResultAggregation resultAggregation, size_t cellGlobalIdx) const
 {
     const RigCaseCellResultsData* resultData = eclipseCase()->results(RiaDefines::MATRIX_MODEL);
     size_t poroResultIndex = resultData->findScalarResultIndex(RiaDefines::STATIC_NATIVE, "PORO");
@@ -796,7 +796,7 @@ double Rim2dGridProjection::findColumnResult(ResultAggregation resultAggregation
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double Rim2dGridProjection::findSoilResult(size_t cellGlobalIdx) const
+double RimContourMapProjection::findSoilResult(size_t cellGlobalIdx) const
 {
     const RigCaseCellResultsData* resultData = eclipseCase()->results(RiaDefines::MATRIX_MODEL);
     const RigActiveCellInfo* activeCellInfo = eclipseCase()->eclipseCaseData()->activeCellInfo(RiaDefines::MATRIX_MODEL);
@@ -818,7 +818,7 @@ double Rim2dGridProjection::findSoilResult(size_t cellGlobalIdx) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const RimEclipseResultCase* Rim2dGridProjection::eclipseCase() const
+const RimEclipseResultCase* RimContourMapProjection::eclipseCase() const
 {
     const RimEclipseResultCase* eclipseCase = nullptr;
     firstAncestorOrThisOfTypeAsserted(eclipseCase);
@@ -828,7 +828,7 @@ const RimEclipseResultCase* Rim2dGridProjection::eclipseCase() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-size_t Rim2dGridProjection::gridIndex(uint i, uint j) const
+size_t RimContourMapProjection::gridIndex(uint i, uint j) const
 {
     cvf::Vec2ui gridSize2d = surfaceGridSize();
 
@@ -841,7 +841,7 @@ size_t Rim2dGridProjection::gridIndex(uint i, uint j) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::Vec2ui Rim2dGridProjection::ijFromGridIndex(size_t index) const
+cvf::Vec2ui RimContourMapProjection::ijFromGridIndex(size_t index) const
 {
     CVF_TIGHT_ASSERT(index < vertexCount());
 
@@ -856,7 +856,7 @@ cvf::Vec2ui Rim2dGridProjection::ijFromGridIndex(size_t index) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void Rim2dGridProjection::updateLegend()
+void RimContourMapProjection::updateLegend()
 {
     RimEclipseView* view = nullptr;
     firstAncestorOrThisOfTypeAsserted(view);
@@ -889,7 +889,7 @@ void Rim2dGridProjection::updateLegend()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-Rim2dGridProjection::ResultAggregation Rim2dGridProjection::resultAggregation() const
+RimContourMapProjection::ResultAggregation RimContourMapProjection::resultAggregation() const
 {
     return m_resultAggregation();
 }
@@ -897,7 +897,7 @@ Rim2dGridProjection::ResultAggregation Rim2dGridProjection::resultAggregation() 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString Rim2dGridProjection::resultAggregationText() const
+QString RimContourMapProjection::resultAggregationText() const
 {
     return m_resultAggregation().uiText();
 }
@@ -905,7 +905,7 @@ QString Rim2dGridProjection::resultAggregationText() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<double> Rim2dGridProjection::xPositions() const
+std::vector<double> RimContourMapProjection::xPositions() const
 {
     cvf::BoundingBox boundingBox = expandedBoundingBox();
     cvf::Vec3d gridExtent = boundingBox.extent();
@@ -926,7 +926,7 @@ std::vector<double> Rim2dGridProjection::xPositions() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<double> Rim2dGridProjection::yPositions() const
+std::vector<double> RimContourMapProjection::yPositions() const
 {
     cvf::BoundingBox boundingBox = expandedBoundingBox();
     cvf::Vec3d gridExtent = boundingBox.extent();
@@ -946,7 +946,7 @@ std::vector<double> Rim2dGridProjection::yPositions() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigMainGrid* Rim2dGridProjection::mainGrid() const
+RigMainGrid* RimContourMapProjection::mainGrid() const
 {
     RimEclipseResultCase* eclipseCase = nullptr;
     firstAncestorOrThisOfTypeAsserted(eclipseCase);
@@ -956,7 +956,7 @@ RigMainGrid* Rim2dGridProjection::mainGrid() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void Rim2dGridProjection::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+void RimContourMapProjection::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
     if (changedField == &m_resultAggregation)
     {
@@ -975,7 +975,7 @@ void Rim2dGridProjection::fieldChangedByUi(const caf::PdmFieldHandle* changedFie
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void Rim2dGridProjection::defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute)
+void RimContourMapProjection::defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute)
 {    
     if (&m_relativeSampleSpacing == field)
     {
@@ -991,7 +991,7 @@ void Rim2dGridProjection::defineEditorAttribute(const caf::PdmFieldHandle* field
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void Rim2dGridProjection::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/)
+void RimContourMapProjection::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/)
 {
     uiTreeOrdering.skipRemainingChildren(true);
 }
@@ -999,7 +999,7 @@ void Rim2dGridProjection::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrd
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void Rim2dGridProjection::initAfterRead()
+void RimContourMapProjection::initAfterRead()
 {
     legendConfig()->disableAllTimeStepsRange(isSummationResult());
 }

@@ -1,11 +1,11 @@
-#include "Riv2dGridProjectionPartMgr.h"
+#include "RivContourMapProjectionPartMgr.h"
 
 #include "RiaWeightedMeanCalculator.h"
 #include "RivMeshLinesSourceInfo.h"
 #include "RivScalarMapperUtils.h"
 
-#include "Rim2dEclipseView.h"
-#include "Rim2dGridProjection.h"
+#include "RimContourMapView.h"
+#include "RimContourMapProjection.h"
 
 #include "cafEffectGenerator.h"
 
@@ -20,16 +20,16 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-Riv2dGridProjectionPartMgr::Riv2dGridProjectionPartMgr(Rim2dGridProjection* gridProjection, Rim2dEclipseView* contourMap)
+RivContourMapProjectionPartMgr::RivContourMapProjectionPartMgr(RimContourMapProjection* contourMapProjection, RimContourMapView* contourMap)
 {
-    m_2dGridProjection = gridProjection;
+    m_contourMapProjection = contourMapProjection;
     m_parentContourMap = contourMap;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void Riv2dGridProjectionPartMgr::appendProjectionToModel(cvf::ModelBasicList* model, const caf::DisplayCoordTransform* displayCoordTransform) const
+void RivContourMapProjectionPartMgr::appendProjectionToModel(cvf::ModelBasicList* model, const caf::DisplayCoordTransform* displayCoordTransform) const
 {
     cvf::ref<cvf::DrawableGeo> drawable = createDrawable(displayCoordTransform);
     if (drawable.notNull() && drawable->boundingBox().isValid())
@@ -38,15 +38,15 @@ void Riv2dGridProjectionPartMgr::appendProjectionToModel(cvf::ModelBasicList* mo
         part->setDrawable(drawable.p());
 
         cvf::ref<cvf::Vec2fArray> textureCoords = createTextureCoords();
-        cvf::ScalarMapper* mapper = m_2dGridProjection->legendConfig()->scalarMapper();
+        cvf::ScalarMapper* mapper = m_contourMapProjection->legendConfig()->scalarMapper();
         RivScalarMapperUtils::applyTextureResultsToPart(part.p(), textureCoords.p(), mapper, 1.0f, caf::FC_NONE, true, m_parentContourMap->backgroundColor());
 
-        part->setSourceInfo(new RivMeshLinesSourceInfo(m_2dGridProjection.p()));
+        part->setSourceInfo(new RivMeshLinesSourceInfo(m_contourMapProjection.p()));
 
         model->addPart(part.p());
     }
 
-    if (m_2dGridProjection->showContourLines())
+    if (m_contourMapProjection->showContourLines())
     {
         std::vector<cvf::ref<cvf::DrawableGeo>> contourDrawables = createContourPolygons(displayCoordTransform);
         for (cvf::ref<cvf::DrawableGeo> contourDrawable : contourDrawables)
@@ -61,7 +61,7 @@ void Riv2dGridProjectionPartMgr::appendProjectionToModel(cvf::ModelBasicList* mo
                 cvf::ref<cvf::Part> part = new cvf::Part;
                 part->setDrawable(contourDrawable.p());
                 part->setEffect(effect.p());
-                part->setSourceInfo(new RivMeshLinesSourceInfo(m_2dGridProjection.p()));
+                part->setSourceInfo(new RivMeshLinesSourceInfo(m_contourMapProjection.p()));
 
                 model->addPart(part.p());
             }
@@ -72,21 +72,21 @@ void Riv2dGridProjectionPartMgr::appendProjectionToModel(cvf::ModelBasicList* mo
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::ref<cvf::Vec2fArray> Riv2dGridProjectionPartMgr::createTextureCoords() const
+cvf::ref<cvf::Vec2fArray> RivContourMapProjectionPartMgr::createTextureCoords() const
 {
-    cvf::Vec2ui patchSize = m_2dGridProjection->surfaceGridSize();
+    cvf::Vec2ui patchSize = m_contourMapProjection->surfaceGridSize();
 
-    cvf::ref<cvf::Vec2fArray> textureCoords = new cvf::Vec2fArray(m_2dGridProjection->vertexCount());
+    cvf::ref<cvf::Vec2fArray> textureCoords = new cvf::Vec2fArray(m_contourMapProjection->vertexCount());
 
     for (uint j = 0; j < patchSize.y(); ++j)
     {
         for (uint i = 0; i < patchSize.x(); ++i)
         {
-            if (m_2dGridProjection->hasResultAt(i, j))
+            if (m_contourMapProjection->hasResultAt(i, j))
             {
-                double value = m_2dGridProjection->value(i, j);
+                double value = m_contourMapProjection->value(i, j);
                 (*textureCoords)[i + j * patchSize.x()] =
-                    m_2dGridProjection->legendConfig()->scalarMapper()->mapToTextureCoord(value);
+                    m_contourMapProjection->legendConfig()->scalarMapper()->mapToTextureCoord(value);
             }
             else
             {
@@ -100,7 +100,7 @@ cvf::ref<cvf::Vec2fArray> Riv2dGridProjectionPartMgr::createTextureCoords() cons
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void Riv2dGridProjectionPartMgr::removeTrianglesWithNoResult(cvf::UIntArray* vertices) const
+void RivContourMapProjectionPartMgr::removeTrianglesWithNoResult(cvf::UIntArray* vertices) const
 {
     std::vector<cvf::uint> trianglesWithResult;
     
@@ -110,8 +110,8 @@ void Riv2dGridProjectionPartMgr::removeTrianglesWithNoResult(cvf::UIntArray* ver
         for (size_t t = 0; !anyInvalid && t < 3; ++t)
         {
             cvf::uint vertexNumber = (*vertices)[n + t];
-            cvf::Vec2ui ij = m_2dGridProjection->ijFromGridIndex(vertexNumber);
-            if (!m_2dGridProjection->hasResultAt(ij.x(), ij.y()))
+            cvf::Vec2ui ij = m_contourMapProjection->ijFromGridIndex(vertexNumber);
+            if (!m_contourMapProjection->hasResultAt(ij.x(), ij.y()))
             {
                 anyInvalid = true;
             }
@@ -128,11 +128,11 @@ void Riv2dGridProjectionPartMgr::removeTrianglesWithNoResult(cvf::UIntArray* ver
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::ref<cvf::DrawableGeo> Riv2dGridProjectionPartMgr::createDrawable(const caf::DisplayCoordTransform* displayCoordTransform) const
+cvf::ref<cvf::DrawableGeo> RivContourMapProjectionPartMgr::createDrawable(const caf::DisplayCoordTransform* displayCoordTransform) const
 {
     cvf::ref<cvf::Vec3fArray> vertexArray = new cvf::Vec3fArray;
-    m_2dGridProjection->generateVertices(vertexArray.p(), displayCoordTransform);
-    cvf::Vec2ui patchSize = m_2dGridProjection->surfaceGridSize();
+    m_contourMapProjection->generateVertices(vertexArray.p(), displayCoordTransform);
+    cvf::Vec2ui patchSize = m_contourMapProjection->surfaceGridSize();
 
     // Surface
     cvf::ref<cvf::UIntArray> faceList = new cvf::UIntArray;
@@ -151,9 +151,9 @@ cvf::ref<cvf::DrawableGeo> Riv2dGridProjectionPartMgr::createDrawable(const caf:
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<cvf::ref<cvf::DrawableGeo>> Riv2dGridProjectionPartMgr::createContourPolygons(const caf::DisplayCoordTransform* displayCoordTransform) const
+std::vector<cvf::ref<cvf::DrawableGeo>> RivContourMapProjectionPartMgr::createContourPolygons(const caf::DisplayCoordTransform* displayCoordTransform) const
 {
-    Rim2dGridProjection::ContourPolygons contourPolygons = m_2dGridProjection->generateContourPolygons(displayCoordTransform);
+    RimContourMapProjection::ContourPolygons contourPolygons = m_contourMapProjection->generateContourPolygons(displayCoordTransform);
 
     std::vector<cvf::ref<cvf::DrawableGeo>> contourDrawables;
     contourDrawables.reserve(contourPolygons.size());

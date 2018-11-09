@@ -20,14 +20,14 @@
 
 #include "RimEclipseView.h"
 
-class Riv2dGridProjectionPartMgr;
+class RivContourMapProjectionPartMgr;
 
-class Rim2dEclipseView : public RimEclipseView
+class RimContourMapView : public RimEclipseView
 {
     CAF_PDM_HEADER_INIT;
 public:
-    Rim2dEclipseView();
-    Rim2dGridProjection*                     grid2dProjection() const;
+    RimContourMapView();
+    RimContourMapProjection*                     contourMapProjection() const;
 
 protected:
     void initAfterRead() override;
@@ -42,9 +42,9 @@ protected:
     void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
 
 private:
-    cvf::ref<Riv2dGridProjectionPartMgr>     m_grid2dProjectionPartMgr;
-    caf::PdmChildField<Rim2dGridProjection*> m_2dGridProjection;
-    caf::PdmField<bool>                      m_showAxisLines;
+    cvf::ref<RivContourMapProjectionPartMgr>     m_contourMapProjectionPartMgr;
+    caf::PdmChildField<RimContourMapProjection*> m_contourMapProjection;
+    caf::PdmField<bool>                          m_showAxisLines;
 
 };
 

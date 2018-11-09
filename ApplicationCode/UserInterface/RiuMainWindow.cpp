@@ -26,7 +26,7 @@
 #include "RiaRegressionTest.h"
 #include "RiaRegressionTestRunner.h"
 
-#include "Rim2dEclipseView.h"
+#include "RimContourMapView.h"
 #include "Rim2dIntersectionView.h"
 #include "Rim3dView.h"
 #include "RimCellEdgeColors.h"
@@ -852,7 +852,7 @@ void RiuMainWindow::slotRefreshEditActions()
 void RiuMainWindow::slotRefreshViewActions()
 {
     RimGridView* gridView = RiaApplication::instance()->activeGridView();
-    Rim2dEclipseView* view2d = dynamic_cast<Rim2dEclipseView*>(gridView);
+    RimContourMapView* view2d = dynamic_cast<RimContourMapView*>(gridView);
     bool enabled = gridView != nullptr && view2d == nullptr;
     m_viewFromNorth->setEnabled(enabled);
     m_viewFromSouth->setEnabled(enabled);
@@ -1578,7 +1578,7 @@ void RiuMainWindow::slotToggleFaultLabelsAction(bool showLabels)
 void RiuMainWindow::refreshDrawStyleActions()
 {
     RimGridView* gridView = RiaApplication::instance()->activeGridView();
-    Rim2dEclipseView* view2d = dynamic_cast<Rim2dEclipseView*>(gridView);
+    RimContourMapView* view2d = dynamic_cast<RimContourMapView*>(gridView);
     bool is2dMap = view2d != nullptr;
     bool is3dGridView = gridView != nullptr && !is2dMap;
 
@@ -1808,7 +1808,7 @@ void RiuMainWindow::slotScaleChanged(int scaleValue)
 void RiuMainWindow::updateScaleValue()
 {
     Rim3dView* view = RiaApplication::instance()->activeReservoirView();
-    bool isRegularReservoirView = view && dynamic_cast<Rim2dEclipseView*>(view) == nullptr;
+    bool isRegularReservoirView = view && dynamic_cast<RimContourMapView*>(view) == nullptr;
     if (isRegularReservoirView)
     {
         m_scaleFactor->setEnabled(true);

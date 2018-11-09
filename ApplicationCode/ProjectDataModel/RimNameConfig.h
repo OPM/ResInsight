@@ -53,10 +53,10 @@ public:
     virtual caf::PdmUiGroup*         createUiGroup(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
     
 protected:
-    void                     fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    void                             fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
     QString                          autoName() const;
     virtual void                     updateAllSettings();
-    void                     initAfterRead() override;
+    void                             initAfterRead() override;
 
 protected:
     caf::PdmField<bool>              m_isUsingAutoName_OBSOLETE;

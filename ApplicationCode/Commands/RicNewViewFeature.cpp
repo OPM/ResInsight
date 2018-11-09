@@ -19,7 +19,7 @@
 
 #include "RicNewViewFeature.h"
 
-#include "Rim2dEclipseView.h"
+#include "RimContourMapView.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
 #include "RimGeoMechCase.h"
@@ -161,7 +161,7 @@ RimEclipseView* RicNewViewFeature::selectedEclipseView()
 
     for (RimEclipseView* view : selection)
     {
-        if (dynamic_cast<Rim2dEclipseView*>(view) == nullptr)
+        if (dynamic_cast<RimContourMapView*>(view) == nullptr)
         {
             return view;
         }

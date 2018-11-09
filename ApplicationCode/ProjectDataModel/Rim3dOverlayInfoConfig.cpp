@@ -37,8 +37,8 @@
 #include "RigMainGrid.h"
 #include "RigStatisticsDataCache.h"
 
-#include "Rim2dEclipseView.h"
-#include "Rim2dGridProjection.h"
+#include "RimContourMapView.h"
+#include "RimContourMapProjection.h"
 #include "Rim2dIntersectionView.h"
 #include "Rim2dIntersectionViewCollection.h"
 #include "Rim3dView.h"
@@ -176,7 +176,7 @@ Rim3dOverlayInfoConfig::HistogramData Rim3dOverlayInfoConfig::histogramData()
 {
     auto eclipseView = dynamic_cast<RimEclipseView*>(m_viewDef.p());
     auto geoMechView = dynamic_cast<RimGeoMechView*>(m_viewDef.p());
-    auto contourMap = dynamic_cast<Rim2dEclipseView*>(eclipseView);
+    auto contourMap = dynamic_cast<RimContourMapView*>(eclipseView);
     
     if (contourMap) return histogramData(contourMap);
     else if (eclipseView) return histogramData(eclipseView);
@@ -278,20 +278,20 @@ void Rim3dOverlayInfoConfig::setIsActive(bool active)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-Rim3dOverlayInfoConfig::HistogramData Rim3dOverlayInfoConfig::histogramData(Rim2dEclipseView* contourMap)
+Rim3dOverlayInfoConfig::HistogramData Rim3dOverlayInfoConfig::histogramData(RimContourMapView* contourMap)
 {
     HistogramData histData;
 
     if (contourMap)
     {
-        bool isResultsInfoRelevant = contourMap->grid2dProjection()->validVertexCount() > 0u;
+        bool isResultsInfoRelevant = contourMap->contourMapProjection()->validVertexCount() > 0u;
 
         if (isResultsInfoRelevant)
         {
-            histData.min = contourMap->grid2dProjection()->minValue();
-            histData.max = contourMap->grid2dProjection()->maxValue();
-            histData.mean = contourMap->grid2dProjection()->meanValue();
-            histData.sum = contourMap->grid2dProjection()->sumAllValues();
+            histData.min = contourMap->contourMapProjection()->minValue();
+            histData.max = contourMap->contourMapProjection()->maxValue();
+            histData.mean = contourMap->contourMapProjection()->meanValue();
+            histData.sum = contourMap->contourMapProjection()->sumAllValues();
         }
     }
     return histData;
@@ -496,20 +496,20 @@ QString Rim3dOverlayInfoConfig::caseInfoText(RimEclipseView* eclipseView)
     {
         QString caseName = eclipseView->eclipseCase()->caseUserDescription();
 
-        Rim2dEclipseView* contourMap = dynamic_cast<Rim2dEclipseView*>(eclipseView);
-        if (contourMap && contourMap->grid2dProjection())
+        RimContourMapView* contourMap = dynamic_cast<RimContourMapView*>(eclipseView);
+        if (contourMap && contourMap->contourMapProjection())
         {
-            QString totCellCount = QString::number(contourMap->grid2dProjection()->vertexCount());
-            cvf::uint validCellCount = contourMap->grid2dProjection()->validVertexCount();
+            QString totCellCount = QString::number(contourMap->contourMapProjection()->vertexCount());
+            cvf::uint validCellCount = contourMap->contourMapProjection()->validVertexCount();
             QString activeCellCountText = QString::number(validCellCount);
-            QString iSize = QString::number(contourMap->grid2dProjection()->surfaceGridSize().x());
-            QString jSize = QString::number(contourMap->grid2dProjection()->surfaceGridSize().y());
-            QString aggregationType = contourMap->grid2dProjection()->resultAggregationText();
+            QString iSize = QString::number(contourMap->contourMapProjection()->surfaceGridSize().x());
+            QString jSize = QString::number(contourMap->contourMapProjection()->surfaceGridSize().y());
+            QString aggregationType = contourMap->contourMapProjection()->resultAggregationText();
 
             infoText += QString(
-                "<p><b>-- %1 --</b><p>  "
-                "<b>2d Sample Count. Total:</b> %2 <b>Valid Result:</b> %3 <br>"
-                "<b>2d %4 Projection, 2d Grid I,J:</b> %5, %6 <br>").arg(caseName, totCellCount, activeCellCountText, aggregationType, iSize, jSize);
+                "<p><b>-- Contour Map: %1 --</b><p>  "
+                "<b>Sample Count. Total:</b> %2 <b>Valid Results:</b> %3 <br>"
+                "<b>Projection Type: %4<br>").arg(caseName, totCellCount, activeCellCountText, aggregationType);
         }
         else if (eclipseView->mainGrid())
         {
@@ -573,11 +573,11 @@ QString Rim3dOverlayInfoConfig::resultInfoText(const HistogramData& histData, Ri
 {
     QString infoText;
 
-    Rim2dEclipseView* contourMap = dynamic_cast<Rim2dEclipseView*>(eclipseView);
+    RimContourMapView* contourMap = dynamic_cast<RimContourMapView*>(eclipseView);
 
     if (contourMap)
     {
-        bool isResultsInfoRelevant = contourMap->grid2dProjection()->validVertexCount() > 0u;
+        bool isResultsInfoRelevant = contourMap->contourMapProjection()->validVertexCount() > 0u;
         if (isResultsInfoRelevant)
         {
             QString propName = eclipseView->cellResult()->resultVariableUiShortName();
@@ -815,7 +815,7 @@ void Rim3dOverlayInfoConfig::defineUiOrdering(QString uiConfigName, caf::PdmUiOr
     caf::PdmUiGroup* visGroup = uiOrdering.addNewGroup("Visibility");
 
     RimEclipseView * eclipseView = dynamic_cast<RimEclipseView*>(m_viewDef.p());
-    Rim2dEclipseView* contourMap = dynamic_cast<Rim2dEclipseView*>(eclipseView);
+    RimContourMapView* contourMap = dynamic_cast<RimContourMapView*>(eclipseView);
     RimGeoMechView * geoMechView = dynamic_cast<RimGeoMechView*>(m_viewDef.p());
 
     visGroup->add(&m_showAnimProgress);

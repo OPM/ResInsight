@@ -16,10 +16,10 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicNew2dContourViewFeature.h"
+#include "RicNewContourMapViewFeature.h"
 
-#include "Rim2dEclipseView.h"
-#include "Rim2dEclipseViewCollection.h"
+#include "RimContourMapView.h"
+#include "RimContourMapViewCollection.h"
 #include "RimCellEdgeColors.h"
 #include "RimEclipseView.h"
 #include "RimEclipseCase.h"
@@ -37,27 +37,27 @@
 
 #include <QAction>
 
-CAF_CMD_SOURCE_INIT(RicNew2dContourViewFeature, "RicNew2dContourViewFeature");
+CAF_CMD_SOURCE_INIT(RicNewContourMapViewFeature, "RicNewContourMapViewFeature");
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RicNew2dContourViewFeature::isCommandEnabled()
+bool RicNewContourMapViewFeature::isCommandEnabled()
 {
     bool selectedView = caf::SelectionManager::instance()->selectedItemOfType<RimEclipseView>() != nullptr;
     bool selectedCase = caf::SelectionManager::instance()->selectedItemOfType<RimEclipseCase>() != nullptr;
-    bool selectedMapCollection = caf::SelectionManager::instance()->selectedItemOfType<Rim2dEclipseViewCollection>();
+    bool selectedMapCollection = caf::SelectionManager::instance()->selectedItemOfType<RimContourMapViewCollection>();
     return selectedView || selectedCase || selectedMapCollection;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicNew2dContourViewFeature::onActionTriggered(bool isChecked)
+void RicNewContourMapViewFeature::onActionTriggered(bool isChecked)
 {
     RimEclipseView* reservoirView = caf::SelectionManager::instance()->selectedItemOfType<RimEclipseView>();
     RimEclipseCase* eclipseCase = caf::SelectionManager::instance()->selectedItemAncestorOfType<RimEclipseCase>();
-    Rim2dEclipseView* contourMap = nullptr;
+    RimContourMapView* contourMap = nullptr;
 
     // Find case to insert into
     if (reservoirView)
@@ -85,9 +85,9 @@ void RicNew2dContourViewFeature::onActionTriggered(bool isChecked)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicNew2dContourViewFeature::setupActionLook(QAction* actionToSetup)
+void RicNewContourMapViewFeature::setupActionLook(QAction* actionToSetup)
 {
-    Rim2dEclipseView* contourMap = caf::SelectionManager::instance()->selectedItemOfType<Rim2dEclipseView>();
+    RimContourMapView* contourMap = caf::SelectionManager::instance()->selectedItemOfType<RimContourMapView>();
     RimEclipseView* eclipseView  = caf::SelectionManager::instance()->selectedItemOfType<RimEclipseView>();
     if (contourMap)
     {
@@ -107,10 +107,10 @@ void RicNew2dContourViewFeature::setupActionLook(QAction* actionToSetup)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-Rim2dEclipseView* RicNew2dContourViewFeature::create2dContourMapFrom3dView(RimEclipseCase* eclipseCase, const RimEclipseView* sourceView)
+RimContourMapView* RicNewContourMapViewFeature::create2dContourMapFrom3dView(RimEclipseCase* eclipseCase, const RimEclipseView* sourceView)
 {
-    Rim2dEclipseView* contourMap = dynamic_cast<Rim2dEclipseView*>(sourceView->xmlCapability()->copyAndCastByXmlSerialization(
-        Rim2dEclipseView::classKeywordStatic(), sourceView->classKeyword(), caf::PdmDefaultObjectFactory::instance()));
+    RimContourMapView* contourMap = dynamic_cast<RimContourMapView*>(sourceView->xmlCapability()->copyAndCastByXmlSerialization(
+        RimContourMapView::classKeywordStatic(), sourceView->classKeyword(), caf::PdmDefaultObjectFactory::instance()));
     CVF_ASSERT(contourMap);
 
     contourMap->setEclipseCase(eclipseCase);
@@ -132,9 +132,9 @@ Rim2dEclipseView* RicNew2dContourViewFeature::create2dContourMapFrom3dView(RimEc
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-Rim2dEclipseView* RicNew2dContourViewFeature::create2dContourMap(RimEclipseCase* eclipseCase)
+RimContourMapView* RicNewContourMapViewFeature::create2dContourMap(RimEclipseCase* eclipseCase)
 {
-    Rim2dEclipseView* contourMap = new Rim2dEclipseView();
+    RimContourMapView* contourMap = new RimContourMapView();
     contourMap->setEclipseCase(eclipseCase);
 
     // Set default values

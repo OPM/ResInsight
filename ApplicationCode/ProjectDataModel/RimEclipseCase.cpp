@@ -35,8 +35,8 @@
 #include "RigSimWellData.h"
 #include "RigVirtualPerforationTransmissibilities.h"
 
-#include "Rim2dEclipseView.h"
-#include "Rim2dEclipseViewCollection.h"
+#include "RimContourMapView.h"
+#include "RimContourMapViewCollection.h"
 #include "Rim2dIntersectionView.h"
 #include "Rim2dIntersectionViewCollection.h"
 #include "RimCaseCollection.h"
@@ -101,9 +101,9 @@ RimEclipseCase::RimEclipseCase()
     CAF_PDM_InitFieldNoDefault(&m_filesContainingFaultsSemColSeparated, "CachedFileNamesContainingFaults", "", "", "", "");
     m_filesContainingFaultsSemColSeparated.uiCapability()->setUiHidden(true);
 
-    CAF_PDM_InitFieldNoDefault(&m_2dContourMapCollection, "ContourMaps", "2d Contour Maps", "", "", "");
-    m_2dContourMapCollection = new Rim2dEclipseViewCollection;
-    m_2dContourMapCollection.uiCapability()->setUiTreeHidden(true);
+    CAF_PDM_InitFieldNoDefault(&m_contourMapCollection, "ContourMaps", "2d Contour Maps", "", "", "");
+    m_contourMapCollection = new RimContourMapViewCollection;
+    m_contourMapCollection.uiCapability()->setUiTreeHidden(true);
 
     // Obsolete fields
     CAF_PDM_InitFieldNoDefault(&m_filesContainingFaults_OBSOLETE, "FilesContainingFaults", "", "", "", "");
@@ -239,7 +239,7 @@ void RimEclipseCase::initAfterRead()
 
         riv->setEclipseCase(this);
     }
-    for (Rim2dEclipseView* contourMap : m_2dContourMapCollection->views())
+    for (RimContourMapView* contourMap : m_contourMapCollection->views())
     {
         contourMap->setEclipseCase(this);
     }
@@ -520,9 +520,9 @@ void RimEclipseCase::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering
     {
         uiTreeOrdering.add(&m_2dIntersectionViewCollection);
     }
-    if (!m_2dContourMapCollection->views().empty())
+    if (!m_contourMapCollection->views().empty())
     {
-        uiTreeOrdering.add(&m_2dContourMapCollection);
+        uiTreeOrdering.add(&m_contourMapCollection);
     }
     uiTreeOrdering.skipRemainingChildren(true);
 }
@@ -575,9 +575,9 @@ RimCaseCollection* RimEclipseCase::parentCaseCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-Rim2dEclipseViewCollection* RimEclipseCase::contourMapCollection()
+RimContourMapViewCollection* RimEclipseCase::contourMapCollection()
 {
-    return m_2dContourMapCollection;
+    return m_contourMapCollection;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -869,7 +869,7 @@ std::vector<Rim3dView*> RimEclipseCase::allSpecialViews() const
         views.push_back(view);
     }
 
-    for (Rim2dEclipseView* view : m_2dContourMapCollection->views())
+    for (RimContourMapView* view : m_contourMapCollection->views())
     {
         views.push_back(view);
     }
@@ -939,7 +939,7 @@ void RimEclipseCase::reloadDataAndUpdate()
             reservoirView->updateAnnotationItems();
         }
 
-        for (Rim2dEclipseView* contourMap : m_2dContourMapCollection->views())
+        for (RimContourMapView* contourMap : m_contourMapCollection->views())
         {
             CVF_ASSERT(contourMap);
             contourMap->loadDataAndUpdate();

@@ -23,7 +23,7 @@
 #include "cvfBase.h"
 #include "cvfArray.h"
 
-class Rim2dGridProjection;
+class RimContourMapProjection;
 class Rim3dOverlayInfoConfig;
 class RimIntersectionCollection;
 class RimPropertyFilterCollection;
