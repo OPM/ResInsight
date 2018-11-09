@@ -52,7 +52,7 @@ public:
 
     QString name() const override;
     QString createAutoName() const override;
-    double          rkbDiff() const;
+    double  rkbDiff() const;
 
     bool    isShowingTimeDependentResult() const override;
 

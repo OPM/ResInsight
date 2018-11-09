@@ -52,7 +52,7 @@ namespace caf
         addItem(RimContourMapProjection::RESULTS_GAS_COLUMN, "GAS_COLUMN", "Gas Column");
         addItem(RimContourMapProjection::RESULTS_HC_COLUMN,  "HC_COLUMN", "Hydrocarbon Column");
 
-        setDefault(RimContourMapProjection::RESULTS_TOP_VALUE);
+        setDefault(RimContourMapProjection::RESULTS_OIL_COLUMN);
     }
 }
 CAF_PDM_SOURCE_INIT(RimContourMapProjection, "RimContourMapProjection");
@@ -345,6 +345,14 @@ double RimContourMapProjection::sumAllValues() const
 double RimContourMapProjection::sampleSpacing() const
 {
     return m_relativeSampleSpacing * mainGrid()->characteristicIJCellSize();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimContourMapProjection::sampleSpacingFactor() const
+{
+    return m_relativeSampleSpacing();
 }
 
 //--------------------------------------------------------------------------------------------------

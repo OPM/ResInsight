@@ -123,11 +123,11 @@ public:
     void                                            uiOrderingForPlotSettings(caf::PdmUiOrdering& uiOrdering);
 
     QString                                 createAutoName() const override;
-    void                                            updateHolder() override;
 
-    void                                            handleKeyPressEvent(QKeyEvent* keyEvent);
-    RimWellLogCurveCommonDataSource*                commonDataSource() const;
+    void                                    handleKeyPressEvent(QKeyEvent* keyEvent);
+    RimWellLogCurveCommonDataSource*        commonDataSource() const;
 protected:
+    void                                    performHolderUpdate() override;
 
     // Overridden PDM methods
     void                                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;

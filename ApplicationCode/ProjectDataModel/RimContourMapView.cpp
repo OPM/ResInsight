@@ -21,9 +21,11 @@
 #include "RivContourMapProjectionPartMgr.h"
 #include "RiuViewer.h"
 
-#include "RimContourMapProjection.h"
 #include "Rim3dOverlayInfoConfig.h"
+#include "RimCase.h"
 #include "RimCellRangeFilterCollection.h"
+#include "RimContourMapNameConfig.h"
+#include "RimContourMapProjection.h"
 #include "RimEclipseCellColors.h"
 #include "RimEclipsePropertyFilterCollection.h"
 #include "RimFaultInViewCollection.h"
@@ -58,9 +60,13 @@ RimContourMapView::RimContourMapView()
     wellCollection()->isActive = false;
     faultCollection()->showFaultCollection = false;    
 
+    CAF_PDM_InitFieldNoDefault(&m_nameConfig, "NameConfig", "", "", "", "");
+    m_nameConfig = new RimContourMapNameConfig(this);
+
     m_contourMapProjectionPartMgr = new RivContourMapProjectionPartMgr(contourMapProjection(), this);
     
     ((RiuViewerToViewInterface*)this)->setCameraPosition(defaultViewMatrix);
+
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -69,6 +75,50 @@ RimContourMapView::RimContourMapView()
 RimContourMapProjection* RimContourMapView::contourMapProjection() const
 {
     return m_contourMapProjection().p();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimContourMapView::createAutoName() const
+{
+    QStringList autoName;
+
+    if (!m_nameConfig->customName().isEmpty())
+    {
+        autoName.push_back(m_nameConfig->customName());
+    }
+
+    QStringList generatedAutoTags;
+
+    RimCase* ownerCase = nullptr;
+    this->firstAncestorOrThisOfTypeAsserted(ownerCase);
+
+    if (m_nameConfig->addCaseName())
+    {
+        generatedAutoTags.push_back(ownerCase->caseUserDescription());
+    }
+
+    if (m_nameConfig->addAggregationType())
+    {
+        generatedAutoTags.push_back(contourMapProjection()->resultAggregationText());
+    }
+
+    if (m_nameConfig->addProperty() && !contourMapProjection()->isColumnResult())
+    {
+        generatedAutoTags.push_back(cellResult()->resultVariable());
+    }
+
+    if (m_nameConfig->addSampleSpacing())
+    {
+        generatedAutoTags.push_back(QString("%1").arg(contourMapProjection()->sampleSpacingFactor(), 3, 'f', 2));
+    }
+
+    if (!generatedAutoTags.empty())
+    {
+        autoName.push_back(generatedAutoTags.join(", "));
+    }
+    return autoName.join(": ");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -106,6 +156,8 @@ void RimContourMapView::defineUiOrdering(QString uiConfigName, caf::PdmUiOrderin
     viewGroup->add(this->userDescriptionField());
     viewGroup->add(this->backgroundColorField());
     viewGroup->add(&m_showAxisLines);
+
+    m_nameConfig()->createUiGroup(uiConfigName, uiOrdering);
     uiOrdering.skipRemainingFields(true);
 }
 
@@ -239,4 +291,12 @@ void RimContourMapView::fieldChangedByUi(const caf::PdmFieldHandle* changedField
     {
         scheduleCreateDisplayModelAndRedraw();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+caf::PdmFieldHandle* RimContourMapView::userDescriptionField()
+{
+    return m_nameConfig()->nameField();
 }

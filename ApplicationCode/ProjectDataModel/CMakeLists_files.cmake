@@ -120,6 +120,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RimWellLogCurveCommonDataSource.h
 ${CMAKE_CURRENT_LIST_DIR}/RimContourMapProjection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimContourMapView.h
 ${CMAKE_CURRENT_LIST_DIR}/RimContourMapViewCollection.h
+${CMAKE_CURRENT_LIST_DIR}/RimContourMapNameConfig.h
 )
 
 
@@ -244,6 +245,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RimWellLogCurveCommonDataSource.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimContourMapProjection.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimContourMapView.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimContourMapViewCollection.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimContourMapNameConfig.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

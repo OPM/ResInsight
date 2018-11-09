@@ -71,6 +71,7 @@ public:
     double                      meanValue() const;
     double                      sumAllValues() const;
     double                      sampleSpacing() const;
+    double                      sampleSpacingFactor() const;
     bool                        showContourLines() const;
 
     const std::vector<double>&  aggregatedResults() const;

@@ -19,15 +19,19 @@
 #pragma once
 
 #include "RimEclipseView.h"
+#include "RimNameConfig.h"
 
+class RimContourMapNameConfig;
 class RivContourMapProjectionPartMgr;
 
-class RimContourMapView : public RimEclipseView
+class RimContourMapView : public RimEclipseView, public RimNameConfigHolderInterface
 {
     CAF_PDM_HEADER_INIT;
 public:
     RimContourMapView();
     RimContourMapProjection*                     contourMapProjection() const;
+
+    QString createAutoName() const override;
 
 protected:
     void initAfterRead() override;
@@ -40,11 +44,14 @@ protected:
     void updateViewFollowingRangeFilterUpdates() override;
     void onLoadDataAndUpdate() override;
     void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    
+    caf::PdmFieldHandle* userDescriptionField() override;
 
 private:
     cvf::ref<RivContourMapProjectionPartMgr>     m_contourMapProjectionPartMgr;
     caf::PdmChildField<RimContourMapProjection*> m_contourMapProjection;
     caf::PdmField<bool>                          m_showAxisLines;
+    caf::PdmChildField<RimContourMapNameConfig*> m_nameConfig;
 
 };
 
