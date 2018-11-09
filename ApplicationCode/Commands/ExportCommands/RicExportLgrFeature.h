@@ -36,6 +36,10 @@ class RimWellPath;
 class QFile;
 class QTextStream;
 
+//==================================================================================================
+/// Candidate for refactoring
+//==================================================================================================
+
 
 //==================================================================================================
 ///
@@ -161,6 +165,8 @@ class RicExportLgrFeature : public caf::CmdFeature
 
     static std::map<QString /*wellName*/, std::vector<LgrInfo>> createLgrInfoListForTemporaryLgrs(const RigMainGrid* mainGrid);
 
+    static void resetLgrNaming();
+
 protected:
     bool isCommandEnabled() override;
     void onActionTriggered(bool isChecked) override;
@@ -198,5 +204,4 @@ private:
                                                    bool* isIntersectingOtherLgrs);
 
     static int firstAvailableLgrId(const RigMainGrid* mainGrid);
-    static QString createLgrName(const QString& baseName, int number);
 };

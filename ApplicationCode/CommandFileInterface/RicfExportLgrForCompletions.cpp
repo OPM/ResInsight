@@ -95,6 +95,8 @@ void RicfExportLgrForCompletions::execute()
 
         caf::VecIjk lgrCellCounts(m_refinementI, m_refinementJ, m_refinementK);
         QStringList wellsWithIntersectingLgrs;
+
+        feature->resetLgrNaming();
         for (const auto wellPath : wellPaths)
         {
             if (wellPath)

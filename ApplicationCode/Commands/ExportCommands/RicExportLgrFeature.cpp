@@ -107,6 +107,21 @@ public:
     }
 };
 
+//==================================================================================================
+///
+//==================================================================================================
+class LgrNameFactory
+{
+public:
+    LgrNameFactory();
+    QString newName(RigCompletionData::CompletionType completionType);
+    QString newName(const QString& baseName, int number);
+    void    resetNumbering();
+
+private:
+    std::map<RigCompletionData::CompletionType, std::pair<QString, int>> m_counters;
+} lgrNameFactory;
+
 //--------------------------------------------------------------------------------------------------
 // Internal function
 //--------------------------------------------------------------------------------------------------
@@ -364,7 +379,7 @@ std::vector<LgrInfo> RicExportLgrFeature::buildLgrsForWellPath(RimWellPath*     
         auto intersectingCells = cellsIntersectingCompletions(eclipseCase, wellPath, timeStep, completionTypes, intersectingOtherLgrs);
 
         int lgrId = firstAvailableLgrId(eclipseCase->mainGrid());
-        auto lgrName = createLgrName("WELL", lgrId);
+        auto lgrName = lgrNameFactory.newName("WELL", lgrId);
         lgrs.push_back(buildLgr(lgrId, lgrName, eclipseCase, wellPath, intersectingCells, lgrCellCounts));
     }
     return lgrs;
@@ -383,7 +398,7 @@ std::vector<LgrInfo> RicExportLgrFeature::buildLgrsPerMainCell(RimEclipseCase*  
     int lgrId = firstAvailableLgrId(eclipseCase->mainGrid());
     for (const auto& intersectionCell : intersectingCells)
     {
-        auto lgrName = createLgrName("", lgrId);
+        auto lgrName = lgrNameFactory.newName("", lgrId);
         lgrs.push_back(buildLgr(lgrId++, lgrName, eclipseCase, wellPath, {intersectionCell}, lgrSizes));
     }
     return lgrs;
@@ -399,17 +414,11 @@ std::vector<LgrInfo> RicExportLgrFeature::buildLgrsPerCompletion(
     const caf::VecIjk&                                                      lgrSizesPerMainGridCell)
 {
     std::vector<LgrInfo> lgrs;
-    std::map<RigCompletionData::CompletionType, std::pair<QString, int>> namesAndCounters =
-    {
-        {RigCompletionData::FRACTURE, {"FRAC", 0}}, {RigCompletionData::FISHBONES, {"FB", 0}}, {RigCompletionData::PERFORATION, {"PERF", 0}}
-    };
 
     int lgrId = firstAvailableLgrId(eclipseCase->mainGrid());
     for (auto complInfo : completionInfo)
     {
-        auto& typeName = namesAndCounters[complInfo.first.type].first;
-        auto& typeCounter = namesAndCounters[complInfo.first.type].second;
-        auto lgrName = createLgrName(typeName, typeCounter++);
+        auto lgrName = lgrNameFactory.newName(complInfo.first.type);
         lgrs.push_back(buildLgr(lgrId++, lgrName, eclipseCase, wellPath, complInfo.second, lgrSizesPerMainGridCell));
     }
     return lgrs;
@@ -801,6 +810,14 @@ std::map<QString /*wellName*/, std::vector<LgrInfo>> RicExportLgrFeature::create
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RicExportLgrFeature::resetLgrNaming()
+{
+    lgrNameFactory.resetNumbering();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 int RicExportLgrFeature::firstAvailableLgrId(const RigMainGrid* mainGrid)
 {
     int gridCount  = (int)mainGrid->gridCount();
@@ -815,11 +832,54 @@ int RicExportLgrFeature::firstAvailableLgrId(const RigMainGrid* mainGrid)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RicExportLgrFeature::createLgrName(const QString& baseName, int number)
+LgrNameFactory::LgrNameFactory()
+{
+    m_counters = {
+        {RigCompletionData::FRACTURE, {"FRAC", 1}},
+        {RigCompletionData::FISHBONES, {"FB", 1}},
+        {RigCompletionData::PERFORATION, {"PERF", 1}}
+    };
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString LgrNameFactory::newName(RigCompletionData::CompletionType completionType)
+{
+    switch (completionType)
+    {
+    case RigCompletionData::FRACTURE:
+    case RigCompletionData::FISHBONES:
+    case RigCompletionData::PERFORATION:
+    {
+        auto& counter = m_counters[completionType];
+        QString name = counter.first + "_" + QString::number(counter.second);
+        counter.second++;
+        return name;
+    }
+    default:
+        return "Unknown type";
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString LgrNameFactory::newName(const QString& baseName, int number)
 {
     QString lgrName;
     if(baseName.isEmpty()) lgrName = "LGR_";
-    lgrName += baseName + "_" + QString::number(number + 1);
+    lgrName += baseName + "_" + QString::number(number);
     return lgrName.replace(" ", "_");
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void LgrNameFactory::resetNumbering()
+{
+    for (auto& counter : m_counters)
+    {
+        counter.second.second = 1;
+    }
+}

@@ -174,6 +174,7 @@ void RicCreateTemporaryLgrFeature::onActionTriggered(bool isChecked)
 
         RicDeleteTemporaryLgrsFeature::deleteAllTemporaryLgrs(eclipseCase);
 
+        RicExportLgrFeature::resetLgrNaming();
         bool intersectingOtherLgrs = false;
         for (const auto& wellPath : wellPaths)
         {
