@@ -558,9 +558,20 @@ QString RicWellPathFractureTextReportFeatureImpl::createFractureInstancesText(
         formatter.add(fracture->fractureMD());
         formatter.add(fracture->dip());
         formatter.add(fracture->tilt());
-        formatter.add(fracture->perforationLength());
+
+        if (fracture->fractureTemplate() &&
+            fracture->fractureTemplate()->orientationType() == RimFractureTemplate::ALONG_WELL_PATH)
+        {
+            formatter.add(fracture->perforationLength());
+        }
+        else
+        {
+            formatter.add("N/A");
+        }
+
         formatter.add(fracture->perforationEfficiency());
         formatter.add(fracture->wellRadius() * 2.0);
+
         if (fracture->fractureTemplate() && fracture->fractureTemplate()->isNonDarcyFlowEnabled())
         {
             formatter.add(fracture->nonDarcyProperties().dFactor);
