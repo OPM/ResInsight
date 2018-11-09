@@ -116,6 +116,7 @@ protected:
 
 private:
     const RigMainGrid* mainGrid() const;
+    bool               hasPersistentLgrs() const;
 
     caf::PdmField<bool>                        m_isActive;
     caf::PdmChildField<RimGridInfo*>           m_mainGrid;

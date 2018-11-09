@@ -463,7 +463,10 @@ void RimGridCollection::initAfterRead()
 void RimGridCollection::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/)
 {
     uiTreeOrdering.add(m_mainGrid());
-    uiTreeOrdering.add(m_persistentLgrs());
+    if (hasPersistentLgrs())
+    {
+        uiTreeOrdering.add(m_persistentLgrs());
+    }
     uiTreeOrdering.add(m_temporaryLgrs());
     uiTreeOrdering.skipRemainingChildren(true);
 }
@@ -476,4 +479,20 @@ const RigMainGrid* RimGridCollection::mainGrid() const
     RimEclipseCase* eclipseCase;
     firstAncestorOrThisOfType(eclipseCase);
     return eclipseCase ? eclipseCase->mainGrid() : nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimGridCollection::hasPersistentLgrs() const
+{
+    auto mainGrid = this->mainGrid();
+    if (!mainGrid) return 0;
+
+    for (int i = 1; i < mainGrid->gridCount(); i++)
+    {
+        const auto grid = mainGrid->gridByIndex(i);
+        if (!grid->isTempGrid()) return true;
+    }
+    return false;
 }
