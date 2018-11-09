@@ -26,11 +26,11 @@
 
 #include "RiuPlotMainWindow.h"
 
-#include "RimGridCollection.h"
-#include "RimWellPath.h"
-#include "RimProject.h"
-#include "RimWellPathCollection.h"
 #include "RimEclipseCase.h"
+#include "RimGridCollection.h"
+#include "RimProject.h"
+#include "RimWellPath.h"
+#include "RimWellPathCollection.h"
 
 #include "cafSelectionManagerTools.h"
 
@@ -43,6 +43,11 @@ CAF_CMD_SOURCE_INIT(RicExportCompletionsForTemporaryLgrsFeature, "RicExportCompl
 //--------------------------------------------------------------------------------------------------
 bool RicExportCompletionsForTemporaryLgrsFeature::isCommandEnabled()
 {
+    if (wellPathsAssociatedWithLgrs().empty())
+    {
+        return false;
+    }
+
     std::vector<RimGridInfoCollection*> selGridInfos = caf::selectedObjectsByTypeStrict<RimGridInfoCollection*>();
     return selGridInfos.size() == 1 && selGridInfos.front()->uiName() == RimGridCollection::temporaryGridUiName();
 }
@@ -53,7 +58,10 @@ bool RicExportCompletionsForTemporaryLgrsFeature::isCommandEnabled()
 void RicExportCompletionsForTemporaryLgrsFeature::onActionTriggered(bool isChecked)
 {
     std::vector<RimWellPath*> wellPaths = wellPathsAssociatedWithLgrs();
-    CVF_ASSERT(wellPaths.size() > 0);
+    if (wellPaths.empty())
+    {
+        return;
+    }
 
     std::vector<RimSimWellInView*> simWells;
     QString                        dialogTitle = "Export Completion Data for Temporary LGRs";
@@ -77,28 +85,32 @@ std::vector<RimWellPath*> RicExportCompletionsForTemporaryLgrsFeature::wellPaths
     std::vector<RimWellPath*> wellPaths;
 
     auto selectedEclipseCase = caf::firstAncestorOfTypeFromSelectedObject<RimEclipseCase*>();
-    auto mainGrid = selectedEclipseCase->mainGrid();
-
-    std::set<QString> wellPathNames;
-
-    for (size_t i = 0; i < mainGrid->gridCount(); i++)
+    if (selectedEclipseCase)
     {
-        const RigGridBase* grid = mainGrid->gridByIndex(i);
+        auto mainGrid = selectedEclipseCase->mainGrid();
 
-        if (!grid->associatedWellPathName().empty())
+        std::set<QString> wellPathNames;
+
+        for (size_t i = 0; i < mainGrid->gridCount(); i++)
         {
-            wellPathNames.insert(QString::fromStdString(grid->associatedWellPathName()));
+            const RigGridBase* grid = mainGrid->gridByIndex(i);
+
+            if (!grid->associatedWellPathName().empty())
+            {
+                wellPathNames.insert(QString::fromStdString(grid->associatedWellPathName()));
+            }
+        }
+
+        auto project = RiaApplication::instance()->project();
+        for (const auto& wellPathName : wellPathNames)
+        {
+            auto wellPath = project->wellPathByName(wellPathName);
+            if (wellPath)
+            {
+                wellPaths.push_back(wellPath);
+            }
         }
     }
 
-    auto project = RiaApplication::instance()->project();
-    for (const auto& wellPathName : wellPathNames)
-    {
-        auto wellPath = project->wellPathByName(wellPathName);
-        if (wellPath)
-        {
-            wellPaths.push_back(wellPath);
-        }
-    }
     return wellPaths;
 }

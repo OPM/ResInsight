@@ -47,7 +47,12 @@ void RicDeleteTemporaryLgrsFeature::deleteAllTemporaryLgrs(RimEclipseCase* eclip
 bool RicDeleteTemporaryLgrsFeature::isCommandEnabled()
 {
     std::vector<RimGridInfoCollection*> selGridInfos = caf::selectedObjectsByTypeStrict<RimGridInfoCollection*>();
-    return selGridInfos.size() == 1 && selGridInfos.front()->uiName() == RimGridCollection::temporaryGridUiName();
+    if (selGridInfos.size() == 1 && selGridInfos.front()->uiName() == RimGridCollection::temporaryGridUiName())
+    {
+        return !selGridInfos[0]->gridInfos().empty();
+    }
+
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------
