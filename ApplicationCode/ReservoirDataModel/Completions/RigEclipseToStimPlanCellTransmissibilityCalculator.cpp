@@ -264,9 +264,23 @@ void RigEclipseToStimPlanCellTransmissibilityCalculator::calculateStimPlanCellsM
         double fractureAreaWeightedlength = totalAreaXLength / fractureArea;
 
         // Transmissibility for inactive cells is set to zero
+        // Inactive cells must be include in order to compute the fractured area correctly
         double transmissibility = 0.0;
 
-        if (activeCellInfo->isActive(reservoirCellIndex))
+        bool isActive = true;
+        {
+            // Use main grid cell to evaluate if a cell is active or not.
+            // All cells in temporary grids are active
+            const RigCell& cell                   = mainGrid->globalCellArray()[reservoirCellIndex];
+            size_t         mainGridReservoirIndex = cell.mainGridCellIndex();
+
+            if (!activeCellInfo->isActive(mainGridReservoirIndex))
+            {
+                isActive = false;
+            }
+        }
+
+        if (isActive)
         {
             double permX = dataAccessObjectPermX->cellScalarGlobIdx(reservoirCellIndex);
             double permY = dataAccessObjectPermY->cellScalarGlobIdx(reservoirCellIndex);
