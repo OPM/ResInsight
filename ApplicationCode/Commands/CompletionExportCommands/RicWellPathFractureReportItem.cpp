@@ -20,6 +20,8 @@
 
 #include "RigTransmissibilityEquations.h"
 
+#include <cmath>
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -147,7 +149,7 @@ double RicWellPathFractureReportItem::fcd() const
     double myFcd = 0.0;
 
     double threshold = 1.0e-7;
-    if (std::fabs(kmxf()) > threshold)
+    if (fabs(kmxf()) > threshold)
     {
         myFcd = kfwf() / kmxf();
     }
