@@ -29,6 +29,7 @@
 #include <limits>
 #include <memory>
 
+class RigMainGrid;
 class RimEclipseCase;
 class RimSimWellInView;
 class RimWellPath;
@@ -44,12 +45,11 @@ class LgrInfo
 public:
     LgrInfo(int id,
             const QString& name,
-            const QString& shortName,
             const QString& associatedWellPathName,
             const caf::VecIjk& sizes,
             const caf::VecIjk& mainGridStartCell,
             const caf::VecIjk& mainGridEndCell)
-        : id(id), name(name), shortName(shortName), associatedWellPathName(associatedWellPathName),
+        : id(id), name(name), associatedWellPathName(associatedWellPathName),
         sizes(sizes), mainGridStartCell(mainGridStartCell), mainGridEndCell(mainGridEndCell)
     {
     }
@@ -68,7 +68,6 @@ public:
 
     int                 id;
     QString             name;
-    QString             shortName;
     QString             associatedWellPathName;
     caf::VecIjk         sizes;
 
@@ -129,7 +128,7 @@ class RicExportLgrFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
 
-    typedef std::pair<size_t, size_t> Range;
+    using Range = std::pair<size_t, size_t>;
     static Range initRange() { return std::make_pair(std::numeric_limits<size_t>::max(), 0); }
 
     static RicExportLgrUi* openDialog(const QString& dialogTitle,
@@ -146,6 +145,10 @@ class RicExportLgrFeature : public caf::CmdFeature
                                       const std::set<RigCompletionData::CompletionType>& completionTypes,
                                       bool* intersectingOtherLgrs);
 
+    static void exportLgrs(const QString& exportFolder,
+                           const QString& wellName,
+                           const std::vector<LgrInfo>& lgrInfos);
+
     static std::vector<LgrInfo> buildLgrsForWellPath(RimWellPath*                 wellPath,
                                                      RimEclipseCase*              eclipseCase,
                                                      size_t                       timeStep,
@@ -156,13 +159,15 @@ class RicExportLgrFeature : public caf::CmdFeature
 
     static std::vector<RimWellPath*> selectedWellPaths();
 
+    static std::map<QString /*wellName*/, std::vector<LgrInfo>> createLgrInfoListForTemporaryLgrs(const RigMainGrid* mainGrid);
+
 protected:
     bool isCommandEnabled() override;
     void onActionTriggered(bool isChecked) override;
     void setupActionLook(QAction* actionToSetup) override;
 
 private:
-    static void exportLgrs(QTextStream& stream, const std::vector<LgrInfo>& lgrInfos);
+    static void writeLgrs(QTextStream& stream, const std::vector<LgrInfo>& lgrInfos);
 
     static std::vector<LgrInfo> buildLgrsPerMainCell(RimEclipseCase*                               eclipseCase,
                                                      RimWellPath*                                  wellPath,
@@ -175,7 +180,6 @@ private:
                                           const caf::VecIjk&                                                      lgrSizesPerMainGridCell);
     static LgrInfo buildLgr(int                                           lgrId,
                             const QString&                                lgrName,
-                            const QString&                                shortLgrName,
                             RimEclipseCase*                               eclipseCase,
                             RimWellPath*                                  wellPath,
                             const std::vector<RigCompletionDataGridCell>& intersectingCells,
@@ -194,6 +198,5 @@ private:
                                                    bool* isIntersectingOtherLgrs);
 
     static int firstAvailableLgrId(const RigMainGrid* mainGrid);
-    static QString createLgrName(const QString& baseName, int number = 0);
-    static QString createShortLgrName(const QString& baseName, int number);
+    static QString createLgrName(const QString& baseName, int number);
 };

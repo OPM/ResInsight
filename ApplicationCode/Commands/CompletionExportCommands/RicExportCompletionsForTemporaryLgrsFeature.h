@@ -22,6 +22,7 @@
 
 class RimSimWellInView;
 class RimWellPath;
+class RigMainGrid;
 
 //==================================================================================================
 ///

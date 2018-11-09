@@ -248,13 +248,10 @@ bool RicExportLgrFeature::openFileForExport(const QString& folderName, const QSt
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicExportLgrFeature::exportLgrs(QTextStream& stream, const std::vector<LgrInfo>& lgrInfos)
+void RicExportLgrFeature::writeLgrs(QTextStream& stream, const std::vector<LgrInfo>& lgrInfos)
 {
-    int count = 0;
     for (auto lgrInfo : lgrInfos)
     {
-        auto lgrName = QString("LGR_%1").arg(++count);
-
         {
             RifEclipseDataTableFormatter formatter(stream);
             formatter.comment(QString("LGR: ") + lgrInfo.name);
@@ -270,7 +267,7 @@ void RicExportLgrFeature::exportLgrs(QTextStream& stream, const std::vector<LgrI
                               RifEclipseOutputTableColumn("NY"),
                               RifEclipseOutputTableColumn("NZ")});
 
-            formatter.add(lgrInfo.shortName);
+            formatter.add(lgrInfo.name);
             formatter.addOneBasedCellIndex(lgrInfo.mainGridStartCell.i());
             formatter.addOneBasedCellIndex(lgrInfo.mainGridEndCell.i());
             formatter.addOneBasedCellIndex(lgrInfo.mainGridStartCell.j());
@@ -316,14 +313,25 @@ void RicExportLgrFeature::exportLgrsForWellPath(const QString&            export
 
     if (!*intersectingOtherLgrs && !lgrs.empty())
     {
+        exportLgrs(exportFolder, wellPath->name(), lgrs);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicExportLgrFeature::exportLgrs(const QString& exportFolder, const QString& wellName, const std::vector<LgrInfo>& lgrInfos)
+{
+    if (!lgrInfos.empty())
+    {
         // Export
         QFile   file;
-        QString fileName = caf::Utils::makeValidFileBasename(QString("LGR_%1").arg(wellPath->name())) + ".dat";
+        QString fileName = caf::Utils::makeValidFileBasename(QString("LGR_%1").arg(wellName)) + ".dat";
         openFileForExport(exportFolder, fileName, &file);
         QTextStream stream(&file);
         stream.setRealNumberNotation(QTextStream::FixedNotation);
         stream.setRealNumberPrecision(2);
-        exportLgrs(stream, lgrs);
+        writeLgrs(stream, lgrInfos);
         file.close();
     }
 }
@@ -356,8 +364,8 @@ std::vector<LgrInfo> RicExportLgrFeature::buildLgrsForWellPath(RimWellPath*     
         auto intersectingCells = cellsIntersectingCompletions(eclipseCase, wellPath, timeStep, completionTypes, intersectingOtherLgrs);
 
         int lgrId = firstAvailableLgrId(eclipseCase->mainGrid());
-        auto lgrName = createLgrName("", lgrId);
-        lgrs.push_back(buildLgr(lgrId, lgrName, lgrName, eclipseCase, wellPath, intersectingCells, lgrCellCounts));
+        auto lgrName = createLgrName("WELL", lgrId);
+        lgrs.push_back(buildLgr(lgrId, lgrName, eclipseCase, wellPath, intersectingCells, lgrCellCounts));
     }
     return lgrs;
 }
@@ -376,7 +384,7 @@ std::vector<LgrInfo> RicExportLgrFeature::buildLgrsPerMainCell(RimEclipseCase*  
     for (const auto& intersectionCell : intersectingCells)
     {
         auto lgrName = createLgrName("", lgrId);
-        lgrs.push_back(buildLgr(lgrId++, lgrName, lgrName, eclipseCase, wellPath, {intersectionCell}, lgrSizes));
+        lgrs.push_back(buildLgr(lgrId++, lgrName, eclipseCase, wellPath, {intersectionCell}, lgrSizes));
     }
     return lgrs;
 }
@@ -399,11 +407,10 @@ std::vector<LgrInfo> RicExportLgrFeature::buildLgrsPerCompletion(
     int lgrId = firstAvailableLgrId(eclipseCase->mainGrid());
     for (auto complInfo : completionInfo)
     {
-        auto lgrName = createLgrName(complInfo.first.name, complInfo.first.number);
         auto& typeName = namesAndCounters[complInfo.first.type].first;
         auto& typeCounter = namesAndCounters[complInfo.first.type].second;
-        auto lgrShortName = createShortLgrName(typeName, typeCounter++);
-        lgrs.push_back(buildLgr(lgrId++, lgrName, lgrShortName, eclipseCase, wellPath, complInfo.second, lgrSizesPerMainGridCell));
+        auto lgrName = createLgrName(typeName, typeCounter++);
+        lgrs.push_back(buildLgr(lgrId++, lgrName, eclipseCase, wellPath, complInfo.second, lgrSizesPerMainGridCell));
     }
     return lgrs;
 }
@@ -413,7 +420,6 @@ std::vector<LgrInfo> RicExportLgrFeature::buildLgrsPerCompletion(
 //--------------------------------------------------------------------------------------------------
 LgrInfo RicExportLgrFeature::buildLgr(int                                           lgrId,
                                       const QString&                                lgrName,
-                                      const QString&                                shortLgrName,
                                       RimEclipseCase*                               eclipseCase,
                                       RimWellPath*                                  wellPath,
                                       const std::vector<RigCompletionDataGridCell>& intersectingCells,
@@ -442,7 +448,7 @@ LgrInfo RicExportLgrFeature::buildLgr(int                                       
     caf::VecIjk mainGridStartCell(iRange.first, jRange.first, kRange.first);
     caf::VecIjk mainGridEndCell(iRange.second, jRange.second, kRange.second);
 
-    return LgrInfo(lgrId, lgrName, shortLgrName, wellPath->name(), lgrSizes, mainGridStartCell, mainGridEndCell);
+    return LgrInfo(lgrId, lgrName, wellPath->name(), lgrSizes, mainGridStartCell, mainGridEndCell);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -733,6 +739,68 @@ std::vector<RimWellPath*> RicExportLgrFeature::selectedWellPaths()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::pair<caf::VecIjk, caf::VecIjk> mainGridCellBoundingBoxFromLgr(const RigGridBase* lgr)
+{
+    auto mainGrid = lgr->mainGrid();
+
+    // Find min and max IJK
+    auto iRange = RicExportLgrFeature::initRange();
+    auto jRange = RicExportLgrFeature::initRange();
+    auto kRange = RicExportLgrFeature::initRange();
+
+    for (size_t c = 0; c < lgr->cellCount(); c++)
+    {
+        const auto& cell = lgr->cell(c);
+        size_t mainGridCellIndex = cell.mainGridCellIndex();
+
+        size_t i, j, k;
+        mainGrid->ijkFromCellIndex(mainGridCellIndex, &i, &j, &k);
+
+        iRange.first  = std::min(i, iRange.first);
+        iRange.second = std::max(i, iRange.second);
+        jRange.first  = std::min(j, jRange.first);
+        jRange.second = std::max(j, jRange.second);
+        kRange.first  = std::min(k, kRange.first);
+        kRange.second = std::max(k, kRange.second);
+    }
+
+    caf::VecIjk mainGridStartCell(iRange.first, jRange.first, kRange.first);
+    caf::VecIjk mainGridEndCell(iRange.second, jRange.second, kRange.second);
+    return std::make_pair(mainGridStartCell, mainGridEndCell);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::map<QString /*wellName*/, std::vector<LgrInfo>> RicExportLgrFeature::createLgrInfoListForTemporaryLgrs(const RigMainGrid* mainGrid)
+{
+    std::map<QString, std::vector<LgrInfo>> lgrInfosPerWell;
+
+    for (size_t i = 0; i < mainGrid->gridCount(); i++)
+    {
+        const auto grid = mainGrid->gridByIndex(i);
+        if (!grid->isTempGrid()) continue;
+
+        caf::VecIjk lgrSizes(grid->cellCountI(), grid->cellCountJ(), grid->cellCountK());
+        std::pair<caf::VecIjk, caf::VecIjk> mainGridBoundingBox = mainGridCellBoundingBoxFromLgr(grid);
+
+        QString wellName = QString::fromStdString(grid->associatedWellPathName());
+        auto& item = lgrInfosPerWell[wellName];
+
+        item.emplace_back(LgrInfo(grid->gridId(),
+                                    QString::fromStdString(grid->gridName()),
+                                    QString::fromStdString(grid->associatedWellPathName()),
+                                    lgrSizes,
+                                    mainGridBoundingBox.first,
+                                    mainGridBoundingBox.second));
+    }
+
+    return lgrInfosPerWell;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 int RicExportLgrFeature::firstAvailableLgrId(const RigMainGrid* mainGrid)
 {
     int gridCount  = (int)mainGrid->gridCount();
@@ -750,24 +818,8 @@ int RicExportLgrFeature::firstAvailableLgrId(const RigMainGrid* mainGrid)
 QString RicExportLgrFeature::createLgrName(const QString& baseName, int number)
 {
     QString lgrName;
-    
-    if (!baseName.isEmpty())
-    {
-        lgrName += "_" + baseName;
-    }
-    if (number > 0)
-    {
-        lgrName += "_" + QString::number(number);
-    }
-    return lgrName.replace(" ", "_");
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RicExportLgrFeature::createShortLgrName(const QString& baseName, int number)
-{
-    QString lgrName = baseName + "_" + QString::number(number + 1);
+    if(baseName.isEmpty()) lgrName = "LGR_";
+    lgrName += baseName + "_" + QString::number(number + 1);
     return lgrName.replace(" ", "_");
 }
 
