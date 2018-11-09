@@ -20,6 +20,7 @@
 #include "RimEclipseCellColors.h"
 #include "RimEclipseView.h"
 #include "RimEclipseResultCase.h"
+#include "RimEclipseResultDefinition.h"
 #include "RimProject.h"
 #include "RimRegularLegendConfig.h"
 
@@ -71,6 +72,12 @@ RimContourMapProjection::RimContourMapProjection()
 
     CAF_PDM_InitField(&m_showContourLines, "ContourLines", true, "Show Contour Lines", "", "", "");
 
+    CAF_PDM_InitField(&m_weightByParameter, "WeightByParameter", false, "Weight by Result Parameter", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_weightingResult, "WeightingResult", "", "", "", "");
+    m_weightingResult.uiCapability()->setUiHidden(true);
+    m_weightingResult.uiCapability()->setUiTreeChildrenHidden(true);
+    m_weightingResult = new RimEclipseResultDefinition;
+    m_weightingResult->findField("MResultType")->uiCapability()->setUiName("Result Type");
     setName("Map Projection");
     nameField()->uiCapability()->setUiReadOnly(true);
 
@@ -113,13 +120,33 @@ void RimContourMapProjection::generateGridMapping()
 
     int nVertices = vertexCount();
 
+    const std::vector<double>* weightingResultValues = nullptr;
+    if (m_weightByParameter())
+    {
+        size_t gridScalarResultIdx = m_weightingResult->scalarResultIndex();
+        if (gridScalarResultIdx != cvf::UNDEFINED_SIZE_T)
+        {
+            m_weightingResult->loadResult();
+            int timeStep = 0;
+            if (m_weightingResult->hasDynamicResult())
+            {
+                RimEclipseView* view = nullptr;
+                firstAncestorOrThisOfTypeAsserted(view);
+                timeStep = view->currentTimeStep();
+
+            }
+            weightingResultValues = &(m_weightingResult->currentGridCellResults()->cellScalarResults(gridScalarResultIdx)[timeStep]);
+        }
+    }
+
+
 #pragma omp parallel for
     for (int index = 0; index < nVertices; ++index)
     {
         cvf::Vec2ui ij = ijFromGridIndex(index);
 
         cvf::Vec2d globalPos = globalPos2d(ij.x(), ij.y());
-        m_projected3dGridIndices[index] = visibleCellsAndWeightMatching2dPoint(globalPos);
+        m_projected3dGridIndices[index] = visibleCellsAndWeightMatching2dPoint(globalPos, weightingResultValues);
     }
 }
 
@@ -369,6 +396,29 @@ bool RimContourMapProjection::showContourLines() const
 const std::vector<double>& RimContourMapProjection::aggregatedResults() const
 {
     return m_aggregatedResults;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimContourMapProjection::weightingParameter() const
+{
+    QString parameter = "None";
+    if (m_weightByParameter() && !m_weightingResult->isTernarySaturationSelected())
+    {
+        parameter = m_weightingResult->resultVariableUiShortName();
+    }
+    return parameter;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimContourMapProjection::isMeanResult() const
+{
+    return m_resultAggregation() == RESULTS_MEAN_VALUE ||
+           m_resultAggregation() == RESULTS_HARM_VALUE ||
+           m_resultAggregation() == RESULTS_GEOM_VALUE;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -662,7 +712,7 @@ const std::vector<std::pair<size_t, double>>& RimContourMapProjection::cellsAtPo
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<std::pair<size_t, double>> RimContourMapProjection::visibleCellsAndWeightMatching2dPoint(const cvf::Vec2d& globalPos2d) const
+std::vector<std::pair<size_t, double>> RimContourMapProjection::visibleCellsAndWeightMatching2dPoint(const cvf::Vec2d& globalPos2d, const std::vector<double>* weightingResultValues) const
 {   
     cvf::BoundingBox gridBoundingBox = expandedBoundingBox();
     cvf::Vec3d top2dElementCentroid(globalPos2d, gridBoundingBox.max().z());
@@ -697,12 +747,27 @@ std::vector<std::pair<size_t, double>> RimContourMapProjection::visibleCellsAndW
             double overlapVolume = RigCellGeometryTools::calculateCellVolume(overlapCorners);
 
             if (overlapVolume > 0.0)
-            {            
-                double height = overlapBBox.max().z();
-                matchingVisibleCellsWeightAndHeight.push_back(std::make_tuple(globalCellIdx, overlapVolume, height));
-                sumOverlapVolumes += overlapVolume;
-                maxHeight = std::max(maxHeight, height);
-                minHeight = std::min(minHeight, overlapBBox.min().z());
+            {
+                double weight = overlapVolume;
+                if (weightingResultValues)
+                {
+                    const RigActiveCellInfo* activeCellInfo = eclipseCase()->eclipseCaseData()->activeCellInfo(RiaDefines::MATRIX_MODEL);
+                    size_t cellResultIdx = activeCellInfo->cellResultIndex(globalCellIdx);
+                    double result = std::max((*weightingResultValues)[cellResultIdx], 0.0);
+                    if (result < 1.0e-6)
+                    {
+                        result = 0.0;
+                    }
+                    weight *= result;
+                }
+                if (weight > 0.0)
+                {
+                    double height = overlapBBox.max().z();
+                    matchingVisibleCellsWeightAndHeight.push_back(std::make_tuple(globalCellIdx, weight, height));
+                    sumOverlapVolumes += overlapVolume;
+                    maxHeight = std::max(maxHeight, height);
+                    minHeight = std::min(minHeight, overlapBBox.min().z());
+                }
             }
         }
     }
@@ -829,7 +894,17 @@ double RimContourMapProjection::findSoilResult(size_t cellGlobalIdx) const
 const RimEclipseResultCase* RimContourMapProjection::eclipseCase() const
 {
     const RimEclipseResultCase* eclipseCase = nullptr;
-    firstAncestorOrThisOfTypeAsserted(eclipseCase);
+    firstAncestorOrThisOfType(eclipseCase);
+    return eclipseCase;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimEclipseResultCase* RimContourMapProjection::eclipseCase()
+{
+    RimEclipseResultCase* eclipseCase = nullptr;
+    firstAncestorOrThisOfType(eclipseCase);
     return eclipseCase;
 }
 
@@ -870,7 +945,7 @@ void RimContourMapProjection::updateLegend()
     firstAncestorOrThisOfTypeAsserted(view);
     RimEclipseCellColors* cellColors = view->cellResult();
 
-    if (isSummationResult() || (m_resultAggregation != RESULTS_TOP_VALUE && legendConfig()->rangeMode() != RimLegendConfig::AUTOMATIC_ALLTIMESTEPS))
+    if ((isSummationResult() || weightingParameter() != "None") || (m_resultAggregation != RESULTS_TOP_VALUE && legendConfig()->rangeMode() != RimLegendConfig::AUTOMATIC_ALLTIMESTEPS))
     {
         double minVal = minValue();
         double maxVal = maxValue();
@@ -886,11 +961,18 @@ void RimContourMapProjection::updateLegend()
         m_resultAggregation() == RESULTS_GAS_COLUMN ||
         m_resultAggregation() == RESULTS_HC_COLUMN)
     {
-        legendConfig()->setTitle(QString("2d Projection:\n%1").arg(m_resultAggregation().uiText()));
+        legendConfig()->setTitle(QString("Map Projection\n%1").arg(m_resultAggregation().uiText()));
     }
     else
     {
-        legendConfig()->setTitle(QString("2d Projection:\n%1: %2").arg(m_resultAggregation().uiText()).arg(cellColors->resultVariableUiShortName()));
+        QString projectionLegendText = QString("Map Projection\n%1").arg(m_resultAggregation().uiText());
+        if (weightingParameter() != "None")
+        {
+            projectionLegendText += QString("(W: %1)").arg(weightingParameter());
+        }
+        projectionLegendText += QString("\nResult: %1").arg(cellColors->resultVariableUiShortName());
+
+        legendConfig()->setTitle(projectionLegendText);
     }
 }
 
@@ -908,6 +990,20 @@ RimContourMapProjection::ResultAggregation RimContourMapProjection::resultAggreg
 QString RimContourMapProjection::resultAggregationText() const
 {
     return m_resultAggregation().uiText();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimContourMapProjection::updatedWeightingResult()
+{
+    this->updateConnectedEditors();
+    this->generateResults();
+    this->updateLegend();
+
+    RimProject* proj;
+    this->firstAncestorOrThisOfTypeAsserted(proj);
+    proj->scheduleCreateDisplayModelAndRedrawAllViews();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -971,6 +1067,8 @@ void RimContourMapProjection::fieldChangedByUi(const caf::PdmFieldHandle* change
         legendConfig()->disableAllTimeStepsRange(isSummationResult());
     }
 
+    m_weightingResult->loadResult();
+
     RimEclipseView* view = nullptr;
     this->firstAncestorOrThisOfTypeAsserted(view);
     view->updateConnectedEditors();
@@ -999,6 +1097,34 @@ void RimContourMapProjection::defineEditorAttribute(const caf::PdmFieldHandle* f
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimContourMapProjection::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+{
+    caf::PdmUiGroup* mainGroup = uiOrdering.addNewGroup("Projection Settings");
+    mainGroup->add(&m_relativeSampleSpacing);
+    mainGroup->add(&m_resultAggregation);
+    mainGroup->add(&m_showContourLines);
+
+    caf::PdmUiGroup* weightingGroup = uiOrdering.addNewGroup("Mean Weighting Options");
+    weightingGroup->add(&m_weightByParameter);
+    weightingGroup->setCollapsedByDefault(true);
+
+    m_weightByParameter.uiCapability()->setUiReadOnly(!isMeanResult());
+    if (!isMeanResult())
+    {
+        m_weightByParameter = false;
+    }
+
+    if (m_weightByParameter())
+    {
+        m_weightingResult->uiOrdering(uiConfigName, *weightingGroup);
+    }
+
+    uiOrdering.skipRemainingFields(true);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimContourMapProjection::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/)
 {
     uiTreeOrdering.skipRemainingChildren(true);
@@ -1010,4 +1136,8 @@ void RimContourMapProjection::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTre
 void RimContourMapProjection::initAfterRead()
 {
     legendConfig()->disableAllTimeStepsRange(isSummationResult());
+    if (eclipseCase())
+    {
+        m_weightingResult->setEclipseCase(eclipseCase());
+    }
 }

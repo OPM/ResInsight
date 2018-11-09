@@ -505,11 +505,16 @@ QString Rim3dOverlayInfoConfig::caseInfoText(RimEclipseView* eclipseView)
             QString iSize = QString::number(contourMap->contourMapProjection()->surfaceGridSize().x());
             QString jSize = QString::number(contourMap->contourMapProjection()->surfaceGridSize().y());
             QString aggregationType = contourMap->contourMapProjection()->resultAggregationText();
+            QString weightingParameterString;
+            if (contourMap->contourMapProjection()->weightingParameter() != "None")
+            {
+                weightingParameterString += QString(" (Weight: %1)").arg(contourMap->contourMapProjection()->weightingParameter());
+            }
 
             infoText += QString(
                 "<p><b>-- Contour Map: %1 --</b><p>  "
                 "<b>Sample Count. Total:</b> %2 <b>Valid Results:</b> %3 <br>"
-                "<b>Projection Type: %4<br>").arg(caseName, totCellCount, activeCellCountText, aggregationType);
+                "<b>Projection Type: %4%5<br>").arg(caseName, totCellCount, activeCellCountText, aggregationType, weightingParameterString);
         }
         else if (eclipseView->mainGrid())
         {

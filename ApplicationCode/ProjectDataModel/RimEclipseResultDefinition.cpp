@@ -29,6 +29,7 @@
 #include "Rim3dView.h"
 #include "Rim3dWellLogCurve.h"
 #include "RimCellEdgeColors.h"
+#include "RimContourMapProjection.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
 #include "RimEclipseFaultColors.h"
@@ -366,6 +367,13 @@ void RimEclipseResultDefinition::updateAnyFieldHasChanged()
     if (rim3dWellLogCurve)
     {
         rim3dWellLogCurve->resetMinMaxValuesAndUpdateUI();
+    }
+
+    RimContourMapProjection* contourMap = nullptr;
+    this->firstAncestorOrThisOfType(contourMap);
+    if (contourMap)
+    {
+        contourMap->updatedWeightingResult();
     }
 }
 

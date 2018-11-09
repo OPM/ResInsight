@@ -34,6 +34,7 @@
 class RigMainGrid;
 class RigResultAccessor;
 class RimEclipseResultCase;
+class RimEclipseResultDefinition;
 
 //==================================================================================================
 ///  
@@ -75,6 +76,8 @@ public:
     bool                        showContourLines() const;
 
     const std::vector<double>&  aggregatedResults() const;
+    QString                     weightingParameter() const;
+    bool                        isMeanResult() const;
     bool                        isSummationResult() const;
     bool                        isColumnResult() const;
 
@@ -94,6 +97,8 @@ public:
     ResultAggregation           resultAggregation() const;
     QString                     resultAggregationText() const;
 
+    void                        updatedWeightingResult();
+
 protected:
     double                                       calculateValue(uint i, uint j) const;
     double                                       calculateVolumeSum(uint i, uint j) const;
@@ -107,26 +112,30 @@ protected:
     std::vector<double>                          xPositions() const;
     std::vector<double>                          yPositions() const;
 
-    std::vector<std::pair<size_t, double>>        visibleCellsAndWeightMatching2dPoint(const cvf::Vec2d& globalPos2d) const;
+    std::vector<std::pair<size_t, double>>       visibleCellsAndWeightMatching2dPoint(const cvf::Vec2d& globalPos2d, const std::vector<double>* weightingResultValues = nullptr) const;
     double                                       findColumnResult(ResultAggregation resultAggregation, size_t cellGlobalIdx) const;
     double                                       findSoilResult(size_t cellGlobalIdx) const;
-    const RimEclipseResultCase* eclipseCase() const;
-    RigMainGrid*                mainGrid() const;
+    const RimEclipseResultCase*                  eclipseCase() const;
+    RimEclipseResultCase*                        eclipseCase();
+    RigMainGrid*                                 mainGrid() const;
     
     void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
     void defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override;
+    void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
     void defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
-    void initAfterRead() override;
+    void initAfterRead() override;    
 
 protected:
     caf::PdmField<double>                              m_relativeSampleSpacing;
     caf::PdmField<ResultAggregation>                   m_resultAggregation;
     caf::PdmField<bool>                                m_showContourLines;
-
+    caf::PdmField<bool>                                m_weightByParameter;
+    caf::PdmChildField<RimEclipseResultDefinition*>    m_weightingResult;
     cvf::ref<cvf::UByteArray>                          m_cellGridIdxVisibility;
 
     std::vector<double>                                 m_aggregatedResults;
     std::vector<std::vector<std::pair<size_t, double>>> m_projected3dGridIndices;
 
     cvf::ref<RigResultAccessor>                        m_resultAccessor;
+
 };
