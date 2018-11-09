@@ -46,13 +46,13 @@ class RicCreateTemporaryLgrFeature : public caf::CmdFeature
     CAF_CMD_HEADER_INIT;
 
 public:
-    void createLgrsForWellPath(RimWellPath*                                       wellPath,
-                               RimEclipseCase*                                    eclipseCase,
-                               size_t                                             timeStep,
-                               caf::VecIjk                                        lgrCellCounts,
-                               Lgr::SplitType                                     splitType,
-                               const std::set<RigCompletionData::CompletionType>& completionTypes,
-                               bool*                                              intersectingOtherLgrs);
+    void createLgrsForWellPaths(std::vector<RimWellPath*>                          wellPaths,
+                                RimEclipseCase*                                    eclipseCase,
+                                size_t                                             timeStep,
+                                caf::VecIjk                                        lgrCellCounts,
+                                Lgr::SplitType                                     splitType,
+                                const std::set<RigCompletionData::CompletionType>& completionTypes,
+                                QStringList*                                       wellsIntersectingOtherLgrs);
 
     void updateViews(RimEclipseCase* eclipseCase);
 

@@ -94,24 +94,14 @@ void RicfExportLgrForCompletions::execute()
         }
 
         caf::VecIjk lgrCellCounts(m_refinementI, m_refinementJ, m_refinementK);
-        QStringList wellsWithIntersectingLgrs;
+        QStringList wellsIntersectingOtherLgrs;
 
-        feature->resetLgrNaming();
-        for (const auto wellPath : wellPaths)
-        {
-            if (wellPath)
-            {
-                bool intersectingLgrs = false;
-                feature->exportLgrsForWellPath(exportFolder, wellPath, eclipseCase, m_timeStep, lgrCellCounts, m_splitType(),
-                    {RigCompletionData::PERFORATION, RigCompletionData::FRACTURE, RigCompletionData::FISHBONES}, &intersectingLgrs);
-                
-                if (intersectingLgrs) wellsWithIntersectingLgrs.push_back(wellPath->name());
-            }
-        }
+        feature->exportLgrsForWellPaths(exportFolder, wellPaths, eclipseCase, m_timeStep, lgrCellCounts, m_splitType(),
+            {RigCompletionData::PERFORATION, RigCompletionData::FRACTURE, RigCompletionData::FISHBONES}, &wellsIntersectingOtherLgrs);
 
-        if (!wellsWithIntersectingLgrs.empty())
+        if (!wellsIntersectingOtherLgrs.empty())
         {
-            auto wellsList = wellsWithIntersectingLgrs.join(", ");
+            auto wellsList = wellsIntersectingOtherLgrs.join(", ");
             RiaLogging::error("exportLgrForCompletions: No export for some wells due to existing intersecting LGR(s).Affected wells : " + wellsList);
         }
     }

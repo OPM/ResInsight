@@ -75,23 +75,20 @@ CAF_CMD_SOURCE_INIT(RicCreateTemporaryLgrFeature, "RicCreateTemporaryLgrFeature"
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicCreateTemporaryLgrFeature::createLgrsForWellPath(RimWellPath*                                       wellPath,
-                                                         RimEclipseCase*                                    eclipseCase,
-                                                         size_t                                             timeStep,
-                                                         caf::VecIjk                                        lgrCellCounts,
-                                                         Lgr::SplitType                                     splitType,
-                                                         const std::set<RigCompletionData::CompletionType>& completionTypes,
-                                                         bool*                                              intersectingOtherLgrs)
+void RicCreateTemporaryLgrFeature::createLgrsForWellPaths(std::vector<RimWellPath*>                          wellPaths,
+                                                          RimEclipseCase*                                    eclipseCase,
+                                                          size_t                                             timeStep,
+                                                          caf::VecIjk                                        lgrCellCounts,
+                                                          Lgr::SplitType                                     splitType,
+                                                          const std::set<RigCompletionData::CompletionType>& completionTypes,
+                                                          QStringList*                                       wellsIntersectingOtherLgrs)
 {
     auto               eclipseCaseData        = eclipseCase->eclipseCaseData();
     RigActiveCellInfo* activeCellInfo         = eclipseCaseData->activeCellInfo(RiaDefines::MATRIX_MODEL);
     RigActiveCellInfo* fractureActiveCellInfo = eclipseCaseData->activeCellInfo(RiaDefines::FRACTURE_MODEL);
-    bool               intersectingLgrs       = false;
 
-    auto lgrs = RicExportLgrFeature::buildLgrsForWellPath(
-        wellPath, eclipseCase, timeStep, lgrCellCounts, splitType, completionTypes, &intersectingLgrs);
-
-    if (intersectingLgrs) *intersectingOtherLgrs = true;
+    auto lgrs = RicExportLgrFeature::buildLgrsForWellPaths(
+        wellPaths, eclipseCase, timeStep, lgrCellCounts, splitType, completionTypes, wellsIntersectingOtherLgrs);
 
     for (const auto& lgr : lgrs)
     {
@@ -174,25 +171,19 @@ void RicCreateTemporaryLgrFeature::onActionTriggered(bool isChecked)
 
         RicDeleteTemporaryLgrsFeature::deleteAllTemporaryLgrs(eclipseCase);
 
-        RicExportLgrFeature::resetLgrNaming();
-        bool intersectingOtherLgrs = false;
-        for (const auto& wellPath : wellPaths)
-        {
-            bool intersectingLgrs = false;
-            createLgrsForWellPath(wellPath,
-                                  eclipseCase,
-                                  timeStep,
-                                  lgrCellCounts,
-                                  splitType,
-                                  completionTypes,
-                                  &intersectingLgrs);
+        QStringList wellsIntersectingOtherLgrs;
 
-            if (intersectingLgrs) intersectingOtherLgrs = true;
-        }
+        createLgrsForWellPaths(wellPaths,
+                                eclipseCase,
+                                timeStep,
+                                lgrCellCounts,
+                                splitType,
+                                completionTypes,
+                                &wellsIntersectingOtherLgrs);
 
         updateViews(eclipseCase);
 
-        if (intersectingOtherLgrs)
+        if (!wellsIntersectingOtherLgrs.empty())
         {
             QMessageBox::warning(nullptr,
                                  "LGR cells intersected",

@@ -29,6 +29,7 @@
 #include <limits>
 #include <memory>
 
+class LgrNameFactory;
 class RigMainGrid;
 class RimEclipseCase;
 class RimSimWellInView;
@@ -140,32 +141,30 @@ class RicExportLgrFeature : public caf::CmdFeature
                                       int defaultTimeStep = 0,
                                       bool hideExportFolderField = false);
     static bool openFileForExport(const QString& folderName, const QString& fileName, QFile* exportFile);
-    static void exportLgrsForWellPath(const QString& exportFolder,
-                                      RimWellPath* wellPath,
+    static void exportLgrsForWellPaths(const QString& exportFolder,
+                                      std::vector<RimWellPath*> wellPaths,
                                       RimEclipseCase* eclipseCase,
                                       size_t timeStep,
                                       caf::VecIjk lgrCellCounts,
                                       Lgr::SplitType splitType,
                                       const std::set<RigCompletionData::CompletionType>& completionTypes,
-                                      bool* intersectingOtherLgrs);
+                                       QStringList* wellsIntersectingOtherLgrs);
 
     static void exportLgrs(const QString& exportFolder,
                            const QString& wellName,
                            const std::vector<LgrInfo>& lgrInfos);
 
-    static std::vector<LgrInfo> buildLgrsForWellPath(RimWellPath*                 wellPath,
-                                                     RimEclipseCase*              eclipseCase,
-                                                     size_t                       timeStep,
-                                                     caf::VecIjk                  lgrCellCounts,
-                                                     Lgr::SplitType               splitType,
-                                                     const std::set<RigCompletionData::CompletionType>& completionTypes,
-                                                     bool* intersectingOtherLgrs);
+    static std::vector<LgrInfo> buildLgrsForWellPaths(std::vector<RimWellPath*>    wellPaths,
+                                                      RimEclipseCase*              eclipseCase,
+                                                      size_t                       timeStep,
+                                                      caf::VecIjk                  lgrCellCounts,
+                                                      Lgr::SplitType               splitType,
+                                                      const std::set<RigCompletionData::CompletionType>& completionTypes,
+                                                      QStringList*                 wellsIntersectingOtherLgrs);
 
     static std::vector<RimWellPath*> selectedWellPaths();
 
     static std::map<QString /*wellName*/, std::vector<LgrInfo>> createLgrInfoListForTemporaryLgrs(const RigMainGrid* mainGrid);
-
-    static void resetLgrNaming();
 
 protected:
     bool isCommandEnabled() override;
@@ -178,12 +177,14 @@ private:
     static std::vector<LgrInfo> buildLgrsPerMainCell(RimEclipseCase*                               eclipseCase,
                                                      RimWellPath*                                  wellPath,
                                                      const std::vector<RigCompletionDataGridCell>& intersectingCells,
-                                                     const caf::VecIjk&                            lgrSizes);
+                                                     const caf::VecIjk&                            lgrSizes,
+                                                     LgrNameFactory&                               lgrNameFactory);
     static std::vector<LgrInfo>
                    buildLgrsPerCompletion(RimEclipseCase*                                                         eclipseCase,
                                           RimWellPath*                                                            wellPath,
                                           const std::map<CompletionInfo, std::vector<RigCompletionDataGridCell>>& completionInfo,
-                                          const caf::VecIjk&                                                      lgrSizesPerMainGridCell);
+                                          const caf::VecIjk&                                                      lgrSizesPerMainGridCell,
+                                          LgrNameFactory&                                                         lgrNameFactory);
     static LgrInfo buildLgr(int                                           lgrId,
                             const QString&                                lgrName,
                             RimEclipseCase*                               eclipseCase,
@@ -197,11 +198,18 @@ private:
                                                                                const std::set<RigCompletionData::CompletionType>& completionTypes,
                                                                                bool* isIntersectingOtherLgrs);
     static std::map<CompletionInfo, std::vector<RigCompletionDataGridCell>>
-        cellsIntersectingCompletions_PerCompletion(RimEclipseCase* eclipseCase,
+        cellsIntersectingCompletions_PerCompletion_old(RimEclipseCase* eclipseCase,
                                                    const RimWellPath* wellPath,
                                                    size_t timeStep,
                                                    const std::set<RigCompletionData::CompletionType>& completionTypes,
                                                    bool* isIntersectingOtherLgrs);
+
+    static std::map<CompletionInfo, std::vector<RigCompletionDataGridCell>>
+               cellsIntersectingCompletions_PerCompletion(RimEclipseCase*                                    eclipseCase,
+                                                          const RimWellPath*                                 wellPath,
+                                                          size_t                                             timeStep,
+                                                          const std::set<RigCompletionData::CompletionType>& completionTypes,
+                                                          bool*                                              isIntersectingOtherLgrs);
 
     static int firstAvailableLgrId(const RigMainGrid* mainGrid);
 };

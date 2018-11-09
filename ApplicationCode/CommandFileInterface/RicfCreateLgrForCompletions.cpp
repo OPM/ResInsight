@@ -101,30 +101,22 @@ void RicfCreateLgrForCompletions::execute()
         RicExportLgrFeature::resetLgrNaming();
 
         caf::VecIjk lgrCellCounts(m_refinementI, m_refinementJ, m_refinementK);
-        QStringList wellsWithIntersectingLgrs;
-        for (const auto wellPath : wellPaths)
-        {
-            if (wellPath)
-            {
-                bool intersectingLgrs = false;
-                feature->createLgrsForWellPath(
-                    wellPath,
-                    eclipseCase,
-                    m_timeStep,
-                    lgrCellCounts,
-                    m_splitType(),
-                    {RigCompletionData::PERFORATION, RigCompletionData::FRACTURE, RigCompletionData::FISHBONES},
-                    &intersectingLgrs);
+        QStringList wellsIntersectingOtherLgrs;
 
-                if (intersectingLgrs) wellsWithIntersectingLgrs.push_back(wellPath->name());
-            }
-        }
+        feature->createLgrsForWellPaths(
+            wellPaths,
+            eclipseCase,
+            m_timeStep,
+            lgrCellCounts,
+            m_splitType(),
+            {RigCompletionData::PERFORATION, RigCompletionData::FRACTURE, RigCompletionData::FISHBONES},
+            &wellsIntersectingOtherLgrs);
 
         feature->updateViews(eclipseCase);
 
-        if (!wellsWithIntersectingLgrs.empty())
+        if (!wellsIntersectingOtherLgrs.empty())
         {
-            auto wellsList = wellsWithIntersectingLgrs.join(", ");
+            auto wellsList = wellsIntersectingOtherLgrs.join(", ");
             RiaLogging::error(
                 "createLgrForCompletions: No LGRs created for some wells due to existing intersecting LGR(s).Affected wells : " +
                 wellsList);
