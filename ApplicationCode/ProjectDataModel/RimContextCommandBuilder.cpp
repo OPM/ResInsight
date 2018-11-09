@@ -789,7 +789,6 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         menuBuilder << "RicCreateMultipleFracturesFeature";
         menuBuilder << "RicWellPathImportCompletionsFileFeature";
         menuBuilder << "RicFlyToObjectFeature";
-        menuBuilder << "RicExportCarfin";
 
         menuBuilder << "RicImportObservedDataFeature";
         menuBuilder << "RicReloadSummaryCaseFeature";
@@ -802,7 +801,6 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         menuBuilder << "RicDeleteSummaryCaseCollectionFeature";
         menuBuilder << "RicCloseObservedDataFeature";
 
-        menuBuilder << "RicExportLgrFeature";
         menuBuilder << "RicCreateTemporaryLgrFeature";
 
         // Work in progress -- End
