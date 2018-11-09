@@ -52,7 +52,7 @@ namespace caf
         addItem(RimContourMapProjection::RESULTS_GAS_COLUMN, "GAS_COLUMN", "Gas Column");
         addItem(RimContourMapProjection::RESULTS_HC_COLUMN,  "HC_COLUMN", "Hydrocarbon Column");
 
-        setDefault(RimContourMapProjection::RESULTS_OIL_COLUMN);
+        setDefault(RimContourMapProjection::RESULTS_MEAN_VALUE);
     }
 }
 CAF_PDM_SOURCE_INIT(RimContourMapProjection, "RimContourMapProjection");
