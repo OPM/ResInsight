@@ -97,7 +97,8 @@ bool RigWellLogFile::open(const QString& fileName, QString* errorMessage)
         QString logName = QString::fromStdString(itCL->first);
         wellLogNames.append(logName);
 
-        if (logName.toUpper() == "DEPT" || logName.toUpper() == "DEPTH")
+        // 2018-11-09 Added MD https://github.com/OPM/ResInsight/issues/3641
+        if (logName.toUpper() == "DEPT" || logName.toUpper() == "DEPTH" || logName.toUpper() == "MD")
         {
             m_depthLogName = logName;
         }
