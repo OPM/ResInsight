@@ -581,7 +581,10 @@ QString Rim3dOverlayInfoConfig::resultInfoText(const HistogramData& histData, Ri
         if (isResultsInfoRelevant)
         {
             QString propName = eclipseView->cellResult()->resultVariableUiShortName();
-            infoText += QString("<b>Cell Property:</b> %1 ").arg(propName);
+            if (!contourMap->contourMapProjection()->isColumnResult())
+            {
+                infoText += QString("<b>Cell Property:</b> %1 ").arg(propName);
+            }
             infoText += QString("<br><b>Statistics:</b> Current Time Step and Visible Cells");
             infoText += QString("<table border=0 cellspacing=5 >"
                 "<tr> <td>Min</td> <td>Mean</td> <td>Max</td> <td>Sum</td> </tr>"
