@@ -130,9 +130,9 @@ void RiaRegressionTestRunner::runRegressionTest()
 
     // delete diff and generated images
 
-    for (int i = 0; i < folderList.size(); ++i)
+    for (const QFileInfo& fi : folderList)
     {
-        QDir testCaseFolder(folderList[i].filePath());
+        QDir testCaseFolder(fi.filePath());
 
         {
             QDir genDir(testCaseFolder.filePath(generatedFolderName));
@@ -198,31 +198,31 @@ void RiaRegressionTestRunner::runRegressionTest()
 
                 RicSnapshotAllPlotsToFileFeature::exportSnapshotOfAllPlotsIntoFolder(fullPathGeneratedFolder);
 
-                QDir baseDir(testCaseFolder.filePath(baseFolderName));
-                QDir genDir(testCaseFolder.filePath(generatedFolderName));
-                QDir diffDir(testCaseFolder.filePath(diffFolderName));
-                if (!diffDir.exists()) testCaseFolder.mkdir(diffFolderName);
-                baseDir.setFilter(QDir::Files);
-                QStringList baseImageFileNames = baseDir.entryList();
-
-                for (int fIdx = 0; fIdx < baseImageFileNames.size(); ++fIdx)
-                {
-                    QString             fileName = baseImageFileNames[fIdx];
-                    RiaImageFileCompare imgComparator(RegTestNames::imageCompareExeName);
-                    bool                ok = imgComparator.runComparison(
-                        genDir.filePath(fileName), baseDir.filePath(fileName), diffDir.filePath(fileName));
-                    if (!ok)
-                    {
-                        qDebug() << "Error comparing :" << imgComparator.errorMessage() << "\n" << imgComparator.errorDetails();
-                    }
-                }
-
                 app->closeProject();
             }
             else
             {
                 RiaLogging::error("Could not find a regression test file named : " + testCaseFolder.absolutePath() + "/" +
                                   regTestProjectName + ".rsp");
+            }
+        }
+
+        QDir baseDir(testCaseFolder.filePath(baseFolderName));
+        QDir genDir(testCaseFolder.filePath(generatedFolderName));
+        QDir diffDir(testCaseFolder.filePath(diffFolderName));
+        if (!diffDir.exists()) testCaseFolder.mkdir(diffFolderName);
+        baseDir.setFilter(QDir::Files);
+        QStringList baseImageFileNames = baseDir.entryList();
+
+        for (int fIdx = 0; fIdx < baseImageFileNames.size(); ++fIdx)
+        {
+            QString             fileName = baseImageFileNames[fIdx];
+            RiaImageFileCompare imgComparator(RegTestNames::imageCompareExeName);
+            bool                ok =
+                imgComparator.runComparison(genDir.filePath(fileName), baseDir.filePath(fileName), diffDir.filePath(fileName));
+            if (!ok)
+            {
+                qDebug() << "Error comparing :" << imgComparator.errorMessage() << "\n" << imgComparator.errorDetails();
             }
         }
 
@@ -419,9 +419,9 @@ QString RiaRegressionTestRunner::generateHtmlReport(const QFileInfoList& folderL
         }
     }
 
-    for (int dirIdx = 0; dirIdx < folderList.size(); ++dirIdx)
+    for (const QFileInfo& fi : folderList)
     {
-        QDir testCaseFolder(folderList[dirIdx].filePath());
+        QDir testCaseFolder(fi.filePath());
 
         QString testFolderName            = testCaseFolder.dirName();
         QString reportBaseFolderName      = testCaseFolder.filePath(baseFolderName);
@@ -464,17 +464,14 @@ void RiaRegressionTestRunner::regressionTestConfigureProject()
     std::vector<RimCase*> projectCases;
     proj->allCases(projectCases);
 
-    for (size_t i = 0; i < projectCases.size(); i++)
+    for (RimCase* cas : projectCases)
     {
-        RimCase* cas = projectCases[i];
         if (!cas) continue;
 
         std::vector<Rim3dView*> views = cas->views();
 
-        for (size_t j = 0; j < views.size(); j++)
+        for (Rim3dView* riv : views)
         {
-            Rim3dView* riv = views[j];
-
             if (riv && riv->viewer())
             {
                 // Make sure all views are maximized for snapshotting
@@ -588,12 +585,12 @@ QFileInfoList RiaRegressionTestRunner::subDirectoriesForTestExecution(const QDir
     QFileInfoList foldersMatchingTestFilter;
 
     QFileInfoList folderList = directory.entryInfoList();
-    for (auto fi : folderList)
+    for (const auto& fi : folderList)
     {
         QString path     = fi.path();
         QString baseName = fi.baseName();
 
-        for (auto s : m_testFilter)
+        for (const auto& s : m_testFilter)
         {
             QString trimmed = s.trimmed();
             if (baseName.contains(trimmed, Qt::CaseInsensitive))
@@ -664,9 +661,9 @@ void RiaRegressionTestRunner::updateRegressionTest(const QString& testRootPath)
 
     QFileInfoList folderList = testDir.entryInfoList();
 
-    for (int i = 0; i < folderList.size(); ++i)
+    for (const auto& fi : folderList)
     {
-        QDir testCaseFolder(folderList[i].filePath());
+        QDir testCaseFolder(fi.filePath());
 
         QDir baseDir(testCaseFolder.filePath(RegTestNames::baseFolderName));
         removeDirectoryWithContent(baseDir);
