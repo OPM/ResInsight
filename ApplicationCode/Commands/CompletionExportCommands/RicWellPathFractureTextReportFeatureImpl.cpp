@@ -604,25 +604,45 @@ QString RicWellPathFractureTextReportFeatureImpl::createFractureCompletionSummar
     RifEclipseDataTableFormatter formatter(stream);
     configureFormatter(&formatter);
 
+    const QString avg = "Avg";
+
     std::vector<RifEclipseOutputTableColumn> header = {
-        RifEclipseOutputTableColumn(""),
-        RifEclipseOutputTableColumn(""),
-        RifEclipseOutputTableColumn(""),
-        floatNumberColumn("Tr"),
-        floatNumberColumn("#con"),
-        floatNumberColumn("Fcd"),
-        floatNumberColumn("Area"),
-        floatNumberColumn("KfWf"),
-        floatNumberColumn("Kf"),
-        floatNumberColumn("Wf"),
-        floatNumberColumn("Xf"),
-        floatNumberColumn("H"),
-        floatNumberColumn("Km"),
+        RifEclipseOutputTableColumn(""), // Well
+        RifEclipseOutputTableColumn(""), // Fracture
+        RifEclipseOutputTableColumn(""), // Template
+        floatNumberColumn(""), // Tr
+        floatNumberColumn(""), //#con
+        floatNumberColumn(""), // Fcd
+        RifEclipseOutputTableColumn("", RifEclipseOutputTableDoubleFormatting(RIF_FLOAT, 1), RIGHT), // Area
+        RifEclipseOutputTableColumn("KfWf", RifEclipseOutputTableDoubleFormatting(RIF_FLOAT, 1), RIGHT), // KfWf
+        RifEclipseOutputTableColumn("Kf", RifEclipseOutputTableDoubleFormatting(RIF_FLOAT, 1), RIGHT), // Kf
+        floatNumberColumn("wf"), // wf
+        RifEclipseOutputTableColumn("xf", RifEclipseOutputTableDoubleFormatting(RIF_FLOAT, 1), RIGHT), //xf
+        RifEclipseOutputTableColumn("H", RifEclipseOutputTableDoubleFormatting(RIF_FLOAT, 1), RIGHT), // H
+        floatNumberColumn("Km"), // Km
     };
 
     formatter.header(header);
 
     // Second header line
+    {
+        formatter.add("");
+        formatter.add("");
+        formatter.add("");
+        formatter.add("Tr"); // Tr
+        formatter.add("#con"); // #con
+        formatter.add("Fcd"); // Fcd
+        formatter.add("Area"); // Area
+        formatter.add(avg); // KfWf
+        formatter.add(avg); // Kf
+        formatter.add(avg); // wf
+        formatter.add(avg); // Xf
+        formatter.add(avg); // H
+        formatter.add(avg); // Km
+        formatter.rowCompleted();
+    }
+
+    // Third header line
     {
         formatter.add("Well");
         formatter.add("Fracture");
