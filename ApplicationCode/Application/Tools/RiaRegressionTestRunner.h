@@ -39,6 +39,7 @@ public:
     bool isRunningRegressionTests() const;
 
     static void updateRegressionTest(const QString& testRootPath);
+    static void regressionTestConfigureProject();
 
 private:
     RiaRegressionTestRunner();
@@ -56,7 +57,6 @@ private:
                                const QDir&          testDir);
 
     static void    removeDirectoryWithContent(QDir& dirToDelete);
-    static void    regressionTestConfigureProject();
     static void    resizeMaximizedPlotWindows();
     static QSize   regressionDefaultImageSize();
     static QString diff2htmlHeaderText(const QString& testRootPath);
