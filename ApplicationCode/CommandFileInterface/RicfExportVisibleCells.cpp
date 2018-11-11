@@ -19,6 +19,7 @@
 #include "RicfExportVisibleCells.h"
 
 #include "RiaFilePathTools.h"
+#include "RiaViewRedrawScheduler.h"
 
 #include "RicfApplicationTools.h"
 #include "RicfCommandFileExecutor.h"
@@ -93,6 +94,8 @@ void RicfExportVisibleCells::execute()
     {
         exportFolder = RiaApplication::instance()->createAbsolutePathFromProjectRelativePath("visibleCells");
     }
+
+    RiaViewRedrawScheduler::instance()->clearViewsScheduledForUpdate();
 
     RicSaveEclipseInputVisibleCellsUi exportSettings;
     buildExportSettings(exportFolder, &exportSettings);
