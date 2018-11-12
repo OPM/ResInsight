@@ -374,7 +374,8 @@ std::map<int, std::vector<std::pair<QString, QString>>> RicExportCompletionDataS
                 &currentWellPressure);
             if (initialWellProductionTimeStep >= 0)
             {
-                wellProductionStartStrings[initialWellProductionTimeStep].push_back(std::make_pair(wellPath->name(), QString("%1 Bar").arg(initialWellPressure, 4, 'f', 1)));
+                QString pressureUnits = RiaEclipseUnitTools::unitStringPressure(wellPath->unitSystem());
+                wellProductionStartStrings[initialWellProductionTimeStep].push_back(std::make_pair(wellPath->name(), QString("%1 %2").arg(initialWellPressure, 4, 'f', 1).arg(pressureUnits)));
             }
         }
     }
