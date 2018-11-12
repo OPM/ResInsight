@@ -504,14 +504,12 @@ vertScale(const FunctionValues&   f,
           const SaturationPoints& sp,
           std::vector<double>     val) const
 {
-    assert ((sp.size() == val.size())  && "Internal Error in Vertical Scaling");
-    assert (! (f.max.val < f.disp.val) && "Internal Error in Table Extraction");
-    assert (! (f.max.sat < f.disp.sat) && "Internal Error in Table Extraction");
+    assert ((sp.size() == val.size()) && "Internal Error in Vertical Scaling");
 
     auto ret = std::move(val);
 
     const auto fdisp = f.disp.val;
-    const auto fmax  = f.max .val;
+    const auto fmax  = std::max(f.disp.val, f.max.val);
     const auto sepfv = fmax > fdisp;
 
     for (auto n = sp.size(), i = 0*n; i < n; ++i) {
