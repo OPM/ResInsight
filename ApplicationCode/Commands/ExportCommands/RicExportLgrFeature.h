@@ -36,6 +36,7 @@ class RimSimWellInView;
 class RimWellPath;
 class QFile;
 class QTextStream;
+class IjkBoundingBox;
 
 //==================================================================================================
 /// Candidate for refactoring
@@ -87,15 +88,22 @@ class CompletionInfo
 {
 public:
     CompletionInfo()
-        : type(RigCompletionData::CT_UNDEFINED), name(""), number(-1) {}
-    CompletionInfo(RigCompletionData::CompletionType type, QString name, int number)
-        : type(type), name(name), number(number) {}
+        : type(RigCompletionData::CT_UNDEFINED), name(""), wellPathName("") {}
+    CompletionInfo(RigCompletionData::CompletionType type, const QString& name, const QString& wellPathName)
+        : type(type), name(name), wellPathName(wellPathName) {}
 
+
+    CompletionInfo(RigCompletionData::CompletionType type, const QString& name)
+        : type(type)
+        , name(name)
+        , wellPathName(wellPathName)
+    {
+    }
     RigCompletionData::CompletionType type;
     QString name;
-    int number;
+    QString wellPathName;
 
-    bool isValid() const { return type != RigCompletionData::CT_UNDEFINED && !name.isEmpty() && number >= 0; }
+    bool isValid() const { return type != RigCompletionData::CT_UNDEFINED && !name.isEmpty() && !wellPathName.isEmpty(); }
 
     int priority() const
     {
@@ -109,15 +117,15 @@ public:
     {
         if (priority() == other.priority())
         {
-            if (name == other.name) return number < other.number;
-            return name < other.name;
+            if (wellPathName == other.wellPathName) return name < other.name;
+            return wellPathName < other.wellPathName;
         }
         return priority() < other.priority();
     }
 
     bool operator==(const CompletionInfo& other) const
     {
-        return type == other.type && name == other.name && number == other.number;
+        return type == other.type && name == other.name && wellPathName == other.wellPathName;
     }
 
     bool operator!=(const CompletionInfo& other) const
@@ -174,22 +182,30 @@ protected:
 private:
     static void writeLgrs(QTextStream& stream, const std::vector<LgrInfo>& lgrInfos);
 
-    static std::vector<LgrInfo> buildLgrsPerMainCell(RimEclipseCase*                               eclipseCase,
+    static std::vector<LgrInfo> buildLgrsPerMainCell(int                                           firstLgrId,
+                                                     RimEclipseCase*                               eclipseCase,
                                                      RimWellPath*                                  wellPath,
                                                      const std::vector<RigCompletionDataGridCell>& intersectingCells,
                                                      const caf::VecIjk&                            lgrSizes,
                                                      LgrNameFactory&                               lgrNameFactory);
     static std::vector<LgrInfo>
-                   buildLgrsPerCompletion(RimEclipseCase*                                                         eclipseCase,
-                                          RimWellPath*                                                            wellPath,
+                   buildLgrsPerCompletion(int                                                                     firstLgrId,
+                                          RimEclipseCase*                                                         eclipseCase,
                                           const std::map<CompletionInfo, std::vector<RigCompletionDataGridCell>>& completionInfo,
                                           const caf::VecIjk&                                                      lgrSizesPerMainGridCell,
                                           LgrNameFactory&                                                         lgrNameFactory);
     static LgrInfo buildLgr(int                                           lgrId,
                             const QString&                                lgrName,
                             RimEclipseCase*                               eclipseCase,
-                            RimWellPath*                                  wellPath,
+                            const QString&                                wellPathName,
                             const std::vector<RigCompletionDataGridCell>& intersectingCells,
+                            const caf::VecIjk&                            lgrSizesPerMainGridCell);
+
+    static LgrInfo buildLgr(int                                           lgrId,
+                            const QString&                                lgrName,
+                            RimEclipseCase*                               eclipseCase,
+                            const QString&                                wellPathName,
+                            const IjkBoundingBox&                         boundingBox,
                             const caf::VecIjk&                            lgrSizesPerMainGridCell);
 
     static std::vector<RigCompletionDataGridCell> cellsIntersectingCompletions(RimEclipseCase* eclipseCase,
@@ -197,19 +213,19 @@ private:
                                                                                size_t timeStep,
                                                                                const std::set<RigCompletionData::CompletionType>& completionTypes,
                                                                                bool* isIntersectingOtherLgrs);
-    static std::map<CompletionInfo, std::vector<RigCompletionDataGridCell>>
-        cellsIntersectingCompletions_PerCompletion_old(RimEclipseCase* eclipseCase,
-                                                   const RimWellPath* wellPath,
-                                                   size_t timeStep,
-                                                   const std::set<RigCompletionData::CompletionType>& completionTypes,
-                                                   bool* isIntersectingOtherLgrs);
+    //static std::map<CompletionInfo, std::vector<RigCompletionDataGridCell>>
+    //    cellsIntersectingCompletions_PerCompletion_old(RimEclipseCase* eclipseCase,
+    //                                               const RimWellPath* wellPath,
+    //                                               size_t timeStep,
+    //                                               const std::set<RigCompletionData::CompletionType>& completionTypes,
+    //                                               bool* isIntersectingOtherLgrs);
 
     static std::map<CompletionInfo, std::vector<RigCompletionDataGridCell>>
                cellsIntersectingCompletions_PerCompletion(RimEclipseCase*                                    eclipseCase,
-                                                          const RimWellPath*                                 wellPath,
+                                                          const std::vector<RimWellPath*>                    wellPaths,
                                                           size_t                                             timeStep,
                                                           const std::set<RigCompletionData::CompletionType>& completionTypes,
-                                                          bool*                                              isIntersectingOtherLgrs);
+                                                          QStringList*                                       wellsIntersectingOtherLgrs);
 
     static int firstAvailableLgrId(const RigMainGrid* mainGrid);
 };
