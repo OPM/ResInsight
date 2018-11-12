@@ -98,7 +98,6 @@ void RicfCreateLgrForCompletions::execute()
         }
 
         RicDeleteTemporaryLgrsFeature::deleteAllTemporaryLgrs(eclipseCase);
-        RicExportLgrFeature::resetLgrNaming();
 
         caf::VecIjk lgrCellCounts(m_refinementI, m_refinementJ, m_refinementK);
         QStringList wellsIntersectingOtherLgrs;
