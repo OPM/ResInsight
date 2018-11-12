@@ -451,7 +451,7 @@ void RicExportFractureCompletionsImpl::getWellPressuresAndInitialProductionTimeS
                             initialProductionDate = summaryDate;
                             *initialWellPressure  = values[i];
                         }
-                        if (summaryDate == currentDate)
+                        if (summaryDate <= currentDate)
                         {
                             *currentWellPressure = values[i];
                         }
@@ -463,10 +463,13 @@ void RicExportFractureCompletionsImpl::getWellPressuresAndInitialProductionTimeS
         {
             for (size_t i = 0; i < caseTimeSteps.size(); ++i)
             {
-                // Pick first case time step that is larger or equal to the initial production date.
-                if (caseTimeSteps[i] >= initialProductionDate)
+                // Pick last time step that isn't bigger than the initial production time.
+                if (caseTimeSteps[i] < initialProductionDate)
                 {
                     *initialCaseTimeStep = static_cast<int>(i);
+                }
+                else
+                {
                     break;
                 }
             }
