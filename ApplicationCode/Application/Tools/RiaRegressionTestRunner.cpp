@@ -630,6 +630,8 @@ void RiaRegressionTestRunner::executeRegressionTests(const QString& regressionTe
 
         mainWnd->setDefaultWindowSize();
 
+        m_regressionTestSettings.readSettingsFromApplicationStore();
+
         m_rootPath   = regressionTestPath;
         m_testFilter = testFilter;
         runRegressionTest();
@@ -644,6 +646,16 @@ void RiaRegressionTestRunner::executeRegressionTests(const QString& regressionTe
 bool RiaRegressionTestRunner::isRunningRegressionTests() const
 {
     return m_runningRegressionTests;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiaRegressionTestRunner::useOpenMPForGeometryCreation() const
+{
+    if (!m_runningRegressionTests) return false;
+
+    return m_regressionTestSettings.useOpenMPForGeometryCreation;
 }
 
 //--------------------------------------------------------------------------------------------------

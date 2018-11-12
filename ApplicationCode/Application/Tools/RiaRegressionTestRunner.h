@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include "RiaRegressionTest.h"
+
 #include <QFileInfo>
 #include <QSize>
 #include <QStringList>
@@ -37,6 +39,7 @@ public:
     void executeRegressionTests();
 
     bool isRunningRegressionTests() const;
+    bool useOpenMPForGeometryCreation() const;
 
     static void updateRegressionTest(const QString& testRootPath);
     static void regressionTestConfigureProject();
@@ -63,7 +66,8 @@ private:
     QFileInfoList  subDirectoriesForTestExecution(const QDir& directory);
 
 private:
-    QString     m_rootPath;
-    QStringList m_testFilter;
-    bool        m_runningRegressionTests;
+    QString           m_rootPath;
+    QStringList       m_testFilter;
+    bool              m_runningRegressionTests;
+    RiaRegressionTest m_regressionTestSettings;
 };

@@ -172,8 +172,9 @@ bool CellRangeFilter::hasIncludeRanges() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-StructGridGeometryGenerator::StructGridGeometryGenerator(const StructGridInterface* grid)
-:   m_grid(grid)
+StructGridGeometryGenerator::StructGridGeometryGenerator(const StructGridInterface* grid, bool useOpenMP)
+:   m_grid(grid),
+    m_useOpenMP(useOpenMP)
 {
     CVF_ASSERT(grid);
     m_quadMapper = new StructGridQuadToCellFaceMapper;
@@ -373,7 +374,7 @@ void StructGridGeometryGenerator::computeArrays()
 
     cvf::Vec3d offset = m_grid->displayModelOffset();
 
-#pragma omp parallel for schedule(dynamic)
+#pragma omp parallel for schedule(dynamic) if (m_useOpenMP)
     for (int k = 0; k < static_cast<int>(m_grid->cellCountK()); k++)
     {
         size_t j;

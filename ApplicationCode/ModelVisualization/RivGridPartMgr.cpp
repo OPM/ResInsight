@@ -22,6 +22,7 @@
 
 #include "RiaApplication.h"
 #include "RiaPreferences.h"
+#include "RiaRegressionTestRunner.h"
 
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
@@ -71,7 +72,7 @@
 ///
 //--------------------------------------------------------------------------------------------------
 RivGridPartMgr::RivGridPartMgr(RivCellSetEnum cellSetType, RimEclipseCase* eclipseCase, const RigGridBase* grid, size_t gridIdx)
-    : m_surfaceGenerator(grid)
+    : m_surfaceGenerator(grid, RiaRegressionTestRunner::instance()->useOpenMPForGeometryCreation())
     , m_gridIdx(gridIdx)
     , m_grid(grid)
     , m_surfaceFaceFilter(grid)

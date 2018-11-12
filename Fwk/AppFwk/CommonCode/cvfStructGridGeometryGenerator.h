@@ -164,7 +164,7 @@ private:
 class StructGridGeometryGenerator : public Object
 {
 public:
-    explicit StructGridGeometryGenerator(const StructGridInterface* grid);
+    explicit StructGridGeometryGenerator(const StructGridInterface* grid, bool useOpenMP);
     ~StructGridGeometryGenerator();
 
     // Setup methods
@@ -209,6 +209,11 @@ private:
     // Mappings
     ref<StructGridQuadToCellFaceMapper>          m_quadMapper;
     ref<StuctGridTriangleToCellFaceMapper>       m_triangleMapper;
+
+    // Multiple treads can be used when building geometry data structures.
+    // This causes visual artifacts due to transparency algorithm, and a stable visual image
+    // can be produced if OpenMP is disabled. Currently used by regression test comparing images
+    bool m_useOpenMP;
 };
 
 }
