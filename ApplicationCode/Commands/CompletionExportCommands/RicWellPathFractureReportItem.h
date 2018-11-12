@@ -35,10 +35,12 @@ public:
     void setHeightAndHalfLength(double height, double halfLength);
     void setAreaWeightedTransmissibility(double transmissibility);
     void setUnitSystem(RiaEclipseUnitTools::UnitSystem unitSystem);
+    void setPressureDepletionParameters(QString scalingString, double initialWBHP, double currentWBHP);
 
     QString wellPathNameForExport() const;
     QString fractureName() const;
     QString fractureTemplateName() const;
+    QString pressureDepletionScaling() const;
 
     RiaEclipseUnitTools::UnitSystem unitSystem() const;
 
@@ -56,6 +58,9 @@ public:
     double km() const;
     double kmxf() const;
 
+    double pressureDepletionInitialWBHP() const;
+    double pressureDepletionCurrentWBHP() const;
+
     bool operator < (const RicWellPathFractureReportItem& other) const;
 
 private:
@@ -63,6 +68,7 @@ private:
     QString                         m_wellPathNameForExport;
     QString                         m_wellPathFracture;
     QString                         m_wellPathFractureTemplate;
+    QString                         m_pressureDepletionScalingString;
     double                          m_mesuredDepth;
 
     double m_transmissibility;
@@ -75,4 +81,7 @@ private:
     double m_xf;
     double m_h;
     double m_km;
+    
+    double m_pressureDepletionInitialWBHP;
+    double m_pressureDepletionCurrentWBHP;
 };

@@ -373,6 +373,7 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
             RicWellPathFractureReportItem reportItem(
                 wellPathName, fracture->name(), fracTemplate->name(), fracture->fractureMD());
             reportItem.setUnitSystem(fracTemplate->fractureTemplateUnit());
+            reportItem.setPressureDepletionParameters(caf::AppEnum<PressureDepletionTransScaling>::uiTextFromIndex(currentPressureDropScaling), initialWellPressure, currentWellPressure);
 
             RicExportFractureCompletionsImpl::calculateAndSetReportItemData(
                 allCompletionsForOneFracture, eclToFractureCalc, reportItem);

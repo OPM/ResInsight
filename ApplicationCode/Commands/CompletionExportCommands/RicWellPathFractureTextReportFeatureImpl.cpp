@@ -166,6 +166,12 @@ QString RicWellPathFractureTextReportFeatureImpl::wellPathFractureReport(
         }
 
         {
+            QString tableText = createFracturePressureDepletionSummaryText(wellPathFractureReportItems);
+            textStream << tableText;
+            textStream << lineStart << "\n";
+        }
+
+        {
             textStream << lineStart << " Maximum number of connections per well\n";
             textStream << lineStart << "\n";
 
@@ -680,6 +686,44 @@ QString RicWellPathFractureTextReportFeatureImpl::createFractureCompletionSummar
         formatter.add(reportItem.xf()); // Xf
         formatter.add(reportItem.h()); // H
         formatter.add(reportItem.km()); // Km
+
+        formatter.rowCompleted();
+    }
+
+    formatter.tableCompleted();
+
+    return tableText;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RicWellPathFractureTextReportFeatureImpl::createFracturePressureDepletionSummaryText(const std::vector<RicWellPathFractureReportItem>& wellPathFractureReportItems) const
+{
+    QString tableText;
+
+    QTextStream                  stream(&tableText);
+    RifEclipseDataTableFormatter formatter(stream);
+    configureFormatter(&formatter);
+
+    std::vector<RifEclipseOutputTableColumn> header = {
+        RifEclipseOutputTableColumn("Well"),
+        RifEclipseOutputTableColumn("Fracture"),
+        RifEclipseOutputTableColumn("PDD Scaling"),
+        RifEclipseOutputTableColumn("Initial WBHP"),
+        RifEclipseOutputTableColumn("Current WBHP")
+    };
+
+    formatter.header(header);
+    formatter.addHorizontalLine('-');
+
+    for (const auto& reportItem : wellPathFractureReportItems)
+    {
+        formatter.add(reportItem.wellPathNameForExport());
+        formatter.add(reportItem.fractureName());
+        formatter.add(reportItem.pressureDepletionScaling());
+        formatter.add(reportItem.pressureDepletionInitialWBHP());
+        formatter.add(reportItem.pressureDepletionCurrentWBHP());
 
         formatter.rowCompleted();
     }
