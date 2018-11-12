@@ -107,9 +107,13 @@ namespace {
                         const ::Opm::ECLInitFileData& init,
                         const std::string&            vector,
                         const std::vector<double>&    dflt,
-                        CvrtVal&&                     cvrt)
+                        CvrtVal&&                     cvrt,
+                        const std::vector<double>&    fallback
+                            = std::vector<double>{})
     {
         auto ret = std::vector<double>(G.numCells());
+
+        const auto sentinel = 1.0e20;
 
         assert (! dflt.empty() && "Internal Error");
 
@@ -126,8 +130,20 @@ namespace {
                 : std::vector<double>(nc, -1.0e21);
 
             for (auto c = 0*nc; c < nc; ++c, ++cellID) {
-                ret[cellID] = (std::abs(val[c]) < 1.0e20)
-                    ? cvrt(val[c]) : dflt[snum[c] - 1];
+                const auto fb = fallback.empty()
+                    ? -sentinel : fallback[c];
+
+                auto& r = ret[cellID];
+
+                if (std::abs(val[c]) < sentinel) {
+                    r = cvrt(val[c]);
+                }
+                else if (std::abs(fb) < sentinel) {
+                    r = cvrt(fb);
+                }
+                else {
+                    r = dflt[snum[c] - 1];
+                }
             }
         }
 
@@ -1049,10 +1065,12 @@ Create::TwoPoint::Pc::GO(const ::Opm::ECLGraph&        G,
     // Use dedicated scaled Sg_conn for Pc if defined in at least one
     // subgrid.  Use SGL otherwise.  Same default value (i.e., table's
     // connate gas saturation) for both vectors.
-    auto sgl = haveKeywordData(G, init, "SGLPC")
+    const auto sgl = ::Opm::SatFunc::scaledConnateGas(G, init, tep);
+
+    auto sglpc = haveKeywordData(G, init, "SGLPC")
         ? gridDefaultedVector(G, init, "SGLPC", tep.conn.gas,
-                              [](const double s) { return s; })
-        : ::Opm::SatFunc::scaledConnateGas(G, init, tep);
+                              [](const double s) { return s; }, sgl)
+        : sgl;
 
     auto sgu = sgMax(G, init, tep);
 
@@ -1066,7 +1084,7 @@ Create::TwoPoint::Pc::GO(const ::Opm::ECLGraph&        G,
     }
 
     return EPSPtr {
-        new EPS { std::move(sgl), std::move(sgu) }
+        new EPS { std::move(sglpc), std::move(sgu) }
     };
 }
 
@@ -1078,10 +1096,12 @@ Create::TwoPoint::Pc::OW(const ::Opm::ECLGraph&        G,
     // Use dedicated scaled Sw_conn for Pc if defined in at least one
     // subgrid.  Use SWL otherwise.  Same default value (i.e., table's
     // connate water saturation) for both vectors.
-    auto swl = haveKeywordData(G, init, "SWLPC")
+    const auto swl = ::Opm::SatFunc::scaledConnateWater(G, init, tep);
+
+    auto swlpc = haveKeywordData(G, init, "SWLPC")
         ? gridDefaultedVector(G, init, "SWLPC", tep.conn.water,
-                              [](const double s) { return s; })
-        : ::Opm::SatFunc::scaledConnateWater(G, init, tep);
+                              [](const double s) { return s; }, swl)
+        : swl;
 
     auto swu = swMax(G, init, tep);
 
@@ -1095,7 +1115,7 @@ Create::TwoPoint::Pc::OW(const ::Opm::ECLGraph&        G,
     }
 
     return EPSPtr {
-        new EPS { std::move(swl), std::move(swu) }
+        new EPS { std::move(swlpc), std::move(swu) }
     };
 }
 
