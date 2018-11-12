@@ -65,6 +65,16 @@ namespace caf
 
         setDefault(RicExportFractureCompletionsImpl::NO_SCALING);
     }
+
+    template<>
+    void RicExportCompletionDataSettingsUi::TransScalingInitialWBHP::setUp()
+    {
+        addItem(RicExportFractureCompletionsImpl::FROM_PRODUCTION_START, "PROD_START", "Initial WBHP From Production Start");
+        addItem(RicExportFractureCompletionsImpl::FROM_PRODUCTION_START_W_MIN, "PROD_START_MIN", "Initial WBHP From Production Start With Minimum WBHP");
+        addItem(RicExportFractureCompletionsImpl::FIXED_INITIAL_WBHP, "FIXED_INITIAL_WBHP", "Fixed Initial WBHP");
+
+        setDefault(RicExportFractureCompletionsImpl::FROM_PRODUCTION_START);
+    }
 }
 // clang-format on
 
@@ -91,10 +101,10 @@ RicExportCompletionDataSettingsUi::RicExportCompletionDataSettingsUi()
     CAF_PDM_InitField(&includeFishbones, "IncludeFishbones", true, "Fishbones", "", "", "");
     CAF_PDM_InitField(&includeFractures, "IncludeFractures", true, "Fractures", "", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&transScalingType, "TransScalingType", "  Pressure Diff. Depletion Transmissibility Scaling (BETA)", "", "", "");
-    CAF_PDM_InitField(&transScalingTimeStep, "TransScalingTimeStep", 0, "  PDD Current Pressure Time Step (BETA)", "", "", "");
-    CAF_PDM_InitField(&transScalingWBHP, "TransScalingWBHP", 200.0, "  PDD Default WBHP Value (BETA)", "", "", "");
-    CAF_PDM_InitField(&transScalingSummaryWBHP, "TransScalingWBHPFromCurrentTime", true, "  PDD WBHP from Summary File at Current Time (BETA)", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&transScalingType, "TransScalingType", "  Pressure Diff. Depletion Transmissibility Scaling", "", "", "");
+    CAF_PDM_InitField(&transScalingTimeStep, "TransScalingTimeStep", 0, "  PDD Current WBHP Time Step", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&transScalingInitialWBHP, "TransScalingInitialWBHP", "  PDD Initial WBHP Selection", "", "", "");
+    CAF_PDM_InitField(&transScalingWBHP, "TransScalingWBHP", 200.0, "  PDD Initial WBHP Value", "", "", "");
 
     CAF_PDM_InitField(&excludeMainBoreForFishbones,
                       "ExcludeMainBoreForFishbones",
@@ -319,12 +329,36 @@ void RicExportCompletionDataSettingsUi::defineUiOrdering(QString uiConfigName, c
             {
                 group->add(&transScalingType);
                 group->add(&transScalingTimeStep);
+                group->add(&transScalingInitialWBHP);
                 group->add(&transScalingWBHP);
-                group->add(&transScalingSummaryWBHP);
 
-                transScalingTimeStep.uiCapability()->setUiReadOnly(transScalingType() == RicExportFractureCompletionsImpl::NO_SCALING);
-                transScalingWBHP.uiCapability()->setUiReadOnly(transScalingType() == RicExportFractureCompletionsImpl::NO_SCALING);
-                transScalingSummaryWBHP.uiCapability()->setUiReadOnly(transScalingType() == RicExportFractureCompletionsImpl::NO_SCALING);
+                if (transScalingType() == RicExportFractureCompletionsImpl::NO_SCALING)
+                {
+                    transScalingTimeStep.uiCapability()->setUiReadOnly(true);
+                    transScalingInitialWBHP.uiCapability()->setUiReadOnly(true);
+                    transScalingWBHP.uiCapability()->setUiReadOnly(true);
+                }
+                else
+                {
+                    transScalingTimeStep.uiCapability()->setUiReadOnly(false);
+                    transScalingInitialWBHP.uiCapability()->setUiReadOnly(false);
+                    if (transScalingInitialWBHP == RicExportFractureCompletionsImpl::FROM_PRODUCTION_START)
+                    {
+                        transScalingWBHP.uiCapability()->setUiReadOnly(true);
+                    }
+                    else
+                    {
+                        transScalingWBHP.uiCapability()->setUiReadOnly(false);
+                        if (transScalingInitialWBHP == RicExportFractureCompletionsImpl::FROM_PRODUCTION_START_W_MIN)
+                        {
+                            transScalingWBHP.uiCapability()->setUiName("  PDD Minimum Initial WBHP");
+                        }
+                        else
+                        {
+                            transScalingWBHP.uiCapability()->setUiName("  PDD Fixed Initial WBHP");
+                        }
+                    }
+                }
             }
 
             // Set visibility

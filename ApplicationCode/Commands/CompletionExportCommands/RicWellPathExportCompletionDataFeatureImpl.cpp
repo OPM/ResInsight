@@ -247,7 +247,7 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions(const std::ve
                         fractureTransmissibilityExportInformationStream.get(),
                         RicExportFractureCompletionsImpl::PressureDepletionParameters(exportSettings.transScalingType(),
                                                                                       exportSettings.transScalingTimeStep(),
-                                                                                      exportSettings.transScalingSummaryWBHP(),
+                                                                                      exportSettings.transScalingInitialWBHP(),
                                                                                       exportSettings.transScalingWBHP()));
 
                 appendCompletionData(&completionsPerEclipseCellAllCompletionTypes, fractureCompletionData);
@@ -293,7 +293,7 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions(const std::ve
                     fractureTransmissibilityExportInformationStream.get(),
                     RicExportFractureCompletionsImpl::PressureDepletionParameters(exportSettings.transScalingType(),
                                                                                   exportSettings.transScalingTimeStep(),
-                                                                                  exportSettings.transScalingSummaryWBHP(),
+                                                                                  exportSettings.transScalingInitialWBHP(),
                                                                                   exportSettings.transScalingWBHP()));
 
             appendCompletionData(&completionsPerEclipseCell, fractureCompletionData);
@@ -2638,9 +2638,17 @@ QString RicWellPathExportCompletionDataFeatureImpl::createPressureDepletionFileN
 
         suffix += QString("B_");
 
-        if (exportSettings.transScalingSummaryWBHP())
+        if (exportSettings.transScalingInitialWBHP() == RicExportFractureCompletionsImpl::FROM_PRODUCTION_START)
         {
-            suffix += QString("_SUMM_");
+            suffix += QString("_WBHPROD_");
+        }
+        else if (exportSettings.transScalingInitialWBHP() == RicExportFractureCompletionsImpl::FROM_PRODUCTION_START_W_MIN)
+        {
+            suffix += QString("_WBHPMIN_");
+        }
+        else
+        {
+            suffix += QString("_WBHPFIX_");
         }
 
         RimEclipseCase* eclipseCase = exportSettings.caseToApply();

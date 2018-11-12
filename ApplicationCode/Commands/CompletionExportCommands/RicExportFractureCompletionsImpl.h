@@ -51,24 +51,31 @@ public:
         MATRIX_TO_WELL_DP_OVER_MAX_INITIAL_DP
     };
 
+    enum PressureDepletionInitialWBHP
+    {
+        FROM_PRODUCTION_START,
+        FROM_PRODUCTION_START_W_MIN,
+        FIXED_INITIAL_WBHP
+    };
+
     //--------------------------------------------------------------------------------------------------
     ///
     //--------------------------------------------------------------------------------------------------
     struct PressureDepletionParameters
     {
         PressureDepletionParameters(PressureDepletionTransScaling pressureDropScaling = NO_SCALING,
-                                    int pressureScalingTimeStep = 0,
-                                    bool wbhpFromSummaryCase = false,
-                                    double pressureScalingWBHP = 200.0)
+                                    int                           pressureScalingTimeStep = 0,
+                                    PressureDepletionInitialWBHP  initialWbhpSource = FROM_PRODUCTION_START,
+                                    double                        pressureScalingWBHP = 200.0)
             : pressureDropScaling(pressureDropScaling)
             , pressureScalingTimeStep(pressureScalingTimeStep)
-            , wbhpFromSummaryCase(wbhpFromSummaryCase)
+            , initialWbhpSource(initialWbhpSource)
             , pressureScalingWBHP(pressureScalingWBHP)
         {}
 
         PressureDepletionTransScaling    pressureDropScaling;
         int                              pressureScalingTimeStep;
-        bool                             wbhpFromSummaryCase;
+        PressureDepletionInitialWBHP     initialWbhpSource;
         double                           pressureScalingWBHP;
     };     
 

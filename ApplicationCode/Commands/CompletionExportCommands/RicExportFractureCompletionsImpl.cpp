@@ -228,21 +228,45 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
     PressureDepletionTransScaling currentPressureDropScaling = pdParams.pressureDropScaling;
 
     int    initialWellProductionTimeStep = 0;
-    double initialWellPressure           = pdParams.pressureScalingWBHP;
-    double currentWellPressure           = pdParams.pressureScalingWBHP;
-    if (currentPressureDropScaling != NO_SCALING && pdParams.wbhpFromSummaryCase)
+    double initialWellPressure           = 0;
+    double currentWellPressure           = 0;
+
+    if (currentPressureDropScaling != NO_SCALING)
     {
+        double minimumWBHP = pdParams.pressureScalingWBHP;
+
+        double initialWBHPFromSummary = 0.0;
+        double currentWBHPFromSummary = 0.0;
         // Find well pressures (WBHP) from summary case.
         getWellPressuresAndInitialProductionTimeStepFromSummaryData(caseToApply,
                                                                     wellPathName,
                                                                     pdParams.pressureScalingTimeStep,
                                                                     &initialWellProductionTimeStep,
-                                                                    &initialWellPressure,
-                                                                    &currentWellPressure);
+                                                                    &initialWBHPFromSummary,
+                                                                    &currentWBHPFromSummary);
 
-        // Don't perform any scaling for this well if the current time step is before the initial well production time step.
-        if (pdParams.pressureScalingTimeStep <= initialWellProductionTimeStep)
+        currentWellPressure = currentWBHPFromSummary;
+        if (pdParams.initialWbhpSource == FROM_PRODUCTION_START)
         {
+            initialWellPressure = initialWBHPFromSummary;
+        }
+        else if (pdParams.initialWbhpSource == FROM_PRODUCTION_START_W_MIN)
+        {
+            initialWellPressure = initialWBHPFromSummary;
+            if (pdParams.pressureScalingTimeStep <= initialWellProductionTimeStep)
+            {
+                initialWellPressure = minimumWBHP;
+            }
+        }
+        else
+        {
+            initialWellPressure = minimumWBHP;
+        }
+
+        // Final check for initial vs current pressure to see if scaling is valid
+        if (std::fabs(initialWellPressure - currentWellPressure) < 1.0e-6)
+        {
+            // Don't perform scaling if current pressure is equal to initial.
             currentPressureDropScaling = NO_SCALING;
         }
     }
