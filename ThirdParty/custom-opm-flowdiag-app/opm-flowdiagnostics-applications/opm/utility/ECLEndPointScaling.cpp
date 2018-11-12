@@ -2532,6 +2532,9 @@ unscaledFunctionValues(const ECLGraph&          G,
         ret.resize(uep.size());
 
         for (auto n = uep.size(), i = 0*n; i < n; ++i) {
+            ret[i].disp.sat = uep[i].disp;
+            ret[i].disp.val = evalSF(static_cast<int>(i), ret[i].disp.sat);
+
             ret[i].max.sat = uep[i].high;
             ret[i].max.val = evalSF(static_cast<int>(i), ret[i].max.sat);
         }

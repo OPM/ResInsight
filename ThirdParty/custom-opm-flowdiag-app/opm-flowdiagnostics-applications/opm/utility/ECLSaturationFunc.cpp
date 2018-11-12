@@ -1357,6 +1357,11 @@ private:
                         return host.wat_->pcow(regID, { sat })[0];
                     });
 
+                // Special case treatment of PCOW.  Maximum value at minimum S.
+                for (auto& fval : *eps.vertfuncval) {
+                    fval.max.val = std::max(fval.disp.val, fval.max.val);
+                }
+
                 eps.vertscaling = Create::Vertical::
                     fromECLOutput(G, init, opt, ep,
                                   *eps.vertfuncval);
