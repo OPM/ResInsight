@@ -208,6 +208,11 @@ namespace Opm
     ECLFluxCalc::flux(const ECLRestartData& rstrt,
                       const ECLPhaseIndex   phase) const
     {
+        if (! this->phaseIsActive(phase)) {
+            // Inactive phase.  Return empty flux vector.
+            return {};
+        }
+
         // Obtain dynamic data.
         const auto dyn_data = this->phaseProperties(rstrt, phase);
 
@@ -225,6 +230,11 @@ namespace Opm
     ECLFluxCalc::massflux(const ECLRestartData& rstrt,
                           const ECLPhaseIndex   phase) const
     {
+        if (! this->phaseIsActive(phase)) {
+            // Inactive phase.  Return empty (mass) flux vector.
+            return {};
+        }
+
         // Obtain dynamic data.
         const auto dyn_data = this->phaseProperties(rstrt, phase);
 
@@ -296,6 +306,19 @@ namespace Opm
         return urho * mob * T * dh;
     }
 
+
+    bool ECLFluxCalc::phaseIsActive(const ECLPhaseIndex phase) const
+    {
+        switch (phase) {
+        case ECLPhaseIndex::Aqua:   return this->pvtWat_ != nullptr;
+        case ECLPhaseIndex::Liquid: return this->pvtOil_ != nullptr;
+        case ECLPhaseIndex::Vapour: return this->pvtGas_ != nullptr;
+        }
+
+        throw std::invalid_argument {
+            "phaseIsActive(): Invalid Phase Identifier"
+        };
+    }
 
 
     ECLFluxCalc::DynamicData

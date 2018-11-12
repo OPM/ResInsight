@@ -131,6 +131,8 @@ namespace Opm
                               const DynamicData& dyn_data) const;
 
 
+        bool phaseIsActive(const ECLPhaseIndex phase) const;
+
         DynamicData gasPVT(const ECLRestartData& rstrt,
                            DynamicData&&         dyn_data) const;
 
