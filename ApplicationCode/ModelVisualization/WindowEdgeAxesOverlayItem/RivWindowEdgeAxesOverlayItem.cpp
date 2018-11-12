@@ -311,7 +311,7 @@ void RivWindowEdgeAxesOverlayItem::addTextToTextDrawer(TextDrawer* textDrawer)
             double tickValue = m_domainCoordsXValues[i];
             String valueString;
 
-            valueString = String::number(tickValue);
+            valueString = String::number(tickValue, 'f', 0);
             auto labelSize = m_font->textExtent(valueString);
 
             Vec2f pos(textX - labelSize.x()*0.5f, textYBott);
@@ -335,7 +335,7 @@ void RivWindowEdgeAxesOverlayItem::addTextToTextDrawer(TextDrawer* textDrawer)
             double tickValue = m_isSwitchingYAxisValueSign ? -m_domainCoordsYValues[i]: m_domainCoordsYValues[i];
             String valueString;
 
-            valueString = String::number(tickValue);
+            valueString = String::number(tickValue, 'f', 0);
             auto labelSize = m_font->textExtent(valueString);
 
             Vec2f pos(textXRight, textY);
