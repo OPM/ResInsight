@@ -487,9 +487,9 @@ const RigMainGrid* RimGridCollection::mainGrid() const
 bool RimGridCollection::hasPersistentLgrs() const
 {
     auto mainGrid = this->mainGrid();
-    if (!mainGrid) return 0;
+    if (!mainGrid) return false;
 
-    for (int i = 1; i < mainGrid->gridCount(); i++)
+    for (size_t i = 1; i < mainGrid->gridCount(); i++)
     {
         const auto grid = mainGrid->gridByIndex(i);
         if (!grid->isTempGrid()) return true;
