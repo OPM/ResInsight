@@ -89,6 +89,8 @@ void RicExportCompletionsForVisibleWellPathsFeature::onActionTriggered(bool isCh
 void RicExportCompletionsForVisibleWellPathsFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setText("Export Completion Data for Visible Well Paths");
+    actionToSetup->setIcon(QIcon(":/ExportCompletionsSymbol16x16.png"));
+
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -75,6 +75,7 @@ void RicExportCompletionsForTemporaryLgrsFeature::onActionTriggered(bool isCheck
 void RicExportCompletionsForTemporaryLgrsFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setText("Export Completion Data");
+    actionToSetup->setIcon(QIcon(":/ExportCompletionsSymbol16x16.png"));
 }
 
 //--------------------------------------------------------------------------------------------------

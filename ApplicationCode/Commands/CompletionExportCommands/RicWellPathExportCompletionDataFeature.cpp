@@ -174,6 +174,8 @@ void RicWellPathExportCompletionDataFeature::onActionTriggered(bool isChecked)
 void RicWellPathExportCompletionDataFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setText("Export Completion Data for Selected Well Paths");
+    actionToSetup->setIcon(QIcon(":/ExportCompletionsSymbol16x16.png"));
+
 }
 
 //--------------------------------------------------------------------------------------------------

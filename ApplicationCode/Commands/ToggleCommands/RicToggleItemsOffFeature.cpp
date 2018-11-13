@@ -52,4 +52,7 @@ void RicToggleItemsOffFeature::setupActionLook(QAction* actionToSetup)
         actionToSetup->setText("Sub Items Off");
     else
         actionToSetup->setText("Off");
+
+    actionToSetup->setIcon(QIcon(":/ToggleOff16x16.png"));
+
 }

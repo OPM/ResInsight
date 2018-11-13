@@ -53,8 +53,8 @@ RimGridInfo::RimGridInfo()
     CAF_PDM_InitField(&m_gridName, "GridName", QString(), "Grid Name", "", "", "");
     m_gridName.uiCapability()->setUiReadOnly(true);
 
-    CAF_PDM_InitField(&m_gridIndex, "GridIndex", 0, "Grid Index", "", "", "");
-    m_gridIndex.uiCapability()->setUiReadOnly(true);
+    CAF_PDM_InitField(&m_eclipseGridIndex, "GridIndex", 0, "Grid Index", "", "", "");
+    m_eclipseGridIndex.uiCapability()->setUiReadOnly(true);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -77,9 +77,9 @@ void RimGridInfo::setName(const QString& name)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridInfo::setIndex(int index)
+void RimGridInfo::setEclipseGridIndex(int index)
 {
-    m_gridIndex = index;
+    m_eclipseGridIndex = index;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -109,9 +109,9 @@ QString RimGridInfo::name() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int RimGridInfo::index() const
+int RimGridInfo::eclipseGridIndex() const
 {
-    return m_gridIndex();
+    return m_eclipseGridIndex();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -139,7 +139,7 @@ void RimGridInfo::fieldChangedByUi(const caf::PdmFieldHandle* changedField, cons
 void RimGridInfo::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
     uiOrdering.add(&m_gridName);
-    uiOrdering.add(&m_gridIndex);
+    uiOrdering.add(&m_eclipseGridIndex);
 
     uiOrdering.skipRemainingFields();
 }
@@ -172,11 +172,9 @@ bool RimGridInfoCollection::isActive() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridInfoCollection::addGridInfo(const QString& name, size_t gridIndex)
+void RimGridInfoCollection::addGridInfo(RimGridInfo* gridInfo)
 {
-    auto gridInfo = new RimGridInfo();
-    gridInfo->setName(name);
-    gridInfo->setIndex((int)gridIndex);
+
     m_gridInfos.push_back(gridInfo);
 }
 
@@ -262,15 +260,18 @@ RimGridCollection::RimGridCollection()
     m_mainGrid = new RimGridInfo();
     m_mainGrid->setUiName("Main Grid");
     m_mainGrid->uiCapability()->setUiTreeHidden(true);
+    m_mainGrid->setUiIcon(QIcon(":/MainGrid16x16.png"));
 
     CAF_PDM_InitFieldNoDefault(&m_persistentLgrs, "PersistentLgrs", "Persistent LGRs", "", "", "");
     m_persistentLgrs = new RimGridInfoCollection();
     m_persistentLgrs->setUiName(persistentGridUiName());
+    m_persistentLgrs->setUiIcon(QIcon(":/LGR16x16.png"));
 
     CAF_PDM_InitFieldNoDefault(&m_temporaryLgrs, "TemporaryLgrs", "Temporary LGRs", "", "", "");
     m_temporaryLgrs.xmlCapability()->disableIO();
     m_temporaryLgrs = new RimGridInfoCollection();
     m_temporaryLgrs->setUiName(temporaryGridUiName());
+    m_temporaryLgrs->setUiIcon(QIcon(":/TempLGR16x16.png"));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -305,7 +306,7 @@ std::vector<size_t> RimGridCollection::indicesToVisibleGrids() const
 
     if (m_mainGrid()->isActive())
     {
-        gridIndices.push_back(m_mainGrid->index());
+        gridIndices.push_back(m_mainGrid->eclipseGridIndex());
     }
 
     if (m_persistentLgrs()->isActive())
@@ -314,7 +315,7 @@ std::vector<size_t> RimGridCollection::indicesToVisibleGrids() const
         {
             if (gridInfo->isActive())
             {
-                gridIndices.push_back(gridInfo->index());
+                gridIndices.push_back(gridInfo->eclipseGridIndex());
             }
         }
     }
@@ -325,7 +326,7 @@ std::vector<size_t> RimGridCollection::indicesToVisibleGrids() const
         {
             if (gridInfo->isActive())
             {
-                gridIndices.push_back(gridInfo->index());
+                gridIndices.push_back(gridInfo->eclipseGridIndex());
             }
         }
     }
@@ -366,7 +367,7 @@ void RimGridCollection::syncFromMainGrid()
     if (mainGrid)
     {
         m_mainGrid->setName("Main Grid");
-        m_mainGrid->setIndex(0);
+        m_mainGrid->setEclipseGridIndex(0);
 
         auto allTemporaryGrids  = m_temporaryLgrs->gridInfos();
         auto allPersistentGrids = m_persistentLgrs->gridInfos();
@@ -386,7 +387,11 @@ void RimGridCollection::syncFromMainGrid()
                 }
                 else
                 {
-                    m_temporaryLgrs->addGridInfo(gridName, gridIndex);
+                    auto gridInfo = new RimGridInfo();
+                    gridInfo->setName(gridName);
+                    gridInfo->setEclipseGridIndex((int)gridIndex);
+                    gridInfo->setUiIcon(QIcon(":/TempLGR16x16.png"));
+                    m_temporaryLgrs->addGridInfo(gridInfo);
                 }
             }
             else
@@ -397,7 +402,11 @@ void RimGridCollection::syncFromMainGrid()
                 }
                 else
                 {
-                    m_persistentLgrs->addGridInfo(gridName, gridIndex);
+                    auto gridInfo = new RimGridInfo();
+                    gridInfo->setName(gridName);
+                    gridInfo->setEclipseGridIndex((int)gridIndex);
+                    gridInfo->setUiIcon(QIcon(":/LGR16x16.png"));
+                    m_persistentLgrs->addGridInfo(gridInfo);
                 }
             }
         }

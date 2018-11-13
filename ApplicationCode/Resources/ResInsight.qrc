@@ -132,6 +132,14 @@
     <file>ICDValve16x16.png</file>
     <file>ICVValve16x16.png</file>
     <file>CasingDesign16x16.png</file>
+    <file>LGR16x16.png</file>
+    <file>MainGrid16x16.png</file>
+    <file>TempLGR16x16.png</file>
+    <file>ToggleOff16x16.png</file>
+    <file>ToggleOn16x16.png</file>
+    <file>ToggleOnOff16x16.png</file>
+    <file>ToggleOnOthersOff16x16.png</file>
+    <file>ExportCompletionsSymbol16x16.png</file>
   </qresource>
   <qresource prefix="/Shader/">
     <file>fs_CellFace.glsl</file>

@@ -40,11 +40,11 @@ public:
     ~RimGridInfo() {}
 
     void    setName(const QString& name);
-    void    setIndex(int index);
+    void    setEclipseGridIndex(int index);
     void    setActive(bool active);
     bool    isActive() const;
     QString name() const;
-    int     index() const;
+    int     eclipseGridIndex() const;
 
     caf::PdmFieldHandle* objectToggleField() override;
 
@@ -56,7 +56,7 @@ protected:
 private:
     caf::PdmField<bool>    m_isActive;
     caf::PdmField<QString> m_gridName;
-    caf::PdmField<int>     m_gridIndex;
+    caf::PdmField<int>     m_eclipseGridIndex;
 };
 
 //==================================================================================================
@@ -71,7 +71,7 @@ public:
     ~RimGridInfoCollection() {}
 
     bool                      isActive() const;
-    void                      addGridInfo(const QString& name, size_t gridIndex);
+    void                      addGridInfo(RimGridInfo * gridInfo);
     void                      clear();
     bool                      containsGrid(const QString& gridName) const;
     void                      deleteGridInfo(const QString& gridName);

@@ -311,7 +311,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicEditPerforationCollectionFeature";
             menuBuilder.subMenuEnd();
 
-            menuBuilder.subMenuStart("Export Completions", QIcon(":/Save.png"));
+            menuBuilder.subMenuStart("Export Completions", QIcon(":/ExportCompletionsSymbol16x16.png"));
             menuBuilder << "RicExportCompletionsForVisibleWellPathsFeature";
             menuBuilder << "RicWellPathExportCompletionDataFeature";
             menuBuilder.subMenuEnd();
@@ -749,7 +749,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
 
             if (!candidates.isEmpty())
             {
-                menuBuilder.subMenuStart("Export Completions", QIcon(":/Save.png"));
+                menuBuilder.subMenuStart("Export Completions", QIcon(":/ExportCompletionsSymbol16x16.png"));
 
                 for (const auto& text : candidates)
                 {
