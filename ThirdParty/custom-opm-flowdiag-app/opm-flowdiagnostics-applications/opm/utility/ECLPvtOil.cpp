@@ -211,12 +211,12 @@ public:
     }
 
 private:
-    double po_ref_       { 1.0 };
-    double fvf_     { 1.0 }; // B
-    double visc_ { 1.0 }; // mu
-    double Co_           { 1.0 };
+    double po_ref_ { 1.0 };
+    double fvf_    { 1.0 }; // B
+    double visc_   { 1.0 }; // mu
+    double Co_     { 1.0 };
     double cv_     { 0.0 }; // Cv
-    double rhoS_         { 0.0 };
+    double rhoS_   { 0.0 };
 
     double recipFvf(const double po) const
     {
@@ -254,20 +254,20 @@ private:
 };
 
 DeadOilConstCompr::DeadOilConstCompr(ElemIt               xBegin,
-                     ElemIt               xEnd,
-                     const ConvertUnits&  convert,
-                     std::vector<ElemIt>& colIt)
+                                     ElemIt               xEnd,
+                                     const ConvertUnits&  convert,
+                                     std::vector<ElemIt>& colIt)
 {
     // Recall: Table is
     //
     //    [ Po, Bo, Co, mu_o, Cv ]
     //
-    // xBegin is Pw, colIt is remaining four columns.
+    // xBegin is Po, colIt is remaining four columns.
 
-    this->fvf_     = convert.column[0](*colIt[0]); // Bo
-    this->Co_           = convert.column[1](*colIt[1]); // Co
+    this->fvf_  = convert.column[0](*colIt[0]); // Bo
+    this->Co_   = convert.column[1](*colIt[1]); // Co
     this->visc_ = convert.column[2](*colIt[2]); // mu_o
-    this->cv_     = convert.column[3](*colIt[3]); // Cw - Cv
+    this->cv_   = convert.column[3](*colIt[3]); // Cv
 
     // Honour requirement that constructor advances column iterators.
     const auto N = std::distance(xBegin, xEnd);
@@ -288,7 +288,6 @@ DeadOilConstCompr::DeadOilConstCompr(ElemIt               xBegin,
       };
     }
 }
-
 
 // =====================================================================
 
@@ -416,7 +415,7 @@ private:
 namespace {
     std::vector<std::unique_ptr<PVxOBase>>
     createDeadOil(const ::Opm::ECLPropTableRawData& raw,
-                  const bool   const_compr,
+                  const bool                        const_compr,
                   const int                         usys)
     {
         using PVTInterp = std::unique_ptr<PVxOBase>;
@@ -513,7 +512,7 @@ namespace {
 
     std::vector<std::unique_ptr<PVxOBase>>
     createPVTFunction(const ::Opm::ECLPropTableRawData& raw,
-                      const bool   const_compr,
+                      const bool                        const_compr,
                       const int                         usys)
     {
         if (raw.numPrimary == 0) {
@@ -622,7 +621,7 @@ private:
 Opm::ECLPVT::Oil::Impl::
 Impl(const ECLPropTableRawData& raw,
      const int                  usys,
-     const bool     const_compr,
+     const bool                 const_compr,
      std::vector<double>        rhoS)
     : eval_(createPVTFunction(raw, const_compr, usys))
     , rhoS_(std::move(rhoS))
