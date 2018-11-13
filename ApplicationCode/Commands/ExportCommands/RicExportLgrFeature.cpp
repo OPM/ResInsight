@@ -413,9 +413,16 @@ void RicExportLgrFeature::exportLgrsForWellPaths(const QString&            expor
 
     for (const auto& wellPath : wellPaths)
     {
+        std::vector<LgrInfo> expLgrs;
+        for (const auto& lgr : lgrs)
+        {
+            if (lgr.associatedWellPathName == wellPath->name())
+                expLgrs.push_back(lgr);
+        }
+
         if (!lgrs.empty())
         {
-            exportLgrs(exportFolder, wellPath->name(), lgrs);
+            exportLgrs(exportFolder, wellPath->name(), expLgrs);
         }
     }
 }
@@ -456,7 +463,6 @@ std::vector<LgrInfo> RicExportLgrFeature::buildLgrsForWellPaths(std::vector<RimW
     wellsIntersectingOtherLgrs->clear();
 
     bool                 isIntersectingOtherLgrs = false;
-    std::vector<LgrInfo> newLgrs;
 
     int firstLgrId = firstAvailableLgrId(eclipseCase->mainGrid());
 
@@ -466,7 +472,7 @@ std::vector<LgrInfo> RicExportLgrFeature::buildLgrsForWellPaths(std::vector<RimW
         {
             auto intersectingCells =
                 cellsIntersectingCompletions(eclipseCase, wellPath, timeStep, completionTypes, &isIntersectingOtherLgrs);
-            newLgrs = buildLgrsPerMainCell(firstLgrId + (int)lgrs.size(), eclipseCase, wellPath, intersectingCells, lgrCellCounts, lgrNameFactory);
+            auto newLgrs = buildLgrsPerMainCell(firstLgrId + (int)lgrs.size(), eclipseCase, wellPath, intersectingCells, lgrCellCounts, lgrNameFactory);
 
             lgrs.insert(lgrs.end(), newLgrs.begin(), newLgrs.end());
             if (isIntersectingOtherLgrs) wellsIntersectingOtherLgrs->push_back(wellPath->name());
@@ -477,21 +483,20 @@ std::vector<LgrInfo> RicExportLgrFeature::buildLgrsForWellPaths(std::vector<RimW
         auto intersectingCells = cellsIntersectingCompletions_PerCompletion(
             eclipseCase, wellPaths, timeStep, completionTypes, wellsIntersectingOtherLgrs);
 
-        newLgrs = buildLgrsPerCompletion(firstLgrId + (int)lgrs.size(), eclipseCase, intersectingCells, lgrCellCounts, lgrNameFactory);
+        auto newLgrs = buildLgrsPerCompletion(firstLgrId + (int)lgrs.size(), eclipseCase, intersectingCells, lgrCellCounts, lgrNameFactory);
         lgrs.insert(lgrs.end(), newLgrs.begin(), newLgrs.end());
     }
     else if (splitType == Lgr::LGR_PER_WELL)
     {
         for (const auto& wellPath : wellPaths)
         {
-            int  lgrId = firstLgrId + (int)newLgrs.size();
+            int  lgrId = firstLgrId + (int)lgrs.size();
             auto lgrName = lgrNameFactory.newName("WELL", lgrId);
 
             auto intersectingCells =
                 cellsIntersectingCompletions(eclipseCase, wellPath, timeStep, completionTypes, &isIntersectingOtherLgrs);
-            newLgrs.push_back(buildLgr(lgrId, lgrName, eclipseCase, wellPath->name(), intersectingCells, lgrCellCounts));
+            lgrs.push_back(buildLgr(lgrId, lgrName, eclipseCase, wellPath->name(), intersectingCells, lgrCellCounts));
 
-            lgrs.insert(lgrs.end(), newLgrs.begin(), newLgrs.end());
             if (isIntersectingOtherLgrs) wellsIntersectingOtherLgrs->push_back(wellPath->name());
         }
     }
