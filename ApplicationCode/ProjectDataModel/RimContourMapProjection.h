@@ -52,6 +52,7 @@ public:
         RESULTS_HARM_VALUE,
         RESULTS_MIN_VALUE,
         RESULTS_MAX_VALUE,
+        RESULTS_VOLUME_SUM,
         RESULTS_SUM,
         RESULTS_OIL_COLUMN,
         RESULTS_GAS_COLUMN,
@@ -79,6 +80,7 @@ public:
     QString                     weightingParameter() const;
     bool                        isMeanResult() const;
     bool                        isSummationResult() const;
+    bool                        isStraightSummationResult() const;
     bool                        isColumnResult() const;
 
     double                      value(uint i, uint j) const;
@@ -101,9 +103,7 @@ public:
 
 protected:
     double                                       calculateValue(uint i, uint j) const;
-    double                                       calculateVolumeSum(uint i, uint j) const;
-    double                                       calculateSoilSum(uint i, uint j) const;
-
+    
     cvf::BoundingBox                             expandedBoundingBox() const;
     void                                         generateGridMapping();
     void                                         calculateTotalCellVisibility();
@@ -112,9 +112,9 @@ protected:
     std::vector<double>                          xPositions() const;
     std::vector<double>                          yPositions() const;
 
-    std::vector<std::pair<size_t, double>>       visibleCellsAndWeightMatching2dPoint(const cvf::Vec2d& globalPos2d, const std::vector<double>* weightingResultValues = nullptr) const;
+    std::vector<std::pair<size_t, double>>       visibleCellsAndOverlapVolumeFrom2dPoint(const cvf::Vec2d& globalPos2d, const std::vector<double>* weightingResultValues = nullptr) const;
+    std::vector<std::pair<size_t, double>>       visibleCellsAndLengthInCellFrom2dPoint(const cvf::Vec2d& globalPos2d, const std::vector<double>* weightingResultValues = nullptr) const;
     double                                       findColumnResult(ResultAggregation resultAggregation, size_t cellGlobalIdx) const;
-    double                                       findSoilResult(size_t cellGlobalIdx) const;
     const RimEclipseResultCase*                  eclipseCase() const;
     RimEclipseResultCase*                        eclipseCase();
     RigMainGrid*                                 mainGrid() const;
@@ -124,7 +124,7 @@ protected:
     void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
     void defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
     void initAfterRead() override;    
-
+    bool getLegendRangeFrom3dGrid() const;
 protected:
     caf::PdmField<double>                              m_relativeSampleSpacing;
     caf::PdmField<ResultAggregation>                   m_resultAggregation;
@@ -137,5 +137,5 @@ protected:
     std::vector<std::vector<std::pair<size_t, double>>> m_projected3dGridIndices;
 
     cvf::ref<RigResultAccessor>                        m_resultAccessor;
-
+    
 };
