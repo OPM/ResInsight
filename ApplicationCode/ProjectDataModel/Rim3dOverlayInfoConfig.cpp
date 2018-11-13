@@ -514,7 +514,7 @@ QString Rim3dOverlayInfoConfig::caseInfoText(RimEclipseView* eclipseView)
             infoText += QString(
                 "<p><b>-- Contour Map: %1 --</b><p>  "
                 "<b>Sample Count. Total:</b> %2 <b>Valid Results:</b> %3 <br>"
-                "<b>Projection Type: %4%5<br>").arg(caseName, totCellCount, activeCellCountText, aggregationType, weightingParameterString);
+                "<b>Projection Type:</b> %4%5<br>").arg(caseName, totCellCount, activeCellCountText, aggregationType, weightingParameterString);
         }
         else if (eclipseView->mainGrid())
         {
