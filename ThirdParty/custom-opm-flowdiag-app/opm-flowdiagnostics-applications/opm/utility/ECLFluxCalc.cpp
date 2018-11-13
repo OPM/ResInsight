@@ -385,7 +385,8 @@ namespace Opm
         };
     }
 
-    double ECLFluxCalc::surfaceDensity(const ECLPhaseIndex   phase) const{
+    double ECLFluxCalc::surfaceDensity(const ECLPhaseIndex phase) const
+    {
         switch (phase) {
         case ECLPhaseIndex::Aqua:
             return this->pvtWat_->surfaceMassDensity(0);
@@ -396,6 +397,11 @@ namespace Opm
         case ECLPhaseIndex::Vapour:
             return this->pvtGas_->surfaceMassDensity(0);
         }
+
+        throw std::invalid_argument {
+            "Unsupported Phase Index " +
+            std::to_string(static_cast<std::size_t>(phase))
+        };
     }
 
 
