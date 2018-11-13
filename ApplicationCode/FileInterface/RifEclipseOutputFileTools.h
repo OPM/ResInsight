@@ -75,6 +75,9 @@ public:
     static void         transferNncFluxData(const ecl_grid_type* grid, ecl_file_view_type* summaryView,
                                             std::vector<double>* waterFlux, std::vector<double>* oilFlux, std::vector<double>* gasFlux);
 
+    static bool         isExportedFromIntersect(ecl_file_type* ecl_file);
+
+    static ecl_kw_type* createActnumFromPorv(ecl_file_type* ecl_file);
 
 private:
     static void         createReportStepsMetaData(std::vector<ecl_file_type*> ecl_files, std::vector<RifRestartReportStep>* reportSteps);

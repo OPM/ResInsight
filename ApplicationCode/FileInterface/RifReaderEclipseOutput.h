@@ -95,6 +95,8 @@ private:
 
     static bool             isEclipseAndSoursimTimeStepsEqual(const QDateTime& eclipseDateTime, const QDateTime& sourSimDateTime);
 
+    ecl_grid_type*          createMainGrid() const;
+
 private:
     QString                                 m_fileName;                 // Name of file used to start accessing Eclipse output files
     QStringList                             m_filesWithSameBaseName;    // Set of files in filename's path with same base name as filename

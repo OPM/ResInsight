@@ -382,9 +382,18 @@ bool RifReaderEclipseOutput::open(const QString& fileName, RigEclipseCaseData* e
     // Keep the set of files of interest
     m_filesWithSameBaseName = fileSet;
 
+    openInitFile();
+
     // Read geometry
     // Todo: Needs to check existence of file before calling ert, else it will abort
-    ecl_grid_type * mainEclGrid = ecl_grid_alloc( RiaStringEncodingTools::toNativeEncoded(fileName).data() );
+    ecl_grid_type* mainEclGrid = createMainGrid();
+    if (!mainEclGrid)
+    {
+        QString errorMessage = QString(" Failed to create a main grid from file\n%1").arg(m_fileName);
+        RiaLogging::error(errorMessage);
+
+        return false;
+    }
 
     progInfo.incrementProgress();
 
@@ -2180,6 +2189,36 @@ bool RifReaderEclipseOutput::isEclipseAndSoursimTimeStepsEqual(const QDateTime& 
     }
 
     return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+ecl_grid_type* RifReaderEclipseOutput::createMainGrid() const
+{
+    ecl_grid_type* mainEclGrid = nullptr;
+
+    {
+        if (m_ecl_init_file && RifEclipseOutputFileTools::isExportedFromIntersect(m_ecl_init_file))
+        {
+            ecl_kw_type* actnumFromPorv = RifEclipseOutputFileTools::createActnumFromPorv(m_ecl_init_file);
+            if (actnumFromPorv)
+            {
+                int* actnum_values = ecl_kw_get_int_ptr(actnumFromPorv);
+
+                mainEclGrid = ecl_grid_alloc_ext_actnum(RiaStringEncodingTools::toNativeEncoded(m_fileName).data(), actnum_values);
+
+                ecl_kw_free(actnumFromPorv);
+            }
+        }
+
+        if (!mainEclGrid)
+        {
+            mainEclGrid = ecl_grid_alloc(RiaStringEncodingTools::toNativeEncoded(m_fileName).data());
+        }
+    }
+
+    return mainEclGrid;
 }
 
 //--------------------------------------------------------------------------------------------------

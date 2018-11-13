@@ -481,6 +481,52 @@ void RifEclipseOutputFileTools::transferNncFluxData(const ecl_grid_type* grid,
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+bool RifEclipseOutputFileTools::isExportedFromIntersect(ecl_file_type* ecl_file)
+{
+    // This code is taken from ecl_file_get_ecl_version() in ecl_file.cpp
+
+    ecl_kw_type* intehead_kw = ecl_file_iget_named_kw(ecl_file, INTEHEAD_KW, 0);
+    if (!intehead_kw) return false;
+
+    int int_value = ecl_kw_iget_int(intehead_kw, INTEHEAD_IPROG_INDEX);
+    if (int_value == INTEHEAD_INTERSECT_VALUE)
+    {
+        return true;
+    }
+
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+ecl_kw_type* RifEclipseOutputFileTools::createActnumFromPorv(ecl_file_type* ecl_file)
+{
+    std::string porv_kw("PORV");
+
+    if (ecl_file_has_kw(ecl_file, porv_kw.data()))
+    {
+        ecl_file_view_type* fileView = ecl_file_get_global_view(ecl_file);
+
+        int keywordCount = ecl_file_get_num_named_kw(ecl_file, porv_kw.data());
+        for (int index = 0; index < keywordCount; index++)
+        {
+            ecl_kw_type* fileKeyword = ecl_file_view_iget_named_kw(fileView, porv_kw.data(), index);
+            if (fileKeyword)
+            {
+                float porvLimit = 0.0f;
+
+                return ecl_kw_alloc_actnum(fileKeyword, porvLimit);
+            }
+        }
+    }
+
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RifEclipseOutputFileTools::createReportStepsMetaData(std::vector<ecl_file_type*> ecl_files, std::vector<RifRestartReportStep>* reportSteps)
 {
     if (!reportSteps) return;
