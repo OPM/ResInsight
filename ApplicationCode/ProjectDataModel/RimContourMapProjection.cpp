@@ -684,9 +684,6 @@ std::vector<std::pair<size_t, double>> RimContourMapProjection::visibleCellsAndO
     KLayerCellWeightMap matchingVisibleCellsWeightPerKLayer;
 
     std::array<cvf::Vec3d, 8> hexCorners;
-    double sumOverlapVolumes = 0.0;
-    double maxHeight = -std::numeric_limits<double>::infinity();
-    double minHeight = std::numeric_limits<double>::infinity();
     for (size_t globalCellIdx : allCellIndices)
     {
         if ((*m_cellGridIdxVisibility)[globalCellIdx])
@@ -723,34 +720,9 @@ std::vector<std::pair<size_t, double>> RimContourMapProjection::visibleCellsAndO
                 }
                 if (weight > 0.0)
                 {
-                    double height = overlapBBox.max().z();
                     matchingVisibleCellsWeightPerKLayer[k].push_back(std::make_pair(globalCellIdx, weight));
-                    sumOverlapVolumes += overlapVolume;
-                    maxHeight = std::max(maxHeight, height);
-                    minHeight = std::min(minHeight, overlapBBox.min().z());
                 }
             }
-        }
-    }
-
-    double volAdjustmentFactor = 1.0;
-
-    if (sumOverlapVolumes > 0.0)
-    {
-        cvf::Vec3d improvedBottomSwCorner = bottomSWCorner;
-        improvedBottomSwCorner.z()        = minHeight;
-
-        cvf::Vec3d improvedTopNECorner = topNECorner;
-        improvedTopNECorner.z()        = maxHeight;
-
-        cvf::BoundingBox improvedBbox2dElement = cvf::BoundingBox(improvedBottomSwCorner, improvedTopNECorner);
-        cvf::Vec3d       improvedBboxExtent    = improvedBbox2dElement.extent();
-        double           improvedBboxVolume    = improvedBboxExtent.x() * improvedBboxExtent.y() * improvedBboxExtent.z();
-
-        if (sumOverlapVolumes > improvedBboxVolume)
-        {
-            // Total volume weights for 2d Element should never be larger than the volume of the extruded 2d element.
-            volAdjustmentFactor = improvedBboxVolume / sumOverlapVolumes;
         }
     }
 
@@ -759,7 +731,7 @@ std::vector<std::pair<size_t, double>> RimContourMapProjection::visibleCellsAndO
     {
         for (auto cellWeight : kLayerCellWeight.second)
         {
-            matchingVisibleCellsAndWeight.push_back(std::make_pair(cellWeight.first, cellWeight.second * volAdjustmentFactor));
+            matchingVisibleCellsAndWeight.push_back(std::make_pair(cellWeight.first, cellWeight.second));
         }
     }
 
