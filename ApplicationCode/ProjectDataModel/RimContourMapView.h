@@ -39,13 +39,19 @@ protected:
     void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
     void defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
     void updateCurrentTimeStep() override;
+
+    void appendContourMapProjectionToModel();
+
     void updateLegends() override;
     void updateViewWidgetAfterCreation() override;  
     void updateViewFollowingRangeFilterUpdates() override;
     void onLoadDataAndUpdate() override;
-    void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
-    
+    void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;    
+
     caf::PdmFieldHandle* userDescriptionField() override;
+
+
+    virtual std::set<RivCellSetEnum> allVisibleFaultGeometryTypes() const override;
 
 private:
     cvf::ref<RivContourMapProjectionPartMgr>     m_contourMapProjectionPartMgr;

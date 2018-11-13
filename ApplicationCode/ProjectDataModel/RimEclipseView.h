@@ -92,7 +92,6 @@ public:
 
     // Access internal objects
     const RimPropertyFilterCollection*              propertyFilterCollection() const override;
-    RimPropertyFilterCollection*                    nonOverridePropertyFilterCollection();
 
     RimEclipsePropertyFilterCollection*             eclipsePropertyFilterCollection();
     const RimEclipsePropertyFilterCollection*       eclipsePropertyFilterCollection() const;
@@ -138,7 +137,7 @@ public:
 
     bool                                            isUsingFormationNames() const override;
 
-    void                                            calculateCurrentTotalCellVisibility(cvf::UByteArray* totalVisibility, int timeStep) override;
+    virtual void                                    calculateCurrentTotalCellVisibility(cvf::UByteArray* totalVisibility, int timeStep) override;
     
     virtual std::vector<RimLegendConfig*>           legendConfigs() const override;
     cvf::Color4f                                    colorFromCellCategory(RivCellSetEnum geometryType) const;
@@ -152,7 +151,12 @@ protected:
     void                                    createPartCollectionFromSelection(cvf::Collection<cvf::Part>* parts) override;
     bool                                    showActiveCellsOnly() override;
     virtual void                            updateCurrentTimeStep() override;
+    void                                    updateVisibleGeometriesAndCellColors();
+    void                                    appendWellsAndFracturesToModel();
+
     virtual void                            createDisplayModel() override;
+    RimPropertyFilterCollection*            nativePropertyFilterCollection();
+    virtual std::set<RivCellSetEnum>        allVisibleFaultGeometryTypes() const;
 
 private:
     void                                            updateDisplayModelVisibility() override;
@@ -169,7 +173,6 @@ private:
     void                                            resetLegendsInViewer() override;
     void                                            updateVirtualConnectionLegendRanges();
 
-    std::set<RivCellSetEnum>                        allVisibleFaultGeometryTypes() const;
     void                                            updateFaultColors();
 
     void                                            syncronizeWellsWithResults();

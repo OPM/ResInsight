@@ -565,6 +565,22 @@ void RimEclipseView::updateCurrentTimeStep()
 
     updateLegends(); // To make sure the scalar mappers are set up correctly
 
+    updateVisibleGeometriesAndCellColors();
+
+    appendWellsAndFracturesToModel();
+    
+    m_overlayInfoConfig()->update3DInfo();
+
+    // Invisible Wells are marked as read only when "show wells intersecting visible cells" is enabled
+    // Visibility of wells differ betweeen time steps, so trigger a rebuild of tree state items
+    wellCollection()->updateConnectedEditors();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseView::updateVisibleGeometriesAndCellColors()
+{
     std::vector<RivCellSetEnum> geometriesToRecolor;
 
     if (this->viewController() && this->viewController()->isVisibleCellsOveridden())
@@ -578,10 +594,10 @@ void RimEclipseView::updateCurrentTimeStep()
 
         std::vector<size_t> gridIndices = this->indicesToVisibleGrids();
 
-        geometriesToRecolor.push_back( PROPERTY_FILTERED);
-        geometriesToRecolor.push_back( PROPERTY_FILTERED_WELL_CELLS);
+        geometriesToRecolor.push_back(PROPERTY_FILTERED);
+        geometriesToRecolor.push_back(PROPERTY_FILTERED_WELL_CELLS);
 
-        if ( isGridVisualizationMode() )
+        if (isGridVisualizationMode())
         {
             m_reservoirGridPartManager->appendDynamicGeometryPartsToModel(frameParts.p(), PROPERTY_FILTERED, m_currentTimeStep, gridIndices);
             m_reservoirGridPartManager->appendDynamicGeometryPartsToModel(frameParts.p(), PROPERTY_FILTERED_WELL_CELLS, m_currentTimeStep, gridIndices);
@@ -619,19 +635,19 @@ void RimEclipseView::updateCurrentTimeStep()
         }
 
         // Set the transparency on all the Wellcell parts before setting the result color
-        float opacity = static_cast< float> (1 - cvf::Math::clamp(this->wellCollection()->wellCellTransparencyLevel(), 0.0, 1.0));
+        float opacity = static_cast<float> (1 - cvf::Math::clamp(this->wellCollection()->wellCellTransparencyLevel(), 0.0, 1.0));
         m_reservoirGridPartManager->updateCellColor(PROPERTY_FILTERED_WELL_CELLS, m_currentTimeStep, cvf::Color4f(cvf::Color3f(cvf::Color3::WHITE), opacity));
 
 
         if (this->showInactiveCells())
         {
-            if (this->rangeFilterCollection()->hasActiveFilters() ) // Wells not considered, because we do not have a INACTIVE_WELL_CELLS group yet.
+            if (this->rangeFilterCollection()->hasActiveFilters()) // Wells not considered, because we do not have a INACTIVE_WELL_CELLS group yet.
             {
-                m_reservoirGridPartManager->appendStaticGeometryPartsToModel(frameParts.p(), RANGE_FILTERED_INACTIVE, gridIndices); 
+                m_reservoirGridPartManager->appendStaticGeometryPartsToModel(frameParts.p(), RANGE_FILTERED_INACTIVE, gridIndices);
 
                 if (!faultCollection()->isShowingFaultsAndFaultsOutsideFilters())
                 {
-                    m_reservoirGridPartManager->appendFaultsStaticGeometryPartsToModel(frameParts.p(), RANGE_FILTERED_INACTIVE); 
+                    m_reservoirGridPartManager->appendFaultsStaticGeometryPartsToModel(frameParts.p(), RANGE_FILTERED_INACTIVE);
                 }
             }
             else
@@ -673,7 +689,7 @@ void RimEclipseView::updateCurrentTimeStep()
         geometriesToRecolor.push_back(RANGE_FILTERED);
         geometriesToRecolor.push_back(RANGE_FILTERED_WELL_CELLS);
     }
-    else 
+    else
     {
         geometriesToRecolor.push_back(ACTIVE);
         geometriesToRecolor.push_back(ALL_WELL_CELLS);
@@ -684,7 +700,7 @@ void RimEclipseView::updateCurrentTimeStep()
         if (this->hasUserRequestedAnimation() && this->cellEdgeResult()->hasResult())
         {
             m_reservoirGridPartManager->updateCellEdgeResultColor(geometriesToRecolor[i], m_currentTimeStep, this->cellResult(), this->cellEdgeResult());
-        } 
+        }
         else if ((this->hasUserRequestedAnimation() && this->cellResult()->hasResult()) || this->cellResult()->isTernarySaturationSelected())
         {
             m_reservoirGridPartManager->updateCellResultColor(geometriesToRecolor[i], m_currentTimeStep, this->cellResult());
@@ -700,15 +716,21 @@ void RimEclipseView::updateCurrentTimeStep()
 
     if ((this->hasUserRequestedAnimation() && this->cellResult()->hasResult()) || this->cellResult()->isTernarySaturationSelected())
     {
-        m_crossSectionCollection->updateCellResultColor(m_currentTimeStep, 
-                                                        this->cellResult()->legendConfig()->scalarMapper(),
-                                                        this->cellResult()->ternaryLegendConfig()->scalarMapper());
+        m_crossSectionCollection->updateCellResultColor(m_currentTimeStep,
+            this->cellResult()->legendConfig()->scalarMapper(),
+            this->cellResult()->ternaryLegendConfig()->scalarMapper());
     }
     else
     {
         m_crossSectionCollection->applySingleColorEffect();
     }
+}
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseView::appendWellsAndFracturesToModel()
+{
     if (m_viewer)
     {
         cvf::Scene* frameScene = m_viewer->frame(m_currentTimeStep);
@@ -735,7 +757,7 @@ void RimEclipseView::updateCurrentTimeStep()
             {
                 cvf::String name = "WellPathMod";
                 this->removeModelByName(frameScene, name);
-                
+
                 cvf::ref<cvf::ModelBasicList> wellPathModelBasicList = new cvf::ModelBasicList;
                 wellPathModelBasicList->setName(name);
 
@@ -774,15 +796,9 @@ void RimEclipseView::updateCurrentTimeStep()
 
                 simWellFracturesModelBasicList->updateBoundingBoxesRecursive();
                 frameScene->addModel(simWellFracturesModelBasicList.p());
-            }         
+            }
         }
     }
-    
-    m_overlayInfoConfig()->update3DInfo();
-
-    // Invisible Wells are marked as read only when "show wells intersecting visible cells" is enabled
-    // Visibility of wells differ betweeen time steps, so trigger a rebuild of tree state items
-    wellCollection()->updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1868,7 +1884,7 @@ const RimPropertyFilterCollection* RimEclipseView::propertyFilterCollection() co
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimPropertyFilterCollection* RimEclipseView::nonOverridePropertyFilterCollection()
+RimPropertyFilterCollection* RimEclipseView::nativePropertyFilterCollection()
 {
     return m_propertyFilterCollection();
 }

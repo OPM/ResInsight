@@ -175,7 +175,7 @@ void RimContourMapView::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrder
     uiTreeOrdering.add(wellCollection());
     uiTreeOrdering.add(faultCollection());
     uiTreeOrdering.add(m_rangeFilterCollection());
-    uiTreeOrdering.add(nonOverridePropertyFilterCollection());
+    uiTreeOrdering.add(nativePropertyFilterCollection());
 
     uiTreeOrdering.skipRemainingChildren();
 }
@@ -185,15 +185,32 @@ void RimContourMapView::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrder
 //--------------------------------------------------------------------------------------------------
 void RimContourMapView::updateCurrentTimeStep()
 {
+    static_cast<RimEclipsePropertyFilterCollection*>(nativePropertyFilterCollection())->updateFromCurrentTimeStep();
+
+    this->updateVisibleGeometriesAndCellColors();
+
     if (m_contourMapProjection->isChecked())
     {
         m_contourMapProjection->generateResults();
     }
 
-    static_cast<RimEclipsePropertyFilterCollection*>(nonOverridePropertyFilterCollection())->updateFromCurrentTimeStep();
-
     updateLegends(); // To make sure the scalar mappers are set up correctly
 
+    appendWellsAndFracturesToModel();
+
+    appendContourMapProjectionToModel();
+
+    if (m_overlayInfoConfig->isActive())
+    {
+        m_overlayInfoConfig()->update3DInfo();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimContourMapView::appendContourMapProjectionToModel()
+{
     if (m_viewer && m_contourMapProjection->isChecked())
     {
         cvf::Scene* frameScene = m_viewer->frame(m_currentTimeStep);
@@ -210,10 +227,6 @@ void RimContourMapView::updateCurrentTimeStep()
         contourMapProjectionModelBasicList->updateBoundingBoxesRecursive();
         frameScene->addModel(contourMapProjectionModelBasicList.p());
 
-        if (m_overlayInfoConfig->isActive())
-        {
-            m_overlayInfoConfig()->update3DInfo();
-        }
     }
 }
 
@@ -301,4 +314,18 @@ void RimContourMapView::fieldChangedByUi(const caf::PdmFieldHandle* changedField
 caf::PdmFieldHandle* RimContourMapView::userDescriptionField()
 {
     return m_nameConfig()->nameField();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::set<RivCellSetEnum> RimContourMapView::allVisibleFaultGeometryTypes() const
+{
+    std::set<RivCellSetEnum> faultGeoTypes;
+    // Normal eclipse views always shows faults for active and visible eclipse cells.
+    if (faultCollection()->showFaultCollection())
+    {
+        faultGeoTypes = RimEclipseView::allVisibleFaultGeometryTypes();
+    }
+    return faultGeoTypes;
 }
