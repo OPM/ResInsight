@@ -56,8 +56,7 @@ public:
     };
     typedef caf::AppEnum<CombinationMode> CombinationModeType;
 
-    typedef caf::AppEnum<RicExportFractureCompletionsImpl::PressureDepletionTransScaling> TransScalingType;
-    typedef caf::AppEnum<RicExportFractureCompletionsImpl::PressureDepletionInitialWBHP>  TransScalingInitialWBHP;
+    typedef caf::AppEnum<RicExportFractureCompletionsImpl::PressureDepletionWBHPSource>   TransScalingWBHPSource;
 
     RicExportCompletionDataSettingsUi();
 
@@ -66,9 +65,9 @@ public:
     caf::PdmField<ExportSplitType>          fileSplit;
     caf::PdmField<CompdatExportType>        compdatExport;
 
-    caf::PdmField<TransScalingType>         transScalingType;
+    caf::PdmField<bool>                     performTransScaling;
     caf::PdmField<int>                      transScalingTimeStep;
-    caf::PdmField<TransScalingInitialWBHP>  transScalingInitialWBHP;
+    caf::PdmField<TransScalingWBHPSource>   transScalingWBHPSource;
     caf::PdmField<double>                   transScalingWBHP;
 
     caf::PdmField<bool>                     includeMsw;

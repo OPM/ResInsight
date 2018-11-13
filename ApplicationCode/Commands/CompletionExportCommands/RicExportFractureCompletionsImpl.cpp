@@ -184,7 +184,7 @@ std::vector<RigCompletionData>
         caseToApply->loadStaticResultsByName(resultNames);
     }
 
-    if (pdParams.pressureDropScaling != NO_SCALING)
+    if (pdParams.performScaling)
     {
         RigCaseCellResultsData* results = caseToApply->results(RiaDefines::MATRIX_MODEL);
         results->findOrLoadScalarResult(RiaDefines::DYNAMIC_NATIVE, "PRESSURE");
@@ -225,15 +225,14 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
     size_t                        pressureResultIndex = results->findScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, "PRESSURE");
     const RigActiveCellInfo*      actCellInfo         = caseToApply->eclipseCaseData()->activeCellInfo(RiaDefines::MATRIX_MODEL);
 
-    PressureDepletionTransScaling currentPressureDropScaling = pdParams.pressureDropScaling;
+    bool performPressureDepletionScaling = pdParams.performScaling;
 
     int    initialWellProductionTimeStep = 0;
-    double initialWellPressure           = 0;
     double currentWellPressure           = 0;
 
-    if (currentPressureDropScaling != NO_SCALING)
+    if (performPressureDepletionScaling)
     {
-        double minimumWBHP = pdParams.pressureScalingWBHP;
+        double userWBHP = pdParams.userWBHP;
 
         double initialWBHPFromSummary = 0.0;
         double currentWBHPFromSummary = 0.0;
@@ -245,49 +244,27 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
                                                                     &initialWBHPFromSummary,
                                                                     &currentWBHPFromSummary);
 
-        currentWellPressure = currentWBHPFromSummary;
-        if (pdParams.initialWbhpSource == FROM_PRODUCTION_START)
+        if (pdParams.wbhpSource == WBHP_FROM_SUMMARY)
         {
-            initialWellPressure = initialWBHPFromSummary;
-        }
-        else if (pdParams.initialWbhpSource == FROM_PRODUCTION_START_W_MIN)
-        {
-            initialWellPressure = initialWBHPFromSummary;
+            currentWellPressure = currentWBHPFromSummary;
             if (pdParams.pressureScalingTimeStep <= initialWellProductionTimeStep)
             {
-                initialWellPressure = minimumWBHP;
+                currentWellPressure = userWBHP;
             }
         }
         else
         {
-            initialWellPressure = minimumWBHP;
-        }
-
-        // Final check for initial vs current pressure to see if scaling is valid
-        if (std::fabs(initialWellPressure - currentWellPressure) < 1.0e-6)
-        {
-            // Don't perform scaling if current pressure is equal to initial.
-            currentPressureDropScaling = NO_SCALING;
+            currentWellPressure = userWBHP;
         }
     }
 
     const std::vector<std::vector<double>>* pressureResultVector   = nullptr;
-    const std::vector<double>*              initialMatrixPressures = nullptr;
     const std::vector<double>*              currentMatrixPressures = nullptr;
-    if (currentPressureDropScaling != NO_SCALING)
+    if (performPressureDepletionScaling)
     {
         pressureResultVector = &results->cellScalarResults(pressureResultIndex);
         CVF_ASSERT(!pressureResultVector->empty());
 
-        if (initialWellProductionTimeStep < static_cast<int>(pressureResultVector->size()))
-        {
-            initialMatrixPressures = &pressureResultVector->at(initialWellProductionTimeStep);
-        }
-        else
-        {
-            // Don't perform scaling if the initial well production time step is beyond the case range.
-            currentPressureDropScaling = NO_SCALING;
-        }
         if (pdParams.pressureScalingTimeStep < static_cast<int>(pressureResultVector->size()))
         {
             currentMatrixPressures = &pressureResultVector->at(pdParams.pressureScalingTimeStep);
@@ -295,7 +272,7 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
         else
         {
             // Don't perform scaling if the current pressure time step is beyond the case range.
-            currentPressureDropScaling = NO_SCALING;
+            performPressureDepletionScaling = false;
         }
     }
 
@@ -349,25 +326,15 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
         // Insert total transmissibility from eclipse-cell to well for this fracture into the map
         std::map<size_t, double> matrixToWellTrans = calculateMatrixToWellTransmissibilities(transCondenser);
 
-        ////////////////////////////////////////////////////////
-        // clang-format off
-        // WARNING!!!                                         //
-        // PROTOTYPE-CODE for Pressure Differential Depletion //
-        // MAY CHANGE A LOT                                   //
-        ////////////////////////////////////////////////////////
-       
-        if (currentPressureDropScaling == MATRIX_TO_WELL_DP_OVER_INITIAL_DP ||
-            currentPressureDropScaling == MATRIX_TO_WELL_DP_OVER_MAX_INITIAL_DP)
+        double maxPressureDrop = 0.0, minPressureDrop = 0.0;
+        if (performPressureDepletionScaling)
         {
             RigTransmissibilityCondenser scaledCondenser = transCondenser;
             // 1. Scale matrix to fracture transmissibilities by matrix to fracture pressure
             std::map<size_t, double> originalLumpedMatrixToFractureTrans = scaledCondenser.scaleMatrixToFracTransByMatrixWellDP(
                 actCellInfo,
-                initialWellPressure,
                 currentWellPressure,
-                *initialMatrixPressures,
-                *currentMatrixPressures,
-                currentPressureDropScaling == MATRIX_TO_WELL_DP_OVER_MAX_INITIAL_DP);
+                *currentMatrixPressures, &minPressureDrop, &maxPressureDrop);
             // 2: Calculate new external transmissibilities
             scaledCondenser.calculateCondensedTransmissibilities();
 
@@ -384,11 +351,6 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
             }
         }
        
-        ////////////////////////////////////////////////////////////
-        // clang-format on
-        // END PROTOTYPE CODE FOR PRESSURE DIFFERENTIAL DEPLETION //
-        ////////////////////////////////////////////////////////////
-
         std::vector<RigCompletionData> allCompletionsForOneFracture =
             generateCompdatValuesForFracture(matrixToWellTrans, wellPathName, caseToApply, fracture, fracTemplate);
 
@@ -397,7 +359,9 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
             RicWellPathFractureReportItem reportItem(
                 wellPathName, fracture->name(), fracTemplate->name(), fracture->fractureMD());
             reportItem.setUnitSystem(fracTemplate->fractureTemplateUnit());
-            reportItem.setPressureDepletionParameters(caf::AppEnum<PressureDepletionTransScaling>::uiTextFromIndex(currentPressureDropScaling), initialWellPressure, currentWellPressure);
+            reportItem.setPressureDepletionParameters(performPressureDepletionScaling ? "True" : "False",
+                caf::AppEnum<PressureDepletionWBHPSource>::uiTextFromIndex(pdParams.wbhpSource),
+                pdParams.userWBHP, minPressureDrop, maxPressureDrop);
 
             RicExportFractureCompletionsImpl::calculateAndSetReportItemData(
                 allCompletionsForOneFracture, eclToFractureCalc, reportItem);

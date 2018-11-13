@@ -123,40 +123,37 @@ double RigTransmissibilityCondenser::condensedTransmissibility(CellAddress exter
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::map<size_t, double>
-    RigTransmissibilityCondenser::scaleMatrixToFracTransByMatrixWellDP(const RigActiveCellInfo*   actCellInfo,
-                                                                       double                     initialWellPressure,
-                                                                       double                     currentWellPressure,
-                                                                       const std::vector<double>& initialMatrixPressures,
-                                                                       const std::vector<double>& currentMatrixPressures,
-                                                                       bool                       normalizeByMax)
+std::map<size_t, double> RigTransmissibilityCondenser::scaleMatrixToFracTransByMatrixWellDP(
+    const RigActiveCellInfo* actCellInfo, double currentWellPressure, const std::vector<double>& currentMatrixPressures,
+    double* minPressureDrop, double* maxPressureDrop)
 {
-    CVF_ASSERT(initialMatrixPressures.size() == currentMatrixPressures.size());
-
     std::map<size_t, double> originalLumpedMatrixToFractureTrans; // Sum(T_mf)
 
-    double maxInitialDeltaPressure = 0.0;
-    if (normalizeByMax)
-    {
-        for (auto it = m_neighborTransmissibilities.begin(); it != m_neighborTransmissibilities.end(); ++it)
-        {
-            if (it->first.m_cellIndexSpace == CellAddress::STIMPLAN)
-            {
-                for (auto jt = it->second.begin(); jt != it->second.end(); ++jt)
-                {
-                    if (jt->first.m_cellIndexSpace == CellAddress::ECLIPSE)
-                    {
-                        size_t globalMatrixCellIdx = jt->first.m_globalCellIdx;
-                        size_t eclipseResultIndex  = actCellInfo->cellResultIndex(globalMatrixCellIdx);
-                        CVF_ASSERT(eclipseResultIndex < currentMatrixPressures.size());
+    double epsilonDeltaPressure = 1.0e-6;
 
-                        double initialDeltaPressure = initialMatrixPressures[eclipseResultIndex] - initialWellPressure;
-                        maxInitialDeltaPressure     = std::max(maxInitialDeltaPressure, initialDeltaPressure);
-                    }
+    double minNonZeroDeltaPressure =  std::numeric_limits<double>::infinity();
+    double maxNonZeroDeltaPressure = -std::numeric_limits<double>::infinity();
+
+    for (auto it = m_neighborTransmissibilities.begin(); it != m_neighborTransmissibilities.end(); ++it)
+    {
+        if (it->first.m_cellIndexSpace == CellAddress::STIMPLAN)
+        {
+            for (auto jt = it->second.begin(); jt != it->second.end(); ++jt)
+            {
+                if (jt->first.m_cellIndexSpace == CellAddress::ECLIPSE)
+                {
+                    size_t globalMatrixCellIdx = jt->first.m_globalCellIdx;
+                    size_t eclipseResultIndex  = actCellInfo->cellResultIndex(globalMatrixCellIdx);
+                    CVF_ASSERT(eclipseResultIndex < currentMatrixPressures.size());
+                    double unsignedDeltaPressure = std::abs(currentMatrixPressures[eclipseResultIndex] - currentWellPressure);
+                    double nonZeroDeltaPressure  = std::max(epsilonDeltaPressure, unsignedDeltaPressure);
+                    maxNonZeroDeltaPressure      = std::max(maxNonZeroDeltaPressure, nonZeroDeltaPressure);
+                    minNonZeroDeltaPressure      = std::min(minNonZeroDeltaPressure, nonZeroDeltaPressure);
                 }
             }
         }
     }
+
     for (auto it = m_neighborTransmissibilities.begin(); it != m_neighborTransmissibilities.end(); ++it)
     {
         if (it->first.m_cellIndexSpace == CellAddress::STIMPLAN)
@@ -171,20 +168,24 @@ std::map<size_t, double>
 
                     originalLumpedMatrixToFractureTrans[globalMatrixCellIdx] += jt->second;
 
-                    double initialDeltaPressure = initialMatrixPressures[eclipseResultIndex] - initialWellPressure;
-                    double currentDeltaPressure = currentMatrixPressures[eclipseResultIndex] - currentWellPressure;
-                    if (normalizeByMax)
-                    {
-                        jt->second *= currentDeltaPressure / maxInitialDeltaPressure;
-                    }
-                    else
-                    {
-                        jt->second *= currentDeltaPressure / initialDeltaPressure;
-                    }
+                    double unsignedDeltaPressure = std::abs(currentMatrixPressures[eclipseResultIndex] - currentWellPressure);
+                    double nonZeroDeltaPressure = std::max(epsilonDeltaPressure, unsignedDeltaPressure);
+
+                    jt->second *= nonZeroDeltaPressure / maxNonZeroDeltaPressure;
                 }
             }
         }
     }
+
+    if (minPressureDrop && minNonZeroDeltaPressure != std::numeric_limits<double>::infinity())
+    {
+        *minPressureDrop = minNonZeroDeltaPressure;
+    }
+    if (maxPressureDrop && maxNonZeroDeltaPressure != std::numeric_limits<double>::infinity())
+    {
+        *maxPressureDrop = maxNonZeroDeltaPressure;
+    }
+
     return originalLumpedMatrixToFractureTrans;
 }
 

@@ -231,7 +231,6 @@ private:
                                                              QFilePtr exportFile,
                                                              const RimWellPath* wellPath,
                                                              const std::vector<const RimPerforationInterval*>& perforationIntervals);
-    static QString                        createPressureDepletionFileNameSuffix(const RicExportCompletionDataSettingsUi& exportSettings);
 
     static void                           exportCarfinForTemporaryLgrs(const RimEclipseCase* sourceCase, const QString& folder);
 

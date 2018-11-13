@@ -245,9 +245,9 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions(const std::ve
                         exportSettings.caseToApply(),
                         reportItems,
                         fractureTransmissibilityExportInformationStream.get(),
-                        RicExportFractureCompletionsImpl::PressureDepletionParameters(exportSettings.transScalingType(),
+                        RicExportFractureCompletionsImpl::PressureDepletionParameters(exportSettings.performTransScaling(),
                                                                                       exportSettings.transScalingTimeStep(),
-                                                                                      exportSettings.transScalingInitialWBHP(),
+                                                                                      exportSettings.transScalingWBHPSource(),
                                                                                       exportSettings.transScalingWBHP()));
 
                 appendCompletionData(&completionsPerEclipseCellAllCompletionTypes, fractureCompletionData);
@@ -291,9 +291,9 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions(const std::ve
                     exportSettings.caseToApply(),
                     simWell,
                     fractureTransmissibilityExportInformationStream.get(),
-                    RicExportFractureCompletionsImpl::PressureDepletionParameters(exportSettings.transScalingType(),
+                    RicExportFractureCompletionsImpl::PressureDepletionParameters(exportSettings.performTransScaling(),
                                                                                   exportSettings.transScalingTimeStep(),
-                                                                                  exportSettings.transScalingInitialWBHP(),
+                                                                                  exportSettings.transScalingWBHPSource(),
                                                                                   exportSettings.transScalingWBHP()));
 
             appendCompletionData(&completionsPerEclipseCell, fractureCompletionData);
@@ -312,7 +312,6 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions(const std::ve
         if (exportSettings.fileSplit == RicExportCompletionDataSettingsUi::UNIFIED_FILE)
         {
             QString fileName = QString("UnifiedCompletions_%1").arg(eclipseCaseName);
-            fileName += createPressureDepletionFileNameSuffix(exportSettings);
             sortAndExportCompletionsToFile(exportSettings.caseToApply,
                                            exportSettings.folder,
                                            fileName,
@@ -337,7 +336,6 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions(const std::ve
                 if (wellCompletions.empty()) continue;
 
                 QString fileName = QString("%1_unifiedCompletions_%2").arg(wellPath->name()).arg(eclipseCaseName);
-                fileName += createPressureDepletionFileNameSuffix(exportSettings);
                 sortAndExportCompletionsToFile(exportSettings.caseToApply,
                                                exportSettings.folder,
                                                fileName,
@@ -379,7 +377,6 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions(const std::ve
                         QString fileName = QString("%1_%2_%3").arg(wellPath->name()).arg(completionTypeText).arg(eclipseCaseName);
                         if (completionType == RigCompletionData::FRACTURE)
                         {
-                            fileName += createPressureDepletionFileNameSuffix(exportSettings);
                             sortAndExportCompletionsToFile(exportSettings.caseToApply,
                                                            exportSettings.folder,
                                                            fileName,
@@ -422,7 +419,6 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions(const std::ve
                 if (wellCompletions.empty()) continue;
 
                 QString fileName = QString("%1_Fractures_%2").arg(simWell->name()).arg(eclipseCaseName);
-                fileName += createPressureDepletionFileNameSuffix(exportSettings);
                 sortAndExportCompletionsToFile(exportSettings.caseToApply,
                                                exportSettings.folder,
                                                fileName,
@@ -2616,50 +2612,6 @@ void RicWellPathExportCompletionDataFeatureImpl::exportWellSegments(
     RifEclipseDataTableFormatter formatter(stream);
     RicWellPathExportCompletionDataFeatureImpl::generateWelsegsTable(formatter, exportInfo);
     RicWellPathExportCompletionDataFeatureImpl::generateCompsegTables(formatter, exportInfo);
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RicWellPathExportCompletionDataFeatureImpl::createPressureDepletionFileNameSuffix(
-    const RicExportCompletionDataSettingsUi& exportSettings)
-{
-    QString suffix;
-    if (exportSettings.transScalingType() != RicExportFractureCompletionsImpl::NO_SCALING)
-    {
-        if (exportSettings.transScalingType() == RicExportFractureCompletionsImpl::MATRIX_TO_WELL_DP_OVER_INITIAL_DP)
-        {
-            suffix += QString("_3");
-        }
-        else if (exportSettings.transScalingType() == RicExportFractureCompletionsImpl::MATRIX_TO_WELL_DP_OVER_MAX_INITIAL_DP)
-        {
-            suffix += QString("_4");
-        }
-
-        suffix += QString("B_");
-
-        if (exportSettings.transScalingInitialWBHP() == RicExportFractureCompletionsImpl::FROM_PRODUCTION_START)
-        {
-            suffix += QString("_WBHPROD_");
-        }
-        else if (exportSettings.transScalingInitialWBHP() == RicExportFractureCompletionsImpl::FROM_PRODUCTION_START_W_MIN)
-        {
-            suffix += QString("_WBHPMIN_");
-        }
-        else
-        {
-            suffix += QString("_WBHPFIX_");
-        }
-
-        RimEclipseCase* eclipseCase = exportSettings.caseToApply();
-        if (eclipseCase)
-        {
-            QString date = eclipseCase->timeStepStrings()[exportSettings.transScalingTimeStep()];
-            date.replace(QRegExp("[\\.\\s]"), "_");
-            suffix += QString("%1").arg(date);
-        }
-    }
-    return suffix;
 }
 
 //--------------------------------------------------------------------------------------------------

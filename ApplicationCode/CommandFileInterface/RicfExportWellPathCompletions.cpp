@@ -56,9 +56,9 @@ RicfExportWellPathCompletions::RicfExportWellPathCompletions()
     
     RICF_InitField(&m_excludeMainBoreForFishbones, "excludeMainBoreForFishbones", false, "Exclude Main Bore for Fishbones",  "", "", "");
 
-    RICF_InitField(&m_transScalingType, "transScalingType", RicExportCompletionDataSettingsUi::TransScalingType(), "Transmissibility Scaling Type", "", "", "");
+    RICF_InitField(&m_performTransScaling, "performTransScaling", false, "Perform Transmissibility Scaling", "", "", "");
     RICF_InitField(&m_transScalingTimeStep, "transScalingTimeStep", 0, "Transmissibility Scaling Pressure Time Step", "", "", "");
-    RICF_InitField(&m_transScalingInitialWBHP, "transScalingWBHPFromSummary", RicExportCompletionDataSettingsUi::TransScalingInitialWBHP(), "Transmissibility Scaling WBHP from summary", "", "", "");
+    RICF_InitField(&m_transScalingInitialWBHP, "transScalingWBHPFromSummary", RicExportCompletionDataSettingsUi::TransScalingWBHPSource(), "Transmissibility Scaling WBHP from summary", "", "", "");
     RICF_InitField(&m_transScalingWBHP,     "transScalingWBHP", 200.0, "Transmissibility Scaling Constant WBHP Value", "", "", "");
 }
 
@@ -84,9 +84,9 @@ void RicfExportWellPathCompletions::execute()
     exportSettings->fileSplit = m_fileSplit;
     exportSettings->compdatExport = m_compdatExport;
 
-    exportSettings->transScalingType = m_transScalingType;
+    exportSettings->performTransScaling = m_performTransScaling;
     exportSettings->transScalingTimeStep = m_transScalingTimeStep;
-    exportSettings->transScalingInitialWBHP = m_transScalingInitialWBHP;
+    exportSettings->transScalingWBHPSource = m_transScalingInitialWBHP;
     exportSettings->transScalingWBHP = m_transScalingWBHP;
 
     exportSettings->useLateralNTG = m_useLateralNTG;

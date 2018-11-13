@@ -44,18 +44,11 @@ class QString;
 class RicExportFractureCompletionsImpl
 {
 public:
-    enum PressureDepletionTransScaling
-    {
-        NO_SCALING = 0,
-        MATRIX_TO_WELL_DP_OVER_INITIAL_DP,
-        MATRIX_TO_WELL_DP_OVER_MAX_INITIAL_DP
-    };
 
-    enum PressureDepletionInitialWBHP
+    enum PressureDepletionWBHPSource
     {
-        FROM_PRODUCTION_START,
-        FROM_PRODUCTION_START_W_MIN,
-        FIXED_INITIAL_WBHP
+        WBHP_FROM_SUMMARY,
+        WBHP_FROM_USER_DEF
     };
 
     //--------------------------------------------------------------------------------------------------
@@ -63,20 +56,20 @@ public:
     //--------------------------------------------------------------------------------------------------
     struct PressureDepletionParameters
     {
-        PressureDepletionParameters(PressureDepletionTransScaling pressureDropScaling = NO_SCALING,
-                                    int                           pressureScalingTimeStep = 0,
-                                    PressureDepletionInitialWBHP  initialWbhpSource = FROM_PRODUCTION_START,
-                                    double                        pressureScalingWBHP = 200.0)
-            : pressureDropScaling(pressureDropScaling)
+        PressureDepletionParameters(bool                        performScaling = false,
+                                    int                         pressureScalingTimeStep = 0,
+                                    PressureDepletionWBHPSource wbhpSource = WBHP_FROM_SUMMARY,
+                                    double                      userWBHP = 200.0)
+            : performScaling(performScaling)
             , pressureScalingTimeStep(pressureScalingTimeStep)
-            , initialWbhpSource(initialWbhpSource)
-            , pressureScalingWBHP(pressureScalingWBHP)
+            , wbhpSource(wbhpSource)
+            , userWBHP(userWBHP)
         {}
 
-        PressureDepletionTransScaling    pressureDropScaling;
-        int                              pressureScalingTimeStep;
-        PressureDepletionInitialWBHP     initialWbhpSource;
-        double                           pressureScalingWBHP;
+        bool                        performScaling;
+        int                         pressureScalingTimeStep;
+        PressureDepletionWBHPSource wbhpSource;
+        double                      userWBHP;
     };     
 
     static std::vector<RigCompletionData> generateCompdatValuesForWellPath(RimWellPath* wellPath,
