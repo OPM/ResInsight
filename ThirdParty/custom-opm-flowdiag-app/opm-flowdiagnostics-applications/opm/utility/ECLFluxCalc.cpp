@@ -18,16 +18,20 @@
 */
 
 #include <opm/utility/ECLFluxCalc.hpp>
+
 #include <opm/utility/ECLPvtCommon.hpp>
-#include <opm/utility/ECLUnitHandling.hpp>
 #include <opm/utility/ECLSaturationFunc.hpp>
+#include <opm/utility/ECLUnitHandling.hpp>
+
 #include <opm/utility/imported/Units.hpp>
 
 #include <algorithm>
+#include <cstddef>
 #include <exception>
 #include <functional>
 #include <iterator>
 #include <stdexcept>
+#include <string>
 #include <utility>
 
 #include <ert/ecl/ecl_kw_magic.h>
@@ -174,7 +178,6 @@ namespace {
             };
         }
     }
-
 } // Anonymous
 
 namespace Opm
@@ -342,41 +345,18 @@ namespace Opm
         // Allocate space for storing the cell values.
         dyn_data.density.assign(this->graph_.numCells(), 0.0);
 
+        // Extract phase saturation.
+        dyn_data.saturation =
+            ::Opm::phaseSaturation(this->graph_, rstrt, phase);
+
         switch (phase) {
         case ECLPhaseIndex::Aqua:
-            dyn_data.saturation = this->graph_.rawLinearisedCellData<double>(rstrt, "SWAT");
             return this->watPVT(std::move(dyn_data));
 
         case ECLPhaseIndex::Liquid:
-            dyn_data.saturation = this->graph_.rawLinearisedCellData<double>(rstrt, "SOIL");
-            if (!dyn_data.saturation.empty()) {
-                return this->oilPVT(rstrt, std::move(dyn_data));
-            } else {
-                // SOIL vector not provided. Compute from SWAT and/or SGAS.
-                // may read two times
-                auto sw = this->graph_.rawLinearisedCellData<double>(rstrt, "SWAT");
-                auto sg = this->graph_.rawLinearisedCellData<double>(rstrt, "SGAS");
-                std::vector<double>& so = dyn_data.saturation;
-                so.assign(this->graph_.numCells(), 1.0);
-                auto adjust_So_for_other_phase =
-                    [&so](const std::vector<double>& s)
-                {
-                    std::transform(std::begin(so), std::end(so),
-                                   std::begin(s) ,
-                                   std::begin(so), std::minus<double>());
-                };
-                if (sg.size() == this->graph_.numCells()) {
-                    adjust_So_for_other_phase(sg);
-                }
-
-                if (sw.size() == this->graph_.numCells()) {
-                    adjust_So_for_other_phase(sw);
-                }
-                return this->oilPVT(rstrt, std::move(dyn_data));
-            }
+            return this->oilPVT(rstrt, std::move(dyn_data));
 
         case ECLPhaseIndex::Vapour:
-            dyn_data.saturation = this->graph_.rawLinearisedCellData<double>(rstrt, "SGAS");
             return this->gasPVT(rstrt, std::move(dyn_data));
         }
 
