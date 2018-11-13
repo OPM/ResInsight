@@ -20,6 +20,7 @@
 
 #include "RigCaseCellResultsData.h"
 
+#include "RiaApplication.h"
 #include "RiaLogging.h"
 
 #include "RigEclipseCaseData.h"
@@ -860,6 +861,7 @@ void RigCaseCellResultsData::createPlaceholderResultEntries()
     }
 
     // Oil Volume
+    if (RiaApplication::enableDevelopmentFeatures())
     {
         size_t soilIndex = findOrCreateScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, "SOIL", false);
         if (soilIndex != cvf::UNDEFINED_SIZE_T)
