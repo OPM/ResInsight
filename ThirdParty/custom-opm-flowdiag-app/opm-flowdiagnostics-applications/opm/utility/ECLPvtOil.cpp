@@ -121,6 +121,15 @@ namespace {
         return std::make_pair(ToSI::disGas(*u),
                               deadOilUnitConverter(*u));
     }
+
+    std::vector<bool>::size_type const_compr_index()
+    {
+#if defined(LOGIHEAD_CONSTANT_OILCOMPR_INDEX)
+        return LOGIHEAD_CONSTANT_OILCOMPR_INDEX;
+#else
+        return (39 - 1);        // Reverse engineering...
+#endif  // LOGIHEAD_CONSTANT_OILCOMPR_INDEX
+    }
 }
 
 // ---------------------------------------------------------------------
@@ -778,9 +787,8 @@ fromECLOutput(const ECLInitFileData& init)
         return OPtr{};
     }
 
-    const auto& lh = init.keywordData<bool>(LOGIHEAD_KW);
-    const int LOGIHEAD_CONST_COMPR_INDEX = 38;
-    const bool is_const_compr = lh[LOGIHEAD_CONST_COMPR_INDEX];
+    const auto& lh             = init.keywordData<bool>(LOGIHEAD_KW);
+    const auto  is_const_compr = static_cast<bool>(lh[const_compr_index()]);
 
     auto raw = ::Opm::ECLPropTableRawData{};
 
