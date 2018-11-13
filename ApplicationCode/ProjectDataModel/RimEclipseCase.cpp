@@ -884,10 +884,14 @@ QStringList RimEclipseCase::timeStepStrings() const
 {
     QStringList stringList;
 
-    int timeStepCount = static_cast<int>(results(RiaDefines::MATRIX_MODEL)->maxTimeStepCount());
-    for (int i = 0; i < timeStepCount; i++)
+    const RigCaseCellResultsData* cellResultData = results(RiaDefines::MATRIX_MODEL);
+    if (cellResultData)
     {
-        stringList += this->timeStepName(i);
+        int timeStepCount = static_cast<int>(cellResultData->maxTimeStepCount());
+        for (int i = 0; i < timeStepCount; i++)
+        {
+            stringList += this->timeStepName(i);
+        }
     }
 
     return stringList;
