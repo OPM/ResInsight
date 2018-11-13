@@ -2578,3 +2578,31 @@ getSatFuncCurve(const std::vector<RawCurve>& func,
 {
     return this->pImpl_->getSatFuncCurve(func, activeCell, scaling);
 }
+
+// =====================================================================
+
+std::vector<double>
+Opm::phaseSaturation(const ECLGraph&       G,
+                     const ECLRestartData& rstrt,
+                     const ECLPhaseIndex   phase)
+{
+    switch (phase) {
+    case ECLPhaseIndex::Aqua:
+        return water_saturation(G, rstrt);
+
+    case ECLPhaseIndex::Liquid: {
+        const auto sg = gas_saturation(G, rstrt);
+        const auto sw = water_saturation(G, rstrt);
+
+        return oil_saturation(sg, sw, G, rstrt);
+    }
+
+    case ECLPhaseIndex::Vapour:
+        return gas_saturation(G, rstrt);
+    }
+
+    throw std::invalid_argument {
+        "Unsupported Phase Index " +
+        std::to_string(static_cast<std::size_t>(phase))
+    };
+}
