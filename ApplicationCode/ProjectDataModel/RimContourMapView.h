@@ -41,6 +41,7 @@ protected:
     void defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
     void updateCurrentTimeStep() override;
 
+    void setFaultVisParameters();
     void appendContourMapProjectionToModel();
 
     void updateLegends() override;

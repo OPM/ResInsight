@@ -27,6 +27,7 @@
 #include "RimContourMapNameConfig.h"
 #include "RimContourMapProjection.h"
 #include "RimEclipseCellColors.h"
+#include "RimEclipseFaultColors.h"
 #include "RimEclipsePropertyFilterCollection.h"
 #include "RimFaultInViewCollection.h"
 #include "RimGridCollection.h"
@@ -55,10 +56,8 @@ RimContourMapView::RimContourMapView()
 
     CAF_PDM_InitField(&m_showAxisLines, "ShowAxisLines", true, "Show Axis Lines", "", "", "");
 
-    m_overlayInfoConfig->setIsActive(false);
     m_gridCollection->setActive(false); // This is also not added to the tree view, so cannot be enabled.
-    wellCollection()->isActive = false;
-    faultCollection()->showFaultCollection = false;    
+    setFaultVisParameters();
 
     CAF_PDM_InitFieldNoDefault(&m_nameConfig, "NameConfig", "", "", "", "");
     m_nameConfig = new RimContourMapNameConfig(this);
@@ -143,6 +142,7 @@ void RimContourMapView::initAfterRead()
     setShowGridBox(false);
     meshMode.setValue(NO_MESH);
     surfaceMode.setValue(FAULTS);
+    setFaultVisParameters();
     scheduleCreateDisplayModelAndRedraw();
 }
 
@@ -216,6 +216,18 @@ void RimContourMapView::updateCurrentTimeStep()
     {
         m_overlayInfoConfig()->update3DInfo();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimContourMapView::setFaultVisParameters()
+{
+    faultCollection()->setShowFaultsOutsideFilter(false);
+    faultCollection()->showOppositeFaultFaces = true;
+    faultCollection()->faultResult            = RimFaultInViewCollection::FAULT_NO_FACE_CULLING;
+    faultResultSettings()->showCustomFaultResult = true;
+    faultResultSettings()->customFaultResult()->setResultVariable("None");
 }
 
 //--------------------------------------------------------------------------------------------------
