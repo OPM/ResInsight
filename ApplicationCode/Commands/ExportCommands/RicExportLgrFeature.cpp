@@ -650,15 +650,18 @@ RicExportLgrFeature::cellsIntersectingCompletions(RimEclipseCase* eclipseCase,
 {
     std::vector<RigCompletionDataGridCell> cells;
 
+    const RigMainGrid* mainGrid = eclipseCase->mainGrid();
+
     *isIntersectingOtherLgrs = false;
-    auto completions = eclipseCase->computeAndGetVirtualPerforationTransmissibilities();
+    auto completions         = eclipseCase->computeAndGetVirtualPerforationTransmissibilities();
     if (completions)
     {
         auto intCells = completions->multipleCompletionsPerEclipseCell(wellPath, timeStep);
 
         for (auto intCell : intCells)
         {
-            if (!intCell.first.isMainGridCell())
+            const RigGridBase* grid = hostGrid(mainGrid, intCell.first);
+            if (grid != mainGrid)
             {
                 *isIntersectingOtherLgrs = true;
                 continue;
@@ -668,9 +671,10 @@ RicExportLgrFeature::cellsIntersectingCompletions(RimEclipseCase* eclipseCase,
 
             if (filteredCompletions.empty()) continue;
 
-            cells.push_back(intCell.first);
+            cells.push_back(RigCompletionDataGridCell(intCell.first, mainGrid));
         }
     }
+
     return cells;
 }
 
@@ -867,6 +871,8 @@ std::map<CompletionInfo, std::vector<RigCompletionDataGridCell>> RicExportLgrFea
     const std::set<RigCompletionData::CompletionType>& completionTypes,
     QStringList*                                       wellsIntersectingOtherLgrs)
 {
+    const RigMainGrid* mainGrid = eclipseCase->mainGrid();
+
     std::map<CompletionInfo, std::vector<RigCompletionDataGridCell>> completionToCells;
 
     wellsIntersectingOtherLgrs->clear();
@@ -881,7 +887,8 @@ std::map<CompletionInfo, std::vector<RigCompletionDataGridCell>> RicExportLgrFea
 
         for (const auto& intCell : intCells)
         {
-            if (!intCell.first.isMainGridCell())
+            const RigGridBase* grid = hostGrid(mainGrid, intCell.first);
+            if (grid != mainGrid)
             {
                 isIntersectingOtherLgrs = true;
                 continue;
@@ -893,7 +900,7 @@ std::map<CompletionInfo, std::vector<RigCompletionDataGridCell>> RicExportLgrFea
                 CompletionInfo ci(completion.completionType(), complName, completion.wellName());
 
                 auto& item = completionToCells[ci];
-                item.push_back(intCell.first);
+                item.push_back(RigCompletionDataGridCell(intCell.first, mainGrid));
             }
         }
 
@@ -1060,6 +1067,16 @@ int RicExportLgrFeature::firstAvailableLgrId(const RigMainGrid* mainGrid)
         lastUsedId = std::max(lastUsedId, mainGrid->gridByIndex(i)->gridId());
     }
     return lastUsedId + 1;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const RigGridBase* RicExportLgrFeature::hostGrid(const RigMainGrid* mainGrid, size_t reservoirCellIndex)
+{
+    size_t dummy = 0;
+    
+    return mainGrid->gridAndGridLocalIdxFromGlobalCellIdx(reservoirCellIndex, &dummy);
 }
 
 //--------------------------------------------------------------------------------------------------

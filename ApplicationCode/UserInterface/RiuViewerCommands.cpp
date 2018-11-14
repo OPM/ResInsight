@@ -729,8 +729,7 @@ void RiuViewerCommands::handlePickAction(int winPosX, int winPosY, Qt::KeyboardM
 
                             const auto& multipleCompletions = connectionFactors->multipleCompletionsPerEclipseCell(wellConnectionSourceInfo->wellPath(), timeStep);
 
-                            RigCompletionDataGridCell completionGridCell(globalCellIndex, eclipseCase->eclipseCaseData()->mainGrid());
-                            auto completionDataIt = multipleCompletions.find(completionGridCell);
+                            auto completionDataIt = multipleCompletions.find(globalCellIndex);
                             if (completionDataIt != multipleCompletions.end())
                             {
                                 completionsForOneCell = completionDataIt->second;

@@ -31,6 +31,7 @@
 
 class LgrNameFactory;
 class RigMainGrid;
+class RigGridBase;
 class RimEclipseCase;
 class RimSimWellInView;
 class RimWellPath;
@@ -228,4 +229,5 @@ private:
                                                           QStringList*                                       wellsIntersectingOtherLgrs);
 
     static int firstAvailableLgrId(const RigMainGrid* mainGrid);
+    static const RigGridBase* hostGrid(const RigMainGrid* mainGrid, size_t reservoirCellIndex);
 };

@@ -32,15 +32,15 @@ void CompletionDataFrame::setCompletionData(const std::vector<RigCompletionData>
 {
     for (auto& completion : completions)
     {
-        auto it = m_multipleCompletionsPerEclipseCell.find(completion.completionDataGridCell());
+        auto it = m_multipleCompletionsPerEclipseCell.find(completion.completionDataGridCell().globalCellIndex());
         if (it != m_multipleCompletionsPerEclipseCell.end())
         {
             it->second.push_back(completion);
         }
         else
         {
-            m_multipleCompletionsPerEclipseCell.insert(std::pair<RigCompletionDataGridCell, std::vector<RigCompletionData>>(
-                completion.completionDataGridCell(), std::vector<RigCompletionData>{completion}));
+            m_multipleCompletionsPerEclipseCell.insert(std::pair<size_t, std::vector<RigCompletionData>>(
+                completion.completionDataGridCell().globalCellIndex(), std::vector<RigCompletionData>{completion}));
         }
     }
 }
@@ -48,8 +48,7 @@ void CompletionDataFrame::setCompletionData(const std::vector<RigCompletionData>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::map<RigCompletionDataGridCell, std::vector<RigCompletionData>>&
-    CompletionDataFrame::multipleCompletionsPerEclipseCell() const
+const std::map<size_t, std::vector<RigCompletionData>>& CompletionDataFrame::multipleCompletionsPerEclipseCell() const
 {
     return m_multipleCompletionsPerEclipseCell;
 }
@@ -94,11 +93,11 @@ void RigVirtualPerforationTransmissibilities::setCompletionDataForWellPath(
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::map<RigCompletionDataGridCell, std::vector<RigCompletionData>>&
+const std::map<size_t, std::vector<RigCompletionData>>&
     RigVirtualPerforationTransmissibilities::multipleCompletionsPerEclipseCell(const RimWellPath* wellPath,
                                                                                size_t             timeStepIndex) const
 {
-    static std::map<RigCompletionDataGridCell, std::vector<RigCompletionData>> dummy;
+    static std::map<size_t, std::vector<RigCompletionData>> dummy;
 
     auto item = m_mapFromWellToCompletionData.find(wellPath);
     if (item != m_mapFromWellToCompletionData.end())

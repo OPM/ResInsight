@@ -85,9 +85,9 @@ void RivWellConnectionFactorPartMgr::appendDynamicGeometryPartsToModel(cvf::Mode
     // Remove connection factors for parent grid, they are not supposed to be visualized, but are relevant for export
     for (auto it = completionsForWellPath.begin(); it != completionsForWellPath.end();)
     {
-        size_t gridIndex = it->first.globalCellIndex();
+        size_t reservoirCellIndex = it->first;
 
-        const RigCell& rigCell = mainGrid->cell(gridIndex);
+        const RigCell& rigCell = mainGrid->cell(reservoirCellIndex);
         if (rigCell.subGrid())
         {
             it = completionsForWellPath.erase(it);
@@ -121,9 +121,9 @@ void RivWellConnectionFactorPartMgr::appendDynamicGeometryPartsToModel(cvf::Mode
             }
         }
 
-        size_t gridIndex = completionsForCell.first.globalCellIndex();
+        size_t reservoirCellIndex = completionsForCell.first;
 
-        const RigCell& rigCell = mainGrid->cell(gridIndex);
+        const RigCell& rigCell = mainGrid->cell(reservoirCellIndex);
 
         cvf::Vec3d locationInDomainCoord = rigCell.center();
         cvf::Vec3d direction             = cvf::Vec3d::X_AXIS;
@@ -135,7 +135,7 @@ void RivWellConnectionFactorPartMgr::appendDynamicGeometryPartsToModel(cvf::Mode
             {
                 const WellPathCellIntersectionInfo& intersectionInfo = wellPathCellIntersections[i];
 
-                if (intersectionInfo.globCellIndex == completionsForCell.first.globalCellIndex())
+                if (intersectionInfo.globCellIndex == completionsForCell.first)
                 {
                     double startMD = intersectionInfo.startMD;
                     double endMD   = intersectionInfo.endMD;
@@ -166,7 +166,7 @@ void RivWellConnectionFactorPartMgr::appendDynamicGeometryPartsToModel(cvf::Mode
             double transmissibility = completionData.transmissibility();
 
             completionVizDataItems.push_back(
-                CompletionVizData(displayCoord, direction, transmissibility, completionsForCell.first.globalCellIndex()));
+                CompletionVizData(displayCoord, direction, transmissibility, completionsForCell.first));
         }
     }
 

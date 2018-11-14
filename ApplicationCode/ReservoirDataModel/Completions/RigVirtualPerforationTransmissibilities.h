@@ -41,10 +41,10 @@ public:
 
     void setCompletionData(const std::vector<RigCompletionData>& completions);
 
-    const std::map<RigCompletionDataGridCell, std::vector<RigCompletionData>>& multipleCompletionsPerEclipseCell() const;
+    const std::map<size_t, std::vector<RigCompletionData>>& multipleCompletionsPerEclipseCell() const;
 
 private:
-    std::map<RigCompletionDataGridCell, std::vector<RigCompletionData>> m_multipleCompletionsPerEclipseCell;
+    std::map<size_t, std::vector<RigCompletionData>> m_multipleCompletionsPerEclipseCell;
 };
 
 //--------------------------------------------------------------------------------------------------
@@ -56,18 +56,20 @@ public:
     RigVirtualPerforationTransmissibilities();
     ~RigVirtualPerforationTransmissibilities() override;
 
-    void setCompletionDataForWellPath(const RimWellPath* wellPath, const std::vector<std::vector<RigCompletionData>>& completionsPerTimeStep);
+    void setCompletionDataForWellPath(const RimWellPath*                                 wellPath,
+                                      const std::vector<std::vector<RigCompletionData>>& completionsPerTimeStep);
 
-    const std::map<RigCompletionDataGridCell, std::vector<RigCompletionData>>&
-        multipleCompletionsPerEclipseCell(const RimWellPath* wellPath, size_t timeStepIndex) const;
+    const std::map<size_t, std::vector<RigCompletionData>>& multipleCompletionsPerEclipseCell(const RimWellPath* wellPath,
+                                                                                              size_t timeStepIndex) const;
 
-    void setCompletionDataForSimWell(const RigSimWellData* simWellData, const std::vector<std::vector<RigCompletionData>>& completionsPerTimeStep);
-    
-    const std::vector<RigCompletionData>&
-        completionsForSimWell(const RigSimWellData* simWellData, size_t timeStepIndex) const;
+    void setCompletionDataForSimWell(const RigSimWellData*                              simWellData,
+                                     const std::vector<std::vector<RigCompletionData>>& completionsPerTimeStep);
+
+    const std::vector<RigCompletionData>& completionsForSimWell(const RigSimWellData* simWellData, size_t timeStepIndex) const;
 
     void computeMinMax(double* minValue, double* maxValue, double* posClosestToZero, double* negClosestToZero) const;
+
 private:
-    std::map<const RimWellPath*, std::vector<CompletionDataFrame>> m_mapFromWellToCompletionData;
+    std::map<const RimWellPath*, std::vector<CompletionDataFrame>>               m_mapFromWellToCompletionData;
     std::map<const RigSimWellData*, std::vector<std::vector<RigCompletionData>>> m_mapFromSimWellToCompletionData;
 };

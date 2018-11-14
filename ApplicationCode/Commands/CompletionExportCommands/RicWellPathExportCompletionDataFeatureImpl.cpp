@@ -206,10 +206,10 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions(const std::ve
 
         for (auto wellPath : usedWellPaths)
         {
-            std::map<RigCompletionDataGridCell, std::vector<RigCompletionData>> completionsPerEclipseCellAllCompletionTypes;
-            std::map<RigCompletionDataGridCell, std::vector<RigCompletionData>> completionsPerEclipseCellFishbones;
-            std::map<RigCompletionDataGridCell, std::vector<RigCompletionData>> completionsPerEclipseCellFracture;
-            std::map<RigCompletionDataGridCell, std::vector<RigCompletionData>> completionsPerEclipseCellPerforations;
+            std::map<size_t, std::vector<RigCompletionData>> completionsPerEclipseCellAllCompletionTypes;
+            std::map<size_t, std::vector<RigCompletionData>> completionsPerEclipseCellFishbones;
+            std::map<size_t, std::vector<RigCompletionData>> completionsPerEclipseCellFracture;
+            std::map<size_t, std::vector<RigCompletionData>> completionsPerEclipseCellPerforations;
 
             // Generate completion data
 
@@ -284,7 +284,7 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions(const std::ve
 
         for (auto simWell : simWells)
         {
-            std::map<RigCompletionDataGridCell, std::vector<RigCompletionData>> completionsPerEclipseCell;
+            std::map<size_t, std::vector<RigCompletionData>> completionsPerEclipseCell;
 
             std::vector<RigCompletionData> fractureCompletionData =
                 RicExportFractureCompletionsImpl::generateCompdatValuesForSimWell(
@@ -2248,20 +2248,20 @@ void RicWellPathExportCompletionDataFeatureImpl::assignBranchAndSegmentNumbers(c
 ///
 //--------------------------------------------------------------------------------------------------
 void RicWellPathExportCompletionDataFeatureImpl::appendCompletionData(
-    std::map<RigCompletionDataGridCell, std::vector<RigCompletionData>>* completionData,
-    const std::vector<RigCompletionData>&                                data)
+    std::map<size_t, std::vector<RigCompletionData>>* completionData,
+    const std::vector<RigCompletionData>&             completionsToAppend)
 {
-    for (auto& completion : data)
+    for (const auto& completion : completionsToAppend)
     {
-        auto it = completionData->find(completion.completionDataGridCell());
+        auto it = completionData->find(completion.completionDataGridCell().globalCellIndex());
         if (it != completionData->end())
         {
             it->second.push_back(completion);
         }
         else
         {
-            completionData->insert(std::pair<RigCompletionDataGridCell, std::vector<RigCompletionData>>(
-                completion.completionDataGridCell(), std::vector<RigCompletionData>{completion}));
+            completionData->insert(std::pair<size_t, std::vector<RigCompletionData>>(
+                completion.completionDataGridCell().globalCellIndex(), std::vector<RigCompletionData>{completion}));
         }
     }
 }

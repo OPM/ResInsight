@@ -113,7 +113,7 @@ void RimCompletionCellIntersectionCalc::calculateCompletionTypeResult(RimEclipse
                             appCompletionType = RiaDefines::PERFORATION_INTERVAL;
                         }
 
-                        completionTypeCellResult[completionsForWell.first.globalCellIndex()] = appCompletionType;
+                        completionTypeCellResult[completionsForWell.first] = appCompletionType;
                     }
                 }
             }

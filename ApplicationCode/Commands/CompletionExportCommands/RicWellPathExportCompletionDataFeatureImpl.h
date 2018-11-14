@@ -212,7 +212,7 @@ private:
     static void                           assignBranchAndSegmentNumbers(const RimEclipseCase* caseToApply,
                                                                         RicMswExportInfo* exportInfo);
 
-    static void                           appendCompletionData(std::map<RigCompletionDataGridCell, std::vector<RigCompletionData>>* completionData,
+    static void                           appendCompletionData(std::map<size_t, std::vector<RigCompletionData>>* completionData,
                                                                const std::vector<RigCompletionData>& data);
 
     static cvf::Vec2i                     wellPathUpperGridIntersectionIJ(const RimEclipseCase* gridCase, const RimWellPath* wellPath, const QString& gridName = "");
