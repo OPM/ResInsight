@@ -41,6 +41,34 @@ namespace Opm {
     class ECLRestartData;
     class ECLInitFileData;
 
+    /// Extract phase saturation of single phase for all active cells in all
+    /// grids.
+    ///
+    /// Handles the case of oil saturation being explicitly stored in a
+    /// result set or implicitly defined from the gas and/or water
+    /// saturations.
+    ///
+    /// \param[in] G Connected topology of current model's active cells.
+    ///    Needed to linearise phase saturations (e.g., SOIL) that are
+    ///    distributed on local grids to all of the model's active cells
+    ///    (\code member function G.rawLinearisedCellData() \endcode).
+    ///
+    /// \param[in] rstrt ECLIPSE restart vectors.  Result set view
+    ///    assumed to be positioned at a particular report step of
+    ///    interest.
+    ///
+    /// \param[in] phase Phase for which to extract the phase saturation
+    ///    values.
+    ///
+    /// \return Phase saturation values of active phase \p phase for all
+    ///    active cells in model \p G.  Empty if phase \p phase is not
+    ///    actually active in the current result set or if the saturation
+    ///    values are not stored on the current report/restart step.
+    std::vector<double>
+    phaseSaturation(const ECLGraph&       G,
+                    const ECLRestartData& rstrt,
+                    const ECLPhaseIndex   phase);
+
     /// Gateway to engine for computing relative permeability values based
     /// on tabulated saturation functions in ECL output.
     class ECLSaturationFunc

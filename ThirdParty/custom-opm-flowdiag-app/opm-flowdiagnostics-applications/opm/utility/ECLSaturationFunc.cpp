@@ -49,6 +49,13 @@
 
 namespace {
     std::vector<double>
+    gas_saturation(const ::Opm::ECLGraph&       G,
+                   const ::Opm::ECLRestartData& rstrt)
+    {
+        return G.rawLinearisedCellData<double>(rstrt, "SGAS");
+    }
+
+    std::vector<double>
     oil_saturation(const std::vector<double>&   sg,
                    const std::vector<double>&   sw,
                    const ::Opm::ECLGraph&       G,
@@ -82,6 +89,13 @@ namespace {
         }
 
         return so;
+    }
+
+    std::vector<double>
+    water_saturation(const ::Opm::ECLGraph&       G,
+                     const ::Opm::ECLRestartData& rstrt)
+    {
+        return G.rawLinearisedCellData<double>(rstrt, "SWAT");
     }
 
     std::vector<int>
@@ -1881,8 +1895,8 @@ kro(const ECLGraph&       G,
         return kr;
     }
 
-    const auto& sg = G.rawLinearisedCellData<double>(rstrt, "SGAS");
-    const auto& sw = G.rawLinearisedCellData<double>(rstrt, "SWAT");
+    const auto& sg = gas_saturation(G, rstrt);
+    const auto& sw = water_saturation(G, rstrt);
 
     auto so_g = oil_saturation(sg, sw, G, rstrt);
     auto so_w = so_g;
@@ -2010,7 +2024,7 @@ krg(const ECLGraph&       G,
         return kr;
     }
 
-    auto sg = G.rawLinearisedCellData<double>(rstrt, "SGAS");
+    auto sg = gas_saturation(G, rstrt);
 
     if (enableHorizontalEPS(scaling) && this->eps_) {
         this->eps_->scaleKrGas(this->rmap_, sg);
@@ -2162,7 +2176,7 @@ krw(const ECLGraph&       G,
         return kr;
     }
 
-    auto sw = G.rawLinearisedCellData<double>(rstrt, "SWAT");
+    auto sw = water_saturation(G, rstrt);
 
     if (enableHorizontalEPS(scaling) && this->eps_) {
         this->eps_->scaleKrWat(this->rmap_, sw);
@@ -2563,4 +2577,32 @@ getSatFuncCurve(const std::vector<RawCurve>& func,
                 const SatFuncScaling&        scaling) const
 {
     return this->pImpl_->getSatFuncCurve(func, activeCell, scaling);
+}
+
+// =====================================================================
+
+std::vector<double>
+Opm::phaseSaturation(const ECLGraph&       G,
+                     const ECLRestartData& rstrt,
+                     const ECLPhaseIndex   phase)
+{
+    switch (phase) {
+    case ECLPhaseIndex::Aqua:
+        return water_saturation(G, rstrt);
+
+    case ECLPhaseIndex::Liquid: {
+        const auto sg = gas_saturation(G, rstrt);
+        const auto sw = water_saturation(G, rstrt);
+
+        return oil_saturation(sg, sw, G, rstrt);
+    }
+
+    case ECLPhaseIndex::Vapour:
+        return gas_saturation(G, rstrt);
+    }
+
+    throw std::invalid_argument {
+        "Unsupported Phase Index " +
+        std::to_string(static_cast<std::size_t>(phase))
+    };
 }
