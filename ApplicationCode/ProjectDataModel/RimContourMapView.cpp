@@ -124,6 +124,18 @@ QString RimContourMapView::createAutoName() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RimContourMapView::isTimeStepDependentDataVisible() const
+{
+    if (RimEclipseView::isTimeStepDependentDataVisible())
+    {
+        return true;
+    }
+    return m_contourMapProjection->isChecked();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimContourMapView::initAfterRead()
 {
     m_gridCollection->setActive(false); // This is also not added to the tree view, so cannot be enabled.
@@ -141,13 +153,6 @@ void RimContourMapView::createDisplayModel()
 {
     RimEclipseView::createDisplayModel();
     
-    if (!isTimeStepDependentDataVisible())
-    {
-        // RimEclipseView::createDisplayModel() will not draw anything in this case. Draw something anyway.
-        m_viewer->setCurrentFrame(m_currentTimeStep);
-    }
-
-
     if (this->viewer()->mainCamera()->viewMatrix() == defaultViewMatrix)
     {
         this->zoomAll();
@@ -221,19 +226,20 @@ void RimContourMapView::appendContourMapProjectionToModel()
     if (m_viewer && m_contourMapProjection->isChecked())
     {
         cvf::Scene* frameScene = m_viewer->frame(m_currentTimeStep);
+        if (frameScene)
+        {
+            cvf::String name = "ContourMapProjection";
+            this->removeModelByName(frameScene, name);
 
-        cvf::String name = "ContourMapProjection";
-        this->removeModelByName(frameScene, name);
+            cvf::ref<cvf::ModelBasicList> contourMapProjectionModelBasicList = new cvf::ModelBasicList;
+            contourMapProjectionModelBasicList->setName(name);
 
-        cvf::ref<cvf::ModelBasicList> contourMapProjectionModelBasicList = new cvf::ModelBasicList;
-        contourMapProjectionModelBasicList->setName(name);
+            cvf::ref<caf::DisplayCoordTransform> transForm = this->displayCoordTransform();
 
-        cvf::ref<caf::DisplayCoordTransform> transForm = this->displayCoordTransform();
-
-        m_contourMapProjectionPartMgr->appendProjectionToModel(contourMapProjectionModelBasicList.p(), transForm.p());
-        contourMapProjectionModelBasicList->updateBoundingBoxesRecursive();
-        frameScene->addModel(contourMapProjectionModelBasicList.p());
-
+            m_contourMapProjectionPartMgr->appendProjectionToModel(contourMapProjectionModelBasicList.p(), transForm.p());
+            contourMapProjectionModelBasicList->updateBoundingBoxesRecursive();
+            frameScene->addModel(contourMapProjectionModelBasicList.p());
+        }
     }
 }
 

@@ -32,6 +32,7 @@ public:
     RimContourMapProjection*                     contourMapProjection() const;
 
     QString createAutoName() const override;
+    bool    isTimeStepDependentDataVisible() const override;
 
 protected:
     void initAfterRead() override;
