@@ -86,7 +86,11 @@ RigGridBase* RigMainGrid::gridAndGridLocalIdxFromGlobalCellIdx(size_t globalCell
     RigGridBase* hostGrid = cell.hostGrid();
     CVF_ASSERT(hostGrid);
 
-    *gridLocalCellIdx = cell.gridLocalCellIndex();
+    if (gridLocalCellIdx)
+    {
+        *gridLocalCellIdx = cell.gridLocalCellIndex();
+    }
+
     return hostGrid;
 }
 
@@ -101,7 +105,11 @@ const RigGridBase* RigMainGrid::gridAndGridLocalIdxFromGlobalCellIdx(size_t glob
     const RigGridBase* hostGrid = cell.hostGrid();
     CVF_ASSERT(hostGrid);
 
-    *gridLocalCellIdx = cell.gridLocalCellIndex();
+    if (gridLocalCellIdx)
+    {
+        *gridLocalCellIdx = cell.gridLocalCellIndex();
+    }
+
     return hostGrid;
 }
 
