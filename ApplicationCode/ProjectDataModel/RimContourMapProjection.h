@@ -33,6 +33,7 @@
 
 class RigMainGrid;
 class RigResultAccessor;
+class RimContourMapView;
 class RimEclipseResultCase;
 class RimEclipseResultDefinition;
 
@@ -98,8 +99,10 @@ public:
 
     ResultAggregation           resultAggregation() const;
     QString                     resultAggregationText() const;
-
+    QString                     resultDescriptionText() const;
     void                        updatedWeightingResult();
+
+    bool                        checkForMapIntersection(const cvf::Vec3d& localPoint3d, cvf::Vec2ui* contourMapIJ, double* valueAtPoint) const;
 
 protected:
     double                                       calculateValue(uint i, uint j) const;
@@ -108,6 +111,8 @@ protected:
     void                                         generateGridMapping();
     void                                         calculateTotalCellVisibility();
     cvf::Vec2d                                   globalPos2d(uint i, uint j) const;
+    cvf::Vec2ui                                  ijFromLocalPos(const cvf::Vec2d& localPos2d) const;
+
     const std::vector<std::pair<size_t, double>>& cellsAtPos2d(uint i, uint j) const;
     std::vector<double>                          xPositions() const;
     std::vector<double>                          yPositions() const;
@@ -117,6 +122,7 @@ protected:
     double                                       findColumnResult(ResultAggregation resultAggregation, size_t cellGlobalIdx) const;
     const RimEclipseResultCase*                  eclipseCase() const;
     RimEclipseResultCase*                        eclipseCase();
+    RimContourMapView*                           view() const;
     RigMainGrid*                                 mainGrid() const;
     
     void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
@@ -137,5 +143,5 @@ protected:
     std::vector<std::vector<std::pair<size_t, double>>> m_projected3dGridIndices;
 
     cvf::ref<RigResultAccessor>                        m_resultAccessor;
-    
+        
 };

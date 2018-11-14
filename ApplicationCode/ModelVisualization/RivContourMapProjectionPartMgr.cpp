@@ -41,7 +41,7 @@ void RivContourMapProjectionPartMgr::appendProjectionToModel(cvf::ModelBasicList
         cvf::ScalarMapper* mapper = m_contourMapProjection->legendConfig()->scalarMapper();
         RivScalarMapperUtils::applyTextureResultsToPart(part.p(), textureCoords.p(), mapper, 1.0f, caf::FC_NONE, true, m_parentContourMap->backgroundColor());
 
-        part->setSourceInfo(new RivMeshLinesSourceInfo(m_contourMapProjection.p()));
+        part->setSourceInfo(new RivObjectSourceInfo(m_contourMapProjection.p()));
 
         model->addPart(part.p());
     }

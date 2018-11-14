@@ -17,6 +17,7 @@
 #include "RivReservoirViewPartMgr.h"
 
 #include "RimCellRangeFilterCollection.h"
+#include "RimContourMapView.h"
 #include "RimEclipseCellColors.h"
 #include "RimEclipseView.h"
 #include "RimEclipseResultCase.h"
@@ -130,10 +131,8 @@ void RimContourMapProjection::generateGridMapping()
             m_weightingResult->loadResult();
             int timeStep = 0;
             if (m_weightingResult->hasDynamicResult())
-            {
-                RimEclipseView* view = nullptr;
-                firstAncestorOrThisOfTypeAsserted(view);
-                timeStep = view->currentTimeStep();
+            {                
+                timeStep = view()->currentTimeStep();
 
             }
             weightingResultValues = &(m_weightingResult->currentGridCellResults()->cellScalarResults(gridScalarResultIdx)[timeStep]);
@@ -239,14 +238,11 @@ void RimContourMapProjection::generateResults()
     int nVertices = vertexCount();
     m_aggregatedResults = std::vector<double>(nVertices, std::numeric_limits<double>::infinity());
 
-    RimEclipseView* view = nullptr;
-    firstAncestorOrThisOfTypeAsserted(view);
-    int timeStep = view->currentTimeStep();
+    int timeStep = view()->currentTimeStep();
+    RimEclipseCellColors* cellColors = view()->cellResult();
 
     RimEclipseResultCase* eclipseCase = nullptr;
     firstAncestorOrThisOfTypeAsserted(eclipseCase);
-    RimEclipseCellColors* cellColors = view->cellResult();
-
     {
         if (!cellColors->isTernarySaturationSelected())
         {
@@ -437,7 +433,12 @@ bool RimContourMapProjection::isColumnResult() const
 //--------------------------------------------------------------------------------------------------
 double RimContourMapProjection::value(uint i, uint j) const
 {
-    return m_aggregatedResults.at(gridIndex(i, j));
+    size_t index = gridIndex(i, j);
+    if (index < vertexCount())
+    {
+        return m_aggregatedResults.at(gridIndex(i, j));
+    }
+    return std::numeric_limits<double>::infinity();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -568,10 +569,8 @@ double RimContourMapProjection::calculateValue(uint i, uint j) const
 ///
 //--------------------------------------------------------------------------------------------------
 bool RimContourMapProjection::hasResultAt(uint i, uint j) const
-{
-    RimEclipseView* view = nullptr;
-    firstAncestorOrThisOfTypeAsserted(view);
-    RimEclipseCellColors* cellColors = view->cellResult();
+{    
+    RimEclipseCellColors* cellColors = view()->cellResult();
 
     if (cellColors->isTernarySaturationSelected())
     {
@@ -625,9 +624,7 @@ uint RimContourMapProjection::validVertexCount() const
 //--------------------------------------------------------------------------------------------------
 RimRegularLegendConfig* RimContourMapProjection::legendConfig() const
 {
-    RimEclipseView* view = nullptr;
-    this->firstAncestorOrThisOfTypeAsserted(view);
-    return view->cellResult()->legendConfig();
+    return view()->cellResult()->legendConfig();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -635,10 +632,7 @@ RimRegularLegendConfig* RimContourMapProjection::legendConfig() const
 //--------------------------------------------------------------------------------------------------
 void RimContourMapProjection::calculateTotalCellVisibility()
 {
-    RimEclipseView* view = nullptr;
-    firstAncestorOrThisOfTypeAsserted(view);
-
-    m_cellGridIdxVisibility = view->currentTotalCellVisibility();
+    m_cellGridIdxVisibility = view()->currentTotalCellVisibility();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -653,6 +647,15 @@ cvf::Vec2d RimContourMapProjection::globalPos2d(uint i, uint j) const
 
     return origin + cvf::Vec2d((i * gridExtent.x()) / (gridSize2d.x() - 1),
                                (j * gridExtent.y()) / (gridSize2d.y() - 1));
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+cvf::Vec2ui RimContourMapProjection::ijFromLocalPos(const cvf::Vec2d& localPos2d) const
+{
+    cvf::Vec2ui      ijCoords(localPos2d.x() / sampleSpacing(), localPos2d.y() / sampleSpacing());
+    return ijCoords;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -831,9 +834,7 @@ double RimContourMapProjection::findColumnResult(ResultAggregation resultAggrega
     double ntg  = ntgResults.at(cellResultIdx);
     double dz   = dzResults.at(cellResultIdx);
 
-    RimEclipseView* view = nullptr;
-    firstAncestorOrThisOfTypeAsserted(view);
-    int timeStep = view->currentTimeStep();
+    int timeStep = view()->currentTimeStep();
 
     double resultValue = 0.0;
     if (resultAggregation == RESULTS_OIL_COLUMN || resultAggregation == RESULTS_HC_COLUMN)
@@ -881,6 +882,16 @@ RimEclipseResultCase* RimContourMapProjection::eclipseCase()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RimContourMapView* RimContourMapProjection::view() const
+{
+    RimContourMapView* view = nullptr;
+    firstAncestorOrThisOfTypeAsserted(view);
+    return view;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 size_t RimContourMapProjection::gridIndex(uint i, uint j) const
 {
     cvf::Vec2ui gridSize2d = surfaceGridSize();
@@ -910,14 +921,12 @@ cvf::Vec2ui RimContourMapProjection::ijFromGridIndex(size_t index) const
 ///
 //--------------------------------------------------------------------------------------------------
 void RimContourMapProjection::updateLegend()
-{
-    RimEclipseView* view = nullptr;
-    firstAncestorOrThisOfTypeAsserted(view);
-    RimEclipseCellColors* cellColors = view->cellResult();
+{    
+    RimEclipseCellColors* cellColors = view()->cellResult();
 
     if (getLegendRangeFrom3dGrid())
     {
-        cellColors->updateLegendData(view->currentTimeStep(), legendConfig());
+        cellColors->updateLegendData(view()->currentTimeStep(), legendConfig());
     }
     else
     {
@@ -965,6 +974,20 @@ QString RimContourMapProjection::resultAggregationText() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString RimContourMapProjection::resultDescriptionText() const
+{
+    QString resultText = resultAggregationText();
+    if (!isColumnResult())
+    {
+        resultText += QString(", %1").arg(view()->cellResult()->resultVariable());
+    }
+
+    return resultText;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimContourMapProjection::updatedWeightingResult()
 {
     this->updateConnectedEditors();
@@ -974,6 +997,19 @@ void RimContourMapProjection::updatedWeightingResult()
     RimProject* proj;
     this->firstAncestorOrThisOfTypeAsserted(proj);
     proj->scheduleCreateDisplayModelAndRedrawAllViews();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimContourMapProjection::checkForMapIntersection(const cvf::Vec3d& localPoint3d, cvf::Vec2ui* contourMapIJ, double* valueAtPoint) const
+{
+    CVF_TIGHT_ASSERT(contourMapIJ);
+    CVF_TIGHT_ASSERT(valueAtPoint);
+    cvf::Vec2d localPos2d(localPoint3d.x(), localPoint3d.y());
+    *contourMapIJ = ijFromLocalPos(localPos2d);
+    *valueAtPoint = value(contourMapIJ->x(), contourMapIJ->y());
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1036,12 +1072,10 @@ void RimContourMapProjection::fieldChangedByUi(const caf::PdmFieldHandle* change
 
     m_weightingResult->loadResult();
 
-    RimEclipseView* view = nullptr;
-    this->firstAncestorOrThisOfTypeAsserted(view);
-    view->updateConnectedEditors();
+    view()->updateConnectedEditors();
 
     RimProject* proj;
-    view->firstAncestorOrThisOfTypeAsserted(proj);
+    firstAncestorOrThisOfTypeAsserted(proj);
     proj->scheduleCreateDisplayModelAndRedrawAllViews();
 }
 

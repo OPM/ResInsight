@@ -26,6 +26,7 @@
 #include "RicEclipsePropertyFilterNewExec.h"
 #include "RicGeoMechPropertyFilterNewExec.h"
 #include "RicPickEventHandler.h"
+#include "RicContourMapPickEventHandler.h"
 #include "WellLogCommands/Ric3dWellLogCurvePickEventHandler.h"
 #include "WellPathCommands/RicIntersectionPickEventHandler.h"
 #include "WellPathCommands/RicWellPathPickEventHandler.h"
@@ -127,6 +128,7 @@ RiuViewerCommands::RiuViewerCommands(RiuViewer* ownerViewer)
         addDefaultPickEventHandler(RicIntersectionPickEventHandler::instance());
         addDefaultPickEventHandler(Ric3dWellLogCurvePickEventHandler::instance());
         addDefaultPickEventHandler(RicWellPathPickEventHandler::instance());
+        addDefaultPickEventHandler(RicContourMapPickEventHandler::instance());
     }
 }
 
