@@ -140,6 +140,13 @@ void RimContourMapView::initAfterRead()
 void RimContourMapView::createDisplayModel()
 {
     RimEclipseView::createDisplayModel();
+    
+    if (!isTimeStepDependentDataVisible())
+    {
+        // RimEclipseView::createDisplayModel() will not draw anything in this case. Draw something anyway.
+        m_viewer->setCurrentFrame(m_currentTimeStep);
+    }
+
 
     if (this->viewer()->mainCamera()->viewMatrix() == defaultViewMatrix)
     {

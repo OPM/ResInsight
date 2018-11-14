@@ -179,11 +179,7 @@ RimContourMapView* RicNewContourMapViewFeature::create2dContourMap(RimEclipseCas
         if (RiaApplication::instance()->preferences()->loadAndShowSoil)
         {
             contourMap->cellResult()->setResultVariable("SOIL");
-        }
-
-        contourMap->hasUserRequestedAnimation = true;
-        contourMap->setBackgroundColor(cvf::Color3f(1.0f, 1.0f, 0.98f));
-        contourMap->initAfterReadRecursively();
+        }       
     }
 
     caf::PdmDocument::updateUiIconStateRecursively(contourMap);
@@ -191,6 +187,10 @@ RimContourMapView* RicNewContourMapViewFeature::create2dContourMap(RimEclipseCas
     size_t i = eclipseCase->contourMapCollection()->views().size();
     contourMap->setName(QString("Contour Map %1").arg(i + 1));
     eclipseCase->contourMapCollection()->push_back(contourMap);
+
+    contourMap->hasUserRequestedAnimation = true;
+    contourMap->setBackgroundColor(cvf::Color3f(1.0f, 1.0f, 0.98f));
+    contourMap->initAfterReadRecursively();
 
     return contourMap;
 }

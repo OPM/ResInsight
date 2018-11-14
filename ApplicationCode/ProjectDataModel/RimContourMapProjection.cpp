@@ -195,7 +195,9 @@ void RimContourMapProjection::generateVertices(cvf::Vec3fArray* vertices, const 
 RimContourMapProjection::ContourPolygons RimContourMapProjection::generateContourPolygons(const caf::DisplayCoordTransform* displayCoordTransform)
 {    
     std::vector<cvf::ref<cvf::Vec3fArray>> contourPolygons;
-    if (minValue() != std::numeric_limits<double>::infinity() && maxValue() != -std::numeric_limits<double>::infinity())
+    if (minValue() != std::numeric_limits<double>::infinity() &&
+        maxValue() != -std::numeric_limits<double>::infinity() &&
+        std::fabs(maxValue() - minValue()) > 1.0e-8)
     {
         cvf::BoundingBox boundingBox = expandedBoundingBox();
 
@@ -446,6 +448,10 @@ double RimContourMapProjection::value(uint i, uint j) const
 //--------------------------------------------------------------------------------------------------
 double RimContourMapProjection::calculateValue(uint i, uint j) const
 {
+    if (!isColumnResult() && view()->cellResult()->scalarResultIndex() == cvf::UNDEFINED_SIZE_T)
+    {
+        return 0.0; // Special case of NONE-result. Show 0 all over to ensure we see something.
+    }
     const std::vector<std::pair<size_t, double>>& matchingCells = cellsAtPos2d(i, j);
     if (!matchingCells.empty())
     {
