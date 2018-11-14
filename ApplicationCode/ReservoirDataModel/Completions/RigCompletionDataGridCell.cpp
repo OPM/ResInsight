@@ -26,6 +26,7 @@
 RigCompletionDataGridCell::RigCompletionDataGridCell()
     : m_globalCellIndex(0)
     , m_lgrName("")
+    , m_gridIndex(0)
     , m_localCellIndexI(0)
     , m_localCellIndexJ(0)
     , m_localCellIndexK(0)
@@ -58,6 +59,8 @@ RigCompletionDataGridCell::RigCompletionDataGridCell(size_t globalCellIndex, con
             {
                 m_lgrName = QString::fromStdString(grid->gridName());
             }
+
+            m_gridIndex = grid->gridIndex();
         }
     }
 }
@@ -75,11 +78,13 @@ bool RigCompletionDataGridCell::operator==(const RigCompletionDataGridCell& othe
 //--------------------------------------------------------------------------------------------------
 bool RigCompletionDataGridCell::operator<(const RigCompletionDataGridCell& other) const
 {
+    if (m_gridIndex != other.m_gridIndex) return m_gridIndex < other.m_gridIndex;
+
     if (m_localCellIndexI != other.m_localCellIndexI) return m_localCellIndexI < other.m_localCellIndexI;
     if (m_localCellIndexJ != other.m_localCellIndexJ) return m_localCellIndexJ < other.m_localCellIndexJ;
     if (m_localCellIndexK != other.m_localCellIndexK) return m_localCellIndexK < other.m_localCellIndexK;
 
-    return false;
+    return m_globalCellIndex < other.m_globalCellIndex;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -133,7 +138,7 @@ QString RigCompletionDataGridCell::lgrName() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RigCompletionDataGridCell::isMainGridCell() const
 {

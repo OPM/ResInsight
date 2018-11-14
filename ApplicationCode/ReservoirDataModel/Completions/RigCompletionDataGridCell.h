@@ -52,6 +52,7 @@ private:
     size_t  m_globalCellIndex;
     QString m_lgrName;
 
+    size_t m_gridIndex;
     size_t m_localCellIndexI;
     size_t m_localCellIndexJ;
     size_t m_localCellIndexK;
