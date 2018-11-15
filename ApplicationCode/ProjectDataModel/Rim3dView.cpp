@@ -253,7 +253,8 @@ void Rim3dView::deleteViewWidget()
 //--------------------------------------------------------------------------------------------------
 void Rim3dView::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
-    caf::PdmUiGroup* viewGroup = uiOrdering.addNewGroup("Viewer");
+    caf::PdmUiGroup* viewGroup = uiOrdering.addNewGroupWithKeyword("Viewer", "ViewGroup");
+    
     viewGroup->add(&m_name);
     viewGroup->add(&m_backgroundColor);
     viewGroup->add(&m_showGridBox);

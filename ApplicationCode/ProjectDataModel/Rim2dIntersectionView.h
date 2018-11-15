@@ -111,6 +111,7 @@ protected:
     cvf::ref<cvf::Transform>           m_scaleTransform;
 
     caf::PdmField<bool>                m_showDefiningPoints;
+    caf::PdmField<bool>                m_showAxisLines;
 
     caf::PdmPointer<caf::PdmObject>    m_legendObjectToSelect;
 };
