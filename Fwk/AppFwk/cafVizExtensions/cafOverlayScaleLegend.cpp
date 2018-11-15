@@ -527,7 +527,7 @@ void OverlayScaleLegend::layoutInfo(LayoutInfo* layout)
     layout->majorTickSize = 9.0f;
     layout->minorTickSize = 5.0f;
 
-    float maxAxisLength = static_cast<float>(layout->overallLegendSize.y()) 
+    layout->axisLength = static_cast<float>(layout->overallLegendSize.y()) 
                          - 2*layout->margins.y() 
                          - static_cast<float>(this->titleStrings().size()) * layout->lineSpacing 
                          - layout->lineSpacing;
@@ -549,7 +549,7 @@ void OverlayScaleLegend::layoutInfo(LayoutInfo* layout)
                 double tickInDomain = m_ticksInDomain[i] + ((double)j * tickSpacingInDomain / 2.0);
                 double tickInDisplay = tickInDomain * currentScale;
 
-                if (tickInDisplay - layout->startPt.y() < maxAxisLength)
+                if (tickInDisplay < layout->axisLength)
                 {
                     layout->ticks.emplace_back(LayoutInfo::Tick(tickInDisplay, tickInDomain, j == 0));
                 }
@@ -561,10 +561,7 @@ void OverlayScaleLegend::layoutInfo(LayoutInfo* layout)
             }
             if (finished) break;
         }
-        layout->axisLength = static_cast<float>(layout->ticks.back().displayValue);
     }
-    else
-        layout->axisLength = 0;
 }
 
 //--------------------------------------------------------------------------------------------------
