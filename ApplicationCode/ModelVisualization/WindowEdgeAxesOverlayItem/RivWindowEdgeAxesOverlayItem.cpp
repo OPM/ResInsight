@@ -103,7 +103,7 @@ void RivWindowEdgeAxesOverlayItem::updateGeomerySizes()
 {
     String str = String::number(-1.999e-17);
     m_textSize =  m_font->textExtent(str);
-    m_pixelSpacing = 2.0f;
+    m_pixelSpacing = 5.0f;
     m_tickLineLength = m_textSize.y() *0.3f;
     m_frameBorderHeight = m_pixelSpacing + m_textSize.y() + m_pixelSpacing + m_tickLineLength +  m_lineWidth;
     m_frameBorderWidth  = m_pixelSpacing + m_textSize.x() + m_pixelSpacing + m_tickLineLength +  m_lineWidth;
