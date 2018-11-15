@@ -102,7 +102,7 @@ public:
     QString                     resultDescriptionText() const;
     void                        updatedWeightingResult();
 
-    bool                        checkForMapIntersection(const cvf::Vec3d& localPoint3d, cvf::Vec2ui* contourMapIJ, double* valueAtPoint) const;
+    bool checkForMapIntersection(const cvf::Vec3d& localPoint3d, cvf::Vec2d* contourMapPoint, double* valueAtPoint) const;
 
 protected:
     double                                       calculateValue(uint i, uint j) const;

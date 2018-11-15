@@ -1008,13 +1008,18 @@ void RimContourMapProjection::updatedWeightingResult()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimContourMapProjection::checkForMapIntersection(const cvf::Vec3d& localPoint3d, cvf::Vec2ui* contourMapIJ, double* valueAtPoint) const
+bool RimContourMapProjection::checkForMapIntersection(const cvf::Vec3d& localPoint3d, cvf::Vec2d* contourMapPoint, double* valueAtPoint) const
 {
-    CVF_TIGHT_ASSERT(contourMapIJ);
+    CVF_TIGHT_ASSERT(contourMapPoint);
     CVF_TIGHT_ASSERT(valueAtPoint);
     cvf::Vec2d localPos2d(localPoint3d.x(), localPoint3d.y());
-    *contourMapIJ = ijFromLocalPos(localPos2d);
-    *valueAtPoint = value(contourMapIJ->x(), contourMapIJ->y());
+    cvf::Vec2ui pickedCellIJ = ijFromLocalPos(localPos2d);
+    *valueAtPoint = value(pickedCellIJ.x(), pickedCellIJ.y());
+
+    cvf::BoundingBox boundingBox = expandedBoundingBox();
+    cvf::Vec2d       origin(boundingBox.min().x(), boundingBox.min().y());
+    *contourMapPoint = localPos2d + origin;
+
     return true;
 }
 
