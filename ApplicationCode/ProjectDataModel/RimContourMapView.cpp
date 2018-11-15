@@ -32,7 +32,7 @@
 #include "RimFaultInViewCollection.h"
 #include "RimGridCollection.h"
 #include "RimSimWellInViewCollection.h"
-
+#include "RimScaleLegendConfig.h"
 #include "cafPdmUiTreeOrdering.h"
 
 #include "cvfCamera.h"
@@ -54,7 +54,8 @@ RimContourMapView::RimContourMapView()
     CAF_PDM_InitFieldNoDefault(&m_contourMapProjection, "ContourMapProjection", "Contour Map Projection", "", "", "");
     m_contourMapProjection = new RimContourMapProjection();
 
-    CAF_PDM_InitField(&m_showAxisLines, "ShowAxisLines", true, "Show Axis Lines", "", "", "");
+    CAF_PDM_InitField(&m_showAxisLines,   "ShowAxisLines", true, "Show Axis Lines", "", "", "");
+    CAF_PDM_InitField(&m_showScaleLegend, "ShowScaleLegend", true, "Show Scale Legend", "", "", "");
 
     m_gridCollection->setActive(false); // This is also not added to the tree view, so cannot be enabled.
     setFaultVisParameters();
@@ -63,9 +64,11 @@ RimContourMapView::RimContourMapView()
     m_nameConfig = new RimContourMapNameConfig(this);
 
     m_contourMapProjectionPartMgr = new RivContourMapProjectionPartMgr(contourMapProjection(), this);
-    
+
     ((RiuViewerToViewInterface*)this)->setCameraPosition(defaultViewMatrix);
 
+    //CAF_PDM_InitFieldNoDefault(&m_scaleLegendConfig, "ScaleLegendConfig", "Scale Legend Config", "", "", "");
+    //m_scaleLegendConfig = new RimScaleLegendConfig();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -168,6 +171,7 @@ void RimContourMapView::defineUiOrdering(QString uiConfigName, caf::PdmUiOrderin
     viewGroup->add(this->userDescriptionField());
     viewGroup->add(this->backgroundColorField());
     viewGroup->add(&m_showAxisLines);
+    viewGroup->add(&m_showScaleLegend);
 
     caf::PdmUiGroup* nameGroup = uiOrdering.addNewGroup("Contour Map Name");
     m_nameConfig->uiOrdering(uiConfigName, *nameGroup);
@@ -278,6 +282,9 @@ void RimContourMapView::updateLegends()
                 }
             }
         }
+
+        //m_viewer->addColorLegendToBottomLeftCorner(m_scaleLegendConfig->titledOverlayFrame());
+        m_viewer->showScaleLegend(true);
     }
 }
 

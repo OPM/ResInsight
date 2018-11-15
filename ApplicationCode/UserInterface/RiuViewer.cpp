@@ -48,6 +48,7 @@
 #include "cafDisplayCoordTransform.h"
 #include "cafEffectGenerator.h"
 #include "cafFrameAnimationControl.h"
+#include "cafOverlayScaleLegend.h"
 
 #include "cvfCamera.h"
 #include "cvfFont.h"
@@ -188,6 +189,8 @@ RiuViewer::RiuViewer(const QGLFormat& format, QWidget* parent)
     m_showWindowEdgeAxes = false;
 
     m_selectionVisualizerManager = new caf::PdmUiSelectionVisualizer3d(this);
+
+    m_scaleLegend = new caf::OverlayScaleLegend(standardFont);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -745,6 +748,10 @@ void RiuViewer::optimizeClippingPlanes()
     }
 
     m_gridBoxGenerator->updateFromCamera(mainCamera());
+
+    m_scaleLegend->setDisplayCoordTransform(m_rimView->displayCoordTransform().p());
+    m_scaleLegend->updateFromCamera(mainCamera());
+
     caf::Viewer::optimizeClippingPlanes();
 }
 
@@ -948,6 +955,21 @@ std::vector<cvf::ref<cvf::Part>> RiuViewer::visibleParts()
     }
 
     return partsMatchingEnableMask;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuViewer::showScaleLegend(bool show)
+{
+    if (show)
+    {
+        addColorLegendToBottomLeftCorner(m_scaleLegend.p());
+    }
+    else
+    {
+        m_mainRendering->removeOverlayItem(m_scaleLegend.p());
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

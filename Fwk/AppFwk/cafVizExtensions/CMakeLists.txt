@@ -18,6 +18,8 @@ add_library( ${PROJECT_NAME}
     cafCategoryLegend.h
 	cafOverlayScalarMapperLegend.h
 	cafOverlayScalarMapperLegend.cpp
+	cafOverlayScaleLegend.h
+	cafOverlayScaleLegend.cpp
 	cafInternalLegendRenderTools.h
  	cafInternalLegendRenderTools.cpp
     cafCategoryMapper.cpp

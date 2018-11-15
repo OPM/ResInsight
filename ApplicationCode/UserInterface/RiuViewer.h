@@ -44,6 +44,7 @@ class QProgressBar;
 
 namespace caf
 {
+    class OverlayScaleLegend;
     class TitledOverlayFrame;
     class PdmUiSelectionVisualizer3d;
 }
@@ -118,6 +119,8 @@ public:
 
     std::vector<cvf::ref<cvf::Part>> visibleParts();
 
+    void            showScaleLegend(bool show);
+
 public slots:
     void            slotSetCurrentFrame(int frameIndex) override;
     void            slotEndAnimation() override;
@@ -173,5 +176,7 @@ private:
 
     cvf::Vec3d                  m_cursorPositionDomainCoords;
     bool                        m_isNavigationRotationEnabled;
+
+    cvf::ref<caf::OverlayScaleLegend> m_scaleLegend;
 };
 
