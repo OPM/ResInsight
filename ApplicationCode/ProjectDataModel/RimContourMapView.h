@@ -43,7 +43,7 @@ protected:
 
     void setFaultVisParameters();
     void appendContourMapProjectionToModel();
-
+    void appendPickPointVisToModel();
     void updateLegends() override;
     void updateViewWidgetAfterCreation() override;  
     void updateViewFollowingRangeFilterUpdates() override;
@@ -53,12 +53,11 @@ protected:
     caf::PdmFieldHandle* userDescriptionField() override;
 
     virtual std::set<RivCellSetEnum> allVisibleFaultGeometryTypes() const override;
-
+    
 private:
     cvf::ref<RivContourMapProjectionPartMgr>     m_contourMapProjectionPartMgr;
     caf::PdmChildField<RimContourMapProjection*> m_contourMapProjection;
     caf::PdmField<bool>                          m_showAxisLines;
     caf::PdmChildField<RimContourMapNameConfig*> m_nameConfig;
-
 };
 
