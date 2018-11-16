@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2018-     Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -23,39 +23,35 @@
 #include "RigWellPath.h"
 
 #include "Rim3dView.h"
+#include "RimModeledWellPath.h"
+#include "RimWellPath.h"
 #include "RimWellPathGeometryDef.h"
 #include "RimWellPathTarget.h"
-#include "RimWellPath.h"
+
+#include "RiuViewerCommands.h"
 
 #include "RivWellPathSourceInfo.h"
 
-#include "cafSelectionManager.h"
 #include "cafDisplayCoordTransform.h"
+#include "cafSelectionManager.h"
 
 #include <vector>
-#include "RiuViewerCommands.h"
-#include "RimModeledWellPath.h"
-
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RicCreateWellTargetsPickEventHandler::RicCreateWellTargetsPickEventHandler(RimWellPathGeometryDef* wellGeometryDef)
     : m_geometryToAddTargetsTo(wellGeometryDef)
 {
-
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RicCreateWellTargetsPickEventHandler::~RicCreateWellTargetsPickEventHandler()
-{
-
-}
+RicCreateWellTargetsPickEventHandler::~RicCreateWellTargetsPickEventHandler() {}
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicCreateWellTargetsPickEventHandler::notifyUnregistered()
 {
@@ -63,7 +59,7 @@ void RicCreateWellTargetsPickEventHandler::notifyUnregistered()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicCreateWellTargetsPickEventHandler::handlePickEvent(const Ric3DPickEvent& eventObject)
 {
@@ -74,37 +70,40 @@ bool RicCreateWellTargetsPickEventHandler::handlePickEvent(const Ric3DPickEvent&
         return false;
     }
 
-    if ( m_geometryToAddTargetsTo )
+    if (m_geometryToAddTargetsTo)
     {
-        Rim3dView* rimView = eventObject.m_view;
+        Rim3dView* rimView             = eventObject.m_view;
         cvf::Vec3d targetPointInDomain = cvf::Vec3d::ZERO;
 
         // If clicked on an other well path, snap target point to well path center line
-        auto firstPickItem = eventObject.m_pickItemInfos.front();
+        auto firstPickItem      = eventObject.m_pickItemInfos.front();
         auto wellPathSourceInfo = dynamic_cast<const RivWellPathSourceInfo*>(firstPickItem.sourceInfo());
 
-        auto intersectionPointInDomain = rimView->displayCoordTransform()->transformToDomainCoord(firstPickItem.globalPickedPoint());
-        bool doSetAzimuthAndInclination = false;
-        double azimuth = 0.0;
-        double inclination = 0.0;
+        auto intersectionPointInDomain =
+            rimView->displayCoordTransform()->transformToDomainCoord(firstPickItem.globalPickedPoint());
+        bool   doSetAzimuthAndInclination = false;
+        double azimuth                    = 0.0;
+        double inclination                = 0.0;
 
         if (wellPathSourceInfo)
         {
-            targetPointInDomain = wellPathSourceInfo->closestPointOnCenterLine(firstPickItem.faceIdx(), intersectionPointInDomain);
+            targetPointInDomain =
+                wellPathSourceInfo->closestPointOnCenterLine(firstPickItem.faceIdx(), intersectionPointInDomain);
 
-            double md = wellPathSourceInfo->measuredDepth(firstPickItem.faceIdx(), intersectionPointInDomain);
-            doSetAzimuthAndInclination = calculateAzimuthAndInclinationAtMd(md, wellPathSourceInfo->wellPath()->wellPathGeometry(), &azimuth, &inclination);
+            double md                  = wellPathSourceInfo->measuredDepth(firstPickItem.faceIdx(), intersectionPointInDomain);
+            doSetAzimuthAndInclination = calculateAzimuthAndInclinationAtMd(
+                md, wellPathSourceInfo->wellPath()->wellPathGeometry(), &azimuth, &inclination);
         }
         else
         {
-            targetPointInDomain = intersectionPointInDomain;
+            targetPointInDomain        = intersectionPointInDomain;
             doSetAzimuthAndInclination = false;
         }
 
         if (!m_geometryToAddTargetsTo->firstActiveTarget())
         {
             m_geometryToAddTargetsTo->setReferencePointXyz(targetPointInDomain);
-            
+
             if (wellPathSourceInfo)
             {
                 double mdrkbAtFirstTarget = wellPathSourceInfo->measuredDepth(firstPickItem.faceIdx(), intersectionPointInDomain);
@@ -114,19 +113,20 @@ bool RicCreateWellTargetsPickEventHandler::handlePickEvent(const Ric3DPickEvent&
                 {
                     mdrkbAtFirstTarget += modeledWellPath->geometryDefinition()->mdrkbAtFirstTarget();
                 }
-                
+
                 m_geometryToAddTargetsTo->setMdrkbAtFirstTarget(mdrkbAtFirstTarget);
             }
         }
 
-        cvf::Vec3d referencePoint = m_geometryToAddTargetsTo->referencePointXyz();
+        cvf::Vec3d referencePoint     = m_geometryToAddTargetsTo->referencePointXyz();
         cvf::Vec3d relativeTagetPoint = targetPointInDomain - referencePoint;
 
         RimWellPathTarget* newTarget = new RimWellPathTarget;
 
         if (doSetAzimuthAndInclination)
         {
-            newTarget->setAsPointXYZAndTangentTarget(cvf::Vec3d(relativeTagetPoint.x(), relativeTagetPoint.y(), relativeTagetPoint.z()), azimuth, inclination);
+            newTarget->setAsPointXYZAndTangentTarget(
+                cvf::Vec3d(relativeTagetPoint.x(), relativeTagetPoint.y(), relativeTagetPoint.z()), azimuth, inclination);
         }
         else
         {
@@ -145,15 +145,15 @@ bool RicCreateWellTargetsPickEventHandler::handlePickEvent(const Ric3DPickEvent&
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-bool RicCreateWellTargetsPickEventHandler::calculateAzimuthAndInclinationAtMd(double measuredDepth,
+bool RicCreateWellTargetsPickEventHandler::calculateAzimuthAndInclinationAtMd(double             measuredDepth,
                                                                               const RigWellPath* wellPathGeometry,
-                                                                              double *azimuth,
-                                                                              double *inclination) const
+                                                                              double*            azimuth,
+                                                                              double*            inclination) const
 {
-    int mdIndex = -1;
-    auto mdList = wellPathGeometry->measureDepths();
+    int  mdIndex = -1;
+    auto mdList  = wellPathGeometry->measureDepths();
 
     for (int i = 0; i < (int)mdList.size(); i++)
     {
@@ -184,15 +184,15 @@ bool RicCreateWellTargetsPickEventHandler::calculateAzimuthAndInclinationAtMd(do
         auto v24mean = (v32 + v43) / 2;
 
         double weight = (measuredDepth - mdList[mdIndex]) / (mdList[mdIndex + 1] - mdList[mdIndex]);
-        auto vTan = v13mean * weight + v24mean * (1 - weight);
+        auto   vTan   = v13mean * weight + v24mean * (1 - weight);
 
         RiaOffshoreSphericalCoords coords(vTan);
-        *azimuth = coords.azi();
+        *azimuth     = coords.azi();
         *inclination = coords.inc();
         return true;
     }
 
-    *azimuth = 0.0;
+    *azimuth     = 0.0;
     *inclination = 0.0;
     return false;
 }
