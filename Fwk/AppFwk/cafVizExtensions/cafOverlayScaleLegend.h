@@ -45,6 +45,8 @@
 #include "cvfString.h"
 #include "cvfRect.h"
 
+#include <array>
+
 namespace cvf {
 class Font;
 class ShaderProgram;
@@ -64,19 +66,17 @@ namespace caf {
 class OverlayScaleLegend : public caf::TitledOverlayFrame
 {
     using Font = cvf::Font;
-    using ScalarMapper = cvf::ScalarMapper;
     using OpenGLContext = cvf::OpenGLContext;
     using Vec2i = cvf::Vec2i;
     using Vec2ui = cvf::Vec2ui;
-    using Color3f = cvf::Color3f;
-    using Color4f = cvf::Color4f;
     using String = cvf::String;
-    using DoubleArray = cvf::DoubleArray;
     using MatrixState = cvf::MatrixState;
     using Vec2f = cvf::Vec2f;
-    using Rectf = cvf::Rectf;
     using TextDrawer = cvf::TextDrawer;
     using Camera = cvf::Camera;
+
+public:
+    enum Orientation {HORIZONTAL, VERTICAL};
 
 public:
     OverlayScaleLegend(Font* font);
@@ -85,6 +85,8 @@ public:
     void            setTickPrecision(int precision);
     enum            NumberFormat { AUTO, SCIENTIFIC, FIXED};
     void            setTickFormat(NumberFormat format);
+    void            setOrientation(Orientation orientation);
+    Orientation     orientation() const;
 
     virtual cvf::Vec2ui preferredSize() override;
     
@@ -113,13 +115,14 @@ protected:
             overallLegendSize = setSize;
         }
 
+        float charWidth;
         float charHeight;
         float lineSpacing;
         Vec2f margins;
         float tickTextLeadSpace;
 
         //Rectf colorBarRect;
-        Vec2f startPt;
+        Vec2f axisStartPt;
         float axisLength;
         float majorTickSize;
         float minorTickSize;
@@ -140,23 +143,23 @@ protected:
                                           const MatrixState& matrixState);
     void         renderLegendImmediateMode(OpenGLContext* oglContext,
                                            LayoutInfo* layout);
-    void         setupTextDrawer(TextDrawer* textDrawer,
-                                 const LayoutInfo* layout);
+    void         setupHorizontalTextDrawer(TextDrawer* textDrawer, const LayoutInfo* layout);
+    void         setupVerticalTextDrawer(TextDrawer* textDrawer, const LayoutInfo* layout);
 
 protected:
     std::vector<bool>   m_visibleTickLabels;    // Skip tick labels ending up on top of previous visible label
     int                 m_tickNumberPrecision;
     NumberFormat        m_numberFormat;
 
-    LayoutInfo                   m_Layout;
-    cvf::ref<TextDrawer>         m_textDrawer;
-    cvf::cref<ScalarMapper>      m_scalarMapper;
+    Orientation                 m_orientation;
+    LayoutInfo                  m_Layout;
+    cvf::ref<TextDrawer>        m_textDrawer;
 
-    cvf::ref<Font>             m_font;
+    cvf::ref<Font>              m_font;
 
-    cvf::cref<caf::DisplayCoordTransform> m_dispalyCoordsTransform;
-    double m_currentScale = 0.0;    // [pixels/length]
-    std::vector<double> m_ticksInDomain;
+    cvf::cref<caf::DisplayCoordTransform>   m_dispalyCoordsTransform;
+    double                                  m_currentScale;    // [pixels/length]
+    std::vector<double>                     m_ticksInDomain;
 };
 
 }

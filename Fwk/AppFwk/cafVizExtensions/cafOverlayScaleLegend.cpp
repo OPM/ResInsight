@@ -91,6 +91,8 @@ OverlayScaleLegend::OverlayScaleLegend(Font* font)
     , m_numberFormat(AUTO)
     , m_Layout(Vec2ui(200u, 200u))
     , m_font(font)
+    , m_orientation(HORIZONTAL)
+    , m_currentScale(1.0)
 {
     CVF_ASSERT(font);
     CVF_ASSERT(!font->isEmpty());
@@ -145,7 +147,10 @@ void OverlayScaleLegend::renderGeneric(OpenGLContext* oglContext, const Vec2i& p
 
     // Set up text drawer
     float maxLegendRightPos = 0;
-    setupTextDrawer(m_textDrawer.p(), &m_Layout );
+    if(m_orientation == HORIZONTAL)
+        setupHorizontalTextDrawer(m_textDrawer.p(), &m_Layout );
+    else
+        setupVerticalTextDrawer(m_textDrawer.p(), &m_Layout);
 
     Vec2f backgroundSize(size);
 
@@ -184,7 +189,7 @@ void OverlayScaleLegend::renderGeneric(OpenGLContext* oglContext, const Vec2i& p
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void OverlayScaleLegend::setupTextDrawer(TextDrawer* textDrawer, const LayoutInfo* layout)
+void OverlayScaleLegend::setupHorizontalTextDrawer(TextDrawer* textDrawer, const LayoutInfo* layout)
 {
     CVF_ASSERT(layout);
     
@@ -193,10 +198,10 @@ void OverlayScaleLegend::setupTextDrawer(TextDrawer* textDrawer, const LayoutInf
 
     m_visibleTickLabels.clear();
 
-    const float textX = layout->startPt.x() + layout->majorTickSize / 2.0f /* tickEndX*/ + layout->tickTextLeadSpace;
+    const float textY = layout->axisStartPt.y() + layout->majorTickSize / 2.0f + layout->tickTextLeadSpace + layout->charHeight;
 
-    const float overlapTolerance = 1.2f * layout->charHeight;
-    float lastVisibleTextY = 0.0;
+    const float overlapTolerance = 1.2f * layout->charWidth;
+    float lastVisibleTextX = 0.0;
 
     size_t numTicks = layout->ticks.size();
     size_t it;
@@ -204,10 +209,80 @@ void OverlayScaleLegend::setupTextDrawer(TextDrawer* textDrawer, const LayoutInf
     {
         if(!layout->ticks[it].isMajor) continue;
 
-        float textY = static_cast<float>(layout->startPt.y() + layout->ticks[it].displayValue);
+        double tickValue = layout->ticks[it].domainValue;
+        String valueString;
+        switch (m_numberFormat)
+        {
+            case FIXED:
+                valueString = String::number(tickValue, 'f', m_tickNumberPrecision);
+                break;
+            case SCIENTIFIC:
+                valueString = String::number(tickValue, 'e', m_tickNumberPrecision);
+                break;
+            default:
+                valueString = String::number(tickValue);
+                break;
+        }
+
+        auto  textSize = m_font->textExtent(valueString);
+        float textX = static_cast<float>(layout->axisStartPt.x() + layout->ticks[it].displayValue - textSize.x() / 2.0f);
         
         // Always draw first and last tick label. For all others, skip drawing if text ends up
         // on top of the previous label. 
+        if (it != 0 && it != (numTicks - 1))
+        {
+            if (cvf::Math::abs(textX - lastVisibleTextX) < overlapTolerance)
+            {
+                m_visibleTickLabels.push_back(false);
+                continue;
+            }
+            // Make sure it does not overlap the last tick as well
+
+            float lastTickY = static_cast<float>(layout->axisStartPt.y() + layout->axisLength);
+
+            if (cvf::Math::abs(textX - lastTickY) < overlapTolerance)
+            {
+                m_visibleTickLabels.push_back(false);
+                continue;
+            }
+        }
+
+
+        Vec2f pos(textX, textY);
+        textDrawer->addText(valueString, pos);
+
+        lastVisibleTextX = textX;
+        m_visibleTickLabels.push_back(true);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void OverlayScaleLegend::setupVerticalTextDrawer(TextDrawer* textDrawer, const LayoutInfo* layout)
+{
+    CVF_ASSERT(layout);
+
+    textDrawer->setVerticalAlignment(TextDrawer::CENTER);
+    textDrawer->setTextColor(this->textColor());
+
+    m_visibleTickLabels.clear();
+
+    const float textX = layout->axisStartPt.x() + layout->majorTickSize / 2.0f + layout->tickTextLeadSpace;
+
+    const float overlapTolerance = 1.2f * layout->charHeight;
+    float       lastVisibleTextY = 0.0;
+
+    size_t numTicks = layout->ticks.size();
+    size_t it;
+    for (it = 0; it < numTicks; it++)
+    {
+        if (!layout->ticks[it].isMajor) continue;
+
+        float textY = static_cast<float>(layout->axisStartPt.y() + layout->ticks[it].displayValue);
+
+        // Always draw first and last tick label. For all others, skip drawing if text ends up
+        // on top of the previous label.
         if (it != 0 && it != (numTicks - 1))
         {
             if (cvf::Math::abs(textY - lastVisibleTextY) < overlapTolerance)
@@ -217,7 +292,7 @@ void OverlayScaleLegend::setupTextDrawer(TextDrawer* textDrawer, const LayoutInf
             }
             // Make sure it does not overlap the last tick as well
 
-            float lastTickY = static_cast<float>(layout->startPt.y() + layout->axisLength);
+            float lastTickY = static_cast<float>(layout->axisStartPt.y() + layout->axisLength);
 
             if (cvf::Math::abs(textY - lastTickY) < overlapTolerance)
             {
@@ -230,15 +305,15 @@ void OverlayScaleLegend::setupTextDrawer(TextDrawer* textDrawer, const LayoutInf
         String valueString;
         switch (m_numberFormat)
         {
-        case FIXED:
-            valueString = String::number(tickValue, 'f', m_tickNumberPrecision);
-            break;
-        case SCIENTIFIC:
-            valueString = String::number(tickValue, 'e', m_tickNumberPrecision);
-            break;
-        default:
-            valueString = String::number(tickValue);
-            break;
+            case FIXED:
+                valueString = String::number(tickValue, 'f', m_tickNumberPrecision);
+                break;
+            case SCIENTIFIC:
+                valueString = String::number(tickValue, 'e', m_tickNumberPrecision);
+                break;
+            default:
+                valueString = String::number(tickValue);
+                break;
         }
 
         Vec2f pos(textX, textY);
@@ -247,17 +322,7 @@ void OverlayScaleLegend::setupTextDrawer(TextDrawer* textDrawer, const LayoutInf
         lastVisibleTextY = textY;
         m_visibleTickLabels.push_back(true);
     }
-
-    float titleY = static_cast<float>(layout->overallLegendSize.y()) - layout->margins.y() - layout->charHeight/2.0f;
-    for (it = 0; it < this->titleStrings().size(); it++)
-    {
-        Vec2f pos(layout->margins.x(), titleY);
-        textDrawer->addText(this->titleStrings()[it], pos);
-
-        titleY -= layout->lineSpacing;
-    }
 }
-
 
 //--------------------------------------------------------------------------------------------------
 /// Draw the legend using shader programs
@@ -310,10 +375,19 @@ void OverlayScaleLegend::renderLegendUsingShaders(OpenGLContext* oglContext, Lay
 
     // Draw axis
     {
-        v0[0] = layout->startPt.x();
-        v0[1] = layout->startPt.y();
-        v1[0] = v0[0];
-        v1[1] = v0[1] + layout->axisLength;
+        v0[0] = layout->axisStartPt.x();
+        v0[1] = layout->axisStartPt.y();
+
+        if (m_orientation == HORIZONTAL)
+        {
+            v1[0] = v0[0] + layout->axisLength;
+            v1[1] = v0[1];
+        }
+        else
+        {
+            v1[0] = v0[0];
+            v1[1] = v0[1] + layout->axisLength;
+        }
 
         static const ushort axisConnects[] = { 0, 1 };
 
@@ -330,18 +404,20 @@ void OverlayScaleLegend::renderLegendUsingShaders(OpenGLContext* oglContext, Lay
     // Draw ticks
     for (const auto& tickInfo : layout->ticks)
     {
-        if (tickInfo.isMajor)
+        float currTickSize = tickInfo.isMajor ? layout->majorTickSize : layout->minorTickSize;
+
+        if (m_orientation == HORIZONTAL)
         {
-            v0[0] = layout->startPt.x() - layout->majorTickSize / 2.0f;
-            v0[1] = static_cast<float>(tickInfo.displayValue) + layout->startPt.y();
-            v1[0] = v0[0] + layout->majorTickSize;
-            v1[1] = v0[1];
+            v0[0] = layout->axisStartPt.x() + static_cast<float>(tickInfo.displayValue);
+            v0[1] = layout->axisStartPt.y() - currTickSize / 2.0f;
+            v1[0] = v0[0];
+            v1[1] = v0[1] + currTickSize;
         }
         else
         {
-            v0[0] = layout->startPt.x() - layout->minorTickSize / 2.0f;
-            v0[1] = static_cast<float>(tickInfo.displayValue) + layout->startPt.y();
-            v1[0] = v0[0] + layout->minorTickSize;
+            v0[0] = layout->axisStartPt.x() - currTickSize / 2.0f;
+            v0[1] = layout->axisStartPt.y() + static_cast<float>(tickInfo.displayValue);
+            v1[0] = v0[0] + currTickSize;
             v1[1] = v0[1];
         }
 
@@ -519,21 +595,47 @@ void OverlayScaleLegend::layoutInfo(LayoutInfo* layout)
 {
     CVF_TIGHT_ASSERT(layout);
 
-    ref<Glyph> glyph = this->font()->getGlyph(L'A');
-    layout->charHeight = static_cast<float>(glyph->height());
-    layout->lineSpacing = layout->charHeight*1.5f;
-    layout->margins = Vec2f(8.0f, 8.0f);
-    layout->tickTextLeadSpace = 5.0f;
-    layout->majorTickSize = 9.0f;
-    layout->minorTickSize = 5.0f;
+    // Input values
+    float marginAlongAxis = 8.0f;
+    float marginAcrossAxis = 8.0f;
+    float tickTextLeadSpace = 5.0f;
+    float majorTickSize = 9.0f;
+    float minorTickSize = 5.0f;
 
-    layout->axisLength = static_cast<float>(layout->overallLegendSize.y()) 
-                         - 2*layout->margins.y() 
+    ref<Glyph> glyph            = this->font()->getGlyph(L'A');
+    layout->charWidth           = static_cast<float>(glyph->width());
+    layout->charHeight          = static_cast<float>(glyph->height());
+    layout->lineSpacing         = layout->charHeight*1.5f;
+    layout->tickTextLeadSpace   = tickTextLeadSpace;
+    layout->majorTickSize       = majorTickSize;
+    layout->minorTickSize       = minorTickSize;
+
+    double overallSizeValue;
+    float marginValue;
+
+    if (m_orientation == HORIZONTAL)
+    {
+        layout->margins  = Vec2f(marginAlongAxis, marginAcrossAxis);
+        overallSizeValue = layout->overallLegendSize.x();
+        marginValue = layout->margins.x();
+        layout->axisStartPt = {layout->margins.x() + layout->charWidth / 2.0f,
+                               layout->margins.y() + layout->majorTickSize / 2.0f};
+    }
+    else
+    {
+        layout->margins  = Vec2f(marginAcrossAxis, marginAlongAxis);
+        overallSizeValue = layout->overallLegendSize.y();
+        marginValue      = layout->margins.y();
+        layout->axisStartPt = {layout->margins.x() + layout->majorTickSize / 2.0f,
+                               layout->margins.y() + layout->charHeight / 2.0f};
+    }
+
+    layout->axisLength = static_cast<float>(overallSizeValue) 
+                         - 2 * marginValue
                          - static_cast<float>(this->titleStrings().size()) * layout->lineSpacing 
                          - layout->lineSpacing;
 
     auto currentScale = m_currentScale != 0.0 ? m_currentScale : 1.0;
-    layout->startPt = {layout->margins.x() + layout->majorTickSize / 2.0f, layout->margins.y() + layout->charHeight / 2.0f };
 
     layout->ticks.clear();
     size_t numTicks = m_ticksInDomain.size();
@@ -581,50 +683,29 @@ void OverlayScaleLegend::setTickFormat(NumberFormat format)
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void OverlayScaleLegend::setOrientation(Orientation orientation)
+{
+    m_orientation = orientation;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+caf::OverlayScaleLegend::Orientation OverlayScaleLegend::orientation() const
+{
+    return m_orientation;
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 cvf::Vec2ui OverlayScaleLegend::preferredSize()
 {
-    LayoutInfo layout({200,200}); // Use default size
-    layoutInfo(&layout);
-
-    float prefferredYSize = 400;
-
-    //float prefferredYSize = 2 * layout.margins.y() 
-    //                        + layout.lineSpacing * this->titleStrings().size() 
-    //                        + 1.5f * layout.lineSpacing * m_tickValues.size();
-    
-    unsigned int maxTickTextWidth = 0;
-    for (double tickValue : m_ticksInDomain )
-    {
-        String valueString;
-        switch ( m_numberFormat )
-        {
-            case FIXED:
-            valueString = String::number(tickValue, 'f', m_tickNumberPrecision);
-            break;
-            case SCIENTIFIC:
-            valueString = String::number(tickValue, 'e', m_tickNumberPrecision);
-            break;
-            default:
-            valueString = String::number(tickValue);
-            break;
-        }
-        unsigned int textWidth =  this->font()->textExtent(valueString).x();
-        maxTickTextWidth = maxTickTextWidth <  textWidth ?  textWidth : maxTickTextWidth;
-    }
-
-    float prefferredXSize = layout.margins.x() + layout.tickTextLeadSpace + maxTickTextWidth;
-
-    for (const cvf::String& titleLine : titleStrings())
-    {
-        float titleWidth =  this->font()->textExtent(titleLine).x() + 2*layout.margins.x();
-        prefferredXSize = prefferredXSize < titleWidth ? titleWidth : prefferredXSize;
-    }
-
-    prefferredXSize = std::min(prefferredXSize, 400.0f);
-
-    return { (unsigned int)(std::ceil(prefferredXSize)), (unsigned int)(std::ceil(prefferredYSize)) };
+    uint preferredXSize = 100;
+    uint preferredYSize = 100;
+    return { (unsigned int)(std::ceil(preferredXSize)), (unsigned int)(std::ceil(preferredYSize)) };
 
 }
 
@@ -659,15 +740,36 @@ void OverlayScaleLegend::updateFromCamera(const Camera* camera)
     camera->project(windowOrigoInDomain, &windowOrigoPoint);
     camera->project(windowMaxInDomain, &windowMaxPoint);
 
-    m_currentScale = (windowMaxPoint.y() - windowOrigoPoint.y()) / (windowMaxInDomain.y() - windowOrigoInDomain.y());
+    double minStepSizeInDomain;
+    double windowOrigoInDomainValue;
+    double windowMaxInDomainValue;
+    double windowOrigoPointValue;
+    double windowMaxPointValue;
+    int tickMaxCount;
 
-    auto textSize = m_font->textExtent(String::number(-1.999e-17));
-    int xTickMaxCount = windowSize.x() / (2 * textSize.x());
-    int yTickMaxCount = windowSize.y() / (2 * textSize.x());
+    auto   textSize = m_font->textExtent(String::number(-1.999e-17));
+    if (m_orientation == HORIZONTAL)
+    {
+        windowOrigoInDomainValue = windowOrigoInDomain.x();
+        windowMaxInDomainValue = windowMaxInDomain.x();
+        windowOrigoPointValue = windowOrigoPoint.x();
+        windowMaxPointValue = windowMaxPoint.x();
+        tickMaxCount = windowSize.x() / (2 * textSize.x());
+    }
+    else
+    {
+        windowOrigoInDomainValue = windowOrigoInDomain.y();
+        windowMaxInDomainValue   = windowMaxInDomain.y();
+        windowOrigoPointValue    = windowOrigoPoint.y();
+        windowMaxPointValue      = windowMaxPoint.y();
+        tickMaxCount    = windowSize.y() / (2 * textSize.x());
+    }
 
-    double                 minDomainYStepSize = (windowMaxInDomain.y() - windowOrigoInDomain.y()) / yTickMaxCount;
-    caf::TickMarkGenerator yTickCreator(windowOrigoInDomain.y(), windowMaxInDomain.y(), minDomainYStepSize);
-    auto ticks = yTickCreator.tickMarkValues();
+    m_currentScale = (windowMaxPointValue - windowOrigoPointValue) / (windowMaxInDomainValue - windowOrigoInDomainValue);
+    minStepSizeInDomain = (windowMaxInDomainValue - windowOrigoInDomainValue) / tickMaxCount;
+
+    caf::TickMarkGenerator tickCreator(windowOrigoInDomainValue, windowMaxInDomainValue, minStepSizeInDomain);
+    auto ticks = tickCreator.tickMarkValues();
 
     m_ticksInDomain.clear();
     for (const auto& tick : ticks)

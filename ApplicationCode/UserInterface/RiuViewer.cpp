@@ -54,6 +54,7 @@
 #include "cvfFont.h"
 #include "cvfOpenGLResourceManager.h"
 #include "cvfOverlayAxisCross.h"
+#include "cvfOverlayItem.h"
 #include "cvfPartRenderHintCollection.h"
 #include "cvfRenderQueueSorter.h"
 #include "cvfRenderSequence.h"
@@ -191,6 +192,7 @@ RiuViewer::RiuViewer(const QGLFormat& format, QWidget* parent)
     m_selectionVisualizerManager = new caf::PdmUiSelectionVisualizer3d(this);
 
     m_scaleLegend = new caf::OverlayScaleLegend(standardFont);
+    m_scaleLegend->setOrientation(caf::OverlayScaleLegend::HORIZONTAL);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -630,6 +632,12 @@ void RiuViewer::updateLegendLayout()
     {
         legend->setRenderSize(cvf::Vec2ui(maxColumnWidht, legend->renderSize().y())); 
     }
+
+    int margin = 5;
+    auto scaleLegendSize = m_scaleLegend->renderSize();
+    auto otherItemsHeight = m_versionInfoLabel->size().height();
+    m_scaleLegend->setLayoutFixedPosition({ width() - (int)scaleLegendSize.x() - margin - edgeAxisBorderWidth,
+                                           margin + edgeAxisBorderHeight + margin + otherItemsHeight});
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -964,7 +972,12 @@ void RiuViewer::showScaleLegend(bool show)
 {
     if (show)
     {
-        addColorLegendToBottomLeftCorner(m_scaleLegend.p());
+        if(m_scaleLegend->orientation() == caf::OverlayScaleLegend::HORIZONTAL)
+            m_scaleLegend->setRenderSize({400, 50});
+        else
+            m_scaleLegend->setRenderSize({70, 400});
+
+        m_mainRendering->addOverlayItem(m_scaleLegend.p());
     }
     else
     {
