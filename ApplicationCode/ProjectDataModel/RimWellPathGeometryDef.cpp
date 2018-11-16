@@ -136,6 +136,14 @@ double RimWellPathGeometryDef::mdrkbAtFirstTarget() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimWellPathGeometryDef::setMdrkbAtFirstTarget(double mdrkb)
+{
+    m_mdrkbAtFirstTarget = mdrkb;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 cvf::ref<RigWellPath> RimWellPathGeometryDef::createWellPathGeometry()
 {
     cvf::ref<RigWellPath> wellPathGeometry = new RigWellPath; 

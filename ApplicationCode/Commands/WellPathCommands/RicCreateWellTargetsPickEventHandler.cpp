@@ -34,6 +34,7 @@
 
 #include <vector>
 #include "RiuViewerCommands.h"
+#include "RimModeledWellPath.h"
 
 
 //--------------------------------------------------------------------------------------------------
@@ -83,8 +84,10 @@ bool RicCreateWellTargetsPickEventHandler::handlePickEvent(const Ric3DPickEvent&
         auto wellPathSourceInfo = dynamic_cast<const RivWellPathSourceInfo*>(firstPickItem.sourceInfo());
 
         auto intersectionPointInDomain = rimView->displayCoordTransform()->transformToDomainCoord(firstPickItem.globalPickedPoint());
-        bool doSetAzimuthAndInclination;
-        double azimuth = 0.0, inclination = 0.0;
+        bool doSetAzimuthAndInclination = false;
+        double azimuth = 0.0;
+        double inclination = 0.0;
+
         if (wellPathSourceInfo)
         {
             targetPointInDomain = wellPathSourceInfo->closestPointOnCenterLine(firstPickItem.faceIdx(), intersectionPointInDomain);
@@ -101,7 +104,21 @@ bool RicCreateWellTargetsPickEventHandler::handlePickEvent(const Ric3DPickEvent&
         if (!m_geometryToAddTargetsTo->firstActiveTarget())
         {
             m_geometryToAddTargetsTo->setReferencePointXyz(targetPointInDomain);
+            
+            if (wellPathSourceInfo)
+            {
+                double mdrkbAtFirstTarget = wellPathSourceInfo->measuredDepth(firstPickItem.faceIdx(), intersectionPointInDomain);
+
+                RimModeledWellPath* modeledWellPath = dynamic_cast<RimModeledWellPath*>(wellPathSourceInfo->wellPath());
+                if (modeledWellPath)
+                {
+                    mdrkbAtFirstTarget += modeledWellPath->geometryDefinition()->mdrkbAtFirstTarget();
+                }
+                
+                m_geometryToAddTargetsTo->setMdrkbAtFirstTarget(mdrkbAtFirstTarget);
+            }
         }
+
         cvf::Vec3d referencePoint = m_geometryToAddTargetsTo->referencePointXyz();
         cvf::Vec3d relativeTagetPoint = targetPointInDomain - referencePoint;
 

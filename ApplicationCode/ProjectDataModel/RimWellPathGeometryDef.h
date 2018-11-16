@@ -49,6 +49,7 @@ public:
     void                            setReferencePointXyz(const cvf::Vec3d& refPointXyz );
 
     double                          mdrkbAtFirstTarget() const;
+    void                            setMdrkbAtFirstTarget(double mdrkb);
 
     cvf::ref<RigWellPath>           createWellPathGeometry();
     
