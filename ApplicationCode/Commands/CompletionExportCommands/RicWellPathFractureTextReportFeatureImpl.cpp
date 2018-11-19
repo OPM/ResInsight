@@ -610,7 +610,7 @@ QString RicWellPathFractureTextReportFeatureImpl::createFractureCompletionSummar
     RifEclipseDataTableFormatter formatter(stream);
     configureFormatter(&formatter);
 
-    const QString avg = "Avg";
+    const QString meanText = "Mean";
 
     std::vector<RifEclipseOutputTableColumn> header = {
         RifEclipseOutputTableColumn(""), // Well
@@ -620,12 +620,12 @@ QString RicWellPathFractureTextReportFeatureImpl::createFractureCompletionSummar
         floatNumberColumn(""), //#con
         floatNumberColumn(""), // Fcd
         RifEclipseOutputTableColumn("", RifEclipseOutputTableDoubleFormatting(RIF_FLOAT, 1), RIGHT), // Area
-        RifEclipseOutputTableColumn("KfWf", RifEclipseOutputTableDoubleFormatting(RIF_FLOAT, 1), RIGHT), // KfWf
-        RifEclipseOutputTableColumn("Kf", RifEclipseOutputTableDoubleFormatting(RIF_FLOAT, 1), RIGHT), // Kf
-        floatNumberColumn("wf"), // wf
-        RifEclipseOutputTableColumn("xf", RifEclipseOutputTableDoubleFormatting(RIF_FLOAT, 1), RIGHT), //xf
-        RifEclipseOutputTableColumn("H", RifEclipseOutputTableDoubleFormatting(RIF_FLOAT, 1), RIGHT), // H
-        floatNumberColumn("Km"), // Km
+        RifEclipseOutputTableColumn(meanText, RifEclipseOutputTableDoubleFormatting(RIF_FLOAT, 1), RIGHT), // KfWf
+        RifEclipseOutputTableColumn(meanText, RifEclipseOutputTableDoubleFormatting(RIF_FLOAT, 1), RIGHT), // Kf
+        floatNumberColumn(meanText), // wf
+        RifEclipseOutputTableColumn(meanText, RifEclipseOutputTableDoubleFormatting(RIF_FLOAT, 1), RIGHT), //xf
+        RifEclipseOutputTableColumn(meanText, RifEclipseOutputTableDoubleFormatting(RIF_FLOAT, 1), RIGHT), // H
+        floatNumberColumn(meanText), // Km
     };
 
     formatter.header(header);
@@ -639,12 +639,12 @@ QString RicWellPathFractureTextReportFeatureImpl::createFractureCompletionSummar
         formatter.add("#con"); // #con
         formatter.add("Fcd"); // Fcd
         formatter.add("Area"); // Area
-        formatter.add(avg); // KfWf
-        formatter.add(avg); // Kf
-        formatter.add(avg); // wf
-        formatter.add(avg); // Xf
-        formatter.add(avg); // H
-        formatter.add(avg); // Km
+        formatter.add("KfWf"); // KfWf
+        formatter.add("Kf"); // Kf
+        formatter.add("wf"); // wf
+        formatter.add("Xf"); // Xf
+        formatter.add("H"); // H
+        formatter.add("Km"); // Km
         formatter.rowCompleted();
     }
 
