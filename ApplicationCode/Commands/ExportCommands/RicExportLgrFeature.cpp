@@ -312,7 +312,7 @@ RicExportLgrUi* RicExportLgrFeature::openDialog(const QString& dialogTitle,
 
     caf::PdmUiPropertyViewDialog propertyDialog(
         nullptr, featureUi, dialogTitle, "", QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
-    propertyDialog.resize(QSize(300, 285 - (hideExportFolderField ? 25 : 0)));
+    propertyDialog.resize(QSize(300, 320));
 
     if (propertyDialog.exec() == QDialog::Accepted && !featureUi->exportFolder().isEmpty())
     {
