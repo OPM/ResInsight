@@ -223,9 +223,7 @@ void RimContourMapView::updateCurrentTimeStep()
 //--------------------------------------------------------------------------------------------------
 void RimContourMapView::setFaultVisParameters()
 {
-    // TODO: temporarily commented out
-    // faultCollection()->setShowFaultsOutsideFilter(false);
-
+    faultCollection()->setShowFaultsOutsideFilter(false);
     faultCollection()->showOppositeFaultFaces = true;
     faultCollection()->faultResult            = RimFaultInViewCollection::FAULT_NO_FACE_CULLING;
     faultResultSettings()->showCustomFaultResult = true;

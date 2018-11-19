@@ -378,3 +378,11 @@ bool RimFaultInViewCollection::isShowingFaultsAndFaultsOutsideFilters() const
     return m_showFaultsOutsideFilters;
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFaultInViewCollection::setShowFaultsOutsideFilter(bool show)
+{
+    m_showFaultsOutsideFilters = show;
+}
+

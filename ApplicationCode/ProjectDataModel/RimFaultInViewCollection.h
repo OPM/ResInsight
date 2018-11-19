@@ -62,6 +62,7 @@ public:
     bool                                isGridVisualizationMode() const;
     
     bool                                isShowingFaultsAndFaultsOutsideFilters() const;
+    void                                setShowFaultsOutsideFilter(bool show);
 
     caf::PdmField<bool>                 showFaultFaces;
     caf::PdmField<bool>                 showOppositeFaultFaces;
