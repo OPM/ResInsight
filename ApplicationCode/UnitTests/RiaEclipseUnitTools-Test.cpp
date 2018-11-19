@@ -37,6 +37,13 @@ TEST(RiaEclipseUnitTools, TestConversionToMeter)
         double destValue = RiaEclipseUnitTools::convertToMeter(sourceValue, unitText);
         EXPECT_NEAR(1.0, destValue, deltaRange);
     }
+
+    {
+        double sourceValue = 123.0;
+        QString unitText = "mm";
+        double destValue = RiaEclipseUnitTools::convertToMeter(sourceValue, unitText);
+        EXPECT_NEAR(0.123, destValue, deltaRange);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
