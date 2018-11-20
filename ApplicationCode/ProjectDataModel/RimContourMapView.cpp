@@ -66,9 +66,6 @@ RimContourMapView::RimContourMapView()
     m_contourMapProjectionPartMgr = new RivContourMapProjectionPartMgr(contourMapProjection(), this);
 
     ((RiuViewerToViewInterface*)this)->setCameraPosition(defaultViewMatrix);
-
-    //CAF_PDM_InitFieldNoDefault(&m_scaleLegendConfig, "ScaleLegendConfig", "Scale Legend Config", "", "", "");
-    //m_scaleLegendConfig = new RimScaleLegendConfig();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -307,8 +304,7 @@ void RimContourMapView::updateLegends()
             }
         }
 
-        //m_viewer->addColorLegendToBottomLeftCorner(m_scaleLegendConfig->titledOverlayFrame());
-        m_viewer->showScaleLegend(true);
+        m_viewer->showScaleLegend(m_showScaleLegend());
     }
 }
 
@@ -362,6 +358,11 @@ void RimContourMapView::fieldChangedByUi(const caf::PdmFieldHandle* changedField
     }
     else if (changedField == backgroundColorField())
     {
+        scheduleCreateDisplayModelAndRedraw();
+    }
+    else if (changedField == &m_showScaleLegend)
+    {
+        updateLegends();
         scheduleCreateDisplayModelAndRedraw();
     }
 }
