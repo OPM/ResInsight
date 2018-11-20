@@ -41,7 +41,6 @@ public:
 
     cvf::ref<cvf::Vec2fArray> createTextureCoords() const;
 
-    void removeTrianglesWithNoResult(cvf::UIntArray* uintArray) const;
 private:
     cvf::ref<cvf::DrawableGeo>              createProjectionMapDrawable(const caf::DisplayCoordTransform* displayCoordTransform) const;
     std::vector<cvf::ref<cvf::DrawableGeo>> createContourPolygons(const caf::DisplayCoordTransform* displayCoordTransform) const;

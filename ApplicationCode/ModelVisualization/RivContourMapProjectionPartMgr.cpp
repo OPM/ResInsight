@@ -79,7 +79,7 @@ void RivContourMapProjectionPartMgr::appendPickPointVisToModel(cvf::ModelBasicLi
     if (drawable.notNull() && drawable->boundingBox().isValid())
     {
         caf::MeshEffectGenerator meshEffectGen(cvf::Color3::MAGENTA);
-        meshEffectGen.setLineWidth(2.0f);
+        meshEffectGen.setLineWidth(1.0f);
         meshEffectGen.createAndConfigurePolygonOffsetRenderState(caf::PO_2);
         cvf::ref<cvf::Effect> effect = meshEffectGen.generateCachedEffect();
 

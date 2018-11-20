@@ -122,10 +122,10 @@ protected:
 
     void                                         generateGridMapping();
     void                                         calculateTotalCellVisibility();
-    cvf::Vec2d                                   cellCenterPos(uint i, uint j) const;
+    cvf::Vec2d                                   globalCellCenterPosition(uint i, uint j) const;
     cvf::Vec2ui                                  ijFromLocalPos(const cvf::Vec2d& localPos2d) const;
 
-    std::vector<std::pair<size_t, double>>       cellsAtPos2d(uint i, uint j) const;
+    std::vector<std::pair<size_t, double>>       cellsAtIJ(uint i, uint j) const;
     std::vector<double>                          xVertexPositions() const;
     std::vector<double>                          yVertexPositions() const;
 
@@ -164,7 +164,6 @@ protected:
     cvf::Vec2d                                         m_pickPoint;
 
     cvf::Vec2ui                                        m_mapSize;
-    cvf::BoundingBox                                   m_cellCenterBoundingBox;
     cvf::BoundingBox                                   m_fullBoundingBox;
     double                                             m_sampleSpacing;
 };
