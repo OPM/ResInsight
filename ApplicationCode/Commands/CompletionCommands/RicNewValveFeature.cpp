@@ -1,6 +1,7 @@
 #include "RicNewValveFeature.h"
 #include "Riu3DMainWindowTools.h"
 
+#include "RiaApplication.h"
 #include "RimPerforationInterval.h"
 #include "RimWellPathValve.h"
 #include "RimWellPathCollection.h"
@@ -17,7 +18,7 @@ CAF_CMD_SOURCE_INIT(RicNewValveFeature, "RicNewValveFeature");
 bool RicNewValveFeature::isCommandEnabled()
 {
     const RimPerforationInterval* perfInterval = caf::SelectionManager::instance()->selectedItemOfType<RimPerforationInterval>();
-    return perfInterval != nullptr;
+    return perfInterval != nullptr && RiaApplication::enableDevelopmentFeatures();
 }
 
 //--------------------------------------------------------------------------------------------------
