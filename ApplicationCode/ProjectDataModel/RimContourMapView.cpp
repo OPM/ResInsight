@@ -204,17 +204,18 @@ void RimContourMapView::updateCurrentTimeStep()
     static_cast<RimEclipsePropertyFilterCollection*>(nativePropertyFilterCollection())->updateFromCurrentTimeStep();
 
     this->updateVisibleGeometriesAndCellColors();
-
+   
     if (m_contourMapProjection->isChecked())
     {
         m_contourMapProjection->generateResults();
     }
-
     updateLegends(); // To make sure the scalar mappers are set up correctly
 
     appendWellsAndFracturesToModel();
 
     appendContourMapProjectionToModel();
+
+    appendPickPointVisToModel();
 
     if (m_overlayInfoConfig->isActive())
     {
@@ -227,9 +228,7 @@ void RimContourMapView::updateCurrentTimeStep()
 //--------------------------------------------------------------------------------------------------
 void RimContourMapView::setFaultVisParameters()
 {
-    // TODO: temporarily commented out
-    // faultCollection()->setShowFaultsOutsideFilter(false);
-
+    faultCollection()->setShowFaultsOutsideFilter(false);
     faultCollection()->showOppositeFaultFaces = true;
     faultCollection()->faultResult            = RimFaultInViewCollection::FAULT_NO_FACE_CULLING;
     faultResultSettings()->showCustomFaultResult = true;
@@ -255,6 +254,31 @@ void RimContourMapView::appendContourMapProjectionToModel()
             cvf::ref<caf::DisplayCoordTransform> transForm = this->displayCoordTransform();
 
             m_contourMapProjectionPartMgr->appendProjectionToModel(contourMapProjectionModelBasicList.p(), transForm.p());
+            contourMapProjectionModelBasicList->updateBoundingBoxesRecursive();
+            frameScene->addModel(contourMapProjectionModelBasicList.p());
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimContourMapView::appendPickPointVisToModel()
+{
+    if (m_viewer && m_contourMapProjection->isChecked())
+    {
+        cvf::Scene* frameScene = m_viewer->frame(m_currentTimeStep);
+        if (frameScene)
+        {
+            cvf::String name = "ContourMapPickPoint";
+            this->removeModelByName(frameScene, name);
+
+            cvf::ref<cvf::ModelBasicList> contourMapProjectionModelBasicList = new cvf::ModelBasicList;
+            contourMapProjectionModelBasicList->setName(name);
+
+            cvf::ref<caf::DisplayCoordTransform> transForm = this->displayCoordTransform();
+
+            m_contourMapProjectionPartMgr->appendPickPointVisToModel(contourMapProjectionModelBasicList.p(), transForm.p());
             contourMapProjectionModelBasicList->updateBoundingBoxesRecursive();
             frameScene->addModel(contourMapProjectionModelBasicList.p());
         }

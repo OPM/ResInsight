@@ -36,13 +36,15 @@ public:
 
     void appendProjectionToModel(cvf::ModelBasicList*              model,
                                  const caf::DisplayCoordTransform* displayCoordTransform) const;
+    void appendPickPointVisToModel(cvf::ModelBasicList* model,
+                                   const caf::DisplayCoordTransform* displayCoordTransform) const;
 
     cvf::ref<cvf::Vec2fArray> createTextureCoords() const;
 
-    void removeTrianglesWithNoResult(cvf::UIntArray* uintArray) const;
 private:
-    cvf::ref<cvf::DrawableGeo> createDrawable(const caf::DisplayCoordTransform* displayCoordTransform) const;
+    cvf::ref<cvf::DrawableGeo>              createProjectionMapDrawable(const caf::DisplayCoordTransform* displayCoordTransform) const;
     std::vector<cvf::ref<cvf::DrawableGeo>> createContourPolygons(const caf::DisplayCoordTransform* displayCoordTransform) const;
+    cvf::ref<cvf::DrawableGeo>              createPickPointVisDrawable(const caf::DisplayCoordTransform* displayCoordTransform) const;
 private:
     caf::PdmPointer<RimContourMapProjection>    m_contourMapProjection;
     caf::PdmPointer<RimContourMapView> m_parentContourMap;

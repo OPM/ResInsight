@@ -332,7 +332,17 @@ std::vector<size_t> RigEclipseToStimPlanCellTransmissibilityCalculator::getPoten
 
     mainGrid->findIntersectingCells(polygonBBox, &cellIndices);
 
-    return cellIndices;
+    std::vector<size_t> cellIndicesToLeafCells;
+    for (const size_t& index : cellIndices)
+    {
+        const RigCell& cell = mainGrid->globalCellArray()[index];
+        if (!cell.subGrid())
+        {
+            cellIndicesToLeafCells.push_back(index);
+        }
+    }
+
+    return cellIndicesToLeafCells;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -284,7 +284,7 @@ Rim3dOverlayInfoConfig::HistogramData Rim3dOverlayInfoConfig::histogramData(RimC
 
     if (contourMap)
     {
-        bool isResultsInfoRelevant = contourMap->contourMapProjection()->validVertexCount() > 0u;
+        bool isResultsInfoRelevant = contourMap->contourMapProjection()->numberOfValidCells() > 0u;
 
         if (isResultsInfoRelevant)
         {
@@ -499,11 +499,11 @@ QString Rim3dOverlayInfoConfig::caseInfoText(RimEclipseView* eclipseView)
         RimContourMapView* contourMap = dynamic_cast<RimContourMapView*>(eclipseView);
         if (contourMap && contourMap->contourMapProjection())
         {
-            QString totCellCount = QString::number(contourMap->contourMapProjection()->vertexCount());
-            cvf::uint validCellCount = contourMap->contourMapProjection()->validVertexCount();
+            QString totCellCount = QString::number(contourMap->contourMapProjection()->numberOfCells());
+            cvf::uint validCellCount = contourMap->contourMapProjection()->numberOfValidCells();
             QString activeCellCountText = QString::number(validCellCount);
-            QString iSize = QString::number(contourMap->contourMapProjection()->surfaceGridSize().x());
-            QString jSize = QString::number(contourMap->contourMapProjection()->surfaceGridSize().y());
+            QString iSize = QString::number(contourMap->contourMapProjection()->mapSize().x());
+            QString jSize = QString::number(contourMap->contourMapProjection()->mapSize().y());
             QString aggregationType = contourMap->contourMapProjection()->resultAggregationText();
             QString weightingParameterString;
             if (contourMap->contourMapProjection()->weightingParameter() != "None")
@@ -582,7 +582,7 @@ QString Rim3dOverlayInfoConfig::resultInfoText(const HistogramData& histData, Ri
 
     if (contourMap)
     {
-        bool isResultsInfoRelevant = contourMap->contourMapProjection()->validVertexCount() > 0u;
+        bool isResultsInfoRelevant = contourMap->contourMapProjection()->numberOfValidCells() > 0u;
         if (isResultsInfoRelevant)
         {
             QString propName = eclipseView->cellResult()->resultVariableUiShortName();
