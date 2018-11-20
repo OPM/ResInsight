@@ -169,6 +169,27 @@ void caf::TrackBallBasedNavigation::zoomAlongRay(cvf::Ray* ray, int delta)
         m_viewer->updateParallelProjectionHeightFromMoveZoom(m_pointOfInterest);
         m_viewer->updateParallelProjectionCameraPosFromPointOfInterestMove(m_pointOfInterest);
 
+        // Ceeviz Workaround for #3697:
+        // Ceeviz may create a singular projection*view matrix internally. In which case we need to revert.
+        cvf::Mat4d projectionMatrix = m_viewer->mainCamera()->projectionMatrix();
+        cvf::Mat4d viewMatrix       = m_viewer->mainCamera()->viewMatrix();
+        cvf::Mat4d multMatrix       = projectionMatrix * viewMatrix;
+        double     determinant      = std::fabs(multMatrix.determinant());
+
+        if (determinant < 1.0e-15)
+        {
+            m_viewer->mainCamera()->setFromLookAt(pos, vrp, up);
+            m_viewer->updateParallelProjectionHeightFromMoveZoom(m_pointOfInterest);
+            m_viewer->updateParallelProjectionCameraPosFromPointOfInterestMove(m_pointOfInterest);
+#ifndef NDEBUG
+            projectionMatrix = m_viewer->mainCamera()->projectionMatrix();
+            viewMatrix       = m_viewer->mainCamera()->viewMatrix();
+            multMatrix       = projectionMatrix * viewMatrix;
+            determinant      = std::fabs(multMatrix.determinant());
+            CVF_ASSERT(determinant > 1.0e-15);
+#endif
+        }
+
         m_viewer->navigationPolicyUpdate();
     }
 }
