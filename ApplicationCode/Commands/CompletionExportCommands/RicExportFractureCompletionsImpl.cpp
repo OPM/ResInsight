@@ -359,9 +359,9 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
             RicWellPathFractureReportItem reportItem(
                 wellPathName, fracture->name(), fracTemplate->name(), fracture->fractureMD());
             reportItem.setUnitSystem(fracTemplate->fractureTemplateUnit());
-            reportItem.setPressureDepletionParameters(performPressureDepletionScaling ? "True" : "False",
+            reportItem.setPressureDepletionParameters(performPressureDepletionScaling,
                 caf::AppEnum<PressureDepletionWBHPSource>::uiTextFromIndex(pdParams.wbhpSource),
-                pdParams.userWBHP, minPressureDrop, maxPressureDrop);
+                pdParams.userWBHP, currentWellPressure, minPressureDrop, maxPressureDrop);
 
             RicExportFractureCompletionsImpl::calculateAndSetReportItemData(
                 allCompletionsForOneFracture, eclToFractureCalc, reportItem);

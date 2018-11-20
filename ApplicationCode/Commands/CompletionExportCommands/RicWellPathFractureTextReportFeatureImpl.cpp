@@ -709,30 +709,39 @@ QString RicWellPathFractureTextReportFeatureImpl::createFracturePressureDepletio
     std::vector<RifEclipseOutputTableColumn> header = {
         RifEclipseOutputTableColumn("Well"),
         RifEclipseOutputTableColumn("Fracture"),
-        RifEclipseOutputTableColumn("PDD Scaling"),
         RifEclipseOutputTableColumn("WBHP Source"),
         RifEclipseOutputTableColumn("User WBHP"),
+        RifEclipseOutputTableColumn("Actual WBHP"),
         RifEclipseOutputTableColumn("Min Pressure Drop"),
         RifEclipseOutputTableColumn("Max Pressure Drop")
     };
 
-    formatter.header(header);
-    formatter.addHorizontalLine('-');
+    bool createdTable = false;
 
     for (const auto& reportItem : wellPathFractureReportItems)
     {
-        formatter.add(reportItem.wellPathNameForExport());
-        formatter.add(reportItem.fractureName());
-        formatter.add(reportItem.pressureDepletionScaling());
-        formatter.add(reportItem.pressureDepletionWBHPString());
-        formatter.add(reportItem.pressureDepletionUserWBHP());
-        formatter.add(reportItem.pressureDepletionMinPressureDrop());
-        formatter.add(reportItem.pressureDepletionMaxPressureDrop());
-
-        formatter.rowCompleted();
+        if (reportItem.performPressureDepletionScaling())
+        {
+            if (!createdTable)
+            {
+                formatter.header(header);
+                formatter.addHorizontalLine('-');
+                createdTable = true;
+            }
+            formatter.add(reportItem.wellPathNameForExport());
+            formatter.add(reportItem.fractureName());
+            formatter.add(reportItem.pressureDepletionWBHPString());
+            formatter.add(reportItem.pressureDepletionUserWBHP());
+            formatter.add(reportItem.pressureDepletionActualWBHP());
+            formatter.add(reportItem.pressureDepletionMinPressureDrop());
+            formatter.add(reportItem.pressureDepletionMaxPressureDrop());
+            formatter.rowCompleted();
+        }
     }
-
-    formatter.tableCompleted();
+    if (createdTable)
+    {
+        formatter.tableCompleted();
+    }
 
     return tableText;
 }
