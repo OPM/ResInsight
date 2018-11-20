@@ -123,18 +123,6 @@ QString RimContourMapView::createAutoName() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimContourMapView::isTimeStepDependentDataVisible() const
-{
-    if (RimEclipseView::isTimeStepDependentDataVisible())
-    {
-        return true;
-    }
-    return m_contourMapProjection->isChecked();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimContourMapView::initAfterRead()
 {
     m_gridCollection->setActive(false); // This is also not added to the tree view, so cannot be enabled.
@@ -153,6 +141,12 @@ void RimContourMapView::createDisplayModel()
 {
     RimEclipseView::createDisplayModel();
     
+    if (!this->isTimeStepDependentDataVisible())
+    {
+        // Need to add geometry even if it hasn't happened during dynamic time step update.
+        updateGeometry();
+    }
+
     if (this->viewer()->mainCamera()->viewMatrix() == defaultViewMatrix)
     {
         this->zoomAll();
@@ -198,9 +192,16 @@ void RimContourMapView::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrder
 void RimContourMapView::updateCurrentTimeStep()
 {
     static_cast<RimEclipsePropertyFilterCollection*>(nativePropertyFilterCollection())->updateFromCurrentTimeStep();
+    updateGeometry();
+}
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimContourMapView::updateGeometry()
+{
     this->updateVisibleGeometriesAndCellColors();
-   
+
     if (m_contourMapProjection->isChecked())
     {
         m_contourMapProjection->generateResults();

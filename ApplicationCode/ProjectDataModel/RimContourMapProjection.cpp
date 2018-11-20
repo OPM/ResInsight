@@ -188,30 +188,36 @@ RimContourMapProjection::ContourPolygons RimContourMapProjection::generateContou
         std::fabs(maxValue() - minValue()) > 1.0e-8)
     {
         std::vector<double> contourLevels;
-        legendConfig()->scalarMapper()->majorTickValues(&contourLevels);
-        int nContourLevels = static_cast<int>(contourLevels.size());
-        if (nContourLevels > 2)
+        if (legendConfig()->mappingMode() != RimRegularLegendConfig::CATEGORY_INTEGER)
         {
-            // Slight fudge to avoid very jagged contour lines at the very edge
-            // Shift the contour levels inwards.
-            contourLevels[0] += (contourLevels[1] - contourLevels[0]) * 0.1;
-            contourLevels[nContourLevels - 1] -= (contourLevels[nContourLevels - 1] - contourLevels[nContourLevels - 2]) * 0.1;
-            std::vector<std::vector<cvf::Vec2d>> contourLines;
-            caf::ContourLines::create(m_aggregatedVertexResults, xVertexPositions(), yVertexPositions(), contourLevels, &contourLines);
-
-            contourPolygons.reserve(contourLines.size());
-            for (size_t i = 0; i < contourLines.size(); ++i)
+            legendConfig()->scalarMapper()->majorTickValues(&contourLevels);
+            int nContourLevels = static_cast<int>(contourLevels.size());
+            if (nContourLevels > 2)
             {
-                if (!contourLines[i].empty())
+                if (legendConfig()->mappingMode() == RimRegularLegendConfig::LINEAR_CONTINUOUS || legendConfig()->mappingMode() == RimRegularLegendConfig::LINEAR_DISCRETE)
                 {
-                    cvf::ref<cvf::Vec3fArray> contourPolygon = new cvf::Vec3fArray(contourLines[i].size());
-                    for (size_t j = 0; j < contourLines[i].size(); ++j)
+                    // Slight fudge to avoid very jagged contour lines at the very edge
+                    // Shift the contour levels inwards.
+                    contourLevels[0] += (contourLevels[1] - contourLevels[0]) * 0.1;
+                    contourLevels[nContourLevels - 1] -= (contourLevels[nContourLevels - 1] - contourLevels[nContourLevels - 2]) * 0.1;
+                }
+                std::vector<std::vector<cvf::Vec2d>> contourLines;
+                caf::ContourLines::create(m_aggregatedVertexResults, xVertexPositions(), yVertexPositions(), contourLevels, &contourLines);
+
+                contourPolygons.reserve(contourLines.size());
+                for (size_t i = 0; i < contourLines.size(); ++i)
+                {
+                    if (!contourLines[i].empty())
                     {
-                        cvf::Vec3d contourPoint3d = cvf::Vec3d(contourLines[i][j], m_fullBoundingBox.min().z());
-                        cvf::Vec3d displayPoint3d = displayCoordTransform->transformToDisplayCoord(contourPoint3d);
-                        (*contourPolygon)[j] = cvf::Vec3f(displayPoint3d);
+                        cvf::ref<cvf::Vec3fArray> contourPolygon = new cvf::Vec3fArray(contourLines[i].size());
+                        for (size_t j = 0; j < contourLines[i].size(); ++j)
+                        {
+                            cvf::Vec3d contourPoint3d = cvf::Vec3d(contourLines[i][j], m_fullBoundingBox.min().z());
+                            cvf::Vec3d displayPoint3d = displayCoordTransform->transformToDisplayCoord(contourPoint3d);
+                            (*contourPolygon)[j] = cvf::Vec3f(displayPoint3d);
+                        }
+                        contourPolygons.push_back(contourPolygon);
                     }
-                    contourPolygons.push_back(contourPolygon);
                 }
             }
         }
