@@ -32,7 +32,7 @@ class RicSnapshotAllPlotsToFileFeature : public caf::CmdFeature
 public:
     static void saveAllPlots();
 
-    static void exportSnapshotOfAllPlotsIntoFolder(QString snapshotFolderName);
+    static void exportSnapshotOfAllPlotsIntoFolder(const QString& snapshotFolderName, const QString& prefix = "");
 
 protected:
     // Overrides

@@ -70,7 +70,7 @@ void RicSnapshotAllViewsToFileFeature::saveAllViews()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicSnapshotAllViewsToFileFeature::exportSnapshotOfAllViewsIntoFolder(QString snapshotFolderName)
+void RicSnapshotAllViewsToFileFeature::exportSnapshotOfAllViewsIntoFolder(const QString& snapshotFolderName, const QString& prefix)
 {
     RimProject* project = RiaApplication::instance()->project();
 
@@ -114,6 +114,10 @@ void RicSnapshotAllViewsToFileFeature::exportSnapshotOfAllViewsIntoFolder(QStrin
                 viewer->repaint();
 
                 QString fileName = RicSnapshotFilenameGenerator::generateSnapshotFileName(riv);
+                if (!prefix.isEmpty())
+                {
+                    fileName = prefix + fileName;
+                }
 
                 QString absoluteFileName = caf::Utils::constructFullFileName(absSnapshotPath, fileName, ".png");
                 
