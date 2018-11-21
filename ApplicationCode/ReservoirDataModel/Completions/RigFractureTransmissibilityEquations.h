@@ -63,6 +63,8 @@ public:
     static double effectiveMatrixToWellTransPDDHC(double sumOriginalMatrixToFractureTrans,
                                                   double effectiveInternalFractureToWellTrans);
 
+    static double matrixPermeability(double permx, double permy, double NTG);
+
 private:
     static double centerToEdgeFractureCellTrans(double conductivity,
                                                 double sideLengthParallellTrans,
