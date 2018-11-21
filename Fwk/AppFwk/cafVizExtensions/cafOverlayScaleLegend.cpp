@@ -207,7 +207,7 @@ void OverlayScaleLegend::setupHorizontalTextDrawer(TextDrawer* textDrawer, const
     size_t it;
     for (it = 0; it < numTicks; it++)
     {
-        if(!layout->ticks[it].isMajor) continue;
+        if(numTicks > 4 && !layout->ticks[it].isMajor) continue;
 
         double tickValue = layout->ticks[it].domainValue;
         String valueString;
@@ -277,7 +277,7 @@ void OverlayScaleLegend::setupVerticalTextDrawer(TextDrawer* textDrawer, const L
     size_t it;
     for (it = 0; it < numTicks; it++)
     {
-        if (!layout->ticks[it].isMajor) continue;
+        if (numTicks > 4 && !layout->ticks[it].isMajor) continue;
 
         float textY = static_cast<float>(layout->axisStartPt.y() + layout->ticks[it].displayValue);
 

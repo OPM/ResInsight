@@ -973,9 +973,9 @@ void RiuViewer::showScaleLegend(bool show)
     if (show)
     {
         if(m_scaleLegend->orientation() == caf::OverlayScaleLegend::HORIZONTAL)
-            m_scaleLegend->setRenderSize({400, 50});
+            m_scaleLegend->setRenderSize({280, 45});
         else
-            m_scaleLegend->setRenderSize({70, 400});
+            m_scaleLegend->setRenderSize({50, 280});
 
         m_mainRendering->addOverlayItem(m_scaleLegend.p());
     }
