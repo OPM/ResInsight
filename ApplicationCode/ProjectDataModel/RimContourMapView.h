@@ -33,7 +33,6 @@ public:
     RimContourMapProjection*                     contourMapProjection() const;
 
     QString createAutoName() const override;
-    bool    isTimeStepDependentDataVisible() const override;
 
 protected:
     void initAfterRead() override;
@@ -41,7 +40,7 @@ protected:
     void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
     void defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
     void updateCurrentTimeStep() override;
-
+    void updateGeometry();
     void setFaultVisParameters();
     void appendContourMapProjectionToModel();
     void appendPickPointVisToModel();

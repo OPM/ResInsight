@@ -32,7 +32,7 @@ class RicSnapshotAllViewsToFileFeature : public caf::CmdFeature
 public:
     static void    saveAllViews();
 
-    static void    exportSnapshotOfAllViewsIntoFolder(QString snapshotFolderName);
+    static void    exportSnapshotOfAllViewsIntoFolder(const QString& snapshotFolderName, const QString& prefix = "");
 
 protected:
     // Overrides

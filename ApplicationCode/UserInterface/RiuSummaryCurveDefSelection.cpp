@@ -19,6 +19,7 @@
 #include "RiuSummaryCurveDefSelection.h"
 
 #include "RiaApplication.h"
+#include "RiaStdStringTools.h"
 #include "RiaSummaryCurveDefinition.h"
 #include "RiaCurveSetDefinition.h"
 
@@ -421,13 +422,10 @@ void RiuSummaryCurveDefSelection::setDefaultSelection(const std::vector<SummaryS
     RimProject* proj = RiaApplication::instance()->project();
     auto allSumCases = proj->allSummaryCases();
     auto allSumGroups = proj->summaryGroups();
-    bool hasEnsembles = std::count_if(allSumGroups.begin(), allSumGroups.end(),
-                                      [](const RimSummaryCaseCollection* sumGroup) { return sumGroup->isEnsemble(); }) > 0;
 
     if (allSumCases.size() > 0)
     {
-        RifEclipseSummaryAddress defaultAddress = !hasEnsembles ?
-            RifEclipseSummaryAddress::fieldAddress("FOPT") : RifEclipseSummaryAddress();
+        RifEclipseSummaryAddress defaultAddress = RifEclipseSummaryAddress();
 
         std::vector<SummarySource*> selectTheseSources = defaultSources;
         if (selectTheseSources.empty()) selectTheseSources.push_back(allSumCases[0]);
@@ -727,7 +725,34 @@ QList<caf::PdmOptionItemInfo> RiuSummaryCurveDefSelection::calculateValueOptions
                 }
 
                 auto itemPostfix = (isVectorField && i == OBS_DATA) ? QString(OBSERVED_DATA_AVALUE_POSTFIX) : QString("");
-                for (const auto& itemName : itemNames[i])
+
+                // Sort numeric identifiers by numeric val
+                std::vector<std::string> itemNamesVector;
+                {
+                    switch (identifierAndField->summaryIdentifier())
+                    {
+                    case RifEclipseSummaryAddress::INPUT_REGION_NUMBER:
+                    case RifEclipseSummaryAddress::INPUT_SEGMENT_NUMBER:
+                    case RifEclipseSummaryAddress::INPUT_AQUIFER_NUMBER:
+                    {
+                        std::set<int> values;
+                        for (const std::string& itemName : itemNames[i])
+                        {
+                            values.insert(RiaStdStringTools::toInt(itemName));
+                        }
+                        for (int v : values)
+                        {
+                            itemNamesVector.push_back(std::to_string(v));
+                        }
+                        break;
+                    }
+                    default:
+                        itemNamesVector.insert(itemNamesVector.end(), itemNames[i].begin(), itemNames[i].end());
+                        break;
+                    }
+                }
+
+                for (const auto& itemName : itemNamesVector)
                 {
                     QString displayName;
 

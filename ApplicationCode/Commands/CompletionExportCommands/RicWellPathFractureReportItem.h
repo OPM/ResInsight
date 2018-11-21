@@ -35,13 +35,11 @@ public:
     void setHeightAndHalfLength(double height, double halfLength);
     void setAreaWeightedTransmissibility(double transmissibility);
     void setUnitSystem(RiaEclipseUnitTools::UnitSystem unitSystem);
-    void setPressureDepletionParameters(QString scalingString, QString wbhpString, double userWBHP, double minPressureDrop, double maxPressureDrop);
+    void setPressureDepletionParameters(bool performPressureDepletionScaling, QString timeStepString, QString wbhpString, double userWBHP, double actualWBHP, double minPressureDrop, double maxPressureDrop);
 
     QString wellPathNameForExport() const;
     QString fractureName() const;
     QString fractureTemplateName() const;
-    QString pressureDepletionScaling() const;
-    QString pressureDepletionWBHPString() const;
 
     RiaEclipseUnitTools::UnitSystem unitSystem() const;
 
@@ -59,9 +57,13 @@ public:
     double km() const;
     double kmxf() const;
 
-    double pressureDepletionUserWBHP() const;
-    double pressureDepletionMinPressureDrop() const;
-    double pressureDepletionMaxPressureDrop() const;
+    bool    performPressureDepletionScaling() const;
+    QString pressureDepletionTimeStepString() const;
+    QString pressureDepletionWBHPString() const;
+    double  pressureDepletionUserWBHP() const;
+    double  pressureDepletionActualWBHP() const;
+    double  pressureDepletionMinPressureDrop() const;
+    double  pressureDepletionMaxPressureDrop() const;
 
     bool operator < (const RicWellPathFractureReportItem& other) const;
 
@@ -70,8 +72,6 @@ private:
     QString                         m_wellPathNameForExport;
     QString                         m_wellPathFracture;
     QString                         m_wellPathFractureTemplate;
-    QString                         m_pressureDepletionScalingString;
-    QString                         m_pressureDepletionWBHPString;
     double                          m_mesuredDepth;
 
     double m_transmissibility;
@@ -84,8 +84,12 @@ private:
     double m_xf;
     double m_h;
     double m_km;
-    
-    double m_pressureDepletionUserWBHP;
-    double m_pressureDepletionMinPressureDrop;
-    double m_pressureDepletionMaxPressureDrop;
+
+    bool    m_performPressureDepletionScaling;
+    QString m_pressureDepletionTimeStepString;
+    QString m_pressureDepletionWBHPString;
+    double  m_pressureDepletionUserWBHP;
+    double  m_pressureDepletionActualWBHP;
+    double  m_pressureDepletionMinPressureDrop;
+    double  m_pressureDepletionMaxPressureDrop;
 };

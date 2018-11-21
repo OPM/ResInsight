@@ -32,7 +32,6 @@ RicWellPathFractureReportItem::RicWellPathFractureReportItem(const QString& well
     : m_wellPathNameForExport(wellPathName)
     , m_wellPathFracture(fractureName)
     , m_wellPathFractureTemplate(fractureTemplateName)
-    , m_pressureDepletionScalingString()
     , m_mesuredDepth(measuredDepth)
     , m_transmissibility(0.0)
     , m_connectionCount(0)
@@ -43,6 +42,9 @@ RicWellPathFractureReportItem::RicWellPathFractureReportItem(const QString& well
     , m_xf(0.0)
     , m_h(0.0)
     , m_km(0.0)
+    , m_performPressureDepletionScaling(false)
+    , m_pressureDepletionUserWBHP(0.0)
+    , m_pressureDepletionActualWBHP(0.0)
     , m_pressureDepletionMinPressureDrop(-1.0)
     , m_pressureDepletionMaxPressureDrop(-1.0)
 {
@@ -115,22 +117,6 @@ QString RicWellPathFractureReportItem::fractureTemplateName() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RicWellPathFractureReportItem::pressureDepletionScaling() const
-{
-    return m_pressureDepletionScalingString;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RicWellPathFractureReportItem::pressureDepletionWBHPString() const
-{
-    return m_pressureDepletionWBHPString;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RicWellPathFractureReportItem::setUnitSystem(RiaEclipseUnitTools::UnitSystem unitSystem)
 {
     m_unitSystem = unitSystem;
@@ -139,13 +125,15 @@ void RicWellPathFractureReportItem::setUnitSystem(RiaEclipseUnitTools::UnitSyste
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicWellPathFractureReportItem::setPressureDepletionParameters(QString scalingString, QString wbhpString, double userWBHP, double minPressureDrop, double maxPressureDrop)
+void RicWellPathFractureReportItem::setPressureDepletionParameters(bool performPDDScaling, QString timeStepString, QString wbhpString, double userWBHP, double actualWBHP, double minPressureDrop, double maxPressureDrop)
 {
-    m_pressureDepletionScalingString     = scalingString;
-    m_pressureDepletionWBHPString        = wbhpString;
-    m_pressureDepletionUserWBHP          = userWBHP;
-    m_pressureDepletionMinPressureDrop   = minPressureDrop;
-    m_pressureDepletionMaxPressureDrop   = maxPressureDrop;
+    m_performPressureDepletionScaling  = performPDDScaling;
+    m_pressureDepletionTimeStepString  = timeStepString;
+    m_pressureDepletionWBHPString      = wbhpString;
+    m_pressureDepletionUserWBHP        = userWBHP;
+    m_pressureDepletionActualWBHP      = actualWBHP;
+    m_pressureDepletionMinPressureDrop = minPressureDrop;
+    m_pressureDepletionMaxPressureDrop = maxPressureDrop;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -255,9 +243,41 @@ double RicWellPathFractureReportItem::kmxf() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RicWellPathFractureReportItem::performPressureDepletionScaling() const
+{
+    return m_performPressureDepletionScaling;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RicWellPathFractureReportItem::pressureDepletionTimeStepString() const
+{
+    return m_pressureDepletionTimeStepString;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RicWellPathFractureReportItem::pressureDepletionWBHPString() const
+{
+    return m_pressureDepletionWBHPString;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 double RicWellPathFractureReportItem::pressureDepletionUserWBHP() const
 {
     return m_pressureDepletionUserWBHP;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RicWellPathFractureReportItem::pressureDepletionActualWBHP() const
+{
+    return m_pressureDepletionActualWBHP;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -198,6 +198,7 @@ void RicCreateTemporaryLgrFeature::onActionTriggered(bool isChecked)
 void RicCreateTemporaryLgrFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setText("Create Temporary LGR");
+    actionToSetup->setIcon(QIcon(":/TempLGR16x16.png"));
 }
 
 //--------------------------------------------------------------------------------------------------

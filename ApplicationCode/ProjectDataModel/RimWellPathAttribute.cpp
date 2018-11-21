@@ -218,6 +218,13 @@ void RimWellPathAttribute::fieldChangedByUi(const caf::PdmFieldHandle* changedFi
             m_startMD = wellPath->wellPathGeometry()->measureDepths().front();
         }
     }
+    if (changedField == &m_startMD)
+    {
+        if (m_type() == RiaDefines::PACKER)
+        {
+            m_endMD = m_startMD + 50;
+        }
+    }
 
     {
         RimWellPathAttributeCollection* collection = nullptr;
@@ -237,9 +244,7 @@ void RimWellPathAttribute::fieldChangedByUi(const caf::PdmFieldHandle* changedFi
 void RimWellPathAttribute::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 { 
     bool startDepthAvailable = m_type() != RiaDefines::CASING;
-    bool endDepthAvailable = m_type() != RiaDefines::PACKER;
 
     m_startMD.uiCapability()->setUiReadOnly(!startDepthAvailable);    
-    m_endMD.uiCapability()->setUiReadOnly(!endDepthAvailable);
     m_diameterInInches.uiCapability()->setUiReadOnly(!isDiameterSupported());    
 }

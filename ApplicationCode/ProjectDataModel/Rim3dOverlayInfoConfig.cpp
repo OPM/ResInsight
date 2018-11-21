@@ -502,8 +502,8 @@ QString Rim3dOverlayInfoConfig::caseInfoText(RimEclipseView* eclipseView)
             QString totCellCount = QString::number(contourMap->contourMapProjection()->numberOfCells());
             cvf::uint validCellCount = contourMap->contourMapProjection()->numberOfValidCells();
             QString activeCellCountText = QString::number(validCellCount);
-            QString iSize = QString::number(contourMap->contourMapProjection()->mapSize().x());
-            QString jSize = QString::number(contourMap->contourMapProjection()->mapSize().y());
+            QString iSize = QString::number(contourMap->contourMapProjection()->numberOfElementsIJ().x());
+            QString jSize = QString::number(contourMap->contourMapProjection()->numberOfElementsIJ().y());
             QString aggregationType = contourMap->contourMapProjection()->resultAggregationText();
             QString weightingParameterString;
             if (contourMap->contourMapProjection()->weightingParameter() != "None")
