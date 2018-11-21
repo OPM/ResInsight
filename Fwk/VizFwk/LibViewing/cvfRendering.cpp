@@ -870,6 +870,11 @@ size_t Rendering::overlayItemCount() const
 void Rendering::addOverlayItem(OverlayItem* overlayItem)
 {
     CVF_ASSERT(overlayItem);
+
+    for (size_t i = 0; i < overlayItemCount(); i++)
+    {
+        if (this->overlayItem(i) == overlayItem) return;
+    }
     m_overlayItems.push_back(overlayItem);
 }
 
