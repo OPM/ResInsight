@@ -794,7 +794,7 @@ QString RimWellLogExtractionCurve::wellLogChannelName() const
     QString name;
     if (eclipseCase)
     {
-        name = caf::Utils::makeValidFileBasename( m_eclipseResultDefinition->resultVariableUiName());
+        name = caf::Utils::makeValidFileBasename( m_eclipseResultDefinition->resultVariableUiShortName());
     }
     else if (geoMechCase)
     {

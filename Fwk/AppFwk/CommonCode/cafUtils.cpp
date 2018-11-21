@@ -143,6 +143,7 @@ QString Utils::makeValidFileBasename(const QString& fileBasenameCandidate)
     cleanBasename.replace("|", "_");
     cleanBasename.replace("?", "_");
     cleanBasename.replace("*", "_");
+    cleanBasename.replace("\n", "_");
 
 
     cleanBasename.replace(QRegExp("_+"), "_");

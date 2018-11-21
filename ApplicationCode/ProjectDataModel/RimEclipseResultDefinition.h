@@ -163,15 +163,19 @@ private:
         bool operator()(const QString& lhs, const QString& rhs) const;
     };
 
-private:    
+private:
     void                            assignFlowSolutionFromCase();
 
     bool                            hasDualPorFractureResult();
 
+    QString                         flowDiagResUiText(bool shortLabel, int maxTracerStringLength = std::numeric_limits<int>::max()) const;
+
     QList<caf::PdmOptionItemInfo>   calcOptionsForVariableUiFieldStandard();
     QList<caf::PdmOptionItemInfo>   calcOptionsForSelectedTracerField(bool injector);
-    caf::PdmOptionItemInfo          calcTimeOfFlightOptionItem();
-    caf::PdmOptionItemInfo          calcMaxFractionTracerOptionItem();
+    QString                         timeOfFlightString(bool shorter) const;
+    QString                         maxFractionTracerString(bool shorter) const;
+
+    QString                         selectedTracersString() const;
 
     void                            changedTracerSelectionField(bool injector);
     QStringList                     getResultNamesForCurrentUiResultType();
