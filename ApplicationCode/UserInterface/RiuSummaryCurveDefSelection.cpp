@@ -421,13 +421,10 @@ void RiuSummaryCurveDefSelection::setDefaultSelection(const std::vector<SummaryS
     RimProject* proj = RiaApplication::instance()->project();
     auto allSumCases = proj->allSummaryCases();
     auto allSumGroups = proj->summaryGroups();
-    bool hasEnsembles = std::count_if(allSumGroups.begin(), allSumGroups.end(),
-                                      [](const RimSummaryCaseCollection* sumGroup) { return sumGroup->isEnsemble(); }) > 0;
 
     if (allSumCases.size() > 0)
     {
-        RifEclipseSummaryAddress defaultAddress = !hasEnsembles ?
-            RifEclipseSummaryAddress::fieldAddress("FOPT") : RifEclipseSummaryAddress();
+        RifEclipseSummaryAddress defaultAddress = RifEclipseSummaryAddress();
 
         std::vector<SummarySource*> selectTheseSources = defaultSources;
         if (selectTheseSources.empty()) selectTheseSources.push_back(allSumCases[0]);
