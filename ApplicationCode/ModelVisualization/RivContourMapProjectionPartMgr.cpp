@@ -97,7 +97,7 @@ void RivContourMapProjectionPartMgr::appendPickPointVisToModel(cvf::ModelBasicLi
 //--------------------------------------------------------------------------------------------------
 cvf::ref<cvf::Vec2fArray> RivContourMapProjectionPartMgr::createTextureCoords() const
 {
-    cvf::Vec2ui patchSize = m_contourMapProjection->vertexGridSize();
+    cvf::Vec2ui patchSize = m_contourMapProjection->numberOfVerticesIJ();
 
     cvf::ref<cvf::Vec2fArray> textureCoords = new cvf::Vec2fArray(m_contourMapProjection->numberOfVertices());
 
@@ -155,7 +155,7 @@ cvf::ref<cvf::DrawableGeo> RivContourMapProjectionPartMgr::createProjectionMapDr
 {
     cvf::ref<cvf::Vec3fArray> vertexArray = new cvf::Vec3fArray;
     m_contourMapProjection->generateVertices(vertexArray.p(), displayCoordTransform);
-    cvf::Vec2ui patchSize = m_contourMapProjection->vertexGridSize();
+    cvf::Vec2ui patchSize = m_contourMapProjection->numberOfVerticesIJ();
 
     // Surface
     cvf::ref<cvf::UIntArray> faceList = new cvf::UIntArray;
