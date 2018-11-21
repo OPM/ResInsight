@@ -305,7 +305,7 @@ void RimSummaryCurveAutoName::appendAddressDetails(std::string&                 
             if (m_wellSegmentNumber)
             {
                 if (!text.empty()) text += ":";
-                text += ":" + summaryAddress.wellSegmentNumber();
+                text += std::to_string(summaryAddress.wellSegmentNumber());
             }
         }
         break;
