@@ -344,6 +344,7 @@ RifEclipseSummaryAddress addressFromErtSmSpecNode(const smspec_node_type * ertSu
         case ECL_SMSPEC_SEGMENT_VAR:
         {
             sumCategory = RifEclipseSummaryAddress::SUMMARY_WELL_SEGMENT;
+            wellName = smspec_node_get_wgname(ertSumVarNode);
             wellSegmentNumber = smspec_node_get_num(ertSumVarNode);
         }
         break;
