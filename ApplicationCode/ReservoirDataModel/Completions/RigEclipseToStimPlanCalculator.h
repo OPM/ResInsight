@@ -54,7 +54,7 @@ public:
     // Truncated parts of the fracture are not included
     double totalEclipseAreaOpenForFlow() const;
 
-    double areaWeightedMatrixTransmissibility() const;
+    double areaWeightedMatrixPermeability() const;
     double areaWeightedWidth() const;
     double areaWeightedConductivity() const;
     double longestYSectionOpenForFlow() const;

@@ -33,7 +33,7 @@ public:
     void setData(double trans, size_t connCount, double area);
     void setWidthAndConductivity(double width, double conductivity);
     void setHeightAndHalfLength(double height, double halfLength);
-    void setAreaWeightedTransmissibility(double transmissibility);
+    void setAreaWeightedPermeability(double permeability);
     void setUnitSystem(RiaEclipseUnitTools::UnitSystem unitSystem);
     void setPressureDepletionParameters(bool performPressureDepletionScaling, QString timeStepString, QString wbhpString, double userWBHP, double actualWBHP, double minPressureDrop, double maxPressureDrop);
 
