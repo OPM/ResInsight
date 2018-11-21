@@ -338,7 +338,7 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
             // 2: Calculate new external transmissibilities
             scaledCondenser.calculateCondensedTransmissibilities();
 
-            { // 3: Høgstøl correction.
+            { // 3: Hï¿½gstï¿½l correction.
                 
                 // a. Calculate new effective fracture to well transmissiblities
                 std::map<size_t, double> fictitiousFractureToWellTransmissibilities =
@@ -720,10 +720,8 @@ void RicExportFractureCompletionsImpl::calculateAndSetReportItemData(
     const RigEclipseToStimPlanCalculator& eclToFractureCalc,
     RicWellPathFractureReportItem&        reportItem)
 {
-    double aggregatedTransmissibility = sumUpTransmissibilities(allCompletionsForOneFracture);
-
-    double areaWeightedMatrixTransmissibility = eclToFractureCalc.areaWeightedMatrixTransmissibility();
-    reportItem.setAreaWeightedTransmissibility(areaWeightedMatrixTransmissibility);
+    double areaWeightedMatrixPermeability = eclToFractureCalc.areaWeightedMatrixPermeability();
+    reportItem.setAreaWeightedPermeability(areaWeightedMatrixPermeability);
 
     double totalAreaOpenForFlow     = eclToFractureCalc.totalEclipseAreaOpenForFlow();
     double areaWeightedConductivity = eclToFractureCalc.areaWeightedConductivity();
@@ -741,6 +739,7 @@ void RicExportFractureCompletionsImpl::calculateAndSetReportItemData(
         reportItem.setHeightAndHalfLength(height, halfLength);
     }
 
+    double aggregatedTransmissibility = sumUpTransmissibilities(allCompletionsForOneFracture);
     reportItem.setData(aggregatedTransmissibility, allCompletionsForOneFracture.size(), totalAreaOpenForFlow);
 
     reportItem.setWidthAndConductivity(eclToFractureCalc.areaWeightedWidth(), areaWeightedConductivity);

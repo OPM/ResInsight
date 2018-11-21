@@ -73,6 +73,22 @@ const std::vector<double>& RigEclipseToStimPlanCellTransmissibilityCalculator::c
 }
 
 //--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const std::vector<double>& RigEclipseToStimPlanCellTransmissibilityCalculator::contributingEclipseCellIntersectionAreas() const
+{
+    return m_contributingEclipseCellAreas;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const std::vector<double>& RigEclipseToStimPlanCellTransmissibilityCalculator::contributingEclipseCellPermeabilities() const
+{
+    return m_contributingEclipseCellPermeabilities;
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 double RigEclipseToStimPlanCellTransmissibilityCalculator::areaOpenForFlow() const
@@ -280,6 +296,8 @@ void RigEclipseToStimPlanCellTransmissibilityCalculator::calculateStimPlanCellsM
             }
         }
 
+        double matrixPermeability = 0.0;
+
         if (isActive)
         {
             double permX = dataAccessObjectPermX->cellScalarGlobIdx(reservoirCellIndex);
@@ -305,11 +323,14 @@ void RigEclipseToStimPlanCellTransmissibilityCalculator::calculateStimPlanCellsM
 
             transmissibility = sqrt(transmissibility_X * transmissibility_X + transmissibility_Y * transmissibility_Y +
                                     transmissibility_Z * transmissibility_Z);
+
+            matrixPermeability = RigFractureTransmissibilityEquations::matrixPermeability(permX, permY, NTG);
         }
 
         m_globalIndiciesToContributingEclipseCells.push_back(reservoirCellIndex);
         m_contributingEclipseCellTransmissibilities.push_back(transmissibility);
         m_contributingEclipseCellAreas.push_back(fractureArea);
+        m_contributingEclipseCellPermeabilities.push_back(matrixPermeability);
     }
 }
 

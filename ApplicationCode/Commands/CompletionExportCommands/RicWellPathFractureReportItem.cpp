@@ -85,9 +85,9 @@ void RicWellPathFractureReportItem::setHeightAndHalfLength(double height, double
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicWellPathFractureReportItem::setAreaWeightedTransmissibility(double transmissibility)
+void RicWellPathFractureReportItem::setAreaWeightedPermeability(double permeability)
 {
-    m_km = transmissibility;
+    m_km = permeability;
 }
 
 //--------------------------------------------------------------------------------------------------

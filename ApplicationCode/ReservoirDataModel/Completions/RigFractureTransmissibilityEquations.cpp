@@ -179,6 +179,16 @@ double RigFractureTransmissibilityEquations::effectiveMatrixToWellTransPDDHC(dou
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+double RigFractureTransmissibilityEquations::matrixPermeability(double permx, double permy, double NTG)
+{
+    double permxy = cvf::Math::sqrt(permx * permy);
+
+    return permxy * NTG;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 double RigFractureTransmissibilityEquations::centerToEdgeFractureCellTrans(double conductivity, 
                                                                            double sideLengthParallellTrans, 
                                                                            double sideLengthNormalTrans, 

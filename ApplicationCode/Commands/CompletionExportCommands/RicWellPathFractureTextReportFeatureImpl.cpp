@@ -709,7 +709,6 @@ QString RicWellPathFractureTextReportFeatureImpl::createFracturePressureDepletio
     std::vector<RifEclipseOutputTableColumn> header = {
         RifEclipseOutputTableColumn("Well"),
         RifEclipseOutputTableColumn("Fracture"),
-        RifEclipseOutputTableColumn("WBHP Source"),
         RifEclipseOutputTableColumn("Actual WBHP"),
         RifEclipseOutputTableColumn("Min Pressure Drop"),
         RifEclipseOutputTableColumn("Max Pressure Drop")
@@ -724,6 +723,7 @@ QString RicWellPathFractureTextReportFeatureImpl::createFracturePressureDepletio
             if (!createdTable)
             {
                 formatter.comment(QString("Pressure Depletion Time step: %1").arg(reportItem.pressureDepletionTimeStepString()));
+                formatter.comment(QString("WBHP Source: %1").arg(reportItem.pressureDepletionWBHPString()));
                 formatter.comment(QString("User Defined WBHP: %1").arg(reportItem.pressureDepletionUserWBHP()));
 
                 formatter.header(header);
@@ -732,7 +732,6 @@ QString RicWellPathFractureTextReportFeatureImpl::createFracturePressureDepletio
             }
             formatter.add(reportItem.wellPathNameForExport());
             formatter.add(reportItem.fractureName());
-            formatter.add(reportItem.pressureDepletionWBHPString());
             formatter.add(reportItem.pressureDepletionActualWBHP());
             formatter.add(reportItem.pressureDepletionMinPressureDrop());
             formatter.add(reportItem.pressureDepletionMaxPressureDrop());

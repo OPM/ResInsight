@@ -144,15 +144,28 @@ double RigEclipseToStimPlanCalculator::totalEclipseAreaOpenForFlow() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RigEclipseToStimPlanCalculator::areaWeightedMatrixTransmissibility() const
+double RigEclipseToStimPlanCalculator::areaWeightedMatrixPermeability() const
 {
     RiaWeightedMeanCalculator<double> calc;
 
-    for (const auto& singleCellCalc : m_singleFractureCellCalculators)
     {
-        const RigEclipseToStimPlanCellTransmissibilityCalculator& calulator = singleCellCalc.second;
+        std::map<size_t, double> reservoirCellAndIntersectedArea;
 
-        calc.addValueAndWeight(calulator.aggregatedMatrixTransmissibility(), calulator.areaOpenForFlow());
+        for (const auto& singleCellCalc : m_singleFractureCellCalculators)
+        {
+            const RigEclipseToStimPlanCellTransmissibilityCalculator& calulator = singleCellCalc.second;
+
+            const std::vector<double>& areas          = calulator.contributingEclipseCellIntersectionAreas();
+            const std::vector<double>& permeabilities = calulator.contributingEclipseCellPermeabilities();
+
+            if (areas.size() == permeabilities.size())
+            {
+                for (size_t i = 0; i < areas.size(); i++)
+                {
+                    calc.addValueAndWeight(permeabilities[i], areas[i]);
+                }
+            }
+        }
     }
 
     return calc.weightedMean();
@@ -222,8 +235,8 @@ double RigEclipseToStimPlanCalculator::areaWeightedConductivity() const
 //--------------------------------------------------------------------------------------------------
 double RigEclipseToStimPlanCalculator::longestYSectionOpenForFlow() const
 {
-    // For each I, find the longest aggregated distance along J with continuous fracture cells with conductivity above zero
-    // connected to Eclipse cells open for flow
+    // For each I, find the longest aggregated distance along J with continuous fracture cells with conductivity above
+    // zero connected to Eclipse cells open for flow
 
     double longestRange = 0.0;
 
