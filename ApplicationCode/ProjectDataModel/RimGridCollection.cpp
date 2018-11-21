@@ -476,7 +476,10 @@ void RimGridCollection::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrder
     {
         uiTreeOrdering.add(m_persistentLgrs());
     }
-    uiTreeOrdering.add(m_temporaryLgrs());
+    if (hasTemporaryLgrs())
+    {
+        uiTreeOrdering.add(m_temporaryLgrs());
+    }
     uiTreeOrdering.skipRemainingChildren(true);
 }
 
@@ -505,3 +508,20 @@ bool RimGridCollection::hasPersistentLgrs() const
     }
     return false;
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimGridCollection::hasTemporaryLgrs() const
+{
+    auto mainGrid = this->mainGrid();
+    if (!mainGrid) return false;
+
+    for (size_t i = 1; i < mainGrid->gridCount(); i++)
+    {
+        const auto grid = mainGrid->gridByIndex(i);
+        if (grid->isTempGrid()) return true;
+    }
+    return false;
+}
+
