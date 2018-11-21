@@ -710,7 +710,6 @@ QString RicWellPathFractureTextReportFeatureImpl::createFracturePressureDepletio
         RifEclipseOutputTableColumn("Well"),
         RifEclipseOutputTableColumn("Fracture"),
         RifEclipseOutputTableColumn("WBHP Source"),
-        RifEclipseOutputTableColumn("User WBHP"),
         RifEclipseOutputTableColumn("Actual WBHP"),
         RifEclipseOutputTableColumn("Min Pressure Drop"),
         RifEclipseOutputTableColumn("Max Pressure Drop")
@@ -724,6 +723,9 @@ QString RicWellPathFractureTextReportFeatureImpl::createFracturePressureDepletio
         {
             if (!createdTable)
             {
+                formatter.comment(QString("Pressure Depletion Time step: %1").arg(reportItem.pressureDepletionTimeStepString()));
+                formatter.comment(QString("User Defined WBHP: %1").arg(reportItem.pressureDepletionUserWBHP()));
+
                 formatter.header(header);
                 formatter.addHorizontalLine('-');
                 createdTable = true;
@@ -731,7 +733,6 @@ QString RicWellPathFractureTextReportFeatureImpl::createFracturePressureDepletio
             formatter.add(reportItem.wellPathNameForExport());
             formatter.add(reportItem.fractureName());
             formatter.add(reportItem.pressureDepletionWBHPString());
-            formatter.add(reportItem.pressureDepletionUserWBHP());
             formatter.add(reportItem.pressureDepletionActualWBHP());
             formatter.add(reportItem.pressureDepletionMinPressureDrop());
             formatter.add(reportItem.pressureDepletionMaxPressureDrop());

@@ -35,7 +35,7 @@ public:
     void setHeightAndHalfLength(double height, double halfLength);
     void setAreaWeightedTransmissibility(double transmissibility);
     void setUnitSystem(RiaEclipseUnitTools::UnitSystem unitSystem);
-    void setPressureDepletionParameters(bool performPressureDepletionScaling, QString wbhpString, double userWBHP, double actualWBHP, double minPressureDrop, double maxPressureDrop);
+    void setPressureDepletionParameters(bool performPressureDepletionScaling, QString timeStepString, QString wbhpString, double userWBHP, double actualWBHP, double minPressureDrop, double maxPressureDrop);
 
     QString wellPathNameForExport() const;
     QString fractureName() const;
@@ -58,6 +58,7 @@ public:
     double kmxf() const;
 
     bool    performPressureDepletionScaling() const;
+    QString pressureDepletionTimeStepString() const;
     QString pressureDepletionWBHPString() const;
     double  pressureDepletionUserWBHP() const;
     double  pressureDepletionActualWBHP() const;
@@ -85,6 +86,7 @@ private:
     double m_km;
 
     bool    m_performPressureDepletionScaling;
+    QString m_pressureDepletionTimeStepString;
     QString m_pressureDepletionWBHPString;
     double  m_pressureDepletionUserWBHP;
     double  m_pressureDepletionActualWBHP;

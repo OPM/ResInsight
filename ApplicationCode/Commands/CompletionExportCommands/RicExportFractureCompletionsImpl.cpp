@@ -360,6 +360,7 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
                 wellPathName, fracture->name(), fracTemplate->name(), fracture->fractureMD());
             reportItem.setUnitSystem(fracTemplate->fractureTemplateUnit());
             reportItem.setPressureDepletionParameters(performPressureDepletionScaling,
+                caseToApply->timeStepStrings()[pdParams.pressureScalingTimeStep],
                 caf::AppEnum<PressureDepletionWBHPSource>::uiTextFromIndex(pdParams.wbhpSource),
                 pdParams.userWBHP, currentWellPressure, minPressureDrop, maxPressureDrop);
 
