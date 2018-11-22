@@ -51,6 +51,7 @@
 #include "RiuSummaryCurveDefSelection.h"
 #include "RiuSummaryQwtPlot.h"
 #include "RiuTools.h"
+#include "RiuPlotMainWindow.h"
 
 #include "cafPdmUiComboBoxEditor.h"
 #include "cafPdmUiPushButtonEditor.h"
@@ -903,6 +904,9 @@ void RicSummaryCurveCreator::createNewPlot()
 
             m_targetPlot = newSummaryPlot;
             updateTargetPlot();
+
+            RiuPlotMainWindow* mainPlotWindow = RiaApplication::instance()->mainPlotWindow();
+            mainPlotWindow->updateSummaryPlotToolBar();
         }
     }
 }
