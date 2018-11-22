@@ -20,6 +20,7 @@
 
 #include "RiaApplication.h"
 #include "RiaFilePathTools.h"
+#include "RiaFractureDefines.h"
 #include "RiaLogging.h"
 #include "RiaPreferences.h"
 
@@ -2394,10 +2395,15 @@ double RicWellPathExportCompletionDataFeatureImpl::calculateDFactor(RimEclipseCa
 {
     using EQ = RigPerforationTransmissibilityEquations;
 
+    if (!eclipseCase || !eclipseCase->eclipseCaseData())
+    {
+        return std::numeric_limits<double>::infinity();
+    }
+
+    RigEclipseCaseData* eclipseCaseData = eclipseCase->eclipseCaseData();
+
     double porosity = 0.0;
     {
-        RigEclipseCaseData* eclipseCaseData = eclipseCase->eclipseCaseData();
-
         eclipseCase->results(RiaDefines::MATRIX_MODEL)->findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, "PORO");
         cvf::ref<RigResultAccessor> poroAccessObject =
             RigResultAccessorFactory::createFromUiResultName(eclipseCaseData, 0, RiaDefines::MATRIX_MODEL, 0, "PORO");
@@ -2414,7 +2420,9 @@ double RicWellPathExportCompletionDataFeatureImpl::calculateDFactor(RimEclipseCa
                                              porosity,
                                              nonDarcyParameters->porosityScalingFactor());
 
-    return EQ::dFactor(nonDarcyParameters->unitConstant(),
+    const double alpha = RiaDefines::nonDarcyFlowAlpha(eclipseCaseData->unitsType());
+
+    return EQ::dFactor(alpha,
                        betaFactor,
                        effectivePermeability,
                        internalCellLengths.length(),

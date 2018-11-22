@@ -27,5 +27,5 @@ namespace RiaDefines
 QString conductivityResultName();
 QString unitStringConductivity(RiaEclipseUnitTools::UnitSystem unitSystem);
 
-double nonDarcyFlowAlpha(RiaEclipseUnitTools::UnitSystem unitSystem); 
-};
+double nonDarcyFlowAlpha(RiaEclipseUnitTools::UnitSystem unitSystem);
+}; // namespace RiaDefines

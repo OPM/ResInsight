@@ -27,27 +27,37 @@ QString RiaDefines::conductivityResultName()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString RiaDefines::unitStringConductivity(RiaEclipseUnitTools::UnitSystem unitSystem)
 {
     switch (unitSystem)
     {
-        case RiaEclipseUnitTools::UNITS_METRIC:     return "md-m";
-        case RiaEclipseUnitTools::UNITS_FIELD:      return "md-ft";
-        default:                                    return "";
+        case RiaEclipseUnitTools::UNITS_METRIC:
+            return "md-m";
+        case RiaEclipseUnitTools::UNITS_FIELD:
+            return "md-ft";
+        default:
+            return "";
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 double RiaDefines::nonDarcyFlowAlpha(RiaEclipseUnitTools::UnitSystem unitSystem)
 {
     switch (unitSystem)
     {
-        case RiaEclipseUnitTools::UNITS_METRIC: return 2.24460e-10;
-        case RiaEclipseUnitTools::UNITS_FIELD:  return 6.83352e-8;
-        default: return 0.0;
+        case RiaEclipseUnitTools::UNITS_METRIC:
+            return 2.24460e-10;
+        case RiaEclipseUnitTools::UNITS_FIELD:
+            return 6.83352e-8;
+        case RiaEclipseUnitTools::UNITS_LAB:
+            return 5.41375E-11;
+            // case RiaEclipseUnitTools::PVT_METRIC:  return 2.25533E-10;
+
+        default:
+            return 0.0;
     }
 }
