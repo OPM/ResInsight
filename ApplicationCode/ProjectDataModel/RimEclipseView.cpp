@@ -1139,7 +1139,7 @@ void RimEclipseView::updateMinMaxValuesAndAddLegendToView(QString legendLabel,
 
     if (resultColors->hasResult() && resultColors->legendConfig()->showLegend())
     {
-        resultColors->legendConfig()->setTitle(legendLabel + resultColors->resultVariableUiShortName());
+        resultColors->legendConfig()->setTitle(legendLabel + resultColors->resultVariableUiName());
         m_viewer->addColorLegendToBottomLeftCorner(resultColors->legendConfig()->titledOverlayFrame());
     }
 

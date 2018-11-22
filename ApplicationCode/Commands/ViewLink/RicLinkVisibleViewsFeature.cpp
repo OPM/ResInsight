@@ -23,9 +23,10 @@
 
 #include "RicLinkVisibleViewsFeatureUi.h"
 
-#include "RimViewController.h"
-#include "RimProject.h"
+#include "RimContourMapView.h"
 #include "RimGridView.h"
+#include "RimProject.h"
+#include "RimViewController.h"
 #include "RimViewLinker.h"
 #include "RimViewLinkerCollection.h"
 
@@ -147,6 +148,15 @@ void RicLinkVisibleViewsFeature::linkViews(std::vector<RimGridView*>& views)
     RimProject* proj = RiaApplication::instance()->project();
     RimViewLinker* viewLinker = proj->viewLinkerCollection->viewLinker();
 
+    std::vector<RimGridView*> masterCandidates;
+    for (RimGridView* view : views)
+    {
+        if (dynamic_cast<RimContourMapView*>(view) == nullptr)
+        {
+            masterCandidates.push_back(view);
+        }
+    }
+
     if (!viewLinker)
     {
         // Create a new view linker
@@ -155,15 +165,20 @@ void RicLinkVisibleViewsFeature::linkViews(std::vector<RimGridView*>& views)
         {
             return;
         }
+        CVF_ASSERT(!masterCandidates.empty());
 
-        RicLinkVisibleViewsFeatureUi featureUi;
-        featureUi.setViews(views);
+        RimGridView* masterView = masterCandidates.front();
+        if (masterCandidates.size() > 1u)
+        {
+            RicLinkVisibleViewsFeatureUi featureUi;
+            featureUi.setViews(masterCandidates);
 
-        caf::PdmUiPropertyViewDialog propertyDialog(nullptr, &featureUi, "Select Master View", "");
-        propertyDialog.setWindowIcon(QIcon(":/chain.png"));
-        if (propertyDialog.exec() != QDialog::Accepted) return;
+            caf::PdmUiPropertyViewDialog propertyDialog(nullptr, &featureUi, "Select Master View", "");
+            propertyDialog.setWindowIcon(QIcon(":/chain.png"));
+            if (propertyDialog.exec() != QDialog::Accepted) return;
 
-        RimGridView* masterView = featureUi.masterView();
+            masterView = featureUi.masterView();
+        }
         viewLinker = new RimViewLinker;
         proj->viewLinkerCollection()->viewLinker = viewLinker;
         viewLinker->setMasterView(masterView);

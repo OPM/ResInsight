@@ -70,6 +70,7 @@ public:
     std::vector<RimWellPathValve*>      valves() const;
 
     // RimWellPathCompletionInterface overrides
+    bool                                isEnabled() const override;
     RiaDefines::WellPathComponentType   componentType() const override;
     QString                             componentLabel() const override;
     QString                             componentTypeLabel() const override;

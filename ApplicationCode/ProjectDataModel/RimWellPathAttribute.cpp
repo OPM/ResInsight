@@ -94,6 +94,16 @@ void RimWellPathAttribute::setDepthsFromWellPath(const RimWellPath* wellPath)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RimWellPathAttribute::isEnabled() const
+{
+    RimWellPathAttributeCollection* collection = nullptr;
+    this->firstAncestorOrThisOfTypeAsserted(collection);
+    return collection->isChecked();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RiaDefines::WellPathComponentType RimWellPathAttribute::componentType() const
 {
     return m_type();
@@ -217,12 +227,16 @@ void RimWellPathAttribute::fieldChangedByUi(const caf::PdmFieldHandle* changedFi
             this->firstAncestorOrThisOfTypeAsserted(wellPath);
             m_startMD = wellPath->wellPathGeometry()->measureDepths().front();
         }
+        else if (m_type() == RiaDefines::PACKER)
+        {
+            m_endMD = m_startMD + 2;
+        }
     }
     if (changedField == &m_startMD)
     {
         if (m_type() == RiaDefines::PACKER)
         {
-            m_endMD = m_startMD + 50;
+            m_endMD = m_startMD + 2;
         }
     }
 

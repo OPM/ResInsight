@@ -138,7 +138,7 @@ QString Rim3dWellLogExtractionCurve::resultPropertyString() const
     QString name;
     if (eclipseCase)
     {
-        name = caf::Utils::makeValidFileBasename(m_eclipseResultDefinition->resultVariableUiName());
+        name = caf::Utils::makeValidFileBasename(m_eclipseResultDefinition->resultVariableUiShortName());
     }
     else if (geoMechCase)
     {

@@ -1799,7 +1799,6 @@ void RimWellLogTrack::updateWellPathAttributesOnPlot()
             m_wellPathAttributePlotObjects.push_back(std::unique_ptr<RiuWellPathComponentPlotItem>(new RiuWellPathComponentPlotItem(wellPathAttributeSource())));
         }
 
-
         if (m_showWellPathAttributes)
         {
             if (m_wellPathAttributeCollection)
@@ -1813,13 +1812,16 @@ void RimWellLogTrack::updateWellPathAttributesOnPlot()
                 std::set<QString> attributesAssignedToLegend;
                 for (RimWellPathAttribute* attribute : attributes)
                 {
-                    std::unique_ptr<RiuWellPathComponentPlotItem> plotItem(new RiuWellPathComponentPlotItem(wellPathAttributeSource(), attribute));
-                    QString legendTitle = plotItem->legendTitle();
-                    bool contributeToLegend = m_wellPathAttributesInLegend() &&
-                        !attributesAssignedToLegend.count(legendTitle);
-                    plotItem->setContributeToLegend(contributeToLegend);
-                    m_wellPathAttributePlotObjects.push_back(std::move(plotItem));
-                    attributesAssignedToLegend.insert(legendTitle);
+                    if (attribute->isEnabled())
+                    {
+                        std::unique_ptr<RiuWellPathComponentPlotItem> plotItem(new RiuWellPathComponentPlotItem(wellPathAttributeSource(), attribute));
+                        QString legendTitle = plotItem->legendTitle();
+                        bool contributeToLegend = m_wellPathAttributesInLegend() &&
+                            !attributesAssignedToLegend.count(legendTitle);
+                        plotItem->setContributeToLegend(contributeToLegend);
+                        m_wellPathAttributePlotObjects.push_back(std::move(plotItem));
+                        attributesAssignedToLegend.insert(legendTitle);
+                    }
                 }
             }
         }
@@ -1831,13 +1833,16 @@ void RimWellLogTrack::updateWellPathAttributesOnPlot()
             std::set<QString> completionsAssignedToLegend;
             for (const RimWellPathComponentInterface* completion : allCompletions)
             {
-                std::unique_ptr<RiuWellPathComponentPlotItem> plotItem(new RiuWellPathComponentPlotItem(wellPathAttributeSource(), completion));
-                QString legendTitle = plotItem->legendTitle();
-                bool contributeToLegend = m_wellPathCompletionsInLegend() &&
-                    !completionsAssignedToLegend.count(legendTitle);
-                plotItem->setContributeToLegend(contributeToLegend);
-                m_wellPathAttributePlotObjects.push_back(std::move(plotItem));
-                completionsAssignedToLegend.insert(legendTitle);
+                if (completion->isEnabled())
+                {
+                    std::unique_ptr<RiuWellPathComponentPlotItem> plotItem(new RiuWellPathComponentPlotItem(wellPathAttributeSource(), completion));
+                    QString legendTitle = plotItem->legendTitle();
+                    bool contributeToLegend = m_wellPathCompletionsInLegend() &&
+                        !completionsAssignedToLegend.count(legendTitle);
+                    plotItem->setContributeToLegend(contributeToLegend);
+                    m_wellPathAttributePlotObjects.push_back(std::move(plotItem));
+                    completionsAssignedToLegend.insert(legendTitle);
+                }
             }
         }
 

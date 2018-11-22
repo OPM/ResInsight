@@ -17,6 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 #include "RimWellPathAttributeCollection.h"
 
+#include "RimProject.h"
 #include "RimWellPathAttribute.h"
 #include "RimWellLogTrack.h"
 
@@ -37,6 +38,7 @@ RimWellPathAttributeCollection::RimWellPathAttributeCollection()
     m_attributes.uiCapability()->setUiEditorTypeName(caf::PdmUiTableViewEditor::uiEditorTypeName());
     m_attributes.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::TOP);
     m_attributes.uiCapability()->setCustomContextMenuEnabled(true);
+    this->setName("Casing Design");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -156,4 +158,21 @@ void RimWellPathAttributeCollection::defineUiOrdering(QString uiConfigName, caf:
 void RimWellPathAttributeCollection::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/)
 {
     uiTreeOrdering.skipRemainingChildren(true);
+}
+
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellPathAttributeCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
+                                                      const QVariant&            oldValue,
+                                                      const QVariant&            newValue)
+{
+    if (changedField == this->objectToggleField())
+    {
+        RimProject* proj;
+        this->firstAncestorOrThisOfTypeAsserted(proj);
+        proj->scheduleCreateDisplayModelAndRedrawAllViews();
+        this->updateAllReferringTracks();
+    }
 }

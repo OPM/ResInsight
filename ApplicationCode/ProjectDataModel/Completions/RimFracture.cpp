@@ -39,6 +39,7 @@
 #include "RimReservoirCellResultsStorage.h"
 #include "RimStimPlanColors.h"
 #include "RimStimPlanFractureTemplate.h"
+#include "RimWellPathFractureCollection.h"
 
 #include "RivWellFracturePartMgr.h"
 
@@ -284,6 +285,16 @@ void RimFracture::ensureValidNonDarcyProperties()
 void RimFracture::clearCachedNonDarcyProperties()
 {
     m_cachedFractureProperties = NonDarcyData();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimFracture::isEnabled() const
+{
+    RimWellPathFractureCollection* fractureCollection = nullptr;
+    this->firstAncestorOrThisOfTypeAsserted(fractureCollection);
+    return fractureCollection->isChecked() && isChecked();
 }
 
 //--------------------------------------------------------------------------------------------------

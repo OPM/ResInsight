@@ -83,7 +83,7 @@ public:
                                                                      const cvf::Vec3d& lengthsInCell);
 
     static std::pair<double, double>
-        calculateTransmissibilityAndPermeability(RimEclipseCase*    eclipseCase,
+        calculateTransmissibilityAndKh(RimEclipseCase*    eclipseCase,
                                                  const RimWellPath* wellPath,
                                                  const cvf::Vec3d&  internalCellLengths,
                                                  double             skinFactor,

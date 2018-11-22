@@ -49,14 +49,6 @@ RimNonDarcyPerforationParameters::RimNonDarcyPerforationParameters()
 
     CAF_PDM_InitField(&m_userDefinedDFactor, "UserDefinedDFactor", 1.0, "D Factor", "", "", "");
 
-    CAF_PDM_InitField(&m_unitConstant,
-                      "UnitConstant",
-                      1.0,
-                      "<html> Unit Constant (&alpha;)</html>",
-                      "",
-                      "<html>Unit:[cP*Day*m<sup>2</sup>/(Forch*mD*Sm<sup>3</sup>)]</html>",
-                      "");
-
     CAF_PDM_InitField(&m_gridPermeabilityScalingFactor,
                       "GridPermeabilityScalingFactor",
                       1.0,
@@ -65,7 +57,7 @@ RimNonDarcyPerforationParameters::RimNonDarcyPerforationParameters()
                       "",
                       "");
 
-    CAF_PDM_InitField(&m_wellRadius, "WellRadius", 0.15, "<html>Well Radius (r<sub>w</sub>)</html> [m]", "", "", "");
+    CAF_PDM_InitField(&m_wellRadius, "WellRadius", 0.108, "<html>Well Radius (r<sub>w</sub>)</html> [m]", "", "", "");
 
     CAF_PDM_InitField(&m_relativeGasDensity,
                       "RelativeGasDensity",
@@ -115,14 +107,6 @@ RimNonDarcyPerforationParameters::NonDarcyFlowEnum RimNonDarcyPerforationParamet
 double RimNonDarcyPerforationParameters::userDefinedDFactor() const
 {
     return m_userDefinedDFactor;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-double RimNonDarcyPerforationParameters::unitConstant() const
-{
-    return m_unitConstant;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -210,7 +194,6 @@ void RimNonDarcyPerforationParameters::defineUiOrdering(QString uiConfigName, ca
     {
         {
             auto group = nonDarcyFlowGroup->addNewGroup("Parameters");
-            group->add(&m_unitConstant);
             group->add(&m_gridPermeabilityScalingFactor);
             group->add(&m_wellRadius);
             group->add(&m_relativeGasDensity);

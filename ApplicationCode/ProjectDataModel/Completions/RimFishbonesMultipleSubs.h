@@ -110,6 +110,7 @@ public:
     cvf::BoundingBox boundingBoxInDomainCoords() const override;
 
     // Overrides from RimWellPathCompletionsInterface
+    bool                              isEnabled() const override;
     RiaDefines::WellPathComponentType componentType() const override;
     QString                           componentLabel() const override;
     QString                           componentTypeLabel() const override;

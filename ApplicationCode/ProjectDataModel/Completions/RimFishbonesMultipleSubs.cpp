@@ -633,6 +633,17 @@ cvf::BoundingBox RimFishbonesMultipleSubs::boundingBoxInDomainCoords() const
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimFishbonesMultipleSubs::isEnabled() const
+{
+    RimFishbonesCollection* collection;
+    this->firstAncestorOrThisOfTypeAsserted(collection);
+
+    return collection->isChecked() && isActive();
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void RimFishbonesMultipleSubs::computeRotationAngles()
