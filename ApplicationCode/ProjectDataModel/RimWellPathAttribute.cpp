@@ -217,6 +217,10 @@ void RimWellPathAttribute::fieldChangedByUi(const caf::PdmFieldHandle* changedFi
             this->firstAncestorOrThisOfTypeAsserted(wellPath);
             m_startMD = wellPath->wellPathGeometry()->measureDepths().front();
         }
+        else if (m_type() == RiaDefines::PACKER)
+        {
+            m_endMD = m_startMD + 50;
+        }
     }
     if (changedField == &m_startMD)
     {

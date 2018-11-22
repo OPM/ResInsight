@@ -208,8 +208,7 @@ void RivWellPathPartMgr::appendWellPathAttributesToModel(cvf::ModelBasicList*   
         {
             double wellPathRadius = this->wellPathRadius(characteristicCellSize, this->wellPathCollection());
             double startMD = attribute->startMD();
-            double packerLength = wellPathRadius;
-            double endMD = attribute->startMD() + packerLength;
+            double endMD = attribute->endMD();
 
             std::vector<cvf::Vec3d> displayCoords;
             displayCoords.push_back(displayCoordTransform->transformToDisplayCoord(m_rimWellPath->wellPathGeometry()->interpolatedPointAlongWellPath(startMD)));
