@@ -220,8 +220,8 @@ void RivWellPathPartMgr::appendWellPathAttributesToModel(cvf::ModelBasicList*   
 
                 std::vector<double> radii;
                 radii.push_back(wellPathRadius);
-                radii.push_back(wellPathRadius * 2.5);
-                radii.push_back(wellPathRadius * 2.5);
+                radii.push_back(wellPathRadius * 1.5);
+                radii.push_back(wellPathRadius * 1.5);
                 radii.push_back(wellPathRadius);
 
                 cvf::ref<RivObjectSourceInfo> objectSourceInfo = new RivObjectSourceInfo(attribute);

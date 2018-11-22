@@ -229,14 +229,14 @@ void RimWellPathAttribute::fieldChangedByUi(const caf::PdmFieldHandle* changedFi
         }
         else if (m_type() == RiaDefines::PACKER)
         {
-            m_endMD = m_startMD + 50;
+            m_endMD = m_startMD + 2;
         }
     }
     if (changedField == &m_startMD)
     {
         if (m_type() == RiaDefines::PACKER)
         {
-            m_endMD = m_startMD + 50;
+            m_endMD = m_startMD + 2;
         }
     }
 
