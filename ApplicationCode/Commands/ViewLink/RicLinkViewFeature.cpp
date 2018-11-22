@@ -23,9 +23,10 @@
 
 #include "RicLinkVisibleViewsFeature.h"
 
-#include "RimProject.h"
 #include "Rim3dView.h"
+#include "RimContourMapView.h"
 #include "RimGridView.h"
+#include "RimProject.h"
 #include "RimViewLinkerCollection.h"
 #include "RimViewLinker.h"
 
@@ -42,9 +43,14 @@ bool RicLinkViewFeature::isCommandEnabled()
 {
     std::vector<caf::PdmUiItem*> allSelectedItems;
     std::vector<RimGridView*> selectedGridViews;
+    std::vector<RimContourMapView*> selectedContourMaps;
+
     caf::SelectionManager::instance()->selectedItems(allSelectedItems);
     caf::SelectionManager::instance()->objectsByType(&selectedGridViews);
-    if (selectedGridViews.size() > 1u && allSelectedItems.size() == selectedGridViews.size())
+    caf::SelectionManager::instance()->objectsByType(&selectedContourMaps);
+    size_t selectedRegularGridViews = selectedGridViews.size() - selectedContourMaps.size();
+
+    if (selectedGridViews.size() > 1u && selectedRegularGridViews >= 1u && allSelectedItems.size() == selectedGridViews.size())
     {
         return true;
     }
@@ -80,8 +86,10 @@ void RicLinkViewFeature::onActionTriggered(bool isChecked)
 {
     std::vector<caf::PdmUiItem*> allSelectedItems;
     std::vector<RimGridView*> selectedGridViews;
+
     caf::SelectionManager::instance()->selectedItems(allSelectedItems);
     caf::SelectionManager::instance()->objectsByType(&selectedGridViews);
+
     if (selectedGridViews.size() > 1u && allSelectedItems.size() == selectedGridViews.size())
     {
         RicLinkVisibleViewsFeature::linkViews(selectedGridViews);

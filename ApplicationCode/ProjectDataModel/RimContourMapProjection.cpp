@@ -658,8 +658,8 @@ void RimContourMapProjection::defineUiOrdering(QString uiConfigName, caf::PdmUiO
 {
     caf::PdmUiGroup* mainGroup = uiOrdering.addNewGroup("Projection Settings");
     mainGroup->add(&m_relativeSampleSpacing);
-    mainGroup->add(&m_resultAggregation);
     mainGroup->add(&m_showContourLines);
+    mainGroup->add(&m_resultAggregation);
 
     caf::PdmUiGroup* weightingGroup = uiOrdering.addNewGroup("Mean Weighting Options");
     weightingGroup->add(&m_weightByParameter);
