@@ -23,6 +23,7 @@
 #include "RigCaseCellResultsData.h"
 #include "RigWellPath.h"
 
+#include "RimPerforationCollection.h"
 #include "RimProject.h"
 #include "RimWellPath.h"
 #include "RimWellPathValve.h"
@@ -230,6 +231,16 @@ std::vector<RimWellPathValve*> RimPerforationInterval::valves() const
         allValves.push_back(valve);
     }
     return allValves;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimPerforationInterval::isEnabled() const
+{
+    RimPerforationCollection* perforationCollection;
+    this->firstAncestorOrThisOfTypeAsserted(perforationCollection);
+    return perforationCollection->isChecked() && isChecked();
 }
 
 //--------------------------------------------------------------------------------------------------

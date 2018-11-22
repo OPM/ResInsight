@@ -46,6 +46,7 @@ public:
     void           setDepthsFromWellPath(const RimWellPath* wellPath);
 
     // Overrides from RimWellPathCompletionInterface
+    bool                              isEnabled() const override;
     RiaDefines::WellPathComponentType componentType() const override;
     QString                           componentLabel() const override;
     QString                           componentTypeLabel() const override;   
@@ -54,9 +55,9 @@ public:
     double                            endMD() const override;
 
 private:
-    bool                                  isDiameterSupported() const;
+    bool                          isDiameterSupported() const;
     QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
-    static QString                        generateInchesLabel(double diameter);
+    static QString                generateInchesLabel(double diameter);
     void                          fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
     void                          defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
 

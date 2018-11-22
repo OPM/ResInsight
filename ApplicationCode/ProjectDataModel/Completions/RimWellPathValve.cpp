@@ -106,6 +106,16 @@ std::vector<double> RimWellPathValve::valveLocations() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RimWellPathValve::isEnabled() const
+{
+    RimPerforationInterval* perforationInterval = nullptr;
+    this->firstAncestorOrThisOfType(perforationInterval);
+    return perforationInterval->isEnabled() && isChecked();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RiaDefines::WellPathComponentType RimWellPathValve::componentType() const
 {
     return m_type();

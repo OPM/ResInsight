@@ -31,6 +31,7 @@
 class RimWellPathComponentInterface
 {
 public:
+    virtual bool                              isEnabled() const = 0;
     virtual RiaDefines::WellPathComponentType componentType() const = 0;
     virtual QString                           componentLabel() const = 0;
     virtual QString                           componentTypeLabel() const = 0;

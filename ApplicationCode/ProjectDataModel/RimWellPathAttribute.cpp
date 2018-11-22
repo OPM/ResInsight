@@ -94,6 +94,16 @@ void RimWellPathAttribute::setDepthsFromWellPath(const RimWellPath* wellPath)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RimWellPathAttribute::isEnabled() const
+{
+    RimWellPathAttributeCollection* collection = nullptr;
+    this->firstAncestorOrThisOfTypeAsserted(collection);
+    return collection->isChecked();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RiaDefines::WellPathComponentType RimWellPathAttribute::componentType() const
 {
     return m_type();

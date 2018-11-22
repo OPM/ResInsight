@@ -46,6 +46,7 @@ public:
     std::vector<double>        valveLocations() const;
 
     // Overrides from RimWellPathCompletionInterface
+    bool                              isEnabled() const override;
     RiaDefines::WellPathComponentType componentType() const override;
     QString                           componentLabel() const override;
     QString                           componentTypeLabel() const override;
