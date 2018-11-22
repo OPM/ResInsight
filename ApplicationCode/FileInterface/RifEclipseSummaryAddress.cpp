@@ -520,6 +520,26 @@ RifEclipseSummaryAddress RifEclipseSummaryAddress::ensembleStatisticsAddress(con
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+bool RifEclipseSummaryAddress::isDependentOnWellName(const RifEclipseSummaryAddress& address)
+{
+    // clang-format off
+    if (address.category() == SUMMARY_WELL ||
+        address.category() == SUMMARY_WELL_COMPLETION ||
+        address.category() == SUMMARY_WELL_COMPLETION_LGR || 
+        address.category() == SUMMARY_WELL_LGR ||
+        address.category() == SUMMARY_WELL_SEGMENT)
+    {
+        return true;
+    }
+
+    // clang-format on
+
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 const std::string RifEclipseSummaryAddress::ensembleStatisticsQuantityName() const
 {
     QString qName = QString::fromStdString(m_quantityName);
