@@ -18,9 +18,6 @@
 
 #include "RigTransmissibilityEquations.h"
 
-#include "cvfBase.h"
-#include "cvfMath.h"
-
 #include <cmath>
 #include <limits>
 
@@ -60,19 +57,26 @@ double RigTransmissibilityEquations::totalConnectionFactor(double transX, double
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RigTransmissibilityEquations::totalPermeability(const double permx, const double permy, const double permz)
+double RigTransmissibilityEquations::totalPermeability(double            cellPermX,
+                                                       double            cellPermY,
+                                                       double            cellPermZ,
+                                                       const cvf::Vec3d& internalCellLengths,
+                                                       double            lateralNtg,
+                                                       double            ntg)
 {
-    const double kx = cvf::Math::sqrt(permy * permz);
-    const double ky = cvf::Math::sqrt(permx * permz);
-    const double kz = cvf::Math::sqrt(permy * permx);
+    // Compute kh for each local grid cell axis
+    // Use permeability values for the two other axis
+    double khx = sqrt(cellPermY * cellPermZ) * internalCellLengths.x() * lateralNtg;
+    double khy = sqrt(cellPermX * cellPermZ) * internalCellLengths.y() * lateralNtg;
+    double khz = sqrt(cellPermX * cellPermY) * internalCellLengths.z() * ntg;
 
-    const double totalPerm = cvf::Math::sqrt(kx * kx + ky * ky + kz * kz);
+    const double totalKh = cvf::Math::sqrt(khx * khx + khy * khy + khz * khz);
 
-    return totalPerm;
+    return totalKh;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 double RigTransmissibilityEquations::permeability(const double conductivity, const double width)
 {

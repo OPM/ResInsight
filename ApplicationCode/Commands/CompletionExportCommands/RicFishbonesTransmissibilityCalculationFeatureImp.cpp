@@ -131,7 +131,7 @@ std::vector<RigCompletionData>
             {
                 // No change in transmissibility for main bore
                 auto transmissibilityAndPermeability =
-                    RicWellPathExportCompletionDataFeatureImpl::calculateTransmissibilityAndPermeability(
+                    RicWellPathExportCompletionDataFeatureImpl::calculateTransmissibilityAndKh(
                         settings.caseToApply,
                         wellPath,
                         wellBorePart.lengthsInCell,
@@ -146,7 +146,7 @@ std::vector<RigCompletionData>
             {
                 // Adjust transmissibility for fishbone laterals
                 auto transmissibilityAndPermeability =
-                    RicWellPathExportCompletionDataFeatureImpl::calculateTransmissibilityAndPermeability(
+                    RicWellPathExportCompletionDataFeatureImpl::calculateTransmissibilityAndKh(
                         settings.caseToApply,
                         wellPath,
                         wellBorePart.lengthsInCell,
