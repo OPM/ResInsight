@@ -57,7 +57,7 @@ RimNonDarcyPerforationParameters::RimNonDarcyPerforationParameters()
                       "",
                       "");
 
-    CAF_PDM_InitField(&m_wellRadius, "WellRadius", 0.15, "<html>Well Radius (r<sub>w</sub>)</html> [m]", "", "", "");
+    CAF_PDM_InitField(&m_wellRadius, "WellRadius", 0.108, "<html>Well Radius (r<sub>w</sub>)</html> [m]", "", "", "");
 
     CAF_PDM_InitField(&m_relativeGasDensity,
                       "RelativeGasDensity",
