@@ -31,8 +31,8 @@ RimWellPathTarget::RimWellPathTarget()
     CAF_PDM_InitField(&m_isEnabled, "IsEnabled", true, "", "", "", "");
     //m_targetType.uiCapability()->setUiHidden(true);
     CAF_PDM_InitFieldNoDefault(&m_targetPoint, "TargetPoint", "Point", "", "", "");
-    CAF_PDM_InitField(&m_dogleg1, "Dogleg1", 3.0, "DL in", "", "", "");
-    CAF_PDM_InitField(&m_dogleg2, "Dogleg2", 3.0, "DL out", "", "", "");
+    CAF_PDM_InitField(&m_dogleg1, "Dogleg1", 3.0, "DL in", "", "[deg/30m]", "");
+    CAF_PDM_InitField(&m_dogleg2, "Dogleg2", 3.0, "DL out", "", "[deg/30m]", "");
     CAF_PDM_InitFieldNoDefault(&m_targetType, "TargetType", "Type", "", "", "");
     m_targetType.uiCapability()->setUiHidden(true);
     CAF_PDM_InitField(&m_hasTangentConstraintUiField, "HasTangentConstraint", false, "Dir", "", "", "");
