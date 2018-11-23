@@ -50,7 +50,6 @@ RicfExportProperty::RicfExportProperty()
     RICF_InitField(&m_caseId,           "caseId",           -1, "Case ID", "", "", "");
     RICF_InitField(&m_timeStepIndex,    "timeStep",         -1, "Time Step Index", "", "", "");
     RICF_InitField(&m_propertyName,     "property",         QString(), "Property Name", "", "", "");
-    RICF_InitField(&m_type,             "type",             caf::AppEnum<RiaDefines::ResultCatType>(RiaDefines::DYNAMIC_NATIVE), "Property type", "", "", "");
     RICF_InitField(&m_eclipseKeyword,   "eclipseKeyword",   QString(), "Eclipse Keyword", "", "", "");
     RICF_InitField(&m_undefinedValue,   "undefinedValue",   0.0, "Undefined Value", "", "", "");
     RICF_InitField(&m_exportFileName,   "exportFile",       QString(), "Export FileName", "", "", "");
