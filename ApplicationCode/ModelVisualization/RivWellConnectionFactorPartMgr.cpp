@@ -29,6 +29,7 @@
 
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
+#include "RimFracture.h"
 #include "RimRegularLegendConfig.h"
 #include "RimSimWellInViewCollection.h"
 #include "RimVirtualPerforationResults.h"
@@ -121,16 +122,30 @@ void RivWellConnectionFactorPartMgr::appendDynamicGeometryPartsToModel(cvf::Mode
             }
         }
 
+        bool showConnectionFactorOnWellPath = true;
+        {
+            for (const auto& completion : completionsForCell.second)
+            {
+                auto fracture = dynamic_cast<const RimFracture*>(completion.sourcePdmObject());
+                if (fracture)
+                {
+                    showConnectionFactorOnWellPath = false;
+                }
+            }
+        }
+
         size_t reservoirCellIndex = completionsForCell.first;
 
         const RigCell& rigCell = mainGrid->cell(reservoirCellIndex);
 
         cvf::Vec3d locationInDomainCoord = rigCell.center();
         cvf::Vec3d direction             = cvf::Vec3d::X_AXIS;
-        bool       foundLocation         = false;
 
+        if (showConnectionFactorOnWellPath)
         {
-            size_t i = 0;
+            size_t i             = 0;
+            bool   foundLocation = false;
+
             while (!foundLocation && (i < wellPathCellIntersections.size()))
             {
                 const WellPathCellIntersectionInfo& intersectionInfo = wellPathCellIntersections[i];
