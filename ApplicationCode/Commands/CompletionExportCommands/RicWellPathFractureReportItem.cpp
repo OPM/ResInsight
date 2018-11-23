@@ -25,11 +25,11 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicWellPathFractureReportItem::RicWellPathFractureReportItem(const QString& wellPathName,
+RicWellPathFractureReportItem::RicWellPathFractureReportItem(const QString& wellPathNameForExport,
                                                              const QString& fractureName,
                                                              const QString& fractureTemplateName,
                                                              double         measuredDepth)
-    : m_wellPathNameForExport(wellPathName)
+    : m_wellPathNameForExport(wellPathNameForExport)
     , m_wellPathFracture(fractureName)
     , m_wellPathFractureTemplate(fractureTemplateName)
     , m_mesuredDepth(measuredDepth)

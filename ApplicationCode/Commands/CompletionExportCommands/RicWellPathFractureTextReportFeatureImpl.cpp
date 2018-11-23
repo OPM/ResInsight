@@ -80,24 +80,39 @@ QString RicWellPathFractureTextReportFeatureImpl::wellPathFractureReport(
 
     textStream << lineStart << "\n";
 
-    auto proj              = RiaApplication::instance()->project();
-    auto fractureTemplates = proj->activeOilField()->fractureDefinitionCollection()->fractureTemplates();
 
     std::vector<RimStimPlanFractureTemplate*> stimPlanTemplates;
     std::vector<RimEllipseFractureTemplate*>  ellipseTemplates;
+    
 
-    for (const auto fracTemplate : fractureTemplates)
     {
-        auto stimPlanTemplate = dynamic_cast<RimStimPlanFractureTemplate*>(fracTemplate);
-        if (stimPlanTemplate)
+        auto proj              = RiaApplication::instance()->project();
+        auto fractureTemplates = proj->activeOilField()->fractureDefinitionCollection()->fractureTemplates();
+
+        std::set<QString> usedFractureTemplateNames;
+        for (const auto& item : wellPathFractureReportItems)
         {
-            stimPlanTemplates.push_back(stimPlanTemplate);
+            usedFractureTemplateNames.insert(item.fractureTemplateName());
         }
 
-        auto ellipseTemplate = dynamic_cast<RimEllipseFractureTemplate*>(fracTemplate);
-        if (ellipseTemplate)
+        for (const auto fracTemplate : fractureTemplates)
         {
-            ellipseTemplates.push_back(ellipseTemplate);
+            if (usedFractureTemplateNames.find(fracTemplate->name()) == usedFractureTemplateNames.end())
+            {
+                continue;
+            }
+
+            auto stimPlanTemplate = dynamic_cast<RimStimPlanFractureTemplate*>(fracTemplate);
+            if (stimPlanTemplate) 
+            {
+                stimPlanTemplates.push_back(stimPlanTemplate);
+            }
+
+            auto ellipseTemplate = dynamic_cast<RimEllipseFractureTemplate*>(fracTemplate);
+            if (ellipseTemplate)
+            {
+                ellipseTemplates.push_back(ellipseTemplate);
+            }
         }
     }
 
@@ -136,7 +151,11 @@ QString RicWellPathFractureTextReportFeatureImpl::wellPathFractureReport(
     }
 
     {
-        QString tableText = createFractureText(fractureTemplates);
+        std::vector<RimFractureTemplate*>  fracTemplates;
+        fracTemplates.insert(fracTemplates.end(), ellipseTemplates.begin(), ellipseTemplates.end());
+        fracTemplates.insert(fracTemplates.end(), stimPlanTemplates.begin(), stimPlanTemplates.end());
+
+        QString tableText = createFractureText(fracTemplates);
         textStream << tableText;
         textStream << lineStart << "\n";
     }
@@ -623,7 +642,7 @@ QString RicWellPathFractureTextReportFeatureImpl::createFractureCompletionSummar
         RifEclipseOutputTableColumn(meanText, RifEclipseOutputTableDoubleFormatting(RIF_FLOAT, 1), RIGHT), // KfWf
         RifEclipseOutputTableColumn(meanText, RifEclipseOutputTableDoubleFormatting(RIF_FLOAT, 1), RIGHT), // Kf
         floatNumberColumn(meanText), // wf
-        RifEclipseOutputTableColumn(meanText, RifEclipseOutputTableDoubleFormatting(RIF_FLOAT, 1), RIGHT), //xf
+        RifEclipseOutputTableColumn(meanText, RifEclipseOutputTableDoubleFormatting(RIF_FLOAT, 1), RIGHT), // xf
         RifEclipseOutputTableColumn(meanText, RifEclipseOutputTableDoubleFormatting(RIF_FLOAT, 1), RIGHT), // H
         floatNumberColumn(meanText), // Km
     };
@@ -698,7 +717,8 @@ QString RicWellPathFractureTextReportFeatureImpl::createFractureCompletionSummar
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RicWellPathFractureTextReportFeatureImpl::createFracturePressureDepletionSummaryText(const std::vector<RicWellPathFractureReportItem>& wellPathFractureReportItems) const
+QString RicWellPathFractureTextReportFeatureImpl::createFracturePressureDepletionSummaryText(
+    const std::vector<RicWellPathFractureReportItem>& wellPathFractureReportItems) const
 {
     QString tableText;
 
@@ -706,13 +726,11 @@ QString RicWellPathFractureTextReportFeatureImpl::createFracturePressureDepletio
     RifEclipseDataTableFormatter formatter(stream);
     configureFormatter(&formatter);
 
-    std::vector<RifEclipseOutputTableColumn> header = {
-        RifEclipseOutputTableColumn("Well"),
-        RifEclipseOutputTableColumn("Fracture"),
-        RifEclipseOutputTableColumn("Actual WBHP"),
-        RifEclipseOutputTableColumn("Min Pressure Drop"),
-        RifEclipseOutputTableColumn("Max Pressure Drop")
-    };
+    std::vector<RifEclipseOutputTableColumn> header = {RifEclipseOutputTableColumn("Well"),
+                                                       RifEclipseOutputTableColumn("Fracture"),
+                                                       RifEclipseOutputTableColumn("Actual WBHP"),
+                                                       RifEclipseOutputTableColumn("Min Pressure Drop"),
+                                                       RifEclipseOutputTableColumn("Max Pressure Drop")};
 
     bool createdTable = false;
 
