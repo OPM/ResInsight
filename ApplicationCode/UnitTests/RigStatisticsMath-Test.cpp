@@ -225,6 +225,6 @@ TEST(RigStatisticsMath, Accumulators)
         EXPECT_FALSE(std::isinf(acc.valueSum));
 
         EXPECT_DOUBLE_EQ(sum, acc.valueSum);
-        EXPECT_EQ(4, acc.sampleCount);
+        EXPECT_EQ(4u, acc.sampleCount);
     }
 }
