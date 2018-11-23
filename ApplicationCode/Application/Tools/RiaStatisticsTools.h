@@ -21,8 +21,8 @@
 #pragma once
 
 #include <QString>
-#include <QByteArray>
-#include <string>
+
+#include <cmath>
 
 //==================================================================================================
 //
@@ -33,4 +33,19 @@ class RiaStatisticsTools
 {
 public:
     static const QString replacePercentileByPValueText(const QString& percentile);
+
+
+    template<class NumberType> static bool isInvalidNumber(NumberType value)
+    {
+        return !isValidNumber<NumberType>(value);
+    }
+
+    template<class NumberType> static bool isValidNumber(NumberType value)
+    {
+        if (std::isinf(value)) return false;
+        if (std::isnan(value)) return false;
+
+        return true;
+    }
 };
+
