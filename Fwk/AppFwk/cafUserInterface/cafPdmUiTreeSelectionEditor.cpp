@@ -243,6 +243,9 @@ void PdmUiTreeSelectionEditor::configureAndUpdateUi(const QString& uiConfigName)
         m_proxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
         
         m_treeView->setModel(m_proxyModel);
+
+        connect(m_treeView->selectionModel(), SIGNAL(currentChanged(QModelIndex, QModelIndex)), this, SLOT(slotCurrentChanged(QModelIndex, QModelIndex)), Qt::UniqueConnection);
+
     }
 
     bool optionsOnly = true;
@@ -466,6 +469,14 @@ void PdmUiTreeSelectionEditor::customMenuRequested(const QPoint& pos)
 
         menu.exec(globalPos);
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void PdmUiTreeSelectionEditor::slotCurrentChanged(const QModelIndex& current, const QModelIndex& previous)
+{
+    currentChanged(current);
 }
 
 //--------------------------------------------------------------------------------------------------
