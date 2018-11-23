@@ -112,10 +112,11 @@ private slots:
 
     void                slotTextFilterChanged();
 
-    void                slotCurrentChanged(const QModelIndex& current, const QModelIndex& previous);
     void                slotClicked(const QModelIndex& index);
 
 private:
+    void                currentChanged(const QModelIndex& current);
+
     void                setCheckedStateOfSelected(bool checked);
     void                setCheckedStateForSubItemsOfSelected(bool checked);
     void                checkAllItems();

@@ -243,9 +243,6 @@ void PdmUiTreeSelectionEditor::configureAndUpdateUi(const QString& uiConfigName)
         m_proxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
         
         m_treeView->setModel(m_proxyModel);
-
-        connect(m_treeView->selectionModel(), SIGNAL(currentChanged(QModelIndex, QModelIndex)),
-                this, SLOT(slotCurrentChanged(QModelIndex, QModelIndex)));
     }
 
     bool optionsOnly = true;
@@ -291,7 +288,7 @@ void PdmUiTreeSelectionEditor::configureAndUpdateUi(const QString& uiConfigName)
             m_treeView->setSelectionMode(QAbstractItemView::ExtendedSelection);
         }
 
-        connect(m_treeView, SIGNAL(clicked(QModelIndex)), this, SLOT(slotClicked(QModelIndex)));
+        connect(m_treeView, SIGNAL(clicked(QModelIndex)), this, SLOT(slotClicked(QModelIndex)), Qt::UniqueConnection);
 
         if (!m_attributes.showTextFilter)
         {
@@ -574,7 +571,27 @@ void PdmUiTreeSelectionEditor::slotTextFilterChanged()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void PdmUiTreeSelectionEditor::slotCurrentChanged(const QModelIndex& current, const QModelIndex& previous)
+void PdmUiTreeSelectionEditor::slotClicked(const QModelIndex& index)
+{
+    if (m_attributes.setCurrentIndexWhenItemIsChecked && index.isValid())
+    {
+        QModelIndexList selectedIndexes = m_treeView->selectionModel()->selectedIndexes(); 
+        if (selectedIndexes.size() < 2)
+        {
+            QVariant v = m_proxyModel->data(index, Qt::CheckStateRole);
+            if (v == Qt::Checked)
+            {
+                m_treeView->setCurrentIndex(index);
+            }
+        }
+    }
+    currentChanged(index);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void PdmUiTreeSelectionEditor::currentChanged(const QModelIndex& current)
 {
     if (m_attributes.singleSelectionMode)
     {
@@ -589,25 +606,6 @@ void PdmUiTreeSelectionEditor::slotCurrentChanged(const QModelIndex& current, co
             QVariant v = m_proxyModel->data(current, PdmUiTreeSelectionQModel::optionItemValueRole());
 
             PdmUiCommandSystemProxy::instance()->setUiValueToField(uiFieldHandle, v);
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void PdmUiTreeSelectionEditor::slotClicked(const QModelIndex& index)
-{
-    if (m_attributes.setCurrentIndexWhenItemIsChecked && index.isValid())
-    {
-        QModelIndexList selectedIndexes = m_treeView->selectionModel()->selectedIndexes(); 
-        if (selectedIndexes.size() < 2)
-        {
-            QVariant v = m_proxyModel->data(index, Qt::CheckStateRole);
-            if (v == Qt::Checked)
-            {
-                m_treeView->setCurrentIndex(index);
-            }
         }
     }
 }
