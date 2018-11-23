@@ -30,6 +30,7 @@
 #include "RigEclipseCaseData.h"
 #include "RigGridBase.h"
 
+#include "RimAnnotationCollection.h"
 #include "RimCalcScript.h"
 #include "RimCase.h"
 #include "RimCaseCollection.h"
@@ -707,7 +708,7 @@ void RimProject::allVisibleViews(std::vector<Rim3dView*>& views)
 void RimProject::allVisibleGridViews(std::vector<RimGridView*>& views)
 {
     std::vector<Rim3dView*> visibleViews;
-    this->allVisibleViews(visibleViews);
+    this->allVisibleViews(visibleViews); 
     for ( Rim3dView* view : visibleViews )
     {
         RimGridView* gridView = dynamic_cast<RimGridView*>(view);
@@ -958,6 +959,57 @@ std::vector<RimWellPath*> RimProject::allWellPaths() const
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimTextAnnotation*> RimProject::textAnnotations() const
+{
+    std::vector<RimTextAnnotation*> annotations;
+    for (const auto& oilField : oilFields())
+    {
+        auto annotationColl = oilField->annotationCollection();
+        for (const auto& annotation : annotationColl->textAnnotations())
+        {
+            annotations.push_back(annotation);
+        }
+    }
+    return annotations;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimReachCircleAnnotation*> RimProject::reachCircleAnnotations() const
+{
+    std::vector<RimReachCircleAnnotation*> annotations;
+    for (const auto& oilField : oilFields())
+    {
+        auto annotationColl = oilField->annotationCollection();
+        for (const auto& annotation : annotationColl->reachCircleAnnotations())
+        {
+            annotations.push_back(annotation);
+        }
+    }
+    return annotations;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimPolylineAnnotation*> RimProject::polylineAnnotations() const
+{
+    std::vector<RimPolylineAnnotation*> annotations;
+    for (const auto& oilField : oilFields())
+    {
+        auto annotationColl = oilField->annotationCollection();
+        for (const auto& annotation : annotationColl->polylineAnnotations())
+        {
+            annotations.push_back(annotation);
+        }
+    }
+    return annotations;
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 std::vector<RimGeoMechCase*> RimProject::geoMechCases() const
@@ -1128,6 +1180,7 @@ void RimProject::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QS
             if (oilField->wellPathCollection())             uiTreeOrdering.add(oilField->wellPathCollection());
             if (oilField->formationNamesCollection())       uiTreeOrdering.add(oilField->formationNamesCollection());
             if (oilField->fractureDefinitionCollection())   uiTreeOrdering.add(oilField->fractureDefinitionCollection());
+            if (oilField->annotationCollection())           uiTreeOrdering.add(oilField->annotationCollection());
         }
 
         uiTreeOrdering.add(scriptCollection());

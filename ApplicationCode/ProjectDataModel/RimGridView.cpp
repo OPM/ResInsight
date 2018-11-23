@@ -21,6 +21,7 @@
 #include "RiaApplication.h"
 
 #include "Rim3dOverlayInfoConfig.h"
+#include "RimAnnotationInViewCollection.h"
 #include "RimCellRangeFilterCollection.h"
 #include "RimGridCollection.h"
 #include "RimIntersectionCollection.h"
@@ -177,6 +178,14 @@ const RimCellRangeFilterCollection* RimGridView::rangeFilterCollection() const
     {
         return m_rangeFilterCollection;
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimAnnotationInViewCollection* RimGridView::annotationCollection() const
+{
+    return m_annotationCollection;
 }
 
 //--------------------------------------------------------------------------------------------------

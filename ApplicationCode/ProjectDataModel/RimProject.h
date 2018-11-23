@@ -35,6 +35,9 @@ class RigGridManager;
 class RigMainGrid;
 class RigWellPath;
 
+class RimTextAnnotation;
+class RimReachCircleAnnotation;
+class RimPolylineAnnotation;
 class RimSummaryCalculationCollection;
 class RimCase;
 class RimCommandObject;
@@ -142,6 +145,9 @@ public:
     RimWellPath*                    wellPathFromSimWellName(const QString& simWellName, int branchIndex = -1);
     RimWellPath*                    wellPathByName(const QString& wellPathName) const;
     std::vector<RimWellPath*>       allWellPaths() const;
+    std::vector<RimTextAnnotation*>         textAnnotations() const;
+    std::vector<RimReachCircleAnnotation*>  reachCircleAnnotations() const;
+    std::vector<RimPolylineAnnotation*>     polylineAnnotations() const;
 
     std::vector<RimGeoMechCase*>    geoMechCases() const;
 

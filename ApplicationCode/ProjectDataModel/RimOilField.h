@@ -33,6 +33,7 @@ class RimObservedDataCollection;
 class RimSummaryCase;
 class RimSummaryCaseMainCollection;
 class RimWellPathCollection;
+class RimAnnotationCollection;
 
 //==================================================================================================
 ///  
@@ -55,5 +56,5 @@ public:
     caf::PdmChildField<RimSummaryCaseMainCollection*>       summaryCaseMainCollection;
     caf::PdmChildField<RimObservedDataCollection*>          observedDataCollection;
     caf::PdmChildField<RimFormationNamesCollection*>        formationNamesCollection;
-
+    caf::PdmChildField<RimAnnotationCollection*>            annotationCollection;
 };

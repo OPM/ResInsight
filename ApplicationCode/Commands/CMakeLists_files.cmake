@@ -76,6 +76,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RicConvertGroupToEnsembleFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicResampleDialog.h
 ${CMAKE_CURRENT_LIST_DIR}/RicCreateTemporaryLgrFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicDeleteTemporaryLgrsFeature.h
+${CMAKE_CURRENT_LIST_DIR}/RicNewAnnotationFeature.h
 )
 
 
@@ -150,6 +151,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RicConvertGroupToEnsembleFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicResampleDialog.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicCreateTemporaryLgrFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicDeleteTemporaryLgrsFeature.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicNewAnnotationFeature.cpp
 )
 
 

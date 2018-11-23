@@ -22,6 +22,7 @@
 #include "RiuViewer.h"
 
 #include "Rim3dOverlayInfoConfig.h"
+#include "RimAnnotationInViewCollection.h"
 #include "RimCase.h"
 #include "RimCellRangeFilterCollection.h"
 #include "RimContourMapNameConfig.h"
@@ -181,6 +182,7 @@ void RimContourMapView::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrder
     cellResult()->uiCapability()->setUiReadOnly(m_contourMapProjection->isColumnResult());
     uiTreeOrdering.add(wellCollection());
     uiTreeOrdering.add(faultCollection());
+    uiTreeOrdering.add(annotationCollection());
     uiTreeOrdering.add(m_rangeFilterCollection());
     uiTreeOrdering.add(nativePropertyFilterCollection());
 
