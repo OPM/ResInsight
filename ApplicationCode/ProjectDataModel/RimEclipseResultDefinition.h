@@ -33,6 +33,8 @@
 #include "cafPdmPtrField.h"
 #include "cafPdmUiItem.h"
 
+#include <limits>
+
 class RigCaseCellResultsData;
 class RimEclipseCase;
 class RimEclipseView;

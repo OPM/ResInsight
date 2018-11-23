@@ -44,7 +44,8 @@ CAF_PDM_SOURCE_INIT(RimSummaryPlotSourceStepping, "RimSummaryCurveCollectionModi
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSummaryPlotSourceStepping::RimSummaryPlotSourceStepping() : m_sourceSteppingType(Y_AXIS)
+RimSummaryPlotSourceStepping::RimSummaryPlotSourceStepping()
+    : m_sourceSteppingType(Y_AXIS)
 {
     // clang-format off
     CAF_PDM_InitObject("Summary Curves Modifier", "", "", "");
@@ -244,8 +245,9 @@ QList<caf::PdmOptionItemInfo> RimSummaryPlotSourceStepping::calculateValueOption
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryPlotSourceStepping::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue,
-                                                    const QVariant& newValue)
+void RimSummaryPlotSourceStepping::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
+                                                    const QVariant&            oldValue,
+                                                    const QVariant&            newValue)
 {
     RimSummaryCurveCollection* curveCollection = nullptr;
     this->firstAncestorOrThisOfTypeAsserted(curveCollection);
@@ -286,7 +288,7 @@ void RimSummaryPlotSourceStepping::fieldChangedByUi(const caf::PdmFieldHandle* c
             if (isYAxisStepping())
             {
                 RifEclipseSummaryAddress adr = curve->summaryAddressY();
-                if (adr.category() == RifEclipseSummaryAddress::SUMMARY_WELL)
+                if (RifEclipseSummaryAddress::isDependentOnWellName(adr))
                 {
                     adr.setWellName(m_wellName().toStdString());
 
@@ -297,7 +299,7 @@ void RimSummaryPlotSourceStepping::fieldChangedByUi(const caf::PdmFieldHandle* c
             if (isXAxisStepping())
             {
                 RifEclipseSummaryAddress adr = curve->summaryAddressX();
-                if (adr.category() == RifEclipseSummaryAddress::SUMMARY_WELL)
+                if (RifEclipseSummaryAddress::isDependentOnWellName(adr))
                 {
                     adr.setWellName(m_wellName().toStdString());
 
@@ -417,7 +419,7 @@ void RimSummaryPlotSourceStepping::fieldChangedByUi(const caf::PdmFieldHandle* c
 std::vector<RifSummaryReaderInterface*> RimSummaryPlotSourceStepping::summaryReadersForCurves() const
 {
     std::vector<RifSummaryReaderInterface*> readers;
-    RimSummaryCurveCollection* curveCollection = nullptr;
+    RimSummaryCurveCollection*              curveCollection = nullptr;
     this->firstAncestorOrThisOfTypeAsserted(curveCollection);
 
     for (auto curve : curveCollection->curves())
@@ -646,7 +648,7 @@ RiaSummaryCurveAnalyzer* RimSummaryPlotSourceStepping::analyzerForReader(RifSumm
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlotSourceStepping::modifyCurrentIndex(caf::PdmValueField* valueField, int indexOffset)
 {
-    bool useOptionsOnly;
+    bool                          useOptionsOnly;
     QList<caf::PdmOptionItemInfo> options = calculateValueOptions(valueField, &useOptionsOnly);
     RimDataSourceSteppingTools::modifyCurrentIndex(valueField, options, indexOffset);
 }
@@ -654,7 +656,8 @@ void RimSummaryPlotSourceStepping::modifyCurrentIndex(caf::PdmValueField* valueF
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryPlotSourceStepping::defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName,
+void RimSummaryPlotSourceStepping::defineEditorAttribute(const caf::PdmFieldHandle* field,
+                                                         QString                    uiConfigName,
                                                          caf::PdmUiEditorAttribute* attribute)
 {
     caf::PdmUiComboBoxEditorAttribute* myAttr = dynamic_cast<caf::PdmUiComboBoxEditorAttribute*>(attribute);
