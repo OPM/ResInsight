@@ -43,6 +43,7 @@
 
 #include <QBoxLayout>
 #include <QCheckBox>
+#include <QKeyEvent>
 #include <QLabel>
 #include <QLineEdit>
 #include <QMenu>
@@ -87,6 +88,21 @@ public:
     void setHeightHint(int heightHint)
     {
         m_heightHint = heightHint;
+    }
+
+    //--------------------------------------------------------------------------------------------------
+    ///
+    //--------------------------------------------------------------------------------------------------
+    void keyPressEvent(QKeyEvent *event)
+    {
+        QTreeView::keyPressEvent(event);
+
+        if (event->key() == Qt::Key_Down || event->key() == Qt::Key_Up ||
+            event->key() == Qt::Key_Home || event->key() == Qt::Key_End ||
+            event->key() == Qt::Key_PageDown || event->key() == Qt::Key_PageUp)
+        {
+            emit clicked(currentIndex());
+        }
     }
 
 private:
