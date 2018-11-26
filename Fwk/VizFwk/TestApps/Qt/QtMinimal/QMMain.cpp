@@ -39,7 +39,12 @@
 
 #include "QMMainWindow.h"
 
-#include "QtGui/QApplication"
+#include <QtGlobal>
+#if QT_VERSION >= 0x050000
+#include <QApplication>
+#else
+#include <QtGui/QApplication>
+#endif
 
 
 //--------------------------------------------------------------------------------------------------

@@ -43,6 +43,7 @@
 
 #include "cvfuSnippetFactory.h"
 
+#include <QtGlobal>
 #if QT_VERSION >= 0x050000
 #include <QWidget>
 #else

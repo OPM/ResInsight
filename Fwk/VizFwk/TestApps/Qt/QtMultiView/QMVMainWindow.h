@@ -41,8 +41,9 @@
 #include "cvfCollection.h"
 #include "cvfDrawableGeo.h"
 
+#include <QtGlobal>
 #if QT_VERSION >= 0x050000
-#include <QMainWindow
+#include <QMainWindow>
 #else
 #include <QtGui/QMainWindow>
 #endif

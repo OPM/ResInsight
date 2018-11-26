@@ -1,6 +1,14 @@
 
 #pragma once
 
+#include <glew/GL/glew.h>
+#include <QtCore/QtCore>
+#if QT_VERSION >= 0x050000
+#include <QtWidgets>
+#else
+#include <QtGui/QtGui>
+#endif
+
 #include "cvfLibCore.h"
 #include "cvfLibRender.h"
 #include "cvfLibGeometry.h"
@@ -10,12 +18,7 @@
 #include "cvfuSnippetFactory.h"
 #include "cvfuInputEvents.h"
 
-#include <QtCore/QtCore>
-#if QT_VERSION >= 0x050000
-#include <QtWidgets>
-#else
-#include <QtGui/QtGui>
-#endif
+
 // Introduce name of commonly used classes (that are unlikely to create clashes) from the cvf namespace. 
 // We allow the use of using-declarations in this include file since its sole usage is as a precompiled header file.
 using cvf::ref;

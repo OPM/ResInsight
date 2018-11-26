@@ -539,11 +539,11 @@ void QSRMainWindow::slotSaveFrameBufferToFile()
     
     if (img.save(fileName))
     {
-        cvf::Trace::show("Image saved to: %s", (const char*)fileName.toAscii());
+        cvf::Trace::show("Image saved to: %s", (const char*)fileName.toLatin1());
     }
     else
     {
-        cvf::Trace::show("FAILED to saved image: %s", (const char*)fileName.toAscii());
+        cvf::Trace::show("FAILED to saved image: %s", (const char*)fileName.toLatin1());
     }
 
 }
