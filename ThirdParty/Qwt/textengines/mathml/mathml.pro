@@ -51,3 +51,28 @@ else {
     INSTALLS       += headers
 }
 
+contains(QWT_CONFIG, QwtPkgConfig) {
+
+    CONFIG     += create_pc create_prl no_install_prl
+
+    QMAKE_PKGCONFIG_NAME = qwtmathml
+    QMAKE_PKGCONFIG_DESCRIPTION = Qwt MathML renderer
+
+    QMAKE_PKGCONFIG_LIBDIR = $${QWT_INSTALL_LIBS}
+    QMAKE_PKGCONFIG_INCDIR = $${QWT_INSTALL_HEADERS}
+
+    # QMAKE_PKGCONFIG_DESTDIR is buggy, in combination
+    # with including pri files: better don't use it
+
+    greaterThan(QT_MAJOR_VERSION, 4) {
+
+        QMAKE_PKGCONFIG_REQUIRES = Qt5Gui Qt5Widgets Qt5Xml
+    }
+    else {
+
+        QMAKE_PKGCONFIG_REQUIRES = QtGui QtXml
+    }
+
+    QMAKE_DISTCLEAN += $${DESTDIR}/$${QMAKE_PKGCONFIG_NAME}.pc
+    QMAKE_DISTCLEAN += $${DESTDIR}/libqwtmathml.prl
+}

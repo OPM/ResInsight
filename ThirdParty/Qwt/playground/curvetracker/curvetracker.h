@@ -1,4 +1,4 @@
-#ifndef _CURVE_TRACKER_
+#ifndef _CURVE_TRACKER_H_
 #define _CURVE_TRACKER_H_
 
 #include <qwt_plot_picker.h>

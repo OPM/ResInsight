@@ -183,8 +183,23 @@ void QwtPlotTextLabel::draw( QPainter *painter,
     const QRectF rect = textRect( canvasRect.adjusted( m, m, -m, -m ),
         d_data->text.textSize( painter->font() ) );
 
-    const bool doAlign = QwtPainter::roundingAlignment( painter );
-    if ( doAlign )
+    bool doCache = QwtPainter::roundingAlignment( painter );
+    if ( doCache )
+    {
+        switch( painter->paintEngine()->type() )
+        {
+            case QPaintEngine::Picture:
+            case QPaintEngine::User: // usually QwtGraphic
+            {
+                // don't use a cache for record/replay devices
+                doCache = false;
+                break;
+            }
+            default:;
+        }
+    }
+
+    if ( doCache )
     {
         // when the paint device is aligning it is not one
         // where scalability matters ( PDF, SVG ).
@@ -201,10 +216,21 @@ void QwtPlotTextLabel::draw( QPainter *painter,
         pixmapRect.setRight( qCeil( rect.right() ) + pw );
         pixmapRect.setBottom( qCeil( rect.bottom() ) + pw );
         
+#define QWT_HIGH_DPI 1
+
+#if QT_VERSION >= 0x050100 && QWT_HIGH_DPI
+        const qreal pixelRatio = painter->device()->devicePixelRatio();
+        const QSize scaledSize = pixmapRect.size() * pixelRatio;
+#else
+        const QSize scaledSize = pixmapRect.size();
+#endif
         if ( d_data->pixmap.isNull() || 
-            ( pixmapRect.size() != d_data->pixmap.size() )  )
+            ( scaledSize != d_data->pixmap.size() )  )
         {
-            d_data->pixmap = QPixmap( pixmapRect.size() );
+            d_data->pixmap = QPixmap( scaledSize );
+#if QT_VERSION >= 0x050100 && QWT_HIGH_DPI
+            d_data->pixmap.setDevicePixelRatio( pixelRatio );
+#endif
             d_data->pixmap.fill( Qt::transparent );
 
             const QRect r( pw, pw, 

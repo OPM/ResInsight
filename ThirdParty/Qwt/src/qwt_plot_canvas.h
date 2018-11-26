@@ -103,7 +103,7 @@ public:
     /*!
       \brief Focus indicator
       The default setting is NoFocusIndicator
-      \sa setFocusIndicator(), focusIndicator(), paintFocus()
+      \sa setFocusIndicator(), focusIndicator(), drawFocusIndicator()
     */
 
     enum FocusIndicator
@@ -113,7 +113,7 @@ public:
 
         /*!
           The focus is related to the complete canvas.
-          Paint the focus indicator using paintFocus()
+          Paint the focus indicator using drawFocusIndicator()
          */
         CanvasFocusIndicator,
 

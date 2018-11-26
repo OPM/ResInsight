@@ -1,7 +1,7 @@
 /* -*- mode: C++ ; c-file-style: "stroustrup" -*- *****************************
  * Qwt Widget Library
  * Copyright (C) 1997   Josef Wilgen
- * Copyright (C) 2003   Uwe Rathmann
+ * Copyright (C) 2002   Uwe Rathmann
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the Qwt License, Version 1.0
@@ -181,7 +181,7 @@ double QwtPlainTextEngine::heightForWidth( const QFont& font, int flags,
   \param flags Bitwise OR of the flags used like in QPainter::drawText
   \param text Text to be rendered
 
-  \return Caluclated size
+  \return Calculated size
 */
 QSizeF QwtPlainTextEngine::textSize( const QFont &font,
     int flags, const QString& text ) const
@@ -270,7 +270,7 @@ double QwtRichTextEngine::heightForWidth( const QFont& font, int flags,
   \param flags Bitwise OR of the flags used like in QPainter::drawText()
   \param text Text to be rendered
 
-  \return Caluclated size
+  \return Calculated size
 */
 
 QSizeF QwtRichTextEngine::textSize( const QFont &font,

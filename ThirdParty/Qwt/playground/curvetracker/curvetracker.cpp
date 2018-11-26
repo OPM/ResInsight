@@ -105,7 +105,7 @@ QLineF CurveTracker::curveLineAt(
     if ( curve->dataSize() >= 2 )
     {
         const QRectF br = curve->boundingRect();
-        if ( br.isValid() && x >= br.left() && x <= br.right() )
+        if ( ( br.width() > 0 ) && ( x >= br.left() ) && ( x <= br.right() ) )
         {
             int index = qwtUpperSampleIndex<QPointF>( 
                 *curve->data(), x, compareX() );

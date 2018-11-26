@@ -29,16 +29,10 @@ class QwtPlot;
 
   \sa QwtPlot::setCanvas(), QwtPlotCanvas
 
-  \note You might want to use the QPaintEngine::OpenGL paint engine
+  \note With Qt4 you might want to use the QPaintEngine::OpenGL paint engine
         ( see QGL::setPreferredPaintEngine() ). On a Linux test system 
-        QPaintEngine::OpenGL2 shows very basic problems ( wrong
-        geometries of rectangles ) but also more advanced stuff
-        like antialiasing doesn't work.
-
-  \note Another way to introduce OpenGL rendering to Qwt
-        is to use QGLPixelBuffer or QGLFramebufferObject. Both
-        type of buffers can be converted into a QImage and 
-        used in combination with a regular QwtPlotCanvas.
+        QPaintEngine::OpenGL2 shows very basic problems like translated
+        geometries.
 */
 class QWT_EXPORT QwtPlotGLCanvas: public QGLWidget
 {
