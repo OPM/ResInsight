@@ -51,6 +51,59 @@ class SubSegmentIntersectionInfo;
 //==================================================================================================
 typedef std::shared_ptr<QFile> QFilePtr;
 
+class TransmissibilityData
+{
+public:
+    TransmissibilityData()
+        : m_isValid(false)
+        , m_effectiveH(0.0)
+        , m_effectiveK(0.0)
+        , m_connectionFactor(0.0)
+        , m_kh(0.0)
+    {
+    }
+
+    bool isValid() const
+    {
+        return m_isValid;
+    }
+
+    void setData(double effectiveH, double effectiveK, double connectionFactor, double kh)
+    {
+        m_isValid = true;
+
+        m_effectiveH = effectiveH;
+        m_effectiveK = effectiveK;
+        m_connectionFactor = connectionFactor;
+        m_kh = kh;
+    }
+
+    double effectiveH() const
+    {
+        return m_effectiveH;
+    }
+
+    double effectiveK() const
+    {
+        return m_effectiveK;
+    }
+    double connectionFactor() const
+    {
+        return m_connectionFactor;
+    }
+    double kh() const
+    {
+        return m_kh;
+    }
+
+private:
+    bool m_isValid;
+    double m_effectiveH;
+    double m_effectiveK;
+    double m_connectionFactor;
+    double m_kh;
+};
+
 //==================================================================================================
 /// 
 //==================================================================================================
@@ -82,8 +135,8 @@ public:
                                                                      size_t globalCellIndex, 
                                                                      const cvf::Vec3d& lengthsInCell);
 
-    static std::pair<double, double>
-        calculateTransmissibilityAndKh(RimEclipseCase*    eclipseCase,
+    static TransmissibilityData
+        calculateTransmissibilityData(RimEclipseCase*    eclipseCase,
                                                  const RimWellPath* wellPath,
                                                  const cvf::Vec3d&  internalCellLengths,
                                                  double             skinFactor,
@@ -94,7 +147,7 @@ public:
                                                  CellDirection      directionForVolumeScaling = CellDirection::DIR_I);
 
     static double                         calculateDFactor(RimEclipseCase* eclipseCase,
-                                                           const cvf::Vec3d&  internalCellLengths,
+                                                           double effectiveH,
                                                            size_t globalCellIndex,
                                                            const RimNonDarcyPerforationParameters* nonDarcyParameters,
                                                            const double effectivePermeability);
