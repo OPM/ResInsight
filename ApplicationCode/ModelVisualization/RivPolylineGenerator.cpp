@@ -46,13 +46,15 @@ cvf::ref<cvf::DrawableGeo>
     {
         if (polyLine.size() < 2) continue;
 
+        size_t verticesCount = vertices.size();
+
         for (size_t i = 0; i < polyLine.size(); ++i)
         {
             vertices.emplace_back(polyLine[i]);
             if (i < polyLine.size() - 1)
             {
-                lineIndices.push_back(static_cast<cvf::uint>(i));
-                lineIndices.push_back(static_cast<cvf::uint>(i + 1));
+                lineIndices.push_back(static_cast<cvf::uint>(verticesCount + i));
+                lineIndices.push_back(static_cast<cvf::uint>(verticesCount + i + 1));
             }
         }
     }
