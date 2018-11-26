@@ -28,6 +28,7 @@
 
 #include "cvfBase.h"
 #include "cvfVector3.h"
+#include "cvfVector2.h"
 
 #include <vector>
 #include <memory>
@@ -268,7 +269,9 @@ private:
     static void                           appendCompletionData(std::map<size_t, std::vector<RigCompletionData>>* completionData,
                                                                const std::vector<RigCompletionData>& data);
 
-    static cvf::Vec2i                     wellPathUpperGridIntersectionIJ(const RimEclipseCase* gridCase, const RimWellPath* wellPath, const QString& gridName = "");
+    static std::pair<double, cvf::Vec2i> wellPathUpperGridIntersectionIJ(const RimEclipseCase* gridCase,
+                                                                         const RimWellPath*    wellPath,
+                                                                         const QString&        gridName = "");
 
     static void                           exportWellSegments(RimEclipseCase* eclipseCase,
                                                              QFilePtr exportFile,

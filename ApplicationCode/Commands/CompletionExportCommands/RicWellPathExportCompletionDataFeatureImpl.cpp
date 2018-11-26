@@ -1260,7 +1260,7 @@ void RicWellPathExportCompletionDataFeatureImpl::exportWelspecsToFile(RimEclipse
     std::set<const RimWellPath*> wellPathSet;
 
     // Build list of unique RimWellPath
-    for (const auto completion : completions)
+    for (const auto& completion : completions)
     {
         const auto wellPath = findWellPathFromExportName(completion.wellName());
         if (wellPath)
@@ -1272,13 +1272,13 @@ void RicWellPathExportCompletionDataFeatureImpl::exportWelspecsToFile(RimEclipse
     // Export
     for (const auto wellPath : wellPathSet)
     {
-        auto       rimCcompletions = wellPath->completions();
-        cvf::Vec2i ijIntersection  = wellPathUpperGridIntersectionIJ(gridCase, wellPath);
+        auto rimCcompletions = wellPath->completions();
+        auto ijIntersection  = wellPathUpperGridIntersectionIJ(gridCase, wellPath);
 
         formatter.add(rimCcompletions->wellNameForExport())
             .add(rimCcompletions->wellGroupNameForExport())
-            .addOneBasedCellIndex(ijIntersection.x())
-            .addOneBasedCellIndex(ijIntersection.y())
+            .addOneBasedCellIndex(ijIntersection.second.x())
+            .addOneBasedCellIndex(ijIntersection.second.y())
             .add(rimCcompletions->referenceDepthForExport())
             .add(rimCcompletions->wellTypeNameForExport())
             .rowCompleted();
@@ -1311,32 +1311,44 @@ void RicWellPathExportCompletionDataFeatureImpl::exportWelspeclToFile(
     formatter.keyword("WELSPECL");
     formatter.header(header);
 
-    std::map<QString, std::set<const RimWellPath*>> wellPathMap;
+    std::map<const RimWellPath*, std::set<QString>> wellPathToLgrNameMap;
 
-    // Build list of unique RimWellPath for each LGR
-    for (const auto completionsForLgr : completions)
+    for (const auto& completionsForLgr : completions)
     {
-        wellPathMap.insert(std::make_pair(completionsForLgr.first, std::set<const RimWellPath*>()));
-
-        for (const auto completion : completionsForLgr.second)
+        for (const auto& completion : completionsForLgr.second)
         {
             const auto wellPath = findWellPathFromExportName(completion.wellName());
-            if (wellPath)
-            {
-                wellPathMap[completionsForLgr.first].insert(wellPath);
-            }
+            auto       item     = wellPathToLgrNameMap.find(wellPath);
+            wellPathToLgrNameMap[wellPath].insert(completionsForLgr.first);
         }
     }
 
-    for (const auto wellPathsForLgr : wellPathMap)
+    for (const auto& wellPathsForLgr : wellPathToLgrNameMap)
     {
-        QString lgrName = wellPathsForLgr.first;
+        const RimWellPath* wellPath = wellPathsForLgr.first;
 
-        // Export
-        for (const auto wellPath : wellPathsForLgr.second)
+        std::tuple<double, cvf::Vec2i, QString> itemWithLowestMD =
+            std::make_tuple(std::numeric_limits<double>::max(), cvf::Vec2i(), "");
+
+        // Find first LGR-intersection along the well path
+
+        for (const auto& lgrName : wellPathsForLgr.second)
         {
-            auto       rimCompletions = wellPath->completions();
-            cvf::Vec2i ijIntersection = wellPathUpperGridIntersectionIJ(gridCase, wellPath, lgrName);
+            auto ijIntersection = wellPathUpperGridIntersectionIJ(gridCase, wellPath, lgrName);
+            if (ijIntersection.first < std::get<0>(itemWithLowestMD))
+            {
+                itemWithLowestMD = std::make_tuple(ijIntersection.first, ijIntersection.second, lgrName);
+            }
+        }
+
+        {
+            double     measuredDepth = 0.0;
+            cvf::Vec2i ijIntersection;
+            QString    lgrName;
+
+            std::tie(measuredDepth, ijIntersection, lgrName) = itemWithLowestMD;
+
+            auto rimCompletions = wellPath->completions();
 
             formatter.add(rimCompletions->wellNameForExport())
                 .add(rimCompletions->wellGroupNameForExport())
@@ -1348,7 +1360,6 @@ void RicWellPathExportCompletionDataFeatureImpl::exportWelspeclToFile(
                 .rowCompleted();
         }
     }
-
     formatter.tableCompleted();
 }
 
@@ -2529,9 +2540,10 @@ double RicWellPathExportCompletionDataFeatureImpl::calculateTransmissibilityAsEc
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::Vec2i RicWellPathExportCompletionDataFeatureImpl::wellPathUpperGridIntersectionIJ(const RimEclipseCase* gridCase,
-                                                                                       const RimWellPath*    wellPath,
-                                                                                       const QString&        gridName)
+std::pair<double, cvf::Vec2i>
+    RicWellPathExportCompletionDataFeatureImpl::wellPathUpperGridIntersectionIJ(const RimEclipseCase* gridCase,
+                                                                                const RimWellPath*    wellPath,
+                                                                                const QString&        gridName)
 {
     const RigEclipseCaseData*      caseData         = gridCase->eclipseCaseData();
     const RigMainGrid*             mainGrid         = caseData->mainGrid();
@@ -2562,11 +2574,11 @@ cvf::Vec2i RicWellPathExportCompletionDataFeatureImpl::wellPathUpperGridIntersec
             size_t i, j, k;
             if (grid->ijkFromCellIndex(gridLocalCellIndex, &i, &j, &k))
             {
-                return cvf::Vec2i((int)i, (int)j);
+                return std::make_pair(intersection.startMD, cvf::Vec2i((int)i, (int)j));
             }
         }
     }
-    return cvf::Vec2i();
+    return std::make_pair(cvf::UNDEFINED_DOUBLE, cvf::Vec2i());
 }
 
 //--------------------------------------------------------------------------------------------------
