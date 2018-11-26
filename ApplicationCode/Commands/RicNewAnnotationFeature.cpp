@@ -22,7 +22,7 @@
 
 #include "RimTextAnnotation.h"
 #include "RimReachCircleAnnotation.h"
-#include "RimPolylineAnnotation.h"
+#include "RimPolylinesAnnotation.h"
 #include "RimAnnotationCollection.h"
 #include "RimProject.h"
 #include "RimOilField.h"
@@ -132,7 +132,7 @@ void RicNewPolylineAnnotationFeature::onActionTriggered(bool isChecked)
     auto coll = annotationCollection();
     if (coll)
     {
-        auto newAnnotation = new RimPolylineAnnotation();
+        auto newAnnotation = new RimUserDefinedPolyLinesAnnotation();
         coll->addAnnotation(newAnnotation);
         coll->updateConnectedEditors();
         RiuMainWindow::instance()->selectAsCurrentItem(newAnnotation);

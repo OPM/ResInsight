@@ -36,7 +36,7 @@ namespace caf
 }
 
 class Rim3dView;
-class RimPolylineAnnotation;
+class RimPolylinesAnnotation;
 class RimAnnotationInViewCollection;
 class RimSimWellInView;
 class RimSimWellInViewCollection;
@@ -44,29 +44,17 @@ class RimSimWellInViewCollection;
 class RivPolylineAnnotationPartMgr : public cvf::Object
 {
 public:
-    RivPolylineAnnotationPartMgr( RimPolylineAnnotation* annotation);
+    RivPolylineAnnotationPartMgr( RimPolylinesAnnotation* annotation);
     ~RivPolylineAnnotationPartMgr() override;
 
     void appendDynamicGeometryPartsToModel(cvf::ModelBasicList* model, 
                                            const caf::DisplayCoordTransform * displayXf);
 
-    void appendFlattenedDynamicGeometryPartsToModel(cvf::ModelBasicList* model, 
-                                                    size_t frameIndex,
-                                                    const caf::DisplayCoordTransform * displayXf, 
-                                                    double xOffset);
-
-
-
 private:
-    void                            buildPolygonAnnotationParts(const caf::DisplayCoordTransform* displayXf,
-                                                                bool doFlatten,
-                                                                double xOffset);
+    void                            buildPolygonAnnotationParts(const caf::DisplayCoordTransform* displayXf);
 
     void                            clearAllGeometry();
-    Rim3dView*                      viewWithSettings();
-    RimAnnotationInViewCollection*  annotatationInViewCollection();
-    bool                            validateAnnotation(const RimPolylineAnnotation* annotation) const;
 
-    caf::PdmPointer<RimPolylineAnnotation>  m_rimAnnotation;
+    caf::PdmPointer<RimPolylinesAnnotation>  m_rimAnnotation;
     cvf::ref<cvf::Part>                     m_part;
 };

@@ -32,7 +32,7 @@
 
 #include "RimTextAnnotation.h"
 #include "RimReachCircleAnnotation.h"
-#include "RimPolylineAnnotation.h"
+#include "RimPolylinesAnnotation.h"
 #include "RimAnnotationInViewCollection.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
@@ -138,6 +138,7 @@ void RivAnnotationsPartMgr::createAnnotationPartManagers()
             // m_mapFromViewToIndex[wellPath] = wppm;
         }
     }
+    
 }
 
 //--------------------------------------------------------------------------------------------------

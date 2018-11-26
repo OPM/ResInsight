@@ -103,6 +103,7 @@ list( APPEND REFERENCED_CMAKE_FILES
     
     Commands/CMakeLists_files.cmake
     Commands/ApplicationCommands/CMakeLists_files.cmake
+    Commands/AnnotationCommands/CMakeLists_files.cmake
     Commands/CompletionCommands/CMakeLists_files.cmake
     Commands/CompletionExportCommands/CMakeLists_files.cmake
     Commands/CrossSectionCommands/CMakeLists_files.cmake

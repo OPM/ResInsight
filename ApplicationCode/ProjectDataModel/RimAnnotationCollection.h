@@ -1,8 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2011-     Statoil ASA
-//  Copyright (C) 2013-     Ceetron Solutions AS
-//  Copyright (C) 2011-2012 Ceetron AS
+//  Copyright (C) 2018-     equinor ASA
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -26,19 +24,13 @@
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmPointer.h"
-#include "cafAppEnum.h"
-
-// Include to make Pdm work for cvf::Color
-#include "cafPdmFieldCvfColor.h"    
-#include "cafPdmChildField.h"
-
-#include "cvfObject.h"
 
 class QString;
 class RimTextAnnotation;
 class RimReachCircleAnnotation;
-class RimPolylineAnnotation;
-
+class RimPolylinesAnnotation;
+class RimPolyLinesFromFileAnnotation;
+class RimGridView;
 
 //==================================================================================================
 ///  
@@ -53,14 +45,20 @@ public:
 
     void                            addAnnotation(RimTextAnnotation* annotation);
     void                            addAnnotation(RimReachCircleAnnotation* annotation);
-    void                            addAnnotation(RimPolylineAnnotation* annotation);
+    void                            addAnnotation(RimPolylinesAnnotation* annotation);
     
-    std::vector<RimTextAnnotation*>         textAnnotations() const;
-    std::vector<RimReachCircleAnnotation*>  reachCircleAnnotations() const;
-    std::vector<RimPolylineAnnotation*>     polylineAnnotations() const;
+    std::vector<RimTextAnnotation*>              textAnnotations() const;
+    std::vector<RimReachCircleAnnotation*>       reachCircleAnnotations() const;
+    std::vector<RimPolylinesAnnotation*>         polylineAnnotations() const;
+    std::vector<RimPolyLinesFromFileAnnotation*> polylinesFromFileAnnotations() const;
+
+    RimPolyLinesFromFileAnnotation* importOrUpdatePolylinesFromFile(const QStringList& fileNames );
+    void                            scheduleRedrawOfRelevantViews();
+    std::vector<RimGridView*>       gridViewsContainingAnnotations() const;
 
 private:
-    caf::PdmChildArrayField<RimTextAnnotation*>         m_textAnnotations;
-    caf::PdmChildArrayField<RimReachCircleAnnotation*>  m_reachCircleAnnotations;
-    caf::PdmChildArrayField<RimPolylineAnnotation*>     m_polylineAnnotations;
+    caf::PdmChildArrayField<RimTextAnnotation*>              m_textAnnotations;
+    caf::PdmChildArrayField<RimReachCircleAnnotation*>       m_reachCircleAnnotations;
+    caf::PdmChildArrayField<RimPolylinesAnnotation*>         m_polylineAnnotations;
+    caf::PdmChildArrayField<RimPolyLinesFromFileAnnotation*> m_polylineFromFileAnnotations;
 };

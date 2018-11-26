@@ -123,7 +123,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RimContourMapViewCollection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimContourMapNameConfig.h
 ${CMAKE_CURRENT_LIST_DIR}/RimScaleLegendConfig.h
 ${CMAKE_CURRENT_LIST_DIR}/RimAnnotationCollection.h
-${CMAKE_CURRENT_LIST_DIR}/RimPolylineAnnotation.h
+${CMAKE_CURRENT_LIST_DIR}/RimPolylinesAnnotation.h
 ${CMAKE_CURRENT_LIST_DIR}/RimReachCircleAnnotation.h
 ${CMAKE_CURRENT_LIST_DIR}/RimTextAnnotation.h
 ${CMAKE_CURRENT_LIST_DIR}/RimAnnotationInView.h
@@ -255,7 +255,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RimContourMapViewCollection.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimContourMapNameConfig.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimScaleLegendConfig.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimAnnotationCollection.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimPolylineAnnotation.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimPolylinesAnnotation.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimReachCircleAnnotation.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimTextAnnotation.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimAnnotationInView.cpp

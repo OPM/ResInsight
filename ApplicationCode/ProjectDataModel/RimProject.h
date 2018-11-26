@@ -37,7 +37,7 @@ class RigWellPath;
 
 class RimTextAnnotation;
 class RimReachCircleAnnotation;
-class RimPolylineAnnotation;
+class RimPolylinesAnnotation;
 class RimSummaryCalculationCollection;
 class RimCase;
 class RimCommandObject;
@@ -147,7 +147,7 @@ public:
     std::vector<RimWellPath*>       allWellPaths() const;
     std::vector<RimTextAnnotation*>         textAnnotations() const;
     std::vector<RimReachCircleAnnotation*>  reachCircleAnnotations() const;
-    std::vector<RimPolylineAnnotation*>     polylineAnnotations() const;
+    std::vector<RimPolylinesAnnotation*>     polylineAnnotations() const;
 
     std::vector<RimGeoMechCase*>    geoMechCases() const;
 

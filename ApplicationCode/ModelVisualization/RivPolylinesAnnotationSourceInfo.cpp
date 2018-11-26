@@ -17,21 +17,24 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#pragma once
+#include "RivPolylinesAnnotationSourceInfo.h"
 
-#include "cvfBase.h"
-#include "cvfObject.h"
-#include "cafPdmPointer.h"
+#include "RimEclipseView.h"
+#include "RimAnnotationInViewCollection.h"
+#include "RimPolylinesAnnotation.h"
 
-class RimPolylineAnnotation;
-
-class RivPolylineAnnotationSourceInfo : public cvf::Object
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RivPolylinesAnnotationSourceInfo::RivPolylinesAnnotationSourceInfo(RimPolylinesAnnotation* annotation)
+    : m_annotation(annotation)
 {
-public:
-    RivPolylineAnnotationSourceInfo(RimPolylineAnnotation* annotation);
+}
 
-    RimPolylineAnnotation* annotation() const;
-
-private:    
-    caf::PdmPointer<RimPolylineAnnotation> m_annotation;
-};
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimPolylinesAnnotation* RivPolylinesAnnotationSourceInfo::annotation() const
+{
+    return m_annotation.p();
+}

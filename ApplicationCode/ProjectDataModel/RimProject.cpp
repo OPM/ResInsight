@@ -31,6 +31,8 @@
 #include "RigGridBase.h"
 
 #include "RimAnnotationCollection.h"
+#include "RimPolylinesAnnotation.h"
+
 #include "RimCalcScript.h"
 #include "RimCase.h"
 #include "RimCaseCollection.h"
@@ -995,9 +997,9 @@ std::vector<RimReachCircleAnnotation*> RimProject::reachCircleAnnotations() cons
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimPolylineAnnotation*> RimProject::polylineAnnotations() const
+std::vector<RimPolylinesAnnotation*> RimProject::polylineAnnotations() const
 {
-    std::vector<RimPolylineAnnotation*> annotations;
+    std::vector<RimPolylinesAnnotation*> annotations;
     for (const auto& oilField : oilFields())
     {
         auto annotationColl = oilField->annotationCollection();
@@ -1005,6 +1007,12 @@ std::vector<RimPolylineAnnotation*> RimProject::polylineAnnotations() const
         {
             annotations.push_back(annotation);
         }
+
+        for (const auto& annotation : annotationColl->polylinesFromFileAnnotations())
+        {
+            annotations.push_back(annotation);
+        }
+
     }
     return annotations;
 }
