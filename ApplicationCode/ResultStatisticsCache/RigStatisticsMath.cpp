@@ -42,7 +42,7 @@ void RigStatisticsMath::calculateBasicStatistics(const std::vector<double>& valu
     for (size_t i = 0; i < values.size(); i++)
     {
         double val = values[i];
-        if (val == HUGE_VAL) continue;
+        if (RiaStatisticsTools::isInvalidNumber<double>(val)) continue;
 
         validValueCount++;
 
@@ -56,7 +56,6 @@ void RigStatisticsMath::calculateBasicStatistics(const std::vector<double>& valu
     if (validValueCount > 0)
     {
         m_mean = m_sum / validValueCount;
-
 
         // http://en.wikipedia.org/wiki/Standard_deviation#Rapid_calculation_methods
         // Running standard deviation
@@ -91,7 +90,7 @@ std::vector<double> RigStatisticsMath::calculateNearestRankPercentiles(const std
 
     for (size_t i = 0; i < inputValues.size(); ++i)
     {
-        if (inputValues[i] != HUGE_VAL)
+        if (RiaStatisticsTools::isValidNumber<double>(inputValues[i]))
         {
             sortedValues.push_back(inputValues[i]);
         }
@@ -130,7 +129,7 @@ std::vector<double> RigStatisticsMath::calculateInterpolatedPercentiles(const st
 
     for (size_t i = 0; i < inputValues.size(); ++i)
     {
-        if (inputValues[i] != HUGE_VAL)
+        if (RiaStatisticsTools::isValidNumber<double>(inputValues[i]))
         {
             sortedValues.push_back(inputValues[i]);
         }
@@ -195,10 +194,7 @@ RigHistogramCalculator::RigHistogramCalculator(double min, double max, size_t nB
 //--------------------------------------------------------------------------------------------------
 void RigHistogramCalculator::addValue(double value)
 {
-    if (value == HUGE_VAL || value != value)
-    {
-        return;
-    }
+    if (RiaStatisticsTools::isInvalidNumber<double>(value)) return;
 
     size_t index = 0;
 
@@ -262,5 +258,6 @@ double RigHistogramCalculator::calculatePercentil(double pVal)
         }
     }
     assert(false);
+
     return HUGE_VAL;
 }

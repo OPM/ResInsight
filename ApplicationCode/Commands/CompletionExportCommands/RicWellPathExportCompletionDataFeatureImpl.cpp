@@ -325,23 +325,32 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions(const std::ve
         {
             for (auto wellPath : usedWellPaths)
             {
-                std::vector<RigCompletionData> wellCompletions;
+                std::vector<RigCompletionData> completionsForWell;
                 for (const auto& completion : completions)
                 {
                     if (completion.wellName() == wellPath->completions()->wellNameForExport())
                     {
-                        wellCompletions.push_back(completion);
+                        completionsForWell.push_back(completion);
                     }
                 }
 
-                if (wellCompletions.empty()) continue;
+                if (completionsForWell.empty()) continue;
+
+                std::vector<RicWellPathFractureReportItem> reportItemsForWell;
+                for (const auto& fracItem : fractureDataReportItems)
+                {
+                    if (fracItem.wellPathNameForExport() == wellPath->completions()->wellNameForExport())
+                    {
+                        reportItemsForWell.push_back(fracItem);
+                    }
+                }
 
                 QString fileName = QString("%1_unifiedCompletions_%2").arg(wellPath->name()).arg(eclipseCaseName);
                 sortAndExportCompletionsToFile(exportSettings.caseToApply,
                                                exportSettings.folder,
                                                fileName,
-                                               wellCompletions,
-                                               fractureDataReportItems,
+                                               completionsForWell,
+                                               reportItemsForWell,
                                                exportSettings.compdatExport);
                 progress.incrementProgress();
             }
@@ -357,17 +366,17 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions(const std::ve
             {
                 for (auto wellPath : usedWellPaths)
                 {
-                    std::vector<RigCompletionData> wellCompletions;
+                    std::vector<RigCompletionData> completionsForWell;
                     for (const auto& completion : completions)
                     {
                         if (completion.wellName() == wellPath->completions()->wellNameForExport() &&
                             completionType == completion.completionType())
                         {
-                            wellCompletions.push_back(completion);
+                            completionsForWell.push_back(completion);
                         }
                     }
 
-                    if (wellCompletions.empty()) continue;
+                    if (completionsForWell.empty()) continue;
 
                     {
                         QString completionTypeText;
@@ -378,11 +387,20 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions(const std::ve
                         QString fileName = QString("%1_%2_%3").arg(wellPath->name()).arg(completionTypeText).arg(eclipseCaseName);
                         if (completionType == RigCompletionData::FRACTURE)
                         {
+                            std::vector<RicWellPathFractureReportItem> reportItemsForWell;
+                            for (const auto& fracItem : fractureDataReportItems)
+                            {
+                                if (fracItem.wellPathNameForExport() == wellPath->completions()->wellNameForExport())
+                                {
+                                    reportItemsForWell.push_back(fracItem);
+                                }
+                            }
+
                             sortAndExportCompletionsToFile(exportSettings.caseToApply,
                                                            exportSettings.folder,
                                                            fileName,
-                                                           wellCompletions,
-                                                           fractureDataReportItems,
+                                                           completionsForWell,
+                                                           reportItemsForWell,
                                                            exportSettings.compdatExport);
                         }
                         else
@@ -391,7 +409,7 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions(const std::ve
                             sortAndExportCompletionsToFile(exportSettings.caseToApply,
                                                            exportSettings.folder,
                                                            fileName,
-                                                           wellCompletions,
+                                                           completionsForWell,
                                                            emptyReportItemVector,
                                                            exportSettings.compdatExport);
                         }

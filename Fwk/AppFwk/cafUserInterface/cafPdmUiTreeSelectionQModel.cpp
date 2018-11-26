@@ -46,6 +46,7 @@
 
 #include <algorithm>
 
+#include <QDebug>
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -485,7 +486,7 @@ bool caf::PdmUiTreeSelectionQModel::setData(const QModelIndex &index, const QVar
             }
 
             PdmUiCommandSystemProxy::instance()->setUiValueToField(m_uiFieldHandle->uiField(), fieldValueSelection); 
-
+            emit dataChanged(index, index);
             return true;
         }
     }

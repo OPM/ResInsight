@@ -17,6 +17,8 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
+#include "RiaStatisticsTools.h"
+
 #include <vector>
 #include <set>
 #include <cmath>
@@ -82,19 +84,17 @@ public:
 
     void addValue(double value)
     {
-        if (value == HUGE_VAL) // TODO
+        if (RiaStatisticsTools::isValidNumber<double>(value))
         {
-            return;
-        }
+            if (value < min)
+            {
+                min = value;
+            }
 
-        if (value < min)
-        {
-            min = value;
-        }
-
-        if (value > max)
-        {
-            max = value;
+            if (value > max)
+            {
+                max = value;
+            }
         }
     }
 
@@ -126,19 +126,17 @@ public:
 
     void addValue(double value)
     {
-        if (value == HUGE_VAL)
+        if (RiaStatisticsTools::isValidNumber<double>(value))
         {
-            return;
-        }
+            if (value < pos && value > 0)
+            {
+                pos = value;
+            }
 
-        if (value < pos && value > 0)
-        {
-            pos = value;
-        }
-
-        if (value > neg && value < 0)
-        {
-            neg = value;
+            if (value > neg && value < 0)
+            {
+                neg = value;
+            }
         }
     }
 
@@ -170,13 +168,11 @@ public:
 
     void addValue(double value)
     {
-        if (value == HUGE_VAL || value != value)
+        if (RiaStatisticsTools::isValidNumber<double>(value))
         {
-            return;
+            valueSum += value;
+            ++sampleCount;
         }
-
-        valueSum += value;
-        ++sampleCount;
     }
 
     double valueSum;
@@ -208,7 +204,10 @@ public:
 
     void addValue(double value)
     {
-        uniqueValues.insert(static_cast<int>(value));
+        if (RiaStatisticsTools::isValidNumber<double>(value))
+        {
+            uniqueValues.insert(static_cast<int>(value));
+        }
     }
 
     std::set<int> uniqueValues;
