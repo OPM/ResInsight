@@ -590,11 +590,10 @@ PdmUi3dObjectEditorHandle::~PdmUi3dObjectEditorHandle()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+/// Not allowed to change viewer. Should be constructor argument, but makes factory stuff difficult.
 //--------------------------------------------------------------------------------------------------
-void PdmUi3dObjectEditorHandle::setViewer(caf::Viewer* ownerViewer)
+void PdmUi3dObjectEditorHandle::setViewer(QWidget* ownerViewer)
 {
-    // Not allowed to change viewer. Should be constructor argument, but makes factory stuff difficult.
     CAF_ASSERT(m_ownerViewer.isNull()); 
     m_ownerViewer = ownerViewer;
 }
@@ -614,7 +613,7 @@ namespace caf
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-PdmUiSelection3dEditorVisualizer::PdmUiSelection3dEditorVisualizer(caf::Viewer* ownerViewer)
+PdmUiSelection3dEditorVisualizer::PdmUiSelection3dEditorVisualizer(QWidget* ownerViewer)
     : m_ownerViewer(ownerViewer)
 {
     this->setParent(ownerViewer); // Makes this owned by the viewer.
@@ -741,7 +740,7 @@ void RicWellPathGeometry3dEditor::configureAndUpdateUi(const QString& uiConfigNa
     for (auto target: targets)
     {
         auto targetEditor = new RicWellTarget3dEditor;
-        targetEditor->setViewer(m_ownerViewer);
+        targetEditor->setViewer(ownerViewer());
         targetEditor->setPdmObject(target);
         m_targetEditors.push_back(targetEditor); 
         targetEditor->updateUi();
@@ -776,10 +775,13 @@ RicWellTarget3dEditor::RicWellTarget3dEditor()
 //--------------------------------------------------------------------------------------------------
 RicWellTarget3dEditor::~RicWellTarget3dEditor()
 {
-    if (m_cvfModel.notNull() && m_ownerViewer) 
+    RiuViewer* ownerRiuViewer = dynamic_cast<RiuViewer*>(ownerViewer());
+
+    if (m_cvfModel.notNull() && ownerRiuViewer) 
     {
+
         // Could result in some circularities ....
-        m_ownerViewer->removeStaticModel(m_cvfModel.p());
+        ownerRiuViewer->removeStaticModel(m_cvfModel.p());
     }
 
     RimWellPathTarget* oldTarget = dynamic_cast<RimWellPathTarget*>(this->pdmObject());
@@ -800,6 +802,7 @@ RicWellTarget3dEditor::~RicWellTarget3dEditor()
 void RicWellTarget3dEditor::configureAndUpdateUi(const QString& uiConfigName)
 {
     RimWellPathTarget* target = dynamic_cast<RimWellPathTarget*>(this->pdmObject());
+    RiuViewer* ownerRiuViewer = dynamic_cast<RiuViewer*>(ownerViewer());
 
     if ( !target || !target->isEnabled())
     {
@@ -817,7 +820,7 @@ void RicWellTarget3dEditor::configureAndUpdateUi(const QString& uiConfigName)
 
     if (m_manipulator.isNull())
     {
-        m_manipulator = new RicPointTangentManipulator(m_ownerViewer);
+        m_manipulator = new RicPointTangentManipulator(ownerRiuViewer);
         QObject::connect(m_manipulator,
                          SIGNAL( notifyUpdate(const cvf::Vec3d& , const cvf::Vec3d& ) ),
                          this,
@@ -831,15 +834,14 @@ void RicWellTarget3dEditor::configureAndUpdateUi(const QString& uiConfigName)
                          this,
                          SLOT( slotDragFinished() ) );
         m_cvfModel = new cvf::ModelBasicList;
-        m_ownerViewer->addStaticModelOnce(m_cvfModel.p());
+        ownerRiuViewer->addStaticModelOnce(m_cvfModel.p());
     }
 
     cvf::ref<caf::DisplayCoordTransform> dispXf;
     double handleSize = 1.0;
     {
-        RiuViewer* viewer = dynamic_cast<RiuViewer*>(m_ownerViewer.data());
-        dispXf = viewer->ownerReservoirView()->displayCoordTransform();
-        Rim3dView* view = dynamic_cast<Rim3dView*>(viewer->ownerReservoirView());
+        dispXf = ownerRiuViewer->ownerReservoirView()->displayCoordTransform();
+        Rim3dView* view = dynamic_cast<Rim3dView*>(ownerRiuViewer->ownerReservoirView());
         handleSize = 0.7 * view->ownerCase()->characteristicCellSize();
     }
 
@@ -881,7 +883,7 @@ void RicWellTarget3dEditor::slotUpdated(const cvf::Vec3d& origin, const cvf::Vec
 
     cvf::ref<caf::DisplayCoordTransform> dispXf;
     {
-        RiuViewer* viewer = dynamic_cast<RiuViewer*>(m_ownerViewer.data());
+        RiuViewer* viewer = dynamic_cast<RiuViewer*>(ownerViewer());
         dispXf = viewer->ownerReservoirView()->displayCoordTransform();
     }
 

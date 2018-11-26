@@ -206,13 +206,17 @@ public:
     PdmUi3dObjectEditorHandle();
     ~PdmUi3dObjectEditorHandle() override;
 
-    void setViewer(caf::Viewer* ownerViewer);
+    void setViewer(QWidget* ownerViewer);
 
 protected:
+    QWidget* ownerViewer() { return m_ownerViewer;}
+
     // To be removed when splitting the PdmUiObjectEditorHandle
     QWidget* createWidget(QWidget* parent) override { return nullptr;} 
 
-    QPointer<caf::Viewer>                   m_ownerViewer;
+private:
+
+    QPointer<QWidget>                   m_ownerViewer;
 };
 
 //==================================================================================================
@@ -227,17 +231,18 @@ class PdmUiSelection3dEditorVisualizer : public QObject, caf::SelectionChangedRe
 {
     Q_OBJECT
 public:
-    PdmUiSelection3dEditorVisualizer(caf::Viewer* ownerViewer);
+    PdmUiSelection3dEditorVisualizer(QWidget* ownerViewer);
     ~PdmUiSelection3dEditorVisualizer() override; 
 
     void setConfigName(const QString& configName) { m_configName = configName; }
 
     void updateVisibleEditors();
-protected:
+
+private:
     void onSelectionManagerSelectionChanged( const std::set<int>& changedSelectionLevels ) override;
 
     std::vector< QPointer<PdmUi3dObjectEditorHandle> > m_active3DEditors;
-    QPointer<caf::Viewer>                              m_ownerViewer;
+    QPointer<QWidget>                                  m_ownerViewer;
     QString                                            m_configName;
 };
 
