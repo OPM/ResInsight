@@ -20,6 +20,7 @@ cvfXml-Test.cpp
 LibIo_UnitTests.cpp
 )
 
+add_definitions(-D_SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING)
 add_executable(${PROJECT_NAME} ${CEE_SOURCE_FILES})
 target_link_libraries(${PROJECT_NAME} ${CEE_LIBS} ${CEE_PLATFORM_LIBS} )
 
