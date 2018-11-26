@@ -993,7 +993,7 @@ bool RifReaderEclipseOutput::staticResult(const QString& result, RiaDefines::Por
     {
         std::vector<double> fileValues;
 
-        size_t numOccurrences = ecl_file_get_num_named_kw(m_ecl_init_file, result.toAscii().data());
+        size_t numOccurrences = ecl_file_get_num_named_kw(m_ecl_init_file, result.toLatin1().data());
         size_t i;
         for (i = 0; i < numOccurrences; i++)
         {

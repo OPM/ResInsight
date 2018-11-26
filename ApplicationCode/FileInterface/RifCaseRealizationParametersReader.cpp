@@ -159,7 +159,7 @@ void RifCaseRealizationParametersReader::parse()
             }
             else
             {
-                if (!RiaStdStringTools::isNumber(strValue.toStdString(), QLocale::c().decimalPoint().toAscii()))
+                if (!RiaStdStringTools::isNumber(strValue.toStdString(), QLocale::c().decimalPoint().toLatin1()))
                 {
                     throw FileParseException(QString("RifEnsembleParametersReader: Invalid number format in line %1").arg(lineNo));
                 }
@@ -264,7 +264,7 @@ void RifCaseRealizationRunspecificationReader::parse()
                 }
                 else
                 {
-                    if (!RiaStdStringTools::isNumber(paramStrValue.toStdString(), QLocale::c().decimalPoint().toAscii()))
+                    if (!RiaStdStringTools::isNumber(paramStrValue.toStdString(), QLocale::c().decimalPoint().toLatin1()))
                     {
                         throw FileParseException(QString("RifEnsembleParametersReader: Invalid number format in line %1").arg(xml->lineNumber()));
                     }

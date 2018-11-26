@@ -52,7 +52,7 @@ void JsonReader::dumpToFile(std::vector<cvf::Vec3d>& points, QString filePath)
         cvf::Vec3d point = points[idx];
         QString string;
         string.sprintf("(%0.10e, %0.10e, %0.10e)\n", point.x(), point.y(), point.z());
-        QByteArray byteArray(string.toAscii());
+        QByteArray byteArray(string.toLatin1());
         file.write(byteArray);
     }
     file.close();

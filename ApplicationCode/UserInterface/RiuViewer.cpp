@@ -63,7 +63,6 @@
 #include "cvfRendering.h"
 #include "cvfScene.h"
 
-#include <QCDEStyle>
 #include <QLabel>
 #include <QMouseEvent>
 #include <QProgressBar>
@@ -156,8 +155,6 @@ RiuViewer::RiuViewer(const QGLFormat& format, QWidget* parent)
     m_animationProgress->setFormat("Time Step: %v/%m");
     m_animationProgress->setTextVisible(true);
 
-    m_progressBarStyle = new QCDEStyle();
-    m_animationProgress->setStyle(m_progressBarStyle);
     m_showAnimProgress = false;
 
     // Histogram
@@ -212,7 +209,6 @@ RiuViewer::~RiuViewer()
     delete m_infoLabel;
     delete m_animationProgress;
     delete m_histogramWidget;
-    delete m_progressBarStyle;
     delete m_gridBoxGenerator;
 }
 

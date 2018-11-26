@@ -325,7 +325,7 @@ bool RifCsvUserDataParser::parseColumnBasedData(const AsciiDataParseOptions& par
                     }
                     else
                     {
-                        if (parseOptions.assumeNumericDataColumns || RiaStdStringTools::isNumber(colData, parseOptions.locale.decimalPoint().toAscii()))
+                        if (parseOptions.assumeNumericDataColumns || RiaStdStringTools::isNumber(colData, parseOptions.locale.decimalPoint().toLatin1()))
                         {
                             col.dataType = Column::NUMERIC;
                         }

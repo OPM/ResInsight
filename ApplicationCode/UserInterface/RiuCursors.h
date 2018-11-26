@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include <QtGui/QCursor>
+#include <QCursor>
 
 
 

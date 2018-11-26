@@ -97,7 +97,7 @@ bool RiaArgumentParser::parseArguments()
 #if defined(_MSC_VER) && defined(_WIN32)
         RiaApplication::instance()->showFormattedTextInMessageBox(helpText);
 #else
-        fprintf(stdout, "%s\n", helpText.toAscii().data());
+        fprintf(stdout, "%s\n", helpText.toLatin1().data());
         fflush(stdout);
 #endif
         return false;

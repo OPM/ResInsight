@@ -33,7 +33,12 @@
 
 #include "cafFactory.h"
 
+#if QT_VERSION >= 0x050000
+#include <QtWidgets/qerrormessage.h>
+#include <QtWidgets/qmdisubwindow.h>
+#else
 #include <QtGui>
+#endif
 #include <QtNetwork>
 
 #include <stdlib.h>
