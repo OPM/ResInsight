@@ -38,10 +38,10 @@
 #include "cafAboutDialog.h"
 #include "cafAssert.h"
 
-#include <QtCore/QVariant>
-#include <QtGui/QVBoxLayout>
-#include <QtGui/QLabel>
-#include <QtGui/QPushButton>
+#include <QVariant>
+#include <QVBoxLayout>
+#include <QLabel>
+#include <QPushButton>
 #include <QtOpenGL/QGLFormat>
 
 namespace caf {

@@ -200,8 +200,8 @@ void caf::UiListViewModelPdm::setPdmData(PdmObjectCollection* objectGroup, const
     }
 
     computeColumnCount();
-
-    reset();
+    beginResetModel();
+    endResetModel();
 }
 
 
