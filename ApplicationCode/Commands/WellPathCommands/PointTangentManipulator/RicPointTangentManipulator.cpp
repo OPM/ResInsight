@@ -614,7 +614,7 @@ namespace caf
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-PdmUiSelectionVisualizer3d::PdmUiSelectionVisualizer3d(caf::Viewer* ownerViewer)
+PdmUiSelection3dEditorVisualizer::PdmUiSelection3dEditorVisualizer(caf::Viewer* ownerViewer)
     : m_ownerViewer(ownerViewer)
 {
     this->setParent(ownerViewer); // Makes this owned by the viewer.
@@ -623,7 +623,7 @@ PdmUiSelectionVisualizer3d::PdmUiSelectionVisualizer3d(caf::Viewer* ownerViewer)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-PdmUiSelectionVisualizer3d::~PdmUiSelectionVisualizer3d()
+PdmUiSelection3dEditorVisualizer::~PdmUiSelection3dEditorVisualizer()
 {
     for (auto editor: m_active3DEditors)
     {
@@ -634,7 +634,7 @@ PdmUiSelectionVisualizer3d::~PdmUiSelectionVisualizer3d()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void PdmUiSelectionVisualizer3d::updateVisibleEditors()
+void PdmUiSelection3dEditorVisualizer::updateVisibleEditors()
 {
     for (auto editor: m_active3DEditors)
     {
@@ -645,7 +645,7 @@ void PdmUiSelectionVisualizer3d::updateVisibleEditors()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void PdmUiSelectionVisualizer3d::onSelectionManagerSelectionChanged( const std::set<int>& changedSelectionLevels )
+void PdmUiSelection3dEditorVisualizer::onSelectionManagerSelectionChanged( const std::set<int>& changedSelectionLevels )
 {
     if (!changedSelectionLevels.count(0)) return;
 
@@ -658,23 +658,34 @@ void PdmUiSelectionVisualizer3d::onSelectionManagerSelectionChanged( const std::
      
     if (!m_ownerViewer) return;
 
-    // Todo: How do we deduce the editor from the selected object ?
-    // Alt 1: Register the rim object type name as key in the factory as well
-    // Alt 2: Set the editor type name as PdmUiItem::setUiEditorTypeName
-    // Alt 3: Use a specific config-name in alt 2.
-    // Alt 4: Introduce a PdmUiItem::editorTypeName3d
-
     std::vector<RimWellPathGeometryDef*> wellPathGeomDefs;
     caf::SelectionManager::instance()->objectsByType(&wellPathGeomDefs);
 
-    for (auto geomDef: wellPathGeomDefs)
+    std::set<PdmUiItem*> totalSelection;
+    for ( int selLevel: changedSelectionLevels )
     {
-        auto editor = new RicWellPathGeometry3dEditor();        
-        editor->setViewer(m_ownerViewer);
-        editor->setPdmObject(geomDef);
-        m_active3DEditors.push_back(editor);
-        editor->updateUi();
+        std::vector<PdmUiItem*> items;
+        caf::SelectionManager::instance()->selectedItems(items, selLevel );
+        totalSelection.insert(items.begin(), items.end());
     }
+    
+    for (PdmUiItem* item: totalSelection)
+    {
+        QString editor3dTypeName = item->ui3dEditorTypeName(m_configName);
+        if (!editor3dTypeName.isEmpty())
+        {
+            PdmObjectHandle* itemObject = dynamic_cast<PdmObjectHandle*>(item);
+            if (itemObject)
+            {
+                PdmUi3dObjectEditorHandle* editor3d = caf::Factory<PdmUi3dObjectEditorHandle, QString>::instance()->create(editor3dTypeName);
+                editor3d->setViewer(m_ownerViewer);
+                editor3d->setPdmObject(itemObject);
+                m_active3DEditors.push_back(editor3d);
+                editor3d->updateUi();
+            }
+        }
+    }
+
     m_ownerViewer->update();
 }
 

@@ -223,20 +223,22 @@ protected:
 
 
 // Selected object 3D editor visualizer
-class PdmUiSelectionVisualizer3d : public QObject, caf::SelectionChangedReceiver
+class PdmUiSelection3dEditorVisualizer : public QObject, caf::SelectionChangedReceiver
 {
     Q_OBJECT
 public:
-    PdmUiSelectionVisualizer3d(caf::Viewer* ownerViewer);
-    ~PdmUiSelectionVisualizer3d() override; 
+    PdmUiSelection3dEditorVisualizer(caf::Viewer* ownerViewer);
+    ~PdmUiSelection3dEditorVisualizer() override; 
+
+    void setConfigName(const QString& configName) { m_configName = configName; }
 
     void updateVisibleEditors();
 protected:
     void onSelectionManagerSelectionChanged( const std::set<int>& changedSelectionLevels ) override;
 
     std::vector< QPointer<PdmUi3dObjectEditorHandle> > m_active3DEditors;
-
-    QPointer<caf::Viewer>                   m_ownerViewer;
+    QPointer<caf::Viewer>                              m_ownerViewer;
+    QString                                            m_configName;
 };
 
 

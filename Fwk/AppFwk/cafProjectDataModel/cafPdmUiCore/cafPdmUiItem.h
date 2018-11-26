@@ -56,12 +56,26 @@ class PdmUiItemInfo
 {
 public:  
     PdmUiItemInfo()
-        : m_editorTypeName(""), m_isHidden(-1), m_isTreeChildrenHidden(-1), m_isReadOnly(-1), m_labelAlignment(LEFT), m_isCustomContextMenuEnabled(-1)
+        : m_editorTypeName("")
+        , m_isHidden(-1)
+        , m_isTreeChildrenHidden(-1)
+        , m_isReadOnly(-1)
+        , m_labelAlignment(LEFT)
+        , m_isCustomContextMenuEnabled(-1)
     {}
 
     PdmUiItemInfo(const QString& uiName, QIcon icon = QIcon(), QString toolTip = "", QString whatsThis = "", QString extraDebugText = "")
-        : m_uiName(uiName), m_icon(icon), m_toolTip(toolTip), m_whatsThis(whatsThis), m_extraDebugText(extraDebugText),
-          m_editorTypeName(""), m_isHidden(false), m_isTreeChildrenHidden(false), m_isReadOnly(false), m_labelAlignment(LEFT), m_isCustomContextMenuEnabled(false)
+        : m_uiName(uiName)
+        , m_icon(icon)
+        , m_toolTip(toolTip)
+        , m_whatsThis(whatsThis)
+        , m_extraDebugText(extraDebugText)
+        , m_editorTypeName("")
+        , m_isHidden(false)
+        , m_isTreeChildrenHidden(false)
+        , m_isReadOnly(false)
+        , m_labelAlignment(LEFT)
+        , m_isCustomContextMenuEnabled(false)
     { }
 
     enum LabelPosType { LEFT, TOP, HIDDEN };
@@ -75,6 +89,7 @@ private:
     QString         m_whatsThis;
     QString         m_extraDebugText;
     QString         m_editorTypeName;       ///< Use this exact type of editor to edit this UiItem
+    QString         m_3dEditorTypeName;     ///< If set, use this editor type to edit this UiItem in 3D
     int             m_isHidden;             ///< UiItem should be hidden. -1 means not set
     int             m_isTreeChildrenHidden; ///< Children of UiItem should be hidden. -1 means not set
     int             m_isReadOnly;           ///< UiItem should be insensitive, or read only. -1 means not set.
@@ -235,6 +250,9 @@ public:
 
     QString          uiEditorTypeName(const QString& uiConfigName) const;
     void             setUiEditorTypeName(const QString& editorTypeName, const QString& uiConfigName = "");
+
+    QString          ui3dEditorTypeName(const QString& uiConfigName) const;
+    void             setUi3dEditorTypeName(const QString& editorTypeName, const QString& uiConfigName = "");
 
     virtual bool     isUiGroup() const;
 

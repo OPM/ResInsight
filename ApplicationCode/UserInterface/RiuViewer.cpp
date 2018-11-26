@@ -189,7 +189,7 @@ RiuViewer::RiuViewer(const QGLFormat& format, QWidget* parent)
     m_windowEdgeAxisOverlay = new RivWindowEdgeAxesOverlayItem(standardFont);
     m_showWindowEdgeAxes = false;
 
-    m_selectionVisualizerManager = new caf::PdmUiSelectionVisualizer3d(this);
+    m_selectionVisualizerManager = new caf::PdmUiSelection3dEditorVisualizer(this);
 
     m_scaleLegend = new caf::OverlayScaleLegend(standardFont);
     m_scaleLegend->setOrientation(caf::OverlayScaleLegend::HORIZONTAL);

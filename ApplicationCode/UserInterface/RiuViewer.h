@@ -46,7 +46,7 @@ namespace caf
 {
     class OverlayScaleLegend;
     class TitledOverlayFrame;
-    class PdmUiSelectionVisualizer3d;
+    class PdmUiSelection3dEditorVisualizer;
 }
 
 namespace cvf
@@ -172,7 +172,7 @@ private:
     cvf::ref<RivWindowEdgeAxesOverlayItem> m_windowEdgeAxisOverlay;
     bool                        m_showWindowEdgeAxes;
 
-    caf::PdmUiSelectionVisualizer3d* m_selectionVisualizerManager;
+    caf::PdmUiSelection3dEditorVisualizer* m_selectionVisualizerManager;
 
     cvf::Vec3d                  m_cursorPositionDomainCoords;
     bool                        m_isNavigationRotationEnabled;
