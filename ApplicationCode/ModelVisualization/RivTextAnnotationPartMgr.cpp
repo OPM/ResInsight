@@ -25,36 +25,20 @@
 #include "RiaApplication.h"
 #include "RiaPreferences.h"
 
-#include "RigActiveCellInfo.h"
-#include "RigCell.h"
-#include "RigEclipseCaseData.h"
-#include "RigMainGrid.h"
-#include "RigSimWellData.h"
-
 #include "RimTextAnnotation.h"
-#include "RimAnnotationInViewCollection.h"
-#include "RimEclipseCase.h"
-#include "RimEclipseView.h"
-#include "RimSimWellInViewCollection.h"
-#include "RimSimWellInView.h"
 
-#include "RivPipeGeometryGenerator.h"
 #include "RivPolylineGenerator.h"
 #include "RivPartPriority.h"
 #include "RivTextAnnotationSourceInfo.h"
 
 #include "cafEffectGenerator.h"
 
-#include "cvfArrowGenerator.h"
 #include "cvfDrawableGeo.h"
 #include "cvfDrawableText.h"
-#include "cvfGeometryBuilderFaceList.h"
 #include "cvfModelBasicList.h"
 #include "cvfPart.h"
-#include "cvfTransform.h"
 #include "cvfqtUtils.h"
 #include "cafDisplayCoordTransform.h"
-#include "RivSectionFlattner.h"
 
 
 //--------------------------------------------------------------------------------------------------

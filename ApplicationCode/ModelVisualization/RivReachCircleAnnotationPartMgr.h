@@ -23,6 +23,8 @@
 #include "cvfObject.h"
 #include "cafPdmPointer.h"
 
+#include "cvfVector3.h"
+
 namespace cvf
 {
     class Part;
@@ -43,27 +45,20 @@ class RimSimWellInViewCollection;
 
 class RivReachCircleAnnotationPartMgr : public cvf::Object
 {
+    using Vec3d = cvf::Vec3d;
+
 public:
     RivReachCircleAnnotationPartMgr( RimReachCircleAnnotation* annotation);
     ~RivReachCircleAnnotationPartMgr() override;
 
-    void appendDynamicGeometryPartsToModel(cvf::ModelBasicList* model, 
-                                           const caf::DisplayCoordTransform * displayXf);
-
-    void appendFlattenedDynamicGeometryPartsToModel(cvf::ModelBasicList* model, 
-                                                    size_t frameIndex,
-                                                    const caf::DisplayCoordTransform * displayXf, 
-                                                    double xOffset);
-
-
+    void appendDynamicGeometryPartsToModel(cvf::ModelBasicList* model, const caf::DisplayCoordTransform* displayXf);
 
 private:
+    void buildParts(const caf::DisplayCoordTransform* displayXf, bool doFlatten, double xOffset);
 
-    void                            clearAllGeometry();
-    Rim3dView*                      viewWithSettings();
-    RimAnnotationInViewCollection*  annotatationInViewCollection();
-    bool                            validateAnnotation(const RimReachCircleAnnotation* annotation) const;
+    void clearAllGeometry();
+    bool validateAnnotation(const RimReachCircleAnnotation* annotation) const;
 
     caf::PdmPointer<RimReachCircleAnnotation>   m_rimAnnotation;
-    cvf::ref< cvf::Part >                       m_part;
+    cvf::ref<cvf::Part>                         m_circlePart;
 };

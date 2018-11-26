@@ -36,6 +36,7 @@
 
 CAF_CMD_SOURCE_INIT(RicNewAnnotationFeature, "RicNewAnnotationFeature");
 CAF_CMD_SOURCE_INIT(RicNewTextAnnotationFeature, "RicNewTextAnnotationFeature");
+CAF_CMD_SOURCE_INIT(RicNewReachCircleAnnotationFeature, "RicNewReachCircleAnnotationFeature");
 CAF_CMD_SOURCE_INIT(RicNewPolylineAnnotationFeature, "RicNewPolygonAnnotationFeature");
 
 
@@ -97,6 +98,30 @@ void RicNewTextAnnotationFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setIcon(QIcon(":/Plus.png"));
     actionToSetup->setText("New Text Annotation");
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicNewReachCircleAnnotationFeature::onActionTriggered(bool isChecked)
+{
+    auto coll = annotationCollection();
+    if (coll)
+    {
+        auto newAnnotation = new RimReachCircleAnnotation();
+        coll->addAnnotation(newAnnotation);
+        coll->updateConnectedEditors();
+        RiuMainWindow::instance()->selectAsCurrentItem(newAnnotation);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicNewReachCircleAnnotationFeature::setupActionLook(QAction* actionToSetup)
+{
+    actionToSetup->setIcon(QIcon(":/Plus.png"));
+    actionToSetup->setText("New Reach Circle Annotation");
 }
 
 //--------------------------------------------------------------------------------------------------

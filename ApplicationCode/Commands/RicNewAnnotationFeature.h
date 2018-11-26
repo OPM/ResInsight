@@ -60,6 +60,19 @@ protected:
 //==================================================================================================
 ///
 //==================================================================================================
+class RicNewReachCircleAnnotationFeature : public RicNewAnnotationFeature
+{
+    CAF_CMD_HEADER_INIT;
+
+protected:
+    // Overrides
+    void onActionTriggered(bool isChecked) override;
+    void setupActionLook(QAction* actionToSetup) override;
+};
+
+//==================================================================================================
+///
+//==================================================================================================
 class RicNewPolylineAnnotationFeature : public RicNewAnnotationFeature
 {
     CAF_CMD_HEADER_INIT;

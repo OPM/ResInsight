@@ -76,9 +76,9 @@ RimReachCircleAnnotation::RimReachCircleAnnotation()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimReachCircleAnnotation::setRadius(double radius)
+cvf::Vec3d RimReachCircleAnnotation::centerPoint() const
 {
-    m_radius = radius;
+    return m_centerPoint;
 }
 
 //--------------------------------------------------------------------------------------------------

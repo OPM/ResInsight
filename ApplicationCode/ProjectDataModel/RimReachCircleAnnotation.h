@@ -54,7 +54,7 @@ class RimReachCircleAnnotation : public caf::PdmObject
 public:
     RimReachCircleAnnotation();
 
-    void            setRadius(double radius);
+    Vec3d           centerPoint() const;
     double          radius() const;
 
 protected:

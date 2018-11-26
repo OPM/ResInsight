@@ -109,10 +109,10 @@ void RivAnnotationsPartMgr::createAnnotationPartManagers()
     auto        reachCircleAnnotations = proj->reachCircleAnnotations();
     auto        polylineAnnotations = proj->polylineAnnotations();
 
+    clearGeometryCache();
+
     if (m_textAnnotationPartMgrs.size() != textAnnotations.size())
     {
-        clearGeometryCache();
-
         for (auto annotation : textAnnotations)
         {
             auto* apm = new RivTextAnnotationPartMgr(annotation);
@@ -122,8 +122,6 @@ void RivAnnotationsPartMgr::createAnnotationPartManagers()
     }
     if (m_reachCircleAnnotationPartMgrs.size() != reachCircleAnnotations.size())
     {
-        clearGeometryCache();
-
         for (auto annotation : reachCircleAnnotations)
         {
             auto* apm = new RivReachCircleAnnotationPartMgr(annotation);
@@ -133,8 +131,6 @@ void RivAnnotationsPartMgr::createAnnotationPartManagers()
     }
     if (m_polylineAnnotationPartMgrs.size() != polylineAnnotations.size())
     {
-        clearGeometryCache();
-
         for (auto annotation : polylineAnnotations)
         {
             auto* apm = new RivPolylineAnnotationPartMgr(annotation);

@@ -22,42 +22,20 @@
 
 #include "RivReachCircleAnnotationPartMgr.h"
 
-#include "RiaApplication.h"
-
-#include "RigActiveCellInfo.h"
-#include "RigCell.h"
-#include "RigEclipseCaseData.h"
-#include "RigMainGrid.h"
-#include "RigSimWellData.h"
-
-//#include "RimAnnotationInView.h"
 #include "RimReachCircleAnnotation.h"
-#include "RimAnnotationInViewCollection.h"
-#include "RimEclipseCase.h"
-#include "RimEclipseView.h"
-#include "RimSimWellInViewCollection.h"
-#include "RimSimWellInView.h"
 
-#include "RivPipeGeometryGenerator.h"
 #include "RivPolylineGenerator.h"
 #include "RivPartPriority.h"
 #include "RivReachCircleAnnotationSourceInfo.h"
 
 #include "cafEffectGenerator.h"
 
-#include "cvfArrowGenerator.h"
 #include "cvfDrawableGeo.h"
-#include "cvfDrawableText.h"
-#include "cvfGeometryBuilderFaceList.h"
 #include "cvfModelBasicList.h"
 #include "cvfPart.h"
-#include "cvfTransform.h"
-#include "cvfqtUtils.h"
 #include "cafDisplayCoordTransform.h"
-#include "RivSectionFlattner.h"
 
-
-static RimSimWellInViewCollection* simWellInViewCollection() { return nullptr; }
+#include <cmath>
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -76,84 +54,64 @@ RivReachCircleAnnotationPartMgr::~RivReachCircleAnnotationPartMgr()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RivReachCircleAnnotationPartMgr::clearAllGeometry()
+void RivReachCircleAnnotationPartMgr::buildParts(const caf::DisplayCoordTransform* displayXf, bool doFlatten, double xOffset)
 {
-    m_part = nullptr;
+    clearAllGeometry();
+
+    cvf::ref<RivReachCircleAnnotationSourceInfo> sourceInfo = new RivReachCircleAnnotationSourceInfo(m_rimAnnotation);
+
+    Vec3d   centerPosition = displayXf->transformToDisplayCoord(m_rimAnnotation->centerPoint());
+    double  radius         = m_rimAnnotation->radius();
+
+    // Circle part
+    {
+        int numPoints = 36;
+        std::vector<Vec3d> points;
+        for (int i = 0; i < numPoints; i++)
+        {
+            double rad = 2 * cvf::PI_D * (double)i / (double)numPoints;
+            Vec3d pt(centerPosition.x() + cos(rad) * radius, centerPosition.y() + sin(rad) * radius , centerPosition.z());
+            points.push_back(pt);
+        }
+        points.push_back(points.front());
+
+        cvf::ref<cvf::DrawableGeo> drawableGeo = RivPolylineGenerator::createLineAlongPolylineDrawable(points);
+
+        cvf::ref<cvf::Part> part = new cvf::Part;
+        part->setDrawable(drawableGeo.p());
+
+        caf::MeshEffectGenerator colorEffgen(cvf::Color3f::RED);
+        cvf::ref<cvf::Effect>    eff = colorEffgen.generateUnCachedEffect();
+
+        part->setEffect(eff.p());
+        part->setPriority(RivPartPriority::PartType::MeshLines);
+        part->setSourceInfo(sourceInfo.p());
+
+        m_circlePart = part;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RivReachCircleAnnotationPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasicList* model,
-                                                           const caf::DisplayCoordTransform * displayXf)
+void RivReachCircleAnnotationPartMgr::clearAllGeometry()
+{
+    m_circlePart  = nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RivReachCircleAnnotationPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasicList*              model,
+                                                                 const caf::DisplayCoordTransform* displayXf)
 {
     if (m_rimAnnotation.isNull()) return;
     if (!validateAnnotation(m_rimAnnotation)) return;
 
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RivReachCircleAnnotationPartMgr::appendFlattenedDynamicGeometryPartsToModel(cvf::ModelBasicList* model,
-                                                           size_t frameIndex, 
-                                                           const caf::DisplayCoordTransform * displayXf,
-                                                           double xOffset)
-{
-    ///////////////////////////////////////////
-    caf::PdmPointer<RimSimWellInView> m_rimWell;
-    cvf::ref<cvf::Part>               m_wellHeadPipeSurfacePart;
-    cvf::ref<cvf::Part>               m_wellHeadPipeCenterPart;
-    cvf::ref<cvf::Part>               m_wellHeadArrowPart;
-    cvf::ref<cvf::Part>               m_wellHeadLabelPart;
-    ///////////////////////////////////////////
-
-    if (m_rimWell.isNull()) return;
-    if (!viewWithSettings()) return;
-
-    if (!m_rimWell->isWellPipeVisible(frameIndex)) return;
-
-    //buildParts(displayXf, true, xOffset);
-
-    // Always add pipe part of well head
-    if (m_wellHeadPipeCenterPart.notNull()) model->addPart(m_wellHeadPipeCenterPart.p());
-    if (m_wellHeadPipeSurfacePart.notNull()) model->addPart(m_wellHeadPipeSurfacePart.p());
-
-    if (m_rimWell->showWellLabel() && 
-        m_wellHeadLabelPart.notNull())
-    {
-        model->addPart(m_wellHeadLabelPart.p());
-    }
-
-    if (m_rimWell->showWellHead() &&
-        m_wellHeadArrowPart.notNull())
-    {
-        model->addPart(m_wellHeadArrowPart.p());
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-Rim3dView* RivReachCircleAnnotationPartMgr::viewWithSettings()
-{
-    Rim3dView* view = nullptr;
-    if (m_rimAnnotation) m_rimAnnotation->firstAncestorOrThisOfType(view);
-
-    return view;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RimAnnotationInViewCollection* RivReachCircleAnnotationPartMgr::annotatationInViewCollection()
-{
-    RimAnnotationInViewCollection* coll = nullptr;
-    if (m_rimAnnotation)  m_rimAnnotation->firstAncestorOrThisOfType(coll);
-
-    return coll;
+    buildParts(displayXf, false, 0.0);
+    model->addPart(m_circlePart.p());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -161,6 +119,5 @@ RimAnnotationInViewCollection* RivReachCircleAnnotationPartMgr::annotatationInVi
 //--------------------------------------------------------------------------------------------------
 bool RivReachCircleAnnotationPartMgr::validateAnnotation(const RimReachCircleAnnotation* annotation) const
 {
-    return false;
+    return m_rimAnnotation->centerPoint() != cvf::Vec3d::ZERO && m_rimAnnotation->radius() > 0.0;
 }
-

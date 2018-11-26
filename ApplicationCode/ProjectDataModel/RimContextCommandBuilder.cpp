@@ -683,6 +683,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         else if (dynamic_cast<RimAnnotationCollection*>(uiItem))
         {
             menuBuilder << "RicNewTextAnnotationFeature";
+            menuBuilder << "RicNewReachCircleAnnotationFeature";
             menuBuilder << "RicNewPolygonAnnotationFeature";
         }
 
