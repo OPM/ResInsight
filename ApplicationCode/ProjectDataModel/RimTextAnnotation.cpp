@@ -128,7 +128,7 @@ void RimTextAnnotation::fieldChangedByUi(const caf::PdmFieldHandle* changedField
     auto views = gridViewsContainingAnnotations();
     if (!views.empty())
     {
-        if (changedField == &m_text)
+        if (changedField == &m_text || changedField == &m_anchorPoint || changedField == &m_labelPoint)
         {
             for (auto& view : views)
             {
@@ -136,6 +136,14 @@ void RimTextAnnotation::fieldChangedByUi(const caf::PdmFieldHandle* changedField
             }
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+caf::PdmFieldHandle* RimTextAnnotation::userDescriptionField()
+{
+    return &m_text;
 }
 
 //--------------------------------------------------------------------------------------------------

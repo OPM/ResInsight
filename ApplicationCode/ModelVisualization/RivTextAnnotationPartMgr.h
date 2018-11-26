@@ -50,23 +50,15 @@ public:
     void appendDynamicGeometryPartsToModel(cvf::ModelBasicList* model, 
                                            const caf::DisplayCoordTransform * displayXf);
 
-    void appendFlattenedDynamicGeometryPartsToModel(cvf::ModelBasicList* model, 
-                                                    size_t frameIndex,
-                                                    const caf::DisplayCoordTransform * displayXf, 
-                                                    double xOffset);
-
-
-
 private:
-    void                            buildTextAnnotationParts(const caf::DisplayCoordTransform * displayXf, 
-                                                             bool doFlatten, 
-                                                             double xOffset);
+    void                            buildParts(const caf::DisplayCoordTransform * displayXf, 
+                                               bool doFlatten, 
+                                               double xOffset);
 
     void                            clearAllGeometry();
-    Rim3dView*                      viewWithSettings();
-    RimAnnotationInViewCollection*  annotatationInViewCollection();
     bool                            validateAnnotation(const RimTextAnnotation* annotation) const;
 
     caf::PdmPointer<RimTextAnnotation>  m_rimAnnotation;
-    cvf::ref< cvf::Part >               m_part;
+    cvf::ref<cvf::Part>                 m_linePart;
+    cvf::ref< cvf::Part >               m_labelPart;
 };

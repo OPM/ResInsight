@@ -23,6 +23,7 @@
 #include "RivTextAnnotationPartMgr.h"
 
 #include "RiaApplication.h"
+#include "RiaPreferences.h"
 
 #include "RigActiveCellInfo.h"
 #include "RigCell.h"
@@ -30,7 +31,6 @@
 #include "RigMainGrid.h"
 #include "RigSimWellData.h"
 
-//#include "RimAnnotationInView.h"
 #include "RimTextAnnotation.h"
 #include "RimAnnotationInViewCollection.h"
 #include "RimEclipseCase.h"
@@ -57,8 +57,6 @@
 #include "RivSectionFlattner.h"
 
 
-static RimSimWellInViewCollection* simWellInViewCollection() { return nullptr; }
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -78,50 +76,67 @@ RivTextAnnotationPartMgr::~RivTextAnnotationPartMgr()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivTextAnnotationPartMgr::buildTextAnnotationParts(const caf::DisplayCoordTransform * displayXf,
-                                            bool doFlatten, 
-                                            double xOffset)
+void RivTextAnnotationPartMgr::buildParts(const caf::DisplayCoordTransform * displayXf,
+                                          bool doFlatten,
+                                          double xOffset)
 {
     clearAllGeometry();
 
-    auto textAnnotation = dynamic_cast<RimTextAnnotation*>(m_rimAnnotation.p());
+    cvf::ref<RivTextAnnotationSourceInfo> sourceInfo = new RivTextAnnotationSourceInfo(m_rimAnnotation);
 
-    if(textAnnotation)
+    cvf::Vec3d anchorPosition = displayXf->transformToDisplayCoord(m_rimAnnotation->anchorPoint());
+    cvf::Vec3d labelPosition = displayXf->transformToDisplayCoord(m_rimAnnotation->labelPoint());
+    QString text = m_rimAnnotation->text();
+
+    // Line part
     {
-        cvf::ref<RivTextAnnotationSourceInfo> sourceInfo = new RivTextAnnotationSourceInfo(m_rimAnnotation);
+        std::vector<cvf::Vec3d> points = { anchorPosition, labelPosition };
 
-        cvf::Vec3d textPosition = displayXf->transformToDisplayCoord(m_rimAnnotation->anchorPoint());
-        QString text = textAnnotation->text();
+        cvf::ref<cvf::DrawableGeo> drawableGeo = RivPolylineGenerator::createLineAlongPolylineDrawable(points);
 
-        if (!text.isEmpty())
-        {
-            cvf::Font* font = RiaApplication::instance()->customFont();
+        cvf::ref<cvf::Part> part = new cvf::Part;
+        part->setDrawable(drawableGeo.p());
 
-            cvf::ref<cvf::DrawableText> drawableText = new cvf::DrawableText;
-            drawableText->setFont(font);
-            drawableText->setCheckPosVisible(false);
-            drawableText->setDrawBorder(false);
-            drawableText->setDrawBackground(false);
-            drawableText->setVerticalAlignment(cvf::TextDrawer::CENTER);
-            drawableText->setTextColor(cvf::Color3f::BLACK);//   simWellInViewCollection()->wellLabelColor());
+        caf::MeshEffectGenerator    colorEffgen(cvf::Color3f::BLACK);
+        cvf::ref<cvf::Effect>       eff = colorEffgen.generateUnCachedEffect();
 
-            cvf::String cvfString = cvfqt::Utils::toString(text);
+        part->setEffect(eff.p());
+        part->setPriority(RivPartPriority::PartType::MeshLines);
+        part->setSourceInfo(sourceInfo.p());
 
-            cvf::Vec3f textCoord(textPosition);
-            drawableText->addText(cvfString, textCoord);
+        m_linePart = part;
+    }
 
-            cvf::ref<cvf::Part> part = new cvf::Part;
-            part->setName("RivAnnotationPartMgr: text " + cvfString);
-            part->setDrawable(drawableText.p());
+    // Text part
+    {
+        auto app = RiaApplication::instance();
+        cvf::Font* font = app->customFont();
+        auto prefs = app->preferences();
 
-            cvf::ref<cvf::Effect> eff = new cvf::Effect;
+        cvf::ref<cvf::DrawableText> drawableText = new cvf::DrawableText;
+        drawableText->setFont(font);
+        drawableText->setCheckPosVisible(false);
+        drawableText->setDrawBorder(true);
+        drawableText->setDrawBackground(true);
+        drawableText->setVerticalAlignment(cvf::TextDrawer::BASELINE);
+        drawableText->setBackgroundColor(prefs->defaultViewerBackgroundColor);
+        drawableText->setTextColor(cvf::Color3f::BLACK);
 
-            part->setEffect(eff.p());
-            part->setPriority(RivPartPriority::PartType::Text);
-            part->setSourceInfo(sourceInfo.p());
+        cvf::String cvfString = cvfqt::Utils::toString(text);
 
-            m_part = part;
-        }
+        cvf::Vec3f textCoord(labelPosition);
+        drawableText->addText(cvfString, textCoord);
+
+        cvf::ref<cvf::Part> part = new cvf::Part;
+        part->setName("RivTextAnnotationPartMgr: " + cvfString);
+        part->setDrawable(drawableText.p());
+
+        cvf::ref<cvf::Effect> eff = new cvf::Effect();
+        part->setEffect(eff.p());
+        part->setPriority(RivPartPriority::PartType::Text);
+        part->setSourceInfo(sourceInfo.p());
+
+        m_labelPart = part;
     }
 }
 
@@ -130,7 +145,8 @@ void RivTextAnnotationPartMgr::buildTextAnnotationParts(const caf::DisplayCoordT
 //--------------------------------------------------------------------------------------------------
 void RivTextAnnotationPartMgr::clearAllGeometry()
 {
-    m_part = nullptr;
+    m_linePart = nullptr;
+    m_labelPart = nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -142,70 +158,9 @@ void RivTextAnnotationPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasic
     if (m_rimAnnotation.isNull()) return;
     if (!validateAnnotation(m_rimAnnotation)) return;
 
-    buildTextAnnotationParts(displayXf, false, 0.0);
-    model->addPart(m_part.p());
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RivTextAnnotationPartMgr::appendFlattenedDynamicGeometryPartsToModel(cvf::ModelBasicList* model,
-                                                           size_t frameIndex, 
-                                                           const caf::DisplayCoordTransform * displayXf,
-                                                           double xOffset)
-{
-    ///////////////////////////////////////////
-    caf::PdmPointer<RimSimWellInView> m_rimWell;
-    cvf::ref<cvf::Part>               m_wellHeadPipeSurfacePart;
-    cvf::ref<cvf::Part>               m_wellHeadPipeCenterPart;
-    cvf::ref<cvf::Part>               m_wellHeadArrowPart;
-    cvf::ref<cvf::Part>               m_wellHeadLabelPart;
-    ///////////////////////////////////////////
-
-    if (m_rimWell.isNull()) return;
-    if (!viewWithSettings()) return;
-
-    if (!m_rimWell->isWellPipeVisible(frameIndex)) return;
-
-    //buildParts(displayXf, true, xOffset);
-
-    // Always add pipe part of well head
-    if (m_wellHeadPipeCenterPart.notNull()) model->addPart(m_wellHeadPipeCenterPart.p());
-    if (m_wellHeadPipeSurfacePart.notNull()) model->addPart(m_wellHeadPipeSurfacePart.p());
-
-    if (m_rimWell->showWellLabel() && 
-        m_wellHeadLabelPart.notNull())
-    {
-        model->addPart(m_wellHeadLabelPart.p());
-    }
-
-    if (m_rimWell->showWellHead() &&
-        m_wellHeadArrowPart.notNull())
-    {
-        model->addPart(m_wellHeadArrowPart.p());
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-Rim3dView* RivTextAnnotationPartMgr::viewWithSettings()
-{
-    Rim3dView* view = nullptr;
-    if (m_rimAnnotation) m_rimAnnotation->firstAncestorOrThisOfType(view);
-
-    return view;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RimAnnotationInViewCollection* RivTextAnnotationPartMgr::annotatationInViewCollection()
-{
-    RimAnnotationInViewCollection* coll = nullptr;
-    if (m_rimAnnotation)  m_rimAnnotation->firstAncestorOrThisOfType(coll);
-
-    return coll;
+    buildParts(displayXf, false, 0.0);
+    model->addPart(m_linePart.p());
+    model->addPart(m_labelPart.p());
 }
 
 //--------------------------------------------------------------------------------------------------

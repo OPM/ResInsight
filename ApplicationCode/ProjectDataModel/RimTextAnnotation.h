@@ -62,6 +62,7 @@ public:
 protected:
     void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
     void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    caf::PdmFieldHandle* userDescriptionField() override;
 
 private:
     std::vector<RimGridView*> gridViewsContainingAnnotations() const;

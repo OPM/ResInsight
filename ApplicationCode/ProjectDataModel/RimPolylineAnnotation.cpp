@@ -68,7 +68,7 @@ RimPolylineAnnotation::RimPolylineAnnotation()
 {
     CAF_PDM_InitObject("PolylineAnnotation", ":/WellCollection.png", "", "");
 
-    CAF_PDM_InitField(&m_points, "Points", {}, "", "", "", "");
+    CAF_PDM_InitField(&m_points, "Points", {}, "Points", "", "", "");
 }
 
 RimPolylineAnnotation::~RimPolylineAnnotation()
