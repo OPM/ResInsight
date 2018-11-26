@@ -38,12 +38,21 @@ public:
 
     static double totalConnectionFactor(double transX, double transY, double transZ);
 
-    static double totalPermeability(double            cellPermX,
-                                    double            cellPermY,
-                                    double            cellPermZ,
-                                    const cvf::Vec3d& internalCellLengths,
-                                    double            lateralNtg,
-                                    double            ntg);
+    static double totalKh(double            cellPermX,
+                          double            cellPermY,
+                          double            cellPermZ,
+                          const cvf::Vec3d& internalCellLengths,
+                          double            lateralNtg,
+                          double            ntg);
+
+    static double effectiveK(double            cellPermX,
+                             double            cellPermY,
+                             double            cellPermZ,
+                             const cvf::Vec3d& internalCellLengths,
+                             double            lateralNtg,
+                             double            ntg);
+
+    static double effectiveH(const cvf::Vec3d& internalCellLengths, double lateralNtg, double ntg);
 
     static double permeability(const double conductivity, const double width);
 
