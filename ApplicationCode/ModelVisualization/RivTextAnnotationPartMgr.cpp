@@ -23,6 +23,7 @@
 #include "RivTextAnnotationPartMgr.h"
 
 #include "RiaApplication.h"
+#include "RiaColorTools.h"
 #include "RiaPreferences.h"
 
 #include "RimTextAnnotation.h"
@@ -104,6 +105,7 @@ void RivTextAnnotationPartMgr::buildParts(const caf::DisplayCoordTransform * dis
         drawableText->setDrawBackground(true);
         drawableText->setVerticalAlignment(cvf::TextDrawer::BASELINE);
         drawableText->setBackgroundColor(prefs->defaultViewerBackgroundColor);
+        drawableText->setBorderColor(RiaColorTools::computeOffsetColor(prefs->defaultViewerBackgroundColor, 0.3f));
         drawableText->setTextColor(cvf::Color3f::BLACK);
 
         cvf::String cvfString = cvfqt::Utils::toString(text);
