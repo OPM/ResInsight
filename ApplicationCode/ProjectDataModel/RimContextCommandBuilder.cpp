@@ -27,6 +27,7 @@
 #include "Rim3dWellLogFileCurve.h"
 #include "Rim3dWellLogRftCurve.h"
 #include "RimAnnotationCollection.h"
+#include "RimAnnotationInViewCollection.h"
 #include "RimCalcScript.h"
 #include "RimCaseCollection.h"
 #include "RimCellRangeFilter.h"
@@ -682,10 +683,14 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         }
         else if (dynamic_cast<RimAnnotationCollection*>(uiItem))
         {
+            menuBuilder << "RicCreateTextAnnotationFeature";
+            menuBuilder << "RicCreateReachCircleAnnotationFeature";
+            menuBuilder << "RicCreateUserDefinedPolylinesAnnotationFeature";
             menuBuilder << "RicImportPolylinesAnnotationFeature";
-            menuBuilder << "RicNewTextAnnotationFeature";
-            menuBuilder << "RicNewReachCircleAnnotationFeature";
-            menuBuilder << "RicNewPolygonAnnotationFeature";
+        }
+        else if (dynamic_cast<RimAnnotationInViewCollection*>(uiItem))
+        {
+            menuBuilder << "RicCreateTextAnnotationFeature";
         }
 
         if (dynamic_cast<Rim3dView*>(uiItem))

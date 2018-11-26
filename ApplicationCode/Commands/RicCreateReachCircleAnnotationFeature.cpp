@@ -1,8 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2011-     Statoil ASA
-//  Copyright (C) 2013-     Ceetron Solutions AS
-//  Copyright (C) 2011-2012 Ceetron AS
+//  Copyright (C) 2016-     Statoil ASA
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -18,57 +16,67 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimAnnotationInView.h"
+#include "RicCreateReachCircleAnnotationFeature.h"
 
-#include "cafPdmUiTreeOrdering.h"
+#include "RiaApplication.h"
+
+#include "RimTextAnnotation.h"
+#include "RimReachCircleAnnotation.h"
+#include "RimPolylinesAnnotation.h"
+#include "RimAnnotationCollection.h"
+#include "RimAnnotationInViewCollection.h"
+#include "RimProject.h"
+#include "RimOilField.h"
+
+#include "RiuMainWindow.h"
+
+#include <cafSelectionManagerTools.h>
+
+#include <QAction>
 
 
-CAF_PDM_SOURCE_INIT(RimAnnotationInView, "Annotation");
+CAF_CMD_SOURCE_INIT(RicCreateReachCircleAnnotationFeature, "RicCreateReachCircleAnnotationFeature");
+
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RimAnnotationInView::RimAnnotationInView()
+bool RicCreateReachCircleAnnotationFeature::isCommandEnabled()
 {
-    CAF_PDM_InitObject("Well", ":/Well.png", "", "");
-
-    CAF_PDM_InitField(&m_isActive, "Active", true, "Active", "", "", "");
-    m_isActive.uiCapability()->setUiHidden(true);
+    auto selObjs = caf::selectedObjectsByTypeStrict<RimAnnotationCollection*>();
+    return selObjs.size() == 1;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RimAnnotationInView::~RimAnnotationInView()
+void RicCreateReachCircleAnnotationFeature::onActionTriggered(bool isChecked)
 {
+    auto coll = annotationCollection();
+    if (coll)
+    {
+        auto newAnnotation = new RimReachCircleAnnotation();
+        coll->addAnnotation(newAnnotation);
+        coll->updateConnectedEditors();
+        RiuMainWindow::instance()->selectAsCurrentItem(newAnnotation);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RimAnnotationInView::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+void RicCreateReachCircleAnnotationFeature::setupActionLook(QAction* actionToSetup)
 {
+    actionToSetup->setIcon(QIcon(":/Plus.png"));
+    actionToSetup->setText("Create Reach Circle Annotation");
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-caf::PdmFieldHandle* RimAnnotationInView::objectToggleField()
+RimAnnotationCollection* RicCreateReachCircleAnnotationFeature::annotationCollection() const
 {
-    return &m_isActive;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimAnnotationInView::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
-{
-    uiOrdering.skipRemainingFields(true);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimAnnotationInView::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/)
-{
+    auto project  = RiaApplication::instance()->project();
+    auto oilField = project->activeOilField();
+    return oilField ? oilField->annotationCollection() : nullptr;
 }

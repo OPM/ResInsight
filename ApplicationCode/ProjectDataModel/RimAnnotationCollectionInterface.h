@@ -20,35 +20,23 @@
 
 #pragma once
 
-#include "cafPdmField.h"
+#include "RiaEclipseUnitTools.h"
+
 #include "cafPdmObject.h"
-#include "cafPdmPointer.h"
-#include "cafAppEnum.h"
-#include "cafPdmChildField.h"
 
-#include "cvfObject.h"
-#include "cvfVector3.h"
+class RimTextAnnotation;
+class RimReachCircleAnnotation;
+class RimPolylineAnnotation;
 
 
 //==================================================================================================
 ///  
 ///  
 //==================================================================================================
-class RimAnnotationInView : public caf::PdmObject
+class RimAnnotationCollectionInterface : public caf::PdmObject
 {
-    CAF_PDM_HEADER_INIT;
 public:
-
-    RimAnnotationInView();
-    ~RimAnnotationInView() override;
-    
-    caf::PdmFieldHandle*        objectToggleField() override;
-
-protected:
-    void                        fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
-    void                        defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
-    void                        defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
-
-private:
-    caf::PdmField<bool>         m_isActive;
+    virtual std::vector<RimTextAnnotation*>         textAnnotations() const = 0;
+    virtual std::vector<RimReachCircleAnnotation*>  reachCircleAnnotations() const = 0;
+    virtual std::vector<RimPolylineAnnotation*>     polylineAnnotations() const = 0;
 };

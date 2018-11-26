@@ -27,6 +27,7 @@
 #include "cafPdmPointer.h"
 #include "cafTristate.h"
 
+class RimTextAnnotation;
 
 //==================================================================================================
 ///  
@@ -40,13 +41,16 @@ public:
     RimAnnotationInViewCollection();
     ~RimAnnotationInViewCollection() override;
 
-    bool                        isActive() const;
+    void addAnnotation(RimTextAnnotation* annotation);
+
+    std::vector<RimTextAnnotation*> textAnnotations() const;
+    bool                            isActive() const;
 
 protected:
     void                        fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
-    void                        defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
     caf::PdmFieldHandle*        objectToggleField() override;
 
 private:
-    caf::PdmField<bool>         m_isActive;
+    caf::PdmChildArrayField<RimTextAnnotation*> m_textAnnotations;
+    caf::PdmField<bool>                         m_isActive;
 };

@@ -71,7 +71,7 @@ RimTextAnnotation::RimTextAnnotation()
 
     CAF_PDM_InitField(&m_anchorPoint, "AnchorPoint", Vec3d::ZERO, "Anchor Point", "", "", "");
     CAF_PDM_InitField(&m_labelPoint, "LabelPoint", Vec3d::ZERO, "Label Point", "", "", "");
-    CAF_PDM_InitField(&m_text, "Text", QString(), "Text", "", "", "");
+    CAF_PDM_InitField(&m_text, "Text", QString("(New text)"), "Text", "", "", "");
 }
 
 //--------------------------------------------------------------------------------------------------

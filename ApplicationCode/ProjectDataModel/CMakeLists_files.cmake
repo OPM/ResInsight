@@ -126,7 +126,6 @@ ${CMAKE_CURRENT_LIST_DIR}/RimAnnotationCollection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimPolylinesAnnotation.h
 ${CMAKE_CURRENT_LIST_DIR}/RimReachCircleAnnotation.h
 ${CMAKE_CURRENT_LIST_DIR}/RimTextAnnotation.h
-${CMAKE_CURRENT_LIST_DIR}/RimAnnotationInView.h
 ${CMAKE_CURRENT_LIST_DIR}/RimAnnotationInViewCollection.h
 )
 
@@ -258,7 +257,6 @@ ${CMAKE_CURRENT_LIST_DIR}/RimAnnotationCollection.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimPolylinesAnnotation.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimReachCircleAnnotation.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimTextAnnotation.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimAnnotationInView.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimAnnotationInViewCollection.cpp
 )
 

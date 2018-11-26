@@ -30,7 +30,6 @@
 #include <QString>
 
 
-
 CAF_PDM_SOURCE_INIT(RimAnnotationCollection, "RimAnnotationCollection");
 
 //--------------------------------------------------------------------------------------------------

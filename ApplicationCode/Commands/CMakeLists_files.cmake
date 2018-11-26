@@ -76,7 +76,9 @@ ${CMAKE_CURRENT_LIST_DIR}/RicConvertGroupToEnsembleFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicResampleDialog.h
 ${CMAKE_CURRENT_LIST_DIR}/RicCreateTemporaryLgrFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicDeleteTemporaryLgrsFeature.h
-${CMAKE_CURRENT_LIST_DIR}/RicNewAnnotationFeature.h
+${CMAKE_CURRENT_LIST_DIR}/RicCreateTextAnnotationFeature.h
+${CMAKE_CURRENT_LIST_DIR}/RicCreateReachCircleAnnotationFeature.h
+${CMAKE_CURRENT_LIST_DIR}/RicCreateUserDefinedPolylinesAnnotationFeature.h
 )
 
 
@@ -151,7 +153,9 @@ ${CMAKE_CURRENT_LIST_DIR}/RicConvertGroupToEnsembleFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicResampleDialog.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicCreateTemporaryLgrFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicDeleteTemporaryLgrsFeature.cpp
-${CMAKE_CURRENT_LIST_DIR}/RicNewAnnotationFeature.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicCreateTextAnnotationFeature.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicCreateReachCircleAnnotationFeature.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicCreateUserDefinedPolylinesAnnotationFeature.cpp
 )
 
 
