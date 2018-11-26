@@ -43,12 +43,19 @@
 #include "cvfuTestSnippet.h"
 #include "cvfqtUtils.h"
 
+#if QT_VERSION >= 0x050000
+#include <QGridLayout>
+#include <QLabel>
+#include <QPushButton>
+#include <QSpacerItem>
+#include <QLineEdit>
+#else
 #include <QtGui/QGridLayout>
 #include <QtGui/QLabel>
 #include <QtGui/QPushButton>
 #include <QtGui/QSpacerItem>
 #include <QtGui/QLineEdit>
-
+#endif
 using cvfu::TestSnippet;
 using cvfu::SnippetInfo;
 using cvfu::SnippetRegistry;

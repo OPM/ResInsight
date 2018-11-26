@@ -40,7 +40,11 @@
 #include "cvfObject.h"
 #include "cvfOpenGLContextGroup.h"
 
+#if QT_VERSION >= 0x050000
+#include <QMainWindow>
+#else
 #include <QtGui/QMainWindow>
+#endif
 
 class QMWidget;
 

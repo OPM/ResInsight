@@ -43,7 +43,11 @@
 
 #include "cvfuSnippetFactory.h"
 
+#if QT_VERSION >= 0x050000
+#include <QWidget>
+#else
 #include <QtGui/QWidget>
+#endif
 
 class QDockWidget;
 class QLabel;

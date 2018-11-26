@@ -45,7 +45,11 @@
 #include "cvfuSnippetPropertyPublisher.h"
 
 #include <QtCore/QPointer>
+#if QT_VERSION >= 0x050000
+#include <QWidget>
+#else
 #include <QtGui/QWidget>
+#endif
 
 class QSRSnippetWidget;
 class QComboBox;
