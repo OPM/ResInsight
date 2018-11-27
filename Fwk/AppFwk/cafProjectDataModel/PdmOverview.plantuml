@@ -11,7 +11,7 @@ note right of [cafProjectDataModel]
 end note
 
 
-component cafPdmCore
+component cafPdmCore 
 note right of [cafPdmCore]
   cafAppEnum
   Classes derived from cafPdmFieldHandle 

@@ -39,6 +39,8 @@ set( PROJECT_FILES
     cafPdmUiModelChangeDetector.h
     cafPdmUiObjectEditorHandle.cpp
     cafPdmUiObjectEditorHandle.h
+    cafPdmUiWidgetObjectEditorHandle.cpp
+    cafPdmUiWidgetObjectEditorHandle.h
     cafPdmUiObjectHandle.cpp
     cafPdmUiObjectHandle.h
     cafPdmUiOrdering.cpp

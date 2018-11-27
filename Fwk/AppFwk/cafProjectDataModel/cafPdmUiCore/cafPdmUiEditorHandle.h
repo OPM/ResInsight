@@ -58,7 +58,7 @@ public:
 
 public:
     void        updateUi(const QString& uiConfigName);;
-    void        updateUi();;
+    void        updateUi();
 
 protected:
     // Interface to override:

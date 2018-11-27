@@ -176,6 +176,8 @@ private:
 #include "cafSelectionChangedReceiver.h"
 #include "cafPdmUiObjectEditorHandle.h"
 #include "cafFactory.h"
+#include <QWidget>
+
 // PdmUiObjectEditorHandle -<| PdmUiWidgetObjectEditorHandle --<| PdmUiFormLayoutObjectEditor 
 //                         -<| PdmUi3dObjectEditorHandle
 namespace caf
@@ -210,9 +212,6 @@ public:
 
 protected:
     QWidget* ownerViewer() { return m_ownerViewer;}
-
-    // To be removed when splitting the PdmUiObjectEditorHandle
-    QWidget* createWidget(QWidget* parent) override { return nullptr;} 
 
 private:
 

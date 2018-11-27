@@ -1,7 +1,7 @@
 //##################################################################################################
 //
 //   Custom Visualization Core library
-//   Copyright (C) 2011-2013 Ceetron AS
+//   Copyright (C) Ceetron Solutions AS
 //
 //   This library may be used under the terms of either the GNU General Public License or
 //   the GNU Lesser General Public License as follows:
@@ -33,62 +33,35 @@
 //   for more details.
 //
 //##################################################################################################
-
-
 #pragma once
 
-#include <QString>
-#include <QWidget>
+#include "cafPdmUiObjectEditorHandle.h"
+
 #include <QPointer>
+#include <QWidget>
 
-class QVBoxLayout;
-
-
-#include <QScrollArea>
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-class QVerticalScrollArea : public QScrollArea
+namespace caf 
 {
-    Q_OBJECT
-public:
-    explicit QVerticalScrollArea(QWidget* parent = nullptr);
-    bool eventFilter(QObject* object, QEvent* event) override;
-};
-
-
-namespace caf
-{
-
-class PdmObjectHandle;
-class PdmUiWidgetObjectEditorHandle;
 
 //==================================================================================================
-/// 
+/// Abstract class to handle widget based editors for complete PdmObjects
 //==================================================================================================
 
-class PdmUiPropertyView : public QWidget
+class PdmUiWidgetObjectEditorHandle : public PdmUiObjectEditorHandle
 {
-    Q_OBJECT
 public:
-    PdmUiPropertyView(QWidget* parent = nullptr, Qt::WindowFlags f = nullptr);
-    ~PdmUiPropertyView() override;
-
-    void                setUiConfigurationName(QString uiConfigName);
-    PdmObjectHandle*    currentObject();
-
-    QSize               sizeHint() const override;
-
-public slots:
-    void                showProperties(caf::PdmObjectHandle* object); // Signal/Slot system needs caf:: prefix in some cases
+    PdmUiWidgetObjectEditorHandle();
+    ~PdmUiWidgetObjectEditorHandle() override;
+   
+    QWidget*                getOrCreateWidget(QWidget* parent);
+    QWidget*                widget() const;
+ 
+protected:
+    /// Supposed to create the top level widget of the editor with a suitable QLayout 
+    virtual QWidget*        createWidget(QWidget* parent) = 0;
 
 private:
-    PdmUiWidgetObjectEditorHandle* m_currentObjectView; 
-    QString                        m_uiConfigName;
-    
-    QPointer<QVBoxLayout>          m_placeHolderLayout;
-    QPointer<QWidget>              m_placeholder;
+    QPointer<QWidget>       m_widget;
 };
 
 
