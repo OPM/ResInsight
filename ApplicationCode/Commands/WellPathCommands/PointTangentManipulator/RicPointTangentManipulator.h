@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2018-     Statoil ASA
+//  Copyright (C) 2018-     equinor ASA
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -171,88 +171,7 @@ private:
 ///
 ///
 //==================================================================================================
-
-
-#include "cafSelectionChangedReceiver.h"
-#include "cafPdmUiObjectEditorHandle.h"
-#include "cafFactory.h"
-#include <QWidget>
-
-// PdmUiObjectEditorHandle -<| PdmUiWidgetObjectEditorHandle --<| PdmUiFormLayoutObjectEditor 
-//                         -<| PdmUi3dObjectEditorHandle
-namespace caf
-{
-
-//==================================================================================================
-/// Macros helping in development of PDM UI 3d editors
-//==================================================================================================
-
-/// CAF_PDM_UI_3D_OBJECT_EDITOR_HEADER_INIT assists the factory used when creating editors
-/// Place this in the header file inside the class definition of your PdmUiEditor
-
-#define CAF_PDM_UI_3D_OBJECT_EDITOR_HEADER_INIT \
-public: \
-    static QString uiEditorTypeName()
-
-/// CAF_PDM_UI_3D_OBJECT_EDITOR_SOURCE_INIT  implements editorTypeName() and registers the field editor in the field editor factory
-/// Place this in the cpp file, preferably above the constructor
-
-#define CAF_PDM_UI_3D_OBJECT_EDITOR_SOURCE_INIT(EditorClassName) \
-    QString EditorClassName::uiEditorTypeName() { return #EditorClassName; } \
-    CAF_FACTORY_REGISTER(caf::PdmUi3dObjectEditorHandle, EditorClassName, QString, EditorClassName::uiEditorTypeName())
-
-
-class PdmUi3dObjectEditorHandle : public caf::PdmUiObjectEditorHandle
-{
-public:
-    PdmUi3dObjectEditorHandle();
-    ~PdmUi3dObjectEditorHandle() override;
-
-    void setViewer(QWidget* ownerViewer);
-
-protected:
-    QWidget* ownerViewer() { return m_ownerViewer;}
-
-private:
-
-    QPointer<QWidget>                   m_ownerViewer;
-};
-
-//==================================================================================================
-/// 
-///
-///
-//==================================================================================================
-
-
-// Selected object 3D editor visualizer
-class PdmUiSelection3dEditorVisualizer : public QObject, caf::SelectionChangedReceiver
-{
-    Q_OBJECT
-public:
-    PdmUiSelection3dEditorVisualizer(QWidget* ownerViewer);
-    ~PdmUiSelection3dEditorVisualizer() override; 
-
-    void setConfigName(const QString& configName) { m_configName = configName; }
-
-    void updateVisibleEditors();
-
-private:
-    void onSelectionManagerSelectionChanged( const std::set<int>& changedSelectionLevels ) override;
-
-    std::vector< QPointer<PdmUi3dObjectEditorHandle> > m_active3DEditors;
-    QPointer<QWidget>                                  m_ownerViewer;
-    QString                                            m_configName;
-};
-
-
-}
-
-//==================================================================================================
-/// 
-///
-///
-//==================================================================================================
+#include "cafPdmUi3dObjectEditorHandle.h"
 
 class RicWellTarget3dEditor;
 
@@ -277,6 +196,7 @@ private:
 ///
 ///
 //==================================================================================================
+#include "cafPdmUi3dObjectEditorHandle.h"
 
 
 class RicWellTarget3dEditor : public caf::PdmUi3dObjectEditorHandle
@@ -299,7 +219,3 @@ private:
     QPointer<RicPointTangentManipulator> m_manipulator;
     cvf::ref<cvf::ModelBasicList> m_cvfModel;
 };
-
-class RiuViewer;
-
-// 3D editor manager

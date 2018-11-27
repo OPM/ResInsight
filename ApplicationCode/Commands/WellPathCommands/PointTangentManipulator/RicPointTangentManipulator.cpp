@@ -566,129 +566,8 @@ cvf::ref<cvf::Part> RicPointTangentManipulatorPartMgr::createPart(cvf::DrawableG
     return part;
 }
 
-//==================================================================================================
-/// 
-///
-///
-//==================================================================================================
-namespace caf 
-{
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-PdmUi3dObjectEditorHandle::PdmUi3dObjectEditorHandle()
-{
 
-}
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-PdmUi3dObjectEditorHandle::~PdmUi3dObjectEditorHandle()
-{
-
-}
-
-//--------------------------------------------------------------------------------------------------
-/// Not allowed to change viewer. Should be constructor argument, but makes factory stuff difficult.
-//--------------------------------------------------------------------------------------------------
-void PdmUi3dObjectEditorHandle::setViewer(QWidget* ownerViewer)
-{
-    CAF_ASSERT(m_ownerViewer.isNull()); 
-    m_ownerViewer = ownerViewer;
-}
-}
-
-//==================================================================================================
-/// 
-///
-///
-//==================================================================================================
-
-#include "cafSelectionManager.h"
-#include "RimWellPathGeometryDef.h"
-
-namespace caf 
-{
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-PdmUiSelection3dEditorVisualizer::PdmUiSelection3dEditorVisualizer(QWidget* ownerViewer)
-    : m_ownerViewer(ownerViewer)
-{
-    this->setParent(ownerViewer); // Makes this owned by the viewer.
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-PdmUiSelection3dEditorVisualizer::~PdmUiSelection3dEditorVisualizer()
-{
-    for (auto editor: m_active3DEditors)
-    {
-        delete editor;
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void PdmUiSelection3dEditorVisualizer::updateVisibleEditors()
-{
-    for (auto editor: m_active3DEditors)
-    {
-        if (editor) editor->updateUi();
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void PdmUiSelection3dEditorVisualizer::onSelectionManagerSelectionChanged( const std::set<int>& changedSelectionLevels )
-{
-    if (!changedSelectionLevels.count(0)) return;
-
-    for (auto editor: m_active3DEditors)
-    {
-        delete editor;
-    }
-
-    m_active3DEditors.clear();
-     
-    if (!m_ownerViewer) return;
-
-    std::vector<RimWellPathGeometryDef*> wellPathGeomDefs;
-    caf::SelectionManager::instance()->objectsByType(&wellPathGeomDefs);
-
-    std::set<PdmUiItem*> totalSelection;
-    for ( int selLevel: changedSelectionLevels )
-    {
-        std::vector<PdmUiItem*> items;
-        caf::SelectionManager::instance()->selectedItems(items, selLevel );
-        totalSelection.insert(items.begin(), items.end());
-    }
-    
-    for (PdmUiItem* item: totalSelection)
-    {
-        QString editor3dTypeName = item->ui3dEditorTypeName(m_configName);
-        if (!editor3dTypeName.isEmpty())
-        {
-            PdmObjectHandle* itemObject = dynamic_cast<PdmObjectHandle*>(item);
-            if (itemObject)
-            {
-                PdmUi3dObjectEditorHandle* editor3d = caf::Factory<PdmUi3dObjectEditorHandle, QString>::instance()->create(editor3dTypeName);
-                editor3d->setViewer(m_ownerViewer);
-                editor3d->setPdmObject(itemObject);
-                m_active3DEditors.push_back(editor3d);
-                editor3d->updateUi();
-            }
-        }
-    }
-
-    m_ownerViewer->update();
-}
-
-} // caf
 
 //==================================================================================================
 /// 
@@ -697,6 +576,7 @@ void PdmUiSelection3dEditorVisualizer::onSelectionManagerSelectionChanged( const
 //==================================================================================================
 
 #include "RimWellPathTarget.h"
+#include "RimWellPathGeometryDef.h"
 
 CAF_PDM_UI_3D_OBJECT_EDITOR_SOURCE_INIT(RicWellPathGeometry3dEditor);
 

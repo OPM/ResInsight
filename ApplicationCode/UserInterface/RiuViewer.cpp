@@ -41,6 +41,8 @@
 #include "RiuSimpleHistogramWidget.h"
 #include "RiuViewerCommands.h"
 
+#include "cafPdmUiSelection3dEditorVisualizer.h"
+
 #include "cafTitledOverlayFrame.h"
 #include "cafCategoryLegend.h"
 #include "cafOverlayScalarMapperLegend.h"
@@ -68,7 +70,6 @@
 #include "WindowEdgeAxesOverlayItem/RivWindowEdgeAxesOverlayItem.h"
 #include <algorithm>
 
-#include "WellPathCommands/PointTangentManipulator/RicPointTangentManipulator.h"
 
 using cvf::ManipulatorTrackball;
 

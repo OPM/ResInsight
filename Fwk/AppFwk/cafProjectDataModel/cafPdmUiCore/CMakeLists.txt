@@ -13,6 +13,7 @@ include_directories (
 # These headers need to go through Qt's MOC compiler
 set( QOBJECT_HEADERS    
     cafPdmUiFieldEditorHandle.h
+	cafPdmUiSelection3dEditorVisualizer.h
 )
 
 if ( NOT CMAKE_AUTOMOC )
@@ -41,6 +42,8 @@ set( PROJECT_FILES
     cafPdmUiObjectEditorHandle.h
     cafPdmUiWidgetObjectEditorHandle.cpp
     cafPdmUiWidgetObjectEditorHandle.h
+    cafPdmUi3dObjectEditorHandle.cpp
+    cafPdmUi3dObjectEditorHandle.h
     cafPdmUiObjectHandle.cpp
     cafPdmUiObjectHandle.h
     cafPdmUiOrdering.cpp
@@ -58,6 +61,8 @@ set( PROJECT_FILES
     cafSelectionChangedReceiver.h
     cafSelectionChangedReceiver.cpp
     cafSelectionManagerTools.h
+	cafPdmUiSelection3dEditorVisualizer.h
+	cafPdmUiSelection3dEditorVisualizer.cpp
 )
 
 add_library( ${PROJECT_NAME}
