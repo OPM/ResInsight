@@ -38,7 +38,7 @@
 #include "cafPdmUiTableViewEditor.h"
 #include "cafPdmUiTreeOrdering.h"
 #include "cvfGeometryTools.h"
-#include "WellPathCommands/PointTangentManipulator/RicPointTangentManipulator.h"
+#include "WellPathCommands/PointTangentManipulator/RicWellPathGeometry3dEditor.h"
 
 
 namespace caf
