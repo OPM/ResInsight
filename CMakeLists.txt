@@ -5,6 +5,7 @@ project (ResInsight)
 
 set (VIZ_MODULES_FOLDER_NAME Fwk/VizFwk)
 
+cmake_policy(SET CMP0020 NEW)
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 SET(BUILD_SHARED_LIBS OFF CACHE BOOL "ERT: Build shared libraries")
@@ -231,17 +232,19 @@ list(APPEND THIRD_PARTY_LIBRARIES
 ################################################################################
 # Qt
 ################################################################################
-set (QT_COMPONENTS_REQUIRED QtCore QtGui QtMain QtOpenGl QtNetwork QtScript QtScriptTools)
-find_package (Qt4 COMPONENTS ${QT_COMPONENTS_REQUIRED})
-if ( NOT QT4_FOUND )
-    message(FATAL_ERROR "Package Qt4 is required, but not found. Please specify qmake for variable QT_QMAKE_EXECUTABLE")
-endif ( NOT QT4_FOUND )
+find_package(Qt5Core CONFIG QUIET)
 
-if (QT_VERSION_MINOR LESS 6)
-    message(FATAL_ERROR "Qt 4.6 is required, please specify qmake for variable QT_QMAKE_EXECUTABLE")
-endif()
-
-include (${QT_USE_FILE})
+if (Qt5Core_FOUND)
+    message(STATUS "Found Qt5")
+	find_package (Qt5 CONFIG REQUIRED Core Widgets OpenGL Network Script ScriptTools)
+else()
+	message(STATUS "No Qt5 found, trying Qt4")
+	find_package(Qt4 COMPONENTS QtCore QtGui QtMain REQUIRED)
+    if (QT_VERSION_MINOR LESS 6)
+    	message(FATAL_ERROR "Qt 4.6 is required, please specify qmake for variable QT_QMAKE_EXECUTABLE")
+	endif()
+    include(${QT_USE_FILE})
+endif(Qt5Core_FOUND)
 
 # Open GL
 find_package( OpenGL )

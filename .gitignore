@@ -69,3 +69,7 @@ Ankh.NoLoad
 /Resinsight_Host.creator
 /Resinsight_Host.config
 *.RESINSIGHT_IDX
+/Fwk/VizFwk/.vs/VizFramework/v15/Solution.VC.db-wal
+/Fwk/VizFwk/.vs/VizFramework/v15/Solution.VC.db-shm
+/Fwk/VizFwk/.vs/VizFramework/v15/Solution.VC.db
+/Fwk/VizFwk/.vs/VizFramework/v15/Browse.VC.db
