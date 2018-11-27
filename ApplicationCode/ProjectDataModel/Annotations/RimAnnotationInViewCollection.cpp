@@ -21,6 +21,7 @@
 #include "RimAnnotationInViewCollection.h"
 
 #include "RimGridView.h"
+#include "RimTextAnnotation.h"
 
 
 CAF_PDM_SOURCE_INIT(RimAnnotationInViewCollection, "Annotations");
@@ -32,7 +33,10 @@ RimAnnotationInViewCollection::RimAnnotationInViewCollection()
 {
     CAF_PDM_InitObject("Annotations", ":/Plus.png", "", "");
 
-    CAF_PDM_InitField(&m_isActive,              "Active",        true,   "Active", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_textAnnotations, "TextAnnotations", "Text Annotations", "", "", "");
+    m_textAnnotations.uiCapability()->setUiHidden(true);
+
+    CAF_PDM_InitField(&m_isActive, "Active", true, "Active", "", "", "");
     m_isActive.uiCapability()->setUiHidden(true);
 }
 
@@ -41,6 +45,22 @@ RimAnnotationInViewCollection::RimAnnotationInViewCollection()
 //--------------------------------------------------------------------------------------------------
 RimAnnotationInViewCollection::~RimAnnotationInViewCollection()
 {
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimAnnotationInViewCollection::addAnnotation(RimTextAnnotation* annotation)
+{
+    m_textAnnotations.push_back(annotation);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimTextAnnotation*> RimAnnotationInViewCollection::textAnnotations() const
+{
+    return m_textAnnotations.childObjects();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -68,13 +88,6 @@ void RimAnnotationInViewCollection::fieldChangedByUi(const caf::PdmFieldHandle* 
             view->scheduleCreateDisplayModelAndRedraw();
         }
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimAnnotationInViewCollection::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
-{
 }
 
 //--------------------------------------------------------------------------------------------------

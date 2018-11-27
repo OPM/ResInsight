@@ -1,8 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2011-     Statoil ASA
-//  Copyright (C) 2013-     Ceetron Solutions AS
-//  Copyright (C) 2011-2012 Ceetron AS
+//  Copyright (C) 2016-     Statoil ASA
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -20,33 +18,29 @@
 
 #pragma once
 
-#include "cafAppEnum.h"
-#include "cafPdmChildArrayField.h"
-#include "cafPdmField.h"
-#include "cafPdmObject.h"
-#include "cafPdmPointer.h"
-#include "cafTristate.h"
+#include "RiaPreferences.h"
+
+#include "cafCmdFeature.h"
+
+#include <QString>
+
+
+class RimAnnotationCollection;
 
 
 //==================================================================================================
-///  
-///  
+///
 //==================================================================================================
-class RimAnnotationInViewCollection : public caf::PdmObject
+class RicCreateUserDefinedPolylinesAnnotationFeature : public caf::CmdFeature
 {
-    CAF_PDM_HEADER_INIT;
-public:
-
-    RimAnnotationInViewCollection();
-    ~RimAnnotationInViewCollection() override;
-
-    bool                        isActive() const;
+    CAF_CMD_HEADER_INIT;
 
 protected:
-    void                        fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
-    void                        defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
-    caf::PdmFieldHandle*        objectToggleField() override;
+    // Overrides
+    bool isCommandEnabled() override;
+    void onActionTriggered(bool isChecked) override;
+    void setupActionLook(QAction* actionToSetup) override;
 
 private:
-    caf::PdmField<bool>         m_isActive;
+    RimAnnotationCollection* annotationCollection() const;
 };

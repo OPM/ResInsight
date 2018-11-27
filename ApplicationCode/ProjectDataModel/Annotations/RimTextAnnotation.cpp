@@ -18,7 +18,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimPolylineAnnotation.h"
+#include "RimTextAnnotation.h"
 
 #include "RiaApplication.h"
 #include "RiaColorTables.h"
@@ -59,45 +59,61 @@
 #include "RimModeledWellPath.h"
 
 
-CAF_PDM_SOURCE_INIT(RimPolylineAnnotation, "RimPolylineAnnotation");
+CAF_PDM_SOURCE_INIT(RimTextAnnotation, "RimTextAnnotation");
+
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimPolylineAnnotation::RimPolylineAnnotation()
+RimTextAnnotation::RimTextAnnotation()
 {
-    CAF_PDM_InitObject("PolylineAnnotation", ":/WellCollection.png", "", "");
+    CAF_PDM_InitObject("TextAnnotation", ":/WellCollection.png", "", "");
 
-    CAF_PDM_InitField(&m_points, "Points", {}, "Points", "", "", "");
-}
-
-RimPolylineAnnotation::~RimPolylineAnnotation()
-{
-
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimPolylineAnnotation::setPoints(const std::vector<Vec3d>& points)
-{
-    m_points = points;
+    CAF_PDM_InitField(&m_anchorPoint, "AnchorPoint", Vec3d::ZERO, "Anchor Point", "", "", "");
+    CAF_PDM_InitField(&m_labelPoint, "LabelPoint", Vec3d::ZERO, "Label Point", "", "", "");
+    CAF_PDM_InitField(&m_text, "Text", QString("(New text)"), "Text", "", "", "");
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::vector<RimPolylineAnnotation::Vec3d>& RimPolylineAnnotation::points() const
+cvf::Vec3d RimTextAnnotation::anchorPoint() const
 {
-    return m_points();
+    return m_anchorPoint;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPolylineAnnotation::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+cvf::Vec3d RimTextAnnotation::labelPoint() const
 {
-    uiOrdering.add(&m_points);
+    return m_labelPoint;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimTextAnnotation::setText(const QString& text)
+{
+    m_text = text;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const QString& RimTextAnnotation::text() const
+{
+    return m_text();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimTextAnnotation::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+{
+    uiOrdering.add(&m_anchorPoint);
+    uiOrdering.add(&m_labelPoint);
+    uiOrdering.add(&m_text);
 
     uiOrdering.skipRemainingFields(true);
 }
@@ -105,14 +121,14 @@ void RimPolylineAnnotation::defineUiOrdering(QString uiConfigName, caf::PdmUiOrd
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPolylineAnnotation::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
-                                            const QVariant&            oldValue,
-                                            const QVariant&            newValue)
+void RimTextAnnotation::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
+                                         const QVariant&            oldValue,
+                                         const QVariant&            newValue)
 {
     auto views = gridViewsContainingAnnotations();
     if (!views.empty())
     {
-        if (changedField == &m_points)
+        if (changedField == &m_text || changedField == &m_anchorPoint || changedField == &m_labelPoint)
         {
             for (auto& view : views)
             {
@@ -125,7 +141,15 @@ void RimPolylineAnnotation::fieldChangedByUi(const caf::PdmFieldHandle* changedF
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimGridView*> RimPolylineAnnotation::gridViewsContainingAnnotations() const
+caf::PdmFieldHandle* RimTextAnnotation::userDescriptionField()
+{
+    return &m_text;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimGridView*> RimTextAnnotation::gridViewsContainingAnnotations() const
 {
     std::vector<RimGridView*> views;
     RimProject*               project = nullptr;

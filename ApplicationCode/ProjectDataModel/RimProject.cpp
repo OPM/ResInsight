@@ -31,8 +31,8 @@
 #include "RigGridBase.h"
 
 #include "RimAnnotationCollection.h"
+#include "RimAnnotationInViewCollection.h"
 #include "RimPolylinesAnnotation.h"
-
 #include "RimCalcScript.h"
 #include "RimCase.h"
 #include "RimCaseCollection.h"
@@ -683,7 +683,7 @@ void RimProject::allNotLinkedViews(std::vector<RimGridView*>& views)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimProject::allVisibleViews(std::vector<Rim3dView*>& views)
+void RimProject::allVisibleViews(std::vector<Rim3dView*>& views) const
 {
     std::vector<RimCase*> cases;
     allCases(cases);
@@ -707,7 +707,7 @@ void RimProject::allVisibleViews(std::vector<Rim3dView*>& views)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimProject::allVisibleGridViews(std::vector<RimGridView*>& views)
+void RimProject::allVisibleGridViews(std::vector<RimGridView*>& views) const
 {
     std::vector<Rim3dView*> visibleViews;
     this->allVisibleViews(visibleViews); 
@@ -966,6 +966,8 @@ std::vector<RimWellPath*> RimProject::allWellPaths() const
 std::vector<RimTextAnnotation*> RimProject::textAnnotations() const
 {
     std::vector<RimTextAnnotation*> annotations;
+
+    // 'Global' text annotations
     for (const auto& oilField : oilFields())
     {
         auto annotationColl = oilField->annotationCollection();
@@ -974,6 +976,24 @@ std::vector<RimTextAnnotation*> RimProject::textAnnotations() const
             annotations.push_back(annotation);
         }
     }
+
+    // 'Local' text annotations
+    std::vector<RimGridView*> visibleViews;
+    allVisibleGridViews(visibleViews);
+    for (const auto& view : visibleViews)
+    {
+        std::vector<RimAnnotationInViewCollection*> annotationColls;
+        view->descendantsIncludingThisOfType(annotationColls);
+
+        if (annotationColls.size() == 1)
+        {
+            for (const auto& annotation : annotationColls.front()->textAnnotations())
+            {
+                annotations.push_back(annotation);
+            }
+        }
+    }
+
     return annotations;
 }
 

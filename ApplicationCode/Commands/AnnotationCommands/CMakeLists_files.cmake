@@ -1,12 +1,16 @@
 
 set (SOURCE_GROUP_HEADER_FILES
 ${CMAKE_CURRENT_LIST_DIR}/RicImportPolylinesAnnotationFeature.h
-
+${CMAKE_CURRENT_LIST_DIR}/RicCreateTextAnnotationFeature.h
+${CMAKE_CURRENT_LIST_DIR}/RicCreateReachCircleAnnotationFeature.h
+${CMAKE_CURRENT_LIST_DIR}/RicCreateUserDefinedPolylinesAnnotationFeature.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
 ${CMAKE_CURRENT_LIST_DIR}/RicImportPolylinesAnnotationFeature.cpp
-
+${CMAKE_CURRENT_LIST_DIR}/RicCreateTextAnnotationFeature.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicCreateReachCircleAnnotationFeature.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicCreateUserDefinedPolylinesAnnotationFeature.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

@@ -69,14 +69,14 @@ private:
 ///
 //==================================================================================================
 
-class RimUserDefinedPolyLinesAnnotation : public RimPolylinesAnnotation
+class RimUserDefinedPolylinesAnnotation : public RimPolylinesAnnotation
 {
     using Vec3d = cvf::Vec3d;
 
     CAF_PDM_HEADER_INIT;
 public:
-    RimUserDefinedPolyLinesAnnotation();
-    ~RimUserDefinedPolyLinesAnnotation();
+    RimUserDefinedPolylinesAnnotation();
+    ~RimUserDefinedPolylinesAnnotation();
 
     cvf::ref<RigPolyLinesData>  polyLinesData() override;
     virtual bool isEmpty() override;
@@ -95,12 +95,12 @@ private:
 //==================================================================================================
 
 
-class RimPolyLinesFromFileAnnotation : public RimPolylinesAnnotation
+class RimPolylinesFromFileAnnotation : public RimPolylinesAnnotation
 {
     CAF_PDM_HEADER_INIT;
 public:
-    RimPolyLinesFromFileAnnotation();
-    ~RimPolyLinesFromFileAnnotation();
+    RimPolylinesFromFileAnnotation();
+    ~RimPolylinesFromFileAnnotation();
 
     void                        setFileName(const QString& fileName);
     const QString&              fileName();

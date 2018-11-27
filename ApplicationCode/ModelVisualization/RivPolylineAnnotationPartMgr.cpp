@@ -33,8 +33,6 @@
 #include "cvfTransform.h"
 #include "cafDisplayCoordTransform.h"
 
-static RimSimWellInViewCollection* simWellInViewCollection() { return nullptr; }
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
