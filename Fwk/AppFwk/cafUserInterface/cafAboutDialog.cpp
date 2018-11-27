@@ -199,7 +199,7 @@ void AboutDialog::create()
             QLabel* appVersionLabel = new QLabel(this);
             QFont appVersionFont(appVersionLabel->font());
             appVersionFont.setPointSize(8);
-            appVersionFont.setBold(TRUE);
+            appVersionFont.setBold(true);
             appVersionLabel->setFont(appVersionFont); 
             appVersionLabel->setText(appVer);
             appInfoLayout->addWidget(appVersionLabel);
@@ -211,7 +211,7 @@ void AboutDialog::create()
             QLabel* appCopyrightLabel = new QLabel(this);
             QFont appCopyrightFont(appCopyrightLabel->font());
             appCopyrightFont.setPointSize(8);
-            appCopyrightFont.setBold(TRUE);
+            appCopyrightFont.setBold(true);
             appCopyrightLabel->setFont(appCopyrightFont); 
             appCopyrightLabel->setText(m_appCopyright);
             appInfoLayout->addWidget(appCopyrightLabel);
@@ -282,8 +282,8 @@ void AboutDialog::create()
     bottomLayout->addItem(spacer2);
 
     QPushButton* buttonOk = new QPushButton("&OK", this);
-    buttonOk->setAutoDefault(TRUE);
-    buttonOk->setDefault(TRUE);
+    buttonOk->setAutoDefault(true);
+    buttonOk->setDefault(true);
     buttonOk->setFocus();
     connect(buttonOk, SIGNAL(clicked()), this, SLOT(accept()) );
     bottomLayout->addWidget(buttonOk);
