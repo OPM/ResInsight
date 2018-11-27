@@ -3,11 +3,13 @@ left to right direction
 
 component cafProjectDataModel
 note right of [cafProjectDataModel]
-  Templated factory class
-  Multithreaded mutex
-  Aggreagated class PdmObject, inherits Core, Ui, Xml
-  Helper macro to be able to use PdmField(macro for replacing with PdmValueField)
-  PdmObjectGroup - collection of PdmObjects
+-- Top Level Directory --
+  - PdmObject and PdmField : Convenienece classes used when 
+    using all the intrinsic capabilities: Xml, Ui and Introspection
+ Some utility classes:
+  - Templated factory class
+  - Multithreaded mutex
+  - PdmObjectGroup - collection of PdmObjects
 end note
 
 
@@ -17,6 +19,7 @@ note right of [cafPdmCore]
   Classes derived from cafPdmFieldHandle 
   cafPdmPointer
 end note
+
 
 component cafPdmUiCore
 note right of [cafPdmUiCore]
@@ -69,7 +72,20 @@ note right of [cafPdmCvf]
   Mat4d
 end note
 
+cafPdmCore   --> cafPdmUiCore
+cafPdmCore   --> cafPdmXml
+cafPdmCore   --> cafProjectDataModel 
 
+cafPdmUiCore --> cafProjectDataModel
+cafPdmXml --> cafProjectDataModel
+
+
+cafProjectDataModel --> cafUserInterface
+cafProjectDataModel --> cafCommand
+cafAnimControl --> cafViewer
+
+
+cafProjectDataModel --> cafPdmCvf
 
 
 @enduml
