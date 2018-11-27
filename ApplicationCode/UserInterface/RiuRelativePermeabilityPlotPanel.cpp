@@ -438,7 +438,14 @@ void RiuRelativePermeabilityPlotPanel::plotCurvesInQwt(RiaEclipseUnitTools::Unit
 
     if (fixedLeftYAxis)
     {
-        plot->setAxisScale(QwtPlot::yLeft, 0.0, 1.0);
+        if (logScaleLeftAxis)
+        {
+            plot->setAxisScale(QwtPlot::yLeft, 1.0e-6, 1.0);
+        }
+        else
+        {
+            plot->setAxisScale(QwtPlot::yLeft, 0.0, 1.0);
+        }
         plot->setAxisAutoScale(QwtPlot::yLeft, false);
     }
     else
