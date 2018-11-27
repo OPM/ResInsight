@@ -56,7 +56,7 @@ void RivPolylineAnnotationPartMgr::buildPolylineAnnotationParts(const caf::Displ
 {
     clearAllGeometry();
 
-    if (!m_rimAnnotation->isEmpty())
+    if (!m_rimAnnotation->isEmpty() && m_rimAnnotation->isActive())
     {
         const auto& points = m_rimAnnotation->polyLinesData();
         auto        lineColor     = m_rimAnnotation->appearance()->color();
@@ -111,6 +111,10 @@ void RivPolylineAnnotationPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelB
     if (m_rimAnnotation->isEmpty()) return;
 
     buildPolylineAnnotationParts(displayXf);
-    model->addPart(m_part.p());
+
+    if ( m_part.notNull() )
+    {
+        model->addPart(m_part.p());
+    }
 }
 

@@ -55,6 +55,7 @@
 #include <fstream>
 #include "RimFileWellPath.h"
 #include "RimModeledWellPath.h"
+#include "RimAnnotationCollection.h"
 
 namespace caf
 {
@@ -79,11 +80,22 @@ RimAnnotationLineAppearance::RimAnnotationLineAppearance()
 {
     CAF_PDM_InitObject("TextAnnotation", ":/WellCollection.png", "", "");
 
-    CAF_PDM_InitField(&m_color,     "Color",        cvf::Color3f(cvf::Color3f::BLACK),  "Color", "", "", "");
-    CAF_PDM_InitField(&m_style,     "Style",        LineStyle(),                        "Style", "", "", "");
-    CAF_PDM_InitField(&m_thickness, "Thickness",    1,                                  "Thickness", "", "", "");
+    CAF_PDM_InitField(&m_color,     "Color",     cvf::Color3f(cvf::Color3f::BLACK),  "Color", "", "", "");
+    CAF_PDM_InitField(&m_thickness, "Thickness", 2,                                  "Thickness", "", "", "");
 
-    m_fieldChangedByUiCallback = nullptr;
+    // Stippling not yet supported. Needs new stuff in VizFwk
+    CAF_PDM_InitField(&m_style,     "Style",     LineStyle(),                        "Style", "", "", "");
+    m_style.uiCapability()->setUiHidden(true);
+    m_style.xmlCapability()->disableIO();
+
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimAnnotationLineAppearance::setColor(const cvf::Color3f& newColor)
+{
+    m_color = newColor;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -113,38 +125,6 @@ int RimAnnotationLineAppearance::thickness() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const caf::PdmFieldHandle* RimAnnotationLineAppearance::colorField() const
-{
-    return &m_color;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-const caf::PdmFieldHandle* RimAnnotationLineAppearance::styleField() const
-{
-    return &m_style;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-const caf::PdmFieldHandle* RimAnnotationLineAppearance::thicknessField() const
-{
-    return &m_thickness;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimAnnotationLineAppearance::registerFieldChangedByUiCallback(FieldChangedByUiDelegate func)
-{
-    m_fieldChangedByUiCallback = func;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimAnnotationLineAppearance::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
     uiOrdering.add(&m_color);
@@ -161,8 +141,7 @@ void RimAnnotationLineAppearance::fieldChangedByUi(const caf::PdmFieldHandle* ch
                                          const QVariant&            oldValue,
                                          const QVariant&            newValue)
 {
-    if (m_fieldChangedByUiCallback)
-    {
-        m_fieldChangedByUiCallback(changedField, oldValue, newValue);
-    }
+    RimAnnotationCollection* annColl = nullptr;
+    this->firstAncestorOrThisOfTypeAsserted(annColl);
+    annColl->scheduleRedrawOfRelevantViews(); 
 }

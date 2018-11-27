@@ -43,6 +43,8 @@ public:
     RimAnnotationCollection();
     ~RimAnnotationCollection() override;
 
+    void                            loadDataAndUpdate();
+
     void                            addAnnotation(RimTextAnnotation* annotation);
     void                            addAnnotation(RimReachCircleAnnotation* annotation);
     void                            addAnnotation(RimPolylinesAnnotation* annotation);
@@ -55,10 +57,13 @@ public:
     void                            onAnnotationDeleted();
 
     RimPolylinesFromFileAnnotation* importOrUpdatePolylinesFromFile(const QStringList& fileNames );
+
     void                            scheduleRedrawOfRelevantViews();
     std::vector<RimGridView*>       gridViewsContainingAnnotations() const;
 
 private:
+    void reloadPolylinesFromFile(const std::vector<RimPolylinesFromFileAnnotation *>& polyLinesObjsToReload);
+
     caf::PdmChildArrayField<RimTextAnnotation*>              m_textAnnotations;
     caf::PdmChildArrayField<RimReachCircleAnnotation*>       m_reachCircleAnnotations;
     caf::PdmChildArrayField<RimPolylinesAnnotation*>         m_polylineAnnotations;

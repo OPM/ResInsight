@@ -53,9 +53,6 @@ public:
     RimLineBasedAnnotation();
     RimAnnotationLineAppearance* appearance() const;
 
-protected:
-    void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override {};
-
 private:
     caf::PdmChildField<RimAnnotationLineAppearance*> m_appearance;
 };

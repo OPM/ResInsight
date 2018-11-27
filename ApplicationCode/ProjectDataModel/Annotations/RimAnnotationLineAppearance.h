@@ -28,12 +28,8 @@
 // Include to make Pdm work for cvf::Color
 #include "cafPdmFieldCvfColor.h" 
 #include "cafPdmChildField.h"
-#include "cafPdmFieldCvfVec3d.h"
 
 #include "cvfObject.h"
-#include "cvfVector3.h"
-
-#include <vector>
 
 class QString;
 class RimGridView;
@@ -45,18 +41,9 @@ class RimGridView;
 //==================================================================================================
 class RimAnnotationLineAppearance : public caf::PdmObject
 {
-    // Friends
-    friend class RimReachCircleAnnotation;
-    friend class RimUserDefinedPolylinesAnnotation;
-    friend class RimPolylinesFromFileAnnotation;
-
-    using Vec3d = cvf::Vec3d;
-
     CAF_PDM_HEADER_INIT;
 
 public:
-    using FieldChangedByUiDelegate = std::function<void(const caf::PdmFieldHandle*, const QVariant&, const QVariant&)>;
-
     enum LineStyleEnum
     {
         STYLE_SOLID,
@@ -66,16 +53,10 @@ public:
 
 public:
     RimAnnotationLineAppearance();
-
+    void                setColor(const cvf::Color3f& newColor);
     cvf::Color3f        color() const;
     bool                isDashed() const;
     int                 thickness() const;
-
-    const caf::PdmFieldHandle* colorField() const;
-    const caf::PdmFieldHandle* styleField() const;
-    const caf::PdmFieldHandle* thicknessField() const;
-
-    void                registerFieldChangedByUiCallback(FieldChangedByUiDelegate func);
 
 protected:
     void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
@@ -86,6 +67,5 @@ private:
     caf::PdmField<LineStyle>        m_style;
     caf::PdmField<int>              m_thickness;
 
-    FieldChangedByUiDelegate  m_fieldChangedByUiCallback;
 };
 

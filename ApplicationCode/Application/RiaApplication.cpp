@@ -37,6 +37,7 @@
 #include "HoloLensCommands/RicHoloLensSessionManager.h"
 
 #include "Rim2dIntersectionViewCollection.h"
+#include "RimAnnotationCollection.h"
 #include "RimCellRangeFilterCollection.h"
 #include "RimCommandObject.h"
 #include "RimEclipseCaseCollection.h"
@@ -611,6 +612,8 @@ bool RiaApplication::loadProject(const QString& projectFileName, ProjectLoadActi
         {
             sumCaseGroup->loadDataAndUpdate();
         }
+
+        oilField->annotationCollection()->loadDataAndUpdate();
     }
 
     loadAndUpdatePlotData();

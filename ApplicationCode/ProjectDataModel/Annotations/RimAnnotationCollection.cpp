@@ -30,6 +30,7 @@
 
 #include "QMessageBox"
 #include <QString>
+#include "RiaColorTables.h"
 
 
 CAF_PDM_SOURCE_INIT(RimAnnotationCollection, "RimAnnotationCollection");
@@ -159,33 +160,25 @@ RimPolylinesFromFileAnnotation* RimAnnotationCollection::importOrUpdatePolylines
         }
     }
 
+    size_t newLinesIdx = 0;
     for(const QString& newFileName :  newFileNames)
     {
         RimPolylinesFromFileAnnotation* newPolyLinesAnnot = new RimPolylinesFromFileAnnotation;
+
+        auto newColor = RiaColorTables::categoryPaletteColors().cycledColor3f(formationListBeforeImportCount + newLinesIdx);
+
         newPolyLinesAnnot->setFileName(newFileName);
+        newPolyLinesAnnot->setDescriptionFromFileName();
+        newPolyLinesAnnot->appearance()->setColor(newColor);
+
         m_polylineFromFileAnnotations.push_back(newPolyLinesAnnot);
         polyLinesObjsToReload.push_back(newPolyLinesAnnot);
-        newPolyLinesAnnot->setDescriptionFromFileName();
+
+        ++newLinesIdx;
     }
 
-    QString totalErrorMessage;
+    reloadPolylinesFromFile(polyLinesObjsToReload);
 
-    for (RimPolylinesFromFileAnnotation* polyLinesAnnot: polyLinesObjsToReload)
-    {
-        QString errormessage;
-
-        polyLinesAnnot->readPolyLinesFile(&errormessage);
-        if (!errormessage.isEmpty())
-        {
-            totalErrorMessage += "\nError in: " + polyLinesAnnot->fileName() 
-                + "\n\t" + errormessage;
-        }
-    }
-
-    if (!totalErrorMessage.isEmpty())
-    {
-        QMessageBox::warning(nullptr, "Import Formation Names", totalErrorMessage);
-    }
 
     if (m_polylineFromFileAnnotations.size() > formationListBeforeImportCount)
     {
@@ -196,6 +189,31 @@ RimPolylinesFromFileAnnotation* RimAnnotationCollection::importOrUpdatePolylines
         return nullptr;
     }
 
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimAnnotationCollection::reloadPolylinesFromFile(const std::vector<RimPolylinesFromFileAnnotation *>& polyLinesObjsToReload)
+{
+    QString totalErrorMessage;
+
+    for ( RimPolylinesFromFileAnnotation* polyLinesAnnot: polyLinesObjsToReload )
+    {
+        QString errormessage;
+
+        polyLinesAnnot->readPolyLinesFile(&errormessage);
+        if ( !errormessage.isEmpty() )
+        {
+            totalErrorMessage += "\nError in: " + polyLinesAnnot->fileName()
+                + "\n\t" + errormessage;
+        }
+    }
+
+    if ( !totalErrorMessage.isEmpty() )
+    {
+        QMessageBox::warning(nullptr, "Import Formation Names", totalErrorMessage);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -234,4 +252,12 @@ std::vector<RimGridView*> RimAnnotationCollection::gridViewsContainingAnnotation
         if (gridView->annotationCollection()->isActive()) views.push_back(gridView);
     }
     return views;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimAnnotationCollection::loadDataAndUpdate()
+{
+    reloadPolylinesFromFile(m_polylineFromFileAnnotations.childObjects());
 }

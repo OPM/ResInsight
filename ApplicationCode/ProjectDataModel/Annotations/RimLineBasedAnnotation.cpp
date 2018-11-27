@@ -32,10 +32,6 @@ RimLineBasedAnnotation::RimLineBasedAnnotation()
     m_appearance.uiCapability()->setUiTreeHidden(true);
     m_appearance.uiCapability()->setUiTreeChildrenHidden(true);
 
-    m_appearance->registerFieldChangedByUiCallback(
-        [this](const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) {
-            this->fieldChangedByUi(changedField, oldValue, newValue);
-        });
 }
 
 //--------------------------------------------------------------------------------------------------

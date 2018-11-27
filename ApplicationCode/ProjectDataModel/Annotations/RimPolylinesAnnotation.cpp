@@ -48,6 +48,13 @@ RimPolylinesAnnotation::~RimPolylinesAnnotation()
 
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimPolylinesAnnotation::isActive()
+{
+    return m_isActive();
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -106,7 +113,7 @@ void RimUserDefinedPolylinesAnnotation::defineUiOrdering(QString uiConfigName, c
     uiOrdering.add(&m_points);
 
     auto appearanceGroup = uiOrdering.addNewGroup("Line Appearance");
-    appearance()->defineUiOrdering(uiConfigName, *appearanceGroup);
+    appearance()->uiOrdering(uiConfigName, *appearanceGroup);
 
     uiOrdering.skipRemainingFields(true);
 }
@@ -119,11 +126,9 @@ void RimUserDefinedPolylinesAnnotation::fieldChangedByUi(const caf::PdmFieldHand
                                                          const QVariant&            newValue)
 {
     RimAnnotationCollection* annColl = nullptr;
-    this->firstAncestorOrThisOfType(annColl);
-    if (annColl)
-    {
-        annColl->scheduleRedrawOfRelevantViews();
-    }
+    this->firstAncestorOrThisOfTypeAsserted(annColl);
+
+    annColl->scheduleRedrawOfRelevantViews();
 }
 
 
@@ -138,7 +143,7 @@ RimPolylinesFromFileAnnotation::RimPolylinesFromFileAnnotation()
 {
     CAF_PDM_InitObject("PolyLines Annotation", ":/WellCollection.png", "", "");
 
-    CAF_PDM_InitField(&m_polyLinesFileName, "PolyLineFilePath", QString(""), "File Path", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_polyLinesFileName, "PolyLineFilePath", "File Path", "", "", "");
     m_polyLinesFileName.uiCapability()->setUiEditorTypeName(caf::PdmUiFilePathEditor::uiEditorTypeName());
     CAF_PDM_InitField(&m_userDescription, "PolyLineDescription", QString(""), "Name", "", "", "");
 
@@ -163,9 +168,9 @@ void RimPolylinesFromFileAnnotation::setFileName(const QString& fileName)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const QString& RimPolylinesFromFileAnnotation::fileName()
+QString RimPolylinesFromFileAnnotation::fileName() const
 {
-    return m_polyLinesFileName();
+    return m_polyLinesFileName().path();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -173,11 +178,11 @@ const QString& RimPolylinesFromFileAnnotation::fileName()
 //--------------------------------------------------------------------------------------------------
 void RimPolylinesFromFileAnnotation::readPolyLinesFile(QString * errorMessage)
 {
-    QFile dataFile(m_polyLinesFileName());
+    QFile dataFile(m_polyLinesFileName().path());
 
     if (!dataFile.open(QFile::ReadOnly)) 
     { 
-        if (errorMessage) (*errorMessage) += "Could not open the File: " + (m_polyLinesFileName()) + "\n"; 
+        if (errorMessage) (*errorMessage) += "Could not open the File: " + (m_polyLinesFileName().path()) + "\n"; 
         return;
     }
 
@@ -244,7 +249,8 @@ void RimPolylinesFromFileAnnotation::readPolyLinesFile(QString * errorMessage)
 //--------------------------------------------------------------------------------------------------
 bool RimPolylinesFromFileAnnotation::isEmpty()
 {
-    bool isThisEmpty = true;
+    if (m_polyLinesData.isNull()) return true; 
+
     for (const std::vector<cvf::Vec3d> & line :m_polyLinesData->polyLines())
     {
         if (!line.empty()) return false;
@@ -253,21 +259,13 @@ bool RimPolylinesFromFileAnnotation::isEmpty()
     return true;
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimPolylinesFromFileAnnotation::updateFilePathsFromProjectPath(const QString& newProjectPath, const QString& oldProjectPath)
-{
-    m_polyLinesFileName = RimTools::relocateFile(m_polyLinesFileName(), newProjectPath, oldProjectPath, nullptr, nullptr);
-
-}
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void RimPolylinesFromFileAnnotation::setDescriptionFromFileName()
 {
-    QFileInfo fileInfo(m_polyLinesFileName());
+    QFileInfo fileInfo(m_polyLinesFileName().path());
     m_userDescription =  fileInfo.fileName();
 
 }
@@ -277,8 +275,9 @@ void RimPolylinesFromFileAnnotation::setDescriptionFromFileName()
 //--------------------------------------------------------------------------------------------------
 void RimPolylinesFromFileAnnotation::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
+    uiOrdering.add(&m_polyLinesFileName);
     auto appearanceGroup = uiOrdering.addNewGroup("Line Appearance");
-    appearance()->defineUiOrdering(uiConfigName, *appearanceGroup);
+    appearance()->uiOrdering(uiConfigName, *appearanceGroup);
 
     uiOrdering.skipRemainingFields(true);
 }
@@ -291,11 +290,9 @@ void RimPolylinesFromFileAnnotation::fieldChangedByUi(const caf::PdmFieldHandle*
                                                       const QVariant&            newValue)
 {
     RimAnnotationCollection* annColl = nullptr;
-    this->firstAncestorOrThisOfType(annColl);
-    if (annColl)
-    {
-        annColl->scheduleRedrawOfRelevantViews();
-    }
+    this->firstAncestorOrThisOfTypeAsserted(annColl);
+    
+    annColl->scheduleRedrawOfRelevantViews();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -44,7 +44,7 @@ class RigPolyLinesData;
 ///
 ///
 //==================================================================================================
-class RimPolylinesAnnotation : public RimLineBasedAnnotation// caf::PdmObject
+class RimPolylinesAnnotation : public RimLineBasedAnnotation
 {
     using Vec3d = cvf::Vec3d;
 
@@ -54,14 +54,15 @@ public:
     RimPolylinesAnnotation();
     ~RimPolylinesAnnotation();
 
+    bool isActive();
+
     virtual cvf::ref<RigPolyLinesData> polyLinesData() = 0;
     virtual bool isEmpty() = 0;
-   
+
 protected:
     virtual caf::PdmFieldHandle* objectToggleField() override;
 
 private:
-    caf::PdmField<std::vector<Vec3d>>   m_points;
     caf::PdmField<bool> m_isActive;
 };
 
@@ -104,14 +105,12 @@ public:
     ~RimPolylinesFromFileAnnotation();
 
     void                        setFileName(const QString& fileName);
-    const QString&              fileName();
+    QString                     fileName() const;
     void                        readPolyLinesFile(QString * errorMessage);
-
 
     cvf::ref<RigPolyLinesData>  polyLinesData() override { return m_polyLinesData;}
     virtual bool                isEmpty() override;
 
-    void                        updateFilePathsFromProjectPath(const QString& newProjectPath, const QString& oldProjectPath);
     void                        setDescriptionFromFileName();
 
 protected:
@@ -122,7 +121,7 @@ private:
     virtual caf::PdmFieldHandle* userDescriptionField() override;
 
     caf::PdmField<QString> m_userDescription;
-    caf::PdmField<QString> m_polyLinesFileName;
+    caf::PdmField<caf::FilePath> m_polyLinesFileName;
     cvf::ref<RigPolyLinesData> m_polyLinesData;
 };
 

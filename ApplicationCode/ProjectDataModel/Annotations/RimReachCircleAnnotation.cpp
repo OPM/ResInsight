@@ -21,6 +21,7 @@
 #include "RimAnnotationInViewCollection.h"
 #include "RimGridView.h"
 #include "RimProject.h"
+#include "RimAnnotationCollection.h"
 
 
 CAF_PDM_SOURCE_INIT(RimReachCircleAnnotation, "RimReachCircleAnnotation");
@@ -62,7 +63,7 @@ void RimReachCircleAnnotation::defineUiOrdering(QString uiConfigName, caf::PdmUi
     uiOrdering.add(&m_radius);
 
     auto appearanceGroup = uiOrdering.addNewGroup("Line Appearance");
-    appearance()->defineUiOrdering(uiConfigName, *appearanceGroup);
+    appearance()->uiOrdering(uiConfigName, *appearanceGroup);
 
     uiOrdering.skipRemainingFields(true);
 }
@@ -74,21 +75,10 @@ void RimReachCircleAnnotation::fieldChangedByUi(const caf::PdmFieldHandle* chang
                                                 const QVariant&            oldValue,
                                                 const QVariant&            newValue)
 {
-    auto views = gridViewsContainingAnnotations();
-    if (!views.empty())
-    {
-        if (changedField == &m_centerPoint || 
-            changedField == &m_radius ||
-            changedField == appearance()->colorField() ||
-            changedField == appearance()->styleField() ||
-            changedField == appearance()->thicknessField())
-        {
-            for (auto& view : views)
-            {
-                view->scheduleCreateDisplayModelAndRedraw();
-            }
-        }
-    }
+    RimAnnotationCollection* annColl = nullptr;
+    this->firstAncestorOrThisOfTypeAsserted(annColl);
+
+    annColl->scheduleRedrawOfRelevantViews();
 }
 
 //--------------------------------------------------------------------------------------------------
