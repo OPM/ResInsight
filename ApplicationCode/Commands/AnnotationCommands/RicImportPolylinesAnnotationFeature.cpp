@@ -71,7 +71,7 @@ void RicImportPolylinesAnnotationFeature::onActionTriggered(bool isChecked)
 
     // For each file, 
     
-    RimPolyLinesFromFileAnnotation* lastCreatedOrUpdated = annotColl->importOrUpdatePolylinesFromFile(fileNames);
+    RimPolylinesFromFileAnnotation* lastCreatedOrUpdated = annotColl->importOrUpdatePolylinesFromFile(fileNames);
    
     proj->updateConnectedEditors();
 

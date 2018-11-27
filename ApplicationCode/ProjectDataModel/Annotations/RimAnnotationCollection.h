@@ -29,7 +29,7 @@ class QString;
 class RimTextAnnotation;
 class RimReachCircleAnnotation;
 class RimPolylinesAnnotation;
-class RimPolyLinesFromFileAnnotation;
+class RimPolylinesFromFileAnnotation;
 class RimGridView;
 
 //==================================================================================================
@@ -50,9 +50,9 @@ public:
     std::vector<RimTextAnnotation*>              textAnnotations() const;
     std::vector<RimReachCircleAnnotation*>       reachCircleAnnotations() const;
     std::vector<RimPolylinesAnnotation*>         polylineAnnotations() const;
-    std::vector<RimPolyLinesFromFileAnnotation*> polylinesFromFileAnnotations() const;
+    std::vector<RimPolylinesFromFileAnnotation*> polylinesFromFileAnnotations() const;
 
-    RimPolyLinesFromFileAnnotation* importOrUpdatePolylinesFromFile(const QStringList& fileNames );
+    RimPolylinesFromFileAnnotation* importOrUpdatePolylinesFromFile(const QStringList& fileNames );
     void                            scheduleRedrawOfRelevantViews();
     std::vector<RimGridView*>       gridViewsContainingAnnotations() const;
 
@@ -60,5 +60,5 @@ private:
     caf::PdmChildArrayField<RimTextAnnotation*>              m_textAnnotations;
     caf::PdmChildArrayField<RimReachCircleAnnotation*>       m_reachCircleAnnotations;
     caf::PdmChildArrayField<RimPolylinesAnnotation*>         m_polylineAnnotations;
-    caf::PdmChildArrayField<RimPolyLinesFromFileAnnotation*> m_polylineFromFileAnnotations;
+    caf::PdmChildArrayField<RimPolylinesFromFileAnnotation*> m_polylineFromFileAnnotations;
 };

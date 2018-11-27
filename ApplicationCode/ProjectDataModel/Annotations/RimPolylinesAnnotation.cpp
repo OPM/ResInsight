@@ -57,12 +57,12 @@ caf::PdmFieldHandle* RimPolylinesAnnotation::objectToggleField()
     return &m_isActive;
 }
 
-CAF_PDM_SOURCE_INIT(RimUserDefinedPolyLinesAnnotation, "UserDefinedPolyLinesAnnotation");
+CAF_PDM_SOURCE_INIT(RimUserDefinedPolylinesAnnotation, "UserDefinedPolylinesAnnotation");
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimUserDefinedPolyLinesAnnotation::RimUserDefinedPolyLinesAnnotation()
+RimUserDefinedPolylinesAnnotation::RimUserDefinedPolylinesAnnotation()
 {
     CAF_PDM_InitObject("PolyLines Annotation", ":/WellCollection.png", "", "");
 
@@ -72,7 +72,7 @@ RimUserDefinedPolyLinesAnnotation::RimUserDefinedPolyLinesAnnotation()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimUserDefinedPolyLinesAnnotation::~RimUserDefinedPolyLinesAnnotation()
+RimUserDefinedPolylinesAnnotation::~RimUserDefinedPolylinesAnnotation()
 {
 
 }
@@ -80,7 +80,7 @@ RimUserDefinedPolyLinesAnnotation::~RimUserDefinedPolyLinesAnnotation()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-cvf::ref<RigPolyLinesData> RimUserDefinedPolyLinesAnnotation::polyLinesData()
+cvf::ref<RigPolyLinesData> RimUserDefinedPolylinesAnnotation::polyLinesData()
 {
     cvf::ref<RigPolyLinesData> pld = new RigPolyLinesData; 
     std::vector<std::vector<cvf::Vec3d> > lines; 
@@ -93,7 +93,7 @@ cvf::ref<RigPolyLinesData> RimUserDefinedPolyLinesAnnotation::polyLinesData()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RimUserDefinedPolyLinesAnnotation::isEmpty()
+bool RimUserDefinedPolylinesAnnotation::isEmpty()
 {
     return m_points().empty();
 }
@@ -101,7 +101,7 @@ bool RimUserDefinedPolyLinesAnnotation::isEmpty()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimUserDefinedPolyLinesAnnotation::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+void RimUserDefinedPolylinesAnnotation::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
     uiOrdering.add(&m_points);
 
@@ -111,7 +111,7 @@ void RimUserDefinedPolyLinesAnnotation::defineUiOrdering(QString uiConfigName, c
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimUserDefinedPolyLinesAnnotation::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
+void RimUserDefinedPolylinesAnnotation::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
                                                          const QVariant&            oldValue,
                                                          const QVariant&            newValue)
 {
@@ -126,12 +126,12 @@ void RimUserDefinedPolyLinesAnnotation::fieldChangedByUi(const caf::PdmFieldHand
 
 #include "cafPdmUiFilePathEditor.h"
 
-CAF_PDM_SOURCE_INIT(RimPolyLinesFromFileAnnotation, "PolyLinesFromFileAnnotation");
+CAF_PDM_SOURCE_INIT(RimPolylinesFromFileAnnotation, "PolylinesFromFileAnnotation");
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimPolyLinesFromFileAnnotation::RimPolyLinesFromFileAnnotation()
+RimPolylinesFromFileAnnotation::RimPolylinesFromFileAnnotation()
 {
     CAF_PDM_InitObject("PolyLines Annotation", ":/WellCollection.png", "", "");
 
@@ -144,7 +144,7 @@ RimPolyLinesFromFileAnnotation::RimPolyLinesFromFileAnnotation()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimPolyLinesFromFileAnnotation::~RimPolyLinesFromFileAnnotation()
+RimPolylinesFromFileAnnotation::~RimPolylinesFromFileAnnotation()
 {
 
 }
@@ -152,7 +152,7 @@ RimPolyLinesFromFileAnnotation::~RimPolyLinesFromFileAnnotation()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimPolyLinesFromFileAnnotation::setFileName(const QString& fileName)
+void RimPolylinesFromFileAnnotation::setFileName(const QString& fileName)
 {
     m_polyLinesFileName = fileName;
 }
@@ -160,7 +160,7 @@ void RimPolyLinesFromFileAnnotation::setFileName(const QString& fileName)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const QString& RimPolyLinesFromFileAnnotation::fileName()
+const QString& RimPolylinesFromFileAnnotation::fileName()
 {
     return m_polyLinesFileName();
 }
@@ -168,7 +168,7 @@ const QString& RimPolyLinesFromFileAnnotation::fileName()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimPolyLinesFromFileAnnotation::readPolyLinesFile(QString * errorMessage)
+void RimPolylinesFromFileAnnotation::readPolyLinesFile(QString * errorMessage)
 {
     QFile dataFile(m_polyLinesFileName());
 
@@ -239,7 +239,7 @@ void RimPolyLinesFromFileAnnotation::readPolyLinesFile(QString * errorMessage)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RimPolyLinesFromFileAnnotation::isEmpty()
+bool RimPolylinesFromFileAnnotation::isEmpty()
 {
     bool isThisEmpty = true;
     for (const std::vector<cvf::Vec3d> & line :m_polyLinesData->polyLines())
@@ -253,7 +253,7 @@ bool RimPolyLinesFromFileAnnotation::isEmpty()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimPolyLinesFromFileAnnotation::updateFilePathsFromProjectPath(const QString& newProjectPath, const QString& oldProjectPath)
+void RimPolylinesFromFileAnnotation::updateFilePathsFromProjectPath(const QString& newProjectPath, const QString& oldProjectPath)
 {
     m_polyLinesFileName = RimTools::relocateFile(m_polyLinesFileName(), newProjectPath, oldProjectPath, nullptr, nullptr);
 
@@ -262,7 +262,7 @@ void RimPolyLinesFromFileAnnotation::updateFilePathsFromProjectPath(const QStrin
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimPolyLinesFromFileAnnotation::setDescriptionFromFileName()
+void RimPolylinesFromFileAnnotation::setDescriptionFromFileName()
 {
     QFileInfo fileInfo(m_polyLinesFileName());
     m_userDescription =  fileInfo.fileName();
@@ -272,7 +272,7 @@ void RimPolyLinesFromFileAnnotation::setDescriptionFromFileName()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-caf::PdmFieldHandle* RimPolyLinesFromFileAnnotation::userDescriptionField()
+caf::PdmFieldHandle* RimPolylinesFromFileAnnotation::userDescriptionField()
 {
     return &m_userDescription;
 }

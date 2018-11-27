@@ -110,7 +110,7 @@ std::vector<RimPolylinesAnnotation*> RimAnnotationCollection::polylineAnnotation
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<RimPolyLinesFromFileAnnotation*> RimAnnotationCollection::polylinesFromFileAnnotations() const
+std::vector<RimPolylinesFromFileAnnotation*> RimAnnotationCollection::polylinesFromFileAnnotations() const
 {
     return m_polylineFromFileAnnotations.childObjects();
 }
@@ -118,16 +118,16 @@ std::vector<RimPolyLinesFromFileAnnotation*> RimAnnotationCollection::polylinesF
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimPolyLinesFromFileAnnotation* RimAnnotationCollection::importOrUpdatePolylinesFromFile(const QStringList& fileNames)
+RimPolylinesFromFileAnnotation* RimAnnotationCollection::importOrUpdatePolylinesFromFile(const QStringList& fileNames)
 {
     QStringList newFileNames;
-    std::vector<RimPolyLinesFromFileAnnotation*> polyLinesObjsToReload;
+    std::vector<RimPolylinesFromFileAnnotation*> polyLinesObjsToReload;
     size_t formationListBeforeImportCount = m_polylineFromFileAnnotations.size();
 
     for(const QString& newFileName : fileNames)
     {
         bool isFound = false;
-        for(RimPolyLinesFromFileAnnotation* polyLinesAnnot: m_polylineFromFileAnnotations)
+        for(RimPolylinesFromFileAnnotation* polyLinesAnnot: m_polylineFromFileAnnotations)
         {
             if(polyLinesAnnot->fileName() == newFileName)
             {
@@ -145,7 +145,7 @@ RimPolyLinesFromFileAnnotation* RimAnnotationCollection::importOrUpdatePolylines
 
     for(const QString& newFileName :  newFileNames)
     {
-        RimPolyLinesFromFileAnnotation* newPolyLinesAnnot = new RimPolyLinesFromFileAnnotation;
+        RimPolylinesFromFileAnnotation* newPolyLinesAnnot = new RimPolylinesFromFileAnnotation;
         newPolyLinesAnnot->setFileName(newFileName);
         m_polylineFromFileAnnotations.push_back(newPolyLinesAnnot);
         polyLinesObjsToReload.push_back(newPolyLinesAnnot);
@@ -154,7 +154,7 @@ RimPolyLinesFromFileAnnotation* RimAnnotationCollection::importOrUpdatePolylines
 
     QString totalErrorMessage;
 
-    for (RimPolyLinesFromFileAnnotation* polyLinesAnnot: polyLinesObjsToReload)
+    for (RimPolylinesFromFileAnnotation* polyLinesAnnot: polyLinesObjsToReload)
     {
         QString errormessage;
 
