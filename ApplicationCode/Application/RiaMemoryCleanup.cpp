@@ -218,9 +218,14 @@ QList<caf::PdmOptionItemInfo> RiaMemoryCleanup::calculateValueOptions(const caf:
         RimProject* proj = RiaApplication::instance()->project();
         if (proj)
         {
-            std::vector<RimGeoMechCase*> cases = proj->geoMechCases();
+            std::vector<RimEclipseCase*> eclipseCases = proj->eclipseCases();
+            for (RimEclipseCase* c : eclipseCases)
+            {
+                options.push_back(caf::PdmOptionItemInfo(c->caseUserDescription(), c, false, c->uiIcon()));
+            }
 
-            for (RimGeoMechCase* c : cases)
+            std::vector<RimGeoMechCase*> geoMechCases = proj->geoMechCases();
+            for (RimGeoMechCase* c : geoMechCases)
             {
                 options.push_back(caf::PdmOptionItemInfo(c->caseUserDescription(), c, false, c->uiIcon()));
             }
