@@ -154,6 +154,7 @@ RiuViewer::RiuViewer(const QGLFormat& format, QWidget* parent)
     m_animationProgress->setPalette(p);
     m_animationProgress->setFormat("Time Step: %v/%m");
     m_animationProgress->setTextVisible(true);
+    m_animationProgress->setAlignment(Qt::AlignCenter);
 
     m_showAnimProgress = false;
 
