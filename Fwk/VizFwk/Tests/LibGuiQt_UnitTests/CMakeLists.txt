@@ -41,7 +41,11 @@ if (Qt5Core_FOUND)
 endif(Qt5Core_FOUND)
 
 
-add_definitions(-D_SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING)
+if (MSVC AND (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 19.11))
+  # VS 2017 : Disable warnings from from gtest code, using deprecated code related to TR1 
+  add_definitions(-D_SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING)
+endif()
+
 add_executable(${PROJECT_NAME} ${CEE_SOURCE_FILES})
 target_link_libraries(${PROJECT_NAME} ${CEE_LIBS} ${OPENGL_LIBRARIES} ${QT_LIBRARIES} ${CEE_PLATFORM_LIBS})
 
