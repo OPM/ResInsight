@@ -1,8 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2011-     Statoil ASA
-//  Copyright (C) 2013-     Ceetron Solutions AS
-//  Copyright (C) 2011-2012 Ceetron AS
+//  Copyright (C) 2018-     Equinor ASA
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -20,43 +18,9 @@
 
 #include "RimTextAnnotation.h"
 
-#include "RiaApplication.h"
-#include "RiaColorTables.h"
-#include "RiaLogging.h"
-#include "RiaPreferences.h"
-#include "RiaWellNameComparer.h"
-
-#include "RigEclipseCaseData.h"
-#include "RigMainGrid.h"
-#include "RigWellPath.h"
-
 #include "RimAnnotationInViewCollection.h"
-#include "RimEclipseCase.h"
-#include "RimEclipseCaseCollection.h"
 #include "RimGridView.h"
-#include "RimOilField.h"
 #include "RimProject.h"
-#include "RimWellLogFile.h"
-#include "RimWellPath.h"
-#include "RimPerforationCollection.h"
-
-#include "Riu3DMainWindowTools.h"
-
-#include "RifWellPathFormationsImporter.h"
-#include "RifWellPathImporter.h"
-
-#include "cafPdmUiEditorHandle.h"
-#include "cafProgressInfo.h"
-
-#include <QFile>
-#include <QFileInfo>
-#include <QMessageBox>
-#include <QString>
-
-#include <cmath>
-#include <fstream>
-#include "RimFileWellPath.h"
-#include "RimModeledWellPath.h"
 
 
 CAF_PDM_SOURCE_INIT(RimTextAnnotation, "RimTextAnnotation");
