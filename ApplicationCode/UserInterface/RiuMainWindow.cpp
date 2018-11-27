@@ -1109,11 +1109,6 @@ void RiuMainWindow::addViewer(QWidget* viewer, const RimMdiWindowGeometry& windo
         initialStateMaximized = true;
     }
         
-    subWin->show();
-
-    // Move and resize must be done after window is visible
-    // If not, the position and size of the window is different to specification (Windows 7)
-    // Might be a Qt bug, must be tested on Linux
     if (subWindowPos.x() > -1)
     {
         subWin->move(subWindowPos);
