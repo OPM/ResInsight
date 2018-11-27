@@ -81,6 +81,8 @@ private:
                                    double sgas,
                                    QString cellReferenceText,
                                    bool logScaleLeftAxis,
+                                   bool fixedXAxis,
+                                   bool fixedLeftYAxis,
                                    QwtPlot* plot,
                                    std::vector<QwtPlotMarker*>* myPlotMarkers);
 
@@ -128,6 +130,8 @@ private:
     QButtonGroup* m_selectedCurvesButtonGroup;
     QCheckBox*    m_showUnscaledCheckBox;
     QCheckBox*    m_logarithmicScaleKrAxisCheckBox;
+    QCheckBox*    m_fixedXAxisCheckBox;
+    QCheckBox*    m_fixedLeftYAxisCheckBox;
 
     std::unique_ptr<RiuRelativePermeabilityPlotUpdater> m_plotUpdater;
 };
