@@ -46,11 +46,13 @@ public:
     void                            addAnnotation(RimTextAnnotation* annotation);
     void                            addAnnotation(RimReachCircleAnnotation* annotation);
     void                            addAnnotation(RimPolylinesAnnotation* annotation);
-    
+
     std::vector<RimTextAnnotation*>              textAnnotations() const;
     std::vector<RimReachCircleAnnotation*>       reachCircleAnnotations() const;
     std::vector<RimPolylinesAnnotation*>         polylineAnnotations() const;
     std::vector<RimPolylinesFromFileAnnotation*> polylinesFromFileAnnotations() const;
+
+    void                            onAnnotationDeleted();
 
     RimPolylinesFromFileAnnotation* importOrUpdatePolylinesFromFile(const QStringList& fileNames );
     void                            scheduleRedrawOfRelevantViews();

@@ -16,7 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicCreateTextAnnotationFeature.h"
+#include "RicDeleteAnnotationFeature.h"
 
 #include "RiaApplication.h"
 
@@ -35,29 +35,37 @@
 #include <QAction>
 
 
-CAF_CMD_SOURCE_INIT(RicCreateTextAnnotationFeature, "RicCreateTextAnnotationFeature");
+CAF_CMD_SOURCE_INIT(RicDeleteAnnotationFeature, "RicDeleteAnnotationFeature");
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicCreateTextAnnotationFeature::isCommandEnabled()
+bool RicDeleteAnnotationFeature::isCommandEnabled()
 {
-    auto selObjsGlobal  = caf::selectedObjectsByTypeStrict<RimAnnotationCollection*>();
-    auto selObjs2InView = caf::selectedObjectsByTypeStrict<RimAnnotationInViewCollection*>();
+    auto textAnnots  = caf::selectedObjectsByTypeStrict<RimTextAnnotation*>();
+    auto lineBasedAnnots = caf::selectedObjectsByTypeStrict<RimLineBasedAnnotation*>();
 
-    return selObjsGlobal.size() == 1 || selObjs2InView.size() == 1;
+    return !textAnnots.empty() || !lineBasedAnnots.empty();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicCreateTextAnnotationFeature::onActionTriggered(bool isChecked)
+void RicDeleteAnnotationFeature::onActionTriggered(bool isChecked)
 {
     {
-        auto coll = annotationCollection();
-        if (coll)
+        auto annotations = caf::selectedObjectsByTypeStrict<RimTextAnnotation*>();
+        while(!annotations.empty())
         {
-            auto newAnnotation = new RimTextAnnotation();
+            auto annotation = annotations.front();
+
+            RimAnnotationCollection* coll;
+            annotation->firstAncestorOrThisOfType(coll);
+            if (coll)
+            {
+                coll->addAnnotation()
+            }
+
             coll->addAnnotation(newAnnotation);
             coll->updateConnectedEditors();
             RiuMainWindow::instance()->selectAsCurrentItem(newAnnotation);
@@ -79,26 +87,8 @@ void RicCreateTextAnnotationFeature::onActionTriggered(bool isChecked)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicCreateTextAnnotationFeature::setupActionLook(QAction* actionToSetup)
+void RicDeleteAnnotationFeature::setupActionLook(QAction* actionToSetup)
 {
-    actionToSetup->setIcon(QIcon(":/Plus.png"));
-    actionToSetup->setText("Create Text Annotation");
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
- RimAnnotationCollection* RicCreateTextAnnotationFeature::annotationCollection() const
-{
-     auto selObjs = caf::selectedObjectsByTypeStrict<RimAnnotationCollection*>();
-     return selObjs.size() == 1 ? selObjs.front() : nullptr;
- }
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RimAnnotationInViewCollection* RicCreateTextAnnotationFeature::annotationInViewCollection() const
-{
-    auto selObjs = caf::selectedObjectsByTypeStrict<RimAnnotationInViewCollection*>();
-    return selObjs.size() == 1 ? selObjs.front() : nullptr;
+    actionToSetup->setIcon(QIcon(":/minus-sign-red.png"));
+    actionToSetup->setText("Delete Annotation");
 }

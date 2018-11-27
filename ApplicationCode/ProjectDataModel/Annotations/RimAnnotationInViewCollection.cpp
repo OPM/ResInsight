@@ -18,6 +18,9 @@
 
 #include "RimAnnotationInViewCollection.h"
 
+#include "RiaApplication.h"
+
+#include "RimProject.h"
 #include "RimGridView.h"
 #include "RimTextAnnotation.h"
 
@@ -51,6 +54,20 @@ RimAnnotationInViewCollection::~RimAnnotationInViewCollection()
 void RimAnnotationInViewCollection::addAnnotation(RimTextAnnotation* annotation)
 {
     m_textAnnotations.push_back(annotation);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// At least one annotation have been deleted. Typically by the generic delete command
+//--------------------------------------------------------------------------------------------------
+void RimAnnotationInViewCollection::onAnnotationDeleted()
+{
+    auto                      project = RiaApplication::instance()->project();
+    std::vector<RimGridView*> views;
+    project->allVisibleGridViews(views);
+    for (auto& view : views)
+    {
+        if (view->annotationCollection()->isActive()) view->scheduleCreateDisplayModelAndRedraw();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

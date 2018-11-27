@@ -18,6 +18,8 @@
 
 #include "RimAnnotationCollection.h"
 
+#include "RiaApplication.h"
+
 #include "RimTextAnnotation.h"
 #include "RimReachCircleAnnotation.h"
 #include "RimPolylinesAnnotation.h"
@@ -113,6 +115,20 @@ std::vector<RimPolylinesAnnotation*> RimAnnotationCollection::polylineAnnotation
 std::vector<RimPolylinesFromFileAnnotation*> RimAnnotationCollection::polylinesFromFileAnnotations() const
 {
     return m_polylineFromFileAnnotations.childObjects();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// At least one annotation have been deleted. Typically by the generic delete command
+//--------------------------------------------------------------------------------------------------
+void RimAnnotationCollection::onAnnotationDeleted()
+{
+    auto project = RiaApplication::instance()->project();
+    std::vector<RimGridView*> views;
+    project->allVisibleGridViews(views);
+    for (auto& view : views)
+    {
+        if(view->annotationCollection()->isActive()) view->scheduleCreateDisplayModelAndRedraw();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

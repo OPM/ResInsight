@@ -40,6 +40,7 @@ public:
     ~RimAnnotationInViewCollection() override;
 
     void addAnnotation(RimTextAnnotation* annotation);
+    void onAnnotationDeleted();
 
     std::vector<RimTextAnnotation*> textAnnotations() const;
     bool                            isActive() const;
