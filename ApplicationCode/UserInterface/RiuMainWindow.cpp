@@ -1078,7 +1078,7 @@ void RiuMainWindow::removeViewer(QWidget* viewer)
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindow::addViewer(QWidget* viewer, const RimMdiWindowGeometry& windowsGeometry)
 {
-    RiuMdiSubWindow* subWin = new RiuMdiSubWindow(m_mdiArea);
+    RiuMdiSubWindow* subWin = new RiuMdiSubWindow;
     subWin->setAttribute(Qt::WA_DeleteOnClose); // Make sure the contained widget is destroyed when the MDI window is closed
     subWin->setWidget(viewer);
 
@@ -1108,7 +1108,9 @@ void RiuMainWindow::addViewer(QWidget* viewer, const RimMdiWindowGeometry& windo
     {
         initialStateMaximized = true;
     }
-        
+
+    m_mdiArea->addSubWindow(subWin);
+
     if (subWindowPos.x() > -1)
     {
         subWin->move(subWindowPos);
@@ -1118,6 +1120,10 @@ void RiuMainWindow::addViewer(QWidget* viewer, const RimMdiWindowGeometry& windo
     if (initialStateMaximized)
     {
         subWin->showMaximized();
+    }
+    else
+    {
+        subWin->showNormal();
     }
 
     slotRefreshViewActions();
