@@ -21,7 +21,6 @@
 #pragma once
 
 #include "RimAnnotationLineAppearance.h"
-#include "RimLineBasedAnnotation.h"
 
 #include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
@@ -48,26 +47,17 @@ class RimGridView;
 ///
 ///
 //==================================================================================================
-class RimReachCircleAnnotation : public RimLineBasedAnnotation
+class RimLineBasedAnnotation : public caf::PdmObject
 {
-    using Vec3d = cvf::Vec3d;
-
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimReachCircleAnnotation();
-
-    Vec3d           centerPoint() const;
-    double          radius() const;
+    RimLineBasedAnnotation();
+    RimAnnotationLineAppearance* appearance() const;
 
 protected:
-    void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
-    void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override {};
 
 private:
-    std::vector<RimGridView*> gridViewsContainingAnnotations() const;
-
-private:
-    caf::PdmField<Vec3d>    m_centerPoint;
-    caf::PdmField<double>   m_radius;
+    caf::PdmChildField<RimAnnotationLineAppearance*> m_appearance;
 };

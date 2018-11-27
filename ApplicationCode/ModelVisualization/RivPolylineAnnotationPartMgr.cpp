@@ -52,13 +52,16 @@ RivPolylineAnnotationPartMgr::~RivPolylineAnnotationPartMgr()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivPolylineAnnotationPartMgr::buildPolygonAnnotationParts(const caf::DisplayCoordTransform* displayXf)
+void RivPolylineAnnotationPartMgr::buildPolylineAnnotationParts(const caf::DisplayCoordTransform* displayXf)
 {
     clearAllGeometry();
 
     if (!m_rimAnnotation->isEmpty())
     {
         const auto& points = m_rimAnnotation->polyLinesData();
+        auto        lineColor     = m_rimAnnotation->appearance()->color();
+        auto        isDashedLine  = m_rimAnnotation->appearance()->isDashed();
+        auto        lineThickness = m_rimAnnotation->appearance()->thickness();
 
         auto linesInDisplayCoords =  points->polyLines();
 
@@ -75,8 +78,10 @@ void RivPolylineAnnotationPartMgr::buildPolygonAnnotationParts(const caf::Displa
         //part->setName("RivAnnotationPartMgr: text " + cvfString);
         part->setDrawable(drawableGeo.p());
 
-        caf::MeshEffectGenerator colorEffgen(cvf::Color3f::RED);
-        cvf::ref<cvf::Effect> eff = colorEffgen.generateCachedEffect();
+        caf::MeshEffectGenerator effgen(lineColor);
+        effgen.setLineWidth(lineThickness);
+        if (isDashedLine) effgen.setLineStipple(true);
+        cvf::ref<cvf::Effect> eff = effgen.generateCachedEffect();
 
         part->setEffect(eff.p());
         part->setPriority(RivPartPriority::PartType::MeshLines);  
@@ -105,7 +110,7 @@ void RivPolylineAnnotationPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelB
     if (m_rimAnnotation.isNull()) return;
     if (m_rimAnnotation->isEmpty()) return;
 
-    buildPolygonAnnotationParts(displayXf);
+    buildPolylineAnnotationParts(displayXf);
     model->addPart(m_part.p());
 }
 

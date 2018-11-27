@@ -5,6 +5,8 @@ ${CMAKE_CURRENT_LIST_DIR}/RimPolylinesAnnotation.h
 ${CMAKE_CURRENT_LIST_DIR}/RimReachCircleAnnotation.h
 ${CMAKE_CURRENT_LIST_DIR}/RimTextAnnotation.h
 ${CMAKE_CURRENT_LIST_DIR}/RimAnnotationInViewCollection.h
+${CMAKE_CURRENT_LIST_DIR}/RimAnnotationLineAppearance.h
+${CMAKE_CURRENT_LIST_DIR}/RimLineBasedAnnotation.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -13,6 +15,8 @@ ${CMAKE_CURRENT_LIST_DIR}/RimPolylinesAnnotation.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimReachCircleAnnotation.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimTextAnnotation.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimAnnotationInViewCollection.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimAnnotationLineAppearance.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimLineBasedAnnotation.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

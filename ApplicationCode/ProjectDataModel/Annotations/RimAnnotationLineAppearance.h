@@ -20,9 +20,6 @@
 
 #pragma once
 
-#include "RimAnnotationLineAppearance.h"
-#include "RimLineBasedAnnotation.h"
-
 #include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
@@ -31,7 +28,7 @@
 #include "cafPdmUiOrdering.h"
 
 // Include to make Pdm work for cvf::Color
-#include "cafPdmFieldCvfColor.h"    
+#include "cafPdmFieldCvfColor.h" 
 #include "cafPdmChildField.h"
 #include "cafPdmFieldCvfVec3d.h"
 
@@ -48,26 +45,49 @@ class RimGridView;
 ///
 ///
 //==================================================================================================
-class RimReachCircleAnnotation : public RimLineBasedAnnotation
+class RimAnnotationLineAppearance : public caf::PdmObject
 {
+    // Friends
+    friend class RimReachCircleAnnotation;
+    friend class RimUserDefinedPolylinesAnnotation;
+    friend class RimPolylinesFromFileAnnotation;
+
     using Vec3d = cvf::Vec3d;
 
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimReachCircleAnnotation();
+    using FieldChangedByUiDelegate = std::function<void(const caf::PdmFieldHandle*, const QVariant&, const QVariant&)>;
 
-    Vec3d           centerPoint() const;
-    double          radius() const;
+    enum LineStyleEnum
+    {
+        STYLE_SOLID,
+        STYLE_DASH
+    };
+    typedef caf::AppEnum<LineStyleEnum> LineStyle;
+
+public:
+    RimAnnotationLineAppearance();
+
+    cvf::Color3f        color() const;
+    bool                isDashed() const;
+    int                 thickness() const;
+
+    const caf::PdmFieldHandle* colorField() const;
+    const caf::PdmFieldHandle* styleField() const;
+    const caf::PdmFieldHandle* thicknessField() const;
+
+    void                registerFieldChangedByUiCallback(FieldChangedByUiDelegate func);
 
 protected:
     void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
     void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
 
 private:
-    std::vector<RimGridView*> gridViewsContainingAnnotations() const;
+    caf::PdmField<cvf::Color3f>     m_color;
+    caf::PdmField<LineStyle>        m_style;
+    caf::PdmField<int>              m_thickness;
 
-private:
-    caf::PdmField<Vec3d>    m_centerPoint;
-    caf::PdmField<double>   m_radius;
+    FieldChangedByUiDelegate  m_fieldChangedByUiCallback;
 };
+

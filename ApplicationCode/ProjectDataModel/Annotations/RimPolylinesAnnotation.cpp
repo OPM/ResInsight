@@ -105,6 +105,9 @@ void RimUserDefinedPolylinesAnnotation::defineUiOrdering(QString uiConfigName, c
 {
     uiOrdering.add(&m_points);
 
+    auto appearanceGroup = uiOrdering.addNewGroup("Line Appearance");
+    appearance()->defineUiOrdering(uiConfigName, *appearanceGroup);
+
     uiOrdering.skipRemainingFields(true);
 }
 
@@ -267,6 +270,32 @@ void RimPolylinesFromFileAnnotation::setDescriptionFromFileName()
     QFileInfo fileInfo(m_polyLinesFileName());
     m_userDescription =  fileInfo.fileName();
 
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPolylinesFromFileAnnotation::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+{
+    auto appearanceGroup = uiOrdering.addNewGroup("Line Appearance");
+    appearance()->defineUiOrdering(uiConfigName, *appearanceGroup);
+
+    uiOrdering.skipRemainingFields(true);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPolylinesFromFileAnnotation::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
+                                                      const QVariant&            oldValue,
+                                                      const QVariant&            newValue)
+{
+    RimAnnotationCollection* annColl = nullptr;
+    this->firstAncestorOrThisOfType(annColl);
+    if (annColl)
+    {
+        annColl->scheduleRedrawOfRelevantViews();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

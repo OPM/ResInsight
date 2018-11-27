@@ -64,6 +64,9 @@ void RivReachCircleAnnotationPartMgr::buildParts(const caf::DisplayCoordTransfor
 
     Vec3d   centerPosition = displayXf->transformToDisplayCoord(m_rimAnnotation->centerPoint());
     double  radius         = m_rimAnnotation->radius();
+    auto    lineColor      = m_rimAnnotation->appearance()->color();
+    auto    isDashedLine   = m_rimAnnotation->appearance()->isDashed();
+    auto    lineThickness = m_rimAnnotation->appearance()->thickness();
 
     // Circle part
     {
@@ -82,8 +85,10 @@ void RivReachCircleAnnotationPartMgr::buildParts(const caf::DisplayCoordTransfor
         cvf::ref<cvf::Part> part = new cvf::Part;
         part->setDrawable(drawableGeo.p());
 
-        caf::MeshEffectGenerator colorEffgen(cvf::Color3f::RED);
-        cvf::ref<cvf::Effect>    eff = colorEffgen.generateUnCachedEffect();
+        caf::MeshEffectGenerator effgen(lineColor);
+        effgen.setLineWidth(lineThickness);
+        if (isDashedLine) effgen.setLineStipple(true);
+        cvf::ref<cvf::Effect>    eff = effgen.generateUnCachedEffect();
 
         part->setEffect(eff.p());
         part->setPriority(RivPartPriority::PartType::MeshLines);

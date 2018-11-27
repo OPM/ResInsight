@@ -39,6 +39,8 @@
 #include "RimWellLogFile.h"
 #include "RimWellPath.h"
 #include "RimPerforationCollection.h"
+#include "RimFileWellPath.h"
+#include "RimModeledWellPath.h"
 
 #include "Riu3DMainWindowTools.h"
 
@@ -55,8 +57,7 @@
 
 #include <cmath>
 #include <fstream>
-#include "RimFileWellPath.h"
-#include "RimModeledWellPath.h"
+#include <functional>
 
 
 CAF_PDM_SOURCE_INIT(RimReachCircleAnnotation, "RimReachCircleAnnotation");
@@ -97,6 +98,9 @@ void RimReachCircleAnnotation::defineUiOrdering(QString uiConfigName, caf::PdmUi
     uiOrdering.add(&m_centerPoint);
     uiOrdering.add(&m_radius);
 
+    auto appearanceGroup = uiOrdering.addNewGroup("Line Appearance");
+    appearance()->defineUiOrdering(uiConfigName, *appearanceGroup);
+
     uiOrdering.skipRemainingFields(true);
 }
 
@@ -110,7 +114,11 @@ void RimReachCircleAnnotation::fieldChangedByUi(const caf::PdmFieldHandle* chang
     auto views = gridViewsContainingAnnotations();
     if (!views.empty())
     {
-        if (changedField == &m_centerPoint || changedField == &m_radius)
+        if (changedField == &m_centerPoint || 
+            changedField == &m_radius ||
+            changedField == appearance()->colorField() ||
+            changedField == appearance()->styleField() ||
+            changedField == appearance()->thicknessField())
         {
             for (auto& view : views)
             {

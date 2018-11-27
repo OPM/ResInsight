@@ -17,6 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
+#include "RimLineBasedAnnotation.h"
 
 #include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
@@ -43,7 +44,7 @@ class RigPolyLinesData;
 ///
 ///
 //==================================================================================================
-class RimPolylinesAnnotation : public caf::PdmObject
+class RimPolylinesAnnotation : public RimLineBasedAnnotation// caf::PdmObject
 {
     using Vec3d = cvf::Vec3d;
 
@@ -112,6 +113,10 @@ public:
 
     void                        updateFilePathsFromProjectPath(const QString& newProjectPath, const QString& oldProjectPath);
     void                        setDescriptionFromFileName();
+
+protected:
+    void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
 
 private:
     virtual caf::PdmFieldHandle* userDescriptionField() override;

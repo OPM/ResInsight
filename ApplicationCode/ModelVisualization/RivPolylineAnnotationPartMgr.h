@@ -51,7 +51,7 @@ public:
                                            const caf::DisplayCoordTransform * displayXf);
 
 private:
-    void                            buildPolygonAnnotationParts(const caf::DisplayCoordTransform* displayXf);
+    void                            buildPolylineAnnotationParts(const caf::DisplayCoordTransform* displayXf);
 
     void                            clearAllGeometry();
 
