@@ -106,10 +106,10 @@ void RimTextAnnotation::fieldChangedByUi(const caf::PdmFieldHandle* changedField
                                          const QVariant&            oldValue,
                                          const QVariant&            newValue)
 {
-    RimAnnotationCollection* annColl = nullptr;
+    RimAnnotationCollectionBase* annColl = nullptr;
     this->firstAncestorOrThisOfTypeAsserted(annColl);
 
-    annColl->scheduleRedrawOfRelevantViews();
+    if(annColl) annColl->scheduleRedrawOfRelevantViews();
 }
 
 //--------------------------------------------------------------------------------------------------
