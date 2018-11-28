@@ -32,7 +32,7 @@ CAF_PDM_SOURCE_INIT(RimTextAnnotation, "RimTextAnnotation");
 //--------------------------------------------------------------------------------------------------
 RimTextAnnotation::RimTextAnnotation()
 {
-    CAF_PDM_InitObject("TextAnnotation", ":/WellCollection.png", "", "");
+    CAF_PDM_InitObject("TextAnnotation", ":/TextAnnotation16x16.png", "", "");
 
     CAF_PDM_InitField(&m_anchorPointXyd, "AnchorPointXyd", Vec3d::ZERO, "Anchor Point", "", "", "");
     CAF_PDM_InitField(&m_labelPointXyd, "LabelPointXyd", Vec3d::ZERO, "Label Point", "", "", "");

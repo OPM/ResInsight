@@ -32,7 +32,7 @@ CAF_PDM_SOURCE_INIT(RimAnnotationInViewCollection, "Annotations");
 //--------------------------------------------------------------------------------------------------
 RimAnnotationInViewCollection::RimAnnotationInViewCollection()
 {
-    CAF_PDM_InitObject("Annotations", ":/Plus.png", "", "");
+    CAF_PDM_InitObject("Annotations", ":/Annotations16x16.png", "", "");
 
     CAF_PDM_InitField(&m_isActive, "Active", true, "Active", "", "", "");
     m_isActive.uiCapability()->setUiHidden(true);

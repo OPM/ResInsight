@@ -140,6 +140,11 @@
     <file>ToggleOnOff16x16.png</file>
     <file>ToggleOnOthersOff16x16.png</file>
     <file>ExportCompletionsSymbol16x16.png</file>
+    <file>TextAnnotation16x16.png</file>
+    <file>Annotations16x16.png</file>
+    <file>PolylinesFromFile16x16.png</file>
+    <file>ReachCircle16x16.png</file>
+
   </qresource>
   <qresource prefix="/Shader/">
     <file>fs_CellFace.glsl</file>

@@ -88,6 +88,6 @@ void RicImportPolylinesAnnotationFeature::onActionTriggered(bool isChecked)
 //--------------------------------------------------------------------------------------------------
 void RicImportPolylinesAnnotationFeature::setupActionLook(QAction* actionToSetup)
 {
-    actionToSetup->setIcon(QIcon(":/FormationCollection16x16.png"));
+    actionToSetup->setIcon(QIcon(":/PolylinesFromFile16x16.png"));
     actionToSetup->setText("Import Poly Lines Annotation");
 }

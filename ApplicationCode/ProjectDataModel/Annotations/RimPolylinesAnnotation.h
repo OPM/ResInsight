@@ -39,8 +39,6 @@ public:
     RimPolylinesAnnotation();
     ~RimPolylinesAnnotation();
 
-
     virtual cvf::ref<RigPolyLinesData> polyLinesData() = 0;
     virtual bool isEmpty() = 0;
-
 };

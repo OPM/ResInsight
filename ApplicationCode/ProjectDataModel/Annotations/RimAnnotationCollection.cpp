@@ -42,7 +42,7 @@ CAF_PDM_SOURCE_INIT(RimAnnotationCollection, "RimAnnotationCollection");
 //--------------------------------------------------------------------------------------------------
 RimAnnotationCollection::RimAnnotationCollection()
 {
-    CAF_PDM_InitObject("Annotations", ":/WellCollection.png", "", "");
+    CAF_PDM_InitObject("Annotations", ":/Annotations16x16.png", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_reachCircleAnnotations, "ReachCircleAnnotations", "Reach Circle Annotations", "", "", "");
     m_reachCircleAnnotations.uiCapability()->setUiHidden(true);

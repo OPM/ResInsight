@@ -32,7 +32,7 @@ CAF_PDM_SOURCE_INIT(RimReachCircleAnnotation, "RimReachCircleAnnotation");
 //--------------------------------------------------------------------------------------------------
 RimReachCircleAnnotation::RimReachCircleAnnotation()
 {
-    CAF_PDM_InitObject("CircleAnnotation", ":/WellCollection.png", "", "");
+    CAF_PDM_InitObject("CircleAnnotation", ":/ReachCircle16x16.png", "", "");
 
     CAF_PDM_InitField(&m_centerPointXyd, "CenterPointXyd", Vec3d::ZERO, "Center Point", "", "", "");
     CAF_PDM_InitField(&m_radius, "Radius", 0.0, "Radius", "", "", "");
