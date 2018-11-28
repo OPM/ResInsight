@@ -70,6 +70,6 @@ private:
     caf::PdmChildArrayField<RimPolylinesAnnotation*>         m_polylineAnnotations;
     caf::PdmChildArrayField<RimPolylinesFromFileAnnotation*> m_polylineFromFileAnnotations;
 
-    caf::PdmField<double>           m_annotationPlaneZ;
+    caf::PdmField<double>           m_annotationPlaneDepth;
     caf::PdmField<bool>             m_snapAnnotations;
 };

@@ -66,8 +66,8 @@ private:
     std::vector<RimGridView*> gridViewsContainingAnnotations() const;
 
 private:
-    caf::PdmField<Vec3d>        m_anchorPoint;
-    caf::PdmField<Vec3d>        m_labelPoint;
+    caf::PdmField<Vec3d>        m_anchorPointXyd;
+    caf::PdmField<Vec3d>        m_labelPointXyd;
     caf::PdmField<QString>      m_text;
 };
 

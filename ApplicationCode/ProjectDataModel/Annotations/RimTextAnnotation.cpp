@@ -33,8 +33,8 @@ RimTextAnnotation::RimTextAnnotation()
 {
     CAF_PDM_InitObject("TextAnnotation", ":/WellCollection.png", "", "");
 
-    CAF_PDM_InitField(&m_anchorPoint, "AnchorPoint", Vec3d::ZERO, "Anchor Point", "", "", "");
-    CAF_PDM_InitField(&m_labelPoint, "LabelPoint", Vec3d::ZERO, "Label Point", "", "", "");
+    CAF_PDM_InitField(&m_anchorPointXyd, "AnchorPointXyd", Vec3d::ZERO, "Anchor Point", "", "", "");
+    CAF_PDM_InitField(&m_labelPointXyd, "LabelPointXyd", Vec3d::ZERO, "Label Point", "", "", "");
     CAF_PDM_InitField(&m_text, "Text", QString("(New text)"), "Text", "", "", "");
 }
 
@@ -43,7 +43,9 @@ RimTextAnnotation::RimTextAnnotation()
 //--------------------------------------------------------------------------------------------------
 cvf::Vec3d RimTextAnnotation::anchorPoint() const
 {
-    return m_anchorPoint;
+    auto pos = m_anchorPointXyd();
+    pos.z() = -pos.z();
+    return pos;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -51,7 +53,9 @@ cvf::Vec3d RimTextAnnotation::anchorPoint() const
 //--------------------------------------------------------------------------------------------------
 cvf::Vec3d RimTextAnnotation::labelPoint() const
 {
-    return m_labelPoint;
+    auto pos = m_labelPointXyd();
+    pos.z() = -pos.z();
+    return pos;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -75,8 +79,8 @@ const QString& RimTextAnnotation::text() const
 //--------------------------------------------------------------------------------------------------
 void RimTextAnnotation::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
-    uiOrdering.add(&m_anchorPoint);
-    uiOrdering.add(&m_labelPoint);
+    uiOrdering.add(&m_anchorPointXyd);
+    uiOrdering.add(&m_labelPointXyd);
     uiOrdering.add(&m_text);
 
     uiOrdering.skipRemainingFields(true);
@@ -92,7 +96,7 @@ void RimTextAnnotation::fieldChangedByUi(const caf::PdmFieldHandle* changedField
     auto views = gridViewsContainingAnnotations();
     if (!views.empty())
     {
-        if (changedField == &m_text || changedField == &m_anchorPoint || changedField == &m_labelPoint)
+        if (changedField == &m_text || changedField == &m_anchorPointXyd || changedField == &m_labelPointXyd)
         {
             for (auto& view : views)
             {

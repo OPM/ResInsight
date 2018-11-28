@@ -34,7 +34,7 @@ RimReachCircleAnnotation::RimReachCircleAnnotation()
 {
     CAF_PDM_InitObject("CircleAnnotation", ":/WellCollection.png", "", "");
 
-    CAF_PDM_InitField(&m_centerPoint, "CenterPoint", Vec3d::ZERO, "Center Point", "", "", "");
+    CAF_PDM_InitField(&m_centerPointXyd, "CenterPointXyd", Vec3d::ZERO, "Center Point", "", "", "");
     CAF_PDM_InitField(&m_radius, "Radius", 0.0, "Radius", "", "", "");
     CAF_PDM_InitField(&m_name, "Name", QString("Circle Annotation"), "Name", "", "", "");
 }
@@ -44,7 +44,9 @@ RimReachCircleAnnotation::RimReachCircleAnnotation()
 //--------------------------------------------------------------------------------------------------
 cvf::Vec3d RimReachCircleAnnotation::centerPoint() const
 {
-    return m_centerPoint;
+    auto pos = m_centerPointXyd();
+    pos.z() = -pos.z();
+    return pos;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -69,7 +71,7 @@ QString RimReachCircleAnnotation::name() const
 void RimReachCircleAnnotation::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
     uiOrdering.add(&m_name);
-    uiOrdering.add(&m_centerPoint);
+    uiOrdering.add(&m_centerPointXyd);
     uiOrdering.add(&m_radius);
 
     auto appearanceGroup = uiOrdering.addNewGroup("Line Appearance");

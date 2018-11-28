@@ -49,7 +49,7 @@ RimAnnotationCollection::RimAnnotationCollection()
     CAF_PDM_InitFieldNoDefault(&m_polylineFromFileAnnotations, "PolylineFromFileAnnotations", "Polylines From File", "", "", "");
     m_polylineFromFileAnnotations.uiCapability()->setUiHidden(true);
 
-    CAF_PDM_InitField(&m_annotationPlaneZ, "AnnotationPlane", 0.0,"Annotation Plane Z", "", "", "");
+    CAF_PDM_InitField(&m_annotationPlaneDepth, "AnnotationPlaneDepth", 0.0,"Annotation Plane Depth", "", "", "");
     CAF_PDM_InitField(&m_snapAnnotations, "SnapAnnotations", false, "Snap Annotations to Plane", "", "", "");
 }
 
@@ -82,7 +82,7 @@ void RimAnnotationCollection::addAnnotation(RimPolylinesAnnotation* annotation)
 //--------------------------------------------------------------------------------------------------
 double RimAnnotationCollection::annotationPlaneZ() const
 {
-    return m_annotationPlaneZ;
+    return -m_annotationPlaneDepth();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -206,7 +206,7 @@ void RimAnnotationCollection::reloadPolylinesFromFile(const std::vector<RimPolyl
 //--------------------------------------------------------------------------------------------------
 void RimAnnotationCollection::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
-    uiOrdering.add(&m_annotationPlaneZ);
+    uiOrdering.add(&m_annotationPlaneDepth);
     uiOrdering.add(&m_snapAnnotations);
 }
 
