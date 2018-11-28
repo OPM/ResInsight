@@ -56,13 +56,4 @@ bool RimPolylinesAnnotation::isActive()
     return m_isActive();
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-caf::PdmFieldHandle* RimPolylinesAnnotation::objectToggleField()
-{
-    return &m_isActive;
-}
-
-
 

@@ -43,7 +43,7 @@ protected:
     void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
 
 private:
-    caf::PdmField<std::vector<Vec3d>>   m_points;
+    caf::PdmField<std::vector<Vec3d>>   m_pointsXyd;
 };
 
 

@@ -23,6 +23,22 @@
 
 #include "RigPolyLinesData.h"
 
+//--------------------------------------------------------------------------------------------------
+/// Internal function
+//--------------------------------------------------------------------------------------------------
+std::vector<cvf::Vec3d> xydToXyzVector(const std::vector<cvf::Vec3d>& xyds)
+{
+    std::vector<cvf::Vec3d> xyzs;
+    for (const auto& xyd : xyds)
+    {
+        auto xyz = xyd;
+        xyz.z() = -xyd.z();
+        xyzs.push_back(xyz);
+    }
+    return xyzs;
+}
+
+
 CAF_PDM_SOURCE_INIT(RimUserDefinedPolylinesAnnotation, "UserDefinedPolylinesAnnotation");
 
 //--------------------------------------------------------------------------------------------------
@@ -32,7 +48,7 @@ RimUserDefinedPolylinesAnnotation::RimUserDefinedPolylinesAnnotation()
 {
     CAF_PDM_InitObject("PolyLines Annotation", ":/WellCollection.png", "", "");
 
-    CAF_PDM_InitField(&m_points, "Points", {}, "", "", "", "");
+    CAF_PDM_InitField(&m_pointsXyd, "PointsXyd", {}, "", "", "", "");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -50,7 +66,7 @@ cvf::ref<RigPolyLinesData> RimUserDefinedPolylinesAnnotation::polyLinesData()
 {
     cvf::ref<RigPolyLinesData> pld = new RigPolyLinesData; 
     std::vector<std::vector<cvf::Vec3d> > lines; 
-    lines.push_back(m_points());
+    lines.push_back(xydToXyzVector(m_pointsXyd()));
     pld->setPolyLines(lines);
 
     return pld;
@@ -61,7 +77,7 @@ cvf::ref<RigPolyLinesData> RimUserDefinedPolylinesAnnotation::polyLinesData()
 //--------------------------------------------------------------------------------------------------
 bool RimUserDefinedPolylinesAnnotation::isEmpty()
 {
-    return m_points().empty();
+    return m_pointsXyd().empty();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -69,7 +85,7 @@ bool RimUserDefinedPolylinesAnnotation::isEmpty()
 //--------------------------------------------------------------------------------------------------
 void RimUserDefinedPolylinesAnnotation::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
-    uiOrdering.add(&m_points);
+    uiOrdering.add(&m_pointsXyd);
 
     auto appearanceGroup = uiOrdering.addNewGroup("Line Appearance");
     appearance()->uiOrdering(uiConfigName, *appearanceGroup);

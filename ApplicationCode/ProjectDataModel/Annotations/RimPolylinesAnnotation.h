@@ -44,9 +44,6 @@ public:
     virtual cvf::ref<RigPolyLinesData> polyLinesData() = 0;
     virtual bool isEmpty() = 0;
 
-protected:
-    virtual caf::PdmFieldHandle* objectToggleField() override;
-
 private:
     caf::PdmField<bool> m_isActive;
 };
