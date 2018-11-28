@@ -20,6 +20,7 @@
 
 #include "RiaApplication.h"
 
+#include "RimAnnotationColorFactory.h"
 #include "RimTextAnnotation.h"
 #include "RimReachCircleAnnotation.h"
 #include "RimPolylinesAnnotation.h"
@@ -56,6 +57,8 @@ void RicCreateReachCircleAnnotationFeature::onActionTriggered(bool isChecked)
     if (coll)
     {
         auto newAnnotation = new RimReachCircleAnnotation();
+        auto newColor      = RimAnnotationColorFactory::getColor(coll->lineBasedAnnotationsCount());
+        newAnnotation->appearance()->setColor(newColor);
         coll->addAnnotation(newAnnotation);
         coll->updateConnectedEditors();
         RiuMainWindow::instance()->selectAsCurrentItem(newAnnotation);

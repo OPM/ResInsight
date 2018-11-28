@@ -20,6 +20,7 @@
 
 #include "RiaApplication.h"
 
+#include "RimAnnotationColorFactory.h"
 #include "RimTextAnnotation.h"
 #include "RimReachCircleAnnotation.h"
 #include "RimPolylinesFromFileAnnotation.h"
@@ -134,7 +135,6 @@ RimPolylinesFromFileAnnotation* RimAnnotationCollection::importOrUpdatePolylines
 {
     QStringList newFileNames;
     std::vector<RimPolylinesFromFileAnnotation*> polyLinesObjsToReload;
-    size_t formationListBeforeImportCount = m_polylineFromFileAnnotations.size();
 
     for(const QString& newFileName : fileNames)
     {
@@ -160,7 +160,7 @@ RimPolylinesFromFileAnnotation* RimAnnotationCollection::importOrUpdatePolylines
     {
         RimPolylinesFromFileAnnotation* newPolyLinesAnnot = new RimPolylinesFromFileAnnotation;
 
-        auto newColor = RiaColorTables::categoryPaletteColors().cycledColor3f(formationListBeforeImportCount + newLinesIdx);
+        auto newColor = RimAnnotationColorFactory::getColor(lineBasedAnnotationsCount());
 
         newPolyLinesAnnot->setFileName(newFileName);
         newPolyLinesAnnot->setDescriptionFromFileName();
@@ -174,10 +174,9 @@ RimPolylinesFromFileAnnotation* RimAnnotationCollection::importOrUpdatePolylines
 
     reloadPolylinesFromFile(polyLinesObjsToReload);
 
-
-    if (m_polylineFromFileAnnotations.size() > formationListBeforeImportCount)
+    if (!newFileNames.empty())
     {
-        return m_polylineFromFileAnnotations[m_polylineFromFileAnnotations.size() - 1];
+        return m_polylineFromFileAnnotations.childObjects().back();
     }
     else
     {
