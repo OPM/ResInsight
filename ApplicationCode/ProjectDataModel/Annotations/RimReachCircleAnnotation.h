@@ -57,10 +57,12 @@ public:
 
     Vec3d           centerPoint() const;
     double          radius() const;
+    QString         name() const;
 
 protected:
     void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
     void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    caf::PdmFieldHandle* userDescriptionField() override;
 
 private:
     std::vector<RimGridView*> gridViewsContainingAnnotations() const;
@@ -68,4 +70,5 @@ private:
 private:
     caf::PdmField<Vec3d>    m_centerPoint;
     caf::PdmField<double>   m_radius;
+    caf::PdmField<QString>  m_name;
 };

@@ -36,6 +36,7 @@ RimReachCircleAnnotation::RimReachCircleAnnotation()
 
     CAF_PDM_InitField(&m_centerPoint, "CenterPoint", Vec3d::ZERO, "Center Point", "", "", "");
     CAF_PDM_InitField(&m_radius, "Radius", 0.0, "Radius", "", "", "");
+    CAF_PDM_InitField(&m_name, "Name", QString("Circle Annotation"), "Name", "", "", "");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -57,8 +58,17 @@ double RimReachCircleAnnotation::radius() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString RimReachCircleAnnotation::name() const
+{
+    return m_name;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimReachCircleAnnotation::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
+    uiOrdering.add(&m_name);
     uiOrdering.add(&m_centerPoint);
     uiOrdering.add(&m_radius);
 
@@ -79,6 +89,14 @@ void RimReachCircleAnnotation::fieldChangedByUi(const caf::PdmFieldHandle* chang
     this->firstAncestorOrThisOfTypeAsserted(annColl);
 
     annColl->scheduleRedrawOfRelevantViews();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+caf::PdmFieldHandle* RimReachCircleAnnotation::userDescriptionField()
+{
+    return &m_name;
 }
 
 //--------------------------------------------------------------------------------------------------
