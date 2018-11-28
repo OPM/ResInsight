@@ -20,6 +20,8 @@
 
 #include "RiaEclipseUnitTools.h"
 
+#include "RimAnnotationCollectionBase.h"
+
 #include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
@@ -36,7 +38,7 @@ class RimGridView;
 ///  
 ///  
 //==================================================================================================
-class RimAnnotationCollection : public caf::PdmObject
+class RimAnnotationCollection : public RimAnnotationCollectionBase
 {
     CAF_PDM_HEADER_INIT;
 public:
@@ -45,27 +47,29 @@ public:
 
     void                            loadDataAndUpdate();
 
-    void                            addAnnotation(RimTextAnnotation* annotation);
+    double                          annotationPlaneZ() const;
+    bool                            snapAnnotations() const;
+
     void                            addAnnotation(RimReachCircleAnnotation* annotation);
     void                            addAnnotation(RimPolylinesAnnotation* annotation);
 
-    std::vector<RimTextAnnotation*>              textAnnotations() const;
     std::vector<RimReachCircleAnnotation*>       reachCircleAnnotations() const;
     std::vector<RimPolylinesAnnotation*>         polylineAnnotations() const;
     std::vector<RimPolylinesFromFileAnnotation*> polylinesFromFileAnnotations() const;
 
-    void                            onAnnotationDeleted();
-
     RimPolylinesFromFileAnnotation* importOrUpdatePolylinesFromFile(const QStringList& fileNames );
 
-    void                            scheduleRedrawOfRelevantViews();
-    std::vector<RimGridView*>       gridViewsContainingAnnotations() const;
+protected:
+    void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
 
 private:
     void reloadPolylinesFromFile(const std::vector<RimPolylinesFromFileAnnotation *>& polyLinesObjsToReload);
 
-    caf::PdmChildArrayField<RimTextAnnotation*>              m_textAnnotations;
     caf::PdmChildArrayField<RimReachCircleAnnotation*>       m_reachCircleAnnotations;
     caf::PdmChildArrayField<RimPolylinesAnnotation*>         m_polylineAnnotations;
     caf::PdmChildArrayField<RimPolylinesFromFileAnnotation*> m_polylineFromFileAnnotations;
+
+    caf::PdmField<double>           m_annotationPlaneZ;
+    caf::PdmField<bool>             m_snapAnnotations;
 };

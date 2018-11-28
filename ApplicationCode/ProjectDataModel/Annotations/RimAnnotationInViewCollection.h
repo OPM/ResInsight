@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include "RimAnnotationCollectionBase.h"
+
 #include "cafAppEnum.h"
 #include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
@@ -31,7 +33,7 @@ class RimTextAnnotation;
 ///  
 ///  
 //==================================================================================================
-class RimAnnotationInViewCollection : public caf::PdmObject
+class RimAnnotationInViewCollection : public RimAnnotationCollectionBase
 {
     CAF_PDM_HEADER_INIT;
 public:
@@ -39,10 +41,6 @@ public:
     RimAnnotationInViewCollection();
     ~RimAnnotationInViewCollection() override;
 
-    void addAnnotation(RimTextAnnotation* annotation);
-    void onAnnotationDeleted();
-
-    std::vector<RimTextAnnotation*> textAnnotations() const;
     bool                            isActive() const;
 
 protected:
@@ -50,6 +48,5 @@ protected:
     caf::PdmFieldHandle*        objectToggleField() override;
 
 private:
-    caf::PdmChildArrayField<RimTextAnnotation*> m_textAnnotations;
     caf::PdmField<bool>                         m_isActive;
 };

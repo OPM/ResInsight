@@ -34,9 +34,6 @@ RimAnnotationInViewCollection::RimAnnotationInViewCollection()
 {
     CAF_PDM_InitObject("Annotations", ":/Plus.png", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&m_textAnnotations, "TextAnnotations", "Text Annotations", "", "", "");
-    m_textAnnotations.uiCapability()->setUiHidden(true);
-
     CAF_PDM_InitField(&m_isActive, "Active", true, "Active", "", "", "");
     m_isActive.uiCapability()->setUiHidden(true);
 }
@@ -46,36 +43,6 @@ RimAnnotationInViewCollection::RimAnnotationInViewCollection()
 //--------------------------------------------------------------------------------------------------
 RimAnnotationInViewCollection::~RimAnnotationInViewCollection()
 {
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimAnnotationInViewCollection::addAnnotation(RimTextAnnotation* annotation)
-{
-    m_textAnnotations.push_back(annotation);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// At least one annotation have been deleted. Typically by the generic delete command
-//--------------------------------------------------------------------------------------------------
-void RimAnnotationInViewCollection::onAnnotationDeleted()
-{
-    auto                      project = RiaApplication::instance()->project();
-    std::vector<RimGridView*> views;
-    project->allVisibleGridViews(views);
-    for (auto& view : views)
-    {
-        if (view->annotationCollection()->isActive()) view->scheduleCreateDisplayModelAndRedraw();
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::vector<RimTextAnnotation*> RimAnnotationInViewCollection::textAnnotations() const
-{
-    return m_textAnnotations.childObjects();
 }
 
 //--------------------------------------------------------------------------------------------------

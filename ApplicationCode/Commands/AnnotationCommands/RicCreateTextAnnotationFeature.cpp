@@ -52,27 +52,15 @@ bool RicCreateTextAnnotationFeature::isCommandEnabled()
 ///
 //--------------------------------------------------------------------------------------------------
 void RicCreateTextAnnotationFeature::onActionTriggered(bool isChecked)
-{
-    {
-        auto coll = annotationCollection();
-        if (coll)
-        {
-            auto newAnnotation = new RimTextAnnotation();
-            coll->addAnnotation(newAnnotation);
-            coll->updateConnectedEditors();
-            RiuMainWindow::instance()->selectAsCurrentItem(newAnnotation);
-        }
-    }
 
+{
+    auto coll = annotationCollectionBase();
+    if (coll)
     {
-        auto coll = annotationInViewCollection();
-        if (coll)
-        {
-            auto newAnnotation = new RimTextAnnotation();
-            coll->addAnnotation(newAnnotation);
-            coll->updateConnectedEditors();
-            RiuMainWindow::instance()->selectAsCurrentItem(newAnnotation);
-        }
+        auto newAnnotation = new RimTextAnnotation();
+        coll->addAnnotation(newAnnotation);
+        coll->updateConnectedEditors();
+        RiuMainWindow::instance()->selectAsCurrentItem(newAnnotation);
     }
 }
 
@@ -88,17 +76,8 @@ void RicCreateTextAnnotationFeature::setupActionLook(QAction* actionToSetup)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
- RimAnnotationCollection* RicCreateTextAnnotationFeature::annotationCollection() const
+RimAnnotationCollectionBase* RicCreateTextAnnotationFeature::annotationCollectionBase() const
 {
-     auto selObjs = caf::selectedObjectsByTypeStrict<RimAnnotationCollection*>();
-     return selObjs.size() == 1 ? selObjs.front() : nullptr;
- }
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RimAnnotationInViewCollection* RicCreateTextAnnotationFeature::annotationInViewCollection() const
-{
-    auto selObjs = caf::selectedObjectsByTypeStrict<RimAnnotationInViewCollection*>();
+    auto selObjs = caf::selectedObjectsByTypeStrict<RimAnnotationCollectionBase*>();
     return selObjs.size() == 1 ? selObjs.front() : nullptr;
 }

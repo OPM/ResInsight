@@ -26,6 +26,7 @@
 #include "RiaColorTools.h"
 #include "RiaPreferences.h"
 
+#include "RimAnnotationCollection.h"
 #include "RimTextAnnotation.h"
 
 #include "RivPolylineGenerator.h"
@@ -69,8 +70,20 @@ void RivTextAnnotationPartMgr::buildParts(const caf::DisplayCoordTransform * dis
 
     cvf::ref<RivTextAnnotationSourceInfo> sourceInfo = new RivTextAnnotationSourceInfo(m_rimAnnotation);
 
-    cvf::Vec3d anchorPosition = displayXf->transformToDisplayCoord(m_rimAnnotation->anchorPoint());
-    cvf::Vec3d labelPosition = displayXf->transformToDisplayCoord(m_rimAnnotation->labelPoint());
+    cvf::Vec3d anchorPositionInDomain = m_rimAnnotation->anchorPoint();
+    cvf::Vec3d labelPositionInDomain  = m_rimAnnotation->labelPoint();
+
+    {
+        auto* collection = dynamic_cast<RimAnnotationCollection*>(annotationCollection());
+        if (collection && collection->snapAnnotations())
+        {
+            anchorPositionInDomain.z() = collection->annotationPlaneZ();
+            labelPositionInDomain.z()  = collection->annotationPlaneZ();
+        }
+    }
+
+    cvf::Vec3d anchorPosition = displayXf->transformToDisplayCoord(anchorPositionInDomain);
+    cvf::Vec3d labelPosition = displayXf->transformToDisplayCoord(labelPositionInDomain);
     QString text = m_rimAnnotation->text();
 
     // Line part
@@ -157,3 +170,12 @@ bool RivTextAnnotationPartMgr::validateAnnotation(const RimTextAnnotation* annot
     return m_rimAnnotation->anchorPoint() != cvf::Vec3d::ZERO && !m_rimAnnotation->text().isEmpty();
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimAnnotationCollectionBase* RivTextAnnotationPartMgr::annotationCollection() const
+{
+    RimAnnotationCollectionBase* coll;
+    m_rimAnnotation->firstAncestorOrThisOfType(coll);
+    return coll;
+}

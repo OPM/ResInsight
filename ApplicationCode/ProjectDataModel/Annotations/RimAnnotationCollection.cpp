@@ -42,8 +42,6 @@ RimAnnotationCollection::RimAnnotationCollection()
 {
     CAF_PDM_InitObject("Annotations", ":/WellCollection.png", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&m_textAnnotations, "TextAnnotations", "Text Annotations", "", "", "");
-    m_textAnnotations.uiCapability()->setUiHidden(true);
     CAF_PDM_InitFieldNoDefault(&m_reachCircleAnnotations, "ReachCircleAnnotations", "Reach Circle Annotations", "", "", "");
     m_reachCircleAnnotations.uiCapability()->setUiHidden(true);
     CAF_PDM_InitFieldNoDefault(&m_polylineAnnotations, "PolylineAnnotations", "Polyline Annotations", "", "", "");
@@ -51,6 +49,8 @@ RimAnnotationCollection::RimAnnotationCollection()
     CAF_PDM_InitFieldNoDefault(&m_polylineFromFileAnnotations, "PolylineFromFileAnnotations", "Polylines From File", "", "", "");
     m_polylineFromFileAnnotations.uiCapability()->setUiHidden(true);
 
+    CAF_PDM_InitField(&m_annotationPlaneZ, "AnnotationPlane", 0.0,"Annotation Plane Z", "", "", "");
+    CAF_PDM_InitField(&m_snapAnnotations, "SnapAnnotations", false, "Snap Annotations to Plane", "", "", "");
 }
 
 
@@ -59,15 +59,6 @@ RimAnnotationCollection::RimAnnotationCollection()
 //--------------------------------------------------------------------------------------------------
 RimAnnotationCollection::~RimAnnotationCollection()
 {
-   // wellPaths.deleteAllChildObjects();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimAnnotationCollection::addAnnotation(RimTextAnnotation* annotation)
-{
-    m_textAnnotations.push_back(annotation);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -89,9 +80,17 @@ void RimAnnotationCollection::addAnnotation(RimPolylinesAnnotation* annotation)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimTextAnnotation*> RimAnnotationCollection::textAnnotations() const
+double RimAnnotationCollection::annotationPlaneZ() const
 {
-    return m_textAnnotations.childObjects();
+    return m_annotationPlaneZ;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimAnnotationCollection::snapAnnotations() const
+{
+    return m_snapAnnotations;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -116,20 +115,6 @@ std::vector<RimPolylinesAnnotation*> RimAnnotationCollection::polylineAnnotation
 std::vector<RimPolylinesFromFileAnnotation*> RimAnnotationCollection::polylinesFromFileAnnotations() const
 {
     return m_polylineFromFileAnnotations.childObjects();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// At least one annotation have been deleted. Typically by the generic delete command
-//--------------------------------------------------------------------------------------------------
-void RimAnnotationCollection::onAnnotationDeleted()
-{
-    auto project = RiaApplication::instance()->project();
-    std::vector<RimGridView*> views;
-    project->allVisibleGridViews(views);
-    for (auto& view : views)
-    {
-        if(view->annotationCollection()->isActive()) view->scheduleCreateDisplayModelAndRedraw();
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -217,41 +202,22 @@ void RimAnnotationCollection::reloadPolylinesFromFile(const std::vector<RimPolyl
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RimAnnotationCollection::scheduleRedrawOfRelevantViews()
+void RimAnnotationCollection::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
-    // Todo: Do a Bounding Box check to see if this annotation actually is relevant for the view
-
-    auto views = gridViewsContainingAnnotations();
-    if ( !views.empty() )
-    {
-        for ( auto& view : views )
-        {
-            view->scheduleCreateDisplayModelAndRedraw();
-        }
-    }
+    uiOrdering.add(&m_annotationPlaneZ);
+    uiOrdering.add(&m_snapAnnotations);
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimGridView*> RimAnnotationCollection::gridViewsContainingAnnotations() const
+void RimAnnotationCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
+                                               const QVariant&            oldValue,
+                                               const QVariant&            newValue)
 {
-    std::vector<RimGridView*> views;
-    RimProject*               project = nullptr;
-    this->firstAncestorOrThisOfType(project);
-
-    if (!project) return views;
-
-    std::vector<RimGridView*> visibleGridViews;
-    project->allVisibleGridViews(visibleGridViews);
-
-    for (auto& gridView : visibleGridViews)
-    {
-        if (gridView->annotationCollection()->isActive()) views.push_back(gridView);
-    }
-    return views;
+    scheduleRedrawOfRelevantViews();
 }
 
 //--------------------------------------------------------------------------------------------------

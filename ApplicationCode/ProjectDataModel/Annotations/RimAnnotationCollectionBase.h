@@ -18,30 +18,37 @@
 
 #pragma once
 
-#include "RiaPreferences.h"
+#include "RiaEclipseUnitTools.h"
 
-#include "cafCmdFeature.h"
+#include "cafPdmChildArrayField.h"
+#include "cafPdmField.h"
+#include "cafPdmObject.h"
+#include "cafPdmPointer.h"
 
-#include <QString>
-
-
-class RimAnnotationCollection;
-class RimAnnotationCollectionBase;
-class RimAnnotationInViewCollection;
-
+class QString;
+class RimTextAnnotation;
+class RimGridView;
 
 //==================================================================================================
-///
+///  
+///  
 //==================================================================================================
-class RicCreateTextAnnotationFeature : public caf::CmdFeature
+class RimAnnotationCollectionBase : public caf::PdmObject
 {
-    CAF_CMD_HEADER_INIT;
+    CAF_PDM_HEADER_INIT;
+public:
+    RimAnnotationCollectionBase();
+    ~RimAnnotationCollectionBase() override;
 
-protected:
-    // Overrides
-    bool isCommandEnabled() override;
-    void onActionTriggered(bool isChecked) override;
-    void setupActionLook(QAction* actionToSetup) override;
+    void                            addAnnotation(RimTextAnnotation* annotation);
 
-    RimAnnotationCollectionBase*    annotationCollectionBase() const;
+    std::vector<RimTextAnnotation*> textAnnotations() const;
+
+    void                            onAnnotationDeleted();
+
+    void                            scheduleRedrawOfRelevantViews();
+    std::vector<RimGridView*>       gridViewsContainingAnnotations() const;
+
+private:
+    caf::PdmChildArrayField<RimTextAnnotation*>    m_textAnnotations;
 };

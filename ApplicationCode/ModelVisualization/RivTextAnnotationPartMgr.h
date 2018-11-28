@@ -36,8 +36,8 @@ namespace caf
 }
 
 class Rim3dView;
+class RimAnnotationCollectionBase;
 class RimTextAnnotation;
-class RimAnnotationInViewCollection;
 class RimSimWellInView;
 class RimSimWellInViewCollection;
 
@@ -57,6 +57,8 @@ private:
 
     void                            clearAllGeometry();
     bool                            validateAnnotation(const RimTextAnnotation* annotation) const;
+
+    RimAnnotationCollectionBase*    annotationCollection() const;
 
     caf::PdmPointer<RimTextAnnotation>  m_rimAnnotation;
     cvf::ref<cvf::Part>                 m_linePart;

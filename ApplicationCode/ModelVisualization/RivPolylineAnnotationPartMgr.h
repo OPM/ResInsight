@@ -37,9 +37,8 @@ namespace caf
 
 class Rim3dView;
 class RimPolylinesAnnotation;
-class RimAnnotationInViewCollection;
-class RimSimWellInView;
-class RimSimWellInViewCollection;
+class RimAnnotationCollectionBase;
+
 
 class RivPolylineAnnotationPartMgr : public cvf::Object
 {
@@ -54,6 +53,7 @@ private:
     void                            buildPolylineAnnotationParts(const caf::DisplayCoordTransform* displayXf);
 
     void                            clearAllGeometry();
+    RimAnnotationCollectionBase*    annotationCollection() const;
 
     caf::PdmPointer<RimPolylinesAnnotation>  m_rimAnnotation;
     cvf::ref<cvf::Part>                     m_part;

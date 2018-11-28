@@ -39,9 +39,7 @@ namespace caf
 
 class Rim3dView;
 class RimReachCircleAnnotation;
-class RimAnnotationInViewCollection;
-class RimSimWellInView;
-class RimSimWellInViewCollection;
+class RimAnnotationCollectionBase;
 
 class RivReachCircleAnnotationPartMgr : public cvf::Object
 {
@@ -58,6 +56,8 @@ private:
 
     void clearAllGeometry();
     bool validateAnnotation(const RimReachCircleAnnotation* annotation) const;
+
+    RimAnnotationCollectionBase* annotationCollection() const;
 
     caf::PdmPointer<RimReachCircleAnnotation>   m_rimAnnotation;
     cvf::ref<cvf::Part>                         m_circlePart;

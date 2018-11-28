@@ -22,6 +22,7 @@
 
 #include "RivReachCircleAnnotationPartMgr.h"
 
+#include "RimAnnotationCollection.h"
 #include "RimReachCircleAnnotation.h"
 
 #include "RivPolylineGenerator.h"
@@ -62,7 +63,17 @@ void RivReachCircleAnnotationPartMgr::buildParts(const caf::DisplayCoordTransfor
 
     cvf::ref<RivReachCircleAnnotationSourceInfo> sourceInfo = new RivReachCircleAnnotationSourceInfo(m_rimAnnotation);
 
-    Vec3d   centerPosition = displayXf->transformToDisplayCoord(m_rimAnnotation->centerPoint());
+    Vec3d centerPositionInDomain = m_rimAnnotation->centerPoint();
+
+    {
+        auto* collection = dynamic_cast<RimAnnotationCollection*>(annotationCollection());
+        if (collection && collection->snapAnnotations())
+        {
+            centerPositionInDomain.z() = collection->annotationPlaneZ();
+        }
+    }
+
+    Vec3d   centerPosition = displayXf->transformToDisplayCoord(centerPositionInDomain);
     double  radius         = m_rimAnnotation->radius();
     auto    lineColor      = m_rimAnnotation->appearance()->color();
     auto    isDashedLine   = m_rimAnnotation->appearance()->isDashed();
@@ -125,4 +136,14 @@ void RivReachCircleAnnotationPartMgr::appendDynamicGeometryPartsToModel(cvf::Mod
 bool RivReachCircleAnnotationPartMgr::validateAnnotation(const RimReachCircleAnnotation* annotation) const
 {
     return m_rimAnnotation->centerPoint() != cvf::Vec3d::ZERO && m_rimAnnotation->radius() > 0.0;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimAnnotationCollectionBase* RivReachCircleAnnotationPartMgr::annotationCollection() const
+{
+    RimAnnotationCollectionBase* coll;
+    m_rimAnnotation->firstAncestorOrThisOfType(coll);
+    return coll;
 }

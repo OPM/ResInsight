@@ -18,6 +18,7 @@
 
 #include "RivPolylineAnnotationPartMgr.h"
 
+#include "RimAnnotationCollection.h"
 #include "RimPolylinesAnnotation.h"
 #include "RimAnnotationInViewCollection.h"
 #include "RivPolylineGenerator.h"
@@ -58,17 +59,22 @@ void RivPolylineAnnotationPartMgr::buildPolylineAnnotationParts(const caf::Displ
 
     if (!m_rimAnnotation->isEmpty() && m_rimAnnotation->isActive())
     {
-        const auto& points = m_rimAnnotation->polyLinesData();
+        const auto& pointsInDomain = m_rimAnnotation->polyLinesData();
         auto        lineColor     = m_rimAnnotation->appearance()->color();
         auto        isDashedLine  = m_rimAnnotation->appearance()->isDashed();
         auto        lineThickness = m_rimAnnotation->appearance()->thickness();
 
-        auto linesInDisplayCoords =  points->polyLines();
+        auto linesInDisplayCoords =  pointsInDomain->polyLines();
+        auto* collection = dynamic_cast<RimAnnotationCollection*>(annotationCollection());
 
         for (auto& line : linesInDisplayCoords)
         {
             for ( cvf::Vec3d& point : line)
             {
+                if (collection && collection->snapAnnotations())
+                {
+                    point.z() = collection->annotationPlaneZ();
+                }
                 point = displayXf->transformToDisplayCoord(point);
             }
         }
@@ -99,6 +105,16 @@ void RivPolylineAnnotationPartMgr::buildPolylineAnnotationParts(const caf::Displ
 void RivPolylineAnnotationPartMgr::clearAllGeometry()
 {
     m_part = nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimAnnotationCollectionBase* RivPolylineAnnotationPartMgr::annotationCollection() const
+{
+    RimAnnotationCollectionBase* coll;
+    m_rimAnnotation->firstAncestorOrThisOfType(coll);
+    return coll;
 }
 
 //--------------------------------------------------------------------------------------------------
