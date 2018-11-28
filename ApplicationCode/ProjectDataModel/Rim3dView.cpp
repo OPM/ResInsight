@@ -143,7 +143,10 @@ Rim3dView::Rim3dView(void)
 //--------------------------------------------------------------------------------------------------
 Rim3dView::~Rim3dView(void)
 {
-    m_viewer->clearRimView();
+    if (m_viewer)
+    {
+        m_viewer->clearRimView();
+    }
     removeMdiWindowFromMdiArea();
 
     deleteViewWidget();
