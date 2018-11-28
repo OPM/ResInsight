@@ -80,7 +80,7 @@ void RifPerforationIntervalReader::readFileIntoMap(const QString& filePath, std:
         if (line.startsWith("WELLNAME"))
         {
             // Save current well name
-            if (parts.size() == 2)
+            if (parts.size() > 1)
             {
                 wellName = parts[1].trimmed();
             }
