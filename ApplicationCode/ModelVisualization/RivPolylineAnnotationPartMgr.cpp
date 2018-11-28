@@ -21,9 +21,14 @@
 #include "RimAnnotationCollection.h"
 #include "RimPolylinesAnnotation.h"
 #include "RimAnnotationInViewCollection.h"
+#include "RimAnnotationLineAppearance.h"
+
+#include "RigPolyLinesData.h"
+
 #include "RivPolylineGenerator.h"
 #include "RivPartPriority.h"
 #include "RivPolylinesAnnotationSourceInfo.h"
+
 
 #include "cafEffectGenerator.h"
 

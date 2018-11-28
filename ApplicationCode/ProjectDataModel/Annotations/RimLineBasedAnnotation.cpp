@@ -18,6 +18,8 @@
 
 #include "RimLineBasedAnnotation.h"
 
+#include "RimAnnotationLineAppearance.h"
+
 
 CAF_PDM_SOURCE_INIT(RimLineBasedAnnotation, "RimLineBasedAnnotation");
 

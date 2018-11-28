@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2018-     Equinor ASA
+//  Copyright (C) 2018 equinor ASA
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -18,25 +18,26 @@
 
 #pragma once
 
-#include "cafPdmObject.h"
+#include "cvfBase.h"
+#include "cvfObject.h"
+#include "cvfVector3.h"
 
-#include "cafPdmChildField.h"
-
-class RimGridView;
-class RimAnnotationLineAppearance;
+#include <vector>
 
 //==================================================================================================
 ///
 ///
 //==================================================================================================
-class RimLineBasedAnnotation : public caf::PdmObject
+class RigPolyLinesData : public cvf::Object
 {
-    CAF_PDM_HEADER_INIT;
-
 public:
-    RimLineBasedAnnotation();
-    RimAnnotationLineAppearance* appearance() const;
+    RigPolyLinesData();
+    ~RigPolyLinesData();
+
+    const std::vector<std::vector<cvf::Vec3d> >& polyLines() const            { return m_polylines;}
+    void setPolyLines(const std::vector<std::vector<cvf::Vec3d> >& polyLines) { m_polylines = polyLines;}
 
 private:
-    caf::PdmChildField<RimAnnotationLineAppearance*> m_appearance;
+    std::vector<std::vector<cvf::Vec3d> > m_polylines;
 };
+

@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2018-     Equinor ASA
+//  Copyright (C) 2018 equinor ASA
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -18,45 +18,36 @@
 
 #pragma once
 
-#include "cafPdmObject.h"
-
-#include "cafPdmField.h"
-#include "cafAppEnum.h"
-
-#include "cafPdmFieldCvfColor.h" 
+#include "RimPolylinesAnnotation.h"
 
 
-//==================================================================================================
-///
-///
-//==================================================================================================
-class RimAnnotationLineAppearance : public caf::PdmObject
+class RimPolylinesFromFileAnnotation : public RimPolylinesAnnotation
 {
     CAF_PDM_HEADER_INIT;
-
 public:
-    enum LineStyleEnum
-    {
-        STYLE_SOLID,
-        STYLE_DASH
-    };
-    typedef caf::AppEnum<LineStyleEnum> LineStyle;
+    RimPolylinesFromFileAnnotation();
+    ~RimPolylinesFromFileAnnotation();
 
-public:
-    RimAnnotationLineAppearance();
-    void                setColor(const cvf::Color3f& newColor);
-    cvf::Color3f        color() const;
-    bool                isDashed() const;
-    int                 thickness() const;
+    void                        setFileName(const QString& fileName);
+    QString                     fileName() const;
+    void                        readPolyLinesFile(QString * errorMessage);
+
+    cvf::ref<RigPolyLinesData>  polyLinesData() override;
+    virtual bool                isEmpty() override;
+
+    void                        setDescriptionFromFileName();
 
 protected:
     void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
     void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
 
 private:
-    caf::PdmField<cvf::Color3f>     m_color;
-    caf::PdmField<LineStyle>        m_style;
-    caf::PdmField<int>              m_thickness;
+    virtual caf::PdmFieldHandle* userDescriptionField() override;
 
+    caf::PdmField<QString>       m_userDescription;
+    caf::PdmField<caf::FilePath> m_polyLinesFileName;
+    cvf::ref<RigPolyLinesData>   m_polyLinesData;
 };
+
+
 

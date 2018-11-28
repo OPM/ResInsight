@@ -32,7 +32,7 @@
 
 #include "RimAnnotationCollection.h"
 #include "RimAnnotationInViewCollection.h"
-#include "RimPolylinesAnnotation.h"
+#include "RimPolylinesFromFileAnnotation.h"
 #include "RimCalcScript.h"
 #include "RimCase.h"
 #include "RimCaseCollection.h"

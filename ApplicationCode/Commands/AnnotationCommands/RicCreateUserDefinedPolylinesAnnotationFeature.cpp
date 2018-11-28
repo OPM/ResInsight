@@ -22,7 +22,7 @@
 
 #include "RimTextAnnotation.h"
 #include "RimReachCircleAnnotation.h"
-#include "RimPolylinesAnnotation.h"
+#include "RimUserDefinedPolylinesAnnotation.h"
 #include "RimAnnotationCollection.h"
 #include "RimAnnotationInViewCollection.h"
 #include "RimProject.h"

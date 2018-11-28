@@ -19,25 +19,12 @@
 #pragma once
 #include "RimLineBasedAnnotation.h"
 
-#include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
-#include "cafPdmObject.h"
-#include "cafPdmPointer.h"
-#include "cafAppEnum.h"
-#include "cafPdmUiOrdering.h"
 
 // Include to make Pdm work for cvf::Color
-#include "cafPdmFieldCvfColor.h"    
-#include "cafPdmChildField.h"
-#include "cafPdmFieldCvfVec3d.h"
-
+#include "cvfBase.h"
 #include "cvfObject.h"
-#include "cvfVector3.h"
 
-#include <vector>
-
-class QString;
-class RimGridView;
 class RigPolyLinesData;
 
 //==================================================================================================
@@ -46,8 +33,6 @@ class RigPolyLinesData;
 //==================================================================================================
 class RimPolylinesAnnotation : public RimLineBasedAnnotation
 {
-    using Vec3d = cvf::Vec3d;
-
     CAF_PDM_HEADER_INIT;
 
 public:
@@ -64,80 +49,4 @@ protected:
 
 private:
     caf::PdmField<bool> m_isActive;
-};
-
-//==================================================================================================
-///
-///
-//==================================================================================================
-
-class RimUserDefinedPolylinesAnnotation : public RimPolylinesAnnotation
-{
-    using Vec3d = cvf::Vec3d;
-
-    CAF_PDM_HEADER_INIT;
-public:
-    RimUserDefinedPolylinesAnnotation();
-    ~RimUserDefinedPolylinesAnnotation();
-
-    cvf::ref<RigPolyLinesData>  polyLinesData() override;
-    virtual bool isEmpty() override;
-
-protected:
-    void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
-    void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
-
-private:
-    caf::PdmField<std::vector<Vec3d>>   m_points;
-};
-
-//==================================================================================================
-///
-///
-//==================================================================================================
-
-
-class RimPolylinesFromFileAnnotation : public RimPolylinesAnnotation
-{
-    CAF_PDM_HEADER_INIT;
-public:
-    RimPolylinesFromFileAnnotation();
-    ~RimPolylinesFromFileAnnotation();
-
-    void                        setFileName(const QString& fileName);
-    QString                     fileName() const;
-    void                        readPolyLinesFile(QString * errorMessage);
-
-    cvf::ref<RigPolyLinesData>  polyLinesData() override { return m_polyLinesData;}
-    virtual bool                isEmpty() override;
-
-    void                        setDescriptionFromFileName();
-
-protected:
-    void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
-    void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
-
-private:
-    virtual caf::PdmFieldHandle* userDescriptionField() override;
-
-    caf::PdmField<QString> m_userDescription;
-    caf::PdmField<caf::FilePath> m_polyLinesFileName;
-    cvf::ref<RigPolyLinesData> m_polyLinesData;
-};
-
-
-//==================================================================================================
-///
-///
-//==================================================================================================
-class RigPolyLinesData : public cvf::Object
-{
-public:
-    RigPolyLinesData() {}
-
-    const std::vector<std::vector<cvf::Vec3d> >& polyLines() const            { return m_polylines;}
-    void setPolyLines(const std::vector<std::vector<cvf::Vec3d> >& polyLines) { m_polylines = polyLines;}
-
-private:
-    std::vector<std::vector<cvf::Vec3d> > m_polylines;
 };

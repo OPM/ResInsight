@@ -23,7 +23,7 @@
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimAnnotationCollection.h"
-#include "RimPolylinesAnnotation.h"
+#include "RimPolylinesFromFileAnnotation.h"
 
 #include "Riu3DMainWindowTools.h"
 

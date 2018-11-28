@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2018-     Equinor ASA
+//  Copyright (C) 2018 equinor ASA
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -17,26 +17,33 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
+#include "RimPolylinesAnnotation.h"
 
-#include "cafPdmObject.h"
-
-#include "cafPdmChildField.h"
-
-class RimGridView;
-class RimAnnotationLineAppearance;
+#include "cafPdmFieldCvfVec3d.h"
 
 //==================================================================================================
 ///
 ///
 //==================================================================================================
-class RimLineBasedAnnotation : public caf::PdmObject
+
+class RimUserDefinedPolylinesAnnotation : public RimPolylinesAnnotation
 {
-    CAF_PDM_HEADER_INIT;
+    using Vec3d = cvf::Vec3d;
 
+    CAF_PDM_HEADER_INIT;
 public:
-    RimLineBasedAnnotation();
-    RimAnnotationLineAppearance* appearance() const;
+    RimUserDefinedPolylinesAnnotation();
+    ~RimUserDefinedPolylinesAnnotation();
+
+    cvf::ref<RigPolyLinesData>  polyLinesData() override;
+    virtual bool isEmpty() override;
+
+protected:
+    void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
 
 private:
-    caf::PdmChildField<RimAnnotationLineAppearance*> m_appearance;
+    caf::PdmField<std::vector<Vec3d>>   m_points;
 };
+
+

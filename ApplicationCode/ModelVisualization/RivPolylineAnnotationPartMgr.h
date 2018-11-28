@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2011-2012 Statoil ASA, Ceetron AS
+//  Copyright (C) 2018 equinor ASA
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -48,13 +48,12 @@ public:
 
     void appendDynamicGeometryPartsToModel(cvf::ModelBasicList* model, 
                                            const caf::DisplayCoordTransform * displayXf);
-
 private:
     void                            buildPolylineAnnotationParts(const caf::DisplayCoordTransform* displayXf);
 
     void                            clearAllGeometry();
     RimAnnotationCollectionBase*    annotationCollection() const;
 
-    caf::PdmPointer<RimPolylinesAnnotation>  m_rimAnnotation;
+    caf::PdmPointer<RimPolylinesAnnotation> m_rimAnnotation;
     cvf::ref<cvf::Part>                     m_part;
 };

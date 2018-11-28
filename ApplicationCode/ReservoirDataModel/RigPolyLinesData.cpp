@@ -1,6 +1,8 @@
+#include "RigPolyLinesData.h"
+#include "RigPolyLinesData.h"
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2018-     Equinor ASA
+//  Copyright (C) 2018-     equinor ASA
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -15,28 +17,21 @@
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
+#include "RigPolyLinesData.h"
 
-#pragma once
 
-#include "cafPdmObject.h"
-
-#include "cafPdmChildField.h"
-
-class RimGridView;
-class RimAnnotationLineAppearance;
-
-//==================================================================================================
-///
-///
-//==================================================================================================
-class RimLineBasedAnnotation : public caf::PdmObject
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RigPolyLinesData::RigPolyLinesData()
 {
-    CAF_PDM_HEADER_INIT;
 
-public:
-    RimLineBasedAnnotation();
-    RimAnnotationLineAppearance* appearance() const;
+}
 
-private:
-    caf::PdmChildField<RimAnnotationLineAppearance*> m_appearance;
-};
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RigPolyLinesData::~RigPolyLinesData()
+{
+
+}
