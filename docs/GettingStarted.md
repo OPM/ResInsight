@@ -58,6 +58,7 @@ Standard window management for applying minimized, normal and maximized state is
 Commands to arrange the windows in the standard ways are available from the **Windows** menu
 
 - **Tile Windows** -- distribute all open view windows to fill available view widget space
+  - The order of the tiled windows are determined by the window positions and the type of view at the time of running the tile command. The leftmost window are tiled first, then the next leftmost and so on. Master views are tiled before slave views.
 - **Cascade Windows** -- organize all open view windows slightly offset on top of each other
 - **Close All Windows** -- close all open view windows
 

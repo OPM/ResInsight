@@ -105,6 +105,8 @@ Most of the settings for the Plot itself is controlled by its sub items in the P
 
 The command context command **Show Plot Data** will show a window containing the plot data in ascii format. The content of this window is easy to copy and paste into Excel or other tools for further processing.
 
+This dialog supports plot data displayed by day, week, month, Quarter, half year and year.
+
 It is also possible to save the ascii data to a file directly by using the context command **Export Plot Data to Text File** on the plot. 
 
 

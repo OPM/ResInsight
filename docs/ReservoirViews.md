@@ -64,8 +64,12 @@ The **Histogram** shows a histogram of the complete time series of the currently
 The <b>Info Box</b> settings can be activated by clicking on the Info Text in the 3D view.
 </div>
 
-### Grids &nbsp;![]({{ site.baseurl }}/images/draw_style_faults_24x24.png)
-Toggling **Grids** off will hide the grid cell geometry. This option is used to display geometry for faults and intersections. This feature is also available as a toolbutton called *Hide grid cells*.
+### Grids &nbsp;![]({{ site.baseurl }}/images/draw_style_meshlines_24x24.png)
+
+![]({{ site.baseurl }}/images/ViewTreeGrids.png)
+
+The **Grids** node contains child nodes for **Main Grid**, **LGRs** and **Temporary LGRs** where each grid's visibilty can be controlled. The **LGRs** node contains all LGRs loaded from file, while **Temporary LGRs** contains all temporary LGRs (see [Completions LGR]({{site.baseurl}}/docs/completionslgr)).
+Toggling **Grids** off will hide all grids cell geometry. This option is used to display geometry for faults and intersections. This feature is also available as a toolbutton called *Hide grid cells*.
 
 ### Intersections &nbsp;![]({{ site.baseurl }}/images/CrossSections16x16.png)
 Intersections are used to cut the geometry and show result values mapped onto this geometry.

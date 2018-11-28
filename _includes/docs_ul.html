@@ -1,6 +1,5 @@
 {% assign items = include.items %}
 
-<ul>
 {% for item in items %}
   {% assign item_url = item | prepend:"/docs/" | append:"/" %}
 
@@ -17,4 +16,4 @@
   {% endfor %}
 
 {% endfor %}
-</ul>
+

@@ -9,6 +9,8 @@ published: true
 ResInsight can import Well trajectories from simple Ascii files. 
 In addition, a Statoil specific solution to retrieve Well Trajectories from their internal web service is implemented.
 
+ResInsight also supports creation of your own user-defined well paths. See [Create Well Paths]({{ site.baseurl }}/docs/createwellpaths)
+
 ## Ascii Well Trajectories
 
 The command **File -> Import -> Well Data -> Import Well Paths From File** will read the well paths in the selected file, and create one entry for each trajectory under the  ![]({{ site.baseurl }}/images/WellCollection.png) **Wells** item in the **Project Tree**. 
@@ -132,3 +134,14 @@ The well path property editor lets the user control the appearance of the well p
 - **Well Info group** -- Metadata for the well path
 - **Well Picks group** -- Information about imported [well picks]({{site.baseurl}}/docs/formations#well-picks) file containing data for the current well path
 
+### Casing Design
+Some Casing Design elements can be assigned to the well path by selecting **Create Casign Design** from the context menu of the well path.
+
+This will create a new child object for the Well Path, named **Casing Design**. In the **Casign Design** Property editor 
+well path containment properties such as Casing (with Casing Shoe) and Liner can be added to the well path along with a start and end depth and a diameter. 
+
+![]({{ site.baseurl }}/images/CasignDesign.png)
+
+These can be visualised in the 3D View and Well Log Plots on a [Well Log Track]({{site.baseurl}}/docs/welllogsandplots#tracks).
+
+![]({{ site.baseurl }}/images/CasignDesign3D.png) ![]({{ site.baseurl }}/images/CasignDesignPlot.png)

@@ -4,6 +4,7 @@
     {% for section in site.data.docs %}
     <optgroup label="{{ section.title }}">
       {% include docs_option.html items=section.docs %}
+      {% include releasenotes_option.html items=section.releasenotes %}
     </optgroup>
     {% endfor %}
   </select>

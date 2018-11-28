@@ -25,9 +25,12 @@ Once the command file is finished executing, ResInsight will exit.
 * [exportMultiCaseSnapshots](#exportmulticasesnapshots)
 * [exportSnapshots](#exportsnapshots)
 * [exportProperty](#exportproperty)
+* [exportPropertyInViews](#exportpropertyinviews)
 * [exportWellPathCompletions](#exportwellpathcompletions)
 * [exportSimWellFractureCompletions](#exportsimwellfracturecompletions)
 * [exportMsw](#exportmsw)
+* [exportWellPaths](#exportwellpaths)
+* [exportVisibleCells](#exportvisiblecells)
 * [setExportFolder](#setexportfolder)
 
 #### Other Commands
@@ -38,7 +41,8 @@ Once the command file is finished executing, ResInsight will exit.
 * [setTimeStep](#settimestep)
 * [scaleFractureTemplate](#scalefracturetemplate)
 * [setFractureContainment](#setfracturecontainment)
-
+* [createMultipleFractures](#createmultiplefractures)
+* [createLgrForCompletions](#createlgrforcompletions)
 
 ## Syntax
 
@@ -177,9 +181,10 @@ Export snapshots of specified type.
 
 Folder to output snapshots should be set using `setExportFolder` with `SNAPSHOTS` type.
 
-| Parameter | Description                                                                       | Type | Required |
-|-----------|-----------------------------------------------------------------------------------|------|----------|
-| type      | Type of snapshots to export. Choices: `ALL`, `VIEWS`, `PLOTS`. Defaults to `ALL`  | Enum |          |
+| Parameter | Description                                                                       | Type   | Required |
+|-----------|-----------------------------------------------------------------------------------|--------|----------|
+| type      | Type of snapshots to export. Choices: `ALL`, `VIEWS`, `PLOTS`. Defaults to `ALL`  | Enum   |          |
+| prefix    | Exported file name prefix. Defaults to no prefix                                  | String |          |
 
 #### Example
 
@@ -188,22 +193,36 @@ Folder to output snapshots should be set using `setExportFolder` with `SNAPSHOTS
 
 ### exportProperty
 
-Exports a property to file in Eclipse format.
+Exports property values for all cells in the grid to file in Eclipse format.
 
-This command changes the selected property on the first view of the selected case.
-
-| Parameter      | Description                                                                                     | Type    | Required |
-|----------------|-------------------------------------------------------------------------------------------------|---------|----------|
-| caseId         | ID of case to export property from                                                              | Integer | &#10004; |
-| property       | Name of property to export                                                                      | String  | &#10004; |
-| eclipseKeyword | Eclipse keyword to use. Defaults to the value of `property` parameter                           | String  |          |
-| undefinedValue | Value to use for undefined values. Defaults to 0.0                                              | Double  |          |
-| exportFile     | File to export to. Defaults to export folder for `PROPERTIES` with `property` name as filename  | String  |          |
+| Parameter      | Description                                                                                    | Type    | Required |
+|----------------|------------------------------------------------------------------------------------------------|---------|----------|
+| caseId         | ID of case for export                                                                          | Integer | &#10004;|
+| timeStep       | The time step index for export                                                                 | Integer | &#10004;|
+| property       | Name of property to export                                                                     | String  | &#10004;|
+| eclipseKeyword | Eclipse keyword used as text in export header. Defaults to the value of `property` parameter   | String  |         |
+| undefinedValue | Value to use for undefined values. Defaults to 0.0                                             | Double  |         |
+| exportFile     | Filename for export. Defaults to the value of `property` parameter                             | String  |         |
 
 #### Example
 
-`exportProperty(caseId=1, property="SOIL")`
+`exportProperty(caseId=1, timeStep=4, property="SOIL")`
 
+### exportPropertyInViews
+
+Exports property values for all cells in the grid to file in Eclipse format. Use specified cell result in view to define the export property. One file per view will be exported.
+
+| Parameter      | Description                                                                            | Type           | Required |
+|----------------|----------------------------------------------------------------------------------------|----------------|----------|
+| caseId         | ID of case to export property from                                                     | Integer        | &#10004; |
+| viewNames      | Name of views to export from. If not specified, all views are exported                 | List of String |          |
+| undefinedValue | Value to use for undefined values. Defaults to 0.0                                     | Double         |          |
+
+#### Example
+
+`exportPropertyInViews(caseId=1)`
+
+`exportPropertyInViews(caseId=1, viewNames=["view A", "view 4"])`
 
 ### exportWellPathCompletions
 
@@ -214,11 +233,12 @@ Export well path completions.
 | caseId                      | ID of case to export well paths for                                                                                                                       | Integer        | &#10004; |
 | timeStep                    | The time step to export completions for                                                                                                                   | Integer        | &#10004; |
 | wellPathNames               | Names of well paths to export for. Defaults to all checked wells. If a list of well names are provided, those wells are included even if unchecked        | List of String |          |
-| fileSplit                   | How the files are split. Choices: `UNIFIED_FILE`, `SPLIT_ON_WELL`, `SPLIT_ON_WELL_AND_COMPLETION_TYPE`. Defaults to `UNIFIED_FILE`                        | Enum           |          |
+| fileSplit                   | How the files are split. Choices: `UNIFIED_FILE`, `SPLIT_ON_WELL`, `SPLIT_ON_WELL_AND_COMPLETION_TYPE`. Defaults to `SPLIT_ON_WELL_AND_COMPLETION_TYPE`   | Enum           |          |
 | compdatExport               | Chose whether transmissibilities are exported. Choices: `TRANSMISSIBILITIES`, `WPIMULT_AND_DEFAULT_CONNECTION_FACTORS`. Defaults to `TRANSMISSIBILITIES`  | Enum           |          |
 | includePerforations         | Whether main bore perforations should be included. Defaults to `true`                                                                                     | Boolean        |          |
 | includeFishbones            | Whether fishbones should be included. Defaults to `true`                                                                                                  | Boolean        |          |
 | excludeMainBoreForFishbones | Whether main bore completions should be excluded for cells with fishbones. Defaults to `false`                                                           | Boolean        |          |
+| combinationMode             | Combination mode. Choices: `INDIVIDUALLY`, `COMBINED`. Defaults to `INDIVIDUALLY`                                                                       | Enum           |          |
 
 #### Example
 
@@ -254,6 +274,35 @@ Export multi-segment wells.
 
 `exportMsw(caseId=1, wellPath="MainWell")`
 
+### exportWellPaths
+
+Export well paths.
+
+| Parameter     | Description                                    | Type           | Required |
+|---------------|------------------------------------------------|----------------|----------|
+| wellPathNames | Names of well paths to export for. Defaults to all checked wells. If a list of well names are provided, those wells are included even if unchecked                                   | List of String |          |
+| mdStepSize    | Spacing (measured depth) between each sample along the well path. Default to 5.0                                                                                                        | Double         |          |
+
+#### Example
+
+`exportWellPaths(wellPathNames=["B-1H", "B-2H"], mdStepSize=1.5)`
+
+### exportVisibleCells
+
+Export visible cells
+
+| Parameter               | Description                                                                  | Type           | Required |
+|-------------------------|------------------------------------------------------------------------------|----------------|----------|
+| caseId                  | ID of case to export cells for                                               | Integer        | &#10004; |
+| viewName                | Name of the view associated with the specified case                          | Double         | &#10004; |
+| exportKeyword           | The keyword to export. Choices: `FLUXNUM` or `MULTNUM`. Default: `FLUXNUM`   | Enum           |          |
+| visibleActiveCellsValue | Value to use for visible active cells. Default: 1                            | Integer        |          |
+| hiddenActiveCellsValue  | Value to use for hidden active cells. Default: 0                             | Integer        |          |
+| inactiveCellsValue      | Value to use for inactive cells. Default: 0                                  | Integer        |          |
+
+#### Example
+
+`exporVisibleCells(caseId=0, viewName="View 1", exportKeyword=MULTNUM)`
 
 ### setExportFolder
 
@@ -261,8 +310,9 @@ Set the folder to export different types of data to. Set this before attempting 
 
 | Parameter | Description                                                                                    | Type   | Required |
 |-----------|------------------------------------------------------------------------------------------------|--------|----------|
-| type      | Type of export folder to set. Choices: `COMPLETIONS`, `SNAPSHOTS`, `PROPERTIES`, `STATISTICS`  | Enum   | &#10004; |
-| path      | Directory to export the given type to                                                          | String | &#10004; |
+| type         | Type of export folder to set. Choices: `COMPLETIONS`, `SNAPSHOTS`, `PROPERTIES`, `STATISTICS`  | Enum      | &#10004; |
+| path         | Directory to export the given type to                                                          | String    | &#10004; |
+| createFolder | If true, create the folder when required. Default false.                                       | Boolean   |          |
 
 #### Example
 
@@ -334,7 +384,7 @@ Scale fracture template parameters.
 | Parameter    | Description                      | Type    | Required |
 |--------------|----------------------------------|---------|----------|
 | id           | ID of fracture template          | Integer | &#10004; |
-| width        | Width scale factor               | Double  |          |
+| halfLength   | Half Length scale factor         | Double  |          |
 | height       | Height scale factor              | Double  |          |
 | dFactor      | D-factor scale factor            | Double  |          |
 | conductivity | Conductivity scale factor        | Double  |          |
@@ -356,3 +406,42 @@ Set fracture template containment parameters.
 #### Example
 
 `setFractureContainment(id=1, topLayer=2, baseLayer=7)`
+
+### createMultipleFractures
+
+Create multiple fractures on one or more well paths.
+
+| Parameter           | Description                                            | Type            | Required |
+|---------------------|--------------------------------------------------------|-----------------|----------|
+| caseId              | Case ID                                                | Integer         | &#10004; |
+| templateId          | Fracture template id                                   | Integer         | &#10004; |
+| wellPathNames       | Well path names. Default: All well paths               | List of Strings |          |
+| minDistFromWellTd   | Min distance from well path tip. Default: 100.0 m      | Double          |          |
+| maxFracturesPerWell | Max fractures per well. Default: 100                   | Integer         |          |
+| topLayer            | Top K layer. Default: Top layer from current model     | Integer         |          |
+| baseLayer           | Base K layer. Default: Bottom layer from current model | Integer         |          |
+| spacing             | Distance between fractures. Default: 300.0 m           | Double          |          |
+| action              | How to handle existing fractures. Choices: `APPEND_FRACTURES`, `REPLACE_FRACTURES`. The replace option will delete all existing fractures before adding new ones. Default: `APPEND_FRACTURES` | Enum            |          |
+
+#### Example
+
+`createMultipleFractures(caseId=0, templateId=1, wellPathNames=["B-1H", "B-2H"], action=REPLACE_FRACTURES)`
+
+### createLgrForCompletions
+
+Create temporary LGRs for completions on the selected well paths. The splitType parameter controls which main grid cells to split into LGRs. The LGR_PER_CELL option splits only those main grid cells that intersect with a completion. The LGR_PER_COMPLETION option splits all main grid cells that are located within an IJK bounding box covering all intersected cells for each completion. The LGR_PER_WELL works like the previous option, but the bounding box covers intersected cells for all completions on a well path.
+
+| Parameter               | Description                                                                  | Type           | Required |
+|-------------------------|------------------------------------------------------------------------------|----------------|----------|
+| caseId                  | ID of case to create LGRs for                                                | Integer        | &#10004; |
+| timeStep                | The time step to create LGRs for                                             | Integer        | &#10004; |
+| wellPathNames           | Names of well paths to export for. Defaults to all checked wells. If a list of well names are provided, those wells are included even if unchecked                                                               | List of String |          |
+| refinementI             | Size of the LGR along the I axis, in each main grid cell.                    | Integer        | &#10004; |
+| refinementJ             | Size of the LGR along the J axis, in each main grid cell.                    | Integer        | &#10004; |
+| refinementK             | Size of the LGR along the K axis, in each main grid cell.                    | Integer        | &#10004; |
+| splitType               | How to split the LGRs. Options: `LGR_PER_CELL`, `LGR_PER_COMPLETION`, `LGR_PER_WELL`. Default option is `LGR_PER_COMPLETION`                                                                                     | Enum           |          |
+
+#### Example
+
+`createLgrForCompletions(caseId=0, timeStep=0, wellPathNames=["B-1H", "B-2H"], `
+`refinementI=2, refinementJ=3, refinementK=4, splitType=LGR_PER_WELL)`

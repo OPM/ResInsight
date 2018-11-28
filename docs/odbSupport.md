@@ -10,7 +10,7 @@ ResInsight can be built with support for reading and displaying geomechanical an
 If you have, and would like to a use these features, please see [ Build Instructions ]({{ site.baseurl }}/docs/buildinstructions) for a description on how to build ResInsight and how to include the support for odb-files.
 
 ### Geo Mechanical Data Support
-Geo-mechanical data can be imported using the **Import -> Geo Mechanical Cases menu**. Here two options are present: **Import Geo Mechanical Model** (odb files) and **Import Element Property Table**.
+Geo-mechanical data can be imported using the **Import -> Geo Mechanical Cases menu**. Here three options are present: **Import Geo Mechanical Model**, **Import Geo Mechanical Model (Time Step Filtered)**  (both for odb files) and **Import Element Property Table**.
 
 
 ![]({{ site.baseurl }}/images/GeoMechImport.png)
@@ -29,3 +29,10 @@ Other derived results are also calculated, and are described in [ Derived Result
 Most of the central features of ResInsight visualization setup also applies to ABAQUS Odb models, like range filters and property filters. Well Paths will also show up along with the odb models.
 
 The Octave interface, however, does not support the odb-data yet.
+
+### Time Step Filtered Import
+By choosing the **Import Geo Mechanical Model (Time Step Filtered)** option, it is possible to limit the amount of time steps that are imported to improve the speed and reduce the memory use. If this option is chosen a tile step filter dialog is shown after selecting the file to import.
+
+![]({{ site.baseurl }}/images/GeoMechFilter.png)
+
+The data can be filtered by skipping Days, Weeks, Months or Years in the top **Filter Type** drop down list and the range of time steps can be picked in the **First Time Step** and **Last Time Steps** lists. Furthermore, the final selection can be fine tuned by selecting or deselecting individual time steps in the **Select From N Time Steps** list. ResInsight will ignore any data that doesn't match these time steps and will thus reduce the amount of data imported.

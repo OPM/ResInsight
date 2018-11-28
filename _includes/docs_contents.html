@@ -2,7 +2,10 @@
   <aside>
     {% for section in site.data.docs %}
     <h4>{{ section.title }}</h4>
+    <ul>
     {% include docs_ul.html items=section.docs %}
-    {% endfor %}
+    {% include releasenotes_ul.html items=section.releasenotes %}
+    </ul>
+    {% endfor %}    
   </aside>
 </div>

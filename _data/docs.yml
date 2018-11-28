@@ -1,7 +1,9 @@
 - title: Introduction
   docs:
   - home
-  
+  releasenotes:
+  - releasenotes_2018_11
+   
 - title: Getting Started
   docs:
   - installation
@@ -24,11 +26,15 @@
   - intersections
   - filters
   - wellpaths
+  - createwellpaths
   - 3dwelllogcurves
   - completions
+  - completionslgr
+  - contourmaps
   - formations
   - casegroupsandstatistics 
   - preferences
+  - memorymanagement
   
 - title: Plot Window
   docs:
@@ -38,6 +44,7 @@
   - ensembleplotting
   - curvecalculator
   - welllogsandplots
+  - wellborestabilityplots
   - rftplot
   - pltplot
   - flowdiagnosticsplots
@@ -54,8 +61,8 @@
   - snapshots
   - exporteclipseproperties
   - exportfluxnummultnum
-  - carfinexport
   - completionexport
+  - exportwellpaths
   
 - title: Scripting
   docs:

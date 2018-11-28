@@ -52,6 +52,36 @@ The perforation intervals will be indicated by different color along the well pa
 
 ![]({{ site.baseurl }}/images/WellPerforationIntervalColor.png)
 
+For each well path there is a top level folder in the **Project Tree** containing all the perforation intervals definitions containing settings that applies to all the perforation intervals for this well path. 
+
+![]({{ site.baseurl }}/images/Perforations_PropEdit.png)
+
+For multi-segment wells there are additional parameters which should be set. These are used in the export of WELSEGS data. 
+
+![]({{ site.baseurl }}/images/PerfIntervalMsw.PNG)
+
+- **Multi Segment Well Options** - Options used by the Well Segments Export
+  - **Liner Inner Diameter** -- The liner inner diameter for the perforation intervals.
+  - **Roughness Factor** -- The roughness factor used in export of main bore segments. 
+  - **Pressure Drop** -- can be either *Hydrostatic*, *Hydrostatic + Friction* or *Hydrostatic + Friction + Acceleration*. 
+  - **Length and Depth** -- Used in WELSEGS export - when specifying the length and depth change for each segment
+    - **Incremental** -- length / depth of given segment
+    - **Absolute** -- the length down the tube or depth of the last nodal point
+  - **Enforce Max Segment Length** -- Limit segment to max size. When this check box is checked, a max segment length input field is displayed.
+  
+There are three options for Non-Darcy Flow. **None**, **User defined D-factor** and **Compute D-factor**. The second option displays an input field where the user defined D-factor can be entered. The last options brings up several input fields.
+
+![]({{ site.baseurl }}/images/PerfIntervalNonDarcy.PNG)
+
+- **Non-Darcy Flow** - Non-Darcy settings for D factor computation
+  - **Grid Permeability Scaling Factor**
+  - **Well Radius**
+  - **Relative Gas Density**
+  - **Gas Viscosity**
+  - **Inertial Coefficient**
+  - **Permeability Scaling Factor**
+  - **Porosity Scaling Factor**
+  
 ### Import Perforation Intervals
 
 Perforation intervals can be imported into ResInsight from _`*.ev`_ files. These files consist of a list of wells, and their corresponding measured depth values for perforation start and end. 
@@ -204,9 +234,11 @@ To create a new fracture template, right-click the **Fracture Template** item in
     - **Along Well Path** -- Fracture is vertical and along the well path. This option enables options to control the perforation length and the efficiency of the well in the fracture. See below.
     - **Azimuth** -- The fracture is vertical and in line with the Azimuth Angle (measured from North) supplied.
 - **Fracture Truncation**
-  - **Fracture Containment** -- Enable this option to limit what K layers you want the fracture to influence. K-Layers outside the range will not be drained by the fracture.
-  - **Top Layer** -- Topmost K-layer that the fracture will drain.
-  - **Base Layer** -- Lowest K-layer that the fracture will drain.
+  - **Use Containment** -- Enable this option to activate layer containment.
+    - **Top Layer** -- Topmost K-layer that the fracture will drain.
+    - **Base Layer** -- Lowest K-layer that the fracture will drain.
+  - **Truncate At Faults** -- Enable this option to activate fault truncation.
+    - **Minimum Fault Throw** -- Fault throw threshold to activate fault truncation.
 - **Properties** -- The availability of these options depend on the **Fracture Orientation** and the **Conductivity in Fracture** setting.
   - **Conductivity in Fracture** 
     - **Finite Conductivity** -- Use a calculated conductivity for flow in the fracture. Either the StimPlan conductivity, or a constant conductivity in Ellipse fractures.
@@ -225,16 +257,18 @@ To create a new fracture template, right-click the **Fracture Template** item in
 ![]({{ site.baseurl }}/images/FractureNonDarcyFlow.png)
 
 Non-Darcy Flow is used to improve the computation of connection factors for cells penetrated by well pipes. A pre-computed D-factor can be set using **User Defined D-factor**. Selecting the option **Compute D-factor** displays the following set of properties:
-  - **Inertial Coefficient** -- Beta-factor in Forcheimer units
+  - **Inertial Coefficient** 
+    - **User Defined** -- Beta-factor in Forcheimer units
+    - **Use Fracture Beta Factor** -- Extract beta factor from the fracture template at the well intersection location. For transversal fractures, the conductivity is computed from the geometric average of fracture cells intersected by the fracture perforation length.
   - **Effective Permeability**
     - **User Defined** -- Defines the permeability *Ke* in milliDarcy in the property **Effective Permeability** 
-    - **Use Fracture Conductivity** -- Extract conductivity from the fracture template at the well intersection location and scale with **Relative Permeability**
+    - **Use Fracture Conductivity** -- Extract conductivity from the fracture template at the well intersection location and scale with **Relative Permeability**. For transversal fractures, the conductivity is computed from the weighted average of fracture cells intersected by the fracture perforation length.
   - **Width**
     - **User Defined** -- Defines the width of the fracture
-    - **Use Fracture Width** -- Extract width from the fracture template at the well intersection location
+    - **Use Fracture Width** -- Extract width from the fracture template at the well intersection location. For transversal fractures, the width is based on the weighted average of fracture cells intersected by the fracture perforation length.
   - **Relative Gas Density**
   - **Gas Viscosity**
-  - **D Factor** -- Displays the computed value of the D factor
+  - **D Factor** -- Displays the computed value of the D factor. NOTE : For *transversal fractures*, the computed D factor is scaled by 1.2 to compensate for a different flow model
   - **D Factor Details** -- Displays the value of variables used to compute the D factor
 
 #### Ellipse Fracture Template
@@ -291,3 +325,23 @@ Instances of fractures can be created along well paths and simulation wells by r
   - **Perforation Length** / **Perforation Efficiency** / **Well Diameter** -- These values are copied from the new template when selecting a different one. See [Common Fracture Template Options]({{ site.baseurl }}/docs/completions#common-fracture-template-options)  
 - **Fracture Center Info** -- This group displays info on where the center of the fracture is positioned. The center is defined to be where the well path intersects the fracture.
 
+### Multiple Fracture Creation
+In some cases the user wants to create a number of fractures on one or more well paths. Doing this by creating one by one fracture can be very error prone and time consuming. To ease this task, ResInsight has support for creating several fractures in one operation.
+
+Select one or more well paths in the project tree, right click and select **Create Multiple Fractures** from the context menu. Then the **Create Multiple Fractures** dialog appears. In this dialog, the user defines where fractures will be created on the selected well paths. Different fracture templates and spacing can be used for different K layer ranges in the grid, by adding new options lines to the table. To edit an option line, double click the field to edit. Adding and deleting option lines are done by right clicking the table.
+
+![]({{ site.baseurl }}/images/CreateMultipleFracturesDialog.png)
+
+- **Case** -- Current grid case
+- **Min Distance From Well TD** -- Minimum distance from well tip for created fractures
+- **Max Fractures Per Well** -- Maximum number of fractures to create per well
+- **Options**
+  - **Top K Layer** -- The topmost K layer to add fractures to
+  - **Base K Layer** -- The bottommost K layer to add fractures to
+  - **Template** -- The fracture template used in the specified K layer range
+  - **Spacing** -- The distance between each fracture in the K layer range
+- **Generated Fractures** -- Output information to the user. Shows number of fractures that will be created on each selected well path
+- **Replace Fractures** -- Press this button to delete all existing fractures on the selected wells before creating new fractures
+- **Add Fractures** -- Press this button to add the new fractures to all selected wells (not deleting existing fractures)
+
+The Create Multiple Fractures function is also available as a CommandFile command. See the [CommandFile section]({{ site.baseurl }}/docs/commandfile)

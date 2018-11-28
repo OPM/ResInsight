@@ -55,8 +55,13 @@ Tracks can be created by right-clicking a **Well Log Plot** and select **New Tra
 
 ![]({{ site.baseurl }}/images/TrackProperties.png)
 
-A track controls the x-axis range of the display, and can be edited from the property panel of the **Track**. 
-Logarithmic display is controlled using the **Logarithmic Scale** option. It is also possible to add **Zonation** or **Formation Names** to the track. See [Formations]({{site.baseurl}}/docs/formations) for details.
+A track controls the x-axis range of the display, and can be edited from the property panel of the **Track**. In addition to the range, logarithmic display is controlled using the **Logarithmic Scale**, grid lines can be tweaked with the **Show Grid Lines** option and tick intervals can be controlled manually wih the **Manually Set Tick Intervals**  option.
+
+It is also possible to visualize **Zonation** or **Formation Names** in the track (see [Formations]({{site.baseurl}}/docs/formations) for details) as well as [Well Attributes]({{site.baseurl}}/docs/wellpaths#well-path-attributes) such as casing and liners. The following image shows some of the possibilities, with labels for the formations shown only on the second track, while the first track shows the a full cross section of the well attributes and the second track shows only a radial view.
+![]({{ site.baseurl }}/images/WellAttributeBothSides.png)
+
+Finally, the width of each track can be manipulated using the **Track Width** setting. This allows the creation of plots with varying width tracks.
+![]({{ site.baseurl }}/images/WellLogTracksWidth.png)
 
 ## Curves
 
@@ -96,14 +101,23 @@ For Eclipse results the cell face value is used directly. This is normally the s
 
 Abaqus results are interpolated across the intersected cell-face from the result values associated with the nodes of that face. This is also the case for integration point results, as they are directly associated with their corresponding element node in ResInsight. 
 
-#### Change Data Source for Several Curves
+#### Change Data Source for Plots and Curves
 
-It is possible to change either the Case or the Well Path in several Well Log Extraction curves in one go. To do so, select the curves to change, and access the context menu. Select the command **Change Data Source**. The following dialog will appear:
+It is possible to change some data source parameters in one go for either a full plot or several selected curves. To change the parameters for a whole plot use either the **Data Source** group in the Property Editor for the Well Log Plot or corresponding toolbar which is visible when a Well Log Plot or any of its children are selected. Changing parameters in the **Data Source** group for the plot will also change the source for Zonation/Formations and Well Path Attributes in addition to the data source for all **Well Log Extraction Curves** and **Well Log LAS Curves**.
+
+![]({{ site.baseurl }}/images/WellLogPlotDataSource.png)
+
+To change data source for some curves, select the curves you wish to change source for and select **Change Data Source** command form the context menu. The following dialog will appear:
 
 ![]({{ site.baseurl }}/images/WellLogExtractionChangeDataSource.png)
 
-- **Case** -- Sets this case for all the curves.
-- **Well Path** -- Applies this well path to all the curves. Will not affect curves using a Simulation Well.
+In both cases, the following parameters are available to change:
+- **Case** -- Applies the selected case to all the curves.
+- **Trajectory Type** -- Sets whether to use Simulation Wells or Well Paths as a data source for all curves.
+- **Well Name** -- Applies this well path to all the curves.
+- **Time Step** -- Applies this time step to all the curves.
+
+Common for the different ways of changing data source is that if a parameter is not shared among all the curves, the drop down list will show "Mixed Cases, "Mixed Trajectory Types", "Mixed Well Paths" or "Mixed Time Steps" to indicate that the curves have different values for that parameter. It is still possible to select a common parameter for them which will then be applied across the curves.
 
 ### Well Log RFT Curves
 

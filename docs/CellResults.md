@@ -74,22 +74,22 @@ There are two main selections you need to make: The tracers and the result prope
     - **All Injectors and Producers** --  Selects all the wells, including the opposite flow tracers
     - **All Producers** -- Selects all producer tracers, including the opposite flow tracers of injectors.
     - **All Injectors** -- Selects all injector tracers, including the opposite flow tracers of producers.
-    - **By Selection** -- Displays a list of all the tracers that can be selected freely, and a **Filter** field. 
-       - The list of selectable tracers can be filtered using wild card search of their names.
-       - The tracers are sorted by their overall status as producer or injectors and prefixed depending on the status.
-         Injectors are prefixed with "I :", producers with "P :" and wells with varying state "I/P:".
+    - **By Selection** -- Displays lists of all the injector tracers and producer tracers side-by-side allowing any to be selected freely.
+       - Both lists of selectable tracers can be filtered by typing in parts of the name.
+       - The tracers will have a suffix of [I/P] if they are both injector and producer, thus appearing in both lists.
+       - All producers communicating with the selected injectors (and vice-versa) can be selected with the "Add Communicator" buttons.
 - **Phases** -- Select the fluid phase you are interested in: All, Oil, Gas or Water. If one of the separate phases are selected, only the _Time Of Flight_ result property will be available in the list below.
 - **Result property** -- Displays a list of the available results:
-    - **Time Of Flight (Average)** -- The time for some fluid in the cell to reach a producer, 
-    or the time it takes to reach the cell from an injector. 
+    - **Residence Time** -- The time for some fluid in the cell to reach a producer, 
+    or the time it takes to reach the cell from an injector. The option changes name depending on the selection of injectors and producers and will be Forward Time of Flight if only injectors are selected and Reverse Time of Flight if only producers are selected.
     When selecting several tracers, the time of flight values from each of the tracers are weighted 
-    by their cell fraction before they are averaged.
+    by their cell fraction before they are averaged. The suffix (Average) will then be added to the option label.
     - **Tracer Cell Fraction (Sum)** -- The volume fraction of a cell occupied by the selected tracers. 
     The injector and producer tracers counts as independent in this regard, so the sum of fractions for 
     all the producer tracers will be 1.0 and the same for the injector tracers. If both types of tracers 
     are selected, the total sum will normally reach 2.0. 
-    - **Max Fraction Tracer** -- Shows which of the selected tracers that has the largest fraction in each cell. 
-    This is shown as a category result displaying a color for each tracer, and the names in the legend.
+    - **Drainage/Flooding Regions** -- Shows which of the selected tracers that has the largest fraction in each cell. 
+    This is shown as a category result displaying a color for each tracer, and the names in the legend. If only injectors are selected, this option will be labelled **Drainage Regions** and if only producers are selected, it is called **Flooding Regions**.
     - **Injector Producer Communication** -- The communication in a cell between a set of producers and a set of injectors 
     is calculated as the sum of producer fractions multiplied by the sum of injector fractions in the cell. 
     This produces values between 0.0 and 1.0 where high values indicate that both the injectors and the producers 

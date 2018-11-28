@@ -24,7 +24,7 @@ Which summaries that has been detected in a Observed Time History Data file can 
 ## File Formats
 
 ### Import CSV/txt Observed Time History Data
-CSV/txt files are generic ascii files which may have slightly different formatting. When importing these types of files the user is presented a dialog, where the user may tell ResInsight how to import the selected file(s). If more than one file is selected, the dialog appears once for each file.
+CSV/txt files are generic ascii files where data is arranged in columns. Some variations in formatting is supported, for instance deifferent cell separators, date and time format, decimal separator etc. When importing these types of files the user is presented a dialog, where the user may tell ResInsight how to import the selected file(s). If more than one file is selected, the dialog appears once for each file.
 
 #### CSV/txt Import Options Dialog
 ![]({{ site.baseurl }}/images/ImportObservedTimeHistoryDataDialog.png)
@@ -38,6 +38,81 @@ Dialog fields description:
 - **Date Format** -- Select the date format matching the date information in the file.
 - **Time Format** -- Select the time format matching the time information in the file. If the file contains dates only, this field is ignored by ResInsight.
 - **Preview** -- Preview the first 30 lines of the file contents. The view will reflect the currently selected Cell Separator and the selected time column is marked in yellow.
+
+#### Column data
+Each column must have a header text, which may be a name/description for the data in the column. By formatting the header text to a valid Eclipse address, ResInsight recognizes the column data and will be able to categorize the data in the same way as grid data. So when plotting these data later, the user will find the data in the correct category in the [Summary Plot Editor]({{site.baseurl}}/docs/summaryploteditor).
+
+##### Eclipse address format
+An Eclipse address consists of a vector name and zero or more parameters. The number of parameters are defined by the category of the vector. The category is determined by looking up the category in an internal vector table. A valid standard vector name has 3 to 5 characters. Optionally it may be postfixed by a user defined name of 3 characters. A vector name having both a standard part and a user part must have 8 characters (5+3). In this case, if the standard part has less than 5 characters, it must be padded with underscores up to 5 characters. Example: 'RPR__WEL'. Vector names having only the standard part are not padded.
+
+Categories:
+- **Field** - \<VECTOR 'F....'>
+  - Example: 'FOPT'
+- **Aquifer** - \<VECTOR 'A....'>:\<AQUIFER NUMBER>
+  - Example: 'AAQR:1'
+- **Network** - \<VECTOR 'N....'>
+- **Misc** - \<VECTOR '....'>
+- **Region** - \<VECTOR 'R....'>:\<REGION NUMBER>
+  - Example: 'RPR:1'
+- **Region to Region** - \<VECTOR 'R.F..'>:\<REGION NUMBER>-\<REGION NUMBER>
+  - Example: 'ROFR:1-2'
+- **Group** - \<VECTOR 'G....'>:\<GROUP NAME>
+  - Example: 'GOPR:MANI-B1'
+- **Well** - \<VECTOR 'W....'>:\<WELL NAME>
+  - Example: 'WOPR:B-2H'
+- **Completion** - \<VECTOR 'C....'>:\<WELL NAME>:\<I>,\<J>,\<K>
+  - Example: 'COFRL:C-1H:26,44,16'
+- **LGR Completion** - \<VECTOR 'LC...'>:\<LGR NAME>:\<WELL NAME>:\<I>,\<J>,\<K>
+  - Example: 'LCWIT:WELLI1:I1:5,5,5'
+- **LGR Well** - \<VECTOR 'LW...'>:\<LGR NAME>:\<WELL NAME>
+  - Example: 'LWWIR:WELLI1:I1'
+- **Segment** - \<VECTOR 'S....'>:\<WELL NAME>:\<SEGMENT NUMBER>
+  - Example: 'SOFR:B-5H:32'
+- **Block** - \<Vector 'B....'>:\<I>,\<J>,\<K>
+  - Example: 'BPR:15,18,21'
+- **LGR Block** - \<VECTOR 'LB...'>:\<LGR NAME>:\<I>,\<J>,\<K>
+  - Example: 'LBOSAT:CENTER:5,5,5'
+- **Imported** - \<SOME NAME>
+
+When ResInsight parses an eclipse address, it first tries to identify an address category by analyzing the vector name, as described above. If no category could be found, the **Imported** category is used. This category is also used if the address format is wrong (for instance missing parameters) even though the vector name identifies a different category.
+
+**Instantaneous vs Accumulated Data**  
+A valid Eclipse vector having a standard name ending with 'T' or 'TH' are considered accumulated data. In the summary plot, these types of data are plotted slightly different. Instantaneous data are plotted using a stepped curve, while accumulated data are plotted using straight lines between the samples.
+
+**Error data**  
+Any address may have associated error data. Those type of data will have the same address as their associated data, but are prefixed by 'ER:', 'ERR:' or 'ERROR:'. Example: 'ERR:FOPT'. It is not possible to select error data explicitly in the plot editor selection fields, but when selecting a vector having associated error data, the error data is plotted as error bars in the summary plot.
+
+Example:
+
+![]({{ site.baseurl }}/images/ErrorBars.png)
+
+### CSV Line Based Format
+ResInsight supports a 'line based' CSV file format variant as well. As opposed to the normal CSV format, data values are organized in lines. Each line must contain at least a date (and time), a vector address and a sample value. Optionally it may also contain an error value and a comment. The information carried by this format is equivalent to the normal CSV format, it is only a different file layout.
+
+When importing a line based CSV file, no dialog appears. Instead a more stict set of rules apply to this type of files:
+- At least **DATE**, **VECTOR** and **VALUE** columns must be present. The order of columns may be changed.
+- Optionally the columns **ERROR** and **COMMENTS** may be present
+- ISO date format must be used: 'yyyy-mm-dd' or 'yyyy-mm-dd hh:mm'
+- Semicolon (;) must be used as column separator
+- Point (.) must be used as decimal separator
+- The comment must not contain any semicolons
+
+#### Example
+The two examples below are equvalent and result in identical data after importing to ResInsight
+
+Line based CSV:
+```
+DATE       ;VECTOR ;VALUE ;ERROR
+2018-04-16 ;FOPT   ;12.5  ;0.45
+2018-04-18 ;FOPT   ;8.6   ;0.31
+```
+Normal CSV:
+```
+DATE       ;FOPT ;ERR:FOPT
+2018-04-16 ;12.5 ;0.45
+2018-04-18 ;8.6  ;0.31
+```
+
 
 ### Import RSM observed time history data
 To import RSM files, the only action needed from the user is to select one or more RSM files. When the import is finished, one tree node for each file will appear under the **Observed Time History Data** node in the project tree. RSM files can be either *Column based* or *Keyword based*.
