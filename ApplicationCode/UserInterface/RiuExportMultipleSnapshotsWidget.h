@@ -34,7 +34,7 @@ class RiuExportMultipleSnapshotsWidget : public QDialog
     Q_OBJECT
 public:
     RiuExportMultipleSnapshotsWidget(QWidget* parent, RimProject* project);
-    ~RiuExportMultipleSnapshotsWidget();
+    ~RiuExportMultipleSnapshotsWidget() override;
 
     void addSnapshotItemFromActiveView();
     void addEmptySnapshotItems(size_t itemCount);

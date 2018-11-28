@@ -75,7 +75,7 @@ void RigEclipseWellLogExtractor::calculateIntersection()
         {
             const RigCell& cell = m_caseData->mainGrid()->globalCellArray()[globalCellIndex];
 
-            if (cell.isInvalid()) continue;
+            if (cell.isInvalid() || cell.subGrid() != nullptr) continue;
 
             m_caseData->mainGrid()->cellCornerVertices(globalCellIndex, hexCorners);
 

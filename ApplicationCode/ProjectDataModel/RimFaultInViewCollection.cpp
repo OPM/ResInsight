@@ -84,8 +84,6 @@ RimFaultInViewCollection::RimFaultInViewCollection()
 
     CAF_PDM_InitFieldNoDefault(&faults, "Faults", "Faults", "", "", "");
     faults.uiCapability()->setUiHidden(true);
-
-    m_reservoirView = nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -108,8 +106,8 @@ void RimFaultInViewCollection::fieldChangedByUi(const caf::PdmFieldHandle* chang
     
     if (&faultLabelColor == changedField)
     {
-        m_reservoirView->scheduleReservoirGridGeometryRegen();
-        m_reservoirView->crossSectionCollection()->scheduleCreateDisplayModelAndRedraw2dIntersectionViews();
+        parentView()->scheduleReservoirGridGeometryRegen();
+        parentView()->crossSectionCollection()->scheduleCreateDisplayModelAndRedraw2dIntersectionViews();
     }
 
     if (&showFaultFaces == changedField ||
@@ -123,11 +121,8 @@ void RimFaultInViewCollection::fieldChangedByUi(const caf::PdmFieldHandle* chang
         &hideNncsWhenNoResultIsAvailable == changedField
         )
     {
-        if (m_reservoirView) 
-        {
-            m_reservoirView->scheduleCreateDisplayModelAndRedraw();
-            m_reservoirView->crossSectionCollection()->scheduleCreateDisplayModelAndRedraw2dIntersectionViews();
-        }
+        parentView()->scheduleCreateDisplayModelAndRedraw();
+        parentView()->crossSectionCollection()->scheduleCreateDisplayModelAndRedraw2dIntersectionViews();
     }
 
 
@@ -137,15 +132,6 @@ void RimFaultInViewCollection::fieldChangedByUi(const caf::PdmFieldHandle* chang
     }
 
 }
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimFaultInViewCollection::setReservoirView(RimEclipseView* ownerReservoirView)
-{
-    m_reservoirView = ownerReservoirView;
-}
-
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -188,11 +174,11 @@ bool faultComparator(const cvf::ref<RigFault>& a, const cvf::ref<RigFault>& b)
 //--------------------------------------------------------------------------------------------------
 void RimFaultInViewCollection::syncronizeFaults()
 {
-    if (!(m_reservoirView && m_reservoirView->mainGrid()) ) return;
+    if (!(parentView() && parentView()->mainGrid()) ) return;
 
     const caf::ColorTable& colorTable = RiaColorTables::faultsPaletteColors();
 
-    const cvf::Collection<RigFault> constRigFaults = m_reservoirView->mainGrid()->faults();
+    const cvf::Collection<RigFault> constRigFaults = parentView()->mainGrid()->faults();
 
     cvf::Collection<RigFault> rigFaults;
     {
@@ -273,11 +259,11 @@ void RimFaultInViewCollection::syncronizeFaults()
     // NNCs
     this->noCommonAreaNnncCollection()->noCommonAreaNncs().deleteAllChildObjects();
 
-    RigMainGrid* mainGrid = m_reservoirView->mainGrid();
+    RigMainGrid* mainGrid = parentView()->mainGrid();
     std::vector<RigConnection>& nncConnections = mainGrid->nncData()->connections();
-    for (size_t i = 0; i < nncConnections.size(); i++)
+    for (size_t connIndex = 0; connIndex < nncConnections.size(); connIndex++)
     {
-        if (!nncConnections[i].hasCommonArea())
+        if (!nncConnections[connIndex].hasCommonArea())
         {
             RimNoCommonAreaNNC* noCommonAreaNnc = new RimNoCommonAreaNNC();
 
@@ -286,7 +272,7 @@ void RimFaultInViewCollection::syncronizeFaults()
             
             {
                 size_t gridLocalCellIndex;
-                const RigGridBase* hostGrid = mainGrid->gridAndGridLocalIdxFromGlobalCellIdx(nncConnections[i].m_c1GlobIdx, &gridLocalCellIndex);
+                const RigGridBase* hostGrid = mainGrid->gridAndGridLocalIdxFromGlobalCellIdx(nncConnections[connIndex].m_c1GlobIdx, &gridLocalCellIndex);
 
                 size_t i, j, k;
                 if (hostGrid->ijkFromCellIndex(gridLocalCellIndex, &i, &j, &k))
@@ -307,7 +293,7 @@ void RimFaultInViewCollection::syncronizeFaults()
 
             {
                 size_t gridLocalCellIndex;
-                const RigGridBase* hostGrid = mainGrid->gridAndGridLocalIdxFromGlobalCellIdx(nncConnections[i].m_c2GlobIdx, &gridLocalCellIndex);
+                const RigGridBase* hostGrid = mainGrid->gridAndGridLocalIdxFromGlobalCellIdx(nncConnections[connIndex].m_c2GlobIdx, &gridLocalCellIndex);
 
                 size_t i, j, k;
                 if (hostGrid->ijkFromCellIndex(gridLocalCellIndex, &i, &j, &k))
@@ -339,9 +325,7 @@ void RimFaultInViewCollection::syncronizeFaults()
 //--------------------------------------------------------------------------------------------------
 bool RimFaultInViewCollection::isGridVisualizationMode() const
 {
-    CVF_ASSERT(m_reservoirView);
-
-    return  m_reservoirView->isGridVisualizationMode();
+    return parentView()->isGridVisualizationMode();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -376,10 +360,29 @@ void RimFaultInViewCollection::defineUiOrdering(QString uiConfigName, caf::PdmUi
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+RimEclipseView* RimFaultInViewCollection::parentView() const
+{
+    RimEclipseView* view = nullptr;
+    this->firstAncestorOrThisOfTypeAsserted(view);
+    
+    return view;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 bool RimFaultInViewCollection::isShowingFaultsAndFaultsOutsideFilters() const
 {
     if (!showFaultCollection) return false;
 
     return m_showFaultsOutsideFilters;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFaultInViewCollection::setShowFaultsOutsideFilter(bool show)
+{
+    m_showFaultsOutsideFilters = show;
 }
 

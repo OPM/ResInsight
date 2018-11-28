@@ -17,8 +17,13 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RimViewWindow.h"
+
+#include "RiaFieldHandleTools.h"
+
 #include "RimMdiWindowController.h"
+
 #include "cvfAssert.h"
+
 #include <QWidget>
 
 CAF_PDM_XML_ABSTRACT_SOURCE_INIT(RimViewWindow, "ViewWindow"); // Do not use. Abstract class 
@@ -37,8 +42,7 @@ RimViewWindow::RimViewWindow(void)
 
     // Obsolete field
     CAF_PDM_InitFieldNoDefault(&obsoleteField_windowGeometry, "WindowGeometry", "", "", "", "");
-    obsoleteField_windowGeometry.uiCapability()->setUiHidden(true);
-    obsoleteField_windowGeometry.xmlCapability()->setIOWritable(false);
+    RiaFieldhandleTools::disableWriteAndSetFieldHidden(&obsoleteField_windowGeometry);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -63,6 +67,23 @@ void RimViewWindow::loadDataAndUpdate()
 void RimViewWindow::removeMdiWindowFromMdiArea()
 {
     if ( m_windowController() ) m_windowController->removeWindowFromMDI();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimViewWindow::windowTitle()
+{
+    if (this->userDescriptionField())
+    {
+        caf::PdmUiFieldHandle* uiFieldHandle = this->userDescriptionField()->uiCapability();
+        if (uiFieldHandle)
+        {
+            QVariant v = uiFieldHandle->uiValue();
+            return v.toString();
+        }
+    }
+    return QString("");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -168,15 +189,7 @@ void RimViewWindow::updateMdiWindowTitle()
 {
     if ( viewWidget() )
     {
-        if ( this->userDescriptionField() )
-        {
-            caf::PdmUiFieldHandle* uiFieldHandle = this->userDescriptionField()->uiCapability();
-            if ( uiFieldHandle )
-            {
-                QVariant v = uiFieldHandle->uiValue();
-                viewWidget()->setWindowTitle(v.toString());
-            }
-        }
+        viewWidget()->setWindowTitle(windowTitle());
     }
 }
 

@@ -115,15 +115,7 @@ RimSummaryCaseCollection* RimSummaryCase::ensemble() const
 {
     RimSummaryCaseCollection* e;
     firstAncestorOrThisOfType(e);
-    return e;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-bool RimSummaryCase::isEnsembleCase() const
-{
-    return ensemble() != nullptr;
+    return e && e->isEnsemble() ? e : nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -138,6 +130,14 @@ void RimSummaryCase::copyFrom(const RimSummaryCase& rhs)
 
     this->updateTreeItemName();
     this->updateOptionSensitivity();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Sorting operator for sets and maps. Sorts by summary case short name.
+//--------------------------------------------------------------------------------------------------
+bool RimSummaryCase::operator<(const RimSummaryCase& rhs) const
+{
+    return this->caseName() < rhs.caseName();
 }
 
 //--------------------------------------------------------------------------------------------------

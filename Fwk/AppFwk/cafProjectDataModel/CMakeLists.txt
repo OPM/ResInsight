@@ -8,7 +8,6 @@ include (${QT_USE_FILE})
 
 set( PROJECT_FILES
 	cafFactory.h
-	cafFixedArray.h
 	cafOmpMutex.h
 	cafPdmDocument.cpp
 	cafPdmDocument.h
@@ -31,5 +30,9 @@ target_include_directories(${PROJECT_NAME}
   PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}
 )
+
+if (MSVC) 
+    set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "/W4 /wd4100 /wd4127")
+endif()
 
 source_group("" FILES ${PROJECT_FILES})

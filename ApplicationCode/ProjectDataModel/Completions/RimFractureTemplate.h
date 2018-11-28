@@ -32,29 +32,36 @@
 #include "cvfVector3.h"
 
 #include <vector>
-#include <cmath>
+#include <limits>
 
 class RigFractureGrid;
 class RimFractureContainment;
 class MinMaxAccumulator;
 class PosNegAccumulator;
+class RimFracture;
 
-class FractureWidthAndConductivity
+class WellFractureIntersectionData
 {
 public:
-    FractureWidthAndConductivity()
+    WellFractureIntersectionData()
         : m_width(0.0)
         , m_permeability(0.0)
-        , m_conductivity(HUGE_VAL)
+        , m_conductivity(std::numeric_limits<double>::infinity())
+        , m_betaFactorInForcheimerUnits(std::numeric_limits<double>::infinity())
     {
     }
 
-    bool isValid() const
+    bool isWidthAndPermeabilityDefined() const
     {
         if (m_width != 0.0) return true;
         if (m_permeability != 0.0) return true;
 
         return false;
+    }
+
+    bool isConductivityDefined() const
+    {
+        return (m_conductivity != std::numeric_limits<double>::infinity());
     }
 
     // Unit : meter or feet
@@ -64,6 +71,9 @@ public:
     double m_permeability;
 
     double m_conductivity;
+
+    // Unit : Forcheimer unit
+    double m_betaFactorInForcheimerUnits;
 };
 
 //==================================================================================================
@@ -100,6 +110,12 @@ public:
         WIDTH_FROM_FRACTURE,
     };
 
+    enum BetaFactorEnum
+    {
+        USER_DEFINED_BETA_FACTOR,
+        BETA_FACTOR_FROM_FRACTURE,
+    };
+
     enum NonDarcyFlowEnum
     {
         NON_DARCY_NONE,
@@ -109,7 +125,7 @@ public:
 
 public:
     RimFractureTemplate();
-    virtual ~RimFractureTemplate();
+    ~RimFractureTemplate() override;
 
     int                             id() const;
     QString                         name() const;
@@ -119,16 +135,15 @@ public:
     FracOrientationEnum             orientationType() const;
     float                           azimuthAngle() const;
     float                           skinFactor() const;
-    double                          wellDiameter();
+    double                          wellDiameter() const;
     FracConductivityEnum            conductivityType() const;
-    double                          perforationLength();
+    double                          perforationLength() const;
 
     virtual void                    fractureTriangleGeometry(std::vector<cvf::Vec3f>* nodeCoords,
-                                                             std::vector<cvf::uint>*  triangleIndices) = 0;
+                                                             std::vector<cvf::uint>*  triangleIndices) const = 0;
 
-    virtual std::vector<cvf::Vec3f> fractureBorderPolygon() = 0;
     virtual const RigFractureGrid*  fractureGrid() const = 0;
-    const RimFractureContainment*   fractureContainment();
+    const RimFractureContainment*   fractureContainment() const;
 
     virtual void                    appendDataToResultStatistics(const QString&     resultName,
                                                                  const QString&     unit,
@@ -142,8 +157,6 @@ public:
     void                            setDefaultWellDiameterFromUnit();
 
     bool                            isNonDarcyFlowEnabled() const;
-    double                          dFactor() const;
-    double                          kh() const;
 
     virtual void                    convertToUnitSystem(RiaEclipseUnitTools::UnitSystem neededUnit);
 
@@ -151,27 +164,38 @@ public:
 
     void                            disconnectAllFracturesAndRedrawViews() const;
     void                            setId(int id);
-    void                            setScaleFactors(double width, double height, double dFactor, double conductivity);
-    virtual void                    reload() {}
+    void                            setScaleFactors(double halfLengthScale, double heightScale, double dFactorScale, double conductivityScale);
+    void                            scaleFactors(double* halfLengthScale, double* heightScale, double* dFactorScale, double* conductivityScale) const;
 
     void                            setContainmentTopKLayer(int topKLayer);
     void                            setContainmentBaseKLayer(int baseKLayer);
 
+    double                          computeDFactor(const RimFracture* fractureInstance) const;
+    double                          computeKh(const RimFracture* fractureInstance) const;
+    double                          computeEffectivePermeability(const RimFracture* fractureInstance) const;
+    double                          computeWellRadiusForDFactorCalculation(const RimFracture* fractureInstance) const;
+    double                          computeFractureWidth(const RimFracture* fractureInstance) const;
+    double                          getOrComputeBetaFactor(const RimFracture* fractureInstance) const;
+
+    void                            loadDataAndUpdateGeometryHasChanged();
+
 protected:
-    virtual caf::PdmFieldHandle*    userDescriptionField() override;
-    virtual void                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
-    virtual void                    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
-    virtual void                    defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override;
-    virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
+    caf::PdmFieldHandle*            userDescriptionField() override;
+    void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    void                            defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override;
+
+    std::vector<RimFracture*>       fracturesUsingThisTemplate() const;
+    virtual void                    onLoadDataAndUpdateGeometryHasChanged() = 0;
+    
+    virtual bool                    isBetaFactorAvailableOnFile() const;
 
 private:
     void                            prepareFieldsForUiDisplay();
-    virtual FractureWidthAndConductivity widthAndConductivityAtWellPathIntersection() const = 0;
+    virtual WellFractureIntersectionData wellFractureIntersectionData(const RimFracture* fractureInstance) const = 0;
 
     QString                         dFactorSummary() const;
-    double                          effectivePermeability() const;
-
-    double                          fractureWidth() const;
+    double                          dFactorForTemplate() const;
 
 protected:
     caf::PdmField<int>                                 m_id;
@@ -193,11 +217,12 @@ protected:
 
     caf::PdmField<caf::AppEnum<WidthEnum>>             m_fractureWidthType;
     caf::PdmField<double>                              m_fractureWidth;
+
+    caf::PdmField<caf::AppEnum<BetaFactorEnum>>        m_betaFactorType;
     caf::PdmField<double>                              m_inertialCoefficient;
 
     caf::PdmField<caf::AppEnum<PermeabilityEnum>>      m_permeabilityType;
     caf::PdmField<double>                              m_relativePermeability;
-    caf::PdmField<double>                              m_userDefinedEffectivePermeability;
 
     caf::PdmField<double>                              m_relativeGasDensity;
     caf::PdmField<double>                              m_gasViscosity;
@@ -206,8 +231,11 @@ protected:
     caf::PdmProxyValueField<QString>                   m_dFactorSummaryText;
 
     caf::PdmField<double>                              m_heightScaleFactor;
-    caf::PdmField<double>                              m_widthScaleFactor;
+    caf::PdmField<double>                              m_halfLengthScaleFactor;
     caf::PdmField<double>                              m_dFactorScaleFactor;
     caf::PdmField<double>                              m_conductivityScaleFactor;
     caf::PdmField<bool>                                m_scaleApplyButton;
+
+private:
+    caf::PdmField<double>                              m_userDefinedEffectivePermeability;
 };

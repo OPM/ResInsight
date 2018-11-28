@@ -44,7 +44,7 @@ class RiuRelativePermeabilityPlotPanel : public QWidget
 
 public:
     RiuRelativePermeabilityPlotPanel(QDockWidget* parent);
-    virtual ~RiuRelativePermeabilityPlotPanel();
+    ~RiuRelativePermeabilityPlotPanel() override;
 
     void                                setPlotData(RiaEclipseUnitTools::UnitSystem unitSystem,
                                                     const std::vector<RigFlowDiagSolverInterface::RelPermCurve>& relPermCurves, 
@@ -81,6 +81,8 @@ private:
                                    double sgas,
                                    QString cellReferenceText,
                                    bool logScaleLeftAxis,
+                                   bool fixedXAxis,
+                                   bool fixedLeftYAxis,
                                    QwtPlot* plot,
                                    std::vector<QwtPlotMarker*>* myPlotMarkers);
 
@@ -108,7 +110,7 @@ private:
     std::vector<RigFlowDiagSolverInterface::RelPermCurve> gatherUiSelectedCurves() const;
     QString                                               asciiDataForUiSelectedCurves() const;
 
-    virtual void contextMenuEvent(QContextMenuEvent* event) override;
+    void contextMenuEvent(QContextMenuEvent* event) override;
 
 private slots:
     void slotButtonInButtonGroupClicked(int);
@@ -128,6 +130,8 @@ private:
     QButtonGroup* m_selectedCurvesButtonGroup;
     QCheckBox*    m_showUnscaledCheckBox;
     QCheckBox*    m_logarithmicScaleKrAxisCheckBox;
+    QCheckBox*    m_fixedXAxisCheckBox;
+    QCheckBox*    m_fixedLeftYAxisCheckBox;
 
     std::unique_ptr<RiuRelativePermeabilityPlotUpdater> m_plotUpdater;
 };

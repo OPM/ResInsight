@@ -22,11 +22,13 @@
 #include "cafPdmChildArrayField.h"
 
 #include "RiaDefines.h"
+#include "RiaQDateTimeTools.h"
 
 #include "RifEclipseSummaryAddress.h"
 
 #include "RimViewWindow.h"
 
+#include "qwt_plot_textlabel.h"
 #include <QPointer>
 
 #include <set>
@@ -59,7 +61,7 @@ class RimSummaryPlot : public RimViewWindow
 
 public:
     RimSummaryPlot();
-    virtual ~RimSummaryPlot();
+    ~RimSummaryPlot() override;
 
     void                                            setDescription(const QString& description);
     QString                                         description() const;
@@ -72,7 +74,8 @@ public:
     void                                            addCurveNoUpdate(RimSummaryCurve* curve);
 
     void                                            deleteCurve(RimSummaryCurve* curve);
-    void                                            setCurveCollection(RimSummaryCurveCollection* curveCollection);
+    void                                            deleteCurves(const std::vector<RimSummaryCurve*>& curves);
+
     void                                            deleteCurvesAssosiatedWithCase(RimSummaryCase* summaryCase);
 
     RimEnsembleCurveSetCollection*                  ensembleCurveSetCollection() const;
@@ -85,10 +88,11 @@ public:
     size_t                                          curveCount() const;
     
     void                                            detachAllCurves();
+    void                                            reattachAllCurves();
     void                                            updateCaseNameHasChanged();
 
     void                                            updateAxes();
-    virtual void                                    zoomAll() override;
+    void                                    zoomAll() override;
 
     void                                            updateZoomInQwt();
     void                                            updateZoomWindowFromQwt();
@@ -100,15 +104,17 @@ public:
 
     void                                            selectAxisInPropertyEditor(int axis);
 
-    virtual QWidget*                                viewWidget() override;
+    QWidget*                                viewWidget() override;
 
-    QString                                         asciiDataForPlotExport() const;
+    QString                                         asciiDataForPlotExport(DateTimePeriod resamplingPeriod = DateTimePeriod::NONE) const;
 
     std::vector<RimSummaryCurve*>                   summaryAndEnsembleCurves() const;
     std::vector<RimSummaryCurve*>                   summaryCurves() const;
     void                                            deleteAllSummaryCurves();
     RimSummaryCurveCollection*                      summaryCurveCollection() const;
     RiuSummaryQwtPlot*                              qwtPlot() const;
+
+    std::vector<RimEnsembleCurveSet*>               curveSets() const;
 
     void                                            updatePlotTitle();
 
@@ -118,11 +124,19 @@ public:
 
     void                                            copyAxisPropertiesFromOther(const RimSummaryPlot& sourceSummaryPlot);
 
+    void                                            updateAll();
+    void                                            updateAllLegendItems();
+
+    void                                            setPlotInfoLabel(const QString& label);
+    void                                            showPlotInfoLabel(bool show);
+    void                                            updatePlotInfoLabel();
+
+    bool                                            containsResamplableCurves() const;
     // RimViewWindow overrides
 public:
-    virtual QWidget*                                createViewWidget(QWidget* mainWindowParent) override; 
-    virtual void                                    deleteViewWidget() override; 
-    virtual void                                    initAfterRead() override;
+    QWidget*                                createViewWidget(QWidget* mainWindowParent) override; 
+    void                                    deleteViewWidget() override; 
+    void                                    initAfterRead() override;
 
 private:
     void                                            updateMdiWindowTitle() override;
@@ -130,15 +144,15 @@ private:
 
 protected:
     // Overridden PDM methods
-    virtual caf::PdmFieldHandle*                    userDescriptionField() override;
-    virtual QList<caf::PdmOptionItemInfo>           calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
-    virtual void                                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
-    virtual void                                    defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
-    virtual void                                    defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override;
-    virtual void                                    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
-    virtual void                                    onLoadDataAndUpdate() override;
+    caf::PdmFieldHandle*                    userDescriptionField() override;
+    QList<caf::PdmOptionItemInfo>           calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
+    void                                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    void                                    defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
+    void                                    defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override;
+    void                                    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    void                                    onLoadDataAndUpdate() override;
 
-    virtual QImage                                  snapshotWindowContent() override;
+    QImage                                  snapshotWindowContent() override;
 
     void                                            setAsCrossPlot();
 
@@ -180,7 +194,7 @@ private:
     caf::PdmChildField<RimSummaryTimeAxisProperties*>   m_timeAxisProperties;
 
     QPointer<RiuSummaryQwtPlot>                         m_qwtPlot;
-
+    std::unique_ptr<QwtPlotTextLabel>                   m_plotInfoLabel;
 
     bool                                                m_isCrossPlot;
 

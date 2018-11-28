@@ -31,14 +31,14 @@ class RimWellAllocationPlotLegend : public caf::PdmObject
 
 public:
     RimWellAllocationPlotLegend();
-    virtual ~RimWellAllocationPlotLegend();
+    ~RimWellAllocationPlotLegend() override;
 
     bool isShowingLegend() { return m_showLegend();}
 
 protected:
 
-    virtual caf::PdmFieldHandle* objectToggleField() override;
-    virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    caf::PdmFieldHandle* objectToggleField() override;
+    void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
 
 private:
     caf::PdmField<bool>                             m_showLegend;

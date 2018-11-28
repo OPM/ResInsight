@@ -47,7 +47,7 @@ class RivWellConnectionsPartMgr : public cvf::Object
 {
 public:
     RivWellConnectionsPartMgr(RimEclipseView* reservoirView, RimSimWellInView* well);
-    ~RivWellConnectionsPartMgr();
+    ~RivWellConnectionsPartMgr() override;
 
     void appendDynamicGeometryPartsToModel(cvf::ModelBasicList* model, size_t frameIndex);
 

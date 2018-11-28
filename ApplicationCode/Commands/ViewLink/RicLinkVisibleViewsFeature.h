@@ -37,11 +37,11 @@ public:
 
 protected:
     // Overrides
-    virtual bool isCommandEnabled();
-    virtual void onActionTriggered( bool isChecked );
+    bool isCommandEnabled() override;
+    void onActionTriggered( bool isChecked ) override;
 
 
-    virtual void setupActionLook(QAction* actionToSetup);
+    void setupActionLook(QAction* actionToSetup) override;
 
 private:
     void findNotLinkedVisibleViews(std::vector<RimGridView*> &views);

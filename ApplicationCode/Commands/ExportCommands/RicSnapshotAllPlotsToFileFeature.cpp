@@ -68,7 +68,7 @@ void RicSnapshotAllPlotsToFileFeature::saveAllPlots()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicSnapshotAllPlotsToFileFeature::exportSnapshotOfAllPlotsIntoFolder(QString snapshotFolderName)
+void RicSnapshotAllPlotsToFileFeature::exportSnapshotOfAllPlotsIntoFolder(const QString& snapshotFolderName, const QString& prefix)
 {
     RiaApplication* app = RiaApplication::instance();
 
@@ -91,6 +91,11 @@ void RicSnapshotAllPlotsToFileFeature::exportSnapshotOfAllPlotsIntoFolder(QStrin
         if (viewWindow->isMdiWindow() && viewWindow->viewWidget())
         {
             QString fileName = RicSnapshotFilenameGenerator::generateSnapshotFileName(viewWindow);
+            if (!prefix.isEmpty())
+            {
+                fileName = prefix + fileName;
+            }
+
             fileName.replace(" ", "_");
 
             QString absoluteFileName = caf::Utils::constructFullFileName(absSnapshotPath, fileName, ".png");

@@ -45,7 +45,7 @@ class RiuFemResultTextBuilder
 public:
     RiuFemResultTextBuilder(RimGeoMechView* reservoirView, int gridIndex, int cellIndex, int timeStepIndex);
     void setFace(int face);
-    void setIntersectionPoint(cvf::Vec3d intersectionPoint);
+    void setIntersectionPointInDisplay(cvf::Vec3d intersectionPointInDisplay);
     void setIntersectionTriangle(const std::array<cvf::Vec3f, 3>& triangle);
     void set2dIntersectionView(Rim2dIntersectionView* intersectionView);
 
@@ -75,5 +75,5 @@ private:
     bool m_isIntersectionTriangleSet; 
     std::array<cvf::Vec3f, 3> m_intersectionTriangle;
 
-    cvf::Vec3d m_intersectionPoint;
+    cvf::Vec3d m_intersectionPointInDisplay;
 };

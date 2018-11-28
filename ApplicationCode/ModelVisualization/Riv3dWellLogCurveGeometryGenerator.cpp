@@ -18,12 +18,14 @@
 
 #include "Riv3dWellLogCurveGeometryGenerator.h"
 
+#include "RiaCurveDataTools.h"
+#include "RigWellPath.h"
+#include "RigWellPathGeometryTools.h"
+
+#include "Rim3dWellLogCurve.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 
-#include "RigCurveDataTools.h"
-#include "RigWellPath.h"
-#include "RigWellPathGeometryTools.h"
 
 #include "cafLine.h"
 #include "cafDisplayCoordTransform.h"
@@ -49,7 +51,8 @@ void Riv3dWellLogCurveGeometryGenerator::createCurveDrawables(const caf::Display
                                                               const Rim3dWellLogCurve*          rim3dWellLogCurve,
                                                               double                            planeOffsetFromWellPathCenter,
                                                               double                            planeWidth,
-                                                              const std::vector<cvf::Vec3d>&    drawSurfaceVertices)
+                                                              const std::vector<cvf::Vec3d>&    drawSurfaceVertices,
+                                                              int                               currentTimeStep)
 {
     CVF_ASSERT(rim3dWellLogCurve);
 
@@ -66,7 +69,14 @@ void Riv3dWellLogCurveGeometryGenerator::createCurveDrawables(const caf::Display
 
     std::vector<double> resultValues;
     std::vector<double> resultMds;
-    rim3dWellLogCurve->curveValuesAndMds(&resultValues, &resultMds);
+    if (rim3dWellLogCurve->followAnimationTimeStep())
+    {
+        rim3dWellLogCurve->curveValuesAndMdsAtTimeStep(&resultValues, &resultMds, currentTimeStep);
+    }
+    else
+    {
+        rim3dWellLogCurve->curveValuesAndMds(&resultValues, &resultMds);
+    }
 
     m_planeWidth = planeWidth;
 
@@ -95,15 +105,15 @@ void Riv3dWellLogCurveGeometryGenerator::createCurveDrawables(const caf::Display
     }
 
     std::vector<cvf::Vec3d> wellPathCurveNormals =
-        RigWellPathGeometryTools::calculateLineSegmentNormals(wellPathPoints, rim3dWellLogCurve->drawPlaneAngle());
+        RigWellPathGeometryTools::calculateLineSegmentNormals(wellPathPoints, rim3dWellLogCurve->drawPlaneAngle(rim3dWellLogCurve->drawPlane()));
 
     std::vector<cvf::Vec3d> interpolatedWellPathPoints;
     std::vector<cvf::Vec3d> interpolatedCurveNormals;
     // Iterate from bottom of well path and up to be able to stop at given Z max clipping height
     for (auto md = resultMds.rbegin(); md != resultMds.rend(); md++)
     {
-        cvf::Vec3d point  = wellPathGeometry()->interpolatedVectorAlongWellPath(wellPathPoints, *md);
-        cvf::Vec3d normal = wellPathGeometry()->interpolatedVectorAlongWellPath(wellPathCurveNormals, *md);
+        cvf::Vec3d point  = wellPathGeometry()->interpolatedVectorValuesAlongWellPath(wellPathPoints, *md);
+        cvf::Vec3d normal = wellPathGeometry()->interpolatedVectorValuesAlongWellPath(wellPathCurveNormals, *md);
         if (point.z() > clipLocation.z()) break;
 
         interpolatedWellPathPoints.push_back(point);
@@ -129,7 +139,7 @@ void Riv3dWellLogCurveGeometryGenerator::createCurveDrawables(const caf::Display
 
     for (double& result : m_curveValues)
     {
-        if (!RigCurveDataTools::isValidValue(result, false)) continue;
+        if (!RiaCurveDataTools::isValidValue(result, false)) continue;
 
         if ((minCurveValue - result) > curveEpsilon * curveUIRange)
         {
@@ -158,7 +168,7 @@ void Riv3dWellLogCurveGeometryGenerator::createCurveDrawables(const caf::Display
     {
         double scaledResult = 0;
 
-        if (RigCurveDataTools::isValidValue(m_curveValues[i], false))
+        if (RiaCurveDataTools::isValidValue(m_curveValues[i], false))
         {
             scaledResult = planeOffsetFromWellPathCenter + (m_curveValues[i] - minCurveValue) * plotRangeToResultRangeFactor;
         }
@@ -174,8 +184,8 @@ void Riv3dWellLogCurveGeometryGenerator::createCurveDrawables(const caf::Display
         indices.reserve(m_curveVertices.size() * 2);
         for (size_t i = 0; i < m_curveVertices.size() - 1; ++i)
         {
-            if (RigCurveDataTools::isValidValue(m_curveValues[i], false) &&
-                RigCurveDataTools::isValidValue(m_curveValues[i + 1], false))
+            if (RiaCurveDataTools::isValidValue(m_curveValues[i], false) &&
+                RiaCurveDataTools::isValidValue(m_curveValues[i + 1], false))
             {
                 if (cvf::Math::valueInRange(m_curveValues[i], minCurveValue, maxCurveValue) ||
                     cvf::Math::valueInRange(m_curveValues[i + 1], minCurveValue, maxCurveValue))
@@ -246,8 +256,8 @@ bool Riv3dWellLogCurveGeometryGenerator::findClosestPointOnCurve(const cvf::Vec3
     CVF_ASSERT(m_curveVertices.size() == m_curveValues.size());
     for (size_t i = 1; i < m_curveVertices.size(); ++i)
     {
-        bool validCurveSegment = RigCurveDataTools::isValidValue(m_curveValues[i], false) &&
-                                 RigCurveDataTools::isValidValue(m_curveValues[i - 1], false);
+        bool validCurveSegment = RiaCurveDataTools::isValidValue(m_curveValues[i], false) &&
+                                 RiaCurveDataTools::isValidValue(m_curveValues[i - 1], false);
         if (validCurveSegment)
         {
             cvf::Vec3d a  = m_curveVertices[i - 1];
@@ -290,8 +300,8 @@ void Riv3dWellLogCurveGeometryGenerator::createNewVerticesAlongTriangleEdges(con
 
     for (size_t i = 0; i < m_curveVertices.size() - 1; i += 2)
     {
-        if (RigCurveDataTools::isValidValue(m_curveValues[i], false) &&
-            RigCurveDataTools::isValidValue(m_curveValues[i + 1], false))
+        if (RiaCurveDataTools::isValidValue(m_curveValues[i], false) &&
+            RiaCurveDataTools::isValidValue(m_curveValues[i + 1], false))
         {
             cvf::Vec3d lastVertex        = m_curveVertices[i];
             cvf::Vec3d fullSegmentVector = m_curveVertices[i + 1] - m_curveVertices[i];

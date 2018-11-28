@@ -54,7 +54,7 @@ class QVerticalScrollArea : public QScrollArea
     Q_OBJECT
 public:
     explicit QVerticalScrollArea(QWidget* parent = nullptr);
-    virtual bool eventFilter(QObject* object, QEvent* event) override;
+    bool eventFilter(QObject* object, QEvent* event) override;
 };
 
 
@@ -73,15 +73,15 @@ class PdmUiPropertyView : public QWidget
     Q_OBJECT
 public:
     PdmUiPropertyView(QWidget* parent = nullptr, Qt::WindowFlags f = nullptr);
-    ~PdmUiPropertyView();
+    ~PdmUiPropertyView() override;
 
-    void                        setUiConfigurationName(QString uiConfigName);
-    PdmObjectHandle*            currentObject();
+    void                setUiConfigurationName(QString uiConfigName);
+    PdmObjectHandle*    currentObject();
 
-    virtual QSize               sizeHint() const override;
+    QSize               sizeHint() const override;
 
 public slots:
-    void                        showProperties(caf::PdmObjectHandle* object); // Signal/Slot system needs caf:: prefix in some cases
+    void                showProperties(caf::PdmObjectHandle* object); // Signal/Slot system needs caf:: prefix in some cases
 
 private:
     PdmUiObjectEditorHandle*    m_currentObjectView; 

@@ -1,5 +1,6 @@
 #include "gtest/gtest.h"
 
+#include "RiaGitDiff.h"
 #include "RiaRegressionTest.h"
 #include "RiaTestDataDirectory.h"
 #include "RiaTextFileCompare.h"
@@ -65,4 +66,21 @@ TEST(RiaTextFileCompareTest, BasicCompareError)
 
     QString error = compare.errorMessage();
     EXPECT_FALSE(error.isEmpty());
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST(DISABLED_RiaGitDiffTest, BasicCompare)
+{
+    RiaRegressionTest regTestConfig;
+    regTestConfig.readSettingsFromApplicationStore();
+    QString folderContainingDiff = regTestConfig.folderContainingGitTool();
+
+    RiaGitDiff compare(folderContainingDiff);
+
+    QString baseFolder = QString("d:/gitroot-ceesol/ResInsight-regression-test/ProjectFiles/CommandFileTests");
+
+    compare.executeDiff(baseFolder);
+    compare.diffOutput();
 }

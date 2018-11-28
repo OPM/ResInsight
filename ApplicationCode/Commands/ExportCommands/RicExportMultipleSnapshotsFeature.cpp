@@ -253,26 +253,26 @@ void RicExportMultipleSnapshotsFeature::exportViewVariationsToFolder(RimGridView
             bool rangeFilterInitState = rimView->rangeFilterCollection()->isActive();
             rimView->rangeFilterCollection()->isActive = true;
 
-            for (int i = msd->startSliceIndex(); i <= msd->endSliceIndex(); i++)
+            for (int sliceIndex = msd->startSliceIndex(); sliceIndex <= msd->endSliceIndex(); sliceIndex++)
             {
-                QString rangeFilterString = msd->sliceDirection().text() + "-" + QString::number(i);
+                QString rangeFilterString = msd->sliceDirection().text() + "-" + QString::number(sliceIndex);
                 QString fileName = viewCaseResultString + "_" + timeStepString + "_" + rangeFilterString;
 
                 rangeFilter->setDefaultValues();
                 if (msd->sliceDirection == RimMultiSnapshotDefinition::RANGEFILTER_I)
                 {
                     rangeFilter->cellCountI = 1;
-                    rangeFilter->startIndexI = i;
+                    rangeFilter->startIndexI = sliceIndex;
                 }
                 else if (msd->sliceDirection == RimMultiSnapshotDefinition::RANGEFILTER_J)
                 {
                     rangeFilter->cellCountJ = 1;
-                    rangeFilter->startIndexJ = i;
+                    rangeFilter->startIndexJ = sliceIndex;
                 }
                 else if (msd->sliceDirection == RimMultiSnapshotDefinition::RANGEFILTER_K)
                 {
                     rangeFilter->cellCountK = 1;
-                    rangeFilter->startIndexK = i;
+                    rangeFilter->startIndexK = sliceIndex;
                 }
 
                 rimView->rangeFilterCollection()->updateDisplayModeNotifyManagedViews(rangeFilter);

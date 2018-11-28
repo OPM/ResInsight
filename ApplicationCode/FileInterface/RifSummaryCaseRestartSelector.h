@@ -44,13 +44,12 @@ public:
     void determineFilesToImportFromGridFiles(const QStringList& initialGridFiles);
 
     void                                      showDialog(bool show);
+    void                                      setEnsembleOrGroupMode(bool eogMode);
     std::vector<RifSummaryCaseFileResultInfo> summaryFileInfos() const;
     QStringList                               gridCaseFiles() const;
     bool                                      foundErrors() const;
-    const QStringList&                        summaryFilesWithErrors() const;
     QString                                   createCombinedErrorMessage() const;
 
-    static QStringList getSummaryFilesFromGridFiles(const QStringList& gridFiles);
     static QString     getSummaryFileFromGridFile(const QString& gridFile);
 
 private:
@@ -59,6 +58,7 @@ private:
     void determineFilesToImportUsingPrefs(const std::vector<RifSummaryCaseFileImportInfo>& initialFiles);
 
     bool                                       m_showDialog;
+    bool                                       m_ensembleOrGroupMode;
     RicSummaryCaseRestartDialog::ImportOptions m_defaultSummaryImportMode;
     RicSummaryCaseRestartDialog::ImportOptions m_defaultGridImportMode;
 

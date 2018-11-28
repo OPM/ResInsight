@@ -49,14 +49,30 @@ public:
 class RigEclipseResultInfo
 {
 public:
-    RigEclipseResultInfo(RiaDefines::ResultCatType resultType, bool needsToBeStored, bool mustBeCalculated,
-               QString resultName, size_t gridScalarResultIndex);
+    RigEclipseResultInfo(RiaDefines::ResultCatType resultType,
+                         QString resultName,
+                         bool needsToBeStored = false,
+                         bool mustBeCalculated = false,
+                         size_t gridScalarResultIndex = 0u);
 
-    std::vector<QDateTime>  dates() const;
-    std::vector<double>     daysSinceSimulationStarts() const;
-    std::vector<int>        reportNumbers() const;
+    RiaDefines::ResultCatType   resultType() const;
+    void                        setResultType(RiaDefines::ResultCatType newType);
+    const QString&              resultName() const;
+    void                        setResultName(const QString& name);
+    bool                        needsToBeStored() const;
+    bool                        mustBeCalculated() const;
+    void                        setMustBeCalculated(bool mustCalculate);
+    size_t                      gridScalarResultIndex() const;
+    
+    const std::vector<RigEclipseTimeStepInfo>& timeStepInfos() const;
+    void                                       setTimeStepInfos(const std::vector<RigEclipseTimeStepInfo>& timeSteps);
 
-public:
+    std::vector<QDateTime>      dates() const;
+    std::vector<double>         daysSinceSimulationStarts() const;
+    std::vector<int>            reportNumbers() const;
+    
+    bool operator<(const RigEclipseResultInfo& rhs) const;
+private:
     RiaDefines::ResultCatType   m_resultType;
     bool                        m_needsToBeStored;
     bool                        m_mustBeCalculated;

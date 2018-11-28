@@ -36,7 +36,7 @@ public:
     virtual ~RifHdf5Reader();
 
     std::vector<QDateTime>  timeSteps() const override;
-    virtual QStringList     propertyNames() const override;
+    QStringList     propertyNames() const override;
     bool                    dynamicResult(const QString& result, size_t stepIndex, std::vector<double>* values) const override;
 
 private:
@@ -51,7 +51,6 @@ private:
     std::string              getStringAttribute(H5::H5File file, std::string groupName, std::string attributeName) const;
 
     std::vector<std::string> getSubGroupNames(H5::H5File file, std::string baseGroupName) const;
-    std::vector<double>      getStepTimeValues(H5::H5File file, std::string baseGroupName) const;
     std::vector<std::string> getResultNames(H5::H5File file, std::string baseGroupName) const;
     void                     getElementResultValues(H5::H5File file, std::string groupName, std::vector<double>* resultValues) const;
 

@@ -88,3 +88,21 @@ cvf::Color3f RiaColorTools::constrastColor(cvf::Color3f backgroundColor)
  
     return brightContrastColor();
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QColor RiaColorTools::toQColor(cvf::Color3f color, float alpha)
+{
+    QColor qcolor(color.rByte(), color.gByte(), color.bByte());
+    qcolor.setAlphaF(alpha);
+    return qcolor;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QColor RiaColorTools::toQColor(cvf::Color4f color)
+{
+    return toQColor(color.toColor3f(), color.a());
+}

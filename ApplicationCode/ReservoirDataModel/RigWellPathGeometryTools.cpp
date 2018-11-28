@@ -38,14 +38,16 @@ std::vector<cvf::Vec3d> RigWellPathGeometryTools::calculateLineSegmentNormals(co
 
     pointNormals.reserve(vertices.size());
 
-    cvf::Vec3d up(0, 0, 1);
+    const cvf::Vec3d up(0, 0, 1);
+    const cvf::Vec3d rotatedUp = up.getTransformedVector(cvf::Mat3d::fromRotation(cvf::Vec3d(0.0, 1.0, 0.0), planeAngle));
 
-    cvf::Vec3d dominantDirection = estimateDominantDirectionInXYPlane(vertices);
+
+    const cvf::Vec3d dominantDirection = estimateDominantDirectionInXYPlane(vertices);
 
     const cvf::Vec3d projectionPlaneNormal = (up ^ dominantDirection).getNormalized();
     CVF_ASSERT(projectionPlaneNormal * dominantDirection <= std::numeric_limits<double>::epsilon());
 
-    cvf::Vec3d lastNormal;
+    double sumDotWithRotatedUp = 0.0;
     for (size_t i = 0; i < vertices.size() - 1; ++i)
     {
         cvf::Vec3d p1 = vertices[i];
@@ -60,10 +62,19 @@ std::vector<cvf::Vec3d> RigWellPathGeometryTools::calculateLineSegmentNormals(co
             normal                      = normal.getTransformedVector(cvf::Mat3d::fromRotation(tangent, planeAngle));
         }
         pointNormals.push_back(normal);
-        lastNormal = normal;
+        sumDotWithRotatedUp += normal * rotatedUp;
+    }
+    
+    pointNormals.push_back(pointNormals.back());
+
+    if (sumDotWithRotatedUp < 0.0)
+    {
+        for (cvf::Vec3d& normal : pointNormals)
+        {
+            normal *= -1.0;            
+        }
     }
 
-    pointNormals.push_back(lastNormal);
 
     return interpolateUndefinedNormals(up, pointNormals, vertices);
 }
@@ -73,7 +84,8 @@ std::vector<cvf::Vec3d> RigWellPathGeometryTools::interpolateUndefinedNormals(co
                                                                               const std::vector<cvf::Vec3d>& vertices)
 {
     std::vector<cvf::Vec3d> interpolated(normals);
-    cvf::Vec3d              lastNormal(0, 0, 0);
+    cvf::Vec3d              lastNormalNonInterpolated(0, 0, 0);
+    cvf::Vec3d              lastNormalAny(0, 0, 0);
     double distanceFromLast = 0.0;
 
     for (size_t i = 0; i < normals.size(); ++i)
@@ -98,29 +110,30 @@ std::vector<cvf::Vec3d> RigWellPathGeometryTools::interpolateUndefinedNormals(co
                 distanceToNext += (vertices[j] - vertices[j - 1]).length();
             }
 
-            if (lastNormal.length() > 0.0 && nextNormal.length() > 0.0)
+            if (lastNormalNonInterpolated.length() > 0.0 && nextNormal.length() > 0.0)
             {
                 // Both last and next are acceptable, interpolate!
-                currentNormal = (distanceToNext * lastNormal + distanceFromLast * nextNormal).getNormalized();
+                currentNormal = (distanceToNext * lastNormalNonInterpolated + distanceFromLast * nextNormal).getNormalized();
             }
-            else if (lastNormal.length() > 0.0)
+            else if (lastNormalNonInterpolated.length() > 0.0)
             {
-                currentNormal = lastNormal;
+                currentNormal = lastNormalNonInterpolated;
             }
             else if (nextNormal.length() > 0.0)
             {
                 currentNormal = nextNormal;
             }
         }
-        if (i > 0 && currentNormal * lastNormal < -std::numeric_limits<double>::epsilon())
+        if (i > 0 && currentNormal * lastNormalAny < -std::numeric_limits<double>::epsilon())
         {
             currentNormal *= -1.0;
         }
         if (!currentInterpolated)
         {
-            lastNormal       = currentNormal;
+            lastNormalNonInterpolated = currentNormal;
             distanceFromLast = 0.0; // Reset distance
         }
+        lastNormalAny = currentNormal;
         interpolated[i] = currentNormal;
     }
     return interpolated;

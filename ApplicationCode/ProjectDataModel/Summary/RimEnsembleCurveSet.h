@@ -20,10 +20,13 @@
 #pragma once
 
 #include "RifEclipseSummaryAddress.h"
+#include "RifSummaryReaderInterface.h"
 
 #include "RiaDefines.h"
 
 #include "RimRegularLegendConfig.h"
+#include "RimSummaryCase.h"
+#include "RimSummaryCaseCollection.h"
 
 #include "cafPdmFieldCvfColor.h"    
 #include "cafPdmChildArrayField.h"
@@ -46,7 +49,11 @@ class RimSummaryAddress;
 class RimSummaryFilter;
 class RimSummaryPlotSourceStepping;
 class RimSummaryCurveAutoName;
+class RimEnsembleCurveFilterCollection;
+class RimEnsembleStatistics;
 class QKeyEvent;
+class RimEnsembleStatisticsCase;
+
 
 //==================================================================================================
 ///  
@@ -57,10 +64,9 @@ class RimEnsembleCurveSet : public caf::PdmObject
 
 public:
     enum ColorMode {SINGLE_COLOR, BY_ENSEMBLE_PARAM};
-    enum EnsembleParameterType {TYPE_NONE, TYPE_NUMERIC, TYPE_TEXT};
 
     RimEnsembleCurveSet();
-    virtual ~RimEnsembleCurveSet();
+    ~RimEnsembleCurveSet() override;
 
     bool                                    isCurvesVisible();
     void                                    setColor(cvf::Color3f color);
@@ -68,6 +74,7 @@ public:
     void                                    loadDataAndUpdate(bool updateParentPlot);
     void                                    setParentQwtPlotNoReplot(QwtPlot* plot);
     void                                    detachQwtCurves();
+    void                                    reattachQwtCurves();
 
     void                                    addCurve(RimSummaryCurve* curve);
     void                                    deleteCurve(RimSummaryCurve* curve);
@@ -76,7 +83,8 @@ public:
     RifEclipseSummaryAddress                summaryAddress() const;
     std::vector<RimSummaryCurve*>           curves() const;
 
-    void                                    deleteAllCurves();
+    void                                    deleteEnsembleCurves();
+    void                                    deleteStatisticsCurves();
 
     RimRegularLegendConfig*                 legendConfig();
     void                                    onLegendDefinitionChanged();
@@ -84,31 +92,46 @@ public:
     void                                    setSummaryCaseCollection(RimSummaryCaseCollection* sumCaseCollection);
     RimSummaryCaseCollection*               summaryCaseCollection() const;
 
+    RimEnsembleCurveFilterCollection*       filterCollection() const;
+
     ColorMode                               colorMode() const;
     void                                    updateEnsembleLegendItem();
-    EnsembleParameterType                   currentEnsembleParameterType() const;
+    EnsembleParameter::Type                 currentEnsembleParameterType() const;
 
     void                                    updateAllCurves();
+    void                                    updateStatisticsCurves();
+
     RimEnsembleCurveSet*                    clone() const;
     void                                    showCurves(bool show);
 
+    void                                    markCachedDataForPurge();
+
     void                                    updateAllTextInPlot();
+    std::vector<QString>                    ensembleParameterNames() const;
+
+    std::vector<RimSummaryCase*>            filterEnsembleCases(const std::vector<RimSummaryCase*>& sumCases);
+    void                                    disableStatisticCurves();
+    bool                                    isFiltered() const;
+
+    bool                                    hasP10Data() const;
+    bool                                    hasP50Data() const;
+    bool                                    hasP90Data() const;
+    bool                                    hasMeanData() const;
 
 private:
+    void                                    updateEnsembleCurves(const std::vector<RimSummaryCase*>& sumCases);
+    void                                    updateStatisticsCurves(const std::vector<RimSummaryCase*>& sumCases);
+
     caf::PdmFieldHandle*                    userDescriptionField() override;
-    caf::PdmFieldHandle*                    objectToggleField();
-    virtual void                            defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override;
+    caf::PdmFieldHandle*                    objectToggleField() override;
+    void                            defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override;
 
-    virtual QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly);
-    virtual void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
-    virtual void                            defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
+    QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
+    void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    void                            defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
 
-    virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField,
+    void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField,
                                                              const QVariant& oldValue, const QVariant& newValue) override;
-
-    static void                             getOptionsForSummaryAddresses(std::map<QString, RifEclipseSummaryAddress>* options,
-                                                                              RimSummaryCase* summaryCase,
-                                                                              RimSummaryFilter* summaryFilter);
 
     void                                    appendOptionItemsForSummaryAddresses(QList<caf::PdmOptionItemInfo>* options,
                                                                                  RimSummaryCaseCollection* summaryCaseGroup,
@@ -116,7 +139,6 @@ private:
 
     void                                    updateCurveColors();
     void                                    updateQwtPlotAxis();
-    std::vector<QString>                    ensembleParameters() const;
 
     QString                                 name() const;
     QString                                 createAutoName() const;
@@ -143,14 +165,19 @@ private:
     caf::PdmField<caf::AppEnum< RiaDefines::PlotAxis>>  m_plotAxis;
 
     caf::PdmChildField<RimRegularLegendConfig*>     m_legendConfig;
+    caf::PdmChildField<RimEnsembleCurveFilterCollection*> m_curveFilters;
+    caf::PdmChildField<RimEnsembleStatistics*>      m_statistics;
 
     caf::PdmField<bool>                             m_isUsingAutoName;
     caf::PdmField<QString>                          m_userDefinedName;
     caf::PdmProxyValueField<QString>                m_autoGeneratedName;
     caf::PdmChildField<RimSummaryCurveAutoName*>    m_summaryAddressNameTools;
 
-    std::set<RifEclipseSummaryAddress>              m_allAddressesCache;
-
     QwtPlotCurve*                                   m_qwtPlotCurveForLegendText; 
+
+    std::unique_ptr<RimEnsembleStatisticsCase>      m_ensembleStatCase;
+
+    bool                                            m_disableStatisticCurves;
+    bool                                            m_isCurveSetFiltered;
 };
 

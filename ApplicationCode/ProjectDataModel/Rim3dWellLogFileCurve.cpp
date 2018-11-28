@@ -20,7 +20,7 @@
 
 #include "RigWellLogFile.h"
 
-#include "RimWellLogCurveNameConfig.h"
+#include "RimWellLogFileCurveNameConfig.h"
 #include "RimWellLogFile.h"
 #include "RimWellLogFileChannel.h"
 #include "RimWellPath.h"
@@ -119,7 +119,7 @@ QString Rim3dWellLogFileCurve::name() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString Rim3dWellLogFileCurve::createCurveAutoName() const
+QString Rim3dWellLogFileCurve::createAutoName() const
 {
     QStringList name;
     QString unit;
@@ -252,7 +252,8 @@ void Rim3dWellLogFileCurve::defineUiOrdering(QString uiConfigName, caf::PdmUiOrd
 
     Rim3dWellLogCurve::configurationUiOrdering(uiOrdering);
 
-    m_nameConfig()->createUiGroup(uiConfigName, uiOrdering);
+    caf::PdmUiGroup* nameGroup = uiOrdering.addNewGroup("Curve Name");
+    m_nameConfig->uiOrdering(uiConfigName, *nameGroup);
 
     uiOrdering.skipRemainingFields(true);
 }

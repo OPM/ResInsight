@@ -1,19 +1,19 @@
 /*
-   Copyright (C) 2011  Statoil ASA, Norway. 
-    
-   The file 'ecl_rft_cell.c' is part of ERT - Ensemble based Reservoir Tool. 
-    
-   ERT is free software: you can redistribute it and/or modify 
-   it under the terms of the GNU General Public License as published by 
-   the Free Software Foundation, either version 3 of the License, or 
-   (at your option) any later version. 
-    
-   ERT is distributed in the hope that it will be useful, but WITHOUT ANY 
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or 
-   FITNESS FOR A PARTICULAR PURPOSE.   
-    
-   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
-   for more details. 
+   Copyright (C) 2011  Statoil ASA, Norway.
+
+   The file 'ecl_rft_cell.c' is part of ERT - Ensemble based Reservoir Tool.
+
+   ERT is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   ERT is distributed in the hope that it will be useful, but WITHOUT ANY
+   WARRANTY; without even the implied warranty of MERCHANTABILITY or
+   FITNESS FOR A PARTICULAR PURPOSE.
+
+   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+   for more details.
 */
 
 #include <math.h>
@@ -23,7 +23,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 
-#include <ert/util/util.hpp>
+#include <ert/util/util.h>
 #include <ert/util/type_macros.hpp>
 
 #include <ert/ecl/ecl_kw.hpp>
@@ -43,7 +43,7 @@ struct ecl_rft_cell_struct {
   int i,j,k;
   double pressure;
   double depth;
-  
+
   void * data;
 };
 
@@ -67,7 +67,7 @@ struct plt_data_struct {
   double  wrat;
   double  grat;
   double  connection_start;
-  double  connection_end; 
+  double  connection_end;
   double  flowrate;
   double  oil_flowrate;
   double  gas_flowrate;
@@ -83,7 +83,7 @@ static rft_data_type * rft_data_alloc( double swat , double sgas) {
 
   data->swat = swat;
   data->sgas = sgas;
-  
+
   return data;
 }
 
@@ -108,9 +108,9 @@ static UTIL_IS_INSTANCE_FUNCTION( rft_data , RFT_DATA_TYPE_ID)
   data->connection_end = connection_end;
   data->flowrate       = flowrate;
   data->oil_flowrate   = oil_flowrate;
-  data->gas_flowrate   = gas_flowrate; 
+  data->gas_flowrate   = gas_flowrate;
   data->water_flowrate = water_flowrate;
-  
+
   return data;
 }
 
@@ -141,7 +141,7 @@ static ecl_rft_cell_type * ecl_rft_cell_alloc_common(int i , int j , int k , dou
   cell->k = k;
   cell->depth = depth;
   cell->pressure = pressure;
-  
+
   return cell;
 }
 
@@ -155,19 +155,19 @@ ecl_rft_cell_type * ecl_rft_cell_alloc_RFT( int i , int j , int k , double depth
 }
 
 
-ecl_rft_cell_type * ecl_rft_cell_alloc_PLT( int i , 
-                                            int j , 
-                                            int k , 
-                                            double depth , 
-                                            double pressure , 
-                                            double orat , 
-                                            double grat , 
-                                            double wrat, 
-                                            double connection_start, 
+ecl_rft_cell_type * ecl_rft_cell_alloc_PLT( int i ,
+                                            int j ,
+                                            int k ,
+                                            double depth ,
+                                            double pressure ,
+                                            double orat ,
+                                            double grat ,
+                                            double wrat,
+                                            double connection_start,
                                             double connection_end,
                                             double flowrate ,
-                                            double oil_flowrate , 
-                                            double gas_flowrate , 
+                                            double oil_flowrate ,
+                                            double gas_flowrate ,
                                             double water_flowrate) {
 
   ecl_rft_cell_type * cell = ecl_rft_cell_alloc_common( i , j , k , depth , pressure );
@@ -226,107 +226,107 @@ double ecl_rft_cell_get_pressure( const ecl_rft_cell_type * cell ) {
 
 double ecl_rft_cell_get_swat( const ecl_rft_cell_type * cell ) {
    const rft_data_type * data = rft_data_try_cast_const( cell->data );
-   if (data) 
+   if (data)
      return data->swat;
    else
-     return ECL_RFT_CELL_INVALID_VALUE; 
+     return ECL_RFT_CELL_INVALID_VALUE;
 }
 
 
 double ecl_rft_cell_get_sgas( const ecl_rft_cell_type * cell ) {
    const rft_data_type * data = rft_data_try_cast_const( cell->data );
-   if (data) 
+   if (data)
      return data->sgas;
    else
-     return ECL_RFT_CELL_INVALID_VALUE; 
+     return ECL_RFT_CELL_INVALID_VALUE;
 }
 
 
 double ecl_rft_cell_get_soil( const ecl_rft_cell_type * cell ) {
    const rft_data_type * data = rft_data_try_cast_const( cell->data );
-   if (data) 
+   if (data)
      return 1 - (data->swat + data->sgas);
    else
-     return ECL_RFT_CELL_INVALID_VALUE; 
+     return ECL_RFT_CELL_INVALID_VALUE;
 }
 
 /*****************************************************************/
 
 double ecl_rft_cell_get_orat( const ecl_rft_cell_type * cell ) {
    const plt_data_type * data = plt_data_try_cast_const( cell->data );
-   if (data) 
+   if (data)
      return data->orat;
    else
-     return ECL_RFT_CELL_INVALID_VALUE; 
+     return ECL_RFT_CELL_INVALID_VALUE;
 }
 
 
 double ecl_rft_cell_get_grat( const ecl_rft_cell_type * cell ) {
   const plt_data_type * data = plt_data_try_cast_const( cell->data );
-  if (data) 
+  if (data)
     return data->grat;
   else
-    return ECL_RFT_CELL_INVALID_VALUE; 
+    return ECL_RFT_CELL_INVALID_VALUE;
 }
 
 
 double ecl_rft_cell_get_wrat( const ecl_rft_cell_type * cell ) {
   const plt_data_type * data = plt_data_try_cast_const( cell->data );
-  if (data) 
+  if (data)
     return data->wrat;
   else
-    return ECL_RFT_CELL_INVALID_VALUE; 
+    return ECL_RFT_CELL_INVALID_VALUE;
 }
 
 double ecl_rft_cell_get_connection_start( const ecl_rft_cell_type * cell ) {
   const plt_data_type * data = plt_data_try_cast_const( cell->data );
-  if (data) 
+  if (data)
     return data->connection_start;
   else
-    return ECL_RFT_CELL_INVALID_VALUE; 
+    return ECL_RFT_CELL_INVALID_VALUE;
 }
 
 double ecl_rft_cell_get_connection_end( const ecl_rft_cell_type * cell ) {
   const plt_data_type * data = plt_data_try_cast_const( cell->data );
-  if (data) 
+  if (data)
     return data->connection_end;
   else
-    return ECL_RFT_CELL_INVALID_VALUE; 
+    return ECL_RFT_CELL_INVALID_VALUE;
 }
 
 double ecl_rft_cell_get_flowrate( const ecl_rft_cell_type * cell ) {
   const plt_data_type * data = plt_data_try_cast_const( cell->data );
-  if (data) 
+  if (data)
     return data->flowrate;
   else
-    return ECL_RFT_CELL_INVALID_VALUE; 
+    return ECL_RFT_CELL_INVALID_VALUE;
 }
 
 
 double ecl_rft_cell_get_oil_flowrate( const ecl_rft_cell_type * cell ) {
   const plt_data_type * data = plt_data_try_cast_const( cell->data );
-  if (data) 
+  if (data)
     return data->oil_flowrate;
   else
-    return ECL_RFT_CELL_INVALID_VALUE; 
+    return ECL_RFT_CELL_INVALID_VALUE;
 }
 
 
 double ecl_rft_cell_get_gas_flowrate( const ecl_rft_cell_type * cell ) {
   const plt_data_type * data = plt_data_try_cast_const( cell->data );
-  if (data) 
+  if (data)
     return data->gas_flowrate;
   else
-    return ECL_RFT_CELL_INVALID_VALUE; 
+    return ECL_RFT_CELL_INVALID_VALUE;
 }
 
 
 double ecl_rft_cell_get_water_flowrate( const ecl_rft_cell_type * cell ) {
   const plt_data_type * data = plt_data_try_cast_const( cell->data );
-  if (data) 
+  if (data)
     return data->water_flowrate;
   else
-    return ECL_RFT_CELL_INVALID_VALUE; 
+    return ECL_RFT_CELL_INVALID_VALUE;
 }
 
 
@@ -338,14 +338,14 @@ double ecl_rft_cell_get_water_flowrate( const ecl_rft_cell_type * cell ) {
 
 
 bool ecl_rft_cell_ijk_equal( const ecl_rft_cell_type * cell , int i , int j , int k) {
-    return ( (i == cell->i) && 
-             (j == cell->j) && 
+    return ( (i == cell->i) &&
+             (j == cell->j) &&
              (k == cell->k) );
 }
 
 
 /*
-  Currently only comparison based on connection length along PLT is supported. 
+  Currently only comparison based on connection length along PLT is supported.
 */
 int ecl_rft_cell_cmp( const ecl_rft_cell_type * cell1 , const ecl_rft_cell_type * cell2) {
   double val1 = ecl_rft_cell_get_connection_start( cell1 );
@@ -357,7 +357,7 @@ int ecl_rft_cell_cmp( const ecl_rft_cell_type * cell1 , const ecl_rft_cell_type 
     return 0;
   else
     return 1;
-    
+
 }
 
 

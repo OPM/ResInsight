@@ -52,7 +52,8 @@ public:
                               const Rim3dWellLogCurve*          rim3dWellLogCurve,
                               double                            planeOffsetFromWellPathCenter,
                               double                            planeWidth,
-                              const std::vector<cvf::Vec3d>&    drawSurfaceVertices);
+                              const std::vector<cvf::Vec3d>&    drawSurfaceVertices,
+                              int                               currentTimeStep);
 
     void clearCurvePointsAndGeometry();
 

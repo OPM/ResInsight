@@ -184,21 +184,26 @@ void RifEclipseOutputFileTools::timeSteps(ecl_file_type* ecl_file, std::vector<Q
 //--------------------------------------------------------------------------------------------------
 bool RifEclipseOutputFileTools::keywordData(ecl_file_type* ecl_file, const QString& keyword, size_t fileKeywordOccurrence, std::vector<double>* values)
 {
-    ecl_kw_type* kwData = ecl_file_iget_named_kw(ecl_file, RiaStringEncodingTools::toNativeEncoded(keyword).data(), static_cast<int>(fileKeywordOccurrence));
-    if (kwData)
+    bool result = false;
+
+#pragma omp critical(critical_section_keywordData_double)
     {
-        size_t numValues = ecl_kw_get_size(kwData);
+        ecl_kw_type* kwData = ecl_file_iget_named_kw(ecl_file, RiaStringEncodingTools::toNativeEncoded(keyword).data(), static_cast<int>(fileKeywordOccurrence));
+        if (kwData)
+        {
+            size_t numValues = ecl_kw_get_size(kwData);
 
-        std::vector<double> doubleData;
-        doubleData.resize(numValues);
+            std::vector<double> doubleData;
+            doubleData.resize(numValues);
 
-        ecl_kw_get_data_as_double(kwData, doubleData.data());
-        values->insert(values->end(), doubleData.begin(), doubleData.end());
+            ecl_kw_get_data_as_double(kwData, doubleData.data());
+            values->insert(values->end(), doubleData.begin(), doubleData.end());
 
-        return true;
+            result = true;
+        }
     }
 
-    return false;
+    return result;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -206,25 +211,30 @@ bool RifEclipseOutputFileTools::keywordData(ecl_file_type* ecl_file, const QStri
 //--------------------------------------------------------------------------------------------------
 bool RifEclipseOutputFileTools::keywordData(ecl_file_type* ecl_file, const QString& keyword, size_t fileKeywordOccurrence, std::vector<int>* values)
 {
-    ecl_kw_type* kwData = ecl_file_iget_named_kw(ecl_file, RiaStringEncodingTools::toNativeEncoded(keyword).data(), static_cast<int>(fileKeywordOccurrence));
-    if (kwData)
+    bool result = false;
+
+#pragma omp critical(critical_section_keywordData_int)
     {
-        size_t numValues = ecl_kw_get_size(kwData);
+        ecl_kw_type* kwData = ecl_file_iget_named_kw(ecl_file, RiaStringEncodingTools::toNativeEncoded(keyword).data(), static_cast<int>(fileKeywordOccurrence));
+        if (kwData)
+        {
+            size_t numValues = ecl_kw_get_size(kwData);
 
-        std::vector<int> integerData;
-        integerData.resize(numValues);
+            std::vector<int> integerData;
+            integerData.resize(numValues);
 
-        ecl_kw_get_memcpy_int_data(kwData, integerData.data());
-        values->insert(values->end(), integerData.begin(), integerData.end());
+            ecl_kw_get_memcpy_int_data(kwData, integerData.data());
+            values->insert(values->end(), integerData.begin(), integerData.end());
 
-        return true;
+            result = true;
+        }
     }
 
-    return false;
+    return result;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Get first occurrence of file of given type in given list of filenames, as filename or NULL if not found
+/// Get first occurrence of file of given type in given list of filenames, as filename or nullptr if not found
 //--------------------------------------------------------------------------------------------------
 QString RifEclipseOutputFileTools::firstFileNameOfType(const QStringList& fileSet, ecl_file_enum fileType)
 {
@@ -263,6 +273,14 @@ QStringList RifEclipseOutputFileTools::filterFileNamesOfType(const QStringList& 
     return fileNames;
 }
 
+//-------------------------------------------------------------------------------------------------------
+/// Check if libecl accepts the file name. libecl refuses to open files with mixed case in the file name.
+//-------------------------------------------------------------------------------------------------------
+bool RifEclipseOutputFileTools::isValidEclipseFileName(const QString& fileName)
+{
+    QString fileNameBase = QFileInfo(fileName).completeBaseName();
+    return ecl_util_valid_basename(RiaStringEncodingTools::toNativeEncoded(fileNameBase).data());
+}
 
 //--------------------------------------------------------------------------------------------------
 /// Get set of Eclipse files based on an input file and its path
@@ -458,6 +476,52 @@ void RifEclipseOutputFileTools::transferNncFluxData(const ecl_grid_type* grid,
 
         ecl_nnc_geometry_free(nnc_geo);
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RifEclipseOutputFileTools::isExportedFromIntersect(ecl_file_type* ecl_file)
+{
+    // This code is taken from ecl_file_get_ecl_version() in ecl_file.cpp
+
+    ecl_kw_type* intehead_kw = ecl_file_iget_named_kw(ecl_file, INTEHEAD_KW, 0);
+    if (!intehead_kw) return false;
+
+    int int_value = ecl_kw_iget_int(intehead_kw, INTEHEAD_IPROG_INDEX);
+    if (int_value == INTEHEAD_INTERSECT_VALUE)
+    {
+        return true;
+    }
+
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+ecl_kw_type* RifEclipseOutputFileTools::createActnumFromPorv(ecl_file_type* ecl_file)
+{
+    std::string porv_kw("PORV");
+
+    if (ecl_file_has_kw(ecl_file, porv_kw.data()))
+    {
+        ecl_file_view_type* fileView = ecl_file_get_global_view(ecl_file);
+
+        int keywordCount = ecl_file_get_num_named_kw(ecl_file, porv_kw.data());
+        for (int index = 0; index < keywordCount; index++)
+        {
+            ecl_kw_type* fileKeyword = ecl_file_view_iget_named_kw(fileView, porv_kw.data(), index);
+            if (fileKeyword)
+            {
+                float porvLimit = 0.0f;
+
+                return ecl_kw_alloc_actnum(fileKeyword, porvLimit);
+            }
+        }
+    }
+
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

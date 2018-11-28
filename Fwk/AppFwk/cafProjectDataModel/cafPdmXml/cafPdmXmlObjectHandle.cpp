@@ -186,6 +186,29 @@ PdmObjectHandle* PdmXmlObjectHandle::copyByXmlSerialization(PdmObjectFactory* ob
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+caf::PdmObjectHandle* PdmXmlObjectHandle::copyAndCastByXmlSerialization(const QString& destinationClassKeyword, const QString& sourceClassKeyword, PdmObjectFactory* objectFactory)
+{
+    this->setupBeforeSaveRecursively();
+
+    QString xmlString = this->writeObjectToXmlString();
+
+    PdmObjectHandle* upgradedObject = objectFactory->create(destinationClassKeyword);
+    QXmlStreamReader inputStream(xmlString);
+
+    QXmlStreamReader::TokenType tt;
+    tt = inputStream.readNext(); // Start of document
+    tt = inputStream.readNext();
+    QString classKeyword = inputStream.name().toString();
+    CAF_ASSERT(classKeyword == sourceClassKeyword);
+
+    xmlObj(upgradedObject)->readFields(inputStream, objectFactory);
+
+    return upgradedObject;
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 QString PdmXmlObjectHandle::writeObjectToXmlString() const

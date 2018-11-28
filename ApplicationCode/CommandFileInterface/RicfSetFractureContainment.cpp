@@ -68,5 +68,5 @@ void RicfSetFractureContainment::execute()
 
     templ->setContainmentTopKLayer(m_topLayer);
     templ->setContainmentBaseKLayer(m_baseLayer);
-    templ->reload();
+    templ->loadDataAndUpdateGeometryHasChanged();
 }

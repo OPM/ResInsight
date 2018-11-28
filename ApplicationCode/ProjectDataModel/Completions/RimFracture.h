@@ -22,12 +22,12 @@
 
 #include "Rim3dPropertiesInterface.h"
 #include "RimCheckableNamedObject.h"
+#include "RimWellPathComponentInterface.h"
 
 #include "cvfBase.h"
 #include "cvfObject.h"
 #include "cvfVector3.h"
 #include "cvfMatrix4.h"
-#include "cvfPlane.h"
 
 #include "cafPdmChildField.h"
 #include "cafPdmFieldCvfVec3d.h"
@@ -42,18 +42,45 @@ class RimFractureTemplate;
 class RigFracturedEclipseCellExportData;
 class RigMainGrid;
 
+class NonDarcyData
+{
+public:
+    NonDarcyData()
+        : width(std::numeric_limits<double>::infinity())
+        , conductivity(std::numeric_limits<double>::infinity())
+        , effectivePermeability(std::numeric_limits<double>::infinity())
+        , dFactor(std::numeric_limits<double>::infinity())
+        , eqWellRadius(std::numeric_limits<double>::infinity())
+        , betaFactor(std::numeric_limits<double>::infinity())
+        , isDataDirty(true)
+    {
+    }
+
+    bool isDirty() const
+    {
+        return isDataDirty;
+    }
+
+    double eqWellRadius;
+    double width;
+    double conductivity;
+    double effectivePermeability;
+    double dFactor;
+    double betaFactor;
+    bool   isDataDirty;
+};
 
 //==================================================================================================
 ///  
 ///  
 //==================================================================================================
-class RimFracture : public RimCheckableNamedObject, public Rim3dPropertiesInterface
+class RimFracture : public RimCheckableNamedObject, public Rim3dPropertiesInterface, public RimWellPathComponentInterface
 {
      CAF_PDM_HEADER_INIT;
 
 public:
     RimFracture(void);
-    virtual ~RimFracture(void);
+    ~RimFracture(void) override;
 
     double                          perforationLength() const;
     double                          perforationEfficiency() const;
@@ -61,16 +88,18 @@ public:
     void                            setStimPlanTimeIndexToPlot(int timeIndex);
 
     double                          wellRadius() const;
-    cvf::Vec3d                      anchorPosition() const ;
+    cvf::Vec3d                      anchorPosition() const;
     void                            setAnchorPosition(const cvf::Vec3d& pos);
     RiaEclipseUnitTools::UnitSystem fractureUnit() const;
     void                            setFractureUnit(RiaEclipseUnitTools::UnitSystem unitSystem);
 
-    bool                            isEclipseCellWithinContainment(const RigMainGrid* mainGrid, 
-                                                                   size_t globalCellIndex) const;
-    size_t                          findAnchorEclipseCell(const RigMainGrid* mainGrid) const;
+    bool                            isEclipseCellOpenForFlow(const RigMainGrid* mainGrid,
+                                                             const std::set<size_t>& reservoirCellIndicesOpenForFlow,
+                                                             size_t globalCellIndex) const;
 
-    cvf::Mat4d                      transformMatrix() const; 
+    cvf::Mat4d                      transformMatrix() const;
+    double                          dip() const;
+    double                          tilt() const;
 
     void                            setFractureTemplateNoUpdate(RimFractureTemplate* fractureTemplate);
     void                            setFractureTemplate(RimFractureTemplate* fractureTemplate);
@@ -78,11 +107,10 @@ public:
 
     RivWellFracturePartMgr*         fracturePartManager();
 
-    void                            triangleGeometry(std::vector<cvf::uint>* triangleIndices, std::vector<cvf::Vec3f>* vxCoords );
 
-    std::vector<size_t>             getPotentiallyFracturedCells(const RigMainGrid* mainGrid);
+    std::vector<size_t>             getPotentiallyFracturedCells(const RigMainGrid* mainGrid) const;
 
-    virtual void                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
     cvf::Vec3d                      fracturePosition() const;
 
     virtual void                    updateAzimuthBasedOnWellAzimuthAngle() = 0;
@@ -91,22 +119,38 @@ public:
     
     virtual void                    loadDataAndUpdate() = 0;
     virtual std::vector<cvf::Vec3d> perforationLengthCenterLineCoords() const = 0;
+
+    
+    // Fracture properties
+    const NonDarcyData&             nonDarcyProperties() const;
+    void                            ensureValidNonDarcyProperties();
+    void                            clearCachedNonDarcyProperties();
     
     friend class RimFractureTemplate;
 
+    // RimWellPathCompletionsInterface overrides.
+    bool                              isEnabled() const override;
+    RiaDefines::WellPathComponentType componentType() const override;
+    QString                           componentLabel() const override;
+    QString                           componentTypeLabel() const override;
+    cvf::Color3f                      defaultComponentColor() const override;
+    double                            startMD() const override;
+    double                            endMD() const override;
+
 protected:
-    virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
-    virtual void                    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
-    virtual void                    defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute * attribute) override;
+    QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
+    void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    void                            defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute * attribute) override;
 
 private:
     cvf::Vec3d                      fracturePositionForUi() const;
     double                          wellFractureAzimuthDiff() const; 
+    void                            triangleGeometry(std::vector<cvf::uint>* triangleIndices, std::vector<cvf::Vec3f>* vxCoords ) const;
     
     QString                         wellFractureAzimuthDiffText() const;
     QString                         wellAzimuthAtFracturePositionText() const;
 
-    virtual cvf::BoundingBox        boundingBoxInDomainCoords() override;
+    cvf::BoundingBox                boundingBoxInDomainCoords() const override;
 
 protected:
     caf::PdmPtrField<RimFractureTemplate*>          m_fractureTemplate;
@@ -129,4 +173,6 @@ private:
     caf::PdmField<cvf::Vec3d>        m_anchorPosition;
 
     cvf::ref<RivWellFracturePartMgr> m_fracturePartMgr;
+
+    NonDarcyData        m_cachedFractureProperties;
 };

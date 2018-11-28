@@ -31,7 +31,7 @@
 */
 
 
-#include <ert/util/util.hpp>
+#include <ert/util/util.h>
 
 #include <ert/ecl/fortio.h>
 #include <ert/ecl/ecl_kw_magic.hpp>

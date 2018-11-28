@@ -24,8 +24,8 @@
 #include <QString>
 
 #include <map>
+#include <set>
 #include <memory>
-
 
 //==================================================================================================
 //
@@ -47,7 +47,7 @@ public:
         void setValue(double value);
         void setValue(const QString& value);
 
-        bool isEmpty() const { return m_valueType == TYPE_NONE; }
+        bool isValid() const { return m_valueType != TYPE_NONE; }
         bool isNumeric() const { return m_valueType == TYPE_NUMERIC; }
         bool isText() const { return m_valueType == TYPE_TEXT; }
 
@@ -60,12 +60,22 @@ public:
         QString     m_textValue;
     };
 
+    RigCaseRealizationParameters() : m_parametersHash(0) { }
+
     void                        addParameter(const QString& name, double value);
     void                        addParameter(const QString& name, const QString& value);
     Value                       parameterValue(const QString& name);
 
     std::map<QString, Value>    parameters() const;
+    std::set<QString>           parameterNames() const;
+
+    size_t                      parameterHash(const QString& name) const;
+    size_t                      parametersHash();
+
+    void                        clearParametersHash();
+    void                        calculateParametersHash(const std::set<QString>& paramNames = std::set<QString>());
 
 private:
     std::map<QString, Value>    m_parameters;
+    size_t                      m_parametersHash;
 };

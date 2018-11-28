@@ -37,7 +37,7 @@ class RimEclipseInputProperty : public caf::PdmObject
 
 public:
     RimEclipseInputProperty();
-    virtual ~RimEclipseInputProperty();
+    ~RimEclipseInputProperty() override;
 
     enum ResolveState
     {
@@ -56,6 +56,6 @@ public:
     caf::PdmField<ResolveStateEnum> resolvedState; // ReadOnly and not writable
 
     // PdmObject Overrides
-    virtual caf::PdmFieldHandle*    userDescriptionField()  { return &resultName;}
-    virtual void                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    caf::PdmFieldHandle*    userDescriptionField() override  { return &resultName;}
+    void                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
 };

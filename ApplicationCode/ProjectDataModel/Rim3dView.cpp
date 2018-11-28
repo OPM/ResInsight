@@ -20,14 +20,16 @@
 #include "Rim3dView.h"
 
 #include "RiaApplication.h"
+#include "RiaFieldHandleTools.h"
 #include "RiaPreferences.h"
 #include "RiaViewRedrawScheduler.h"
 
+#include "Rim3dWellLogCurve.h"
 #include "RimCase.h" 
 #include "RimGridView.h"
 #include "RimMainPlotCollection.h"
-#include "RimOilField.h"
 #include "RimProject.h"
+#include "RimTools.h"
 #include "RimViewController.h"
 #include "RimViewLinker.h"
 #include "RimWellPathCollection.h"
@@ -86,7 +88,7 @@ Rim3dView::Rim3dView(void)
     CVF_ASSERT(preferences);
 
 
-    CAF_PDM_InitField(&name, "UserDescription", QString(""), "Name", "", "", "");
+    CAF_PDM_InitField(&m_name, "UserDescription", QString(""), "Name", "", "", "");
 
     CAF_PDM_InitField(&m_cameraPosition, "CameraPosition", cvf::Mat4d::IDENTITY, "", "", "", "");
     m_cameraPosition.uiCapability()->setUiHidden(true);
@@ -146,9 +148,25 @@ Rim3dView::~Rim3dView(void)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RiuViewer* Rim3dView::viewer()
+RiuViewer* Rim3dView::viewer() const
 {
     return m_viewer;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void Rim3dView::setName(const QString& name)
+{
+    m_name = name;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString Rim3dView::name() const
+{
+    return m_name;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -207,11 +225,11 @@ void Rim3dView::updateMdiWindowTitle()
         QString windowTitle;
         if (ownerCase())
         {
-            windowTitle = QString("%1 - %2").arg(ownerCase()->caseUserDescription()).arg(name);
+            windowTitle = QString("%1 - %2").arg(ownerCase()->caseUserDescription()).arg(m_name);
         }
         else
         {
-            windowTitle = name;
+            windowTitle = m_name;
         }
 
         m_viewer->layoutWidget()->setWindowTitle(windowTitle);
@@ -235,8 +253,9 @@ void Rim3dView::deleteViewWidget()
 //--------------------------------------------------------------------------------------------------
 void Rim3dView::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
-    caf::PdmUiGroup* viewGroup = uiOrdering.addNewGroup("Viewer");
-    viewGroup->add(&name);
+    caf::PdmUiGroup* viewGroup = uiOrdering.addNewGroupWithKeyword("Viewer", "ViewGroup");
+    
+    viewGroup->add(&m_name);
     viewGroup->add(&m_backgroundColor);
     viewGroup->add(&m_showGridBox);
     viewGroup->add(&isPerspectiveView);
@@ -407,11 +426,24 @@ void Rim3dView::endAnimation()
 //--------------------------------------------------------------------------------------------------
 RimWellPathCollection* Rim3dView::wellPathCollection() const
 {
-    RimProject* proj = nullptr;
-    this->firstAncestorOrThisOfTypeAsserted(proj);
-    CVF_ASSERT(proj && proj->activeOilField() && proj->activeOilField()->wellPathCollection());
+    return RimTools::wellPathCollection();
+}
 
-    return proj->activeOilField()->wellPathCollection();
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool Rim3dView::hasVisibleTimeStepDependent3dWellLogCurves() const
+{
+    std::vector<Rim3dWellLogCurve*> wellLogCurves;
+    wellPathCollection()->descendantsIncludingThisOfType(wellLogCurves);
+    for (const Rim3dWellLogCurve* curve : wellLogCurves)
+    {
+        if (curve->showInView(this) && curve->isShowingTimeDependentResult())
+        {
+            return true;
+        }
+    }
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -554,7 +586,7 @@ void Rim3dView::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const 
         RiuMainWindow::instance()->refreshDrawStyleActions();
         RiuMainWindow::instance()->refreshAnimationActions();
     }
-    else if (changedField == &name)
+    else if (changedField == &m_name)
     {
         updateMdiWindowTitle();
 
@@ -636,9 +668,9 @@ void Rim3dView::addDynamicWellPathsToModel(cvf::ModelBasicList* wellPathModelBas
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void Rim3dView::setScaleZAndUpdate(double scaleZ)
+void Rim3dView::setScaleZAndUpdate(double scalingFactor)
 {
-    this->scaleZ = scaleZ;
+    this->scaleZ = scalingFactor;
     updateScaleTransform();
 
     this->updateGridBoxData();
@@ -723,6 +755,22 @@ void Rim3dView::createHighlightAndGridBoxDisplayModel()
     }
 
     m_viewer->showGridBox(m_showGridBox());
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void Rim3dView::setBackgroundColor(const cvf::Color3f& newBackgroundColor)
+{
+    m_backgroundColor = newBackgroundColor; 
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void Rim3dView::setShowGridBox(bool showGridBox)
+{
+    m_showGridBox = showGridBox;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -873,8 +921,8 @@ void Rim3dView::forceShowWindowOn()
 void Rim3dView::disableGridBoxField()
 {
     m_showGridBox = false;
-    m_showGridBox.uiCapability()->setUiHidden(true);
-    m_showGridBox.xmlCapability()->setIOWritable(false);
+
+    RiaFieldhandleTools::disableWriteAndSetFieldHidden(&m_showGridBox);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -883,8 +931,17 @@ void Rim3dView::disableGridBoxField()
 void Rim3dView::disablePerspectiveProjectionField()
 {
     isPerspectiveView = false;
-    isPerspectiveView.uiCapability()->setUiHidden(true);
-    isPerspectiveView.xmlCapability()->setIOWritable(false);
+
+    RiaFieldhandleTools::disableWriteAndSetFieldHidden(&isPerspectiveView);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void Rim3dView::enablePerspectiveProjectionField()
+{
+    isPerspectiveView.uiCapability()->setUiHidden(false);
+    isPerspectiveView.xmlCapability()->setIOWritable(true);
 }
 
 //--------------------------------------------------------------------------------------------------

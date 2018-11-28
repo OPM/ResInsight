@@ -37,7 +37,7 @@ class RimGeoMechPropertyFilter : public RimPropertyFilter
 
 public:
     RimGeoMechPropertyFilter();
-    virtual ~RimGeoMechPropertyFilter();
+    ~RimGeoMechPropertyFilter() override;
 
     caf::PdmChildField<RimGeoMechResultDefinition*>  resultDefinition;
 
@@ -54,10 +54,10 @@ public:
     bool                                        isActiveAndHasResult();
     
 protected:
-    virtual void                                fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
-    virtual void                                defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) ;
-    virtual void                                defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName);
-    virtual void                                defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute);
+    void                                fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    void                                defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override ;
+    void                                defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName) override;
+    void                                defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override;
 
 private:
     void                                        updateReadOnlyStateOfAllFields();

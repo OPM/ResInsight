@@ -1,4 +1,3 @@
-
 set (SOURCE_GROUP_HEADER_FILES
 ${CMAKE_CURRENT_LIST_DIR}/RicCellRangeUi.h
 ${CMAKE_CURRENT_LIST_DIR}/RicExportCarfin.h
@@ -17,6 +16,13 @@ ${CMAKE_CURRENT_LIST_DIR}/RicSnapshotAllViewsToFileFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicSnapshotFilenameGenerator.h
 ${CMAKE_CURRENT_LIST_DIR}/RicSnapshotViewToClipboardFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicSnapshotViewToFileFeature.h
+${CMAKE_CURRENT_LIST_DIR}/RicExportSelectedWellPathsFeature.h
+${CMAKE_CURRENT_LIST_DIR}/RicExportVisibleWellPathsFeature.h
+${CMAKE_CURRENT_LIST_DIR}/RicExportWellPathsUi.h
+${CMAKE_CURRENT_LIST_DIR}/RicExportLgrFeature.h
+${CMAKE_CURRENT_LIST_DIR}/RicExportLgrUi.h
+${CMAKE_CURRENT_LIST_DIR}/RicEclipseCellResultToFileImpl.h
+${CMAKE_CURRENT_LIST_DIR}/RicLgrSplitType.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -37,6 +43,12 @@ ${CMAKE_CURRENT_LIST_DIR}/RicSnapshotAllViewsToFileFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicSnapshotFilenameGenerator.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicSnapshotViewToClipboardFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicSnapshotViewToFileFeature.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicExportSelectedWellPathsFeature.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicExportVisibleWellPathsFeature.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicExportWellPathsUi.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicExportLgrFeature.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicExportLgrUi.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicEclipseCellResultToFileImpl.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

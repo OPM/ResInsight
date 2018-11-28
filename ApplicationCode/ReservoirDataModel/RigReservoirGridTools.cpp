@@ -74,7 +74,7 @@ const cvf::StructGridInterface* RigReservoirGridTools::gridByIndex(RimCase* rimC
     }
     else if (geoMechPartCollection)
     {
-        return geoMechPartCollection->part(gridIndex)->structGrid();
+        return geoMechPartCollection->part(gridIndex)->getOrCreateStructGrid();
     }
 
     return nullptr;
@@ -103,7 +103,7 @@ QString RigReservoirGridTools::gridName(RimCase* rimCase, int gridIndex)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RigActiveCellInfo* RigReservoirGridTools::activeCellInfo(Rim3dView* rimView)
+const RigActiveCellInfo* RigReservoirGridTools::activeCellInfo(Rim3dView* rimView)
 {
     RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>(rimView);
     if (eclipseView)

@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -23,13 +23,12 @@
 #include "cvfBase.h"
 #include "cvfObject.h"
 
-
 namespace cvf
 {
-    class ModelBasicList;
-    class Transform;
-    class Part;
-}
+class ModelBasicList;
+class Transform;
+class Part;
+} // namespace cvf
 
 class RigMainGrid;
 class RigResultAccessor;
@@ -60,13 +59,13 @@ private:
     cvf::ref<RivIntersectionHexGridInterface> createHexGridInterface();
 
 private:
-    RimIntersectionBox*         m_rimIntersectionBox;
+    RimIntersectionBox* m_rimIntersectionBox;
 
-    cvf::Color3f                m_defaultColor;
+    cvf::Color3f m_defaultColor;
 
-    cvf::ref<cvf::Part>         m_intersectionBoxFaces;
-    cvf::ref<cvf::Part>         m_intersectionBoxGridLines;
-    cvf::ref<cvf::Vec2fArray>   m_intersectionBoxFacesTextureCoords;
+    cvf::ref<cvf::Part>       m_intersectionBoxFaces;
+    cvf::ref<cvf::Part>       m_intersectionBoxGridLines;
+    cvf::ref<cvf::Vec2fArray> m_intersectionBoxFacesTextureCoords;
 
     cvf::ref<RivIntersectionBoxGeometryGenerator> m_intersectionBoxGenerator;
 };

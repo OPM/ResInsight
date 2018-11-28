@@ -18,7 +18,7 @@
 
 #include "Rim3dWellLogCurve.h"
 
-#include "RigCurveDataTools.h"
+#include "RiaCurveDataTools.h"
 #include "Riv3dWellLogCurveGeometryGenerator.h"
 
 #include "Rim3dWellLogCurveCollection.h"
@@ -86,7 +86,7 @@ void Rim3dWellLogCurve::updateCurveIn3dView()
 {
     RimProject* proj;
     this->firstAncestorOrThisOfTypeAsserted(proj);
-    proj->createDisplayModelAndRedrawAllViews();
+    proj->scheduleCreateDisplayModelAndRedrawAllViews();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -100,9 +100,9 @@ Rim3dWellLogCurve::DrawPlane Rim3dWellLogCurve::drawPlane() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double Rim3dWellLogCurve::drawPlaneAngle() const
+double Rim3dWellLogCurve::drawPlaneAngle(Rim3dWellLogCurve::DrawPlane drawPlane)
 {
-    switch (drawPlane())
+    switch (drawPlane)
     {
         case HORIZONTAL_LEFT:
         case HORIZONTAL_CENTER:
@@ -133,6 +133,37 @@ cvf::Color3f Rim3dWellLogCurve::color() const
 bool Rim3dWellLogCurve::isShowingCurve() const
 {
     return m_showCurve;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void Rim3dWellLogCurve::curveValuesAndMdsAtTimeStep(std::vector<double>* values, std::vector<double>* measuredDepthValues, int timeStep) const
+{
+    return this->curveValuesAndMds(values, measuredDepthValues);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::pair<double, double> Rim3dWellLogCurve::findCurveValueRange()
+{
+    double foundMinValue = std::numeric_limits<float>::infinity();
+    double foundMaxValue = -std::numeric_limits<float>::infinity();
+
+    std::vector<double> values;
+    std::vector<double> measuredDepths;
+    this->curveValuesAndMds(&values, &measuredDepths);
+
+    for (double value : values)
+    {
+        if (RiaCurveDataTools::isValidValue(value, false))
+        {
+            foundMinValue = std::min(foundMinValue, value);
+            foundMaxValue = std::max(foundMaxValue, value);
+        }
+    }
+    return std::make_pair(foundMinValue, foundMaxValue);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -180,7 +211,7 @@ void Rim3dWellLogCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField
     }
     else
     {
-        proj->createDisplayModelAndRedrawAllViews();
+        proj->scheduleCreateDisplayModelAndRedrawAllViews();
     }
 }
 
@@ -192,8 +223,8 @@ void Rim3dWellLogCurve::configurationUiOrdering(caf::PdmUiOrdering& uiOrdering)
     caf::PdmUiGroup* configurationGroup = uiOrdering.addNewGroup("Curve Appearance");
     configurationGroup->add(&m_drawPlane);
     configurationGroup->add(&m_color);
-    configurationGroup->add(&m_minCurveUIValue);
     configurationGroup->add(&m_maxCurveUIValue);
+    configurationGroup->add(&m_minCurveUIValue);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -213,7 +244,7 @@ void Rim3dWellLogCurve::defineEditorAttribute(const caf::PdmFieldHandle* field, 
 //--------------------------------------------------------------------------------------------------
 void Rim3dWellLogCurve::initAfterRead()
 {
-    this->createCurveAutoName();
+    this->createAutoName();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -261,22 +292,10 @@ cvf::ref<Riv3dWellLogCurveGeometryGenerator> Rim3dWellLogCurve::geometryGenerato
 //--------------------------------------------------------------------------------------------------
 void Rim3dWellLogCurve::resetMinMaxValues()
 {
-    std::vector<double> values;
-    std::vector<double> measuredDepths;
-    this->curveValuesAndMds(&values, &measuredDepths);
-    double foundMinValue = std::numeric_limits<float>::infinity();
-    double foundMaxValue = -std::numeric_limits<float>::infinity();
-    for (double value : values)
-    {
-        if (RigCurveDataTools::isValidValue(value, false))
-        {
-            foundMinValue = std::min(foundMinValue, value);
-            foundMaxValue = std::max(foundMaxValue, value);
-        }
-    }
+    std::pair<double, double> valueRange = findCurveValueRange();
 
-    m_minCurveDataValue = foundMinValue;
-    m_maxCurveDataValue = foundMaxValue;
+    m_minCurveDataValue = valueRange.first;
+    m_maxCurveDataValue = valueRange.second;
 
     m_minCurveUIValue = m_minCurveDataValue;
     m_maxCurveUIValue = m_maxCurveDataValue;

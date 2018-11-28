@@ -32,7 +32,7 @@
 #include "RimSummaryPlot.h"
 #include "RimSummaryPlotSourceStepping.h"
 
-#include "RiuLineSegmentQwtPlotCurve.h"
+#include "RiuQwtPlotCurve.h"
 #include "RiuSummaryQwtPlot.h"
 
 CAF_PDM_SOURCE_INIT(RimEnsembleCurveSetCollection, "RimEnsembleCurveSetCollection");
@@ -75,20 +75,14 @@ void RimEnsembleCurveSetCollection::loadDataAndUpdate(bool updateParentPlot)
 {
     for (RimEnsembleCurveSet* curveSet : m_curveSets)
     {
-        curveSet->loadDataAndUpdate(updateParentPlot);
+        curveSet->loadDataAndUpdate(false);
     }
 
     if (updateParentPlot)
     {
         RimSummaryPlot* parentPlot;
         firstAncestorOrThisOfTypeAsserted(parentPlot);
-        if (parentPlot->qwtPlot())
-        {
-            parentPlot->updatePlotTitle();
-            parentPlot->qwtPlot()->updateLegend();
-            parentPlot->updateAxes();
-            parentPlot->updateZoomInQwt();
-        }
+        parentPlot->updateAll();
     }
 }
 
@@ -113,6 +107,17 @@ void RimEnsembleCurveSetCollection::detachQwtCurves()
     for (const auto& curveSet : m_curveSets)
     {
         curveSet->detachQwtCurves();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEnsembleCurveSetCollection::reattachQwtCurves()
+{
+    for (const auto& curveSet : m_curveSets)
+    {
+        curveSet->reattachQwtCurves();
     }
 }
 
@@ -155,11 +160,21 @@ void RimEnsembleCurveSetCollection::addCurveSet(RimEnsembleCurveSet* curveSet)
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleCurveSetCollection::deleteCurveSet(RimEnsembleCurveSet* curveSet)
 {
-    if (curveSet)
+    deleteCurveSets({ curveSet });
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimEnsembleCurveSetCollection::deleteCurveSets(const std::vector<RimEnsembleCurveSet*> curveSets)
+{
+    for(const auto curveSet : curveSets)
     {
         m_curveSets.removeChildObject(curveSet);
+        curveSet->markCachedDataForPurge();
         delete curveSet;
     }
+
 }
 
 //--------------------------------------------------------------------------------------------------

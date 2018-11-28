@@ -18,6 +18,8 @@
     <file>Minus.png</file>
     <file>Save.png</file>
     <file>Well.png</file>
+    <file>EditableWell.png</file>
+    <file>WellTargets.png</file>
     <file>WellCollection.png</file>
     <file>octave.png</file>
     <file>OctaveScriptFile16x16.png</file>
@@ -118,6 +120,26 @@
     <file>SplitterV.png</file>
     <file>calculator.png</file>
     <file>statistics.png</file>
+    <file>WellTargetPoint16x16.png</file>
+    <file>WellTargetPointTangent16x16.png</file>
+    <file>hololens.png</file>
+    <file>minus-sign-red.png</file>
+    <file>plus-sign-green.png</file>
+    <file>arrow-right-green.png</file>
+    <file>2DMap16x16.png</file>
+    <file>2DMaps16x16.png</file>
+    <file>AICDValve16x16.png</file>
+    <file>ICDValve16x16.png</file>
+    <file>ICVValve16x16.png</file>
+    <file>CasingDesign16x16.png</file>
+    <file>LGR16x16.png</file>
+    <file>MainGrid16x16.png</file>
+    <file>TempLGR16x16.png</file>
+    <file>ToggleOff16x16.png</file>
+    <file>ToggleOn16x16.png</file>
+    <file>ToggleOnOff16x16.png</file>
+    <file>ToggleOnOthersOff16x16.png</file>
+    <file>ExportCompletionsSymbol16x16.png</file>
   </qresource>
   <qresource prefix="/Shader/">
     <file>fs_CellFace.glsl</file>

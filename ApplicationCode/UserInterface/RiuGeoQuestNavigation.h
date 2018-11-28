@@ -26,7 +26,7 @@ class RiuGeoQuestNavigation : public caf::TrackBallBasedNavigation
 {
 public:
     RiuGeoQuestNavigation();
-    virtual ~RiuGeoQuestNavigation();
+    ~RiuGeoQuestNavigation() override;
 protected:
-    virtual bool    handleInputEvent(QInputEvent* inputEvent);
+    bool    handleInputEvent(QInputEvent* inputEvent) override;
 };

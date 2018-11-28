@@ -38,7 +38,7 @@ class EclSumVectorTest(EclTest):
             warnings.simplefilter("always")
 
             vector = EclSumVector(self.ecl_sum, "FOPT", True)
-            assert len(w) == 1
+            self.assertEqual(len(w), 2)
             assert issubclass(w[-1].category, DeprecationWarning)
 
 

@@ -31,11 +31,11 @@ class RicEclipsePropertyFilterNewExec : public caf::CmdExecuteCommand
 {
 public:
     explicit RicEclipsePropertyFilterNewExec(RimEclipsePropertyFilterCollection* propertyFilterCollection);
-    virtual ~RicEclipsePropertyFilterNewExec();
+    ~RicEclipsePropertyFilterNewExec() override;
 
-    virtual QString name();
-    virtual void redo();
-    virtual void undo();
+    QString name() override;
+    void redo() override;
+    void undo() override;
 
 private:
     caf::PdmPointer<RimEclipsePropertyFilterCollection> m_propertyFilterCollection;

@@ -56,32 +56,33 @@ void PdmUiToolButtonEditor::configureAndUpdateUi(const QString& uiConfigName)
 {
     CAF_ASSERT(!m_toolButton.isNull());
 
-    QIcon ic = field()->uiIcon(uiConfigName);
+    QIcon ic = uiField()->uiIcon(uiConfigName);
     if (!ic.isNull())
     {
         m_toolButton->setIcon(ic);
     }
 
-    QString buttonText = field()->uiName(uiConfigName);
+    QString buttonText = uiField()->uiName(uiConfigName);
     m_toolButton->setText(buttonText);
 
-    m_toolButton->setEnabled(!field()->isUiReadOnly(uiConfigName));
-    m_toolButton->setToolTip(field()->uiToolTip(uiConfigName));
+    m_toolButton->setEnabled(!uiField()->isUiReadOnly(uiConfigName));
+    m_toolButton->setToolTip(uiField()->uiToolTip(uiConfigName));
 
     PdmUiToolButtonEditorAttribute attributes;
     
-    PdmUiObjectHandle* pdmUiOjectHandle = uiObj(field()->fieldHandle()->ownerObject());
+    PdmUiObjectHandle* pdmUiOjectHandle = uiObj(uiField()->fieldHandle()->ownerObject());
     if (pdmUiOjectHandle)
     {
-        pdmUiOjectHandle->editorAttribute(field()->fieldHandle(), uiConfigName, &attributes);
+        pdmUiOjectHandle->editorAttribute(uiField()->fieldHandle(), uiConfigName, &attributes);
     }
     bool isCheckable = attributes.m_checkable;
     m_toolButton->setCheckable(isCheckable);
+    m_toolButton->setSizePolicy(attributes.m_sizePolicy);
 
-    QVariant variantFieldValue = field()->uiValue();
+    QVariant variantFieldValue = uiField()->uiValue();
     if (isCheckable)
     {
-        m_toolButton->setChecked(field()->uiValue().toBool());
+        m_toolButton->setChecked(uiField()->uiValue().toBool());
     }
 }
 

@@ -43,7 +43,7 @@ class RivNNCGeometryGenerator : public cvf::Object
 {
 public:
     RivNNCGeometryGenerator(const RigNNCData* nncData, const cvf::Vec3d& offset, const cvf::Array<size_t>* nncIndexes );
-    ~RivNNCGeometryGenerator();
+    ~RivNNCGeometryGenerator() override;
 
     void setCellVisibility( const cvf::UByteArray* cellVisibilities, const RigGridBase * grid);
     

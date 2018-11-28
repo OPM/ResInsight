@@ -18,6 +18,7 @@
 
 #include "RicfExportWellPathCompletions.h"
 
+#include "RicfApplicationTools.h"
 #include "RicfCommandFileExecutor.h"
 
 #include "RiaApplication.h"
@@ -54,6 +55,11 @@ RicfExportWellPathCompletions::RicfExportWellPathCompletions()
     RICF_InitField(&m_includeFractures,            "includeFractures",            true,  "Include Fractures",  "", "", "");
     
     RICF_InitField(&m_excludeMainBoreForFishbones, "excludeMainBoreForFishbones", false, "Exclude Main Bore for Fishbones",  "", "", "");
+
+    RICF_InitField(&m_performTransScaling, "performTransScaling", false, "Perform Transmissibility Scaling", "", "", "");
+    RICF_InitField(&m_transScalingTimeStep, "transScalingTimeStep", 0, "Transmissibility Scaling Pressure Time Step", "", "", "");
+    RICF_InitField(&m_transScalingInitialWBHP, "transScalingWBHPFromSummary", RicExportCompletionDataSettingsUi::TransScalingWBHPSource(), "Transmissibility Scaling WBHP from summary", "", "", "");
+    RICF_InitField(&m_transScalingWBHP,     "transScalingWBHP", 200.0, "Transmissibility Scaling Constant WBHP Value", "", "", "");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -61,6 +67,8 @@ RicfExportWellPathCompletions::RicfExportWellPathCompletions()
 //--------------------------------------------------------------------------------------------------
 void RicfExportWellPathCompletions::execute()
 {
+    using TOOLS = RicfApplicationTools;
+
     RimProject* project = RiaApplication::instance()->project();
     RicExportCompletionDataSettingsUi* exportSettings = project->dialogData()->exportCompletionData();
     
@@ -76,6 +84,11 @@ void RicfExportWellPathCompletions::execute()
     exportSettings->fileSplit = m_fileSplit;
     exportSettings->compdatExport = m_compdatExport;
 
+    exportSettings->performTransScaling = m_performTransScaling;
+    exportSettings->transScalingTimeStep = m_transScalingTimeStep;
+    exportSettings->transScalingWBHPSource = m_transScalingInitialWBHP;
+    exportSettings->transScalingWBHP = m_transScalingWBHP;
+
     exportSettings->useLateralNTG = m_useLateralNTG;
     exportSettings->includePerforations = m_includePerforations;
     exportSettings->includeFishbones = m_includeFishbones;
@@ -85,21 +98,13 @@ void RicfExportWellPathCompletions::execute()
     exportSettings->setCombinationMode(m_combinationMode());
 
     {
-        bool foundCase = false;
-        for (RimEclipseCase* c : RiaApplication::instance()->project()->activeOilField()->analysisModels->cases())
-        {
-            if (c->caseId() == m_caseId())
-            {
-                exportSettings->caseToApply = c;
-                foundCase = true;
-                break;
-            }
-        }
-        if (!foundCase)
+        auto eclipseCase = TOOLS::caseFromId(m_caseId());
+        if (!eclipseCase)
         {
             RiaLogging::error(QString("exportWellPathCompletions: Could not find case with ID %1").arg(m_caseId()));
             return;
         }
+        exportSettings->caseToApply = eclipseCase;
     }
 
     QString exportFolder = RicfCommandFileExecutor::instance()->getExportPath(RicfCommandFileExecutor::COMPLETIONS);

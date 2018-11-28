@@ -65,6 +65,19 @@ struct RicfFieldWriter<QString>
     static void    writeFieldData(const QString & fieldValue, QTextStream&  outputStream);
 };
 
+template <>
+struct RicfFieldReader<bool>
+{
+    static void    readFieldData(bool& fieldValue, QTextStream& inputStream, RicfMessages* errorMessageContainer);
+};
+
+template <>
+struct RicfFieldWriter<bool>
+{
+    static void    writeFieldData(const bool& fieldValue, QTextStream&  outputStream);
+};
+
+
 template <typename T>
 struct RicfFieldReader< caf::AppEnum<T> >
 {
@@ -176,7 +189,7 @@ public:
 
     // Xml Serializing
 public:
-    virtual void        readFieldData (QTextStream& inputStream, caf::PdmObjectFactory* objectFactory, RicfMessages* errorMessageContainer) override
+    void        readFieldData (QTextStream& inputStream, caf::PdmObjectFactory* objectFactory, RicfMessages* errorMessageContainer) override
     {
         //m_field->xmlCapability()->assertValid(); 
         typename FieldType::FieldDataType value; 
@@ -184,7 +197,7 @@ public:
         m_field->setValue(value); 
     }
 
-    virtual void        writeFieldData(QTextStream& outputStream) const override
+    void        writeFieldData(QTextStream& outputStream) const override
     { 
         //m_field->xmlCapability()->assertValid(); 
         RicfFieldWriter<typename FieldType::FieldDataType>::writeFieldData(m_field->value(), outputStream); 
@@ -198,7 +211,7 @@ private:
 template<typename FieldType>
 void AddRicfCapabilityToField(FieldType* field)
 {
-    if(field->template capability< RicfFieldCapability<FieldType> >() == NULL)
+    if(field->template capability< RicfFieldCapability<FieldType> >() == nullptr)
     {
         new RicfFieldCapability<FieldType>(field, true);
     }

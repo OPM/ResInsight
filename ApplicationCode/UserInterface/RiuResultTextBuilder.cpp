@@ -57,7 +57,7 @@ RiuResultTextBuilder::RiuResultTextBuilder(RimEclipseView* reservoirView, size_t
     m_timeStepIndex = timeStepIndex;
 
     m_nncIndex = cvf::UNDEFINED_SIZE_T;
-    m_intersectionPoint = cvf::Vec3d::UNDEFINED;
+    m_intersectionPointInDisplay = cvf::Vec3d::UNDEFINED;
     m_face = cvf::StructGridInterface::NO_FACE;
 }
 
@@ -95,7 +95,7 @@ RiuResultTextBuilder::RiuResultTextBuilder(RimEclipseView* reservoirView, size_t
     m_timeStepIndex = timeStepIndex;
 
     m_nncIndex = cvf::UNDEFINED_SIZE_T;
-    m_intersectionPoint = cvf::Vec3d::UNDEFINED;
+    m_intersectionPointInDisplay = cvf::Vec3d::UNDEFINED;
     m_face = cvf::StructGridInterface::NO_FACE;
 }
 
@@ -110,9 +110,9 @@ void RiuResultTextBuilder::setNncIndex(size_t nncIndex)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuResultTextBuilder::setIntersectionPoint(cvf::Vec3d intersectionPoint)
+void RiuResultTextBuilder::setIntersectionPointInDisplay(cvf::Vec3d intersectionPointInDisplay)
 {
-    m_intersectionPoint = intersectionPoint;
+    m_intersectionPointInDisplay = intersectionPointInDisplay;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -226,21 +226,21 @@ QString RiuResultTextBuilder::geometrySelectionText(QString itemSeparator)
                 }
             }
             
-            if (m_intersectionPoint != cvf::Vec3d::UNDEFINED)
+            if (m_intersectionPointInDisplay != cvf::Vec3d::UNDEFINED)
             {
                 cvf::ref<caf::DisplayCoordTransform> transForm = m_reservoirView->displayCoordTransform();
-                cvf::Vec3d domainCoord = transForm->translateToDomainCoord(m_intersectionPoint);
+                cvf::Vec3d domainCoord = transForm->translateToDomainCoord(m_intersectionPointInDisplay);
 
                 QString formattedText;
                 if (m_2dIntersectionView)
                 {
-                    formattedText.sprintf("Horizontal length from well start: %.2f", m_intersectionPoint.x());
+                    formattedText.sprintf("Horizontal length from well start: %.2f", m_intersectionPointInDisplay.x());
                     text += formattedText + itemSeparator;
 
-                    cvf::Mat4d t = m_2dIntersectionView->flatIntersectionPartMgr()->unflattenTransformMatrix(m_intersectionPoint);
+                    cvf::Mat4d t = m_2dIntersectionView->flatIntersectionPartMgr()->unflattenTransformMatrix(m_intersectionPointInDisplay);
                     if (!t.isZero())
                     {
-                        cvf::Vec3d intPt = m_intersectionPoint.getTransformedPoint(t);
+                        cvf::Vec3d intPt = m_intersectionPointInDisplay.getTransformedPoint(t);
                         formattedText.sprintf("Intersection point : [E: %.2f, N: %.2f, Depth: %.2f]", intPt.x(), intPt.y(), -intPt.z());
                         text += formattedText;
                     }
@@ -267,7 +267,6 @@ QString RiuResultTextBuilder::gridResultDetails()
     if (m_reservoirView->eclipseCase() && m_reservoirView->eclipseCase()->eclipseCaseData())
     {
         RigEclipseCaseData* eclipseCaseData = m_reservoirView->eclipseCase()->eclipseCaseData();
-        RigGridBase* grid = eclipseCaseData->grid(m_gridIndex);
 
         this->appendTextFromResultColors(eclipseCaseData, m_gridIndex, m_cellIndex, m_timeStepIndex, m_reservoirView->cellResult(), &text);
 
@@ -744,7 +743,6 @@ QString RiuResultTextBuilder::cellResultText(RimEclipseCellColors* resultColors)
     if (m_reservoirView->eclipseCase() && m_reservoirView->eclipseCase()->eclipseCaseData())
     {
         RigEclipseCaseData* eclipseCaseData = m_reservoirView->eclipseCase()->eclipseCaseData();
-        RigGridBase* grid = eclipseCaseData->grid(m_gridIndex);
 
         if (resultColors->isTernarySaturationSelected())
         {

@@ -176,9 +176,10 @@ bool RifKeywordVectorUserData::parse(const QString& data, const QString& customW
                                                   -1,
                                                   -1,
                                                   -1,
-                                                  -1);
+                                                  -1,
+                                                  false);
 
-                    m_allResultAddresses.push_back(addr);
+                    m_allResultAddresses.insert(addr);
 
                     m_mapFromAddressToTimeIndex[addr] = timeStepIndexIterator->second;
                     m_mapFromAddressToVectorIndex[addr] = i;

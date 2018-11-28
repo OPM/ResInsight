@@ -20,6 +20,7 @@
 
 #include "RiaColorTables.h"
 #include "RiaSummaryCurveDefinition.h"
+#include "RiuQwtPlotCurve.h"
 
 #include "RimSummaryCurve.h"
 #include "RimSummaryCase.h"
@@ -152,7 +153,6 @@ void RimSummaryCurveAppearanceCalculator::updateApperanceIndices()
 {
     {
         std::map<std::string, size_t> caseAppearanceIndices = mapNameToAppearanceIndex(m_caseAppearanceType, m_allSummaryCaseNames);
-        int idx = 0;
         for (auto& pair : m_caseToAppearanceIdxMap)
         {
             pair.second = static_cast<int>(caseAppearanceIndices[pair.first->summaryHeaderFilename().toUtf8().constData()]);
@@ -160,7 +160,6 @@ void RimSummaryCurveAppearanceCalculator::updateApperanceIndices()
     }
     {
         std::map<std::string, size_t> wellAppearanceIndices = mapNameToAppearanceIndex(m_wellAppearanceType, m_allSummaryWellNames);
-        int idx = 0;
         for (auto& pair : m_welToAppearanceIdxMap)
         {
             pair.second = static_cast<int>(wellAppearanceIndices[pair.first]);
@@ -191,11 +190,11 @@ std::map<std::string, size_t> RimSummaryCurveAppearanceCalculator::mapNameToAppe
     }
     else if (appearance == CurveAppearanceType::SYMBOL)
     {
-        numOptions = caf::AppEnum<RimPlotCurve::PointSymbolEnum>::size() - 1; // -1 since the No symbol option is not counted see cycledSymbol()
+        numOptions = caf::AppEnum<RiuQwtSymbol::PointSymbolEnum>::size() - 1; // -1 since the No symbol option is not counted see cycledSymbol()
     }
     else if (appearance == CurveAppearanceType::LINE_STYLE)
     {
-        numOptions = caf::AppEnum<RimPlotCurve::LineStyleEnum>::size() - 1; // -1 since the No symbol option is not counted see cycledLineStyle()
+        numOptions = caf::AppEnum<RiuQwtPlotCurve::LineStyleEnum>::size() - 1; // -1 since the No symbol option is not counted see cycledLineStyle()
     }
     else {
         // If none of these styles are used, fall back to a simply incrementing index
@@ -355,12 +354,7 @@ void RimSummaryCurveAppearanceCalculator::setupCurveLook(RimSummaryCurve* curve)
 
     if ( curve->summaryCaseY()->isObservedData() )
     {
-        curve->setLineStyle(RimPlotCurve::STYLE_NONE);
-
-        if ( curve->symbol() == RimPlotCurve::SYMBOL_NONE )
-        {
-            curve->setSymbol(RimPlotCurve::SYMBOL_XCROSS);
-        }
+        curve->forceUpdateCurveAppearanceFromCaseType();
     }
 }
 
@@ -457,21 +451,21 @@ cvf::Color3f RimSummaryCurveAppearanceCalculator::cycledBrownColor(int colorInde
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimPlotCurve::LineStyleEnum RimSummaryCurveAppearanceCalculator::cycledLineStyle(int index)
+RiuQwtPlotCurve::LineStyleEnum RimSummaryCurveAppearanceCalculator::cycledLineStyle(int index)
 {
-    if (index < 0) return RimPlotCurve::STYLE_SOLID;
+    if (index < 0) return RiuQwtPlotCurve::STYLE_SOLID;
 
-    return caf::AppEnum<RimPlotCurve::LineStyleEnum>::fromIndex(1 + (index % (caf::AppEnum<RimPlotCurve::LineStyleEnum>::size() - 1)));
+    return caf::AppEnum<RiuQwtPlotCurve::LineStyleEnum>::fromIndex(1 + (index % (caf::AppEnum<RiuQwtPlotCurve::LineStyleEnum>::size() - 1)));
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimPlotCurve::PointSymbolEnum RimSummaryCurveAppearanceCalculator::cycledSymbol(int index)
+RiuQwtSymbol::PointSymbolEnum RimSummaryCurveAppearanceCalculator::cycledSymbol(int index)
 {
-    if (index < 0) return RimPlotCurve::SYMBOL_NONE;
+    if (index < 0) return RiuQwtSymbol::SYMBOL_NONE;
 
-    return caf::AppEnum<RimPlotCurve::PointSymbolEnum>::fromIndex(1 + (index % (caf::AppEnum<RimPlotCurve::PointSymbolEnum>::size() - 1)));
+    return caf::AppEnum<RiuQwtSymbol::PointSymbolEnum>::fromIndex(1 + (index % (caf::AppEnum<RiuQwtSymbol::PointSymbolEnum>::size() - 1)));
 }
 
 //--------------------------------------------------------------------------------------------------

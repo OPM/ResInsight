@@ -81,23 +81,23 @@ class PdmUiDoubleSliderEditor : public PdmUiFieldEditorHandle
 
 public:
     PdmUiDoubleSliderEditor()          {} 
-    virtual ~PdmUiDoubleSliderEditor() {} 
+    ~PdmUiDoubleSliderEditor() override {} 
 
 protected:
-    virtual void        configureAndUpdateUi(const QString& uiConfigName);
-    virtual QWidget*    createEditorWidget(QWidget * parent);
-    virtual QWidget*    createLabelWidget(QWidget * parent);
+    void        configureAndUpdateUi(const QString& uiConfigName) override;
+    QWidget*    createEditorWidget(QWidget * parent) override;
+    QWidget*    createLabelWidget(QWidget * parent) override;
 
 protected slots:
-    void                slotEditingFinished();
-    void                slotSliderValueChanged(int value);
+    void        slotEditingFinished();
+    void        slotSliderValueChanged(int value);
 
 private:
-    void                updateSliderPosition(double value);
-    void                writeValueToField(double value);
+    void        updateSliderPosition(double value);
+    void        writeValueToField(double value);
 
-    int                 convertToSliderValue(double value);
-    double              convertFromSliderValue(int sliderValue);
+    int         convertToSliderValue(double value);
+    double      convertFromSliderValue(int sliderValue);
 
 private:
     QPointer<QLineEdit> m_lineEdit;

@@ -21,8 +21,8 @@
 #include "RiaApplication.h"
 
 #include "RimEclipseView.h"
-#include "RimOilField.h"
 #include "RimProject.h"
+#include "RimTools.h"
 #include "RimWellPathCollection.h"
 
 #include "RivWellPathPartMgr.h"
@@ -132,19 +132,9 @@ void RivWellPathsPartMgr::createPartManagersIfRequired()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimWellPathCollection* RivWellPathsPartMgr::wellPathCollection() const
-{
-    RimProject* proj = RiaApplication::instance()->project();
-
-    return proj->activeOilField()->wellPathCollection();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 bool RivWellPathsPartMgr::isWellPathVisible() const
 {
-    auto wellPathColl = wellPathCollection();
+    auto wellPathColl = RimTools::wellPathCollection();
 
     if (!wellPathColl->isActive()) return false;
     if (wellPathColl->wellPathVisibility() == RimWellPathCollection::FORCE_ALL_OFF) return false;

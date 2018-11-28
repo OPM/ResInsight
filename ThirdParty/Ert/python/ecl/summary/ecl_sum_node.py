@@ -1,6 +1,6 @@
 class EclSumNode(object):
 
-    def __init__(self, mini_step, report_step, days, date, mpl_date, value):
+    def __init__(self, report_step, days, date, mpl_date, value):
         """
         EclSumNode is a 'struct' with a summary value and time.
 
@@ -11,7 +11,6 @@ class EclSumNode(object):
 
             value       : The actual value
             report_step : The report step
-            mini_step   : The ministep
             days        : Days since simulation start
             date        : The simulation date
             mpl_date    : A date format suitable for matplotlib
@@ -19,7 +18,6 @@ class EclSumNode(object):
         """
         self.value = value
         self.report_step = report_step
-        self.mini_step = mini_step
         self.days = days
         self.date = date
         self.mpl_date = mpl_date

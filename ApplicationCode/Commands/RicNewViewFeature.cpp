@@ -19,6 +19,7 @@
 
 #include "RicNewViewFeature.h"
 
+#include "RimContourMapView.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
 #include "RimGeoMechCase.h"
@@ -158,9 +159,12 @@ RimEclipseView* RicNewViewFeature::selectedEclipseView()
     std::vector<RimEclipseView*> selection;
     caf::SelectionManager::instance()->objectsByType(&selection);
 
-    if (selection.size() > 0)
+    for (RimEclipseView* view : selection)
     {
-        return selection[0];
+        if (dynamic_cast<RimContourMapView*>(view) == nullptr)
+        {
+            return view;
+        }
     }
 
     return nullptr;

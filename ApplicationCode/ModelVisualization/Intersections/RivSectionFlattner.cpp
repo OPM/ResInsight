@@ -73,7 +73,7 @@ std::vector<cvf::Mat4d> RivSectionFlattner::calculateFlatteningCSsForPolyline(co
         cvf::Vec3d p2 = polyLine[1];
 
         cvf::Mat4d sectionLocalCS = calculateSectionLocalFlatteningCS(p1, p2, extrusionDir);
-        cvf::Mat4d invSectionCS = sectionLocalCS.getInverted();
+        invSectionCS = sectionLocalCS.getInverted();
         invSectionCS.setTranslation(invSectionCS.translation() + startOffset);
     }
 

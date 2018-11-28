@@ -81,14 +81,14 @@ RiaPreferences::RiaPreferences(void)
     useShaders.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
     CAF_PDM_InitField(&showHud,                         "showHud", false, "Show 3D Information", "", "", "");
     showHud.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
-    CAF_PDM_InitField(&appendClassNameToUiText,         "appendClassNameToUiText", false, "Show Class Names", "", "", "");
-    appendClassNameToUiText.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
-    CAF_PDM_InitField(&appendFieldKeywordToToolTipText, "appendFieldKeywordToToolTipText", false, "Show Field Keyword in ToolTip", "", "", "");
-    appendFieldKeywordToToolTipText.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
-    CAF_PDM_InitField(&showTestToolbar, "showTestToolbar", false, "Enable Test Toolbar", "", "", "");
-    showTestToolbar.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
-    CAF_PDM_InitField(&includeFractureDebugInfoFile, "includeFractureDebugInfoFile", false, "Include Fracture Debug Info for Completion Export", "", "", "");
-    includeFractureDebugInfoFile.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
+    CAF_PDM_InitField(&m_appendClassNameToUiText,         "appendClassNameToUiText", false, "Show Class Names", "", "", "");
+    m_appendClassNameToUiText.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
+    CAF_PDM_InitField(&m_appendFieldKeywordToToolTipText, "appendFieldKeywordToToolTipText", false, "Show Field Keyword in ToolTip", "", "", "");
+    m_appendFieldKeywordToToolTipText.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
+    CAF_PDM_InitField(&m_showTestToolbar, "showTestToolbar", false, "Enable Test Toolbar", "", "", "");
+    m_showTestToolbar.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
+    CAF_PDM_InitField(&m_includeFractureDebugInfoFile, "includeFractureDebugInfoFile", false, "Include Fracture Debug Info for Completion Export", "", "", "");
+    m_includeFractureDebugInfoFile.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
 
     CAF_PDM_InitField(&showLegendBackground, "showLegendBackground", true, "Enable Legend Background", "", "", "");
 
@@ -105,13 +105,20 @@ RiaPreferences::RiaPreferences(void)
     CAF_PDM_InitField(&summaryImportMode, "summaryImportMode", SummaryRestartFilesImportModeType(RiaPreferences::IMPORT), "Default Summary Import Option", "", "", "");
     CAF_PDM_InitField(&gridImportMode, "gridImportMode", SummaryRestartFilesImportModeType(RiaPreferences::NOT_IMPORT), "Default Grid Import Option", "", "", "");
 
+    CAF_PDM_InitFieldNoDefault(&m_holoLensExportFolder, "holoLensExportFolder", "HoloLens Export Folder", "", "", "");
+    m_holoLensExportFolder.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::TOP);
+    m_holoLensExportFolder.uiCapability()->setUiEditorTypeName(caf::PdmUiFilePathEditor::uiEditorTypeName());
+
     CAF_PDM_InitFieldNoDefault(&m_readerSettings,        "readerSettings", "Reader Settings", "", "", "");
     m_readerSettings = new RifReaderSettings;
 
     m_tabNames << "General";
     m_tabNames << "Eclipse";
     m_tabNames << "Octave";
-    m_tabNames << "System";
+    if (RiaApplication::enableDevelopmentFeatures())
+    {
+        m_tabNames << "System";
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -143,16 +150,24 @@ void RiaPreferences::defineEditorAttribute(const caf::PdmFieldHandle* field, QSt
             field == &loadAndShowSoil ||
             field == &useShaders ||
             field == &showHud ||
-            field == &appendClassNameToUiText ||
-            field == &appendFieldKeywordToToolTipText ||
-            field == &showTestToolbar ||
-            field == &includeFractureDebugInfoFile ||
+            field == &m_appendClassNameToUiText ||
+            field == &m_appendFieldKeywordToToolTipText ||
+            field == &m_showTestToolbar ||
+            field == &m_includeFractureDebugInfoFile ||
             field == &showLasCurveWithoutTvdWarning)
     {
         caf::PdmUiCheckBoxEditorAttribute* myAttr = dynamic_cast<caf::PdmUiCheckBoxEditorAttribute*>(attribute);
         if (myAttr)
         {
             myAttr->m_useNativeCheckBoxLabel = true;
+        }
+    }
+    else if (field == &m_holoLensExportFolder)
+    {
+        caf::PdmUiFilePathEditorAttribute* myAttr = dynamic_cast<caf::PdmUiFilePathEditorAttribute*>(attribute);
+        if (myAttr)
+        {
+            myAttr->m_selectDirectory = true;
         }
     }
 }
@@ -210,12 +225,13 @@ void RiaPreferences::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
         scriptGroup->add(&scriptDirectories);
         scriptGroup->add(&scriptEditorExecutable);
     }
-    else if (uiConfigName == m_tabNames[3])
+    else if (RiaApplication::enableDevelopmentFeatures() && uiConfigName == m_tabNames[3])
     {
-        uiOrdering.add(&appendClassNameToUiText);
-        uiOrdering.add(&appendFieldKeywordToToolTipText);
-        uiOrdering.add(&showTestToolbar);
-        uiOrdering.add(&includeFractureDebugInfoFile);
+        uiOrdering.add(&m_appendClassNameToUiText);
+        uiOrdering.add(&m_appendFieldKeywordToToolTipText);
+        uiOrdering.add(&m_showTestToolbar);
+        uiOrdering.add(&m_includeFractureDebugInfoFile);
+        uiOrdering.add(&m_holoLensExportFolder);
     }
 
     uiOrdering.skipRemainingFields(true);
@@ -270,5 +286,45 @@ QStringList RiaPreferences::tabNames()
 const RifReaderSettings* RiaPreferences::readerSettings() const
 {
     return m_readerSettings;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiaPreferences::appendClassNameToUiText() const
+{
+    return RiaApplication::enableDevelopmentFeatures() && m_appendClassNameToUiText();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiaPreferences::appendFieldKeywordToToolTipText() const
+{
+    return RiaApplication::enableDevelopmentFeatures() && m_appendFieldKeywordToToolTipText();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiaPreferences::showTestToolbar() const
+{
+    return RiaApplication::enableDevelopmentFeatures() && m_showTestToolbar();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiaPreferences::includeFractureDebugInfoFile() const
+{
+    return RiaApplication::enableDevelopmentFeatures() && m_includeFractureDebugInfoFile();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RiaPreferences::holoLensExportFolder() const
+{
+    return m_holoLensExportFolder();
 }
 

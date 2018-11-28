@@ -56,7 +56,7 @@ class PdmUiTreeEditorHandle: public PdmUiEditorHandle
 {
 public:
     PdmUiTreeEditorHandle() {}
-    ~PdmUiTreeEditorHandle() {}
+    ~PdmUiTreeEditorHandle() override {}
    
     QWidget*            getOrCreateWidget(QWidget* parent);
     QWidget*            widget() { return m_widget; }

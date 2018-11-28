@@ -34,9 +34,9 @@ class RicPasteTimeHistoryCurveFeature : public caf::CmdFeature
 
 protected:
     // Overrides
-    virtual bool isCommandEnabled() override;
-    virtual void onActionTriggered( bool isChecked ) override;
-    virtual void setupActionLook(QAction* actionToSetup) override;
+    bool isCommandEnabled() override;
+    void onActionTriggered( bool isChecked ) override;
+    void setupActionLook(QAction* actionToSetup) override;
 
 private:
     static std::vector<caf::PdmPointer<RimGridTimeHistoryCurve> > timeHistoryCurves();

@@ -46,9 +46,9 @@
 #include "cafSelectionManager.h"
 
 #include <QApplication>
+#include <QKeyEvent>
 #include <QIntValidator>
 #include <QLabel>
-#include <QLineEdit>
 #include <QMainWindow>
 #include <QMessageBox>
 #include <QPalette>
@@ -71,7 +71,7 @@ public:
         computeNextValidId();
     }
 
-    virtual State validate(QString& currentString, int &) const
+    State validate(QString& currentString, int &) const override
     {
         if (m_multipleSelectionOfSameFieldsSelected)
         {
@@ -98,9 +98,7 @@ public:
 
         if (m_usedIds.find(currentValue) != m_usedIds.end())
         {
-            QApplication* qapplication = qobject_cast<QApplication*>(qApp);
-
-            foreach(QWidget* widget, qapplication->topLevelWidgets())
+            foreach(QWidget* widget, QApplication::topLevelWidgets())
             {
                 if (widget->inherits("QMainWindow"))
                 {
@@ -118,7 +116,7 @@ public:
         return QValidator::Acceptable;
     }
 
-    virtual void fixup(QString& editorText) const
+    void fixup(QString& editorText) const override
     {
         editorText = QString::number(m_nextValidValue);
     }
@@ -153,6 +151,26 @@ namespace caf
 
 CAF_PDM_UI_FIELD_EDITOR_SOURCE_INIT(PdmUiLineEditor);
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QWidget* PdmUiLineEditor::createEditorWidget(QWidget * parent)
+{
+    m_lineEdit = new PdmUiLineEdit(parent);
+
+    connect(m_lineEdit, SIGNAL(editingFinished()), this, SLOT(slotEditingFinished()));
+
+    return m_lineEdit;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QWidget* PdmUiLineEditor::createLabelWidget(QWidget * parent)
+{
+    m_label = new QLabel(parent);
+    return m_label;
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -166,7 +184,7 @@ void PdmUiLineEditor::configureAndUpdateUi(const QString& uiConfigName)
 
     if (!m_lineEdit.isNull())
     {
-        bool isReadOnly = field()->isUiReadOnly(uiConfigName);
+        bool isReadOnly = uiField()->isUiReadOnly(uiConfigName);
         if (isReadOnly)
         {
             m_lineEdit->setReadOnly(true);
@@ -181,48 +199,50 @@ void PdmUiLineEditor::configureAndUpdateUi(const QString& uiConfigName)
             m_lineEdit->setStyleSheet("");
         }
 
-        m_lineEdit->setToolTip(field()->uiToolTip(uiConfigName));
+        m_lineEdit->setToolTip(uiField()->uiToolTip(uiConfigName));
 
         {
             PdmUiLineEditorAttribute leab;
-            caf::PdmUiObjectHandle* uiObject = uiObj(field()->fieldHandle()->ownerObject());
+            caf::PdmUiObjectHandle* uiObject = uiObj(uiField()->fieldHandle()->ownerObject());
             if (uiObject)
             {
-                uiObject->editorAttribute(field()->fieldHandle(), uiConfigName, &leab);
+                uiObject->editorAttribute(uiField()->fieldHandle(), uiConfigName, &leab);
             }
 
             if (leab.useRangeValidator)
             {
                 m_lineEdit->setValidator(new QIntValidator(leab.minValue, leab.maxValue, this));
             }
+
+            m_lineEdit->setAvoidSendingEnterEventToParentWidget(leab.avoidSendingEnterEventToParentWidget);
         }
 
         {
             PdmUiLineEditorAttributeUniqueValues leab;
-            caf::PdmUiObjectHandle* uiObject = uiObj(field()->fieldHandle()->ownerObject());
+            caf::PdmUiObjectHandle* uiObject = uiObj(uiField()->fieldHandle()->ownerObject());
             if (uiObject)
             {
-                uiObject->editorAttribute(field()->fieldHandle(), uiConfigName, &leab);
+                uiObject->editorAttribute(uiField()->fieldHandle(), uiConfigName, &leab);
             }
             if (leab.usedIds.size() > 0)
             {
-                if (isMultipleFieldsWithSameKeywordSelected(field()->fieldHandle()))
+                if (isMultipleFieldsWithSameKeywordSelected(uiField()->fieldHandle()))
                 {
                     QMessageBox::information(nullptr, "Invalid operation", "The field you are manipulating is defined to have unique values. A selection of multiple fields is detected. Please select a single item.");
                 }
 
-                m_lineEdit->setValidator(new PdmUniqueIdValidator(leab.usedIds, isMultipleFieldsWithSameKeywordSelected(field()->fieldHandle()), leab.errorMessage, this));
+                m_lineEdit->setValidator(new PdmUniqueIdValidator(leab.usedIds, isMultipleFieldsWithSameKeywordSelected(uiField()->fieldHandle()), leab.errorMessage, this));
             }
         }
 
 
         bool fromMenuOnly = true;
-        QList<PdmOptionItemInfo> enumNames = field()->valueOptions(&fromMenuOnly);
+        QList<PdmOptionItemInfo> enumNames = uiField()->valueOptions(&fromMenuOnly);
         CAF_ASSERT(fromMenuOnly); // Not supported
 
         if (!enumNames.isEmpty() && fromMenuOnly == true)
         {
-            int enumValue = field()->uiValue().toInt();
+            int enumValue = uiField()->uiValue().toInt();
 
             if (enumValue < enumNames.size() && enumValue > -1)
             {
@@ -232,16 +252,16 @@ void PdmUiLineEditor::configureAndUpdateUi(const QString& uiConfigName)
         else
         {
             PdmUiLineEditorAttributeUiDisplayString leab;
-            caf::PdmUiObjectHandle* uiObject = uiObj(field()->fieldHandle()->ownerObject());
+            caf::PdmUiObjectHandle* uiObject = uiObj(uiField()->fieldHandle()->ownerObject());
             if (uiObject)
             {
-                uiObject->editorAttribute(field()->fieldHandle(), uiConfigName, &leab);
+                uiObject->editorAttribute(uiField()->fieldHandle(), uiConfigName, &leab);
             }
 
             QString displayString;
             if (leab.m_displayString.isEmpty())
             {
-                displayString = field()->uiValue().toString();
+                displayString = uiField()->uiValue().toString();
             }
             else
             {
@@ -253,26 +273,22 @@ void PdmUiLineEditor::configureAndUpdateUi(const QString& uiConfigName)
     }
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-QWidget* PdmUiLineEditor::createEditorWidget(QWidget * parent)
+QMargins PdmUiLineEditor::calculateLabelContentMargins() const
 {
-    m_lineEdit = new QLineEdit(parent);
+    QSize editorSize = m_lineEdit->sizeHint();
+    QSize labelSize  = m_label->sizeHint();
+    int heightDiff   = editorSize.height() - labelSize.height();
 
-    connect(m_lineEdit, SIGNAL(editingFinished()), this, SLOT(slotEditingFinished()));
-
-    return m_lineEdit;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-QWidget* PdmUiLineEditor::createLabelWidget(QWidget * parent)
-{
-    m_label = new QLabel(parent);
-    return m_label;
+    QMargins contentMargins = m_label->contentsMargins();
+    if (heightDiff > 0)
+    {
+        contentMargins.setTop(contentMargins.top() + heightDiff / 2);
+        contentMargins.setBottom(contentMargins.bottom() + heightDiff / 2);
+    }
+    return contentMargins;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -296,7 +312,7 @@ bool PdmUiLineEditor::isMultipleFieldsWithSameKeywordSelected(PdmFieldHandle* ed
 
     // For current selection, find all fields with same keyword
     std::vector<PdmUiItem*> items;
-    SelectionManager::instance()->selectedItems(items, SelectionManager::CURRENT);
+    SelectionManager::instance()->selectedItems(items, SelectionManager::FIRST_LEVEL);
 
     for (size_t i = 0; i < items.size(); i++)
     {
@@ -318,5 +334,38 @@ bool PdmUiLineEditor::isMultipleFieldsWithSameKeywordSelected(PdmFieldHandle* ed
     return false;
 }
 
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+PdmUiLineEdit::PdmUiLineEdit(QWidget* parent)
+    : QLineEdit(parent), m_avoidSendingEnterEvent(false)
+{
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void PdmUiLineEdit::setAvoidSendingEnterEventToParentWidget(bool avoidSendingEnterEvent)
+{
+    m_avoidSendingEnterEvent = avoidSendingEnterEvent;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void PdmUiLineEdit::keyPressEvent(QKeyEvent * event)
+{
+    QLineEdit::keyPressEvent(event);
+    if (m_avoidSendingEnterEvent)
+    {
+        if (event->key() == Qt::Key_Enter || event->key() == Qt::Key_Return)
+        {
+            // accept enter/return events so they won't
+            // be ever propagated to the parent dialog..
+            event->accept();
+        }
+    }
+}
 
 } // end namespace caf

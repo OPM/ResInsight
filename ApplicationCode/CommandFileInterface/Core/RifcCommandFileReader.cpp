@@ -40,7 +40,6 @@ std::vector<RicfCommandObject*> RicfCommandFileReader::readCommands(QTextStream&
         errorMessageContainer->skipWhiteSpaceWithLineNumberCount(inputStream);
         // Read command name
         QString commandName;
-        bool foundStartBracet = false;
         {
             errorMessageContainer->skipWhiteSpaceWithLineNumberCount(inputStream);
             while ( !inputStream.atEnd() )
@@ -143,5 +142,16 @@ std::vector<RicfCommandObject*> RicfCommandFileReader::readCommands(QTextStream&
 //--------------------------------------------------------------------------------------------------
 void RicfCommandFileReader::writeCommands(QTextStream& outputStream, const std::vector<RicfCommandObject*>& commandsToWrite)
 {
+    for (const auto& cmdObj : commandsToWrite)
+    {
+        auto rcfCap = cmdObj->capability<RicfObjectCapability>();
+        if (!rcfCap) continue;
 
+        outputStream << cmdObj->classKeyword();
+        outputStream << "(";
+
+        rcfCap->writeFields(outputStream);
+
+        outputStream << ")";
+    }
 }

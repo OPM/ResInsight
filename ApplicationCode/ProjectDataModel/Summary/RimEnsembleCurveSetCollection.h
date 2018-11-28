@@ -37,18 +37,20 @@ class RimEnsembleCurveSetCollection : public caf::PdmObject
 
 public:
     RimEnsembleCurveSetCollection();
-    virtual ~RimEnsembleCurveSetCollection();
+    ~RimEnsembleCurveSetCollection() override;
 
     bool                                    isCurveSetsVisible();
 
     void                                    loadDataAndUpdate(bool updateParentPlot);
     void                                    setParentQwtPlotAndReplot(QwtPlot* plot);
     void                                    detachQwtCurves();
+    void                                    reattachQwtCurves();
 
     RimEnsembleCurveSet*                    findRimCurveSetFromQwtCurve(const QwtPlotCurve* qwtCurve) const;
 
     void                                    addCurveSet(RimEnsembleCurveSet* curveSet);
     void                                    deleteCurveSet(RimEnsembleCurveSet* curveSet);
+    void                                    deleteCurveSets(const std::vector<RimEnsembleCurveSet*> curveSets);
 
     std::vector<RimEnsembleCurveSet*>       curveSets() const;
     size_t                                  curveSetCount() const;
@@ -60,7 +62,7 @@ public:
 private:
     caf::PdmFieldHandle*                    objectToggleField() override;
     
-    virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField,
+    void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField,
                                                              const QVariant& oldValue, const QVariant& newValue) override;
 
 private:

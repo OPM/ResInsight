@@ -19,12 +19,13 @@
 
 #include "RiuResultQwtPlot.h"
 
-#include "RigCurveDataTools.h"
+#include "RiaCurveDataTools.h"
+#include "RiaQDateTimeTools.h"
 
 #include "RimContextCommandBuilder.h"
 #include "RimCase.h"
 
-#include "RiuLineSegmentQwtPlotCurve.h"
+#include "RiuQwtPlotCurve.h"
 #include "RiuSummaryQwtPlot.h"
 #include "RiuTextDialog.h"
 
@@ -72,7 +73,7 @@ void RiuResultQwtPlot::addCurve(const RimCase* rimCase, const QString& curveName
         return;
     }
 
-    RiuLineSegmentQwtPlotCurve* plotCurve = new RiuLineSegmentQwtPlotCurve("Curve 1");
+    RiuQwtPlotCurve* plotCurve = new RiuQwtPlotCurve("Curve 1");
 
     plotCurve->setSamplesFromDatesAndYValues(dateTimes, timeHistoryValues, false);
     plotCurve->setTitle(curveName);
@@ -214,7 +215,10 @@ QString RiuResultQwtPlot::asciiDataForUiSelectedCurves() const
                 }
             }
             out += "\n";
-            out += m_timeSteps.at(caseId)[i].toString("yyyy-MM-dd hh:mm:ss ");
+
+            QString dateString = RiaQDateTimeTools::toStringUsingApplicationLocale(m_timeSteps.at(caseId)[i], "yyyy-MM-dd hh:mm:ss ");
+
+            out += dateString;
 
             for (size_t j = 0; j < m_curveData.at(caseId).size(); j++) // curves
             {

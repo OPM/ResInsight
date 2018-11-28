@@ -78,7 +78,7 @@ void RicWellPathImportCompletionsFileFeature::onActionTriggered(bool isChecked)
 
     if (app->project())
     {
-        app->project()->createDisplayModelAndRedrawAllViews();
+        app->project()->scheduleCreateDisplayModelAndRedrawAllViews();
     }
 }
 

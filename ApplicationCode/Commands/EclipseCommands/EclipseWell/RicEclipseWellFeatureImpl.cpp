@@ -50,22 +50,3 @@ std::vector<RimSimWellInView*> RicEclipseWellFeatureImpl::selectedWells()
     return selection;
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RimSimWellInViewCollection* RicEclipseWellFeatureImpl::wellCollectionFromSelection()
-{
-    std::vector<RimSimWellInView*> selection = selectedWells();
-    if (selection.size() > 0)
-    {
-        RimSimWellInView* firstWell = selection[0];
-
-        RimSimWellInViewCollection* wellCollection = nullptr;
-        firstWell->firstAncestorOrThisOfType(wellCollection);
-
-        return wellCollection;
-    }
-
-    return nullptr;
-}
-

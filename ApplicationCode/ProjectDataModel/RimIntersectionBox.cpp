@@ -232,6 +232,14 @@ void RimIntersectionBox::appendManipulatorPartsToModel(cvf::ModelBasicList* mode
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimIntersectionBox::rebuildGeometry()
+{
+    m_intersectionBoxPartMgr = nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimIntersectionBox::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
     if (changedField == &m_singlePlaneState)

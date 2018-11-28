@@ -18,14 +18,43 @@
 
 #include "RimWellPathCompletions.h"
 
+#include "RiaStdStringTools.h"
+
 #include "RimFishbonesCollection.h"
 #include "RimFishboneWellPathCollection.h"
+#include "RimFishbonesMultipleSubs.h"
 #include "RimPerforationCollection.h"
+#include "RimPerforationInterval.h"
 #include "RimWellPathFractureCollection.h"
+#include "RimWellPathFracture.h"
+#include "RimWellPathComponentInterface.h"
+#include "RimWellPathValve.h"
 
 #include "cvfAssert.h"
 
 #include "cafPdmUiTreeOrdering.h"
+
+#include <cmath>
+
+//--------------------------------------------------------------------------------------------------
+/// Internal constants
+//--------------------------------------------------------------------------------------------------
+#define DOUBLE_INF  std::numeric_limits<double>::infinity()
+
+
+namespace caf {
+
+    template<>
+    void RimWellPathCompletions::WellTypeEnum::setUp()
+    {
+        addItem(RimWellPathCompletions::OIL, "OIL", "Oil");
+        addItem(RimWellPathCompletions::GAS, "GAS", "Gas");
+        addItem(RimWellPathCompletions::WATER, "WATER", "Water");
+        addItem(RimWellPathCompletions::LIQUID, "LIQUID", "Liquid");
+
+        setDefault(RimWellPathCompletions::OIL);
+    }
+}
 
 
 CAF_PDM_SOURCE_INIT(RimWellPathCompletions, "WellPathCompletions");
@@ -50,6 +79,12 @@ RimWellPathCompletions::RimWellPathCompletions()
     m_fractureCollection.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitField(&m_wellNameForExport, "WellNameForExport", QString(), "Well Name for Completion Export", "", "", "");
+
+    CAF_PDM_InitField(&m_wellGroupName, "WellGroupNameForExport", QString(), "Well Group Name for Completion Export", "", "", "");
+
+    CAF_PDM_InitField(&m_referenceDepth, "ReferenceDepthForExport", QString(), "Reference Depth for Completion Export", "", "", "");
+
+    CAF_PDM_InitField(&m_wellType, "WellTypeForExport", WellTypeEnum(), "Well Type for Completion Export", "", "", "");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -77,7 +112,8 @@ RimPerforationCollection* RimWellPathCompletions::perforationCollection() const
 //--------------------------------------------------------------------------------------------------
 void RimWellPathCompletions::setWellNameForExport(const QString& name)
 {
-    m_wellNameForExport = name;
+    auto n = name;
+    m_wellNameForExport = n.remove(' ');
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -85,7 +121,43 @@ void RimWellPathCompletions::setWellNameForExport(const QString& name)
 //--------------------------------------------------------------------------------------------------
 QString RimWellPathCompletions::wellNameForExport() const
 {
-    return m_wellNameForExport();
+    return formatStringForExport(m_wellNameForExport());
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RimWellPathCompletions::wellGroupNameForExport() const
+{
+    return formatStringForExport(m_wellGroupName, "1*");
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RimWellPathCompletions::referenceDepthForExport() const
+{
+    std::string refDepth = m_referenceDepth.v().toStdString();
+    if (RiaStdStringTools::isNumber(refDepth, '.'))
+    {
+        return m_referenceDepth.v();
+    }
+    return "1*";
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RimWellPathCompletions::wellTypeNameForExport() const
+{
+    switch (m_wellType.v())
+    {
+    case OIL:       return "OIL";
+    case GAS:       return "GAS";
+    case WATER:     return "WATER";
+    case LIQUID:    return "LIQ";
+    }
+    return "";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -99,16 +171,55 @@ RimWellPathFractureCollection* RimWellPathCompletions::fractureCollection() cons
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimWellPathValve*> RimWellPathCompletions::valves() const
+{
+    std::vector<RimWellPathValve*> allValves;
+    this->descendantsIncludingThisOfType(allValves);
+    return allValves;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<const RimWellPathComponentInterface*> RimWellPathCompletions::allCompletions() const
+{
+    std::vector<const RimWellPathComponentInterface*> completions;
+
+    for (const RimWellPathFracture* fracture : fractureCollection()->allFractures())
+    {
+        completions.push_back(fracture);
+    }
+    for (const RimFishbonesMultipleSubs* fishbones : fishbonesCollection()->allFishbonesSubs())
+    {
+        completions.push_back(fishbones);
+    }
+    for (const RimPerforationInterval* perforation : perforationCollection()->perforations())
+    {
+        completions.push_back(perforation);
+    }
+
+    std::vector<RimWellPathValve*> allValves = valves();
+    for (const RimWellPathValve* valve : allValves)
+    {
+        completions.push_back(valve);
+    }
+
+    return completions;
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 bool RimWellPathCompletions::hasCompletions() const
 {
-    if (!fractureCollection()->fractures().empty())
+    if (!fractureCollection()->allFractures().empty())
     {
         return true;
     }
 
-    return !fishbonesCollection()->fishbonesSubs().empty() ||
+    return !fishbonesCollection()->allFishbonesSubs().empty() ||
            !fishbonesCollection()->wellPathCollection()->wellPaths().empty() ||
            !perforationCollection()->perforations().empty();
 }
@@ -119,6 +230,7 @@ bool RimWellPathCompletions::hasCompletions() const
 void RimWellPathCompletions::setUnitSystemSpecificDefaults()
 {
     m_fishbonesCollection->setUnitSystemSpecificDefaults();
+    m_fractureCollection->setUnitSystemSpecificDefaults();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -133,14 +245,48 @@ void RimWellPathCompletions::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTree
         uiTreeOrdering.add(&m_perforationCollection);
     }
 
-    if (!fishbonesCollection()->fishbonesSubs().empty() ||
+    if (!fishbonesCollection()->allFishbonesSubs().empty() ||
         !fishbonesCollection()->wellPathCollection()->wellPaths().empty())
     {
         uiTreeOrdering.add(&m_fishbonesCollection);
     }
 
-    if (!fractureCollection()->fractures().empty())
+    if (!fractureCollection()->allFractures().empty())
     {
         uiTreeOrdering.add(&m_fractureCollection);
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellPathCompletions::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+{
+    if (changedField == &m_referenceDepth)
+    {
+        if (!RiaStdStringTools::isNumber(m_referenceDepth.v().toStdString(), '.'))
+        {
+            if (!RiaStdStringTools::isNumber(m_referenceDepth.v().toStdString(), ','))
+            {
+                // Remove invalid input text
+                m_referenceDepth = "";
+            }
+            else
+            {
+                // Wrong decimal sign entered, replace , by .
+                auto text = m_referenceDepth.v();
+                m_referenceDepth = text.replace(',', '.');
+            }
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RimWellPathCompletions::formatStringForExport(const QString& text, const QString& defaultValue) const
+{
+    if (text.isEmpty()) return defaultValue;
+    if (text.contains(' ')) return QString("'%1'").arg(text);
+    return text;
 }

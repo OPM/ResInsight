@@ -24,6 +24,7 @@
 
 #include "RifSummaryReaderInterface.h"
 
+#include "RimDataSourceSteppingTools.h"
 #include "RimProject.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseMainCollection.h"
@@ -43,7 +44,8 @@ CAF_PDM_SOURCE_INIT(RimSummaryPlotSourceStepping, "RimSummaryCurveCollectionModi
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSummaryPlotSourceStepping::RimSummaryPlotSourceStepping() : m_sourceSteppingType(Y_AXIS)
+RimSummaryPlotSourceStepping::RimSummaryPlotSourceStepping()
+    : m_sourceSteppingType(Y_AXIS)
 {
     // clang-format off
     CAF_PDM_InitObject("Summary Curves Modifier", "", "", "");
@@ -75,33 +77,7 @@ void RimSummaryPlotSourceStepping::setSourceSteppingType(SourceSteppingType sour
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlotSourceStepping::applyNextCase()
 {
-    RimProject* proj = RiaApplication::instance()->project();
-
-    auto summaryCases = proj->allSummaryCases();
-    if (summaryCases.size() < 1) return;
-
-    auto currentCase = std::find(summaryCases.begin(), summaryCases.end(), m_summaryCase());
-
-    if (currentCase != summaryCases.end())
-    {
-        currentCase++;
-        if (currentCase != summaryCases.end())
-        {
-            m_summaryCase = *currentCase;
-        }
-    }
-    else
-    {
-        m_summaryCase = summaryCases[0];
-    }
-
-    fieldChangedByUi(&m_summaryCase, QVariant(), QVariant());
-    m_summaryCase.uiCapability()->updateConnectedEditors();
-
-    RimSummaryCurveCollection* curveCollection = nullptr;
-    this->firstAncestorOrThisOfTypeAsserted(curveCollection);
-
-    curveCollection->updateConnectedEditors();
+    modifyCurrentIndex(&m_summaryCase, 1);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -109,30 +85,7 @@ void RimSummaryPlotSourceStepping::applyNextCase()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlotSourceStepping::applyPrevCase()
 {
-    RimProject* proj = RiaApplication::instance()->project();
-
-    auto summaryCases = proj->allSummaryCases();
-    if (summaryCases.size() < 1) return;
-
-    auto currentCase = std::find(summaryCases.begin(), summaryCases.end(), m_summaryCase());
-
-    if (currentCase != summaryCases.end() && currentCase != summaryCases.begin())
-    {
-        currentCase--;
-        m_summaryCase = *currentCase;
-    }
-    else
-    {
-        m_summaryCase = summaryCases[0];
-    }
-
-    fieldChangedByUi(&m_summaryCase, QVariant(), QVariant());
-    m_summaryCase.uiCapability()->updateConnectedEditors();
-
-    RimSummaryCurveCollection* curveCollection = nullptr;
-    this->firstAncestorOrThisOfTypeAsserted(curveCollection);
-
-    curveCollection->updateConnectedEditors();
+    modifyCurrentIndex(&m_summaryCase, -1);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -229,10 +182,10 @@ QList<caf::PdmOptionItemInfo> RimSummaryPlotSourceStepping::calculateValueOption
 
     std::vector<QString> identifierTexts;
 
-    RifSummaryReaderInterface* reader = firstSummaryReaderForCurves();
-    if (reader)
+    std::vector<RifSummaryReaderInterface*> readers = summaryReadersForCurves();
+    if (!readers.empty())
     {
-        RiaSummaryCurveAnalyzer* analyzer = analyzerForReader(reader);
+        RiaSummaryCurveAnalyzer* analyzer = analyzerForReader(readers.front());
 
         if (fieldNeedingOptions == &m_wellName)
         {
@@ -260,9 +213,12 @@ QList<caf::PdmOptionItemInfo> RimSummaryPlotSourceStepping::calculateValueOption
 
             RiaSummaryCurveAnalyzer quantityAnalyzer;
 
-            auto subset = RiaSummaryCurveAnalyzer::addressesForCategory(reader->allResultAddresses(), category);
+            for (auto reader : readers)
+            {
+                auto subset = RiaSummaryCurveAnalyzer::addressesForCategory(reader->allResultAddresses(), category);
+                quantityAnalyzer.appendAdresses(subset);
+            }
 
-            quantityAnalyzer.appendAdresses(subset);
             for (const auto& quantity : quantityAnalyzer.quantities())
             {
                 identifierTexts.push_back(QString::fromStdString(quantity));
@@ -289,8 +245,9 @@ QList<caf::PdmOptionItemInfo> RimSummaryPlotSourceStepping::calculateValueOption
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryPlotSourceStepping::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue,
-                                                    const QVariant& newValue)
+void RimSummaryPlotSourceStepping::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
+                                                    const QVariant&            oldValue,
+                                                    const QVariant&            newValue)
 {
     RimSummaryCurveCollection* curveCollection = nullptr;
     this->firstAncestorOrThisOfTypeAsserted(curveCollection);
@@ -305,7 +262,9 @@ void RimSummaryPlotSourceStepping::fieldChangedByUi(const caf::PdmFieldHandle* c
             {
                 if (isYAxisStepping())
                 {
+                    bool doSetAppearance = curve->summaryCaseY()->isObservedData() != m_summaryCase->isObservedData();
                     curve->setSummaryCaseY(m_summaryCase);
+                    if (doSetAppearance) curve->forceUpdateCurveAppearanceFromCaseType();
                 }
 
                 if (isXAxisStepping())
@@ -329,7 +288,7 @@ void RimSummaryPlotSourceStepping::fieldChangedByUi(const caf::PdmFieldHandle* c
             if (isYAxisStepping())
             {
                 RifEclipseSummaryAddress adr = curve->summaryAddressY();
-                if (adr.category() == RifEclipseSummaryAddress::SUMMARY_WELL)
+                if (RifEclipseSummaryAddress::isDependentOnWellName(adr))
                 {
                     adr.setWellName(m_wellName().toStdString());
 
@@ -340,7 +299,7 @@ void RimSummaryPlotSourceStepping::fieldChangedByUi(const caf::PdmFieldHandle* c
             if (isXAxisStepping())
             {
                 RifEclipseSummaryAddress adr = curve->summaryAddressX();
-                if (adr.category() == RifEclipseSummaryAddress::SUMMARY_WELL)
+                if (RifEclipseSummaryAddress::isDependentOnWellName(adr))
                 {
                     adr.setWellName(m_wellName().toStdString());
 
@@ -457,25 +416,26 @@ void RimSummaryPlotSourceStepping::fieldChangedByUi(const caf::PdmFieldHandle* c
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifSummaryReaderInterface* RimSummaryPlotSourceStepping::firstSummaryReaderForCurves() const
+std::vector<RifSummaryReaderInterface*> RimSummaryPlotSourceStepping::summaryReadersForCurves() const
 {
-    RimSummaryCurveCollection* curveCollection = nullptr;
+    std::vector<RifSummaryReaderInterface*> readers;
+    RimSummaryCurveCollection*              curveCollection = nullptr;
     this->firstAncestorOrThisOfTypeAsserted(curveCollection);
 
     for (auto curve : curveCollection->curves())
     {
         if (isYAxisStepping() && curve->summaryCaseY())
         {
-            return curve->summaryCaseY()->summaryReader();
+            readers.push_back(curve->summaryCaseY()->summaryReader());
         }
 
         if (isXAxisStepping() && curve->summaryCaseX())
         {
-            return curve->summaryCaseX()->summaryReader();
+            readers.push_back(curve->summaryCaseX()->summaryReader());
         }
     }
 
-    return nullptr;
+    return readers;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -688,50 +648,16 @@ RiaSummaryCurveAnalyzer* RimSummaryPlotSourceStepping::analyzerForReader(RifSumm
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlotSourceStepping::modifyCurrentIndex(caf::PdmValueField* valueField, int indexOffset)
 {
-    if (valueField)
-    {
-        bool useOptionsOnly = true;
-
-        QList<caf::PdmOptionItemInfo> options = calculateValueOptions(valueField, nullptr);
-        if (options.isEmpty())
-        {
-            return;
-        }
-
-        auto uiVariant = valueField->uiCapability()->toUiBasedQVariant();
-
-        int currentIndex = -1;
-        for (int i = 0; i < options.size(); i++)
-        {
-            if (uiVariant == options[i].optionUiText())
-            {
-                currentIndex = i;
-            }
-        }
-
-        if (currentIndex == -1)
-        {
-            currentIndex = 0;
-        }
-
-        int nextIndex = currentIndex + indexOffset;
-        if (nextIndex < options.size() && nextIndex > -1)
-        {
-            auto optionValue = options[nextIndex].value();
-
-            QVariant currentValue = valueField->toQVariant();
-
-            valueField->setFromQVariant(optionValue);
-
-            valueField->uiCapability()->notifyFieldChanged(currentValue, optionValue);
-        }
-    }
+    bool                          useOptionsOnly;
+    QList<caf::PdmOptionItemInfo> options = calculateValueOptions(valueField, &useOptionsOnly);
+    RimDataSourceSteppingTools::modifyCurrentIndex(valueField, options, indexOffset);
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryPlotSourceStepping::defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName,
+void RimSummaryPlotSourceStepping::defineEditorAttribute(const caf::PdmFieldHandle* field,
+                                                         QString                    uiConfigName,
                                                          caf::PdmUiEditorAttribute* attribute)
 {
     caf::PdmUiComboBoxEditorAttribute* myAttr = dynamic_cast<caf::PdmUiComboBoxEditorAttribute*>(attribute);

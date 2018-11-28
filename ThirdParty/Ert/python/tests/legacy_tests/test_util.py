@@ -13,7 +13,6 @@ from ert.util import LookupTable
 from ert.util import Hash, StringHash, DoubleHash, IntegerHash
 from ert.util import ThreadPool
 from ert.util import installAbortSignals, updateAbortSignals
-from ert.util import ArgPack
 
 from tests import EclTest
 

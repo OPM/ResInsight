@@ -22,10 +22,8 @@
 #include "RiaLogging.h"
 
 #include "RicExportFeatureImpl.h"
-
+#include "RicEclipseCellResultToFileImpl.h"
 #include "RicSaveEclipseInputVisibleCellsUi.h"
-
-#include "RifEclipseInputFileTools.h"
 
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
@@ -49,7 +47,7 @@ CAF_CMD_SOURCE_INIT(RicSaveEclipseInputActiveVisibleCellsFeature, "RicSaveEclips
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void executeCommand(RimEclipseView* view)
+void RicSaveEclipseInputVisibleCellsFeature::openDialogAndExecuteCommand(RimEclipseView* view)
 {
     if (!view) return;
 
@@ -59,37 +57,48 @@ void executeCommand(RimEclipseView* view)
 
     if (propertyDialog.exec() == QDialog::Accepted)
     {
-        std::vector<double> values;
-        cvf::UByteArray visibleCells;
-        view->calculateCurrentTotalCellVisibility(&visibleCells, view->currentTimeStep());
-        RigActiveCellInfo* activeCellInfo = view->eclipseCase()->eclipseCaseData()->activeCellInfo(RiaDefines::MATRIX_MODEL);
-        values.resize(visibleCells.size());
-        for (size_t i = 0; i < visibleCells.size(); ++i)
+        executeCommand(view, exportSettings, "saveEclipseInputVisibleCells");
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicSaveEclipseInputVisibleCellsFeature::executeCommand(RimEclipseView* view,
+                                                            const RicSaveEclipseInputVisibleCellsUi& exportSettings,
+                                                            const QString& logPrefix)
+{
+    std::vector<double> values;
+    cvf::UByteArray visibleCells;
+    view->calculateCurrentTotalCellVisibility(&visibleCells, view->currentTimeStep());
+    RigActiveCellInfo* activeCellInfo = view->eclipseCase()->eclipseCaseData()->activeCellInfo(RiaDefines::MATRIX_MODEL);
+    values.resize(visibleCells.size());
+    for (size_t i = 0; i < visibleCells.size(); ++i)
+    {
+        if (activeCellInfo->isActive(i))
         {
-            if (activeCellInfo->isActive(i))
+            if (visibleCells[i])
             {
-                if (visibleCells[i])
-                {
-                    values[i] = static_cast<double>(exportSettings.visibleActiveCellsValue);
-                }
-                else
-                {
-                    values[i] = static_cast<double>(exportSettings.hiddenActiveCellsValue);
-                }
+                values[i] = static_cast<double>(exportSettings.visibleActiveCellsValue);
             }
             else
             {
-                values[i] = static_cast<double>(exportSettings.inactiveCellsValue);
+                values[i] = static_cast<double>(exportSettings.hiddenActiveCellsValue);
             }
         }
-        QFile exportFile(exportSettings.exportFilename);
-        if (!exportFile.open(QIODevice::WriteOnly | QIODevice::Text))
+        else
         {
-            RiaLogging::error(QString("saveEclipseInputVisibleCells: Unable to open file '%1' for writing.").arg(exportSettings.exportFilename));
-            return;
+            values[i] = static_cast<double>(exportSettings.inactiveCellsValue);
         }
-        RifEclipseInputFileTools::writeDataToTextFile(&exportFile, exportSettings.exportKeyword().text(), values);
     }
+    QFile exportFile(exportSettings.exportFilename);
+    if (!exportFile.open(QIODevice::WriteOnly | QIODevice::Text))
+    {
+        RiaLogging::error(QString("%1: Unable to open file '%2' for writing.").arg(logPrefix).arg(exportSettings.exportFilename));
+        return;
+    }
+
+    RicEclipseCellResultToFileImpl::writeDataToTextFile(&exportFile, exportSettings.exportKeyword().text(), values);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -106,7 +115,7 @@ bool RicSaveEclipseInputVisibleCellsFeature::isCommandEnabled()
 void RicSaveEclipseInputVisibleCellsFeature::onActionTriggered(bool isChecked)
 {
     RimEclipseView* view = RicSaveEclipseInputVisibleCellsFeature::selectedView();
-    executeCommand(view);
+    openDialogAndExecuteCommand(view);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -157,7 +166,7 @@ bool RicSaveEclipseInputActiveVisibleCellsFeature::isCommandEnabled()
 void RicSaveEclipseInputActiveVisibleCellsFeature::onActionTriggered(bool isChecked)
 {
     RimEclipseView* view = RicSaveEclipseInputActiveVisibleCellsFeature::getEclipseActiveView();
-    executeCommand(view);
+    RicSaveEclipseInputVisibleCellsFeature::openDialogAndExecuteCommand(view);
 }
 
 //--------------------------------------------------------------------------------------------------

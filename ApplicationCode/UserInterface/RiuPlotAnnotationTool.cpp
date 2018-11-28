@@ -34,7 +34,7 @@ RiuPlotAnnotationTool::~RiuPlotAnnotationTool()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuPlotAnnotationTool::attachFormationNames(QwtPlot* plot, const std::vector<QString>& names, const std::vector<std::pair<double, double>> yPositions)
+void RiuPlotAnnotationTool::attachFormationNames(QwtPlot* plot, const std::vector<QString>& names, const std::vector<std::pair<double, double>> yPositions, bool showNames)
 {
     detachAllAnnotations();
 
@@ -47,10 +47,14 @@ void RiuPlotAnnotationTool::attachFormationNames(QwtPlot* plot, const std::vecto
     {
         QwtPlotMarker* line(new QwtPlotMarker());
 
-        QString name = names[i];
-        if (names[i].toLower().indexOf("top") == -1)
+        QString name;
+        if (showNames)
         {
-            name += " Top";
+            name = names[i];
+            if (names[i].toLower().indexOf("top") == -1)
+            {
+                name += " Top";
+            }
         }
 
         RiuPlotAnnotationTool::horizontalDashedLine(line, name, yPositions[i].first);
@@ -78,8 +82,6 @@ void RiuPlotAnnotationTool::attachWellPicks(QwtPlot* plot, const std::vector<QSt
 
     if (names.size() != yPositions.size()) return;
     m_plot = plot;
-
-    double delta = 0.5;
 
     for (size_t i = 0; i < names.size(); i++)
     {

@@ -21,6 +21,8 @@
 
 #include "RimCellRangeFilter.h"
 
+#include "RiaApplication.h"
+
 #include "RigActiveCellInfo.h"
 #include "RigReservoirGridTools.h"
 
@@ -43,7 +45,7 @@ RimCellRangeFilter::RimCellRangeFilter()
 {
     CAF_PDM_InitObject("Cell Range Filter", ":/CellFilter_Range.png", "", "");
 
-    CAF_PDM_InitField(&gridIndex, "GridIndex",  0,  "Grid", "", "","");
+    CAF_PDM_InitField(&m_gridIndex, "GridIndex",  0,  "Grid", "", "","");
     CAF_PDM_InitField(&propagateToSubGrids, "PropagateToSubGrids",  true,  "Apply to Subgrids", "", "","");
 
     CAF_PDM_InitField(&startIndexI, "StartIndexI",  1,  "Start Index I", "", "","");
@@ -63,7 +65,10 @@ RimCellRangeFilter::RimCellRangeFilter()
 
     CAF_PDM_InitField(&cellCountK,  "CellCountK",   1,  "Cell Count K", "", "","");
     cellCountK.uiCapability()->setUiEditorTypeName(caf::PdmUiSliderEditor::uiEditorTypeName());
-    
+
+    CAF_PDM_InitField(&m_useIndividualCellIndices, "UseIndividualCellIndices", false, "Use Individual Cell Indices", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_individualCellIndices, "IndividualCellIndices", "Cell Indices", "", "Use Ctrl-C for copy and Ctrl-V for paste", "");
+
     updateIconState();
 }
 
@@ -75,11 +80,27 @@ RimCellRangeFilter::~RimCellRangeFilter()
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimCellRangeFilter::setGridIndex(int gridIndex)
+{
+    m_gridIndex = gridIndex;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RimCellRangeFilter::gridIndex() const
+{
+    return m_gridIndex;
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void RimCellRangeFilter::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
-    if (changedField == &gridIndex)
+    if (changedField == &m_gridIndex)
     {
         const cvf::StructGridInterface* grid = selectedGrid();
 
@@ -141,6 +162,22 @@ void RimCellRangeFilter::updateActiveState()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+bool RimCellRangeFilter::useIndividualCellIndices() const
+{
+    return m_useIndividualCellIndices();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const std::vector<cvf::Vec3d>& RimCellRangeFilter::individualCellIndices() const
+{
+    return m_individualCellIndices.v();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimCellRangeFilter::setDefaultValues()
 {
     CVF_ASSERT(parentContainer());
@@ -151,7 +188,7 @@ void RimCellRangeFilter::setDefaultValues()
 
     Rim3dView* rimView = nullptr;
     this->firstAncestorOrThisOfTypeAsserted(rimView);
-    RigActiveCellInfo* actCellInfo = RigReservoirGridTools::activeCellInfo(rimView);
+    auto actCellInfo = RigReservoirGridTools::activeCellInfo(rimView);
     
     RimCase* rimCase = nullptr;
     this->firstAncestorOrThisOfTypeAsserted(rimCase);
@@ -239,9 +276,9 @@ void RimCellRangeFilter::defineUiOrdering(QString uiConfigName, caf::PdmUiOrderi
 
     std::vector<caf::PdmFieldHandle*> objFields;
     this->fields(objFields);
-    for (size_t i = 0; i < objFields.size(); i ++)
+    for (auto& objField : objFields)
     {
-        objFields[i]->uiCapability()->setUiReadOnly(readOnlyState);
+        objField->uiCapability()->setUiReadOnly(readOnlyState);
     }
 
     const cvf::StructGridInterface* grid = selectedGrid();
@@ -252,7 +289,7 @@ void RimCellRangeFilter::defineUiOrdering(QString uiConfigName, caf::PdmUiOrderi
 
     Rim3dView* rimView = nullptr;
     this->firstAncestorOrThisOfTypeAsserted(rimView);
-    RigActiveCellInfo* actCellInfo = RigReservoirGridTools::activeCellInfo(rimView);
+    auto actCellInfo = RigReservoirGridTools::activeCellInfo(rimView);
 
     if (grid == mainGrid && actCellInfo)
     {
@@ -284,6 +321,29 @@ void RimCellRangeFilter::defineUiOrdering(QString uiConfigName, caf::PdmUiOrderi
         cellCountJ.uiCapability()->setUiName(QString("  Width"));
         cellCountK.uiCapability()->setUiName(QString("  Width"));
     }
+    
+    uiOrdering.add(&name);
+    uiOrdering.add(&filterMode);
+    uiOrdering.add(&m_gridIndex);
+    uiOrdering.add(&propagateToSubGrids);
+    uiOrdering.add(&startIndexI);
+    uiOrdering.add(&cellCountI);
+    uiOrdering.add(&startIndexJ);
+    uiOrdering.add(&cellCountJ);
+    uiOrdering.add(&startIndexK);
+    uiOrdering.add(&cellCountK);
+
+    if(RiaApplication::enableDevelopmentFeatures())
+    {
+        auto group = uiOrdering.addNewGroup("Single Cell Filtering (TEST)");
+        group->setCollapsedByDefault(true);
+
+        group->add(&m_useIndividualCellIndices);
+        group->add(&m_individualCellIndices);
+
+        m_individualCellIndices.uiCapability()->setUiReadOnly(!m_useIndividualCellIndices);
+    }
+    uiOrdering.skipRemainingFields(true);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -306,7 +366,7 @@ QList<caf::PdmOptionItemInfo> RimCellRangeFilter::calculateValueOptions(const ca
 
     if (useOptionsOnly) (*useOptionsOnly) = true;
 
-    if (&gridIndex == fieldNeedingOptions)
+    if (&m_gridIndex == fieldNeedingOptions)
     {
         RimCase* rimCase = nullptr;
         this->firstAncestorOrThisOfTypeAsserted(rimCase);

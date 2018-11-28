@@ -36,9 +36,8 @@ public:
    
 public:
     RimWellLogCurve();
-    virtual ~RimWellLogCurve();
+    ~RimWellLogCurve() override;
 
-    bool                            depthRange(double* minimumDepth, double* maximumDepth) const;
     bool                            valueRange(double* minimumValue, double* maximumValue) const;
     
     const RigWellLogCurveData*      curveData() const;
@@ -48,7 +47,9 @@ public:
     virtual QString                 wellDate() const  { return ""; };
 
 protected:
-    virtual void                    updateZoomInParentPlot();
+    void                    updateZoomInParentPlot() override;
+    void                    updateLegendsInPlot() override;
 
-    cvf::ref<RigWellLogCurveData>   m_curveData;
+protected:
+    cvf::ref<RigWellLogCurveData>   m_curveData;    
 };

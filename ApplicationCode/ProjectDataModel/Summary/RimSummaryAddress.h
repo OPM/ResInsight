@@ -34,7 +34,7 @@
 class RifSummaryReaderInterface;
 class RimSummaryCase;
 class RimSummaryFilter;
-class RiuLineSegmentQwtPlotCurve;
+class RiuQwtPlotCurve;
 class RimSummaryCurveAutoName;
 
 
@@ -43,7 +43,7 @@ class RimSummaryAddress: public caf::PdmObject
     CAF_PDM_HEADER_INIT;
 public:
     RimSummaryAddress();;
-    virtual ~RimSummaryAddress();
+    ~RimSummaryAddress() override;
 
     void setAddress(const RifEclipseSummaryAddress& addr);
     RifEclipseSummaryAddress address();
@@ -63,5 +63,6 @@ private:
     caf::PdmField<int>                      m_cellJ;
     caf::PdmField<int>                      m_cellK;
     caf::PdmField<int>                      m_aquiferNumber;
+    caf::PdmField<bool>                     m_isErrorResult;
 };
 

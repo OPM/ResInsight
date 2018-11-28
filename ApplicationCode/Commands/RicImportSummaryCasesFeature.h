@@ -39,7 +39,7 @@ public:
     RicImportSummaryCasesFeature() { }
 
     static bool createAndAddSummaryCasesFromFiles(const QStringList& fileName, std::vector<RimSummaryCase*>* newCases = nullptr);
-    static bool createSummaryCasesFromFiles(const QStringList& fileName, std::vector<RimSummaryCase*>* newCases);
+    static bool createSummaryCasesFromFiles(const QStringList& fileName, std::vector<RimSummaryCase*>* newCases, bool ensembleOrGroup = false);
     static void addSummaryCases(const std::vector<RimSummaryCase*> cases);
     static void addCasesToGroupIfRelevant(const std::vector<RimSummaryCase*> cases);
 
@@ -47,9 +47,9 @@ public:
 
 protected:
     // Overrides
-    virtual bool isCommandEnabled() override;
-    virtual void onActionTriggered( bool isChecked ) override;
-    virtual void setupActionLook( QAction* actionToSetup ) override;
+    bool isCommandEnabled() override;
+    void onActionTriggered( bool isChecked ) override;
+    void setupActionLook( QAction* actionToSetup ) override;
 
 private:
     static QString m_pathFilter;

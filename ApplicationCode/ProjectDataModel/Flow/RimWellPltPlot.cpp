@@ -21,6 +21,7 @@
 #include "RiaApplication.h"
 #include "RiaColorTables.h"
 #include "RiaDateStringParser.h"
+#include "RiaQDateTimeTools.h"
 #include "RiaWellNameComparer.h"
 
 #include "RifReaderEclipseRft.h"
@@ -502,9 +503,6 @@ void RimWellPltPlot::syncCurvesFromUiSelection()
 
     int curveGroupId = 0;
 
-    RimProject* proj = RiaApplication::instance()->project();
-    RimWellPath* wellPath = RimWellPlotTools::wellPathByWellPathNameOrSimWellName(m_wellPathName);
-
     QString dateFormatString;
     {
         std::vector<QDateTime> allTimeSteps;
@@ -531,7 +529,8 @@ void RimWellPltPlot::syncCurvesFromUiSelection()
             curveName += sourceDef.eclCase()     ? sourceDef.eclCase()->caseUserDescription() : "";
             curveName += sourceDef.wellLogFile() ? sourceDef.wellLogFile()->name() : "";
             if ( sourceDef.sourceType() == RifDataSourceForRftPlt::RFT ) curveName += ", RFT";
-            curveName += ", " + timeStep.toString(dateFormatString);
+
+            curveName += ", " + RiaQDateTimeTools::toStringUsingApplicationLocale(timeStep, dateFormatString);
         }
 
         RimEclipseResultCase* rimEclipseResultCase = dynamic_cast<RimEclipseResultCase*>(sourceDef.eclCase());
@@ -626,7 +625,6 @@ void RimWellPltPlot::syncCurvesFromUiSelection()
         }
         else if ( sourceDef.sourceType() == RifDataSourceForRftPlt::OBSERVED )
         {
-            RimWellLogFile* const wellLogFile = sourceDef.wellLogFile();
             if ( sourceDef.wellLogFile() && sourceDef.wellLogFile()->wellLogFileData() )
             {
                 RimWellLogFile::WellFlowCondition flowCondition = sourceDef.wellLogFile()->wellFlowRateCondition();
@@ -702,8 +700,7 @@ void RimWellPltPlot::syncCurvesFromUiSelection()
 
     updateWidgetTitleWindowTitle();
     m_wellLogPlot->loadDataAndUpdate();
-    m_wellLogPlot->updateDepthZoom();
-    plotTrack->updateXZoom();
+    plotTrack->calculateXZoomRange();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -726,7 +723,7 @@ void RimWellPltPlot::addStackedCurve(const QString& curveName,
     if (curveGroupId == 0)
     {
         curve->setDoFillCurve(true);
-        curve->setSymbol(RimPlotCurve::SYMBOL_NONE);
+        curve->setSymbol(RiuQwtSymbol::SYMBOL_NONE);
     }
     else
     {
@@ -734,7 +731,7 @@ void RimWellPltPlot::addStackedCurve(const QString& curveName,
         curve->setSymbol(RimSummaryCurveAppearanceCalculator::cycledSymbol(curveGroupId));
     }
 
-    curve->setSymbolSkipDinstance(10);
+    curve->setSymbolSkipDistance(10);
     plotTrack->addCurve(curve);
 }
 
@@ -789,14 +786,6 @@ RimWellLogPlot* RimWellPltPlot::wellLogPlot() const
 void RimWellPltPlot::setCurrentWellName(const QString& currWellName)
 {
     m_wellPathName = currWellName;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-QString RimWellPltPlot::currentWellName() const
-{
-    return m_wellPathName;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -945,6 +934,10 @@ void RimWellPltPlot::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
         updateFormationsOnPlot();
         syncSourcesIoFieldFromGuiField();
         syncCurvesFromUiSelection();
+        m_wellLogPlot->updateDepthZoom();
+
+        RimWellLogTrack* const plotTrack = m_wellLogPlot->trackByIndex(0);
+        plotTrack->calculateXZoomRangeAndUpdateQwt();
     }
 
     if (   changedField == &m_useStandardConditionCurves 
@@ -952,6 +945,11 @@ void RimWellPltPlot::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
         || changedField == &m_phases)
     {
         syncCurvesFromUiSelection();
+        m_wellLogPlot->updateDepthZoom();
+
+        RimWellLogTrack* const plotTrack = m_wellLogPlot->trackByIndex(0);
+        plotTrack->calculateXZoomRangeAndUpdateQwt();
+
     }
 }
 
@@ -1010,11 +1008,11 @@ void RimWellPltPlot::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
         caf::PdmUiGroup* legendAndAxisGroup = uiOrdering.addNewGroup("Legend and Axis");
         legendAndAxisGroup->setCollapsedByDefault(true);
 
-        m_wellLogPlot->uiOrderingForPlot(*legendAndAxisGroup);
+        m_wellLogPlot->uiOrderingForPlotSettings(*legendAndAxisGroup);
 
-        track->uiOrderingForVisibleXRange(*legendAndAxisGroup);
+        track->uiOrderingForXAxisSettings(*legendAndAxisGroup);
 
-        m_wellLogPlot->uiOrderingForVisibleDepthRange(*legendAndAxisGroup);
+        m_wellLogPlot->uiOrderingForDepthAxis(*legendAndAxisGroup);
     }
 
     uiOrdering.skipRemainingFields(true);

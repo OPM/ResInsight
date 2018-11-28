@@ -46,7 +46,7 @@ class RicExportToLasFileResampleUi : public caf::PdmObject
 
 public:
     RicExportToLasFileResampleUi(void);
-    ~RicExportToLasFileResampleUi();
+    ~RicExportToLasFileResampleUi() override;
 
     caf::PdmField<QString>  exportFolder;
 
@@ -58,11 +58,11 @@ public:
     void                    tvdrkbDiffForWellPaths(std::vector<double>* rkbDiffs);
     void                    setRkbDiffs(const std::vector<QString>& wellNames, const std::vector<double>& rkbDiffs);
 
-    virtual void            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
-    virtual void            defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override;
+    void            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    void            defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override;
 
 protected:
-    virtual void            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    void            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
 
 private:
     void                    updateFieldVisibility();

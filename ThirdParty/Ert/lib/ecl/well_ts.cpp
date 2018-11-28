@@ -62,7 +62,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#include <ert/util/util.hpp>
+#include <ert/util/util.h>
 #include <ert/util/vector.hpp>
 
 #include <ert/ecl_well/well_ts.hpp>

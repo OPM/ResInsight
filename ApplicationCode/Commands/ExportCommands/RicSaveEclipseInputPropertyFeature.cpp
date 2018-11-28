@@ -22,8 +22,7 @@
 #include "RiaApplication.h"
 
 #include "RicExportFeatureImpl.h"
-
-#include "RifEclipseInputFileTools.h"
+#include "RicEclipseCellResultToFileImpl.h"
 
 #include "RimEclipseInputCase.h"
 #include "RimEclipseInputProperty.h"
@@ -106,7 +105,14 @@ void RicSaveEclipseInputPropertyFeature::onActionTriggered(bool isChecked)
 
     if (propertyDialog.exec() == QDialog::Accepted)
     {
-        bool isOk = RifEclipseInputFileTools::writePropertyToTextFile(exportSettings.fileName, inputReservoir->eclipseCaseData(), 0, inputProperty->resultName, exportSettings.eclipseKeyword);
+        const double undefinedValue = 0.0;
+
+        bool isOk = RicEclipseCellResultToFileImpl::writePropertyToTextFile(exportSettings.fileName,
+                                                                            inputReservoir->eclipseCaseData(),
+                                                                            0,
+                                                                            inputProperty->resultName,
+                                                                            exportSettings.eclipseKeyword,
+                                                                            undefinedValue);
         if (isOk)
         {
             inputProperty->fileName = exportSettings.fileName;
@@ -134,7 +140,7 @@ RimEclipseInputProperty* RicSaveEclipseInputPropertyFeature::selectedInputProper
     std::vector<RimEclipseInputProperty*> selection;
     caf::SelectionManager::instance()->objectsByType(&selection);
 
-    return selection.size() > 0 ? selection[0] : NULL;
+    return selection.size() > 0 ? selection[0] : nullptr;
 }
 
 

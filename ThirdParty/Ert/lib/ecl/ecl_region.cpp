@@ -21,10 +21,10 @@
 #include <string.h>
 
 #include <ert/util/int_vector.hpp>
-#include <ert/util/util.hpp>
+#include <ert/util/util.h>
 
-#include <ert/geometry/geo_util.h>
-#include <ert/geometry/geo_polygon.h>
+#include <ert/geometry/geo_util.hpp>
+#include <ert/geometry/geo_polygon.hpp>
 
 #include <ert/ecl/ecl_kw.hpp>
 #include <ert/ecl/ecl_grid.hpp>
@@ -170,7 +170,7 @@ void ecl_region_free( ecl_region_type * region ) {
   int_vector_free( region->active_index_list );
   int_vector_free( region->global_index_list );
   int_vector_free( region->global_active_list );
-  util_safe_free( region->name );
+  free( region->name );
   free( region );
 }
 
@@ -633,26 +633,14 @@ void ecl_region_cmp_deselect_more( ecl_region_type * ecl_region , const ecl_kw_t
    input and create a temporary box object.
 */
 
-static void ecl_region_select_from_box__( ecl_region_type * region , const ecl_box_type * ecl_box , bool select) {
-  const int   box_size    = ecl_box_get_global_size( ecl_box );
-  const int * active_list = ecl_box_get_global_list( ecl_box );
-  int box_index;
-
-  for (box_index = 0; box_index < box_size; box_index++)
-    region->active_mask[ active_list[box_index] ] = select;
+static void ecl_region_select_from_box__( ecl_region_type * region , const ecl::ecl_box& ecl_box , bool select) {
+  for (auto global_index : ecl_box.active_list())
+    region->active_mask[ global_index ] = select;
 
   ecl_region_invalidate_index_list( region );
 }
 
 
-void ecl_region_select_from_box( ecl_region_type * region , const ecl_box_type * ecl_box ) {
-  ecl_region_select_from_box__( region , ecl_box , true );
-}
-
-
-void ecl_region_deselect_from_box( ecl_region_type * region , const ecl_box_type * ecl_box ) {
-  ecl_region_select_from_box__( region , ecl_box , false );
-}
 /*****************************************************************/
 
 /**
@@ -665,9 +653,8 @@ void ecl_region_deselect_from_box( ecl_region_type * region , const ecl_box_type
 */
 
 static void ecl_region_select_from_ijkbox__( ecl_region_type * region , int i1 , int i2 , int j1 , int j2 , int k1 , int k2 , bool select) {
-  ecl_box_type * tmp_box = ecl_box_alloc( region->parent_grid , i1 , i2 , j1 , j2 , k1 , k2);
+  ecl::ecl_box tmp_box(region->parent_grid, i1, i2, j1, j2, k1, k2);
   ecl_region_select_from_box__( region , tmp_box , select );
-  ecl_box_free( tmp_box );
 }
 
 

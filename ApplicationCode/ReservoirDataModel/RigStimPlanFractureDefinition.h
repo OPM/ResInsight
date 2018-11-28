@@ -59,7 +59,7 @@ public:
     static const double THRESHOLD_VALUE;
 
     RigStimPlanFractureDefinition();
-    ~RigStimPlanFractureDefinition();
+    ~RigStimPlanFractureDefinition() override;
 
     RiaEclipseUnitTools::UnitSystem unitSet() const;
     size_t                          xCount() const;
@@ -74,16 +74,16 @@ public:
     cvf::ref<RigFractureGrid>       createFractureGrid(const QString&                      resultName,
                                                        int                                 activeTimeStepIndex,
                                                        double                              wellPathIntersectionAtFractureDepth,
-                                                       RiaEclipseUnitTools::UnitSystem     requiredUnitSet);
+                                                       RiaEclipseUnitTools::UnitSystem     requiredUnitSet) const;
     
     void                            createFractureTriangleGeometry(double                          wellPathIntersectionAtFractureDepth,
                                                                    const QString&                  fractureUserName,
                                                                    std::vector<cvf::Vec3f>*        vertices,
-                                                                   std::vector<cvf::uint>*         triangleIndices);
+                                                                   std::vector<cvf::uint>*         triangleIndices) const;
     
     const std::vector<double>&               timeSteps() const;
     void                                     addTimeStep(double time);
-    size_t                                   totalNumberTimeSteps();
+    size_t                                   totalNumberTimeSteps() const;
 
     std::vector<std::pair<QString, QString>> getStimPlanPropertyNamesUnits() const;
     
@@ -106,13 +106,13 @@ public:
     QStringList                             conductivityResultNames() const;
 
 private:
-    bool                                    timeStepExists(double timeStepValue);
-    size_t                                  getTimeStepIndex(double timeStepValue);
+    bool                                    timeStepExists(double timeStepValue) const;
+    size_t                                  getTimeStepIndex(double timeStepValue) const;
     size_t                                  resultIndex(const QString& resultName, const QString& unit) const;
     void                                    generateXsFromFileXs(bool xMirrorMode);
-    std::vector<std::vector<double>>        generateDataLayoutFromFileDataLayout(std::vector<std::vector<double>> rawXYData);
+    std::vector<std::vector<double>>        generateDataLayoutFromFileDataLayout(std::vector<std::vector<double>> rawXYData) const;
     std::vector<double>                     adjustedYCoordsAroundWellPathPosition(double wellPathIntersectionAtFractureDepth) const;
-    bool                                    numberOfParameterValuesOK(std::vector<std::vector<double>> propertyValuesAtTimestep);
+    bool                                    numberOfParameterValuesOK(std::vector<std::vector<double>> propertyValuesAtTimestep) const;
     double                                  minY() const;
     double                                  maxY() const;
     void                                    scaleXs(double scaleFactor);

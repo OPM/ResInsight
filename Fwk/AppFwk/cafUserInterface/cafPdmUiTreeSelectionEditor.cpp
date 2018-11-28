@@ -43,6 +43,7 @@
 
 #include <QBoxLayout>
 #include <QCheckBox>
+#include <QKeyEvent>
 #include <QLabel>
 #include <QLineEdit>
 #include <QMenu>
@@ -69,7 +70,7 @@ public:
     //--------------------------------------------------------------------------------------------------
     /// 
     //--------------------------------------------------------------------------------------------------
-    virtual QSize sizeHint() const override
+    QSize sizeHint() const override
     {
         QSize mySize = QTreeView::sizeHint();
 
@@ -87,6 +88,21 @@ public:
     void setHeightHint(int heightHint)
     {
         m_heightHint = heightHint;
+    }
+
+    //--------------------------------------------------------------------------------------------------
+    ///
+    //--------------------------------------------------------------------------------------------------
+    void keyPressEvent(QKeyEvent *event)
+    {
+        QTreeView::keyPressEvent(event);
+
+        if (event->key() == Qt::Key_Down || event->key() == Qt::Key_Up ||
+            event->key() == Qt::Key_Home || event->key() == Qt::Key_End ||
+            event->key() == Qt::Key_PageDown || event->key() == Qt::Key_PageUp)
+        {
+            emit clicked(currentIndex());
+        }
     }
 
 private:
@@ -109,7 +125,7 @@ protected:
     //--------------------------------------------------------------------------------------------------
     /// 
     //--------------------------------------------------------------------------------------------------
-    virtual bool filterAcceptsRow(int source_row, const QModelIndex& source_parent) const override
+    bool filterAcceptsRow(int source_row, const QModelIndex& source_parent) const override
     {
         QModelIndex index = sourceModel()->index(source_row, 0, source_parent);
 
@@ -141,7 +157,7 @@ private:
     //--------------------------------------------------------------------------------------------------
     /// 
     //--------------------------------------------------------------------------------------------------
-    virtual void paintEvent(QPaintEvent* paintEvent) override
+    void paintEvent(QPaintEvent* paintEvent) override
     {
         QPainter p(this);
 
@@ -173,7 +189,6 @@ private:
         QRect lineRect(r.x() + horizontalMargin, vscroll, r.width() - 2*horizontalMargin, fm.height());
 
         int minLB = qMax(0, -fm.minLeftBearing());
-        int minRB = qMax(0, -fm.minRightBearing());
 
         if (text().isEmpty())
         {
@@ -245,17 +260,17 @@ void PdmUiTreeSelectionEditor::configureAndUpdateUi(const QString& uiConfigName)
         
         m_treeView->setModel(m_proxyModel);
 
-        connect(m_treeView->selectionModel(), SIGNAL(currentChanged(QModelIndex, QModelIndex)),
-                this, SLOT(slotCurrentChanged(QModelIndex, QModelIndex)));
+        connect(m_treeView->selectionModel(), SIGNAL(currentChanged(QModelIndex, QModelIndex)), this, SLOT(slotCurrentChanged(QModelIndex, QModelIndex)), Qt::UniqueConnection);
+
     }
 
     bool optionsOnly = true;
-    QList<PdmOptionItemInfo> options = field()->valueOptions(&optionsOnly);
+    QList<PdmOptionItemInfo> options = uiField()->valueOptions(&optionsOnly);
 
     bool itemCountHasChaged = false;
     if (m_model->optionItemCount() != options.size()) itemCountHasChaged = true;
     
-    QVariant fieldValue = field()->uiValue();
+    QVariant fieldValue = uiField()->uiValue();
     m_model->setUiValueCache(&fieldValue);
 
     // TODO: If the count is different between incoming and current list of items,
@@ -274,10 +289,10 @@ void PdmUiTreeSelectionEditor::configureAndUpdateUi(const QString& uiConfigName)
     }
     else if (PdmUiTreeSelectionQModel::isMultipleValueField(fieldValue))
     {
-        caf::PdmUiObjectHandle* uiObject = uiObj(field()->fieldHandle()->ownerObject());
+        caf::PdmUiObjectHandle* uiObject = uiObj(uiField()->fieldHandle()->ownerObject());
         if (uiObject)
         {
-            uiObject->editorAttribute(field()->fieldHandle(), uiConfigName, &m_attributes);
+            uiObject->editorAttribute(uiField()->fieldHandle(), uiConfigName, &m_attributes);
         }
 
         if (m_attributes.singleSelectionMode)
@@ -292,7 +307,7 @@ void PdmUiTreeSelectionEditor::configureAndUpdateUi(const QString& uiConfigName)
             m_treeView->setSelectionMode(QAbstractItemView::ExtendedSelection);
         }
 
-        connect(m_treeView, SIGNAL(clicked(QModelIndex)), this, SLOT(slotClicked(QModelIndex)));
+        connect(m_treeView, SIGNAL(clicked(QModelIndex)), this, SLOT(slotClicked(QModelIndex)), Qt::UniqueConnection);
 
         if (!m_attributes.showTextFilter)
         {
@@ -314,21 +329,28 @@ void PdmUiTreeSelectionEditor::configureAndUpdateUi(const QString& uiConfigName)
                 QModelIndexList indices = allVisibleSourceModelIndices();
                 if (indices.size() > 0)
                 {
-                    bool allItemsChecked = true;
+                    size_t editableItems = 0u;
+                    size_t checkedEditableItems = 0u;
                     for (auto mi : indices)
                     {
-                        if (m_model->data(mi, Qt::CheckStateRole).toBool() == false)
+                        if (!m_model->isReadOnly(mi))
                         {
-                            allItemsChecked = false;
+                            editableItems++;
+                            if (m_model->isChecked(mi))
+                            {
+                                checkedEditableItems++;
+                            }
                         }
                     }
-
+                    bool allItemsChecked = (editableItems > 0u && checkedEditableItems == editableItems);
                     m_toggleAllCheckBox->setChecked(allItemsChecked);
                 }
             }
         }
     }
-    
+    // If the tree doesn't have grand children we treat this as a straight list
+    m_treeView->setRootIsDecorated(m_model->hasGrandChildren());
+
     m_model->resetUiValueCache();
 }
 
@@ -385,6 +407,23 @@ QWidget* PdmUiTreeSelectionEditor::createLabelWidget(QWidget * parent)
 {
     m_label = new QLabel(parent);
     return m_label;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QMargins PdmUiTreeSelectionEditor::calculateLabelContentMargins() const
+{
+    QSize editorSize = m_textFilterLineEdit->sizeHint();
+    QSize labelSize = m_label->sizeHint();
+    int heightDiff = editorSize.height() - labelSize.height();
+    QMargins contentMargins = m_label->contentsMargins();
+    if (heightDiff > 0)
+    {
+        contentMargins.setTop(contentMargins.top() + heightDiff / 2);
+        contentMargins.setBottom(contentMargins.bottom() + heightDiff / 2);
+    }
+    return contentMargins;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -446,6 +485,14 @@ void PdmUiTreeSelectionEditor::customMenuRequested(const QPoint& pos)
 
         menu.exec(globalPos);
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void PdmUiTreeSelectionEditor::slotCurrentChanged(const QModelIndex& current, const QModelIndex& previous)
+{
+    currentChanged(current);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -551,7 +598,27 @@ void PdmUiTreeSelectionEditor::slotTextFilterChanged()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void PdmUiTreeSelectionEditor::slotCurrentChanged(const QModelIndex& current, const QModelIndex& previous)
+void PdmUiTreeSelectionEditor::slotClicked(const QModelIndex& index)
+{
+    if (m_attributes.setCurrentIndexWhenItemIsChecked && index.isValid())
+    {
+        QModelIndexList selectedIndexes = m_treeView->selectionModel()->selectedIndexes(); 
+        if (selectedIndexes.size() < 2)
+        {
+            QVariant v = m_proxyModel->data(index, Qt::CheckStateRole);
+            if (v == Qt::Checked)
+            {
+                m_treeView->setCurrentIndex(index);
+            }
+        }
+    }
+    currentChanged(index);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void PdmUiTreeSelectionEditor::currentChanged(const QModelIndex& current)
 {
     if (m_attributes.singleSelectionMode)
     {
@@ -566,25 +633,6 @@ void PdmUiTreeSelectionEditor::slotCurrentChanged(const QModelIndex& current, co
             QVariant v = m_proxyModel->data(current, PdmUiTreeSelectionQModel::optionItemValueRole());
 
             PdmUiCommandSystemProxy::instance()->setUiValueToField(uiFieldHandle, v);
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void PdmUiTreeSelectionEditor::slotClicked(const QModelIndex& index)
-{
-    if (m_attributes.setCurrentIndexWhenItemIsChecked && index.isValid())
-    {
-        QModelIndexList selectedIndexes = m_treeView->selectionModel()->selectedIndexes(); 
-        if (selectedIndexes.size() < 2)
-        {
-            QVariant v = m_proxyModel->data(index, Qt::CheckStateRole);
-            if (v == Qt::Checked)
-            {
-                m_treeView->setCurrentIndex(index);
-            }
         }
     }
 }

@@ -137,19 +137,6 @@ class EclFileStatoilTest(EclTest):
             self.assertFilesAreEqual("ECLIPSE.FUNRST", self.test_fmt_file)
 
 
-    def test_truncated(self):
-        with TestAreaContext("python/ecl_file/truncated") as work_area:
-            work_area.copy_file(self.test_file)
-            size = os.path.getsize("ECLIPSE.UNRST")
-            with open("ECLIPSE.UNRST" , "r+") as f:
-                f.truncate( size / 2 )
-
-            with self.assertRaises(IOError):
-                rst_file = EclFile("ECLIPSE.UNRST")
-
-            with self.assertRaises(IOError):
-                rst_file = EclFile("ECLIPSE.UNRST", flags=EclFileFlagEnum.ECL_FILE_WRITABLE)
-
     def test_restart_view(self):
         f = EclFile( self.test_file )
         with self.assertRaises(ValueError):

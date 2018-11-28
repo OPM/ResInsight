@@ -39,9 +39,10 @@ public:
 
     void initResultSteps(const std::vector<std::string>& stepNames);
 
-    RigFemScalarResultFrames* createScalarResult(const RigFemResultAddress& resVarAddr);
-    RigFemScalarResultFrames* findScalarResult(const RigFemResultAddress& resVarAddr);
-    void                      deleteScalarResult(const RigFemResultAddress& resVarAddr);
+    RigFemScalarResultFrames*        createScalarResult(const RigFemResultAddress& resVarAddr);
+    RigFemScalarResultFrames*        findScalarResult(const RigFemResultAddress& resVarAddr);
+    void                             deleteScalarResult(const RigFemResultAddress& resVarAddr);
+    std::vector<RigFemResultAddress> loadedResults() const;
 
 private:
 

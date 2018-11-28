@@ -47,7 +47,7 @@ class RimIdenticalGridCaseGroup : public caf::PdmObject
 
 public:
     RimIdenticalGridCaseGroup();
-    virtual ~RimIdenticalGridCaseGroup();
+    ~RimIdenticalGridCaseGroup() override;
 
     caf::PdmField<QString>              name;
     caf::PdmField<int>                  groupId;
@@ -58,7 +58,6 @@ public:
     void                                removeCase(RimEclipseCase* reservoir);
 
     bool                                contains(RimEclipseCase* reservoir) const;
-    bool                                canCaseBeAdded(RimEclipseCase* reservoir) const;
 
     RimEclipseStatisticsCase*                  createAndAppendStatisticsCase();
 
@@ -74,7 +73,7 @@ public:
     static bool                         isStatisticsCaseCollection(RimCaseCollection* rimCaseCollection);
 
 protected:
-    virtual caf::PdmFieldHandle*        userDescriptionField();
+    caf::PdmFieldHandle*        userDescriptionField() override;
 
 private:
     void                                updateMainGridAndActiveCellsForStatisticsCases();

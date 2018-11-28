@@ -38,6 +38,7 @@ class RimViewController;
 class RiuViewer;
 class RimGridView;
 class RimCellRangeFilter;
+class RimPropertyFilter;
 
 //==================================================================================================
 ///  
@@ -48,15 +49,15 @@ class RimViewLinker : public caf::PdmObject
      CAF_PDM_HEADER_INIT;
 
 public:
-    RimViewLinker(void);
-    virtual ~RimViewLinker(void);
+    RimViewLinker();
+    ~RimViewLinker() override;
     
     bool                                    isActive() const;
 
     void                                    setMasterView(RimGridView* view);
-    RimGridView*                                masterView() const;
-
+    RimGridView*                            masterView() const;
     void                                    addDependentView(RimGridView* view);
+    bool                                    isFirstViewDependentOnSecondView(const RimGridView* firstView, const RimGridView* secondView) const;
     void                                    updateDependentViews();
     void                                    removeViewController(RimViewController* viewController);
 
@@ -70,6 +71,8 @@ public:
 
     void                                    updateRangeFilters(RimCellRangeFilter* changedRangeFilter);
     void                                    applyRangeFilterCollectionByUserChoice();
+
+    void                                    updatePropertyFilters(RimPropertyFilter* changedPropertyFilter);
 
     void                                    scheduleGeometryRegenForDepViews(RivCellSetEnum geometryType);
     void                                    scheduleCreateDisplayModelAndRedrawForDependentViews();
@@ -85,21 +88,20 @@ public:
 
     void                                    updateCursorPosition(const RimGridView* sourceView, const cvf::Vec3d& domainCoord);
 
-public:
-    static QString                          displayNameForView(RimGridView* view);
-
 protected:
-    virtual caf::PdmFieldHandle*            userDescriptionField()  { return &m_name; }
-    virtual void                            initAfterRead();
+    caf::PdmFieldHandle*                    userDescriptionField() override  { return &m_name; }
+    void                                    initAfterRead() override;
 
 private:
+    static QString                          displayNameForView(RimGridView* view);
+
     void                                    allViewsForCameraSync(const RimGridView* source, std::vector<RimGridView*>& views) const;
     
     void                                    removeOverrides();
 
 private:
     caf::PdmChildArrayField<RimViewController*>   m_viewControllers;
-    caf::PdmPtrField<RimGridView*>                    m_masterView;
+    caf::PdmPtrField<RimGridView*>                m_masterView;
     caf::PdmField<QString>                        m_name;
     QIcon                                         m_originalIcon;
 };

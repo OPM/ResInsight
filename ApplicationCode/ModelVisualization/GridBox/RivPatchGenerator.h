@@ -45,9 +45,6 @@ public:
     void    setAxes(const cvf::Vec3d& axisU, const cvf::Vec3d& axisV);
     void    setSubdivisions(const std::vector<double>& uValues, const std::vector<double>& vValues);
 
-    void    setQuads(bool useQuads);
-    void    setWindingCCW(bool windingCCW);
-
     void    generate(cvf::GeometryBuilder* builder);
 
 private:

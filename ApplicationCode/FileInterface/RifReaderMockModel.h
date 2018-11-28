@@ -27,7 +27,7 @@ class RifReaderMockModel : public RifReaderInterface
 {
 public:
     RifReaderMockModel();
-    virtual ~RifReaderMockModel();
+    ~RifReaderMockModel() override;
 
     void                    setWorldCoordinates(cvf::Vec3d minWorldCoordinate, cvf::Vec3d maxWorldCoordinate);
     void                    setGridPointDimensions(const cvf::Vec3st& gridPointDimensions);
@@ -36,10 +36,10 @@ public:
 
     void                    addLocalGridRefinement(const cvf::Vec3st& minCellPosition, const cvf::Vec3st& maxCellPosition, const cvf::Vec3st& singleCellRefinementFactors);
 
-    virtual bool            open( const QString& fileName, RigEclipseCaseData* eclipseCase );
+    bool            open( const QString& fileName, RigEclipseCaseData* eclipseCase ) override;
                             
-    virtual bool            staticResult( const QString& result, RiaDefines::PorosityModelType matrixOrFracture, std::vector<double>* values );
-    virtual bool            dynamicResult( const QString& result, RiaDefines::PorosityModelType matrixOrFracture, size_t stepIndex, std::vector<double>* values );
+    bool            staticResult( const QString& result, RiaDefines::PorosityModelType matrixOrFracture, std::vector<double>* values ) override;
+    bool            dynamicResult( const QString& result, RiaDefines::PorosityModelType matrixOrFracture, size_t stepIndex, std::vector<double>* values ) override;
 
 private:
     void                    populateReservoir(RigEclipseCaseData* eclipseCase);

@@ -51,6 +51,7 @@ void caf::AppEnum< RigFemResultPosEnum >::setUp()
     addItem(RIG_ELEMENT_NODAL_FACE, "ELEMENT_NODAL_FACE", "Element Nodal On Face");
     addItem(RIG_FORMATION_NAMES, "FORMATION_NAMES", "Formation Names");
     addItem(RIG_ELEMENT, "ELEMENT", "Element");
+    addItem(RIG_WELLPATH_DERIVED, "WELLPATH_DERIVED", "Well Path Derived");
     setDefault(RIG_NODAL);
 }
 }
@@ -85,29 +86,25 @@ RimGeoMechResultDefinition::RimGeoMechResultDefinition(void)
     m_compactionRefLayer.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&m_resultPositionTypeUiField, "ResultPositionTypeUi", "Result Position", "", "", "");
-    m_resultPositionTypeUiField.xmlCapability()->setIOWritable(false);
-    m_resultPositionTypeUiField.xmlCapability()->setIOReadable(false);
+    m_resultPositionTypeUiField.xmlCapability()->disableIO();
 
     CAF_PDM_InitField(&m_resultVariableUiField, "ResultVariableUI", QString(""), "Value", "", "", "");
-    m_resultVariableUiField.xmlCapability()->setIOWritable(false);
-    m_resultVariableUiField.xmlCapability()->setIOReadable(false);
+    m_resultVariableUiField.xmlCapability()->disableIO();
 
     CAF_PDM_InitField(&m_isTimeLapseResultUiField, "IsTimeLapseResultUI", false, "Enable Relative Result", "", "Use the difference with respect to a specific time step as the result variable to plot", "");
-    m_isTimeLapseResultUiField.xmlCapability()->setIOWritable(false);
-    m_isTimeLapseResultUiField.xmlCapability()->setIOReadable(false);
+    m_isTimeLapseResultUiField.xmlCapability()->disableIO();
 
     CAF_PDM_InitField(&m_timeLapseBaseTimestepUiField, "TimeLapseBaseTimeStepUI", 0, "Base Time Step", "", "", "");
-    m_timeLapseBaseTimestepUiField.xmlCapability()->setIOWritable(false);
-    m_timeLapseBaseTimestepUiField.xmlCapability()->setIOReadable(false);
+    m_timeLapseBaseTimestepUiField.xmlCapability()->disableIO();
 
     m_resultVariableUiField.uiCapability()->setUiEditorTypeName(caf::PdmUiListEditor::uiEditorTypeName());
     m_resultVariableUiField.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::TOP);
 
     CAF_PDM_InitField(&m_compactionRefLayerUiField, "CompactionRefLayerUi", (int)RigFemResultAddress::NO_COMPACTION, "Compaction Ref Layer", "", "The compaction is calculated with reference to this layer. Default layer is the topmost layer with POR", "");
-    m_compactionRefLayerUiField.xmlCapability()->setIOWritable(false);
-    m_compactionRefLayerUiField.xmlCapability()->setIOReadable(false);
+    m_compactionRefLayerUiField.xmlCapability()->disableIO();
 
     m_isChangedByField = false;
+    m_addWellPathDerivedResults = false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -143,7 +140,7 @@ void RimGeoMechResultDefinition::defineUiOrdering(QString uiConfigName, caf::Pdm
         {
             if (m_geomCase &&  m_geomCase->geoMechData() )
             {
-                m_compactionRefLayerUiField = (int)m_geomCase->geoMechData()->femParts()->part(0)->structGrid()->reservoirIJKBoundingBox().first.z();
+                m_compactionRefLayerUiField = (int)m_geomCase->geoMechData()->femParts()->part(0)->getOrCreateStructGrid()->reservoirIJKBoundingBox().first.z();
             }
         }
     }
@@ -169,7 +166,19 @@ QList<caf::PdmOptionItemInfo> RimGeoMechResultDefinition::calculateValueOptions(
 
     if (m_geomCase)
     {
-        if (&m_resultVariableUiField == fieldNeedingOptions)
+        if (&m_resultPositionTypeUiField == fieldNeedingOptions)
+        {
+            std::vector<RigFemResultPosEnum> optionItems = { RIG_NODAL, RIG_ELEMENT_NODAL, RIG_INTEGRATION_POINT, RIG_ELEMENT_NODAL_FACE, RIG_FORMATION_NAMES, RIG_ELEMENT };
+            if (m_addWellPathDerivedResults)
+            {
+                optionItems.push_back(RIG_WELLPATH_DERIVED);
+            }
+            for (RigFemResultPosEnum value : optionItems)
+            {
+                options.push_back(caf::PdmOptionItemInfo(caf::AppEnum<RigFemResultPosEnum>::uiText(value), QVariant(value)));
+            }
+        }
+        else if (&m_resultVariableUiField == fieldNeedingOptions)
         {
             std::map<std::string, std::vector<std::string> >  fieldCompNames = getResultMetaDataForUIFieldSetting();
 
@@ -194,7 +203,7 @@ QList<caf::PdmOptionItemInfo> RimGeoMechResultDefinition::calculateValueOptions(
             std::vector<std::string> stepNames;
             if(m_geomCase->geoMechData())
             {
-                 stepNames = m_geomCase->geoMechData()->femPartResults()->stepNames();
+                 stepNames = m_geomCase->geoMechData()->femPartResults()->filteredStepNames();
             }
 
             for (size_t stepIdx = 0; stepIdx < stepNames.size(); ++stepIdx)
@@ -206,7 +215,7 @@ QList<caf::PdmOptionItemInfo> RimGeoMechResultDefinition::calculateValueOptions(
         {
             if (m_geomCase->geoMechData())
             {
-                size_t kCount = m_geomCase->geoMechData()->femParts()->part(0)->structGrid()->gridPointCountK() - 1;
+                size_t kCount = m_geomCase->geoMechData()->femParts()->part(0)->getOrCreateStructGrid()->gridPointCountK() - 1;
                 for ( size_t layerIdx = 0; layerIdx < kCount; ++layerIdx )
                 {
                     options.push_back(caf::PdmOptionItemInfo(QString::number(layerIdx + 1), (int)layerIdx));
@@ -234,6 +243,34 @@ void RimGeoMechResultDefinition::setGeoMechCase(RimGeoMechCase* geomCase)
 void RimGeoMechResultDefinition::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
     m_isChangedByField = true;
+
+    if (&m_resultPositionTypeUiField == changedField)
+    {
+        if (m_resultPositionTypeUiField() == RIG_WELLPATH_DERIVED)
+        {
+            m_isTimeLapseResultUiField = false;
+            m_isTimeLapseResultUiField.uiCapability()->setUiReadOnly(true);
+            m_timeLapseBaseTimestepUiField.uiCapability()->setUiReadOnly(true);
+        }
+        else
+        {
+            m_isTimeLapseResultUiField.uiCapability()->setUiReadOnly(false);
+            m_timeLapseBaseTimestepUiField.uiCapability()->setUiReadOnly(false);
+        }
+    }
+
+    if (&m_isTimeLapseResultUiField == changedField)
+    {
+        m_isTimeLapseResult = m_isTimeLapseResultUiField;
+        if (m_isTimeLapseResult())
+        {
+            if (m_timeLapseBaseTimestep() == RigFemResultAddress::NO_TIME_LAPSE)
+            {
+                m_timeLapseBaseTimestep = 0;
+                m_timeLapseBaseTimestepUiField = 0;
+            }
+        }
+    }
 
     if(   &m_resultPositionTypeUiField == changedField 
        || &m_isTimeLapseResultUiField == changedField
@@ -428,6 +465,8 @@ void RimGeoMechResultDefinition::initAfterRead()
     m_resultVariableUiField = composeFieldCompString(m_resultFieldName(), m_resultComponentName());
     m_isTimeLapseResultUiField = m_isTimeLapseResult;
     m_timeLapseBaseTimestepUiField = m_timeLapseBaseTimestep;
+    m_isTimeLapseResultUiField.uiCapability()->setUiReadOnly(resultPositionType() == RIG_WELLPATH_DERIVED);    
+    m_timeLapseBaseTimestepUiField.uiCapability()->setUiReadOnly(resultPositionType() == RIG_WELLPATH_DERIVED);
     m_compactionRefLayerUiField = m_compactionRefLayer;
 }
 
@@ -439,20 +478,71 @@ void RimGeoMechResultDefinition::loadResult()
 {
     if (m_geomCase && m_geomCase->geoMechData())
     {
-        m_geomCase->geoMechData()->femPartResults()->assertResultsLoaded(this->resultAddress());
+        if (this->resultAddress().fieldName == RiaDefines::wellPathFGResultName().toStdString() ||
+            this->resultAddress().fieldName == RiaDefines::wellPathSFGResultName().toStdString())
+        {
+            RigFemResultAddress stressResAddr(RIG_ELEMENT_NODAL, std::string("ST"), "");
+            RigFemResultAddress porBarResAddr(RIG_ELEMENT_NODAL, std::string("POR-Bar"), "");
+            m_geomCase->geoMechData()->femPartResults()->assertResultsLoaded(stressResAddr);
+            m_geomCase->geoMechData()->femPartResults()->assertResultsLoaded(porBarResAddr);
+        }
+        else
+        {
+            m_geomCase->geoMechData()->femPartResults()->assertResultsLoaded(this->resultAddress());
+        }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGeoMechResultDefinition::setAddWellPathDerivedResults(bool addWellPathDerivedResults)
+{
+    m_addWellPathDerivedResults = addWellPathDerivedResults;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RigFemResultAddress RimGeoMechResultDefinition::resultAddress()
+RigFemResultAddress RimGeoMechResultDefinition::resultAddress() const
 {
     return RigFemResultAddress(resultPositionType(),
                                resultFieldName().toStdString(), 
                                resultComponentName().toStdString(),
                                m_isTimeLapseResult() ? m_timeLapseBaseTimestep() : RigFemResultAddress::NO_TIME_LAPSE,
                                resultFieldName().toStdString() == RigFemPartResultsCollection::FIELD_NAME_COMPACTION ? m_compactionRefLayer() : RigFemResultAddress::NO_COMPACTION);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RigFemResultAddress> RimGeoMechResultDefinition::observedResults() const
+{
+    return std::vector<RigFemResultAddress>(1, resultAddress());
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RigFemResultPosEnum RimGeoMechResultDefinition::resultPositionType() const
+{
+    return m_resultPositionType();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimGeoMechResultDefinition::resultFieldName() const
+{
+    return m_resultFieldName();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimGeoMechResultDefinition::resultComponentName() const
+{
+    return m_resultComponentName();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -468,7 +558,16 @@ RigGeoMechCaseData* RimGeoMechResultDefinition::ownerCaseData()
 //--------------------------------------------------------------------------------------------------
 bool RimGeoMechResultDefinition::hasResult()
 {
-    return ownerCaseData()->femPartResults()->assertResultsLoaded(this->resultAddress());
+    RigGeoMechCaseData* caseData = ownerCaseData();
+    if (caseData)
+    {
+        RigFemPartResultsCollection* results = caseData->femPartResults();
+        if (results)
+        {
+            return results->assertResultsLoaded(this->resultAddress());
+        }
+    }
+    return false;
 }
 
 
@@ -529,14 +628,18 @@ void RimGeoMechResultDefinition::setResultAddress( const RigFemResultAddress& re
     m_resultPositionType    = resultAddress.resultPosType;
     m_resultFieldName       = QString::fromStdString(resultAddress.fieldName);
     m_resultComponentName   = QString::fromStdString(resultAddress.componentName);
-    m_isTimeLapseResult     = resultAddress.isTimeLapse();
-
-    m_timeLapseBaseTimestep = m_isTimeLapseResult ? resultAddress.timeLapseBaseFrameIdx: -1;
-    m_compactionRefLayer = resultAddress.refKLayerIndex;
-
     m_resultPositionTypeUiField = m_resultPositionType;
     m_resultVariableUiField = composeFieldCompString(m_resultFieldName(), m_resultComponentName());
+
+    m_isTimeLapseResult     = resultAddress.isTimeLapse();
     m_isTimeLapseResultUiField = m_isTimeLapseResult;
+
+    if (m_isTimeLapseResult)
+    {
+        m_timeLapseBaseTimestep = resultAddress.timeLapseBaseFrameIdx;
+    }
     m_timeLapseBaseTimestepUiField = m_timeLapseBaseTimestep;
+
+    m_compactionRefLayer = resultAddress.refKLayerIndex;
     m_compactionRefLayerUiField = m_compactionRefLayer;
 }

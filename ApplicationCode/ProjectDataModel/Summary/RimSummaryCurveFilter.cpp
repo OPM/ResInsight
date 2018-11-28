@@ -53,8 +53,7 @@ RimSummaryCurveFilter_OBSOLETE::RimSummaryCurveFilter_OBSOLETE()
     m_selectedSummaryCases.uiCapability()->setUiTreeChildrenHidden(true);
     m_selectedSummaryCases.uiCapability()->setUiEditorTypeName(caf::PdmUiListEditor::uiEditorTypeName());
     m_selectedSummaryCases.uiCapability()->setAutoAddingOptionFromValue(false);
-    m_selectedSummaryCases.xmlCapability()->setIOWritable(false);
-    m_selectedSummaryCases.xmlCapability()->setIOReadable(false);
+    m_selectedSummaryCases.xmlCapability()->disableIO();
     m_selectedSummaryCases.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
 
     CAF_PDM_InitFieldNoDefault(&m_summaryFilter, "VarListFilter", "Filter", "", "", "");
@@ -64,8 +63,7 @@ RimSummaryCurveFilter_OBSOLETE::RimSummaryCurveFilter_OBSOLETE()
     m_summaryFilter = new RimSummaryFilter;
 
     CAF_PDM_InitFieldNoDefault(&m_uiFilterResultMultiSelection, "FilterResultSelection", "Filter Result", "", "Ctrl-A : Select All", "");
-    m_uiFilterResultMultiSelection.xmlCapability()->setIOWritable(false);
-    m_uiFilterResultMultiSelection.xmlCapability()->setIOReadable(false);
+    m_uiFilterResultMultiSelection.xmlCapability()->disableIO();
     m_uiFilterResultMultiSelection.uiCapability()->setUiEditorTypeName(caf::PdmUiListEditor::uiEditorTypeName());
     m_uiFilterResultMultiSelection.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
     m_uiFilterResultMultiSelection.uiCapability()->setAutoAddingOptionFromValue(false);
@@ -75,8 +73,7 @@ RimSummaryCurveFilter_OBSOLETE::RimSummaryCurveFilter_OBSOLETE()
     m_curves.uiCapability()->setUiTreeChildrenHidden(false);
 
     CAF_PDM_InitFieldNoDefault(&m_applyButtonField, "ApplySelection", "", "", "", "");
-    m_applyButtonField.xmlCapability()->setIOWritable(false);
-    m_applyButtonField.xmlCapability()->setIOReadable(false);
+    m_applyButtonField.xmlCapability()->disableIO();
     m_applyButtonField = false;
     m_applyButtonField.uiCapability()->setUiEditorTypeName(caf::PdmUiPushButtonEditor::uiEditorTypeName());
     m_applyButtonField.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::LEFT);

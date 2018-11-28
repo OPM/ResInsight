@@ -30,6 +30,7 @@
 #include "RimCaseCollection.h"
 #include "RimCellRangeFilter.h"
 #include "RimCellRangeFilterCollection.h"
+#include "RimContourMapViewCollection.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCaseCollection.h"
 #include "RimEclipseCellColors.h"
@@ -39,6 +40,7 @@
 #include "RimEclipsePropertyFilterCollection.h"
 #include "RimEclipseStatisticsCase.h"
 #include "RimEclipseView.h"
+#include "RimEnsembleCurveFilterCollection.h"
 #include "RimEnsembleCurveSetCollection.h"
 #include "RimEnsembleCurveSet.h"
 #include "RimFaultInView.h"
@@ -51,6 +53,7 @@
 #include "RimGeoMechPropertyFilter.h"
 #include "RimGeoMechPropertyFilterCollection.h"
 #include "RimGeoMechView.h"
+#include "RimGridCollection.h"
 #include "RimIdenticalGridCaseGroup.h"
 #include "RimIntersection.h"
 #include "RimIntersectionBox.h"
@@ -81,6 +84,7 @@
 #include "RimWellLogPlotCollection.h"
 #include "RimWellLogTrack.h"
 #include "RimWellPath.h"
+#include "RimWellPathAttributeCollection.h"
 #include "RimWellPathCollection.h"
 #include "RimWellPltPlot.h"
 #include "RimWellRftPlot.h"
@@ -92,6 +96,7 @@
 #include "RimSimWellFracture.h"
 #include "RimWellPathFracture.h"
 #include "RimWellPathFractureCollection.h"
+#include "RimModeledWellPath.h"
 
 #include "RiuMainWindow.h"
 
@@ -151,9 +156,14 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicPasteEclipseViewsFeature";
             menuBuilder << "Separator";
             menuBuilder << "RicNewViewFeature";
+            menuBuilder << "RicNewContourMapViewFeature";
             menuBuilder << "Separator";
             menuBuilder << "RicCopyReferencesToClipboardFeature";
             menuBuilder << "RicSaveEclipseInputVisibleCellsFeature";
+        }
+        else if (dynamic_cast<RimContourMapViewCollection*>(uiItem))
+        {
+            menuBuilder << "RicNewContourMapViewFeature";
         }
         else if (dynamic_cast<RimCaseCollection*>(uiItem))
         {
@@ -174,11 +184,17 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "Separator";
 
             menuBuilder << "RicNewViewFeature";
+            menuBuilder << "RicNewContourMapViewFeature";
             menuBuilder << "RicShowFlowCharacteristicsPlotFeature";
             menuBuilder << "RicEclipseCaseNewGroupFeature";
             menuBuilder << "Separator";
             menuBuilder << "RicCopyReferencesToClipboardFeature";
             menuBuilder << "Separator";
+        }
+        else if (dynamic_cast<RimGridInfoCollection*>(uiItem))
+        {
+            menuBuilder << "RicExportCompletionsForTemporaryLgrsFeature";
+            menuBuilder << "RicDeleteTemporaryLgrsFeature";
         }
         else if (dynamic_cast<RimGeoMechCase*>(uiItem))
         {
@@ -250,6 +266,10 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicReloadWellPathFormationNamesFeature";
             menuBuilder << "RicWellPathImportPerforationIntervalsFeature";
             menuBuilder.subMenuEnd();
+         
+            menuBuilder.addSeparator();
+         
+            menuBuilder << "RicNewEditableWellPathFeature";
         }
         else if (dynamic_cast<RimWellPath*>(uiItem))
         {
@@ -266,6 +286,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicNewRftPlotFeature";
             menuBuilder << "RicNewPltPlotFeature";
             menuBuilder << "RicShowWellAllocationPlotFeature";
+            menuBuilder << "RicNewWellBoreStabilityPlotFeature";
             menuBuilder << "RicNewWellLogFileCurveFeature";
             menuBuilder << "RicNewWellLogCurveExtractionFeature";
             menuBuilder.subMenuEnd();
@@ -273,30 +294,41 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder.addSeparator();
 
             menuBuilder.subMenuStart("3D Well Log Curves", QIcon(":/WellLogCurve16x16.png"));
-
             menuBuilder << "RicAdd3dWellLogCurveFeature";
             menuBuilder << "RicAdd3dWellLogFileCurveFeature";
-
+            menuBuilder << "RicAdd3dWellLogRftCurveFeature";
             menuBuilder.subMenuEnd();
 
+            menuBuilder << "RicNewEditableWellPathFeature";
             menuBuilder << "RicNewWellPathIntersectionFeature";
 
             menuBuilder.addSeparator();
-
-            menuBuilder.subMenuStart("Completions", QIcon(":/FishBoneGroup16x16.png"));
+            menuBuilder.subMenuStart("Completions", QIcon(":/CompletionsSymbol16x16.png"));
             menuBuilder << "RicNewWellPathFractureFeature";
             menuBuilder << "RicNewFishbonesSubsFeature";
             menuBuilder << "RicNewPerforationIntervalFeature";
+            menuBuilder << "RicNewValveFeature";
             menuBuilder << "RicEditPerforationCollectionFeature";
             menuBuilder.subMenuEnd();
 
-            menuBuilder.subMenuStart("Export Completions", QIcon(":/FishBoneGroup16x16.png"));
+            menuBuilder.subMenuStart("Export Completions", QIcon(":/ExportCompletionsSymbol16x16.png"));
             menuBuilder << "RicExportCompletionsForVisibleWellPathsFeature";
             menuBuilder << "RicWellPathExportCompletionDataFeature";
             menuBuilder.subMenuEnd();
 
+            if ( dynamic_cast<RimModeledWellPath*>(uiItem) )
+            {
+                menuBuilder << "RicShowWellPlanFeature";
+            }
+            menuBuilder << "RicCreateMultipleFracturesFeature"; 
+            menuBuilder << "RicNewWellPathAttributeFeature";
+
             menuBuilder << "Separator";
 
+        }
+        else if (dynamic_cast<RimWellPathAttributeCollection*>(uiItem))
+        {
+            menuBuilder << "RicDeleteWellPathAttributeFeature";
         }
         else if (dynamic_cast<Rim3dWellLogCurveCollection*>(uiItem) ||
                  dynamic_cast<Rim3dWellLogExtractionCurve*>(uiItem) ||
@@ -368,6 +400,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicPasteWellLogPlotFeature";
             menuBuilder << "Separator";
             menuBuilder << "RicNewWellLogPlotFeature";
+            menuBuilder << "RicNewWellBoreStabilityPlotFeature";
         }
         else if (dynamic_cast<RimRftPlotCollection*>(uiItem))
         {
@@ -476,12 +509,17 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         {
             menuBuilder << "RicNewSummaryEnsembleCurveSetFeature";
         }
+        else if (dynamic_cast<RimEnsembleCurveFilterCollection*>(uiItem))
+        {
+            menuBuilder << "RicNewEnsembleCurveFilterFeature";
+        }
         else if (dynamic_cast<RimSummaryCaseMainCollection*>(uiItem))
         {
             menuBuilder << "RicImportSummaryCaseFeature";
             menuBuilder << "RicImportSummaryCasesFeature";
             menuBuilder << "RicImportSummaryGroupFeature";
             menuBuilder << "RicImportEnsembleFeature";
+            menuBuilder << "RicNewDerivedEnsembleFeature";
         }
         else if (dynamic_cast<RimSummaryCaseCollection*>(uiItem))
         {
@@ -492,6 +530,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicImportEnsembleFeature";
             menuBuilder.subMenuEnd();
             menuBuilder.addSeparator();
+            menuBuilder << "RicNewDerivedEnsembleFeature";
             menuBuilder << "RicNewSummaryPlotFeature";
             menuBuilder << "RicNewSummaryCrossPlotFeature";
             menuBuilder.addSeparator();
@@ -645,7 +684,6 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         {
             menuBuilder << "Separator";
             menuBuilder << "RicLinkVisibleViewsFeature";
-            menuBuilder << "RicLinkViewFeature";
             menuBuilder << "RicShowLinkOptionsFeature";
             menuBuilder << "RicSetMasterViewFeature";
             menuBuilder << "RicUnLinkViewFeature";
@@ -661,16 +699,18 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         // is aware of multiple selected items, move the command to this list
         // without using dyncamic_cast.
 
-
         menuBuilder << "RicPasteTimeHistoryCurveFeature";
         menuBuilder << "RicPasteAsciiDataCurveFeature";
         menuBuilder << "RicPasteSummaryCaseFeature";
         menuBuilder.addSeparator();
         menuBuilder << "RicCopyReferencesToClipboardFeature";
         
+        menuBuilder << "RicLinkViewFeature";
+
         menuBuilder << "RicShowPlotDataFeature";
         menuBuilder << "RicShowTotalAllocationDataFeature";
         
+        menuBuilder << "RicNewDerivedEnsembleFeature";
         menuBuilder << "RicNewSummaryPlotFeature";
         menuBuilder << "RicNewSummaryCrossPlotFeature";
         menuBuilder << "RicSummaryCurveSwitchAxisFeature";
@@ -686,11 +726,15 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         {
             menuBuilder << "RicNewPerforationIntervalFeature";
         }
+        if (!menuBuilder.isCmdFeatureAdded("RicNewValveFeature"))
+        {
+            menuBuilder << "RicNewValveFeature";
+        }
 
         menuBuilder << "RicEditPerforationCollectionFeature";
         menuBuilder << "RicExportFishbonesLateralsFeature";
         menuBuilder << "RicExportFishbonesWellSegmentsFeature";
-
+        menuBuilder << "RicExportFracturesWellSegmentsFeature";
         {
             QStringList candidates;
 
@@ -705,20 +749,46 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
 
             if (!candidates.isEmpty())
             {
-                menuBuilder.subMenuStart("Export Completions", QIcon(":/FishBoneGroup16x16.png"));
+                menuBuilder.subMenuStart("Export Completions", QIcon(":/ExportCompletionsSymbol16x16.png"));
 
                 for (const auto& text : candidates)
                 {
                     menuBuilder << text;
                 }
-        
+
                 menuBuilder.subMenuEnd();
             }
         }
 
+        {
+            QStringList candidates;
+
+            if (!menuBuilder.isCmdFeatureAdded("RicExportSelectedWellPathsFeature"))
+            {
+                candidates << "RicExportSelectedWellPathsFeature";
+
+            }
+            if (!menuBuilder.isCmdFeatureAdded("RicExportVisibleWellPathsFeature"))
+            {
+                candidates << "RicExportVisibleWellPathsFeature";
+            }
+
+            if (!candidates.isEmpty())
+            {
+                menuBuilder.subMenuStart("Export Well Paths", QIcon(":/Save.png"));
+
+                for (const auto& text : candidates)
+                {
+                    menuBuilder << text;
+                }
+
+                menuBuilder.subMenuEnd();
+            }
+        }
+
+        menuBuilder << "RicCreateMultipleFracturesFeature";
         menuBuilder << "RicWellPathImportCompletionsFileFeature";
         menuBuilder << "RicFlyToObjectFeature";
-        menuBuilder << "RicExportCarfin";
 
         menuBuilder << "RicImportObservedDataFeature";
         menuBuilder << "RicReloadSummaryCaseFeature";
@@ -730,6 +800,8 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         menuBuilder << "RicCloseSummaryCaseInCollectionFeature";
         menuBuilder << "RicDeleteSummaryCaseCollectionFeature";
         menuBuilder << "RicCloseObservedDataFeature";
+
+        menuBuilder << "RicCreateTemporaryLgrFeature";
 
         // Work in progress -- End
 

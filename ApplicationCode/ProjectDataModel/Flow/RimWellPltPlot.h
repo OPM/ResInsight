@@ -68,39 +68,38 @@ class RimWellPltPlot : public RimViewWindow
 
 public:
     RimWellPltPlot();
-    virtual ~RimWellPltPlot();
+    ~RimWellPltPlot() override;
 
     void                                            setDescription(const QString& description);
     QString                                         description() const;
 
-    virtual QWidget*                                viewWidget() override;
-    virtual void                                    zoomAll() override;
+    QWidget*                                viewWidget() override;
+    void                                    zoomAll() override;
 
     RimWellLogPlot*                                 wellLogPlot() const;
 
     void                                            setCurrentWellName(const QString& currWellName);
-    QString                                         currentWellName() const;
     
     static const char*                              plotNameFormatString();
 
 
 protected:
     // Overridden PDM methods
-    virtual caf::PdmFieldHandle*                    userDescriptionField() { return &m_userName; }
-    virtual void                                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
-    virtual void                                    defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName) override;
+    caf::PdmFieldHandle*                    userDescriptionField() override { return &m_userName; }
+    void                                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    void                                    defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName) override;
 
-    virtual QList<caf::PdmOptionItemInfo>           calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
+    QList<caf::PdmOptionItemInfo>           calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
     void                                            calculateValueOptionsForWells(QList<caf::PdmOptionItemInfo>& options);
 
-    virtual QImage                                  snapshotWindowContent() override;
+    QImage                                  snapshotWindowContent() override;
 
-    virtual void                                    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
-    virtual void                                    defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute);
-    virtual void                                    onLoadDataAndUpdate() override;
+    void                                    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    void                                    defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override;
+    void                                    onLoadDataAndUpdate() override;
 
-    virtual void                                    initAfterRead() override;
-    virtual void                                    setupBeforeSave() override;
+    void                                    initAfterRead() override;
+    void                                    setupBeforeSave() override;
     void                                            initAfterLoad();
 
 private:
@@ -122,8 +121,8 @@ private:
     // RimViewWindow overrides
 
     void                                            updateWidgetTitleWindowTitle();
-    virtual QWidget*                                createViewWidget(QWidget* mainWindowParent) override; 
-    virtual void                                    deleteViewWidget() override; 
+    QWidget*                                createViewWidget(QWidget* mainWindowParent) override; 
+    void                                    deleteViewWidget() override; 
 
     void                                            setPlotXAxisTitles(RimWellLogTrack* plotTrack);
 

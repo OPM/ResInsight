@@ -25,6 +25,7 @@
 #include "cafAppEnum.h"
 #include "RigFemResultPosEnum.h"
 #include "RigFemResultAddress.h"
+#include "RimFemResultObserver.h"
 
 class RimGeoMechView;
 class RimGeoMechPropertyFilter;
@@ -36,24 +37,26 @@ class RimGeoMechCase;
 ///  
 ///  
 //==================================================================================================
-class RimGeoMechResultDefinition : public caf::PdmObject
+class RimGeoMechResultDefinition : public RimFemResultObserver
 {
      CAF_PDM_HEADER_INIT;
 public:
     RimGeoMechResultDefinition(void);
-    virtual ~RimGeoMechResultDefinition(void);
+    ~RimGeoMechResultDefinition(void) override;
 
     void                                              setGeoMechCase(RimGeoMechCase* geomCase);
 
     RigGeoMechCaseData*                               ownerCaseData();
     bool                                              hasResult(); 
     void                                              loadResult();
+    void                                              setAddWellPathDerivedResults(bool addWellPathDerivedResults);
 
-    RigFemResultAddress                               resultAddress();
+    RigFemResultAddress                               resultAddress() const;
+    std::vector<RigFemResultAddress>          observedResults() const override;
 
-    RigFemResultPosEnum                               resultPositionType()  { return m_resultPositionType();}
-    QString                                           resultFieldName()     { return m_resultFieldName();}
-    QString                                           resultComponentName() { return m_resultComponentName();}
+    RigFemResultPosEnum                               resultPositionType() const;
+    QString                                           resultFieldName() const;
+    QString                                           resultComponentName() const;
     void                                              setResultAddress(const RigFemResultAddress& resultAddress);
 
     QString                                           resultFieldUiName();
@@ -63,18 +66,18 @@ public:
 
 protected:
     virtual void                                      updateLegendCategorySettings() {};
-    virtual void                                      defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    void                                      defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
 
 private:
 
     // Overridden PDM methods
 
-    virtual QList<caf::PdmOptionItemInfo>             calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, 
+    QList<caf::PdmOptionItemInfo>             calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, 
                                                                             bool * useOptionsOnly) override;
-    virtual void                                      fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
+    void                                      fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
                                                                        const QVariant& oldValue, 
                                                                        const QVariant& newValue) override;
-    virtual void                                      initAfterRead() override;
+    void                                      initAfterRead() override;
 
     // Metadata and option build tools
 
@@ -117,4 +120,5 @@ private:
     caf::PdmPointer<RimGeoMechCase>                   m_geomCase;
 
     bool                                              m_isChangedByField;
+    bool                                              m_addWellPathDerivedResults;
 };

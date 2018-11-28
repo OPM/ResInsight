@@ -41,11 +41,18 @@ public:
     typedef caf::AppEnum<SummaryRestartFilesImportMode> SummaryRestartFilesImportModeType;
 
     RiaPreferences(void);
-    virtual ~RiaPreferences(void);
+    ~RiaPreferences(void) override;
 
     QStringList tabNames();
 
     const RifReaderSettings* readerSettings() const;
+
+    // Debug settings
+    bool appendClassNameToUiText() const;
+    bool appendFieldKeywordToToolTipText() const;
+    bool showTestToolbar() const;
+    bool includeFractureDebugInfoFile() const;
+    QString holoLensExportFolder() const;
 
 public: // Pdm Fields
     caf::PdmField<caf::AppEnum< RiaApplication::RINavigationPolicy > > navigationPolicy;
@@ -69,11 +76,7 @@ public: // Pdm Fields
     caf::PdmField<bool>     showLegendBackground;
 
     caf::PdmField<bool>     useShaders;
-    caf::PdmField<bool>     showHud;
-    caf::PdmField<bool>     appendClassNameToUiText;
-    caf::PdmField<bool>     appendFieldKeywordToToolTipText;
-    caf::PdmField<bool>     showTestToolbar;
-    caf::PdmField<bool>     includeFractureDebugInfoFile;
+    caf::PdmField<bool>     showHud;    
 
     caf::PdmField<QString>  lastUsedProjectFileName;
 
@@ -85,12 +88,16 @@ public: // Pdm Fields
     caf::PdmField<SummaryRestartFilesImportModeType>    gridImportMode;
 
 protected:
-    virtual void                            defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute);
-    virtual void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
-    virtual QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly);
+    void                            defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override;
+    void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
 
 private:
     caf::PdmChildField<RifReaderSettings*> m_readerSettings;
-
+    caf::PdmField<bool>                    m_appendClassNameToUiText;
+    caf::PdmField<bool>                    m_appendFieldKeywordToToolTipText;
+    caf::PdmField<bool>                    m_showTestToolbar;
+    caf::PdmField<bool>                    m_includeFractureDebugInfoFile;
+    caf::PdmField<QString>                 m_holoLensExportFolder;
     QStringList m_tabNames;
 };

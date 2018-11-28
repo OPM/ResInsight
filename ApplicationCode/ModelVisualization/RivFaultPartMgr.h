@@ -24,6 +24,7 @@
 #include "cvfArray.h"
 
 #include "cafEffectGenerator.h"
+#include "cafPdmPointer.h"
 
 namespace cvf
 {
@@ -51,7 +52,7 @@ class RivNNCGeometryGenerator;
 class RivFaultPartMgr : public cvf::Object
 {
 public:
-    RivFaultPartMgr(const RigGridBase* grid, const RimFaultInViewCollection* rimFaultCollection, const RimFaultInView* rimFault);
+    RivFaultPartMgr(const RigGridBase* grid, const RimFaultInViewCollection* rimFaultCollection, RimFaultInView* rimFault);
 
     void setCellVisibility(cvf::UByteArray* cellVisibilities);
 
@@ -79,7 +80,7 @@ private:
     static cvf::Vec3f findClosestVertex(const cvf::Vec3f& point, const cvf::Vec3fArray* vertices);
 private:
     cvf::cref<RigGridBase>      m_grid;
-    const RimFaultInView*             m_rimFault;
+    caf::PdmPointer<RimFaultInView> m_rimFault;
     const RimFaultInViewCollection*   m_rimFaultCollection;
 
     float                       m_opacityLevel;

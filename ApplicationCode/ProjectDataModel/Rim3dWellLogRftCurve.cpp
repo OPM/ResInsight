@@ -18,10 +18,13 @@
 
 #include "Rim3dWellLogRftCurve.h"
 
+#include "RiaQDateTimeTools.h"
+
 #include "RifReaderEclipseRft.h"
+
 #include "RigWellLogCurveData.h"
 
-#include "RimWellLogCurveNameConfig.h"
+#include "RimWellLogRftCurveNameConfig.h"
 #include "RimEclipseResultCase.h"
 #include "RimTools.h"
 #include "RimWellPath.h"
@@ -99,7 +102,7 @@ QString Rim3dWellLogRftCurve::name() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString Rim3dWellLogRftCurve::createCurveAutoName() const
+QString Rim3dWellLogRftCurve::createAutoName() const
 {
     QStringList name;
 
@@ -191,7 +194,9 @@ QList<caf::PdmOptionItemInfo> Rim3dWellLogRftCurve::calculateValueOptions(const 
                 std::vector<QDateTime> timeStamps = reader->availableTimeSteps(wellName(), m_wellLogChannelName());
                 for (const QDateTime& dt : timeStamps)
                 {
-                    options.push_back(caf::PdmOptionItemInfo(dt.toString(dateFormat), dt));
+                    QString dateString = RiaQDateTimeTools::toStringUsingApplicationLocale(dt, dateFormat);
+
+                    options.push_back(caf::PdmOptionItemInfo(dateString, dt));
                 }
             }
 
@@ -213,7 +218,8 @@ void Rim3dWellLogRftCurve::defineUiOrdering(QString uiConfigName, caf::PdmUiOrde
 
     Rim3dWellLogCurve::configurationUiOrdering(uiOrdering);
 
-    m_nameConfig()->createUiGroup(uiConfigName, uiOrdering);
+    caf::PdmUiGroup* nameGroup = uiOrdering.addNewGroup("Curve Name");
+    m_nameConfig->uiOrdering(uiConfigName, *nameGroup);
 
     uiOrdering.skipRemainingFields(true);
 }

@@ -33,9 +33,9 @@ class RicPasteSummaryCaseFeature : public caf::CmdFeature
     CAF_CMD_HEADER_INIT;
 
 private:
-    virtual bool isCommandEnabled() override;
-    virtual void onActionTriggered( bool isChecked ) override;
-    virtual void setupActionLook(QAction* action) override;
+    bool isCommandEnabled() override;
+    void onActionTriggered( bool isChecked ) override;
+    void setupActionLook(QAction* action) override;
 
     static std::vector<caf::PdmPointer<RimSummaryCase> > summaryCases();
     static void removeFromSourceCollection(RimSummaryCase* summaryCase);

@@ -41,16 +41,16 @@ public:
     void addStatisticsCalculator(RigStatisticsCalculator* statisticsCalculator);
     void addNativeStatisticsCalculator(RigCaseCellResultsData* cellResultsData, size_t scalarResultIndices);
 
-    virtual void minMaxCellScalarValues(size_t timeStepIndex, double& min, double& max);
-    virtual void posNegClosestToZero(size_t timeStepIndex, double& pos, double& neg);
+    void minMaxCellScalarValues(size_t timeStepIndex, double& min, double& max) override;
+    void posNegClosestToZero(size_t timeStepIndex, double& pos, double& neg) override;
     
-    virtual void valueSumAndSampleCount(size_t timeStepIndex, double& valueSum, size_t& sampleCount);
+    void valueSumAndSampleCount(size_t timeStepIndex, double& valueSum, size_t& sampleCount) override;
 
-    virtual void addDataToHistogramCalculator(size_t timeStepIndex, RigHistogramCalculator& histogramCalculator);
+    void addDataToHistogramCalculator(size_t timeStepIndex, RigHistogramCalculator& histogramCalculator) override;
 
-    virtual void    uniqueValues(size_t timeStepIndex, std::set<int>& values);
+    void    uniqueValues(size_t timeStepIndex, std::set<int>& values) override;
 
-    virtual size_t  timeStepCount();
+    size_t  timeStepCount() override;
 
 private:
     std::vector<RigStatisticsCalculator*> m_nativeStatisticsCalculators;

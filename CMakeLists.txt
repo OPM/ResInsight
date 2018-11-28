@@ -17,7 +17,7 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 elseif (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
     add_definitions(-DCVF_OSX)
 elseif(MSVC)
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP /std:c++14")
 endif()
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
@@ -291,7 +291,6 @@ add_subdirectory(ThirdParty/clipper)
 list(APPEND THIRD_PARTY_LIBRARIES
     clipper
 )
-
 
 ################################################################################
 # Thirdparty libraries are put in ThirdParty solution folder

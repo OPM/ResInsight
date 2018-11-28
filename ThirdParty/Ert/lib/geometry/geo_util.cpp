@@ -21,7 +21,7 @@
 #include <stdbool.h>
 #include <math.h>
 
-#include <ert/util/util.hpp>
+#include <ert/util/util.h>
 
 #include <ert/geometry/geo_util.hpp>
 

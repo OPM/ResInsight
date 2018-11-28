@@ -25,6 +25,7 @@
 
 class QDateTime;
 class RimEclipseResultCase;
+class RimGeoMechCase;
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -48,41 +49,32 @@ public:
     RimTimeStepFilter();
 
     void                    setTimeStepsFromFile(const std::vector<QDateTime>& timeSteps);
-    void                    clearTimeStepsFromFile();
-    
-    std::vector<size_t>     filteredNativeTimeStepIndices() const;
-
+    void                    setTimeStepsFromFile(const std::vector<std::pair<QString, QDateTime>>& timeSteps);
+    std::vector<size_t>     filteredTimeSteps() const;
+    bool                    updateFilteredTimeStepsFromUi();
 private:
-    QString                 filteredTimeStepsAsText() const;
-
-    void                    updateDerivedData();
-    void                    updateSelectedTimeStepIndices();
-
-    std::vector<QDateTime>  allTimeSteps() const;
-    std::vector<int>        selectedTimeStepIndicesFromUi() const;
+    std::vector<std::pair<QString, QDateTime>>  allTimeSteps() const;
+    std::vector<int>        filteredTimeStepIndicesFromUi() const;
 
     void                    updateFieldVisibility();
-
     RimEclipseResultCase*   parentEclipseResultCase() const;
+    RimGeoMechCase*         parentGeoMechCase() const;
 
     // PDM overrides
-    virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
-    virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
-    virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
-    virtual void defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override;
+    void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
+    void defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override;
 
 private:
-    caf::PdmField< std::vector<int> > m_selectedTimeStepIndices; 
-
     caf::PdmField< caf::AppEnum< TimeStepFilterTypeEnum > > m_filterType;
-
-    caf::PdmField<int>      m_firstTimeStep;
-    caf::PdmField<int>      m_lastTimeStep;
-    caf::PdmField<int>      m_interval;
-
-    caf::PdmField<QString>  m_filteredTimeStepsText;
-
-    caf::PdmField<bool>     m_applyReloadOfCase;
-
-    std::vector<QDateTime>  m_timeStepsFromFile; /// Temporarily set to provide correct options before the case data structures are operative
+    
+    caf::PdmField< std::vector<int> >   m_filteredTimeSteps;
+    caf::PdmField< std::vector<int> >   m_filteredTimeStepsUi;
+    caf::PdmField<int>                  m_firstTimeStep;
+    caf::PdmField<int>                  m_lastTimeStep;
+    caf::PdmField<int>                  m_interval;
+    caf::PdmField<bool>                 m_applyReloadOfCase;
+    caf::PdmField<QString>              m_dateFormat;
+    caf::PdmField<std::vector<QString>> m_timeStepNamesFromFile;
 };

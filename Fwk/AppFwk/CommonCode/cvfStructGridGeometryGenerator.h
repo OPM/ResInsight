@@ -60,6 +60,7 @@ public:
     void addCellInclude(size_t i, size_t j, size_t k, bool applyToSubGridAreas);
 
     void addCellExcludeRange(size_t minI, size_t minJ, size_t minK, size_t maxI, size_t maxJ, size_t maxK, bool applyToSubGridAreas);
+    void addCellExclude(size_t i, size_t j, size_t k, bool applyToSubGridAreas);
 
     bool isCellVisible(size_t i, size_t j, size_t k, bool isInSubGridArea) const;
     bool isCellExcluded(size_t i, size_t j, size_t k, bool isInSubGridArea) const;
@@ -163,7 +164,7 @@ private:
 class StructGridGeometryGenerator : public Object
 {
 public:
-    explicit StructGridGeometryGenerator(const StructGridInterface* grid);
+    explicit StructGridGeometryGenerator(const StructGridInterface* grid, bool useOpenMP);
     ~StructGridGeometryGenerator();
 
     // Setup methods
@@ -208,6 +209,11 @@ private:
     // Mappings
     ref<StructGridQuadToCellFaceMapper>          m_quadMapper;
     ref<StuctGridTriangleToCellFaceMapper>       m_triangleMapper;
+
+    // Multiple treads can be used when building geometry data structures.
+    // This causes visual artifacts due to transparency algorithm, and a stable visual image
+    // can be produced if OpenMP is disabled. Currently used by regression test comparing images
+    bool m_useOpenMP;
 };
 
 }

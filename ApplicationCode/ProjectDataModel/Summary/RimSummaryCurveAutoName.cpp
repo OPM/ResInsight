@@ -18,6 +18,8 @@
 
 #include "RimSummaryCurveAutoName.h"
 
+#include "RiaStatisticsTools.h"
+
 #include "RifEclipseSummaryAddress.h"
 
 #include "RimEnsembleCurveSet.h"
@@ -72,6 +74,11 @@ QString RimSummaryCurveAutoName::curveNameY(const RifEclipseSummaryAddress& summ
         if (!skipSubString)
         {
             text += summaryAddress.quantityName();
+
+            if (summaryAddress.category() == RifEclipseSummaryAddress::SUMMARY_ENSEMBLE_STATISTICS)
+            {
+                text = RiaStatisticsTools::replacePercentileByPValueText(QString::fromStdString(text)).toStdString();
+            }
 
             if (m_unit && summaryCurve && !summaryCurve->unitNameY().empty())
             {
@@ -141,17 +148,14 @@ QString RimSummaryCurveAutoName::curveNameX(const RifEclipseSummaryAddress& summ
 
     if (summaryCurve && summaryCurve->summaryCaseX())
     {
-        QString caseName = summaryCurve->summaryCaseX()->caseName();
-
         bool skipSubString = nameHelper && nameHelper->isCaseInTitle();
 
         if (m_caseName && !skipSubString)
         {
-            if (summaryCurve && summaryCurve->summaryCaseX())
-            {
-                if (!text.empty()) text += ", ";
-                text += caseName.toStdString();
-            }
+            QString caseName = summaryCurve->summaryCaseX()->caseName();
+
+            if (!text.empty()) text += ", ";
+            text += caseName.toStdString();
         }
     }
 
@@ -301,7 +305,7 @@ void RimSummaryCurveAutoName::appendAddressDetails(std::string&                 
             if (m_wellSegmentNumber)
             {
                 if (!text.empty()) text += ":";
-                text += ":" + summaryAddress.wellSegmentNumber();
+                text += std::to_string(summaryAddress.wellSegmentNumber());
             }
         }
         break;
@@ -343,7 +347,7 @@ void RimSummaryCurveAutoName::fieldChangedByUi(const caf::PdmFieldHandle* change
     RimSummaryCurve* summaryCurve = dynamic_cast<RimSummaryCurve*>(this->parentField()->ownerObject());
     if (summaryCurve)
     {
-        summaryCurve->updateCurveNameAndUpdatePlotLegend();
+        summaryCurve->updateCurveNameAndUpdatePlotLegendAndTitle();
         summaryCurve->updateConnectedEditors();
 
         return;

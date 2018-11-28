@@ -22,7 +22,7 @@
 
 #include "RiaEclipseUnitTools.h"
 
-#include "Rim3dWellLogCurve.h"
+#include "RimWellPathComponentInterface.h"
 
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
@@ -48,17 +48,19 @@ class RimFishboneWellPathCollection;
 
 class RimFishbonesCollection;
 class RimPerforationCollection;
+class RimWellPathAttributeCollection;
 class RimWellPathCompletions;
 class RigWellPathFormations;
 
 class RimWellPathFractureCollection;
+class Rim3dWellLogCurve;
 class Rim3dWellLogCurveCollection;
 
 //==================================================================================================
 ///  
 ///  
 //==================================================================================================
-class RimWellPath : public caf::PdmObject
+class RimWellPath : public caf::PdmObject, public RimWellPathComponentInterface
 {
     CAF_PDM_HEADER_INIT;
 
@@ -67,11 +69,29 @@ class RimWellPath : public caf::PdmObject
 public:
 
     RimWellPath();
-    virtual ~RimWellPath();
+    ~RimWellPath() override;
+
+    QString                             name() const;
+    void                                setName(const QString& name);
+
+    const QString                       associatedSimulationWellName() const;
+    int                                 associatedSimulationWellBranch() const;
+    bool                                tryAssociateWithSimulationWell();
+    bool                                isAssociatedWithSimulationWell() const;
+
+    virtual void                        updateFilePathsFromProjectPath(const QString& newProjectPath, const QString& oldProjectPath);
+
+    void                                setUnitSystem(RiaEclipseUnitTools::UnitSystem unitSystem);
+    RiaEclipseUnitTools::UnitSystem     unitSystem() const;
+
+    RigWellPath*                        wellPathGeometry();
+    const RigWellPath*                  wellPathGeometry() const;
 
     void                                addWellLogFile(RimWellLogFile* logFileInfo);
     void                                deleteWellLogFile(RimWellLogFile* logFileInfo);
     void                                detachWellLogFile(RimWellLogFile* logFileInfo);
+    std::vector<RimWellLogFile*>        wellLogFiles() const;
+    RimWellLogFile*                     firstWellLogFileMatchingChannelName(const QString& channelName) const;
 
     void                                setFormationsGeometry(cvf::ref<RigWellPathFormations> wellPathFormations);
     bool                                readWellPathFormationsFile(QString* errorMessage, RifWellPathFormationsImporter* wellPathFormationsImporter);
@@ -82,104 +102,87 @@ public:
     void                                add3dWellLogCurve(Rim3dWellLogCurve* rim3dWellLogCurve);
     Rim3dWellLogCurveCollection*        rim3dWellLogCurveCollection() const;
 
-    virtual caf::PdmFieldHandle*        userDescriptionField() override;
-    virtual caf::PdmFieldHandle*        objectToggleField() override;
+    const RimWellPathCompletions*         completions() const;
+    RimFishbonesCollection*               fishbonesCollection();
+    const RimFishbonesCollection*         fishbonesCollection() const;
+    RimPerforationCollection*             perforationIntervalCollection();
+    const RimPerforationCollection*       perforationIntervalCollection() const;
+    RimWellPathFractureCollection*        fractureCollection();
+    const RimWellPathFractureCollection*  fractureCollection() const;
+    RimWellPathAttributeCollection*       attributeCollection();
+    const RimWellPathAttributeCollection* attributeCollection() const;
 
-    virtual void                        fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
-    virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
-    virtual void                        initAfterRead() override;
+    bool                                showWellPathLabel() const;
+    bool                                showWellPath() const;
 
-    QString                             name() const;
-    void                                setName(const QString& name);
-  
-    std::vector<RimWellLogFile*>        wellLogFiles() const;
+    cvf::Color3f                        wellPathColor() const;
+    void                                setWellPathColor(const cvf::Color3f& color );
 
-    caf::PdmField<QString>              filepath;
-    caf::PdmField<int>                  wellPathIndexInFile; // -1 means none.
+    double                              combinedScaleFactor() const;
+    double                              wellPathRadius(double characteristicCellSize) const;
+    double                              wellPathRadiusScaleFactor() const;
+    
 
+    // RimWellPathComponentInterface overrides
+    bool                                isEnabled() const override;
+    RiaDefines::WellPathComponentType   componentType() const override;
+    QString                             componentLabel() const override;
+    QString                             componentTypeLabel() const override;
+    cvf::Color3f                        defaultComponentColor() const override;
+    double                              startMD() const override;
+    double                              endMD() const override;
+
+protected:
+
+    // Override PdmObject
+
+    caf::PdmFieldHandle*        userDescriptionField() override;
+    caf::PdmFieldHandle*        objectToggleField() override;
+
+    void                        fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+    QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
+    void                        initAfterRead() override;
+    void                        defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    void                        defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName) override;
+
+    void                                setWellPathGeometry(RigWellPath* wellPathModel);
+
+    // Fields
+protected:
+    caf::PdmField<double>               m_datumElevation;
+    caf::PdmField<QString>              m_name;
+
+private:
     caf::PdmField<QString>              m_simWellName;
     caf::PdmField<int>                  m_branchIndex;
 
-    caf::PdmField<bool>                 showWellPathLabel;
+    caf::PdmField<RiaEclipseUnitTools::UnitSystemType> m_unitSystem;
     
-    caf::PdmField<bool>                 showWellPath;
-    caf::PdmField<cvf::Color3f>         wellPathColor;
-
-    double                              wellPathRadius(double characteristicCellSize) const;
-
-    caf::PdmField<double>               wellPathRadiusScaleFactor;
-
-    RimFishbonesCollection*              fishbonesCollection();
-    const RimFishbonesCollection*        fishbonesCollection() const;
-    RimPerforationCollection*            perforationIntervalCollection();
-    const RimPerforationCollection*      perforationIntervalCollection() const;
-    const RimWellPathCompletions*        completions() const;
-
-    RimWellPathFractureCollection*       fractureCollection();
-    const RimWellPathFractureCollection* fractureCollection() const;
-
-    RigWellPath*                        wellPathGeometry();
-    const RigWellPath*                  wellPathGeometry() const;
-
-    bool                                readWellPathFile(QString * errorMessage, RifWellPathImporter* wellPathImporter);
-    void                                updateFilePathsFromProjectPath(const QString& newProjectPath, const QString& oldProjectPath);
-
-    double                              combinedScaleFactor() const;
-
-    void                                setUnitSystem(RiaEclipseUnitTools::UnitSystem unitSystem);
-    RiaEclipseUnitTools::UnitSystem     unitSystem() const;
-    static RimWellPath*                 fromFilePath(QString filePath);
-
-    const QString                       associatedSimulationWellName() const;
-    int                                 associatedSimulationWellBranch() const;
-
-    bool                                tryAssociateWithSimulationWell();
-    bool                                isAssociatedWithSimulationWell() const;
-    bool                                tryMatchName(QString wellPathName, 
-                                                     const std::vector<QString>& simWellNames,
-                                                     std::function<QString(QString)> stringFormatter = nullptr);
+    caf::PdmField<QString>              m_wellPathFormationFilePath;
+    caf::PdmField<QString>              m_formationKeyInFile;
+    
+    caf::PdmField<bool>                 m_showWellPath;
+    caf::PdmField<bool>                 m_showWellPathLabel;
+    
+    caf::PdmField<double>               m_wellPathRadiusScaleFactor;
+    caf::PdmField<cvf::Color3f>         m_wellPathColor;
+    
+    caf::PdmChildArrayField<RimWellLogFile*>            m_wellLogFiles;
+    caf::PdmChildField<Rim3dWellLogCurveCollection*>    m_3dWellLogCurves;
+    caf::PdmChildField<RimWellPathCompletions*>         m_completions;
+    caf::PdmChildField<RimWellPathAttributeCollection*> m_wellPathAttributes;
 
 private:
-
-    void                                setWellPathGeometry(RigWellPath* wellPathModel);
-    QString                             surveyType() { return m_surveyType; }
-    void                                setSurveyType(QString surveyType);
-
-    virtual void                        defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
-    virtual void                        defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName) override;
-
-    bool                                isStoredInCache();
-    QString                             getCacheFileName();
-    QString                             getCacheDirectoryPath();
-
-    virtual void                        setupBeforeSave() override;
 
     static size_t                       simulationWellBranchCount(const QString& simWellName);
 
 private:
-    caf::PdmField<QString>              id;
-    caf::PdmField<QString>              sourceSystem;
-    caf::PdmField<QString>              utmZone;
-    caf::PdmField<QString>              updateDate;
-    caf::PdmField<QString>              updateUser;
- 
-    caf::PdmField<QString>              m_surveyType;
-    caf::PdmField<double>               m_datumElevation;
-
-    caf::PdmField<RiaEclipseUnitTools::UnitSystemType> m_unitSystem;
-    
-    caf::PdmChildField<RimWellPathCompletions*> m_completions;
+    // Geometry and data
 
     cvf::ref<RigWellPath>               m_wellPath;
     cvf::ref<RigWellPathFormations>     m_wellPathFormations;
-    caf::PdmField<QString>              m_name;
-    
-    caf::PdmField<QString>              m_wellPathFormationFilePath;
-    caf::PdmField<QString>              m_formationKeyInFile;
 
-    caf::PdmChildArrayField<RimWellLogFile*> m_wellLogFiles;
-    
-    caf::PdmChildField<Rim3dWellLogCurveCollection*> m_3dWellLogCurves;
+    // Obsolete fields
 
     caf::PdmChildField<RimWellLogFile*> m_wellLogFile_OBSOLETE;
 };

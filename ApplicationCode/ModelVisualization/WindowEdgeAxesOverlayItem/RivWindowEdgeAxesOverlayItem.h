@@ -82,8 +82,15 @@ class RivWindowEdgeAxesOverlayItem : public cvf::OverlayItem
     using TextDrawer = cvf::TextDrawer;
     using Camera = cvf::Camera;
 public:
+    enum DomainAxes
+    {
+        XY_AXES,
+        XZ_AXES
+    };
+public:
+
     RivWindowEdgeAxesOverlayItem(Font* font);
-    virtual ~RivWindowEdgeAxesOverlayItem();
+    ~RivWindowEdgeAxesOverlayItem() override;
 
     void            setDisplayCoordTransform(const caf::DisplayCoordTransform* displayCoordTransform);
     void            updateFromCamera(const Camera* camera);
@@ -93,10 +100,12 @@ public:
     void            setLineColor(const Color3f& lineColor);
     const Color3f&  lineColor() const;
     void            setFrameColor(const Color4f& frameColor);
-
+    void            setDomainAxes(DomainAxes axes);
+    void            setIsSwitchingYAxisSign(bool switchSign);
     int             frameBorderWidth()  { return static_cast<int>( m_frameBorderWidth); }
     int             frameBorderHeight() { return static_cast<int>( m_frameBorderHeight); }
 
+    void            setShowAxisLines(bool showAxisLines);
 protected:
     Vec2ui          sizeHint() override;
     void            render(OpenGLContext* oglContext, const Vec2i& position, const Vec2ui& size) override;
@@ -127,6 +136,8 @@ private:
     float               m_tickLineLength;
     float               m_pixelSpacing;
     bool                m_isSwitchingYAxisValueSign;
+    bool                m_showAxisLines;
+    DomainAxes          m_domainAxes;
 
     std::vector<double> m_domainCoordsXValues;
     std::vector<double> m_domainCoordsYValues;

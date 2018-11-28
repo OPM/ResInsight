@@ -130,7 +130,7 @@ std::vector<QString> RiaSummaryCurveAnalyzer::identifierTexts(RifEclipseSummaryA
 ///
 //--------------------------------------------------------------------------------------------------
 std::vector<RifEclipseSummaryAddress>
-    RiaSummaryCurveAnalyzer::addressesForCategory(const std::vector<RifEclipseSummaryAddress>& addresses,
+    RiaSummaryCurveAnalyzer::addressesForCategory(const std::set<RifEclipseSummaryAddress>& addresses,
                                                   RifEclipseSummaryAddress::SummaryVarCategory category)
 {
     std::vector<RifEclipseSummaryAddress> filteredAddresses;

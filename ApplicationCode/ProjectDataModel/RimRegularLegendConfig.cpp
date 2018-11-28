@@ -715,6 +715,14 @@ bool RimRegularLegendConfig::showLegend() const
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimRegularLegendConfig::setShowLegend(bool show)
+{
+    m_showLegend = show;
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 caf::TitledOverlayFrame* RimRegularLegendConfig::titledOverlayFrame()
@@ -742,6 +750,14 @@ const caf::TitledOverlayFrame* RimRegularLegendConfig::titledOverlayFrame() cons
     {
         return m_scalarMapperLegend.p();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimLegendConfig::RangeModeType RimRegularLegendConfig::rangeMode() const
+{
+    return m_rangeMode();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -852,7 +868,7 @@ QList<caf::PdmOptionItemInfo> RimRegularLegendConfig::calculateValueOptions(cons
         if (   ( eclCellColors && eclCellColors->hasCategoryResult())
             || ( gmCellColors && gmCellColors->hasCategoryResult())
             || ( eclCellEdgColors && eclCellEdgColors->hasCategoryResult())
-            || ( ensembleCurveSet && ensembleCurveSet->currentEnsembleParameterType() == RimEnsembleCurveSet::TYPE_TEXT) )
+            || ( ensembleCurveSet && ensembleCurveSet->currentEnsembleParameterType() == EnsembleParameter::TYPE_TEXT) )
         {
             isCategoryResult = true;
         }

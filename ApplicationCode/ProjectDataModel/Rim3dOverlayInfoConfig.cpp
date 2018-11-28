@@ -20,6 +20,8 @@
 
 #include "Rim3dOverlayInfoConfig.h"
 
+#include "RiaQDateTimeTools.h"
+
 #include "RicGridStatisticsDialog.h"
 
 #include "RigCaseCellResultsData.h"
@@ -35,6 +37,8 @@
 #include "RigMainGrid.h"
 #include "RigStatisticsDataCache.h"
 
+#include "RimContourMapView.h"
+#include "RimContourMapProjection.h"
 #include "Rim2dIntersectionView.h"
 #include "Rim2dIntersectionViewCollection.h"
 #include "Rim3dView.h"
@@ -172,9 +176,11 @@ Rim3dOverlayInfoConfig::HistogramData Rim3dOverlayInfoConfig::histogramData()
 {
     auto eclipseView = dynamic_cast<RimEclipseView*>(m_viewDef.p());
     auto geoMechView = dynamic_cast<RimGeoMechView*>(m_viewDef.p());
+    auto contourMap = dynamic_cast<RimContourMapView*>(eclipseView);
     
-    if (eclipseView) return histogramData(eclipseView);
-    if (geoMechView) return histogramData(geoMechView);
+    if (contourMap) return histogramData(contourMap);
+    else if (eclipseView) return histogramData(eclipseView);
+    else if (geoMechView) return histogramData(geoMechView);
     return HistogramData();
 }
 
@@ -260,6 +266,37 @@ bool Rim3dOverlayInfoConfig::isActive() const
 {
     return m_active;
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void Rim3dOverlayInfoConfig::setIsActive(bool active)
+{
+    m_active = active;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+Rim3dOverlayInfoConfig::HistogramData Rim3dOverlayInfoConfig::histogramData(RimContourMapView* contourMap)
+{
+    HistogramData histData;
+
+    if (contourMap)
+    {
+        bool isResultsInfoRelevant = contourMap->contourMapProjection()->numberOfValidCells() > 0u;
+
+        if (isResultsInfoRelevant)
+        {
+            histData.min = contourMap->contourMapProjection()->minValue();
+            histData.max = contourMap->contourMapProjection()->maxValue();
+            histData.mean = contourMap->contourMapProjection()->meanValue();
+            histData.sum = contourMap->contourMapProjection()->sumAllValues();
+        }
+    }
+    return histData;
+}
+
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -457,35 +494,51 @@ QString Rim3dOverlayInfoConfig::caseInfoText(RimEclipseView* eclipseView)
 
     if (eclipseView)
     {
-        QString caseName;
-        QString totCellCount;
-        QString activeCellCountText;
-        QString fractureActiveCellCount;
-        QString iSize, jSize, kSize;
-        QString zScale;
+        QString caseName = eclipseView->eclipseCase()->caseUserDescription();
 
-        if (eclipseView->mainGrid())
+        RimContourMapView* contourMap = dynamic_cast<RimContourMapView*>(eclipseView);
+        if (contourMap && contourMap->contourMapProjection())
         {
-            caseName = eclipseView->eclipseCase()->caseUserDescription();
-            totCellCount = QString::number(eclipseView->mainGrid()->globalCellArray().size());
+            QString totCellCount = QString::number(contourMap->contourMapProjection()->numberOfCells());
+            cvf::uint validCellCount = contourMap->contourMapProjection()->numberOfValidCells();
+            QString activeCellCountText = QString::number(validCellCount);
+            QString iSize = QString::number(contourMap->contourMapProjection()->numberOfElementsIJ().x());
+            QString jSize = QString::number(contourMap->contourMapProjection()->numberOfElementsIJ().y());
+            QString aggregationType = contourMap->contourMapProjection()->resultAggregationText();
+            QString weightingParameterString;
+            if (contourMap->contourMapProjection()->weightingParameter() != "None")
+            {
+                weightingParameterString += QString(" (Weight: %1)").arg(contourMap->contourMapProjection()->weightingParameter());
+            }
+
+            infoText += QString(
+                "<p><b>-- Contour Map: %1 --</b><p>  "
+                "<b>Sample Count. Total:</b> %2 <b>Valid Results:</b> %3 <br>"
+                "<b>Projection Type:</b> %4%5<br>").arg(caseName, totCellCount, activeCellCountText, aggregationType, weightingParameterString);
+        }
+        else if (eclipseView->mainGrid())
+        {
+            QString totCellCount = QString::number(eclipseView->mainGrid()->globalCellArray().size());
             size_t mxActCellCount = eclipseView->eclipseCase()->eclipseCaseData()->activeCellInfo(RiaDefines::MATRIX_MODEL)->reservoirActiveCellCount();
             size_t frActCellCount = eclipseView->eclipseCase()->eclipseCaseData()->activeCellInfo(RiaDefines::FRACTURE_MODEL)->reservoirActiveCellCount();
+            
+            QString activeCellCountText;
             if (frActCellCount > 0)  activeCellCountText += "Matrix : ";
             activeCellCountText += QString::number(mxActCellCount);
             if (frActCellCount > 0)  activeCellCountText += " Fracture : " + QString::number(frActCellCount);
 
-            iSize = QString::number(eclipseView->mainGrid()->cellCountI());
-            jSize = QString::number(eclipseView->mainGrid()->cellCountJ());
-            kSize = QString::number(eclipseView->mainGrid()->cellCountK());
+            QString iSize = QString::number(eclipseView->mainGrid()->cellCountI());
+            QString jSize = QString::number(eclipseView->mainGrid()->cellCountJ());
+            QString kSize = QString::number(eclipseView->mainGrid()->cellCountK());
 
-            zScale = QString::number(eclipseView->scaleZ());
+            QString zScale = QString::number(eclipseView->scaleZ());
+            infoText += QString(
+                "<p><b>-- %1 --</b><p>  "
+                "<b>Cell count. Total:</b> %2 <b>Active:</b> %3 <br>"
+                "<b>Main Grid I,J,K:</b> %4, %5, %6 <b>Z-Scale:</b> %7<br>").arg(caseName, totCellCount, activeCellCountText, iSize, jSize, kSize, zScale);
 
         }
 
-        infoText += QString(
-            "<p><b>-- %1 --</b><p>  "
-            "<b>Cell count. Total:</b> %2 <b>Active:</b> %3 <br>"
-            "<b>Main Grid I,J,K:</b> %4, %5, %6 <b>Z-Scale:</b> %7<br>").arg(caseName, totCellCount, activeCellCountText, iSize, jSize, kSize, zScale);
     }
 
     return infoText;
@@ -525,7 +578,26 @@ QString Rim3dOverlayInfoConfig::resultInfoText(const HistogramData& histData, Ri
 {
     QString infoText;
 
-    if (eclipseView)
+    RimContourMapView* contourMap = dynamic_cast<RimContourMapView*>(eclipseView);
+
+    if (contourMap)
+    {
+        bool isResultsInfoRelevant = contourMap->contourMapProjection()->numberOfValidCells() > 0u;
+        if (isResultsInfoRelevant)
+        {
+            QString propName = eclipseView->cellResult()->resultVariableUiShortName();
+            if (!contourMap->contourMapProjection()->isColumnResult())
+            {
+                infoText += QString("<b>Cell Property:</b> %1 ").arg(propName);
+            }
+            infoText += QString("<br><b>Statistics:</b> Current Time Step and Visible Cells");
+            infoText += QString("<table border=0 cellspacing=5 >"
+                "<tr> <td>Min</td> <td>Mean</td> <td>Max</td> <td>Sum</td> </tr>"
+                "<tr> <td>%1</td>  <td> %2</td> <td>  %3</td> <td> %4</td> </tr>"
+                "</table>").arg(histData.min).arg(histData.mean).arg(histData.max).arg(histData.sum);
+        }
+    }
+    else if (eclipseView)
     {
         bool isResultsInfoRelevant = eclipseView->hasUserRequestedAnimation() && eclipseView->cellResult()->hasResult();
 
@@ -547,7 +619,7 @@ QString Rim3dOverlayInfoConfig::resultInfoText(const HistogramData& histData, Ri
             infoText += QString("<b>Cell Property:</b> %1 ").arg(propName);
             infoText += QString("<br><b>Statistics:</b> ") + timeRangeText + " and " + m_statisticsCellRange().uiText();
             infoText += QString("<table border=0 cellspacing=5 >"
-                                "<tr> <td>Min</td> <td>P10</td> <td>Mean</td> <td>P90</td> <td>Max</td> <td>Sum</td> </tr>"
+                                "<tr> <td>Min</td> <td>P90</td> <td>Mean</td> <td>P10</td> <td>Max</td> <td>Sum</td> </tr>"
                                 "<tr> <td>%1</td>  <td> %2</td> <td>  %3</td> <td> %4</td> <td> %5</td> <td> %6</td> </tr>"
                                 "</table>").arg(histData.min).arg(histData.p10).arg(histData.mean).arg(histData.p90).arg(histData.max).arg(histData.sum);
 
@@ -650,7 +722,7 @@ QString Rim3dOverlayInfoConfig::resultInfoText(const HistogramData& histData, Ri
 
             infoText += QString("<br><b>Statistics:</b> ") + m_statisticsTimeRange().uiText() + " and " + m_statisticsCellRange().uiText();
             infoText += QString("<table border=0 cellspacing=5 >"
-                                "<tr> <td>Min</td> <td>P10</td> <td>Mean</td> <td>P90</td> <td>Max</td> <td>Sum</td> </tr>"
+                                "<tr> <td>Min</td> <td>P90</td> <td>Mean</td> <td>P10</td> <td>Max</td> <td>Sum</td> </tr>"
                                 "<tr> <td>%1</td>  <td> %2</td> <td> %3</td>  <td> %4</td> <td> %5</td> <td> %6</td> </tr>"
                                 "</table>").arg(histData.min).arg(histData.p10).arg(histData.mean).arg(histData.p90).arg(histData.max).arg(histData.sum);
         }
@@ -750,26 +822,38 @@ void Rim3dOverlayInfoConfig::defineUiOrdering(QString uiConfigName, caf::PdmUiOr
 {
     caf::PdmUiGroup* visGroup = uiOrdering.addNewGroup("Visibility");
 
+    RimEclipseView * eclipseView = dynamic_cast<RimEclipseView*>(m_viewDef.p());
+    RimContourMapView* contourMap = dynamic_cast<RimContourMapView*>(eclipseView);
+    RimGeoMechView * geoMechView = dynamic_cast<RimGeoMechView*>(m_viewDef.p());
+
     visGroup->add(&m_showAnimProgress);
     visGroup->add(&m_showCaseInfo);
     visGroup->add(&m_showResultInfo);
-    RimGeoMechView * geoMechView = dynamic_cast<RimGeoMechView*>(m_viewDef.p());
-    if (!geoMechView)
+    if (!geoMechView && !contourMap)
     {
         visGroup->add(&m_showVolumeWeightedMean);
     }
 
-    visGroup->add(&m_showHistogram);
-
-    caf::PdmUiGroup* statGroup = uiOrdering.addNewGroup("Statistics Options");
-    RimEclipseView * eclipseView = dynamic_cast<RimEclipseView*>(m_viewDef.p());
-
-    if (!eclipseView || !eclipseView->cellResult()->isFlowDiagOrInjectionFlooding())
+    if (!contourMap)
     {
-        statGroup->add(&m_statisticsTimeRange);
+        visGroup->add(&m_showHistogram);
     }
-    statGroup->add(&m_statisticsCellRange);
 
+    if (contourMap)
+    {
+        m_statisticsTimeRange = Rim3dOverlayInfoConfig::CURRENT_TIMESTEP;
+        m_statisticsCellRange = Rim3dOverlayInfoConfig::VISIBLE_CELLS;
+    }
+    else
+    {
+        caf::PdmUiGroup* statGroup = uiOrdering.addNewGroup("Statistics Options");
+
+        if (!eclipseView || !eclipseView->cellResult()->isFlowDiagOrInjectionFlooding())
+        {
+            statGroup->add(&m_statisticsTimeRange);
+        }
+        statGroup->add(&m_statisticsCellRange);
+    }
     uiOrdering.skipRemainingFields(true);
 }
 
@@ -899,9 +983,12 @@ QString Rim3dOverlayInfoConfig::timeStepText(RimEclipseView* eclipseView)
     if (currTimeStepIndex >= 0 && currTimeStepIndex < (int)timeSteps.size())
     {
         QString dateFormat = RimTools::createTimeFormatStringFromDates(timeSteps);
+
+        QString dateString = RiaQDateTimeTools::toStringUsingApplicationLocale(timeSteps[currTimeStepIndex], dateFormat);
+
         dateTimeString = QString("Time Step: %1/%2  %3").arg(QString::number(currTimeStepIndex), 
                                                              QString::number(timeSteps.size() - 1),
-                                                             timeSteps[currTimeStepIndex].toString(dateFormat));
+                                                             dateString);
     }
 
     return QString("<p><b><center>-- %1 --</center></b>").arg(dateTimeString) +

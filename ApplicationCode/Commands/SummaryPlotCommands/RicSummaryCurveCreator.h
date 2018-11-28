@@ -36,6 +36,11 @@
 
 #define OBSERVED_DATA_AVALUE_POSTFIX    "_OBSDATA"
 
+namespace caf
+{
+    class PdmObject;
+};
+
 class RimSummaryCase;
 class RimSummaryCurveAutoName;
 class RimSummaryPlot;
@@ -58,11 +63,11 @@ private:
 
 public:
     RicSummaryCurveCreator();
-    virtual ~RicSummaryCurveCreator();
+    ~RicSummaryCurveCreator() override;
 
     RimSummaryPlot*                         previewPlot() const;
     void                                    updateFromSummaryPlot(RimSummaryPlot* targetPlot, 
-                                                                  const std::vector<RimSummaryCase*>& defaultCases = std::vector<RimSummaryCase*>());
+                                                                  const std::vector<caf::PdmObject*>& defaultSources = std::vector<caf::PdmObject*>());
 
     QWidget*                                addressSelectionWidget(QWidget* parent);
 
@@ -71,18 +76,19 @@ public:
     void                                    updateCurveNames();
 
 private:
-    virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
+    void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
                                                              const QVariant& oldValue, 
-                                                             const QVariant& newValue);
-    virtual QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly);
-    virtual void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
-    virtual void                            defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName,
+                                                             const QVariant& newValue) override;
+    QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
+    void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    void                            defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName,
                                                                   caf::PdmUiEditorAttribute* attribute) override;
 
     void                                    syncPreviewCurvesFromUiSelection();
     void                                    updatePreviewCurvesFromCurveDefinitions(const std::set<RiaSummaryCurveDefinition>& allCurveDefsToDisplay, 
                                                                                     const std::set<RiaSummaryCurveDefinition>& curveDefsToAdd,
-                                                                                    const std::set<RimSummaryCurve*>& curvesToDelete);
+                                                                                    const std::set<RimSummaryCurve*>& curvesToDelete,
+                                                                                    const std::set<RimEnsembleCurveSet*>& curveSetsToDelete);
     std::set<std::string>                   getAllSummaryCaseNames();
     std::set<std::string>                   getAllSummaryWellNames();
 
@@ -90,7 +96,7 @@ private:
     void                                    updateTargetPlot();
     static void                             copyCurveAndAddToPlot(const RimSummaryCurve *curve, RimSummaryPlot *plot, bool forceVisible = false);
     static void                             copyEnsembleCurveAndAddToCurveSet(const RimSummaryCurve *curve, RimEnsembleCurveSet* curveSet, bool forceVisible = false);
-    void                                    setDefaultCurveSelection(const std::vector<RimSummaryCase*>& defaultCases);
+    void                                    setDefaultCurveSelection(const std::vector<caf::PdmObject*>& defaultCases);
 
     void                                    resetAllFields();
     void                                    initCurveAppearanceCalculator(RimSummaryCurveAppearanceCalculator& curveAppearanceCalc);

@@ -23,8 +23,10 @@
 #include "cvfVector3.h"
 #include "cvfBoundingBox.h"
 
-#include <vector>
 #include "cvfStructGrid.h"
+
+#include <vector>
+#include <array>
 
 class RigActiveCellInfo;
 class RigFemPart;
@@ -55,13 +57,13 @@ class RivEclipseIntersectionGrid : public RivIntersectionHexGridInterface
 public:
     RivEclipseIntersectionGrid(const RigMainGrid * mainGrid, const RigActiveCellInfo* activeCellInfo, bool showInactiveCells);
 
-    virtual cvf::Vec3d displayOffset() const;
-    virtual cvf::BoundingBox boundingBox() const;
-    virtual void findIntersectingCells(const cvf::BoundingBox& intersectingBB, std::vector<size_t>* intersectedCells) const;
-    virtual bool useCell(size_t cellIndex) const;
-    virtual void cellCornerVertices(size_t cellIndex, cvf::Vec3d cellCorners[8]) const;
-    virtual void cellCornerIndices(size_t cellIndex, size_t cornerIndices[8]) const;
-    virtual const RigFault* findFaultFromCellIndexAndCellFace(size_t reservoirCellIndex, 
+    cvf::Vec3d displayOffset() const override;
+    cvf::BoundingBox boundingBox() const override;
+    void findIntersectingCells(const cvf::BoundingBox& intersectingBB, std::vector<size_t>* intersectedCells) const override;
+    bool useCell(size_t cellIndex) const override;
+    void cellCornerVertices(size_t cellIndex, cvf::Vec3d cellCorners[8]) const override;
+    void cellCornerIndices(size_t cellIndex, size_t cornerIndices[8]) const override;
+    const RigFault* findFaultFromCellIndexAndCellFace(size_t reservoirCellIndex, 
                                                               cvf::StructGridInterface::FaceType face) const override;
 
 private:
@@ -78,13 +80,13 @@ class RivFemIntersectionGrid : public RivIntersectionHexGridInterface
 public:
     explicit RivFemIntersectionGrid(const RigFemPart * femPart);
 
-    virtual cvf::Vec3d displayOffset() const;
-    virtual cvf::BoundingBox boundingBox() const;
-    virtual void findIntersectingCells(const cvf::BoundingBox& intersectingBB, std::vector<size_t>* intersectedCells) const;
-    virtual bool useCell(size_t cellIndex) const;
-    virtual void cellCornerVertices(size_t cellIndex, cvf::Vec3d cellCorners[8]) const;
-    virtual void cellCornerIndices(size_t cellIndex, size_t cornerIndices[8]) const;
-    virtual const RigFault* findFaultFromCellIndexAndCellFace(size_t reservoirCellIndex, 
+    cvf::Vec3d displayOffset() const override;
+    cvf::BoundingBox boundingBox() const override;
+    void findIntersectingCells(const cvf::BoundingBox& intersectingBB, std::vector<size_t>* intersectedCells) const override;
+    bool useCell(size_t cellIndex) const override;
+    void cellCornerVertices(size_t cellIndex, cvf::Vec3d cellCorners[8]) const override;
+    void cellCornerIndices(size_t cellIndex, size_t cornerIndices[8]) const override;
+    const RigFault* findFaultFromCellIndexAndCellFace(size_t reservoirCellIndex, 
                                                               cvf::StructGridInterface::FaceType face) const override;
 
 private:
@@ -187,8 +189,7 @@ Substitution and reorganizing gives the expressions seen below.
     float   weight(int idx)const { return m_weights[idx]; }
 
 private:
-
-    size_t m_vxIds[8];
-    float  m_weights[8];
+    std::array<size_t, 8> m_vxIds;
+    std::array<float, 8> m_weights;
     int    m_count;
 };

@@ -23,12 +23,13 @@
 #include "RivCellSetEnum.h"
 #include "RivReservoirPartMgr.h"    // Must include here because of caf::FixedArray<RivReservoirPartMgr, PROPERTY_FILTERED>
 
-#include "cafFixedArray.h"
 #include "cvfArray.h"
 #include "cvfBase.h"
 #include "cvfTransform.h"
 
 #include "cafPdmObject.h"
+
+#include <array>
 
 class RimEclipseView;
 class RigGridBase;
@@ -102,6 +103,12 @@ public:
     void                        forceWatertightGeometryOnForType(RivCellSetEnum geometryType);
     void                        clearWatertightGeometryFlags();
 
+    static void computePropertyVisibility(cvf::UByteArray*                    cellVisibilities,
+                                          const RigGridBase*                  grid,
+                                          size_t                              timeStepIndex,
+                                          const cvf::UByteArray*              rangeFilterVisibility,
+                                          RimEclipsePropertyFilterCollection* propFilterColl);
+
 private:
     void                        createGeometry(RivCellSetEnum geometryType);
     void                        computeVisibility(cvf::UByteArray* cellVisibility, 
@@ -121,18 +128,13 @@ private:
                                                           const cvf::UByteArray* cellIsInWellStatuses, 
                                                           bool invalidCellsIsVisible, 
                                                           bool inactiveCellsIsVisible, 
-                                                          bool activeCellsIsVisible, 
-                                                          bool mainGridIsVisible);
+                                                          bool activeCellsIsVisible);
+
     void                        computeRangeVisibility   (RivCellSetEnum geometryType, 
                                                           cvf::UByteArray* cellVisibilities, 
                                                           const RigGridBase* grid, 
                                                           const cvf::UByteArray* nativeVisibility, 
                                                           const RimCellRangeFilterCollection* rangeFilterColl);
-    static void                 computePropertyVisibility(cvf::UByteArray* cellVisibilities, 
-                                                          const RigGridBase* grid, 
-                                                          size_t timeStepIndex, 
-                                                          const cvf::UByteArray* rangeFilterVisibility, 
-                                                          RimEclipsePropertyFilterCollection* propFilterColl);
     void                        computeOverriddenCellVisibility(cvf::UByteArray* cellVisibility, 
                                                                 const RigGridBase* grid);
 
@@ -143,8 +145,8 @@ private:
 
 
 private:
-    caf::FixedArray<RivReservoirPartMgr, PROPERTY_FILTERED> m_geometries;
-    caf::FixedArray<bool, PROPERTY_FILTERED>                m_geometriesNeedsRegen;
+    std::array<RivReservoirPartMgr, PROPERTY_FILTERED>      m_geometries;
+    std::array<bool, PROPERTY_FILTERED>                     m_geometriesNeedsRegen;
 
     cvf::Collection<RivReservoirPartMgr>                    m_propFilteredGeometryFrames;
     std::vector<uchar>                                      m_propFilteredGeometryFramesNeedsRegen;

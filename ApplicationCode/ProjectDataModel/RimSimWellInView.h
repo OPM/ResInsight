@@ -49,7 +49,7 @@ class RimSimWellInView : public caf::PdmObject
 public:
 
     RimSimWellInView();
-    virtual ~RimSimWellInView();
+    ~RimSimWellInView() override;
     
     void                                setSimWellData(RigSimWellData* simWellData, size_t resultWellIndex);
     RigSimWellData*                     simWellData();
@@ -62,8 +62,8 @@ public:
     bool                                isUsingCellCenterForPipe() const;
 
 
-    virtual caf::PdmFieldHandle*        userDescriptionField() override;
-    virtual caf::PdmFieldHandle*        objectToggleField() override;
+    caf::PdmFieldHandle*        userDescriptionField() override;
+    caf::PdmFieldHandle*        objectToggleField() override;
 
     std::vector<const RigWellPath*>     wellPipeBranches() const;
 
@@ -97,9 +97,9 @@ public:
 
 
 protected:
-    virtual void                        fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
-    virtual void                        defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
-    virtual void                        defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
+    void                        fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    void                        defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    void                        defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
 
 private:
     bool                                intersectsDynamicWellCellsFilteredCells(size_t frameIndex) const;

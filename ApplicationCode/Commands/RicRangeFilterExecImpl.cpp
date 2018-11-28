@@ -64,7 +64,7 @@ RimCellRangeFilter* RicRangeFilterExecImpl::createRangeFilter()
 
     size_t flterIndex = m_cellRangeFilterCollection->rangeFilters().size() + 1;
     
-    rangeFilter->gridIndex = m_gridIndex;
+    rangeFilter->setGridIndex(m_gridIndex);
 
     rangeFilter->name = QString("New Filter (%1)").arg(flterIndex);
 
@@ -91,7 +91,7 @@ RimCellRangeFilter* RicRangeFilterExecImpl::createRangeFilter()
 //--------------------------------------------------------------------------------------------------
 void RicRangeFilterExecImpl::applyCommandDataOnFilter(RimCellRangeFilter* rangeFilter)
 {
-    rangeFilter->gridIndex = m_gridIndex;
+    rangeFilter->setGridIndex(m_gridIndex);
     if (m_iSlice)
     {
         rangeFilter->cellCountI = 1;

@@ -34,7 +34,7 @@ class RimMockModelSettings : public caf::PdmObject
 public:
 
     RimMockModelSettings();
-    virtual ~RimMockModelSettings();
+    ~RimMockModelSettings() override;
 
     caf::PdmField<quint64>  cellCountX;
     caf::PdmField<quint64>  cellCountY;
@@ -46,8 +46,8 @@ public:
     caf::PdmField<quint64>  timeStepCount;
 
 
-    virtual void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue );
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
-    virtual void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering );
+    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
 };

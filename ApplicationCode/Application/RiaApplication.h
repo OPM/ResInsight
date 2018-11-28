@@ -92,7 +92,7 @@ public:
 
 public:
     RiaApplication(int& argc, char** argv);
-    ~RiaApplication();
+    ~RiaApplication() override;
     
     static RiaApplication* instance();
 
@@ -100,13 +100,13 @@ public:
     bool                parseArguments();
 
     void                setActiveReservoirView(Rim3dView*);
-    Rim3dView*            activeReservoirView();
+    Rim3dView*          activeReservoirView();
     const Rim3dView*    activeReservoirView() const;
     RimGridView*        activeGridView();
 
     RimViewWindow*      activePlotWindow() const;
 
-    RimProject*            project(); 
+    RimProject*         project(); 
 
     void                createMockModel();
     void                createResultsMockModel();
@@ -115,12 +115,13 @@ public:
     void                createInputMockModel();
 
     QString             lastUsedDialogDirectory(const QString& dialogName);
+    QString             lastUsedDialogDirectoryWithFallbackToProjectFolder(const QString& dialogName);
     QString             lastUsedDialogDirectoryWithFallback(const QString& dialogName, const QString& fallbackDirectory);
     void                setLastUsedDialogDirectory(const QString& dialogName, const QString& directory);
 
     bool                openFile(const QString& fileName);
 
-    bool                openOdbCaseFromFile(const QString& fileName);
+    bool                openOdbCaseFromFile(const QString& fileName, bool applyTimeStepFilter = false);
 
     QString             currentProjectPath() const;
     QString             createAbsolutePathFromProjectRelativePath(QString projectRelativePath);
@@ -144,10 +145,8 @@ public:
 
     static const char*  getVersionStringApp(bool includeCrtInfo);
 
-    void                setUseShaders(bool enable);
     bool                useShaders() const;
 
-    void                setShowPerformanceInfo(bool enable);
     bool                showPerformanceInfo() const;
 
     RINavigationPolicy  navigationPolicy() const;
@@ -180,6 +179,7 @@ public:
     int                 launchUnitTests();
     int                 launchUnitTestsWithConsole();
 
+    RiuPlotMainWindow*  getOrCreateMainPlotWindow();
     RiuPlotMainWindow*  getOrCreateAndShowMainPlotWindow();
     RiuPlotMainWindow*  mainPlotWindow();
     RiuMainWindowBase*  mainWindowByID(int mainWindowID);
@@ -202,27 +202,30 @@ public:
     void                waitUntilCommandObjectsHasBeenProcessed();
     void                saveWinGeoAndDockToolBarLayout();
 
-private:
-    void                    onProjectOpenedOrClosed();
-    void                    setWindowCaptionFromAppState();
+    static bool         enableDevelopmentFeatures();
+    static void         clearAllSelections();
 
-    void                    createMainPlotWindow();
-    void                    deleteMainPlotWindow();
+private:
+    void                onProjectOpenedOrClosed();
+    void                setWindowCaptionFromAppState();
+
+    void                createMainPlotWindow();
+    void                deleteMainPlotWindow();
     
-    void                    loadAndUpdatePlotData();
+    void                loadAndUpdatePlotData();
     
-    void                    storeTreeViewState();
+    void                storeTreeViewState();
 
     friend RiaArgumentParser;
-    void                    setHelpText(const QString& helpText);
+    void                setHelpText(const QString& helpText);
 
-    virtual bool            notify(QObject *, QEvent *) override;
+    bool                notify(QObject *, QEvent *) override;
 
 private slots:
-    void                    slotWorkerProcessFinished(int exitCode, QProcess::ExitStatus exitStatus);
+    void                slotWorkerProcessFinished(int exitCode, QProcess::ExitStatus exitStatus);
 
 private:
-    caf::PdmPointer<Rim3dView>            m_activeReservoirView;
+    caf::PdmPointer<Rim3dView>          m_activeReservoirView;
     caf::PdmPointer<RimProject>         m_project;
 
     RiaSocketServer*                    m_socketServer;

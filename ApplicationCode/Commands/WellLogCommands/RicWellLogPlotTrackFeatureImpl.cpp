@@ -19,6 +19,11 @@
 
 #include "RicWellLogPlotTrackFeatureImpl.h"
 
+#include "RiaApplication.h"
+#include "RiuPlotMainWindow.h"
+#include "RiuWellLogPlot.h"
+#include "RiuWellLogTrack.h"
+
 #include "RimWellLogCurve.h"
 #include "RimWellLogPlot.h"
 #include "RimWellLogTrack.h"
@@ -70,11 +75,13 @@ void RicWellLogPlotTrackFeatureImpl::moveCurvesToWellLogPlotTrack(RimWellLogTrac
 
     for (std::set<RimWellLogTrack*>::iterator tIt = srcTracks.begin(); tIt != srcTracks.end(); ++tIt)
     {
-        (*tIt)->updateXZoomAndParentPlotDepthZoom();
+        (*tIt)->updateParentPlotZoom();
+        (*tIt)->calculateXZoomRangeAndUpdateQwt();
     }
 
     destTrack->loadDataAndUpdate();
-    destTrack->updateXZoomAndParentPlotDepthZoom();
+    destTrack->updateParentPlotZoom();
+    destTrack->calculateXZoomRangeAndUpdateQwt();
     destTrack->updateConnectedEditors();
 }
 
@@ -87,6 +94,8 @@ void RicWellLogPlotTrackFeatureImpl::moveTracksToWellLogPlot(RimWellLogPlot* dst
 {
     CVF_ASSERT(dstWellLogPlot);
 
+    RiuPlotMainWindow* plotWindow = RiaApplication::instance()->getOrCreateMainPlotWindow();
+
     std::set<RimWellLogPlot*> srcPlots;
 
     for (size_t tIdx = 0; tIdx < tracksToMove.size(); tIdx++)
@@ -98,13 +107,16 @@ void RicWellLogPlotTrackFeatureImpl::moveTracksToWellLogPlot(RimWellLogPlot* dst
         if (srcPlot)
         {
             srcPlot->removeTrack(track);
-          
+
             srcPlots.insert(srcPlot);
         }
     }
 
     for (std::set<RimWellLogPlot*>::iterator pIt = srcPlots.begin(); pIt != srcPlots.end(); ++pIt)
     {
+        RiuWellLogPlot* viewWidget = dynamic_cast<RiuWellLogPlot*>((*pIt)->viewWidget());
+        plotWindow->setWidthOfMdiWindow(viewWidget, viewWidget->preferredSize().width());
+
         (*pIt)->calculateAvailableDepthRange();
         (*pIt)->updateTrackNames();
         (*pIt)->updateDepthZoom();
@@ -118,7 +130,10 @@ void RicWellLogPlotTrackFeatureImpl::moveTracksToWellLogPlot(RimWellLogPlot* dst
     for (size_t tIdx = 0; tIdx < tracksToMove.size(); tIdx++)
     {
         dstWellLogPlot->insertTrack(tracksToMove[tIdx], insertionStartIndex + tIdx);
+    
     }
+    RiuWellLogPlot* viewWidget = dynamic_cast<RiuWellLogPlot*>(dstWellLogPlot->viewWidget());
+    plotWindow->setWidthOfMdiWindow(viewWidget, viewWidget->preferredSize().width());
 
     dstWellLogPlot->updateTrackNames();
     dstWellLogPlot->updateTracks();

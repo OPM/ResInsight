@@ -34,13 +34,13 @@ class RimObservedEclipseUserData : public RimObservedData
     CAF_PDM_HEADER_INIT;
 public:
     RimObservedEclipseUserData();
-    virtual ~RimObservedEclipseUserData();
+    ~RimObservedEclipseUserData() override;
 
-    virtual void createSummaryReaderInterface() override;
+    void createSummaryReaderInterface() override;
 
-    virtual RifSummaryReaderInterface* summaryReader() override;
+    RifSummaryReaderInterface* summaryReader() override;
 
-    virtual QString errorMessagesFromReader() override;
+    QString errorMessagesFromReader() override;
 
 private:
     cvf::ref<RifSummaryReaderInterface> m_summeryReader;

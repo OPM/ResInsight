@@ -80,7 +80,7 @@ void RimStimPlanLegendConfig::defineUiOrdering(QString uiConfigName, caf::PdmUiO
 {
     uiOrdering.add(&m_name);
 
-    m_legend->defineUiOrdering(uiConfigName, uiOrdering);
+    m_legend->uiOrdering(uiConfigName, uiOrdering);
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -67,38 +67,6 @@
 //--------------------------------------------------------------------------------------------------
 /// Internal functions
 //--------------------------------------------------------------------------------------------------
-std::vector<std::vector<std::pair<RifRestartFileInfo, QString>>> removeCommonRootPath(const std::vector<std::vector<RifRestartFileInfo>>& fileInfoLists)
-{
-    // Find common root path among all paths
-    QStringList allPaths;
-    for (const auto& fileInfoList : fileInfoLists)
-    {
-        for (const auto fi : fileInfoList) allPaths.push_back(fi.fileName);
-    }
-    QString commonRoot = RiaFilePathTools::commonRootPath(allPaths);
-    int commonRootSize = commonRoot.size();
-
-    // Build output lists
-    std::vector<std::vector<std::pair<RifRestartFileInfo, QString>>> output;
-    for (const auto& fileInfoList : fileInfoLists)
-    {
-        std::vector<std::pair<RifRestartFileInfo, QString>> currList;
-
-        for (auto& fi : fileInfoList)
-        {
-            std::pair<RifRestartFileInfo, QString> newFi;
-            newFi = std::make_pair(fi, fi.fileName);
-            newFi.first.fileName.remove(0, commonRootSize);
-            currList.push_back(newFi);
-        }
-        output.push_back(currList);
-    }
-    return output;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// Internal functions
-//--------------------------------------------------------------------------------------------------
 std::vector<std::vector<std::pair<RifRestartFileInfo, QString>>> makeShortPath(const std::vector<std::vector<RifRestartFileInfo>>& fileInfoLists)
 {
     // Build output lists
@@ -246,11 +214,24 @@ RicSummaryCaseRestartDialogResult RicSummaryCaseRestartDialog::openDialog(const 
                                                                           const QString& initialGridFile,
                                                                           bool           failOnSummaryImportError,
                                                                           bool           showApplyToAllWidget,
+                                                                          bool           useFirstSummaryCaseAsTemplate,
                                                                           ImportOptions  defaultSummaryImportOption,
                                                                           ImportOptions  defaultGridImportOption,
                                                                           RicSummaryCaseRestartDialogResult* lastResult,
                                                                           QWidget*                           parent)
 {
+    RicSummaryCaseRestartDialogResult dialogResult;
+    if (lastResult && lastResult->applyToAll && lastResult->summaryImportOption != SEPARATE_CASES)
+    {
+        dialogResult = *lastResult;
+        dialogResult.summaryFiles.clear();
+        dialogResult.gridFiles.clear();
+
+        if (!initialSummaryFile.isEmpty()) dialogResult.summaryFiles.push_back(initialSummaryFile);
+        if (!initialGridFile.isEmpty()) dialogResult.gridFiles.push_back(initialGridFile);
+        return dialogResult;
+    }
+
     RicSummaryCaseRestartDialog  dialog(parent);
     bool handleSummaryFile = false;
 
@@ -288,10 +269,8 @@ RicSummaryCaseRestartDialogResult RicSummaryCaseRestartDialog::openDialog(const 
                                                  defaultGridImportOption,
                                                  {},
                                                  QStringList({ initialGridFile }),
-                                                 lastResult && lastResult->applyToAll);
+                                                 useFirstSummaryCaseAsTemplate || (lastResult && lastResult->applyToAll));
     }
-
-  
 
     RifReaderEclipseSummary reader;
     bool hasWarnings = false;
@@ -303,10 +282,9 @@ RicSummaryCaseRestartDialogResult RicSummaryCaseRestartDialog::openDialog(const 
         return RicSummaryCaseRestartDialogResult(RicSummaryCaseRestartDialogResult::SUMMARY_OK, NOT_IMPORT, NOT_IMPORT,
                                                  QStringList({ initialSummaryFile }),
                                                  QStringList({ initialGridFile }),
-                                                 lastResult->applyToAll);
+                                                 useFirstSummaryCaseAsTemplate || lastResult->applyToAll);
     }
 
-    RicSummaryCaseRestartDialogResult dialogResult;
     if (lastResult && lastResult->applyToAll)
     {
         dialogResult = *lastResult;
@@ -385,7 +363,7 @@ RicSummaryCaseRestartDialogResult RicSummaryCaseRestartDialog::openDialog(const 
 
         // Set properties and show dialog
         dialog.setWindowTitle("Origin Files");
-        dialog.m_buttons->button(QDialogButtonBox::Apply)->setVisible(showApplyToAllWidget);
+        dialog.m_buttons->button(QDialogButtonBox::Apply)->setVisible(!useFirstSummaryCaseAsTemplate && showApplyToAllWidget);
         dialog.resize(DEFAULT_DIALOG_WIDTH, DEFAULT_DIALOG_INIT_HEIGHT);
 
         QApplication::setOverrideCursor(QCursor(Qt::ArrowCursor));
@@ -404,7 +382,7 @@ RicSummaryCaseRestartDialogResult RicSummaryCaseRestartDialog::openDialog(const 
                                                          dialog.selectedGridImportOption(),
                                                          {},
                                                          {},
-                                                         dialog.okToAllSelected());
+                                                         useFirstSummaryCaseAsTemplate || dialog.okToAllSelected());
     }
 
     if (dialogResult.status != RicSummaryCaseRestartDialogResult::SUMMARY_OK)
@@ -599,7 +577,6 @@ void RicSummaryCaseRestartDialog::slotShowFullPathToggled(int state)
 //--------------------------------------------------------------------------------------------------
 void RicSummaryCaseRestartDialog::slotDialogButtonClicked(QAbstractButton* button)
 {
-    bool okButtonClicked        = m_buttons->button(QDialogButtonBox::Ok) == button;
     bool cancelButtonClicked    = m_buttons->button(QDialogButtonBox::Cancel) == button;
     bool okToAllButtonClicked   = m_buttons->button(QDialogButtonBox::Apply) == button;
 

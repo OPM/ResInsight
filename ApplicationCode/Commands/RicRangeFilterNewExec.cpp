@@ -77,11 +77,10 @@ void RicRangeFilterNewExec::redo()
 
         Riu3DMainWindowTools::selectAsCurrentItem(rangeFilter);
         
+        // Trigger update of view following the range filter update
         RimGridView* view = nullptr;
         m_cellRangeFilterCollection->firstAncestorOrThisOfTypeAsserted(view);
-
-        //Enable display of grid cells, to be able to show generated range filter
-        view->showGridCells(true);
+        view->rangeFiltersUpdated();
     }
 }
 

@@ -21,7 +21,7 @@
 
 #include "RigResultAccessor.h"
 
-#include "cafFixedArray.h"
+#include <array>
 
 
 //==================================================================================================
@@ -34,12 +34,12 @@ public:
 
     void setDataAccessObjectForFace(cvf::StructGridInterface::FaceType faceId, RigResultAccessor* resultAccessObject);
 
-    virtual double  cellScalar(size_t gridLocalCellIndex) const;
-    virtual double  cellFaceScalar(size_t gridLocalCellIndex, cvf::StructGridInterface::FaceType faceId) const;
+    double  cellScalar(size_t gridLocalCellIndex) const override;
+    double  cellFaceScalar(size_t gridLocalCellIndex, cvf::StructGridInterface::FaceType faceId) const override;
 
-    virtual double cellScalarGlobIdx(size_t globCellIndex) const;
-    virtual double cellFaceScalarGlobIdx(size_t globCellIndex, cvf::StructGridInterface::FaceType faceId) const;
+    double cellScalarGlobIdx(size_t globCellIndex) const override;
+    double cellFaceScalarGlobIdx(size_t globCellIndex, cvf::StructGridInterface::FaceType faceId) const override;
 
 private:
-    caf::FixedArray<cvf::ref<RigResultAccessor>, 6> m_resultAccessObjects;
+    std::array<cvf::ref<RigResultAccessor>, 6> m_resultAccessObjects;
 };

@@ -28,7 +28,6 @@
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
 #include "RigMainGrid.h"
-#include "RigResultAccessorFactory.h"
 
 #include "cafProgressInfo.h"
 
@@ -43,7 +42,7 @@
 #include <QTextStream>
 #include <QDebug>
 
-#include "ert/ecl/ecl_box.h"
+#include "ert/ecl/ecl_box.hpp"
 #include "ert/ecl/ecl_kw.h"
 
 QString includeKeyword("INCLUDE");
@@ -153,7 +152,7 @@ bool RifEclipseInputFileTools::openGridFile(const QString& fileName, RigEclipseC
     allKwReadOk = allKwReadOk && nullptr != (coordKw    = ecl_kw_fscanf_alloc_current_grdecl__(gridFilePointer, false , ecl_type_create_from_type(ECL_FLOAT_TYPE)));
     progress.setProgress(3);
 
-    // If ACTNUM is not defined, this pointer will be NULL, which is a valid condition
+    // If ACTNUM is not defined, this pointer will be nullptr, which is a valid condition
     if (actnumPos >= 0)
     {
         fseek(gridFilePointer, actnumPos, SEEK_SET);
@@ -161,7 +160,7 @@ bool RifEclipseInputFileTools::openGridFile(const QString& fileName, RigEclipseC
         progress.setProgress(4);
     }
 
-    // If MAPAXES is not defined, this pointer will be NULL, which is a valid condition
+    // If MAPAXES is not defined, this pointer will be nullptr, which is a valid condition
     if (mapaxesPos >= 0)
     {
         fseek(gridFilePointer, mapaxesPos, SEEK_SET);
@@ -214,7 +213,7 @@ bool RifEclipseInputFileTools::openGridFile(const QString& fileName, RigEclipseC
 
     ecl_grid_free(inputGrid);
 
-    util_fclose(gridFilePointer);
+    fclose(gridFilePointer);
     
     return true;
 }
@@ -264,7 +263,7 @@ std::map<QString, QString> RifEclipseInputFileTools::readProperties(const QStrin
         progress.setProgress(i);
     }
 
-    util_fclose(gridFilePointer);
+    fclose(gridFilePointer);
     return newResults;
 }
 
@@ -291,7 +290,7 @@ bool RifEclipseInputFileTools::readProperty(const QString& fileName, RigEclipseC
         ecl_kw_free(eclipseKeywordData);
     }
 
-    util_fclose(filePointer);
+    fclose(filePointer);
 
     return isOk;
 }
@@ -470,119 +469,6 @@ const std::vector<QString>& RifEclipseInputFileTools::invalidPropertyDataKeyword
 
     return keywords;
 }
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-bool RifEclipseInputFileTools::writePropertyToTextFile(const QString& fileName, RigEclipseCaseData* eclipseCase, size_t timeStep, const QString& resultName, const QString& eclipseKeyWord)
-{
-    CVF_ASSERT(eclipseCase);
-
-    size_t resultIndex = eclipseCase->results(RiaDefines::MATRIX_MODEL)->findScalarResultIndex(resultName);
-    if (resultIndex == cvf::UNDEFINED_SIZE_T)
-    {
-        return false;
-    }
-    
-    QFile file(fileName);
-    if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
-    {
-        return false;
-    }
-
-    std::vector< std::vector<double> >& resultData = eclipseCase->results(RiaDefines::MATRIX_MODEL)->cellScalarResults(resultIndex);
-    if (resultData.size() == 0)
-    {
-        return false;
-    }
-
-    std::vector<double>& singleTimeStepData = resultData[timeStep];
-    writeDataToTextFile(&file, eclipseKeyWord, singleTimeStepData);
-
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// Create and write a result vector with values for all cells.
-/// undefinedValue is used for cells with no result
-//--------------------------------------------------------------------------------------------------
-bool RifEclipseInputFileTools::writeBinaryResultToTextFile(const QString& fileName,
-                                                           RigEclipseCaseData* eclipseCase,
-                                                           size_t timeStep,
-                                                           RimEclipseResultDefinition* resultDefinition,
-                                                           const QString& eclipseKeyWord,
-                                                           const double undefinedValue)
-{
-    CVF_ASSERT(eclipseCase);
-
-    cvf::ref<RigResultAccessor> resultAccessor = RigResultAccessorFactory::createFromResultDefinition(eclipseCase, eclipseCase->mainGrid()->gridIndex(), timeStep, resultDefinition);
-    if (resultAccessor.isNull())
-    {
-        return false;
-    }
-
-    QFile file(fileName);
-    if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
-    {
-        return false;
-    }
-
-    std::vector<double> resultData;
-    size_t i, j, k;
-    for (k = 0; k < eclipseCase->mainGrid()->cellCountK(); k++)
-    {
-        for (j = 0; j < eclipseCase->mainGrid()->cellCountJ(); j++)
-        {
-            for (i = 0; i < eclipseCase->mainGrid()->cellCountI(); i++)
-            {
-                double resultValue = resultAccessor->cellScalar(eclipseCase->mainGrid()->cellIndexFromIJK(i, j, k));
-                if (resultValue == HUGE_VAL)
-                {
-                    resultValue = undefinedValue;
-                }
-
-                resultData.push_back(resultValue);
-            }
-        }
-    }
-
-    writeDataToTextFile(&file, eclipseKeyWord, resultData);
-
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RifEclipseInputFileTools::writeDataToTextFile(QFile* file, const QString& eclipseKeyWord, const std::vector<double>& resultData)
-{
-    QTextStream out(file);
-    out << "\n";
-    out << "-- Exported from ResInsight" << "\n";
-    out << eclipseKeyWord << "\n" << right << qSetFieldWidth(16);
-
-    caf::ProgressInfo pi(resultData.size(), QString("Writing data to file %1").arg(file->fileName()) );
-    size_t progressSteps = resultData.size() / 20;
-
-    size_t i;
-    for (i = 0; i < resultData.size(); i++)
-    {
-        out << resultData[i];
-
-        if ( (i + 1) % 5 == 0)
-        {
-            out << "\n";
-        }
-
-        if (i % progressSteps == 0)
-        {
-            pi.setProgress(i);
-        }
-    }
-
-    out << "\n" << "/" << "\n";
-}
-
 
 //--------------------------------------------------------------------------------------------------
 /// 

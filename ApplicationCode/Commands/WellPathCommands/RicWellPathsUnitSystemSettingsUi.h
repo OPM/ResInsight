@@ -37,5 +37,5 @@ public:
     caf::PdmField<RiaEclipseUnitTools::UnitSystemType> unitSystem;
 
 protected:
-    virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
+    QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
 };

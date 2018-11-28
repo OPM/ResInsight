@@ -21,6 +21,7 @@
 #pragma once
 
 #include <QString>
+#include <vector>
 
 namespace RiaDefines
 {
@@ -34,14 +35,25 @@ namespace RiaDefines
         FORMATION_NAMES,
         FLOW_DIAGNOSTICS,
         INJECTION_FLOODING,
-        REMOVED
+        REMOVED,
+
+        UNDEFINED = 999
     };
 
-    enum CompletionType {
+    enum WellPathComponentType {
+        // Production Tube
         WELL_PATH,
+        // Well path flow completions
         PERFORATION_INTERVAL,
         FISHBONES,
         FRACTURE,
+        ICD,
+        AICD,
+        ICV,
+        // Well path construction features
+        CASING,
+        LINER,
+        PACKER
     };
 
     bool isPerCellFaceResult(const QString& resultName);
@@ -72,6 +84,8 @@ namespace RiaDefines
     QString riAreaNormTranZResultName();
     QString combinedRiAreaNormTranResultName();
 
+    QString riCellVolumeResultName();
+    QString riOilVolumeResultName();
     QString mobilePoreVolumeName();
 
     QString completionTypeResultName();
@@ -84,6 +98,19 @@ namespace RiaDefines
     QString mockModelBasicInputCase();
 
     QString activeFormationNamesResultName();
+
+    // Well path derived results
+    QString wellPathAzimuthResultName();
+    QString wellPathInclinationResultName();
+    QString wellPathPPResultName();
+    QString wellPathSHResultName();
+    QString wellPathOBGResultName();
+    QString wellPathFGResultName();
+    QString wellPathSFGResultName();
+
+    // List of well path derived results
+    std::vector<QString> wellPathAngleResultNames();
+    std::vector<QString> wellPathStabilityResultNames();
 
     //Units and conversions
     enum DepthUnitType

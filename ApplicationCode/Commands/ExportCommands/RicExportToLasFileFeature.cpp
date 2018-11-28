@@ -63,10 +63,7 @@ void RicExportToLasFileFeature::onActionTriggered(bool isChecked)
     std::vector<RimWellLogCurve*> curves = RicWellLogPlotCurveFeatureImpl::selectedWellLogCurves();
     if (curves.size() == 0) return;
 
-    RiaApplication* app = RiaApplication::instance();
-
-    QString projectFolder = app->currentProjectPath();
-    QString defaultDir = RiaApplication::instance()->lastUsedDialogDirectoryWithFallback("WELL_LOGS_DIR", projectFolder);
+    QString defaultDir = RiaApplication::instance()->lastUsedDialogDirectoryWithFallbackToProjectFolder("WELL_LOGS_DIR");
 
     RigLasFileExporter lasExporter(curves);
     RicExportToLasFileResampleUi featureUi;
@@ -81,7 +78,7 @@ void RicExportToLasFileFeature::onActionTriggered(bool isChecked)
     
     caf::PdmUiPropertyViewDialog propertyDialog(nullptr, &featureUi, "Export Curve Data to LAS file(s)", "", QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
     RicExportFeatureImpl::configureForExport(&propertyDialog);
-    propertyDialog.resize(QSize(400, 200));
+    propertyDialog.resize(QSize(400, 330));
     
     if (propertyDialog.exec() == QDialog::Accepted &&
         !featureUi.exportFolder().isEmpty())

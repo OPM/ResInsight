@@ -21,6 +21,7 @@
 
 #include "RiaApplication.h"
 #include "RiaPreferences.h"
+#include "RiaRegressionTestRunner.h"
 
 #include "RigFemPartCollection.h"
 #include "RigFemPartGrid.h"
@@ -122,13 +123,23 @@ void RimGeoMechView::onLoadDataAndUpdate()
     if (m_geomechCase)
     {
         std::string errorMessage;
-        if (!m_geomechCase->openGeoMechCase(&errorMessage))
+        RimGeoMechCase::CaseOpenStatus status = m_geomechCase->openGeoMechCase(&errorMessage);
+        if (status == RimGeoMechCase::CASE_OPEN_CANCELLED)
         {
-            QString displayMessage = errorMessage.empty() ? "Could not open the Odb file: \n" + m_geomechCase->caseFileName() : QString::fromStdString(errorMessage);
+            m_geomechCase = nullptr;
+            return;
+        }
+        else if (status == RimGeoMechCase::CASE_OPEN_ERROR) 
+        {
+            if (!RiaRegressionTestRunner::instance()->isRunningRegressionTests())
+            {
+                QString displayMessage = errorMessage.empty() ? "Could not open the Odb file: \n" + m_geomechCase->caseFileName() : QString::fromStdString(errorMessage);
 
-            QMessageBox::warning(Riu3DMainWindowTools::mainWindowWidget(), 
-                                 "File open error", 
-                                 displayMessage);
+                QMessageBox::warning(Riu3DMainWindowTools::mainWindowWidget(), 
+                                     "File open error", 
+                                     displayMessage);
+            }
+
             m_geomechCase = nullptr;
             return;
         }
@@ -635,7 +646,16 @@ void RimGeoMechView::clampCurrentTimestep()
 //--------------------------------------------------------------------------------------------------
 bool RimGeoMechView::isTimeStepDependentDataVisible() const
 {
-    return this->hasUserRequestedAnimation() && (this->cellResult()->hasResult() || this->geoMechPropertyFilterCollection()->hasActiveFilters());
+    if (this->hasUserRequestedAnimation() && 
+        (this->cellResult()->hasResult() || this->geoMechPropertyFilterCollection()->hasActiveFilters()))
+    {
+        return true;
+    }
+    if (this->hasVisibleTimeStepDependent3dWellLogCurves())
+    {
+        return true;
+    }
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -697,6 +717,11 @@ void RimGeoMechView::scheduleGeometryRegen(RivCellSetEnum geometryType)
 void RimGeoMechView::setOverridePropertyFilterCollection(RimGeoMechPropertyFilterCollection* pfc)
 {
     m_overridePropertyFilterCollection = pfc;
+    if (m_overridePropertyFilterCollection)
+    {
+        m_propertyFilterCollection->isActive = m_overridePropertyFilterCollection->isActive;
+    }
+    m_propertyFilterCollection.uiCapability()->updateConnectedEditors();
     
     this->scheduleGeometryRegen(PROPERTY_FILTERED);
     this->scheduleCreateDisplayModelAndRedraw();

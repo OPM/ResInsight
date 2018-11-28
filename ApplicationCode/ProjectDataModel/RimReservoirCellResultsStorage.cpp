@@ -96,7 +96,7 @@ void RimReservoirCellResultsStorage::setupBeforeSave()
     bool hasResultsToStore = false;
     for (size_t rIdx = 0; rIdx < resInfo.size(); ++rIdx) 
     {
-        if (resInfo[rIdx].m_needsToBeStored) 
+        if (resInfo[rIdx].needsToBeStored()) 
         {
             hasResultsToStore = true; 
             break;
@@ -128,18 +128,18 @@ void RimReservoirCellResultsStorage::setupBeforeSave()
         {
             // If there is no data, we do not store anything for the current result variable
             // (Even not the metadata, of cause)
-            size_t timestepCount = m_cellResults->cellScalarResults(resInfo[rIdx].m_gridScalarResultIndex).size();
+            size_t timestepCount = m_cellResults->cellScalarResults(resInfo[rIdx].gridScalarResultIndex()).size();
 
-            if (timestepCount && resInfo[rIdx].m_needsToBeStored)
+            if (timestepCount && resInfo[rIdx].needsToBeStored())
             {
-                progInfo.setProgressDescription(resInfo[rIdx].m_resultName);
+                progInfo.setProgressDescription(resInfo[rIdx].resultName());
 
                 // Create and setup the cache information for this result
                 RimReservoirCellResultsStorageEntryInfo*  cacheEntry = new RimReservoirCellResultsStorageEntryInfo;
                 m_resultCacheMetaData.push_back(cacheEntry);
 
-                cacheEntry->m_resultType = resInfo[rIdx].m_resultType;
-                cacheEntry->m_resultName = resInfo[rIdx].m_resultName;
+                cacheEntry->m_resultType = resInfo[rIdx].resultType();
+                cacheEntry->m_resultName = resInfo[rIdx].resultName();
                 cacheEntry->m_timeStepDates = resInfo[rIdx].dates();
                 cacheEntry->m_daysSinceSimulationStart = resInfo[rIdx].daysSinceSimulationStarts();
 
@@ -153,7 +153,7 @@ void RimReservoirCellResultsStorage::setupBeforeSave()
                     const std::vector<double>* data = nullptr;
                     if (tsIdx < timestepCount)
                     {
-                        data = &(m_cellResults->cellScalarResults(resInfo[rIdx].m_gridScalarResultIndex, tsIdx));
+                        data = &(m_cellResults->cellScalarResults(resInfo[rIdx].gridScalarResultIndex(), tsIdx));
                     }
 
                     if (data && data->size())
@@ -271,7 +271,7 @@ void RimReservoirCellResultsStorage::setCellResults(RigCaseCellResultsData* cell
     for (size_t rIdx = 0; rIdx < m_resultCacheMetaData.size(); ++rIdx)
     {
         RimReservoirCellResultsStorageEntryInfo* resInfo = m_resultCacheMetaData[rIdx];
-        size_t resultIndex = m_cellResults->findOrCreateScalarResultIndex(resInfo->m_resultType(), resInfo->m_resultName(), true);
+        size_t resultIndex = m_cellResults->findOrCreateScalarResultIndex(resInfo->m_resultType(), resInfo->m_resultName, true);
 
         std::vector<int> reportNumbers; // Hack: Using no report step numbers. Not really used except for Flow Diagnostics...
         reportNumbers.resize(resInfo->m_timeStepDates().size());

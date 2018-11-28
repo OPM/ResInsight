@@ -83,10 +83,10 @@ void RigReservoirBuilderMock::appendNodes(const cvf::Vec3d& min, const cvf::Vec3
             size_t i;
             for (i = 0; i < cubeDimension.x(); i++)
             {
-                cvf::Vec3d min(xPos, yPos, zPos);
-                cvf::Vec3d max(xPos + dx, yPos + dy, zPos + dz);
+                cvf::Vec3d cornerA(xPos, yPos, zPos);
+                cvf::Vec3d cornerB(xPos + dx, yPos + dy, zPos + dz);
 
-                appendCubeNodes(min, max, nodes);
+                appendCubeNodes(cornerA, cornerB, nodes);
 
                 xPos += dx;
             }
@@ -206,6 +206,7 @@ void RigReservoirBuilderMock::populateReservoir(RigEclipseCaseData* eclipseCase)
         // Create local grid and set local grid dimensions
         RigLocalGrid* localGrid = new RigLocalGrid(eclipseCase->mainGrid());
         localGrid->setGridId(1);
+        localGrid->setGridName("LGR_1");
         eclipseCase->mainGrid()->addLocalGrid(localGrid);
         localGrid->setParentGrid(eclipseCase->mainGrid());
         
@@ -222,7 +223,7 @@ void RigReservoirBuilderMock::populateReservoir(RigEclipseCaseData* eclipseCase)
         {
             RigCell& cell = eclipseCase->mainGrid()->globalCellArray()[mainGridIndicesWithSubGrid[cellIdx]];
             
-            caf::SizeTArray8& indices = cell.cornerIndices();
+            std::array<size_t, 8>& indices = cell.cornerIndices();
             int nodeIdx;
             for (nodeIdx = 0; nodeIdx < 8; nodeIdx++)
             {

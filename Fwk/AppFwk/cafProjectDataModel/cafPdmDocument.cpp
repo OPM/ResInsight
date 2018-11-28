@@ -60,7 +60,7 @@ PdmDocument::PdmDocument()
 void PdmDocument::readFile()
 {
     QFile xmlFile(fileName);
-    if (!xmlFile.open(QIODevice::ReadOnly ))
+    if (!xmlFile.open(QIODevice::ReadOnly | QIODevice::Text))
         return;
 
     readFile(&xmlFile);
@@ -101,7 +101,7 @@ void PdmDocument::readFile(QIODevice* xmlFile)
 bool PdmDocument::writeFile()
 {
     QFile xmlFile(fileName);
-    if (!xmlFile.open(QIODevice::WriteOnly ))
+    if (!xmlFile.open(QIODevice::WriteOnly | QIODevice::Text))
         return false;
 
     writeFile(&xmlFile);

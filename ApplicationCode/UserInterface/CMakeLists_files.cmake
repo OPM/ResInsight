@@ -6,7 +6,8 @@ ${CMAKE_CURRENT_LIST_DIR}/RiuDragDrop.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuFemResultTextBuilder.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuGeoQuestNavigation.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuInterfaceToViewWindow.h
-${CMAKE_CURRENT_LIST_DIR}/RiuLineSegmentQwtPlotCurve.h
+${CMAKE_CURRENT_LIST_DIR}/RiuQwtSymbol.h
+${CMAKE_CURRENT_LIST_DIR}/RiuQwtPlotCurve.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuRimQwtPlotCurve.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuPlotMainWindow.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuMainWindow.h
@@ -18,6 +19,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RiuProjectPropertyView.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuPropertyViewTabWidget.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuPvtPlotPanel.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuPvtPlotUpdater.h
+${CMAKE_CURRENT_LIST_DIR}/RiuQwtLinearScaleEngine.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuQwtScalePicker.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuQwtCurvePointTracker.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuQwtPlotWheelZoomer.h
@@ -43,6 +45,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RiuTreeViewEventFilter.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuViewer.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuViewerToViewInterface.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuViewerCommands.h
+${CMAKE_CURRENT_LIST_DIR}/RiuPickItemInfo.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuWellLogPlot.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuWellLogTrack.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuPlotAnnotationTool.h
@@ -71,6 +74,8 @@ ${CMAKE_CURRENT_LIST_DIR}/RiuMohrsCirclePlot.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuPlotMainWindowTools.h
 ${CMAKE_CURRENT_LIST_DIR}/Riu3DMainWindowTools.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuDockWidgetTools.h
+${CMAKE_CURRENT_LIST_DIR}/RiuQwtPlotItemGroup.h
+${CMAKE_CURRENT_LIST_DIR}/RiuWellPathComponentPlotItem.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -80,7 +85,8 @@ ${CMAKE_CURRENT_LIST_DIR}/RiuDragDrop.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuFemResultTextBuilder.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuGeoQuestNavigation.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuInterfaceToViewWindow.cpp
-${CMAKE_CURRENT_LIST_DIR}/RiuLineSegmentQwtPlotCurve.cpp
+${CMAKE_CURRENT_LIST_DIR}/RiuQwtSymbol.cpp
+${CMAKE_CURRENT_LIST_DIR}/RiuQwtPlotCurve.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuRimQwtPlotCurve.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuPlotMainWindow.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuMainWindow.cpp
@@ -92,6 +98,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RiuProjectPropertyView.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuPropertyViewTabWidget.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuPvtPlotPanel.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuPvtPlotUpdater.cpp
+${CMAKE_CURRENT_LIST_DIR}/RiuQwtLinearScaleEngine.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuQwtScalePicker.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuQwtCurvePointTracker.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuQwtPlotWheelZoomer.cpp
@@ -115,6 +122,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RiuToolTipMenu.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuTreeViewEventFilter.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuViewer.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuViewerCommands.cpp
+${CMAKE_CURRENT_LIST_DIR}/RiuPickItemInfo.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuWellLogPlot.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuWellLogTrack.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuPlotAnnotationTool.cpp
@@ -142,6 +150,8 @@ ${CMAKE_CURRENT_LIST_DIR}/RiuMohrsCirclePlot.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuPlotMainWindowTools.cpp
 ${CMAKE_CURRENT_LIST_DIR}/Riu3DMainWindowTools.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuDockWidgetTools.cpp
+${CMAKE_CURRENT_LIST_DIR}/RiuQwtPlotItemGroup.cpp
+${CMAKE_CURRENT_LIST_DIR}/RiuWellPathComponentPlotItem.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

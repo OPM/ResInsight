@@ -188,6 +188,15 @@ void RimRftPlotCollection::removeExtractors(const RigGeoMechCaseData* caseData)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimRftPlotCollection::deleteAllExtractors()
+{
+    m_extractors.clear();
+    m_geomExtractors.clear();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 const std::vector<RimWellRftPlot*> RimRftPlotCollection::rftPlots() const
 {
     std::vector<RimWellRftPlot*> plots;

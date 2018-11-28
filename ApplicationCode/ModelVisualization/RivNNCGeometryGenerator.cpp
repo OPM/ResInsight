@@ -123,7 +123,7 @@ void RivNNCGeometryGenerator::computeArrays()
                 {
                     vx2 = vx3;
                     vx3 = cvf::Vec3f( conn.m_polygon[vxIdx] - offset);
-#pragma omp critical
+#pragma omp critical(critical_section_RivNNCGeometryGenerator_computeArrays)
                     {
                         vertices.push_back(vx1);
                         vertices.push_back(vx2);

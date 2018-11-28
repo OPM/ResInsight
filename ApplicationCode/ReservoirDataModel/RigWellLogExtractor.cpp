@@ -41,6 +41,22 @@ RigWellLogExtractor::~RigWellLogExtractor()
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const std::vector<double>& RigWellLogExtractor::cellIntersectionMDs()
+{
+    return m_intersectionMeasuredDepths;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const std::vector<double>& RigWellLogExtractor::cellIntersectionTVDs()
+{
+    return m_intersectionTVDs;
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 std::vector<WellPathCellIntersectionInfo> RigWellLogExtractor::cellIntersectionInfosAlongWellPath() const
@@ -57,8 +73,8 @@ std::vector<WellPathCellIntersectionInfo> RigWellLogExtractor::cellIntersectionI
         cellInfo.globCellIndex = m_intersectedCellsGlobIdx[i];
         cellInfo.startPoint = m_intersections[i];
         cellInfo.endPoint = m_intersections[i+1];
-        cellInfo.startMD = m_measuredDepth[i];
-        cellInfo.endMD = m_measuredDepth[i+1];
+        cellInfo.startMD = m_intersectionMeasuredDepths[i];
+        cellInfo.endMD = m_intersectionMeasuredDepths[i+1];
 
         cellInfo.intersectedCellFaceIn = m_intersectedCellFaces[i];
         cellInfo.intersectedCellFaceOut = m_intersectedCellFaces[i+1];
@@ -77,6 +93,14 @@ std::vector<WellPathCellIntersectionInfo> RigWellLogExtractor::cellIntersectionI
 const std::vector<size_t>& RigWellLogExtractor::intersectedCellsGlobIdx()
 {
     return m_intersectedCellsGlobIdx;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const RigWellPath* RigWellLogExtractor::wellPathData()
+{
+    return m_wellPath.p();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -271,8 +295,6 @@ void RigWellLogExtractor::populateReturnArrays(std::map<RigMDCellIdxEnterLeaveKe
                     ++it1; // Discard 10 and jump to 11 and hope that recovers us 
                     continue;
                 }
-
-                CVF_ASSERT(false); // Should never end here
             }
         }
     }
@@ -280,8 +302,8 @@ void RigWellLogExtractor::populateReturnArrays(std::map<RigMDCellIdxEnterLeaveKe
 
 void RigWellLogExtractor::appendIntersectionToArrays(double measuredDepth, const HexIntersectionInfo& intersection)
 {
-    m_measuredDepth.push_back       (measuredDepth);
-    m_trueVerticalDepth.push_back   (fabs(intersection.m_intersectionPoint[2]));
+    m_intersectionMeasuredDepths.push_back       (measuredDepth);
+    m_intersectionTVDs.push_back   (fabs(intersection.m_intersectionPoint[2]));
     m_intersections.push_back       (intersection.m_intersectionPoint);
     m_intersectedCellsGlobIdx.push_back    (intersection.m_hexIndex);
     m_intersectedCellFaces.push_back(intersection.m_face);

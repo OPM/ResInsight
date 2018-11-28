@@ -88,6 +88,32 @@ void RicHelpAboutFeature::onActionTriggered(bool isChecked)
     dlg.addVersionEntry(" ", QString("   ") + caf::AboutDialog::versionStringForcurrentOpenGLContext());
     dlg.addVersionEntry(" ", caf::Viewer::isShadersSupported() ? "   Hardware OpenGL" : "   Software OpenGL");
 
+    if (RiaApplication::enableDevelopmentFeatures())
+    {
+        QString vendor("Unknown");
+        QString render("Unknown");
+
+        {
+            char* str = (char*)glGetString(GL_VENDOR);
+
+            if (str)
+            {
+                vendor = str;
+            }
+        }
+
+        {
+            char* str = (char*)glGetString(GL_RENDERER);
+
+            if (str)
+            {
+                render = str;
+            }
+        }
+        
+        dlg.addVersionEntry(" ", QString("   ") + vendor + " : " + render);
+    }
+
     dlg.create();
     dlg.resize(300, 200);
 

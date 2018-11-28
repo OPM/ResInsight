@@ -1,24 +1,24 @@
 /*
-   Copyright (C) 2013  Statoil ASA, Norway. 
-   
-   The file 'well_branch_collection.c' is part of ERT - Ensemble based Reservoir Tool. 
-    
-   ERT is free software: you can redistribute it and/or modify 
-   it under the terms of the GNU General Public License as published by 
-   the Free Software Foundation, either version 3 of the License, or 
-   (at your option) any later version. 
-    
-   ERT is distributed in the hope that it will be useful, but WITHOUT ANY 
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or 
-   FITNESS FOR A PARTICULAR PURPOSE.   
-    
-   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
-   for more details. 
+   Copyright (C) 2013  Statoil ASA, Norway.
+
+   The file 'well_branch_collection.c' is part of ERT - Ensemble based Reservoir Tool.
+
+   ERT is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   ERT is distributed in the hope that it will be useful, but WITHOUT ANY
+   WARRANTY; without even the implied warranty of MERCHANTABILITY or
+   FITNESS FOR A PARTICULAR PURPOSE.
+
+   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+   for more details.
 */
 
 #include <stdbool.h>
 
-#include <ert/util/util.hpp>
+#include <ert/util/util.h>
 #include <ert/util/type_macros.hpp>
 #include <ert/util/vector.hpp>
 #include <ert/util/int_vector.hpp>
@@ -102,14 +102,14 @@ bool well_branch_collection_add_start_segment( well_branch_collection_type * bra
   if ((well_segment_get_link_count( start_segment ) == 0) && (well_segment_get_outlet(start_segment))) {
     int branch_id = well_segment_get_branch_id( start_segment );
     int current_index = int_vector_safe_iget( branches->index_map , branch_id);
-    if (current_index >= 0) 
+    if (current_index >= 0)
       vector_iset_ref( branches->__start_segments , current_index , start_segment);
     else {
       int new_index = vector_get_size( branches->__start_segments );
       vector_append_ref( branches->__start_segments , start_segment);
       int_vector_iset( branches->index_map , branch_id , new_index);
     }
-    
+
     return true;
   } else
     return false;
@@ -117,4 +117,4 @@ bool well_branch_collection_add_start_segment( well_branch_collection_type * bra
 
 
 
-  
+

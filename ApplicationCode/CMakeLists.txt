@@ -23,6 +23,8 @@ include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/Adm
     ${CMAKE_CURRENT_SOURCE_DIR}/Application
     ${CMAKE_CURRENT_SOURCE_DIR}/Application/Tools
+    ${CMAKE_CURRENT_SOURCE_DIR}/Application/Tools/WellPathTools
+
     ${CMAKE_CURRENT_SOURCE_DIR}/Commands
     ${CMAKE_CURRENT_SOURCE_DIR}/Commands/EclipseCommands
     ${CMAKE_CURRENT_SOURCE_DIR}/FileInterface
@@ -77,7 +79,8 @@ list( APPEND CPP_SOURCES
 
 list( APPEND REFERENCED_CMAKE_FILES
     Application/CMakeLists_files.cmake
-    Application/Tools/CMakeLists_files.cmake
+    Application/Tools/CMakeLists_files.cmake 
+    Application/Tools/WellPathTools/CMakeLists_files.cmake
 
     ReservoirDataModel/CMakeLists_files.cmake
     ReservoirDataModel/CMakeLists_filesNotToUnitTest.cmake
@@ -107,6 +110,7 @@ list( APPEND REFERENCED_CMAKE_FILES
     Commands/EclipseCommands/EclipseWell/CMakeLists_files.cmake
     Commands/ExportCommands/CMakeLists_files.cmake
     Commands/FlowCommands/CMakeLists_files.cmake
+    Commands/HoloLensCommands/CMakeLists_files.cmake
     Commands/IntersectionBoxCommands/CMakeLists_files.cmake
     Commands/IntersectionViewCommands/CMakeLists_files.cmake
     Commands/OctaveScriptCommands/CMakeLists_files.cmake
@@ -279,7 +283,20 @@ set( EXE_FILES
 add_executable( ResInsight ${EXE_FILES} )
 
 if (MSVC) 
-    set_target_properties(ResInsight PROPERTIES COMPILE_FLAGS "/wd4190") 
+    # The following warnings are supposed to be used in ResInsight, but temporarily disabled to avoid too much noise
+    #  warning C4245: 'return': conversion from 'int' to 'size_t', signed/unsigned mismatch
+
+    # If possible, the following command is supposed to be the final target
+    # set_target_properties(ResInsight PROPERTIES COMPILE_FLAGS "/W4 /wd4190 /wd4100 /wd4127")    
+    
+    set_target_properties(ResInsight PROPERTIES COMPILE_FLAGS "/W4 /wd4190 /wd4100 /wd4127 /wd4245")
+    if (CMAKE_CXX_COMPILER_VERSION LESS_EQUAL 19.14)
+    	# The following warning is generated over 800 times from a qwt header only using VS2015
+	    # Disabling temporarily
+    	# warning C4505 'function' : unreferenced local function has been removed 
+        set_target_properties(ResInsight PROPERTIES COMPILE_FLAGS "/wd4505")
+    endif()
+
 endif() 
 
 #############################################################################
@@ -347,6 +364,9 @@ if(RESINSIGHT_ENABLE_COTIRE)
         ReservoirDataModel/RigTransmissibilityCondenser.cpp
         ReservoirDataModel/RigEclipseToStimPlanCellTransmissibilityCalculator.cpp
         ReservoirDataModel/RigCellGeometryTools.cpp
+
+        # exclude file using SolveSpace
+        Application/Tools/RiaSCurveCalculator.cpp
         
         # exclude test files due to cotire redefinition error report
         UnitTests/RifCaseRealizationParametersReader-Test.cpp

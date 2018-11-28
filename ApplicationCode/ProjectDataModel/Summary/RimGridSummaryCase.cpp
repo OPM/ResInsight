@@ -147,7 +147,7 @@ QString RimGridSummaryCase::summaryHeaderFilename() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RimGridSummaryCase::caseName() 
+QString RimGridSummaryCase::caseName()  const
 {
     if (m_eclipseCase()) m_cachedCaseName = caseNameFromEclipseCase(m_eclipseCase());
 

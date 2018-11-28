@@ -19,7 +19,9 @@
 #include "RiuSummaryCurveDefSelection.h"
 
 #include "RiaApplication.h"
+#include "RiaStdStringTools.h"
 #include "RiaSummaryCurveDefinition.h"
+#include "RiaCurveSetDefinition.h"
 
 #include "RifEclipseSummaryAddress.h"
 #include "RifSummaryReaderInterface.h"
@@ -230,6 +232,9 @@ RiuSummaryCurveDefSelection::RiuSummaryCurveDefSelection() : m_identifierFieldsM
     m_multiSelectionMode = false;
     m_hideEnsembles = false;
     m_hideSummaryCases = false;
+
+    m_prevCurveCount = 0;
+    m_prevCurveSetCount = 0;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -255,42 +260,42 @@ std::vector<RiaSummaryCurveDefinition> RiuSummaryCurveDefSelection::allCurveDefi
     
     {
         std::set<RiaSummaryCurveDefinition> curveDefinitions;
-
         std::set<RifEclipseSummaryAddress> selectedAddressesFromUi = buildAddressListFromSelections();
 
         for (SummarySource* currSource : selectedSummarySources())
         {
-            std::vector<RimSummaryCase*> sourceCases;
+            std::vector<SummarySource*> sourceSources;
             RimSummaryCaseCollection* ensemble = dynamic_cast<RimSummaryCaseCollection*>(currSource);
+            RimSummaryCase* sumCase = dynamic_cast<RimSummaryCase*>(currSource);
+
+            std::set<RifEclipseSummaryAddress> addressesFromSource;
+            std::vector<RimSummaryCase*>       casesFromSource;
 
             // Build case list
             if (ensemble)
             {
-                auto sumCases = ensemble->allSummaryCases();
-                sourceCases.insert(sourceCases.end(), sumCases.begin(), sumCases.end());
+                auto addresses = ensemble->ensembleSummaryAddresses();
+                addressesFromSource.insert(addresses.begin(), addresses.end());
+                auto ensembleCases = ensemble->allSummaryCases();
+                casesFromSource.insert(casesFromSource.end(), ensembleCases.begin(), ensembleCases.end());
             }
             else
             {
-                RimSummaryCase* sourceCase = dynamic_cast<RimSummaryCase*>(currSource);
-                if (sourceCase)
+                RifSummaryReaderInterface* reader = sumCase ? sumCase->summaryReader() : nullptr;
+                if (reader)
                 {
-                    sourceCases.push_back(sourceCase);
+                    addressesFromSource.insert(reader->allResultAddresses().begin(), reader->allResultAddresses().end());
+                    casesFromSource.push_back(sumCase);
                 }
             }
 
-            for (const auto& currCase : sourceCases)
+            for (auto caseFromSource : casesFromSource)
             {
-                if (currCase && currCase->summaryReader())
+                for (const auto& addressFromSource : addressesFromSource)
                 {
-                    RifSummaryReaderInterface* reader = currCase->summaryReader();
-
-                    const std::vector<RifEclipseSummaryAddress>& readerAddresses = reader->allResultAddresses();
-                    for (const auto& readerAddress : readerAddresses)
+                    if (selectedAddressesFromUi.count(addressFromSource) > 0)
                     {
-                        if (selectedAddressesFromUi.count(readerAddress) > 0)
-                        {
-                            curveDefinitions.insert(RiaSummaryCurveDefinition(currCase, readerAddress, ensemble));
-                        }
+                        curveDefinitions.insert(RiaSummaryCurveDefinition(caseFromSource, addressFromSource, ensemble));
                     }
                 }
             }
@@ -300,6 +305,40 @@ std::vector<RiaSummaryCurveDefinition> RiuSummaryCurveDefSelection::allCurveDefi
     }
 
     return curveDefVector;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<RiaCurveSetDefinition> RiuSummaryCurveDefSelection::allCurveSetDefinitionsFromSelections() const
+{
+    std::vector<RiaCurveSetDefinition> curveSetDefVector;
+    std::set<RiaCurveSetDefinition> curveSetDefinitions;
+    std::set<RifEclipseSummaryAddress> selectedAddressesFromUi = buildAddressListFromSelections();
+
+    for (SummarySource* currSource : selectedSummarySources())
+    {
+        RimSummaryCaseCollection* ensemble = dynamic_cast<RimSummaryCaseCollection*>(currSource);
+        if (!ensemble) continue;
+
+        std::vector<SummarySource*> sourceSources;
+        std::set<RifEclipseSummaryAddress> addressesFromSource;
+
+        // Build case list
+        auto addresses = ensemble->ensembleSummaryAddresses();
+        addressesFromSource.insert(addresses.begin(), addresses.end());
+
+        for (const auto& addressFromSource : addressesFromSource)
+        {
+            if (selectedAddressesFromUi.count(addressFromSource) > 0)
+            {
+                curveSetDefinitions.insert(RiaCurveSetDefinition(ensemble, addressFromSource));
+            }
+        }
+    }
+
+    std::copy(curveSetDefinitions.begin(), curveSetDefinitions.end(), std::back_inserter(curveSetDefVector));
+    return curveSetDefVector;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -313,9 +352,10 @@ std::vector<RiaSummaryCurveDefinition> RiuSummaryCurveDefSelection::selection() 
     {
         RimSummaryCaseCollection* ensemble = dynamic_cast<RimSummaryCaseCollection*>(currSource);
         RimSummaryCase* sourceCase = dynamic_cast<RimSummaryCase*>(currSource);
+
         if (ensemble)
         {
-            std::set<RifEclipseSummaryAddress> addressUnion = ensemble->calculateUnionOfSummaryAddresses();
+            std::set<RifEclipseSummaryAddress> addressUnion = ensemble->ensembleSummaryAddresses();
             for ( const auto& addr : selectedAddressesFromUi)
             {
                 if (addressUnion.count(addr))
@@ -328,10 +368,10 @@ std::vector<RiaSummaryCurveDefinition> RiuSummaryCurveDefSelection::selection() 
         {
             if (!(sourceCase &&  sourceCase->summaryReader())) continue;
 
-            const std::vector<RifEclipseSummaryAddress>& readerAddresses = sourceCase->summaryReader()->allResultAddresses();
-            for ( const auto& addr : readerAddresses)
+            const std::set<RifEclipseSummaryAddress>& readerAddresses = sourceCase->summaryReader()->allResultAddresses();
+            for ( const auto& addr : selectedAddressesFromUi)
             {
-                if (selectedAddressesFromUi.count(addr))
+                if (readerAddresses.count(addr))
                 {
                     curveDefSelection.push_back(RiaSummaryCurveDefinition(sourceCase, addr, nullptr));
                 }
@@ -377,21 +417,26 @@ void RiuSummaryCurveDefSelection::setFieldChangedHandler(const std::function<voi
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuSummaryCurveDefSelection::setDefaultSelection(const std::vector<RimSummaryCase*>& defaultCases)
+void RiuSummaryCurveDefSelection::setDefaultSelection(const std::vector<SummarySource*>& defaultSources)
 {
     RimProject* proj = RiaApplication::instance()->project();
     auto allSumCases = proj->allSummaryCases();
+    auto allSumGroups = proj->summaryGroups();
+
     if (allSumCases.size() > 0)
     {
-        RifEclipseSummaryAddress defaultAddress = RifEclipseSummaryAddress::fieldVarAddress("FOPT");
+        RifEclipseSummaryAddress defaultAddress = RifEclipseSummaryAddress();
 
-        std::vector<RimSummaryCase*> selectTheseCases = defaultCases;
-        if (selectTheseCases.empty()) selectTheseCases.push_back(allSumCases[0]);
+        std::vector<SummarySource*> selectTheseSources = defaultSources;
+        if (selectTheseSources.empty()) selectTheseSources.push_back(allSumCases[0]);
 
         std::vector<RiaSummaryCurveDefinition> curveDefs;
-        for(RimSummaryCase* c : selectTheseCases)
+        for(SummarySource* s : selectTheseSources)
         {
-            RiaSummaryCurveDefinition curveDef(c, defaultAddress);
+            RimSummaryCase* sumCase = dynamic_cast<RimSummaryCase*>(s);
+            RimSummaryCaseCollection* ensemble = dynamic_cast<RimSummaryCaseCollection*>(s);
+
+            RiaSummaryCurveDefinition curveDef(sumCase, defaultAddress, ensemble);
             curveDefs.push_back(curveDef);
         }
 
@@ -416,8 +461,11 @@ void RiuSummaryCurveDefSelection::setSelectedCurveDefinitions(const std::vector<
         if (summaryAddress.category() == RifEclipseSummaryAddress::SUMMARY_INVALID)
         {
             // If we have an invalid address, set the default address to Field
-            summaryAddress = RifEclipseSummaryAddress::fieldVarAddress(summaryAddress.quantityName());
+            summaryAddress = RifEclipseSummaryAddress::fieldAddress(summaryAddress.quantityName());
         }
+
+        // Ignore ensemble statistics curves
+        if (summaryAddress.category() == RifEclipseSummaryAddress::SUMMARY_ENSEMBLE_STATISTICS) continue;
 
         // Select summary category if not already selected
         auto& selectedCategories = m_selectedSummaryCategories();
@@ -426,11 +474,6 @@ void RiuSummaryCurveDefSelection::setSelectedCurveDefinitions(const std::vector<
                       summaryAddress.category()) == selectedCategories.end())
         {
             m_selectedSummaryCategories.v().push_back(summaryAddress.category());
-        }
-
-        if (curveDefinitions.size() == 1)
-        {
-            m_currentSummaryCategory = summaryAddress.category();
         }
 
         // Select case if not already selected
@@ -476,7 +519,7 @@ std::set<RifEclipseSummaryAddress> RiuSummaryCurveDefSelection::findPossibleSumm
     {
         RimSummaryCase* calcSumCase = calculatedSummaryCase();
 
-        const std::vector<RifEclipseSummaryAddress> allAddresses = calcSumCase->summaryReader()->allResultAddresses();
+        const std::set<RifEclipseSummaryAddress> allAddresses = calcSumCase->summaryReader()->allResultAddresses();
         for (const auto& adr : allAddresses)
         {
             addressSet.insert(adr);
@@ -491,9 +534,35 @@ std::set<RifEclipseSummaryAddress> RiuSummaryCurveDefSelection::findPossibleSumm
 //--------------------------------------------------------------------------------------------------
 void RiuSummaryCurveDefSelection::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
-    if (m_toggleChangedHandler != nullptr)
+    if (changedField != &m_selectedSources && changedField != &m_selectedSummaryCategories &&
+        changedField != &m_currentSummaryCategory)
+    {
+        RifEclipseSummaryAddress::SummaryVarCategory currentCategory = m_currentSummaryCategory();
+        if (currentCategory != RifEclipseSummaryAddress::SUMMARY_INVALID)
+        {
+            // When a summary vector is selected, make sure the summary category for the summary vector is in the selection
+            // Note that we use the size of the variant to avoid this operation when an item in unchecked
+
+            if (newValue.toList().size() > oldValue.toList().size())
+            {
+                if (std::find(m_selectedSummaryCategories.v().begin(), m_selectedSummaryCategories.v().end(), currentCategory) ==
+                    m_selectedSummaryCategories.v().end())
+                {
+                    m_selectedSummaryCategories.v().push_back(currentCategory);
+                }
+            }
+        }
+    }
+
+    size_t curveCount = allCurveDefinitionsFromSelection().size();
+    size_t curveSetCount = allCurveSetDefinitionsFromSelections().size();
+
+    if (m_toggleChangedHandler != nullptr && (curveCount != m_prevCurveCount || curveSetCount != m_prevCurveSetCount))
     {
         m_toggleChangedHandler();
+
+        m_prevCurveCount = curveCount;
+        m_prevCurveSetCount = curveSetCount;
     }
 }
 
@@ -583,6 +652,8 @@ QList<caf::PdmOptionItemInfo> RiuSummaryCurveDefSelection::calculateValueOptions
     {
         for (size_t i = 0; i < caf::AppEnum<RifEclipseSummaryAddress::SummaryVarCategory>::size(); ++i)
         {
+            if (caf::AppEnum<RifEclipseSummaryAddress::SummaryVarCategory>::fromIndex(i) == RifEclipseSummaryAddress::SUMMARY_ENSEMBLE_STATISTICS) continue;
+
             options.push_back(caf::PdmOptionItemInfo(caf::AppEnum<RifEclipseSummaryAddress::SummaryVarCategory>::uiTextFromIndex(i),
                                                      caf::AppEnum<RifEclipseSummaryAddress::SummaryVarCategory>::fromIndex(i)));
         }
@@ -607,6 +678,8 @@ QList<caf::PdmOptionItemInfo> RiuSummaryCurveDefSelection::calculateValueOptions
             {
                 for (const auto& address : addrUnion[i])
                 {
+                    if (address.isErrorResult()) continue;
+
                     auto name = address.uiText(identifierAndField->summaryIdentifier());
                     if (name.size() > 0)
                     {
@@ -624,7 +697,6 @@ QList<caf::PdmOptionItemInfo> RiuSummaryCurveDefSelection::calculateValueOptions
                 itemNames[OBS_DATA].clear();
             }
 
-            auto pdmField = identifierAndField->pdmField();
             for(int i = 0; i < itemCount; i++)
             {
                 // Create headers only for vector fields when observed data is selected
@@ -653,13 +725,40 @@ QList<caf::PdmOptionItemInfo> RiuSummaryCurveDefSelection::calculateValueOptions
                 }
 
                 auto itemPostfix = (isVectorField && i == OBS_DATA) ? QString(OBSERVED_DATA_AVALUE_POSTFIX) : QString("");
-                for (const auto& itemName : itemNames[i])
+
+                // Sort numeric identifiers by numeric val
+                std::vector<std::string> itemNamesVector;
+                {
+                    switch (identifierAndField->summaryIdentifier())
+                    {
+                    case RifEclipseSummaryAddress::INPUT_REGION_NUMBER:
+                    case RifEclipseSummaryAddress::INPUT_SEGMENT_NUMBER:
+                    case RifEclipseSummaryAddress::INPUT_AQUIFER_NUMBER:
+                    {
+                        std::set<int> values;
+                        for (const std::string& itemName : itemNames[i])
+                        {
+                            values.insert(RiaStdStringTools::toInt(itemName));
+                        }
+                        for (int v : values)
+                        {
+                            itemNamesVector.push_back(std::to_string(v));
+                        }
+                        break;
+                    }
+                    default:
+                        itemNamesVector.insert(itemNamesVector.end(), itemNames[i].begin(), itemNames[i].end());
+                        break;
+                    }
+                }
+
+                for (const auto& itemName : itemNamesVector)
                 {
                     QString displayName;
 
                     if (isVectorField)
                     {
-                        std::string longVectorName = RiuSummaryVectorDescriptionMap::instance()->fieldInfo(itemName);
+                        std::string longVectorName = RiuSummaryVectorDescriptionMap::instance()->vectorLongName(itemName, true);
                         displayName = QString::fromStdString(longVectorName);
                         displayName += QString(" (%1)").arg(QString::fromStdString(itemName));
                     }
@@ -839,7 +938,7 @@ void RiuSummaryCurveDefSelection::defineUiOrdering(QString uiConfigName, caf::Pd
 //--------------------------------------------------------------------------------------------------
 std::set<RifEclipseSummaryAddress> RiuSummaryCurveDefSelection::findPossibleSummaryAddressesFromSelectedCases(const SummaryIdentifierAndField *identifierAndField)
 {
-    std::vector<RimSummaryCase*> cases;
+    std::vector<SummarySource*> sources;
     for (const auto& source : m_selectedSources())
     {
         RimSummaryCase* sumCase = dynamic_cast<RimSummaryCase*>(source.p());
@@ -847,15 +946,14 @@ std::set<RifEclipseSummaryAddress> RiuSummaryCurveDefSelection::findPossibleSumm
 
         if (sumCase)
         {
-            if(!isObservedData(sumCase)) cases.push_back(sumCase);
+            if(!isObservedData(sumCase)) sources.push_back(sumCase);
         }
         else if (ensemble)
         {
-            const auto& ensembleCases = ensemble->allSummaryCases();
-            cases.insert(cases.end(), ensembleCases.begin(), ensembleCases.end());
+            sources.push_back(ensemble);
         }
     }
-    return findPossibleSummaryAddresses(cases, identifierAndField);
+    return findPossibleSummaryAddresses(sources, identifierAndField);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -863,7 +961,7 @@ std::set<RifEclipseSummaryAddress> RiuSummaryCurveDefSelection::findPossibleSumm
 //--------------------------------------------------------------------------------------------------
 std::set<RifEclipseSummaryAddress> RiuSummaryCurveDefSelection::findPossibleSummaryAddressesFromSelectedObservedData(const SummaryIdentifierAndField *identifierAndField)
 {
-    std::vector<RimSummaryCase*> obsData;
+    std::vector<SummarySource*> obsData;
     for (const auto& source : m_selectedSources())
     {
         RimSummaryCase* sumCase = dynamic_cast<RimSummaryCase*>(source.p());
@@ -879,7 +977,7 @@ std::set<RifEclipseSummaryAddress> RiuSummaryCurveDefSelection::findPossibleSumm
 //--------------------------------------------------------------------------------------------------
 /// Returns the summary addresses that match the selected item type and input selections made in GUI
 //--------------------------------------------------------------------------------------------------
-std::set<RifEclipseSummaryAddress> RiuSummaryCurveDefSelection::findPossibleSummaryAddresses(const std::vector<RimSummaryCase*> &selectedCases, 
+std::set<RifEclipseSummaryAddress> RiuSummaryCurveDefSelection::findPossibleSummaryAddresses(const std::vector<SummarySource*> &selectedSources, 
                                                                                         const SummaryIdentifierAndField *identifierAndField)
 {
     std::set<RifEclipseSummaryAddress> addrUnion;
@@ -891,32 +989,39 @@ std::set<RifEclipseSummaryAddress> RiuSummaryCurveDefSelection::findPossibleSumm
         return addrUnion;
     }
 
-    for (RimSummaryCase* currCase : selectedCases)
+    for (SummarySource* currSource : selectedSources)
     {
-        RifSummaryReaderInterface* reader = nullptr;
-        if (currCase) reader = currCase->summaryReader();
-        if (reader)
+        std::set<RifEclipseSummaryAddress> allAddresses;
+
+        RimSummaryCase* currCase = dynamic_cast<RimSummaryCase*>(currSource);
+        RimSummaryCaseCollection* currEnsemble = dynamic_cast<RimSummaryCaseCollection*>(currSource);
+
+        if (currCase)
         {
-            const std::vector<RifEclipseSummaryAddress>& allAddresses = reader->allResultAddresses();
-            int addressCount = static_cast<int>(allAddresses.size());
+            RifSummaryReaderInterface* reader = currCase->summaryReader();
+            if (reader) allAddresses = reader->allResultAddresses();
+        }
+        else if (currEnsemble)
+        {
+            allAddresses = currEnsemble->ensembleSummaryAddresses();
+        }
 
-            bool applySelections = identifierAndField == nullptr || (!isVectorField && controllingIdentifierAndField != nullptr);
-            std::vector<SummaryIdentifierAndField*> controllingFields;
-            if (applySelections)
-            {
-                // Build selections vector
-                controllingFields = buildControllingFieldList(identifierAndField);
-            }
+        bool applySelections = identifierAndField == nullptr || (!isVectorField && controllingIdentifierAndField != nullptr);
+        std::vector<SummaryIdentifierAndField*> controllingFields;
+        if (applySelections)
+        {
+            // Build selections vector
+            controllingFields = buildControllingFieldList(identifierAndField);
+        }
 
-            for (int i = 0; i < addressCount; i++)
+        for(auto& address : allAddresses)
+        {
+            if (address.category() == m_currentSummaryCategory())
             {
-                if (allAddresses[i].category() == m_currentSummaryCategory())
+                bool addressSelected = applySelections ? isAddressCompatibleWithControllingFieldSelection(address, controllingFields) : true;
+                if (addressSelected)
                 {
-                    bool addressSelected = applySelections ? isAddressCompatibleWithControllingFieldSelection(allAddresses[i], controllingFields) : true;
-                    if (addressSelected)
-                    {
-                        addrUnion.insert(allAddresses[i]);
-                    }
+                    addrUnion.insert(address);
                 }
             }
         }
@@ -963,7 +1068,7 @@ SummaryIdentifierAndField* RiuSummaryCurveDefSelection::lookupIdentifierAndField
 //--------------------------------------------------------------------------------------------------
 /// Returns the Controlling pdm field info for the specified pdm field info.
 /// Controlling means the field controlling the dependent field
-/// If the specified pdm field info is the topmost (i.e. index is 0), null pointer is returned
+/// If the specified pdm field info is the topmost (i.e. index is 0), nullptr is returned
 //--------------------------------------------------------------------------------------------------
 SummaryIdentifierAndField* RiuSummaryCurveDefSelection::lookupControllingField(const SummaryIdentifierAndField *dependentField) const
 {
@@ -1016,7 +1121,8 @@ std::set<RifEclipseSummaryAddress> RiuSummaryCurveDefSelection::buildAddressList
     std::set<RifEclipseSummaryAddress> addressSet;
     for (const auto& category : m_selectedSummaryCategories())
     {
-        if (category == RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_INVALID) continue;
+        if (m_identifierFieldsMap.at(category).size() == 0 ||
+            category == RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_INVALID) continue;
         
         const auto& identifierAndFieldList = m_identifierFieldsMap.at(category);
         std::vector<std::pair<RifEclipseSummaryAddress::SummaryIdentifierType, QString>> selectionStack;

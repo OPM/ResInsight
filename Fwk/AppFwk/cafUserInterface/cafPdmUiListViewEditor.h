@@ -80,16 +80,16 @@ class UiListViewModelPdm : public QAbstractTableModel
 public:
     explicit UiListViewModelPdm(QObject* parent);
     
-    void                setPdmData(PdmObjectCollection* objectGroup, const QString& configName);
+    void        setPdmData(PdmObjectCollection* objectGroup, const QString& configName);
 
     // Qt overrides
-    virtual int         rowCount( const QModelIndex &parent = QModelIndex( ) ) const;
-    virtual int         columnCount( const QModelIndex &parent = QModelIndex( ) ) const;
-    virtual QVariant    data( const QModelIndex &index, int role = Qt::DisplayRole ) const;
-    virtual QVariant    headerData( int section, Qt::Orientation orientation, int role = Qt::DisplayRole ) const;
+    int         rowCount( const QModelIndex &parent = QModelIndex( ) ) const override;
+    int         columnCount( const QModelIndex &parent = QModelIndex( ) ) const override;
+    QVariant    data( const QModelIndex &index, int role = Qt::DisplayRole ) const override;
+    QVariant    headerData( int section, Qt::Orientation orientation, int role = Qt::DisplayRole ) const override;
 
 private:
-    void computeColumnCount();
+    void        computeColumnCount();
 
 private:
     PdmObjectCollection*              m_pdmObjectGroup;
@@ -107,11 +107,11 @@ class PdmUiListViewEditor : public PdmUiObjectEditorHandle
 {
 public:
     PdmUiListViewEditor();
-    ~PdmUiListViewEditor();
+    ~PdmUiListViewEditor() override;
 
 protected:
-    virtual QWidget*    createWidget(QWidget* parent);
-    virtual void        configureAndUpdateUi(const QString& uiConfigName);
+    QWidget*    createWidget(QWidget* parent) override;
+    void        configureAndUpdateUi(const QString& uiConfigName) override;
 
 private:
     QPointer<QTableView>    m_tableView;

@@ -36,23 +36,6 @@
 
 
 //--------------------------------------------------------------------------------------------------
-/// Find the largest possible "ususal" value to use for absent data (-999.25, -9999.25, etc.)
-//--------------------------------------------------------------------------------------------------
-static double sg_createAbsentValue(double lowestDataValue)
-{
-    double absentValue = -999.0;
-
-    while (absentValue > lowestDataValue)
-    {
-        absentValue *= 10;
-        absentValue -= 9;
-    }
-
-    return absentValue - 0.25;
-}
-
-
-//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 RigWellLogFile::RigWellLogFile()
@@ -114,7 +97,8 @@ bool RigWellLogFile::open(const QString& fileName, QString* errorMessage)
         QString logName = QString::fromStdString(itCL->first);
         wellLogNames.append(logName);
 
-        if (logName.toUpper() == "DEPT" || logName.toUpper() == "DEPTH")
+        // 2018-11-09 Added MD https://github.com/OPM/ResInsight/issues/3641
+        if (logName.toUpper() == "DEPT" || logName.toUpper() == "DEPTH" || logName.toUpper() == "MD")
         {
             m_depthLogName = logName;
         }
@@ -263,95 +247,6 @@ QString RigWellLogFile::wellLogChannelUnitString(const QString& wellLogChannelNa
     }
 
     return unit;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-bool RigWellLogFile::exportToLasFile(const RimWellLogCurve* curve, const QString& fileName)
-{
-    CVF_ASSERT(curve);
-
-    const RigWellLogCurveData* curveData = curve->curveData();
-    if (!curveData)
-    {
-        return false;
-    }
-
-    double minX, maxX;
-    curve->valueRange(&minX, &maxX);
-    double absentValue = sg_createAbsentValue(minX);
-
-    std::vector<double> wellLogValues = curveData->xValues();
-    for (size_t vIdx = 0; vIdx < wellLogValues.size(); vIdx++)
-    {
-        double value = wellLogValues[vIdx];
-        if (value == HUGE_VAL || value == -HUGE_VAL || value != value)
-        {
-            wellLogValues[vIdx] = absentValue;
-        }
-    }
-
-    QString wellLogChannelName = curve->wellLogChannelName().trimmed();
-    wellLogChannelName.replace(".", "_");
-
-    QString wellLogDate = curve->wellDate().trimmed();
-    wellLogDate.replace(".", "_");
-    wellLogDate.replace(" ", "_");
-
-    NRLib::LasWell lasFile;
-    lasFile.addWellInfo("WELL", curve->wellName().trimmed().toStdString());
-    lasFile.addWellInfo("DATE", wellLogDate.toStdString());
-
-    if (curveData->depthUnit() == RiaDefines::UNIT_METER)
-    {
-        lasFile.AddLog("DEPTH", "M", "Depth in meters", curveData->measuredDepths());
-    }
-    else if (curveData->depthUnit() == RiaDefines::UNIT_FEET)
-    {
-        lasFile.AddLog("DEPTH", "FT", "Depth in feet", curveData->measuredDepths());
-    }
-    else if (curveData->depthUnit() == RiaDefines::UNIT_NONE)
-    {
-        CVF_ASSERT(false);
-        lasFile.AddLog("DEPTH", "", "Depth in connection number", curveData->measuredDepths());
-    }
-
-    if(curveData->tvDepths().size())
-    {
-        lasFile.AddLog("TVDMSL", "M", "True vertical depth in meters", curveData->tvDepths());
-    }
-
-    lasFile.AddLog(wellLogChannelName.trimmed().toStdString(), "NO_UNIT", "", wellLogValues);
-    lasFile.SetMissing(absentValue);
-
-    double minDepth = 0.0;
-    double maxDepth = 0.0;
-    curveData->calculateMDRange(&minDepth, &maxDepth);
-
-    lasFile.setStartDepth(minDepth);
-    lasFile.setStopDepth(maxDepth);
-
-    if (curveData->depthUnit() == RiaDefines::UNIT_METER)
-    {
-        lasFile.setDepthUnit("M");
-    }
-    else if (curveData->depthUnit() == RiaDefines::UNIT_FEET)
-    {
-        lasFile.setDepthUnit("FT");
-    }
-    else if ( curveData->depthUnit() == RiaDefines::UNIT_NONE )
-    {
-        CVF_ASSERT(false);
-        lasFile.setDepthUnit("");
-    }
-
-    lasFile.setVersionInfo("2.0");
-
-    std::vector<std::string> commentHeader;
-    lasFile.WriteToFile(fileName.toStdString(), commentHeader);
-
-    return true;
 }
 
 //--------------------------------------------------------------------------------------------------

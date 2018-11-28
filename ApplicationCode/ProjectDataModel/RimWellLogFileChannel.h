@@ -38,7 +38,7 @@ public:
     void    setName(const QString& name);
     QString name() const { return m_name; }
 
-    virtual caf::PdmFieldHandle* userDescriptionField()  { return &m_name; }
+    caf::PdmFieldHandle* userDescriptionField() override  { return &m_name; }
 
 private:
     caf::PdmField<QString> m_name;

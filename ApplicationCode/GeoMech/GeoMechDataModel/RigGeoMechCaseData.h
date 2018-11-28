@@ -39,8 +39,9 @@ public:
     explicit RigGeoMechCaseData(const std::string& fileName);
     ~RigGeoMechCaseData();
 
-    bool                                 openAndReadFemParts(std::string* errorMessage);
-
+    bool                                 open(std::string* errorMessage);
+    bool                                 readTimeSteps(std::string* errorMessage, std::vector<std::string>* stepNames);
+    bool                                 readFemParts(std::string* errorMessage, const std::vector<size_t>& timeStepFilter = std::vector<size_t>());
     RigFemPartCollection*                femParts();
     const RigFemPartCollection*          femParts() const;
 

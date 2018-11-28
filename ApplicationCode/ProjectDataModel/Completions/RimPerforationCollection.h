@@ -22,10 +22,13 @@
 #include "RimCheckableNamedObject.h"
 
 #include "cafPdmObject.h"
+#include "cafPdmChildField.h"
 #include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
 
 class RimPerforationInterval;
+class RimMswCompletionParameters;
+class RimNonDarcyPerforationParameters;
 
 //==================================================================================================
 //
@@ -38,15 +41,22 @@ class RimPerforationCollection : public RimCheckableNamedObject
 
 public:
     RimPerforationCollection();
-    ~RimPerforationCollection();
+    ~RimPerforationCollection() override;
 
+    const RimMswCompletionParameters*          mswParameters() const;
+    const RimNonDarcyPerforationParameters*    nonDarcyParameters() const;
+    void                                       setUnitSystemSpecificDefaults();
     void                                       appendPerforation(RimPerforationInterval* perforation);
     std::vector<const RimPerforationInterval*> perforations() const;
 
-    void                                       fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
+private:
+    void                                       defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    void                                       fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
 
     friend class RiuEditPerforationCollectionWidget;
 
 private:
-    caf::PdmChildArrayField<RimPerforationInterval*>    m_perforations;
+    caf::PdmChildArrayField<RimPerforationInterval*>      m_perforations;
+    caf::PdmChildField<RimMswCompletionParameters*>       m_mswParameters;
+    caf::PdmChildField<RimNonDarcyPerforationParameters*> m_nonDarcyParameters;
 };

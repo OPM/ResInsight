@@ -57,7 +57,7 @@ void RivFemElmVisibilityCalculator::computeRangeVisibility(cvf::UByteArray* elmV
 {
     elmVisibilities->resize(femPart->elementCount());
     
-    const RigFemPartGrid* grid = femPart->structGrid();
+    const RigFemPartGrid* grid = femPart->getOrCreateStructGrid();
  
     if (rangeFilter.hasIncludeRanges())
     {

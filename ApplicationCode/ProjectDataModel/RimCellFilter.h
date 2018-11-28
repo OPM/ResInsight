@@ -38,7 +38,7 @@ public:
     };
 
     RimCellFilter();
-    virtual ~RimCellFilter();
+    ~RimCellFilter() override;
 
     caf::PdmField<QString>  name;
     caf::PdmField<bool>     isActive;
@@ -47,6 +47,6 @@ public:
     void updateIconState();
 
 protected:
-    virtual caf::PdmFieldHandle*            userDescriptionField();
-    virtual caf::PdmFieldHandle*            objectToggleField();
+    caf::PdmFieldHandle*            userDescriptionField() override;
+    caf::PdmFieldHandle*            objectToggleField() override;
 };

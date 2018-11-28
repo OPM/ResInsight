@@ -43,7 +43,7 @@
 #include "cafPdmUiDragDropInterface.h"
 #include "cafPdmUiEditorHandle.h"
 #include "cafPdmUiTreeOrdering.h"
-#include "cafPdmUiTreeViewModel.h"
+#include "cafPdmUiTreeViewQModel.h"
 #include "cafSelectionManager.h"
 
 #include <QDragMoveEvent>
@@ -65,7 +65,7 @@ class PdmUiTreeViewWidget : public QTreeView
 {
 public:
     explicit PdmUiTreeViewWidget(QWidget* parent = nullptr) : QTreeView(parent) {};
-    virtual ~PdmUiTreeViewWidget() {};
+    ~PdmUiTreeViewWidget() override {};
 
     bool isTreeItemEditWidgetActive() const
     {
@@ -73,9 +73,9 @@ public:
     }
 
 protected:
-    virtual void dragMoveEvent(QDragMoveEvent* event)
+    void dragMoveEvent(QDragMoveEvent* event) override
     {
-        caf::PdmUiTreeViewModel* treeViewModel = dynamic_cast<caf::PdmUiTreeViewModel*>(model());
+        caf::PdmUiTreeViewQModel* treeViewModel = dynamic_cast<caf::PdmUiTreeViewQModel*>(model());
         if (treeViewModel && treeViewModel->dragDropInterface())
         {
             treeViewModel->dragDropInterface()->onProposedDropActionUpdated(event->proposedAction());
@@ -84,9 +84,9 @@ protected:
         QTreeView::dragMoveEvent(event);
     }
 
-    virtual void dragLeaveEvent(QDragLeaveEvent* event)
+    void dragLeaveEvent(QDragLeaveEvent* event) override
     {
-        caf::PdmUiTreeViewModel* treeViewModel = dynamic_cast<caf::PdmUiTreeViewModel*>(model());
+        caf::PdmUiTreeViewQModel* treeViewModel = dynamic_cast<caf::PdmUiTreeViewQModel*>(model());
         if (treeViewModel && treeViewModel->dragDropInterface())
         {
             treeViewModel->dragDropInterface()->onDragCanceled();
@@ -128,7 +128,7 @@ QWidget* PdmUiTreeViewEditor::createWidget(QWidget* parent)
     m_layout->setContentsMargins(0, 0, 0, 0);
     m_mainWidget->setLayout(m_layout);
 
-    m_treeViewModel = new caf::PdmUiTreeViewModel(this);
+    m_treeViewModel = new caf::PdmUiTreeViewQModel(this);
     m_treeView = new PdmUiTreeViewWidget(m_mainWidget);
     m_treeView->setModel(m_treeViewModel);
     m_treeView->installEventFilter(this);
@@ -279,7 +279,7 @@ void PdmUiTreeViewEditor::customMenuRequested(QPoint pos)
 //--------------------------------------------------------------------------------------------------
 PdmChildArrayFieldHandle* PdmUiTreeViewEditor::currentChildArrayFieldHandle()
 {
-    PdmUiItem* currentSelectedItem = SelectionManager::instance()->selectedItem(SelectionManager::CURRENT);
+    PdmUiItem* currentSelectedItem = SelectionManager::instance()->selectedItem(SelectionManager::FIRST_LEVEL);
 
     PdmUiFieldHandle* uiFieldHandle = dynamic_cast<PdmUiFieldHandle*>(currentSelectedItem);
     if (uiFieldHandle)

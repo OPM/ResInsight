@@ -19,7 +19,7 @@
 #include <time.h>
 #include <math.h>
 
-#include <ert/util/util.hpp>
+#include <ert/util/util.h>
 #include <ert/util/type_macros.hpp>
 
 #include <ert/ecl/ecl_sum_tstep.hpp>
@@ -147,10 +147,10 @@ void ecl_sum_tstep_free__( void * __ministep) {
    will select the DAYS variety if both are present.
 */
 
-static void ecl_sum_tstep_set_time_info_from_seconds( ecl_sum_tstep_type * tstep , time_t sim_start , float sim_seconds) {
+static void ecl_sum_tstep_set_time_info_from_seconds( ecl_sum_tstep_type * tstep , time_t sim_start , double sim_seconds) {
   tstep->sim_seconds = sim_seconds;
   tstep->sim_time = sim_start;
-  util_inplace_forward_seconds_utc( &tstep->sim_time , tstep->sim_seconds );
+  util_inplace_forward_seconds_utc( &tstep->sim_time , tstep->sim_seconds);
 }
 
 

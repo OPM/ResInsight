@@ -59,7 +59,7 @@ class PdmUiObjectEditorHandle : public PdmUiEditorHandle
 {
 public:
     PdmUiObjectEditorHandle();
-    virtual ~PdmUiObjectEditorHandle();
+    ~PdmUiObjectEditorHandle() override;
    
     QWidget*                getOrCreateWidget(QWidget* parent);
     QWidget*                widget() const;

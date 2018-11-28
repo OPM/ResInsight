@@ -86,3 +86,47 @@ void RicfFieldWriter<QString>::writeFieldData(const QString& fieldValue, QTextSt
     }
     outputStream << "\"";
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicfFieldReader<bool>::readFieldData(bool& fieldValue, QTextStream& inputStream, RicfMessages* errorMessageContainer)
+{
+    errorMessageContainer->skipWhiteSpaceWithLineNumberCount(inputStream);
+    QString accumulatedFieldValue;
+    QChar nextChar;
+    QChar currentChar;
+    while (!inputStream.atEnd())
+    {
+        nextChar = errorMessageContainer->peekNextChar(inputStream);
+        if (nextChar.isLetter())
+        {
+            currentChar = errorMessageContainer->readCharWithLineNumberCount(inputStream);
+            accumulatedFieldValue += currentChar;
+        }
+        else
+        {
+            break;
+        }
+    }
+    // Accept TRUE or False in any case combination.
+    bool evaluatesToTrue  = QString::compare(accumulatedFieldValue, QString("true"), Qt::CaseInsensitive) == 0;
+    bool evaluatesToFalse = QString::compare(accumulatedFieldValue, QString("false"), Qt::CaseInsensitive) == 0;
+    if (evaluatesToTrue == evaluatesToFalse)
+    {
+        QString formatString("Boolean argument \"%1\" for the command \"%2\" does not evaluate to either true or false");
+        QString errorMessage = formatString.arg(errorMessageContainer->currentArgument).arg(errorMessageContainer->currentCommand);
+        errorMessageContainer->addError(errorMessage);
+    }
+    fieldValue = evaluatesToTrue;
+}
+
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicfFieldWriter<bool>::writeFieldData(const bool& fieldValue, QTextStream& outputStream)
+{
+    // Lower-case true/false is used in the documentation.
+    outputStream << (fieldValue ? "true" : "false");
+}

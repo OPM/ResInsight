@@ -1,26 +1,26 @@
-list.o                              : list.c list.h list_node.o  
-block_fs.o                          : block_fs.c block_fs.h hash.o util.o vector.o buffer.o  
-hash_node.o                         : hash_node.c hash_node.h util.o node_data.o  
-menu.o                              : menu.c menu.h util.o vector.o  
-buffer.o                            : buffer.c buffer.h util.o  
-util.o                              : util.c util.h util_path.c  
-stringlist.o                        : stringlist.c stringlist.h util.o vector.o buffer.o  
-hash.o                              : hash.c hash.h hash_sll.o hash_node.o node_data.o util.o stringlist.o  
-timer.o                             : timer.c timer.h util.o  
-arg_pack.o                          : arg_pack.c arg_pack.h util.o node_ctype.o  
-node_data.o                         : node_data.c node_data.h util.o node_ctype.o  
-matrix.o                            : matrix.c matrix.h util.o thread_pool.o arg_pack.o  
-vector.o                            : vector.c vector.h util.o node_data.o  
-msg.o                               : msg.c msg.h util.o  
-hash_sll.o                          : hash_sll.c hash_sll.h hash_node.o  
-subst.o                             : subst.c subst.h util.o vector.o node_data.o  
-matrix_blas.o                       : matrix_blas.c matrix_blas.h util.o matrix.o  
-matrix_lapack.o                     : matrix_lapack.c matrix_lapack.h matrix.o util.o  
-template.o                          : template.c template.h subst.o  
-list_node.o                         : list_node.c list_node.h util.o node_data.o  
-set.o                               : set.c set.h hash.o util.o  
-node_ctype.o                        : node_ctype.c node_ctype.h  
-path_fmt.o                          : path_fmt.c path_fmt.h util.o node_ctype.o  
-str_buffer.o                        : str_buffer.c str_buffer.h  
-thread_pool.o                       : thread_pool.c thread_pool.h util.o  
-log.o                               : log.c log.h util.o  
+list.o                              : list.c list.h list_node.o
+block_fs.o                          : block_fs.c block_fs.h hash.o util.o vector.o buffer.o
+hash_node.o                         : hash_node.c hash_node.h util.o node_data.o
+menu.o                              : menu.c menu.h util.o vector.o
+buffer.o                            : buffer.c buffer.h util.o
+util.o                              : util.c util.h util_path.c
+stringlist.o                        : stringlist.c stringlist.h util.o vector.o buffer.o
+hash.o                              : hash.c hash.h hash_sll.o hash_node.o node_data.o util.o stringlist.o
+timer.o                             : timer.c timer.h util.o
+arg_pack.o                          : arg_pack.c arg_pack.h util.o node_ctype.o
+node_data.o                         : node_data.c node_data.h util.o node_ctype.o
+matrix.o                            : matrix.c matrix.h util.o thread_pool.o arg_pack.o
+vector.o                            : vector.c vector.h util.o node_data.o
+msg.o                               : msg.c msg.h util.o
+hash_sll.o                          : hash_sll.c hash_sll.h hash_node.o
+subst.o                             : subst.c subst.h util.o vector.o node_data.o
+matrix_blas.o                       : matrix_blas.c matrix_blas.h util.o matrix.o
+matrix_lapack.o                     : matrix_lapack.c matrix_lapack.h matrix.o util.o
+template.o                          : template.c template.h subst.o
+list_node.o                         : list_node.c list_node.h util.o node_data.o
+set.o                               : set.c set.h hash.o util.o
+node_ctype.o                        : node_ctype.c node_ctype.h
+path_fmt.o                          : path_fmt.c path_fmt.h util.o node_ctype.o
+str_buffer.o                        : str_buffer.c str_buffer.h
+thread_pool.o                       : thread_pool.c thread_pool.h util.o
+log.o                               : log.c log.h util.o

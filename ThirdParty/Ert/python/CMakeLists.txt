@@ -1,5 +1,3 @@
-install( DIRECTORY cmake DESTINATION share )
-
 set( CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules")
 include(init_python)
 init_python( 2.7 )

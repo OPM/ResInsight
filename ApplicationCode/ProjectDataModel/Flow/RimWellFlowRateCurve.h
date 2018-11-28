@@ -36,26 +36,25 @@ class RimWellFlowRateCurve : public RimWellLogCurve
     CAF_PDM_HEADER_INIT;
 public:
     RimWellFlowRateCurve();
-    virtual ~RimWellFlowRateCurve();
+    ~RimWellFlowRateCurve() override;
     
     void setFlowValuesPrDepthValue(const QString& curveName , const std::vector<double>& depthValues, const std::vector<double>& flowRates);
     void updateStackedPlotData();
 
-    virtual QString wellName() const override;
-    virtual QString wellLogChannelName() const override;
+    QString wellName() const override;
+    QString wellLogChannelName() const override;
 
     void            setGroupId(int groupId);
     int             groupId() const;
 
     void            setDoFillCurve(bool doFill);
-    bool            doFillCurve() const;
 
 protected:
-    virtual QString createCurveAutoName() override;
-    virtual void onLoadDataAndUpdate(bool updateParentPlot) override;
-    virtual void updateCurveAppearance() override;
+    QString createCurveAutoName() override;
+    void onLoadDataAndUpdate(bool updateParentPlot) override;
+    void updateCurveAppearance() override;
 
-    virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
 
 private:
     bool isUsingConnectionNumberDepthType() const;

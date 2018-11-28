@@ -49,11 +49,11 @@ public:
     static bool                     isImagesEqual(const cvf::TextureImage* texImg1, const cvf::TextureImage* texImg2);
 
 protected:
-    virtual bool                    isEqual(const caf::EffectGenerator* other) const;
-    virtual caf::EffectGenerator*    copy() const;
+    bool                    isEqual(const caf::EffectGenerator* other) const override;
+    caf::EffectGenerator*    copy() const override;
 
-    virtual void                    updateForShaderBasedRendering(cvf::Effect* effect) const;
-    virtual void                    updateForFixedFunctionRendering(cvf::Effect* effect) const;
+    void                    updateForShaderBasedRendering(cvf::Effect* effect) const override;
+    void                    updateForFixedFunctionRendering(cvf::Effect* effect) const override;
 
 private:
     void                            updateCommonEffect(cvf::Effect* effect) const;

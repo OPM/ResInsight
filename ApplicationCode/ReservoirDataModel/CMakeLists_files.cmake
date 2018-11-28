@@ -37,7 +37,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RigNNCData.h
 ${CMAKE_CURRENT_LIST_DIR}/cvfGeometryTools.h
 ${CMAKE_CURRENT_LIST_DIR}/cvfGeometryTools.inl
 ${CMAKE_CURRENT_LIST_DIR}/RigPipeInCellEvaluator.h
-${CMAKE_CURRENT_LIST_DIR}/RigTernaryResultAccessor2d.h
+${CMAKE_CURRENT_LIST_DIR}/RigTernaryResultAccessor.h
 ${CMAKE_CURRENT_LIST_DIR}/RigEclipseNativeStatCalc.h
 ${CMAKE_CURRENT_LIST_DIR}/RigEclipseNativeVisibleCellsStatCalc.h
 ${CMAKE_CURRENT_LIST_DIR}/RigEclipseMultiPropertyStatCalc.h
@@ -45,7 +45,6 @@ ${CMAKE_CURRENT_LIST_DIR}/RigWellLogCurveData.h
 ${CMAKE_CURRENT_LIST_DIR}/RigWellLogExtractionTools.h
 ${CMAKE_CURRENT_LIST_DIR}/RigHexIntersectionTools.h
 ${CMAKE_CURRENT_LIST_DIR}/RigTimeHistoryResultAccessor.h
-${CMAKE_CURRENT_LIST_DIR}/RigCurveDataTools.h
 ${CMAKE_CURRENT_LIST_DIR}/RigObservedData.h
 ${CMAKE_CURRENT_LIST_DIR}/RigLasFileExporter.h
 ${CMAKE_CURRENT_LIST_DIR}/RigSimulationWellCoordsAndMD.h
@@ -58,7 +57,6 @@ ${CMAKE_CURRENT_LIST_DIR}/RigTofAccumulatedPhaseFractionsCalculator.h
 ${CMAKE_CURRENT_LIST_DIR}/RigTransmissibilityEquations.h
 ${CMAKE_CURRENT_LIST_DIR}/RigNumberOfFloodedPoreVolumesCalculator.h
 ${CMAKE_CURRENT_LIST_DIR}/RigWeightedMeanCalc.h
-${CMAKE_CURRENT_LIST_DIR}/RigTimeHistoryCurveMerger.h
 ${CMAKE_CURRENT_LIST_DIR}/RigWellPathFormations.h
 ${CMAKE_CURRENT_LIST_DIR}/RigStimPlanFractureDefinition.h
 ${CMAKE_CURRENT_LIST_DIR}/RigFractureGrid.h
@@ -66,6 +64,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RigFractureCell.h
 ${CMAKE_CURRENT_LIST_DIR}/RigWellResultPoint.h
 ${CMAKE_CURRENT_LIST_DIR}/RigWellPathGeometryTools.h
 ${CMAKE_CURRENT_LIST_DIR}/RigCaseRealizationParameters.h
+${CMAKE_CURRENT_LIST_DIR}/RigGeoMechBoreHoleStressCalculator.h
 )
 
 
@@ -103,14 +102,13 @@ ${CMAKE_CURRENT_LIST_DIR}/RigWellPath.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RigFault.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RigNNCData.cpp
 ${CMAKE_CURRENT_LIST_DIR}/cvfGeometryTools.cpp
-${CMAKE_CURRENT_LIST_DIR}/RigTernaryResultAccessor2d.cpp
+${CMAKE_CURRENT_LIST_DIR}/RigTernaryResultAccessor.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RigEclipseNativeStatCalc.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RigEclipseNativeVisibleCellsStatCalc.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RigEclipseMultiPropertyStatCalc.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RigWellLogCurveData.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RigHexIntersectionTools.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RigTimeHistoryResultAccessor.cpp
-${CMAKE_CURRENT_LIST_DIR}/RigCurveDataTools.cpp    
 ${CMAKE_CURRENT_LIST_DIR}/RigObservedData.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RigLasFileExporter.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RigSimulationWellCoordsAndMD.cpp
@@ -123,7 +121,6 @@ ${CMAKE_CURRENT_LIST_DIR}/RigTofAccumulatedPhaseFractionsCalculator.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RigTransmissibilityEquations.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RigNumberOfFloodedPoreVolumesCalculator.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RigWeightedMeanCalc.cpp
-${CMAKE_CURRENT_LIST_DIR}/RigTimeHistoryCurveMerger.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RigWellPathFormations.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RigStimPlanFractureDefinition.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RigFractureGrid.cpp
@@ -131,6 +128,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RigFractureCell.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RigWellResultPoint.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RigWellPathGeometryTools.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RigCaseRealizationParameters.cpp
+${CMAKE_CURRENT_LIST_DIR}/RigGeoMechBoreHoleStressCalculator.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

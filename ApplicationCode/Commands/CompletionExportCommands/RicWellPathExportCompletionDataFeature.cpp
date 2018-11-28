@@ -22,6 +22,7 @@
 #include "RiaApplication.h"
 
 #include "RicExportFeatureImpl.h"
+#include "ExportCommands/RicExportLgrFeature.h"
 
 #include "RimDialogData.h"
 #include "RimFishbonesMultipleSubs.h"
@@ -51,11 +52,9 @@ void RicWellPathExportCompletionDataFeature::prepareExportSettingsAndExportCompl
     const std::vector<RimWellPath*>&      wellPaths,
     const std::vector<RimSimWellInView*>& simWells)
 {
-    RiaApplication* app     = RiaApplication::instance();
-    RimProject*     project = app->project();
-
-    QString projectFolder = app->currentProjectPath();
-    QString defaultDir    = RiaApplication::instance()->lastUsedDialogDirectoryWithFallback("COMPLETIONS", projectFolder);
+    RiaApplication* app        = RiaApplication::instance();
+    RimProject*     project    = app->project();
+    QString         defaultDir = RiaApplication::instance()->lastUsedDialogDirectoryWithFallbackToProjectFolder("COMPLETIONS");
 
     RicExportCompletionDataSettingsUi* exportSettings = project->dialogData()->exportCompletionData();
 
@@ -175,6 +174,8 @@ void RicWellPathExportCompletionDataFeature::onActionTriggered(bool isChecked)
 void RicWellPathExportCompletionDataFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setText("Export Completion Data for Selected Well Paths");
+    actionToSetup->setIcon(QIcon(":/ExportCompletionsSymbol16x16.png"));
+
 }
 
 //--------------------------------------------------------------------------------------------------

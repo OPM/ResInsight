@@ -17,13 +17,13 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
-#include "RiuLineSegmentQwtPlotCurve.h"
+#include "RiuQwtPlotCurve.h"
 
 #include "cafPdmPointer.h"
 
 class RimPlotCurve;
 
-class RiuRimQwtPlotCurve: public RiuLineSegmentQwtPlotCurve
+class RiuRimQwtPlotCurve: public RiuQwtPlotCurve
 {
 public:
     explicit RiuRimQwtPlotCurve(RimPlotCurve* ownerRimCurve, const QString &title = QString::null);

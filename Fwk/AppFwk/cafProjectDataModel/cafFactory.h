@@ -58,8 +58,13 @@
 
 #define CAF_UNIQUE_COMPILE_UNIT_VAR_NAME(foo) CAF_FACTORY_CONCATENATE_STRINGS(foo, __LINE__)
 
+/// Macros to simplify registering entries in a factory
+/// There are two, to make it possible to use two registrations in one macro
+
 #define CAF_FACTORY_REGISTER(BaseType, TypeToCreate, KeyType, key) \
 static bool CAF_UNIQUE_COMPILE_UNIT_VAR_NAME(my##TypeToCreate) = caf::Factory<BaseType, KeyType>::instance()->registerCreator<TypeToCreate>(key)
+#define CAF_FACTORY_REGISTER2(BaseType, TypeToCreate, KeyType, key) \
+static bool CAF_UNIQUE_COMPILE_UNIT_VAR_NAME(my2##TypeToCreate) = caf::Factory<BaseType, KeyType>::instance()->registerCreator<TypeToCreate>(key)
 
 namespace caf
 {

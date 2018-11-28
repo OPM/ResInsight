@@ -25,6 +25,8 @@
 class RimFishbonesCollection;
 class RimPerforationCollection;
 class RimWellPathFractureCollection;
+class RimWellPathComponentInterface;
+class RimWellPathValve;
 
 //==================================================================================================
 ///  
@@ -34,21 +36,34 @@ class RimWellPathCompletions : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 
+    enum WellType {OIL, GAS, WATER, LIQUID};
+    typedef caf::AppEnum<WellType> WellTypeEnum;
+
 public:
     RimWellPathCompletions();
 
     RimFishbonesCollection*        fishbonesCollection() const;
     RimPerforationCollection*      perforationCollection() const;
     RimWellPathFractureCollection* fractureCollection() const;
+    std::vector<RimWellPathValve*> valves() const;
+
+    std::vector<const RimWellPathComponentInterface*> allCompletions() const;
 
     void                        setWellNameForExport(const QString& name);
     QString                     wellNameForExport() const;
+    QString                     wellGroupNameForExport() const;
+    QString                     referenceDepthForExport() const;
+    QString                     wellTypeNameForExport() const;
     bool                        hasCompletions() const;
 
     void                        setUnitSystemSpecificDefaults();
 
 protected:
-    virtual void                        defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName) override;
+    void                        defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName) override;
+    void                        fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+
+private:
+    QString                     formatStringForExport(const QString& text, const QString& defaultText = "") const;
 
 private:
     caf::PdmChildField<RimFishbonesCollection*>         m_fishbonesCollection;
@@ -56,4 +71,8 @@ private:
     caf::PdmChildField<RimWellPathFractureCollection*>  m_fractureCollection;
     
     caf::PdmField<QString>                              m_wellNameForExport;
+    caf::PdmField<QString>                              m_wellGroupName;
+    
+    caf::PdmField<QString>                              m_referenceDepth;
+    caf::PdmField<WellTypeEnum>                         m_wellType;
 };

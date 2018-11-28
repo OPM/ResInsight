@@ -22,9 +22,11 @@
 #include "RicDeleteItemExecData.h"
 
 #include "RimCellRangeFilter.h"
+#include "RimDerivedEnsembleCaseCollection.h"
 #include "RimEclipseInputProperty.h"
 #include "RimEclipsePropertyFilter.h"
 #include "RimEclipseView.h"
+#include "RimEnsembleCurveFilter.h"
 #include "RimEnsembleCurveSet.h"
 #include "RimFishbonesMultipleSubs.h"
 #include "RimFormationNames.h"
@@ -50,6 +52,7 @@
 #include "RimAsciiDataCurve.h"
 #include "RimWellLogRftCurve.h"
 #include "RimWellRftPlot.h"
+#include "RimWellPathValve.h"
 
 #include "RimEllipseFractureTemplate.h"
 #include "RimSimWellFracture.h"
@@ -119,6 +122,9 @@ bool isDeletable(caf::PdmUiItem* uiItem)
     if (dynamic_cast<RimSimWellFractureCollection*>(uiItem))    return true;
     if (dynamic_cast<RimSimWellFracture*>(uiItem))              return true;
     if (dynamic_cast<RimEnsembleCurveSet*>(uiItem))             return true;
+    if (dynamic_cast<RimEnsembleCurveFilter*>(uiItem))          return true;
+    if (dynamic_cast<RimDerivedEnsembleCaseCollection*>(uiItem)) return true;
+    if (dynamic_cast<RimWellPathValve*>(uiItem))                 return true;
 
     return false;    
 }

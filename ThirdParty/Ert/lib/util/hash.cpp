@@ -15,8 +15,6 @@
    See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
    for more details.
 */
-
-#define  _GNU_SOURCE   /* Must define this to get access to pthread_rwlock_t */
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -27,7 +25,7 @@
 #include <ert/util/hash_sll.hpp>
 #include <ert/util/hash_node.hpp>
 #include <ert/util/node_data.hpp>
-#include <ert/util/util.hpp>
+#include <ert/util/util.h>
 #include <ert/util/stringlist.hpp>
 
 
@@ -455,8 +453,10 @@ stringlist_type * hash_alloc_stringlist(const hash_type * hash) {
   stringlist_type * stringlist = stringlist_alloc_new();
   char ** keylist = hash_alloc_keylist__(hash);
   int i;
-  for (i = 0; i < hash_get_size( hash ); i++)
-    stringlist_append_owned_ref( stringlist , keylist[i] );
+  for (i = 0; i < hash_get_size( hash ); i++) {
+    stringlist_append_copy( stringlist , keylist[i] );
+    free(keylist[i]);
+  }
 
   free( keylist );
   return stringlist;
@@ -709,8 +709,8 @@ hash_type * hash_alloc_from_options(const stringlist_type * options) {
     // Warning: could not interpret string as KEY:VALUE - ignored
 
 
-    util_safe_free(option);
-    util_safe_free(value);
+    free(option);
+    free(value);
   }
 
   return opt_hash;
@@ -729,7 +729,7 @@ hash_type * hash_alloc_from_options(const stringlist_type * options) {
        addOK = true;
      }
 
-     util_safe_free( key );
+     free( key );
    }
    return addOK;
 }

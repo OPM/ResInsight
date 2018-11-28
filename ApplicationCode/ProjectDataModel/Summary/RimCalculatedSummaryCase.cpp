@@ -44,7 +44,7 @@ RimCalculatedSummaryCase::~RimCalculatedSummaryCase()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RimCalculatedSummaryCase::caseName()
+QString RimCalculatedSummaryCase::caseName() const
 {
     return "Calculated";
 }

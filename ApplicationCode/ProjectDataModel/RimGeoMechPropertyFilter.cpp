@@ -88,7 +88,7 @@ void RimGeoMechPropertyFilter::fieldChangedByUi(const caf::PdmFieldHandle* chang
         this->updateFilterName();
         this->uiCapability()->updateConnectedEditors();
 
-        parentContainer()->updateDisplayModelNotifyManagedViews();
+        parentContainer()->updateDisplayModelNotifyManagedViews(this);
     }
 }
 

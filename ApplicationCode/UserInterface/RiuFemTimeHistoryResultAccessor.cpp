@@ -37,13 +37,13 @@ RiuFemTimeHistoryResultAccessor::RiuFemTimeHistoryResultAccessor(RigGeoMechCaseD
                                                                  size_t gridIndex, 
                                                                  int elementIndex, 
                                                                  int face,
-                                                                 const cvf::Vec3d& intersectionPoint)
+                                                                 const cvf::Vec3d& intersectionPointInDomain)
     : m_geoMechCaseData(geomData),
     m_femResultAddress(femResultAddress),
     m_gridIndex(gridIndex),
     m_elementIndex(elementIndex),
     m_face(face),
-    m_intersectionPoint(intersectionPoint),
+    m_intersectionPointInDomain(intersectionPointInDomain),
     m_hasIntersectionTriangle(false)
 {
     computeTimeHistoryData();
@@ -57,14 +57,14 @@ RiuFemTimeHistoryResultAccessor::RiuFemTimeHistoryResultAccessor(RigGeoMechCaseD
                                                                  size_t gridIndex, 
                                                                  int elementIndex, 
                                                                  int face, 
-                                                                 const cvf::Vec3d& intersectionPoint, 
+                                                                 const cvf::Vec3d& intersectionPointInDomain, 
                                                                  const std::array<cvf::Vec3f, 3>& intersectionTriangle)
     : m_geoMechCaseData(geomData),
     m_femResultAddress(femResultAddress),
     m_gridIndex(gridIndex),
     m_elementIndex(elementIndex),
     m_face(face),
-    m_intersectionPoint(intersectionPoint),
+    m_intersectionPointInDomain(intersectionPointInDomain),
     m_hasIntersectionTriangle(true),
     m_intersectionTriangle(intersectionTriangle)
 {
@@ -87,14 +87,14 @@ QString RiuFemTimeHistoryResultAccessor::geometrySelectionText() const
         size_t i = 0;
         size_t j = 0;
         size_t k = 0;
-        if (m_geoMechCaseData->femParts()->part(m_gridIndex)->structGrid()->ijkFromCellIndex(m_elementIndex, &i, &j, &k))
+        if (m_geoMechCaseData->femParts()->part(m_gridIndex)->getOrCreateStructGrid()->ijkFromCellIndex(m_elementIndex, &i, &j, &k))
         {
             // Adjust to 1-based Eclipse indexing
             i++;
             j++;
             k++;
 
-            cvf::Vec3d domainCoord = m_intersectionPoint;
+            cvf::Vec3d domainCoord = m_intersectionPointInDomain;
             text += QString(", ijk[%1, %2, %3] ").arg(i).arg(j).arg(k);
 
             QString formattedText;
@@ -126,7 +126,7 @@ void RiuFemTimeHistoryResultAccessor::computeTimeHistoryData()
                                                    m_femResultAddress.resultPosType,
                                                    m_elementIndex,
                                                    m_face,
-                                                   m_intersectionPoint );
+                                                   m_intersectionPointInDomain );
     
     int scalarResultIndex = closestCalc.resultIndexToClosestResult();
     m_closestNodeId = closestCalc.closestNodeId();

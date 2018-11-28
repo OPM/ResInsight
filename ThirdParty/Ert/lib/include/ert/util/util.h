@@ -27,7 +27,7 @@
 #include <time.h>
 
 
-#include <ert/util/ert_api_config.h>
+#include <ert/util/ert_api_config.hpp>
 
 
 
@@ -102,7 +102,6 @@ typedef enum {left_pad   = 0,
               center_pad = 2} string_alignement_type;
 
   //#define UTIL_CXX_MALLOC(var , num_elm) (typeof (var)) util_malloc( (num_elm) * sizeof var)
-  void         util_bitmask_on(int *  , int );
   char       * util_get_timezone(void);
   time_t       util_make_datetime_utc(int , int , int , int , int , int );
   bool         util_make_datetime_utc_validated(int sec, int min, int hour , int mday , int month , int year, time_t * t);
@@ -128,7 +127,6 @@ typedef enum {left_pad   = 0,
   bool         util_char_in(char c, int , const char *);
   char       * util_alloc_sprintf_va(const char * fmt , va_list ap);
   char       * util_alloc_sprintf(const char *  , ...);
-  char       * util_alloc_sprintf_escape(const char * src , int max_escape);
   char       * util_realloc_sprintf(char * , const char *  , ...);
   void         util_fprintf_int(int , int , FILE * );
   void         util_fprintf_string(const char *  , int , string_alignement_type ,  FILE * );
@@ -147,6 +145,7 @@ typedef enum {left_pad   = 0,
   bool         util_fmt_bit8_stream(FILE * );
   char       * util_strstr_int_format(const char * string );
   int          util_int_format_count(const char * string );
+  bool         util_mkdir_p(const char * path);
   void         util_make_path  (const char *);
   char       * util_newest_file(const char *, const char *);
   double       util_file_difftime(const char * , const char *);
@@ -177,7 +176,6 @@ typedef enum {left_pad   = 0,
   bool         util_ftruncate(FILE * stream , long size);
 
   void         util_usleep( unsigned long micro_seconds );
-  void         util_yield(void);
 
   int          util_roundf( float x );
   int          util_round( double x );
@@ -205,19 +203,14 @@ typedef enum {left_pad   = 0,
   bool         util_chmod_if_owner( const char * filename , mode_t new_mode);
 #endif
 
-#ifdef HAVE_PROC
-  bool    util_proc_alive(pid_t pid);
-#endif
-
   int          util_forward_line(FILE * , bool * );
   void         util_rewind_line(FILE *);
+
   int          util_count_content_file_lines(FILE * );
-  int          util_count_file_lines(FILE * );
   FILE       * util_mkdir_fopen( const char * filename , const char * mode );
   int          util_fmove( FILE * stream , long offset , long shift);
-  FILE       * util_fopen(const char *  , const char *); 
+  FILE       * util_fopen(const char *  , const char *);
   FILE       * util_fopen__(const char * filename , const char * mode);
-  void         util_fclose( FILE * stream );
   bool         util_fopen_test(const char *, const char *);
   char       * util_split_alloc_dirname( const char * input_path );
   char       * util_split_alloc_filename( const char * input_path );
@@ -225,7 +218,6 @@ typedef enum {left_pad   = 0,
   //char           * util_realloc_full_path(char * , const char *, const char *);
   char       * util_alloc_tmp_file(const char * , const char * , bool );
   char       * util_fscanf_alloc_line(FILE *, bool *);
-  char       * util_fscanf_realloc_line(FILE *, bool * , char *);
   char       * util_fscanf_alloc_token(FILE * );
   void         util_fskip_token(FILE * );
   void         util_fskip_space(FILE *  ,  bool *);
@@ -245,7 +237,6 @@ typedef enum {left_pad   = 0,
   char       * util_alloc_filename(const char * , const char *  , const char * );
   char       * util_realloc_filename(char *  , const char *  , const char *  , const char * );
   char       * util_alloc_strip_copy(const char *);
-  char       * util_realloc_strip_copy(char *);
   void         util_set_strip_copy(char * , const char *);
   char       * util_alloc_string_sum(const char **  , int);
   char       * util_strcat_realloc(char *, const char * );
@@ -268,7 +259,6 @@ typedef enum {left_pad   = 0,
   char       * util_realloc_substring_copy(char * , const char *, int N);
   char       * util_realloc_dequoted_string(char *);
   char       * util_alloc_dequoted_copy(const char *s);
-  void         util_safe_free(void *);
   void         util_free_stringlist(char **, int );
   void         util_free_NULL_terminated_stringlist(char ** string_list);
   char       * util_alloc_substring_copy(const char *, int offset , int N);
@@ -296,7 +286,6 @@ typedef enum {left_pad   = 0,
 
 
   void *  util_realloc(void *  , size_t  );
-  void    util_free(void * ptr);
   void *  util_malloc(size_t );
   void *  util_calloc( size_t elements , size_t element_size );
   void *  util_realloc_copy(void * org_ptr , const void * src , size_t byte_size );
@@ -312,7 +301,6 @@ typedef enum {left_pad   = 0,
   char *  util_fread_alloc_string(FILE *);
   void    util_fskip_string(FILE *stream);
   void     util_endian_flip_vector(void * data , int element_size , int elements);
-  int      util_proc_mem_free(void);
 
 
   void     util_clamp_double(double * value , double limit1, double limit2);
@@ -360,7 +348,6 @@ typedef enum {left_pad   = 0,
   const char * util_update_path_var(const char * , const char * , bool );
 
 
-  int      util_get_type( void * data );
   void     util_fskip_int(FILE * stream);
   void     util_fskip_long(FILE * stream);
   void     util_fskip_bool(FILE * stream);
@@ -410,72 +397,6 @@ typedef enum {left_pad   = 0,
   CONTAINS_HEADER(time_t);
   CONTAINS_HEADER(size_t);
 #undef CONTAINS_HEADER
-
-/*****************************************************************/
-/*
-  The code below here is a simple functionality to support 'enum
-  introspection'; the point is that when calling the library functions
-  from Python/ctypes it is very valuable to have access to the enum
-  values from the Python side. The enum defintions is just used during
-  the compile phase, and then subsequently dropped. It is therefor
-  impossible to determine enum values by inspecting the resulting
-  object files.
-
-  The approach which has been chosen is that each of the enums which
-  should support 'introspection' from Python should have a function:
-
-     const char * <enum>_iget(int index, int * value) {
-        ...
-     }
-
-  which should take an enum element number as input argument and
-  return a string representation of the corresponding enum element and
-  also update the value reference to contain the corresponding enum
-  value. If index is out of range the function should return NULL and
-  also set value to -1. The python layer can then create an integer
-  variable with the correct name and value in the calling module.
-
-  The util_enum_element_type and the util_enum_iget() function are
-  convenience functions which can be used to avoid indirectly
-  repeating the enum definition in the <enum>_iget() function.
-
-  In the example below we create the enum definition in normal way in
-  the header file, and then in addition we repeat the defintion in a
-  #define a symbol which is used as argument in the <enum>_iget()
-  function:
-
-
-  header_file:
-  ------------
-  enum my_enum {
-    INVALID = 0,
-    VALUE1  = 2,
-    VALUE2  = 17
-  }
-
-  // The enum definition is repeated; but at at least at the very same spot of the code.
-
-  #define MY_ENUM_DEF  { .value = INVALID, .name="INVALID"} , {.value = VALUE1 , .name="VALUE1"} , {.value = VALUE2 , .name="VALUE2"}
-  #define MY_ENUM_SIZE 3
-
-
-  source file:
-  ------------
-
-  const char * my_enum_iget(int index, int * value) {
-     return util_enum_iget( index , MY_ENUM_SIZE , (const util_enum_element_type []) MY_ENUM_DEF , value);
-  }
-
-*/
-
-
-typedef struct {
-  int value;
-  const char * name;
-} util_enum_element_type;
-
-const char * util_enum_iget( int index , int size , const util_enum_element_type * enum_defs , int * value);
-
 
 #ifdef _MSC_VER
 #define util_abort(fmt , ...) util_abort__(__FILE__ , __func__ , __LINE__ , fmt , __VA_ARGS__)

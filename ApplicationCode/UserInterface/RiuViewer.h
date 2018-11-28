@@ -45,6 +45,7 @@ class QProgressBar;
 namespace caf
 {
     class TitledOverlayFrame;
+    class PdmUiSelectionVisualizer3d;
 }
 
 namespace cvf
@@ -68,7 +69,7 @@ class RiuViewer : public caf::Viewer, public RiuInterfaceToViewWindow
 
 public:
     RiuViewer(const QGLFormat& format, QWidget* parent);
-    ~RiuViewer();
+    ~RiuViewer() override;
 
     void            setDefaultView();
     cvf::Vec3d      pointOfInterest();
@@ -89,7 +90,8 @@ public:
                                       const cvf::Vec3d& displayModelOffset,
                                       const cvf::Color3f&  backgroundColor,
                                       const cvf::BoundingBox& domainCoordBoundingBox);
-    void            showEdgeTickMarks(bool enable);
+    void            showEdgeTickMarksXY(bool enable, bool showAxisLines = false);
+    void            showEdgeTickMarksXZ(bool enable, bool showAxisLines = false);
 
     void            updateAnnotationItems();
 
@@ -101,7 +103,7 @@ public:
     void            enableNavigationRotation(bool disable); 
     void            updateNavigationPolicy();
 
-    virtual void    navigationPolicyUpdate();               // Override of caf::Viewer::navigationPolicyUpdate()
+    void            navigationPolicyUpdate() override;
 
     void            setCurrentFrame(int frameIndex);
 
@@ -112,19 +114,19 @@ public:
 
     cvf::OverlayItem*   pickFixedPositionedLegend(int winPosX, int winPosY);
 
-    void            updateParallelProjectionSettings(RiuViewer* sourceViewer);
-
     void            setCursorPosition(const cvf::Vec3d& domainCoord);
 
+    std::vector<cvf::ref<cvf::Part>> visibleParts();
+
 public slots:
-    virtual void    slotSetCurrentFrame(int frameIndex);
-    virtual void    slotEndAnimation();
+    void            slotSetCurrentFrame(int frameIndex) override;
+    void            slotEndAnimation() override;
 
 protected:
-    virtual void    optimizeClippingPlanes();
-    virtual void    resizeGL(int width, int height);
-    virtual void    mouseMoveEvent(QMouseEvent* e) override;
-    virtual void    leaveEvent(QEvent *) override;
+    void            optimizeClippingPlanes() override;
+    void            resizeGL(int width, int height) override;
+    void    mouseMoveEvent(QMouseEvent* e) override;
+    void    leaveEvent(QEvent *) override;
 
 private:
     void            updateLegendLayout();
@@ -135,10 +137,10 @@ private:
 
     void            updateAxisCrossTextColor();
 
-    void            paintOverlayItems(QPainter* painter);
+    void            paintOverlayItems(QPainter* painter) override;
 
-    void            mouseReleaseEvent(QMouseEvent* event);
-    void            mousePressEvent(QMouseEvent* event);
+    void            mouseReleaseEvent(QMouseEvent* event) override;
+    void            mousePressEvent(QMouseEvent* event) override;
 
 private:
     QLabel*         m_infoLabel;
@@ -157,8 +159,6 @@ private:
     cvf::ref<cvf::OverlayAxisCross> m_axisCross;
     bool                            m_showAxisCross;
     cvf::Collection<caf::TitledOverlayFrame> m_visibleLegends;
-    cvf::Collection<cvf::OverlayItem> allOverlayItems();
-
 
     caf::PdmInterfacePointer<RiuViewerToViewInterface>    m_rimView;
     QPoint                      m_lastMousePressPosition;
@@ -168,6 +168,8 @@ private:
     RivGridBoxGenerator*        m_gridBoxGenerator;
     cvf::ref<RivWindowEdgeAxesOverlayItem> m_windowEdgeAxisOverlay;
     bool                        m_showWindowEdgeAxes;
+
+    caf::PdmUiSelectionVisualizer3d* m_selectionVisualizerManager;
 
     cvf::Vec3d                  m_cursorPositionDomainCoords;
     bool                        m_isNavigationRotationEnabled;

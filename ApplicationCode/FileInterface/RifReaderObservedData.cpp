@@ -70,16 +70,15 @@ bool RifReaderObservedData::open(const QString& headerFileName,
     {
         if (m_asciiParser && m_asciiParser->dateTimeColumn())
         {
-            for (QDateTime timeStep : m_asciiParser->dateTimeColumn()->dateTimeValues)
+            for (time_t timeStep : m_asciiParser->dateTimeColumn()->dateTimeValues)
             {
-                time_t t = timeStep.toTime_t();
-                m_timeSteps.push_back(t);
+                m_timeSteps.push_back(timeStep);
             }
 
             m_allResultAddresses.clear();
             for (auto s : m_asciiParser->tableData().columnInfos())
             {
-                m_allResultAddresses.push_back(s.summaryAddress);
+                m_allResultAddresses.insert(s.summaryAddress);
             }
         }
 
@@ -95,12 +94,14 @@ bool RifReaderObservedData::values(const RifEclipseSummaryAddress& resultAddress
 {
     size_t columnIndex = m_allResultAddresses.size();
 
-    for (size_t i = 0; i < m_allResultAddresses.size(); i++)
+    int i = 0;
+    for(auto& address : m_allResultAddresses)
     {
-        if (resultAddress == m_allResultAddresses[i])
+        if (address == resultAddress)
         {
             columnIndex = i;
         }
+        i++;
     }
 
     if (columnIndex != m_allResultAddresses.size())
@@ -144,6 +145,7 @@ RifEclipseSummaryAddress RifReaderObservedData::address(const QString& quantity,
     int                cellJ(-1);
     int                cellK(-1);
     int                aquiferNumber(-1);
+    bool               isErrorResult(false);
 
     switch (summaryCategory)
     {
@@ -169,7 +171,8 @@ RifEclipseSummaryAddress RifReaderObservedData::address(const QString& quantity,
         wellSegmentNumber,
         lgrName,
         cellI, cellJ, cellK,
-        aquiferNumber);
+        aquiferNumber,
+        isErrorResult);
 }
 
 //--------------------------------------------------------------------------------------------------

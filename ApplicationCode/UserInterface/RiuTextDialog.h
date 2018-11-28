@@ -18,10 +18,20 @@
 
 #pragma once
 
+#include "RiaQDateTimeTools.h"
+
 #include <QDialog>
 #include <QPlainTextEdit>
 
+#include <functional>
 
+class QTabWidget;
+class RimSummaryPlot;
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 class RiuQPlainTextEdit : public QPlainTextEdit
 {
     Q_OBJECT
@@ -29,12 +39,12 @@ public:
     explicit RiuQPlainTextEdit(QWidget *parent = nullptr) : QPlainTextEdit(parent) {}
 
 protected:
-    virtual void keyPressEvent(QKeyEvent *e) override;
+    void keyPressEvent(QKeyEvent *e) override;
 
 private slots:
     void slotCopyContentToClipboard();
     void slotSelectAll();
-
+    void slotExportToFile();
 };
 
 
@@ -53,8 +63,37 @@ public:
 private:
     RiuQPlainTextEdit* m_textEdit;
 protected:
-    virtual void contextMenuEvent(QContextMenuEvent *) override;
+    void contextMenuEvent(QContextMenuEvent *) override;
 
 };
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+class RiuShowTabbedPlotDataDialog : public QDialog
+{
+    Q_OBJECT
+
+public:
+    explicit RiuShowTabbedPlotDataDialog(QWidget* parent = nullptr);
+
+    void setDescription(const QString& description);
+    QString description() const;
+    void setTextProvider(std::function<QString (DateTimePeriod)> textProvider);
+
+private:
+    RiuQPlainTextEdit * currentTextEdit() const;
+    DateTimePeriod      indexToPeriod(int index);
+    void                updateText();
+
+    QTabWidget* m_tabWidget;
+    QString     m_description;
+    std::function<QString(DateTimePeriod)> m_textProvider;
+
+private slots:
+    void slotTabChanged(int index);
+
+protected:
+    void contextMenuEvent(QContextMenuEvent *) override;
+};
 

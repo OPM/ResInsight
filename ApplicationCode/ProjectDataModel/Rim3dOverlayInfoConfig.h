@@ -30,6 +30,7 @@
 #include <cmath>
 #include <memory>
 
+class RimContourMapView;
 class RimEclipseView;
 class RimGeoMechView;
 class RimGridView;
@@ -57,13 +58,14 @@ class Rim3dOverlayInfoConfig : public caf::PdmObject
         double sum;
         double weightedMean;
         const std::vector<size_t>* histogram;
+        bool isValid(double parameter) { return parameter != HUGE_VAL && parameter != -HUGE_VAL; }
 
-        bool isValid() { return histogram && histogram->size() > 0 && min != HUGE_VAL && max != HUGE_VAL; }
+        bool isValid() { return histogram && histogram->size() > 0 && isValid(min) && isValid(max); }
     };
 
 public:
     Rim3dOverlayInfoConfig();
-    virtual ~Rim3dOverlayInfoConfig();
+    ~Rim3dOverlayInfoConfig() override;
 
     void update3DInfo();
 
@@ -83,6 +85,7 @@ public:
     bool          showCaseInfo() const;
     bool          showResultInfo() const;
     bool          isActive() const;
+    void          setIsActive(bool active);
 
     enum StatisticsTimeRangeType
     {
@@ -97,10 +100,10 @@ public:
     };
 
 protected:
-    virtual void                                fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
-    virtual caf::PdmFieldHandle*                objectToggleField();
+    void                                fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    caf::PdmFieldHandle*                objectToggleField() override;
 
-    virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
 
 private:
     void updateEclipse3DInfo(RimEclipseView * reservoirView);
@@ -110,6 +113,7 @@ private:
 
     QString                                     timeStepText(RimEclipseView* eclipseView);
     QString                                     timeStepText(RimGeoMechView* geoMechView);
+    HistogramData                               histogramData(RimContourMapView* contourMap);
     HistogramData                               histogramData(RimEclipseView* eclipseView);
     HistogramData                               histogramData(RimGeoMechView* geoMechView);
     QString                                     caseInfoText(RimEclipseView* eclipseView);

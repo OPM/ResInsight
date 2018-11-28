@@ -1,37 +1,37 @@
 #include "gtest/gtest.h"
 
-#include "RigTimeHistoryCurveMerger.h"
+#include "RiaTimeHistoryCurveMerger.h"
 
 #include <cmath> // Needed for HUGE_VAL on Linux
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-TEST(RigTimeHistoryCurveMergerTest, TestDateInterpolation)
+TEST(RiaTimeHistoryCurveMergerTest, TestDateInterpolation)
 {
     std::vector<double>    values{  2.0, 3.5, 5.0, 6.0};
     std::vector<time_t> timeSteps{    1,   5,  10,  15};
 
     {
-        double val = RigTimeHistoryCurveMerger::interpolationValue(1, values, timeSteps);
+        double val = RiaTimeHistoryCurveMerger::interpolationValue(1, values, timeSteps);
 
         EXPECT_EQ(2.0, val);
     }
 
     {
-        double val = RigTimeHistoryCurveMerger::interpolationValue(0, values, timeSteps);
+        double val = RiaTimeHistoryCurveMerger::interpolationValue(0, values, timeSteps);
 
         EXPECT_EQ(HUGE_VAL, val);
     }
 
     {
-        double val = RigTimeHistoryCurveMerger::interpolationValue(20, values, timeSteps);
+        double val = RiaTimeHistoryCurveMerger::interpolationValue(20, values, timeSteps);
 
         EXPECT_EQ(HUGE_VAL, val);
     }
 
     {
-        double val = RigTimeHistoryCurveMerger::interpolationValue(3, values, timeSteps);
+        double val = RiaTimeHistoryCurveMerger::interpolationValue(3, values, timeSteps);
 
         EXPECT_EQ(2.75, val);
     }
@@ -40,7 +40,7 @@ TEST(RigTimeHistoryCurveMergerTest, TestDateInterpolation)
 //-------------------------------------------------------------------------------------------------- 
 ///  
 //-------------------------------------------------------------------------------------------------- 
-TEST(RigTimeHistoryCurveMergerTest, ExtractIntervalsWithSameTimeSteps) 
+TEST(RiaTimeHistoryCurveMergerTest, ExtractIntervalsWithSameTimeSteps) 
 { 
     std::vector<double> valuesA { HUGE_VAL, 1.0, HUGE_VAL, 2.0, 2.5,      3.0,      4.0, 5.0, 6.0, HUGE_VAL }; 
     std::vector<double> valuesB {       10,  20,       30,  40,  45, HUGE_VAL, HUGE_VAL, 5.0, 6.0, HUGE_VAL }; 
@@ -53,7 +53,7 @@ TEST(RigTimeHistoryCurveMergerTest, ExtractIntervalsWithSameTimeSteps)
         timeSteps.push_back(i);
     }
 
-    RigTimeHistoryCurveMerger interpolate;
+    RiaTimeHistoryCurveMerger interpolate;
     interpolate.addCurveData(valuesA, timeSteps);
     interpolate.addCurveData(valuesB, timeSteps);
     interpolate.computeInterpolatedValues();
@@ -68,7 +68,7 @@ TEST(RigTimeHistoryCurveMergerTest, ExtractIntervalsWithSameTimeSteps)
 //-------------------------------------------------------------------------------------------------- 
 ///  
 //-------------------------------------------------------------------------------------------------- 
-TEST(RigTimeHistoryCurveMergerTest, ExtractIntervalsWithSameTimeStepsOneComplete) 
+TEST(RiaTimeHistoryCurveMergerTest, ExtractIntervalsWithSameTimeStepsOneComplete) 
 { 
     std::vector<double> valuesA { 1.0, 2.0, 3.0,      4.0, 5.0,     6.0, 7.0 }; 
     std::vector<double> valuesB {  10,  20,  30, HUGE_VAL,  50, HUGE_VAL, 70 }; 
@@ -81,7 +81,7 @@ TEST(RigTimeHistoryCurveMergerTest, ExtractIntervalsWithSameTimeStepsOneComplete
         timeSteps.push_back(i);
     }
 
-    RigTimeHistoryCurveMerger interpolate;
+    RiaTimeHistoryCurveMerger interpolate;
     interpolate.addCurveData(valuesA, timeSteps);
     interpolate.addCurveData(valuesB, timeSteps);
     interpolate.computeInterpolatedValues();
@@ -96,7 +96,7 @@ TEST(RigTimeHistoryCurveMergerTest, ExtractIntervalsWithSameTimeStepsOneComplete
 //-------------------------------------------------------------------------------------------------- 
 ///  
 //-------------------------------------------------------------------------------------------------- 
-TEST(RigTimeHistoryCurveMergerTest, ExtractIntervalsWithSameTimeStepsBothComplete)
+TEST(RiaTimeHistoryCurveMergerTest, ExtractIntervalsWithSameTimeStepsBothComplete)
 {
     std::vector<double> valuesA{ 1.0, 2.0, 3.0,      4.0, 5.0,     6.0, 7.0 };
     std::vector<double> valuesB{ 10,  20,  30,        40,  50,      60,  70 };
@@ -109,7 +109,7 @@ TEST(RigTimeHistoryCurveMergerTest, ExtractIntervalsWithSameTimeStepsBothComplet
         timeSteps.push_back(i);
     }
 
-    RigTimeHistoryCurveMerger interpolate;
+    RiaTimeHistoryCurveMerger interpolate;
     interpolate.addCurveData(valuesA, timeSteps);
     interpolate.addCurveData(valuesB, timeSteps);
     interpolate.computeInterpolatedValues();
@@ -124,7 +124,7 @@ TEST(RigTimeHistoryCurveMergerTest, ExtractIntervalsWithSameTimeStepsBothComplet
 //-------------------------------------------------------------------------------------------------- 
 ///  
 //-------------------------------------------------------------------------------------------------- 
-TEST(RigTimeHistoryCurveMergerTest, OverlappintTimes)
+TEST(RiaTimeHistoryCurveMergerTest, OverlappintTimes)
 {
     std::vector<double> valuesA{  1,  2,  3,  4,  5 };
     std::vector<double> valuesB{ 10, 20, 30, 40, 50 };
@@ -134,7 +134,7 @@ TEST(RigTimeHistoryCurveMergerTest, OverlappintTimes)
     std::vector<time_t> timeStepsA{ 0, 10, 11, 15, 20 };
     std::vector<time_t> timeStepsB{ 1, 2, 3, 5, 7 };
 
-    RigTimeHistoryCurveMerger interpolate;
+    RiaTimeHistoryCurveMerger interpolate;
     interpolate.addCurveData(valuesA, timeStepsA);
     interpolate.addCurveData(valuesB, timeStepsB);
     interpolate.computeInterpolatedValues();
@@ -149,10 +149,10 @@ TEST(RigTimeHistoryCurveMergerTest, OverlappintTimes)
 //-------------------------------------------------------------------------------------------------- 
 ///  
 //-------------------------------------------------------------------------------------------------- 
-TEST(RigTimeHistoryCurveMergerTest, RobustUse)
+TEST(RiaTimeHistoryCurveMergerTest, RobustUse)
 {
     {
-        RigTimeHistoryCurveMerger curveMerger;
+        RiaTimeHistoryCurveMerger curveMerger;
         curveMerger.computeInterpolatedValues();
         EXPECT_EQ(0, static_cast<int>(curveMerger.allTimeSteps().size()));
     }
@@ -164,7 +164,7 @@ TEST(RigTimeHistoryCurveMergerTest, RobustUse)
     std::vector<time_t> timeStepsB{ 1, 2, 3 };
 
     {
-        RigTimeHistoryCurveMerger curveMerger;
+        RiaTimeHistoryCurveMerger curveMerger;
         curveMerger.addCurveData(valuesA, timeStepsA);
         curveMerger.computeInterpolatedValues();
         EXPECT_EQ(timeStepsA.size(), curveMerger.allTimeSteps().size());
@@ -172,7 +172,7 @@ TEST(RigTimeHistoryCurveMergerTest, RobustUse)
     }
 
     {
-        RigTimeHistoryCurveMerger curveMerger;
+        RiaTimeHistoryCurveMerger curveMerger;
         curveMerger.addCurveData(valuesA, timeStepsA);
         curveMerger.addCurveData(valuesB, timeStepsB);
 
@@ -188,7 +188,7 @@ TEST(RigTimeHistoryCurveMergerTest, RobustUse)
 //-------------------------------------------------------------------------------------------------- 
 ///  
 //-------------------------------------------------------------------------------------------------- 
-TEST(RigTimeHistoryCurveMergerTest, NoTimeStepOverlap)
+TEST(RiaTimeHistoryCurveMergerTest, NoTimeStepOverlap)
 {
     std::vector<double> valuesA{ 1,  2,  3,  4,  5 };
     std::vector<double> valuesB{ 10, 20, 30 };
@@ -197,7 +197,7 @@ TEST(RigTimeHistoryCurveMergerTest, NoTimeStepOverlap)
     std::vector<time_t> timeStepsB{ 100, 200, 300 };
 
     {
-        RigTimeHistoryCurveMerger curveMerger;
+        RiaTimeHistoryCurveMerger curveMerger;
         curveMerger.addCurveData(valuesA, timeStepsA);
         curveMerger.addCurveData(valuesB, timeStepsB);
 

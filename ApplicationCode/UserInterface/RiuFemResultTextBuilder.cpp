@@ -56,16 +56,16 @@ RiuFemResultTextBuilder::RiuFemResultTextBuilder(RimGeoMechView* reservoirView,
     m_cellIndex = cellIndex;
     m_timeStepIndex = timeStepIndex;
 
-    m_intersectionPoint = cvf::Vec3d::UNDEFINED;
+    m_intersectionPointInDisplay = cvf::Vec3d::UNDEFINED;
     m_face = cvf::StructGridInterface::NO_FACE;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuFemResultTextBuilder::setIntersectionPoint(cvf::Vec3d intersectionPoint)
+void RiuFemResultTextBuilder::setIntersectionPointInDisplay(cvf::Vec3d intersectionPointInDisplay)
 {
-    m_intersectionPoint = intersectionPoint;
+    m_intersectionPointInDisplay = intersectionPointInDisplay;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -141,7 +141,7 @@ QString RiuFemResultTextBuilder::geometrySelectionText(QString itemSeparator)
             size_t i = 0;
             size_t j = 0;
             size_t k = 0;
-            if (geomData->femParts()->part(m_gridIndex)->structGrid()->ijkFromCellIndex(m_cellIndex, &i, &j, &k))
+            if (geomData->femParts()->part(m_gridIndex)->getOrCreateStructGrid()->ijkFromCellIndex(m_cellIndex, &i, &j, &k))
             {
                 // Adjust to 1-based Eclipse indexing
                 i++;
@@ -153,13 +153,13 @@ QString RiuFemResultTextBuilder::geometrySelectionText(QString itemSeparator)
                 QString formattedText;
                 if (m_2dIntersectionView)
                 {
-                    formattedText.sprintf("Horizontal length from well start: %.2f", m_intersectionPoint.x());
+                    formattedText.sprintf("Horizontal length from well start: %.2f", m_intersectionPointInDisplay.x());
                     text += formattedText + itemSeparator;
 
-                    cvf::Mat4d t = m_2dIntersectionView->flatIntersectionPartMgr()->unflattenTransformMatrix(m_intersectionPoint);
+                    cvf::Mat4d t = m_2dIntersectionView->flatIntersectionPartMgr()->unflattenTransformMatrix(m_intersectionPointInDisplay);
                     if (!t.isZero())
                     {
-                        cvf::Vec3d intPt = m_intersectionPoint.getTransformedPoint(t);
+                        cvf::Vec3d intPt = m_intersectionPointInDisplay.getTransformedPoint(t);
                         formattedText.sprintf("Intersection point : [E: %.2f, N: %.2f, Depth: %.2f]", intPt.x(), intPt.y(), -intPt.z());
                         text += formattedText;
                     }
@@ -167,7 +167,7 @@ QString RiuFemResultTextBuilder::geometrySelectionText(QString itemSeparator)
                 else
                 {
                     cvf::ref<caf::DisplayCoordTransform> transForm = m_reservoirView->displayCoordTransform();
-                    cvf::Vec3d domainCoord = transForm->translateToDomainCoord(m_intersectionPoint);
+                    cvf::Vec3d domainCoord = transForm->translateToDomainCoord(m_intersectionPointInDisplay);
 
                     formattedText.sprintf("Intersection point : [E: %.2f, N: %.2f, Depth: %.2f]", domainCoord.x(), domainCoord.y(), -domainCoord.z());
                     text += formattedText;
@@ -224,7 +224,7 @@ QString RiuFemResultTextBuilder::formationDetails()
                     {
                         size_t i = 0;
                         size_t j = 0;
-                        geomData->femParts()->part(m_gridIndex)->structGrid()->ijkFromCellIndex(m_cellIndex, &i, &j, &k);
+                        geomData->femParts()->part(m_gridIndex)->getOrCreateStructGrid()->ijkFromCellIndex(m_cellIndex, &i, &j, &k);
                     }
                 }
             }
@@ -386,11 +386,12 @@ QString RiuFemResultTextBuilder::closestNodeResultText(RimGeoMechResultDefinitio
             RigFemPart* femPart = geomData->femParts()->part(m_gridIndex);
             RigFemResultPosEnum activeResultPosition = resultColors->resultPositionType();
 
+            cvf::Vec3d intersectionPointInDomain = m_reservoirView->displayCoordTransform()->translateToDomainCoord(m_intersectionPointInDisplay);
             RigFemClosestResultIndexCalculator closestIndexCalc(femPart, 
                                                              activeResultPosition, 
                                                              m_cellIndex, 
                                                              m_face, 
-                                                             m_intersectionPoint);
+                                                             intersectionPointInDomain);
             int resultIndex = closestIndexCalc.resultIndexToClosestResult();
             int closestNodeId = closestIndexCalc.closestNodeId();
             int closestElmNodResIdx = closestIndexCalc.closestElementNodeResIdx();

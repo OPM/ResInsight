@@ -23,13 +23,14 @@
 #include "cvfLibViewing.h"
 #include "cvfLibRender.h"
 #include "cvfLibGeometry.h"
-#include "cafFixedArray.h"
 
 #include "cvfArrayWrapperToEdit.h"
 #include "cvfArrayWrapperConst.h"
 
 #include "cvfGeometryTools.h"
 #include "cvfBoundingBoxTree.h"
+
+#include <array>
 
 using namespace cvf;
 
@@ -122,22 +123,15 @@ std::vector<cvf::Vec3d> createVertices()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<caf::UintArray4> getCubeFaces()
+std::vector<std::array<cvf::uint, 4>> getCubeFaces()
 {
-    std::vector<caf::UintArray4 > cubeFaces;
-
-    cvf::uint faces[4*4] = { 
-        0, 1, 2, 3,
-        4, 5, 6, 7, 
-        5, 8, 9, 6, 
-        10, 11, 12, 13
-    };
+    std::vector<std::array<cvf::uint, 4>> cubeFaces;
 
     cubeFaces.resize(4);
-    cubeFaces[0] = &faces[0];
-    cubeFaces[1] = &faces[4];
-    cubeFaces[2] = &faces[8];
-    cubeFaces[3] = &faces[12];
+    cubeFaces[0] = { 0, 1, 2, 3 };
+    cubeFaces[1] = { 4, 5, 6, 7 };
+    cubeFaces[2] = { 5, 8, 9, 6 };
+    cubeFaces[3] = { 10, 11, 12, 13 };
 
     return cubeFaces;
 }
@@ -161,7 +155,7 @@ TEST(CellFaceIntersectionTst, Intersection1)
     std::vector<cvf::Vec3d> additionalVertices;
 
     std::vector< std::vector<cvf::uint> > overlapPolygons;
-    std::vector<caf::UintArray4> faces = getCubeFaces();
+    auto faces = getCubeFaces();
 
     EdgeIntersectStorage<cvf::uint> edgeIntersectionStorage;
     edgeIntersectionStorage.setVertexCount(nodes.size());

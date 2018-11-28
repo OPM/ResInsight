@@ -141,7 +141,12 @@ class EclSumTest(EclTest):
 
     def test_labscale(self):
         case = self.createTestPath("Statoil/ECLIPSE/LabScale/HDMODEL")
-        sum = EclSum(case)
+        sum = EclSum(case, lazy_load=True)
         self.assertEqual(sum.getStartTime(), datetime.datetime(2013,1,1,0,0,0))
         self.assertEqual(sum.getEndTime()  , datetime.datetime(2013,1,1,19,30,0))
-        self.assertFloatEqual(sum.getSimulationLength(), 0.8125)
+        self.assertFloatEqual(sum.getSimulationLength(), 19.50)
+
+        sum = EclSum(case, lazy_load=False)
+        self.assertEqual(sum.getStartTime(), datetime.datetime(2013,1,1,0,0,0))
+        self.assertEqual(sum.getEndTime()  , datetime.datetime(2013,1,1,19,30,0))
+        self.assertFloatEqual(sum.getSimulationLength(), 19.50)

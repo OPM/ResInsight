@@ -35,6 +35,6 @@ class RicDuplicateSummaryCrossPlotCurveFeature : public RicDuplicateSummaryCurve
 
 protected:
     // Overrides
-    virtual bool isCommandEnabled();
-    virtual void setupActionLook( QAction* actionToSetup );
+    bool isCommandEnabled() override;
+    void setupActionLook( QAction* actionToSetup ) override;
 };

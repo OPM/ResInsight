@@ -31,6 +31,7 @@
 #include "RimEclipseStatisticsCaseEvaluator.h"
 #include "RimEclipseView.h"
 #include "RimIdenticalGridCaseGroup.h"
+#include "RimIntersectionCollection.h"
 #include "RimReservoirCellResultsStorage.h"
 #include "RimSimWellInViewCollection.h"
 
@@ -39,7 +40,6 @@
 #include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiTextEditor.h"
 #include "cafProgressInfo.h"
-#include "RimIntersectionCollection.h"
 
 namespace caf {
     template<>
@@ -68,8 +68,7 @@ RimEclipseStatisticsCase::RimEclipseStatisticsCase()
     m_calculateEditCommand = false;
 
     CAF_PDM_InitField(&m_selectionSummary, "SelectionSummary", QString(""), "Summary of Calculation Setup", "", "", "");
-    m_selectionSummary.xmlCapability()->setIOWritable(false);
-    m_selectionSummary.xmlCapability()->setIOReadable(false);
+    m_selectionSummary.xmlCapability()->disableIO();
     m_selectionSummary.uiCapability()->setUiReadOnly(true);
     m_selectionSummary.uiCapability()->setUiEditorTypeName(caf::PdmUiTextEditor::uiEditorTypeName());
     m_selectionSummary.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
@@ -113,8 +112,8 @@ RimEclipseStatisticsCase::RimEclipseStatisticsCase()
     m_populateSelectionAfterLoadingGrid = false;
 
     // These does not work properly for statistics case, so hide for now
-    flipXAxis.uiCapability()->setUiHidden(true);
-    flipYAxis.uiCapability()->setUiHidden(true);
+    m_flipXAxis.uiCapability()->setUiHidden(true);
+    m_flipYAxis.uiCapability()->setUiHidden(true);
     activeFormationNames.uiCapability()->setUiHidden(true);
 }
 
@@ -183,7 +182,7 @@ void RimEclipseStatisticsCase::reloadEclipseGridFile()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimCaseCollection* RimEclipseStatisticsCase::parentStatisticsCaseCollection()
+RimCaseCollection* RimEclipseStatisticsCase::parentStatisticsCaseCollection() const
 {
     return dynamic_cast<RimCaseCollection*>(this->parentField()->ownerObject());
 }
@@ -210,9 +209,7 @@ void RimEclipseStatisticsCase::computeStatistics()
     CVF_ASSERT(gridCaseGroup);
     gridCaseGroup->computeUnionOfActiveCells();
 
-    std::vector<RimEclipseCase*> sourceCases;
-
-    getSourceCases(sourceCases);
+    std::vector<RimEclipseCase*> sourceCases = getSourceCases();
 
     if (sourceCases.size() == 0
         || !sourceCases.at(0)->results(RiaDefines::MATRIX_MODEL))
@@ -308,8 +305,10 @@ void RimEclipseStatisticsCase::scheduleACTIVEGeometryRegenOnReservoirViews()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimEclipseStatisticsCase::getSourceCases(std::vector<RimEclipseCase*>& sourceCases)
+std::vector<RimEclipseCase*> RimEclipseStatisticsCase::getSourceCases() const
 {
+    std::vector<RimEclipseCase*> sourceCases;
+
     RimIdenticalGridCaseGroup* gridCaseGroup = caseGroup();
     if (gridCaseGroup)
     {
@@ -323,12 +322,14 @@ void RimEclipseStatisticsCase::getSourceCases(std::vector<RimEclipseCase*>& sour
             sourceCases.push_back(sourceCase);
         }
     }
+
+    return sourceCases;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimIdenticalGridCaseGroup* RimEclipseStatisticsCase::caseGroup()
+RimIdenticalGridCaseGroup* RimEclipseStatisticsCase::caseGroup() const
 {
     RimCaseCollection* parentCollection = parentStatisticsCaseCollection();
     if (parentCollection)
@@ -383,8 +384,8 @@ void RimEclipseStatisticsCase::defineUiOrdering(QString uiConfigName, caf::PdmUi
     group = uiOrdering.addNewGroup("Case Options");
     group->add(&m_wellDataSourceCase);
     group->add(&activeFormationNames);
-    group->add(&flipXAxis);
-    group->add(&flipYAxis);
+    group->add(&m_flipXAxis);
+    group->add(&m_flipYAxis);
 }
 
 QList<caf::PdmOptionItemInfo> toOptionList(const QStringList& varList)
@@ -722,6 +723,8 @@ void RimEclipseStatisticsCase::clearComputedStatistics()
 //--------------------------------------------------------------------------------------------------
 void RimEclipseStatisticsCase::computeStatisticsAndUpdateViews()
 {
+    if (getSourceCases().empty()) return;
+
     computeStatistics();
     scheduleACTIVEGeometryRegenOnReservoirViews();
     updateConnectedEditorsAndReservoirViews();

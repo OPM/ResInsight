@@ -112,9 +112,9 @@ void RimEclipseStatisticsCaseEvaluator::evaluateForResults(const QList<ResSpec>&
 
         if (activeCellCount > 0)
         {
-            for (size_t i = 0; i < statisticalResultNames.size(); ++i)
+            for (size_t j = 0; j < statisticalResultNames.size(); ++j)
             {
-                addNamedResult(destCellResultsData, resultType, statisticalResultNames[i], activeCellCount);
+                addNamedResult(destCellResultsData, resultType, statisticalResultNames[j], activeCellCount);
             }
         }
     }

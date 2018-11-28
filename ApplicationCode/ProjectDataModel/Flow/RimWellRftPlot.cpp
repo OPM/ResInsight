@@ -141,25 +141,25 @@ void RimWellRftPlot::applyCurveAppearance(RimWellLogCurve* newCurve)
     std::vector<cvf::Color3f> colorTable;
     RiaColorTables::summaryCurveDefaultPaletteColors().color3fArray().toStdVector(&colorTable);
 
-    std::vector<RimPlotCurve::PointSymbolEnum> symbolTable = {RimPlotCurve::SYMBOL_ELLIPSE,
-                                                              RimPlotCurve::SYMBOL_RECT,
-                                                              RimPlotCurve::SYMBOL_DIAMOND,
-                                                              RimPlotCurve::SYMBOL_TRIANGLE,
-                                                              RimPlotCurve::SYMBOL_CROSS,
-                                                              RimPlotCurve::SYMBOL_XCROSS};
+    std::vector<RiuQwtSymbol::PointSymbolEnum> symbolTable = {RiuQwtSymbol::SYMBOL_ELLIPSE,
+                                                              RiuQwtSymbol::SYMBOL_RECT,
+                                                              RiuQwtSymbol::SYMBOL_DIAMOND,
+                                                              RiuQwtSymbol::SYMBOL_TRIANGLE,
+                                                              RiuQwtSymbol::SYMBOL_CROSS,
+                                                              RiuQwtSymbol::SYMBOL_XCROSS};
 
     // State variables
     static size_t defaultColorTableIndex  = 0;
     static size_t defaultSymbolTableIndex = 0;
 
     cvf::Color3f                  currentColor;
-    RimPlotCurve::PointSymbolEnum currentSymbol      = symbolTable.front();
-    RimPlotCurve::LineStyleEnum   currentLineStyle   = RimPlotCurve::STYLE_SOLID;
+    RiuQwtSymbol::PointSymbolEnum currentSymbol      = symbolTable.front();
+    RiuQwtPlotCurve::LineStyleEnum   currentLineStyle   = RiuQwtPlotCurve::STYLE_SOLID;
     bool                          isCurrentColorSet  = false;
     bool                          isCurrentSymbolSet = false;
 
     std::set<cvf::Color3f>                  assignedColors;
-    std::set<RimPlotCurve::PointSymbolEnum> assignedSymbols;
+    std::set<RiuQwtSymbol::PointSymbolEnum> assignedSymbols;
 
     // Used colors and symbols
     for (RimWellLogCurve* const curve : m_wellLogPlot->trackByIndex(0)->curvesVector())
@@ -220,8 +220,8 @@ void RimWellRftPlot::applyCurveAppearance(RimWellLogCurve* newCurve)
     }
 
     // Observed data
-    currentLineStyle = newCurveDef.address().sourceType() == RifDataSourceForRftPlt::OBSERVED ? RimPlotCurve::STYLE_NONE
-                                                                                              : RimPlotCurve::STYLE_SOLID;
+    currentLineStyle = newCurveDef.address().sourceType() == RifDataSourceForRftPlt::OBSERVED ? RiuQwtPlotCurve::STYLE_NONE
+                                                                                              : RiuQwtPlotCurve::STYLE_SOLID;
 
     newCurve->setColor(currentColor);
     newCurve->setSymbol(currentSymbol);
@@ -587,14 +587,6 @@ void RimWellRftPlot::setSimWellOrWellPathName(const QString& currWellName)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimWellRftPlot::simWellOrWellPathName() const
-{
-    return m_wellPathNameOrSimWellName;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 int RimWellRftPlot::branchIndex() const
 {
     return m_branchIndex;
@@ -781,11 +773,11 @@ void RimWellRftPlot::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
         caf::PdmUiGroup* legendAndAxisGroup = uiOrdering.addNewGroup("Legend and Axis");
         legendAndAxisGroup->setCollapsedByDefault(true);
 
-        m_wellLogPlot->uiOrderingForPlot(*legendAndAxisGroup);
+        m_wellLogPlot->uiOrderingForPlotSettings(*legendAndAxisGroup);
 
-        track->uiOrderingForVisibleXRange(*legendAndAxisGroup);
+        track->uiOrderingForXAxisSettings(*legendAndAxisGroup);
 
-        m_wellLogPlot->uiOrderingForVisibleDepthRange(*legendAndAxisGroup);
+        m_wellLogPlot->uiOrderingForDepthAxis(*legendAndAxisGroup);
     }
 
     uiOrdering.skipRemainingFields(true);

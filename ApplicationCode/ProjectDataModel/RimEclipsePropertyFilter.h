@@ -37,7 +37,7 @@ class RimEclipsePropertyFilter : public RimPropertyFilter
  
 public:
     RimEclipsePropertyFilter();
-    virtual ~RimEclipsePropertyFilter();
+    ~RimEclipsePropertyFilter() override;
 
     caf::PdmChildField<RimEclipseResultDefinition*> resultDefinition;
 
@@ -49,16 +49,16 @@ public:
     void                                    computeResultValueRange();
     void                                    updateFromCurrentTimeStep();
 
-    virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
-    virtual void                            initAfterRead() override;
+    void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    void                            initAfterRead() override;
 
     void                                    updateUiFieldsFromActiveResult();
 
 protected:
-    virtual void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
-    virtual void                            defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName);
+    void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    void                            defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName) override;
 
-    virtual void                            defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute);
+    void                            defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override;
 
 private:
     friend class RimEclipsePropertyFilterCollection;

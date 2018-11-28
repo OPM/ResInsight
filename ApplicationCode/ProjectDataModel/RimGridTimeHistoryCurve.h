@@ -48,7 +48,7 @@ public:
 
 public:
     RimGridTimeHistoryCurve();
-    virtual ~RimGridTimeHistoryCurve();
+    ~RimGridTimeHistoryCurve() override;
 
     void                    setFromSelectionItem(const RiuSelectionItem* selectionItem);
     RiaDefines::PlotAxis    yAxis() const;
@@ -62,14 +62,14 @@ public:
     QString                 caseName() const;
 
 protected:
-    virtual QString createCurveAutoName() override;
-    virtual void    updateZoomInParentPlot() override;
-    virtual void    onLoadDataAndUpdate(bool updateParentPlot) override;
+    QString createCurveAutoName() override;
+    void    updateZoomInParentPlot() override;
+    void    onLoadDataAndUpdate(bool updateParentPlot) override;
 
 
-    virtual void    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
-    virtual void    initAfterRead() override;
-    virtual void    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    void    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    void    initAfterRead() override;
+    void    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
 
 private:
     RigMainGrid*            mainGrid();

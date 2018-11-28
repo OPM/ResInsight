@@ -13,6 +13,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RicGeoMechPropertyFilterNewFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicGeoMechPropertyFilterNewInViewFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicGeoMechPropertyFilterNewExec.h
 ${CMAKE_CURRENT_LIST_DIR}/RicNewViewFeature.h
+${CMAKE_CURRENT_LIST_DIR}/RicNewContourMapViewFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicPropertyFilterNewExec.h
 ${CMAKE_CURRENT_LIST_DIR}/RicRangeFilterExecImpl.h
 ${CMAKE_CURRENT_LIST_DIR}/RicRangeFilterInsertExec.h
@@ -36,6 +37,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RicWellLogsImportFileFeature.h
 
 ${CMAKE_CURRENT_LIST_DIR}/RicTogglePerspectiveViewFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicImportGeoMechCaseFeature.h
+${CMAKE_CURRENT_LIST_DIR}/RicImportGeoMechCaseTimeStepFilterFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicImportSummaryCaseFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicImportSummaryCasesFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicImportObservedDataFeature.h
@@ -44,6 +46,8 @@ ${CMAKE_CURRENT_LIST_DIR}/RicExportFeatureImpl.h
 
 ${CMAKE_CURRENT_LIST_DIR}/RicSelectOrCreateViewFeatureImpl.h
 
+${CMAKE_CURRENT_LIST_DIR}/RicPickEventHandler.h
+${CMAKE_CURRENT_LIST_DIR}/RicContourMapPickEventHandler.h
 
 # General delete of any object in a child array field
 ${CMAKE_CURRENT_LIST_DIR}/RicDeleteItemExec.h
@@ -69,6 +73,9 @@ ${CMAKE_CURRENT_LIST_DIR}/RicSummaryCaseRestartDialog.h
 ${CMAKE_CURRENT_LIST_DIR}/RicImportEnsembleFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicImportSummaryGroupFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicConvertGroupToEnsembleFeature.h
+${CMAKE_CURRENT_LIST_DIR}/RicResampleDialog.h
+${CMAKE_CURRENT_LIST_DIR}/RicCreateTemporaryLgrFeature.h
+${CMAKE_CURRENT_LIST_DIR}/RicDeleteTemporaryLgrsFeature.h
 )
 
 
@@ -86,6 +93,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RicGeoMechPropertyFilterNewFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicGeoMechPropertyFilterNewInViewFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicGeoMechPropertyFilterNewExec.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicNewViewFeature.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicNewContourMapViewFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicRangeFilterExecImpl.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicRangeFilterInsertExec.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicRangeFilterInsertFeature.cpp
@@ -106,6 +114,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RicSelectColorResult.cpp
 
 ${CMAKE_CURRENT_LIST_DIR}/RicTogglePerspectiveViewFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicImportGeoMechCaseFeature.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicImportGeoMechCaseTimeStepFilterFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicImportSummaryCaseFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicImportSummaryCasesFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicImportObservedDataFeature.cpp
@@ -113,6 +122,8 @@ ${CMAKE_CURRENT_LIST_DIR}/RicImportObservedDataInMenuFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicExportFeatureImpl.cpp
 
 ${CMAKE_CURRENT_LIST_DIR}/RicSelectOrCreateViewFeatureImpl.cpp
+
+${CMAKE_CURRENT_LIST_DIR}/RicContourMapPickEventHandler.cpp
 
 # General delete of any object in a child array field
 ${CMAKE_CURRENT_LIST_DIR}/RicDeleteItemExec.cpp
@@ -136,6 +147,9 @@ ${CMAKE_CURRENT_LIST_DIR}/RicSummaryCaseRestartDialog.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicImportEnsembleFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicImportSummaryGroupFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicConvertGroupToEnsembleFeature.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicResampleDialog.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicCreateTemporaryLgrFeature.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicDeleteTemporaryLgrsFeature.cpp
 )
 
 
@@ -151,6 +165,7 @@ list(APPEND QT_MOC_HEADERS
 ${CMAKE_CURRENT_LIST_DIR}/RicGridStatisticsDialog.h
 ${CMAKE_CURRENT_LIST_DIR}/RicFileHierarchyDialog.h
 ${CMAKE_CURRENT_LIST_DIR}/RicSummaryCaseRestartDialog.h
+${CMAKE_CURRENT_LIST_DIR}/RicResampleDialog.h
 )
 
 source_group( "CommandFeature" FILES ${SOURCE_GROUP_HEADER_FILES} ${SOURCE_GROUP_SOURCE_FILES} ${CMAKE_CURRENT_LIST_DIR}/CMakeLists_files.cmake )

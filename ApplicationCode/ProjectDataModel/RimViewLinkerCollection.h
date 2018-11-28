@@ -36,14 +36,14 @@ class RimViewLinkerCollection : public caf::PdmObject
 
 public:
     RimViewLinkerCollection(void);
-    virtual ~RimViewLinkerCollection(void);
+    ~RimViewLinkerCollection(void) override;
 
     caf::PdmField<bool>                 isActive;
     caf::PdmChildField<RimViewLinker*>  viewLinker;
 
 protected:
-    virtual caf::PdmFieldHandle*    objectToggleField()     { return &isActive; }
-    virtual void                    defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "");
-    virtual void                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
-    virtual void                    initAfterRead();
+    caf::PdmFieldHandle*    objectToggleField() override     { return &isActive; }
+    void                    defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
+    void                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    void                    initAfterRead() override;
 };

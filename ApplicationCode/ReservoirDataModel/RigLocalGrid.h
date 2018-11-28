@@ -23,17 +23,24 @@ class RigLocalGrid : public RigGridBase
 {
 public:
     explicit RigLocalGrid(RigMainGrid* mainGrid);
-    virtual ~RigLocalGrid();
+    ~RigLocalGrid() override;
 
-    RigGridBase *   parentGrid() const { return m_parentGrid; }
-    void            setParentGrid(RigGridBase * parentGrid) { m_parentGrid = parentGrid; }
+    RigGridBase *   parentGrid() const;
+    void            setParentGrid(RigGridBase * parentGrid);
 
-    size_t          positionInParentGrid() const { return m_positionInParentGrid; }
-    void            setPositionInParentGrid(size_t positionInParentGrid) { m_positionInParentGrid = positionInParentGrid; }
+    size_t          positionInParentGrid() const;
+    void            setPositionInParentGrid(size_t positionInParentGrid);
+
+    void            setAsTempGrid(bool isTemp);
+    bool            isTempGrid() const override;
+
+    void            setAssociatedWellPathName(const std::string& wellPathName);
+    const std::string& associatedWellPathName() const override;
 
 private:
     RigGridBase *   m_parentGrid;
     size_t          m_positionInParentGrid;
-
+    bool            m_isTempGrid;
+    std::string     m_associatedWellPathName;
 };
 

@@ -19,11 +19,17 @@
 #include <string.h>
 #include <math.h>
 
-#include <ert/util/util.hpp>
+#include <algorithm>
+#include <vector>
+#include <stdexcept>
+#include <string>
+
+#include <ert/util/util.h>
 #include <ert/util/vector.hpp>
 #include <ert/util/time_t_vector.hpp>
 #include <ert/util/int_vector.hpp>
 #include <ert/util/stringlist.hpp>
+#include <ert/util/test_util.hpp>
 
 #include <ert/ecl/ecl_util.hpp>
 #include <ert/ecl/ecl_smspec.hpp>
@@ -36,238 +42,240 @@
 #include <ert/ecl/ecl_kw_magic.hpp>
 #include <ert/ecl/ecl_sum_vector.hpp>
 
-
+#include "detail/ecl/ecl_sum_file_data.hpp"
 
 /*
-  This file implements the type ecl_sum_data_type. The data structure
-  is involved with holding all the actual summary data (i.e. the
-  PARAMS vectors in ECLIPSE speak), in addition the time-information
-  with MINISTEPS / REPORT_STEPS and so on is implemented here.
+  This file implements the sruct ecl_sum_data which manages the actual simulated
+  values from a summary file, including all time-related information. In the
+  case of restarted simulations the different summary cases will be internalized
+  as separate ecl_sum_file_data instances. The ecl_sum_file_data class is an
+  internal implemenation detail which is not exported. More details about the
+  internal storage of summary data can be found in that file.
 
-  This file has no information about how to index into the PARAMS
-  vector, i.e. at which location can the WWCT for well P6 be found,
-  that is responsability of the ecl_smspec_type.
-
-  The time direction in this system is implemented in terms of
-  ministeps. There are some query / convert functons based on report
-  steps.
+  For this file the implementation mainly consists of maintaining an ordered
+  list of ecl_sum_file_data instances and dispatching method calls to the right
+  ecl_sum_file_data instance.
 */
 
+namespace {
 
-/*****************************************************************/
 /*
-   About ministeps and report steps.
-   ---------------------------------
-
-   A sequence of summary data will typically look like this:
-
-   ------------------
-   SEQHDR            \
-   MINISTEP  0        |
-   PARAMS    .....    |
-   MINISTEP  1        |==> This is REPORT STEP 1, in file BASE.S00001
-   PARAMS    .....    |
-   MINISTEP  2        |
-   PARAMS    .....   /
-   ------------------
-   SEQHDR            \
-   MINISTEP  3        |
-   PARAMS    .....    |
-   MINISTEP  4        |
-   PARAMS    .....    |
-   MINISTEP  5        |==> This is REPORT STEP 2, in file BASE.S0002
-   PARAMS    .....    |
-   MINISTEP  6        |
-   PARAMS    .....    |
-   SEQHDR             |
-   MINISTEP  7        |
-   PARAMS    .....   /
-   ------------------
-
-
-   Observe the following:
-
-     * The MINISTEP counter runs continously, and does not
-       differentiate between unified files and not unified files.
-
-     * When using multiple files we can read off the report number
-       from the filename, for unified files this is IMPOSSIBLE, and we
-       just have to assume that the first block corresponds to
-       report_step 1 and then count afterwards.
-
-     * When asking for a summary variable at a particular REPORT STEP
-       (as we do in enkf) it is ambigous as to which ministep within
-       the block one should use. The convention we have employed
-       (which corresponds to the old RPTONLY based behaviour) is to
-       use the last ministep in the block.
-
-     * There is no BASE.SOOOO file
-
-     * The report steps are halfopen intervals in the "wrong way":
-       (....]
-
-
-
-
-   About MINISTEP, REPORTSTEP, rates and continous sim_time/sim_days:
-   ------------------------------------------------------------------
-
-   For ECLIPSE summary files the smallest unit of time resolution is
-   called the ministep - a ministep corresponds to a time step in the
-   underlying partial differential equation, i.e. the length of the
-   timesteps is controlled by the simulator itself - there is no finer
-   temporal resolution.
-
-   The user has told the simulator to store (i.e. save to file
-   results) the results at reportsteps. A reportstep will typically
-   consist of several ministeps. The timeline below shows a simulation
-   consisting of two reportsteps:
-
-
-                                                 S0001                                          S0002
-   ||------|------|------------|------------------||----------------------|----------------------||
-          M1     M2           M3                 M4                      M5                     M6
-
-   The first reportstep consist of four ministeps, the second
-   reportstep consits of only two ministeps. As a user you have no
-   control over the length/number of ministeps apart from:
-
-      1. Indirectly through the TUNING keywords.
-      2. A ministep will always end at a report step.
-
-
-   RPTONLY: In conjunction with enkf it has been customary to use the
-   keyword RPTONLY. This is purely a storage directive, the effect is
-   that only the ministep ending at the REPORT step is reported,
-   i.e. in the case above we would get the ministeps [M4 , M6], where
-   the ministeps M4 and M6 will be unchanged, and there will be many
-   'holes' in the timeline.
-
-   About truetime: The ministeps have a finite length; this implies
-   that
-
-     [rates]: The ministep value is NOT actually an instantaneous
-        value, it is the total production during the ministepd period
-        - divided by the length of the ministep. I.e. it is an average
-        value. (I.e. the differential time element dt is actually quite
-        looong).
-
-     [state]: For state variables (this will include total production
-        of various phases), the ministep value corresponds to the
-        reservoir state at THE END OF THE MINISTEP.
-
-   This difference between state variables and rates implies a
-   difference in how continous time-variables (in the middle of a
-   ministep) are reported, i.e.
-
-
-   S0000                                                      S0001
-   ||--------------|---------------|------------X-------------||
-                  M1              M2           /|\            M3
-                                                |
-                                                |
-
-   We have enteeed the sim_days/sim_time cooresponding to the location
-   of 'X' on the timeline, i.e. in the middle of ministep M3. If we
-   are interested in the rate at this time the function:
-
-        ecl_sum_data_get_from_sim_time()
-
-   will just return the M3 value, whereas if you are interested in
-   e.g. pressure at this time the function will return a weighted
-   average of the M2 and M3 values. Whether a variable in question is
-   interpreted as a 'rate' is effectively determined by the
-   ecl_smspec_set_rate_var() function in ecl_smspec.c.
-
-
-
-   Indexing and _get() versus _iget()
-   ----------------------------------
-   As already mentionded the set of ministeps is not necessarrily a
-   continous series, we can easily have a series of ministeps with
-   "holes" in it, and the series can also start on a non-zero
-   value. Internally all the ministeps are stored in a dense, zero
-   offset vector instance; and we must be able to translate back and
-   forth between ministep_nr and internal index.
-
-   Partly due to EnKF heritage the MINISTEP nr has been the main
-   method to access the time dimension of the data, i.e. all the
-   functions like ecl_sum_get_general_var() expect the time direction
-   to be given as a ministep; however it is also possible to get the
-   data by giving an internal (not that internal ...) index. In
-   ecl_sum_data.c the latter functions have _iget():
-
-
-      ecl_sum_data_get_xxx : Expects the time direction given as a ministep_nr.
-      ecl_sum_data_iget_xxx: Expects the time direction given as an internal index.
-
+  The class CaseIndex and the struct IndexNode are used to maintain a list of
+  the ecl_sum_file_data instances, and lookup the correct one based one various
+  time related arguments.
 */
 
+  struct IndexNode {
+    IndexNode(int d, int o, int l) {
+      this->data_index = d;
+      this->offset = o;
+      this->length = l;
+    }
+
+    int end() const {
+      return this->offset + this->length;
+    }
+
+    int data_index;
+    int offset;
+    int length;
+    int report1;
+    int report2;
+    time_t time1;
+    time_t time2;
+    double days1;
+    double days2;
+    std::vector<int> params_map;
+  };
 
 
-#define INVALID_MINISTEP_NR -1
-#define INVALID_TIME_T 0
+  class CaseIndex {
+  public:
+
+    IndexNode& add(int length) {
+      int offset = 0;
+      int data_index = this->index.size();
+
+      if (!this->index.empty())
+        offset = this->index.back().end();
+
+      this->index.emplace_back(data_index, offset, length);
+      return this->index.back();
+    }
+
+/*
+  The lookup_time() and lookup_report() methods will lookup which file_data
+  instance corresponds to the time/report argument. The methods will return two
+  pointers to file_data instances, if the argument is inside one file_data
+  instance the pointers will be equal - otherwise they will point to the
+  file_data instance before and after the argument:
+
+  File 1                     File 2
+  |------|-----|------|      |----|----------|---|
+      /|\                /|\
+       |                  |
+       |                  |
+       A                  B
+
+  For time A the lookup_time function will return <file1,file1> whereas for time
+  B the function will return <file1,file2>.
+ */
+
+    std::pair<const IndexNode*, const IndexNode *> lookup_time(time_t sim_time) const {
+      auto iter = this->index.begin();
+      auto next = this->index.begin();
+      if (sim_time < iter->time1)
+        throw std::invalid_argument("Simulation time out of range");
+
+      ++next;
+      while (true) {
+        double t1 = iter->time1;
+        double t2 = iter->time2;
+
+
+        if (sim_time>= t1) {
+          if (sim_time <= t2)
+            return std::make_pair<const IndexNode*, const IndexNode*>(&(*iter), &(*iter));
+
+          if (next == this->index.end())
+            throw std::invalid_argument("Simulation days out of range");
+
+          if (sim_time < next->time1)
+            return std::make_pair<const IndexNode*, const IndexNode*>(&(*iter),&(*next));
+        }
+        ++next;
+        ++iter;
+      }
+    }
+
+
+    std::pair<const IndexNode*, const IndexNode *> lookup_days(double days) const {
+      auto iter = this->index.begin();
+      auto next = this->index.begin();
+      if (days < iter->days1)
+        throw std::invalid_argument("Simulation days out of range");
+
+      ++next;
+      while (true) {
+        double d1 = iter->days1;
+        double d2 = iter->days2;
+
+
+        if (days >= d1) {
+          if (days <= d2)
+            return std::make_pair<const IndexNode*, const IndexNode*>(&(*iter), &(*iter));
+
+          if (next == this->index.end())
+            throw std::invalid_argument("Simulation days out of range");
+
+          if (days < next->days1)
+            return std::make_pair<const IndexNode*, const IndexNode*>(&(*iter),&(*next));
+        }
+        ++next;
+        ++iter;
+      }
+    }
+
+    const IndexNode& lookup(int internal_index) const {
+      for (const auto& node : this->index)
+        if (internal_index >= node.offset && internal_index < node.end())
+          return node;
+
+      throw std::invalid_argument("Internal error when looking up index: " + std::to_string(internal_index));
+    }
+
+
+    const IndexNode& lookup_report(int report) const {
+      for (const auto& node : this->index)
+        if (node.report1 <= report && node.report2 >= report)
+          return node;
+
+      throw std::invalid_argument("Internal error when looking up report: " + std::to_string(report));
+    }
+
+    /*
+      This will check that we have a datafile which report range covers the
+      report argument, in adition there can be 'holes' in the series - that must
+      be checked by actually querying the data_file object.
+    */
+
+    bool has_report(int report) const {
+      for (const auto& node : this->index)
+        if (node.report1 <= report && node.report2 >= report)
+          return true;
+
+      return false;
+    }
+
+    IndexNode& back() {
+      return this->index.back();
+    }
+
+    void clear() {
+      this->index.clear();
+    }
+
+    int length() const {
+      return this->index.back().end();
+    }
+
+    std::vector<IndexNode>::const_iterator begin() const {
+      return this->index.begin();
+    }
+
+    std::vector<IndexNode>::const_iterator end() const {
+      return this->index.end();
+    }
+
+  private:
+    std::vector<IndexNode> index;
+  };
+
+}
+
+
 
 struct ecl_sum_data_struct {
-  ecl_smspec_type        * smspec;                 /* A shared reference - only used for providing good error messages. */
-  vector_type            * data;                   /* Vector of ecl_sum_tstep_type instances. */
-  double                   days_start;
-  double                   sim_length;
-  int_vector_type        * report_first_index ;    /* Indexed by report_step - giving first internal_index in report_step.   */
-  int_vector_type        * report_last_index;      /* Indexed by report_step - giving last internal_index in report_step.    */
-  int                      first_report_step;
-  int                      last_report_step;
-  bool                     index_valid;
-  time_t                   start_time;             /* In the case of restarts the start might disagree with the value reported
-                                                      in the smspec file. */
-  time_t                   end_time;
+  const ecl_smspec_type  * smspec;
+  std::vector<ecl::ecl_sum_file_data*> data_files;              // List of ecl_sum_file_data instances
+  CaseIndex              index;
 };
 
 
+static void ecl_sum_data_build_index( ecl_sum_data_type * self );
+static double ecl_sum_data_iget_sim_seconds( const ecl_sum_data_type * data , int internal_index );
 
 
 
 /*****************************************************************/
 
  void ecl_sum_data_free( ecl_sum_data_type * data ) {
-  vector_free( data->data );
-  int_vector_free( data->report_first_index );
-  int_vector_free( data->report_last_index  );
-  free(data);
-}
+  if (!data)
+    throw std::invalid_argument(__func__ + std::string(": invalid delete") );
 
-/*
-  This function will clear/initialize all the mapping between
-  ministep, report step and internal index. This function should be
-  called before (re)building the indexes.
-*/
+  if (data->data_files.size() > 0)
+    delete data->data_files.back();
 
-
-static void ecl_sum_data_clear_index( ecl_sum_data_type * data ) {
-  int_vector_reset( data->report_first_index);
-  int_vector_reset( data->report_last_index);
-
-  data->first_report_step     =  1024 * 1024;
-  data->last_report_step      = -1024 * 1024;
-  data->days_start            = 0;
-  data->sim_length            = -1;
-  data->index_valid           = false;
-  data->start_time            = INVALID_TIME_T;
-  data->end_time              = INVALID_TIME_T;
+  delete data;
 }
 
 
 ecl_sum_data_type * ecl_sum_data_alloc(ecl_smspec_type * smspec) {
-  ecl_sum_data_type * data = (ecl_sum_data_type*)util_malloc( sizeof * data );
-  data->data        = vector_alloc_new();
-  data->smspec      = smspec;
-
-  data->report_first_index    = int_vector_alloc( 0 , INVALID_MINISTEP_NR );
-  data->report_last_index     = int_vector_alloc( 0 , INVALID_MINISTEP_NR );
-
-  ecl_sum_data_clear_index( data );
+  ecl_sum_data_type * data =  new ecl_sum_data_type();
+  data->smspec = smspec;
   return data;
 }
+
+
+void ecl_sum_data_reset_self_map( ecl_sum_data_type * data ) {
+  ecl_sum_data_build_index(data);
+}
+
+
+static void ecl_sum_data_append_file_data( ecl_sum_data_type * sum_data, ecl::ecl_sum_file_data * file_data) {
+  sum_data->data_files.push_back( file_data );
+}
+
 
 
 /**
@@ -292,101 +300,40 @@ ecl_sum_data_type * ecl_sum_data_alloc(ecl_smspec_type * smspec) {
 */
 
 
-static ecl_sum_tstep_type * ecl_sum_data_iget_ministep( const ecl_sum_data_type * data , int internal_index ) {
-  return (ecl_sum_tstep_type*)vector_iget( data->data , internal_index );
+
+
+static double ecl_sum_data_iget_sim_seconds( const ecl_sum_data_type * data , int internal_index ) {
+  const auto index_node = data->index.lookup(internal_index);
+  const auto data_file = data->data_files[index_node.data_index];
+  return data_file->iget_sim_seconds( internal_index - index_node.offset );
 }
 
 
-
-void ecl_sum_data_report2internal_range(const ecl_sum_data_type * data , int report_step , int * index1 , int * index2 ){
-  if (index1 != NULL)
-    *index1 = int_vector_safe_iget( data->report_first_index , report_step );
-
-  if (index2 != NULL)
-    *index2 = int_vector_safe_iget( data->report_last_index  , report_step );
+double ecl_sum_data_iget_sim_days( const ecl_sum_data_type * data , int internal_index ) {
+  const auto index_node = data->index.lookup(internal_index);
+  const auto data_file = data->data_files[index_node.data_index];
+  return data_file->iget_sim_days( internal_index - index_node.offset );
 }
+
+
 
 
 
 ecl_sum_data_type * ecl_sum_data_alloc_writer( ecl_smspec_type * smspec ) {
   ecl_sum_data_type * data = ecl_sum_data_alloc( smspec );
+  ecl::ecl_sum_file_data * file_data = new ecl::ecl_sum_file_data( smspec );
+  ecl_sum_data_append_file_data( data, file_data );
+  ecl_sum_data_build_index(data);
   return data;
 }
-
-
-static void ecl_sum_data_fwrite_report__( const ecl_sum_data_type * data , int report_step , fortio_type * fortio) {
-  {
-    ecl_kw_type * seqhdr_kw = ecl_kw_alloc( SEQHDR_KW , SEQHDR_SIZE , ECL_INT );
-    ecl_kw_iset_int( seqhdr_kw , 0 , 0 );
-    ecl_kw_fwrite( seqhdr_kw , fortio );
-    ecl_kw_free( seqhdr_kw );
-  }
-
-  {
-    int index , index1 , index2;
-
-    ecl_sum_data_report2internal_range( data , report_step , &index1 , &index2);
-    for (index = index1; index <= index2; index++) {
-      const ecl_sum_tstep_type * tstep = ecl_sum_data_iget_ministep( data , index );
-      ecl_sum_tstep_fwrite( tstep , ecl_smspec_get_index_map( data->smspec ) , fortio );
-    }
-  }
-}
-
-
-
-static void ecl_sum_data_fwrite_multiple_step( const ecl_sum_data_type * data , const char * ecl_case , bool fmt_case , int report_step) {
-  char * filename = ecl_util_alloc_filename( NULL , ecl_case , ECL_UNIFIED_SUMMARY_FILE , fmt_case , 0 );
-  fortio_type * fortio = fortio_open_readwrite( filename , fmt_case , ECL_ENDIAN_FLIP );
-
-  ecl_sum_data_fwrite_report__( data , report_step , fortio );
-
-  fortio_fclose( fortio );
-  free(filename);
-}
-
-
-static void ecl_sum_data_fwrite_unified_step( const ecl_sum_data_type * data , const char * ecl_case , bool fmt_case , int report_step) {
-  char * filename = ecl_util_alloc_filename( NULL , ecl_case , ECL_UNIFIED_SUMMARY_FILE , fmt_case , 0 );
-  fortio_type * fortio = fortio_open_readwrite( filename , fmt_case , ECL_ENDIAN_FLIP );
-
-  int current_step = 1;
-  if (report_step > 1) {
-    while (true) {
-      if (ecl_kw_fseek_kw( SEQHDR_KW , false , false , fortio )) {
-        if (current_step == report_step)
-          break;
-        current_step++;
-      } else {
-        current_step++;
-        break;
-      }
-    }
-  }
-
-  if (current_step == report_step) { // We found the position:
-    long size = fortio_ftell( fortio );
-
-    util_ftruncate( fortio_get_FILE( fortio ) , size );
-    ecl_sum_data_fwrite_report__( data , report_step , fortio );
-  } else
-    util_abort("%s: hmm could not locate the position for report step:%d in summary file:%s \n",__func__ , report_step , filename);
-
-  fortio_fclose( fortio );
-  free( filename );
-}
-
 
 
 static void ecl_sum_data_fwrite_unified( const ecl_sum_data_type * data , const char * ecl_case , bool fmt_case ) {
   char * filename = ecl_util_alloc_filename( NULL , ecl_case , ECL_UNIFIED_SUMMARY_FILE , fmt_case , 0 );
   fortio_type * fortio = fortio_open_writer( filename , fmt_case , ECL_ENDIAN_FLIP );
-  int report_step;
 
-  for (report_step = data->first_report_step; report_step <= data->last_report_step; report_step++) {
-    if (ecl_sum_data_has_report_step( data , report_step ))
-      ecl_sum_data_fwrite_report__( data , report_step , fortio );
-  }
+  for (size_t index = 0; index < data->data_files.size(); index++)
+    data->data_files[index]->fwrite_unified( fortio );
 
   fortio_fclose( fortio );
   free( filename );
@@ -394,29 +341,10 @@ static void ecl_sum_data_fwrite_unified( const ecl_sum_data_type * data , const 
 
 
 static void ecl_sum_data_fwrite_multiple( const ecl_sum_data_type * data , const char * ecl_case , bool fmt_case ) {
-  int report_step;
 
-  for (report_step = data->first_report_step; report_step <= data->last_report_step; report_step++) {
-    if (ecl_sum_data_has_report_step( data , report_step )) {
-      char * filename = ecl_util_alloc_filename( NULL , ecl_case , ECL_SUMMARY_FILE , fmt_case , report_step );
-      fortio_type * fortio = fortio_open_writer( filename , fmt_case , ECL_ENDIAN_FLIP );
+  for (size_t index = 0; index < data->data_files.size(); index++)
+    data->data_files[index]->fwrite_multiple(ecl_case, fmt_case);
 
-      ecl_sum_data_fwrite_report__( data , report_step , fortio );
-
-      fortio_fclose( fortio );
-      free( filename );
-    }
-  }
-
-}
-
-
-
-void ecl_sum_data_fwrite_step( const ecl_sum_data_type * data , const char * ecl_case , bool fmt_case , bool unified, int report_step) {
-  if (unified)
-    ecl_sum_data_fwrite_unified_step( data , ecl_case , fmt_case , report_step);
-  else
-    ecl_sum_data_fwrite_multiple_step( data , ecl_case , fmt_case , report_step);
 }
 
 
@@ -428,14 +356,28 @@ void ecl_sum_data_fwrite( const ecl_sum_data_type * data , const char * ecl_case
 }
 
 
+bool ecl_sum_data_can_write(const ecl_sum_data_type * data) {
+  bool can_write = true;
+  for (const auto& file_ptr : data->data_files)
+    can_write &= file_ptr->can_write();
 
+  return can_write;
+}
 
+time_t ecl_sum_data_get_sim_end(const ecl_sum_data_type * data ) {
+  const auto& file_data = data->data_files.back();
+  return file_data->get_sim_end();
+}
 
-time_t ecl_sum_data_get_sim_end   (const ecl_sum_data_type * data ) { return data->end_time; }
+time_t ecl_sum_data_get_data_start( const ecl_sum_data_type * data ) {
+  const auto& file_data = data->data_files[0];
+  return file_data->get_data_start();
+}
 
-time_t ecl_sum_data_get_data_start   ( const ecl_sum_data_type * data ) { return data->start_time; }
-
-double ecl_sum_data_get_first_day( const ecl_sum_data_type * data) { return data->days_start; }
+double ecl_sum_data_get_first_day( const ecl_sum_data_type * data) {
+  const auto& file_data = data->data_files[0];
+  return file_data->get_days_start();
+}
 
 /**
    Returns the number of simulations days from the start of the
@@ -444,7 +386,8 @@ double ecl_sum_data_get_first_day( const ecl_sum_data_type * data) { return data
 */
 
 double ecl_sum_data_get_sim_length( const ecl_sum_data_type * data ) {
-  return data->sim_length;
+  const auto& file_data = data->data_files.back();
+  return file_data->get_sim_length();
 }
 
 
@@ -462,10 +405,10 @@ double ecl_sum_data_get_sim_length( const ecl_sum_data_type * data ) {
 */
 
 bool ecl_sum_data_check_sim_time( const ecl_sum_data_type * data , time_t sim_time) {
-  if (sim_time < data->start_time)
+  if (sim_time < ecl_sum_data_get_data_start(data))
     return false;
 
-  if (sim_time > data->end_time)
+  if (sim_time > ecl_sum_data_get_sim_end(data))
     return false;
 
   return true;
@@ -473,7 +416,7 @@ bool ecl_sum_data_check_sim_time( const ecl_sum_data_type * data , time_t sim_ti
 
 
 bool ecl_sum_data_check_sim_days( const ecl_sum_data_type * data , double sim_days) {
-  return sim_days >= data->days_start && sim_days <= data->sim_length;
+  return sim_days >= ecl_sum_data_get_first_day(data) && sim_days <= ecl_sum_data_get_sim_length(data);
 }
 
 
@@ -518,11 +461,14 @@ bool ecl_sum_data_check_sim_days( const ecl_sum_data_type * data , double sim_da
 
 static int ecl_sum_data_get_index_from_sim_time( const ecl_sum_data_type * data , time_t sim_time) {
   if (!ecl_sum_data_check_sim_time(data, sim_time)) {
+    time_t start_time = ecl_sum_data_get_data_start(data);
+    time_t end_time = ecl_sum_data_get_sim_end(data);
+
     fprintf(stderr , "Simulation start: "); util_fprintf_date_utc( ecl_smspec_get_start_time( data->smspec ) , stderr );
-    fprintf(stderr , "Data start......: "); util_fprintf_date_utc( data->start_time , stderr );
-    fprintf(stderr , "Simulation end .: "); util_fprintf_date_utc( data->end_time , stderr );
+    fprintf(stderr , "Data start......: "); util_fprintf_date_utc( start_time , stderr );
+    fprintf(stderr , "Simulation end .: "); util_fprintf_date_utc( end_time , stderr );
     fprintf(stderr , "Requested date .: "); util_fprintf_date_utc( sim_time , stderr );
-    util_abort("%s: invalid time_t instance:%d  interval:  [%d,%d]\n",__func__, sim_time , data->start_time , data->end_time);
+    util_abort("%s: invalid time_t instance:%d  interval:  [%d,%d]\n",__func__, sim_time , start_time, end_time);
   }
 
   /*
@@ -533,13 +479,12 @@ static int ecl_sum_data_get_index_from_sim_time( const ecl_sum_data_type * data 
   */
 
   int low_index = 0;
-  int high_index = vector_get_size(data->data) - 1;
+  int high_index = ecl_sum_data_get_length(data) - 1;
 
   // perform binary search
   while (low_index+1 < high_index) {
     int center_index = (low_index + high_index) / 2;
-    const ecl_sum_tstep_type * center_step = ecl_sum_data_iget_ministep(data, center_index);
-    const time_t center_time = ecl_sum_tstep_get_sim_time(center_step);
+    const time_t center_time = ecl_sum_data_iget_sim_time(data, center_index);
 
     if (sim_time > center_time)
       low_index = center_index;
@@ -547,8 +492,7 @@ static int ecl_sum_data_get_index_from_sim_time( const ecl_sum_data_type * data 
       high_index = center_index;
   }
 
-  const ecl_sum_tstep_type * low_step = ecl_sum_data_iget_ministep(data, low_index);
-  return sim_time <= ecl_sum_tstep_get_sim_time(low_step) ? low_index : high_index;
+  return sim_time <= ecl_sum_data_iget_sim_time(data, low_index) ? low_index : high_index;
 }
 
 int ecl_sum_data_get_index_from_sim_days( const ecl_sum_data_type * data , double sim_days) {
@@ -582,6 +526,7 @@ int ecl_sum_data_get_index_from_sim_days( const ecl_sum_data_type * data , doubl
    function should be used), consult documentation at the top of this
    file.
 */
+
 void ecl_sum_data_init_interp_from_sim_time(const ecl_sum_data_type* data,
                                             time_t sim_time,
                                             int* index1,
@@ -600,11 +545,8 @@ void ecl_sum_data_init_interp_from_sim_time(const ecl_sum_data_type* data,
     return;
   }
 
-  const ecl_sum_tstep_type * ministep1 = ecl_sum_data_iget_ministep(data, idx-1);
-  const ecl_sum_tstep_type * ministep2 = ecl_sum_data_iget_ministep(data, idx);
-
-  time_t sim_time1 = ecl_sum_tstep_get_sim_time(ministep1);
-  time_t sim_time2 = ecl_sum_tstep_get_sim_time(ministep2);
+  time_t sim_time1 = ecl_sum_data_iget_sim_time(data, idx-1);
+  time_t sim_time2 = ecl_sum_data_iget_sim_time(data, idx);
 
   *index1 = idx-1;
   *index2 = idx;
@@ -630,36 +572,32 @@ void ecl_sum_data_init_interp_from_sim_days( const ecl_sum_data_type * data , do
 double_vector_type * ecl_sum_data_alloc_seconds_solution(const ecl_sum_data_type * data, const smspec_node_type * node, double cmp_value, bool rates_clamp_lower) {
   double_vector_type * solution = double_vector_alloc(0, 0);
   const int param_index = smspec_node_get_params_index(node);
-  const int size = vector_get_size(data->data);
+  const int size = ecl_sum_data_get_length(data);
 
   if (size <= 1)
     return solution;
 
   for (int index = 0; index < size; ++index) {
-    int prev_index = util_int_max(0, index-1);
-
-    const ecl_sum_tstep_type * ministep = ecl_sum_data_iget_ministep(data, index);
-    const ecl_sum_tstep_type * prev_ministep = ecl_sum_data_iget_ministep(data, prev_index);
-    double value = ecl_sum_tstep_iget(ministep, param_index);
-    double prev_value = ecl_sum_tstep_iget(prev_ministep, param_index);
+    int prev_index    = util_int_max(0, index-1);
+    double value      = ecl_sum_data_iget(data, index, param_index);
+    double prev_value = ecl_sum_data_iget(data, prev_index, param_index);
 
     // cmp_value in interval value (closed) and prev_value (open)
-    bool contained = value == cmp_value;
+    bool contained = (value == cmp_value);
     contained |= (util_double_min(prev_value, value) < cmp_value) &&
             (cmp_value < util_double_max(prev_value, value));
 
     if (!contained)
       continue;
 
-    double prev_time = ecl_sum_tstep_get_sim_seconds(prev_ministep);
-    double time = ecl_sum_tstep_get_sim_seconds(ministep);
+    double prev_time = ecl_sum_data_iget_sim_seconds(data, prev_index);
+    double time      = ecl_sum_data_iget_sim_seconds(data, index);
 
     if (smspec_node_is_rate(node)) {
       double_vector_append(solution, rates_clamp_lower ? prev_time + 1 : time);
     } else {
       double slope = (value - prev_value) / (time - prev_time);
       double seconds = (cmp_value - prev_value)/slope + prev_time;
-
       double_vector_append(solution, seconds);
     }
   }
@@ -667,94 +605,49 @@ double_vector_type * ecl_sum_data_alloc_seconds_solution(const ecl_sum_data_type
 }
 
 
+static void ecl_sum_data_build_index( ecl_sum_data_type * self ) {
+  std::sort(self->data_files.begin(), self->data_files.end(),
+            [](const ecl::ecl_sum_file_data* case1,
+               const ecl::ecl_sum_file_data* case2)
+            {
+              return case1->get_data_start() < case2->get_data_start();
+            });
 
+  self->index.clear();
+  for (size_t i=0; i < self->data_files.size(); i++) {
+    const auto& data = self->data_files[i];
+    bool main_case = (i == (self->data_files.size() - 1));
+    time_t next_start;
 
-static void ecl_sum_data_append_tstep__( ecl_sum_data_type * data , ecl_sum_tstep_type * tstep) {
-  /*
-     Here the tstep is just appended naively, the vector will be
-     sorted by ministep_nr before the data instance is returned.
-  */
+    if (main_case)
+      self->index.add(data->length());
+    else {
+      const auto& next = self->data_files[i+1];
+      next_start = next->get_data_start();
+      self->index.add( data->length_before(next_start));
+    }
 
-  vector_append_owned_ref( data->data , tstep , ecl_sum_tstep_free__);
-  data->index_valid = false;
-}
+    auto & node = self->index.back();
+    if (node.length > 0) {
+      node.report1 = data->first_report();
 
+      if (main_case)
+        node.report2 = data->last_report();
+      else
+        node.report2 = data->report_before( next_start );
 
-
-static int cmp_ministep( const void * arg1 , const void * arg2) {
-  const ecl_sum_tstep_type * ministep1 = ecl_sum_tstep_safe_cast_const( arg1 );
-  const ecl_sum_tstep_type * ministep2 = ecl_sum_tstep_safe_cast_const( arg2 );
-
-  time_t time1 = ecl_sum_tstep_get_sim_time( ministep1 );
-  time_t time2 = ecl_sum_tstep_get_sim_time( ministep2 );
-
-  if (time1 < time2)
-    return -1;
-  else if (time1 == time2)
-    return 0;
-  else
-    return 1;
-}
-
-
-static void ecl_sum_data_build_index( ecl_sum_data_type * sum_data ) {
-  /* Clear the existing index (if any): */
-  ecl_sum_data_clear_index( sum_data );
-
-  /*
-    Sort the internal storage vector after sim_time.
-  */
-  vector_sort( sum_data->data , cmp_ministep );
-
-
-  /* Identify various global first and last values.  */
-  {
-    const ecl_sum_tstep_type * first_ministep = (const ecl_sum_tstep_type*)vector_iget_const( sum_data->data, 0 );
-    const ecl_sum_tstep_type * last_ministep  = (const ecl_sum_tstep_type*)vector_get_last_const( sum_data->data );
-    /*
-       In most cases the days_start and data_start_time will agree
-       with the global simulation start; however in the case where we
-       have loaded a summary case from a restarted simulation where
-       the case we have restarted from is not available - then there
-       will be a difference.
-    */
-    sum_data->days_start      = ecl_sum_tstep_get_sim_days( first_ministep );
-    sum_data->sim_length      = ecl_sum_tstep_get_sim_days( last_ministep );
-    sum_data->start_time      = ecl_sum_tstep_get_sim_time( first_ministep);
-    sum_data->end_time        = ecl_sum_tstep_get_sim_time( last_ministep );
-  }
-
-  /* Build up the report -> ministep mapping. */
-  {
-    int internal_index;
-    for (internal_index = 0; internal_index < vector_get_size( sum_data->data ); internal_index++) {
-      const ecl_sum_tstep_type * ministep = ecl_sum_data_iget_ministep( sum_data , internal_index  );
-      int report_step = ecl_sum_tstep_get_report(ministep);
-
-      /* Indexing internal_index - report_step */
+      node.time1   = data->get_data_start();
+      node.time2   = data->get_sim_end();
+      node.days1   = data->get_days_start();
+      node.days2   = data->get_sim_length();
       {
-        int current_first_index = int_vector_safe_iget( sum_data->report_first_index , report_step );
-        if (current_first_index < 0) /* i.e. currently not set. */
-            int_vector_iset( sum_data->report_first_index , report_step , internal_index);
-        else
-          if (internal_index  < current_first_index)
-            int_vector_iset( sum_data->report_first_index , report_step , internal_index);
+        int * tmp_map = ecl_smspec_alloc_mapping( self->smspec , data->smspec() );
+        node.params_map.assign(tmp_map, tmp_map + ecl_smspec_get_params_size(self->smspec));
+        free( tmp_map );
       }
-
-      {
-        int current_last_index =  int_vector_safe_iget( sum_data->report_last_index , report_step );
-        if (current_last_index < 0)
-          int_vector_iset( sum_data->report_last_index , report_step ,  internal_index);
-        else
-          if (internal_index > current_last_index)
-            int_vector_iset( sum_data->report_last_index , report_step , internal_index);
-      }
-
-      sum_data->first_report_step = util_int_min( sum_data->first_report_step , report_step );
-      sum_data->last_report_step  = util_int_max( sum_data->last_report_step  , report_step );
     }
   }
-  sum_data->index_valid = true;
+
 }
 
 
@@ -767,151 +660,30 @@ static void ecl_sum_data_build_index( ecl_sum_data_type * sum_data ) {
 */
 
 ecl_sum_tstep_type * ecl_sum_data_add_new_tstep( ecl_sum_data_type * data , int report_step , double sim_seconds) {
-  int ministep_nr = vector_get_size( data->data );
-  ecl_sum_tstep_type * tstep = ecl_sum_tstep_alloc_new( report_step , ministep_nr , sim_seconds , data->smspec );
-  ecl_sum_tstep_type * prev_tstep = NULL;
-
-  if (vector_get_size( data->data ) > 0)
-    prev_tstep = (ecl_sum_tstep_type*)vector_get_last( data->data );
-
-  ecl_sum_data_append_tstep__( data , tstep );
-  {
-    bool rebuild_index = true;
-
-    /*
-      In the simple case that we just add another timestep to the
-      currently active report_step, we do a limited update of the
-      index, otherwise we call ecl_sum_data_build_index() to get a
-      full recalculation of the index.
-    */
-
-    if (prev_tstep != NULL) {
-      if (ecl_sum_tstep_get_report( prev_tstep ) == ecl_sum_tstep_get_report( tstep )) {        // Same report step
-        if (ecl_sum_tstep_get_sim_days( prev_tstep ) < ecl_sum_tstep_get_sim_days( tstep )) {   // This tstep will become the new latest tstep
-          int internal_index = vector_get_size( data->data ) - 1;
-          int_vector_iset( data->report_last_index , report_step , internal_index );
-
-          data->sim_length = ecl_sum_tstep_get_sim_days( tstep );
-          data->end_time = ecl_sum_tstep_get_sim_time(tstep);
-
-          rebuild_index = false;
-        }
-      }
-    }
-    if (rebuild_index)
-      ecl_sum_data_build_index( data );
-  }
-  ecl_smspec_lock( data->smspec );
-
+  ecl::ecl_sum_file_data * file_data = data->data_files.back();
+  ecl_sum_tstep_type * tstep = file_data->add_new_tstep( report_step, sim_seconds );
+  ecl_sum_data_build_index( data );
   return tstep;
 }
 
 
-
-
-/**
-   Malformed/incomplete files:
-   ----------------------------
-   Observe that ECLIPSE works in the following way:
-
-     1. At the start of a report step a summary data section
-        containing only the 'SEQHDR' keyword is written - this is
-        currently an 'invalid' summary section.
-
-     2. ECLIPSE simulates as best it can.
-
-     3. When the time step is complete data is written to the summary
-        file.
-
-   Now - if ECLIPSE goes down in flames during step 2 a malformed
-   summary file will be left around, to handle this situation
-   reasonably gracefully we check that the ecl_file instance has at
-   least one "PARAMS" keyword.
-
-   One ecl_file corresponds to one report_step (limited by SEQHDR); in
-   the case of non unfied summary files these objects correspond to
-   one BASE.Annnn or BASE.Snnnn file, in the case of unified files the
-   calling routine will read the unified summary file partly.
-*/
-
-static void ecl_sum_data_add_ecl_file(ecl_sum_data_type * data         ,
-                                      int   report_step                ,
-                                      const ecl_file_view_type * summary_view,
-                                      const ecl_smspec_type * smspec) {
-
-
-  int num_ministep  = ecl_file_view_get_num_named_kw( summary_view , PARAMS_KW);
-  if (num_ministep > 0) {
-    int ikw;
-
-    for (ikw = 0; ikw < num_ministep; ikw++) {
-      ecl_kw_type * ministep_kw = ecl_file_view_iget_named_kw( summary_view , MINISTEP_KW , ikw);
-      ecl_kw_type * params_kw   = ecl_file_view_iget_named_kw( summary_view , PARAMS_KW   , ikw);
-
-      {
-        int ministep_nr = ecl_kw_iget_int( ministep_kw , 0 );
-        ecl_sum_tstep_type * tstep = ecl_sum_tstep_alloc_from_file( report_step ,
-                                                                    ministep_nr ,
-                                                                    params_kw ,
-                                                                    ecl_file_view_get_src_file( summary_view ),
-                                                                    smspec );
-
-        if (tstep)
-            ecl_sum_data_append_tstep__( data , tstep );
-      }
-    }
+int * ecl_sum_data_alloc_param_mapping( int * current_param_mapping, int * old_param_mapping, size_t size) {
+  int * new_param_mapping = (int*)util_malloc( size * sizeof * new_param_mapping );
+  for (size_t i = 0; i < size; i++) {
+    if (current_param_mapping[i] >= 0)
+      new_param_mapping[i] = old_param_mapping[ current_param_mapping[i] ];
+    else
+      new_param_mapping[i] = -1;
   }
+  return new_param_mapping;
 }
 
 
 void ecl_sum_data_add_case(ecl_sum_data_type * self, const ecl_sum_data_type * other) {
-  int * param_mapping = NULL;
-  bool  header_equal = ecl_smspec_equal( self->smspec , other->smspec);
-  float default_value = 0;
+  for (auto other_file : other->data_files)
+    self->data_files.push_back( other_file );
 
-  if (!header_equal)
-    param_mapping = ecl_smspec_alloc_mapping( self->smspec , other->smspec );
-
-
-  for (int tstep_nr = 0; tstep_nr < ecl_sum_data_get_length( other ); tstep_nr++) {
-    ecl_sum_tstep_type * other_tstep = ecl_sum_data_iget_ministep( other , tstep_nr );
-
-    /*
-      The dataset 'self' is the authorative in the timeinterval where it has
-      data, so if 'other' also has data in the same time interval that is
-      discarded. In most cases 'other' will represent a history case, and 'self'
-      is a prediction which has been restarted.
-
-      After implementing the time_interval_contains() based check it turned out
-      that the smspec structure also contains a restart_step integer value in
-      the DIMENS vector which could probably be used to achieve the same thing.
-      That field is currently not used.
-    */
-
-    if (!ecl_sum_data_check_sim_time(self, ecl_sum_tstep_get_sim_time(other_tstep))) {
-      ecl_sum_tstep_type * new_tstep;
-
-      if (header_equal)
-        new_tstep = ecl_sum_tstep_alloc_copy( other_tstep );
-      else
-        new_tstep = ecl_sum_tstep_alloc_remap_copy( other_tstep , self->smspec , default_value , param_mapping );
-
-      ecl_sum_data_append_tstep__( self , new_tstep );
-
-    }
-  }
-
-  ecl_sum_data_build_index( self );
-  free( param_mapping );
-}
-
-
-static bool ecl_sum_data_check_file( ecl_file_type * ecl_file ) {
-  if (ecl_file_has_kw( ecl_file , PARAMS_KW ) &&
-      (ecl_file_get_num_named_kw( ecl_file , PARAMS_KW ) == ecl_file_get_num_named_kw( ecl_file , MINISTEP_KW)))
-    return true;
-  else
-    return false;
+  ecl_sum_data_build_index(self);
 }
 
 
@@ -924,66 +696,14 @@ static bool ecl_sum_data_check_file( ecl_file_type * ecl_file ) {
   call to ecl_sum_data_build_index().
 */
 
-bool ecl_sum_data_fread(ecl_sum_data_type * data , const stringlist_type * filelist) {
-  if (stringlist_get_size( filelist ) == 0)
-    return false;
-
-  {
-    ecl_file_enum file_type = ecl_util_get_file_type( stringlist_iget( filelist , 0 ) , NULL , NULL);
-    if ((stringlist_get_size( filelist ) > 1) && (file_type != ECL_SUMMARY_FILE))
-      util_abort("%s: internal error - when calling with more than one file - you can not supply a unified file - come on?! \n",__func__);
-
-    {
-      int filenr;
-      if (file_type == ECL_SUMMARY_FILE) {
-
-        /* Not unified. */
-        for (filenr = 0; filenr < stringlist_get_size( filelist ); filenr++) {
-          const char * data_file = stringlist_iget( filelist , filenr);
-          ecl_file_enum file_type;
-          int report_step;
-          file_type = ecl_util_get_file_type( data_file , NULL , &report_step);
-          if (file_type != ECL_SUMMARY_FILE)
-            util_abort("%s: file:%s has wrong type \n",__func__ , data_file);
-          {
-            ecl_file_type * ecl_file = ecl_file_open( data_file , 0);
-            if (ecl_file && ecl_sum_data_check_file( ecl_file )) {
-              ecl_sum_data_add_ecl_file( data , report_step , ecl_file_get_global_view( ecl_file ) , data->smspec);
-              ecl_file_close( ecl_file );
-            }
-          }
-        }
-      } else if (file_type == ECL_UNIFIED_SUMMARY_FILE) {
-        ecl_file_type * ecl_file = ecl_file_open( stringlist_iget(filelist ,0 ) , 0);
-        if (ecl_file && ecl_sum_data_check_file( ecl_file )) {
-          int report_step = 1;   /* <- ECLIPSE numbering - starting at 1. */
-          while (true) {
-            /*
-              Observe that there is a number discrepancy between ECLIPSE
-              and the ecl_file_select_smryblock() function. ECLIPSE
-              starts counting report steps at 1; whereas the first
-              SEQHDR block in the unified summary file is block zero (in
-              ert counting).
-            */
-            ecl_file_view_type * summary_view = ecl_file_get_summary_view(ecl_file , report_step - 1 );
-            if (summary_view) {
-              ecl_sum_data_add_ecl_file( data , report_step , summary_view , data->smspec);
-              report_step++;
-            } else break;
-          }
-          ecl_file_close( ecl_file );
-        }
-      }
-    }
-
-
-    if (ecl_sum_data_get_length( data ) > 0) {
-      ecl_sum_data_build_index( data );
-      return true;
-    } else
-      return false;
-
+bool ecl_sum_data_fread(ecl_sum_data_type * data , const stringlist_type * filelist, bool lazy_load, int file_options) {
+  ecl::ecl_sum_file_data * file_data = new ecl::ecl_sum_file_data( data->smspec );
+  if (file_data->fread( filelist, lazy_load, file_options)) {
+    ecl_sum_data_append_file_data( data, file_data );
+    ecl_sum_data_build_index(data);
+    return true;
   }
+  return false;
 }
 
 
@@ -1002,9 +722,9 @@ bool ecl_sum_data_fread(ecl_sum_data_type * data , const stringlist_type * filel
    (manually) changed from the historical part.
 */
 
-ecl_sum_data_type * ecl_sum_data_fread_alloc( ecl_smspec_type * smspec , const stringlist_type * filelist , bool include_restart) {
+ecl_sum_data_type * ecl_sum_data_fread_alloc( ecl_smspec_type * smspec , const stringlist_type * filelist , bool include_restart, bool lazy_load, int file_options) {
   ecl_sum_data_type * data = ecl_sum_data_alloc( smspec );
-  ecl_sum_data_fread( data , filelist );
+  ecl_sum_data_fread( data , filelist, lazy_load, file_options );
 
   /*****************************************************************/
   /* OK - now we have loaded all the data. Must sort the internal
@@ -1021,11 +741,14 @@ void ecl_sum_data_summarize(const ecl_sum_data_type * data , FILE * stream) {
   fprintf(stream , "---------------------------------------------------------------\n");
   {
     int index;
-    for (index = 0; index < vector_get_size( data->data ); index++) {
-      const ecl_sum_tstep_type * ministep = ecl_sum_data_iget_ministep( data , index );
+    for (index = 0; index < ecl_sum_data_get_length(data); index++) {
+      time_t sim_time = ecl_sum_data_iget_sim_time(data, index);
+      int report_step = ecl_sum_data_iget_report_step(data, index);
+      double days = ecl_sum_data_iget_sim_days(data, index);
+
       int day,month,year;
-      ecl_util_set_date_values( ecl_sum_tstep_get_sim_time( ministep ) , &day, &month , &year);
-      fprintf(stream , "%04d          %6d               %02d/%02d/%4d           %7.2f \n", ecl_sum_tstep_get_report( ministep ) , index , day,month,year, ecl_sum_tstep_get_sim_days( ministep ));
+      ecl_util_set_date_values( sim_time, &day, &month , &year);
+      fprintf(stream , "%04d          %6d               %02d/%02d/%4d           %7.2f \n", report_step , index , day,month,year, days);
     }
   }
   fprintf(stream , "---------------------------------------------------------------\n");
@@ -1035,11 +758,14 @@ void ecl_sum_data_summarize(const ecl_sum_data_type * data , FILE * stream) {
 
 /*****************************************************************/
 
+
 bool ecl_sum_data_has_report_step(const ecl_sum_data_type * data , int report_step ) {
-  if (int_vector_safe_iget( data->report_first_index , report_step) >= 0)
-    return true;
-  else
+  if (!data->index.has_report(report_step))
     return false;
+
+  const auto& index_node = data->index.lookup_report(report_step);
+  const auto& file_data = data->data_files[index_node.data_index];
+  return file_data->has_report(report_step);
 }
 
 
@@ -1052,41 +778,22 @@ bool ecl_sum_data_has_report_step(const ecl_sum_data_type * data , int report_st
 */
 
 int ecl_sum_data_iget_report_end( const ecl_sum_data_type * data , int report_step ) {
-  return int_vector_safe_iget( data->report_last_index  , report_step );
+  const auto& index_node = data->index.lookup_report(report_step);
+  const auto& file_data = data->data_files[index_node.data_index];
+  auto range = file_data->report_range(report_step);
+  return range.second;
 }
 
-
-
-/**
-   Returns the first index included in report step @report_step.
-   Observe that if the dataset does not include @report_step at all,
-   the function will return INVALID_MINISTEP_NR; this must be checked for in the
-   calling scope.
-*/
-
-
-int ecl_sum_data_iget_report_start( const ecl_sum_data_type * data , int report_step ) {
-  return int_vector_safe_iget( data->report_first_index  , report_step );
-}
 
 
 
 
 
 int ecl_sum_data_iget_report_step(const ecl_sum_data_type * data , int internal_index) {
-  const ecl_sum_tstep_type * ministep = ecl_sum_data_iget_ministep( data , internal_index );
-  return ecl_sum_tstep_get_report( ministep );
+  const auto& index_node = data->index.lookup(internal_index);
+  const auto& file_data = data->data_files[index_node.data_index];
+  return file_data->iget_report(internal_index - index_node.offset);
 }
-
-
-int ecl_sum_data_iget_mini_step(const ecl_sum_data_type * data , int internal_index) {
-  {
-    const ecl_sum_tstep_type * ministep = ecl_sum_data_iget_ministep( data , internal_index );
-    return ecl_sum_tstep_get_ministep( ministep );
-  }
-}
-
-
 
 
 
@@ -1098,9 +805,18 @@ int ecl_sum_data_iget_mini_step(const ecl_sum_data_type * data , int internal_in
 
 
 double ecl_sum_data_iget( const ecl_sum_data_type * data , int time_index , int params_index ) {
-  const ecl_sum_tstep_type * ministep_data = ecl_sum_data_iget_ministep( data , time_index  );
-  return ecl_sum_tstep_iget( ministep_data , params_index);
+  const auto& index_node = data->index.lookup( time_index );
+  ecl::ecl_sum_file_data * file_data = data->data_files[index_node.data_index];
+  const auto& params_map = index_node.params_map;
+  if (params_map[params_index] >= 0)
+    return file_data->iget( time_index - index_node.offset, params_map[params_index] );
+  else {
+    const smspec_node_type * smspec_node = ecl_smspec_iget_node(data->smspec, params_index);
+    return smspec_node_get_default(smspec_node);
+  }
 }
+
+
 
 
 /**
@@ -1115,11 +831,8 @@ double ecl_sum_data_iget( const ecl_sum_data_type * data , int time_index , int 
    between two ministeps.
 */
 
-double ecl_sum_data_interp_get(const ecl_sum_data_type * data , int time_index1 , int time_index2 , double weight1 , double weight2 , int params_index) {
-  const ecl_sum_tstep_type * ministep_data1 = ecl_sum_data_iget_ministep( data , time_index1 );
-  const ecl_sum_tstep_type * ministep_data2 = ecl_sum_data_iget_ministep( data , time_index2 );
-
-  return ecl_sum_tstep_iget( ministep_data1 , params_index ) * weight1 + ecl_sum_tstep_iget( ministep_data2 , params_index ) * weight2;
+static double ecl_sum_data_interp_get(const ecl_sum_data_type * data , int time_index1 , int time_index2 , double weight1 , double weight2 , int params_index) {
+  return ecl_sum_data_iget(data, time_index1, params_index) * weight1 + ecl_sum_data_iget(data, time_index2, params_index) * weight2;
 }
 
 
@@ -1223,34 +936,15 @@ double ecl_sum_data_get_from_sim_time( const ecl_sum_data_type * data , time_t s
 
 
 int ecl_sum_data_get_report_step_from_days(const ecl_sum_data_type * data , double sim_days) {
-  if ((sim_days < data->days_start) || (sim_days > data->sim_length))
+  if ((sim_days < ecl_sum_data_get_first_day(data)) || (sim_days > ecl_sum_data_get_sim_length(data)))
     return -1;
   else {
-    int report_step = -1;
+    auto files = data->index.lookup_days(sim_days);
+    if (files.first != files.second)
+      return -1;
 
-    double_vector_type * days_map = double_vector_alloc( 0 , 0 );
-    int_vector_type    * report_map = int_vector_alloc( 0 , 0 );
-    int i;
-
-    for (i=1; i < int_vector_size( data->report_last_index ); i++) {
-      int ministep_index = int_vector_iget( data->report_last_index , i );
-      const ecl_sum_tstep_type * ministep = (const ecl_sum_tstep_type*)vector_iget_const( data->data , ministep_index );
-
-      double_vector_iset( days_map , i , ecl_sum_tstep_get_sim_days( ministep ));
-      int_vector_iset( report_map , i , ecl_sum_tstep_get_report( ministep ));
-    }
-
-    {
-      /** Hmmmm - double == comparison ... */
-      int index = double_vector_index_sorted( days_map , sim_days );
-
-      if (index >= 0)
-        report_step = int_vector_iget( report_map , index );
-    }
-
-    int_vector_free( report_map );
-    double_vector_free( days_map );
-    return report_step;
+    const auto& data_file = data->data_files[files.first->data_index];
+    return data_file->report_step_from_days(sim_days);
   }
 }
 
@@ -1275,39 +969,17 @@ int ecl_sum_data_get_report_step_from_days(const ecl_sum_data_type * data , doub
 
 
 int ecl_sum_data_get_report_step_from_time(const ecl_sum_data_type * data , time_t sim_time) {
-
   if (!ecl_sum_data_check_sim_time(data , sim_time))
     return -1;
+  else {
+    auto files = data->index.lookup_time(sim_time);
+    if (files.first != files.second)
+      return -1;
 
-  {
-    int report_step = -1;
-
-    time_t_vector_type * time_map = time_t_vector_alloc( 0 , 0 );
-    int_vector_type    * report_map = int_vector_alloc( 0 , 0 );
-    int i;
-
-    for (i=1; i < int_vector_size( data->report_last_index ); i++) {
-      int ministep_index = int_vector_iget( data->report_last_index , i );
-      const ecl_sum_tstep_type * ministep = (const ecl_sum_tstep_type*)vector_iget_const( data->data , ministep_index );
-
-      time_t_vector_iset( time_map , i , ecl_sum_tstep_get_sim_time( ministep ));
-      int_vector_iset( report_map , i , ecl_sum_tstep_get_report( ministep ));
-
-    }
-
-    {
-      int index = time_t_vector_index_sorted( time_map , sim_time );
-
-      if (index >= 0)
-        report_step = int_vector_iget( report_map , index );
-    }
-
-    int_vector_free( report_map );
-    time_t_vector_free( time_map );
-    return report_step;
+    const auto& data_file = data->data_files[files.first->data_index];
+    return data_file->report_step_from_time(sim_time);
   }
 }
-
 
 double ecl_sum_data_time2days( const ecl_sum_data_type * data , time_t sim_time) {
   time_t start_time = ecl_smspec_get_start_time( data->smspec );
@@ -1321,9 +993,10 @@ double ecl_sum_data_get_from_sim_days( const ecl_sum_data_type * data , double s
 }
 
 
-time_t ecl_sum_data_iget_sim_time( const ecl_sum_data_type * data , int internal_index ) {
-  const ecl_sum_tstep_type * ministep_data = ecl_sum_data_iget_ministep( data , internal_index  );
-  return ecl_sum_tstep_get_sim_time( ministep_data );
+time_t ecl_sum_data_iget_sim_time(const ecl_sum_data_type * data, int ministep_index) {
+  const auto& index_node = data->index.lookup( ministep_index );
+  const auto data_file = data->data_files[index_node.data_index];
+  return data_file->iget_sim_time(ministep_index - index_node.offset);
 }
 
 
@@ -1332,25 +1005,21 @@ time_t ecl_sum_data_get_report_time( const ecl_sum_data_type * data , int report
     return ecl_smspec_get_start_time( data->smspec );
   else {
     int internal_index = ecl_sum_data_iget_report_end( data , report_step );
-    const ecl_sum_tstep_type * ministep = ecl_sum_data_iget_ministep( data , internal_index );
-    return ecl_sum_tstep_get_sim_time( ministep );
+    return ecl_sum_data_iget_sim_time(data, internal_index);
   }
 }
 
 
-double ecl_sum_data_iget_sim_days( const ecl_sum_data_type * data , int internal_index ) {
-  const ecl_sum_tstep_type * ministep_data = ecl_sum_data_iget_ministep( data , internal_index );
-  return ecl_sum_tstep_get_sim_days( ministep_data );
-}
-
 
 int ecl_sum_data_get_first_report_step( const ecl_sum_data_type * data ) {
-  return data->first_report_step;
+  const auto& data_file = data->data_files[0];
+  return data_file->first_report();
 }
 
 
 int ecl_sum_data_get_last_report_step( const ecl_sum_data_type * data ) {
-  return data->last_report_step;
+  const auto& data_file = data->data_files.back();
+  return data_file->last_report();
 }
 
 
@@ -1359,74 +1028,102 @@ int ecl_sum_data_get_last_report_step( const ecl_sum_data_type * data ) {
 
 
 
-void ecl_sum_data_init_time_vector( const ecl_sum_data_type * data , time_t_vector_type * time_vector , bool report_only) {
-  time_t_vector_reset( time_vector );
-  time_t_vector_append( time_vector , ecl_smspec_get_start_time( data->smspec ));
-  if (report_only) {
-    int report_step;
-    for (report_step = data->first_report_step; report_step <= data->last_report_step; report_step++) {
-      int last_index = int_vector_iget(data->report_last_index , report_step);
-      const ecl_sum_tstep_type * ministep = ecl_sum_data_iget_ministep( data , last_index );
-      time_t_vector_append( time_vector , ecl_sum_tstep_get_sim_time( ministep ) );
-    }
-  } else {
-    int i;
-    for (i = 1; i < vector_get_size(data->data); i++) {
-      const ecl_sum_tstep_type * ministep = ecl_sum_data_iget_ministep( data , i  );
-      time_t_vector_append( time_vector , ecl_sum_tstep_get_sim_time( ministep ));
+
+static void ecl_sum_data_init_time_vector__(const ecl_sum_data_type * data, time_t * output_data, bool report_only) {
+  int offset = 0;
+  for (const auto& index_node : data->index) {
+    const auto& data_file = data->data_files[index_node.data_index];
+
+    if (report_only)
+      offset += data_file->get_time_report(index_node.length, &output_data[offset]);
+    else {
+      data_file->get_time(index_node.length, &output_data[offset]);
+      offset += index_node.length;
     }
   }
 }
 
+
+void ecl_sum_data_init_time_vector(const ecl_sum_data_type * data, time_t * output_data) {
+  ecl_sum_data_init_time_vector__(data, output_data, false);
+}
+
+
+
 time_t_vector_type *  ecl_sum_data_alloc_time_vector( const ecl_sum_data_type * data , bool report_only) {
-  time_t_vector_type * time_vector = time_t_vector_alloc(0,0);
-  ecl_sum_data_init_time_vector( data , time_vector , report_only);
+  std::vector<time_t> output_data;
+  if (report_only)
+    output_data.resize( 1 + ecl_sum_data_get_last_report_step(data) - ecl_sum_data_get_first_report_step(data));
+  else
+    output_data.resize( ecl_sum_data_get_length(data) );
+
+  ecl_sum_data_init_time_vector__(data, output_data.data(), report_only);
+  time_t_vector_type * time_vector = time_t_vector_alloc(output_data.size(),0);
+  {
+    time_t * tmp_data = time_t_vector_get_ptr( time_vector );
+    memcpy(tmp_data, output_data.data(), output_data.size() * sizeof(time_t));
+  }
   return time_vector;
 }
 
 
-void ecl_sum_data_init_data_vector( const ecl_sum_data_type * data , double_vector_type * data_vector , int data_index , bool report_only) {
-  double_vector_reset( data_vector );
-  double_vector_append( data_vector , ecl_smspec_get_start_time( data->smspec ));
-  if (report_only) {
-    int report_step;
-    for (report_step = data->first_report_step; report_step <= data->last_report_step; report_step++) {
-      int last_index = int_vector_iget(data->report_last_index , report_step);
-      const ecl_sum_tstep_type * ministep = ecl_sum_data_iget_ministep( data , last_index );
-      double_vector_append( data_vector , ecl_sum_tstep_iget( ministep , data_index ));
-    }
-  } else {
-    int i;
-    for (i = 0; i < vector_get_size(data->data); i++) {
-      const ecl_sum_tstep_type * ministep = ecl_sum_data_iget_ministep( data , i  );
-      double_vector_append( data_vector , ecl_sum_tstep_iget( ministep , data_index ));
+
+
+static void ecl_sum_data_init_double_vector__(const ecl_sum_data_type * data, int main_params_index, double * output_data, bool report_only) {
+  int offset = 0;
+  for (const auto& index_node : data->index) {
+    const auto& data_file = data->data_files[index_node.data_index];
+    const auto& params_map = index_node.params_map;
+    int params_index = params_map[main_params_index];
+
+
+    if (report_only) {
+      const smspec_node_type * smspec_node = ecl_smspec_iget_node(data->smspec, main_params_index);
+      double default_value = smspec_node_get_default(smspec_node);
+      offset += data_file->get_data_report(params_index, index_node.length, &output_data[offset], default_value);
+    } else {
+
+      if (params_index >= 0)
+        data_file->get_data(params_index, index_node.length, &output_data[offset]);
+      else {
+        const smspec_node_type * smspec_node = ecl_smspec_iget_node(data->smspec, main_params_index);
+        for (int i=0; i < index_node.length; i++)
+          output_data[offset + i] = smspec_node_get_default(smspec_node);
+      }
+      offset += index_node.length;
     }
   }
 }
 
 
-double_vector_type * ecl_sum_data_alloc_data_vector( const ecl_sum_data_type * data , int data_index , bool report_only) {
-  double_vector_type * data_vector = double_vector_alloc(0,0);
-  ecl_sum_data_init_data_vector( data , data_vector , data_index , report_only);
-  return data_vector;
+void ecl_sum_data_init_datetime64_vector(const ecl_sum_data_type * data, int64_t * output_data, int multiplier) {
+  for (int i = 0; i < ecl_sum_data_get_length(data); i++)
+    output_data[i] = ecl_sum_data_iget_sim_time(data, i) * multiplier;
 }
+
 
 
 void ecl_sum_data_init_double_vector(const ecl_sum_data_type * data, int params_index, double * output_data) {
-  int i;
-  for (i = 0; i < vector_get_size(data->data); i++) {
-    const ecl_sum_tstep_type * ministep = ecl_sum_data_iget_ministep( data , i  );
-    output_data[i] = ecl_sum_tstep_iget(ministep, params_index);
-  }
+  ecl_sum_data_init_double_vector__(data, params_index, output_data, false);
 }
 
-void ecl_sum_data_init_datetime64_vector(const ecl_sum_data_type * data, int64_t * output_data, int multiplier) {
-  int i;
-  for (i = 0; i < vector_get_size(data->data); i++) {
-    const ecl_sum_tstep_type * ministep = ecl_sum_data_iget_ministep( data , i  );
-    output_data[i] = ecl_sum_tstep_get_sim_time(ministep) * multiplier;
+
+double_vector_type * ecl_sum_data_alloc_data_vector( const ecl_sum_data_type * data , int params_index , bool report_only) {
+  std::vector<double> output_data;
+  if (report_only)
+    output_data.resize( 1 + ecl_sum_data_get_last_report_step(data) - ecl_sum_data_get_first_report_step(data));
+  else
+    output_data.resize( ecl_sum_data_get_length(data) );
+
+  ecl_sum_data_init_double_vector__(data, params_index, output_data.data(), report_only);
+  double_vector_type * data_vector = double_vector_alloc(output_data.size(), 0);
+  {
+    double * tmp_data = double_vector_get_ptr( data_vector );
+    memcpy(tmp_data, output_data.data(), output_data.size() * sizeof(double));
   }
+  return data_vector;
 }
+
 
 void ecl_sum_data_init_double_vector_interp(const ecl_sum_data_type * data,
                                             const smspec_node_type * smspec_node,
@@ -1477,13 +1174,12 @@ void ecl_sum_data_init_double_vector_interp(const ecl_sum_data_type * data,
 void ecl_sum_data_init_double_frame(const ecl_sum_data_type * data, const ecl_sum_vector_type * keywords, double *output_data) {
   int time_stride = ecl_sum_vector_get_size(keywords);
   int key_stride = 1;
-  for (int time_index=0; time_index < vector_get_size(data->data); time_index++) {
-    const ecl_sum_tstep_type * ministep = ecl_sum_data_iget_ministep(data , time_index);
+  for (int time_index=0; time_index < ecl_sum_data_get_length(data); time_index++) {
     for (int key_index = 0; key_index < ecl_sum_vector_get_size(keywords); key_index++) {
       int param_index = ecl_sum_vector_iget_param_index(keywords, key_index);
       int data_index = key_index*key_stride + time_index * time_stride;
 
-      output_data[data_index] = ecl_sum_tstep_iget(ministep, param_index);
+      output_data[data_index] = ecl_sum_data_iget(data, time_index, param_index);
     }
   }
 }
@@ -1546,78 +1242,36 @@ void ecl_sum_data_init_double_frame_interp(const ecl_sum_data_type * data,
 */
 
 int ecl_sum_data_get_length( const ecl_sum_data_type * data ) {
-  return vector_get_size( data->data );
+  return data->index.length();
 }
 
-void ecl_sum_data_scale_vector(ecl_sum_data_type * data, int index, double scalar) {
-  int len = vector_get_size(data->data);
-  for (int i = 0; i < len; i++) {
-    ecl_sum_tstep_type * ministep = ecl_sum_data_iget_ministep(data,i);
-    ecl_sum_tstep_iscale(ministep, index, scalar);
+static bool ecl_sum_data_report_step_equal__( const ecl_sum_data_type * data1 , const ecl_sum_data_type * data2, bool strict) {
+  if (data1->data_files.size() != data2->data_files.size())
+    return false;
+
+  for (size_t i=0; i < data1->data_files.size(); i++) {
+    const auto& data_file1 = data1->data_files[i];
+    const auto& data_file2 = data2->data_files[i];
+
+    if (!data_file1->report_step_equal(*data_file2, strict))
+      return false;
   }
-}
 
-void ecl_sum_data_shift_vector(ecl_sum_data_type * data, int index, double addend) {
-  int len = vector_get_size(data->data);
-  for (int i = 0; i < len; i++) {
-    ecl_sum_tstep_type * ministep = ecl_sum_data_iget_ministep(data,i);
-    ecl_sum_tstep_ishift(ministep, index, addend);
-  }
-}
-
-bool ecl_sum_data_report_step_equal( const ecl_sum_data_type * data1 , const ecl_sum_data_type * data2) {
-  bool equal = true;
-  if (int_vector_size( data1->report_last_index ) == int_vector_size(data2->report_last_index)) {
-    int i;
-    for (i = 0; i < int_vector_size( data1->report_last_index ); i++) {
-      int time_index1 = int_vector_iget( data1->report_last_index , i );
-      int time_index2 = int_vector_iget( data2->report_last_index , i );
-
-      if ((time_index1 != INVALID_MINISTEP_NR) && (time_index2 != INVALID_MINISTEP_NR)) {
-        const ecl_sum_tstep_type * ministep1 = ecl_sum_data_iget_ministep( data1 , time_index1 );
-        const ecl_sum_tstep_type * ministep2 = ecl_sum_data_iget_ministep( data2 , time_index2 );
-
-        if (!ecl_sum_tstep_sim_time_equal( ministep1 , ministep2)) {
-          equal = false;
-          break;
-        }
-      } else if (time_index1 != time_index2) {
-        equal = false;
-        break;
-      }
-    }
-  } else
-    equal = false;
-
-  return equal;
+  return true;
 }
 
 
 bool ecl_sum_data_report_step_compatible( const ecl_sum_data_type * data1 , const ecl_sum_data_type * data2) {
-  bool compatible = true;
-  int min_size = util_int_min( int_vector_size( data1->report_last_index ) , int_vector_size( data2->report_last_index));
-  int i;
-  for (i = 0; i < min_size; i++) {
-    int time_index1 = int_vector_iget( data1->report_last_index , i );
-    int time_index2 = int_vector_iget( data2->report_last_index , i );
+  return ecl_sum_data_report_step_equal__(data1, data2, false);
+}
 
-    if ((time_index1 != INVALID_MINISTEP_NR) && (time_index2 != INVALID_MINISTEP_NR)) {
-      const ecl_sum_tstep_type * ministep1 = ecl_sum_data_iget_ministep( data1 , time_index1 );
-      const ecl_sum_tstep_type * ministep2 = ecl_sum_data_iget_ministep( data2 , time_index2 );
-
-      if (!ecl_sum_tstep_sim_time_equal( ministep1 , ministep2)) {
-        compatible = false;
-        break;
-      }
-    }
-  }
-  return compatible;
+bool ecl_sum_data_report_step_equal( const ecl_sum_data_type * data1 , const ecl_sum_data_type * data2) {
+  return ecl_sum_data_report_step_equal__(data1, data2, true);
 }
 
 
 double ecl_sum_data_iget_last_value(const ecl_sum_data_type * data, int param_index) {
-  const ecl_sum_tstep_type * tstep = (const ecl_sum_tstep_type*)vector_get_last_const(data->data);
-  return ecl_sum_tstep_iget( tstep, param_index);
+  return ecl_sum_data_iget(data, ecl_sum_data_get_length(data)-1, param_index);
 }
 
 double ecl_sum_data_get_last_value(const ecl_sum_data_type * data, int param_index) {
@@ -1625,6 +1279,5 @@ double ecl_sum_data_get_last_value(const ecl_sum_data_type * data, int param_ind
 }
 
 double ecl_sum_data_iget_first_value(const ecl_sum_data_type * data, int param_index) {
-  const ecl_sum_tstep_type * tstep = (const ecl_sum_tstep_type*) vector_iget_const(data->data, 0);
-  return ecl_sum_tstep_iget(tstep, param_index);
+  return ecl_sum_data_iget(data, 0, param_index);
 }

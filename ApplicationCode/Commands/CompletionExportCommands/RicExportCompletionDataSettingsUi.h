@@ -19,6 +19,7 @@
 #pragma once
 
 #include "RicCaseAndFileExportSettingsUi.h"
+#include "RicExportFractureCompletionsImpl.h"
 
 #include "cafPdmField.h"
 #include "cafAppEnum.h"
@@ -41,6 +42,10 @@ public:
     enum CompdatExport {
         TRANSMISSIBILITIES,
         WPIMULT_AND_DEFAULT_CONNECTION_FACTORS,
+
+#ifdef _DEBUG
+        NO_COMPLETIONS
+#endif
     };
     typedef caf::AppEnum<CompdatExport> CompdatExportType;
 
@@ -51,6 +56,7 @@ public:
     };
     typedef caf::AppEnum<CombinationMode> CombinationModeType;
 
+    typedef caf::AppEnum<RicExportFractureCompletionsImpl::PressureDepletionWBHPSource>   TransScalingWBHPSource;
 
     RicExportCompletionDataSettingsUi();
 
@@ -59,10 +65,17 @@ public:
     caf::PdmField<ExportSplitType>          fileSplit;
     caf::PdmField<CompdatExportType>        compdatExport;
 
+    caf::PdmField<bool>                     performTransScaling;
+    caf::PdmField<int>                      transScalingTimeStep;
+    caf::PdmField<TransScalingWBHPSource>   transScalingWBHPSource;
+    caf::PdmField<double>                   transScalingWBHP;
+
+    caf::PdmField<bool>                     includeMsw;
     caf::PdmField<bool>                     useLateralNTG;
     caf::PdmField<bool>                     includePerforations;
     caf::PdmField<bool>                     includeFishbones;
     caf::PdmField<bool>                     excludeMainBoreForFishbones;
+    
     caf::PdmField<bool>                     includeFractures;
     
     void                                    showForSimWells();
@@ -76,14 +89,15 @@ public:
 
     bool                                    reportCompletionsTypesIndividually() const;
 
-    virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
 
 protected:
-    virtual QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
-    virtual void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
+    void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
 
+    std::map<int, std::vector<std::pair<QString, QString>>> generateWellProductionStartStrings();
 private:
-    caf::PdmField<CombinationModeType> m_reportCompletionTypesSeparately;
+    caf::PdmField<CombinationModeType>  m_reportCompletionTypesSeparately;
 
     bool                m_displayForSimWell;
     bool                m_fracturesEnabled;

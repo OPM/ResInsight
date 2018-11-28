@@ -37,6 +37,7 @@
 
 #include "cafProgressInfo.h"
 #include "cafAssert.h"
+#include "cafMemoryInspector.h"
 #include "cafProgressState.h"
 
 #include <QPointer>
@@ -44,6 +45,8 @@
 #include <QCoreApplication>
 #include <QApplication>
 #include <QThread>
+
+#include <algorithm>
 
 namespace caf {
 
@@ -150,6 +153,16 @@ namespace caf {
     }
 
     //--------------------------------------------------------------------------------------------------
+    /// Convenience method for incrementing progress and setting step size and description for next step
+    //--------------------------------------------------------------------------------------------------
+    void ProgressInfo::incrementProgressAndUpdateNextStep(size_t nextStepSize, const QString& nextDescription)
+    {
+        incrementProgress();
+        setNextProgressIncrement(nextStepSize);
+        setProgressDescription(nextDescription);
+    }
+
+    //--------------------------------------------------------------------------------------------------
     /// To make a certain operation span more of the progress bar than one tick, 
     /// set the number of progress ticks that you want it to use before calling it.
     /// Eg.
@@ -181,6 +194,29 @@ namespace caf {
     /// 
     //==================================================================================================
 
+
+    //--------------------------------------------------------------------------------------------------
+    /// 
+    //--------------------------------------------------------------------------------------------------
+    QString createMemoryLabelText()
+    {
+        uint64_t    currentUsage = caf::MemoryInspector::getApplicationPhysicalMemoryUsageMiB();
+        uint64_t    totalPhysicalMemory = caf::MemoryInspector::getTotalPhysicalMemoryMiB();
+
+        float currentUsageFraction = 0.0f;
+        if (currentUsage > 0u && totalPhysicalMemory > 0u)
+        {
+            currentUsageFraction = std::min(1.0f, static_cast<float>(currentUsage) / totalPhysicalMemory);
+        }
+
+        QString labelText("\n");
+        if (currentUsageFraction > 0.5)
+        {
+            labelText = QString("Memory Used: %1 MiB, Total Physical Memory: %2 MiB\n").arg(currentUsage).arg(totalPhysicalMemory);
+        }
+        return labelText;
+    }
+
     //--------------------------------------------------------------------------------------------------
     /// 
     //--------------------------------------------------------------------------------------------------
@@ -194,6 +230,7 @@ namespace caf {
             progDialog->hide();
             progDialog->setAutoClose(false);
             progDialog->setAutoReset(false);
+            progDialog->setMinimumWidth(400);
         }
         return progDialog;
     }
@@ -301,7 +338,7 @@ namespace caf {
             if (!descriptionStack()[i].isEmpty()) labelText += descriptionStack()[i];
             if (!(titleStack()[i].isEmpty() && descriptionStack()[i].isEmpty())) labelText += "\n";
         }
-        labelText += "\n                                                                                                                      ";
+        labelText += createMemoryLabelText();
         return labelText;
 
     }

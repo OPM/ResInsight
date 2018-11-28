@@ -39,13 +39,13 @@
 
 #include "cafNotificationCenter.h"
 #include "cafPdmUiFieldEditorHandle.h"
-#include "cafSelectionManager.h"
 
 #include <QModelIndex>
 #include <QString>
 #include <QWidget>
 
 class QTableView;
+class QMenu;
 
 namespace caf
 {
@@ -54,46 +54,28 @@ class PdmObjectHandle;
 class PdmUiTableViewEditor;
 class PdmChildArrayFieldHandle;
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-class PdmUiTableViewEditorAttribute : public PdmUiEditorAttribute
-{
-public:
-    void    registerPushButtonTextForFieldKeyword(const QString& keyword, const QString& text);
-
-    bool    showPushButtonForFieldKeyword(const QString& keyword) const;
-    QString pushButtonText(const QString& keyword) const;
-
-private:
-    std::map<QString, QString> m_fieldKeywordAndPushButtonText;
-};
 
 //==================================================================================================
 /// 
 //==================================================================================================
-class PdmUiTableView : public QWidget, public DataModelObserver
+class PdmUiTableView : public QWidget
 {
     Q_OBJECT
 public:
     PdmUiTableView(QWidget* parent = nullptr, Qt::WindowFlags f = nullptr);
-    ~PdmUiTableView();
+    ~PdmUiTableView() override;
+
+    void              setChildArrayField(PdmChildArrayFieldHandle* childArrayField);
+    void              setUiConfigurationName(QString uiConfigName);
+    void              enableHeaderText(bool enable);
+    void              setTableSelectionLevel(int selectionLevel);
+    void              setRowSelectionLevel(int selectionLevel);
 
     PdmObjectHandle*  pdmObjectFromModelIndex(const QModelIndex& mi);
 
-    // SIG_CAF_HACK
-    void        setUiConfigurationName(QString uiConfigName);
+    QTableView*       tableView();
 
-    void        setListField(PdmChildArrayFieldHandle* object);
-
-    void        enableDefaultContextMenu(bool enable);
-    void        enableHeaderText(bool enable);
-    void        setSelectionRole(SelectionManager::SelectionRole role);
-
-    QTableView* tableView();
-
-    virtual void handleModelNotification(caf::PdmObjectHandle* itemThatChanged);
-    virtual void handleModelSelectionChange();
+    static void       addActionsToMenu(QMenu* menu, PdmChildArrayFieldHandle* childArrayField);
 
 private:
     PdmUiTableViewEditor*   m_listViewEditor;

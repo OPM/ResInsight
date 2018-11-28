@@ -25,7 +25,7 @@ class RimGeometrySelectionItem : public caf::PdmObject
     CAF_PDM_HEADER_INIT;
 public:
     RimGeometrySelectionItem();
-    virtual ~RimGeometrySelectionItem();
+    ~RimGeometrySelectionItem() override;
 
     virtual QString geometrySelectionText() const = 0;
 };

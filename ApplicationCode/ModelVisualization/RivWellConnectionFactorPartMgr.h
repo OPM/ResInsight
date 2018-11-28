@@ -41,7 +41,7 @@ class RivWellConnectionFactorPartMgr : public cvf::Object
 {
 public:
     RivWellConnectionFactorPartMgr(RimWellPath* well, RimVirtualPerforationResults* virtualPerforationResult);
-    ~RivWellConnectionFactorPartMgr();
+    ~RivWellConnectionFactorPartMgr() override;
 
     void appendDynamicGeometryPartsToModel(cvf::ModelBasicList* model, size_t frameIndex);
 

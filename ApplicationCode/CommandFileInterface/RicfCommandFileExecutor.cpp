@@ -34,6 +34,9 @@ namespace caf {
         addItem(RicfCommandFileExecutor::PROPERTIES,  "PROPERTIES",  "Properties");
         addItem(RicfCommandFileExecutor::SNAPSHOTS,   "SNAPSHOTS",   "Snapshots");
         addItem(RicfCommandFileExecutor::STATISTICS,  "STATISTICS",  "Statistics");
+        addItem(RicfCommandFileExecutor::WELLPATHS,   "WELLPATHS",   "Well Path");
+        addItem(RicfCommandFileExecutor::CELLS,       "CELLS",       "Cells");
+        addItem(RicfCommandFileExecutor::LGRS,        "LGRS",        "Lgrs");
         setDefault(RicfCommandFileExecutor::COMPLETIONS);
     }
 }
@@ -57,10 +60,13 @@ RicfCommandFileExecutor::~RicfCommandFileExecutor()
 //--------------------------------------------------------------------------------------------------
 void RicfCommandFileExecutor::executeCommands(QTextStream& stream)
 {
+    RicfMessages messages;
     std::vector<RicfCommandObject*> executableCommands;
     {
-        std::vector<RicfCommandObject*> fileCommands = RicfCommandFileReader::readCommands(stream, caf::PdmDefaultObjectFactory::instance(), &m_messages);
-        for (auto message : m_messages.m_messages)
+        clearCachedData();
+
+        std::vector<RicfCommandObject*> fileCommands = RicfCommandFileReader::readCommands(stream, caf::PdmDefaultObjectFactory::instance(), &messages);
+        for (auto message : messages.m_messages)
         {
             if (message.first == RicfMessages::MESSAGE_WARNING)
             {
@@ -78,6 +84,11 @@ void RicfCommandFileExecutor::executeCommands(QTextStream& stream)
 
                 return;
             }
+        }
+
+        for (auto fileCommand : fileCommands)
+        {
+            fileCommand->initAfterReadRecursively();
         }
 
         executableCommands = RicfCommandFileExecutor::prepareFileCommandsForExecution(fileCommands);
@@ -206,4 +217,13 @@ std::vector<RicfCommandObject*> RicfCommandFileExecutor::prepareFileCommandsForE
     }
 
     return executableCommands;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicfCommandFileExecutor::clearCachedData()
+{
+    m_exportPaths.clear();
+    m_lastProjectPath.clear();
 }

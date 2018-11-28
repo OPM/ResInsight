@@ -67,23 +67,26 @@ QString RimTools::getCacheRootDirectoryPathFromProject()
 ///  such that the common start of oldProjectPath and m_gridFileName is removed from m_gridFileName
 ///  and replaced with the start of newProjectPath up to where newProjectPath starts to be equal to oldProjectPath
 //--------------------------------------------------------------------------------------------------
-QString RimTools::relocateFile(const QString& orgFileName, const QString& orgNewProjectPath, const QString& orgOldProjectPath,
-    bool* foundFile, std::vector<QString>* searchedPaths)
+QString RimTools::relocateFile(const QString&        originalFileName,
+                               const QString&        currentProjectPath,
+                               const QString&        previousProjectPath,
+                               bool*                 foundFile,
+                               std::vector<QString>* searchedPaths)
 {
     if (foundFile) *foundFile = true;
 
     // Make sure we have a Qt formatted path ( using "/" not "\")
-    QString fileName = QDir::fromNativeSeparators(orgFileName);
-    QString newProjectPath = QDir::fromNativeSeparators(orgNewProjectPath);
-    QString oldProjectPath = QDir::fromNativeSeparators(orgOldProjectPath);
+    QString fileName = QDir::fromNativeSeparators(originalFileName);
+    QString newProjectPath = QDir::fromNativeSeparators(currentProjectPath);
+    QString oldProjectPath = QDir::fromNativeSeparators(previousProjectPath);
 
     // If we from a file or whatever gets a real windows path on linux, we need to manually convert it
     // because Qt will not. QDir::fromNativeSeparators does nothing on linux.
 
     bool isWindowsPath = false;
-    if (orgFileName.count("/")) isWindowsPath = false; // "/" are not allowed in a windows path
-    else if (orgFileName.count("\\")
-        && !caf::Utils::fileExists(orgFileName)) // To make sure we do not convert single linux files containing "\"
+    if (originalFileName.count("/")) isWindowsPath = false; // "/" are not allowed in a windows path
+    else if (originalFileName.count("\\")
+        && !caf::Utils::fileExists(originalFileName)) // To make sure we do not convert single linux files containing "\"
     {
         isWindowsPath = true;
     }
@@ -114,10 +117,10 @@ QString RimTools::relocateFile(const QString& orgFileName, const QString& orgNew
 
     // Then find the possible move of a directory structure where projects and files referenced are moved in "paralell"
 
-    QFileInfo gridFileInfo(QDir::fromNativeSeparators(fileName));
-    QString gridFilePath = gridFileInfo.path();
-    QString gridFileNameWoPath = gridFileInfo.fileName();
-    QStringList gridPathElements = gridFilePath.split("/", QString::KeepEmptyParts);
+    QFileInfo fileNameFileInfo(QDir::fromNativeSeparators(fileName));
+    QString fileNamePath = fileNameFileInfo.path();
+    QString fileNameWithoutPath = fileNameFileInfo.fileName();
+    QStringList fileNamePathElements = fileNamePath.split("/", QString::KeepEmptyParts);
 
     QString oldProjPath = QDir::fromNativeSeparators(oldProjectPath);
     QStringList oldProjPathElements = oldProjPath.split("/", QString::KeepEmptyParts);
@@ -130,7 +133,7 @@ QString RimTools::relocateFile(const QString& orgFileName, const QString& orgNew
     bool pathStartsAreEqual = false;
     bool pathEndsDiffer = false;
     int firstDiffIdx = 0;
-    for (firstDiffIdx = 0; firstDiffIdx < gridPathElements.size() && firstDiffIdx < oldProjPathElements.size(); ++firstDiffIdx)
+    for (firstDiffIdx = 0; firstDiffIdx < fileNamePathElements.size() && firstDiffIdx < oldProjPathElements.size(); ++firstDiffIdx)
     {
 #ifdef WIN32
         // When comparing parts of a file path, the drive letter has been seen to be a mix of
@@ -140,9 +143,9 @@ QString RimTools::relocateFile(const QString& orgFileName, const QString& orgNew
 #else
         Qt::CaseSensitivity cs = Qt::CaseSensitive;
 #endif
-        if (gridPathElements[firstDiffIdx].compare(oldProjPathElements[firstDiffIdx], cs) == 0)
+        if (fileNamePathElements[firstDiffIdx].compare(oldProjPathElements[firstDiffIdx], cs) == 0)
         {
-            pathStartsAreEqual = pathStartsAreEqual || !gridPathElements[firstDiffIdx].isEmpty();
+            pathStartsAreEqual = pathStartsAreEqual || !fileNamePathElements[firstDiffIdx].isEmpty();
         }
         else
         {
@@ -151,7 +154,7 @@ QString RimTools::relocateFile(const QString& orgFileName, const QString& orgNew
         }
     }
 
-    if (!pathEndsDiffer && firstDiffIdx < gridPathElements.size() || firstDiffIdx < oldProjPathElements.size())
+    if (!pathEndsDiffer && firstDiffIdx < fileNamePathElements.size() || firstDiffIdx < oldProjPathElements.size())
     {
         pathEndsDiffer = true;
     }
@@ -162,11 +165,11 @@ QString RimTools::relocateFile(const QString& orgFileName, const QString& orgNew
     {
         if (pathEndsDiffer)
         {
-            QString oldGridFilePathEnd;
-            for (int i = firstDiffIdx; i < gridPathElements.size(); ++i)
+            QString oldFileNamePathEnd;
+            for (int i = firstDiffIdx; i < fileNamePathElements.size(); ++i)
             {
-                oldGridFilePathEnd += gridPathElements[i];
-                oldGridFilePathEnd += "/";
+                oldFileNamePathEnd += fileNamePathElements[i];
+                oldFileNamePathEnd += "/";
             }
 
             // Find the new Project File Start Path
@@ -177,27 +180,29 @@ QString RimTools::relocateFile(const QString& orgFileName, const QString& orgNew
                 oldProjectFilePathEndElements.push_back(oldProjPathElements[i]);
             }
 
-            int ppIdx = oldProjectFilePathEndElements.size() - 1;
-            int lastDiffIdx = newProjPathElements.size() - 1;
-
-            for (; lastDiffIdx >= 0 && ppIdx >= 0; --lastDiffIdx, --ppIdx)
+            int lastProjectDiffIdx = newProjPathElements.size() - 1;
             {
-                if (oldProjectFilePathEndElements[ppIdx] != newProjPathElements[lastDiffIdx])
+                int ppIdx = oldProjectFilePathEndElements.size() - 1;
+
+                for (; lastProjectDiffIdx >= 0 && ppIdx >= 0; --lastProjectDiffIdx, --ppIdx)
                 {
-                    break;
+                    if (oldProjectFilePathEndElements[ppIdx] != newProjPathElements[lastProjectDiffIdx])
+                    {
+                        break;
+                    }
                 }
             }
 
-            QString newProjecetFileStartPath;
-            for (int i = 0; i <= lastDiffIdx; ++i)
+            QString newProjectFileStartPath;
+            for (int i = 0; i <= lastProjectDiffIdx; ++i)
             {
-                newProjecetFileStartPath += newProjPathElements[i];
-                newProjecetFileStartPath += "/";
+                newProjectFileStartPath += newProjPathElements[i];
+                newProjectFileStartPath += "/";
             }
 
-            QString relocationPath = newProjecetFileStartPath + oldGridFilePathEnd;
+            QString relocationPath = newProjectFileStartPath + oldFileNamePathEnd;
 
-            QString relocatedFileName = relocationPath + gridFileNameWoPath;
+            QString relocatedFileName = relocationPath + fileNameWithoutPath;
 
             if (searchedPaths) searchedPaths->push_back(relocatedFileName);
 
@@ -227,10 +232,10 @@ void RimTools::wellPathOptionItems(QList<caf::PdmOptionItemInfo>* options)
     CVF_ASSERT(options);
     if (!options) return;
 
-    RimProject* proj = RiaApplication::instance()->project();
-    if (proj && proj->activeOilField() && proj->activeOilField()->wellPathCollection())
+    auto wellPathColl = RimTools::wellPathCollection();
+    if (wellPathColl)
     {
-        caf::PdmChildArrayField<RimWellPath*>& wellPaths = proj->activeOilField()->wellPathCollection()->wellPaths;
+        caf::PdmChildArrayField<RimWellPath*>& wellPaths = wellPathColl->wellPaths;
 
         QIcon wellIcon(":/Well.png");
         for (RimWellPath* wellPath : wellPaths)
@@ -263,10 +268,10 @@ void RimTools::wellPathWithFormationsOptionItems(QList<caf::PdmOptionItemInfo>* 
 //--------------------------------------------------------------------------------------------------
 void RimTools::wellPathWithFormations(std::vector<RimWellPath*>* wellPaths)
 {
-    RimProject* proj = RiaApplication::instance()->project();
-    if (proj && proj->activeOilField() && proj->activeOilField()->wellPathCollection())
+    auto wellPathColl = RimTools::wellPathCollection();
+    if (wellPathColl)
     {
-        caf::PdmChildArrayField<RimWellPath*>& allWellPaths = proj->activeOilField()->wellPathCollection()->wellPaths;
+        caf::PdmChildArrayField<RimWellPath*>& allWellPaths = wellPathColl->wellPaths;
 
         for (RimWellPath* wellPath : allWellPaths)
         {
@@ -351,4 +356,18 @@ QString RimTools::createTimeFormatStringFromDates(const std::vector<QDateTime>& 
 QString RimTools::dateFormatString()
 {
     return "dd.MMM yyyy";
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimWellPathCollection* RimTools::wellPathCollection()
+{
+    RimProject* proj = RiaApplication::instance()->project();
+    if (proj && proj->activeOilField())
+    {
+        return proj->activeOilField()->wellPathCollection();
+    }
+
+    return nullptr;
 }

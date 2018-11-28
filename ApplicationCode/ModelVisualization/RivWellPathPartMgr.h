@@ -43,6 +43,7 @@ class RivPipeGeometryGenerator;
 class RimProject;
 class RimWellPath;
 class RivFishbonesSubsPartMgr;
+class RimPerforationInterval;
 class RimWellPathCollection;
 class Rim3dView;
 class Riv3dWellLogPlanePartMgr;
@@ -57,7 +58,7 @@ class RivWellPathPartMgr : public cvf::Object
 {
 public:
     explicit RivWellPathPartMgr(RimWellPath* wellPath, Rim3dView* view);
-    ~RivWellPathPartMgr();
+    ~RivWellPathPartMgr() override;
 
     void appendStaticGeometryPartsToModel(cvf::ModelBasicList*              model,
                                           const caf::DisplayCoordTransform* displayCoordTransform,
@@ -88,6 +89,10 @@ private:
                                         const caf::DisplayCoordTransform* displayCoordTransform,
                                         double                            characteristicCellSize);
 
+    void appendWellPathAttributesToModel(cvf::ModelBasicList*              model,
+                                         const caf::DisplayCoordTransform* displayCoordTransform,
+                                         double                            characteristicCellSize);
+
     void appendImportedFishbonesToModel(cvf::ModelBasicList*              model,
                                         const caf::DisplayCoordTransform* displayCoordTransform,
                                         double                            characteristicCellSize);
@@ -97,6 +102,12 @@ private:
                                    const caf::DisplayCoordTransform* displayCoordTransform,
                                    double                            characteristicCellSize,
                                    bool                              doFlatten);
+
+    void appendPerforationValvesToModel(cvf::ModelBasicList*              model,
+                                        RimPerforationInterval*           perforation,
+                                        double                            wellPathRadius,
+                                        const caf::DisplayCoordTransform* displayCoordTransform,
+                                        RivPipeGeometryGenerator&         geoGenerator);
 
     void appendVirtualTransmissibilitiesToModel(cvf::ModelBasicList*              model,
                                                 size_t                            timeStepIndex,
@@ -110,7 +121,7 @@ private:
 
 
     void                          clearAllBranchData();
-    inline RimWellPathCollection* wellPathCollection();
+    inline RimWellPathCollection* wellPathCollection() const;
     inline double                 wellPathRadius(double characteristicCellSize, RimWellPathCollection* wellPathCollection);
 
     bool isWellPathWithinBoundingBox(const cvf::BoundingBox& wellPathClipBoundingBox) const;

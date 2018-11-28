@@ -20,6 +20,9 @@
 
 #include "RimEclipsePropertyFilter.h"
 
+#include "RiaDefines.h"
+#include "RiaFieldHandleTools.h"
+
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
 #include "RigFlowDiagResults.h"
@@ -65,8 +68,7 @@ RimEclipsePropertyFilter::RimEclipsePropertyFilter()
     CAF_PDM_InitObject("Cell Property Filter", ":/CellFilter_Values.png", "", "");
 
     CAF_PDM_InitFieldNoDefault(&obsoleteField_evaluationRegion, "EvaluationRegion", "Evaluation Region", "", "", "");
-    obsoleteField_evaluationRegion.uiCapability()->setUiHidden(true);
-    obsoleteField_evaluationRegion.xmlCapability()->setIOWritable(false);
+    RiaFieldhandleTools::disableWriteAndSetFieldHidden(&obsoleteField_evaluationRegion);
 
     CAF_PDM_InitFieldNoDefault(&resultDefinition, "ResultDefinition", "Result Definition", "", "", "");
     resultDefinition = new RimEclipseResultDefinition();
@@ -77,8 +79,7 @@ RimEclipsePropertyFilter::RimEclipsePropertyFilter()
     resultDefinition.uiCapability()->setUiTreeChildrenHidden(true);
 
     CAF_PDM_InitField(&m_rangeLabelText, "Dummy_keyword", QString("Range Type"), "Range Type", "", "", "");
-    m_rangeLabelText.xmlCapability()->setIOReadable(false);
-    m_rangeLabelText.xmlCapability()->setIOWritable(false);
+    m_rangeLabelText.xmlCapability()->disableIO();
     m_rangeLabelText.uiCapability()->setUiReadOnly(true);
 
     CAF_PDM_InitField(&m_lowerBound, "LowerBound", 0.0, "Min", "", "", "");
@@ -139,11 +140,13 @@ void RimEclipsePropertyFilter::fieldChangedByUi(const caf::PdmFieldHandle* chang
         || &m_selectedCategoryValues == changedField
         || &m_useCategorySelection == changedField)
     {
+        this->resultDefinition->loadResult();
+        this->computeResultValueRange();
         updateFilterName();
         this->updateIconState();
         this->uiCapability()->updateConnectedEditors();
 
-        parentContainer()->updateDisplayModelNotifyManagedViews();
+        parentContainer()->updateDisplayModelNotifyManagedViews(this);
     }
 }
 
@@ -389,12 +392,17 @@ void RimEclipsePropertyFilter::computeResultValueRange()
                     }
                     else if (resultDefinition->resultVariable() == RiaDefines::completionTypeResultName())
                     {
-                        std::vector<QString> ctNames;
-                        for (const QString& ctName : caf::AppEnum<RiaDefines::CompletionType>::uiTexts())
+                        std::vector<RiaDefines::WellPathComponentType> componentTypes =
+                        { 
+                            RiaDefines::WELL_PATH, RiaDefines::PERFORATION_INTERVAL,
+                            RiaDefines::FISHBONES, RiaDefines::FRACTURE
+                        };
+                        std::vector<std::pair<QString, int>> ctNamesAndValues;
+                        for (RiaDefines::WellPathComponentType type : componentTypes)
                         {
-                            ctNames.push_back(ctName);
+                            ctNamesAndValues.push_back(std::make_pair(caf::AppEnum<RiaDefines::WellPathComponentType>::uiText(type), type));
                         }
-                        setCategoryNames(ctNames);
+                        setCategoryNamesAndValues(ctNamesAndValues);
                     }
                     else
                     {

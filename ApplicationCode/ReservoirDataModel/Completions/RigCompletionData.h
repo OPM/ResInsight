@@ -22,9 +22,10 @@
 
 #include <QString>
 
-#include <vector>
+#include <cafPdmPointer.h>
+#include <cafPdmObject.h>
 
-class RimEclipseCase;
+#include <vector>
 
 //==================================================================================================
 /// 
@@ -65,6 +66,7 @@ public:
         FISHBONES,
         FRACTURE,
         PERFORATION,
+        ICD,
         CT_UNDEFINED
     };
 
@@ -90,6 +92,8 @@ public:
     void        setTransAndWPImultBackgroundDataFromPerforation(double transmissibility, 
                                                                 double skinFactor, 
                                                                 double diameter,
+                                                                double dFactor,
+                                                                double kh,
                                                                 CellDirection direction);
 
     void        setCombinedValuesExplicitTrans(double         transmissibility,
@@ -109,8 +113,9 @@ public:
     void        setKh(double kh);
 
     void        addMetadata(const QString& name, const QString& comment);
-    static bool isDefaultValue(double val);
-
+    
+    static double                             defaultValue();
+    static bool                               isDefaultValue(double num);
     const std::vector<RigCompletionMetaData>& metadata() const;
     const QString&                            wellName() const;
     const RigCompletionDataGridCell&          completionDataGridCell() const;
@@ -129,6 +134,9 @@ public:
 
     double                                  firstOrderingValue() const;
     double                                  secondOrderingValue() const;
+
+    void                                    setSourcePdmObject(const caf::PdmObject* object);
+    const caf::PdmObject*                   sourcePdmObject() const;
 
     std::vector<RigCompletionMetaData>   m_metadata; 
 
@@ -154,7 +162,8 @@ private:
     double                               m_firstOrderingValue;
     double                               m_secondOrderingValue;
 
+    caf::PdmPointer<caf::PdmObject>      m_sourcePdmObject;
+
 private:
-    static bool                          onlyOneIsDefaulted(double first, double second);
     static void                          copy(RigCompletionData& target, const RigCompletionData& from);
 };

@@ -20,6 +20,7 @@
 
 
 #include "RigCell.h"
+#include "RigCellGeometryTools.h"
 #include "RigMainGrid.h"
 #include "cvfPlane.h"
 #include "cvfRay.h"
@@ -302,6 +303,21 @@ cvf::Vec3d RigCell::faceNormalWithAreaLenght(cvf::StructGridInterface::FaceType 
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RigCell::volume() const
+{
+    const std::vector<cvf::Vec3d>& nodeCoords = m_hostGrid->mainGrid()->nodes();
+
+    std::array<cvf::Vec3d, 8> hexCorners;
+    for (size_t i = 0; i < 8; ++i)
+    {
+        hexCorners[i] = nodeCoords.at(m_cornerIndices[i]);
+    }
+    return RigCellGeometryTools::calculateCellVolume(hexCorners);
+}
+
+//--------------------------------------------------------------------------------------------------
 /// Find the intersection between the cell and the ray. The point closest to the ray origin is returned
 /// in \a intersectionPoint, while the return value is the total number of intersections with the 24 triangles
 /// the cell is interpreted as.
@@ -355,7 +371,7 @@ int RigCell::firstIntersectionPoint(const cvf::Ray& ray, cvf::Vec3d* intersectio
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigCell::faceIndices(cvf::StructGridInterface::FaceType face, caf::SizeTArray4* indices) const
+void RigCell::faceIndices(cvf::StructGridInterface::FaceType face, std::array<size_t, 4>* indices) const
 {
     cvf::ubyte faceVertexIndices[4];
     cvf::StructGridInterface::cellFaceVertexIndices(face, faceVertexIndices);

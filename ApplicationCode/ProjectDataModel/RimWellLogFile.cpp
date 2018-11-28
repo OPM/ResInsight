@@ -18,25 +18,26 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RimWellLogFile.h"
-#include "RimWellLogFileChannel.h"
-#include "RimWellPath.h"
-#include "RimWellPathCollection.h"
-#include "RimTools.h"
-//#include "RimWellPltPlot.h"
-#include "RimWellPlotTools.h"
 
 #include "RiaDateStringParser.h"
+#include "RiaFieldHandleTools.h"
+#include "RiaQDateTimeTools.h"
 
 #include "RigWellLogFile.h"
+
+#include "RimFileWellPath.h"
+#include "RimTools.h"
+#include "RimWellLogFileChannel.h"
+#include "RimWellPathCollection.h"
+#include "RimWellPlotTools.h"
 
 #include "Riu3DMainWindowTools.h"
 
 #include "cafPdmUiDateEditor.h"
 
-#include <QStringList>
 #include <QFileInfo>
 #include <QMessageBox>
-#include "RiaQDateTimeTools.h"
+#include <QStringList>
 
 
 CAF_PDM_SOURCE_INIT(RimWellLogFile, "WellLogFile");
@@ -65,8 +66,7 @@ RimWellLogFile::RimWellLogFile()
 
     CAF_PDM_InitFieldNoDefault(&m_wellName, "WellName", "",  "", "", "");
     m_wellName.uiCapability()->setUiReadOnly(true);
-    m_wellName.uiCapability()->setUiHidden(true);
-    m_wellName.xmlCapability()->setIOWritable(false);
+    RiaFieldhandleTools::disableWriteAndSetFieldHidden(&m_wellName);
 
     CAF_PDM_InitFieldNoDefault(&m_date, "Date", "Date", "", "", "");
     m_date.uiCapability()->setUiReadOnly(true);
@@ -76,12 +76,10 @@ RimWellLogFile::RimWellLogFile()
 
     CAF_PDM_InitFieldNoDefault(&m_name, "Name", "",  "", "", "");
     m_name.uiCapability()->setUiReadOnly(true);
-    m_name.uiCapability()->setUiHidden(true);
-    m_name.xmlCapability()->setIOWritable(false);
+    RiaFieldhandleTools::disableWriteAndSetFieldHidden(&m_name);
 
     CAF_PDM_InitFieldNoDefault(&m_wellLogChannelNames, "WellLogFileChannels", "",  "", "", "");
-    m_wellLogChannelNames.uiCapability()->setUiHidden(true);
-    m_wellLogChannelNames.xmlCapability()->setIOWritable(false);
+    RiaFieldhandleTools::disableWriteAndSetFieldHidden(&m_wellLogChannelNames);
 
     CAF_PDM_InitField(&m_wellFlowCondition, "WellFlowCondition", caf::AppEnum<RimWellLogFile::WellFlowCondition>(RimWellLogFile::WELL_FLOW_COND_STANDARD), "Well Flow Rates", "", "", "");
 
@@ -90,6 +88,7 @@ RimWellLogFile::RimWellLogFile()
     m_invalidDateMessage.xmlCapability()->disableIO();
 
     m_wellLogDataFile = nullptr;
+    m_lasFileHasValidDate = false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -193,11 +192,11 @@ bool RimWellLogFile::readFile(QString* errorMessage)
         m_wellLogChannelNames.push_back(wellLog);
     }
 
-    RimWellPath* wellPath;
-    firstAncestorOrThisOfType(wellPath);
+    RimFileWellPath* wellPath;
+    this->firstAncestorOrThisOfType(wellPath);
     if (wellPath)
     {
-        if (wellPath->filepath().isEmpty())
+        if (wellPath->filepath().isEmpty()) // Has dummy wellpath
         {
             wellPath->setName(m_wellName);
         }
@@ -259,6 +258,33 @@ void RimWellLogFile::updateFilePathsFromProjectPath(const QString& newProjectPat
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<std::pair<double, double>> RimWellLogFile::findMdAndChannelValuesForWellPath(const RimWellPath* wellPath, const QString& channelName)
+{
+    CVF_ASSERT(wellPath);
+    std::vector<RimWellLogFile*> wellLogFiles;
+    wellPath->descendantsIncludingThisOfType(wellLogFiles);
+    for (RimWellLogFile* wellLogFile : wellLogFiles)
+    {
+        RigWellLogFile* fileData = wellLogFile->wellLogFileData();
+        std::vector<double> channelValues = fileData->values(channelName);
+        if (!channelValues.empty())
+        {
+            std::vector<double> depthValues = fileData->depthValues();
+            CVF_ASSERT(depthValues.size() == channelValues.size());
+            std::vector<std::pair<double, double>> depthValuePairs;
+            for (size_t i = 0; i < depthValues.size(); ++i)
+            {
+                depthValuePairs.push_back(std::make_pair(depthValues[i], channelValues[i]));
+            }
+            return depthValuePairs;
+        }
+    }
+    return std::vector<std::pair<double, double>>();
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void RimWellLogFile::setupBeforeSave()
@@ -274,8 +300,6 @@ void RimWellLogFile::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
     uiOrdering.add(&m_fileName);
     uiOrdering.add(&m_date);
     m_date.uiCapability()->setUiReadOnly(m_lasFileHasValidDate);
-
-    auto timespec = m_date().timeSpec();
 
     if (!isDateValid(m_date()))
     {

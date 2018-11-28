@@ -41,10 +41,10 @@ public:
     void clear();
 
 
-    virtual QSize sizeHint() const override;
+    QSize sizeHint() const override;
 
 protected:
-    virtual void paintEvent(QPaintEvent* e);
+    void paintEvent(QPaintEvent* e) override;
 
 private:
     void updateSizePolicy();

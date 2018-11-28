@@ -20,8 +20,10 @@
 
 #pragma once
 #include "RigLocalGrid.h"
+
 #include "cvfStructGrid.h"
-#include "cafFixedArray.h"
+
+#include <array>
 
 namespace cvf
 {
@@ -36,9 +38,10 @@ public:
     RigCell();
     ~RigCell(); // Not virtual, to save space. Do not inherit from this class
 
-    caf::SizeTArray8&       cornerIndices()                                     { return m_cornerIndices;}
-    const caf::SizeTArray8& cornerIndices() const                               { return m_cornerIndices;}
-    void                    faceIndices(cvf::StructGridInterface::FaceType face, caf::SizeTArray4 * faceIndices) const ;                              
+    std::array<size_t, 8>&       cornerIndices()                                     { return m_cornerIndices;}
+    const std::array<size_t, 8>& cornerIndices() const                               { return m_cornerIndices;}
+
+    void                    faceIndices(cvf::StructGridInterface::FaceType face, std::array<size_t, 4>* faceIndices) const ;                              
 
     bool                    isInvalid() const                                   { return m_isInvalid; }
     void                    setInvalid( bool val )                              { m_isInvalid = val; }
@@ -48,6 +51,7 @@ public:
 
     RigLocalGrid*           subGrid() const                                     { return m_subGrid; }
     void                    setSubGrid(RigLocalGrid* subGrid)                   { m_subGrid = subGrid; }
+    void                    removeSubGrid(RigLocalGrid* subGrid)                { m_subGrid = nullptr; }
 
     RigGridBase*            hostGrid() const                                    { return m_hostGrid; }
     void                    setHostGrid(RigGridBase* hostGrid)                  { m_hostGrid = hostGrid; }
@@ -66,12 +70,14 @@ public:
     cvf::Vec3d              center() const;
     cvf::Vec3d              faceCenter(cvf::StructGridInterface::FaceType face) const;
     cvf::Vec3d              faceNormalWithAreaLenght(cvf::StructGridInterface::FaceType face) const;
+    double                  volume() const;
+
 
     int                     firstIntersectionPoint(const cvf::Ray& ray, cvf::Vec3d* intersectionPoint) const;
     bool                    isLongPyramidCell(double maxHeightFactor = 5, double nodeNearTolerance = 1e-3 ) const;
     bool                    isCollapsedCell( double nodeNearTolerance = 1e-3) const;
 private:
-    caf::SizeTArray8        m_cornerIndices;
+    std::array<size_t, 8>   m_cornerIndices;
 
     size_t                  m_gridLocalCellIndex;                ///< This cells index in the grid it belongs to.
     RigGridBase*            m_hostGrid;

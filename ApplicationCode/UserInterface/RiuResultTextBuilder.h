@@ -46,7 +46,7 @@ public:
 
     void setFace(cvf::StructGridInterface::FaceType face);
     void setNncIndex(size_t nncIndex);
-    void setIntersectionPoint(cvf::Vec3d intersectionPoint);
+    void setIntersectionPointInDisplay(cvf::Vec3d intersectionPointInDisplay);
     void set2dIntersectionView(Rim2dIntersectionView* intersectionView);
 
     QString mainResultText();
@@ -83,5 +83,5 @@ private:
 
     size_t      m_nncIndex;
 
-    cvf::Vec3d m_intersectionPoint;
+    cvf::Vec3d m_intersectionPointInDisplay;
 };

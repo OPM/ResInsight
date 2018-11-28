@@ -4,7 +4,7 @@
 #include <memory>
 #include <string>
 
-#include <ert/ecl/smspec_node.h>
+#include <ert/ecl/smspec_node.hpp>
 #include <ert/util/ert_unique_ptr.hpp>
 
 namespace ERT {

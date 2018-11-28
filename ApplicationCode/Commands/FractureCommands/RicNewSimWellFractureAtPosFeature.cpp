@@ -72,10 +72,10 @@ void RicNewSimWellFractureAtPosFeature::onActionTriggered(bool isChecked)
     RimSimWellFracture* fracture = new RimSimWellFracture();
     if (fractureCollection->simwellFractures.empty())
     {
-        RimEclipseView* activeView = dynamic_cast<RimEclipseView*>(RiaApplication::instance()->activeReservoirView());
-        if (activeView)
+        RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>(RiaApplication::instance()->activeReservoirView());
+        if (eclipseView)
         {
-            activeView->fractureColors()->setDefaultResultName();
+            eclipseView->fractureColors()->setDefaultResultName();
         }
     }
 

@@ -20,7 +20,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#include <ert/util/util.hpp>
+#include <ert/util/util.h>
 #include <ert/util/type_macros.hpp>
 
 #include <ert/geometry/geo_pointset.hpp>
@@ -248,7 +248,7 @@ static bool geo_surface_fload_irap( geo_surface_type * surface , const char * fi
 
       if (read_ok)
         geo_surface_init_regular( surface , zcoord );
-      util_safe_free( zcoord );
+      free( zcoord );
     }
     fclose( stream );
   }

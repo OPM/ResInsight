@@ -20,6 +20,7 @@
 
 #include "RimEclipseCellColors.h"
 
+#include "RiaColorTables.h"
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
 #include "RigFlowDiagResults.h"
@@ -56,8 +57,8 @@ RimEclipseCellColors::RimEclipseCellColors()
 
     CAF_PDM_InitFieldNoDefault(&m_legendConfigData, "ResultVarLegendDefinitionList", "", "", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&ternaryLegendConfig, "TernaryLegendDefinition", "Ternary Legend Definition", "", "", "");
-    this->ternaryLegendConfig = new RimTernaryLegendConfig();
+    CAF_PDM_InitFieldNoDefault(&m_ternaryLegendConfig, "TernaryLegendDefinition", "Ternary Legend Definition", "", "", "");
+    this->m_ternaryLegendConfig = new RimTernaryLegendConfig();
 
     CAF_PDM_InitFieldNoDefault(&m_legendConfigPtrField, "LegendDefinitionPtrField", "Legend Definition PtrField", "", "", "");
 
@@ -74,7 +75,7 @@ RimEclipseCellColors::~RimEclipseCellColors()
 
     m_legendConfigData.deleteAllChildObjects();
 
-    delete ternaryLegendConfig();
+    delete m_ternaryLegendConfig();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -170,7 +171,7 @@ void RimEclipseCellColors::initAfterRead()
         // The current legend config is NOT stored in <ResultVarLegendDefinitionList> in ResInsight up to v 1.3.7-dev
         RimRegularLegendConfig* obsoleteLegend = obsoleteField_legendConfig();
 
-        // set to NULL before pushing into container
+        // set to nullptr before pushing into container
         obsoleteField_legendConfig = nullptr;
 
         m_legendConfigData.push_back(obsoleteLegend);
@@ -189,7 +190,7 @@ void RimEclipseCellColors::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOr
 {
     if (this->resultVariable() == RiaDefines::ternarySaturationResultName())
     {
-        uiTreeOrdering.add(ternaryLegendConfig());
+        uiTreeOrdering.add(m_ternaryLegendConfig());
     }
     else
     {
@@ -278,7 +279,7 @@ void RimEclipseCellColors::updateLegendData(size_t currentTimeStep,
                                             RimTernaryLegendConfig* ternaryLegendConfig)
 {
     if (!legendConfig) legendConfig = this->legendConfig();
-    if (!ternaryLegendConfig) ternaryLegendConfig = this->ternaryLegendConfig();
+    if (!ternaryLegendConfig) ternaryLegendConfig = this->m_ternaryLegendConfig();
 
     if ( this->hasResult() )
     {
@@ -392,34 +393,22 @@ void RimEclipseCellColors::updateLegendData(size_t currentTimeStep,
                     legendConfig->setNamedCategoriesInverse(fnVector);
                 }
                 else if ( this->resultType() == RiaDefines::DYNAMIC_NATIVE && this->resultVariable() == RiaDefines::completionTypeResultName() )
-                {
+                {   
+                    const std::vector<int>& visibleCategories = cellResultsData->uniqueCellScalarValues(this->scalarResultIndex());
+
+                    std::vector<RiaDefines::WellPathComponentType> supportedCompletionTypes =
+                        { RiaDefines::WELL_PATH, RiaDefines::FISHBONES, RiaDefines::PERFORATION_INTERVAL, RiaDefines::FRACTURE };
+                    
+                    RiaColorTables::WellPathComponentColors colors = RiaColorTables::wellPathComponentColors();
+                    
                     std::vector< std::tuple<QString, int, cvf::Color3ub> > categories;
-
-                    caf::AppEnum<RiaDefines::CompletionType> wellPath(RiaDefines::WELL_PATH);
-                    caf::AppEnum<RiaDefines::CompletionType> fishbone(RiaDefines::FISHBONES);
-                    caf::AppEnum<RiaDefines::CompletionType> perforationInterval(RiaDefines::PERFORATION_INTERVAL);
-                    caf::AppEnum<RiaDefines::CompletionType> fracture(RiaDefines::FRACTURE);
-
-                    const std::vector<int>& visibleCatetories = cellResultsData->uniqueCellScalarValues(this->scalarResultIndex());
-
-                    if (std::find(visibleCatetories.begin(), visibleCatetories.end(), wellPath.index()) != visibleCatetories.end())
+                    for (auto completionType : supportedCompletionTypes)
                     {
-                        categories.push_back(std::make_tuple(wellPath.uiText(), static_cast<int>(wellPath.index()), cvf::Color3::RED));
-                    }
-
-                    if (std::find(visibleCatetories.begin(), visibleCatetories.end(), fishbone.index()) != visibleCatetories.end())
-                    {
-                        categories.push_back(std::make_tuple(fishbone.uiText(), static_cast<int>(fishbone.index()), cvf::Color3::DARK_GREEN));
-                    }
-
-                    if (std::find(visibleCatetories.begin(), visibleCatetories.end(), perforationInterval.index()) != visibleCatetories.end())
-                    {
-                        categories.push_back(std::make_tuple(perforationInterval.uiText(), static_cast<int>(perforationInterval.index()), cvf::Color3::GREEN));
-                    }
-
-                    if (std::find(visibleCatetories.begin(), visibleCatetories.end(), fracture.index()) != visibleCatetories.end())
-                    {
-                        categories.push_back(std::make_tuple(fracture.uiText(), static_cast<int>(fracture.index()), cvf::Color3::YELLOW_GREEN));
+                        if (std::find(visibleCategories.begin(), visibleCategories.end(), completionType) != visibleCategories.end())
+                        {
+                            QString categoryText = caf::AppEnum<RiaDefines::WellPathComponentType>::uiText(completionType);
+                            categories.push_back(std::make_tuple(categoryText, completionType, colors[completionType]));
+                        }
                     }
 
                     legendConfig->setCategoryItems(categories);
@@ -517,6 +506,14 @@ void RimEclipseCellColors::setResultVariable(const QString& val)
 RimRegularLegendConfig* RimEclipseCellColors::legendConfig()
 {
     return m_legendConfigPtrField;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimTernaryLegendConfig* RimEclipseCellColors::ternaryLegendConfig()
+{
+    return m_ternaryLegendConfig;
 }
 
 //--------------------------------------------------------------------------------------------------

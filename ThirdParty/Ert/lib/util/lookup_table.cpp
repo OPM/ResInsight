@@ -1,41 +1,41 @@
 /*
-   Copyright (C) 2011  Statoil ASA, Norway. 
-    
-   The file 'lookup_table.c' is part of ERT - Ensemble based Reservoir Tool. 
-    
-   ERT is free software: you can redistribute it and/or modify 
-   it under the terms of the GNU General Public License as published by 
-   the Free Software Foundation, either version 3 of the License, or 
-   (at your option) any later version. 
-    
-   ERT is distributed in the hope that it will be useful, but WITHOUT ANY 
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or 
-   FITNESS FOR A PARTICULAR PURPOSE.   
-    
-   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
-   for more details. 
+   Copyright (C) 2011  Statoil ASA, Norway.
+
+   The file 'lookup_table.c' is part of ERT - Ensemble based Reservoir Tool.
+
+   ERT is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   ERT is distributed in the hope that it will be useful, but WITHOUT ANY
+   WARRANTY; without even the implied warranty of MERCHANTABILITY or
+   FITNESS FOR A PARTICULAR PURPOSE.
+
+   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+   for more details.
 */
 
 #include <stdbool.h>
 #include <stdlib.h>
 
-#include <ert/util/util.hpp>
+#include <ert/util/util.h>
 #include <ert/util/perm_vector.hpp>
 #include <ert/util/double_vector.hpp>
 #include <ert/util/lookup_table.hpp>
 
 struct lookup_table_struct {
-  bool                 data_owner; 
+  bool                 data_owner;
   double_vector_type * x_vector;
   double_vector_type * y_vector;
   const double       * x_data;
-  const double       * y_data; 
-  int                  size; 
+  const double       * y_data;
+  int                  size;
   double               xmin,ymin;
   double               xmax,ymax;
   int                  prev_index;
 
-  bool                 sorted;                 
+  bool                 sorted;
   bool                 has_low_limit;
   bool                 has_high_limit;
   double               low_limit;
@@ -50,7 +50,7 @@ static void lookup_table_sort_data( lookup_table_type * lt) {
     if (double_vector_get_read_only( lt->x_vector ))
       if (!double_vector_is_sorted( lt->x_vector , false))
         util_abort("%s: x vector is not sorted and read-only - this will not fly\n",__func__);
-    
+
     {
       perm_vector_type * sort_perm = double_vector_alloc_sort_perm( lt->x_vector );
       double_vector_permute( lt->x_vector , sort_perm );
@@ -72,11 +72,11 @@ static void lookup_table_sort_data( lookup_table_type * lt) {
 
 /**
    IFF the @read_only flag is set to true; the x vector MUST be
-   sorted.  
+   sorted.
 */
 
 void lookup_table_set_data( lookup_table_type * lt , double_vector_type * x , double_vector_type * y , bool data_owner ) {
-  
+
   if (lt->data_owner) {
     double_vector_free( lt->x_vector );
     double_vector_free( lt->y_vector );
@@ -117,12 +117,12 @@ lookup_table_type * lookup_table_alloc( double_vector_type * x , double_vector_t
     x = double_vector_alloc(0 , 0);
     y = double_vector_alloc(0 , 0);
     data_owner = true;
-  } 
+  }
   lookup_table_set_data( lt , x , y , false );
   lt->data_owner = data_owner;
   lt->has_low_limit = false;
   lt->has_high_limit = false;
-  
+
   return lt;
 }
 
@@ -147,7 +147,7 @@ void lookup_table_free( lookup_table_type * lt ) {
   if (lt->data_owner) {
     double_vector_free( lt->x_vector );
     double_vector_free( lt->y_vector );
-  } 
+  }
   free( lt );
 }
 
@@ -168,7 +168,7 @@ double lookup_table_interp( lookup_table_type * lt , double x) {
         double x2 = lt->x_data[ index + 1];
         double y1 = lt->y_data[ index ];
         double y2 = lt->y_data[ index + 1];
-        
+
         lt->prev_index = index;
         return (( x - x1 ) * y2 + (x2 - x) * y1) / (x2 - x1 );
       }
@@ -188,7 +188,7 @@ double lookup_table_interp( lookup_table_type * lt , double x) {
     }
   }
 }
-  
+
 
 
 double lookup_table_get_max_value(  lookup_table_type * lookup_table ) {

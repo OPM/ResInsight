@@ -40,23 +40,33 @@ class Rim3dWellLogExtractionCurve : public Rim3dWellLogCurve
 
 public:
     Rim3dWellLogExtractionCurve();
-    virtual ~Rim3dWellLogExtractionCurve();
+    ~Rim3dWellLogExtractionCurve() override;
 
     void            setPropertiesFromView(Rim3dView* view);
-    virtual QString resultPropertyString() const override;
-    virtual void    curveValuesAndMds(std::vector<double>* values, std::vector<double>* measuredDepthValues) const override;
+    QString resultPropertyString() const override;
 
-    virtual QString name() const override;
-    virtual QString createCurveAutoName() const override;
+    bool    followAnimationTimeStep() const override;
+    void    curveValuesAndMds(std::vector<double>* values, std::vector<double>* measuredDepthValues) const override;
+    void    curveValuesAndMdsAtTimeStep(std::vector<double>* values, std::vector<double>* measuredDepthValues, int timeStep) const override;
+    std::pair<double, double> findCurveValueRange() override;
+
+    QString name() const override;
+    QString createAutoName() const override;
+    double  rkbDiff() const;
+
+    bool    isShowingTimeDependentResult() const override;
+
+    bool    showInView(const Rim3dView* gridView) const override;
+
 protected:
-    virtual caf::PdmFieldHandle*            userDescriptionField() override;
-    virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    caf::PdmFieldHandle*            userDescriptionField() override;
+    void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
 private:
-    virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions,
+    QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions,
                                                                 bool*                      useOptionsOnly) override;
 
-    virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
-    virtual void initAfterRead() override;
+    void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    void initAfterRead() override;
     QString      wellDate() const;
 private:
     caf::PdmPtrField<RimCase*>                      m_case;

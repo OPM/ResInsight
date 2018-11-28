@@ -464,3 +464,10 @@ CRAVA is a software package for seismic inversion and conditioning of
   This Source Code Form is subject to the terms of the Mozilla
   Public License v. 2.0. If a copy of the MPL was not distributed
   with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+===============================================================================
+ Notice for the Contour Line "conrec" code
+===============================================================================
+
+  Adapted from work by Paul D. Bourke named "conrec"
+  http://paulbourke.net/papers/conrec/.

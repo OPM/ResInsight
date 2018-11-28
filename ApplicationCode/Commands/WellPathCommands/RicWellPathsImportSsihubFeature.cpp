@@ -100,7 +100,7 @@ void RicWellPathsImportSsihubFeature::onActionTriggered(bool isChecked)
         if (wellPaths.size() > 0)
         {
             app->addWellPathsToModel(wellPaths);
-            app->project()->createDisplayModelAndRedrawAllViews();
+            app->project()->scheduleCreateDisplayModelAndRedrawAllViews();
         }
 
         app->setCacheDataObject("ssihub_username", wellImportwizard.field("username"));

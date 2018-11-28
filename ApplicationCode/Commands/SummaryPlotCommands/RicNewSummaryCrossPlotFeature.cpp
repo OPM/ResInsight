@@ -65,7 +65,11 @@ bool RicNewSummaryCrossPlotFeature::isCommandEnabled()
 
     for (auto item : selectedItems)
     {
-        if (!dynamic_cast<RimSummaryCase*>(item) && !dynamic_cast<RimSummaryCaseCollection*>(item))
+        RimSummaryCase* sumCase = dynamic_cast<RimSummaryCase*>(item);
+        RimSummaryCaseCollection* sumGroup = dynamic_cast<RimSummaryCaseCollection*>(item);
+
+        if (sumGroup && sumGroup->isEnsemble()) sumGroup = nullptr;
+        if (!sumCase && !sumGroup)
             return false;
     }
     return true;

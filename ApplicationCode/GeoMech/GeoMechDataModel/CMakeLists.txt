@@ -26,8 +26,10 @@ add_library( ${PROJECT_NAME}
 	RigFemPartGrid.cpp
 	RigFemResultAddress.h
 	RigFemResultPosEnum.h
-    RimGeoMechGeometrySelectionItem.h
-    RimGeoMechGeometrySelectionItem.cpp
+        RimFemResultObserver.h
+        RimFemResultObserver.cpp
+        RimGeoMechGeometrySelectionItem.h
+        RimGeoMechGeometrySelectionItem.cpp
 )
 
 target_include_directories(${PROJECT_NAME}

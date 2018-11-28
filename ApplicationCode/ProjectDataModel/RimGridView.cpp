@@ -51,8 +51,7 @@ RimGridView::RimGridView()
 
     CAF_PDM_InitFieldNoDefault(&m_overrideRangeFilterCollection, "RangeFiltersControlled", "Range Filters (controlled)", "", "", "");
     m_overrideRangeFilterCollection.uiCapability()->setUiHidden(true);
-    m_overrideRangeFilterCollection.xmlCapability()->setIOWritable(false);
-    m_overrideRangeFilterCollection.xmlCapability()->setIOReadable(false);
+    m_overrideRangeFilterCollection.xmlCapability()->disableIO();
 
     CAF_PDM_InitFieldNoDefault(&m_crossSectionCollection, "CrossSections", "Intersections", "", "", "");
     m_crossSectionCollection.uiCapability()->setUiHidden(true);
@@ -68,6 +67,7 @@ RimGridView::RimGridView()
     m_overlayInfoConfig = new Rim3dOverlayInfoConfig();
     m_overlayInfoConfig->setReservoirView(this);
     m_overlayInfoConfig.uiCapability()->setUiHidden(true);
+
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -108,8 +108,7 @@ RimGridView::~RimGridView(void)
 //--------------------------------------------------------------------------------------------------
 void RimGridView::showGridCells(bool enableGridCells)
 {
-
-    m_gridCollection->isActive = enableGridCells;
+    m_gridCollection->setActive(enableGridCells);
 
     createDisplayModel();
     updateDisplayModelVisibility();
@@ -140,6 +139,14 @@ cvf::ref<cvf::UByteArray> RimGridView::currentTotalCellVisibility()
 RimIntersectionCollection* RimGridView::crossSectionCollection() const
 {
     return m_crossSectionCollection();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGridView::rangeFiltersUpdated()
+{
+    updateViewFollowingRangeFilterUpdates();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -188,6 +195,13 @@ void RimGridView::setOverrideRangeFilterCollection(RimCellRangeFilterCollection*
     if (m_overrideRangeFilterCollection()) delete m_overrideRangeFilterCollection();
 
     m_overrideRangeFilterCollection = rfc;
+    // Maintain a link in the active-selection
+    if (m_overrideRangeFilterCollection)
+    {
+        m_rangeFilterCollection->isActive = m_overrideRangeFilterCollection->isActive;
+        m_rangeFilterCollection()->uiCapability()->updateConnectedEditors();
+    }
+
     this->scheduleGeometryRegen(RANGE_FILTERED);
     this->scheduleGeometryRegen(RANGE_FILTERED_INACTIVE);
 
@@ -221,17 +235,18 @@ void RimGridView::replaceRangeFilterCollectionWithOverride()
 //--------------------------------------------------------------------------------------------------
 RimViewController* RimGridView::viewController() const
 {
-    RimViewController* viewController = nullptr;
-    std::vector<caf::PdmObjectHandle*> reffingObjs;
+    std::vector<RimViewController*> objects;
+    this->objectsWithReferringPtrFieldsOfType(objects);
 
-    this->objectsWithReferringPtrFields(reffingObjs);
-    for (size_t i = 0; i < reffingObjs.size(); ++i)
+    for (auto v : objects)
     {
-        viewController = dynamic_cast<RimViewController*>(reffingObjs[i]);
-        if (viewController) break;
+        if (v)
+        {
+            return v;
+        }
     }
 
-    return viewController;
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -269,6 +284,14 @@ Rim3dOverlayInfoConfig* RimGridView::overlayInfoConfig() const
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGridView::updateViewFollowingRangeFilterUpdates()
+{
+    showGridCells(true);
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void RimGridView::initAfterRead()
@@ -285,7 +308,7 @@ void RimGridView::initAfterRead()
 
         bool isGridVisualizationModeBefore_2018_1_1 = ((surfaceMode() == RimGridView::SURFACE) || (meshMode() == RimGridView::FULL_MESH));
 
-        m_gridCollection->isActive = isGridVisualizationModeBefore_2018_1_1;
+        m_gridCollection->setActive(isGridVisualizationModeBefore_2018_1_1);
         if (!isGridVisualizationModeBefore_2018_1_1)
         {
             // Was showing faults and intersections. 
@@ -342,6 +365,14 @@ void RimGridView::fieldChangedByUi(const caf::PdmFieldHandle* changedField, cons
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+RimGridCollection* RimGridView::gridCollection() const
+{
+    return m_gridCollection();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimGridView::selectOverlayInfoConfig()
 {
     Riu3DMainWindowTools::selectAsCurrentItem(m_overlayInfoConfig);
@@ -352,18 +383,18 @@ void RimGridView::selectOverlayInfoConfig()
 //--------------------------------------------------------------------------------------------------
 RimViewLinker* RimGridView::viewLinkerIfMasterView() const
 {
-    RimViewLinker* viewLinker = nullptr;
-    std::vector<caf::PdmObjectHandle*> reffingObjs;
+    std::vector<RimViewLinker*> objects;
+    this->objectsWithReferringPtrFieldsOfType(objects);
 
-    this->objectsWithReferringPtrFields(reffingObjs);
-
-    for (size_t i = 0; i < reffingObjs.size(); ++i)
+    for (auto viewLinker : objects)
     {
-        viewLinker = dynamic_cast<RimViewLinker*>(reffingObjs[i]);
-        if (viewLinker) break;
+        if (viewLinker)
+        {
+            return viewLinker;
+        }
     }
 
-    return viewLinker;
+    return nullptr;
 }
 
 

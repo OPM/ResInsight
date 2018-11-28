@@ -44,61 +44,67 @@ class RimGeoMechCase : public RimCase
      CAF_PDM_HEADER_INIT;
 
 public:
+    enum CaseOpenStatus
+    {
+        CASE_OPEN_OK = 0,
+        CASE_OPEN_CANCELLED,
+        CASE_OPEN_ERROR
+    };
     RimGeoMechCase(void);
-    virtual ~RimGeoMechCase(void);
+    ~RimGeoMechCase(void) override;
     
     void                                    setFileName(const QString& fileName);
     QString                                 caseFileName() const;
-    bool                                    openGeoMechCase(std::string* errorMessage);
+    CaseOpenStatus                          openGeoMechCase(std::string* errorMessage);
 
     RigGeoMechCaseData*                     geoMechData();
     const RigGeoMechCaseData*               geoMechData() const;
 
+    void                                    reloadDataAndUpdate();
+
     RimGeoMechView*                         createAndAddReservoirView();
 
-    virtual void                            updateFilePathsFromProjectPath(const QString& projectPath, const QString& oldProjectPath);
+    void                            updateFilePathsFromProjectPath(const QString& projectPath, const QString& oldProjectPath) override;
 
-    virtual std::vector<QDateTime>          timeStepDates() const override;
-    virtual QStringList                     timeStepStrings() const override;
-    virtual QString                         timeStepName(int frameIdx) const override;
+    std::vector<QDateTime>          timeStepDates() const override;
+    QStringList                     timeStepStrings() const override;
+    QString                         timeStepName(int frameIdx) const override;
 
-    virtual cvf::BoundingBox                activeCellsBoundingBox() const override;
-    virtual cvf::BoundingBox                allCellsBoundingBox() const override;
+    cvf::BoundingBox                activeCellsBoundingBox() const override;
+    cvf::BoundingBox                allCellsBoundingBox() const override;
 
-    virtual double                          characteristicCellSize() const override;
+    double                          characteristicCellSize() const override;
 
-    virtual void                            setFormationNames(RimFormationNames* formationNames) override;
+    void                            setFormationNames(RimFormationNames* formationNames) override;
 
     void                                    addElementPropertyFiles(const std::vector<caf::FilePath>& filenames);
 
     double                                  cohesion() const;
     double                                  frictionAngleDeg() const;
 
+    void                                    setApplyTimeFilter(bool applyTimeFilter);
     // Fields:                                        
     caf::PdmChildArrayField<RimGeoMechView*>  geoMechViews;
 
-
-
-
-
 private:
-    virtual cvf::Vec3d                      displayModelOffset() const override;
-    static std::vector<QDateTime>           dateTimeVectorFromTimeStepStrings(const QStringList& timeStepStrings);
+    cvf::Vec3d                      displayModelOffset() const override;
+    static std::vector<QDateTime>           vectorOfValidDateTimesFromTimeStepStrings(const QStringList& timeStepStrings);
+    static QDateTime                        dateTimeFromTimeStepString(const QString& timeStepString);
 
-    virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
-    virtual void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
-    virtual void                            defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
-    virtual void                            defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override;
-    virtual QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
+    void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    void                            defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
+    void                            defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override;
+    QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
 
-    virtual void                            updateFormationNamesData() override;
+    void                            updateFormationNamesData() override;
 
-    virtual void                            initAfterRead() override;
+    void                            initAfterRead() override;
     static QString                          subStringOfDigits(const QString& timeStepString, int numberOfDigitsToFind);
 
     void                                    closeSelectedElementPropertyFiles();
     void                                    reloadSelectedElementPropertyFiles();
-    virtual std::vector<Rim3dView*>         allSpecialViews() const override;
+    std::vector<Rim3dView*>         allSpecialViews() const override;
 
 private:
     cvf::ref<RigGeoMechCaseData>              m_geoMechCaseData;
@@ -109,4 +115,5 @@ private:
     caf::PdmField<std::vector<int> >          m_elementPropertyFileNameIndexUiSelection;
     caf::PdmField<bool>                       m_closeElementPropertyFileCommand;
     caf::PdmField<bool>                       m_reloadElementPropertyFileCommand;
+    bool                                      m_applyTimeFilter;
 };

@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include "cafPdmUiWidgetBasedObjectEditor.h"
+#include "cafPdmUiFormLayoutObjectEditor.h"
 
 #include <vector>
 #include <memory>
@@ -41,21 +41,21 @@ namespace caf {
 ///  
 ///  
 //==================================================================================================
-class RicSummaryCurveCalculatorEditor : public caf::PdmUiWidgetBasedObjectEditor
+class RicSummaryCurveCalculatorEditor : public caf::PdmUiFormLayoutObjectEditor
 {
     Q_OBJECT
 
 public:
     RicSummaryCurveCalculatorEditor();
-    ~RicSummaryCurveCalculatorEditor();
+    ~RicSummaryCurveCalculatorEditor() override;
 
     RicSummaryCurveCalculator* calculator() const;
 
 private:
-    virtual void        recursivelyConfigureAndUpdateTopLevelUiItems(const std::vector<caf::PdmUiItem *>& topLevelUiItems,
-                                                                         const QString& uiConfigName) override;
+    void        recursivelyConfigureAndUpdateTopLevelUiOrdering(const caf::PdmUiOrdering& topLevelUiItems,
+                                                                        const QString& uiConfigName) override;
     
-    virtual QWidget*    createWidget(QWidget* parent) override;
+    QWidget*    createWidget(QWidget* parent) override;
 
     QMinimizePanel*     updateGroupBoxWithContent(caf::PdmUiGroup* group, const QString& uiConfigName);
 

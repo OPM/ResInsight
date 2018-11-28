@@ -144,11 +144,23 @@ bool RiaSummaryCurveDefinition::operator<(const RiaSummaryCurveDefinition& other
 {
     if (m_summaryCase != other.summaryCase())
     {
+        // Try comparing the dereferenced objects first. They have a predictable sorting operator.
+        if (m_summaryCase && other.summaryCase())
+        {
+            return *m_summaryCase < *other.summaryCase();
+        }
+        // Sorting by pointer address, which may appear random to the user.
         return m_summaryCase < other.summaryCase();
     }
 
     if (m_ensemble != other.ensemble())
     {
+        // Try comparing the dereferenced objects first. They have a predictable sorting operator.
+        if (m_ensemble && other.ensemble())
+        {
+            return *m_ensemble < *other.ensemble();
+        }
+        // Sorting by pointer address, which may appear random to the user.
         return (m_ensemble < other.ensemble());
     }
     

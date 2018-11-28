@@ -18,17 +18,15 @@
 
 #pragma once
 
-#include "RifEclipseDataTableFormatter.h"
-
 #include "RicCaseAndFileExportSettingsUi.h"
-#include "RicWellPathExportCompletionDataFeatureImpl.h"
-
 
 #include "cafCmdFeature.h"
 
 class RimFishbonesCollection;
 class RimFishbonesMultipleSubs;
 class RimWellPath;
+
+
 
 //==================================================================================================
 /// 
@@ -38,20 +36,12 @@ class RicExportFishbonesWellSegmentsFeature : public caf::CmdFeature
     CAF_CMD_HEADER_INIT;
 
 protected:
-    virtual void onActionTriggered(bool isChecked) override;
-    virtual void setupActionLook(QAction* actionToSetup) override;
-    virtual bool isCommandEnabled() override;
+    void onActionTriggered(bool isChecked) override;
+    void setupActionLook(QAction* actionToSetup) override;
+    bool isCommandEnabled() override;
 
 public:
-    static void                                  exportWellSegments(const RimWellPath* wellPath, const std::vector<RimFishbonesMultipleSubs*>& fishbonesSubs, const RicCaseAndFileExportSettingsUi& settings);
-
-private:
-    static RimFishbonesCollection*               selectedFishbonesCollection();
-    static RimWellPath*                          selectedWellPath();
-
-    static void                                  generateWelsegsTable(RifEclipseDataTableFormatter& formatter, const RimWellPath* wellPath, const RicCaseAndFileExportSettingsUi& settings, const std::vector<WellSegmentLocation>& locations);
-    static void                                  generateCompsegsTable(RifEclipseDataTableFormatter& formatter, const RimWellPath* wellPath, const RicCaseAndFileExportSettingsUi& settings, const std::vector<WellSegmentLocation>& locations);
-    static void                                  generateWsegvalvTable(RifEclipseDataTableFormatter& formatter, const RimWellPath* wellPath, const RicCaseAndFileExportSettingsUi& settings, const std::vector<WellSegmentLocation>& locations);
-
-    static double                                computeEffectiveDiameter(double innerDiameter, double outerDiameter);
+    static void  exportWellSegments(const RimWellPath*                            wellPath,
+                                    const std::vector<RimFishbonesMultipleSubs*>& fishbonesSubs,
+                                    const RicCaseAndFileExportSettingsUi&         settings);
 };

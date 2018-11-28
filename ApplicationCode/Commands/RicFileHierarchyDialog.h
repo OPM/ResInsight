@@ -44,7 +44,7 @@ class RicFileHierarchyDialog : public QDialog
 
 public:
     RicFileHierarchyDialog(QWidget* parent);
-    ~RicFileHierarchyDialog();
+    ~RicFileHierarchyDialog() override;
 
     static RicFileHierarchyDialogResult  runRecursiveSearchDialog(QWidget *parent = nullptr,
                                                                   const QString& caption = QString(),
@@ -66,15 +66,14 @@ private:
     void        appendToFileList(const QString& fileName);
     void        clearFileList();
     void        updateStatus(Status status, const QString& extraText = "");
-    QString     currentStatus() const;
 
     QStringList findMatchingFiles();
 
     QStringList buildDirectoryListRecursive(const QString& currentDir, int level = 0);
-    void buildDirectoryListRecursiveSimple(const QString& rootDir,
-                                           const QString& remainingPathFilter,
-                                           QStringList* accumulatedDirs);
 
+    void buildDirectoryListRecursiveSimple(const QString& currentDir,
+                                           const QString& currentPathFilter,
+                                           QStringList* accumulatedDirs);
 
     QStringList findFilesInDirs(const QStringList& dirs);
 
@@ -86,6 +85,8 @@ private:
     void        updateEffectiveFilter();
 
     void        setOkButtonEnabled(bool enabled);
+
+    void        warningIfInvalidCharacters();
 
 private slots:
     void slotFilterChanged(const QString& text);

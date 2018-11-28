@@ -64,6 +64,8 @@ void RicExportCompletionsForVisibleSimWellsFeature::onActionTriggered(bool isChe
 void RicExportCompletionsForVisibleSimWellsFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setText("Export Completion Data for Visible Simulation Wells");
+    actionToSetup->setIcon(QIcon(":/ExportCompletionsSymbol16x16.png"));
+
 }
 
 //--------------------------------------------------------------------------------------------------

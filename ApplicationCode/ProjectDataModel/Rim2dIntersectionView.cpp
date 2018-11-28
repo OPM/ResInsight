@@ -51,7 +51,7 @@
 
 CAF_PDM_SOURCE_INIT(Rim2dIntersectionView, "Intersection2dView"); 
 
-const cvf::Mat4d defaultIntersectinoViewMatrix(1, 0, 0, 0,
+const cvf::Mat4d defaultViewMatrix(1, 0, 0, 0,
                                                0, 0, 1, 0,
                                                0, -1, 0, 1000,
                                                0, 0, 0, 1);
@@ -79,6 +79,7 @@ Rim2dIntersectionView::Rim2dIntersectionView(void)
     m_ternaryLegendConfig = new RimTernaryLegendConfig();
 
     CAF_PDM_InitField(&m_showDefiningPoints, "ShowDefiningPoints", true, "Show Points", "", "", "");
+    CAF_PDM_InitField(&m_showAxisLines, "ShowAxisLines", false, "Show Axis Lines", "", "", "");
 
     m_showWindow = false;
     m_scaleTransform = new cvf::Transform();
@@ -86,7 +87,7 @@ Rim2dIntersectionView::Rim2dIntersectionView(void)
 
     hasUserRequestedAnimation = true;
     
-    ((RiuViewerToViewInterface*)this)->setCameraPosition(defaultIntersectinoViewMatrix );
+    ((RiuViewerToViewInterface*)this)->setCameraPosition(defaultViewMatrix );
 
     disableGridBoxField();
     disablePerspectiveProjectionField();
@@ -302,7 +303,7 @@ void Rim2dIntersectionView::updateName()
     {
         Rim3dView * parentView = nullptr;
         m_intersection->firstAncestorOrThisOfTypeAsserted(parentView);
-        name = parentView->name() + ": " + m_intersection->name();
+        this->setName(parentView->name() + ": " + m_intersection->name());
     }
 }
 
@@ -513,7 +514,7 @@ void Rim2dIntersectionView::createDisplayModel()
         updateCurrentTimeStep();
     }
 
-    if ( this->viewer()->mainCamera()->viewMatrix() == defaultIntersectinoViewMatrix )
+    if ( this->viewer()->mainCamera()->viewMatrix() == defaultViewMatrix )
     {
         this->zoomAll();
     }
@@ -663,7 +664,7 @@ void Rim2dIntersectionView::resetLegendsInViewer()
     m_viewer->showAnimationProgress(true);
     m_viewer->showHistogram(false);
     m_viewer->showInfoText(false);
-    m_viewer->showEdgeTickMarks(true);
+    m_viewer->showEdgeTickMarksXZ(true, m_showAxisLines());
 
     m_viewer->setMainScene(new cvf::Scene());
     m_viewer->enableNavigationRotation(false);
@@ -743,6 +744,12 @@ void Rim2dIntersectionView::fieldChangedByUi(const caf::PdmFieldHandle* changedF
     {
         this->loadDataAndUpdate();
     }
+    else if (changedField == &m_showAxisLines)
+    {
+        m_viewer->showEdgeTickMarksXZ(true, m_showAxisLines());
+        this->loadDataAndUpdate();
+    }
+
 }
 
 
@@ -752,8 +759,14 @@ void Rim2dIntersectionView::fieldChangedByUi(const caf::PdmFieldHandle* changedF
 void Rim2dIntersectionView::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
     Rim3dView::defineUiOrdering(uiConfigName, uiOrdering);
-    uiOrdering.skipRemainingFields(true);
+    caf::PdmUiGroup* viewGroup = uiOrdering.findGroup("ViewGroup");
+    if (viewGroup)
+    {
+        viewGroup->add(&m_showAxisLines);
+    }
 
+    uiOrdering.skipRemainingFields(true);
+    
     if (m_intersection->hasDefiningPoints())
     {
         caf::PdmUiGroup* plGroup = uiOrdering.addNewGroup("Defining Points");

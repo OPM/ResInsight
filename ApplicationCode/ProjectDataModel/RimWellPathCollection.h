@@ -36,6 +36,7 @@
 
 class RifWellPathImporter;
 class RigWellPath;
+class RimFileWellPath;
 class RimEclipseView;
 class RimProject;
 class RimWellLogFile;
@@ -60,11 +61,8 @@ class RimWellPathCollection : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 public:
-
     RimWellPathCollection();
-    virtual ~RimWellPathCollection();
-
-    void                                setProject(RimProject* project);
+    ~RimWellPathCollection() override;
 
     enum WellVisibilityType
     {
@@ -87,7 +85,7 @@ public:
 
     caf::PdmChildArrayField<RimWellPath*> wellPaths;
    
-    void                                readWellPathFiles();
+    void                                loadDataAndUpdate();
     void                                addWellPaths(QStringList filePaths);
     
     void                                removeWellPath(RimWellPath* wellPath);
@@ -100,7 +98,7 @@ public:
 
     RimWellPath*                        wellPathByName(const QString& wellPathName) const;
     RimWellPath*                        tryFindMatchingWellPath(const QString& wellName) const;
-    void                                addWellPaths(const std::vector<RimWellPath*> wellPaths);
+    void                                addWellPaths(const std::vector<RimWellPath*> incomingWellPaths);
     RimWellLogFile*                     addWellLogs(const QStringList& filePaths);
     void                                addWellPathFormations(const QStringList& filePaths);
 
@@ -108,15 +106,15 @@ public:
 
     void                                updateFilePathsFromProjectPath(const QString& newProjectPath, const QString& oldProjectPath);
     bool                                anyWellsContainingPerforationIntervals() const;
-
+    size_t                              modelledWellPathCount() const;
 protected:
-    virtual void                        fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+    void                        fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
 private:
-    virtual void                        defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
-    virtual caf::PdmFieldHandle*        objectToggleField() override;
+    void                        defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    caf::PdmFieldHandle*        objectToggleField() override;
 
-    void                                readAndAddWellPaths(std::vector<RimWellPath*>& wellPathArray);
+    void                                readAndAddWellPaths(std::vector<RimFileWellPath*>& wellPathArray);
     void                                sortWellsByName();
 
     RiaEclipseUnitTools::UnitSystemType findUnitSystemForWellPath(const RimWellPath* wellPath);

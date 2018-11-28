@@ -184,7 +184,7 @@ std::vector<RimAsciiDataCurve*> RicPasteAsciiDataToSummaryPlotFeature::parseCurv
         if (col->dataType != Column::NUMERIC) continue;
 
         RimAsciiDataCurve* curve = new RimAsciiDataCurve();
-        curve->setTimeSteps(parser.dateTimeColumn()->dateTimeValues);
+        curve->setTimeSteps(parser.dateTimeColumn()->qDateTimeValues());
         curve->setValues(parser.columnInfo(i)->values);
         if (curvePrefix.isEmpty())
         {
@@ -197,7 +197,7 @@ std::vector<RimAsciiDataCurve*> RicPasteAsciiDataToSummaryPlotFeature::parseCurv
         // Appearance
         curve->setSymbol(parseOptions.curveSymbol);
         curve->setLineStyle(parseOptions.curveLineStyle);
-        curve->setSymbolSkipDinstance(parseOptions.curveSymbolSkipDistance);
+        curve->setSymbolSkipDistance(parseOptions.curveSymbolSkipDistance);
         curveToTypeMap[guessCurveType(QString::fromStdString(col->columnName()))].push_back(curve);
         curves.push_back(curve);
     }

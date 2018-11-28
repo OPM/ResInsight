@@ -54,7 +54,7 @@ RiuEditPerforationCollectionWidget::RiuEditPerforationCollectionWidget(QWidget* 
 
     connect(m_pdmTableView->tableView(), SIGNAL(customContextMenuRequested(QPoint)), SLOT(customMenuRequested(QPoint)));
 
-    m_pdmTableView->setListField(&(m_perforationCollection->m_perforations));
+    m_pdmTableView->setChildArrayField(&(m_perforationCollection->m_perforations));
 
     QHeaderView* verticalHeader = m_pdmTableView->tableView()->verticalHeader();
     verticalHeader->setResizeMode(QHeaderView::Interactive);
@@ -79,7 +79,7 @@ RiuEditPerforationCollectionWidget::RiuEditPerforationCollectionWidget(QWidget* 
 //--------------------------------------------------------------------------------------------------
 RiuEditPerforationCollectionWidget::~RiuEditPerforationCollectionWidget()
 {
-    m_pdmTableView->setListField(nullptr);
+    m_pdmTableView->setChildArrayField(nullptr);
 
     caf::SelectionManager::instance()->setActiveChildArrayFieldHandle(nullptr);
 }

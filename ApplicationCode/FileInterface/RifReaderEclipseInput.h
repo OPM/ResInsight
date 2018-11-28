@@ -29,11 +29,11 @@ class RifReaderEclipseInput : public RifReaderInterface
 {
 public:
     RifReaderEclipseInput();
-    virtual ~RifReaderEclipseInput();
+    ~RifReaderEclipseInput() override;
 
     // Virtual interface implementation
-    virtual bool                open(const QString& fileName, RigEclipseCaseData* eclipseCase);
+    bool                open(const QString& fileName, RigEclipseCaseData* eclipseCase) override;
 
-    virtual bool                staticResult(const QString& result, RiaDefines::PorosityModelType matrixOrFracture, std::vector<double>* values )                      { return false; }
-    virtual bool                dynamicResult(const QString& result, RiaDefines::PorosityModelType matrixOrFracture, size_t stepIndex, std::vector<double>* values )   { return false; }
+    bool                staticResult(const QString& result, RiaDefines::PorosityModelType matrixOrFracture, std::vector<double>* values ) override                      { return false; }
+    bool                dynamicResult(const QString& result, RiaDefines::PorosityModelType matrixOrFracture, size_t stepIndex, std::vector<double>* values ) override   { return false; }
 };

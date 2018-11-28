@@ -53,6 +53,7 @@
 #include "cvfFont.h"
 #include "cvfOpenGLResourceManager.h"
 #include "cvfOverlayAxisCross.h"
+#include "cvfPartRenderHintCollection.h"
 #include "cvfRenderQueueSorter.h"
 #include "cvfRenderSequence.h"
 #include "cvfRendering.h"
@@ -64,6 +65,8 @@
 #include <QProgressBar>
 #include "WindowEdgeAxesOverlayItem/RivWindowEdgeAxesOverlayItem.h"
 #include <algorithm>
+
+#include "WellPathCommands/PointTangentManipulator/RicPointTangentManipulator.h"
 
 using cvf::ManipulatorTrackball;
 
@@ -184,6 +187,7 @@ RiuViewer::RiuViewer(const QGLFormat& format, QWidget* parent)
     m_windowEdgeAxisOverlay = new RivWindowEdgeAxesOverlayItem(standardFont);
     m_showWindowEdgeAxes = false;
 
+    m_selectionVisualizerManager = new caf::PdmUiSelectionVisualizer3d(this);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -506,21 +510,6 @@ void RiuViewer::mousePressEvent(QMouseEvent* event)
     m_lastMousePressPosition = event->pos();
 }
 
-
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-cvf::Collection<cvf::OverlayItem> RiuViewer::allOverlayItems()
-{
-    cvf::Collection<cvf::OverlayItem> allOverLays;
-    for (size_t oIdx = 0; oIdx < m_mainRendering->overlayItemCount(); ++oIdx)
-    {
-        allOverLays.push_back(m_mainRendering->overlayItem(oIdx));
-    }
-    return allOverLays;
-}
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -616,9 +605,9 @@ void RiuViewer::updateLegendLayout()
             yPos = border + edgeAxisBorderHeight;
 
             // Set same width to all legends in the column
-            for (caf::TitledOverlayFrame* legend : columnLegends )
+            for (caf::TitledOverlayFrame* columnLegend : columnLegends )
             {
-                legend->setRenderSize(cvf::Vec2ui(maxColumnWidht, legend->renderSize().y())); 
+                columnLegend->setRenderSize(cvf::Vec2ui(maxColumnWidht, columnLegend->renderSize().y())); 
             }
             maxColumnWidht = 0;
             columnLegends.clear();
@@ -830,20 +819,41 @@ void RiuViewer::updateGridBoxData(double scaleZ,
     m_gridBoxGenerator->setGridBoxDomainCoordBoundingBox(domainCoordBoundingBox);
 
     m_gridBoxGenerator->createGridBoxParts();
+
+    m_selectionVisualizerManager->updateVisibleEditors();
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RiuViewer::showEdgeTickMarks(bool enable)
+void RiuViewer::showEdgeTickMarksXY(bool enable, bool showAxisLines)
 {
     m_mainRendering->removeOverlayItem(m_windowEdgeAxisOverlay.p());
 
     if (enable)
     {
+        m_windowEdgeAxisOverlay->setDomainAxes(RivWindowEdgeAxesOverlayItem::XY_AXES);
+        m_windowEdgeAxisOverlay->setIsSwitchingYAxisSign(false);
+        m_windowEdgeAxisOverlay->setShowAxisLines(showAxisLines);
         m_mainRendering->addOverlayItem(m_windowEdgeAxisOverlay.p());
     }
+    m_showWindowEdgeAxes = enable;
+}
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuViewer::showEdgeTickMarksXZ(bool enable, bool showAxisLines)
+{
+    m_mainRendering->removeOverlayItem(m_windowEdgeAxisOverlay.p());
+
+    if (enable)
+    {
+        m_windowEdgeAxisOverlay->setDomainAxes(RivWindowEdgeAxesOverlayItem::XZ_AXES);
+        m_windowEdgeAxisOverlay->setIsSwitchingYAxisSign(true);
+        m_windowEdgeAxisOverlay->setShowAxisLines(showAxisLines);
+        m_mainRendering->addOverlayItem(m_windowEdgeAxisOverlay.p());
+    }
     m_showWindowEdgeAxes = enable;
 }
 
@@ -896,18 +906,6 @@ cvf::OverlayItem* RiuViewer::pickFixedPositionedLegend(int winPosX, int winPosY)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuViewer::updateParallelProjectionSettings(RiuViewer* sourceViewer)
-{
-    if (!sourceViewer || sourceViewer->m_navigationPolicy.isNull()) return;
-
-    cvf::Vec3d poi = sourceViewer->m_navigationPolicy->pointOfInterest();
-    this->updateParallelProjectionHeightFromMoveZoom(poi);
-    this->updateParallelProjectionCameraPosFromPointOfInterestMove(poi);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 void RiuViewer::setCursorPosition(const cvf::Vec3d& domainCoord)
 {
     if (m_cursorPositionDomainCoords != domainCoord)
@@ -916,6 +914,40 @@ void RiuViewer::setCursorPosition(const cvf::Vec3d& domainCoord)
 
         update();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<cvf::ref<cvf::Part>> RiuViewer::visibleParts()
+{
+    std::vector<cvf::ref<cvf::Part>> partsMatchingEnableMask;
+
+    if (m_mainRendering.notNull())
+    {
+        auto enableMask = m_mainRendering->enableMask();
+        cvf::Scene* scene = currentScene();
+
+        for (cvf::uint i = 0; i < scene->modelCount(); i++)
+        {
+            cvf::Model* model = scene->model(i);
+            if (enableMask & model->partEnableMask())
+            {
+                cvf::Collection<cvf::Part> partCollection;
+                model->allParts(&partCollection);
+
+                for (const auto& p : partCollection)
+                {
+                    if (enableMask & p->enableMask())
+                    {
+                        partsMatchingEnableMask.push_back(p);
+                    }
+                }
+            }
+        }
+    }
+
+    return partsMatchingEnableMask;
 }
 
 //--------------------------------------------------------------------------------------------------

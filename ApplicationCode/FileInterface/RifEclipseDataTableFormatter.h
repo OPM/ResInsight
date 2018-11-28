@@ -29,7 +29,8 @@
 enum RifEclipseOutputTableLineType
 {
     COMMENT,
-    CONTENTS
+    CONTENTS,
+    HORIZONTAL_LINE
 };
 
 //==================================================================================================
@@ -57,6 +58,8 @@ struct RifEclipseOutputTableLine
 {
     RifEclipseOutputTableLineType lineType;
     std::vector<QString>          data;
+    bool                          appendTextSet;
+    QString                       appendText;
 };
 
 //==================================================================================================
@@ -106,17 +109,26 @@ public:
     virtual ~RifEclipseDataTableFormatter();
 
     void setColumnSpacing(int spacing);
+    void setTableRowPrependText(const QString& text);
+    void setTableRowLineAppendText(const QString& text);
+    void setCommentPrefix(const QString& commentPrefix);
 
-    RifEclipseDataTableFormatter& keyword(const QString keyword);
+    RifEclipseDataTableFormatter& keyword(const QString& keyword);
     RifEclipseDataTableFormatter& header(std::vector<RifEclipseOutputTableColumn> tableHeader);
-    RifEclipseDataTableFormatter& add(const QString str);
-    RifEclipseDataTableFormatter& add(double num);
+    RifEclipseDataTableFormatter& add(const QString& str);
+    RifEclipseDataTableFormatter& add(double num);    
     RifEclipseDataTableFormatter& add(int num);
     RifEclipseDataTableFormatter& add(size_t num);
-    RifEclipseDataTableFormatter& addZeroBasedCellIndex(size_t index);
-    RifEclipseDataTableFormatter& comment(const QString str);
+    RifEclipseDataTableFormatter& addOneBasedCellIndex(size_t zeroBasedIndex);
+    RifEclipseDataTableFormatter& addValueOrDefaultMarker(double value, double defaultValue);
+    RifEclipseDataTableFormatter& comment(const QString& str);
+    RifEclipseDataTableFormatter& addHorizontalLine(const QChar& str);
     void                          rowCompleted();
+    void                          rowCompleted(const QString& appendText);
     void                          tableCompleted();
+    void                          tableCompleted(const QString& appendText, bool appendNewline);
+
+    static void                   addValueTable(QTextStream& stream, const QString& keyword, size_t columns, const std::vector<double>& values);
 
 private:
     int measure(const QString str);
@@ -124,13 +136,18 @@ private:
     int measure(int num);
     int measure(size_t num);
 
+    int tableWidth() const;
+
     QString format(double num, RifEclipseOutputTableDoubleFormatting doubleFormat);
     QString format(int num);
     QString format(size_t num);
-    QString formatColumn(const QString str, RifEclipseOutputTableColumn column);
+    QString formatColumn(const QString str, RifEclipseOutputTableColumn column) const;
 
     void outputBuffer();
     void outputComment(RifEclipseOutputTableLine& comment);
+    void outputHorizontalLine(RifEclipseOutputTableLine& comment);
+
+    bool isAllHeadersEmpty(const std::vector<RifEclipseOutputTableColumn>& headers);
 
 private:
     std::vector<RifEclipseOutputTableColumn> m_columns;
@@ -138,4 +155,7 @@ private:
     std::vector<QString>                     m_lineBuffer;
     QTextStream&                             m_out;
     int                                      m_colSpacing;
+    QString                                  m_tableRowPrependText;
+    QString                                  m_tableRowAppendText;
+    QString                                  m_commentPrefix;
 };

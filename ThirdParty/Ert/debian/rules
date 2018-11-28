@@ -12,5 +12,14 @@
 %:
 	dh $@
 
+override_dh_auto_clean:
+	dh_auto_clean --buildsystem=cmake
+
+override_dh_auto_build:
+	dh_auto_build --buildsystem=cmake
+
 override_dh_auto_configure:
-	DESTDIR=$$(pwd)/debian/tmp dh_auto_configure -- -DBUILD_SHARED_LIBS=1 -DBUILD_ECL_SUMMARY=1 -DENABLE_PYTHON=1 -DCMAKE_BUILD_TYPE=Release
+	DESTDIR=$$(pwd)/debian/tmp dh_auto_configure --buildsystem=cmake -- -DBUILD_SHARED_LIBS=1 -DBUILD_ECL_SUMMARY=1 -DENABLE_PYTHON=1 -DCMAKE_BUILD_TYPE=Release
+
+override_dh_auto_install:
+	dh_auto_install --buildsystem=cmake

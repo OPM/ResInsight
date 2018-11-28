@@ -99,7 +99,7 @@ int main(int argc, char ** argv) {
       if (seqnum_kw != NULL) ecl_kw_free(seqnum_kw);
     }
     free(ecl_base);
-    util_safe_free(path);
+    free(path);
   }
 }
 

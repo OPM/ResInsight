@@ -75,14 +75,6 @@ void RimObservedDataCollection::removeObservedData(RimObservedData* observedData
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimObservedDataCollection::addObservedData(RimObservedData* observedData)
-{
-    m_observedDataArray.push_back(observedData);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 std::vector<RimSummaryCase*> RimObservedDataCollection::allObservedData()
 {
     std::vector<RimSummaryCase*> allObservedData;
@@ -109,6 +101,9 @@ bool RimObservedDataCollection::fileExists(const QString& fileName, QString* err
     return true;
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void updateNewSummaryObjectCreated(caf::PdmObject* object)
 {
     RiuPlotMainWindowTools::showPlotMainWindow();
@@ -169,10 +164,13 @@ RimObservedData* RimObservedDataCollection::createAndAddCvsObservedDataFromFile(
     }
     parseOptions->setUiModeImport(fileName);
 
-    caf::PdmUiPropertyViewDialog propertyDialog(nullptr, parseOptions, "CSV Import Options", "");
-    if (propertyDialog.exec() != QDialog::Accepted)
+    if (parseOptions->uiModeImport() != RicPasteAsciiDataToSummaryPlotFeatureUi::UI_MODE_SILENT)
     {
-        return nullptr;
+        caf::PdmUiPropertyViewDialog propertyDialog(nullptr, parseOptions, "CSV Import Options", "");
+        if (propertyDialog.exec() != QDialog::Accepted)
+        {
+            return nullptr;
+        }
     }
 
     caf::PdmSettings::writeFieldsToApplicationStore(parseOptions);

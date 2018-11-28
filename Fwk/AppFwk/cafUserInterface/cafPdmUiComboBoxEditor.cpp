@@ -66,18 +66,18 @@ void PdmUiComboBoxEditor::configureAndUpdateUi(const QString& uiConfigName)
 
     // Handle attributes
     PdmUiComboBoxEditorAttribute attributes;
-    caf::PdmUiObjectHandle* uiObject = uiObj(field()->fieldHandle()->ownerObject());
+    caf::PdmUiObjectHandle* uiObject = uiObj(uiField()->fieldHandle()->ownerObject());
     if (uiObject)
     {
-        uiObject->editorAttribute(field()->fieldHandle(), uiConfigName, &attributes);
+        uiObject->editorAttribute(uiField()->fieldHandle(), uiConfigName, &attributes);
     }
 
     if (!m_comboBox.isNull())
     {
-        m_comboBox->setEnabled(!field()->isUiReadOnly(uiConfigName));
+        m_comboBox->setEnabled(!uiField()->isUiReadOnly(uiConfigName));
 
         bool fromMenuOnly = true;
-        QList<PdmOptionItemInfo> options = field()->valueOptions(&fromMenuOnly);
+        QList<PdmOptionItemInfo> options = uiField()->valueOptions(&fromMenuOnly);
         CAF_ASSERT(fromMenuOnly); // Not supported
 
         m_comboBox->blockSignals(true);
@@ -88,11 +88,11 @@ void PdmUiComboBoxEditor::configureAndUpdateUi(const QString& uiConfigName)
             {
                 m_comboBox->addItem(options[i].icon(), options[i].optionUiText());
             }
-            m_comboBox->setCurrentIndex(field()->uiValue().toInt());
+            m_comboBox->setCurrentIndex(uiField()->uiValue().toInt());
         }
         else
         {
-            m_comboBox->addItem(field()->uiValue().toString());
+            m_comboBox->addItem(uiField()->uiValue().toString());
             m_comboBox->setCurrentIndex(0);
         }
 
@@ -104,72 +104,93 @@ void PdmUiComboBoxEditor::configureAndUpdateUi(const QString& uiConfigName)
         m_comboBox->blockSignals(false);
     }
 
-    if (attributes.showPreviousAndNextButtons)
+    if (!m_layout.isNull())
     {
-        if (m_previousItemButton.isNull())
+        if (attributes.showPreviousAndNextButtons)
         {
-            m_previousItemButton = new QToolButton(m_placeholder);
-            connect(m_previousItemButton, SIGNAL(clicked()), this, SLOT(slotPreviousButtonPressed()));
+            if (m_previousItemButton.isNull())
+            {
+                m_previousItemButton = new QToolButton(m_placeholder);
+                connect(m_previousItemButton, SIGNAL(clicked()), this, SLOT(slotPreviousButtonPressed()));
 
-            m_previousItemButton->setToolTip("Previous");
-        }
+                m_previousItemButton->setToolTip("Previous");
+            }
 
-        if (m_nextItemButton.isNull())
-        {
-            m_nextItemButton = new QToolButton(m_placeholder);
-            connect(m_nextItemButton, SIGNAL(clicked()), this, SLOT(slotNextButtonPressed()));
+            if (m_nextItemButton.isNull())
+            {
+                m_nextItemButton = new QToolButton(m_placeholder);
+                connect(m_nextItemButton, SIGNAL(clicked()), this, SLOT(slotNextButtonPressed()));
 
-            m_nextItemButton->setToolTip("Next");
-        }
+                m_nextItemButton->setToolTip("Next");
+            }
 
-        m_layout->insertWidget(1, m_previousItemButton);
-        m_layout->insertWidget(2, m_nextItemButton);
+            m_layout->insertWidget(1, m_previousItemButton);
+            m_layout->insertWidget(2, m_nextItemButton);
 
-        if (m_comboBox->count() == 0 || m_comboBox->currentIndex() <= 0)
-        {
-            QIcon disabledIcon(QApplication::style()->standardIcon(QStyle::SP_ArrowUp).pixmap(16, 16, QIcon::Disabled));
-            m_previousItemButton->setIcon(disabledIcon);
+            if (m_comboBox->count() == 0 || m_comboBox->currentIndex() <= 0)
+            {
+                QIcon disabledIcon(QApplication::style()->standardIcon(QStyle::SP_ArrowUp).pixmap(16, 16, QIcon::Disabled));
+                m_previousItemButton->setIcon(disabledIcon);
+            }
+            else
+            {
+                m_previousItemButton->setIcon(QApplication::style()->standardIcon(QStyle::SP_ArrowUp));
+            }
+
+            if (m_comboBox->count() == 0 || m_comboBox->currentIndex() >= m_comboBox->count() - 1)
+            {
+                QIcon disabledIcon(QApplication::style()->standardIcon(QStyle::SP_ArrowDown).pixmap(16, 16, QIcon::Disabled));
+                m_nextItemButton->setIcon(disabledIcon);
+            }
+            else
+            {
+                m_nextItemButton->setIcon(QApplication::style()->standardIcon(QStyle::SP_ArrowDown));
+            }
+
+            // Update button texts
+            if (!attributes.nextButtonText.isEmpty())
+            {
+                m_nextItemButton->setToolTip(attributes.nextButtonText);
+            }
+
+            if (!attributes.prevButtonText.isEmpty())
+            {
+                m_previousItemButton->setToolTip(attributes.prevButtonText);
+            }
         }
         else
         {
-            m_previousItemButton->setIcon(QApplication::style()->standardIcon(QStyle::SP_ArrowUp));
-        }
+            if (m_previousItemButton)
+            {
+                m_layout->removeWidget(m_previousItemButton);
+                m_previousItemButton->deleteLater();
+            }
 
-        if (m_comboBox->count() == 0 || m_comboBox->currentIndex() >= m_comboBox->count() - 1)
-        {
-            QIcon disabledIcon(QApplication::style()->standardIcon(QStyle::SP_ArrowDown).pixmap(16, 16, QIcon::Disabled));
-            m_nextItemButton->setIcon(disabledIcon);
-        }
-        else
-        {
-            m_nextItemButton->setIcon(QApplication::style()->standardIcon(QStyle::SP_ArrowDown));
-        }
-
-        // Update button texts
-        if (!attributes.nextButtonText.isEmpty())
-        {
-            m_nextItemButton->setToolTip(attributes.nextButtonText);
-        }
-
-        if (!attributes.prevButtonText.isEmpty())
-        {
-            m_previousItemButton->setToolTip(attributes.prevButtonText);
+            if (m_nextItemButton)
+            {
+                m_layout->removeWidget(m_nextItemButton);
+                m_nextItemButton->deleteLater();
+            }
         }
     }
-    else
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QMargins PdmUiComboBoxEditor::calculateLabelContentMargins() const
+{
+    QSize editorSize = m_comboBox->sizeHint();
+    QSize labelSize  = m_label->sizeHint();
+    int heightDiff   = editorSize.height() - labelSize.height();
+
+    QMargins contentMargins = m_label->contentsMargins();
+    if (heightDiff > 0)
     {
-        if (m_previousItemButton)
-        {
-            m_layout->removeWidget(m_previousItemButton);
-            m_previousItemButton->deleteLater();
-        }
-
-        if (m_nextItemButton)
-        {
-            m_layout->removeWidget(m_nextItemButton);
-            m_nextItemButton->deleteLater();
-        }
+        contentMargins.setTop(contentMargins.top() + heightDiff / 2);
+        contentMargins.setBottom(contentMargins.bottom() + heightDiff / 2);
     }
+    return contentMargins;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -189,7 +210,7 @@ public:
     //--------------------------------------------------------------------------------------------------
     /// 
     //--------------------------------------------------------------------------------------------------
-    void wheelEvent(QWheelEvent *e)
+    void wheelEvent(QWheelEvent *e) override
     {
         if (hasFocus())
         {
@@ -206,7 +227,7 @@ protected:
     //--------------------------------------------------------------------------------------------------
     /// 
     //--------------------------------------------------------------------------------------------------
-    virtual void focusInEvent(QFocusEvent* e) override
+    void focusInEvent(QFocusEvent* e) override
     {
         setFocusPolicy(Qt::WheelFocus);
         QComboBox::focusInEvent(e);
@@ -215,7 +236,7 @@ protected:
     //--------------------------------------------------------------------------------------------------
     /// 
     //--------------------------------------------------------------------------------------------------
-    virtual void focusOutEvent(QFocusEvent* e) override
+    void focusOutEvent(QFocusEvent* e) override
     {
         setFocusPolicy(Qt::StrongFocus);
         QComboBox::focusOutEvent(e);

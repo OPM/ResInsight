@@ -54,8 +54,8 @@ class PvtQwtPlot : public QwtPlot
 {
 public:
     PvtQwtPlot(QWidget* parent) : QwtPlot(parent) {}
-    virtual QSize sizeHint() const { return QSize(100, 100); }
-    virtual QSize minimumSizeHint() const { return QSize(0, 0); }
+    QSize sizeHint() const override { return QSize(100, 100); }
+    QSize minimumSizeHint() const override { return QSize(0, 0); }
 };
 
 
@@ -74,7 +74,7 @@ public:
         setStateMachine(new QwtPickerTrackerMachine);
     }
 
-    virtual QwtText trackerText(const QPoint&) const
+    QwtText trackerText(const QPoint&) const override
     {
         QwtText text(m_trackerTextProvider->trackerText());
         text.setRenderFlags(Qt::AlignLeft);

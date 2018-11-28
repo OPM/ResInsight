@@ -43,24 +43,23 @@ class RimEclipseInputCase : public RimEclipseCase
 
 public:
     RimEclipseInputCase();
-    virtual ~RimEclipseInputCase();
-
-    // Fields
-    caf::PdmChildField<RimEclipseInputPropertyCollection*> m_inputPropertyCollection;
+    ~RimEclipseInputCase() override;
 
     // File open methods
     bool                        openDataFileSet(const QStringList& fileNames);
     void                        loadAndSyncronizeInputProperties();
 
+    RimEclipseInputPropertyCollection* inputPropertyCollection();
+
     // RimCase overrides
-    virtual bool                openEclipseGridFile(); // Find grid file among file set. Read, Find read and validate property date. Syncronize child property sets.
-    virtual void                reloadEclipseGridFile();
+    bool                        openEclipseGridFile() override;
+    void                        reloadEclipseGridFile() override;
 
     // Overrides from RimCase
-    virtual QString             locationOnDisc() const;
-    virtual QString             gridFileName() const { return m_gridFileName();}
+    QString                     locationOnDisc() const override;
+    QString                     gridFileName() const override { return m_gridFileName();}
 
-    virtual void                updateFilePathsFromProjectPath(const QString& projectPath, const QString& oldProjectPath);
+    void                        updateFilePathsFromProjectPath(const QString& projectPath, const QString& oldProjectPath) override;
 
     void                        updateAdditionalFileFolder(const QString& newFolder);
 
@@ -68,12 +67,15 @@ private:
     std::vector<QString>        additionalFiles() const;
 
 protected:
-    virtual void                defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    void                defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    void                defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
 
 private:
     cvf::ref<RifReaderInterface> createMockModel(QString modelName);
 
+private:
     // Fields
+    caf::PdmChildField<RimEclipseInputPropertyCollection*> m_inputPropertyCollection;
     caf::PdmField<QString>                          m_gridFileName;
     caf::PdmProxyValueField< std::vector<QString> > m_additionalFiles;
 

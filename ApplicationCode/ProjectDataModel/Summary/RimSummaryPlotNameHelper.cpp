@@ -36,7 +36,7 @@ RimSummaryPlotNameHelper::RimSummaryPlotNameHelper() {}
 void RimSummaryPlotNameHelper::clear()
 {
     m_summaryCases.clear();
-
+    m_ensembleCases.clear();
     m_analyzer.clear();
 
     clearTitleSubStrings();
@@ -55,13 +55,15 @@ void RimSummaryPlotNameHelper::appendAddresses(const std::vector<RifEclipseSumma
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryPlotNameHelper::appendSummaryCases(const std::vector<RimSummaryCase*>& summaryCases)
+void RimSummaryPlotNameHelper::setSummaryCases(const std::vector<RimSummaryCase*>& summaryCases)
 {
     m_summaryCases.clear();
 
-    for (auto summaryCase : summaryCases)
+    m_summaryCases.resize(summaryCases.size());
+
+    for (size_t i = 0; i < summaryCases.size(); i++)
     {
-        if (summaryCase) m_summaryCases.insert(summaryCase);
+        m_summaryCases[i] = summaryCases[i];
     }
 
     extractPlotTitleSubStrings();
@@ -70,13 +72,15 @@ void RimSummaryPlotNameHelper::appendSummaryCases(const std::vector<RimSummaryCa
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryPlotNameHelper::appendEnsembleCases(const std::vector<RimSummaryCaseCollection*>& ensembleCases)
+void RimSummaryPlotNameHelper::setEnsembleCases(const std::vector<RimSummaryCaseCollection*>& ensembleCases)
 {
     m_ensembleCases.clear();
 
-    for (auto ensembleCase : ensembleCases)
+    m_ensembleCases.resize(ensembleCases.size());
+
+    for (size_t i = 0; i < ensembleCases.size(); i++)
     {
-        if (ensembleCase) m_ensembleCases.insert(ensembleCase);
+        m_ensembleCases[i] = ensembleCases[i];
     }
 
     extractPlotTitleSubStrings();
@@ -116,7 +120,7 @@ QString RimSummaryPlotNameHelper::plotTitle() const
     if (!m_titleQuantity.empty())
     {
         if (!title.isEmpty()) title += ", ";
-        title += QString::fromStdString(RiuSummaryVectorDescriptionMap::instance()->fieldInfo(m_titleQuantity));
+        title += QString::fromStdString(RiuSummaryVectorDescriptionMap::instance()->vectorLongName(m_titleQuantity, true));
     }
 
     if (title.isEmpty())
@@ -216,21 +220,54 @@ void RimSummaryPlotNameHelper::extractPlotTitleSubStrings()
         }
     }
 
-    if (m_summaryCases.size() == 1 && m_ensembleCases.empty())
+    auto summaryCases = setOfSummaryCases();
+    auto ensembleCases = setOfEnsembleCases();
+
+    if (summaryCases.size() == 1 && ensembleCases.empty())
     {
-        auto summaryCase = *(m_summaryCases.begin());
+        auto summaryCase = *(summaryCases.begin());
 
         if (summaryCase)
         {
             m_titleCaseName = summaryCase->caseName();
         }
     }
-    else if (m_ensembleCases.size() == 1 && m_summaryCases.empty())
+    else if (ensembleCases.size() == 1 && summaryCases.empty())
     {
-        auto ensembleCase = *(m_ensembleCases.begin());
+        auto ensembleCase = *(ensembleCases.begin());
         if (ensembleCase)
         {
             m_titleCaseName = ensembleCase->name();
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::set<RimSummaryCase*> RimSummaryPlotNameHelper::setOfSummaryCases() const
+{
+    std::set<RimSummaryCase*> summaryCases;
+
+    for (const auto& sumCase : m_summaryCases)
+    {
+        if (sumCase) summaryCases.insert(sumCase);
+    }
+
+    return summaryCases;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::set<RimSummaryCaseCollection*> RimSummaryPlotNameHelper::setOfEnsembleCases() const
+{
+    std::set<RimSummaryCaseCollection*> ensembleCases;
+
+    for (const auto& ensemble : m_ensembleCases)
+    {
+        if (ensemble) ensembleCases.insert(ensemble);
+    }
+
+    return ensembleCases;
 }

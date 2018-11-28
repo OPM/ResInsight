@@ -1,9 +1,9 @@
 #ifndef ERT_TEMPLATE_TYPE_H
 #define ERT_TEMPLATE_TYPE_H
 
-#include <ert/util/ert_api_config.h>
+#include <ert/util/ert_api_config.hpp>
 
-#include <ert/util/subst_list.h>
+#include <ert/util/subst_list.hpp>
 
 #ifdef ERT_HAVE_REGEXP
 #include <regex.h>
@@ -17,7 +17,7 @@ struct template_struct {
   char            * template_buffer;         /* The content of the template buffer; only has valid content if internalize_template == true. */
   bool              internalize_template;    /* Should the template be loadad and internalized at template_alloc(). */
   subst_list_type * arg_list;                /* Key-value mapping established at alloc time. */
-  char            * arg_string;              /* A string representation of the arguments - ONLY used for a _get_ function. */ 
+  char            * arg_string;              /* A string representation of the arguments - ONLY used for a _get_ function. */
   #ifdef ERT_HAVE_REGEXP
   regex_t start_regexp;
   regex_t end_regexp;

@@ -28,13 +28,14 @@
 #include "cafPdmObject.h"
 #include "cafPdmObjectGroup.h"
 #include "cafPdmUiListView.h"
-#include "cafPdmUiListViewEditor.h"
 #include "cafPdmUiPropertyView.h"
 #include "cafPdmUiTreeView.h"
 #include "cafPdmUiTreeViewEditor.h"
 #include "cafUtils.h"
 
 #include <QObject>
+#include <QSslConfiguration>
+#include <QSslSocket>
 #include <QtGui>
 #include <QtNetwork>
 
@@ -316,7 +317,19 @@ void RiuWellImportWizard::setUrl(const QString& httpAddress)
 //--------------------------------------------------------------------------------------------------
 void RiuWellImportWizard::startRequest(QUrl url)
 {
-    m_reply = m_networkAccessManager.get(QNetworkRequest(url));
+    auto request = QNetworkRequest(url);
+
+#ifndef QT_NO_OPENSSL
+    bool supportsSsl = QSslSocket::supportsSsl();
+    if (supportsSsl)
+    {
+        QSslConfiguration config = QSslConfiguration::defaultConfiguration();
+        config.setProtocol(QSsl::TlsV1);
+        request.setSslConfiguration(config);
+    }
+#endif
+
+    m_reply = m_networkAccessManager.get(request);
     connect(m_reply, SIGNAL(finished()),
         this, SLOT(httpFinished()));
     connect(m_reply, SIGNAL(readyRead()),

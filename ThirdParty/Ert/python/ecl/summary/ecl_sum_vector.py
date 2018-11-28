@@ -47,7 +47,6 @@ class EclSumVector(object):
         self.__dates = parent.get_dates(report_only)
         self.__days = parent.get_days(report_only)
         self.__mpl_dates = parent.get_mpl_dates(report_only)
-        self.__mini_step = parent.get_mini_step(report_only)
         self.__report_step = parent.get_report_step(report_only)
         self.__values = None
 
@@ -70,7 +69,7 @@ class EclSumVector(object):
         This function will load and internalize all the values.
         """
         if self.__values is None:
-            self.__values = self.parent.get_values(self.key, self.report_only)
+            self.__values = self.parent.numpy_vector(self.key, report_only = self.report_only)
 
     @property
     def values(self):
@@ -104,20 +103,6 @@ class EclSumVector(object):
         return self.__mpl_dates
 
     @property
-    def mini_step(self):
-        """
-        All the ministeps of the vector.
-
-        Ministeps is the ECLIPSE notion of timesteps. The ministeps
-        are numbered sequentially starting at zero; if you have loaded
-        the entire simulation the ministep number will correspond to
-        the natural indexing. The length of each ministep is
-        determined by the convergence properties of the ECLIPSE
-        simulation.
-        """
-        return self.__mini_step
-
-    @property
     def report_step(self):
         """
         All the report_step of the vector.
@@ -131,8 +116,7 @@ class EclSumVector(object):
         through the [] operator, otherwise you can come across
         unitialized data.
         """
-        return EclSumNode(self.__mini_step[index],
-                          self.__report_step[index],
+        return EclSumNode(self.__report_step[index],
                           self.__days[index],
                           self.__dates[index],
                           self.__mpl_dates[index],

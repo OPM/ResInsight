@@ -45,6 +45,10 @@ set( PROJECT_FILES
     cafTristate.h
     cafFilePath.cpp
     cafFilePath.h
+    cafAsyncObjectDeleter.h
+    cafAsyncObjectDeleter.inl
+	cafAsyncWorkerManager.h
+	cafAsyncWorkerManager.cpp
 )
 
 add_library( ${PROJECT_NAME}
@@ -55,5 +59,9 @@ target_include_directories(${PROJECT_NAME}
   PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}
 )
+
+if (MSVC) 
+    set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "/W4 /wd4100 /wd4127")
+endif()
 
 source_group("" FILES ${PROJECT_FILES})

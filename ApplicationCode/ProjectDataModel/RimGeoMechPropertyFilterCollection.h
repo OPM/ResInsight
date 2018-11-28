@@ -37,7 +37,7 @@ class RimGeoMechPropertyFilterCollection : public RimPropertyFilterCollection
     CAF_PDM_HEADER_INIT;
 public:
     RimGeoMechPropertyFilterCollection();
-    virtual ~RimGeoMechPropertyFilterCollection();
+    ~RimGeoMechPropertyFilterCollection() override;
 
     RimGeoMechView*       reservoirView();
 
@@ -54,5 +54,5 @@ public:
 
 protected:
     // Overridden methods
-    virtual void                    initAfterRead() override;
+    void                    initAfterRead() override;
 };

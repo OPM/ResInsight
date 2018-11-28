@@ -1,32 +1,32 @@
 /*
-   Copyright (C) 2014  Statoil ASA, Norway. 
-    
-   The file 'geo_polygon_collection.c' is part of ERT - Ensemble based Reservoir Tool. 
-    
-   ERT is free software: you can redistribute it and/or modify 
-   it under the terms of the GNU General Public License as published by 
-   the Free Software Foundation, either version 3 of the License, or 
-   (at your option) any later version. 
-    
-   ERT is distributed in the hope that it will be useful, but WITHOUT ANY 
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or 
-   FITNESS FOR A PARTICULAR PURPOSE.   
-    
-   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
-   for more details. 
+   Copyright (C) 2014  Statoil ASA, Norway.
+
+   The file 'geo_polygon_collection.c' is part of ERT - Ensemble based Reservoir Tool.
+
+   ERT is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   ERT is distributed in the hope that it will be useful, but WITHOUT ANY
+   WARRANTY; without even the implied warranty of MERCHANTABILITY or
+   FITNESS FOR A PARTICULAR PURPOSE.
+
+   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+   for more details.
 */
 
 
 #include <stdlib.h>
 #include <stdbool.h>
 
-#include <ert/util/util.hpp>
+#include <ert/util/util.h>
 #include <ert/util/type_macros.hpp>
 #include <ert/util/vector.hpp>
 #include <ert/util/hash.hpp>
 
-#include <ert/geometry/geo_polygon.hpp>        
-#include <ert/geometry/geo_polygon_collection.hpp>        
+#include <ert/geometry/geo_polygon.hpp>
+#include <ert/geometry/geo_polygon_collection.hpp>
 
 
 
@@ -68,7 +68,7 @@ geo_polygon_type * geo_polygon_collection_create_polygon( geo_polygon_collection
   }
 
   return polygon;
-} 
+}
 
 
 bool geo_polygon_collection_add_polygon( geo_polygon_collection_type * polygons , geo_polygon_type * polygon , bool polygon_owner ) {
@@ -80,10 +80,10 @@ bool geo_polygon_collection_add_polygon( geo_polygon_collection_type * polygons 
       vector_append_owned_ref( polygons->polygon_list , polygon , geo_polygon_free__);
     else
       vector_append_ref( polygons->polygon_list , polygon );
-    
+
     if (name)
       hash_insert_ref( polygons->polygon_map , name , polygon );
-    
+
     return true;
   }
 }

@@ -105,7 +105,8 @@ void RivGeoMechVizLogic::updateStaticCellColors(int timeStepIndex)
     for (size_t pmIdx = 0; pmIdx < visiblePartMgrs.size(); ++pmIdx)
     {
         RivGeoMechPartMgr*  partMgr = m_partMgrCache->partMgr(visiblePartMgrs[pmIdx]);
-        partMgr->updateCellColor(cvf::Color4f(cvf::Color3f::ORANGE));
+        auto color = staticCellColor();
+        partMgr->updateCellColor(cvf::Color4f(color));
     }
 }
 
@@ -171,6 +172,14 @@ std::vector<RivGeoMechPartMgrCache::Key> RivGeoMechVizLogic::keysToVisiblePartMg
 const cvf::ref<RivGeoMechPartMgrCache> RivGeoMechVizLogic::partMgrCache() const
 {
     return m_partMgrCache;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::Color3f RivGeoMechVizLogic::staticCellColor()
+{
+    return cvf::Color3f::ORANGE;
 }
 
 //--------------------------------------------------------------------------------------------------

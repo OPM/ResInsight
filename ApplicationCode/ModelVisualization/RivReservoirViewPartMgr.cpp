@@ -150,10 +150,11 @@ void RivReservoirViewPartMgr::scheduleGeometryRegen(RivCellSetEnum geometryType)
 //--------------------------------------------------------------------------------------------------
 void RivReservoirViewPartMgr::clearGeometryCache(RivCellSetEnum geomType)
 {
-    RigEclipseCaseData* eclipseCase = nullptr;
-    if (m_reservoirView != nullptr && m_reservoirView->eclipseCase())
+    RimEclipseCase* rimEclipseCase = nullptr;
+
+    if (m_reservoirView)
     {
-        eclipseCase = m_reservoirView->eclipseCase()->eclipseCaseData();
+        m_reservoirView->firstAncestorOrThisOfType(rimEclipseCase);
     }
 
     if (geomType == PROPERTY_FILTERED)
@@ -163,7 +164,7 @@ void RivReservoirViewPartMgr::clearGeometryCache(RivCellSetEnum geomType)
             m_propFilteredGeometryFramesNeedsRegen[i] = true;
             if (m_propFilteredGeometryFrames[i].notNull())
             {
-                m_propFilteredGeometryFrames[i]->clearAndSetReservoir(eclipseCase, m_reservoirView);
+                m_propFilteredGeometryFrames[i]->clearAndSetReservoir(geomType, rimEclipseCase, m_reservoirView);
                 m_propFilteredGeometryFrames[i]->setTransform(m_scaleTransform.p());
             }
         }
@@ -175,7 +176,7 @@ void RivReservoirViewPartMgr::clearGeometryCache(RivCellSetEnum geomType)
             m_propFilteredWellGeometryFramesNeedsRegen[i] = true;
             if (m_propFilteredWellGeometryFrames[i].notNull())
             {
-                m_propFilteredWellGeometryFrames[i]->clearAndSetReservoir(eclipseCase, m_reservoirView);
+                m_propFilteredWellGeometryFrames[i]->clearAndSetReservoir(geomType, rimEclipseCase, m_reservoirView);
                 m_propFilteredWellGeometryFrames[i]->setTransform(m_scaleTransform.p());
             }
         }
@@ -183,7 +184,7 @@ void RivReservoirViewPartMgr::clearGeometryCache(RivCellSetEnum geomType)
     else
     {
         m_geometriesNeedsRegen[geomType] = true;
-        m_geometries[geomType].clearAndSetReservoir(eclipseCase, m_reservoirView);
+        m_geometries[geomType].clearAndSetReservoir(geomType, rimEclipseCase, m_reservoirView);
         m_geometries[geomType].setTransform(m_scaleTransform.p());
     }
 }
@@ -275,7 +276,8 @@ void RivReservoirViewPartMgr::ensureDynamicGeometryPartsCreated(RivCellSetEnum g
 void RivReservoirViewPartMgr::createGeometry(RivCellSetEnum geometryType)
 {
     RigEclipseCaseData* res = m_reservoirView->eclipseCase()->eclipseCaseData();
-    m_geometries[geometryType].clearAndSetReservoir(res, m_reservoirView);
+
+    m_geometries[geometryType].clearAndSetReservoir(geometryType, m_reservoirView->eclipseCase(), m_reservoirView);
     m_geometries[geometryType].setTransform(m_scaleTransform.p());
     
     std::vector<RigGridBase*> grids;
@@ -298,7 +300,7 @@ void RivReservoirViewPartMgr::createGeometry(RivCellSetEnum geometryType)
 void RivReservoirViewPartMgr::computeVisibility(cvf::UByteArray* cellVisibility, RivCellSetEnum geometryType, RigGridBase* grid, size_t gridIdx)
 {
     RigEclipseCaseData* eclipseCase = m_reservoirView->eclipseCase()->eclipseCaseData();
-    RigActiveCellInfo* activeCellInfo = m_reservoirView->currentActiveCellInfo();
+    auto activeCellInfo = m_reservoirView->currentActiveCellInfo();
 
     switch (geometryType)
     {
@@ -306,7 +308,7 @@ void RivReservoirViewPartMgr::computeVisibility(cvf::UByteArray* cellVisibility,
         computeOverriddenCellVisibility(cellVisibility, grid);
     break;
     case ACTIVE:
-        computeNativeVisibility(cellVisibility, grid, activeCellInfo, eclipseCase->wellCellsInGrid(gridIdx), false, false, true, m_reservoirView->showMainGrid() );
+        computeNativeVisibility(cellVisibility, grid, activeCellInfo, eclipseCase->wellCellsInGrid(gridIdx), false, false, true);
         break;
     case ALL_WELL_CELLS:
         copyByteArray(cellVisibility, eclipseCase->wellCellsInGrid(gridIdx));
@@ -344,7 +346,7 @@ void RivReservoirViewPartMgr::computeVisibility(cvf::UByteArray* cellVisibility,
         }
         break;
     case INACTIVE:
-        computeNativeVisibility(cellVisibility, grid, activeCellInfo, eclipseCase->wellCellsInGrid(gridIdx),  m_reservoirView->showInvalidCells(), true, false, m_reservoirView->showMainGrid());
+        computeNativeVisibility(cellVisibility, grid, activeCellInfo, eclipseCase->wellCellsInGrid(gridIdx),  m_reservoirView->showInvalidCells(), true, false);
         break;
     case RANGE_FILTERED:
         {
@@ -434,7 +436,7 @@ void RivReservoirViewPartMgr::createPropertyFilteredNoneWellCellGeometry(size_t 
 
     if ( m_propFilteredGeometryFrames[frameIndex].isNull())  m_propFilteredGeometryFrames[frameIndex] = new RivReservoirPartMgr;
 
-    m_propFilteredGeometryFrames[frameIndex]->clearAndSetReservoir(res, m_reservoirView);
+    m_propFilteredGeometryFrames[frameIndex]->clearAndSetReservoir(PROPERTY_FILTERED, m_reservoirView->eclipseCase(), m_reservoirView);
     m_propFilteredGeometryFrames[frameIndex]->setTransform(m_scaleTransform.p());
 
     std::vector<RigGridBase*> grids;
@@ -510,7 +512,7 @@ void RivReservoirViewPartMgr::createPropertyFilteredWellGeometry(size_t frameInd
 
     if ( m_propFilteredWellGeometryFrames[frameIndex].isNull())  m_propFilteredWellGeometryFrames[frameIndex] = new RivReservoirPartMgr;
 
-    m_propFilteredWellGeometryFrames[frameIndex]->clearAndSetReservoir(res, m_reservoirView);
+    m_propFilteredWellGeometryFrames[frameIndex]->clearAndSetReservoir(PROPERTY_FILTERED_WELL_CELLS, m_reservoirView->eclipseCase(), m_reservoirView);
     m_propFilteredWellGeometryFrames[frameIndex]->setTransform(m_scaleTransform.p());
 
     std::vector<RigGridBase*> grids;
@@ -585,8 +587,7 @@ void RivReservoirViewPartMgr::createPropertyFilteredWellGeometry(size_t frameInd
 void RivReservoirViewPartMgr::computeNativeVisibility(cvf::UByteArray* cellVisibility, const RigGridBase* grid, const RigActiveCellInfo* activeCellInfo, const cvf::UByteArray* cellIsInWellStatuses,
     bool invalidCellsIsVisible, 
     bool inactiveCellsIsVisible, 
-    bool activeCellsIsVisible,
-    bool mainGridIsVisible) 
+    bool activeCellsIsVisible) 
 {
     CVF_ASSERT(cellVisibility != nullptr);
     CVF_ASSERT(grid != nullptr);
@@ -605,7 +606,6 @@ void RivReservoirViewPartMgr::computeNativeVisibility(cvf::UByteArray* cellVisib
         if (   !invalidCellsIsVisible && cell.isInvalid() 
             || !inactiveCellsIsVisible && !activeCellInfo->isActive(reservoirCellIndex)
             || !activeCellsIsVisible && activeCellInfo->isActive(reservoirCellIndex)
-            //|| mainGridIsVisible && (cell.subGrid() != NULL) // this is handled on global level instead
             || (*cellIsInWellStatuses)[cellIndex]
             )
         {

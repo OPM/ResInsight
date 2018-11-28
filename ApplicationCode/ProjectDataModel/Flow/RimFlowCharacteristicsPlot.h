@@ -54,17 +54,17 @@ class RimFlowCharacteristicsPlot : public RimViewWindow
 
 public:
     RimFlowCharacteristicsPlot();
-    virtual ~RimFlowCharacteristicsPlot();
+    ~RimFlowCharacteristicsPlot() override;
 
     void                                            setFromFlowSolution(RimFlowDiagSolution* flowSolution);
     void                                            updateCurrentTimeStep();
 
     // RimViewWindow overrides
 
-    virtual QWidget*                                viewWidget() override;
-    virtual void                                    zoomAll() override;
-    virtual QWidget*                                createViewWidget(QWidget* mainWindowParent) override; 
-    virtual void                                    deleteViewWidget() override; 
+    QWidget*                                viewWidget() override;
+    void                                    zoomAll() override;
+    QWidget*                                createViewWidget(QWidget* mainWindowParent) override; 
+    void                                    deleteViewWidget() override; 
     void                                            viewGeometryUpdated();
 
     enum TimeSelectionType 
@@ -76,14 +76,14 @@ public:
 protected:
     // RimViewWindow overrides
 
-    virtual QImage                                  snapshotWindowContent() override;
+    QImage                                  snapshotWindowContent() override;
 
     // Overridden PDM methods
-    virtual void                                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
-    virtual QList<caf::PdmOptionItemInfo>           calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
-    virtual void                                    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
-    virtual void                                    defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute );
-    virtual void                                    onLoadDataAndUpdate() override;
+    void                                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    QList<caf::PdmOptionItemInfo>           calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
+    void                                    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    void                                    defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
+    void                                    onLoadDataAndUpdate() override;
 
 private:
 

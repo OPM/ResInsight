@@ -1,19 +1,19 @@
 /*
-   Copyright (C) 2012  Statoil ASA, Norway. 
-    
-   The file 'util_endian.c' is part of ERT - Ensemble based Reservoir Tool. 
-    
-   ERT is free software: you can redistribute it and/or modify 
-   it under the terms of the GNU General Public License as published by 
-   the Free Software Foundation, either version 3 of the License, or 
-   (at your option) any later version. 
-    
-   ERT is distributed in the hope that it will be useful, but WITHOUT ANY 
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or 
-   FITNESS FOR A PARTICULAR PURPOSE.   
-    
-   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
-   for more details. 
+   Copyright (C) 2012  Statoil ASA, Norway.
+
+   The file 'util_endian.c' is part of ERT - Ensemble based Reservoir Tool.
+
+   ERT is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   ERT is distributed in the hope that it will be useful, but WITHOUT ANY
+   WARRANTY; without even the implied warranty of MERCHANTABILITY or
+   FITNESS FOR A PARTICULAR PURPOSE.
+
+   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+   for more details.
 */
 #include <stdint.h>
 #include <stdio.h>
@@ -30,12 +30,12 @@
 
 /*
    Macros for endian flipping. The macros create a new endian-flipped
-   value, and should be used as: 
+   value, and should be used as:
 
      flipped_value = FLIP32( value )
- 
+
    The macros are not exported and only available through the function
-   util_endian_flip_vector().  
+   util_endian_flip_vector().
 */
 
 
@@ -66,7 +66,7 @@ static uint16_t util_endian_convert16( uint16_t u ) {
 static uint32_t util_endian_convert32( uint32_t u ) {
   const uint32_t m8  = (uint32_t) 0x00FF00FFUL;
   const uint32_t m16 = (uint32_t) 0x0000FFFFUL;
-  
+
   u = (( u >> 8U ) & m8)   | ((u & m8) << 8U);
   u = (( u >> 16U ) & m16) | ((u & m16) << 16U);
   return u;
@@ -78,7 +78,7 @@ static uint64_t util_endian_convert64( uint64_t u ) {
   const uint64_t m16 = (uint64_t) 0x0000FFFF0000FFFFULL;
   const uint64_t m32 = (uint64_t) 0x00000000FFFFFFFFULL;
 
-  
+
   u = (( u >> 8U ) & m8)   | ((u & m8) << 8U);
   u = (( u >> 16U ) & m16) | ((u & m16) << 16U);
   u = (( u >> 32U ) & m32) | ((u & m32) << 32U);
@@ -90,7 +90,7 @@ static uint64_t util_endian_convert32_64( uint64_t u ) {
   const uint64_t m8  = (uint64_t) 0x00FF00FF00FF00FFULL;
   const uint64_t m16 = (uint64_t) 0x0000FFFF0000FFFFULL;
 
-  
+
   u = (( u >> 8U ) & m8)   | ((u & m8) << 8U);
   u = (( u >> 16U ) & m16) | ((u & m16) << 16U);
   return u;
@@ -103,7 +103,7 @@ void util_endian_flip_vector(void *data, int element_size , int elements) {
   switch (element_size) {
   case(1):
     break;
-  case(2): 
+  case(2):
     {
       uint16_t *tmp16 = (uint16_t *) data;
 
@@ -134,10 +134,10 @@ void util_endian_flip_vector(void *data, int element_size , int elements) {
       break;
 #else
       uint32_t *tmp32 = (uint32_t *) data;
-      
+
       for (i = 0; i <elements; i++)
         tmp32[i] = util_endian_convert32(tmp32[i]);
-      
+
       break;
 #endif
     }

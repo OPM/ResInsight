@@ -27,6 +27,7 @@
 #include "RimSummaryPlot.h"
 #include "RimViewWindow.h"
 #include "RimWellAllocationPlot.h"
+#include "RimWellLogCurveCommonDataSource.h"
 #include "RimWellLogPlot.h"
 
 #include "RiuDragDrop.h"
@@ -114,6 +115,7 @@ void RiuPlotMainWindow::cleanupGuiBeforeProjectClose()
 
     cleanUpTemporaryWidgets();
 
+    m_wellLogPlotToolBarEditor->clear();
     m_summaryPlotToolBarEditor->clear();
 
     setWindowTitle("Plots - ResInsight");
@@ -317,6 +319,9 @@ void RiuPlotMainWindow::createToolBars()
         }
     }
 
+    m_wellLogPlotToolBarEditor = new caf::PdmUiToolBarEditor("Well Log Plot", this);
+    m_wellLogPlotToolBarEditor->hide();
+
     m_summaryPlotToolBarEditor = new caf::PdmUiToolBarEditor("Summary Plot", this);
     m_summaryPlotToolBarEditor->hide();
 }
@@ -425,11 +430,65 @@ QList<QMdiSubWindow*> RiuPlotMainWindow::subWindowList(QMdiArea::WindowOrder ord
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RiuPlotMainWindow::setWidthOfMdiWindow(QWidget* mdiWindowWidget, int newWidth)
+{
+    QMdiSubWindow* mdiWindow = findMdiSubWindow(mdiWindowWidget);
+    if (mdiWindow)
+    {
+        QSize subWindowSize = mdiWindow->size();
+
+        subWindowSize.setWidth(std::max(newWidth, 100));
+        mdiWindow->resize(subWindowSize);
+
+        if (mdiWindow->isMaximized())
+        {
+            // Set window temporarily to normal state and back to maximized
+            // to redo layout so the whole window canvas is filled
+            // Tried to activate layout, did not work as expected
+            // Tested code:
+            //   m_layout->activate();
+            //   mdiWindow->layout()->activate();
+
+            mdiWindow->showNormal();
+            mdiWindow->showMaximized();
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiuPlotMainWindow::addToTemporaryWidgets(QWidget* widget)
 {
     CVF_ASSERT(widget);
 
     m_temporaryWidgets.push_back(widget);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuPlotMainWindow::updateWellLogPlotToolBar()
+{
+    RimWellLogPlot* wellLogPlot = dynamic_cast<RimWellLogPlot*>(m_activePlotViewWindow.p());
+    if (wellLogPlot)
+    {
+        std::vector<caf::PdmFieldHandle*> toolBarFields;
+        toolBarFields = wellLogPlot->commonDataSource()->fieldsToShowInToolbar();
+
+        m_wellLogPlotToolBarEditor->setFields(toolBarFields);
+        m_wellLogPlotToolBarEditor->updateUi();
+
+        m_wellLogPlotToolBarEditor->show();
+    }
+    else
+    {
+        m_wellLogPlotToolBarEditor->clear();
+
+        m_wellLogPlotToolBarEditor->hide();
+    }
+
+    refreshToolbars();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -498,7 +557,9 @@ void RiuPlotMainWindow::addViewer(QWidget* viewer, const RimMdiWindowGeometry& w
         RiuWellLogPlot* wellLogPlot = dynamic_cast<RiuWellLogPlot*>(subWin->widget());
         if (wellLogPlot)
         {
-            subWindowSize = QSize(275, m_mdiArea->height());
+            QSize preferredSize = wellLogPlot->preferredSize();
+            subWindowSize = 
+                QSize(preferredSize.width(), m_mdiArea->height());
         }
         else
         {
@@ -572,6 +633,7 @@ void RiuPlotMainWindow::slotSubWindowActivated(QMdiSubWindow* subWindow)
         m_activePlotViewWindow = viewWindow;
     }
 
+    updateWellLogPlotToolBar();
     updateSummaryPlotToolBar();
 }
 
@@ -760,18 +822,35 @@ RimMdiWindowGeometry RiuPlotMainWindow::windowGeometryForViewer(QWidget* viewer)
 //--------------------------------------------------------------------------------------------------
 void RiuPlotMainWindow::tileWindows()
 {
+    QMdiArea::WindowOrder currentActivationOrder = m_mdiArea->activationOrder();
+
+    std::list<QMdiSubWindow*> windowList;
+    for (QMdiSubWindow* subWindow : m_mdiArea->subWindowList(currentActivationOrder))
+    {
+        windowList.push_back(subWindow);
+    }
+
+    // Perform stable sort of list so we first sort by window position but retain activation order
+    // for windows with the same position. Needs to be sorted in decreasing order for workaround below.
+    windowList.sort([](const QMdiSubWindow* lhs, const QMdiSubWindow* rhs)
+    {   
+        return lhs->frameGeometry().topLeft().rx() > rhs->frameGeometry().topLeft().rx();
+    });
+
     // Based on workaround described here
     // https://forum.qt.io/topic/50053/qmdiarea-tilesubwindows-always-places-widgets-in-activationhistoryorder-in-subwindowview-mode
 
     QMdiSubWindow* a = m_mdiArea->activeSubWindow();
-
-    QList<QMdiSubWindow*> list = m_mdiArea->subWindowList(m_mdiArea->activationOrder());
-    for (int i = 0; i < list.count(); i++)
+    // Force activation order so they end up in the order of the loop.
+    m_mdiArea->setActivationOrder(QMdiArea::ActivationHistoryOrder);
+    for (QMdiSubWindow* subWindow : windowList)
     {
-        m_mdiArea->setActiveSubWindow(list[i]);
+        m_mdiArea->setActiveSubWindow(subWindow);
     }
 
     m_mdiArea->tileSubWindows();
+    // Set back the original activation order to avoid messing with the standard ordering
+    m_mdiArea->setActivationOrder(currentActivationOrder);
     m_mdiArea->setActiveSubWindow(a);
 }
 

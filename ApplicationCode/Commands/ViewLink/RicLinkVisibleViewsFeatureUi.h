@@ -37,12 +37,13 @@ class RicLinkVisibleViewsFeatureUi : public caf::PdmObject
 public:
     RicLinkVisibleViewsFeatureUi(void);
 
-    void                    setViews(const std::vector<RimGridView*>& allViews);
-    RimGridView*                masterView();
+    void                      setViews(const std::vector<RimGridView*>& allViews);
+    RimGridView*              masterView();
+    std::vector<RimGridView*> masterViewCandidates() const;
 
 protected:
-    virtual QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, 
-                                                                  bool * useOptionsOnly);
+    QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, 
+                                                                  bool * useOptionsOnly) override;
 
 private:
     caf::PdmPtrField<RimGridView*>  m_masterView;

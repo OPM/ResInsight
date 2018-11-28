@@ -23,7 +23,9 @@
 RigLocalGrid::RigLocalGrid(RigMainGrid* mainGrid): 
     RigGridBase(mainGrid),
     m_parentGrid(nullptr), 
-    m_positionInParentGrid(cvf::UNDEFINED_SIZE_T)
+    m_positionInParentGrid(cvf::UNDEFINED_SIZE_T),
+    m_isTempGrid(false),
+    m_associatedWellPathName("")
 {
 
 }
@@ -31,4 +33,68 @@ RigLocalGrid::RigLocalGrid(RigMainGrid* mainGrid):
 
 RigLocalGrid::~RigLocalGrid()
 {
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RigGridBase * RigLocalGrid::parentGrid() const
+{
+    return m_parentGrid;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigLocalGrid::setParentGrid(RigGridBase * parentGrid)
+{
+    m_parentGrid = parentGrid;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+size_t RigLocalGrid::positionInParentGrid() const
+{
+    return m_positionInParentGrid;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigLocalGrid::setPositionInParentGrid(size_t positionInParentGrid)
+{
+    m_positionInParentGrid = positionInParentGrid;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigLocalGrid::setAsTempGrid(bool isTemp)
+{
+    m_isTempGrid = isTemp;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RigLocalGrid::isTempGrid() const
+{
+    return m_isTempGrid;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigLocalGrid::setAssociatedWellPathName(const std::string& wellPathName)
+{
+    m_associatedWellPathName = wellPathName;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const std::string& RigLocalGrid::associatedWellPathName() const
+{
+    return m_associatedWellPathName;
 }

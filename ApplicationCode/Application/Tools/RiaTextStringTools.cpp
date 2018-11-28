@@ -39,3 +39,20 @@ bool RiaTextStringTools::compare(const QString& expected, const QString& actual)
     return false;
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RiaTextStringTools::trimAndRemoveDoubleSpaces(const QString& s)
+{
+    int length;
+    QString trimmed = s.trimmed();
+
+    do 
+    {
+        length = trimmed.size();
+        trimmed = trimmed.replace("  ", " ");
+    } while (trimmed.size() < length);
+    
+    return trimmed;
+}
+

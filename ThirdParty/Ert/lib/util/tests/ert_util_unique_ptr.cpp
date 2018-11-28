@@ -17,7 +17,7 @@
 */
 
 #include <ert/util/ert_unique_ptr.hpp>
-#include <ert/util/stringlist.h>
+#include <ert/util/stringlist.hpp>
 
 
 void test_stringlist() {

@@ -28,6 +28,8 @@
 
 #include "RiaApplication.h"
 
+#include "RiaOffshoreSphericalCoords.h"
+
 #include "RigFemNativeStatCalc.h"
 #include "RigFemPartCollection.h"
 #include "RigFemPartGrid.h"
@@ -90,11 +92,11 @@ RigFemPartResultsCollection::RigFemPartResultsCollection(RifGeoMechReaderInterfa
     m_femParts = femPartCollection;
 
     m_femPartResults.resize(m_femParts->partCount());
-    std::vector<std::string> stepNames = m_readerInterface->stepNames();
+    std::vector<std::string> filteredStepNames = m_readerInterface->filteredStepNames();
     for (auto & femPartResult : m_femPartResults)
     {
         femPartResult = new RigFemPartResults;
-        femPartResult->initResultSteps(stepNames);
+        femPartResult->initResultSteps(filteredStepNames);
     }
 
     m_cohesion = 10.0;
@@ -482,6 +484,19 @@ std::map<std::string, std::vector<std::string> > RigFemPartResultsCollection::sc
                 fieldCompNames[field];
             }
         }
+        else if (resPos == RIG_WELLPATH_DERIVED)
+        {
+            std::vector<QString> angles = RiaDefines::wellPathAngleResultNames();
+            for (QString angle : angles)
+            {
+                fieldCompNames[angle.toStdString()];
+            }
+            std::vector<QString> derivedResults = RiaDefines::wellPathStabilityResultNames();
+            for (QString result : derivedResults)
+            {
+                fieldCompNames[result.toStdString()];
+            }
+        }
     }
 
     return fieldCompNames;
@@ -496,7 +511,8 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateBarConvertedResu
     frameCountProgress.setProgressDescription("Calculating " + QString::fromStdString(convertedResultAddr.fieldName + ": " + convertedResultAddr.componentName));
     frameCountProgress.setNextProgressIncrement(this->frameCount());
 
-    RigFemScalarResultFrames * srcDataFrames = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(convertedResultAddr.resultPosType, fieldNameToConvert, convertedResultAddr.componentName));
+    RigFemResultAddress unconvertedResultAddr(convertedResultAddr.resultPosType, fieldNameToConvert, convertedResultAddr.componentName);
+    RigFemScalarResultFrames * srcDataFrames = this->findOrLoadScalarResult(partIndex, unconvertedResultAddr);
     RigFemScalarResultFrames * dstDataFrames = m_femPartResults[partIndex]->createScalarResult(convertedResultAddr);
 
     frameCountProgress.incrementProgress();
@@ -517,7 +533,7 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateBarConvertedResu
 
         frameCountProgress.incrementProgress();
     }
-
+    this->deleteResult(unconvertedResultAddr);
     return dstDataFrames;
 }
 
@@ -530,7 +546,8 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateEnIpPorBarResult
     frameCountProgress.setProgressDescription("Calculating " + QString::fromStdString(convertedResultAddr.fieldName + ": " + convertedResultAddr.componentName));
     frameCountProgress.setNextProgressIncrement(this->frameCount());
 
-    RigFemScalarResultFrames * srcDataFrames = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(RIG_NODAL, "POR", ""));
+    RigFemResultAddress unconvertedResultAddr(RIG_NODAL, "POR", "");
+    RigFemScalarResultFrames * srcDataFrames = this->findOrLoadScalarResult(partIndex, unconvertedResultAddr);
     RigFemScalarResultFrames * dstDataFrames = m_femPartResults[partIndex]->createScalarResult(convertedResultAddr);
 
     frameCountProgress.incrementProgress();
@@ -571,6 +588,7 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateEnIpPorBarResult
         frameCountProgress.incrementProgress();
     }
 
+    this->deleteResult(unconvertedResultAddr);
     return dstDataFrames;
 }
 
@@ -597,10 +615,13 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateTimeLapseResult(
         int baseFrameIdx = resVarAddr.timeLapseBaseFrameIdx;
         if ( baseFrameIdx >= frameCount ) return dstDataFrames;
         const std::vector<float>& baseFrameData = srcDataFrames->frameData(baseFrameIdx);
+        if (baseFrameData.empty()) return dstDataFrames;
 
         for ( int fIdx = 0; fIdx < frameCount; ++fIdx )
         {
             const std::vector<float>& srcFrameData = srcDataFrames->frameData(fIdx);
+            if (srcFrameData.empty()) continue; // Create empty results
+
             std::vector<float>& dstFrameData = dstDataFrames->frameData(fIdx);
             size_t valCount = srcFrameData.size();
             dstFrameData.resize(valCount);
@@ -1242,7 +1263,7 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateSurfaceAngles(in
                     quadVxs[3] = (nodeCoordinates[elmNodeIndices[localElmNodeIndicesForFace[3]]]);
 
                     cvf::Mat3f rotMx = cvf::GeometryTools::computePlaneHorizontalRotationMx(quadVxs[2] -quadVxs[0], quadVxs[3] - quadVxs[1]);
-                    OffshoreSphericalCoords sphCoord(cvf::Vec3f(rotMx.rowCol(0,2), rotMx.rowCol(1,2), rotMx.rowCol(2,2))); // Use Ez from the matrix as plane normal
+                    RiaOffshoreSphericalCoords sphCoord(cvf::Vec3f(rotMx.rowCol(0,2), rotMx.rowCol(1,2), rotMx.rowCol(2,2))); // Use Ez from the matrix as plane normal
 
                     for ( int qIdx = 0; qIdx < 4; ++qIdx )
                     {
@@ -1350,7 +1371,7 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculatePrincipalStressV
 
             if ( principals[0] != std::numeric_limits<float>::infinity() )
             {
-                OffshoreSphericalCoords sphCoord1(principalDirs[0]);
+                RiaOffshoreSphericalCoords sphCoord1(principalDirs[0]);
                 s1inc[vIdx] = cvf::Math::toDegrees(sphCoord1.inc());
                 s1azi[vIdx] = cvf::Math::toDegrees(sphCoord1.azi());
             }
@@ -1362,7 +1383,7 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculatePrincipalStressV
 
             if ( principals[1] != std::numeric_limits<float>::infinity() )
             {
-                OffshoreSphericalCoords sphCoord2(principalDirs[1]);
+                RiaOffshoreSphericalCoords sphCoord2(principalDirs[1]);
                 s2inc[vIdx] = cvf::Math::toDegrees(sphCoord2.inc());
                 s2azi[vIdx] = cvf::Math::toDegrees(sphCoord2.azi());
             }
@@ -1374,7 +1395,7 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculatePrincipalStressV
 
             if ( principals[2] != std::numeric_limits<float>::infinity() )
             {
-                OffshoreSphericalCoords sphCoord3(principalDirs[2]);
+                RiaOffshoreSphericalCoords sphCoord3(principalDirs[2]);
                 s3inc[vIdx] = cvf::Math::toDegrees(sphCoord3.inc());
                 s3azi[vIdx] = cvf::Math::toDegrees(sphCoord3.azi());
             }
@@ -1495,7 +1516,7 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateCompactionValues
             part->findIntersectingCells(bb, &refElementCandidates);
 
             // Also make sure the struct grid is created, as this is required before using OpenMP
-            part->structGrid();
+            part->getOrCreateStructGrid();
         }
 
 #pragma omp parallel for
@@ -1613,7 +1634,10 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateSE(int partIndex
                 for (int elmNodIdx = 0; elmNodIdx < elmNodeCount; ++elmNodIdx)
                 {
                     size_t elmNodResIdx = femPart->elementNodeResultIdx(elmIdx, elmNodIdx);
-                    dstFrameData[elmNodResIdx] = -srcSFrameData[elmNodResIdx];
+                    if (elmNodResIdx < srcSFrameData.size())
+                    {
+                        dstFrameData[elmNodResIdx] = -srcSFrameData[elmNodResIdx];
+                    }
                 }
             }
             else
@@ -1621,8 +1645,10 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateSE(int partIndex
                 for (int elmNodIdx = 0; elmNodIdx < elmNodeCount; ++elmNodIdx)
                 {
                     size_t elmNodResIdx = femPart->elementNodeResultIdx(elmIdx, elmNodIdx);
-
-                    dstFrameData[elmNodResIdx] = inf;
+                    if (elmNodResIdx < dstFrameData.size())
+                    {
+                        dstFrameData[elmNodResIdx] = inf;
+                    }
                 }
             }
         }
@@ -1680,12 +1706,15 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateST_11_22_33(int 
                 for (int elmNodIdx = 0; elmNodIdx < elmNodeCount; ++elmNodIdx)
                 {
                     size_t elmNodResIdx = femPart->elementNodeResultIdx(elmIdx, elmNodIdx);
-                    int nodeIdx = femPart->nodeIdxFromElementNodeResultIdx(elmNodResIdx);
+                    if (elmNodResIdx < srcSFrameData.size())
+                    {
+                        int nodeIdx = femPart->nodeIdxFromElementNodeResultIdx(elmNodResIdx);
 
-                    float por = srcPORFrameData[nodeIdx];
-                    if (por == inf)  por = 0.0f;
+                        float por = srcPORFrameData[nodeIdx];
+                        if (por == inf)  por = 0.0f;
 
-                    dstFrameData[elmNodResIdx] = -srcSFrameData[elmNodResIdx] + por;
+                        dstFrameData[elmNodResIdx] = -srcSFrameData[elmNodResIdx] + por;
+                    }
                 }
             }
             else
@@ -1693,7 +1722,10 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateST_11_22_33(int 
                 for (int elmNodIdx = 0; elmNodIdx < elmNodeCount; ++elmNodIdx)
                 {
                     size_t elmNodResIdx = femPart->elementNodeResultIdx(elmIdx, elmNodIdx);
-                    dstFrameData[elmNodResIdx] = -srcSFrameData[elmNodResIdx];
+                    if (elmNodResIdx < srcSFrameData.size())
+                    {
+                        dstFrameData[elmNodResIdx] = -srcSFrameData[elmNodResIdx];
+                    }
                 }
             }
         }
@@ -1800,6 +1832,9 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateFormationIndices
 
     if (activeFormNames)
     {
+        // Has to be done before the parallel loop because the first call allocates.
+        const RigFemPartGrid* structGrid = femPart->getOrCreateStructGrid();
+
         int elementCount = femPart->elementCount();
 
 #pragma omp parallel for
@@ -1809,20 +1844,23 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateFormationIndices
             int elmNodeCount = RigFemTypes::elmentNodeCount(elmType);
 
             size_t i, j, k;
-            femPart->structGrid()->ijkFromCellIndex(elmIdx, &i, &j, &k);
-            int formNameIdx = activeFormNames->formationIndexFromKLayerIdx(k);
-
-            for (int elmNodIdx = 0; elmNodIdx < elmNodeCount; ++elmNodIdx)
+            bool validIndex = structGrid->ijkFromCellIndex(elmIdx, &i, &j, &k);
+            if (validIndex)
             {
-                size_t elmNodResIdx = femPart->elementNodeResultIdx(elmIdx, elmNodIdx);
+                int formNameIdx = activeFormNames->formationIndexFromKLayerIdx(k);
 
-                if (formNameIdx != -1)
+                for (int elmNodIdx = 0; elmNodIdx < elmNodeCount; ++elmNodIdx)
                 {
-                    dstFrameData[elmNodResIdx] = formNameIdx;
-                }
-                else
-                {
-                    dstFrameData[elmNodResIdx] = HUGE_VAL;
+                    size_t elmNodResIdx = femPart->elementNodeResultIdx(elmIdx, elmNodIdx);
+
+                    if (formNameIdx != -1)
+                    {
+                        dstFrameData[elmNodResIdx] = formNameIdx;
+                    }
+                    else
+                    {
+                        dstFrameData[elmNodResIdx] = HUGE_VAL;
+                    }
                 }
             }
         }
@@ -2046,14 +2084,17 @@ void RigFemPartResultsCollection::calculateGammaFromFrames(int partIndex,
                 for ( int elmNodIdx = 0; elmNodIdx < elmNodeCount; ++elmNodIdx )
                 {
                     size_t elmNodResIdx = femPart->elementNodeResultIdx(elmIdx, elmNodIdx);
-                    int nodeIdx = femPart->nodeIdxFromElementNodeResultIdx(elmNodResIdx);
+                    if (elmNodResIdx < srcSTFrameData.size())
+                    {
+                        int nodeIdx = femPart->nodeIdxFromElementNodeResultIdx(elmNodResIdx);
 
-                    float por = srcPORFrameData[nodeIdx];
+                        float por = srcPORFrameData[nodeIdx];
 
-                    if ( por == inf || fabs(por) < 0.01e6*1.0e-5 )
-                        dstFrameData[elmNodResIdx] = inf;
-                    else
-                        dstFrameData[elmNodResIdx] = srcSTFrameData[elmNodResIdx]/por;
+                        if (por == inf || fabs(por) < 0.01e6*1.0e-5)
+                            dstFrameData[elmNodResIdx] = inf;
+                        else
+                            dstFrameData[elmNodResIdx] = srcSTFrameData[elmNodResIdx] / por;
+                    }
                 }
             }
             else
@@ -2061,7 +2102,10 @@ void RigFemPartResultsCollection::calculateGammaFromFrames(int partIndex,
                 for ( int elmNodIdx = 0; elmNodIdx < elmNodeCount; ++elmNodIdx )
                 {
                     size_t elmNodResIdx = femPart->elementNodeResultIdx(elmIdx, elmNodIdx);
-                    dstFrameData[elmNodResIdx] = inf;
+                    if (elmNodResIdx < dstFrameData.size())
+                    {
+                        dstFrameData[elmNodResIdx] = inf;
+                    }
                 }
             }
         }
@@ -2122,10 +2166,10 @@ std::vector< RigFemResultAddress> RigFemPartResultsCollection::getResAddrToCompo
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<std::string> RigFemPartResultsCollection::stepNames() const
+std::vector<std::string> RigFemPartResultsCollection::filteredStepNames() const
 {
     CVF_ASSERT(m_readerInterface.notNull());
-    return m_readerInterface->stepNames();
+    return m_readerInterface->filteredStepNames();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -2133,7 +2177,7 @@ std::vector<std::string> RigFemPartResultsCollection::stepNames() const
 //--------------------------------------------------------------------------------------------------
 int RigFemPartResultsCollection::frameCount()
 {
-    return static_cast<int>(stepNames().size());
+    return static_cast<int>(filteredStepNames().size());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -2216,6 +2260,20 @@ void RigFemPartResultsCollection::deleteResult(const RigFemResultAddress& resVar
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RigFemResultAddress> RigFemPartResultsCollection::loadedResults() const
+{
+    std::vector<RigFemResultAddress> currentResults;
+    for (auto & femPartResult : m_femPartResults)
+    {
+        std::vector<RigFemResultAddress> partResults = femPartResult->loadedResults();
+        currentResults.insert(currentResults.end(), partResults.begin(), partResults.end());
+    }
+    return currentResults;
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 const std::vector<float>& RigFemPartResultsCollection::resultValues(const RigFemResultAddress& resVarAddr, int partIndex, int frameIndex)
@@ -2235,40 +2293,19 @@ std::vector<caf::Ten3f> RigFemPartResultsCollection::tensors(const RigFemResultA
 
     std::vector<caf::Ten3f> outputTensors;
 
-    RigFemResultAddress address11(resVarAddr.resultPosType, resVarAddr.fieldName, "");
-    RigFemResultAddress address22(resVarAddr.resultPosType, resVarAddr.fieldName, "");
-    RigFemResultAddress address33(resVarAddr.resultPosType, resVarAddr.fieldName, "");
-    RigFemResultAddress address12(resVarAddr.resultPosType, resVarAddr.fieldName, "");
-    RigFemResultAddress address13(resVarAddr.resultPosType, resVarAddr.fieldName, "");
-    RigFemResultAddress address23(resVarAddr.resultPosType, resVarAddr.fieldName, "");
+    std::vector<RigFemResultAddress> addresses = tensorComponentAddresses(resVarAddr);
 
-    if (resVarAddr.fieldName == "SE" || resVarAddr.fieldName == "ST")
+    if (addresses.empty())
     {
-        address11.componentName = "S11";
-        address22.componentName = "S22";
-        address33.componentName = "S33";
-        address12.componentName = "S12";
-        address13.componentName = "S13";
-        address23.componentName = "S23";
-    }
-    else if (resVarAddr.fieldName == "NE")
-    {
-        address11.componentName = "E11";
-        address22.componentName = "E22";
-        address33.componentName = "E33";
-        address12.componentName = "E12";
-        address13.componentName = "E13";
-        address23.componentName = "E23";
-    }
-    else
         return outputTensors;
+    }
 
-    const std::vector<float>& v11 = resultValues(address11, partIndex, frameIndex);
-    const std::vector<float>& v22 = resultValues(address22, partIndex, frameIndex);
-    const std::vector<float>& v33 = resultValues(address33, partIndex, frameIndex);
-    const std::vector<float>& v12 = resultValues(address12, partIndex, frameIndex);
-    const std::vector<float>& v13 = resultValues(address13, partIndex, frameIndex);
-    const std::vector<float>& v23 = resultValues(address23, partIndex, frameIndex);
+    const std::vector<float>& v11 = resultValues(addresses[caf::Ten3f::SXX], partIndex, frameIndex);
+    const std::vector<float>& v22 = resultValues(addresses[caf::Ten3f::SYY], partIndex, frameIndex);
+    const std::vector<float>& v33 = resultValues(addresses[caf::Ten3f::SZZ], partIndex, frameIndex);
+    const std::vector<float>& v12 = resultValues(addresses[caf::Ten3f::SXY], partIndex, frameIndex);
+    const std::vector<float>& v13 = resultValues(addresses[caf::Ten3f::SZX], partIndex, frameIndex);
+    const std::vector<float>& v23 = resultValues(addresses[caf::Ten3f::SYZ], partIndex, frameIndex);
 
     size_t valCount = v11.size();
     outputTensors.resize(valCount);
@@ -2541,6 +2578,38 @@ void RigFemPartResultsCollection::posNegClosestToZeroOverAllTensorComponents(con
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RigFemResultAddress> RigFemPartResultsCollection::tensorComponentAddresses(const RigFemResultAddress& resVarAddr)
+{
+    std::vector<RigFemResultAddress> addresses(6, RigFemResultAddress(resVarAddr.resultPosType, resVarAddr.fieldName, ""));
+
+    if (resVarAddr.fieldName == "SE" || resVarAddr.fieldName == "ST")
+    {
+        addresses[caf::Ten3f::SXX].componentName = "S11";
+        addresses[caf::Ten3f::SYY].componentName = "S22";
+        addresses[caf::Ten3f::SZZ].componentName = "S33";
+        addresses[caf::Ten3f::SXY].componentName = "S12";
+        addresses[caf::Ten3f::SZX].componentName = "S13";
+        addresses[caf::Ten3f::SYZ].componentName = "S23";
+    }
+    else if (resVarAddr.fieldName == "NE")
+    {
+        addresses[caf::Ten3f::SXX].componentName = "E11";
+        addresses[caf::Ten3f::SYY].componentName = "E22";
+        addresses[caf::Ten3f::SZZ].componentName = "E33";
+        addresses[caf::Ten3f::SXY].componentName = "E12";
+        addresses[caf::Ten3f::SZX].componentName = "E13";
+        addresses[caf::Ten3f::SYZ].componentName = "E23";
+    }
+    else
+    {
+        return std::vector<RigFemResultAddress>();
+    }
+    return addresses;
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 int RigFemPartResultsCollection::partCount() const
@@ -2556,7 +2625,7 @@ RigFemClosestResultIndexCalculator::RigFemClosestResultIndexCalculator(RigFemPar
                                                                        RigFemResultPosEnum resultPosition,
                                                                        int elementIndex,
                                                                        int m_face,
-                                                                       const cvf::Vec3d& m_intersectionPoint)
+                                                                       const cvf::Vec3d& intersectionPointInDomain)
 {
     m_resultIndexToClosestResult = -1;
     m_closestNodeId = -1;
@@ -2574,8 +2643,8 @@ RigFemClosestResultIndexCalculator::RigFemClosestResultIndexCalculator(RigFemPar
         for ( int lNodeIdx = 0; lNodeIdx < elmNodeCount; ++lNodeIdx )
         {
             int nodeIdx = elmentConn[lNodeIdx];
-            cvf::Vec3f nodePos = femPart->nodes().coordinates[nodeIdx];
-            float dist = (nodePos - cvf::Vec3f(m_intersectionPoint)).lengthSquared();
+            cvf::Vec3f nodePosInDomain = femPart->nodes().coordinates[nodeIdx];
+            float dist = (nodePosInDomain - cvf::Vec3f(intersectionPointInDomain)).lengthSquared();
             if ( dist < minDist )
             {
                 closestLocalNode = lNodeIdx;
@@ -2625,8 +2694,8 @@ RigFemClosestResultIndexCalculator::RigFemClosestResultIndexCalculator(RigFemPar
                 for ( int faceNodIdx = 0; faceNodIdx < faceNodeCount; ++faceNodIdx )
                 {
                     int nodeIdx = elmNodeIndices[localElmNodeIndicesForFace[faceNodIdx]];
-                    cvf::Vec3f nodePos = femPart->nodes().coordinates[nodeIdx];
-                    float dist = (nodePos - cvf::Vec3f(m_intersectionPoint)).lengthSquared();
+                    cvf::Vec3f nodePosInDomain = femPart->nodes().coordinates[nodeIdx];
+                    float dist = (nodePosInDomain - cvf::Vec3f(intersectionPointInDomain)).lengthSquared();
                     if ( dist < minDist )
                     {
                         closestLocFaceNode = faceNodIdx;
@@ -2705,7 +2774,7 @@ void findReferenceElementForNode(const RigFemPart& part, size_t nodeIdx, size_t 
     std::vector<size_t> refElementCandidates;
     part.findIntersectingCells(bb, &refElementCandidates);
 
-    const RigFemPartGrid* grid = part.structGrid();
+    const RigFemPartGrid* grid = part.getOrCreateStructGrid();
     const std::vector<cvf::Vec3f>& nodeCoords = part.nodes().coordinates;
 
     refElement->elementIdx = cvf::UNDEFINED_SIZE_T;
@@ -2713,8 +2782,8 @@ void findReferenceElementForNode(const RigFemPart& part, size_t nodeIdx, size_t 
     size_t i, j, k;
     for (const size_t elemIdx : refElementCandidates)
     {
-        grid->ijkFromCellIndex(elemIdx, &i, &j, &k);
-        if (k == kRefLayer)
+        bool validIndex = grid->ijkFromCellIndex(elemIdx, &i, &j, &k);
+        if (validIndex && k == kRefLayer)
         {
             const std::vector<size_t> nodeIndices = nodesForElement(part, elemIdx);
             CVF_ASSERT(nodeIndices.size() == 8);

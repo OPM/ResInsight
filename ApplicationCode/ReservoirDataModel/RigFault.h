@@ -23,20 +23,19 @@
 #include "cvfObject.h"
 #include "cvfVector3.h"
 #include "cvfBoundingBox.h"
-
-#include <vector>
-
-#include <QString>
 #include "cvfStructGrid.h"
 #include "cvfCellRange.h"
-#include "cafFixedArray.h"
+
+#include <QString>
+
+#include <vector>
+#include <array>
 
 class RigMainGrid;
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-
 class RigFaultsPrCellAccumulator : public cvf::Object
 {
 public:
@@ -45,15 +44,18 @@ public:
 public:
     explicit RigFaultsPrCellAccumulator(size_t reservoirCellCount) 
     { 
-        const int  initVals[6] = { NO_FAULT, NO_FAULT, NO_FAULT, NO_FAULT, NO_FAULT, NO_FAULT}; 
-        caf::IntArray6 initVal;
-        initVal = initVals; 
-        m_faultIdxForCellFace.resize(reservoirCellCount, initVal);
+        std::array<int, 6> initVals = { NO_FAULT, NO_FAULT, NO_FAULT, NO_FAULT, NO_FAULT, NO_FAULT}; 
+        m_faultIdxForCellFace.resize(reservoirCellCount, initVals);
     }
 
     inline int faultIdx(size_t reservoirCellIndex, cvf::StructGridInterface::FaceType face) const
     {
-        return m_faultIdxForCellFace[reservoirCellIndex][face];
+        // Ensure no crash after creating temporary LGRs
+        if (reservoirCellIndex < m_faultIdxForCellFace.size())
+        {
+            return m_faultIdxForCellFace[reservoirCellIndex][face];
+        }
+        return NO_FAULT;
     }
 
     inline void setFaultIdx(size_t reservoirCellIndex, cvf::StructGridInterface::FaceType face, int faultIdx)
@@ -62,7 +64,7 @@ public:
     }
 
 private:
-    std::vector< caf::IntArray6 > m_faultIdxForCellFace; 
+    std::vector<std::array<int, 6>> m_faultIdxForCellFace; 
 };
 
 
@@ -70,7 +72,6 @@ private:
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-
 class RigFault : public cvf::Object
 {
 public:
@@ -102,13 +103,13 @@ public:
     std::vector<FaultFace>&         faultFaces();
     const std::vector<FaultFace>&   faultFaces() const;
 
-    std::vector<size_t>&         connectionIndices()       { return m_connectionIndices; }
-    const std::vector<size_t>&   connectionIndices() const { return m_connectionIndices; }
+    std::vector<size_t>&            connectionIndices();
+    const std::vector<size_t>&      connectionIndices() const;
 
 private:
     QString m_name;
 
-    caf::FixedArray<std::vector<cvf::CellRange>, 6> m_cellRangesForFaces;
+    std::array<std::vector<cvf::CellRange>, 6> m_cellRangesForFaces;
     
     std::vector<FaultFace> m_faultFaces;
     std::vector<size_t> m_connectionIndices;

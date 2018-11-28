@@ -1,24 +1,24 @@
 /*
-   Copyright (C) 2013  Statoil ASA, Norway. 
-   
-   The file 'well_segment.c' is part of ERT - Ensemble based Reservoir Tool. 
-    
-   ERT is free software: you can redistribute it and/or modify 
-   it under the terms of the GNU General Public License as published by 
-   the Free Software Foundation, either version 3 of the License, or 
-   (at your option) any later version. 
-    
-   ERT is distributed in the hope that it will be useful, but WITHOUT ANY 
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or 
-   FITNESS FOR A PARTICULAR PURPOSE.   
-    
-   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
-   for more details. 
+   Copyright (C) 2013  Statoil ASA, Norway.
+
+   The file 'well_segment.c' is part of ERT - Ensemble based Reservoir Tool.
+
+   ERT is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   ERT is distributed in the hope that it will be useful, but WITHOUT ANY
+   WARRANTY; without even the implied warranty of MERCHANTABILITY or
+   FITNESS FOR A PARTICULAR PURPOSE.
+
+   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+   for more details.
 */
 
 #include <stdbool.h>
 
-#include <ert/util/util.hpp>
+#include <ert/util/util.h>
 #include <ert/util/hash.hpp>
 
 #include <ert/ecl/ecl_kw.hpp>
@@ -30,13 +30,13 @@
 #include <ert/ecl_well/well_segment.hpp>
 #include <ert/ecl_well/well_conn_collection.hpp>
 
-#define WELL_SEGMENT_TYPE_ID  2209166 
+#define WELL_SEGMENT_TYPE_ID  2209166
 
 struct well_segment_struct {
   UTIL_TYPE_ID_DECLARATION;
   int                 link_count;
-  int                 segment_id;  
-  int                 branch_id; 
+  int                 segment_id;
+  int                 branch_id;
   int                 outlet_segment_id;  // This is in the global index space given by the ISEG keyword.
   well_segment_type * outlet_segment;
   hash_type         * connections;        // hash_type<grid_name , well_conn_collection>;
@@ -55,7 +55,7 @@ static UTIL_SAFE_CAST_FUNCTION( well_segment , WELL_SEGMENT_TYPE_ID )
 well_segment_type * well_segment_alloc(int segment_id , int outlet_segment_id , int branch_id , const double * rseg_data) {
   well_segment_type * segment = (well_segment_type*)util_malloc( sizeof * segment );
   UTIL_TYPE_ID_INIT( segment , WELL_SEGMENT_TYPE_ID );
-  
+
   segment->link_count = 0;
   segment->segment_id = segment_id;
   segment->outlet_segment_id = outlet_segment_id;
@@ -74,7 +74,7 @@ well_segment_type * well_segment_alloc(int segment_id , int outlet_segment_id , 
     segment->total_length = rseg_data[ RSEG_TOTAL_LENGTH_INDEX ];
     segment->diameter = rseg_data[ RSEG_DIAMETER_INDEX ];
   }
-  
+
   return segment;
 }
 
@@ -103,7 +103,7 @@ well_segment_type * well_segment_alloc_from_kw( const ecl_kw_type * iseg_kw , co
 /*
     if (iseg_kw != NULL) {
       if (conn->segment != WELL_CONN_NORMAL_WELL_SEGMENT_ID) {
-  
+
       } else {
         conn->branch = 0;
         conn->outlet_segment = 0;
@@ -148,7 +148,7 @@ bool well_segment_nearest_wellhead( const well_segment_type * segment ) {
   else
     return false;
 }
-  
+
 
 int well_segment_get_link_count( const well_segment_type * segment ) {
   return segment->link_count;
@@ -170,7 +170,7 @@ int well_segment_get_id( const well_segment_type * segment ) {
 well_segment_type * well_segment_get_outlet( const well_segment_type * segment ) {
   return segment->outlet_segment;
 }
-  
+
 
 bool well_segment_link( well_segment_type * segment , well_segment_type * outlet_segment ) {
   if (segment->outlet_segment_id == outlet_segment->segment_id) {
@@ -179,8 +179,8 @@ bool well_segment_link( well_segment_type * segment , well_segment_type * outlet
       outlet_segment->link_count++;
     }
     return true;
-  } else 
-    /* 
+  } else
+    /*
        This is a quite fatal topological error - and aborting is probaly the wisest
        thing to do. I.e.  the function well_segment_link_strict() is recommended.
     */
@@ -210,14 +210,14 @@ bool well_segment_add_connection( well_segment_type * segment , const char * gri
   if (conn_segment_id == segment->segment_id) {
     if (!well_segment_has_grid_connections( segment , grid_name ))
       hash_insert_hash_owned_ref( segment->connections , grid_name , well_conn_collection_alloc() , well_conn_collection_free__ );
-    
+
     {
       well_conn_collection_type * connections = (well_conn_collection_type*)hash_get( segment->connections , grid_name );
       well_conn_collection_add_ref( connections , conn );
     }
     return true;
   } else
-    return false;  
+    return false;
 }
 
 
@@ -236,9 +236,9 @@ const well_conn_collection_type * well_segment_get_global_connections(const well
 
 bool well_segment_well_is_MSW(int well_nr , const ecl_kw_type * iwel_kw , const ecl_rsthead_type * rst_head) {
   int iwel_offset = rst_head->niwelz * well_nr;
-  int segment_well_nr = ecl_kw_iget_int( iwel_kw , iwel_offset + IWEL_SEGMENTED_WELL_NR_INDEX) - 1; 
-  
-  if (segment_well_nr == IWEL_SEGMENTED_WELL_NR_NORMAL_VALUE) 
+  int segment_well_nr = ecl_kw_iget_int( iwel_kw , iwel_offset + IWEL_SEGMENTED_WELL_NR_INDEX) - 1;
+
+  if (segment_well_nr == IWEL_SEGMENTED_WELL_NR_NORMAL_VALUE)
     return false;
   else
     return true;

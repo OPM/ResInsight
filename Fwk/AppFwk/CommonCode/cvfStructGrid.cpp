@@ -249,9 +249,9 @@ void StructGridInterface::characteristicCellSizes(double* iSize, double* jSize, 
         ubyte faceConnNegK[4];
         cellFaceVertexIndices(StructGridInterface::NEG_K, faceConnNegK);
 
-        double iSize = 0.0;
-        double jSize = 0.0;
-        double kSize = 0.0;
+        double iLengthAccumulated = 0.0;
+        double jLengthAccumulated = 0.0;
+        double kLengthAccumulated = 0.0;
 
         cvf::Vec3d cornerVerts[8];
         size_t cellCount = 0;
@@ -270,20 +270,20 @@ void StructGridInterface::characteristicCellSizes(double* iSize, double* jSize, 
                         size_t cellIndex = cellIndexFromIJK(i, j, k);
                         cellCornerVertices(cellIndex, cornerVerts);
 
-                        iSize += (cornerVerts[faceConnPosI[0]] - cornerVerts[faceConnNegI[0]]).lengthSquared();
-                        iSize += (cornerVerts[faceConnPosI[1]] - cornerVerts[faceConnNegI[3]]).lengthSquared();
-                        iSize += (cornerVerts[faceConnPosI[2]] - cornerVerts[faceConnNegI[2]]).lengthSquared();
-                        iSize += (cornerVerts[faceConnPosI[3]] - cornerVerts[faceConnNegI[1]]).lengthSquared();
+                        iLengthAccumulated += (cornerVerts[faceConnPosI[0]] - cornerVerts[faceConnNegI[0]]).lengthSquared();
+                        iLengthAccumulated += (cornerVerts[faceConnPosI[1]] - cornerVerts[faceConnNegI[3]]).lengthSquared();
+                        iLengthAccumulated += (cornerVerts[faceConnPosI[2]] - cornerVerts[faceConnNegI[2]]).lengthSquared();
+                        iLengthAccumulated += (cornerVerts[faceConnPosI[3]] - cornerVerts[faceConnNegI[1]]).lengthSquared();
 
-                        jSize += (cornerVerts[faceConnPosJ[0]] - cornerVerts[faceConnNegJ[0]]).lengthSquared();
-                        jSize += (cornerVerts[faceConnPosJ[1]] - cornerVerts[faceConnNegJ[3]]).lengthSquared();
-                        jSize += (cornerVerts[faceConnPosJ[2]] - cornerVerts[faceConnNegJ[2]]).lengthSquared();
-                        jSize += (cornerVerts[faceConnPosJ[3]] - cornerVerts[faceConnNegJ[1]]).lengthSquared();
+                        jLengthAccumulated += (cornerVerts[faceConnPosJ[0]] - cornerVerts[faceConnNegJ[0]]).lengthSquared();
+                        jLengthAccumulated += (cornerVerts[faceConnPosJ[1]] - cornerVerts[faceConnNegJ[3]]).lengthSquared();
+                        jLengthAccumulated += (cornerVerts[faceConnPosJ[2]] - cornerVerts[faceConnNegJ[2]]).lengthSquared();
+                        jLengthAccumulated += (cornerVerts[faceConnPosJ[3]] - cornerVerts[faceConnNegJ[1]]).lengthSquared();
 
-                        kSize += (cornerVerts[faceConnPosK[0]] - cornerVerts[faceConnNegK[0]]).lengthSquared();
-                        kSize += (cornerVerts[faceConnPosK[1]] - cornerVerts[faceConnNegK[3]]).lengthSquared();
-                        kSize += (cornerVerts[faceConnPosK[2]] - cornerVerts[faceConnNegK[2]]).lengthSquared();
-                        kSize += (cornerVerts[faceConnPosK[3]] - cornerVerts[faceConnNegK[1]]).lengthSquared();
+                        kLengthAccumulated += (cornerVerts[faceConnPosK[0]] - cornerVerts[faceConnNegK[0]]).lengthSquared();
+                        kLengthAccumulated += (cornerVerts[faceConnPosK[1]] - cornerVerts[faceConnNegK[3]]).lengthSquared();
+                        kLengthAccumulated += (cornerVerts[faceConnPosK[2]] - cornerVerts[faceConnNegK[2]]).lengthSquared();
+                        kLengthAccumulated += (cornerVerts[faceConnPosK[3]] - cornerVerts[faceConnNegK[1]]).lengthSquared();
 
                         cellCount++;
                     }
@@ -295,9 +295,9 @@ void StructGridInterface::characteristicCellSizes(double* iSize, double* jSize, 
 
         if (divisor > 0.0)
         {
-            m_characteristicCellSizeI = cvf::Math::sqrt(iSize / divisor);
-            m_characteristicCellSizeJ = cvf::Math::sqrt(jSize / divisor);
-            m_characteristicCellSizeK = cvf::Math::sqrt(kSize / divisor);
+            m_characteristicCellSizeI = cvf::Math::sqrt(iLengthAccumulated / divisor);
+            m_characteristicCellSizeJ = cvf::Math::sqrt(jLengthAccumulated / divisor);
+            m_characteristicCellSizeK = cvf::Math::sqrt(kLengthAccumulated / divisor);
         }
     }
 

@@ -75,7 +75,7 @@ public:
     //--------------------------------------------------------------------------------------------------
     /// 
     //--------------------------------------------------------------------------------------------------
-    virtual QString curveInfoText(QwtPlotCurve* curve) override
+    QString curveInfoText(QwtPlotCurve* curve) override
     {
         RiuRimQwtPlotCurve*  riuCurve = dynamic_cast<RiuRimQwtPlotCurve*>(curve);
         RimSummaryCurve* sumCurve = nullptr;
@@ -163,36 +163,6 @@ void RiuSummaryQwtPlot::currentVisibleWindow(QwtInterval* leftAxis, QwtInterval*
     *leftAxis  = axisScaleDiv(yLeft).interval();
     *rightAxis = axisScaleDiv(yRight).interval();
     *timeAxis  = axisScaleDiv(xBottom).interval();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiuSummaryQwtPlot::setZoomWindow(const QwtInterval& leftAxis, const QwtInterval& rightAxis, const QwtInterval& timeAxis)
-{
-    {
-        QRectF zoomWindow;
-        zoomWindow.setLeft(timeAxis.minValue());
-        zoomWindow.setRight(timeAxis.maxValue());
-        zoomWindow.setTop(leftAxis.maxValue());
-        zoomWindow.setBottom(leftAxis.minValue());
-
-        m_zoomerLeft->blockSignals(true);
-        m_zoomerLeft->zoom(zoomWindow);
-        m_zoomerLeft->blockSignals(false);
-    }
-
-    {
-        QRectF zoomWindow;
-        zoomWindow.setLeft(timeAxis.minValue());
-        zoomWindow.setRight(timeAxis.maxValue());
-        zoomWindow.setTop(rightAxis.maxValue());
-        zoomWindow.setBottom(rightAxis.minValue());
-
-        // No need to block signal since there is no connected slot
-        m_zoomerRight->zoom(zoomWindow);
-    }
-
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -399,8 +369,13 @@ void RiuSummaryQwtPlot::setCommonPlotBehaviour(QwtPlot* plot)
     plot->setAxisTitle(QwtPlot::yLeft,   axisTitle);
     plot->setAxisTitle(QwtPlot::yRight,  axisTitle);
 
-    // Enable mousetracking and event filter
+    // Set a focus policy to allow it taking key press events.
+    // This is not strictly necessary since this widget inherit QwtPlot
+    // which already has a focus policy.
+    // However, for completeness we still do it here.
+    plot->setFocusPolicy(Qt::WheelFocus);
 
+    // Enable mousetracking and event filter
     plot->canvas()->setMouseTracking(true);
     plot->canvas()->installEventFilter(plot);
     plot->plotLayout()->setAlignCanvasToScales(true);
@@ -491,23 +466,26 @@ void RiuSummaryQwtPlot::selectClosestCurve(const QPoint& pos)
         }
     }
 
-    if(closestCurve && distMin < 20)
+    if (closestCurve && distMin < 20)
     {
         caf::PdmObject* selectedPlotObject = m_plotDefinition->findRimPlotObjectFromQwtCurve(closestCurve);
-        
-        RimProject* proj = nullptr;
-        selectedPlotObject->firstAncestorOrThisOfType(proj);
 
-        if(proj && selectedPlotObject)
+        if (selectedPlotObject)
         {
-            RiuPlotMainWindowTools::showPlotMainWindow();
-            RiuPlotMainWindowTools::selectAsCurrentItem(selectedPlotObject);
+            RimProject* proj = nullptr;
+            selectedPlotObject->firstAncestorOrThisOfType(proj);
+
+            if (proj)
+            {
+                RiuPlotMainWindowTools::showPlotMainWindow();
+                RiuPlotMainWindowTools::selectAsCurrentItem(selectedPlotObject);
+            }
         }
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiuSummaryQwtPlot::onZoomedSlot()
 {

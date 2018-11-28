@@ -198,28 +198,20 @@ void RifWellPathImporter::readAllAsciiWellData(const QString& filePath)
     std::vector<RifWellPathImporter::WellData>& fileWellDataArray = m_fileNameToWellDataGroupMap[filePath];
 
     std::ifstream stream(filePath.toLatin1().data());
-    double x(HUGE_VAL), y(HUGE_VAL), tvd(HUGE_VAL), md(HUGE_VAL);
 
     bool hasReadWellPointInCurrentWell = false;
 
     while (stream.good())
     {
+        double x(HUGE_VAL), y(HUGE_VAL), tvd(HUGE_VAL), md(HUGE_VAL);
+
         // First check if we can read a number
         stream >> x;
         if (stream.good()) // If we can, assume this line is a well point entry
         {
             stream >> y >> tvd >> md;
-            if (!stream.good())
-            {
-                // -999 or otherwise to few numbers before some word
-                if (x != -999)
-                {
-                    // Error in file: missing numbers at this line
 
-                }
-                stream.clear();
-            }
-            else
+            if (x != HUGE_VAL && y != HUGE_VAL && tvd != HUGE_VAL && md != HUGE_VAL)
             {
                 if (!fileWellDataArray.size())
                 {
@@ -231,12 +223,18 @@ void RifWellPathImporter::readAllAsciiWellData(const QString& filePath)
                 fileWellDataArray.back().m_wellPathGeometry->m_wellPathPoints.push_back(wellPoint);
                 fileWellDataArray.back().m_wellPathGeometry->m_measuredDepths.push_back(md);
 
-                x = HUGE_VAL;
-                y = HUGE_VAL;
-                tvd = HUGE_VAL;
-                md = HUGE_VAL;
-
                 hasReadWellPointInCurrentWell = true;
+            }
+
+            if (!stream.good())
+            {
+                // -999 or otherwise to few numbers before some word
+                if (x != -999)
+                {
+                    // Error in file: missing numbers at this line
+
+                }
+                stream.clear();
             }
         }
         else
@@ -276,7 +274,8 @@ void RifWellPathImporter::readAllAsciiWellData(const QString& filePath)
                     // name <WellNameA>
                     // wellname: <WellNameA>
                     std::string lineLowerCase = line;
-                    transform(lineLowerCase.begin(), lineLowerCase.end(), lineLowerCase.begin(), ::tolower);
+                    transform(lineLowerCase.begin(), lineLowerCase.end(), lineLowerCase.begin(),
+                              [](const char c) -> char { return (char)::tolower(c); });
 
                     std::string tokenName = "name";
                     std::size_t foundNameIdx = lineLowerCase.find(tokenName);

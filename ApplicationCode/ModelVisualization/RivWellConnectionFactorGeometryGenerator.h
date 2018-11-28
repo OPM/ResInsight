@@ -58,7 +58,7 @@ class RivWellConnectionFactorGeometryGenerator : public cvf::Object
 {
 public:
     RivWellConnectionFactorGeometryGenerator(std::vector<CompletionVizData>& completionVizData, float radius);
-    ~RivWellConnectionFactorGeometryGenerator();
+    ~RivWellConnectionFactorGeometryGenerator() override;
 
     cvf::ref<cvf::Part> createSurfacePart(const cvf::ScalarMapper* scalarMapper, bool disableLighting);
 

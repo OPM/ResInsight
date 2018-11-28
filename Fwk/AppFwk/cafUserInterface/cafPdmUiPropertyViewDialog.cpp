@@ -96,6 +96,8 @@ void PdmUiPropertyViewDialog::initialize(PdmObject* object, const QString& windo
     m_windowTitle = windowTitle;
     m_uiConfigName = uiConfigName;
 
+    setWindowModality(Qt::WindowModal);
+
     setupUi();
 }
 

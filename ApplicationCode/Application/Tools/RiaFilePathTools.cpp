@@ -99,32 +99,16 @@ QString RiaFilePathTools::canonicalPath(const QString& path)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RiaFilePathTools::commonRootPath(const QStringList& paths)
+std::pair<QString, QString> RiaFilePathTools::toFolderAndFileName(const QString& absFileName)
 {
-    if (paths.size() < 2) return "";
-
-    int i = 0;
-    int iDir = 0;
-    for(i = 0; ; i++)
+    auto absFN = toInternalSeparator(absFileName);
+    int lastSep = absFN.lastIndexOf(SEPARATOR);
+    if (lastSep > 0)
     {
-        bool isCommon = true;
-        QChar ch = i < paths.front().size() ? paths.front()[i] : 0;
-
-        // Remember last directory separator
-        if (i > 0 && (ch == '/' || ch == '\\')) iDir = i;
-
-        // Compare characters at position i
-        for (const QString& path : paths)
-        {
-            if (ch == 0 || path[i] != ch)
-            {
-                isCommon = false;
-                break;
-            }
-        }
-
-        if (!isCommon) break;
+        return std::make_pair(absFN.left(lastSep), absFN.mid(lastSep+1));
     }
-
-    return paths.front().left(iDir + 1);
+    else
+    {
+        return std::make_pair("", absFN);
+    }
 }

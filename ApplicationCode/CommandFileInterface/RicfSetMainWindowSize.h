@@ -34,7 +34,7 @@ class RicfSetMainWindowSize : public RicfCommandObject
 public:
     RicfSetMainWindowSize();
 
-    virtual void execute() override;
+    void execute() override;
 
 private:
     caf::PdmField<int> m_height;

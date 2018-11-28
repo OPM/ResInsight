@@ -19,19 +19,22 @@
 #include "RimFractureTemplateCollection.h"
 
 #include "RiaLogging.h"
+#include "RiaApplication.h"
 
 #include "RigStatisticsMath.h"
 
+#include "RigEclipseCaseData.h"
 #include "RimCase.h"
+#include "RimEclipseCase.h"
 #include "RimEclipseView.h"
 #include "RimEllipseFractureTemplate.h"
 #include "RimFracture.h"
 #include "RimFractureTemplate.h"
-#include "RimOilField.h"
 #include "RimProject.h"
 #include "RimSimWellInViewCollection.h"
 #include "RimStimPlanColors.h"
 #include "RimStimPlanFractureTemplate.h"
+#include "RimTools.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 #include "RimWellPathFracture.h"
@@ -116,6 +119,20 @@ RiaEclipseUnitTools::UnitSystemType RimFractureTemplateCollection::defaultUnitSy
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimFractureTemplateCollection::setDefaultUnitSystemBasedOnLoadedCases()
+{
+    RimProject* proj = RiaApplication::instance()->project();
+
+    auto commonUnitSystem = proj->commonUnitSystemForAllCases();
+    if (commonUnitSystem != RiaEclipseUnitTools::UNITS_UNKNOWN)
+    {
+        m_defaultUnitsForFracTemplates = commonUnitSystem;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 RimFractureTemplate* RimFractureTemplateCollection::firstFractureOfUnit(RiaEclipseUnitTools::UnitSystem unitSet) const
 {
     for (RimFractureTemplate* f : m_fractureDefinitions())
@@ -189,12 +206,11 @@ void RimFractureTemplateCollection::createAndAssignTemplateCopyForNonMatchingUni
         {
             RimFractureTemplate* templateWithMatchingUnit = nullptr;
 
-            std::vector<caf::PdmObjectHandle*> referringObjects;
-            fractureTemplate->objectsWithReferringPtrFields(referringObjects);
+            std::vector<RimFracture*> referringObjects;
+            fractureTemplate->objectsWithReferringPtrFieldsOfType(referringObjects);
 
-            for (auto refObj : referringObjects)
+            for (auto fracture : referringObjects)
             {
-                auto fracture = dynamic_cast<RimFracture*>(refObj);
                 if (fracture && fracture->fractureUnit() != fractureTemplate->fractureTemplateUnit())
                 {
                     if (!templateWithMatchingUnit)
@@ -291,7 +307,7 @@ void RimFractureTemplateCollection::initAfterRead()
         bool setAllShowMeshToFalseOnAllEclipseViews = false;
 
         std::vector<RimWellPathFracture*> wellPathFractures;
-        RimWellPathCollection* wellPathCollection = proj->activeOilField()->wellPathCollection();
+        RimWellPathCollection* wellPathCollection = RimTools::wellPathCollection();
         wellPathCollection->descendantsIncludingThisOfType(wellPathFractures);
 
         for (RimWellPathFracture* fracture : wellPathFractures)

@@ -21,6 +21,7 @@
 #pragma once
 
 #include "RiaDefines.h"
+#include "RiaEclipseUnitTools.h"
 
 #include "cafPdmChildArrayField.h"
 #include "cafPdmChildField.h"
@@ -48,6 +49,7 @@ class RimOilField;
 class RimScriptCollection;
 class RimSummaryCase;
 class RimSummaryCaseCollection;
+class RimSummaryCaseMainCollection;
 class Rim3dView;
 class RimGridView;
 class RimViewLinker;
@@ -76,7 +78,7 @@ class RimProject : public caf::PdmDocument
 
 public:
     RimProject(void);
-    virtual ~RimProject(void);
+    ~RimProject(void) override;
 
     caf::PdmChildArrayField<RimOilField*>               oilFields;
     caf::PdmChildField<RimScriptCollection*>            scriptCollection;
@@ -99,25 +101,26 @@ public:
     bool            isProjectFileVersionEqualOrOlderThan(const QString& otherProjectFileVersion) const;
     void            close();
 
-    void            setProjectFileNameAndUpdateDependencies(const QString& fileName);
+    void setProjectFileNameAndUpdateDependencies(const QString& projectFileName);
 
     void            assignCaseIdToCase(RimCase* reservoirCase);
     void            assignIdToCaseGroup(RimIdenticalGridCaseGroup* caseGroup);
 
-    void            allCases(std::vector<RimCase*>& cases);
+    void            allCases(std::vector<RimCase*>& cases) const;
 
     std::vector<RimSummaryCase*>    allSummaryCases() const;
     std::vector<RimSummaryCaseCollection*> summaryGroups() const;
-    
+    RimSummaryCaseMainCollection*   firstSummaryCaseMainCollection() const;
+
     void            allVisibleViews(std::vector<Rim3dView*>& views);
     void            allVisibleGridViews(std::vector<RimGridView*>& views);
     void            allNotLinkedViews(std::vector<RimGridView*>& views);
 
-    void            createDisplayModelAndRedrawAllViews(); 
+    void            scheduleCreateDisplayModelAndRedrawAllViews();
 
     void            computeUtmAreaOfInterest();
 
-    void                allOilFields(std::vector<RimOilField*>& oilFields) const;
+    void            allOilFields(std::vector<RimOilField*>& allOilFields) const;
     RimOilField*        activeOilField();
     const RimOilField*  activeOilField() const;
 
@@ -145,13 +148,15 @@ public:
     std::vector<RimFractureTemplateCollection*> allFractureTemplateCollections() const;
     std::vector<RimFractureTemplate*> allFractureTemplates() const;
 
+    RiaEclipseUnitTools::UnitSystemType commonUnitSystemForAllCases() const;
+
 protected:
     // Overridden methods
     void            initScriptDirectories();
-    virtual void    initAfterRead();
-    virtual void    setupBeforeSave();
+    void    initAfterRead() override;
+    void    setupBeforeSave() override;
 
-    virtual void    defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "");
+    void    defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
 
 private:
     template <typename T>

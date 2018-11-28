@@ -61,16 +61,16 @@ class RimGeoMechView : public RimGridView
 
 public:
     RimGeoMechView(void);
-    virtual ~RimGeoMechView(void);
+    ~RimGeoMechView(void) override;
 
     void                                                setGeoMechCase(RimGeoMechCase* gmCase);
     RimGeoMechCase*                                     geoMechCase();
-    virtual RimCase*                                    ownerCase() const override;
+    RimCase*                                    ownerCase() const override;
 
     caf::PdmChildField<RimGeoMechCellColors*>           cellResult;
     RimGeoMechResultDefinition*                         cellResultResultDefinition();
 
-    virtual const RimPropertyFilterCollection*          propertyFilterCollection() const override;
+    const RimPropertyFilterCollection*          propertyFilterCollection() const override;
 
     RimGeoMechPropertyFilterCollection*                 geoMechPropertyFilterCollection();
     const RimGeoMechPropertyFilterCollection*           geoMechPropertyFilterCollection() const;
@@ -78,15 +78,15 @@ public:
 
     bool                                                isTimeStepDependentDataVisible() const override ;
 
-    virtual cvf::Transform*                             scaleTransform() override;
-    virtual void                                        scheduleGeometryRegen(RivCellSetEnum geometryType) override;
+    cvf::Transform*                             scaleTransform() override;
+    void                                        scheduleGeometryRegen(RivCellSetEnum geometryType) override;
     void                                                updateIconStateForFilterCollections();
 
-    virtual void                                        axisLabels(cvf::String* xLabel, cvf::String* yLabel, cvf::String* zLabel) override;
+    void                                        axisLabels(cvf::String* xLabel, cvf::String* yLabel, cvf::String* zLabel) override;
 
-    virtual bool                                        isUsingFormationNames() const override;
+    bool                                        isUsingFormationNames() const override;
 
-    virtual void                                        calculateCurrentTotalCellVisibility(cvf::UByteArray* totalVisibility, int timeStep) override;
+    void                                        calculateCurrentTotalCellVisibility(cvf::UByteArray* totalVisibility, int timeStep) override;
 
     void                                                updateLegendTextAndRanges(RimRegularLegendConfig* legendConfig, int timeStepIndex);
 
@@ -102,28 +102,28 @@ public:
     void                                                convertCameraPositionFromOldProjectFiles();
 
 protected:
-    virtual void                                        defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
-    virtual void                                        onLoadDataAndUpdate() override;
+    void                                        defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
+    void                                        onLoadDataAndUpdate() override;
 
-    virtual void                                        createPartCollectionFromSelection(cvf::Collection<cvf::Part>* parts) override;
+    void                                        createPartCollectionFromSelection(cvf::Collection<cvf::Part>* parts) override;
 
 private:
-    virtual void                                        createDisplayModel() override;
-    virtual void                                        updateScaleTransform() override;
+    void                                        createDisplayModel() override;
+    void                                        updateScaleTransform() override;
 
-    virtual void                                        clampCurrentTimestep() override;
+    void                                        clampCurrentTimestep() override;
 
-    virtual void                                        updateCurrentTimeStep() override;
-    virtual void                                        updateStaticCellColors() override;
+    void                                        updateCurrentTimeStep() override;
+    void                                        updateStaticCellColors() override;
 
-    virtual void                                        resetLegendsInViewer() override;
+    void                                        resetLegendsInViewer() override;
 
     void                                                updateLegends() override;
 
     void                                                updateTensorLegendTextAndRanges(RimRegularLegendConfig* legendConfig, int timeStepIndex);
 
-    virtual void                                        fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
-    virtual void                                        initAfterRead() override;
+    void                                        fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    void                                        initAfterRead() override;
 
 
     caf::PdmChildField<RimTensorResults*>                   m_tensorResults;

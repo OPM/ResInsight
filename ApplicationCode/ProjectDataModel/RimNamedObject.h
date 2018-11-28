@@ -32,13 +32,13 @@ class RimNamedObject : public caf::PdmObject
 
 public:
     RimNamedObject(void);
-    virtual ~RimNamedObject(void);
+    ~RimNamedObject(void) override;
 
     QString name() const;
     void    setName(const QString& name);
 
 protected:
-    virtual caf::PdmFieldHandle* userDescriptionField() override;
+    caf::PdmFieldHandle* userDescriptionField() override;
     
     // To be used from derived objects when manipulating visibility and ui ordering
     caf::PdmFieldHandle* nameField();

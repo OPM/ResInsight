@@ -34,6 +34,7 @@ class RimGeoMechView;
 class RimViewLinker;
 class RigCaseToCaseCellMapper;
 class RimCellRangeFilter;
+class RimPropertyFilter;
 
 //==================================================================================================
 ///  
@@ -44,15 +45,15 @@ class RimViewController : public caf::PdmObject
      CAF_PDM_HEADER_INIT;
 
 public:
-    RimViewController(void);
-    virtual ~RimViewController(void);
+    RimViewController();
+    ~RimViewController() override;
 
     bool                                    isActive() const;
 
-    RimGridView*                                managedView() const;
+    RimGridView*                            managedView() const;
     void                                    setManagedView(RimGridView* view);
 
-    RimGridView*                                masterView() const;
+    RimGridView*                            masterView() const;
     RimViewLinker*                          ownerViewLinker() const;
 
     const RigCaseToCaseCellMapper*          cellMapper();
@@ -77,16 +78,16 @@ public:
 
     void                                    updateRangeFilterOverrides(RimCellRangeFilter* changedRangeFilter);
     void                                    applyRangeFilterCollectionByUserChoice();
-
+    void                                    updatePropertyFilterOverrides(RimPropertyFilter* changedPropertyFilter);
 
 protected:  // Pdm overridden methods
-    virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
-    virtual QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly);
-    virtual void                            defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "");
-    virtual void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
+    void                                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    QList<caf::PdmOptionItemInfo>           calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
+    void                                    defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
+    void                                    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
 
-    virtual caf::PdmFieldHandle*            userDescriptionField()  { return &m_name; }
-    virtual caf::PdmFieldHandle*            objectToggleField()     { return &m_isActive; }
+    caf::PdmFieldHandle*                    userDescriptionField() override  { return &m_name; }
+    caf::PdmFieldHandle*                    objectToggleField() override     { return &m_isActive; }
 
 private:
     void                                    updateCameraLink();
@@ -94,10 +95,16 @@ private:
     void                                    updateResultColorsControl();
     void                                    updateLegendDefinitions();
 
+    void                                    updateDefaultOptions();
+
+    bool                                    isCameraControlPossible() const;
     bool                                    isMasterAndDepViewDifferentType() const;
     bool                                    isRangeFilterControlPossible() const;
     bool                                    isPropertyFilterControlPossible() const;
-    bool                                    isRangeFilterMappingApliccable() const;
+    bool                                    isRangeFilterMappingApplicable() const;
+    bool                                    isCellResultControlAdvisable() const;
+    bool                                    isRangeFilterControlAdvisable() const;
+    bool                                    isPropertyFilterControlAdvisable() const;
 
     RimEclipseView*                         managedEclipseView() const;
     RimGeoMechView*                         managedGeoView() const;
@@ -107,7 +114,7 @@ private:
 
 private:
     caf::PdmField<QString>                  m_name;
-    caf::PdmPtrField<RimGridView*>              m_managedView;
+    caf::PdmPtrField<RimGridView*>          m_managedView;
 
     caf::PdmField<bool>                     m_isActive;
     caf::PdmField<bool>                     m_syncCamera;

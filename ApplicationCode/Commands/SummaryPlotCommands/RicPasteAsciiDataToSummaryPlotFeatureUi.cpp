@@ -53,10 +53,11 @@ namespace caf {
     template<>
     void RicPasteAsciiDataToSummaryPlotFeatureUi::TimeFormatEnum::setUp()
     {
+        addItem(RicPasteAsciiDataToSummaryPlotFeatureUi::TIME_NONE,      "",             "None");
         addItem(RicPasteAsciiDataToSummaryPlotFeatureUi::TIME_HHMM,      "hh:mm",        "Hour:Minute (hh:mm)");
         addItem(RicPasteAsciiDataToSummaryPlotFeatureUi::TIME_HHMMSS,    "hh:mm:ss",     "Hour:Minute:Second (hh:mm:ss)");
         addItem(RicPasteAsciiDataToSummaryPlotFeatureUi::TIME_HHMMSSZZZ, "hh:mm:ss.zzz", "Hour:Minute:Second.Millisecond (hh:mm:ss.zzz)");
-        setDefault(RicPasteAsciiDataToSummaryPlotFeatureUi::TIME_HHMM);
+        setDefault(RicPasteAsciiDataToSummaryPlotFeatureUi::TIME_NONE);
     }
 
     template<>
@@ -166,8 +167,8 @@ RicPasteAsciiDataToSummaryPlotFeatureUi::RicPasteAsciiDataToSummaryPlotFeatureUi
     CAF_PDM_InitField(&m_useCustomDateFormat, "UseCustomDateFormat", false, "Use Custom Date Time Format", "", "", "");
     CAF_PDM_InitField(&m_customDateTimeFormat,"CustomDateTimeFormat", QString(), "Custom Date Time Format", "", DATETIME_FORMAT_TOOLTIP, "");
 
-    CAF_PDM_InitField(&m_curveLineStyle, "LineStyle",                    caf::AppEnum<RimPlotCurve::LineStyleEnum>(RimPlotCurve::STYLE_NONE),       "Line Style", "", "", "");
-    CAF_PDM_InitField(&m_curveSymbol,    "Symbol",                       caf::AppEnum<RimPlotCurve::PointSymbolEnum>(RimPlotCurve::SYMBOL_ELLIPSE), "Symbol", "", "", "");
+    CAF_PDM_InitField(&m_curveLineStyle, "LineStyle",                    caf::AppEnum<RiuQwtPlotCurve::LineStyleEnum>(RiuQwtPlotCurve::STYLE_NONE),       "Line Style", "", "", "");
+    CAF_PDM_InitField(&m_curveSymbol,    "Symbol",                       caf::AppEnum<RiuQwtSymbol::PointSymbolEnum>(RiuQwtSymbol::SYMBOL_ELLIPSE), "Symbol", "", "", "");
     CAF_PDM_InitField(&m_curveSymbolSkipDistance, "SymbolSkipDinstance", 0.0f,                                                                      "Symbol Skip Distance", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_cellSeparator, "CellSeparator", "Cell Separator", "", "", "");
@@ -187,10 +188,17 @@ RicPasteAsciiDataToSummaryPlotFeatureUi::RicPasteAsciiDataToSummaryPlotFeatureUi
 //--------------------------------------------------------------------------------------------------
 void RicPasteAsciiDataToSummaryPlotFeatureUi::setUiModeImport(const QString& fileName)
 {
-    m_uiMode = UI_MODE_IMPORT;
-
     m_parser = std::unique_ptr<RifCsvUserDataParser>(new RifCsvUserDataFileParser(fileName));
-    initialize(m_parser.get());
+
+    if (m_parser->determineCsvLayout() != RifCsvUserDataParser::LineBased)
+    {
+        m_uiMode = UI_MODE_IMPORT;
+        initialize(m_parser.get());
+    }
+    else
+    {
+        m_uiMode = UI_MODE_SILENT;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -207,10 +215,19 @@ void RicPasteAsciiDataToSummaryPlotFeatureUi::setUiModePasteText(const QString& 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+RicPasteAsciiDataToSummaryPlotFeatureUi::UiMode RicPasteAsciiDataToSummaryPlotFeatureUi::uiModeImport() const
+{
+    return m_uiMode;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 const AsciiDataParseOptions RicPasteAsciiDataToSummaryPlotFeatureUi::parseOptions() const
 {
     AsciiDataParseOptions parseOptions;
 
+    parseOptions.assumeNumericDataColumns = true;
     parseOptions.plotTitle = m_plotTitle();
     parseOptions.curvePrefix = m_curvePrefix();
 
@@ -242,7 +259,13 @@ const AsciiDataParseOptions RicPasteAsciiDataToSummaryPlotFeatureUi::parseOption
             parseOptions.useCustomDateTimeFormat = false;
             parseOptions.dateFormat = m_dateFormat().text();
             parseOptions.timeFormat = m_timeFormat().text();
-            parseOptions.dateTimeFormat = parseOptions.dateFormat + " " + parseOptions.timeFormat;
+            parseOptions.dateTimeFormat = parseOptions.dateFormat +
+                (m_timeFormat() != TimeFormat::TIME_NONE ? " " + parseOptions.timeFormat : "");
+        }
+        if (m_timeFormat() == TimeFormat::TIME_NONE)
+        {
+            parseOptions.fallbackDateTimeFormat = parseOptions.dateFormat + " " +
+                RicPasteAsciiDataToSummaryPlotFeatureUi::TimeFormatEnum::text(TIME_HHMM);
         }
     }
 

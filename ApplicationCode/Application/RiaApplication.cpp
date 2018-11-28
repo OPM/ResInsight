@@ -34,6 +34,7 @@
 #include "RicImportInputEclipseCaseFeature.h"
 #include "RicImportSummaryCasesFeature.h"
 #include "ExportCommands/RicSnapshotAllViewsToFileFeature.h"
+#include "HoloLensCommands/RicHoloLensSessionManager.h"
 
 #include "Rim2dIntersectionViewCollection.h"
 #include "RimCellRangeFilterCollection.h"
@@ -57,6 +58,7 @@
 #include "RimRftPlotCollection.h"
 #include "RimStimPlanColors.h"
 #include "RimSummaryCase.h"
+#include "RimSummaryCaseCollection.h"
 #include "RimSummaryCaseMainCollection.h"
 #include "RimSummaryCrossPlotCollection.h"
 #include "RimSummaryPlot.h"
@@ -87,6 +89,7 @@
 #include "cafPdmUiTreeView.h"
 #include "cafProgressInfo.h"
 #include "cafQTreeViewStateSerializer.h"
+#include "cafSelectionManager.h"
 #include "cafUiProcess.h"
 #include "cafUtils.h"
 
@@ -97,6 +100,7 @@
 #include <QFileDialog>
 #include <QMdiSubWindow>
 #include <QMessageBox>
+#include <QProcessEnvironment>
 #include <QTreeView>
 
 
@@ -404,6 +408,7 @@ bool RiaApplication::loadProject(const QString& projectFileName, ProjectLoadActi
         if (!m_mainPlotWindow)
         {
             createMainPlotWindow();
+            m_mainPlotWindow->show();
         }
         else
         {
@@ -464,7 +469,7 @@ bool RiaApplication::loadProject(const QString& projectFileName, ProjectLoadActi
 
         if (oilField->wellPathCollection)
         {
-            oilField->wellPathCollection->readWellPathFiles();
+            oilField->wellPathCollection->loadDataAndUpdate();
             oilField->wellPathCollection->readWellPathFormationFiles();
         }
     }
@@ -596,6 +601,17 @@ bool RiaApplication::loadProject(const QString& projectFileName, ProjectLoadActi
         cas->intersectionViewCollection()->syncFromExistingIntersections(false);
     }
 
+    // Init summary case groups
+    for (RimOilField* oilField : m_project->oilFields)
+    {
+        auto sumMainCollection = oilField->summaryCaseMainCollection();
+        if(!sumMainCollection) continue;
+
+        for (auto sumCaseGroup : sumMainCollection->summaryCaseCollections())
+        {
+            sumCaseGroup->loadDataAndUpdate();
+        }
+    }
 
     loadAndUpdatePlotData();
 
@@ -980,13 +996,16 @@ bool RiaApplication::saveProjectAs(const QString& fileName)
 //--------------------------------------------------------------------------------------------------
 void RiaApplication::closeProject()
 {
+    RicHoloLensSessionManager::instance()->terminateSession();
+    RicHoloLensSessionManager::refreshToolbarState();
+
     RiuMainWindow* mainWnd = RiuMainWindow::instance();
 
     RiaViewRedrawScheduler::instance()->clearViewsScheduledForUpdate();
 
     terminateProcess();
 
-    RiuSelectionManager::instance()->deleteAllItems();
+    RiaApplication::clearAllSelections();
 
     mainWnd->cleanupGuiBeforeProjectClose();
 
@@ -1075,7 +1094,7 @@ QString RiaApplication::createAbsolutePathFromProjectRelativePath(QString projec
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RiaApplication::openOdbCaseFromFile(const QString& fileName)
+bool RiaApplication::openOdbCaseFromFile(const QString& fileName, bool applyTimeStepFilter)
 {
     if (!caf::Utils::fileExists(fileName)) return false;
 
@@ -1085,7 +1104,8 @@ bool RiaApplication::openOdbCaseFromFile(const QString& fileName)
     RimGeoMechCase* geoMechCase = new RimGeoMechCase();
     geoMechCase->setFileName(fileName);
     geoMechCase->caseUserDescription = caseName;
-
+    geoMechCase->setApplyTimeFilter(applyTimeStepFilter);
+    
     RimGeoMechModels* geoMechModelCollection = m_project->activeOilField() ? m_project->activeOilField()->geoMechModels() : nullptr;
 
     // Create the geoMech model container if it is not there already
@@ -1095,13 +1115,18 @@ bool RiaApplication::openOdbCaseFromFile(const QString& fileName)
         m_project->activeOilField()->geoMechModels = geoMechModelCollection;
     }
 
-    geoMechModelCollection->cases.push_back(geoMechCase);
-
     RimGeoMechView* riv = geoMechCase->createAndAddReservoirView();
     caf::ProgressInfo progress(11, "Loading Case");
     progress.setNextProgressIncrement(10);
 
     riv->loadDataAndUpdate();
+
+    if (!riv->geoMechCase())
+    {
+        delete geoMechCase;
+        return false;
+    }
+    geoMechModelCollection->cases.push_back(geoMechCase);
 
     //if (!riv->cellResult()->hasResult())
     //{
@@ -1215,15 +1240,6 @@ void RiaApplication::setActiveReservoirView(Rim3dView* rv)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiaApplication::setUseShaders(bool enable)
-{
-    m_preferences->useShaders = enable;
-    caf::PdmSettings::writeFieldsToApplicationStore(m_preferences);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 bool RiaApplication::useShaders() const
 {
     if (!m_preferences->useShaders) return false;
@@ -1241,16 +1257,6 @@ bool RiaApplication::useShaders() const
 RiaApplication::RINavigationPolicy RiaApplication::navigationPolicy() const
 {
     return m_preferences->navigationPolicy();
-}
-
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiaApplication::setShowPerformanceInfo(bool enable)
-{
-    m_preferences->showHud = enable;
-    caf::PdmSettings::writeFieldsToApplicationStore(m_preferences);
 }
 
 
@@ -1327,6 +1333,20 @@ int RiaApplication::launchUnitTestsWithConsole()
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiuPlotMainWindow* RiaApplication::getOrCreateMainPlotWindow()
+{
+    if (!m_mainPlotWindow)
+    {
+        createMainPlotWindow();
+        m_mainPlotWindow->initializeGuiNewProjectLoaded();
+        loadAndUpdatePlotData();
+    }
+    return m_mainPlotWindow;
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void RiaApplication::createMainPlotWindow()
@@ -1338,7 +1358,6 @@ void RiaApplication::createMainPlotWindow()
     m_mainPlotWindow->setWindowTitle("Plots - ResInsight");
     m_mainPlotWindow->setDefaultWindowSize();
     m_mainPlotWindow->loadWinGeoAndDockToolBarLayout();
-    m_mainPlotWindow->showWindow();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1376,7 +1395,7 @@ RiuPlotMainWindow* RiaApplication::getOrCreateAndShowMainPlotWindow()
     }
 
     m_mainPlotWindow->raise();
-
+    m_mainPlotWindow->activateWindow();
     return m_mainPlotWindow;
 }
 
@@ -1560,6 +1579,25 @@ void RiaApplication::saveWinGeoAndDockToolBarLayout()
         RiuMainWindow::instance()->saveWinGeoAndDockToolBarLayout();
     }
 
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiaApplication::enableDevelopmentFeatures()
+{
+    QString environmentVar = QProcessEnvironment::systemEnvironment().value("RESINSIGHT_DEVEL", QString("0"));
+    return environmentVar.toInt() == 1;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiaApplication::clearAllSelections()
+{
+    RiuSelectionManager::instance()->deleteAllItems(RiuSelectionManager::RUI_APPLICATION_GLOBAL);
+    RiuSelectionManager::instance()->deleteAllItems(RiuSelectionManager::RUI_TEMPORARY);
+    caf::SelectionManager::instance()->clearAll();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1901,6 +1939,14 @@ QString RiaApplication::lastUsedDialogDirectoryWithFallback(const QString& dialo
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+QString RiaApplication::lastUsedDialogDirectoryWithFallbackToProjectFolder(const QString& dialogName)
+{
+    return lastUsedDialogDirectoryWithFallback(dialogName, currentProjectPath());
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RiaApplication::setLastUsedDialogDirectory(const QString& dialogName, const QString& directory)
 {
     m_fileDialogDefaultDirectories[dialogName] = directory;
@@ -2111,20 +2157,22 @@ void RiaApplication::addCommandObject(RimCommandObject* commandObject)
 //--------------------------------------------------------------------------------------------------
 void RiaApplication::executeCommandObjects()
 {
-    std::list< RimCommandObject* >::iterator it = m_commandQueue.begin();
-    while (it != m_commandQueue.end())
     {
-        RimCommandObject* toBeRemoved = *it;
-        if (!toBeRemoved->isAsyncronous())
+        std::list<RimCommandObject*>::iterator it = m_commandQueue.begin();
+        while (it != m_commandQueue.end())
         {
-            toBeRemoved->redo();
+            RimCommandObject* toBeRemoved = *it;
+            if (!toBeRemoved->isAsyncronous())
+            {
+                toBeRemoved->redo();
 
-            ++it;
-            m_commandQueue.remove(toBeRemoved);
-        }
-        else
-        {
-            ++it;
+                ++it;
+                m_commandQueue.remove(toBeRemoved);
+            }
+            else
+            {
+                ++it;
+            }
         }
     }
 

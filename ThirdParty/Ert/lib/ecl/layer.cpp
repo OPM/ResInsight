@@ -18,6 +18,8 @@
 #include <stdlib.h>
 #include <math.h>
 
+#include <vector>
+
 #include <ert/util/type_macros.hpp>
 #include <ert/util/int_vector.hpp>
 
@@ -300,7 +302,14 @@ static bool point_equal(int_point2d_type * p1 , int_point2d_type *p2) {
 
 */
 
-static void layer_trace_block_edge__( const layer_type * layer , int_point2d_type start_point , int i , int j , int value , edge_dir_enum dir , struct_vector_type * corner_list, int_vector_type * cell_list) {
+static void layer_trace_block_edge__( const layer_type * layer ,
+                                      int_point2d_type start_point ,
+                                      int i,
+                                      int j,
+                                      int value,
+                                      edge_dir_enum dir ,
+                                      std::vector<int_point2d_type>& corner_list,
+                                      int_vector_type * cell_list) {
   int_point2d_type current_point;
   int_point2d_type next_point;
   current_point.i = i;
@@ -318,7 +327,7 @@ static void layer_trace_block_edge__( const layer_type * layer , int_point2d_typ
   } else if (dir == LEFT_EDGE)
     point_shift( &current_point , 0 , 1 );
 
-  struct_vector_append( corner_list , &current_point );
+  corner_list.push_back(current_point);
   {
     int cell_index = i + j*layer->nx;
     int_vector_append( cell_list , cell_index );
@@ -449,7 +458,7 @@ static bool layer_find_edge( const layer_type * layer , int *i , int *j , int va
 }
 
 
-bool layer_trace_block_edge( const layer_type * layer , int start_i , int start_j , int value , struct_vector_type * corner_list , int_vector_type * cell_list) {
+bool layer_trace_block_edge( const layer_type * layer , int start_i , int start_j , int value , std::vector<int_point2d_type>& corner_list, int_vector_type * cell_list) {
   int g = layer_get_global_cell_index( layer , start_i , start_j);
   cell_type * cell = &layer->data[g];
   if (cell->cell_value == value) {
@@ -464,7 +473,7 @@ bool layer_trace_block_edge( const layer_type * layer , int start_i , int start_
 
       start_corner.i = i;
       start_corner.j = j;
-      struct_vector_reset( corner_list );
+      corner_list.clear();
       int_vector_reset( cell_list );
 
 

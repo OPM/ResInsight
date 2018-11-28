@@ -41,26 +41,26 @@ class Rim3dWellLogRftCurve : public Rim3dWellLogCurve
 
 public:
     Rim3dWellLogRftCurve();
-    virtual ~Rim3dWellLogRftCurve();
+    ~Rim3dWellLogRftCurve() override;
 
-    virtual void curveValuesAndMds(std::vector<double>* values, std::vector<double>* measuredDepthValues) const override;
+    void curveValuesAndMds(std::vector<double>* values, std::vector<double>* measuredDepthValues) const override;
 
-    virtual QString resultPropertyString() const override;
-    virtual QString name() const override;
-    virtual QString createCurveAutoName() const override;
+    QString resultPropertyString() const override;
+    QString name() const override;
+    QString createAutoName() const override;
 
 protected:
-    virtual caf::PdmFieldHandle*            userDescriptionField() override;
+    caf::PdmFieldHandle*            userDescriptionField() override;
 
-    virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField,
+    void fieldChangedByUi(const caf::PdmFieldHandle* changedField,
                                   const QVariant& oldValue,
                                   const QVariant& newValue) override;
 
 private:
-    virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions,
+    QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions,
                                                                 bool*                      useOptionsOnly) override;
 
-    virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
 
     QString wellName() const;
 

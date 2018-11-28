@@ -22,6 +22,7 @@
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 
+#include "RimFemResultObserver.h"
 #include "RigFemResultPosEnum.h"
 #include "RimRegularLegendConfig.h"
 
@@ -36,7 +37,7 @@ class RimRegularLegendConfig;
 ///  
 ///  
 //==================================================================================================
-class RimTensorResults : public caf::PdmObject
+class RimTensorResults : public RimFemResultObserver
 {
     CAF_PDM_HEADER_INIT;
 
@@ -57,7 +58,7 @@ public:
 
 public:
     RimTensorResults();
-    virtual ~RimTensorResults();
+    ~RimTensorResults() override;
 
     RigFemResultAddress selectedTensorResult() const;
     void                setShowTensors(bool enableTensors);
@@ -72,21 +73,22 @@ public:
 
     void                mappingRange(double *min, double* max) const;
 
-    static RigFemResultPosEnum resultPositionType();
-    QString                    resultFieldName() const;
-    static QString             uiFieldName(const QString& fieldName);
+    std::vector<RigFemResultAddress> observedResults() const override;
+    static RigFemResultPosEnum       resultPositionType();
+    QString                          resultFieldName() const;
+    static QString                   uiFieldName(const QString& fieldName);
 
     caf::PdmChildField<RimRegularLegendConfig*> arrowColorLegendConfig;
 
 private:
     std::vector<std::string>                getResultMetaDataForUIFieldSetting();
-    virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
-    virtual caf::PdmFieldHandle*            objectToggleField() override;
-    virtual QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
-    virtual void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
-    virtual void                            initAfterRead() override;
-    virtual void                            defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override;
-    virtual void                            defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
+    void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    caf::PdmFieldHandle*            objectToggleField() override;
+    QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
+    void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    void                            initAfterRead() override;
+    void                            defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override;
+    void                            defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
 
     static QString                          fieldNameFromUi(const QString& uiFieldName);
 

@@ -1,0 +1,7 @@
+include README.md COPYING
+global-include CMakeLists.txt *.cmake
+recursive-include external/catch2 *
+recursive-include lib *
+recursive-include applications *
+recursive-include bin *
+recursive-include cmake *

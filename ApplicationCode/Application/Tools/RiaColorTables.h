@@ -18,8 +18,9 @@
 
 #pragma once
 
+#include "RiaDefines.h"
 #include "cafColorTable.h"
-
+#include <map>
 
 //==================================================================================================
 ///  
@@ -28,6 +29,8 @@
 class RiaColorTables
 {
 public:
+    typedef std::map<RiaDefines::WellPathComponentType, cvf::Color3::ColorIdent> WellPathComponentColors;
+
     static const caf::ColorTable& normalPaletteColors();
     static const caf::ColorTable& normalPaletteOppositeOrderingColors();
     static const caf::ColorTable& blackWhitePaletteColors();
@@ -53,7 +56,14 @@ public:
     static const caf::ColorTable& wellLogPlotPaletteColors();
     static const caf::ColorTable& selectionPaletteColors();
     static const caf::ColorTable& timestepsPaletteColors();
+    static const caf::ColorTable& editableWellPathsPaletteColors();
+    static const caf::ColorTable& wellPathsPaletteColors();
 
     static cvf::Color3f undefinedCellColor();
-    static cvf::Color3f perforationLengthColor();
+
+    static WellPathComponentColors wellPathComponentColors();
+
+private:
+    static std::vector<cvf::Color3ub> categoryColors();
+    static std::vector<cvf::Color3ub> invertedCategoryColors();
 };

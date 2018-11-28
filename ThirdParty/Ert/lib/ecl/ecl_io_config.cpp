@@ -1,26 +1,26 @@
 /*
-   Copyright (C) 2011  Statoil ASA, Norway. 
-    
-   The file 'ecl_io_config.c' is part of ERT - Ensemble based Reservoir Tool. 
-    
-   ERT is free software: you can redistribute it and/or modify 
-   it under the terms of the GNU General Public License as published by 
-   the Free Software Foundation, either version 3 of the License, or 
-   (at your option) any later version. 
-    
-   ERT is distributed in the hope that it will be useful, but WITHOUT ANY 
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or 
-   FITNESS FOR A PARTICULAR PURPOSE.   
-    
-   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
-   for more details. 
+   Copyright (C) 2011  Statoil ASA, Norway.
+
+   The file 'ecl_io_config.c' is part of ERT - Ensemble based Reservoir Tool.
+
+   ERT is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   ERT is distributed in the hope that it will be useful, but WITHOUT ANY
+   WARRANTY; without even the implied warranty of MERCHANTABILITY or
+   FITNESS FOR A PARTICULAR PURPOSE.
+
+   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+   for more details.
 */
 
 
 #include <stdbool.h>
 #include <stdlib.h>
 
-#include <ert/util/util.hpp>
+#include <ert/util/util.h>
 
 #include <ert/ecl/ecl_io_config.hpp>
 #include <ert/ecl/ecl_util.hpp>
@@ -33,7 +33,7 @@
 
     * formatted   : whether to use formatted files.
     * unified     : whether unified summary || restart files should be used.
-  
+
    All types are implemented by an internal enum which supports a
    undefined type. The rationale for this is to provide functionality
    to 'guess' type based on arbitrary input. If for instance the input
@@ -43,7 +43,7 @@
 
 
 typedef enum {  UNIFIED        = 0,
-                MULTIPLE       = 1, 
+                MULTIPLE       = 1,
                 UNIF_UNDEFINED = 2 } unified_type;
 
 typedef enum {  FORMATTED     = 0,
@@ -142,11 +142,11 @@ ecl_io_config_type * ecl_io_config_alloc(bool formatted ,  bool unified_summary 
 
   return ecl_io_config;
 }
-  
-  
-  
-  
+
+
+
+
 void ecl_io_config_free(ecl_io_config_type * io_config) {
   free(io_config);
 }
-  
+

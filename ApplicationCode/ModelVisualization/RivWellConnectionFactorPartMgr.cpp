@@ -29,6 +29,7 @@
 
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
+#include "RimFracture.h"
 #include "RimRegularLegendConfig.h"
 #include "RimSimWellInViewCollection.h"
 #include "RimVirtualPerforationResults.h"
@@ -85,9 +86,9 @@ void RivWellConnectionFactorPartMgr::appendDynamicGeometryPartsToModel(cvf::Mode
     // Remove connection factors for parent grid, they are not supposed to be visualized, but are relevant for export
     for (auto it = completionsForWellPath.begin(); it != completionsForWellPath.end();)
     {
-        size_t gridIndex = it->first.globalCellIndex();
+        size_t reservoirCellIndex = it->first;
 
-        const RigCell& rigCell = mainGrid->cell(gridIndex);
+        const RigCell& rigCell = mainGrid->cell(reservoirCellIndex);
         if (rigCell.subGrid())
         {
             it = completionsForWellPath.erase(it);
@@ -121,38 +122,54 @@ void RivWellConnectionFactorPartMgr::appendDynamicGeometryPartsToModel(cvf::Mode
             }
         }
 
-        size_t gridIndex = completionsForCell.first.globalCellIndex();
+        bool showConnectionFactorOnWellPath = true;
+        {
+            for (const auto& completion : completionsForCell.second)
+            {
+                auto fracture = dynamic_cast<const RimFracture*>(completion.sourcePdmObject());
+                if (fracture)
+                {
+                    showConnectionFactorOnWellPath = false;
+                }
+            }
+        }
 
-        const RigCell& rigCell = mainGrid->cell(gridIndex);
+        size_t reservoirCellIndex = completionsForCell.first;
+
+        const RigCell& rigCell = mainGrid->cell(reservoirCellIndex);
 
         cvf::Vec3d locationInDomainCoord = rigCell.center();
         cvf::Vec3d direction             = cvf::Vec3d::X_AXIS;
-        bool       foundLocation         = false;
 
-        size_t i = 0;
-        while (!foundLocation && (i < wellPathCellIntersections.size()))
+        if (showConnectionFactorOnWellPath)
         {
-            const WellPathCellIntersectionInfo& intersectionInfo = wellPathCellIntersections[i];
+            size_t i             = 0;
+            bool   foundLocation = false;
 
-            if (intersectionInfo.globCellIndex == completionsForCell.first.globalCellIndex())
+            while (!foundLocation && (i < wellPathCellIntersections.size()))
             {
-                double startMD = intersectionInfo.startMD;
-                double endMD   = intersectionInfo.endMD;
+                const WellPathCellIntersectionInfo& intersectionInfo = wellPathCellIntersections[i];
 
-                double middleMD = (startMD + endMD) / 2.0;
+                if (intersectionInfo.globCellIndex == completionsForCell.first)
+                {
+                    double startMD = intersectionInfo.startMD;
+                    double endMD   = intersectionInfo.endMD;
 
-                locationInDomainCoord = m_rimWellPath->wellPathGeometry()->interpolatedPointAlongWellPath(middleMD);
+                    double middleMD = (startMD + endMD) / 2.0;
 
-                cvf::Vec3d p1;
-                cvf::Vec3d p2;
-                m_rimWellPath->wellPathGeometry()->twoClosestPoints(locationInDomainCoord, &p1, &p2);
+                    locationInDomainCoord = m_rimWellPath->wellPathGeometry()->interpolatedPointAlongWellPath(middleMD);
 
-                direction = (p2 - p1).getNormalized();
+                    cvf::Vec3d p1;
+                    cvf::Vec3d p2;
+                    m_rimWellPath->wellPathGeometry()->twoClosestPoints(locationInDomainCoord, &p1, &p2);
 
-                foundLocation = true;
+                    direction = (p2 - p1).getNormalized();
+
+                    foundLocation = true;
+                }
+
+                i++;
             }
-
-            i++;
         }
 
         cvf::Vec3d displayCoord = coordTransform->transformToDisplayCoord(locationInDomainCoord);
@@ -164,7 +181,7 @@ void RivWellConnectionFactorPartMgr::appendDynamicGeometryPartsToModel(cvf::Mode
             double transmissibility = completionData.transmissibility();
 
             completionVizDataItems.push_back(
-                CompletionVizData(displayCoord, direction, transmissibility, completionsForCell.first.globalCellIndex()));
+                CompletionVizData(displayCoord, direction, transmissibility, completionsForCell.first));
         }
     }
 

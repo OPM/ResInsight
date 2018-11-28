@@ -75,20 +75,20 @@ class PdmUiSliderEditor : public PdmUiFieldEditorHandle
 
 public:
     PdmUiSliderEditor()          {} 
-    virtual ~PdmUiSliderEditor() {} 
+    ~PdmUiSliderEditor() override {} 
 
 protected:
-    virtual void        configureAndUpdateUi(const QString& uiConfigName);
-    virtual QWidget*    createEditorWidget(QWidget * parent);
-    virtual QWidget*    createLabelWidget(QWidget * parent);
+    void        configureAndUpdateUi(const QString& uiConfigName) override;
+    QWidget*    createEditorWidget(QWidget * parent) override;
+    QWidget*    createLabelWidget(QWidget * parent) override;
 
 protected slots:
-    void                slotSliderValueChanged(int position);
-    void                slotSpinBoxValueChanged(int position);
+    void        slotSliderValueChanged(int position);
+    void        slotSpinBoxValueChanged(int position);
 
 private:
-    void                updateSliderPosition();
-    void                writeValueToField();
+    void        updateSliderPosition();
+    void        writeValueToField();
 
 private:
     QPointer<QSpinBox>  m_spinBox;

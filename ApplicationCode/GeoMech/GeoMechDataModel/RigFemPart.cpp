@@ -71,7 +71,7 @@ void RigFemPart::appendElement(RigElementType elmType, int id, const int* connec
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const RigFemPartGrid* RigFemPart::structGrid() const
+const RigFemPartGrid* RigFemPart::getOrCreateStructGrid() const
 {
     if (m_structGrid.isNull())
     {
@@ -98,14 +98,16 @@ void RigFemPart::assertNodeToElmIndicesIsCalculated()
 void RigFemPart::calculateNodeToElmRefs()
 {
     m_nodeToElmRefs.resize(nodes().nodeIds.size());
+    m_nodeGlobalToLocalIndices.resize(nodes().nodeIds.size());
 
     for (int eIdx = 0; eIdx < static_cast<int>(m_elementId.size()); ++eIdx)
     {
         int elmNodeCount = RigFemTypes::elmentNodeCount(elementType(eIdx));
         const int* elmNodes = connectivities(eIdx);
-        for (int enIdx = 0; enIdx < elmNodeCount; ++enIdx)
+        for (int localIdx = 0; localIdx < elmNodeCount; ++localIdx)
         {
-            m_nodeToElmRefs[elmNodes[enIdx]].push_back(eIdx);
+            m_nodeToElmRefs[elmNodes[localIdx]].push_back(eIdx);
+            m_nodeGlobalToLocalIndices[elmNodes[localIdx]].push_back(localIdx);
         }
     }
 }
@@ -113,17 +115,17 @@ void RigFemPart::calculateNodeToElmRefs()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const int* RigFemPart::elementsUsingNode(int nodeIndex)
+const std::vector<int>& RigFemPart::elementsUsingNode(int nodeIndex) const
 {
-   return &(m_nodeToElmRefs[nodeIndex][0]);
+   return m_nodeToElmRefs[nodeIndex];
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-int RigFemPart::numElementsUsingNode(int nodeIndex)
+const std::vector<unsigned char>& RigFemPart::elementLocalIndicesForNode(int nodeIndex) const
 {
-    return static_cast<int>(m_nodeToElmRefs[nodeIndex].size());
+    return m_nodeGlobalToLocalIndices[nodeIndex];
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -168,24 +170,23 @@ void RigFemPart::calculateElmNeighbors()
             candidates.clear();
             {
                 int firstNodeIdxOfFace = elmNodes[localFaceIndices[0]];
-                int candidateCount1 = this->numElementsUsingNode(firstNodeIdxOfFace);
-                const int* candidates1 = this->elementsUsingNode(firstNodeIdxOfFace);
+                const std::vector<int>& candidates1 = this->elementsUsingNode(firstNodeIdxOfFace);
 
-                if (candidateCount1)
+                if (!candidates1.empty())
                 {
                     // Get neighbor candidates from the diagonal node
 
                     int thirdNodeIdxOfFace = elmNodes[localFaceIndices[3]];
-                    int candidateCount2 = this->numElementsUsingNode(thirdNodeIdxOfFace);
-                    const int* candidates2 = this->elementsUsingNode(thirdNodeIdxOfFace);
+                    
+                    const std::vector<int>& candidates2 = this->elementsUsingNode(thirdNodeIdxOfFace);
 
                     // The candidates are sorted from smallest to largest, so we do a linear search to find the 
                     // (two) common cells in the two arrays, and leaving this element out, we have one candidate left
 
-                    int idx1 = 0;
-                    int idx2 = 0;
+                    size_t idx1 = 0;
+                    size_t idx2 = 0;
 
-                    while (idx1 < candidateCount1 && idx2 < candidateCount2)
+                    while (idx1 < candidates1.size() && idx2 < candidates2.size())
                     {
                         if (candidates1[idx1] < candidates2[idx2]){ ++idx1; continue; }
                         if (candidates1[idx1] > candidates2[idx2]){ ++idx2; continue; }
@@ -383,5 +384,34 @@ size_t RigFemPart::elementNodeResultCount() const
     size_t lastElmResultIdx = this->elementNodeResultIdx(lastElmIdx, elmNodeCount -1);
 
     return lastElmResultIdx + 1;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Generate a sensible index into the result vector based on which result position type is used.
+//--------------------------------------------------------------------------------------------------
+size_t RigFemPart::resultValueIdxFromResultPosType(RigFemResultPosEnum resultPosType, int elementIdx, int elmLocalNodeIdx) const
+{
+    if (resultPosType == RIG_ELEMENT || resultPosType == RIG_FORMATION_NAMES)
+    {
+        CVF_ASSERT(elementIdx < static_cast<int>(m_elementId.size()));
+        return elementIdx;
+    }
+
+    size_t elementNodeResultIdx = this->elementNodeResultIdx(static_cast<int>(elementIdx), elmLocalNodeIdx);
+    CVF_ASSERT(elementNodeResultIdx < elementNodeResultCount());
+
+    if (resultPosType == RIG_ELEMENT_NODAL || resultPosType == RIG_INTEGRATION_POINT)
+    {
+        return elementNodeResultIdx;
+    }
+    else if (resultPosType == RIG_NODAL)
+    {
+        size_t nodeIdx = nodeIdxFromElementNodeResultIdx(elementNodeResultIdx);
+        CVF_ASSERT(nodeIdx < m_nodes.nodeIds.size());
+        return nodeIdx;
+    }
+
+    CVF_ASSERT(false);
+    return 0u;
 }
 

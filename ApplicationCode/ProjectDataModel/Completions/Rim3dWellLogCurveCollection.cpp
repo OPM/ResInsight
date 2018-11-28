@@ -72,7 +72,7 @@ void Rim3dWellLogCurveCollection::add3dWellLogCurve(Rim3dWellLogCurve* curve)
         size_t index = m_3dWellLogCurves.size();
         curve->setColor(RiaColorTables::wellLogPlotPaletteColors().cycledColor3f(index));
         m_3dWellLogCurves.push_back(curve);
-        curve->createCurveAutoName();
+        curve->createAutoName();
     }
 }
 
@@ -139,7 +139,7 @@ void Rim3dWellLogCurveCollection::redrawAffectedViewsAndEditors()
     this->firstAncestorOrThisOfType(proj);
     if (proj)
     {
-        proj->createDisplayModelAndRedrawAllViews();
+        proj->scheduleCreateDisplayModelAndRedrawAllViews();
     }
     RimWellPath* path = nullptr;
     this->firstAncestorOrThisOfType(path);
@@ -186,7 +186,7 @@ void Rim3dWellLogCurveCollection::fieldChangedByUi(const caf::PdmFieldHandle* ch
 {
     RimProject* proj;
     this->firstAncestorOrThisOfTypeAsserted(proj);
-    proj->createDisplayModelAndRedrawAllViews();
+    proj->scheduleCreateDisplayModelAndRedrawAllViews();
 }
 
 //--------------------------------------------------------------------------------------------------

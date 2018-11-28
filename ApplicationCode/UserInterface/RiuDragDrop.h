@@ -43,17 +43,17 @@ class RiuDragDrop : public caf::PdmUiDragDropInterface
 {
 public:
     RiuDragDrop();
-    virtual ~RiuDragDrop();
+    ~RiuDragDrop() override;
     
 protected:
-    virtual Qt::DropActions supportedDropActions() const;
-    virtual Qt::ItemFlags flags(const QModelIndex &index) const;
-    virtual bool dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent);
-    virtual QMimeData* mimeData(const QModelIndexList &indexes) const;
-    virtual QStringList mimeTypes() const;
+    Qt::DropActions supportedDropActions() const override;
+    Qt::ItemFlags flags(const QModelIndex &index) const override;
+    bool dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent) override;
+    QMimeData* mimeData(const QModelIndexList &indexes) const override;
+    QStringList mimeTypes() const override;
 
-    virtual void onDragCanceled();
-    virtual void onProposedDropActionUpdated(Qt::DropAction action);
+    void onDragCanceled() override;
+    void onProposedDropActionUpdated(Qt::DropAction action) override;
 
 private:
     void moveCasesToGridGroup(caf::PdmObjectGroup& objectGroup, RimIdenticalGridCaseGroup* gridCaseGroup);

@@ -36,10 +36,12 @@
 
 class RigWellPath;
 class RimCase;
+class RimWellPathAttributeCollection;
 class RimWellFlowRateCurve;
 class RimWellLogCurve;
 class RimWellPath;
 class RiuPlotAnnotationTool;
+class RiuWellPathComponentPlotItem;
 class RiuWellLogTrack;
 class RigEclipseWellLogExtractor;
 class RimWellLogPlotCollection;
@@ -66,10 +68,11 @@ class RimWellLogTrack : public caf::PdmObject
     CAF_PDM_HEADER_INIT;
 public:
     RimWellLogTrack();
-    virtual ~RimWellLogTrack();
+    ~RimWellLogTrack() override;
 
-    enum TrajectoryType { WELL_PATH, SIMULATION_WELL };
-    enum FormationSource { CASE, WELL_PICK_FILTER };
+    enum TrajectoryType   { WELL_PATH, SIMULATION_WELL };
+    enum FormationSource  { CASE, WELL_PICK_FILTER };
+    enum WidthScaleFactor { EXTRA_NARROW_TRACK = 2, NARROW_TRACK = 3, NORMAL_TRACK = 4, WIDE_TRACK = 6, EXTRA_WIDE_TRACK = 10 };
 
     void setDescription(const QString& description);
     bool isVisible();
@@ -78,11 +81,15 @@ public:
     void takeOutCurve(RimWellLogCurve* curve);
     void deleteAllCurves();
 
-    size_t curveIndex(RimWellLogCurve* curve);
-    size_t curveCount() { return curves.size(); }
-    void setXAxisTitle(const QString& text);
+    size_t  curveIndex(RimWellLogCurve* curve);
+    size_t  curveCount() { return curves.size(); }
+    void    setXAxisTitle(const QString& text);
+    QString depthPlotTitle() const;
+    int     widthScaleFactor() const;
+    void    setWidthScaleFactor(WidthScaleFactor scaleFactor);
 
     void setFormationWellPath(RimWellPath* wellPath);
+    RimWellPath* formationWellPath() const;
     void setFormationSimWellName(const QString& simWellName);
     void setFormationBranchIndex(int branchIndex);
     void setFormationCase(RimCase* rimCase);
@@ -91,25 +98,39 @@ public:
 
     void recreateViewer();
     void detachAllCurves();
+    void reattachAllCurves();
 
-    void loadDataAndUpdate();
+    void loadDataAndUpdate(bool updateParentPlotAndToolbars = false);
     
     void setAndUpdateWellPathFormationNamesData(RimCase* rimCase, RimWellPath* wellPath);
     
     void setAndUpdateSimWellFormationNamesAndBranchData(RimCase* rimCase, const QString& simWellName, int branchIndex, bool useBranchDetection);
     void setAndUpdateSimWellFormationNamesData(RimCase* rimCase, const QString& simWellName);
     
+    void setAutoScaleXEnabled(bool enabled);
     void availableDepthRange(double* minimumDepth, double* maximumDepth);
-    void updateXZoomAndParentPlotDepthZoom();
-    void updateXZoom();
-
+    void updateParentPlotZoom();
+    void calculateXZoomRangeAndUpdateQwt();
+    void applyXZoomFromVisibleRange();
+    void calculateXZoomRange();
+    void updateEditors();
+    void setVisibleXRange(double minValue, double maxValue);
+    void setTickIntervals(double majorTickInterval, double minorTickInterval);
+    void setXAxisGridVisibility(RimWellLogPlot::AxisGridVisibility gridLines);
     void setShowFormations(bool on);
-
+    bool showFormations() const;
+    void setShowFormationLabels(bool on);
+    
+    bool showWellPathAttributes() const;
+    void setShowWellPathAttributes(bool on);
+    void setWellPathAttributesSource(RimWellPath* wellPath);
+    
+    RimWellPath*     wellPathAttributeSource() const;
     RiuWellLogTrack* viewer();
     
     RimWellLogCurve* curveDefinitionFromCurve(const QwtPlotCurve* curve) const;
 
-    void setLogarithmicScale(bool enable);
+    void             setLogarithmicScale(bool enable);
 
     std::map<int, std::vector<RimWellFlowRateCurve*>> visibleStackedCurves();
 
@@ -117,17 +138,20 @@ public:
     std::vector<RimWellLogCurve* > curvesVector();
 
     void uiOrderingForRftPltFormations(caf::PdmUiOrdering& uiOrdering);
-    void uiOrderingForVisibleXRange(caf::PdmUiOrdering& uiOrdering);
+    void uiOrderingForXAxisSettings(caf::PdmUiOrdering& uiOrdering);
 
     void setFormationsForCaseWithSimWellOnly(bool caseWithSimWellOnly);
+    void updateAxisAndGridTickIntervals();
 
+    void updateAllLegendItems();
 private:
-    virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
-    virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
+    void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    void         updateParentPlotLayout();
+    QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
 
-    virtual caf::PdmFieldHandle* objectToggleField() override;
-    virtual caf::PdmFieldHandle* userDescriptionField() override;
-    virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    caf::PdmFieldHandle* objectToggleField() override;
+    caf::PdmFieldHandle* userDescriptionField() override;
+    void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
 
     void computeAndSetXRangeMinForLogarithmicScale();
     
@@ -137,8 +161,6 @@ private:
 
     static CurveSamplingPointData curveSamplingPointData(RigEclipseWellLogExtractor* extractor, RigResultAccessor* resultAccessor);
     static CurveSamplingPointData curveSamplingPointData(RigGeoMechWellLogExtractor* extractor, const RigFemResultAddress& resultAddress);
-
-    static std::vector<QString> formationNameIndexToName(RimCase* rimCase, const std::vector<int>& formationNameInidces);
 
     static void findFormationNamesToPlot(const CurveSamplingPointData&           curveData,
                                          const std::vector<QString>&             formationNamesVector,
@@ -151,32 +173,52 @@ private:
     void setFormationFieldsUiReadOnly(bool readOnly = true);
 
     void updateFormationNamesOnPlot();
+    void updateWellPathAttributesOnPlot();
     void removeFormationNames();
     void updateAxisScaleEngine();
+    bool isFirstVisibleTrackInPlot() const;
 
+    std::pair<double, double> adjustXRange(double minValue, double maxValue, double tickInterval);
+
+    void updateWellPathAttributesCollection();
 private:
     QString m_xAxisTitle;
 
-    caf::PdmField<bool> m_show;
-    caf::PdmField<QString> m_userName;
-    caf::PdmChildArrayField<RimWellLogCurve*> curves;
-    caf::PdmField<double> m_visibleXRangeMin;
-    caf::PdmField<double> m_visibleXRangeMax;
-    caf::PdmField<bool>   m_isAutoScaleXEnabled;
-    caf::PdmField<bool>   m_isLogarithmicScaleEnabled;
+    caf::PdmField<bool>                         m_show;
+    caf::PdmField<QString>                      m_userName;
+    caf::PdmChildArrayField<RimWellLogCurve*>   curves;
+    caf::PdmField<double>                       m_visibleXRangeMin;
+    caf::PdmField<double>                       m_visibleXRangeMax;
+    caf::PdmField<bool>                         m_isAutoScaleXEnabled;
+    caf::PdmField<bool>                         m_isLogarithmicScaleEnabled;
+    caf::PdmField<RimWellLogPlot::AxisGridEnum> m_xAxisGridVisibility;
+    caf::PdmField<bool>                         m_explicitTickIntervals;
+    caf::PdmField<double>                       m_majorTickInterval;
+    caf::PdmField<double>                       m_minorTickInterval;
 
     caf::PdmField<bool>                                                m_showFormations;
-    caf::PdmField<caf::AppEnum<FormationSource> >                      m_formationSource;
+    caf::PdmField<bool>                                                m_showFormationLabels;
+    caf::PdmField<caf::AppEnum<FormationSource>>                       m_formationSource;
     caf::PdmPtrField<RimCase*>                                         m_formationCase;
-    caf::PdmField<caf::AppEnum<TrajectoryType> >                       m_formationTrajectoryType;
+    caf::PdmField<caf::AppEnum<TrajectoryType>>                        m_formationTrajectoryType;
     caf::PdmPtrField<RimWellPath*>                                     m_formationWellPathForSourceCase;
     caf::PdmPtrField<RimWellPath*>                                     m_formationWellPathForSourceWellPath;
     caf::PdmField<QString>                                             m_formationSimWellName;
     caf::PdmField<int>                                                 m_formationBranchIndex;
     caf::PdmField<caf::AppEnum<RigWellPathFormations::FormationLevel>> m_formationLevel;
     caf::PdmField<bool>                                                m_showformationFluids;
-
-    caf::PdmField<bool> m_formationBranchDetection;
+    caf::PdmField<caf::AppEnum<WidthScaleFactor>>                      m_widthScaleFactor;
+    caf::PdmField<bool>                                                m_formationBranchDetection;
+    caf::PdmField<bool>                                                m_showWellPathAttributes;
+    caf::PdmField<bool>                                                m_showWellPathCompletions;
+    caf::PdmField<bool>                                                m_showWellPathComponentsBothSides;
+    caf::PdmField<bool>                                                m_showWellPathComponentLabels;
+    caf::PdmField<bool>                                                m_wellPathAttributesInLegend;
+    caf::PdmField<bool>                                                m_wellPathCompletionsInLegend;
+    caf::PdmPtrField<RimWellPath*>                                     m_wellPathComponentSource;
+    caf::PdmPtrField<RimWellPathAttributeCollection*>                  m_wellPathAttributeCollection;
+    
+    std::vector<std::unique_ptr<RiuWellPathComponentPlotItem>>         m_wellPathAttributePlotObjects;
 
     bool m_formationsForCaseWithSimWellOnly;
 

@@ -23,6 +23,7 @@
 #include "cvfBase.h"
 #include "cvfArray.h"
 
+class RimContourMapProjection;
 class Rim3dOverlayInfoConfig;
 class RimIntersectionCollection;
 class RimPropertyFilterCollection;
@@ -34,10 +35,10 @@ class RimGridView : public Rim3dView
     CAF_PDM_HEADER_INIT;
 public:
     RimGridView();
-    virtual ~RimGridView(void);
+    ~RimGridView(void) override;
 
     void                                              showGridCells(bool enableGridCells);
-                                                      
+    
     Rim3dOverlayInfoConfig*                           overlayInfoConfig() const;
                                                       
     cvf::ref<cvf::UByteArray>                         currentTotalCellVisibility();
@@ -45,6 +46,8 @@ public:
     RimIntersectionCollection*                        crossSectionCollection() const;
                                                       
     virtual const RimPropertyFilterCollection*        propertyFilterCollection() const = 0;
+
+    void                                              rangeFiltersUpdated();
     RimCellRangeFilterCollection*                     rangeFilterCollection();
     const RimCellRangeFilterCollection*               rangeFilterCollection() const;
                                                       
@@ -56,15 +59,18 @@ public:
     RimViewLinker*                                    assosiatedViewLinker() const override;
                                                       
 
-    virtual bool                                      isGridVisualizationMode() const override;
+    bool                                              isGridVisualizationMode() const override;
 
 protected:
-    virtual void                                      initAfterRead() override;
-    virtual void                                      onTimeStepChanged() override;
+    virtual void                              updateViewFollowingRangeFilterUpdates();
+    void                                      initAfterRead() override;
+    void                                      onTimeStepChanged() override;
     virtual void                                      calculateCurrentTotalCellVisibility(cvf::UByteArray* totalVisibility, int timeStep) = 0;
-    virtual void                                      selectOverlayInfoConfig() override;
+    void                                      selectOverlayInfoConfig() override;
                                                       
-    virtual void                                      fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    void                                      fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+
+    RimGridCollection*                          gridCollection() const;
 
 protected: // Fields
     caf::PdmChildField<RimIntersectionCollection*>    m_crossSectionCollection;
@@ -72,7 +78,6 @@ protected: // Fields
     caf::PdmChildField<RimCellRangeFilterCollection*> m_rangeFilterCollection;
     caf::PdmChildField<RimCellRangeFilterCollection*> m_overrideRangeFilterCollection;
     caf::PdmChildField<RimGridCollection*>            m_gridCollection;
-
 protected:
     cvf::ref<cvf::UByteArray>                         m_currentReservoirCellVisibility;
 

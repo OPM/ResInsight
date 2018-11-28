@@ -41,6 +41,7 @@ int main(int argc, char *argv[])
     QString platform = cvf::System::is64Bit() ? "(64bit)" : "(32bit)";
     window.setWindowTitle("ResInsight " + platform);
     window.setDefaultWindowSize();
+    window.setDefaultToolbarVisibility();
     window.loadWinGeoAndDockToolBarLayout();
     window.showWindow();
 

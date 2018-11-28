@@ -19,6 +19,7 @@
 #include "RimWellPlotTools.h"
 
 #include "RiaApplication.h"
+#include "RiaQDateTimeTools.h"
 #include "RiaWellNameComparer.h"
 
 #include "RifReaderEclipseRft.h"
@@ -31,6 +32,7 @@
 #include "RimEclipseResultCase.h"
 #include "RimOilField.h"
 #include "RimProject.h"
+#include "RimTools.h"
 #include "RimWellLogExtractionCurve.h"
 #include "RimWellLogFile.h"
 #include "RimWellLogFileChannel.h"
@@ -39,7 +41,6 @@
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 
-#include "RimTools.h"
 #include <regex>
 
 //--------------------------------------------------------------------------------------------------
@@ -409,51 +410,6 @@ std::vector<RimEclipseResultCase*> RimWellPlotTools::rftCasesForWell(const QStri
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::set<QDateTime> RimWellPlotTools::timeStepsFromRftCase(RimEclipseResultCase* rftCase, const QString& simWellName)
-{
-    std::set<QDateTime>        timeSteps;
-    RifReaderEclipseRft* const reader = rftCase->rftReader();
-    if (reader != nullptr)
-    {
-        for (const QDateTime& timeStep : reader->availableTimeSteps(simWellName, RifEclipseRftAddress::PRESSURE))
-        {
-            timeSteps.insert(timeStep);
-        }
-    }
-    return timeSteps;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::set<QDateTime> RimWellPlotTools::timeStepsFromGridCase(RimEclipseCase* gridCase)
-{
-    const RigEclipseCaseData* const eclipseCaseData = gridCase->eclipseCaseData();
-    std::pair<size_t, QString>      resultDataInfo  = pressureResultDataInfo(eclipseCaseData);
-
-    std::set<QDateTime> timeSteps;
-    if (resultDataInfo.first != cvf::UNDEFINED_SIZE_T)
-    {
-        for (const QDateTime& timeStep : eclipseCaseData->results(RiaDefines::MATRIX_MODEL)->timeStepDates(resultDataInfo.first))
-        {
-            timeSteps.insert(timeStep);
-        }
-    }
-    return timeSteps;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QDateTime RimWellPlotTools::timeStepFromWellLogFile(RimWellLogFile* wellLogFile)
-{
-    QDateTime timeStep = wellLogFile->date();
-    return timeStep;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 std::map<QDateTime, std::set<RifDataSourceForRftPlt>> RimWellPlotTools::timeStepsMapFromGridCase(RimEclipseCase* gridCase)
 {
     const RigEclipseCaseData* const eclipseCaseData = gridCase->eclipseCaseData();
@@ -566,7 +522,6 @@ RiaRftPltCurveDefinition RimWellPlotTools::curveDefFromCurve(const RimWellLogCur
     }
     else if (wellLogFileCurve != nullptr)
     {
-        const RimWellPath* const wellPath    = wellLogFileCurve->wellPath();
         RimWellLogFile* const    wellLogFile = wellLogFileCurve->wellLogFile();
 
         if (wellLogFile != nullptr)
@@ -987,7 +942,8 @@ void RimWellPlotTools::calculateValueOptionsForTimeSteps(
 
     for (const std::pair<QDateTime, std::set<RifDataSourceForRftPlt>>& timeStepPair : timestepsToShowWithSources)
     {
-        QString optionText = timeStepPair.first.toString(dateFormatString);
+        QString optionText = RiaQDateTimeTools::toStringUsingApplicationLocale(timeStepPair.first, dateFormatString);
+
         bool    hasObs     = false;
         bool    hasRft     = false;
         bool    hasGrid    = false;

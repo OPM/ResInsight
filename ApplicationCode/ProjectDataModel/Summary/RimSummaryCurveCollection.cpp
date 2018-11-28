@@ -29,7 +29,7 @@
 #include "RimSummaryPlot.h"
 #include "RimSummaryPlotSourceStepping.h"
 
-#include "RiuLineSegmentQwtPlotCurve.h"
+#include "RiuQwtPlotCurve.h"
 #include "RiuSummaryQwtPlot.h"
 
 #include "cafPdmUiTreeViewEditor.h"
@@ -105,13 +105,7 @@ void RimSummaryCurveCollection::loadDataAndUpdate(bool updateParentPlot)
     {
         RimSummaryPlot* parentPlot;
         firstAncestorOrThisOfTypeAsserted(parentPlot);
-        if ( parentPlot->qwtPlot() )
-        {
-            parentPlot->updatePlotTitle();
-            parentPlot->qwtPlot()->updateLegend();
-            parentPlot->updateAxes();
-            parentPlot->updateZoomInQwt();
-        }
+        parentPlot->updateAll();
     }
 }
 
@@ -136,6 +130,17 @@ void RimSummaryCurveCollection::detachQwtCurves()
     for (RimSummaryCurve* curve : m_curves)
     {
         curve->detachQwtCurve();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCurveCollection::reattachQwtCurves()
+{
+    for (RimSummaryCurve* curve : m_curves)
+    {
+        curve->reattachQwtCurve();
     }
 }
 
@@ -174,8 +179,8 @@ void RimSummaryCurveCollection::deleteCurve(RimSummaryCurve* curve)
     if (curve)
     {
         m_curves.removeChildObject(curve);
+        curve->markCachedDataForPurge();
         delete curve;
-        updateCaseNameHasChanged();
     }
 }
 
@@ -371,7 +376,7 @@ void RimSummaryCurveCollection::defineUiOrdering(QString uiConfigName, caf::PdmU
     }
     else
     {
-        auto group = uiOrdering.addNewGroup("Plot Source Stepping");
+        auto group = uiOrdering.addNewGroup("Data Source");
 
         m_ySourceStepping()->uiOrdering(uiConfigName, *group);
     }

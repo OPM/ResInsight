@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2016-     Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -26,30 +26,34 @@
 
 #include "cafPdmUiDoubleSliderEditor.h"
 
-
-
 CAF_PDM_SOURCE_INIT(RimWellPathFracture, "WellPathFracture");
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimWellPathFracture::RimWellPathFracture(void)
 {
     CAF_PDM_InitObject("Fracture", ":/FractureSymbol16x16.png", "", "");
 
-    CAF_PDM_InitField(         &m_measuredDepth,          "MeasuredDepth",        0.0f, "Measured Depth Location", "", "", "");
+    CAF_PDM_InitField(&m_measuredDepth, "MeasuredDepth", 0.0f, "Measured Depth Location", "", "", "");
     m_measuredDepth.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RimWellPathFracture::~RimWellPathFracture()
+RimWellPathFracture::~RimWellPathFracture() {}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimWellPathFracture::fractureMD() const
 {
+    return m_measuredDepth;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimWellPathFracture::setMeasuredDepth(double mdValue)
 {
@@ -59,9 +63,11 @@ void RimWellPathFracture::setMeasuredDepth(double mdValue)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RimWellPathFracture::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+void RimWellPathFracture::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
+                                           const QVariant&            oldValue,
+                                           const QVariant&            newValue)
 {
     RimFracture::fieldChangedByUi(changedField, oldValue, newValue);
 
@@ -77,16 +83,15 @@ void RimWellPathFracture::fieldChangedByUi(const caf::PdmFieldHandle* changedFie
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimWellPathFracture::updateAzimuthBasedOnWellAzimuthAngle()
 {
     if (!fractureTemplate()) return;
 
-    if (fractureTemplate()->orientationType() == RimFractureTemplate::ALONG_WELL_PATH
-        || fractureTemplate()->orientationType() == RimFractureTemplate::TRANSVERSE_WELL_PATH)
+    if (fractureTemplate()->orientationType() == RimFractureTemplate::ALONG_WELL_PATH ||
+        fractureTemplate()->orientationType() == RimFractureTemplate::TRANSVERSE_WELL_PATH)
     {
-
         double wellPathAzimuth = wellAzimuthAtFracturePosition();
 
         if (fractureTemplate()->orientationType() == RimFractureTemplate::ALONG_WELL_PATH)
@@ -95,14 +100,16 @@ void RimWellPathFracture::updateAzimuthBasedOnWellAzimuthAngle()
         }
         if (fractureTemplate()->orientationType() == RimFractureTemplate::TRANSVERSE_WELL_PATH)
         {
-            if (wellPathAzimuth + 90 < 360) m_azimuth = wellPathAzimuth + 90;
-            else m_azimuth = wellPathAzimuth - 90;
+            if (wellPathAzimuth + 90 < 360)
+                m_azimuth = wellPathAzimuth + 90;
+            else
+                m_azimuth = wellPathAzimuth - 90;
         }
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 double RimWellPathFracture::wellAzimuthAtFracturePosition() const
 {
@@ -111,7 +118,7 @@ double RimWellPathFracture::wellAzimuthAtFracturePosition() const
     if (!wellPath) return cvf::UNDEFINED_DOUBLE;
 
     double wellPathAzimuth = 0.0;
-    
+
     RigWellPath* wellPathGeometry = wellPath->wellPathGeometry();
     if (wellPathGeometry)
     {
@@ -124,7 +131,7 @@ double RimWellPathFracture::wellAzimuthAtFracturePosition() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimWellPathFracture::loadDataAndUpdate()
 {
@@ -133,7 +140,7 @@ void RimWellPathFracture::loadDataAndUpdate()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 std::vector<cvf::Vec3d> RimWellPathFracture::perforationLengthCenterLineCoords() const
 {
@@ -144,7 +151,7 @@ std::vector<cvf::Vec3d> RimWellPathFracture::perforationLengthCenterLineCoords()
     if (wellPath && wellPath->wellPathGeometry())
     {
         double startMd = m_measuredDepth - perforationLength() / 2.0;
-        double endMd = m_measuredDepth + perforationLength() / 2.0;
+        double endMd   = m_measuredDepth + perforationLength() / 2.0;
 
         auto coordsAndMd = wellPath->wellPathGeometry()->clippedPointSubset(startMd, endMd);
 
@@ -155,7 +162,31 @@ std::vector<cvf::Vec3d> RimWellPathFracture::perforationLengthCenterLineCoords()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
+//--------------------------------------------------------------------------------------------------
+bool RimWellPathFracture::compareByWellPathNameAndMD(const RimWellPathFracture* lhs, const RimWellPathFracture* rhs)
+{
+    CVF_TIGHT_ASSERT(lhs && rhs);
+
+    RimWellPath* lhsWellPath = nullptr;
+    lhs->firstAncestorOrThisOfType(lhsWellPath);
+
+    RimWellPath* rhsWellPath = nullptr;
+    rhs->firstAncestorOrThisOfType(rhsWellPath);
+
+    if (lhsWellPath && rhsWellPath)
+    {
+        if (lhsWellPath->name() != rhsWellPath->name())
+        {
+            return lhsWellPath->name() < rhsWellPath->name();
+        }
+    }
+
+    return lhs->fractureMD() < rhs->fractureMD();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
 //--------------------------------------------------------------------------------------------------
 void RimWellPathFracture::updatePositionFromMeasuredDepth()
 {
@@ -178,7 +209,7 @@ void RimWellPathFracture::updatePositionFromMeasuredDepth()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimWellPathFracture::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
@@ -205,13 +236,14 @@ void RimWellPathFracture::defineUiOrdering(QString uiConfigName, caf::PdmUiOrder
 
     caf::PdmUiGroup* fractureCenterGroup = uiOrdering.addNewGroup("Fracture Center Info");
     fractureCenterGroup->add(&m_uiAnchorPosition);
-    
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RimWellPathFracture::defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute * attribute)
+void RimWellPathFracture::defineEditorAttribute(const caf::PdmFieldHandle* field,
+                                                QString                    uiConfigName,
+                                                caf::PdmUiEditorAttribute* attribute)
 {
     RimFracture::defineEditorAttribute(field, uiConfigName, attribute);
 
@@ -236,4 +268,3 @@ void RimWellPathFracture::defineEditorAttribute(const caf::PdmFieldHandle* field
         }
     }
 }
-

@@ -26,10 +26,10 @@
 #endif
 
 #include <ert/util/util.h>
-#include <ert/util/stringlist.h>
+#include <ert/util/stringlist.hpp>
 
-#include <ert/ecl/ecl_kw.h>
-#include <ert/ecl/ecl_sum.h>
+#include <ert/ecl/ecl_kw.hpp>
+#include <ert/ecl/ecl_sum.hpp>
 
 
 
@@ -201,7 +201,7 @@ int main(int argc , char ** argv) {
       const char  ** arg_list  = (const char **) &argv[arg_offset + 1];
 
 
-      ecl_sum = ecl_sum_fread_alloc_case__( data_file , ":" , include_restart);
+      ecl_sum = ecl_sum_fread_alloc_case2__( data_file , ":" , include_restart, true, 0);
       /** If no keys have been presented the function will list available keys. */
       if (num_keys == 0)
         list_mode = true;

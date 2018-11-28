@@ -35,14 +35,15 @@
 #include "RimEclipseResultCase.h"
 #include "RimEclipseView.h"
 #include "RimFileSummaryCase.h"
+#include "RimFractureTemplateCollection.h"
 #include "RimGridSummaryCase.h"
 #include "RimIdenticalGridCaseGroup.h"
 #include "RimMainPlotCollection.h"
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimSummaryCase.h"
-#include "RimSummaryCaseMainCollection.h"
 #include "RimSummaryCaseCollection.h"
+#include "RimSummaryCaseMainCollection.h"
 #include "RimSummaryCurve.h"
 #include "RimSummaryCurveCollection.h"
 #include "RimSummaryCurveFilter.h"
@@ -111,16 +112,16 @@ bool RiaImportEclipseCaseTools::openEclipseCasesFromFile(const QStringList& file
 
                         // Replace all occurrences of file sum with ecl sum
 
-                        std::vector<caf::PdmObjectHandle*> referringObjects;
-                        existingFileSummaryCase->objectsWithReferringPtrFields(referringObjects);
+                        std::vector<RimSummaryCurve*> objects;
+                        existingFileSummaryCase->objectsWithReferringPtrFieldsOfType(objects);
+
 
                         // UI settings of a curve filter is updated based
                         // on the new case association for the curves in the curve filter
                         // UI is updated by loadDataAndUpdate()
 
-                        for (caf::PdmObjectHandle* objHandle : referringObjects)
+                        for (RimSummaryCurve* summaryCurve : objects)
                         {
-                            RimSummaryCurve* summaryCurve = dynamic_cast<RimSummaryCurve*>(objHandle);
                             if (summaryCurve)
                             {
                                 RimSummaryCurveCollection* parentCollection = nullptr;
@@ -157,6 +158,8 @@ bool RiaImportEclipseCaseTools::openEclipseCasesFromFile(const QStringList& file
         QString errorMessage = selector.createCombinedErrorMessage();
         RiaLogging::error(errorMessage);
     }
+
+    project->activeOilField()->fractureDefinitionCollection()->setDefaultUnitSystemBasedOnLoadedCases();
 
     RiuPlotMainWindowTools::refreshToolbars();
 

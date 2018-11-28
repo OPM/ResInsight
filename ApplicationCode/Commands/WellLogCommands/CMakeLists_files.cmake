@@ -19,7 +19,6 @@ ${CMAKE_CURRENT_LIST_DIR}/RicPasteWellLogCurveFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicPasteWellLogTrackFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicPasteWellLogPlotFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicChangeDataSourceFeature.h
-${CMAKE_CURRENT_LIST_DIR}/RicChangeDataSourceFeatureUi.h
 ${CMAKE_CURRENT_LIST_DIR}/RicAsciiExportWellLogPlotFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicWellLogFileCloseFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicMoveWellLogFilesFeature.h
@@ -27,7 +26,8 @@ ${CMAKE_CURRENT_LIST_DIR}/RicAdd3dWellLogCurveFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicAdd3dWellLogFileCurveFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicAdd3dWellLogRftCurveFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/Ric3dWellLogCurveDeleteFeature.h
-${CMAKE_CURRENT_LIST_DIR}/Ric3dWellLogCurveViewerEventHandler.h
+${CMAKE_CURRENT_LIST_DIR}/Ric3dWellLogCurvePickEventHandler.h
+${CMAKE_CURRENT_LIST_DIR}/RicNewWellBoreStabilityPlotFeature.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -50,7 +50,6 @@ ${CMAKE_CURRENT_LIST_DIR}/RicPasteWellLogCurveFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicPasteWellLogTrackFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicPasteWellLogPlotFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicChangeDataSourceFeature.cpp
-${CMAKE_CURRENT_LIST_DIR}/RicChangeDataSourceFeatureUi.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicAsciiExportWellLogPlotFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicWellLogFileCloseFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicMoveWellLogFilesFeature.cpp
@@ -58,7 +57,8 @@ ${CMAKE_CURRENT_LIST_DIR}/RicAdd3dWellLogCurveFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicAdd3dWellLogFileCurveFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicAdd3dWellLogRftCurveFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/Ric3dWellLogCurveDeleteFeature.cpp
-${CMAKE_CURRENT_LIST_DIR}/Ric3dWellLogCurveViewerEventHandler.cpp
+${CMAKE_CURRENT_LIST_DIR}/Ric3dWellLogCurvePickEventHandler.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicNewWellBoreStabilityPlotFeature.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

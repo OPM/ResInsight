@@ -36,7 +36,7 @@ class RimEclipsePropertyFilterCollection : public RimPropertyFilterCollection
     CAF_PDM_HEADER_INIT;
 public:
     RimEclipsePropertyFilterCollection();
-    virtual ~RimEclipsePropertyFilterCollection();
+    ~RimEclipsePropertyFilterCollection() override;
 
     RimEclipseView*         reservoirView();
 
@@ -44,16 +44,16 @@ public:
     caf::PdmChildArrayField<RimEclipsePropertyFilter*> propertyFilters;
 
     // Methods
-    bool                    hasActiveFilters() const; 
-    bool                    hasActiveDynamicFilters() const; 
+    bool                    hasActiveFilters() const override; 
+    bool                    hasActiveDynamicFilters() const override; 
     bool                    isUsingFormationNames() const;
 
-    void                    loadAndInitializePropertyFilters();
+    void                    loadAndInitializePropertyFilters() override;
 
-    void                    updateIconState();
+    void                    updateIconState() override;
     void                    updateFromCurrentTimeStep();
 
 protected:
     // Overridden methods
-    virtual void                    initAfterRead();
+    void                    initAfterRead() override;
 };

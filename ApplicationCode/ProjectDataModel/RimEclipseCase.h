@@ -34,6 +34,8 @@
 #include "cvfObject.h"
 #include "cvfColor3.h"
 
+#include <set>
+
 class QString;
 
 class RigEclipseCaseData;
@@ -43,6 +45,8 @@ class RigMainGrid;
 class RimCaseCollection;
 class RimIdenticalGridCaseGroup;
 class RimReservoirCellResultsStorage;
+class RimContourMapView;
+class RimContourMapViewCollection;
 class RimEclipseView;
 class RigVirtualPerforationTransmissibilities;
 
@@ -57,14 +61,10 @@ class RimEclipseCase : public RimCase
     CAF_PDM_HEADER_INIT;
 public:
     RimEclipseCase();
-    virtual ~RimEclipseCase();
-
+    ~RimEclipseCase() override;
 
     // Fields:                                        
-    caf::PdmField<bool>                         releaseResultMemory;
     caf::PdmChildArrayField<RimEclipseView*>    reservoirViews;
-    caf::PdmField<bool>                         flipXAxis;
-    caf::PdmField<bool>                         flipYAxis;
     
     std::vector<QString>                        filesContainingFaults() const;
     void                                        setFilesContainingFaults(const std::vector<QString>& val);
@@ -80,6 +80,7 @@ public:
 
     RigCaseCellResultsData*                     results(RiaDefines::PorosityModelType porosityModel);
     const RigCaseCellResultsData*               results(RiaDefines::PorosityModelType porosityModel) const;
+    bool                                        loadStaticResultsByName(const std::vector<QString>& resultNames);
 
     RimReservoirCellResultsStorage*             resultsStorage(RiaDefines::PorosityModelType porosityModel);
     const RimReservoirCellResultsStorage*       resultsStorage(RiaDefines::PorosityModelType porosityModel) const;
@@ -94,30 +95,33 @@ public:
 
 
     RimCaseCollection*                          parentCaseCollection();
-                                                     
-    virtual QStringList                         timeStepStrings() const override;
-    virtual QString                             timeStepName(int frameIdx) const override;
-    virtual std::vector<QDateTime>              timeStepDates() const override;
+    RimContourMapViewCollection*                 contourMapCollection();
+
+    QStringList                         timeStepStrings() const override;
+    QString                             timeStepName(int frameIdx) const override;
+    std::vector<QDateTime>              timeStepDates() const override;
 
 
-    virtual cvf::BoundingBox                    activeCellsBoundingBox() const;
-    virtual cvf::BoundingBox                    allCellsBoundingBox() const;
-    virtual cvf::Vec3d                          displayModelOffset() const;
+    cvf::BoundingBox                            activeCellsBoundingBox() const override;
+    cvf::BoundingBox                            allCellsBoundingBox() const override;
+    cvf::Vec3d                                  displayModelOffset() const override;
 
     void                                        reloadDataAndUpdate();
     virtual void                                reloadEclipseGridFile() = 0;
 
 
-    virtual double                              characteristicCellSize() const override;
+    double                              characteristicCellSize() const override;
 
-    virtual void                                setFormationNames(RimFormationNames* formationNames) override;
+    void                                setFormationNames(RimFormationNames* formationNames) override;
 
+    std::set<QString>                           sortedSimWellNames() const;    
+    
 protected:
-    virtual void                                initAfterRead();
-    virtual void                                fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue );
-    virtual void                                defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
+    void                                        initAfterRead() override;
+    void                                        fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+    void                                defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
 
-    virtual void                                updateFormationNamesData() override;
+    void                                updateFormationNamesData() override;
 
     // Internal methods
 protected:
@@ -126,14 +130,21 @@ protected:
 
 private:
     void                                        createTimeStepFormatString();
-    virtual std::vector<Rim3dView*>             allSpecialViews() const override;
+    std::vector<Rim3dView*>             allSpecialViews() const override;
+
+protected:
+    caf::PdmField<bool>                         m_flipXAxis;
+    caf::PdmField<bool>                         m_flipYAxis;
 
 private:
+    caf::PdmField<QString>                      m_filesContainingFaultsSemColSeparated;
+    caf::PdmField<bool>                         m_releaseResultMemory;
+
+    caf::PdmChildField<RimContourMapViewCollection*> m_contourMapCollection;
+
     cvf::ref<RigEclipseCaseData>                m_rigEclipseCase;
     QString                                     m_timeStepFormatString;
-    std::map<QString , cvf::Color3f>            m_wellToColorMap;
-    caf::PdmField<QString >                     m_filesContainingFaultsSemColSeparated;
-
+    std::map<QString, cvf::Color3f>             m_wellToColorMap;
 
     caf::PdmChildField<RimReservoirCellResultsStorage*> m_matrixModelResults;
     caf::PdmChildField<RimReservoirCellResultsStorage*> m_fractureModelResults;

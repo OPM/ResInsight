@@ -50,7 +50,7 @@ class RimStimPlanFractureTemplate : public RimFractureTemplate
 
 public:
     RimStimPlanFractureTemplate();
-    virtual ~RimStimPlanFractureTemplate();
+    ~RimStimPlanFractureTemplate() override;
     
     int                                     activeTimeStepIndex();
 
@@ -68,8 +68,7 @@ public:
     const RigFractureGrid*                  fractureGrid() const override;
     void                                    updateFractureGrid();
     void                                    fractureTriangleGeometry(std::vector<cvf::Vec3f>* nodeCoords,
-                                                                     std::vector<cvf::uint>* triangleIndices) override;
-    std::vector<cvf::Vec3f>                 fractureBorderPolygon() override;
+                                                                     std::vector<cvf::uint>* triangleIndices) const override;
 
     // Result Access
 
@@ -79,6 +78,8 @@ public:
     std::vector<double>                     fractureGridResults(const QString& resultName, const QString& unitName, size_t timeStepIndex) const;
     bool                                    hasConductivity() const;
     double                                  resultValueAtIJ(const QString& uiResultName, const QString& unitName, size_t timeStepIndex, size_t i, size_t j);
+
+    std::vector<double>                     widthResultValues() const;
 
     void                                    appendDataToResultStatistics(const QString& uiResultName, 
                                                                          const QString& unit,
@@ -91,23 +92,27 @@ public:
 
 
     void                                    convertToUnitSystem(RiaEclipseUnitTools::UnitSystem neededUnit) override;
-    virtual void                            reload() override;
-
-protected:
-    virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
-    virtual QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
-    virtual void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
-    virtual void                            defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute * attribute) override;
 
 private:
+    void                                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    QList<caf::PdmOptionItemInfo>           calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
+    void                                    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    void                                    defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute * attribute) override;
+    void                                    onLoadDataAndUpdateGeometryHasChanged() override;
+
     void                                    setDefaultConductivityResultIfEmpty();
     bool                                    setBorderPolygonResultNameToDefault();
-    void                                    setDepthOfWellPathAtFracture();
-    void                                    setPerforationLength();
-    QString                                 getUnitForStimPlanParameter(QString parameterName);
+    void                                    computeDepthOfWellPathAtFracture();
+    void                                    computePerforationLength();
 
+    std::vector<double>                     fractureGridResultsForUnitSystem(const QString& resultName, const QString& unitName, size_t timeStepIndex, RiaEclipseUnitTools::UnitSystem requiredUnitSystem) const;
 
-    virtual FractureWidthAndConductivity    widthAndConductivityAtWellPathIntersection() const override;
+    WellFractureIntersectionData            wellFractureIntersectionData(const RimFracture* fractureInstance) const override;
+
+    std::pair<QString, QString>             widthParameterNameAndUnit() const;
+    std::pair<QString, QString>             conductivityParameterNameAndUnit() const;
+    std::pair<QString, QString>             betaFactorParameterNameAndUnit() const;
+    bool                                    isBetaFactorAvailableOnFile() const override;
 
 private:
     caf::PdmField<int>                      m_activeTimeStepIndex;

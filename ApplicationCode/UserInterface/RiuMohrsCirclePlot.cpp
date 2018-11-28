@@ -379,12 +379,16 @@ void RiuMohrsCirclePlot::queryData(RimGeoMechView* geoMechView, size_t gridIndex
     double frictionAngleDeg = geoMechView->geoMechCase()->frictionAngleDeg();
 
     size_t i, j, k;
-    femPart->structGrid()->ijkFromCellIndex(elmIndex, &i, &j, &k);
+    bool validIndex = femPart->getOrCreateStructGrid()->ijkFromCellIndex(elmIndex, &i, &j, &k);
+    
+    CVF_ASSERT(validIndex);
+    if (validIndex)
+    {
+        MohrsCirclesInfo mohrsCircle(
+            principals, gridIndex, elmIndex, i, j, k, geoMechView, calculateFOS(principals, frictionAngleDeg, cohesion), color);
 
-    MohrsCirclesInfo mohrsCircle(
-        principals, gridIndex, elmIndex, i, j, k, geoMechView, calculateFOS(principals, frictionAngleDeg, cohesion), color);
-
-    addMohrsCirclesInfo(mohrsCircle);
+        addMohrsCirclesInfo(mohrsCircle);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

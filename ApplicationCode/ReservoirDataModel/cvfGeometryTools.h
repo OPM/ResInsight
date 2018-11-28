@@ -47,11 +47,12 @@ public:
                                                     bool * isLineDirDotNormalNegative);
     static cvf::Vec3d barycentricCoords(const cvf::Vec3d&  t0, const cvf::Vec3d&  t1, const cvf::Vec3d&  t2, const cvf::Vec3d&  p);
     static cvf::Vec4d barycentricCoords(const cvf::Vec3d&  v0, const cvf::Vec3d&  v1, const cvf::Vec3d&  v2, const cvf::Vec3d& v3, const cvf::Vec3d&  p);
-    static double interpolateQuad(const cvf::Vec3d& v1, double s1,
-                                  const cvf::Vec3d& v2, double s2,
-                                  const cvf::Vec3d& v3, double s3,
-                                  const cvf::Vec3d& v4, double s4,
-                                  const cvf::Vec3d& point);
+    template<typename DataType>
+    static DataType interpolateQuad(const cvf::Vec3d& v1, DataType s1,
+                                    const cvf::Vec3d& v2, DataType s2,
+                                    const cvf::Vec3d& v3, DataType s3,
+                                    const cvf::Vec3d& v4, DataType s4,
+                                    const cvf::Vec3d& point);
 
     static int        findClosestAxis(const cvf::Vec3d& vec );
     static double     getAngle(const cvf::Vec3d& positiveNormalAxis, const cvf::Vec3d& v1, const cvf::Vec3d& v2);
@@ -186,9 +187,8 @@ class FanEarClipTesselator : public EarClipTesselator
 {
 public:
     FanEarClipTesselator();
-    void setCenterNode(size_t centerNodeIndex );
 
-    virtual bool calculateTriangles(std::vector<size_t>* triangles);
+    bool calculateTriangles(std::vector<size_t>* triangles) override;
 private:
     bool isTriangleValid( size_t u, size_t v, size_t w);
     size_t m_centerNodeIndex;

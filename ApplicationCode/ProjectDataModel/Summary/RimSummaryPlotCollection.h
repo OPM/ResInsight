@@ -32,7 +32,7 @@ class RimSummaryPlotCollection : public caf::PdmObject
     CAF_PDM_HEADER_INIT;
 public:
     RimSummaryPlotCollection();
-    virtual ~RimSummaryPlotCollection();
+    ~RimSummaryPlotCollection() override;
 
     caf::PdmChildArrayField<RimSummaryPlot*> summaryPlots;
 

@@ -72,7 +72,7 @@ RiuExportMultipleSnapshotsWidget::RiuExportMultipleSnapshotsWidget(QWidget* pare
 
     connect(m_pdmTableView->tableView(), SIGNAL(customContextMenuRequested(QPoint)), SLOT(customMenuRequested(QPoint)));
 
-    m_pdmTableView->setListField(&(project->multiSnapshotDefinitions()));
+    m_pdmTableView->setChildArrayField(&(project->multiSnapshotDefinitions()));
 
     QHeaderView* verticalHeader = m_pdmTableView->tableView()->verticalHeader();
     verticalHeader->setResizeMode(QHeaderView::Interactive);
@@ -126,7 +126,7 @@ RiuExportMultipleSnapshotsWidget::RiuExportMultipleSnapshotsWidget(QWidget* pare
 //--------------------------------------------------------------------------------------------------
 RiuExportMultipleSnapshotsWidget::~RiuExportMultipleSnapshotsWidget()
 {
-    m_pdmTableView->setListField(nullptr);
+    m_pdmTableView->setChildArrayField(nullptr);
 
     caf::SelectionManager::instance()->setActiveChildArrayFieldHandle(nullptr);
 }

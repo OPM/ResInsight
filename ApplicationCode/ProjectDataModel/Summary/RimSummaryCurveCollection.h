@@ -41,13 +41,14 @@ class RimSummaryCurveCollection : public caf::PdmObject
 
 public:
     RimSummaryCurveCollection();
-    virtual ~RimSummaryCurveCollection();
+    ~RimSummaryCurveCollection() override;
 
     bool                                    isCurvesVisible();
 
     void                                    loadDataAndUpdate(bool updateParentPlot);
     void                                    setParentQwtPlotAndReplot(QwtPlot* plot);
     void                                    detachQwtCurves();
+    void                                    reattachQwtCurves();
 
     RimSummaryCurve*                        findRimCurveFromQwtCurve(const QwtPlotCurve* qwtCurve) const;
 
@@ -67,13 +68,13 @@ public:
     void                                    handleKeyPressEvent(QKeyEvent* keyEvent);
 
 private:
-    caf::PdmFieldHandle*                    objectToggleField();
-    virtual void                            defineObjectEditorAttribute(QString uiConfigName, 
+    caf::PdmFieldHandle*                    objectToggleField() override;
+    void                            defineObjectEditorAttribute(QString uiConfigName, 
                                                                         caf::PdmUiEditorAttribute* attribute) override;
     
-    virtual void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
     
-    virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField,
+    void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField,
                                                              const QVariant& oldValue, const QVariant& newValue) override;
 
 private:

@@ -50,6 +50,8 @@
 
 #include <QTcpSocket>
 
+#include <array>
+
 
 
 
@@ -61,7 +63,7 @@ class RiaGetMainGridDimensions: public RiaSocketCommand
 public:
     static QString commandName () { return QString("GetMainGridDimensions"); }
 
-    virtual bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>&  args, QDataStream& socketStream)
+    bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>&  args, QDataStream& socketStream) override
     {
 
         RimEclipseCase* rimCase = RiaSocketTools::findCaseFromArgs(server, args);
@@ -98,7 +100,7 @@ class RiaGetActiveCellInfo: public RiaSocketCommand
 public:
     static QString commandName () { return QString("GetActiveCellInfo"); }
 
-    virtual bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>&  args, QDataStream& socketStream)
+    bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>&  args, QDataStream& socketStream) override
     {
         RimEclipseCase* rimCase = RiaSocketTools::findCaseFromArgs(server, args);
         if (!rimCase) return true;
@@ -116,7 +118,7 @@ public:
 
         // Write data back to octave: columnCount, bytesPrTimestep, GridNr I J K ParentGridNr PI PJ PK CoarseBoxIdx
 
-        caf::FixedArray<std::vector<qint32>, 9> activeCellInfo;
+        std::array<std::vector<qint32>, 9> activeCellInfo;
         if (!(rimCase && rimCase->eclipseCaseData() && rimCase->eclipseCaseData()->mainGrid()) )
         {
             // No data available
@@ -268,7 +270,7 @@ class RiaGetCoarseningInfo : public RiaSocketCommand
 public:
     static QString commandName () { return QString("GetCoarseningInfo"); }
 
-    virtual bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>&  args, QDataStream& socketStream)
+    bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>&  args, QDataStream& socketStream) override
     {
         int argCaseGroupId = -1;
 
@@ -340,7 +342,7 @@ class RiaGetGridDimensions : public RiaSocketCommand
 public:
     static QString commandName () { return QString("GetGridDimensions"); }
 
-    virtual bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>&  args, QDataStream& socketStream)
+    bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>&  args, QDataStream& socketStream) override
     {
         int argCaseGroupId = -1;
 
@@ -399,7 +401,7 @@ class RiaGetTimeStepDates : public RiaSocketCommand
 {
 public:
     static QString commandName () { return QString("GetTimeStepDates"); }
-    virtual bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>& args, QDataStream& socketStream)
+    bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>& args, QDataStream& socketStream) override
     {
         int argCaseGroupId = -1;
 
@@ -486,7 +488,7 @@ class RiaGetTimeStepDays : public RiaSocketCommand
 {
 public:
     static QString commandName () { return QString("GetTimeStepDays"); }
-    virtual bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>& args, QDataStream& socketStream)
+    bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>& args, QDataStream& socketStream) override
     {
         int argCaseGroupId = -1;
 
@@ -554,7 +556,7 @@ class RiaGetSelectedCells: public RiaSocketCommand
 public:
     static QString commandName () { return QString("GetSelectedCells"); }
 
-    virtual bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>& args, QDataStream& socketStream)
+    bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>& args, QDataStream& socketStream) override
     {
         // findCaseFromArgs only returns RimEclipseCase, so geomech cases are not supported because of this.
         // The rest of the function supports geomech cases, so using a findCaseFromArgs that supports geomech
@@ -604,6 +606,7 @@ public:
             size_t i, j, k;
             size_t gridIndex;
             int caseId;
+            bool validIndex = true;
             if (item->type() == RiuSelectionItem::ECLIPSE_SELECTION_OBJECT)
             {
                 const RiuEclipseSelectionItem* eclipseItem = static_cast<const RiuEclipseSelectionItem*>(item);
@@ -615,8 +618,8 @@ public:
             else if (item->type() == RiuSelectionItem::GEOMECH_SELECTION_OBJECT)
             {
                 const RiuGeoMechSelectionItem* geomechItem = static_cast<const RiuGeoMechSelectionItem*>(item);
-
-                geomechItem->m_view->femParts()->part(geomechItem->m_gridIndex)->structGrid()->ijkFromCellIndex(geomechItem->m_cellIndex, &i, &j, &k);
+                validIndex = geomechItem->m_view->femParts()->part(geomechItem->m_gridIndex)->getOrCreateStructGrid()->ijkFromCellIndex(geomechItem->m_cellIndex, &i, &j, &k);
+                CVF_ASSERT(validIndex);
                 gridIndex = geomechItem->m_gridIndex;
                 caseId = geomechItem->m_view->geoMechCase()->caseId;
             }
@@ -625,7 +628,7 @@ public:
                 continue;
             }
 
-            if (caseId == reservoirCase->caseId)
+            if (caseId == reservoirCase->caseId && validIndex)
             {
                 caseNumber.push_back(static_cast<int>(caseId));
                 gridNumber.push_back(static_cast<int>(gridIndex));

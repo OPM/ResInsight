@@ -18,10 +18,14 @@
 
 #pragma once
 
+#include "RiaRegressionTest.h"
+
+#include <QFileInfo>
 #include <QSize>
 #include <QStringList>
 
 class QDir;
+class RiaRegressionTest;
 
 //==================================================================================================
 //
@@ -35,21 +39,35 @@ public:
     void executeRegressionTests();
 
     bool isRunningRegressionTests() const;
+    bool useOpenMPForGeometryCreation() const;
 
     static void updateRegressionTest(const QString& testRootPath);
+    static void regressionTestConfigureProject();
 
 private:
     RiaRegressionTestRunner();
 
-    void runRegressionTest(const QString& testRootPath, const QStringList& testFilter);
+    void runRegressionTest();
 
-    static void  removeDirectoryWithContent(QDir& dirToDelete);
-    static void  regressionTestConfigureProject();
-    static void  resizeMaximizedPlotWindows();
-    static QSize regressionDefaultImageSize();
+    bool findAndExecuteCommandFiles(const QDir&              testCaseFolder,
+                                    const RiaRegressionTest& regressionTestConfig,
+                                    const QString&           htmlReportFileName);
+
+    QString generateHtmlReport(const QFileInfoList& folderList,
+                               const QString&       baseFolderName,
+                               const QString&       generatedFolderName,
+                               const QString&       diffFolderName,
+                               const QDir&          testDir);
+
+    static void    removeDirectoryWithContent(QDir& dirToDelete);
+    static void    resizeMaximizedPlotWindows();
+    static QSize   regressionDefaultImageSize();
+    static QString diff2htmlHeaderText(const QString& testRootPath);
+    QFileInfoList  subDirectoriesForTestExecution(const QDir& directory);
 
 private:
-    const QString     m_rootPath;
-    const QStringList m_testFilter;
+    QString           m_rootPath;
+    QStringList       m_testFilter;
     bool              m_runningRegressionTests;
+    RiaRegressionTest m_regressionTestSettings;
 };

@@ -50,29 +50,20 @@ class PdmUiItem;
 /// Abstract class to handle editors. Inherits QObject to be able to use signals and slots
 //==================================================================================================
 
-class PdmUiEditorHandle: public QObject
+class PdmUiEditorHandle : public QObject
 {
 public:
     PdmUiEditorHandle();
-    virtual ~PdmUiEditorHandle();
+    ~PdmUiEditorHandle() override;
 
 public:
+    void        updateUi(const QString& uiConfigName);;
+    void        updateUi();;
+
+protected:
+    // Interface to override:
     /// Virtual method to be overridden. Needs to set up the supplied widget
     /// with all signals etc to make it communicate with this object
-    
-    void        updateUi(const QString& uiConfigName)
-    {
-        m_currentConfigName = uiConfigName;
-        this->configureAndUpdateUi(uiConfigName);
-    };
-
-    void        updateUi()
-    {
-        this->configureAndUpdateUi(m_currentConfigName);
-    };
-
-protected: // Interface to override:
-
     /// Supposed to update all parts of the widgets, both visibility, sensitivity, decorations and field data
     virtual void configureAndUpdateUi(const QString& uiConfigName) = 0;
 
@@ -86,6 +77,8 @@ private:
     friend PdmUiItem::~PdmUiItem();
     PdmUiItem*          m_pdmItem;
     QString             m_currentConfigName;
+
+    bool m_isConfiguringUi; 
 };
 
 
@@ -99,12 +92,12 @@ class PdmUiProxyEditorHandle: public PdmUiEditorHandle
 {
 public:
     explicit PdmUiProxyEditorHandle(PdmUiEditorHandle* mainEditorHandle) : PdmUiEditorHandle() { m_mainEditorHandle = mainEditorHandle; }
-    virtual ~PdmUiProxyEditorHandle() {};
+    ~PdmUiProxyEditorHandle() override {};
 
 protected: // Interface to override:
 
     /// Supposed to update all parts of the widgets, both visibility, sensitivity, decorations and field data
-    virtual void configureAndUpdateUi(const QString& uiConfigName)
+    void configureAndUpdateUi(const QString& uiConfigName) override
     {
         if (m_mainEditorHandle)
         {

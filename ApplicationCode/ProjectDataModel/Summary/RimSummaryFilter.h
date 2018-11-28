@@ -49,21 +49,20 @@ public:
     };
 
     RimSummaryFilter();
-    virtual ~RimSummaryFilter();
+    ~RimSummaryFilter() override;
 
     void            updateFromAddress(const RifEclipseSummaryAddress& address);
-    void            setCompleteVarStringFilter(const QString& stringFilter);
 
     bool            isIncludedByFilter(const RifEclipseSummaryAddress& addr) const;
 
-    virtual void    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    void    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
 
 private:
     friend class RimSummaryCurve;
 
     static bool     isSumVarTypeMatchingFilterType(SummaryFilterType sumFilterType, RifEclipseSummaryAddress::SummaryVarCategory sumVarType);
 
-    virtual void    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    void    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
 
 private:
     caf::PdmField<caf::AppEnum<SummaryFilterType> >

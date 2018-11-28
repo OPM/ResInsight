@@ -278,7 +278,7 @@ std::vector<std::vector<double>>  RifStimPlanXmlReader::getAllDepthDataAtTimeSte
 
         if (xmlStream.name() == "depth")
         {
-            double depth = xmlStream.readElementText().toDouble();
+            xmlStream.readElementText().toDouble();
             std::vector<double> propertyValuesAtDepth;
 
             xmlStream.readNext(); //read end depth token

@@ -69,7 +69,7 @@ private:
     const QwtPlotCurve*         closestCurveSample(const QPoint& cursorPosition, int* closestSampleIndex) const;
     size_t                      indexOfQwtCurve(const QwtPlotCurve* qwtCurve) const;
     void                        updateTrackerPlotMarkerAndLabelFromPicker();
-    virtual QString             trackerText() const override;
+    QString             trackerText() const override;
 
     private slots:
     void            slotPickerActivated(bool);
@@ -119,7 +119,7 @@ public:
 
 public:
     RiuPvtPlotPanel(QDockWidget* parent);
-    virtual ~RiuPvtPlotPanel();
+    ~RiuPvtPlotPanel() override;
 
     void                setPlotData(RiaEclipseUnitTools::UnitSystem unitSystem, const std::vector<RigFlowDiagSolverInterface::PvtCurve>& fvfCurveArr, const std::vector<RigFlowDiagSolverInterface::PvtCurve>& viscosityCurveArr, FvfDynProps fvfDynProps, ViscosityDynProps viscosityDynProps, CellValues cellValues, QString cellReferenceText);
     void                clearPlot();

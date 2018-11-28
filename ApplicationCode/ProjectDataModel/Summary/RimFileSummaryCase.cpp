@@ -64,7 +64,7 @@ QString RimFileSummaryCase::summaryHeaderFilename() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RimFileSummaryCase::caseName()
+QString RimFileSummaryCase::caseName() const
 {
     QFileInfo caseFileName(this->summaryHeaderFilename());
 

@@ -18,11 +18,53 @@
 
 #include "RigTransmissibilityCondenser.h"
 
+#include "RigActiveCellInfo.h"
+#include "RigFractureTransmissibilityEquations.h"
 #include "RiaLogging.h"
+#include "RiaWeightedMeanCalculator.h"
+
+#include "cvfAssert.h"
+#include "cvfBase.h"
+#include "cvfMath.h"
 
 #include <Eigen/Core>
 #include <Eigen/LU>
 #include <iomanip>
+
+#include <QDebug>
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RigTransmissibilityCondenser::RigTransmissibilityCondenser()
+{
+
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RigTransmissibilityCondenser::RigTransmissibilityCondenser(const RigTransmissibilityCondenser& copyFrom)
+    : m_neighborTransmissibilities(copyFrom.m_neighborTransmissibilities)
+    , m_condensedTransmissibilities(copyFrom.m_condensedTransmissibilities)
+    , m_externalCellAddrSet(copyFrom.m_externalCellAddrSet)
+    , m_TiiInv(copyFrom.m_TiiInv)
+    , m_Tie(copyFrom.m_Tie)
+{
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RigTransmissibilityCondenser& RigTransmissibilityCondenser::operator=(const RigTransmissibilityCondenser& rhs)
+{
+    m_neighborTransmissibilities  = rhs.m_neighborTransmissibilities;
+    m_condensedTransmissibilities = rhs.m_condensedTransmissibilities;
+    m_externalCellAddrSet         = rhs.m_externalCellAddrSet;
+    m_TiiInv                      = rhs.m_TiiInv;
+    m_Tie                         = rhs.m_Tie;
+    return *this;
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -44,7 +86,10 @@ void RigTransmissibilityCondenser::addNeighborTransmissibility(CellAddress cell1
 //--------------------------------------------------------------------------------------------------
 std::set<RigTransmissibilityCondenser::CellAddress> RigTransmissibilityCondenser::externalCells()
 {
-    calculateCondensedTransmissibilitiesIfNeeded(); 
+    if (m_externalCellAddrSet.empty())
+    {
+        calculateCondensedTransmissibilities();
+    }
 
     return m_externalCellAddrSet;
 }
@@ -56,7 +101,10 @@ double RigTransmissibilityCondenser::condensedTransmissibility(CellAddress exter
 {
     CAF_ASSERT(!(externalCell1 == externalCell2));
 
-    calculateCondensedTransmissibilitiesIfNeeded();
+    if (m_condensedTransmissibilities.empty())
+    {
+        calculateCondensedTransmissibilities();
+    }
 
     if ( externalCell2 < externalCell1 ) std::swap(externalCell1, externalCell2);
 
@@ -73,11 +121,154 @@ double RigTransmissibilityCondenser::condensedTransmissibility(CellAddress exter
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::map<size_t, double> RigTransmissibilityCondenser::scaleMatrixToFracTransByMatrixWellDP(
+    const RigActiveCellInfo* actCellInfo, double currentWellPressure, const std::vector<double>& currentMatrixPressures,
+    double* minPressureDrop, double* maxPressureDrop)
+{
+    std::map<size_t, double> originalLumpedMatrixToFractureTrans; // Sum(T_mf)
+
+    double epsilonDeltaPressure = 1.0e-6;
+
+    double minNonZeroDeltaPressure =  std::numeric_limits<double>::infinity();
+    double maxNonZeroDeltaPressure = -std::numeric_limits<double>::infinity();
+
+    for (auto it = m_neighborTransmissibilities.begin(); it != m_neighborTransmissibilities.end(); ++it)
+    {
+        if (it->first.m_cellIndexSpace == CellAddress::STIMPLAN)
+        {
+            for (auto jt = it->second.begin(); jt != it->second.end(); ++jt)
+            {
+                if (jt->first.m_cellIndexSpace == CellAddress::ECLIPSE)
+                {
+                    size_t globalMatrixCellIdx = jt->first.m_globalCellIdx;
+                    size_t eclipseResultIndex  = actCellInfo->cellResultIndex(globalMatrixCellIdx);
+                    CVF_ASSERT(eclipseResultIndex < currentMatrixPressures.size());
+                    double unsignedDeltaPressure = std::abs(currentMatrixPressures[eclipseResultIndex] - currentWellPressure);
+                    double nonZeroDeltaPressure  = std::max(epsilonDeltaPressure, unsignedDeltaPressure);
+                    maxNonZeroDeltaPressure      = std::max(maxNonZeroDeltaPressure, nonZeroDeltaPressure);
+                    minNonZeroDeltaPressure      = std::min(minNonZeroDeltaPressure, nonZeroDeltaPressure);
+                }
+            }
+        }
+    }
+
+    for (auto it = m_neighborTransmissibilities.begin(); it != m_neighborTransmissibilities.end(); ++it)
+    {
+        if (it->first.m_cellIndexSpace == CellAddress::STIMPLAN)
+        {
+            for (auto jt = it->second.begin(); jt != it->second.end(); ++jt)
+            {
+                if (jt->first.m_cellIndexSpace == CellAddress::ECLIPSE)
+                {
+                    size_t globalMatrixCellIdx = jt->first.m_globalCellIdx;
+                    size_t eclipseResultIndex  = actCellInfo->cellResultIndex(globalMatrixCellIdx);
+                    CVF_ASSERT(eclipseResultIndex < currentMatrixPressures.size());
+
+                    originalLumpedMatrixToFractureTrans[globalMatrixCellIdx] += jt->second;
+
+                    double unsignedDeltaPressure = std::abs(currentMatrixPressures[eclipseResultIndex] - currentWellPressure);
+                    double nonZeroDeltaPressure = std::max(epsilonDeltaPressure, unsignedDeltaPressure);
+
+                    jt->second *= nonZeroDeltaPressure / maxNonZeroDeltaPressure;
+                }
+            }
+        }
+    }
+
+    if (minPressureDrop && minNonZeroDeltaPressure != std::numeric_limits<double>::infinity())
+    {
+        *minPressureDrop = minNonZeroDeltaPressure;
+    }
+    if (maxPressureDrop && maxNonZeroDeltaPressure != std::numeric_limits<double>::infinity())
+    {
+        *maxPressureDrop = maxNonZeroDeltaPressure;
+    }
+
+    return originalLumpedMatrixToFractureTrans;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::map<size_t, double> RigTransmissibilityCondenser::calculateFicticiousFractureToWellTransmissibilities()
+{
+    std::map<size_t, double> matrixToAllFracturesTrans;
+    for (auto it = m_neighborTransmissibilities.begin(); it != m_neighborTransmissibilities.end(); ++it)
+    {
+        if (it->first.m_cellIndexSpace == CellAddress::STIMPLAN)
+        {
+            for (auto jt = it->second.begin(); jt != it->second.end(); ++jt)
+            {
+                if (jt->first.m_cellIndexSpace == CellAddress::ECLIPSE)
+                {
+                    size_t globalMatrixCellIdx = jt->first.m_globalCellIdx;
+                    // T'_mf
+                    double matrixToFractureTrans = jt->second;
+                    // Sum(T'_mf)
+                    matrixToAllFracturesTrans[globalMatrixCellIdx] += matrixToFractureTrans;
+                }
+            }
+        }
+    }
+
+    std::map<size_t, double> fictitiousFractureToWellTrans; // T'_fjw
+    for (const CellAddress& externalCell : m_externalCellAddrSet)
+    {
+        if (externalCell.m_cellIndexSpace == CellAddress::ECLIPSE)
+        {
+            size_t globalMatrixCellIdx = externalCell.m_globalCellIdx;
+            // Sum(T'_mf)
+            double scaledMatrixToFractureTrans = matrixToAllFracturesTrans[globalMatrixCellIdx];
+            // T'mw
+            double scaledMatrixToWellTrans =
+                condensedTransmissibility(externalCell, {true, RigTransmissibilityCondenser::CellAddress::WELL, 1});
+            // T'_fjw
+            fictitiousFractureToWellTrans[globalMatrixCellIdx] =
+                RigFractureTransmissibilityEquations::effectiveInternalFractureToWellTransPDDHC(scaledMatrixToFractureTrans,
+                                                                                                scaledMatrixToWellTrans);
+        }
+    }
+    return fictitiousFractureToWellTrans;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::map<size_t, double> RigTransmissibilityCondenser::calculateEffectiveMatrixToWellTransmissibilities(
+    const std::map<size_t, double>& originalLumpedMatrixToFractureTrans,
+    const std::map<size_t, double>& ficticuousFractureToWellTransMap)
+{
+    std::map<size_t, double> effectiveMatrixToWellTrans;
+    for (const CellAddress& externalCell : m_externalCellAddrSet)    
+    {
+        if (externalCell.m_cellIndexSpace == CellAddress::ECLIPSE)
+        {
+            size_t globalMatrixCellIdx = externalCell.m_globalCellIdx;
+
+            auto matrixToFractureIt = originalLumpedMatrixToFractureTrans.find(globalMatrixCellIdx);
+            CVF_ASSERT(matrixToFractureIt != originalLumpedMatrixToFractureTrans.end());
+            // Sum(T_mf)
+            double lumpedOriginalMatrixToFractureT = matrixToFractureIt->second;
+            // T'_fjw
+            auto fictitiousFractureToWellIt = ficticuousFractureToWellTransMap.find(globalMatrixCellIdx);
+            CVF_ASSERT(fictitiousFractureToWellIt != ficticuousFractureToWellTransMap.end());
+            double fictitiousFractureToWellTrans = fictitiousFractureToWellIt->second;
+            // T^dp_mw
+            effectiveMatrixToWellTrans[globalMatrixCellIdx] =
+                RigFractureTransmissibilityEquations::effectiveMatrixToWellTransPDDHC(lumpedOriginalMatrixToFractureT, fictitiousFractureToWellTrans);
+        }
+    }
+    return effectiveMatrixToWellTrans;
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigTransmissibilityCondenser::calculateCondensedTransmissibilitiesIfNeeded()
+void RigTransmissibilityCondenser::calculateCondensedTransmissibilities()
 {
-    if (m_condensedTransmissibilities.size()) return;
+    if (m_neighborTransmissibilities.empty()) return;
 
     // Find all equations, and their total ordering
 
@@ -145,10 +336,22 @@ void RigTransmissibilityCondenser::calculateCondensedTransmissibilitiesIfNeeded(
     // std::cout  << "T = " << std::endl <<  totalSystem << std::endl;
 
     int externalEquationCount =  totalEquationCount - internalEquationCount;
-    MatrixXd condensedSystem = totalSystem.bottomRightCorner(externalEquationCount, externalEquationCount) 
-                               - totalSystem.bottomLeftCorner(externalEquationCount, internalEquationCount) 
-                               * totalSystem.topLeftCorner(internalEquationCount, internalEquationCount).inverse()
-                               * totalSystem.topRightCorner(internalEquationCount, externalEquationCount );
+
+    MatrixXd condensedSystem;
+    MatrixXd Tee = totalSystem.bottomRightCorner(externalEquationCount, externalEquationCount);
+
+    if (internalEquationCount == 0)
+    {
+        condensedSystem = Tee;
+    }
+    else
+    {
+        MatrixXd Tei = totalSystem.bottomLeftCorner(externalEquationCount, internalEquationCount);
+        m_TiiInv = totalSystem.topLeftCorner(internalEquationCount, internalEquationCount).inverse();
+        m_Tie = totalSystem.topRightCorner(internalEquationCount, externalEquationCount);
+        condensedSystem = Tee - Tei * m_TiiInv * m_Tie;
+    }
+     
     
     // std::cout  << "Te = " << std::endl <<  condensedSystem << std::endl << std::endl;
 
@@ -171,10 +374,6 @@ void RigTransmissibilityCondenser::calculateCondensedTransmissibilitiesIfNeeded(
         }                
     }
 }
-
-
-
-
 
 #include "RimStimPlanFractureTemplate.h"
 #include "RigMainGrid.h"

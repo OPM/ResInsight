@@ -28,6 +28,8 @@
 #include "RimCellRangeFilterCollection.h"
 #include "RimEclipsePropertyFilterCollection.h"
 #include "RimEclipseView.h"
+#include "RimEnsembleCurveFilterCollection.h"
+#include "RimEnsembleCurveSet.h"
 #include "RimEnsembleCurveSetCollection.h"
 #include "RimFormationNamesCollection.h"
 #include "RimGeoMechPropertyFilterCollection.h"
@@ -158,16 +160,16 @@ void RicDeleteItemExec::redo()
             parentObj->firstAncestorOrThisOfType(proj);
             if (proj)
             {
-                proj->createDisplayModelAndRedrawAllViews();
+                proj->scheduleCreateDisplayModelAndRedrawAllViews();
             }
 
             std::vector<Rim3dView*> views;
             proj->allVisibleViews(views);
-            for (Rim3dView* view : views)
+            for (Rim3dView* visibleView : views)
             {
-                if (dynamic_cast<RimEclipseView*>(view))
+                if (dynamic_cast<RimEclipseView*>(visibleView))
                 {
-                    view->updateConnectedEditors();
+                    visibleView->updateConnectedEditors();
                 }
             }
         }
@@ -200,13 +202,17 @@ void RicDeleteItemExec::redo()
         {
             wellLogPlot->calculateAvailableDepthRange();
             wellLogPlot->updateDepthZoom();
+            RiuPlotMainWindow* mainPlotWindow = RiaApplication::instance()->mainPlotWindow();
+            mainPlotWindow->updateWellLogPlotToolBar();
         }
 
         RimWellLogTrack* wellLogPlotTrack;
         parentObj->firstAncestorOrThisOfType(wellLogPlotTrack);
         if (wellLogPlotTrack)
         {
-            wellLogPlotTrack->updateXZoom();
+            wellLogPlotTrack->calculateXZoomRangeAndUpdateQwt();
+            RiuPlotMainWindow* mainPlotWindow = RiaApplication::instance()->mainPlotWindow();
+            mainPlotWindow->updateWellLogPlotToolBar();
         }
         
         // Update due to delete plots
@@ -224,6 +230,8 @@ void RicDeleteItemExec::redo()
                     project->updateConnectedEditors();
                 }
             }
+            RiuPlotMainWindow* mainPlotWindow = RiaApplication::instance()->mainPlotWindow();
+            mainPlotWindow->updateWellLogPlotToolBar();
         }
         
         // Linked views
@@ -282,6 +290,15 @@ void RicDeleteItemExec::redo()
             RimSummaryPlot* plot = nullptr;
             ensembleCurveSetColl->firstAncestorOrThisOfType(plot);
             if (plot) plot->updateConnectedEditors();
+        }
+
+        RimEnsembleCurveFilterCollection* ensembleCurveFilterColl = nullptr;
+        parentObj->firstAncestorOrThisOfType(ensembleCurveFilterColl);
+        if (ensembleCurveFilterColl)
+        {
+            RimSummaryPlot* plot = nullptr;
+            ensembleCurveFilterColl->firstAncestorOrThisOfType(plot);
+            if (plot) plot->loadDataAndUpdate();
         }
     }
 }

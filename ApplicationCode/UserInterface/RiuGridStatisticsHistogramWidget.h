@@ -37,7 +37,7 @@ public:
     void                setMean(double mean) {m_mean = mean;}
 
 protected:
-     virtual void       paintEvent(QPaintEvent* event);
+     void       paintEvent(QPaintEvent* event) override;
 
 private:
     void                draw(QPainter *painter,int x, int y, int width, int height );

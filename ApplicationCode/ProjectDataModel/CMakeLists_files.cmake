@@ -24,7 +24,13 @@ ${CMAKE_CURRENT_LIST_DIR}/RimCellEdgeColors.h
 ${CMAKE_CURRENT_LIST_DIR}/RimSimWellInView.h
 ${CMAKE_CURRENT_LIST_DIR}/RimSimWellInViewCollection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimWellPath.h
+${CMAKE_CURRENT_LIST_DIR}/RimFileWellPath.h
+${CMAKE_CURRENT_LIST_DIR}/RimModeledWellPath.h
+${CMAKE_CURRENT_LIST_DIR}/RimWellPathGeometryDef.h
+${CMAKE_CURRENT_LIST_DIR}/RimWellPathAttribute.h
+${CMAKE_CURRENT_LIST_DIR}/RimWellPathAttributeCollection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimWellPathCollection.h
+${CMAKE_CURRENT_LIST_DIR}/RimWellPathTarget.h
 ${CMAKE_CURRENT_LIST_DIR}/RimScriptCollection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimEclipseStatisticsCase.h
 ${CMAKE_CURRENT_LIST_DIR}/RimEclipseStatisticsCaseCollection.h
@@ -104,7 +110,17 @@ ${CMAKE_CURRENT_LIST_DIR}/Rim3dWellLogExtractionCurve.h
 ${CMAKE_CURRENT_LIST_DIR}/Rim3dWellLogRftCurve.h
 ${CMAKE_CURRENT_LIST_DIR}/RimVirtualPerforationResults.h
 ${CMAKE_CURRENT_LIST_DIR}/RimLegendConfig.h
-${CMAKE_CURRENT_LIST_DIR}/RimWellLogCurveNameConfig.h
+${CMAKE_CURRENT_LIST_DIR}/RimNameConfig.h
+${CMAKE_CURRENT_LIST_DIR}/RimWellLogPlotNameConfig.h
+${CMAKE_CURRENT_LIST_DIR}/RimWellLogExtractionCurveNameConfig.h
+${CMAKE_CURRENT_LIST_DIR}/RimWellLogFileCurveNameConfig.h
+${CMAKE_CURRENT_LIST_DIR}/RimWellLogRftCurveNameConfig.h
+${CMAKE_CURRENT_LIST_DIR}/RimDataSourceSteppingTools.h
+${CMAKE_CURRENT_LIST_DIR}/RimWellLogCurveCommonDataSource.h
+${CMAKE_CURRENT_LIST_DIR}/RimContourMapProjection.h
+${CMAKE_CURRENT_LIST_DIR}/RimContourMapView.h
+${CMAKE_CURRENT_LIST_DIR}/RimContourMapViewCollection.h
+${CMAKE_CURRENT_LIST_DIR}/RimContourMapNameConfig.h
 )
 
 
@@ -133,7 +149,13 @@ ${CMAKE_CURRENT_LIST_DIR}/RimCellEdgeColors.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimSimWellInView.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimSimWellInViewCollection.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimWellPath.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimFileWellPath.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimModeledWellPath.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimWellPathGeometryDef.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimWellPathAttribute.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimWellPathAttributeCollection.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimWellPathCollection.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimWellPathTarget.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimScriptCollection.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimEclipseStatisticsCase.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimEclipseStatisticsCaseCollection.cpp
@@ -213,7 +235,17 @@ ${CMAKE_CURRENT_LIST_DIR}/Rim3dWellLogExtractionCurve.cpp
 ${CMAKE_CURRENT_LIST_DIR}/Rim3dWellLogRftCurve.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimVirtualPerforationResults.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimLegendConfig.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimWellLogCurveNameConfig.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimNameConfig.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimWellLogPlotNameConfig.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimWellLogExtractionCurveNameConfig.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimWellLogFileCurveNameConfig.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimWellLogRftCurveNameConfig.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimDataSourceSteppingTools.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimWellLogCurveCommonDataSource.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimContourMapProjection.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimContourMapView.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimContourMapViewCollection.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimContourMapNameConfig.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

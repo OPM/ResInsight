@@ -66,7 +66,7 @@ void RicImportSummaryGroupFeature::onActionTriggered(bool isChecked)
     if (fileNames.isEmpty()) return;
 
     std::vector<RimSummaryCase*> cases;
-    RicImportSummaryCasesFeature::createSummaryCasesFromFiles(fileNames, &cases);
+    RicImportSummaryCasesFeature::createSummaryCasesFromFiles(fileNames, &cases, true);
 
     RicImportSummaryCasesFeature::addSummaryCases(cases);
     RicCreateSummaryCaseCollectionFeature::groupSummaryCases(cases, "", false);

@@ -26,9 +26,9 @@
 #include <ert/ecl/ecl_kw_magic.hpp>
 
 enum kw_data_type {
-   TRANS_DATA    = 1, 
-   WTR_FLUX_DATA = 2, 
-   OIL_FLUX_DATA = 3, 
+   TRANS_DATA    = 1,
+   WTR_FLUX_DATA = 2,
+   OIL_FLUX_DATA = 3,
    GAS_FLUX_DATA = 4
 };
 
@@ -40,8 +40,8 @@ struct ecl_nnc_data_struct {
 
 
 static const char * ecl_nnc_data_get_str_kw(int kw_type, int grid1, int grid2) {
-  char * kw = NULL;
-  switch (kw_type) { 
+  const char * kw = NULL;
+  switch (kw_type) {
 
     case TRANS_DATA:
       if (grid1 == grid2)
@@ -65,11 +65,11 @@ static const char * ecl_nnc_data_get_str_kw(int kw_type, int grid1, int grid2) {
       if (grid1 == grid2)
         kw = FLROILNNC_KW;
       else if (grid1 == 0)
-        kw = FLROILLG_KW; 
+        kw = FLROILLG_KW;
       else
         kw = FLROILLL_KW;
       break;
-        
+
     case GAS_FLUX_DATA:
       if (grid1 == grid2)
         kw = FLRGASNNC_KW;
@@ -92,7 +92,7 @@ static ecl_kw_type * ecl_nnc_data_get_gl_kw( const ecl_file_view_type * init_fil
     return NULL;
 
   if (lgr_nr == 0) {
-    if(ecl_file_view_has_kw(init_file_view, kw)) 
+    if(ecl_file_view_has_kw(init_file_view, kw))
       return ecl_file_view_iget_named_kw(init_file_view, kw, 0);
     else
       return NULL;
@@ -180,20 +180,20 @@ static bool ecl_nnc_data_set_values(ecl_nnc_data_type * data, const ecl_grid_typ
    ecl_kw_type * current_kw = NULL;
    int correct_kw_count = 0;
    int kw_count = 0;
-   int nnc_size = ecl_nnc_geometry_size( nnc_geo );   
+   int nnc_size = ecl_nnc_geometry_size( nnc_geo );
 
    for (int nnc_index = 0; nnc_index < nnc_size; nnc_index++) {
       const ecl_nnc_pair_type * pair = ecl_nnc_geometry_iget( nnc_geo, nnc_index );
       int grid1 = pair->grid_nr1;
       int grid2 = pair->grid_nr2;
-     
+
       if (grid1 != current_grid1 || grid2 != current_grid2) {
          current_grid1 = grid1;
          current_grid2 = grid2;
          assert_correct_kw_count(current_kw, __func__, correct_kw_count, kw_count);
          current_kw = ecl_nnc_data_get_kw( grid, init_file, grid1 , grid2 , kw_type);
          kw_count = 0;
-         if (current_kw) {            
+         if (current_kw) {
             correct_kw_count = ecl_kw_get_size( current_kw );
          }
          else {
@@ -204,7 +204,7 @@ static bool ecl_nnc_data_set_values(ecl_nnc_data_type * data, const ecl_grid_typ
         data->values[nnc_index] = ecl_kw_iget_as_double(current_kw, pair->input_index);
         kw_count++;
       }
-      
+
    }
    assert_correct_kw_count(current_kw, __func__, correct_kw_count, kw_count);
    return true;

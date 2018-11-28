@@ -36,9 +36,9 @@ class RicSummaryCurveSwitchAxisFeature : public caf::CmdFeature
     CAF_CMD_HEADER_INIT;
 protected:
     // Overrides
-    virtual bool isCommandEnabled() override;
-    virtual void onActionTriggered( bool isChecked ) override;
-    virtual void setupActionLook( QAction* actionToSetup ) override;
+    bool isCommandEnabled() override;
+    void onActionTriggered( bool isChecked ) override;
+    void setupActionLook( QAction* actionToSetup ) override;
 
 private:
     static void extractSelectedCurves(std::vector<RimSummaryCurve*>* summaryCurves, 

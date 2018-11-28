@@ -27,8 +27,8 @@
 #include <type_traits>
 
 #include <ert/util/ert_unique_ptr.hpp>
-#include <ert/ecl/ecl_kw.h>
-#include <ert/ecl/ecl_type.h>
+#include <ert/ecl/ecl_kw.hpp>
+#include <ert/ecl/ecl_type.hpp>
 #include <ert/ecl/FortIO.hpp>
 
 namespace ERT {

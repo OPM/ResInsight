@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "RicViewerEventInterface.h"
+#include "RicPickEventHandler.h"
 
 #include "cafCmdExecuteCommand.h"
 #include "cafPdmPointer.h"
@@ -34,11 +34,11 @@ class RicNewPolylineIntersectionFeatureCmd : public caf::CmdExecuteCommand
 {
 public:
     explicit RicNewPolylineIntersectionFeatureCmd(RimIntersectionCollection* intersectionCollection);
-    virtual ~RicNewPolylineIntersectionFeatureCmd();
+    ~RicNewPolylineIntersectionFeatureCmd() override;
 
-    virtual QString name() override;
-    virtual void redo() override;
-    virtual void undo() override;
+    QString name() override;
+    void redo() override;
+    void undo() override;
 
 private:
     caf::PdmPointer<RimIntersectionCollection> m_intersectionCollection;
@@ -57,9 +57,9 @@ public:
     RicNewPolylineIntersectionFeature();
 
 protected:
-    virtual bool isCommandEnabled() override;
-    virtual void onActionTriggered( bool isChecked ) override;
-    virtual void setupActionLook( QAction* actionToSetup ) override;
+    bool isCommandEnabled() override;
+    void onActionTriggered( bool isChecked ) override;
+    void setupActionLook( QAction* actionToSetup ) override;
 };
 
 

@@ -19,6 +19,7 @@
 #pragma once
 
 #include "RimCheckableNamedObject.h"
+#include "RimMswCompletionParameters.h"
 
 #include "RiaEclipseUnitTools.h"
 
@@ -41,58 +42,42 @@ class RimFishbonesCollection : public RimCheckableNamedObject
     CAF_PDM_HEADER_INIT;
 
 public:
-    enum PressureDropType {
-        HYDROSTATIC,
-        HYDROSTATIC_FRICTION,
-        HYDROSTATIC_FRICTION_ACCELERATION
-    };
-
-    typedef caf::AppEnum<PressureDropType> PressureDropEnum;
-
-    enum LengthAndDepthType {
-        ABS,
-        INC
-    };
-
-    typedef caf::AppEnum<LengthAndDepthType> LengthAndDepthEnum;
-
     RimFishbonesCollection();
 
-    RimFishboneWellPathCollection* wellPathCollection() const;
-    void                           appendFishbonesSubs(RimFishbonesMultipleSubs* subs);
+    RimFishboneWellPathCollection*    wellPathCollection() const;
+    void                              appendFishbonesSubs(RimFishbonesMultipleSubs* subs);
+    const RimMswCompletionParameters* mswParameters() const;
 
-    caf::PdmChildArrayField<RimFishbonesMultipleSubs*>  fishbonesSubs;
+    std::vector<RimFishbonesMultipleSubs*> activeFishbonesSubs() const;
+    std::vector<RimFishbonesMultipleSubs*> allFishbonesSubs() const;
 
     void         recalculateStartMD();
-    double       startMD() const { return m_startMD; }
+    double       startMD() const;
     double       mainBoreSkinFactor() const { return m_skinFactor; }
-    double       mainBoreDiameter(RiaEclipseUnitTools::UnitSystem unitSystem) const;
-    double       linerDiameter(RiaEclipseUnitTools::UnitSystem unitSystem) const;
-    double       roughnessFactor(RiaEclipseUnitTools::UnitSystem unitSystem) const;
-
-    PressureDropEnum    pressureDrop() const { return m_pressureDrop(); }
-    LengthAndDepthEnum  lengthAndDepth() const { return m_lengthAndDepth(); }
-
+    double       mainBoreDiameter(RiaEclipseUnitTools::UnitSystem unitSystem) const;    
     void         setUnitSystemSpecificDefaults();
 
 protected:
-    virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
-    virtual void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering );
+    void        fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    void        defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    void        initAfterRead() override;
 
 private:
     cvf::Color3f nextFishbonesColor() const;
 
 private:
+    caf::PdmChildArrayField<RimFishbonesMultipleSubs*>  m_fishbonesSubs;
     caf::PdmChildField<RimFishboneWellPathCollection*>  m_wellPathCollection;
 
     caf::PdmField<double>                               m_startMD;
     caf::PdmField<double>                               m_skinFactor;
     caf::PdmField<double>                               m_mainBoreDiameter;
-    caf::PdmField<double>                               m_linerDiameter;
-    caf::PdmField<double>                               m_roughnessFactor;
-
-    caf::PdmField<PressureDropEnum>                     m_pressureDrop;
-    caf::PdmField<LengthAndDepthEnum>                   m_lengthAndDepth;
-
+    caf::PdmChildField<RimMswCompletionParameters*>     m_mswParameters;
     bool                                                manuallyModifiedStartMD;
+
+    caf::PdmField<double>                               m_linerDiameter_OBSOLETE;
+    caf::PdmField<double>                               m_roughnessFactor_OBSOLETE;
+
+    caf::PdmField<RimMswCompletionParameters::PressureDropEnum>   m_pressureDrop_OBSOLETE;
+    caf::PdmField<RimMswCompletionParameters::LengthAndDepthEnum> m_lengthAndDepth_OBSOLETE;
 };

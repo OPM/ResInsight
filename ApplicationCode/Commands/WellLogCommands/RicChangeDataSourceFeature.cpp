@@ -18,17 +18,23 @@
 
 #include "RicChangeDataSourceFeature.h"
 
-#include "RicChangeDataSourceFeatureUi.h"
 #include "RicWellLogPlotCurveFeatureImpl.h"
 
 #include "RimCase.h"
 #include "RimWellLogCurve.h"
+#include "RimWellLogCurveCommonDataSource.h"
 #include "RimWellLogExtractionCurve.h"
+#include "RimWellLogFileCurve.h"
+#include "RimWellLogPlot.h"
+#include "RimWellLogTrack.h"
 #include "RimWellPath.h"
 
 #include "cafPdmUiPropertyViewDialog.h"
+#include "cafSelectionManager.h"
 
 #include <QAction>
+
+#include <set>
 
 CAF_CMD_SOURCE_INIT(RicChangeDataSourceFeature, "RicChangeDataSourceFeature");
 
@@ -40,9 +46,10 @@ bool RicChangeDataSourceFeature::isCommandEnabled()
     if (RicWellLogPlotCurveFeatureImpl::parentWellAllocationPlot()) return false;
     if (RicWellLogPlotCurveFeatureImpl::parentWellRftPlot()) return false;
 
-    std::vector<RimWellLogExtractionCurve*> extrCurves = extractionCurves();
+    std::vector<RimWellLogCurve*> curves;
+    std::vector<RimWellLogTrack*> tracks;
 
-    return extrCurves.size() > 0;
+    return selectedTracksAndCurves(&curves, &tracks);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -50,27 +57,25 @@ bool RicChangeDataSourceFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicChangeDataSourceFeature::onActionTriggered(bool isChecked)
 {
-    if (RicWellLogPlotCurveFeatureImpl::parentWellAllocationPlot()) return;
+    std::vector<caf::PdmObject*> selectedObjects;
+    caf::SelectionManager::instance()->objectsByType(&selectedObjects);
 
-    std::vector<RimWellLogExtractionCurve*> extrCurves = extractionCurves();
-    if (extrCurves.size() == 0) return;
+    std::vector<RimWellLogCurve*> curves;
+    std::vector<RimWellLogTrack*> tracks;
 
-    RicChangeDataSourceFeatureUi featureUi;
-    featureUi.wellPathToApply = extrCurves[0]->wellPath();
-    featureUi.caseToApply = extrCurves[0]->rimCase();
-
-    caf::PdmUiPropertyViewDialog propertyDialog(nullptr, &featureUi, "Change Data Source for Selected Curves", "");
-    propertyDialog.resize(QSize(500, 200));
-    if (propertyDialog.exec() == QDialog::Accepted)
+    if (selectedTracksAndCurves(&curves, &tracks))
     {
-        for (RimWellLogExtractionCurve* extractionCurve : extrCurves)
-        {
-            extractionCurve->setWellPath(featureUi.wellPathToApply);
-            extractionCurve->setCase(featureUi.caseToApply);
+        RimWellLogCurveCommonDataSource featureUi;
+        featureUi.updateDefaultOptions(curves, tracks);
 
-            extractionCurve->loadDataAndUpdate(true);
+        caf::PdmUiPropertyViewDialog propertyDialog(nullptr, &featureUi, "Change Data Source for Multiple Curves", "");
+        propertyDialog.resize(QSize(500, 200));
+
+        if (propertyDialog.exec() == QDialog::Accepted)
+        {
+            featureUi.updateCurvesAndTracks(curves, tracks);
         }
-    }
+    }    
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -82,22 +87,35 @@ void RicChangeDataSourceFeature::setupActionLook(QAction* actionToSetup)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimWellLogExtractionCurve*> RicChangeDataSourceFeature::extractionCurves()
+bool RicChangeDataSourceFeature::selectedTracksAndCurves(std::vector<RimWellLogCurve*>* curves, std::vector<RimWellLogTrack*>* tracks)
 {
-    std::vector<RimWellLogExtractionCurve*> extrCurves;
+    CVF_ASSERT(curves && tracks);
+    std::vector<caf::PdmObject*> selectedObjects;
+    caf::SelectionManager::instance()->objectsByType(&selectedObjects);
 
-    std::vector<RimWellLogCurve*> curves = RicWellLogPlotCurveFeatureImpl::selectedWellLogCurves();
+    if (selectedObjects.empty()) return false;
 
-    for (RimWellLogCurve* c : curves)
+    for (caf::PdmObject* selectedObject : selectedObjects)
     {
-        if (dynamic_cast<RimWellLogExtractionCurve*>(c))
+        RimWellLogTrack*           wellLogTrack = dynamic_cast<RimWellLogTrack*>(selectedObject);
+        RimWellLogExtractionCurve* wellLogExtractionCurve = dynamic_cast<RimWellLogExtractionCurve*>(selectedObject);
+        RimWellLogFileCurve*       wellLogFileCurve = dynamic_cast<RimWellLogFileCurve*>(selectedObject);
+        if (wellLogTrack)
         {
-            extrCurves.push_back(dynamic_cast<RimWellLogExtractionCurve*>(c));
+            tracks->push_back(wellLogTrack);
+        }
+        else if (wellLogExtractionCurve)
+        {
+            curves->push_back(wellLogExtractionCurve);
+        }
+        else if (wellLogFileCurve)
+        {
+            curves->push_back(wellLogFileCurve);
         }
     }
 
-    return extrCurves;
+    return selectedObjects.size() == (curves->size() + tracks->size());
 }
 

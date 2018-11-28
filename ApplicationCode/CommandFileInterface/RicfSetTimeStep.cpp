@@ -43,7 +43,7 @@ RicfSetTimeStep::RicfSetTimeStep()
 //--------------------------------------------------------------------------------------------------
 void RicfSetTimeStep::execute()
 {
-    RimEclipseCase* eclipseCase;
+    RimEclipseCase* eclipseCase = nullptr;
 
     {
         bool foundCase = false;

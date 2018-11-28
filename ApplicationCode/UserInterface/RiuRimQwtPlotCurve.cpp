@@ -23,7 +23,7 @@
 /// 
 //--------------------------------------------------------------------------------------------------
 RiuRimQwtPlotCurve::RiuRimQwtPlotCurve(RimPlotCurve* ownerRimCurve, const QString &title /*= QString::null*/)
-    : RiuLineSegmentQwtPlotCurve(title)
+    : RiuQwtPlotCurve(title)
     , m_ownerRimCurve(ownerRimCurve)
 {
 

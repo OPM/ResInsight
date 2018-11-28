@@ -32,7 +32,7 @@
 #include "RiuSummaryCurveDefSelectionDialog.h"
 
 #include "cafPdmUiPushButtonEditor.h"
-#include "cafPdmUiTableView.h"
+#include "cafPdmUiTableViewEditor.h"
 
 
 CAF_PDM_SOURCE_INIT(RimSummaryCalculationVariable, "RimSummaryCalculationVariable");
@@ -169,7 +169,7 @@ void RimSummaryCalculationVariable::defineUiOrdering(QString uiConfigName, caf::
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCalculationVariable::defineObjectEditorAttribute(QString uiConfigName, caf::PdmUiEditorAttribute* attribute)
 {
-    caf::PdmUiTableViewEditorAttribute* attr = dynamic_cast<caf::PdmUiTableViewEditorAttribute*>(attribute);
+    caf::PdmUiTableViewPushButtonEditorAttribute* attr = dynamic_cast<caf::PdmUiTableViewPushButtonEditorAttribute*>(attribute);
     if (attr)
     {
         attr->registerPushButtonTextForFieldKeyword(m_button.keyword(), "Edit");

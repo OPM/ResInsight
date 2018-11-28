@@ -17,8 +17,8 @@
   along with OPM.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <ert/util/test_util.h>
-#include <ert/util/test_work_area.h>
+#include <ert/util/test_util.hpp>
+#include <ert/util/test_work_area.hpp>
 
 #include <ert/ecl/Smspec.hpp>
 

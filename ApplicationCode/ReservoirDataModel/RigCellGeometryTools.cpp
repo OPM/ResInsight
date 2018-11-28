@@ -23,11 +23,103 @@
 
 #include "cafHexGridIntersectionTools/cafHexGridIntersectionTools.h"
 #include "cvfBoundingBox.h"
+#include "cvfMatrix3.h"
 
 #include "clipper/clipper.hpp"
 
-#include <vector>
+#include "cvfMath.h"
 
+#include <vector>
+#include <array>
+
+//--------------------------------------------------------------------------------------------------
+/// Efficient Computation of Volume of Hexahedral Cells
+/// Jeffrey Grandy, Lawrence Livermore National Laboratory
+/// https://www.osti.gov/servlets/purl/632793/
+///
+/// Note that in the paper the following vertex numbering is used
+///     6---------7               
+///    /|        /|     |k        
+///   / |       / |     | /j      
+///  4---------5  |     |/        
+///  |  2------|--3     *---i     
+///  | /       | /                
+///  |/        |/                 
+///  0---------1                     
+///
+/// While in ResInsight, this is the numbering. Thus we need to swap 2<->3, 6<->7 in the equations.
+/// Note the negative k! This causes an additional set of 0<->4, 1<->5, etc. index swaps.
+///     7---------6               
+///    /|        /|     |-k        
+///   / |       / |     | /j      
+///  4---------5  |     |/        
+///  |  3------|--2     *---i     
+///  | /       | /                
+///  |/        |/                 
+///  0---------1                     
+//--------------------------------------------------------------------------------------------------
+double RigCellGeometryTools::calculateCellVolume(const std::array<cvf::Vec3d, 8>& x)
+{
+    // 6 * 3 flops = 18 flops
+
+    // Perform index swap when retrieving corners but keep indices in variable names matching paper.
+    cvf::Vec3d x3mx0 = x[6] - x[4]; // Swap 3->2, then negate z by 2->6 and 0->4
+    cvf::Vec3d x5mx0 = x[1] - x[4]; // Negate z by Swap 5->1 and 0->4
+    cvf::Vec3d x6mx0 = x[3] - x[4]; // Swap 6->7, then negate z by 7->3 and 0->4
+    cvf::Vec3d x7mx1 = x[2] - x[5]; // Swap 7->6, then negate z by 6->2 and 1->5
+    cvf::Vec3d x7mx2 = x[2] - x[7]; // Swap 7->6, 2->3, then negate z by 6->2 and 3->7
+    cvf::Vec3d x7mx4 = x[2] - x[0]; // Swap 7->6 then negate z by 6->2 and 4->0
+
+    // 3 flops for summation + 5 for dot product + 9 flops for cross product = 17 flops
+    double det1 = (x7mx1 + x6mx0) * (x7mx2 ^ x3mx0);
+    // 3 flops for summation + 5 for dot product + 9 flops for cross product = 17 flops
+    double det2 = x6mx0 * ((x7mx2 + x5mx0) ^ x7mx4);
+    // 3 flops for summation + 5 for dot product + 9 flops for cross product = 17 flops
+    double det3 = x7mx1 * (x5mx0 ^ (x7mx4 + x3mx0));
+
+    // 2 flops for summation + 1 for division = 3 flops
+    double volume = (det1 + det2 + det3) / 12.0;
+    
+    // In order for this to work in any rotation of the cell, we need the absolute value. 1 flop.
+    return std::abs(volume); // Altogether 18 + 3*17 + 3 + 1 flops = 73 flops.
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::array<cvf::Vec3d, 8> RigCellGeometryTools::estimateHexOverlapWithBoundingBox(const std::array<cvf::Vec3d, 8>& hexCorners, const cvf::BoundingBox& boundingBox, cvf::BoundingBox* overlapBoundingBox)
+{
+    CVF_ASSERT(overlapBoundingBox);
+    *overlapBoundingBox = cvf::BoundingBox();
+    std::array<cvf::Vec3d, 8> overlapCorners = hexCorners;
+    // A reasonable approximation to the overlap volume
+    cvf::Plane topPlane;    topPlane.setFromPoints(hexCorners[0], hexCorners[1], hexCorners[2]);
+    cvf::Plane bottomPlane; bottomPlane.setFromPoints(hexCorners[4], hexCorners[5], hexCorners[6]);
+
+    for (size_t i = 0; i < 4; ++i)
+    {
+        cvf::Vec3d& corner = overlapCorners[i];
+        corner.x() = cvf::Math::clamp(corner.x(), boundingBox.min().x(), boundingBox.max().x());
+        corner.y() = cvf::Math::clamp(corner.y(), boundingBox.min().y(), boundingBox.max().y());
+        corner.z() = cvf::Math::clamp(corner.z(), boundingBox.min().z(), boundingBox.max().z());
+        cvf::Vec3d maxZCorner = corner; maxZCorner.z() = boundingBox.max().z();
+        cvf::Vec3d minZCorner = corner; minZCorner.z() = boundingBox.min().z();
+        topPlane.intersect(minZCorner, maxZCorner, &corner);
+        overlapBoundingBox->add(corner);
+    }
+    for (size_t i = 4; i < 8; ++i)
+    {
+        cvf::Vec3d& corner = overlapCorners[i];
+        corner.x() = cvf::Math::clamp(corner.x(), boundingBox.min().x(), boundingBox.max().x());
+        corner.y() = cvf::Math::clamp(corner.y(), boundingBox.min().y(), boundingBox.max().y());
+        corner.z() = cvf::Math::clamp(corner.z(), boundingBox.min().z(), boundingBox.max().z());
+        cvf::Vec3d maxZCorner = corner; maxZCorner.z() = boundingBox.max().z();
+        cvf::Vec3d minZCorner = corner; minZCorner.z() = boundingBox.min().z();
+        bottomPlane.intersect(minZCorner, maxZCorner, &corner);
+        overlapBoundingBox->add(corner);
+    }
+    return overlapCorners;
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -151,7 +243,7 @@ void RigCellGeometryTools::findCellLocalXYZ(const std::array<cvf::Vec3d, 8>& hex
 //--------------------------------------------------------------------------------------------------
 ///  
 //--------------------------------------------------------------------------------------------------
-double RigCellGeometryTools::polygonLengthInLocalXdirWeightedByArea(std::vector<cvf::Vec3d> polygonToCalcLengthOf)
+double RigCellGeometryTools::polygonLengthInLocalXdirWeightedByArea(const std::vector<cvf::Vec3d>& polygonToCalcLengthOf)
 {
     //Find bounding box
     cvf::BoundingBox polygonBBox;
@@ -250,19 +342,20 @@ cvf::Vec3d fromClipperPoint(const ClipperLib::IntPoint& clipPoint)
 //--------------------------------------------------------------------------------------------------
 ///  
 //--------------------------------------------------------------------------------------------------
-std::vector<std::vector<cvf::Vec3d> > RigCellGeometryTools::intersectPolygons(std::vector<cvf::Vec3d> polygon1, std::vector<cvf::Vec3d> polygon2)
+std::vector<std::vector<cvf::Vec3d> > RigCellGeometryTools::intersectPolygons(const std::vector<cvf::Vec3d>& polygon1,
+                                                                              const std::vector<cvf::Vec3d>& polygon2)
 {
     std::vector<std::vector<cvf::Vec3d> > clippedPolygons;
     
     // Convert to int for clipper library and store as clipper "path"
     ClipperLib::Path polygon1path;
-    for (cvf::Vec3d& v : polygon1)
+    for (const cvf::Vec3d& v : polygon1)
     {
         polygon1path.push_back(toClipperPoint(v));
     }
 
     ClipperLib::Path polygon2path;
-    for (cvf::Vec3d& v : polygon2)
+    for (const cvf::Vec3d& v : polygon2)
     {
         polygon2path.push_back(toClipperPoint(v));
     }
@@ -282,6 +375,56 @@ std::vector<std::vector<cvf::Vec3d> > RigCellGeometryTools::intersectPolygons(st
         {
             clippedPolygon.push_back(fromClipperPoint(IntPosition));
         }
+        clippedPolygons.push_back(clippedPolygon);
+    }
+
+    return clippedPolygons;
+}
+
+//-------------------------------------------------------------------------------------------------- 
+///  
+//--------------------------------------------------------------------------------------------------
+std::vector<std::vector<cvf::Vec3d>>
+    RigCellGeometryTools::subtractPolygons(const std::vector<cvf::Vec3d>&              sourcePolygon,
+                                           const std::vector<std::vector<cvf::Vec3d>>& polygonsToSubtract)
+{
+    ClipperLib::Clipper clpr;
+
+    {
+        // Convert to int for clipper library and store as clipper "path"
+        ClipperLib::Path polygon1path;
+        for (const auto& v : sourcePolygon)
+        {
+            polygon1path.push_back(toClipperPoint(v));
+        }
+        clpr.AddPath(polygon1path, ClipperLib::ptSubject, true);
+    }
+
+    for (const auto& path : polygonsToSubtract)
+    {
+        ClipperLib::Path polygon2path;
+        for (const auto& v : path)
+        {
+            polygon2path.push_back(toClipperPoint(v));
+        }
+
+        clpr.AddPath(polygon2path, ClipperLib::ptClip, true);
+    }
+
+    ClipperLib::Paths solution;
+    clpr.Execute(ClipperLib::ctDifference, solution, ClipperLib::pftEvenOdd, ClipperLib::pftEvenOdd);
+
+    std::vector<std::vector<cvf::Vec3d>> clippedPolygons;
+
+    // Convert back to std::vector<std::vector<cvf::Vec3d> >
+    for (ClipperLib::Path pathInSol : solution)
+    {
+        std::vector<cvf::Vec3d> clippedPolygon;
+        for (ClipperLib::IntPoint IntPosition : pathInSol)
+        {
+            clippedPolygon.push_back(fromClipperPoint(IntPosition));
+        }
+
         clippedPolygons.push_back(clippedPolygon);
     }
 
@@ -408,28 +551,30 @@ std::vector<std::vector<cvf::Vec3d> > RigCellGeometryTools::clipPolylineByPolygo
 //--------------------------------------------------------------------------------------------------
 ///  
 //--------------------------------------------------------------------------------------------------
-std::pair<cvf::Vec3d, cvf::Vec3d> RigCellGeometryTools::getLineThroughBoundingBox(cvf::Vec3d lineDirection, cvf::BoundingBox polygonBBox, cvf::Vec3d pointOnLine)
+std::pair<cvf::Vec3d, cvf::Vec3d> RigCellGeometryTools::getLineThroughBoundingBox(const cvf::Vec3d& lineDirection,
+                                                                                  const cvf::BoundingBox& polygonBBox,
+                                                                                  const cvf::Vec3d& pointOnLine)
 {
     cvf::Vec3d bboxCorners[8];
     polygonBBox.cornerVertices(bboxCorners);
 
     cvf::Vec3d startPoint = pointOnLine;
     cvf::Vec3d endPoint = pointOnLine;
-    
+    cvf::Vec3d lineDir = lineDirection;
 
     //To avoid doing many iterations in loops below linedirection should be quite large. 
-    lineDirection.normalize();
-    lineDirection = lineDirection * polygonBBox.extent().length() / 5;
+    lineDir.normalize();
+    lineDir = lineDir * polygonBBox.extent().length() / 5;
 
     //Extend line in positive direction
     while (polygonBBox.contains(startPoint))
     {
-        startPoint = startPoint + lineDirection;
+        startPoint = startPoint + lineDir;
     }
     //Extend line in negative direction
     while (polygonBBox.contains(endPoint))
     {
-        endPoint = endPoint - lineDirection;
+        endPoint = endPoint - lineDir;
     }
 
     std::pair<cvf::Vec3d, cvf::Vec3d> line;
@@ -458,7 +603,7 @@ double RigCellGeometryTools::getLengthOfPolygonAlongLine(const std::pair<cvf::Ve
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<cvf::Vec3d> RigCellGeometryTools::unionOfPolygons(std::vector<std::vector<cvf::Vec3d>> polygons)
+std::vector<cvf::Vec3d> RigCellGeometryTools::unionOfPolygons(const std::vector<std::vector<cvf::Vec3d>>& polygons)
 {
     // Convert to int for clipper library and store as clipper "path"
     std::vector<ClipperLib::Path> polygonPaths;

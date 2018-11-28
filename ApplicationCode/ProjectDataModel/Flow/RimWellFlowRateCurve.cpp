@@ -26,7 +26,7 @@
 #include "RimWellLogPlot.h"
 #include "RimWellLogTrack.h"
 
-#include "RiuLineSegmentQwtPlotCurve.h"
+#include "RiuQwtPlotCurve.h"
 
 #include "qwt_plot.h"
 
@@ -111,14 +111,6 @@ int RimWellFlowRateCurve::groupId() const
 void RimWellFlowRateCurve::setDoFillCurve(bool doFill)
 {
     m_doFillCurve = doFill;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-bool RimWellFlowRateCurve::doFillCurve() const
-{
-    return m_doFillCurve;
 }
 
 //--------------------------------------------------------------------------------------------------

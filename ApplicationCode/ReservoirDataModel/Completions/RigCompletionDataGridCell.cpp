@@ -23,7 +23,15 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigCompletionDataGridCell::RigCompletionDataGridCell() {}
+RigCompletionDataGridCell::RigCompletionDataGridCell()
+    : m_globalCellIndex(0)
+    , m_lgrName("")
+    , m_gridIndex(0)
+    , m_localCellIndexI(0)
+    , m_localCellIndexJ(0)
+    , m_localCellIndexK(0)
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -33,9 +41,9 @@ RigCompletionDataGridCell::RigCompletionDataGridCell(size_t globalCellIndex, con
 {
     if (mainGrid)
     {
-        size_t gridLocalCellIndex;
+        size_t             gridLocalCellIndex;
         const RigGridBase* grid = mainGrid->gridAndGridLocalIdxFromGlobalCellIdx(globalCellIndex, &gridLocalCellIndex);
-        
+
         if (grid)
         {
             size_t i = 0;
@@ -51,6 +59,8 @@ RigCompletionDataGridCell::RigCompletionDataGridCell(size_t globalCellIndex, con
             {
                 m_lgrName = QString::fromStdString(grid->gridName());
             }
+
+            m_gridIndex = grid->gridIndex();
         }
     }
 }
@@ -68,11 +78,13 @@ bool RigCompletionDataGridCell::operator==(const RigCompletionDataGridCell& othe
 //--------------------------------------------------------------------------------------------------
 bool RigCompletionDataGridCell::operator<(const RigCompletionDataGridCell& other) const
 {
+    if (m_gridIndex != other.m_gridIndex) return m_gridIndex < other.m_gridIndex;
+
     if (m_localCellIndexI != other.m_localCellIndexI) return m_localCellIndexI < other.m_localCellIndexI;
     if (m_localCellIndexJ != other.m_localCellIndexJ) return m_localCellIndexJ < other.m_localCellIndexJ;
     if (m_localCellIndexK != other.m_localCellIndexK) return m_localCellIndexK < other.m_localCellIndexK;
 
-    return false;
+    return m_globalCellIndex < other.m_globalCellIndex;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -123,4 +135,12 @@ QString RigCompletionDataGridCell::oneBasedLocalCellIndexString() const
 QString RigCompletionDataGridCell::lgrName() const
 {
     return m_lgrName;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RigCompletionDataGridCell::isMainGridCell() const
+{
+    return m_lgrName.isEmpty();
 }

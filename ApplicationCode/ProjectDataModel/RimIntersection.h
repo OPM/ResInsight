@@ -68,7 +68,7 @@ public:
 
 public:
     RimIntersection();
-    ~RimIntersection();
+    ~RimIntersection() override;
 
     caf::PdmField<QString>                               name;
     caf::PdmField<bool>                                  isActive;
@@ -89,6 +89,7 @@ public:
 
     Rim2dIntersectionView*                               correspondingIntersectionView();
     RivIntersectionPartMgr*                              intersectionPartMgr();
+    void                                                 rebuildGeometry();
 
     std::vector <cvf::Vec3d>                             polyLinesForExtrusionDirection() const;
     void                                                 appendPointToExtrusionDirection(const cvf::Vec3d& point);
@@ -105,17 +106,19 @@ public:
     bool                                                 hasDefiningPoints() const;
 
     int                                                  branchIndex() const;
+    void                                                 rebuildGeometryAndScheduleCreateDisplayModel();
+
 protected:
-    virtual caf::PdmFieldHandle*            userDescriptionField();
-    virtual caf::PdmFieldHandle*            objectToggleField();
+    caf::PdmFieldHandle*            userDescriptionField() override;
+    caf::PdmFieldHandle*            objectToggleField() override;
                                             
-    virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
+    void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
 
 
-    virtual void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
-    virtual void                            defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute);
+    void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    void                            defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override;
                                             
-    virtual QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly);
+    QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
 
 private:
 
@@ -140,7 +143,6 @@ private:
     void                                    updateWellExtentDefaultValue();
     void                                    addExtents(std::vector<cvf::Vec3d> &polyLine) const;
     void                                    updateName();
-    void                                    rebuildGeometryAndScheduleCreateDisplayModel();
     static double                           azimuthInRadians(cvf::Vec3d vec);
 private:                                    
     cvf::ref<RivIntersectionPartMgr>        m_crossSectionPartMgr;

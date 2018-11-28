@@ -59,7 +59,7 @@ class RimRegularLegendConfig : public RimLegendConfig
     CAF_PDM_HEADER_INIT;
 public:
     RimRegularLegendConfig();
-    virtual ~RimRegularLegendConfig();
+    ~RimRegularLegendConfig() override;
 
     caf::PdmField<QString>                      resultVariableName; // Used internally to describe the variable this legend setup is used for
 
@@ -121,9 +121,12 @@ public:
 
     cvf::ScalarMapper*                          scalarMapper() { return m_currentScalarMapper.p(); }
     bool                                        showLegend() const;
+    void                                        setShowLegend(bool show);
 
     const caf::TitledOverlayFrame*              titledOverlayFrame() const override;
     caf::TitledOverlayFrame*                    titledOverlayFrame() override;
+
+    RangeModeType                               rangeMode() const;
 
 private:
     void                                        setNamedCategories(const std::vector<QString>& categoryNames, bool inverse);
@@ -131,7 +134,6 @@ private:
     void                                        initAfterRead() override;
     caf::PdmFieldHandle*                        objectToggleField() override;
 
-    friend class RimStimPlanLegendConfig;
     void                                        defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     QList<caf::PdmOptionItemInfo>               calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
 

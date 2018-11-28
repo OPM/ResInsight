@@ -10,7 +10,7 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
-#include <ert/util/util.hpp>
+#include <ert/util/util.h>
 
 extern char **environ;
 

@@ -22,9 +22,22 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QStringList RifFileParseTools::splitLineAndTrim(const QString& line, const QString& separator)
+QStringList RifFileParseTools::splitLineAndTrim(const QString& line, const QString& separator, bool skipEmptyParts)
 {
-    QStringList cols = line.split(separator);
+    QStringList cols = line.trimmed().split(separator, skipEmptyParts ? QString::SkipEmptyParts : QString::KeepEmptyParts);
+    for (QString& col : cols)
+    {
+        col = col.trimmed();
+    }
+    return cols;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QStringList RifFileParseTools::splitLineAndTrim(const QString& line, const QRegExp& regexp, bool skipEmptyParts)
+{
+    QStringList cols = line.trimmed().split(regexp, skipEmptyParts ? QString::SkipEmptyParts : QString::KeepEmptyParts);
     for (QString& col : cols)
     {
         col = col.trimmed();

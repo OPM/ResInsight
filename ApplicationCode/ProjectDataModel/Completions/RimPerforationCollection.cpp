@@ -19,9 +19,14 @@
 
 #include "RimPerforationCollection.h"
 
+#include "RiaApplication.h"
+
+#include "Rim3dView.h"
+#include "RimEclipseCase.h"
 #include "RimPerforationInterval.h"
 #include "RimProject.h"
-#include "Rim3dView.h"
+#include "RimMswCompletionParameters.h"
+#include "RimNonDarcyPerforationParameters.h"
 
 #include "RigWellPath.h"
 
@@ -44,6 +49,16 @@ RimPerforationCollection::RimPerforationCollection()
 
     CAF_PDM_InitFieldNoDefault(&m_perforations, "Perforations", "Perforations", "", "", "");
     m_perforations.uiCapability()->setUiHidden(true);
+
+    CAF_PDM_InitFieldNoDefault(&m_mswParameters, "MswParameters", "Multi Segment Well Parameters", "", "", "");
+    m_mswParameters = new RimMswCompletionParameters;
+    m_mswParameters.uiCapability()->setUiTreeHidden(true);
+    m_mswParameters.uiCapability()->setUiTreeChildrenHidden(true);
+
+    CAF_PDM_InitFieldNoDefault(&m_nonDarcyParameters, "NonDarcyParameters", "Non-Darcy Parameters", "", "", "");
+    m_nonDarcyParameters = new RimNonDarcyPerforationParameters();
+    m_nonDarcyParameters.uiCapability()->setUiTreeHidden(true);
+    m_nonDarcyParameters.uiCapability()->setUiTreeChildrenHidden(true);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -52,6 +67,42 @@ RimPerforationCollection::RimPerforationCollection()
 RimPerforationCollection::~RimPerforationCollection()
 {
     m_perforations.deleteAllChildObjects();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const RimMswCompletionParameters* RimPerforationCollection::mswParameters() const
+{
+    return m_mswParameters;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const RimNonDarcyPerforationParameters* RimPerforationCollection::nonDarcyParameters() const
+{
+    return m_nonDarcyParameters;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimPerforationCollection::setUnitSystemSpecificDefaults()
+{
+    m_mswParameters->setUnitSystemSpecificDefaults();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimPerforationCollection::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+{
+    caf::PdmUiGroup* mswGroup = uiOrdering.addNewGroup("Multi Segment Well Options");
+    m_mswParameters->uiOrdering(uiConfigName, *mswGroup);
+
+    m_nonDarcyParameters->uiOrdering(uiConfigName, uiOrdering);
+    uiOrdering.skipRemainingFields(true);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -67,7 +118,7 @@ void RimPerforationCollection::fieldChangedByUi(const caf::PdmFieldHandle* chang
     }
     else
     {
-        proj->createDisplayModelAndRedrawAllViews();
+        proj->scheduleCreateDisplayModelAndRedrawAllViews();
     }
 }
 
@@ -76,6 +127,37 @@ void RimPerforationCollection::fieldChangedByUi(const caf::PdmFieldHandle* chang
 //--------------------------------------------------------------------------------------------------
 void RimPerforationCollection::appendPerforation(RimPerforationInterval* perforation)
 {
+    QDate firstTimeStepFromCase;
+    QDate lastTimeStepFromCase;
+    Rim3dView* activeView = RiaApplication::instance()->activeReservoirView();
+    if (activeView)
+    {
+        activeView->hasUserRequestedAnimation = true;
+
+        RimEclipseCase* eclipseCase = nullptr;
+        activeView->firstAncestorOrThisOfType(eclipseCase);
+        if (eclipseCase)
+        {
+            auto dates = eclipseCase->timeStepDates();
+            if (!dates.empty())
+            {
+                firstTimeStepFromCase = dates.front().date();
+
+                lastTimeStepFromCase = dates.back().date();
+            }
+        }
+    }
+
+    if (firstTimeStepFromCase.isValid())
+    {
+        perforation->setCustomStartDate(firstTimeStepFromCase);
+    }
+
+    if (lastTimeStepFromCase.isValid())
+    {
+        perforation->setCustomEndDate(lastTimeStepFromCase);
+    }
+
     m_perforations.push_back(perforation);
 
     perforation->setUnitSystemSpecificDefaults();
@@ -95,7 +177,7 @@ std::vector<const RimPerforationInterval*> RimPerforationCollection::perforation
 {
     std::vector<const RimPerforationInterval*> myPerforations;
 
-    for (auto perforation : m_perforations)
+    for (const auto& perforation : m_perforations)
     {
         myPerforations.push_back(perforation);
     }

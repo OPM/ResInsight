@@ -121,7 +121,7 @@ void RimCase::setFormationNames(RimFormationNames* formationNames)
 //--------------------------------------------------------------------------------------------------
 size_t RimCase::uiToNativeTimeStepIndex(size_t uiTimeStepIndex)
 {
-    std::vector<size_t> nativeTimeIndices = m_timeStepFilter->filteredNativeTimeStepIndices();
+    std::vector<size_t> nativeTimeIndices = m_timeStepFilter->filteredTimeSteps();
 
     if (nativeTimeIndices.size() > 0)
     {

@@ -1,4 +1,5 @@
 /*
+  Copyright 2018 Equinor ASA.
   Copyright 2017 Statoil ASA.
 
   This file is part of the Open Porous Media Project (OPM).
@@ -34,8 +35,8 @@
 #include <cassert>
 #include <cmath>
 #include <exception>
-#include <initializer_list>
 #include <iterator>
+#include <limits>
 #include <numeric>
 #include <stdexcept>
 #include <utility>
@@ -87,15 +88,32 @@ namespace {
         return tep;
     }
 
+    bool haveKeywordData(const ::Opm::ECLGraph&        G,
+                         const ::Opm::ECLInitFileData& init,
+                         const std::string&            vector)
+    {
+        const auto& grids = G.activeGrids();
+
+        return std::any_of(std::begin(grids), std::end(grids),
+            [&init, &vector](const std::string& gridID)
+        {
+            return init.haveKeywordData(vector, gridID);
+        });
+    }
+
     template <class CvrtVal>
     std::vector<double>
     gridDefaultedVector(const ::Opm::ECLGraph&        G,
                         const ::Opm::ECLInitFileData& init,
                         const std::string&            vector,
                         const std::vector<double>&    dflt,
-                        CvrtVal&&                     cvrt)
+                        CvrtVal&&                     cvrt,
+                        const std::vector<double>&    fallback
+                            = std::vector<double>{})
     {
         auto ret = std::vector<double>(G.numCells());
+
+        const auto sentinel = 1.0e20;
 
         assert (! dflt.empty() && "Internal Error");
 
@@ -112,12 +130,98 @@ namespace {
                 : std::vector<double>(nc, -1.0e21);
 
             for (auto c = 0*nc; c < nc; ++c, ++cellID) {
-                ret[cellID] = (std::abs(val[c]) < 1.0e20)
-                    ? cvrt(val[c]) : dflt[snum[c] - 1];
+                const auto fb = fallback.empty()
+                    ? -sentinel : fallback[c];
+
+                auto& r = ret[cellID];
+
+                if (std::abs(val[c]) < sentinel) {
+                    r = cvrt(val[c]);
+                }
+                else if (std::abs(fb) < sentinel) {
+                    r = cvrt(fb);
+                }
+                else {
+                    r = dflt[snum[c] - 1];
+                }
             }
         }
 
         return ret;
+    }
+
+    std::vector<double>
+    sgCrit(const ::Opm::ECLGraph&                              G,
+           const ::Opm::ECLInitFileData&                       init,
+           const ::Opm::SatFunc::CreateEPS::RawTableEndPoints& tep)
+    {
+        return gridDefaultedVector(G, init, "SGCR", tep.crit.gas,
+                                   [](const double s) { return s; });
+    }
+
+    std::vector<double>
+    sogCrit(const ::Opm::ECLGraph&                              G,
+            const ::Opm::ECLInitFileData&                       init,
+            const ::Opm::SatFunc::CreateEPS::RawTableEndPoints& tep)
+    {
+        return gridDefaultedVector(G, init, "SOGCR", tep.crit.oil_in_gas,
+                                   [](const double s) { return s; });
+    }
+
+    std::vector<double>
+    sowCrit(const ::Opm::ECLGraph&                              G,
+            const ::Opm::ECLInitFileData&                       init,
+            const ::Opm::SatFunc::CreateEPS::RawTableEndPoints& tep)
+    {
+        return gridDefaultedVector(G, init, "SOWCR", tep.crit.oil_in_water,
+                                   [](const double s) { return s; });
+    }
+
+    std::vector<double>
+    swCrit(const ::Opm::ECLGraph&                              G,
+           const ::Opm::ECLInitFileData&                       init,
+           const ::Opm::SatFunc::CreateEPS::RawTableEndPoints& tep)
+    {
+        return gridDefaultedVector(G, init, "SWCR", tep.crit.water,
+                                   [](const double s) { return s; });
+    }
+
+    std::vector<double>
+    sgMax(const ::Opm::ECLGraph&                              G,
+          const ::Opm::ECLInitFileData&                       init,
+          const ::Opm::SatFunc::CreateEPS::RawTableEndPoints& tep)
+    {
+        return gridDefaultedVector(G, init, "SGU", tep.smax.gas,
+                                   [](const double s) { return s; });
+    }
+
+    std::vector<double>
+    soMax(const ::Opm::ECLGraph&                              G,
+          const ::Opm::ECLInitFileData&                       init,
+          const ::Opm::SatFunc::CreateEPS::RawTableEndPoints& tep)
+    {
+        auto smax = std::vector<double>(G.numCells());
+
+        const auto sgl = ::Opm::SatFunc::scaledConnateGas  (G, init, tep);
+        const auto swl = ::Opm::SatFunc::scaledConnateWater(G, init, tep);
+
+        std::transform(std::begin(sgl), std::end(sgl), std::begin(swl),
+                       std::begin(smax),
+            [](const double sg, const double sw) -> double
+        {
+            return 1.0 - (sg + sw);
+        });
+
+        return smax;
+    }
+
+    std::vector<double>
+    swMax(const ::Opm::ECLGraph&                              G,
+          const ::Opm::ECLInitFileData&                       init,
+          const ::Opm::SatFunc::CreateEPS::RawTableEndPoints& tep)
+    {
+        return gridDefaultedVector(G, init, "SWU", tep.smax.water,
+                                   [](const double s) { return s; });
     }
 
     double defaultedScaledSaturation(const double s, const double dflt)
@@ -130,19 +234,25 @@ namespace {
         return (std::abs(s) < 1.0e+20) ? s : dflt;
     }
 
-    bool validSaturation(const double s)
+    bool
+    haveScaledRelPermAtCritSat(const ::Opm::ECLGraph&                       G,
+                               const ::Opm::ECLInitFileData&                init,
+                               const ::Opm::SatFunc::CreateEPS::EPSOptions& opt)
     {
-        return (! (s < 0.0)) && (! (s > 1.0));
-    }
+        switch (opt.thisPh) {
+        case ::Opm::ECLPhaseIndex::Aqua:
+            return haveKeywordData(G, init, "KRWR");
 
-    bool validSaturations(std::initializer_list<double> sats)
-    {
-        return std::accumulate(std::begin(sats),
-                               std::end  (sats), true,
-            [](const bool result, const double s) -> bool
-        {
-            return result && validSaturation(s);
-        });
+        case ::Opm::ECLPhaseIndex::Liquid:
+            return (opt.subSys == ::Opm::SatFunc::CreateEPS::SubSystem::OilGas)
+                ? haveKeywordData(G, init, "KRORG")
+                : haveKeywordData(G, init, "KRORW");
+
+        case ::Opm::ECLPhaseIndex::Vapour:
+            return haveKeywordData(G, init, "KRGR");
+        }
+
+        return false;
     }
 }
 
@@ -155,9 +265,7 @@ class Opm::SatFunc::TwoPointScaling::Impl
 public:
     Impl(std::vector<double> smin,
          std::vector<double> smax)
-        : smin_          (std::move(smin))
-        , smax_          (std::move(smax))
-        , handle_invalid_(InvalidEndpointBehaviour::UseUnscaled)
+        : smin_(std::move(smin)), smax_(std::move(smax))
     {
         if (this->smin_.size() != this->smax_.size()) {
             throw std::invalid_argument {
@@ -178,11 +286,6 @@ public:
 private:
     std::vector<double> smin_;
     std::vector<double> smax_;
-
-    InvalidEndpointBehaviour handle_invalid_;
-
-    void handleInvalidEndpoint(const SaturationAssoc& sp,
-                               std::vector<double>&   effsat) const;
 
     double sMin(const std::vector<int>::size_type cell,
                 const TableEndPoints&             tep) const
@@ -218,12 +321,6 @@ Impl::eval(const TableEndPoints&   tep,
 
         const auto sLO = this->sMin(cell, tep);
         const auto sHI = this->sMax(cell, tep);
-
-        if (! validSaturations({ sLO, sHI })) {
-            this->handleInvalidEndpoint(eval_pt, effsat);
-
-            continue;
-        }
 
         effsat.push_back(0.0);
         auto& s_eff = effsat.back();
@@ -264,12 +361,6 @@ Impl::reverse(const TableEndPoints&   tep,
         const auto sLO = this->sMin(cell, tep);
         const auto sHI = this->sMax(cell, tep);
 
-        if (! validSaturations({ sLO, sHI })) {
-            this->handleInvalidEndpoint(eval_pt, unscaledsat);
-
-            continue;
-        }
-
         unscaledsat.push_back(0.0);
         auto& s_unsc = unscaledsat.back();
 
@@ -296,26 +387,6 @@ Impl::reverse(const TableEndPoints&   tep,
     return unscaledsat;
 }
 
-void
-Opm::SatFunc::TwoPointScaling::Impl::
-handleInvalidEndpoint(const SaturationAssoc& sp,
-                      std::vector<double>&   effsat) const
-{
-    if (this->handle_invalid_ == InvalidEndpointBehaviour::UseUnscaled) {
-        // User requests that invalid scaling be treated as unscaled
-        // saturations.  Pick that.
-        effsat.push_back(sp.sat);
-        return;
-    }
-
-    if (this->handle_invalid_ == InvalidEndpointBehaviour::IgnorePoint) {
-        // User requests that invalid scaling be ignored.  Signal invalid
-        // scaled saturation to caller as NaN.
-        effsat.push_back(std::nan(""));
-        return;
-    }
-}
-
 // ---------------------------------------------------------------------
 // Class Opm::SatFunc::PureVerticalScaling::Impl
 // ---------------------------------------------------------------------
@@ -325,6 +396,9 @@ class Opm::SatFunc::PureVerticalScaling::Impl
 public:
     explicit Impl(std::vector<double> fmax)
         : fmax_(std::move(fmax))
+        , inf_ (std::numeric_limits<double>::has_infinity
+                ? std::numeric_limits<double>::infinity()
+                : std::numeric_limits<double>::max())
     {}
 
     std::vector<double>
@@ -334,6 +408,16 @@ public:
 
 private:
     std::vector<double> fmax_;
+
+    double inf_;
+
+    std::vector<double>
+    zeroMaxVal(const SaturationPoints& sp) const;
+
+    std::vector<double>
+    nonZeroMaxVal(const SaturationPoints& sp,
+                  const double            maxVal,
+                  std::vector<double>     val) const;
 };
 
 std::vector<double>
@@ -344,9 +428,39 @@ vertScale(const FunctionValues&   f,
 {
     assert (sp.size() == val.size() && "Internal Error in Vertical Scaling");
 
-    auto ret = std::move(val);
-
     const auto maxVal = f.max.val;
+
+    if (! (std::abs(maxVal) > 0.0)) {
+        return this->zeroMaxVal(sp);
+    }
+
+    return this->nonZeroMaxVal(sp, maxVal, std::move(val));
+}
+
+std::vector<double>
+Opm::SatFunc::PureVerticalScaling::Impl::
+zeroMaxVal(const SaturationPoints& sp) const
+{
+    auto ret = std::vector<double>(sp.size(), 0.0);
+
+    for (auto n = sp.size(), i = 0*n; i < n; ++i) {
+        const auto fmax = this->fmax_[ sp[i].cell ];
+
+        ret[i] = (std::abs(fmax) > 0.0)
+            ? (std::signbit(fmax) ? -this->inf_ : this->inf_)
+            : 0.0;
+    }
+
+    return ret;
+}
+
+std::vector<double>
+Opm::SatFunc::PureVerticalScaling::Impl::
+nonZeroMaxVal(const SaturationPoints& sp,
+              const double            maxVal,
+              std::vector<double>     val) const
+{
+    auto ret = std::move(val);
 
     for (auto n = sp.size(), i = 0*n; i < n; ++i) {
         ret[i] *= this->fmax_[ sp[i].cell ] / maxVal;
@@ -364,9 +478,11 @@ class Opm::SatFunc::CritSatVerticalScaling::Impl
 public:
     explicit Impl(std::vector<double> sdisp,
                   std::vector<double> fdisp,
+                  std::vector<double> smax,
                   std::vector<double> fmax)
         : sdisp_(std::move(sdisp))
         , fdisp_(std::move(fdisp))
+        , smax_ (std::move(smax))
         , fmax_ (std::move(fmax))
     {}
 
@@ -378,6 +494,7 @@ public:
 private:
     std::vector<double> sdisp_;
     std::vector<double> fdisp_;
+    std::vector<double> smax_;
     std::vector<double> fmax_;
 };
 
@@ -387,44 +504,52 @@ vertScale(const FunctionValues&   f,
           const SaturationPoints& sp,
           std::vector<double>     val) const
 {
-    assert ((sp.size() == val.size())  && "Internal Error in Vertical Scaling");
-    assert (! (f.max.val < f.disp.val) && "Internal Error in Table Extraction");
-    assert (! (f.max.sat < f.disp.sat) && "Internal Error in Table Extraction");
+    assert ((sp.size() == val.size()) && "Internal Error in Vertical Scaling");
 
     auto ret = std::move(val);
 
-    const auto fdisp = f.disp.val;   const auto sdisp = f.disp.sat;
-    const auto fmax  = f.max .val;   const auto smax  = f.max .sat;
-    const auto sepfv = fmax > fdisp; const auto sep_s = sdisp > smax;
+    const auto fdisp = f.disp.val;
+    const auto fmax  = std::max(f.disp.val, f.max.val);
+    const auto sepfv = fmax > fdisp;
 
     for (auto n = sp.size(), i = 0*n; i < n; ++i) {
         auto& y = ret[i];
 
         const auto c  = sp[i].cell;
         const auto s  = sp[i].sat;
-        const auto sr = this->sdisp_[c];
+        const auto sr = std::min(this->sdisp_[c], this->smax_[c]);
         const auto fr = this->fdisp_[c];
+        const auto sm = this->smax_ [c];
         const auto fm = this->fmax_ [c];
 
-        if (! (s > sr)) {
-            // s <= sr: Pure vertical scaling in left interval.
+        if (s < sr) {
+            // s < sr: Pure vertical scaling in left interval.
             y *= fr / fdisp;
         }
         else if (sepfv) {
-            // Normal case: Kr(Smax) > Kr(Sr)
+            // s \in [sr, sm), sm > sr; normal case: Kr(Smax) > Kr(Sr).
+            //
+            // Linear function between (sr,fr) and (sm,fm) in terms of
+            // function value 'y'.  This usually alters the shape of the
+            // relative permeability function in this interval (e.g.,
+            // roughly quadratic to linear).
             const auto t = (y - fdisp) / (fmax - fdisp);
 
             y = fr + t*(fm - fr);
         }
-        else if (sep_s) {
-            // Special case: Kr(Smax) == Kr(Sr).  Use linear function from
-            // saturations.
-            const auto t = (s - sdisp) / (smax - sdisp);
+        else if (s < sm) {
+            // s \in [sr, sm), sm > sr; special case: Kr(Smax) == Kr(Sr).
+            //
+            // Use linear function between (sr,fr) and (sm,fm) in terms of
+            // saturation value 's'.  This usually alters the shape of the
+            // relative permeability function in this interval (e.g.,
+            // roughly quadratic to linear).
+            const auto t = (s - sr) / (sm - sr);
 
             y = fr + t*(fm - fr);
         }
         else {
-            // Smax == Sr; Almost arbitrarily pick fmax_[c].
+            // sm == sr (pure scaling).  Almost arbitrarily pick fmax_[c].
             y = fm;
         }
     }
@@ -442,10 +567,7 @@ public:
     Impl(std::vector<double> smin ,
          std::vector<double> sdisp,
          std::vector<double> smax )
-        : smin_          (std::move(smin ))
-        , sdisp_         (std::move(sdisp))
-        , smax_          (std::move(smax ))
-        , handle_invalid_(InvalidEndpointBehaviour::UseUnscaled)
+        : smin_(std::move(smin)), sdisp_(std::move(sdisp)), smax_(std::move(smax))
     {
         if ((this->sdisp_.size() != this->smin_.size()) ||
             (this->sdisp_.size() != this->smax_.size()))
@@ -469,11 +591,6 @@ private:
     std::vector<double> smin_;
     std::vector<double> sdisp_;
     std::vector<double> smax_;
-
-    InvalidEndpointBehaviour handle_invalid_;
-
-    void handleInvalidEndpoint(const SaturationAssoc& sp,
-                               std::vector<double>&   effsat) const;
 
     double sMin(const std::vector<int>::size_type cell,
                 const TableEndPoints&             tep) const
@@ -518,12 +635,6 @@ Impl::eval(const TableEndPoints&   tep,
         const auto sR  = this->sDisp(cell, tep);
         const auto sHI = this->sMax (cell, tep);
 
-        if (! validSaturations({ sLO, sR, sHI })) {
-            this->handleInvalidEndpoint(eval_pt, effsat);
-
-            continue;
-        }
-
         effsat.push_back(0.0);
         auto& s_eff = effsat.back();
 
@@ -531,21 +642,25 @@ Impl::eval(const TableEndPoints&   tep,
             // s <= sLO
             s_eff = tep.low;
         }
-        else if (! (eval_pt.sat < sHI)) {
-            // s >= sHI
-            s_eff = tep.high;
-        }
-        else if (eval_pt.sat < sR) {
-            // s \in (sLO, sR)
+        else if (eval_pt.sat < std::min(sR, sHI)) {
+            // s in scaled interval [sLO, sR)
+            // Map to tabulated saturation in [tep.low, tep.disp)
             const auto t = (eval_pt.sat - sLO) / (sR - sLO);
 
             s_eff = tep.low + t*(tep.disp - tep.low);
         }
-        else {
-            // s \in (sR, sHI)
+        else if (eval_pt.sat < sHI) {
+            // s in scaled interval [sR, sHI)
+            // Map to tabulated saturation in [tep.disp, tep.high)
+            assert (sHI > sR);
+
             const auto t = (eval_pt.sat - sR) / (sHI - sR);
 
             s_eff = tep.disp + t*(tep.high - tep.disp);
+        }
+        else {
+            // s >= sHI
+            s_eff = tep.high;
         }
     }
 
@@ -567,12 +682,6 @@ Impl::reverse(const TableEndPoints&   tep,
         const auto sR  = this->sDisp(cell, tep);
         const auto sHI = this->sMax (cell, tep);
 
-        if (! validSaturations({ sLO, sR, sHI })) {
-            this->handleInvalidEndpoint(eval_pt, unscaledsat);
-
-            continue;
-        }
-
         unscaledsat.push_back(0.0);
         auto& s_unsc = unscaledsat.back();
 
@@ -581,99 +690,53 @@ Impl::reverse(const TableEndPoints&   tep,
             // Map to Minimum Input Saturation in cell (sLO).
             s_unsc = sLO;
         }
-        else if (! (eval_pt.sat < tep.high)) {
-            // s >= maximum tabulated saturation.
-            // Map to Maximum Input Saturation in cell (sHI).
-            s_unsc = sHI;
-        }
         else if (eval_pt.sat < tep.disp) {
-            // s in tabulated interval (tep.low, tep.disp)
+            // s in tabulated interval [tep.low, tep.disp)
             // Map to Input Saturation in (sLO, sR)
             const auto t =
                 (eval_pt.sat - tep.low)
                 / (tep.disp  - tep.low);
 
-            s_unsc = sLO + t*(sR - sLO);
+            s_unsc = std::min(sLO + t*(sR - sLO), sHI);
         }
-        else {
-            // s in tabulated interval (tep.disp, tep.high)
-            // Map to Input Saturation in (sR, sHI)
+        else if (eval_pt.sat < tep.high) {
+            // s in tabulated interval [tep.disp, tep.high)
+            // Map to Input Saturation in [sR, sHI)
+            assert (tep.high > tep.disp);
+
             const auto t =
                 (eval_pt.sat - tep.disp)
                 / (tep.high  - tep.disp);
 
-            s_unsc = sR + t*(sHI - sR);
+            s_unsc = std::min(sR + t*std::max(sHI - sR, 0.0), sHI);
+        }
+        else {
+            // s >= maximum tabulated saturation.
+            //
+            // Map to Maximum Input Saturation in cell (sHI) if maximum
+            // tabulated saturation is strictly greater than critical
+            // displacing saturation--otherwise map to critical displacing
+            // saturation.
+            //
+            // Needed to handle cases in which \code tep.disp==tep.high
+            // \endcode but scaled versions of these might differ, i.e. when
+            // sR < sHI, but the corresponding saturation points in the
+            // underlying input table coincide.
+            s_unsc = (tep.high > tep.disp) ? sHI : sR;
         }
     }
 
     return unscaledsat;
 }
 
-void
-Opm::SatFunc::ThreePointScaling::Impl::
-handleInvalidEndpoint(const SaturationAssoc& sp,
-                      std::vector<double>&   effsat) const
-{
-    if (this->handle_invalid_ == InvalidEndpointBehaviour::UseUnscaled) {
-        // User requests that invalid scaling be treated as unscaled
-        // saturations.  Pick that.
-        effsat.push_back(sp.sat);
-        return;
-    }
-
-    if (this->handle_invalid_ == InvalidEndpointBehaviour::IgnorePoint) {
-        // User requests that invalid scaling be ignored.  Signal invalid
-        // scaled saturation to caller as NaN.
-        effsat.push_back(std::nan(""));
-        return;
-    }
-}
-
 // ---------------------------------------------------------------------
 // EPS factory functions for two-point and three-point scaling options
 // ---------------------------------------------------------------------
-
-namespace {
-    bool haveScaledRelPermAtCritSatKeyword(const ::Opm::ECLGraph&        G,
-                                           const ::Opm::ECLInitFileData& init,
-                                           const std::string&            kw)
-    {
-        auto haveKW = false;
-
-        for (const auto& grid : G.activeGrids()) {
-            haveKW = haveKW || init.haveKeywordData(kw, grid);
-        }
-
-        return haveKW;
-    }
-
-    bool haveScaledRelPermAtCritSat(const ::Opm::ECLGraph&                     G,
-                                    const ::Opm::ECLInitFileData&              init,
-                                    const ::Opm::ECLPhaseIndex                 phase,
-                                    const ::Opm::SatFunc::CreateEPS::SubSystem subSys)
-    {
-        switch (phase) {
-        case ::Opm::ECLPhaseIndex::Aqua:
-            return haveScaledRelPermAtCritSatKeyword(G, init, "KRWR");
-
-        case ::Opm::ECLPhaseIndex::Liquid:
-            return (subSys == ::Opm::SatFunc::CreateEPS::SubSystem::OilGas)
-                ? haveScaledRelPermAtCritSatKeyword(G, init, "KROGR")
-                : haveScaledRelPermAtCritSatKeyword(G, init, "KROWR");
-
-        case ::Opm::ECLPhaseIndex::Vapour:
-            return haveScaledRelPermAtCritSatKeyword(G, init, "KRGR");
-        }
-
-        return false;
-    }
-} // namespace Anonymous
 
 namespace Create {
     using EPSOpt = ::Opm::SatFunc::CreateEPS::EPSOptions;
     using RTEP   = ::Opm::SatFunc::CreateEPS::RawTableEndPoints;
     using TEP    = ::Opm::SatFunc::EPSEvalInterface::TableEndPoints;
-    using InvBeh = ::Opm::SatFunc::EPSEvalInterface::InvalidEndpointBehaviour;
 
     namespace TwoPoint {
         using EPS    = ::Opm::SatFunc::TwoPointScaling;
@@ -682,35 +745,42 @@ namespace Create {
         struct Kr {
             static EPSPtr
             G(const ::Opm::ECLGraph&        G,
-              const ::Opm::ECLInitFileData& init);
+              const ::Opm::ECLInitFileData& init,
+              const RTEP&                   tep);
 
             static EPSPtr
             OG(const ::Opm::ECLGraph&        G,
-               const ::Opm::ECLInitFileData& init);
+               const ::Opm::ECLInitFileData& init,
+               const RTEP&                   tep);
 
             static EPSPtr
             OW(const ::Opm::ECLGraph&        G,
-               const ::Opm::ECLInitFileData& init);
+               const ::Opm::ECLInitFileData& init,
+               const RTEP&                   tep);
 
             static EPSPtr
             W(const ::Opm::ECLGraph&        G,
-              const ::Opm::ECLInitFileData& init);
+              const ::Opm::ECLInitFileData& init,
+              const RTEP&                   tep);
         };
 
         struct Pc {
             static EPSPtr
             GO(const ::Opm::ECLGraph&        G,
-               const ::Opm::ECLInitFileData& init);
+               const ::Opm::ECLInitFileData& init,
+               const RTEP&                   tep);
 
             static EPSPtr
             OW(const ::Opm::ECLGraph&        G,
-               const ::Opm::ECLInitFileData& init);
+               const ::Opm::ECLInitFileData& init,
+               const RTEP&                   tep);
         };
 
         static EPSPtr
         scalingFunction(const ::Opm::ECLGraph&        G,
                         const ::Opm::ECLInitFileData& init,
-                        const EPSOpt&                 opt);
+                        const EPSOpt&                 opt,
+                        const RTEP&                   tep);
 
         static std::vector<TEP>
         unscaledEndPoints(const RTEP& ep, const EPSOpt& opt);
@@ -723,25 +793,30 @@ namespace Create {
         struct Kr {
             static EPSPtr
             G(const ::Opm::ECLGraph&        G,
-              const ::Opm::ECLInitFileData& init);
+              const ::Opm::ECLInitFileData& init,
+              const RTEP&                   tep);
 
             static EPSPtr
             OG(const ::Opm::ECLGraph&        G,
-               const ::Opm::ECLInitFileData& init);
+               const ::Opm::ECLInitFileData& init,
+               const RTEP&                   tep);
 
             static EPSPtr
             OW(const ::Opm::ECLGraph&        G,
-               const ::Opm::ECLInitFileData& init);
+               const ::Opm::ECLInitFileData& init,
+               const RTEP&                   tep);
 
             static EPSPtr
             W(const ::Opm::ECLGraph&        G,
-              const ::Opm::ECLInitFileData& init);
+              const ::Opm::ECLInitFileData& init,
+              const RTEP&                   tep);
         };
 
         static EPSPtr
-        scalingFunction(const ::Opm::ECLGraph&                       G,
-                        const ::Opm::ECLInitFileData&                init,
-                        const ::Opm::SatFunc::CreateEPS::EPSOptions& opt);
+        scalingFunction(const ::Opm::ECLGraph&        G,
+                        const ::Opm::ECLInitFileData& init,
+                        const EPSOpt&                 opt,
+                        const RTEP&                   tep);
 
         static std::vector<TEP>
         unscaledEndPoints(const RTEP& ep, const EPSOpt& opt);
@@ -795,29 +870,94 @@ namespace Create {
         using FValVec = ::Opm::SatFunc::CreateEPS::Vertical::FuncValVector;
         using ScalPtr = std::unique_ptr<Scaling>;
 
+        namespace CritDispSat {
+            struct KrG {
+                static std::vector<double>
+                twoPointMethod(const ::Opm::ECLGraph&        G,
+                               const ::Opm::ECLInitFileData& init,
+                               const RTEP&                   tep,
+                               const bool                    activeOil);
+
+                static std::vector<double>
+                alternateMethod(const ::Opm::ECLGraph&        G,
+                                const ::Opm::ECLInitFileData& init,
+                                const RTEP&                   tep,
+                                const bool                    activeOil);
+            };
+
+            struct KrGO {
+                static std::vector<double>
+                twoPointMethod(const ::Opm::ECLGraph&        G,
+                               const ::Opm::ECLInitFileData& init,
+                               const RTEP&                   tep);
+
+                static std::vector<double>
+                alternateMethod(const ::Opm::ECLGraph&        G,
+                                const ::Opm::ECLInitFileData& init,
+                                const RTEP&                   tep);
+            };
+
+            struct KrOW {
+                static std::vector<double>
+                twoPointMethod(const ::Opm::ECLGraph&        G,
+                               const ::Opm::ECLInitFileData& init,
+                               const RTEP&                   tep);
+
+                static std::vector<double>
+                alternateMethod(const ::Opm::ECLGraph&        G,
+                                const ::Opm::ECLInitFileData& init,
+                                const RTEP&                   tep);
+            };
+
+            struct KrW {
+                static std::vector<double>
+                twoPointMethod(const ::Opm::ECLGraph&        G,
+                               const ::Opm::ECLInitFileData& init,
+                               const RTEP&                   tep,
+                               const bool                    activeOil);
+
+                static std::vector<double>
+                alternateMethod(const ::Opm::ECLGraph&        G,
+                                const ::Opm::ECLInitFileData& init,
+                                const RTEP&                   tep,
+                                const bool                    activeOil);
+            };
+
+            std::vector<double>
+            transformedCritSat(const ::Opm::ECLGraph&        G,
+                               const ::Opm::ECLInitFileData& init,
+                               const std::vector<double>&    t,
+                               const std::vector<double>&    left,
+                               const std::vector<double>&    right);
+        } // namespace CritDispSat
+
         struct Kr {
             static ScalPtr
             G(const ::Opm::ECLGraph&        G,
               const ::Opm::ECLInitFileData& init,
-              const RTEP&                   tep,
+              std::vector<double>&&         sdisp,
+              std::vector<double>&&         smax,
               const FValVec&                fval);
 
             static ScalPtr
             GO(const ::Opm::ECLGraph&        G,
                const ::Opm::ECLInitFileData& init,
-               const RTEP&                   tep,
+               std::vector<double>&&         sdisp,
+               std::vector<double>&&         smax,
                const FValVec&                fval);
 
             static ScalPtr
             OW(const ::Opm::ECLGraph&        G,
                const ::Opm::ECLInitFileData& init,
-               const RTEP&                   tep,
+               std::vector<double>&&         sdisp,
+               std::vector<double>&&         smax,
                const FValVec&                fval);
 
             static ScalPtr
             W(const ::Opm::ECLGraph&        G,
               const ::Opm::ECLInitFileData& init,
-              const RTEP&                   tep,
+              std::vector<double>&&         sdisp,
+              std::vector<double>&&         smax,
               const FValVec&                fval);
         };
 
@@ -834,10 +974,11 @@ namespace Create {
 // Implementation of Create::TwoPoint::scalingFunction()
 Create::TwoPoint::EPSPtr
 Create::TwoPoint::Kr::G(const ::Opm::ECLGraph&        G,
-                        const ::Opm::ECLInitFileData& init)
+                        const ::Opm::ECLInitFileData& init,
+                        const RTEP&                   tep)
 {
-    auto sgcr = G.rawLinearisedCellData<double>(init, "SGCR");
-    auto sgu  = G.rawLinearisedCellData<double>(init, "SGU");
+    auto sgcr = sgCrit(G, init, tep);
+    auto sgu  = sgMax (G, init, tep);
 
     if ((sgcr.size() != sgu.size()) ||
         (sgcr.size() != G.numCells()))
@@ -855,9 +996,10 @@ Create::TwoPoint::Kr::G(const ::Opm::ECLGraph&        G,
 
 Create::TwoPoint::EPSPtr
 Create::TwoPoint::Kr::OG(const ::Opm::ECLGraph&        G,
-                         const ::Opm::ECLInitFileData& init)
+                         const ::Opm::ECLInitFileData& init,
+                         const RTEP&                   tep)
 {
-    auto sogcr = G.rawLinearisedCellData<double>(init, "SOGCR");
+    auto sogcr = sogCrit(G, init, tep);
 
     if (sogcr.size() != G.numCells()) {
         throw std::invalid_argument {
@@ -866,40 +1008,7 @@ Create::TwoPoint::Kr::OG(const ::Opm::ECLGraph&        G,
         };
     }
 
-    auto smax = std::vector<double>(sogcr.size(), 1.0);
-
-    // Adjust maximum S_o for scaled connate gas saturations.
-    {
-        const auto sgl = G.rawLinearisedCellData<double>(init, "SGL");
-
-        if (sgl.size() != sogcr.size()) {
-            throw std::invalid_argument {
-                "Missing or Mismatching Connate Gas "
-                "Saturation in Oil/Gas System"
-            };
-        }
-
-        for (auto n = sgl.size(), i = 0*n; i < n; ++i) {
-            smax[i] -= sgl[i];
-        }
-    }
-
-    // Adjust maximum S_o for scaled connate water saturations (if relevant).
-    {
-        const auto swl = G.rawLinearisedCellData<double>(init, "SWL");
-
-        if (swl.size() == sogcr.size()) {
-            for (auto n = swl.size(), i = 0*n; i < n; ++i) {
-                smax[i] -= swl[i];
-            }
-        }
-        else if (! swl.empty()) {
-            throw std::invalid_argument {
-                "Mismatching Connate Water "
-                "Saturation in Oil/Gas System"
-            };
-        }
-    }
+    auto smax = soMax(G, init, tep);
 
     return EPSPtr {
         new EPS { std::move(sogcr), std::move(smax) }
@@ -908,9 +1017,10 @@ Create::TwoPoint::Kr::OG(const ::Opm::ECLGraph&        G,
 
 Create::TwoPoint::EPSPtr
 Create::TwoPoint::Kr::OW(const ::Opm::ECLGraph&        G,
-                         const ::Opm::ECLInitFileData& init)
+                         const ::Opm::ECLInitFileData& init,
+                         const RTEP&                   tep)
 {
-    auto sowcr = G.rawLinearisedCellData<double>(init, "SOWCR");
+    auto sowcr = sowCrit(G, init, tep);
 
     if (sowcr.size() != G.numCells()) {
         throw std::invalid_argument {
@@ -919,40 +1029,7 @@ Create::TwoPoint::Kr::OW(const ::Opm::ECLGraph&        G,
         };
     }
 
-    auto smax = std::vector<double>(sowcr.size(), 1.0);
-
-    // Adjust maximum S_o for scaled connate water saturations.
-    {
-        const auto swl = G.rawLinearisedCellData<double>(init, "SWL");
-
-        if (swl.size() != sowcr.size()) {
-            throw std::invalid_argument {
-                "Missing or Mismatching Connate Water "
-                "Saturation in Oil/Water System"
-            };
-        }
-
-        for (auto n = swl.size(), i = 0*n; i < n; ++i) {
-            smax[i] -= swl[i];
-        }
-    }
-
-    // Adjust maximum S_o for scaled connate gas saturations (if relevant).
-    {
-        const auto sgl = G.rawLinearisedCellData<double>(init, "SGL");
-
-        if (sgl.size() == sowcr.size()) {
-            for (auto n = sgl.size(), i = 0*n; i < n; ++i) {
-                smax[i] -= sgl[i];
-            }
-        }
-        else if (! sgl.empty()) {
-            throw std::invalid_argument {
-                "Mismatching Connate Gas "
-                "Saturation in Oil/Water System"
-            };
-        }
-    }
+    auto smax = soMax(G, init, tep);
 
     return EPSPtr {
         new EPS { std::move(sowcr), std::move(smax) }
@@ -961,10 +1038,11 @@ Create::TwoPoint::Kr::OW(const ::Opm::ECLGraph&        G,
 
 Create::TwoPoint::EPSPtr
 Create::TwoPoint::Kr::W(const ::Opm::ECLGraph&        G,
-                        const ::Opm::ECLInitFileData& init)
+                        const ::Opm::ECLInitFileData& init,
+                        const RTEP&                   tep)
 {
-    auto swcr = G.rawLinearisedCellData<double>(init, "SWCR");
-    auto swu  = G.rawLinearisedCellData<double>(init, "SWU");
+    auto swcr = swCrit(G, init, tep);
+    auto swu  = swMax (G, init, tep);
 
     if (swcr.empty() || swu.empty()) {
         throw std::invalid_argument {
@@ -979,16 +1057,20 @@ Create::TwoPoint::Kr::W(const ::Opm::ECLGraph&        G,
 
 Create::TwoPoint::EPSPtr
 Create::TwoPoint::Pc::GO(const ::Opm::ECLGraph&        G,
-                         const ::Opm::ECLInitFileData& init)
+                         const ::Opm::ECLInitFileData& init,
+                         const RTEP&                   tep)
 {
-    // Try dedicated scaled Sg_conn for Pc first
-    auto sgl = G.rawLinearisedCellData<double>(init, "SGLPC");
-    if (sgl.empty()) {
-        // Fall back to general scaled Sg_conn if not available.
-        sgl = G.rawLinearisedCellData<double>(init, "SGL");
-    }
+    // Use dedicated scaled Sg_conn for Pc if defined in at least one
+    // subgrid.  Use SGL otherwise.  Same default value (i.e., table's
+    // connate gas saturation) for both vectors.
+    const auto sgl = ::Opm::SatFunc::scaledConnateGas(G, init, tep);
 
-    auto sgu = G.rawLinearisedCellData<double>(init, "SGU");
+    auto sglpc = haveKeywordData(G, init, "SGLPC")
+        ? gridDefaultedVector(G, init, "SGLPC", tep.conn.gas,
+                              [](const double s) { return s; }, sgl)
+        : sgl;
+
+    auto sgu = sgMax(G, init, tep);
 
     if ((sgl.size() != sgu.size()) ||
         (sgl.size() != G.numCells()))
@@ -1000,22 +1082,26 @@ Create::TwoPoint::Pc::GO(const ::Opm::ECLGraph&        G,
     }
 
     return EPSPtr {
-        new EPS { std::move(sgl), std::move(sgu) }
+        new EPS { std::move(sglpc), std::move(sgu) }
     };
 }
 
 Create::TwoPoint::EPSPtr
 Create::TwoPoint::Pc::OW(const ::Opm::ECLGraph&        G,
-                         const ::Opm::ECLInitFileData& init)
+                         const ::Opm::ECLInitFileData& init,
+                         const RTEP&                   tep)
 {
-    // Try dedicated scaled Sw_conn for Pc first
-    auto swl = G.rawLinearisedCellData<double>(init, "SWLPC");
-    if (swl.empty()) {
-        // Fall back to general scaled Sw_conn if not available.
-        swl = G.rawLinearisedCellData<double>(init, "SWL");
-    }
+    // Use dedicated scaled Sw_conn for Pc if defined in at least one
+    // subgrid.  Use SWL otherwise.  Same default value (i.e., table's
+    // connate water saturation) for both vectors.
+    const auto swl = ::Opm::SatFunc::scaledConnateWater(G, init, tep);
 
-    auto swu = G.rawLinearisedCellData<double>(init, "SWU");
+    auto swlpc = haveKeywordData(G, init, "SWLPC")
+        ? gridDefaultedVector(G, init, "SWLPC", tep.conn.water,
+                              [](const double s) { return s; }, swl)
+        : swl;
+
+    auto swu = swMax(G, init, tep);
 
     if ((swl.size() != swu.size()) ||
         (swl.size() != G.numCells()))
@@ -1027,15 +1113,16 @@ Create::TwoPoint::Pc::OW(const ::Opm::ECLGraph&        G,
     }
 
     return EPSPtr {
-        new EPS { std::move(swl), std::move(swu) }
+        new EPS { std::move(swlpc), std::move(swu) }
     };
 }
 
 Create::TwoPoint::EPSPtr
 Create::TwoPoint::
-scalingFunction(const ::Opm::ECLGraph&                       G,
-                const ::Opm::ECLInitFileData&                init,
-                const ::Opm::SatFunc::CreateEPS::EPSOptions& opt)
+scalingFunction(const ::Opm::ECLGraph&        G,
+                const ::Opm::ECLInitFileData& init,
+                const EPSOpt&                 opt,
+                const RTEP&                   tep)
 {
     using FCat  = ::Opm::SatFunc::CreateEPS::FunctionCategory;
     using SSys  = ::Opm::SatFunc::CreateEPS::SubSystem;
@@ -1054,10 +1141,10 @@ scalingFunction(const ::Opm::ECLGraph&                       G,
             }
 
             if (opt.thisPh == PhIdx::Aqua) {
-                return Create::TwoPoint::Kr::W(G, init);
+                return Create::TwoPoint::Kr::W(G, init, tep);
             }
 
-            return Create::TwoPoint::Kr::OW(G, init);
+            return Create::TwoPoint::Kr::OW(G, init, tep);
         }
 
         if (opt.subSys == SSys::OilGas) {
@@ -1069,10 +1156,10 @@ scalingFunction(const ::Opm::ECLGraph&                       G,
             }
 
             if (opt.thisPh == PhIdx::Vapour) {
-                return Create::TwoPoint::Kr::G(G, init);
+                return Create::TwoPoint::Kr::G(G, init, tep);
             }
 
-            return Create::TwoPoint::Kr::OG(G, init);
+            return Create::TwoPoint::Kr::OG(G, init, tep);
         }
     }
 
@@ -1085,11 +1172,11 @@ scalingFunction(const ::Opm::ECLGraph&                       G,
         }
 
         if (opt.thisPh == PhIdx::Vapour) {
-            return Create::TwoPoint::Pc::GO(G, init);
+            return Create::TwoPoint::Pc::GO(G, init, tep);
         }
 
         if (opt.thisPh == PhIdx::Aqua) {
-            return Create::TwoPoint::Pc::OW(G, init);
+            return Create::TwoPoint::Pc::OW(G, init, tep);
         }
     }
 
@@ -1174,10 +1261,11 @@ Create::TwoPoint::unscaledEndPoints(const RTEP& ep, const EPSOpt& opt)
 
 Create::ThreePoint::EPSPtr
 Create::ThreePoint::Kr::G(const ::Opm::ECLGraph&        G,
-                          const ::Opm::ECLInitFileData& init)
+                          const ::Opm::ECLInitFileData& init,
+                          const RTEP&                   tep)
 {
-    auto sgcr = G.rawLinearisedCellData<double>(init, "SGCR");
-    auto sgu  = G.rawLinearisedCellData<double>(init, "SGU");
+    auto sgcr = sgCrit(G, init, tep);
+    auto sgu  = sgMax (G, init, tep);
 
     if ((sgcr.size() != sgu.size()) ||
         (sgcr.size() != G.numCells()))
@@ -1188,54 +1276,22 @@ Create::ThreePoint::Kr::G(const ::Opm::ECLGraph&        G,
         };
     }
 
-    auto sr = std::vector<double>(G.numCells(), 1.0);
-
-    // Adjust displacing saturation for connate water.
-    {
-        const auto swl = G.rawLinearisedCellData<double>(init, "SWL");
-
-        if (swl.size() == sgcr.size()) {
-            for (auto n = swl.size(), i = 0*n; i < n; ++i) {
-                sr[i] -= swl[i];
-            }
-        }
-        else if (! swl.empty()) {
-            throw std::invalid_argument {
-                "Connate Water Saturation Array Mismatch "
-                "in Three-Point Scaling Option"
-            };
-        }
-    }
-
-    // Adjust displacing saturation for critical S_o in O/G system.
-    {
-        const auto sogcr = G.rawLinearisedCellData<double>(init, "SOGCR");
-
-        if (sogcr.size() == sgcr.size()) {
-            for (auto n = sogcr.size(), i = 0*n; i < n; ++i) {
-                sr[i] -= sogcr[i];
-            }
-        }
-        else if (! sogcr.empty()) {
-            throw std::invalid_argument {
-                "Critical Oil Saturation (O/G System) Array "
-                "Size Mismatch in Three-Point Scaling Option"
-            };
-        }
-    }
+    auto sdisp = CritSatVertical::CritDispSat::
+        KrG::alternateMethod(G, init, tep, true);
 
     return EPSPtr {
         new EPS {
-            std::move(sgcr), std::move(sr), std::move(sgu)
+            std::move(sgcr), std::move(sdisp), std::move(sgu)
         }
     };
 }
 
 Create::ThreePoint::EPSPtr
 Create::ThreePoint::Kr::OG(const ::Opm::ECLGraph&        G,
-                           const ::Opm::ECLInitFileData& init)
+                           const ::Opm::ECLInitFileData& init,
+                           const RTEP&                   tep)
 {
-    auto sogcr = G.rawLinearisedCellData<double>(init, "SOGCR");
+    auto sogcr = sogCrit(G, init, tep);
 
     if (sogcr.size() != G.numCells()) {
         throw std::invalid_argument {
@@ -1244,60 +1300,10 @@ Create::ThreePoint::Kr::OG(const ::Opm::ECLGraph&        G,
         };
     }
 
-    auto smax = std::vector<double>(sogcr.size(), 1.0);
+    auto sdisp = CritSatVertical::CritDispSat::
+        KrGO::alternateMethod(G, init, tep);
 
-    // Adjust maximum S_o for scaled connate gas saturations.
-    {
-        const auto sgl = G.rawLinearisedCellData<double>(init, "SGL");
-
-        if (sgl.size() != sogcr.size()) {
-            throw std::invalid_argument {
-                "Missing or Mismatching Connate Gas "
-                "Saturation in Oil/Gas System"
-            };
-        }
-
-        for (auto n = sgl.size(), i = 0*n; i < n; ++i) {
-            smax[i] -= sgl[i];
-        }
-    }
-
-    auto sdisp = std::vector<double>(sogcr.size(), 1.0);
-
-    // Adjust displacing S_o for scaled critical gas saturation.
-    {
-        const auto sgcr = G.rawLinearisedCellData<double>(init, "SGCR");
-
-        if (sgcr.size() != sogcr.size()) {
-            throw std::invalid_argument {
-                "Missing or Mismatching Scaled Critical Gas "
-                "Saturation in Oil/Gas System"
-            };
-        }
-
-        for (auto n = sgcr.size(), i = 0*n; i < n; ++i) {
-            sdisp[i] -= sgcr[i];
-        }
-    }
-
-    // Adjust displacing and maximum S_o for scaled connate water
-    // saturations (if relevant).
-    {
-        const auto swl = G.rawLinearisedCellData<double>(init, "SWL");
-
-        if (swl.size() == sogcr.size()) {
-            for (auto n = swl.size(), i = 0*n; i < n; ++i) {
-                sdisp[i] -= swl[i];
-                smax [i] -= swl[i];
-            }
-        }
-        else if (! swl.empty()) {
-            throw std::invalid_argument {
-                "Mismatching Scaled Connate Water "
-                "Saturation in Oil/Gas System"
-            };
-        }
-    }
+    auto smax = soMax(G, init, tep);
 
     return EPSPtr {
         new EPS {
@@ -1308,9 +1314,10 @@ Create::ThreePoint::Kr::OG(const ::Opm::ECLGraph&        G,
 
 Create::ThreePoint::EPSPtr
 Create::ThreePoint::Kr::OW(const ::Opm::ECLGraph&        G,
-                           const ::Opm::ECLInitFileData& init)
+                           const ::Opm::ECLInitFileData& init,
+                           const RTEP&                   tep)
 {
-    auto sowcr = G.rawLinearisedCellData<double>(init, "SOWCR");
+    auto sowcr = sowCrit(G, init, tep);
 
     if (sowcr.size() != G.numCells()) {
         throw std::invalid_argument {
@@ -1319,60 +1326,10 @@ Create::ThreePoint::Kr::OW(const ::Opm::ECLGraph&        G,
         };
     }
 
-    auto smax = std::vector<double>(sowcr.size(), 1.0);
+    auto sdisp = CritSatVertical::CritDispSat::
+        KrOW::alternateMethod(G, init, tep);
 
-    // Adjust maximum S_o for scaled connate water saturations.
-    {
-        const auto swl = G.rawLinearisedCellData<double>(init, "SWL");
-
-        if (swl.size() != sowcr.size()) {
-            throw std::invalid_argument {
-                "Missing or Mismatching Connate Water "
-                "Saturation in Oil/Water System"
-            };
-        }
-
-        for (auto n = swl.size(), i = 0*n; i < n; ++i) {
-            smax[i] -= swl[i];
-        }
-    }
-
-    auto sdisp = std::vector<double>(sowcr.size(), 1.0);
-
-    // Adjust displacing S_o for scaled critical water saturations.
-    {
-        const auto swcr = G.rawLinearisedCellData<double>(init, "SWCR");
-
-        if (swcr.size() != sowcr.size()) {
-            throw std::invalid_argument {
-                "Missing or Mismatching Scaled Critical Water "
-                "Saturation in Oil/Water System"
-            };
-        }
-
-        for (auto n = swcr.size(), i = 0*n; i < n; ++i) {
-            sdisp[i] -= swcr[i];
-        }
-    }
-
-    // Adjust displacing and maximum S_o for scaled connate gas saturations
-    // (if relevant).
-    {
-        const auto sgl = G.rawLinearisedCellData<double>(init, "SGL");
-
-        if (sgl.size() == sowcr.size()) {
-            for (auto n = sgl.size(), i = 0*n; i < n; ++i) {
-                sdisp[i] -= sgl[i];
-                smax [i] -= sgl[i];
-            }
-        }
-        else if (! sgl.empty()) {
-            throw std::invalid_argument {
-                "Mismatching Connate Gas "
-                "Saturation in Oil/Water System"
-            };
-        }
-    }
+    auto smax = soMax(G, init, tep);
 
     return EPSPtr {
         new EPS {
@@ -1383,10 +1340,11 @@ Create::ThreePoint::Kr::OW(const ::Opm::ECLGraph&        G,
 
 Create::ThreePoint::EPSPtr
 Create::ThreePoint::Kr::W(const ::Opm::ECLGraph&        G,
-                          const ::Opm::ECLInitFileData& init)
+                          const ::Opm::ECLInitFileData& init,
+                          const RTEP&                   tep)
 {
-    auto swcr = G.rawLinearisedCellData<double>(init, "SWCR");
-    auto swu  = G.rawLinearisedCellData<double>(init, "SWU");
+    auto swcr = swCrit(G, init, tep);
+    auto swu  = swMax (G, init, tep);
 
     if ((swcr.size() != G.numCells()) ||
         (swcr.size() != swu.size()))
@@ -1396,41 +1354,8 @@ Create::ThreePoint::Kr::W(const ::Opm::ECLGraph&        G,
         };
     }
 
-    auto sdisp = std::vector<double>(swcr.size(), 1.0);
-
-    // Adjust displacing S_w for scaled critical oil saturation.
-    {
-        const auto sowcr = G.rawLinearisedCellData<double>(init, "SOWCR");
-
-        if (sowcr.size() == swcr.size()) {
-            for (auto n = sowcr.size(), i = 0*n; i < n; ++i) {
-                sdisp[i] -= sowcr[i];
-            }
-        }
-        else if (! sowcr.empty()) {
-            throw std::invalid_argument {
-                "Missing or Mismatching Scaled Critical "
-                "Oil Saturation in Oil/Water System"
-            };
-        }
-    }
-
-    // Adjust displacing S_w for scaled connate gas saturation.
-    {
-        const auto sgl = G.rawLinearisedCellData<double>(init, "SGL");
-
-        if (sgl.size() == swcr.size()) {
-            for (auto n = sgl.size(), i = 0*n; i < n; ++i) {
-                sdisp[i] -= sgl[i];
-            }
-        }
-        else if (! sgl.empty()) {
-            throw std::invalid_argument {
-                "Missing or Mismatching Scaled Connate "
-                "Gas Saturation in Oil/Water System"
-            };
-        }
-    }
+    auto sdisp = CritSatVertical::CritDispSat::
+        KrW::alternateMethod(G, init, tep, true);
 
     return EPSPtr {
         new EPS {
@@ -1441,9 +1366,10 @@ Create::ThreePoint::Kr::W(const ::Opm::ECLGraph&        G,
 
 Create::ThreePoint::EPSPtr
 Create::ThreePoint::
-scalingFunction(const ::Opm::ECLGraph&                       G,
-                const ::Opm::ECLInitFileData&                init,
-                const ::Opm::SatFunc::CreateEPS::EPSOptions& opt)
+scalingFunction(const ::Opm::ECLGraph&        G,
+                const ::Opm::ECLInitFileData& init,
+                const EPSOpt&                 opt,
+                const RTEP&                   tep)
 {
 #if !defined(NDEBUG)
     using FCat  = ::Opm::SatFunc::CreateEPS::FunctionCategory;
@@ -1464,10 +1390,10 @@ scalingFunction(const ::Opm::ECLGraph&                       G,
         }
 
         if (opt.thisPh == PhIdx::Aqua) {
-            return Create::ThreePoint::Kr::W(G, init);
+            return Create::ThreePoint::Kr::W(G, init, tep);
         }
 
-        return Create::ThreePoint::Kr::OW(G, init);
+        return Create::ThreePoint::Kr::OW(G, init, tep);
     }
 
     if (opt.subSys == SSys::OilGas) {
@@ -1479,10 +1405,10 @@ scalingFunction(const ::Opm::ECLGraph&                       G,
         }
 
         if (opt.thisPh == PhIdx::Vapour) {
-            return Create::ThreePoint::Kr::G(G, init);
+            return Create::ThreePoint::Kr::G(G, init, tep);
         }
 
-        return Create::ThreePoint::Kr::OG(G, init);
+        return Create::ThreePoint::Kr::OG(G, init, tep);
     }
 
     // Invalid.
@@ -1726,62 +1652,355 @@ scalingFunction(const ::Opm::ECLGraph&        G,
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Implementation of Create::CritSatVertical::scalingFunction()
 
-namespace {
-    template <class Extract>
-    std::vector<double>
-    extractCritSat(const std::vector<Opm::SatFunc::CreateEPS::RawTableEndPoints>& tep,
-                   Extract&& extract)
+std::vector<double>
+Create::CritSatVertical::CritDispSat::
+KrG::twoPointMethod(const ::Opm::ECLGraph&        G,
+                    const ::Opm::ECLInitFileData& init,
+                    const RTEP&                   tep,
+                    const bool                    activeOil)
+{
+    const auto& sgcr = tep.crit.gas;
+    const auto& sgu  = tep.smax.gas;
+
+    auto t = std::vector<double>(sgcr.size(), 0.0);
+    if (activeOil) {
+        // G/O or G/O/W system
+        for (auto n = sgcr.size(), i = 0*n; i < n; ++i) {
+            const auto sr = 1.0 - (tep.crit.oil_in_gas[i] +
+                                   tep.conn.water     [i]);
+
+            t[i] = (sr - sgcr[i]) / (sgu[i] - sgcr[i]);
+        }
+    }
+    else {
+        // G/W system.
+        for (auto n = sgcr.size(), i = 0*n; i < n; ++i) {
+            const auto sr = 1.0 - tep.crit.water[i];
+
+            t[i] = (sr - sgcr[i]) / (sgu[i] - sgcr[i]);
+        }
+    }
+
+    return transformedCritSat(G, init, t,
+                              sgCrit(G, init, tep),
+                              sgMax (G, init, tep));
+}
+
+std::vector<double>
+Create::CritSatVertical::CritDispSat::
+KrG::alternateMethod(const ::Opm::ECLGraph&        G,
+                     const ::Opm::ECLInitFileData& init,
+                     const RTEP&                   tep,
+                     const bool                    activeOil)
+{
+    auto sdisp = std::vector<double>(G.numCells(), 0.0);
+
+    if (activeOil) {
+        // G/O or G/O/W system.
+        const auto sogcr = sogCrit(G, init, tep);
+        const auto swl   = ::Opm::SatFunc::scaledConnateWater(G, init, tep);
+
+        std::transform(std::begin(sogcr), std::end(sogcr), std::begin(swl),
+                       std::begin(sdisp),
+            [](const double so, const double sw) -> double
+        {
+            return 1.0 - (so + sw);
+        });
+    }
+    else {
+        // G/W system.
+        const auto swcr = swCrit(G, init, tep);
+
+        std::transform(std::begin(swcr), std::end(swcr),
+                       std::begin(sdisp),
+            [](const double sw) -> double
+        {
+            return 1.0 - sw;
+        });
+    }
+
+    return sdisp;
+}
+
+std::vector<double>
+Create::CritSatVertical::CritDispSat::
+KrGO::twoPointMethod(const ::Opm::ECLGraph&        G,
+                     const ::Opm::ECLInitFileData& init,
+                     const RTEP&                   tep)
+{
+    const auto& sogcr = tep.crit.oil_in_gas;
+
+    auto t = std::vector<double>(sogcr.size(), 0.0);
     {
-        auto scr = std::vector<double>(tep.size(), 0.0);
+        const auto& sgco = tep.conn.gas;
+        const auto& swco = tep.conn.water;
+        const auto& sgcr = tep.crit.gas;
 
-        std::transform(std::begin(tep), std::end(tep), std::begin(scr),
-                       std::forward<Extract>(extract));
+        for (auto n = sgcr.size(), i = 0*n; i < n; ++i) {
+            const auto sr   = 1.0 - (sgcr[i] + swco[i]);
+            const auto smax = 1.0 - (sgco[i] + swco[i]); // >= sr
 
-        return scr;
+            t[i] = (sr - sogcr[i]) / (smax - sogcr[i]);
+        }
+    }
+
+    return transformedCritSat(G, init, t,
+                              sogCrit(G, init, tep),
+                              soMax  (G, init, tep));
+}
+
+std::vector<double>
+Create::CritSatVertical::CritDispSat::
+KrGO::alternateMethod(const ::Opm::ECLGraph&        G,
+                      const ::Opm::ECLInitFileData& init,
+                      const RTEP&                   tep)
+{
+    auto sdisp = std::vector<double>(G.numCells(), 0.0);
+
+    const auto sgcr = sgCrit(G, init, tep);
+    const auto swl  = ::Opm::SatFunc::scaledConnateWater(G, init, tep);
+
+    std::transform(std::begin(sgcr), std::end(sgcr), std::begin(swl),
+                   std::begin(sdisp),
+        [](const double sg, const double sw) -> double
+    {
+        return 1.0 - (sg + sw);
+    });
+
+    return sdisp;
+}
+
+std::vector<double>
+Create::CritSatVertical::CritDispSat::
+KrOW::twoPointMethod(const ::Opm::ECLGraph&        G,
+                     const ::Opm::ECLInitFileData& init,
+                     const RTEP&                   tep)
+{
+    const auto& sowcr = tep.crit.oil_in_water;
+
+    auto t = std::vector<double>(sowcr.size(), 0.0);
+    {
+        const auto& sgco = tep.conn.gas;
+        const auto& swco = tep.conn.water;
+        const auto& swcr = tep.crit.water;
+
+        for (auto n = swcr.size(), i = 0*n; i < n; ++i) {
+            const auto sr   = 1.0 - (swcr[i] + sgco[i]);
+            const auto smax = 1.0 - (swco[i] + sgco[i]); // >= sr
+
+            t[i] = (sr - sowcr[i]) / (smax - sowcr[i]);
+        }
+    }
+
+    return transformedCritSat(G, init, t,
+                              sowCrit(G, init, tep),
+                              soMax  (G, init, tep));
+}
+
+std::vector<double>
+Create::CritSatVertical::CritDispSat::
+KrOW::alternateMethod(const ::Opm::ECLGraph&        G,
+                      const ::Opm::ECLInitFileData& init,
+                      const RTEP&                   tep)
+{
+    auto sdisp = std::vector<double>(G.numCells(), 0.0);
+
+    const auto swcr = swCrit(G, init, tep);
+    const auto sgl  = ::Opm::SatFunc::scaledConnateGas(G, init, tep);
+
+    std::transform(std::begin(swcr), std::end(swcr), std::begin(sgl),
+                   std::begin(sdisp),
+        [](const double sw, const double sg) -> double
+    {
+        return 1.0 - (sg + sw);
+    });
+
+    return sdisp;
+}
+
+std::vector<double>
+Create::CritSatVertical::CritDispSat::
+KrW::twoPointMethod(const ::Opm::ECLGraph&        G,
+                    const ::Opm::ECLInitFileData& init,
+                    const RTEP&                   tep,
+                    const bool                    activeOil)
+{
+    const auto& swcr = tep.crit.water;
+    const auto& swu  = tep.smax.water;
+
+    auto t = std::vector<double>(swcr.size(), 0.0);
+    if (activeOil) {
+        // G/O or G/O/W system
+        for (auto n = swcr.size(), i = 0*n; i < n; ++i) {
+            const auto sr = 1.0 - (tep.crit.oil_in_water[i] +
+                                   tep.conn.gas         [i]);
+
+            t[i] = (sr - swcr[i]) / (swu[i] - swcr[i]);
+        }
+    }
+    else {
+        // G/W system.
+        for (auto n = swcr.size(), i = 0*n; i < n; ++i) {
+            const auto sr = 1.0 - tep.crit.gas[i];
+
+            t[i] = (sr - swcr[i]) / (swu[i] - swcr[i]);
+        }
+    }
+
+    return transformedCritSat(G, init, t,
+                              swCrit(G, init, tep),
+                              swMax (G, init, tep));
+}
+
+std::vector<double>
+Create::CritSatVertical::CritDispSat::
+KrW::alternateMethod(const ::Opm::ECLGraph&        G,
+                     const ::Opm::ECLInitFileData& init,
+                     const RTEP&                   tep,
+                     const bool                    activeOil)
+{
+    auto sdisp = std::vector<double>(G.numCells(), 0.0);
+
+    if (activeOil) {
+        // G/O or G/O/W system.
+        const auto sowcr = sowCrit(G, init, tep);
+        const auto sgl   = ::Opm::SatFunc::scaledConnateGas(G, init, tep);
+
+        std::transform(std::begin(sowcr), std::end(sowcr), std::begin(sgl),
+                       std::begin(sdisp),
+            [](const double so, const double sg) -> double
+        {
+            return 1.0 - (so + sg);
+        });
+    }
+    else {
+        // G/W system.
+        const auto sgcr = sgCrit(G, init, tep);
+
+        std::transform(std::begin(sgcr), std::end(sgcr),
+                       std::begin(sdisp),
+            [](const double sg) -> double
+        {
+            return 1.0 - sg;
+        });
+    }
+
+    return sdisp;
+}
+
+std::vector<double>
+Create::CritSatVertical::CritDispSat::
+transformedCritSat(const ::Opm::ECLGraph&        G,
+                   const ::Opm::ECLInitFileData& init,
+                   const std::vector<double>&    t,
+                   const std::vector<double>&    left,
+                   const std::vector<double>&    right)
+{
+    auto sdisp = std::vector<double>(G.numCells(), 0.0);
+
+    auto cellID = std::vector<double>::size_type{0};
+    for (const auto& gridID : G.activeGrids()) {
+        const auto nc = G.numCells(gridID);
+
+        const auto& snum = init.haveKeywordData("SATNUM", gridID)
+            ? G.rawLinearisedCellData<int>(init, "SATNUM", gridID)
+            : std::vector<int>(nc, 1);
+
+        for (auto c = 0*nc; c < nc; ++c, ++cellID) {
+            const auto x = t[snum[c] - 1];
+
+            sdisp[cellID] = (1.0 - x)*left[cellID] + x*right[cellID];
+        }
+    }
+
+    return sdisp;
+}
+
+namespace {
+    std::vector<double>
+    critDispSat(const ::Opm::ECLGraph&                              G,
+                const ::Opm::ECLInitFileData&                       init,
+                const ::Opm::SatFunc::CreateEPS::EPSOptions&        opt,
+                const ::Opm::SatFunc::CreateEPS::RawTableEndPoints& rtep)
+    {
+        namespace CDS = Create::CritSatVertical::CritDispSat;
+
+        if (opt.curve != ::Opm::SatFunc::CreateEPS::FunctionCategory::Relperm) {
+            return {};
+        }
+
+        const auto& ih        = init.keywordData<int>(INTEHEAD_KW);
+        const auto  activeOil =
+            (ih[INTEHEAD_PHASE_INDEX] & (1u << 0u)) != 0;
+
+        if (opt.subSys == ::Opm::SatFunc::CreateEPS::SubSystem::OilGas) {
+            if (opt.thisPh == ::Opm::ECLPhaseIndex::Aqua) {
+                throw std::invalid_argument {
+                    "Cannot request Critical Scaled Saturation "
+                    "for water in Gas/Oil system"
+                };
+            }
+
+            if (opt.thisPh == ::Opm::ECLPhaseIndex::Liquid) {
+                return !opt.use3PtScaling
+                    ? CDS::KrGO::twoPointMethod (G, init, rtep)
+                    : CDS::KrGO::alternateMethod(G, init, rtep);
+            }
+
+            return !opt.use3PtScaling
+                ? CDS::KrG::twoPointMethod (G, init, rtep, activeOil)
+                : CDS::KrG::alternateMethod(G, init, rtep, activeOil);
+        }
+
+        if (opt.subSys == ::Opm::SatFunc::CreateEPS::SubSystem::OilWater) {
+            if (opt.thisPh == ::Opm::ECLPhaseIndex::Vapour) {
+                throw std::invalid_argument {
+                    "Cannot request Critical Scaled Saturation "
+                    "for gas in Oil/Water system"
+                };
+            }
+
+            if (opt.thisPh == ::Opm::ECLPhaseIndex::Liquid) {
+                return !opt.use3PtScaling
+                    ? CDS::KrOW::twoPointMethod (G, init, rtep)
+                    : CDS::KrOW::alternateMethod(G, init, rtep);
+            }
+
+            return !opt.use3PtScaling
+                ? CDS::KrW::twoPointMethod (G, init, rtep, activeOil)
+                : CDS::KrW::alternateMethod(G, init, rtep, activeOil);
+        }
+
+        // Invalid
+        return {};
+    }
+
+    std::vector<double>
+    maximumSat(const ::Opm::ECLGraph&                              G,
+               const ::Opm::ECLInitFileData&                       init,
+               const ::Opm::SatFunc::CreateEPS::EPSOptions&        opt,
+               const ::Opm::SatFunc::CreateEPS::RawTableEndPoints& tep)
+    {
+        switch (opt.thisPh) {
+        case ::Opm::ECLPhaseIndex::Aqua:   return swMax(G, init, tep);
+        case ::Opm::ECLPhaseIndex::Liquid: return soMax(G, init, tep);
+        case ::Opm::ECLPhaseIndex::Vapour: return sgMax(G, init, tep);
+        }
+
+        throw std::invalid_argument {
+            "Unsupported Phase Index"
+        };
     }
 }
 
 Create::CritSatVertical::ScalPtr
 Create::CritSatVertical::Kr::G(const ::Opm::ECLGraph&        G,
                                const ::Opm::ECLInitFileData& init,
-                               const RTEP&                   rtep,
+                               std::vector<double>&&         sdisp,
+                               std::vector<double>&&         smax,
                                const FValVec&                fval)
 {
     using FVal = ::Opm::SatFunc::VerticalScalingInterface::FunctionValues;
-
-    const auto& ih   = init.keywordData<int>(INTEHEAD_KW);
-    const auto  iphs = static_cast<unsigned int>(ih[INTEHEAD_PHASE_INDEX]);
-
-    auto sdisp = std::vector<double>(G.numCells());
-
-    if ((iphs & (1u << 0)) != 0) { // Oil active
-        auto sogcr =
-            gridDefaultedVector(G, init, "SOGCR", rtep.crit.oil_in_gas,
-                                [](const double s) { return s; });
-
-        auto swl =
-            gridDefaultedVector(G, init, "SWL", rtep.conn.water,
-                                [](const double s) { return s; });
-
-        std::transform(std::begin(sogcr), std::end(sogcr),
-                       std::begin(swl), std::begin(sdisp),
-            [](const double so, const double sw)
-        {
-            return 1.0 - (so + sw);
-        });
-    }
-    else {                      // Oil not active (G/W?)
-        auto swcr =
-            gridDefaultedVector(G, init, "SWCR", rtep.crit.water,
-                                [](const double s) { return s; });
-
-        std::transform(std::begin(swcr), std::end(swcr),
-                       std::begin(sdisp),
-            [](const double sw)
-        {
-            return 1.0 - sw;
-        });
-    }
 
     auto dflt_fdisp = std::vector<double>(fval.size(), 0.0);
     std::transform(std::begin(fval), std::end(fval),
@@ -1803,7 +2022,8 @@ Create::CritSatVertical::Kr::G(const ::Opm::ECLGraph&        G,
 
     return ScalPtr {
         new ::Opm::SatFunc::CritSatVerticalScaling {
-            std::move(sdisp), std::move(fdisp), std::move(fmax)
+            std::move(sdisp), std::move(fdisp),
+            std::move(smax) , std::move(fmax)
         }
     };
 }
@@ -1811,26 +2031,11 @@ Create::CritSatVertical::Kr::G(const ::Opm::ECLGraph&        G,
 Create::CritSatVertical::ScalPtr
 Create::CritSatVertical::Kr::GO(const ::Opm::ECLGraph&        G,
                                 const ::Opm::ECLInitFileData& init,
-                                const RTEP&                   tep,
+                                std::vector<double>&&         sdisp,
+                                std::vector<double>&&         smax,
                                 const FValVec&                fval)
 {
     using FVal = ::Opm::SatFunc::VerticalScalingInterface::FunctionValues;
-    auto sdisp = std::vector<double>(G.numCells());
-
-    auto sgcr =
-        gridDefaultedVector(G, init, "SGCR", tep.crit.gas,
-                            [](const double s) { return s; });
-
-    auto swl =
-        gridDefaultedVector(G, init, "SWL", tep.conn.water,
-                            [](const double s) { return s; });
-
-    std::transform(std::begin(sgcr), std::end(sgcr),
-                   std::begin(swl), std::begin(sdisp),
-        [](const double sg, const double sw)
-    {
-        return 1.0 - (sg + sw);
-    });
 
     auto dflt_fdisp = std::vector<double>(fval.size(), 0.0);
     std::transform(std::begin(fval), std::end(fval),
@@ -1852,7 +2057,8 @@ Create::CritSatVertical::Kr::GO(const ::Opm::ECLGraph&        G,
 
     return ScalPtr {
         new ::Opm::SatFunc::CritSatVerticalScaling {
-            std::move(sdisp), std::move(fdisp), std::move(fmax)
+            std::move(sdisp), std::move(fdisp),
+            std::move(smax) , std::move(fmax)
         }
     };
 }
@@ -1860,26 +2066,11 @@ Create::CritSatVertical::Kr::GO(const ::Opm::ECLGraph&        G,
 Create::CritSatVertical::ScalPtr
 Create::CritSatVertical::Kr::OW(const ::Opm::ECLGraph&        G,
                                 const ::Opm::ECLInitFileData& init,
-                                const RTEP&                   tep,
+                                std::vector<double>&&         sdisp,
+                                std::vector<double>&&         smax,
                                 const FValVec&                fval)
 {
     using FVal = ::Opm::SatFunc::VerticalScalingInterface::FunctionValues;
-    auto sdisp = std::vector<double>(G.numCells());
-
-    auto swcr =
-        gridDefaultedVector(G, init, "SWCR", tep.crit.water,
-                            [](const double s) { return s; });
-
-    auto sgl =
-        gridDefaultedVector(G, init, "SGL", tep.conn.gas,
-                            [](const double s) { return s; });
-
-    std::transform(std::begin(swcr), std::end(swcr),
-                   std::begin(sgl), std::begin(sdisp),
-        [](const double sw, const double sg)
-    {
-        return 1.0 - (sg + sw);
-    });
 
     auto dflt_fdisp = std::vector<double>(fval.size(), 0.0);
     std::transform(std::begin(fval), std::end(fval),
@@ -1901,7 +2092,8 @@ Create::CritSatVertical::Kr::OW(const ::Opm::ECLGraph&        G,
 
     return ScalPtr {
         new ::Opm::SatFunc::CritSatVerticalScaling {
-            std::move(sdisp), std::move(fdisp), std::move(fmax)
+            std::move(sdisp), std::move(fdisp),
+            std::move(smax) , std::move(fmax)
         }
     };
 }
@@ -1909,44 +2101,11 @@ Create::CritSatVertical::Kr::OW(const ::Opm::ECLGraph&        G,
 Create::CritSatVertical::ScalPtr
 Create::CritSatVertical::Kr::W(const ::Opm::ECLGraph&        G,
                                const ::Opm::ECLInitFileData& init,
-                               const RTEP&                   tep,
+                               std::vector<double>&&         sdisp,
+                               std::vector<double>&&         smax,
                                const FValVec&                fval)
 {
     using FVal = ::Opm::SatFunc::VerticalScalingInterface::FunctionValues;
-
-    const auto& ih   = init.keywordData<int>(INTEHEAD_KW);
-    const auto  iphs = static_cast<unsigned int>(ih[INTEHEAD_PHASE_INDEX]);
-
-    auto sdisp = std::vector<double>(G.numCells());
-
-    if ((iphs & (1u << 0)) != 0) { // Oil active
-        auto sowcr =
-            gridDefaultedVector(G, init, "SOWCR", tep.crit.oil_in_water,
-                                [](const double s) { return s; });
-
-        auto sgl =
-            gridDefaultedVector(G, init, "SGL", tep.conn.gas,
-                                [](const double s) { return s; });
-
-        std::transform(std::begin(sowcr), std::end(sowcr),
-                       std::begin(sgl), std::begin(sdisp),
-            [](const double so, const double sg)
-        {
-            return 1.0 - (so + sg);
-        });
-    }
-    else {                      // Oil not active (G/W?)
-        auto sgcr =
-            gridDefaultedVector(G, init, "SGCR", tep.crit.gas,
-                                [](const double s) { return s; });
-
-        std::transform(std::begin(sgcr), std::end(sgcr),
-                       std::begin(sdisp),
-            [](const double sg)
-        {
-            return 1.0 - sg;
-        });
-    }
 
     auto dflt_fdisp = std::vector<double>(fval.size(), 0.0);
     std::transform(std::begin(fval), std::end(fval),
@@ -1968,7 +2127,8 @@ Create::CritSatVertical::Kr::W(const ::Opm::ECLGraph&        G,
 
     return ScalPtr {
         new ::Opm::SatFunc::CritSatVerticalScaling {
-            std::move(sdisp), std::move(fdisp), std::move(fmax)
+            std::move(sdisp), std::move(fdisp),
+            std::move(smax) , std::move(fmax)
         }
     };
 }
@@ -1984,6 +2144,9 @@ scalingFunction(const ::Opm::ECLGraph&        G,
     using SSys  = ::Opm::SatFunc::CreateEPS::SubSystem;
     using PhIdx = ::Opm::ECLPhaseIndex;
 
+    auto scr  = critDispSat(G, init, opt, tep);
+    auto smax = maximumSat (G, init, opt, tep);
+
     if (opt.subSys == SSys::OilWater) {
         if (opt.thisPh == PhIdx::Vapour) {
             throw std::invalid_argument {
@@ -1993,10 +2156,12 @@ scalingFunction(const ::Opm::ECLGraph&        G,
         }
 
         if (opt.thisPh == PhIdx::Aqua) {
-            return Create::CritSatVertical::Kr::W(G, init, tep, fvals);
+            return Create::CritSatVertical::
+                Kr::W(G, init, std::move(scr), std::move(smax), fvals);
         }
 
-        return Create::CritSatVertical::Kr::OW(G, init, tep, fvals);
+        return Create::CritSatVertical::
+            Kr::OW(G, init, std::move(scr), std::move(smax), fvals);
     }
 
     if (opt.subSys == SSys::OilGas) {
@@ -2008,10 +2173,12 @@ scalingFunction(const ::Opm::ECLGraph&        G,
         }
 
         if (opt.thisPh == PhIdx::Vapour) {
-            return Create::CritSatVertical::Kr::G(G, init, tep, fvals);
+            return Create::CritSatVertical::
+                Kr::G(G, init, std::move(scr), std::move(smax), fvals);
         }
 
-        return Create::CritSatVertical::Kr::GO(G, init, tep, fvals);
+        return Create::CritSatVertical::
+            Kr::GO(G, init, std::move(scr), std::move(smax), fvals);
     }
 
     // Invalid.
@@ -2209,8 +2376,10 @@ Opm::SatFunc::ThreePointScaling::clone() const
 Opm::SatFunc::CritSatVerticalScaling::
 CritSatVerticalScaling(std::vector<double> sdisp,
                        std::vector<double> fdisp,
+                       std::vector<double> smax,
                        std::vector<double> fmax)
-    : pImpl_(new Impl(std::move(sdisp), std::move(fdisp), std::move(fmax)))
+    : pImpl_(new Impl(std::move(sdisp), std::move(fdisp),
+                      std::move(smax) , std::move(fmax)))
 {}
 
 Opm::SatFunc::CritSatVerticalScaling::~CritSatVerticalScaling()
@@ -2266,19 +2435,20 @@ Opm::SatFunc::CritSatVerticalScaling::clone() const
 
 std::unique_ptr<Opm::SatFunc::EPSEvalInterface>
 Opm::SatFunc::CreateEPS::Horizontal::
-fromECLOutput(const ECLGraph&        G,
-              const ECLInitFileData& init,
-              const EPSOptions&      opt)
+fromECLOutput(const ECLGraph&          G,
+              const ECLInitFileData&   init,
+              const EPSOptions&        opt,
+              const RawTableEndPoints& tep)
 {
     if ((opt.curve == FunctionCategory::CapPress) ||
         (! opt.use3PtScaling))
     {
-        return Create::TwoPoint::scalingFunction(G, init, opt);
+        return Create::TwoPoint::scalingFunction(G, init, opt, tep);
     }
 
     if ((opt.curve == FunctionCategory::Relperm) && opt.use3PtScaling)
     {
-        return Create::ThreePoint::scalingFunction(G, init, opt);
+        return Create::ThreePoint::scalingFunction(G, init, opt, tep);
     }
 
     // Invalid
@@ -2290,8 +2460,8 @@ fromECLOutput(const ECLGraph&        G,
 
 std::vector<Opm::SatFunc::EPSEvalInterface::TableEndPoints>
 Opm::SatFunc::CreateEPS::Horizontal::
-unscaledEndPoints(const RawTableEndPoints& ep,
-                  const EPSOptions&        opt)
+unscaledEndPoints(const EPSOptions&        opt,
+                  const RawTableEndPoints& ep)
 {
     if ((opt.curve == FunctionCategory::CapPress) ||
         (! opt.use3PtScaling))
@@ -2319,8 +2489,7 @@ fromECLOutput(const ECLGraph&          G,
               const RawTableEndPoints& tep,
               const FuncValVector&     fvals)
 {
-    const auto haveScaleCRS =
-        haveScaledRelPermAtCritSat(G, init, opt.thisPh, opt.subSys);
+    const auto haveScaleCRS = haveScaledRelPermAtCritSat(G, init, opt);
 
     if ((opt.curve == FunctionCategory::CapPress) || (! haveScaleCRS))
     {
@@ -2351,8 +2520,7 @@ unscaledFunctionValues(const ECLGraph&          G,
 {
     auto ret = std::vector<VerticalScalingInterface::FunctionValues>{};
 
-    const auto haveScaleCRS =
-        haveScaledRelPermAtCritSat(G, init, opt.thisPh, opt.subSys);
+    const auto haveScaleCRS = haveScaledRelPermAtCritSat(G, init, opt);
 
     if ((opt.curve == FunctionCategory::CapPress) || (! haveScaleCRS)) {
         auto opt_cpy = opt;
@@ -2364,6 +2532,9 @@ unscaledFunctionValues(const ECLGraph&          G,
         ret.resize(uep.size());
 
         for (auto n = uep.size(), i = 0*n; i < n; ++i) {
+            ret[i].disp.sat = uep[i].disp;
+            ret[i].disp.val = evalSF(static_cast<int>(i), ret[i].disp.sat);
+
             ret[i].max.sat = uep[i].high;
             ret[i].max.val = evalSF(static_cast<int>(i), ret[i].max.sat);
         }
@@ -2387,4 +2558,25 @@ unscaledFunctionValues(const ECLGraph&          G,
     }
 
     return ret;
+}
+
+// ---------------------------------------------------------------------
+// Factory functions Opm::SatFunc::scaledConnate*()
+
+std::vector<double>
+Opm::SatFunc::scaledConnateGas(const ECLGraph&                     G,
+                               const ECLInitFileData&              init,
+                               const CreateEPS::RawTableEndPoints& tep)
+{
+    return gridDefaultedVector(G, init, "SGL", tep.conn.gas,
+                               [](const double s) { return s; });
+}
+
+std::vector<double>
+Opm::SatFunc::scaledConnateWater(const ECLGraph&                     G,
+                                 const ECLInitFileData&              init,
+                                 const CreateEPS::RawTableEndPoints& tep)
+{
+    return gridDefaultedVector(G, init, "SWL", tep.conn.water,
+                               [](const double s) { return s; });
 }

@@ -28,7 +28,7 @@ class RiuQwtPlotWheelZoomer : public QObject
 public:
     RiuQwtPlotWheelZoomer(QwtPlot* plot);
 
-    virtual bool eventFilter(QObject * watched, QEvent * event) override;
+    bool eventFilter(QObject * watched, QEvent * event) override;
 
 signals: 
     void zoomUpdated();

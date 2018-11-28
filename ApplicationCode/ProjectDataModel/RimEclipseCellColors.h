@@ -38,7 +38,7 @@ class RimEclipseCellColors : public RimEclipseResultDefinition
     CAF_PDM_HEADER_INIT;
 public:
     RimEclipseCellColors();
-    virtual ~RimEclipseCellColors();
+    ~RimEclipseCellColors() override;
 
     void                                        setReservoirView(RimEclipseView* ownerReservoirView);
     RimEclipseView*                             reservoirView();
@@ -46,31 +46,33 @@ public:
     void                                        updateLegendData(size_t timestep, 
                                                                  RimRegularLegendConfig* legendConfig = nullptr,
                                                                  RimTernaryLegendConfig* ternaryLegendConfig = nullptr);
+    
     RimRegularLegendConfig*                            legendConfig();
-    caf::PdmChildField<RimTernaryLegendConfig*> ternaryLegendConfig;
+    RimTernaryLegendConfig*                            ternaryLegendConfig();
 
-    virtual void                                setResultVariable(const QString& resultName);
+    void                                setResultVariable(const QString& resultName) override;
     
     void                                        updateIconState();
 
-    virtual void                                updateLegendCategorySettings() override;
+    void                                updateLegendCategorySettings() override;
 
 protected:
     // Overridden methods
-    virtual void                                fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
-    virtual void                                defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
+    void                                fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    void                                defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
 
     friend class RimEclipseFaultColors;
     friend class RimCellEdgeColors;
-    virtual void                                initAfterRead();
+    void                                initAfterRead() override;
 
 private:
     void                                        changeLegendConfig(QString resultVarNameOfNewLegend);
 
     caf::PdmChildArrayField<RimRegularLegendConfig*>   m_legendConfigData;
     caf::PdmPtrField<RimRegularLegendConfig*>          m_legendConfigPtrField;
+    caf::PdmChildField<RimTernaryLegendConfig*>        m_ternaryLegendConfig;
 
-    caf::PdmPointer<RimEclipseView>             m_reservoirView;
+    caf::PdmPointer<RimEclipseView>                    m_reservoirView;
 
     // Obsolete   
     caf::PdmChildField<RimRegularLegendConfig*>        obsoleteField_legendConfig;

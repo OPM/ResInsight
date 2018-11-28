@@ -28,10 +28,10 @@ class RicEclipseCaseNewGroupExec : public caf::CmdExecuteCommand
 {
 public:
     RicEclipseCaseNewGroupExec();
-    virtual ~RicEclipseCaseNewGroupExec();
+    ~RicEclipseCaseNewGroupExec() override;
 
-    virtual QString name();
-    virtual void redo();
-    virtual void undo();
+    QString name() override;
+    void redo() override;
+    void undo() override;
 };
 

@@ -210,3 +210,27 @@ void RimMainPlotCollection::updatePlotsWithFormations()
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimMainPlotCollection::updatePlotsWithCompletions()
+{
+    if (m_wellLogPlotCollection)
+    {
+        for (RimWellLogPlot* wellLogPlot : m_wellLogPlotCollection->wellLogPlots())
+        {
+            wellLogPlot->loadDataAndUpdate();
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimMainPlotCollection::deleteAllCachedData()
+{
+    m_wellLogPlotCollection()->deleteAllExtractors();
+    m_rftPlotCollection()->deleteAllExtractors();
+    m_pltPlotCollection()->deleteAllExtractors();
+}
+

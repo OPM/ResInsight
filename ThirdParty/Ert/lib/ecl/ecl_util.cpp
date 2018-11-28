@@ -22,9 +22,9 @@
 #include <ctype.h>
 #include <stdbool.h>
 
-#include <ert/util/ert_api_config.h>
+#include <ert/util/ert_api_config.hpp>
 
-#include <ert/util/util.hpp>
+#include <ert/util/util.h>
 #include <ert/util/hash.hpp>
 #include <ert/util/stringlist.hpp>
 #include <ert/util/parser.hpp>
@@ -342,8 +342,8 @@ static bool valid_base(const char * input_base, bool * upper_case) {
   if (base == NULL)
     base = input_base;
 
-  for (int i=0; i < strlen(base); i++) {
-    char c = base[i];
+  for (size_t i=0; i < strlen(base); i++) {
+    unsigned char c = base[i];
 
     if (isupper(c))
       upper = true;
@@ -455,7 +455,7 @@ static char * ecl_util_alloc_filename_static(const char * path, const char * bas
   }
 
   if (!upper_case) {
-    for (int i=0; i < strlen(ext); i++)
+    for (size_t i=0; i < strlen(ext); i++)
       ext[i] = tolower(ext[i]);
   }
 
@@ -499,7 +499,7 @@ char * ecl_util_alloc_exfilename_anyfmt(const char * path, const char * base , e
   }
 
   if (! util_file_exists(filename)) {
-    util_safe_free( filename );
+    free( filename );
     filename = NULL;
   }
 
@@ -660,7 +660,7 @@ int ecl_util_select_filelist( const char * path , const char * base , ecl_file_e
     char * file_pattern;
 
     if (!upper_case) {
-      for (int i=0; i < strlen(ext_pattern); i++)
+      for (size_t i=0; i < strlen(ext_pattern); i++)
         ext_pattern[i] = tolower(ext_pattern[i]);
     }
 
@@ -809,7 +809,7 @@ void ecl_util_alloc_summary_data_files(const char * path , const char * base , b
     stringlist_clear( filelist );      /* Clear out all the BASE.Snnnn selections. */
     stringlist_append_copy( filelist , unif_data_file );
   }
-  util_safe_free( unif_data_file );
+  free( unif_data_file );
 }
 
 
@@ -936,10 +936,10 @@ bool ecl_util_alloc_summary_files(const char * path , const char * _base , const
 
     if (fmt_file) {
       header_file = fsmspec_file;
-      util_safe_free( smspec_file );
+      free( smspec_file );
     } else {
       header_file = smspec_file;
-      util_safe_free( fsmspec_file );
+      free( fsmspec_file );
     }
 
     if (header_file == NULL)
@@ -1106,7 +1106,7 @@ safely used as filenames, i.e for instance the substitution:
 The escape process is done 'in-place' memory-wise.
 */
 void ecl_util_escape_kw(char * kw) {
-  int index;
+  size_t index;
   for (index = 0; index < strlen(kw); index++) {
     switch (kw[index]) {
     case('/'):

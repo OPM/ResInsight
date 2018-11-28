@@ -36,7 +36,7 @@ class RiuCvfOverlayItemWidget : public QWidget
     Q_OBJECT
 public:
     explicit RiuCvfOverlayItemWidget(QWidget* parent = nullptr);
-    ~RiuCvfOverlayItemWidget();
+    ~RiuCvfOverlayItemWidget() override;
 
     void updateFromOverlyItem( cvf::OverlayItem * item);
 

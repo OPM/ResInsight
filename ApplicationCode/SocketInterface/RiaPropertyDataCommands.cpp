@@ -58,7 +58,7 @@ class RiaGetActiveCellProperty: public RiaSocketCommand
 public:
     static QString commandName () { return QString("GetActiveCellProperty"); }
 
-    virtual bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>&  args, QDataStream& socketStream)
+    bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>&  args, QDataStream& socketStream) override
     {
         RimEclipseCase* rimCase = RiaSocketTools::findCaseFromArgs(server, args);
 
@@ -222,7 +222,7 @@ class RiaGetGridProperty: public RiaSocketCommand
 public:
     static QString commandName () { return QString("GetGridProperty"); }
 
-    virtual bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>&  args, QDataStream& socketStream)
+    bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>&  args, QDataStream& socketStream) override
     {
         int caseId                = args[1].toInt();
         int gridIdx               = args[2].toInt();
@@ -394,7 +394,7 @@ public:
 
     static QString commandName () { return QString("SetActiveCellProperty"); }
 
-    virtual bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>&  args, QDataStream& socketStream)
+    bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>&  args, QDataStream& socketStream) override
     {
         RimEclipseCase* rimCase = RiaSocketTools::findCaseFromArgs(server, args);
 
@@ -510,7 +510,7 @@ public:
         return false;
     }
 
-    virtual bool interpretMore(RiaSocketServer* server, QTcpSocket* currentClient)
+    bool interpretMore(RiaSocketServer* server, QTcpSocket* currentClient) override
     {
 //        std::cout << "RiaSetActiveCellProperty, interpretMore: scalarIndex : " << m_currentScalarIndex;
 
@@ -641,15 +641,15 @@ public:
                 RimEclipseInputCase* inputRes = dynamic_cast<RimEclipseInputCase*>(m_currentReservoir);
                 if (inputRes)
                 {
-                    RimEclipseInputProperty* inputProperty = inputRes->m_inputPropertyCollection->findInputProperty(m_currentPropertyName);
+                    RimEclipseInputProperty* inputProperty = inputRes->inputPropertyCollection()->findInputProperty(m_currentPropertyName);
                     if (!inputProperty)
                     {
                         inputProperty = new RimEclipseInputProperty;
                         inputProperty->resultName = m_currentPropertyName;
                         inputProperty->eclipseKeyword = "";
                         inputProperty->fileName = "";
-                        inputRes->m_inputPropertyCollection->inputProperties.push_back(inputProperty);
-                        inputRes->m_inputPropertyCollection()->updateConnectedEditors();
+                        inputRes->inputPropertyCollection()->inputProperties.push_back(inputProperty);
+                        inputRes->inputPropertyCollection()->updateConnectedEditors();
                     }
                     inputProperty->resolvedState = RimEclipseInputProperty::RESOLVED_NOT_SAVED;
                 }
@@ -741,7 +741,7 @@ public:
 
     static QString commandName () { return QString("SetGridProperty"); }
 
-    virtual bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>& args, QDataStream& socketStream)
+    bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>& args, QDataStream& socketStream) override
     {
         int caseId = args[1].toInt();
         RimEclipseCase* rimCase = server->findReservoir(caseId);
@@ -887,7 +887,7 @@ public:
         return false;
     }
 
-    virtual bool interpretMore(RiaSocketServer* server, QTcpSocket* currentClient)
+    bool interpretMore(RiaSocketServer* server, QTcpSocket* currentClient) override
     {
 
         if (m_invalidDataDetected){
@@ -1005,15 +1005,15 @@ public:
                 RimEclipseInputCase* inputRes = dynamic_cast<RimEclipseInputCase*>(m_currentReservoir);
                 if (inputRes)
                 {
-                    RimEclipseInputProperty* inputProperty = inputRes->m_inputPropertyCollection->findInputProperty(m_currentPropertyName);
+                    RimEclipseInputProperty* inputProperty = inputRes->inputPropertyCollection()->findInputProperty(m_currentPropertyName);
                     if (!inputProperty)
                     {
                         inputProperty = new RimEclipseInputProperty;
                         inputProperty->resultName = m_currentPropertyName;
                         inputProperty->eclipseKeyword = "";
                         inputProperty->fileName = "";
-                        inputRes->m_inputPropertyCollection->inputProperties.push_back(inputProperty);
-                        inputRes->m_inputPropertyCollection()->updateConnectedEditors();
+                        inputRes->inputPropertyCollection()->inputProperties.push_back(inputProperty);
+                        inputRes->inputPropertyCollection()->updateConnectedEditors();
                     }
                     inputProperty->resolvedState = RimEclipseInputProperty::RESOLVED_NOT_SAVED;
                 }
@@ -1094,7 +1094,7 @@ class RiaGetPropertyNames : public RiaSocketCommand
 public:
     static QString commandName () { return QString("GetPropertyNames"); }
 
-    virtual bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>&  args, QDataStream& socketStream)
+    bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>&  args, QDataStream& socketStream) override
     {
         int caseId = args[1].toInt();
         RimEclipseCase* rimCase = server->findReservoir(caseId);
@@ -1180,7 +1180,7 @@ class RiaGetGridPropertyForSelectedCells: public RiaSocketCommand
 public:
     static QString commandName() { return QString("GetGridPropertyForSelectedCells"); }
 
-    virtual bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>& args, QDataStream& socketStream)
+    bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>& args, QDataStream& socketStream) override
     {
         RimEclipseCase* rimCase = RiaSocketTools::findCaseFromArgs(server, args);
         if (!rimCase) return true;
@@ -1261,9 +1261,6 @@ public:
 
         for (size_t timeStep : requestedTimesteps)
         {
-            const std::vector<double>& scalarResults = rimCase->results(porosityModel)->cellScalarResults(scalarResultIndex, timeStep);
-
-
             for (const std::pair<size_t, size_t> selectedCell : selectedCells)
             {
                 cvf::ref<RigResultAccessor> resultAccessor = RigResultAccessorFactory::createFromUiResultName(rimCase->eclipseCaseData(), selectedCell.first, porosityModel, timeStep, propertyName);

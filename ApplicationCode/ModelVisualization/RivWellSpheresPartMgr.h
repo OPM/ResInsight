@@ -50,7 +50,7 @@ class RivWellSpheresPartMgr : public cvf::Object
 {
 public:
     RivWellSpheresPartMgr(RimEclipseView* reservoirView, RimSimWellInView* well);
-    ~RivWellSpheresPartMgr();
+    ~RivWellSpheresPartMgr() override;
 
     void appendDynamicGeometryPartsToModel(cvf::ModelBasicList* model, size_t frameIndex);
     

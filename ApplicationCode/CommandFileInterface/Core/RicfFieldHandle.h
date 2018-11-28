@@ -39,7 +39,7 @@ class RicfFieldHandle : public caf::PdmFieldCapability
 public:
     RicfFieldHandle(caf::PdmFieldHandle* owner , bool giveOwnership);
 
-    virtual ~RicfFieldHandle();
+    ~RicfFieldHandle() override;
  
     virtual void    readFieldData (QTextStream& inputStream, 
                                    caf::PdmObjectFactory* objectFactory,

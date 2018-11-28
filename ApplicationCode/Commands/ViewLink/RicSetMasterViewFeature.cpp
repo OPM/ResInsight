@@ -21,8 +21,9 @@
 
 #include "RiaApplication.h"
 
-#include "RimProject.h"
+#include "RimContourMapView.h"
 #include "RimGridView.h"
+#include "RimProject.h"
 #include "RimViewController.h"
 #include "RimViewLinker.h"
 #include "RimViewLinkerCollection.h"
@@ -50,6 +51,11 @@ bool RicSetMasterViewFeature::isCommandEnabled()
     }
 
     if (!proj->viewLinkerCollection()->viewLinker())
+    {
+        return false;
+    }
+
+    if (dynamic_cast<RimContourMapView*>(activeView) != nullptr)
     {
         return false;
     }

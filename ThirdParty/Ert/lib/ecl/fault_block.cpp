@@ -15,19 +15,22 @@
    See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
    for more details.
 */
+#include <vector>
 
-#include <ert/util/type_macros.h>
-#include <ert/util/int_vector.h>
+#include <ert/util/type_macros.hpp>
+#include <ert/util/int_vector.hpp>
 
-#include <ert/geometry/geo_util.h>
-#include <ert/geometry/geo_polygon.h>
-#include <ert/geometry/geo_polygon_collection.h>
+#include <ert/geometry/geo_util.hpp>
+#include <ert/geometry/geo_polygon.hpp>
+#include <ert/geometry/geo_polygon_collection.hpp>
 
 #include <ert/ecl/ecl_grid.hpp>
 #include <ert/ecl/ecl_kw.hpp>
 #include <ert/ecl/fault_block.hpp>
 #include <ert/ecl/fault_block_layer.hpp>
 #include <ert/ecl/layer.hpp>
+
+#include "detail/ecl/layer_cxx.hpp"
 
 #define FAULT_BLOCK_ID 3297376
 
@@ -182,8 +185,7 @@ const int_vector_type * fault_block_get_global_index_list( const fault_block_typ
 
 bool fault_block_trace_edge( const fault_block_type * block , double_vector_type * x_list , double_vector_type * y_list, int_vector_type * cell_list) {
   if (fault_block_get_size( block ) > 0) {
-    struct_vector_type * corner_list = struct_vector_alloc( sizeof(int_point2d_type) );
-    int c;
+    std::vector<int_point2d_type> corner_list;
     {
       int start_i = fault_block_iget_i( block , 0 );
       int start_j = fault_block_iget_j( block , 0 );
@@ -194,18 +196,15 @@ bool fault_block_trace_edge( const fault_block_type * block , double_vector_type
     if (x_list && y_list) {
       double_vector_reset( x_list );
       double_vector_reset( y_list );
-      for (c=0; c < struct_vector_get_size( corner_list ); c++) {
+      for (const auto& p : corner_list) {
         double x,y,z;
-        int_point2d_type ij;
-        struct_vector_iget( corner_list , c , &ij );
 
-        ecl_grid_get_corner_xyz( block->grid , ij.i , ij.j , block->k , &x , &y , &z);
+        ecl_grid_get_corner_xyz( block->grid , p.i, p.j , block->k , &x , &y , &z);
         double_vector_append( x_list , x);
         double_vector_append( y_list , y);
       }
     }
 
-    struct_vector_free( corner_list );
     return true;
   } else
     return false;
@@ -257,7 +256,7 @@ static bool fault_block_connected_neighbour( const fault_block_type * block , in
   */
   if (!ecl_grid_cell_active3( block->grid , i2,j2,block->k))
     return false;
-  
+
   {
     int cell_id = layer_iget_cell_value( layer , i1 , j1 );
     int neighbour_id = layer_iget_cell_value(layer , i2 , j2);

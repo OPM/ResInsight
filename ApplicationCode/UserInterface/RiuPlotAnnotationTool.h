@@ -34,7 +34,7 @@ public:
     RiuPlotAnnotationTool() {};
     ~RiuPlotAnnotationTool();
 
-    void attachFormationNames(QwtPlot* plot, const std::vector<QString>& names, const std::vector<std::pair<double, double>> yPositions);
+    void attachFormationNames(QwtPlot* plot, const std::vector<QString>& names, const std::vector<std::pair<double, double>> yPositions, bool showNames = true);
     void attachWellPicks(QwtPlot* plot, const std::vector<QString>& names, const std::vector<double> yPositions);
     void detachAllAnnotations();
 

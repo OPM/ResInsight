@@ -22,7 +22,7 @@
 #include <stdbool.h>
 
 #include <ert/util/size_t_vector.hpp>
-#include <ert/util/util.hpp>
+#include <ert/util/util.h>
 
 #include <ert/ecl/ecl_util.hpp>
 #include <ert/ecl/ecl_kw.hpp>

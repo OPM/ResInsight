@@ -26,32 +26,94 @@
 #include <QStringList>
 #include <QDir>
 
+#include <functional>
 
 //--------------------------------------------------------------------------------------------------
 /// Constants
 //--------------------------------------------------------------------------------------------------
 #define PARAMETERS_FILE_NAME    "parameters.txt"
-
+#define RUNSPEC_FILE_NAME       "runspecification.xml"
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RifCaseRealizationParametersReader::RifCaseRealizationParametersReader(const QString& fileName)
+RifCaseRealizationReader::RifCaseRealizationReader(const QString& fileName)
 {
     m_parameters = std::shared_ptr<RigCaseRealizationParameters>(new RigCaseRealizationParameters());
     m_fileName = fileName;
     m_file = nullptr;
-    m_textStream = nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RifCaseRealizationParametersReader::RifCaseRealizationParametersReader()
+RifCaseRealizationReader::~RifCaseRealizationReader()
 {
-    m_parameters = std::shared_ptr<RigCaseRealizationParameters>(new RigCaseRealizationParameters());
-    m_fileName = "";
-    m_file = nullptr;
+    closeFile();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const std::shared_ptr<RigCaseRealizationParameters> RifCaseRealizationReader::parameters() const
+{
+    return m_parameters;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::shared_ptr<RifCaseRealizationReader> RifCaseRealizationReader::createReaderFromFileName(const QString& fileName)
+{
+    std::shared_ptr<RifCaseRealizationReader> reader;
+
+    if (fileName.endsWith(PARAMETERS_FILE_NAME))
+    {
+        reader.reset(new RifCaseRealizationParametersReader(fileName));
+    }
+    else if (fileName.endsWith(RUNSPEC_FILE_NAME))
+    {
+        reader.reset(new RifCaseRealizationRunspecificationReader(fileName));
+    }
+    return reader;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QFile* RifCaseRealizationReader::openFile()
+{
+    if (!m_file)
+    {
+        m_file = new QFile(m_fileName);
+        if (!m_file->open(QIODevice::ReadOnly | QIODevice::Text))
+        {
+            closeFile();
+            throw FileParseException(QString("Failed to open %1").arg(m_fileName));
+        }
+    }
+    return m_file;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RifCaseRealizationReader::closeFile()
+{
+    if (m_file)
+    {
+        m_file->close();
+        delete m_file;
+        m_file = nullptr;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RifCaseRealizationParametersReader::RifCaseRealizationParametersReader(const QString& fileName) :
+    RifCaseRealizationReader(fileName)
+{
     m_textStream = nullptr;
 }
 
@@ -64,15 +126,6 @@ RifCaseRealizationParametersReader::~RifCaseRealizationParametersReader()
     {
         delete m_textStream;
     }
-    closeFile();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RifCaseRealizationParametersReader::setFileName(const QString& fileName)
-{
-    m_fileName = fileName;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -90,7 +143,7 @@ void RifCaseRealizationParametersReader::parse()
             QString line = dataStream->readLine();
 
             lineNo++;
-            QStringList cols = RifFileParseTools::splitLineAndTrim(line, " ");
+            QStringList cols = RifFileParseTools::splitLineAndTrim(line, QRegExp("[ \t]"), true);
 
             if (cols.size() != 2)
             {
@@ -136,9 +189,9 @@ void RifCaseRealizationParametersReader::parse()
 //--------------------------------------------------------------------------------------------------
 QTextStream* RifCaseRealizationParametersReader::openDataStream()
 {
-    openFile();
+    auto file = openFile();
 
-    m_textStream = new QTextStream(m_file);
+    m_textStream = new QTextStream(file);
     return m_textStream;
 }
 
@@ -158,17 +211,81 @@ void RifCaseRealizationParametersReader::closeDataStream()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RifCaseRealizationParametersReader::openFile()
+RifCaseRealizationRunspecificationReader::RifCaseRealizationRunspecificationReader(const QString& fileName) :
+    RifCaseRealizationReader(fileName)
 {
-    if (!m_file)
+    m_xmlStream = nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RifCaseRealizationRunspecificationReader::~RifCaseRealizationRunspecificationReader()
+{
+    if (m_xmlStream)
     {
-        m_file = new QFile(m_fileName);
-        if (!m_file->open(QIODevice::ReadOnly | QIODevice::Text))
+        delete m_xmlStream;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RifCaseRealizationRunspecificationReader::parse()
+{
+    auto xml = openDataStream();
+    QString paramName;
+
+    while (!xml->atEnd())
+    {
+        xml->readNext();
+
+        if (xml->isStartElement())
         {
-            closeFile();
-            //delete m_file;
-            //m_file = nullptr;
-            throw FileParseException(QString("Failed to open %1").arg(m_fileName));
+            if (xml->name() == "modifier")
+            {
+                paramName = "";
+            }
+
+            if (xml->name() == "id")
+            {
+                paramName = xml->readElementText();
+            }
+
+            if(xml->name() == "value")
+            {
+                QString paramStrValue = xml->readElementText();
+
+                if (paramName.isEmpty()) continue;
+
+                if (RiaStdStringTools::startsWithAlphabetic(paramStrValue.toStdString()))
+                {
+                    m_parameters->addParameter(paramName, paramStrValue);
+                }
+                else
+                {
+                    if (!RiaStdStringTools::isNumber(paramStrValue.toStdString(), QLocale::c().decimalPoint().toAscii()))
+                    {
+                        throw FileParseException(QString("RifEnsembleParametersReader: Invalid number format in line %1").arg(xml->lineNumber()));
+                    }
+
+                    bool parseOk = true;
+                    double value = QLocale::c().toDouble(paramStrValue, &parseOk);
+                    if (!parseOk)
+                    {
+                        throw FileParseException(QString("RifEnsembleParametersReader: Invalid number format in line %1").arg(xml->lineNumber()));
+                    }
+
+                    m_parameters->addParameter(paramName, value);
+                }
+            }
+        }
+        else if (xml->isEndElement())
+        {
+            if (xml->name() == "modifier")
+            {
+                paramName = "";
+            }
         }
     }
 }
@@ -176,22 +293,25 @@ void RifCaseRealizationParametersReader::openFile()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RifCaseRealizationParametersReader::closeFile()
+QXmlStreamReader * RifCaseRealizationRunspecificationReader::openDataStream()
 {
-    if (m_file)
-    {
-        m_file->close();
-        delete m_file;
-        m_file = nullptr;
-    }
+    auto file = openFile();
+
+    m_xmlStream = new QXmlStreamReader(file);
+    return m_xmlStream;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const std::shared_ptr<RigCaseRealizationParameters> RifCaseRealizationParametersReader::parameters() const
+void RifCaseRealizationRunspecificationReader::closeDataStream()
 {
-    return m_parameters;
+    if (m_xmlStream)
+    {
+        delete m_xmlStream;
+        m_xmlStream = nullptr;
+    }
+    closeFile();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -199,7 +319,7 @@ const std::shared_ptr<RigCaseRealizationParameters> RifCaseRealizationParameters
 //--------------------------------------------------------------------------------------------------
 QString RifCaseRealizationParametersFileLocator::locate(const QString& modelPath)
 {
-    int         MAX_LEVELS_UP = 2;
+    int         MAX_LEVELS_UP = 3;
     int         dirLevel = 0;
 
     QDir        qdir(modelPath);
@@ -213,7 +333,8 @@ QString RifCaseRealizationParametersFileLocator::locate(const QString& modelPath
         QStringList files = qdir.entryList(QDir::Files | QDir::NoDotAndDotDot);
         for (const QString& file : files)
         {
-            if (QString::compare(file, PARAMETERS_FILE_NAME, Qt::CaseInsensitive) == 0)
+            if (QString::compare(file, PARAMETERS_FILE_NAME, Qt::CaseInsensitive) == 0 ||
+                QString::compare(file, RUNSPEC_FILE_NAME, Qt::CaseInsensitive) == 0)
             {
                 return qdir.absoluteFilePath(file);
             }

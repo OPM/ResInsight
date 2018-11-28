@@ -442,9 +442,9 @@ ecl_file_type ** load_restart_info(const char ** input,           /* Input taken
         
         *arg_offset = 3;
         
-        util_safe_free( file1 );
-        util_safe_free( file2 );
-        util_safe_free( unified_file );
+        free( file1 );
+        free( file2 );
+        free( unified_file );
       }
     }
   }

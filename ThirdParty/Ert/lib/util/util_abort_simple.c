@@ -21,12 +21,12 @@ void util_abort__(const char * file , const char * function , int line , const c
   fprintf(stderr, "Version info       : %s\n" , (__abort_program_message == NULL) ? "<Not set>" : __abort_program_message);
   fprintf(stderr, "\nError message: ");
   fprintf(stderr , "Abort called from: %s (%s:%d) \n",function , file , line);
-  {  
+  {
     va_list ap;
     va_start(ap , fmt);
     vfprintf(stderr , fmt , ap);
     va_end(ap);
-  } 
+  }
   fprintf(stderr,"-----------------------------------------------------------------\n");
 
   signal(SIGABRT , SIG_DFL);

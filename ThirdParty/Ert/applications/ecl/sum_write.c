@@ -163,11 +163,6 @@ int main( int argc , char ** argv) {
   int nz = 10;
 
 
-  smspec_node_type * wwct_wellx;
-  smspec_node_type * wopr_wellx;
-  vector_type      * blank_nodes = vector_alloc_new();
-
-
   /*
     We create a new summary case which will be used for writing. The
     arguments are:
@@ -211,9 +206,7 @@ int main( int argc , char ** argv) {
 
       3. The WGNAME value for this variable. WGNAME is the well or
          group name; if the variable in question is neither a well nor
-         a group variable you can just send in NULL. The WGNAME value
-         can be changed runtime with the ecl_sum_update_wgname()
-         function.
+         a group variable you can just send in NULL.
 
       4. The NUMS value for this variable.
 
@@ -221,15 +214,6 @@ int main( int argc , char ** argv) {
 
       6. A defualt value for this variable.
 
-    Observe that as an alternative to ecl_sum_add_var() you can use
-    the combination:
-
-       smspec_node_type * var = ecl_sum_add_blank_var( ecl_sum , DEFAULT_VALUE );
-       .....
-       ecl_sum_init_var( ecl_sum , var , keyword , wgname , num , unit );
-
-    This is an alternative when e.g. the name of wells is not known in
-    advance.
   */
   ecl_sum_add_var( ecl_sum , "FOPT" , NULL   , 0   , "Barrels" , 99.0 );
   ecl_sum_add_var( ecl_sum , "BPR"  , NULL   , 567 , "BARS"    , 0.0  );
@@ -257,43 +241,10 @@ int main( int argc , char ** argv) {
           then later on call one of the smspec_node_get_params_index()
           or smspec_node_get_gen_key1() functions.
 
-          If you wish to change the WGNAME value with
-          ecl_sum_update_wgname() a later stage you must hold on to
-          the smspec_node instance.
-
-    ECLIPSE supports the 'dynamic' creation of wells, however you must
-    specify up-front how many wells (max) you will have, and then the
-    name will be specified as the wells 'pop up' in the Schedule
-    file. In the current implementation this is supported by requering
-    that you first add all wells/groups with ecl_sum_add_var(), and
-    then you can subsequently update the WGNAME value later. This is
-    illustrated with the two lines below where we add the WWCT and
-    WOPR variables for a well without name, and then call
-    ecl_sum_update_wganme() further down in the code.
   */
 
-  wwct_wellx = ecl_sum_add_var( ecl_sum , "WWCT" , NULL , 0 , "(1)"     , 0.0);
-  wopr_wellx = ecl_sum_add_var( ecl_sum , "WOPR" , NULL , 0 , "Barrels" , 0.0);
-
-  /*
-    Here we add a collection of ten variables which are not
-    initialized. Before they can be actually used you must initialize
-    them with:
-
-       ecl_sum_init_var( ecl_sum , node , keyword , wgname , num , unit );
-
-    If you do not init them at all they will appear in the SMSPEC file
-    as WWCT variable of the DUMMY_WELL (i.e. they will be discarded in
-    a subsequent load, but the will be there).
-  */
-  {
-    int i;
-    for (i=0; i < 10; i++) {
-      smspec_node_type * blank_node = ecl_sum_add_blank_var( ecl_sum , i * 1.0 );
-      vector_append_ref( blank_nodes , blank_node );
-    }
-  }
-
+  smspec_node_type * wwct_wellx = ecl_sum_add_var( ecl_sum , "WWCT" , NULL , 0 , "(1)"     , 0.0);
+  smspec_node_type * wopr_wellx = ecl_sum_add_var( ecl_sum , "WOPR" , NULL , 0 , "Barrels" , 0.0);
 
 
   {
@@ -341,25 +292,19 @@ int main( int argc , char ** argv) {
             smpec_get_gen_key1() function:
           */
           ecl_sum_tstep_set_from_key( tstep  , "WWCT:OP-1" , sim_days / 10);
-          if (report_step >= 5)
+          if (report_step >= 5) {
             /*
               We can use the smspec_node value from the
               ecl_sum_add_var() function directly:
             */
             ecl_sum_tstep_set_from_node( tstep , wwct_wellx , sim_days );
+            ecl_sum_tstep_set_from_node( tstep, wopr_wellx, sim_days * 100);
+          }
         }
       }
     }
   }
 
-  /*
-    Suddenly someone calls in and tell us the name of the mystery
-    well:
-  */
-  ecl_sum_update_wgname( ecl_sum , wwct_wellx , "OPX");
-  ecl_sum_update_wgname( ecl_sum , wopr_wellx , "OPX");
-
-  vector_free( blank_nodes ); // Only frees the container - the actual nodes are handled by the ecl_sum instance.
   ecl_sum_fwrite( ecl_sum );
   ecl_sum_free( ecl_sum );
 }

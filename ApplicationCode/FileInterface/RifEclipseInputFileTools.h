@@ -36,8 +36,6 @@
 
 class RigEclipseCaseData;
 class QFile;
-class RimEclipseResultDefinition;
-
 
 //--------------------------------------------------------------------------------------------------
 /// Structure used to cache file position of keywords
@@ -58,7 +56,7 @@ class RifEclipseInputFileTools : public cvf::Object
 {
 public:
     RifEclipseInputFileTools();
-    virtual ~RifEclipseInputFileTools();
+    ~RifEclipseInputFileTools() override;
 
     static bool openGridFile(const QString& fileName, RigEclipseCaseData* eclipseCase, bool readFaultData);
     
@@ -76,9 +74,6 @@ public:
     static void                       parseAndReadPathAliasKeyword(const QString &fileName, std::vector< std::pair<QString, QString> >* pathAliasDefinitions);
 
 
-    static bool     writePropertyToTextFile(const QString& fileName, RigEclipseCaseData* eclipseCase, size_t timeStep, const QString& resultName, const QString& eclipseKeyWord);
-    static bool     writeBinaryResultToTextFile(const QString& fileName, RigEclipseCaseData* eclipseCase, size_t timeStep, RimEclipseResultDefinition* resultdefinition, const QString& eclipseKeyWord, const double undefinedValue);
-
     static bool     readFaultsAndParseIncludeStatementsRecursively( QFile& file, 
                                                                     qint64 startPos, 
                                                                     const std::vector< std::pair<QString, QString> >& pathAliasDefinitions,
@@ -88,7 +83,6 @@ public:
                                                                     const QString& faultIncludeFileAbsolutePathPrefix);
 
     static cvf::StructGridInterface::FaceEnum faceEnumFromText(const QString& faceString);
-    static void     writeDataToTextFile(QFile* file, const QString& eclipseKeyWord, const std::vector<double>& resultData);
 
 private:
     static bool     readDataFromKeyword(ecl_kw_type* eclipseKeywordData, RigEclipseCaseData* caseData, const QString& resultName);

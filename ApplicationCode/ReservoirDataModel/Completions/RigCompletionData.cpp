@@ -24,7 +24,7 @@
 
 #include <QString>
 
-#include <cmath> // Needed for HUGE_VAL on Linux
+#include <limits>
 
 //==================================================================================================
 ///
@@ -32,20 +32,20 @@
 RigCompletionData::RigCompletionData(const QString wellName, const RigCompletionDataGridCell& cellIndex, double orderingValue)
     : m_wellName(wellName)
     , m_cellIndex(cellIndex)
-    , m_saturation(HUGE_VAL)
-    , m_transmissibility(HUGE_VAL)
-    , m_diameter(HUGE_VAL)
-    , m_kh(HUGE_VAL)
-    , m_skinFactor(HUGE_VAL)
-    , m_dFactor(HUGE_VAL)
+    , m_saturation(std::numeric_limits<double>::infinity())
+    , m_transmissibility(std::numeric_limits<double>::infinity())
+    , m_diameter(std::numeric_limits<double>::infinity())
+    , m_kh(std::numeric_limits<double>::infinity())
+    , m_skinFactor(std::numeric_limits<double>::infinity())
+    , m_dFactor(std::numeric_limits<double>::infinity())
     , m_direction(DIR_UNDEF)
     , m_connectionState(OPEN)
     , m_count(1)
-    , m_wpimult(HUGE_VAL)
+    , m_wpimult(std::numeric_limits<double>::infinity())
     , m_isMainBore(false)
     , m_completionType(CT_UNDEFINED)
     , m_firstOrderingValue(orderingValue)
-    , m_secondOrderingValue(HUGE_VAL)
+    , m_secondOrderingValue(std::numeric_limits<double>::infinity())
 {
 }
 
@@ -160,13 +160,17 @@ void RigCompletionData::setTransAndWPImultBackgroundDataFromFishbone(double     
 void RigCompletionData::setTransAndWPImultBackgroundDataFromPerforation(double        transmissibility,
                                                                         double        skinFactor,
                                                                         double        diameter,
+                                                                        double        dFactor,
+                                                                        double        kh,
                                                                         CellDirection direction)
 {
     m_completionType   = PERFORATION;
     m_transmissibility = transmissibility;
     m_skinFactor       = skinFactor;
     m_diameter         = diameter;
+    m_dFactor          = dFactor;
     m_direction        = direction;
+    m_kh               = kh;
     m_isMainBore       = true;
 }
 
@@ -240,9 +244,17 @@ void RigCompletionData::addMetadata(const QString& name, const QString& comment)
 //==================================================================================================
 ///
 //==================================================================================================
-bool RigCompletionData::isDefaultValue(double val)
+double RigCompletionData::defaultValue()
 {
-    return val == HUGE_VAL;
+    return std::numeric_limits<double>::infinity();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RigCompletionData::isDefaultValue(double num)
+{
+    return num == defaultValue();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -381,32 +393,20 @@ double RigCompletionData::secondOrderingValue() const
     return m_secondOrderingValue;
 }
 
-//==================================================================================================
+//--------------------------------------------------------------------------------------------------
 ///
-//==================================================================================================
-bool RigCompletionData::onlyOneIsDefaulted(double first, double second)
+//--------------------------------------------------------------------------------------------------
+void RigCompletionData::setSourcePdmObject(const caf::PdmObject* object)
 {
-    if (first == HUGE_VAL)
-    {
-        if (second == HUGE_VAL)
-        {
-            // Both have default values
-            return false;
-        }
-        else
-        {
-            // First has default value, second does not
-            return true;
-        }
-    }
-    if (second == HUGE_VAL)
-    {
-        // Second has default value, first does not
-        return true;
-    }
+    m_sourcePdmObject = const_cast<caf::PdmObject*>(object);
+}
 
-    // Neither has default values
-    return false;
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const caf::PdmObject* RigCompletionData::sourcePdmObject() const
+{
+    return m_sourcePdmObject;
 }
 
 //==================================================================================================
@@ -431,4 +431,5 @@ void RigCompletionData::copy(RigCompletionData& target, const RigCompletionData&
     target.m_completionType      = from.m_completionType;
     target.m_firstOrderingValue  = from.m_firstOrderingValue;
     target.m_secondOrderingValue = from.m_secondOrderingValue;
+    target.m_sourcePdmObject     = from.m_sourcePdmObject;
 }

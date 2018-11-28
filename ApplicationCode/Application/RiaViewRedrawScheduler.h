@@ -42,7 +42,7 @@ private:
     void                startTimer(int msecs);
 
     RiaViewRedrawScheduler() : m_resViewUpdateTimer(nullptr)  {}
-    ~RiaViewRedrawScheduler();
+    ~RiaViewRedrawScheduler() override;
 
     RiaViewRedrawScheduler(const RiaViewRedrawScheduler& o) = delete;
     void operator=(const RiaViewRedrawScheduler& o) = delete;

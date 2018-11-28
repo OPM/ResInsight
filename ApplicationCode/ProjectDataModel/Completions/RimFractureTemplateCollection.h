@@ -36,12 +36,14 @@ class RimFractureTemplateCollection : public caf::PdmObject
 
 public:
     RimFractureTemplateCollection();
-    virtual ~RimFractureTemplateCollection();
+    ~RimFractureTemplateCollection() override;
 
     RimFractureTemplate*                        fractureTemplate(int id) const;
     std::vector<RimFractureTemplate*>           fractureTemplates() const;
     void                                        addFractureTemplate(RimFractureTemplate* templ);
+
     RiaEclipseUnitTools::UnitSystemType         defaultUnitSystemType() const;
+    void                                        setDefaultUnitSystemBasedOnLoadedCases();
 
     RimFractureTemplate* firstFractureOfUnit(RiaEclipseUnitTools::UnitSystem unitSet) const;
 
@@ -53,7 +55,7 @@ public:
 
     void                                        updateFilePathsFromProjectPath(const QString& newProjectPath, const QString& oldProjectPath);
 protected:
-    virtual void                                initAfterRead() override;
+    void                                initAfterRead() override;
 
 private:
     int                                         nextFractureTemplateId();

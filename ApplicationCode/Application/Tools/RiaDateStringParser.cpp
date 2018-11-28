@@ -162,6 +162,9 @@ bool RiaDateStringParser::tryParseMonth(const std::string& s, int &month)
     {
         auto sMonth = s;
         sMonth = trimString(sMonth);
+        std::transform(sMonth.begin(), sMonth.end(), sMonth.begin(),
+                       [](const char c) -> char { return (char)::tolower(c); });
+
         for (int i = 0; i < 12; i++)
         {
             if (MONTH_NAMES[i].compare(0, sMonth.size(), sMonth) == 0)
@@ -210,8 +213,5 @@ std::string RiaDateStringParser::trimString(const std::string& s)
 {
     auto sCopy = s.substr(0, s.find_last_not_of(' ') + 1);
     sCopy = sCopy.substr(sCopy.find_first_not_of(' '));
-
-    std::transform(sCopy.begin(), sCopy.end(), sCopy.begin(), ::tolower);
-
     return sCopy;
 }

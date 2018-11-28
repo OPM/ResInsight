@@ -236,8 +236,6 @@ void RimIdenticalGridCaseGroup::loadMainCaseAndActiveCellInfo()
     // for all cases
 
     {
-        RiaDefines::PorosityModelType poroModel = RiaDefines::MATRIX_MODEL;
-
         std::vector<RigEclipseTimeStepInfo> timeStepInfos = rigCaseData->results(poroModel)->timeStepInfos(0);
 
         const std::vector<RigEclipseResultInfo> resultInfos = rigCaseData->results(poroModel)->infoForEachResultIndex();
@@ -251,15 +249,15 @@ void RimIdenticalGridCaseGroup::loadMainCaseAndActiveCellInfo()
 
             for (size_t resIdx = 0; resIdx < resultInfos.size(); resIdx++)
             {
-                RiaDefines::ResultCatType resultType = resultInfos[resIdx].m_resultType;
-                QString resultName = resultInfos[resIdx].m_resultName;
-                bool needsToBeStored = resultInfos[resIdx].m_needsToBeStored;
-                bool mustBeCalculated = resultInfos[resIdx].m_mustBeCalculated;
+                RiaDefines::ResultCatType resultType = resultInfos[resIdx].resultType();
+                QString resultName = resultInfos[resIdx].resultName();
+                bool needsToBeStored = resultInfos[resIdx].needsToBeStored();
+                bool mustBeCalculated = resultInfos[resIdx].mustBeCalculated();
 
                 size_t scalarResultIndex = cellResultsStorage->findScalarResultIndex(resultType, resultName);
                 if (scalarResultIndex == cvf::UNDEFINED_SIZE_T)
                 {
-                    size_t scalarResultIndex = cellResultsStorage->findOrCreateScalarResultIndex(resultType, resultName, needsToBeStored);
+                    scalarResultIndex = cellResultsStorage->findOrCreateScalarResultIndex(resultType, resultName, needsToBeStored);
                     
                     if (mustBeCalculated) cellResultsStorage->setMustBeCalculated(scalarResultIndex);
 
@@ -516,25 +514,3 @@ RimEclipseCase* RimIdenticalGridCaseGroup::mainCase()
     }
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-bool RimIdenticalGridCaseGroup::canCaseBeAdded(RimEclipseCase* reservoir) const
-{
-    CVF_ASSERT(reservoir && reservoir->eclipseCaseData() && reservoir->eclipseCaseData()->mainGrid());
-
-    if (!m_mainGrid)
-    {
-        // Empty case group, reservoir can be added
-        return true;
-    }
-
-    RigMainGrid* incomingMainGrid = reservoir->eclipseCaseData()->mainGrid();
-    
-    if (RigGridManager::isEqual(m_mainGrid, incomingMainGrid))
-    {
-        return true;
-    }
-
-    return false;
-}

@@ -54,7 +54,8 @@ public:
 
     void appendPlaneToModel(cvf::ModelBasicList*              model,
                             const caf::DisplayCoordTransform* displayCoordTransform,
-                            const cvf::BoundingBox&           wellPathClipBoundingBox);
+                            const cvf::BoundingBox&           wellPathClipBoundingBox,
+                            bool                              isStaticResult = false);
 private:
     void append3dWellLogCurveToModel(cvf::ModelBasicList*              model,
                                      const caf::DisplayCoordTransform* displayCoordTransform,
@@ -65,16 +66,16 @@ private:
     void appendDrawSurfaceToModel(cvf::ModelBasicList*              model,
                                   const caf::DisplayCoordTransform* displayCoordTransform,
                                   const cvf::BoundingBox&           wellPathClipBoundingBox,
-                                  const Rim3dWellLogCurve*          rim3dWellLogCurve,
+                                  Rim3dWellLogCurve::DrawPlane      drawPlane,
                                   double                            samplingInterval);
 
     cvf::ref<cvf::Part> createPart(cvf::Drawable* drawable, cvf::Effect* effect);
 
-    double wellPathCenterToPlotStartOffset(const Rim3dWellLogCurve* curve) const;
+    double wellPathCenterToPlotStartOffset(Rim3dWellLogCurve::DrawPlane drawPlane) const;
     double planeWidth() const;
 
 private:
-    cvf::ref<Riv3dWellLogDrawSurfaceGenerator> m_3dWellLogDrawSurfaceGeometryGenerator;
+    std::map<Rim3dWellLogCurve::DrawPlane, cvf::ref<Riv3dWellLogDrawSurfaceGenerator>> m_3dWellLogDrawSurfaceGeometryGenerators;
     
     caf::PdmPointer<RimWellPath>                m_wellPath;
     caf::PdmPointer<RimGridView>                m_gridView;

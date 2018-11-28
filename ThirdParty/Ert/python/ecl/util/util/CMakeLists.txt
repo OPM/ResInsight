@@ -16,7 +16,6 @@ set(PYTHON_SOURCES
     vector_template.py
     permutation_vector.py
     version.py
-    arg_pack.py
     cwd_context.py
 )
 

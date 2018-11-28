@@ -357,8 +357,6 @@ void RimSummaryFilter::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering
 {
     uiOrdering.add(&m_filterType);
 
-    caf::PdmUiGroup* curveVarFilterGroup = nullptr;
-
     if(m_filterType() == SUM_FILTER_VAR_STRING)
     {
         uiOrdering.add(&m_completeVarStringFilter);
@@ -461,14 +459,5 @@ void RimSummaryFilter::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
     {
         parent->updateConnectedEditors();
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimSummaryFilter::setCompleteVarStringFilter(const QString& stringFilter)
-{
-    m_filterType = SUM_FILTER_VAR_STRING;
-    m_completeVarStringFilter = stringFilter;
 }
 

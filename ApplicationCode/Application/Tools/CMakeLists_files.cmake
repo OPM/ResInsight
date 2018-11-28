@@ -24,6 +24,20 @@ ${CMAKE_CURRENT_LIST_DIR}/RiaTextFileCompare.h
 ${CMAKE_CURRENT_LIST_DIR}/RiaRegressionTestRunner.h
 ${CMAKE_CURRENT_LIST_DIR}/RiaExtractionTools.h
 ${CMAKE_CURRENT_LIST_DIR}/RiaFilePathTools.h
+${CMAKE_CURRENT_LIST_DIR}/RiaTimeHistoryCurveMerger.h
+${CMAKE_CURRENT_LIST_DIR}/RiaCurveDataTools.h
+${CMAKE_CURRENT_LIST_DIR}/RiaTimeHistoryCurveResampler.h
+${CMAKE_CURRENT_LIST_DIR}/RiaStatisticsTools.h
+${CMAKE_CURRENT_LIST_DIR}/RiaOffshoreSphericalCoords.h
+${CMAKE_CURRENT_LIST_DIR}/RiaWeightedMeanCalculator.h
+${CMAKE_CURRENT_LIST_DIR}/RiaWeightedMeanCalculator.inl
+${CMAKE_CURRENT_LIST_DIR}/RiaWeightedGeometricMeanCalculator.h
+${CMAKE_CURRENT_LIST_DIR}/RiaWeightedHarmonicMeanCalculator.h
+${CMAKE_CURRENT_LIST_DIR}/RiaOptionItemFactory.h
+${CMAKE_CURRENT_LIST_DIR}/RiaGitDiff.h
+${CMAKE_CURRENT_LIST_DIR}/RiaQIconTools.h
+${CMAKE_CURRENT_LIST_DIR}/RiaCellDividingTools.h
+${CMAKE_CURRENT_LIST_DIR}/RiaFieldHandleTools.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -51,6 +65,17 @@ ${CMAKE_CURRENT_LIST_DIR}/RiaTextFileCompare.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiaRegressionTestRunner.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiaExtractionTools.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiaFilePathTools.cpp
+${CMAKE_CURRENT_LIST_DIR}/RiaTimeHistoryCurveMerger.cpp
+${CMAKE_CURRENT_LIST_DIR}/RiaCurveDataTools.cpp
+${CMAKE_CURRENT_LIST_DIR}/RiaTimeHistoryCurveResampler.cpp
+${CMAKE_CURRENT_LIST_DIR}/RiaStatisticsTools.cpp
+${CMAKE_CURRENT_LIST_DIR}/RiaWeightedGeometricMeanCalculator.cpp
+${CMAKE_CURRENT_LIST_DIR}/RiaWeightedHarmonicMeanCalculator.cpp
+${CMAKE_CURRENT_LIST_DIR}/RiaOptionItemFactory.cpp
+${CMAKE_CURRENT_LIST_DIR}/RiaGitDiff.cpp
+${CMAKE_CURRENT_LIST_DIR}/RiaQIconTools.cpp
+${CMAKE_CURRENT_LIST_DIR}/RiaCellDividingTools.cpp
+${CMAKE_CURRENT_LIST_DIR}/RiaFieldHandleTools.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

@@ -23,6 +23,7 @@
 #include "RimCase.h"
 #include "RimTools.h"
 #include "Rim3dView.h"
+#include "RimWellLogTrack.h"
 
 #include "cafPdmUiFilePathEditor.h"
 
@@ -118,14 +119,25 @@ QString RimFormationNames::fileNameWoPath()
 //--------------------------------------------------------------------------------------------------
 void RimFormationNames::updateConnectedViews()
 {
-    std::vector<caf::PdmObjectHandle*> usingObjs;
-    this->objectsWithReferringPtrFields(usingObjs);
-    for (caf::PdmObjectHandle* obj: usingObjs)
+    std::vector<RimCase*> objects;
+    this->objectsWithReferringPtrFieldsOfType(objects);
+
+    for (RimCase* caseObj : objects)
     {
-        RimCase* caseObj = dynamic_cast<RimCase*>(obj);
         if (caseObj)
         {
             caseObj->updateFormationNamesData();
+
+            std::vector<RimWellLogTrack*> tracks;
+            caseObj->objectsWithReferringPtrFieldsOfType(tracks);
+            for (RimWellLogTrack* track : tracks)
+            {
+                // The track may be referring to the case for other reasons than formations.
+                if (track->formationNamesCase() == caseObj)
+                {
+                    track->loadDataAndUpdate(true);
+                }
+            }
         }
     }
 }

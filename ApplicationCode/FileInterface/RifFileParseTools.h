@@ -20,7 +20,7 @@
 
 #include <QString>
 #include <QStringList>
-
+#include <QRegExp>
 
 //==================================================================================================
 ///
@@ -28,7 +28,8 @@
 class RifFileParseTools
 {
 public:
-    static QStringList  splitLineAndTrim(const QString& line, const QString& separator);
+    static QStringList  splitLineAndTrim(const QString& line, const QString& separator, bool skipEmptyParts = false);
+    static QStringList  splitLineAndTrim(const QString& line, const QRegExp& regexp, bool skipEmptyParts = false);
 };
 
 //==================================================================================================

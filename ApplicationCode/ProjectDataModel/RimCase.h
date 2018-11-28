@@ -47,7 +47,7 @@ class RimCase : public caf::PdmObject
     CAF_PDM_HEADER_INIT;
 public:
     RimCase();
-    virtual ~RimCase();
+    ~RimCase() override;
     
     caf::PdmField<int>                          caseId;
     caf::PdmField<QString>                      caseUserDescription;
@@ -77,11 +77,11 @@ public:
 
     Rim2dIntersectionViewCollection*            intersectionViewCollection();
 protected:
-    virtual QList<caf::PdmOptionItemInfo>       calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
+    QList<caf::PdmOptionItemInfo>       calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
     virtual std::vector<Rim3dView*>             allSpecialViews() const = 0;
 
 private:
-    virtual caf::PdmFieldHandle*                userDescriptionField() override { return &caseUserDescription; }
+    caf::PdmFieldHandle*                userDescriptionField() override { return &caseUserDescription; }
 
 protected:
     caf::PdmChildField<RimTimeStepFilter*>      m_timeStepFilter;

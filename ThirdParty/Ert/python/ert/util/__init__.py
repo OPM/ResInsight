@@ -13,7 +13,6 @@ from ecl.util.util import LookupTable
 from ecl.util.util import Hash, StringHash, DoubleHash, IntegerHash
 from ecl.util.util import ThreadPool
 from ecl.util.util import installAbortSignals, updateAbortSignals
-from ecl.util.util import ArgPack
 
 try:
     from res.util import SubstitutionList

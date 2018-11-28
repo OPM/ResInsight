@@ -55,7 +55,7 @@ public:
                                      bool isFlattened,
                                      const cvf::Vec3d& flattenedPolylineStartPoint);
 
-    ~RivIntersectionGeometryGenerator();
+    ~RivIntersectionGeometryGenerator() override;
 
     bool                        isAnyGeometryPresent() const;
  

@@ -30,7 +30,7 @@ class RiuWidgetDragger : public QObject
 public:
     RiuWidgetDragger(QWidget* widgetToMove);
 
-    virtual bool eventFilter(QObject * watched, QEvent * event) override;
+    bool eventFilter(QObject * watched, QEvent * event) override;
 
 private:
     QPointer<QWidget> m_widgetToMove;

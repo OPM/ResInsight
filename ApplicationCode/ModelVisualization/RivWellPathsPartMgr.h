@@ -42,7 +42,6 @@ class DisplayCoordTransform;
 
 class Rim3dView;
 class RivWellPathPartMgr;
-class RimWellPathCollection;
 class RimWellPath;
 
 //--------------------------------------------------------------------------------------------------
@@ -52,7 +51,7 @@ class RivWellPathsPartMgr : public cvf::Object
 {
 public:
     explicit RivWellPathsPartMgr(Rim3dView* view);
-    ~RivWellPathsPartMgr();
+    ~RivWellPathsPartMgr() override;
 
     void appendStaticGeometryPartsToModel(cvf::ModelBasicList*              model,
                                           const caf::DisplayCoordTransform* displayCoordTransform,
@@ -72,7 +71,6 @@ private:
     void                   clearGeometryCache();
     void                   scheduleGeometryRegen();
     void                   createPartManagersIfRequired();
-    RimWellPathCollection* wellPathCollection() const;
     bool                   isWellPathVisible() const;
 
 private:

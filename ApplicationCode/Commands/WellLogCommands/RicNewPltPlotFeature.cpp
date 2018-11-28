@@ -101,7 +101,7 @@ void RicNewPltPlotFeature::onActionTriggered(bool isChecked)
         }
         else if ((eclipseWell = caf::firstAncestorOfTypeFromSelectedObject<RimSimWellInView*>()) != nullptr)
         {
-            RimWellPath* wellPath = proj->wellPathFromSimWellName(eclipseWell->name());
+            wellPath = proj->wellPathFromSimWellName(eclipseWell->name());
             if (!wellPath ) return;
 
             wellPathName = wellPath->name();
@@ -136,15 +136,6 @@ void RicNewPltPlotFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setText("New PLT Plot");
     actionToSetup->setIcon(QIcon(":/WellFlowPlot16x16.png"));
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RimWellLogTrack* RicNewPltPlotFeature::selectedWellLogPlotTrack() const
-{
-    auto selection = caf::selectedObjectsByType<RimWellLogTrack*>();
-    return selection.size() > 0 ? selection[0] : nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

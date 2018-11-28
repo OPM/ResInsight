@@ -46,7 +46,7 @@ class RimSummaryCurveFilter_OBSOLETE : public caf::PdmObject
 
 public:
     RimSummaryCurveFilter_OBSOLETE();
-    virtual ~RimSummaryCurveFilter_OBSOLETE();
+    ~RimSummaryCurveFilter_OBSOLETE() override;
 
     std::vector<RimSummaryCurve*>           curves();
     void                                    clearCurvesWithoutDelete();

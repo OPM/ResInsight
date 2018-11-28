@@ -84,10 +84,9 @@ def date2num(dt):
                  dt.microsecond/MUSECONDS_PER_DAY)
     return base
 
-
 class EclSum(BaseCClass):
     TYPE_NAME = "ecl_sum"
-    _fread_alloc_case              = EclPrototype("void*     ecl_sum_fread_alloc_case__(char*, char*, bool)", bind=False)
+    _fread_alloc_case2             = EclPrototype("void*     ecl_sum_fread_alloc_case2__(char*, char*, bool, bool, int)", bind=False)
     _fread_alloc                   = EclPrototype("void*     ecl_sum_fread_alloc(char*, stringlist, char*, bool)", bind=False)
     _create_restart_writer         = EclPrototype("ecl_sum_obj  ecl_sum_alloc_restart_writer2(char*, char*, int, bool, bool, char*, time_t, bool, int, int, int)", bind = False)
     _create_writer                 = EclPrototype("ecl_sum_obj  ecl_sum_alloc_writer(char*, bool, bool, char*, time_t, bool, int, int, int)", bind = False)
@@ -95,11 +94,8 @@ class EclSum(BaseCClass):
     _iiget                         = EclPrototype("double   ecl_sum_iget(ecl_sum, int, int)")
     _free                          = EclPrototype("void     ecl_sum_free(ecl_sum)")
     _data_length                   = EclPrototype("int      ecl_sum_get_data_length(ecl_sum)")
-    _scale_vector                  = EclPrototype("void     ecl_sum_scale_vector(ecl_sum, int, double)")
-    _shift_vector                  = EclPrototype("void     ecl_sum_shift_vector(ecl_sum, int, double)")
     _iget_sim_days                 = EclPrototype("double   ecl_sum_iget_sim_days(ecl_sum, int) ")
     _iget_report_step              = EclPrototype("int      ecl_sum_iget_report_step(ecl_sum, int) ")
-    _iget_mini_step                = EclPrototype("int      ecl_sum_iget_mini_step(ecl_sum, int) ")
     _iget_sim_time                 = EclPrototype("time_t   ecl_sum_iget_sim_time(ecl_sum, int) ")
     _get_report_end                = EclPrototype("int      ecl_sum_iget_report_end(ecl_sum, int)")
     _get_general_var               = EclPrototype("double   ecl_sum_get_general_var(ecl_sum, int, char*)")
@@ -133,6 +129,7 @@ class EclSum(BaseCClass):
     _get_report_step_from_days     = EclPrototype("int      ecl_sum_get_report_step_from_days(ecl_sum, double)")
     _get_report_time               = EclPrototype("time_t   ecl_sum_get_report_time(ecl_sum, int)")
     _fwrite_sum                    = EclPrototype("void     ecl_sum_fwrite(ecl_sum)")
+    _can_write                     = EclPrototype("bool     ecl_sum_can_write(ecl_sum)")
     _set_case                      = EclPrototype("void     ecl_sum_set_case(ecl_sum, char*)")
     _alloc_time_vector             = EclPrototype("time_t_vector_obj ecl_sum_alloc_time_vector(ecl_sum, bool)")
     _alloc_data_vector             = EclPrototype("double_vector_obj ecl_sum_alloc_data_vector(ecl_sum, int, bool)")
@@ -143,6 +140,8 @@ class EclSum(BaseCClass):
     _add_tstep                     = EclPrototype("ecl_sum_tstep_ref ecl_sum_add_tstep(ecl_sum, int, double)")
     _export_csv                    = EclPrototype("void ecl_sum_export_csv(ecl_sum, char*, stringlist, char*, char*)")
     _identify_var_type             = EclPrototype("ecl_sum_var_type ecl_sum_identify_var_type(char*)", bind = False)
+    _is_rate                       = EclPrototype("bool smspec_node_identify_rate(char*)", bind = False)
+    _is_total                      = EclPrototype("bool smspec_node_identify_total(char*, ecl_sum_var_type)", bind = False)
     _get_last_value                = EclPrototype("double ecl_sum_get_last_value_gen_key(ecl_sum, char*)")
     _get_first_value               = EclPrototype("double ecl_sum_get_first_value_gen_key(ecl_sum, char*)")
     _init_numpy_vector             = EclPrototype("void ecl_sum_init_double_vector(ecl_sum, char*, double*)")
@@ -150,9 +149,8 @@ class EclSum(BaseCClass):
     _init_numpy_datetime64         = EclPrototype("void ecl_sum_init_datetime64_vector(ecl_sum, int64*, int)")
 
 
-    def __init__(self, load_case, join_string=":", include_restart=True):
-        """
-        Loads a new EclSum instance with summary data.
+    def __init__(self, load_case, join_string=":", include_restart=True, lazy_load=True, file_options=0):
+        """Loads a new EclSum instance with summary data.
 
         Loads a new summary results from the ECLIPSE case given by
         argument @load_case; @load_case should be the basename of the ECLIPSE
@@ -167,15 +165,24 @@ class EclSum(BaseCClass):
         If the @include_restart parameter is set to true the summary
         loader will, in the case of a restarted ECLIPSE simulation,
         try to load summary results also from the restarted case.
+
+        If the @lazy_load parameter is set to true the loader will not load all
+        the data from a UNSMRY file at creation time, but wait until the data
+        is actually requested. This will reduce startup time and memory usage,
+        whereas getting a vector will be slower. When the summary data is split
+        over multiple CASE.Snnn files all the data will be loaded at
+        construction time, and the @lazy_load option is ignored. If the
+        lazy_load functionality is used the file_options intege flag is passed
+        when opening the UNSMRY file.
+
         """
         if not load_case:
             raise ValueError('load_case must be the basename of the simulation')
-        c_pointer = self._fread_alloc_case(load_case, join_string, include_restart)
+        c_pointer = self._fread_alloc_case2(load_case, join_string, include_restart, lazy_load, file_options)
         if c_pointer is None:
             raise IOError("Failed to create summary instance from argument:%s" % load_case)
 
         super(EclSum, self).__init__(c_pointer)
-        self.__private_init()
         self._load_case = load_case
 
 
@@ -201,22 +208,26 @@ class EclSum(BaseCClass):
     @classmethod
     def createCReference(cls, c_pointer, parent=None):
         result = super(EclSum, cls).createCReference(c_pointer, parent)
-        if not result is None:
-            result.__private_init()
         return result
 
 
     @classmethod
     def createPythonObject(cls, c_pointer):
         result = super(EclSum, cls).createPythonObject(c_pointer)
-        result.__private_init()
         return result
 
 
-    @classmethod
-    def var_type(cls, keyword):
-        return cls._identify_var_type(keyword)
+    @staticmethod
+    def var_type(keyword):
+        return EclSum._identify_var_type(keyword)
 
+    @staticmethod
+    def is_rate(keyword):
+        return EclSum._is_rate(keyword)
+
+    @staticmethod
+    def is_total(keyword):
+        return EclSum._is_total(keyword, EclSum.var_type(keyword))
 
     @staticmethod
     def writer(case,
@@ -297,49 +308,6 @@ class EclSum(BaseCClass):
 
 
 
-    def __private_init(self):
-        # Initializing the time vectors
-        length = self.length
-        self.__dates = [0] * length
-        self.__report_step = numpy.zeros(length, dtype=numpy.int32)
-        self.__mini_step = numpy.zeros(length, dtype=numpy.int32)
-        self.__days = numpy.zeros(length)
-        self.__mpl_dates = numpy.zeros(length)
-
-        for i in range(length):
-            self.__days[i] = self._iget_sim_days(i)
-            self.__dates[i] = self.iget_date(i)
-            self.__report_step[i] = self._iget_report_step(i)
-            self.__mini_step[i] = self._iget_mini_step(i)
-            self.__mpl_dates[i] = date2num(self.__dates[i])
-
-        index_list = self.report_index_list()
-
-        length = len(index_list) - index_list.count(-1)
-        self.__datesR = [0] * length
-        self.__report_stepR = numpy.zeros(length, dtype=numpy.int32)
-        self.__mini_stepR = numpy.zeros(length, dtype=numpy.int32)
-        self.__daysR = numpy.zeros(length)
-        self.__mpl_datesR = numpy.zeros(length)
-
-        # Slightly hysterical heuristics to accomoate for the
-        # situation where there are holes in the report steps series;
-        # when a report step is completely missing there will be -1
-        # entries in the index_list.
-        i1 = 0
-        for i0 in range(length):
-            while True:
-                time_index = index_list[i1]
-                i1 += 1
-                if time_index >= 0:
-                    break
-
-            self.__daysR[i0] = self._iget_sim_days(time_index)
-            self.__datesR[i0] = self.iget_date(time_index)
-            self.__report_stepR[i0] = self._iget_report_step(time_index)
-            self.__mini_stepR[i0] = self._iget_mini_step(time_index)
-            self.__mpl_datesR[i0] = date2num(self.__datesR[i0])
-
 
     def get_vector(self, key, report_only=False):
         """
@@ -348,6 +316,7 @@ class EclSum(BaseCClass):
         Will raise exception KeyError if the summary object does not
         have @key.
         """
+        warnings.warn("The method get_vector() has been deprecated, use numpy_vector() instead", DeprecationWarning)
         self.assertKeyValid(key)
         if report_only:
             return EclSumVector(self, key, report_only=True)
@@ -425,7 +394,7 @@ class EclSum(BaseCClass):
             time_points.append(t)
         return time_points
 
-    def numpy_vector(self, key, time_index = None):
+    def numpy_vector(self, key, time_index=None, report_only=False):
         """Will return numpy vector of all the values corresponding to @key.
 
         The optional argument @time_index can be used to limit the time points
@@ -441,9 +410,21 @@ class EclSum(BaseCClass):
         The function will raise KeyError if the requested key does not exist.
         If many keys are needed it will be faster to use the pandas_frame()
         function.
+
+        If you set the optional argument report_only to True the you will only
+        get values at the report dates. Observe that passing report_only=True
+        can not be combined with a value for time_index, that will give you a
+        ValueError exception.
+
         """
         if key not in self:
             raise KeyError("No such key:%s" % key)
+
+        if report_only:
+            if time_index is None:
+                time_index = self.report_dates
+            else:
+                raise ValueError("Can not suuply both time_index and report_only=True")
 
         if time_index is None:
             np_vector = numpy.zeros(len(self))
@@ -473,6 +454,15 @@ class EclSum(BaseCClass):
         """
         np_dates = self.numpy_dates
         return np_dates.tolist()
+
+
+    @property
+    def report_dates(self):
+        dates = []
+        if len(self):
+            for report in range(self.first_report,self.last_report + 1):
+                dates.append(self.get_report_time( report ))
+        return dates
 
 
     def pandas_frame(self, time_index = None, column_keys = None):
@@ -664,26 +654,30 @@ class EclSum(BaseCClass):
 
         The returned value will be a EclSumVector instance.
         """
+        warnings.warn("The method the [] operator will change behaviour in the future. It will then return a plain numpy vector. You are advised to change to use the numpy_vector() method right away", DeprecationWarning)
         return self.get_vector(key)
 
-    def scale_vector(self, key, scalar):
-        """ecl_sum.scaleVector("WOPR:OPX", 0.78)
-        will scale all the elements in the 'WOPR:OPX' vector with 0.78.
-        """
-        if not key in self:
-            raise KeyError("Summary object does not have key:%s" % key)
 
-        key_index = self._get_general_var_index(key)
-        self._scale_vector(key_index, float(scalar))
+    def scale_vector(self, key, scalar):
+        msg = """The function EclSum.scale_vector has been removed. As an alternative you
+are advised to fetch vector as a numpy vector and then scale that yourself:
+
+    vec = ecl_sum.numpy_vector(key)
+    vec *= scalar
+
+        """
+        raise NotImplementedError(msg)
 
     def shift_vector(self, key, addend):
-        """ecl_sum.shiftVector("WOPR:OPX", 0.78)
-        will shift (add) all the elements in the 'WOPR:OPX' vector with 0.78.
+        msg = """The function EclSum.shift_vector has been removed. As an alternative you
+are advised to fetch vector as a numpy vector and then scale that yourself:
+
+    vec = ecl_sum.numpy_vector(key)
+    vec += scalar
+
         """
-        if not key in self:
-            raise KeyError("Summary object does not have key:%s" % key)
-        key_index = self._get_general_var_index(key)
-        self._shift_vector(key_index, float(addend))
+        raise NotImplementedError(msg)
+
 
     def check_sim_time(self, date):
         """
@@ -1033,9 +1027,12 @@ class EclSum(BaseCClass):
         'days' values corresponding to report steps will be included.
         """
         if report_only:
-            return self.__daysR
+            dates = self.report_dates
+            start_date = self.data_start
+            start = datetime.date(start_date.year, start_date.month, start_date.day)
+            return [ (x - start).total_seconds( ) / 86400 for x in dates ]
         else:
-            return self.__days
+            return [ self._iget_sim_days(index) for index in range(len(self)) ]
 
     def get_dates(self, report_only=False):
         """
@@ -1047,9 +1044,9 @@ class EclSum(BaseCClass):
         to report steps will be included.
         """
         if report_only:
-            return self.__datesR
+            return self.report_dates
         else:
-            return self.__dates
+            return self.dates
 
     @property
     def mpl_dates(self):
@@ -1060,7 +1057,9 @@ class EclSum(BaseCClass):
         i.e. floats - generated by the date2num() function at the top
         of this file.
         """
+        warnings.warn("The mpl_dates property has been deprecated - use numpy_dates instead", DeprecationWarning)
         return self.get_mpl_dates(False)
+
 
     def get_mpl_dates(self, report_only=False):
         """
@@ -1072,39 +1071,11 @@ class EclSum(BaseCClass):
         format, i.e. floats - generated by the date2num() function at
         the top of this file.
         """
+        warnings.warn("The get_mpl_dates( ) method has been deprecated - use numpy_dates instead", DeprecationWarning)
         if report_only:
-            return self.__mpl_datesR
+            return [ date2num(dt) for dt in self.report_dates ]
         else:
-            return self.__mpl_dates
-
-    @property
-    def mini_step(self):
-        """
-        Will return a a python list of ministep values.
-
-        Will return a Python list of ministep values from this summary
-        case; the ministep values are the internal indexing of
-        timesteps provided by the reservoir simulator. In normal cases
-        this will be: [0,1,2,3,4,5,....], but in the case of restarted
-        simulations it can start at a higher value, and there can also
-        be 'holes' in the series if 'RPTONLY' has been used in THE
-        ECLIPSE datafile.
-        """
-        return self.get_mini_step(False)
-
-    def get_mini_step(self, report_only=False):
-        """
-        Will return a a python list of ministep values.
-
-        If the optional argument @report_only is set to True, only
-        dates values corresponding to report steps will be
-        included. See documentation of property: 'mini_step' for
-        further documentation.
-        """
-        if report_only:
-            return self.__mini_stepR
-        else:
-            return self.__mini_step
+            return [ date2num(dt) for dt in self.dates ]
 
 
     @property
@@ -1125,9 +1096,13 @@ class EclSum(BaseCClass):
 
     def get_report_step(self, report_only=False):
         if report_only:
-            return self.__report_stepR
+            report_steps = list(range(self.first_report, self.last_report + 1))
         else:
-            return self.__report_step
+            report_steps = []
+            for index in range(len(self)):
+                report_steps.append( self._iget_report_step(index) )
+
+        return report_steps
 
     #-----------------------------------------------------------------
 
@@ -1171,6 +1146,11 @@ class EclSum(BaseCClass):
 
     @property
     def sim_length(self):
+        """Will return the total time span for the simulation data.
+
+        The lengt will be returned in time unit used in the simulation data;
+        i.e. typically days.
+        """
         return self.getSimulationLength()
 
     @property
@@ -1420,9 +1400,14 @@ class EclSum(BaseCClass):
         return s
 
 
+    def can_write(self):
+        return self._can_write( )
 
 
     def fwrite(self, ecl_case=None):
+        if not self.can_write():
+            raise NotImplementedError("Write method is not implemented for this case. lazy_load=True??")
+
         if ecl_case:
             self._set_case(ecl_case)
 

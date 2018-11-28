@@ -20,6 +20,7 @@
 
 #include "RiaApplication.h"
 #include "RiaColorTables.h"
+#include "RiaCurveSetDefinition.h"
 #include "RiaSummaryCurveDefinition.h"
 
 #include "RicSelectSummaryPlotUI.h"
@@ -27,6 +28,7 @@
 
 #include "RifReaderEclipseSummary.h"
 
+#include "RimDerivedEnsembleCaseCollection.h"
 #include "RimEnsembleCurveSet.h"
 #include "RimEnsembleCurveSetCollection.h"
 #include "RimEnsembleCurveSetColorManager.h"
@@ -45,6 +47,7 @@
 #include "RimSummaryPlot.h"
 #include "RimSummaryPlotCollection.h"
 
+#include "RiuPlotMainWindow.h"
 #include "RiuPlotMainWindowTools.h"
 #include "RiuSummaryCurveDefSelection.h"
 #include "RiuSummaryQwtPlot.h"
@@ -74,7 +77,9 @@ const QString RicSummaryCurveCreator::CONFIGURATION_NAME = "CurveCreatorCfg";
 //--------------------------------------------------------------------------------------------------
 /// Internal functions
 //--------------------------------------------------------------------------------------------------
-int  ensembleCurveCount(const std::set<RiaSummaryCurveDefinition>& allCurveDefs);
+int ensembleCurveCount(const std::set<RiaSummaryCurveDefinition>& allCurveDefs);
+template<typename T>
+std::vector<T> toVector(const std::set<T>& set);
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -144,7 +149,7 @@ RimSummaryPlot* RicSummaryCurveCreator::previewPlot() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicSummaryCurveCreator::updateFromSummaryPlot(RimSummaryPlot* targetPlot, const std::vector<RimSummaryCase*>& defaultCases)
+void RicSummaryCurveCreator::updateFromSummaryPlot(RimSummaryPlot* targetPlot, const std::vector<SummarySource*>& defaultSources)
 {
     if (targetPlot == nullptr || m_targetPlot != targetPlot)
     {
@@ -163,7 +168,7 @@ void RicSummaryCurveCreator::updateFromSummaryPlot(RimSummaryPlot* targetPlot, c
     }
     else
     {
-        setDefaultCurveSelection(defaultCases);
+        setDefaultCurveSelection(defaultSources);
         m_previewPlot->enableAutoPlotTitle(true);
         syncPreviewCurvesFromUiSelection();
     }
@@ -334,7 +339,7 @@ void RicSummaryCurveCreator::syncPreviewCurvesFromUiSelection()
         std::set<RiaSummaryCurveDefinition>(allCurveDefinitionsVector.begin(), allCurveDefinitionsVector.end());
 
     std::vector<RimSummaryCurve*> currentCurvesInPreviewPlot = m_previewPlot->summaryAndEnsembleCurves();
-    if (allCurveDefinitions.size() != currentCurvesInPreviewPlot.size())
+
     {
         std::set<RiaSummaryCurveDefinition> currentCurveDefs;
         std::set<RiaSummaryCurveDefinition> newCurveDefs;
@@ -343,10 +348,10 @@ void RicSummaryCurveCreator::syncPreviewCurvesFromUiSelection()
         for (const auto& curve : currentCurvesInPreviewPlot)
         {
             RimSummaryCase* sumCase = curve->summaryCaseY();
-            currentCurveDefs.insert(RiaSummaryCurveDefinition(sumCase, curve->summaryAddressY(), sumCase ? sumCase->ensemble() : nullptr));
+            currentCurveDefs.insert(
+                RiaSummaryCurveDefinition(sumCase, curve->summaryAddressY(), sumCase ? sumCase->ensemble() : nullptr));
         }
 
-        if (allCurveDefinitions.size() < currentCurvesInPreviewPlot.size())
         {
             // Determine which curves to delete from plot
             std::set<RiaSummaryCurveDefinition> deleteCurveDefs;
@@ -359,11 +364,13 @@ void RicSummaryCurveCreator::syncPreviewCurvesFromUiSelection()
             for (const auto& curve : currentCurvesInPreviewPlot)
             {
                 RimSummaryCase* sumCase = curve->summaryCaseY();
-                RiaSummaryCurveDefinition curveDef = RiaSummaryCurveDefinition(sumCase, curve->summaryAddressY(), sumCase ? sumCase->ensemble() : nullptr);
+                if (sumCase && sumCase->ensemble()) continue;
+
+                RiaSummaryCurveDefinition curveDef = RiaSummaryCurveDefinition(sumCase, curve->summaryAddressY());
                 if (deleteCurveDefs.count(curveDef) > 0) curvesToDelete.insert(curve);
             }
         }
-        else
+
         {
             // Determine which curves are new since last time
             std::set_difference(allCurveDefinitions.begin(),
@@ -373,7 +380,42 @@ void RicSummaryCurveCreator::syncPreviewCurvesFromUiSelection()
                                 std::inserter(newCurveDefs, newCurveDefs.end()));
         }
 
-        updatePreviewCurvesFromCurveDefinitions(allCurveDefinitions, newCurveDefs, curvesToDelete);
+        // Curve sets to delete
+        std::set<RimEnsembleCurveSet*> curveSetsToDelete;
+        {
+            std::vector<RiaCurveSetDefinition> allCurveSetDefinitionsVector =
+                m_summaryCurveSelectionEditor->summaryAddressSelection()->allCurveSetDefinitionsFromSelections();
+            std::set<RiaCurveSetDefinition> allCurveSetDefinitions =
+                std::set<RiaCurveSetDefinition>(allCurveSetDefinitionsVector.begin(), allCurveSetDefinitionsVector.end());
+            std::vector<RimEnsembleCurveSet*> currentCurveSetsInPreviewPlot = m_previewPlot->curveSets();
+            std::set<RiaCurveSetDefinition>   currentCurveSetDefs;
+
+            for (const auto& curveSet : currentCurveSetsInPreviewPlot)
+            {
+                RimSummaryCaseCollection* ensemble = curveSet->summaryCaseCollection();
+                currentCurveSetDefs.insert(RiaCurveSetDefinition(ensemble, curveSet->summaryAddress()));
+            }
+
+            if (allCurveSetDefinitions.size() < currentCurveSetsInPreviewPlot.size())
+            {
+                // Determine which curves to delete from plot
+                std::set<RiaCurveSetDefinition> deleteCurveSetDefs;
+                std::set_difference(currentCurveSetDefs.begin(),
+                                    currentCurveSetDefs.end(),
+                                    allCurveSetDefinitions.begin(),
+                                    allCurveSetDefinitions.end(),
+                                    std::inserter(deleteCurveSetDefs, deleteCurveSetDefs.end()));
+
+                for (const auto& curveSet : currentCurveSetsInPreviewPlot)
+                {
+                    RimSummaryCaseCollection* ensemble    = curveSet->summaryCaseCollection();
+                    RiaCurveSetDefinition     curveSetDef = RiaCurveSetDefinition(ensemble, curveSet->summaryAddress());
+                    if (deleteCurveSetDefs.count(curveSetDef) > 0) curveSetsToDelete.insert(curveSet);
+                }
+            }
+        }
+
+        updatePreviewCurvesFromCurveDefinitions(allCurveDefinitions, newCurveDefs, curvesToDelete, curveSetsToDelete);
     }
 }
 
@@ -383,11 +425,11 @@ void RicSummaryCurveCreator::syncPreviewCurvesFromUiSelection()
 void RicSummaryCurveCreator::updatePreviewCurvesFromCurveDefinitions(
     const std::set<RiaSummaryCurveDefinition>& allCurveDefsToDisplay,
     const std::set<RiaSummaryCurveDefinition>& curveDefsToAdd,
-    const std::set<RimSummaryCurve*>&          curvesToDelete)
+    const std::set<RimSummaryCurve*>&          curvesToDelete,
+    const std::set<RimEnsembleCurveSet*>&      curveSetsToDelete)
 {
-    static bool                         warningDisplayed               = false;
+    static bool warningDisplayed = false;
 
-    RimSummaryCase*                     prevCase = nullptr;
     std::set<RiaSummaryCurveDefinition> summaryCurveDefsToDisplay;
 
     // Ignore curve sets when assigning colors to singe summary curves
@@ -401,9 +443,13 @@ void RicSummaryCurveCreator::updatePreviewCurvesFromCurveDefinitions(
     initCurveAppearanceCalculator(curveLookCalc);
 
     // Delete curves
-    for (const auto& curve : curvesToDelete)
+    if (!curveSetsToDelete.empty())
     {
-        m_previewPlot->deleteCurve(curve);
+        m_previewPlot->ensembleCurveSetCollection()->deleteCurveSets(toVector(curveSetsToDelete));
+    }
+    if (!curvesToDelete.empty())
+    {
+        m_previewPlot->deleteCurves(toVector(curvesToDelete));
     }
 
     size_t ensembleCurveCnt = ensembleCurveCount(allCurveDefsToDisplay);
@@ -416,6 +462,7 @@ void RicSummaryCurveCreator::updatePreviewCurvesFromCurveDefinitions(
         curve->setSummaryCaseY(currentCase);
         curve->setSummaryAddressY(curveDef.summaryAddress());
         curve->applyCurveAutoNameSettings(*m_curveNameConfig());
+        if (currentCase->isObservedData()) curve->setSymbolSkipDistance(0);
 
         if (curveDef.isEnsembleCurve())
         {
@@ -432,15 +479,22 @@ void RicSummaryCurveCreator::updatePreviewCurvesFromCurveDefinitions(
             if (!curveSet)
             {
                 curveSet = new RimEnsembleCurveSet();
+                curveSet->disableStatisticCurves();
                 curveSet->setSummaryCaseCollection(curveDef.ensemble());
                 curveSet->setSummaryAddress(curveDef.summaryAddress());
-                m_previewPlot->ensembleCurveSetCollection()->addCurveSet(curveSet);
 
                 // Set single curve set color
-                size_t colorIndex = m_previewPlot->ensembleCurveSetCollection()->curveSetCount();
+                auto   allCurveSets = m_previewPlot->ensembleCurveSetCollection()->curveSets();
+                size_t colorIndex   = std::count_if(allCurveSets.begin(), allCurveSets.end(), [](RimEnsembleCurveSet* curveSet) {
+                    return curveSet->colorMode() == RimEnsembleCurveSet::SINGLE_COLOR;
+                });
                 curveSet->setColor(RiaColorTables::summaryCurveDefaultPaletteColors().cycledColor3f(colorIndex));
 
-                if (m_previewPlot->ensembleCurveSetCollection()->curveSets().size() > 1 && ensembleCurveCnt > ENSEMBLE_CURVE_COUNT_THRESHOLD)
+                // Add curve to plot
+                m_previewPlot->ensembleCurveSetCollection()->addCurveSet(curveSet);
+
+                if (m_previewPlot->ensembleCurveSetCollection()->curveSets().size() > 1 &&
+                    ensembleCurveCnt > ENSEMBLE_CURVE_COUNT_THRESHOLD)
                 {
                     // Toggle off new curve set and display warning
                     curveSet->showCurves(false);
@@ -507,13 +561,13 @@ std::set<std::string> RicSummaryCurveCreator::getAllSummaryWellNames()
 
         if (reader)
         {
-            const std::vector<RifEclipseSummaryAddress> allAddresses = reader->allResultAddresses();
+            const std::set<RifEclipseSummaryAddress> allAddresses = reader->allResultAddresses();
 
-            for (size_t i = 0; i < allAddresses.size(); i++)
+            for (auto& address : allAddresses)
             {
-                if (allAddresses[i].category() == RifEclipseSummaryAddress::SUMMARY_WELL)
+                if (address.category() == RifEclipseSummaryAddress::SUMMARY_WELL)
                 {
-                    summaryWellNames.insert(allAddresses[i].wellName());
+                    summaryWellNames.insert(address.wellName());
                 }
             }
         }
@@ -592,6 +646,7 @@ void RicSummaryCurveCreator::populateCurveCreator(const RimSummaryPlot& sourceSu
     for (const auto& curveSet : sourceSummaryPlot.ensembleCurveSetCollection()->curveSets())
     {
         RimEnsembleCurveSet* newCurveSet = curveSet->clone();
+        newCurveSet->disableStatisticCurves();
         previewCurveSetColl->addCurveSet(newCurveSet);
 
         RimSummaryCaseCollection* ensemble = curveSet->summaryCaseCollection();
@@ -705,9 +760,9 @@ void RicSummaryCurveCreator::copyEnsembleCurveAndAddToCurveSet(const RimSummaryC
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicSummaryCurveCreator::setDefaultCurveSelection(const std::vector<RimSummaryCase*>& defaultCases)
+void RicSummaryCurveCreator::setDefaultCurveSelection(const std::vector<SummarySource*>& defaultSources)
 {
-    m_summaryCurveSelectionEditor->summaryAddressSelection()->setDefaultSelection(defaultCases);
+    m_summaryCurveSelectionEditor->summaryAddressSelection()->setDefaultSelection(defaultSources);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -763,10 +818,19 @@ void RicSummaryCurveCreator::applyAppearanceToAllPreviewCurves()
     RimSummaryCurveAppearanceCalculator curveLookCalc(allCurveDefs, getAllSummaryCaseNames(), getAllSummaryWellNames());
     initCurveAppearanceCalculator(curveLookCalc);
 
+    // Summary curves
     for (auto& curve : m_previewPlot->summaryCurves())
     {
         curve->resetAppearance();
         curveLookCalc.setupCurveLook(curve);
+    }
+
+    // Ensemble curve sets
+    int colorIndex = 0;
+    for (auto& curveSet : m_previewPlot->ensembleCurveSetCollection()->curveSets())
+    {
+        if (curveSet->colorMode() != RimEnsembleCurveSet::SINGLE_COLOR) continue;
+        curveSet->setColor(RiaColorTables::summaryCurveDefaultPaletteColors().cycledColor3f(colorIndex++));
     }
 }
 
@@ -844,6 +908,9 @@ void RicSummaryCurveCreator::createNewPlot()
 
             m_targetPlot = newSummaryPlot;
             updateTargetPlot();
+
+            RiuPlotMainWindow* mainPlotWindow = RiaApplication::instance()->mainPlotWindow();
+            mainPlotWindow->updateSummaryPlotToolBar();
         }
     }
 }
@@ -951,4 +1018,13 @@ int ensembleCurveCount(const std::set<RiaSummaryCurveDefinition>& allCurveDefs)
 {
     return std::count_if(
         allCurveDefs.begin(), allCurveDefs.end(), [](const RiaSummaryCurveDefinition& def) { return def.isEnsembleCurve(); });
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+template<typename T>
+std::vector<T> toVector(const std::set<T>& set)
+{
+    return std::vector<T>(set.begin(), set.end());
 }

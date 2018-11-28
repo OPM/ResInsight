@@ -43,20 +43,27 @@ class RiuWellLogTrack : public QwtPlot
 
 public:
     RiuWellLogTrack(RimWellLogTrack* plotTrackDefinition, QWidget* parent = nullptr);
-    virtual ~RiuWellLogTrack();
+    ~RiuWellLogTrack() override;
 
     void                                    setDepthZoom(double minDepth, double maxDepth);
     void                                    setDepthTitle(const QString& title);
     void                                    setXTitle(const QString& title);
 
-    void                                    setXRange(double min, double max);
+    void                                    setXRange(double min, double max, QwtPlot::Axis axis = QwtPlot::xTop);
 
     bool                                    isRimTrackVisible();
-
+    void                                    enableDepthAxisLabelsAndTitle(bool enable);
+    int                                     widthScaleFactor() const;
+    void                                    enableXGridLines(bool majorGridLines, bool minorGridLines);
+    void                                    enableDepthGridLines(bool majorGridLines, bool minorGridLines);
+    void                                    setMajorAndMinorTickIntervals(double majorTickInterval, double minorTickInterval);
+    void                                    setAutoTickIntervalCounts(int maxMajorTickIntervalCount, int maxMinorTickIntervalCount);
+    double                                  getCurrentMajorTickInterval() const;
+    double                                  getCurrentMinorTickInterval() const;
 protected:
-    virtual bool                            eventFilter(QObject* watched, QEvent* event);
-    virtual QSize                           sizeHint() const;
-    virtual QSize                           minimumSizeHint() const;
+    bool                            eventFilter(QObject* watched, QEvent* event) override;
+    QSize                           sizeHint() const override;
+    QSize                           minimumSizeHint() const override;
 
 private:
     void                                    setDefaults();

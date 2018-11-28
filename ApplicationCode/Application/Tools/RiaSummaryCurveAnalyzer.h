@@ -50,7 +50,7 @@ public:
 
     std::vector<QString> identifierTexts(RifEclipseSummaryAddress::SummaryVarCategory category) const;
 
-    static std::vector<RifEclipseSummaryAddress> addressesForCategory(const std::vector<RifEclipseSummaryAddress>& addresses,
+    static std::vector<RifEclipseSummaryAddress> addressesForCategory(const std::set<RifEclipseSummaryAddress>& addresses,
                                                                       RifEclipseSummaryAddress::SummaryVarCategory category);
 
 private:

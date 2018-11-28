@@ -52,60 +52,6 @@ CAF_CMD_SOURCE_INIT(RicImportEnsembleFeature, "RicImportEnsembleFeature");
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RicImportEnsembleFeature::validateEnsembleCases(std::vector<RimSummaryCase*> cases)
-{
-    // Validate ensemble parameters
-    try
-    {
-        QString errors;
-        std::hash<std::string> paramsHasher;
-        size_t paramsHash = 0;
-
-        for (RimSummaryCase* rimCase : cases)
-        {
-            if (rimCase->caseRealizationParameters() == nullptr || rimCase->caseRealizationParameters()->parameters().empty())
-            {
-                errors.append(QString("The case %1 has no ensemble parameters\n").arg(QFileInfo(rimCase->summaryHeaderFilename()).fileName()));
-            }
-            else
-            {
-                QString paramNames;
-                for (std::pair<QString, RigCaseRealizationParameters::Value> paramPair : rimCase->caseRealizationParameters()->parameters())
-                {
-                    paramNames.append(paramPair.first);
-                }
-
-                size_t currHash = paramsHasher(paramNames.toStdString());
-                if (paramsHash == 0)
-                {
-                    paramsHash = currHash;
-                }
-                else if (paramsHash != currHash)
-                {
-                    throw QString("Ensemble parameters differ between cases");
-                }
-            }
-        }
-
-        if (!errors.isEmpty())
-        {
-            throw errors;
-        }
-        return true;
-    }
-    catch (QString errorMessage)
-    {
-        QMessageBox mbox;
-        mbox.setIcon(QMessageBox::Icon::Warning);
-        mbox.setInformativeText(errorMessage);
-        mbox.exec();
-        return false;
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 bool RicImportEnsembleFeature::isCommandEnabled()
 {
     return true;
@@ -125,18 +71,15 @@ void RicImportEnsembleFeature::onActionTriggered(bool isChecked)
     if (ensembleName.isEmpty()) return;
 
     std::vector<RimSummaryCase*> cases;
-    RicImportSummaryCasesFeature::createSummaryCasesFromFiles(fileNames, &cases);
-
-    validateEnsembleCases(cases);
+    RicImportSummaryCasesFeature::createSummaryCasesFromFiles(fileNames, &cases, true);
 
     RicImportSummaryCasesFeature::addSummaryCases(cases);
-    RicCreateSummaryCaseCollectionFeature::groupSummaryCases(cases, ensembleName, true);
+    auto newGroup = RicCreateSummaryCaseCollectionFeature::groupSummaryCases(cases, ensembleName, true);
 
     RiuPlotMainWindow* mainPlotWindow = app->getOrCreateAndShowMainPlotWindow();
-    if (mainPlotWindow && !cases.empty())
+    if (mainPlotWindow && newGroup)
     {
-        mainPlotWindow->selectAsCurrentItem(cases.back());
-
+        mainPlotWindow->selectAsCurrentItem(newGroup);
         mainPlotWindow->updateSummaryPlotToolBar();
     }
 

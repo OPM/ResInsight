@@ -60,17 +60,21 @@ namespace caf
     }
 
     template<>
-    void caf::AppEnum< RiaDefines::CompletionType >::setUp()
+    void caf::AppEnum< RiaDefines::WellPathComponentType >::setUp()
     {
         addItem(RiaDefines::WELL_PATH, "WELL_PATH", "Well Path");
         addItem(RiaDefines::PERFORATION_INTERVAL, "PERFORATION_INTERVAL", "Perforation Interval");
         addItem(RiaDefines::FISHBONES, "FISHBONES", "Fishbones");
         addItem(RiaDefines::FRACTURE, "FRACTURE", "Fracture");
-
+        addItem(RiaDefines::ICD, "ICD", "ICD");
+        addItem(RiaDefines::AICD, "AICD", "AICD");
+        addItem(RiaDefines::ICV, "ICV", "ICV");
+        addItem(RiaDefines::CASING, "CASING", "Casing");
+        addItem(RiaDefines::LINER, "LINER", "Liner");
+        addItem(RiaDefines::PACKER, "PACKER", "Packer");
         setDefault(RiaDefines::WELL_PATH);
     }
 }
-
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -290,6 +294,22 @@ QString RiaDefines::combinedRiAreaNormTranResultName()
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RiaDefines::riCellVolumeResultName()
+{
+    return "riCELLVOLUME";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RiaDefines::riOilVolumeResultName()
+{
+    return "riOILVOLUME";
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 QString RiaDefines::mobilePoreVolumeName()
@@ -351,6 +371,80 @@ QString RiaDefines::mockModelBasicInputCase()
 QString RiaDefines::activeFormationNamesResultName()
 {
     return "Active Formation Names";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RiaDefines::wellPathAzimuthResultName()
+{
+    return "Azimuth";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RiaDefines::wellPathInclinationResultName()
+{
+    return "Inclination";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RiaDefines::wellPathPPResultName()
+{
+    return "PP";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RiaDefines::wellPathSHResultName()
+{
+    return "SH";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RiaDefines::wellPathOBGResultName()
+{
+    return "OBG";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RiaDefines::wellPathFGResultName()
+{
+    return "FG";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RiaDefines::wellPathSFGResultName()
+{
+    return "SFG";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<QString> RiaDefines::wellPathAngleResultNames()
+{
+    return { RiaDefines::wellPathAzimuthResultName(), RiaDefines::wellPathInclinationResultName() };
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<QString> RiaDefines::wellPathStabilityResultNames()
+{
+    return { RiaDefines::wellPathFGResultName(), RiaDefines::wellPathOBGResultName(),
+             RiaDefines::wellPathPPResultName(), RiaDefines::wellPathSFGResultName(),
+             RiaDefines::wellPathSHResultName() };
 }
 
 //--------------------------------------------------------------------------------------------------

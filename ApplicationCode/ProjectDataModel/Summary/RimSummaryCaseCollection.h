@@ -29,34 +29,77 @@
 
 class RimSummaryCase;
 
+//==================================================================================================
+///  
+//==================================================================================================
+class EnsembleParameter
+{
+public:
+    enum Type { TYPE_NONE, TYPE_NUMERIC, TYPE_TEXT };
+
+    QString                 name;
+    Type                    type;
+    std::vector<QVariant>   values;
+    double                  minValue;
+    double                  maxValue;
+
+    EnsembleParameter() :
+        type(TYPE_NONE),
+        minValue(std::numeric_limits<double>::infinity()),
+        maxValue(-std::numeric_limits<double>::infinity()) { }
+
+    bool isValid() const { return !name.isEmpty() && type != TYPE_NONE; }
+    bool isNumeric() const { return type == TYPE_NUMERIC; }
+    bool isText() const { return type == TYPE_TEXT; }
+};
+
+//==================================================================================================
+///  
+//==================================================================================================
 class RimSummaryCaseCollection : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 
 public:
     RimSummaryCaseCollection();
-    virtual ~RimSummaryCaseCollection();
+    ~RimSummaryCaseCollection() override;
 
     void                            removeCase(RimSummaryCase* summaryCase);
-    void                            addCase(RimSummaryCase* summaryCase);
-    std::vector<RimSummaryCase*>    allSummaryCases();
+    void                            addCase(RimSummaryCase* summaryCase, bool updateCurveSets = true);
+    virtual std::vector<RimSummaryCase*> allSummaryCases() const;
     void                            setName(const QString& name);
     QString                         name() const;
     bool                            isEnsemble() const;
     void                            setAsEnsemble(bool isEnsemble);
-    std::set<RifEclipseSummaryAddress> calculateUnionOfSummaryAddresses() const;
+    virtual std::set<RifEclipseSummaryAddress> ensembleSummaryAddresses() const;
+    EnsembleParameter               ensembleParameter(const QString& paramName) const;
+    void                            calculateEnsembleParametersIntersectionHash();
+    void                            clearEnsembleParametersHashes();
+
+    void                            loadDataAndUpdate();
+
+    static bool                     validateEnsembleCases(const std::vector<RimSummaryCase*> cases);
+    bool                            operator<(const RimSummaryCaseCollection& rhs) const;
 private:
     caf::PdmFieldHandle*            userDescriptionField() override;
-    void                            updateReferringCurveSets() const;
     QString                         nameAndItemCount() const;
     void                            updateIcon();
 
-    virtual void                    initAfterRead() override;
-    virtual void                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    void                    initAfterRead() override;
+    void                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+
+protected:
+    virtual void                    onLoadDataAndUpdate();
+    void                            updateReferringCurveSets();
+    void                    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    void                            setNameAsReadOnly();
+
+    caf::PdmChildArrayField<RimSummaryCase*> m_cases;
 
 private:
-    caf::PdmChildArrayField<RimSummaryCase*> m_cases;
     caf::PdmField<QString>                   m_name;
     caf::PdmProxyValueField<QString>         m_nameAndItemCount;
-    caf::PdmField<bool>                      m_isEnsemble; 
+    caf::PdmField<bool>                      m_isEnsemble;
+
+    size_t                                   m_commonAddressCount;      // if different address count among cases, set to 0
 };

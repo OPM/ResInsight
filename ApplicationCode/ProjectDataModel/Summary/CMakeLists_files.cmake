@@ -32,6 +32,12 @@ ${CMAKE_CURRENT_LIST_DIR}/RimSummaryPlotNameHelper.h
 ${CMAKE_CURRENT_LIST_DIR}/RimEnsembleCurveSetCollection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimEnsembleCurveSet.h
 ${CMAKE_CURRENT_LIST_DIR}/RimEnsembleCurveSetColorManager.h
+${CMAKE_CURRENT_LIST_DIR}/RimEnsembleCurveFilter.h
+${CMAKE_CURRENT_LIST_DIR}/RimEnsembleCurveFilterCollection.h
+${CMAKE_CURRENT_LIST_DIR}/RimEnsembleStatistics.h
+${CMAKE_CURRENT_LIST_DIR}/RimEnsembleStatisticsCase.h
+${CMAKE_CURRENT_LIST_DIR}/RimDerivedEnsembleCase.h
+${CMAKE_CURRENT_LIST_DIR}/RimDerivedEnsembleCaseCollection.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -67,6 +73,12 @@ ${CMAKE_CURRENT_LIST_DIR}/RimSummaryPlotNameHelper.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimEnsembleCurveSetCollection.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimEnsembleCurveSet.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimEnsembleCurveSetColorManager.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimEnsembleCurveFilter.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimEnsembleCurveFilterCollection.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimEnsembleStatistics.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimEnsembleStatisticsCase.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimDerivedEnsembleCase.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimDerivedEnsembleCaseCollection.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

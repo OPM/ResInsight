@@ -63,7 +63,7 @@ class SumTest(EclTest):
     def test_KeyError(self):
         sum = self.ecl_sum
         with self.assertRaises(KeyError):
-            v = sum["KeyMissing"]
+            v = sum.numpy_vector("KeyMissing")
 
         with self.assertRaises(KeyError):
             v = sum.get_interp("Missing" , days = 750)
@@ -98,9 +98,9 @@ class SumTest(EclTest):
         self.assertEqual(sum.get_interp("WOPR:OP_1" , days = 31) , 7996)
         self.assertEqual(sum.get_interp("WOPR:OP_1" , date=datetime.date(2000,2,1)) , 7996)
 
-        FPR = sum["FPR"]
-        self.assertFloatEqual(sum.get_interp("FPR" , days = 0)  , FPR[0].value)
-        self.assertFloatEqual(sum.get_interp("FPR" , days = 31) , FPR[1].value)
+        FPR = sum.numpy_vector("FPR")
+        self.assertFloatEqual(sum.get_interp("FPR" , days = 0)  , FPR[0])
+        self.assertFloatEqual(sum.get_interp("FPR" , days = 31) , FPR[1])
 
         with self.assertRaises(ValueError):
             sum.get_interp("WOPR:OP_1")
@@ -135,7 +135,7 @@ class SumTest(EclTest):
         self.assertFloatEqual(last.days, 1826.0)
         self.assertEqual(last.date, datetime.datetime(2004, 12, 31, 0, 0, 0))
 
-        self.assertFloatEqual(self.ecl_sum.get_last_value("FGPT"), 6605249024.0)
+        self.assertFloatEqual(self.ecl_sum.last_value("FGPT"), 6605249024.0)
         self.assertEqual( len(self.ecl_sum) , 63 )
 
 
@@ -202,14 +202,11 @@ class SumTest(EclTest):
         self.assertFloatEqual(sum.get_from_report("FOPT", 10), 6.67447e+06)
 
 
-    @skipIf(EclTest.slowTestShouldNotRun(), "Slow test skipped")
     def test_fwrite(self):
-        # todo: What is tested here?
-        # work_area = TestArea("python/sum-test/fwrite", True)
+        ecl_sum = EclSum(self.case, lazy_load=False)
         with TestAreaContext("python/sum-test/fwrite") as work_area:
-            self.ecl_sum.fwrite(ecl_case="CASE")
+            ecl_sum.fwrite(ecl_case="CASE")
             self.assertTrue(True)
-
 
     def test_block(self):
         sum = self.ecl_sum
@@ -370,7 +367,7 @@ class SumTest(EclTest):
     def test_Heidrun(self):
         sum = EclSum( self.createTestPath("Statoil/ECLIPSE/Heidrun/Summary/FF12_2013B3_CLEAN_RS"))
         self.assertEqual( 452 , len(sum))
-        self.assertFloatEqual( 1.8533144e+8 , sum.get_last_value("FOPT"))
+        self.assertFloatEqual( 1.8533144e+8 , sum.last_value("FOPT"))
 
         trange = sum.timeRange( start = datetime.date( 2015 , 1 , 1), interval = "1M")
         self.assertTrue( trange[0] == datetime.date( 2016 , 2 , 1 ))
@@ -447,11 +444,12 @@ class SumTest(EclTest):
         self.assertFalse( "WGPR:NOT_21_D" in history )
         self.assertTrue( "WGPR:NOT_21_D" in total )
 
-        self.assertEqual( total.iget( "WGPR:NOT_21_D", 5) , 0) # Default value
+        node = total.smspec_node("WGPR:NOT_21_D")
+        self.assertEqual( total.iget( "WGPR:NOT_21_D", 5) , node.default)
 
     def test_write(self):
         with TestAreaContext("my_space") as area:
-            intersect_summary = EclSum( self.createTestPath( "Statoil/ECLIPSE/SummaryRestart/iter-1/NOR-2013A_R007-0") )
+            intersect_summary = EclSum( self.createTestPath( "Statoil/ECLIPSE/SummaryRestart/iter-1/NOR-2013A_R007-0"), lazy_load=False )
             self.assertIsNotNone(intersect_summary)
 
             write_location = os.path.join(os.getcwd(), "CASE")
@@ -485,7 +483,7 @@ class SumTest(EclTest):
                     ]:
 
             with TestAreaContext("my_space" + data_set.split("/")[-1]) as area:
-                intersect_summary = EclSum(self.createTestPath(data_set))
+                intersect_summary = EclSum(self.createTestPath(data_set), lazy_load=False)
                 self.assertIsNotNone(intersect_summary)
 
                 write_location = os.path.join(os.getcwd(), "CASE")
@@ -530,3 +528,10 @@ class SumTest(EclTest):
 
     def test_summary_units(self):
         self.assertEqual(self.ecl_sum.unit_system, EclUnitTypeEnum.ECL_METRIC_UNITS)
+
+
+    # The case loaded in this test originates in a simulation
+    # which was shut down brutally. This test verifies that we
+    # can create a valid ecl_sum instance from what we find.
+    def test_broken_case(self):
+        ecl_sum = EclSum( self.createTestPath("Statoil/ECLIPSE/SummaryFail3/COMBINED-AUTUMN2018_CARBSENS-0"))

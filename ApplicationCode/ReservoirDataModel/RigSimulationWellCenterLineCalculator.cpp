@@ -432,27 +432,6 @@ void RigSimulationWellCenterLineCalculator::addCellCenterPoints(const RigEclipse
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RigSimulationWellCenterLineCalculator::hasAnyResultCells(const std::vector<RigWellResultBranch> &resBranches)
-{
-    bool hasResultCells = false;
-    if ( resBranches.size() )
-    {
-        for ( size_t i = 0 ; i < resBranches.size(); ++i )
-        {
-            if ( resBranches[i].m_branchResultPoints.size() != 0 )
-            {
-                hasResultCells = true;
-                break;
-            }
-        }
-    }
-    return hasResultCells;
-}
-
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 bool RigSimulationWellCenterLineCalculator::hasAnyValidDataCells(const RigWellResultBranch& branch)
 {
     bool hasValidData = false;
@@ -754,7 +733,7 @@ private:
 
             if ( wellCell.isInvalid() ) continue;
 
-            const caf::SizeTArray8& cellIndices = wellCell.cornerIndices();
+            const std::array<size_t, 8>& cellIndices = wellCell.cornerIndices();
 
             cvf::BoundingBox& cellBB = m_cellBoundingBoxes[cIdx];
             cellBB.add(nodes[cellIndices[0]]);

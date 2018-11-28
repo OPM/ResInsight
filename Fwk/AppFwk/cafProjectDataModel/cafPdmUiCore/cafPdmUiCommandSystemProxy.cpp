@@ -42,8 +42,10 @@
 #include "cafPdmObjectHandle.h"
 #include "cafPdmUiFieldHandle.h"
 #include "cafPdmUiObjectHandle.h"
+#include "cafSelectionManager.h"
 
 #include <cstddef>
+#include <typeinfo>
 
 
 namespace caf {
@@ -83,13 +85,62 @@ void PdmUiCommandSystemProxy::setUiValueToField(PdmUiFieldHandle* uiFieldHandle,
 {
     if (uiFieldHandle)
     {
+        // Handle editing multiple objects when several objects are selected
+        PdmFieldHandle* editorField = uiFieldHandle->fieldHandle();
+        const std::type_info& fieldOwnerTypeId = typeid( *editorField->ownerObject());
+
+        std::vector<PdmFieldHandle*> fieldsToUpdate;
+        fieldsToUpdate.push_back(editorField);
+
+        // For level 1 selection, find all fields with same keyword
+        // Todo: Should traverse the ui ordering and find all fields with same keyword and same ownerobject type. 
+        //       Until we do, fields embedded into the property panel from a different object will not work with multiselection edit
+        //       For now we only makes sure we have same ownerobject type
+        {
+            std::vector<PdmUiItem*> items;
+
+            int selectionLevel = 1; // = 0;
+            SelectionManager::instance()->selectedItems(items, selectionLevel);
+
+            for (size_t i = 0; i < items.size(); i++)
+            {
+                PdmObjectHandle* objectHandle = dynamic_cast<PdmObjectHandle*>(items[i]);
+                if (objectHandle && typeid( *objectHandle) == fieldOwnerTypeId)
+                {
+                    // An object is selected, find field with same keyword as the current field being edited
+                    PdmFieldHandle* fieldHandle = objectHandle->findField(editorField->keyword());
+                    if (fieldHandle && fieldHandle != editorField)
+                    {
+                        fieldsToUpdate.push_back(fieldHandle);
+                    }
+                }
+                else
+                {
+                    // Todo Remove when dust has settled. Selection manager is not supposed to select single fields
+                    // A field is selected, check if keywords are identical
+                    PdmUiFieldHandle* itemFieldHandle = dynamic_cast<PdmUiFieldHandle*>(items[i]);
+                    if (itemFieldHandle)
+                    {
+                        PdmFieldHandle* field = itemFieldHandle->fieldHandle();
+                        if (field && field != editorField && field->keyword() == editorField->keyword())
+                        {
+                            fieldsToUpdate.push_back(field);
+                        }
+                    }
+                }
+            }
+        }
+
         if (m_commandInterface)
         {
-            m_commandInterface->fieldChangedCommand(uiFieldHandle->fieldHandle(), newUiValue);
+            m_commandInterface->fieldChangedCommand(fieldsToUpdate, newUiValue);
         }
         else
         {
-            uiFieldHandle->setValueFromUiEditor(newUiValue);
+            for (auto fieldHandle : fieldsToUpdate)
+            {
+                fieldHandle->uiCapability()->setValueFromUiEditor(newUiValue);
+            }
         }
     }
 }

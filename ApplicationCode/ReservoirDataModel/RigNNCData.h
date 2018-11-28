@@ -24,8 +24,6 @@
 #include "cvfVector3.h"
 #include "cvfStructGrid.h"
 
-#include "cafFixedArray.h"
-
 #include <cmath> // Needed for HUGE_VAL on Linux
 #include <map>
 #include <vector>

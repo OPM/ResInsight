@@ -127,10 +127,10 @@ bool RicImportSummaryCasesFeature::createAndAddSummaryCasesFromFiles(const QStri
             mainPlotWindow->updateSummaryPlotToolBar();
 
             // Close main window if there are no eclipse cases imported
-            std::vector<RimCase*> cases;
-            app->project()->allCases(cases);
+            std::vector<RimCase*> allCases;
+            app->project()->allCases(allCases);
 
-            if (cases.size() == 0)
+            if (allCases.size() == 0)
             {
                 RiuMainWindow::instance()->close();
             }
@@ -145,7 +145,8 @@ bool RicImportSummaryCasesFeature::createAndAddSummaryCasesFromFiles(const QStri
 /// 
 //--------------------------------------------------------------------------------------------------
 bool RicImportSummaryCasesFeature::createSummaryCasesFromFiles(const QStringList& fileNames, 
-                                                               std::vector<RimSummaryCase*>* newCases)
+                                                               std::vector<RimSummaryCase*>* newCases,
+                                                               bool ensembleOrGroup)
 {
     RiaApplication* app = RiaApplication::instance();
     RimProject* proj = app->project();
@@ -155,6 +156,7 @@ bool RicImportSummaryCasesFeature::createSummaryCasesFromFiles(const QStringList
     if (!sumCaseColl) return false;
 
     RifSummaryCaseRestartSelector       fileSelector;
+    fileSelector.setEnsembleOrGroupMode(ensembleOrGroup);
     fileSelector.determineFilesToImportFromSummaryFiles(fileNames);
 
     std::vector<RifSummaryCaseFileResultInfo> importFileInfos = fileSelector.summaryFileInfos();
@@ -169,7 +171,7 @@ bool RicImportSummaryCasesFeature::createSummaryCasesFromFiles(const QStringList
     {
         QString errorMessage = fileSelector.createCombinedErrorMessage();
         RiaLogging::error(errorMessage);
-        QMessageBox::warning(NULL, QString("Problem Importing Summary Case File(s)"), errorMessage);
+        QMessageBox::warning(nullptr, QString("Problem Importing Summary Case File(s)"), errorMessage);
     }
 
     return true;

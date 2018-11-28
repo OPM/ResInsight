@@ -70,8 +70,7 @@ RimTensorResults::RimTensorResults()
     m_resultFieldName.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitField(&m_resultFieldNameUiField, "ResultVariableUI", QString("ST"), "Value", "", "", "");
-    m_resultFieldNameUiField.xmlCapability()->setIOWritable(false);
-    m_resultFieldNameUiField.xmlCapability()->setIOReadable(false);
+    m_resultFieldNameUiField.xmlCapability()->disableIO();
 
     CAF_PDM_InitField(&m_showTensors, "ShowTensors", false, "", "", "", "");
 
@@ -212,6 +211,18 @@ void RimTensorResults::mappingRange(double* min, double* max) const
             resultCollection->minMaxScalarValuesOverAllTensorComponents(selectedTensorResult(), currentTimeStep, min, max);
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RigFemResultAddress> RimTensorResults::observedResults() const
+{
+    RigFemResultAddress mainResult = selectedTensorResult();
+    std::vector<RigFemResultAddress> tensorComponents = RigFemPartResultsCollection::tensorComponentAddresses(mainResult);
+    std::vector<RigFemResultAddress> principleComponents = RigFemPartResultsCollection::tensorPrincipalComponentAdresses(mainResult);
+    tensorComponents.insert(tensorComponents.end(), principleComponents.begin(), principleComponents.end());
+    return tensorComponents;
 }
 
 //--------------------------------------------------------------------------------------------------

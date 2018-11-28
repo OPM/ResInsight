@@ -18,7 +18,7 @@
 #include <stdlib.h>
 
 #include <ert/util/type_macros.hpp>
-#include <ert/util/util.hpp>
+#include <ert/util/util.h>
 #include <ert/util/perm_vector.hpp>
 
 #define PERM_VECTOR_TYPE_ID 661433

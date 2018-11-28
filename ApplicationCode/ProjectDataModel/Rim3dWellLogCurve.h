@@ -27,15 +27,16 @@
 #include "cvfObject.h"
 #include "cvfVector3.h"
 
-#include "RimWellLogCurveNameConfig.h"
+#include "RimNameConfig.h"
 
 class Riv3dWellLogCurveGeometryGenerator;
+class Rim3dView;
 
 //==================================================================================================
 ///
 ///
 //==================================================================================================
-class Rim3dWellLogCurve : public caf::PdmObject, public RimCurveNameConfigHolderInterface
+class Rim3dWellLogCurve : public caf::PdmObject, public RimNameConfigHolderInterface
 {
     CAF_PDM_HEADER_INIT;
 
@@ -53,7 +54,7 @@ public:
 
 public:
     Rim3dWellLogCurve();
-    virtual ~Rim3dWellLogCurve();
+    ~Rim3dWellLogCurve() override;
 
     void updateCurveIn3dView();
 
@@ -61,12 +62,16 @@ public:
     virtual QString resultPropertyString() const = 0;
     
     DrawPlane       drawPlane() const;
-    double          drawPlaneAngle() const;    
+    static double   drawPlaneAngle(DrawPlane drawPlane);
 
     cvf::Color3f    color() const;
     bool            isShowingCurve() const;
-
+    virtual bool    isShowingTimeDependentResult() const { return isShowingCurve(); }
+    virtual bool    showInView(const Rim3dView* gridView) const                         { return isShowingCurve(); }
+    virtual bool    followAnimationTimeStep() const { return false;  }
     virtual void    curveValuesAndMds(std::vector<double>* values, std::vector<double>* measuredDepthValues) const = 0;
+    virtual void    curveValuesAndMdsAtTimeStep(std::vector<double>* values, std::vector<double>* measuredDepthValues, int timeStep) const;
+    virtual std::pair<double,double> findCurveValueRange();
 
     void            setColor(const cvf::Color3f& color);
 
@@ -82,11 +87,11 @@ public:
     cvf::ref<Riv3dWellLogCurveGeometryGenerator> geometryGenerator();
 
 protected:
-    virtual caf::PdmFieldHandle*            objectToggleField() override;
-    virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    caf::PdmFieldHandle*            objectToggleField() override;
+    void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
     void                                    configurationUiOrdering(caf::PdmUiOrdering& uiOrdering);
-    virtual void                            defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute);    
-    virtual void                            initAfterRead();
+    void                            defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override;    
+    void                            initAfterRead() override;
 private:
     void                                    resetMinMaxValues();
 protected:

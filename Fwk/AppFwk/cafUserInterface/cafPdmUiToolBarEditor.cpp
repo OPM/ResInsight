@@ -166,7 +166,7 @@ void PdmUiToolBarEditor::configureAndUpdateUi(const QString& uiConfigName)
                     m_toolbar->addWidget(widget);
                 }
 
-                fieldEditor->setField(uiFieldHandle);
+                fieldEditor->setUiField(uiFieldHandle);
                 fieldEditor->updateUi(uiConfigName);
             }
         }

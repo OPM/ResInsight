@@ -67,19 +67,6 @@ namespace Opm { namespace SatFunc {
             double sat;
         };
 
-        /// Policy for how to handle an invalid end-point scaling (e.g., if
-        /// lower and/or upper scaled saturations have nonsensical values
-        /// like -1.0E+20).
-        enum class InvalidEndpointBehaviour {
-            /// Use the unscaled value for this point.
-            UseUnscaled,
-
-            /// Ignore this scaling request (e.g., produce no graphical
-            /// output for a scaled saturation function when the scaled
-            /// end-points are meaningless).
-            IgnorePoint,
-        };
-
         /// Convenience type alias.
         using SaturationPoints = std::vector<SaturationAssoc>;
 
@@ -469,6 +456,7 @@ namespace Opm { namespace SatFunc {
         /// Constructor.
         explicit CritSatVerticalScaling(std::vector<double> sdisp,
                                         std::vector<double> fdisp,
+                                        std::vector<double> smax,
                                         std::vector<double> fmax);
 
         /// Destructor.
@@ -573,13 +561,6 @@ namespace Opm { namespace SatFunc {
             ///   auto eps = CreateEPS::fromECLOutput(G, init, opt);
             /// \endcode
             ::Opm::ECLPhaseIndex thisPh;
-
-            /// How to handle an invalid end-point scaling (e.g., if lower
-            /// and/or upper scaled saturations have nonsensical values like
-            /// -1.0E+20).
-            EPSEvalInterface::InvalidEndpointBehaviour handle_invalid {
-                EPSEvalInterface::InvalidEndpointBehaviour::UseUnscaled
-            };
         };
 
         /// Collection of raw saturation table end points.
@@ -669,9 +650,10 @@ namespace Opm { namespace SatFunc {
             /// \return EPS evaluator for the particular curve defined by
             ///    the input options.
             static std::unique_ptr<EPSEvalInterface>
-            fromECLOutput(const ECLGraph&        G,
-                          const ECLInitFileData& init,
-                          const EPSOptions&      opt);
+            fromECLOutput(const ECLGraph&          G,
+                          const ECLInitFileData&   init,
+                          const EPSOptions&        opt,
+                          const RawTableEndPoints& tep);
 
             /// Extract table end points relevant to a particular horizontal
             /// EPS evaluator from raw tabulated saturation functions.
@@ -692,8 +674,8 @@ namespace Opm { namespace SatFunc {
             ///    \code eval() \endcode of the \code EPSEvalInterface
             ///    \endcode that corresponds to the input options.
             static std::vector<EPSEvalInterface::TableEndPoints>
-            unscaledEndPoints(const RawTableEndPoints& ep,
-                              const EPSOptions&        opt);
+            unscaledEndPoints(const EPSOptions&        opt,
+                              const RawTableEndPoints& ep);
         };
 
         /// Named constructors for vertical (value) scaling of saturation
@@ -762,6 +744,16 @@ namespace Opm { namespace SatFunc {
                                    const SatFuncEvaluator&  evalSF);
         };
     };
+
+    std::vector<double>
+    scaledConnateGas(const ECLGraph&                     G,
+                     const ECLInitFileData&              init,
+                     const CreateEPS::RawTableEndPoints& tep);
+
+    std::vector<double>
+    scaledConnateWater(const ECLGraph&                     G,
+                       const ECLInitFileData&              init,
+                       const CreateEPS::RawTableEndPoints& tep);
 }} // namespace Opm::SatFunc
 
 #endif // OPM_ECLENDPOINTSCALING_HEADER_INCLUDED

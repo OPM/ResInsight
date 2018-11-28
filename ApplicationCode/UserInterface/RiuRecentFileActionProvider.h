@@ -36,7 +36,7 @@ class RiuRecentFileActionProvider : public QObject
 
 public:
     explicit RiuRecentFileActionProvider(int maxActionCount = 9);
-    ~RiuRecentFileActionProvider();
+    ~RiuRecentFileActionProvider() override;
 
     void addFileName(const QString& fileName);
     std::vector<QAction*> actions() const;

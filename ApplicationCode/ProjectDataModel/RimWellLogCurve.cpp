@@ -24,7 +24,7 @@
 #include "RimWellLogPlot.h"
 #include "RimWellLogTrack.h"
 
-#include "RiuLineSegmentQwtPlotCurve.h"
+#include "RiuQwtPlotCurve.h"
 #include "RiuWellLogTrack.h"
 
 #include "cafPdmUiComboBoxEditor.h"
@@ -56,45 +56,22 @@ RimWellLogCurve::~RimWellLogCurve()
 {
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-bool RimWellLogCurve::depthRange(double* minimumDepth, double* maximumDepth) const
-{
-    CVF_ASSERT(minimumDepth && maximumDepth);
-    CVF_ASSERT(m_qwtPlotCurve);
-    
-    if (m_qwtPlotCurve->data()->size() < 1)
-    {
-        return false;
-    }
-
-    *minimumDepth = m_qwtPlotCurve->minYValue();
-    *maximumDepth = m_qwtPlotCurve->maxYValue();
-
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RimWellLogCurve::valueRange(double* minimumValue, double* maximumValue) const
 {
-    CVF_ASSERT(minimumValue && maximumValue);
-    CVF_ASSERT(m_qwtPlotCurve);
-
-    if (m_qwtPlotCurve->data()->size() < 1)
-    {
-        return false;
-    }
-
-    *minimumValue = m_qwtPlotCurve->minXValue();
-    *maximumValue = m_qwtPlotCurve->maxXValue();
-
-    return true;
+    return xValueRange(minimumValue, maximumValue);
 }
 
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const RigWellLogCurveData* RimWellLogCurve::curveData() const
+{
+    return m_curveData.p();
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -113,15 +90,20 @@ void RimWellLogCurve::updateZoomInParentPlot()
     firstAncestorOrThisOfType(plotTrack);
     if (plotTrack)
     {
-        plotTrack->updateXZoomAndParentPlotDepthZoom();
+        plotTrack->calculateXZoomRangeAndUpdateQwt();
     }
 }
 
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-const RigWellLogCurveData* RimWellLogCurve::curveData() const
+void RimWellLogCurve::updateLegendsInPlot()
 {
-    return m_curveData.p();
+    RimWellLogTrack* wellLogTrack;
+    firstAncestorOrThisOfType(wellLogTrack);
+    if (wellLogTrack)
+    {
+        wellLogTrack->updateAllLegendItems();
+    }
 }

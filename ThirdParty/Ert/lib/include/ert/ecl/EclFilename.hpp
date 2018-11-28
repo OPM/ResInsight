@@ -20,7 +20,7 @@
 #define ERT_ECL_FILEMAME_HPP
 #include <string>
 
-#include <ert/ecl/ecl_util.h>
+#include <ert/ecl/ecl_util.hpp>
 
 namespace ERT {
     std::string EclFilename( const std::string& base, ecl_file_enum file_type , int report_step, bool fmt_file = false);

@@ -17,7 +17,7 @@
 */
 #include <stdlib.h>
 
-#include <ert/util/util.hpp>
+#include <ert/util/util.h>
 
 #include <ert/ecl/ecl_file.hpp>
 #include <ert/ecl/ecl_file_view.hpp>

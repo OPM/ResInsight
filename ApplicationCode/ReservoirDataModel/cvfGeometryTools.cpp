@@ -201,7 +201,6 @@ GeometryTools::IntersectionStatus inPlaneLineIntersect(
       
        if (length12 < EPS )
        {
-           cvf::Vec3d p34(x4-x3, y4-y3, 0);
            *x = x1;
            *y = y1;
            *fractionAlongLine1 = 1;
@@ -429,8 +428,8 @@ int GeometryTools::intersectLineSegmentTriangle( const cvf::Vec3d p0, const cvf:
                                                  const cvf::Vec3d t0, const cvf::Vec3d t1, const cvf::Vec3d t2,
                                                  cvf::Vec3d* intersectionPoint , bool * isLineDirDotNormalNegative)
 {
-    CVF_TIGHT_ASSERT(intersectionPoint != NULL);
-    CVF_TIGHT_ASSERT(isLineDirDotNormalNegative != NULL);
+    CVF_TIGHT_ASSERT(intersectionPoint != nullptr);
+    CVF_TIGHT_ASSERT(isLineDirDotNormalNegative != nullptr);
 
     cvf::Vec3d u, v, n;             // triangle vectors
     cvf::Vec3d dir, w0, w;          // ray vectors
@@ -587,20 +586,6 @@ cvf::Vec4d GeometryTools::barycentricCoords(const cvf::Vec3d& v0,
     w[3] = a[3]/sum_a;
 
     return w;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-double GeometryTools::interpolateQuad(const cvf::Vec3d& v1, double s1, 
-                                      const cvf::Vec3d& v2, double s2, 
-                                      const cvf::Vec3d& v3, double s3, 
-                                      const cvf::Vec3d& v4, double s4, 
-                                      const cvf::Vec3d& point)
-{
-    cvf::Vec4d bc = barycentricCoords(v1, v2, v3, v4, point);
-
-    return s1*bc[0] + s2*bc[1] + s3*bc[2] + s4*bc[3];
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -994,14 +979,6 @@ FanEarClipTesselator::FanEarClipTesselator() :
     m_centerNodeIndex(std::numeric_limits<size_t>::max())
 {
 
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void FanEarClipTesselator::setCenterNode(size_t centerNodeIndex)
-{
-    m_centerNodeIndex = centerNodeIndex;
 }
 
 //--------------------------------------------------------------------------------------------------

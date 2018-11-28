@@ -44,10 +44,10 @@ class RiuTofAccumulatedPhaseFractionsPlot : public QwtPlot, public RiuInterfaceT
 
 public:
     RiuTofAccumulatedPhaseFractionsPlot(RimTofAccumulatedPhaseFractionsPlot* plotDefinition, QWidget* parent = nullptr);
-    virtual ~RiuTofAccumulatedPhaseFractionsPlot();
+    ~RiuTofAccumulatedPhaseFractionsPlot() override;
 
     RimTofAccumulatedPhaseFractionsPlot*                 ownerPlotDefinition();
-    virtual RimViewWindow*          ownerViewWindow() const override;
+    RimViewWindow*          ownerViewWindow() const override;
 
     void                            setSamples(std::vector<double> xSamples,
                                                std::vector<double> watValues,
@@ -56,8 +56,8 @@ public:
                                                int maxTofYears);
 
 protected:
-    virtual QSize                   sizeHint() const override;
-    virtual int                     heightForWidth(int w) const override;
+    QSize                   sizeHint() const override;
+    int                     heightForWidth(int w) const override;
 
 private:
     void         setDefaults();

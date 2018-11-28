@@ -36,7 +36,7 @@
 
 #pragma once
 
-#include "cafPdmUiWidgetBasedObjectEditor.h"
+#include "cafPdmUiFormLayoutObjectEditor.h"
 
 #include <QPointer>
 
@@ -61,12 +61,12 @@ class PdmUiGroup;
 /// User defined external widgets can be inserted into grid layout cells, and these cells
 /// are excluded for automatic layout
 //==================================================================================================
-class CustomObjectEditor : public PdmUiWidgetBasedObjectEditor
+class CustomObjectEditor : public PdmUiFormLayoutObjectEditor
 {
     Q_OBJECT
 public:
     CustomObjectEditor();
-    ~CustomObjectEditor();
+    ~CustomObjectEditor() override;
 
     void defineGridLayout(int rowCount, int columnCount);
 
@@ -77,9 +77,9 @@ public:
     void addBlankCell(int row, int column);
 
 private:
-    virtual QWidget*    createWidget(QWidget* parent) override;
-    virtual void        recursivelyConfigureAndUpdateTopLevelUiItems(const std::vector<PdmUiItem*>& topLevelUiItems,
-                                                                     const QString& uiConfigName) override;
+    QWidget*    createWidget(QWidget* parent) override;
+    void        recursivelyConfigureAndUpdateTopLevelUiOrdering(const PdmUiOrdering& topLevelUiOrdering,
+                                                                        const QString& uiConfigName) override;
 
     bool                isAreaAvailable(int row, int column, int rowSpan, int columnSpan) const;
     bool                isCellIdAvailable(int cellId) const;

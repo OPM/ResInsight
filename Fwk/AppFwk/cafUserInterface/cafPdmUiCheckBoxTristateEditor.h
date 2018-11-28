@@ -19,12 +19,12 @@ class PdmUiCheckBoxTristateEditor : public PdmUiFieldEditorHandle
 
 public:
     PdmUiCheckBoxTristateEditor()          {} 
-    virtual ~PdmUiCheckBoxTristateEditor() {} 
+    ~PdmUiCheckBoxTristateEditor() override {} 
 
 protected:
-    virtual QWidget*    createEditorWidget(QWidget* parent);
-    virtual QWidget*    createLabelWidget(QWidget* parent);
-    virtual void        configureAndUpdateUi(const QString& uiConfigName);
+    QWidget*    createEditorWidget(QWidget* parent) override;
+    QWidget*    createLabelWidget(QWidget* parent) override;
+    void        configureAndUpdateUi(const QString& uiConfigName) override;
 
 protected slots:
     void                slotClicked(bool);

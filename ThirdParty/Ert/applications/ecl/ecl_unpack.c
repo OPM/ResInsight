@@ -93,7 +93,7 @@ void unpack_file(const char * filename) {
       block_index++;
     }
     ecl_file_close( src_file );
-    util_safe_free(path);
+    free(path);
     free(base);
   }
 }

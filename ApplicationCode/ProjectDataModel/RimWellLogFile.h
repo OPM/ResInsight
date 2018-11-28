@@ -31,6 +31,7 @@
 
 
 class RimWellLogFileChannel;
+class RimWellPath;
 
 class QString;
 
@@ -46,7 +47,7 @@ class RimWellLogFile : public caf::PdmObject
 
 public:
     RimWellLogFile();
-    virtual ~RimWellLogFile();
+    ~RimWellLogFile() override;
 
     static RimWellLogFile*               readWellLogFile(const QString& logFilePath);
                                          
@@ -74,14 +75,16 @@ public:
 
     void                                 updateFilePathsFromProjectPath(const QString& newProjectPath, const QString& oldProjectPath);
 
+    static std::vector<std::pair<double, double>> findMdAndChannelValuesForWellPath(const RimWellPath* wellPath, const QString& channelName);
+
 private:
-    virtual void                         setupBeforeSave() override;
-    virtual void                         defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
-    virtual void                         fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
-    virtual void                         defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName,
+    void                         setupBeforeSave() override;
+    void                         defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    void                         fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    void                         defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName,
                                                                caf::PdmUiEditorAttribute* attribute) override;
 
-    virtual caf::PdmFieldHandle*         userDescriptionField()  { return &m_name; }
+    caf::PdmFieldHandle*         userDescriptionField() override  { return &m_name; }
 
     static bool                          isDateValid(const QDateTime dateTime);
 

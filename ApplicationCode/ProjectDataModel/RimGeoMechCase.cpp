@@ -20,6 +20,7 @@
 #include "RimGeoMechCase.h"
 
 #include "RiaApplication.h"
+#include "RiaLogging.h"
 #include "RiaPreferences.h"
 
 #include "RifOdbReader.h"
@@ -39,9 +40,11 @@
 #include "RimIntersectionCollection.h"
 #include "RimMainPlotCollection.h"
 #include "RimProject.h"
+#include "RimTimeStepFilter.h"
 #include "RimTools.h"
 #include "RimWellLogPlotCollection.h"
 
+#include "cafPdmUiPropertyViewDialog.h"
 #include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiTreeOrdering.h"
 #include "cafUtils.h"
@@ -54,6 +57,7 @@ CAF_PDM_SOURCE_INIT(RimGeoMechCase, "ResInsightGeoMechCase");
 /// 
 //--------------------------------------------------------------------------------------------------
 RimGeoMechCase::RimGeoMechCase(void)
+    : m_applyTimeFilter(false)
 {
     CAF_PDM_InitObject("Geomechanical Case", ":/GeoMechCase48x48.png", "", "");
 
@@ -125,7 +129,7 @@ QString RimGeoMechCase::caseFileName() const
 //--------------------------------------------------------------------------------------------------
 RigGeoMechCaseData* RimGeoMechCase::geoMechData()
 {
-    return m_geoMechCaseData.p();
+    return m_geoMechCaseData.p();    
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -133,7 +137,28 @@ RigGeoMechCaseData* RimGeoMechCase::geoMechData()
 //--------------------------------------------------------------------------------------------------
 const RigGeoMechCaseData* RimGeoMechCase::geoMechData() const
 {
-    return m_geoMechCaseData.p();
+    return m_geoMechCaseData.p();    
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGeoMechCase::reloadDataAndUpdate()
+{
+    if (this->geoMechData())
+    {
+        m_geoMechCaseData = nullptr;
+        std::string errMsg;
+        if (this->openGeoMechCase(&errMsg) == CASE_OPEN_ERROR)
+        {
+            RiaLogging::error(QString::fromStdString(errMsg));
+        }
+        for (auto v : geoMechViews())
+        {
+            v->loadDataAndUpdate();
+            v->setCurrentTimeStep(v->currentTimeStep());
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -143,7 +168,7 @@ RimGeoMechView* RimGeoMechCase::createAndAddReservoirView()
 {
     RimGeoMechView* gmv = new RimGeoMechView();
     size_t i = geoMechViews().size();
-    gmv->name = QString("View %1").arg(i + 1);
+    gmv->setName(QString("View %1").arg(i + 1));
     
     gmv->setGeoMechCase(this);
 
@@ -154,47 +179,82 @@ RimGeoMechView* RimGeoMechCase::createAndAddReservoirView()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RimGeoMechCase::openGeoMechCase(std::string* errorMessage)
+RimGeoMechCase::CaseOpenStatus RimGeoMechCase::openGeoMechCase(std::string* errorMessage)
 {
     // If read already, return
-    if (this->m_geoMechCaseData.notNull()) return true;
+    if (this->m_geoMechCaseData.notNull()) return CASE_OPEN_OK;
 
     if (!caf::Utils::fileExists(m_caseFileName().path()))
     {
-        return false;
+        return CASE_OPEN_ERROR;
     }
 
-    m_geoMechCaseData = new RigGeoMechCaseData(m_caseFileName().path().toStdString());
-
-    bool fileOpenSuccess = m_geoMechCaseData->openAndReadFemParts(errorMessage);
+    cvf::ref<RigGeoMechCaseData> geoMechCaseData = new RigGeoMechCaseData(m_caseFileName().path().toStdString());
+    bool fileOpenSuccess = geoMechCaseData->open(errorMessage);
     if (!fileOpenSuccess)
     {
-        // If opening failed, release all data
-        // Also, several places is checked for this data to validate availability of data
-        m_geoMechCaseData = nullptr;
-        return false;
+        return CASE_OPEN_ERROR;
+    }
+
+    std::vector<std::string> stepNames;
+    if (!geoMechCaseData->readTimeSteps(errorMessage, &stepNames))
+    {
+        return CASE_OPEN_ERROR;
+    }
+
+    std::vector<std::pair<QString, QDateTime>> timeSteps;
+    for (const std::string& timeStepStringStdString : stepNames)
+    {
+        QString timeStepString = QString::fromStdString(timeStepStringStdString);
+        timeSteps.push_back(std::make_pair(timeStepString, dateTimeFromTimeStepString(timeStepString)));
+    }
+
+    m_timeStepFilter->setTimeStepsFromFile(timeSteps);
+
+    if (m_applyTimeFilter)
+    {
+        m_applyTimeFilter = false; // Clear when we've done this once.
+
+        caf::PdmUiPropertyViewDialog propertyDialog(nullptr, m_timeStepFilter, "Time Step Filter", "", QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
+        propertyDialog.resize(QSize(400, 400));
+
+        // Push arrow cursor onto the cursor stack so it takes over from the wait cursor.
+        QApplication::setOverrideCursor(QCursor(Qt::ArrowCursor));
+        int propertyReturnValue = propertyDialog.exec();
+        // Pop arrow cursor off the cursor stack so that the previous (wait) cursor takes over.
+        QApplication::restoreOverrideCursor();
+        if (propertyReturnValue != QDialog::Accepted)
+        {
+            return CASE_OPEN_CANCELLED;
+        }
+        m_timeStepFilter->updateFilteredTimeStepsFromUi();
+    }
+
+    // Continue reading the open file
+    if (!geoMechCaseData->readFemParts(errorMessage, m_timeStepFilter->filteredTimeSteps()))
+    { 
+        return CASE_OPEN_ERROR;
     }
     
     if (activeFormationNames())
     {
-        m_geoMechCaseData->femPartResults()->setActiveFormationNames(activeFormationNames()->formationNamesData());
+        geoMechCaseData->femPartResults()->setActiveFormationNames(activeFormationNames()->formationNamesData());
     }
     else
     {
-        m_geoMechCaseData->femPartResults()->setActiveFormationNames(nullptr);
+        geoMechCaseData->femPartResults()->setActiveFormationNames(nullptr);
     }
 
-    if (m_geoMechCaseData.notNull())
+    std::vector<QString> fileNames;
+    for (const caf::FilePath& fileName : m_elementPropertyFileNames.v())
     {
-        std::vector<QString> fileNames;
-        for (const caf::FilePath& fileName : m_elementPropertyFileNames.v())
-        {
-            fileNames.push_back(fileName.path());
-        }
-        geoMechData()->femPartResults()->addElementPropertyFiles(fileNames);
+        fileNames.push_back(fileName.path());
     }
+    geoMechCaseData->femPartResults()->addElementPropertyFiles(fileNames);    
 
-    return fileOpenSuccess;
+    m_geoMechCaseData = geoMechCaseData;
+
+    return CASE_OPEN_OK;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -244,7 +304,7 @@ std::vector<QDateTime> RimGeoMechCase::timeStepDates() const
 {
     QStringList timeStrings = timeStepStrings();
 
-    return RimGeoMechCase::dateTimeVectorFromTimeStepStrings(timeStrings);
+    return RimGeoMechCase::vectorOfValidDateTimesFromTimeStepStrings(timeStrings);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -273,7 +333,7 @@ QStringList RimGeoMechCase::timeStepStrings() const
     const RigGeoMechCaseData* rigCaseData = geoMechData();
     if (rigCaseData && rigCaseData->femPartResults())
     {
-        std::vector<std::string> stepNames = rigCaseData->femPartResults()->stepNames();
+        std::vector<std::string> stepNames = rigCaseData->femPartResults()->filteredStepNames();
         for (size_t i = 0; i < stepNames.size(); i++)
         {
             stringList += QString::fromStdString(stepNames[i]);
@@ -291,9 +351,11 @@ QString RimGeoMechCase::timeStepName(int frameIdx) const
     const RigGeoMechCaseData* rigCaseData = geoMechData();
     if (rigCaseData && rigCaseData->femPartResults())
     {
-       std::vector<std::string> stepNames = rigCaseData->femPartResults()->stepNames();
-
-       return QString::fromStdString(stepNames[frameIdx]);
+       std::vector<std::string> stepNames = rigCaseData->femPartResults()->filteredStepNames();
+       if (frameIdx < static_cast<int>(stepNames.size()))
+       {
+           return QString::fromStdString(stepNames[frameIdx]);
+       }
     }
 
     return "";
@@ -400,29 +462,39 @@ double RimGeoMechCase::frictionAngleDeg() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-cvf::Vec3d RimGeoMechCase::displayModelOffset() const
+void RimGeoMechCase::setApplyTimeFilter(bool applyTimeFilter)
 {
-   return this->allCellsBoundingBox().min();
+    m_applyTimeFilter = applyTimeFilter;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<QDateTime> RimGeoMechCase::dateTimeVectorFromTimeStepStrings(const QStringList& timeStepStrings)
+cvf::Vec3d RimGeoMechCase::displayModelOffset() const
+{
+    auto bb = this->allCellsBoundingBox();
+    if (bb.isValid())
+    {
+        return this->allCellsBoundingBox().min();
+    }
+
+    return cvf::Vec3d::ZERO;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<QDateTime> RimGeoMechCase::vectorOfValidDateTimesFromTimeStepStrings(const QStringList& timeStepStrings)
 {
     std::vector<QDateTime> dates;
 
-    QString dateFormat = "ddMMyyyy";
+    QString dateFormat = "yyyyMMdd";
 
-    for (int i = 0; i < timeStepStrings.size(); i++)
+    for (const QString& timeStepString : timeStepStrings)
     {
-        QString timeStepString = timeStepStrings[i];
-
-        QString dateStr = subStringOfDigits(timeStepString, dateFormat.size());
-
-        QDateTime dateTime = QDateTime::fromString(dateStr, dateFormat);
+        QDateTime dateTime = dateTimeFromTimeStepString(timeStepString);
         if (dateTime.isValid())
         {
             dates.push_back(dateTime);
@@ -430,6 +502,16 @@ std::vector<QDateTime> RimGeoMechCase::dateTimeVectorFromTimeStepStrings(const Q
     }
 
     return dates;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QDateTime RimGeoMechCase::dateTimeFromTimeStepString(const QString& timeStepString)
+{
+    QString dateFormat = "yyyyMMdd";
+    QString dateStr = subStringOfDigits(timeStepString, dateFormat.size());
+    return QDateTime::fromString(dateStr, dateFormat);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -661,6 +743,12 @@ void RimGeoMechCase::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
    elmPropGroup->add(&m_elementPropertyFileNameIndexUiSelection);
    elmPropGroup->add(&m_reloadElementPropertyFileCommand);
    elmPropGroup->add(&m_closeElementPropertyFileCommand);
+
+
+   caf::PdmUiGroup* timeStepFilterGroup = uiOrdering.addNewGroup("Time Step Filter");
+   timeStepFilterGroup->setCollapsedByDefault(true);
+   m_timeStepFilter->uiOrdering(uiConfigName, *timeStepFilterGroup);
+
 }
 
 //--------------------------------------------------------------------------------------------------

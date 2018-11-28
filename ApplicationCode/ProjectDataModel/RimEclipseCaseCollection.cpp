@@ -97,46 +97,6 @@ RimIdenticalGridCaseGroup* RimEclipseCaseCollection::createIdenticalCaseGroupFro
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimEclipseCaseCollection::moveEclipseCaseIntoCaseGroup(RimEclipseCase* rimReservoir)
-{
-    CVF_ASSERT(rimReservoir);
-
-    RigEclipseCaseData* rigEclipseCase = rimReservoir->eclipseCaseData();
-    RigMainGrid* equalGrid = registerCaseInGridCollection(rigEclipseCase);
-    CVF_ASSERT(equalGrid);
-
-    // Insert in identical grid group
-    bool foundGroup = false;
-
-    for (size_t i = 0; i < caseGroups.size(); i++)
-    {
-        RimIdenticalGridCaseGroup* cg = caseGroups()[i];
-
-        if (cg->mainGrid() == equalGrid)
-        {
-            cg->addCase(rimReservoir);
-            foundGroup = true;
-        }
-    }
-
-    if (!foundGroup)
-    {
-        RimIdenticalGridCaseGroup* group = new RimIdenticalGridCaseGroup;
-        assert(RiaApplication::instance()->project());
-        RiaApplication::instance()->project()->assignIdToCaseGroup(group);
-
-        group->addCase(rimReservoir);
-
-        caseGroups().push_back(group);
-    }
-
-    // Remove reservoir from main container
-    cases().removeChildObject(rimReservoir);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 void RimEclipseCaseCollection::removeCaseFromAllGroups(RimEclipseCase* reservoir)
 {
     m_gridCollection->removeCase(reservoir->eclipseCaseData());

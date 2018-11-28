@@ -46,17 +46,6 @@ RimSummaryObservedDataFile::~RimSummaryObservedDataFile()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimSummaryObservedDataFile::setSummaryHeaderFilename(const QString& fileName)
-{
-    m_summaryHeaderFilename = fileName;
-
-    this->updateAutoShortName();
-    this->updateTreeItemName();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 void RimSummaryObservedDataFile::createSummaryReaderInterface()
 {
     m_summaryReader = new RifReaderObservedData;
