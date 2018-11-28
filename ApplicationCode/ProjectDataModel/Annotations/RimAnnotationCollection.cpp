@@ -19,8 +19,8 @@
 #include "RimAnnotationCollection.h"
 
 #include "RiaApplication.h"
+#include "RiaColorTables.h"
 
-#include "RimAnnotationColorFactory.h"
 #include "RimTextAnnotation.h"
 #include "RimReachCircleAnnotation.h"
 #include "RimPolylinesFromFileAnnotation.h"
@@ -160,7 +160,7 @@ RimPolylinesFromFileAnnotation* RimAnnotationCollection::importOrUpdatePolylines
     {
         RimPolylinesFromFileAnnotation* newPolyLinesAnnot = new RimPolylinesFromFileAnnotation;
 
-        auto newColor = RimAnnotationColorFactory::getColor(lineBasedAnnotationsCount());
+        auto newColor = RiaColorTables::categoryPaletteColors().cycledColor3f(lineBasedAnnotationsCount());
 
         newPolyLinesAnnot->setFileName(newFileName);
         newPolyLinesAnnot->setDescriptionFromFileName();

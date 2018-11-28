@@ -10,7 +10,6 @@ ${CMAKE_CURRENT_LIST_DIR}/RimTextAnnotation.h
 ${CMAKE_CURRENT_LIST_DIR}/RimAnnotationInViewCollection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimAnnotationLineAppearance.h
 ${CMAKE_CURRENT_LIST_DIR}/RimLineBasedAnnotation.h
-${CMAKE_CURRENT_LIST_DIR}/RimAnnotationColorFactory.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -24,7 +23,6 @@ ${CMAKE_CURRENT_LIST_DIR}/RimTextAnnotation.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimAnnotationInViewCollection.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimAnnotationLineAppearance.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimLineBasedAnnotation.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimAnnotationColorFactory.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

@@ -19,8 +19,8 @@
 #include "RicCreateUserDefinedPolylinesAnnotationFeature.h"
 
 #include "RiaApplication.h"
+#include "RiaColorTables.h"
 
-#include "RimAnnotationColorFactory.h"
 #include "RimTextAnnotation.h"
 #include "RimReachCircleAnnotation.h"
 #include "RimUserDefinedPolylinesAnnotation.h"
@@ -57,7 +57,7 @@ void RicCreateUserDefinedPolylinesAnnotationFeature::onActionTriggered(bool isCh
     if (coll)
     {
         auto newAnnotation = new RimUserDefinedPolylinesAnnotation();
-        auto newColor      = RimAnnotationColorFactory::getColor(coll->lineBasedAnnotationsCount());
+        auto newColor      = RiaColorTables::categoryPaletteColors().cycledColor3f(coll->lineBasedAnnotationsCount());
         newAnnotation->appearance()->setColor(newColor);
         coll->addAnnotation(newAnnotation);
         coll->updateConnectedEditors();

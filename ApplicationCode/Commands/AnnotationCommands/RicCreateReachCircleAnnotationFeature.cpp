@@ -19,8 +19,8 @@
 #include "RicCreateReachCircleAnnotationFeature.h"
 
 #include "RiaApplication.h"
+#include "RiaColorTables.h"
 
-#include "RimAnnotationColorFactory.h"
 #include "RimTextAnnotation.h"
 #include "RimReachCircleAnnotation.h"
 #include "RimPolylinesAnnotation.h"
@@ -57,7 +57,7 @@ void RicCreateReachCircleAnnotationFeature::onActionTriggered(bool isChecked)
     if (coll)
     {
         auto newAnnotation = new RimReachCircleAnnotation();
-        auto newColor      = RimAnnotationColorFactory::getColor(coll->lineBasedAnnotationsCount());
+        auto newColor      = RiaColorTables::categoryPaletteColors().cycledColor3f(coll->lineBasedAnnotationsCount());
         newAnnotation->appearance()->setColor(newColor);
         coll->addAnnotation(newAnnotation);
         coll->updateConnectedEditors();
