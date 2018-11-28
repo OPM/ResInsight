@@ -215,7 +215,7 @@ void RimAnnotationCollection::reloadPolylinesFromFile(const std::vector<RimPolyl
 
     if ( !totalErrorMessage.isEmpty() )
     {
-        QMessageBox::warning(nullptr, "Import Formation Names", totalErrorMessage);
+        QMessageBox::warning(nullptr, "Import Polylines", totalErrorMessage);
     }
 }
 

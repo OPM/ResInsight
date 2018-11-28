@@ -26,6 +26,7 @@
 
 #include <QFile>
 #include <QFileInfo>
+#include <QMessageBox>
 
 
 CAF_PDM_SOURCE_INIT(RimPolylinesFromFileAnnotation, "PolylinesFromFileAnnotation");
@@ -190,6 +191,18 @@ void RimPolylinesFromFileAnnotation::fieldChangedByUi(const caf::PdmFieldHandle*
                                                       const QVariant&            oldValue,
                                                       const QVariant&            newValue)
 {
+    if (changedField == &m_polyLinesFileName)
+    {
+        QString errorMessage;
+        this->readPolyLinesFile(&errorMessage);
+        if (!errorMessage.isEmpty())
+        {
+            QString totalError =  "\nError in: " + this->fileName()
+                                  + "\n\t" + errorMessage;
+            QMessageBox::warning(nullptr, "Import Polylines", totalError);
+        }
+    }
+
     RimAnnotationCollection* annColl = nullptr;
     this->firstAncestorOrThisOfTypeAsserted(annColl);
     
