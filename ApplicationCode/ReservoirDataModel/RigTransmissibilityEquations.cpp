@@ -57,12 +57,12 @@ double RigTransmissibilityEquations::totalConnectionFactor(double transX, double
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RigTransmissibilityEquations::totalPermeability(double            cellPermX,
-                                                       double            cellPermY,
-                                                       double            cellPermZ,
-                                                       const cvf::Vec3d& internalCellLengths,
-                                                       double            lateralNtg,
-                                                       double            ntg)
+double RigTransmissibilityEquations::totalKh(double            cellPermX,
+                                             double            cellPermY,
+                                             double            cellPermZ,
+                                             const cvf::Vec3d& internalCellLengths,
+                                             double            lateralNtg,
+                                             double            ntg)
 {
     // Compute kh for each local grid cell axis
     // Use permeability values for the two other axis
@@ -70,9 +70,52 @@ double RigTransmissibilityEquations::totalPermeability(double            cellPer
     double khy = sqrt(cellPermX * cellPermZ) * internalCellLengths.y() * lateralNtg;
     double khz = sqrt(cellPermX * cellPermY) * internalCellLengths.z() * ntg;
 
-    const double totalKh = cvf::Math::sqrt(khx * khx + khy * khy + khz * khz);
+    const double totKh = cvf::Math::sqrt(khx * khx + khy * khy + khz * khz);
 
-    return totalKh;
+    return totKh;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RigTransmissibilityEquations::effectiveK(double            cellPermX,
+                                                double            cellPermY,
+                                                double            cellPermZ,
+                                                const cvf::Vec3d& internalCellLengths,
+                                                double            lateralNtg,
+                                                double            ntg)
+{
+    // Compute kh for each local grid cell axis
+    // Use permeability values for the two other axis
+
+    double lx = internalCellLengths.x() * lateralNtg;
+    double ly = internalCellLengths.y() * lateralNtg;
+    double lz = internalCellLengths.z() * ntg;
+
+    double khx = sqrt(cellPermY * cellPermZ) * lx;
+    double khy = sqrt(cellPermX * cellPermZ) * ly;
+    double khz = sqrt(cellPermX * cellPermY) * lz;
+
+    double nominator   = khx + khy + khz;
+    double denominator = lx + ly + lz;
+
+    const double effK = nominator / denominator;
+
+    return effK;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+double RigTransmissibilityEquations::effectiveH(const cvf::Vec3d& internalCellLengths, double lateralNtg, double ntg)
+{
+    double lx = internalCellLengths.x() * lateralNtg;
+    double ly = internalCellLengths.y() * lateralNtg;
+    double lz = internalCellLengths.z() * ntg;
+
+    double effH = cvf::Math::sqrt(lx*lx + ly*ly + lz*lz);
+
+    return effH;
 }
 
 //--------------------------------------------------------------------------------------------------

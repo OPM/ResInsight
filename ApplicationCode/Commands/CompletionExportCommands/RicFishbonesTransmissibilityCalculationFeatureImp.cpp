@@ -131,7 +131,7 @@ std::vector<RigCompletionData>
             {
                 // No change in transmissibility for main bore
                 auto transmissibilityAndPermeability =
-                    RicWellPathExportCompletionDataFeatureImpl::calculateTransmissibilityAndKh(
+                    RicWellPathExportCompletionDataFeatureImpl::calculateTransmissibilityData(
                         settings.caseToApply,
                         wellPath,
                         wellBorePart.lengthsInCell,
@@ -140,13 +140,13 @@ std::vector<RigCompletionData>
                         globalCellIndex,
                         settings.useLateralNTG);
 
-                transmissibility = transmissibilityAndPermeability.first;
+                transmissibility = transmissibilityAndPermeability.connectionFactor();
             }
             else
             {
                 // Adjust transmissibility for fishbone laterals
                 auto transmissibilityAndPermeability =
-                    RicWellPathExportCompletionDataFeatureImpl::calculateTransmissibilityAndKh(
+                    RicWellPathExportCompletionDataFeatureImpl::calculateTransmissibilityData(
                         settings.caseToApply,
                         wellPath,
                         wellBorePart.lengthsInCell,
@@ -157,7 +157,7 @@ std::vector<RigCompletionData>
                         numberOfLaterals,
                         mainBoreDirection);
 
-                transmissibility = transmissibilityAndPermeability.first;
+                transmissibility = transmissibilityAndPermeability.connectionFactor();
             }
 
             CellDirection direction = RicWellPathExportCompletionDataFeatureImpl::calculateCellMainDirection(

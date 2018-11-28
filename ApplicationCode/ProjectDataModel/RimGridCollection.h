@@ -103,7 +103,7 @@ public:
     std::vector<size_t> indicesToVisibleGrids() const;
 
     caf::PdmFieldHandle* objectToggleField() override;
-    void                 syncFromMainGrid();
+    void                 syncFromMainEclipseGrid();
     void                 setMainGridActive(bool active);
 
     static const QString persistentGridUiName();
@@ -115,7 +115,7 @@ protected:
     void defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
 
 private:
-    const RigMainGrid* mainGrid() const;
+    const RigMainGrid* mainEclipseGrid() const;
     bool               hasPersistentLgrs() const;
     bool               hasTemporaryLgrs() const;
 

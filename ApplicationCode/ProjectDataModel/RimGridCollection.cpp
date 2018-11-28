@@ -361,9 +361,9 @@ caf::PdmFieldHandle* RimGridCollection::objectToggleField()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridCollection::syncFromMainGrid()
+void RimGridCollection::syncFromMainEclipseGrid()
 {
-    auto mainGrid = this->mainGrid();
+    auto mainGrid = this->mainEclipseGrid();
     if (mainGrid)
     {
         m_mainGrid->setName("Main Grid");
@@ -471,14 +471,17 @@ void RimGridCollection::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 void RimGridCollection::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/)
 {
-    uiTreeOrdering.add(m_mainGrid());
-    if (hasPersistentLgrs())
+    if (mainEclipseGrid())
     {
-        uiTreeOrdering.add(m_persistentLgrs());
-    }
-    if (hasTemporaryLgrs())
-    {
-        uiTreeOrdering.add(m_temporaryLgrs());
+        uiTreeOrdering.add(m_mainGrid());
+        if (hasPersistentLgrs())
+        {
+            uiTreeOrdering.add(m_persistentLgrs());
+        }
+        if (hasTemporaryLgrs())
+        {
+            uiTreeOrdering.add(m_temporaryLgrs());
+        }
     }
     uiTreeOrdering.skipRemainingChildren(true);
 }
@@ -486,7 +489,7 @@ void RimGridCollection::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrder
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const RigMainGrid* RimGridCollection::mainGrid() const
+const RigMainGrid* RimGridCollection::mainEclipseGrid() const
 {
     RimEclipseCase* eclipseCase;
     firstAncestorOrThisOfType(eclipseCase);
@@ -498,7 +501,7 @@ const RigMainGrid* RimGridCollection::mainGrid() const
 //--------------------------------------------------------------------------------------------------
 bool RimGridCollection::hasPersistentLgrs() const
 {
-    auto mainGrid = this->mainGrid();
+    auto mainGrid = this->mainEclipseGrid();
     if (!mainGrid) return false;
 
     for (size_t i = 1; i < mainGrid->gridCount(); i++)
@@ -514,7 +517,7 @@ bool RimGridCollection::hasPersistentLgrs() const
 //--------------------------------------------------------------------------------------------------
 bool RimGridCollection::hasTemporaryLgrs() const
 {
-    auto mainGrid = this->mainGrid();
+    auto mainGrid = this->mainEclipseGrid();
     if (!mainGrid) return false;
 
     for (size_t i = 1; i < mainGrid->gridCount(); i++)

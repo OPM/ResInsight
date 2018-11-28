@@ -37,6 +37,7 @@
 #include "qwt_scale_engine.h"
 
 #include <QDockWidget>
+#include <QGridLayout>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 #include <QCheckBox>
@@ -99,23 +100,29 @@ RiuRelativePermeabilityPlotPanel::RiuRelativePermeabilityPlotPanel(QDockWidget* 
     m_selectedCurvesButtonGroup->addButton(new QCheckBox("PCOG"), RigFlowDiagSolverInterface::RelPermCurve::PCOG);
 
     QGroupBox* groupBox = new QGroupBox("Curves");
-    QVBoxLayout* groupBoxLayout = new QVBoxLayout;
+    QGridLayout* groupBoxLayout = new QGridLayout;
     groupBox->setLayout(groupBoxLayout);
 
     QList<QAbstractButton*> checkButtonList = m_selectedCurvesButtonGroup->buttons();
     for (int i = 0; i < checkButtonList.size(); i++)
     {
         checkButtonList[i]->setChecked(true);
-        groupBoxLayout->addWidget(checkButtonList[i]);
+        groupBoxLayout->addWidget(checkButtonList[i], i / 2, i % 2);
     }
 
-    m_logarithmicScaleKrAxisCheckBox = new QCheckBox("Logarithmic Scale\nKr Axis");
+    m_logarithmicScaleKrAxisCheckBox = new QCheckBox("Log Scale Kr Axis");
     m_showUnscaledCheckBox = new QCheckBox("Show Unscaled");
+    m_fixedXAxisCheckBox = new QCheckBox("Fixed [0, 1] X-axis");
+    m_fixedLeftYAxisCheckBox = new QCheckBox("Fixed [0, 1] Kr-axis");
+    m_fixedXAxisCheckBox->setChecked(true);
+    m_fixedLeftYAxisCheckBox->setChecked(true);
 
     QVBoxLayout* leftLayout = new QVBoxLayout;
     leftLayout->addWidget(groupBox);
     leftLayout->addWidget(m_logarithmicScaleKrAxisCheckBox);
     leftLayout->addWidget(m_showUnscaledCheckBox);
+    leftLayout->addWidget(m_fixedXAxisCheckBox);    
+    leftLayout->addWidget(m_fixedLeftYAxisCheckBox);
     leftLayout->addStretch(1);
 
     QHBoxLayout* mainLayout = new QHBoxLayout();
@@ -128,6 +135,8 @@ RiuRelativePermeabilityPlotPanel::RiuRelativePermeabilityPlotPanel(QDockWidget* 
     connect(m_selectedCurvesButtonGroup, SIGNAL(buttonClicked(int)), SLOT(slotButtonInButtonGroupClicked(int)));
     connect(m_logarithmicScaleKrAxisCheckBox, SIGNAL(stateChanged(int)), SLOT(slotSomeCheckBoxStateChanged(int)));
     connect(m_showUnscaledCheckBox, SIGNAL(stateChanged(int)), SLOT(slotSomeCheckBoxStateChanged(int)));
+    connect(m_fixedXAxisCheckBox, SIGNAL(stateChanged(int)), SLOT(slotSomeCheckBoxStateChanged(int)));
+    connect(m_fixedLeftYAxisCheckBox, SIGNAL(stateChanged(int)), SLOT(slotSomeCheckBoxStateChanged(int)));
 
     plotUiSelectedCurves();
 }
@@ -208,7 +217,7 @@ void RiuRelativePermeabilityPlotPanel::clearPlot()
     m_caseName.clear();
     m_cellReferenceText.clear();
 
-    plotCurvesInQwt(m_unitSystem, m_allCurvesArr, m_swat, m_sgas, m_cellReferenceText, false, m_qwtPlot, &m_myPlotMarkers);
+    plotCurvesInQwt(m_unitSystem, m_allCurvesArr, m_swat, m_sgas, m_cellReferenceText, false, true, true, m_qwtPlot, &m_myPlotMarkers);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -226,8 +235,10 @@ void RiuRelativePermeabilityPlotPanel::plotUiSelectedCurves()
 {
     std::vector<RigFlowDiagSolverInterface::RelPermCurve> selectedCurves = gatherUiSelectedCurves();
 
-    const bool useLogScale = m_logarithmicScaleKrAxisCheckBox->isChecked() ? true : false;
-    plotCurvesInQwt(m_unitSystem, selectedCurves, m_swat, m_sgas, m_cellReferenceText, useLogScale, m_qwtPlot, &m_myPlotMarkers);
+    const bool useLogScale   = m_logarithmicScaleKrAxisCheckBox->isChecked();
+    const bool fixedXAxis    = m_fixedXAxisCheckBox->isChecked();
+    const bool fixedYAxis    = m_fixedLeftYAxisCheckBox->isChecked();
+    plotCurvesInQwt(m_unitSystem, selectedCurves, m_swat, m_sgas, m_cellReferenceText, useLogScale, fixedXAxis, fixedYAxis, m_qwtPlot, &m_myPlotMarkers);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -282,7 +293,9 @@ void RiuRelativePermeabilityPlotPanel::plotCurvesInQwt(RiaEclipseUnitTools::Unit
                                                        double swat, 
                                                        double sgas, 
                                                        QString cellReferenceText, 
-                                                       bool logScaleLeftAxis, 
+                                                       bool logScaleLeftAxis,
+                                                       bool fixedXAxis,
+                                                       bool fixedLeftYAxis,
                                                        QwtPlot* plot, 
                                                        std::vector<QwtPlotMarker*>* myPlotMarkers)
 {
@@ -403,7 +416,6 @@ void RiuRelativePermeabilityPlotPanel::plotCurvesInQwt(RiaEclipseUnitTools::Unit
         if (!dynamic_cast<QwtLogScaleEngine*>(plot->axisScaleEngine(QwtPlot::yLeft)))
         {
             plot->setAxisScaleEngine(QwtPlot::yLeft, new QwtLogScaleEngine);
-            //plot->setAxisAutoScale(QwtPlot::yLeft, true);
         }
     }
     else
@@ -411,9 +423,36 @@ void RiuRelativePermeabilityPlotPanel::plotCurvesInQwt(RiaEclipseUnitTools::Unit
         if (!dynamic_cast<QwtLinearScaleEngine*>(plot->axisScaleEngine(QwtPlot::yLeft)))
         {
             plot->setAxisScaleEngine(QwtPlot::yLeft, new QwtLinearScaleEngine);
-            //plot->setAxisAutoScale(QwtPlot::yLeft, true);
         }
     }
+
+    if (fixedXAxis)
+    {
+        plot->setAxisScale(QwtPlot::xBottom, 0.0, 1.0);
+        plot->setAxisAutoScale(QwtPlot::xBottom, false);
+    }
+    else
+    {
+        plot->setAxisAutoScale(QwtPlot::xBottom, true);
+    }
+
+    if (fixedLeftYAxis)
+    {
+        if (logScaleLeftAxis)
+        {
+            plot->setAxisScale(QwtPlot::yLeft, 1.0e-6, 1.0);
+        }
+        else
+        {
+            plot->setAxisScale(QwtPlot::yLeft, 0.0, 1.0);
+        }
+        plot->setAxisAutoScale(QwtPlot::yLeft, false);
+    }
+    else
+    {
+        plot->setAxisAutoScale(QwtPlot::yLeft, true);
+    }
+
 
 
     QString titleStr = "Relative Permeability";

@@ -851,7 +851,7 @@ bool RimEclipseCase::openReserviorCase()
         descendantsIncludingThisOfType(gridColls);
         for (RimGridCollection* gridCollection : gridColls)
         {
-            gridCollection->syncFromMainGrid();
+            gridCollection->syncFromMainEclipseGrid();
         }
     }
 
