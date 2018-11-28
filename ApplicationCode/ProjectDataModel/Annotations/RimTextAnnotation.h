@@ -51,23 +51,25 @@ class RimTextAnnotation : public caf::PdmObject
 
 public:
     RimTextAnnotation();
+    ~RimTextAnnotation();
 
     Vec3d               anchorPoint() const;
     Vec3d               labelPoint() const;
     void                setText(const QString& text);
     const QString&      text() const;
+    bool                isActive();
 
 protected:
     void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
     void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
     caf::PdmFieldHandle* userDescriptionField() override;
-
-private:
-    std::vector<RimGridView*> gridViewsContainingAnnotations() const;
+    virtual caf::PdmFieldHandle* objectToggleField() override;
 
 private:
     caf::PdmField<Vec3d>        m_anchorPointXyd;
     caf::PdmField<Vec3d>        m_labelPointXyd;
     caf::PdmField<QString>      m_text;
+    caf::PdmField<bool>         m_isActive;
+
 };
 

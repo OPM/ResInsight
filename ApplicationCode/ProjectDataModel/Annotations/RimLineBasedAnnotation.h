@@ -21,6 +21,7 @@
 #include "cafPdmObject.h"
 
 #include "cafPdmChildField.h"
+#include "cafPdmField.h"
 
 class RimGridView;
 class RimAnnotationLineAppearance;
@@ -36,6 +37,14 @@ class RimLineBasedAnnotation : public caf::PdmObject
 public:
     RimLineBasedAnnotation();
     RimAnnotationLineAppearance* appearance() const;
+
+    bool isActive();
+
+protected:
+    virtual caf::PdmFieldHandle* objectToggleField() override;
+
+private:
+    caf::PdmField<bool> m_isActive;
 
 private:
     caf::PdmChildField<RimAnnotationLineAppearance*> m_appearance;

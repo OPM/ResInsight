@@ -65,9 +65,6 @@ protected:
     caf::PdmFieldHandle* userDescriptionField() override;
 
 private:
-    std::vector<RimGridView*> gridViewsContainingAnnotations() const;
-
-private:
     caf::PdmField<Vec3d>    m_centerPointXyd;
     caf::PdmField<double>   m_radius;
     caf::PdmField<QString>  m_name;

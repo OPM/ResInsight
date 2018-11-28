@@ -124,6 +124,8 @@ void RivReachCircleAnnotationPartMgr::appendDynamicGeometryPartsToModel(cvf::Mod
                                                                  const caf::DisplayCoordTransform* displayXf)
 {
     if (m_rimAnnotation.isNull()) return;
+    if (!m_rimAnnotation->isActive()) return;
+
     if (!validateAnnotation(m_rimAnnotation)) return;
 
     buildParts(displayXf, false, 0.0);

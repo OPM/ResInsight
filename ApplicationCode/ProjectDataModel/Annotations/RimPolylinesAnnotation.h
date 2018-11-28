@@ -39,11 +39,8 @@ public:
     RimPolylinesAnnotation();
     ~RimPolylinesAnnotation();
 
-    bool isActive();
 
     virtual cvf::ref<RigPolyLinesData> polyLinesData() = 0;
     virtual bool isEmpty() = 0;
 
-private:
-    caf::PdmField<bool> m_isActive;
 };

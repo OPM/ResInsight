@@ -37,8 +37,7 @@ RimPolylinesFromFileAnnotation::RimPolylinesFromFileAnnotation()
 {
     CAF_PDM_InitObject("PolyLines Annotation", ":/WellCollection.png", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&m_polyLinesFileName, "PolyLineFilePath", "File Path", "", "", "");
-    m_polyLinesFileName.uiCapability()->setUiEditorTypeName(caf::PdmUiFilePathEditor::uiEditorTypeName());
+    CAF_PDM_InitFieldNoDefault(&m_polyLinesFileName, "PolyLineFilePath", "File", "", "", "");
     CAF_PDM_InitField(&m_userDescription, "PolyLineDescription", QString(""), "Name", "", "", "");
 
 }

@@ -35,9 +35,6 @@ RimPolylinesAnnotation::RimPolylinesAnnotation()
 {
     CAF_PDM_InitObject("PolylineAnnotation", ":/WellCollection.png", "", "");
 
-    CAF_PDM_InitField(&m_isActive, "IsActive", true, "Is Active", "", "", "");
-    m_isActive.uiCapability()->setUiHidden(true);
-
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -47,13 +44,4 @@ RimPolylinesAnnotation::~RimPolylinesAnnotation()
 {
 
 }
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-bool RimPolylinesAnnotation::isActive()
-{
-    return m_isActive();
-}
-
 

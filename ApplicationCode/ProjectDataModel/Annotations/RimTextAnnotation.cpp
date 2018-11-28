@@ -21,6 +21,7 @@
 #include "RimAnnotationInViewCollection.h"
 #include "RimGridView.h"
 #include "RimProject.h"
+#include "RimAnnotationCollection.h"
 
 
 CAF_PDM_SOURCE_INIT(RimTextAnnotation, "RimTextAnnotation");
@@ -36,6 +37,18 @@ RimTextAnnotation::RimTextAnnotation()
     CAF_PDM_InitField(&m_anchorPointXyd, "AnchorPointXyd", Vec3d::ZERO, "Anchor Point", "", "", "");
     CAF_PDM_InitField(&m_labelPointXyd, "LabelPointXyd", Vec3d::ZERO, "Label Point", "", "", "");
     CAF_PDM_InitField(&m_text, "Text", QString("(New text)"), "Text", "", "", "");
+
+    CAF_PDM_InitField(&m_isActive, "IsActive", true, "Is Active", "", "", "");
+    m_isActive.uiCapability()->setUiHidden(true);
+
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimTextAnnotation::~RimTextAnnotation()
+{
+
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -93,17 +106,10 @@ void RimTextAnnotation::fieldChangedByUi(const caf::PdmFieldHandle* changedField
                                          const QVariant&            oldValue,
                                          const QVariant&            newValue)
 {
-    auto views = gridViewsContainingAnnotations();
-    if (!views.empty())
-    {
-        if (changedField == &m_text || changedField == &m_anchorPointXyd || changedField == &m_labelPointXyd)
-        {
-            for (auto& view : views)
-            {
-                view->scheduleCreateDisplayModelAndRedraw();
-            }
-        }
-    }
+    RimAnnotationCollection* annColl = nullptr;
+    this->firstAncestorOrThisOfTypeAsserted(annColl);
+
+    annColl->scheduleRedrawOfRelevantViews();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -115,22 +121,20 @@ caf::PdmFieldHandle* RimTextAnnotation::userDescriptionField()
 }
 
 //--------------------------------------------------------------------------------------------------
-///
+/// 
 //--------------------------------------------------------------------------------------------------
-std::vector<RimGridView*> RimTextAnnotation::gridViewsContainingAnnotations() const
+bool RimTextAnnotation::isActive()
 {
-    std::vector<RimGridView*> views;
-    RimProject*               project = nullptr;
-    this->firstAncestorOrThisOfType(project);
-
-    if (!project) return views;
-
-    std::vector<RimGridView*> visibleGridViews;
-    project->allVisibleGridViews(visibleGridViews);
-
-    for (auto& gridView : visibleGridViews)
-    {
-        if (gridView->annotationCollection()->isActive()) views.push_back(gridView);
-    }
-    return views;
+    return m_isActive();
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+caf::PdmFieldHandle* RimTextAnnotation::objectToggleField()
+{
+    return &m_isActive;
+}
+
+
+

@@ -33,6 +33,9 @@ RimLineBasedAnnotation::RimLineBasedAnnotation()
     m_appearance = new RimAnnotationLineAppearance();
     m_appearance.uiCapability()->setUiTreeHidden(true);
     m_appearance.uiCapability()->setUiTreeChildrenHidden(true);
+    CAF_PDM_InitField(&m_isActive, "IsActive", true, "Is Active", "", "", "");
+    m_isActive.uiCapability()->setUiHidden(true);
+
 
 }
 
@@ -43,3 +46,21 @@ RimAnnotationLineAppearance* RimLineBasedAnnotation::appearance() const
 {
     return m_appearance;
 }
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimLineBasedAnnotation::isActive()
+{
+    return m_isActive();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+caf::PdmFieldHandle* RimLineBasedAnnotation::objectToggleField()
+{
+    return &m_isActive;
+}
+
+
+

@@ -101,23 +101,3 @@ caf::PdmFieldHandle* RimReachCircleAnnotation::userDescriptionField()
     return &m_name;
 }
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::vector<RimGridView*> RimReachCircleAnnotation::gridViewsContainingAnnotations() const
-{
-    std::vector<RimGridView*> views;
-    RimProject*               project = nullptr;
-    this->firstAncestorOrThisOfType(project);
-
-    if (!project) return views;
-
-    std::vector<RimGridView*> visibleGridViews;
-    project->allVisibleGridViews(visibleGridViews);
-
-    for (auto& gridView : visibleGridViews)
-    {
-        if (gridView->annotationCollection()->isActive()) views.push_back(gridView);
-    }
-    return views;
-}
