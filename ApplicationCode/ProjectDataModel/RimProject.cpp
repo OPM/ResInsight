@@ -33,6 +33,7 @@
 #include "RimAnnotationCollection.h"
 #include "RimAnnotationInViewCollection.h"
 #include "RimPolylinesFromFileAnnotation.h"
+#include "RimUserDefinedPolylinesAnnotation.h"
 #include "RimCalcScript.h"
 #include "RimCase.h"
 #include "RimCaseCollection.h"
@@ -1023,7 +1024,7 @@ std::vector<RimPolylinesAnnotation*> RimProject::polylineAnnotations() const
     for (const auto& oilField : oilFields())
     {
         auto annotationColl = oilField->annotationCollection();
-        for (const auto& annotation : annotationColl->polylineAnnotations())
+        for (const auto& annotation : annotationColl->userDefinedPolylineAnnotations())
         {
             annotations.push_back(annotation);
         }

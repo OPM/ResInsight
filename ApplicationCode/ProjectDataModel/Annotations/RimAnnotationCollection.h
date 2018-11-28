@@ -30,7 +30,7 @@
 class QString;
 class RimTextAnnotation;
 class RimReachCircleAnnotation;
-class RimPolylinesAnnotation;
+class RimUserDefinedPolylinesAnnotation;
 class RimPolylinesFromFileAnnotation;
 class RimGridView;
 
@@ -51,13 +51,16 @@ public:
     bool                            snapAnnotations() const;
 
     void                            addAnnotation(RimReachCircleAnnotation* annotation);
-    void                            addAnnotation(RimPolylinesAnnotation* annotation);
+    void                            addAnnotation(RimUserDefinedPolylinesAnnotation* annotation);
+    void                            addAnnotation(RimPolylinesFromFileAnnotation* annotation);
 
     std::vector<RimReachCircleAnnotation*>       reachCircleAnnotations() const;
-    std::vector<RimPolylinesAnnotation*>         polylineAnnotations() const;
+    std::vector<RimUserDefinedPolylinesAnnotation*> userDefinedPolylineAnnotations() const;
     std::vector<RimPolylinesFromFileAnnotation*> polylinesFromFileAnnotations() const;
 
     RimPolylinesFromFileAnnotation* importOrUpdatePolylinesFromFile(const QStringList& fileNames );
+
+    size_t                          lineBasedAnnotationsCount() const;
 
 protected:
     void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
@@ -66,9 +69,9 @@ protected:
 private:
     void reloadPolylinesFromFile(const std::vector<RimPolylinesFromFileAnnotation *>& polyLinesObjsToReload);
 
-    caf::PdmChildArrayField<RimReachCircleAnnotation*>       m_reachCircleAnnotations;
-    caf::PdmChildArrayField<RimPolylinesAnnotation*>         m_polylineAnnotations;
-    caf::PdmChildArrayField<RimPolylinesFromFileAnnotation*> m_polylineFromFileAnnotations;
+    caf::PdmChildArrayField<RimReachCircleAnnotation*>          m_reachCircleAnnotations;
+    caf::PdmChildArrayField<RimUserDefinedPolylinesAnnotation*> m_userDefinedPolylineAnnotations;
+    caf::PdmChildArrayField<RimPolylinesFromFileAnnotation*>    m_polylineFromFileAnnotations;
 
     caf::PdmField<double>           m_annotationPlaneDepth;
     caf::PdmField<bool>             m_snapAnnotations;
