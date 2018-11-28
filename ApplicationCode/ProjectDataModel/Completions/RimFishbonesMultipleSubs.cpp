@@ -25,6 +25,7 @@
 #include "RimWellPath.h"
 #include "RimFishbonesCollection.h"
 #include "RimMultipleValveLocations.h"
+#include "RimWellPathValve.h"
 
 #include "cafPdmUiDoubleValueEditor.h"
 #include "cafPdmUiListEditor.h"
@@ -272,32 +273,25 @@ double RimFishbonesMultipleSubs::icdOrificeDiameter(RiaEclipseUnitTools::UnitSys
 {
     RimWellPath* wellPath;
     firstAncestorOrThisOfTypeAsserted(wellPath);
-    if (unitSystem == RiaEclipseUnitTools::UNITS_METRIC)
-    {
-        if (wellPath->unitSystem() == RiaEclipseUnitTools::UNITS_FIELD)
-        {
-            return RiaEclipseUnitTools::inchToMeter(m_icdOrificeDiameter());
-        }
-        else
-        {
-            return m_icdOrificeDiameter() / 1000;
-        }
-    }
-    else if (unitSystem == RiaEclipseUnitTools::UNITS_FIELD)
-    {
-        if (wellPath->unitSystem() == RiaEclipseUnitTools::UNITS_METRIC)
-        {
-            return RiaEclipseUnitTools::meterToFeet(m_icdOrificeDiameter() / 1000);
-        }
-        else
-        {
-            return RiaEclipseUnitTools::inchToFeet(m_icdOrificeDiameter());
-        }
-    }
-    CVF_ASSERT(false);
-    return 0.0;
+    return RimWellPathValve::convertOrificeDiameter(m_icdOrificeDiameter(), wellPath->unitSystem(), unitSystem);
 }
 
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimFishbonesMultipleSubs::icdFlowCoefficient() const
+{
+    return m_icdFlowCoefficient();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+size_t RimFishbonesMultipleSubs::icdCount() const
+{
+    return m_icdCount();
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 
