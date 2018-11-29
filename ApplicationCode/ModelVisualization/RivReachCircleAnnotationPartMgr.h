@@ -61,4 +61,5 @@ private:
 
     caf::PdmPointer<RimReachCircleAnnotation>   m_rimAnnotation;
     cvf::ref<cvf::Part>                         m_circlePart;
+    cvf::ref<cvf::Part>                         m_centerPointPart;
 };

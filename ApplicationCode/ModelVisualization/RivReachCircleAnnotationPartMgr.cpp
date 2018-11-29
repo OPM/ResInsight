@@ -107,6 +107,33 @@ void RivReachCircleAnnotationPartMgr::buildParts(const caf::DisplayCoordTransfor
 
         m_circlePart = part;
     }
+
+    // Center point part
+    {
+        double symbolSize = 20;
+        double xMin = centerPosition.x() - symbolSize / 2.0;
+        double xMax = xMin + symbolSize;
+        double yMin = centerPosition.y() - symbolSize / 2.0;
+        double yMax = yMin + symbolSize;
+        double z = centerPosition.z();
+        std::vector<Vec3d> line1 = { {xMin, yMin, z}, {xMax, yMax, z} };
+        std::vector<Vec3d> line2 = { {xMax, yMin, z}, {xMin, yMax, z} };
+        std::vector<std::vector<Vec3d>> symbol = { line1, line2 };
+        cvf::ref<cvf::DrawableGeo> drawableGeo = RivPolylineGenerator::createLineAlongPolylineDrawable(symbol);
+
+        cvf::ref<cvf::Part> part = new cvf::Part;
+        part->setDrawable(drawableGeo.p());
+
+        caf::MeshEffectGenerator effgen(lineColor);
+        effgen.setLineWidth(2);
+        cvf::ref<cvf::Effect> eff = effgen.generateUnCachedEffect();
+
+        part->setEffect(eff.p());
+        part->setPriority(RivPartPriority::PartType::MeshLines);
+        part->setSourceInfo(sourceInfo.p());
+
+        m_centerPointPart = part;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -115,6 +142,7 @@ void RivReachCircleAnnotationPartMgr::buildParts(const caf::DisplayCoordTransfor
 void RivReachCircleAnnotationPartMgr::clearAllGeometry()
 {
     m_circlePart  = nullptr;
+    m_centerPointPart = nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -130,6 +158,7 @@ void RivReachCircleAnnotationPartMgr::appendDynamicGeometryPartsToModel(cvf::Mod
 
     buildParts(displayXf, false, 0.0);
     model->addPart(m_circlePart.p());
+    model->addPart(m_centerPointPart.p());
 }
 
 //--------------------------------------------------------------------------------------------------
