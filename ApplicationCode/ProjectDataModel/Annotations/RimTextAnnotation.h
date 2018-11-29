@@ -66,6 +66,8 @@ protected:
     virtual caf::PdmFieldHandle* objectToggleField() override;
 
 private:
+friend class RicTextAnnotation3dEditor;
+
     caf::PdmField<Vec3d>        m_anchorPointXyd;
     caf::PdmField<Vec3d>        m_labelPointXyd;
     caf::PdmField<QString>      m_text;

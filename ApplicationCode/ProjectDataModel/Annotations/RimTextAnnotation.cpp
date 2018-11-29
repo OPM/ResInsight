@@ -22,6 +22,7 @@
 #include "RimGridView.h"
 #include "RimProject.h"
 #include "RimAnnotationCollection.h"
+#include "AnnotationCommands/RicTextAnnotation3dEditor.h"
 
 
 CAF_PDM_SOURCE_INIT(RimTextAnnotation, "RimTextAnnotation");
@@ -33,6 +34,8 @@ CAF_PDM_SOURCE_INIT(RimTextAnnotation, "RimTextAnnotation");
 RimTextAnnotation::RimTextAnnotation()
 {
     CAF_PDM_InitObject("TextAnnotation", ":/TextAnnotation16x16.png", "", "");
+    this->setUi3dEditorTypeName(RicTextAnnotation3dEditor::uiEditorTypeName());
+
 
     CAF_PDM_InitField(&m_anchorPointXyd, "AnchorPointXyd", Vec3d::ZERO, "Anchor Point", "", "", "");
     CAF_PDM_InitField(&m_labelPointXyd, "LabelPointXyd", Vec3d::ZERO, "Label Point", "", "", "");
