@@ -52,8 +52,8 @@ RimWellPathValve::RimWellPathValve()
     m_multipleValveLocations.uiCapability()->setUiTreeChildrenHidden(true);
     nameField()->uiCapability()->setUiReadOnly(true);
 
-    CAF_PDM_InitField(&m_orificeDiameter, "OrificeDiameter", 7.0, "Orifice Diameter [mm]", "", "", "");
-    CAF_PDM_InitField(&m_flowCoefficient, "FlowCoefficient", 1.5, "Flow Coefficient", "", "", "");
+    CAF_PDM_InitField(&m_orificeDiameter, "OrificeDiameter", 8.0, "Orifice Diameter [mm]", "", "", "");
+    CAF_PDM_InitField(&m_flowCoefficient, "FlowCoefficient", 0.7, "Flow Coefficient", "", "", "");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -134,11 +134,11 @@ void RimWellPathValve::setUnitSpecificDefaults()
     {
         if (wellPath->unitSystem() == RiaEclipseUnitTools::UNITS_METRIC)
         {
-            m_orificeDiameter            = 7;
+            m_orificeDiameter            = 8;
         }
         else if (wellPath->unitSystem() == RiaEclipseUnitTools::UNITS_FIELD)
         {
-            m_orificeDiameter            = 0.28;
+            m_orificeDiameter            = 0.315;
         }
     }
 }
