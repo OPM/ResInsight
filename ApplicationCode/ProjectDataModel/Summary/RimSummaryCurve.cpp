@@ -164,6 +164,7 @@ void RimSummaryCurve::setSummaryCaseY(RimSummaryCase* sumCase)
     }
 
     m_yValuesSummaryCase = sumCase;
+    setZIndexFromCurveInfo();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -211,6 +212,7 @@ void RimSummaryCurve::setSummaryAddressY(const RifEclipseSummaryAddress& address
     }
 
     m_yValuesCurveVariable->setAddress(address);
+    setZIndexFromCurveInfo();
 
     m_yValuesSummaryFilter->updateFromAddress(address);
 
@@ -660,6 +662,44 @@ void RimSummaryCurve::appendOptionItemsForSummaryAddresses(QList<caf::PdmOptionI
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCurve::setZIndexFromCurveInfo()
+{
+    // Z index. Higher Z is painted in front
+    enum ZIndex
+    {
+        Z_ENSEMBLE_CURVE = 100,
+        Z_ENSEMBLE_STAT_CURVE = 200,
+        Z_SINGLE_CURVE_NON_OBSERVED = 300,
+        Z_SINGLE_CURVE_OBSERVED = 400
+    };
+
+    auto sumAddr = summaryAddressY();
+    auto sumCase = summaryCaseY();
+
+    if (sumCase && sumAddr.isValid())
+    {
+        if (sumCase->isObservedData())
+        {
+            setZOrder(Z_SINGLE_CURVE_OBSERVED);
+        }
+        else if (sumAddr.category() == RifEclipseSummaryAddress::SUMMARY_ENSEMBLE_STATISTICS)
+        {
+            setZOrder(Z_ENSEMBLE_STAT_CURVE);
+        }
+        else if (sumCase->ensemble())
+        {
+            setZOrder(Z_ENSEMBLE_CURVE);
+        }
+        else
+        {
+            setZOrder(Z_SINGLE_CURVE_NON_OBSERVED);
+        }
+    }
+}
+ 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
