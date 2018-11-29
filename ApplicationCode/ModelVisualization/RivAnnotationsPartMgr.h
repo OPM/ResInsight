@@ -52,29 +52,16 @@ public:
     ~RivAnnotationsPartMgr() override;
 
     void appendGeometryPartsToModel(cvf::ModelBasicList*              model,
-                                          const caf::DisplayCoordTransform* displayCoordTransform);
-
-    //void appendDynamicGeometryPartsToModel(cvf::ModelBasicList* model, 
-    //                                       size_t frameIndex, 
-    //                                       const caf::DisplayCoordTransform * displayXf);
-    //void appendFlattenedDynamicGeometryPartsToModel(cvf::ModelBasicList* model, 
-    //                                                size_t frameIndex,
-    //                                                const caf::DisplayCoordTransform * displayXf, 
-    //                                                double xOffset);
+                                    const caf::DisplayCoordTransform* displayCoordTransform);
 
     void clearGeometryCache();
 
 
 private:
-    void                            createAnnotationPartManagers();
-
-    //void                            buildWellHeadParts(size_t frameIndex, 
-    //                                                   const caf::DisplayCoordTransform * displayXf, 
-    //                                                   bool doFlatten, 
-    //                                                   double xOffset);
+    void createAnnotationPartManagers();
 
 private:
-    caf::PdmPointer<Rim3dView>              m_rimView;
+    caf::PdmPointer<Rim3dView>                          m_rimView;
     cvf::Collection<RivTextAnnotationPartMgr>           m_textAnnotationPartMgrs;
     cvf::Collection<RivReachCircleAnnotationPartMgr>    m_reachCircleAnnotationPartMgrs;
     cvf::Collection<RivPolylineAnnotationPartMgr>       m_polylineAnnotationPartMgrs;

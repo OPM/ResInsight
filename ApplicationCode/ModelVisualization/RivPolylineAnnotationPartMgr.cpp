@@ -18,6 +18,7 @@
 
 #include "RivPolylineAnnotationPartMgr.h"
 
+#include "Rim3dView.h"
 #include "RimAnnotationCollection.h"
 #include "RimPolylinesAnnotation.h"
 #include "RimAnnotationInViewCollection.h"
@@ -42,8 +43,8 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RivPolylineAnnotationPartMgr::RivPolylineAnnotationPartMgr(RimPolylinesAnnotation* annotation)
-: m_rimAnnotation(annotation)
+RivPolylineAnnotationPartMgr::RivPolylineAnnotationPartMgr(Rim3dView* view, RimPolylinesAnnotation* annotation)
+: m_rimView(view), m_rimAnnotation(annotation)
 {
 }
 
@@ -70,7 +71,7 @@ void RivPolylineAnnotationPartMgr::buildPolylineAnnotationParts(const caf::Displ
         auto        lineThickness = m_rimAnnotation->appearance()->thickness();
 
         auto linesInDisplayCoords =  pointsInDomain->polyLines();
-        auto* collection = dynamic_cast<RimAnnotationCollection*>(annotationCollection());
+        auto* collection = annotationCollection();
 
         for (auto& line : linesInDisplayCoords)
         {
@@ -115,11 +116,11 @@ void RivPolylineAnnotationPartMgr::clearAllGeometry()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimAnnotationCollectionBase* RivPolylineAnnotationPartMgr::annotationCollection() const
+RimAnnotationInViewCollection* RivPolylineAnnotationPartMgr::annotationCollection() const
 {
-    RimAnnotationCollectionBase* coll;
-    m_rimAnnotation->firstAncestorOrThisOfType(coll);
-    return coll;
+    std::vector<RimAnnotationInViewCollection*> colls;
+    m_rimView->descendantsIncludingThisOfType(colls);
+    return !colls.empty() ? colls.front() : nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

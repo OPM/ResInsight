@@ -39,14 +39,14 @@ namespace caf
 
 class Rim3dView;
 class RimReachCircleAnnotation;
-class RimAnnotationCollectionBase;
+class RimAnnotationInViewCollection;
 
 class RivReachCircleAnnotationPartMgr : public cvf::Object
 {
     using Vec3d = cvf::Vec3d;
 
 public:
-    RivReachCircleAnnotationPartMgr( RimReachCircleAnnotation* annotation);
+    RivReachCircleAnnotationPartMgr(Rim3dView* view, RimReachCircleAnnotation* annotation);
     ~RivReachCircleAnnotationPartMgr() override;
 
     void appendDynamicGeometryPartsToModel(cvf::ModelBasicList* model, const caf::DisplayCoordTransform* displayXf);
@@ -57,8 +57,9 @@ private:
     void clearAllGeometry();
     bool validateAnnotation(const RimReachCircleAnnotation* annotation) const;
 
-    RimAnnotationCollectionBase* annotationCollection() const;
+    RimAnnotationInViewCollection* annotationCollection() const;
 
+    caf::PdmPointer<Rim3dView>                  m_rimView;
     caf::PdmPointer<RimReachCircleAnnotation>   m_rimAnnotation;
     cvf::ref<cvf::Part>                         m_circlePart;
     cvf::ref<cvf::Part>                         m_centerPointPart;

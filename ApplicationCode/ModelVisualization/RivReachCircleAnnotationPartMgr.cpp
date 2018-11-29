@@ -22,7 +22,8 @@
 
 #include "RivReachCircleAnnotationPartMgr.h"
 
-#include "RimAnnotationCollection.h"
+#include "Rim3dView.h"
+#include "RimAnnotationInViewCollection.h"
 #include "RimReachCircleAnnotation.h"
 
 #include "RivPolylineGenerator.h"
@@ -41,8 +42,8 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RivReachCircleAnnotationPartMgr::RivReachCircleAnnotationPartMgr(RimReachCircleAnnotation* annotation)
-: m_rimAnnotation(annotation)
+RivReachCircleAnnotationPartMgr::RivReachCircleAnnotationPartMgr(Rim3dView* view, RimReachCircleAnnotation* annotation)
+: m_rimView(view), m_rimAnnotation(annotation)
 {
 }
 
@@ -66,7 +67,7 @@ void RivReachCircleAnnotationPartMgr::buildParts(const caf::DisplayCoordTransfor
     Vec3d centerPositionInDomain = m_rimAnnotation->centerPoint();
 
     {
-        auto* collection = dynamic_cast<RimAnnotationCollection*>(annotationCollection());
+        auto* collection = annotationCollection();
         if (collection && collection->snapAnnotations())
         {
             centerPositionInDomain.z() = collection->annotationPlaneZ();
@@ -172,9 +173,9 @@ bool RivReachCircleAnnotationPartMgr::validateAnnotation(const RimReachCircleAnn
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimAnnotationCollectionBase* RivReachCircleAnnotationPartMgr::annotationCollection() const
+RimAnnotationInViewCollection* RivReachCircleAnnotationPartMgr::annotationCollection() const
 {
-    RimAnnotationCollectionBase* coll;
-    m_rimAnnotation->firstAncestorOrThisOfType(coll);
-    return coll;
+    std::vector<RimAnnotationInViewCollection*> colls;
+    m_rimView->descendantsIncludingThisOfType(colls);
+    return !colls.empty() ? colls.front() : nullptr;
 }

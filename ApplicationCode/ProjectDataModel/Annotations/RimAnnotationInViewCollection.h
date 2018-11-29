@@ -41,12 +41,17 @@ public:
     RimAnnotationInViewCollection();
     ~RimAnnotationInViewCollection() override;
 
-    bool                            isActive() const;
+    bool                        isActive() const;
+    double                      annotationPlaneZ() const;
+    bool                        snapAnnotations() const;
 
 protected:
+    void                        defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
     void                        fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
     caf::PdmFieldHandle*        objectToggleField() override;
 
 private:
-    caf::PdmField<bool>                         m_isActive;
+    caf::PdmField<bool>         m_isActive;
+    caf::PdmField<double>       m_annotationPlaneDepth;
+    caf::PdmField<bool>         m_snapAnnotations;
 };

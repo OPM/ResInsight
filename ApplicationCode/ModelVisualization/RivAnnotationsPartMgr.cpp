@@ -24,41 +24,12 @@
 
 #include "RiaApplication.h"
 
-#include "RigActiveCellInfo.h"
-#include "RigCell.h"
-#include "RigEclipseCaseData.h"
-#include "RigMainGrid.h"
-#include "RigSimWellData.h"
-
-#include "RimTextAnnotation.h"
-#include "RimReachCircleAnnotation.h"
-#include "RimPolylinesAnnotation.h"
-#include "RimAnnotationInViewCollection.h"
-#include "RimEclipseCase.h"
-#include "RimEclipseView.h"
+#include "Rim3dView.h"
 #include "RimProject.h"
-#include "RimSimWellInViewCollection.h"
-#include "RimSimWellInView.h"
 
 #include "RivTextAnnotationPartMgr.h"
 #include "RivReachCircleAnnotationPartMgr.h"
 #include "RivPolylineAnnotationPartMgr.h"
-#include "RivPipeGeometryGenerator.h"
-#include "RivPartPriority.h"
-#include "RivSimWellPipeSourceInfo.h"
-
-#include "cafEffectGenerator.h"
-
-#include "cvfArrowGenerator.h"
-#include "cvfDrawableGeo.h"
-#include "cvfDrawableText.h"
-#include "cvfGeometryBuilderFaceList.h"
-#include "cvfModelBasicList.h"
-#include "cvfPart.h"
-#include "cvfTransform.h"
-#include "cvfqtUtils.h"
-#include "cafDisplayCoordTransform.h"
-#include "RivSectionFlattner.h"
 
 
 //--------------------------------------------------------------------------------------------------
@@ -115,7 +86,7 @@ void RivAnnotationsPartMgr::createAnnotationPartManagers()
     {
         for (auto annotation : textAnnotations)
         {
-            auto* apm = new RivTextAnnotationPartMgr(annotation);
+            auto* apm = new RivTextAnnotationPartMgr(m_rimView, annotation);
             m_textAnnotationPartMgrs.push_back(apm);
             //m_mapFromViewToIndex[wellPath] = wppm;
         }
@@ -124,7 +95,7 @@ void RivAnnotationsPartMgr::createAnnotationPartManagers()
     {
         for (auto annotation : reachCircleAnnotations)
         {
-            auto* apm = new RivReachCircleAnnotationPartMgr(annotation);
+            auto* apm = new RivReachCircleAnnotationPartMgr(m_rimView, annotation);
             m_reachCircleAnnotationPartMgrs.push_back(apm);
             // m_mapFromViewToIndex[wellPath] = wppm;
         }
@@ -133,7 +104,7 @@ void RivAnnotationsPartMgr::createAnnotationPartManagers()
     {
         for (auto annotation : polylineAnnotations)
         {
-            auto* apm = new RivPolylineAnnotationPartMgr(annotation);
+            auto* apm = new RivPolylineAnnotationPartMgr(m_rimView, annotation);
             m_polylineAnnotationPartMgrs.push_back(apm);
             // m_mapFromViewToIndex[wellPath] = wppm;
         }

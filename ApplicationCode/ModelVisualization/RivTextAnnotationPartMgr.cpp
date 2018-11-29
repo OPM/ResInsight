@@ -26,7 +26,8 @@
 #include "RiaColorTools.h"
 #include "RiaPreferences.h"
 
-#include "RimAnnotationCollection.h"
+#include "Rim3dView.h"
+#include "RimAnnotationInViewCollection.h"
 #include "RimTextAnnotation.h"
 
 #include "RivPolylineGenerator.h"
@@ -46,8 +47,8 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RivTextAnnotationPartMgr::RivTextAnnotationPartMgr(RimTextAnnotation* annotation)
-: m_rimAnnotation(annotation)
+RivTextAnnotationPartMgr::RivTextAnnotationPartMgr(Rim3dView* view, RimTextAnnotation* annotation)
+: m_rimView(view), m_rimAnnotation(annotation)
 {
 }
 
@@ -74,7 +75,7 @@ void RivTextAnnotationPartMgr::buildParts(const caf::DisplayCoordTransform * dis
     cvf::Vec3d labelPositionInDomain  = m_rimAnnotation->labelPoint();
 
     {
-        auto* collection = dynamic_cast<RimAnnotationCollection*>(annotationCollection());
+        auto* collection = annotationCollection();
         if (collection && collection->snapAnnotations())
         {
             anchorPositionInDomain.z() = collection->annotationPlaneZ();
@@ -175,9 +176,9 @@ bool RivTextAnnotationPartMgr::validateAnnotation(const RimTextAnnotation* annot
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimAnnotationCollectionBase* RivTextAnnotationPartMgr::annotationCollection() const
+RimAnnotationInViewCollection* RivTextAnnotationPartMgr::annotationCollection() const
 {
-    RimAnnotationCollectionBase* coll;
-    m_rimAnnotation->firstAncestorOrThisOfType(coll);
-    return coll;
+    std::vector<RimAnnotationInViewCollection*> colls;
+    m_rimView->descendantsIncludingThisOfType(colls);
+    return !colls.empty() ? colls.front() : nullptr;
 }

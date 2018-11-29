@@ -50,9 +50,6 @@ RimAnnotationCollection::RimAnnotationCollection()
     m_userDefinedPolylineAnnotations.uiCapability()->setUiHidden(true);
     CAF_PDM_InitFieldNoDefault(&m_polylineFromFileAnnotations, "PolylineFromFileAnnotations", "Polylines From File", "", "", "");
     m_polylineFromFileAnnotations.uiCapability()->setUiHidden(true);
-
-    CAF_PDM_InitField(&m_annotationPlaneDepth, "AnnotationPlaneDepth", 0.0,"Annotation Plane Depth", "", "", "");
-    CAF_PDM_InitField(&m_snapAnnotations, "SnapAnnotations", false, "Snap Annotations to Plane", "", "", "");
 }
 
 
@@ -86,22 +83,6 @@ void RimAnnotationCollection::addAnnotation(RimUserDefinedPolylinesAnnotation* a
 void RimAnnotationCollection::addAnnotation(RimPolylinesFromFileAnnotation* annotation)
 {
     m_polylineFromFileAnnotations.push_back(annotation);
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-double RimAnnotationCollection::annotationPlaneZ() const
-{
-    return -m_annotationPlaneDepth();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimAnnotationCollection::snapAnnotations() const
-{
-    return m_snapAnnotations;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -216,25 +197,6 @@ void RimAnnotationCollection::reloadPolylinesFromFile(const std::vector<RimPolyl
     {
         QMessageBox::warning(nullptr, "Import Polylines", totalErrorMessage);
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimAnnotationCollection::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
-{
-    uiOrdering.add(&m_annotationPlaneDepth);
-    uiOrdering.add(&m_snapAnnotations);
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimAnnotationCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
-                                               const QVariant&            oldValue,
-                                               const QVariant&            newValue)
-{
-    scheduleRedrawOfRelevantViews();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -36,6 +36,9 @@ RimAnnotationInViewCollection::RimAnnotationInViewCollection()
 
     CAF_PDM_InitField(&m_isActive, "Active", true, "Active", "", "", "");
     m_isActive.uiCapability()->setUiHidden(true);
+
+    CAF_PDM_InitField(&m_annotationPlaneDepth, "AnnotationPlaneDepth", 0.0, "Annotation Plane Depth", "", "", "");
+    CAF_PDM_InitField(&m_snapAnnotations, "SnapAnnotations", false, "Snap Annotations to Plane", "", "", "");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -54,6 +57,31 @@ bool RimAnnotationInViewCollection::isActive() const
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimAnnotationInViewCollection::annotationPlaneZ() const
+{
+    return -m_annotationPlaneDepth();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimAnnotationInViewCollection::snapAnnotations() const
+{
+    return m_snapAnnotations;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimAnnotationInViewCollection::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+{
+    uiOrdering.add(&m_annotationPlaneDepth);
+    uiOrdering.add(&m_snapAnnotations);
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void RimAnnotationInViewCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
@@ -61,15 +89,8 @@ void RimAnnotationInViewCollection::fieldChangedByUi(const caf::PdmFieldHandle* 
     if (&m_isActive == changedField)
     {
         this->updateUiIconFromToggleField();
-
-        RimGridView* view;
-        firstAncestorOrThisOfType(view);
-        if (view)
-        {
-            //view->hasUserRequestedAnimation = true;
-            view->scheduleCreateDisplayModelAndRedraw();
-        }
     }
+    scheduleRedrawOfRelevantViews();
 }
 
 //--------------------------------------------------------------------------------------------------

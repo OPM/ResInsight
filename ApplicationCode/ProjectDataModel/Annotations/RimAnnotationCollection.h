@@ -47,9 +47,6 @@ public:
 
     void                            loadDataAndUpdate();
 
-    double                          annotationPlaneZ() const;
-    bool                            snapAnnotations() const;
-
     void                            addAnnotation(RimReachCircleAnnotation* annotation);
     void                            addAnnotation(RimUserDefinedPolylinesAnnotation* annotation);
     void                            addAnnotation(RimPolylinesFromFileAnnotation* annotation);
@@ -62,17 +59,10 @@ public:
 
     size_t                          lineBasedAnnotationsCount() const;
 
-protected:
-    void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
-    void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
-
 private:
     void reloadPolylinesFromFile(const std::vector<RimPolylinesFromFileAnnotation *>& polyLinesObjsToReload);
 
     caf::PdmChildArrayField<RimReachCircleAnnotation*>          m_reachCircleAnnotations;
     caf::PdmChildArrayField<RimUserDefinedPolylinesAnnotation*> m_userDefinedPolylineAnnotations;
     caf::PdmChildArrayField<RimPolylinesFromFileAnnotation*>    m_polylineFromFileAnnotations;
-
-    caf::PdmField<double>           m_annotationPlaneDepth;
-    caf::PdmField<bool>             m_snapAnnotations;
 };
