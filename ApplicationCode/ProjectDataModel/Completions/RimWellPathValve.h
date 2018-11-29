@@ -54,6 +54,9 @@ public:
                                          RiaEclipseUnitTools::UnitSystem wellPathUnitSystem,
                                          RiaEclipseUnitTools::UnitSystem wantedUnitSystem);
 
+    std::vector<std::pair<double, double>> segmentsBetweenValves() const;
+
+
     // Overrides from RimWellPathCompletionInterface
     bool                              isEnabled() const override;
     RiaDefines::WellPathComponentType componentType() const override;

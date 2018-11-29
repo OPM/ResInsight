@@ -179,6 +179,38 @@ double RimWellPathValve::convertOrificeDiameter(double                          
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::vector<std::pair<double, double>> RimWellPathValve::segmentsBetweenValves() const
+{
+    RimPerforationInterval* perforationInterval = nullptr;
+    this->firstAncestorOrThisOfType(perforationInterval);
+
+    double startMD = perforationInterval->startMD();
+    double endMD   = perforationInterval->endMD();
+    std::vector<double> valveMDs = valveLocations();
+
+    std::vector<std::pair<double, double>> segments;
+    segments.reserve(valveMDs.size());
+
+    for (size_t i = 0; i < valveMDs.size(); ++i)
+    {
+        double segmentStart = startMD;
+        double segmentEnd = endMD;
+        if (i > 0)
+        {
+            segmentStart = 0.5 * (valveMDs[i - 1] + valveMDs[i]);
+        }
+        if (i < valveMDs.size() - 1u)
+        {
+            segmentEnd = 0.5 * (valveMDs[i] + valveMDs[i + 1]);
+        }
+        segments.push_back(std::make_pair(segmentStart, segmentEnd));
+    }
+    return segments;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RimWellPathValve::isEnabled() const
 {
     RimPerforationInterval* perforationInterval = nullptr;

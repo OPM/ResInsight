@@ -252,8 +252,8 @@ RicMswSegment::RicMswSegment(const QString& label,
     , m_holeDiameter(RicMswExportInfo::defaultDoubleValue())
     , m_openHoleRoughnessFactor(5.0e-5)
     , m_skinFactor(RicMswExportInfo::defaultDoubleValue())
-    , m_icdFlowCoefficient(RicMswExportInfo::defaultDoubleValue())
-    , m_icdArea(RicMswExportInfo::defaultDoubleValue())
+    , m_icdFlowCoefficient(0.0)
+    , m_icdArea(0.0)
     , m_subIndex(subIndex)
     , m_segmentNumber(segmentNumber)
 {
@@ -393,6 +393,14 @@ const std::vector<RicMswCompletion>& RicMswSegment::completions() const
 std::vector<RicMswCompletion>& RicMswSegment::completions()
 {
     return m_completions;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicMswSegment::setLabel(const QString& label)
+{
+    m_label = label;
 }
 
 //--------------------------------------------------------------------------------------------------
