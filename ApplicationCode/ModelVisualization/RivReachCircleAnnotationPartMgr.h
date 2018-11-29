@@ -25,8 +25,11 @@
 
 #include "cvfVector3.h"
 
+#include <vector>
+
 namespace cvf
 {
+    class BoundingBox;
     class Part;
     class ModelBasicList;
     class Transform;
@@ -49,13 +52,20 @@ public:
     RivReachCircleAnnotationPartMgr(Rim3dView* view, RimReachCircleAnnotation* annotation);
     ~RivReachCircleAnnotationPartMgr() override;
 
-    void appendDynamicGeometryPartsToModel(cvf::ModelBasicList* model, const caf::DisplayCoordTransform* displayXf);
+    void appendDynamicGeometryPartsToModel(cvf::ModelBasicList* model,
+                                           const caf::DisplayCoordTransform* displayXf,
+                                           const cvf::BoundingBox& boundingBox);
 
 private:
     void buildParts(const caf::DisplayCoordTransform* displayXf, bool doFlatten, double xOffset);
 
     void clearAllGeometry();
     bool validateAnnotation(const RimReachCircleAnnotation* annotation) const;
+    bool isCircleInBoundingBox(const cvf::BoundingBox& boundingBox);
+
+    std::vector<Vec3d> computeCirclePointsInDomain(bool snapToPlaneZ, double planeZ);
+    std::vector<Vec3d> transformCirclePointsToDisplay(const std::vector<Vec3d>& pointsInDomain,
+                                                      const caf::DisplayCoordTransform* displayXf);
 
     RimAnnotationInViewCollection* annotationCollection() const;
 

@@ -18,6 +18,8 @@
 
 #include "RivPolylineAnnotationPartMgr.h"
 
+#include "RiaBoundingBoxTools.h"
+
 #include "Rim3dView.h"
 #include "RimAnnotationCollection.h"
 #include "RimPolylinesAnnotation.h"
@@ -65,27 +67,17 @@ void RivPolylineAnnotationPartMgr::buildPolylineAnnotationParts(const caf::Displ
 
     if (!m_rimAnnotation->isEmpty() && m_rimAnnotation->isActive())
     {
-        const auto& pointsInDomain = m_rimAnnotation->polyLinesData();
         auto        lineColor     = m_rimAnnotation->appearance()->color();
         auto        isDashedLine  = m_rimAnnotation->appearance()->isDashed();
         auto        lineThickness = m_rimAnnotation->appearance()->thickness();
 
-        auto linesInDisplayCoords =  pointsInDomain->polyLines();
         auto* collection = annotationCollection();
+        if (!collection) return;
 
-        for (auto& line : linesInDisplayCoords)
-        {
-            for ( cvf::Vec3d& point : line)
-            {
-                if (collection && collection->snapAnnotations())
-                {
-                    point.z() = collection->annotationPlaneZ();
-                }
-                point = displayXf->transformToDisplayCoord(point);
-            }
-        }
+        auto linesInDomain = getPolylinesPointsInDomain(collection->snapAnnotations(), collection->annotationPlaneZ());
+        auto linesInDisplay = transformPolylinesPointsToDisplay(linesInDomain, displayXf);
 
-        cvf::ref<cvf::DrawableGeo> drawableGeo = RivPolylineGenerator::createLineAlongPolylineDrawable(linesInDisplayCoords);
+        cvf::ref<cvf::DrawableGeo> drawableGeo = RivPolylineGenerator::createLineAlongPolylineDrawable(linesInDisplay);
         cvf::ref<cvf::Part> part = new cvf::Part;
         //part->setName("RivAnnotationPartMgr: text " + cvfString);
         part->setDrawable(drawableGeo.p());
@@ -103,6 +95,70 @@ void RivPolylineAnnotationPartMgr::buildPolylineAnnotationParts(const caf::Displ
 
         m_part = part;
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<std::vector<RivPolylineAnnotationPartMgr::Vec3d>>
+    RivPolylineAnnotationPartMgr::getPolylinesPointsInDomain(bool snapToPlaneZ, double planeZ)
+{
+    auto polylines = m_rimAnnotation->polyLinesData()->polyLines();
+    if (!snapToPlaneZ) return polylines;
+
+    std::vector<std::vector<Vec3d>> polylinesInDisplay;
+    for (const auto& pts : polylines)
+    {
+        std::vector<Vec3d> polyline;
+        for (const auto& pt : pts)
+        {
+            auto ptInDisp = pt;
+            ptInDisp.z() = planeZ;
+            polyline.push_back(ptInDisp);
+        }
+        polylinesInDisplay.push_back(polyline);
+    }
+    return polylinesInDisplay;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<std::vector<cvf::Vec3d>> RivPolylineAnnotationPartMgr::transformPolylinesPointsToDisplay(
+    const std::vector<std::vector<Vec3d>>& pointsInDomain,
+    const caf::DisplayCoordTransform* displayXf)
+{
+    std::vector<std::vector<Vec3d>> pointsInDisplay;
+    for (const auto& pts : pointsInDomain)
+    {
+        std::vector<Vec3d> polyline;
+        for (const auto& pt : pts)
+        {
+            polyline.push_back(displayXf->transformToDisplayCoord(pt));
+        }
+        pointsInDisplay.push_back(polyline);
+
+    }
+    return pointsInDisplay;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RivPolylineAnnotationPartMgr::isPolylinesInBoundingBox(const cvf::BoundingBox& boundingBox)
+{
+    auto coll = annotationCollection();
+    if (!coll) return false;
+
+    auto effectiveBoundingBox = RiaBoundingBoxTools::inflate(boundingBox, 3);
+    for (const auto& pts : getPolylinesPointsInDomain(coll->snapAnnotations(), coll->annotationPlaneZ()))
+    {
+        for (const auto& pt : pts)
+        {
+            if (effectiveBoundingBox.contains(pt)) return true;
+        }
+    }
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -127,10 +183,14 @@ RimAnnotationInViewCollection* RivPolylineAnnotationPartMgr::annotationCollectio
 /// 
 //--------------------------------------------------------------------------------------------------
 void RivPolylineAnnotationPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasicList* model,
-                                                           const caf::DisplayCoordTransform * displayXf)
+                                                                     const caf::DisplayCoordTransform * displayXf,
+                                                                     const cvf::BoundingBox& boundingBox)
 {
     if (m_rimAnnotation.isNull()) return;
     if (m_rimAnnotation->isEmpty()) return;
+
+    // Check bounding box
+    if (!isPolylinesInBoundingBox(boundingBox)) return;
 
     buildPolylineAnnotationParts(displayXf);
 

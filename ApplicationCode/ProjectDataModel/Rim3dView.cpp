@@ -687,7 +687,7 @@ void Rim3dView::addAnnotationsToModel(cvf::ModelBasicList* wellPathModelBasicLis
     else
     {
         cvf::ref<caf::DisplayCoordTransform> transForm = displayCoordTransform();
-        m_annotationsPartManager->appendGeometryPartsToModel(wellPathModelBasicList, transForm.p());
+        m_annotationsPartManager->appendGeometryPartsToModel(wellPathModelBasicList, transForm.p(), ownerCase()->allCellsBoundingBox());
     }
 
     wellPathModelBasicList->updateBoundingBoxesRecursive();

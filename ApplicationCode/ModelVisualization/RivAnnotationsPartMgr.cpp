@@ -52,21 +52,22 @@ RivAnnotationsPartMgr::~RivAnnotationsPartMgr()
 ///
 //--------------------------------------------------------------------------------------------------
 void RivAnnotationsPartMgr::appendGeometryPartsToModel(cvf::ModelBasicList*              model,
-                                                       const caf::DisplayCoordTransform* displayCoordTransform)
+                                                       const caf::DisplayCoordTransform* displayCoordTransform,
+                                                       const cvf::BoundingBox&           boundingBox)
 {
      createAnnotationPartManagers();
 
     for (auto& partMgr : m_textAnnotationPartMgrs)
     {
-        partMgr->appendDynamicGeometryPartsToModel(model, displayCoordTransform);
+        partMgr->appendDynamicGeometryPartsToModel(model, displayCoordTransform, boundingBox);
     }
     for (auto& partMgr : m_reachCircleAnnotationPartMgrs)
     {
-        partMgr->appendDynamicGeometryPartsToModel(model, displayCoordTransform);
+        partMgr->appendDynamicGeometryPartsToModel(model, displayCoordTransform, boundingBox);
     }
     for (auto& partMgr : m_polylineAnnotationPartMgrs)
     {
-        partMgr->appendDynamicGeometryPartsToModel(model, displayCoordTransform);
+        partMgr->appendDynamicGeometryPartsToModel(model, displayCoordTransform, boundingBox);
     }
 }
 

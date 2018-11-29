@@ -23,8 +23,11 @@
 #include "cvfObject.h"
 #include "cafPdmPointer.h"
 
+#include <cvfVector3.h>
+
 namespace cvf
 {
+    class BoundingBox;
     class Part;
     class ModelBasicList;
     class Transform;
@@ -43,17 +46,25 @@ class RimSimWellInViewCollection;
 
 class RivTextAnnotationPartMgr : public cvf::Object
 {
+    using Vec3d = cvf::Vec3d;
+
 public:
     RivTextAnnotationPartMgr(Rim3dView* view, RimTextAnnotation* annotation);
     ~RivTextAnnotationPartMgr() override;
 
     void appendDynamicGeometryPartsToModel(cvf::ModelBasicList* model, 
-                                           const caf::DisplayCoordTransform * displayXf);
+                                           const caf::DisplayCoordTransform * displayXf,
+                                           const cvf::BoundingBox& boundingBox);
 
 private:
     void                            buildParts(const caf::DisplayCoordTransform * displayXf, 
                                                bool doFlatten, 
                                                double xOffset);
+
+    Vec3d                           getAnchorPointInDomain(bool snapToPlaneZ, double planeZ);
+    Vec3d                           getLabelPointInDomain(bool snapToPlaneZ, double planeZ);
+
+    bool                            isTextInBoundingBox(const cvf::BoundingBox& boundingBox);
 
     void                            clearAllGeometry();
     bool                            validateAnnotation(const RimTextAnnotation* annotation) const;

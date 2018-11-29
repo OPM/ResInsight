@@ -21,10 +21,15 @@
 #include "cvfBase.h"
 #include "cvfAssert.h"
 #include "cvfObject.h"
+#include "cvfVector3.h"
+
 #include "cafPdmPointer.h"
+
+#include <vector>
 
 namespace cvf
 {
+    class BoundingBox;
     class Part;
     class ModelBasicList;
     class Transform;
@@ -42,14 +47,23 @@ class RimAnnotationInViewCollection;
 
 class RivPolylineAnnotationPartMgr : public cvf::Object
 {
+    using Vec3d = cvf::Vec3d;
+
 public:
     RivPolylineAnnotationPartMgr(Rim3dView* view, RimPolylinesAnnotation* annotation);
     ~RivPolylineAnnotationPartMgr() override;
 
-    void appendDynamicGeometryPartsToModel(cvf::ModelBasicList* model, 
-                                           const caf::DisplayCoordTransform * displayXf);
+    void                appendDynamicGeometryPartsToModel(cvf::ModelBasicList* model, 
+                                                          const caf::DisplayCoordTransform * displayXf,
+                                                          const cvf::BoundingBox& boundingBox);
 private:
-    void                            buildPolylineAnnotationParts(const caf::DisplayCoordTransform* displayXf);
+    void                buildPolylineAnnotationParts(const caf::DisplayCoordTransform* displayXf);
+
+    std::vector<std::vector<Vec3d>>  getPolylinesPointsInDomain(bool snapToPlaneZ, double planeZ);
+    std::vector<std::vector<Vec3d>>  transformPolylinesPointsToDisplay(const std::vector<std::vector<Vec3d>>& pointsInDomain,
+                                                                       const caf::DisplayCoordTransform* displayXf);
+
+    bool                isPolylinesInBoundingBox(const cvf::BoundingBox& boundingBox);
 
     void                            clearAllGeometry();
     RimAnnotationInViewCollection*  annotationCollection() const;

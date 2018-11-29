@@ -23,6 +23,7 @@
 #include "RivTextAnnotationPartMgr.h"
 
 #include "RiaApplication.h"
+#include "RiaBoundingBoxTools.h"
 #include "RiaColorTools.h"
 #include "RiaPreferences.h"
 
@@ -71,17 +72,11 @@ void RivTextAnnotationPartMgr::buildParts(const caf::DisplayCoordTransform * dis
 
     cvf::ref<RivTextAnnotationSourceInfo> sourceInfo = new RivTextAnnotationSourceInfo(m_rimAnnotation);
 
-    cvf::Vec3d anchorPositionInDomain = m_rimAnnotation->anchorPoint();
-    cvf::Vec3d labelPositionInDomain  = m_rimAnnotation->labelPoint();
+    auto collection = annotationCollection();
+    if (!collection) return;
 
-    {
-        auto* collection = annotationCollection();
-        if (collection && collection->snapAnnotations())
-        {
-            anchorPositionInDomain.z() = collection->annotationPlaneZ();
-            labelPositionInDomain.z()  = collection->annotationPlaneZ();
-        }
-    }
+    cvf::Vec3d anchorPositionInDomain = getAnchorPointInDomain(collection->snapAnnotations(), collection->annotationPlaneZ());
+    cvf::Vec3d labelPositionInDomain  = getLabelPointInDomain(collection->snapAnnotations(), collection->annotationPlaneZ());
 
     cvf::Vec3d anchorPosition = displayXf->transformToDisplayCoord(anchorPositionInDomain);
     cvf::Vec3d labelPosition = displayXf->transformToDisplayCoord(labelPositionInDomain);
@@ -141,6 +136,48 @@ void RivTextAnnotationPartMgr::buildParts(const caf::DisplayCoordTransform * dis
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RivTextAnnotationPartMgr::Vec3d RivTextAnnotationPartMgr::getAnchorPointInDomain(bool snapToPlaneZ, double planeZ)
+{
+    auto pt = m_rimAnnotation->anchorPoint();
+
+    if (snapToPlaneZ)
+    {
+        pt.z() = planeZ;
+    }
+    return pt;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RivTextAnnotationPartMgr::Vec3d RivTextAnnotationPartMgr::getLabelPointInDomain(bool snapToPlaneZ, double planeZ)
+{
+    auto pt = m_rimAnnotation->labelPoint();
+
+    if (snapToPlaneZ)
+    {
+        pt.z() = planeZ;
+    }
+    return pt;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RivTextAnnotationPartMgr::isTextInBoundingBox(const cvf::BoundingBox& boundingBox)
+{
+    auto coll = annotationCollection();
+    if (!coll) return false;
+
+    auto effectiveBoundingBox = RiaBoundingBoxTools::inflate(boundingBox, 3);
+    if (effectiveBoundingBox.contains(getAnchorPointInDomain(coll->snapAnnotations(), coll->annotationPlaneZ())) ||
+        effectiveBoundingBox.contains(getLabelPointInDomain(coll->snapAnnotations(), coll->annotationPlaneZ()))) return true;
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void RivTextAnnotationPartMgr::clearAllGeometry()
@@ -153,10 +190,14 @@ void RivTextAnnotationPartMgr::clearAllGeometry()
 /// 
 //--------------------------------------------------------------------------------------------------
 void RivTextAnnotationPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasicList* model,
-                                                           const caf::DisplayCoordTransform * displayXf)
+                                                                 const caf::DisplayCoordTransform * displayXf,
+                                                                 const cvf::BoundingBox& boundingBox)
 {
     if (m_rimAnnotation.isNull()) return;
     if (!m_rimAnnotation->isActive()) return;
+
+    // Check bounding box
+    if (!isTextInBoundingBox(boundingBox)) return;
 
     if (!validateAnnotation(m_rimAnnotation)) return;
 

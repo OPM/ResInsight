@@ -52,7 +52,8 @@ public:
     ~RivAnnotationsPartMgr() override;
 
     void appendGeometryPartsToModel(cvf::ModelBasicList*              model,
-                                    const caf::DisplayCoordTransform* displayCoordTransform);
+                                    const caf::DisplayCoordTransform* displayCoordTransform,
+                                    const cvf::BoundingBox&           boundingBox);
 
     void clearGeometryCache();
 
