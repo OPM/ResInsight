@@ -49,6 +49,7 @@
 #include "cafPdmUiTreeSelectionEditor.h"
 #include "cafUtils.h"
 
+#include <QDebug>
 #include <QList>
 
 namespace caf
@@ -861,48 +862,17 @@ bool RimEclipseResultDefinition::hasDynamicResult() const
 //--------------------------------------------------------------------------------------------------
 void RimEclipseResultDefinition::initAfterRead()
 {
+    if (m_flowSolution() == nullptr)
+    {
+        assignFlowSolutionFromCase();
+    }
+
     m_porosityModelUiField = m_porosityModel;
     m_resultTypeUiField = m_resultType;
     m_resultVariableUiField = m_resultVariable;
 
     m_flowSolutionUiField = m_flowSolution();
     m_selectedInjectorTracersUiField = m_selectedInjectorTracers;
-
-    if (m_flowSolution() == nullptr)
-    {
-        assignFlowSolutionFromCase();
-    }
-
-    if (m_flowSolution())
-    {
-        std::vector<QString> selectedInjectorTracers;
-        std::vector<QString> selectedProducerTracers;
-        for (const QString& tracerName : m_selectedTracers_OBSOLETE())
-        {
-            RimFlowDiagSolution::TracerStatusType tracerStatus = m_flowSolution()->tracerStatusOverall(tracerName);
-            if (tracerStatus == RimFlowDiagSolution::INJECTOR)
-            {
-                selectedInjectorTracers.push_back(tracerName);
-            }
-            else if (tracerStatus == RimFlowDiagSolution::PRODUCER)
-            {
-                selectedProducerTracers.push_back(tracerName);
-            }            
-            else if (tracerStatus == RimFlowDiagSolution::VARYING || tracerStatus == RimFlowDiagSolution::UNDEFINED)
-            {
-                selectedInjectorTracers.push_back(tracerName);
-                selectedProducerTracers.push_back(tracerName);
-            }
-        }
-        if (!selectedInjectorTracers.empty())
-        {
-            setSelectedInjectorTracers(selectedInjectorTracers);
-        }
-        if (!selectedProducerTracers.empty())
-        {
-            setSelectedProducerTracers(selectedProducerTracers);
-        }
-    }
 
     this->updateUiIconFromToggleField();
 }
@@ -1155,6 +1125,43 @@ void RimEclipseResultDefinition::defineEditorAttribute(const caf::PdmFieldHandle
             {
                 toolButtonAttr->m_sizePolicy.setHorizontalPolicy(QSizePolicy::MinimumExpanding);
             }
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseResultDefinition::onEditorWidgetsCreated()
+{
+    if (m_flowSolution() && !m_selectedTracers_OBSOLETE().empty())
+    {
+        std::vector<QString> selectedTracers;
+        selectedTracers.swap(m_selectedTracers_OBSOLETE.v());
+
+        std::set<QString, TracerComp> allInjectorTracers = setOfTracersOfType(true);
+        std::set<QString, TracerComp> allProducerTracers = setOfTracersOfType(false);
+
+        std::vector<QString> selectedInjectorTracers;
+        std::vector<QString> selectedProducerTracers;
+        for (const QString& tracerName : selectedTracers)
+        {
+            if (allInjectorTracers.count(tracerName))
+            {
+                selectedInjectorTracers.push_back(tracerName);
+            }
+            if (allProducerTracers.count(tracerName))
+            {
+                selectedProducerTracers.push_back(tracerName);
+            }
+        }
+        if (!selectedInjectorTracers.empty())
+        {
+            setSelectedInjectorTracers(selectedInjectorTracers);
+        }
+        if (!selectedProducerTracers.empty())
+        {
+            setSelectedProducerTracers(selectedProducerTracers);
         }
     }
 }
