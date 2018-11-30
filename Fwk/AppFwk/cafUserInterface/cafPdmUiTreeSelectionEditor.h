@@ -103,7 +103,6 @@ protected:
 private slots:
     void                customMenuRequested(const QPoint& pos);
 
-    void                slotCurrentChanged(const QModelIndex& current, const QModelIndex& previous);
     void                slotSetSelectedOn();
     void                slotSetSelectedOff();
     void                slotSetSubItemsOn();
