@@ -55,15 +55,13 @@ public:
 
     RiuQwtSymbol(PointSymbolEnum riuStyle, const QString& label, LabelPosition labelPosition = LabelAboveSymbol);
 
-    void renderSymbols(QPainter *painter, const QPointF *points, int numPoints) const override;
-    void         renderSymbolLabel(QPainter *painter, const QPointF& position) const;
+    void    renderSymbols(QPainter *painter, const QPointF *points, int numPoints) const override;
+    void    renderSymbolLabel(QPainter *painter, const QPointF& position) const;
     QString label() const { return m_label; }
 
     void    setLabelPosition(LabelPosition labelPosition);
-    QRect boundingRect() const override;
-
 private:
-    QRect   labelBoundingRect(const QRect& symbolRect) const;
+    QRect   labelBoundingRect(const QPainter* painter, const QRect& symbolRect) const;
 
 private:
     QString       m_label;

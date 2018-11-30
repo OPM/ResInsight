@@ -19,6 +19,8 @@
 
 #include "RiuQwtSymbol.h"
 
+#include "cvfAssert.h"
+
 #include <QPainter>
 
 //--------------------------------------------------------------------------------------------------
@@ -130,7 +132,7 @@ void RiuQwtSymbol::renderSymbolLabel(QPainter *painter, const QPointF& position)
 {
     QSize symbolSize = QwtSymbol::size();
     QRect symbolRect (position.x(), position.y(), symbolSize.width(), symbolSize.height());
-    QRect labelRect  = labelBoundingRect(symbolRect);
+    QRect labelRect  = labelBoundingRect(painter, symbolRect);
     painter->drawText(labelRect.topLeft(), m_label);
 }
 
@@ -145,24 +147,16 @@ void RiuQwtSymbol::setLabelPosition(LabelPosition labelPosition)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QRect RiuQwtSymbol::boundingRect() const
+QRect RiuQwtSymbol::labelBoundingRect(const QPainter* painter, const QRect& symbolRect) const
 {
-    QRect symbolRect  = QwtSymbol::boundingRect();
-    QRect labelRect = labelBoundingRect(symbolRect);
-    return symbolRect.united(labelRect);
-}
+    CVF_ASSERT(painter);
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QRect RiuQwtSymbol::labelBoundingRect(const QRect& symbolRect) const
-{
     QPoint symbolPosition = symbolRect.topLeft();
 
     int symbolWidth = symbolRect.width();
     
-    int labelWidth = QPainter().fontMetrics().width(m_label);
-    int labelHeight = QPainter().fontMetrics().height();
+    int labelWidth = painter->fontMetrics().width(m_label);
+    int labelHeight = painter->fontMetrics().height();
 
     QPoint labelPosition;
     if (m_labelPosition == LabelAboveSymbol)
