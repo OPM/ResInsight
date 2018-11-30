@@ -115,7 +115,7 @@ public:
     void                            updateUiFieldsFromActiveResult();
 
 protected:
-    virtual void                    updateLegendCategorySettings() {};
+    virtual void                  updateLegendCategorySettings() {};
 
     QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
     void                          fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
@@ -123,6 +123,7 @@ protected:
     void                          initAfterRead() override;
     void                          defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
     void                          defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override;
+    void                          onEditorWidgetsCreated() override;
 
 protected:
     caf::PdmField< caf::AppEnum< RiaDefines::ResultCatType > >      m_resultType;
@@ -174,6 +175,7 @@ private:
 
     QList<caf::PdmOptionItemInfo>   calcOptionsForVariableUiFieldStandard();
     QList<caf::PdmOptionItemInfo>   calcOptionsForSelectedTracerField(bool injector);
+    
     QString                         timeOfFlightString(bool shorter) const;
     QString                         maxFractionTracerString(bool shorter) const;
 
