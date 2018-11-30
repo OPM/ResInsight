@@ -54,7 +54,9 @@ public:
     ~RimTextAnnotation();
 
     Vec3d               anchorPoint() const;
+    void                setAnchorPoint(const Vec3d & pointXyz) ;
     Vec3d               labelPoint() const;
+    void                setLabelPoint(const Vec3d & pointXyz) ;
     void                setText(const QString& text);
     const QString&      text() const;
     bool                isActive();

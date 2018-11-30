@@ -475,6 +475,11 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
             menuBuilder << "RicSelectColorResult";
         }
     }
+    else
+    {
+        menuBuilder.addSeparator();
+        menuBuilder << "RicCreateTextAnnotationIn3dViewFeature";
+    }
 
     if (gridView)
     {
