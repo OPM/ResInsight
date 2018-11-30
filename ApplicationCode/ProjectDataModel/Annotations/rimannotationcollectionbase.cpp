@@ -43,7 +43,6 @@ RimAnnotationCollectionBase::RimAnnotationCollectionBase()
     CAF_PDM_InitObject("Annotations", ":/WellCollection.png", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_textAnnotations, "TextAnnotations", "Text Annotations", "", "", "");
-    m_textAnnotations.uiCapability()->setUiHidden(true);
 }
 
 
