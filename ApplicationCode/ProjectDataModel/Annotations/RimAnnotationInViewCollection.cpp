@@ -20,9 +20,14 @@
 
 #include "RiaApplication.h"
 
+#include "RimCase.h"
 #include "RimProject.h"
 #include "RimGridView.h"
 #include "RimTextAnnotation.h"
+
+#include <cvfBoundingBox.h>
+
+#include <cafPdmUiDoubleSliderEditor.h>
 
 
 CAF_PDM_SOURCE_INIT(RimAnnotationInViewCollection, "Annotations");
@@ -39,6 +44,9 @@ RimAnnotationInViewCollection::RimAnnotationInViewCollection()
 
     CAF_PDM_InitField(&m_annotationPlaneDepth, "AnnotationPlaneDepth", 0.0, "Annotation Plane Depth", "", "", "");
     CAF_PDM_InitField(&m_snapAnnotations, "SnapAnnotations", false, "Snap Annotations to Plane", "", "", "");
+
+    m_annotationPlaneDepth.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
+    m_annotationPlaneDepth.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::LabelPosType::TOP);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -77,8 +85,11 @@ bool RimAnnotationInViewCollection::snapAnnotations() const
 //--------------------------------------------------------------------------------------------------
 void RimAnnotationInViewCollection::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
-    uiOrdering.add(&m_annotationPlaneDepth);
     uiOrdering.add(&m_snapAnnotations);
+    if(m_snapAnnotations())
+        uiOrdering.add(&m_annotationPlaneDepth);
+
+    uiOrdering.skipRemainingFields(true);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -99,4 +110,35 @@ void RimAnnotationInViewCollection::fieldChangedByUi(const caf::PdmFieldHandle* 
 caf::PdmFieldHandle* RimAnnotationInViewCollection::objectToggleField()
 {
     return &m_isActive;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimAnnotationInViewCollection::defineEditorAttribute(const caf::PdmFieldHandle* field,
+                                                          QString                    uiConfigName,
+                                                          caf::PdmUiEditorAttribute* attribute)
+{
+    if (field == &m_annotationPlaneDepth)
+    {
+        auto* attr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>(attribute);
+
+        if (attr)
+        {
+            RimCase* rimCase;
+            firstAncestorOrThisOfType(rimCase);
+
+            if (rimCase)
+            {
+                auto bb = rimCase->allCellsBoundingBox();
+                attr->m_minimum = -bb.max().z();
+                attr->m_maximum = -bb.min().z();
+            }
+            else
+            {
+                attr->m_minimum = 0;
+                attr->m_maximum = 10000;
+            }
+        }
+    }
 }
