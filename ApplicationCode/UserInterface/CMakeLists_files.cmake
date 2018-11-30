@@ -34,7 +34,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RiuResultQwtPlot.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuResultTextBuilder.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuRmsNavigation.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuSelectionChangedHandler.h
-${CMAKE_CURRENT_LIST_DIR}/RiuSelectionManager.h
+${CMAKE_CURRENT_LIST_DIR}/Riu3dSelectionManager.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuSimpleHistogramWidget.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuSummaryQwtPlot.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuTextDialog.h
@@ -112,7 +112,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RiuResultQwtPlot.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuResultTextBuilder.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuRmsNavigation.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuSelectionChangedHandler.cpp
-${CMAKE_CURRENT_LIST_DIR}/RiuSelectionManager.cpp
+${CMAKE_CURRENT_LIST_DIR}/Riu3dSelectionManager.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuSimpleHistogramWidget.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuSummaryQwtPlot.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuTextDialog.cpp

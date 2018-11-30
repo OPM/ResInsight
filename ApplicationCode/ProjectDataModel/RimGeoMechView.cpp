@@ -42,7 +42,7 @@
 #include "RimViewLinker.h"
 
 #include "Riu3DMainWindowTools.h"
-#include "RiuSelectionManager.h"
+#include "Riu3dSelectionManager.h"
 #include "RiuViewer.h"
 
 #include "RivGeoMechPartMgr.h"
@@ -769,7 +769,7 @@ void RimGeoMechView::calculateCurrentTotalCellVisibility(cvf::UByteArray* totalV
 //--------------------------------------------------------------------------------------------------
 void RimGeoMechView::createPartCollectionFromSelection(cvf::Collection<cvf::Part>* parts)
 {
-    RiuSelectionManager* riuSelManager = RiuSelectionManager::instance();
+    Riu3dSelectionManager* riuSelManager = Riu3dSelectionManager::instance();
     std::vector<RiuSelectionItem*> items;
     riuSelManager->selectedItems(items);
     for (size_t i = 0; i < items.size(); i++)

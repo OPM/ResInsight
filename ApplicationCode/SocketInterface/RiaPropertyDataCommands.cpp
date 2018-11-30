@@ -45,7 +45,7 @@
 
 #include "RiuMainWindow.h"
 #include "RiuProcessMonitor.h"
-#include "RiuSelectionManager.h"
+#include "Riu3dSelectionManager.h"
 
 #include <QErrorMessage>
 
@@ -1296,7 +1296,7 @@ public:
     static std::vector< std::pair<size_t, size_t> > getSelectedCellsForCase(const RimCase* reservoirCase)
     {
         std::vector<RiuSelectionItem*> items;
-        RiuSelectionManager::instance()->selectedItems(items);
+        Riu3dSelectionManager::instance()->selectedItems(items);
 
         std::vector< std::pair<size_t, size_t> > selectedCells;
 

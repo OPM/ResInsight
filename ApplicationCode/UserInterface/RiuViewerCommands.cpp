@@ -64,7 +64,7 @@
 
 #include "RiuMainWindow.h"
 #include "RiuResultTextBuilder.h"
-#include "RiuSelectionManager.h"
+#include "Riu3dSelectionManager.h"
 #include "RiuViewer.h"
 #include "RiuPickItemInfo.h"
 
@@ -253,7 +253,7 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
                 m_currentFaceIndex = cvf::StructGridInterface::NO_FACE;
 
                 RiuSelectionItem* selItem = new RiuGeneralSelectionItem(crossSectionSourceInfo->crossSection());
-                RiuSelectionManager::instance()->setSelectedItem(selItem, RiuSelectionManager::RUI_TEMPORARY);
+                Riu3dSelectionManager::instance()->setSelectedItem(selItem, Riu3dSelectionManager::RUI_TEMPORARY);
                 
                 if (gridView)
                 {
@@ -273,7 +273,7 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
                 m_currentFaceIndex = cvf::StructGridInterface::NO_FACE;
 
                 RiuSelectionItem* selItem = new RiuGeneralSelectionItem(intersectionBoxSourceInfo->intersectionBox());
-                RiuSelectionManager::instance()->setSelectedItem(selItem, RiuSelectionManager::RUI_TEMPORARY);
+                Riu3dSelectionManager::instance()->setSelectedItem(selItem, Riu3dSelectionManager::RUI_TEMPORARY);
 
                 menuBuilder << "RicHideIntersectionBoxFeature";
                 menuBuilder.addSeparator();
@@ -374,7 +374,7 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
                     double measuredDepth         = wellPathSourceInfo->measuredDepth(firstPartTriangleIndex, pickedPositionInUTM);
                     cvf::Vec3d closestPointOnCenterLine = wellPathSourceInfo->closestPointOnCenterLine(firstPartTriangleIndex, pickedPositionInUTM);
                     RiuSelectionItem* selItem = new RiuWellPathSelectionItem(wellPathSourceInfo, closestPointOnCenterLine, measuredDepth);
-                    RiuSelectionManager::instance()->setSelectedItem(selItem, RiuSelectionManager::RUI_TEMPORARY);
+                    Riu3dSelectionManager::instance()->setSelectedItem(selItem, Riu3dSelectionManager::RUI_TEMPORARY);
                 }
 
                 //TODO: Update so these also use RiuWellPathSelectionItem 
@@ -431,7 +431,7 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
                 caf::SelectionManager::instance()->setSelectedItem(well);
 
                 RiuSelectionItem* selItem = new RiuSimWellSelectionItem(eclipseWellSourceInfo->well(), m_currentPickPositionInDomainCoords, eclipseWellSourceInfo->branchIndex());
-                RiuSelectionManager::instance()->setSelectedItem(selItem, RiuSelectionManager::RUI_TEMPORARY);
+                Riu3dSelectionManager::instance()->setSelectedItem(selItem, Riu3dSelectionManager::RUI_TEMPORARY);
 
                 menuBuilder << "RicNewWellLogCurveExtractionFeature";
                 menuBuilder << "RicNewWellLogRftCurveFeature";
@@ -497,7 +497,7 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
     }
 
     // Delete items in temporary selection
-    RiuSelectionManager::instance()->deleteAllItems(RiuSelectionManager::RUI_TEMPORARY);
+    Riu3dSelectionManager::instance()->deleteAllItems(Riu3dSelectionManager::RUI_TEMPORARY);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -824,7 +824,7 @@ void RiuViewerCommands::handlePickAction(int winPosX, int winPosY, Qt::KeyboardM
 
     if (cellIndex == cvf::UNDEFINED_SIZE_T)
     {
-        RiuSelectionManager::instance()->deleteAllItems();
+        Riu3dSelectionManager::instance()->deleteAllItems();
     }
     else 
     {
@@ -835,7 +835,7 @@ void RiuViewerCommands::handlePickAction(int winPosX, int winPosY, Qt::KeyboardM
         }
 
         std::vector<RiuSelectionItem*> items;
-        RiuSelectionManager::instance()->selectedItems(items);
+        Riu3dSelectionManager::instance()->selectedItems(items);
 
         const caf::ColorTable& colorTable = RiaColorTables::selectionPaletteColors();
 
@@ -874,11 +874,11 @@ void RiuViewerCommands::handlePickAction(int winPosX, int winPosY, Qt::KeyboardM
 
         if (appendToSelection)
         {
-            RiuSelectionManager::instance()->appendItemToSelection(selItem);
+            Riu3dSelectionManager::instance()->appendItemToSelection(selItem);
         }
         else if(selItem)
         {
-            RiuSelectionManager::instance()->setSelectedItem(selItem);
+            Riu3dSelectionManager::instance()->setSelectedItem(selItem);
         }
     }
 

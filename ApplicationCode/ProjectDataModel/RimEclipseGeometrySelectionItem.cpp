@@ -23,7 +23,7 @@
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
 
-#include "RiuSelectionManager.h"
+#include "Riu3dSelectionManager.h"
 
 
 CAF_PDM_SOURCE_INIT(RimEclipseGeometrySelectionItem, "EclipseGeometrySelectionItem");

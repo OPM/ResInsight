@@ -24,7 +24,7 @@
 
 #include "RimProject.h"
 
-#include "RiuSelectionManager.h"
+#include "Riu3dSelectionManager.h"
 
 #include <QAction>
 
@@ -40,8 +40,8 @@ void RicNewWellPathFractureAtPosFeature::onActionTriggered(bool isChecked)
     RimProject* proj = RiaApplication::instance()->project();
     if (proj->allFractureTemplates().empty()) return;
 
-    RiuSelectionManager* riuSelManager = RiuSelectionManager::instance();
-    RiuSelectionItem* selItem = riuSelManager->selectedItem(RiuSelectionManager::RUI_TEMPORARY);
+    Riu3dSelectionManager* riuSelManager = Riu3dSelectionManager::instance();
+    RiuSelectionItem* selItem = riuSelManager->selectedItem(Riu3dSelectionManager::RUI_TEMPORARY);
 
     RiuWellPathSelectionItem* wellPathItem = dynamic_cast<RiuWellPathSelectionItem*>(selItem);
     if (!wellPathItem) return;

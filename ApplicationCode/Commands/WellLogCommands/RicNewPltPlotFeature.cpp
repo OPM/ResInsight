@@ -39,7 +39,7 @@
 #include "RimEclipseResultCase.h"
 
 #include "RiuPlotMainWindowTools.h"
-#include "RiuSelectionManager.h"
+#include "Riu3dSelectionManager.h"
 
 #include "cafSelectionManagerTools.h"
 
@@ -152,7 +152,7 @@ RimWellPath* RicNewPltPlotFeature::selectedWellPath() const
 //--------------------------------------------------------------------------------------------------
 RimSimWellInView* RicNewPltPlotFeature::selectedSimulationWell(int * branchIndex) const
 {
-    RiuSelectionItem* selItem = RiuSelectionManager::instance()->selectedItem(RiuSelectionManager::RUI_TEMPORARY);
+    RiuSelectionItem* selItem = Riu3dSelectionManager::instance()->selectedItem(Riu3dSelectionManager::RUI_TEMPORARY);
     RiuSimWellSelectionItem* simWellSelItem = dynamic_cast<RiuSimWellSelectionItem*>(selItem);
     if (simWellSelItem)
     {

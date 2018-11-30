@@ -20,7 +20,7 @@
 
 #include "RiaColorTables.h"
 
-#include "RiuSelectionManager.h"
+#include "Riu3dSelectionManager.h"
 #include "RiuSummaryQwtPlot.h"
 
 #include "RigFemPart.h"

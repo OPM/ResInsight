@@ -46,7 +46,7 @@
 #include "RimReservoirCellResultsStorage.h"
 #include "RimSimWellInViewCollection.h"
 
-#include "RiuSelectionManager.h"
+#include "Riu3dSelectionManager.h"
 
 #include <QTcpSocket>
 
@@ -599,7 +599,7 @@ public:
                                  std::vector<qint32>& cellK)
     {
         std::vector<RiuSelectionItem*> items;
-        RiuSelectionManager::instance()->selectedItems(items);
+        Riu3dSelectionManager::instance()->selectedItems(items);
 
         for (const RiuSelectionItem* item : items)
         {

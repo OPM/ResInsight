@@ -48,7 +48,7 @@ class RivWellPathSourceInfo;
 // 
 //
 //==================================================================================================
-class RiuSelectionManager
+class Riu3dSelectionManager
 {
 public:
     enum SelectionRole
@@ -58,7 +58,7 @@ public:
     };
 
 public:
-    static RiuSelectionManager* instance();
+    static Riu3dSelectionManager* instance();
 
     // Returns selected items
     // Selection manager owns the selection items
@@ -84,9 +84,9 @@ public:
     bool isEmpty(int role = RUI_APPLICATION_GLOBAL) const;
 
 private:
-    RiuSelectionManager();
-    ~RiuSelectionManager();
-    RiuSelectionManager(const RiuSelectionManager&) = delete;
+    Riu3dSelectionManager();
+    ~Riu3dSelectionManager();
+    Riu3dSelectionManager(const Riu3dSelectionManager&) = delete;
 
     void deleteAllItemsFromSelection(int role);
 

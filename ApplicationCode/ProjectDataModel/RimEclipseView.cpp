@@ -67,7 +67,7 @@
 #include "RimWellPathCollection.h"
 
 #include "RiuMainWindow.h"
-#include "RiuSelectionManager.h"
+#include "Riu3dSelectionManager.h"
 #include "RiuViewer.h"
 
 #include "RivReservoirSimWellsPartMgr.h"
@@ -1804,7 +1804,7 @@ bool RimEclipseView::showActiveCellsOnly()
 //--------------------------------------------------------------------------------------------------
 void RimEclipseView::createPartCollectionFromSelection(cvf::Collection<cvf::Part>* parts)
 {
-    RiuSelectionManager* riuSelManager = RiuSelectionManager::instance();
+    Riu3dSelectionManager* riuSelManager = Riu3dSelectionManager::instance();
     std::vector<RiuSelectionItem*> items;
     riuSelManager->selectedItems(items);
 

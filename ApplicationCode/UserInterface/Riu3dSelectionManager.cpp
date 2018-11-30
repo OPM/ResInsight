@@ -17,7 +17,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RiuSelectionManager.h"
+#include "Riu3dSelectionManager.h"
 
 #include "RimGridView.h"
 #include "RimEclipseView.h"
@@ -35,7 +35,7 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RiuSelectionManager::RiuSelectionManager()
+Riu3dSelectionManager::Riu3dSelectionManager()
     : m_notificationCenter(new RiuSelectionChangedHandler)
 {
     m_selection.resize(2);
@@ -44,7 +44,7 @@ RiuSelectionManager::RiuSelectionManager()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RiuSelectionManager::~RiuSelectionManager()
+Riu3dSelectionManager::~Riu3dSelectionManager()
 {
     deleteAllItemsFromSelection(RUI_APPLICATION_GLOBAL);
     deleteAllItemsFromSelection(RUI_TEMPORARY);
@@ -55,16 +55,16 @@ RiuSelectionManager::~RiuSelectionManager()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RiuSelectionManager* RiuSelectionManager::instance()
+Riu3dSelectionManager* Riu3dSelectionManager::instance()
 {
-    static RiuSelectionManager* singleton = new RiuSelectionManager;
+    static Riu3dSelectionManager* singleton = new Riu3dSelectionManager;
     return singleton;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuSelectionManager::selectedItems(std::vector<RiuSelectionItem*>& items, int role) const
+void Riu3dSelectionManager::selectedItems(std::vector<RiuSelectionItem*>& items, int role) const
 {
     const std::vector<RiuSelectionItem*>& s = m_selection[role];
 
@@ -75,7 +75,7 @@ void RiuSelectionManager::selectedItems(std::vector<RiuSelectionItem*>& items, i
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RiuSelectionItem* RiuSelectionManager::selectedItem(int role /*= RUI_APPLICATION_GLOBAL*/) const
+RiuSelectionItem* Riu3dSelectionManager::selectedItem(int role /*= RUI_APPLICATION_GLOBAL*/) const
 {
     const std::vector<RiuSelectionItem*>& s = m_selection[role];
 
@@ -93,7 +93,7 @@ RiuSelectionItem* RiuSelectionManager::selectedItem(int role /*= RUI_APPLICATION
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuSelectionManager::appendItemToSelection(RiuSelectionItem* item, int role)
+void Riu3dSelectionManager::appendItemToSelection(RiuSelectionItem* item, int role)
 {
     std::vector<RiuSelectionItem*>& s = m_selection[role];
 
@@ -105,7 +105,7 @@ void RiuSelectionManager::appendItemToSelection(RiuSelectionItem* item, int role
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuSelectionManager::setSelectedItem(RiuSelectionItem* item, int role)
+void Riu3dSelectionManager::setSelectedItem(RiuSelectionItem* item, int role)
 {
     deleteAllItemsFromSelection(role);
 
@@ -119,7 +119,7 @@ void RiuSelectionManager::setSelectedItem(RiuSelectionItem* item, int role)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuSelectionManager::deleteAllItems(int role)
+void Riu3dSelectionManager::deleteAllItems(int role)
 {
     if (!isEmpty(role))
     {
@@ -132,7 +132,7 @@ void RiuSelectionManager::deleteAllItems(int role)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RiuSelectionManager::isEmpty(int role) const
+bool Riu3dSelectionManager::isEmpty(int role) const
 {
     const std::vector<RiuSelectionItem*>& s = m_selection[role];
 
@@ -142,7 +142,7 @@ bool RiuSelectionManager::isEmpty(int role) const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuSelectionManager::deleteAllItemsFromSelection(int role)
+void Riu3dSelectionManager::deleteAllItemsFromSelection(int role)
 {
     std::vector<RiuSelectionItem*>& s = m_selection[role];
 

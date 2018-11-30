@@ -51,7 +51,7 @@
 #include "RimWellPathCompletions.h"
 
 #include "RiuPlotMainWindow.h"
-#include "RiuSelectionManager.h"
+#include "Riu3dSelectionManager.h"
 
 #include <QAction>
 #include <QDir>

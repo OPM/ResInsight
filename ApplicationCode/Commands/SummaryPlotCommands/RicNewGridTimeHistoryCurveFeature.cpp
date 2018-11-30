@@ -37,7 +37,7 @@
 #include "RimSummaryPlotCollection.h"
 
 #include "RiuPlotMainWindowTools.h"
-#include "RiuSelectionManager.h"
+#include "Riu3dSelectionManager.h"
 
 #include "cafPdmReferenceHelper.h"
 #include "cafPdmUiPropertyViewDialog.h"
@@ -206,7 +206,7 @@ bool RicNewGridTimeHistoryCurveFeature::isCommandEnabled()
     if (RicWellLogTools::isWellPathOrSimWellSelectedInView()) return false;
 
     std::vector<RiuSelectionItem*> items;
-    RiuSelectionManager::instance()->selectedItems(items);
+    Riu3dSelectionManager::instance()->selectedItems(items);
 
     if (items.size() > 0)
     {
@@ -234,7 +234,7 @@ void RicNewGridTimeHistoryCurveFeature::onActionTriggered(bool isChecked)
     if (!summaryPlot) return;
 
     std::vector<RiuSelectionItem*> items;
-    RiuSelectionManager::instance()->selectedItems(items);
+    Riu3dSelectionManager::instance()->selectedItems(items);
     CVF_ASSERT(items.size() > 0);
 
     for (auto item : items)
