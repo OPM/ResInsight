@@ -53,8 +53,7 @@ Start ResInsight by typing : `ResInsight`
 
 1. Install Octave directly from the package manager in Linux. See the documentation for your particular distribution. 
 2. Launch ResInsight, open **Edit->Preferences** 
-3. Enter the path to the Octave command line interpreter executable.  
-  ( usually just _`octave`_. )
+3. Enter the path to the Octave command line interpreter executable `octave-cli` (for older version of octave use `octave`)
 
 <div class="note info">
 The precompiled octave interface distributed in the tarball is only tested for RedHat 6. <br>
