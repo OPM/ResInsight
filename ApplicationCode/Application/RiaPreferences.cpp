@@ -249,7 +249,9 @@ QList<caf::PdmOptionItemInfo> RiaPreferences::calculateValueOptions(const caf::P
     {
         QStringList fontSizes;
         fontSizes <<  "8";
+        fontSizes << "10";
         fontSizes << "12";
+        fontSizes << "14";
         fontSizes << "16";
         fontSizes << "24";
         fontSizes << "32";

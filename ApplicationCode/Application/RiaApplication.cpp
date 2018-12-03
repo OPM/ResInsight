@@ -1832,9 +1832,17 @@ void RiaApplication::applyPreferences()
     {
         fontSizeType = caf::FixedAtlasFont::POINT_SIZE_8;
     }
+    else if (m_preferences->fontSizeInScene() == "10")
+    {
+        fontSizeType = caf::FixedAtlasFont::POINT_SIZE_10;
+    }
     else if (m_preferences->fontSizeInScene() == "12")
     {
         fontSizeType = caf::FixedAtlasFont::POINT_SIZE_12;
+    }
+    else if (m_preferences->fontSizeInScene() == "14")
+    {
+        fontSizeType = caf::FixedAtlasFont::POINT_SIZE_14;
     }
     else if (m_preferences->fontSizeInScene() == "16")
     {
