@@ -328,13 +328,7 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions(const std::ve
                 std::vector<RigCompletionData> completionsForWell;
                 for (const auto& completion : completions)
                 {
-                    RimWellPath* parentWellPath = nullptr;
-                    if (completion.sourcePdmObject())
-                    {
-                        completion.sourcePdmObject()->firstAncestorOrThisOfType(parentWellPath);
-                    }
-
-                    if (parentWellPath == wellPath)
+                    if (RicWellPathExportCompletionDataFeatureImpl::isCompletionWellPathEqual(completion, wellPath))
                     {
                         completionsForWell.push_back(completion);
                     }
@@ -375,15 +369,9 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions(const std::ve
                     std::vector<RigCompletionData> completionsForWell;
                     for (const auto& completion : completions)
                     {
-                        RimWellPath* parentWellPath = nullptr;
-                        if (completion.sourcePdmObject())
+                        if (completionType == completion.completionType())
                         {
-                            completion.sourcePdmObject()->firstAncestorOrThisOfType(parentWellPath);
-                        }
-
-                        if (parentWellPath == wellPath)
-                        {
-                            if (completionType == completion.completionType())
+                            if (RicWellPathExportCompletionDataFeatureImpl::isCompletionWellPathEqual(completion, wellPath))
                             {
                                 completionsForWell.push_back(completion);
                             }
@@ -2689,6 +2677,23 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCarfinForTemporaryLgrs(co
     {
         RicExportLgrFeature::exportLgrs(folder, lgrInfoForWell.first, lgrInfoForWell.second);
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RicWellPathExportCompletionDataFeatureImpl::isCompletionWellPathEqual(const RigCompletionData& completion,
+                                                                           const RimWellPath*       wellPath)
+{
+    if (!wellPath) return false;
+
+    RimWellPath* parentWellPath = nullptr;
+    if (completion.sourcePdmObject())
+    {
+        completion.sourcePdmObject()->firstAncestorOrThisOfType(parentWellPath);
+    }
+
+    return (parentWellPath == wellPath);
 }
 
 //--------------------------------------------------------------------------------------------------
