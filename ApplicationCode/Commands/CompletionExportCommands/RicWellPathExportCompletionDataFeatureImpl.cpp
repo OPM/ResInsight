@@ -328,7 +328,13 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions(const std::ve
                 std::vector<RigCompletionData> completionsForWell;
                 for (const auto& completion : completions)
                 {
-                    if (completion.wellName() == wellPath->completions()->wellNameForExport())
+                    RimWellPath* parentWellPath = nullptr;
+                    if (completion.sourcePdmObject())
+                    {
+                        completion.sourcePdmObject()->firstAncestorOrThisOfType(parentWellPath);
+                    }
+
+                    if (parentWellPath == wellPath)
                     {
                         completionsForWell.push_back(completion);
                     }
@@ -369,10 +375,18 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions(const std::ve
                     std::vector<RigCompletionData> completionsForWell;
                     for (const auto& completion : completions)
                     {
-                        if (completion.wellName() == wellPath->completions()->wellNameForExport() &&
-                            completionType == completion.completionType())
+                        RimWellPath* parentWellPath = nullptr;
+                        if (completion.sourcePdmObject())
                         {
-                            completionsForWell.push_back(completion);
+                            completion.sourcePdmObject()->firstAncestorOrThisOfType(parentWellPath);
+                        }
+
+                        if (parentWellPath == wellPath)
+                        {
+                            if (completionType == completion.completionType())
+                            {
+                                completionsForWell.push_back(completion);
+                            }
                         }
                     }
 
@@ -990,6 +1004,11 @@ RigCompletionData
 {
     CVF_ASSERT(!completions.empty());
 
+    if (completions.size() == 1)
+    {
+        return completions[0];
+    }
+
     const RigCompletionData& firstCompletion = completions[0];
 
     const QString&                    wellName       = firstCompletion.wellName();
@@ -998,6 +1017,7 @@ RigCompletionData
 
     RigCompletionData resultCompletion(wellName, cellIndexIJK, firstCompletion.firstOrderingValue());
     resultCompletion.setSecondOrderingValue(firstCompletion.secondOrderingValue());
+    resultCompletion.setSourcePdmObject(firstCompletion.sourcePdmObject());
 
     bool anyNonDarcyFlowPresent = false;
     for (const auto& c : completions)
