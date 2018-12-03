@@ -20,10 +20,11 @@
 
 #include "RiaApplication.h"
 
-#include "RimTextAnnotation.h"
 #include "RimAnnotationInViewCollection.h"
-#include "RimGridView.h"
+#include "RimContourMapView.h"
 #include "RimCase.h"
+#include "RimGridView.h"
+#include "RimTextAnnotation.h"
 
 #include "RiuMainWindow.h"
 #include "RiuViewer.h"
@@ -51,10 +52,14 @@ void RicCreateTextAnnotationIn3dViewFeature::onActionTriggered(bool isChecked)
 
 {
     RimGridView* activeView = RiaApplication::instance()->activeGridView();
+    RimContourMapView * contMapView = dynamic_cast<RimContourMapView*>(activeView);
+
     if ( activeView )
     {
         cvf::Vec3d domainCoord = activeView->viewer()->lastPickPositionInDomainCoords();
         cvf::BoundingBox bbox = activeView->ownerCase()->activeCellsBoundingBox();
+
+        if (contMapView) domainCoord[2] = bbox.max().z() - bbox.extent().z() * 0.2;
 
         auto coll =  activeView->annotationCollection();
        
@@ -63,12 +68,23 @@ void RicCreateTextAnnotationIn3dViewFeature::onActionTriggered(bool isChecked)
             auto newAnnotation = new RimTextAnnotation();
             newAnnotation->setAnchorPoint(domainCoord);
             cvf::Vec3d labelPos = domainCoord;
-            labelPos.z() = bbox.max().z();
-            double height = labelPos.z() - domainCoord.z();
+            
+            if (activeView->viewer()->mainCamera()->direction().z() <= 0)
+            {
+                labelPos.z() = bbox.max().z();
+            }
+            else
+            {
+                labelPos.z() = bbox.min().z();
+            }
+
             cvf::Vec3d horizontalRight = activeView->viewer()->mainCamera()->direction() ^ cvf::Vec3d::Z_AXIS;
+            cvf::Vec3d horizontalUp    = activeView->viewer()->mainCamera()->up() - (cvf::Vec3d::Z_AXIS * (activeView->viewer()->mainCamera()->up() * cvf::Vec3d::Z_AXIS) );
             bool isOk = horizontalRight.normalize();
             if (!isOk) horizontalRight = {1.0, 0.0, 0.0};
-            newAnnotation->setLabelPoint(labelPos + horizontalRight*0.5*height);
+
+            double height = fabs(labelPos.z() - domainCoord.z());
+            newAnnotation->setLabelPoint(labelPos + 2.0*height * (horizontalRight + horizontalUp));
 
             coll->addAnnotation(newAnnotation);
             coll->scheduleRedrawOfRelevantViews();
