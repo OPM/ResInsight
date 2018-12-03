@@ -240,7 +240,9 @@ RimAnnotationInViewCollection* RivTextAnnotationPartMgr::annotationCollection() 
 //--------------------------------------------------------------------------------------------------
 RimTextAnnotation* RivTextAnnotationPartMgr::rimAnnotation() const
 {
-    return m_rimAnnotationLocal ? m_rimAnnotationLocal : m_rimAnnotationInView->sourceAnnotation();
+    if (m_rimAnnotationLocal) return m_rimAnnotationLocal;
+
+    return m_rimAnnotationInView->sourceAnnotation();
 }
 
 //--------------------------------------------------------------------------------------------------
