@@ -33,6 +33,7 @@
 #include <vector>
 #include <memory>
 
+class RicMswCompletion;
 class RigCell;
 class RigEclipseCaseData;
 class RigMainGrid;
@@ -41,6 +42,7 @@ class RimFishbonesMultipleSubs;
 class RimSimWellInView;
 class RimPerforationInterval;
 class RimWellPath;
+class RimWellPathValve;
 class RimWellPathFracture;
 class RimNonDarcyPerforationParameters;
 class RifEclipseDataTableFormatter;
@@ -186,6 +188,24 @@ public:
                                                                 const RicMswExportInfo& exportInfo);
 
 private:
+    typedef std::vector<std::shared_ptr<RicMswSegment>> MainBoreSegments;
+    typedef std::map<std::pair<const RimWellPathValve*, size_t>, std::shared_ptr<RicMswCompletion>> ValveCompletionMap;
+    typedef std::map <std::shared_ptr<RicMswCompletion>, std::set<std::pair<const RimWellPathValve*, size_t>>> ValveContributionMap;
+
+    static MainBoreSegments createMainBoreSegments(const std::vector<SubSegmentIntersectionInfo>&    subSegIntersections,
+                                                   const std::vector<const RimPerforationInterval*>& perforationIntervals,
+                                                   const RimWellPath*                                wellPath,
+                                                   const RicExportCompletionDataSettingsUi&          exportSettings,
+                                                   bool*                                             foundSubGridIntersections);
+
+    static ValveCompletionMap assignPrimaryValveCompletions(std::vector<std::shared_ptr<RicMswSegment>>&      mainBoreSegments,
+                                                        const std::vector<const RimPerforationInterval*>& perforationIntervals);
+
+    static void assignSecondaryValveContributions(std::vector<std::shared_ptr<RicMswSegment>>&      mainBoreSegments,
+                                         const std::vector<const RimPerforationInterval*>& perforationIntervals,
+                                         const ValveCompletionMap&                         primaryValveLocations,
+                                         RiaEclipseUnitTools::UnitSystem                   unitSystem);
+
     static double                         calculateTransmissibilityAsEclipseDoes(RimEclipseCase* eclipseCase,
                                                                                  double skinFactor,
                                                                                  double wellRadius,
@@ -242,25 +262,23 @@ private:
 
     static void                           assignFishbonesLateralIntersections(const RimEclipseCase*           caseToApply,
                                                                               const RimFishbonesMultipleSubs* fishbonesSubs,
-                                                                              RicMswSegment*                  location,
+                                                                              std::shared_ptr<RicMswSegment>  location,
                                                                               bool*                           foundSubGridIntersections,
                                                                               double                          maxSegmentLength);
 
     static void                           assignFractureIntersections(const RimEclipseCase*                 caseToApply,
                                                                       const RimWellPathFracture*            fracture,
                                                                       const std::vector<RigCompletionData>& completionData,
-                                                                      RicMswSegment*                        location,
+                                                                      std::shared_ptr<RicMswSegment>        location,
                                                                       bool*                                 foundSubGridIntersections);
 
-    static void                           assignPerforationIntervalIntersections(const RimEclipseCase*                 caseToApply,
-                                                                                 const RimPerforationInterval*         interval,
-                                                                                 const std::vector<RigCompletionData>& completionData,
-                                                                                 RicMswSegment*                        location,
-                                                                                 const SubSegmentIntersectionInfo*     cellIntInfo,
-                                                                                 bool* foundSubGridIntersections);
+    static void                           assignPerforationIntervalIntersections(const std::vector<RigCompletionData>& completionData,
+                                                                                 std::shared_ptr<RicMswCompletion>     perforationCompletion,
+                                                                                 const SubSegmentIntersectionInfo&     cellIntInfo,
+                                                                                 bool*                                 foundSubGridIntersections);
 
     static void                           assignBranchAndSegmentNumbers(const RimEclipseCase* caseToApply,
-                                                                        RicMswSegment*        location,
+                                                                        std::shared_ptr<RicMswSegment>        location,
                                                                         int*                  branchNum,
                                                                         int*                  segmentNum);
     static void                           assignBranchAndSegmentNumbers(const RimEclipseCase* caseToApply,

@@ -179,7 +179,7 @@ double RimWellPathValve::convertOrificeDiameter(double                          
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<std::pair<double, double>> RimWellPathValve::segmentsBetweenValves() const
+std::vector<std::pair<double, double>> RimWellPathValve::valveSegments() const
 {
     RimPerforationInterval* perforationInterval = nullptr;
     this->firstAncestorOrThisOfType(perforationInterval);

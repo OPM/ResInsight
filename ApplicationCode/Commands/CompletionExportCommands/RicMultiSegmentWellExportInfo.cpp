@@ -134,7 +134,7 @@ void RicMswSubSegment::setAttachedSegmentNumber(int attachedSegmentNumber)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicMswSubSegment::addIntersection(const RicMswSubSegmentCellIntersection& intersection)
+void RicMswSubSegment::addIntersection(std::shared_ptr<RicMswSubSegmentCellIntersection> intersection)
 {
     m_intersections.push_back(intersection);
 }
@@ -142,7 +142,7 @@ void RicMswSubSegment::addIntersection(const RicMswSubSegmentCellIntersection& i
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::vector<RicMswSubSegmentCellIntersection>& RicMswSubSegment::intersections() const
+const std::vector<std::shared_ptr<RicMswSubSegmentCellIntersection>>& RicMswSubSegment::intersections() const
 {
     return m_intersections;
 }
@@ -150,7 +150,7 @@ const std::vector<RicMswSubSegmentCellIntersection>& RicMswSubSegment::intersect
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RicMswSubSegmentCellIntersection>& RicMswSubSegment::intersections()
+std::vector<std::shared_ptr<RicMswSubSegmentCellIntersection>>& RicMswSubSegment::intersections()
 {
     return m_intersections;
 }
@@ -212,7 +212,7 @@ void RicMswCompletion::setBranchNumber(int branchNumber)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicMswCompletion::addSubSegment(const RicMswSubSegment& subSegment)
+void RicMswCompletion::addSubSegment(std::shared_ptr<RicMswSubSegment> subSegment)
 {
     m_subSegments.push_back(subSegment);
 }
@@ -220,7 +220,7 @@ void RicMswCompletion::addSubSegment(const RicMswSubSegment& subSegment)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RicMswSubSegment>& RicMswCompletion::subSegments()
+std::vector<std::shared_ptr<RicMswSubSegment>>& RicMswCompletion::subSegments()
 {
     return m_subSegments;
 }
@@ -228,9 +228,17 @@ std::vector<RicMswSubSegment>& RicMswCompletion::subSegments()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::vector<RicMswSubSegment>& RicMswCompletion::subSegments() const
+const std::vector<std::shared_ptr<RicMswSubSegment>>& RicMswCompletion::subSegments() const
 {
     return m_subSegments;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicMswCompletion::setLabel(const QString& label)
+{
+    m_label = label;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -382,7 +390,7 @@ int RicMswSegment::segmentNumber() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::vector<RicMswCompletion>& RicMswSegment::completions() const
+const std::vector<std::shared_ptr<RicMswCompletion>>& RicMswSegment::completions() const
 {
     return m_completions;
 }
@@ -390,7 +398,7 @@ const std::vector<RicMswCompletion>& RicMswSegment::completions() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RicMswCompletion>& RicMswSegment::completions()
+std::vector<std::shared_ptr<RicMswCompletion>>& RicMswSegment::completions()
 {
     return m_completions;
 }
@@ -462,7 +470,7 @@ void RicMswSegment::setSegmentNumber(int segmentNumber)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicMswSegment::addCompletion(const RicMswCompletion& completion)
+void RicMswSegment::addCompletion(std::shared_ptr<RicMswCompletion> completion)
 {
     m_completions.push_back(completion);
 }
@@ -546,7 +554,7 @@ void RicMswExportInfo::setHasSubGridIntersections(bool subGridIntersections)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicMswExportInfo::addWellSegmentLocation(const RicMswSegment& location)
+void RicMswExportInfo::addWellSegment(std::shared_ptr<RicMswSegment> location)
 {
     m_wellSegmentLocations.push_back(location);
 }
@@ -556,7 +564,12 @@ void RicMswExportInfo::addWellSegmentLocation(const RicMswSegment& location)
 //--------------------------------------------------------------------------------------------------
 void RicMswExportInfo::sortLocations()
 {
-    std::sort(m_wellSegmentLocations.begin(), m_wellSegmentLocations.end());
+    std::sort(m_wellSegmentLocations.begin(),
+              m_wellSegmentLocations.end(),
+        [](std::shared_ptr<RicMswSegment> lhs, std::shared_ptr<RicMswSegment> rhs)
+    {
+        return *lhs < *rhs;
+    });
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -650,7 +663,7 @@ double RicMswExportInfo::defaultDoubleValue()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::vector<RicMswSegment>& RicMswExportInfo::wellSegmentLocations() const
+const std::vector<std::shared_ptr<RicMswSegment>>& RicMswExportInfo::wellSegmentLocations() const
 {
     return m_wellSegmentLocations;
 }
@@ -658,7 +671,7 @@ const std::vector<RicMswSegment>& RicMswExportInfo::wellSegmentLocations() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RicMswSegment>& RicMswExportInfo::wellSegmentLocations()
+std::vector<std::shared_ptr<RicMswSegment>>& RicMswExportInfo::wellSegmentLocations()
 {
     return m_wellSegmentLocations;
 }

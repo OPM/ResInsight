@@ -27,6 +27,8 @@
 
 #include <QString>
 
+#include <memory>
+
 class RimWellPath;
 class RimFishbonesMultipleSubs;
 
@@ -72,10 +74,10 @@ public:
 
     void              setSegmentNumber(int segmentNumber);
     void              setAttachedSegmentNumber(int attachedSegmentNumber);
-    void              addIntersection(const RicMswSubSegmentCellIntersection& intersection);
+    void              addIntersection(std::shared_ptr<RicMswSubSegmentCellIntersection> intersection);
 
-    const std::vector<RicMswSubSegmentCellIntersection>& intersections() const;
-    std::vector<RicMswSubSegmentCellIntersection>&       intersections();
+    const std::vector<std::shared_ptr<RicMswSubSegmentCellIntersection>>& intersections() const;
+    std::vector<std::shared_ptr<RicMswSubSegmentCellIntersection>>&       intersections();
     
 
 private:
@@ -86,7 +88,7 @@ private:
     int         m_segmentNumber;
     int         m_attachedSegmentNumber;
 
-    std::vector<RicMswSubSegmentCellIntersection> m_intersections;
+    std::vector<std::shared_ptr<RicMswSubSegmentCellIntersection>> m_intersections;
 };
 
 //==================================================================================================
@@ -103,17 +105,20 @@ public:
     int                                  branchNumber() const;
     void                                 setBranchNumber(int branchNumber);
 
-    void                                 addSubSegment(const RicMswSubSegment& subSegment);
+    void                                 addSubSegment(std::shared_ptr<RicMswSubSegment> subSegment);
 
-    std::vector<RicMswSubSegment>&       subSegments();
-    const std::vector<RicMswSubSegment>& subSegments() const;
-    
+    std::vector<std::shared_ptr<RicMswSubSegment>>&       subSegments();
+    const std::vector<std::shared_ptr<RicMswSubSegment>>& subSegments() const;
+
+    void                                 setLabel(const QString& label);
+
 private:
     RigCompletionData::CompletionType    m_completionType;
     QString                              m_label;
     size_t                               m_index;
     int                                  m_branchNumber;
-    std::vector<RicMswSubSegment>        m_subSegments;
+
+    std::vector<std::shared_ptr<RicMswSubSegment>> m_subSegments;
 };
 
 //==================================================================================================
@@ -149,8 +154,8 @@ public:
     size_t  subIndex() const;
     int     segmentNumber() const;
 
-    const std::vector<RicMswCompletion>& completions() const;
-    std::vector<RicMswCompletion>&       completions();
+    const std::vector<std::shared_ptr<RicMswCompletion>>& completions() const;
+    std::vector<std::shared_ptr<RicMswCompletion>>&       completions();
 
     void setLabel(const QString& label);
     void setEffectiveDiameter(double effectiveDiameter);
@@ -160,7 +165,7 @@ public:
     void setIcdFlowCoefficient(double icdFlowCoefficient);
     void setIcdArea(double icdArea);
     void setSegmentNumber(int segmentNumber);
-    void addCompletion(const RicMswCompletion& completion);
+    void addCompletion(std::shared_ptr<RicMswCompletion> completion);
 
     void setSourcePdmObject(const caf::PdmObject* object);
     const caf::PdmObject* sourcePdmObject() const;
@@ -184,7 +189,7 @@ private:
     size_t                          m_subIndex;
     int                             m_segmentNumber;
 
-    std::vector<RicMswCompletion> m_completions;
+    std::vector<std::shared_ptr<RicMswCompletion>> m_completions;
 
     caf::PdmPointer<caf::PdmObject> m_sourcePdmObject;
 };
@@ -203,7 +208,7 @@ public:
     void setRoughnessFactor(double roughnessFactor);
     void setHasSubGridIntersections(bool subGridIntersections);
 
-    void addWellSegmentLocation(const RicMswSegment& location);
+    void addWellSegment(std::shared_ptr<RicMswSegment> location);
     void sortLocations();
 
     const RimWellPath*              wellPath() const;
@@ -218,8 +223,8 @@ public:
     bool                            hasSubGridIntersections() const;
     static double                   defaultDoubleValue();
 
-    const std::vector<RicMswSegment>& wellSegmentLocations() const;
-    std::vector<RicMswSegment>&       wellSegmentLocations();
+    const std::vector<std::shared_ptr<RicMswSegment>>& wellSegmentLocations() const;
+    std::vector<std::shared_ptr<RicMswSegment>>&       wellSegmentLocations();
 
 private:
     const RimWellPath*                m_wellPath;
@@ -231,6 +236,7 @@ private:
     QString                           m_lengthAndDepthText;
     QString                           m_pressureDropText;
     bool                              m_hasSubGridIntersections;
-    std::vector<RicMswSegment>        m_wellSegmentLocations;
+    
+    std::vector<std::shared_ptr<RicMswSegment>> m_wellSegmentLocations;
 };
 
