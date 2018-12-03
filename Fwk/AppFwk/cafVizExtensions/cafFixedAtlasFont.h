@@ -63,7 +63,9 @@ public:
     enum FontSize
     {
         POINT_SIZE_8,           // 8pt
+        POINT_SIZE_10,
         POINT_SIZE_12,
+        POINT_SIZE_14,
         POINT_SIZE_16,              // 16pt
         POINT_SIZE_24,
         POINT_SIZE_32
