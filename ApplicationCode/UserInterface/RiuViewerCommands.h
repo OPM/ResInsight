@@ -89,4 +89,5 @@ private:
 
     static RicPickEventHandler*                         sm_overridingPickHandler;
     static std::vector<RicDefaultPickEventHandler*>     sm_defaultPickEventHandlers;
+    void handleTextPicking(int winPosX, int winPosY, cvf::HitItemCollection* hitItems);
 };

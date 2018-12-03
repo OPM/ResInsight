@@ -1,7 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2015-     Statoil ASA
-//  Copyright (C) 2015-     Ceetron Solutions AS
+//  Copyright (C) 2018-     equinor ASA
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -19,15 +18,13 @@
 
 #include "RivTextAnnotationSourceInfo.h"
 
-#include "RimEclipseView.h"
-#include "RimAnnotationInViewCollection.h"
 #include "RimTextAnnotation.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 RivTextAnnotationSourceInfo::RivTextAnnotationSourceInfo(RimTextAnnotation* annotation)
-    : m_annotation(annotation)
+    : RivObjectSourceInfo(annotation)
 {
 }
 
@@ -36,5 +33,5 @@ RivTextAnnotationSourceInfo::RivTextAnnotationSourceInfo(RimTextAnnotation* anno
 //--------------------------------------------------------------------------------------------------
 RimTextAnnotation* RivTextAnnotationSourceInfo::annotation() const
 {
-    return m_annotation.p();
+    return dynamic_cast<RimTextAnnotation*>( this->object() );
 }

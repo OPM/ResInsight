@@ -100,6 +100,11 @@
 #include <QStatusBar>
 
 #include <array>
+#include "cvfScene.h"
+#include "RivPartPriority.h"
+#include "cvfDrawableText.h"
+#include "cvfRay.h"
+#include "RimTextAnnotation.h"
 
 
 
@@ -111,7 +116,6 @@
 RicPickEventHandler*                  RiuViewerCommands::sm_overridingPickHandler = nullptr;
 
 std::vector<RicDefaultPickEventHandler*>     RiuViewerCommands::sm_defaultPickEventHandlers;
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -522,12 +526,14 @@ void RiuViewerCommands::handlePickAction(int winPosX, int winPosY, Qt::KeyboardM
     std::vector<RiuPickItemInfo> pickItemInfos;
     {
         cvf::HitItemCollection hitItems;
-        if ( m_viewer->rayPick(winPosX, winPosY, &hitItems) )
+        m_viewer->rayPick(winPosX, winPosY, &hitItems);
+
+        // Do specialized text pick, since vizfwk does not hit text
+        handleTextPicking(winPosX, winPosY, &hitItems);
+
+        if ( hitItems.count() )
         {
-            if ( hitItems.count() )
-            {
-                pickItemInfos = RiuPickItemInfo::convertToPickItemInfos(hitItems);
-            }
+            pickItemInfos = RiuPickItemInfo::convertToPickItemInfos(hitItems);
         }
     }
 
@@ -620,54 +626,62 @@ void RiuViewerCommands::handlePickAction(int winPosX, int winPosY, Qt::KeyboardM
             if (rivObjectSourceInfo)
             {
                 RimFracture* fracture = dynamic_cast<RimFracture*>(rivObjectSourceInfo->object());
-
+                if ( fracture )
                 {
-                    bool blockSelectionOfFracture = false;
-                    if (fracture)
                     {
-                        std::vector<caf::PdmUiItem*> uiItems;
-                        RiuMainWindow::instance()->projectTreeView()->selectedUiItems(uiItems);
+                        bool blockSelectionOfFracture = false;
 
-                        if (uiItems.size() == 1)
                         {
-                            auto selectedFractureTemplate = dynamic_cast<RimFractureTemplate*>(uiItems[0]);
+                            std::vector<caf::PdmUiItem*> uiItems;
+                            RiuMainWindow::instance()->projectTreeView()->selectedUiItems(uiItems);
 
-                            if (selectedFractureTemplate != nullptr && selectedFractureTemplate == fracture->fractureTemplate())
+                            if ( uiItems.size() == 1 )
                             {
-                                blockSelectionOfFracture = true;
+                                auto selectedFractureTemplate = dynamic_cast<RimFractureTemplate*>(uiItems[0]);
+
+                                if ( selectedFractureTemplate != nullptr && selectedFractureTemplate == fracture->fractureTemplate() )
+                                {
+                                    blockSelectionOfFracture = true;
+                                }
                             }
+                        }
+
+                        if ( !blockSelectionOfFracture )
+                        {
+                            RiuMainWindow::instance()->selectAsCurrentItem(fracture);
                         }
                     }
 
-                    if (!blockSelectionOfFracture)
+
+                    RimStimPlanFractureTemplate* stimPlanTempl = fracture ? dynamic_cast<RimStimPlanFractureTemplate*>(fracture->fractureTemplate()) : nullptr;
+                    RimEllipseFractureTemplate* ellipseTempl = fracture ? dynamic_cast<RimEllipseFractureTemplate*>(fracture->fractureTemplate()) : nullptr;
+                    if ( stimPlanTempl || ellipseTempl )
                     {
-                        RiuMainWindow::instance()->selectAsCurrentItem(fracture);
+                        // Set fracture resultInfo text
+                        QString resultInfoText;
+
+                        cvf::ref<caf::DisplayCoordTransform> transForm = m_reservoirView->displayCoordTransform();
+                        cvf::Vec3d domainCoord = transForm->transformToDomainCoord(globalIntersectionPoint);
+
+                        RimEclipseView* eclView = dynamic_cast<RimEclipseView*>(m_reservoirView.p());
+                        RivWellFracturePartMgr* partMgr = fracture->fracturePartManager();
+                        if ( eclView ) resultInfoText = partMgr->resultInfoText(*eclView, domainCoord);
+
+                        // Set intersection point result text
+                        QString intersectionPointText;
+
+                        intersectionPointText.sprintf("Intersection point : Global [E: %.2f, N: %.2f, Depth: %.2f]", domainCoord.x(), domainCoord.y(), -domainCoord.z());
+                        resultInfoText.append(intersectionPointText);
+
+                        // Display result info text
+                        RiuMainWindow::instance()->setResultInfo(resultInfoText);
                     }
                 }
 
-
-                RimStimPlanFractureTemplate* stimPlanTempl = fracture ? dynamic_cast<RimStimPlanFractureTemplate*>(fracture->fractureTemplate()) : nullptr;
-                RimEllipseFractureTemplate* ellipseTempl = fracture ? dynamic_cast<RimEllipseFractureTemplate*>(fracture->fractureTemplate()) : nullptr;
-                if (stimPlanTempl || ellipseTempl)
+                RimTextAnnotation* textAnnot = dynamic_cast<RimTextAnnotation*>(rivObjectSourceInfo->object());
+                if (textAnnot)
                 {
-                    // Set fracture resultInfo text
-                    QString resultInfoText;
-
-                    cvf::ref<caf::DisplayCoordTransform> transForm = m_reservoirView->displayCoordTransform();
-                    cvf::Vec3d domainCoord = transForm->transformToDomainCoord(globalIntersectionPoint);
-
-                    RimEclipseView* eclView = dynamic_cast<RimEclipseView*>(m_reservoirView.p());
-                    RivWellFracturePartMgr* partMgr = fracture->fracturePartManager();
-                    if (eclView) resultInfoText = partMgr->resultInfoText(*eclView, domainCoord);
-
-                    // Set intersection point result text
-                    QString intersectionPointText;
-
-                    intersectionPointText.sprintf("Intersection point : Global [E: %.2f, N: %.2f, Depth: %.2f]", domainCoord.x(), domainCoord.y(), -domainCoord.z());
-                    resultInfoText.append(intersectionPointText);
-
-                    // Display result info text
-                    RiuMainWindow::instance()->setResultInfo(resultInfoText);
+                    RiuMainWindow::instance()->selectAsCurrentItem(textAnnot, true);
                 }
             }
             
@@ -1124,3 +1138,41 @@ bool RiuViewerCommands::handleOverlayItemPicking(int winPosX, int winPosY)
 
     return false;
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuViewerCommands::handleTextPicking(int winPosX, int winPosY, cvf::HitItemCollection* hitItems)
+{
+    using namespace cvf;
+
+    int translatedMousePosX = winPosX;
+    int translatedMousePosY = m_viewer->height() - winPosY;
+
+    Scene* scene = m_viewer->currentScene();
+    Collection<Part> partCollection;
+    scene->allParts(&partCollection);
+
+    ref<Ray> ray = m_viewer->mainCamera()->rayFromWindowCoordinates(translatedMousePosX, translatedMousePosY);
+
+    for (size_t pIdx = 0; pIdx < partCollection.size(); ++pIdx)
+    {
+        if (partCollection[pIdx]->priority() ==  RivPartPriority::PartType::Text) // Just trying to avoid dyncasting all drawables
+        {
+            DrawableText* textDrawable = dynamic_cast<DrawableText*> (partCollection[pIdx]->drawable());
+            if (textDrawable)
+            {
+                cvf::Vec3d ppoint; 
+                if (textDrawable->rayIntersect(*ray, *( m_viewer->mainCamera()), &ppoint))
+                {
+                    cvf::ref<HitItem> hitItem = new HitItem(0, ppoint);
+                    hitItem->setPart(partCollection[pIdx].p());
+                    hitItems->add(hitItem.p());
+                }
+            }
+        }
+    }
+
+    hitItems->sort();
+}
+

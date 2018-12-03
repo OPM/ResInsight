@@ -1,7 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2015-     Statoil ASA
-//  Copyright (C) 2015-     Ceetron Solutions AS
+//  Copyright (C) 2018-     equinor ASA
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -19,14 +18,11 @@
 
 #pragma once
 
-#include "cvfBase.h"
-#include "cvfObject.h"
-#include "cafPdmPointer.h"
+#include "RivObjectSourceInfo.h"
 
-//class RimAnnotationInView;
 class RimTextAnnotation;
 
-class RivTextAnnotationSourceInfo : public cvf::Object
+class RivTextAnnotationSourceInfo : public RivObjectSourceInfo
 {
 public:
     RivTextAnnotationSourceInfo(RimTextAnnotation* annotation);
