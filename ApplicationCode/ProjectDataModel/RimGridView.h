@@ -23,6 +23,7 @@
 #include "cvfBase.h"
 #include "cvfArray.h"
 
+class RimAnnotationInViewCollection;
 class RimContourMapProjection;
 class Rim3dOverlayInfoConfig;
 class RimIntersectionCollection;
@@ -50,7 +51,9 @@ public:
     void                                              rangeFiltersUpdated();
     RimCellRangeFilterCollection*                     rangeFilterCollection();
     const RimCellRangeFilterCollection*               rangeFilterCollection() const;
-                                                      
+
+    RimAnnotationInViewCollection*                    annotationCollection() const;
+
     bool                                              hasOverridenRangeFilterCollection();
     void                                              setOverrideRangeFilterCollection(RimCellRangeFilterCollection* rfc);
     void                                              replaceRangeFilterCollectionWithOverride();
@@ -78,6 +81,8 @@ protected: // Fields
     caf::PdmChildField<RimCellRangeFilterCollection*> m_rangeFilterCollection;
     caf::PdmChildField<RimCellRangeFilterCollection*> m_overrideRangeFilterCollection;
     caf::PdmChildField<RimGridCollection*>            m_gridCollection;
+    caf::PdmChildField<RimAnnotationInViewCollection*> m_annotationCollection;
+
 protected:
     cvf::ref<cvf::UByteArray>                         m_currentReservoirCellVisibility;
 

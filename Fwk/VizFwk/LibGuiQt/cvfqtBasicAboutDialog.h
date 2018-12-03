@@ -37,7 +37,12 @@
 
 #pragma once
 
+#include <QtCore/QString>
+#if QT_VERSION >= 0x050000
+#include <QDialog>
+#else
 #include <QtGui/QDialog>
+#endif
 
 class QGridLayout;
 

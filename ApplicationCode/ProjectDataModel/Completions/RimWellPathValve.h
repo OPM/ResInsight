@@ -17,6 +17,8 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
+#include "RiaEclipseUnitTools.h"
+
 #include "RimCheckableNamedObject.h"
 #include "RimWellPathComponentInterface.h"
 
@@ -44,6 +46,16 @@ public:
     void                       setMeasuredDepthAndCount(double startMD, double spacing, int valveCount);
     void                       geometryUpdated();
     std::vector<double>        valveLocations() const;
+    double                     orificeDiameter(RiaEclipseUnitTools::UnitSystem unitSystem) const;
+    double                     flowCoefficient() const;
+    void                       setUnitSpecificDefaults();
+
+    static double convertOrificeDiameter(double                          orificeDiameterUi,
+                                         RiaEclipseUnitTools::UnitSystem wellPathUnitSystem,
+                                         RiaEclipseUnitTools::UnitSystem wantedUnitSystem);
+
+    std::vector<std::pair<double, double>> segmentsBetweenValves() const;
+
 
     // Overrides from RimWellPathCompletionInterface
     bool                              isEnabled() const override;
@@ -53,7 +65,7 @@ public:
     cvf::Color3f                      defaultComponentColor() const override;
     double                            startMD() const override;
     double                            endMD() const override;
-    
+       
 private:
     QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
     void                          fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
@@ -65,6 +77,10 @@ private:
     caf::PdmField<CompletionTypeEnum>              m_type;
     caf::PdmField<double>                          m_measuredDepth;
     caf::PdmChildField<RimMultipleValveLocations*> m_multipleValveLocations;
+
+    // ICD and ICVs only
+    caf::PdmField<double>                          m_orificeDiameter;
+    caf::PdmField<double>                          m_flowCoefficient;
 
 };
 

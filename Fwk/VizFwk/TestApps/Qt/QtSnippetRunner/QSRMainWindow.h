@@ -45,7 +45,12 @@
 #include "cvfuTestSnippet.h"
 #include "cvfuSnippetFactory.h"
 
+#include <QtGlobal>
+#if QT_VERSION >= 0x050000
+#include <QMainWindow>
+#else
 #include <QtGui/QMainWindow>
+#endif
 
 
 class QSRSnippetWidget;

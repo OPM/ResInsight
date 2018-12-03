@@ -215,8 +215,11 @@ QList<caf::PdmOptionItemInfo> RimSummaryPlotSourceStepping::calculateValueOption
 
             for (auto reader : readers)
             {
-                auto subset = RiaSummaryCurveAnalyzer::addressesForCategory(reader->allResultAddresses(), category);
-                quantityAnalyzer.appendAdresses(subset);
+                if (reader != nullptr)
+                {
+                    auto subset = RiaSummaryCurveAnalyzer::addressesForCategory(reader->allResultAddresses(), category);
+                    quantityAnalyzer.appendAdresses(subset);
+                }
             }
 
             for (const auto& quantity : quantityAnalyzer.quantities())

@@ -38,7 +38,7 @@
 #include "RimWellPathCollection.h"
 
 #include "RiuPlotMainWindow.h"
-#include "RiuSelectionManager.h"
+#include "Riu3dSelectionManager.h"
 
 #include "cafSelectionManager.h"
 

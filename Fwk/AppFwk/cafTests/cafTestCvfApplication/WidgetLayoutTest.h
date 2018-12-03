@@ -1,6 +1,6 @@
 #pragma once
 
-#include <QtGui/QWidget>
+#include <QWidget>
 
 
 class QGridLayout;

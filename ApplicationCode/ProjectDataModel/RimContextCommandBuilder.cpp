@@ -26,6 +26,8 @@
 #include "Rim3dWellLogExtractionCurve.h"
 #include "Rim3dWellLogFileCurve.h"
 #include "Rim3dWellLogRftCurve.h"
+#include "RimAnnotationCollection.h"
+#include "RimAnnotationInViewCollection.h"
 #include "RimCalcScript.h"
 #include "RimCaseCollection.h"
 #include "RimCellRangeFilter.h"
@@ -678,6 +680,17 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicNewStimPlanFractureTemplateFeature";
             menuBuilder << "Separator";
             menuBuilder << "RicConvertFractureTemplateUnitFeature";
+        }
+        else if (dynamic_cast<RimAnnotationCollection*>(uiItem))
+        {
+            menuBuilder << "RicCreateTextAnnotationFeature";
+            menuBuilder << "RicCreateReachCircleAnnotationFeature";
+            menuBuilder << "RicCreateUserDefinedPolylinesAnnotationFeature";
+            menuBuilder << "RicImportPolylinesAnnotationFeature";
+        }
+        else if (dynamic_cast<RimAnnotationInViewCollection*>(uiItem))
+        {
+            menuBuilder << "RicCreateTextAnnotationFeature";
         }
 
         if (dynamic_cast<Rim3dView*>(uiItem))

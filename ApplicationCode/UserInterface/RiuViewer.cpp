@@ -41,6 +41,8 @@
 #include "RiuSimpleHistogramWidget.h"
 #include "RiuViewerCommands.h"
 
+#include "cafPdmUiSelection3dEditorVisualizer.h"
+
 #include "cafTitledOverlayFrame.h"
 #include "cafCategoryLegend.h"
 #include "cafOverlayScalarMapperLegend.h"
@@ -48,25 +50,25 @@
 #include "cafDisplayCoordTransform.h"
 #include "cafEffectGenerator.h"
 #include "cafFrameAnimationControl.h"
+#include "cafOverlayScaleLegend.h"
 
 #include "cvfCamera.h"
 #include "cvfFont.h"
 #include "cvfOpenGLResourceManager.h"
 #include "cvfOverlayAxisCross.h"
+#include "cvfOverlayItem.h"
 #include "cvfPartRenderHintCollection.h"
 #include "cvfRenderQueueSorter.h"
 #include "cvfRenderSequence.h"
 #include "cvfRendering.h"
 #include "cvfScene.h"
 
-#include <QCDEStyle>
 #include <QLabel>
 #include <QMouseEvent>
 #include <QProgressBar>
 #include "WindowEdgeAxesOverlayItem/RivWindowEdgeAxesOverlayItem.h"
 #include <algorithm>
 
-#include "WellPathCommands/PointTangentManipulator/RicPointTangentManipulator.h"
 
 using cvf::ManipulatorTrackball;
 
@@ -152,9 +154,8 @@ RiuViewer::RiuViewer(const QGLFormat& format, QWidget* parent)
     m_animationProgress->setPalette(p);
     m_animationProgress->setFormat("Time Step: %v/%m");
     m_animationProgress->setTextVisible(true);
+    m_animationProgress->setAlignment(Qt::AlignCenter);
 
-    m_progressBarStyle = new QCDEStyle();
-    m_animationProgress->setStyle(m_progressBarStyle);
     m_showAnimProgress = false;
 
     // Histogram
@@ -187,7 +188,10 @@ RiuViewer::RiuViewer(const QGLFormat& format, QWidget* parent)
     m_windowEdgeAxisOverlay = new RivWindowEdgeAxesOverlayItem(standardFont);
     m_showWindowEdgeAxes = false;
 
-    m_selectionVisualizerManager = new caf::PdmUiSelectionVisualizer3d(this);
+    m_selectionVisualizerManager = new caf::PdmUiSelection3dEditorVisualizer(this);
+
+    m_scaleLegend = new caf::OverlayScaleLegend(standardFont);
+    m_scaleLegend->setOrientation(caf::OverlayScaleLegend::HORIZONTAL);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -206,10 +210,17 @@ RiuViewer::~RiuViewer()
     delete m_infoLabel;
     delete m_animationProgress;
     delete m_histogramWidget;
-    delete m_progressBarStyle;
     delete m_gridBoxGenerator;
 }
 
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuViewer::clearRimView()
+{
+    m_rimView = nullptr;
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -627,6 +638,12 @@ void RiuViewer::updateLegendLayout()
     {
         legend->setRenderSize(cvf::Vec2ui(maxColumnWidht, legend->renderSize().y())); 
     }
+
+    int margin = 5;
+    auto scaleLegendSize = m_scaleLegend->renderSize();
+    auto otherItemsHeight = m_versionInfoLabel->size().height();
+    m_scaleLegend->setLayoutFixedPosition({ width() - (int)scaleLegendSize.x() - margin - edgeAxisBorderWidth,
+                                           margin + edgeAxisBorderHeight + margin + otherItemsHeight});
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -745,6 +762,10 @@ void RiuViewer::optimizeClippingPlanes()
     }
 
     m_gridBoxGenerator->updateFromCamera(mainCamera());
+
+    m_scaleLegend->setDisplayCoordTransform(m_rimView->displayCoordTransform().p());
+    m_scaleLegend->updateFromCamera(mainCamera());
+
     caf::Viewer::optimizeClippingPlanes();
 }
 
@@ -948,6 +969,26 @@ std::vector<cvf::ref<cvf::Part>> RiuViewer::visibleParts()
     }
 
     return partsMatchingEnableMask;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuViewer::showScaleLegend(bool show)
+{
+    if (show)
+    {
+        if(m_scaleLegend->orientation() == caf::OverlayScaleLegend::HORIZONTAL)
+            m_scaleLegend->setRenderSize({280, 45});
+        else
+            m_scaleLegend->setRenderSize({50, 280});
+
+        m_mainRendering->addOverlayItem(m_scaleLegend.p());
+    }
+    else
+    {
+        m_mainRendering->removeOverlayItem(m_scaleLegend.p());
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -52,6 +52,8 @@ RimWellPathValve::RimWellPathValve()
     m_multipleValveLocations.uiCapability()->setUiTreeChildrenHidden(true);
     nameField()->uiCapability()->setUiReadOnly(true);
 
+    CAF_PDM_InitField(&m_orificeDiameter, "OrificeDiameter", 8.0, "Orifice Diameter [mm]", "", "", "");
+    CAF_PDM_InitField(&m_flowCoefficient, "FlowCoefficient", 0.7, "Flow Coefficient", "", "", "");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -101,6 +103,109 @@ std::vector<double> RimWellPathValve::valveLocations() const
         valveDepths = m_multipleValveLocations->valveLocations();
     }
     return valveDepths;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimWellPathValve::orificeDiameter(RiaEclipseUnitTools::UnitSystem unitSystem) const
+{
+    RimWellPath* wellPath;
+    firstAncestorOrThisOfTypeAsserted(wellPath);
+    return convertOrificeDiameter(m_orificeDiameter(), wellPath->unitSystem(), unitSystem);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimWellPathValve::flowCoefficient() const
+{
+    return m_flowCoefficient();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellPathValve::setUnitSpecificDefaults()
+{
+    RimWellPath* wellPath;
+    firstAncestorOrThisOfType(wellPath);
+    if (wellPath)
+    {
+        if (wellPath->unitSystem() == RiaEclipseUnitTools::UNITS_METRIC)
+        {
+            m_orificeDiameter            = 8;
+        }
+        else if (wellPath->unitSystem() == RiaEclipseUnitTools::UNITS_FIELD)
+        {
+            m_orificeDiameter            = 0.315;
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimWellPathValve::convertOrificeDiameter(double                          orificeDiameterWellPathUnits,
+                                                RiaEclipseUnitTools::UnitSystem wellPathUnits,
+                                                RiaEclipseUnitTools::UnitSystem unitSystem)
+{
+    if (unitSystem == RiaEclipseUnitTools::UNITS_METRIC)
+    {
+        if (wellPathUnits == RiaEclipseUnitTools::UNITS_FIELD)
+        {
+            return RiaEclipseUnitTools::inchToMeter(orificeDiameterWellPathUnits);
+        }
+        else
+        {
+            return RiaEclipseUnitTools::mmToMeter(orificeDiameterWellPathUnits);
+        }
+    }
+    else if (unitSystem == RiaEclipseUnitTools::UNITS_FIELD)
+    {
+        if (wellPathUnits == RiaEclipseUnitTools::UNITS_METRIC)
+        {
+            return RiaEclipseUnitTools::meterToFeet(RiaEclipseUnitTools::mmToMeter(orificeDiameterWellPathUnits));
+        }
+        else
+        {
+            return RiaEclipseUnitTools::inchToFeet(orificeDiameterWellPathUnits);
+        }
+    }
+    CVF_ASSERT(false);
+    return 0.0;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<std::pair<double, double>> RimWellPathValve::segmentsBetweenValves() const
+{
+    RimPerforationInterval* perforationInterval = nullptr;
+    this->firstAncestorOrThisOfType(perforationInterval);
+
+    double startMD = perforationInterval->startMD();
+    double endMD   = perforationInterval->endMD();
+    std::vector<double> valveMDs = valveLocations();
+
+    std::vector<std::pair<double, double>> segments;
+    segments.reserve(valveMDs.size());
+
+    for (size_t i = 0; i < valveMDs.size(); ++i)
+    {
+        double segmentStart = startMD;
+        double segmentEnd = endMD;
+        if (i > 0)
+        {
+            segmentStart = 0.5 * (valveMDs[i - 1] + valveMDs[i]);
+        }
+        if (i < valveMDs.size() - 1u)
+        {
+            segmentEnd = 0.5 * (valveMDs[i] + valveMDs[i + 1]);
+        }
+        segments.push_back(std::make_pair(segmentStart, segmentEnd));
+    }
+    return segments;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -218,7 +323,7 @@ void RimWellPathValve::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering
 {
     uiOrdering.add(&m_type);
 
-    if (m_type() == RiaDefines::ICV)
+    if (m_type() == RiaDefines::ICV || m_type() == RiaDefines::ICD)
     {
         RimWellPath* wellPath;
         firstAncestorOrThisOfType(wellPath);
@@ -226,19 +331,38 @@ void RimWellPathValve::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering
         {
             if (wellPath->unitSystem() == RiaEclipseUnitTools::UNITS_METRIC)
             {
-                m_measuredDepth.uiCapability()->setUiName("Measured Depth [m]");
+                if (m_type() == RiaDefines::ICV)
+                {
+                    m_measuredDepth.uiCapability()->setUiName("Measured Depth [m]");
+                }
+                m_orificeDiameter.uiCapability()->setUiName("Orifice Diameter [mm]");
             }
             else if (wellPath->unitSystem() == RiaEclipseUnitTools::UNITS_FIELD)
             {
-                m_measuredDepth.uiCapability()->setUiName("Measured Depth [ft]");
+                if (m_type() == RiaDefines::ICV)
+                {
+                    m_measuredDepth.uiCapability()->setUiName("Measured Depth [ft]");
+                }
+                m_orificeDiameter.uiCapability()->setUiName("Orifice Diameter [in]");
             }
         }
-        uiOrdering.add(&m_measuredDepth);
+        if (m_type() == RiaDefines::ICV)
+        {
+            uiOrdering.add(&m_measuredDepth);
+        }
     }
-    else
+
+    if (m_type() == RiaDefines::ICD || m_type() == RiaDefines::AICD)
     {
         caf::PdmUiGroup* group = uiOrdering.addNewGroup("Multiple Valve Locations");
         m_multipleValveLocations->uiOrdering(uiConfigName, *group);
+    }
+
+    if (m_type() == RiaDefines::ICV || m_type() == RiaDefines::ICD)
+    {
+        caf::PdmUiGroup* group = uiOrdering.addNewGroup("MSW Valve Parameters");
+        group->add(&m_orificeDiameter);
+        group->add(&m_flowCoefficient);
     }
     uiOrdering.skipRemainingFields(true);
 }

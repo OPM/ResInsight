@@ -73,7 +73,7 @@ public:
         QColor c = color;
         c.setAlpha( 150 );
 
-        setPen( c );
+        setPen( QPen( Qt::NoPen ) );
         setBrush( c );
     }
 };

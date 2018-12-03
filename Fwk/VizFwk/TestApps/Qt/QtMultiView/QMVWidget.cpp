@@ -44,7 +44,11 @@
 
 #include "cvfqtOpenGLContext.h"
 
+#if QT_VERSION >= 0x050000
+#include <QMouseEvent>
+#else
 #include <QtGui/QMouseEvent>
+#endif
 
 using cvf::ref;
 

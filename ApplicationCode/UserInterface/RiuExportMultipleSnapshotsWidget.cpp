@@ -75,8 +75,11 @@ RiuExportMultipleSnapshotsWidget::RiuExportMultipleSnapshotsWidget(QWidget* pare
     m_pdmTableView->setChildArrayField(&(project->multiSnapshotDefinitions()));
 
     QHeaderView* verticalHeader = m_pdmTableView->tableView()->verticalHeader();
+#if QT_VERSION >= 0x050000
+    verticalHeader->setSectionResizeMode(QHeaderView::Interactive);
+#else
     verticalHeader->setResizeMode(QHeaderView::Interactive);
-
+#endif
     m_pdmTableView->tableView()->resizeColumnsToContents();
 
     // Set active child array to be able to use generic delete

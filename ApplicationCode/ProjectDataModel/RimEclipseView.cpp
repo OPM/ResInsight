@@ -38,6 +38,7 @@
 
 #include "Rim2dIntersectionView.h"
 #include "Rim3dOverlayInfoConfig.h"
+#include "RimAnnotationInViewCollection.h"
 #include "RimCellEdgeColors.h"
 #include "RimCellRangeFilterCollection.h"
 #include "RimEclipseCase.h"
@@ -66,7 +67,7 @@
 #include "RimWellPathCollection.h"
 
 #include "RiuMainWindow.h"
-#include "RiuSelectionManager.h"
+#include "Riu3dSelectionManager.h"
 #include "RiuViewer.h"
 
 #include "RivReservoirSimWellsPartMgr.h"
@@ -141,6 +142,10 @@ RimEclipseView::RimEclipseView()
     m_faultCollection = new RimFaultInViewCollection;
     m_faultCollection.uiCapability()->setUiHidden(true);
 
+    CAF_PDM_InitFieldNoDefault(&m_annotationCollection, "AnnotationCollection", "Annotations", "", "", "");
+    m_annotationCollection = new RimAnnotationInViewCollection;
+    m_annotationCollection.uiCapability()->setUiHidden(true);
+
     CAF_PDM_InitFieldNoDefault(&m_propertyFilterCollection, "PropertyFilters", "Property Filters", "", "", "");
     m_propertyFilterCollection = new RimEclipsePropertyFilterCollection();
     m_propertyFilterCollection.uiCapability()->setUiHidden(true);
@@ -176,6 +181,7 @@ RimEclipseView::~RimEclipseView()
     delete m_propertyFilterCollection;
     delete wellCollection();
     delete faultCollection();
+    delete annotationCollection();
 
     m_reservoirGridPartManager->clearGeometryCache();
 
@@ -568,7 +574,7 @@ void RimEclipseView::updateCurrentTimeStep()
     updateVisibleGeometriesAndCellColors();
 
     appendWellsAndFracturesToModel();
-    
+
     m_overlayInfoConfig()->update3DInfo();
 
     // Invisible Wells are marked as read only when "show wells intersecting visible cells" is enabled
@@ -1521,6 +1527,7 @@ void RimEclipseView::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering
     uiTreeOrdering.add(m_virtualPerforationResult);
 
     uiTreeOrdering.add(faultCollection());
+    uiTreeOrdering.add(annotationCollection());
     uiTreeOrdering.add(crossSectionCollection());
     
     uiTreeOrdering.add(m_rangeFilterCollection());
@@ -1797,7 +1804,7 @@ bool RimEclipseView::showActiveCellsOnly()
 //--------------------------------------------------------------------------------------------------
 void RimEclipseView::createPartCollectionFromSelection(cvf::Collection<cvf::Part>* parts)
 {
-    RiuSelectionManager* riuSelManager = RiuSelectionManager::instance();
+    Riu3dSelectionManager* riuSelManager = Riu3dSelectionManager::instance();
     std::vector<RiuSelectionItem*> items;
     riuSelManager->selectedItems(items);
 

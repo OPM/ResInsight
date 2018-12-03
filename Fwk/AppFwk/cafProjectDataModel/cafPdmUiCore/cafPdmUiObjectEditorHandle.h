@@ -2,6 +2,7 @@
 //
 //   Custom Visualization Core library
 //   Copyright (C) 2011-2013 Ceetron AS
+//   Copyright (C) Ceetron Solutions AS
 //
 //   This library may be used under the terms of either the GNU General Public License or
 //   the GNU Lesser General Public License as follows:
@@ -41,10 +42,6 @@
 #include "cafPdmPointer.h"
 
 #include <QPointer>
-#include <QString>
-#include <QWidget>
-
-#include <vector>
 
 namespace caf 
 {
@@ -60,9 +57,6 @@ class PdmUiObjectEditorHandle : public PdmUiEditorHandle
 public:
     PdmUiObjectEditorHandle();
     ~PdmUiObjectEditorHandle() override;
-   
-    QWidget*                getOrCreateWidget(QWidget* parent);
-    QWidget*                widget() const;
 
     void                    setPdmObject(PdmObjectHandle* object);
     PdmObjectHandle*        pdmObject();
@@ -72,18 +66,12 @@ public:
     static void             updateUiAllObjectEditors();
 
 protected:
-    /// Supposed to create the top level widget of the editor with a suitable QLayout 
-    virtual QWidget*        createWidget(QWidget* parent) = 0;
-
     virtual void            cleanupBeforeSettingPdmObject() {};
 
 private:
-    QPointer<QWidget>   m_widget;
 
     static std::set<QPointer<PdmUiObjectEditorHandle>> m_sRegisteredObjectEditors;
 };
-
-
 
 } // End of namespace caf
 

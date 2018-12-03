@@ -2,6 +2,19 @@ cmake_minimum_required (VERSION 2.8.12)
 
 project (ApplicationCode)
 
+# Open GL
+find_package( OpenGL )
+
+find_package(Qt5Core CONFIG QUIET)
+if (Qt5Core_FOUND)
+	find_package(Qt5 CONFIG REQUIRED Core Gui OpenGL Network Script Widgets)
+    set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::Network Qt5::OpenGL Qt5::Script Qt5::Widgets)
+else()
+    set (QT_COMPONENTS_REQUIRED QtCore QtGui QtMain QtOpenGl QtNetwork QtScript)
+	find_package(Qt4 COMPONENTS ${QT_COMPONENTS_REQUIRED} REQUIRED)
+    include(${QT_USE_FILE})
+endif(Qt5Core_FOUND)
+
 # NB: The generated file is written to Cmake binary folder to avoid source tree pollution
 # This folder is added to include_directories
 CONFIGURE_FILE( ${CMAKE_SOURCE_DIR}/ApplicationCode/Adm/RiaVersionInfo.h.cmake
@@ -37,6 +50,7 @@ include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/CommandFileInterface/Core
 
     ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel
+    ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/Annotations
     ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/Completions
     ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/Flow
     ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/Summary
@@ -90,6 +104,7 @@ list( APPEND REFERENCED_CMAKE_FILES
     ProjectDataModel/CMakeLists_files.cmake
     ProjectDataModel/Summary/CMakeLists_files.cmake
     ProjectDataModel/Flow/CMakeLists_files.cmake
+    ProjectDataModel/Annotations/CMakeLists_files.cmake
     ProjectDataModel/Completions/CMakeLists_files.cmake
     
     GeoMech/GeoMechVisualization/CMakeLists_files.cmake
@@ -103,6 +118,7 @@ list( APPEND REFERENCED_CMAKE_FILES
     
     Commands/CMakeLists_files.cmake
     Commands/ApplicationCommands/CMakeLists_files.cmake
+    Commands/AnnotationCommands/CMakeLists_files.cmake
     Commands/CompletionCommands/CMakeLists_files.cmake
     Commands/CompletionExportCommands/CMakeLists_files.cmake
     Commands/CrossSectionCommands/CMakeLists_files.cmake
@@ -217,9 +233,14 @@ set ( QT_MOC_HEADERS
     SocketInterface/RiaSocketServer.h
 )
 
-qt4_wrap_cpp( MOC_FILES_CPP ${QT_MOC_HEADERS} )
+if (Qt5Core_FOUND)
+	qt5_wrap_cpp(MOC_SOURCE_FILES ${QT_MOC_HEADERS} )
+    qt5_wrap_ui( FORM_FILES_CPP ${QT_UI_FILES} )
+else()
+	qt4_wrap_cpp(MOC_SOURCE_FILES ${QT_MOC_HEADERS} )
+    qt4_wrap_ui( FORM_FILES_CPP ${QT_UI_FILES} )
+endif()
 
-qt4_wrap_ui( FORM_FILES_CPP ${QT_UI_FILES} )
 
 # NOTE! Resources in subfolders must append to QRC_FILES using the following statement
 #   set( QRC_FILES
@@ -234,7 +255,17 @@ set( QRC_FILES
 )
 
 # Runs RCC on specified files
-qt4_add_resources( QRC_FILES_CPP ${QRC_FILES} )
+if ( NOT CMAKE_AUTOMOC)
+	if (Qt5Core_FOUND)
+		qt5_add_resources( QRC_FILES_CPP
+			${QRC_FILES}
+		)
+	else()
+		qt4_add_resources( QRC_FILES_CPP
+			${QRC_FILES}
+		)
+	endif(Qt5Core_FOUND)
+endif(NOT CMAKE_AUTOMOC)
 
 # Adding resource (RC) files for Windows
 if ( MSVC )
@@ -270,7 +301,7 @@ endif()
 set( EXE_FILES
     ${EXE_FILES}
     ${CPP_SOURCES}
-    ${MOC_FILES_CPP}
+    ${MOC_SOURCE_FILES}
     ${FORM_FILES_CPP}
     ${QRC_FILES_CPP}
     ${WIN_RESOURCE}
@@ -398,11 +429,19 @@ endif()
 if (MSVC)
 
     # Qt DLLs
-    set (QTLIBLIST QtCore QtCored QtGui QtGuid QtOpenGl QtOpenGld QtNetwork QtNetworkd QtScript QtScriptd QtScriptTools QtScriptToolsd)
-    foreach (qtlib ${QTLIBLIST})
-        list(APPEND RI_DLL_FILENAMES ${QT_BINARY_DIR}/${qtlib}4.dll)
-    endforeach( qtlib )
-
+	if (Qt5Core_FOUND)
+        message(STATUS "Creating post build step for copying Qt DLLs")
+		foreach (qtlib ${QT_LIBRARIES})
+			add_custom_command(TARGET ResInsight POST_BUILD
+				COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:${qtlib}> $<TARGET_FILE_DIR:ResInsight>
+    		)
+		endforeach(qtlib)
+	else()
+ 		set (QTLIBLIST QtCore4 QtCored4 QtGui4 QtGuid4 QtOpenGl4 QtOpenGld4 QtNetwork4 QtNetworkd4 QtScript4 QtScriptd4 QtScriptTools4 QtScriptToolsd4)
+	    foreach (qtlib ${QTLIBLIST})
+        	list(APPEND RI_DLL_FILENAMES ${QT_BINARY_DIR}/${qtlib}.dll)
+    	endforeach( qtlib )
+	endif()
     # Odb Dlls
     if (RESINSIGHT_USE_ODB_API)
         # Find all the dlls

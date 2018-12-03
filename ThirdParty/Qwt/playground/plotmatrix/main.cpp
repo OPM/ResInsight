@@ -1,5 +1,6 @@
 #include "plotmatrix.h"
 #include <qwt_plot_grid.h>
+#include <qwt_scale_widget.h>
 #include <qapplication.h>
 #include <qpen.h>
 #include <qmath.h>
@@ -35,16 +36,21 @@ MainWindow::MainWindow():
     {
         for ( int col = 0; col < numColumns(); col++ )
         {
-            QwtPlot *plt = plot( row, col );
-            plt->setCanvasBackground( QColor( Qt::darkBlue ) );
+            QwtPlot *plot = plotAt( row, col );
+            plot->setCanvasBackground( QColor( Qt::darkGray ) );
 
             QwtPlotGrid *grid = new QwtPlotGrid();
             grid->enableXMin( true );
             grid->setMajorPen( Qt::white, 0, Qt::DotLine );
             grid->setMinorPen( Qt::gray, 0 , Qt::DotLine );
-            grid->attach( plt );
+            grid->attach( plot );
         }
     }
+
+    plotAt( 1, 0 )->axisWidget( QwtPlot::yLeft )->setLabelRotation( 45 );
+    plotAt( 1, numColumns() - 1 )->axisWidget( QwtPlot::yRight )->setLabelRotation( -45 );
+
+    updateLayout();
 }
 
 int main( int argc, char **argv )

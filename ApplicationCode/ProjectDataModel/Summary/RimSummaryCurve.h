@@ -106,6 +106,7 @@ private:
     static void                             appendOptionItemsForSummaryAddresses(QList<caf::PdmOptionItemInfo>* options,
                                                                                  RimSummaryCase* summaryCase,
                                                                                  RimSummaryFilter* summaryFilter);
+    void                            setZIndexFromCurveInfo();
 
 private:
     // Y values

@@ -24,7 +24,7 @@
   A Qwt scale is defined by its boundaries and 3 list
   for the positions of the major, medium and minor ticks.
 
-  The upperLimit() might be smaller than the lowerLimit()
+  The upperBound() might be smaller than the lowerBound()
   to indicate inverted scales.
 
   Scale divisions can be calculated from a QwtScaleEngine.

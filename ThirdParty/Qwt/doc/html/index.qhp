@@ -5,76 +5,15 @@
   <filterSection>
     <filterAttribute>doxygen</filterAttribute>
     <toc>
-      <section title="Qwt User&apos;s Guide 6.1.0" ref="index.html">
-        <section title="Qwt - Qt Widgets for Technical Applications" ref="index.html">
-          <section title="License" ref="index.html#license" />
-          <section title="Platforms" ref="index.html#platforms" />
-          <section title="What&apos;s new" ref="index.html#changelogonmainpage" />
-          <section title="Screenshots" ref="index.html#screenshotsonmainpage" />
-          <section title="Downloads" ref="index.html#downloads" />
-          <section title="Installation" ref="index.html#installonmainpage" />
-          <section title="Support" ref="index.html#support" />
-          <section title="Related Projects" ref="index.html#relatedprojects" />
-          <section title="Donations" ref="index.html#donations" />
-          <section title="Credits:" ref="index.html#credits" />
-        </section>
-        <section title="What&apos;s new in Qwt 6.1" ref="qwtchangelog.html">
-          <section title="New plot items" ref="qwtchangelog.html#ITEMS" />
-          <section title="Scales beyond linear and logarithmic transformations" ref="qwtchangelog.html#SCALES">
-            <section title="Datetime scales" ref="qwtchangelog.html#DATETIME" />
-          </section>
-          <section title="Redesign of the dial and meter widgets" ref="qwtchangelog.html#CONTROLS" />
-          <section title="Basic support for an OpenGL plot canvas" ref="qwtchangelog.html#OPENGL" />
-          <section title="A new system for plot legends" ref="qwtchangelog.html#LEGEND" />
-          <section title="Off-screen paint device for vector graphics" ref="qwtchangelog.html#GRAPHIC" />
-          <section title="QwtWidgetOverlay" ref="qwtchangelog.html#OVERLAY" />
-          <section title="QwtSymbol" ref="qwtchangelog.html#SYMBOL" />
-          <section title="QwtPlotCurve" ref="qwtchangelog.html#PLOTCURVE" />
-          <section title="QwtPlot" ref="qwtchangelog.html#PLOT" />
-          <section title="Other" ref="qwtchangelog.html#OTHER">
-            <section title="QwtScaleDiv" ref="qwtchangelog.html#SCALEDIV" />
-            <section title="QwtScaleEngine" ref="qwtchangelog.html#SCALEENGINE" />
-            <section title="QwtPlotLayout" ref="qwtchangelog.html#PLOTLAYOUT" />
-            <section title="QwtPlotCanvas" ref="qwtchangelog.html#PLOTCANVAS" />
-            <section title="Other changes" ref="qwtchangelog.html#OTHERS" />
-          </section>
-          <section title="Summary of the new classes" ref="qwtchangelog.html#CLASSES" />
-        </section>
-        <section title="Installing Qwt" ref="qwtinstall.html">
-          <section title="Download" ref="qwtinstall.html#DOWNLOAD" />
-          <section title="Installing Qwt" ref="qwtinstall.html#INSTALL">
-            <section title="Configuration" ref="qwtinstall.html#CONFIGSUBSECTION" />
-            <section title="Build and installation" ref="qwtinstall.html#BUILDSUBSECTION">
-              <section title="Unix-like systems" ref="qwtinstall.html#qwtinstall-unix" />
-              <section title="Windows" ref="qwtinstall.html#qwtinstall-windows">
-                <section title="MinGW" ref="qwtinstall.html#qwtinstall-windows-mingw" />
-                <section title="MSVC" ref="qwtinstall.html#qwtinstall-windows-msvc" />
-              </section>
-            </section>
-          </section>
-          <section title="Qwt and the Qt tool chain" ref="qwtinstall.html#INTEGRATION">
-            <section title="Designer plugin" ref="qwtinstall.html#USEPLUGIN" />
-            <section title="Online Help" ref="qwtinstall.html#USEHELP" />
-          </section>
-          <section title="Building a Qwt application" ref="qwtinstall.html#COMPILEANDLINKAPP" />
-          <section title="Running a Qwt application" ref="qwtinstall.html#RUNAPP">
-            <section title="Windows" ref="qwtinstall.html#RUNWINDOWS" />
-            <section title="GNU/Linux" ref="qwtinstall.html#RUNLINUX" />
-          </section>
-        </section>
-        <section title="Qwt License, Version 1.0" ref="qwtlicense.html" />
-        <section title="Curve Plots" ref="curvescreenshots.html" />
-        <section title="Scatter Plot" ref="scatterscreenshots.html" />
-        <section title="Spectrogram, Contour Plot" ref="spectrogramscreenshots.html" />
-        <section title="Histogram" ref="histogramscreenshots.html" />
-        <section title="Dials, Compasses, Knobs, Wheels, Sliders, Thermos" ref="controlscreenshots.html" />
-        <section title="Classes">
+      <section title="Qwt User&apos;s Guide 6.1.3" ref="index.html">
+        <section title="Qwt - Qt Widgets for Technical Applications" ref="index.html" />
+        <section title="Classes" ref="annotated.html">
           <section title="Class List" ref="annotated.html">
             <section title="QwtAbstractLegend" ref="class_qwt_abstract_legend.html">
               <section title="QwtAbstractLegend" ref="class_qwt_abstract_legend.html#a77092d06decd579fcde5c90875c3830b" />
               <section title="~QwtAbstractLegend" ref="class_qwt_abstract_legend.html#a6d86d9c50679dea9fefafc457fc70814" />
-              <section title="isEmpty" ref="class_qwt_abstract_legend.html#a9904720ba92daf03d0e5d8559cc5cdfe" />
-              <section title="renderLegend" ref="class_qwt_abstract_legend.html#a2fe1ac5ac1448e4d86b7437505214d9c" />
+              <section title="isEmpty" ref="class_qwt_abstract_legend.html#a177cb553f60c0446cdef9e7ace916641" />
+              <section title="renderLegend" ref="class_qwt_abstract_legend.html#a3656b3d4dcf572c0b4134b9988c975f6" />
               <section title="scrollExtent" ref="class_qwt_abstract_legend.html#a51e8c45d2afc691e78b09c662d7a493e" />
               <section title="updateLegend" ref="class_qwt_abstract_legend.html#aa9fc80c9e1dcbcfef51b96a3bff268ca" />
             </section>
@@ -120,11 +59,11 @@
               <section title="QwtAbstractScaleDraw" ref="class_qwt_abstract_scale_draw.html#a19c944664a2e36f06ae71b745fbd442e" />
               <section title="~QwtAbstractScaleDraw" ref="class_qwt_abstract_scale_draw.html#adc4d3f491b28ee39d728a4a4a9cdd494" />
               <section title="draw" ref="class_qwt_abstract_scale_draw.html#aca3c3a7499112f52616d0ee8518fa5a6" />
-              <section title="drawBackbone" ref="class_qwt_abstract_scale_draw.html#a15994a6033e689c3acdb8d83ae4f2a1c" />
-              <section title="drawLabel" ref="class_qwt_abstract_scale_draw.html#aa78dc8bf05a0224450c947af54128d8d" />
-              <section title="drawTick" ref="class_qwt_abstract_scale_draw.html#a31791e80bf07d23adbe500740aac5a58" />
+              <section title="drawBackbone" ref="class_qwt_abstract_scale_draw.html#a1d0cadfebddcbdd9e018ffcec2705e48" />
+              <section title="drawLabel" ref="class_qwt_abstract_scale_draw.html#a3690938c5726bebd56ce8cf3c27ea4bc" />
+              <section title="drawTick" ref="class_qwt_abstract_scale_draw.html#aa13101e75c17d80716eb1fbe43e28339" />
               <section title="enableComponent" ref="class_qwt_abstract_scale_draw.html#af975410588db6103f281e49d0b43c6a6" />
-              <section title="extent" ref="class_qwt_abstract_scale_draw.html#a87e21208e981457cde501054319c77e7" />
+              <section title="extent" ref="class_qwt_abstract_scale_draw.html#a52e71379b70c8f7f0d081eedc015629c" />
               <section title="hasComponent" ref="class_qwt_abstract_scale_draw.html#a95d74d9eaa5520754295efb33a4db50f" />
               <section title="invalidateCache" ref="class_qwt_abstract_scale_draw.html#a4ed95cd23c5d779c1b05aa5295409aa6" />
               <section title="label" ref="class_qwt_abstract_scale_draw.html#a4ff88bc827dd6c6ca9298de13483b61f" />
@@ -147,8 +86,8 @@
             <section title="QwtAbstractSeriesStore" ref="class_qwt_abstract_series_store.html">
               <section title="~QwtAbstractSeriesStore" ref="class_qwt_abstract_series_store.html#a3990acd8aba251e46d8c64d2154e3f72" />
               <section title="dataChanged" ref="class_qwt_abstract_series_store.html#ad95aac5e145cec2871e873c16f5f83b9" />
-              <section title="dataRect" ref="class_qwt_abstract_series_store.html#a23d498a9d5bb10cb573db55650551a2c" />
-              <section title="dataSize" ref="class_qwt_abstract_series_store.html#aa68ed8e5ce3da6b18826d8f95be86ad6" />
+              <section title="dataRect" ref="class_qwt_abstract_series_store.html#a932eeccd358a28726146012500038df2" />
+              <section title="dataSize" ref="class_qwt_abstract_series_store.html#a2fd5537a0c0cf8de7af4a702e110b643" />
               <section title="setRectOfInterest" ref="class_qwt_abstract_series_store.html#a8a1cab11ce068f9c578a02d40e111b1a" />
             </section>
             <section title="QwtAbstractSlider" ref="class_qwt_abstract_slider.html">
@@ -158,7 +97,7 @@
               <section title="incrementValue" ref="class_qwt_abstract_slider.html#aa31fe73942c4cae17bce9e5cae36bd55" />
               <section title="invertedControls" ref="class_qwt_abstract_slider.html#a3bc58490cd1f5a8ed5e86dec2a60586a" />
               <section title="isReadOnly" ref="class_qwt_abstract_slider.html#a040fd1fd03592c524314bf4b5539608d" />
-              <section title="isScrollPosition" ref="class_qwt_abstract_slider.html#ae674fc01201ec3ae4964838ef539c88e" />
+              <section title="isScrollPosition" ref="class_qwt_abstract_slider.html#a3f4cae5b7a4a0a461fb04eeb0a39a5c2" />
               <section title="isTracking" ref="class_qwt_abstract_slider.html#a476e7638818d5d22cb6f68d17d11ba97" />
               <section title="isValid" ref="class_qwt_abstract_slider.html#a87c750f098cb5f70306a7908339cb88e" />
               <section title="keyPressEvent" ref="class_qwt_abstract_slider.html#ab6d1105f82e8a44ea75661135ba88c85" />
@@ -167,7 +106,7 @@
               <section title="mouseReleaseEvent" ref="class_qwt_abstract_slider.html#aef54140a399f52c01cd9e82abf862783" />
               <section title="pageSteps" ref="class_qwt_abstract_slider.html#a29adb20551bf586cff0c2b074d5c1e50" />
               <section title="scaleChange" ref="class_qwt_abstract_slider.html#a491fe8bbe771fb51bf35d429d4b92e05" />
-              <section title="scrolledTo" ref="class_qwt_abstract_slider.html#af19ab98a4101c2eaa43de2df7ebe4d0d" />
+              <section title="scrolledTo" ref="class_qwt_abstract_slider.html#a3e7671e00a31e7b0ba4ef4a2c325125a" />
               <section title="setInvertedControls" ref="class_qwt_abstract_slider.html#a8344b634faf639447c707ef665d2d324" />
               <section title="setPageSteps" ref="class_qwt_abstract_slider.html#ae2af9e818c0e7fb39a3a07174e4dabf2" />
               <section title="setReadOnly" ref="class_qwt_abstract_slider.html#a9cc63283a2d4f0bcbb67fd331629a318" />
@@ -246,10 +185,10 @@
               <section title="QwtColorMap" ref="class_qwt_color_map.html#a2ab0a6041ea6d37c0609ca2e3bd976ca" />
               <section title="~QwtColorMap" ref="class_qwt_color_map.html#af20e4ffdb3c5d34f5a6dc301bcbb9f7e" />
               <section title="color" ref="class_qwt_color_map.html#a35f74175e963d18e451a9fd4421ede1f" />
-              <section title="colorIndex" ref="class_qwt_color_map.html#a762baa2edca8773ec09e0c1c5df2cf04" />
+              <section title="colorIndex" ref="class_qwt_color_map.html#a8fc538cb07efb7ad05a3d3f7426320ba" />
               <section title="colorTable" ref="class_qwt_color_map.html#a4ccc23356e058783071b06dee437b6d7" />
               <section title="format" ref="class_qwt_color_map.html#a436802833ae1d4694f376655bc3d75be" />
-              <section title="rgb" ref="class_qwt_color_map.html#aaed0bb47b6379696c588732348438136" />
+              <section title="rgb" ref="class_qwt_color_map.html#af33fa8c5ac1aa9583f2e1d4a109a6c5f" />
             </section>
             <section title="QwtColumnRect" ref="class_qwt_column_rect.html">
               <section title="Direction" ref="class_qwt_column_rect.html#a70bb2c6f1f8dabe3bc00793740e0908b">
@@ -309,7 +248,7 @@
             </section>
             <section title="QwtCompassRose" ref="class_qwt_compass_rose.html">
               <section title="~QwtCompassRose" ref="class_qwt_compass_rose.html#a9e3e5086d7225152cad3a276096753be" />
-              <section title="draw" ref="class_qwt_compass_rose.html#ad974a3035da51a9cfb36fa04eb1c40a6" />
+              <section title="draw" ref="class_qwt_compass_rose.html#a977c1fbfb502f67e04466d1ebc327a40" />
               <section title="palette" ref="class_qwt_compass_rose.html#ab2e5c2a4a27c40a175458b96d89394e8" />
               <section title="setPalette" ref="class_qwt_compass_rose.html#ad69f887ed012d6bf6bf2ffeb133e26d5" />
             </section>
@@ -380,7 +319,7 @@
             <section title="QwtCurveFitter" ref="class_qwt_curve_fitter.html">
               <section title="~QwtCurveFitter" ref="class_qwt_curve_fitter.html#a62919f309f0441d94adea94573d0f778" />
               <section title="QwtCurveFitter" ref="class_qwt_curve_fitter.html#ad804660017ae0f3ede604470724b3df3" />
-              <section title="fitCurve" ref="class_qwt_curve_fitter.html#afa9bf5b328aa553229e204533a60fec0" />
+              <section title="fitCurve" ref="class_qwt_curve_fitter.html#a84e96e917bf522c1137e03c0ebb231ef" />
             </section>
             <section title="QwtDate" ref="class_qwt_date.html">
               <section title="JulianDayForEpoch" ref="class_qwt_date.html#af636fffdebea2e4463fc32461b1217e0aed8ee8f3dbc5b7a5e953b3ec51a79108" />
@@ -488,7 +427,7 @@
               <section title="~QwtDialNeedle" ref="class_qwt_dial_needle.html#ac23b2af4af50042967c8cea87b474247" />
               <section title="draw" ref="class_qwt_dial_needle.html#a425085086c4a8c7baff10b161616ee42" />
               <section title="drawKnob" ref="class_qwt_dial_needle.html#aaca9572717a1db10b1b6609571024688" />
-              <section title="drawNeedle" ref="class_qwt_dial_needle.html#a1e4fee366fec1838edc18890d9957f2b" />
+              <section title="drawNeedle" ref="class_qwt_dial_needle.html#a3893ef0232ba0e000d3d33a0cb541dd1" />
               <section title="palette" ref="class_qwt_dial_needle.html#a8b3c915032389261e07cc983b433166c" />
               <section title="setPalette" ref="class_qwt_dial_needle.html#ae850883a64501136bca64d6ea2d084b9" />
             </section>
@@ -949,7 +888,7 @@
               <section title="mode" ref="class_qwt_null_paint_device.html#ab8dd2303c06d6cbfa5f4c0fa442eb493" />
               <section title="paintEngine" ref="class_qwt_null_paint_device.html#a2058b09c918ed674ef1977d11d869b03" />
               <section title="setMode" ref="class_qwt_null_paint_device.html#a8b159556695136a58eec6e78fd88957b" />
-              <section title="sizeMetrics" ref="class_qwt_null_paint_device.html#ab95def8c9d76d4fa6142458fd5ea4970" />
+              <section title="sizeMetrics" ref="class_qwt_null_paint_device.html#afb8da1b931a42cc370b77323ff6a28cc" />
               <section title="updateState" ref="class_qwt_null_paint_device.html#a235bd4e1453a13f7c4c076a9595a8840" />
             </section>
             <section title="QwtNullTransform" ref="class_qwt_null_transform.html">
@@ -1624,7 +1563,7 @@
               <section title="boundingRect" ref="class_qwt_plot_item.html#aec3c408e14af30b82b52c1197310eb21" />
               <section title="defaultIcon" ref="class_qwt_plot_item.html#af5264c9dcd9d1ec503bc1d46c10adc83" />
               <section title="detach" ref="class_qwt_plot_item.html#ab2bbee6dbe36a5f1d0ce853ac66716a6" />
-              <section title="draw" ref="class_qwt_plot_item.html#a0b0d6589d5db81ce72e6b33c4fbb21f9" />
+              <section title="draw" ref="class_qwt_plot_item.html#a4e4c2f404d38e670690805b0e2a17d16" />
               <section title="getCanvasMarginHint" ref="class_qwt_plot_item.html#a46b0d88f7667e0e93dee5253c8be001f" />
               <section title="hide" ref="class_qwt_plot_item.html#a1faea017baa2492416a13e6bc3c144aa" />
               <section title="isVisible" ref="class_qwt_plot_item.html#aeaf8eeb5f080017e181a5d7be798d789" />
@@ -1889,7 +1828,7 @@
               <section title="interval" ref="class_qwt_plot_raster_item.html#a0ffa377f71d05a0d3d077e040b08c357" />
               <section title="invalidateCache" ref="class_qwt_plot_raster_item.html#a547ce4d8d031b230226cfbd509ef65b5" />
               <section title="pixelHint" ref="class_qwt_plot_raster_item.html#a03a69bfe7d3d125ba4f580d1ecd5e2f4" />
-              <section title="renderImage" ref="class_qwt_plot_raster_item.html#a1738b36c0e6e4073f3ad6629e7923f74" />
+              <section title="renderImage" ref="class_qwt_plot_raster_item.html#ab9e3e0a33101bf73cc39e5de858608db" />
               <section title="setAlpha" ref="class_qwt_plot_raster_item.html#a14f2ab8ec0994384e6269f869c352273" />
               <section title="setCachePolicy" ref="class_qwt_plot_raster_item.html#a31f74199f7e333c2683b0f18289e4c7f" />
               <section title="setPaintAttribute" ref="class_qwt_plot_raster_item.html#a70d6b94821e5eafb29b1f045d1f3a2e6" />
@@ -2005,7 +1944,7 @@
               <section title="boundingRect" ref="class_qwt_plot_series_item.html#a7a0fffd64c5416a8f18df00ab8a90ea3" />
               <section title="dataChanged" ref="class_qwt_plot_series_item.html#a8eaf7453ca8b3e8f522433149ba4c80d" />
               <section title="draw" ref="class_qwt_plot_series_item.html#af64601a32413f6f4928ceccc4934737e" />
-              <section title="drawSeries" ref="class_qwt_plot_series_item.html#af6c8091544081ff72723270cc7c8f139" />
+              <section title="drawSeries" ref="class_qwt_plot_series_item.html#ac2686c5aefdbb39265e6d2b6f6bf5894" />
               <section title="orientation" ref="class_qwt_plot_series_item.html#a2f97f0885d3f7adc7a9d484e741d2a76" />
               <section title="setOrientation" ref="class_qwt_plot_series_item.html#a9d131249079ec3bc503831349bd1a051" />
               <section title="updateScaleDiv" ref="class_qwt_plot_series_item.html#a890792d0f44e341812b5283c249608b2" />
@@ -2310,7 +2249,7 @@
               <section title="interval" ref="class_qwt_raster_data.html#a8423d051697f975150b3b555bfcac8b9" />
               <section title="pixelHint" ref="class_qwt_raster_data.html#ad1ce58351804760d1ba1e7efe97d39d6" />
               <section title="setInterval" ref="class_qwt_raster_data.html#a14abf60573989e2a2c97e21a98aee558" />
-              <section title="value" ref="class_qwt_raster_data.html#a6396fc013fcec893b1e8cea4cf03691e" />
+              <section title="value" ref="class_qwt_raster_data.html#a2ac980d656945f310143641956c67046" />
             </section>
             <section title="QwtRichTextEngine" ref="class_qwt_rich_text_engine.html">
               <section title="QwtRichTextEngine" ref="class_qwt_rich_text_engine.html#aa4c1d5a1ee88d7406ba1d6453005b46a" />
@@ -2424,12 +2363,12 @@
               <section title="QwtScaleEngine" ref="class_qwt_scale_engine.html#a4ad501667558e5095d36cc190d12790d" />
               <section title="~QwtScaleEngine" ref="class_qwt_scale_engine.html#ab9c21b4550d44d9a82c1865864cb8943" />
               <section title="attributes" ref="class_qwt_scale_engine.html#a044961cfa3be3ac86d49610c3881df08" />
-              <section title="autoScale" ref="class_qwt_scale_engine.html#aa27323d6d9d5348bd253a61b45e4785b" />
+              <section title="autoScale" ref="class_qwt_scale_engine.html#accc3684f82fd0da0e87b3c5ed0ad9e10" />
               <section title="base" ref="class_qwt_scale_engine.html#a5bfe4467f5b311b3879253b0a4470a2c" />
               <section title="buildInterval" ref="class_qwt_scale_engine.html#ac9d1a77655b633ee4f165eb5c43a4374" />
               <section title="contains" ref="class_qwt_scale_engine.html#a36acba98650d011f784641fa4ac43f87" />
               <section title="divideInterval" ref="class_qwt_scale_engine.html#aff30158c5ccfee78f4c3e01c0fb5f4de" />
-              <section title="divideScale" ref="class_qwt_scale_engine.html#ab85442ced7cf3a39e5ad25f8cb80dea4" />
+              <section title="divideScale" ref="class_qwt_scale_engine.html#a797eeaa8a7a23503583b5fa5a583cd28" />
               <section title="lowerMargin" ref="class_qwt_scale_engine.html#a0cbcd5c35a8796baf8307bba19991bab" />
               <section title="reference" ref="class_qwt_scale_engine.html#a5962458870865df797e84e3bd6badf02" />
               <section title="setAttribute" ref="class_qwt_scale_engine.html#acf02a88f6e778edbc9e005960f35b3b7" />
@@ -2518,10 +2457,10 @@
             <section title="QwtSeriesData" ref="class_qwt_series_data.html">
               <section title="QwtSeriesData" ref="class_qwt_series_data.html#a3f075340d18fb112a342d74716eb8d9c" />
               <section title="~QwtSeriesData" ref="class_qwt_series_data.html#a841a56f909879d599a385b9c3d046745" />
-              <section title="boundingRect" ref="class_qwt_series_data.html#aedb969ba51a27d88d26ad7f7cb1c2c7f" />
-              <section title="sample" ref="class_qwt_series_data.html#ae8650d16c07c58f01897ab48658a3266" />
+              <section title="boundingRect" ref="class_qwt_series_data.html#afc38837db1c8b4a302938a00341a484d" />
+              <section title="sample" ref="class_qwt_series_data.html#a302fb1409d00615601c7806bb4fbe2da" />
               <section title="setRectOfInterest" ref="class_qwt_series_data.html#a391b4601a7454b2f9582fbc2662d108e" />
-              <section title="size" ref="class_qwt_series_data.html#a3cfe5b26fc55a887ac85b0103ae80a3e" />
+              <section title="size" ref="class_qwt_series_data.html#af18b57ccc6d9e0354662e53b41397a13" />
               <section title="d_boundingRect" ref="class_qwt_series_data.html#a24fbbcb0baa0c728117d2e6764d00414" />
             </section>
             <section title="QwtSeriesStore" ref="class_qwt_series_store.html">
@@ -2720,7 +2659,7 @@
               <section title="setSize" ref="class_qwt_synthetic_point_data.html#a321754c5acac77e0e5685968b1cdfdae" />
               <section title="size" ref="class_qwt_synthetic_point_data.html#a61b2cc26e1b5fa4a64e29273cf3e1599" />
               <section title="x" ref="class_qwt_synthetic_point_data.html#ab14ef450ef097f05dbb8b8d75202538b" />
-              <section title="y" ref="class_qwt_synthetic_point_data.html#af65186bea0056b3f7f46814c61d68c99" />
+              <section title="y" ref="class_qwt_synthetic_point_data.html#aea96a1e546b08f7d56c8f6804d889182" />
             </section>
             <section title="QwtSystemClock" ref="class_qwt_system_clock.html">
               <section title="QwtSystemClock" ref="class_qwt_system_clock.html#a384e20d6049376575bf28306154854fd" />
@@ -2784,11 +2723,11 @@
             <section title="QwtTextEngine" ref="class_qwt_text_engine.html">
               <section title="~QwtTextEngine" ref="class_qwt_text_engine.html#adda9e23494429c54b3cc3452940fb2bc" />
               <section title="QwtTextEngine" ref="class_qwt_text_engine.html#a97c5ef76ee920ab0f19e178e85017d9d" />
-              <section title="draw" ref="class_qwt_text_engine.html#ad727f58f9eebfec86369e7f2e5bf6a59" />
-              <section title="heightForWidth" ref="class_qwt_text_engine.html#aee891b14d90c817b8c73d551f623cc17" />
-              <section title="mightRender" ref="class_qwt_text_engine.html#a98316f2f6f4f50216ceffbe9babe2901" />
-              <section title="textMargins" ref="class_qwt_text_engine.html#a83c8d3dc590b9914e9216c01e78e0838" />
-              <section title="textSize" ref="class_qwt_text_engine.html#ad9382cc8ff22c6b3e448fce566a76178" />
+              <section title="draw" ref="class_qwt_text_engine.html#a760296fb835a9db44d310616fa9eef89" />
+              <section title="heightForWidth" ref="class_qwt_text_engine.html#ae2029524166188b740ebc27ab553e234" />
+              <section title="mightRender" ref="class_qwt_text_engine.html#a55e011afec9b5a3f6d79b19652bc2bdf" />
+              <section title="textMargins" ref="class_qwt_text_engine.html#a9f3dbeaffeae25c11d543143229c5c4a" />
+              <section title="textSize" ref="class_qwt_text_engine.html#a6888b3d286a16a7b8e06db8147e43df0" />
             </section>
             <section title="QwtTextLabel" ref="class_qwt_text_label.html">
               <section title="QwtTextLabel" ref="class_qwt_text_label.html#a95e022e766f4b9675f451482be7d654a" />
@@ -2876,9 +2815,9 @@
               <section title="QwtTransform" ref="class_qwt_transform.html#aa1fa1ab21d0fc01e06d3a6e462008d0b" />
               <section title="~QwtTransform" ref="class_qwt_transform.html#aa2653db3104e672464dc569592fc14ab" />
               <section title="bounded" ref="class_qwt_transform.html#a2703fc5855720201f46ed9404271a527" />
-              <section title="copy" ref="class_qwt_transform.html#aae011ee4205fa4391459766d88971809" />
-              <section title="invTransform" ref="class_qwt_transform.html#a5cfb0a329b8418028baf6974b188d76b" />
-              <section title="transform" ref="class_qwt_transform.html#a1093b5856cbc6cf812460535442fb130" />
+              <section title="copy" ref="class_qwt_transform.html#a2736acb99a26c51eec090456910c145f" />
+              <section title="invTransform" ref="class_qwt_transform.html#a078578d562a1f76555f7b3446d1724e0" />
+              <section title="transform" ref="class_qwt_transform.html#a7ca5657c4722b4d39eb57bf5459c2fd0" />
             </section>
             <section title="QwtWeedingCurveFitter" ref="class_qwt_weeding_curve_fitter.html">
               <section title="QwtWeedingCurveFitter" ref="class_qwt_weeding_curve_fitter.html#a7deb4d070a329cbdee454023194898a7" />
@@ -2961,7 +2900,7 @@
               </section>
               <section title="QwtWidgetOverlay" ref="class_qwt_widget_overlay.html#afeb3615cf79bee41bbae21f3b92b924d" />
               <section title="~QwtWidgetOverlay" ref="class_qwt_widget_overlay.html#af234383cb42288746b970fb3fa18395d" />
-              <section title="drawOverlay" ref="class_qwt_widget_overlay.html#abb69235d3eba71b6dde354c668dd2611" />
+              <section title="drawOverlay" ref="class_qwt_widget_overlay.html#ac36e0ff0ac5de8a034af29ec4c2574ae" />
               <section title="eventFilter" ref="class_qwt_widget_overlay.html#a460de4766c71c6977478eddff3546066" />
               <section title="maskHint" ref="class_qwt_widget_overlay.html#ad5c0592969220c56494be3034e5a83de" />
               <section title="maskMode" ref="class_qwt_widget_overlay.html#a161e7b6614b8e4ab0377eba9ce8a3f5a" />
@@ -3201,57 +3140,57 @@
           <section title="Class Members" ref="functions.html">
             <section title="All" ref="functions.html">
               <section title="a" ref="functions.html" />
-              <section title="b" ref="functions_0x62.html" />
-              <section title="c" ref="functions_0x63.html" />
-              <section title="d" ref="functions_0x64.html" />
-              <section title="e" ref="functions_0x65.html" />
-              <section title="f" ref="functions_0x66.html" />
-              <section title="g" ref="functions_0x67.html" />
-              <section title="h" ref="functions_0x68.html" />
-              <section title="i" ref="functions_0x69.html" />
-              <section title="j" ref="functions_0x6a.html" />
-              <section title="k" ref="functions_0x6b.html" />
-              <section title="l" ref="functions_0x6c.html" />
-              <section title="m" ref="functions_0x6d.html" />
-              <section title="n" ref="functions_0x6e.html" />
-              <section title="o" ref="functions_0x6f.html" />
-              <section title="p" ref="functions_0x70.html" />
-              <section title="r" ref="functions_0x72.html" />
-              <section title="s" ref="functions_0x73.html" />
-              <section title="t" ref="functions_0x74.html" />
-              <section title="u" ref="functions_0x75.html" />
-              <section title="v" ref="functions_0x76.html" />
-              <section title="w" ref="functions_0x77.html" />
-              <section title="x" ref="functions_0x78.html" />
-              <section title="y" ref="functions_0x79.html" />
-              <section title="z" ref="functions_0x7a.html" />
+              <section title="b" ref="functions_b.html" />
+              <section title="c" ref="functions_c.html" />
+              <section title="d" ref="functions_d.html" />
+              <section title="e" ref="functions_e.html" />
+              <section title="f" ref="functions_f.html" />
+              <section title="g" ref="functions_g.html" />
+              <section title="h" ref="functions_h.html" />
+              <section title="i" ref="functions_i.html" />
+              <section title="j" ref="functions_j.html" />
+              <section title="k" ref="functions_k.html" />
+              <section title="l" ref="functions_l.html" />
+              <section title="m" ref="functions_m.html" />
+              <section title="n" ref="functions_n.html" />
+              <section title="o" ref="functions_o.html" />
+              <section title="p" ref="functions_p.html" />
+              <section title="r" ref="functions_r.html" />
+              <section title="s" ref="functions_s.html" />
+              <section title="t" ref="functions_t.html" />
+              <section title="u" ref="functions_u.html" />
+              <section title="v" ref="functions_v.html" />
+              <section title="w" ref="functions_w.html" />
+              <section title="x" ref="functions_x.html" />
+              <section title="y" ref="functions_y.html" />
+              <section title="z" ref="functions_z.html" />
               <section title="~" ref="functions_0x7e.html" />
             </section>
             <section title="Functions" ref="functions_func.html">
               <section title="a" ref="functions_func.html" />
-              <section title="b" ref="functions_func_0x62.html" />
-              <section title="c" ref="functions_func_0x63.html" />
-              <section title="d" ref="functions_func_0x64.html" />
-              <section title="e" ref="functions_func_0x65.html" />
-              <section title="f" ref="functions_func_0x66.html" />
-              <section title="g" ref="functions_func_0x67.html" />
-              <section title="h" ref="functions_func_0x68.html" />
-              <section title="i" ref="functions_func_0x69.html" />
-              <section title="k" ref="functions_func_0x6b.html" />
-              <section title="l" ref="functions_func_0x6c.html" />
-              <section title="m" ref="functions_func_0x6d.html" />
-              <section title="n" ref="functions_func_0x6e.html" />
-              <section title="o" ref="functions_func_0x6f.html" />
-              <section title="p" ref="functions_func_0x70.html" />
-              <section title="r" ref="functions_func_0x72.html" />
-              <section title="s" ref="functions_func_0x73.html" />
-              <section title="t" ref="functions_func_0x74.html" />
-              <section title="u" ref="functions_func_0x75.html" />
-              <section title="v" ref="functions_func_0x76.html" />
-              <section title="w" ref="functions_func_0x77.html" />
-              <section title="x" ref="functions_func_0x78.html" />
-              <section title="y" ref="functions_func_0x79.html" />
-              <section title="z" ref="functions_func_0x7a.html" />
+              <section title="b" ref="functions_func_b.html" />
+              <section title="c" ref="functions_func_c.html" />
+              <section title="d" ref="functions_func_d.html" />
+              <section title="e" ref="functions_func_e.html" />
+              <section title="f" ref="functions_func_f.html" />
+              <section title="g" ref="functions_func_g.html" />
+              <section title="h" ref="functions_func_h.html" />
+              <section title="i" ref="functions_func_i.html" />
+              <section title="k" ref="functions_func_k.html" />
+              <section title="l" ref="functions_func_l.html" />
+              <section title="m" ref="functions_func_m.html" />
+              <section title="n" ref="functions_func_n.html" />
+              <section title="o" ref="functions_func_o.html" />
+              <section title="p" ref="functions_func_p.html" />
+              <section title="r" ref="functions_func_r.html" />
+              <section title="s" ref="functions_func_s.html" />
+              <section title="t" ref="functions_func_t.html" />
+              <section title="u" ref="functions_func_u.html" />
+              <section title="v" ref="functions_func_v.html" />
+              <section title="w" ref="functions_func_w.html" />
+              <section title="x" ref="functions_func_x.html" />
+              <section title="y" ref="functions_func_y.html" />
+              <section title="z" ref="functions_func_z.html" />
               <section title="~" ref="functions_func_0x7e.html" />
             </section>
             <section title="Variables" ref="functions_vars.html" />
@@ -3259,29 +3198,29 @@
             <section title="Enumerations" ref="functions_enum.html" />
             <section title="Enumerator" ref="functions_eval.html">
               <section title="a" ref="functions_eval.html" />
-              <section title="b" ref="functions_eval_0x62.html" />
-              <section title="c" ref="functions_eval_0x63.html" />
-              <section title="d" ref="functions_eval_0x64.html" />
-              <section title="e" ref="functions_eval_0x65.html" />
-              <section title="f" ref="functions_eval_0x66.html" />
-              <section title="g" ref="functions_eval_0x67.html" />
-              <section title="h" ref="functions_eval_0x68.html" />
-              <section title="i" ref="functions_eval_0x69.html" />
-              <section title="j" ref="functions_eval_0x6a.html" />
-              <section title="k" ref="functions_eval_0x6b.html" />
-              <section title="l" ref="functions_eval_0x6c.html" />
-              <section title="m" ref="functions_eval_0x6d.html" />
-              <section title="n" ref="functions_eval_0x6e.html" />
-              <section title="o" ref="functions_eval_0x6f.html" />
-              <section title="p" ref="functions_eval_0x70.html" />
-              <section title="r" ref="functions_eval_0x72.html" />
-              <section title="s" ref="functions_eval_0x73.html" />
-              <section title="t" ref="functions_eval_0x74.html" />
-              <section title="u" ref="functions_eval_0x75.html" />
-              <section title="v" ref="functions_eval_0x76.html" />
-              <section title="w" ref="functions_eval_0x77.html" />
-              <section title="x" ref="functions_eval_0x78.html" />
-              <section title="y" ref="functions_eval_0x79.html" />
+              <section title="b" ref="functions_eval_b.html" />
+              <section title="c" ref="functions_eval_c.html" />
+              <section title="d" ref="functions_eval_d.html" />
+              <section title="e" ref="functions_eval_e.html" />
+              <section title="f" ref="functions_eval_f.html" />
+              <section title="g" ref="functions_eval_g.html" />
+              <section title="h" ref="functions_eval_h.html" />
+              <section title="i" ref="functions_eval_i.html" />
+              <section title="j" ref="functions_eval_j.html" />
+              <section title="k" ref="functions_eval_k.html" />
+              <section title="l" ref="functions_eval_l.html" />
+              <section title="m" ref="functions_eval_m.html" />
+              <section title="n" ref="functions_eval_n.html" />
+              <section title="o" ref="functions_eval_o.html" />
+              <section title="p" ref="functions_eval_p.html" />
+              <section title="r" ref="functions_eval_r.html" />
+              <section title="s" ref="functions_eval_s.html" />
+              <section title="t" ref="functions_eval_t.html" />
+              <section title="u" ref="functions_eval_u.html" />
+              <section title="v" ref="functions_eval_v.html" />
+              <section title="w" ref="functions_eval_w.html" />
+              <section title="x" ref="functions_eval_x.html" />
+              <section title="y" ref="functions_eval_y.html" />
             </section>
           </section>
         </section>
@@ -3292,16 +3231,16 @@
       <keyword name="Installing Qwt" id="Installing Qwt" ref="qwtinstall.html" />
       <keyword name="Qwt License, Version 1.0" id="Qwt License, Version 1.0" ref="qwtlicense.html" />
       <keyword name="Curve Plots" id="Curve Plots" ref="curvescreenshots.html" />
-      <keyword name="Scatter Plot" id="Scatter Plot" ref="scatterscreenshots.html" />
       <keyword name="Spectrogram, Contour Plot" id="Spectrogram, Contour Plot" ref="spectrogramscreenshots.html" />
-      <keyword name="Histogram" id="Histogram" ref="histogramscreenshots.html" />
+      <keyword name="Bar Charts, Histograms" id="Bar Charts, Histograms" ref="barchartscreenshots.html" />
+      <keyword name="Other Plots" id="Other Plots" ref="otherscreenshots.html" />
       <keyword name="Dials, Compasses, Knobs, Wheels, Sliders, Thermos" id="Dials, Compasses, Knobs, Wheels, Sliders, Thermos" ref="controlscreenshots.html" />
       <keyword name="QwtAbstractLegend" id="QwtAbstractLegend" ref="class_qwt_abstract_legend.html" />
       <keyword name="updateLegend" id="QwtAbstractLegend::updateLegend" ref="class_qwt_abstract_legend.html#aa9fc80c9e1dcbcfef51b96a3bff268ca" />
       <keyword name="QwtAbstractLegend" id="QwtAbstractLegend::QwtAbstractLegend" ref="class_qwt_abstract_legend.html#a77092d06decd579fcde5c90875c3830b" />
       <keyword name="~QwtAbstractLegend" id="QwtAbstractLegend::~QwtAbstractLegend" ref="class_qwt_abstract_legend.html#a6d86d9c50679dea9fefafc457fc70814" />
-      <keyword name="renderLegend" id="QwtAbstractLegend::renderLegend" ref="class_qwt_abstract_legend.html#a2fe1ac5ac1448e4d86b7437505214d9c" />
-      <keyword name="isEmpty" id="QwtAbstractLegend::isEmpty" ref="class_qwt_abstract_legend.html#a9904720ba92daf03d0e5d8559cc5cdfe" />
+      <keyword name="renderLegend" id="QwtAbstractLegend::renderLegend" ref="class_qwt_abstract_legend.html#a3656b3d4dcf572c0b4134b9988c975f6" />
+      <keyword name="isEmpty" id="QwtAbstractLegend::isEmpty" ref="class_qwt_abstract_legend.html#a177cb553f60c0446cdef9e7ace916641" />
       <keyword name="scrollExtent" id="QwtAbstractLegend::scrollExtent" ref="class_qwt_abstract_legend.html#a51e8c45d2afc691e78b09c662d7a493e" />
       <keyword name="QwtAbstractScale" id="QwtAbstractScale" ref="class_qwt_abstract_scale.html" />
       <keyword name="QwtAbstractScale" id="QwtAbstractScale::QwtAbstractScale" ref="class_qwt_abstract_scale.html#a97fff64367cdbe7bc8dc56c41d5faf9e" />
@@ -3354,12 +3293,12 @@
       <keyword name="penWidth" id="QwtAbstractScaleDraw::penWidth" ref="class_qwt_abstract_scale_draw.html#a8933b8da6332a6d4badfa83e67b74865" />
       <keyword name="draw" id="QwtAbstractScaleDraw::draw" ref="class_qwt_abstract_scale_draw.html#aca3c3a7499112f52616d0ee8518fa5a6" />
       <keyword name="label" id="QwtAbstractScaleDraw::label" ref="class_qwt_abstract_scale_draw.html#a4ff88bc827dd6c6ca9298de13483b61f" />
-      <keyword name="extent" id="QwtAbstractScaleDraw::extent" ref="class_qwt_abstract_scale_draw.html#a87e21208e981457cde501054319c77e7" />
+      <keyword name="extent" id="QwtAbstractScaleDraw::extent" ref="class_qwt_abstract_scale_draw.html#a52e71379b70c8f7f0d081eedc015629c" />
       <keyword name="setMinimumExtent" id="QwtAbstractScaleDraw::setMinimumExtent" ref="class_qwt_abstract_scale_draw.html#ac174255c334b995ca010a6964597d5f2" />
       <keyword name="minimumExtent" id="QwtAbstractScaleDraw::minimumExtent" ref="class_qwt_abstract_scale_draw.html#a563f102ef1370ecdfdc47133fb0c78ec" />
-      <keyword name="drawTick" id="QwtAbstractScaleDraw::drawTick" ref="class_qwt_abstract_scale_draw.html#a31791e80bf07d23adbe500740aac5a58" />
-      <keyword name="drawBackbone" id="QwtAbstractScaleDraw::drawBackbone" ref="class_qwt_abstract_scale_draw.html#a15994a6033e689c3acdb8d83ae4f2a1c" />
-      <keyword name="drawLabel" id="QwtAbstractScaleDraw::drawLabel" ref="class_qwt_abstract_scale_draw.html#aa78dc8bf05a0224450c947af54128d8d" />
+      <keyword name="drawTick" id="QwtAbstractScaleDraw::drawTick" ref="class_qwt_abstract_scale_draw.html#aa13101e75c17d80716eb1fbe43e28339" />
+      <keyword name="drawBackbone" id="QwtAbstractScaleDraw::drawBackbone" ref="class_qwt_abstract_scale_draw.html#a1d0cadfebddcbdd9e018ffcec2705e48" />
+      <keyword name="drawLabel" id="QwtAbstractScaleDraw::drawLabel" ref="class_qwt_abstract_scale_draw.html#a3690938c5726bebd56ce8cf3c27ea4bc" />
       <keyword name="invalidateCache" id="QwtAbstractScaleDraw::invalidateCache" ref="class_qwt_abstract_scale_draw.html#a4ed95cd23c5d779c1b05aa5295409aa6" />
       <keyword name="tickLabel" id="QwtAbstractScaleDraw::tickLabel" ref="class_qwt_abstract_scale_draw.html#a5e703dcb115a51024f89f92e61c2c8d8" />
       <keyword name="Backbone" id="QwtAbstractScaleDraw::Backbone" ref="class_qwt_abstract_scale_draw.html#a26215d06a4d48adf401d0aa05d4193c5a61a6c4f4dec2b089edfb655e2b21c3a2" />
@@ -3369,8 +3308,8 @@
       <keyword name="~QwtAbstractSeriesStore" id="QwtAbstractSeriesStore::~QwtAbstractSeriesStore" ref="class_qwt_abstract_series_store.html#a3990acd8aba251e46d8c64d2154e3f72" />
       <keyword name="dataChanged" id="QwtAbstractSeriesStore::dataChanged" ref="class_qwt_abstract_series_store.html#ad95aac5e145cec2871e873c16f5f83b9" />
       <keyword name="setRectOfInterest" id="QwtAbstractSeriesStore::setRectOfInterest" ref="class_qwt_abstract_series_store.html#a8a1cab11ce068f9c578a02d40e111b1a" />
-      <keyword name="dataRect" id="QwtAbstractSeriesStore::dataRect" ref="class_qwt_abstract_series_store.html#a23d498a9d5bb10cb573db55650551a2c" />
-      <keyword name="dataSize" id="QwtAbstractSeriesStore::dataSize" ref="class_qwt_abstract_series_store.html#aa68ed8e5ce3da6b18826d8f95be86ad6" />
+      <keyword name="dataRect" id="QwtAbstractSeriesStore::dataRect" ref="class_qwt_abstract_series_store.html#a932eeccd358a28726146012500038df2" />
+      <keyword name="dataSize" id="QwtAbstractSeriesStore::dataSize" ref="class_qwt_abstract_series_store.html#a2fd5537a0c0cf8de7af4a702e110b643" />
       <keyword name="QwtAbstractSlider" id="QwtAbstractSlider" ref="class_qwt_abstract_slider.html" />
       <keyword name="setValue" id="QwtAbstractSlider::setValue" ref="class_qwt_abstract_slider.html#ac3713f8989b647cb79f0a5894991e36a" />
       <keyword name="valueChanged" id="QwtAbstractSlider::valueChanged" ref="class_qwt_abstract_slider.html#a6bc5c410cd56119c6ad50743c9a46af1" />
@@ -3428,8 +3367,8 @@
       <keyword name="mouseMoveEvent" id="QwtAbstractSlider::mouseMoveEvent" ref="class_qwt_abstract_slider.html#a05ffec4c6b43909ecec148121a618f40" />
       <keyword name="keyPressEvent" id="QwtAbstractSlider::keyPressEvent" ref="class_qwt_abstract_slider.html#ab6d1105f82e8a44ea75661135ba88c85" />
       <keyword name="wheelEvent" id="QwtAbstractSlider::wheelEvent" ref="class_qwt_abstract_slider.html#a7050c9ce667176e6de4c6357b5acd493" />
-      <keyword name="isScrollPosition" id="QwtAbstractSlider::isScrollPosition" ref="class_qwt_abstract_slider.html#ae674fc01201ec3ae4964838ef539c88e" />
-      <keyword name="scrolledTo" id="QwtAbstractSlider::scrolledTo" ref="class_qwt_abstract_slider.html#af19ab98a4101c2eaa43de2df7ebe4d0d" />
+      <keyword name="isScrollPosition" id="QwtAbstractSlider::isScrollPosition" ref="class_qwt_abstract_slider.html#a3f4cae5b7a4a0a461fb04eeb0a39a5c2" />
+      <keyword name="scrolledTo" id="QwtAbstractSlider::scrolledTo" ref="class_qwt_abstract_slider.html#a3e7671e00a31e7b0ba4ef4a2c325125a" />
       <keyword name="incrementValue" id="QwtAbstractSlider::incrementValue" ref="class_qwt_abstract_slider.html#aa31fe73942c4cae17bce9e5cae36bd55" />
       <keyword name="scaleChange" id="QwtAbstractSlider::scaleChange" ref="class_qwt_abstract_slider.html#a491fe8bbe771fb51bf35d429d4b92e05" />
       <keyword name="sliderChange" id="QwtAbstractSlider::sliderChange" ref="class_qwt_abstract_slider.html#a36ac20a000d40b2fddf5c144d1133f77" />
@@ -3452,6 +3391,7 @@
       <keyword name="QwtAnalogClock" id="QwtAnalogClock" ref="class_qwt_analog_clock.html" />
       <keyword name="setCurrentTime" id="QwtAnalogClock::setCurrentTime" ref="class_qwt_analog_clock.html#a1972a54ce59155ec7435103f11a775a7" />
       <keyword name="setTime" id="QwtAnalogClock::setTime" ref="class_qwt_analog_clock.html#aa99a628b290789583052bcec9163d95c" />
+      <keyword name="setValue" id="QwtAbstractSlider::setValue" ref="class_qwt_abstract_slider.html#ac3713f8989b647cb79f0a5894991e36a" />
       <keyword name="QwtAnalogClock" id="QwtAnalogClock::QwtAnalogClock" ref="class_qwt_analog_clock.html#af52a1110f1db89c162f49a23772745b9" />
       <keyword name="~QwtAnalogClock" id="QwtAnalogClock::~QwtAnalogClock" ref="class_qwt_analog_clock.html#a3abdcecf88e3d3510d94e96e7e9e74ee" />
       <keyword name="setHand" id="QwtAnalogClock::setHand" ref="class_qwt_analog_clock.html#a643101aafbe7a6fc91cb550203a7d3ee" />
@@ -3571,7 +3511,7 @@
       <keyword name="sample" id="QwtArraySeriesData::sample" ref="class_qwt_array_series_data.html#a900ba90abf9a0852026099bdcae2ba7f" />
       <keyword name="QwtSeriesData" id="QwtSeriesData::QwtSeriesData" ref="class_qwt_series_data.html#a3f075340d18fb112a342d74716eb8d9c" />
       <keyword name="~QwtSeriesData" id="QwtSeriesData::~QwtSeriesData" ref="class_qwt_series_data.html#a841a56f909879d599a385b9c3d046745" />
-      <keyword name="boundingRect" id="QwtSeriesData::boundingRect" ref="class_qwt_series_data.html#aedb969ba51a27d88d26ad7f7cb1c2c7f" />
+      <keyword name="boundingRect" id="QwtSeriesData::boundingRect" ref="class_qwt_series_data.html#afc38837db1c8b4a302938a00341a484d" />
       <keyword name="setRectOfInterest" id="QwtSeriesData::setRectOfInterest" ref="class_qwt_series_data.html#a391b4601a7454b2f9582fbc2662d108e" />
       <keyword name="d_samples" id="QwtArraySeriesData::d_samples" ref="class_qwt_array_series_data.html#a86ccb32fa8c9b3bb9cb92b6040b0c490" />
       <keyword name="d_boundingRect" id="QwtSeriesData::d_boundingRect" ref="class_qwt_series_data.html#a24fbbcb0baa0c728117d2e6764d00414" />
@@ -3597,8 +3537,8 @@
       <keyword name="QwtColorMap" id="QwtColorMap::QwtColorMap" ref="class_qwt_color_map.html#a2ab0a6041ea6d37c0609ca2e3bd976ca" />
       <keyword name="~QwtColorMap" id="QwtColorMap::~QwtColorMap" ref="class_qwt_color_map.html#af20e4ffdb3c5d34f5a6dc301bcbb9f7e" />
       <keyword name="format" id="QwtColorMap::format" ref="class_qwt_color_map.html#a436802833ae1d4694f376655bc3d75be" />
-      <keyword name="rgb" id="QwtColorMap::rgb" ref="class_qwt_color_map.html#aaed0bb47b6379696c588732348438136" />
-      <keyword name="colorIndex" id="QwtColorMap::colorIndex" ref="class_qwt_color_map.html#a762baa2edca8773ec09e0c1c5df2cf04" />
+      <keyword name="rgb" id="QwtColorMap::rgb" ref="class_qwt_color_map.html#af33fa8c5ac1aa9583f2e1d4a109a6c5f" />
+      <keyword name="colorIndex" id="QwtColorMap::colorIndex" ref="class_qwt_color_map.html#a8fc538cb07efb7ad05a3d3f7426320ba" />
       <keyword name="color" id="QwtColorMap::color" ref="class_qwt_color_map.html#a35f74175e963d18e451a9fd4421ede1f" />
       <keyword name="colorTable" id="QwtColorMap::colorTable" ref="class_qwt_color_map.html#a4ccc23356e058783071b06dee437b6d7" />
       <keyword name="RGB" id="QwtColorMap::RGB" ref="class_qwt_color_map.html#a9e5570790910fa3894887bca7dc5a670a663473fd836d9a84fe48ae1755de326a" />
@@ -3756,7 +3696,7 @@
       <keyword name="~QwtCompassRose" id="QwtCompassRose::~QwtCompassRose" ref="class_qwt_compass_rose.html#a9e3e5086d7225152cad3a276096753be" />
       <keyword name="setPalette" id="QwtCompassRose::setPalette" ref="class_qwt_compass_rose.html#ad69f887ed012d6bf6bf2ffeb133e26d5" />
       <keyword name="palette" id="QwtCompassRose::palette" ref="class_qwt_compass_rose.html#ab2e5c2a4a27c40a175458b96d89394e8" />
-      <keyword name="draw" id="QwtCompassRose::draw" ref="class_qwt_compass_rose.html#ad974a3035da51a9cfb36fa04eb1c40a6" />
+      <keyword name="draw" id="QwtCompassRose::draw" ref="class_qwt_compass_rose.html#a977c1fbfb502f67e04466d1ebc327a40" />
       <keyword name="QwtCompassScaleDraw" id="QwtCompassScaleDraw" ref="class_qwt_compass_scale_draw.html" />
       <keyword name="QwtCompassScaleDraw" id="QwtCompassScaleDraw::QwtCompassScaleDraw" ref="class_qwt_compass_scale_draw.html#af5454a1e7d4d511e43c91f008fe65c06" />
       <keyword name="QwtCompassScaleDraw" id="QwtCompassScaleDraw::QwtCompassScaleDraw" ref="class_qwt_compass_scale_draw.html#ab8f8902087f6ba6428d637395451adfa" />
@@ -3795,6 +3735,8 @@
       <keyword name="drawTick" id="QwtRoundScaleDraw::drawTick" ref="class_qwt_round_scale_draw.html#aff2f18e7e7cac42805724ab5b0f2aad7" />
       <keyword name="drawBackbone" id="QwtRoundScaleDraw::drawBackbone" ref="class_qwt_round_scale_draw.html#a83ed97e96011d331939a3031df29f115" />
       <keyword name="drawLabel" id="QwtRoundScaleDraw::drawLabel" ref="class_qwt_round_scale_draw.html#ad45ba2c90ac205bb9405c028d6498c0f" />
+      <keyword name="invalidateCache" id="QwtAbstractScaleDraw::invalidateCache" ref="class_qwt_abstract_scale_draw.html#a4ed95cd23c5d779c1b05aa5295409aa6" />
+      <keyword name="tickLabel" id="QwtAbstractScaleDraw::tickLabel" ref="class_qwt_abstract_scale_draw.html#a5e703dcb115a51024f89f92e61c2c8d8" />
       <keyword name="QwtCompassWindArrow" id="QwtCompassWindArrow" ref="class_qwt_compass_wind_arrow.html" />
       <keyword name="QwtCompassWindArrow" id="QwtCompassWindArrow::QwtCompassWindArrow" ref="class_qwt_compass_wind_arrow.html#a1b5931f43dd7e72fc5a3e2c9b509769d" />
       <keyword name="QwtDialNeedle" id="QwtDialNeedle::QwtDialNeedle" ref="class_qwt_dial_needle.html#aef3af79632ce784bc4d7332f6e269a1f" />
@@ -3857,7 +3799,7 @@
       <keyword name="d_boundingRect" id="QwtSeriesData&lt; QPointF &gt;::d_boundingRect" ref="class_qwt_series_data.html#a24fbbcb0baa0c728117d2e6764d00414" />
       <keyword name="QwtCurveFitter" id="QwtCurveFitter" ref="class_qwt_curve_fitter.html" />
       <keyword name="~QwtCurveFitter" id="QwtCurveFitter::~QwtCurveFitter" ref="class_qwt_curve_fitter.html#a62919f309f0441d94adea94573d0f778" />
-      <keyword name="fitCurve" id="QwtCurveFitter::fitCurve" ref="class_qwt_curve_fitter.html#afa9bf5b328aa553229e204533a60fec0" />
+      <keyword name="fitCurve" id="QwtCurveFitter::fitCurve" ref="class_qwt_curve_fitter.html#a84e96e917bf522c1137e03c0ebb231ef" />
       <keyword name="QwtCurveFitter" id="QwtCurveFitter::QwtCurveFitter" ref="class_qwt_curve_fitter.html#ad804660017ae0f3ede604470724b3df3" />
       <keyword name="QwtDate" id="QwtDate" ref="class_qwt_date.html" />
       <keyword name="minDate" id="QwtDate::minDate" ref="class_qwt_date.html#a9ab1845543957472c2c6529ad03ef98d" />
@@ -3945,6 +3887,7 @@
       <keyword name="drawLabel" id="QwtScaleDraw::drawLabel" ref="class_qwt_scale_draw.html#afc02a11a03efde4ea239d77c4d7711f4" />
       <keyword name="invalidateCache" id="QwtAbstractScaleDraw::invalidateCache" ref="class_qwt_abstract_scale_draw.html#a4ed95cd23c5d779c1b05aa5295409aa6" />
       <keyword name="tickLabel" id="QwtAbstractScaleDraw::tickLabel" ref="class_qwt_abstract_scale_draw.html#a5e703dcb115a51024f89f92e61c2c8d8" />
+      <keyword name="ScaleComponents" id="QwtAbstractScaleDraw::ScaleComponents" ref="class_qwt_abstract_scale_draw.html#a0dd3ccdfa074fb6b1781b84ed2a4729a" />
       <keyword name="QwtDateScaleEngine" id="QwtDateScaleEngine" ref="class_qwt_date_scale_engine.html" />
       <keyword name="QwtDateScaleEngine" id="QwtDateScaleEngine::QwtDateScaleEngine" ref="class_qwt_date_scale_engine.html#a7eb99ee3e701d6f8467b1e9c8c248b9b" />
       <keyword name="~QwtDateScaleEngine" id="QwtDateScaleEngine::~QwtDateScaleEngine" ref="class_qwt_date_scale_engine.html#a1e1d01f5ac297bcdb1458a35bcd8d554" />
@@ -4100,7 +4043,7 @@
       <keyword name="setPalette" id="QwtDialNeedle::setPalette" ref="class_qwt_dial_needle.html#ae850883a64501136bca64d6ea2d084b9" />
       <keyword name="palette" id="QwtDialNeedle::palette" ref="class_qwt_dial_needle.html#a8b3c915032389261e07cc983b433166c" />
       <keyword name="draw" id="QwtDialNeedle::draw" ref="class_qwt_dial_needle.html#a425085086c4a8c7baff10b161616ee42" />
-      <keyword name="drawNeedle" id="QwtDialNeedle::drawNeedle" ref="class_qwt_dial_needle.html#a1e4fee366fec1838edc18890d9957f2b" />
+      <keyword name="drawNeedle" id="QwtDialNeedle::drawNeedle" ref="class_qwt_dial_needle.html#a3893ef0232ba0e000d3d33a0cb541dd1" />
       <keyword name="drawKnob" id="QwtDialNeedle::drawKnob" ref="class_qwt_dial_needle.html#aaca9572717a1db10b1b6609571024688" />
       <keyword name="QwtDialSimpleNeedle" id="QwtDialSimpleNeedle" ref="class_qwt_dial_simple_needle.html" />
       <keyword name="QwtDialSimpleNeedle" id="QwtDialSimpleNeedle::QwtDialSimpleNeedle" ref="class_qwt_dial_simple_needle.html#a5f16b9298ecd293360a3ccf91d3dbfbb" />
@@ -4291,6 +4234,7 @@
       <keyword name="~QwtSeriesData" id="QwtSeriesData&lt; QwtIntervalSample &gt;::~QwtSeriesData" ref="class_qwt_series_data.html#a841a56f909879d599a385b9c3d046745" />
       <keyword name="setRectOfInterest" id="QwtSeriesData&lt; QwtIntervalSample &gt;::setRectOfInterest" ref="class_qwt_series_data.html#a391b4601a7454b2f9582fbc2662d108e" />
       <keyword name="d_samples" id="QwtArraySeriesData&lt; QwtIntervalSample &gt;::d_samples" ref="class_qwt_array_series_data.html#a86ccb32fa8c9b3bb9cb92b6040b0c490" />
+      <keyword name="d_boundingRect" id="QwtSeriesData&lt; QwtIntervalSample &gt;::d_boundingRect" ref="class_qwt_series_data.html#a24fbbcb0baa0c728117d2e6764d00414" />
       <keyword name="QwtIntervalSymbol" id="QwtIntervalSymbol" ref="class_qwt_interval_symbol.html" />
       <keyword name="QwtIntervalSymbol" id="QwtIntervalSymbol::QwtIntervalSymbol" ref="class_qwt_interval_symbol.html#a40c03c5b54dc3c4a69cf1dc88bf25893" />
       <keyword name="QwtIntervalSymbol" id="QwtIntervalSymbol::QwtIntervalSymbol" ref="class_qwt_interval_symbol.html#a7a4ddf7e61445833f39105614ebd77c1" />
@@ -4681,7 +4625,7 @@
       <keyword name="drawTiledPixmap" id="QwtNullPaintDevice::drawTiledPixmap" ref="class_qwt_null_paint_device.html#a256a8a39d0f32fb210c4561fe1b3f867" />
       <keyword name="drawImage" id="QwtNullPaintDevice::drawImage" ref="class_qwt_null_paint_device.html#a6a18a677959e446b34419d398d4fc4c7" />
       <keyword name="updateState" id="QwtNullPaintDevice::updateState" ref="class_qwt_null_paint_device.html#a235bd4e1453a13f7c4c076a9595a8840" />
-      <keyword name="sizeMetrics" id="QwtNullPaintDevice::sizeMetrics" ref="class_qwt_null_paint_device.html#ab95def8c9d76d4fa6142458fd5ea4970" />
+      <keyword name="sizeMetrics" id="QwtNullPaintDevice::sizeMetrics" ref="class_qwt_null_paint_device.html#afb8da1b931a42cc370b77323ff6a28cc" />
       <keyword name="NormalMode" id="QwtNullPaintDevice::NormalMode" ref="class_qwt_null_paint_device.html#a1e605d04e468e2e7fc45c639251a053aa2ad991b2edd425baa217eb90ed9930f7" />
       <keyword name="PolygonPathMode" id="QwtNullPaintDevice::PolygonPathMode" ref="class_qwt_null_paint_device.html#a1e605d04e468e2e7fc45c639251a053aad26aa1be0859afe98851b8ee170ca0a7" />
       <keyword name="PathMode" id="QwtNullPaintDevice::PathMode" ref="class_qwt_null_paint_device.html#a1e605d04e468e2e7fc45c639251a053aa6dd94a051e9b1bab414cc819f2878e65" />
@@ -5070,7 +5014,6 @@
       <keyword name="insertItem" id="QwtPlotDict::insertItem" ref="class_qwt_plot_dict.html#a36a00709420eb4f54b046e64561d5186" />
       <keyword name="removeItem" id="QwtPlotDict::removeItem" ref="class_qwt_plot_dict.html#abd0227e8b888b40b4e62a23f6040c6cd" />
       <keyword name="axisValid" id="QwtPlot::axisValid" ref="class_qwt_plot.html#ac02c033b024a4ecbefcf1b0e93c91205" />
-      <keyword name="QwtPlotItem" id="QwtPlot::QwtPlotItem" ref="class_qwt_plot.html#a055bada44394b2c38d0d907087a14fa3" />
       <keyword name="yLeft" id="QwtPlot::yLeft" ref="class_qwt_plot.html#a81df699dcf9dde0752c0726b5f31e271a1bb1fbc11e31ebfa8bf72356f6837b17" />
       <keyword name="yRight" id="QwtPlot::yRight" ref="class_qwt_plot.html#a81df699dcf9dde0752c0726b5f31e271a1de23b30c6b0c08aefe06d6265b65155" />
       <keyword name="xBottom" id="QwtPlot::xBottom" ref="class_qwt_plot.html#a81df699dcf9dde0752c0726b5f31e271ad5566960e78f2473c1a1e853def4c4ac" />
@@ -5081,6 +5024,9 @@
       <keyword name="BottomLegend" id="QwtPlot::BottomLegend" ref="class_qwt_plot.html#a31aacb65b5c049dde8c34a0d8482661ba8b863705308d89b388732f186be15fb5" />
       <keyword name="TopLegend" id="QwtPlot::TopLegend" ref="class_qwt_plot.html#a31aacb65b5c049dde8c34a0d8482661ba0ee6820a1e8b56737958b738ca23ae34" />
       <keyword name="QwtPlotAbstractBarChart" id="QwtPlotAbstractBarChart" ref="class_qwt_plot_abstract_bar_chart.html" />
+      <keyword name="ItemAttributes" id="QwtPlotItem::ItemAttributes" ref="class_qwt_plot_item.html#af356dc13c7838c7437334e199a356764" />
+      <keyword name="ItemInterests" id="QwtPlotItem::ItemInterests" ref="class_qwt_plot_item.html#a6a0c870664f074f342422859638c1228" />
+      <keyword name="RenderHints" id="QwtPlotItem::RenderHints" ref="class_qwt_plot_item.html#a40cf900701d3a68948b00316689616d1" />
       <keyword name="QwtPlotAbstractBarChart" id="QwtPlotAbstractBarChart::QwtPlotAbstractBarChart" ref="class_qwt_plot_abstract_bar_chart.html#a1eed4138383e5f0d118d518fd0255711" />
       <keyword name="~QwtPlotAbstractBarChart" id="QwtPlotAbstractBarChart::~QwtPlotAbstractBarChart" ref="class_qwt_plot_abstract_bar_chart.html#a80176eb6c7f95c5f5b9b90e595e1fdcd" />
       <keyword name="setLayoutPolicy" id="QwtPlotAbstractBarChart::setLayoutPolicy" ref="class_qwt_plot_abstract_bar_chart.html#aabc7165ee75a38f444aa97e9b3dca16b" />
@@ -5100,7 +5046,7 @@
       <keyword name="setOrientation" id="QwtPlotSeriesItem::setOrientation" ref="class_qwt_plot_series_item.html#a9d131249079ec3bc503831349bd1a051" />
       <keyword name="orientation" id="QwtPlotSeriesItem::orientation" ref="class_qwt_plot_series_item.html#a2f97f0885d3f7adc7a9d484e741d2a76" />
       <keyword name="draw" id="QwtPlotSeriesItem::draw" ref="class_qwt_plot_series_item.html#af64601a32413f6f4928ceccc4934737e" />
-      <keyword name="drawSeries" id="QwtPlotSeriesItem::drawSeries" ref="class_qwt_plot_series_item.html#af6c8091544081ff72723270cc7c8f139" />
+      <keyword name="drawSeries" id="QwtPlotSeriesItem::drawSeries" ref="class_qwt_plot_series_item.html#ac2686c5aefdbb39265e6d2b6f6bf5894" />
       <keyword name="boundingRect" id="QwtPlotSeriesItem::boundingRect" ref="class_qwt_plot_series_item.html#a7a0fffd64c5416a8f18df00ab8a90ea3" />
       <keyword name="updateScaleDiv" id="QwtPlotSeriesItem::updateScaleDiv" ref="class_qwt_plot_series_item.html#a890792d0f44e341812b5283c249608b2" />
       <keyword name="QwtPlotItem" id="QwtPlotItem::QwtPlotItem" ref="class_qwt_plot_item.html#a5d892ac856fb9176515c5f2d806161dc" />
@@ -5145,13 +5091,16 @@
       <keyword name="defaultIcon" id="QwtPlotItem::defaultIcon" ref="class_qwt_plot_item.html#af5264c9dcd9d1ec503bc1d46c10adc83" />
       <keyword name="~QwtAbstractSeriesStore" id="QwtAbstractSeriesStore::~QwtAbstractSeriesStore" ref="class_qwt_abstract_series_store.html#a3990acd8aba251e46d8c64d2154e3f72" />
       <keyword name="setRectOfInterest" id="QwtAbstractSeriesStore::setRectOfInterest" ref="class_qwt_abstract_series_store.html#a8a1cab11ce068f9c578a02d40e111b1a" />
-      <keyword name="dataRect" id="QwtAbstractSeriesStore::dataRect" ref="class_qwt_abstract_series_store.html#a23d498a9d5bb10cb573db55650551a2c" />
-      <keyword name="dataSize" id="QwtAbstractSeriesStore::dataSize" ref="class_qwt_abstract_series_store.html#aa68ed8e5ce3da6b18826d8f95be86ad6" />
+      <keyword name="dataRect" id="QwtAbstractSeriesStore::dataRect" ref="class_qwt_abstract_series_store.html#a932eeccd358a28726146012500038df2" />
+      <keyword name="dataSize" id="QwtAbstractSeriesStore::dataSize" ref="class_qwt_abstract_series_store.html#a2fd5537a0c0cf8de7af4a702e110b643" />
       <keyword name="AutoAdjustSamples" id="QwtPlotAbstractBarChart::AutoAdjustSamples" ref="class_qwt_plot_abstract_bar_chart.html#ae1db0e1606747ef46c863c54c210e53aa6d8801b5f08318c9be2441ca4bb15a96" />
       <keyword name="ScaleSamplesToAxes" id="QwtPlotAbstractBarChart::ScaleSamplesToAxes" ref="class_qwt_plot_abstract_bar_chart.html#ae1db0e1606747ef46c863c54c210e53aaa436f4537d15dbfac62c864389b12220" />
       <keyword name="ScaleSampleToCanvas" id="QwtPlotAbstractBarChart::ScaleSampleToCanvas" ref="class_qwt_plot_abstract_bar_chart.html#ae1db0e1606747ef46c863c54c210e53aaf63f5c75741674252ac3d788735873d5" />
       <keyword name="FixedSampleSize" id="QwtPlotAbstractBarChart::FixedSampleSize" ref="class_qwt_plot_abstract_bar_chart.html#ae1db0e1606747ef46c863c54c210e53aa17d33062f0a9e6c38e43a0c51ba778e5" />
       <keyword name="QwtPlotBarChart" id="QwtPlotBarChart" ref="class_qwt_plot_bar_chart.html" />
+      <keyword name="ItemAttributes" id="QwtPlotItem::ItemAttributes" ref="class_qwt_plot_item.html#af356dc13c7838c7437334e199a356764" />
+      <keyword name="ItemInterests" id="QwtPlotItem::ItemInterests" ref="class_qwt_plot_item.html#a6a0c870664f074f342422859638c1228" />
+      <keyword name="RenderHints" id="QwtPlotItem::RenderHints" ref="class_qwt_plot_item.html#a40cf900701d3a68948b00316689616d1" />
       <keyword name="QwtPlotBarChart" id="QwtPlotBarChart::QwtPlotBarChart" ref="class_qwt_plot_bar_chart.html#abc94e8caf46d58726de297d00a09575d" />
       <keyword name="QwtPlotBarChart" id="QwtPlotBarChart::QwtPlotBarChart" ref="class_qwt_plot_bar_chart.html#a99bf404571a13a0f9a4e3a01cbe69d8a" />
       <keyword name="~QwtPlotBarChart" id="QwtPlotBarChart::~QwtPlotBarChart" ref="class_qwt_plot_bar_chart.html#ad09883b49e09cee21bb9d21cd7425271" />
@@ -5274,6 +5223,9 @@
       <keyword name="CurveAttributes" id="QwtPlotCurve::CurveAttributes" ref="class_qwt_plot_curve.html#a43f465d035a5125d582768944287c70c" />
       <keyword name="LegendAttributes" id="QwtPlotCurve::LegendAttributes" ref="class_qwt_plot_curve.html#aa9b27e27ddc27466eed70485e690daa6" />
       <keyword name="PaintAttributes" id="QwtPlotCurve::PaintAttributes" ref="class_qwt_plot_curve.html#a39ba40485087294c775a367d859b6237" />
+      <keyword name="ItemAttributes" id="QwtPlotItem::ItemAttributes" ref="class_qwt_plot_item.html#af356dc13c7838c7437334e199a356764" />
+      <keyword name="ItemInterests" id="QwtPlotItem::ItemInterests" ref="class_qwt_plot_item.html#a6a0c870664f074f342422859638c1228" />
+      <keyword name="RenderHints" id="QwtPlotItem::RenderHints" ref="class_qwt_plot_item.html#a40cf900701d3a68948b00316689616d1" />
       <keyword name="QwtPlotCurve" id="QwtPlotCurve::QwtPlotCurve" ref="class_qwt_plot_curve.html#ac7d2d9e21ee3e054b51fb954cf95c820" />
       <keyword name="QwtPlotCurve" id="QwtPlotCurve::QwtPlotCurve" ref="class_qwt_plot_curve.html#a3bcaa88363509f4bc1ad92bee498f203" />
       <keyword name="~QwtPlotCurve" id="QwtPlotCurve::~QwtPlotCurve" ref="class_qwt_plot_curve.html#aa05ec6d3883821a8e62330fbeeb85dbd" />
@@ -5511,6 +5463,9 @@
       <keyword name="RenderHints" id="QwtPlotItem::RenderHints" ref="class_qwt_plot_item.html#a40cf900701d3a68948b00316689616d1" />
       <keyword name="defaultIcon" id="QwtPlotItem::defaultIcon" ref="class_qwt_plot_item.html#af5264c9dcd9d1ec503bc1d46c10adc83" />
       <keyword name="QwtPlotHistogram" id="QwtPlotHistogram" ref="class_qwt_plot_histogram.html" />
+      <keyword name="ItemAttributes" id="QwtPlotItem::ItemAttributes" ref="class_qwt_plot_item.html#af356dc13c7838c7437334e199a356764" />
+      <keyword name="ItemInterests" id="QwtPlotItem::ItemInterests" ref="class_qwt_plot_item.html#a6a0c870664f074f342422859638c1228" />
+      <keyword name="RenderHints" id="QwtPlotItem::RenderHints" ref="class_qwt_plot_item.html#a40cf900701d3a68948b00316689616d1" />
       <keyword name="QwtPlotHistogram" id="QwtPlotHistogram::QwtPlotHistogram" ref="class_qwt_plot_histogram.html#ada0642611a7edc4ea3beac45428fd786" />
       <keyword name="QwtPlotHistogram" id="QwtPlotHistogram::QwtPlotHistogram" ref="class_qwt_plot_histogram.html#a5c0973a9425655be4218298706d25f38" />
       <keyword name="~QwtPlotHistogram" id="QwtPlotHistogram::~QwtPlotHistogram" ref="class_qwt_plot_histogram.html#a64bf6dad5655ef1ef3a0a1507d2feafb" />
@@ -5598,6 +5553,9 @@
       <keyword name="UserStyle" id="QwtPlotHistogram::UserStyle" ref="class_qwt_plot_histogram.html#a3ba21c3aef994daf7b848ccf71b0dbc5a586b4f119cfbfe62de143c836227c06e" />
       <keyword name="QwtPlotIntervalCurve" id="QwtPlotIntervalCurve" ref="class_qwt_plot_interval_curve.html" />
       <keyword name="PaintAttributes" id="QwtPlotIntervalCurve::PaintAttributes" ref="class_qwt_plot_interval_curve.html#a1fa99e81e5c1b687aec620e9b8746d6c" />
+      <keyword name="ItemAttributes" id="QwtPlotItem::ItemAttributes" ref="class_qwt_plot_item.html#af356dc13c7838c7437334e199a356764" />
+      <keyword name="ItemInterests" id="QwtPlotItem::ItemInterests" ref="class_qwt_plot_item.html#a6a0c870664f074f342422859638c1228" />
+      <keyword name="RenderHints" id="QwtPlotItem::RenderHints" ref="class_qwt_plot_item.html#a40cf900701d3a68948b00316689616d1" />
       <keyword name="QwtPlotIntervalCurve" id="QwtPlotIntervalCurve::QwtPlotIntervalCurve" ref="class_qwt_plot_interval_curve.html#af5bfe837aec8dc8884394ca7813a8d41" />
       <keyword name="QwtPlotIntervalCurve" id="QwtPlotIntervalCurve::QwtPlotIntervalCurve" ref="class_qwt_plot_interval_curve.html#ab7d0884ffb900fc453d621580f348c0e" />
       <keyword name="~QwtPlotIntervalCurve" id="QwtPlotIntervalCurve::~QwtPlotIntervalCurve" ref="class_qwt_plot_interval_curve.html#a1b04a9a4e327b8e33de2c02cf89fa574" />
@@ -5718,7 +5676,7 @@
       <keyword name="yAxis" id="QwtPlotItem::yAxis" ref="class_qwt_plot_item.html#ac7714ffa278a10e0cf45972e487b63ff" />
       <keyword name="itemChanged" id="QwtPlotItem::itemChanged" ref="class_qwt_plot_item.html#ad956fdbce5b0721abccce6d09fe4d5ce" />
       <keyword name="legendChanged" id="QwtPlotItem::legendChanged" ref="class_qwt_plot_item.html#a3967414c7542e267d0c2793f02be7241" />
-      <keyword name="draw" id="QwtPlotItem::draw" ref="class_qwt_plot_item.html#a0b0d6589d5db81ce72e6b33c4fbb21f9" />
+      <keyword name="draw" id="QwtPlotItem::draw" ref="class_qwt_plot_item.html#a4e4c2f404d38e670690805b0e2a17d16" />
       <keyword name="boundingRect" id="QwtPlotItem::boundingRect" ref="class_qwt_plot_item.html#aec3c408e14af30b82b52c1197310eb21" />
       <keyword name="getCanvasMarginHint" id="QwtPlotItem::getCanvasMarginHint" ref="class_qwt_plot_item.html#a46b0d88f7667e0e93dee5253c8be001f" />
       <keyword name="updateScaleDiv" id="QwtPlotItem::updateScaleDiv" ref="class_qwt_plot_item.html#abf6a70847d3db952161ca4d4a952eea0" />
@@ -5990,6 +5948,9 @@
       <keyword name="VLine" id="QwtPlotMarker::VLine" ref="class_qwt_plot_marker.html#a297efa835423bfa5a870bbc8ff1c623ba55ab75371699cd7c0e55c494da6454dc" />
       <keyword name="Cross" id="QwtPlotMarker::Cross" ref="class_qwt_plot_marker.html#a297efa835423bfa5a870bbc8ff1c623ba5014eec17204ed4b0cec35e7322696d2" />
       <keyword name="QwtPlotMultiBarChart" id="QwtPlotMultiBarChart" ref="class_qwt_plot_multi_bar_chart.html" />
+      <keyword name="ItemAttributes" id="QwtPlotItem::ItemAttributes" ref="class_qwt_plot_item.html#af356dc13c7838c7437334e199a356764" />
+      <keyword name="ItemInterests" id="QwtPlotItem::ItemInterests" ref="class_qwt_plot_item.html#a6a0c870664f074f342422859638c1228" />
+      <keyword name="RenderHints" id="QwtPlotItem::RenderHints" ref="class_qwt_plot_item.html#a40cf900701d3a68948b00316689616d1" />
       <keyword name="QwtPlotMultiBarChart" id="QwtPlotMultiBarChart::QwtPlotMultiBarChart" ref="class_qwt_plot_multi_bar_chart.html#a8e5a1a75c21f52f53a588a80f95d0317" />
       <keyword name="QwtPlotMultiBarChart" id="QwtPlotMultiBarChart::QwtPlotMultiBarChart" ref="class_qwt_plot_multi_bar_chart.html#a5e663f9492a0aff79e171997d779ffb4" />
       <keyword name="~QwtPlotMultiBarChart" id="QwtPlotMultiBarChart::~QwtPlotMultiBarChart" ref="class_qwt_plot_multi_bar_chart.html#a171ad297d47ba4d4b74755a55af6db94" />
@@ -6276,7 +6237,7 @@
       <keyword name="paintRect" id="QwtPlotItem::paintRect" ref="class_qwt_plot_item.html#afa05b98fd7ea65ca1ffcb04bb6b4326d" />
       <keyword name="legendData" id="QwtPlotItem::legendData" ref="class_qwt_plot_item.html#a584b37b42cb2c63424cedade1f4d7221" />
       <keyword name="legendIcon" id="QwtPlotItem::legendIcon" ref="class_qwt_plot_item.html#ab192921c0d3c94832c6f617716a6b275" />
-      <keyword name="renderImage" id="QwtPlotRasterItem::renderImage" ref="class_qwt_plot_raster_item.html#a1738b36c0e6e4073f3ad6629e7923f74" />
+      <keyword name="renderImage" id="QwtPlotRasterItem::renderImage" ref="class_qwt_plot_raster_item.html#ab9e3e0a33101bf73cc39e5de858608db" />
       <keyword name="imageMap" id="QwtPlotRasterItem::imageMap" ref="class_qwt_plot_raster_item.html#a9feb834f9e40cdff11d8cd6ad74fda10" />
       <keyword name="defaultIcon" id="QwtPlotItem::defaultIcon" ref="class_qwt_plot_item.html#af5264c9dcd9d1ec503bc1d46c10adc83" />
       <keyword name="NoCache" id="QwtPlotRasterItem::NoCache" ref="class_qwt_plot_raster_item.html#a94929fc4c31c3dab75ee5adcac2d57b0a758ccf247c4ae50d4ffd090ef3a6058e" />
@@ -6423,7 +6384,7 @@
       <keyword name="setOrientation" id="QwtPlotSeriesItem::setOrientation" ref="class_qwt_plot_series_item.html#a9d131249079ec3bc503831349bd1a051" />
       <keyword name="orientation" id="QwtPlotSeriesItem::orientation" ref="class_qwt_plot_series_item.html#a2f97f0885d3f7adc7a9d484e741d2a76" />
       <keyword name="draw" id="QwtPlotSeriesItem::draw" ref="class_qwt_plot_series_item.html#af64601a32413f6f4928ceccc4934737e" />
-      <keyword name="drawSeries" id="QwtPlotSeriesItem::drawSeries" ref="class_qwt_plot_series_item.html#af6c8091544081ff72723270cc7c8f139" />
+      <keyword name="drawSeries" id="QwtPlotSeriesItem::drawSeries" ref="class_qwt_plot_series_item.html#ac2686c5aefdbb39265e6d2b6f6bf5894" />
       <keyword name="boundingRect" id="QwtPlotSeriesItem::boundingRect" ref="class_qwt_plot_series_item.html#a7a0fffd64c5416a8f18df00ab8a90ea3" />
       <keyword name="updateScaleDiv" id="QwtPlotSeriesItem::updateScaleDiv" ref="class_qwt_plot_series_item.html#a890792d0f44e341812b5283c249608b2" />
       <keyword name="QwtPlotItem" id="QwtPlotItem::QwtPlotItem" ref="class_qwt_plot_item.html#a5d892ac856fb9176515c5f2d806161dc" />
@@ -6468,8 +6429,8 @@
       <keyword name="defaultIcon" id="QwtPlotItem::defaultIcon" ref="class_qwt_plot_item.html#af5264c9dcd9d1ec503bc1d46c10adc83" />
       <keyword name="~QwtAbstractSeriesStore" id="QwtAbstractSeriesStore::~QwtAbstractSeriesStore" ref="class_qwt_abstract_series_store.html#a3990acd8aba251e46d8c64d2154e3f72" />
       <keyword name="setRectOfInterest" id="QwtAbstractSeriesStore::setRectOfInterest" ref="class_qwt_abstract_series_store.html#a8a1cab11ce068f9c578a02d40e111b1a" />
-      <keyword name="dataRect" id="QwtAbstractSeriesStore::dataRect" ref="class_qwt_abstract_series_store.html#a23d498a9d5bb10cb573db55650551a2c" />
-      <keyword name="dataSize" id="QwtAbstractSeriesStore::dataSize" ref="class_qwt_abstract_series_store.html#aa68ed8e5ce3da6b18826d8f95be86ad6" />
+      <keyword name="dataRect" id="QwtAbstractSeriesStore::dataRect" ref="class_qwt_abstract_series_store.html#a932eeccd358a28726146012500038df2" />
+      <keyword name="dataSize" id="QwtAbstractSeriesStore::dataSize" ref="class_qwt_abstract_series_store.html#a2fd5537a0c0cf8de7af4a702e110b643" />
       <keyword name="ItemAttributes" id="QwtPlotItem::ItemAttributes" ref="class_qwt_plot_item.html#af356dc13c7838c7437334e199a356764" />
       <keyword name="ItemInterests" id="QwtPlotItem::ItemInterests" ref="class_qwt_plot_item.html#a6a0c870664f074f342422859638c1228" />
       <keyword name="RenderHints" id="QwtPlotItem::RenderHints" ref="class_qwt_plot_item.html#a40cf900701d3a68948b00316689616d1" />
@@ -6543,6 +6504,9 @@
       <keyword name="ClipPolygons" id="QwtPlotShapeItem::ClipPolygons" ref="class_qwt_plot_shape_item.html#aaa78031ce7ab1b8e713bc05da05a4631a21854077548e55943dc8f9f208960442" />
       <keyword name="QwtPlotSpectroCurve" id="QwtPlotSpectroCurve" ref="class_qwt_plot_spectro_curve.html" />
       <keyword name="PaintAttributes" id="QwtPlotSpectroCurve::PaintAttributes" ref="class_qwt_plot_spectro_curve.html#a78b3bf4c7d055f2f00bd371e9ddc4f2f" />
+      <keyword name="ItemAttributes" id="QwtPlotItem::ItemAttributes" ref="class_qwt_plot_item.html#af356dc13c7838c7437334e199a356764" />
+      <keyword name="ItemInterests" id="QwtPlotItem::ItemInterests" ref="class_qwt_plot_item.html#a6a0c870664f074f342422859638c1228" />
+      <keyword name="RenderHints" id="QwtPlotItem::RenderHints" ref="class_qwt_plot_item.html#a40cf900701d3a68948b00316689616d1" />
       <keyword name="QwtPlotSpectroCurve" id="QwtPlotSpectroCurve::QwtPlotSpectroCurve" ref="class_qwt_plot_spectro_curve.html#aa02c00eb35a6f08ab11091ef66c737cd" />
       <keyword name="QwtPlotSpectroCurve" id="QwtPlotSpectroCurve::QwtPlotSpectroCurve" ref="class_qwt_plot_spectro_curve.html#a78170049ecb2b6681a107abf26783bd7" />
       <keyword name="~QwtPlotSpectroCurve" id="QwtPlotSpectroCurve::~QwtPlotSpectroCurve" ref="class_qwt_plot_spectro_curve.html#a8246490aaa9d47e77f5596f56fb073d6" />
@@ -6607,16 +6571,6 @@
       <keyword name="dataChanged" id="QwtPlotSeriesItem::dataChanged" ref="class_qwt_plot_series_item.html#a8eaf7453ca8b3e8f522433149ba4c80d" />
       <keyword name="defaultIcon" id="QwtPlotItem::defaultIcon" ref="class_qwt_plot_item.html#af5264c9dcd9d1ec503bc1d46c10adc83" />
       <keyword name="~QwtAbstractSeriesStore" id="QwtAbstractSeriesStore::~QwtAbstractSeriesStore" ref="class_qwt_abstract_series_store.html#a3990acd8aba251e46d8c64d2154e3f72" />
-      <keyword name="QwtSeriesStore" id="QwtSeriesStore&lt; QwtPoint3D &gt;::QwtSeriesStore" ref="class_qwt_series_store.html#aa23545f522f87da936c0f095ee07c80e" />
-      <keyword name="~QwtSeriesStore" id="QwtSeriesStore&lt; QwtPoint3D &gt;::~QwtSeriesStore" ref="class_qwt_series_store.html#ae500a3787e77e16d096f4e6c1d292101" />
-      <keyword name="setData" id="QwtSeriesStore&lt; QwtPoint3D &gt;::setData" ref="class_qwt_series_store.html#add3ce83fe90e976b75a0ebaa79caee4c" />
-      <keyword name="data" id="QwtSeriesStore&lt; QwtPoint3D &gt;::data" ref="class_qwt_series_store.html#aae258d330c8d1bd2057b1f0bc13700f9" />
-      <keyword name="data" id="QwtSeriesStore&lt; QwtPoint3D &gt;::data" ref="class_qwt_series_store.html#afa10ec8a1ed48eb1955481bef8af6995" />
-      <keyword name="sample" id="QwtSeriesStore&lt; QwtPoint3D &gt;::sample" ref="class_qwt_series_store.html#adbb86cd5cd59472f2f3137742ca74a48" />
-      <keyword name="dataSize" id="QwtSeriesStore&lt; QwtPoint3D &gt;::dataSize" ref="class_qwt_series_store.html#a1a3b9719889a0d7b85baf24b3dbf964f" />
-      <keyword name="dataRect" id="QwtSeriesStore&lt; QwtPoint3D &gt;::dataRect" ref="class_qwt_series_store.html#a2acffb18573253acfb30cbedacf8c711" />
-      <keyword name="setRectOfInterest" id="QwtSeriesStore&lt; QwtPoint3D &gt;::setRectOfInterest" ref="class_qwt_series_store.html#a64971dd5eaed045b88ac06c9cd8fd6e9" />
-      <keyword name="swapData" id="QwtSeriesStore&lt; QwtPoint3D &gt;::swapData" ref="class_qwt_series_store.html#a5f47997d53d580e6a12a6ca61b7225b0" />
       <keyword name="ClipPoints" id="QwtPlotSpectroCurve::ClipPoints" ref="class_qwt_plot_spectro_curve.html#af6d4c6ae392f3f521db710484a059625ab8586d2301ec1e0888f852bca84c2501" />
       <keyword name="QwtPlotSpectrogram" id="QwtPlotSpectrogram" ref="class_qwt_plot_spectrogram.html" />
       <keyword name="DisplayModes" id="QwtPlotSpectrogram::DisplayModes" ref="class_qwt_plot_spectrogram.html#a245a6d1281abe84d177d61be0698db55" />
@@ -6814,6 +6768,9 @@
       <keyword name="RenderHints" id="QwtPlotItem::RenderHints" ref="class_qwt_plot_item.html#a40cf900701d3a68948b00316689616d1" />
       <keyword name="QwtPlotTradingCurve" id="QwtPlotTradingCurve" ref="class_qwt_plot_trading_curve.html" />
       <keyword name="PaintAttributes" id="QwtPlotTradingCurve::PaintAttributes" ref="class_qwt_plot_trading_curve.html#a284bcaa3994148bda302e5fec17467d8" />
+      <keyword name="ItemAttributes" id="QwtPlotItem::ItemAttributes" ref="class_qwt_plot_item.html#af356dc13c7838c7437334e199a356764" />
+      <keyword name="ItemInterests" id="QwtPlotItem::ItemInterests" ref="class_qwt_plot_item.html#a6a0c870664f074f342422859638c1228" />
+      <keyword name="RenderHints" id="QwtPlotItem::RenderHints" ref="class_qwt_plot_item.html#a40cf900701d3a68948b00316689616d1" />
       <keyword name="QwtPlotTradingCurve" id="QwtPlotTradingCurve::QwtPlotTradingCurve" ref="class_qwt_plot_trading_curve.html#a0a46b6269279e2c96b253d241025b13f" />
       <keyword name="QwtPlotTradingCurve" id="QwtPlotTradingCurve::QwtPlotTradingCurve" ref="class_qwt_plot_trading_curve.html#aa8359acb3760cc9f8ccc8ab10d10262f" />
       <keyword name="~QwtPlotTradingCurve" id="QwtPlotTradingCurve::~QwtPlotTradingCurve" ref="class_qwt_plot_trading_curve.html#a93a040562cf897355196f127c7231194" />
@@ -6890,16 +6847,6 @@
       <keyword name="dataChanged" id="QwtPlotSeriesItem::dataChanged" ref="class_qwt_plot_series_item.html#a8eaf7453ca8b3e8f522433149ba4c80d" />
       <keyword name="defaultIcon" id="QwtPlotItem::defaultIcon" ref="class_qwt_plot_item.html#af5264c9dcd9d1ec503bc1d46c10adc83" />
       <keyword name="~QwtAbstractSeriesStore" id="QwtAbstractSeriesStore::~QwtAbstractSeriesStore" ref="class_qwt_abstract_series_store.html#a3990acd8aba251e46d8c64d2154e3f72" />
-      <keyword name="QwtSeriesStore" id="QwtSeriesStore&lt; QwtOHLCSample &gt;::QwtSeriesStore" ref="class_qwt_series_store.html#aa23545f522f87da936c0f095ee07c80e" />
-      <keyword name="~QwtSeriesStore" id="QwtSeriesStore&lt; QwtOHLCSample &gt;::~QwtSeriesStore" ref="class_qwt_series_store.html#ae500a3787e77e16d096f4e6c1d292101" />
-      <keyword name="setData" id="QwtSeriesStore&lt; QwtOHLCSample &gt;::setData" ref="class_qwt_series_store.html#add3ce83fe90e976b75a0ebaa79caee4c" />
-      <keyword name="data" id="QwtSeriesStore&lt; QwtOHLCSample &gt;::data" ref="class_qwt_series_store.html#aae258d330c8d1bd2057b1f0bc13700f9" />
-      <keyword name="data" id="QwtSeriesStore&lt; QwtOHLCSample &gt;::data" ref="class_qwt_series_store.html#afa10ec8a1ed48eb1955481bef8af6995" />
-      <keyword name="sample" id="QwtSeriesStore&lt; QwtOHLCSample &gt;::sample" ref="class_qwt_series_store.html#adbb86cd5cd59472f2f3137742ca74a48" />
-      <keyword name="dataSize" id="QwtSeriesStore&lt; QwtOHLCSample &gt;::dataSize" ref="class_qwt_series_store.html#a1a3b9719889a0d7b85baf24b3dbf964f" />
-      <keyword name="dataRect" id="QwtSeriesStore&lt; QwtOHLCSample &gt;::dataRect" ref="class_qwt_series_store.html#a2acffb18573253acfb30cbedacf8c711" />
-      <keyword name="setRectOfInterest" id="QwtSeriesStore&lt; QwtOHLCSample &gt;::setRectOfInterest" ref="class_qwt_series_store.html#a64971dd5eaed045b88ac06c9cd8fd6e9" />
-      <keyword name="swapData" id="QwtSeriesStore&lt; QwtOHLCSample &gt;::swapData" ref="class_qwt_series_store.html#a5f47997d53d580e6a12a6ca61b7225b0" />
       <keyword name="Increasing" id="QwtPlotTradingCurve::Increasing" ref="class_qwt_plot_trading_curve.html#ab9136d2f1a4dc34dd09a0c03e809b4afa0d39ddffe160060a5c99ff5324d227d8" />
       <keyword name="Decreasing" id="QwtPlotTradingCurve::Decreasing" ref="class_qwt_plot_trading_curve.html#ab9136d2f1a4dc34dd09a0c03e809b4afacd9a36ba360db4449bf40928d1652d83" />
       <keyword name="ClipSymbols" id="QwtPlotTradingCurve::ClipSymbols" ref="class_qwt_plot_trading_curve.html#afc40b9bee1371ebce4a7f3853fee7968a8bcf035ef95b4c4f95fa78a3459a4c2c" />
@@ -6970,6 +6917,7 @@
       <keyword name="moveTo" id="QwtPlotZoomer::moveTo" ref="class_qwt_plot_zoomer.html#a40853271ba53bb66f9cf744ab69c1b13" />
       <keyword name="zoom" id="QwtPlotZoomer::zoom" ref="class_qwt_plot_zoomer.html#afe9f123f263536b620d1a9061d5705c6" />
       <keyword name="zoom" id="QwtPlotZoomer::zoom" ref="class_qwt_plot_zoomer.html#a0cee73f15c5791553cb52c4e7b3e881e" />
+      <keyword name="setEnabled" id="QwtPicker::setEnabled" ref="class_qwt_picker.html#aa590756369efae6ebf323302a0af5d36" />
       <keyword name="zoomed" id="QwtPlotZoomer::zoomed" ref="class_qwt_plot_zoomer.html#af5d312de34b493b59e48f03850478648" />
       <keyword name="selected" id="QwtPlotPicker::selected" ref="class_qwt_plot_picker.html#a28f6c8af0efd0abb6dc144670efbb31b" />
       <keyword name="selected" id="QwtPlotPicker::selected" ref="class_qwt_plot_picker.html#ace55ce208052c631ce666b5af2b7342b" />
@@ -7113,6 +7061,7 @@
       <keyword name="~QwtSeriesData" id="QwtSeriesData&lt; QwtPoint3D &gt;::~QwtSeriesData" ref="class_qwt_series_data.html#a841a56f909879d599a385b9c3d046745" />
       <keyword name="setRectOfInterest" id="QwtSeriesData&lt; QwtPoint3D &gt;::setRectOfInterest" ref="class_qwt_series_data.html#a391b4601a7454b2f9582fbc2662d108e" />
       <keyword name="d_samples" id="QwtArraySeriesData&lt; QwtPoint3D &gt;::d_samples" ref="class_qwt_array_series_data.html#a86ccb32fa8c9b3bb9cb92b6040b0c490" />
+      <keyword name="d_boundingRect" id="QwtSeriesData&lt; QwtPoint3D &gt;::d_boundingRect" ref="class_qwt_series_data.html#a24fbbcb0baa0c728117d2e6764d00414" />
       <keyword name="QwtPointArrayData" id="QwtPointArrayData" ref="class_qwt_point_array_data.html" />
       <keyword name="QwtPointArrayData" id="QwtPointArrayData::QwtPointArrayData" ref="class_qwt_point_array_data.html#a33044621333635f861b3945faf29cdc1" />
       <keyword name="QwtPointArrayData" id="QwtPointArrayData::QwtPointArrayData" ref="class_qwt_point_array_data.html#ad83a51f37e5d626b60695baf3f0fd6fd" />
@@ -7173,6 +7122,7 @@
       <keyword name="~QwtSeriesData" id="QwtSeriesData&lt; QPointF &gt;::~QwtSeriesData" ref="class_qwt_series_data.html#a841a56f909879d599a385b9c3d046745" />
       <keyword name="setRectOfInterest" id="QwtSeriesData&lt; QPointF &gt;::setRectOfInterest" ref="class_qwt_series_data.html#a391b4601a7454b2f9582fbc2662d108e" />
       <keyword name="d_samples" id="QwtArraySeriesData&lt; QPointF &gt;::d_samples" ref="class_qwt_array_series_data.html#a86ccb32fa8c9b3bb9cb92b6040b0c490" />
+      <keyword name="d_boundingRect" id="QwtSeriesData&lt; QPointF &gt;::d_boundingRect" ref="class_qwt_series_data.html#a24fbbcb0baa0c728117d2e6764d00414" />
       <keyword name="QwtPowerTransform" id="QwtPowerTransform" ref="class_qwt_power_transform.html" />
       <keyword name="QwtPowerTransform" id="QwtPowerTransform::QwtPowerTransform" ref="class_qwt_power_transform.html#af29ae09162f70bdf81bc5a6fabcb84ba" />
       <keyword name="~QwtPowerTransform" id="QwtPowerTransform::~QwtPowerTransform" ref="class_qwt_power_transform.html#a33a82c2e0a67e7463646e7dbb64ccff1" />
@@ -7192,7 +7142,7 @@
       <keyword name="pixelHint" id="QwtRasterData::pixelHint" ref="class_qwt_raster_data.html#ad1ce58351804760d1ba1e7efe97d39d6" />
       <keyword name="initRaster" id="QwtRasterData::initRaster" ref="class_qwt_raster_data.html#a64f5bf40b6138cc66719a56555c03589" />
       <keyword name="discardRaster" id="QwtRasterData::discardRaster" ref="class_qwt_raster_data.html#a369a5f525814bf569e01f88fbd8ddb5b" />
-      <keyword name="value" id="QwtRasterData::value" ref="class_qwt_raster_data.html#a6396fc013fcec893b1e8cea4cf03691e" />
+      <keyword name="value" id="QwtRasterData::value" ref="class_qwt_raster_data.html#a2ac980d656945f310143641956c67046" />
       <keyword name="contourLines" id="QwtRasterData::contourLines" ref="class_qwt_raster_data.html#a1fa90434ddeeeeaacb80657e49af8fe1" />
       <keyword name="IgnoreAllVerticesOnLevel" id="QwtRasterData::IgnoreAllVerticesOnLevel" ref="class_qwt_raster_data.html#ac0053b66315fde6f0a9a69c40d7c5dccafd2f6337e825201a247408f033713c92" />
       <keyword name="IgnoreOutOfRange" id="QwtRasterData::IgnoreOutOfRange" ref="class_qwt_raster_data.html#ac0053b66315fde6f0a9a69c40d7c5dcca18e8d1de171dd43cc957c279eb03d32c" />
@@ -7354,8 +7304,8 @@
       <keyword name="setMargins" id="QwtScaleEngine::setMargins" ref="class_qwt_scale_engine.html#aed2ab1fc105a25fa97bbecf4b2f541a7" />
       <keyword name="lowerMargin" id="QwtScaleEngine::lowerMargin" ref="class_qwt_scale_engine.html#a0cbcd5c35a8796baf8307bba19991bab" />
       <keyword name="upperMargin" id="QwtScaleEngine::upperMargin" ref="class_qwt_scale_engine.html#aa3fca2f37156fa3bd8ef21be8d339938" />
-      <keyword name="autoScale" id="QwtScaleEngine::autoScale" ref="class_qwt_scale_engine.html#aa27323d6d9d5348bd253a61b45e4785b" />
-      <keyword name="divideScale" id="QwtScaleEngine::divideScale" ref="class_qwt_scale_engine.html#ab85442ced7cf3a39e5ad25f8cb80dea4" />
+      <keyword name="autoScale" id="QwtScaleEngine::autoScale" ref="class_qwt_scale_engine.html#accc3684f82fd0da0e87b3c5ed0ad9e10" />
+      <keyword name="divideScale" id="QwtScaleEngine::divideScale" ref="class_qwt_scale_engine.html#a797eeaa8a7a23503583b5fa5a583cd28" />
       <keyword name="setTransformation" id="QwtScaleEngine::setTransformation" ref="class_qwt_scale_engine.html#ad063f4bb947996191be5c2a5fa0dbaf6" />
       <keyword name="transformation" id="QwtScaleEngine::transformation" ref="class_qwt_scale_engine.html#acbc5488cb3f3e2ec9566d4797468d0d7" />
       <keyword name="contains" id="QwtScaleEngine::contains" ref="class_qwt_scale_engine.html#a36acba98650d011f784641fa4ac43f87" />
@@ -7442,9 +7392,9 @@
       <keyword name="QwtSeriesData" id="QwtSeriesData" ref="class_qwt_series_data.html" />
       <keyword name="QwtSeriesData" id="QwtSeriesData::QwtSeriesData" ref="class_qwt_series_data.html#a3f075340d18fb112a342d74716eb8d9c" />
       <keyword name="~QwtSeriesData" id="QwtSeriesData::~QwtSeriesData" ref="class_qwt_series_data.html#a841a56f909879d599a385b9c3d046745" />
-      <keyword name="size" id="QwtSeriesData::size" ref="class_qwt_series_data.html#a3cfe5b26fc55a887ac85b0103ae80a3e" />
-      <keyword name="sample" id="QwtSeriesData::sample" ref="class_qwt_series_data.html#ae8650d16c07c58f01897ab48658a3266" />
-      <keyword name="boundingRect" id="QwtSeriesData::boundingRect" ref="class_qwt_series_data.html#aedb969ba51a27d88d26ad7f7cb1c2c7f" />
+      <keyword name="size" id="QwtSeriesData::size" ref="class_qwt_series_data.html#af18b57ccc6d9e0354662e53b41397a13" />
+      <keyword name="sample" id="QwtSeriesData::sample" ref="class_qwt_series_data.html#a302fb1409d00615601c7806bb4fbe2da" />
+      <keyword name="boundingRect" id="QwtSeriesData::boundingRect" ref="class_qwt_series_data.html#afc38837db1c8b4a302938a00341a484d" />
       <keyword name="setRectOfInterest" id="QwtSeriesData::setRectOfInterest" ref="class_qwt_series_data.html#a391b4601a7454b2f9582fbc2662d108e" />
       <keyword name="d_boundingRect" id="QwtSeriesData::d_boundingRect" ref="class_qwt_series_data.html#a24fbbcb0baa0c728117d2e6764d00414" />
       <keyword name="QwtSeriesStore" id="QwtSeriesStore" ref="class_qwt_series_store.html" />
@@ -7481,6 +7431,7 @@
       <keyword name="~QwtSeriesData" id="QwtSeriesData&lt; QwtSetSample &gt;::~QwtSeriesData" ref="class_qwt_series_data.html#a841a56f909879d599a385b9c3d046745" />
       <keyword name="setRectOfInterest" id="QwtSeriesData&lt; QwtSetSample &gt;::setRectOfInterest" ref="class_qwt_series_data.html#a391b4601a7454b2f9582fbc2662d108e" />
       <keyword name="d_samples" id="QwtArraySeriesData&lt; QwtSetSample &gt;::d_samples" ref="class_qwt_array_series_data.html#a86ccb32fa8c9b3bb9cb92b6040b0c490" />
+      <keyword name="d_boundingRect" id="QwtSeriesData&lt; QwtSetSample &gt;::d_boundingRect" ref="class_qwt_series_data.html#a24fbbcb0baa0c728117d2e6764d00414" />
       <keyword name="QwtSimpleCompassRose" id="QwtSimpleCompassRose" ref="class_qwt_simple_compass_rose.html" />
       <keyword name="QwtSimpleCompassRose" id="QwtSimpleCompassRose::QwtSimpleCompassRose" ref="class_qwt_simple_compass_rose.html#a66cc98efe5717eaf11fb0e713cd1aa21" />
       <keyword name="~QwtSimpleCompassRose" id="QwtSimpleCompassRose::~QwtSimpleCompassRose" ref="class_qwt_simple_compass_rose.html#a157304c9a535126d33a80df9a9dad292" />
@@ -7701,7 +7652,7 @@
       <keyword name="interval" id="QwtSyntheticPointData::interval" ref="class_qwt_synthetic_point_data.html#acd5ffffb670778cfd714bc915615851e" />
       <keyword name="boundingRect" id="QwtSyntheticPointData::boundingRect" ref="class_qwt_synthetic_point_data.html#a89296d373856825047f48e86d7731b0a" />
       <keyword name="sample" id="QwtSyntheticPointData::sample" ref="class_qwt_synthetic_point_data.html#a70d3ed6bfd764878f1709ab6b55e2f0e" />
-      <keyword name="y" id="QwtSyntheticPointData::y" ref="class_qwt_synthetic_point_data.html#af65186bea0056b3f7f46814c61d68c99" />
+      <keyword name="y" id="QwtSyntheticPointData::y" ref="class_qwt_synthetic_point_data.html#aea96a1e546b08f7d56c8f6804d889182" />
       <keyword name="x" id="QwtSyntheticPointData::x" ref="class_qwt_synthetic_point_data.html#ab14ef450ef097f05dbb8b8d75202538b" />
       <keyword name="setRectOfInterest" id="QwtSyntheticPointData::setRectOfInterest" ref="class_qwt_synthetic_point_data.html#a39cc8512e7d8beecde003f7781174b84" />
       <keyword name="rectOfInterest" id="QwtSyntheticPointData::rectOfInterest" ref="class_qwt_synthetic_point_data.html#a00ead6b5e6cbc06d87af6edaa518d05f" />
@@ -7764,11 +7715,11 @@
       <keyword name="OtherFormat" id="QwtText::OtherFormat" ref="class_qwt_text.html#a63e0d6a59a427a37ed0bfa71b782fd76ad69e3155611ef96eb14ed0cfeb69fd3d" />
       <keyword name="QwtTextEngine" id="QwtTextEngine" ref="class_qwt_text_engine.html" />
       <keyword name="~QwtTextEngine" id="QwtTextEngine::~QwtTextEngine" ref="class_qwt_text_engine.html#adda9e23494429c54b3cc3452940fb2bc" />
-      <keyword name="heightForWidth" id="QwtTextEngine::heightForWidth" ref="class_qwt_text_engine.html#aee891b14d90c817b8c73d551f623cc17" />
-      <keyword name="textSize" id="QwtTextEngine::textSize" ref="class_qwt_text_engine.html#ad9382cc8ff22c6b3e448fce566a76178" />
-      <keyword name="mightRender" id="QwtTextEngine::mightRender" ref="class_qwt_text_engine.html#a98316f2f6f4f50216ceffbe9babe2901" />
-      <keyword name="textMargins" id="QwtTextEngine::textMargins" ref="class_qwt_text_engine.html#a83c8d3dc590b9914e9216c01e78e0838" />
-      <keyword name="draw" id="QwtTextEngine::draw" ref="class_qwt_text_engine.html#ad727f58f9eebfec86369e7f2e5bf6a59" />
+      <keyword name="heightForWidth" id="QwtTextEngine::heightForWidth" ref="class_qwt_text_engine.html#ae2029524166188b740ebc27ab553e234" />
+      <keyword name="textSize" id="QwtTextEngine::textSize" ref="class_qwt_text_engine.html#a6888b3d286a16a7b8e06db8147e43df0" />
+      <keyword name="mightRender" id="QwtTextEngine::mightRender" ref="class_qwt_text_engine.html#a55e011afec9b5a3f6d79b19652bc2bdf" />
+      <keyword name="textMargins" id="QwtTextEngine::textMargins" ref="class_qwt_text_engine.html#a9f3dbeaffeae25c11d543143229c5c4a" />
+      <keyword name="draw" id="QwtTextEngine::draw" ref="class_qwt_text_engine.html#a760296fb835a9db44d310616fa9eef89" />
       <keyword name="QwtTextEngine" id="QwtTextEngine::QwtTextEngine" ref="class_qwt_text_engine.html#a97c5ef76ee920ab0f19e178e85017d9d" />
       <keyword name="QwtTextLabel" id="QwtTextLabel" ref="class_qwt_text_label.html" />
       <keyword name="setText" id="QwtTextLabel::setText" ref="class_qwt_text_label.html#ab300b9a0a6392e180f2caff41ba2b9b8" />
@@ -7884,13 +7835,14 @@
       <keyword name="~QwtSeriesData" id="QwtSeriesData&lt; QwtOHLCSample &gt;::~QwtSeriesData" ref="class_qwt_series_data.html#a841a56f909879d599a385b9c3d046745" />
       <keyword name="setRectOfInterest" id="QwtSeriesData&lt; QwtOHLCSample &gt;::setRectOfInterest" ref="class_qwt_series_data.html#a391b4601a7454b2f9582fbc2662d108e" />
       <keyword name="d_samples" id="QwtArraySeriesData&lt; QwtOHLCSample &gt;::d_samples" ref="class_qwt_array_series_data.html#a86ccb32fa8c9b3bb9cb92b6040b0c490" />
+      <keyword name="d_boundingRect" id="QwtSeriesData&lt; QwtOHLCSample &gt;::d_boundingRect" ref="class_qwt_series_data.html#a24fbbcb0baa0c728117d2e6764d00414" />
       <keyword name="QwtTransform" id="QwtTransform" ref="class_qwt_transform.html" />
       <keyword name="QwtTransform" id="QwtTransform::QwtTransform" ref="class_qwt_transform.html#aa1fa1ab21d0fc01e06d3a6e462008d0b" />
       <keyword name="~QwtTransform" id="QwtTransform::~QwtTransform" ref="class_qwt_transform.html#aa2653db3104e672464dc569592fc14ab" />
       <keyword name="bounded" id="QwtTransform::bounded" ref="class_qwt_transform.html#a2703fc5855720201f46ed9404271a527" />
-      <keyword name="transform" id="QwtTransform::transform" ref="class_qwt_transform.html#a1093b5856cbc6cf812460535442fb130" />
-      <keyword name="invTransform" id="QwtTransform::invTransform" ref="class_qwt_transform.html#a5cfb0a329b8418028baf6974b188d76b" />
-      <keyword name="copy" id="QwtTransform::copy" ref="class_qwt_transform.html#aae011ee4205fa4391459766d88971809" />
+      <keyword name="transform" id="QwtTransform::transform" ref="class_qwt_transform.html#a7ca5657c4722b4d39eb57bf5459c2fd0" />
+      <keyword name="invTransform" id="QwtTransform::invTransform" ref="class_qwt_transform.html#a078578d562a1f76555f7b3446d1724e0" />
+      <keyword name="copy" id="QwtTransform::copy" ref="class_qwt_transform.html#a2736acb99a26c51eec090456910c145f" />
       <keyword name="QwtWeedingCurveFitter" id="QwtWeedingCurveFitter" ref="class_qwt_weeding_curve_fitter.html" />
       <keyword name="QwtWeedingCurveFitter" id="QwtWeedingCurveFitter::QwtWeedingCurveFitter" ref="class_qwt_weeding_curve_fitter.html#a7deb4d070a329cbdee454023194898a7" />
       <keyword name="~QwtWeedingCurveFitter" id="QwtWeedingCurveFitter::~QwtWeedingCurveFitter" ref="class_qwt_weeding_curve_fitter.html#abbd30a948fc6974f881678f80a29768c" />
@@ -7971,7 +7923,7 @@
       <keyword name="paintEvent" id="QwtWidgetOverlay::paintEvent" ref="class_qwt_widget_overlay.html#ac75689d1294c175540253bb72ea70496" />
       <keyword name="resizeEvent" id="QwtWidgetOverlay::resizeEvent" ref="class_qwt_widget_overlay.html#a1ec8de0015c9b823fd304d9febb580ca" />
       <keyword name="maskHint" id="QwtWidgetOverlay::maskHint" ref="class_qwt_widget_overlay.html#ad5c0592969220c56494be3034e5a83de" />
-      <keyword name="drawOverlay" id="QwtWidgetOverlay::drawOverlay" ref="class_qwt_widget_overlay.html#abb69235d3eba71b6dde354c668dd2611" />
+      <keyword name="drawOverlay" id="QwtWidgetOverlay::drawOverlay" ref="class_qwt_widget_overlay.html#ac36e0ff0ac5de8a034af29ec4c2574ae" />
       <keyword name="NoMask" id="QwtWidgetOverlay::NoMask" ref="class_qwt_widget_overlay.html#a413679fb15e072d5a404f237062b75fca58d7a0858b0aa58407bf598c907636fd" />
       <keyword name="MaskHint" id="QwtWidgetOverlay::MaskHint" ref="class_qwt_widget_overlay.html#a413679fb15e072d5a404f237062b75fcaa3c2ba9dd41304c6a6524ee5f7c70540" />
       <keyword name="AlphaMask" id="QwtWidgetOverlay::AlphaMask" ref="class_qwt_widget_overlay.html#a413679fb15e072d5a404f237062b75fca263c0fea842a8d4957ded6f5e47f734e" />
@@ -7994,28 +7946,12 @@
       <file>bdwn.png</file>
       <file>sync_on.png</file>
       <file>sync_off.png</file>
-      <file>ftv2blank.png</file>
-      <file>ftv2doc.png</file>
-      <file>ftv2folderclosed.png</file>
-      <file>ftv2folderopen.png</file>
-      <file>ftv2ns.png</file>
-      <file>ftv2mo.png</file>
-      <file>ftv2cl.png</file>
-      <file>ftv2lastnode.png</file>
-      <file>ftv2link.png</file>
-      <file>ftv2mlastnode.png</file>
-      <file>ftv2mnode.png</file>
-      <file>ftv2node.png</file>
-      <file>ftv2plastnode.png</file>
-      <file>ftv2pnode.png</file>
-      <file>ftv2vertline.png</file>
-      <file>ftv2splitbar.png</file>
       <file>doxygen.css</file>
-      <file>/search/mag_sel.png</file>
-      <file>/search/search_l.png</file>
-      <file>/search/search_m.png</file>
-      <file>/search/search_r.png</file>
-      <file>/search/close.png</file>
+      <file>search/search_l.png</file>
+      <file>search/search_m.png</file>
+      <file>search/search_r.png</file>
+      <file>search/close.png</file>
+      <file>search/mag_sel.png</file>
       <file>search/search.css</file>
       <file>search/search.js</file>
       <file>qwt__abstract__legend_8h_source.html</file>
@@ -8121,25 +8057,36 @@
       <file>qwtinstall.html</file>
       <file>qwtlicense.html</file>
       <file>curvescreenshots.html</file>
-      <file>plot.png</file>
-      <file>sinus.png</file>
-      <file>cpuplot.png</file>
-      <file>graph.png</file>
+      <file>bode-blue-600x400.png</file>
+      <file>bode-rosy-600x400.png</file>
+      <file>cpuplot-600x400.png</file>
+      <file>scatterplot-600x400.png</file>
+      <file>cpuplot-oily-600x400.png</file>
       <file>curves.png</file>
-      <file>scatterscreenshots.html</file>
-      <file>scatterplot.png</file>
+      <file>friedberg-tube-600x400.png</file>
+      <file>friedberg-bars-600x400.png</file>
       <file>spectrogramscreenshots.html</file>
-      <file>spectrogram1.png</file>
-      <file>spectrogram2.png</file>
-      <file>spectrogram3.png</file>
-      <file>histogramscreenshots.html</file>
-      <file>histogram.png</file>
+      <file>spectrogram-rgb-600x400.png</file>
+      <file>spectrogram-hue-600x400.png</file>
+      <file>spectrogram-value-600x400.png</file>
+      <file>spectrogram-saturation-600x400.png</file>
+      <file>spectrogram-contour1-600x400.png</file>
+      <file>spectrogram-contour2-600x400.png</file>
+      <file>barchartscreenshots.html</file>
+      <file>distrowatch-600x400.png</file>
+      <file>tvplot-600x400.png</file>
+      <file>barchart-grouped-600x400.png</file>
+      <file>barchart-stacked-600x400.png</file>
+      <file>otherscreenshots.html</file>
+      <file>scatterplot-600x400.png</file>
+      <file>itemeditor-600x400.png</file>
+      <file>stockchart-600x400.png</file>
       <file>controlscreenshots.html</file>
       <file>radio.png</file>
       <file>sliders.png</file>
+      <file>sysinfo.png</file>
       <file>dials1.png</file>
       <file>dials2.png</file>
-      <file>sysinfo.png</file>
       <file>class_qwt_abstract_legend.html</file>
       <file>class_qwt_abstract_legend__inherit__graph.png</file>
       <file>class_qwt_abstract_legend__inherit__graph.png</file>
@@ -8480,7 +8427,6 @@
       <file>class_qwt_plot_spectrogram.html</file>
       <file>class_qwt_plot_spectrogram__inherit__graph.png</file>
       <file>class_qwt_plot_spectrogram__inherit__graph.png</file>
-      <file>spectrogram3.png</file>
       <file>class_qwt_plot_spectrogram-members.html</file>
       <file>class_qwt_plot_svg_item.html</file>
       <file>class_qwt_plot_svg_item__inherit__graph.png</file>
@@ -8632,15 +8578,9 @@
       <file>class_qwt_widget_overlay-members.html</file>
       <file>graph_legend.png</file>
       <file>graph_legend.html</file>
-      <file>dir_06d3aa943e68e822334d93a35d8d6e04.html</file>
-      <file>dir_06d3aa943e68e822334d93a35d8d6e04_dep.png</file>
-      <file>dir_06d3aa943e68e822334d93a35d8d6e04_dep.png</file>
-      <file>dir_9ccb36e974cdad92d68e40b0bc8a6a19.html</file>
-      <file>dir_9ccb36e974cdad92d68e40b0bc8a6a19_dep.png</file>
-      <file>dir_9ccb36e974cdad92d68e40b0bc8a6a19_dep.png</file>
-      <file>dir_d71481910ae6010efd2d807d0acbed8c.html</file>
-      <file>dir_d71481910ae6010efd2d807d0acbed8c_dep.png</file>
-      <file>dir_d71481910ae6010efd2d807d0acbed8c_dep.png</file>
+      <file>dir_03fad1f4ea3ce3b02cb95059119ea2f4.html</file>
+      <file>dir_68267d1309a1af8e8297ef4c3efbcdba.html</file>
+      <file>dir_38ce0752a9eb8d28f937191131181730.html</file>
       <file>form_0.png</file>
       <file>form_1.png</file>
       <file>form_2.png</file>
@@ -8707,83 +8647,120 @@
       <file>inherit_graph_49.png</file>
       <file>inherit_graph_50.png</file>
       <file>functions.html</file>
-      <file>functions_0x62.html</file>
-      <file>functions_0x63.html</file>
-      <file>functions_0x64.html</file>
-      <file>functions_0x65.html</file>
-      <file>functions_0x66.html</file>
-      <file>functions_0x67.html</file>
-      <file>functions_0x68.html</file>
-      <file>functions_0x69.html</file>
-      <file>functions_0x6a.html</file>
-      <file>functions_0x6b.html</file>
-      <file>functions_0x6c.html</file>
-      <file>functions_0x6d.html</file>
-      <file>functions_0x6e.html</file>
-      <file>functions_0x6f.html</file>
-      <file>functions_0x70.html</file>
-      <file>functions_0x72.html</file>
-      <file>functions_0x73.html</file>
-      <file>functions_0x74.html</file>
-      <file>functions_0x75.html</file>
-      <file>functions_0x76.html</file>
-      <file>functions_0x77.html</file>
-      <file>functions_0x78.html</file>
-      <file>functions_0x79.html</file>
-      <file>functions_0x7a.html</file>
+      <file>functions_b.html</file>
+      <file>functions_c.html</file>
+      <file>functions_d.html</file>
+      <file>functions_e.html</file>
+      <file>functions_f.html</file>
+      <file>functions_g.html</file>
+      <file>functions_h.html</file>
+      <file>functions_i.html</file>
+      <file>functions_j.html</file>
+      <file>functions_k.html</file>
+      <file>functions_l.html</file>
+      <file>functions_m.html</file>
+      <file>functions_n.html</file>
+      <file>functions_o.html</file>
+      <file>functions_p.html</file>
+      <file>functions_r.html</file>
+      <file>functions_s.html</file>
+      <file>functions_t.html</file>
+      <file>functions_u.html</file>
+      <file>functions_v.html</file>
+      <file>functions_w.html</file>
+      <file>functions_x.html</file>
+      <file>functions_y.html</file>
+      <file>functions_z.html</file>
       <file>functions_0x7e.html</file>
       <file>functions_func.html</file>
-      <file>functions_func_0x62.html</file>
-      <file>functions_func_0x63.html</file>
-      <file>functions_func_0x64.html</file>
-      <file>functions_func_0x65.html</file>
-      <file>functions_func_0x66.html</file>
-      <file>functions_func_0x67.html</file>
-      <file>functions_func_0x68.html</file>
-      <file>functions_func_0x69.html</file>
-      <file>functions_func_0x6b.html</file>
-      <file>functions_func_0x6c.html</file>
-      <file>functions_func_0x6d.html</file>
-      <file>functions_func_0x6e.html</file>
-      <file>functions_func_0x6f.html</file>
-      <file>functions_func_0x70.html</file>
-      <file>functions_func_0x72.html</file>
-      <file>functions_func_0x73.html</file>
-      <file>functions_func_0x74.html</file>
-      <file>functions_func_0x75.html</file>
-      <file>functions_func_0x76.html</file>
-      <file>functions_func_0x77.html</file>
-      <file>functions_func_0x78.html</file>
-      <file>functions_func_0x79.html</file>
-      <file>functions_func_0x7a.html</file>
+      <file>functions_func_b.html</file>
+      <file>functions_func_c.html</file>
+      <file>functions_func_d.html</file>
+      <file>functions_func_e.html</file>
+      <file>functions_func_f.html</file>
+      <file>functions_func_g.html</file>
+      <file>functions_func_h.html</file>
+      <file>functions_func_i.html</file>
+      <file>functions_func_k.html</file>
+      <file>functions_func_l.html</file>
+      <file>functions_func_m.html</file>
+      <file>functions_func_n.html</file>
+      <file>functions_func_o.html</file>
+      <file>functions_func_p.html</file>
+      <file>functions_func_r.html</file>
+      <file>functions_func_s.html</file>
+      <file>functions_func_t.html</file>
+      <file>functions_func_u.html</file>
+      <file>functions_func_v.html</file>
+      <file>functions_func_w.html</file>
+      <file>functions_func_x.html</file>
+      <file>functions_func_y.html</file>
+      <file>functions_func_z.html</file>
       <file>functions_func_0x7e.html</file>
       <file>functions_vars.html</file>
+      <file>functions_vars.html</file>
+      <file>functions_vars.html</file>
+      <file>functions_vars.html</file>
+      <file>functions_vars.html</file>
+      <file>functions_vars.html</file>
+      <file>functions_vars.html</file>
+      <file>functions_vars.html</file>
+      <file>functions_vars.html</file>
+      <file>functions_vars.html</file>
+      <file>functions_vars.html</file>
+      <file>functions_vars.html</file>
+      <file>functions_type.html</file>
+      <file>functions_type.html</file>
+      <file>functions_type.html</file>
+      <file>functions_type.html</file>
+      <file>functions_type.html</file>
+      <file>functions_type.html</file>
+      <file>functions_type.html</file>
+      <file>functions_type.html</file>
+      <file>functions_type.html</file>
+      <file>functions_type.html</file>
       <file>functions_type.html</file>
       <file>functions_enum.html</file>
+      <file>functions_enum.html</file>
+      <file>functions_enum.html</file>
+      <file>functions_enum.html</file>
+      <file>functions_enum.html</file>
+      <file>functions_enum.html</file>
+      <file>functions_enum.html</file>
+      <file>functions_enum.html</file>
+      <file>functions_enum.html</file>
+      <file>functions_enum.html</file>
+      <file>functions_enum.html</file>
+      <file>functions_enum.html</file>
+      <file>functions_enum.html</file>
+      <file>functions_enum.html</file>
+      <file>functions_enum.html</file>
+      <file>functions_enum.html</file>
+      <file>functions_enum.html</file>
       <file>functions_eval.html</file>
-      <file>functions_eval_0x62.html</file>
-      <file>functions_eval_0x63.html</file>
-      <file>functions_eval_0x64.html</file>
-      <file>functions_eval_0x65.html</file>
-      <file>functions_eval_0x66.html</file>
-      <file>functions_eval_0x67.html</file>
-      <file>functions_eval_0x68.html</file>
-      <file>functions_eval_0x69.html</file>
-      <file>functions_eval_0x6a.html</file>
-      <file>functions_eval_0x6b.html</file>
-      <file>functions_eval_0x6c.html</file>
-      <file>functions_eval_0x6d.html</file>
-      <file>functions_eval_0x6e.html</file>
-      <file>functions_eval_0x6f.html</file>
-      <file>functions_eval_0x70.html</file>
-      <file>functions_eval_0x72.html</file>
-      <file>functions_eval_0x73.html</file>
-      <file>functions_eval_0x74.html</file>
-      <file>functions_eval_0x75.html</file>
-      <file>functions_eval_0x76.html</file>
-      <file>functions_eval_0x77.html</file>
-      <file>functions_eval_0x78.html</file>
-      <file>functions_eval_0x79.html</file>
+      <file>functions_eval_b.html</file>
+      <file>functions_eval_c.html</file>
+      <file>functions_eval_d.html</file>
+      <file>functions_eval_e.html</file>
+      <file>functions_eval_f.html</file>
+      <file>functions_eval_g.html</file>
+      <file>functions_eval_h.html</file>
+      <file>functions_eval_i.html</file>
+      <file>functions_eval_j.html</file>
+      <file>functions_eval_k.html</file>
+      <file>functions_eval_l.html</file>
+      <file>functions_eval_m.html</file>
+      <file>functions_eval_n.html</file>
+      <file>functions_eval_o.html</file>
+      <file>functions_eval_p.html</file>
+      <file>functions_eval_r.html</file>
+      <file>functions_eval_s.html</file>
+      <file>functions_eval_t.html</file>
+      <file>functions_eval_u.html</file>
+      <file>functions_eval_v.html</file>
+      <file>functions_eval_w.html</file>
+      <file>functions_eval_x.html</file>
+      <file>functions_eval_y.html</file>
     </files>
   </filterSection>
 </QtHelpProject>

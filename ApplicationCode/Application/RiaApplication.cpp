@@ -37,6 +37,7 @@
 #include "HoloLensCommands/RicHoloLensSessionManager.h"
 
 #include "Rim2dIntersectionViewCollection.h"
+#include "RimAnnotationCollection.h"
 #include "RimCellRangeFilterCollection.h"
 #include "RimCommandObject.h"
 #include "RimEclipseCaseCollection.h"
@@ -78,7 +79,7 @@
 #include "RiuMainWindow.h"
 #include "RiuProcessMonitor.h"
 #include "RiuRecentFileActionProvider.h"
-#include "RiuSelectionManager.h"
+#include "Riu3dSelectionManager.h"
 #include "RiuViewer.h"
 
 #include "cafAppEnum.h"
@@ -611,6 +612,8 @@ bool RiaApplication::loadProject(const QString& projectFileName, ProjectLoadActi
         {
             sumCaseGroup->loadDataAndUpdate();
         }
+
+        oilField->annotationCollection()->loadDataAndUpdate();
     }
 
     loadAndUpdatePlotData();
@@ -1595,8 +1598,8 @@ bool RiaApplication::enableDevelopmentFeatures()
 //--------------------------------------------------------------------------------------------------
 void RiaApplication::clearAllSelections()
 {
-    RiuSelectionManager::instance()->deleteAllItems(RiuSelectionManager::RUI_APPLICATION_GLOBAL);
-    RiuSelectionManager::instance()->deleteAllItems(RiuSelectionManager::RUI_TEMPORARY);
+    Riu3dSelectionManager::instance()->deleteAllItems(Riu3dSelectionManager::RUI_APPLICATION_GLOBAL);
+    Riu3dSelectionManager::instance()->deleteAllItems(Riu3dSelectionManager::RUI_TEMPORARY);
     caf::SelectionManager::instance()->clearAll();
 }
 

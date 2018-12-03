@@ -46,6 +46,14 @@ ${CMAKE_CURRENT_LIST_DIR}/RivSimWellConnectionSourceInfo.h
 ${CMAKE_CURRENT_LIST_DIR}/Riv3dWellLogDrawSurfaceGenerator.h
 ${CMAKE_CURRENT_LIST_DIR}/RivMeshLinesSourceInfo.h
 ${CMAKE_CURRENT_LIST_DIR}/RivContourMapProjectionPartMgr.h
+${CMAKE_CURRENT_LIST_DIR}/RivAnnotationsPartMgr.h
+${CMAKE_CURRENT_LIST_DIR}/RivTextAnnotationPartMgr.h
+${CMAKE_CURRENT_LIST_DIR}/RivReachCircleAnnotationPartMgr.h
+${CMAKE_CURRENT_LIST_DIR}/RivPolylineAnnotationPartMgr.h
+${CMAKE_CURRENT_LIST_DIR}/RivTextAnnotationSourceInfo.h
+${CMAKE_CURRENT_LIST_DIR}/RivReachCircleAnnotationSourceInfo.h
+${CMAKE_CURRENT_LIST_DIR}/RivPolylinesAnnotationSourceInfo.h
+${CMAKE_CURRENT_LIST_DIR}/RivPolylineGenerator.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -90,6 +98,14 @@ ${CMAKE_CURRENT_LIST_DIR}/RivSimWellConnectionSourceInfo.cpp
 ${CMAKE_CURRENT_LIST_DIR}/Riv3dWellLogDrawSurfaceGenerator.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RivMeshLinesSourceInfo.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RivContourMapProjectionPartMgr.cpp
+${CMAKE_CURRENT_LIST_DIR}/RivAnnotationsPartMgr.cpp
+${CMAKE_CURRENT_LIST_DIR}/RivTextAnnotationPartMgr.cpp
+${CMAKE_CURRENT_LIST_DIR}/RivReachCircleAnnotationPartMgr.cpp
+${CMAKE_CURRENT_LIST_DIR}/RivPolylineAnnotationPartMgr.cpp
+${CMAKE_CURRENT_LIST_DIR}/RivTextAnnotationSourceInfo.cpp
+${CMAKE_CURRENT_LIST_DIR}/RivReachCircleAnnotationSourceInfo.cpp
+${CMAKE_CURRENT_LIST_DIR}/RivPolylinesAnnotationSourceInfo.cpp
+${CMAKE_CURRENT_LIST_DIR}/RivPolylineGenerator.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

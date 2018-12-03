@@ -36,7 +36,11 @@
 #include <QObject>
 #include <QSslConfiguration>
 #include <QSslSocket>
+#if QT_VERSION >= 0x050000
+#include <QtWidgets>
+#else
 #include <QtGui>
+#endif
 #include <QtNetwork>
 
 #include <algorithm>
@@ -324,7 +328,11 @@ void RiuWellImportWizard::startRequest(QUrl url)
     if (supportsSsl)
     {
         QSslConfiguration config = QSslConfiguration::defaultConfiguration();
+#if QT_VERSION >= 0x050000
+        config.setProtocol(QSsl::TlsV1_0);
+#else
         config.setProtocol(QSsl::TlsV1);
+#endif
         request.setSslConfiguration(config);
     }
 #endif

@@ -22,7 +22,7 @@
 #include "RimGeoMechView.h"
 
 
-#include "RiuSelectionManager.h"
+#include "Riu3dSelectionManager.h"
 
 
 CAF_PDM_SOURCE_INIT(RimGeoMechGeometrySelectionItem, "GeoMechGeometrySelectionItem");

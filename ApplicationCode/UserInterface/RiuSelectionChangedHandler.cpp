@@ -48,7 +48,7 @@
 #include "RiuRelativePermeabilityPlotUpdater.h"
 #include "RiuResultQwtPlot.h"
 #include "RiuResultTextBuilder.h"
-#include "RiuSelectionManager.h"
+#include "Riu3dSelectionManager.h"
 
 #include <QStatusBar>
 

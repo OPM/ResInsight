@@ -9,12 +9,14 @@
 
 #include "qwt_plot_glcanvas.h"
 #include "qwt_plot.h"
+#include "qwt_painter.h"
 #include <qevent.h>
 #include <qpainter.h>
 #include <qdrawutil.h>
 #include <qstyle.h>
 #include <qstyleoption.h>
-#include "qwt_painter.h"
+
+#define FIX_GL_TRANSLATION 0
 
 static QWidget *qwtBGWidget( QWidget *widget )
 {
@@ -53,6 +55,16 @@ public:
     int midLineWidth;
 };
 
+class QwtPlotGLCanvasFormat: public QGLFormat
+{
+public:
+    QwtPlotGLCanvasFormat():
+        QGLFormat( QGLFormat::defaultFormat() )
+    {
+        setSampleBuffers( true );
+    }
+};
+
 /*! 
   \brief Constructor
 
@@ -60,7 +72,7 @@ public:
   \sa QwtPlot::setCanvas()
 */
 QwtPlotGLCanvas::QwtPlotGLCanvas( QwtPlot *plot ):
-    QGLWidget( plot )
+    QGLWidget( QwtPlotGLCanvasFormat(), plot )
 {
     d_data = new PrivateData;
 
@@ -221,6 +233,14 @@ void QwtPlotGLCanvas::paintEvent( QPaintEvent *event )
     Q_UNUSED( event );
 
     QPainter painter( this );
+
+#if FIX_GL_TRANSLATION
+    if ( painter.paintEngine()->type() == QPaintEngine::OpenGL2 )
+    {
+        // work around a translation bug of QPaintEngine::OpenGL2
+        painter.translate( 1, 1 );
+    }
+#endif
 
     drawBackground( &painter );
     drawItems( &painter );

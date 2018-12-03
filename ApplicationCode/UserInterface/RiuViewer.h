@@ -38,14 +38,14 @@ class RiuViewerCommands;
 class RivGridBoxGenerator;
 class RivWindowEdgeAxesOverlayItem;
 
-class QCDEStyle;
 class QLabel;
 class QProgressBar;
 
 namespace caf
 {
+    class OverlayScaleLegend;
     class TitledOverlayFrame;
-    class PdmUiSelectionVisualizer3d;
+    class PdmUiSelection3dEditorVisualizer;
 }
 
 namespace cvf
@@ -70,7 +70,7 @@ class RiuViewer : public caf::Viewer, public RiuInterfaceToViewWindow
 public:
     RiuViewer(const QGLFormat& format, QWidget* parent);
     ~RiuViewer() override;
-
+    void            clearRimView();
     void            setDefaultView();
     cvf::Vec3d      pointOfInterest();
     void            setPointOfInterest(cvf::Vec3d poi);
@@ -118,6 +118,8 @@ public:
 
     std::vector<cvf::ref<cvf::Part>> visibleParts();
 
+    void            showScaleLegend(bool show);
+
 public slots:
     void            slotSetCurrentFrame(int frameIndex) override;
     void            slotEndAnimation() override;
@@ -154,8 +156,6 @@ private:
     RiuSimpleHistogramWidget* m_histogramWidget;
     bool            m_showHistogram;
 
-    QCDEStyle*      m_progressBarStyle;
-
     cvf::ref<cvf::OverlayAxisCross> m_axisCross;
     bool                            m_showAxisCross;
     cvf::Collection<caf::TitledOverlayFrame> m_visibleLegends;
@@ -169,9 +169,11 @@ private:
     cvf::ref<RivWindowEdgeAxesOverlayItem> m_windowEdgeAxisOverlay;
     bool                        m_showWindowEdgeAxes;
 
-    caf::PdmUiSelectionVisualizer3d* m_selectionVisualizerManager;
+    caf::PdmUiSelection3dEditorVisualizer* m_selectionVisualizerManager;
 
     cvf::Vec3d                  m_cursorPositionDomainCoords;
     bool                        m_isNavigationRotationEnabled;
+
+    cvf::ref<caf::OverlayScaleLegend> m_scaleLegend;
 };
 

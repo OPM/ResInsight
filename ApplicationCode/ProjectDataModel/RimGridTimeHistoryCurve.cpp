@@ -41,7 +41,7 @@
 
 #include "RiuFemTimeHistoryResultAccessor.h"
 #include "RiuQwtPlotCurve.h"
-#include "RiuSelectionManager.h"
+#include "Riu3dSelectionManager.h"
 
 #include "qwt_plot.h"
 

@@ -23,7 +23,7 @@
 
 #include "RimEclipseCase.h"
 
-#include "RiuSelectionManager.h"
+#include "Riu3dSelectionManager.h"
 
 #include "cafPdmObject.h"
 #include "cafSelectionManager.h"

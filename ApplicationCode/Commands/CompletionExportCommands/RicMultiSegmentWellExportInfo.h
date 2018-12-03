@@ -152,6 +152,7 @@ public:
     const std::vector<RicMswCompletion>& completions() const;
     std::vector<RicMswCompletion>&       completions();
 
+    void setLabel(const QString& label);
     void setEffectiveDiameter(double effectiveDiameter);
     void setHoleDiameter(double holeDiameter);
     void setOpenHoleRoughnessFactor(double roughnessFactor);

@@ -37,7 +37,7 @@
 
 #pragma once
 
-#include "cafPdmUiObjectEditorHandle.h"
+#include "cafPdmUiWidgetObjectEditorHandle.h"
 #include "cafPdmUiOrdering.h"
 
 #include <QPointer>
@@ -58,7 +58,7 @@ class PdmUiOrdering;
 //==================================================================================================
 /// 
 //==================================================================================================
-class PdmUiFormLayoutObjectEditor : public PdmUiObjectEditorHandle
+class PdmUiFormLayoutObjectEditor : public PdmUiWidgetObjectEditorHandle
 {
     Q_OBJECT
 public:

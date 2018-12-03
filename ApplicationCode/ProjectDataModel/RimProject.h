@@ -35,6 +35,9 @@ class RigGridManager;
 class RigMainGrid;
 class RigWellPath;
 
+class RimTextAnnotation;
+class RimReachCircleAnnotation;
+class RimPolylinesAnnotation;
 class RimSummaryCalculationCollection;
 class RimCase;
 class RimCommandObject;
@@ -112,8 +115,8 @@ public:
     std::vector<RimSummaryCaseCollection*> summaryGroups() const;
     RimSummaryCaseMainCollection*   firstSummaryCaseMainCollection() const;
 
-    void            allVisibleViews(std::vector<Rim3dView*>& views);
-    void            allVisibleGridViews(std::vector<RimGridView*>& views);
+    void            allVisibleViews(std::vector<Rim3dView*>& views) const;
+    void            allVisibleGridViews(std::vector<RimGridView*>& views) const;
     void            allNotLinkedViews(std::vector<RimGridView*>& views);
 
     void            scheduleCreateDisplayModelAndRedrawAllViews();
@@ -142,6 +145,9 @@ public:
     RimWellPath*                    wellPathFromSimWellName(const QString& simWellName, int branchIndex = -1);
     RimWellPath*                    wellPathByName(const QString& wellPathName) const;
     std::vector<RimWellPath*>       allWellPaths() const;
+    std::vector<RimTextAnnotation*>         textAnnotations() const;
+    std::vector<RimReachCircleAnnotation*>  reachCircleAnnotations() const;
+    std::vector<RimPolylinesAnnotation*>     polylineAnnotations() const;
 
     std::vector<RimGeoMechCase*>    geoMechCases() const;
 
@@ -160,7 +166,7 @@ protected:
 
 private:
     template <typename T>
-    void fieldsByType(caf::PdmObjectHandle* object, std::vector<T*>& typedFields);
+    void fieldContentsByType(caf::PdmObjectHandle* object, std::vector<T*>& typedFields);
 
 private:
     caf::PdmField<QString>  m_projectFileVersionString;
@@ -182,7 +188,7 @@ private:
 /// 
 //--------------------------------------------------------------------------------------------------
 template <typename T>
-void RimProject::fieldsByType(caf::PdmObjectHandle* object, std::vector<T*>& typedFields)
+void RimProject::fieldContentsByType(caf::PdmObjectHandle* object, std::vector<T*>& typedFields)
 {
     if (!object) return;
 
@@ -210,6 +216,6 @@ void RimProject::fieldsByType(caf::PdmObjectHandle* object, std::vector<T*>& typ
 
     for (const auto& child : children)
     {
-        fieldsByType(child, typedFields);
+        fieldContentsByType(child, typedFields);
     }
 }

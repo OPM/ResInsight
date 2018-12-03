@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 2.8)
+cmake_minimum_required (VERSION 2.8.12)
 
 project (CeeApp)
 
@@ -8,9 +8,13 @@ if (MSVC AND (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 19.11))
   message("Add flag to disable warings from gtest -  _SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING")
 endif()
 
-
-find_package (Qt4 COMPONENTS QtCore QtGui QtMain QtOpenGl REQUIRED)
-include (${QT_USE_FILE})
+find_package(Qt5 CONFIG COMPONENTS Core)
+if (Qt5Core_FOUND)
+	find_package(Qt5 CONFIG REQUIRED Core Gui OpenGl Widgets)
+else()
+	find_package(Qt4 COMPONENTS QtCore QtGui QtMain QtOpenGl REQUIRED)
+    include(${QT_USE_FILE})
+endif(Qt5Core_FOUND)
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     set(CMAKE_CXX_FLAGS "-std=c++0x")

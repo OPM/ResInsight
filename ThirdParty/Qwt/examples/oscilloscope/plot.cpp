@@ -40,7 +40,7 @@ public:
             // for resize and expose operations. Those might be expensive
             // when there are many points and the backing store of
             // the canvas is disabled. So in this application
-            // we better don't both backing stores.
+            // we better don't disable both backing stores.
 
             if ( testPaintAttribute( QwtPlotCanvas::BackingStore ) )
             {

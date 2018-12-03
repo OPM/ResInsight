@@ -6,21 +6,21 @@
 \section DOWNLOAD Download
 
   Stable Qwt releases are available from the 
-  Qwt <a href="http://sourceforge.net/projects/qwt/files/qwt">project page</a>.
+  Qwt <a href="https://sourceforge.net/projects/qwt/files/qwt">project page</a>.
 
-  Qwt-6.1.0 consists of 4 files:
+  Qwt-6.1.3 consists of 4 files:
 
-  - qwt-6.1.0.zip\n
+  - qwt-6.1.3.zip\n
     Zip file with the Qwt sources and the html documentation for Windows
 
-  - qwt-6.1.0.tar.bz2\n
+  - qwt-6.1.3.tar.bz2\n
     Compressed tar file with the Qwt sources and the html documentation
     for UNIX systems ( Linux, Mac, ... )
 
-  - qwt-6.1.0.pdf\n
+  - qwt-6.1.3.pdf\n
     Qwt documentation as PDF document. 
 
-  - qwt-6.1.0.qch\n
+  - qwt-6.1.3.qch\n
     Qwt documentation as Qt Compressed Help document, that can be loaded into
     the Qt Assistant or Creator. In the Qt Creator context sensitive help will be
     available like for Qt classes.
@@ -28,7 +28,7 @@
   Precompiled Qwt Designer plugins, that are compatible with some binary packages
   of the Qt Creator:
 
-  - qwtdesigner-6.1.0-*.zip
+  - qwtdesigner-6.1.3-*.zip
 
 
 \section INSTALL Installing Qwt
@@ -41,10 +41,10 @@
   by editing qwtconfig.pri. Its default settings is:
 
   - Windows\n
-    C:\\Qwt-6.1.0
+    C:\\Qwt-6.1.3
 
   - Unix like systems\n
-    /usr/local/qwt-6.1.0
+    /usr/local/qwt-6.1.3
 
   For the rest of the document this install path will be written as <i>${QWT_ROOT}</i> 
   and needs to be replaced by the real path in all commands below.
@@ -106,7 +106,7 @@
   So creating a makefile usually means something like:
 
 \code
-  cd qwt-6.1.0
+  cd qwt-6.1.3
   /usr/local/Qt-5.0.1/bin/qmake qwt.pro
 \endcode
 
@@ -140,7 +140,7 @@
   Creating a makefile usually means something like:
 
 \code
-  cd qwt-6.1.0
+  cd qwt-6.1.3
   qmake qwt.pro
 \endcode
 
@@ -167,7 +167,7 @@
 \paragraph qwtinstall-windows-msvc MSVC
 
   For MSVC builds the name of the make tool is "nmake". Alternatively
-  it is possible to use "jom" ( http://qt-project.org/wiki/jom ),
+  it is possible to use "jom" ( https://wiki.qt.io/Jom ),
   that is usually included in a Qt Creator package.
 
 \code
@@ -198,8 +198,8 @@
 
   The Qt documentation explains all options in detail:
 
-  - http://qt-project.org/doc/qt-5.0/qtdoc/deployment-plugins.html
-  - http://qt-project.org/doc/qtcreator-2.7/adding-plugins.html.
+  - https://doc.qt.io/qt-5/deployment-plugins.html
+  - https://doc.qt.io/qtcreator/adding-plugins.html
 
   F.e. on a Linux system you could add the following lines to .bashrc:
 
@@ -227,7 +227,7 @@
 
   - open the settings dialog from the <i>Tools->Options</i> menu 
   - raise the tab "Help->Documentation". 
-  - press the <i>Add</i> button and select qwt-6.1.0.qch.
+  - press the <i>Add</i> button and select qwt-6.1.3.qch.
 
   Now the context sensitive help ( <i>F1</i> ) works for Qwt classes.
 
@@ -235,7 +235,7 @@
 
   - open the settings dialog from the <i>Edit->Preferences</i> menu 
   - raise the tab <i>Documentation</i>. 
-  - press the <i>Add</i> button and select qwt-6.1.0.qch.
+  - press the <i>Add</i> button and select qwt-6.1.3.qch.
 
 \section COMPILEANDLINKAPP Building a Qwt application
 
@@ -249,7 +249,7 @@ When using qmake it can included from the application project file in 2 differen
     of qmake to a special installation of Qwt without having to add
     this dependency to the application project.
     How to add Qwt as feature is documented in the 
-    <a href="https://qt-project.org/doc/qt-5.0/qtdoc/qmake-advanced-usage.html#adding-new-configuration-features">qmake docs</a>.
+    <a href="http://doc.qt.io/qt-5/qmake-advanced-usage.html#adding-new-configuration-features">qmake docs</a>.
 
     After adding Qwt as a feature f.e on Linux as a persistent property ....
 @code
@@ -273,9 +273,10 @@ include ( ${QWT_ROOT}/features/qwt.prf )
 
 On Unix platforms it is possible to link a runtime path into the executable, so that the
 location of the Qwt libraries can be found without having to configure a runtime environment:
-  - <a href="https://qt-project.org/doc/qt-5.0/qtdoc/qmake-variable-reference.html#qmake-lflags-rpath">QMAKE_LFLAGS_RPATH</a> 
-  - <a href="https://qt-project.org/doc/qt-5.0/qtdoc/qmake-variable-reference.html#qmake-rpath">QMAKE_RPATH</a> 
-  - <a href="https://qt-project.org/doc/qt-5.0/qtdoc/qmake-variable-reference.html#qmake-rpathdir">QMAKE_RPATHDIR</a> 
+  - <a href="/https://doc.qt.io/qt-5/qmake-variable-reference.html#qmake-lflags-rpath">QMAKE_LFLAGS_RPATH</a> 
+  - <a href="/https://doc.qt.io/qt-5/qmake-variable-reference.html#qmake-rpath">QMAKE_RPATH</a> 
+  - <a href="/https://doc.qt.io/qt-5/qmake-variable-reference.html#qmake-rpathdir">QMAKE_RPATHDIR</a> 
+
 
 \section RUNAPP Running a Qwt application
 

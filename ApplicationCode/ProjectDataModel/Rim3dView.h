@@ -41,6 +41,7 @@ class RimCase;
 class RimLegendConfig;
 class RimWellPathCollection;
 class RiuViewer;
+class RivAnnotationsPartMgr;
 class RivWellPathsPartMgr; 
 
 namespace cvf
@@ -166,6 +167,8 @@ protected:
     void                                    addDynamicWellPathsToModel(cvf::ModelBasicList* wellPathModelBasicList, 
                                                                        const cvf::BoundingBox& wellPathClipBoundingBox);
 
+    void                                    addAnnotationsToModel(cvf::ModelBasicList* wellPathModelBasicList);
+
     void                                    createHighlightAndGridBoxDisplayModel();
 
     // Implementation of RiuViewerToViewInterface
@@ -201,6 +204,7 @@ protected:
     cvf::ref<cvf::ModelBasicList>           m_highlightVizModel;
 
     cvf::ref<RivWellPathsPartMgr>           m_wellPathsPartManager; 
+    cvf::ref<RivAnnotationsPartMgr>         m_annotationsPartManager;
 
 private:
     // Overridden PdmObject methods:
@@ -230,6 +234,7 @@ private:
     caf::PdmObjectHandle*           implementingPdmObject() override  { return this; }
     void                            handleMdiWindowClosed() override;
     void                            setMdiWindowGeometry(const RimMdiWindowGeometry& windowGeometry) override;
+    void                            appendAnnotationsToModel();
 
 private:
     caf::PdmField<QString>                  m_name;

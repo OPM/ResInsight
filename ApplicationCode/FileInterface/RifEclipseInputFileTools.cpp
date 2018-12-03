@@ -355,7 +355,7 @@ void RifEclipseInputFileTools::findKeywordsOnFile(const QString &fileName, std::
         lineLength = data.readLine(buf, sizeof(buf));
         if (lineLength > 0)
         {
-            line = QString::fromAscii(buf);
+            line = QString::fromLatin1(buf);
             if (line.size() && line[0].isLetter())
             {
                 RifKeywordAndFilePos keyPos;
@@ -400,7 +400,7 @@ void RifEclipseInputFileTools::parseAndReadPathAliasKeyword(const QString &fileN
         qint64 lineLength = data.readLine(buf, sizeof(buf));
         if (lineLength > 0)
         {
-            line = QString::fromAscii(buf);
+            line = QString::fromLatin1(buf);
             if (line.size() && (line[0].isLetter() || foundPathsKeyword))
             {
                 line = line.trimmed();

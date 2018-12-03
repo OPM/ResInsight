@@ -1,10 +1,15 @@
-cmake_minimum_required (VERSION 2.8)
+cmake_minimum_required (VERSION 2.8.12)
 
 project (cafPdmXml)
 
 # Qt
-find_package ( Qt4 COMPONENTS QtCore )	
-include (${QT_USE_FILE})
+find_package(Qt5Core CONFIG QUIET)
+if (Qt5Core_FOUND)
+	find_package(Qt5 CONFIG REQUIRED Core Xml)
+else()
+	find_package(Qt4 COMPONENTS QtCore QtXml REQUIRED)
+    include(${QT_USE_FILE})
+endif(Qt5Core_FOUND)
 
 include_directories (
 	..
@@ -44,8 +49,13 @@ add_library( ${PROJECT_NAME}
 	${PROJECT_FILES}
 )
 
+if (Qt5Core_FOUND)
+    set(QT_LIBRARIES Qt5::Core Qt5::Xml)
+endif()
+
 target_link_libraries ( ${PROJECT_NAME}
     cafPdmCore
+	${QT_LIBRARIES}
 )
 
 target_include_directories(${PROJECT_NAME}

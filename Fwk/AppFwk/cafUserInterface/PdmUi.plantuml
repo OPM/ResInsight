@@ -1,49 +1,71 @@
 @startuml
 
+namespace Inheritance{
+
+QObject <|-- PdmUiEditorHandle
+PdmUiEditorHandle <|-- PdmUiObjectEditorHandle
+PdmUiObjectEditorHandle  <|-- PdmUiWidgetObjectEditorHandle
+PdmUiObjectEditorHandle  <|-- PdmUi3dObjectEditorHandle
+PdmUiWidgetObjectEditorHandle <|-- PdmUiFormLayoutObjectEditor
+PdmUiFormLayoutObjectEditor <|-- PdmUiDefaultObjectEditor
+PdmUiFieldEditorHandle <|-- "Tons of field editors"
+PdmUiEditorHandle <|-- PdmUiTreeItemEditor
+PdmUiEditorHandle <|-- PdmUiTreeEditorHandle
+PdmUiEditorHandle <|-- PdmUiToolBarEditor
+PdmUiEditorHandle <|-- PdmUiTableRowEditor
+PdmUiEditorHandle <|-- PdmUiFieldEditorHandle 
+
+PdmUiTreeEditorHandle  <|-- PdmUiTreeViewEditor
+}
+
 Namespace TreeView{
 
 QWidget <|-- PdmUiTreeView
 
 PdmUiTreeView --* PdmUiTreeViewEditor
-PdmUiTreeView --* QTreeView
 
+PdmUiTreeViewEditor --* 		PdmUiTreeViewWidget 
+PdmUiTreeViewEditor --* 		PdmUiTreeViewQModel 
 
-PdmUiTreeViewEditor "N" <--> "1" 		PdmUiItem<<root>>
-PdmUiTreeViewEditor "UpdateUi()" <--> "setValueFromUi()" 		PdmUiItem<<root>> 	
+PdmUiTreeItemEditor -->  PdmUiTreeViewEditor
+PdmUiTreeViewQModel --* "root"  PdmUiTreeOrdering
 
-PdmUiTreeViewEditor "signals"<--> "confAndUpdate()"		QTreeView 
-PdmUiTreeViewEditor ---* 		PdmUiTreeViewModel 
-'PdmUiTreeViewEditor --* "?, N" PdmUiTreeItemEditor
-
-
-PdmUiTreeViewModel -->  		PdmUiTreeItemEditor	: "SetValueFromUi()"
-PdmUiTreeViewModel <--  		PdmUiTreeItemEditor	: "UpdatUi()" 
-PdmUiTreeViewModel --* 		PdmUiTreeOrdering
-'PdmUiTreeViewModel ---* "?, N" PdmUiTreeItemEditor
-
-PdmUiTreeOrdering "N" <--> "1" 	PdmUiItem2<<item>> 
+PdmUiTreeOrdering --> 	PdmUiItem 
 PdmUiTreeOrdering --*  			PdmUiTreeItemEditor
 
-PdmUiTreeItemEditor "N" <--  	PdmUiItem2<<item>>  : UpdateUi(), removeFromList()
-PdmUiTreeItemEditor --> "1" 	PdmUiItem2<<item>> 	: setValueFromUi()
+QTreeView <|-- PdmUiTreeViewWidget
 
 }
 
 namespace Properties{
+
 QWidget <|-- PdmUiPropertyView
 
 PdmUiPropertyView --* PdmUiDefaultObjectEditor
-PdmUiDefaultObjectEditor --* "N" PdmUiFieldEditor
-"QWidget3<<Container>>" --* "QWidget2<<FieldEditor>>"
+PdmUiDefaultObjectEditor ---* "N" PdmUiFieldEditorHandle
 
-PdmUiPropertyView --* "QWidget3<<Container>>"
+PdmField --> "N" PdmUiFieldEditorHandle
 
-PdmField --> "N" PdmUiFieldEditor : UpdateUi(), removeFromList()
-PdmUiFieldEditor --> "1" PdmField : setValueFromUi()
-PdmUiFieldEditor --> "QWidget2<<FieldEditor>>" : configureAndUpdate()
-PdmUiFieldEditor <-- "QWidget2<<FieldEditor>>" : signals()
-PdmUiDefaultObjectEditor  "N" <--> "1" PdmObject
+PdmUiFieldEditorHandle --> "1" PdmField 
+PdmUiDefaultObjectEditor  "N" <--> "1" edited_PdmObject
+
+edited_PdmObject --* "N" PdmField
+
+PdmUiFieldEditorHandle --* QWidget_UsedByEditor
+}
+
+namespace 3DEditors{
+
+SomeViewer --* PdmUiSelection3dEditorVisualizer
+
+PdmUiSelection3dEditorVisualizer --* PdmUi3dObjectEditorHandle : "Creates on SelectionChanged()"
+
+PdmUi3dObjectEditorHandle --> SomeViewer
+PdmUi3dObjectEditorHandle --> 3DVisualizationStuff
+PdmUi3dObjectEditorHandle -->edited_PdmObject
 
 }
+
+
 
 @enduml

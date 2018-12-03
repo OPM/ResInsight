@@ -22,6 +22,7 @@
 #include "RiuViewer.h"
 
 #include "Rim3dOverlayInfoConfig.h"
+#include "RimAnnotationInViewCollection.h"
 #include "RimCase.h"
 #include "RimCellRangeFilterCollection.h"
 #include "RimContourMapNameConfig.h"
@@ -32,7 +33,7 @@
 #include "RimFaultInViewCollection.h"
 #include "RimGridCollection.h"
 #include "RimSimWellInViewCollection.h"
-
+#include "RimScaleLegendConfig.h"
 #include "cafPdmUiTreeOrdering.h"
 
 #include "cvfCamera.h"
@@ -54,7 +55,8 @@ RimContourMapView::RimContourMapView()
     CAF_PDM_InitFieldNoDefault(&m_contourMapProjection, "ContourMapProjection", "Contour Map Projection", "", "", "");
     m_contourMapProjection = new RimContourMapProjection();
 
-    CAF_PDM_InitField(&m_showAxisLines, "ShowAxisLines", true, "Show Axis Lines", "", "", "");
+    CAF_PDM_InitField(&m_showAxisLines,   "ShowAxisLines", true, "Show Axis Lines", "", "", "");
+    CAF_PDM_InitField(&m_showScaleLegend, "ShowScaleLegend", true, "Show Scale Legend", "", "", "");
 
     m_gridCollection->setActive(false); // This is also not added to the tree view, so cannot be enabled.
     setFaultVisParameters();
@@ -63,9 +65,8 @@ RimContourMapView::RimContourMapView()
     m_nameConfig = new RimContourMapNameConfig(this);
 
     m_contourMapProjectionPartMgr = new RivContourMapProjectionPartMgr(contourMapProjection(), this);
-    
-    ((RiuViewerToViewInterface*)this)->setCameraPosition(defaultViewMatrix);
 
+    ((RiuViewerToViewInterface*)this)->setCameraPosition(defaultViewMatrix);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -162,6 +163,7 @@ void RimContourMapView::defineUiOrdering(QString uiConfigName, caf::PdmUiOrderin
     viewGroup->add(this->userDescriptionField());
     viewGroup->add(this->backgroundColorField());
     viewGroup->add(&m_showAxisLines);
+    viewGroup->add(&m_showScaleLegend);
 
     caf::PdmUiGroup* nameGroup = uiOrdering.addNewGroup("Contour Map Name");
     m_nameConfig->uiOrdering(uiConfigName, *nameGroup);
@@ -180,6 +182,7 @@ void RimContourMapView::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrder
     cellResult()->uiCapability()->setUiReadOnly(m_contourMapProjection->isColumnResult());
     uiTreeOrdering.add(wellCollection());
     uiTreeOrdering.add(faultCollection());
+    uiTreeOrdering.add(annotationCollection());
     uiTreeOrdering.add(m_rangeFilterCollection());
     uiTreeOrdering.add(nativePropertyFilterCollection());
 
@@ -300,6 +303,8 @@ void RimContourMapView::updateLegends()
                 }
             }
         }
+
+        m_viewer->showScaleLegend(m_showScaleLegend());
     }
 }
 
@@ -353,6 +358,11 @@ void RimContourMapView::fieldChangedByUi(const caf::PdmFieldHandle* changedField
     }
     else if (changedField == backgroundColorField())
     {
+        scheduleCreateDisplayModelAndRedraw();
+    }
+    else if (changedField == &m_showScaleLegend)
+    {
+        updateLegends();
         scheduleCreateDisplayModelAndRedraw();
     }
 }

@@ -62,7 +62,7 @@ namespace caf
 {
 
 class PdmObjectHandle;
-class PdmUiObjectEditorHandle;
+class PdmUiWidgetObjectEditorHandle;
 
 //==================================================================================================
 /// 
@@ -84,11 +84,11 @@ public slots:
     void                showProperties(caf::PdmObjectHandle* object); // Signal/Slot system needs caf:: prefix in some cases
 
 private:
-    PdmUiObjectEditorHandle*    m_currentObjectView; 
-    QString                     m_uiConfigName;
+    PdmUiWidgetObjectEditorHandle* m_currentObjectView; 
+    QString                        m_uiConfigName;
     
-    QPointer<QVBoxLayout>       m_placeHolderLayout;
-    QPointer<QWidget>           m_placeholder;
+    QPointer<QVBoxLayout>          m_placeHolderLayout;
+    QPointer<QWidget>              m_placeholder;
 };
 
 

@@ -25,6 +25,7 @@
 #include "RiaViewRedrawScheduler.h"
 
 #include "Rim3dWellLogCurve.h"
+#include "RimAnnotationInViewCollection.h"
 #include "RimCase.h" 
 #include "RimGridView.h"
 #include "RimMainPlotCollection.h"
@@ -34,6 +35,7 @@
 #include "RimViewLinker.h"
 #include "RimWellPathCollection.h"
 
+#include "RivAnnotationsPartMgr.h"
 #include "RivWellPathsPartMgr.h"
 
 #include "RiuMainWindow.h"
@@ -131,6 +133,7 @@ Rim3dView::Rim3dView(void)
     m_wellPathPipeVizModel->setName("WellPathPipeModel");
 
     m_wellPathsPartManager = new RivWellPathsPartMgr(this); 
+    m_annotationsPartManager = new RivAnnotationsPartMgr(this);
 
     this->setAs3DViewMdiWindow();
 }
@@ -140,6 +143,10 @@ Rim3dView::Rim3dView(void)
 //--------------------------------------------------------------------------------------------------
 Rim3dView::~Rim3dView(void)
 {
+    if (m_viewer)
+    {
+        m_viewer->clearRimView();
+    }
     removeMdiWindowFromMdiArea();
 
     deleteViewWidget();
@@ -313,6 +320,8 @@ void Rim3dView::setCurrentTimeStepAndUpdate(int frameIndex)
     RimProject* project;
     firstAncestorOrThisOfTypeAsserted(project);
     project->mainPlotCollection()->updateCurrentTimeStepInPlots();
+
+    appendAnnotationsToModel();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -666,6 +675,29 @@ void Rim3dView::addDynamicWellPathsToModel(cvf::ModelBasicList* wellPathModelBas
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void Rim3dView::addAnnotationsToModel(cvf::ModelBasicList* wellPathModelBasicList)
+{
+    if (!this->ownerCase()) return;
+
+    std::vector<RimAnnotationInViewCollection*> annotationCollections;
+    descendantsIncludingThisOfType(annotationCollections);
+
+    if (annotationCollections.empty() || !annotationCollections.front()->isActive())
+    {
+        m_annotationsPartManager->clearGeometryCache();
+    }
+    else
+    {
+        cvf::ref<caf::DisplayCoordTransform> transForm = displayCoordTransform();
+        m_annotationsPartManager->appendGeometryPartsToModel(wellPathModelBasicList, transForm.p(), ownerCase()->allCellsBoundingBox());
+    }
+
+    wellPathModelBasicList->updateBoundingBoxesRecursive();
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void Rim3dView::setScaleZAndUpdate(double scalingFactor)
@@ -961,11 +993,23 @@ void Rim3dView::setMdiWindowGeometry(const RimMdiWindowGeometry& windowGeometry)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
+void Rim3dView::appendAnnotationsToModel()
+{
+    if (!m_viewer) return;
+
+    cvf::Scene* frameScene = m_viewer->frame(m_currentTimeStep);
+    if (frameScene)
+    {
+        cvf::String name = "Annotations";
+        this->removeModelByName(frameScene, name);
+
+        cvf::ref<cvf::ModelBasicList> model = new cvf::ModelBasicList;
+        model->setName(name);
+
+        addAnnotationsToModel(model.p());
+
+        frameScene->addModel(model.p());
+    }
+}

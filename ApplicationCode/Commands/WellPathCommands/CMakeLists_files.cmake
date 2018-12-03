@@ -16,6 +16,9 @@ ${CMAKE_CURRENT_LIST_DIR}/RicCreateWellTargetsPickEventHandler.h
 ${CMAKE_CURRENT_LIST_DIR}/RicIntersectionPickEventHandler.h
 ${CMAKE_CURRENT_LIST_DIR}/RicWellPathFormationsImportFileFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/PointTangentManipulator/RicPointTangentManipulator.h
+${CMAKE_CURRENT_LIST_DIR}/PointTangentManipulator/RicWellTarget3dEditor.h
+${CMAKE_CURRENT_LIST_DIR}/PointTangentManipulator/RicWellPathGeometry3dEditor.h
+${CMAKE_CURRENT_LIST_DIR}/PointTangentManipulator/RicPointTangentManipulatorPartMgr.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -35,6 +38,9 @@ ${CMAKE_CURRENT_LIST_DIR}/RicCreateWellTargetsPickEventHandler.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicIntersectionPickEventHandler.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicWellPathFormationsImportFileFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/PointTangentManipulator/RicPointTangentManipulator.cpp
+${CMAKE_CURRENT_LIST_DIR}/PointTangentManipulator/RicWellTarget3dEditor.cpp
+${CMAKE_CURRENT_LIST_DIR}/PointTangentManipulator/RicWellPathGeometry3dEditor.cpp
+${CMAKE_CURRENT_LIST_DIR}/PointTangentManipulator/RicPointTangentManipulatorPartMgr.cpp
 )
 
 list(APPEND CODE_HEADER_FILES
@@ -47,6 +53,9 @@ ${SOURCE_GROUP_SOURCE_FILES}
 
 list(APPEND QT_MOC_HEADERS
 ${CMAKE_CURRENT_LIST_DIR}/PointTangentManipulator/RicPointTangentManipulator.h
+${CMAKE_CURRENT_LIST_DIR}/PointTangentManipulator/RicWellTarget3dEditor.h
+${CMAKE_CURRENT_LIST_DIR}/PointTangentManipulator/RicWellPathGeometry3dEditor.h
+
 )
 
 source_group( "CommandFeature\\WellPath" FILES ${SOURCE_GROUP_HEADER_FILES} ${SOURCE_GROUP_SOURCE_FILES} ${CMAKE_CURRENT_LIST_DIR}/CMakeLists_files.cmake )

@@ -19,7 +19,7 @@
 #include "RiuPvtPlotUpdater.h"
 #include "RiuPvtPlotPanel.h"
 #include "RiuRelativePermeabilityPlotUpdater.h"
-#include "RiuSelectionManager.h"
+#include "Riu3dSelectionManager.h"
 
 #include "RigEclipseCaseData.h"
 #include "RigGridBase.h"
@@ -118,7 +118,7 @@ void RiuPvtPlotUpdater::updateOnTimeStepChanged(Rim3dView* changedView)
     }
 
     // Fetch the current global selection and only continue if the selection's view matches the view with time step change
-    const RiuEclipseSelectionItem* eclipseSelectionItem = dynamic_cast<const RiuEclipseSelectionItem*>(RiuSelectionManager::instance()->selectedItem());
+    const RiuEclipseSelectionItem* eclipseSelectionItem = dynamic_cast<const RiuEclipseSelectionItem*>(Riu3dSelectionManager::instance()->selectedItem());
     if (eclipseSelectionItem && eclipseSelectionItem->m_view == eclipseView)
     {
         const size_t gridIndex = eclipseSelectionItem->m_gridIndex;

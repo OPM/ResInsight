@@ -38,6 +38,7 @@
 #include "cafPdmUiTableViewEditor.h"
 #include "cafPdmUiTreeOrdering.h"
 #include "cvfGeometryTools.h"
+#include "WellPathCommands/PointTangentManipulator/RicWellPathGeometry3dEditor.h"
 
 
 namespace caf
@@ -64,6 +65,7 @@ RimWellPathGeometryDef::RimWellPathGeometryDef()
 {
     CAF_PDM_InitObject("Well Targets", ":/WellTargets.png", "", "");
 
+    this->setUi3dEditorTypeName(RicWellPathGeometry3dEditor::uiEditorTypeName());
     CAF_PDM_InitField(&m_referencePointUtmXyd, "ReferencePosUtmXyd", cvf::Vec3d(0,0,0), "UTM Reference Point", "", "", "");
 
     CAF_PDM_InitField(&m_mdrkbAtFirstTarget, "MdrkbAtFirstTarget", 0.0, "MDRKB at First Target", "", "", "");

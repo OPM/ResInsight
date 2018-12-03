@@ -1078,7 +1078,7 @@ void RiuMainWindow::removeViewer(QWidget* viewer)
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindow::addViewer(QWidget* viewer, const RimMdiWindowGeometry& windowsGeometry)
 {
-    RiuMdiSubWindow* subWin = new RiuMdiSubWindow(m_mdiArea);
+    RiuMdiSubWindow* subWin = new RiuMdiSubWindow;
     subWin->setAttribute(Qt::WA_DeleteOnClose); // Make sure the contained widget is destroyed when the MDI window is closed
     subWin->setWidget(viewer);
 
@@ -1108,12 +1108,9 @@ void RiuMainWindow::addViewer(QWidget* viewer, const RimMdiWindowGeometry& windo
     {
         initialStateMaximized = true;
     }
-        
-    subWin->show();
 
-    // Move and resize must be done after window is visible
-    // If not, the position and size of the window is different to specification (Windows 7)
-    // Might be a Qt bug, must be tested on Linux
+    m_mdiArea->addSubWindow(subWin);
+
     if (subWindowPos.x() > -1)
     {
         subWin->move(subWindowPos);
@@ -1123,6 +1120,10 @@ void RiuMainWindow::addViewer(QWidget* viewer, const RimMdiWindowGeometry& windo
     if (initialStateMaximized)
     {
         subWin->showMaximized();
+    }
+    else
+    {
+        subWin->showNormal();
     }
 
     slotRefreshViewActions();

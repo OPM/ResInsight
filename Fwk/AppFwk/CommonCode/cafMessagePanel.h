@@ -37,7 +37,7 @@
 
 #pragma once
 
-#include <QtGui/QWidget>
+#include <QWidget>
 
 class QDockWidget;
 class QTextEdit;

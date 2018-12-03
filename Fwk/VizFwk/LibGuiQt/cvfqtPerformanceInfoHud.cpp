@@ -42,7 +42,12 @@
 #include "cvfqtPerformanceInfoHud.h"
 #include "cvfOpenGLResourceManager.h"
 
+#include <QtCore/QString>
+#if QT_VERSION >= 0x050000
+#include <QPainter>
+#else
 #include <QtGui/QPainter>
+#endif
 #include <vector>
 
 namespace cvfqt {

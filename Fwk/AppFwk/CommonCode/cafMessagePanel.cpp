@@ -37,10 +37,10 @@
 
 #include "cafMessagePanel.h"
 
-#include <QtGui/QWidget>
-#include <QtGui/QDockWidget>
-#include <QtGui/QTextEdit>
-#include <QtGui/QBoxLayout>
+#include <QWidget>
+#include <QDockWidget>
+#include <QTextEdit>
+#include <QBoxLayout>
 
 namespace caf {
 

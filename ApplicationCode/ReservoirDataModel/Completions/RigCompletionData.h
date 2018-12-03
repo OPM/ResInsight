@@ -66,7 +66,8 @@ public:
         FISHBONES,
         FRACTURE,
         PERFORATION,
-        ICD,
+        FISHBONES_ICD,
+        PERFORATION_ICD,
         CT_UNDEFINED
     };
 

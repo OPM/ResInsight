@@ -9,7 +9,7 @@
 
 QWT_VER_MAJ      = 6
 QWT_VER_MIN      = 1
-QWT_VER_PAT      = 0
+QWT_VER_PAT      = 3
 QWT_VERSION      = $${QWT_VER_MAJ}.$${QWT_VER_MIN}.$${QWT_VER_PAT}
 
 ######################################################################
@@ -20,10 +20,12 @@ QWT_INSTALL_PREFIX = $$[QT_INSTALL_PREFIX]
 
 unix {
     QWT_INSTALL_PREFIX    = /usr/local/qwt-$$QWT_VERSION
+    # QWT_INSTALL_PREFIX = /usr/local/qwt-$$QWT_VERSION-qt-$$QT_VERSION
 }
 
 win32 {
     QWT_INSTALL_PREFIX    = C:/Qwt-$$QWT_VERSION
+    # QWT_INSTALL_PREFIX = C:/Qwt-$$QWT_VERSION-qt-$$QT_VERSION
 }
 
 QWT_INSTALL_DOCS      = $${QWT_INSTALL_PREFIX}/doc
@@ -161,3 +163,13 @@ macx:!static:CONFIG(qt_framework, qt_framework|qt_no_framework) {
 
     QWT_CONFIG += QwtFramework
 }  
+
+######################################################################
+# Create and install pc files for pkg-config
+# See http://www.freedesktop.org/wiki/Software/pkg-config/
+######################################################################
+
+unix {
+
+    #QWT_CONFIG     += QwtPkgConfig
+}

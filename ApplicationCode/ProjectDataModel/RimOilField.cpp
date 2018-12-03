@@ -20,6 +20,7 @@
 
 #include "RimOilField.h"
 
+#include "RimAnnotationCollection.h"
 #include "RimEclipseCaseCollection.h"
 #include "RimFormationNamesCollection.h"
 #include "RimFractureTemplateCollection.h"
@@ -49,12 +50,15 @@ RimOilField::RimOilField(void)
     CAF_PDM_InitFieldNoDefault(&formationNamesCollection,"FormationNamesCollection","Formations","","","");
     CAF_PDM_InitFieldNoDefault(&observedDataCollection, "ObservedDataCollection", "Observed Data", ":/Cases16x16.png", "", "");
 
+    CAF_PDM_InitFieldNoDefault(&annotationCollection, "AnnotationCollection", "Annotations", "", "", "");
+
     fractureDefinitionCollection = new RimFractureTemplateCollection();
     analysisModels = new RimEclipseCaseCollection();
     wellPathCollection = new RimWellPathCollection();
     summaryCaseMainCollection = new RimSummaryCaseMainCollection();
     observedDataCollection = new RimObservedDataCollection();
     formationNamesCollection = new RimFormationNamesCollection();
+    annotationCollection = new RimAnnotationCollection();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -70,6 +74,7 @@ RimOilField::~RimOilField(void)
     if (summaryCaseMainCollection()) delete summaryCaseMainCollection();
     if (formationNamesCollection()) delete formationNamesCollection();
     if (observedDataCollection()) delete observedDataCollection();
+    if (annotationCollection()) delete annotationCollection();
 }
 
 //--------------------------------------------------------------------------------------------------
