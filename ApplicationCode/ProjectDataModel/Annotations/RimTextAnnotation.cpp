@@ -22,6 +22,7 @@
 #include "RimGridView.h"
 #include "RimProject.h"
 #include "RimAnnotationCollection.h"
+#include "RimAnnotationGroupCollection.h"
 #include "AnnotationCommands/RicTextAnnotation3dEditor.h"
 
 
@@ -147,6 +148,20 @@ caf::PdmFieldHandle* RimTextAnnotation::userDescriptionField()
 bool RimTextAnnotation::isActive()
 {
     return m_isActive();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Returns true if annotation can be displayed due to all toggles that affect this annotation
+//--------------------------------------------------------------------------------------------------
+bool RimTextAnnotation::isVisible() const
+{
+    RimAnnotationGroupCollection* coll;
+    firstAncestorOrThisOfType(coll);
+
+    bool visible = true;
+    if (coll) visible = coll->isVisible();
+    if(visible) visible = m_isActive;
+    return visible;
 }
 
 //--------------------------------------------------------------------------------------------------

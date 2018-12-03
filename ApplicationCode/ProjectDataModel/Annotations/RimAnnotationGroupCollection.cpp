@@ -16,7 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimAnnotationCollectionBase.h"
+#include "RimAnnotationGroupCollection.h"
 
 #include "RiaApplication.h"
 
@@ -27,41 +27,57 @@
 #include "RimProject.h"
 #include "RimGridView.h"
 #include "RimAnnotationInViewCollection.h"
-#include "RimAnnotationGroupCollection.h"
 
 #include "QMessageBox"
 #include <QString>
 #include "RiaColorTables.h"
 
 
-CAF_PDM_SOURCE_INIT(RimAnnotationCollectionBase, "RimAnnotationCollectionBase");
+CAF_PDM_SOURCE_INIT(RimAnnotationGroupCollection, "RimAnnotationGroupCollection");
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimAnnotationCollectionBase::RimAnnotationCollectionBase()
+RimAnnotationGroupCollection::RimAnnotationGroupCollection()
 {
     CAF_PDM_InitObject("Annotations", ":/WellCollection.png", "", "");
 
+    CAF_PDM_InitField(&m_title, "Title", QString("Annotations"), "Title", "", "", "");
     CAF_PDM_InitField(&m_isActive, "IsActive", true, "Is Active", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&m_textAnnotations, "TextAnnotations", "Text Annotations", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_annotations, "Annotations", "Annotations", "", "", "");
 
-    m_textAnnotations.uiCapability()->setUiHidden(true);
-    m_textAnnotations = new RimAnnotationGroupCollection("Text Annotations");
+    m_annotations.uiCapability()->setUiHidden(true);
 }
 
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimAnnotationGroupCollection::RimAnnotationGroupCollection(const QString& title)
+    : RimAnnotationGroupCollection()
+{
+    m_title = title;
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimAnnotationCollectionBase::~RimAnnotationCollectionBase()
+RimAnnotationGroupCollection::~RimAnnotationGroupCollection()
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimAnnotationCollectionBase::isActive() const
+void RimAnnotationGroupCollection::setTitle(const QString& title)
+{
+    m_title = title;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimAnnotationGroupCollection::isActive() const
 {
     return m_isActive();
 }
@@ -69,97 +85,62 @@ bool RimAnnotationCollectionBase::isActive() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimAnnotationCollectionBase::addAnnotation(RimTextAnnotation* annotation)
+bool RimAnnotationGroupCollection::isVisible() const
 {
-    m_textAnnotations->addAnnotation(annotation);
-    updateViewAnnotationCollections();
+    RimAnnotationCollectionBase* coll;
+    firstAncestorOrThisOfType(coll);
+
+    bool visible = true;
+    if (coll) visible = coll->isActive();
+    if (visible) visible = m_isActive;
+    return visible;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimTextAnnotation*> RimAnnotationCollectionBase::textAnnotations() const
+void RimAnnotationGroupCollection::addAnnotation(caf::PdmObject* annotation)
 {
-    std::vector<RimTextAnnotation*> annotations;
-    for (auto& a : m_textAnnotations->annotations())
-    {
-        annotations.push_back(dynamic_cast<RimTextAnnotation*>(a));
-    }
-    return annotations;
+    m_annotations.push_back(annotation);
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimAnnotationCollectionBase::updateViewAnnotationCollections()
+std::vector<caf::PdmObject*> RimAnnotationGroupCollection::annotations() const
 {
-    // Default implementation: No op
-}
-
-//--------------------------------------------------------------------------------------------------
-/// At least one annotation have been deleted. Typically by the generic delete command
-//--------------------------------------------------------------------------------------------------
-void RimAnnotationCollectionBase::onAnnotationDeleted()
-{
-    scheduleRedrawOfRelevantViews();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimAnnotationCollectionBase::scheduleRedrawOfRelevantViews()
-{
-    // Todo: Do a Bounding Box check to see if this annotation actually is relevant for the view
-
-    auto views = gridViewsContainingAnnotations();
-    if ( !views.empty() )
-    {
-        for ( auto& view : views )
-        {
-            view->scheduleCreateDisplayModelAndRedraw();
-        }
-    }
+    return m_annotations.childObjects();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimGridView*> RimAnnotationCollectionBase::gridViewsContainingAnnotations() const
-{
-    std::vector<RimGridView*> views;
-    RimProject*               project = nullptr;
-    this->firstAncestorOrThisOfType(project);
-
-    if (!project) return views;
-
-    std::vector<RimGridView*> visibleGridViews;
-    project->allVisibleGridViews(visibleGridViews);
-
-    for (auto& gridView : visibleGridViews)
-    {
-        /*if (gridView->annotationCollection()->annotationsCount() > 0)*/ views.push_back(gridView);
-    }
-    return views;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimAnnotationCollectionBase::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
+void RimAnnotationGroupCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
                                                    const QVariant&            oldValue,
                                                    const QVariant&            newValue)
 {
     if (changedField == &m_isActive)
     {
         updateUiIconFromToggleField();
-        scheduleRedrawOfRelevantViews();
+
+        RimAnnotationCollectionBase* coll;
+        firstAncestorOrThisOfType(coll);
+        if(coll) coll->scheduleRedrawOfRelevantViews();
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmFieldHandle* RimAnnotationCollectionBase::objectToggleField()
+caf::PdmFieldHandle* RimAnnotationGroupCollection::objectToggleField()
 {
     return &m_isActive;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+caf::PdmFieldHandle* RimAnnotationGroupCollection::userDescriptionField()
+{
+    return &m_title;
 }

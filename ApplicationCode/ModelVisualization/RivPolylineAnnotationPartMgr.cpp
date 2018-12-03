@@ -23,6 +23,7 @@
 #include "Rim3dView.h"
 #include "RimAnnotationCollection.h"
 #include "RimPolylinesAnnotation.h"
+#include "RimPolylinesAnnotationInView.h"
 #include "RimAnnotationInViewCollection.h"
 #include "RimAnnotationLineAppearance.h"
 
@@ -45,8 +46,8 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RivPolylineAnnotationPartMgr::RivPolylineAnnotationPartMgr(Rim3dView* view, RimPolylinesAnnotation* annotation)
-: m_rimView(view), m_rimAnnotation(annotation)
+RivPolylineAnnotationPartMgr::RivPolylineAnnotationPartMgr(Rim3dView* view, RimPolylinesAnnotationInView* annotationInView)
+: m_rimView(view), m_rimAnnotationInView(annotationInView)
 {
 }
 
@@ -65,11 +66,12 @@ void RivPolylineAnnotationPartMgr::buildPolylineAnnotationParts(const caf::Displ
 {
     clearAllGeometry();
 
-    if (!m_rimAnnotation->isEmpty() && m_rimAnnotation->isActive())
+    auto rimAnnotation = m_rimAnnotationInView->sourceAnnotation();
+    if (!rimAnnotation->isEmpty() && rimAnnotation->isActive())
     {
-        auto        lineColor     = m_rimAnnotation->appearance()->color();
-        auto        isDashedLine  = m_rimAnnotation->appearance()->isDashed();
-        auto        lineThickness = m_rimAnnotation->appearance()->thickness();
+        auto        lineColor     = rimAnnotation->appearance()->color();
+        auto        isDashedLine  = rimAnnotation->appearance()->isDashed();
+        auto        lineThickness = rimAnnotation->appearance()->thickness();
 
         auto* collection = annotationCollection();
         if (!collection) return;
@@ -90,7 +92,7 @@ void RivPolylineAnnotationPartMgr::buildPolylineAnnotationParts(const caf::Displ
         part->setEffect(eff.p());
         part->setPriority(RivPartPriority::PartType::MeshLines);  
 
-        cvf::ref<RivPolylinesAnnotationSourceInfo> sourceInfo = new RivPolylinesAnnotationSourceInfo(m_rimAnnotation);
+        cvf::ref<RivPolylinesAnnotationSourceInfo> sourceInfo = new RivPolylinesAnnotationSourceInfo(rimAnnotation);
         part->setSourceInfo(sourceInfo.p());
 
         m_part = part;
@@ -103,7 +105,7 @@ void RivPolylineAnnotationPartMgr::buildPolylineAnnotationParts(const caf::Displ
 std::vector<std::vector<RivPolylineAnnotationPartMgr::Vec3d>>
     RivPolylineAnnotationPartMgr::getPolylinesPointsInDomain(bool snapToPlaneZ, double planeZ)
 {
-    auto polylines = m_rimAnnotation->polyLinesData()->polyLines();
+    auto polylines = m_rimAnnotationInView->sourceAnnotation()->polyLinesData()->polyLines();
     if (!snapToPlaneZ) return polylines;
 
     std::vector<std::vector<Vec3d>> polylinesInDisplay;
@@ -186,8 +188,9 @@ void RivPolylineAnnotationPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelB
                                                                      const caf::DisplayCoordTransform * displayXf,
                                                                      const cvf::BoundingBox& boundingBox)
 {
-    if (m_rimAnnotation.isNull()) return;
-    if (m_rimAnnotation->isEmpty()) return;
+    auto rimAnnotation = m_rimAnnotationInView->sourceAnnotation();
+    if (rimAnnotation->isEmpty()) return;
+    if (!m_rimAnnotationInView->isVisible()) return;
 
     // Check bounding box
     if (!isPolylinesInBoundingBox(boundingBox)) return;

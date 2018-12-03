@@ -30,6 +30,7 @@
 #include "Rim3dView.h"
 #include "RimAnnotationInViewCollection.h"
 #include "RimTextAnnotation.h"
+#include "RimTextAnnotationInView.h"
 
 #include "RivPolylineGenerator.h"
 #include "RivPartPriority.h"
@@ -48,8 +49,18 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RivTextAnnotationPartMgr::RivTextAnnotationPartMgr(Rim3dView* view, RimTextAnnotation* annotation)
-: m_rimView(view), m_rimAnnotation(annotation)
+RivTextAnnotationPartMgr::RivTextAnnotationPartMgr(Rim3dView* view, RimTextAnnotation* annotationLocal)
+: m_rimView(view), m_rimAnnotationLocal(annotationLocal), m_rimAnnotationInView(nullptr)
+{
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RivTextAnnotationPartMgr::RivTextAnnotationPartMgr(Rim3dView* view, RimTextAnnotationInView* annotationInView)
+    : m_rimView(view)
+    , m_rimAnnotationLocal(nullptr)
+    , m_rimAnnotationInView(annotationInView)
 {
 }
 
@@ -70,7 +81,7 @@ void RivTextAnnotationPartMgr::buildParts(const caf::DisplayCoordTransform * dis
 {
     clearAllGeometry();
 
-    cvf::ref<RivTextAnnotationSourceInfo> sourceInfo = new RivTextAnnotationSourceInfo(m_rimAnnotation);
+    cvf::ref<RivTextAnnotationSourceInfo> sourceInfo = new RivTextAnnotationSourceInfo(rimAnnotation());
 
     auto collection = annotationCollection();
     if (!collection) return;
@@ -80,7 +91,7 @@ void RivTextAnnotationPartMgr::buildParts(const caf::DisplayCoordTransform * dis
 
     cvf::Vec3d anchorPosition = displayXf->transformToDisplayCoord(anchorPositionInDomain);
     cvf::Vec3d labelPosition = displayXf->transformToDisplayCoord(labelPositionInDomain);
-    QString text = m_rimAnnotation->text();
+    QString text = rimAnnotation()->text();
 
     // Line part
     {
@@ -141,7 +152,7 @@ void RivTextAnnotationPartMgr::buildParts(const caf::DisplayCoordTransform * dis
 //--------------------------------------------------------------------------------------------------
 RivTextAnnotationPartMgr::Vec3d RivTextAnnotationPartMgr::getAnchorPointInDomain(bool snapToPlaneZ, double planeZ)
 {
-    auto pt = m_rimAnnotation->anchorPoint();
+    auto pt = rimAnnotation()->anchorPoint();
 
     if (snapToPlaneZ)
     {
@@ -155,7 +166,7 @@ RivTextAnnotationPartMgr::Vec3d RivTextAnnotationPartMgr::getAnchorPointInDomain
 //--------------------------------------------------------------------------------------------------
 RivTextAnnotationPartMgr::Vec3d RivTextAnnotationPartMgr::getLabelPointInDomain(bool snapToPlaneZ, double planeZ)
 {
-    auto pt = m_rimAnnotation->labelPoint();
+    auto pt = rimAnnotation()->labelPoint();
 
     if (snapToPlaneZ)
     {
@@ -194,13 +205,12 @@ void RivTextAnnotationPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasic
                                                                  const caf::DisplayCoordTransform * displayXf,
                                                                  const cvf::BoundingBox& boundingBox)
 {
-    if (m_rimAnnotation.isNull()) return;
-    if (!m_rimAnnotation->isActive()) return;
+    if (!rimAnnotation() || !isAnnotationVisible()) return;
 
     // Check bounding box
     if (!isTextInBoundingBox(boundingBox)) return;
 
-    if (!validateAnnotation(m_rimAnnotation)) return;
+    if (!validateAnnotation(rimAnnotation())) return;
 
     buildParts(displayXf, false, 0.0);
     model->addPart(m_linePart.p());
@@ -212,7 +222,7 @@ void RivTextAnnotationPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasic
 //--------------------------------------------------------------------------------------------------
 bool RivTextAnnotationPartMgr::validateAnnotation(const RimTextAnnotation* annotation) const
 {
-    return m_rimAnnotation->anchorPoint() != cvf::Vec3d::ZERO && !m_rimAnnotation->text().isEmpty();
+    return rimAnnotation()->anchorPoint() != cvf::Vec3d::ZERO && !rimAnnotation()->text().isEmpty();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -223,4 +233,24 @@ RimAnnotationInViewCollection* RivTextAnnotationPartMgr::annotationCollection() 
     std::vector<RimAnnotationInViewCollection*> colls;
     m_rimView->descendantsIncludingThisOfType(colls);
     return !colls.empty() ? colls.front() : nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimTextAnnotation* RivTextAnnotationPartMgr::rimAnnotation() const
+{
+    return m_rimAnnotationLocal ? m_rimAnnotationLocal : m_rimAnnotationInView->sourceAnnotation();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RivTextAnnotationPartMgr::isAnnotationVisible() const
+{
+    if (m_rimAnnotationLocal)
+        return m_rimAnnotationLocal->isVisible();
+    if(m_rimAnnotationInView)
+        return m_rimAnnotationInView->isVisible();
+    return false;
 }

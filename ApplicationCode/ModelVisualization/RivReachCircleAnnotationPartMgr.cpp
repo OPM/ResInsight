@@ -27,6 +27,7 @@
 #include "Rim3dView.h"
 #include "RimAnnotationInViewCollection.h"
 #include "RimReachCircleAnnotation.h"
+#include "RimReachCircleAnnotationInView.h"
 
 #include "RivPolylineGenerator.h"
 #include "RivPartPriority.h"
@@ -44,8 +45,8 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RivReachCircleAnnotationPartMgr::RivReachCircleAnnotationPartMgr(Rim3dView* view, RimReachCircleAnnotation* annotation)
-: m_rimView(view), m_rimAnnotation(annotation)
+RivReachCircleAnnotationPartMgr::RivReachCircleAnnotationPartMgr(Rim3dView* view, RimReachCircleAnnotationInView* annotationInView)
+: m_rimView(view), m_rimAnnotationInView(annotationInView)
 {
 }
 
@@ -62,15 +63,16 @@ RivReachCircleAnnotationPartMgr::~RivReachCircleAnnotationPartMgr()
 //--------------------------------------------------------------------------------------------------
 void RivReachCircleAnnotationPartMgr::buildParts(const caf::DisplayCoordTransform* displayXf, bool doFlatten, double xOffset)
 {
+    auto rimAnnotation = m_rimAnnotationInView->sourceAnnotation();
     clearAllGeometry();
 
-    cvf::ref<RivReachCircleAnnotationSourceInfo> sourceInfo = new RivReachCircleAnnotationSourceInfo(m_rimAnnotation);
+    cvf::ref<RivReachCircleAnnotationSourceInfo> sourceInfo = new RivReachCircleAnnotationSourceInfo(rimAnnotation);
 
-    Vec3d centerPositionInDomain = m_rimAnnotation->centerPoint();
+    Vec3d centerPositionInDomain = rimAnnotation->centerPoint();
 
-    auto    lineColor      = m_rimAnnotation->appearance()->color();
-    auto    isDashedLine   = m_rimAnnotation->appearance()->isDashed();
-    auto    lineThickness = m_rimAnnotation->appearance()->thickness();
+    auto    lineColor      = rimAnnotation->appearance()->color();
+    auto    isDashedLine   = rimAnnotation->appearance()->isDashed();
+    auto    lineThickness = rimAnnotation->appearance()->thickness();
 
     // Circle part
     auto* collection = annotationCollection();
@@ -98,7 +100,7 @@ void RivReachCircleAnnotationPartMgr::buildParts(const caf::DisplayCoordTransfor
 
     // Center point part
     {
-        auto centerPos = m_rimAnnotation->centerPoint();
+        auto centerPos = rimAnnotation->centerPoint();
         double symbolSize = 20;
         double xMin = centerPos.x() - symbolSize / 2.0;
         double xMax = xMin + symbolSize;
@@ -141,13 +143,13 @@ void RivReachCircleAnnotationPartMgr::appendDynamicGeometryPartsToModel(cvf::Mod
                                                                         const caf::DisplayCoordTransform* displayXf,
                                                                         const cvf::BoundingBox& boundingBox)
 {
-    if (m_rimAnnotation.isNull()) return;
-    if (!m_rimAnnotation->isActive()) return;
+    if (m_rimAnnotationInView.isNull() || !m_rimAnnotationInView->sourceAnnotation()) return;
+    if (!m_rimAnnotationInView->isVisible()) return;
 
     // Check bounding box
     if (!isCircleInBoundingBox(boundingBox)) return;
 
-    if (!validateAnnotation(m_rimAnnotation)) return;
+    if (!validateAnnotation(m_rimAnnotationInView->sourceAnnotation())) return;
 
     buildParts(displayXf, false, 0.0);
     model->addPart(m_circlePart.p());
@@ -159,7 +161,8 @@ void RivReachCircleAnnotationPartMgr::appendDynamicGeometryPartsToModel(cvf::Mod
 //--------------------------------------------------------------------------------------------------
 bool RivReachCircleAnnotationPartMgr::validateAnnotation(const RimReachCircleAnnotation* annotation) const
 {
-    return m_rimAnnotation->centerPoint() != cvf::Vec3d::ZERO && m_rimAnnotation->radius() > 0.0;
+    auto a = m_rimAnnotationInView->sourceAnnotation();
+    return a->centerPoint() != cvf::Vec3d::ZERO && a->radius() > 0.0;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -185,8 +188,8 @@ bool RivReachCircleAnnotationPartMgr::isCircleInBoundingBox(const cvf::BoundingB
 std::vector<cvf::Vec3d> RivReachCircleAnnotationPartMgr::computeCirclePointsInDomain(bool snapToPlaneZ, double planeZ)
 {
     int  numPoints = 36;
-    auto centerPos = m_rimAnnotation->centerPoint();
-    auto radius = m_rimAnnotation->radius();
+    auto centerPos = m_rimAnnotationInView->sourceAnnotation()->centerPoint();
+    auto radius = m_rimAnnotationInView->sourceAnnotation()->radius();
 
     if (snapToPlaneZ)
     {

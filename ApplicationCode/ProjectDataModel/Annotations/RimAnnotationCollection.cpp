@@ -21,6 +21,7 @@
 #include "RiaApplication.h"
 #include "RiaColorTables.h"
 
+#include "RimAnnotationGroupCollection.h"
 #include "RimTextAnnotation.h"
 #include "RimReachCircleAnnotation.h"
 #include "RimPolylinesFromFileAnnotation.h"
@@ -47,6 +48,14 @@ RimAnnotationCollection::RimAnnotationCollection()
     CAF_PDM_InitFieldNoDefault(&m_reachCircleAnnotations, "ReachCircleAnnotations", "Reach Circle Annotations", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_userDefinedPolylineAnnotations, "UserDefinedPolylineAnnotations", "User Defined Polyline Annotations", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_polylineFromFileAnnotations, "PolylineFromFileAnnotations", "Polylines From File", "", "", "");
+
+    m_reachCircleAnnotations.uiCapability()->setUiHidden(true);
+    m_userDefinedPolylineAnnotations.uiCapability()->setUiHidden(true);
+    m_polylineFromFileAnnotations.uiCapability()->setUiHidden(true);
+
+    m_reachCircleAnnotations = new RimAnnotationGroupCollection("Reach Circle Annotations");
+    m_userDefinedPolylineAnnotations = new RimAnnotationGroupCollection("User Defined Polyline Annotations");
+    m_polylineFromFileAnnotations = new RimAnnotationGroupCollection("Polylines From File");
 }
 
 
@@ -62,7 +71,8 @@ RimAnnotationCollection::~RimAnnotationCollection()
 //--------------------------------------------------------------------------------------------------
 void RimAnnotationCollection::addAnnotation(RimReachCircleAnnotation* annotation)
 {
-    m_reachCircleAnnotations.push_back(annotation);
+    m_reachCircleAnnotations->addAnnotation(annotation);
+    updateViewAnnotationCollections();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -71,7 +81,8 @@ void RimAnnotationCollection::addAnnotation(RimReachCircleAnnotation* annotation
 void RimAnnotationCollection::addAnnotation(RimUserDefinedPolylinesAnnotation* annotation)
 {
 
-    m_userDefinedPolylineAnnotations.push_back(annotation);
+    m_userDefinedPolylineAnnotations->addAnnotation(annotation);
+    updateViewAnnotationCollections();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -79,7 +90,8 @@ void RimAnnotationCollection::addAnnotation(RimUserDefinedPolylinesAnnotation* a
 //--------------------------------------------------------------------------------------------------
 void RimAnnotationCollection::addAnnotation(RimPolylinesFromFileAnnotation* annotation)
 {
-    m_polylineFromFileAnnotations.push_back(annotation);
+    m_polylineFromFileAnnotations->addAnnotation(annotation);
+    updateViewAnnotationCollections();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -87,7 +99,12 @@ void RimAnnotationCollection::addAnnotation(RimPolylinesFromFileAnnotation* anno
 //--------------------------------------------------------------------------------------------------
 std::vector<RimReachCircleAnnotation*> RimAnnotationCollection::reachCircleAnnotations() const
 {
-    return m_reachCircleAnnotations.childObjects();
+    std::vector<RimReachCircleAnnotation*> annotations;
+    for (auto& a : m_reachCircleAnnotations->annotations())
+    {
+        annotations.push_back(dynamic_cast<RimReachCircleAnnotation*>(a));
+    }
+    return annotations;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -95,7 +112,12 @@ std::vector<RimReachCircleAnnotation*> RimAnnotationCollection::reachCircleAnnot
 //--------------------------------------------------------------------------------------------------
 std::vector<RimUserDefinedPolylinesAnnotation*> RimAnnotationCollection::userDefinedPolylineAnnotations() const
 {
-    return m_userDefinedPolylineAnnotations.childObjects();
+    std::vector<RimUserDefinedPolylinesAnnotation*> annotations;
+    for (auto& a : m_userDefinedPolylineAnnotations->annotations())
+    {
+        annotations.push_back(dynamic_cast<RimUserDefinedPolylinesAnnotation*>(a));
+    }
+    return annotations;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -103,7 +125,12 @@ std::vector<RimUserDefinedPolylinesAnnotation*> RimAnnotationCollection::userDef
 //--------------------------------------------------------------------------------------------------
 std::vector<RimPolylinesFromFileAnnotation*> RimAnnotationCollection::polylinesFromFileAnnotations() const
 {
-    return m_polylineFromFileAnnotations.childObjects();
+    std::vector<RimPolylinesFromFileAnnotation*> annotations;
+    for (auto& a : m_polylineFromFileAnnotations->annotations())
+    {
+        annotations.push_back(dynamic_cast<RimPolylinesFromFileAnnotation*>(a));
+    }
+    return annotations;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -117,7 +144,7 @@ RimPolylinesFromFileAnnotation* RimAnnotationCollection::importOrUpdatePolylines
     for(const QString& newFileName : fileNames)
     {
         bool isFound = false;
-        for(RimPolylinesFromFileAnnotation* polyLinesAnnot: m_polylineFromFileAnnotations)
+        for(RimPolylinesFromFileAnnotation* polyLinesAnnot: polylinesFromFileAnnotations())
         {
             if(polyLinesAnnot->fileName() == newFileName)
             {
@@ -144,7 +171,7 @@ RimPolylinesFromFileAnnotation* RimAnnotationCollection::importOrUpdatePolylines
         newPolyLinesAnnot->setDescriptionFromFileName();
         newPolyLinesAnnot->appearance()->setColor(newColor);
 
-        m_polylineFromFileAnnotations.push_back(newPolyLinesAnnot);
+        m_polylineFromFileAnnotations->addAnnotation(newPolyLinesAnnot);
         polyLinesObjsToReload.push_back(newPolyLinesAnnot);
 
         ++newLinesIdx;
@@ -154,7 +181,7 @@ RimPolylinesFromFileAnnotation* RimAnnotationCollection::importOrUpdatePolylines
 
     if (!newFileNames.empty())
     {
-        return m_polylineFromFileAnnotations.childObjects().back();
+        return polylinesFromFileAnnotations().back();
     }
     else
     {
@@ -168,7 +195,44 @@ RimPolylinesFromFileAnnotation* RimAnnotationCollection::importOrUpdatePolylines
 //--------------------------------------------------------------------------------------------------
 size_t RimAnnotationCollection::lineBasedAnnotationsCount() const
 {
-    return m_reachCircleAnnotations.size() + m_userDefinedPolylineAnnotations.size() + m_polylineFromFileAnnotations.size();
+    return m_reachCircleAnnotations->annotations().size() + 
+        m_userDefinedPolylineAnnotations->annotations().size() + 
+        m_polylineFromFileAnnotations->annotations().size();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Update view-local annotation collections, to mirror the state in the global collection (this collection)
+//--------------------------------------------------------------------------------------------------
+void RimAnnotationCollection::updateViewAnnotationCollections()
+{
+    auto views = gridViewsContainingAnnotations();
+
+    for (const auto* view : views)
+    {
+        view->annotationCollection()->onGlobalCollectionChanged(this);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimAnnotationCollection::onAnnotationDeleted()
+{
+    updateViewAnnotationCollections();
+    RimAnnotationCollectionBase::onAnnotationDeleted();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<caf::PdmObject*> RimAnnotationCollection::allPdmAnnotations() const
+{
+    std::vector<caf::PdmObject*> all;
+    all.insert(all.end(), m_textAnnotations->m_annotations.begin(), m_textAnnotations->m_annotations.end());
+    all.insert(all.end(), m_reachCircleAnnotations->m_annotations.begin(), m_reachCircleAnnotations->m_annotations.end());
+    all.insert(all.end(), m_userDefinedPolylineAnnotations->m_annotations.begin(), m_userDefinedPolylineAnnotations->m_annotations.end());
+    all.insert(all.end(), m_polylineFromFileAnnotations->m_annotations.begin(), m_polylineFromFileAnnotations->m_annotations.end());
+    return all;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -201,5 +265,5 @@ void RimAnnotationCollection::reloadPolylinesFromFile(const std::vector<RimPolyl
 //--------------------------------------------------------------------------------------------------
 void RimAnnotationCollection::loadDataAndUpdate()
 {
-    reloadPolylinesFromFile(m_polylineFromFileAnnotations.childObjects());
+    reloadPolylinesFromFile(polylinesFromFileAnnotations());
 }

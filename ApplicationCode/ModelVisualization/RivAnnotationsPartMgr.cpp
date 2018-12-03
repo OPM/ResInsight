@@ -25,7 +25,11 @@
 #include "RiaApplication.h"
 
 #include "Rim3dView.h"
+#include "RimAnnotationInViewCollection.h"
 #include "RimProject.h"
+
+#include "RimUserDefinedPolylinesAnnotationInView.h"
+#include "RimPolylinesFromFileAnnotationInView.h"
 
 #include "RivTextAnnotationPartMgr.h"
 #include "RivReachCircleAnnotationPartMgr.h"
@@ -76,20 +80,31 @@ void RivAnnotationsPartMgr::appendGeometryPartsToModel(cvf::ModelBasicList*     
 //--------------------------------------------------------------------------------------------------
 void RivAnnotationsPartMgr::createAnnotationPartManagers()
 {
-    RimProject* proj        = RiaApplication::instance()->project();
-    auto        textAnnotations = proj->textAnnotations();
-    auto        reachCircleAnnotations = proj->reachCircleAnnotations();
-    auto        polylineAnnotations = proj->polylineAnnotations();
+    std::vector<RimAnnotationInViewCollection*> colls;
+    m_rimView->descendantsIncludingThisOfType(colls);
+
+    if (colls.empty()) return;
+    auto coll = colls.front();
+
+    auto        localTextAnnotations = coll->textAnnotations();
+    auto        textAnnotations = coll->globalTextAnnotations();
+    auto        reachCircleAnnotations = coll->globalReachCircleAnnotations();
+    auto        userDefinedPolylineAnnotations = coll->globalUserDefinedPolylineAnnotations();
+    auto        polylineFromFileAnnotations = coll->globalPolylineFromFileAnnotations();
 
     clearGeometryCache();
 
-    if (m_textAnnotationPartMgrs.size() != textAnnotations.size())
+    if (m_textAnnotationPartMgrs.size() != localTextAnnotations.size() + textAnnotations.size())
     {
+        for (auto annotation : localTextAnnotations)
+        {
+            auto* apm = new RivTextAnnotationPartMgr(m_rimView, annotation);
+            m_textAnnotationPartMgrs.push_back(apm);
+        }
         for (auto annotation : textAnnotations)
         {
             auto* apm = new RivTextAnnotationPartMgr(m_rimView, annotation);
             m_textAnnotationPartMgrs.push_back(apm);
-            //m_mapFromViewToIndex[wellPath] = wppm;
         }
     }
     if (m_reachCircleAnnotationPartMgrs.size() != reachCircleAnnotations.size())
@@ -98,16 +113,19 @@ void RivAnnotationsPartMgr::createAnnotationPartManagers()
         {
             auto* apm = new RivReachCircleAnnotationPartMgr(m_rimView, annotation);
             m_reachCircleAnnotationPartMgrs.push_back(apm);
-            // m_mapFromViewToIndex[wellPath] = wppm;
         }
     }
-    if (m_polylineAnnotationPartMgrs.size() != polylineAnnotations.size())
+    if (m_polylineAnnotationPartMgrs.size() != userDefinedPolylineAnnotations.size() + polylineFromFileAnnotations.size())
     {
-        for (auto annotation : polylineAnnotations)
+        for (auto annotation : userDefinedPolylineAnnotations)
         {
             auto* apm = new RivPolylineAnnotationPartMgr(m_rimView, annotation);
             m_polylineAnnotationPartMgrs.push_back(apm);
-            // m_mapFromViewToIndex[wellPath] = wppm;
+        }
+        for (auto annotation : polylineFromFileAnnotations)
+        {
+            auto* apm = new RivPolylineAnnotationPartMgr(m_rimView, annotation);
+            m_polylineAnnotationPartMgrs.push_back(apm);
         }
     }
     

@@ -22,11 +22,13 @@
 
 #include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
+#include "cafPdmChildField.h"
 #include "cafPdmObject.h"
 #include "cafPdmPointer.h"
 
 class QString;
 class RimTextAnnotation;
+class RimAnnotationGroupCollection;
 class RimGridView;
 
 //==================================================================================================
@@ -40,15 +42,23 @@ public:
     RimAnnotationCollectionBase();
     ~RimAnnotationCollectionBase() override;
 
+    bool                            isActive() const;
+
     void                            addAnnotation(RimTextAnnotation* annotation);
 
     std::vector<RimTextAnnotation*> textAnnotations() const;
 
-    void                            onAnnotationDeleted();
+    virtual void                    updateViewAnnotationCollections();
+    virtual void                    onAnnotationDeleted();
 
     void                            scheduleRedrawOfRelevantViews();
     std::vector<RimGridView*>       gridViewsContainingAnnotations() const;
 
-private:
-    caf::PdmChildArrayField<RimTextAnnotation*>    m_textAnnotations;
+protected:
+    void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    caf::PdmFieldHandle*            objectToggleField() override;
+
+protected:
+    caf::PdmField<bool>                                 m_isActive;
+    caf::PdmChildField<RimAnnotationGroupCollection*>   m_textAnnotations;
 };

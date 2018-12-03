@@ -19,6 +19,7 @@
 #include "RimLineBasedAnnotation.h"
 
 #include "RimAnnotationLineAppearance.h"
+#include "RimAnnotationCollectionBase.h"
 
 
 CAF_PDM_SOURCE_INIT(RimLineBasedAnnotation, "RimLineBasedAnnotation");
@@ -51,6 +52,17 @@ RimAnnotationLineAppearance* RimLineBasedAnnotation::appearance() const
 bool RimLineBasedAnnotation::isActive()
 {
     return m_isActive();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimLineBasedAnnotation::isVisible()
+{
+    RimAnnotationCollectionBase* coll;
+    firstAncestorOrThisOfType(coll);
+
+    return coll && coll->isActive() && m_isActive;
 }
 
 //--------------------------------------------------------------------------------------------------

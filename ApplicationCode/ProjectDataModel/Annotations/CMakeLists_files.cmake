@@ -10,6 +10,12 @@ ${CMAKE_CURRENT_LIST_DIR}/RimTextAnnotation.h
 ${CMAKE_CURRENT_LIST_DIR}/RimAnnotationInViewCollection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimAnnotationLineAppearance.h
 ${CMAKE_CURRENT_LIST_DIR}/RimLineBasedAnnotation.h
+${CMAKE_CURRENT_LIST_DIR}/RimPolylinesFromFileAnnotationInView.h
+${CMAKE_CURRENT_LIST_DIR}/RimUserDefinedPolylinesAnnotationInView.h
+${CMAKE_CURRENT_LIST_DIR}/RimPolylinesAnnotationInView.h
+${CMAKE_CURRENT_LIST_DIR}/RimReachCircleAnnotationInView.h
+${CMAKE_CURRENT_LIST_DIR}/RimTextAnnotationInView.h
+${CMAKE_CURRENT_LIST_DIR}/RimAnnotationGroupCollection.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -23,6 +29,12 @@ ${CMAKE_CURRENT_LIST_DIR}/RimTextAnnotation.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimAnnotationInViewCollection.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimAnnotationLineAppearance.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimLineBasedAnnotation.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimPolylinesFromFileAnnotationInView.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimUserDefinedPolylinesAnnotationInView.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimPolylinesAnnotationInView.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimReachCircleAnnotationInView.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimTextAnnotationInView.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimAnnotationGroupCollection.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

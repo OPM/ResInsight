@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2018 equinor ASA
+//  Copyright (C) 2018-     Equinor ASA
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -17,35 +17,52 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
-#include "RimPolylinesAnnotation.h"
 
+#include "cafPdmChildArrayField.h"
+#include "cafPdmField.h"
+#include "cafPdmObject.h"
+#include "cafPdmPointer.h"
+#include "cafAppEnum.h"
+#include "cafPdmUiOrdering.h"
+#include "cafPdmPtrField.h"
+
+// Include to make Pdm work for cvf::Color
+#include "cafPdmFieldCvfColor.h"    
+#include "cafPdmChildField.h"
 #include "cafPdmFieldCvfVec3d.h"
 
-//==================================================================================================
-///
-///
-//==================================================================================================
+#include "cvfObject.h"
+#include "cvfVector3.h"
 
-class RimUserDefinedPolylinesAnnotation : public RimPolylinesAnnotation
+#include <vector>
+
+class RimTextAnnotation;
+
+//==================================================================================================
+///
+///
+//==================================================================================================
+class RimTextAnnotationInView : public caf::PdmObject
 {
-    friend class RimUserDefinedPolylinesAnnotationInView;
-
-    using Vec3d = cvf::Vec3d;
-
     CAF_PDM_HEADER_INIT;
-public:
-    RimUserDefinedPolylinesAnnotation();
-    ~RimUserDefinedPolylinesAnnotation();
 
-    cvf::ref<RigPolyLinesData>  polyLinesData() override;
-    virtual bool isEmpty() override;
+public:
+    RimTextAnnotationInView();
+    RimTextAnnotationInView(RimTextAnnotation* sourceAnnotation);
+    ~RimTextAnnotationInView() override {}
+
+    bool    isActive() const;
+    void    setSourceAnnotation(RimTextAnnotation* annotation);
+    RimTextAnnotation* sourceAnnotation() const;
+
+    bool    isVisible() const;
 
 protected:
-    void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
     void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    virtual caf::PdmFieldHandle* objectToggleField() override;
+    caf::PdmFieldHandle*         userDescriptionField() override;
 
 private:
-    caf::PdmField<std::vector<Vec3d>>   m_pointsXyd;
+    caf::PdmField<bool>                         m_isActive;
+    caf::PdmPtrField<RimTextAnnotation*>        m_sourceAnnotation;
 };
-
-

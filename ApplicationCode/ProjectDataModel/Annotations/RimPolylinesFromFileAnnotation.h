@@ -23,7 +23,10 @@
 
 class RimPolylinesFromFileAnnotation : public RimPolylinesAnnotation
 {
+    friend class RimPolylinesFromFileAnnotationInView;
+
     CAF_PDM_HEADER_INIT;
+
 public:
     RimPolylinesFromFileAnnotation();
     ~RimPolylinesFromFileAnnotation();

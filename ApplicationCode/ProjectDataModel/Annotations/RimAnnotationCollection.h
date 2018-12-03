@@ -24,10 +24,12 @@
 
 #include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
+#include "cafPdmChildField.h"
 #include "cafPdmObject.h"
 #include "cafPdmPointer.h"
 
 class QString;
+class RimAnnotationGroupCollection;
 class RimTextAnnotation;
 class RimReachCircleAnnotation;
 class RimUserDefinedPolylinesAnnotation;
@@ -59,10 +61,16 @@ public:
 
     size_t                          lineBasedAnnotationsCount() const;
 
-private:
-    void reloadPolylinesFromFile(const std::vector<RimPolylinesFromFileAnnotation *>& polyLinesObjsToReload);
+    void                            updateViewAnnotationCollections() override;
+    void                            onAnnotationDeleted() override;
 
-    caf::PdmChildArrayField<RimReachCircleAnnotation*>          m_reachCircleAnnotations;
-    caf::PdmChildArrayField<RimUserDefinedPolylinesAnnotation*> m_userDefinedPolylineAnnotations;
-    caf::PdmChildArrayField<RimPolylinesFromFileAnnotation*>    m_polylineFromFileAnnotations;
+    // Used by sync code
+    std::vector<caf::PdmObject*>    allPdmAnnotations() const;
+
+private:
+    void                            reloadPolylinesFromFile(const std::vector<RimPolylinesFromFileAnnotation *>& polyLinesObjsToReload);
+
+    caf::PdmChildField<RimAnnotationGroupCollection*>   m_reachCircleAnnotations;
+    caf::PdmChildField<RimAnnotationGroupCollection*>   m_userDefinedPolylineAnnotations;
+    caf::PdmChildField<RimAnnotationGroupCollection*>   m_polylineFromFileAnnotations;
 };

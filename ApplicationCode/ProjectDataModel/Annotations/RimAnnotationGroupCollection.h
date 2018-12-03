@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2018-     Equinor ASA
+//  Copyright (C) 2018-     equinor ASA
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -18,56 +18,46 @@
 
 #pragma once
 
-#include "RimAnnotationLineAppearance.h"
-#include "RimLineBasedAnnotation.h"
+#include "RiaEclipseUnitTools.h"
 
 #include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmPointer.h"
-#include "cafAppEnum.h"
-#include "cafPdmUiOrdering.h"
-
-// Include to make Pdm work for cvf::Color
-#include "cafPdmFieldCvfColor.h"    
-#include "cafPdmChildField.h"
-#include "cafPdmFieldCvfVec3d.h"
-
-#include "cvfObject.h"
-#include "cvfVector3.h"
-
-#include <vector>
 
 class QString;
+class RimTextAnnotation;
 class RimGridView;
 
-
 //==================================================================================================
-///
-///
+///  
+///  
 //==================================================================================================
-class RimReachCircleAnnotation : public RimLineBasedAnnotation
+class RimAnnotationGroupCollection : public caf::PdmObject
 {
-    friend class RimReachCircleAnnotationInView;
-
-    using Vec3d = cvf::Vec3d;
+    friend class RimAnnotationCollection;
+    friend class RimAnnotationInViewCollection;
 
     CAF_PDM_HEADER_INIT;
-
 public:
-    RimReachCircleAnnotation();
+    RimAnnotationGroupCollection();
+    RimAnnotationGroupCollection(const QString& title);
+    ~RimAnnotationGroupCollection() override;
 
-    Vec3d           centerPoint() const;
-    double          radius() const;
-    QString         name() const;
+    void                            setTitle(const QString& title);
+    bool                            isActive() const;
+    bool                            isVisible() const;
+
+    void                            addAnnotation(caf::PdmObject* annotation);
+    std::vector<caf::PdmObject*>    annotations() const;
 
 protected:
-    void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
     void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
-    caf::PdmFieldHandle* userDescriptionField() override;
+    caf::PdmFieldHandle*            objectToggleField() override;
+    caf::PdmFieldHandle*            userDescriptionField() override;
 
-private:
-    caf::PdmField<Vec3d>    m_centerPointXyd;
-    caf::PdmField<double>   m_radius;
-    caf::PdmField<QString>  m_name;
+protected:
+    caf::PdmField<QString>                         m_title;
+    caf::PdmField<bool>                            m_isActive;
+    caf::PdmChildArrayField<caf::PdmObject*>       m_annotations;
 };

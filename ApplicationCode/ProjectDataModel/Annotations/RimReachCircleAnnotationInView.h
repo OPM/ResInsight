@@ -18,12 +18,16 @@
 
 #pragma once
 
+#include "RimAnnotationLineAppearance.h"
+#include "RimLineBasedAnnotation.h"
+
 #include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmPointer.h"
 #include "cafAppEnum.h"
 #include "cafPdmUiOrdering.h"
+#include "cafPdmPtrField.h"
 
 // Include to make Pdm work for cvf::Color
 #include "cafPdmFieldCvfColor.h"    
@@ -37,46 +41,33 @@
 
 class QString;
 class RimGridView;
-
+class RimReachCircleAnnotation;
 
 //==================================================================================================
 ///
 ///
 //==================================================================================================
-class RimTextAnnotation : public caf::PdmObject
+class RimReachCircleAnnotationInView : public caf::PdmObject
 {
-    friend class RimTextAnnotationInView;
-
-    using Vec3d = cvf::Vec3d;
-
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimTextAnnotation();
-    ~RimTextAnnotation() override;
+    RimReachCircleAnnotationInView();
+    RimReachCircleAnnotationInView(RimReachCircleAnnotation* sourceAnnotation);
+    ~RimReachCircleAnnotationInView() override {}
 
-    Vec3d               anchorPoint() const;
-    void                setAnchorPoint(const Vec3d & pointXyz) ;
-    Vec3d               labelPoint() const;
-    void                setLabelPoint(const Vec3d & pointXyz) ;
-    void                setText(const QString& text);
-    const QString&      text() const;
-    bool                isActive();
-    bool                isVisible() const;
+    bool    isActive() const;
+    void    setSourceAnnotation(RimReachCircleAnnotation* annotation);
+    RimReachCircleAnnotation* sourceAnnotation() const;
+
+    bool    isVisible() const;
 
 protected:
-    void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
     void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
-    caf::PdmFieldHandle* userDescriptionField() override;
     virtual caf::PdmFieldHandle* objectToggleField() override;
+    caf::PdmFieldHandle*         userDescriptionField() override;
 
 private:
-friend class RicTextAnnotation3dEditor;
-
-    caf::PdmField<Vec3d>        m_anchorPointXyd;
-    caf::PdmField<Vec3d>        m_labelPointXyd;
-    caf::PdmField<QString>      m_text;
-    caf::PdmField<bool>         m_isActive;
-
+    caf::PdmField<bool>                         m_isActive;
+    caf::PdmPtrField<RimReachCircleAnnotation*> m_sourceAnnotation;
 };
-

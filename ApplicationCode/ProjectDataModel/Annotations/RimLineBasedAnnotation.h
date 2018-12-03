@@ -39,6 +39,7 @@ public:
     RimAnnotationLineAppearance* appearance() const;
 
     bool isActive();
+    bool isVisible();
 
 protected:
     virtual caf::PdmFieldHandle* objectToggleField() override;

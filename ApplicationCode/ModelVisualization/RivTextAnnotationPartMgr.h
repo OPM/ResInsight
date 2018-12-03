@@ -41,15 +41,15 @@ namespace caf
 class Rim3dView;
 class RimAnnotationInViewCollection;
 class RimTextAnnotation;
-class RimSimWellInView;
-class RimSimWellInViewCollection;
+class RimTextAnnotationInView;
 
 class RivTextAnnotationPartMgr : public cvf::Object
 {
     using Vec3d = cvf::Vec3d;
 
 public:
-    RivTextAnnotationPartMgr(Rim3dView* view, RimTextAnnotation* annotation);
+    RivTextAnnotationPartMgr(Rim3dView* view, RimTextAnnotation* annotationLocal);
+    RivTextAnnotationPartMgr(Rim3dView* view, RimTextAnnotationInView* annotationInView);
     ~RivTextAnnotationPartMgr() override;
 
     void appendDynamicGeometryPartsToModel(cvf::ModelBasicList* model, 
@@ -71,8 +71,12 @@ private:
 
     RimAnnotationInViewCollection*  annotationCollection() const;
 
+    RimTextAnnotation*              rimAnnotation() const;
+    bool                            isAnnotationVisible() const;
+
     caf::PdmPointer<Rim3dView>          m_rimView;
-    caf::PdmPointer<RimTextAnnotation>  m_rimAnnotation;
+    caf::PdmPointer<RimTextAnnotation>          m_rimAnnotationLocal;
+    caf::PdmPointer<RimTextAnnotationInView>    m_rimAnnotationInView;
     cvf::ref<cvf::Part>                 m_linePart;
     cvf::ref< cvf::Part >               m_labelPart;
 };

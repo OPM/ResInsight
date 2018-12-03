@@ -23,11 +23,18 @@
 #include "cafAppEnum.h"
 #include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
+#include "cafPdmChildField.h"
 #include "cafPdmObject.h"
 #include "cafPdmPointer.h"
 #include "cafTristate.h"
 
+class RimAnnotationCollection;
+class RimAnnotationGroupCollection;
 class RimTextAnnotation;
+class RimTextAnnotationInView;
+class RimReachCircleAnnotationInView;
+class RimUserDefinedPolylinesAnnotationInView;
+class RimPolylinesFromFileAnnotationInView;
 
 //==================================================================================================
 ///  
@@ -41,20 +48,36 @@ public:
     RimAnnotationInViewCollection();
     ~RimAnnotationInViewCollection() override;
 
-    bool                        isActive() const;
     double                      annotationPlaneZ() const;
     bool                        snapAnnotations() const;
+
+    std::vector<RimTextAnnotationInView*>                   globalTextAnnotations() const;
+    std::vector<RimReachCircleAnnotationInView*>            globalReachCircleAnnotations() const;
+    std::vector<RimUserDefinedPolylinesAnnotationInView*>   globalUserDefinedPolylineAnnotations() const;
+    std::vector<RimPolylinesFromFileAnnotationInView*>      globalPolylineFromFileAnnotations() const;
+
+    void                        onGlobalCollectionChanged(const RimAnnotationCollection* globalCollection);
+    size_t                      annotationsCount() const;
 
 protected:
     void                        defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
     void                        fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
-    caf::PdmFieldHandle*        objectToggleField() override;
     void                        defineEditorAttribute(const caf::PdmFieldHandle* field,
                                                       QString                    uiConfigName,
                                                       caf::PdmUiEditorAttribute* attribute) override;
+private:
+    std::vector<caf::PdmObject*> allGlobalPdmAnnotations() const;
+    void                         addGlobalAnnotation(caf::PdmObject* annotation);
+    void                         deleteGlobalAnnotation(const caf::PdmObject* annotation);
 
 private:
-    caf::PdmField<bool>         m_isActive;
     caf::PdmField<double>       m_annotationPlaneDepth;
     caf::PdmField<bool>         m_snapAnnotations;
+
+    caf::PdmChildField<RimAnnotationGroupCollection*>   m_globalTextAnnotations;
+    caf::PdmChildField<RimAnnotationGroupCollection*>   m_globalReachCircleAnnotations;
+    caf::PdmChildField<RimAnnotationGroupCollection*>   m_globalUserDefinedPolylineAnnotations;
+    caf::PdmChildField<RimAnnotationGroupCollection*>   m_globalPolylineFromFileAnnotations;
+
+
 };
