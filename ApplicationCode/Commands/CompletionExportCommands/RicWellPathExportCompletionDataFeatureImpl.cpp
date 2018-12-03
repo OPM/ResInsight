@@ -807,7 +807,8 @@ void RicWellPathExportCompletionDataFeatureImpl::generateCompsegTables(RifEclips
      */
 
     {
-        std::set<RigCompletionData::CompletionType> fishbonesTypes = {RigCompletionData::FISHBONES_ICD, RigCompletionData::FISHBONES};
+        std::set<RigCompletionData::CompletionType> fishbonesTypes = {RigCompletionData::FISHBONES_ICD,
+                                                                      RigCompletionData::FISHBONES};
         generateCompsegTable(formatter, exportInfo, false, fishbonesTypes);
         if (exportInfo.hasSubGridIntersections())
         {
@@ -825,8 +826,8 @@ void RicWellPathExportCompletionDataFeatureImpl::generateCompsegTables(RifEclips
     }
 
     {
-        std::set<RigCompletionData::CompletionType> perforationTypes =
-            {RigCompletionData::PERFORATION, RigCompletionData::PERFORATION_ICD};
+        std::set<RigCompletionData::CompletionType> perforationTypes = {RigCompletionData::PERFORATION,
+                                                                        RigCompletionData::PERFORATION_ICD};
         generateCompsegTable(formatter, exportInfo, false, perforationTypes);
         if (exportInfo.hasSubGridIntersections())
         {
@@ -967,7 +968,6 @@ void RicWellPathExportCompletionDataFeatureImpl::generateCompsegHeader(RifEclips
 void RicWellPathExportCompletionDataFeatureImpl::generateWsegvalvTable(RifEclipseDataTableFormatter& formatter,
                                                                        const RicMswExportInfo&       exportInfo)
 {
-
     bool foundValve = false;
 
     for (const RicMswSegment& location : exportInfo.wellSegmentLocations())
@@ -2054,12 +2054,12 @@ RicMswExportInfo RicWellPathExportCompletionDataFeatureImpl::generatePerforation
 
         size_t i = 0u, j = 0u, k = 0u;
         localGrid->ijkFromCellIndex(localGridIdx, &i, &j, &k);
-        QString       label = QString("Main stem segment %1").arg(++mainBoreSegment);
-        
+        QString label = QString("Main stem segment %1").arg(++mainBoreSegment);
+
         RicMswSegment location(label, cellIntInfo.startMD, cellIntInfo.endMD, startTVD, endTVD);
-        
-        int nICDs = 0, nICVs = 0;
-        double totalIcdArea = 0.0;
+
+        int                               nICDs = 0, nICVs = 0;
+        double                            totalIcdArea = 0.0;
         RiaWeightedMeanCalculator<double> coeffMeanCalc;
 
         for (const RimPerforationInterval* interval : perforationIntervals)
