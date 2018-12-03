@@ -166,7 +166,7 @@ protected:
 
 private:
     template <typename T>
-    void fieldsByType(caf::PdmObjectHandle* object, std::vector<T*>& typedFields);
+    void fieldContentsByType(caf::PdmObjectHandle* object, std::vector<T*>& typedFields);
 
 private:
     caf::PdmField<QString>  m_projectFileVersionString;
@@ -188,7 +188,7 @@ private:
 /// 
 //--------------------------------------------------------------------------------------------------
 template <typename T>
-void RimProject::fieldsByType(caf::PdmObjectHandle* object, std::vector<T*>& typedFields)
+void RimProject::fieldContentsByType(caf::PdmObjectHandle* object, std::vector<T*>& typedFields)
 {
     if (!object) return;
 
@@ -216,6 +216,6 @@ void RimProject::fieldsByType(caf::PdmObjectHandle* object, std::vector<T*>& typ
 
     for (const auto& child : children)
     {
-        fieldsByType(child, typedFields);
+        fieldContentsByType(child, typedFields);
     }
 }

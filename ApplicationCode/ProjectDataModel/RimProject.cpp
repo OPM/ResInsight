@@ -446,7 +446,7 @@ void RimProject::setProjectFileNameAndUpdateDependencies(const QString& projectF
     QString oldProjectPath = fileInfoOld.path();
     
     std::vector<caf::FilePath*> filePaths;
-    fieldsByType(this, filePaths);
+    fieldContentsByType(this, filePaths);
 
     for (caf::FilePath* filePath : filePaths)
     {
