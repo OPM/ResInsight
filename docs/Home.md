@@ -28,5 +28,11 @@ Well log data can be imported from _`*.LAS`_ files.
 
 ResInsight can also be built with support for Geomechanical models from ABAQUS in the _`*.odb`_ file format.
 
+### Updating and Refining Eclipse simulation models
+ResInsight contains several pre-processing tools for updating and improving Eclipse reservoir models, including but not limited to:
+- Adding **Well Path Completions** such as fractures, fishbones and perforations to well paths, including transmissibility calculations to allow for simulation in Eclipse.
+- Easily and visually generate setup files for **Local Grid Refinement** (LGR)
+- The generation of Eclipse **Multi Segment Well**-models for well path completions.
+
 ### About
 ResInsight has been co-developed by [Equinor ASA](https://www.equinor.com/), [Ceetron Solutions AS](http://www.ceetronsolutions.com/), and [Ceetron AS](http://ceetron.com/) with the aim to provide a versatile tool for professionals who need to visualize and process reservoir models.
