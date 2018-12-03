@@ -95,10 +95,6 @@ RimScaleLegendConfig::RimScaleLegendConfig()
         m_globalAutoMin(cvf::UNDEFINED_DOUBLE),
         m_localAutoMax(cvf::UNDEFINED_DOUBLE),
         m_localAutoMin(cvf::UNDEFINED_DOUBLE),
-        m_globalAutoPosClosestToZero(0),
-        m_globalAutoNegClosestToZero(0),
-        m_localAutoPosClosestToZero(0),
-        m_localAutoNegClosestToZero(0),
         m_isAllTimeStepsRangeDisabled(false)
 {
     CAF_PDM_InitObject("Legend Definition", ":/Legend.png", "", "");
@@ -196,37 +192,23 @@ void RimScaleLegendConfig::fieldChangedByUi(const caf::PdmFieldHandle* changedFi
 //--------------------------------------------------------------------------------------------------
 void RimScaleLegendConfig::updateLegend()
 {
-    //
-
     double adjustedMin = cvf::UNDEFINED_DOUBLE;
     double adjustedMax = cvf::UNDEFINED_DOUBLE;
     
-    double posClosestToZero = cvf::UNDEFINED_DOUBLE;
-    double negClosestToZero = cvf::UNDEFINED_DOUBLE;
-
    if (m_rangeMode == AUTOMATIC_ALLTIMESTEPS)
    {
        adjustedMin = roundToNumSignificantDigits(m_globalAutoMin, m_precision);
        adjustedMax = roundToNumSignificantDigits(m_globalAutoMax, m_precision);
-
-       posClosestToZero = m_globalAutoPosClosestToZero;
-       negClosestToZero = m_globalAutoNegClosestToZero;
    }
    else if (m_rangeMode == AUTOMATIC_CURRENT_TIMESTEP)
    {
        adjustedMin = roundToNumSignificantDigits(m_localAutoMin, m_precision);
        adjustedMax = roundToNumSignificantDigits(m_localAutoMax, m_precision);
-
-       posClosestToZero = m_localAutoPosClosestToZero;
-       negClosestToZero = m_localAutoNegClosestToZero;
    }
    else
    {
        adjustedMin = roundToNumSignificantDigits(m_userDefinedMinValue, m_precision);
        adjustedMax = roundToNumSignificantDigits(m_userDefinedMaxValue, m_precision);
-
-       posClosestToZero = m_globalAutoPosClosestToZero;
-       negClosestToZero = m_globalAutoNegClosestToZero;
    }
 
    cvf::Color3ubArray legendColors = colorArrayFromColorType(m_colorRangeMode());
@@ -392,47 +374,6 @@ double RimScaleLegendConfig::roundToNumSignificantDigits(double domainValue, dou
     double newDomainValue = integerPart / factor;
 
     return newDomainValue;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimScaleLegendConfig::setClosestToZeroValues(double globalPosClosestToZero, double globalNegClosestToZero, double localPosClosestToZero, double localNegClosestToZero)
-{
-    bool needsUpdate = false;
-    const double epsilon = std::numeric_limits<double>::epsilon();
-
-    if (cvf::Math::abs(globalPosClosestToZero - m_globalAutoPosClosestToZero) > epsilon)
-    {
-        needsUpdate = true;
-    }
-    if (cvf::Math::abs(globalNegClosestToZero - m_globalAutoNegClosestToZero) > epsilon)
-    {
-        needsUpdate = true;
-    }
-    if (cvf::Math::abs(localPosClosestToZero - m_localAutoPosClosestToZero) > epsilon)
-    {
-        needsUpdate = true;
-    }
-    if (cvf::Math::abs(localNegClosestToZero - m_localAutoNegClosestToZero) > epsilon)
-    {
-        needsUpdate = true;
-    }
-
-    if (needsUpdate)
-    {
-        m_globalAutoPosClosestToZero = globalPosClosestToZero;
-        m_globalAutoNegClosestToZero = globalNegClosestToZero;
-        m_localAutoPosClosestToZero = localPosClosestToZero;
-        m_localAutoNegClosestToZero = localNegClosestToZero;
-
-        if (m_globalAutoPosClosestToZero == HUGE_VAL) m_globalAutoPosClosestToZero = 0;
-        if (m_globalAutoNegClosestToZero == -HUGE_VAL) m_globalAutoNegClosestToZero = 0; 
-        if (m_localAutoPosClosestToZero == HUGE_VAL) m_localAutoPosClosestToZero = 0;
-        if (m_localAutoNegClosestToZero == -HUGE_VAL) m_localAutoNegClosestToZero = 0;
-
-        updateLegend();
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
