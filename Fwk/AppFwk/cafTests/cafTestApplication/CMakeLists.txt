@@ -6,7 +6,7 @@ project ( cafTestApplication )
 find_package( OpenGL )
 
 # Qt
-find_package(Qt5 CONFIG COMPONENTS Core)
+find_package(Qt5Core CONFIG QUIET)
 if (Qt5Core_FOUND)
 	find_package(Qt5 CONFIG REQUIRED Core Gui OpenGL Widgets)
 else()

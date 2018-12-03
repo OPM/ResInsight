@@ -1,6 +1,6 @@
 cmake_minimum_required (VERSION 2.8.12)
 
-find_package(Qt5 CONFIG COMPONENTS Core)
+find_package(Qt5Core CONFIG QUIET)
 if (Qt5Core_FOUND)
 	find_package(Qt5 CONFIG REQUIRED Core Xml)
 else()
