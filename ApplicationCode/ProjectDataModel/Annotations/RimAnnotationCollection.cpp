@@ -53,9 +53,18 @@ RimAnnotationCollection::RimAnnotationCollection()
     m_userDefinedPolylineAnnotations.uiCapability()->setUiHidden(true);
     m_polylineFromFileAnnotations.uiCapability()->setUiHidden(true);
 
-    m_reachCircleAnnotations = new RimAnnotationGroupCollection("Reach Circle Annotations");
-    m_userDefinedPolylineAnnotations = new RimAnnotationGroupCollection("User Defined Polyline Annotations");
-    m_polylineFromFileAnnotations = new RimAnnotationGroupCollection("Polylines From File");
+    m_reachCircleAnnotations = new RimAnnotationGroupCollection();
+    m_userDefinedPolylineAnnotations = new RimAnnotationGroupCollection();
+    m_polylineFromFileAnnotations = new RimAnnotationGroupCollection();
+
+    m_reachCircleAnnotations->uiCapability()->setUiName("Reach Circle Annotations");
+    m_userDefinedPolylineAnnotations->uiCapability()->setUiName("User Defined Polyline Annotations");
+    m_polylineFromFileAnnotations->uiCapability()->setUiName("Polylines From File");
+
+    m_reachCircleAnnotations->uiCapability()->setUiIcon(QIcon(":/ReachCircle16x16.png"));
+    m_userDefinedPolylineAnnotations->uiCapability()->setUiIcon(QIcon(":/PolylinesFromFile16x16.png"));
+    m_polylineFromFileAnnotations->uiCapability()->setUiIcon(QIcon(":/PolylinesFromFile16x16.png"));
+
 }
 
 

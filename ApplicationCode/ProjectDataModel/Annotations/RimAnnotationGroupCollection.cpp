@@ -42,21 +42,11 @@ RimAnnotationGroupCollection::RimAnnotationGroupCollection()
 {
     CAF_PDM_InitObject("Annotations", ":/WellCollection.png", "", "");
 
-    CAF_PDM_InitField(&m_title, "Title", QString("Annotations"), "Title", "", "", "");
     CAF_PDM_InitField(&m_isActive, "IsActive", true, "Is Active", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_annotations, "Annotations", "Annotations", "", "", "");
 
+    m_isActive.uiCapability()->setUiHidden(true);
     m_annotations.uiCapability()->setUiHidden(true);
-}
-
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RimAnnotationGroupCollection::RimAnnotationGroupCollection(const QString& title)
-    : RimAnnotationGroupCollection()
-{
-    m_title = title;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -64,14 +54,6 @@ RimAnnotationGroupCollection::RimAnnotationGroupCollection(const QString& title)
 //--------------------------------------------------------------------------------------------------
 RimAnnotationGroupCollection::~RimAnnotationGroupCollection()
 {
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimAnnotationGroupCollection::setTitle(const QString& title)
-{
-    m_title = title;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -135,12 +117,4 @@ void RimAnnotationGroupCollection::fieldChangedByUi(const caf::PdmFieldHandle* c
 caf::PdmFieldHandle* RimAnnotationGroupCollection::objectToggleField()
 {
     return &m_isActive;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-caf::PdmFieldHandle* RimAnnotationGroupCollection::userDescriptionField()
-{
-    return &m_title;
 }

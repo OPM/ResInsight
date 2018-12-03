@@ -41,10 +41,8 @@ class RimAnnotationGroupCollection : public caf::PdmObject
     CAF_PDM_HEADER_INIT;
 public:
     RimAnnotationGroupCollection();
-    RimAnnotationGroupCollection(const QString& title);
     ~RimAnnotationGroupCollection() override;
 
-    void                            setTitle(const QString& title);
     bool                            isActive() const;
     bool                            isVisible() const;
 
@@ -54,10 +52,8 @@ public:
 protected:
     void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
     caf::PdmFieldHandle*            objectToggleField() override;
-    caf::PdmFieldHandle*            userDescriptionField() override;
 
 protected:
-    caf::PdmField<QString>                         m_title;
     caf::PdmField<bool>                            m_isActive;
     caf::PdmChildArrayField<caf::PdmObject*>       m_annotations;
 };

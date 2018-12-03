@@ -189,6 +189,7 @@ void RivPolylineAnnotationPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelB
                                                                      const cvf::BoundingBox& boundingBox)
 {
     auto rimAnnotation = m_rimAnnotationInView->sourceAnnotation();
+    if (!rimAnnotation) return;
     if (rimAnnotation->isEmpty()) return;
     if (!m_rimAnnotationInView->isVisible()) return;
 

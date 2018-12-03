@@ -36,6 +36,7 @@ RimTextAnnotationInView::RimTextAnnotationInView()
     CAF_PDM_InitFieldNoDefault(&m_sourceAnnotation, "SourceAnnotation", "Source Annotation", "", "", "");
 
     m_isActive.uiCapability()->setUiHidden(true);
+    m_sourceAnnotation.uiCapability()->setUiHidden(true);
     m_sourceAnnotation = nullptr;
 }
 

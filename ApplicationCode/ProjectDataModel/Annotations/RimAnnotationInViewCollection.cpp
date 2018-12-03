@@ -96,10 +96,20 @@ RimAnnotationInViewCollection::RimAnnotationInViewCollection()
     m_globalUserDefinedPolylineAnnotations.uiCapability()->setUiHidden(true);
     m_globalPolylineFromFileAnnotations.uiCapability()->setUiHidden(true);
 
-    m_globalTextAnnotations = new RimAnnotationGroupCollection("Global Text Annotations");
-    m_globalReachCircleAnnotations = new RimAnnotationGroupCollection("Global Reach Circle Annotations");
-    m_globalUserDefinedPolylineAnnotations = new RimAnnotationGroupCollection("Global User Defined Polylines Annotations");
-    m_globalPolylineFromFileAnnotations = new RimAnnotationGroupCollection("Global Polylines From File Annotations");
+    m_globalTextAnnotations = new RimAnnotationGroupCollection();
+    m_globalReachCircleAnnotations = new RimAnnotationGroupCollection();
+    m_globalUserDefinedPolylineAnnotations = new RimAnnotationGroupCollection();
+    m_globalPolylineFromFileAnnotations = new RimAnnotationGroupCollection();
+
+    m_globalTextAnnotations->uiCapability()->setUiName("Global Text Annotations");
+    m_globalReachCircleAnnotations->uiCapability()->setUiName("Global Reach Circle Annotations");
+    m_globalUserDefinedPolylineAnnotations->uiCapability()->setUiName("Global User Defined Polylines Annotations");
+    m_globalPolylineFromFileAnnotations->uiCapability()->setUiName("Global Polylines From File Annotations");
+
+    m_globalTextAnnotations->uiCapability()->setUiIcon(QIcon(":/TextAnnotation16x16.png"));
+    m_globalReachCircleAnnotations->uiCapability()->setUiIcon(QIcon(":/ReachCircle16x16.png"));
+    m_globalUserDefinedPolylineAnnotations->uiCapability()->setUiIcon(QIcon(":/PolylinesFromFile16x16.png"));
+    m_globalPolylineFromFileAnnotations->uiCapability()->setUiIcon(QIcon(":/PolylinesFromFile16x16.png"));
 }
 
 //--------------------------------------------------------------------------------------------------
