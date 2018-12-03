@@ -110,6 +110,7 @@ void RivTextAnnotationPartMgr::buildParts(const caf::DisplayCoordTransform * dis
         cvf::ref<cvf::DrawableText> drawableText = new cvf::DrawableText;
         drawableText->setFont(font);
         drawableText->setCheckPosVisible(false);
+        drawableText->setUseDepthBuffer(true);
         drawableText->setDrawBorder(true);
         drawableText->setDrawBackground(true);
         drawableText->setVerticalAlignment(cvf::TextDrawer::BASELINE);
