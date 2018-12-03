@@ -1,15 +1,14 @@
 cmake_minimum_required (VERSION 2.8.12)
 
+project ( cafPdmXml_UnitTests )
+
 find_package(Qt5Core CONFIG QUIET)
 if (Qt5Core_FOUND)
 	find_package(Qt5 CONFIG REQUIRED Core Xml)
 else()
 	find_package(Qt4 COMPONENTS QtCore QtXml REQUIRED)
-    include(${QT_USE_FILE})
+	include(${QT_USE_FILE})
 endif(Qt5Core_FOUND)
-
-
-project ( cafPdmXml_UnitTests )
 
 include_directories (
 	${CMAKE_CURRENT_SOURCE_DIR} # required for gtest-all.cpp

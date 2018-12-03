@@ -6,7 +6,7 @@ find_package(Qt5Core CONFIG QUIET)
 if (Qt5Core_FOUND)
 	find_package(Qt5 CONFIG REQUIRED Core Gui Widgets)
 else()
-	find_package(Qt4 COMPONENTS QtCore QtGui QtMain REQUIRED)
+	find_package(Qt4 COMPONENTS QtCore QtGui REQUIRED)
 	include(${QT_USE_FILE})
 endif(Qt5Core_FOUND)
 
