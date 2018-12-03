@@ -29,10 +29,12 @@
 #include "RiuMainWindow.h"
 #include "RiuViewer.h"
 
-#include <QAction>
-
 #include "cvfBoundingBox.h"
 #include "cvfCamera.h"
+
+#include <QAction>
+
+#include <cmath>
 
 
 CAF_CMD_SOURCE_INIT(RicCreateTextAnnotationIn3dViewFeature, "RicCreateTextAnnotationIn3dViewFeature");
