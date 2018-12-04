@@ -38,6 +38,7 @@ class RiuViewerCommands;
 class RivGridBoxGenerator;
 class RivWindowEdgeAxesOverlayItem;
 
+class QCDEStyle;
 class QLabel;
 class QProgressBar;
 
@@ -155,6 +156,9 @@ private:
     bool            m_showAnimProgress; 
     RiuSimpleHistogramWidget* m_histogramWidget;
     bool            m_showHistogram;
+#if QT_VERSION < 0x050000
+    QCDEStyle*      m_progressBarStyle;
+#endif
 
     cvf::ref<cvf::OverlayAxisCross> m_axisCross;
     bool                            m_showAxisCross;
