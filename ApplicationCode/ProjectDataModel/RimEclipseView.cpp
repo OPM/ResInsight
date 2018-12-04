@@ -38,6 +38,7 @@
 
 #include "Rim2dIntersectionView.h"
 #include "Rim3dOverlayInfoConfig.h"
+#include "RimAnnotationCollection.h"
 #include "RimAnnotationInViewCollection.h"
 #include "RimCellEdgeColors.h"
 #include "RimCellRangeFilterCollection.h"
@@ -845,6 +846,17 @@ void RimEclipseView::onLoadDataAndUpdate()
     m_simWellsPartManager->clearGeometryCache();
 
     syncronizeWellsWithResults();
+
+    RimProject* proj = RiaApplication::instance()->project();
+    if (proj && proj->activeOilField())
+    {
+        RimAnnotationCollection* annotColl = proj->activeOilField()->annotationCollection();
+        if (annotColl && annotationCollection())
+        {
+            annotationCollection()->onGlobalCollectionChanged(annotColl);
+        }
+    }
+
     
     {
         // Update simulation well fractures after well cell results are imported
