@@ -69,7 +69,7 @@ RimContourMapProjection::RimContourMapProjection()
       m_mapSize(cvf::Vec2ui(0u, 0u)),
       m_sampleSpacing(-1.0)
 {
-    CAF_PDM_InitObject("RimContourMapProjection", ":/draw_style_meshlines_24x24.png", "", "");
+    CAF_PDM_InitObject("RimContourMapProjection", ":/2DMapProjection16x16.png", "", "");
 
     CAF_PDM_InitField(&m_relativeSampleSpacing, "SampleSpacing", 0.75, "Sample Spacing Factor", "", "", "");
     m_relativeSampleSpacing.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());

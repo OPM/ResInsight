@@ -144,6 +144,7 @@
     <file>Annotations16x16.png</file>
     <file>PolylinesFromFile16x16.png</file>
     <file>ReachCircle16x16.png</file>
+    <file>2DMapProjection16x16.png</file>
 
   </qresource>
   <qresource prefix="/Shader/">
