@@ -248,11 +248,12 @@ void Rim3dView::updateMdiWindowTitle()
 //--------------------------------------------------------------------------------------------------
 void Rim3dView::deleteViewWidget()
 {
-    if (m_viewer) 
-    {
-        m_viewer->deleteLater();
-        m_viewer = nullptr;
-    }
+    // Earlier implementations has used m_viewer->deleteLater(). This caused issues triggered by 3D editors and interaction with
+    // the event processing. deleteLater() will not be handeled by processEvents() if we are in the state of processing UI events,
+    // ie in the process of handling a QAction
+    
+    delete m_viewer;
+    m_viewer = nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
