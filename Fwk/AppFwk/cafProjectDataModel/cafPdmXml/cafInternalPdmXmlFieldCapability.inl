@@ -38,6 +38,16 @@ void caf::PdmFieldXmlCap<FieldType>::writeFieldData(QXmlStreamWriter& xmlStream)
      PdmFieldWriter<typename FieldType::FieldDataType>::writeFieldData(m_field->value(), xmlStream); 
  }
 
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+template < typename FieldType>
+bool caf::PdmFieldXmlCap<FieldType>::resolveReferences()
+{
+    return true;
+}
+
 //==================================================================================================
 /// XML Implementation for PdmPtrField<>
 //==================================================================================================
@@ -97,14 +107,16 @@ void caf::PdmFieldXmlCap<FieldType>::writeFieldData(QXmlStreamWriter& xmlStream)
  /// 
  //--------------------------------------------------------------------------------------------------
  template < typename DataType>
- void caf::PdmFieldXmlCap< PdmPtrField<DataType*> >::resolveReferences()
+ bool caf::PdmFieldXmlCap< PdmPtrField<DataType*> >::resolveReferences()
  {
-     if (m_isResolved) return;
-     if (m_referenceString.isEmpty()) return;
+     if (m_isResolved) return true;
+     if (m_referenceString.isEmpty()) return true;
 
      PdmObjectHandle* objHandle = PdmReferenceHelper::objectFromFieldReference(this->fieldHandle(), m_referenceString);
      m_field->setRawPtr(objHandle);
      m_isResolved = true;
+
+     return objHandle != nullptr;
  }
 
  //==================================================================================================
@@ -163,20 +175,29 @@ void caf::PdmFieldXmlCap<FieldType>::writeFieldData(QXmlStreamWriter& xmlStream)
  /// 
  //--------------------------------------------------------------------------------------------------
  template < typename DataType>
- void caf::PdmFieldXmlCap< PdmPtrArrayField<DataType*> >::resolveReferences()
+ bool caf::PdmFieldXmlCap< PdmPtrArrayField<DataType*> >::resolveReferences()
  {
-     if(m_isResolved) return;
-     if(m_referenceString.isEmpty()) return;
+     if(m_isResolved) return true;
+     if(m_referenceString.isEmpty()) return true;
      m_field->clear();
+
+     bool foundValidObjectFromString = true;
      QStringList tokens = m_referenceString.split('|');
      for(int i = 0; i < tokens.size(); ++i)
      {
          PdmObjectHandle* objHandle = PdmReferenceHelper::objectFromFieldReference(this->fieldHandle(), tokens[i]);
+         if (!tokens[i].isEmpty() && !objHandle)
+         {
+             foundValidObjectFromString = false;
+         }
+
          m_field->m_pointers.push_back(NULL);
          m_field->m_pointers.back().setRawPtr(objHandle);
      }
 
      m_isResolved = true;
+
+     return foundValidObjectFromString;
  }
 
 
@@ -281,6 +302,15 @@ void caf::PdmFieldXmlCap< caf::PdmChildField<DataType*> >::writeFieldData(QXmlSt
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+template < typename DataType>
+bool caf::PdmFieldXmlCap<caf::PdmChildField<DataType *>>::resolveReferences()
+{
+    return true;
+}
+
 //==================================================================================================
 /// XML Implementation for PdmChildArrayField<>
 //==================================================================================================
@@ -371,6 +401,16 @@ void caf::PdmFieldXmlCap< caf::PdmChildArrayField<DataType*> >::readFieldData(QX
         type = xmlStream.readNext();
         PdmFieldIOHelper::skipCharactersAndComments(xmlStream);
     }
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+template < typename DataType>
+bool caf::PdmFieldXmlCap<caf::PdmChildArrayField<DataType *>>::resolveReferences()
+{
+    return true;
 }
 
 } // End namespace caf

@@ -40,7 +40,7 @@ public:
     virtual void    readFieldData(QXmlStreamReader& xmlStream, PdmObjectFactory* objectFactory)  = 0;
     virtual void    writeFieldData(QXmlStreamWriter& xmlStream) const = 0;
 
-    virtual void    resolveReferences() { };
+    virtual bool    resolveReferences() = 0;
 
 protected:
     bool            assertValid() const;

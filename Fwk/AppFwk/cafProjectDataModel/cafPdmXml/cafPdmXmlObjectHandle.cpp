@@ -299,7 +299,7 @@ void PdmXmlObjectHandle::initAfterReadRecursively(PdmObjectHandle* object)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void PdmXmlObjectHandle::resolveReferencesRecursively(PdmObjectHandle* object)
+void PdmXmlObjectHandle::resolveReferencesRecursively(PdmObjectHandle* object, std::vector<PdmFieldHandle*>* fieldWithFailingResolve)
 {
     if (object == nullptr) return;
 
@@ -315,14 +315,35 @@ void PdmXmlObjectHandle::resolveReferencesRecursively(PdmObjectHandle* object)
         {
             field->childObjects(&children);
 
-            field->xmlCapability()->resolveReferences();
+            bool resolvedOk = field->xmlCapability()->resolveReferences();
+            if (fieldWithFailingResolve && !resolvedOk)
+            {
+                fieldWithFailingResolve->push_back(field);
+            }
         }
     }
 
     size_t cIdx;
     for (cIdx = 0; cIdx < children.size(); ++cIdx)
     {
-        resolveReferencesRecursively(children[cIdx]);
+        resolveReferencesRecursively(children[cIdx], fieldWithFailingResolve);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void PdmXmlObjectHandle::resolveReferencesRecursively(std::vector<PdmFieldHandle*>* fieldWithFailingResolve /*= nullptr*/)
+{
+    std::vector<PdmFieldHandle*> tempFields;
+    resolveReferencesRecursively(this->m_owner, &tempFields);
+
+    if (fieldWithFailingResolve)
+    {
+        for (auto f : tempFields)
+        {
+            fieldWithFailingResolve->push_back(f);
+        }
     }
 }
 
