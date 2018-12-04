@@ -17,5 +17,5 @@ TEST(RifPerforationIntervalReaderTest, SpacesInWellNameHandledSuccessfully)
     std::map<QString, std::vector<RifPerforationInterval> >
         perforationIntervals = RifPerforationIntervalReader::readPerforationIntervals(PERFORATION_TEST_DATA_DIRECTORY + "perforations_with_space_after_well_name.ev");
 
-    EXPECT_EQ(10, perforationIntervals["A1_RI_HZX"].size());
+    EXPECT_EQ(size_t(10), perforationIntervals["A1_RI_HZX"].size());
 }
