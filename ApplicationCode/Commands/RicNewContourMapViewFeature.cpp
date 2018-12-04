@@ -157,8 +157,13 @@ RimContourMapView* RicNewContourMapViewFeature::create2dContourMapFrom3dView(Rim
     contourMap->setName(QString("Contour Map %1").arg(i + 1));
     eclipseCase->contourMapCollection()->push_back(contourMap);
 
+    contourMap->syncronizeLocalAnnotationsFromGlobal();
+
     // Resolve references after contour map has been inserted into Rim structures
-    contourMap->resolveReferencesRecursively();
+    std::vector<caf::PdmFieldHandle*> fieldsWithFailingResolve;
+    contourMap->resolveReferencesRecursively(&fieldsWithFailingResolve);
+    CVF_ASSERT(fieldsWithFailingResolve.empty());
+
     contourMap->initAfterReadRecursively();
 
     return contourMap;

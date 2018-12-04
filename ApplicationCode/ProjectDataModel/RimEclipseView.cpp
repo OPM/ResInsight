@@ -847,16 +847,7 @@ void RimEclipseView::onLoadDataAndUpdate()
 
     syncronizeWellsWithResults();
 
-    RimProject* proj = RiaApplication::instance()->project();
-    if (proj && proj->activeOilField())
-    {
-        RimAnnotationCollection* annotColl = proj->activeOilField()->annotationCollection();
-        if (annotColl && annotationCollection())
-        {
-            annotationCollection()->onGlobalCollectionChanged(annotColl);
-        }
-    }
-
+    syncronizeLocalAnnotationsFromGlobal();
     
     {
         // Update simulation well fractures after well cell results are imported
@@ -1266,6 +1257,22 @@ void RimEclipseView::syncronizeWellsWithResults()
     if (isAnyWellCreated)
     {
         this->wellCollection()->assignDefaultWellColors();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimEclipseView::syncronizeLocalAnnotationsFromGlobal()
+{
+    RimProject* proj = RiaApplication::instance()->project();
+    if (proj && proj->activeOilField())
+    {
+        RimAnnotationCollection* annotColl = proj->activeOilField()->annotationCollection();
+        if (annotColl && annotationCollection())
+        {
+            annotationCollection()->onGlobalCollectionChanged(annotColl);
+        }
     }
 }
 

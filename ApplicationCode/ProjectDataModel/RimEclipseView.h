@@ -142,6 +142,8 @@ public:
     virtual std::vector<RimLegendConfig*>           legendConfigs() const override;
     cvf::Color4f                                    colorFromCellCategory(RivCellSetEnum geometryType) const;
 
+    void                                            syncronizeLocalAnnotationsFromGlobal();
+
 protected:
     void                                    initAfterRead() override;
     virtual void                            defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
