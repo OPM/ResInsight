@@ -10,9 +10,9 @@ endif()
 
 find_package(Qt5Core CONFIG QUIET)
 if (Qt5Core_FOUND)
-	find_package(Qt5 CONFIG REQUIRED Core Gui OpenGl Widgets)
-else()    
-	find_package(Qt4 COMPONENTS QtCore QtGui QtMain QtOpenGl REQUIRED)
+    find_package(Qt5 CONFIG REQUIRED Core Gui OpenGL Widgets)
+else()
+    find_package(Qt4 COMPONENTS QtCore QtGui QtMain QtOpenGl REQUIRED)
     include(${QT_USE_FILE})
 endif(Qt5Core_FOUND)
 
