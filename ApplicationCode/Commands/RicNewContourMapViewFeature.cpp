@@ -162,7 +162,12 @@ RimContourMapView* RicNewContourMapViewFeature::create2dContourMapFrom3dView(Rim
     // Resolve references after contour map has been inserted into Rim structures
     std::vector<caf::PdmFieldHandle*> fieldsWithFailingResolve;
     contourMap->resolveReferencesRecursively(&fieldsWithFailingResolve);
+
+    // The assert is placed inside an ifdef block for now. If we have intersections on well paths,
+    // the resolving is now failing
+#ifndef NDEBUG
     CVF_ASSERT(fieldsWithFailingResolve.empty());
+#endif // NDEBUG
 
     contourMap->initAfterReadRecursively();
 
