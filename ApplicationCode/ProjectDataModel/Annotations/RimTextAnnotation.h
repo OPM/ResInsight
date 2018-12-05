@@ -29,6 +29,7 @@
 #include "cafPdmFieldCvfColor.h"    
 #include "cafPdmChildField.h"
 #include "cafPdmFieldCvfVec3d.h"
+#include "cafPdmProxyValueField.h"
 
 #include "cvfObject.h"
 #include "cvfVector3.h"
@@ -73,7 +74,9 @@ protected:
     virtual caf::PdmFieldHandle* objectToggleField() override;
 
 private:
-friend class RicTextAnnotation3dEditor;
+    friend class RicTextAnnotation3dEditor;
+
+    QString extractNameFromText() const;
 
     caf::PdmField<Vec3d>        m_anchorPointXyd;
     caf::PdmField<Vec3d>        m_labelPointXyd;
@@ -81,5 +84,7 @@ friend class RicTextAnnotation3dEditor;
     caf::PdmField<bool>         m_isActive;
 
     caf::PdmChildField<RimAnnotationTextAppearance*> m_textAppearance;
+
+    caf::PdmProxyValueField<QString> m_nameProxy;
 };
 

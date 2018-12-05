@@ -27,6 +27,7 @@
 
 #include "AnnotationCommands/RicTextAnnotation3dEditor.h"
 
+#include "cafPdmUiTextEditor.h"
 
 CAF_PDM_SOURCE_INIT(RimTextAnnotation, "RimTextAnnotation");
 
@@ -43,12 +44,19 @@ RimTextAnnotation::RimTextAnnotation()
     CAF_PDM_InitField(&m_anchorPointXyd, "AnchorPointXyd", Vec3d::ZERO, "Anchor Point", "", "", "");
     CAF_PDM_InitField(&m_labelPointXyd, "LabelPointXyd", Vec3d::ZERO, "Label Point", "", "", "");
     CAF_PDM_InitField(&m_text, "Text", QString("(New text)"), "Text", "", "", "");
+    m_text.uiCapability()->setUiEditorTypeName(caf::PdmUiTextEditor::uiEditorTypeName());
 
     CAF_PDM_InitField(&m_isActive, "IsActive", true, "Is Active", "", "", "");
     m_isActive.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&m_textAppearance, "TextAppearance", "Text Appearance", "", "", "");
     m_textAppearance = new RimAnnotationTextAppearance();
+
+    CAF_PDM_InitFieldNoDefault(&m_nameProxy, "NameProxy", "Name Proxy", "", "", "");
+    m_nameProxy.registerGetMethod(this, &RimTextAnnotation::extractNameFromText);
+    m_nameProxy.uiCapability()->setUiReadOnly(true);
+    m_nameProxy.xmlCapability()->disableIO();
+
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -146,7 +154,7 @@ void RimTextAnnotation::fieldChangedByUi(const caf::PdmFieldHandle* changedField
 //--------------------------------------------------------------------------------------------------
 caf::PdmFieldHandle* RimTextAnnotation::userDescriptionField()
 {
-    return &m_text;
+    return &m_nameProxy;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -187,5 +195,12 @@ caf::PdmFieldHandle* RimTextAnnotation::objectToggleField()
     return &m_isActive;
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimTextAnnotation::extractNameFromText() const
+{
+    return m_text().split("\n").front();
+}
 
 
