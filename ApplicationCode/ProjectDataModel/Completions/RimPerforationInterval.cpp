@@ -25,6 +25,7 @@
 
 #include "RimPerforationCollection.h"
 #include "RimProject.h"
+#include "RimWellLogTrack.h"
 #include "RimWellPath.h"
 #include "RimWellPathValve.h"
 
@@ -236,6 +237,21 @@ std::vector<RimWellPathValve*> RimPerforationInterval::valves() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimPerforationInterval::updateAllReferringTracks()
+{
+    std::vector<RimWellLogTrack*> wellLogTracks;
+
+    this->objectsWithReferringPtrFieldsOfType(wellLogTracks);
+    for (RimWellLogTrack* track : wellLogTracks)
+    {
+        track->loadDataAndUpdate();
+    }
+    this->updateConnectedEditors();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RimPerforationInterval::isEnabled() const
 {
     RimPerforationCollection* perforationCollection;
@@ -298,6 +314,8 @@ void RimPerforationInterval::fieldChangedByUi(const caf::PdmFieldHandle* changed
                                               const QVariant&            oldValue,
                                               const QVariant&            newValue)
 {
+    this->updateAllReferringTracks();
+
     RimProject* proj = nullptr;
     this->firstAncestorOrThisOfTypeAsserted(proj);
     proj->reloadCompletionTypeResultsInAllViews();

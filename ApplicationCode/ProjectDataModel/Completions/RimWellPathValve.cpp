@@ -311,6 +311,10 @@ QList<caf::PdmOptionItemInfo> RimWellPathValve::calculateValueOptions(const caf:
 //--------------------------------------------------------------------------------------------------
 void RimWellPathValve::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
+    RimPerforationInterval* perfInterval;
+    this->firstAncestorOrThisOfTypeAsserted(perfInterval);
+    perfInterval->updateAllReferringTracks();
+
     RimProject* proj;
     this->firstAncestorOrThisOfTypeAsserted(proj);
     proj->reloadCompletionTypeResultsInAllViews();

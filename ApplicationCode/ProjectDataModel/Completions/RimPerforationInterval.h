@@ -68,6 +68,7 @@ public:
 
     void                                addValve(RimWellPathValve* valve);
     std::vector<RimWellPathValve*>      valves() const;
+    void                                updateAllReferringTracks();
 
     // RimWellPathCompletionInterface overrides
     bool                                isEnabled() const override;
