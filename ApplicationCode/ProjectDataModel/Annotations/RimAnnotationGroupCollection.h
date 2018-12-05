@@ -39,6 +39,13 @@ class RimAnnotationGroupCollection : public caf::PdmObject
     friend class RimAnnotationInViewCollection;
 
     CAF_PDM_HEADER_INIT;
+
+public:
+    const static QString TEXT_ANNOTATION_UI_NAME;
+    const static QString REACH_CIRCLE_ANNOTATION_UI_NAME;
+    const static QString USED_DEFINED_POLYLINE_ANNOTATION_UI_NAME;
+    const static QString POLYLINE_FROM_FILE_ANNOTATION_UI_NAME;
+
 public:
     RimAnnotationGroupCollection();
     ~RimAnnotationGroupCollection() override;

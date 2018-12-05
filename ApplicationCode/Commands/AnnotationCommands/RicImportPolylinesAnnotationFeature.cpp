@@ -23,12 +23,15 @@
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimAnnotationCollection.h"
+#include "RimAnnotationGroupCollection.h"
 #include "RimPolylinesFromFileAnnotation.h"
 
 #include "Riu3DMainWindowTools.h"
 
 #include <QAction>
 #include <QFileDialog>
+
+#include <cafSelectionManagerTools.h>
 
 
 CAF_CMD_SOURCE_INIT(RicImportPolylinesAnnotationFeature, "RicImportPolylinesAnnotationFeature");
@@ -38,7 +41,12 @@ CAF_CMD_SOURCE_INIT(RicImportPolylinesAnnotationFeature, "RicImportPolylinesAnno
 //--------------------------------------------------------------------------------------------------
 bool RicImportPolylinesAnnotationFeature::isCommandEnabled()
 {
-    return true;
+    auto selObjs      = caf::selectedObjectsByTypeStrict<RimAnnotationCollection*>();
+    auto selGroupColl = caf::selectedObjectsByTypeStrict<RimAnnotationGroupCollection*>();
+
+    return selObjs.size() == 1 ||
+           (selGroupColl.size() == 1 && selGroupColl.front()->uiCapability()->uiName() ==
+           RimAnnotationGroupCollection::POLYLINE_FROM_FILE_ANNOTATION_UI_NAME);
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -25,6 +25,7 @@
 #include "RimReachCircleAnnotation.h"
 #include "RimUserDefinedPolylinesAnnotation.h"
 #include "RimAnnotationCollection.h"
+#include "RimAnnotationGroupCollection.h"
 #include "RimAnnotationInViewCollection.h"
 #include "RimProject.h"
 #include "RimOilField.h"
@@ -44,8 +45,11 @@ CAF_CMD_SOURCE_INIT(RicCreateUserDefinedPolylinesAnnotationFeature, "RicCreateUs
 //--------------------------------------------------------------------------------------------------
 bool RicCreateUserDefinedPolylinesAnnotationFeature::isCommandEnabled()
 {
-    auto selObjs = caf::selectedObjectsByTypeStrict<RimAnnotationCollection*>();
-    return selObjs.size() == 1;
+    auto selObjs      = caf::selectedObjectsByTypeStrict<RimAnnotationCollection*>();
+    auto selGroupColl = caf::selectedObjectsByTypeStrict<RimAnnotationGroupCollection*>();
+
+    return selObjs.size() == 1 || (selGroupColl.size() == 1 && selGroupColl.front()->uiCapability()->uiName() ==
+        RimAnnotationGroupCollection::USED_DEFINED_POLYLINE_ANNOTATION_UI_NAME);
 }
 
 //--------------------------------------------------------------------------------------------------

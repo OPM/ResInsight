@@ -28,6 +28,7 @@
 #include "Rim3dWellLogRftCurve.h"
 #include "RimAnnotationCollection.h"
 #include "RimAnnotationInViewCollection.h"
+#include "RimAnnotationGroupCollection.h"
 #include "RimCalcScript.h"
 #include "RimCaseCollection.h"
 #include "RimCellRangeFilter.h"
@@ -681,7 +682,8 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "Separator";
             menuBuilder << "RicConvertFractureTemplateUnitFeature";
         }
-        else if (dynamic_cast<RimAnnotationCollection*>(uiItem))
+        else if (dynamic_cast<RimAnnotationCollection*>(uiItem)
+                || dynamic_cast<RimAnnotationGroupCollection*>(uiItem))
         {
             menuBuilder << "RicCreateTextAnnotationFeature";
             menuBuilder << "RicCreateReachCircleAnnotationFeature";
@@ -692,7 +694,6 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         {
             menuBuilder << "RicCreateTextAnnotationFeature";
         }
-
         if (dynamic_cast<Rim3dView*>(uiItem))
         {
             menuBuilder << "Separator";

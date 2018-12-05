@@ -25,6 +25,7 @@
 #include "RimReachCircleAnnotation.h"
 #include "RimPolylinesAnnotation.h"
 #include "RimAnnotationCollection.h"
+#include "RimAnnotationGroupCollection.h"
 #include "RimAnnotationInViewCollection.h"
 #include "RimProject.h"
 #include "RimOilField.h"
@@ -45,7 +46,10 @@ CAF_CMD_SOURCE_INIT(RicCreateReachCircleAnnotationFeature, "RicCreateReachCircle
 bool RicCreateReachCircleAnnotationFeature::isCommandEnabled()
 {
     auto selObjs = caf::selectedObjectsByTypeStrict<RimAnnotationCollection*>();
-    return selObjs.size() == 1;
+    auto selGroupColl = caf::selectedObjectsByTypeStrict<RimAnnotationGroupCollection*>();
+
+    return selObjs.size() == 1 || (selGroupColl.size() == 1
+        && selGroupColl.front()->uiCapability()->uiName() == RimAnnotationGroupCollection::REACH_CIRCLE_ANNOTATION_UI_NAME);
 }
 
 //--------------------------------------------------------------------------------------------------

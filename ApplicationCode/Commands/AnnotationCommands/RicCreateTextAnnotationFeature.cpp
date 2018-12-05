@@ -24,6 +24,7 @@
 #include "RimReachCircleAnnotation.h"
 #include "RimPolylinesAnnotation.h"
 #include "RimAnnotationCollection.h"
+#include "RimAnnotationGroupCollection.h"
 #include "RimAnnotationInViewCollection.h"
 #include "RimProject.h"
 #include "RimOilField.h"
@@ -44,8 +45,11 @@ bool RicCreateTextAnnotationFeature::isCommandEnabled()
 {
     auto selObjsGlobal  = caf::selectedObjectsByTypeStrict<RimAnnotationCollection*>();
     auto selObjs2InView = caf::selectedObjectsByTypeStrict<RimAnnotationInViewCollection*>();
+    auto selGroupColl = caf::selectedObjectsByTypeStrict<RimAnnotationGroupCollection*>();
 
-    return selObjsGlobal.size() == 1 || selObjs2InView.size() == 1;
+    return selObjsGlobal.size() == 1 || selObjs2InView.size() == 1 ||
+        (selGroupColl.size() == 1 &&
+         selGroupColl.front()->uiCapability()->uiName() == RimAnnotationGroupCollection::TEXT_ANNOTATION_UI_NAME);
 }
 
 //--------------------------------------------------------------------------------------------------
