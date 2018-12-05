@@ -54,6 +54,11 @@ RimWellPathValve::RimWellPathValve()
 
     CAF_PDM_InitField(&m_orificeDiameter, "OrificeDiameter", 8.0, "Orifice Diameter [mm]", "", "", "");
     CAF_PDM_InitField(&m_flowCoefficient, "FlowCoefficient", 0.7, "Flow Coefficient", "", "", "");
+
+    CAF_PDM_InitFieldNoDefault(&m_aicdParameters, "AICDParameters", "AICD Parameters", "", "", "");
+    m_aicdParameters = new RimWellPathAicdParameters;
+    m_aicdParameters.uiCapability()->setUiTreeHidden(true);
+    m_aicdParameters.uiCapability()->setUiTreeChildrenHidden(true);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -367,6 +372,11 @@ void RimWellPathValve::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering
         caf::PdmUiGroup* group = uiOrdering.addNewGroup("MSW Valve Parameters");
         group->add(&m_orificeDiameter);
         group->add(&m_flowCoefficient);
+    }
+    else
+    {
+        caf::PdmUiGroup* group = uiOrdering.addNewGroup("MSW AICD Parameters");
+        m_aicdParameters->uiOrdering(uiConfigName, *group);
     }
     uiOrdering.skipRemainingFields(true);
 }

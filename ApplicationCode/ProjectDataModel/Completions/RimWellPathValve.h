@@ -20,6 +20,7 @@
 #include "RiaEclipseUnitTools.h"
 
 #include "RimCheckableNamedObject.h"
+#include "RimWellPathAicdParameters.h"
 #include "RimWellPathComponentInterface.h"
 
 #include "cafPdmObject.h"
@@ -82,6 +83,7 @@ private:
     caf::PdmField<double>                          m_orificeDiameter;
     caf::PdmField<double>                          m_flowCoefficient;
 
+    caf::PdmChildField<RimWellPathAicdParameters*> m_aicdParameters;
 };
 
 

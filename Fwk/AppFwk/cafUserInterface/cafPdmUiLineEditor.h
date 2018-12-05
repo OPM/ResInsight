@@ -43,6 +43,7 @@
 #include <QLineEdit>
 #include <QPointer>
 #include <QString>
+#include <QValidator>
 #include <QWidget>
 
 class QGridLayout;
@@ -59,31 +60,11 @@ public:
     PdmUiLineEditorAttribute()
     {
         avoidSendingEnterEventToParentWidget = false;
-        useRangeValidator = false;
-        minValue = 0;
-        maxValue = 0;
     }
 
 public:
     bool avoidSendingEnterEventToParentWidget;
-    bool useRangeValidator;
-    int minValue;
-    int maxValue;
-};
-
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-class PdmUiLineEditorAttributeUniqueValues : public PdmUiEditorAttribute
-{
-public:
-    PdmUiLineEditorAttributeUniqueValues()
-    {}
-
-public:
-    std::set<int> usedIds;
-    QString errorMessage;
+    QPointer<QValidator> validator;    
 };
 
 //--------------------------------------------------------------------------------------------------

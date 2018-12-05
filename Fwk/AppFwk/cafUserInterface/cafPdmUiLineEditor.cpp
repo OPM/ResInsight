@@ -43,6 +43,7 @@
 #include "cafPdmUiDefaultObjectEditor.h"
 #include "cafPdmUiFieldEditorHandle.h"
 #include "cafPdmUiOrdering.h"
+#include "cafPdmUniqueIdValidator.h"
 #include "cafSelectionManager.h"
 
 #include <QApplication>
@@ -54,96 +55,6 @@
 #include <QPalette>
 #include <QStatusBar>
 #include <QString>
-
-
-
-
-class PdmUniqueIdValidator : public QValidator
-{
-public:
-    PdmUniqueIdValidator(const std::set<int>& usedIds, bool multipleSelectionOfSameFieldsSelected, const QString& errorMessage, QObject* parent)
-        : QValidator(parent),
-        m_usedIds(usedIds),
-        m_nextValidValue(0),
-        m_multipleSelectionOfSameFieldsSelected(multipleSelectionOfSameFieldsSelected),
-        m_errorMessage(errorMessage)
-    {
-        computeNextValidId();
-    }
-
-    State validate(QString& currentString, int &) const override
-    {
-        if (m_multipleSelectionOfSameFieldsSelected)
-        {
-            return QValidator::Invalid;
-        }
-
-        if (currentString.isEmpty())
-        {
-            return QValidator::Intermediate;
-        }
-
-        bool isValidInteger = false;
-        int currentValue = currentString.toInt(&isValidInteger);
-
-        if (!isValidInteger)
-        {
-            return QValidator::Invalid;
-        }
-
-        if (currentValue < 0)
-        {
-            return QValidator::Invalid;
-        }
-
-        if (m_usedIds.find(currentValue) != m_usedIds.end())
-        {
-            foreach(QWidget* widget, QApplication::topLevelWidgets())
-            {
-                if (widget->inherits("QMainWindow"))
-                {
-                    QMainWindow* mainWindow = qobject_cast<QMainWindow*>(widget);
-                    if (mainWindow && mainWindow->statusBar())
-                    {
-                        mainWindow->statusBar()->showMessage(m_errorMessage, 3000);
-                    }
-                }
-            }
-
-            return QValidator::Intermediate;
-        }
-
-        return QValidator::Acceptable;
-    }
-
-    void fixup(QString& editorText) const override
-    {
-        editorText = QString::number(m_nextValidValue);
-    }
-
-private:
-    int computeNextValidId()
-    {
-        if (!m_usedIds.empty())
-        {
-            m_nextValidValue = *m_usedIds.rbegin();
-        }
-        else
-        {
-            m_nextValidValue = 1;
-        }
-
-        return m_nextValidValue;
-    }
-
-private:
-    std::set<int> m_usedIds;
-
-    int m_nextValidValue;
-    bool m_multipleSelectionOfSameFieldsSelected;
-    QString m_errorMessage;
-};
-
 
 
 namespace caf
@@ -209,32 +120,13 @@ void PdmUiLineEditor::configureAndUpdateUi(const QString& uiConfigName)
                 uiObject->editorAttribute(uiField()->fieldHandle(), uiConfigName, &leab);
             }
 
-            if (leab.useRangeValidator)
+            if (leab.validator)
             {
-                m_lineEdit->setValidator(new QIntValidator(leab.minValue, leab.maxValue, this));
+                m_lineEdit->setValidator(leab.validator);
             }
 
             m_lineEdit->setAvoidSendingEnterEventToParentWidget(leab.avoidSendingEnterEventToParentWidget);
         }
-
-        {
-            PdmUiLineEditorAttributeUniqueValues leab;
-            caf::PdmUiObjectHandle* uiObject = uiObj(uiField()->fieldHandle()->ownerObject());
-            if (uiObject)
-            {
-                uiObject->editorAttribute(uiField()->fieldHandle(), uiConfigName, &leab);
-            }
-            if (leab.usedIds.size() > 0)
-            {
-                if (isMultipleFieldsWithSameKeywordSelected(uiField()->fieldHandle()))
-                {
-                    QMessageBox::information(nullptr, "Invalid operation", "The field you are manipulating is defined to have unique values. A selection of multiple fields is detected. Please select a single item.");
-                }
-
-                m_lineEdit->setValidator(new PdmUniqueIdValidator(leab.usedIds, isMultipleFieldsWithSameKeywordSelected(uiField()->fieldHandle()), leab.errorMessage, this));
-            }
-        }
-
 
         bool fromMenuOnly = true;
         QList<PdmOptionItemInfo> enumNames = uiField()->valueOptions(&fromMenuOnly);

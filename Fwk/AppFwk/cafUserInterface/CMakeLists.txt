@@ -50,6 +50,7 @@ set (MOC_HEADER_FILES
     cafPdmUiTreeSelectionQModel.h
     cafPdmUiFormLayoutObjectEditor.h
     cafPdmUiDoubleValueEditor.h
+	cafPdmUniqueIdValidator.h
 )
 
 if ( NOT CMAKE_AUTOMOC )
@@ -152,6 +153,7 @@ set( PROJECT_FILES
     cafQTreeViewStateSerializer.cpp
     cafMemoryInspector.h
     cafMemoryInspector.cpp
+	cafPdmUniqueIdValidator.cpp
 )
 
 add_library( ${PROJECT_NAME}
