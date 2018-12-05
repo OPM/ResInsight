@@ -667,15 +667,6 @@ void RimSummaryCurve::appendOptionItemsForSummaryAddresses(QList<caf::PdmOptionI
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCurve::setZIndexFromCurveInfo()
 {
-    // Z index. Higher Z is painted in front
-    enum ZIndex
-    {
-        Z_ENSEMBLE_CURVE = 100,
-        Z_ENSEMBLE_STAT_CURVE = 200,
-        Z_SINGLE_CURVE_NON_OBSERVED = 300,
-        Z_SINGLE_CURVE_OBSERVED = 400
-    };
-
     auto sumAddr = summaryAddressY();
     auto sumCase = summaryCaseY();
 
@@ -683,19 +674,19 @@ void RimSummaryCurve::setZIndexFromCurveInfo()
     {
         if (sumCase->isObservedData())
         {
-            setZOrder(Z_SINGLE_CURVE_OBSERVED);
+            setZOrder(RiuQwtPlotCurve::Z_SINGLE_CURVE_OBSERVED);
         }
         else if (sumAddr.category() == RifEclipseSummaryAddress::SUMMARY_ENSEMBLE_STATISTICS)
         {
-            setZOrder(Z_ENSEMBLE_STAT_CURVE);
+            setZOrder(RiuQwtPlotCurve::Z_ENSEMBLE_STAT_CURVE);
         }
         else if (sumCase->ensemble())
         {
-            setZOrder(Z_ENSEMBLE_CURVE);
+            setZOrder(RiuQwtPlotCurve::Z_ENSEMBLE_CURVE);
         }
         else
         {
-            setZOrder(Z_SINGLE_CURVE_NON_OBSERVED);
+            setZOrder(RiuQwtPlotCurve::Z_SINGLE_CURVE_NON_OBSERVED);
         }
     }
 }
