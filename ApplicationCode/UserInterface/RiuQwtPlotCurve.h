@@ -63,6 +63,16 @@ public:
         STYLE_DASH_DOT
     };
 
+    // Z index. Higher Z is painted in front
+    enum ZIndex
+    {
+        Z_ENSEMBLE_CURVE            = 100,
+        Z_ENSEMBLE_STAT_CURVE       = 200,
+        Z_SINGLE_CURVE_NON_OBSERVED = 300,
+        Z_ERROR_BARS                = 400,
+        Z_SINGLE_CURVE_OBSERVED     = 500
+    };
+
 public:
     explicit RiuQwtPlotCurve(const QString &title = QString::null);
     ~RiuQwtPlotCurve() override;
