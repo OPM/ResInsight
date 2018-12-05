@@ -11,6 +11,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RiaCurveSetDefinition.h
 ${CMAKE_CURRENT_LIST_DIR}/RiaRftPltCurveDefinition.h
 ${CMAKE_CURRENT_LIST_DIR}/RiaViewRedrawScheduler.h
 ${CMAKE_CURRENT_LIST_DIR}/RiaMemoryCleanup.h
+${CMAKE_CURRENT_LIST_DIR}/RiaFontCache.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -26,6 +27,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RiaCurveSetDefinition.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiaRftPltCurveDefinition.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiaViewRedrawScheduler.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiaMemoryCleanup.cpp
+${CMAKE_CURRENT_LIST_DIR}/RiaFontCache.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

@@ -25,10 +25,12 @@
 #include "RiaApplication.h"
 #include "RiaBoundingBoxTools.h"
 #include "RiaColorTools.h"
+#include "RiaFontCache.h"
 #include "RiaPreferences.h"
 
 #include "Rim3dView.h"
 #include "RimAnnotationInViewCollection.h"
+#include "RimAnnotationTextAppearance.h"
 #include "RimTextAnnotation.h"
 #include "RimTextAnnotationInView.h"
 
@@ -93,6 +95,11 @@ void RivTextAnnotationPartMgr::buildParts(const caf::DisplayCoordTransform * dis
     cvf::Vec3d labelPosition = displayXf->transformToDisplayCoord(labelPositionInDomain);
     QString text = rimAnnotation()->text();
 
+    auto fontSize = rimAnnotation()->appearance()->fontSize();
+    auto fontColor = rimAnnotation()->appearance()->fontColor();
+    auto backgroundColor = rimAnnotation()->appearance()->backgroundColor();
+    auto anchorLineColor = rimAnnotation()->appearance()->anchorLineColor();
+
     // Line part
     {
         std::vector<cvf::Vec3d> points = { anchorPosition, labelPosition };
@@ -102,7 +109,7 @@ void RivTextAnnotationPartMgr::buildParts(const caf::DisplayCoordTransform * dis
         cvf::ref<cvf::Part> part = new cvf::Part;
         part->setDrawable(drawableGeo.p());
 
-        caf::MeshEffectGenerator    colorEffgen(cvf::Color3f::BLACK);
+        caf::MeshEffectGenerator    colorEffgen(anchorLineColor);
         cvf::ref<cvf::Effect>       eff = colorEffgen.generateUnCachedEffect();
 
         part->setEffect(eff.p());
@@ -114,20 +121,17 @@ void RivTextAnnotationPartMgr::buildParts(const caf::DisplayCoordTransform * dis
 
     // Text part
     {
-        auto app = RiaApplication::instance();
-        cvf::Font* font = app->customFont();
-        auto prefs = app->preferences();
-
+        auto font = RiaFontCache::getFont(fontSize);
         cvf::ref<cvf::DrawableText> drawableText = new cvf::DrawableText;
-        drawableText->setFont(font);
+        drawableText->setFont(font.p());
         drawableText->setCheckPosVisible(false);
         drawableText->setUseDepthBuffer(true);
         drawableText->setDrawBorder(true);
         drawableText->setDrawBackground(true);
         drawableText->setVerticalAlignment(cvf::TextDrawer::BASELINE);
-        drawableText->setBackgroundColor(prefs->defaultViewerBackgroundColor);
-        drawableText->setBorderColor(RiaColorTools::computeOffsetColor(prefs->defaultViewerBackgroundColor, 0.3f));
-        drawableText->setTextColor(cvf::Color3f::BLACK);
+        drawableText->setBackgroundColor(backgroundColor);
+        drawableText->setBorderColor(RiaColorTools::computeOffsetColor(backgroundColor, 0.3f));
+        drawableText->setTextColor(fontColor);
 
         cvf::String cvfString = cvfqt::Utils::toString(text);
 

@@ -17,44 +17,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RimAnnotationLineAppearance.h"
-
-#include "RiaApplication.h"
-#include "RiaColorTables.h"
-#include "RiaLogging.h"
-#include "RiaPreferences.h"
-#include "RiaWellNameComparer.h"
-
-#include "RigEclipseCaseData.h"
-#include "RigMainGrid.h"
-#include "RigWellPath.h"
-
-#include "RimAnnotationInViewCollection.h"
-#include "RimEclipseCase.h"
-#include "RimEclipseCaseCollection.h"
-#include "RimGridView.h"
-#include "RimOilField.h"
-#include "RimProject.h"
-#include "RimWellLogFile.h"
-#include "RimWellPath.h"
-#include "RimPerforationCollection.h"
-
-#include "Riu3DMainWindowTools.h"
-
-#include "RifWellPathFormationsImporter.h"
-#include "RifWellPathImporter.h"
-
-#include "cafPdmUiEditorHandle.h"
-#include "cafProgressInfo.h"
-
-#include <QFile>
-#include <QFileInfo>
-#include <QMessageBox>
-#include <QString>
-
-#include <cmath>
-#include <fstream>
-#include "RimFileWellPath.h"
-#include "RimModeledWellPath.h"
 #include "RimAnnotationCollection.h"
 
 namespace caf

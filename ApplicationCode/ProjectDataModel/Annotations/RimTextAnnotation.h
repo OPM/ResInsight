@@ -37,7 +37,7 @@
 
 class QString;
 class RimGridView;
-
+class RimAnnotationTextAppearance;
 
 //==================================================================================================
 ///
@@ -64,6 +64,8 @@ public:
     bool                isActive();
     bool                isVisible() const;
 
+    RimAnnotationTextAppearance* appearance() const;
+
 protected:
     void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
     void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
@@ -78,5 +80,6 @@ friend class RicTextAnnotation3dEditor;
     caf::PdmField<QString>      m_text;
     caf::PdmField<bool>         m_isActive;
 
+    caf::PdmChildField<RimAnnotationTextAppearance*> m_textAppearance;
 };
 

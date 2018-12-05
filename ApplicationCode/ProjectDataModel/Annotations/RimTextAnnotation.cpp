@@ -23,6 +23,8 @@
 #include "RimProject.h"
 #include "RimAnnotationCollection.h"
 #include "RimAnnotationGroupCollection.h"
+#include "RimAnnotationTextAppearance.h"
+
 #include "AnnotationCommands/RicTextAnnotation3dEditor.h"
 
 
@@ -45,6 +47,8 @@ RimTextAnnotation::RimTextAnnotation()
     CAF_PDM_InitField(&m_isActive, "IsActive", true, "Is Active", "", "", "");
     m_isActive.uiCapability()->setUiHidden(true);
 
+    CAF_PDM_InitFieldNoDefault(&m_textAppearance, "TextAppearance", "Text Appearance", "", "", "");
+    m_textAppearance = new RimAnnotationTextAppearance();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -118,6 +122,9 @@ void RimTextAnnotation::defineUiOrdering(QString uiConfigName, caf::PdmUiOrderin
     uiOrdering.add(&m_labelPointXyd);
     uiOrdering.add(&m_text);
 
+    auto appearanceGroup = uiOrdering.addNewGroup("Text Appearance");
+    m_textAppearance->uiOrdering(uiConfigName, *appearanceGroup);
+
     uiOrdering.skipRemainingFields(true);
 }
 
@@ -162,6 +169,14 @@ bool RimTextAnnotation::isVisible() const
     if (coll) visible = coll->isVisible();
     if(visible) visible = m_isActive;
     return visible;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimAnnotationTextAppearance* RimTextAnnotation::appearance() const
+{
+    return m_textAppearance();
 }
 
 //--------------------------------------------------------------------------------------------------

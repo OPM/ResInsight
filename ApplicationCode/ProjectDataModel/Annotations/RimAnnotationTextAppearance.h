@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include "RiaFontCache.h"
+
 #include "cafPdmObject.h"
 
 #include "cafPdmField.h"
@@ -30,33 +32,34 @@
 ///
 ///
 //==================================================================================================
-class RimAnnotationLineAppearance : public caf::PdmObject
+class RimAnnotationTextAppearance : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    enum LineStyleEnum
-    {
-        STYLE_SOLID,
-        STYLE_DASH
-    };
-    using LineStyle = caf::AppEnum<LineStyleEnum>;
+    using FontSize = caf::AppEnum<RiaFontCache::FontSize>;
 
-public:
-    RimAnnotationLineAppearance();
-    void                setColor(const cvf::Color3f& newColor);
-    cvf::Color3f        color() const;
-    bool                isDashed() const;
-    int                 thickness() const;
+    RimAnnotationTextAppearance();
+
+    void                setFontSize(FontSize size);
+    void                setFontColor(const cvf::Color3f& newColor);
+    void                setBackgroundColor(const cvf::Color3f& newColor);
+    void                setAnchorLineColor(const cvf::Color3f& newColor);
+    
+    FontSize            fontSize() const;
+    cvf::Color3f        fontColor() const;
+    cvf::Color3f        backgroundColor() const;
+    cvf::Color3f        anchorLineColor() const;
 
 protected:
     void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
     void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
 
 private:
-    caf::PdmField<cvf::Color3f>     m_color;
-    caf::PdmField<LineStyle>        m_style;
-    caf::PdmField<int>              m_thickness;
+    caf::PdmField<FontSize>         m_fontSize;
+    caf::PdmField<cvf::Color3f>     m_fontColor;
+    caf::PdmField<cvf::Color3f>     m_backgroundColor;
+    caf::PdmField<cvf::Color3f>     m_anchorLineColor;
 
 };
 

@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2018-     Equinor ASA
+//  Copyright (C) 2017     Statoil ASA
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -18,45 +18,34 @@
 
 #pragma once
 
-#include "cafPdmObject.h"
+#include <cvfBase.h>
+#include <cafFixedAtlasFont.h>
 
-#include "cafPdmField.h"
-#include "cafAppEnum.h"
+#include <map>
 
-#include "cafPdmFieldCvfColor.h" 
-
+class RimSummaryCaseCollection;
 
 //==================================================================================================
-///
-///
+/// 
 //==================================================================================================
-class RimAnnotationLineAppearance : public caf::PdmObject
+class RiaFontCache
 {
-    CAF_PDM_HEADER_INIT;
-
 public:
-    enum LineStyleEnum
+    enum FontSize
     {
-        STYLE_SOLID,
-        STYLE_DASH
+        FONT_SIZE_8,
+        FONT_SIZE_10,
+        FONT_SIZE_12,
+        FONT_SIZE_14,
+        FONT_SIZE_16,
+        FONT_SIZE_24,
+        FONT_SIZE_32
     };
-    using LineStyle = caf::AppEnum<LineStyleEnum>;
 
-public:
-    RimAnnotationLineAppearance();
-    void                setColor(const cvf::Color3f& newColor);
-    cvf::Color3f        color() const;
-    bool                isDashed() const;
-    int                 thickness() const;
-
-protected:
-    void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
-    void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    static cvf::ref<caf::FixedAtlasFont> getFont(FontSize size);
 
 private:
-    caf::PdmField<cvf::Color3f>     m_color;
-    caf::PdmField<LineStyle>        m_style;
-    caf::PdmField<int>              m_thickness;
+    static caf::FixedAtlasFont::FontSize mapToAtlasFontSize(FontSize fontSize);
 
+    static std::map<FontSize, cvf::ref<caf::FixedAtlasFont>> ms_fonts;
 };
-
