@@ -40,6 +40,8 @@ namespace RiaDefines
         UNDEFINED = 999
     };
 
+    // WARNING: DO NOT CHANGE THE ORDER WITHOUT KNOWING WHAT YOU ARE DOING!
+    //          You may well change the behaviour of property filters.
     enum WellPathComponentType {
         // Production Tube
         WELL_PATH,
