@@ -23,6 +23,7 @@
 #include "RiaArgumentParser.h"
 #include "RiaBaseDefs.h"
 #include "RiaFilePathTools.h"
+#include "RiaFontCache.h"
 #include "RiaImportEclipseCaseTools.h"
 #include "RiaLogging.h"
 #include "RiaPreferences.h"
@@ -219,7 +220,7 @@ RiaApplication::RiaApplication(int& argc, char** argv)
 
     // The creation of a font is time consuming, so make sure you really need your own font
     // instead of using the application font
-    m_standardFont = new caf::FixedAtlasFont(caf::FixedAtlasFont::POINT_SIZE_8);
+    m_standardFont = RiaFontCache::getFont(RiaFontCache::FONT_SIZE_8);
 
     m_runningWorkerProcess = false;
 
@@ -1827,37 +1828,37 @@ void RiaApplication::applyPreferences()
         if (mainPlotWindow()) mainPlotWindow()->projectTreeView()->enableAppendOfClassNameToUiItemText(m_preferences->appendClassNameToUiText());
     }
 
-    caf::FixedAtlasFont::FontSize fontSizeType = caf::FixedAtlasFont::POINT_SIZE_16;
+    RiaFontCache::FontSize fontSizeType = RiaFontCache::FONT_SIZE_16;
     if (m_preferences->fontSizeInScene() == "8")
     {
-        fontSizeType = caf::FixedAtlasFont::POINT_SIZE_8;
+        fontSizeType = RiaFontCache::FONT_SIZE_8;
     }
     else if (m_preferences->fontSizeInScene() == "10")
     {
-        fontSizeType = caf::FixedAtlasFont::POINT_SIZE_10;
+        fontSizeType = RiaFontCache::FONT_SIZE_10;
     }
     else if (m_preferences->fontSizeInScene() == "12")
     {
-        fontSizeType = caf::FixedAtlasFont::POINT_SIZE_12;
+        fontSizeType = RiaFontCache::FONT_SIZE_12;
     }
     else if (m_preferences->fontSizeInScene() == "14")
     {
-        fontSizeType = caf::FixedAtlasFont::POINT_SIZE_14;
+        fontSizeType = RiaFontCache::FONT_SIZE_14;
     }
     else if (m_preferences->fontSizeInScene() == "16")
     {
-        fontSizeType = caf::FixedAtlasFont::POINT_SIZE_16;
+        fontSizeType = RiaFontCache::FONT_SIZE_16;
     }
     else if (m_preferences->fontSizeInScene() == "24")
     {
-        fontSizeType = caf::FixedAtlasFont::POINT_SIZE_24;
+        fontSizeType = RiaFontCache::FONT_SIZE_24;
     }
     else if (m_preferences->fontSizeInScene() == "32")
     {
-        fontSizeType = caf::FixedAtlasFont::POINT_SIZE_32;
+        fontSizeType = RiaFontCache::FONT_SIZE_32;
     }
     
-    m_customFont = new caf::FixedAtlasFont(fontSizeType);
+    m_customFont = RiaFontCache::getFont(fontSizeType);
 
     if (this->project())
     {
