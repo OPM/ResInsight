@@ -97,9 +97,10 @@ private:
 class RicMswCompletion
 {
 public:
-    RicMswCompletion(RigCompletionData::CompletionType completionType, const QString& label, size_t index = cvf::UNDEFINED_SIZE_T, int branchNumber = cvf::UNDEFINED_INT);
+    RicMswCompletion(const QString& label, size_t index = cvf::UNDEFINED_SIZE_T, int branchNumber = cvf::UNDEFINED_INT);
 
-    RigCompletionData::CompletionType    completionType() const;
+    virtual RigCompletionData::CompletionType    completionType() const = 0;
+
     const QString&                       label() const;
     size_t                               index() const;
     int                                  branchNumber() const;
@@ -113,13 +114,79 @@ public:
     void                                 setLabel(const QString& label);
 
 private:
-    RigCompletionData::CompletionType    m_completionType;
     QString                              m_label;
     size_t                               m_index;
     int                                  m_branchNumber;
 
     std::vector<std::shared_ptr<RicMswSubSegment>> m_subSegments;
 };
+
+class RicMswFishbones : public RicMswCompletion
+{
+public:
+    RicMswFishbones(const QString& label, size_t index = cvf::UNDEFINED_SIZE_T, int branchNumber = cvf::UNDEFINED_INT)
+        : RicMswCompletion(label, index, branchNumber)
+    {}
+
+    RigCompletionData::CompletionType completionType() const override { return RigCompletionData::FISHBONES; }
+};
+
+//==================================================================================================
+///
+//==================================================================================================
+class RicMswICD : public RicMswCompletion
+{
+public:
+    RicMswICD(const QString& label, size_t index = cvf::UNDEFINED_SIZE_T, int branchNumber = cvf::UNDEFINED_INT);
+    double flowCoefficient() const;
+    double area() const;
+    void   setFlowCoefficient(double icdFlowCoefficient);
+    void   setArea(double icdArea);
+private:
+    double m_flowCoefficient;
+    double m_area;
+};
+
+//==================================================================================================
+///
+//==================================================================================================
+class RicMswFishbonesICD : public RicMswICD
+{
+public:
+    RicMswFishbonesICD(const QString& label, size_t index = cvf::UNDEFINED_SIZE_T, int branchNumber = cvf::UNDEFINED_INT);
+    RigCompletionData::CompletionType completionType() const override;
+};
+
+//==================================================================================================
+///
+//==================================================================================================
+class RicMswFracture : public RicMswCompletion
+{
+public:
+    RicMswFracture(const QString& label, size_t index = cvf::UNDEFINED_SIZE_T, int branchNumber = cvf::UNDEFINED_INT);
+    RigCompletionData::CompletionType completionType() const override;
+};
+
+//==================================================================================================
+///
+//==================================================================================================
+class RicMswPerforation : public RicMswCompletion
+{
+public:
+    RicMswPerforation(const QString& label, size_t index = cvf::UNDEFINED_SIZE_T, int branchNumber = cvf::UNDEFINED_INT);
+    RigCompletionData::CompletionType completionType() const override;
+};
+
+//==================================================================================================
+///
+//==================================================================================================
+class RicMswPerforationICD : public RicMswICD
+{
+public:
+    RicMswPerforationICD(const QString& label, size_t index = cvf::UNDEFINED_SIZE_T, int branchNumber = cvf::UNDEFINED_INT);
+    RigCompletionData::CompletionType completionType() const override;
+};
+
 
 //==================================================================================================
 /// 
@@ -148,8 +215,6 @@ public:
     double  holeDiameter() const;
     double  openHoleRoughnessFactor() const;
     double  skinFactor() const;
-    double  icdFlowCoefficient() const;
-    double  icdArea() const;
     
     size_t  subIndex() const;
     int     segmentNumber() const;
@@ -162,8 +227,6 @@ public:
     void setHoleDiameter(double holeDiameter);
     void setOpenHoleRoughnessFactor(double roughnessFactor);
     void setSkinFactor(double skinFactor);
-    void setIcdFlowCoefficient(double icdFlowCoefficient);
-    void setIcdArea(double icdArea);
     void setSegmentNumber(int segmentNumber);
     void addCompletion(std::shared_ptr<RicMswCompletion> completion);
 
@@ -183,8 +246,6 @@ private:
     double                          m_linerDiameter;
     double                          m_openHoleRoughnessFactor;
     double                          m_skinFactor;
-    double                          m_icdFlowCoefficient;
-    double                          m_icdArea;
 
     size_t                          m_subIndex;
     int                             m_segmentNumber;

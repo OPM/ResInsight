@@ -158,23 +158,13 @@ std::vector<std::shared_ptr<RicMswSubSegmentCellIntersection>>& RicMswSubSegment
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicMswCompletion::RicMswCompletion(RigCompletionData::CompletionType completionType,
-                                   const QString&                    label,
+RicMswCompletion::RicMswCompletion(const QString&                    label,
                                    size_t                            index /* = cvf::UNDEFINED_SIZE_T */,
                                    int                               branchNumber /*= 0*/)
-    : m_completionType(completionType)
-    , m_label(label)
+    : m_label(label)
     , m_index(index)
     , m_branchNumber(branchNumber)
 {
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RigCompletionData::CompletionType RicMswCompletion::completionType() const
-{
-    return m_completionType;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -244,6 +234,121 @@ void RicMswCompletion::setLabel(const QString& label)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RicMswICD::RicMswICD(const QString& label, size_t index /*= cvf::UNDEFINED_SIZE_T*/, int branchNumber /*= cvf::UNDEFINED_INT*/)
+    : RicMswCompletion(label, index, branchNumber)
+    , m_flowCoefficient(0.0)
+    , m_area(0.0)
+{
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RicMswICD::flowCoefficient() const
+{
+    return m_flowCoefficient;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RicMswICD::area() const
+{
+    return m_area;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicMswICD::setFlowCoefficient(double icdFlowCoefficient)
+{
+    m_flowCoefficient = icdFlowCoefficient;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicMswICD::setArea(double icdArea)
+{
+    m_area = icdArea;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RicMswFishbonesICD::RicMswFishbonesICD(const QString& label,
+                                       size_t         index /*= cvf::UNDEFINED_SIZE_T*/,
+                                       int            branchNumber /*= cvf::UNDEFINED_INT*/)
+    : RicMswICD(label, index, branchNumber)
+{
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RigCompletionData::CompletionType RicMswFishbonesICD::completionType() const
+{
+    return RigCompletionData::FISHBONES_ICD;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RicMswFracture::RicMswFracture(const QString& label,
+                               size_t         index /*= cvf::UNDEFINED_SIZE_T*/,
+                               int            branchNumber /*= cvf::UNDEFINED_INT*/)
+    : RicMswCompletion(label, index, branchNumber)
+{
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RigCompletionData::CompletionType RicMswFracture::completionType() const
+{
+    return RigCompletionData::FRACTURE;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RicMswPerforation::RicMswPerforation(const QString& label,
+                                     size_t         index /*= cvf::UNDEFINED_SIZE_T*/,
+                                     int            branchNumber /*= cvf::UNDEFINED_INT*/)
+    : RicMswCompletion(label, index, branchNumber)
+{
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RigCompletionData::CompletionType RicMswPerforation::completionType() const
+{
+    return RigCompletionData::PERFORATION;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RicMswPerforationICD::RicMswPerforationICD(const QString& label,
+                                           size_t         index /*= cvf::UNDEFINED_SIZE_T*/,
+                                           int            branchNumber /*= cvf::UNDEFINED_INT*/)
+    : RicMswICD(label, index, branchNumber)
+{
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RigCompletionData::CompletionType RicMswPerforationICD::completionType() const
+{
+    return RigCompletionData::PERFORATION_ICD;
+}
+
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RicMswSegment::RicMswSegment(const QString& label,
                              double         startMD,
                              double         endMD,
@@ -260,8 +365,6 @@ RicMswSegment::RicMswSegment(const QString& label,
     , m_holeDiameter(RicMswExportInfo::defaultDoubleValue())
     , m_openHoleRoughnessFactor(5.0e-5)
     , m_skinFactor(RicMswExportInfo::defaultDoubleValue())
-    , m_icdFlowCoefficient(0.0)
-    , m_icdArea(0.0)
     , m_subIndex(subIndex)
     , m_segmentNumber(segmentNumber)
 {
@@ -358,22 +461,6 @@ double RicMswSegment::skinFactor() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RicMswSegment::icdFlowCoefficient() const
-{
-    return m_icdFlowCoefficient;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-double RicMswSegment::icdArea() const
-{
-    return m_icdArea;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 size_t RicMswSegment::subIndex() const
 {
     return m_subIndex;
@@ -441,22 +528,6 @@ void RicMswSegment::setOpenHoleRoughnessFactor(double roughnessFactor)
 void RicMswSegment::setSkinFactor(double skinFactor)
 {
     m_skinFactor = skinFactor;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RicMswSegment::setIcdFlowCoefficient(double icdFlowCoefficient)
-{
-    m_icdFlowCoefficient = icdFlowCoefficient;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RicMswSegment::setIcdArea(double icdArea)
-{
-    m_icdArea = icdArea;
 }
 
 //--------------------------------------------------------------------------------------------------
