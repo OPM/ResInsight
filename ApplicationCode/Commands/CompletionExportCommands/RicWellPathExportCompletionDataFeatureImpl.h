@@ -189,7 +189,6 @@ public:
 
 private:
     typedef std::vector<std::shared_ptr<RicMswSegment>> MainBoreSegments;
-    typedef std::map<std::pair<const RimWellPathValve*, size_t>, std::shared_ptr<RicMswCompletion>> ValveCompletionMap;
     typedef std::map <std::shared_ptr<RicMswCompletion>, std::set<std::pair<const RimWellPathValve*, size_t>>> ValveContributionMap;
 
     static MainBoreSegments createMainBoreSegments(const std::vector<SubSegmentIntersectionInfo>&    subSegIntersections,
@@ -198,13 +197,14 @@ private:
                                                    const RicExportCompletionDataSettingsUi&          exportSettings,
                                                    bool*                                             foundSubGridIntersections);
 
-    static ValveCompletionMap assignPrimaryValveCompletions(std::vector<std::shared_ptr<RicMswSegment>>&      mainBoreSegments,
-                                                        const std::vector<const RimPerforationInterval*>& perforationIntervals);
+    static void assignSuperValveCompletions(std::vector<std::shared_ptr<RicMswSegment>>&      mainBoreSegments,
+                                            const std::vector<const RimPerforationInterval*>& perforationIntervals);
 
-    static void assignSecondaryValveContributions(std::vector<std::shared_ptr<RicMswSegment>>&      mainBoreSegments,
-                                         const std::vector<const RimPerforationInterval*>& perforationIntervals,
-                                         const ValveCompletionMap&                         primaryValveLocations,
-                                         RiaEclipseUnitTools::UnitSystem                   unitSystem);
+    static void assignValveContributionsToSuperValves(const std::vector<std::shared_ptr<RicMswSegment>>& mainBoreSegments,
+                                                      const std::vector<const RimPerforationInterval*>& perforationIntervals,
+                                                      RiaEclipseUnitTools::UnitSystem unitSystem);
+
+    static void moveIntersectionsToSuperValves(MainBoreSegments mainBoreSegments);
 
     static double                         calculateTransmissibilityAsEclipseDoes(RimEclipseCase* eclipseCase,
                                                                                  double skinFactor,
@@ -308,5 +308,5 @@ private:
 
     static void                           exportCarfinForTemporaryLgrs(const RimEclipseCase* sourceCase, const QString& folder);
 
-    static bool                           isCompletionWellPathEqual(const RigCompletionData& completion, const RimWellPath* wellPath);
+    static bool                           isCompletionWellPathEqual(const RigCompletionData& completion, const RimWellPath* wellPath);    
 };

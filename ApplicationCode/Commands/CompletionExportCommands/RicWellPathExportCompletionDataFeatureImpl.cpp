@@ -1015,7 +1015,7 @@ void RicWellPathExportCompletionDataFeatureImpl::generateWsegvalvTable(RifEclips
                         formatter.add(exportInfo.wellPath()->name());
                         formatter.add(completion->subSegments().front()->segmentNumber());
                         formatter.add(location->icdFlowCoefficient());
-                        formatter.add(QString("%1").arg(location->icdArea(), 8, 'f', 6));
+                        formatter.add(QString("%1").arg(location->icdArea(), 8, 'g', 4));
                         formatter.rowCompleted();
                     }
                 }
@@ -2050,8 +2050,10 @@ RicMswExportInfo RicWellPathExportCompletionDataFeatureImpl::generatePerforation
     bool foundSubGridIntersections = false;
 
     MainBoreSegments mainBoreSegments = createMainBoreSegments(subSegIntersections, perforationIntervals, wellPath, exportSettings, &foundSubGridIntersections);
-    ValveCompletionMap primaryValveCompletions = assignPrimaryValveCompletions(mainBoreSegments, perforationIntervals);
-    assignSecondaryValveContributions(mainBoreSegments, perforationIntervals, primaryValveCompletions, unitSystem);    
+    
+    assignSuperValveCompletions(mainBoreSegments, perforationIntervals);
+    assignValveContributionsToSuperValves(mainBoreSegments, perforationIntervals, unitSystem);    
+    moveIntersectionsToSuperValves(mainBoreSegments);
 
     for (std::shared_ptr<RicMswSegment> segment : mainBoreSegments)
     {
@@ -2108,18 +2110,84 @@ RicWellPathExportCompletionDataFeatureImpl::createMainBoreSegments(
     return mainBoreSegments;
 }
 
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicWellPathExportCompletionDataFeatureImpl::assignSecondaryValveContributions(
+void RicWellPathExportCompletionDataFeatureImpl::assignSuperValveCompletions(
     std::vector<std::shared_ptr<RicMswSegment>>&      mainBoreSegments,
-    const std::vector<const RimPerforationInterval*>& perforationIntervals,
-    const ValveCompletionMap&                         primaryValveLocations,
-    RiaEclipseUnitTools::UnitSystem                   unitSystem)
+    const std::vector<const RimPerforationInterval*>& perforationIntervals)
 {
-    ValveContributionMap slaveValves;
+    for (size_t nMainSegment = 0u; nMainSegment < mainBoreSegments.size(); ++nMainSegment)
+    {
+        std::shared_ptr<RicMswSegment> segment = mainBoreSegments[nMainSegment];
+
+        std::shared_ptr<RicMswCompletion> superValve;        
+        for (const RimPerforationInterval* interval : perforationIntervals)
+        {
+            std::vector<const RimWellPathValve*> perforationValves;
+            interval->descendantsIncludingThisOfType(perforationValves);
+
+            for (const RimWellPathValve* valve : perforationValves)
+            {
+                for (size_t nSubValve = 0u; nSubValve < valve->valveLocations().size(); ++nSubValve)
+                {
+                    double valveMD = valve->valveLocations()[nSubValve];
+
+                    std::pair<double, double> valveSegment       = valve->valveSegments()[nSubValve];
+                    double                    overlapStart       = std::max(valveSegment.first, segment->startMD());
+                    double                    overlapEnd         = std::min(valveSegment.second, segment->endMD());
+                    double                    overlap            = std::max(0.0, overlapEnd - overlapStart);
+
+                    if (segment->startMD() <= valveMD && valveMD < segment->endMD())
+                    {
+                        QString valveLabel = QString("%1 #%2").arg("Combined Valve for segment").arg(nMainSegment + 2);
+                        superValve.reset(new RicMswCompletion(RigCompletionData::PERFORATION_ICD, valveLabel));
+                        std::shared_ptr<RicMswSubSegment> subSegment(new RicMswSubSegment(valveMD, 0.1, 0.0, 0.0));
+                        superValve->addSubSegment(subSegment);
+                    }
+                    else if (overlap > 0.0 && !superValve)
+                    {
+                        QString valveLabel = QString("%1 #%2").arg("Combined Valve for segment").arg(nMainSegment + 2);
+                        superValve.reset(new RicMswCompletion(RigCompletionData::PERFORATION_ICD, valveLabel));
+                        std::shared_ptr<RicMswSubSegment> subSegment(new RicMswSubSegment(overlapStart, 0.1, 0.0, 0.0));
+                        superValve->addSubSegment(subSegment);
+                    }
+                }
+            }
+        }
+
+        if (superValve)
+        {
+            segment->addCompletion(superValve);
+        }
+
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicWellPathExportCompletionDataFeatureImpl::assignValveContributionsToSuperValves(
+    const std::vector<std::shared_ptr<RicMswSegment>>& mainBoreSegments,
+    const std::vector<const RimPerforationInterval*>& perforationIntervals,
+    RiaEclipseUnitTools::UnitSystem unitSystem)
+{
+    ValveContributionMap assignedRegularValves;
     for (std::shared_ptr<RicMswSegment> segment : mainBoreSegments)
     {
+        std::shared_ptr<RicMswCompletion> superValve;
+        for (auto completion : segment->completions())
+        {
+            if (completion->completionType() == RigCompletionData::PERFORATION_ICD)
+            {
+                superValve = completion;
+                break;
+            }
+        }
+
+        if (!superValve) continue;
+
         double                            totalIcdArea = 0.0;
         RiaWeightedMeanCalculator<double> coeffMeanCalc;
 
@@ -2140,12 +2208,7 @@ void RicWellPathExportCompletionDataFeatureImpl::assignSecondaryValveContributio
 
                     if (overlap > 0.0)
                     {
-                        auto primaryValveLocIt = primaryValveLocations.find(std::make_pair(valve, nSubValve));
-                        if (primaryValveLocIt == primaryValveLocations.end()) continue;
-
-                        std::shared_ptr<RicMswCompletion> completion = primaryValveLocIt->second;
-                        slaveValves[completion].insert(std::make_pair(valve, nSubValve));
-
+                        assignedRegularValves[superValve].insert(std::make_pair(valve, nSubValve));
                         double icdOrificeRadius = valve->orificeDiameter(unitSystem) / 2;
                         double icdArea          = icdOrificeRadius * icdOrificeRadius * cvf::PI_D * overlap / valveSegmentLength;
                         totalIcdArea += icdArea;
@@ -2161,18 +2224,18 @@ void RicWellPathExportCompletionDataFeatureImpl::assignSecondaryValveContributio
         }
     }
     
-    for (auto slaveValvePair : slaveValves)
+    for (auto regularValvePair : assignedRegularValves)
     {
-        if (slaveValvePair.second.size())
+        if (regularValvePair.second.size())
         {
             QStringList valveLabels;
-            for (std::pair<const RimWellPathValve*, size_t> slaveValve : slaveValvePair.second)
+            for (std::pair<const RimWellPathValve*, size_t> regularValve : regularValvePair.second)
             {
-                QString valveLabel = QString("%1 #%2").arg(slaveValve.first->name()).arg(slaveValve.second + 1);
+                QString valveLabel = QString("%1 #%2").arg(regularValve.first->name()).arg(regularValve.second + 1);
                 valveLabels.push_back(valveLabel);
             }
             QString valveContribLabel = QString(" with contribution from: %1").arg(valveLabels.join(", "));
-            slaveValvePair.first->setLabel(slaveValvePair.first->label() + valveContribLabel);
+            regularValvePair.first->setLabel(regularValvePair.first->label() + valveContribLabel);
         }
     }
 }
@@ -2180,45 +2243,41 @@ void RicWellPathExportCompletionDataFeatureImpl::assignSecondaryValveContributio
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicWellPathExportCompletionDataFeatureImpl::ValveCompletionMap
-    RicWellPathExportCompletionDataFeatureImpl::assignPrimaryValveCompletions(
-        std::vector<std::shared_ptr<RicMswSegment>>&      mainBoreSegments,
-        const std::vector<const RimPerforationInterval*>& perforationIntervals)
+void RicWellPathExportCompletionDataFeatureImpl::moveIntersectionsToSuperValves(MainBoreSegments mainBoreSegments)
 {
-    ValveCompletionMap primaryValveLocations;
-
-    for (size_t nMainSegment = 0u; nMainSegment < mainBoreSegments.size(); ++nMainSegment)
+    for (auto segmentPtr : mainBoreSegments)
     {
-        std::shared_ptr<RicMswSegment> segment = mainBoreSegments[nMainSegment];
-
-        std::shared_ptr<RicMswCompletion> valveCompletion;
-        for (const RimPerforationInterval* interval : perforationIntervals)
+        std::shared_ptr<RicMswCompletion> superValve;
+        std::vector<std::shared_ptr<RicMswCompletion>> perforations;
+        for (auto completionPtr : segmentPtr->completions())
         {
-            std::vector<const RimWellPathValve*> perforationValves;
-            interval->descendantsIncludingThisOfType(perforationValves);
-
-            for (const RimWellPathValve* valve : perforationValves)
+            if (completionPtr->completionType() == RigCompletionData::PERFORATION_ICD)
             {
-                for (size_t nSubValve = 0u; nSubValve < valve->valveLocations().size(); ++nSubValve)
+                superValve = completionPtr;
+            }
+            else
+            {
+                CVF_ASSERT(completionPtr->completionType() == RigCompletionData::PERFORATION);
+                perforations.push_back(completionPtr);
+            }
+        }
+
+        if (superValve == nullptr) continue;
+
+        CVF_ASSERT(superValve->subSegments().size() == 1u);
+        segmentPtr->completions().clear();
+        segmentPtr->addCompletion(superValve);
+        for (auto perforationPtr : perforations)
+        {
+            for (auto subSegmentPtr : perforationPtr->subSegments())
+            {
+                for (auto intersectionPtr : subSegmentPtr->intersections())
                 {
-                    double valveMD = valve->valveLocations()[nSubValve];
-                    if (segment->startMD() <= valveMD && valveMD < segment->endMD())
-                    {
-                        QString valveLabel = QString("%1 #%2").arg("Combined Valve for segment").arg(nMainSegment + 2);
-                        if (!valveCompletion)
-                        {
-                            valveCompletion.reset(new RicMswCompletion(RigCompletionData::PERFORATION_ICD, valveLabel));
-                            std::shared_ptr<RicMswSubSegment> valveSegment(new RicMswSubSegment(valveMD, 0.1, 0.0, 0.0));
-                            valveCompletion->addSubSegment(valveSegment);
-                            segment->addCompletion(valveCompletion);
-                        }
-                        primaryValveLocations[std::make_pair(valve, nSubValve)] = valveCompletion;
-                    }
+                    superValve->subSegments()[0]->addIntersection(intersectionPtr);
                 }
             }
         }
     }
-    return primaryValveLocations;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -2348,7 +2407,10 @@ void RicWellPathExportCompletionDataFeatureImpl::assignPerforationIntervalInters
 {
     size_t currCellId = cellIntInfo.globCellIndex;
 
-    std::shared_ptr<RicMswSubSegment> subSegment(new RicMswSubSegment(cellIntInfo.startMD, cellIntInfo.endMD, cellIntInfo.startTVD, cellIntInfo.endTVD));
+    std::shared_ptr<RicMswSubSegment> subSegment(new RicMswSubSegment(cellIntInfo.startMD,
+                                                                      cellIntInfo.endMD - cellIntInfo.startMD,
+                                                                      cellIntInfo.startTVD,
+                                                                      cellIntInfo.endTVD - cellIntInfo.startTVD));
     for (const RigCompletionData& compIntersection : completionData)
     {
         const RigCompletionDataGridCell& cell = compIntersection.completionDataGridCell();
