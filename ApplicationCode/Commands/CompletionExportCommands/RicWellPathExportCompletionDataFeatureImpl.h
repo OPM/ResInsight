@@ -21,7 +21,7 @@
 #include "RigCompletionData.h"
 
 #include "RicExportCompletionDataSettingsUi.h"
-#include "RicMultiSegmentWellExportInfo.h"
+#include "RicMswExportInfo.h"
 #include "RicWellPathFractureReportItem.h"
 
 #include <QFile>

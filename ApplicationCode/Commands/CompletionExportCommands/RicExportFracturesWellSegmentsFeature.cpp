@@ -23,7 +23,7 @@
 
 #include "RicCaseAndFileExportSettingsUi.h"
 #include "RicExportFeatureImpl.h"
-#include "RicMultiSegmentWellExportInfo.h"
+#include "RicMswExportInfo.h"
 #include "RicWellPathExportCompletionDataFeatureImpl.h"
 
 #include "RimProject.h"
