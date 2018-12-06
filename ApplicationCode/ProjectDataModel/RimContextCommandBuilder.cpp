@@ -747,8 +747,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
 
         menuBuilder << "RicEditPerforationCollectionFeature";
         menuBuilder << "RicExportFishbonesLateralsFeature";
-        menuBuilder << "RicExportFishbonesWellSegmentsFeature";
-        menuBuilder << "RicExportFracturesWellSegmentsFeature";
+        menuBuilder << "RicExportCompletionsWellSegmentsFeature";
         {
             QStringList candidates;
 

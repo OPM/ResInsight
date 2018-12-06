@@ -16,7 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicExportFishbonesWellSegmentsFeature.h"
+#include "RicExportCompletionsWellSegmentsFeature.h"
 
 #include "RiaApplication.h"
 #include "RiaLogging.h"
@@ -26,12 +26,16 @@
 #include "RicExportFeatureImpl.h"
 #include "RicMswExportInfo.h"
 #include "RicWellPathExportCompletionDataFeatureImpl.h"
+#include "RicWellPathExportMswCompletionsImpl.h"
+#include "RicWellPathExportCompletionsFileTools.h"
 
 #include "RimProject.h"
 #include "RimFishboneWellPathCollection.h"
 #include "RimFishbonesCollection.h"
 #include "RimFishbonesMultipleSubs.h"
+#include "RimPerforationCollection.h"
 #include "RimWellPath.h"
+#include "RimWellPathFractureCollection.h"
 #include "RimEclipseCase.h"
 
 #include "RigMainGrid.h"
@@ -50,17 +54,24 @@
 #include <QDir>
 
 
-CAF_CMD_SOURCE_INIT(RicExportFishbonesWellSegmentsFeature, "RicExportFishbonesWellSegmentsFeature");
+CAF_CMD_SOURCE_INIT(RicExportCompletionsWellSegmentsFeature, "RicExportCompletionsWellSegmentsFeature");
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicExportFishbonesWellSegmentsFeature::onActionTriggered(bool isChecked)
+void RicExportCompletionsWellSegmentsFeature::onActionTriggered(bool isChecked)
 {
-    RimFishbonesCollection* fishbonesCollection = caf::SelectionManager::instance()->selectedItemAncestorOfType<RimFishbonesCollection>(); 
     RimWellPath* wellPath = caf::SelectionManager::instance()->selectedItemAncestorOfType<RimWellPath>();
-    CVF_ASSERT(fishbonesCollection);
     CVF_ASSERT(wellPath);
+
+    RimFishbonesCollection* fishbonesCollection =
+        caf::SelectionManager::instance()->selectedItemAncestorOfType<RimFishbonesCollection>();
+    RimWellPathFractureCollection* fractureCollection =
+        caf::SelectionManager::instance()->selectedItemAncestorOfType<RimWellPathFractureCollection>();
+    RimPerforationCollection* perforationCollection =
+        caf::SelectionManager::instance()->selectedItemAncestorOfType<RimPerforationCollection>();
+
+    CVF_ASSERT(fishbonesCollection || fractureCollection || perforationCollection);
 
     RiaApplication* app = RiaApplication::instance();
 
@@ -87,18 +98,22 @@ void RicExportFishbonesWellSegmentsFeature::onActionTriggered(bool isChecked)
     if (propertyDialog.exec() == QDialog::Accepted)
     {
         RiaApplication::instance()->setLastUsedDialogDirectory("COMPLETIONS", QFileInfo(exportSettings.folder).absolutePath());
+        RicExportCompletionDataSettingsUi completionExportSettings;
+        completionExportSettings.caseToApply.setValue(exportSettings.caseToApply);
+        completionExportSettings.folder.setValue(exportSettings.folder);
 
-        if (!fishbonesCollection->activeFishbonesSubs().empty())
-        {
-            exportWellSegments(wellPath, fishbonesCollection->activeFishbonesSubs(), exportSettings);
-        }
+        completionExportSettings.includeFishbones = fishbonesCollection != nullptr && !fishbonesCollection->activeFishbonesSubs().empty();
+        completionExportSettings.includeFractures = fractureCollection != nullptr && !fractureCollection->activeFractures().empty();
+        completionExportSettings.includePerforations = perforationCollection != nullptr && !perforationCollection->activePerforations().empty();
+
+        RicWellPathExportMswCompletionsImpl::exportWellSegmentsForAllCompletions(completionExportSettings, { wellPath });
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicExportFishbonesWellSegmentsFeature::setupActionLook(QAction* actionToSetup)
+void RicExportCompletionsWellSegmentsFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setText("Export Well Segments");
 }
@@ -106,55 +121,20 @@ void RicExportFishbonesWellSegmentsFeature::setupActionLook(QAction* actionToSet
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RicExportFishbonesWellSegmentsFeature::isCommandEnabled()
+bool RicExportCompletionsWellSegmentsFeature::isCommandEnabled()
 {
     if (caf::SelectionManager::instance()->selectedItemAncestorOfType<RimFishbonesCollection>())
     {
         return true;
     }
+    else if (caf::SelectionManager::instance()->selectedItemAncestorOfType<RimWellPathFractureCollection>())
+    {
+        return true;
+    }
+    else if (caf::SelectionManager::instance()->selectedItemAncestorOfType<RimPerforationCollection>())
+    {
+        return true;
+    }
 
     return false;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RicExportFishbonesWellSegmentsFeature::exportWellSegments(const RimWellPath* wellPath, const std::vector<RimFishbonesMultipleSubs*>& fishbonesSubs, const RicCaseAndFileExportSettingsUi& settings)
-{
-    if (fishbonesSubs.empty()) return;
-
-    if (settings.caseToApply() == nullptr)
-    {
-        RiaLogging::error("Export Well Segments: Cannot export completions data without specified eclipse case");
-        return;
-    }
-
-    QString fileName = QString("%1-Welsegs").arg(settings.caseToApply()->caseUserDescription());
-    fileName = caf::Utils::makeValidFileBasename(fileName);
-
-    QDir exportFolder(settings.folder());
-    if (!exportFolder.exists())
-    {
-        bool createdPath = exportFolder.mkpath(".");
-        if (createdPath)
-            RiaLogging::info("Created export folder " + settings.folder());
-        else
-            RiaLogging::error("Selected output folder does not exist, and could not be created.");
-    }
-
-    QString filePath = exportFolder.filePath(fileName);
-    QFile   exportFile(filePath);
-    if (!exportFile.open(QIODevice::WriteOnly | QIODevice::Text))
-    {
-        RiaLogging::error(QString("Export Well Segments: Could not open the file: %1").arg(filePath));
-        return;
-    }
-    
-    RicMswExportInfo exportInfo = RicWellPathExportCompletionDataFeatureImpl::generateFishbonesMswExportInfo(settings.caseToApply, wellPath, fishbonesSubs, true);
-
-    QTextStream stream(&exportFile);
-    RifEclipseDataTableFormatter formatter(stream);
-    RicWellPathExportCompletionDataFeatureImpl::generateWelsegsTable (formatter, exportInfo);
-    RicWellPathExportCompletionDataFeatureImpl::generateCompsegTables(formatter, exportInfo);
-    RicWellPathExportCompletionDataFeatureImpl::generateWsegvalvTable(formatter, exportInfo);
 }

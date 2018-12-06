@@ -185,3 +185,21 @@ std::vector<const RimPerforationInterval*> RimPerforationCollection::perforation
     return myPerforations;
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<const RimPerforationInterval*> RimPerforationCollection::activePerforations() const
+{
+    std::vector<const RimPerforationInterval*> myActivePerforations;
+
+    for (const auto& perforation : m_perforations)
+    {
+        if (perforation->isChecked())
+        {
+            myActivePerforations.push_back(perforation);
+        }
+    }
+
+    return myActivePerforations;
+}
+

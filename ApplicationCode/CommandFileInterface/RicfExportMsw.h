@@ -39,4 +39,7 @@ public:
 private:
     caf::PdmField<int>     m_caseId;
     caf::PdmField<QString> m_wellPathName;
+    caf::PdmField<bool>    m_includePerforations;
+    caf::PdmField<bool>    m_includeFishbones;
+    caf::PdmField<bool>    m_includeFractures;
 };

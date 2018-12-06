@@ -48,6 +48,7 @@ public:
     void                                       setUnitSystemSpecificDefaults();
     void                                       appendPerforation(RimPerforationInterval* perforation);
     std::vector<const RimPerforationInterval*> perforations() const;
+    std::vector<const RimPerforationInterval*> activePerforations() const;
 
 private:
     void                                       defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;

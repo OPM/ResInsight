@@ -31,7 +31,7 @@ class RimWellPath;
 //==================================================================================================
 /// 
 //==================================================================================================
-class RicExportFishbonesWellSegmentsFeature : public caf::CmdFeature
+class RicExportCompletionsWellSegmentsFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
 
@@ -40,8 +40,4 @@ protected:
     void setupActionLook(QAction* actionToSetup) override;
     bool isCommandEnabled() override;
 
-public:
-    static void  exportWellSegments(const RimWellPath*                            wellPath,
-                                    const std::vector<RimFishbonesMultipleSubs*>& fishbonesSubs,
-                                    const RicCaseAndFileExportSettingsUi&         settings);
 };

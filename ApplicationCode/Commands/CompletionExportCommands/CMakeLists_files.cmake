@@ -3,9 +3,10 @@ set (SOURCE_GROUP_HEADER_FILES
 ${CMAKE_CURRENT_LIST_DIR}/RicExportCompletionDataSettingsUi.h
 ${CMAKE_CURRENT_LIST_DIR}/RicWellPathExportCompletionDataFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicWellPathExportCompletionDataFeatureImpl.h
+${CMAKE_CURRENT_LIST_DIR}/RicWellPathExportMswCompletionsImpl.h
+${CMAKE_CURRENT_LIST_DIR}/RicWellPathExportCompletionsFileTools.h
 ${CMAKE_CURRENT_LIST_DIR}/RicFishbonesTransmissibilityCalculationFeatureImp.h
-${CMAKE_CURRENT_LIST_DIR}/RicExportFishbonesWellSegmentsFeature.h
-${CMAKE_CURRENT_LIST_DIR}/RicExportFracturesWellSegmentsFeature.h
+${CMAKE_CURRENT_LIST_DIR}/RicExportCompletionsWellSegmentsFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicCaseAndFileExportSettingsUi.h
 ${CMAKE_CURRENT_LIST_DIR}/RicExportFractureCompletionsImpl.h
 ${CMAKE_CURRENT_LIST_DIR}/RicExportCompletionsForVisibleWellPathsFeature.h
@@ -24,9 +25,10 @@ set (SOURCE_GROUP_SOURCE_FILES
 ${CMAKE_CURRENT_LIST_DIR}/RicExportCompletionDataSettingsUi.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicWellPathExportCompletionDataFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicWellPathExportCompletionDataFeatureImpl.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicWellPathExportMswCompletionsImpl.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicWellPathExportCompletionsFileTools.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicFishbonesTransmissibilityCalculationFeatureImp.cpp
-${CMAKE_CURRENT_LIST_DIR}/RicExportFishbonesWellSegmentsFeature.cpp
-${CMAKE_CURRENT_LIST_DIR}/RicExportFracturesWellSegmentsFeature.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicExportCompletionsWellSegmentsFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicCaseAndFileExportSettingsUi.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicExportFractureCompletionsImpl.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicExportCompletionsForVisibleWellPathsFeature.cpp

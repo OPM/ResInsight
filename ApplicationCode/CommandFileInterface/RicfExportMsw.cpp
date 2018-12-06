@@ -33,7 +33,8 @@
 #include "RimFishbonesCollection.h"
 #include "RimFishbonesMultipleSubs.h"
 
-#include "CompletionExportCommands/RicExportFishbonesWellSegmentsFeature.h"
+#include "CompletionExportCommands/RicExportCompletionDataSettingsUi.h"
+#include "CompletionExportCommands/RicWellPathExportMswCompletionsImpl.h"
 
 CAF_PDM_SOURCE_INIT(RicfExportMsw, "exportMsw");
 
@@ -44,6 +45,10 @@ RicfExportMsw::RicfExportMsw()
 {
     RICF_InitField(&m_caseId,       "caseId",   -1,        "Case ID", "", "", "");
     RICF_InitField(&m_wellPathName, "wellPath", QString(), "Well Path Name", "", "", "");
+    RICF_InitField(&m_includePerforations, "includePerforations", true, "Include Perforations", "", "", "");
+    RICF_InitField(&m_includeFishbones,    "includeFishbones", true, "Include Fishbones", "", "", "");
+    RICF_InitField(&m_includeFractures,    "includeFractures", true, "Include Fractures", "", "", "");
+
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -53,7 +58,7 @@ void RicfExportMsw::execute()
 {
     using TOOLS = RicfApplicationTools;
 
-    RicCaseAndFileExportSettingsUi exportSettings;
+    RicExportCompletionDataSettingsUi exportSettings;
 
     auto eclipseCase = TOOLS::caseFromId(m_caseId());
     if (!eclipseCase)
@@ -67,7 +72,11 @@ void RicfExportMsw::execute()
     {
         exportFolder = RiaApplication::instance()->createAbsolutePathFromProjectRelativePath("completions");
     }
+    exportSettings.caseToApply = eclipseCase;
     exportSettings.folder = exportFolder;
+    exportSettings.includePerforations = m_includePerforations;
+    exportSettings.includeFishbones = m_includeFishbones;
+    exportSettings.includeFractures = m_includeFractures;    
 
     RimWellPath* wellPath = RiaApplication::instance()->project()->wellPathByName(m_wellPathName);
     if (!wellPath)
@@ -76,8 +85,5 @@ void RicfExportMsw::execute()
         return;
     }
 
-    if (!wellPath->fishbonesCollection()->activeFishbonesSubs().empty())
-    {
-        RicExportFishbonesWellSegmentsFeature::exportWellSegments(wellPath, wellPath->fishbonesCollection()->activeFishbonesSubs(), exportSettings);
-    }
+    RicWellPathExportMswCompletionsImpl::exportWellSegmentsForAllCompletions(exportSettings, { wellPath });
 }
