@@ -5,17 +5,16 @@ if (MSVC)
     add_definitions(-DNOMINMAX)
 endif (MSVC)
 
-# Qt
-find_package(Qt5Core CONFIG QUIET)
-if (Qt5Core_FOUND)
-	find_package(Qt5 CONFIG REQUIRED Core Gui Widgets)
-else()
-	find_package(Qt4 COMPONENTS QtCore QtGui QtMain REQUIRED)
-    include(${QT_USE_FILE})
-endif(Qt5Core_FOUND)
-
 project (cafUserInterface)
 
+# Qt
+find_package(Qt5 COMPONENTS Core QUIET)
+if (Qt5Core_FOUND)
+    find_package(Qt5 CONFIG REQUIRED Core Gui Widgets)
+else()
+    find_package(Qt4 COMPONENTS QtCore QtGui QtMain REQUIRED)
+    include(${QT_USE_FILE})
+endif(Qt5Core_FOUND)
 
 # These headers need to go through Qt's MOC compiler
 set (MOC_HEADER_FILES    
