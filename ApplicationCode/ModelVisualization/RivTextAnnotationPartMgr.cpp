@@ -144,7 +144,7 @@ void RivTextAnnotationPartMgr::buildParts(const caf::DisplayCoordTransform * dis
 
         cvf::ref<cvf::Effect> eff = new cvf::Effect();
         part->setEffect(eff.p());
-        part->setPriority(RivPartPriority::PartType::Text);
+        part->setPriority(RivPartPriority::PartType::MeshLines);
         part->setSourceInfo(sourceInfo.p());
 
         m_labelPart = part;

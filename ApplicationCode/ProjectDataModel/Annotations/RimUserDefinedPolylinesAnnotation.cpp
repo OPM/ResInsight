@@ -18,10 +18,20 @@
 
 #include "RimUserDefinedPolylinesAnnotation.h"
 
+#include "WellPathCommands/PointTangentManipulator/RicPolyline3dEditor.h"
+#include "WellPathCommands/RicPolylineTargetsPickEventHandler.h"
+
 #include "RimAnnotationCollection.h"
 #include "RimAnnotationLineAppearance.h"
+#include "RimPolylineTarget.h"
 
 #include "RigPolyLinesData.h"
+
+#include "RiuViewerCommands.h"
+
+#include "cafPdmUiTableViewEditor.h"
+#include "cafCmdFeatureMenuBuilder.h"
+#include "cafPdmUiPushButtonEditor.h"
 
 //--------------------------------------------------------------------------------------------------
 /// Internal function
@@ -45,10 +55,22 @@ CAF_PDM_SOURCE_INIT(RimUserDefinedPolylinesAnnotation, "UserDefinedPolylinesAnno
 ///
 //--------------------------------------------------------------------------------------------------
 RimUserDefinedPolylinesAnnotation::RimUserDefinedPolylinesAnnotation()
+    : m_pickTargetsEventHandler(new RicPolylineTargetsPickEventHandler(this))
 {
     CAF_PDM_InitObject("PolyLines Annotation", ":/WellCollection.png", "", "");
 
-    CAF_PDM_InitField(&m_pointsXyd, "PointsXyd", {}, "", "", "", "");
+    CAF_PDM_InitField(&m_enablePicking, "EnablePicking", false, "", "", "", "");
+    caf::PdmUiPushButtonEditor::configureEditorForField(&m_enablePicking);
+    m_enablePicking.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::LabelPosType::HIDDEN);
+
+    CAF_PDM_InitFieldNoDefault(&m_targets, "Targets", "Targets", "", "", "");
+    m_targets.uiCapability()->setUiEditorTypeName(caf::PdmUiTableViewEditor::uiEditorTypeName());
+    m_targets.uiCapability()->setUiTreeChildrenHidden(true);
+    m_targets.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::TOP);
+    m_targets.uiCapability()->setCustomContextMenuEnabled(true);
+
+    this->setUi3dEditorTypeName(RicPolyline3dEditor::uiEditorTypeName());
+
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -64,12 +86,24 @@ RimUserDefinedPolylinesAnnotation::~RimUserDefinedPolylinesAnnotation()
 //--------------------------------------------------------------------------------------------------
 cvf::ref<RigPolyLinesData> RimUserDefinedPolylinesAnnotation::polyLinesData()
 {
-    cvf::ref<RigPolyLinesData> pld = new RigPolyLinesData; 
-    std::vector<std::vector<cvf::Vec3d> > lines; 
-    lines.push_back(xydToXyzVector(m_pointsXyd()));
-    pld->setPolyLines(lines);
+    cvf::ref<RigPolyLinesData> pld = new RigPolyLinesData;
+    std::vector<cvf::Vec3d> line;
+    std::vector<std::vector<cvf::Vec3d> > lines;
+    for (const RimPolylineTarget* target : m_targets)
+    {
+        line.push_back(target->targetPointXYZ());
+    }
+    pld->setPolyLines({ line });
 
     return pld;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimPolylineTarget*> RimUserDefinedPolylinesAnnotation::activeTargets() const
+{
+    return m_targets.childObjects();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -77,7 +111,106 @@ cvf::ref<RigPolyLinesData> RimUserDefinedPolylinesAnnotation::polyLinesData()
 //--------------------------------------------------------------------------------------------------
 bool RimUserDefinedPolylinesAnnotation::isEmpty()
 {
-    return m_pointsXyd().empty();
+    return m_targets.empty();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimUserDefinedPolylinesAnnotation::appendTarget()
+{
+    RimPolylineTarget* wellPathTarget = nullptr;
+
+    auto targets = m_targets.childObjects();
+    if (targets.empty())
+    {
+        wellPathTarget = new RimPolylineTarget();
+    }
+    else
+    {
+        wellPathTarget = dynamic_cast<RimPolylineTarget*>(
+            targets.back()->xmlCapability()->copyByXmlSerialization(caf::PdmDefaultObjectFactory::instance()));
+    }
+
+    if (wellPathTarget)
+    {
+        m_targets.push_back(wellPathTarget);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimUserDefinedPolylinesAnnotation::insertTarget(const RimPolylineTarget* targetToInsertBefore,
+                                                     RimPolylineTarget*       targetToInsert)
+{
+    size_t index = m_targets.index(targetToInsertBefore);
+    if (index < m_targets.size())
+        m_targets.insert(index, targetToInsert);
+    else
+        m_targets.push_back(targetToInsert);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimUserDefinedPolylinesAnnotation::deleteTarget(RimPolylineTarget* targetTodelete)
+{
+    m_targets.removeChildObject(targetTodelete);
+    delete targetTodelete;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::pair<RimPolylineTarget*, RimPolylineTarget*>
+    RimUserDefinedPolylinesAnnotation::findActiveTargetsAroundInsertionPoint(const RimPolylineTarget* targetToInsertBefore)
+{
+    RimPolylineTarget* before = nullptr;
+    RimPolylineTarget* after  = nullptr;
+
+    bool foundTarget = false;
+    for (const auto& wt : m_targets)
+    {
+        if (wt == targetToInsertBefore)
+        {
+            foundTarget = true;
+        }
+
+        if (wt->isEnabled() && !after && foundTarget) after = wt;
+
+        if (wt->isEnabled() && !foundTarget) before = wt;
+    }
+
+    return {before, after};
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimUserDefinedPolylinesAnnotation::updateVisualization()
+{
+    RimAnnotationCollection* annColl = nullptr;
+    this->firstAncestorOrThisOfTypeAsserted(annColl);
+
+    annColl->scheduleRedrawOfRelevantViews();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimUserDefinedPolylinesAnnotation::enablePicking(bool enable)
+{
+    m_enablePicking = enable;
+    if (enable)
+    {
+        RiuViewerCommands::setPickEventHandler(m_pickTargetsEventHandler);
+    }
+    else
+    {
+        RiuViewerCommands::removePickEventHandlerIfActive(m_pickTargetsEventHandler);
+    }
+    updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -85,7 +218,8 @@ bool RimUserDefinedPolylinesAnnotation::isEmpty()
 //--------------------------------------------------------------------------------------------------
 void RimUserDefinedPolylinesAnnotation::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
-    uiOrdering.add(&m_pointsXyd);
+    uiOrdering.add(&m_targets);
+    uiOrdering.add(&m_enablePicking);
 
     auto appearanceGroup = uiOrdering.addNewGroup("Line Appearance");
     appearance()->uiOrdering(uiConfigName, *appearanceGroup);
@@ -100,10 +234,65 @@ void RimUserDefinedPolylinesAnnotation::fieldChangedByUi(const caf::PdmFieldHand
                                                          const QVariant&            oldValue,
                                                          const QVariant&            newValue)
 {
-    RimAnnotationCollection* annColl = nullptr;
-    this->firstAncestorOrThisOfTypeAsserted(annColl);
+    if (changedField == &m_enablePicking)
+    {
+        enablePicking(m_enablePicking);
+    }
 
-    annColl->scheduleRedrawOfRelevantViews();
+    updateVisualization();
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimUserDefinedPolylinesAnnotation::defineCustomContextMenu(const caf::PdmFieldHandle* fieldNeedingMenu,
+                                                                QMenu*                     menu,
+                                                                QWidget*                   fieldEditorWidget)
+{
+    caf::CmdFeatureMenuBuilder menuBuilder;
 
+    menuBuilder << "RicNewPolylineTargetFeature";
+    menuBuilder << "Separator";
+    menuBuilder << "RicDeletePolylineTargetFeature";
+
+    menuBuilder.appendToMenu(menu);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimUserDefinedPolylinesAnnotation::defineEditorAttribute(const caf::PdmFieldHandle* field,
+                                                              QString                    uiConfigName,
+                                                              caf::PdmUiEditorAttribute* attribute)
+{
+    if (field == &m_enablePicking)
+    {
+        auto* pbAttribute = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>(attribute);
+        if (pbAttribute)
+        {
+            if (!m_enablePicking)
+            {
+                pbAttribute->m_buttonText = "Start Picking Points";
+            }
+            else
+            {
+                pbAttribute->m_buttonText = "Stop Picking Points";
+            }
+        }
+    }
+
+    if (field == &m_targets)
+    {
+        auto tvAttribute = dynamic_cast<caf::PdmUiTableViewEditorAttribute*>(attribute);
+        if (tvAttribute)
+        {
+            tvAttribute->resizePolicy = caf::PdmUiTableViewEditorAttribute::RESIZE_TO_FIT_CONTENT;
+
+            if (m_enablePicking)
+            {
+                tvAttribute->baseColor.setRgb(255, 220, 255);
+                tvAttribute->alwaysEnforceResizePolicy = true;
+            }
+        }
+    }
+}

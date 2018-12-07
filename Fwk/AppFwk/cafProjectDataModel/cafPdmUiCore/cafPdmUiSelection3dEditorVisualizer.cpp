@@ -62,7 +62,7 @@ PdmUiSelection3dEditorVisualizer::PdmUiSelection3dEditorVisualizer(QWidget* owne
 //--------------------------------------------------------------------------------------------------
 PdmUiSelection3dEditorVisualizer::~PdmUiSelection3dEditorVisualizer()
 {
-    for (auto editor: m_active3DEditors)
+    for (const auto& editor: m_active3DEditors)
     {
         delete editor;
     }
@@ -73,7 +73,7 @@ PdmUiSelection3dEditorVisualizer::~PdmUiSelection3dEditorVisualizer()
 //--------------------------------------------------------------------------------------------------
 void PdmUiSelection3dEditorVisualizer::updateVisibleEditors()
 {
-    for (auto editor: m_active3DEditors)
+    for (const auto& editor: m_active3DEditors)
     {
         if (editor) editor->updateUi();
     }
@@ -86,7 +86,7 @@ void PdmUiSelection3dEditorVisualizer::onSelectionManagerSelectionChanged( const
 {
     if (!changedSelectionLevels.count(0)) return;
 
-    for (auto editor: m_active3DEditors)
+    for (const auto& editor: m_active3DEditors)
     {
         delete editor;
     }
@@ -114,7 +114,7 @@ void PdmUiSelection3dEditorVisualizer::onSelectionManagerSelectionChanged( const
                 PdmUi3dObjectEditorHandle* editor3d = caf::Factory<PdmUi3dObjectEditorHandle, QString>::instance()->create(editor3dTypeName);
                 editor3d->setViewer(m_ownerViewer);
                 editor3d->setPdmObject(itemObject);
-                m_active3DEditors.push_back(editor3d);
+                m_active3DEditors.emplace_back(editor3d);
                 editor3d->updateUi();
             }
         }

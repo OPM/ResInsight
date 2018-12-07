@@ -63,6 +63,7 @@ void RicCreateUserDefinedPolylinesAnnotationFeature::onActionTriggered(bool isCh
         auto newAnnotation = new RimUserDefinedPolylinesAnnotation();
         auto newColor      = RiaColorTables::categoryPaletteColors().cycledColor3f(coll->lineBasedAnnotationsCount());
         newAnnotation->appearance()->setColor(newColor);
+        newAnnotation->enablePicking(true);
         coll->addAnnotation(newAnnotation);
         coll->updateConnectedEditors();
         RiuMainWindow::instance()->selectAsCurrentItem(newAnnotation);

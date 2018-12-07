@@ -81,7 +81,7 @@ void RivPolylineAnnotationPartMgr::buildPolylineAnnotationParts(const caf::Displ
 
         cvf::ref<cvf::DrawableGeo> drawableGeo = RivPolylineGenerator::createLineAlongPolylineDrawable(linesInDisplay);
         cvf::ref<cvf::Part> part = new cvf::Part;
-        //part->setName("RivAnnotationPartMgr: text " + cvfString);
+        part->setName("RivPolylineAnnotationPartMgr");
         part->setDrawable(drawableGeo.p());
 
         caf::MeshEffectGenerator effgen(lineColor);

@@ -20,6 +20,10 @@
 #include "RimPolylinesAnnotation.h"
 
 #include "cafPdmFieldCvfVec3d.h"
+#include "cafPdmChildArrayField.h"
+
+class RicPolylineTargetsPickEventHandler;
+class RimPolylineTarget;
 
 //==================================================================================================
 ///
@@ -38,14 +42,33 @@ public:
     ~RimUserDefinedPolylinesAnnotation();
 
     cvf::ref<RigPolyLinesData>  polyLinesData() override;
+    std::vector<RimPolylineTarget*> activeTargets() const;
     virtual bool isEmpty() override;
+
+    void appendTarget();
+    void insertTarget(const RimPolylineTarget* targetToInsertBefore, RimPolylineTarget* targetToInsert);
+    void deleteTarget(RimPolylineTarget* targetTodelete);
+
+    std::pair<RimPolylineTarget*, RimPolylineTarget*>
+        findActiveTargetsAroundInsertionPoint(const RimPolylineTarget* targetToInsertBefore);
+    void updateVisualization();
+
+    void enablePicking(bool enable);
 
 protected:
     void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
     void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
 
 private:
-    caf::PdmField<std::vector<Vec3d>>   m_pointsXyd;
+    void defineCustomContextMenu(const caf::PdmFieldHandle* fieldNeedingMenu, QMenu* menu, QWidget* fieldEditorWidget) override;
+    void defineEditorAttribute(const caf::PdmFieldHandle* field,
+                               QString                    uiConfigName,
+                               caf::PdmUiEditorAttribute* attribute) override;
+
+private:
+    caf::PdmField<bool>                         m_enablePicking;
+    caf::PdmChildArrayField<RimPolylineTarget*> m_targets;
+    RicPolylineTargetsPickEventHandler*         m_pickTargetsEventHandler;
 };
 
 
