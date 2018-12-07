@@ -64,72 +64,24 @@ bool RicPolylineTargetsPickEventHandler::handlePickEvent(const Ric3DPickEvent& e
 {
     if (!caf::SelectionManager::instance()->isSelected(m_polylineDef.p(), 0))
     {
-        //m_geometryToAddTargetsTo->enableTargetPointPicking(false);
-
         return false;
     }
 
     if (m_polylineDef)
     {
         Rim3dView* rimView             = eventObject.m_view;
-        cvf::Vec3d targetPointInDomain = cvf::Vec3d::ZERO;
 
-        // If clicked on an other well path, snap target point to well path center line
-        auto firstPickItem      = eventObject.m_pickItemInfos.front();
-        auto wellPathSourceInfo = dynamic_cast<const RivPolylinesAnnotationSourceInfo*>(firstPickItem.sourceInfo());
-
-        auto intersectionPointInDomain =
-            rimView->displayCoordTransform()->transformToDomainCoord(firstPickItem.globalPickedPoint());
-        bool   doSetAzimuthAndInclination = false;
-        double azimuth                    = 0.0;
-        double inclination                = 0.0;
-
-        if (wellPathSourceInfo)
-        {
-            //targetPointInDomain =
-            //    wellPathSourceInfo->closestPointOnCenterLine(firstPickItem.faceIdx(), intersectionPointInDomain);
-
-            //double md                  = wellPathSourceInfo->measuredDepth(firstPickItem.faceIdx(), intersectionPointInDomain);
-            //doSetAzimuthAndInclination = calculateAzimuthAndInclinationAtMd(
-            //    md, wellPathSourceInfo->wellPath()->wellPathGeometry(), &azimuth, &inclination);
-        }
-        else
-        {
-            targetPointInDomain        = intersectionPointInDomain;
-            doSetAzimuthAndInclination = false;
-        }
-
-        //if (!m_polylineDef->firstActiveTarget())
-        //{
-        //    m_geometryToAddTargetsTo->setReferencePointXyz(targetPointInDomain);
-
-        //    if (wellPathSourceInfo)
-        //    {
-        //        double mdrkbAtFirstTarget = wellPathSourceInfo->measuredDepth(firstPickItem.faceIdx(), intersectionPointInDomain);
-
-        //        RimModeledWellPath* modeledWellPath = dynamic_cast<RimModeledWellPath*>(wellPathSourceInfo->wellPath());
-        //        if (modeledWellPath)
-        //        {
-        //            mdrkbAtFirstTarget += modeledWellPath->geometryDefinition()->mdrkbAtFirstTarget();
-        //        }
-
-        //        m_geometryToAddTargetsTo->setMdrkbAtFirstTarget(mdrkbAtFirstTarget);
-        //    }
-        //}
-
-        //cvf::Vec3d referencePoint     = m_polylineDef->referencePointXyz();
-        //cvf::Vec3d relativeTagetPoint = targetPointInDomain - referencePoint;
+        auto firstPickItem       = eventObject.m_pickItemInfos.front();
+        auto targetPointInDomain = rimView->displayCoordTransform()->transformToDomainCoord(firstPickItem.globalPickedPoint());
 
         auto* newTarget = new RimPolylineTarget();
-
-        newTarget->setAsPointTargetXYD(cvf::Vec3d(intersectionPointInDomain.x(), intersectionPointInDomain.y(), -intersectionPointInDomain.z()));
+        newTarget->setAsPointTargetXYD(cvf::Vec3d(targetPointInDomain.x(), targetPointInDomain.y(), -targetPointInDomain.z()));
 
         m_polylineDef->insertTarget(nullptr, newTarget);
-
         m_polylineDef->updateConnectedEditors();
         m_polylineDef->updateVisualization();
 
-        return true; // Todo: See if we really should eat the event instead
+        return true;
     }
 
     return false;
