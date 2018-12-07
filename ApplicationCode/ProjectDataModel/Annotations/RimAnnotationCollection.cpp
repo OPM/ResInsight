@@ -186,6 +186,8 @@ RimPolylinesFromFileAnnotation* RimAnnotationCollection::importOrUpdatePolylines
         ++newLinesIdx;
     }
 
+    updateViewAnnotationCollections();
+
     reloadPolylinesFromFile(polyLinesObjsToReload);
 
     if (!newFileNames.empty())
