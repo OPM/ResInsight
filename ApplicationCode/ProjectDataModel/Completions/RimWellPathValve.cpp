@@ -84,8 +84,10 @@ void RimWellPathValve::setMeasuredDepthAndCount(double startMD, double spacing, 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellPathValve::geometryUpdated()
+void RimWellPathValve::multipleValveGeometryUpdated()
 {
+    if (m_multipleValveLocations->valveLocations().empty()) return;
+
     m_measuredDepth = m_multipleValveLocations->valveLocations().front();
 
     RimProject* proj;

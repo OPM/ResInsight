@@ -144,9 +144,13 @@ void RimMultipleValveLocations::computeRangesAndLocations()
                 double firstWellPathMD = rigWellPathGeo->m_measuredDepths.front();
                 double lastWellPathMD = rigWellPathGeo->m_measuredDepths.back();
 
-                for (auto md : locationsFromStartSpacingAndCount(m_rangeStart, m_rangeValveSpacing, m_rangeValveCount))
+                double overlapStart = std::max(firstWellPathMD, m_rangeStart());
+                double overlapEnd   = std::min(lastWellPathMD, m_rangeEnd());
+                double overlap      = std::max(0.0, overlapEnd - overlapStart);
+
+                if (overlap)
                 {
-                    if (md >= firstWellPathMD && md <= lastWellPathMD)
+                    for (auto md : locationsFromStartSpacingAndCount(overlapStart, m_rangeValveSpacing, m_rangeValveCount))
                     {
                         validMeasuredDepths.push_back(md);
                     }
@@ -333,7 +337,7 @@ void RimMultipleValveLocations::fieldChangedByUi(const caf::PdmFieldHandle* chan
             }
             else if (valve)
             {
-                valve->geometryUpdated();
+                valve->multipleValveGeometryUpdated();
             }
             
         }

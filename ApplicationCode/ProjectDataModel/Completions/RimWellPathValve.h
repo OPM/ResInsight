@@ -45,7 +45,7 @@ public:
     ~RimWellPathValve() override;
 
     void                       setMeasuredDepthAndCount(double startMD, double spacing, int valveCount);
-    void                       geometryUpdated();
+    void                       multipleValveGeometryUpdated();
     std::vector<double>        valveLocations() const;
     double                     orificeDiameter(RiaEclipseUnitTools::UnitSystem unitSystem) const;
     double                     flowCoefficient() const;
