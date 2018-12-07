@@ -78,7 +78,7 @@ public:
     void setViewer(QWidget* ownerViewer);
 
 protected:
-    QWidget* ownerViewer() { return m_ownerViewer;}
+    QWidget* ownerViewer() const { return m_ownerViewer;}
 
 private:
 
