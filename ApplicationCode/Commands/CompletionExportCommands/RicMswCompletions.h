@@ -27,6 +27,8 @@
 #include <QString>
 #include <memory>
 
+class RimWellPathValve;
+
 //==================================================================================================
 /// 
 //==================================================================================================
@@ -70,7 +72,37 @@ public:
 //==================================================================================================
 ///
 //==================================================================================================
-class RicMswICD : public RicMswCompletion
+class RicMswFracture : public RicMswCompletion
+{
+public:
+    RicMswFracture(const QString& label, size_t index = cvf::UNDEFINED_SIZE_T, int branchNumber = cvf::UNDEFINED_INT);
+    RigCompletionData::CompletionType completionType() const override;
+};
+
+//==================================================================================================
+///
+//==================================================================================================
+class RicMswPerforation : public RicMswCompletion
+{
+public:
+    RicMswPerforation(const QString& label, size_t index = cvf::UNDEFINED_SIZE_T, int branchNumber = cvf::UNDEFINED_INT);
+    RigCompletionData::CompletionType completionType() const override;
+};
+
+//==================================================================================================
+///
+//==================================================================================================
+class RicMswValve : public RicMswCompletion
+{
+public:
+    RicMswValve(const QString& label, size_t index = cvf::UNDEFINED_SIZE_T, int branchNumber = cvf::UNDEFINED_INT);
+    virtual ~RicMswValve() {}
+};
+
+//==================================================================================================
+///
+//==================================================================================================
+class RicMswICD : public RicMswValve
 {
 public:
     RicMswICD(const QString& label, size_t index = cvf::UNDEFINED_SIZE_T, int branchNumber = cvf::UNDEFINED_INT);
@@ -96,31 +128,9 @@ public:
 //==================================================================================================
 ///
 //==================================================================================================
-class RicMswFracture : public RicMswCompletion
-{
-public:
-    RicMswFracture(const QString& label, size_t index = cvf::UNDEFINED_SIZE_T, int branchNumber = cvf::UNDEFINED_INT);
-    RigCompletionData::CompletionType completionType() const override;
-};
-
-//==================================================================================================
-///
-//==================================================================================================
-class RicMswPerforation : public RicMswCompletion
-{
-public:
-    RicMswPerforation(const QString& label, size_t index = cvf::UNDEFINED_SIZE_T, int branchNumber = cvf::UNDEFINED_INT);
-    RigCompletionData::CompletionType completionType() const override;
-};
-
-//==================================================================================================
-///
-//==================================================================================================
 class RicMswPerforationICD : public RicMswICD
 {
 public:
     RicMswPerforationICD(const QString& label, size_t index = cvf::UNDEFINED_SIZE_T, int branchNumber = cvf::UNDEFINED_INT);
     RigCompletionData::CompletionType completionType() const override;
 };
-
-

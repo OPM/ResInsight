@@ -17,7 +17,10 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RicMswCompletions.h"
+
 #include "RicMswSubSegment.h"
+
+#include "RimWellPathValve.h"
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -97,8 +100,54 @@ void RicMswCompletion::setLabel(const QString& label)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicMswICD::RicMswICD(const QString& label, size_t index /*= cvf::UNDEFINED_SIZE_T*/, int branchNumber /*= cvf::UNDEFINED_INT*/)
+RicMswFracture::RicMswFracture(const QString& label,
+                               size_t         index /*= cvf::UNDEFINED_SIZE_T*/,
+                               int            branchNumber /*= cvf::UNDEFINED_INT*/)
     : RicMswCompletion(label, index, branchNumber)
+{
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RigCompletionData::CompletionType RicMswFracture::completionType() const
+{
+    return RigCompletionData::FRACTURE;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RicMswPerforation::RicMswPerforation(const QString& label,
+                                     size_t         index /*= cvf::UNDEFINED_SIZE_T*/,
+                                     int            branchNumber /*= cvf::UNDEFINED_INT*/)
+    : RicMswCompletion(label, index, branchNumber)
+{
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RigCompletionData::CompletionType RicMswPerforation::completionType() const
+{
+    return RigCompletionData::PERFORATION;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RicMswValve::RicMswValve(const QString& label,
+                         size_t         index /*= cvf::UNDEFINED_SIZE_T*/,
+                         int            branchNumber /*= cvf::UNDEFINED_INT*/)
+    : RicMswCompletion(label, index, branchNumber)
+{
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RicMswICD::RicMswICD(const QString& label, size_t index /*= cvf::UNDEFINED_SIZE_T*/, int branchNumber /*= cvf::UNDEFINED_INT*/)
+    : RicMswValve(label, index, branchNumber)
     , m_flowCoefficient(0.0)
     , m_area(0.0)
 {
@@ -157,42 +206,6 @@ RigCompletionData::CompletionType RicMswFishbonesICD::completionType() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicMswFracture::RicMswFracture(const QString& label,
-                               size_t         index /*= cvf::UNDEFINED_SIZE_T*/,
-                               int            branchNumber /*= cvf::UNDEFINED_INT*/)
-    : RicMswCompletion(label, index, branchNumber)
-{
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RigCompletionData::CompletionType RicMswFracture::completionType() const
-{
-    return RigCompletionData::FRACTURE;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RicMswPerforation::RicMswPerforation(const QString& label,
-                                     size_t         index /*= cvf::UNDEFINED_SIZE_T*/,
-                                     int            branchNumber /*= cvf::UNDEFINED_INT*/)
-    : RicMswCompletion(label, index, branchNumber)
-{
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RigCompletionData::CompletionType RicMswPerforation::completionType() const
-{
-    return RigCompletionData::PERFORATION;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 RicMswPerforationICD::RicMswPerforationICD(const QString& label,
                                            size_t         index /*= cvf::UNDEFINED_SIZE_T*/,
                                            int            branchNumber /*= cvf::UNDEFINED_INT*/)
@@ -207,5 +220,3 @@ RigCompletionData::CompletionType RicMswPerforationICD::completionType() const
 {
     return RigCompletionData::PERFORATION_ICD;
 }
-
-

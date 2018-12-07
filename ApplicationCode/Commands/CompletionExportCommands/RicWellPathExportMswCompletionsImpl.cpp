@@ -24,6 +24,7 @@
 #include "RicExportCompletionDataSettingsUi.h"
 #include "RicExportFractureCompletionsImpl.h"
 #include "RicMswExportInfo.h"
+#include "RicMswValveAccumulators.h"
 #include "RicWellPathExportCompletionsFileTools.h"
 
 #include "RifEclipseDataTableFormatter.h"
@@ -1055,10 +1056,10 @@ void RicWellPathExportMswCompletionsImpl::assignValveContributionsToSuperValves(
     ValveContributionMap assignedRegularValves;
     for (std::shared_ptr<RicMswSegment> segment : mainBoreSegments)
     {
-        std::shared_ptr<RicMswPerforationICD> superValve;
+        std::shared_ptr<RicMswValve> superValve;
         for (auto completion : segment->completions())
         {
-            std::shared_ptr<RicMswPerforationICD> valve = std::dynamic_pointer_cast<RicMswPerforationICD>(completion);
+            std::shared_ptr<RicMswValve> valve = std::dynamic_pointer_cast<RicMswValve>(completion);
             if (valve)
             {
                 superValve = valve;
@@ -1068,8 +1069,11 @@ void RicWellPathExportMswCompletionsImpl::assignValveContributionsToSuperValves(
 
         if (!superValve) continue;
 
-        double                            totalIcdArea = 0.0;
-        RiaWeightedMeanCalculator<double> coeffMeanCalc;
+        std::shared_ptr<RicMswValveAccumulator> accumulator;
+        if (std::dynamic_pointer_cast<const RicMswPerforationICD>(superValve))
+        {
+            accumulator.reset(new RicMswICDAccumulator(unitSystem));
+        }
 
         for (const RimPerforationInterval* interval : perforationIntervals)
         {
@@ -1086,21 +1090,17 @@ void RicWellPathExportMswCompletionsImpl::assignValveContributionsToSuperValves(
                     double                    overlapEnd         = std::min(valveSegment.second, segment->endMD());
                     double                    overlap            = std::max(0.0, overlapEnd - overlapStart);
 
-                    if (overlap > 0.0)
+                    if (overlap > 0.0 && accumulator)
                     {
                         assignedRegularValves[superValve].insert(std::make_pair(valve, nSubValve));
-                        double icdOrificeRadius = valve->orificeDiameter(unitSystem) / 2;
-                        double icdArea          = icdOrificeRadius * icdOrificeRadius * cvf::PI_D * overlap / valveSegmentLength;
-                        totalIcdArea += icdArea;
-                        coeffMeanCalc.addValueAndWeight(valve->flowCoefficient(), icdArea);
+                        accumulator->accumulateValveParameters(valve, overlap / valveSegmentLength);
                     }
                 }
             }
         }
-        superValve->setArea(totalIcdArea);
-        if (coeffMeanCalc.validAggregatedWeight())
+        if (superValve && accumulator)
         {
-            superValve->setFlowCoefficient(coeffMeanCalc.weightedMean());
+            accumulator->applyToSuperValve(superValve);
         }
     }
 
