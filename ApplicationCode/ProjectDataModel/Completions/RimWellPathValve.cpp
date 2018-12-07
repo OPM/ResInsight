@@ -153,6 +153,14 @@ void RimWellPathValve::setUnitSpecificDefaults()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+const RimWellPathAicdParameters* RimWellPathValve::aicdParameters() const
+{
+    return m_aicdParameters();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 double RimWellPathValve::convertOrificeDiameter(double                          orificeDiameterWellPathUnits,
                                                 RiaEclipseUnitTools::UnitSystem wellPathUnits,
                                                 RiaEclipseUnitTools::UnitSystem unitSystem)

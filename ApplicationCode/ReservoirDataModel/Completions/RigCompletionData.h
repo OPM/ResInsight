@@ -68,6 +68,7 @@ public:
         PERFORATION,
         FISHBONES_ICD,
         PERFORATION_ICD,
+        PERFORATION_AICD,
         CT_UNDEFINED
     };
 

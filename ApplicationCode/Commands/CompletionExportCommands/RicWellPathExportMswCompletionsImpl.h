@@ -54,48 +54,47 @@ public:
                                                   int                                               timeStep,
                                                   const std::vector<const RimPerforationInterval*>& perforationIntervals);
 
-    static RicMswExportInfo               generateFishbonesMswExportInfo(const RimEclipseCase* caseToApply,
-                                                                         const RimWellPath*    wellPath,
-                                                                         bool                  enableSegmentSplitting);
+    static RicMswExportInfo generateFishbonesMswExportInfo(const RimEclipseCase* caseToApply,
+                                                           const RimWellPath*    wellPath,
+                                                           bool                  enableSegmentSplitting);
 
 private:
-    static RicMswExportInfo               generateFishbonesMswExportInfo(const RimEclipseCase*                         caseToApply,
-                                                                         const RimWellPath*                            wellPath,
-                                                                         const std::vector<RimFishbonesMultipleSubs*>& fishbonesSubs,
-                                                                         bool                                          enableSegmentSplitting);
+    static RicMswExportInfo generateFishbonesMswExportInfo(const RimEclipseCase*                         caseToApply,
+                                                           const RimWellPath*                            wellPath,
+                                                           const std::vector<RimFishbonesMultipleSubs*>& fishbonesSubs,
+                                                           bool                                          enableSegmentSplitting);
 
-    static RicMswExportInfo               generateFracturesMswExportInfo(RimEclipseCase*    caseToApply,
-                                                                         const RimWellPath* wellPath);
+    static RicMswExportInfo generateFracturesMswExportInfo(RimEclipseCase* caseToApply, const RimWellPath* wellPath);
 
-    static RicMswExportInfo               generateFracturesMswExportInfo(RimEclipseCase*                          caseToApply,
-                                                                         const RimWellPath*                       wellPath,
-                                                                         const std::vector<RimWellPathFracture*>& fractures);
+    static RicMswExportInfo generateFracturesMswExportInfo(RimEclipseCase*                          caseToApply,
+                                                           const RimWellPath*                       wellPath,
+                                                           const std::vector<RimWellPathFracture*>& fractures);
 
-    static RicMswExportInfo               generatePerforationsMswExportInfo(RimEclipseCase*                                   eclipseCase,
-                                                                            const RimWellPath*                                wellPath,
-                                                                            int                                               timeStep,
-                                                                            const std::vector<const RimPerforationInterval*>& perforationIntervals);
+    static RicMswExportInfo
+        generatePerforationsMswExportInfo(RimEclipseCase*                                   eclipseCase,
+                                          const RimWellPath*                                wellPath,
+                                          int                                               timeStep,
+                                          const std::vector<const RimPerforationInterval*>& perforationIntervals);
 
-    static void                           generateWelsegsTable(RifEclipseDataTableFormatter& formatter,
-                                                               const RicMswExportInfo& exportInfo);
+    static void generateWelsegsTable(RifEclipseDataTableFormatter& formatter, const RicMswExportInfo& exportInfo);
 
-    static void                           generateWelsegsSegments(RifEclipseDataTableFormatter &formatter,
-                                                                  const RicMswExportInfo &exportInfo,
-                                                                  const std::set<RigCompletionData::CompletionType>& exportCompletionTypes);
-    static void                           generateWelsegsCompletionCommentHeader(RifEclipseDataTableFormatter &formatter,
-                                                                                 RigCompletionData::CompletionType completionType);
-    static void                           generateCompsegTables(RifEclipseDataTableFormatter& formatter,
-                                                                const RicMswExportInfo& exportInfo);
-    static void                           generateCompsegTable(RifEclipseDataTableFormatter& formatter,
-                                                               const RicMswExportInfo& exportInfo,
-                                                               bool exportSubGridIntersections,
-                                                               const std::set<RigCompletionData::CompletionType>& exportCompletionTypes);
-    static void                           generateCompsegHeader(RifEclipseDataTableFormatter&     formatter,
-                                                                const RicMswExportInfo&           exportInfo,
-                                                                RigCompletionData::CompletionType completionType,
-                                                                bool                              exportSubGridIntersections);
-    static void                           generateWsegvalvTable(RifEclipseDataTableFormatter& formatter,
-                                                                const RicMswExportInfo& exportInfo);
+    static void generateWelsegsSegments(RifEclipseDataTableFormatter&                      formatter,
+                                        const RicMswExportInfo&                            exportInfo,
+                                        const std::set<RigCompletionData::CompletionType>& exportCompletionTypes);
+    static void generateWelsegsCompletionCommentHeader(RifEclipseDataTableFormatter&     formatter,
+                                                       RigCompletionData::CompletionType completionType);
+    static void generateCompsegTables(RifEclipseDataTableFormatter& formatter, const RicMswExportInfo& exportInfo);
+    static void generateCompsegTable(RifEclipseDataTableFormatter&                      formatter,
+                                     const RicMswExportInfo&                            exportInfo,
+                                     bool                                               exportSubGridIntersections,
+                                     const std::set<RigCompletionData::CompletionType>& exportCompletionTypes);
+    static void generateCompsegHeader(RifEclipseDataTableFormatter&     formatter,
+                                      const RicMswExportInfo&           exportInfo,
+                                      RigCompletionData::CompletionType completionType,
+                                      bool                              exportSubGridIntersections);
+    static void generateWsegvalvTable(RifEclipseDataTableFormatter& formatter, const RicMswExportInfo& exportInfo);
+    static void generateWsegAicdTable(RifEclipseDataTableFormatter& formatter, const RicMswExportInfo& exportInfo);
+
 private:
     typedef std::vector<std::shared_ptr<RicMswSegment>> MainBoreSegments;
     typedef std::map<std::shared_ptr<RicMswCompletion>, std::set<std::pair<const RimWellPathValve*, size_t>>>

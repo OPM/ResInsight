@@ -21,6 +21,8 @@
 
 #include "RigCompletionData.h"
 
+#include "RimWellPathAicdParameters.h"
+
 #include "cvfBase.h"
 #include "cvfMath.h"
 
@@ -133,4 +135,27 @@ class RicMswPerforationICD : public RicMswICD
 public:
     RicMswPerforationICD(const QString& label, size_t index = cvf::UNDEFINED_SIZE_T, int branchNumber = cvf::UNDEFINED_INT);
     RigCompletionData::CompletionType completionType() const override;
+};
+
+//==================================================================================================
+///
+//==================================================================================================
+class RicMswPerforationAICD : public RicMswValve
+{
+public:
+    RicMswPerforationAICD(const QString& label, size_t index = cvf::UNDEFINED_SIZE_T, int branchNumber = cvf::UNDEFINED_INT);
+    RigCompletionData::CompletionType completionType() const override;
+
+    bool isValid() const;
+    void setIsValid(bool valid);
+    bool isOpen() const;
+    void setIsOpen(bool deviceOpen);
+
+    const std::array<double, AICD_NUM_PARAMS>& values() const;
+    std::array<double, AICD_NUM_PARAMS>&       values();
+
+private:
+    bool                                m_valid;
+    bool                                m_deviceOpen;
+    std::array<double, AICD_NUM_PARAMS> m_parameters;
 };

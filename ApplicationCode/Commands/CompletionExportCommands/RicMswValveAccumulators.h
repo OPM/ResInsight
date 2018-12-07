@@ -19,7 +19,9 @@
 
 #include "RiaEclipseUnitTools.h"
 #include "RiaWeightedMeanCalculator.h"
+#include "RimWellPathAicdParameters.h"
 
+#include <array>
 #include <memory>
 
 class RimWellPathValve;
@@ -32,7 +34,7 @@ class RicMswValveAccumulator
 {
 public:
     RicMswValveAccumulator(RiaEclipseUnitTools::UnitSystem unitSystem) : m_unitSystem(unitSystem) {}
-    virtual void accumulateValveParameters(const RimWellPathValve* wellPathValve, double contributionFraction) = 0;
+    virtual bool accumulateValveParameters(const RimWellPathValve* wellPathValve, double contributionFraction) = 0;
     virtual void applyToSuperValve(std::shared_ptr<RicMswValve> valve) = 0;
 
 protected:
@@ -46,7 +48,7 @@ class RicMswICDAccumulator : public RicMswValveAccumulator
 {
 public:
     RicMswICDAccumulator(RiaEclipseUnitTools::UnitSystem unitSystem);
-    void accumulateValveParameters(const RimWellPathValve* wellPathValve, double contributionFraction) override;
+    bool accumulateValveParameters(const RimWellPathValve* wellPathValve, double contributionFraction) override;
     void applyToSuperValve(std::shared_ptr<RicMswValve> valve) override;
 
 private:
@@ -54,4 +56,18 @@ private:
     double                            m_areaSum;
 };
 
+//==================================================================================================
+///
+//==================================================================================================
+class RicMswAICDAccumulator : public RicMswValveAccumulator
+{
+public:
+    RicMswAICDAccumulator(RiaEclipseUnitTools::UnitSystem unitSystem);
+    bool accumulateValveParameters(const RimWellPathValve* wellPathValve, double contributionFraction) override;
+    void applyToSuperValve(std::shared_ptr<RicMswValve> valve) override;
 
+private:
+    bool m_valid;
+    bool m_deviceOpen;
+    std::array<RiaWeightedMeanCalculator<double>, AICD_NUM_PARAMS> m_meanCalculators;
+};

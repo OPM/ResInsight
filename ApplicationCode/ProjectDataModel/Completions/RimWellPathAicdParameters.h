@@ -21,6 +21,30 @@
 #include "cafPdmObject.h"
 #include "cafPdmField.h"
 
+#include <array>
+
+enum AICDParameters
+{
+    AICD_STRENGTH = 0,
+    AICD_DENSITY_CALIB_FLUID,
+    AICD_VISCOSITY_CALIB_FLUID,
+    AICD_VOL_FLOW_EXP,
+    AICD_VISOSITY_FUNC_EXP,
+    AICD_NUM_REQ_PARAMS,
+    AICD_LENGTH = AICD_NUM_REQ_PARAMS,
+    AICD_CRITICAL_WATER_IN_LIQUID_FRAC,
+    AICD_EMULSION_VISC_TRANS_REGION,
+    AICD_MAX_RATIO_EMULSION_VISC,
+    AICD_MAX_FLOW_RATE,
+    AICD_EXP_OIL_FRAC_DENSITY,
+    AICD_EXP_WATER_FRAC_DENSITY,
+    AICD_EXP_GAS_FRAC_DENSITY,
+    AICD_EXP_OIL_FRAC_VISCOSITY,
+    AICD_EXP_WATER_FRAC_VISCOSITY,
+    AICD_EXP_GAS_FRAC_VISCOSITY,
+    AICD_NUM_PARAMS
+};
+
 class RimWellPathAicdParameters : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
@@ -29,6 +53,8 @@ public:
     ~RimWellPathAicdParameters();
     bool isValid() const;
 
+    bool isOpen() const;
+    std::array<double, AICD_NUM_PARAMS> doubleValues() const;
 protected:
     void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
     void defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override;
@@ -38,27 +64,8 @@ private:
     void setUnitLabels();
     bool isMetric() const;
 private:
-    // Required parameters
-    caf::PdmField<QString>  m_strengthOfAICD;
-    caf::PdmField<QString>  m_densityOfCalibrationFluid;
-    caf::PdmField<QString>  m_viscosityOfCalibrationFluid;
-    caf::PdmField<QString>  m_volumeFlowRateExponent;
-    caf::PdmField<QString>  m_viscosityFunctionExponent;
+    caf::PdmField<bool> m_deviceOpen;
 
-    // Additional parameters
-    caf::PdmField<bool>    m_deviceOpen;
-    caf::PdmField<double>  m_lengthOfAICD;
-
-    caf::PdmField<QString> m_criticalWaterInLiquidFractionEmulsions;
-    caf::PdmField<QString> m_emulsionViscosityTransitionRegion;
-    caf::PdmField<QString> m_maxRatioOfEmulsionVisc;
-    caf::PdmField<QString> m_maxFlowRate;
-    caf::PdmField<QString> m_exponentOilFractionInDensityMixCalc;
-    caf::PdmField<QString> m_exponentWaterFractionInDensityMixCalc;
-    caf::PdmField<QString> m_exponentGasFractionInDensityMixCalc;
-    caf::PdmField<QString> m_exponentOilFractionInViscosityMixCalc;
-    caf::PdmField<QString> m_exponentWaterFractionInViscosityMixCalc;
-    caf::PdmField<QString> m_exponentGasFractionInViscosityMixCalc;
-
+    std::array<caf::PdmField<QString>, AICD_NUM_PARAMS> m_aicdParameterFields;
 };
 

@@ -51,6 +51,8 @@ public:
     double                     flowCoefficient() const;
     void                       setUnitSpecificDefaults();
 
+    const RimWellPathAicdParameters* aicdParameters() const;
+
     static double convertOrificeDiameter(double                          orificeDiameterUi,
                                          RiaEclipseUnitTools::UnitSystem wellPathUnitSystem,
                                          RiaEclipseUnitTools::UnitSystem wantedUnitSystem);
