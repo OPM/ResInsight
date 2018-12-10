@@ -7,7 +7,10 @@ if (MSVC)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4267")
 endif()
 
-find_package(Qt5Core CONFIG QUIET)
+if (RESINSIGHT_BUILD_WITH_QT5)
+	find_package(Qt5 COMPONENTS Core QUIET)
+endif(RESINSIGHT_BUILD_WITH_QT5)
+
 if (Qt5Core_FOUND)
 	find_package(Qt5 CONFIG REQUIRED Concurrent Core OpenGL PrintSupport Widgets)
 else()

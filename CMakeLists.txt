@@ -232,13 +232,20 @@ list(APPEND THIRD_PARTY_LIBRARIES
 ################################################################################
 # Qt
 ################################################################################
-find_package(Qt5Core CONFIG QUIET)
+if (RESINSIGHT_BUILD_WITH_QT5)
+	message(STATUS "Attempting to build with Qt5")
+	find_package(Qt5 COMPONENTS Core QUIET)
+else()
+	message(STATUS "Attempting to build with Qt4")
+endif(RESINSIGHT_BUILD_WITH_QT5)
 
 if (Qt5Core_FOUND)
     message(STATUS "Found Qt5")
 	find_package (Qt5 CONFIG REQUIRED Core Widgets OpenGL Network Script ScriptTools)
 else()
-	message(STATUS "No Qt5 found, trying Qt4")
+    if (RESINSIGHT_BUILD_WITH_QT5)
+		message("Could not find Qt5. Trying with Qt4")
+	endif(RESINSIGHT_BUILD_WITH_QT5)
 	find_package(Qt4 COMPONENTS QtCore QtGui QtMain REQUIRED)
     if (QT_VERSION_MINOR LESS 6)
     	message(FATAL_ERROR "Qt 4.6 is required, please specify qmake for variable QT_QMAKE_EXECUTABLE")

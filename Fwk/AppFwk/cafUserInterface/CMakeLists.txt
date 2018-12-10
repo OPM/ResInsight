@@ -8,7 +8,10 @@ endif (MSVC)
 project (cafUserInterface)
 
 # Qt
-find_package(Qt5 COMPONENTS Core QUIET)
+if (RESINSIGHT_BUILD_WITH_QT5)
+	find_package(Qt5 COMPONENTS Core QUIET)
+endif(RESINSIGHT_BUILD_WITH_QT5)
+
 if (Qt5Core_FOUND)
     find_package(Qt5 CONFIG REQUIRED Core Gui Widgets)
 else()

@@ -10,8 +10,10 @@ if (CMAKE_COMPILER_IS_GNUCXX)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}  -Wno-long-long")
 endif()
 
+if (RESINSIGHT_BUILD_WITH_QT5)
+	find_package(Qt5 COMPONENTS Core QUIET)
+endif(RESINSIGHT_BUILD_WITH_QT5)
 
-find_package(Qt5Core CONFIG QUIET)
 if (Qt5Core_FOUND)
 	find_package(Qt5 CONFIG REQUIRED Core Gui OpenGL Widgets)
 else()

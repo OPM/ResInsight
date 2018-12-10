@@ -5,7 +5,10 @@ project (ApplicationCode)
 # Open GL
 find_package( OpenGL )
 
-find_package(Qt5Core CONFIG QUIET)
+if (RESINSIGHT_BUILD_WITH_QT5)
+	find_package(Qt5 COMPONENTS Core QUIET)
+endif(RESINSIGHT_BUILD_WITH_QT5)
+
 if (Qt5Core_FOUND)
 	find_package(Qt5 CONFIG REQUIRED Core Gui OpenGL Network Script Widgets)
     set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::Network Qt5::OpenGL Qt5::Script Qt5::Widgets)

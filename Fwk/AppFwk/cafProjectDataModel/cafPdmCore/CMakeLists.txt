@@ -3,7 +3,10 @@ cmake_minimum_required (VERSION 2.8.12)
 project (cafPdmCore)
 
 # Qt
-find_package(Qt5Core CONFIG QUIET)
+if (RESINSIGHT_BUILD_WITH_QT5)
+	find_package(Qt5 COMPONENTS Core QUIET)
+endif(RESINSIGHT_BUILD_WITH_QT5)
+
 if (Qt5Core_FOUND)
 	find_package(Qt5 CONFIG REQUIRED Core)
 else()
