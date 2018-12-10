@@ -1125,7 +1125,9 @@ QFilePtr RicWellPathExportCompletionDataFeatureImpl::openFileForExport(const QSt
         }
     }
 
-    QString  filePath = exportFolder.filePath(fileName);
+    QString validFileName = caf::Utils::makeValidFileBasename(fileName);
+
+    QString  filePath = exportFolder.filePath(validFileName);
     QFilePtr exportFile(new QFile(filePath));
     if (!exportFile->open(QIODevice::WriteOnly | QIODevice::Text))
     {
