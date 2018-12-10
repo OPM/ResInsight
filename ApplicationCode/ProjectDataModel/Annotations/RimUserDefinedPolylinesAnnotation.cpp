@@ -32,6 +32,7 @@
 #include "cafPdmUiTableViewEditor.h"
 #include "cafCmdFeatureMenuBuilder.h"
 #include "cafPdmUiPushButtonEditor.h"
+#include "cafPdmUiTreeOrdering.h"
 
 //--------------------------------------------------------------------------------------------------
 /// Internal function
@@ -65,6 +66,7 @@ RimUserDefinedPolylinesAnnotation::RimUserDefinedPolylinesAnnotation()
 
     CAF_PDM_InitFieldNoDefault(&m_targets, "Targets", "Targets", "", "", "");
     m_targets.uiCapability()->setUiEditorTypeName(caf::PdmUiTableViewEditor::uiEditorTypeName());
+    //m_targets.uiCapability()->setUiTreeHidden(true);
     m_targets.uiCapability()->setUiTreeChildrenHidden(true);
     m_targets.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::TOP);
     m_targets.uiCapability()->setCustomContextMenuEnabled(true);
@@ -225,6 +227,14 @@ void RimUserDefinedPolylinesAnnotation::defineUiOrdering(QString uiConfigName, c
     appearance()->uiOrdering(uiConfigName, *appearanceGroup);
 
     uiOrdering.skipRemainingFields(true);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimUserDefinedPolylinesAnnotation::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName)
+{
+    uiTreeOrdering.skipRemainingChildren(true);
 }
 
 //--------------------------------------------------------------------------------------------------
