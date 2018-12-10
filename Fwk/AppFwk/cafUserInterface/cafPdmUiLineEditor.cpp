@@ -60,7 +60,6 @@
 namespace caf
 {
 
-CAF_PDM_UI_FIELD_EDITOR_SOURCE_INIT(PdmUiLineEditor);
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -259,5 +258,9 @@ void PdmUiLineEdit::keyPressEvent(QKeyEvent * event)
         }
     }
 }
+
+// Define at this location to avoid duplicate symbol definitions in 'cafPdmUiDefaultObjectEditor.cpp' in a cotire build. The
+// variables defined by the macro are prefixed by line numbers causing a crash if the macro is defined at the same line number.
+CAF_PDM_UI_FIELD_EDITOR_SOURCE_INIT(PdmUiLineEditor);
 
 } // end namespace caf
