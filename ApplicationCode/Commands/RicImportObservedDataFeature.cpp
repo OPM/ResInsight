@@ -26,7 +26,7 @@
 #include "RimProject.h"
 #include "RimSummaryObservedDataFile.h"
 
-#include "RiuMainPlotWindow.h"
+#include "RiuPlotMainWindowTools.h"
 
 #include "cafSelectionManager.h"
 
@@ -100,7 +100,8 @@ void RicImportObservedDataFeature::selectObservedDataFileInDialog()
         } while (retryImport);
     }
 
-    RiaApplication::instance()->getOrCreateAndShowMainPlotWindow()->selectAsCurrentItem(observedData);
+    RiuPlotMainWindowTools::showPlotMainWindow();
+    RiuPlotMainWindowTools::selectAsCurrentItem(observedData);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -130,6 +131,6 @@ void RicImportObservedDataFeature::onActionTriggered(bool isChecked)
 //--------------------------------------------------------------------------------------------------
 void RicImportObservedDataFeature::setupActionLook(QAction* actionToSetup)
 {
-    actionToSetup->setIcon(QIcon(":/Default.png"));
+    actionToSetup->setIcon(QIcon(":/ObservedDataFile16x16.png"));
     actionToSetup->setText("Import Observed Time History Data");
 }

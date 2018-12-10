@@ -37,11 +37,11 @@
 #include <cmath>
 
 //--------------------------------------------------------------------------------------------------
-// e	format as [-]9.9e[+|-]999
-// E	format as[-]9.9E[+| -]999
-// f	format as[-]9.9
-// g	use e or f format, whichever is the most concise
-// G	use E or f format, whichever is the most concise
+// e    format as [-]9.9e[+|-]999
+// E    format as[-]9.9E[+| -]999
+// f    format as[-]9.9
+// g    use e or f format, whichever is the most concise
+// G    use E or f format, whichever is the most concise
 
 //--------------------------------------------------------------------------------------------------
 class DecimalScaleDraw : public QwtScaleDraw
@@ -53,7 +53,7 @@ public:
         m_numberOfDecimals = numberOfDecimals;
     }
 
-    virtual QwtText label(double value) const override
+    QwtText label(double value) const override
     {
         if (qFuzzyCompare(scaledValue(value) + 1.0, 1.0))
             value = 0.0;
@@ -83,7 +83,7 @@ public:
         m_numberOfDecimals = numberOfDecimals;
     }
 
-    virtual QwtText label(double value) const override
+    QwtText label(double value) const override
     {
         if (qFuzzyCompare(scaledValue(value) + 1.0, 1.0))
             value = 0.0;
@@ -208,7 +208,11 @@ QString RimSummaryPlotYAxisFormatter::autoAxisTitle() const
         RifEclipseSummaryAddress sumAddress;
         std::string              unitText;
 
-        if (m_axisProperties->plotAxisType() == RiaDefines::PLOT_AXIS_BOTTOM)
+        if (rimCurve->summaryAddressY().category() == RifEclipseSummaryAddress::SUMMARY_ENSEMBLE_STATISTICS)
+        {
+            continue;
+        }
+        else if (m_axisProperties->plotAxisType() == RiaDefines::PLOT_AXIS_BOTTOM)
         {
             sumAddress = rimCurve->summaryAddressX();
             unitText   = rimCurve->unitNameX();
@@ -235,7 +239,7 @@ QString RimSummaryPlotYAxisFormatter::autoAxisTitle() const
             {
                 if (m_axisProperties->showDescription())
                 {
-                    quantityNameForDisplay = RiuSummaryVectorDescriptionMap::instance()->fieldInfo(quantityName);
+                    quantityNameForDisplay = RiuSummaryVectorDescriptionMap::instance()->vectorLongName(quantityName, true);
                 }
 
                 if (m_axisProperties->showAcronym())

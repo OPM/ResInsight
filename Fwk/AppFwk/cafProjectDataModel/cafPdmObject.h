@@ -139,8 +139,8 @@ namespace caf
 class PdmObject : public PdmObjectHandle, public PdmXmlObjectHandle, public PdmUiObjectHandle
 {
 public:
-    PdmObject() : PdmObjectHandle(), PdmUiObjectHandle(this, false), PdmXmlObjectHandle(this, false) {}
-    virtual ~PdmObject() {}
+    PdmObject() : PdmObjectHandle(), PdmXmlObjectHandle(this, false), PdmUiObjectHandle(this, false) {}
+    ~PdmObject() override {}
 
     /// Adds field to the internal data structure and sets the file keyword and Ui information 
     /// Consider this method private. Please use the CAF_PDM_InitField() macro instead

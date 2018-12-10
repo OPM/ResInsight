@@ -27,7 +27,7 @@
 #include "RimWellPathCompletions.h"
 #include "RimWellPathCollection.h"
 
-#include "RiuMainWindow.h"
+#include "Riu3DMainWindowTools.h"
 
 #include "cafSelectionManager.h"
 
@@ -60,7 +60,7 @@ void RicWellPathImportCompletionsFileFeature::onActionTriggered(bool isChecked)
     // Open dialog box to select well path files
     RiaApplication* app = RiaApplication::instance();
     QString defaultDir = app->lastUsedDialogDirectory("WELLPATH_DIR");
-    QStringList wellPathFilePaths = QFileDialog::getOpenFileNames(RiuMainWindow::instance(), "Import Well Path Completions", defaultDir, "Well Path Completions (*.json *.asc *.asci *.ascii *.dev);;All Files (*.*)");
+    QStringList wellPathFilePaths = QFileDialog::getOpenFileNames(Riu3DMainWindowTools::mainWindowWidget(), "Import Fishbone Laterals", defaultDir, "Well Path Laterals (*.json *.asc *.asci *.ascii *.dev);;All Files (*.*)");
 
     if (wellPathFilePaths.size() < 1) return;
 
@@ -78,7 +78,7 @@ void RicWellPathImportCompletionsFileFeature::onActionTriggered(bool isChecked)
 
     if (app->project())
     {
-        app->project()->createDisplayModelAndRedrawAllViews();
+        app->project()->scheduleCreateDisplayModelAndRedrawAllViews();
     }
 }
 
@@ -87,7 +87,7 @@ void RicWellPathImportCompletionsFileFeature::onActionTriggered(bool isChecked)
 //--------------------------------------------------------------------------------------------------
 void RicWellPathImportCompletionsFileFeature::setupActionLook(QAction* actionToSetup)
 {
-    actionToSetup->setText("Import Completions from File");
+    actionToSetup->setText("Import Fishbone Laterals");
     actionToSetup->setIcon(QIcon(":/FishBoneGroupFromFile16x16.png"));
 }
 

@@ -36,7 +36,7 @@ class RimGeoMechModels : public caf::PdmObject
 
 public:
     RimGeoMechModels(void);
-    virtual ~RimGeoMechModels(void);
+    ~RimGeoMechModels(void) override;
 
     caf::PdmChildArrayField<RimGeoMechCase*> cases;
 

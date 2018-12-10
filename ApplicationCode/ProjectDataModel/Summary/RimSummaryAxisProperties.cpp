@@ -83,6 +83,7 @@ RimSummaryAxisProperties::RimSummaryAxisProperties()
 
     numberOfDecimals.uiCapability()->setUiEditorTypeName(caf::PdmUiSliderEditor::uiEditorTypeName());
 
+    CAF_PDM_InitField(&m_isAutoZoom, "AutoZoom", true, "Set Range Automatically", "", "", "");
     CAF_PDM_InitField(&isLogarithmicScaleEnabled, "LogarithmicScale", false, "Logarithmic Scale", "", "", "");
 
     updateOptionSensitivity();
@@ -254,6 +255,22 @@ bool RimSummaryAxisProperties::showUnitText() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RimSummaryAxisProperties::isAutoZoom() const
+{
+    return m_isAutoZoom();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryAxisProperties::setAutoZoom(bool enableAutoZoom)
+{
+    m_isAutoZoom = enableAutoZoom;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RimSummaryAxisProperties::isActive() const
 {
     return m_isActive;
@@ -278,13 +295,13 @@ void RimSummaryAxisProperties::fieldChangedByUi(const caf::PdmFieldHandle* chang
         {
             if (visibleRangeMin > visibleRangeMax) visibleRangeMax = oldValue.toDouble();
 
-            rimSummaryPlot->disableAutoZoom();
+            m_isAutoZoom = false;
         }
         else if (changedField == &visibleRangeMin)
         {
             if (visibleRangeMin > visibleRangeMax) visibleRangeMin = oldValue.toDouble();
 
-            rimSummaryPlot->disableAutoZoom();
+            m_isAutoZoom = false;
         }
 
         if (changedField == &isLogarithmicScaleEnabled)

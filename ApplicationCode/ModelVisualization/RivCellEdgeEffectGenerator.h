@@ -113,11 +113,11 @@ public:
     void                            disableLighting(bool disable)           { m_disableLighting = disable; }
 
 protected:
-    virtual bool                    isEqual( const EffectGenerator* other ) const;
-    virtual EffectGenerator*        copy() const;
+    bool                    isEqual( const EffectGenerator* other ) const override;
+    EffectGenerator*        copy() const override;
 
-    virtual void                    updateForShaderBasedRendering(cvf::Effect* effect) const;
-    virtual void                    updateForFixedFunctionRendering(cvf::Effect* effect) const;
+    void                    updateForShaderBasedRendering(cvf::Effect* effect) const override;
+    void                    updateForFixedFunctionRendering(cvf::Effect* effect) const override;
 
 private:
     cvf::cref<cvf::ScalarMapper>        m_edgeScalarMapper;

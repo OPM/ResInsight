@@ -23,20 +23,25 @@
 #include "RiuMainWindowBase.h"
 
 #include "cafPdmUiDragDropInterface.h"
+#include "cafPdmObjectHandle.h"
 
 #include <QEvent>
-#include <QPointer>
+#include <QLabel>
 #include <QMdiArea>
+#include <QPointer>
 
 #include <memory>
 #include <vector>
 
 class QActionGroup;
 class QMdiSubWindow;
+class QToolButton;
 class QSpinBox;
+class QTimer;
 class QUndoView;
 
 class RimCase;
+class RimViewWindow;
 
 class RiuMessagePanel;
 class RiuProcessMonitor;
@@ -45,6 +50,7 @@ class RiuResultQwtPlot;
 class RiuViewer;
 class RiuRelativePermeabilityPlotPanel;
 class RiuPvtPlotPanel;
+class RiuMohrsCirclePlot;
 
 struct RimMdiWindowGeometry;
 
@@ -76,7 +82,7 @@ public:
 
     static RiuMainWindow* instance();
 
-    virtual QString mainWindowName()        { return "RiuMainWindow";  }
+    QString         mainWindowName() override;
     
     void            initializeGuiNewProjectLoaded();
     void            cleanupGuiCaseClose();
@@ -88,15 +94,14 @@ public:
 
     void            setResultInfo(const QString& info) const;
 
-    void            refreshAnimationActions();
+    void            refreshViewActions();
+    void            refreshAnimationActions();    
     void            updateScaleValue();
 
-    caf::PdmUiTreeView* projectTreeView() { return m_projectTreeView;}
     RiuProcessMonitor* processMonitor();
 
     void            hideAllDockWindows();
 
-    void            selectAsCurrentItem(const caf::PdmObject* object);
 
     void            selectedCases(std::vector<RimCase*>& cases);
 
@@ -106,22 +111,25 @@ public:
     
     void            setExpanded(const caf::PdmUiItem* uiItem, bool expanded = true);
 
-    RimMdiWindowGeometry    windowGeometryForViewer(QWidget* viewer);
+    RimMdiWindowGeometry    windowGeometryForViewer(QWidget* viewer) override;
 
     void            tileWindows();
     bool            isAnyMdiSubWindowVisible();
     QMdiSubWindow*  findMdiSubWindow(QWidget* viewer);
-	QList<QMdiSubWindow*> subWindowList(QMdiArea::WindowOrder order);
+    RimViewWindow*  findViewWindowFromSubWindow(QMdiSubWindow* lhs);
+    QList<QMdiSubWindow*> subWindowList(QMdiArea::WindowOrder order);
 
     RiuResultQwtPlot*                   resultPlot();
     RiuRelativePermeabilityPlotPanel*   relativePermeabilityPlotPanel();
     RiuPvtPlotPanel*                    pvtPlotPanel();
+    RiuMohrsCirclePlot*                 mohrsCirclePlot();
     RiuMessagePanel*                    messagePanel();
 
     void            showProcessMonitorDockPanel();
+    void            setDefaultToolbarVisibility();
 
 protected:
-    virtual void    closeEvent(QCloseEvent* event);
+    void    closeEvent(QCloseEvent* event) override;
 
 private:
     void            createActions();
@@ -132,6 +140,8 @@ private:
     void            restoreTreeViewState();
 
     void            showDockPanel(const QString& dockPanelName);
+
+    void            updateUiFieldsFromActiveResult(caf::PdmObjectHandle* objectToUpdate);
 
 private:
     static RiuMainWindow*    sm_mainWindowInstance;
@@ -172,16 +182,23 @@ private:
     QPointer<RiuMessagePanel>               m_messagePanel;
     
     RiuResultQwtPlot*                   m_resultQwtPlot;
+    RiuMohrsCirclePlot*                 m_mohrsCirclePlot;
     RiuRelativePermeabilityPlotPanel*   m_relPermPlotPanel;
     RiuPvtPlotPanel*                    m_pvtPlotPanel;
 
     QMenu*              m_windowMenu;
-
+    QLabel*             m_memoryCriticalWarning;
+    QToolButton*        m_memoryUsedButton;
+    QLabel*             m_memoryTotalStatus;
+    QTimer*             m_memoryRefreshTimer;
 
 // Menu and action slots
 private slots:
 
     friend class RiuMdiSubWindow;
+
+    // Memory update slot
+    void    updateMemoryUsage();
 
     // File slots
     void    slotRefreshFileActions();
@@ -200,17 +217,14 @@ private slots:
     void    slotViewFromBelow();
     void    slotScaleChanged(int scaleValue);
 
-    void slotDrawStyleChanged(QAction* activatedAction);
-    void slotToggleHideGridCellsAction(bool);
-    void slotToggleFaultLabelsAction(bool);
-    void slotDisableLightingAction(bool);
+    void    slotDrawStyleChanged(QAction* activatedAction);
+    void    slotToggleHideGridCellsAction(bool);
+    void    slotToggleFaultLabelsAction(bool);
+    void    slotDisableLightingAction(bool);
 
-    void slotShowWellCellsAction(bool doAdd);
+    void    slotShowWellCellsAction(bool doAdd);
 
     // Debug slots
-    void    slotUseShaders(bool enable);
-    void    slotShowPerformanceInfo(bool enable);
-    
     void    slotSnapshotAllViewsToFile();
 
     void    slotCreateCommandObject();
@@ -233,15 +247,10 @@ private slots:
     void    selectedObjectsChanged();
     void    customMenuRequested(const QPoint& pos);
 
-
-    // Animation slots
-    void    slotFramerateChanged(double frameRate);
-
     // Pdm System :
 public:
     void setPdmRoot(caf::PdmObject* pdmRoot);
 private:
-    caf::PdmUiTreeView*            m_projectTreeView;
     
     std::unique_ptr<caf::PdmUiDragDropInterface> m_dragDropInterface;
     
@@ -261,6 +270,8 @@ private:
     QAction*                    m_drawStyleFaultLinesSolidAction;
     QAction*                    m_drawStyleSurfOnlyAction;
     QAction*                    m_showWellCellsAction;
+
+    QToolBar*                   m_holoLensToolBar;
 
     std::vector<QPointer<QDockWidget> > additionalProjectViews;
 

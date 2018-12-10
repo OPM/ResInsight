@@ -50,7 +50,7 @@ void RicHelpAboutFeature::onActionTriggered(bool isChecked)
 {
     this->disableModelChangeContribution();
 
-    caf::AboutDialog dlg(NULL);
+    caf::AboutDialog dlg(nullptr);
 
     dlg.setApplicationName(RI_APPLICATION_NAME);
     dlg.setApplicationVersion(RiaApplication::getVersionStringApp(true));
@@ -71,9 +71,6 @@ void RicHelpAboutFeature::onActionTriggered(bool isChecked)
 #ifdef USE_HDF5
     activeFeatures += "  Souring";
 #endif
-#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
-    activeFeatures += "  Fractures";
-#endif
 
     if (!activeFeatures.isEmpty())
     {
@@ -90,6 +87,32 @@ void RicHelpAboutFeature::onActionTriggered(bool isChecked)
     dlg.addVersionEntry(" ", QString("   Qt ") + qVersion());
     dlg.addVersionEntry(" ", QString("   ") + caf::AboutDialog::versionStringForcurrentOpenGLContext());
     dlg.addVersionEntry(" ", caf::Viewer::isShadersSupported() ? "   Hardware OpenGL" : "   Software OpenGL");
+
+    if (RiaApplication::enableDevelopmentFeatures())
+    {
+        QString vendor("Unknown");
+        QString render("Unknown");
+
+        {
+            char* str = (char*)glGetString(GL_VENDOR);
+
+            if (str)
+            {
+                vendor = str;
+            }
+        }
+
+        {
+            char* str = (char*)glGetString(GL_RENDERER);
+
+            if (str)
+            {
+                render = str;
+            }
+        }
+        
+        dlg.addVersionEntry(" ", QString("   ") + vendor + " : " + render);
+    }
 
     dlg.create();
     dlg.resize(300, 200);

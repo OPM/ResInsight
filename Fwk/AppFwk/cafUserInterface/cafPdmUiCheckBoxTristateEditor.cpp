@@ -30,10 +30,10 @@ void PdmUiCheckBoxTristateEditor::configureAndUpdateUi(const QString& uiConfigNa
 
     PdmUiFieldEditorHandle::updateLabelFromField(m_label, uiConfigName); 
 
-    m_checkBox->setEnabled(!field()->isUiReadOnly(uiConfigName));
-    m_checkBox->setToolTip(field()->uiToolTip(uiConfigName));
+    m_checkBox->setEnabled(!uiField()->isUiReadOnly(uiConfigName));
+    m_checkBox->setToolTip(uiField()->uiToolTip(uiConfigName));
 
-    Tristate state = field()->uiValue().value<Tristate>();
+    Tristate state = uiField()->uiValue().value<Tristate>();
     
     if (state == Tristate::State::True)
     {

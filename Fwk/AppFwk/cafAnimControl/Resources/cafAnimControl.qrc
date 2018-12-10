@@ -1,16 +1,16 @@
 <RCC>
     <qresource prefix="cafAnimControl">
-		<file>Play.png</file>
-		<file>Stop.png</file>
-		<file>Pause.png</file>
-		<file>StepFwd.png</file>
-		<file>StepBwd.png</file>
-		<file>SkipToEnd.png</file>
-		<file>SkipToStart.png</file>
-		<file>RepeatFromStart.png</file>
-		<file>RepeatFwdBwd.png</file>
-		<file>PlayBwd.png</file>
-		<file>Slow.png</file>
-		<file>Fast.png</file> 
-	</qresource>
+        <file>Play.png</file>
+        <file>Stop.png</file>
+        <file>Pause.png</file>
+        <file>StepFwd.png</file>
+        <file>StepBwd.png</file>
+        <file>SkipToEnd.png</file>
+        <file>SkipToStart.png</file>
+        <file>RepeatFromStart.png</file>
+        <file>RepeatFwdBwd.png</file>
+        <file>PlayBwd.png</file>
+        <file>Slow.png</file>
+        <file>Fast.png</file> 
+    </qresource>
 </RCC>

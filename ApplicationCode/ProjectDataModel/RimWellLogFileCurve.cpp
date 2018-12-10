@@ -22,18 +22,18 @@
 #include "RigWellLogCurveData.h"
 #include "RigWellPath.h"
 
-#include "RimOilField.h"
 #include "RimProject.h"
+#include "RimTools.h"
 #include "RimWellLogFile.h"
 #include "RimWellLogFileChannel.h"
 #include "RimWellLogPlot.h"
 #include "RimWellLogTrack.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
-#include "RimWellRftPlot.h"
 #include "RimWellPlotTools.h"
+#include "RimWellRftPlot.h"
 
-#include "RiuLineSegmentQwtPlotCurve.h"
+#include "RiuQwtPlotCurve.h"
 #include "RiuWellLogTrack.h"
 
 #include "RiaApplication.h"
@@ -168,9 +168,15 @@ void RimWellLogFileCurve::onLoadDataAndUpdate(bool updateParentPlot)
         }
         m_qwtPlotCurve->setLineSegmentStartStopIndices(m_curveData->polylineStartStopIndices());
 
-        updateZoomInParentPlot();
+        if (updateParentPlot)
+        {
+            updateZoomInParentPlot();
+        }
 
-        if (m_parentQwtPlot) m_parentQwtPlot->replot();
+        if (m_parentQwtPlot)
+        {
+            m_parentQwtPlot->replot();
+        }
     }
 }
 
@@ -269,10 +275,10 @@ QList<caf::PdmOptionItemInfo> RimWellLogFileCurve::calculateValueOptions(const c
 
     if (fieldNeedingOptions == &m_wellPath)
     {
-        RimProject* proj = RiaApplication::instance()->project();
-        if (proj->activeOilField()->wellPathCollection())
+        auto wellPathColl = RimTools::wellPathCollection();
+        if (wellPathColl)
         {
-            caf::PdmChildArrayField<RimWellPath*>& wellPaths = proj->activeOilField()->wellPathCollection()->wellPaths;
+            caf::PdmChildArrayField<RimWellPath*>& wellPaths = wellPathColl->wellPaths;
 
             for (size_t i = 0; i < wellPaths.size(); i++)
             {
@@ -332,6 +338,8 @@ QList<caf::PdmOptionItemInfo> RimWellLogFileCurve::calculateValueOptions(const c
 //--------------------------------------------------------------------------------------------------
 void RimWellLogFileCurve::initAfterRead()
 {
+    if (!m_wellPath) return;
+    
     if (m_wellPath->wellLogFiles().size() == 1)
     {
         m_wellLogFile = m_wellPath->wellLogFiles().front();
@@ -420,5 +428,10 @@ RimWellLogFile* RimWellLogFileCurve::wellLogFile() const
 //--------------------------------------------------------------------------------------------------
 QString RimWellLogFileCurve::wellName() const
 {
-    return m_wellPath->name();
+    if (m_wellPath)
+    {
+        return m_wellPath->name();
+    }
+
+    return QString("");
 }

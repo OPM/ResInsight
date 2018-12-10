@@ -29,7 +29,7 @@
 #include "RimSummaryPlot.h"
 #include "RimSummaryPlotCollection.h"
 
-#include "RiuMainPlotWindow.h"
+#include "RiuPlotMainWindow.h"
 
 #include "WellLogCommands/RicWellLogPlotCurveFeatureImpl.h"
 
@@ -73,7 +73,7 @@ void RicNewSummaryCurveFeature::onActionTriggered(bool isChecked)
             defaultCase = project->activeOilField()->summaryCaseMainCollection()->summaryCase(0);
             newCurve->setSummaryCaseY(defaultCase);
 
-            newCurve->setSummaryAddressY(RifEclipseSummaryAddress::fieldVarAddress("FOPT"));
+            newCurve->setSummaryAddressY(RifEclipseSummaryAddress::fieldAddress("FOPT"));
 
             newCurve->loadDataAndUpdate(true);
         }
@@ -82,7 +82,7 @@ void RicNewSummaryCurveFeature::onActionTriggered(bool isChecked)
 
         RiaApplication::instance()->getOrCreateAndShowMainPlotWindow()->selectAsCurrentItem(newCurve);
 
-        RiuMainPlotWindow* mainPlotWindow = RiaApplication::instance()->mainPlotWindow();
+        RiuPlotMainWindow* mainPlotWindow = RiaApplication::instance()->mainPlotWindow();
         mainPlotWindow->updateSummaryPlotToolBar();
     }
 }

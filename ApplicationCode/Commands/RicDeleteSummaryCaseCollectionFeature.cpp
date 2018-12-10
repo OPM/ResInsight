@@ -21,6 +21,8 @@
 #include "RiaApplication.h"
 
 #include "RiaSummaryTools.h"
+
+#include "RimDerivedEnsembleCaseCollection.h"
 #include "RimMainPlotCollection.h"
 #include "RimProject.h"
 #include "RimSummaryCase.h"
@@ -65,6 +67,10 @@ bool RicDeleteSummaryCaseCollectionFeature::isCommandEnabled()
     std::vector<RimSummaryCaseCollection*> selection;
     caf::SelectionManager::instance()->objectsByType(&selection);
 
+    selection.erase(std::remove_if(selection.begin(), selection.end(), [](RimSummaryCaseCollection* coll)
+    {
+        return dynamic_cast<RimDerivedEnsembleCaseCollection*>(coll) != nullptr;
+    }), selection.end());
     return (selection.size() > 0);
 }
 
@@ -125,7 +131,7 @@ void RicDeleteSummaryCaseCollectionFeature::onActionTriggered(bool isChecked)
 //--------------------------------------------------------------------------------------------------
 void RicDeleteSummaryCaseCollectionFeature::setupActionLook(QAction* actionToSetup)
 {
-    actionToSetup->setText("Delete Summary Case Group");
+    actionToSetup->setText("Delete Summary Case Group/Ensemble");
     actionToSetup->setIcon(QIcon(":/Erase.png"));
 }
 

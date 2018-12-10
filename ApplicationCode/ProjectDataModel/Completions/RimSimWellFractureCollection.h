@@ -34,10 +34,11 @@ class RimSimWellFractureCollection : public caf::PdmObject
 
 public:
     RimSimWellFractureCollection(void);
-    virtual ~RimSimWellFractureCollection(void);
+    ~RimSimWellFractureCollection(void) override;
     
     caf::PdmChildArrayField<RimSimWellFracture*>    simwellFractures;
 
     void                                            deleteFractures();
 
+    void recomputeSimWellCenterlines();
 };

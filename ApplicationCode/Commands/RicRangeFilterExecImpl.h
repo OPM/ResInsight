@@ -31,18 +31,20 @@ class RimCellRangeFilterCollection;
 class RicRangeFilterExecImpl : public caf::CmdExecuteCommand
 {
 public:
-    RicRangeFilterExecImpl(RimCellRangeFilterCollection* rangeFilterCollection, RimCellRangeFilter* rangeFilter = 0); 
-    virtual ~RicRangeFilterExecImpl();
+    RicRangeFilterExecImpl(RimCellRangeFilterCollection* rangeFilterCollection, 
+                           RimCellRangeFilter* insertBeforeCellRangeFilter = nullptr);
+    ~RicRangeFilterExecImpl() override;
 
-    virtual QString name() = 0;
-    virtual void redo() = 0;
-    virtual void undo() = 0;
+    QString name() override = 0;
+    void redo() override = 0;
+    void undo() override = 0;
 
 public:
     bool m_iSlice;
     bool m_jSlice;
     bool m_kSlice;
 
+    int m_gridIndex; 
     int m_iSliceStart;
     int m_jSliceStart;
     int m_kSliceStart;
@@ -53,7 +55,7 @@ protected:
 
 protected:
     caf::PdmPointer<RimCellRangeFilterCollection>   m_cellRangeFilterCollection;
-    caf::PdmPointer<RimCellRangeFilter>             m_cellRangeFilter;
+    caf::PdmPointer<RimCellRangeFilter>             m_insertBeforeCellRangeFilter;
 };
 
 

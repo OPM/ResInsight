@@ -23,7 +23,7 @@
 #include "RimCase.h"
 #include "RimIntersectionBox.h"
 #include "RimIntersectionCollection.h"
-#include "RimView.h"
+#include "RimGridView.h"
 
 #include "RiuMainWindow.h"
 #include "RiuViewer.h"
@@ -50,7 +50,7 @@ bool RicIntersectionBoxYSliceFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicIntersectionBoxYSliceFeature::onActionTriggered(bool isChecked)
 {
-    RimView* activeView = RiaApplication::instance()->activeReservoirView();
+    RimGridView* activeView = RiaApplication::instance()->activeGridView();
     if (activeView)
     {
         RimIntersectionCollection* coll = activeView->crossSectionCollection();
@@ -67,7 +67,7 @@ void RicIntersectionBoxYSliceFeature::onActionTriggered(bool isChecked)
         coll->updateConnectedEditors();
         RiuMainWindow::instance()->selectAsCurrentItem(intersectionBox);
 
-        RimView* rimView = NULL;
+        RimGridView* rimView = nullptr;
         coll->firstAncestorOrThisOfType(rimView);
         if (rimView)
         {

@@ -21,6 +21,7 @@
 #include "cvfBase.h"
 #include "cvfArray.h"
 
+#include <QColor>
 
 //==================================================================================================
 ///  
@@ -30,8 +31,11 @@ class RiaColorTools
 {
 public:
     static bool         isBrightnessAboveThreshold(cvf::Color3f backgroundColor);
-
+    
+    static cvf::Color3f computeOffsetColor(cvf::Color3f color, float offsetFactor);
     static cvf::Color3f darkContrastColor();
     static cvf::Color3f brightContrastColor();
     static cvf::Color3f constrastColor(cvf::Color3f backgroundColor);
+    static QColor       toQColor(cvf::Color3f color, float alpha = 1.0f);
+    static QColor       toQColor(cvf::Color4f color);
 };

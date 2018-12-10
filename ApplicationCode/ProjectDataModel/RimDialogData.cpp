@@ -18,8 +18,14 @@
 
 #include "RimDialogData.h"
 
+#include "RimMockModelSettings.h"
+
 #include "ExportCommands/RicExportCarfinUi.h"
-#include "CompletionCommands/RicExportCompletionDataSettingsUi.h"
+#include "CompletionExportCommands/RicExportCompletionDataSettingsUi.h"
+#include "FractureCommands/RicCreateMultipleFracturesUi.h"
+#include "HoloLensCommands/RicHoloLensExportToFolderUi.h"
+#include "ExportCommands/RicExportWellPathsUi.h"
+#include "ExportCommands/RicExportLgrUi.h"
 
 CAF_PDM_SOURCE_INIT(RimDialogData, "RimDialogData");
 
@@ -34,7 +40,30 @@ RimDialogData::RimDialogData()
     m_exportCarfin = new RicExportCarfinUi;
 
     CAF_PDM_InitFieldNoDefault(&m_exportCompletionData, "ExportCompletionData", "Export Completion Data", "", "", "");
-    m_exportCompletionData = new RicExportCompletionDataSettingsUi(false);
+    m_exportCompletionData = new RicExportCompletionDataSettingsUi();
+
+    CAF_PDM_InitFieldNoDefault(&m_multipleFractionsData, "MultipleFractionsData", "Multiple Fractures Data", "", "", "");
+    m_multipleFractionsData = new RiuCreateMultipleFractionsUi();
+
+    CAF_PDM_InitFieldNoDefault(&m_holoLenseExportToFolderData, "HoloLenseExportToFolderData", "Holo Lens Export To Folder Data", "", "", "");
+    m_holoLenseExportToFolderData = new RicHoloLensExportToFolderUi();
+
+    CAF_PDM_InitFieldNoDefault(&m_exportWellPathsData, "ExportwellPathsData", "Export Well Paths Data", "", "", "");
+    m_exportWellPathsData = new RicExportWellPathsUi();
+
+    CAF_PDM_InitFieldNoDefault(&m_exportLgrData, "ExportLgr", "LGR Export", "", "", "");
+    m_exportLgrData = new RicExportLgrUi();
+
+    CAF_PDM_InitFieldNoDefault(&m_mockModelSettings, "MockModelSettings", "Mock Model Settings", "", "", "");
+    m_mockModelSettings = new RimMockModelSettings();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimDialogData::clearProjectSpecificData()
+{
+    m_multipleFractionsData->resetValues();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -65,9 +94,48 @@ void RimDialogData::setExportCarfinDataFromString(const QString& data)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RicExportCompletionDataSettingsUi* RimDialogData::exportCompletionData(bool onlyWellPathCollectionSelected) const
+RicExportCompletionDataSettingsUi* RimDialogData::exportCompletionData() const
 {
-    m_exportCompletionData->setOnlyWellPathCollectionSelected(onlyWellPathCollectionSelected);
     return m_exportCompletionData;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RiuCreateMultipleFractionsUi* RimDialogData::multipleFractionsData() const
+{
+    return m_multipleFractionsData;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RicHoloLensExportToFolderUi* RimDialogData::holoLensExportToFolderData() const
+{
+    return m_holoLenseExportToFolderData;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RicExportWellPathsUi* RimDialogData::wellPathsExportData() const
+{
+    return m_exportWellPathsData;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RicExportLgrUi* RimDialogData::exportLgrData() const
+{
+    return m_exportLgrData;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimMockModelSettings* RimDialogData::mockModelSettings() const
+{
+    return m_mockModelSettings;
 }
 

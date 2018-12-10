@@ -23,6 +23,7 @@
 
 #include "RimCaseCollection.h"
 #include "RimEclipseCase.h"
+#include "RimEclipseResultCase.h"
 #include "RimEclipseCaseCollection.h"
 #include "RimEclipseStatisticsCase.h"
 #include "RimGeoMechCase.h"
@@ -31,6 +32,8 @@
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimMainPlotCollection.h"
+#include "RimGridSummaryCase.h"
+#include "RimSummaryCaseMainCollection.h"
 #include "RimWellLogPlotCollection.h"
 
 #include "RiuMainWindow.h"
@@ -49,7 +52,7 @@ CAF_CMD_SOURCE_INIT(RicCloseCaseFeature, "RicCloseCaseFeature");
 //--------------------------------------------------------------------------------------------------
 bool RicCloseCaseFeature::isCommandEnabled()
 {
-    return selectedEclipseCase() != NULL || selectedGeoMechCase() != NULL;
+    return !selectedCases().empty();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -57,24 +60,43 @@ bool RicCloseCaseFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicCloseCaseFeature::onActionTriggered(bool isChecked)
 {
-    RimEclipseCase* eclipseCase = selectedEclipseCase();
-    RimGeoMechCase* geoMechCase = selectedGeoMechCase();
-    if (eclipseCase)
+    std::vector<RimEclipseCase*> eclipseCases;
+    std::vector<RimGeoMechCase*> geoMechCases;
+    for (RimCase* rimCase : selectedCases())
     {
-        std::vector<RimEclipseCase*> casesToBeDeleted;
-        casesToBeDeleted.push_back(eclipseCase);
-        
-        if (userConfirmedGridCaseGroupChange(casesToBeDeleted))
+        RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>(rimCase);
+        if (eclipseCase)
         {
-            deleteEclipseCase(eclipseCase);
+            eclipseCases.push_back(eclipseCase);
+        }
+        else
+        {
+            RimGeoMechCase* geoMechCase = dynamic_cast<RimGeoMechCase*>(rimCase);
+            if (geoMechCase)
+            {
+                geoMechCases.push_back(geoMechCase);
+            }
+        }
+    }
 
+    if (!eclipseCases.empty())
+    {
+        if (userConfirmedGridCaseGroupChange(eclipseCases))
+        {
+            for (RimEclipseCase* eclipseCase : eclipseCases)
+            {
+                deleteEclipseCase(eclipseCase);
+            }
             RiuMainWindow::instance()->cleanupGuiCaseClose();
         }
     }
-    else if (geoMechCase)
+    
+    if (!geoMechCases.empty())
     {
-        deleteGeoMechCase(geoMechCase);
-
+        for (RimGeoMechCase* geoMechCase : geoMechCases)
+        {
+            deleteGeoMechCase(geoMechCase);
+        }
         RiuMainWindow::instance()->cleanupGuiCaseClose();
     }
 }
@@ -92,33 +114,11 @@ void RicCloseCaseFeature::setupActionLook(QAction* actionToSetup)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimEclipseCase* RicCloseCaseFeature::selectedEclipseCase() const
+std::vector<RimCase*> RicCloseCaseFeature::selectedCases() const
 {
-    std::vector<RimEclipseCase*> selection;
+    std::vector<RimCase*> selection;
     caf::SelectionManager::instance()->objectsByType(&selection);
-
-    if (selection.size() > 0)
-    {
-        return selection[0];
-    }
-
-    return NULL;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RimGeoMechCase* RicCloseCaseFeature::selectedGeoMechCase() const
-{
-    std::vector<RimGeoMechCase*> selection;
-    caf::SelectionManager::instance()->objectsByType(&selection);
-
-    if (selection.size() > 0)
-    {
-        return selection[0];
-    }
-
-    return NULL;
+    return selection;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -129,8 +129,8 @@ void RicCloseCaseFeature::removeCaseFromAllGroups(RimEclipseCase* eclipseCase)
     CVF_ASSERT(eclipseCase);
 
     RimProject* proj = RiaApplication::instance()->project();
-    RimOilField* activeOilField = proj ? proj->activeOilField() : NULL;
-    RimEclipseCaseCollection* analysisModels = (activeOilField) ? activeOilField->analysisModels() : NULL;
+    RimOilField* activeOilField = proj ? proj->activeOilField() : nullptr;
+    RimEclipseCaseCollection* analysisModels = (activeOilField) ? activeOilField->analysisModels() : nullptr;
     if (analysisModels)
     {
         analysisModels->removeCaseFromAllGroups(eclipseCase);
@@ -186,6 +186,22 @@ void RicCloseCaseFeature::deleteEclipseCase(RimEclipseCase* eclipseCase)
         removeCaseFromAllGroups(eclipseCase);
     }
 
+    RimEclipseResultCase* resultCase = dynamic_cast<RimEclipseResultCase*>(eclipseCase);
+    if (resultCase)
+    {
+        RimProject* project = RiaApplication::instance()->project();
+        RimSummaryCaseMainCollection* sumCaseColl = project->activeOilField() ? project->activeOilField()->summaryCaseMainCollection() : nullptr;
+        if (sumCaseColl)
+        {
+            RimSummaryCase* summaryCase = sumCaseColl->findSummaryCaseFromEclipseResultCase(resultCase);
+            if (summaryCase)
+            {
+                RimGridSummaryCase* gridSummaryCase = dynamic_cast<RimGridSummaryCase*>(summaryCase);
+                sumCaseColl->convertGridSummaryCasesToFileSummaryCases(gridSummaryCase);
+            }
+        }
+    }
+
     delete eclipseCase;
 }
 
@@ -197,8 +213,8 @@ void RicCloseCaseFeature::deleteGeoMechCase(RimGeoMechCase* geoMechCase)
     CVF_ASSERT(geoMechCase);
 
     RimProject* proj = RiaApplication::instance()->project();
-    RimOilField* activeOilField = proj ? proj->activeOilField() : NULL;
-    RimGeoMechModels* models = (activeOilField) ? activeOilField->geoMechModels() : NULL;
+    RimOilField* activeOilField = proj ? proj->activeOilField() : nullptr;
+    RimGeoMechModels* models = (activeOilField) ? activeOilField->geoMechModels() : nullptr;
     if (models)
     {
         models->cases.removeChildObject(geoMechCase);
@@ -240,7 +256,7 @@ bool RicCloseCaseFeature::userConfirmedGridCaseGroupChange(const std::vector<Rim
 
     for (size_t i = 0; i < casesToBeDeleted.size(); i++)
     {
-        RimIdenticalGridCaseGroup* gridCaseGroup = NULL;
+        RimIdenticalGridCaseGroup* gridCaseGroup = nullptr;
         casesToBeDeleted[i]->firstAncestorOrThisOfType(gridCaseGroup);
 
         if (gridCaseGroup && hasAnyStatisticsResults(gridCaseGroup))

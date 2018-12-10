@@ -25,7 +25,7 @@
 #include "RimEclipseStatisticsCase.h"
 #include "RimIdenticalGridCaseGroup.h"
 #include "RimCaseCollection.h"
-#include "RimView.h"
+#include "Rim3dView.h"
 
 #include "RiaApplication.h"
 #include "RiaLogging.h"

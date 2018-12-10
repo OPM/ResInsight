@@ -37,7 +37,7 @@
 #include "RimSimWellInView.h"
 #include "RimViewManipulator.h"
 
-#include "RiuMainWindow.h"
+#include "Riu3DMainWindowTools.h"
 
 #include "cafCmdFeature.h"
 #include "cafCmdFeatureManager.h"
@@ -156,7 +156,7 @@ void RicShowContributingWellsFeatureImpl::modifyViewToShowContributingWells(RimE
 
     propertyFilterCollection->updateConnectedEditors();
 
-    RiuMainWindow::instance()->setExpanded(propertyFilterCollection);
+    Riu3DMainWindowTools::setExpanded(propertyFilterCollection);
 
     viewToModify->faultCollection()->showFaultCollection = false;
     viewToModify->faultCollection()->updateConnectedEditors();

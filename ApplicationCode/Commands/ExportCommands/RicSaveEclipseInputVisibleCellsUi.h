@@ -41,7 +41,7 @@ public:
 
 public:
     RicSaveEclipseInputVisibleCellsUi(void);
-    ~RicSaveEclipseInputVisibleCellsUi();
+    ~RicSaveEclipseInputVisibleCellsUi() override;
 
     caf::PdmField<QString>           exportFilename;
     caf::PdmField<ExportKeywordEnum> exportKeyword;
@@ -50,9 +50,9 @@ public:
     caf::PdmField<int>               inactiveCellsValue;
 
 protected:
-    virtual void            defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute);
-    virtual void            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
-    virtual void            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    void            defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override;
+    void            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    void            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
 
 private:
     QString getDefaultExportPath() const;

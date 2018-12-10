@@ -201,7 +201,6 @@ GeometryTools::IntersectionStatus inPlaneLineIntersect(
       
        if (length12 < EPS )
        {
-           cvf::Vec3d p34(x4-x3, y4-y3, 0);
            *x = x1;
            *y = y1;
            *fractionAlongLine1 = 1;
@@ -328,7 +327,7 @@ GeometryTools::inPlaneLineIntersect3D(  const cvf::Vec3d& planeNormal,
                                         const cvf::Vec3d& p1, const cvf::Vec3d& p2, const cvf::Vec3d& p3, const cvf::Vec3d& p4, 
                                         cvf::Vec3d* intersectionPoint, double* fractionAlongLine1, double* fractionAlongLine2,  double tolerance)
 {
-    CVF_ASSERT (intersectionPoint != NULL);
+    CVF_ASSERT (intersectionPoint != nullptr);
 
     int Z = findClosestAxis(planeNormal);
     int X = (Z + 1) % 3;
@@ -429,8 +428,8 @@ int GeometryTools::intersectLineSegmentTriangle( const cvf::Vec3d p0, const cvf:
                                                  const cvf::Vec3d t0, const cvf::Vec3d t1, const cvf::Vec3d t2,
                                                  cvf::Vec3d* intersectionPoint , bool * isLineDirDotNormalNegative)
 {
-    CVF_TIGHT_ASSERT(intersectionPoint != NULL);
-    CVF_TIGHT_ASSERT(isLineDirDotNormalNegative != NULL);
+    CVF_TIGHT_ASSERT(intersectionPoint != nullptr);
+    CVF_TIGHT_ASSERT(isLineDirDotNormalNegative != nullptr);
 
     cvf::Vec3d u, v, n;             // triangle vectors
     cvf::Vec3d dir, w0, w;          // ray vectors
@@ -592,20 +591,6 @@ cvf::Vec4d GeometryTools::barycentricCoords(const cvf::Vec3d& v0,
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-double GeometryTools::interpolateQuad(const cvf::Vec3d& v1, double s1, 
-                                      const cvf::Vec3d& v2, double s2, 
-                                      const cvf::Vec3d& v3, double s3, 
-                                      const cvf::Vec3d& v4, double s4, 
-                                      const cvf::Vec3d& point)
-{
-    cvf::Vec4d bc = barycentricCoords(v1, v2, v3, v4, point);
-
-    return s1*bc[0] + s2*bc[1] + s3*bc[2] + s4*bc[3];
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 void GeometryTools::addMidEdgeNodes(std::list<std::pair<cvf::uint, bool> >* polygon, const cvf::Vec3dArray& nodes, EdgeSplitStorage& edgeSplitStorage, std::vector<cvf::Vec3d>* createdVertexes)
 {
     size_t newVertexIndex = nodes.size() + createdVertexes->size();
@@ -762,7 +747,7 @@ EarClipTesselator::EarClipTesselator():
     m_X(-1), 
     m_Y(-1), 
     m_areaTolerance(1e-12), 
-    m_nodeCoords(NULL)
+    m_nodeCoords(nullptr)
 {
 
 }
@@ -775,7 +760,7 @@ EarClipTesselator::EarClipTesselator():
 
 bool EarClipTesselator::calculateTriangles( std::vector<size_t>* triangleIndices ) 
 {
-    CVF_ASSERT(m_nodeCoords != NULL);
+    CVF_ASSERT(m_nodeCoords != nullptr);
     CVF_ASSERT(m_X > -1 && m_Y > -1);
 
     size_t numVertices = m_polygonIndices.size();
@@ -999,18 +984,10 @@ FanEarClipTesselator::FanEarClipTesselator() :
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void FanEarClipTesselator::setCenterNode(size_t centerNodeIndex)
-{
-    m_centerNodeIndex = centerNodeIndex;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 bool FanEarClipTesselator::calculateTriangles(std::vector<size_t>* triangles)
 {
     CVF_ASSERT(m_centerNodeIndex != std::numeric_limits<size_t>::max());
-    CVF_ASSERT(m_nodeCoords != NULL);
+    CVF_ASSERT(m_nodeCoords != nullptr);
     CVF_ASSERT(m_X > -1 && m_Y > -1);
 
     size_t nv = m_polygonIndices.size();

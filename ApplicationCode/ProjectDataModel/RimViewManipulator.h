@@ -24,12 +24,12 @@ namespace cvf {
     class BoundingBox;
 }
 
-class RimView;
+class RimGridView;
 
 class RimViewManipulator
 {
 public:
-    static void applySourceViewCameraOnDestinationViews(RimView* sourceView, std::vector<RimView*>& destinationViews);
+    static void applySourceViewCameraOnDestinationViews(RimGridView* sourceView, std::vector<RimGridView*>& destinationViews);
 
 private:
     static bool isBoundingBoxesOverlappingOrClose(const cvf::BoundingBox& sourceBB, const cvf::BoundingBox& destBB);

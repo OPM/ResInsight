@@ -80,7 +80,7 @@ TEST(SerializeNumbers, SimpleObjectWithDoubleValues)
 //--------------------------------------------------------------------------------------------------
 TEST(SerializeNumbers, SimpleObjectWithFloatValues)
 {
-    float valueA = 0.123456789;
+    float valueA = 0.123456789f;
     float valueB = 123456 + valueA;
 
     QString objectAsText;

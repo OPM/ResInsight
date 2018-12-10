@@ -26,7 +26,7 @@ class RigFlowDiagResultFrames: public cvf::Object
 {
 public:
     explicit RigFlowDiagResultFrames(size_t frameCount);
-    virtual ~RigFlowDiagResultFrames();
+    ~RigFlowDiagResultFrames() override;
 
     const
     std::vector<double>& frameData(size_t frameIndex) const;

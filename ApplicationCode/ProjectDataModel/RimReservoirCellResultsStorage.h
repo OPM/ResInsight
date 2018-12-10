@@ -43,7 +43,7 @@ class RimReservoirCellResultsStorage : public caf::PdmObject
     CAF_PDM_HEADER_INIT;
 public:
     RimReservoirCellResultsStorage();
-    virtual ~RimReservoirCellResultsStorage();
+    ~RimReservoirCellResultsStorage() override;
 
     void                            setCellResults(RigCaseCellResultsData* cellResults);
 
@@ -51,7 +51,7 @@ public:
 
 protected:
     // Overridden methods from PdmObject
-    virtual void                    setupBeforeSave();
+    void                    setupBeforeSave() override;
 
 private:
     QString                         getValidCacheFileName();
@@ -69,7 +69,7 @@ class RimReservoirCellResultsStorageEntryInfo : public caf::PdmObject
     CAF_PDM_HEADER_INIT;
 public:
     RimReservoirCellResultsStorageEntryInfo();
-    virtual ~RimReservoirCellResultsStorageEntryInfo();
+    ~RimReservoirCellResultsStorageEntryInfo() override;
 
     caf::PdmField<caf::AppEnum< RiaDefines::ResultCatType> > m_resultType;
     caf::PdmField<QString>                                   m_resultName;

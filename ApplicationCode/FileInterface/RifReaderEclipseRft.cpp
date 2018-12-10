@@ -53,7 +53,7 @@ void RifReaderEclipseRft::open()
 
     m_ecl_rft_file = ecl_rft_file_alloc_case(RiaStringEncodingTools::toNativeEncoded(m_fileName).data());
 
-    if (m_ecl_rft_file == NULL)
+    if (m_ecl_rft_file == nullptr)
     {
         RiaLogging::warning(QString("Libecl could not find/open file '%'").arg( m_fileName));
         return;
@@ -246,8 +246,8 @@ void RifReaderEclipseRft::cellIndices(const RifEclipseRftAddress& rftAddress, st
         int i, j, k;
         ecl_rft_node_iget_ijk(node, cellIdx, &i, &j, &k);
         
-        caf::VecIjk index( (size_t)i, (size_t)j, (size_t)k );
-        indices->push_back(index);
+        caf::VecIjk ijk( (size_t)i, (size_t)j, (size_t)k );
+        indices->push_back(ijk);
     }
 }
 

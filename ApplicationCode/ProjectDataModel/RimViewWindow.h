@@ -45,10 +45,11 @@ class RimViewWindow : public caf::PdmObject
     CAF_PDM_HEADER_INIT;
 public:
     RimViewWindow(void);
-    virtual ~RimViewWindow(void);
+    ~RimViewWindow(void) override;
 
     void                         loadDataAndUpdate();
     void                         handleMdiWindowClosed();
+    void                         updateMdiWindowVisibility(); 
                                  
     void                         setAs3DViewMdiWindow()  { setAsMdiWindow(0); }
     void                         setAsPlotMdiWindow()    { setAsMdiWindow(1); }
@@ -64,24 +65,25 @@ public:
 
 protected:
     void                         removeMdiWindowFromMdiArea(); 
-    void                         updateMdiWindowVisibility(); 
 
     ///////// Interface for the Window controller
     friend class RimMdiWindowController;
 
+    QString                      windowTitle();
     virtual QWidget*             createViewWidget(QWidget* mainWindowParent) = 0; 
     virtual void                 updateViewWidgetAfterCreation() {};
     virtual void                 updateMdiWindowTitle(); // Has real default implementation
     virtual void                 deleteViewWidget() = 0;
     virtual void                 onLoadDataAndUpdate() = 0; 
+    virtual bool                 isWindowVisible() { return m_showWindow();} // Virtual To allow special visibility control
     //////////
 
     // Derived classes are not supposed to override this function. The intention is to always use m_showWindow
     // as the objectToggleField for this class. This way the visibility of a widget being part of a composite widget
     // can be controlled from the project tree using check box toggles
-    virtual caf::PdmFieldHandle* objectToggleField() override final;
-    virtual void                 fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
-    virtual void                 initAfterRead() override;
+    caf::PdmFieldHandle* objectToggleField() final;
+    void                 fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    void                 initAfterRead() override;
                                  
     caf::PdmField<bool>          m_showWindow;
 

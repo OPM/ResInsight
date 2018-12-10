@@ -23,9 +23,10 @@
 #include <errno.h>
 
 #include <ert/util/util.h>
-#include <ert/util/type_macros.h>
+#include <ert/util/type_macros.hpp>
 #include <ert/ecl/fortio.h>
 
+#include <ecl/fortio.h>
 
 #define FORTIO_ID  345116
 
@@ -90,6 +91,7 @@ struct fortio_struct {
   */
   bool               writable;
   offset_type        read_size;
+  char opts[3];
 };
 
 
@@ -97,7 +99,7 @@ UTIL_IS_INSTANCE_FUNCTION( fortio , FORTIO_ID );
 UTIL_SAFE_CAST_FUNCTION( fortio, FORTIO_ID );
 
 static fortio_type * fortio_alloc__(const char *filename , bool fmt_file , bool endian_flip_header , bool stream_owner , bool writable) {
-  fortio_type * fortio       = util_malloc(sizeof * fortio );
+  fortio_type * fortio       = (fortio_type*)util_malloc(sizeof * fortio );
   UTIL_TYPE_ID_INIT( fortio, FORTIO_ID );
   fortio->filename           = util_alloc_string_copy(filename);
   fortio->endian_flip_header = endian_flip_header;
@@ -105,6 +107,7 @@ static fortio_type * fortio_alloc__(const char *filename , bool fmt_file , bool 
   fortio->stream_owner       = stream_owner;
   fortio->writable           = writable;
   fortio->read_size = 0;
+  strcpy( fortio->opts, endian_flip_header ? "c" : "ce" );
 
   return fortio;
 }
@@ -116,13 +119,9 @@ static fortio_type * fortio_alloc__(const char *filename , bool fmt_file , bool 
 */
 
 static bool __read_int(FILE * stream , int * value, bool endian_flip) {
-  /* This fread() can legitemately fail - can not use util_fread() here. */
-  if (fread(value , sizeof * value , 1 , stream) == 1) {
-    if (endian_flip)
-      util_endian_flip_vector(value , sizeof * value , 1);
-    return true;
-  } else
-    return false;
+    int ok = eclfio_sizeof( stream, endian_flip ? "c" : "ce", value );
+    fseek( stream, sizeof( int32_t ), SEEK_CUR );
+    return !ok;
 }
 
 
@@ -396,7 +395,7 @@ bool fortio_assert_stream_open( fortio_type * fortio ) {
 
 
 static void fortio_free__(fortio_type * fortio) {
-  util_safe_free(fortio->filename);
+  free(fortio->filename);
   free(fortio);
 }
 
@@ -416,30 +415,14 @@ void fortio_fclose(fortio_type *fortio) {
 
 
 bool fortio_is_fortio_file(fortio_type * fortio) {
-  offset_type init_pos = fortio_ftell(fortio);
-  int elm_read;
-  bool is_fortio_file = false;
-  int record_size;
-  elm_read = fread(&record_size , sizeof(record_size) , 1 , fortio->stream);
-  if (elm_read == 1) {
-    int trailer;
+    fpos_t init_pos;
+    fgetpos( fortio->stream, &init_pos );
 
-    if (fortio->endian_flip_header)
-      util_endian_flip_vector(&record_size , sizeof record_size , 1);
+    int err = eclfio_get( fortio->stream, fortio->opts, NULL, NULL );
 
-    if (fortio_fseek(fortio , (offset_type) record_size , SEEK_CUR) == 0) {
-      if (fread(&trailer , sizeof(record_size) , 1 , fortio->stream) == 1) {
-        if (fortio->endian_flip_header)
-          util_endian_flip_vector(&trailer , sizeof trailer , 1);
+    fsetpos( fortio->stream, &init_pos );
 
-        if (trailer == record_size)
-          is_fortio_file = true;
-      }
-    }
-  }
-
-  fortio_fseek(fortio , init_pos , SEEK_SET);
-  return is_fortio_file;
+    return err == ECL_OK;
 }
 
 
@@ -451,26 +434,17 @@ bool fortio_is_fortio_file(fortio_type * fortio) {
 */
 
 int fortio_init_read(fortio_type *fortio) {
-  int elm_read;
-  int record_size;
-
-  elm_read = fread(&record_size , sizeof(record_size) , 1 , fortio->stream);
-  if (elm_read == 1) {
-    if (fortio->endian_flip_header)
-      util_endian_flip_vector(&record_size , sizeof record_size , 1);
-
-    return record_size;
-  } else
-    return -1;
+    int32_t record_size;
+    int err = eclfio_sizeof( fortio->stream, fortio->opts, &record_size );
+    // this function exposes successful reads as advanced file pointers
+    if( err == 0 ) fseek( fortio->stream, 4, SEEK_CUR );
+    return err ? -1 : record_size;
 }
 
 
 bool fortio_data_fskip(fortio_type* fortio, const int element_size, const int element_count, const int block_count) {
-  int headers = block_count * 4;
-  int trailers = block_count * 4;
-  int bytes_to_skip = headers + trailers + (element_size * element_count);
+    return !eclfio_skip( fortio->stream, fortio->opts, block_count );
 
-  return fortio_fseek(fortio, bytes_to_skip, SEEK_CUR);
 }
 
 
@@ -482,9 +456,9 @@ void fortio_data_fseek(fortio_type* fortio, offset_type data_offset, size_t data
       int block_index = data_element / block_size;
       int headers = (block_index + 1) * 4;
       int trailers = block_index * 4;
-      offset_type bytes_to_skip = data_offset + headers + trailers + (data_element * element_size);
+      offset_type offset = data_offset + headers + trailers + (data_element * element_size);
 
-      fortio_fseek(fortio, bytes_to_skip, SEEK_SET);
+      fortio_fseek(fortio, offset, SEEK_SET);
     }
 }
 
@@ -515,28 +489,6 @@ bool fortio_complete_read(fortio_type *fortio , int record_size) {
   return false;
 }
 
-
-/**
-   This function reads one record from the fortio stream, and fills
-   the buffer with the content. The return value is the number of
-   bytes read; the function will return -1 on failure.
-*/
-
-static int fortio_fread_record(fortio_type *fortio , char *buffer) {
-  int record_size = fortio_init_read(fortio);
-  if (record_size >= 0) {
-    size_t items_read = fread(buffer , 1 , record_size , fortio->stream);
-    if (items_read == record_size) {
-      bool complete_ok = fortio_complete_read(fortio , record_size);
-      if (!complete_ok)
-        record_size = -1;
-    } else
-      record_size = -1;  /* Failure */
-  }
-  return record_size;
-}
-
-
 /**
    This function fills the buffer with 'buffer_size' bytes from the
    fortio stream. The function works by repeated calls to
@@ -547,75 +499,107 @@ static int fortio_fread_record(fortio_type *fortio , char *buffer) {
 */
 
 bool fortio_fread_buffer(fortio_type * fortio, char * buffer , int buffer_size) {
-  int total_bytes_read = 0;
+    int total_bytes_read = 0;
 
-  while (true) {
-    char * buffer_ptr = &buffer[total_bytes_read];
-    int bytes_read = fortio_fread_record(fortio , buffer_ptr);
+    while( true ) {
+        int32_t record_size = buffer_size - total_bytes_read;
+        int err = eclfio_get( fortio->stream,
+                              fortio->opts,
+                              &record_size,
+                              buffer );
 
-    if (bytes_read < 0)
-      break;
-    else {
-      total_bytes_read += bytes_read;
-      if (total_bytes_read >= buffer_size)
-        break;
+        if( err == ECL_EINVAL ) {
+            err = eclfio_sizeof( fortio->stream, fortio->opts, &record_size );
+            if( err ) util_abort("%s: unable to determine size of record, "
+                                 "%d bytes read\n",
+                                 __func__,
+                                 total_bytes_read );
+
+            if( total_bytes_read + record_size > buffer_size )
+                util_abort("%s: internal inconsistency: "
+                       "buffer_size:%d, would read %d bytes\n",
+                       __func__,
+                       buffer_size,
+                       total_bytes_read + record_size );
+
+            return false;
+        }
+
+        if( err ) return false;
+
+        buffer += record_size;
+        total_bytes_read += record_size;
+
+        if( total_bytes_read == buffer_size )
+            return true;
     }
-  }
-
-  if (total_bytes_read == buffer_size)
-    return true;
-
-  if (total_bytes_read < buffer_size)
-    return false;
-
-  util_abort("%s: internal inconsistency: buffer_size:%d  read %d bytes \n",__func__ , buffer_size , total_bytes_read);
-  return false;
 }
 
 
 int fortio_fskip_record(fortio_type *fortio) {
-  int record_size = fortio_init_read(fortio);
-  fortio_fseek(fortio , (offset_type) record_size , SEEK_CUR);
-  fortio_complete_read(fortio , record_size);
-  return record_size;
+    int32_t size = 0;
+    const int err = eclfio_get( fortio->stream, fortio->opts, &size, NULL );
+    if( err ) return -1;
+    return size;
 }
 
 void fortio_fskip_buffer(fortio_type * fortio, int buffer_size) {
   int bytes_skipped = 0;
-  while (bytes_skipped < buffer_size)
-    bytes_skipped += fortio_fskip_record(fortio);
+  while (bytes_skipped < buffer_size) {
+      int size = fortio_fskip_record(fortio);
+
+      if( size < 0 ) util_abort( "%s: broken record in %s. "
+                                 "%d bytes skipped so far\n",
+                                 __func__,
+                                 fortio->filename,
+                                 bytes_skipped );
+
+        bytes_skipped += fortio_fskip_record(fortio);
+  }
 
   if (bytes_skipped > buffer_size)
     util_abort("%s: hmmmm - something is broken. The individual records in %s did not sum up to the expected buffer size \n",__func__ , fortio->filename);
 }
 
 
-void fortio_copy_record(fortio_type * src_stream , fortio_type * target_stream , int buffer_size , void * buffer , bool *at_eof) {
-  int bytes_read;
-  int record_size = fortio_init_read(src_stream);
-  fortio_init_write(target_stream , record_size);
+void fortio_copy_record(fortio_type * src_stream , fortio_type * target_stream , int buffer_size , void * ext_buffer, bool *at_eof) {
+    int bytes_read = 0;
 
-  bytes_read = 0;
-  while (bytes_read < record_size) {
-    int bytes;
-    if (record_size > buffer_size)
-      bytes = buffer_size;
-    else
-      bytes = record_size - bytes_read;
 
-    util_fread(buffer , 1 , bytes , src_stream->stream     , __func__);
-    util_fwrite(buffer , 1 , bytes , target_stream->stream , __func__);
+    int32_t size = 0;
+    int err = eclfio_sizeof( src_stream->stream, src_stream->opts, &size );
+    if( err ) {
+        util_abort( "%s: could not peek record size after %d bytes\n",
+                    __func__,
+                    bytes_read );
+    }
 
-    bytes_read += bytes;
-  }
+    void* buffer = ext_buffer;
+    if( buffer_size < size ) {
+        buffer = malloc( size );
+        ext_buffer = NULL;
+    }
 
-  fortio_complete_read(src_stream , record_size);
-  fortio_complete_write(target_stream , record_size);
+    err = eclfio_get( src_stream->stream, src_stream->opts, &size, buffer );
+    if( err ) {
+        util_abort( "%s: could not read record after %d bytes\n",
+                    __func__,
+                    bytes_read );
+    }
 
-  if (feof(src_stream->stream))
-    *at_eof = true;
-  else
-    *at_eof = false;
+    err = eclfio_put( target_stream->stream,
+                      target_stream->opts,
+                      size,
+                      buffer );
+    if( err ) {
+        util_abort( "%s: could not write record after %d bytes\n",
+                    __func__,
+                    bytes_read );
+    }
+
+    if( !ext_buffer ) free( buffer );
+
+    *at_eof = feof( src_stream->stream );
 }
 
 
@@ -640,19 +624,23 @@ void fortio_complete_write(fortio_type *fortio , int record_size) {
 
 
 void fortio_fwrite_record(fortio_type *fortio, const char *buffer , int record_size) {
-  fortio_init_write(fortio , record_size);
-  util_fwrite( buffer , 1 , record_size , fortio->stream , __func__);
-  fortio_complete_write(fortio , record_size);
+    int err = eclfio_put( fortio->stream,
+                          fortio->opts,
+                          record_size,
+                          buffer );
+
+    if( err ) util_abort( "%s: unable to write %d byte record\n",
+                          __func__,
+                          record_size );
 }
 
 
 void * fortio_fread_alloc_record(fortio_type * fortio) {
-  void * buffer;
-  int record_size = fortio_init_read(fortio);
-  buffer = util_malloc( record_size );
-  util_fread(buffer , 1 , record_size , fortio->stream , __func__);
-  fortio_complete_read(fortio , record_size);
-  return buffer;
+    int32_t record_size = 0;
+    eclfio_sizeof( fortio->stream, fortio->opts, &record_size );
+    void* buffer = calloc( 1, record_size );
+    eclfio_get( fortio->stream, fortio->opts, &record_size, buffer );
+    return buffer;
 }
 
 

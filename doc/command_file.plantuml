@@ -1,0 +1,40 @@
+@startuml
+left to right direction
+
+class RiaArgumentParser {
+    parseArguments();
+    executeCommandFile();
+}
+
+class RicfCommandFileExecutor {
+    executeCommands();
+    prepareFileCommandsForExecution();
+}
+
+class RicfCommandFileReader {
+    readCommands();
+}
+
+class RicfObjectCapability {
+    readFields();
+}
+
+package "Command Objects" {
+
+class RicfCommandObject {
+    execute();
+}
+
+    RicfCommandObject <|-- RicfOpenProject
+    RicfCommandObject <|-- RicfSetExportFolder
+}
+
+RicfObjectCapability <|-- RicfCommandObject
+
+RiaApplication -> RiaArgumentParser
+RiaArgumentParser -> RicfCommandFileExecutor
+RicfCommandFileExecutor --> RicfCommandObject
+RicfCommandFileExecutor -> RicfCommandFileReader
+RicfCommandFileReader --> RicfObjectCapability
+
+@enduml

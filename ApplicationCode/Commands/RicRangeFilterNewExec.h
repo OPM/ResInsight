@@ -27,12 +27,12 @@
 class RicRangeFilterNewExec : public RicRangeFilterExecImpl
 {
 public:
-    RicRangeFilterNewExec(RimCellRangeFilterCollection* rangeFilterCollection, RimCellRangeFilter* rangeFilter = 0);    
-    virtual ~RicRangeFilterNewExec();
+    RicRangeFilterNewExec(RimCellRangeFilterCollection* rangeFilterCollection, RimCellRangeFilter* rangeFilter = nullptr);    
+    ~RicRangeFilterNewExec() override;
 
-    virtual QString name();
-    virtual void redo();
-    virtual void undo();
+    QString name() override;
+    void redo() override;
+    void undo() override;
 };
 
 

@@ -27,6 +27,19 @@
 namespace caf {
 
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+template< typename S>
+caf::Tensor3<S>::Tensor3()
+{
+    m_tensor[0] = (S) 0.0;
+    m_tensor[1] = (S) 0.0;
+    m_tensor[2] = (S) 0.0;
+    m_tensor[3] = (S) 0.0;
+    m_tensor[4] = (S) 0.0;
+    m_tensor[5] = (S) 0.0;
+}
 
 //----------------------------------------------------------------------------------------------------
 /// Copy constructor
@@ -35,6 +48,21 @@ template <typename S>
 inline Tensor3<S>::Tensor3(const Tensor3& other)
 {
     cvf::System::memcpy(m_tensor, sizeof(m_tensor), other.m_tensor, sizeof(other.m_tensor));
+}
+
+//----------------------------------------------------------------------------------------------------
+/// Explicit Cast constructor
+//----------------------------------------------------------------------------------------------------
+template <typename S>
+template <typename T>
+Tensor3<S>::Tensor3(const Tensor3<T>& other)
+{
+    m_tensor[SXX] = other[Tensor3<T>::SXX];
+    m_tensor[SYY] = other[Tensor3<T>::SYY];
+    m_tensor[SZZ] = other[Tensor3<T>::SZZ];
+    m_tensor[SXY] = other[Tensor3<T>::SXY];
+    m_tensor[SYZ] = other[Tensor3<T>::SYZ];
+    m_tensor[SZX] = other[Tensor3<T>::SZX];    
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -52,6 +80,17 @@ Tensor3<S>::Tensor3(S sxx, S syy, S szz, S sxy, S syz, S szx)
     m_tensor[5] = szx;
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+template <typename S>
+Tensor3<S> caf::Tensor3<S>::invalid()
+{
+    return caf::Tensor3<S>(std::numeric_limits<S>::infinity(), std::numeric_limits<S>::infinity(),
+                           std::numeric_limits<S>::infinity(), std::numeric_limits<S>::infinity(),
+                           std::numeric_limits<S>::infinity(), std::numeric_limits<S>::infinity());
+}
+
 //----------------------------------------------------------------------------------------------------
 /// Assignment operator
 //----------------------------------------------------------------------------------------------------
@@ -60,6 +99,42 @@ inline Tensor3<S>& Tensor3<S>::operator=(const Tensor3& obj)
 {
     cvf::System::memcpy(m_tensor, sizeof(m_tensor), obj.m_tensor, sizeof(obj.m_tensor));
     return *this;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Component-wise addition
+//--------------------------------------------------------------------------------------------------
+template< typename S>
+Tensor3<S> caf::Tensor3<S>::operator+(const Tensor3& rhs) const
+{
+    Tensor3<S> result(*this);
+
+    result.m_tensor[0] += rhs.m_tensor[0];
+    result.m_tensor[1] += rhs.m_tensor[1];
+    result.m_tensor[2] += rhs.m_tensor[2];
+    result.m_tensor[3] += rhs.m_tensor[3];
+    result.m_tensor[4] += rhs.m_tensor[4];
+    result.m_tensor[5] += rhs.m_tensor[5];
+
+    return result;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+template< typename S>
+Tensor3<S> caf::Tensor3<S>::operator*(S scale) const
+{
+    Tensor3<S> result(*this);
+
+    result.m_tensor[0] *= scale;
+    result.m_tensor[1] *= scale;
+    result.m_tensor[2] *= scale;
+    result.m_tensor[3] *= scale;
+    result.m_tensor[4] *= scale;
+    result.m_tensor[5] *= scale;
+
+    return result;
 }
 
 

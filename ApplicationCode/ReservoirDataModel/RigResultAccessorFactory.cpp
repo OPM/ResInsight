@@ -66,20 +66,15 @@ cvf::ref<RigResultAccessor> RigResultAccessorFactory::createFromNameAndType(cons
                                                                             const QString& uiResultName,
                                                                             RiaDefines::ResultCatType resultType)
 {
-    CVF_ASSERT(gridIndex < eclipseCase->gridCount());
-    CVF_ASSERT(eclipseCase);
-    CVF_ASSERT(eclipseCase->results(porosityModel));
-    CVF_ASSERT(eclipseCase->activeCellInfo(porosityModel));
-
     if (!eclipseCase || !eclipseCase->results(porosityModel) || !eclipseCase->activeCellInfo(porosityModel))
     {
-        return NULL;
+        return nullptr;
     }
 
     size_t scalarSetIndex = eclipseCase->results(porosityModel)->findScalarResultIndex(resultType, uiResultName);
     if (scalarSetIndex == cvf::UNDEFINED_SIZE_T)
     {
-        return NULL;
+        return nullptr;
     }
 
     cvf::ref<RigResultAccessor> derivedCandidate = createDerivedResultAccessor(eclipseCase,
@@ -148,20 +143,15 @@ cvf::ref<RigResultAccessor> RigResultAccessorFactory::createNativeFromUiResultNa
                                                                                    size_t timeStepIndex,
                                                                                    const QString& uiResultName)
 {
-    CVF_ASSERT(gridIndex < eclipseCase->gridCount());
-    CVF_ASSERT(eclipseCase);
-    CVF_ASSERT(eclipseCase->results(porosityModel));
-    CVF_ASSERT(eclipseCase->activeCellInfo(porosityModel));
-
     if (!eclipseCase || !eclipseCase->results(porosityModel) || !eclipseCase->activeCellInfo(porosityModel))
     {
-        return NULL;
+        return nullptr;
     }
 
     size_t scalarSetIndex = eclipseCase->results(porosityModel)->findScalarResultIndex(uiResultName);
     if (scalarSetIndex == cvf::UNDEFINED_SIZE_T)
     {
-        return NULL;
+        return nullptr;
     }
 
     return createFromResultIdx(eclipseCase, gridIndex, porosityModel, timeStepIndex, scalarSetIndex);
@@ -323,10 +313,10 @@ cvf::ref<RigResultAccessor> RigResultAccessorFactory::createFromResultIdx(const 
         return new RigHugeValResultAccessor;
     }
 
-    if (!eclipseCase) return NULL;
+    if (!eclipseCase) return nullptr;
 
     const RigGridBase* grid = eclipseCase->grid(gridIndex);
-    if (!grid) return NULL;
+    if (!grid) return nullptr;
 
     const std::vector< std::vector<double> >& scalarSetResults = eclipseCase->results(porosityModel)->cellScalarResults(resultIndex);
 
@@ -335,7 +325,7 @@ cvf::ref<RigResultAccessor> RigResultAccessorFactory::createFromResultIdx(const 
         return new RigHugeValResultAccessor;
     }
 
-    const std::vector<double>* resultValues = NULL;
+    const std::vector<double>* resultValues = nullptr;
     if (timeStepIndex < scalarSetResults.size())
     {
         resultValues = &(scalarSetResults[timeStepIndex]);

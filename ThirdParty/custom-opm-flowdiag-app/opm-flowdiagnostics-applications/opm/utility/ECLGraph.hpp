@@ -111,10 +111,13 @@ namespace Opm {
         ///     outside valid range or if the specific cell identified by \p
         ///     ijk and \p gridID is not actually active.
         int activeCell(const std::array<int,3>& ijk,
-                       const std::string&       gridID = 0) const;
+                       const std::string&       gridID = "") const;
 
         /// Retrieve number of active cells in graph.
         std::size_t numCells() const;
+
+        /// Retrieve number of active cells in particular subgrid.
+        std::size_t numCells(const std::string& gridID) const;
 
         /// Retrieve number of connections in graph.
         std::size_t numConnections() const;
@@ -182,6 +185,24 @@ namespace Opm {
         std::vector<T>
         rawLinearisedCellData(const ResultSet&   rset,
                               const std::string& vector) const;
+
+        /// Retrieve result set vector from current view (e.g., particular
+        /// report step) linearised on active cells of a particular sub-grid.
+        ///
+        /// \tparam T Element type of result set vector.
+        ///
+        /// \param[in] vector Name of result set vector.
+        ///
+        /// \param[in] gridID Identity of specific grid to which to relate
+        ///    the requested vector.  Use empty for main grid and names for
+        ///    any LGRs.
+        ///
+        /// \return Result set vector linearised on active cells of sub-grid.
+        template <typename T, class ResultSet>
+        std::vector<T>
+        rawLinearisedCellData(const ResultSet&   rset,
+                              const std::string& vector,
+                              const std::string& gridID) const;
 
         /// Convenience type alias for \c UnitSystem PMFs (pointer to member
         /// function).

@@ -25,6 +25,7 @@
 #include "RimProject.h"
 #include "RimSummaryCaseMainCollection.h"
 #include "RimSummaryPlotCollection.h"
+#include "RimSummaryCaseCollection.h"
 
 #include "cvfAssert.h"
 
@@ -37,7 +38,7 @@ CAF_PDM_ABSTRACT_SOURCE_INIT(RimSummaryCase,"SummaryCase");
 //--------------------------------------------------------------------------------------------------
 RimSummaryCase::RimSummaryCase()
 {
-    CAF_PDM_InitObject("Summary Case",":/SummaryCase48x48.png","","");
+    CAF_PDM_InitObject("Summary Case",":/SummaryCase16x16.png","","");
 
     CAF_PDM_InitField(&m_shortName, "ShortName", QString("Display Name"), "Display Name", "", "", "");
     CAF_PDM_InitField(&m_useAutoShortName, "AutoShortyName", false, "Use Auto Display Name", "", "", "");
@@ -81,6 +82,62 @@ void RimSummaryCase::setSummaryHeaderFileName(const QString& fileName)
 bool RimSummaryCase::isObservedData()
 {
     return m_isObservedData;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCase::setCaseRealizationParameters(const std::shared_ptr<RigCaseRealizationParameters>& crlParameters)
+{
+    m_crlParameters = crlParameters;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::shared_ptr<RigCaseRealizationParameters> RimSummaryCase::caseRealizationParameters() const
+{
+    return m_crlParameters;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimSummaryCase::hasCaseRealizationParameters() const
+{
+    return m_crlParameters != nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimSummaryCaseCollection* RimSummaryCase::ensemble() const
+{
+    RimSummaryCaseCollection* e;
+    firstAncestorOrThisOfType(e);
+    return e && e->isEnsemble() ? e : nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCase::copyFrom(const RimSummaryCase& rhs)
+{
+    m_shortName = rhs.m_shortName;
+    m_useAutoShortName = rhs.m_useAutoShortName;
+    m_summaryHeaderFilename = rhs.m_summaryHeaderFilename;
+    m_isObservedData = rhs.m_isObservedData;
+
+    this->updateTreeItemName();
+    this->updateOptionSensitivity();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Sorting operator for sets and maps. Sorts by summary case short name.
+//--------------------------------------------------------------------------------------------------
+bool RimSummaryCase::operator<(const RimSummaryCase& rhs) const
+{
+    return this->caseName() < rhs.caseName();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -147,7 +204,7 @@ void RimSummaryCase::updateAutoShortName()
 {
     if(m_useAutoShortName)
     {
-        RimOilField* oilField = NULL;
+        RimOilField* oilField = nullptr;
         this->firstAncestorOrThisOfType(oilField);
         CVF_ASSERT(oilField);
 

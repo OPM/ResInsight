@@ -19,20 +19,24 @@
 
 #include <stdlib.h>
 
+#include "RifElementPropertyReader.h"
+#include "RifGeoMechReaderInterface.h"
+#include "RigFemPartCollection.h"
 #include "RigFemPartResultsCollection.h"
 #include "RigGeoMechCaseData.h"
-#include "RigFemPartCollection.h"
-#include "RifGeoMechReaderInterface.h"
 
 #ifdef USE_ODB_API 
 #include "RifOdbReader.h"
 #endif
+
 #include "RigFemScalarResultFrames.h"
 #include "RigStatisticsDataCache.h"
-#include <cmath>
-#include "cvfBoundingBox.h"
+
 #include "cafProgressInfo.h"
+#include "cvfBoundingBox.h"
+
 #include <QString>
+#include <cmath>
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -84,17 +88,48 @@ RigFemPartResultsCollection* RigGeoMechCaseData::femPartResults()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-bool RigGeoMechCaseData::openAndReadFemParts(std::string* errorMessage)
+bool RigGeoMechCaseData::open(std::string* errorMessage)
 {
-
 #ifdef USE_ODB_API    
     m_readerInterface = new RifOdbReader;
 #endif
 
     if (m_readerInterface.notNull() && m_readerInterface->openFile(m_geoMechCaseFileName, errorMessage))
     {
+        return true;
+    }
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RigGeoMechCaseData::readTimeSteps(std::string* errorMessage, std::vector<std::string>* stepNames)
+{
+    CVF_ASSERT(stepNames);
+#ifdef USE_ODB_API  
+    if (m_readerInterface.notNull() && m_readerInterface->isOpen())
+    {
+        *stepNames = m_readerInterface->allStepNames();
+        return true;
+    }
+#endif
+    *errorMessage = std::string("Could not read time steps");
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RigGeoMechCaseData::readFemParts(std::string* errorMessage, const std::vector<size_t>& timeStepFilter)
+{
+    CVF_ASSERT(errorMessage);
+#ifdef USE_ODB_API  
+    if (m_readerInterface.notNull() && m_readerInterface->isOpen())
+    {
+        m_readerInterface->setTimeStepFilter(timeStepFilter);
         m_femParts = new RigFemPartCollection();
 
         caf::ProgressInfo progress(10, ""); // Here because the next call uses progress
@@ -104,17 +139,20 @@ bool RigGeoMechCaseData::openAndReadFemParts(std::string* errorMessage)
             progress.incrementProgress();
             progress.setProgressDescription("Calculating element neighbors");
 
+            m_elementPropertyReader = new RifElementPropertyReader(m_femParts->part(0)->elementIdxToId());
             // Initialize results containers
-            m_femPartResultsColl = new RigFemPartResultsCollection(m_readerInterface.p(), m_femParts.p());
+            m_femPartResultsColl = new RigFemPartResultsCollection(m_readerInterface.p(), m_elementPropertyReader.p(), m_femParts.p());
 
             // Calculate derived Fem data
             for (int pIdx = 0; pIdx < m_femParts->partCount(); ++pIdx)
             {
                 m_femParts->part(pIdx)->assertNodeToElmIndicesIsCalculated();
                 m_femParts->part(pIdx)->assertElmNeighborsIsCalculated();
-            }
+            }            
             return true;
         }
     }
+#endif
+    *errorMessage = std::string("Could not read FEM parts");
     return false;
 }

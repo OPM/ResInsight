@@ -200,11 +200,12 @@ void RicfObjectCapability::writeFields(QTextStream& outputStream) const
             if ( writtenFieldCount >= 1 )
             {
                 outputStream << ", ";
-                ++writtenFieldCount;
             }
 
             outputStream << keyword << " = ";
             rcfField->writeFieldData(outputStream);
+            
+            writtenFieldCount++;
         }
     }
 }

@@ -37,11 +37,10 @@
 #include "RimSummaryCurveAppearanceCalculator.h"
 #include "RimSummaryPlot.h"
 #include "RimSummaryPlotCollection.h"
-#include "RimView.h"
+#include "Rim3dView.h"
 #include "RiaSummaryTools.h"
 
-#include "RiuMainPlotWindow.h"
-#include "RiuMainWindow.h"
+#include "RiuPlotMainWindow.h"
 
 #include "cafSelectionManager.h"
 
@@ -185,7 +184,7 @@ void RicPlotProductionRateFeature::onActionTriggered(bool isChecked)
 
     if (summaryPlotToSelect)
     {
-        RiuMainPlotWindow* mainPlotWindow = RiaApplication::instance()->getOrCreateAndShowMainPlotWindow();
+        RiuPlotMainWindow* mainPlotWindow = RiaApplication::instance()->getOrCreateAndShowMainPlotWindow();
         if (mainPlotWindow)
         {
             mainPlotWindow->selectAsCurrentItem(summaryPlotToSelect);
@@ -238,7 +237,7 @@ bool RicPlotProductionRateFeature::isInjector(RimSimWellInView* well)
     RigSimWellData* wRes = well->simWellData();
     if (wRes)
     {
-        RimView* rimView = nullptr;
+        Rim3dView* rimView = nullptr;
         well->firstAncestorOrThisOfTypeAsserted(rimView);
 
         int currentTimeStep = rimView->currentTimeStep();
@@ -281,7 +280,8 @@ RimSummaryCurve* RicPlotProductionRateFeature::addSummaryCurve( RimSummaryPlot* 
         -1,
         -1,
         -1,
-        -1);
+        -1,
+        false);
 
     if (!gridSummaryCase->summaryReader()->hasAddress(addr))
     {

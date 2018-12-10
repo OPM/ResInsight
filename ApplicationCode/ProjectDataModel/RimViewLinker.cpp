@@ -2,17 +2,17 @@
 //
 //  Copyright (C) 2015-     Statoil ASA
 //  Copyright (C) 2015-     Ceetron Solutions AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -23,6 +23,7 @@
 
 #include "RigMainGrid.h"
 
+#include "Rim3dView.h"
 #include "RimCase.h"
 #include "RimEclipseCellColors.h"
 #include "RimEclipseInputCase.h"
@@ -33,29 +34,28 @@
 #include "RimGeoMechCellColors.h"
 #include "RimGeoMechResultDefinition.h"
 #include "RimGeoMechView.h"
-#include "RimLegendConfig.h"
+#include "RimIntersectionCollection.h"
 #include "RimProject.h"
+#include "RimRegularLegendConfig.h"
 #include "RimTernaryLegendConfig.h"
-#include "RimView.h"
 #include "RimViewController.h"
 #include "RimViewLinkerCollection.h"
 #include "RimViewManipulator.h"
 
 #include "RiuViewer.h"
 
-#include "cvfCamera.h"
-#include "cvfScene.h"
-#include "cvfMatrix4.h"
 #include "cafPdmUiTreeOrdering.h"
-
-
+#include "cvfCamera.h"
+#include "cvfMatrix4.h"
+#include "cvfScene.h"
 
 CAF_PDM_SOURCE_INIT(RimViewLinker, "ViewLinker");
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RimViewLinker::RimViewLinker(void)
+RimViewLinker::RimViewLinker()
 {
+    // clang-format off
     CAF_PDM_InitObject("Linked Views", "", "", "");
 
     CAF_PDM_InitField(&m_name, "Name", QString("View Group Name"), "View Group Name", "", "", "");
@@ -68,12 +68,13 @@ RimViewLinker::RimViewLinker(void)
     CAF_PDM_InitFieldNoDefault(&m_viewControllers, "ManagedViews", "Managed Views", "", "", "");
     m_viewControllers.uiCapability()->setUiHidden(true);
     m_viewControllers.uiCapability()->setUiTreeChildrenHidden(true);
+    // clang-format on
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RimViewLinker::~RimViewLinker(void)
+RimViewLinker::~RimViewLinker()
 {
     removeOverrides();
 
@@ -81,9 +82,9 @@ RimViewLinker::~RimViewLinker(void)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RimViewLinker::updateTimeStep(RimView* sourceView, int timeStep)
+void RimViewLinker::updateTimeStep(RimGridView* sourceView, int timeStep)
 {
     CVF_ASSERT(sourceView);
 
@@ -105,15 +106,11 @@ void RimViewLinker::updateTimeStep(RimView* sourceView, int timeStep)
         m_masterView->viewer()->setCurrentFrame(timeStep);
     }
 
-    for (size_t i = 0; i < m_viewControllers.size(); i++)
+    for (RimViewController* viewLink : m_viewControllers)
     {
-        RimViewController* viewLink = m_viewControllers[i];
-
         if (!viewLink->isTimeStepLinked()) continue;
 
-        if (   viewLink->managedView()
-            && viewLink->managedView() != sourceView
-            && viewLink->managedView()->viewer())
+        if (viewLink->managedView() && viewLink->managedView() != sourceView && viewLink->managedView()->viewer())
         {
             viewLink->managedView()->viewer()->setCurrentFrame(timeStep);
         }
@@ -121,24 +118,22 @@ void RimViewLinker::updateTimeStep(RimView* sourceView, int timeStep)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimViewLinker::updateCellResult()
 {
-    RimView* rimView = m_masterView;
+    Rim3dView*      rimView           = m_masterView;
     RimEclipseView* masterEclipseView = dynamic_cast<RimEclipseView*>(rimView);
     if (masterEclipseView && masterEclipseView->cellResult())
     {
         RimEclipseResultDefinition* eclipseCellResultDefinition = masterEclipseView->cellResult();
 
-        for (size_t i = 0; i < m_viewControllers.size(); i++)
+        for (RimViewController* viewLink : m_viewControllers)
         {
-            RimViewController* viewLink = m_viewControllers[i];
-
             if (viewLink->managedView())
             {
-                RimView* rimView = viewLink->managedView();
-                RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>(rimView);
+                Rim3dView*      managedView = viewLink->managedView();
+                RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>(managedView);
                 if (eclipseView)
                 {
                     if (viewLink->isResultColorControlled())
@@ -148,16 +143,18 @@ void RimViewLinker::updateCellResult()
 
                         if (viewLink->isLegendDefinitionsControlled())
                         {
-                            eclipseView->cellResult()->legendConfig()->setUiValuesFromLegendConfig(masterEclipseView->cellResult()->legendConfig());
+                            eclipseView->cellResult()->legendConfig()->setUiValuesFromLegendConfig(
+                                masterEclipseView->cellResult()->legendConfig());
                             eclipseView->cellResult()->legendConfig()->updateLegend();
 
-                            eclipseView->cellResult()->ternaryLegendConfig()->setUiValuesFromLegendConfig(masterEclipseView->cellResult()->ternaryLegendConfig());
-                            eclipseView->cellResult()->ternaryLegendConfig()->updateLegend();
+                            eclipseView->cellResult()->ternaryLegendConfig()->setUiValuesFromLegendConfig(
+                                masterEclipseView->cellResult()->ternaryLegendConfig());
                         }
 
                         eclipseView->scheduleCreateDisplayModelAndRedraw();
+                        eclipseView->crossSectionCollection()->scheduleCreateDisplayModelAndRedraw2dIntersectionViews();
                     }
-                    
+
                     eclipseView->cellResult()->updateIconState();
                 }
             }
@@ -169,14 +166,12 @@ void RimViewLinker::updateCellResult()
     {
         RimGeoMechResultDefinition* geoMechResultDefinition = masterGeoView->cellResult();
 
-        for (size_t i = 0; i < m_viewControllers.size(); i++)
+        for (RimViewController* viewLink : m_viewControllers)
         {
-            RimViewController* viewLink = m_viewControllers[i];
-
             if (viewLink->managedView())
             {
-                RimView* rimView = viewLink->managedView();
-                RimGeoMechView* geoView = dynamic_cast<RimGeoMechView*>(rimView);
+                Rim3dView*      managedView = viewLink->managedView();
+                RimGeoMechView* geoView     = dynamic_cast<RimGeoMechView*>(managedView);
                 if (geoView)
                 {
                     if (viewLink->isResultColorControlled())
@@ -185,11 +180,13 @@ void RimViewLinker::updateCellResult()
 
                         if (viewLink->isLegendDefinitionsControlled())
                         {
-                            geoView->cellResult()->legendConfig()->setUiValuesFromLegendConfig(masterGeoView->cellResult()->legendConfig());
+                            geoView->cellResult()->legendConfig()->setUiValuesFromLegendConfig(
+                                masterGeoView->cellResult()->legendConfig());
                             geoView->cellResult()->legendConfig()->updateLegend();
                         }
 
                         geoView->scheduleCreateDisplayModelAndRedraw();
+                        geoView->crossSectionCollection()->scheduleCreateDisplayModelAndRedraw2dIntersectionViews();
                     }
 
                     geoView->cellResult()->updateIconState();
@@ -200,25 +197,23 @@ void RimViewLinker::updateCellResult()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimViewLinker::updateRangeFilters(RimCellRangeFilter* changedRangeFilter)
 {
-    for (size_t i = 0; i < m_viewControllers.size(); i++)
+    for (RimViewController* viewLink : m_viewControllers)
     {
-        RimViewController* viewLink = m_viewControllers[i];
         viewLink->updateRangeFilterOverrides(changedRangeFilter);
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimViewLinker::updateOverrides()
 {
-    for (size_t i = 0; i < m_viewControllers.size(); i++)
+    for (RimViewController* viewLink : m_viewControllers)
     {
-        RimViewController* viewLink = m_viewControllers[i];
         if (viewLink->isActive())
         {
             viewLink->updateOverrides();
@@ -231,23 +226,23 @@ void RimViewLinker::updateOverrides()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimViewLinker::removeOverrides()
 {
-    for (size_t i = 0; i < m_viewControllers.size(); i++)
+    for (const auto& viewController : m_viewControllers)
     {
-        if (m_viewControllers[i]->managedView())
+        if (viewController->managedView())
         {
-            m_viewControllers[i]->removeOverrides();
+            viewController->removeOverrides();
         }
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RimViewLinker::allViewsForCameraSync(const RimView* source, std::vector<RimView*>& views) const
+void RimViewLinker::allViewsForCameraSync(const RimGridView* source, std::vector<RimGridView*>& views) const
 {
     if (!isActive()) return;
 
@@ -256,20 +251,20 @@ void RimViewLinker::allViewsForCameraSync(const RimView* source, std::vector<Rim
         views.push_back(m_masterView());
     }
 
-    for (size_t i = 0; i < m_viewControllers.size(); i++)
+    for (const auto& viewController : m_viewControllers)
     {
-        if (m_viewControllers[i]->managedView() && source != m_viewControllers[i]->managedView())
+        if (viewController->managedView() && source != viewController->managedView())
         {
-            if (m_viewControllers[i]->isCameraLinked())
+            if (viewController->isCameraLinked())
             {
-                views.push_back(m_viewControllers[i]->managedView());
+                views.push_back(viewController->managedView());
             }
         }
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimViewLinker::updateDependentViews()
 {
@@ -281,19 +276,19 @@ void RimViewLinker::updateDependentViews()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-QString RimViewLinker::displayNameForView(RimView* view)
+QString RimViewLinker::displayNameForView(RimGridView* view)
 {
     QString displayName = "None";
 
     if (view)
     {
-        RimCase* rimCase = NULL;
+        RimCase* rimCase = nullptr;
         view->firstAncestorOrThisOfType(rimCase);
         if (rimCase)
         {
-            displayName = rimCase->caseUserDescription() + ": " + view->name;
+            displayName = rimCase->caseUserDescription() + ": " + view->name();
         }
     }
 
@@ -301,9 +296,9 @@ QString RimViewLinker::displayNameForView(RimView* view)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RimViewLinker::setMasterView(RimView* view)
+void RimViewLinker::setMasterView(RimGridView* view)
 {
     RimViewController* previousViewController = view->viewController();
 
@@ -311,7 +306,7 @@ void RimViewLinker::setMasterView(RimView* view)
     if (previousViewController)
     {
         delete previousViewController;
-        this->m_viewControllers.removeChildObject(NULL);
+        this->m_viewControllers.removeChildObject(nullptr);
     }
 
     this->removeOverrides();
@@ -322,31 +317,31 @@ void RimViewLinker::setMasterView(RimView* view)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RimView* RimViewLinker::masterView() const
+RimGridView* RimViewLinker::masterView() const
 {
     return m_masterView;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RimViewLinker::allViews(std::vector<RimView*>& views) const
+void RimViewLinker::allViews(std::vector<RimGridView*>& views) const
 {
     views.push_back(m_masterView());
 
-    for (size_t i = 0; i < m_viewControllers.size(); i++)
+    for (const auto& viewController : m_viewControllers)
     {
-        if (m_viewControllers[i]->managedView())
+        if (viewController->managedView())
         {
-            views.push_back(m_viewControllers[i]->managedView());
+            views.push_back(viewController->managedView());
         }
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimViewLinker::initAfterRead()
 {
@@ -354,9 +349,9 @@ void RimViewLinker::initAfterRead()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RimViewLinker::updateScaleZ(RimView* sourceView, double scaleZ)
+void RimViewLinker::updateScaleZ(RimGridView* sourceView, double scaleZ)
 {
     if (!isActive()) return;
 
@@ -371,24 +366,24 @@ void RimViewLinker::updateScaleZ(RimView* sourceView, double scaleZ)
         }
     }
 
-    std::vector<RimView*> views;
+    std::vector<RimGridView*> views;
     allViewsForCameraSync(sourceView, views);
 
     // Make sure scale factors are identical
-    for (size_t i = 0; i < views.size(); i++)
+    for (auto& view : views)
     {
-        views[i]->setScaleZAndUpdate(scaleZ);
+        view->setScaleZAndUpdate(scaleZ);
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RimViewLinker::isActive() const
 {
-    RimViewLinkerCollection* viewLinkerCollection = NULL;
+    RimViewLinkerCollection* viewLinkerCollection = nullptr;
     this->firstAncestorOrThisOfType(viewLinkerCollection);
-    
+
     if (!viewLinkerCollection)
     {
         // This will happen when the all linked views are about to be deleted
@@ -418,9 +413,8 @@ void RimViewLinker::applyIconEnabledState(caf::PdmObject* obj, const QIcon& icon
     obj->setUiIcon(newIcon);
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimViewLinker::updateUiNameAndIcon()
 {
@@ -429,32 +423,31 @@ void RimViewLinker::updateUiNameAndIcon()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimViewLinker::scheduleGeometryRegenForDepViews(RivCellSetEnum geometryType)
 {
-    for (size_t i = 0; i < m_viewControllers.size(); i++)
+    for (const auto& viewController : m_viewControllers)
     {
-        m_viewControllers[i]->scheduleGeometryRegenForDepViews(geometryType);
+        viewController->scheduleGeometryRegenForDepViews(geometryType);
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimViewLinker::scheduleCreateDisplayModelAndRedrawForDependentViews()
 {
-    for (size_t i = 0; i < m_viewControllers.size(); i++)
+    for (const auto& viewController : m_viewControllers)
     {
-        m_viewControllers[i]->scheduleCreateDisplayModelAndRedrawForDependentView();
+        viewController->scheduleCreateDisplayModelAndRedrawForDependentView();
     }
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RimViewLinker::findNameAndIconFromView(QString* name, QIcon* icon, RimView* view)
+void RimViewLinker::findNameAndIconFromView(QString* name, QIcon* icon, RimGridView* view)
 {
     CVF_ASSERT(name && icon);
 
@@ -462,7 +455,7 @@ void RimViewLinker::findNameAndIconFromView(QString* name, QIcon* icon, RimView*
 
     if (view)
     {
-        RimCase* rimCase = NULL;
+        RimCase* rimCase = nullptr;
         view->firstAncestorOrThisOfType(rimCase);
 
         if (dynamic_cast<RimGeoMechCase*>(rimCase))
@@ -485,9 +478,9 @@ void RimViewLinker::findNameAndIconFromView(QString* name, QIcon* icon, RimView*
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RimViewLinker::updateCursorPosition(const RimView* sourceView, const cvf::Vec3d& domainCoord)
+void RimViewLinker::updateCursorPosition(const RimGridView* sourceView, const cvf::Vec3d& domainCoord)
 {
     RimViewController* sourceViewLink = sourceView->viewController();
     if (sourceViewLink && !sourceViewLink->showCursor())
@@ -495,10 +488,10 @@ void RimViewLinker::updateCursorPosition(const RimView* sourceView, const cvf::V
         return;
     }
 
-    std::vector<RimView*> viewsToUpdate;
+    std::vector<RimGridView*> viewsToUpdate;
     allViewsForCameraSync(sourceView, viewsToUpdate);
 
-    for (RimView* destinationView : viewsToUpdate)
+    for (Rim3dView* destinationView : viewsToUpdate)
     {
         if (destinationView == sourceView) continue;
 
@@ -519,12 +512,12 @@ void RimViewLinker::updateCursorPosition(const RimView* sourceView, const cvf::V
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RimViewLinker::updateCamera(RimView* sourceView)
+void RimViewLinker::updateCamera(RimGridView* sourceView)
 {
     if (!sourceView->viewer()) return;
-    
+
     if (!isActive()) return;
 
     RimViewController* viewLink = sourceView->viewController();
@@ -536,19 +529,19 @@ void RimViewLinker::updateCamera(RimView* sourceView)
         }
     }
 
-    std::vector<RimView*> viewsToUpdate;
+    std::vector<RimGridView*> viewsToUpdate;
     allViewsForCameraSync(sourceView, viewsToUpdate);
 
     RimViewManipulator::applySourceViewCameraOnDestinationViews(sourceView, viewsToUpdate);
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RimViewLinker::addDependentView(RimView* view)
+void RimViewLinker::addDependentView(RimGridView* view)
 {
     CVF_ASSERT(view && view != m_masterView);
-     
+
     RimViewController* viewContr = new RimViewController;
     this->m_viewControllers.push_back(viewContr);
 
@@ -556,32 +549,57 @@ void RimViewLinker::addDependentView(RimView* view)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
+//--------------------------------------------------------------------------------------------------
+bool RimViewLinker::isFirstViewDependentOnSecondView(const RimGridView* firstView, const RimGridView* secondView) const
+{
+    for (const RimViewController* controller : m_viewControllers())
+    {
+        if (controller->masterView() == secondView && controller->managedView() == firstView)
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
 //--------------------------------------------------------------------------------------------------
 void RimViewLinker::addViewControllers(caf::PdmUiTreeOrdering& uiTreeOrdering) const
 {
-    for (size_t j = 0; j < m_viewControllers.size(); j++)
+    for (const auto& viewController : m_viewControllers)
     {
-        uiTreeOrdering.add(m_viewControllers[j]);
+        uiTreeOrdering.add(viewController);
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimViewLinker::applyRangeFilterCollectionByUserChoice()
 {
-    for (size_t j = 0; j < m_viewControllers.size(); j++)
+    for (const auto& viewController : m_viewControllers)
     {
-        m_viewControllers[j]->applyRangeFilterCollectionByUserChoice();
+        viewController->applyRangeFilterCollectionByUserChoice();
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
+//--------------------------------------------------------------------------------------------------
+void RimViewLinker::updatePropertyFilters(RimPropertyFilter* changedPropertyFilter)
+{
+    for (RimViewController* viewLink : m_viewControllers)
+    {
+        viewLink->updatePropertyFilterOverrides(changedPropertyFilter);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
 //--------------------------------------------------------------------------------------------------
 void RimViewLinker::removeViewController(RimViewController* viewController)
 {
     m_viewControllers.removeChildObject(viewController);
 }
-

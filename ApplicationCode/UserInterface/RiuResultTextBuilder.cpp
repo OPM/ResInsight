@@ -27,14 +27,18 @@
 #include "RigResultAccessorFactory.h"
 #include "RigSimWellData.h"
 
+#include "Rim2dIntersectionView.h"
+#include "RimIntersection.h"
 #include "RimCellEdgeColors.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
 #include "RimEclipseFaultColors.h"
 #include "RimEclipseView.h"
 #include "RimFormationNames.h"
-#include "RimLegendConfig.h"
+#include "RimRegularLegendConfig.h"
 #include "RimReservoirCellResultsStorage.h"
+
+#include "RivIntersectionPartMgr.h"
 
 #include "cafDisplayCoordTransform.h"
 
@@ -53,7 +57,45 @@ RiuResultTextBuilder::RiuResultTextBuilder(RimEclipseView* reservoirView, size_t
     m_timeStepIndex = timeStepIndex;
 
     m_nncIndex = cvf::UNDEFINED_SIZE_T;
-    m_intersectionPoint = cvf::Vec3d::UNDEFINED;
+    m_intersectionPointInDisplay = cvf::Vec3d::UNDEFINED;
+    m_face = cvf::StructGridInterface::NO_FACE;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RiuResultTextBuilder::RiuResultTextBuilder(RimEclipseView* reservoirView, size_t reservoirCellIndex, size_t timeStepIndex)
+{
+    CVF_ASSERT(reservoirView);
+
+    m_reservoirView = reservoirView;
+
+    m_gridIndex = 0;
+    m_cellIndex = 0;
+
+    RimEclipseCase* eclipseCase = nullptr;
+    reservoirView->firstAncestorOrThisOfType(eclipseCase);
+    if (eclipseCase && eclipseCase->eclipseCaseData())
+    {
+        RigEclipseCaseData* caseData = eclipseCase->eclipseCaseData();
+        RigMainGrid* mainGrid = caseData->mainGrid();
+
+        const RigCell& cell = caseData->mainGrid()->globalCellArray()[reservoirCellIndex];
+
+        for (size_t i = 0; i < mainGrid->gridCount(); i++)
+        {
+            if (mainGrid->gridByIndex(i) == cell.hostGrid())
+            {
+                m_gridIndex = i;
+                m_cellIndex = cell.gridLocalCellIndex();
+            }
+        }
+    }
+
+    m_timeStepIndex = timeStepIndex;
+
+    m_nncIndex = cvf::UNDEFINED_SIZE_T;
+    m_intersectionPointInDisplay = cvf::Vec3d::UNDEFINED;
     m_face = cvf::StructGridInterface::NO_FACE;
 }
 
@@ -68,9 +110,17 @@ void RiuResultTextBuilder::setNncIndex(size_t nncIndex)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuResultTextBuilder::setIntersectionPoint(cvf::Vec3d intersectionPoint)
+void RiuResultTextBuilder::setIntersectionPointInDisplay(cvf::Vec3d intersectionPointInDisplay)
 {
-    m_intersectionPoint = intersectionPoint;
+    m_intersectionPointInDisplay = intersectionPointInDisplay;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuResultTextBuilder::set2dIntersectionView(Rim2dIntersectionView* intersectionView)
+{
+    m_2dIntersectionView = intersectionView;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -148,31 +198,59 @@ QString RiuResultTextBuilder::geometrySelectionText(QString itemSeparator)
                 size_t i = 0;
                 size_t j = 0;
                 size_t k = 0;
-                if (eclipseCase->grid(m_gridIndex)->ijkFromCellIndex(m_cellIndex, &i, &j, &k))
+
+                const RigGridBase* grid = eclipseCase->grid(m_gridIndex);
+                if (grid->ijkFromCellIndex(m_cellIndex, &i, &j, &k))
                 {
                     // Adjust to 1-based Eclipse indexing
                     i++;
                     j++;
                     k++;
 
-                    cvf::StructGridInterface::FaceEnum faceEnum(m_face);
+                    if (m_face != cvf::StructGridInterface::NO_FACE)
+                    {
+                        cvf::StructGridInterface::FaceEnum faceEnum(m_face);
 
-                    QString faceText = faceEnum.text();
+                        QString faceText = faceEnum.text();
 
-                    text += QString("Face : %1").arg(faceText) + itemSeparator;
-                    text += QString("Hit grid %1").arg(m_gridIndex) + itemSeparator;
+                        text += QString("Face : %1").arg(faceText) + itemSeparator;
+                    }
+
+                    QString gridName = QString::fromStdString(grid->gridName());
+                    text += QString("Grid : %1 [%2]").arg(gridName).arg(m_gridIndex) + itemSeparator;
+                    
                     text += QString("Cell : [%1, %2, %3]").arg(i).arg(j).arg(k) + itemSeparator;
+
+                    size_t globalCellIndex = grid->reservoirCellIndex(m_cellIndex);
+                    text += QString("Global Cell Index : %4").arg(globalCellIndex) + itemSeparator;
                 }
             }
-
             
-            cvf::ref<caf::DisplayCoordTransform> transForm = m_reservoirView->displayCoordTransform();
-            cvf::Vec3d domainCoord = transForm->translateToDomainCoord(m_intersectionPoint);
+            if (m_intersectionPointInDisplay != cvf::Vec3d::UNDEFINED)
+            {
+                cvf::ref<caf::DisplayCoordTransform> transForm = m_reservoirView->displayCoordTransform();
+                cvf::Vec3d domainCoord = transForm->translateToDomainCoord(m_intersectionPointInDisplay);
 
-            QString formattedText;
-            formattedText.sprintf("Intersection point : [E: %.2f, N: %.2f, Depth: %.2f]", domainCoord.x(), domainCoord.y(), -domainCoord.z());
+                QString formattedText;
+                if (m_2dIntersectionView)
+                {
+                    formattedText.sprintf("Horizontal length from well start: %.2f", m_intersectionPointInDisplay.x());
+                    text += formattedText + itemSeparator;
 
-            text += formattedText;
+                    cvf::Mat4d t = m_2dIntersectionView->flatIntersectionPartMgr()->unflattenTransformMatrix(m_intersectionPointInDisplay);
+                    if (!t.isZero())
+                    {
+                        cvf::Vec3d intPt = m_intersectionPointInDisplay.getTransformedPoint(t);
+                        formattedText.sprintf("Intersection point : [E: %.2f, N: %.2f, Depth: %.2f]", intPt.x(), intPt.y(), -intPt.z());
+                        text += formattedText;
+                    }
+                }
+                else
+                {
+                    formattedText.sprintf("Intersection point : [E: %.2f, N: %.2f, Depth: %.2f]", domainCoord.x(), domainCoord.y(), -domainCoord.z());
+                    text += formattedText;
+                }
+            }
         }
     }
 
@@ -189,7 +267,6 @@ QString RiuResultTextBuilder::gridResultDetails()
     if (m_reservoirView->eclipseCase() && m_reservoirView->eclipseCase()->eclipseCaseData())
     {
         RigEclipseCaseData* eclipseCaseData = m_reservoirView->eclipseCase()->eclipseCaseData();
-        RigGridBase* grid = eclipseCaseData->grid(m_gridIndex);
 
         this->appendTextFromResultColors(eclipseCaseData, m_gridIndex, m_cellIndex, m_timeStepIndex, m_reservoirView->cellResult(), &text);
 
@@ -666,7 +743,6 @@ QString RiuResultTextBuilder::cellResultText(RimEclipseCellColors* resultColors)
     if (m_reservoirView->eclipseCase() && m_reservoirView->eclipseCase()->eclipseCaseData())
     {
         RigEclipseCaseData* eclipseCaseData = m_reservoirView->eclipseCase()->eclipseCaseData();
-        RigGridBase* grid = eclipseCaseData->grid(m_gridIndex);
 
         if (resultColors->isTernarySaturationSelected())
         {
@@ -715,7 +791,7 @@ QString RiuResultTextBuilder::cellResultText(RimEclipseCellColors* resultColors)
                 QString resultValueText;
                 if (resultColors->hasCategoryResult())
                 {
-                    RimLegendConfig* legendConfig = resultColors->legendConfig();
+                    RimRegularLegendConfig* legendConfig = resultColors->legendConfig();
 
                     resultValueText += legendConfig->categoryNameFromCategoryValue(scalarValue);
                 }

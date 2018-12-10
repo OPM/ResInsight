@@ -69,13 +69,23 @@ void RivGridBoxGenerator::setDisplayModelOffset(cvf::Vec3d offset)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivGridBoxGenerator::setGridBoxDomainCoordBoundingBox(const cvf::BoundingBox& bb)
+void RivGridBoxGenerator::setGridBoxDomainCoordBoundingBox(const cvf::BoundingBox& incomingBB)
 {
     double expandFactor = 0.05;
     
     // Use ScalarMapperDiscreteLinear to find human readable tick mark positions for grid box sub division coordinate values
     // Expand the range for ScalarMapperDiscreteLinear until the geometry bounding box has a generated tick mark coords
     // both below minimum and above maximum bounding box coords
+
+    cvf::BoundingBox bb;
+    if (incomingBB.isValid())
+    {
+        bb = incomingBB;
+    }
+    else
+    {
+        bb.add(cvf::Vec3d::ZERO);
+    }
 
     cvf::Vec3d min = bb.min();
     cvf::Vec3d max = bb.max();
@@ -535,8 +545,8 @@ void RivGridBoxGenerator::createLegend(EdgeType edge, cvf::Collection<cvf::Part>
         break;
     }
 
-    std::vector<double>* displayCoordsTickValues = NULL;
-    std::vector<double>* domainCoordsTickValues = NULL;
+    std::vector<double>* displayCoordsTickValues = nullptr;
+    std::vector<double>* domainCoordsTickValues = nullptr;
 
     if (axis == X_AXIS)
     {
@@ -617,10 +627,6 @@ void RivGridBoxGenerator::createLegend(EdgeType edge, cvf::Collection<cvf::Part>
         cvf::ref<cvf::Effect> eff;
         caf::MeshEffectGenerator effGen(m_gridLegendColor);
         eff = effGen.generateUnCachedEffect();
-
-        cvf::ref<cvf::RenderStateDepth> depth = new cvf::RenderStateDepth;
-        depth->enableDepthTest(false);
-        eff->setRenderState(depth.p());
 
         part->setPriority(RivPartPriority::PartType::Text);
         part->setEffect(eff.p());
@@ -734,30 +740,8 @@ cvf::Vec3f RivGridBoxGenerator::cornerDirection(FaceType face1, FaceType face2)
 //--------------------------------------------------------------------------------------------------
 void RivGridBoxGenerator::updateFromBackgroundColor(const cvf::Color3f& backgroundColor)
 {
-    double adjustmentFactor = 0.3;
-    
-    float gridR = 0.0;
-    float gridG = 0.0;
-    float gridB = 0.0;
-
-    if (RiaColorTools::isBrightnessAboveThreshold(backgroundColor))
-    {
-        gridR = backgroundColor.r() - (backgroundColor.r() * adjustmentFactor);
-        gridG = backgroundColor.g() - (backgroundColor.g() * adjustmentFactor);
-        gridB = backgroundColor.b() - (backgroundColor.b() * adjustmentFactor);
-
-        m_gridLegendColor = RiaColorTools::darkContrastColor();
-    }
-    else
-    {
-        gridR = backgroundColor.r() + (1.0 - backgroundColor.r()) * adjustmentFactor;
-        gridG = backgroundColor.g() + (1.0 - backgroundColor.g()) * adjustmentFactor;
-        gridB = backgroundColor.b() + (1.0 - backgroundColor.b()) * adjustmentFactor;
-
-        m_gridLegendColor = RiaColorTools::brightContrastColor();
-    }
-
-    m_gridColor.set(gridR, gridG, gridB);
+    m_gridColor = RiaColorTools::computeOffsetColor(backgroundColor, 0.3f);
+    m_gridLegendColor = RiaColorTools::constrastColor(backgroundColor);
 }
 
 //--------------------------------------------------------------------------------------------------

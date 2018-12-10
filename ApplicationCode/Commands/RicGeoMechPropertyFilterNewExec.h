@@ -31,11 +31,11 @@ class RicGeoMechPropertyFilterNewExec : public caf::CmdExecuteCommand
 {
 public:
     explicit RicGeoMechPropertyFilterNewExec(RimGeoMechPropertyFilterCollection* propertyFilterCollection);
-    virtual ~RicGeoMechPropertyFilterNewExec();
+    ~RicGeoMechPropertyFilterNewExec() override;
 
-    virtual QString name();
-    virtual void redo();
-    virtual void undo();
+    QString name() override;
+    void redo() override;
+    void undo() override;
 
 private:
     caf::PdmPointer<RimGeoMechPropertyFilterCollection> m_propertyFilterCollection;

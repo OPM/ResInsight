@@ -27,13 +27,13 @@
 #include "RimGeoMechCase.h"
 #include "RimOilField.h"
 #include "RimProject.h"
-#include "RimView.h"
+#include "Rim3dView.h"
 
 #include "RigEclipseCaseData.h"
 #include "RigFemPartResultsCollection.h"
 #include "RigGeoMechCaseData.h"
 
-#include "RiuMainWindow.h"
+#include "Riu3DMainWindowTools.h"
 
 #include <QAction>
 #include <QFileDialog>
@@ -56,7 +56,7 @@ void RicImportFormationNamesFeature::onActionTriggered(bool isChecked)
 {
     RiaApplication* app = RiaApplication::instance();
     QString defaultDir = app->lastUsedDialogDirectory("BINARY_GRID");
-    QStringList fileNames = QFileDialog::getOpenFileNames(RiuMainWindow::instance(), "Import Formation Names", defaultDir, "Formation Names description File (*.lyr);;All Files (*.*)");
+    QStringList fileNames = QFileDialog::getOpenFileNames(Riu3DMainWindowTools::mainWindowWidget(), "Import Formation Names", defaultDir, "Formation Names description File (*.lyr);;All Files (*.*)");
 
     if (fileNames.isEmpty()) return;
 
@@ -83,12 +83,14 @@ void RicImportFormationNamesFeature::onActionTriggered(bool isChecked)
     
     if (!cases.empty())
     {
-        RimView* activeView = RiaApplication::instance()->activeReservoirView();
-        RimCase* ownerCase = activeView->ownerCase();
-
-        if (ownerCase)
+        Rim3dView* activeView = RiaApplication::instance()->activeReservoirView();
+        if (activeView)
         {
-            ownerCase->setFormationNames(formationName);
+            RimCase* ownerCase = activeView->ownerCase();
+            if (ownerCase)
+            {
+                ownerCase->setFormationNames(formationName);
+            }
         }
     }
 
@@ -96,7 +98,7 @@ void RicImportFormationNamesFeature::onActionTriggered(bool isChecked)
 
     if (formationName)
     {
-        RiuMainWindow::instance()->selectAsCurrentItem(formationName);
+        Riu3DMainWindowTools::selectAsCurrentItem(formationName);
     }
 }
 

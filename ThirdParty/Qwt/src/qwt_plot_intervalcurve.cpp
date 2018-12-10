@@ -298,7 +298,7 @@ const QBrush& QwtPlotIntervalCurve::brush() const
 QRectF QwtPlotIntervalCurve::boundingRect() const
 {
     QRectF rect = QwtPlotSeriesItem::boundingRect();
-    if ( rect.isValid() && orientation() == Qt::Vertical )
+    if ( rect.width() >= 0.0 && rect.height() >= 0.0 && orientation() == Qt::Vertical )
         rect.setRect( rect.y(), rect.x(), rect.height(), rect.width() );
 
     return rect;

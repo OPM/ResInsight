@@ -473,13 +473,13 @@ namespace {
             explicit InitFileSections(const ecl_file_type* init);
 
             struct Section {
-                Section(const ecl_file_view_type* blk)
+                Section(ecl_file_view_type* blk)
                     : block   (blk)
                     , first_kw(Details::firstBlockKeyword(block))
                 {}
 
-                const ecl_file_view_type* block;
-                std::string               first_kw;
+                ecl_file_view_type* block;
+                std::string         first_kw;
             };
 
             const std::vector<Section>& sections() const
@@ -502,7 +502,7 @@ namespace {
             }
 
         private:
-            const ecl_file_view_type* init_;
+            ecl_file_view_type* init_;
 
             std::vector<Section> sect_;
         };
@@ -796,7 +796,7 @@ ECLImpl::InitFileSections::InitFileSections(const ecl_file_type* init)
                 ? sectID - 1 : 0*sectID;
 
             // Main section 'sectID': [ start_kw, LGRSGONE ]
-            const auto* sect =
+            auto* sect =
                 ecl_file_view_add_blockview2(this->init_, start_kw,
                                              end_kw, start_kw_occurrence);
 
@@ -808,12 +808,12 @@ ECLImpl::InitFileSections::InitFileSections(const ecl_file_type* init)
             const auto occurrence = 0;
 
             // Main grid sub-section of 'sectID': [ start_kw, LGR ]
-            const auto* main_grid_sect =
+            auto* main_grid_sect =
                 ecl_file_view_add_blockview2(sect, firstkw.c_str(),
                                              LGR_KW, occurrence);
 
             // LGR sub-section of 'sectID': [ LGR, LGRSGONE ]
-            const auto* lgr_sect =
+            auto* lgr_sect =
                 ecl_file_view_add_blockview2(sect, LGR_KW,
                                              end_kw, occurrence);
 
@@ -965,7 +965,7 @@ private:
 
         /// Saved original active view from host (prior to restricting view
         /// to single grid ID).
-        const ecl_file_view_type* save_;
+        ecl_file_view_type* save_;
     };
 
     /// Casename prefix.  Mostly to implement copy ctor.
@@ -986,7 +986,7 @@ private:
     std::unique_ptr<ECLImpl::GridIDCache> gridIDCache_;
 
     /// Current active result-set view.
-    mutable const ecl_file_view_type* activeBlock_{ nullptr };
+    mutable ecl_file_view_type* activeBlock_{ nullptr };
 
     /// Support for passing \code *this \endcode to ERT functions that
     /// require an \c ecl_file_type, particularly the function that selects
@@ -1276,7 +1276,7 @@ private:
     /// Sections of the INIT result set.
     ECLImpl::InitFileSections sections_;
 
-    mutable const ecl_file_view_type* activeBlock_{ nullptr };
+    mutable ecl_file_view_type* activeBlock_{ nullptr };
 
     /// Negative look-up cache for haveKeywordData() queries.
     mutable MissingKW missing_kw_;
@@ -1414,6 +1414,10 @@ lookup(const std::string& vector, const std::string& gridName) const
             return i->second;
         }
     }
+
+    // Status of 'vector' unknown for 'gridName'.  Actually look for the
+    // vector in gridName's sections (main grid if gridName.empty(),
+    // otherwise named local grid).
 
     if (gridName.empty()) {
         return this->lookupMainGrid(key);

@@ -35,26 +35,26 @@ class RifEclipseRestartFilesetAccess : public RifEclipseRestartDataAccess
 {
 public:
     RifEclipseRestartFilesetAccess();
-    virtual ~RifEclipseRestartFilesetAccess();
+    ~RifEclipseRestartFilesetAccess() override;
 
-    bool                        open();
-    void                        setRestartFiles(const QStringList& fileSet);
-    void                        close();
+    bool                        open() override;
+    void                        setRestartFiles(const QStringList& fileSet) override;
+    void                        close() override;
 
-    void                        setTimeSteps(const std::vector<QDateTime>& timeSteps);
-    size_t                      timeStepCount();
+    void                        setTimeSteps(const std::vector<QDateTime>& timeSteps) override;
+    size_t                      timeStepCount() override;
     void                        timeSteps(std::vector<QDateTime>* timeSteps, std::vector<double>* daysSinceSimulationStart) override;
-    std::vector<int>            reportNumbers();
+    std::vector<int>            reportNumbers() override;
 
-    void                        resultNames(QStringList* resultNames, std::vector<size_t>* resultDataItemCounts);
-    bool                        results(const QString& resultName, size_t timeStep, size_t gridCount, std::vector<double>* values);
+    void                        resultNames(QStringList* resultNames, std::vector<size_t>* resultDataItemCounts) override;
+    bool                        results(const QString& resultName, size_t timeStep, size_t gridCount, std::vector<double>* values) override;
 
     bool                        dynamicNNCResults(const ecl_grid_type* grid, size_t timeStep, std::vector<double>* waterFlux, std::vector<double>* oilFlux, std::vector<double>* gasFlux) override;
 
-    virtual void                readWellData(well_info_type* well_info, bool importCompleteMswData);
-    virtual int                 readUnitsType();
+    void                readWellData(well_info_type* well_info, bool importCompleteMswData) override;
+    int                 readUnitsType() override;
 
-    virtual std::set<RiaDefines::PhaseType> availablePhases() const override;
+    std::set<RiaDefines::PhaseType> availablePhases() const override;
 
 private:
     void                        openTimeStep(size_t timeStep);

@@ -28,7 +28,7 @@
 #include "RimEclipseView.h"
 #include "RimFaultInView.h"
 #include "RimFaultInViewCollection.h"
-#include "RimView.h"
+#include "Rim3dView.h"
 
 #include "RigFault.h"
 #include "RigMainGrid.h"
@@ -45,7 +45,7 @@ CAF_CMD_SOURCE_INIT(RicEclipseHideFaultFeature, "RicEclipseHideFaultFeature");
 //--------------------------------------------------------------------------------------------------
 bool RicEclipseHideFaultFeature::isCommandEnabled()
 {
-    RimView* view = RiaApplication::instance()->activeReservoirView();
+    Rim3dView* view = RiaApplication::instance()->activeReservoirView();
     if (!view) return false;
     
     RimEclipseView* eclView = dynamic_cast<RimEclipseView*>(view);
@@ -63,7 +63,7 @@ void RicEclipseHideFaultFeature::onActionTriggered(bool isChecked)
 
     if (!userData.isNull() && userData.type() == QVariant::List)
     {
-        RimView* view = RiaApplication::instance()->activeReservoirView();
+        Rim3dView* view = RiaApplication::instance()->activeReservoirView();
         if (!view) return;
         RimEclipseView* eclView = dynamic_cast<RimEclipseView*>(view);
         if (!eclView) return;

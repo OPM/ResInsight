@@ -69,6 +69,7 @@ public:
     static bool         isFolderWritable(const QString& folderName);
 
     static bool         isStringMatch(const QString& filterString, const QString& value);
+    static bool         removeDirectoryAndFilesRecursively(const QString& dirName);
 };
 
 }

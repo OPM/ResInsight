@@ -38,6 +38,7 @@
 #include "RimEclipseInputProperty.h"
 #include "RimEclipseInputPropertyCollection.h"
 #include "RimEclipseView.h"
+#include "RimIntersectionCollection.h"
 #include "RimReservoirCellResultsStorage.h"
 #include "RimGeoMechView.h"
 #include "RimGeoMechCase.h"
@@ -57,7 +58,7 @@ class RiaGetActiveCellProperty: public RiaSocketCommand
 public:
     static QString commandName () { return QString("GetActiveCellProperty"); }
 
-    virtual bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>&  args, QDataStream& socketStream)
+    bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>&  args, QDataStream& socketStream) override
     {
         RimEclipseCase* rimCase = RiaSocketTools::findCaseFromArgs(server, args);
 
@@ -73,7 +74,7 @@ public:
         // Find the requested data
 
         size_t scalarResultIndex = cvf::UNDEFINED_SIZE_T;
-        std::vector< std::vector<double> >* scalarResultFrames = NULL;
+        std::vector< std::vector<double> >* scalarResultFrames = nullptr;
 
         if (rimCase && rimCase->results(porosityModelEnum))
         {
@@ -86,7 +87,7 @@ public:
 
         }
 
-        if (scalarResultFrames == NULL)
+        if (scalarResultFrames == nullptr)
         {
             server->errorMessageDialog()->showMessage(RiaSocketServer::tr("ResInsight SocketServer: \n") 
                                                     + RiaSocketServer::tr("Could not find the %1 model property named: \"%2\"").arg(porosityModelName).arg(propertyName));
@@ -94,7 +95,7 @@ public:
 
         // Write data back : timeStepCount, bytesPrTimestep, dataForTimestep0 ... dataForTimestepN
 
-        if ( scalarResultFrames == NULL)
+        if ( scalarResultFrames == nullptr)
         {
             // No data available
             socketStream << (quint64)0 << (quint64)0 ;
@@ -221,7 +222,7 @@ class RiaGetGridProperty: public RiaSocketCommand
 public:
     static QString commandName () { return QString("GetGridProperty"); }
 
-    virtual bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>&  args, QDataStream& socketStream)
+    bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>&  args, QDataStream& socketStream) override
     {
         int caseId                = args[1].toInt();
         int gridIdx               = args[2].toInt();
@@ -229,7 +230,7 @@ public:
         QString porosityModelName = args[4];
         
         RimEclipseCase*rimCase = server->findReservoir(caseId);
-        if (rimCase == NULL)
+        if (rimCase == nullptr)
         {
             server->errorMessageDialog()->showMessage(RiaSocketServer::tr("ResInsight SocketServer: \n") + RiaSocketServer::tr("Could not find the case with ID: \"%1\"").arg(caseId));
 
@@ -381,8 +382,8 @@ class RiaSetActiveCellProperty: public RiaSocketCommand
 {
 public:
     RiaSetActiveCellProperty() :
-        m_currentReservoir(NULL),
-        m_scalarResultsToAdd(NULL),
+        m_currentReservoir(nullptr),
+        m_scalarResultsToAdd(nullptr),
         m_currentScalarIndex(cvf::UNDEFINED_SIZE_T),
         m_timeStepCountToRead(0),
         m_bytesPerTimeStepToRead(0),
@@ -393,7 +394,7 @@ public:
 
     static QString commandName () { return QString("SetActiveCellProperty"); }
 
-    virtual bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>&  args, QDataStream& socketStream)
+    bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>&  args, QDataStream& socketStream) override
     {
         RimEclipseCase* rimCase = RiaSocketTools::findCaseFromArgs(server, args);
 
@@ -408,7 +409,7 @@ public:
         // Find the requested data, Or create a set if we are setting data and it is not found
 
         size_t scalarResultIndex = cvf::UNDEFINED_SIZE_T;
-        std::vector< std::vector<double> >* scalarResultFrames = NULL;
+        std::vector< std::vector<double> >* scalarResultFrames = nullptr;
 
         if (rimCase && rimCase->results(m_porosityModelEnum))
         {
@@ -435,7 +436,7 @@ public:
             }
         }
 
-        if (scalarResultFrames == NULL)
+        if (scalarResultFrames == nullptr)
         {
             server->errorMessageDialog()->showMessage(RiaSocketServer::tr("ResInsight SocketServer: \n") + RiaSocketServer::tr("Could not find the %1 model property named: \"%2\"").arg(porosityModelName).arg(propertyName));
             return true;
@@ -509,7 +510,7 @@ public:
         return false;
     }
 
-    virtual bool interpretMore(RiaSocketServer* server, QTcpSocket* currentClient)
+    bool interpretMore(RiaSocketServer* server, QTcpSocket* currentClient) override
     {
 //        std::cout << "RiaSetActiveCellProperty, interpretMore: scalarIndex : " << m_currentScalarIndex;
 
@@ -580,7 +581,7 @@ public:
         }
 
         std::vector<double> readBuffer;
-        double * internalMatrixData = NULL;
+        double * internalMatrixData = nullptr;
 
         if (isCoarseningActive)
         {
@@ -634,21 +635,21 @@ public:
 
         if (m_currentTimeStepNumberToRead == m_timeStepCountToRead)
         {
-            if (m_currentReservoir != NULL)
+            if (m_currentReservoir != nullptr)
             {
                 // Create a new input property if we have an input reservoir
                 RimEclipseInputCase* inputRes = dynamic_cast<RimEclipseInputCase*>(m_currentReservoir);
                 if (inputRes)
                 {
-                    RimEclipseInputProperty* inputProperty = inputRes->m_inputPropertyCollection->findInputProperty(m_currentPropertyName);
+                    RimEclipseInputProperty* inputProperty = inputRes->inputPropertyCollection()->findInputProperty(m_currentPropertyName);
                     if (!inputProperty)
                     {
                         inputProperty = new RimEclipseInputProperty;
                         inputProperty->resultName = m_currentPropertyName;
                         inputProperty->eclipseKeyword = "";
                         inputProperty->fileName = "";
-                        inputRes->m_inputPropertyCollection->inputProperties.push_back(inputProperty);
-                        inputRes->m_inputPropertyCollection()->updateConnectedEditors();
+                        inputRes->inputPropertyCollection()->inputProperties.push_back(inputProperty);
+                        inputRes->inputPropertyCollection()->updateConnectedEditors();
                     }
                     inputProperty->resolvedState = RimEclipseInputProperty::RESOLVED_NOT_SAVED;
                 }
@@ -660,7 +661,7 @@ public:
                     // Adjust the result data if only one time step is requested so the result behaves like a static result
                     if (m_requestedTimesteps.size() == 1 && m_currentScalarIndex != cvf::UNDEFINED_SIZE_T)
                     {
-                        std::vector< std::vector<double> >* scalarResultFrames = NULL;
+                        std::vector< std::vector<double> >* scalarResultFrames = nullptr;
                         scalarResultFrames = &(m_currentReservoir->results(m_porosityModelEnum)->cellScalarResults(m_currentScalarIndex));
                         size_t lastIndexWithDataPresent = cvf::UNDEFINED_SIZE_T;
                         for (size_t i = 0; i < scalarResultFrames->size(); i++)
@@ -685,11 +686,12 @@ public:
                     if (m_currentReservoir->reservoirViews[i])
                     {
                         // As new result might have been introduced, update all editors connected
-                        m_currentReservoir->reservoirViews[i]->cellResult->updateConnectedEditors();
+                        m_currentReservoir->reservoirViews[i]->cellResult()->updateConnectedEditors();
 
                         // It is usually not needed to create new display model, but if any derived geometry based on generated data (from Octave) 
                         // a full display model rebuild is required
                         m_currentReservoir->reservoirViews[i]->scheduleCreateDisplayModelAndRedraw();
+                        m_currentReservoir->reservoirViews[i]->crossSectionCollection()->scheduleCreateDisplayModelAndRedraw2dIntersectionViews();
                     }
                 }
             }
@@ -726,8 +728,8 @@ class RiaSetGridProperty : public RiaSocketCommand
 {
 public:
     RiaSetGridProperty() :
-      m_currentReservoir(NULL),
-          m_scalarResultsToAdd(NULL),
+      m_currentReservoir(nullptr),
+          m_scalarResultsToAdd(nullptr),
           m_currentGridIndex(cvf::UNDEFINED_SIZE_T),
           m_currentScalarIndex(cvf::UNDEFINED_SIZE_T),
           m_timeStepCountToRead(0),
@@ -739,7 +741,7 @@ public:
 
     static QString commandName () { return QString("SetGridProperty"); }
 
-    virtual bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>& args, QDataStream& socketStream)
+    bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>& args, QDataStream& socketStream) override
     {
         int caseId = args[1].toInt();
         RimEclipseCase* rimCase = server->findReservoir(caseId);
@@ -801,7 +803,7 @@ public:
 
 
         size_t scalarResultIndex = cvf::UNDEFINED_SIZE_T;
-        std::vector< std::vector<double> >* scalarResultFrames = NULL;
+        std::vector< std::vector<double> >* scalarResultFrames = nullptr;
 
         if (rimCase && rimCase->results(m_porosityModelEnum))
         {
@@ -823,7 +825,7 @@ public:
             }
         }
 
-        if (scalarResultFrames == NULL)
+        if (scalarResultFrames == nullptr)
         {
             server->errorMessageDialog()->showMessage(RiaSocketServer::tr("ResInsight SocketServer: \n") + RiaSocketServer::tr("Could not find the %1 model property named: \"%2\"").arg(porosityModelName).arg(propertyName));
             return true;
@@ -885,7 +887,7 @@ public:
         return false;
     }
 
-    virtual bool interpretMore(RiaSocketServer* server, QTcpSocket* currentClient)
+    bool interpretMore(RiaSocketServer* server, QTcpSocket* currentClient) override
     {
 
         if (m_invalidDataDetected){
@@ -997,21 +999,21 @@ public:
 
         if (m_currentTimeStepNumberToRead == m_timeStepCountToRead)
         {
-            if (m_currentReservoir != NULL)
+            if (m_currentReservoir != nullptr)
             {
                 // Create a new input property if we have an input reservoir
                 RimEclipseInputCase* inputRes = dynamic_cast<RimEclipseInputCase*>(m_currentReservoir);
                 if (inputRes)
                 {
-                    RimEclipseInputProperty* inputProperty = inputRes->m_inputPropertyCollection->findInputProperty(m_currentPropertyName);
+                    RimEclipseInputProperty* inputProperty = inputRes->inputPropertyCollection()->findInputProperty(m_currentPropertyName);
                     if (!inputProperty)
                     {
                         inputProperty = new RimEclipseInputProperty;
                         inputProperty->resultName = m_currentPropertyName;
                         inputProperty->eclipseKeyword = "";
                         inputProperty->fileName = "";
-                        inputRes->m_inputPropertyCollection->inputProperties.push_back(inputProperty);
-                        inputRes->m_inputPropertyCollection()->updateConnectedEditors();
+                        inputRes->inputPropertyCollection()->inputProperties.push_back(inputProperty);
+                        inputRes->inputPropertyCollection()->updateConnectedEditors();
                     }
                     inputProperty->resolvedState = RimEclipseInputProperty::RESOLVED_NOT_SAVED;
                 }
@@ -1023,7 +1025,7 @@ public:
                     // Adjust the result data if only one time step is requested so the result behaves like a static result
                     if (m_requestedTimesteps.size() == 1 && m_currentScalarIndex != cvf::UNDEFINED_SIZE_T)
                     {
-                        std::vector< std::vector<double> >* scalarResultFrames = NULL;
+                        std::vector< std::vector<double> >* scalarResultFrames = nullptr;
                         scalarResultFrames = &(m_currentReservoir->results(m_porosityModelEnum)->cellScalarResults(m_currentScalarIndex));
                         size_t lastIndexWithDataPresent = cvf::UNDEFINED_SIZE_T;
                         for (size_t i = 0; i < scalarResultFrames->size(); i++)
@@ -1048,11 +1050,13 @@ public:
                     if (m_currentReservoir->reservoirViews[i])
                     {
                         // As new result might have been introduced, update all editors connected
-                        m_currentReservoir->reservoirViews[i]->cellResult->updateConnectedEditors();
+                        m_currentReservoir->reservoirViews[i]->cellResult()->updateConnectedEditors();
 
                         // It is usually not needed to create new display model, but if any derived geometry based on generated data (from Octave) 
                         // a full display model rebuild is required
                         m_currentReservoir->reservoirViews[i]->scheduleCreateDisplayModelAndRedraw();
+                        m_currentReservoir->reservoirViews[i]->crossSectionCollection()->scheduleCreateDisplayModelAndRedraw2dIntersectionViews();
+
                     }
                 }
             }
@@ -1090,7 +1094,7 @@ class RiaGetPropertyNames : public RiaSocketCommand
 public:
     static QString commandName () { return QString("GetPropertyNames"); }
 
-    virtual bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>&  args, QDataStream& socketStream)
+    bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>&  args, QDataStream& socketStream) override
     {
         int caseId = args[1].toInt();
         RimEclipseCase* rimCase = server->findReservoir(caseId);
@@ -1176,7 +1180,7 @@ class RiaGetGridPropertyForSelectedCells: public RiaSocketCommand
 public:
     static QString commandName() { return QString("GetGridPropertyForSelectedCells"); }
 
-    virtual bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>& args, QDataStream& socketStream)
+    bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>& args, QDataStream& socketStream) override
     {
         RimEclipseCase* rimCase = RiaSocketTools::findCaseFromArgs(server, args);
         if (!rimCase) return true;
@@ -1257,9 +1261,6 @@ public:
 
         for (size_t timeStep : requestedTimesteps)
         {
-            const std::vector<double>& scalarResults = rimCase->results(porosityModel)->cellScalarResults(scalarResultIndex, timeStep);
-
-
             for (const std::pair<size_t, size_t> selectedCell : selectedCells)
             {
                 cvf::ref<RigResultAccessor> resultAccessor = RigResultAccessorFactory::createFromUiResultName(rimCase->eclipseCaseData(), selectedCell.first, porosityModel, timeStep, propertyName);

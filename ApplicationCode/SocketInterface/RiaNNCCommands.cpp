@@ -39,6 +39,7 @@
 #include "RimEclipseInputPropertyCollection.h"
 #include "RimEclipsePropertyFilterCollection.h"
 #include "RimEclipseView.h"
+#include "RimIntersectionCollection.h"
 #include "RimReservoirCellResultsStorage.h"
 #include "RimSimWellInViewCollection.h"
 
@@ -53,7 +54,7 @@ class RiaGetNNCConnections: public RiaSocketCommand
 public:
     static QString commandName () { return QString("GetNNCConnections"); }
 
-    virtual bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>&  args, QDataStream& socketStream)
+    bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>&  args, QDataStream& socketStream) override
     {
         RimEclipseCase* rimCase = RiaSocketTools::findCaseFromArgs(server, args);
         // Write data back to octave: columnCount, GridNr I J K GridNr I J K
@@ -104,7 +105,7 @@ class RiaGetDynamicNNCValues: public RiaSocketCommand
 public:
     static QString commandName () { return QString("GetDynamicNNCValues"); }
 
-    virtual bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>&  args, QDataStream& socketStream)
+    bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>&  args, QDataStream& socketStream) override
     {
         RimEclipseCase* rimCase = RiaSocketTools::findCaseFromArgs(server, args);
         // Write data back to octave: connectionCount, timeStepCount, property values
@@ -185,7 +186,7 @@ class RiaGetStaticNNCValues: public RiaSocketCommand
 public:
     static QString commandName () { return QString("GetStaticNNCValues"); }
 
-    virtual bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>&  args, QDataStream& socketStream)
+    bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>&  args, QDataStream& socketStream) override
     {
         RimEclipseCase* rimCase = RiaSocketTools::findCaseFromArgs(server, args);
         QString propertyName = args[2];
@@ -227,7 +228,7 @@ class RiaGetNNCPropertyNames: public RiaSocketCommand
 public:
     static QString commandName () { return QString("GetNNCPropertyNames"); }
 
-    virtual bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>&  args, QDataStream& socketStream)
+    bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>&  args, QDataStream& socketStream) override
     {
         RimEclipseCase* rimCase = RiaSocketTools::findCaseFromArgs(server, args);
 
@@ -297,7 +298,7 @@ class RiaSetNNCProperty: public RiaSocketCommand
 {
 public:
     RiaSetNNCProperty() :
-        m_currentReservoir(NULL),
+        m_currentReservoir(nullptr),
         m_currentScalarIndex(cvf::UNDEFINED_SIZE_T),
         m_timeStepCountToRead(0),
         m_bytesPerTimeStepToRead(0),
@@ -308,7 +309,7 @@ public:
 
     static QString commandName () { return QString("SetNNCProperty"); }
 
-    virtual bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>& args, QDataStream& socketStream)
+    bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>& args, QDataStream& socketStream) override
     {
         RimEclipseCase* rimCase = RiaSocketTools::findCaseFromArgs(server, args);
 
@@ -442,7 +443,7 @@ public:
         return false;
     }
 
-    virtual bool interpretMore(RiaSocketServer* server, QTcpSocket* currentClient)
+    bool interpretMore(RiaSocketServer* server, QTcpSocket* currentClient) override
     {
         if (m_invalidConnectionCountDetected) return true;
 
@@ -520,15 +521,15 @@ public:
                 RimEclipseInputCase* inputRes = dynamic_cast<RimEclipseInputCase*>(m_currentReservoir);
                 if (inputRes)
                 {
-                    RimEclipseInputProperty* inputProperty = inputRes->m_inputPropertyCollection->findInputProperty(m_currentPropertyName);
+                    RimEclipseInputProperty* inputProperty = inputRes->inputPropertyCollection()->findInputProperty(m_currentPropertyName);
                     if (!inputProperty)
                     {
                         inputProperty = new RimEclipseInputProperty;
                         inputProperty->resultName = m_currentPropertyName;
                         inputProperty->eclipseKeyword = "";
                         inputProperty->fileName = "";
-                        inputRes->m_inputPropertyCollection->inputProperties.push_back(inputProperty);
-                        inputRes->m_inputPropertyCollection()->updateConnectedEditors();
+                        inputRes->inputPropertyCollection()->inputProperties.push_back(inputProperty);
+                        inputRes->inputPropertyCollection()->updateConnectedEditors();
                     }
                     inputProperty->resolvedState = RimEclipseInputProperty::RESOLVED_NOT_SAVED;
                 }
@@ -545,11 +546,12 @@ public:
                     if (m_currentReservoir->reservoirViews[i])
                     {
                         // As new result might have been introduced, update all editors connected
-                        m_currentReservoir->reservoirViews[i]->cellResult->updateConnectedEditors();
+                        m_currentReservoir->reservoirViews[i]->cellResult()->updateConnectedEditors();
 
                         // It is usually not needed to create new display model, but if any derived geometry based on generated data (from Octave) 
                         // a full display model rebuild is required
                         m_currentReservoir->reservoirViews[i]->scheduleCreateDisplayModelAndRedraw();
+                        m_currentReservoir->reservoirViews[i]->crossSectionCollection()->scheduleCreateDisplayModelAndRedraw2dIntersectionViews();
                     }
                 }
             }

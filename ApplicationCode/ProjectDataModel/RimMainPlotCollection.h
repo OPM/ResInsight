@@ -47,7 +47,7 @@ class RimMainPlotCollection : public caf::PdmObject
     CAF_PDM_HEADER_INIT;
 public:
     RimMainPlotCollection();
-    virtual ~RimMainPlotCollection();
+    ~RimMainPlotCollection() override;
 
     RimWellLogPlotCollection*       wellLogPlotCollection();
     RimRftPlotCollection*           rftPlotCollection();
@@ -59,12 +59,13 @@ public:
     void                            deleteAllContainedObjects();
     void                            updateCurrentTimeStepInPlots();
     void                            updatePlotsWithFormations();
-
+    void                            updatePlotsWithCompletions();
+    void                            deleteAllCachedData();
 private:
 
     // Overridden PDM methods
-    virtual caf::PdmFieldHandle* objectToggleField();
-    virtual void                 fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
+    caf::PdmFieldHandle* objectToggleField() override;
+    void                 fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
 
 private:
     caf::PdmChildField<RimWellLogPlotCollection*>       m_wellLogPlotCollection;

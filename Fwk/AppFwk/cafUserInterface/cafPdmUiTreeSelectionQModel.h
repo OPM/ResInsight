@@ -58,31 +58,35 @@ class PdmUiTreeSelectionQModel : public QAbstractItemModel
 {
     Q_OBJECT
 public:
-    explicit PdmUiTreeSelectionQModel(QObject *parent = 0);
-    ~PdmUiTreeSelectionQModel();
+    explicit PdmUiTreeSelectionQModel(QObject *parent = nullptr);
+    ~PdmUiTreeSelectionQModel() override;
 
-    static int              headingRole();
-    static int              optionItemValueRole();
+    static int      headingRole();
+    static int      optionItemValueRole();
 
-    void                    setCheckedStateForItems(const QModelIndexList& indices, bool checked);
-    void                    enableSingleSelectionMode(bool enable);
+    void            setCheckedStateForItems(const QModelIndexList& indices, bool checked);
+    void            enableSingleSelectionMode(bool enable);
 
-    int                     optionItemCount() const;
-    void                    setOptions(caf::PdmUiFieldEditorHandle* field, const QList<caf::PdmOptionItemInfo>& options);
-    void                    setUiValueCache(const QVariant* uiValuesCache );
-    void                    resetUiValueCache();
+    int             optionItemCount() const;
+    void            setOptions(caf::PdmUiFieldEditorHandle* field, const QList<caf::PdmOptionItemInfo>& options);
+    void            setUiValueCache(const QVariant* uiValuesCache );
+    void            resetUiValueCache();
+    bool            isReadOnly(const QModelIndex& index) const;
+    bool            isChecked(const QModelIndex& index) const;
 
-    virtual Qt::ItemFlags   flags(const QModelIndex &index) const override;
-    virtual QModelIndex     index(int row, int column, const QModelIndex &parent = QModelIndex()) const override;
-    virtual int             columnCount(const QModelIndex &parent = QModelIndex()) const override;
-    virtual QModelIndex     parent(const QModelIndex &child) const override;
-    virtual int             rowCount(const QModelIndex &parent = QModelIndex()) const override;
-    virtual QVariant        data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
-    virtual bool            setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole) override;
+    bool            hasGrandChildren() const;
+
+    Qt::ItemFlags   flags(const QModelIndex &index) const override;
+    QModelIndex     index(int row, int column, const QModelIndex &parent = QModelIndex()) const override;
+    int             columnCount(const QModelIndex &parent = QModelIndex()) const override;
+    QModelIndex     parent(const QModelIndex &child) const override;
+    int             rowCount(const QModelIndex &parent = QModelIndex()) const override;
+    QVariant        data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
+    bool            setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole) override;
 
     // Consider moving these functions to PdmUiFieldHandle
-    static bool                            isSingleValueField(const QVariant& fieldValue);
-    static bool                            isMultipleValueField(const QVariant& fieldValue);
+    static bool             isSingleValueField(const QVariant& fieldValue);
+    static bool             isMultipleValueField(const QVariant& fieldValue);
 
 private:
     typedef caf::UiTreeItem<int> TreeItemType;

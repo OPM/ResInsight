@@ -43,9 +43,10 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RiuWellPltPlot::RiuWellPltPlot(RimWellPltPlot* plotDefinition, QWidget* parent) 
-    :   m_plotDefinition(plotDefinition),
-        QFrame(parent)
+RiuWellPltPlot::RiuWellPltPlot(RimWellPltPlot* plotDefinition, QWidget* parent)
+    : QFrame(parent)
+    , m_plotDefinition(plotDefinition)
+
 {
     Q_ASSERT(m_plotDefinition);
     
@@ -76,7 +77,7 @@ RiuWellPltPlot::RiuWellPltPlot(RimWellPltPlot* plotDefinition, QWidget* parent)
     mainLayout->addLayout(plotWidgetsLayout);
     plotWidgetsLayout->addLayout(rightColumnLayout);
     
-    QWidget* wellFlowWidget = m_plotDefinition->wellLogPlot()->createViewWidget(this);
+    QWidget* wellFlowWidget = m_plotDefinition->wellLogPlot()->createPlotWidget();
 
     plotWidgetsLayout->addWidget(wellFlowWidget);
 }

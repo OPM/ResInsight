@@ -30,9 +30,9 @@
 #include "RimFlowPlotCollection.h"
 #include "RimMainPlotCollection.h"
 #include "RimProject.h"
-#include "RimView.h"
+#include "Rim3dView.h"
 
-#include "RiuMainPlotWindow.h"
+#include "RiuPlotMainWindowTools.h"
 
 #include <QAction>
 
@@ -40,7 +40,7 @@ CAF_CMD_SOURCE_INIT(RicShowFlowCharacteristicsPlotFeature, "RicShowFlowCharacter
 
 RimEclipseResultCase* activeEclipseResultCase()
 {
-    RimView * activeView = RiaApplication::instance()->activeReservoirView();
+    Rim3dView * activeView = RiaApplication::instance()->activeReservoirView();
 
     RimEclipseView* eclView = dynamic_cast<RimEclipseView*>(activeView);
 
@@ -78,7 +78,7 @@ void RicShowFlowCharacteristicsPlotFeature::onActionTriggered(bool isChecked)
     {
         // Make sure flow results for the the active timestep is calculated, to avoid an empty plot
         {
-            RimView * activeView = RiaApplication::instance()->activeReservoirView();
+            Rim3dView * activeView = RiaApplication::instance()->activeReservoirView();
             if (activeView && eclCase->defaultFlowDiagSolution()->flowDiagResults()) 
             {
                 // Trigger calculation
@@ -91,13 +91,13 @@ void RicShowFlowCharacteristicsPlotFeature::onActionTriggered(bool isChecked)
             RimFlowPlotCollection* flowPlotColl = RiaApplication::instance()->project()->mainPlotCollection->flowPlotCollection();
             if (flowPlotColl)
             {
-                RiuMainPlotWindow* plotwindow = RiaApplication::instance()->getOrCreateAndShowMainPlotWindow();
+                RiuPlotMainWindowTools::showPlotMainWindow();
 
                 flowPlotColl->defaultFlowCharacteristicsPlot()->setFromFlowSolution(eclCase->defaultFlowDiagSolution());
                 flowPlotColl->defaultFlowCharacteristicsPlot()->updateConnectedEditors();
 
                 // Make sure the summary plot window is created and visible
-                plotwindow->selectAsCurrentItem(flowPlotColl->defaultFlowCharacteristicsPlot());
+                RiuPlotMainWindowTools::selectAsCurrentItem(flowPlotColl->defaultFlowCharacteristicsPlot());
             }
         }
     }

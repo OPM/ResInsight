@@ -33,9 +33,10 @@ public:
     static QString tryFindMatchingSimWellName(QString searchName);
     static QString tryFindMatchingWellPath(QString wellName);
 
-private:
     static QString tryMatchNameInList(QString searchName,
                                       const std::vector<QString>& nameList);
+
+private:
     static QString tryMatchName(QString searchName,
                                 const std::vector<QString>& nameList,
                                 std::function<QString(QString)> stringFormatter = nullptr);

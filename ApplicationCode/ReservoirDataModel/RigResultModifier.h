@@ -46,7 +46,7 @@ public:
     {
     }
 
-    virtual void setCellScalar(size_t gridLocalCellIndex, double scalarValue)
+    void setCellScalar(size_t gridLocalCellIndex, double scalarValue) override
     {
         size_t reservoirCellIndex = m_grid->reservoirCellIndex(gridLocalCellIndex);
         CVF_TIGHT_ASSERT(reservoirCellIndex < m_reservoirResultValues->size());
@@ -66,27 +66,29 @@ private:
 class RigActiveCellsResultModifier : public RigResultModifier
 {
 public:
-    RigActiveCellsResultModifier(const RigGridBase* grid, std::vector<double>* reservoirResultValues, const RigActiveCellInfo* activeCellInfo)
-        : m_grid(grid),
-        m_reservoirResultValues(reservoirResultValues),
-        m_activeCellInfo(activeCellInfo)
+    RigActiveCellsResultModifier(const RigGridBase*       grid,
+                                 const RigActiveCellInfo* activeCellInfo,
+                                 std::vector<double>*     reservoirResultValues)
+        : m_grid(grid)
+        , m_activeCellInfo(activeCellInfo)
+        , m_reservoirResultValues(reservoirResultValues)
     {
     }
 
-    virtual void setCellScalar(size_t gridLocalCellIndex, double scalarValue)
+    void setCellScalar(size_t gridLocalCellIndex, double scalarValue) override
     {
         size_t reservoirCellIndex = m_grid->reservoirCellIndex(gridLocalCellIndex);
         size_t resultValueIndex = m_activeCellInfo->cellResultIndex(reservoirCellIndex);
 
-        CVF_TIGHT_ASSERT(m_reservoirResultValues != NULL && resultValueIndex < m_reservoirResultValues->size());
+        CVF_TIGHT_ASSERT(m_reservoirResultValues != nullptr && resultValueIndex < m_reservoirResultValues->size());
 
         (*m_reservoirResultValues)[resultValueIndex] = scalarValue;
     }
 
 
 private:
-    const RigActiveCellInfo*    m_activeCellInfo;
     const RigGridBase*          m_grid;
+    const RigActiveCellInfo*    m_activeCellInfo;
     std::vector<double>*        m_reservoirResultValues;
 };
 

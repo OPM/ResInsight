@@ -52,7 +52,7 @@ class RimTotalWellAllocationPlot : public RimViewWindow
 
 public:
     RimTotalWellAllocationPlot();
-    virtual ~RimTotalWellAllocationPlot();
+    ~RimTotalWellAllocationPlot() override;
 
     void                                            setDescription(const QString& description);
     QString                                         description() const;
@@ -62,20 +62,20 @@ public:
     void                                            clearSlices();
     // RimViewWindow overrides
 
-    virtual QWidget*                                viewWidget() override;
-    virtual void                                    zoomAll() override;
-    virtual QWidget*                                createViewWidget(QWidget* mainWindowParent) override; 
-    virtual void                                    deleteViewWidget() override; 
+    QWidget*                                viewWidget() override;
+    void                                    zoomAll() override;
+    QWidget*                                createViewWidget(QWidget* mainWindowParent) override; 
+    void                                    deleteViewWidget() override; 
 
 protected:
     // RimViewWindow overrides
 
-    virtual void                                    onLoadDataAndUpdate() override;
-    virtual QImage                                  snapshotWindowContent() override;
+    void                                    onLoadDataAndUpdate() override;
+    QImage                                  snapshotWindowContent() override;
 
     // Overridden PDM methods
-    virtual caf::PdmFieldHandle*                    userDescriptionField() { return &m_userName; }
-    virtual void                                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    caf::PdmFieldHandle*                    userDescriptionField() override { return &m_userName; }
+    void                                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
 
 private:
     caf::PdmField<bool>                             m_showPlotTitle;

@@ -41,7 +41,7 @@ CAF_PDM_SOURCE_INIT(RimGeoMechPropertyFilter, "GeoMechPropertyFilter");
 /// 
 //--------------------------------------------------------------------------------------------------
 RimGeoMechPropertyFilter::RimGeoMechPropertyFilter()
-    : m_parentContainer(NULL)
+    : m_parentContainer(nullptr)
 {
     CAF_PDM_InitObject("Property Filter", ":/CellFilter_Values.png", "", "");
 
@@ -88,7 +88,7 @@ void RimGeoMechPropertyFilter::fieldChangedByUi(const caf::PdmFieldHandle* chang
         this->updateFilterName();
         this->uiCapability()->updateConnectedEditors();
 
-        parentContainer()->updateDisplayModelNotifyManagedViews();
+        parentContainer()->updateDisplayModelNotifyManagedViews(this);
     }
 }
 
@@ -193,7 +193,7 @@ bool RimGeoMechPropertyFilter::isPropertyFilterControlled()
 {
     bool isPropertyFilterControlled = false;
 
-    RimView* rimView = NULL;
+    Rim3dView* rimView = nullptr;
     firstAncestorOrThisOfType(rimView);
     CVF_ASSERT(rimView);
     if (rimView)
@@ -311,6 +311,7 @@ void RimGeoMechPropertyFilter::updateFilterName()
             case RIG_NODAL: posName = "N"; break;
             case RIG_ELEMENT_NODAL: posName = "EN"; break;
             case RIG_INTEGRATION_POINT: posName = "IP"; break;
+            case RIG_ELEMENT: posName = "E"; break;
         }
 
         QString fieldUiName = resultDefinition->resultFieldUiName();

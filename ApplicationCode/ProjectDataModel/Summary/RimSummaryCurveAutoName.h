@@ -39,9 +39,9 @@ public:
 private:
     friend class RimSummaryCurve;
 
-    virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue,
+    void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue,
                                   const QVariant& newValue) override;
-    virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
 
     void appendAddressDetails(std::string& text, const RifEclipseSummaryAddress& summaryAddress,
                               const RimSummaryPlotNameHelper* nameHelper) const;

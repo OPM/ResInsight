@@ -47,13 +47,17 @@
 #include "RimProject.h"
 #include "RimTools.h"
 #include "RimWellLogCurve.h"
+#include "RimWellLogFile.h"
+#include "RimWellLogFileChannel.h"
 #include "RimWellLogPlot.h"
 #include "RimWellLogPlotCollection.h"
 #include "RimWellLogTrack.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
+#include "RimWellPlotTools.h"
 
-#include "RiuLineSegmentQwtPlotCurve.h"
+#include "RiuPlotMainWindowTools.h"
+#include "RiuQwtPlotCurve.h"
 #include "RiuWellLogTrack.h"
 
 #include "cafPdmUiTreeOrdering.h"
@@ -88,12 +92,12 @@ RimWellLogExtractionCurve::RimWellLogExtractionCurve()
 {
     CAF_PDM_InitObject("Well Log Curve", "", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&m_trajectoryType, "TrajectoryType", "Trajectory", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_trajectoryType, "TrajectoryType", "Trajectory Type", "", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&m_wellPath, "CurveWellPath", " ", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_wellPath, "CurveWellPath", "Well Name", "", "", "");
     m_wellPath.uiCapability()->setUiTreeChildrenHidden(true);
 
-    CAF_PDM_InitField(&m_simWellName, "SimulationWellName", QString("None"), " ", "", "", "");
+    CAF_PDM_InitField(&m_simWellName, "SimulationWellName", QString("None"), "Well Name", "", "", "");
     CAF_PDM_InitField(&m_branchDetection, "BranchDetection", true, "Branch Detection", "", 
                       "Compute branches based on how simulation well cells are organized", "");
     CAF_PDM_InitField(&m_branchIndex,  "Branch", 0, "Branch Index", "", "", "");
@@ -111,6 +115,7 @@ RimWellLogExtractionCurve::RimWellLogExtractionCurve()
     m_geomResultDefinition.uiCapability()->setUiHidden(true);
     m_geomResultDefinition.uiCapability()->setUiTreeChildrenHidden(true);
     m_geomResultDefinition = new RimGeoMechResultDefinition;
+    m_geomResultDefinition->setAddWellPathDerivedResults(true);
 
     CAF_PDM_InitField(&m_timeStep, "CurveTimeStep", 0,"Time Step", "", "", "");
 
@@ -183,9 +188,9 @@ RimCase* RimWellLogExtractionCurve::rimCase() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellLogExtractionCurve::setPropertiesFromView(RimView* view)
+void RimWellLogExtractionCurve::setPropertiesFromView(Rim3dView* view)
 {
-    m_case = view ? view->ownerCase() : NULL;
+    m_case = view ? view->ownerCase() : nullptr;
 
     RimGeoMechCase* geomCase = dynamic_cast<RimGeoMechCase*>(m_case.value());
     RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>(m_case.value());
@@ -211,6 +216,14 @@ void RimWellLogExtractionCurve::setPropertiesFromView(RimView* view)
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimWellLogExtractionCurve::TrajectoryType RimWellLogExtractionCurve::trajectoryType() const
+{
+    return m_trajectoryType();
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void RimWellLogExtractionCurve::clampTimestep()
@@ -229,7 +242,7 @@ void RimWellLogExtractionCurve::clampTimestep()
 //--------------------------------------------------------------------------------------------------
 void RimWellLogExtractionCurve::clampBranchIndex()
 {
-    int branchCount = static_cast<int>(simulationWellBranches().size());
+    int branchCount = static_cast<int>(RiaSimWellBranchTools::simulationWellBranches(m_simWellName, m_branchDetection).size());
     if ( branchCount > 0 )
     {
         if      ( m_branchIndex >= branchCount ) m_branchIndex = branchCount - 1;
@@ -252,7 +265,7 @@ void RimWellLogExtractionCurve::fieldChangedByUi(const caf::PdmFieldHandle* chan
     {
         clampTimestep();
         
-        auto wellNameSet = findSortedWellNames();
+        auto wellNameSet = sortedSimWellNames();
         if (!wellNameSet.count(m_simWellName())) m_simWellName = "None";
 
         clearGeneratedSimWellPaths();
@@ -293,7 +306,7 @@ void RimWellLogExtractionCurve::fieldChangedByUi(const caf::PdmFieldHandle* chan
         changedField == &m_addDateToCurveName)
     {
         this->uiCapability()->updateConnectedEditors();
-        updateCurveNameAndUpdatePlotLegend();
+        updateCurveNameAndUpdatePlotLegendAndTitle();
     }
 }
 
@@ -331,7 +344,7 @@ void RimWellLogExtractionCurve::onLoadDataAndUpdate(bool updateParentPlot)
             }
             else
             {
-                std::vector<const RigWellPath*> simWellBranches = simulationWellBranches();
+                std::vector<const RigWellPath*> simWellBranches = RiaSimWellBranchTools::simulationWellBranches(m_simWellName, m_branchDetection);
                 if (m_branchIndex >= 0 && m_branchIndex < static_cast<int>(simWellBranches.size()))
                 {
                     auto wellBranch = simWellBranches[m_branchIndex];
@@ -358,8 +371,8 @@ void RimWellLogExtractionCurve::onLoadDataAndUpdate(bool updateParentPlot)
 
         if (eclExtractor.notNull() && eclipseCase)
         {
-            measuredDepthValues = eclExtractor->measuredDepth();
-            tvDepthValues = eclExtractor->trueVerticalDepth();
+            measuredDepthValues = eclExtractor->cellIntersectionMDs();
+            tvDepthValues = eclExtractor->cellIntersectionTVDs();
 
             m_eclipseResultDefinition->loadResult();
 
@@ -384,11 +397,14 @@ void RimWellLogExtractionCurve::onLoadDataAndUpdate(bool updateParentPlot)
         else if (geomExtractor.notNull()) // geomExtractor
         {
 
-            measuredDepthValues =  geomExtractor->measuredDepth();
-            tvDepthValues = geomExtractor->trueVerticalDepth();
+            measuredDepthValues =  geomExtractor->cellIntersectionMDs();
+            tvDepthValues = geomExtractor->cellIntersectionTVDs();
+
+            findAndLoadWbsParametersFromLasFiles(m_wellPath(), geomExtractor.p());
+
+            geomExtractor->setRkbDiff(rkbDiff());
 
             m_geomResultDefinition->loadResult();
-
             geomExtractor->curveData(m_geomResultDefinition->resultAddress(), m_timeStep, &values);
         }
 
@@ -439,30 +455,67 @@ void RimWellLogExtractionCurve::onLoadDataAndUpdate(bool updateParentPlot)
             }
         }
 
-        updateZoomInParentPlot();
+        if (updateParentPlot)
+        {
+            updateZoomInParentPlot();
+        }
 
         setLogScaleFromSelectedResult();
 
-        if (m_parentQwtPlot) m_parentQwtPlot->replot();
+        if (m_parentQwtPlot)
+        {
+            m_parentQwtPlot->replot();
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Search well path for LAS-files containing Well Bore Stability data and set them in the extractor.
+//--------------------------------------------------------------------------------------------------
+void RimWellLogExtractionCurve::findAndLoadWbsParametersFromLasFiles(const RimWellPath* wellPath, RigGeoMechWellLogExtractor* geomExtractor)
+{
+    std::vector<std::pair<double, double>> logFileMudWeights = RimWellLogFile::findMdAndChannelValuesForWellPath(wellPath, "PP");
+    if (!logFileMudWeights.empty())
+    {
+        // Log file pressures come in SG units (g / cm^3).
+        // We need SI as input (kg / m^3), so multiply by 1000:
+        for (auto& mudWeight : logFileMudWeights)
+        {
+            mudWeight.second *= 1000.0;
+        }
+        geomExtractor->setWellLogMdAndMudWeightKgPerM3(logFileMudWeights);
+    }
+
+    std::vector<std::pair<double, double>> logFileUcs = RimWellLogFile::findMdAndChannelValuesForWellPath(wellPath, "UCS");
+    if (!logFileUcs.empty())
+    {
+        // TODO: UCS is typically in MPa, but not necessarily.
+        // We need to at least give a warning if the units don't match
+        // ... and preferable do a conversion.
+        for (auto& ucsValue : logFileUcs)
+        {
+            ucsValue.second *= 10.0; // MPa -> Bar
+        }
+        geomExtractor->setWellLogMdAndUcsBar(logFileUcs);
+    }
+
+    std::vector<std::pair<double, double>> logFilePoissonRatio = RimWellLogFile::findMdAndChannelValuesForWellPath(wellPath, "POISSON_RATIO");
+    if (!logFilePoissonRatio.empty())
+    {
+        geomExtractor->setWellLogMdAndPoissonRatio(logFilePoissonRatio);
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::set<QString> RimWellLogExtractionCurve::findSortedWellNames()
+std::set<QString> RimWellLogExtractionCurve::sortedSimWellNames()
 {
     std::set<QString> sortedWellNames;
     RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>(m_case.value());
-
-    if ( eclipseCase && eclipseCase->eclipseCaseData() )
+    if (eclipseCase)
     {
-        const cvf::Collection<RigSimWellData>& simWellData = eclipseCase->eclipseCaseData()->wellResults();
-
-        for ( size_t wIdx = 0; wIdx < simWellData.size(); ++wIdx )
-        {
-            sortedWellNames.insert(simWellData[wIdx]->m_wellName);
-        }
+        sortedWellNames = eclipseCase->sortedSimWellNames();
     }
 
     return sortedWellNames;
@@ -488,14 +541,6 @@ void RimWellLogExtractionCurve::clearGeneratedSimWellPaths()
     }
 
     m_wellPathsWithExtractors.clear();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-std::vector<const RigWellPath*> RimWellLogExtractionCurve::simulationWellBranches() const
-{
-    return RiaSimWellBranchTools::simulationWellBranches(m_simWellName, m_branchDetection);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -536,7 +581,7 @@ QList<caf::PdmOptionItemInfo> RimWellLogExtractionCurve::calculateValueOptions(c
     }
     else if (fieldNeedingOptions == &m_simWellName)
     {
-        std::set<QString> sortedWellNames = this->findSortedWellNames();
+        std::set<QString> sortedWellNames = this->sortedSimWellNames();
 
         QIcon simWellIcon(":/Well.png");
         for ( const QString& wname: sortedWellNames )
@@ -551,7 +596,7 @@ QList<caf::PdmOptionItemInfo> RimWellLogExtractionCurve::calculateValueOptions(c
     }
     else if (fieldNeedingOptions == &m_branchIndex)
     {
-        auto branches = simulationWellBranches();
+        auto branches = RiaSimWellBranchTools::simulationWellBranches(m_simWellName, m_branchDetection);
 
         options = RiaSimWellBranchTools::valueOptionsForBranchIndexField(branches);
     }
@@ -573,28 +618,28 @@ void RimWellLogExtractionCurve::defineUiOrdering(QString uiConfigName, caf::PdmU
     RimGeoMechCase* geomCase = dynamic_cast<RimGeoMechCase*>(m_case.value());
     RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>(m_case.value());
 
-    curveDataGroup->add(&m_trajectoryType);
-    if (m_trajectoryType() == WELL_PATH)
-    {
-        curveDataGroup->add(&m_wellPath);
-    }
-    else 
-    {
-        curveDataGroup->add(&m_simWellName);
-
-        RiaSimWellBranchTools::appendSimWellBranchFieldsIfRequiredFromSimWellName(curveDataGroup,
-                                                                                  m_simWellName,
-                                                                                  m_branchDetection,
-                                                                                  m_branchIndex);
-    }
-
     if (eclipseCase)
     {
+        curveDataGroup->add(&m_trajectoryType);
+        if (m_trajectoryType() == WELL_PATH)
+        {
+            curveDataGroup->add(&m_wellPath);
+        }
+        else
+        {
+            curveDataGroup->add(&m_simWellName);
+
+            RiaSimWellBranchTools::appendSimWellBranchFieldsIfRequiredFromSimWellName(curveDataGroup,
+                m_simWellName,
+                m_branchDetection,
+                m_branchIndex);
+        }
         m_eclipseResultDefinition->uiOrdering(uiConfigName, *curveDataGroup);
 
     }
     else if (geomCase)
     {
+        curveDataGroup->add(&m_wellPath);
         m_geomResultDefinition->uiOrdering(uiConfigName, *curveDataGroup);
   
     }
@@ -657,7 +702,7 @@ void RimWellLogExtractionCurve::setLogScaleFromSelectedResult()
 
     if (resVar.toUpper().contains("PERM"))
     {
-        RimWellLogTrack* track = NULL;
+        RimWellLogTrack* track = nullptr;
         this->firstAncestorOrThisOfType(track);
         if (track)
         {
@@ -684,7 +729,7 @@ QString RimWellLogExtractionCurve::createCurveAutoName()
         if (!wellName().isEmpty())
         {
             generatedCurveName += wellName();
-            if (m_trajectoryType == SIMULATION_WELL && simulationWellBranches().size() > 1)
+            if (m_trajectoryType == SIMULATION_WELL && RiaSimWellBranchTools::simulationWellBranches(m_simWellName, m_branchDetection).size() > 1)
             {
                 generatedCurveName.push_back(" Br" + QString::number(m_branchIndex + 1));
             }
@@ -731,7 +776,7 @@ QString RimWellLogExtractionCurve::createCurveAutoName()
 
         if (m_addTimestepToCurveName)
         {
-            generatedCurveName.push_back(QString("[%1/%2]").arg(m_timeStep()).arg(maxTimeStep));
+            generatedCurveName.push_back(QString("[%1/%2]").arg(m_timeStep() + 1).arg(maxTimeStep));
         }
     }
 
@@ -749,7 +794,7 @@ QString RimWellLogExtractionCurve::wellLogChannelName() const
     QString name;
     if (eclipseCase)
     {
-        name = caf::Utils::makeValidFileBasename( m_eclipseResultDefinition->resultVariableUiName());
+        name = caf::Utils::makeValidFileBasename( m_eclipseResultDefinition->resultVariableUiShortName());
     }
     else if (geoMechCase)
     {
@@ -818,6 +863,22 @@ QString RimWellLogExtractionCurve::wellDate() const
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RimWellLogExtractionCurve::branchIndex() const
+{
+    return m_branchIndex();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimWellLogExtractionCurve::branchDetection() const
+{
+    return m_branchDetection();
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 bool RimWellLogExtractionCurve::isEclipseCurve() const
@@ -851,27 +912,8 @@ double RimWellLogExtractionCurve::rkbDiff() const
 {
     if (m_wellPath && m_wellPath->wellPathGeometry())
     {
-        RigWellPath* geo = m_wellPath->wellPathGeometry();
-
-        if (geo->hasDatumElevation())
-        {
-            return geo->datumElevation();
-        }
-
-        // If measured depth is zero, use the z-value of the well path points
-        if (geo->m_wellPathPoints.size() > 0 && geo->m_measuredDepths.size() > 0)
-        {
-            double epsilon = 1e-3;
-
-            if (cvf::Math::abs(geo->m_measuredDepths[0]) < epsilon)
-            {
-                double diff = geo->m_measuredDepths[0] - (-geo->m_wellPathPoints[0].z());
-
-                return diff;
-            }
-        }
+        return m_wellPath->wellPathGeometry()->rkbDiff();
     }
-
     return HUGE_VAL;
 }
 
@@ -897,4 +939,44 @@ void RimWellLogExtractionCurve::setCurrentTimeStep(int timeStep)
 void RimWellLogExtractionCurve::setEclipseResultVariable(const QString& resVarname)
 {
     m_eclipseResultDefinition->setResultVariable(resVarname);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogExtractionCurve::setGeoMechResultAddress(const RigFemResultAddress& resAddr)
+{
+    m_geomResultDefinition->setResultAddress(resAddr);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogExtractionCurve::setTrajectoryType(TrajectoryType trajectoryType)
+{
+    m_trajectoryType = trajectoryType;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogExtractionCurve::setWellName(QString wellName)
+{
+    m_simWellName = wellName;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogExtractionCurve::setBranchDetection(bool branchDetection)
+{
+    m_branchDetection = branchDetection;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogExtractionCurve::setBranchIndex(int index)
+{
+    m_branchIndex = index;
 }

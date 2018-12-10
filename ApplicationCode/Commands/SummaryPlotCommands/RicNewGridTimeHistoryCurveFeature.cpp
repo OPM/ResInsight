@@ -36,7 +36,7 @@
 #include "RimSummaryPlot.h"
 #include "RimSummaryPlotCollection.h"
 
-#include "RiuMainPlotWindow.h"
+#include "RiuPlotMainWindowTools.h"
 #include "RiuSelectionManager.h"
 
 #include "cafPdmReferenceHelper.h"
@@ -71,7 +71,8 @@ void RicNewGridTimeHistoryCurveFeature::createCurveFromSelectionItem(const RiuSe
 
     plot->updateConnectedEditors();
 
-    RiaApplication::instance()->getOrCreateAndShowMainPlotWindow()->selectAsCurrentItem(newCurve);
+    RiuPlotMainWindowTools::showPlotMainWindow();
+    RiuPlotMainWindowTools::selectAsCurrentItem(newCurve);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -112,7 +113,7 @@ RimSummaryPlot* RicNewGridTimeHistoryCurveFeature::userSelectedSummaryPlot()
     QString newPlotName = RicNewGridTimeHistoryCurveFeature::suggestedNewPlotName();
     featureUi.setSuggestedPlotName(newPlotName);
 
-    caf::PdmUiPropertyViewDialog propertyDialog(NULL, &featureUi, "Select Destination Plot", "");
+    caf::PdmUiPropertyViewDialog propertyDialog(nullptr, &featureUi, "Select Destination Plot", "");
     propertyDialog.resize(QSize(400, 200));
 
     if (propertyDialog.exec() != QDialog::Accepted) return nullptr;
@@ -147,7 +148,7 @@ QString RicNewGridTimeHistoryCurveFeature::suggestedNewPlotName()
 
     QString resultName;
     {
-        RimView* activeView = RiaApplication::instance()->activeReservoirView();
+        Rim3dView* activeView = RiaApplication::instance()->activeReservoirView();
         RimEclipseView* eclView = dynamic_cast<RimEclipseView*>(activeView);
         if (eclView)
         {
@@ -177,6 +178,7 @@ QString RicNewGridTimeHistoryCurveFeature::suggestedNewPlotName()
                 case RIG_NODAL: posName = "N"; break;
                 case RIG_ELEMENT_NODAL: posName = "EN"; break;
                 case RIG_INTEGRATION_POINT: posName = "IP"; break;
+                case RIG_ELEMENT: posName = "E"; break;
                 }
 
                 QString fieldUiName = resultDefinition->resultFieldUiName();

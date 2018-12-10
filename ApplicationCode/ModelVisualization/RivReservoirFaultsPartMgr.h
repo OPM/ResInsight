@@ -45,7 +45,7 @@ class RivReservoirFaultsPartMgr : public cvf::Object
 {
 public:
     RivReservoirFaultsPartMgr(const RigMainGrid* grid, RimEclipseView* reservoirView);
-    ~RivReservoirFaultsPartMgr();
+    ~RivReservoirFaultsPartMgr() override;
 
     void setTransform(cvf::Transform* scaleTransform);
     void setCellVisibility(cvf::UByteArray* cellVisibilities);

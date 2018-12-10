@@ -25,7 +25,7 @@
 #include <opm/utility/ECLResultData.hpp>
 #include <opm/utility/ECLUnitHandling.hpp>
 
-#include <opm/parser/eclipse/Units/Units.hpp>
+#include <opm/utility/imported/Units.hpp>
 
 #include <cassert>
 #include <cmath>
@@ -90,6 +90,8 @@ namespace {
 class PVxGBase
 {
 public:
+    virtual ~PVxGBase() {}
+
     virtual std::vector<double>
     formationVolumeFactor(const std::vector<double>& rv,
                           const std::vector<double>& pg) const = 0;

@@ -36,6 +36,8 @@
 
 #pragma once
 
+#include <vector>
+
 class QVariant;
 class QMenu;
 class QString;
@@ -50,7 +52,7 @@ class PdmUiFieldHandle;
 class PdmUiCommandSystemInterface
 {
 public:
-    virtual void fieldChangedCommand(PdmFieldHandle* field, const QVariant& newUiValue) = 0;
+    virtual void fieldChangedCommand( const std::vector<PdmFieldHandle*>& fieldsToUpdate, const QVariant& newUiValue) = 0;
     virtual void populateMenuWithDefaultCommands(const QString& uiConfigName, QMenu* menu) = 0;
 };
     

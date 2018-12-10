@@ -25,14 +25,16 @@
 #include <QObject>
 #include <QPointer>
 
-class RicViewerEventInterface;
+class RicDefaultPickEventHandler;
+class RicPickEventHandler;
 class RimEclipseView;
 class RimGeoMechView;
 class RimIntersection;
-class RimView;
+class Rim3dView;
 class RiuViewer;
 class RivIntersectionBoxSourceInfo;
 class RivIntersectionSourceInfo;
+class RiuPickItemInfo;
 
 class QMouseEvent;
 
@@ -51,33 +53,40 @@ class RiuViewerCommands: public QObject
 
 public:
     explicit RiuViewerCommands(RiuViewer* ownerViewer);
-    ~RiuViewerCommands();
+    ~RiuViewerCommands() override;
 
-    void            setOwnerView(RimView * owner);
+    void            setOwnerView(Rim3dView * owner);
 
     void            displayContextMenu(QMouseEvent* event);
     void            handlePickAction(int winPosX, int winPosY, Qt::KeyboardModifiers keyboardModifiers);
-    cvf::Vec3d      lastPickPositionInDomainCoords() const;
 
+    static void     setPickEventHandler(RicPickEventHandler* pickEventHandler);
+    static void     removePickEventHandlerIfActive(RicPickEventHandler* pickEventHandler);
+
+    cvf::Vec3d      lastPickPositionInDomainCoords() const;
 private:
     void            findCellAndGridIndex(const RivIntersectionSourceInfo* crossSectionSourceInfo, cvf::uint firstPartTriangleIndex, size_t* cellIndex, size_t* gridIndex);
     void            findCellAndGridIndex(const RivIntersectionBoxSourceInfo* intersectionBoxSourceInfo, cvf::uint firstPartTriangleIndex, size_t* cellIndex, size_t* gridIndex);
 
     void            ijkFromCellIndex(size_t gridIdx, size_t cellIndex, size_t* i, size_t* j, size_t* k);
-    void            extractIntersectionData(const cvf::HitItemCollection& hitItems, cvf::Vec3d* localIntersectionPoint, cvf::Vec3d* globalIntersectionPoint, cvf::Part** firstPart, uint* firstPartFaceHit, cvf::Part** nncPart, uint* nncPartFaceHit);
+
+    void            findFirstItems(const std::vector<RiuPickItemInfo> & pickItemInfos, 
+                                   size_t* indexToFirstNoneNncItem,
+                                   size_t* indexToNncItemNearFirsItem);
 
     bool            handleOverlayItemPicking(int winPosX, int winPosY);
 
-    size_t m_currentGridIdx;
-    size_t m_currentCellIndex;
-    cvf::StructGridInterface::FaceType m_currentFaceIndex;
-    cvf::Vec3d  m_currentPickPositionInDomainCoords;
+    static void     addDefaultPickEventHandler(RicDefaultPickEventHandler* pickEventHandler);
+    static void     removeDefaultPickEventHandler(RicDefaultPickEventHandler* pickEventHandler);
 
-    caf::PdmPointer<RimView> m_reservoirView;
+private:
+    size_t                                m_currentGridIdx;
+    size_t                                m_currentCellIndex;
+    cvf::StructGridInterface::FaceType    m_currentFaceIndex;
+    cvf::Vec3d                            m_currentPickPositionInDomainCoords;
+    caf::PdmPointer<Rim3dView>            m_reservoirView;
+    QPointer<RiuViewer>                   m_viewer;
 
-    QPointer<RiuViewer> m_viewer;
-
-    std::vector<RicViewerEventInterface*> m_viewerEventHandlers;
+    static RicPickEventHandler*                         sm_overridingPickHandler;
+    static std::vector<RicDefaultPickEventHandler*>     sm_defaultPickEventHandlers;
 };
-
-

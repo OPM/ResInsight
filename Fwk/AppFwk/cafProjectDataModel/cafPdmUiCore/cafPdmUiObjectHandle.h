@@ -3,6 +3,7 @@
 #include "cafPdmUiItem.h"
 #include "cafPdmObjectCapability.h"
 
+class QMenu;
 
 namespace caf
 {
@@ -14,31 +15,32 @@ class PdmUiOrdering;
 class PdmFieldHandle;
 class PdmUiEditorAttribute;
 
+
 class PdmUiObjectHandle : public PdmUiItem, public PdmObjectCapability
 {
 public:
     PdmUiObjectHandle(PdmObjectHandle* owner, bool giveOwnership);
-    virtual ~PdmUiObjectHandle() { }
+    ~PdmUiObjectHandle() override { }
 
     PdmObjectHandle*        objectHandle()       { return m_owner; }
     const PdmObjectHandle*  objectHandle() const { return m_owner; }
 
     /// Method to be called from the Ui classes creating Auto Gui to get the group information 
     /// supplied by the \sa defineUiOrdering method that can be reimplemented
-    void                    uiOrdering(QString uiConfigName, PdmUiOrdering& uiOrdering) ;
+    void                    uiOrdering(const QString& uiConfigName, PdmUiOrdering& uiOrdering);
 
     /// Method to be called by Ui displaying a tree representation of the object hierarchy
     /// Caller must delete the returned object.
-    PdmUiTreeOrdering*      uiTreeOrdering(QString uiConfigName = "");
+    PdmUiTreeOrdering*      uiTreeOrdering(const QString& uiConfigName = "") const;
     /// Helper function to expand a pre-defined tree start
-    static void             expandUiTree(PdmUiTreeOrdering* root, QString uiConfigName = "");
+    static void             expandUiTree(PdmUiTreeOrdering* root, const QString& uiConfigName = "");
 
 
     /// For a specific field, return editor specific parameters used to customize the editor behavior.
-    void                    editorAttribute(const PdmFieldHandle* field, QString uiConfigName, PdmUiEditorAttribute* attribute);
+    void                    editorAttribute(const PdmFieldHandle* field, const QString& uiConfigName, PdmUiEditorAttribute* attribute);
 
     /// Return object editor specific parameters used to customize the editor behavior.
-    void                    objectEditorAttribute(QString uiConfigName, PdmUiEditorAttribute* attribute);
+    void                    objectEditorAttribute(const QString& uiConfigName, PdmUiEditorAttribute* attribute);
 
     /// Field used to control if field change of and object should be covered by undo/redo framework
     virtual bool            useUndoRedoForFieldChanged() { return true; }
@@ -48,10 +50,10 @@ public:
 
     // Virtual interface to override in subclasses to support special behaviour if needed
 public: // Virtual 
-    virtual caf::PdmFieldHandle* userDescriptionField() { return NULL; }
+    virtual caf::PdmFieldHandle* userDescriptionField() { return nullptr; }
 
     /// Field used to toggle object on/off in UI-related uses of the object (ie checkbox in treeview)
-    virtual caf::PdmFieldHandle* objectToggleField() { return NULL; }
+    virtual caf::PdmFieldHandle* objectToggleField() { return nullptr; }
 
     /// Method to reimplement to catch when the field has changed due to setUiValue()
     virtual void            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) {}
@@ -63,6 +65,7 @@ public: // Virtual
     /// Override used to attach application defined slots to caf created widgets
     /// All field editor widgets are supposed to be created when this function is called
     virtual void            onEditorWidgetsCreated() {}
+
 
 protected:
     /// Override to customize the order and grouping of the Gui.
@@ -84,6 +87,15 @@ protected:
     // if user uses them on wrong type of objects
     bool                    isInheritedFromPdmUiObject() { return true; }
 
+    /// Override used to append actions to a context menu
+    /// To use this method, enable custom context menu by        
+    /// m_myField.uiCapability()->setUseCustomContextMenu(true);
+    friend class PdmUiFieldEditorHandle;
+    virtual void            defineCustomContextMenu(const caf::PdmFieldHandle*  fieldNeedingMenu, 
+                                                    QMenu*                      menu, 
+                                                    QWidget*                    fieldEditorWidget)
+    {}
+
 private:
     /// Helper method for the TreeItem generation stuff
     void addDefaultUiTreeChildren(PdmUiTreeOrdering* uiTreeOrdering);
@@ -92,7 +104,7 @@ private:
 
 };
 
-PdmUiObjectHandle* uiObj(PdmObjectHandle* obj);
+PdmUiObjectHandle* uiObj(const PdmObjectHandle* obj);
 
 
 } // End of namespace caf

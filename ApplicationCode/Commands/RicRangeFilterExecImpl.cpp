@@ -27,18 +27,20 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RicRangeFilterExecImpl::RicRangeFilterExecImpl(RimCellRangeFilterCollection* rangeFilterCollection, RimCellRangeFilter* rangeFilter)
-    : CmdExecuteCommand(NULL)
+RicRangeFilterExecImpl::RicRangeFilterExecImpl(RimCellRangeFilterCollection* rangeFilterCollection, 
+                                               RimCellRangeFilter* insertBeforeCellRangeFilter)
+    : CmdExecuteCommand(nullptr)
 {
     CVF_ASSERT(rangeFilterCollection);
     m_cellRangeFilterCollection = rangeFilterCollection;
 
-    m_cellRangeFilter = rangeFilter;
+    m_insertBeforeCellRangeFilter = insertBeforeCellRangeFilter;
 
     m_iSlice = false;
     m_jSlice = false;
     m_kSlice = false;
 
+    m_gridIndex = 0;
     m_iSliceStart = -1;
     m_jSliceStart = -1;
     m_kSliceStart = -1;
@@ -61,6 +63,8 @@ RimCellRangeFilter* RicRangeFilterExecImpl::createRangeFilter()
     RimCellRangeFilter* rangeFilter = new RimCellRangeFilter();
 
     size_t flterIndex = m_cellRangeFilterCollection->rangeFilters().size() + 1;
+    
+    rangeFilter->setGridIndex(m_gridIndex);
 
     rangeFilter->name = QString("New Filter (%1)").arg(flterIndex);
 
@@ -87,6 +91,7 @@ RimCellRangeFilter* RicRangeFilterExecImpl::createRangeFilter()
 //--------------------------------------------------------------------------------------------------
 void RicRangeFilterExecImpl::applyCommandDataOnFilter(RimCellRangeFilter* rangeFilter)
 {
+    rangeFilter->setGridIndex(m_gridIndex);
     if (m_iSlice)
     {
         rangeFilter->cellCountI = 1;

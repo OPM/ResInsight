@@ -17,10 +17,18 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RimPlotCurve.h"
+
+#include "RimEnsembleCurveSet.h"
+#include "RimEnsembleCurveSetCollection.h"
+#include "RimNameConfig.h"
+#include "RimSummaryCrossPlot.h"
+#include "RimSummaryCurve.h"
 #include "RimSummaryCurveCollection.h"
 #include "RimSummaryCurveFilter.h"
+#include "RimSummaryPlot.h"
 
-#include "RiuLineSegmentQwtPlotCurve.h"
+#include "RiuPlotMainWindowTools.h"
+#include "RiuRimQwtPlotCurve.h"
 
 #include "cafPdmUiComboBoxEditor.h"
 
@@ -35,40 +43,41 @@ CAF_PDM_XML_ABSTRACT_SOURCE_INIT(RimPlotCurve, "PlotCurve");
 namespace caf
 {
 template<>
-void caf::AppEnum< RimPlotCurve::LineStyleEnum >::setUp()
-{
-    addItem(RimPlotCurve::STYLE_NONE, "STYLE_NONE", "None");
-    addItem(RimPlotCurve::STYLE_SOLID, "STYLE_SOLID", "Solid");
-    addItem(RimPlotCurve::STYLE_DASH, "STYLE_DASH", "Dashes");
-    addItem(RimPlotCurve::STYLE_DOT, "STYLE_DOT", "Dots");
-    addItem(RimPlotCurve::STYLE_DASH_DOT, "STYLE_DASH_DOT", "Dashes and Dots");
-
-    setDefault(RimPlotCurve::STYLE_SOLID);
-}
-
-
-template<>
-void caf::AppEnum< RimPlotCurve::PointSymbolEnum >::setUp()
-{
-    addItem(RimPlotCurve::SYMBOL_NONE, "SYMBOL_NONE", "None");
-    addItem(RimPlotCurve::SYMBOL_ELLIPSE, "SYMBOL_ELLIPSE", "Ellipse");
-    addItem(RimPlotCurve::SYMBOL_RECT, "SYMBOL_RECT", "Rect");
-    addItem(RimPlotCurve::SYMBOL_DIAMOND, "SYMBOL_DIAMOND", "Diamond");
-    addItem(RimPlotCurve::SYMBOL_TRIANGLE, "SYMBOL_TRIANGLE", "Triangle");
-    addItem(RimPlotCurve::SYMBOL_CROSS, "SYMBOL_CROSS", "Cross");
-    addItem(RimPlotCurve::SYMBOL_XCROSS, "SYMBOL_XCROSS", "X Cross");
-
-    setDefault(RimPlotCurve::SYMBOL_NONE);
-}
-
-template<>
 void RimPlotCurve::CurveInterpolation::setUp()
 {
-    addItem(RimPlotCurve::INTERPOLATION_POINT_TO_POINT, "INTERPOLATION_POINT_TO_POINT", "Point to Point");
-    addItem(RimPlotCurve::INTERPOLATION_STEP_LEFT,      "INTERPOLATION_STEP_LEFT",      "Step Left");
+    addItem(RiuQwtPlotCurve::INTERPOLATION_POINT_TO_POINT, "INTERPOLATION_POINT_TO_POINT", "Point to Point");
+    addItem(RiuQwtPlotCurve::INTERPOLATION_STEP_LEFT,      "INTERPOLATION_STEP_LEFT",      "Step Left");
 
-    setDefault(RimPlotCurve::INTERPOLATION_POINT_TO_POINT);
+    setDefault(RiuQwtPlotCurve::INTERPOLATION_POINT_TO_POINT);
 }
+
+template<>
+void RimPlotCurve::LineStyle::setUp()
+{
+    addItem(RiuQwtPlotCurve::STYLE_NONE, "STYLE_NONE", "None");
+    addItem(RiuQwtPlotCurve::STYLE_SOLID, "STYLE_SOLID", "Solid");
+    addItem(RiuQwtPlotCurve::STYLE_DASH, "STYLE_DASH", "Dashes");
+    addItem(RiuQwtPlotCurve::STYLE_DOT, "STYLE_DOT", "Dots");
+    addItem(RiuQwtPlotCurve::STYLE_DASH_DOT, "STYLE_DASH_DOT", "Dashes and Dots");
+
+    setDefault(RiuQwtPlotCurve::STYLE_SOLID);
+}
+
+
+template<>
+void RimPlotCurve::PointSymbol::setUp()
+{
+    addItem(RiuQwtSymbol::SYMBOL_NONE, "SYMBOL_NONE", "None");
+    addItem(RiuQwtSymbol::SYMBOL_ELLIPSE, "SYMBOL_ELLIPSE", "Ellipse");
+    addItem(RiuQwtSymbol::SYMBOL_RECT, "SYMBOL_RECT", "Rect");
+    addItem(RiuQwtSymbol::SYMBOL_DIAMOND, "SYMBOL_DIAMOND", "Diamond");
+    addItem(RiuQwtSymbol::SYMBOL_TRIANGLE, "SYMBOL_TRIANGLE", "Triangle");
+    addItem(RiuQwtSymbol::SYMBOL_CROSS, "SYMBOL_CROSS", "Cross");
+    addItem(RiuQwtSymbol::SYMBOL_XCROSS, "SYMBOL_XCROSS", "X Cross");
+
+    setDefault(RiuQwtSymbol::SYMBOL_NONE);
+}
+
 }
 
 
@@ -76,6 +85,7 @@ void RimPlotCurve::CurveInterpolation::setUp()
 /// 
 //--------------------------------------------------------------------------------------------------
 RimPlotCurve::RimPlotCurve()
+    : m_symbolLabelPosition(RiuQwtSymbol::LabelAboveSymbol)
 {
     CAF_PDM_InitObject("Curve", ":/WellLogCurve16x16.png", "", "");
 
@@ -93,21 +103,21 @@ RimPlotCurve::RimPlotCurve()
     CAF_PDM_InitField(&m_curveThickness, "Thickness", 1, "Line Thickness", "", "", "");
     m_curveThickness.uiCapability()->setUiEditorTypeName(caf::PdmUiComboBoxEditor::uiEditorTypeName());
 
-    caf::AppEnum< RimPlotCurve::LineStyleEnum > lineStyle = STYLE_SOLID;
-    CAF_PDM_InitField(&m_lineStyle, "LineStyle", lineStyle, "Line Style", "", "", "");
-
     CAF_PDM_InitFieldNoDefault(&m_curveInterpolation, "CurveInterpolation", "Interpolation", "", "", "");
-
-    caf::AppEnum< RimPlotCurve::PointSymbolEnum > pointSymbol = SYMBOL_NONE;
-    CAF_PDM_InitField(&m_pointSymbol, "PointSymbol", pointSymbol, "Symbol", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_lineStyle, "LineStyle", "Line Style", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_pointSymbol, "PointSymbol", "Symbol", "", "", "");
 
     CAF_PDM_InitField(&m_symbolSkipPixelDistance, "SymbolSkipPxDist", 0.0f, "Symbol Skip Distance", "", "Minimum pixel distance between symbols", "");
 
     CAF_PDM_InitField(&m_showLegend, "ShowLegend", true, "Contribute To Legend", "", "", "");
 
-    m_qwtPlotCurve = new RiuLineSegmentQwtPlotCurve;
+    CAF_PDM_InitField(&m_symbolSize, "SymbolSize", 6, "Symbol Size", "", "", "");
 
-    m_parentQwtPlot = NULL;
+    CAF_PDM_InitField(&m_showErrorBars, "ShowErrorBars", true, "Show Error Bars", "", "", "");
+
+    m_qwtPlotCurve = new RiuRimQwtPlotCurve(this);
+
+    m_parentQwtPlot = nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -115,17 +125,17 @@ RimPlotCurve::RimPlotCurve()
 //--------------------------------------------------------------------------------------------------
 RimPlotCurve::~RimPlotCurve()
 {
-	if (m_qwtPlotCurve)
-	{
-		m_qwtPlotCurve->detach();
-		delete m_qwtPlotCurve;
-		m_qwtPlotCurve = NULL;
-	}
+    if (m_qwtPlotCurve)
+    {
+        m_qwtPlotCurve->detach();
+        delete m_qwtPlotCurve;
+        m_qwtPlotCurve = nullptr;
+    }
 
-	if (m_parentQwtPlot)
-	{
-		m_parentQwtPlot->replot();
-	}
+    if (m_parentQwtPlot)
+    {
+        m_parentQwtPlot->replot();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -141,16 +151,28 @@ void RimPlotCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField, con
     else if (changedField == &m_curveName)
     {
         m_customCurveName = m_curveName;
-        updateCurveNameAndUpdatePlotLegend();
+        updateCurveNameAndUpdatePlotLegendAndTitle();
     }
     else if (&m_curveColor == changedField
              || &m_curveThickness == changedField
              || &m_pointSymbol == changedField
              || &m_lineStyle == changedField
              || &m_symbolSkipPixelDistance == changedField
-             || &m_curveInterpolation == changedField)
+             || &m_curveInterpolation == changedField
+             || &m_symbolSize == changedField)
     {
         updateCurveAppearance();
+
+        if (&m_pointSymbol == changedField)
+        {
+            m_symbolSize.uiCapability()->setUiReadOnly(m_pointSymbol() == RiuQwtSymbol::SYMBOL_NONE);
+            m_symbolSkipPixelDistance.uiCapability()->setUiReadOnly(m_pointSymbol() == RiuQwtSymbol::SYMBOL_NONE);
+        }
+        else if (&m_lineStyle == changedField)
+        {
+            m_curveThickness.uiCapability()->setUiReadOnly(m_lineStyle() == RiuQwtPlotCurve::STYLE_NONE);
+            m_curveInterpolation.uiCapability()->setUiReadOnly(m_lineStyle() == RiuQwtPlotCurve::STYLE_NONE);
+        }
     }
     else if (changedField == &m_isUsingAutoName)
     {
@@ -159,13 +181,18 @@ void RimPlotCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField, con
             m_customCurveName = createCurveAutoName();
         }
 
-        updateCurveNameAndUpdatePlotLegend();
+        updateCurveNameAndUpdatePlotLegendAndTitle();
     }
     else if (changedField == &m_showLegend)
     {
         updateLegendEntryVisibilityAndPlotLegend();
     }
-
+    else if (changedField == &m_showErrorBars)
+    {
+        m_qwtPlotCurve->showErrorBars(m_showErrorBars);
+        updateCurveAppearance();
+    }
+    RiuPlotMainWindowTools::refreshToolbars();
     if (m_parentQwtPlot) m_parentQwtPlot->replot();
 }
 
@@ -175,6 +202,15 @@ void RimPlotCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField, con
 caf::PdmFieldHandle* RimPlotCurve::objectToggleField()
 {
     return &m_showCurve;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotCurve::setCustomName(const QString& customName)
+{
+    m_isUsingAutoName = false;
+    m_customCurveName = customName;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -188,6 +224,10 @@ void RimPlotCurve::updateCurveVisibility(bool updateParentPlot)
         RimSummaryCurveCollection* summaryCurveCollection = nullptr;
         this->firstAncestorOrThisOfType(summaryCurveCollection);
         if (summaryCurveCollection) isVisibleInPossibleParent = summaryCurveCollection->isCurvesVisible();
+
+        RimEnsembleCurveSet* ensembleCurveSet = nullptr;
+        firstAncestorOrThisOfType(ensembleCurveSet);
+        if (ensembleCurveSet) isVisibleInPossibleParent = ensembleCurveSet->isCurvesVisible();
     }
 
     if (m_showCurve() && m_parentQwtPlot && isVisibleInPossibleParent)
@@ -206,15 +246,27 @@ void RimPlotCurve::updateCurveVisibility(bool updateParentPlot)
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotCurve::initAfterRead()
+{
+    m_symbolSize.uiCapability()->setUiReadOnly(m_pointSymbol() == RiuQwtSymbol::SYMBOL_NONE);
+    m_symbolSkipPixelDistance.uiCapability()->setUiReadOnly(m_pointSymbol() == RiuQwtSymbol::SYMBOL_NONE);
+    m_curveThickness.uiCapability()->setUiReadOnly(m_lineStyle() == RiuQwtPlotCurve::STYLE_NONE);
+    m_curveInterpolation.uiCapability()->setUiReadOnly(m_lineStyle() == RiuQwtPlotCurve::STYLE_NONE);
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimPlotCurve::updateCurvePresentation(bool updatePlotLegend)
+void RimPlotCurve::updateCurvePresentation(bool updatePlotLegendAndTitle)
 {
-    this->updateCurveVisibility(updatePlotLegend);
+    this->updateCurveVisibility(updatePlotLegendAndTitle);
 
-    if (updatePlotLegend)
+    if (updatePlotLegendAndTitle)
     {
-        this->updateCurveNameAndUpdatePlotLegend();
+        this->updateCurveNameAndUpdatePlotLegendAndTitle();
+        this->updatePlotTitle();
     }
     else
     {
@@ -274,6 +326,18 @@ void RimPlotCurve::detachQwtCurve()
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotCurve::reattachQwtCurve()
+{
+    detachQwtCurve();
+    if (m_parentQwtPlot && m_showCurve)
+    {
+        m_qwtPlotCurve->attach(m_parentQwtPlot);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 QwtPlotCurve* RimPlotCurve::qwtPlotCurve() const
@@ -300,7 +364,7 @@ void RimPlotCurve::setCurveVisiblity(bool visible)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimPlotCurve::updateCurveNameAndUpdatePlotLegend()
+void RimPlotCurve::updateCurveNameAndUpdatePlotLegendAndTitle()
 {
     if (m_isUsingAutoName)
     {
@@ -343,16 +407,42 @@ void RimPlotCurve::updateOptionSensitivity()
 
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotCurve::updatePlotTitle()
+{
+    RimNameConfigHolderInterface* nameConfigHolder = nullptr;
+    this->firstAncestorOrThisOfType(nameConfigHolder);
+    if (nameConfigHolder)
+    {
+        nameConfigHolder->updateHolder();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotCurve::updateLegendsInPlot()
+{
+    if (m_parentQwtPlot != nullptr)
+    {
+        m_parentQwtPlot->updateLegend();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void RimPlotCurve::appearanceUiOrdering(caf::PdmUiOrdering& uiOrdering)
 {
     uiOrdering.add(&m_curveColor);
     uiOrdering.add(&m_pointSymbol);
+    uiOrdering.add(&m_symbolSize);
     uiOrdering.add(&m_symbolSkipPixelDistance);
-    uiOrdering.add(&m_curveThickness);
     uiOrdering.add(&m_lineStyle);
+    uiOrdering.add(&m_curveThickness);
     uiOrdering.add(&m_curveInterpolation);
+    
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -373,88 +463,49 @@ void RimPlotCurve::updateCurveAppearance()
 
     QColor curveColor(m_curveColor.value().rByte(), m_curveColor.value().gByte(), m_curveColor.value().bByte());
 
-    QwtSymbol* symbol = NULL;
+    QwtSymbol* symbol = nullptr;
 
-    if (m_pointSymbol() != SYMBOL_NONE)
+    if (m_pointSymbol() != RiuQwtSymbol::SYMBOL_NONE)
     {
-        QwtSymbol::Style style = QwtSymbol::NoSymbol;
-
-        switch (m_pointSymbol())
-        {
-            case SYMBOL_ELLIPSE:
-            style = QwtSymbol::Ellipse;
-            break;
-            case SYMBOL_RECT:
-            style = QwtSymbol::Rect;
-            break;
-            case SYMBOL_DIAMOND:
-            style = QwtSymbol::Diamond;
-            break;
-            case SYMBOL_TRIANGLE:
-            style = QwtSymbol::Triangle;
-            break;
-            case SYMBOL_CROSS:
-            style = QwtSymbol::Cross;
-            break;
-            case SYMBOL_XCROSS:
-            style = QwtSymbol::XCross;
-            break;
-
-            default:
-            break;
-        }
-
         // QwtPlotCurve will take ownership of the symbol
-        symbol = new QwtSymbol(style);
-
-        symbol->setSize(6, 6);
+        symbol = new RiuQwtSymbol(m_pointSymbol(), m_symbolLabel, m_symbolLabelPosition);
+        symbol->setSize(m_symbolSize, m_symbolSize);
         symbol->setColor(curveColor);
     }
 
-    QwtPlotCurve::CurveStyle curveStyle = QwtPlotCurve::NoCurve;
-    Qt::PenStyle penStyle = Qt::SolidLine;
-
-    if (m_lineStyle() != STYLE_NONE)
-    {
-        switch (m_curveInterpolation())
-        {
-        case INTERPOLATION_STEP_LEFT:
-            curveStyle = QwtPlotCurve::Steps;
-            m_qwtPlotCurve->setCurveAttribute(QwtPlotCurve::Inverted, false);
-            break;
-        case INTERPOLATION_POINT_TO_POINT: // Fall through
-        default:
-            curveStyle = QwtPlotCurve::Lines;
-            break;
-        }
-
-        switch (m_lineStyle())
-        {
-            case STYLE_SOLID:
-            penStyle = Qt::SolidLine;
-            break;
-            case STYLE_DASH:
-            penStyle = Qt::DashLine;
-            break;
-            case STYLE_DOT:
-            penStyle = Qt::DotLine;
-            break;
-            case STYLE_DASH_DOT:
-            penStyle = Qt::DashDotLine;
-            break;
-
-            default:
-            break;
-        }
-    }
-    QPen curvePen(curveColor);
-    curvePen.setWidth(m_curveThickness);
-    curvePen.setStyle(penStyle);
-
-    m_qwtPlotCurve->setPen(curvePen);
-    m_qwtPlotCurve->setStyle(curveStyle);
+    m_qwtPlotCurve->setAppearance(m_lineStyle(), m_curveInterpolation(), m_curveThickness(), curveColor);
     m_qwtPlotCurve->setSymbol(symbol);
     m_qwtPlotCurve->setSymbolSkipPixelDistance(m_symbolSkipPixelDistance());
+
+    m_qwtPlotCurve->setErrorBarsColor(curveColor);
+
+    // Make sure the legend lines are long enough to distinguish between line types.
+    // Standard width in Qwt is 8 which is too short.
+    // Use 10 and scale this by curve thickness + add space for displaying symbol.
+    QSize legendIconSize = m_qwtPlotCurve->legendIconSize();
+    
+    int symbolWidth = 0;
+    if (symbol)
+    {
+        symbolWidth = symbol->boundingRect().size().width() + 2;
+    }
+
+    int width = std::max(10 * m_curveThickness, (symbolWidth * 3) / 2);
+    
+    legendIconSize.setWidth(width);
+    m_qwtPlotCurve->setLegendIconSize(legendIconSize);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimPlotCurve::isCrossPlotCurve() const
+{
+    RimSummaryCrossPlot* crossPlot = nullptr;
+    this->firstAncestorOrThisOfType(crossPlot);
+    if (crossPlot) return true;
+
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -484,9 +535,47 @@ void RimPlotCurve::loadDataAndUpdate(bool updateParentPlot)
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimPlotCurve::xValueRange(double* minimumValue, double* maximumValue) const
+{
+    CVF_ASSERT(minimumValue && maximumValue);
+    CVF_ASSERT(m_qwtPlotCurve);
+
+    if (m_qwtPlotCurve->data()->size() < 1)
+    {
+        return false;
+    }
+
+    *minimumValue = m_qwtPlotCurve->minXValue();
+    *maximumValue = m_qwtPlotCurve->maxXValue();
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimPlotCurve::yValueRange(double* minimumValue, double* maximumValue) const
+{
+    CVF_ASSERT(minimumValue && maximumValue);
+    CVF_ASSERT(m_qwtPlotCurve);
+
+    if (m_qwtPlotCurve->data()->size() < 1)
+    {
+        return false;
+    }
+
+    *minimumValue = m_qwtPlotCurve->minYValue();
+    *maximumValue = m_qwtPlotCurve->maxYValue();
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimPlotCurve::setLineStyle(LineStyleEnum lineStyle)
+void RimPlotCurve::setLineStyle(RiuQwtPlotCurve::LineStyleEnum lineStyle)
 {
     m_lineStyle = lineStyle;
 }
@@ -494,7 +583,7 @@ void RimPlotCurve::setLineStyle(LineStyleEnum lineStyle)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimPlotCurve::setSymbol(PointSymbolEnum symbolStyle)
+void RimPlotCurve::setSymbol(RiuQwtSymbol::PointSymbolEnum symbolStyle)
 {
     m_pointSymbol = symbolStyle;
 }
@@ -502,7 +591,7 @@ void RimPlotCurve::setSymbol(PointSymbolEnum symbolStyle)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimPlotCurve::PointSymbolEnum RimPlotCurve::symbol()
+RiuQwtSymbol::PointSymbolEnum RimPlotCurve::symbol()
 {
     return m_pointSymbol();
 }
@@ -510,9 +599,25 @@ RimPlotCurve::PointSymbolEnum RimPlotCurve::symbol()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimPlotCurve::setSymbolSkipDinstance(float distance)
+void RimPlotCurve::setSymbolSkipDistance(float distance)
 {
     m_symbolSkipPixelDistance = distance;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimPlotCurve::setSymbolLabel(const QString& label)
+{
+    m_symbolLabel = label;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimPlotCurve::setSymbolSize(int sizeInPixels)
+{
+    m_symbolSize = sizeInPixels;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -530,9 +635,9 @@ void RimPlotCurve::resetAppearance()
 {
     setColor(cvf::Color3f(cvf::Color3::BLACK));
     setLineThickness(2);
-    setLineStyle(STYLE_SOLID);
-    setSymbol(SYMBOL_NONE);
-    setSymbolSkipDinstance(10);
+    setLineStyle(RiuQwtPlotCurve::STYLE_SOLID);
+    setSymbol(RiuQwtSymbol::SYMBOL_NONE);
+    setSymbolSkipDistance(10);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -545,7 +650,7 @@ void RimPlotCurve::showLegend(bool show)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimPlotCurve::setZOrder(double z)
 {
@@ -556,48 +661,38 @@ void RimPlotCurve::setZOrder(double z)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimPlotCurve::updateLegendEntryVisibilityAndPlotLegend()
 {
-    if (m_showLegend()) {
-        if (m_curveName().isEmpty())
-        {
-            m_qwtPlotCurve->setItemAttribute(QwtPlotItem::Legend, false);
-        }
-        else
-        {
-            m_qwtPlotCurve->setItemAttribute(QwtPlotItem::Legend, true);
-        }
-    }
-    else
-    {
-        m_qwtPlotCurve->setItemAttribute(QwtPlotItem::Legend, false);
-    }
-
-    if (m_parentQwtPlot != nullptr)
-    {
-        m_parentQwtPlot->updateLegend();
-    }
+    updateLegendEntryVisibilityNoPlotUpdate();
+    updateLegendsInPlot();
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimPlotCurve::updateLegendEntryVisibilityNoPlotUpdate()
 {
-    if (m_showLegend()) {
-        if (m_curveName().isEmpty())
-        {
-            m_qwtPlotCurve->setItemAttribute(QwtPlotItem::Legend, false);
-        }
-        else
-        {
-            m_qwtPlotCurve->setItemAttribute(QwtPlotItem::Legend, true);
-        }
-    }
-    else
+    RimEnsembleCurveSet* ensembleCurveSet = nullptr;
+    this->firstAncestorOrThisOfType(ensembleCurveSet);
+    if (ensembleCurveSet)
     {
-        m_qwtPlotCurve->setItemAttribute(QwtPlotItem::Legend, false);
+        return;
     }
+
+    RimSummaryPlot* summaryPlot = nullptr;
+    this->firstAncestorOrThisOfType(summaryPlot);
+
+    bool showLegendInQwt = m_showLegend();
+    if (summaryPlot)
+    {
+
+        if (summaryPlot->ensembleCurveSetCollection()->curveSets().empty() && summaryPlot->curveCount() == 1)
+        {
+            // Disable display of legend if the summary plot has only one single curve
+            showLegendInQwt = false;
+        }
+    }
+    m_qwtPlotCurve->setItemAttribute(QwtPlotItem::Legend, showLegendInQwt);
 }

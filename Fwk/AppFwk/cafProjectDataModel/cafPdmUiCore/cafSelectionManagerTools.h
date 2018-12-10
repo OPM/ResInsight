@@ -75,4 +75,17 @@ std::vector<T> selectedObjectsByType()
     return objectByType;
 }
 
+//--------------------------------------------------------------------------------------------------
+/// Return all objects of given type from the selection manager.
+/// If objects of different type are selected, an empty list is returned.
+//--------------------------------------------------------------------------------------------------
+template<typename T>
+std::vector<T> selectedObjectsByTypeStrict()
+{
+    std::vector<T> objectByType;
+    caf::SelectionManager::instance()->objectsByTypeStrict(&objectByType);
+
+    return objectByType;
+}
+
 } // end namespace caf

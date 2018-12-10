@@ -94,7 +94,7 @@ it. In the configuration file both GEN_DATA and GEN_PARAM can be used:
    GEN_PARAM: For parameters which are not changed by the forward
       model, i.e. like porosity and permeability.
 
-   GEN_DATA: Data which is changed by the forward model, and therefor
+   GEN_DATA: Data which is changed by the forward model, and therefore
       must be loaded at the end of each timestep. The arch-typical
       example of a GEN_DATA instance would be seismic data.
 
@@ -436,14 +436,14 @@ The block_fs driver is based on creating block_fs instances
 (block_fs_type is implemented in libutil/src/block_fs.c). The block_fs
 instances are binary files which are open through the duration of the
 program, the block_fs system then has an api for reading and writing
-(key,value) pairs to this file. 
+(key,value) pairs to this file.
 
 The block_fs_driver/block_fs combination is quite complex, but it has
 not had any hickups for about 1.5 years of extensive use in
 Statoil. Observe that if you pull the plug on ERT you might loose some
 of the data which has been stored with the block_fs driver, but partly
 written and malformed data will be detected and discarded at the next
-boot. You are therefor guaranteed (add as many quotes you like to the
+boot. You are therefore guaranteed (add as many quotes you like to the
 guarantee - but this has at least worked 100% up until now) that no
 bogus data will be loaded after an unclean shutdown. When shut down
 cleanly the block_fs will create an index file which can be used for
@@ -551,7 +551,7 @@ SConstruct files:
 
 Unfortunately it has been a major pain in the ass to get SCons to
 behave according to the requirements listed above; for the more
-extensive installation procedures there are therefor simple Python
+extensive installation procedures there are therefore simple Python
 scripts "install.py" which should be invoked after the SCons build is
 complete.
 

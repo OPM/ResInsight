@@ -53,6 +53,12 @@ public:
     void                    referringPtrFields(std::vector<PdmFieldHandle*>& fieldsReferringToMe) const;
     /// Convenience method to get the objects pointing to this field 
     void                    objectsWithReferringPtrFields(std::vector<PdmObjectHandle*>& objects) const;
+    /// Convenience method to get the objects of specified type pointing to this field
+    template <typename T>
+    void                    objectsWithReferringPtrFieldsOfType(std::vector<T*>& objectsOfType) const;
+
+    // Detach object from all referring fields
+    void                    prepareForDelete();
 
     // Object capabilities
     void                    addCapability(PdmObjectCapability* capability, bool takeOwnership) { m_capabilities.push_back(std::make_pair(capability, takeOwnership)); }
@@ -124,10 +130,10 @@ void PdmObjectHandle::firstAncestorOrThisOfType(T*& ancestor) const
 
     // Check if this matches the type
 
-    const T* objectOfType = dynamic_cast<const T*>(this);
-    if (objectOfType)
+    const T* objectOfTypeConst = dynamic_cast<const T*>(this);
+    if (objectOfTypeConst)
     {
-        ancestor = const_cast<T*>(objectOfType);
+        ancestor = const_cast<T*>(objectOfTypeConst);
         return;
     }
 
@@ -198,6 +204,25 @@ void PdmObjectHandle::descendantsIncludingThisOfType(std::vector<T*>& descendant
         }
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+template <typename T>
+void PdmObjectHandle::objectsWithReferringPtrFieldsOfType(std::vector<T*>& objectsOfType) const
+{
+    std::vector<PdmObjectHandle*> objectsReferencingThis;
+    this->objectsWithReferringPtrFields(objectsReferencingThis);
+
+    for (auto object : objectsReferencingThis)
+    {
+        if (dynamic_cast<T*>(object))
+        {
+            objectsOfType.push_back(dynamic_cast<T*>(object));
+        }
+    }
+}
+
 
 } // End of namespace caf
 

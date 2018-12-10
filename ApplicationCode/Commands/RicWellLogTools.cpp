@@ -24,7 +24,7 @@
 #include "RimEclipseResultCase.h"
 #include "RimProject.h"
 #include "RimSimWellInView.h"
-#include "RimView.h"
+#include "Rim3dView.h"
 #include "RimWellLogExtractionCurve.h"
 #include "RimWellLogFileChannel.h"
 #include "RimWellLogFileCurve.h"
@@ -35,23 +35,12 @@
 
 #include "RifReaderEclipseRft.h"
 
-#include "RiuMainPlotWindow.h"
+#include "RiuPlotMainWindowTools.h"
 #include "RiuSelectionManager.h"
 
 #include "WellLogCommands/RicWellLogPlotCurveFeatureImpl.h"
 
 #include "cafSelectionManager.h"
-
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RimWellLogTrack* RicWellLogTools::selectedWellLogPlotTrack()
-{
-    std::vector<RimWellLogTrack*> selection;
-    caf::SelectionManager::instance()->objectsByType(&selection);
-    return selection.size() > 0 ? selection[0] : nullptr;
-}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -74,15 +63,6 @@ RimSimWellInView* RicWellLogTools::selectedSimulationWell(int *branchIndex)
     }
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RimWellPath* RicWellLogTools::selectedWellPath()
-{
-    std::vector<RimWellPath*> selection;
-    caf::SelectionManager::instance()->objectsByType(&selection);
-    return selection.size() > 0 ? selection[0] : nullptr;
-}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -116,10 +96,10 @@ bool RicWellLogTools::isWellPathOrSimWellSelectedInView()
     RiuSelectionManager* riuSelManager = RiuSelectionManager::instance();
     RiuSelectionItem* selItem = riuSelManager->selectedItem(RiuSelectionManager::RUI_TEMPORARY);
 
-    RiuSimWellSelectionItem* simWellSelectionItem = static_cast<RiuSimWellSelectionItem*>(selItem);
+    RiuSimWellSelectionItem* simWellSelectionItem = dynamic_cast<RiuSimWellSelectionItem*>(selItem);
     if (simWellSelectionItem) return true;
 
-    RiuWellPathSelectionItem* wellPathSelectionItem = static_cast<RiuWellPathSelectionItem*>(selItem);
+    RiuWellPathSelectionItem* wellPathSelectionItem = dynamic_cast<RiuWellPathSelectionItem*>(selItem);
     if (wellPathSelectionItem) return true;
 
     return false;
@@ -173,7 +153,26 @@ RimWellPath* RicWellLogTools::selectedWellPathWithLogFile()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimWellLogExtractionCurve* RicWellLogTools::addExtractionCurve(RimWellLogTrack* plotTrack, RimView* view, RimWellPath* wellPath, const RimSimWellInView* simWell, int branchIndex, bool useBranchDetection)
+RimWellPath* RicWellLogTools::findWellPathWithLogFileFromSelection()
+{
+    RimWellPath* wellPath = caf::SelectionManager::instance()->selectedItemAncestorOfType<RimWellPath>();
+    if (wellPath->wellLogFiles().size() > 0)
+    {
+        return wellPath;
+    }
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimWellLogExtractionCurve* RicWellLogTools::addExtractionCurve(RimWellLogTrack*        plotTrack,
+                                                               Rim3dView*              view,
+                                                               RimWellPath*            wellPath,
+                                                               const RimSimWellInView* simWell,
+                                                               int                     branchIndex,
+                                                               bool                    useBranchDetection,
+                                                               bool                    showPlotWindow)
 {
     CVF_ASSERT(plotTrack);
     RimWellLogExtractionCurve* curve = new RimWellLogExtractionCurve();
@@ -205,12 +204,15 @@ RimWellLogExtractionCurve* RicWellLogTools::addExtractionCurve(RimWellLogTrack* 
 
     plotTrack->updateConnectedEditors();
 
-    // Make sure the summary plot window is created and visible
-    RiuMainPlotWindow* plotwindow = RiaApplication::instance()->getOrCreateAndShowMainPlotWindow();
-
     RiaApplication::instance()->project()->updateConnectedEditors();
+    RiaApplication::instance()->getOrCreateMainPlotWindow();
+    RiuPlotMainWindowTools::selectAsCurrentItem(curve);
 
-    plotwindow->selectAsCurrentItem(curve);
+    if (showPlotWindow)
+    {
+        // Make sure the summary plot window is visible
+        RiuPlotMainWindowTools::showPlotMainWindow();
+    }
 
     return curve;
 }
@@ -218,7 +220,7 @@ RimWellLogExtractionCurve* RicWellLogTools::addExtractionCurve(RimWellLogTrack* 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimWellLogRftCurve* RicWellLogTools::addRftCurve(RimWellLogTrack* plotTrack, const RimSimWellInView* simWell)
+RimWellLogRftCurve* RicWellLogTools::addRftCurve(RimWellLogTrack* plotTrack, const RimSimWellInView* simWell, bool showPlotWindow)
 {
     CVF_ASSERT(plotTrack);
 
@@ -254,11 +256,15 @@ RimWellLogRftCurve* RicWellLogTools::addRftCurve(RimWellLogTrack* plotTrack, con
     plotTrack->setFormationTrajectoryType(RimWellLogTrack::SIMULATION_WELL);
     plotTrack->updateConnectedEditors();
 
-    RiuMainPlotWindow* plotwindow = RiaApplication::instance()->getOrCreateAndShowMainPlotWindow();
-
     RiaApplication::instance()->project()->updateConnectedEditors();
+    RiaApplication::instance()->getOrCreateMainPlotWindow();
+    RiuPlotMainWindowTools::selectAsCurrentItem(curve);
 
-    plotwindow->selectAsCurrentItem(curve);
+    if (showPlotWindow)
+    {
+        // Make sure the summary plot window is visible
+        RiuPlotMainWindowTools::showPlotMainWindow();
+    }
 
     return curve;
 }
@@ -266,7 +272,7 @@ RimWellLogRftCurve* RicWellLogTools::addRftCurve(RimWellLogTrack* plotTrack, con
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimWellLogFileCurve* RicWellLogTools::addFileCurve(RimWellLogTrack* plotTrack)
+RimWellLogFileCurve* RicWellLogTools::addFileCurve(RimWellLogTrack* plotTrack, bool showPlotWindow)
 {
     CVF_ASSERT(plotTrack);
 
@@ -279,8 +285,15 @@ RimWellLogFileCurve* RicWellLogTools::addFileCurve(RimWellLogTrack* plotTrack)
 
     plotTrack->updateConnectedEditors();
 
-    RiuMainPlotWindow* plotwindow = RiaApplication::instance()->getOrCreateAndShowMainPlotWindow();
-    plotwindow->selectAsCurrentItem(curve);
+    RiaApplication::instance()->project()->updateConnectedEditors();
+    RiaApplication::instance()->getOrCreateMainPlotWindow();
+    RiuPlotMainWindowTools::selectAsCurrentItem(curve);
+
+    if (showPlotWindow)
+    {
+        // Make sure the summary plot window is visible
+        RiuPlotMainWindowTools::showPlotMainWindow();
+    }
 
     return curve;
 }

@@ -34,7 +34,7 @@ class RicfCloseProject : public RicfCommandObject
 public:
     RicfCloseProject();
 
-    virtual void execute() override;
+    void execute() override;
 
 private:
 };

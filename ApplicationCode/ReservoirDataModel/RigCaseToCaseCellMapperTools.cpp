@@ -39,14 +39,14 @@ public:
         m_baseK(baseK)
     {}
 
-    const caf::SizeTArray8* neighborIndices(int offsetI, int offsetJ, int offsetK)
+    const std::array<size_t, 8>* neighborIndices(int offsetI, int offsetJ, int offsetK)
     {
-        if (offsetI < 0 && m_baseI == 0) return NULL;
-        if (offsetJ < 0 && m_baseJ == 0) return NULL;
-        if (offsetK < 0 && m_baseK == 0) return NULL;
-        if (offsetI > 0 && m_baseI == m_mainGrid->cellCountI()-1) return NULL;
-        if (offsetJ > 0 && m_baseJ == m_mainGrid->cellCountJ()-1) return NULL;
-        if (offsetK > 0 && m_baseK == m_mainGrid->cellCountK()-1) return NULL;
+        if (offsetI < 0 && m_baseI == 0) return nullptr;
+        if (offsetJ < 0 && m_baseJ == 0) return nullptr;
+        if (offsetK < 0 && m_baseK == 0) return nullptr;
+        if (offsetI > 0 && m_baseI == m_mainGrid->cellCountI()-1) return nullptr;
+        if (offsetJ > 0 && m_baseJ == m_mainGrid->cellCountJ()-1) return nullptr;
+        if (offsetK > 0 && m_baseK == m_mainGrid->cellCountK()-1) return nullptr;
 
         size_t gridLocalCellIndex = m_mainGrid->cellIndexFromIJK(m_baseI + offsetI, m_baseJ + offsetJ, m_baseK + offsetK);
         const RigCell& cell = m_mainGrid->globalCellArray()[gridLocalCellIndex];
@@ -88,35 +88,35 @@ void RigCaseToCaseCellMapperTools::estimatedFemCellFromEclCell(const RigMainGrid
     // 6 <- PI[7] PIPJ[4] PJ[5] PK[2] PIPK[3] PIPJPK[0] PJPK[1]
     // 7 <- PJ[4] NIPJ[5] NI[6] PK[3] PJPK[0] NIPJPK[1] NIPK[2]
 
-    const caf::SizeTArray8* IJK      = nbFinder.neighborIndices( 0, 0, 0);
-    const caf::SizeTArray8* NI       = nbFinder.neighborIndices(-1, 0, 0);
-    const caf::SizeTArray8* NJ       = nbFinder.neighborIndices( 0,-1, 0);
-    const caf::SizeTArray8* PI       = nbFinder.neighborIndices( 1, 0, 0);
-    const caf::SizeTArray8* PJ       = nbFinder.neighborIndices( 0, 1, 0);
-    const caf::SizeTArray8* NK       = nbFinder.neighborIndices( 0, 0,-1);
-    const caf::SizeTArray8* PK       = nbFinder.neighborIndices( 0, 0, 1);
-    const caf::SizeTArray8* NINJ     = nbFinder.neighborIndices(-1,-1, 0);
-    const caf::SizeTArray8* PINJ     = nbFinder.neighborIndices( 1,-1, 0);
+    const std::array<size_t, 8>* IJK      = nbFinder.neighborIndices( 0, 0, 0);
+    const std::array<size_t, 8>* NI       = nbFinder.neighborIndices(-1, 0, 0);
+    const std::array<size_t, 8>* NJ       = nbFinder.neighborIndices( 0,-1, 0);
+    const std::array<size_t, 8>* PI       = nbFinder.neighborIndices( 1, 0, 0);
+    const std::array<size_t, 8>* PJ       = nbFinder.neighborIndices( 0, 1, 0);
+    const std::array<size_t, 8>* NK       = nbFinder.neighborIndices( 0, 0,-1);
+    const std::array<size_t, 8>* PK       = nbFinder.neighborIndices( 0, 0, 1);
+    const std::array<size_t, 8>* NINJ     = nbFinder.neighborIndices(-1,-1, 0);
+    const std::array<size_t, 8>* PINJ     = nbFinder.neighborIndices( 1,-1, 0);
 
-    const caf::SizeTArray8* PIPJ     = nbFinder.neighborIndices( 1, 1, 0);
-    const caf::SizeTArray8* NIPJ     = nbFinder.neighborIndices(-1, 1, 0);
-    const caf::SizeTArray8* NINK     = nbFinder.neighborIndices(-1, 0,-1);
-    const caf::SizeTArray8* NJNK     = nbFinder.neighborIndices( 0,-1,-1);
-    const caf::SizeTArray8* PINK     = nbFinder.neighborIndices( 1, 0,-1);
-    const caf::SizeTArray8* PJNK     = nbFinder.neighborIndices( 0, 1,-1);
-    const caf::SizeTArray8* NIPK     = nbFinder.neighborIndices(-1, 0, 1);
-    const caf::SizeTArray8* NJPK     = nbFinder.neighborIndices( 0,-1, 1);
-    const caf::SizeTArray8* PIPK     = nbFinder.neighborIndices( 1, 0, 1);
+    const std::array<size_t, 8>* PIPJ     = nbFinder.neighborIndices( 1, 1, 0);
+    const std::array<size_t, 8>* NIPJ     = nbFinder.neighborIndices(-1, 1, 0);
+    const std::array<size_t, 8>* NINK     = nbFinder.neighborIndices(-1, 0,-1);
+    const std::array<size_t, 8>* NJNK     = nbFinder.neighborIndices( 0,-1,-1);
+    const std::array<size_t, 8>* PINK     = nbFinder.neighborIndices( 1, 0,-1);
+    const std::array<size_t, 8>* PJNK     = nbFinder.neighborIndices( 0, 1,-1);
+    const std::array<size_t, 8>* NIPK     = nbFinder.neighborIndices(-1, 0, 1);
+    const std::array<size_t, 8>* NJPK     = nbFinder.neighborIndices( 0,-1, 1);
+    const std::array<size_t, 8>* PIPK     = nbFinder.neighborIndices( 1, 0, 1);
 
-    const caf::SizeTArray8* PJPK     = nbFinder.neighborIndices( 0, 1, 1);
-    const caf::SizeTArray8* NINJNK   = nbFinder.neighborIndices(-1,-1,-1);
-    const caf::SizeTArray8* PINJNK   = nbFinder.neighborIndices( 1,-1,-1);
-    const caf::SizeTArray8* PIPJNK   = nbFinder.neighborIndices( 1, 1,-1);
-    const caf::SizeTArray8* NIPJNK   = nbFinder.neighborIndices(-1, 1,-1);
-    const caf::SizeTArray8* NINJPK   = nbFinder.neighborIndices(-1,-1, 1);
-    const caf::SizeTArray8* PINJPK   = nbFinder.neighborIndices( 1,-1, 1);
-    const caf::SizeTArray8* PIPJPK   = nbFinder.neighborIndices( 1, 1, 1);
-    const caf::SizeTArray8* NIPJPK   = nbFinder.neighborIndices(-1, 1, 1);
+    const std::array<size_t, 8>* PJPK     = nbFinder.neighborIndices( 0, 1, 1);
+    const std::array<size_t, 8>* NINJNK   = nbFinder.neighborIndices(-1,-1,-1);
+    const std::array<size_t, 8>* PINJNK   = nbFinder.neighborIndices( 1,-1,-1);
+    const std::array<size_t, 8>* PIPJNK   = nbFinder.neighborIndices( 1, 1,-1);
+    const std::array<size_t, 8>* NIPJNK   = nbFinder.neighborIndices(-1, 1,-1);
+    const std::array<size_t, 8>* NINJPK   = nbFinder.neighborIndices(-1,-1, 1);
+    const std::array<size_t, 8>* PINJPK   = nbFinder.neighborIndices( 1,-1, 1);
+    const std::array<size_t, 8>* PIPJPK   = nbFinder.neighborIndices( 1, 1, 1);
+    const std::array<size_t, 8>* NIPJPK   = nbFinder.neighborIndices(-1, 1, 1);
 
     std::vector<size_t> contributingNodeIndicesPrCellCorner[8];
 
@@ -432,7 +432,7 @@ if (   ( (es.x() + xyTolerance)  >= cs.x() && (el.x() - xyTolerance) <= cl.x())
     {
         const std::vector<cvf::Vec3d>& eclNodes = eclGrid->nodes();
         const RigCell& cell = eclGrid->cells()[reservoirCellIndex];
-        const caf::SizeTArray8& cornerIndices = cell.cornerIndices();
+        const std::array<size_t, 8>& cornerIndices = cell.cornerIndices();
         int faceNodeCount;
         const int*  localElmNodeIndicesForTopZFace = RigFemTypes::localElmNodeIndicesForFace(HEX8, 4, &faceNodeCount);
         const int*  localElmNodeIndicesForBotZFace = RigFemTypes::localElmNodeIndicesForFace(HEX8, 5, &faceNodeCount);

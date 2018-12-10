@@ -83,9 +83,6 @@ bool RicEditSummaryPlotFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicEditSummaryPlotFeature::onActionTriggered(bool isChecked)
 {
-    RimProject* project = RiaApplication::instance()->project();
-    CVF_ASSERT(project);
-
     auto dialog = RicEditSummaryPlotFeature::curveCreatorDialog();
 
     if (!dialog->isVisible())
@@ -110,7 +107,7 @@ void RicEditSummaryPlotFeature::onActionTriggered(bool isChecked)
 void RicEditSummaryPlotFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setText("Edit Summary Plot");
-    actionToSetup->setIcon(QIcon(":/SummaryPlot16x16.png"));
+    actionToSetup->setIcon(QIcon(":/SummaryPlotLight16x16.png"));
 }
 
 //--------------------------------------------------------------------------------------------------

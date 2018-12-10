@@ -58,7 +58,7 @@ public:
 
 public:
     RimIntersectionBox();
-    ~RimIntersectionBox();
+    ~RimIntersectionBox() override;
 
     // Fields
     caf::PdmField<QString>          name;
@@ -70,20 +70,22 @@ public:
     SinglePlaneState                singlePlaneState() const; 
 
     bool                            show3dManipulator() const;
+    
     RivIntersectionBoxPartMgr*      intersectionBoxPartMgr();
     void                            appendManipulatorPartsToModel(cvf::ModelBasicList* model);
+    void                            rebuildGeometry();
 
     void                            setToDefaultSizeBox();
     void                            setToDefaultSizeSlice(SinglePlaneState plane, const cvf::Vec3d& position);
 
 protected:
-    virtual caf::PdmFieldHandle*    userDescriptionField() override;
-    virtual caf::PdmFieldHandle*    objectToggleField() override;
+    caf::PdmFieldHandle*    userDescriptionField() override;
+    caf::PdmFieldHandle*    objectToggleField() override;
                                             
-    virtual void                    defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute * attribute) override;
-    virtual void                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
-    virtual void                    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
-    virtual void                    initAfterRead() override;
+    void                    defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute * attribute) override;
+    void                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    void                    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    void                    initAfterRead() override;
 
 protected slots:
     void                            slotScheduleRedraw();

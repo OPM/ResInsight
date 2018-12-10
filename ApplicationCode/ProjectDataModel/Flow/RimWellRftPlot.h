@@ -71,18 +71,17 @@ class RimWellRftPlot : public RimViewWindow
 
 public:
     RimWellRftPlot();
-    virtual ~RimWellRftPlot();
+    ~RimWellRftPlot() override;
 
     void                                            setDescription(const QString& description);
     QString                                         description() const;
 
-    virtual QWidget*                                viewWidget() override;
-    virtual void                                    zoomAll() override;
+    QWidget*                                viewWidget() override;
+    void                                    zoomAll() override;
 
     RimWellLogPlot*                                 wellLogPlot() const;
 
     void                                            setSimWellOrWellPathName(const QString& currWellName);
-    QString                                         simWellOrWellPathName() const;
     int                                             branchIndex() const;
 
     static const char*                              plotNameFormatString();
@@ -91,17 +90,17 @@ public:
 
 protected:
     // Overridden PDM methods
-    virtual caf::PdmFieldHandle*                    userDescriptionField() override { return &m_userName; }
-    virtual void                                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
-    virtual void                                    defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName);
+    caf::PdmFieldHandle*                    userDescriptionField() override { return &m_userName; }
+    void                                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    void                                            defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName) override;
 
-    virtual QList<caf::PdmOptionItemInfo>           calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
+    QList<caf::PdmOptionItemInfo>           calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
 
-    virtual QImage                                  snapshotWindowContent() override;
+    QImage                                  snapshotWindowContent() override;
 
 
-    virtual void                                    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
-    virtual void                                    onLoadDataAndUpdate() override;
+    void                                    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    void                                    onLoadDataAndUpdate() override;
 
 private:
     void                                            calculateValueOptionsForWells(QList<caf::PdmOptionItemInfo>& options);
@@ -117,12 +116,12 @@ private:
     void                                            updateCurvesInPlot(const std::set<RiaRftPltCurveDefinition>& allCurveDefs,
                                                                        const std::set<RiaRftPltCurveDefinition>& curveDefsToAdd,
                                                                        const std::set<RimWellLogCurve*>& curvesToDelete);
-    std::vector<RifDataSourceForRftPlt>                  selectedSourcesExpanded() const;
+    std::vector<RifDataSourceForRftPlt>             selectedSourcesExpanded() const;
 
     // RimViewWindow overrides
 
-    virtual QWidget*                                createViewWidget(QWidget* mainWindowParent) override; 
-    virtual void                                    deleteViewWidget() override; 
+    QWidget*                                createViewWidget(QWidget* mainWindowParent) override; 
+    void                                    deleteViewWidget() override; 
 
     void                                            applyCurveAppearance(RimWellLogCurve* newCurve);
 
@@ -141,9 +140,9 @@ private:
     
     caf::PdmField<std::vector<QDateTime>>           m_selectedTimeSteps;
 
-    QPointer<RiuWellRftPlot>                        m_wellLogPlotWidget;
-
     caf::PdmChildField<RimWellLogPlot*>             m_wellLogPlot;
+
+    QPointer<RiuWellRftPlot>                        m_wellLogPlotWidget;
 
     bool m_selectedSourcesOrTimeStepsFieldsChanged;
     bool m_isOnLoad;

@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2016-     Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -20,28 +20,20 @@
 
 #include "RiaApplication.h"
 
-#include "RimSummaryPlot.h"
-#include "RimView.h"
+#include "Rim3dView.h"
 #include "RimViewWindow.h"
-#include "RimWellAllocationPlot.h"
-#include "RimWellLogPlot.h"
 
-#include "RiuMainPlotWindow.h"
+#include "RiuInterfaceToViewWindow.h"
 #include "RiuMainWindow.h"
-#include "RiuSummaryQwtPlot.h"
-#include "RiuWellAllocationPlot.h"
-#include "RiuWellLogPlot.h"
+#include "RiuPlotMainWindow.h"
 
 #include <QAction>
-#include <QClipboard>
 #include <QMdiSubWindow>
-#include "RiuFlowCharacteristicsPlot.h"
-#include "RimFlowCharacteristicsPlot.h"
 
 CAF_CMD_SOURCE_INIT(RicViewZoomAllFeature, "RicViewZoomAllFeature");
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicViewZoomAllFeature::isCommandEnabled()
 {
@@ -49,7 +41,7 @@ bool RicViewZoomAllFeature::isCommandEnabled()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicViewZoomAllFeature::onActionTriggered(bool isChecked)
 {
@@ -60,13 +52,16 @@ void RicViewZoomAllFeature::onActionTriggered(bool isChecked)
     if (dynamic_cast<RiuMainWindow*>(topLevelWidget))
     {
         RimViewWindow* viewWindow = RiaApplication::instance()->activeReservoirView();
-        viewWindow->zoomAll();
+        if (viewWindow)
+        {
+            viewWindow->zoomAll();
+        }
     }
-    else if (dynamic_cast<RiuMainPlotWindow*>(topLevelWidget))
+    else if (dynamic_cast<RiuPlotMainWindow*>(topLevelWidget))
     {
-        RiuMainPlotWindow* mainPlotWindow = dynamic_cast<RiuMainPlotWindow*>(topLevelWidget);
-        QList<QMdiSubWindow*> subwindows = mainPlotWindow->subWindowList(QMdiArea::StackingOrder);
-        if (subwindows.size() > 0)
+        RiuPlotMainWindow*    mainPlotWindow = dynamic_cast<RiuPlotMainWindow*>(topLevelWidget);
+        QList<QMdiSubWindow*> subwindows     = mainPlotWindow->subWindowList(QMdiArea::StackingOrder);
+        if (!subwindows.empty())
         {
             RimViewWindow* viewWindow = RiuInterfaceToViewWindow::viewWindowFromWidget(subwindows.back()->widget());
 
@@ -79,11 +74,10 @@ void RicViewZoomAllFeature::onActionTriggered(bool isChecked)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RicViewZoomAllFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setText("Zoom All");
     actionToSetup->setIcon(QIcon(":/ZoomAll16x16.png"));
 }
-

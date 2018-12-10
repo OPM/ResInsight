@@ -18,8 +18,9 @@
 
 #include "RifReaderEclipseSummary.h"
 #include "RiaStringEncodingTools.h"
-
-#include "ert/ecl/ecl_sum.h"
+#include "RiaFilePathTools.h"
+#include "RifReaderEclipseOutput.h"
+#include "RifEclipseSummaryTools.h"
 
 #include <string>
 #include <assert.h>
@@ -27,38 +28,45 @@
 #include <QDateTime>
 #include <QString>
 #include <QStringList>
+#include <QDir>
+
+#include "ert/ecl/ecl_sum.h"
 #include "ert/ecl/smspec_node.h"
+#include "ert/ecl/ecl_file.h"
+#include "ert/ecl/ecl_kw_magic.h"
+#include "ert/ecl/ecl_kw.h"
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RifReaderEclipseSummary::RifReaderEclipseSummary()
-    : m_ecl_sum(NULL), 
-      m_ecl_SmSpec(nullptr)
+std::vector<time_t> getTimeSteps(ecl_sum_type* ecl_sum)
 {
+    std::vector<time_t> timeSteps;
 
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RifReaderEclipseSummary::~RifReaderEclipseSummary()
-{
-    if (m_ecl_sum)
+    if (ecl_sum)
     {
-        ecl_sum_free(m_ecl_sum);
-        m_ecl_sum = NULL;
+        time_t_vector_type* steps = ecl_sum_alloc_time_vector(ecl_sum, false);
+
+        if (steps)
+        {
+            for (int i = 0; i < time_t_vector_size(steps); i++)
+            {
+                timeSteps.push_back(time_t_vector_iget(steps, i));
+            }
+            free(steps);
+        }
     }
+    return timeSteps;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RifReaderEclipseSummary::open(const QString& headerFileName, const QStringList& dataFileNames)
+ecl_sum_type* openEclSum(const QString& inHeaderFileName, bool includeRestartFiles)
 {
-    assert(m_ecl_sum == NULL); 
-    
-    if (headerFileName.isEmpty() || dataFileNames.size() == 0) return false;
+    QString headerFileName;
+    QStringList dataFileNames;
+    QString nativeHeaderFileName = QDir::toNativeSeparators(inHeaderFileName);
+    RifEclipseSummaryTools::findSummaryFiles(nativeHeaderFileName, &headerFileName, &dataFileNames);
+
+    if (headerFileName.isEmpty() || dataFileNames.size() == 0) return nullptr;
 
     assert(!headerFileName.isEmpty());
     assert(dataFileNames.size() > 0);
@@ -69,21 +77,63 @@ bool RifReaderEclipseSummary::open(const QString& headerFileName, const QStringL
         stringlist_append_copy(dataFiles, RiaStringEncodingTools::toNativeEncoded(dataFileNames[i]).data());
     }
 
+    bool lazyLoad = true;
     std::string itemSeparatorInVariableNames = ":";
-    m_ecl_sum = ecl_sum_fread_alloc(RiaStringEncodingTools::toNativeEncoded(headerFileName).data(), dataFiles, itemSeparatorInVariableNames.data(), false);
+    ecl_sum_type* ecl_sum = ecl_sum_fread_alloc(RiaStringEncodingTools::toNativeEncoded(headerFileName).data(),
+                                                dataFiles,
+                                                itemSeparatorInVariableNames.data(),
+                                                includeRestartFiles,
+                                                lazyLoad,
+                                                ECL_FILE_CLOSE_STREAM);
 
     stringlist_free(dataFiles);
+
+    return ecl_sum;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void closeEclSum(ecl_sum_type* ecl_sum)
+{
+    if(ecl_sum) ecl_sum_free(ecl_sum);
+}
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RifReaderEclipseSummary::RifReaderEclipseSummary()
+    : m_ecl_sum(nullptr), 
+      m_ecl_SmSpec(nullptr)
+{
+    m_valuesCache.reset(new ValuesCache());
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RifReaderEclipseSummary::~RifReaderEclipseSummary()
+{
+    if (m_ecl_sum)
+    {
+        ecl_sum_free(m_ecl_sum);
+        m_ecl_sum = nullptr;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RifReaderEclipseSummary::open(const QString& headerFileName, bool includeRestartFiles)
+{
+    assert(m_ecl_sum == nullptr); 
+    
+    m_ecl_sum = openEclSum(headerFileName, includeRestartFiles);
 
     if (m_ecl_sum)
     {
         m_timeSteps.clear();
         m_ecl_SmSpec = ecl_sum_get_smspec(m_ecl_sum);
-
-        for ( int time_index = 0; time_index < timeStepCount(); time_index++ )
-        {
-            time_t sim_time = ecl_sum_iget_sim_time(m_ecl_sum, time_index);
-            m_timeSteps.push_back(sim_time);
-        }
+        m_timeSteps = getTimeSteps(m_ecl_sum);
 
         buildMetaData();
 
@@ -96,10 +146,89 @@ bool RifReaderEclipseSummary::open(const QString& headerFileName, const QStringL
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+std::vector<RifRestartFileInfo> RifReaderEclipseSummary::getRestartFiles(const QString& headerFileName, bool* hasWarnings)
+{
+    CVF_ASSERT(hasWarnings);
+
+    std::vector<RifRestartFileInfo> restartFiles;
+    m_warnings.clear();
+    *hasWarnings = false;
+
+    RifRestartFileInfo currFile;
+    currFile.fileName = headerFileName;
+    while(!currFile.fileName.isEmpty())
+    {
+        // Due to a weakness in libecl regarding restart summary header file selection,
+        // do some extra checking
+        {
+            QString formattedHeaderExtension = ".FSMSPEC";
+            QString nonformattedHeaderExtension = ".SMSPEC";
+            QString formattedDataFileExtension = ".FUNSMRY";
+
+            if (currFile.fileName.endsWith(nonformattedHeaderExtension, Qt::CaseInsensitive))
+            {
+                QString formattedHeaderFile = currFile.fileName;
+                formattedHeaderFile.replace(nonformattedHeaderExtension, formattedHeaderExtension, Qt::CaseInsensitive);
+                QString formattedDateFile = currFile.fileName;
+                formattedDateFile.replace(nonformattedHeaderExtension, formattedDataFileExtension, Qt::CaseInsensitive);
+
+                QFileInfo nonformattedHeaderFileInfo = QFileInfo(currFile.fileName);
+                QFileInfo formattedHeaderFileInfo = QFileInfo(formattedHeaderFile);
+                QFileInfo formattedDateFileInfo = QFileInfo(formattedDateFile);
+                if (formattedHeaderFileInfo.lastModified() < nonformattedHeaderFileInfo.lastModified() &&
+                    formattedHeaderFileInfo.exists() && !formattedDateFileInfo.exists())
+                {
+                    m_warnings.push_back(QString("RifReaderEclipseSummary: Formatted summary header file without an\n") +
+                                         QString("associated data file detected.\n") +
+                                         QString("This may cause a failure reading summary origin data.\n") +
+                                         QString("To avoid this problem, please delete or rename the.FSMSPEC file."));
+                    *hasWarnings = true;
+                    break;
+                }
+            }
+            QString prevFile = currFile.fileName;
+            currFile = getRestartFile(currFile.fileName);
+
+            // Fix to stop potential infinite loop
+            if (currFile.fileName == prevFile)
+            {
+                m_warnings.push_back("RifReaderEclipseSummary: Restart file reference loop detected");
+                *hasWarnings = true;
+                break;
+            }
+
+        }
+
+        if (!currFile.fileName.isEmpty())
+            restartFiles.push_back(currFile);
+    }
+    return restartFiles;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RifRestartFileInfo RifReaderEclipseSummary::getFileInfo(const QString& headerFileName)
+{
+    RifRestartFileInfo          fileInfo;
+    ecl_sum_type*               ecl_sum = openEclSum(headerFileName, false);
+    std::vector<time_t>         timeSteps = getTimeSteps(ecl_sum);
+    if (timeSteps.size() > 0)
+    {
+        fileInfo.fileName = headerFileName;
+        fileInfo.startDate = timeSteps.front();
+        fileInfo.endDate = timeSteps.back();
+    }
+    closeEclSum(ecl_sum);
+    return fileInfo;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 RifEclipseSummaryAddress addressFromErtSmSpecNode(const smspec_node_type * ertSumVarNode)
 {
-    if (   smspec_node_get_var_type(ertSumVarNode) == ECL_SMSPEC_INVALID_VAR
-        || !smspec_node_is_valid(ertSumVarNode)) 
+    if (smspec_node_get_var_type(ertSumVarNode) == ECL_SMSPEC_INVALID_VAR) 
     {
         return RifEclipseSummaryAddress();
     }
@@ -116,6 +245,7 @@ RifEclipseSummaryAddress addressFromErtSmSpecNode(const smspec_node_type * ertSu
     int                cellJ(-1);
     int                cellK(-1);
     int                aquiferNumber(-1);
+    bool               isErrorResult(false);
 
     quantityName = smspec_node_get_keyword(ertSumVarNode);
 
@@ -214,6 +344,7 @@ RifEclipseSummaryAddress addressFromErtSmSpecNode(const smspec_node_type * ertSu
         case ECL_SMSPEC_SEGMENT_VAR:
         {
             sumCategory = RifEclipseSummaryAddress::SUMMARY_WELL_SEGMENT;
+            wellName = smspec_node_get_wgname(ertSumVarNode);
             wellSegmentNumber = smspec_node_get_num(ertSumVarNode);
         }
         break;
@@ -236,7 +367,8 @@ RifEclipseSummaryAddress addressFromErtSmSpecNode(const smspec_node_type * ertSu
                                     wellSegmentNumber, 
                                     lgrName, 
                                     cellI, cellJ, cellK,
-                                    aquiferNumber);
+                                    aquiferNumber,
+                                    isErrorResult);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -244,25 +376,36 @@ RifEclipseSummaryAddress addressFromErtSmSpecNode(const smspec_node_type * ertSu
 //--------------------------------------------------------------------------------------------------
 bool RifReaderEclipseSummary::values(const RifEclipseSummaryAddress& resultAddress, std::vector<double>* values) const
 {
-    assert(m_ecl_sum != NULL);
+    assert(m_ecl_sum != nullptr);
 
     int variableIndex = indexFromAddress(resultAddress);
 
     if ( variableIndex < 0 ) return false;
 
     values->clear();
-    int tsCount = timeStepCount();
     values->reserve(timeStepCount());
 
-    if (m_ecl_SmSpec)
+    const std::vector<double>& cachedValues = m_valuesCache->getValues(resultAddress);
+    if (!cachedValues.empty())
+    {
+        values->insert(values->begin(), cachedValues.begin(), cachedValues.end());
+    }
+    else if (m_ecl_SmSpec)
     {
         const smspec_node_type* ertSumVarNode = ecl_smspec_iget_node(m_ecl_SmSpec, variableIndex);
         int paramsIndex = smspec_node_get_params_index(ertSumVarNode);
 
-        for(int time_index = 0; time_index < tsCount; time_index++)
+        double_vector_type* dataValues = ecl_sum_alloc_data_vector(m_ecl_sum, paramsIndex, false);
+
+        if (dataValues)
         {
-            double value = ecl_sum_iget(m_ecl_sum, time_index, paramsIndex);
-            values->push_back(value);
+            for (int i = 0; i < double_vector_size(dataValues); i++)
+            {
+                values->push_back(double_vector_iget(dataValues, i));
+            }
+            free(dataValues);
+
+            m_valuesCache->insertValues(resultAddress, *values);
         }
     }
 
@@ -286,7 +429,7 @@ int RifReaderEclipseSummary::timeStepCount() const
 //--------------------------------------------------------------------------------------------------
 const std::vector<time_t>& RifReaderEclipseSummary::timeSteps(const RifEclipseSummaryAddress& resultAddress) const
 {
-    assert(m_ecl_sum != NULL);
+    assert(m_ecl_sum != nullptr);
 
     return m_timeSteps;
 }
@@ -320,12 +463,37 @@ void RifReaderEclipseSummary::buildMetaData()
         {
             const smspec_node_type * ertSumVarNode = ecl_smspec_iget_node(m_ecl_SmSpec, i);
             RifEclipseSummaryAddress addr = addressFromErtSmSpecNode(ertSumVarNode);
-            m_allResultAddresses.push_back(addr);
+            m_allResultAddresses.insert(addr);
             m_resultAddressToErtNodeIdx[addr] = i;
         }
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RifRestartFileInfo RifReaderEclipseSummary::getRestartFile(const QString& headerFileName)
+{
+    ecl_sum_type* ecl_sum = openEclSum(headerFileName, true);
+
+    const ecl_smspec_type* smspec = ecl_sum ? ecl_sum_get_smspec(ecl_sum) : nullptr;
+    const char* rstCase = smspec ? ecl_smspec_get_restart_case(smspec) : nullptr;
+    QString restartCase = rstCase? RiaFilePathTools::canonicalPath(RiaStringEncodingTools::fromNativeEncoded(rstCase)) : "";
+    closeEclSum(ecl_sum);
+
+    if (!restartCase.isEmpty())
+    {
+        QString path = QFileInfo(restartCase).dir().path();
+        QString restartBase = QDir(restartCase).dirName();
+        
+        char* smspec_header = ecl_util_alloc_exfilename(path.toStdString().data(), restartBase.toStdString().data(), ECL_SUMMARY_HEADER_FILE, false /*unformatted*/, 0);
+        QString restartFileName = RiaFilePathTools::toInternalSeparator(RiaStringEncodingTools::fromNativeEncoded(smspec_header));
+        free(smspec_header);
+
+        return getFileInfo(restartFileName);
+    }
+    return RifRestartFileInfo();
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -340,6 +508,22 @@ std::string RifReaderEclipseSummary::unitName(const RifEclipseSummaryAddress& re
 
     const smspec_node_type * ertSumVarNode = ecl_smspec_iget_node(m_ecl_SmSpec, variableIndex);
     return smspec_node_get_unit(ertSumVarNode);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RifReaderEclipseSummary::markForCachePurge(const RifEclipseSummaryAddress& address)
+{
+    m_valuesCache->markAddressForPurge(address);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RifReaderEclipseSummary::purgeCache()
+{
+    ValuesCache::purge();
 }
 
 #if 0
@@ -357,3 +541,76 @@ void RifReaderEclipseSummary::populateVectorFromStringList(stringlist_type* stri
 }
 
 #endif
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const std::vector<double>                       RifReaderEclipseSummary::ValuesCache::EMPTY_VECTOR;
+std::set<RifReaderEclipseSummary::ValuesCache*> RifReaderEclipseSummary::ValuesCache::m_instances;
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RifReaderEclipseSummary::ValuesCache::ValuesCache()
+{
+    // Register instance
+    m_instances.insert(this);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RifReaderEclipseSummary::ValuesCache::~ValuesCache()
+{
+    // Deregister instance
+    m_instances.erase(this);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RifReaderEclipseSummary::ValuesCache::insertValues(const RifEclipseSummaryAddress& address, const std::vector<double>& values)
+{
+    m_cachedValues[address] = values;
+    m_purgeList.erase(address);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const std::vector<double>& RifReaderEclipseSummary::ValuesCache::getValues(const RifEclipseSummaryAddress& address) const
+{
+    if (m_cachedValues.find(address) != m_cachedValues.end())
+    {
+        return m_cachedValues.at(address);
+    }
+    return EMPTY_VECTOR;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RifReaderEclipseSummary::ValuesCache::markAddressForPurge(const RifEclipseSummaryAddress& address)
+{
+    m_purgeList.insert(address);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RifReaderEclipseSummary::ValuesCache::purge()
+{
+    for (auto instance : m_instances) instance->purgeData();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RifReaderEclipseSummary::ValuesCache::purgeData()
+{
+    for (const auto purgeAddr : m_purgeList)
+    {
+        m_cachedValues.erase(purgeAddr);
+    }
+    m_purgeList.clear();
+}

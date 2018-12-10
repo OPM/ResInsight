@@ -21,6 +21,8 @@
 #include "RimWellPath.h"
 
 #include "RiaApplication.h"
+#include "RiaColorTables.h"
+#include "RiaFieldHandleTools.h"
 #include "RiaSimWellBranchTools.h"
 #include "RiaWellNameComparer.h"
 
@@ -29,20 +31,22 @@
 
 #include "RigWellPath.h"
 
+#include "Rim3dWellLogCurve.h"
+#include "Rim3dWellLogCurveCollection.h"
 #include "RimFishbonesMultipleSubs.h"
 #include "RimMainPlotCollection.h"
 #include "RimProject.h"
 #include "RimTools.h"
 #include "RimWellLogFile.h"
+#include "RimWellLogFileChannel.h"
 #include "RimWellLogPlotCollection.h"
+#include "RimWellPathAttributeCollection.h"
 #include "RimWellPathCollection.h"
 #include "RimWellPathCompletions.h"
 #include "RimWellPathFracture.h"
 #include "RimWellPathFractureCollection.h"
 
 #include "RiuMainWindow.h"
-
-#include "RivWellPathPartMgr.h"
 
 #include "cafPdmUiTreeOrdering.h"
 #include "cafUtils.h"
@@ -55,7 +59,7 @@
 
 #include <regex>
 
-CAF_PDM_SOURCE_INIT(RimWellPath, "WellPath");
+CAF_PDM_SOURCE_INIT(RimWellPath, "WellPathBase");
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -71,57 +75,26 @@ RimWellPath::RimWellPath()
 
     CAF_PDM_InitFieldNoDefault(&m_name,               "WellPathName",                         "Name", "", "", "");
     m_name.uiCapability()->setUiReadOnly(true);
-    m_name.xmlCapability()->setIOWritable(false);
-    m_name.xmlCapability()->setIOReadable(false);
     m_name.uiCapability()->setUiHidden(true);
-    CAF_PDM_InitFieldNoDefault(&id,                 "WellPathId",                           "Id", "", "", "");
-    id.uiCapability()->setUiReadOnly(true);
-    id.xmlCapability()->setIOWritable(false);
-    id.xmlCapability()->setIOReadable(false);
-    CAF_PDM_InitFieldNoDefault(&sourceSystem,       "SourceSystem",                         "Source System", "", "", "");
-    sourceSystem.uiCapability()->setUiReadOnly(true);
-    sourceSystem.xmlCapability()->setIOWritable(false);
-    sourceSystem.xmlCapability()->setIOReadable(false);
-    CAF_PDM_InitFieldNoDefault(&utmZone,            "UTMZone",                              "UTM Zone", "", "", "");
-    utmZone.uiCapability()->setUiReadOnly(true);
-    utmZone.xmlCapability()->setIOWritable(false);
-    utmZone.xmlCapability()->setIOReadable(false);
-    CAF_PDM_InitFieldNoDefault(&updateDate,         "WellPathUpdateDate",                   "Update Date", "", "", "");
-    updateDate.uiCapability()->setUiReadOnly(true);
-    updateDate.xmlCapability()->setIOWritable(false);
-    updateDate.xmlCapability()->setIOReadable(false);
-    CAF_PDM_InitFieldNoDefault(&updateUser,         "WellPathUpdateUser",                   "Update User", "", "", "");
-    updateUser.uiCapability()->setUiReadOnly(true);
-    updateUser.xmlCapability()->setIOWritable(false);
-    updateUser.xmlCapability()->setIOReadable(false);
-    CAF_PDM_InitFieldNoDefault(&m_surveyType,       "WellPathSurveyType",                   "Survey Type", "", "", "");
-    m_surveyType.uiCapability()->setUiReadOnly(true);
-    m_surveyType.xmlCapability()->setIOWritable(false);
-    m_surveyType.xmlCapability()->setIOReadable(false);
+    m_name.xmlCapability()->disableIO();
 
     CAF_PDM_InitFieldNoDefault(&m_datumElevation, "DatumElevation", "Datum Elevation", "", "", "");
     m_datumElevation.uiCapability()->setUiReadOnly(true);
-    m_datumElevation.xmlCapability()->setIOWritable(false);
-    m_datumElevation.xmlCapability()->setIOReadable(false);
+    m_datumElevation.xmlCapability()->disableIO();
 
     CAF_PDM_InitFieldNoDefault(&m_unitSystem, "UnitSystem", "Unit System", "", "", "");
     m_unitSystem.uiCapability()->setUiReadOnly(true);
 
-    CAF_PDM_InitField(&filepath,                    "WellPathFilepath",     QString(""),    "File Path", "", "", "");
-    filepath.uiCapability()->setUiReadOnly(true);
-    CAF_PDM_InitField(&wellPathIndexInFile,         "WellPathNumberInFile",     -1,    "Well Number in File", "", "", "");
-    wellPathIndexInFile.uiCapability()->setUiReadOnly(true);
-
     CAF_PDM_InitField(&m_simWellName, "SimWellName", QString(""), "Well", "", "", "");
     CAF_PDM_InitField(&m_branchIndex, "SimBranchIndex", 0, "Branch", "", "", "");
 
-    CAF_PDM_InitField(&showWellPathLabel,           "ShowWellPathLabel",    true,           "Show Well Path Label", "", "", "");
+    CAF_PDM_InitField(&m_showWellPathLabel,           "ShowWellPathLabel",    true,           "Show Well Path Label", "", "", "");
 
-    CAF_PDM_InitField(&showWellPath,                "ShowWellPath",         true,           "Show Well Path", "", "", "");
-    showWellPath.uiCapability()->setUiHidden(true);
+    CAF_PDM_InitField(&m_showWellPath,                "ShowWellPath",         true,           "Show Well Path", "", "", "");
+    m_showWellPath.uiCapability()->setUiHidden(true);
 
-    CAF_PDM_InitField(&wellPathRadiusScaleFactor,   "WellPathRadiusScale", 1.0,             "Well Path Radius Scale", "", "", "");
-    CAF_PDM_InitField(&wellPathColor,               "WellPathColor",       cvf::Color3f(0.999f, 0.333f, 0.999f), "Well Path Color", "", "", "");
+    CAF_PDM_InitField(&m_wellPathRadiusScaleFactor,   "WellPathRadiusScale", 1.0,             "Well Path Radius Scale", "", "", "");
+    CAF_PDM_InitField(&m_wellPathColor,               "WellPathColor",       cvf::Color3f(0.999f, 0.333f, 0.999f), "Well Path Color", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_completions, "Completions", "Completions", "", "", "");
     m_completions = new RimWellPathCompletions;
@@ -130,6 +103,10 @@ RimWellPath::RimWellPath()
     CAF_PDM_InitFieldNoDefault(&m_wellLogFiles, "WellLogFiles", "Well Log Files", "", "", "");
     m_wellLogFiles.uiCapability()->setUiTreeHidden(true);
 
+    CAF_PDM_InitFieldNoDefault(&m_3dWellLogCurves, "CollectionOf3dWellLogCurves", "3D Track", "", "", "");
+    m_3dWellLogCurves = new Rim3dWellLogCurveCollection;
+    m_3dWellLogCurves.uiCapability()->setUiTreeHidden(true);
+
     CAF_PDM_InitField(&m_formationKeyInFile, "WellPathFormationKeyInFile", QString(""), "Key in File", "", "", "");
     m_formationKeyInFile.uiCapability()->setUiReadOnly(true);
 
@@ -137,8 +114,11 @@ RimWellPath::RimWellPath()
     m_wellPathFormationFilePath.uiCapability()->setUiReadOnly(true);
 
     CAF_PDM_InitFieldNoDefault(&m_wellLogFile_OBSOLETE,      "WellLogFile",  "Well Log File", "", "", "");
-    m_wellLogFile_OBSOLETE.uiCapability()->setUiHidden(true);
-    m_wellLogFile_OBSOLETE.xmlCapability()->setIOWritable(false);
+    RiaFieldhandleTools::disableWriteAndSetFieldHidden(&m_wellLogFile_OBSOLETE);
+
+    CAF_PDM_InitFieldNoDefault(&m_wellPathAttributes, "WellPathAttributes", "Casing Design Rubbish", "", "", "");
+    m_wellPathAttributes = new RimWellPathAttributeCollection;
+    m_wellPathAttributes->uiCapability()->setUiTreeHidden(true);
 
     m_wellPath = nullptr;
 }
@@ -186,13 +166,90 @@ caf::PdmFieldHandle* RimWellPath::userDescriptionField()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellPath::setSurveyType(QString surveyType) 
-{ 
-    m_surveyType = surveyType; 
-    if (m_surveyType == "PLAN")
-        wellPathColor = cvf::Color3f(0.999f, 0.333f, 0.0f);
-    else if (m_surveyType == "PROTOTYPE")
-        wellPathColor = cvf::Color3f(0.0f, 0.333f, 0.999f);
+double RimWellPath::wellPathRadius(double characteristicCellSize) const
+{
+    double radius = characteristicCellSize * m_wellPathRadiusScaleFactor();
+
+    RimWellPathCollection* coll = nullptr;
+    this->firstAncestorOrThisOfType(coll);
+    if (coll)
+    {
+        radius *= coll->wellPathRadiusScaleFactor();
+    }
+
+    return radius;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+double RimWellPath::wellPathRadiusScaleFactor() const
+{
+    return m_wellPathRadiusScaleFactor();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimWellPath::isEnabled() const
+{
+    return m_showWellPath;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiaDefines::WellPathComponentType RimWellPath::componentType() const
+{
+    return RiaDefines::WELL_PATH;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimWellPath::componentLabel() const
+{
+    return name();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimWellPath::componentTypeLabel() const
+{
+    return "Well Path";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+cvf::Color3f RimWellPath::defaultComponentColor() const
+{
+    return RiaColorTables::wellPathComponentColors()[componentType()];
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimWellPath::startMD() const
+{
+    if (wellPathGeometry())
+    {
+        return wellPathGeometry()->measureDepths().front();
+    }
+    return 0.0;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimWellPath::endMD() const
+{
+    if (wellPathGeometry())
+    {
+        return wellPathGeometry()->measureDepths().back();
+    }
+    return 0.0;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -246,26 +303,22 @@ const RimWellPathCompletions* RimWellPath::completions() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
 RimWellPathFractureCollection* RimWellPath::fractureCollection()
 {
     CVF_ASSERT(m_completions);
 
     return m_completions->fractureCollection();
 }
-#endif // USE_PROTOTYPE_FEATURE_FRACTURES
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
 const RimWellPathFractureCollection * RimWellPath::fractureCollection() const
 {
     CVF_ASSERT(m_completions);
 
     return m_completions->fractureCollection();
 }
-#endif // USE_PROTOTYPE_FEATURE_FRACTURES
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -286,32 +339,17 @@ const RigWellPath* RimWellPath::wellPathGeometry() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RivWellPathPartMgr* RimWellPath::partMgr()
-{
-    if (m_wellPathPartMgr.isNull()) 
-    {
-        RimWellPathCollection* wpColl;
-        this->firstAncestorOrThisOfType(wpColl);
-        if (wpColl) m_wellPathPartMgr = new RivWellPathPartMgr(this);
-    }
-
-    return m_wellPathPartMgr.p();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 void RimWellPath::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
     RimProject* proj;
     this->firstAncestorOrThisOfTypeAsserted(proj);
-    if (changedField == &showWellPath)
+    if (changedField == &m_showWellPath)
     {
         proj->reloadCompletionTypeResultsInAllViews();
     }
     else
     {
-        proj->createDisplayModelAndRedrawAllViews();
+        proj->scheduleCreateDisplayModelAndRedrawAllViews();
     }
 }
 
@@ -404,40 +442,79 @@ std::vector<RimWellLogFile*> RimWellPath::wellLogFiles() const
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimWellLogFile* RimWellPath::firstWellLogFileMatchingChannelName(const QString& channelName) const
+{
+    std::vector<RimWellLogFile*> allWellLogFiles = wellLogFiles();
+    for (RimWellLogFile* logFile : allWellLogFiles)
+    {
+        std::vector<RimWellLogFileChannel*> channels = logFile->wellLogChannels();
+        for (RimWellLogFileChannel* channel : channels)
+        {
+            if (channel->name() == channelName)
+            {
+                return logFile;
+            }
+        }
+    }
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimWellPathAttributeCollection* RimWellPath::attributeCollection()
+{
+    return m_wellPathAttributes;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const RimWellPathAttributeCollection* RimWellPath::attributeCollection() const
+{
+    return m_wellPathAttributes;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimWellPath::showWellPathLabel() const
+{
+    return m_showWellPathLabel();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimWellPath::showWellPath() const
+{
+    return m_showWellPath();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::Color3f RimWellPath::wellPathColor() const
+{
+    return m_wellPathColor;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellPath::setWellPathColor(const cvf::Color3f& color)
+{
+    m_wellPathColor = color;
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 caf::PdmFieldHandle* RimWellPath::objectToggleField()
 {
-    return &showWellPath;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// Read JSON or ascii file containing well path data
-//--------------------------------------------------------------------------------------------------
-bool RimWellPath::readWellPathFile(QString* errorMessage, RifWellPathImporter* wellPathImporter)
-{
-    if (caf::Utils::fileExists(filepath()))
-    {
-        RifWellPathImporter::WellData wellData = wellPathImporter->readWellData(filepath(), wellPathIndexInFile());
-        RifWellPathImporter::WellMetaData wellMetaData = wellPathImporter->readWellMetaData(filepath(), wellPathIndexInFile());
-        // General well info
-
-        setName(wellData.m_name);
-        id = wellMetaData.m_id;
-        sourceSystem = wellMetaData.m_sourceSystem;
-        utmZone = wellMetaData.m_utmZone;
-        updateUser = wellMetaData.m_updateUser;
-        setSurveyType(wellMetaData.m_surveyType);
-        updateDate = wellMetaData.m_updateDate.toString("d MMMM yyyy");
-
-        m_wellPath = wellData.m_wellPathGeometry;
-        return true;
-    }
-    else
-    {
-        if (errorMessage) (*errorMessage) = "Could not find the well path file: " + filepath();
-        return false;
-    }
+    return &m_showWellPath;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -460,13 +537,10 @@ void RimWellPath::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiO
     }
 
     caf::PdmUiGroup* appGroup =  uiOrdering.addNewGroup("Appearance");
-    appGroup->add(&showWellPathLabel);
-    appGroup->add(&wellPathColor);
-    appGroup->add(&wellPathRadiusScaleFactor); 
+    appGroup->add(&m_showWellPathLabel);
+    appGroup->add(&m_wellPathColor);
+    appGroup->add(&m_wellPathRadiusScaleFactor); 
 
-    caf::PdmUiGroup* fileInfoGroup =   uiOrdering.addNewGroup("File");
-    fileInfoGroup->add(&filepath);
-    fileInfoGroup->add(&wellPathIndexInFile);
 
     caf::PdmUiGroup* simWellGroup = uiOrdering.addNewGroup("Simulation Well");
     simWellGroup->add(&m_simWellName);
@@ -477,12 +551,7 @@ void RimWellPath::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiO
     }
 
     caf::PdmUiGroup* ssihubGroup =  uiOrdering.addNewGroup("Well Info");
-    ssihubGroup->add(&id);
-    ssihubGroup->add(&sourceSystem);
-    ssihubGroup->add(&utmZone);
-    ssihubGroup->add(&updateDate);
-    ssihubGroup->add(&updateUser);
-    ssihubGroup->add(&m_surveyType);
+
     ssihubGroup->add(&m_datumElevation);
     ssihubGroup->add(&m_unitSystem);
 
@@ -512,74 +581,20 @@ void RimWellPath::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, Q
 
     if (m_completions->hasCompletions())
     {
-        uiTreeOrdering.add(&m_completions);
+        uiTreeOrdering.add(m_completions());
+    }
+
+    if (m_3dWellLogCurves->has3dWellLogCurves())
+    {
+        uiTreeOrdering.add(m_3dWellLogCurves());
+    }
+
+    if (!m_wellPathAttributes->attributes().empty())
+    {
+        uiTreeOrdering.add(m_wellPathAttributes());
     }
 
     uiTreeOrdering.skipRemainingChildren(true);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-QString RimWellPath::getCacheDirectoryPath()
-{
-    QString cacheDirPath = RimTools::getCacheRootDirectoryPathFromProject();
-    cacheDirPath += "_wellpaths";
-    return cacheDirPath;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-QString RimWellPath::getCacheFileName()
-{
-    if (filepath().isEmpty())
-    {
-        return "";
-    }
-
-    QString cacheFileName;
-
-    // Make the path correct related to the possibly new project filename
-    QString newCacheDirPath = getCacheDirectoryPath();
-    QFileInfo oldCacheFile(filepath);
-
-   
-    cacheFileName = newCacheDirPath + "/" + oldCacheFile.fileName();
-
-    return cacheFileName;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimWellPath::setupBeforeSave()
-{
-    // SSIHUB is the only source for populating Id, use text in this field to decide if the cache file must be copied to new project cache location
-    if (!isStoredInCache())
-    {
-        return;
-    }
-
-    if (filepath().isEmpty())
-    {
-        return;
-    }
-
-    QDir::root().mkpath(getCacheDirectoryPath());
-
-    QString newCacheFileName = getCacheFileName();
-
-    // Use QFileInfo to get same string representation to avoid issues with mix of forward and backward slashes
-    QFileInfo prevFileInfo(filepath);
-    QFileInfo currentFileInfo(newCacheFileName);
-
-    if (prevFileInfo.absoluteFilePath().compare(currentFileInfo.absoluteFilePath()) != 0)
-    {
-        QFile::copy(filepath, newCacheFileName);
-
-        filepath = newCacheFileName;
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -597,30 +612,8 @@ size_t RimWellPath::simulationWellBranchCount(const QString& simWellName)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RimWellPath::isStoredInCache()
-{
-    // SSIHUB is the only source for populating Id, use text in this field to decide if the cache file must be copied to new project cache location
-    return !id().isEmpty();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 void RimWellPath::updateFilePathsFromProjectPath(const QString& newProjectPath, const QString& oldProjectPath)
 {
-    if (isStoredInCache())
-    {
-        QString newCacheFileName = getCacheFileName();
-
-        if (caf::Utils::fileExists(newCacheFileName))
-        {
-            filepath = newCacheFileName;
-        }
-    }
-    else
-    {
-        filepath = RimTools::relocateFile(filepath(), newProjectPath, oldProjectPath, nullptr, nullptr);
-    }
 
     {
         bool                 foundFile = false;
@@ -643,7 +636,7 @@ double RimWellPath::combinedScaleFactor() const
     RimWellPathCollection* wellPathColl = nullptr;
     this->firstAncestorOrThisOfTypeAsserted(wellPathColl);
 
-    return this->wellPathRadiusScaleFactor() * wellPathColl->wellPathRadiusScaleFactor();
+    return this->m_wellPathRadiusScaleFactor() * wellPathColl->wellPathRadiusScaleFactor();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -797,16 +790,17 @@ const RigWellPathFormations* RimWellPath::formationsGeometry() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimWellPath* RimWellPath::fromFilePath(QString filePath)
+void RimWellPath::add3dWellLogCurve(Rim3dWellLogCurve* rim3dWellLogCurve)
 {
-    RimWellLogFile* logFileInfo = RimWellLogFile::readWellLogFile(filePath);
-    if (logFileInfo)
-    {
-        auto wellPath = new RimWellPath();
-        wellPath->addWellLogFile(logFileInfo);
-        return wellPath;
-    }
-    return nullptr;
+    m_3dWellLogCurves->add3dWellLogCurve(rim3dWellLogCurve);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+Rim3dWellLogCurveCollection* RimWellPath::rim3dWellLogCurveCollection() const
+{
+    return m_3dWellLogCurves();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -115,8 +115,8 @@ void RimWellPathImport::updateRegions(const QStringList& regionStrings, const QS
 
     for (int i = 0; i < regionStrings.size(); i++)
     {
-        RimOilRegionEntry* oilRegionEntry = NULL;
-        RimOilFieldEntry*  oilFieldEntry = NULL;
+        RimOilRegionEntry* oilRegionEntry = nullptr;
+        RimOilFieldEntry*  oilFieldEntry = nullptr;
 
         for (size_t regionIdx = 0; regionIdx < this->regions.size(); regionIdx++)
         {

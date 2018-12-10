@@ -32,7 +32,7 @@ class RimSummaryCrossPlotCollection : public caf::PdmObject
     CAF_PDM_HEADER_INIT;
 public:
     RimSummaryCrossPlotCollection();
-    virtual ~RimSummaryCrossPlotCollection();
+    ~RimSummaryCrossPlotCollection() override;
 
     void deleteAllChildObjects();
 

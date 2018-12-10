@@ -40,14 +40,19 @@ std::vector<RicfCommandObject*> RicfCommandFileReader::readCommands(QTextStream&
         errorMessageContainer->skipWhiteSpaceWithLineNumberCount(inputStream);
         // Read command name
         QString commandName;
-        bool foundStartBracet = false;
         {
             errorMessageContainer->skipWhiteSpaceWithLineNumberCount(inputStream);
             while ( !inputStream.atEnd() )
             {
-                QChar currentChar;
-                currentChar = errorMessageContainer->readCharWithLineNumberCount(inputStream);
-                if ( currentChar.isSpace() )
+                QChar currentChar = errorMessageContainer->readCharWithLineNumberCount(inputStream);
+
+                if (currentChar == QChar('#'))
+                {
+                    errorMessageContainer->skipLineWithLineNumberCount(inputStream);
+                    errorMessageContainer->skipWhiteSpaceWithLineNumberCount(inputStream);
+                    currentChar = QChar();
+                }
+                else if ( currentChar.isSpace() )
                 {
                     errorMessageContainer->skipWhiteSpaceWithLineNumberCount(inputStream);
                     QChar isBracket('a');
@@ -65,7 +70,11 @@ std::vector<RicfCommandObject*> RicfCommandFileReader::readCommands(QTextStream&
                 {
                     break;
                 }
-                commandName += currentChar;
+
+                if (!currentChar.isNull())
+                {
+                    commandName += currentChar;
+                }
             }
         }
 
@@ -133,5 +142,16 @@ std::vector<RicfCommandObject*> RicfCommandFileReader::readCommands(QTextStream&
 //--------------------------------------------------------------------------------------------------
 void RicfCommandFileReader::writeCommands(QTextStream& outputStream, const std::vector<RicfCommandObject*>& commandsToWrite)
 {
+    for (const auto& cmdObj : commandsToWrite)
+    {
+        auto rcfCap = cmdObj->capability<RicfObjectCapability>();
+        if (!rcfCap) continue;
 
+        outputStream << cmdObj->classKeyword();
+        outputStream << "(";
+
+        rcfCap->writeFields(outputStream);
+
+        outputStream << ")";
+    }
 }

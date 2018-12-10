@@ -78,13 +78,16 @@ public:
     void setVisibleRangeMin(double value);
     void setVisibleRangeMax(double value);
 
+    bool isAutoZoom() const;
+    void setAutoZoom(bool enableAutoZoom);
+
     bool isActive() const;
 
 protected:
-    virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
-    virtual QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
-    virtual caf::PdmFieldHandle*            objectToggleField() override;
-    virtual void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
+    caf::PdmFieldHandle*            objectToggleField() override;
+    void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
 
     double                                  fromDateToDisplayTime(const QDateTime& displayTime);
     QDateTime                               fromDisplayTimeToDate(double displayTime);
@@ -100,4 +103,5 @@ private:
     caf::PdmField<QDateTime>                m_visibleDateRangeMax;
     caf::PdmField<double>                   m_visibleTimeRangeMin;
     caf::PdmField<double>                   m_visibleTimeRangeMax;
+    caf::PdmField<bool>                     m_isAutoZoom;
 };

@@ -206,7 +206,7 @@ TEST(RigReservoirTest, DISABLED_FileOutputToolsTest)
     }
 
     ecl_file_close(ertFile);
-    ertFile = NULL;
+    ertFile = nullptr;
 
     timer.reportTime();
     //qDebug() << timer.lapt;

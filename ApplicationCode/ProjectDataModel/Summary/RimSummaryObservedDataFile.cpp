@@ -31,7 +31,7 @@ CAF_PDM_SOURCE_INIT(RimSummaryObservedDataFile, "SummaryObservedDataFile");
 //--------------------------------------------------------------------------------------------------
 RimSummaryObservedDataFile::RimSummaryObservedDataFile()
 {
-    CAF_PDM_InitObject("Observed data file", ":/Default.png", "", "");
+    CAF_PDM_InitObject("Observed data file", ":/ObservedDataFile16x16.png", "", "");
     m_summaryHeaderFilename.uiCapability()->setUiName("File");
 }
 
@@ -41,17 +41,6 @@ RimSummaryObservedDataFile::RimSummaryObservedDataFile()
 RimSummaryObservedDataFile::~RimSummaryObservedDataFile()
 {
 
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimSummaryObservedDataFile::setSummaryHeaderFilename(const QString& fileName)
-{
-    m_summaryHeaderFilename = fileName;
-
-    this->updateAutoShortName();
-    this->updateTreeItemName();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -48,7 +48,7 @@ class RivFemPartPartMgr: public cvf::Object
 {
 public:
     explicit RivFemPartPartMgr(const RigFemPart* femPart);
-    ~RivFemPartPartMgr();
+    ~RivFemPartPartMgr() override;
     void                        setTransform(cvf::Transform* scaleTransform);
     void                        setCellVisibility(cvf::UByteArray* cellVisibilities );
     cvf::ref<cvf::UByteArray>   cellVisibility() { return  m_cellVisibility;}
@@ -57,6 +57,8 @@ public:
     void                        updateCellResultColor(size_t timeStepIndex, RimGeoMechCellColors* cellResultColors);
                                 
     void                        appendPartsToModel(cvf::ModelBasicList* model);
+
+    const RivFemPartGeometryGenerator* surfaceGenerator() const;
                                 
 private:                        
     void                        generatePartGeometry(RivFemPartGeometryGenerator& geoBuilder);

@@ -1,4 +1,4 @@
-#include <ert/ecl/ecl_smspec.h>
+#include <ert/ecl/ecl_smspec.hpp>
 #include <ert/ecl/Smspec.hpp>
 
 namespace ERT {

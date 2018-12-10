@@ -16,7 +16,7 @@
 void writeTextToFile(const QString& filePath, const QString& text)
 {
     QFile exportFile(filePath);
-    if (exportFile.open(QIODevice::WriteOnly))
+    if (exportFile.open(QIODevice::WriteOnly | QIODevice::Text))
     {
         QTextStream stream(&exportFile);
 

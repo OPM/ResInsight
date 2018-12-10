@@ -34,7 +34,7 @@
 class RifSummaryReaderInterface;
 class RimSummaryCase;
 class RimSummaryFilter;
-class RiuLineSegmentQwtPlotCurve;
+class RiuQwtPlotCurve;
 class RimSummaryCurveAutoName;
 class RimSummaryAddress;
 
@@ -49,7 +49,7 @@ class RimSummaryCurve : public RimPlotCurve
 
 public:
     RimSummaryCurve();
-    virtual ~RimSummaryCurve();
+    ~RimSummaryCurve() override;
 
     // Y Axis functions
     void                                    setSummaryCaseY(RimSummaryCase* sumCase);
@@ -58,6 +58,8 @@ public:
     RifEclipseSummaryAddress                summaryAddressY() const;
     std::string                             unitNameY() const;
     std::vector<double>                     valuesY() const;
+    RifEclipseSummaryAddress                errorSummaryAddressY() const;
+    std::vector<double>                     errorValuesY() const;
     void                                    setLeftOrRightAxisY(RiaDefines::PlotAxis plotAxis);
     RiaDefines::PlotAxis                    axisY() const;
     const std::vector<time_t>&              timeStepsY() const;
@@ -74,12 +76,19 @@ public:
     void                                    updateQwtPlotAxis();
     void                                    applyCurveAutoNameSettings(const RimSummaryCurveAutoName& autoNameSettings);
 
+    QString                         curveExportDescription(const RifEclipseSummaryAddress& address = RifEclipseSummaryAddress()) const override;
+    void                                    forceUpdateCurveAppearanceFromCaseType();
+
+    void                                    markCachedDataForPurge();
+
 protected:
     // RimPlotCurve overrides
+    QString                         createCurveAutoName() override;
+    void                            updateZoomInParentPlot() override;
+    void                            onLoadDataAndUpdate(bool updateParentPlot) override;
 
-    virtual QString                         createCurveAutoName() override;
-    virtual void                            updateZoomInParentPlot() override;
-    virtual void                            onLoadDataAndUpdate(bool updateParentPlot) override;
+
+    void                            updateLegendsInPlot() override;
 
 private:
     RifSummaryReaderInterface*              valuesSummaryReaderX() const;
@@ -89,16 +98,14 @@ private:
     void                                    calculateCurveInterpolationFromAddress();
 
     // Overridden PDM methods
-    virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
-    virtual QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly);
-    virtual void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
-    virtual void                            defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override;
+    void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
+    void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    void                            defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override;
 
     static void                             appendOptionItemsForSummaryAddresses(QList<caf::PdmOptionItemInfo>* options,
                                                                                  RimSummaryCase* summaryCase,
                                                                                  RimSummaryFilter* summaryFilter);
-
-    bool                                    isCrossPlotCurve() const;
 
 private:
     // Y values

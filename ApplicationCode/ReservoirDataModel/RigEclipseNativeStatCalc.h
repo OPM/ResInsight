@@ -35,13 +35,13 @@ class RigEclipseNativeStatCalc : public RigStatisticsCalculator
 public:
     RigEclipseNativeStatCalc(RigCaseCellResultsData* cellResultsData, size_t scalarResultIndex);
 
-    virtual void    minMaxCellScalarValues(size_t timeStepIndex, double& min, double& max);
-    virtual void    posNegClosestToZero(size_t timeStepIndex, double& pos, double& neg);
-    virtual void    valueSumAndSampleCount(size_t timeStepIndex, double& valueSum, size_t& sampleCount);
-    virtual void    addDataToHistogramCalculator(size_t timeStepIndex, RigHistogramCalculator& histogramCalculator);
-    virtual void    uniqueValues(size_t timeStepIndex, std::set<int>& values);
-    virtual size_t  timeStepCount();
-    virtual void    mobileVolumeWeightedMean(size_t timeStepIndex, double& mean);
+    void    minMaxCellScalarValues(size_t timeStepIndex, double& min, double& max) override;
+    void    posNegClosestToZero(size_t timeStepIndex, double& pos, double& neg) override;
+    void    valueSumAndSampleCount(size_t timeStepIndex, double& valueSum, size_t& sampleCount) override;
+    void    addDataToHistogramCalculator(size_t timeStepIndex, RigHistogramCalculator& histogramCalculator) override;
+    void    uniqueValues(size_t timeStepIndex, std::set<int>& values) override;
+    size_t  timeStepCount() override;
+    void    mobileVolumeWeightedMean(size_t timeStepIndex, double& mean) override;
 
 private:
     RigCaseCellResultsData* m_resultsData;
@@ -71,11 +71,11 @@ private:
             // Filter out inactive cells
             if (!actCellInfo->isActive(cIdx)) continue;
 
-			size_t cellResultIndex = cIdx;
-			if (m_resultsData->isUsingGlobalActiveIndex(m_scalarResultIndex))
-			{
-				cellResultIndex = actCellInfo->cellResultIndex(cIdx);
-			}
+            size_t cellResultIndex = cIdx;
+            if (m_resultsData->isUsingGlobalActiveIndex(m_scalarResultIndex))
+            {
+                cellResultIndex = actCellInfo->cellResultIndex(cIdx);
+            }
 
             if (cellResultIndex != cvf::UNDEFINED_SIZE_T && cellResultIndex < values.size())
             {

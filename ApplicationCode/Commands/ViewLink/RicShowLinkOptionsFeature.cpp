@@ -21,10 +21,10 @@
 
 #include "RiaApplication.h"
 #include "RimProject.h"
-#include "RimView.h"
+#include "Rim3dView.h"
 #include "RimViewController.h"
 #include "RimViewLinker.h"
-#include "RiuMainWindow.h"
+#include "Riu3DMainWindowTools.h"
 
 #include "cafSelectionManager.h"
 
@@ -38,7 +38,7 @@ CAF_CMD_SOURCE_INIT(RicShowLinkOptionsFeature, "RicShowLinkOptionsFeature");
 //--------------------------------------------------------------------------------------------------
 bool RicShowLinkOptionsFeature::isCommandEnabled()
 {
-    RimView* activeView = RiaApplication::instance()->activeReservoirView();
+    Rim3dView* activeView = RiaApplication::instance()->activeReservoirView();
     if (!activeView) return false;
 
     RimViewController* viewController = activeView->viewController();
@@ -56,12 +56,12 @@ bool RicShowLinkOptionsFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicShowLinkOptionsFeature::onActionTriggered(bool isChecked)
 {
-    RimView* activeView = RiaApplication::instance()->activeReservoirView();
+    Rim3dView* activeView = RiaApplication::instance()->activeReservoirView();
     if (!activeView) return;
 
     RimViewController* viewController = activeView->viewController();
 
-    RiuMainWindow::instance()->selectAsCurrentItem(viewController);
+    Riu3DMainWindowTools::selectAsCurrentItem(viewController);
 }
 
 //--------------------------------------------------------------------------------------------------

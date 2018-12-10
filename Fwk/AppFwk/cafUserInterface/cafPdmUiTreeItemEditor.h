@@ -51,13 +51,13 @@ class PdmUiTreeItemEditor: public PdmUiEditorHandle
 {
 public:
     explicit PdmUiTreeItemEditor(PdmUiItem* uiItem);
-    virtual ~PdmUiTreeItemEditor() {};
+    ~PdmUiTreeItemEditor() override {};
 
     void setTreeViewEditor(PdmUiTreeEditorHandle* treeViewEditor) { m_treeViewEditor = treeViewEditor; } 
 
 protected: // Interface to override:
 
-    virtual void configureAndUpdateUi(const QString& uiConfigName);
+    void configureAndUpdateUi(const QString& uiConfigName) override;
 
 private:
     PdmUiTreeEditorHandle* m_treeViewEditor;

@@ -36,7 +36,7 @@ class RimCaseCollection : public caf::PdmObject
 
 public:
     RimCaseCollection();
-    virtual ~RimCaseCollection();
+    ~RimCaseCollection() override;
     caf::PdmChildArrayField<RimEclipseCase*> reservoirs;
 
     RimIdenticalGridCaseGroup*  parentCaseGroup();

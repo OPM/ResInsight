@@ -34,9 +34,9 @@ class RiuPropertyViewTabWidget : public QDialog
 {
 public:
     RiuPropertyViewTabWidget(QWidget* parent, caf::PdmObject* object, const QString& windowTitle, const QStringList& uiConfigNameForTabs);
-    ~RiuPropertyViewTabWidget();
+    ~RiuPropertyViewTabWidget() override;
 
-    virtual QSize sizeHint() const override;
+    QSize sizeHint() const override;
 
 private:
     std::vector<caf::PdmUiPropertyView*> m_pageWidgets;

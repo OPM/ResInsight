@@ -66,43 +66,9 @@ CmdUiCommandSystemImpl::CmdUiCommandSystemImpl()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void CmdUiCommandSystemImpl::fieldChangedCommand(PdmFieldHandle* editorField, const QVariant& newUiValue)
+void CmdUiCommandSystemImpl::fieldChangedCommand( const std::vector<PdmFieldHandle*>& fieldsToUpdate, const QVariant& newUiValue)
 {
-    std::vector<PdmFieldHandle*> fieldsToUpdate;
-    fieldsToUpdate.push_back(editorField);
-
-    // For current selection, find all fields with same keyword
-    {
-        std::vector<PdmUiItem*> items;
-        SelectionManager::instance()->selectedItems(items, SelectionManager::CURRENT);
-
-        for (size_t i = 0; i < items.size(); i++)
-        {
-            PdmObjectHandle* objectHandle = dynamic_cast<PdmObjectHandle*>(items[i]);
-            if (objectHandle)
-            {
-                // An object is selected, find field with same keyword as the current field being edited
-                PdmFieldHandle* fieldHandle = objectHandle->findField(editorField->keyword());
-                if (fieldHandle && fieldHandle != editorField)
-                {
-                    fieldsToUpdate.push_back(fieldHandle);
-                }
-            }
-            else
-            {
-                // A field is selected, check if keywords are identical
-                PdmUiFieldHandle* uiFieldHandle = dynamic_cast<PdmUiFieldHandle*>(items[i]);
-                if (uiFieldHandle)
-                {
-                    PdmFieldHandle* field = uiFieldHandle->fieldHandle();
-                    if (field && field != editorField && field->keyword() == editorField->keyword())
-                    {
-                        fieldsToUpdate.push_back(field);
-                    }
-                }
-            }
-        }
-    }
+    if ( fieldsToUpdate.empty() ) return;
 
     std::vector<CmdExecuteCommand*> commands;
 
@@ -136,7 +102,7 @@ void CmdUiCommandSystemImpl::fieldChangedCommand(PdmFieldHandle* editorField, co
         }
     }
 
-    caf::PdmUiObjectHandle* uiOwnerObjectHandle = uiObj(editorField->ownerObject());
+    caf::PdmUiObjectHandle* uiOwnerObjectHandle = uiObj(fieldsToUpdate[0]->ownerObject());
     if (uiOwnerObjectHandle && !uiOwnerObjectHandle->useUndoRedoForFieldChanged())
     {
         // Temporarily disable undo framework as requested by the PdmUiObjectHandle

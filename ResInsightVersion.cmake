@@ -1,28 +1,30 @@
 
 set(RESINSIGHT_MAJOR_VERSION 2018)
-set(RESINSIGHT_MINOR_VERSION 01)
-set(RESINSIGHT_PATCH_VERSION 1)
+set(RESINSIGHT_MINOR_VERSION 11)
+set(RESINSIGHT_PATCH_VERSION 0)
 
 # Opional text with no restrictions
-#set(RESINSIGHT_VERSION_TEXT "-patch")
+#set(RESINSIGHT_VERSION_TEXT "-RC1")
 
 # Optional text
 # Must be unique and increasing within one combination of major/minor/patch version 
 # The uniqueness of this text is independent of RESINSIGHT_VERSION_TEXT 
 # Format of text must be ".xx"
-#set(RESINSIGHT_DEV_VERSION ".00")
+#set(RESINSIGHT_DEV_VERSION ".12")
 
 # https://github.com/CRAVA/crava/tree/master/libs/nrlib
 set(NRLIB_GITHUB_SHA "ba35d4359882f1c6f5e9dc30eb95fe52af50fd6f") 
 
 # https://github.com/Statoil/libecl
-set(ERT_GITHUB_SHA "2e36798b43daf18c112b91aa3febbf2fccd4a95f") 
+# Note:
+# Apply patches fix-synthetic-odb-cases.patch and install-ert.patch after update
+set(ECL_GITHUB_SHA "7f93730c08a4d981a4b738b42146d099977572ce")
 
 # https://github.com/OPM/opm-flowdiagnostics
-set(OPM_FLOWDIAGNOSTICS_SHA "7e2be931d430796ed42efcfb5c6b67a8d5962f7f")
+set(OPM_FLOWDIAGNOSTICS_SHA "f8af0914f8b1ddcda41f040f539c945a6057f5e4")
 
 # https://github.com/OPM/opm-flowdiagnostics-applications
-set(OPM_FLOWDIAGNOSTICS_APPLICATIONS_SHA "5bcd6d99259a63f5cd820db541b45c4f07aec808")
+set(OPM_FLOWDIAGNOSTICS_APPLICATIONS_SHA "24ff768dc509b6c6bbd0121ef46a5932fae92961")
 
 # https://github.com/OPM/opm-parser/blob/master/opm/parser/eclipse/Units/Units.hpp
 # This file was moved from opm-core to opm-parser october 2016

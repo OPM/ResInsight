@@ -48,15 +48,16 @@ class RigEclipseCaseData;
 class RimCommandObject;
 class RimEclipseCase;
 class RimEclipseView;
+class RimGridView;
 class RimProject;
 class RimSummaryPlot;
-class RimView;
+class Rim3dView;
 class RimViewWindow;
 class RimWellLogPlot;
 class RimWellAllocationPlot;
 
 class RiuMainWindowBase;
-class RiuMainPlotWindow;
+class RiuPlotMainWindow;
 class RiuRecentFileActionProvider;
 class RiaArgumentParser;
 
@@ -91,23 +92,19 @@ public:
 
 public:
     RiaApplication(int& argc, char** argv);
-    ~RiaApplication();
+    ~RiaApplication() override;
+    
     static RiaApplication* instance();
 
-    int                     parseArgumentsAndRunUnitTestsIfRequested();
-    bool                    parseArguments();
+    int                 parseArgumentsAndRunUnitTestsIfRequested();
+    bool                parseArguments();
 
-    void                    executeRegressionTests(const QString& regressionTestPath, QStringList* testFilter = nullptr);
+    void                setActiveReservoirView(Rim3dView*);
+    Rim3dView*          activeReservoirView();
+    const Rim3dView*    activeReservoirView() const;
+    RimGridView*        activeGridView();
 
-    void                    setActiveReservoirView(RimView*);
-    RimView*                activeReservoirView();
-    const RimView*          activeReservoirView() const;
-
-    RimViewWindow*          activePlotWindow() const;
-
-    void                scheduleDisplayModelUpdateAndRedraw(RimView* resViewToUpdate);
-    void                scheduleRecalculateCompletionTypeAndRedrawAllViews();
-    void                scheduleRecalculateCompletionTypeAndRedrawEclipseCase(RimEclipseCase* eclipseCase);
+    RimViewWindow*      activePlotWindow() const;
 
     RimProject*         project(); 
 
@@ -118,12 +115,13 @@ public:
     void                createInputMockModel();
 
     QString             lastUsedDialogDirectory(const QString& dialogName);
+    QString             lastUsedDialogDirectoryWithFallbackToProjectFolder(const QString& dialogName);
     QString             lastUsedDialogDirectoryWithFallback(const QString& dialogName, const QString& fallbackDirectory);
     void                setLastUsedDialogDirectory(const QString& dialogName, const QString& directory);
 
     bool                openFile(const QString& fileName);
 
-    bool                openOdbCaseFromFile(const QString& fileName);
+    bool                openOdbCaseFromFile(const QString& fileName, bool applyTimeStepFilter = false);
 
     QString             currentProjectPath() const;
     QString             createAbsolutePathFromProjectRelativePath(QString projectRelativePath);
@@ -142,16 +140,13 @@ public:
     void                addWellLogsToModel(const QList<QString>& wellLogFilePaths);
 
     void                runMultiCaseSnapshots(const QString& templateProjectFileName, std::vector<QString> gridFileNames, const QString& snapshotFolderName);
-    void                runRegressionTest(const QString& testRootPath, QStringList* testFilter = nullptr);
 
     void                processNonGuiEvents();
 
     static const char*  getVersionStringApp(bool includeCrtInfo);
 
-    void                setUseShaders(bool enable);
     bool                useShaders() const;
 
-    void                setShowPerformanceInfo(bool enable);
     bool                showPerformanceInfo() const;
 
     RINavigationPolicy  navigationPolicy() const;
@@ -181,13 +176,12 @@ public:
     void                addCommandObject(RimCommandObject* commandObject);
     void                executeCommandObjects();
 
-    bool                isRunningRegressionTests() const;
-
     int                 launchUnitTests();
     int                 launchUnitTestsWithConsole();
 
-    RiuMainPlotWindow*  getOrCreateAndShowMainPlotWindow();
-    RiuMainPlotWindow*  mainPlotWindow();
+    RiuPlotMainWindow*  getOrCreateMainPlotWindow();
+    RiuPlotMainWindow*  getOrCreateAndShowMainPlotWindow();
+    RiuPlotMainWindow*  mainPlotWindow();
     RiuMainWindowBase*  mainWindowByID(int mainWindowID);
 
     static RimViewWindow* activeViewWindow();
@@ -205,48 +199,34 @@ public:
 
     static std::vector<QString> readFileListFromTextFile(QString listFileName);
 
-    void                    clearViewsScheduledForUpdate();
+    void                waitUntilCommandObjectsHasBeenProcessed();
+    void                saveWinGeoAndDockToolBarLayout();
+
+    static bool         enableDevelopmentFeatures();
+    static void         clearAllSelections();
 
 private:
+    void                onProjectOpenedOrClosed();
+    void                setWindowCaptionFromAppState();
 
-    void                    onProjectOpenedOrClosed();
-    void                    setWindowCaptionFromAppState();
-
-    void                    createMainPlotWindow();
-    void                    deleteMainPlotWindow();
+    void                createMainPlotWindow();
+    void                deleteMainPlotWindow();
     
-    void                    loadAndUpdatePlotData();
+    void                loadAndUpdatePlotData();
     
-    void                    storeTreeViewState();
+    void                storeTreeViewState();
 
-    void                    resizeMaximizedPlotWindows();
-    void                    updateRegressionTest(const QString& testRootPath);
-    void                    regressionTestConfigureProject();
-    static QSize            regressionDefaultImageSize();
+    friend RiaArgumentParser;
+    void                setHelpText(const QString& helpText);
 
-    void                    setHelpText(const QString& helpText);
+    bool                notify(QObject *, QEvent *) override;
 
 private slots:
     void                slotWorkerProcessFinished(int exitCode, QProcess::ExitStatus exitStatus);
-    void                slotUpdateScheduledDisplayModels();
-    void                slotRecalculateCompletionType();
-
-    // Friend classes required to have access to slotUpdateScheduledDisplayModels
-    // As snapshots are produced fast in sequence, the feature must have access to force redraw
-    // of scheduled redraws
-    friend class RimView;
-    friend class RicExportMultipleSnapshotsFeature;
-    friend class RiaArgumentParser;
 
 private:
-    caf::PdmPointer<RimView>            m_activeReservoirView;
-
+    caf::PdmPointer<Rim3dView>          m_activeReservoirView;
     caf::PdmPointer<RimProject>         m_project;
-
-    std::vector<caf::PdmPointer<RimView> > m_resViewsToUpdate;
-    QTimer*                             m_resViewUpdateTimer;
-    std::vector<caf::PdmPointer<RimEclipseCase> > m_eclipseCasesToRecalculate;
-    QTimer*                             m_recalculateCompletionTypeTimer;
 
     RiaSocketServer*                    m_socketServer;
 
@@ -271,11 +251,10 @@ private:
     QMutex                              m_commandQueueLock;
 
     QString                             m_helpText;
-    bool                                m_runningRegressionTests;
 
     bool                                m_runningWorkerProcess;
 
-    RiuMainPlotWindow*                  m_mainPlotWindow;
+    RiuPlotMainWindow*                  m_mainPlotWindow;
     
     std::unique_ptr<RiuRecentFileActionProvider> m_recentFileActionProvider;
 };

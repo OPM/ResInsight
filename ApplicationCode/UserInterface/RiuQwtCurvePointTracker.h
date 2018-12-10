@@ -23,6 +23,9 @@
 #include <QPointer>
 
 class QwtPlotMarker;
+class QwtPlotCurve;
+class IPlotCurveInfoTextProvider;
+
 
 //--------------------------------------------------------------------------------------------------
 /// Class to add mouse over-tracking of curve points with text marker
@@ -30,16 +33,17 @@ class QwtPlotMarker;
 class RiuQwtCurvePointTracker : public QwtPlotPicker
 {
 public:
-    explicit RiuQwtCurvePointTracker(QwtPlot* plot, bool isMainAxisHorizontal);
-    ~RiuQwtCurvePointTracker();
+    explicit RiuQwtCurvePointTracker(QwtPlot* plot, bool isMainAxisHorizontal, IPlotCurveInfoTextProvider* curveInfoTextProvider = nullptr);
+    ~RiuQwtCurvePointTracker() override;
 
 protected:
 
-    virtual bool      eventFilter(QObject *, QEvent *) override;
+    bool      eventFilter(QObject *, QEvent *) override;
     void              removeMarkerOnFocusLeave();
 
-    virtual QwtText   trackerText(const QPoint& pos) const override;
-    QPointF           closestCurvePoint(const QPoint& cursorPosition, 
+    QwtText   trackerText(const QPoint& pos) const override;
+    QPointF           closestCurvePoint(const QPoint& cursorPosition,
+                                        QString* curveInfoText,
                                         QString* valueAxisValueString, 
                                         QString* mainAxisValueString, 
                                         QwtPlot::Axis* relatedXAxis, 
@@ -51,5 +55,14 @@ protected:
     QPointer<QwtPlot> m_plot; 
     QwtPlotMarker*    m_plotMarker;
     bool              m_isMainAxisHorizontal;
+    IPlotCurveInfoTextProvider* m_curveInfoTextProvider;
 };
 
+//--------------------------------------------------------------------------------------------------
+/// Interface for retrieving curve info text
+//--------------------------------------------------------------------------------------------------
+class IPlotCurveInfoTextProvider
+{
+public:
+    virtual QString curveInfoText(QwtPlotCurve* curve) = 0;
+};

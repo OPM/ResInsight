@@ -39,7 +39,10 @@ public:
         COMPLETIONS,
         SNAPSHOTS,
         PROPERTIES,
-        STATISTICS
+        STATISTICS,
+        WELLPATHS,
+        CELLS,
+        LGRS
     };
 
     typedef caf::AppEnum<ExportType> ExportTypeEnum;
@@ -59,7 +62,7 @@ public:
     static std::vector<RicfCommandObject*> prepareFileCommandsForExecution(const std::vector<RicfCommandObject*>& commandsReadFromFile);
 
 private:
-    RicfMessages m_messages;
+    void    clearCachedData();
 
     std::map<ExportType, QString> m_exportPaths;
     QString                       m_lastProjectPath;

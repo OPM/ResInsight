@@ -39,13 +39,13 @@ class RifColumnBasedUserData : public RifSummaryReaderInterface
 {
 public:
     RifColumnBasedUserData();
-    ~RifColumnBasedUserData();
+    ~RifColumnBasedUserData() override;
 
     bool                                parse(const QString& data, QString* errorText = nullptr);
 
-    virtual const std::vector<time_t>&  timeSteps(const RifEclipseSummaryAddress& resultAddress) const override;
+    const std::vector<time_t>&  timeSteps(const RifEclipseSummaryAddress& resultAddress) const override;
 
-    virtual bool                        values(const RifEclipseSummaryAddress& resultAddress,
+    bool                        values(const RifEclipseSummaryAddress& resultAddress,
                                                std::vector<double>* values) const override;
 
     std::string                         unitName(const RifEclipseSummaryAddress& resultAddress) const override;

@@ -20,32 +20,37 @@
 
 #include "RimSimWellInView.h"
 
-#include "RigSimulationWellCenterLineCalculator.h"
+#include "RigActiveCellInfo.h"
+#include "RigCell.h"
+#include "RigEclipseCaseData.h"
+#include "RigMainGrid.h"
 #include "RigSimWellData.h"
+#include "RigSimulationWellCenterLineCalculator.h"
 
 #include "RimCellRangeFilterCollection.h"
+#include "RimEclipseCase.h"
 #include "RimEclipseView.h"
 #include "RimIntersectionCollection.h"
-#include "RimSimWellInViewCollection.h"
-
-#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
-#include "RimSimWellFractureCollection.h"
+#include "RimPropertyFilterCollection.h"
 #include "RimSimWellFracture.h"
-#endif // USE_PROTOTYPE_FEATURE_FRACTURES
+#include "RimSimWellFractureCollection.h"
+#include "RimSimWellInViewCollection.h"
+#include "RimIntersection.h"
+#include "Rim2dIntersectionView.h"
 
 #include "RiuMainWindow.h"
 
 #include "RivReservoirViewPartMgr.h"
 
 #include "cafPdmUiTreeOrdering.h"
-
 #include "cvfMath.h"
-#include "RigCell.h"
-#include "RimEclipseCase.h"
-#include "RigEclipseCaseData.h"
-#include "RigMainGrid.h"
-#include "RigActiveCellInfo.h"
-#include "RimPropertyFilterCollection.h"
+
+
+//--------------------------------------------------------------------------------------------------
+/// Internal functions
+//--------------------------------------------------------------------------------------------------
+Rim2dIntersectionView* corresponding2dIntersectionView(RimSimWellInView *simWellInView);
+
 
 CAF_PDM_SOURCE_INIT(RimSimWellInView, "Well");
 
@@ -72,18 +77,14 @@ RimSimWellInView::RimSimWellInView()
     CAF_PDM_InitField(&showWellCells,           "ShowWellCells",        false,  "Well Cells", "", "", "");
     CAF_PDM_InitField(&showWellCellFence,       "ShowWellCellFence",    false,  "Well Cell Fence", "", "", "");
 
-#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
     CAF_PDM_InitFieldNoDefault(&simwellFractureCollection, "FractureCollection", "Fractures", "", "", "");
-#endif // USE_PROTOTYPE_FEATURE_FRACTURES
 
     name.uiCapability()->setUiHidden(true);
     name.uiCapability()->setUiReadOnly(true);
 
     m_resultWellIndex = cvf::UNDEFINED_SIZE_T;
 
-#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
     simwellFractureCollection= new RimSimWellFractureCollection();
-#endif // USE_PROTOTYPE_FEATURE_FRACTURES
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -91,9 +92,7 @@ RimSimWellInView::RimSimWellInView()
 //--------------------------------------------------------------------------------------------------
 RimSimWellInView::~RimSimWellInView()
 {
-#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
     if (simwellFractureCollection()) delete simwellFractureCollection();
-#endif // USE_PROTOTYPE_FEATURE_FRACTURES
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -120,6 +119,7 @@ void RimSimWellInView::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
             &wellPipeColor == changedField)
         {
             reservoirView->scheduleCreateDisplayModelAndRedraw();
+            schedule2dIntersectionViewUpdate();
         }
         else if (&showWell == changedField ||
                  &showWellCells == changedField ||
@@ -128,15 +128,14 @@ void RimSimWellInView::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
         {
             reservoirView->scheduleGeometryRegen(VISIBLE_WELL_CELLS);
             reservoirView->scheduleCreateDisplayModelAndRedraw();
+            schedule2dIntersectionViewUpdate();
         }
         else if (   &pipeScaleFactor == changedField
                  || &wellHeadScaleFactor == changedField)
         {
-            if (reservoirView)
-            {
-                reservoirView->scheduleSimWellGeometryRegen();
-                reservoirView->scheduleCreateDisplayModelAndRedraw();
-            }
+            reservoirView->scheduleSimWellGeometryRegen();
+            reservoirView->scheduleCreateDisplayModelAndRedraw();
+            schedule2dIntersectionViewUpdate();
         }
     }
 
@@ -166,6 +165,25 @@ caf::PdmFieldHandle* RimSimWellInView::objectToggleField()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+std::vector<const RigWellPath*> RimSimWellInView::wellPipeBranches() const
+{
+    RimSimWellInViewCollection* simWellCollection = nullptr;
+    this->firstAncestorOrThisOfTypeAsserted(simWellCollection);
+
+    RimEclipseCase* eclipseCase = nullptr;
+    this->firstAncestorOrThisOfTypeAsserted(eclipseCase);
+    RigEclipseCaseData* caseData = eclipseCase->eclipseCaseData();
+    CVF_ASSERT(caseData);
+
+    bool includeCellCenters = this->isUsingCellCenterForPipe();
+    bool detectBrances      = simWellCollection->isAutoDetectingBranches;
+
+    return caseData->simulationWellBranches(this->name(), includeCellCenters, detectBrances);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimSimWellInView::calculateWellPipeStaticCenterLine(std::vector<std::vector<cvf::Vec3d>>&         pipeBranchesCLCoords,
                                                          std::vector<std::vector<RigWellResultPoint>>& pipeBranchesCellIds)
 {
@@ -175,22 +193,9 @@ void RimSimWellInView::calculateWellPipeStaticCenterLine(std::vector<std::vector
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+/// frameIndex = -1 will use the static well frame
 //--------------------------------------------------------------------------------------------------
-void RimSimWellInView::calculateWellPipeDynamicCenterLine(size_t                                        timeStepIdx,
-                                                          std::vector<std::vector<cvf::Vec3d>>&         pipeBranchesCLCoords,
-                                                          std::vector<std::vector<RigWellResultPoint>>& pipeBranchesCellIds) const
-{
-    RigSimulationWellCenterLineCalculator::calculateWellPipeDynamicCenterline(this, 
-                                                                              static_cast<int>(timeStepIdx),
-                                                                              pipeBranchesCLCoords, 
-                                                                              pipeBranchesCellIds);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimSimWellInView::wellHeadTopBottomPosition(size_t frameIndex, cvf::Vec3d* top, cvf::Vec3d* bottom)
+void RimSimWellInView::wellHeadTopBottomPosition(int frameIndex, cvf::Vec3d* top, cvf::Vec3d* bottom)
 {
 
     RimEclipseView* m_rimReservoirView;
@@ -198,10 +203,23 @@ void RimSimWellInView::wellHeadTopBottomPosition(size_t frameIndex, cvf::Vec3d* 
     
     RigEclipseCaseData* rigReservoir = m_rimReservoirView->eclipseCase()->eclipseCaseData();
 
-    if ( !this->simWellData()->hasAnyValidCells(frameIndex) ) return;
+    const RigWellResultFrame* wellResultFramePtr = nullptr;
+    const RigCell* whCellPtr = nullptr;
 
-    const RigWellResultFrame& wellResultFrame = this->simWellData()->wellResultFrame(frameIndex);
-    const RigCell& whCell = rigReservoir->cellFromWellResultCell(wellResultFrame.wellHeadOrStartCell());
+    if (frameIndex >= 0)
+    {
+        if ( !this->simWellData()->hasAnyValidCells(frameIndex) ) return;
+
+        wellResultFramePtr = &(this->simWellData()->wellResultFrame(frameIndex));
+        whCellPtr = &(rigReservoir->cellFromWellResultCell(wellResultFramePtr->wellHeadOrStartCell()));
+    }
+    else
+    {
+        wellResultFramePtr = &(this->simWellData()->staticWellCells());
+        whCellPtr = &(rigReservoir->cellFromWellResultCell(wellResultFramePtr->wellHeadOrStartCell()));
+    }
+
+    const RigCell& whCell = *whCellPtr;
 
     // Match this position with pipe start position in RivWellPipesPartMgr::calculateWellPipeCenterline()
 
@@ -260,6 +278,16 @@ double RimSimWellInView::pipeRadius()
     double pipeRadius = reservoirView->wellCollection()->pipeScaleFactor() * this->pipeScaleFactor() * characteristicCellSize;
 
     return pipeRadius;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+int RimSimWellInView::pipeCrossSectionVertexCount()
+{
+    RimSimWellInViewCollection* simWellCollection = nullptr;
+    this->firstAncestorOrThisOfTypeAsserted(simWellCollection);
+    return simWellCollection->pipeCrossSectionVertexCount();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -345,6 +373,18 @@ bool RimSimWellInView::intersectsWellCellsFilteredCells(const RigWellResultFrame
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimSimWellInView::schedule2dIntersectionViewUpdate()
+{
+     Rim2dIntersectionView* intersectionView = corresponding2dIntersectionView(this);
+    if (intersectionView)
+    {
+        intersectionView->scheduleCreateDisplayModelAndRedraw();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 bool RimSimWellInView::intersectsStaticWellCellsFilteredCells() const
 {
     if (this->simWellData() == nullptr) return false;
@@ -389,13 +429,11 @@ void RimSimWellInView::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering
 //--------------------------------------------------------------------------------------------------
 void RimSimWellInView::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/)
 {
-#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
     for (RimSimWellFracture* fracture : simwellFractureCollection()->simwellFractures())
     {
         uiTreeOrdering.add(fracture);
     }
     uiTreeOrdering.skipRemainingChildren(true);
-#endif // USE_PROTOTYPE_FEATURE_FRACTURES
 
     const RimEclipseView* reservoirView = nullptr;
     this->firstAncestorOrThisOfType(reservoirView);
@@ -549,10 +587,6 @@ bool RimSimWellInView::isWellSpheresVisible(size_t frameIndex) const
     {
         return true;
     }
-
-    CVF_ASSERT(false); // Never end here. have you added new pipe visibility modes ?
-
-    return false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -599,3 +633,28 @@ size_t RimSimWellInView::resultWellIndex() const
     return m_resultWellIndex;
 }
 
+//--------------------------------------------------------------------------------------------------
+/// Internal functions
+//--------------------------------------------------------------------------------------------------
+Rim2dIntersectionView* corresponding2dIntersectionView(RimSimWellInView *simWellInView)
+{
+    Rim3dView* tdView;
+    simWellInView->firstAncestorOrThisOfType(tdView);
+
+    std::vector<RimIntersectionCollection*> intersectionColls;
+    if (tdView)
+    {
+        tdView->descendantsIncludingThisOfType(intersectionColls);
+        if (intersectionColls.size() == 1)
+        {
+            for (const auto intersection : intersectionColls[0]->intersections())
+            {
+                if (intersection->simulationWell() == simWellInView)
+                {
+                    return intersection->correspondingIntersectionView();
+                }
+            }
+        }
+    }
+    return nullptr;
+}

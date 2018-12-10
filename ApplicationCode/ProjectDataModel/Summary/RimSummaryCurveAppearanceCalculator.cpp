@@ -20,6 +20,7 @@
 
 #include "RiaColorTables.h"
 #include "RiaSummaryCurveDefinition.h"
+#include "RiuQwtPlotCurve.h"
 
 #include "RimSummaryCurve.h"
 #include "RimSummaryCase.h"
@@ -91,14 +92,7 @@ RimSummaryCurveAppearanceCalculator::RimSummaryCurveAppearanceCalculator(const s
         }
     }
 
-    m_caseCount     = m_caseToAppearanceIdxMap.size();
-    m_variableCount = m_varToAppearanceIdxMap .size();
-    m_wellCount     = m_welToAppearanceIdxMap .size();
-    m_groupCount    = m_grpToAppearanceIdxMap .size();
-    m_regionCount   = m_regToAppearanceIdxMap .size();
-
     // Select the default appearance type for each data "dimension"
-
     m_caseAppearanceType   = NONE;
     m_varAppearanceType    = NONE;
     m_wellAppearanceType   = NONE;
@@ -114,11 +108,11 @@ RimSummaryCurveAppearanceCalculator::RimSummaryCurveAppearanceCalculator(const s
     m_currentCurveGradient = 0.0f;
 
     m_dimensionCount = 0;
-    if(m_variableCount > 1) { m_varAppearanceType    = *(unusedAppearTypes.begin()); unusedAppearTypes.erase(unusedAppearTypes.begin()); m_dimensionCount++; }
-    if(m_caseCount     > 1) { m_caseAppearanceType   = *(unusedAppearTypes.begin()); unusedAppearTypes.erase(unusedAppearTypes.begin()); m_dimensionCount++; }
-    if(m_wellCount     > 1) { m_wellAppearanceType   = *(unusedAppearTypes.begin()); unusedAppearTypes.erase(unusedAppearTypes.begin()); m_dimensionCount++; }
-    if(m_groupCount    > 1) { m_groupAppearanceType  = *(unusedAppearTypes.begin()); unusedAppearTypes.erase(unusedAppearTypes.begin()); m_dimensionCount++; }
-    if(m_regionCount   > 1) { m_regionAppearanceType = *(unusedAppearTypes.begin()); unusedAppearTypes.erase(unusedAppearTypes.begin()); m_dimensionCount++; }
+    if(m_varToAppearanceIdxMap.size() > 1) { m_varAppearanceType    = *(unusedAppearTypes.begin()); unusedAppearTypes.erase(unusedAppearTypes.begin()); m_dimensionCount++; }
+    if(m_caseToAppearanceIdxMap.size() > 1) { m_caseAppearanceType   = *(unusedAppearTypes.begin()); unusedAppearTypes.erase(unusedAppearTypes.begin()); m_dimensionCount++; }
+    if(m_welToAppearanceIdxMap.size() > 1) { m_wellAppearanceType   = *(unusedAppearTypes.begin()); unusedAppearTypes.erase(unusedAppearTypes.begin()); m_dimensionCount++; }
+    if(m_grpToAppearanceIdxMap.size() > 1) { m_groupAppearanceType  = *(unusedAppearTypes.begin()); unusedAppearTypes.erase(unusedAppearTypes.begin()); m_dimensionCount++; }
+    if(m_regToAppearanceIdxMap.size() > 1) { m_regionAppearanceType = *(unusedAppearTypes.begin()); unusedAppearTypes.erase(unusedAppearTypes.begin()); m_dimensionCount++; }
 
     if (m_dimensionCount == 0) m_varAppearanceType = COLOR; // basically one curve
     
@@ -159,7 +153,6 @@ void RimSummaryCurveAppearanceCalculator::updateApperanceIndices()
 {
     {
         std::map<std::string, size_t> caseAppearanceIndices = mapNameToAppearanceIndex(m_caseAppearanceType, m_allSummaryCaseNames);
-        int idx = 0;
         for (auto& pair : m_caseToAppearanceIdxMap)
         {
             pair.second = static_cast<int>(caseAppearanceIndices[pair.first->summaryHeaderFilename().toUtf8().constData()]);
@@ -167,7 +160,6 @@ void RimSummaryCurveAppearanceCalculator::updateApperanceIndices()
     }
     {
         std::map<std::string, size_t> wellAppearanceIndices = mapNameToAppearanceIndex(m_wellAppearanceType, m_allSummaryWellNames);
-        int idx = 0;
         for (auto& pair : m_welToAppearanceIdxMap)
         {
             pair.second = static_cast<int>(wellAppearanceIndices[pair.first]);
@@ -198,11 +190,11 @@ std::map<std::string, size_t> RimSummaryCurveAppearanceCalculator::mapNameToAppe
     }
     else if (appearance == CurveAppearanceType::SYMBOL)
     {
-        numOptions = caf::AppEnum<RimPlotCurve::PointSymbolEnum>::size() - 1; // -1 since the No symbol option is not counted see cycledSymbol()
+        numOptions = caf::AppEnum<RiuQwtSymbol::PointSymbolEnum>::size() - 1; // -1 since the No symbol option is not counted see cycledSymbol()
     }
     else if (appearance == CurveAppearanceType::LINE_STYLE)
     {
-        numOptions = caf::AppEnum<RimPlotCurve::LineStyleEnum>::size() - 1; // -1 since the No symbol option is not counted see cycledLineStyle()
+        numOptions = caf::AppEnum<RiuQwtPlotCurve::LineStyleEnum>::size() - 1; // -1 since the No symbol option is not counted see cycledLineStyle()
     }
     else {
         // If none of these styles are used, fall back to a simply incrementing index
@@ -291,7 +283,9 @@ void RimSummaryCurveAppearanceCalculator::getDimensions(CurveAppearanceType* cas
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCurveAppearanceCalculator::setupCurveLook(RimSummaryCurve* curve)
 {
-    m_currentCurveBaseColor = cvf::Color3f(0, 0, 0);
+    // The gradient is from negative to positive.
+    // Choose default base color as the midpoint between black and white.
+    m_currentCurveBaseColor = cvf::Color3f(0.5f, 0.5f, 0.5f);
     m_currentCurveGradient = 0.0f;
 
     int caseAppearanceIdx = m_caseToAppearanceIdxMap[curve->summaryCaseY()];
@@ -305,10 +299,10 @@ void RimSummaryCurveAppearanceCalculator::setupCurveLook(RimSummaryCurve* curve)
     if(curve->summaryAddressY().wellGroupName().empty())  grpAppearanceIdx = -1;
     if(curve->summaryAddressY().regionNumber() < 0)  regAppearanceIdx = -1;
 
-    setOneCurveAppearance(m_caseAppearanceType,   m_caseCount,     caseAppearanceIdx, curve);
-    setOneCurveAppearance(m_wellAppearanceType,   m_wellCount,     welAppearanceIdx,  curve);
-    setOneCurveAppearance(m_groupAppearanceType,  m_groupCount,    grpAppearanceIdx,  curve);
-    setOneCurveAppearance(m_regionAppearanceType, m_regionCount,   regAppearanceIdx,  curve);
+    setOneCurveAppearance(m_caseAppearanceType, m_allSummaryCaseNames.size(), caseAppearanceIdx, curve);
+    setOneCurveAppearance(m_wellAppearanceType, m_allSummaryWellNames.size(), welAppearanceIdx, curve);
+    setOneCurveAppearance(m_groupAppearanceType, m_grpToAppearanceIdxMap.size(), grpAppearanceIdx, curve);
+    setOneCurveAppearance(m_regionAppearanceType, m_regToAppearanceIdxMap.size(), regAppearanceIdx, curve);
 
     if (m_varAppearanceType == COLOR && m_secondCharToVarToAppearanceIdxMap.size() > 1)
     { 
@@ -353,19 +347,14 @@ void RimSummaryCurveAppearanceCalculator::setupCurveLook(RimSummaryCurve* curve)
     }
     else
     {
-        setOneCurveAppearance(m_varAppearanceType, m_variableCount, varAppearanceIdx, curve);
+        setOneCurveAppearance(m_varAppearanceType, m_varToAppearanceIdxMap.size(), varAppearanceIdx, curve);
     }
     
     curve->setColor(gradeColor(m_currentCurveBaseColor, m_currentCurveGradient));
 
     if ( curve->summaryCaseY()->isObservedData() )
     {
-        curve->setLineStyle(RimPlotCurve::STYLE_NONE);
-
-        if ( curve->symbol() == RimPlotCurve::SYMBOL_NONE )
-        {
-            curve->setSymbol(RimPlotCurve::SYMBOL_XCROSS);
-        }
+        curve->forceUpdateCurveAppearanceFromCaseType();
     }
 }
 
@@ -462,21 +451,21 @@ cvf::Color3f RimSummaryCurveAppearanceCalculator::cycledBrownColor(int colorInde
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimPlotCurve::LineStyleEnum RimSummaryCurveAppearanceCalculator::cycledLineStyle(int index)
+RiuQwtPlotCurve::LineStyleEnum RimSummaryCurveAppearanceCalculator::cycledLineStyle(int index)
 {
-    if (index < 0) return RimPlotCurve::STYLE_SOLID;
+    if (index < 0) return RiuQwtPlotCurve::STYLE_SOLID;
 
-    return caf::AppEnum<RimPlotCurve::LineStyleEnum>::fromIndex(1 + (index % (caf::AppEnum<RimPlotCurve::LineStyleEnum>::size() - 1)));
+    return caf::AppEnum<RiuQwtPlotCurve::LineStyleEnum>::fromIndex(1 + (index % (caf::AppEnum<RiuQwtPlotCurve::LineStyleEnum>::size() - 1)));
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimPlotCurve::PointSymbolEnum RimSummaryCurveAppearanceCalculator::cycledSymbol(int index)
+RiuQwtSymbol::PointSymbolEnum RimSummaryCurveAppearanceCalculator::cycledSymbol(int index)
 {
-    if (index < 0) return RimPlotCurve::SYMBOL_NONE;
+    if (index < 0) return RiuQwtSymbol::SYMBOL_NONE;
 
-    return caf::AppEnum<RimPlotCurve::PointSymbolEnum>::fromIndex(1 + (index % (caf::AppEnum<RimPlotCurve::PointSymbolEnum>::size() - 1)));
+    return caf::AppEnum<RiuQwtSymbol::PointSymbolEnum>::fromIndex(1 + (index % (caf::AppEnum<RiuQwtSymbol::PointSymbolEnum>::size() - 1)));
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "RigTernaryResultAccessor2d.h"
+#include "RigTernaryResultAccessor.h"
 #include "RivTernaryResultToTextureMapper.h"
 
 #include "cvfBase.h"
@@ -48,7 +48,7 @@ public:
                                     const cvf::StructGridQuadToCellFaceMapper* quadMapper);
 
     RivTernaryTextureCoordsCreator( RimEclipseCellColors* cellResultColors,
-                                    RimTernaryLegendConfig* ternaryLegendConfig,
+                                    const RivTernaryScalarMapper* ternaryColorMapper,
                                     size_t timeStepIndex);
 
     void createTextureCoords(cvf::Vec2fArray* quadTextureCoords);

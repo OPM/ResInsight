@@ -47,6 +47,7 @@ class RigSimWellData;
 class RigCell;
 class RigWellPath;
 class RimEclipseCase;
+class RigVirtualPerforationTransmissibilities;
 
 struct RigWellResultPoint;
 
@@ -57,7 +58,7 @@ class RigEclipseCaseData : public cvf::Object
 {
 public:
     explicit RigEclipseCaseData(RimEclipseCase* ownerCase);
-    ~RigEclipseCaseData();
+    ~RigEclipseCaseData() override;
 
     RimEclipseCase*                             ownerCase() const { return m_ownerCase; }
 
@@ -70,6 +71,7 @@ public:
     const RigGridBase*                          grid(size_t index) const;
     RigGridBase*                                grid(size_t index);
     size_t                                      gridCount() const;
+    const RigGridBase*                          grid(const QString& gridName) const;
 
     RigCaseCellResultsData*                     results(RiaDefines::PorosityModelType porosityModel);
     const RigCaseCellResultsData*               results(RiaDefines::PorosityModelType porosityModel) const;
@@ -108,7 +110,12 @@ public:
 
     std::vector<const RigWellPath*>             simulationWellBranches(const QString& simWellName,
                                                                        bool includeAllCellCenters,
-                                                                       bool useAutoDetectionOfBranches);
+                                                                       bool useAutoDetectionOfBranches) const;
+
+    void                                        setVirtualPerforationTransmissibilities(RigVirtualPerforationTransmissibilities* virtualPerforationTransmissibilities);
+    const RigVirtualPerforationTransmissibilities*    virtualPerforationTransmissibilities() const;
+
+    void                                        clearWellCellsInGridCache() { m_wellCellsInGrid.clear(); }
 
 private:
     void                                        computeActiveCellIJKBBox();
@@ -127,11 +134,13 @@ private:
 
     cvf::ref<RigFormationNames>                 m_activeFormationNamesData;
 
+    cvf::ref<RigVirtualPerforationTransmissibilities>    m_virtualPerforationTransmissibilities;
+
     cvf::Collection<RigSimWellData>             m_simWellData;     //< A WellResults object for each well in the reservoir
     cvf::Collection<cvf::UByteArray>            m_wellCellsInGrid; //< A bool array pr grid with one bool pr cell telling whether the cell is a well cell or not
     cvf::Collection<cvf::UIntArray>             m_gridCellToResultWellIndex; //< Array pr grid with index to well pr cell telling which well a cell is in
 
     RiaEclipseUnitTools::UnitSystem             m_unitsType;
 
-    std::map<std::tuple<QString, bool, bool>, cvf::Collection<RigWellPath>> m_simWellBranchCache;
+    mutable std::map<std::tuple<QString, bool, bool>, cvf::Collection<RigWellPath>> m_simWellBranchCache;
 };

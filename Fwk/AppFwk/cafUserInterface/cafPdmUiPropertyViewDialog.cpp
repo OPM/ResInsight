@@ -75,7 +75,7 @@ PdmUiPropertyViewDialog::PdmUiPropertyViewDialog(QWidget* parent, PdmObject* obj
 //--------------------------------------------------------------------------------------------------
 PdmUiPropertyViewDialog::~PdmUiPropertyViewDialog()
 {
-    m_pdmUiPropertyView->showProperties(NULL);
+    m_pdmUiPropertyView->showProperties(nullptr);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -95,6 +95,8 @@ void PdmUiPropertyViewDialog::initialize(PdmObject* object, const QString& windo
     m_pdmObject = object;
     m_windowTitle = windowTitle;
     m_uiConfigName = uiConfigName;
+
+    setWindowModality(Qt::WindowModal);
 
     setupUi();
 }

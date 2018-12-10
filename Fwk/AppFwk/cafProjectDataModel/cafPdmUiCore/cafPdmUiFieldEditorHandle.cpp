@@ -37,10 +37,14 @@
 
 #include "cafPdmUiFieldEditorHandle.h"
 
-#include "cafPdmUiFieldHandle.h"
+#include "cafPdmObjectHandle.h"
 #include "cafPdmUiCommandSystemProxy.h"
+#include "cafPdmUiFieldHandle.h"
+#include "cafPdmUiObjectHandle.h"
 
+#include <QAbstractScrollArea>
 #include <QLabel>
+#include <QMenu>
 #include <QVariant>
 
 namespace caf
@@ -70,15 +74,27 @@ PdmUiFieldEditorHandle::~PdmUiFieldEditorHandle()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void PdmUiFieldEditorHandle::setField(PdmUiFieldHandle * field)
+void PdmUiFieldEditorHandle::setUiField(PdmUiFieldHandle * field)
 {
     this->bindToPdmItem(field);
+
+    if (m_editorWidget)
+    {
+        if (field && field->isCustomContextMenuEnabled())
+        {
+            m_editorWidget->setContextMenuPolicy(Qt::CustomContextMenu);
+        }
+        else
+        {
+            m_editorWidget->setContextMenuPolicy(Qt::DefaultContextMenu);
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-PdmUiFieldHandle* PdmUiFieldEditorHandle::field()
+PdmUiFieldHandle* PdmUiFieldEditorHandle::uiField()
 {
     return dynamic_cast<PdmUiFieldHandle*>(pdmItem());
 }
@@ -91,6 +107,19 @@ void PdmUiFieldEditorHandle::createWidgets(QWidget * parent)
     if (m_combinedWidget.isNull()) m_combinedWidget = createCombinedWidget(parent);
     if (m_editorWidget.isNull()) m_editorWidget = createEditorWidget(parent);
     if (m_labelWidget.isNull()) m_labelWidget = createLabelWidget(parent);
+
+    if (m_editorWidget)
+    {
+        connect(m_editorWidget, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(customMenuRequested(QPoint)));
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QMargins PdmUiFieldEditorHandle::labelContentMargins() const
+{
+    return calculateLabelContentMargins();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -98,7 +127,7 @@ void PdmUiFieldEditorHandle::createWidgets(QWidget * parent)
 //--------------------------------------------------------------------------------------------------
 void PdmUiFieldEditorHandle::setValueToField(const QVariant& newUiValue)
 {
-    PdmUiCommandSystemProxy::instance()->setUiValueToField(field(), newUiValue);
+    PdmUiCommandSystemProxy::instance()->setUiValueToField(uiField(), newUiValue);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -127,5 +156,56 @@ void PdmUiFieldEditorHandle::updateLabelFromField(QLabel* label, const QString& 
     }
 }
 
-} //End of namespace caf
+//------------------------------------------------------------------------------------------------------------
+/// Re-implement this virtual method if a custom PdmUiField is misaligned with its label.
+/// See cafPdmUiLineEditor for an example.
+//------------------------------------------------------------------------------------------------------------
+QMargins PdmUiFieldEditorHandle::calculateLabelContentMargins() const
+{
+    return m_labelWidget->contentsMargins();
+}
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void PdmUiFieldEditorHandle::customMenuRequested(QPoint pos)
+{
+    PdmObjectHandle* objectHandle = nullptr;
+    if (uiField() && uiField()->fieldHandle())
+    {
+        objectHandle = uiField()->fieldHandle()->ownerObject();
+    }
+
+    if (!objectHandle)
+    {
+        return;
+    }
+
+    auto widget = editorWidget();
+    if (widget)
+    {
+        QPoint globalPos;
+
+        auto abstractScrollAreaWidget = dynamic_cast<QAbstractScrollArea*>(widget);
+
+        if (abstractScrollAreaWidget)
+        {
+            // Qt doc: QAbstractScrollArea and its subclasses that map the context menu event to coordinates of the viewport().
+            globalPos = abstractScrollAreaWidget->viewport()->mapToGlobal(pos);
+        }
+        else
+        {
+            globalPos = widget->mapToGlobal(pos);
+        }
+
+        QMenu menu;
+        objectHandle->uiCapability()->defineCustomContextMenu(uiField()->fieldHandle(), &menu, widget);
+
+        if (!menu.actions().empty())
+        {
+            menu.exec(globalPos);
+        }
+    }
+}
+
+} // End of namespace caf

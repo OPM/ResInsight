@@ -19,22 +19,21 @@
 
 #include "RicNewWellLogFileCurveFeature.h"
 
-#include "RicWellLogPlotCurveFeatureImpl.h"
 #include "RicNewWellLogPlotFeatureImpl.h"
+#include "RicWellLogPlotCurveFeatureImpl.h"
+#include "RicWellLogTools.h"
 
 #include "RiaApplication.h"
 
-#include "RimOilField.h"
-#include "RimProject.h"
+#include "RimTools.h"
 #include "RimWellLogFile.h"
 #include "RimWellLogFileChannel.h"
 #include "RimWellLogFileCurve.h"
 #include "RimWellLogTrack.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
-#include "RiuMainPlotWindow.h"
 
-#include "RicWellLogTools.h"
+#include "RiuPlotMainWindow.h"
 
 #include "cafSelectionManager.h"
 
@@ -51,7 +50,7 @@ CAF_CMD_SOURCE_INIT(RicNewWellLogFileCurveFeature, "RicNewWellLogFileCurveFeatur
 bool RicNewWellLogFileCurveFeature::isCommandEnabled()
 {
     if (RicWellLogPlotCurveFeatureImpl::parentWellRftPlot()) return false;
-    return (RicWellLogTools::selectedWellLogPlotTrack() != nullptr && wellLogFilesAvailable()) || RicWellLogTools::selectedWellPathWithLogFile() != nullptr;
+    return (caf::SelectionManager::instance()->selectedItemAncestorOfType<RimWellLogTrack>() != nullptr && wellLogFilesAvailable()) || RicWellLogTools::selectedWellPathWithLogFile() != nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -59,7 +58,7 @@ bool RicNewWellLogFileCurveFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicNewWellLogFileCurveFeature::onActionTriggered(bool isChecked)
 {
-    RimWellLogTrack* wellLogPlotTrack = RicWellLogTools::selectedWellLogPlotTrack();
+    RimWellLogTrack* wellLogPlotTrack = caf::SelectionManager::instance()->selectedItemAncestorOfType<RimWellLogTrack>();
     if (wellLogPlotTrack)
     {
         RicWellLogTools::addFileCurve(wellLogPlotTrack);
@@ -69,8 +68,8 @@ void RicNewWellLogFileCurveFeature::onActionTriggered(bool isChecked)
         RimWellPath* wellPath = RicWellLogTools::selectedWellPathWithLogFile();
         if (wellPath)
         {
-            RimWellLogTrack* wellLogPlotTrack = RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack();
-            RimWellLogFileCurve* plotCurve = RicWellLogTools::addFileCurve(wellLogPlotTrack);
+            RimWellLogTrack* newWellLogPlotTrack = RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack();
+            RimWellLogFileCurve* plotCurve = RicWellLogTools::addFileCurve(newWellLogPlotTrack);
             plotCurve->setWellPath(wellPath);
 
             if (wellPath->wellLogFiles().size() == 1)
@@ -87,22 +86,23 @@ void RicNewWellLogFileCurveFeature::onActionTriggered(bool isChecked)
 //--------------------------------------------------------------------------------------------------
 void RicNewWellLogFileCurveFeature::setupActionLook(QAction* actionToSetup)
 {
+    actionToSetup->setIcon(QIcon(":/WellLogCurve16x16.png"));
     actionToSetup->setText("New Well Log LAS Curve");
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RicNewWellLogFileCurveFeature::wellLogFilesAvailable() const
+bool RicNewWellLogFileCurveFeature::wellLogFilesAvailable()
 {
-    RimProject* project = RiaApplication::instance()->project();
-    if (project->activeOilField()->wellPathCollection())
+    auto wellPathCollection = RimTools::wellPathCollection();
+    if (wellPathCollection)
     {
-        caf::PdmChildArrayField<RimWellPath*>& wellPaths = project->activeOilField()->wellPathCollection()->wellPaths;
+        caf::PdmChildArrayField<RimWellPath*>& wellPaths = wellPathCollection->wellPaths;
 
         for (size_t i = 0; i < wellPaths.size(); i++)
         {
-            if (wellPaths[i]->wellLogFiles().size() > 0)
+            if (!wellPaths[i]->wellLogFiles().empty())
             {
                 return true;
             }

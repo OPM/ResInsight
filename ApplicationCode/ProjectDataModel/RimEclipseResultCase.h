@@ -20,7 +20,11 @@
 
 #pragma once
 
+#include "RiaEclipseUnitTools.h"
+
 #include "RimEclipseCase.h"
+
+#include <cafPdmProxyValueField.h>
 
 class RifReaderInterface;
 class RigMainGrid;
@@ -39,25 +43,25 @@ class RimEclipseResultCase : public RimEclipseCase
 
 public:
     RimEclipseResultCase();
-    virtual ~RimEclipseResultCase();
+    ~RimEclipseResultCase() override;
 
-    void                        setGridFileName(const QString& caseFileName);
-    void                        setCaseInfo(const QString& userDescription, const QString& caseFileName);
+    void                        setGridFileName(const QString& fileName);
+    void                        setCaseInfo(const QString& userDescription, const QString& fileName);
     void                        setSourSimFileName(const QString& fileName);
     bool                        hasSourSimFile();
 
-    virtual bool                openEclipseGridFile();
+    bool                openEclipseGridFile() override;
 
     bool                        importGridAndResultMetaData(bool showTimeStepFilter);
 
-    virtual void                reloadEclipseGridFile();
+    void                reloadEclipseGridFile() override;
     bool                        openAndReadActiveCellData(RigEclipseCaseData* mainEclipseCase);
     void                        readGridDimensions(std::vector< std::vector<int> >& gridDimensions);
 
     // Overrides from RimCase
-    virtual QString             locationOnDisc() const;
-    virtual QString             gridFileName() const { return caseFileName();}
-    virtual void                updateFilePathsFromProjectPath(const QString& newProjectPath, const QString& oldProjectPath);
+    QString             locationOnDisc() const override;
+    QString             gridFileName() const override { return caseFileName();}
+    void                updateFilePathsFromProjectPath(const QString& newProjectPath, const QString& oldProjectPath) override;
 
     RimFlowDiagSolution*              defaultFlowDiagSolution();
     std::vector<RimFlowDiagSolution*> flowDiagSolutions();
@@ -66,8 +70,8 @@ public:
     RifReaderEclipseRft*        rftReader();
 
 protected:
-    virtual void                fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
-    virtual void                defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute);
+    void                fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    void                defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override;
 
 private:
     void                        loadAndUpdateSourSimData();
@@ -75,9 +79,9 @@ private:
 private:
     cvf::ref<RifReaderInterface> createMockModel(QString modelName);
 
-    virtual void                initAfterRead();
+    void                initAfterRead() override;
 
-    virtual void                defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering );
+    void                defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
     cvf::ref<RigFlowDiagSolverInterface>        m_flowDagSolverInterface;
 
@@ -85,6 +89,7 @@ private:
 
     // Fields:                        
     caf::PdmField<QString>      caseFileName;
+    caf::PdmProxyValueField<RiaEclipseUnitTools::UnitSystemType> m_unitSystem;
     caf::PdmChildArrayField<RimFlowDiagSolution*> m_flowDiagSolutions;
     caf::PdmField<QString>      m_sourSimFileName;
 

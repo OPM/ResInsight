@@ -19,26 +19,36 @@
 #include "RifStimPlanXmlReader.h"
 
 #include "RiaEclipseUnitTools.h"
-#include "RigStimPlanFractureDefinition.h"
+#include "RiaFractureDefines.h"
 #include "RiaLogging.h"
+#include "RigStimPlanFractureDefinition.h"
 
 #include <QFile>
 #include <QXmlStreamReader>
 
 #include <cmath> // Needed for HUGE_VAL on Linux
 
+
+//--------------------------------------------------------------------------------------------------
+/// Internal functions
+//--------------------------------------------------------------------------------------------------
+bool hasNegativeValues(std::vector<double> xs);
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 cvf::ref<RigStimPlanFractureDefinition> RifStimPlanXmlReader::readStimPlanXMLFile(const QString& stimPlanFileName, 
-                                                                                  double conductivityScalingFactor, 
+                                                                                  double conductivityScalingFactor,
+                                                                                  double xScaleFactor,
+                                                                                  double yScaleFactor,
+                                                                                  double wellPathInterationY,
+                                                                                  MirrorMode mirrorMode,
+                                                                                  RiaEclipseUnitTools::UnitSystem requiredUnit,
                                                                                   QString * errorMessage)
 {
     RiaLogging::info(QString("Starting to open StimPlan XML file: '%1'").arg(stimPlanFileName));
-    RiaEclipseUnitTools::UnitSystemType unitSystem = RiaEclipseUnitTools::UNITS_UNKNOWN;
 
     cvf::ref<RigStimPlanFractureDefinition> stimPlanFileData = new RigStimPlanFractureDefinition;
-    size_t startingNegXsValues = 0;
     {
         QFile dataFile(stimPlanFileName);
         if (!dataFile.open(QFile::ReadOnly))
@@ -50,9 +60,13 @@ cvf::ref<RigStimPlanFractureDefinition> RifStimPlanXmlReader::readStimPlanXMLFil
         QXmlStreamReader xmlStream;
         xmlStream.setDevice(&dataFile);
         xmlStream.readNext();
-        startingNegXsValues = readStimplanGridAndTimesteps(xmlStream, stimPlanFileData.p(), unitSystem);
+        readStimplanGridAndTimesteps(xmlStream, stimPlanFileData.p(), mirrorMode, requiredUnit);
 
-        stimPlanFileData->setUnitSet(unitSystem);
+        if(xScaleFactor != 1.0) stimPlanFileData->scaleXs(xScaleFactor);
+        if(yScaleFactor != 1.0) stimPlanFileData->scaleYs(yScaleFactor, wellPathInterationY);
+
+        RiaEclipseUnitTools::UnitSystemType unitSystem = stimPlanFileData->unitSet();
+
         if (unitSystem != RiaEclipseUnitTools::UNITS_UNKNOWN)
             RiaLogging::info(QString("Setting unit system for StimPlan fracture template %1 to %2").arg(stimPlanFileName).arg(unitSystem.uiText()));
         else 
@@ -68,9 +82,9 @@ cvf::ref<RigStimPlanFractureDefinition> RifStimPlanXmlReader::readStimPlanXMLFil
     }
 
 
-    size_t numberOfDepthValues = stimPlanFileData->depthCount();
-    RiaLogging::debug(QString("Grid size X: %1, Y: %2").arg(QString::number(stimPlanFileData->gridXCount()),
-        QString::number(numberOfDepthValues)));
+    size_t numberOfYValues = stimPlanFileData->yCount();
+    RiaLogging::debug(QString("Grid size X: %1, Y: %2").arg(QString::number(stimPlanFileData->xCount()),
+        QString::number(numberOfYValues)));
 
     size_t numberOfTimeSteps = stimPlanFileData->timeSteps().size();
     RiaLogging::debug(QString("Number of time-steps: %1").arg(numberOfTimeSteps));
@@ -108,8 +122,9 @@ cvf::ref<RigStimPlanFractureDefinition> RifStimPlanXmlReader::readStimPlanXMLFil
             {
                 double timeStepValue = getAttributeValueDouble(xmlStream2, "value");
                 
-                std::vector<std::vector<double>> propertyValuesAtTimestep = getAllDepthDataAtTimeStep(xmlStream2, startingNegXsValues);
-                
+                std::vector<std::vector<double>> propertyValuesAtTimestep = 
+                    stimPlanFileData->generateDataLayoutFromFileDataLayout(getAllDepthDataAtTimeStep(xmlStream2));
+
                 bool valuesOK = stimPlanFileData->numberOfParameterValuesOK(propertyValuesAtTimestep);
                 if (!valuesOK)
                 {
@@ -117,8 +132,20 @@ cvf::ref<RigStimPlanFractureDefinition> RifStimPlanXmlReader::readStimPlanXMLFil
                     return nullptr;
                 }
 
-                stimPlanFileData->setDataAtTimeValue(parameter, unit, propertyValuesAtTimestep, timeStepValue, conductivityScalingFactor);
-               
+                if (parameter.contains(RiaDefines::conductivityResultName(), Qt::CaseInsensitive))
+                {
+                    // Scale all parameters containing conductivity
+
+                    for (auto& dataAtDepth : propertyValuesAtTimestep)
+                    {
+                        for (auto& dataValue : dataAtDepth)
+                        {
+                            dataValue *= conductivityScalingFactor;
+                        }
+                    }
+                }
+
+                stimPlanFileData->setDataAtTimeValue(parameter, unit, propertyValuesAtTimestep, timeStepValue);
             }
         }
     }
@@ -140,17 +167,17 @@ cvf::ref<RigStimPlanFractureDefinition> RifStimPlanXmlReader::readStimPlanXMLFil
         RiaLogging::info(QString("Successfully read XML file: '%1'").arg(stimPlanFileName));
     }
 
-
     return stimPlanFileData;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-size_t RifStimPlanXmlReader::readStimplanGridAndTimesteps(QXmlStreamReader &xmlStream, RigStimPlanFractureDefinition* stimPlanFileData, RiaEclipseUnitTools::UnitSystemType& unit)
+void RifStimPlanXmlReader::readStimplanGridAndTimesteps(QXmlStreamReader &xmlStream,
+                                                        RigStimPlanFractureDefinition* stimPlanFileData,
+                                                        MirrorMode mirrorMode,
+                                                        RiaEclipseUnitTools::UnitSystem requiredUnit)
 {
-
-    size_t startNegValuesXs = 0;
     size_t startNegValuesYs = 0;
     QString gridunit = "unknown";
 
@@ -163,25 +190,65 @@ size_t RifStimPlanXmlReader::readStimplanGridAndTimesteps(QXmlStreamReader &xmlS
 
         if (xmlStream.isStartElement())
         {
+            RiaEclipseUnitTools::UnitSystem destinationUnit = requiredUnit;
+
             if (xmlStream.name() == "grid")
             {
                 gridunit = getAttributeValueString(xmlStream, "uom");
+
+                if (gridunit == "m")       stimPlanFileData->m_unitSet = RiaEclipseUnitTools::UNITS_METRIC;
+                else if (gridunit == "ft") stimPlanFileData->m_unitSet = RiaEclipseUnitTools::UNITS_FIELD;
+                else                       stimPlanFileData->m_unitSet = RiaEclipseUnitTools::UNITS_UNKNOWN;
+
+                if (destinationUnit == RiaEclipseUnitTools::UNITS_UNKNOWN)
+                {
+                    // Use file unit set if requested unit is unknown
+                    destinationUnit = stimPlanFileData->m_unitSet;
+                }
+
+                double tvdToTopPerfFt = getAttributeValueDouble(xmlStream, "TVDToTopPerfFt");
+                double tvdToBotPerfFt = getAttributeValueDouble(xmlStream, "TVDToBottomPerfFt");
+
+                double tvdToTopPerfRequestedUnit = RifStimPlanXmlReader::valueInRequiredUnitSystem(RiaEclipseUnitTools::UNITS_FIELD, destinationUnit, tvdToTopPerfFt);
+                double tvdToBotPerfRequestedUnit = RifStimPlanXmlReader::valueInRequiredUnitSystem(RiaEclipseUnitTools::UNITS_FIELD, destinationUnit, tvdToBotPerfFt);
+
+                stimPlanFileData->setTvdToTopPerf(tvdToTopPerfRequestedUnit);
+                stimPlanFileData->setTvdToBottomPerf(tvdToBotPerfRequestedUnit);
             }
 
             if (xmlStream.name() == "xs")
             {
-                std::vector<double> gridValues;
-                getGriddingValues(xmlStream, gridValues, startNegValuesXs);
-                stimPlanFileData->setGridXs(gridValues);
+                std::vector<double> gridValuesXs;
+                {
+                    size_t dummy;
+                    std::vector<double> gridValues;
+                    getGriddingValues(xmlStream, gridValues, dummy);
+
+                    gridValuesXs = RifStimPlanXmlReader::valuesInRequiredUnitSystem(stimPlanFileData->m_unitSet, destinationUnit, gridValues);
+                }
+
+                stimPlanFileData->m_fileXs = gridValuesXs;
+
+                stimPlanFileData->generateXsFromFileXs(mirrorMode == MIRROR_AUTO ? !hasNegativeValues(gridValuesXs) : (bool)mirrorMode);
             }
 
             else if (xmlStream.name() == "ys")
             {
-                std::vector<double> gridValues;
-                getGriddingValues(xmlStream, gridValues, startNegValuesYs);
-                stimPlanFileData->setGridYs(gridValues);
+                std::vector<double> gridValuesYs;
+                {
+                    std::vector<double> gridValues;
+                    getGriddingValues(xmlStream, gridValues, startNegValuesYs);
 
-                stimPlanFileData->reorderYgridToDepths();
+                    gridValuesYs = RifStimPlanXmlReader::valuesInRequiredUnitSystem(stimPlanFileData->m_unitSet, destinationUnit, gridValues);
+                }
+
+                // Reorder and change sign
+                std::vector<double> ys;
+                for (double y : gridValuesYs)
+                {
+                    ys.insert(ys.begin(), -y);
+                }
+                stimPlanFileData->m_Ys = ys;
             }
 
             else if (xmlStream.name() == "time")
@@ -192,21 +259,16 @@ size_t RifStimPlanXmlReader::readStimplanGridAndTimesteps(QXmlStreamReader &xmlS
         }
     }
 
-    if (gridunit == "m")       unit = RiaEclipseUnitTools::UNITS_METRIC;
-    else if (gridunit == "ft") unit = RiaEclipseUnitTools::UNITS_FIELD;
-    else                       unit = RiaEclipseUnitTools::UNITS_UNKNOWN;
-
     if (startNegValuesYs > 0)
     {
         RiaLogging::error(QString("Negative depth values detected in XML file"));
     }
-    return startNegValuesXs;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<std::vector<double>>  RifStimPlanXmlReader::getAllDepthDataAtTimeStep(QXmlStreamReader &xmlStream, size_t startingNegValuesXs)
+std::vector<std::vector<double>>  RifStimPlanXmlReader::getAllDepthDataAtTimeStep(QXmlStreamReader &xmlStream)
 {
     std::vector<std::vector<double>> propertyValuesAtTimestep;
 
@@ -216,7 +278,7 @@ std::vector<std::vector<double>>  RifStimPlanXmlReader::getAllDepthDataAtTimeSte
 
         if (xmlStream.name() == "depth")
         {
-            double depth = xmlStream.readElementText().toDouble();
+            xmlStream.readElementText().toDouble();
             std::vector<double> propertyValuesAtDepth;
 
             xmlStream.readNext(); //read end depth token
@@ -227,14 +289,10 @@ std::vector<std::vector<double>>  RifStimPlanXmlReader::getAllDepthDataAtTimeSte
                 QStringList splitted = depthDataStr.split(' ');
                 for (int i = 0; i < splitted.size(); i++)
                 {
-                    if (i < static_cast<int>(startingNegValuesXs)) continue;
-                    else 
+                    QString value = splitted[i];
+                    if ( value != "")
                     {
-                        QString value = splitted[i];
-                        if ( value != "")
-                        {
-                            propertyValuesAtDepth.push_back(value.toDouble());
-                        }
+                        propertyValuesAtDepth.push_back(value.toDouble());
                     }
                 }
             }
@@ -248,6 +306,56 @@ std::vector<std::vector<double>>  RifStimPlanXmlReader::getAllDepthDataAtTimeSte
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+std::vector<double> RifStimPlanXmlReader::valuesInRequiredUnitSystem(RiaEclipseUnitTools::UnitSystem sourceUnit,
+                                                                     RiaEclipseUnitTools::UnitSystem requiredUnit,
+                                                                     const std::vector<double>&      values)
+{
+    if (sourceUnit == RiaEclipseUnitTools::UNITS_FIELD && requiredUnit == RiaEclipseUnitTools::UNITS_METRIC)
+    {
+        std::vector<double> convertedValues;
+        for (const auto &valueInFeet : values)
+        {
+            convertedValues.push_back(RiaEclipseUnitTools::feetToMeter(valueInFeet));
+        }
+
+        return convertedValues;
+    }
+    else if (sourceUnit == RiaEclipseUnitTools::UNITS_METRIC && requiredUnit == RiaEclipseUnitTools::UNITS_FIELD)
+    {
+        std::vector<double> convertedValues;
+        for (const auto &valueInMeter : values)
+        {
+            convertedValues.push_back(RiaEclipseUnitTools::meterToFeet(valueInMeter));
+        }
+
+        return convertedValues;
+    }
+
+    return values;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+double RifStimPlanXmlReader::valueInRequiredUnitSystem(RiaEclipseUnitTools::UnitSystem sourceUnit,
+                                                       RiaEclipseUnitTools::UnitSystem requiredUnit,
+                                                       double                          value)
+{
+    if (sourceUnit == RiaEclipseUnitTools::UNITS_FIELD && requiredUnit == RiaEclipseUnitTools::UNITS_METRIC)
+    {
+        return RiaEclipseUnitTools::feetToMeter(value);
+    }
+    else if (sourceUnit == RiaEclipseUnitTools::UNITS_METRIC && requiredUnit == RiaEclipseUnitTools::UNITS_FIELD)
+    {
+        return RiaEclipseUnitTools::meterToFeet(value);
+    }
+
+    return value;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RifStimPlanXmlReader::getGriddingValues(QXmlStreamReader &xmlStream, std::vector<double>& gridValues, size_t& startNegValues)
 {
     QString gridValuesString = xmlStream.readElementText().replace('\n', ' ');
@@ -256,11 +364,8 @@ void RifStimPlanXmlReader::getGriddingValues(QXmlStreamReader &xmlStream, std::v
         if (value.size() > 0)
         {
             double gridValue = value.toDouble();
-            if (gridValue > -1e-5) //tolerance of 1e-5 
-            {
-                gridValues.push_back(gridValue);
-            }
-            else startNegValues++;
+            gridValues.push_back(gridValue);
+            if(gridValue < -RigStimPlanFractureDefinition::THRESHOLD_VALUE) startNegValues++;
         }
     }
 }
@@ -297,6 +402,10 @@ QString RifStimPlanXmlReader::getAttributeValueString(QXmlStreamReader &xmlStrea
     return parameterValue;
 }
 
-
-
-
+//--------------------------------------------------------------------------------------------------
+/// Internal function
+//--------------------------------------------------------------------------------------------------
+bool hasNegativeValues(std::vector<double> xs)
+{
+    return xs[0] < -RigStimPlanFractureDefinition::THRESHOLD_VALUE;
+}

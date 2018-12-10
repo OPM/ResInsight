@@ -37,8 +37,8 @@ class RiuMultiCaseImportDialog: public QDialog
     Q_OBJECT
 
 public:
-    explicit RiuMultiCaseImportDialog(QWidget *parent = 0);
-    virtual ~RiuMultiCaseImportDialog();
+    explicit RiuMultiCaseImportDialog(QWidget *parent = nullptr);
+    ~RiuMultiCaseImportDialog() override;
 
     QStringList eclipseCaseFileNames() const; 
 

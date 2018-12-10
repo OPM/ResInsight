@@ -32,11 +32,13 @@
 class FileListModel: public QStringListModel
 {
 public:
-    explicit FileListModel(QObject *parent = 0) : m_isItemsEditable(false), QStringListModel(parent) 
+    explicit FileListModel(QObject* parent = nullptr)
+        : QStringListModel(parent)
+        , m_isItemsEditable(false)
     {
     }
 
-    virtual Qt::ItemFlags flags (const QModelIndex& index) const
+    Qt::ItemFlags flags (const QModelIndex& index) const override
     {
         if (m_isItemsEditable)
             return Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsEditable;
@@ -44,7 +46,7 @@ public:
             return Qt::ItemIsSelectable | Qt::ItemIsEnabled;
     }
 
-    virtual QVariant data ( const QModelIndex & index, int role ) const
+    QVariant data ( const QModelIndex & index, int role ) const override
     {
         if (role == Qt::DecorationRole)
         {
@@ -64,11 +66,6 @@ public:
         {
             removeRow(indexes[i].row(), indexes[i].parent());
         }
-    }
-
-    void setItemsEditable(bool isEditable)
-    {
-        m_isItemsEditable = isEditable;
     }
 
 private:
@@ -228,9 +225,9 @@ void RiuMultiCaseImportDialog::appendEGRIDFilesRecursively(const QString& folder
 
         for (int i = 0; i < subFolders.size(); ++i)
         {
-            QString folderName = subFolders[i];
+            QString subFolderName = subFolders[i];
 
-            QString absoluteFolderName = baseDir.absoluteFilePath(folderName);
+            QString absoluteFolderName = baseDir.absoluteFilePath(subFolderName);
             appendEGRIDFilesRecursively(absoluteFolderName, gridFileNames);
         }
     }

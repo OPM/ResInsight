@@ -58,12 +58,12 @@ namespace caf
 CmdExecuteCommand* CmdDeleteItemFeature::createExecuteCommand()
 {
     std::vector<PdmUiItem*> items;
-    SelectionManager::instance()->selectedItems(items, SelectionManager::CURRENT);
+    SelectionManager::instance()->selectedItems(items, SelectionManager::FIRST_LEVEL);
 
     caf::PdmChildArrayFieldHandle* childArrayFieldHandle = caf::SelectionManager::instance()->activeChildArrayFieldHandle();
-    if (!childArrayFieldHandle) return NULL;
+    if (!childArrayFieldHandle) return nullptr;
 
-    caf::PdmObjectHandle* currentPdmObject = NULL;
+    caf::PdmObjectHandle* currentPdmObject = nullptr;
 
     for (size_t i = 0; i < items.size(); i++)
     {
@@ -73,7 +73,7 @@ CmdExecuteCommand* CmdDeleteItemFeature::createExecuteCommand()
         }
     }
 
-    if (!currentPdmObject) return NULL;
+    if (!currentPdmObject) return nullptr;
 
     int indexAfter = -1;
 
@@ -106,7 +106,7 @@ CmdExecuteCommand* CmdDeleteItemFeature::createExecuteCommand()
 //--------------------------------------------------------------------------------------------------
 bool CmdDeleteItemFeature::isCommandEnabled() 
 {
-    caf::PdmObject* currentPdmObject = dynamic_cast<caf::PdmObject*>(caf::SelectionManager::instance()->selectedItem(caf::SelectionManager::CURRENT));
+    caf::PdmObject* currentPdmObject = dynamic_cast<caf::PdmObject*>(caf::SelectionManager::instance()->selectedItem(caf::SelectionManager::FIRST_LEVEL));
     if (!currentPdmObject) return false;
 
     caf::PdmChildArrayFieldHandle* childArrayFieldHandle = caf::SelectionManager::instance()->activeChildArrayFieldHandle();

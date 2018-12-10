@@ -22,6 +22,7 @@
 #include <stdlib.h>
 
 #include "RigFemTypes.h"
+#include "RigFemResultPosEnum.h"
 #include "cvfObject.h"
 #include "cvfAssert.h"
 #include "cvfBoundingBox.h"
@@ -63,13 +64,13 @@ public:
     size_t                      elementNodeResultIdx(int elementIdx, int elmLocalNodeIdx) const { return m_elementConnectivityStartIndices[elementIdx] + elmLocalNodeIdx;}
     size_t                      elementNodeResultCount() const;
     int                         nodeIdxFromElementNodeResultIdx(size_t elmNodeResultIdx)  const { return m_allElementConnectivities[elmNodeResultIdx]; }
-
+    size_t                      resultValueIdxFromResultPosType(RigFemResultPosEnum resultPosType, int elementIdx, int elmLocalNodeIdx) const;
     RigFemPartNodes&            nodes()                                    {return m_nodes;}
     const RigFemPartNodes&      nodes() const                              {return m_nodes;}
 
-    void                        assertNodeToElmIndicesIsCalculated();
-    const int*                  elementsUsingNode(int nodeIndex);
-    int                         numElementsUsingNode(int nodeIndex);
+    void                              assertNodeToElmIndicesIsCalculated();
+    const std::vector<int>&           elementsUsingNode(int nodeIndex) const;
+    const std::vector<unsigned char>& elementLocalIndicesForNode(int nodeIndex) const;
     
     void                        assertElmNeighborsIsCalculated();
     int                         elementNeighbor(int elementIndex, int faceIndex) const
@@ -84,7 +85,8 @@ public:
 
     cvf::Vec3f                  faceNormal(int elmentIndex, int faceIndex) const;
 
-    const RigFemPartGrid*       structGrid() const;   
+    const RigFemPartGrid*       getOrCreateStructGrid() const;   
+    const std::vector<int>&     elementIdxToId() const { return m_elementId; }
 
 private:
     int                         m_elementPartId;
@@ -99,12 +101,13 @@ private:
     mutable cvf::ref<RigFemPartGrid>    m_structGrid;
 
     void calculateNodeToElmRefs();
-    std::vector<std::vector<int> > m_nodeToElmRefs; // Needs a more memory friendly structure
+    std::vector<std::vector<int>>           m_nodeToElmRefs; // Needs a more memory friendly structure
+    std::vector<std::vector<unsigned char>> m_nodeGlobalToLocalIndices;
   
     void calculateElmNeighbors();
     struct Neighbors { int indicesToNeighborElms[6]; char faceInNeighborElm[6];};
-    std::vector<  Neighbors > m_elmNeighbors;
-    std::vector<int> m_possibleGridCornerElements;
+    std::vector<  Neighbors >   m_elmNeighbors;
+    std::vector<int>            m_possibleGridCornerElements;
 
     mutable float               m_characteristicElementSize;
     mutable cvf::BoundingBox    m_boundingBox;

@@ -74,7 +74,7 @@ void RicExportCarfin::onActionTriggered(bool isChecked)
     {
         QString filePath = exportCarfinObject->exportFileName();
         QFile exportFile(filePath);
-        if (!exportFile.open(QIODevice::WriteOnly))
+        if (!exportFile.open(QIODevice::WriteOnly | QIODevice::Text))
         {
             RiaLogging::error(QString("Export CARFIN: Could not open the file: %1").arg(filePath));
             return;

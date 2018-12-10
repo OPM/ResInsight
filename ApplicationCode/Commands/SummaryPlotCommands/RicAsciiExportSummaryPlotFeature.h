@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include "RiaQDateTimeTools.h"
+
 #include "cafCmdFeature.h"
 
 class RimSummaryPlot;
@@ -29,11 +31,18 @@ class RicAsciiExportSummaryPlotFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
 
+public:
+    static QString defaultExportDir();
+    static QString getFileNameFromUserDialog(const QString& fileNameCandidate, const QString& defaultDir);
+    static bool exportTextToFile(const QString& fileName, const QString& text);
+
 protected:
-    virtual bool isCommandEnabled() override;
-    virtual void onActionTriggered( bool isChecked ) override;
-    virtual void setupActionLook(QAction* actionToSetup) override;
+    bool isCommandEnabled() override;
+    void onActionTriggered( bool isChecked ) override;
+    void setupActionLook(QAction* actionToSetup) override;
 
 private:
-    static bool exportAsciiForSummaryPlot(const QString& fileName, const RimSummaryPlot* selectedSummaryPlots);
+    static bool exportAsciiForSummaryPlot(const QString& fileName,
+                                          const RimSummaryPlot* selectedSummaryPlots,
+                                          DateTimePeriod resamplingPeriod);
 };

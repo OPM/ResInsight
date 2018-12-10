@@ -92,16 +92,18 @@ class PdmUiTreeSelectionEditor : public PdmUiFieldEditorHandle
 
 public:
     PdmUiTreeSelectionEditor();
-    virtual ~PdmUiTreeSelectionEditor();
+    ~PdmUiTreeSelectionEditor() override;
 
 protected:
-    virtual void        configureAndUpdateUi(const QString& uiConfigName);
-    virtual QWidget*    createEditorWidget(QWidget* parent);
-    virtual QWidget*    createLabelWidget(QWidget* parent);
+    void                configureAndUpdateUi(const QString& uiConfigName) override;
+    QWidget*            createEditorWidget(QWidget* parent) override;
+    QWidget*            createLabelWidget(QWidget* parent) override;
+    QMargins            calculateLabelContentMargins() const override;
 
 private slots:
     void                customMenuRequested(const QPoint& pos);
 
+    void                slotCurrentChanged(const QModelIndex& current, const QModelIndex& previous);
     void                slotSetSelectedOn();
     void                slotSetSelectedOff();
     void                slotSetSubItemsOn();
@@ -111,10 +113,11 @@ private slots:
 
     void                slotTextFilterChanged();
 
-    void                slotCurrentChanged(const QModelIndex& current, const QModelIndex& previous);
     void                slotClicked(const QModelIndex& index);
 
 private:
+    void                currentChanged(const QModelIndex& current);
+
     void                setCheckedStateOfSelected(bool checked);
     void                setCheckedStateForSubItemsOfSelected(bool checked);
     void                checkAllItems();

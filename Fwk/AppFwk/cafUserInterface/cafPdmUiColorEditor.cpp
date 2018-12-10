@@ -76,14 +76,14 @@ void PdmUiColorEditor::configureAndUpdateUi(const QString& uiConfigName)
 
     PdmUiFieldEditorHandle::updateLabelFromField(m_label, uiConfigName);
 
-    caf::PdmUiObjectHandle* uiObject = uiObj(field()->fieldHandle()->ownerObject());
+    caf::PdmUiObjectHandle* uiObject = uiObj(uiField()->fieldHandle()->ownerObject());
     if (uiObject)
     {
-        uiObject->editorAttribute(field()->fieldHandle(), uiConfigName, &m_attributes);
+        uiObject->editorAttribute(uiField()->fieldHandle(), uiConfigName, &m_attributes);
     }
 
-    QColor col = field()->uiValue().value<QColor>();
-    setColor(col);
+    QColor col = uiField()->uiValue().value<QColor>();
+    setColorOnWidget(col);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -137,14 +137,17 @@ void PdmUiColorEditor::colorSelectionClicked()
     QColor newColor = QColorDialog::getColor(m_color, m_colorPixmapLabel, "Select color", flags);
     if (newColor.isValid() && newColor != m_color)
     {
-        setColor(newColor);
+        setColorOnWidget(newColor);
+        QVariant v;
+        v = newColor;
+        this->setValueToField(v);
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void PdmUiColorEditor::setColor(const QColor& color)
+void PdmUiColorEditor::setColorOnWidget(const QColor& color)
 {
     if (m_color != color)
     {
@@ -172,9 +175,6 @@ void PdmUiColorEditor::setColor(const QColor& color)
         m_colorTextLabel->setText(colorString);
     }
     
-    QVariant v;
-    v = m_color;
-    this->setValueToField(v);
 }
 
 

@@ -57,13 +57,13 @@ class RigWellLogExtractor : public cvf::Object
 {
 public:
     RigWellLogExtractor(const RigWellPath* wellpath, const std::string& wellCaseErrorMsgName);
-    virtual ~RigWellLogExtractor();
+    ~RigWellLogExtractor() override;
 
-    const std::vector<double>&  measuredDepth()     { return m_measuredDepth; }
-    const std::vector<double>&  trueVerticalDepth() { return m_trueVerticalDepth; }
+    const std::vector<double>&  cellIntersectionMDs();
+    const std::vector<double>&  cellIntersectionTVDs();
     const std::vector<size_t>&  intersectedCellsGlobIdx();
 
-    const RigWellPath*          wellPathData()      { return m_wellPath.p();}
+    const RigWellPath*          wellPathData();
 
     std::vector<WellPathCellIntersectionInfo> cellIntersectionInfosAlongWellPath() const;
 
@@ -89,9 +89,8 @@ protected:
 
     cvf::cref<RigWellPath>      m_wellPath;
 
-private:
-    std::vector<double>         m_measuredDepth;
-    std::vector<double>         m_trueVerticalDepth;
+    std::vector<double>         m_intersectionMeasuredDepths;
+    std::vector<double>         m_intersectionTVDs;
 
     std::string                 m_wellCaseErrorMsgName;
 };

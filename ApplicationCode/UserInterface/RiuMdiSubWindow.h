@@ -25,13 +25,13 @@
 class RiuMdiSubWindow : public QMdiSubWindow
 {
 public:
-    RiuMdiSubWindow(QWidget* parent = 0, Qt::WindowFlags flags = 0);
+    RiuMdiSubWindow(QWidget* parent = nullptr, Qt::WindowFlags flags = nullptr);
 
-    ~RiuMdiSubWindow();
+    ~RiuMdiSubWindow() override;
 
     static RimMdiWindowGeometry windowGeometryForWidget(QWidget* widget);
 
 protected:
-    virtual void closeEvent(QCloseEvent* event);
+    void closeEvent(QCloseEvent* event) override;
 };
 

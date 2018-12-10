@@ -36,6 +36,6 @@ public:
     caf::PdmField<QString>  eclipseKeyword;
 
 protected:
-    virtual void defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute);
+    void defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override;
 };
 

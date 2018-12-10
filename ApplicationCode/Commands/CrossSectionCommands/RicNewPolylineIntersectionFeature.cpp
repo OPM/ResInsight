@@ -24,9 +24,9 @@
 #include "RimCase.h"
 #include "RimIntersection.h"
 #include "RimIntersectionCollection.h"
-#include "RimView.h"
+#include "RimGridView.h"
 
-#include "RiuMainWindow.h"
+#include "Riu3DMainWindowTools.h"
 #include "RiuSelectionManager.h"
 #include "RiuViewer.h"
 
@@ -60,10 +60,10 @@ bool RicNewPolylineIntersectionFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicNewPolylineIntersectionFeature::onActionTriggered(bool isChecked)
 {
-    RimView* activeView = RiaApplication::instance()->activeReservoirView();
+    RimGridView* activeView = RiaApplication::instance()->activeGridView();
     if (!activeView) return;
    
-    RicNewPolylineIntersectionFeatureCmd* cmd = new RicNewPolylineIntersectionFeatureCmd(activeView->crossSectionCollection);
+    RicNewPolylineIntersectionFeatureCmd* cmd = new RicNewPolylineIntersectionFeatureCmd(activeView->crossSectionCollection());
     caf::CmdExecCommandManager::instance()->processExecuteCommand(cmd);
 }
 
@@ -80,7 +80,7 @@ void RicNewPolylineIntersectionFeature::setupActionLook(QAction* actionToSetup)
 /// 
 //--------------------------------------------------------------------------------------------------
 RicNewPolylineIntersectionFeatureCmd::RicNewPolylineIntersectionFeatureCmd(RimIntersectionCollection* intersectionCollection)
-    : CmdExecuteCommand(NULL),
+    : CmdExecuteCommand(nullptr),
     m_intersectionCollection(intersectionCollection)
 {
 }
@@ -116,7 +116,7 @@ void RicNewPolylineIntersectionFeatureCmd::redo()
 
     RiuSelectionManager::instance()->deleteAllItems();
 
-    RiuMainWindow::instance()->selectAsCurrentItem(intersection);
+    Riu3DMainWindowTools::selectAsCurrentItem(intersection);
 }
 
 //--------------------------------------------------------------------------------------------------

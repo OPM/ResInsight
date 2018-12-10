@@ -52,14 +52,14 @@ class CmdDeleteItemExec : public CmdExecuteCommand
 {
 public:
     explicit CmdDeleteItemExec(NotificationCenter* notificationCenter);
-    virtual ~CmdDeleteItemExec() {};
+    ~CmdDeleteItemExec() override {};
 
 
     CmdDeleteItemExecData* commandData();
 
-    virtual QString name();
-    virtual void redo();
-    virtual void undo();
+    QString name() override;
+    void redo() override;
+    void undo() override;
 
 private:
     CmdDeleteItemExecData* m_commandData;

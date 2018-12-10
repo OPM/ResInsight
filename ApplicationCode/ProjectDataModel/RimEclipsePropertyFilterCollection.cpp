@@ -56,7 +56,7 @@ RimEclipsePropertyFilterCollection::~RimEclipsePropertyFilterCollection()
 //--------------------------------------------------------------------------------------------------
 RimEclipseView* RimEclipsePropertyFilterCollection::reservoirView()
 {
-    RimEclipseView* eclipseView = NULL;
+    RimEclipseView* eclipseView = nullptr;
     firstAncestorOrThisOfType(eclipseView);
 
     return eclipseView;
@@ -72,8 +72,11 @@ void RimEclipsePropertyFilterCollection::loadAndInitializePropertyFilters()
         RimEclipsePropertyFilter* propertyFilter = propertyFilters[i];
         propertyFilter->resultDefinition->setEclipseCase(reservoirView()->eclipseCase());
         propertyFilter->initAfterRead();
-        propertyFilter->resultDefinition->loadResult();
-        propertyFilter->computeResultValueRange();
+        if (isActive() && propertyFilter->isActive())
+        {
+            propertyFilter->resultDefinition->loadResult();
+            propertyFilter->computeResultValueRange();
+        }
     }
 }
 
@@ -143,7 +146,7 @@ void RimEclipsePropertyFilterCollection::updateIconState()
 {
     bool activeIcon = true;
 
-    RimEclipseView* view = NULL;
+    RimEclipseView* view = nullptr;
     this->firstAncestorOrThisOfType(view);
     if (view)
     {

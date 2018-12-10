@@ -23,7 +23,9 @@
 #include "RicSummaryCurveCreator.h"
 #include "RicSummaryCurveCreatorSplitterUi.h"
 
-#include "RiuMainPlotWindow.h"
+#include "RifReaderEclipseSummary.h"
+
+#include "RiuPlotMainWindow.h"
 #include "RiuTools.h"
 
 #include <QVBoxLayout>
@@ -68,11 +70,21 @@ void RicSummaryCurveCreatorDialog::updateFromSummaryPlot(RimSummaryPlot* summary
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RicSummaryCurveCreatorDialog::updateFromDefaultCases(const std::vector<caf::PdmObject*> defaultSources)
+{
+    m_curveCreatorSplitterUi->updateFromDefaultSources(defaultSources);
+    m_curveCreatorSplitterUi->updateUi();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RicSummaryCurveCreatorDialog::slotDialogFinished()
 {
-    RiuMainPlotWindow* plotwindow = RiaApplication::instance()->mainPlotWindow();
+    RiuPlotMainWindow* plotwindow = RiaApplication::instance()->mainPlotWindow();
     if (plotwindow)
     {
         plotwindow->cleanUpTemporaryWidgets();
     }
+    RifReaderEclipseSummary::purgeCache();
 }

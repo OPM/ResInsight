@@ -22,9 +22,12 @@
 #include "RicDeleteItemExecData.h"
 
 #include "RimCellRangeFilter.h"
+#include "RimDerivedEnsembleCaseCollection.h"
 #include "RimEclipseInputProperty.h"
 #include "RimEclipsePropertyFilter.h"
 #include "RimEclipseView.h"
+#include "RimEnsembleCurveFilter.h"
+#include "RimEnsembleCurveSet.h"
 #include "RimFishbonesMultipleSubs.h"
 #include "RimFormationNames.h"
 #include "RimFormationNamesCollection.h"
@@ -49,15 +52,14 @@
 #include "RimAsciiDataCurve.h"
 #include "RimWellLogRftCurve.h"
 #include "RimWellRftPlot.h"
+#include "RimWellPathValve.h"
 
-#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
 #include "RimEllipseFractureTemplate.h"
 #include "RimSimWellFracture.h"
 #include "RimSimWellFractureCollection.h"
 #include "RimStimPlanFractureTemplate.h"
 #include "RimWellPathFracture.h"
 #include "RimWellPathFractureCollection.h"
-#endif // USE_PROTOTYPE_FEATURE_FRACTURES
 
 
 #include "cafCmdExecCommandManager.h"
@@ -113,15 +115,16 @@ bool isDeletable(caf::PdmUiItem* uiItem)
     if (dynamic_cast<RimFishbonesMultipleSubs*>(uiItem))     return true;
     if (dynamic_cast<RimPerforationInterval*>(uiItem))       return true;
     if (dynamic_cast<RimAsciiDataCurve*>(uiItem))            return true;
-
-#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
     if (dynamic_cast<RimWellPathFractureCollection*>(uiItem))   return true;
     if (dynamic_cast<RimWellPathFracture*>(uiItem))             return true;
     if (dynamic_cast<RimEllipseFractureTemplate*>(uiItem))      return true;
     if (dynamic_cast<RimStimPlanFractureTemplate*>(uiItem))     return true;
     if (dynamic_cast<RimSimWellFractureCollection*>(uiItem))    return true;
     if (dynamic_cast<RimSimWellFracture*>(uiItem))              return true;
-#endif // USE_PROTOTYPE_FEATURE_FRACTURES
+    if (dynamic_cast<RimEnsembleCurveSet*>(uiItem))             return true;
+    if (dynamic_cast<RimEnsembleCurveFilter*>(uiItem))          return true;
+    if (dynamic_cast<RimDerivedEnsembleCaseCollection*>(uiItem)) return true;
+    if (dynamic_cast<RimWellPathValve*>(uiItem))                 return true;
 
     return false;    
 }

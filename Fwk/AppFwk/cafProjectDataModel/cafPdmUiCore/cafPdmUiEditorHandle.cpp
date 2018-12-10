@@ -43,7 +43,9 @@ namespace caf
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-PdmUiEditorHandle::PdmUiEditorHandle() : m_pdmItem(NULL)
+PdmUiEditorHandle::PdmUiEditorHandle() 
+    : m_pdmItem(nullptr)
+    , m_isConfiguringUi(false)
 {
 
 }
@@ -54,6 +56,29 @@ PdmUiEditorHandle::PdmUiEditorHandle() : m_pdmItem(NULL)
 PdmUiEditorHandle::~PdmUiEditorHandle()
 {
     if (m_pdmItem) m_pdmItem->removeFieldEditor(this);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void PdmUiEditorHandle::updateUi(const QString& uiConfigName)
+{
+    CAF_ASSERT(!m_isConfiguringUi);
+    m_isConfiguringUi = true;
+    m_currentConfigName = uiConfigName;
+    this->configureAndUpdateUi(uiConfigName);
+    m_isConfiguringUi = false;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void PdmUiEditorHandle::updateUi()
+{
+    CAF_ASSERT(!m_isConfiguringUi);
+    m_isConfiguringUi = true;
+    this->configureAndUpdateUi(m_currentConfigName);
+    m_isConfiguringUi = false;
 }
 
 //--------------------------------------------------------------------------------------------------

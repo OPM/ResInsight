@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2017     Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -32,29 +32,10 @@
 #include <algorithm>
 #include <cmath>
 
-namespace caf {
-    template<>
-    void RimFishbonesCollection::PressureDropEnum::setUp()
-    {
-        addItem(RimFishbonesCollection::HYDROSTATIC,                       "H--", "Hydrostatic");
-        addItem(RimFishbonesCollection::HYDROSTATIC_FRICTION,              "HF-", "Hydrostatic + Friction");
-        addItem(RimFishbonesCollection::HYDROSTATIC_FRICTION_ACCELERATION, "HFA", "Hydrostatic + Friction + Acceleration");
-        setDefault(RimFishbonesCollection::HYDROSTATIC);
-    }
-
-    template<>
-    void RimFishbonesCollection::LengthAndDepthEnum::setUp()
-    {
-        addItem(RimFishbonesCollection::INC, "INC", "Incremental");
-        addItem(RimFishbonesCollection::ABS, "ABS", "Absolute");
-        setDefault(RimFishbonesCollection::INC);
-    }
-}
-
 CAF_PDM_SOURCE_INIT(RimFishbonesCollection, "FishbonesCollection");
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimFishbonesCollection::RimFishbonesCollection()
 {
@@ -63,28 +44,36 @@ RimFishbonesCollection::RimFishbonesCollection()
     nameField()->uiCapability()->setUiHidden(true);
     this->setName("Fishbones");
 
-    CAF_PDM_InitFieldNoDefault(&fishbonesSubs, "FishbonesSubs", "fishbonesSubs", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_fishbonesSubs, "FishbonesSubs", "fishbonesSubs", "", "", "");
 
-    fishbonesSubs.uiCapability()->setUiHidden(true);
+    m_fishbonesSubs.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&m_wellPathCollection, "WellPathCollection", "Imported Laterals", "", "", "");
     m_wellPathCollection = new RimFishboneWellPathCollection;
     m_wellPathCollection.uiCapability()->setUiHidden(true);
 
-    CAF_PDM_InitField(&m_startMD,           "StartMD",          HUGE_VAL,   "Start MD",             "", "", "");
-    CAF_PDM_InitField(&m_mainBoreDiameter,  "MainBoreDiameter", 0.216,      "Main Bore Diameter",   "", "", "");
+    CAF_PDM_InitField(&m_startMD, "StartMD", HUGE_VAL, "Start MD", "", "", "");
+    CAF_PDM_InitField(&m_mainBoreDiameter, "MainBoreDiameter", 0.216, "Main Bore Diameter", "", "", "");
     CAF_PDM_InitField(&m_skinFactor, "MainBoreSkinFactor", 0., "Main Bore Skin Factor [0..1]", "", "", "");
-    CAF_PDM_InitField(&m_linerDiameter,     "LinerDiameter",    0.152,      "Liner Inner Diameter", "", "", "");
-    CAF_PDM_InitField(&m_roughnessFactor,   "RoughnessFactor",  1e-05,      "Roughness Factor",     "", "", "");
-
-    CAF_PDM_InitFieldNoDefault(&m_pressureDrop, "PressureDrop", "Pressure Drop", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&m_lengthAndDepth, "LengthAndDepth", "Length and Depth", "", "", "");
-
+    CAF_PDM_InitFieldNoDefault(&m_mswParameters, "MswParameters", "Multi Segment Well Parameters", "", "", "");
+    m_mswParameters = new RimMswCompletionParameters;
+    m_mswParameters.uiCapability()->setUiTreeHidden(true);
+    m_mswParameters.uiCapability()->setUiTreeChildrenHidden(true);
     manuallyModifiedStartMD = false;
+
+    // Moved to RimMswCompletionParameters and obsoleted
+    CAF_PDM_InitField(&m_linerDiameter_OBSOLETE, "LinerDiameter", 0.152, "Liner Inner Diameter", "", "", "");
+    CAF_PDM_InitField(&m_roughnessFactor_OBSOLETE, "RoughnessFactor", 1e-05, "Roughness Factor", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_pressureDrop_OBSOLETE, "PressureDrop", "Pressure Drop", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_lengthAndDepth_OBSOLETE, "LengthAndDepth", "Length and Depth", "", "", "");
+    m_linerDiameter_OBSOLETE.xmlCapability()->setIOWritable(false);
+    m_roughnessFactor_OBSOLETE.xmlCapability()->setIOWritable(false);
+    m_pressureDrop_OBSOLETE.xmlCapability()->setIOWritable(false);
+    m_lengthAndDepth_OBSOLETE.xmlCapability()->setIOWritable(false);
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimFishboneWellPathCollection* RimFishbonesCollection::wellPathCollection() const
 {
@@ -94,9 +83,11 @@ RimFishboneWellPathCollection* RimFishbonesCollection::wellPathCollection() cons
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RimFishbonesCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+void RimFishbonesCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
+                                              const QVariant&            oldValue,
+                                              const QVariant&            newValue)
 {
     if (changedField == &m_startMD)
     {
@@ -111,12 +102,12 @@ void RimFishbonesCollection::fieldChangedByUi(const caf::PdmFieldHandle* changed
     }
     else
     {
-        proj->createDisplayModelAndRedrawAllViews();
+        proj->scheduleCreateDisplayModelAndRedrawAllViews();
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimFishbonesCollection::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
@@ -129,15 +120,11 @@ void RimFishbonesCollection::defineUiOrdering(QString uiConfigName, caf::PdmUiOr
             {
                 m_startMD.uiCapability()->setUiName("Start MD [m]");
                 m_mainBoreDiameter.uiCapability()->setUiName("Main Bore Diameter [m]");
-                m_linerDiameter.uiCapability()->setUiName("Liner Inner Diameter [m]");
-                m_roughnessFactor.uiCapability()->setUiName("Roughness Factor [m]");
             }
             else if (wellPath->unitSystem() == RiaEclipseUnitTools::UNITS_FIELD)
             {
                 m_startMD.uiCapability()->setUiName("Start MD [ft]");
                 m_mainBoreDiameter.uiCapability()->setUiName("Main Bore Diameter [ft]");
-                m_linerDiameter.uiCapability()->setUiName("Liner Inner Diameter [ft]");
-                m_roughnessFactor.uiCapability()->setUiName("Roughness Factor [ft]");
             }
         }
     }
@@ -146,46 +133,103 @@ void RimFishbonesCollection::defineUiOrdering(QString uiConfigName, caf::PdmUiOr
     wellGroup->add(&m_startMD);
     wellGroup->add(&m_mainBoreDiameter);
     wellGroup->add(&m_skinFactor);
-
-    caf::PdmUiGroup* mswGroup = uiOrdering.addNewGroup("Multi Segment Wells");
-    mswGroup->add(&m_linerDiameter);
-    mswGroup->add(&m_roughnessFactor);
-    mswGroup->add(&m_pressureDrop);
-    mswGroup->add(&m_lengthAndDepth);
+    caf::PdmUiGroup* mswGroup = uiOrdering.addNewGroup("Multi Segment Well Options");
+    m_mswParameters->uiOrdering(uiConfigName, *mswGroup);
+    uiOrdering.skipRemainingFields(true);
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
+//--------------------------------------------------------------------------------------------------
+void RimFishbonesCollection::initAfterRead()
+{
+    if (m_linerDiameter_OBSOLETE() != m_linerDiameter_OBSOLETE.defaultValue())
+    {
+        m_mswParameters->setLinerDiameter(m_linerDiameter_OBSOLETE());
+    }
+    if (m_roughnessFactor_OBSOLETE() != m_roughnessFactor_OBSOLETE.defaultValue())
+    {
+        m_mswParameters->setRoughnessFactor(m_roughnessFactor_OBSOLETE());
+    }
+    if (m_pressureDrop_OBSOLETE() != m_pressureDrop_OBSOLETE.defaultValue())
+    {
+        m_mswParameters->setPressureDrop(m_pressureDrop_OBSOLETE());
+    }
+    if (m_lengthAndDepth_OBSOLETE() != m_lengthAndDepth_OBSOLETE.defaultValue())
+    {
+        m_mswParameters->setLengthAndDepth(m_lengthAndDepth_OBSOLETE());
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
 //--------------------------------------------------------------------------------------------------
 void RimFishbonesCollection::appendFishbonesSubs(RimFishbonesMultipleSubs* subs)
 {
     subs->fishbonesColor = nextFishbonesColor();
-    fishbonesSubs.push_back(subs);
+    m_fishbonesSubs.push_back(subs);
 
     subs->setUnitSystemSpecificDefaults();
     subs->recomputeLateralLocations();
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
+//--------------------------------------------------------------------------------------------------
+const RimMswCompletionParameters* RimFishbonesCollection::mswParameters() const
+{
+    return m_mswParameters;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimFishbonesMultipleSubs*> RimFishbonesCollection::activeFishbonesSubs() const
+{
+    std::vector<RimFishbonesMultipleSubs*> active;
+
+    if (isChecked())
+    {
+        for (const auto& f : allFishbonesSubs())
+        {
+            if (f->isActive())
+            {
+                active.push_back(f);
+            }
+        }
+    }
+
+    return active;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimFishbonesMultipleSubs*> RimFishbonesCollection::allFishbonesSubs() const
+{
+    return m_fishbonesSubs.childObjects();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
 //--------------------------------------------------------------------------------------------------
 cvf::Color3f RimFishbonesCollection::nextFishbonesColor() const
 {
     RimWellPath* wellPath;
     firstAncestorOrThisOfType(wellPath);
     cvf::Color3ub wellPathColor(wellPath->wellPathColor());
-    QColor qWellPathColor = QColor(wellPathColor.r(), wellPathColor.g(), wellPathColor.b());
+    QColor        qWellPathColor = QColor(wellPathColor.r(), wellPathColor.g(), wellPathColor.b());
 
     if (qWellPathColor.value() == 0)
     {
-        // If the color is black, using `lighter` or `darker` will not have any effect, since they multiply `value` by a percentage.
-        // In this case, `value` is set specifically to make `lighter`/`darker` possible.
+        // If the color is black, using `lighter` or `darker` will not have any effect, since they multiply `value` by a
+        // percentage. In this case, `value` is set specifically to make `lighter`/`darker` possible.
         qWellPathColor.setHsl(qWellPathColor.hue(), qWellPathColor.saturation(), 25);
     }
 
     QColor qFishbonesColor;
 
-    int newIndex = static_cast<int>(fishbonesSubs.size());
+    int newIndex = static_cast<int>(m_fishbonesSubs.size());
 
     if (qWellPathColor.lightnessF() < 0.5)
     {
@@ -200,13 +244,13 @@ cvf::Color3f RimFishbonesCollection::nextFishbonesColor() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimFishbonesCollection::recalculateStartMD()
 {
     double minStartMD = HUGE_VAL;
 
-    for (const RimFishbonesMultipleSubs* sub : fishbonesSubs())
+    for (const RimFishbonesMultipleSubs* sub : m_fishbonesSubs())
     {
         for (auto& index : sub->installedLateralIndices())
         {
@@ -229,7 +273,15 @@ void RimFishbonesCollection::recalculateStartMD()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
+//--------------------------------------------------------------------------------------------------
+double RimFishbonesCollection::startMD() const
+{
+    return m_startMD;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
 //--------------------------------------------------------------------------------------------------
 double RimFishbonesCollection::mainBoreDiameter(RiaEclipseUnitTools::UnitSystem unitSystem) const
 {
@@ -247,43 +299,7 @@ double RimFishbonesCollection::mainBoreDiameter(RiaEclipseUnitTools::UnitSystem 
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-double RimFishbonesCollection::linerDiameter(RiaEclipseUnitTools::UnitSystem unitSystem) const
-{
-    RimWellPath* wellPath;
-    firstAncestorOrThisOfTypeAsserted(wellPath);
-    if (wellPath->unitSystem() == RiaEclipseUnitTools::UNITS_FIELD && unitSystem == RiaEclipseUnitTools::UNITS_METRIC)
-    {
-        return RiaEclipseUnitTools::feetToMeter(m_linerDiameter());
-    }
-    else if (wellPath->unitSystem() == RiaEclipseUnitTools::UNITS_METRIC && unitSystem == RiaEclipseUnitTools::UNITS_FIELD)
-    {
-        return RiaEclipseUnitTools::meterToFeet(m_linerDiameter());
-    }
-    return m_linerDiameter();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-double RimFishbonesCollection::roughnessFactor(RiaEclipseUnitTools::UnitSystem unitSystem) const
-{
-    RimWellPath* wellPath;
-    firstAncestorOrThisOfTypeAsserted(wellPath);
-    if (wellPath->unitSystem() == RiaEclipseUnitTools::UNITS_FIELD && unitSystem == RiaEclipseUnitTools::UNITS_METRIC)
-    {
-        return RiaEclipseUnitTools::feetToMeter(m_roughnessFactor());
-    }
-    else if (wellPath->unitSystem() == RiaEclipseUnitTools::UNITS_METRIC && unitSystem == RiaEclipseUnitTools::UNITS_FIELD)
-    {
-        return RiaEclipseUnitTools::meterToFeet(m_roughnessFactor());
-    }
-    return m_roughnessFactor();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimFishbonesCollection::setUnitSystemSpecificDefaults()
 {
@@ -294,17 +310,13 @@ void RimFishbonesCollection::setUnitSystemSpecificDefaults()
         if (wellPath->unitSystem() == RiaEclipseUnitTools::UNITS_METRIC)
         {
             m_mainBoreDiameter = 0.216;
-            m_linerDiameter = 0.152;
-            m_roughnessFactor = 1e-05;
         }
         else
         {
             m_mainBoreDiameter = 0.708;
-            m_linerDiameter = 0.5;
-            m_roughnessFactor = 3.28e-05;
         }
 
         m_wellPathCollection->setUnitSystemSpecificDefaults();
     }
+    m_mswParameters->setUnitSystemSpecificDefaults();
 }
-

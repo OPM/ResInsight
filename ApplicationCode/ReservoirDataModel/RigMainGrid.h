@@ -19,16 +19,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
-#include "RigGridBase.h"
-#include <vector>
-#include "RigCell.h"
-#include "RigLocalGrid.h"
-#include "cvfCollection.h"
-#include "cvfBoundingBox.h"
-#include "RifReaderInterface.h"
 
-#include <QtGlobal>
+
+#include "RigCell.h"
+#include "RigGridBase.h"
+#include "RigLocalGrid.h"
 #include "RigNNCData.h"
+
+#include "cvfBoundingBox.h"
+#include "cvfCollection.h"
+
+#include <vector>
 
 class RigActiveCellInfo;
 
@@ -42,27 +43,35 @@ class RigMainGrid : public RigGridBase
 {
 public:
     RigMainGrid();
-    virtual ~RigMainGrid();
+    ~RigMainGrid() override;
 
 public:
-    std::vector<cvf::Vec3d>&                nodes() {return m_nodes;}
-    const std::vector<cvf::Vec3d>&          nodes() const {return m_nodes;}
+    std::vector<cvf::Vec3d>&                nodes();
+    const std::vector<cvf::Vec3d>&          nodes() const;
 
-    std::vector<RigCell>&                   globalCellArray() {return m_cells;}
-    const std::vector<RigCell>&             globalCellArray() const {return m_cells;}
+    std::vector<RigCell>&                   globalCellArray();
+    const std::vector<RigCell>&             globalCellArray() const;
+
+    RigGridBase*                            gridAndGridLocalIdxFromGlobalCellIdx(size_t globalCellIdx, size_t* gridLocalCellIdx);
+    const RigGridBase*                      gridAndGridLocalIdxFromGlobalCellIdx(size_t globalCellIdx, size_t* gridLocalCellIdx) const;
 
     const RigCell&                          cellByGridAndGridLocalCellIdx(size_t gridIdx, size_t gridLocalCellIdx) const;
     size_t                                  reservoirCellIndexByGridAndGridLocalCellIndex(size_t gridIdx, size_t gridLocalCellIdx) const;
-
+    size_t                                  findReservoirCellIndexFromPoint(const cvf::Vec3d& point) const;
+    std::vector<size_t>                     findAllReservoirCellIndicesMatching2dPoint(const cvf::Vec2d& point2d) const;
     void                                    addLocalGrid(RigLocalGrid* localGrid);
-    size_t                                  gridCount() const           { return m_localGrids.size() + 1; }
+    
+    size_t                                  gridCountOnFile() const;
+    size_t                                  gridCount() const;
     RigGridBase*                            gridByIndex(size_t localGridIndex);
     const RigGridBase*                      gridByIndex(size_t localGridIndex) const;
     RigGridBase*                            gridById(int localGridId);
+    
+    size_t                                  totalTemporaryGridCellCount() const;
    
     RigNNCData*                             nncData();
     void                                    setFaults(const cvf::Collection<RigFault>& faults);
-    const cvf::Collection<RigFault>&        faults() { return m_faults; }
+    const cvf::Collection<RigFault>&        faults();
     void                                    calculateFaults(const RigActiveCellInfo* activeCellInfo);
 
     void distributeNNCsToFaults();
@@ -73,14 +82,17 @@ public:
     void                                    computeCachedData();
     void                                    initAllSubGridsParentGridPointer();
 
-    // Overrides
-    virtual cvf::Vec3d                      displayModelOffset() const;
+    cvf::Vec3d                              displayModelOffset() const override;
     void                                    setDisplayModelOffset(cvf::Vec3d offset);
 
     void                                    setFlipAxis(bool flipXAxis, bool flipYAxis);
     void                                    findIntersectingCells(const cvf::BoundingBox& inputBB, std::vector<size_t>* cellIndices) const;
 
     cvf::BoundingBox                        boundingBox() const;
+
+    bool                                    isTempGrid() const override;
+    const std::string&                      associatedWellPathName() const override;
+
 private:
     void                                    initAllSubCellsMainGridCellIndex();
     void                                    buildCellSearchTree();

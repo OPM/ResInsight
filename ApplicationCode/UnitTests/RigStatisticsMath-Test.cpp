@@ -44,7 +44,7 @@ TEST(RigStatisticsMath, BasicTest)
     values.push_back(80720.4378655615000);
     values.push_back(-98649.8109937874000);
     values.push_back(99372.9362079615000);
-    values.push_back(HUGE_VAL);
+    values.push_back(-HUGE_VAL);
     values.push_back(-57020.4389966513000);
 
     double min, max, sum, range, mean, stdev;
@@ -65,7 +65,7 @@ TEST(RigStatisticsMath, BasicTest)
 TEST(RigStatisticsMath, RankPercentiles)
 {
     std::vector<double> values;
-    values.push_back(HUGE_VAL);
+    values.push_back(-HUGE_VAL);
     values.push_back(2788.2723335651900);
     values.push_back(-22481.0927881701000);
     values.push_back(68778.6851686236000);
@@ -113,8 +113,8 @@ TEST(RigStatisticsMath, HistogramPercentiles)
     values.push_back(6391.97999909729003);
     values.push_back(65930.1200169780000);
     values.push_back(-27696.2320267235000);
-    values.push_back(HUGE_VAL);
-    values.push_back(HUGE_VAL);
+    values.push_back(-HUGE_VAL);
+    values.push_back(-HUGE_VAL);
     values.push_back(96161.7546348456000);
     values.push_back(73875.6716288563000);
     values.push_back(80720.4378655615000);
@@ -125,7 +125,7 @@ TEST(RigStatisticsMath, HistogramPercentiles)
 
 
     double min, max, range, mean, stdev;
-    RigStatisticsMath::calculateBasicStatistics(values, &min, &max, NULL, &range, &mean, &stdev);
+    RigStatisticsMath::calculateBasicStatistics(values, &min, &max, nullptr, &range, &mean, &stdev);
 
     std::vector<size_t> histogram;
     RigHistogramCalculator histCalc(min, max, 100, &histogram);
@@ -178,4 +178,53 @@ TEST(RigStatisticsMath, InterpolatedPercentiles)
     EXPECT_DOUBLE_EQ(  -2265.6006907818719, pVals[1]);
     EXPECT_DOUBLE_EQ(   6391.9799990972897, pVals[2]);
     EXPECT_DOUBLE_EQ(  93073.49128098879,   pVals[3]);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+TEST(RigStatisticsMath, Accumulators)
+{
+    std::vector<double> values;
+    
+    const double v1 = 2788.2723335651900;
+    const double v2 = 68778.6851686236000;
+    const double v3 = -98649.8109937874000;
+    const double v4 = -57020.4389966513000;
+
+    values.push_back(HUGE_VAL);
+    values.push_back(v1);
+    values.push_back(v2);
+    values.push_back(-HUGE_VAL);
+    values.push_back(v3);
+    values.push_back(HUGE_VAL);
+    values.push_back(v4);
+
+    {
+        MinMaxAccumulator acc;
+        acc.addData(values);
+
+        EXPECT_DOUBLE_EQ(v3, acc.min);
+        EXPECT_DOUBLE_EQ(v2, acc.max);
+    }
+
+    {
+        PosNegAccumulator acc;
+        acc.addData(values);
+
+        EXPECT_DOUBLE_EQ(v1, acc.pos);
+        EXPECT_DOUBLE_EQ(v4, acc.neg);
+    }
+
+    {
+        SumCountAccumulator acc;
+        acc.addData(values);
+
+        const double sum = v1 + v2 + v3 + v4;
+
+        EXPECT_FALSE(std::isinf(acc.valueSum));
+
+        EXPECT_DOUBLE_EQ(sum, acc.valueSum);
+        EXPECT_EQ(4u, acc.sampleCount);
+    }
 }

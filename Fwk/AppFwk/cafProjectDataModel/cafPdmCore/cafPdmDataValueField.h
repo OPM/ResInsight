@@ -94,7 +94,7 @@ public:
     const DataType&     v() const                                       { return m_fieldValue; }
 
     bool                operator== (const DataType& fieldValue) const   { return m_fieldValue == fieldValue; }
-
+    bool                operator!= (const DataType& fieldValue) const   { return m_fieldValue != fieldValue; }
 protected:
     DataType            m_fieldValue;
 

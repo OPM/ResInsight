@@ -48,6 +48,7 @@ PdmUiGroup::PdmUiGroup()
     m_isCollapsedByDefault = false;
     m_hasForcedExpandedState = false;
     m_forcedCollapseState = false;
+    m_enableFrame = true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -75,7 +76,7 @@ QString PdmUiGroup::keyword() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool PdmUiGroup::isUiGroup()
+bool PdmUiGroup::isUiGroup() const
 {
     return true;
 }
@@ -95,6 +96,14 @@ void PdmUiGroup::setCollapsed(bool doCollapse)
 {
     m_hasForcedExpandedState = true;
     m_forcedCollapseState = doCollapse;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void PdmUiGroup::setEnableFrame(bool enableFrame)
+{
+    m_enableFrame = enableFrame;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -119,6 +128,14 @@ bool PdmUiGroup::hasForcedExpandedState() const
 bool PdmUiGroup::forcedExpandedState() const
 {
     return !m_forcedCollapseState;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool PdmUiGroup::enableFrame() const
+{
+    return m_enableFrame;
 }
 
 } //End of namespace caf

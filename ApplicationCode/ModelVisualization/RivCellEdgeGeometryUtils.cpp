@@ -32,7 +32,7 @@
 #include "RimEclipseCellColors.h"
 #include "RimEclipseView.h"
 #include "RimSimWellInViewCollection.h"
-#include "RimLegendConfig.h"
+#include "RimRegularLegendConfig.h"
 #include "RimTernaryLegendConfig.h"
 
 #include "RivTernaryTextureCoordsCreator.h"
@@ -56,7 +56,7 @@ void RivCellEdgeGeometryUtils::addCellEdgeResultsToDrawableGeo(
     float opacityLevel)
 {
     RigEclipseCaseData* eclipseCase = cellResultColors->reservoirView()->eclipseCase()->eclipseCaseData();
-    CVF_ASSERT(eclipseCase != NULL);
+    CVF_ASSERT(eclipseCase != nullptr);
 
     // Create result access objects
 
@@ -90,7 +90,7 @@ void RivCellEdgeGeometryUtils::addCellEdgeResultsToDrawableGeo(
 
     double ignoredScalarValue = cellEdgeResultColors->ignoredScalarValue();
 
-    const std::vector<cvf::ubyte>* isWellPipeVisible = NULL;
+    const std::vector<cvf::ubyte>* isWellPipeVisible = nullptr;
     cvf::cref<cvf::UIntArray>      gridCellToWellindexMap;
 
     if (opacityLevel < 1.0f)
@@ -200,7 +200,7 @@ void RivCellEdgeGeometryUtils::addTernaryCellEdgeResultsToDrawableGeo(size_t tim
     cvf::DrawableGeo* geo, size_t gridIndex, float opacityLevel)
 {
     RigEclipseCaseData* eclipseCase = cellResultColors->reservoirView()->eclipseCase()->eclipseCaseData();
-    CVF_ASSERT(eclipseCase != NULL);
+    CVF_ASSERT(eclipseCase != nullptr);
 
     cvf::ref<RigResultAccessor> cellEdgeResultAccessor = createCellEdgeResultAccessor(cellResultColors, cellEdgeResultColors, timeStepIndex, eclipseCase, eclipseCase->grid(gridIndex));
 
@@ -339,7 +339,7 @@ cvf::ref<RigResultAccessor> RivCellEdgeGeometryUtils::createCellEdgeResultAccess
 //--------------------------------------------------------------------------------------------------
 cvf::ref<RigResultAccessor> RivCellEdgeGeometryUtils::createCellCenterResultAccessor(RimEclipseCellColors* cellResultColors, size_t timeStepIndex, RigEclipseCaseData* eclipseCase, const RigGridBase* grid)
 {
-    cvf::ref<RigResultAccessor> resultAccessor = NULL;
+    cvf::ref<RigResultAccessor> resultAccessor = nullptr;
 
     if (cellResultColors->hasResult())
     {

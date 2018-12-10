@@ -18,9 +18,11 @@
 
 #pragma once
 
+#include "RiaQDateTimeTools.h"
+
 #include "cafCmdFeature.h"
 
-
+#include <functional>
 
 //==================================================================================================
 /// 
@@ -31,11 +33,12 @@ class RicShowPlotDataFeature : public caf::CmdFeature
 
 protected:
     // Overrides
-    virtual bool isCommandEnabled();
-    virtual void onActionTriggered( bool isChecked );
-    virtual void setupActionLook( QAction* actionToSetup );
+    bool isCommandEnabled() override;
+    void onActionTriggered( bool isChecked ) override;
+    void setupActionLook( QAction* actionToSetup ) override;
 
 public:
+    static void showTabbedTextWindow(const QString& title, std::function<QString(DateTimePeriod)> textProvider);
     static void showTextWindow(const QString& title, const QString& text);
 };
 

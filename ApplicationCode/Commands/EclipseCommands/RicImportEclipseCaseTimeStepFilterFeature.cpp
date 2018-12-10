@@ -21,7 +21,7 @@
 #include "RiaApplication.h"
 #include "RiaImportEclipseCaseTools.h"
 
-#include "RiuMainWindow.h"
+#include "Riu3DMainWindowTools.h"
 
 #include <QAction>
 #include <QFileDialog>
@@ -38,7 +38,7 @@ void RicImportEclipseCaseTimeStepFilterFeature::onActionTriggered(bool isChecked
     RiaApplication* app = RiaApplication::instance();
 
     QString defaultDir = app->lastUsedDialogDirectory("BINARY_GRID");
-    QString fileName = QFileDialog::getOpenFileName(RiuMainWindow::instance(), "Import Eclipse File", defaultDir, "Eclipse Grid Files (*.GRID *.EGRID)");
+    QString fileName = QFileDialog::getOpenFileName(Riu3DMainWindowTools::mainWindowWidget(), "Import Eclipse File", defaultDir, "Eclipse Grid Files (*.GRID *.EGRID)");
     if (!fileName.isEmpty())
     {
         defaultDir = QFileInfo(fileName).absolutePath();

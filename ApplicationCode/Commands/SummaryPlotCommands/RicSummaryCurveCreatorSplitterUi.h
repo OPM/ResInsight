@@ -18,12 +18,13 @@
 
 #pragma once
 
-#include "cafPdmUiWidgetBasedObjectEditor.h"
+#include "cafPdmUiFormLayoutObjectEditor.h"
 
 #include <vector>
 #include <memory>
 
 class RimSummaryPlot;
+class RimSummaryCase;
 class RicSummaryCurveCreator;
 
 class QMinimizePanel;
@@ -34,6 +35,7 @@ class QHBoxLayout;
 class QBoxLayout;
 
 namespace caf {
+    class PdmObject;
     class PdmUiItem;
     class PdmUiTreeView;
 }
@@ -43,21 +45,22 @@ namespace caf {
 ///  
 ///  
 //==================================================================================================
-class RicSummaryCurveCreatorSplitterUi : public caf::PdmUiWidgetBasedObjectEditor
+class RicSummaryCurveCreatorSplitterUi : public caf::PdmUiFormLayoutObjectEditor
 {
     Q_OBJECT
         
 public:
     RicSummaryCurveCreatorSplitterUi(QWidget* parent);
-    ~RicSummaryCurveCreatorSplitterUi();
+    ~RicSummaryCurveCreatorSplitterUi() override;
 
     void                    updateFromSummaryPlot(RimSummaryPlot* summaryPlot);
+    void                    updateFromDefaultSources(const std::vector<caf::PdmObject*> defaultSources);
 
 private:
-    virtual void            recursivelyConfigureAndUpdateTopLevelUiItems(const std::vector<caf::PdmUiItem *>& topLevelUiItems,
-                                                                         const QString& uiConfigName) override;
+    void            recursivelyConfigureAndUpdateTopLevelUiOrdering(const caf::PdmUiOrdering& topLevelUiOrdering,
+                                                                            const QString& uiConfigName) override;
     
-    virtual QWidget*        createWidget(QWidget* parent) override;
+    QWidget*        createWidget(QWidget* parent) override;
 
     QWidget*                getOrCreateCurveTreeWidget();
     QWidget*                getOrCreatePlotWidget();

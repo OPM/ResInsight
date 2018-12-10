@@ -22,7 +22,8 @@
 
 class RimMultiSnapshotDefinition;
 class RimProject;
-class RimView;
+class Rim3dView;
+class RimGridView;
 
 //==================================================================================================
 /// 
@@ -32,17 +33,17 @@ class RicExportMultipleSnapshotsFeature : public caf::CmdFeature
     CAF_CMD_HEADER_INIT;
 
 protected:
-    virtual bool isCommandEnabled() override;
-    virtual void onActionTriggered( bool isChecked ) override;
-    virtual void setupActionLook(QAction* actionToSetup) override;
+    bool isCommandEnabled() override;
+    void onActionTriggered( bool isChecked ) override;
+    void setupActionLook(QAction* actionToSetup) override;
 
 public:
     static void exportMultipleSnapshots(const QString& folder, RimProject* project);
 
-    static void exportViewVariations(RimView* rimView, RimMultiSnapshotDefinition* msd, const QString& folder);
+    static void exportViewVariations(Rim3dView* rimView, RimMultiSnapshotDefinition* msd, const QString& folder);
 
 private:
-    static void exportViewVariationsToFolder(RimView* rimView, RimMultiSnapshotDefinition* msd, const QString& folder);
-    static QString resultName(RimView* rimView);
+    static void exportViewVariationsToFolder(RimGridView* rimView, RimMultiSnapshotDefinition* msd, const QString& folder);
+    static QString resultName(Rim3dView* rimView);
 };
 

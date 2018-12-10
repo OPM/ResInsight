@@ -1,0 +1,9 @@
+
+
+class EclLibInfo(object):
+  lib_path = "../../../../${CMAKE_INSTALL_LIBDIR}"
+  so_version = "${ECL_BINARY_POSTFIX}"
+  __version__ = "${ECL_VERSION_MAJOR}.${ECL_VERSION_MINOR}.${ECL_VERSION_MICRO}"
+
+  def __init__(self):
+    pass

@@ -1,6 +1,7 @@
 
 #pragma once
 
+#include "cafTitledOverlayFrame.h"
 #include "cvfBase.h"
 #include "cvfArray.h"
 #include "cvfCamera.h"
@@ -23,88 +24,65 @@ class CategoryMapper;
 //
 //
 //==================================================================================================
-class CategoryLegend : public cvf::OverlayItem
+class CategoryLegend : public caf::TitledOverlayFrame
 {
 public:
     CategoryLegend(cvf::Font* font, const CategoryMapper* categoryMapper);
     virtual ~CategoryLegend();
 
-    virtual cvf::Vec2ui  sizeHint();
+    size_t       categoryCount() const;
 
-    virtual void    render(cvf::OpenGLContext* oglContext, const cvf::Vec2i& position, const cvf::Vec2ui& size);
-    virtual void    renderSoftware(cvf::OpenGLContext* oglContext, const cvf::Vec2i& position, const cvf::Vec2ui& size);
-    virtual bool    pick(int oglXCoord, int oglYCoord, const cvf::Vec2i& position, const cvf::Vec2ui& size);
-
-
-    void            setSizeHint(const cvf::Vec2ui& size);
-
-    void            setColor(const cvf::Color3f& color);
-    const cvf::Color3f&  color() const;
-
-    void            setLineColor(const cvf::Color3f& lineColor);
-    const cvf::Color3f&  lineColor() const;
-    void            setLineWidth(int lineWidth);
-    int             lineWidth() const;
-
-    void            setTitle(const cvf::String& title);
-    cvf::String          title() const;
-
-    size_t          categoryCount() const;
+    cvf::Vec2ui  preferredSize() override;
 
 protected:
+    void        render(cvf::OpenGLContext* oglContext, const cvf::Vec2i& position, const cvf::Vec2ui& size) override;
+    void        renderSoftware(cvf::OpenGLContext* oglContext, const cvf::Vec2i& position, const cvf::Vec2ui& size) override;
+    bool        pick(int oglXCoord, int oglYCoord, const cvf::Vec2i& position, const cvf::Vec2ui& size) override;
 
-    //==================================================================================================
-    //
-    // Helper for storing layout info
-    //
-    //==================================================================================================
     struct OverlayColorLegendLayoutInfo
     {
-        OverlayColorLegendLayoutInfo(const cvf::Vec2i& pos, const cvf::Vec2ui& setSize)
+        OverlayColorLegendLayoutInfo(const cvf::Vec2ui& setSize)
         {
             charHeight = 0.0f;
             lineSpacing = 0.0f;
             margins = cvf::Vec2f::ZERO;
-            tickX = 0.0f;
-            x0 = 0.0f;
-            x1 = 0.0f;
+            tickEndX = 0.0f;
+            tickStartX = 0.0f;
+            tickMidX = 0.0f;
 
-            position = pos;
-            size = setSize;
+            overallLegendSize = setSize;
         }
 
         float charHeight;
         float lineSpacing;
         cvf::Vec2f margins;
-        float tickX;
-        float x0, x1;
+        float tickStartX, tickMidX, tickEndX;
+        float tickTextLeadSpace;
 
-        cvf::Rectf legendRect;
+        cvf::Rectf colorBarRect;
 
-        cvf::Vec2i position;
-        cvf::Vec2ui size;
+        cvf::Vec2ui overallLegendSize;
     };
 
+    void         layoutInfo(OverlayColorLegendLayoutInfo* layout);
 
-    void         render(cvf::OpenGLContext* oglContext, const cvf::Vec2i& position, const cvf::Vec2ui& size, bool software);
-    virtual void renderLegend(cvf::OpenGLContext* oglContext, OverlayColorLegendLayoutInfo* layout, const cvf::MatrixState& matrixState);
-    virtual void renderLegendImmediateMode(cvf::OpenGLContext* oglContext, OverlayColorLegendLayoutInfo* layout);
-    virtual void setupTextDrawer(cvf::TextDrawer* textDrawer, OverlayColorLegendLayoutInfo* layout);
-
-    void layoutInfo(OverlayColorLegendLayoutInfo* layout);
+    void         renderGeneric(cvf::OpenGLContext* oglContext, 
+                               const cvf::Vec2i& position, 
+                               const cvf::Vec2ui& size, 
+                               bool software);
+    void         setupTextDrawer(cvf::TextDrawer* textDrawer, 
+                                 const OverlayColorLegendLayoutInfo* layout);
+    void         renderLegendUsingShaders(cvf::OpenGLContext* oglContext, 
+                                          OverlayColorLegendLayoutInfo* layout,
+                                          const cvf::MatrixState& matrixState);
+    void         renderLegendImmediateMode(cvf::OpenGLContext* oglContext, 
+                                           OverlayColorLegendLayoutInfo* layout);
 
 protected:
-    std::vector<bool>        m_visibleCategoryLabels;    // Skip labels ending up on top of previous visible label
-
-    cvf::Vec2ui              m_sizeHint;     // Pixel size of the color legend area
-
-    cvf::Color3f             m_color;
-    cvf::Color3f             m_lineColor;
-    int                      m_lineWidth;
-    std::vector<cvf::String> m_titleStrings;
-    cvf::ref<cvf::Font>      m_font;
-
-    cvf::cref<CategoryMapper> m_categoryMapper;
+    std::vector<bool>            m_visibleCategoryLabels;    // Skip labels ending up on top of previous visible label
+    OverlayColorLegendLayoutInfo m_Layout;
+    cvf::ref<cvf::TextDrawer>    m_textDrawer;
+    cvf::cref<CategoryMapper>    m_categoryMapper;
 };
 
 }

@@ -45,20 +45,20 @@ class RiuWellPltPlot : public QFrame, public RiuInterfaceToViewWindow
 {
     Q_OBJECT;
 public:
-    RiuWellPltPlot(RimWellPltPlot* plotDefinition, QWidget* parent = NULL);
-    virtual ~RiuWellPltPlot();
+    RiuWellPltPlot(RimWellPltPlot* plotDefinition, QWidget* parent = nullptr);
+    ~RiuWellPltPlot() override;
 
     RimWellPltPlot*                 ownerPlotDefinition();
-    virtual RimViewWindow*          ownerViewWindow() const override;
+    RimViewWindow*          ownerViewWindow() const override;
 
     void                            showTitle(const QString& title);
     void                            hideTitle();
 
 protected:
-    virtual QSize                   sizeHint() const override;
-    virtual QSize                   minimumSizeHint() const override;
+    QSize                   sizeHint() const override;
+    QSize                   minimumSizeHint() const override;
 
-    virtual void                    contextMenuEvent(QContextMenuEvent *) override;
+    void                    contextMenuEvent(QContextMenuEvent *) override;
 
 private:
     void                            setDefaults();

@@ -83,10 +83,10 @@ void RigReservoirBuilderMock::appendNodes(const cvf::Vec3d& min, const cvf::Vec3
             size_t i;
             for (i = 0; i < cubeDimension.x(); i++)
             {
-                cvf::Vec3d min(xPos, yPos, zPos);
-                cvf::Vec3d max(xPos + dx, yPos + dy, zPos + dz);
+                cvf::Vec3d cornerA(xPos, yPos, zPos);
+                cvf::Vec3d cornerB(xPos + dx, yPos + dy, zPos + dz);
 
-                appendCubeNodes(min, max, nodes);
+                appendCubeNodes(cornerA, cornerB, nodes);
 
                 xPos += dx;
             }
@@ -206,6 +206,7 @@ void RigReservoirBuilderMock::populateReservoir(RigEclipseCaseData* eclipseCase)
         // Create local grid and set local grid dimensions
         RigLocalGrid* localGrid = new RigLocalGrid(eclipseCase->mainGrid());
         localGrid->setGridId(1);
+        localGrid->setGridName("LGR_1");
         eclipseCase->mainGrid()->addLocalGrid(localGrid);
         localGrid->setParentGrid(eclipseCase->mainGrid());
         
@@ -222,7 +223,7 @@ void RigReservoirBuilderMock::populateReservoir(RigEclipseCaseData* eclipseCase)
         {
             RigCell& cell = eclipseCase->mainGrid()->globalCellArray()[mainGridIndicesWithSubGrid[cellIdx]];
             
-            caf::SizeTArray8& indices = cell.cornerIndices();
+            std::array<size_t, 8>& indices = cell.cornerIndices();
             int nodeIdx;
             for (nodeIdx = 0; nodeIdx < 8; nodeIdx++)
             {
@@ -298,7 +299,7 @@ bool RigReservoirBuilderMock::inputProperty(RigEclipseCaseData* eclipseCase, con
     size_t k;
 
     /* initialize random seed: */
-    srand ( time(NULL) );
+    srand ( time(nullptr) );
 
     /* generate secret number: */
     int iSecret = rand() % 20 + 1;
@@ -536,7 +537,7 @@ void RigReservoirBuilderMock::addFaults(RigEclipseCaseData* eclipseCase)
         size_t k1 = 3;
 
         size_t i2 = 2;
-        size_t j2 = 5;
+        size_t j2 = 1;
         size_t k2 = 4;
 
         addNnc(grid, i1, j1, k1, i2, j2, k2, nncConnections);

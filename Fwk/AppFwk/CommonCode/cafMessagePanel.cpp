@@ -45,7 +45,7 @@
 namespace caf {
 
 
-MessagePanel* MessagePanel::sm_messagePanelInstance = NULL;
+MessagePanel* MessagePanel::sm_messagePanelInstance = nullptr;
 
 //==================================================================================================
 ///

@@ -30,7 +30,7 @@
 #include "RimSummaryCrossPlot.h"
 #include "RimSummaryPlotCollection.h"
 
-#include "RiuMainPlotWindow.h"
+#include "RiuPlotMainWindow.h"
 
 #include "WellLogCommands/RicWellLogPlotCurveFeatureImpl.h"
 
@@ -78,7 +78,7 @@ void RicNewSummaryCrossPlotCurveFeature::onActionTriggered(bool isChecked)
 
         RiaApplication::instance()->getOrCreateAndShowMainPlotWindow()->selectAsCurrentItem(newCurve);
 
-        RiuMainPlotWindow* mainPlotWindow = RiaApplication::instance()->mainPlotWindow();
+        RiuPlotMainWindow* mainPlotWindow = RiaApplication::instance()->mainPlotWindow();
         mainPlotWindow->updateSummaryPlotToolBar();
     }
 }

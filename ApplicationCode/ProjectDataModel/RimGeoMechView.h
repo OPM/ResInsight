@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "RimView.h"
+#include "RimGridView.h"
 
 #include "cafAppEnum.h"
 #include "cafPdmChildField.h"
@@ -32,15 +32,19 @@
 #include "cvfObject.h"
 
 class RigFemPart;
+class RigFemPartCollection;
 class Rim3dOverlayInfoConfig;
 class RimCellRangeFilterCollection;
 class RimGeoMechCase;
 class RimGeoMechCellColors;
-class RimGeoMechResultDefinition;
 class RimGeoMechPropertyFilterCollection;
+class RimGeoMechResultDefinition;
+class RimRegularLegendConfig;
+class RimTensorResults;
 class RiuViewer;
 class RivGeoMechPartMgr;
 class RivGeoMechVizLogic;
+class RivTensorResultPartMgr;
 
 namespace cvf {
     class CellRangeFilter;
@@ -51,64 +55,78 @@ namespace cvf {
 ///  
 ///  
 //==================================================================================================
-class RimGeoMechView : public RimView
+class RimGeoMechView : public RimGridView
 {
     CAF_PDM_HEADER_INIT;
 
 public:
     RimGeoMechView(void);
-    virtual ~RimGeoMechView(void);
+    ~RimGeoMechView(void) override;
 
     void                                                setGeoMechCase(RimGeoMechCase* gmCase);
     RimGeoMechCase*                                     geoMechCase();
-    virtual RimCase*                                    ownerCase() const override;
+    RimCase*                                    ownerCase() const override;
 
     caf::PdmChildField<RimGeoMechCellColors*>           cellResult;
     RimGeoMechResultDefinition*                         cellResultResultDefinition();
 
-    virtual const RimPropertyFilterCollection*          propertyFilterCollection() const override;
+    const RimPropertyFilterCollection*          propertyFilterCollection() const override;
 
     RimGeoMechPropertyFilterCollection*                 geoMechPropertyFilterCollection();
     const RimGeoMechPropertyFilterCollection*           geoMechPropertyFilterCollection() const;
     void                                                setOverridePropertyFilterCollection(RimGeoMechPropertyFilterCollection* pfc);
 
-    bool                                                isTimeStepDependentDataVisible();
+    bool                                                isTimeStepDependentDataVisible() const override ;
 
-    virtual cvf::Transform*                             scaleTransform() override;
-    virtual void                                        scheduleGeometryRegen(RivCellSetEnum geometryType) override;
+    cvf::Transform*                             scaleTransform() override;
+    void                                        scheduleGeometryRegen(RivCellSetEnum geometryType) override;
     void                                                updateIconStateForFilterCollections();
 
-    virtual void                                        axisLabels(cvf::String* xLabel, cvf::String* yLabel, cvf::String* zLabel) override;
+    void                                        axisLabels(cvf::String* xLabel, cvf::String* yLabel, cvf::String* zLabel) override;
 
-    virtual bool                                        isUsingFormationNames() const override;
+    bool                                        isUsingFormationNames() const override;
 
-    virtual void                                        calculateCurrentTotalCellVisibility(cvf::UByteArray* totalVisibility, int timeStep) override;
+    void                                        calculateCurrentTotalCellVisibility(cvf::UByteArray* totalVisibility, int timeStep) override;
+
+    void                                                updateLegendTextAndRanges(RimRegularLegendConfig* legendConfig, int timeStepIndex);
+
+    const cvf::ref<RivGeoMechVizLogic>                  vizLogic() const;
+    const RimTensorResults*                             tensorResults() const;
+    RimTensorResults*                                   tensorResults();
+
+    std::vector<RimLegendConfig*>                       legendConfigs() const override;
+
+    const RigFemPartCollection*                         femParts() const;
+    RigFemPartCollection*                               femParts();
+
+    void                                                convertCameraPositionFromOldProjectFiles();
 
 protected:
-    virtual void                                        defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
-    virtual void                                        onLoadDataAndUpdate() override;
+    void                                        defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
+    void                                        onLoadDataAndUpdate() override;
 
-    virtual void                                        createPartCollectionFromSelection(cvf::Collection<cvf::Part>* parts) override;
+    void                                        createPartCollectionFromSelection(cvf::Collection<cvf::Part>* parts) override;
 
 private:
-    virtual void                                        createDisplayModel() override;
-    virtual void                                        updateDisplayModelVisibility() override;
-    virtual void                                        updateScaleTransform() override;
+    void                                        createDisplayModel() override;
+    void                                        updateScaleTransform() override;
 
-    virtual void                                        clampCurrentTimestep() override;
+    void                                        clampCurrentTimestep() override;
 
-    virtual void                                        updateCurrentTimeStep() override;
-    virtual void                                        updateStaticCellColors() override;
+    void                                        updateCurrentTimeStep() override;
+    void                                        updateStaticCellColors() override;
 
-    virtual void                                        resetLegendsInViewer() override;
+    void                                        resetLegendsInViewer() override;
 
-    void                                                updateLegends();
+    void                                                updateLegends() override;
 
-    virtual void                                        fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
-    virtual void                                        initAfterRead() override;
+    void                                                updateTensorLegendTextAndRanges(RimRegularLegendConfig* legendConfig, int timeStepIndex);
+
+    void                                        fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    void                                        initAfterRead() override;
 
 
-
+    caf::PdmChildField<RimTensorResults*>                   m_tensorResults;
     caf::PdmChildField<RimGeoMechPropertyFilterCollection*> m_propertyFilterCollection;
     caf::PdmPointer<RimGeoMechPropertyFilterCollection>     m_overridePropertyFilterCollection;
 
@@ -116,5 +134,6 @@ private:
     cvf::ref<RivGeoMechVizLogic>                        m_vizLogic;
     cvf::ref<cvf::Transform>                            m_scaleTransform;
 
+    cvf::ref<RivTensorResultPartMgr>                    m_tensorPartMgr;
 };
 

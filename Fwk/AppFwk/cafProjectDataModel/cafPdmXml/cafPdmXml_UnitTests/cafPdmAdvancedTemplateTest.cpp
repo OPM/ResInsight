@@ -11,6 +11,7 @@
 #include "cafPdmReferenceHelper.h"
 #include "cafPdmXmlObjectHandle.h"
 #include "cafPdmXmlObjectHandleMacros.h"
+#include "cafFilePath.h"
 
 #include <QXmlStreamWriter>
 
@@ -99,6 +100,9 @@ public:
     caf::PdmProxyValueField<double>  m_doubleField;
     caf::PdmPtrField< caf::PdmObjectHandle* > m_pointerToItem;
     caf::PdmPtrField< caf::PdmObjectHandle* > m_pointerToDemoObj;
+
+    caf::PdmDataValueField< caf::FilePath > m_singleFilePath;
+
 
     void setDoubleMember(const double& d) { m_doubleMember = d; std::cout << "setDoubleMember" << std::endl; }
     double doubleMember() const { std::cout << "doubleMember" << std::endl; return m_doubleMember; }

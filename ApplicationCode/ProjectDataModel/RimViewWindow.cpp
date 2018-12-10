@@ -17,8 +17,13 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RimViewWindow.h"
+
+#include "RiaFieldHandleTools.h"
+
 #include "RimMdiWindowController.h"
+
 #include "cvfAssert.h"
+
 #include <QWidget>
 
 CAF_PDM_XML_ABSTRACT_SOURCE_INIT(RimViewWindow, "ViewWindow"); // Do not use. Abstract class 
@@ -37,8 +42,7 @@ RimViewWindow::RimViewWindow(void)
 
     // Obsolete field
     CAF_PDM_InitFieldNoDefault(&obsoleteField_windowGeometry, "WindowGeometry", "", "", "", "");
-    obsoleteField_windowGeometry.uiCapability()->setUiHidden(true);
-    obsoleteField_windowGeometry.xmlCapability()->setIOWritable(false);
+    RiaFieldhandleTools::disableWriteAndSetFieldHidden(&obsoleteField_windowGeometry);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -66,6 +70,23 @@ void RimViewWindow::removeMdiWindowFromMdiArea()
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimViewWindow::windowTitle()
+{
+    if (this->userDescriptionField())
+    {
+        caf::PdmUiFieldHandle* uiFieldHandle = this->userDescriptionField()->uiCapability();
+        if (uiFieldHandle)
+        {
+            QVariant v = uiFieldHandle->uiValue();
+            return v.toString();
+        }
+    }
+    return QString("");
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void RimViewWindow::handleMdiWindowClosed()
@@ -86,7 +107,7 @@ void RimViewWindow::updateMdiWindowVisibility()
     {
         if (viewWidget())
         {
-            if (m_showWindow)
+            if (isWindowVisible())
             {
                 viewWidget()->show();
             }
@@ -149,7 +170,7 @@ void RimViewWindow::fieldChangedByUi(const caf::PdmFieldHandle* changedField, co
 {
     if ( changedField == &m_showWindow )
     {
-        if (m_showWindow)
+        if (isWindowVisible())
         {
             onLoadDataAndUpdate();
         }
@@ -168,15 +189,7 @@ void RimViewWindow::updateMdiWindowTitle()
 {
     if ( viewWidget() )
     {
-        if ( this->userDescriptionField() )
-        {
-            caf::PdmUiFieldHandle* uiFieldHandle = this->userDescriptionField()->uiCapability();
-            if ( uiFieldHandle )
-            {
-                QVariant v = uiFieldHandle->uiValue();
-                viewWidget()->setWindowTitle(v.toString());
-            }
-        }
+        viewWidget()->setWindowTitle(windowTitle());
     }
 }
 
@@ -198,7 +211,7 @@ void RimViewWindow::setAsMdiWindow(int mainWindowID)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-#include "RimView.h"
+#include "Rim3dView.h"
 
 void RimViewWindow::initAfterRead()
 {
@@ -207,7 +220,7 @@ void RimViewWindow::initAfterRead()
        RimMdiWindowGeometry wg;
        int mainWindowID = -1;
        
-       if (dynamic_cast<RimView*> (this))
+       if (dynamic_cast<Rim3dView*> (this))
           mainWindowID = 0;
        else 
           mainWindowID = 1;

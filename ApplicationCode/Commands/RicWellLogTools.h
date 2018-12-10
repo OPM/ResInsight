@@ -23,7 +23,8 @@
 #include <vector>
 
 class RimSimWellInView;
-class RimView;
+class Rim3dView;
+class Rim3dWellLogCurveCollection;
 class RimWellLogExtractionCurve;
 class RimWellLogFileChannel;
 class RimWellLogFileCurve;
@@ -37,17 +38,17 @@ class RimWellPath;
 class RicWellLogTools
 {
 public:
-    static RimWellLogTrack*           selectedWellLogPlotTrack();
-    static RimSimWellInView*          selectedSimulationWell(int* branchIndex);
-    static RimWellPath*               selectedWellPath();
-    static bool                       wellHasRftData(const QString& wellName);
-    static bool                       isWellPathOrSimWellSelectedInView();
-    static void                       addWellLogChannelsToPlotTrack(RimWellLogTrack*                           plotTrack,
+    static RimSimWellInView*            selectedSimulationWell(int* branchIndex);
+    static bool                         wellHasRftData(const QString& wellName);
+    static bool                         isWellPathOrSimWellSelectedInView();
+    static void                         addWellLogChannelsToPlotTrack(RimWellLogTrack*                           plotTrack,
                                                                     const std::vector<RimWellLogFileChannel*>& wellLogFileChannels);
-    static RimWellPath*               selectedWellPathWithLogFile();
-    static RimWellLogExtractionCurve* addExtractionCurve(RimWellLogTrack* plotTrack, RimView* view, RimWellPath* wellPath,
+    static RimWellPath*                 selectedWellPathWithLogFile();
+    static RimWellPath*                 findWellPathWithLogFileFromSelection();
+    static RimWellLogExtractionCurve*   addExtractionCurve(RimWellLogTrack* plotTrack, Rim3dView* view, RimWellPath* wellPath,
                                                          const RimSimWellInView* simWell, int branchIndex,
-                                                         bool useBranchDetection);
-    static RimWellLogRftCurve*        addRftCurve(RimWellLogTrack* plotTrack, const RimSimWellInView* simWell);
-    static RimWellLogFileCurve*       addFileCurve(RimWellLogTrack* plotTrack);
+                                                         bool useBranchDetection,
+                                                         bool showPlotWindow = true);
+    static RimWellLogRftCurve*          addRftCurve(RimWellLogTrack* plotTrack, const RimSimWellInView* simWell, bool showPlotWindow = true);
+    static RimWellLogFileCurve*         addFileCurve(RimWellLogTrack* plotTrack, bool showPlotWindow = true);
 };

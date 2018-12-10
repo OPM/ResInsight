@@ -60,7 +60,7 @@ private:
     QTime       m_timer;
 
 public:
-    explicit UiProcess(QObject* pParent = 0);
+    explicit UiProcess(QObject* pParent = nullptr);
 
 private:
     void    doEmitStatusMsg(const QString& msg, int statusMsgType);

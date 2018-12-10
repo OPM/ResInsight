@@ -25,6 +25,7 @@
 
 class RimEclipseCase;
 class RimGeoMechCase;
+class RimCase;
 class RimIdenticalGridCaseGroup;
 
 //==================================================================================================
@@ -40,13 +41,12 @@ public:
 
 protected:
     // Overrides
-    virtual bool isCommandEnabled();
-    virtual void onActionTriggered( bool isChecked );
-    virtual void setupActionLook( QAction* actionToSetup );
+    bool isCommandEnabled() override;
+    void onActionTriggered( bool isChecked ) override;
+    void setupActionLook( QAction* actionToSetup ) override;
 
 private:
-    RimEclipseCase* selectedEclipseCase() const;
-    RimGeoMechCase* selectedGeoMechCase() const;
+    std::vector<RimCase*> selectedCases() const;
 
     void deleteGeoMechCase(RimGeoMechCase* geoMechCase);
     

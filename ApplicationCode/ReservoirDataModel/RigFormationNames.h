@@ -28,7 +28,7 @@ class RigFormationNames: public cvf::Object
 {
 public:
     RigFormationNames();
-    ~RigFormationNames();
+    ~RigFormationNames() override;
 
     int formationIndexFromKLayerIdx(size_t Kidx) 
     {

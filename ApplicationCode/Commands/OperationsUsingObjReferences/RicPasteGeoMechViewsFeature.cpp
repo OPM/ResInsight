@@ -21,7 +21,7 @@
 
 #include "RicPasteFeatureImpl.h"
 
-#include "RiuMainWindow.h"
+#include "Riu3DMainWindowTools.h"
 
 #include "RimGeoMechView.h"
 #include "RimGeoMechCase.h"
@@ -31,6 +31,7 @@
 #include "cafSelectionManager.h"
 
 #include <QAction>
+#include "Rim2dIntersectionViewCollection.h"
 
 
 CAF_CMD_SOURCE_INIT(RicPasteGeoMechViewsFeature, "RicPasteGeoMechViewsFeature");
@@ -83,8 +84,8 @@ void RicPasteGeoMechViewsFeature::onActionTriggered(bool isChecked)
     for (size_t i = 0; i < geomViews.size(); i++)
     {
         RimGeoMechView* rimReservoirView = dynamic_cast<RimGeoMechView*>(geomViews[i]->xmlCapability()->copyByXmlSerialization(caf::PdmDefaultObjectFactory::instance()));
-        QString nameOfCopy = QString("Copy of ") + rimReservoirView->name;
-        rimReservoirView->name = nameOfCopy;
+        QString nameOfCopy = QString("Copy of ") + rimReservoirView->name();
+        rimReservoirView->setName(nameOfCopy);
         geomCase->geoMechViews().push_back(rimReservoirView);
 
         rimReservoirView->setGeoMechCase(geomCase);
@@ -98,12 +99,13 @@ void RicPasteGeoMechViewsFeature::onActionTriggered(bool isChecked)
 
         rimReservoirView->loadDataAndUpdate();
 
+        geomCase->intersectionViewCollection()->syncFromExistingIntersections(false);
         geomCase->updateConnectedEditors();
 
         lastViewCopy = rimReservoirView;
     }
 
-    if (lastViewCopy) RiuMainWindow::instance()->selectAsCurrentItem(lastViewCopy);
+    if (lastViewCopy) Riu3DMainWindowTools::selectAsCurrentItem(lastViewCopy);
 }
 
 //--------------------------------------------------------------------------------------------------

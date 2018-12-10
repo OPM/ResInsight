@@ -21,8 +21,8 @@
 
 #include "RimCellRangeFilter.h"
 #include "RimCellRangeFilterCollection.h"
-#include "RimView.h"
-#include "RiuMainWindow.h"
+#include "Rim3dView.h"
+#include "Riu3DMainWindowTools.h"
 
 
 //--------------------------------------------------------------------------------------------------
@@ -57,7 +57,7 @@ void RicRangeFilterInsertExec::redo()
     RimCellRangeFilter* rangeFilter = createRangeFilter();
     if (rangeFilter)
     {
-        size_t index = m_cellRangeFilterCollection->rangeFilters.index(m_cellRangeFilter);
+        size_t index = m_cellRangeFilterCollection->rangeFilters.index(m_insertBeforeCellRangeFilter);
         CVF_ASSERT(index < m_cellRangeFilterCollection->rangeFilters.size());
 
         m_cellRangeFilterCollection->rangeFilters.insertAt(static_cast<int>(index), rangeFilter);
@@ -65,11 +65,11 @@ void RicRangeFilterInsertExec::redo()
         rangeFilter->setDefaultValues();
         applyCommandDataOnFilter(rangeFilter);
 
-        m_cellRangeFilterCollection->updateDisplayModeNotifyManagedViews(NULL);
+        m_cellRangeFilterCollection->updateDisplayModeNotifyManagedViews(nullptr);
 
         m_cellRangeFilterCollection->updateConnectedEditors();
 
-        RiuMainWindow::instance()->selectAsCurrentItem(rangeFilter);
+        Riu3DMainWindowTools::selectAsCurrentItem(rangeFilter);
     }
 }
 

@@ -18,6 +18,7 @@
 
 #include "RicfExportWellPathCompletions.h"
 
+#include "RicfApplicationTools.h"
 #include "RicfCommandFileExecutor.h"
 
 #include "RiaApplication.h"
@@ -31,7 +32,7 @@
 #include "RimWellPathCollection.h"
 #include "RimWellPath.h"
 
-#include "CompletionCommands/RicWellPathExportCompletionDataFeature.h"
+#include "CompletionExportCommands/RicWellPathExportCompletionDataFeatureImpl.h"
 
 CAF_PDM_SOURCE_INIT(RicfExportWellPathCompletions, "exportWellPathCompletions");
 
@@ -43,12 +44,22 @@ RicfExportWellPathCompletions::RicfExportWellPathCompletions()
     RICF_InitField(&m_caseId,                      "caseId",                      -1,                                                     "Case ID",  "", "", "");
     RICF_InitField(&m_timeStep,                    "timeStep",                    -1,                                                     "Time Step Index",  "", "", "");
     RICF_InitField(&m_wellPathNames,               "wellPathNames",               std::vector<QString>(),                                 "Well Path Names",  "", "", "");
-    RICF_InitField(&m_wellSelection,               "wellSelection",               RicExportCompletionDataSettingsUi::WellSelectionType(), "Well Selection",  "", "", "");
+
     RICF_InitField(&m_fileSplit,                   "fileSplit",                   RicExportCompletionDataSettingsUi::ExportSplitType(),   "File Split",  "", "", "");
     RICF_InitField(&m_compdatExport,               "compdatExport",               RicExportCompletionDataSettingsUi::CompdatExportType(), "Compdat Export",  "", "", "");
-    RICF_InitField(&m_includePerforations,         "includePerforations",         true,                                                   "Include Perforations",  "", "", "");
-    RICF_InitField(&m_includeFishbones,            "includeFishbones",            true,                                                   "Include Fishbones",  "", "", "");
-    RICF_InitField(&m_excludeMainBoreForFishbones, "excludeMainBoreForFishbones", false,                                                  "Exclude Main Bore for Fishbones",  "", "", "");
+    RICF_InitField(&m_combinationMode,             "combinationMode",             RicExportCompletionDataSettingsUi::CombinationModeType(), "Combination Mode",  "", "", "");
+    
+    RICF_InitField(&m_useLateralNTG,               "useNtgHorizontally",          false, "Use NTG Horizontally",  "", "", "");
+    RICF_InitField(&m_includePerforations,         "includePerforations",         true,  "Include Perforations",  "", "", "");
+    RICF_InitField(&m_includeFishbones,            "includeFishbones",            true,  "Include Fishbones",  "", "", "");
+    RICF_InitField(&m_includeFractures,            "includeFractures",            true,  "Include Fractures",  "", "", "");
+    
+    RICF_InitField(&m_excludeMainBoreForFishbones, "excludeMainBoreForFishbones", false, "Exclude Main Bore for Fishbones",  "", "", "");
+
+    RICF_InitField(&m_performTransScaling, "performTransScaling", false, "Perform Transmissibility Scaling", "", "", "");
+    RICF_InitField(&m_transScalingTimeStep, "transScalingTimeStep", 0, "Transmissibility Scaling Pressure Time Step", "", "", "");
+    RICF_InitField(&m_transScalingInitialWBHP, "transScalingWBHPFromSummary", RicExportCompletionDataSettingsUi::TransScalingWBHPSource(), "Transmissibility Scaling WBHP from summary", "", "", "");
+    RICF_InitField(&m_transScalingWBHP,     "transScalingWBHP", 200.0, "Transmissibility Scaling Constant WBHP Value", "", "", "");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -56,32 +67,44 @@ RicfExportWellPathCompletions::RicfExportWellPathCompletions()
 //--------------------------------------------------------------------------------------------------
 void RicfExportWellPathCompletions::execute()
 {
+    using TOOLS = RicfApplicationTools;
+
     RimProject* project = RiaApplication::instance()->project();
-    RicExportCompletionDataSettingsUi* exportSettings = project->dialogData()->exportCompletionData(false);
-    exportSettings->timeStep = m_timeStep;
-    exportSettings->wellSelection = m_wellSelection;
+    RicExportCompletionDataSettingsUi* exportSettings = project->dialogData()->exportCompletionData();
+    
+    if (m_timeStep < 0)
+    {
+        exportSettings->timeStep = 0;
+    }
+    else
+    {
+        exportSettings->timeStep = m_timeStep;
+    }
+
     exportSettings->fileSplit = m_fileSplit;
     exportSettings->compdatExport = m_compdatExport;
+
+    exportSettings->performTransScaling = m_performTransScaling;
+    exportSettings->transScalingTimeStep = m_transScalingTimeStep;
+    exportSettings->transScalingWBHPSource = m_transScalingInitialWBHP;
+    exportSettings->transScalingWBHP = m_transScalingWBHP;
+
+    exportSettings->useLateralNTG = m_useLateralNTG;
     exportSettings->includePerforations = m_includePerforations;
     exportSettings->includeFishbones = m_includeFishbones;
     exportSettings->excludeMainBoreForFishbones = m_excludeMainBoreForFishbones;
+    exportSettings->includeFractures = m_includeFractures;
+    
+    exportSettings->setCombinationMode(m_combinationMode());
 
     {
-        bool foundCase = false;
-        for (RimEclipseCase* c : RiaApplication::instance()->project()->activeOilField()->analysisModels->cases())
-        {
-            if (c->caseId() == m_caseId())
-            {
-                exportSettings->caseToApply = c;
-                foundCase = true;
-                break;
-            }
-        }
-        if (!foundCase)
+        auto eclipseCase = TOOLS::caseFromId(m_caseId());
+        if (!eclipseCase)
         {
             RiaLogging::error(QString("exportWellPathCompletions: Could not find case with ID %1").arg(m_caseId()));
             return;
         }
+        exportSettings->caseToApply = eclipseCase;
     }
 
     QString exportFolder = RicfCommandFileExecutor::instance()->getExportPath(RicfCommandFileExecutor::COMPLETIONS);
@@ -94,9 +117,13 @@ void RicfExportWellPathCompletions::execute()
     std::vector<RimWellPath*> wellPaths;
     if (m_wellPathNames().empty())
     {
-        std::copy(RiaApplication::instance()->project()->activeOilField()->wellPathCollection->wellPaths().begin(),
-                  RiaApplication::instance()->project()->activeOilField()->wellPathCollection->wellPaths().end(),
-                  std::back_inserter(wellPaths));
+        for (auto wellPath : RiaApplication::instance()->project()->activeOilField()->wellPathCollection->wellPaths())
+        {
+            if (wellPath->showWellPath())
+            {
+                wellPaths.push_back(wellPath);
+            }
+        }
     }
     else
     {
@@ -116,5 +143,5 @@ void RicfExportWellPathCompletions::execute()
 
     std::vector<RimSimWellInView*> simWells;
 
-    RicWellPathExportCompletionDataFeature::exportCompletions(wellPaths, simWells, *exportSettings);
+    RicWellPathExportCompletionDataFeatureImpl::exportCompletions(wellPaths, simWells, *exportSettings);
 }

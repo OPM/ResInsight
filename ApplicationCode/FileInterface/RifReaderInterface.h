@@ -48,7 +48,7 @@ class RifReaderInterface : public cvf::Object
 {
 public:
     RifReaderInterface()            { }
-    virtual ~RifReaderInterface()   { }
+    ~RifReaderInterface() override   { }
 
     bool                        isFaultImportEnabled();
     bool                        isImportOfCompleteMswDataEnabled();

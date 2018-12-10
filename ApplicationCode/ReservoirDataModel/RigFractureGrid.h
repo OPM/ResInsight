@@ -31,28 +31,26 @@ class RigFractureCell;
 ///  
 //==================================================================================================
 class RigFractureGrid : public cvf::Object
-    
 {
 public:
     RigFractureGrid();
 
-    void setFractureCells(std::vector<RigFractureCell> fractureCells) { m_fractureCells = fractureCells; }
-    void setWellCenterFractureCellIJ(std::pair<size_t, size_t>  wellCenterFractureCellIJ) { m_wellCenterFractureCellIJ = wellCenterFractureCellIJ; }
-    void setICellCount(size_t iCellCount) { m_iCellCount = iCellCount; }
-    void setJCellCount(size_t jCellCount) { m_jCellCount = jCellCount; }
+    void setFractureCells(std::vector<RigFractureCell> fractureCells);
+    void setWellCenterFractureCellIJ(std::pair<size_t, size_t>  wellCenterFractureCellIJ);
+    void setICellCount(size_t iCellCount);
+    void setJCellCount(size_t jCellCount);
 
-    const std::vector<RigFractureCell>&     fractureCells() const { return m_fractureCells; }
+    const std::vector<RigFractureCell>&     fractureCells() const;
     size_t                                  getGlobalIndexFromIJ(size_t i, size_t j) const;
     const RigFractureCell&                  cellFromIndex(size_t index) const;
-    size_t                                  jCellCount() const { return m_jCellCount; }
-    size_t                                  iCellCount() const { return m_iCellCount; }
+    size_t                                  jCellCount() const;
+    size_t                                  iCellCount() const;
 
-    std::pair<size_t, size_t>               fractureCellAtWellCenter() const { return m_wellCenterFractureCellIJ; }
+    std::pair<size_t, size_t>               fractureCellAtWellCenter() const;
 
 private:
-    std::vector<RigFractureCell>    m_fractureCells;
-    std::pair<size_t, size_t>       m_wellCenterFractureCellIJ;
-    size_t                          m_iCellCount;
-    size_t                          m_jCellCount;
+    std::vector<RigFractureCell> m_fractureCells;
+    std::pair<size_t, size_t>    m_wellCenterFractureCellIJ;
+    size_t                       m_iCellCount;
+    size_t                       m_jCellCount;
 };
-

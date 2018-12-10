@@ -56,7 +56,7 @@ cvf::ref<cvf::DrawableGeo> RivNNCGeometryGenerator::generateSurface()
 
     CVF_ASSERT(m_vertices.notNull());
 
-    if (m_vertices->size() == 0) return NULL;
+    if (m_vertices->size() == 0) return nullptr;
 
     cvf::ref<cvf::DrawableGeo> geo = new cvf::DrawableGeo;
     geo->setFromTriangleVertexArray(m_vertices.p());
@@ -76,7 +76,7 @@ void RivNNCGeometryGenerator::computeArrays()
     long long numConnections = static_cast<long long>(m_nncIndexes.isNull()? m_nncData->connections().size(): m_nncIndexes->size());
 
     bool isVisibilityCalcActive = m_cellVisibility.notNull() && m_grid.notNull();
-    std::vector<RigCell>* allCells = NULL;
+    std::vector<RigCell>* allCells = nullptr;
     if (isVisibilityCalcActive)
     {
         allCells =  &(m_grid->mainGrid()->globalCellArray());
@@ -123,7 +123,7 @@ void RivNNCGeometryGenerator::computeArrays()
                 {
                     vx2 = vx3;
                     vx3 = cvf::Vec3f( conn.m_polygon[vxIdx] - offset);
-#pragma omp critical
+#pragma omp critical(critical_section_RivNNCGeometryGenerator_computeArrays)
                     {
                         vertices.push_back(vx1);
                         vertices.push_back(vx2);

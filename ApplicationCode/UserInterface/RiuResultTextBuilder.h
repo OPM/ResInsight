@@ -26,6 +26,7 @@
 
 class RimEclipseView;
 class RimEclipseCellColors;
+class Rim2dIntersectionView;
 class QString;
 class RigEclipseCaseData;
 
@@ -41,9 +42,12 @@ class RiuResultTextBuilder
 {
 public:
     RiuResultTextBuilder(RimEclipseView* reservoirView, size_t gridIndex, size_t cellIndex, size_t timeStepIndex);
+    RiuResultTextBuilder(RimEclipseView* reservoirView, size_t reservoirCellIndex, size_t timeStepIndex);
+
     void setFace(cvf::StructGridInterface::FaceType face);
     void setNncIndex(size_t nncIndex);
-    void setIntersectionPoint(cvf::Vec3d intersectionPoint);
+    void setIntersectionPointInDisplay(cvf::Vec3d intersectionPointInDisplay);
+    void set2dIntersectionView(Rim2dIntersectionView* intersectionView);
 
     QString mainResultText();
 
@@ -69,6 +73,7 @@ private:
 
 private:
     caf::PdmPointer<RimEclipseView> m_reservoirView;
+    caf::PdmPointer<Rim2dIntersectionView> m_2dIntersectionView;
 
     size_t m_gridIndex;
     size_t m_cellIndex;
@@ -78,5 +83,5 @@ private:
 
     size_t      m_nncIndex;
 
-    cvf::Vec3d m_intersectionPoint;
+    cvf::Vec3d m_intersectionPointInDisplay;
 };

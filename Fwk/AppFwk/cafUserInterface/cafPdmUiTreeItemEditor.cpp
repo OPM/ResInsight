@@ -46,7 +46,7 @@ namespace caf
     //--------------------------------------------------------------------------------------------------
     PdmUiTreeItemEditor::PdmUiTreeItemEditor(PdmUiItem* uiItem) 
     {
-        m_treeViewEditor = NULL; 
+        m_treeViewEditor = nullptr; 
         this->bindToPdmItem(uiItem);
     }
 

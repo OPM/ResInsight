@@ -18,7 +18,7 @@ class PdmObjectGroup : public PdmObject
     CAF_PDM_HEADER_INIT;
 public:
     PdmObjectGroup();
-    ~PdmObjectGroup();
+    ~PdmObjectGroup() override;
 
     std::vector<PdmObjectHandle*> objects;
 
@@ -73,7 +73,7 @@ class PdmObjectCollection : public PdmObject
     CAF_PDM_HEADER_INIT;
 public:
     PdmObjectCollection();
-    ~PdmObjectCollection();
+    ~PdmObjectCollection() override;
 
     caf::PdmChildArrayField<PdmObjectHandle*> objects;
 };

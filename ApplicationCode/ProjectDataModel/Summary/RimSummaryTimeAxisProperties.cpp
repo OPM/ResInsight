@@ -82,6 +82,7 @@ RimSummaryTimeAxisProperties::RimSummaryTimeAxisProperties()
     CAF_PDM_InitField(&titleFontSize, "FontSize", 11, "Font Size", "", "", "");
     CAF_PDM_InitField(&valuesFontSize, "ValuesFontSize", 11, "Font Size", "", "", "");
 
+    CAF_PDM_InitField(&m_isAutoZoom, "AutoZoom", true, "Set Range Automatically", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_timeMode, "TimeMode", "Time Mode", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_timeUnit, "TimeUnit", "Time Unit", "", "", "");
 
@@ -156,6 +157,22 @@ void RimSummaryTimeAxisProperties::setVisibleRangeMax(double value)
         m_visibleDateRangeMax = fromDisplayTimeToDate(value);
     }
     auto s = m_visibleDateRangeMax().toString();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimSummaryTimeAxisProperties::isAutoZoom() const
+{
+    return m_isAutoZoom;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimSummaryTimeAxisProperties::setAutoZoom(bool enableAutoZoom)
+{
+    m_isAutoZoom = enableAutoZoom;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -362,7 +379,7 @@ void RimSummaryTimeAxisProperties::fieldChangedByUi(const caf::PdmFieldHandle* c
         }
 
         updateTimeVisibleRange();
-        rimSummaryPlot->disableAutoZoom();
+        m_isAutoZoom = false;
     }
     else if (changedField == &m_visibleDateRangeMin)
     {
@@ -373,12 +390,12 @@ void RimSummaryTimeAxisProperties::fieldChangedByUi(const caf::PdmFieldHandle* c
         }
 
         updateTimeVisibleRange();
-        rimSummaryPlot->disableAutoZoom();
+        m_isAutoZoom = false;
     }
     else if (changedField == &m_visibleTimeRangeMin || changedField == &m_visibleTimeRangeMax)
     {
         updateDateVisibleRange();
-        rimSummaryPlot->disableAutoZoom();
+        m_isAutoZoom = false;
     }
     else if (changedField == &m_timeMode)
     {

@@ -43,7 +43,7 @@
 //--------------------------------------------------------------------------------------------------
 CellEdgeEffectGenerator::CellEdgeEffectGenerator(const cvf::ScalarMapper* edgeScalarMapper)
 {
-    CVF_ASSERT(edgeScalarMapper != NULL);
+    CVF_ASSERT(edgeScalarMapper != nullptr);
 
     m_edgeScalarMapper = edgeScalarMapper;
 
@@ -140,10 +140,10 @@ void CellEdgeEffectGenerator::updateForShaderBasedRendering(cvf::Effect* effect)
 
     cvf::ShaderProgramGenerator shaderGen("CellEdgeFaceShaderProgramGenerator", cvf::ShaderSourceProvider::instance());
     {
-        QFile data(":/Shader/fs_CellFace.glsl");
-        if (data.open(QFile::ReadOnly))
+        QFile file(":/Shader/fs_CellFace.glsl");
+        if (file.open(QFile::ReadOnly))
         {
-            QTextStream in(&data);
+            QTextStream in(&file);
 
             QString data = in.readAll();
             cvf::String cvfString = cvfqt::Utils::toString(data);
@@ -155,10 +155,10 @@ void CellEdgeEffectGenerator::updateForShaderBasedRendering(cvf::Effect* effect)
     if (m_ternaryCellScalarMapper.notNull())
     {
         {
-            QFile data(":/Shader/vs_2dTextureCellFace.glsl");
-            if (data.open(QFile::ReadOnly))
+            QFile file(":/Shader/vs_2dTextureCellFace.glsl");
+            if (file.open(QFile::ReadOnly))
             {
-                QTextStream in(&data);
+                QTextStream in(&file);
 
                 QString data = in.readAll();
                 cvf::String cvfString = cvfqt::Utils::toString(data);
@@ -170,10 +170,10 @@ void CellEdgeEffectGenerator::updateForShaderBasedRendering(cvf::Effect* effect)
     else
     {
         {
-            QFile data(":/Shader/vs_CellFace.glsl");
-            if (data.open(QFile::ReadOnly))
+            QFile file(":/Shader/vs_CellFace.glsl");
+            if (file.open(QFile::ReadOnly))
             {
-                QTextStream in(&data);
+                QTextStream in(&file);
 
                 QString data = in.readAll();
                 cvf::String cvfString = cvfqt::Utils::toString(data);

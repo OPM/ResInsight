@@ -54,8 +54,6 @@ RifCsvUserData::~RifCsvUserData()
 bool RifCsvUserData::parse(const QString& fileName, const AsciiDataParseOptions& parseOptions, QString* errorText)
 {
     m_allResultAddresses.clear();
-    m_timeSteps.clear();
-    m_mapFromAddressToTimeStepIndex.clear();
     m_mapFromAddressToResultIndex.clear();
 
     m_parser = std::unique_ptr<RifCsvUserDataFileParser>(new RifCsvUserDataFileParser(fileName, errorText));
@@ -100,14 +98,25 @@ bool RifCsvUserData::values(const RifEclipseSummaryAddress& resultAddress, std::
 //--------------------------------------------------------------------------------------------------
 const std::vector<time_t>& RifCsvUserData::timeSteps(const RifEclipseSummaryAddress& resultAddress) const
 {
-    auto search = m_mapFromAddressToTimeStepIndex.find(resultAddress);
-    if (search != m_mapFromAddressToTimeStepIndex.end())
+    // First, check whether date time values exist for the current address
+    auto search = m_mapFromAddressToResultIndex.find(resultAddress);
+    if (search != m_mapFromAddressToResultIndex.end())
     {
-        return m_timeSteps;
+        size_t index = m_mapFromAddressToResultIndex.at(resultAddress);
+        if (!m_parser->tableData().columnInfos()[index].dateTimeValues.empty())
+        {
+            return m_parser->tableData().columnInfos()[index].dateTimeValues;
+        }
+    }
+
+    // Then check for a separate date time column
+    int index = m_parser->tableData().dateTimeColumnIndex();
+    if (index >= 0)
+    {
+        return m_parser->tableData().columnInfos()[index].dateTimeValues;
     }
 
     static std::vector<time_t> emptyVector;
-    
     return emptyVector;
 }
 
@@ -138,19 +147,6 @@ void RifCsvUserData::buildTimeStepsAndMappings()
 {
     auto tableData = m_parser->tableData();
 
-    std::vector<time_t> timeStepsForTable = createTimeSteps(tableData);
-
-    if (timeStepsForTable.empty())
-    {
-        RiaLogging::warning(QString("Failed to find time data for table in file"));
-        RiaLogging::warning(QString("No data for this table is imported"));
-
-        return;
-    }
-
-    m_timeSteps = timeStepsForTable;
-
-
     for (size_t columnIndex = 0; columnIndex < tableData.columnInfos().size(); columnIndex++)
     {
         const Column& ci = tableData.columnInfos()[columnIndex];
@@ -158,28 +154,10 @@ void RifCsvUserData::buildTimeStepsAndMappings()
         {
             RifEclipseSummaryAddress sumAddress = ci.summaryAddress;
 
-            m_allResultAddresses.push_back(sumAddress);
+            m_allResultAddresses.insert(sumAddress);
+            if (sumAddress.isErrorResult())  m_allErrorAddresses.insert(sumAddress);
 
-            m_mapFromAddressToTimeStepIndex[sumAddress] = m_timeSteps.size() - 1;
             m_mapFromAddressToResultIndex[sumAddress] = columnIndex;
         }
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-std::vector<time_t> RifCsvUserData::createTimeSteps(const TableData& tableData)
-{
-    std::vector<time_t> tsVector;
-
-    const Column& col = tableData.columnInfos()[0];
-
-    tsVector.reserve(col.dateTimeValues.size());
-    for (const QDateTime& qdt : col.dateTimeValues)
-    {
-        tsVector.push_back(qdt.toTime_t());
-    }
-
-    return tsVector;
 }

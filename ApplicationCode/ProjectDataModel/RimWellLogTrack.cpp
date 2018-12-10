@@ -20,6 +20,9 @@
 #include "RimWellLogTrack.h"
 
 #include "RiaApplication.h"
+#include "RiaColorTables.h"
+#include "RiaExtractionTools.h"
+#include "RiaSimWellBranchTools.h"
 
 #include "RigEclipseCaseData.h"
 #include "RigEclipseWellLogExtractor.h"
@@ -41,28 +44,37 @@
 #include "RimEclipseCase.h"
 #include "RimGeoMechCase.h"
 #include "RimMainPlotCollection.h"
+#include "RimFishbonesCollection.h"
+#include "RimFishbonesMultipleSubs.h"
+#include "RimPerforationCollection.h"
+#include "RimPerforationInterval.h"
 #include "RimProject.h"
 #include "RimTools.h"
+#include "RimWellPathAttribute.h"
+#include "RimWellPathAttributeCollection.h"
+#include "RimWellPathFracture.h"
+#include "RimWellPathFractureCollection.h"
 #include "RimWellFlowRateCurve.h"
 #include "RimWellLogCurve.h"
 #include "RimWellLogPlotCollection.h"
 #include "RimWellPath.h"
+#include "RimWellPathCompletions.h"
 #include "RimWellPltPlot.h"
 #include "RimWellRftPlot.h"
 
 #include "RiuMainWindow.h"
 #include "RiuPlotAnnotationTool.h"
+#include "RiuPlotMainWindowTools.h"
+#include "RiuWellPathComponentPlotItem.h"
 #include "RiuWellLogPlot.h"
 #include "RiuWellLogTrack.h"
 
+#include "RiuQwtLinearScaleEngine.h"
 #include "cvfAssert.h"
-
-#include "qwt_scale_engine.h"
-#include "RiaSimWellBranchTools.h"
 
 #define RI_LOGPLOTTRACK_MINX_DEFAULT    -10.0
 #define RI_LOGPLOTTRACK_MAXX_DEFAULT    100.0
-
+#define RI_LOGPLOTTRACK_MINOR_TICK_DEFAULT 
 
 CAF_PDM_SOURCE_INIT(RimWellLogTrack, "WellLogPlotTrack");
 
@@ -80,7 +92,7 @@ namespace caf
     void AppEnum< RimWellLogTrack::FormationSource >::setUp()
     {
         addItem(RimWellLogTrack::CASE, "CASE", "Case");
-        addItem(RimWellLogTrack::WELL_PICK_FILTER, "WELL_PICK_FILTER", "Well Path");
+        addItem(RimWellLogTrack::WELL_PICK_FILTER, "WELL_PICK_FILTER", "Well Picks for Well Path");
         setDefault(RimWellLogTrack::CASE);
     }
    
@@ -102,6 +114,17 @@ namespace caf
         addItem(RigWellPathFormations::LEVEL9, "LEVEL9", "Formation 9");
         addItem(RigWellPathFormations::LEVEL10, "LEVEL10", "Formation 10");
         setDefault(RigWellPathFormations::ALL);
+    }
+
+    template<>
+    void AppEnum< RimWellLogTrack::WidthScaleFactor >::setUp()
+    {
+        addItem(RimWellLogTrack::EXTRA_NARROW_TRACK, "EXTRA_NARROW_TRACK", "Extra Narrow");
+        addItem(RimWellLogTrack::NARROW_TRACK,       "NARROW_TRACK",       "Narrow");
+        addItem(RimWellLogTrack::NORMAL_TRACK,       "NORMAL_TRACK",       "Normal");
+        addItem(RimWellLogTrack::WIDE_TRACK,         "WIDE_TRACK",         "Wide");
+        addItem(RimWellLogTrack::EXTRA_WIDE_TRACK,    "EXTRA_WIDE_TRACK",  "Extra wide");
+        setDefault(RimWellLogTrack::NORMAL_TRACK);
     }
 }
 
@@ -126,10 +149,20 @@ RimWellLogTrack::RimWellLogTrack()
     CAF_PDM_InitField(&m_visibleXRangeMax, "VisibleXRangeMax", RI_LOGPLOTTRACK_MAXX_DEFAULT, "Max", "", "", "");
 
     CAF_PDM_InitField(&m_isAutoScaleXEnabled, "AutoScaleX", true, "Auto Scale", "", "", "");
+    m_isAutoScaleXEnabled.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitField(&m_isLogarithmicScaleEnabled, "LogarithmicScaleX", false, "Logarithmic Scale", "", "", "");
 
-    CAF_PDM_InitField(&m_showFormations, "ShowFormations", false, "Show", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_xAxisGridVisibility, "ShowXGridLines", "Show Grid Lines", "", "", "");
+
+    CAF_PDM_InitField(&m_explicitTickIntervals, "ExplicitTickIntervals", false, "Manually Set Tick Intervals", "", "", "");
+    CAF_PDM_InitField(&m_majorTickInterval, "MajorTickIntervals", 0.0, "Major Tick Interval", "", "", "");
+    CAF_PDM_InitField(&m_minorTickInterval, "MinorTickIntervals", 0.0, "Minor Tick Interval", "", "", "");
+    m_majorTickInterval.uiCapability()->setUiHidden(true);
+    m_minorTickInterval.uiCapability()->setUiHidden(true);
+
+    CAF_PDM_InitField(&m_showFormations, "ShowFormations", false, "Show Lines", "", "", "");
+    CAF_PDM_InitField(&m_showFormationLabels, "ShowFormationLabels", true, "Show Labels", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_formationSource, "FormationSource", "Source", "", "", "");
 
@@ -152,6 +185,17 @@ RimWellLogTrack::RimWellLogTrack()
     CAF_PDM_InitFieldNoDefault(&m_formationLevel, "FormationLevel", "Well Pick Filter", "", "", "");
 
     CAF_PDM_InitField(&m_showformationFluids, "ShowFormationFluids", false, "Show Fluids", "", "", "");
+
+    CAF_PDM_InitField(&m_showWellPathAttributes, "ShowWellPathAttributes", false, "Show Well Attributes", "", "", "");
+    CAF_PDM_InitField(&m_wellPathAttributesInLegend, "WellPathAttributesInLegend", false, "Attributes in Legend", "", "", "");
+    CAF_PDM_InitField(&m_showWellPathCompletions, "ShowWellPathCompletions", true, "Show Well Completions", "", "", "");
+    CAF_PDM_InitField(&m_wellPathCompletionsInLegend, "WellPathCompletionsInLegend", false, "Completions in Legend", "", "", "");
+    CAF_PDM_InitField(&m_showWellPathComponentsBothSides, "ShowWellPathAttrBothSides", true, "Show Both Sides", "", "", "");
+    CAF_PDM_InitField(&m_showWellPathComponentLabels, "ShowWellPathAttrLabels", false, "Show Labels", "", "", "");    
+    CAF_PDM_InitFieldNoDefault(&m_wellPathComponentSource, "AttributesWellPathSource", "Well Path", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_wellPathAttributeCollection, "AttributesCollection", "Well Attributes", "", "", "");
+
+    CAF_PDM_InitFieldNoDefault(&m_widthScaleFactor, "Width", "Track Width", "", "Set width of track. ", "");
 
     m_formationsForCaseWithSimWellOnly = false;
 }
@@ -219,41 +263,67 @@ void RimWellLogTrack::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
             m_wellLogTrackPlotWidget->setVisible(m_show());
         }
 
-        RimWellLogPlot* wellLogPlot;
-        this->firstAncestorOrThisOfType(wellLogPlot);
-        if (wellLogPlot)
+        updateParentPlotLayout();
+    }
+    else if (changedField == &m_widthScaleFactor)
+    {
+        updateParentPlotLayout();
+        updateAxisAndGridTickIntervals();
+        applyXZoomFromVisibleRange();
+    }
+    else if (changedField == &m_explicitTickIntervals)
+    {
+        if (m_wellLogTrackPlotWidget)
         {
-            wellLogPlot->calculateAvailableDepthRange();
-            wellLogPlot->updateDepthZoom();
-
-            RiuWellLogPlot* wellLogPlotViewer = dynamic_cast<RiuWellLogPlot*>(wellLogPlot->viewWidget());
-            if (wellLogPlotViewer)
-            {
-                wellLogPlotViewer->updateChildrenLayout();
-            }
+            m_majorTickInterval = m_wellLogTrackPlotWidget->getCurrentMajorTickInterval();
+            m_minorTickInterval = m_wellLogTrackPlotWidget->getCurrentMinorTickInterval();
         }
+        m_majorTickInterval.uiCapability()->setUiHidden(!m_explicitTickIntervals());
+        m_minorTickInterval.uiCapability()->setUiHidden(!m_explicitTickIntervals());
+        if (!m_explicitTickIntervals())
+        {
+            updateAxisAndGridTickIntervals();
+        }
+    }
+    else if (changedField == &m_xAxisGridVisibility ||
+             changedField == &m_majorTickInterval ||
+             changedField == &m_minorTickInterval)
+    {
+        updateAxisAndGridTickIntervals();
     }
     else if (changedField == &m_visibleXRangeMin || changedField == &m_visibleXRangeMax)
     {
         m_wellLogTrackPlotWidget->setXRange(m_visibleXRangeMin, m_visibleXRangeMax);
         m_wellLogTrackPlotWidget->replot();
         m_isAutoScaleXEnabled = false;
+        bool emptyRange = std::abs(m_visibleXRangeMax() - m_visibleXRangeMin) < 1.0e-6 * std::max(1.0, std::max(m_visibleXRangeMax(), m_visibleXRangeMin()));
+        m_explicitTickIntervals.uiCapability()->setUiReadOnly(emptyRange);
+        m_xAxisGridVisibility.uiCapability()->setUiReadOnly(emptyRange);
+
+        updateEditors();
+        updateParentPlotLayout();
+        updateAxisAndGridTickIntervals();
     }
     else if (changedField == &m_isAutoScaleXEnabled)
     {
         if (m_isAutoScaleXEnabled())
         { 
-            this->updateXZoom();
+            this->calculateXZoomRangeAndUpdateQwt();
             computeAndSetXRangeMinForLogarithmicScale();
 
             if (m_wellLogTrackPlotWidget) m_wellLogTrackPlotWidget->replot();
-        }
+        }    
     }
     else if (changedField == &m_isLogarithmicScaleEnabled)
     {
         updateAxisScaleEngine();
+        if (m_isLogarithmicScaleEnabled())
+        {
+            m_explicitTickIntervals = false;
+        }
+        m_explicitTickIntervals.uiCapability()->setUiHidden(m_isLogarithmicScaleEnabled());
 
-        this->updateXZoom();
+        this->calculateXZoomRangeAndUpdateQwt();
         computeAndSetXRangeMinForLogarithmicScale();
 
         m_wellLogTrackPlotWidget->setXRange(m_visibleXRangeMin, m_visibleXRangeMax);
@@ -276,7 +346,8 @@ void RimWellLogTrack::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
             }
         }
 
-        loadDataAndUpdate();
+        loadDataAndUpdate(true);
+
         RimWellRftPlot* rftPlot(nullptr);
 
         firstAncestorOrThisOfType(rftPlot);
@@ -296,6 +367,10 @@ void RimWellLogTrack::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
             }
         }
     }
+    else if (changedField == &m_showFormationLabels)
+    {
+        loadDataAndUpdate();
+    }
     else if (changedField == &m_formationCase)
     {
         QList<caf::PdmOptionItemInfo> options;
@@ -306,15 +381,15 @@ void RimWellLogTrack::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
             m_formationSimWellName = QString("None");
         }
 
-        loadDataAndUpdate();
+        loadDataAndUpdate(true);
     }
     else if (changedField == &m_formationWellPathForSourceCase)
     {
-        loadDataAndUpdate();
+        loadDataAndUpdate(true);
     }
     else if (changedField == &m_formationSimWellName)
     {
-        loadDataAndUpdate();
+        loadDataAndUpdate(true);
     }
     else if (changedField == &m_formationTrajectoryType)
     {
@@ -327,22 +402,22 @@ void RimWellLogTrack::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
         {
             if (m_formationWellPathForSourceCase)
             {
-                m_formationSimWellName = m_formationWellPathForSourceCase->m_simWellName;
+                m_formationSimWellName = m_formationWellPathForSourceCase->associatedSimulationWellName();
             }
         }
 
-        loadDataAndUpdate();
+        loadDataAndUpdate(true);
     }
     else if (changedField == &m_formationBranchIndex || 
              changedField == &m_formationBranchDetection)
     {
         m_formationBranchIndex = RiaSimWellBranchTools::clampBranchIndex(m_formationSimWellName, m_formationBranchIndex, m_formationBranchDetection);
 
-        loadDataAndUpdate();
+        loadDataAndUpdate(true);
     }
     else if (changedField == &m_formationWellPathForSourceWellPath)
     {
-        loadDataAndUpdate();
+        loadDataAndUpdate(true);
     }
     else if (changedField == &m_formationLevel)
     {
@@ -351,6 +426,124 @@ void RimWellLogTrack::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
     else if (changedField == &m_showformationFluids)
     {
         loadDataAndUpdate();
+    }
+    else if (changedField == &m_showWellPathAttributes ||
+             changedField == &m_showWellPathCompletions ||
+             changedField == &m_showWellPathComponentsBothSides ||             
+             changedField == &m_showWellPathComponentLabels ||
+             changedField == &m_wellPathAttributesInLegend ||
+             changedField == &m_wellPathCompletionsInLegend)
+    {
+        updateWellPathAttributesOnPlot();
+        updateParentPlotLayout();
+        RiuPlotMainWindowTools::refreshToolbars();
+    }
+    else if (changedField == &m_wellPathComponentSource)
+    {      
+        updateWellPathAttributesCollection();
+        updateWellPathAttributesOnPlot();
+        updateParentPlotLayout();
+        RiuPlotMainWindowTools::refreshToolbars();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogTrack::updateParentPlotLayout()
+{
+    RimWellLogPlot* wellLogPlot;
+    this->firstAncestorOrThisOfType(wellLogPlot);
+    if (wellLogPlot)
+    {
+        RiuWellLogPlot* wellLogPlotViewer = dynamic_cast<RiuWellLogPlot*>(wellLogPlot->viewWidget());
+        if (wellLogPlotViewer)
+        {
+            wellLogPlotViewer->updateChildrenLayout();
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogTrack::updateAxisAndGridTickIntervals()
+{
+    if (!m_wellLogTrackPlotWidget) return;
+
+    if (m_explicitTickIntervals)
+    {
+        m_wellLogTrackPlotWidget->setMajorAndMinorTickIntervals(m_majorTickInterval(), m_minorTickInterval());
+    }
+    else
+    {
+        int xMajorTickIntervals = 3;
+        int xMinorTickIntervals = 0;
+        switch (m_widthScaleFactor())
+        {
+        case EXTRA_NARROW_TRACK:
+            xMajorTickIntervals = 3;
+            xMinorTickIntervals = 2;
+            break;
+        case NARROW_TRACK:
+            xMajorTickIntervals = 3;
+            xMinorTickIntervals = 5;
+            break;
+        case NORMAL_TRACK:
+            xMajorTickIntervals = 5;
+            xMinorTickIntervals = 5;
+            break;
+        case WIDE_TRACK:
+            xMajorTickIntervals = 5;
+            xMinorTickIntervals = 10;
+            break;
+        case EXTRA_WIDE_TRACK:
+            xMajorTickIntervals = 10;
+            xMinorTickIntervals = 10;
+            break;
+        }
+        m_wellLogTrackPlotWidget->setAutoTickIntervalCounts(xMajorTickIntervals, xMinorTickIntervals);
+    }
+
+    switch (m_xAxisGridVisibility())
+    {
+    case RimWellLogPlot::AXIS_GRID_NONE:
+        m_wellLogTrackPlotWidget->enableXGridLines(false, false);
+        break;
+    case RimWellLogPlot::AXIS_GRID_MAJOR:
+        m_wellLogTrackPlotWidget->enableXGridLines(true, false);
+        break;
+    case RimWellLogPlot::AXIS_GRID_MAJOR_AND_MINOR:
+        m_wellLogTrackPlotWidget->enableXGridLines(true, true);
+        break;
+    }
+
+    RimWellLogPlot* plot = nullptr;
+    this->firstAncestorOrThisOfTypeAsserted(plot);
+    switch (plot->depthGridLinesVisibility())
+    {
+    case RimWellLogPlot::AXIS_GRID_NONE:
+        m_wellLogTrackPlotWidget->enableDepthGridLines(false, false);
+        break;
+    case RimWellLogPlot::AXIS_GRID_MAJOR:
+        m_wellLogTrackPlotWidget->enableDepthGridLines(true, false);
+        break;
+    case RimWellLogPlot::AXIS_GRID_MAJOR_AND_MINOR:
+        m_wellLogTrackPlotWidget->enableDepthGridLines(true, true);
+        break;
+    }
+    m_wellLogTrackPlotWidget->replot();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogTrack::updateAllLegendItems()
+{
+    reattachAllCurves();
+    if (m_wellLogTrackPlotWidget)
+    {
+        m_wellLogTrackPlotWidget->updateLegend();
     }
 }
 
@@ -414,7 +607,11 @@ QList<caf::PdmOptionItemInfo> RimWellLogTrack::calculateValueOptions(const caf::
             }
         }
     }
-
+    else if (fieldNeedingOptions == &m_wellPathComponentSource)
+    {
+        RimTools::wellPathOptionItems(&options);
+        options.push_front(caf::PdmOptionItemInfo("None", nullptr));
+    }
     return options;
 }
 
@@ -498,14 +695,12 @@ void RimWellLogTrack::availableDepthRange(double* minimumDepth, double* maximumD
     double minDepth = HUGE_VAL;
     double maxDepth = -HUGE_VAL;
 
-    size_t curveCount = curves.size();
-
-    for (size_t cIdx = 0; cIdx < curveCount; cIdx++)
+    for (RimPlotCurve* curve : curves)
     {
         double minCurveDepth = HUGE_VAL;
         double maxCurveDepth = -HUGE_VAL;
 
-        if (curves[cIdx]->isCurveVisible() && curves[cIdx]->depthRange(&minCurveDepth, &maxCurveDepth))
+        if (curve->isCurveVisible() && curve->yValueRange(&minCurveDepth, &maxCurveDepth))
         {
             if (minCurveDepth < minDepth)
             {
@@ -519,6 +714,27 @@ void RimWellLogTrack::availableDepthRange(double* minimumDepth, double* maximumD
         }
     }
 
+    if (m_showWellPathAttributes || m_showWellPathCompletions)
+    {
+        for (const std::unique_ptr<RiuWellPathComponentPlotItem>& plotObject : m_wellPathAttributePlotObjects)
+        {
+            double minObjectDepth = HUGE_VAL;
+            double maxObjectDepth = -HUGE_VAL;
+            if (plotObject->yValueRange(&minObjectDepth, &maxObjectDepth))
+            {
+                if (minObjectDepth < minDepth)
+                {
+                    minDepth = minObjectDepth;
+                }
+
+                if (maxObjectDepth > maxDepth)
+                {
+                    maxDepth = maxObjectDepth;
+                }
+            }
+        }
+    }
+
     *minimumDepth = minDepth;
     *maximumDepth = maxDepth;
 }
@@ -526,14 +742,17 @@ void RimWellLogTrack::availableDepthRange(double* minimumDepth, double* maximumD
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellLogTrack::loadDataAndUpdate()
+void RimWellLogTrack::loadDataAndUpdate(bool updateParentPlotAndToolbars)
 {
     RimWellLogPlot* wellLogPlot = nullptr;
     firstAncestorOrThisOfType(wellLogPlot);
 
     if (wellLogPlot && m_wellLogTrackPlotWidget)
     {
-        m_wellLogTrackPlotWidget->setDepthTitle(wellLogPlot->depthPlotTitle());
+        if (isFirstVisibleTrackInPlot())
+        {
+            m_wellLogTrackPlotWidget->setDepthTitle(wellLogPlot->depthPlotTitle());
+        }
         m_wellLogTrackPlotWidget->setXTitle(m_xAxisTitle);
     }
 
@@ -553,10 +772,29 @@ void RimWellLogTrack::loadDataAndUpdate()
 
     if ( m_wellLogTrackPlotWidget )
     {
+        this->updateWellPathAttributesCollection();
+        this->updateWellPathAttributesOnPlot();
         m_wellLogTrackPlotWidget->updateLegend();
+
         this->updateAxisScaleEngine();
         this->updateFormationNamesOnPlot();
-        this->updateXZoomAndParentPlotDepthZoom();
+        this->applyXZoomFromVisibleRange();
+    }
+
+    this->updateAxisAndGridTickIntervals();
+    m_majorTickInterval.uiCapability()->setUiHidden(!m_explicitTickIntervals());
+    m_minorTickInterval.uiCapability()->setUiHidden(!m_explicitTickIntervals());
+
+    bool emptyRange = std::abs(m_visibleXRangeMax() - m_visibleXRangeMin) < 1.0e-6 * std::max(1.0, std::max(m_visibleXRangeMax(), m_visibleXRangeMin()));
+    m_explicitTickIntervals.uiCapability()->setUiReadOnly(emptyRange);
+    m_xAxisGridVisibility.uiCapability()->setUiReadOnly(emptyRange);
+
+    updateAllLegendItems();
+
+    if (updateParentPlotAndToolbars)
+    {
+        updateParentPlotLayout();
+        RiuPlotMainWindowTools::refreshToolbars();
     }
 }
 
@@ -611,9 +849,44 @@ void RimWellLogTrack::setAndUpdateSimWellFormationNamesData(RimCase* rimCase, co
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimWellLogTrack::setAutoScaleXEnabled(bool enabled)
+{
+    m_isAutoScaleXEnabled = enabled;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimWellLogTrack::setXAxisTitle(const QString& text)
 {
     m_xAxisTitle = text;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimWellLogTrack::depthPlotTitle() const
+{
+    RimWellLogPlot* parent;
+    this->firstAncestorOrThisOfTypeAsserted(parent);
+
+    return parent->depthPlotTitle();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RimWellLogTrack::widthScaleFactor() const
+{
+    return static_cast<int>(m_widthScaleFactor());
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogTrack::setWidthScaleFactor(WidthScaleFactor scaleFactor)
+{
+    m_widthScaleFactor = scaleFactor;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -622,6 +895,14 @@ void RimWellLogTrack::setXAxisTitle(const QString& text)
 void RimWellLogTrack::setFormationWellPath(RimWellPath* wellPath)
 {
     m_formationWellPathForSourceCase = wellPath;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimWellPath* RimWellLogTrack::formationWellPath() const
+{
+    return m_formationWellPathForSourceCase;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -688,16 +969,35 @@ void RimWellLogTrack::recreateViewer()
 //--------------------------------------------------------------------------------------------------
 void RimWellLogTrack::detachAllCurves()
 {
-    for (size_t cIdx = 0; cIdx < curves.size(); ++cIdx)
+    for (RimPlotCurve* curve : curves)
     {
-        curves[cIdx]->detachQwtCurve();
+        curve->detachQwtCurve();
+    }
+    for (auto& plotObjects : m_wellPathAttributePlotObjects)
+    {
+        plotObjects->detachFromQwt();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogTrack::reattachAllCurves()
+{
+    for (RimPlotCurve* curve : curves)
+    {
+        curve->reattachQwtCurve();
+    }
+    for (auto& plotObjects : m_wellPathAttributePlotObjects)
+    {
+        plotObjects->reattachToQwt();
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellLogTrack::updateXZoomAndParentPlotDepthZoom()
+void RimWellLogTrack::updateParentPlotZoom()
 {
     if (m_wellLogTrackPlotWidget)
     {
@@ -707,17 +1007,45 @@ void RimWellLogTrack::updateXZoomAndParentPlotDepthZoom()
         {
            wellLogPlot->updateDepthZoom();
         }
-
-        updateXZoom();
-
-        m_wellLogTrackPlotWidget->replot();
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellLogTrack::updateXZoom()
+void RimWellLogTrack::calculateXZoomRangeAndUpdateQwt()
+{
+    this->calculateXZoomRange();
+    this->applyXZoomFromVisibleRange();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellLogTrack::applyXZoomFromVisibleRange()
+{
+    if (!m_wellLogTrackPlotWidget) return;
+
+    m_wellLogTrackPlotWidget->setXRange(m_visibleXRangeMin, m_visibleXRangeMax);
+
+    // Attribute range. Fixed range where well components are positioned [-1, 1].
+    // Set an extended range here to allow for some label space.
+    double componentRangeMax = 1.5 * (10.0 / (m_widthScaleFactor()));
+    double componentRangeMin = -0.25;
+    if (m_showWellPathComponentsBothSides)
+    {
+        componentRangeMin = -1.5;
+    }
+
+    m_wellLogTrackPlotWidget->setXRange(componentRangeMin, componentRangeMax, QwtPlot::xBottom);
+
+    m_wellLogTrackPlotWidget->replot();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellLogTrack::calculateXZoomRange()
 {
     std::map<int, std::vector<RimWellFlowRateCurve*>> stackCurveGroups = visibleStackedCurves();
     for (const std::pair<int, std::vector<RimWellFlowRateCurve*>>& curveGroup : stackCurveGroups)
@@ -727,51 +1055,120 @@ void RimWellLogTrack::updateXZoom()
 
     if (!m_isAutoScaleXEnabled())
     {
-        if (m_wellLogTrackPlotWidget)
-        {
-            m_wellLogTrackPlotWidget->setXRange(m_visibleXRangeMin, m_visibleXRangeMax);
-            m_wellLogTrackPlotWidget->replot();
-        }
-
         return;
     }
 
     double minValue = HUGE_VAL;
     double maxValue = -HUGE_VAL;
 
-    for (size_t cIdx = 0; cIdx < curves.size(); cIdx++)
+    size_t visibleCurves = 0u;
+    for (auto curve : curves)
     {
         double minCurveValue = HUGE_VAL;
         double maxCurveValue = -HUGE_VAL;
 
-        if (curves[cIdx]->isCurveVisible() && curves[cIdx]->valueRange(&minCurveValue, &maxCurveValue))
+        if (curve->isCurveVisible())
         {
-            if (minCurveValue < minValue)
+            visibleCurves++;
+            if (curve->xValueRange(&minCurveValue, &maxCurveValue))
             {
-                minValue = minCurveValue;
-            }
+                if (minCurveValue < minValue)
+                {
+                    minValue = minCurveValue;
+                }
 
-            if (maxCurveValue > maxValue)
-            {
-                maxValue = maxCurveValue;
+                if (maxCurveValue > maxValue)
+                {
+                    maxValue = maxCurveValue;
+                }
             }
         }
     }
 
     if (minValue == HUGE_VAL)
     {
-        minValue = RI_LOGPLOTTRACK_MINX_DEFAULT;
-        maxValue = RI_LOGPLOTTRACK_MAXX_DEFAULT;
+        if (visibleCurves)
+        {
+            minValue = RI_LOGPLOTTRACK_MINX_DEFAULT;
+            maxValue = RI_LOGPLOTTRACK_MAXX_DEFAULT;
+        }
+        else
+        {
+            // Empty axis when there are no curves
+            minValue = 0;
+            maxValue = 0;
+        }
+    }
+
+    if (m_minorTickInterval() != 0.0)
+    {
+        std::tie(minValue, maxValue) = adjustXRange(minValue, maxValue, m_minorTickInterval());
     }
 
     m_visibleXRangeMin = minValue;
     m_visibleXRangeMax = maxValue;
 
     computeAndSetXRangeMinForLogarithmicScale();
+    updateEditors();
+}
 
-    if (m_wellLogTrackPlotWidget) m_wellLogTrackPlotWidget->setXRange(m_visibleXRangeMin, m_visibleXRangeMax);
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellLogTrack::updateEditors()
+{
+    this->updateConnectedEditors();
 
-    updateConnectedEditors();
+    RimWellLogPlot* plot = nullptr;
+    firstAncestorOrThisOfTypeAsserted(plot);
+    plot->updateConnectedEditors();
+
+    RimWellRftPlot* rftPlot(nullptr);
+
+    firstAncestorOrThisOfType(rftPlot);
+
+    if (rftPlot)
+    {
+        rftPlot->updateConnectedEditors();
+    }
+    else
+    {
+        RimWellPltPlot* pltPlot(nullptr);
+        firstAncestorOrThisOfType(pltPlot);
+
+        if (pltPlot)
+        {
+            pltPlot->updateConnectedEditors();
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogTrack::setVisibleXRange(double minValue, double maxValue)
+{
+    this->setAutoScaleXEnabled(false);
+    m_visibleXRangeMin = minValue;
+    m_visibleXRangeMax = maxValue;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogTrack::setTickIntervals(double majorTickInterval, double minorTickInterval)
+{
+    m_explicitTickIntervals = true;
+    m_majorTickInterval = majorTickInterval;
+    m_minorTickInterval = minorTickInterval;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogTrack::setXAxisGridVisibility(RimWellLogPlot::AxisGridVisibility gridLines)
+{
+    m_xAxisGridVisibility = gridLines;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -780,6 +1177,55 @@ void RimWellLogTrack::updateXZoom()
 void RimWellLogTrack::setShowFormations(bool on)
 {
     m_showFormations = on;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimWellLogTrack::showFormations() const
+{
+    return m_showFormations;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogTrack::setShowFormationLabels(bool on)
+{
+    m_showFormationLabels = on;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimWellLogTrack::showWellPathAttributes() const
+{
+    return m_showWellPathAttributes;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogTrack::setShowWellPathAttributes(bool on)
+{
+    m_showWellPathAttributes = on;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogTrack::setWellPathAttributesSource(RimWellPath* wellPath)
+{
+    m_wellPathComponentSource = wellPath;
+    updateWellPathAttributesCollection();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimWellPath* RimWellLogTrack::wellPathAttributeSource() const
+{
+    return m_wellPathComponentSource;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -804,10 +1250,10 @@ RimWellLogCurve* RimWellLogTrack::curveDefinitionFromCurve(const QwtPlotCurve* c
 void RimWellLogTrack::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
     uiOrdering.add(&m_userName);
-
     caf::PdmUiGroup* formationGroup = uiOrdering.addNewGroup("Zonation/Formation Names");
     
     formationGroup->add(&m_showFormations);
+    formationGroup->add(&m_showFormationLabels);
 
     if (!m_formationsForCaseWithSimWellOnly)
     {
@@ -852,7 +1298,20 @@ void RimWellLogTrack::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering&
         }
     }
 
-    uiOrderingForVisibleXRange(uiOrdering);
+    caf::PdmUiGroup* componentGroup = uiOrdering.addNewGroup("Well Path Components");
+    componentGroup->add(&m_showWellPathAttributes);
+    componentGroup->add(&m_showWellPathCompletions);
+    componentGroup->add(&m_wellPathAttributesInLegend);
+    componentGroup->add(&m_wellPathCompletionsInLegend);
+    componentGroup->add(&m_showWellPathComponentsBothSides);
+    componentGroup->add(&m_showWellPathComponentLabels);
+    
+    componentGroup->add(&m_wellPathComponentSource);
+
+    uiOrderingForXAxisSettings(uiOrdering);
+
+    caf::PdmUiGroup* trackSettingsGroup = uiOrdering.addNewGroup("Track Settings");
+    trackSettingsGroup->add(&m_widthScaleFactor);
 
     uiOrdering.skipRemainingFields(true);
 }
@@ -887,13 +1346,53 @@ void RimWellLogTrack::updateAxisScaleEngine()
     }
     else
     {
-        m_wellLogTrackPlotWidget->setAxisScaleEngine(QwtPlot::xTop, new QwtLinearScaleEngine);
+        m_wellLogTrackPlotWidget->setAxisScaleEngine(QwtPlot::xTop, new RiuQwtLinearScaleEngine);
 
         // NB! Must assign scale engine to bottom in order to make QwtPlotGrid work
-        m_wellLogTrackPlotWidget->setAxisScaleEngine(QwtPlot::xBottom, new QwtLinearScaleEngine);
+        m_wellLogTrackPlotWidget->setAxisScaleEngine(QwtPlot::xBottom, new RiuQwtLinearScaleEngine);
     }
 }
 
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimWellLogTrack::isFirstVisibleTrackInPlot() const
+{
+    RimWellLogPlot* plot = nullptr;
+    firstAncestorOrThisOfTypeAsserted(plot);
+    size_t ownIndex = plot->trackIndex(this);
+    return plot->firstVisibleTrackIndex() == ownIndex;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::pair<double, double> RimWellLogTrack::adjustXRange(double minValue, double maxValue, double tickInterval)
+{
+    double minRemainder = std::fmod(minValue, tickInterval);
+    double maxRemainder = std::fmod(maxValue, tickInterval);
+    double adjustedMin = minValue - minRemainder;
+    double adjustedMax = maxValue + (tickInterval - maxRemainder);
+    return std::make_pair(adjustedMin, adjustedMax);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogTrack::updateWellPathAttributesCollection()
+{
+    m_wellPathAttributeCollection = nullptr;
+    if (m_wellPathComponentSource)
+    {
+        std::vector<RimWellPathAttributeCollection*> attributeCollection;
+        m_wellPathComponentSource->descendantsIncludingThisOfType(attributeCollection);
+        if (!attributeCollection.empty())
+        {
+            m_wellPathAttributeCollection = attributeCollection.front();
+        }
+    }
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -1001,13 +1500,16 @@ void RimWellLogTrack::uiOrderingForRftPltFormations(caf::PdmUiOrdering& uiOrderi
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellLogTrack::uiOrderingForVisibleXRange(caf::PdmUiOrdering& uiOrdering)
+void RimWellLogTrack::uiOrderingForXAxisSettings(caf::PdmUiOrdering& uiOrdering)
 {
-    caf::PdmUiGroup* gridGroup = uiOrdering.addNewGroup("Visible X Axis Range");
-    gridGroup->add(&m_isAutoScaleXEnabled);
+    caf::PdmUiGroup* gridGroup = uiOrdering.addNewGroup("X Axis Settings");
     gridGroup->add(&m_isLogarithmicScaleEnabled);
     gridGroup->add(&m_visibleXRangeMin);
     gridGroup->add(&m_visibleXRangeMax);
+    gridGroup->add(&m_xAxisGridVisibility);
+    gridGroup->add(&m_explicitTickIntervals);
+    gridGroup->add(&m_majorTickInterval);
+    gridGroup->add(&m_minorTickInterval);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1043,32 +1545,12 @@ RigEclipseWellLogExtractor* RimWellLogTrack::createSimWellExtractor(RimWellLogPl
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RigEclipseWellLogExtractor* RimWellLogTrack::createWellPathExtractor(RimWellLogPlotCollection* wellLogCollection, RimCase* rimCase, RimWellPath* wellPath)
-{
-    if (!wellLogCollection) return nullptr;
-
-    RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>(rimCase);
-    return (wellLogCollection->findOrCreateExtractor(wellPath, eclipseCase));
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RigGeoMechWellLogExtractor* RimWellLogTrack::createGeoMechExtractor(RimWellLogPlotCollection* wellLogCollection, RimCase* rimCase, RimWellPath* wellPath)
-{
-    RimGeoMechCase* geomCase = dynamic_cast<RimGeoMechCase*>(rimCase);
-    return (wellLogCollection->findOrCreateExtractor(wellPath, geomCase));
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 CurveSamplingPointData RimWellLogTrack::curveSamplingPointData(RigEclipseWellLogExtractor* extractor, RigResultAccessor* resultAccessor)
 {
     CurveSamplingPointData curveData;
 
-    curveData.md = extractor->measuredDepth();
-    curveData.tvd = extractor->trueVerticalDepth();
+    curveData.md = extractor->cellIntersectionMDs();
+    curveData.tvd = extractor->cellIntersectionTVDs();
     
     extractor->curveData(resultAccessor, &curveData.data);
     
@@ -1082,28 +1564,11 @@ CurveSamplingPointData RimWellLogTrack::curveSamplingPointData(RigGeoMechWellLog
 {
     CurveSamplingPointData curveData;
 
-    curveData.md = extractor->measuredDepth();
-    curveData.tvd = extractor->trueVerticalDepth();
+    curveData.md = extractor->cellIntersectionMDs();
+    curveData.tvd = extractor->cellIntersectionTVDs();
 
     extractor->curveData(resultAddress, 0, &curveData.data);
     return curveData;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-std::vector<QString> RimWellLogTrack::formationNameIndexToName(RimCase* rimCase, const std::vector<int>& formationNameInidces)
-{
-    std::vector<QString> availableFormationNames = RimWellLogTrack::formationNamesVector(rimCase);
-
-    std::vector<QString> formationNames;
-
-    for (int index : formationNameInidces)
-    {
-        formationNames.push_back(availableFormationNames[index]);
-    }
-
-    return formationNames;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1121,7 +1586,14 @@ void RimWellLogTrack::findFormationNamesToPlot(const CurveSamplingPointData&    
 
     for (double nameIdx : curveData.data)
     {
-        formationNameIndicesFromCurve.push_back(round(nameIdx));
+        if (nameIdx != std::numeric_limits<double>::infinity())
+        {
+            formationNameIndicesFromCurve.push_back(static_cast<size_t>(round(nameIdx)));
+        }
+        else
+        {
+            formationNameIndicesFromCurve.push_back(std::numeric_limits<size_t>::max());
+        }
     }
 
     if (formationNameIndicesFromCurve.empty()) return;
@@ -1140,13 +1612,13 @@ void RimWellLogTrack::findFormationNamesToPlot(const CurveSamplingPointData&    
     if (depthVector.empty()) return;
 
     double currentYStart = depthVector[0];
-    double prevNameIndex = formationNameIndicesFromCurve[0];
-    double currentNameIndex;
+    size_t prevNameIndex = formationNameIndicesFromCurve[0];
+    size_t currentNameIndex;
 
     for (size_t i = 1; i < formationNameIndicesFromCurve.size(); i++)
     {
         currentNameIndex = formationNameIndicesFromCurve[i];
-        if (currentNameIndex != prevNameIndex)
+        if (currentNameIndex != std::numeric_limits<size_t>::max() && currentNameIndex != prevNameIndex)
         {
             if (prevNameIndex < formationNamesVector.size())
             {
@@ -1159,10 +1631,12 @@ void RimWellLogTrack::findFormationNamesToPlot(const CurveSamplingPointData&    
         }
     }
 
-    size_t lastIdx = formationNameIndicesFromCurve.size() - 1;
-
-    formationNamesToPlot->push_back(formationNamesVector[formationNameIndicesFromCurve[lastIdx]]);
-    yValues->push_back(std::make_pair(currentYStart, depthVector[lastIdx]));
+    size_t lastFormationIdx = formationNameIndicesFromCurve.back();
+    if (lastFormationIdx < formationNamesVector.size())
+    {
+        formationNamesToPlot->push_back(formationNamesVector[lastFormationIdx]);
+        yValues->push_back(std::make_pair(currentYStart, depthVector.back()));
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1196,6 +1670,7 @@ std::vector<QString> RimWellLogTrack::formationNamesVector(RimCase* rimCase)
 //--------------------------------------------------------------------------------------------------
 void RimWellLogTrack::setFormationFieldsUiReadOnly(bool readOnly /*= true*/)
 {
+    m_showFormationLabels.uiCapability()->setUiReadOnly(readOnly);
     m_formationSource.uiCapability()->setUiReadOnly(readOnly);
     m_formationTrajectoryType.uiCapability()->setUiReadOnly(readOnly);
     m_formationSimWellName.uiCapability()->setUiReadOnly(readOnly);
@@ -1223,7 +1698,6 @@ void RimWellLogTrack::updateFormationNamesOnPlot()
     }
 
     std::vector<QString> formationNamesToPlot;
-    std::vector<std::pair<double, double>> yValues;
 
     RimWellLogPlot* plot = nullptr;
     firstAncestorOrThisOfTypeAsserted(plot);
@@ -1252,9 +1726,8 @@ void RimWellLogTrack::updateFormationNamesOnPlot()
         }
         else
         {
-            eclWellLogExtractor = RimWellLogTrack::createWellPathExtractor(wellLogCollection, 
-                                                                           m_formationCase, 
-                                                                           m_formationWellPathForSourceCase);
+            eclWellLogExtractor = RiaExtractionTools::wellLogExtractorEclipseCase(m_formationWellPathForSourceCase,
+                                                                                  dynamic_cast<RimEclipseCase*>(m_formationCase()));
         }
 
         if (eclWellLogExtractor)
@@ -1271,7 +1744,8 @@ void RimWellLogTrack::updateFormationNamesOnPlot()
         }
         else
         {
-            geoMechWellLogExtractor = RimWellLogTrack::createGeoMechExtractor(wellLogCollection, m_formationCase, m_formationWellPathForSourceCase);
+            geoMechWellLogExtractor = RiaExtractionTools::wellLogExtractorGeoMechCase(m_formationWellPathForSourceCase,
+                                                                                  dynamic_cast<RimGeoMechCase*>(m_formationCase()));
             if (!geoMechWellLogExtractor) return;
 
             std::string activeFormationNamesResultName = RiaDefines::activeFormationNamesResultName().toStdString();
@@ -1279,6 +1753,7 @@ void RimWellLogTrack::updateFormationNamesOnPlot()
                                                                 RigFemResultAddress(RIG_FORMATION_NAMES, activeFormationNamesResultName, ""));
         }
 
+        std::vector<std::pair<double, double>> yValues;
         std::vector<QString> formationNamesVector = RimWellLogTrack::formationNamesVector(m_formationCase);
 
         RimWellLogTrack::findFormationNamesToPlot(curveData,
@@ -1287,7 +1762,7 @@ void RimWellLogTrack::updateFormationNamesOnPlot()
                                                   &formationNamesToPlot,
                                                   &yValues);
         
-        m_annotationTool->attachFormationNames(this->viewer(), formationNamesToPlot, yValues);
+        m_annotationTool->attachFormationNames(this->viewer(), formationNamesToPlot, yValues, m_showFormationLabels());
     }
     else if (m_formationSource() == WELL_PICK_FILTER)
     {
@@ -1308,6 +1783,82 @@ void RimWellLogTrack::updateFormationNamesOnPlot()
         
         m_annotationTool->attachWellPicks(this->viewer(), formationNamesToPlot, yValues);
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogTrack::updateWellPathAttributesOnPlot()
+{    
+    m_wellPathAttributePlotObjects.clear();
+
+    if (wellPathAttributeSource())
+    {
+        if (m_showWellPathAttributes || m_showWellPathCompletions)
+        {
+            m_wellPathAttributePlotObjects.push_back(std::unique_ptr<RiuWellPathComponentPlotItem>(new RiuWellPathComponentPlotItem(wellPathAttributeSource())));
+        }
+
+        if (m_showWellPathAttributes)
+        {
+            if (m_wellPathAttributeCollection)
+            {
+                std::vector<RimWellPathAttribute*> attributes = m_wellPathAttributeCollection->attributes();
+                std::sort(attributes.begin(), attributes.end(), [](const RimWellPathAttribute* lhs, const RimWellPathAttribute* rhs)
+                {
+                    return *lhs < *rhs;
+                });
+
+                std::set<QString> attributesAssignedToLegend;
+                for (RimWellPathAttribute* attribute : attributes)
+                {
+                    if (attribute->isEnabled())
+                    {
+                        std::unique_ptr<RiuWellPathComponentPlotItem> plotItem(new RiuWellPathComponentPlotItem(wellPathAttributeSource(), attribute));
+                        QString legendTitle = plotItem->legendTitle();
+                        bool contributeToLegend = m_wellPathAttributesInLegend() &&
+                            !attributesAssignedToLegend.count(legendTitle);
+                        plotItem->setContributeToLegend(contributeToLegend);
+                        m_wellPathAttributePlotObjects.push_back(std::move(plotItem));
+                        attributesAssignedToLegend.insert(legendTitle);
+                    }
+                }
+            }
+        }
+        if (m_showWellPathCompletions)
+        {
+            const RimWellPathCompletions* completionsCollection = wellPathAttributeSource()->completions();
+            std::vector<const RimWellPathComponentInterface*> allCompletions = completionsCollection->allCompletions();
+
+            std::set<QString> completionsAssignedToLegend;
+            for (const RimWellPathComponentInterface* completion : allCompletions)
+            {
+                if (completion->isEnabled())
+                {
+                    std::unique_ptr<RiuWellPathComponentPlotItem> plotItem(new RiuWellPathComponentPlotItem(wellPathAttributeSource(), completion));
+                    QString legendTitle = plotItem->legendTitle();
+                    bool contributeToLegend = m_wellPathCompletionsInLegend() &&
+                        !completionsAssignedToLegend.count(legendTitle);
+                    plotItem->setContributeToLegend(contributeToLegend);
+                    m_wellPathAttributePlotObjects.push_back(std::move(plotItem));
+                    completionsAssignedToLegend.insert(legendTitle);
+                }
+            }
+        }
+
+        RimWellLogPlot* wellLogPlot;
+        this->firstAncestorOrThisOfTypeAsserted(wellLogPlot);
+        RimWellLogPlot::DepthTypeEnum depthType = wellLogPlot->depthType();
+
+        for (auto& attributePlotObject : m_wellPathAttributePlotObjects)
+        {
+            attributePlotObject->setDepthType(depthType);
+            attributePlotObject->setShowLabel(m_showWellPathComponentLabels());
+            attributePlotObject->loadDataAndUpdate(false);
+            attributePlotObject->setParentQwtPlotNoReplot(m_wellLogTrackPlotWidget);            
+        }        
+    }
+    applyXZoomFromVisibleRange();
 }
 
 //--------------------------------------------------------------------------------------------------

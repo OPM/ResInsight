@@ -33,8 +33,6 @@
 //   for more details.
 //
 //##################################################################################################
-
-
 #pragma once
 
 #include "cafFactory.h"
@@ -49,20 +47,6 @@
 
 class QLabel;
 
-
-// Taken from gtest.h
-//
-// Due to C++ preprocessor weirdness, we need double indirection to
-// concatenate two tokens when one of them is __LINE__.  Writing
-//
-//   foo ## __LINE__
-//
-// will result in the token foo__LINE__, instead of foo followed by
-// the current line number.  For more details, see
-// http://www.parashift.com/c++-faq-lite/misc-technical-issues.html#faq-39.6
-#define PDM_FIELD_EDITOR_STRING_CONCATENATE(foo, bar) PDM_FIELD_EDITOR_STRING_CONCATENATE_IMPL_(foo, bar)
-#define PDM_FIELD_EDITOR_STRING_CONCATENATE_IMPL_(foo, bar) foo ## bar
-
 namespace caf 
 {
 
@@ -70,23 +54,26 @@ namespace caf
 /// Macros helping in development of PDM UI editors
 //==================================================================================================
 
-/// CAF_PDM_UI_EDITOR_HEADER_INIT assists the factory used when creating editors
+/// CAF_PDM_UI_FIELD_EDITOR_HEADER_INIT assists the factory used when creating editors
 /// Place this in the header file inside the class definition of your PdmUiEditor
 
 #define CAF_PDM_UI_FIELD_EDITOR_HEADER_INIT \
 public: \
     static QString uiEditorTypeName()
 
-    /// CAF_PDM_UI_FIELD_EDITOR_SOURCE_INIT implements editorTypeName() and registers the field editor in the field editor factory
-    /// Place this in the cpp file, preferably above the constructor
+/// CAF_PDM_UI_FIELD_EDITOR_SOURCE_INIT implements editorTypeName() and registers the field editor in the field editor factory
+/// Place this in the cpp file, preferably above the constructor
 
 #define CAF_PDM_UI_FIELD_EDITOR_SOURCE_INIT(EditorClassName) \
     QString EditorClassName::uiEditorTypeName() { return #EditorClassName; } \
-    static bool PDM_FIELD_EDITOR_STRING_CONCATENATE(my##EditorClassName, __LINE__) = caf::Factory<caf::PdmUiFieldEditorHandle, QString>::instance()->registerCreator<EditorClassName>(EditorClassName::uiEditorTypeName())
+    CAF_FACTORY_REGISTER(caf::PdmUiFieldEditorHandle, EditorClassName, QString, EditorClassName::uiEditorTypeName())
+
+/// CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR registers what default editor to use with a field of a certain type 
+/// Place this in the cpp file, preferably above the constructor
 
 #define CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR(EditorClassName, TypeName) \
-    static bool PDM_FIELD_EDITOR_STRING_CONCATENATE(myField##EditorClassName, __LINE__) = caf::Factory<caf::PdmUiFieldEditorHandle, QString>::instance()->registerCreator<EditorClassName>(qStringTypeName(caf::PdmField<TypeName>)); \
-    static bool PDM_FIELD_EDITOR_STRING_CONCATENATE(myProxyField##EditorClassName, __LINE__) = caf::Factory<caf::PdmUiFieldEditorHandle, QString>::instance()->registerCreator<EditorClassName>(qStringTypeName(caf::PdmProxyValueField<TypeName>))
+    CAF_FACTORY_REGISTER(caf::PdmUiFieldEditorHandle, EditorClassName, QString, qStringTypeName(caf::PdmField<TypeName>)); \
+    CAF_FACTORY_REGISTER2(caf::PdmUiFieldEditorHandle, EditorClassName, QString, qStringTypeName(caf::PdmProxyValueField<TypeName>) )
 
 class PdmUiGroup;
 class PdmUiFieldHandle;
@@ -97,30 +84,36 @@ class PdmUiFieldHandle;
 
 class PdmUiFieldEditorHandle : public PdmUiEditorHandle
 {
+    Q_OBJECT
 public:
 
     PdmUiFieldEditorHandle();
-    ~PdmUiFieldEditorHandle();
+    ~PdmUiFieldEditorHandle() override;
 
-    PdmUiFieldHandle*   field(); 
-    void                setField(PdmUiFieldHandle * field);
+    PdmUiFieldHandle*   uiField(); 
+    void                setUiField(PdmUiFieldHandle* uiFieldHandle);
 
     void                createWidgets(QWidget * parent);
     QWidget*            combinedWidget()                        { return m_combinedWidget; }
     QWidget*            editorWidget()                          { return m_editorWidget; }
     QWidget*            labelWidget()                           { return m_labelWidget; }
+    QMargins            labelContentMargins() const;
 
 protected: // Virtual interface to override
     /// Implement one of these, or both editor and label. The widgets will be used in the parent layout according to 
     /// being "Label" Editor" or a single combined widget. 
 
-    virtual QWidget*    createCombinedWidget(QWidget * parent) { return NULL; }
-    virtual QWidget*    createEditorWidget(QWidget * parent)   { return NULL; }
-    virtual QWidget*    createLabelWidget(QWidget * parent)    { return NULL; }
+    virtual QWidget*    createCombinedWidget(QWidget * parent) { return nullptr; }
+    virtual QWidget*    createEditorWidget(QWidget * parent)   { return nullptr; }
+    virtual QWidget*    createLabelWidget(QWidget * parent)    { return nullptr; }
 
     void                setValueToField(const QVariant& value);
 
     void                updateLabelFromField(QLabel* label, const QString& uiConfigName = "") const;
+    virtual QMargins    calculateLabelContentMargins() const;
+
+private slots:
+    void                customMenuRequested(QPoint pos);
 
 private:
     QPointer<QWidget>   m_combinedWidget;

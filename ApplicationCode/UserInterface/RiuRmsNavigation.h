@@ -26,7 +26,7 @@ class RiuRmsNavigation : public caf::TrackBallBasedNavigation
 {
 public:
     RiuRmsNavigation();
-    virtual ~RiuRmsNavigation();
+    ~RiuRmsNavigation() override;
 protected:
-    virtual bool handleInputEvent(QInputEvent* inputEvent);
+    bool handleInputEvent(QInputEvent* inputEvent) override;
 };

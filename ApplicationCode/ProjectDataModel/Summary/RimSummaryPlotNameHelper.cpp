@@ -21,6 +21,8 @@
 #include "RifEclipseSummaryAddress.h"
 
 #include "RimSummaryCase.h"
+#include "RimSummaryCaseCollection.h"
+
 #include "RiuSummaryVectorDescriptionMap.h"
 
 //--------------------------------------------------------------------------------------------------
@@ -29,12 +31,12 @@
 RimSummaryPlotNameHelper::RimSummaryPlotNameHelper() {}
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlotNameHelper::clear()
 {
     m_summaryCases.clear();
-
+    m_ensembleCases.clear();
     m_analyzer.clear();
 
     clearTitleSubStrings();
@@ -51,15 +53,34 @@ void RimSummaryPlotNameHelper::appendAddresses(const std::vector<RifEclipseSumma
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryPlotNameHelper::appendSummaryCases(const std::vector<RimSummaryCase*>& summaryCases)
+void RimSummaryPlotNameHelper::setSummaryCases(const std::vector<RimSummaryCase*>& summaryCases)
 {
     m_summaryCases.clear();
 
-    for (auto c : summaryCases)
+    m_summaryCases.resize(summaryCases.size());
+
+    for (size_t i = 0; i < summaryCases.size(); i++)
     {
-        m_summaryCases.insert(c);
+        m_summaryCases[i] = summaryCases[i];
+    }
+
+    extractPlotTitleSubStrings();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlotNameHelper::setEnsembleCases(const std::vector<RimSummaryCaseCollection*>& ensembleCases)
+{
+    m_ensembleCases.clear();
+
+    m_ensembleCases.resize(ensembleCases.size());
+
+    for (size_t i = 0; i < ensembleCases.size(); i++)
+    {
+        m_ensembleCases[i] = ensembleCases[i];
     }
 
     extractPlotTitleSubStrings();
@@ -99,7 +120,7 @@ QString RimSummaryPlotNameHelper::plotTitle() const
     if (!m_titleQuantity.empty())
     {
         if (!title.isEmpty()) title += ", ";
-        title += QString::fromStdString(RiuSummaryVectorDescriptionMap::instance()->fieldInfo(m_titleQuantity));
+        title += QString::fromStdString(RiuSummaryVectorDescriptionMap::instance()->vectorLongName(m_titleQuantity, true));
     }
 
     if (title.isEmpty())
@@ -143,7 +164,7 @@ bool RimSummaryPlotNameHelper::isRegionInTitle() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RimSummaryPlotNameHelper::isCaseInTitle() const
 {
@@ -151,7 +172,7 @@ bool RimSummaryPlotNameHelper::isCaseInTitle() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlotNameHelper::clearTitleSubStrings()
 {
@@ -174,32 +195,79 @@ void RimSummaryPlotNameHelper::extractPlotTitleSubStrings()
     auto wellNames      = m_analyzer.wellNames();
     auto wellGroupNames = m_analyzer.wellGroupNames();
     auto regions        = m_analyzer.regionNumbers();
+    auto categories     = m_analyzer.categories();
 
-    if (quantities.size() == 1)
+    if (categories.size() == 1)
     {
-        m_titleQuantity = *(quantities.begin());
+        if (quantities.size() == 1)
+        {
+            m_titleQuantity = *(quantities.begin());
+        }
+
+        if (wellNames.size() == 1)
+        {
+            m_titleWellName = *(wellNames.begin());
+        }
+
+        if (wellGroupNames.size() == 1)
+        {
+            m_titleWellGroupName = *(wellGroupNames.begin());
+        }
+
+        if (regions.size() == 1)
+        {
+            m_titleRegion = std::to_string(*(regions.begin()));
+        }
     }
 
-    if (wellNames.size() == 1)
+    auto summaryCases = setOfSummaryCases();
+    auto ensembleCases = setOfEnsembleCases();
+
+    if (summaryCases.size() == 1 && ensembleCases.empty())
     {
-        m_titleWellName = *(wellNames.begin());
+        auto summaryCase = *(summaryCases.begin());
+
+        if (summaryCase)
+        {
+            m_titleCaseName = summaryCase->caseName();
+        }
+    }
+    else if (ensembleCases.size() == 1 && summaryCases.empty())
+    {
+        auto ensembleCase = *(ensembleCases.begin());
+        if (ensembleCase)
+        {
+            m_titleCaseName = ensembleCase->name();
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::set<RimSummaryCase*> RimSummaryPlotNameHelper::setOfSummaryCases() const
+{
+    std::set<RimSummaryCase*> summaryCases;
+
+    for (const auto& sumCase : m_summaryCases)
+    {
+        if (sumCase) summaryCases.insert(sumCase);
     }
 
-    if (wellGroupNames.size() == 1)
+    return summaryCases;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::set<RimSummaryCaseCollection*> RimSummaryPlotNameHelper::setOfEnsembleCases() const
+{
+    std::set<RimSummaryCaseCollection*> ensembleCases;
+
+    for (const auto& ensemble : m_ensembleCases)
     {
-        m_titleWellGroupName = *(wellGroupNames.begin());
+        if (ensemble) ensembleCases.insert(ensemble);
     }
 
-    if (regions.size() == 1)
-    {
-        m_titleRegion = std::to_string(*(regions.begin()));
-    }
-
-    // Case mane
-    if (m_summaryCases.size() == 1)
-    {
-        auto summaryCase = *(m_summaryCases.begin());
-
-        m_titleCaseName = summaryCase->caseName();
-    }
+    return ensembleCases;
 }

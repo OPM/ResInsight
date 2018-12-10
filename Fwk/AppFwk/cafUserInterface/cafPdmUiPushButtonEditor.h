@@ -67,17 +67,17 @@ class PdmUiPushButtonEditor : public PdmUiFieldEditorHandle
 
 public:
     PdmUiPushButtonEditor()          {} 
-    virtual ~PdmUiPushButtonEditor() {} 
+    ~PdmUiPushButtonEditor() override {} 
 
     static void configureEditorForField(PdmFieldHandle* fieldHandle);
 
 protected:
-    virtual QWidget*    createEditorWidget(QWidget * parent);
-    virtual QWidget*    createLabelWidget(QWidget * parent);
-    virtual void        configureAndUpdateUi(const QString& uiConfigName);
+    QWidget*    createEditorWidget(QWidget * parent) override;
+    QWidget*    createLabelWidget(QWidget * parent) override;
+    void        configureAndUpdateUi(const QString& uiConfigName) override;
 
 protected slots:
-    void                slotClicked(bool checked);
+    void        slotClicked(bool checked);
 
 private:
     QPointer<QPushButton>   m_pushButton;

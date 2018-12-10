@@ -44,7 +44,7 @@ class RimOilField : public caf::PdmObject
 
 public:
     RimOilField(void);
-    virtual ~RimOilField(void);
+    ~RimOilField(void) override;
 
     QString                                                 uniqueShortNameForCase(RimSummaryCase* summaryCase);
 

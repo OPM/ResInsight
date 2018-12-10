@@ -45,7 +45,7 @@ class RimRftPlotCollection : public caf::PdmObject
     CAF_PDM_HEADER_INIT;
 public:
     RimRftPlotCollection();
-    virtual ~RimRftPlotCollection();
+    ~RimRftPlotCollection() override;
 
     RigEclipseWellLogExtractor* findOrCreateSimWellExtractor(const QString& simWellName, 
                                                              const QString& caseUserDescription, 
@@ -58,6 +58,7 @@ public:
     void removeExtractors(const RigWellPath* wellPath);
     void removeExtractors(const RigEclipseCaseData* caseData);
     void removeExtractors(const RigGeoMechCaseData* caseData);
+    void deleteAllExtractors();
 
     const std::vector<RimWellRftPlot*>  rftPlots() const;
     void                                addPlot(RimWellRftPlot* newPlot);

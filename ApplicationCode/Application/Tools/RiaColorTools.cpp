@@ -17,6 +17,8 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RiaColorTools.h"
+#include "cvfMath.h"
+#include <algorithm>
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -29,6 +31,33 @@ bool RiaColorTools::isBrightnessAboveThreshold(cvf::Color3f backgroundColor)
     }
 
     return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::Color3f RiaColorTools::computeOffsetColor(cvf::Color3f color, float offsetFactor)
+{
+    float gridR = 0.0;
+    float gridG = 0.0;
+    float gridB = 0.0;
+
+    if (isBrightnessAboveThreshold(color))
+    {
+        gridR = color.r() - (color.r() * offsetFactor);
+        gridG = color.g() - (color.g() * offsetFactor);
+        gridB = color.b() - (color.b() * offsetFactor);
+    }
+    else
+    {
+        gridR = color.r() + (1.0f - color.r()) * offsetFactor;
+        gridG = color.g() + (1.0f - color.g()) * offsetFactor;
+        gridB = color.b() + (1.0f - color.b()) * offsetFactor;
+    }
+
+    return cvf::Color3f(cvf::Math::clamp(gridR, 0.0f, 1.0f),
+                        cvf::Math::clamp(gridG, 0.0f, 1.0f),
+                        cvf::Math::clamp(gridB, 0.0f, 1.0f));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -58,4 +87,22 @@ cvf::Color3f RiaColorTools::constrastColor(cvf::Color3f backgroundColor)
     }
  
     return brightContrastColor();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QColor RiaColorTools::toQColor(cvf::Color3f color, float alpha)
+{
+    QColor qcolor(color.rByte(), color.gByte(), color.bByte());
+    qcolor.setAlphaF(alpha);
+    return qcolor;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QColor RiaColorTools::toQColor(cvf::Color4f color)
+{
+    return toQColor(color.toColor3f(), color.a());
 }

@@ -26,7 +26,7 @@
 #include "RimProject.h"
 
 #include "RiaApplication.h"
-#include "RiuMainWindow.h"
+#include "Riu3DMainWindowTools.h"
 
 #include "cafSelectionManager.h"
 
@@ -39,7 +39,7 @@ CAF_CMD_SOURCE_INIT(RicNewStatisticsCaseFeature, "RicNewStatisticsCaseFeature");
 //--------------------------------------------------------------------------------------------------
 bool RicNewStatisticsCaseFeature::isCommandEnabled()
 {
-    return selectedValidUIItem() != NULL;
+    return selectedValidUIItem() != nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -53,7 +53,7 @@ void RicNewStatisticsCaseFeature::onActionTriggered(bool isChecked)
         RimEclipseStatisticsCase* newCase = addStatisticalCalculation(uiItem);
         if (newCase)
         {
-            RiuMainWindow::instance()->selectAsCurrentItem(newCase);
+            Riu3DMainWindowTools::selectAsCurrentItem(newCase);
         }
     }
 }
@@ -90,7 +90,7 @@ caf::PdmUiItem* RicNewStatisticsCaseFeature::selectedValidUIItem()
         }
     }
 
-    return NULL;
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -98,7 +98,7 @@ caf::PdmUiItem* RicNewStatisticsCaseFeature::selectedValidUIItem()
 //--------------------------------------------------------------------------------------------------
 RimEclipseStatisticsCase* RicNewStatisticsCaseFeature::addStatisticalCalculation(caf::PdmUiItem* uiItem)
 {
-    RimIdenticalGridCaseGroup* caseGroup = NULL;
+    RimIdenticalGridCaseGroup* caseGroup = nullptr;
 
     if (dynamic_cast<RimEclipseStatisticsCase*>(uiItem))
     {
@@ -122,6 +122,6 @@ RimEclipseStatisticsCase* RicNewStatisticsCaseFeature::addStatisticalCalculation
     }
     else
     {
-        return NULL;
+        return nullptr;
     }
 }

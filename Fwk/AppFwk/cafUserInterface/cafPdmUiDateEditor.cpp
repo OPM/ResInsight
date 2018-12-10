@@ -73,12 +73,12 @@ void PdmUiDateEditor::configureAndUpdateUi(const QString& uiConfigName)
 
     PdmUiFieldEditorHandle::updateLabelFromField(m_label, uiConfigName);
 
-    m_dateEdit->setEnabled(!field()->isUiReadOnly(uiConfigName));
+    m_dateEdit->setEnabled(!uiField()->isUiReadOnly(uiConfigName));
 
-    caf::PdmUiObjectHandle* uiObject = uiObj(field()->fieldHandle()->ownerObject());
+    caf::PdmUiObjectHandle* uiObject = uiObj(uiField()->fieldHandle()->ownerObject());
     if (uiObject)
     {
-        uiObject->editorAttribute(field()->fieldHandle(), uiConfigName, &m_attributes);
+        uiObject->editorAttribute(uiField()->fieldHandle(), uiConfigName, &m_attributes);
     }
 
     if (!m_attributes.dateFormat.isEmpty())
@@ -86,7 +86,7 @@ void PdmUiDateEditor::configureAndUpdateUi(const QString& uiConfigName)
         m_dateEdit->setDisplayFormat(m_attributes.dateFormat);
     }
 
-    m_dateEdit->setDate(field()->uiValue().toDate());
+    m_dateEdit->setDate(uiField()->uiValue().toDate());
 }
 
 

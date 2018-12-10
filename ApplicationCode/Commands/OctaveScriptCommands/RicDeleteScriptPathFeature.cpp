@@ -49,7 +49,7 @@ bool RicDeleteScriptPathFeature::isCommandEnabled()
 void RicDeleteScriptPathFeature::onActionTriggered(bool isChecked)
 {
     std::vector<RimScriptCollection*> calcScriptCollections = RicScriptFeatureImpl::selectedScriptCollections();
-    RimScriptCollection* scriptCollection = calcScriptCollections.size() > 0 ? calcScriptCollections[0] : NULL;
+    RimScriptCollection* scriptCollection = calcScriptCollections.size() > 0 ? calcScriptCollections[0] : nullptr;
     if (scriptCollection)
     {
         QString toBeRemoved = scriptCollection->directory;

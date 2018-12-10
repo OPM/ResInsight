@@ -24,7 +24,7 @@
 #include "RimMainPlotCollection.h"
 #include "RimProject.h"
 #include "RimViewWindow.h"
-#include "RiuMainPlotWindow.h"
+#include "RiuPlotMainWindow.h"
 
 #include "RicSnapshotFilenameGenerator.h"
 
@@ -90,7 +90,7 @@ void RicSnapshotViewToFileFeature::saveToFile(const QImage& image, const QString
     }
 
     QString defaultAbsFileName = caf::Utils::constructFullFileName(startPath, defaultFileBaseName, ".png");
-    QString fileName = QFileDialog::getSaveFileName(NULL, tr("Export to File"), defaultAbsFileName);
+    QString fileName = QFileDialog::getSaveFileName(nullptr, tr("Export to File"), defaultAbsFileName);
     if (fileName.isEmpty())
     {
         return;
@@ -131,12 +131,11 @@ bool RicSnapshotViewToFileFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicSnapshotViewToFileFeature::onActionTriggered(bool isChecked)
 {
-    RiaApplication* app = RiaApplication::instance();
-
     // Get active view window before displaying the file selection dialog
     // If this is done after the file save dialog is displayed (and closed)
-    // app->activeViewWindow() returns NULL on Linux
-    RimViewWindow* viewWindow = app->activeViewWindow();
+    // app->activeViewWindow() returns nullptr on Linux
+
+    RimViewWindow* viewWindow = RiaApplication::activeViewWindow();
     if (!viewWindow)
     {
         RiaLogging::error("No view window is available, nothing to do");

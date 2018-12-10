@@ -23,6 +23,8 @@
 
 #include "RifEclipseUserDataParserTools.h"
 
+#include <QStringList>
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -151,7 +153,7 @@ bool RifEclipseUserDataKeywordTools::isYearX(const std::string& identifier)
 //--------------------------------------------------------------------------------------------------
 RifEclipseSummaryAddress RifEclipseUserDataKeywordTools::makeAndFillAddress(const std::string quantityName, const std::vector<std::string>& columnHeaderText)
 {
-    RifEclipseSummaryAddress::SummaryVarCategory category = RifEclipseUserDataParserTools::identifyCategory(quantityName);
+    RifEclipseSummaryAddress::SummaryVarCategory category = RifEclipseSummaryAddress::identifyCategory(quantityName);
     
     if (category == RifEclipseSummaryAddress::SUMMARY_INVALID)
     {
@@ -168,6 +170,7 @@ RifEclipseSummaryAddress RifEclipseUserDataKeywordTools::makeAndFillAddress(cons
     int         cellJ = -1;
     int         cellK = -1;
     int         aquiferNumber = -1;
+    bool        isErrorResult = false;
 
     switch (category)
     {
@@ -276,7 +279,8 @@ RifEclipseSummaryAddress RifEclipseUserDataKeywordTools::makeAndFillAddress(cons
                                     cellI,
                                     cellJ,
                                     cellK,
-                                    aquiferNumber);
+                                    aquiferNumber,
+                                    isErrorResult);
 
 }
 

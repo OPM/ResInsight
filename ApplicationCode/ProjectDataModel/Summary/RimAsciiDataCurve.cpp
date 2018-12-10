@@ -30,7 +30,7 @@
 #include "RimSummaryPlot.h"
 #include "RimSummaryTimeAxisProperties.h"
 
-#include "RiuLineSegmentQwtPlotCurve.h"
+#include "RiuQwtPlotCurve.h"
 #include "RiuSummaryQwtPlot.h"
 
 #include "cafPdmUiComboBoxEditor.h"

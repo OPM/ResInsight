@@ -38,8 +38,8 @@ public:
 
     void                    setIndexes(const QModelIndexList& indexes);
     const QModelIndexList&  indexes() const;
-    virtual bool            hasFormat(const QString& mimetype) const;
-    virtual QStringList     formats() const;
+    bool            hasFormat(const QString& mimetype) const override;
+    QStringList     formats() const override;
     static QString          formatName();
 
 private:
@@ -62,8 +62,8 @@ public:
 
     void                        setReferences(const std::vector<QString>& references);
     const std::vector<QString>& references() const;
-    virtual bool                hasFormat(const QString& mimetype) const;
-    virtual QStringList         formats() const;
+    bool                hasFormat(const QString& mimetype) const override;
+    QStringList         formats() const override;
     static QString              formatName();
 
 private:

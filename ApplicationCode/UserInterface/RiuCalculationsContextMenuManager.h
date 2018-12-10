@@ -43,17 +43,17 @@ class RiuCalculationsContextMenuManager : public QObject
 public:
     RiuCalculationsContextMenuManager() { }
 
-	void attachWidget(QWidget* widget, RicSummaryCurveCalculator* curveCalc);
+    void attachWidget(QWidget* widget, RicSummaryCurveCalculator* curveCalc);
 
 public slots:
-	void slotMenuItems(QPoint point);
+    void slotMenuItems(QPoint point);
 
 private slots:
-	void slotCreateCalculationCopy();
+    void slotCreateCalculationCopy();
 
 private:
-	QPointer<QWidget>                           m_widget;
+    QPointer<QWidget>                           m_widget;
     RicSummaryCurveCalculator*                  m_curveCalc;
-	int                                         m_textPosition;
+    int                                         m_textPosition;
     std::map<QString, std::unique_ptr<QAction>> m_actionCache;
 };

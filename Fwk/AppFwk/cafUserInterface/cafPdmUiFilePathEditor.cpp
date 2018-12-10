@@ -67,16 +67,16 @@ void PdmUiFilePathEditor::configureAndUpdateUi(const QString& uiConfigName)
 
     PdmUiFieldEditorHandle::updateLabelFromField(m_label, uiConfigName);
 
-    m_lineEdit->setEnabled(!field()->isUiReadOnly(uiConfigName));
-    m_lineEdit->setToolTip(field()->uiToolTip(uiConfigName));
+    m_lineEdit->setEnabled(!uiField()->isUiReadOnly(uiConfigName));
+    m_lineEdit->setToolTip(uiField()->uiToolTip(uiConfigName));
 
-    caf::PdmUiObjectHandle* uiObject = uiObj(field()->fieldHandle()->ownerObject());
+    caf::PdmUiObjectHandle* uiObject = uiObj(uiField()->fieldHandle()->ownerObject());
     if (uiObject)
     {
-        uiObject->editorAttribute(field()->fieldHandle(), uiConfigName, &m_attributes);
+        uiObject->editorAttribute(uiField()->fieldHandle(), uiConfigName, &m_attributes);
     }
 
-    m_lineEdit->setText(field()->uiValue().toString());
+    m_lineEdit->setText(uiField()->uiValue().toString());
 
     if (m_attributes.m_appendUiSelectedFolderToText)
     {

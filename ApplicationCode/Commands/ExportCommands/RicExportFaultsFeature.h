@@ -37,9 +37,9 @@ class RicExportFaultsFeature : public caf::CmdFeature
 
 protected:
     // Overrides
-    virtual bool isCommandEnabled();
-    virtual void onActionTriggered( bool isChecked );
-    virtual void setupActionLook( QAction* actionToSetup );
+    bool isCommandEnabled() override;
+    void onActionTriggered( bool isChecked ) override;
+    void setupActionLook( QAction* actionToSetup ) override;
 
 private:
     static void saveFault(QString completeFilename, const RigMainGrid* mainGrid, const std::vector<RigFault::FaultFace>& faultFaces, QString faultName);

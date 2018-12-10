@@ -23,10 +23,12 @@
 #include "RiaApplication.h"
 #include "RiaBaseDefs.h"
 #include "RiaColorTools.h"
+#include "RiaPreferences.h"
+#include "RiaRegressionTestRunner.h"
 
 #include "RimCase.h"
 #include "RimProject.h"
-#include "RimView.h"
+#include "RimGridView.h"
 #include "RimViewController.h"
 #include "RimViewLinker.h"
 
@@ -39,7 +41,9 @@
 #include "RiuSimpleHistogramWidget.h"
 #include "RiuViewerCommands.h"
 
+#include "cafTitledOverlayFrame.h"
 #include "cafCategoryLegend.h"
+#include "cafOverlayScalarMapperLegend.h"
 #include "cafCeetronPlusNavigation.h"
 #include "cafDisplayCoordTransform.h"
 #include "cafEffectGenerator.h"
@@ -49,7 +53,7 @@
 #include "cvfFont.h"
 #include "cvfOpenGLResourceManager.h"
 #include "cvfOverlayAxisCross.h"
-#include "cvfOverlayScalarMapperLegend.h"
+#include "cvfPartRenderHintCollection.h"
 #include "cvfRenderQueueSorter.h"
 #include "cvfRenderSequence.h"
 #include "cvfRendering.h"
@@ -59,6 +63,10 @@
 #include <QLabel>
 #include <QMouseEvent>
 #include <QProgressBar>
+#include "WindowEdgeAxesOverlayItem/RivWindowEdgeAxesOverlayItem.h"
+#include <algorithm>
+
+#include "WellPathCommands/PointTangentManipulator/RicPointTangentManipulator.h"
 
 using cvf::ManipulatorTrackball;
 
@@ -79,13 +87,14 @@ const double RI_MIN_NEARPLANE_DISTANCE = 0.1;
 /// 
 //--------------------------------------------------------------------------------------------------
 RiuViewer::RiuViewer(const QGLFormat& format, QWidget* parent)
-: caf::Viewer(format, parent)
+: caf::Viewer(format, parent), m_isNavigationRotationEnabled(true)
 {
     cvf::Font* standardFont = RiaApplication::instance()->standardFont();
     m_axisCross = new cvf::OverlayAxisCross(m_mainCamera.p(), standardFont);
     m_axisCross->setAxisLabels("X", "Y", "Z");
-    m_axisCross->setLayout(cvf::OverlayItem::VERTICAL, cvf::OverlayItem::BOTTOM_LEFT);
+    m_axisCross->setLayout(cvf::OverlayItem::VERTICAL, cvf::OverlayItem::BOTTOM_RIGHT);
     m_mainRendering->addOverlayItem(m_axisCross.p());
+    m_showAxisCross = true;
 
     this->enableOverlyPainting(true);
     this->setReleaseOGLResourcesEachFrame(true);
@@ -155,7 +164,7 @@ RiuViewer::RiuViewer(const QGLFormat& format, QWidget* parent)
 
     m_viewerCommands = new RiuViewerCommands(this);
 
-    if (RiaApplication::instance()->isRunningRegressionTests())
+    if (RiaRegressionTestRunner::instance()->isRunningRegressionTests())
     {
         QFont regTestFont = m_infoLabel->font();
         regTestFont.setPixelSize(11);
@@ -175,6 +184,10 @@ RiuViewer::RiuViewer(const QGLFormat& format, QWidget* parent)
     m_gridBoxGenerator = new RivGridBoxGenerator;
 
     m_cursorPositionDomainCoords = cvf::Vec3d::UNDEFINED;
+    m_windowEdgeAxisOverlay = new RivWindowEdgeAxesOverlayItem(standardFont);
+    m_showWindowEdgeAxes = false;
+
+    m_selectionVisualizerManager = new caf::PdmUiSelectionVisualizer3d(this);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -186,9 +199,10 @@ RiuViewer::~RiuViewer()
     {
         m_rimView->handleMdiWindowClosed();
 
-        m_rimView->cameraPosition = m_mainCamera->viewMatrix();
-        m_rimView->cameraPointOfInterest = pointOfInterest();
+        m_rimView->setCameraPosition(m_mainCamera->viewMatrix());
+        m_rimView->setCameraPointOfInterest( pointOfInterest());
     }
+
     delete m_infoLabel;
     delete m_animationProgress;
     delete m_histogramWidget;
@@ -297,7 +311,7 @@ void RiuViewer::slotSetCurrentFrame(int frameIndex)
         RimViewLinker* viewLinker = m_rimView->assosiatedViewLinker();
         if (viewLinker)
         {
-            viewLinker->updateTimeStep(m_rimView, frameIndex);
+            viewLinker->updateTimeStep(dynamic_cast<RimGridView*>(m_rimView.p()), frameIndex);
         }
     }
 }
@@ -321,17 +335,11 @@ void RiuViewer::setPointOfInterest(cvf::Vec3d poi)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuViewer::setOwnerReservoirView(RimView * owner)
+void RiuViewer::setOwnerReservoirView(RiuViewerToViewInterface * owner)
 {
     m_rimView = owner;
-    m_viewerCommands->setOwnerView(owner);
 
-    cvf::String xLabel;
-    cvf::String yLabel;
-    cvf::String zLabel;
-
-    m_rimView->axisLabels(&xLabel, &yLabel, &zLabel);
-    setAxisLabels(xLabel, yLabel, zLabel);
+    m_viewerCommands->setOwnerView(dynamic_cast<Rim3dView*>(owner));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -347,27 +355,24 @@ void RiuViewer::setEnableMask(unsigned int mask)
 //--------------------------------------------------------------------------------------------------
 void RiuViewer::paintOverlayItems(QPainter* painter)
 {
-    // No support for overlay items using SW rendering yet.
-    //if (!isShadersSupported())
-    //{
-    //    return;
-    //}
-
     int columnWidth = 200;
+
+    int edgeAxisFrameBorderWidth  = m_showWindowEdgeAxes ? m_windowEdgeAxisOverlay->frameBorderWidth(): 0;
+    int edgeAxisFrameBorderHeight = m_showWindowEdgeAxes ? m_windowEdgeAxisOverlay->frameBorderHeight(): 0;
+
     int margin = 5;
-    int yPos = margin;
+    int yPos = margin + edgeAxisFrameBorderHeight;
 
     bool showAnimBar = false;
     if (isAnimationActive() && frameCount() > 1) showAnimBar = true;
 
-    //if (showAnimBar)       columnWidth = CVF_MAX(columnWidth, m_animationProgress->width());
     if (m_showInfoText) columnWidth = CVF_MAX(columnWidth, m_infoLabel->sizeHint().width());
 
-    int columnPos = this->width() - columnWidth - margin;
+    int columnPos = this->width() - columnWidth - margin - edgeAxisFrameBorderWidth;
 
     if (showAnimBar && m_showAnimProgress)
     {
-        QString stepName = m_rimView->ownerCase()->timeStepName(currentFrameIndex());
+        QString stepName = m_rimView->timeStepName(currentFrameIndex());
         m_animationProgress->setFormat("Time Step: %v/%m " + stepName);
         m_animationProgress->setMinimum(0);
         m_animationProgress->setMaximum(static_cast<int>(frameCount()) - 1);
@@ -406,7 +411,7 @@ void RiuViewer::paintOverlayItems(QPainter* painter)
     if (m_showInfoText) // Version Label
     {
         QSize size(m_versionInfoLabel->sizeHint().width(), m_versionInfoLabel->sizeHint().height());
-        QPoint pos(this->width() - size.width() - margin, this->height() - size.height() - margin);
+        QPoint pos(this->width() - size.width() - margin - edgeAxisFrameBorderWidth, this->height() - size.height() - margin - edgeAxisFrameBorderHeight);
         m_versionInfoLabel->resize(size.width(), size.height());
         m_versionInfoLabel->render(painter, pos);
     }
@@ -432,7 +437,7 @@ void RiuViewer::paintOverlayItems(QPainter* painter)
                 painter->drawLine(centerPos.x() - markerHalfLength, centerPos.y(), centerPos.x() + markerHalfLength, centerPos.y());
             }
         }
-    }
+    }  
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -471,6 +476,19 @@ void RiuViewer::setHistogramPercentiles(double pmin, double pmax, double mean)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RiuViewer::showGridBox(bool enable)
+{
+    this->removeStaticModel(m_gridBoxGenerator->model());
+
+    if (enable)
+    {
+        this->addStaticModelOnce(m_gridBoxGenerator->model());
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RiuViewer::showAnimationProgress(bool enable)
 {
     m_showAnimProgress = enable;
@@ -492,8 +510,6 @@ void RiuViewer::mousePressEvent(QMouseEvent* event)
     m_lastMousePressPosition = event->pos();
 }
 
-
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -510,75 +526,118 @@ void RiuViewer::removeAllColorLegends()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuViewer::addColorLegendToBottomLeftCorner(cvf::OverlayItem* legend)
+void RiuViewer::addColorLegendToBottomLeftCorner(caf::TitledOverlayFrame* addedLegend)
 {
+    RiaApplication* app = RiaApplication::instance();
+    CVF_ASSERT(app);
+    RiaPreferences* preferences = app->preferences();
     cvf::Rendering* firstRendering = m_mainRendering.p();
+    CVF_ASSERT(preferences);
     CVF_ASSERT(firstRendering);
 
-    if (legend)
+    if (addedLegend)
     {
-        updateLegendTextAndTickMarkColor(legend);
+        cvf::Color4f backgroundColor = mainCamera()->viewport()->clearColor();
+        backgroundColor.a() = 0.8f;
+        cvf::Color3f frameColor(backgroundColor.r(), backgroundColor.g(), backgroundColor.b());
+        updateLegendTextAndTickMarkColor(addedLegend);
+        
+        firstRendering->addOverlayItem(addedLegend);
+        addedLegend->enableBackground(preferences->showLegendBackground());
+        addedLegend->setBackgroundColor(backgroundColor);
+        addedLegend->setBackgroundFrameColor(cvf::Color4f(RiaColorTools::computeOffsetColor(frameColor, 0.3f), 0.9f));
 
-        firstRendering->addOverlayItem(legend);
-
-        m_visibleLegends.push_back(legend);
+        m_visibleLegends.push_back(addedLegend);
     }
 
-    // Category count used to switch between standard height and full height of legend
-    const size_t categoryThreshold = 13;
+    updateLegendLayout();
 
-    std::vector<caf::CategoryLegend*> categoryLegends;
-    std::vector<cvf::OverlayItem*> overlayItems;
-    for (auto legend : m_visibleLegends)
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuViewer::updateLegendLayout()
+{
+    int viewPortHeight = static_cast<int>(m_mainCamera->viewport()->height());
+
+    const float maxFreeLegendHeight = 0.7f*viewPortHeight;
+    const int border = 3;
+    int edgeAxisBorderWidth  = m_showWindowEdgeAxes ? m_windowEdgeAxisOverlay->frameBorderWidth(): 0;
+    int edgeAxisBorderHeight = m_showWindowEdgeAxes ? m_windowEdgeAxisOverlay->frameBorderHeight(): 0;
+
+    int xPos = border + edgeAxisBorderWidth;
+    int yPos = border + edgeAxisBorderHeight;
+
+    std::vector<caf::TitledOverlayFrame*> standardHeightLegends;
+    
+    // Place the legends needing the full height, and sort out the standard height legends
+
+    for ( cvf::ref<caf::TitledOverlayFrame> legend : m_visibleLegends )
     {
-        legend->setLayout(cvf::OverlayItem::VERTICAL, cvf::OverlayItem::BOTTOM_LEFT);
-
-        caf::CategoryLegend* catLegend = dynamic_cast<caf::CategoryLegend*>(legend.p());
-        if (catLegend)
+        cvf::Vec2ui prefSize = legend->preferredSize();
+        if (prefSize.y() > maxFreeLegendHeight)
         {
-            if (catLegend->categoryCount() > categoryThreshold)
-            {
-                categoryLegends.push_back(catLegend);
-            }
-            else
-            {
-                catLegend->setSizeHint(cvf::Vec2ui(200, 200));
-            }
+            int legendWidth = prefSize.x();
+            legend->setLayoutFixedPosition(cvf::Vec2i(xPos, yPos));
+            legend->setRenderSize(cvf::Vec2ui(legendWidth, viewPortHeight - 2 * border - 2 * edgeAxisBorderHeight));
+            xPos += legendWidth + border;
         }
         else
         {
-            overlayItems.push_back(legend.p());
+            standardHeightLegends.push_back(legend.p());
         }
     }
 
-    if (categoryLegends.size() > 0)
+    // Place the rest of the legends in columns that fits within the screen height
+    
+    int maxColumnWidht = 0;
+    std::vector<caf::TitledOverlayFrame*> columnLegends;
+
+    for ( caf::TitledOverlayFrame* legend : standardHeightLegends )
     {
-        const int border = 3;
-        const int categoryWidth = 150;
+        cvf::Vec2ui prefSize = legend->preferredSize();
 
-        // This value is taken from OverlayAxisCross, as the axis cross is always shown in the lower left corner
-        const int axisCrossHeight = 120;
-
-        int height = static_cast<int>(m_mainCamera->viewport()->height());
-        int xPos = border;
-
-        int yPos = axisCrossHeight + 2*border;
-
-        for (auto catLegend : categoryLegends)
+        // Check if we need a new column
+        if ((yPos + (int)prefSize.y() + border) > viewPortHeight)
         {
-            catLegend->setLayoutFixedPosition(cvf::Vec2i(xPos, yPos));
-            catLegend->setSizeHint(cvf::Vec2ui(categoryWidth, height - 2*border - axisCrossHeight));
+            xPos += border + maxColumnWidht;
+            yPos = border + edgeAxisBorderHeight;
 
-            xPos += categoryWidth + border;
+            // Set same width to all legends in the column
+            for (caf::TitledOverlayFrame* columnLegend : columnLegends )
+            {
+                columnLegend->setRenderSize(cvf::Vec2ui(maxColumnWidht, columnLegend->renderSize().y())); 
+            }
+            maxColumnWidht = 0;
+            columnLegends.clear();
         }
 
-        for (auto item : overlayItems)
-        {
-            item->setLayoutFixedPosition(cvf::Vec2i(xPos, yPos));
+        legend->setLayoutFixedPosition(cvf::Vec2i(xPos, yPos));
+        legend->setRenderSize(cvf::Vec2ui(prefSize.x(),  prefSize.y()));
+        columnLegends.push_back(legend);
 
-            yPos += item->sizeHint().y() + border;
-        }
+        yPos += legend->renderSize().y() + border;
+        maxColumnWidht = std::max(maxColumnWidht, (int)prefSize.x());
     }
+
+    // Set same width to all legends in the last column
+
+    for (caf::TitledOverlayFrame* legend : columnLegends )
+    {
+        legend->setRenderSize(cvf::Vec2ui(maxColumnWidht, legend->renderSize().y())); 
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuViewer::enableNavigationRotation(bool enable)
+{
+    auto tbNavPol = dynamic_cast<caf::TrackBallBasedNavigation*>(m_navigationPolicy.p());
+    m_isNavigationRotationEnabled = enable;
+
+    if (tbNavPol) tbNavPol->enableRotation(m_isNavigationRotationEnabled);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -608,6 +667,8 @@ void RiuViewer::updateNavigationPolicy()
             CVF_ASSERT(0);
             break;
     }
+
+    enableNavigationRotation(m_isNavigationRotationEnabled);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -622,7 +683,7 @@ void RiuViewer::navigationPolicyUpdate()
         RimViewLinker* viewLinker = m_rimView->assosiatedViewLinker();
         if (viewLinker)
         {
-            viewLinker->updateCamera(m_rimView);
+            viewLinker->updateCamera(dynamic_cast<RimGridView*>(m_rimView.p()));
         }
     }
 }
@@ -645,7 +706,21 @@ void RiuViewer::setCurrentFrame(int frameIndex)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimView* RiuViewer::ownerReservoirView()
+void RiuViewer::showAxisCross(bool enable)
+{
+    m_mainRendering->removeOverlayItem(m_axisCross.p());
+
+    if (enable)
+    {
+        m_mainRendering->addOverlayItem(m_axisCross.p());
+    }
+    m_showAxisCross = enable;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RiuViewerToViewInterface* RiuViewer::ownerReservoirView()
 {
     return m_rimView;
 }
@@ -655,7 +730,7 @@ RimView* RiuViewer::ownerReservoirView()
 //--------------------------------------------------------------------------------------------------
 RimViewWindow* RiuViewer::ownerViewWindow() const
 {
-    return m_rimView;
+    return dynamic_cast<RimViewWindow*>( m_rimView.p());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -663,8 +738,13 @@ RimViewWindow* RiuViewer::ownerViewWindow() const
 //--------------------------------------------------------------------------------------------------
 void RiuViewer::optimizeClippingPlanes()
 {
-    m_gridBoxGenerator->updateFromCamera(mainCamera());
+    if (m_showWindowEdgeAxes)
+    {
+        m_windowEdgeAxisOverlay->setDisplayCoordTransform(m_rimView->displayCoordTransform().p());
+        m_windowEdgeAxisOverlay->updateFromCamera(this->mainCamera());
+    }
 
+    m_gridBoxGenerator->updateFromCamera(mainCamera());
     caf::Viewer::optimizeClippingPlanes();
 }
 
@@ -674,21 +754,7 @@ void RiuViewer::optimizeClippingPlanes()
 void RiuViewer::resizeGL(int width, int height)
 {
     caf::Viewer::resizeGL(width, height);
-
-    bool hasCategoryLegend = false;
-    for (size_t i = 0; i < m_visibleLegends.size(); i++)
-    {
-        caf::CategoryLegend* categoryLegend = dynamic_cast<caf::CategoryLegend*>(m_visibleLegends.at(i));
-        if (categoryLegend)
-        {
-            hasCategoryLegend = true;
-        }
-    }
-
-    if (hasCategoryLegend)
-    {
-        m_rimView->updateCurrentTimeStepAndRedraw();
-    }
+    this->updateLegendLayout();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -719,7 +785,7 @@ void RiuViewer::mouseMoveEvent(QMouseEvent* mouseEvent)
                 cvf::ref<caf::DisplayCoordTransform> trans = m_rimView->displayCoordTransform();
                 cvf::Vec3d domainCoord = trans->transformToDomainCoord(displayCoord);
 
-                viewLinker->updateCursorPosition(m_rimView, domainCoord);
+                viewLinker->updateCursorPosition(dynamic_cast<RimGridView*>(m_rimView.p()) , domainCoord);
             }
         }
     }
@@ -735,43 +801,60 @@ void RiuViewer::leaveEvent(QEvent *)
     if (m_rimView && m_rimView->assosiatedViewLinker())
     {
         RimViewLinker* viewLinker = m_rimView->assosiatedViewLinker();
-        viewLinker->updateCursorPosition(m_rimView, cvf::Vec3d::UNDEFINED);
+        viewLinker->updateCursorPosition(dynamic_cast<RimGridView*>(m_rimView.p()), cvf::Vec3d::UNDEFINED);
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuViewer::updateGridBoxData()
+void RiuViewer::updateGridBoxData(double scaleZ, 
+                                  const cvf::Vec3d& displayModelOffset,
+                                  const cvf::Color3f&  backgroundColor,
+                                  const cvf::BoundingBox& domainCoordBoundingBox)
 {
-    if (ownerReservoirView() && ownerReservoirView()->ownerCase())
+    m_gridBoxGenerator->setScaleZ(scaleZ);
+    m_gridBoxGenerator->setDisplayModelOffset(displayModelOffset);
+    m_gridBoxGenerator->updateFromBackgroundColor(backgroundColor);
+    m_gridBoxGenerator->setGridBoxDomainCoordBoundingBox(domainCoordBoundingBox);
+
+    m_gridBoxGenerator->createGridBoxParts();
+
+    m_selectionVisualizerManager->updateVisibleEditors();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuViewer::showEdgeTickMarksXY(bool enable, bool showAxisLines)
+{
+    m_mainRendering->removeOverlayItem(m_windowEdgeAxisOverlay.p());
+
+    if (enable)
     {
-        RimView* rimView = ownerReservoirView();
-        RimCase* rimCase = rimView->ownerCase();
-
-        m_gridBoxGenerator->setScaleZ(rimView->scaleZ);
-        m_gridBoxGenerator->setDisplayModelOffset(rimCase->displayModelOffset());
-        m_gridBoxGenerator->updateFromBackgroundColor(rimView->backgroundColor);
-
-        if (rimView->showActiveCellsOnly())
-        {
-            m_gridBoxGenerator->setGridBoxDomainCoordBoundingBox(rimCase->activeCellsBoundingBox());
-        }
-        else
-        {
-            m_gridBoxGenerator->setGridBoxDomainCoordBoundingBox(rimCase->allCellsBoundingBox());
-        }
-
-        m_gridBoxGenerator->createGridBoxParts();
+        m_windowEdgeAxisOverlay->setDomainAxes(RivWindowEdgeAxesOverlayItem::XY_AXES);
+        m_windowEdgeAxisOverlay->setIsSwitchingYAxisSign(false);
+        m_windowEdgeAxisOverlay->setShowAxisLines(showAxisLines);
+        m_mainRendering->addOverlayItem(m_windowEdgeAxisOverlay.p());
     }
+    m_showWindowEdgeAxes = enable;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-cvf::Model* RiuViewer::gridBoxModel() const
+void RiuViewer::showEdgeTickMarksXZ(bool enable, bool showAxisLines)
 {
-    return m_gridBoxGenerator->model();
+    m_mainRendering->removeOverlayItem(m_windowEdgeAxisOverlay.p());
+
+    if (enable)
+    {
+        m_windowEdgeAxisOverlay->setDomainAxes(RivWindowEdgeAxesOverlayItem::XZ_AXES);
+        m_windowEdgeAxisOverlay->setIsSwitchingYAxisSign(true);
+        m_windowEdgeAxisOverlay->setShowAxisLines(showAxisLines);
+        m_mainRendering->addOverlayItem(m_windowEdgeAxisOverlay.p());
+    }
+    m_showWindowEdgeAxes = enable;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -811,25 +894,13 @@ cvf::OverlayItem* RiuViewer::pickFixedPositionedLegend(int winPosX, int winPosY)
     for (auto overlayItem : m_visibleLegends)
     {
         if (overlayItem->layoutScheme() == cvf::OverlayItem::FIXED_POSITION &&
-            overlayItem->pick(translatedMousePosX, translatedMousePosY, overlayItem->fixedPosition(), overlayItem->sizeHint()))
+            overlayItem->pick(translatedMousePosX, translatedMousePosY, overlayItem->fixedPosition(), overlayItem->renderSize()))
         {
             return overlayItem.p();
         }
     }
 
     return nullptr;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiuViewer::updateParallelProjectionSettings(RiuViewer* sourceViewer)
-{
-    if (!sourceViewer || sourceViewer->m_navigationPolicy.isNull()) return;
-
-    cvf::Vec3d poi = sourceViewer->m_navigationPolicy->pointOfInterest();
-    this->updateParallelProjectionHeightFromMoveZoom(poi);
-    this->updateParallelProjectionCameraPosFromPointOfInterestMove(poi);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -848,23 +919,57 @@ void RiuViewer::setCursorPosition(const cvf::Vec3d& domainCoord)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+std::vector<cvf::ref<cvf::Part>> RiuViewer::visibleParts()
+{
+    std::vector<cvf::ref<cvf::Part>> partsMatchingEnableMask;
+
+    if (m_mainRendering.notNull())
+    {
+        auto enableMask = m_mainRendering->enableMask();
+        cvf::Scene* scene = currentScene();
+
+        for (cvf::uint i = 0; i < scene->modelCount(); i++)
+        {
+            cvf::Model* model = scene->model(i);
+            if (enableMask & model->partEnableMask())
+            {
+                cvf::Collection<cvf::Part> partCollection;
+                model->allParts(&partCollection);
+
+                for (const auto& p : partCollection)
+                {
+                    if (enableMask & p->enableMask())
+                    {
+                        partsMatchingEnableMask.push_back(p);
+                    }
+                }
+            }
+        }
+    }
+
+    return partsMatchingEnableMask;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RiuViewer::updateLegendTextAndTickMarkColor(cvf::OverlayItem* legend)
 {
     if (m_rimView.isNull()) return;
 
     cvf::Color3f contrastColor = computeContrastColor();
 
-    cvf::OverlayScalarMapperLegend* scalarMapperLegend = dynamic_cast<cvf::OverlayScalarMapperLegend*>(legend);
+    caf::OverlayScalarMapperLegend* scalarMapperLegend = dynamic_cast<caf::OverlayScalarMapperLegend*>(legend);
     if (scalarMapperLegend)
     {
-        scalarMapperLegend->setColor(contrastColor);
+        scalarMapperLegend->setTextColor(contrastColor);
         scalarMapperLegend->setLineColor(contrastColor);
     }
 
     caf::CategoryLegend* categoryLegend = dynamic_cast<caf::CategoryLegend*>(legend);
     if (categoryLegend)
     {
-        categoryLegend->setColor(contrastColor);
+        categoryLegend->setTextColor(contrastColor);
         categoryLegend->setLineColor(contrastColor);
     }
 
@@ -907,7 +1012,7 @@ cvf::Color3f RiuViewer::computeContrastColor() const
 
     if (m_rimView.notNull())
     {
-        contrastColor = RiaColorTools::constrastColor(m_rimView->backgroundColor);
+        contrastColor = RiaColorTools::constrastColor(m_rimView->backgroundColor());
     }
     
     return contrastColor;

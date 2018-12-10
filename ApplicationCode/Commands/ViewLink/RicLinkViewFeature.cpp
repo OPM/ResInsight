@@ -23,8 +23,10 @@
 
 #include "RicLinkVisibleViewsFeature.h"
 
+#include "Rim3dView.h"
+#include "RimContourMapView.h"
+#include "RimGridView.h"
 #include "RimProject.h"
-#include "RimView.h"
 #include "RimViewLinkerCollection.h"
 #include "RimViewLinker.h"
 
@@ -39,31 +41,42 @@ CAF_CMD_SOURCE_INIT(RicLinkViewFeature, "RicLinkViewFeature");
 //--------------------------------------------------------------------------------------------------
 bool RicLinkViewFeature::isCommandEnabled()
 {
-    RimView* activeView = RiaApplication::instance()->activeReservoirView();
-    if (!activeView) return false;
+    std::vector<caf::PdmUiItem*> allSelectedItems;
+    std::vector<RimGridView*> selectedGridViews;
+    std::vector<RimContourMapView*> selectedContourMaps;
 
-    RimProject* proj = RiaApplication::instance()->project();
-    RimViewLinker* viewLinker = proj->viewLinkerCollection->viewLinker();
-    
-    if(!viewLinker) return false;
+    caf::SelectionManager::instance()->selectedItems(allSelectedItems);
+    caf::SelectionManager::instance()->objectsByType(&selectedGridViews);
+    caf::SelectionManager::instance()->objectsByType(&selectedContourMaps);
+    size_t selectedRegularGridViews = selectedGridViews.size() - selectedContourMaps.size();
 
-    RimViewController* viewController = activeView->viewController();
-    
-    if(viewController)
+    if (selectedGridViews.size() > 1u && selectedRegularGridViews >= 1u && allSelectedItems.size() == selectedGridViews.size())
     {
-        return false;
+        return true;
     }
     else
     {
-        if (!activeView->isMasterView())
-        {
-            return true;
-        }
-        else
+        // Link only the active view to an existing view link collection.
+        Rim3dView* activeView = RiaApplication::instance()->activeReservoirView();
+        if (!activeView) return false;
+
+        RimProject* proj = RiaApplication::instance()->project();
+        RimViewLinker* viewLinker = proj->viewLinkerCollection->viewLinker();
+
+        if (!viewLinker) return false;
+
+        RimViewController* viewController = activeView->viewController();
+
+        if (viewController)
         {
             return false;
         }
+        else if (!activeView->isMasterView())
+        {
+            return true;
+        }
     }
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -71,13 +84,27 @@ bool RicLinkViewFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicLinkViewFeature::onActionTriggered(bool isChecked)
 {
-    RimView* activeView = RiaApplication::instance()->activeReservoirView();
-    if (!activeView) return;
+    std::vector<caf::PdmUiItem*> allSelectedItems;
+    std::vector<RimGridView*> selectedGridViews;
 
-    std::vector<RimView*> views;
-    views.push_back(activeView);
+    caf::SelectionManager::instance()->selectedItems(allSelectedItems);
+    caf::SelectionManager::instance()->objectsByType(&selectedGridViews);
 
-    RicLinkVisibleViewsFeature::linkViews(views);
+    if (selectedGridViews.size() > 1u && allSelectedItems.size() == selectedGridViews.size())
+    {
+        RicLinkVisibleViewsFeature::linkViews(selectedGridViews);
+    }
+    else
+    {
+        Rim3dView* activeView = RiaApplication::instance()->activeReservoirView();
+        RimGridView* gridView = dynamic_cast<RimGridView*>(activeView);
+        if (gridView)
+        {
+            std::vector<RimGridView*> views;
+            views.push_back(gridView);
+            RicLinkVisibleViewsFeature::linkViews(views);
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -85,7 +112,16 @@ void RicLinkViewFeature::onActionTriggered(bool isChecked)
 //--------------------------------------------------------------------------------------------------
 void RicLinkViewFeature::setupActionLook(QAction* actionToSetup)
 {
-    actionToSetup->setText("Link View");
+    std::vector<RimGridView*> selectedGridViews;
+    caf::SelectionManager::instance()->objectsByType(&selectedGridViews);
+    if (selectedGridViews.size() > 1u)
+    {
+        actionToSetup->setText("Link Selected Views");
+    }
+    else
+    {
+        actionToSetup->setText("Link View");
+    }
     actionToSetup->setIcon(QIcon(":/chain.png"));
 }
 

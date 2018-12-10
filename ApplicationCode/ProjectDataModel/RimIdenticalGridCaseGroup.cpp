@@ -36,7 +36,7 @@
 #include "RimEclipseView.h"
 #include "RimReservoirCellResultsStorage.h"
 
-#include "RiuMainWindow.h"
+#include "Riu3DMainWindowTools.h"
 
 #include "cafProgressInfo.h"
 
@@ -71,7 +71,7 @@ RimIdenticalGridCaseGroup::RimIdenticalGridCaseGroup()
     statisticsCaseCollection->uiCapability()->setUiIcon(QIcon(":/Histograms16x16.png"));
 
 
-    m_mainGrid = NULL;
+    m_mainGrid = nullptr;
 
     m_unionOfMatrixActiveCells = new RigActiveCellInfo;
     m_unionOfFractureActiveCells = new RigActiveCellInfo;
@@ -82,13 +82,13 @@ RimIdenticalGridCaseGroup::RimIdenticalGridCaseGroup()
 //--------------------------------------------------------------------------------------------------
 RimIdenticalGridCaseGroup::~RimIdenticalGridCaseGroup()
 {
-    m_mainGrid = NULL;
+    m_mainGrid = nullptr;
 
     delete caseCollection;
-    caseCollection = NULL;
+    caseCollection = nullptr;
 
     delete statisticsCaseCollection;
-    statisticsCaseCollection = NULL;
+    statisticsCaseCollection = nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -130,7 +130,7 @@ void RimIdenticalGridCaseGroup::removeCase(RimEclipseCase* reservoir)
 
     if (caseCollection()->reservoirs().size() == 0)
     {
-        m_mainGrid = NULL;
+        m_mainGrid = nullptr;
     }
     
     clearActiveCellUnions();
@@ -145,7 +145,7 @@ RigMainGrid* RimIdenticalGridCaseGroup::mainGrid()
 {
     if (m_mainGrid) return m_mainGrid;
 
-    return NULL;
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -173,7 +173,7 @@ void RimIdenticalGridCaseGroup::loadMainCaseAndActiveCellInfo()
     RimEclipseCase* mainCase = caseCollection()->reservoirs[0];
     if (!mainCase->openReserviorCase())
     {
-        QMessageBox::warning(RiuMainWindow::instance(),
+        QMessageBox::warning(Riu3DMainWindowTools::mainWindowWidget(),
                              "Error when opening project file",
                              "Could not open the Eclipse Grid file: \n"+ mainCase->gridFileName() + "\n"+ 
                              "Current working directory is: \n" +
@@ -236,8 +236,6 @@ void RimIdenticalGridCaseGroup::loadMainCaseAndActiveCellInfo()
     // for all cases
 
     {
-        RiaDefines::PorosityModelType poroModel = RiaDefines::MATRIX_MODEL;
-
         std::vector<RigEclipseTimeStepInfo> timeStepInfos = rigCaseData->results(poroModel)->timeStepInfos(0);
 
         const std::vector<RigEclipseResultInfo> resultInfos = rigCaseData->results(poroModel)->infoForEachResultIndex();
@@ -251,15 +249,15 @@ void RimIdenticalGridCaseGroup::loadMainCaseAndActiveCellInfo()
 
             for (size_t resIdx = 0; resIdx < resultInfos.size(); resIdx++)
             {
-                RiaDefines::ResultCatType resultType = resultInfos[resIdx].m_resultType;
-                QString resultName = resultInfos[resIdx].m_resultName;
-                bool needsToBeStored = resultInfos[resIdx].m_needsToBeStored;
-                bool mustBeCalculated = resultInfos[resIdx].m_mustBeCalculated;
+                RiaDefines::ResultCatType resultType = resultInfos[resIdx].resultType();
+                QString resultName = resultInfos[resIdx].resultName();
+                bool needsToBeStored = resultInfos[resIdx].needsToBeStored();
+                bool mustBeCalculated = resultInfos[resIdx].mustBeCalculated();
 
                 size_t scalarResultIndex = cellResultsStorage->findScalarResultIndex(resultType, resultName);
                 if (scalarResultIndex == cvf::UNDEFINED_SIZE_T)
                 {
-                    size_t scalarResultIndex = cellResultsStorage->findOrCreateScalarResultIndex(resultType, resultName, needsToBeStored);
+                    scalarResultIndex = cellResultsStorage->findOrCreateScalarResultIndex(resultType, resultName, needsToBeStored);
                     
                     if (mustBeCalculated) cellResultsStorage->setMustBeCalculated(scalarResultIndex);
 
@@ -512,29 +510,7 @@ RimEclipseCase* RimIdenticalGridCaseGroup::mainCase()
     }
     else
     {
-        return NULL;
+        return nullptr;
     }
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-bool RimIdenticalGridCaseGroup::canCaseBeAdded(RimEclipseCase* reservoir) const
-{
-    CVF_ASSERT(reservoir && reservoir->eclipseCaseData() && reservoir->eclipseCaseData()->mainGrid());
-
-    if (!m_mainGrid)
-    {
-        // Empty case group, reservoir can be added
-        return true;
-    }
-
-    RigMainGrid* incomingMainGrid = reservoir->eclipseCaseData()->mainGrid();
-    
-    if (RigGridManager::isEqual(m_mainGrid, incomingMainGrid))
-    {
-        return true;
-    }
-
-    return false;
-}

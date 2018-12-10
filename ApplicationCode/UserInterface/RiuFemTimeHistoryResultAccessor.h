@@ -36,14 +36,14 @@ public:
                                     size_t gridIndex, 
                                     int elementIndex,
                                     int face, 
-                                    const cvf::Vec3d& intersectionPoint);
+                                    const cvf::Vec3d& intersectionPointInDomain);
 
     RiuFemTimeHistoryResultAccessor(RigGeoMechCaseData* geomData,
                                     RigFemResultAddress femResultAddress,
                                     size_t gridIndex,
                                     int elementIndex,
                                     int face,
-                                    const cvf::Vec3d& intersectionPoint, 
+                                    const cvf::Vec3d& intersectionPointInDomain, 
                                     const std::array<cvf::Vec3f, 3>& m_intersectionTriangle);
 
     QString             geometrySelectionText() const;
@@ -62,7 +62,7 @@ private:
     int                     m_face;
     int                     m_closestNodeId;
 
-    cvf::Vec3d              m_intersectionPoint;
+    cvf::Vec3d              m_intersectionPointInDomain;
 
     bool                      m_hasIntersectionTriangle;
     std::array<cvf::Vec3f, 3> m_intersectionTriangle;

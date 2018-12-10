@@ -28,7 +28,7 @@
 #include "RimFishboneWellPathCollection.h"
 #include "RimFishbonesCollection.h"
 #include "RimFishbonesMultipleSubs.h"
-#include "RimView.h"
+#include "Rim3dView.h"
 #include "RimWellPathCollection.h"
 
 #include "RiuMainWindow.h"
@@ -123,7 +123,7 @@ RimFishbonesCollection* RicNewFishbonesSubsFeature::selectedFishbonesCollection(
 void RicNewFishbonesSubsFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setIcon(QIcon(":/FishBoneGroup16x16.png"));
-    actionToSetup->setText("New Fishbones Subs Definition");
+    actionToSetup->setText("New Fishbones");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -150,7 +150,7 @@ void RicNewFishbonesSubsFeature::askUserToSetUsefulScaling(RimFishbonesCollectio
     fishboneCollection->firstAncestorOrThisOfTypeAsserted(wellPathColl);
     wellPathColl->wellPathRadiusScaleFactor = 0.01;
 
-    RimView* activeView = RiaApplication::instance()->activeReservoirView();
+    Rim3dView* activeView = RiaApplication::instance()->activeReservoirView();
     if (!activeView) return;
 
     RiaApplication* app = RiaApplication::instance();

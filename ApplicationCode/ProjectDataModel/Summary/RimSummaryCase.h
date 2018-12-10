@@ -17,10 +17,15 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
+#include "RigCaseRealizationParameters.h"
+
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 
+#include <memory>
+
 class RifSummaryReaderInterface;
+class RimSummaryCaseCollection;
 
 //==================================================================================================
 //
@@ -33,10 +38,10 @@ class RimSummaryCase : public caf::PdmObject
     CAF_PDM_HEADER_INIT;
 public:
     RimSummaryCase();
-    virtual ~RimSummaryCase();
+    ~RimSummaryCase() override;
     
     virtual QString     summaryHeaderFilename() const; 
-    virtual QString     caseName() = 0; 
+    virtual QString     caseName() const = 0; 
     QString             shortName() const;
 
     void                updateAutoShortName();
@@ -52,15 +57,24 @@ public:
 
     bool                isObservedData();
 
+    void                setCaseRealizationParameters(const std::shared_ptr<RigCaseRealizationParameters>& crlParameters);
+    std::shared_ptr<RigCaseRealizationParameters> caseRealizationParameters() const;
+    bool                hasCaseRealizationParameters() const;
+    RimSummaryCaseCollection* ensemble() const;
+    void                copyFrom(const RimSummaryCase& rhs);
+    bool                operator<(const RimSummaryCase& rhs) const;
+
 protected:
-    virtual void        fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
+    void        fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
     void                updateTreeItemName();
 
     caf::PdmField<QString>          m_shortName;
     caf::PdmField<bool>             m_useAutoShortName;
     caf::PdmField<QString>          m_summaryHeaderFilename;
     bool                            m_isObservedData;
+    
+    std::shared_ptr<RigCaseRealizationParameters> m_crlParameters;
 
 private:
-    virtual void        initAfterRead() override;
+    void        initAfterRead() override;
 };

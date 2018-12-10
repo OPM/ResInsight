@@ -150,7 +150,7 @@ cvf::StructGridInterface::FaceType RigNNCData::calculateCellFaceOverlap(const Ri
     #endif
 
 
-    for ( char fIdx = 0; fIdx < 6; ++fIdx )
+    for ( unsigned char fIdx = 0; fIdx < 6; ++fIdx )
     {
         if ( !isPossibleNeighborInDirection[fIdx] )
         {
@@ -161,15 +161,15 @@ cvf::StructGridInterface::FaceType RigNNCData::calculateCellFaceOverlap(const Ri
 
         std::vector<size_t> polygon;
         std::vector<cvf::Vec3d> intersections;
-        caf::SizeTArray4 face1;
-        caf::SizeTArray4 face2;
+        std::array<size_t, 4> face1;
+        std::array<size_t, 4> face2;
         c1.faceIndices((cvf::StructGridInterface::FaceType)(fIdx), &face1);
         c2.faceIndices(cvf::StructGridInterface::oppositeFace((cvf::StructGridInterface::FaceType)(fIdx)), &face2);
 
         bool foundOverlap = cvf::GeometryTools::calculateOverlapPolygonOfTwoQuads(
             &polygon,
             &intersections,
-            (cvf::EdgeIntersectStorage<size_t>*)NULL,
+            (cvf::EdgeIntersectStorage<size_t>*)nullptr,
             cvf::wrapArrayConst(&mainGrid.nodes()),
             face1.data(),
             face2.data(),

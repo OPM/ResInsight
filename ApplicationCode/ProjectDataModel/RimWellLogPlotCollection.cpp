@@ -87,7 +87,7 @@ RigEclipseWellLogExtractor* RimWellLogPlotCollection::findOrCreateExtractor(RimW
 {
     if (!(wellPath && eclCase && wellPath->wellPathGeometry() && eclCase->eclipseCaseData()))
     {
-        return NULL;
+        return nullptr;
     }
 
     RigEclipseCaseData* eclCaseData = eclCase->eclipseCaseData();
@@ -114,7 +114,7 @@ RigGeoMechWellLogExtractor* RimWellLogPlotCollection::findOrCreateExtractor(RimW
 {
     if (!(wellPath && geomCase && wellPath->wellPathGeometry() && geomCase->geoMechData()))
     {
-        return NULL;
+        return nullptr;
     }
 
     RigGeoMechCaseData* geomCaseData = geomCase->geoMechData();
@@ -132,6 +132,26 @@ RigGeoMechWellLogExtractor* RimWellLogPlotCollection::findOrCreateExtractor(RimW
     m_geomExtractors.push_back(extractor.p());
 
     return extractor.p();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellLogPlotCollection::reloadAllPlots()
+{
+    for (const auto& w : wellLogPlots())
+    {
+        w->loadDataAndUpdate();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellLogPlotCollection::deleteAllExtractors()
+{
+    m_extractors.clear();
+    m_geomExtractors.clear();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -18,8 +18,10 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RimPropertyFilterCollection.h"
-#include "RimView.h"
+#include "Rim3dView.h"
+#include "RimPropertyFilter.h"
 #include "RimViewController.h"
+#include "RimViewLinker.h"
 
 CAF_PDM_XML_ABSTRACT_SOURCE_INIT(RimPropertyFilterCollection, "RimPropertyFilterCollection"); // Abstract class 
 
@@ -44,12 +46,23 @@ RimPropertyFilterCollection::~RimPropertyFilterCollection()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimPropertyFilterCollection::updateDisplayModelNotifyManagedViews() const
+void RimPropertyFilterCollection::updateDisplayModelNotifyManagedViews(RimPropertyFilter* changedFilter) const
 {
-    RimView* view = NULL;
+    Rim3dView* view = nullptr;
     this->firstAncestorOrThisOfType(view);
     CVF_ASSERT(view);
     if (!view) return;
+
+    if (view->isMasterView())
+    {
+        RimViewLinker* viewLinker = view->assosiatedViewLinker();
+        if (viewLinker)
+        {
+            // Update data for property filter
+            // Update of display model is handled by view->scheduleGeometryRegen, also for managed views
+            viewLinker->updatePropertyFilters(changedFilter);
+        }
+    }
 
     view->scheduleGeometryRegen(PROPERTY_FILTERED);
     view->scheduleCreateDisplayModelAndRedraw();
@@ -64,7 +77,7 @@ void RimPropertyFilterCollection::fieldChangedByUi(const caf::PdmFieldHandle* ch
     updateIconState();
     uiCapability()->updateConnectedEditors();
 
-    updateDisplayModelNotifyManagedViews();
+    updateDisplayModelNotifyManagedViews(nullptr);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -83,7 +96,7 @@ void RimPropertyFilterCollection::defineUiTreeOrdering(caf::PdmUiTreeOrdering& u
 {
     PdmObject::defineUiTreeOrdering(uiTreeOrdering, uiConfigName);
 
-    RimView* rimView = NULL;
+    Rim3dView* rimView = nullptr;
     this->firstAncestorOrThisOfType(rimView);
     RimViewController* viewController = rimView->viewController();
     if (viewController && (viewController->isPropertyFilterOveridden() 

@@ -26,7 +26,7 @@
 #include "RimProject.h"
 #include "RimWellPath.h"
 
-#include "RiuMainWindow.h"
+#include "Riu3DMainWindowTools.h"
 #include "RiuSelectionManager.h"
 
 #include "cafSelectionManager.h"
@@ -58,7 +58,7 @@ void RicNewFishbonesSubsAtMeasuredDepthFeature::onActionTriggered(bool isChecked
     RicNewFishbonesSubsFeature::askUserToSetUsefulScaling(wellPath->fishbonesCollection());
 
     wellPath->updateConnectedEditors();
-    RiuMainWindow::instance()->selectAsCurrentItem(obj);
+    Riu3DMainWindowTools::selectAsCurrentItem(obj);
 
     RimProject* proj;
     wellPath->firstAncestorOrThisOfTypeAsserted(proj);
@@ -84,7 +84,7 @@ RiuWellPathSelectionItem* RicNewFishbonesSubsAtMeasuredDepthFeature::wellPathSel
 void RicNewFishbonesSubsAtMeasuredDepthFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setIcon(QIcon(":/FishBoneGroup16x16.png"));
-    actionToSetup->setText("New Fishbones Subs Definition");
+    actionToSetup->setText("New Fishbones");
 }
 
 //--------------------------------------------------------------------------------------------------

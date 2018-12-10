@@ -19,6 +19,8 @@
 
 #pragma once
 
+#include <QString>
+
 class RimWellLogPlotCollection;
 class RimWellLogPlot;
 class RimWellLogTrack;
@@ -29,9 +31,9 @@ class RimWellLogTrack;
 class RicNewWellLogPlotFeatureImpl
 {
 public:
-    static RimWellLogPlot*  createWellLogPlot();
-    static RimWellLogTrack* createWellLogPlotTrack();
-
+    static RimWellLogPlot*  createWellLogPlot(bool showAfterCreation = true, const QString& plotDescription = QString(""));
+    static RimWellLogTrack* createWellLogPlotTrack(bool updateAfterCreation = true, const QString& trackDescription = QString(""), RimWellLogPlot* existingPlot = nullptr);
+    static void             updateAfterCreation(RimWellLogPlot* plot);
 private:
     static RimWellLogPlotCollection* wellLogPlotCollection();
 };

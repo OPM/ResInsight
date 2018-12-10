@@ -35,25 +35,29 @@ class RimWellPathFracture : public RimFracture
 
 public:
     RimWellPathFracture(void);
-    virtual ~RimWellPathFracture(void);
+    ~RimWellPathFracture(void) override;
 
-    double                          fractureMD() const override { return m_measuredDepth; }
-    void                            setMeasuredDepth(double mdValue);
+    double                  fractureMD() const override;
+    void                    setMeasuredDepth(double mdValue);
 
-    virtual void                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
-    virtual void                    updateAzimuthBasedOnWellAzimuthAngle() override;
+    void                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    void                    updateAzimuthBasedOnWellAzimuthAngle() override;
 
-    double                          wellAzimuthAtFracturePosition() const override;
+    double                  wellAzimuthAtFracturePosition() const override;
 
-    virtual void                    loadDataAndUpdate() override;
+    void                    loadDataAndUpdate() override;
+
+    std::vector<cvf::Vec3d> perforationLengthCenterLineCoords() const override;
+
+    static bool             compareByWellPathNameAndMD(const RimWellPathFracture* lhs, const RimWellPathFracture* rhs);
 
 protected:
-    virtual void                    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
-    virtual void                    defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute * attribute) override;
+    void                    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    void                    defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute * attribute) override;
 
 private:
-    void                            updatePositionFromMeasuredDepth();
+    void                    updatePositionFromMeasuredDepth();
 
 private:
-    caf::PdmField<float>            m_measuredDepth;
+    caf::PdmField<float>    m_measuredDepth;
 };

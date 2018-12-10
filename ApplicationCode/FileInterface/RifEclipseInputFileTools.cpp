@@ -20,13 +20,14 @@
 
 #include "RifEclipseInputFileTools.h"
 
+#include "RiaLogging.h"
+
 #include "RifReaderEclipseOutput.h"
 
 #include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
 #include "RigMainGrid.h"
-#include "RigResultAccessorFactory.h"
 
 #include "cafProgressInfo.h"
 
@@ -41,7 +42,7 @@
 #include <QTextStream>
 #include <QDebug>
 
-#include "ert/ecl/ecl_box.h"
+#include "ert/ecl/ecl_box.hpp"
 #include "ert/ecl/ecl_kw.h"
 
 QString includeKeyword("INCLUDE");
@@ -90,6 +91,25 @@ bool RifEclipseInputFileTools::openGridFile(const QString& fileName, RigEclipseC
 
     if (coordPos < 0 || zcornPos < 0 || specgridPos < 0)
     {
+        QString errorText = QString("Failed to import grid file '%1'\n").arg(fileName);
+
+        if (coordPos < 0)
+        {
+            errorText += "  Missing required keyword COORD";
+        }
+
+        if (zcornPos < 0)
+        {
+            errorText += "  Missing required keyword ZCORN";
+        }
+
+        if (specgridPos < 0)
+        {
+            errorText += "  Missing required keyword SPECGRID";
+        }
+
+        RiaLogging::error(errorText);
+
         return false;
     }
 
@@ -107,11 +127,11 @@ bool RifEclipseInputFileTools::openGridFile(const QString& fileName, RigEclipseC
 
 
 
-    ecl_kw_type* specGridKw  = NULL;
-    ecl_kw_type* zCornKw     = NULL;
-    ecl_kw_type* coordKw     = NULL;
-    ecl_kw_type* actNumKw    = NULL;
-    ecl_kw_type* mapAxesKw   = NULL;
+    ecl_kw_type* specGridKw  = nullptr;
+    ecl_kw_type* zCornKw     = nullptr;
+    ecl_kw_type* coordKw     = nullptr;
+    ecl_kw_type* actNumKw    = nullptr;
+    ecl_kw_type* mapAxesKw   = nullptr;
 
     // Try to read all the needed keywords. Early exit if some are not found
     caf::ProgressInfo progress(8, "Read Grid from Eclipse Input file");
@@ -121,26 +141,26 @@ bool RifEclipseInputFileTools::openGridFile(const QString& fileName, RigEclipseC
     bool allKwReadOk = true;
 
     fseek(gridFilePointer, specgridPos, SEEK_SET);
-    allKwReadOk = allKwReadOk && NULL != (specGridKw = ecl_kw_fscanf_alloc_current_grdecl__(gridFilePointer, false , ecl_type_create_from_type(ECL_INT_TYPE)));
+    allKwReadOk = allKwReadOk && nullptr != (specGridKw = ecl_kw_fscanf_alloc_current_grdecl__(gridFilePointer, false , ecl_type_create_from_type(ECL_INT_TYPE)));
     progress.setProgress(1);
 
     fseek(gridFilePointer, zcornPos, SEEK_SET);
-    allKwReadOk = allKwReadOk && NULL != (zCornKw    = ecl_kw_fscanf_alloc_current_grdecl__(gridFilePointer, false , ecl_type_create_from_type(ECL_FLOAT_TYPE)));
+    allKwReadOk = allKwReadOk && nullptr != (zCornKw    = ecl_kw_fscanf_alloc_current_grdecl__(gridFilePointer, false , ecl_type_create_from_type(ECL_FLOAT_TYPE)));
     progress.setProgress(2);
 
     fseek(gridFilePointer, coordPos, SEEK_SET);
-    allKwReadOk = allKwReadOk && NULL != (coordKw    = ecl_kw_fscanf_alloc_current_grdecl__(gridFilePointer, false , ecl_type_create_from_type(ECL_FLOAT_TYPE)));
+    allKwReadOk = allKwReadOk && nullptr != (coordKw    = ecl_kw_fscanf_alloc_current_grdecl__(gridFilePointer, false , ecl_type_create_from_type(ECL_FLOAT_TYPE)));
     progress.setProgress(3);
 
-    // If ACTNUM is not defined, this pointer will be NULL, which is a valid condition
+    // If ACTNUM is not defined, this pointer will be nullptr, which is a valid condition
     if (actnumPos >= 0)
     {
         fseek(gridFilePointer, actnumPos, SEEK_SET);
-        allKwReadOk = allKwReadOk && NULL != (actNumKw   = ecl_kw_fscanf_alloc_current_grdecl__(gridFilePointer, false , ecl_type_create_from_type(ECL_INT_TYPE)));
+        allKwReadOk = allKwReadOk && nullptr != (actNumKw   = ecl_kw_fscanf_alloc_current_grdecl__(gridFilePointer, false , ecl_type_create_from_type(ECL_INT_TYPE)));
         progress.setProgress(4);
     }
 
-    // If MAPAXES is not defined, this pointer will be NULL, which is a valid condition
+    // If MAPAXES is not defined, this pointer will be nullptr, which is a valid condition
     if (mapaxesPos >= 0)
     {
         fseek(gridFilePointer, mapaxesPos, SEEK_SET);
@@ -193,7 +213,7 @@ bool RifEclipseInputFileTools::openGridFile(const QString& fileName, RigEclipseC
 
     ecl_grid_free(inputGrid);
 
-    util_fclose(gridFilePointer);
+    fclose(gridFilePointer);
     
     return true;
 }
@@ -243,7 +263,7 @@ std::map<QString, QString> RifEclipseInputFileTools::readProperties(const QStrin
         progress.setProgress(i);
     }
 
-    util_fclose(gridFilePointer);
+    fclose(gridFilePointer);
     return newResults;
 }
 
@@ -270,7 +290,7 @@ bool RifEclipseInputFileTools::readProperty(const QString& fileName, RigEclipseC
         ecl_kw_free(eclipseKeywordData);
     }
 
-    util_fclose(filePointer);
+    fclose(filePointer);
 
     return isOk;
 }
@@ -453,119 +473,6 @@ const std::vector<QString>& RifEclipseInputFileTools::invalidPropertyDataKeyword
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RifEclipseInputFileTools::writePropertyToTextFile(const QString& fileName, RigEclipseCaseData* eclipseCase, size_t timeStep, const QString& resultName, const QString& eclipseKeyWord)
-{
-    CVF_ASSERT(eclipseCase);
-
-    size_t resultIndex = eclipseCase->results(RiaDefines::MATRIX_MODEL)->findScalarResultIndex(resultName);
-    if (resultIndex == cvf::UNDEFINED_SIZE_T)
-    {
-        return false;
-    }
-    
-    QFile file(fileName);
-    if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
-    {
-        return false;
-    }
-
-    std::vector< std::vector<double> >& resultData = eclipseCase->results(RiaDefines::MATRIX_MODEL)->cellScalarResults(resultIndex);
-    if (resultData.size() == 0)
-    {
-        return false;
-    }
-
-    std::vector<double>& singleTimeStepData = resultData[timeStep];
-    writeDataToTextFile(&file, eclipseKeyWord, singleTimeStepData);
-
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// Create and write a result vector with values for all cells.
-/// undefinedValue is used for cells with no result
-//--------------------------------------------------------------------------------------------------
-bool RifEclipseInputFileTools::writeBinaryResultToTextFile(const QString& fileName,
-                                                           RigEclipseCaseData* eclipseCase,
-                                                           size_t timeStep,
-                                                           RimEclipseResultDefinition* resultDefinition,
-                                                           const QString& eclipseKeyWord,
-                                                           const double undefinedValue)
-{
-    CVF_ASSERT(eclipseCase);
-
-    cvf::ref<RigResultAccessor> resultAccessor = RigResultAccessorFactory::createFromResultDefinition(eclipseCase, eclipseCase->mainGrid()->gridIndex(), timeStep, resultDefinition);
-    if (resultAccessor.isNull())
-    {
-        return false;
-    }
-
-    QFile file(fileName);
-    if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
-    {
-        return false;
-    }
-
-    std::vector<double> resultData;
-    size_t i, j, k;
-    for (k = 0; k < eclipseCase->mainGrid()->cellCountK(); k++)
-    {
-        for (j = 0; j < eclipseCase->mainGrid()->cellCountJ(); j++)
-        {
-            for (i = 0; i < eclipseCase->mainGrid()->cellCountI(); i++)
-            {
-                double resultValue = resultAccessor->cellScalar(eclipseCase->mainGrid()->cellIndexFromIJK(i, j, k));
-                if (resultValue == HUGE_VAL)
-                {
-                    resultValue = undefinedValue;
-                }
-
-                resultData.push_back(resultValue);
-            }
-        }
-    }
-
-    writeDataToTextFile(&file, eclipseKeyWord, resultData);
-
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RifEclipseInputFileTools::writeDataToTextFile(QFile* file, const QString& eclipseKeyWord, const std::vector<double>& resultData)
-{
-    QTextStream out(file);
-    out << "\n";
-    out << "-- Exported from ResInsight" << "\n";
-    out << eclipseKeyWord << "\n" << right << qSetFieldWidth(16);
-
-    caf::ProgressInfo pi(resultData.size(), QString("Writing data to file %1").arg(file->fileName()) );
-    size_t progressSteps = resultData.size() / 20;
-
-    size_t i;
-    for (i = 0; i < resultData.size(); i++)
-    {
-        out << resultData[i];
-
-        if ( (i + 1) % 5 == 0)
-        {
-            out << "\n";
-        }
-
-        if (i % progressSteps == 0)
-        {
-            pi.setProgress(i);
-        }
-    }
-
-    out << "\n" << "/" << "\n";
-}
-
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 void RifEclipseInputFileTools::findGridKeywordPositions(const std::vector< RifKeywordAndFilePos >& keywordsAndFilePos, qint64* coordPos, qint64* zcornPos, qint64* specgridPos, qint64* actnumPos, qint64* mapaxesPos)
 {
     CVF_ASSERT(coordPos && zcornPos && specgridPos && actnumPos && mapaxesPos);
@@ -645,7 +552,7 @@ void RifEclipseInputFileTools::parseAndReadFaults(const QString& fileName, cvf::
 
     while (filePos != -1)
     {
-        readFaults(data, filePos, faults, NULL);
+        readFaults(data, filePos, faults, nullptr);
         filePos = findKeyword(faultsKeyword, data, filePos);
     }
 }
@@ -919,7 +826,7 @@ void RifEclipseInputFileTools::readFaults(QFile &data, qint64 filePos, cvf::Coll
 
     // qDebug() << "Reading faults from\n  " << data.fileName();
 
-    RigFault* fault = NULL;
+    RigFault* fault = nullptr;
 
     do 
     {

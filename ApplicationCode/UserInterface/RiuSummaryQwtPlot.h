@@ -32,8 +32,12 @@ class QwtPlotZoomer;
 class QwtInterval;
 class QwtPicker;
 class QwtPlotMarker;
+class QwtScaleWidget;
+
+class RiuCvfOverlayItemWidget;
 
 class RimSummaryPlot;
+class RimEnsembleCurveSet;
 
 //==================================================================================================
 //
@@ -44,11 +48,11 @@ class RiuSummaryQwtPlot : public QwtPlot, public RiuInterfaceToViewWindow
 {
     Q_OBJECT;
 public:
-    RiuSummaryQwtPlot(RimSummaryPlot* plotDefinition, QWidget* parent = NULL);
-    virtual ~RiuSummaryQwtPlot();
+    RiuSummaryQwtPlot(RimSummaryPlot* plotDefinition, QWidget* parent = nullptr);
+    ~RiuSummaryQwtPlot() override;
 
     RimSummaryPlot*                 ownerPlotDefinition();
-    virtual RimViewWindow*          ownerViewWindow() const override;
+    RimViewWindow*          ownerViewWindow() const override;
 
     void                            useDateBasedTimeAxis();
     void                            useTimeBasedTimeAxis();
@@ -57,24 +61,25 @@ public:
                                                          QwtInterval* rightAxis,
                                                          QwtInterval* timeAxis) const;
 
-    void                            setZoomWindow(const QwtInterval& leftAxis,
-                                                  const QwtInterval& rightAxis,
-                                                  const QwtInterval& timeAxis);
+    void                            addOrUpdateEnsembleCurveSetLegend(RimEnsembleCurveSet * curveSetToShowLegendFor);
+    void                            removeEnsembleCurveSetLegend(RimEnsembleCurveSet * curveSetToShowLegendFor);
 
     static void                     setCommonPlotBehaviour(QwtPlot* plot);
     static void                     enableDateBasedBottomXAxis(QwtPlot* plot);
 
 protected:
-    virtual bool                    eventFilter(QObject* watched, QEvent* event) override;
-    virtual void                    keyPressEvent(QKeyEvent *) override;
+    bool                    eventFilter(QObject* watched, QEvent* event) override;
+    void                    keyPressEvent(QKeyEvent *) override;
 
-    virtual QSize                   sizeHint() const override;
-    virtual QSize                   minimumSizeHint() const override;
-    virtual void                    contextMenuEvent(QContextMenuEvent *) override;
+    QSize                   sizeHint() const override;
+    QSize                   minimumSizeHint() const override;
+    void                    contextMenuEvent(QContextMenuEvent *) override;
+    void                    updateLayout() override;
 
 private:
     void                            setDefaults();
     void                            selectClosestCurve(const QPoint& pos);
+    void                            updateEnsembleLegendLayout();
 
 private slots:
     void                            onZoomedSlot( );
@@ -85,5 +90,8 @@ private:
 
     QPointer<QwtPlotZoomer>         m_zoomerLeft;
     QPointer<QwtPlotZoomer>         m_zoomerRight;
+
+    std::map< caf::PdmPointer<RimEnsembleCurveSet>, QPointer<RiuCvfOverlayItemWidget> > m_ensembleLegendWidgets;
+
 };
 

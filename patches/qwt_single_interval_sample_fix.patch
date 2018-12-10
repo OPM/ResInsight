@@ -1,0 +1,26 @@
+From 08ad8a98db66e2f222554c61ead97cccc31f2531 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Bj=C3=B8rn=20Erik=20Jensen?= <bjorn.erik.jensen@acando.no>
+Date: Wed, 4 Jul 2018 09:15:29 +0200
+Subject: [PATCH] Qwt fix. Fix plotting of interval series having only one
+ sample
+
+---
+ ThirdParty/Qwt/src/qwt_plot_intervalcurve.cpp | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/ThirdParty/Qwt/src/qwt_plot_intervalcurve.cpp b/ThirdParty/Qwt/src/qwt_plot_intervalcurve.cpp
+index 200ea39b5..d61b7978e 100644
+--- a/ThirdParty/Qwt/src/qwt_plot_intervalcurve.cpp
++++ b/ThirdParty/Qwt/src/qwt_plot_intervalcurve.cpp
+@@ -298,7 +298,7 @@ const QBrush& QwtPlotIntervalCurve::brush() const
+ QRectF QwtPlotIntervalCurve::boundingRect() const
+ {
+     QRectF rect = QwtPlotSeriesItem::boundingRect();
+-    if ( rect.isValid() && orientation() == Qt::Vertical )
++    if ( rect.width() >= 0.0 && rect.height() >= 0.0 && orientation() == Qt::Vertical )
+         rect.setRect( rect.y(), rect.x(), rect.height(), rect.width() );
+ 
+     return rect;
+-- 
+2.16.2.windows.1
+

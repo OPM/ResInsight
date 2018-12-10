@@ -23,15 +23,20 @@
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmChildField.h"
+#include "cafPdmChildArrayField.h"
 
 #include "cvfBase.h"
 #include "cvfVector3.h"
 
 #include <vector>
 
-class RimView;
+class Rim3dView;
+class RimGridView;
 class RimFormationNames;
 class RimTimeStepFilter;
+class Rim2dIntersectionView;
+class RimIntersection;
+class Rim2dIntersectionViewCollection;
 
 namespace cvf {
     class BoundingBox;
@@ -42,14 +47,15 @@ class RimCase : public caf::PdmObject
     CAF_PDM_HEADER_INIT;
 public:
     RimCase();
-    virtual ~RimCase();
+    ~RimCase() override;
     
     caf::PdmField<int>                          caseId;
     caf::PdmField<QString>                      caseUserDescription;
 
     caf::PdmPtrField<RimFormationNames*>        activeFormationNames;
 
-    virtual std::vector<RimView*>               views() = 0;
+    std::vector<Rim3dView*>                     views() const;
+    std::vector<RimGridView*>                   gridViews() const;
 
     virtual void                                updateFilePathsFromProjectPath(const QString& projectPath, const QString& oldProjectPath) = 0;
 
@@ -69,13 +75,20 @@ public:
 
     size_t                                      uiToNativeTimeStepIndex(size_t uiTimeStepIndex);
 
+    Rim2dIntersectionViewCollection*            intersectionViewCollection();
 protected:
-    virtual QList<caf::PdmOptionItemInfo>       calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
+    QList<caf::PdmOptionItemInfo>       calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
+    virtual std::vector<Rim3dView*>             allSpecialViews() const = 0;
+
 private:
-    virtual caf::PdmFieldHandle*                userDescriptionField() override { return &caseUserDescription; }
+    caf::PdmFieldHandle*                userDescriptionField() override { return &caseUserDescription; }
 
 protected:
     caf::PdmChildField<RimTimeStepFilter*>      m_timeStepFilter;
+    caf::PdmChildField<Rim2dIntersectionViewCollection*> m_2dIntersectionViewCollection;
+
+private: 
+    bool m_isInActiveDestruction; 
 };
 
 

@@ -23,7 +23,7 @@ class PdmXmlFieldHandle : public PdmFieldCapability
 {
 public:
     PdmXmlFieldHandle(PdmFieldHandle* owner , bool giveOwnership);
-    virtual ~PdmXmlFieldHandle() { }
+    ~PdmXmlFieldHandle() override { }
 
     PdmFieldHandle* fieldHandle()                       { return m_owner; }
     const PdmFieldHandle* fieldHandle() const           { return m_owner; }

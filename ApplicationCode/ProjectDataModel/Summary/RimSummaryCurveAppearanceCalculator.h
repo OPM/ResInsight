@@ -64,15 +64,17 @@ public:
     static cvf::Color3f            cycledBlueColor(int colorIndex);
     static cvf::Color3f            cycledRedColor(int colorIndex);
     static cvf::Color3f            cycledBrownColor(int colorIndex);
-    static RimPlotCurve::PointSymbolEnum  cycledSymbol(int index);
+    static RiuQwtSymbol::PointSymbolEnum  cycledSymbol(int index);
 
 private:
+    template<typename S>
+    int                            findMaxApperanceIndexInMap(const std::map<S, int>& mapToSearch) const;
     void                           setOneCurveAppearance(CurveAppearanceType appeaType, size_t totalCount, int appeaIdx, RimSummaryCurve* curve);
     void                           updateApperanceIndices();
     std::map<std::string, size_t>  mapNameToAppearanceIndex(CurveAppearanceType & appearance, const std::set<std::string>& names);
 
 
-    RimPlotCurve::LineStyleEnum    cycledLineStyle(int index);
+    RiuQwtPlotCurve::LineStyleEnum    cycledLineStyle(int index);
     int                            cycledLineThickness(int index);
     float                          gradient(size_t totalCount, int index);
     
@@ -81,11 +83,6 @@ private:
     cvf::Color3f                   m_currentCurveBaseColor;
     float                          m_currentCurveGradient;
 
-    size_t                         m_caseCount;
-    size_t                         m_variableCount;
-    size_t                         m_wellCount;
-    size_t                         m_groupCount;
-    size_t                         m_regionCount;
     int                            m_dimensionCount;
 
     CurveAppearanceType            m_caseAppearanceType;

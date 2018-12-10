@@ -33,8 +33,11 @@ public:
     static std::string  trimString(const std::string& s);
     static bool         isNumber(const std::string& s, char decimalPoint);
 
+    static int16_t      toInt16(const std::string& s);
     static int          toInt(const std::string& s);
     static double       toDouble(const std::string& s);
+    static bool         containsAlphabetic(const std::string& s);
+    static bool         startsWithAlphabetic(const std::string& s);
 
     static std::vector<std::string> splitStringBySpace(const std::string& s);
 

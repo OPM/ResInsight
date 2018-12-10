@@ -83,6 +83,9 @@ void RicToggleItemsOnOthersOffFeature::onActionTriggered(bool isChecked)
 void RicToggleItemsOnOthersOffFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setText("On - Others Off");
+
+    actionToSetup->setIcon(QIcon(":/ToggleOnOthersOff16x16.png"));
+
 }
 
 //--------------------------------------------------------------------------------------------------

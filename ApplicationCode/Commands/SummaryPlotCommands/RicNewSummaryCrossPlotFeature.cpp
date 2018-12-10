@@ -20,6 +20,7 @@
 
 #include "RiaApplication.h"
 #include "RiaPreferences.h"
+#include "RiaSummaryTools.h"
 
 #include "RicEditSummaryPlotFeature.h"
 #include "RicSummaryCurveCreator.h"
@@ -30,8 +31,12 @@
 #include "RimSummaryCrossPlotCollection.h"
 #include "RimSummaryCurveFilter.h"
 #include "RimSummaryPlot.h"
+#include "RimSummaryCase.h"
+#include "RimSummaryCaseCollection.h"
 
-#include "RiuMainPlotWindow.h"
+#include "RiuPlotMainWindowTools.h"
+
+#include "cafSelectionManagerTools.h"
 
 #include "cvfAssert.h"
 
@@ -45,6 +50,28 @@ CAF_CMD_SOURCE_INIT(RicNewSummaryCrossPlotFeature, "RicNewSummaryCrossPlotFeatur
 //--------------------------------------------------------------------------------------------------
 bool RicNewSummaryCrossPlotFeature::isCommandEnabled()
 {
+    RimSummaryCrossPlotCollection* sumPlotColl = nullptr;
+
+    caf::PdmObject* selObj = dynamic_cast<caf::PdmObject*>(caf::SelectionManager::instance()->selectedItem());
+    if (selObj)
+    {
+        sumPlotColl = RiaSummaryTools::parentCrossPlotCollection(selObj);
+    }
+
+    if (sumPlotColl) return true;
+
+    // Multiple case selections
+    std::vector<caf::PdmUiItem*> selectedItems = caf::selectedObjectsByTypeStrict<caf::PdmUiItem*>();
+
+    for (auto item : selectedItems)
+    {
+        RimSummaryCase* sumCase = dynamic_cast<RimSummaryCase*>(item);
+        RimSummaryCaseCollection* sumGroup = dynamic_cast<RimSummaryCaseCollection*>(item);
+
+        if (sumGroup && sumGroup->isEnsemble()) sumGroup = nullptr;
+        if (!sumCase && !sumGroup)
+            return false;
+    }
     return true;
 }
 
@@ -65,12 +92,9 @@ void RicNewSummaryCrossPlotFeature::onActionTriggered(bool isChecked)
         summaryCrossPlotColl->updateConnectedEditors();
         summaryPlot->loadDataAndUpdate();
 
-        RiuMainPlotWindow* mainPlotWindow = RiaApplication::instance()->getOrCreateAndShowMainPlotWindow();
-        if (mainPlotWindow)
-        {
-            mainPlotWindow->selectAsCurrentItem(summaryPlot);
-            mainPlotWindow->setExpanded(summaryPlot);
-        }
+        RiuPlotMainWindowTools::showPlotMainWindow();
+        RiuPlotMainWindowTools::selectAsCurrentItem(summaryPlot);
+        RiuPlotMainWindowTools::setExpanded(summaryPlot);
     }
 }
 
@@ -80,6 +104,6 @@ void RicNewSummaryCrossPlotFeature::onActionTriggered(bool isChecked)
 void RicNewSummaryCrossPlotFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setText("New Summary Cross Plot");
-    actionToSetup->setIcon(QIcon(":/SummaryPlot16x16.png"));
+    actionToSetup->setIcon(QIcon(":/SummaryXPlotLight16x16.png"));
 }
 

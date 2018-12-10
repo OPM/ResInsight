@@ -39,7 +39,7 @@ CAF_PDM_SOURCE_INIT(RimPltPlotCollection, "WellPltPlotCollection");
 //--------------------------------------------------------------------------------------------------
 RimPltPlotCollection::RimPltPlotCollection()
 {
-    CAF_PDM_InitObject("PLT Plots", ":/WellLogPlots16x16.png", "", "");
+    CAF_PDM_InitObject("PLT Plots", ":/WellAllocPlots16x16.png", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_pltPlots, "PltPlots", "",  "", "", "");
     m_pltPlots.uiCapability()->setUiHidden(true);
@@ -88,7 +88,7 @@ RigEclipseWellLogExtractor* RimPltPlotCollection::findOrCreateExtractor(RimWellP
 {
     if (!(wellPath && eclCase && wellPath->wellPathGeometry() && eclCase->eclipseCaseData()))
     {
-        return NULL;
+        return nullptr;
     }
 
     RigEclipseCaseData* eclCaseData = eclCase->eclipseCaseData();
@@ -115,7 +115,7 @@ RigGeoMechWellLogExtractor* RimPltPlotCollection::findOrCreateExtractor(RimWellP
 {
     if (!(wellPath && geomCase && wellPath->wellPathGeometry() && geomCase->geoMechData()))
     {
-        return NULL;
+        return nullptr;
     }
 
     RigGeoMechCaseData* geomCaseData = geomCase->geoMechData();
@@ -183,6 +183,15 @@ void RimPltPlotCollection::removeExtractors(const RigGeoMechCaseData* caseData)
             m_geomExtractors.eraseAt(eIdx);
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimPltPlotCollection::deleteAllExtractors()
+{
+    m_extractors.clear();
+    m_geomExtractors.clear();
 }
 
 //--------------------------------------------------------------------------------------------------

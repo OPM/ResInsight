@@ -40,7 +40,7 @@ class RimWellLogFileCurve : public RimWellLogCurve
 
 public:
     RimWellLogFileCurve();
-    virtual ~RimWellLogFileCurve();
+    ~RimWellLogFileCurve() override;
 
     void setWellPath(RimWellPath* wellPath);
     RimWellPath* wellPath() const;
@@ -48,22 +48,22 @@ public:
     void setWellLogFile(RimWellLogFile* wellLogFile);
 
     // Overrides from RimWellLogPlotCurve
-    virtual QString wellName() const override;
-    virtual QString wellLogChannelName() const override;
+    QString wellName() const override;
+    QString wellLogChannelName() const override;
     
     RimWellLogFile* wellLogFile() const;
 
 protected:
     // Overrides from RimWellLogPlotCurve
-    virtual QString createCurveAutoName() override;
-    virtual void onLoadDataAndUpdate(bool updateParentPlot) override;
+    QString createCurveAutoName() override;
+    void onLoadDataAndUpdate(bool updateParentPlot) override;
 
     // Pdm overrrides
-    virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
-    virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
-    virtual void defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
-    virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
-    virtual void initAfterRead() override;
+    void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    void defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
+    QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
+    void initAfterRead() override;
 
     bool        isRftPlotChild() const;
 

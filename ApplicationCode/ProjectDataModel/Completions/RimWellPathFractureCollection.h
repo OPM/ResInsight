@@ -19,10 +19,14 @@
 #pragma once
 
 #include "RimCheckableNamedObject.h"
+#include "RimMswCompletionParameters.h"
 
+#include "cafPdmChildField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmChildArrayField.h"
+
+#include <vector>
 
 class RimWellPathFracture;
 
@@ -33,16 +37,35 @@ class RimWellPathFracture;
 class RimWellPathFractureCollection : public RimCheckableNamedObject
 {
      CAF_PDM_HEADER_INIT;
-
 public:
+    enum ReferenceMDType
+    {
+        AUTO_REFERENCE_MD = 0,
+        MANUAL_REFERENCE_MD
+    };
+
+    typedef caf::AppEnum<ReferenceMDType> ReferenceMDEnum;
+
     RimWellPathFractureCollection(void);
-    virtual ~RimWellPathFractureCollection(void);
+    ~RimWellPathFractureCollection(void) override;
     
-    void                                            deleteFractures();
-
-public:
-    caf::PdmChildArrayField<RimWellPathFracture*>   fractures;
+    const RimMswCompletionParameters* mswParameters() const;
+    void                              addFracture(RimWellPathFracture* fracture);
+    void                              deleteFractures();
+    void                              setUnitSystemSpecificDefaults();
+    ReferenceMDType                   referenceMDType() const;
+    double                            manualReferenceMD() const;
+    
+    std::vector<RimWellPathFracture*> allFractures() const;
+    std::vector<RimWellPathFracture*> activeFractures() const;
 
 private:
-    virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+
+private:
+    caf::PdmChildArrayField<RimWellPathFracture*>   m_fractures;
+    caf::PdmField<ReferenceMDEnum>                  m_refMDType;
+    caf::PdmField<double>                           m_refMD;
+    caf::PdmChildField<RimMswCompletionParameters*> m_mswParameters;
 };

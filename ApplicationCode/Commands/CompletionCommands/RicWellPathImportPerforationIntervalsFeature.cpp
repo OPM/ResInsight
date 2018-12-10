@@ -29,7 +29,7 @@
 
 #include "RifPerforationIntervalReader.h"
 
-#include "RiuMainWindow.h"
+#include "Riu3DMainWindowTools.h"
 
 #include "cafSelectionManager.h"
 
@@ -62,7 +62,7 @@ void RicWellPathImportPerforationIntervalsFeature::onActionTriggered(bool isChec
     // Open dialog box to select well path files
     RiaApplication* app = RiaApplication::instance();
     QString defaultDir = app->lastUsedDialogDirectory("WELLPATH_DIR");
-    QStringList wellPathFilePaths = QFileDialog::getOpenFileNames(RiuMainWindow::instance(), "Import Well Path Perforation Intervals", defaultDir, "Well Path Perforation Intervals (*.ev);;All Files (*.*)");
+    QStringList wellPathFilePaths = QFileDialog::getOpenFileNames(Riu3DMainWindowTools::mainWindowWidget(), "Import Well Path Perforation Intervals", defaultDir, "Well Path Perforation Intervals (*.ev);;All Files (*.*)");
 
     if (wellPathFilePaths.size() < 1) return;
 
@@ -87,13 +87,10 @@ void RicWellPathImportPerforationIntervalsFeature::onActionTriggered(bool isChec
                 perforationInterval->setStartAndEndMD(interval.startMD, interval.endMD);
                 perforationInterval->setDiameter(interval.diameter);
                 perforationInterval->setSkinFactor(interval.skinFactor);
-                if (interval.startOfHistory)
+                if (!interval.startOfHistory)
                 {
-                    perforationInterval->setStartOfHistory();
-                }
-                else
-                {
-                    perforationInterval->setDate(interval.date);
+                    perforationInterval->setCustomStartDate(interval.date);
+                    perforationInterval->enableCustomStartDate(true);
                 }
                 wellPath->perforationIntervalCollection()->appendPerforation(perforationInterval);
                 lastPerforationInterval = perforationInterval;
@@ -104,12 +101,12 @@ void RicWellPathImportPerforationIntervalsFeature::onActionTriggered(bool isChec
 
     if (app->project())
     {
-        app->project()->createDisplayModelAndRedrawAllViews();
+        app->project()->scheduleCreateDisplayModelAndRedrawAllViews();
     }
 
     if (lastPerforationInterval)
     {
-        RiuMainWindow::instance()->selectAsCurrentItem(lastPerforationInterval);
+        Riu3DMainWindowTools::selectAsCurrentItem(lastPerforationInterval);
     }
 }
 

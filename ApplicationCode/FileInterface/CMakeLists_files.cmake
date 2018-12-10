@@ -1,99 +1,99 @@
 
-# Use this workaround until we're on 2.8.3 on all platforms and can use CMAKE_CURRENT_LIST_DIR directly 
-if (${CMAKE_VERSION} VERSION_GREATER "2.8.2")
-    set(CEE_CURRENT_LIST_DIR  ${CMAKE_CURRENT_LIST_DIR}/)
-endif()
-
 set (SOURCE_GROUP_HEADER_FILES
-${CEE_CURRENT_LIST_DIR}RifEclipseDataTableFormatter.h
-${CEE_CURRENT_LIST_DIR}RifEclipseInputFileTools.h
-${CEE_CURRENT_LIST_DIR}RifEclipseOutputFileTools.h
-${CEE_CURRENT_LIST_DIR}RifEclipseRestartDataAccess.h
-${CEE_CURRENT_LIST_DIR}RifEclipseRestartFilesetAccess.h
-${CEE_CURRENT_LIST_DIR}RifEclipseSummaryTools.h
-${CEE_CURRENT_LIST_DIR}RifEclipseUnifiedRestartFileAccess.h
-${CEE_CURRENT_LIST_DIR}RifPerforationIntervalReader.h
-${CEE_CURRENT_LIST_DIR}RifReaderEclipseInput.h
-${CEE_CURRENT_LIST_DIR}RifReaderEclipseOutput.h
-${CEE_CURRENT_LIST_DIR}RifSummaryReaderInterface.h
-${CEE_CURRENT_LIST_DIR}RifEclipseUserDataParserTools.h
-${CEE_CURRENT_LIST_DIR}RifColumnBasedUserDataParser.h
-${CEE_CURRENT_LIST_DIR}RifKeywordVectorParser.h
-${CEE_CURRENT_LIST_DIR}RifReaderObservedData.h
-${CEE_CURRENT_LIST_DIR}RifReaderEclipseSummary.h
-${CEE_CURRENT_LIST_DIR}RifReaderEclipseRft.h
-${CEE_CURRENT_LIST_DIR}RifJsonEncodeDecode.h
-${CEE_CURRENT_LIST_DIR}RifReaderInterface.h
-${CEE_CURRENT_LIST_DIR}RifReaderMockModel.h
-${CEE_CURRENT_LIST_DIR}RifReaderSettings.h
-${CEE_CURRENT_LIST_DIR}RifEclipseSummaryAddress.h
-${CEE_CURRENT_LIST_DIR}RifEclipseSummaryAddressQMetaType.h
-${CEE_CURRENT_LIST_DIR}RifEclipseRftAddress.h
-${CEE_CURRENT_LIST_DIR}RifWellPathImporter.h
-${CEE_CURRENT_LIST_DIR}RifHdf5ReaderInterface.h
-${CEE_CURRENT_LIST_DIR}RifColumnBasedUserData.h
-${CEE_CURRENT_LIST_DIR}RifKeywordVectorUserData.h
-${CEE_CURRENT_LIST_DIR}RifDataSourceForRftPlt.h
-${CEE_CURRENT_LIST_DIR}RifDataSourceForRftPltQMetaType.h
-${CEE_CURRENT_LIST_DIR}RifEclipseUserDataKeywordTools.h
-${CEE_CURRENT_LIST_DIR}RifCsvUserData.h
-${CEE_CURRENT_LIST_DIR}RifCsvUserDataParser.h
-${CEE_CURRENT_LIST_DIR}RifWellPathFormationReader.h
-${CEE_CURRENT_LIST_DIR}RifWellPathFormationsImporter.h
-# HDF5 file reader is directly included in ResInsight main CmakeList.txt
-#${CEE_CURRENT_LIST_DIR}RifHdf5Reader.h
-)
+${CMAKE_CURRENT_LIST_DIR}/RifEclipseDataTableFormatter.h
+${CMAKE_CURRENT_LIST_DIR}/RifEclipseInputFileTools.h
+${CMAKE_CURRENT_LIST_DIR}/RifEclipseOutputFileTools.h
+${CMAKE_CURRENT_LIST_DIR}/RifEclipseRestartDataAccess.h
+${CMAKE_CURRENT_LIST_DIR}/RifEclipseRestartFilesetAccess.h
+${CMAKE_CURRENT_LIST_DIR}/RifEclipseSummaryTools.h
+${CMAKE_CURRENT_LIST_DIR}/RifEclipseUnifiedRestartFileAccess.h
+${CMAKE_CURRENT_LIST_DIR}/RifPerforationIntervalReader.h
+${CMAKE_CURRENT_LIST_DIR}/RifReaderEclipseInput.h
+${CMAKE_CURRENT_LIST_DIR}/RifReaderEclipseOutput.h
+${CMAKE_CURRENT_LIST_DIR}/RifSummaryReaderInterface.h
+${CMAKE_CURRENT_LIST_DIR}/RifEclipseUserDataParserTools.h
+${CMAKE_CURRENT_LIST_DIR}/RifColumnBasedUserDataParser.h
+${CMAKE_CURRENT_LIST_DIR}/RifKeywordVectorParser.h
+${CMAKE_CURRENT_LIST_DIR}/RifReaderObservedData.h
+${CMAKE_CURRENT_LIST_DIR}/RifReaderEclipseSummary.h
+${CMAKE_CURRENT_LIST_DIR}/RifReaderEclipseRft.h
+${CMAKE_CURRENT_LIST_DIR}/RifJsonEncodeDecode.h
+${CMAKE_CURRENT_LIST_DIR}/RifReaderInterface.h
+${CMAKE_CURRENT_LIST_DIR}/RifReaderMockModel.h
+${CMAKE_CURRENT_LIST_DIR}/RifReaderSettings.h
+${CMAKE_CURRENT_LIST_DIR}/RifEclipseSummaryAddress.h
+${CMAKE_CURRENT_LIST_DIR}/RifEclipseSummaryAddressQMetaType.h
+${CMAKE_CURRENT_LIST_DIR}/RifEclipseRftAddress.h
+${CMAKE_CURRENT_LIST_DIR}/RifWellPathImporter.h
+${CMAKE_CURRENT_LIST_DIR}/RifHdf5ReaderInterface.h
+${CMAKE_CURRENT_LIST_DIR}/RifColumnBasedUserData.h
+${CMAKE_CURRENT_LIST_DIR}/RifKeywordVectorUserData.h
+${CMAKE_CURRENT_LIST_DIR}/RifDataSourceForRftPlt.h
+${CMAKE_CURRENT_LIST_DIR}/RifDataSourceForRftPltQMetaType.h
+${CMAKE_CURRENT_LIST_DIR}/RifEclipseUserDataKeywordTools.h
+${CMAKE_CURRENT_LIST_DIR}/RifCsvUserData.h
+${CMAKE_CURRENT_LIST_DIR}/RifCsvUserDataParser.h
+${CMAKE_CURRENT_LIST_DIR}/RifWellPathFormationReader.h
+${CMAKE_CURRENT_LIST_DIR}/RifWellPathFormationsImporter.h
+${CMAKE_CURRENT_LIST_DIR}/RifElementPropertyTableReader.h
+${CMAKE_CURRENT_LIST_DIR}/RifElementPropertyReader.h
+${CMAKE_CURRENT_LIST_DIR}/RifStimPlanXmlReader.h
+${CMAKE_CURRENT_LIST_DIR}/RifSummaryCaseRestartSelector.h
+${CMAKE_CURRENT_LIST_DIR}/RifCaseRealizationParametersReader.h
+${CMAKE_CURRENT_LIST_DIR}/RifFileParseTools.h
+${CMAKE_CURRENT_LIST_DIR}/RifEnsembleStatisticsReader.h
+${CMAKE_CURRENT_LIST_DIR}/RifDerivedEnsembleReader.h
 
-if (RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_FRACTURES) 
-    list (APPEND SOURCE_GROUP_HEADER_FILES 
-        ${CEE_CURRENT_LIST_DIR}RifStimPlanXmlReader.h
-    ) 
-endif() 
+# HDF5 file reader is directly included in ResInsight main CmakeList.txt
+#${CMAKE_CURRENT_LIST_DIR}/RifHdf5Reader.h
+)
 
 set (SOURCE_GROUP_SOURCE_FILES
-${CEE_CURRENT_LIST_DIR}RifEclipseDataTableFormatter.cpp
-${CEE_CURRENT_LIST_DIR}RifEclipseInputFileTools.cpp
-${CEE_CURRENT_LIST_DIR}RifEclipseOutputFileTools.cpp
-${CEE_CURRENT_LIST_DIR}RifEclipseRestartDataAccess.cpp
-${CEE_CURRENT_LIST_DIR}RifEclipseRestartFilesetAccess.cpp
-${CEE_CURRENT_LIST_DIR}RifEclipseUnifiedRestartFileAccess.cpp
-${CEE_CURRENT_LIST_DIR}RifEclipseSummaryTools.cpp
-${CEE_CURRENT_LIST_DIR}RifPerforationIntervalReader.cpp
-${CEE_CURRENT_LIST_DIR}RifReaderEclipseInput.cpp
-${CEE_CURRENT_LIST_DIR}RifReaderEclipseOutput.cpp
-${CEE_CURRENT_LIST_DIR}RifSummaryReaderInterface.cpp
-${CEE_CURRENT_LIST_DIR}RifEclipseUserDataParserTools.cpp
-${CEE_CURRENT_LIST_DIR}RifColumnBasedUserDataParser.cpp
-${CEE_CURRENT_LIST_DIR}RifKeywordVectorParser.cpp
-${CEE_CURRENT_LIST_DIR}RifReaderObservedData.cpp
-${CEE_CURRENT_LIST_DIR}RifReaderEclipseSummary.cpp
-${CEE_CURRENT_LIST_DIR}RifReaderEclipseRft.cpp
-${CEE_CURRENT_LIST_DIR}RifJsonEncodeDecode.cpp
-${CEE_CURRENT_LIST_DIR}RifReaderInterface.cpp
-${CEE_CURRENT_LIST_DIR}RifReaderMockModel.cpp
-${CEE_CURRENT_LIST_DIR}RifReaderSettings.cpp
-${CEE_CURRENT_LIST_DIR}RifEclipseSummaryAddress.cpp
-${CEE_CURRENT_LIST_DIR}RifEclipseRftAddress.cpp
-${CEE_CURRENT_LIST_DIR}RifWellPathImporter.cpp
-${CEE_CURRENT_LIST_DIR}RifHdf5ReaderInterface.cpp
-${CEE_CURRENT_LIST_DIR}RifColumnBasedUserData.cpp
-${CEE_CURRENT_LIST_DIR}RifKeywordVectorUserData.cpp
-${CEE_CURRENT_LIST_DIR}RifDataSourceForRftPlt.cpp
-${CEE_CURRENT_LIST_DIR}RifEclipseUserDataKeywordTools.cpp
-${CEE_CURRENT_LIST_DIR}RifCsvUserData.cpp
-${CEE_CURRENT_LIST_DIR}RifCsvUserDataParser.cpp
-${CEE_CURRENT_LIST_DIR}RifWellPathFormationReader.cpp
-${CEE_CURRENT_LIST_DIR}RifWellPathFormationsImporter.cpp
+${CMAKE_CURRENT_LIST_DIR}/RifEclipseDataTableFormatter.cpp
+${CMAKE_CURRENT_LIST_DIR}/RifEclipseInputFileTools.cpp
+${CMAKE_CURRENT_LIST_DIR}/RifEclipseOutputFileTools.cpp
+${CMAKE_CURRENT_LIST_DIR}/RifEclipseRestartDataAccess.cpp
+${CMAKE_CURRENT_LIST_DIR}/RifEclipseRestartFilesetAccess.cpp
+${CMAKE_CURRENT_LIST_DIR}/RifEclipseUnifiedRestartFileAccess.cpp
+${CMAKE_CURRENT_LIST_DIR}/RifEclipseSummaryTools.cpp
+${CMAKE_CURRENT_LIST_DIR}/RifPerforationIntervalReader.cpp
+${CMAKE_CURRENT_LIST_DIR}/RifReaderEclipseInput.cpp
+${CMAKE_CURRENT_LIST_DIR}/RifReaderEclipseOutput.cpp
+${CMAKE_CURRENT_LIST_DIR}/RifSummaryReaderInterface.cpp
+${CMAKE_CURRENT_LIST_DIR}/RifEclipseUserDataParserTools.cpp
+${CMAKE_CURRENT_LIST_DIR}/RifColumnBasedUserDataParser.cpp
+${CMAKE_CURRENT_LIST_DIR}/RifKeywordVectorParser.cpp
+${CMAKE_CURRENT_LIST_DIR}/RifReaderObservedData.cpp
+${CMAKE_CURRENT_LIST_DIR}/RifReaderEclipseSummary.cpp
+${CMAKE_CURRENT_LIST_DIR}/RifReaderEclipseRft.cpp
+${CMAKE_CURRENT_LIST_DIR}/RifJsonEncodeDecode.cpp
+${CMAKE_CURRENT_LIST_DIR}/RifReaderInterface.cpp
+${CMAKE_CURRENT_LIST_DIR}/RifReaderMockModel.cpp
+${CMAKE_CURRENT_LIST_DIR}/RifReaderSettings.cpp
+${CMAKE_CURRENT_LIST_DIR}/RifEclipseSummaryAddress.cpp
+${CMAKE_CURRENT_LIST_DIR}/RifEclipseRftAddress.cpp
+${CMAKE_CURRENT_LIST_DIR}/RifWellPathImporter.cpp
+${CMAKE_CURRENT_LIST_DIR}/RifHdf5ReaderInterface.cpp
+${CMAKE_CURRENT_LIST_DIR}/RifColumnBasedUserData.cpp
+${CMAKE_CURRENT_LIST_DIR}/RifKeywordVectorUserData.cpp
+${CMAKE_CURRENT_LIST_DIR}/RifDataSourceForRftPlt.cpp
+${CMAKE_CURRENT_LIST_DIR}/RifEclipseUserDataKeywordTools.cpp
+${CMAKE_CURRENT_LIST_DIR}/RifCsvUserData.cpp
+${CMAKE_CURRENT_LIST_DIR}/RifCsvUserDataParser.cpp
+${CMAKE_CURRENT_LIST_DIR}/RifWellPathFormationReader.cpp
+${CMAKE_CURRENT_LIST_DIR}/RifWellPathFormationsImporter.cpp
+${CMAKE_CURRENT_LIST_DIR}/RifElementPropertyTableReader.cpp
+${CMAKE_CURRENT_LIST_DIR}/RifElementPropertyReader.cpp
+${CMAKE_CURRENT_LIST_DIR}/RifStimPlanXmlReader.cpp
+${CMAKE_CURRENT_LIST_DIR}/RifSummaryCaseRestartSelector.cpp
+${CMAKE_CURRENT_LIST_DIR}/RifCaseRealizationParametersReader.cpp
+${CMAKE_CURRENT_LIST_DIR}/RifFileParseTools.cpp
+${CMAKE_CURRENT_LIST_DIR}/RifEnsembleStatisticsReader.cpp
+${CMAKE_CURRENT_LIST_DIR}/RifDerivedEnsembleReader.cpp
 
 # HDF5 file reader is directly included in ResInsight main CmakeList.txt
-#${CEE_CURRENT_LIST_DIR}RifHdf5Reader.cpp
+#${CMAKE_CURRENT_LIST_DIR}/RifHdf5Reader.cpp
 )
-
-if (RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_FRACTURES)
-    list (APPEND SOURCE_GROUP_SOURCE_FILES
-        ${CEE_CURRENT_LIST_DIR}RifStimPlanXmlReader.cpp
-    )
-endif()
 
 list(APPEND CODE_HEADER_FILES
 ${SOURCE_GROUP_HEADER_FILES}
@@ -103,4 +103,4 @@ list(APPEND CODE_SOURCE_FILES
 ${SOURCE_GROUP_SOURCE_FILES}
 )
 
-source_group( "FileInterface" FILES ${SOURCE_GROUP_HEADER_FILES} ${SOURCE_GROUP_SOURCE_FILES} ${CEE_CURRENT_LIST_DIR}CMakeLists_files.cmake )
+source_group( "FileInterface" FILES ${SOURCE_GROUP_HEADER_FILES} ${SOURCE_GROUP_SOURCE_FILES} ${CMAKE_CURRENT_LIST_DIR}/CMakeLists_files.cmake )

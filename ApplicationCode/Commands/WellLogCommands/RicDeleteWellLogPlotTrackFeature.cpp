@@ -18,8 +18,12 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RicDeleteWellLogPlotTrackFeature.h"
-
 #include "RicWellLogPlotCurveFeatureImpl.h"
+
+#include "RiaApplication.h"
+#include "RiuPlotMainWindow.h"
+#include "RiuWellLogPlot.h"
+#include "RiuWellLogTrack.h"
 
 #include "RimWellLogTrack.h"
 #include "RimWellLogPlot.h"
@@ -43,7 +47,7 @@ bool RicDeleteWellLogPlotTrackFeature::isCommandEnabled()
 
     if (selection.size() > 0)
     {
-        RimWellLogPlot* wellLogPlot = NULL;
+        RimWellLogPlot* wellLogPlot = nullptr;
         selection[0]->firstAncestorOrThisOfType(wellLogPlot);
         if (wellLogPlot && wellLogPlot->trackCount() > 1)
         {
@@ -63,23 +67,33 @@ void RicDeleteWellLogPlotTrackFeature::onActionTriggered(bool isChecked)
 
     std::vector<RimWellLogTrack*> selection;
     caf::SelectionManager::instance()->objectsByType(&selection);
+    RiuPlotMainWindow* plotWindow = RiaApplication::instance()->getOrCreateMainPlotWindow();
+    std::set<RimWellLogPlot*> alteredWellLogPlots;
 
     for (size_t i = 0; i < selection.size(); i++)
     {
         RimWellLogTrack* track = selection[i];
 
-        RimWellLogPlot* wellLogPlot = NULL;
+        RimWellLogPlot* wellLogPlot = nullptr;
         track->firstAncestorOrThisOfType(wellLogPlot);
         if (wellLogPlot && wellLogPlot->trackCount() > 1)
         {
+            alteredWellLogPlots.insert(wellLogPlot);
             wellLogPlot->removeTrack(track);
             caf::SelectionManager::instance()->removeObjectFromAllSelections(track);
-            delete track;
 
-            wellLogPlot->calculateAvailableDepthRange();
-            wellLogPlot->updateDepthZoom();
-            wellLogPlot->uiCapability()->updateConnectedEditors();
+            wellLogPlot->updateConnectedEditors();
+            delete track;
         }
+    }
+
+    for (RimWellLogPlot* wellLogPlot : alteredWellLogPlots)
+    {
+        RiuWellLogPlot* viewWidget = dynamic_cast<RiuWellLogPlot*>(wellLogPlot->viewWidget());
+        plotWindow->setWidthOfMdiWindow(viewWidget, viewWidget->preferredSize().width());
+        wellLogPlot->calculateAvailableDepthRange();
+        wellLogPlot->updateDepthZoom();
+        wellLogPlot->uiCapability()->updateConnectedEditors();
     }
 }
 

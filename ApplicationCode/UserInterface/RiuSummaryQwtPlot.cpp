@@ -26,7 +26,7 @@
 #include "RimSummaryCurveCollection.h"
 #include "RimSummaryPlot.h"
 
-#include "RiuMainPlotWindow.h"
+#include "RiuPlotMainWindowTools.h" 
 #include "RiuQwtCurvePointTracker.h"
 #include "RiuQwtPlotWheelZoomer.h"
 #include "RiuQwtPlotZoomer.h"
@@ -50,7 +50,44 @@
 #include <QMenu>
 #include <QWheelEvent>
 
+
+#include "RiuWidgetDragger.h"
+#include "RiuCvfOverlayItemWidget.h"
+#include "RimEnsembleCurveSet.h"
+#include "RimRegularLegendConfig.h"
+#include "cafTitledOverlayFrame.h"
+#include "RimEnsembleCurveSetCollection.h"
+#include "RimMainPlotCollection.h"
+#include "RimSummaryPlotCollection.h"
+#include "RimSummaryCase.h"
+#include "RiuRimQwtPlotCurve.h"
+#include "RimSummaryCurve.h"
+
 #include <float.h>
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+class EnsembleCurveInfoTextProvider : public IPlotCurveInfoTextProvider
+{
+public:
+    //--------------------------------------------------------------------------------------------------
+    /// 
+    //--------------------------------------------------------------------------------------------------
+    QString curveInfoText(QwtPlotCurve* curve) override
+    {
+        RiuRimQwtPlotCurve*  riuCurve = dynamic_cast<RiuRimQwtPlotCurve*>(curve);
+        RimSummaryCurve* sumCurve = nullptr;
+        if (riuCurve)
+        {
+            sumCurve = dynamic_cast<RimSummaryCurve*>(riuCurve->ownerRimCurve());
+        }
+
+        return sumCurve && sumCurve->summaryCaseY() ? sumCurve->summaryCaseY()->caseName() : "";
+    }
+};
+static EnsembleCurveInfoTextProvider ensembleCurveInfoTextProvider;
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -131,31 +168,87 @@ void RiuSummaryQwtPlot::currentVisibleWindow(QwtInterval* leftAxis, QwtInterval*
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuSummaryQwtPlot::setZoomWindow(const QwtInterval& leftAxis, const QwtInterval& rightAxis, const QwtInterval& timeAxis)
+void RiuSummaryQwtPlot::updateEnsembleLegendLayout()
 {
-    {
-        QRectF zoomWindow;
-        zoomWindow.setLeft(timeAxis.minValue());
-        zoomWindow.setRight(timeAxis.maxValue());
-        zoomWindow.setTop(leftAxis.maxValue());
-        zoomWindow.setBottom(leftAxis.minValue());
+    const int spacing = 5;
+    int startMarginX = this->canvas()->pos().x() + spacing;
+    int startMarginY = this->canvas()->pos().y() + spacing;
 
-        m_zoomerLeft->blockSignals(true);
-        m_zoomerLeft->zoom(zoomWindow);
-        m_zoomerLeft->blockSignals(false);
+    int xpos = startMarginX;
+    int ypos = startMarginY;
+    int maxColumnWidth = 0; 
+
+    if (!ownerPlotDefinition() || !ownerPlotDefinition()->ensembleCurveSetCollection()) return;
+
+    for (RimEnsembleCurveSet * curveSet : ownerPlotDefinition()->ensembleCurveSetCollection()->curveSets())
+    {
+        auto pairIt = m_ensembleLegendWidgets.find(curveSet);
+        if (pairIt !=  m_ensembleLegendWidgets.end())
+        {
+            if (ypos + pairIt->second->height() + spacing > this->canvas()->height())
+            {
+                xpos += spacing + maxColumnWidth;
+                ypos = startMarginY;
+                maxColumnWidth  = 0; 
+            }
+
+            RiuCvfOverlayItemWidget* overlayWidget = pairIt->second;
+            overlayWidget->move(xpos, ypos);
+
+            ypos += pairIt->second->height() + spacing;
+            maxColumnWidth = std::max(maxColumnWidth, pairIt->second->width());
+        }
+    }    
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuSummaryQwtPlot::addOrUpdateEnsembleCurveSetLegend(RimEnsembleCurveSet * curveSetToShowLegendFor)
+{
+   RiuCvfOverlayItemWidget* overlayWidget = nullptr;
+
+   auto it = m_ensembleLegendWidgets.find(curveSetToShowLegendFor);
+   if (it ==  m_ensembleLegendWidgets.end() || it->second == nullptr)
+   {
+       overlayWidget = new RiuCvfOverlayItemWidget(this);
+
+       new RiuWidgetDragger(overlayWidget);
+
+       m_ensembleLegendWidgets[curveSetToShowLegendFor] = overlayWidget;
+
+   }
+   else
+   {
+        overlayWidget = it->second;
+   }
+
+   if ( overlayWidget )
+   {
+       caf::TitledOverlayFrame* overlyItem = curveSetToShowLegendFor->legendConfig()->titledOverlayFrame();
+       overlyItem->setRenderSize(overlyItem->preferredSize());
+
+       overlayWidget->updateFromOverlyItem(curveSetToShowLegendFor->legendConfig()->titledOverlayFrame());
+       overlayWidget->show();
+   }
+
+   this->updateEnsembleLegendLayout();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuSummaryQwtPlot::removeEnsembleCurveSetLegend(RimEnsembleCurveSet * curveSetToShowLegendFor)
+{
+    auto it = m_ensembleLegendWidgets.find(curveSetToShowLegendFor);
+    if ( it !=  m_ensembleLegendWidgets.end() )
+    {
+        if ( it->second != nullptr ) it->second->deleteLater();
+ 
+        m_ensembleLegendWidgets.erase(it);
     }
 
-    {
-        QRectF zoomWindow;
-        zoomWindow.setLeft(timeAxis.minValue());
-        zoomWindow.setRight(timeAxis.maxValue());
-        zoomWindow.setTop(rightAxis.maxValue());
-        zoomWindow.setBottom(rightAxis.minValue());
-
-        // No need to block signal since there is no connected slot
-        m_zoomerRight->zoom(zoomWindow);
-    }
-
+    this->updateEnsembleLegendLayout();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -276,13 +369,18 @@ void RiuSummaryQwtPlot::setCommonPlotBehaviour(QwtPlot* plot)
     plot->setAxisTitle(QwtPlot::yLeft,   axisTitle);
     plot->setAxisTitle(QwtPlot::yRight,  axisTitle);
 
-    // Enable mousetracking and event filter
+    // Set a focus policy to allow it taking key press events.
+    // This is not strictly necessary since this widget inherit QwtPlot
+    // which already has a focus policy.
+    // However, for completeness we still do it here.
+    plot->setFocusPolicy(Qt::WheelFocus);
 
+    // Enable mousetracking and event filter
     plot->canvas()->setMouseTracking(true);
     plot->canvas()->installEventFilter(plot);
     plot->plotLayout()->setAlignCanvasToScales(true);
 
-    new RiuQwtCurvePointTracker(plot, true);
+    new RiuQwtCurvePointTracker(plot, true, &ensembleCurveInfoTextProvider);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -304,6 +402,15 @@ void RiuSummaryQwtPlot::enableDateBasedBottomXAxis(QwtPlot* plot)
     QwtDateScaleEngine* scaleEngine = new QwtDateScaleEngine(Qt::UTC);
     plot->setAxisScaleEngine(QwtPlot::xBottom, scaleEngine);
     plot->setAxisScaleDraw(QwtPlot::xBottom, scaleDraw);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuSummaryQwtPlot::updateLayout()
+{
+    QwtPlot::updateLayout();
+    updateEnsembleLegendLayout();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -340,7 +447,7 @@ bool RiuSummaryQwtPlot::eventFilter(QObject* watched, QEvent* event)
 //--------------------------------------------------------------------------------------------------
 void RiuSummaryQwtPlot::selectClosestCurve(const QPoint& pos)
 {
-    QwtPlotCurve* closestCurve = NULL;
+    QwtPlotCurve* closestCurve = nullptr;
     double distMin = DBL_MAX;
 
     const QwtPlotItemList& itmList = itemList();
@@ -359,22 +466,26 @@ void RiuSummaryQwtPlot::selectClosestCurve(const QPoint& pos)
         }
     }
 
-    if(closestCurve && distMin < 20)
+    if (closestCurve && distMin < 20)
     {
-        caf::PdmObject* selectedCurve = m_plotDefinition->findRimCurveFromQwtCurve(closestCurve);
-        
-        RimProject* proj = nullptr;
-        selectedCurve->firstAncestorOrThisOfType(proj);
+        caf::PdmObject* selectedPlotObject = m_plotDefinition->findRimPlotObjectFromQwtCurve(closestCurve);
 
-        if(proj && selectedCurve)
+        if (selectedPlotObject)
         {
-            RiaApplication::instance()->getOrCreateAndShowMainPlotWindow()->selectAsCurrentItem(selectedCurve);
+            RimProject* proj = nullptr;
+            selectedPlotObject->firstAncestorOrThisOfType(proj);
+
+            if (proj)
+            {
+                RiuPlotMainWindowTools::showPlotMainWindow();
+                RiuPlotMainWindowTools::selectAsCurrentItem(selectedPlotObject);
+            }
         }
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiuSummaryQwtPlot::onZoomedSlot()
 {

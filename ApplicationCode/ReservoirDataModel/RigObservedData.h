@@ -27,7 +27,7 @@ class RigObservedData: public cvf::Object
 {
 public:
     explicit RigObservedData(const QString& observedDataFileName );
-    ~RigObservedData();
+    ~RigObservedData() override;
 
     void openOrReloadCase(const QString& observedDataFileName);
 

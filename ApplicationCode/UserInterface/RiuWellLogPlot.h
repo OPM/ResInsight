@@ -19,20 +19,22 @@
 
 #pragma once
 
+#include "RiuInterfaceToViewWindow.h"
+
 #include "cafPdmPointer.h"
 
 #include <QList>
 #include <QPointer>
 #include <QWidget>
 
-#include "RiuInterfaceToViewWindow.h"
+#include <map>
 
 class RimWellLogPlot;
 class RiuWellLogTrack;
 
-class QHBoxLayout;
-class QScrollBar;
 class QFocusEvent;
+class QLabel;
+class QScrollBar;
 class QwtLegend;
 
 //==================================================================================================
@@ -45,43 +47,48 @@ class RiuWellLogPlot : public QWidget, public RiuInterfaceToViewWindow
     Q_OBJECT
 
 public:
-    RiuWellLogPlot(RimWellLogPlot* plotDefinition, QWidget* parent = NULL);
-    virtual ~RiuWellLogPlot();
+    RiuWellLogPlot(RimWellLogPlot* plotDefinition, QWidget* parent = nullptr);
+    ~RiuWellLogPlot() override;
 
     RimWellLogPlot*                 ownerPlotDefinition();
-    virtual RimViewWindow*          ownerViewWindow() const override;
+    RimViewWindow*          ownerViewWindow() const override;
 
     void                            addTrackPlot(RiuWellLogTrack* trackPlot);
     void                            insertTrackPlot(RiuWellLogTrack* trackPlot, size_t index);
     void                            removeTrackPlot(RiuWellLogTrack* trackPlot);
 
     void                            setDepthZoomAndReplot(double minDepth, double maxDepth);
-
-    public slots:
+    void                            setPlotTitle(const QString& plotTitle);
+    virtual QSize                   preferredSize() const;
+public slots:
     void                            updateChildrenLayout();
 
 protected:
-    virtual void                    resizeEvent(QResizeEvent *event);
-    virtual void                    showEvent(QShowEvent *);
-    virtual void                    changeEvent(QEvent *);
-    virtual QSize                   sizeHint() const override;
-    virtual void                    contextMenuEvent(QContextMenuEvent *) override;
+    void                    resizeEvent(QResizeEvent *event) override;
+    void                    showEvent(QShowEvent *) override;
+    void                    changeEvent(QEvent *) override;
+    void                    contextMenuEvent(QContextMenuEvent *) override;
+    QSize                   sizeHint() const override;
+
+
+    void                    keyPressEvent(QKeyEvent* keyEvent) override;
 
 private:
     void                            updateScrollBar(double minDepth, double maxDepth);
-    void                            modifyWidthOfContainingMdiWindow(int widthChange);
-    void                            placeChildWidgets(int height, int width);
+    std::map<int, int>              calculateTrackWidthsToMatchFrame(int frameWidth) const;
+    void                            placeChildWidgets(int frameHeight, int frameWidth);
+    void                            positionTitle(int frameWidth);
 
 private slots:
     void                            slotSetMinDepth(int value);
     void                            scheduleUpdateChildrenLayout();
 
 private:
-    QHBoxLayout*                    m_layout;
-    QScrollBar*                     m_scrollBar;
-    QList<QPointer<QwtLegend> >     m_legends;
+    QLabel*                           m_plotTitle;
+    QScrollBar*                       m_scrollBar;
+    QList<QPointer<QwtLegend> >       m_legends;
     QList<QPointer<RiuWellLogTrack> > m_trackPlots;
-    caf::PdmPointer<RimWellLogPlot> m_plotDefinition;
-    QTimer*                         m_scheduleUpdateChildrenLayoutTimer;
+    caf::PdmPointer<RimWellLogPlot>   m_plotDefinition;
+    QTimer*                           m_scheduleUpdateChildrenLayoutTimer;
 };
 

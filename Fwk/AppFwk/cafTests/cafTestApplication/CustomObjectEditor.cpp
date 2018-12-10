@@ -151,28 +151,29 @@ QWidget* CustomObjectEditor::createWidget(QWidget* parent)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void CustomObjectEditor::recursivelyConfigureAndUpdateTopLevelUiItems(const std::vector<PdmUiItem*>& topLevelUiItems, const QString& uiConfigName)
+void CustomObjectEditor::recursivelyConfigureAndUpdateTopLevelUiOrdering(const PdmUiOrdering& topLevelUiOrdering, const QString& uiConfigName)
 {
     resetCellId();
 
-    QWidget* previousTabOrderWidget = NULL;
+    QWidget* previousTabOrderWidget = nullptr;
+
+    const std::vector<PdmUiOrdering::FieldAndLayout>& topLevelUiItems = topLevelUiOrdering.uiItemsWithLayout();
 
     for (size_t i = 0; i < topLevelUiItems.size(); ++i)
     {
-        if (topLevelUiItems[i]->isUiHidden(uiConfigName)) continue;
+        if (topLevelUiItems[i].first->isUiHidden(uiConfigName)) continue;
 
-        if (topLevelUiItems[i]->isUiGroup())
+        if (topLevelUiItems[i].first->isUiGroup())
         {
-            PdmUiGroup* group = static_cast<PdmUiGroup*>(topLevelUiItems[i]);
+            PdmUiGroup* group = static_cast<PdmUiGroup*>(topLevelUiItems[i].first);
             QMinimizePanel* groupBox = findOrCreateGroupBox(this->widget(), group, uiConfigName);
 
             /// Insert the group box at the correct position of the parent layout
             int nextCellId = getNextAvailableCellId();
             std::pair<int, int> rowCol = rowAndColumn(nextCellId);
             m_layout->addWidget(groupBox, rowCol.first, rowCol.second, 1, 1);
-
-            const std::vector<PdmUiItem*>& groupChildren = group->uiItems();
-            recursivelyConfigureAndUpdateUiItemsInGridLayoutColumn(groupChildren, groupBox->contentFrame(), uiConfigName);
+            
+            recursivelyConfigureAndUpdateUiOrderingInGridLayoutColumn(*group, groupBox->contentFrame(), uiConfigName);
         }
 
         // NB! Only groups at top level are handled, fields at top level are not added to layout

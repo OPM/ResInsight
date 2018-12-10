@@ -41,6 +41,34 @@ namespace Opm {
     class ECLRestartData;
     class ECLInitFileData;
 
+    /// Extract phase saturation of single phase for all active cells in all
+    /// grids.
+    ///
+    /// Handles the case of oil saturation being explicitly stored in a
+    /// result set or implicitly defined from the gas and/or water
+    /// saturations.
+    ///
+    /// \param[in] G Connected topology of current model's active cells.
+    ///    Needed to linearise phase saturations (e.g., SOIL) that are
+    ///    distributed on local grids to all of the model's active cells
+    ///    (\code member function G.rawLinearisedCellData() \endcode).
+    ///
+    /// \param[in] rstrt ECLIPSE restart vectors.  Result set view
+    ///    assumed to be positioned at a particular report step of
+    ///    interest.
+    ///
+    /// \param[in] phase Phase for which to extract the phase saturation
+    ///    values.
+    ///
+    /// \return Phase saturation values of active phase \p phase for all
+    ///    active cells in model \p G.  Empty if phase \p phase is not
+    ///    actually active in the current result set or if the saturation
+    ///    values are not stored on the current report/restart step.
+    std::vector<double>
+    phaseSaturation(const ECLGraph&       G,
+                    const ECLRestartData& rstrt,
+                    const ECLPhaseIndex   phase);
+
     /// Gateway to engine for computing relative permeability values based
     /// on tabulated saturation functions in ECL output.
     class ECLSaturationFunc
@@ -79,8 +107,19 @@ namespace Opm {
             ECLPhaseIndex thisPh;
         };
 
-        using InvalidEPBehaviour = ::Opm::SatFunc::
-            EPSEvalInterface::InvalidEndpointBehaviour;
+        struct SatFuncScaling {
+            enum Type : unsigned char {
+                Horizontal = 1 << 0u,
+                Vertical   = 1 << 1u,
+            };
+
+            SatFuncScaling()
+                : enable(Type::Horizontal | Type::Vertical)
+            {}
+
+            // Default: Use both Horizontal and Vertical if specified.
+            unsigned char enable;
+        };
 
         /// Constructor
         ///
@@ -92,27 +131,8 @@ namespace Opm {
         /// \param[in] init Container of tabulated saturation functions and
         ///    saturation table end points, if applicable, for all active
         ///    cells in the model \p G.
-        ///
-        /// \param[in] useEPS Whether or not to include effects of
-        ///    saturation end-point scaling.  No effect if the INIT result
-        ///    set does not actually include saturation end-point scaling
-        ///    data.  Otherwise, enables turning EPS off even if associate
-        ///    data is present in the INIT result set.
-        ///
-        ///    Default value (\c true) means that effects of EPS are
-        ///    included if requisite data is present in the INIT result.
-        ///
-        /// \param[in] handle_invalid Run-time policy for how to handle
-        ///    scaling requests relative to invalid scaled saturations
-        ///    (e.g., SWL = -1.0E+20).
-        ///
-        ///    Default value (\c UseUnscaled) means that invalid scalings
-        ///    are treated as unscaled.
-        ECLSaturationFunc(const ECLGraph&          G,
-                          const ECLInitFileData&   init,
-                          const bool               useEPS = true,
-                          const InvalidEPBehaviour handle_invalid
-                          = InvalidEPBehaviour::UseUnscaled);
+        ECLSaturationFunc(const ECLGraph&        G,
+                          const ECLInitFileData& init);
 
         /// Destructor.
         ~ECLSaturationFunc();
@@ -252,6 +272,69 @@ namespace Opm {
         getSatFuncCurve(const std::vector<RawCurve>& func,
                         const int                    activeCell,
                         const bool                   useEPS = true) const;
+
+        /// Retrieve 2D graph representations of sequence of effective
+        /// saturation functions in a single cell.
+        ///
+        /// \param[in] func Sequence of saturation function descriptions.
+        ///
+        /// \param[in] activeCell Index of active cell from which to derive
+        ///    the effective saturation function.  Use member function \code
+        ///    ECLGraph::activeCell() \endcode to translate a global cell
+        ///    (I,J,K) tuple--relative to a model grid--to a linear active
+        ///    cell ID.
+        ///
+        /// \param[in] scaling Which type of saturation function scaling to
+        ///    apply.  No effect if the INIT result set from which the
+        ///    object was constructed does not actually include saturation
+        ///    end-point scaling or function value scaling data.  Otherwise,
+        ///    enables turning various scaling effects on or off even if
+        ///    associate data is present in the INIT result set.
+        ///
+        /// \return Sequence of 2D graphs for all saturation function
+        ///    requests represented by \p func.  In particular, the \c i-th
+        ///    element of the result corresponds to input request \code
+        ///    func[i] \endcode.  Abscissas are stored in \code
+        ///    graph[i].first \endcode and ordinates are stored in \code
+        ///    graph[i].second \endcode.  If a particular request is
+        ///    semantically invalid, such as when requesting the water
+        ///    relative permeability in the oil-gas system, then the
+        ///    corresponding graph in the result is empty.
+        ///
+        /// Example: Retrieve relative permeability curves for oil in active
+        ///    cell 2718 in both the oil-gas and oil-water sub-systems
+        ///    including effects of vertical scaling only.
+        ///
+        ///    \code
+        ///       using RC = ECLSaturationFunc::RawCurve;
+        ///       auto func = std::vector<RC>{};
+        ///       func.reserve(2);
+        ///
+        ///       // Request krog (oil rel-perm in oil-gas system)
+        ///       func.push_back(RC{
+        ///           RC::Function::RelPerm,
+        ///           RC::SubSystem::OilGas,
+        ///           ECLPhaseIndex::Liquid
+        ///       });
+        ///
+        ///       // Request krow (oil rel-perm in oil-water system)
+        ///       func.push_back(RC{
+        ///           RC::Function::RelPerm,
+        ///           RC::SubSystem::OilWater,
+        ///           ECLPhaseIndex::Liquid
+        ///       });
+        ///
+        ///       auto scaling    = SatFuncScaling{};
+        ///       scaling.enable  = static_cast<unsigned char>(0);
+        ///       scaling.enable |= SatFuncScaling::Type::Vertical;
+        ///
+        ///       const auto graph =
+        ///           sfunc.getSatFuncCurve(func, 2718, scaling);
+        ///    \endcode
+        std::vector<FlowDiagnostics::Graph>
+        getSatFuncCurve(const std::vector<RawCurve>& func,
+                        const int                    activeCell,
+                        const SatFuncScaling&        scaling) const;
 
     private:
         /// Implementation backend.

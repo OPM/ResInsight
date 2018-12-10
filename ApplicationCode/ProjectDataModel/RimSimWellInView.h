@@ -36,10 +36,8 @@ class RigSimWellData;
 class RigWellResultFrame;
 struct RigWellResultPoint;
 
-
-#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
 class RimSimWellFractureCollection;
-#endif // USE_PROTOTYPE_FEATURE_FRACTURES
+class RigWellPath;
 
 //==================================================================================================
 ///  
@@ -51,7 +49,7 @@ class RimSimWellInView : public caf::PdmObject
 public:
 
     RimSimWellInView();
-    virtual ~RimSimWellInView();
+    ~RimSimWellInView() override;
     
     void                                setSimWellData(RigSimWellData* simWellData, size_t resultWellIndex);
     RigSimWellData*                     simWellData();
@@ -64,18 +62,20 @@ public:
     bool                                isUsingCellCenterForPipe() const;
 
 
-    virtual caf::PdmFieldHandle*        userDescriptionField() override;
-    virtual caf::PdmFieldHandle*        objectToggleField() override;
+    caf::PdmFieldHandle*        userDescriptionField() override;
+    caf::PdmFieldHandle*        objectToggleField() override;
+
+    std::vector<const RigWellPath*>     wellPipeBranches() const;
 
     void                                calculateWellPipeStaticCenterLine( std::vector< std::vector <cvf::Vec3d> >& pipeBranchesCLCoords,
                                                                            std::vector< std::vector <RigWellResultPoint> >& pipeBranchesCellIds);
 
-    void                                calculateWellPipeDynamicCenterLine(size_t timeStepIdx, 
-                                                                    std::vector< std::vector <cvf::Vec3d> >& pipeBranchesCLCoords,
-                                                                    std::vector< std::vector <RigWellResultPoint> >& pipeBranchesCellIds) const;
-
-    void                                wellHeadTopBottomPosition(size_t frameIndex, cvf::Vec3d* top,  cvf::Vec3d* bottom);
+    void                                wellHeadTopBottomPosition(int frameIndex, cvf::Vec3d* top,  cvf::Vec3d* bottom);
     double                              pipeRadius();
+    int                                 pipeCrossSectionVertexCount();
+
+    void                                schedule2dIntersectionViewUpdate();
+
     caf::PdmField<bool>                 showWell;
 
     caf::PdmField<QString>              name;
@@ -93,15 +93,13 @@ public:
     caf::PdmField<bool>                 showWellCells;
     caf::PdmField<bool>                 showWellCellFence;
 
-#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
     caf::PdmChildField<RimSimWellFractureCollection*> simwellFractureCollection;
-#endif // USE_PROTOTYPE_FEATURE_FRACTURES
 
 
 protected:
-    virtual void                        fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
-    virtual void                        defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
-    virtual void                        defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
+    void                        fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    void                        defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    void                        defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
 
 private:
     bool                                intersectsDynamicWellCellsFilteredCells(size_t frameIndex) const;

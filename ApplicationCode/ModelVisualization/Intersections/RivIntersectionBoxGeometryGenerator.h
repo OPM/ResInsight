@@ -44,7 +44,7 @@ public:
     RivIntersectionBoxGeometryGenerator(RimIntersectionBox* intersectionBox,
                                         const RivIntersectionHexGridInterface* grid);
 
-    ~RivIntersectionBoxGeometryGenerator();
+    ~RivIntersectionBoxGeometryGenerator() override;
 
     bool                                             isAnyGeometryPresent() const;
                                                      

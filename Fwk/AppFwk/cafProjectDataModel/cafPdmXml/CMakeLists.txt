@@ -8,18 +8,20 @@ include (${QT_USE_FILE})
 
 include_directories (
 	..
-    ${cafPdmCore_SOURCE_DIR}
 )
 
 set( PROJECT_FILES
 	cafInternalPdmFieldIoHelper.cpp
 	cafInternalPdmFieldIoHelper.h
+	cafInternalPdmFilePathStreamOperators.cpp
+	cafInternalPdmFilePathStreamOperators.h
 	cafInternalPdmStreamOperators.cpp
 	cafInternalPdmStreamOperators.h
 	cafInternalPdmXmlFieldCapability.h
 	cafInternalPdmXmlFieldCapability.inl
 	cafInternalPdmXmlFieldReaderWriter.cpp
 	cafInternalPdmXmlFieldReaderWriter.h
+
 	cafPdmXmlFieldHandle.cpp
 	cafPdmXmlFieldHandle.h
 	cafPdmXmlObjectHandle.cpp
@@ -41,5 +43,18 @@ set( PROJECT_FILES
 add_library( ${PROJECT_NAME}
 	${PROJECT_FILES}
 )
+
+target_link_libraries ( ${PROJECT_NAME}
+    cafPdmCore
+)
+
+target_include_directories(${PROJECT_NAME}
+  PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+if (MSVC) 
+    set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "/W4 /wd4100 /wd4127")
+endif()
 
 source_group("" FILES ${PROJECT_FILES})

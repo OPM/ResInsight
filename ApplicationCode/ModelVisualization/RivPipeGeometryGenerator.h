@@ -39,22 +39,14 @@ class RivPipeGeometryGenerator : public cvf::Object
 {
 public:
     RivPipeGeometryGenerator();
-    ~RivPipeGeometryGenerator();
+    ~RivPipeGeometryGenerator() override;
 
     // Coordinates and orientations
     void setPipeCenterCoords(const cvf::Vec3dArray* coords);
-        
-    // Pipe bends with a opening angle below given angle is modified with extra bend coordinates
-    void setMinimumBendAngle(double degrees);
     
-    // Scaling factor used to control how far from original pipe position the extra bend coordinates are located
-    // This will affect how sharp or smooth bend will appear
-    void setBendScalingFactor(double scaleFactor);
-
     // Appearance
     void setRadius(double radius);
     void setCrossSectionVertexCount(size_t vertexCount);
-    void setPipeColor(cvf::Color3f val) { m_pipeColor = val; }
 
     cvf::ref<cvf::DrawableGeo> createPipeSurface();
     cvf::ref<cvf::DrawableGeo> createCenterLine();
@@ -65,17 +57,27 @@ public:
     void    setFirstVisibleSegmentIndex(size_t segmentIndex);
     size_t  segmentIndexFromTriangleIndex(size_t triangleIndex) const;
 
-    void cylinderWithCenterLineParts(cvf::Collection<cvf::Part>* destinationParts, const std::vector<cvf::Vec3d>& centerCoords, const cvf::Color3f& color, double radius);
+    void cylinderWithCenterLineParts(cvf::Collection<cvf::Part>*    destinationParts,
+                                     const std::vector<cvf::Vec3d>& centerCoords,
+                                     const cvf::Color3f&            color,
+                                     double                         radius);
+
+    void tubeWithCenterLinePartsAndVariableWidth(cvf::Collection<cvf::Part>*    destinationParts,
+                                                 const std::vector<cvf::Vec3d>& centerCoords,
+                                                 const std::vector<double>&     radii,
+                                                 const cvf::Color3f&            color);
+
 private:
     void clearComputedData();
     void updateFilteredPipeCenterCoords();
 
-    size_t findFirstSegmentWithLenght(double squareDistanceTolerance);
+    size_t findFirstSegmentWithLength(double squareDistanceTolerance);
 
     static void computeCircle(double radius, size_t tesselationCount, const cvf::Vec3d& center, const cvf::Vec3d& orient1, const cvf::Vec3d& orient2, std::vector<cvf::Vec3d>* nodes);
 
     static cvf::ref<cvf::DrawableGeo> generateLine(const cvf::Vec3dArray* coords);
     static cvf::ref<cvf::DrawableGeo> generateExtrudedCylinder(double radius, size_t crossSectionNodeCount,const cvf::Vec3dArray* cylinderCenterCoords);
+    static cvf::ref<cvf::DrawableGeo> generateVariableRadiusTube(size_t crossSectionNodeCount, const cvf::Vec3dArray* cylinderCenterCoords, const std::vector<double>& radii);
 
     static void computeExtrudedCoordsAndNormals(cvf::Vec3d intersectionCoord,
                                                 cvf::Vec3d intersectionPlaneNormal,
@@ -97,8 +99,13 @@ private:
     size_t                      m_firstVisibleSegmentIndex;
 
     double                      m_radius;
+
+    // Pipe bends with a opening angle below given angle is modified with extra bend coordinates
     double                      m_minimumBendAngle;
+
+    // Scaling factor used to control how far from original pipe position the extra bend coordinates are located
+    // This will affect how sharp or smooth bend will appear
     double                      m_bendScalingFactor;
+
     size_t                      m_crossSectionNodeCount;
-    cvf::Color3f                m_pipeColor;
 };

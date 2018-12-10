@@ -59,7 +59,7 @@ bool RiuCadNavigation::handleInputEvent(QInputEvent* inputEvent)
             int translatedMousePosX, translatedMousePosY;
             cvfEventPos(me->x(), me->y(), &translatedMousePosX, &translatedMousePosY);
 
-           if (me->button() == Qt::MidButton && me->modifiers() == Qt::NoModifier)
+           if (me->button() == Qt::MidButton && me->modifiers() == Qt::NoModifier && isRotationEnabled())
             {
                 cvf::HitItemCollection hic;
                 bool hitSomething = m_viewer->rayPick( me->x(), me->y(), &hic);
@@ -98,7 +98,7 @@ bool RiuCadNavigation::handleInputEvent(QInputEvent* inputEvent)
                     m_trackball->endNavigation();
 
                     m_isNavigating = false;
-					if (m_hasMovedMouseDuringNavigation) isEventHandled = true;
+                    if (m_hasMovedMouseDuringNavigation) isEventHandled = true;
                     m_hasMovedMouseDuringNavigation = false;
        
                 }
@@ -148,6 +148,8 @@ bool RiuCadNavigation::handleInputEvent(QInputEvent* inputEvent)
                 isEventHandled = true;
             }
         }
+        break;
+    default:
         break;
     }
 

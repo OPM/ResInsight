@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 2.8)
+cmake_minimum_required (VERSION 2.8.12)
 
 # Qt
 find_package ( Qt4 COMPONENTS QtCore QtGui QtMain QtOpenGl )
@@ -32,11 +32,6 @@ qt4_add_resources( QRC_FILES_CPP
     ${QRC_FILES}
 )
 
-include_directories (
-    ${cafProjectDataModel_SOURCE_DIR}
-    ${cafUserInterface_SOURCE_DIR}
-)
-
 if (USE_COMMAND_FRAMEWORK)
     include_directories (
         ${cafCommand_SOURCE_DIR}
@@ -44,12 +39,6 @@ if (USE_COMMAND_FRAMEWORK)
     ADD_DEFINITIONS(-DTAP_USE_COMMAND_FRAMEWORK)
 endif(USE_COMMAND_FRAMEWORK)
 
-
-include_directories (
-    ${cafPdmCore_SOURCE_DIR}
-    ${cafPdmUiCore_SOURCE_DIR}
-    ${cafPdmXml_SOURCE_DIR}
-)
 
 set( PROJECT_FILES
     Main.cpp
@@ -75,7 +64,6 @@ add_executable ( ${PROJECT_NAME}
 
 set (TAP_LINK_LIBRARIES
     cafUserInterface
-    cafPdmXml
     ${QT_LIBRARIES}
     )
 

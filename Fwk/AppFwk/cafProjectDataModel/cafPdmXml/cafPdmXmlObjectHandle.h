@@ -27,7 +27,7 @@ class PdmXmlObjectHandle : public PdmObjectCapability
 public:
 
     PdmXmlObjectHandle(PdmObjectHandle* owner, bool giveOwnership);
-    virtual ~PdmXmlObjectHandle() { }
+    ~PdmXmlObjectHandle() override { }
 
     /// The classKeyword method is overridden in subclasses by the CAF_PDM_XML_HEADER_INIT macro
     virtual QString         classKeyword() const = 0;
@@ -37,6 +37,9 @@ public:
     QString                 writeObjectToXmlString() const;
     static PdmObjectHandle* readUnknownObjectFromXmlString(const QString& xmlString, PdmObjectFactory* objectFactory);
     PdmObjectHandle*        copyByXmlSerialization(PdmObjectFactory* objectFactory);
+    PdmObjectHandle*        copyAndCastByXmlSerialization(const QString&    destinationClassKeyword,
+                                                          const QString&    sourceClassKeyword,
+                                                          PdmObjectFactory* objectFactory);
 
     // Main XML serialization methods that is used internally by the document serialization system
     // Not supposed to be used directly. 

@@ -3,7 +3,7 @@
 Title Classes related to fractures
 
 note as N1
- Updated 2017-06-09
+ Updated 2018-03-07
 end note
 
 class RimFracture {
@@ -19,6 +19,10 @@ class RimWellPathFracture {
 RimFracture <|-- RimSimWellFracture
 RimFracture <|-- RimWellPathFracture
 
+RimFracture -> RimStimPlanFractureTemplate
+
+RimFracture -> RivWellFracturePartMgr
+RivWellFracturePartMgr ->RimFracture
 
 class RimFractureTemplate {
 RimDefines::UnitSystemType fractureTemplateUnit;
@@ -29,6 +33,9 @@ class RimEllipseFractureTemplate {
 class RimStimPlanFractureTemplate {
 }
 
+class RifStimPlanXmlReader {
+	<<static>> readStimPlanXMLFile()
+}
 
 RimFractureTemplate <|-- RimEllipseFractureTemplate
 RimFractureTemplate <|-- RimStimPlanFractureTemplate
@@ -80,9 +87,7 @@ class RicExportFractureCompletionsImpl{
 generateFracturesCompdatValues()
 }
 
-
-
-
-
+RimStimPlanFractureTemplate ---> RifStimPlanXmlReader
+RifStimPlanXmlReader ...> "create" RigStimPlanFractureDefinition
 
 @enduml

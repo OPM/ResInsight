@@ -43,75 +43,100 @@ class RivPipeGeometryGenerator;
 class RimProject;
 class RimWellPath;
 class RivFishbonesSubsPartMgr;
+class RimPerforationInterval;
 class RimWellPathCollection;
-class RimEclipseView;
+class Rim3dView;
+class Riv3dWellLogPlanePartMgr;
+class RivWellConnectionFactorPartMgr;
 
 class QDateTime;
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 class RivWellPathPartMgr : public cvf::Object
 {
 public:
-    explicit RivWellPathPartMgr(RimWellPath* wellPath);
-    ~RivWellPathPartMgr();
+    explicit RivWellPathPartMgr(RimWellPath* wellPath, Rim3dView* view);
+    ~RivWellPathPartMgr() override;
 
-    void                          appendStaticGeometryPartsToModel(cvf::ModelBasicList* model, 
-                                                                   double characteristicCellSize,
-                                                                   const cvf::BoundingBox& wellPathClipBoundingBox,
-                                                                   const caf::DisplayCoordTransform* displayCoordTransform);
+    void appendStaticGeometryPartsToModel(cvf::ModelBasicList*              model,
+                                          const caf::DisplayCoordTransform* displayCoordTransform,
+                                          double                            characteristicCellSize,
+                                          const cvf::BoundingBox&           wellPathClipBoundingBox);
 
-#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
-    void                          appendStaticFracturePartsToModel(cvf::ModelBasicList* model, 
-                                                                   const RimEclipseView& eclView);
-#endif // USE_PROTOTYPE_FEATURE_FRACTURES
+    void appendFlattenedStaticGeometryPartsToModel(cvf::ModelBasicList*              model,
+                                                   const caf::DisplayCoordTransform* displayCoordTransform,
+                                                   double                            characteristicCellSize,
+                                                   const cvf::BoundingBox&           wellPathClipBoundingBox);
 
-    void                          appendDynamicGeometryPartsToModel(cvf::ModelBasicList* model, 
-                                                                    const QDateTime& timeStamp,
-                                                                    double characteristicCellSize, 
-                                                                    const cvf::BoundingBox& wellPathClipBoundingBox,
-                                                                    const caf::DisplayCoordTransform* displayCoordTransform);
+    void appendDynamicGeometryPartsToModel(cvf::ModelBasicList*              model,
+                                           size_t                            timeStepIndex,
+                                           const caf::DisplayCoordTransform* displayCoordTransform,
+                                           double                            characteristicCellSize,
+                                           const cvf::BoundingBox&           wellPathClipBoundingBox);
 
-    size_t                        segmentIndexFromTriangleIndex(size_t triangleIndex);
+    void appendFlattenedDynamicGeometryPartsToModel(cvf::ModelBasicList*              model,
+                                                    size_t                            timeStepIndex,
+                                                    const caf::DisplayCoordTransform* displayCoordTransform,
+                                                    double                            characteristicCellSize,
+                                                    const cvf::BoundingBox&           wellPathClipBoundingBox);
+
+    void appendStaticFracturePartsToModel(cvf::ModelBasicList* model, const cvf::BoundingBox& wellPathClipBoundingBox);
 
 private:
-    void                          appendFishboneSubsPartsToModel(cvf::ModelBasicList* model,
-                                                                 const caf::DisplayCoordTransform* displayCoordTransform,
-                                                                 double characteristicCellSize);
+    void appendFishboneSubsPartsToModel(cvf::ModelBasicList*              model,
+                                        const caf::DisplayCoordTransform* displayCoordTransform,
+                                        double                            characteristicCellSize);
 
-    void                          appendImportedFishbonesToModel(cvf::ModelBasicList* model,
-                                                                 const caf::DisplayCoordTransform* displayCoordTransform,
-                                                                 double characteristicCellSize);
+    void appendWellPathAttributesToModel(cvf::ModelBasicList*              model,
+                                         const caf::DisplayCoordTransform* displayCoordTransform,
+                                         double                            characteristicCellSize);
 
-    void                          appendPerforationsToModel(const QDateTime& currentViewDate,
-                                                            cvf::ModelBasicList* model,
-                                                            const caf::DisplayCoordTransform* displayCoordTransform,
-                                                            double characteristicCellSize);
+    void appendImportedFishbonesToModel(cvf::ModelBasicList*              model,
+                                        const caf::DisplayCoordTransform* displayCoordTransform,
+                                        double                            characteristicCellSize);
 
+    void appendPerforationsToModel(cvf::ModelBasicList*              model,
+                                   size_t                            timeStepIndex,
+                                   const caf::DisplayCoordTransform* displayCoordTransform,
+                                   double                            characteristicCellSize,
+                                   bool                              doFlatten);
 
-    void                          buildWellPathParts(const caf::DisplayCoordTransform* displayCoordTransform,
-                                                     double characteristicCellSize,
-                                                     const cvf::BoundingBox& wellPathClipBoundingBox);
+    void appendPerforationValvesToModel(cvf::ModelBasicList*              model,
+                                        RimPerforationInterval*           perforation,
+                                        double                            wellPathRadius,
+                                        const caf::DisplayCoordTransform* displayCoordTransform,
+                                        RivPipeGeometryGenerator&         geoGenerator);
+
+    void appendVirtualTransmissibilitiesToModel(cvf::ModelBasicList*              model,
+                                                size_t                            timeStepIndex,
+                                                const caf::DisplayCoordTransform* displayCoordTransform,
+                                                double                            characteristicCellSize);
+
+    void buildWellPathParts(const caf::DisplayCoordTransform* displayCoordTransform,
+                            double                            characteristicCellSize,
+                            const cvf::BoundingBox&           wellPathClipBoundingBox, 
+                            bool                              doFlatten);
+
 
     void                          clearAllBranchData();
-    inline RimWellPathCollection* wellPathCollection();
+    inline RimWellPathCollection* wellPathCollection() const;
     inline double                 wellPathRadius(double characteristicCellSize, RimWellPathCollection* wellPathCollection);
 
+    bool isWellPathWithinBoundingBox(const cvf::BoundingBox& wellPathClipBoundingBox) const;
+
 private:
-    caf::PdmPointer<RimWellPath>            m_rimWellPath;
+    caf::PdmPointer<RimWellPath>        m_rimWellPath;
+    caf::PdmPointer<Rim3dView>          m_rimView;
     
-    struct RivPipeBranchData
-    {
-        cvf::ref<RivPipeGeometryGenerator>  m_pipeGeomGenerator;
-        cvf::ref<cvf::Part>                 m_surfacePart;
-        cvf::ref<cvf::DrawableGeo>          m_surfaceDrawable;
-        cvf::ref<cvf::Part>                 m_centerLinePart;
-        cvf::ref<cvf::DrawableGeo>          m_centerLineDrawable;
-    };
+    cvf::ref<RivPipeGeometryGenerator>  m_pipeGeomGenerator;
+    cvf::ref<cvf::Part>                 m_surfacePart;
+    cvf::ref<cvf::DrawableGeo>          m_surfaceDrawable;
+    cvf::ref<cvf::Part>                 m_centerLinePart;
+    cvf::ref<cvf::DrawableGeo>          m_centerLineDrawable;
+    cvf::ref<cvf::Part>                 m_wellLabelPart;
 
-    RivPipeBranchData                       m_pipeBranchData;
-    cvf::ref<cvf::Part>                     m_wellLabelPart;
-
-    cvf::ref<cvf::ScalarMapper>             m_scalarMapper;
-    cvf::ref<cvf::Effect>                   m_scalarMapperSurfaceEffect; 
-    cvf::ref<cvf::Effect>                   m_scalarMapperMeshEffect; 
-
+    cvf::ref<Riv3dWellLogPlanePartMgr>          m_3dWellLogPlanePartMgr;
+    cvf::ref<RivWellConnectionFactorPartMgr>    m_wellConnectionFactorPartMgr;
 };

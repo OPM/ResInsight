@@ -21,18 +21,25 @@
 
 #include "RigFemResultAddress.h"
 
+#include "cafTensor3.h"
+
 #include "cvfCollection.h"
 #include "cvfObject.h"
+
+#include <QString>
+
 #include <map>
 #include <vector>
 
 class RifGeoMechReaderInterface;
+class RifElementPropertyReader;
 class RigFemScalarResultFrames;
 class RigFemPartResultsCollection;
 class RigFemPartResults;
 class RigStatisticsDataCache;
 class RigFemPartCollection;
 class RigFormationNames;
+
 namespace caf
 {
     class ProgressInfo;
@@ -41,24 +48,34 @@ namespace caf
 class RigFemPartResultsCollection: public cvf::Object
 {
 public:
-    RigFemPartResultsCollection(RifGeoMechReaderInterface* readerInterface, const RigFemPartCollection * femPartCollection);
+    static const std::string FIELD_NAME_COMPACTION;
+
+    RigFemPartResultsCollection(RifGeoMechReaderInterface* readerInterface, RifElementPropertyReader* elementPropertyReader, const RigFemPartCollection * femPartCollection);
     ~RigFemPartResultsCollection();
 
     void                                             setActiveFormationNames(RigFormationNames* activeFormationNames);
     RigFormationNames*                               activeFormationNames();
+
+    void                                             addElementPropertyFiles(const std::vector<QString>& filenames);
+    std::vector<RigFemResultAddress>                 removeElementPropertyFiles(const std::vector<QString>& filenames);
+
     void                                             setCalculationParameters(double cohesion, double frictionAngleRad);
     double                                           parameterCohesion() const { return m_cohesion;}
     double                                           parameterFrictionAngleRad() const { return m_frictionAngleRad; }
 
     std::map<std::string, std::vector<std::string> > scalarFieldAndComponentNames(RigFemResultPosEnum resPos);
-    std::vector<std::string>                         stepNames() const;
+    std::vector<std::string>                         filteredStepNames() const;
     bool                                             assertResultsLoaded(const RigFemResultAddress& resVarAddr);
     void                                             deleteResult(const RigFemResultAddress& resVarAddr);
 
-    const std::vector<float>&                        resultValues(const RigFemResultAddress& resVarAddr, int partIndex, int frameIndex); 
+    std::vector<RigFemResultAddress>                 loadedResults() const;
+
+    const std::vector<float>&                        resultValues(const RigFemResultAddress& resVarAddr, int partIndex, int frameIndex);
+    std::vector<caf::Ten3f>                          tensors(const RigFemResultAddress& resVarAddr, int partIndex, int frameIndex);
     int                                              partCount() const;
     int                                              frameCount();
 
+    static float                                     dsm(float p1, float p3, float tanFricAng, float cohPrTanFricAngle);
 
     void                                             minMaxScalarValues (const RigFemResultAddress& resVarAddr, int frameIndex,  double* localMin, double* localMax);
     void                                             minMaxScalarValues (const RigFemResultAddress& resVarAddr, double* globalMin, double* globalMax);
@@ -72,6 +89,14 @@ public:
     void                                             sumScalarValue(const RigFemResultAddress& resVarAddr, int frameIndex, double* sum);
     const std::vector<size_t>&                       scalarValuesHistogram(const RigFemResultAddress& resVarAddr);
     const std::vector<size_t>&                       scalarValuesHistogram(const RigFemResultAddress& resVarAddr, int frameIndex);
+
+    void                                             minMaxScalarValuesOverAllTensorComponents(const RigFemResultAddress& resVarAddr, int frameIndex, double* localMin, double* localMax);
+    void                                             minMaxScalarValuesOverAllTensorComponents(const RigFemResultAddress& resVarAddr, double* globalMin, double* globalMax);
+    void                                             posNegClosestToZeroOverAllTensorComponents(const RigFemResultAddress& resVarAddr, int frameIndex, double* localPosClosestToZero, double* localNegClosestToZero);
+    void                                             posNegClosestToZeroOverAllTensorComponents(const RigFemResultAddress& resVarAddr, double* globalPosClosestToZero, double* globalNegClosestToZero);
+
+    static std::vector<RigFemResultAddress>          tensorComponentAddresses(const RigFemResultAddress& resVarAddr);
+    static std::vector<RigFemResultAddress>          tensorPrincipalComponentAdresses(const RigFemResultAddress& resVarAddr);
 
 private:
     RigFemScalarResultFrames*                        findOrLoadScalarResult(int partIndex,
@@ -101,9 +126,18 @@ private:
     RigFemScalarResultFrames*                        calculateSurfaceAngles(int partIndex, const RigFemResultAddress& resVarAddr);
     RigFemScalarResultFrames*                        calculatePrincipalStressValues(int partIndex, const RigFemResultAddress &resVarAddr);
     RigFemScalarResultFrames*                        calculatePrincipalStrainValues(int partIndex, const RigFemResultAddress &resVarAddr);
-
+    RigFemScalarResultFrames*                        calculateCompactionValues(int partIndex, const RigFemResultAddress &resVarAddr);
+    RigFemScalarResultFrames*                        calculateNE(int partIndex, const RigFemResultAddress &resVarAddr);
+    RigFemScalarResultFrames*                        calculateSE(int partIndex, const RigFemResultAddress &resVarAddr);
+    RigFemScalarResultFrames*                        calculateST_11_22_33(int partIndex, const RigFemResultAddress &resVarAddr);
+    RigFemScalarResultFrames*                        calculateST_12_13_23(int partIndex, const RigFemResultAddress &resVarAddr);
+    RigFemScalarResultFrames*                        calculateGamma(int partIndex, const RigFemResultAddress &resVarAddr);
+    RigFemScalarResultFrames*                        calculateFormationIndices(int partIndex, const RigFemResultAddress &resVarAddr);
+    
+private:
     cvf::Collection<RigFemPartResults>               m_femPartResults;
     cvf::ref<RifGeoMechReaderInterface>              m_readerInterface;
+    cvf::ref<RifElementPropertyReader>               m_elementPropertyReader;
     cvf::cref<RigFemPartCollection>                  m_femParts;
     cvf::ref<RigFormationNames>                      m_activeFormationNamesData;
 
@@ -115,39 +149,6 @@ private:
     std::map<RigFemResultAddress, cvf::ref<RigStatisticsDataCache> >  m_resultStatistics;
 };
 
-#include <array>
-#include "cvfVector3.h"
-#include <cmath>
-
-// Y - North,  X - East, Z - up but depth is negative Z
-// azi is measured from the Northing (Y) Axis in Clockwise direction looking down
-// inc is measured from the negative Z (depth) axis
- 
-class OffshoreSphericalCoords
-{
-public:
-    explicit OffshoreSphericalCoords(const cvf::Vec3f& vec)
-    {
-        // Azimuth: 
-        if (vec[0] == 0.0f &&  vec[1] == 0.0 ) incAziR[1] = 0.0f;
-        else incAziR[1] = atan2(vec[0], vec[1]); // atan2(Y, X)      
-
-        // R
-        incAziR[2] = vec.length();
-
-        // Inclination from vertical down
-        if (incAziR[2] == 0) incAziR[0] = 0.0f;
-        else incAziR[0] = acos(-vec[2]/incAziR[2]);
-
-    }
-
-    float inc() const { return incAziR[0];}
-    float azi() const { return incAziR[1];}
-    float r()   const { return incAziR[2];}
-
-private:
-    std::array<float, 3> incAziR;
-};
 
 class RigFemPart;
 
@@ -158,7 +159,7 @@ public:
                                        RigFemResultPosEnum resultPosition,
                                        int elementIndex,
                                        int m_face,
-                                       const cvf::Vec3d& m_intersectionPoint);
+                                       const cvf::Vec3d& intersectionPointInDomain);
 
     int resultIndexToClosestResult() { return m_resultIndexToClosestResult; }
     int closestNodeId() { return m_closestNodeId; }

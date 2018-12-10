@@ -26,14 +26,21 @@
 #include "RicSummaryCurveCreator.h"
 #include "RicSummaryCurveCreatorDialog.h"
 
+#include "RimEnsembleCurveFilter.h"
+#include "RimEnsembleCurveFilterCollection.h"
+#include "RimRegularLegendConfig.h"
 #include "RimSummaryCurveFilter.h"
 #include "RimSummaryPlot.h"
 #include "RimSummaryPlotCollection.h"
+#include "RimSummaryCase.h"
+#include "RimSummaryCaseCollection.h"
+#include "RimProject.h"
+#include "RimSummaryCaseMainCollection.h"
 
-#include "RiuMainPlotWindow.h"
+#include "RiuPlotMainWindow.h"
 
 #include "cvfAssert.h"
-#include "cafSelectionManager.h"
+#include "cafSelectionManagerTools.h"
 
 #include <QAction>
 
@@ -53,9 +60,22 @@ bool RicNewSummaryPlotFeature::isCommandEnabled()
         sumPlotColl = RiaSummaryTools::parentSummaryPlotCollection(selObj);
     }
 
+    auto ensembleFilter = dynamic_cast<RimEnsembleCurveFilter*>(selObj);
+    auto ensembleFilterColl = dynamic_cast<RimEnsembleCurveFilterCollection*>(selObj);
+    auto legendConfig = dynamic_cast<RimRegularLegendConfig*>(selObj);
+
+    if (ensembleFilter || ensembleFilterColl || legendConfig) return false;
     if (sumPlotColl) return true;
 
-    return false;
+    // Multiple case selections
+    std::vector<caf::PdmUiItem*> selectedItems = caf::selectedObjectsByTypeStrict<caf::PdmUiItem*>();
+
+    for (auto item : selectedItems)
+    {
+        if (!dynamic_cast<RimSummaryCase*>(item) && !dynamic_cast<RimSummaryCaseCollection*>(item))
+            return false;
+    }
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -65,6 +85,42 @@ void RicNewSummaryPlotFeature::onActionTriggered(bool isChecked)
 {
     RimProject* project = RiaApplication::instance()->project();
     CVF_ASSERT(project);
+
+    std::vector<RimSummaryCase*> selectedCases = caf::selectedObjectsByType<RimSummaryCase*>();
+    std::vector<RimSummaryCaseCollection*> selectedGroups = caf::selectedObjectsByType<RimSummaryCaseCollection*>();
+
+    std::vector<caf::PdmObject*> sourcesToSelect(selectedCases.begin(), selectedCases.end());
+
+    if (sourcesToSelect.empty() && selectedGroups.empty())
+    {
+        const auto allSingleCases = project->firstSummaryCaseMainCollection()->topLevelSummaryCases();
+        const auto allGroups = project->summaryGroups();
+        std::vector<RimSummaryCaseCollection*> allEnsembles;
+        for (const auto group : allGroups) if (group->isEnsemble()) allEnsembles.push_back(group);
+
+        if (!allSingleCases.empty())
+        {
+            sourcesToSelect.push_back(allSingleCases.front());
+        }
+        else if (!allEnsembles.empty())
+        {
+            sourcesToSelect.push_back(allEnsembles.front());
+        }
+    }
+
+    // Append grouped cases
+    for (auto group : selectedGroups)
+    {
+        if (group->isEnsemble())
+        {
+            sourcesToSelect.push_back(group);
+        }
+        else
+        {
+            auto groupCases = group->allSummaryCases();
+            sourcesToSelect.insert(sourcesToSelect.end(), groupCases.begin(), groupCases.end());
+        }
+    }
 
     auto dialog = RicEditSummaryPlotFeature::curveCreatorDialog();
 
@@ -77,7 +133,7 @@ void RicNewSummaryPlotFeature::onActionTriggered(bool isChecked)
         dialog->raise();
     }
 
-    dialog->updateFromSummaryPlot(nullptr);
+    dialog->updateFromDefaultCases(sourcesToSelect);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -86,6 +142,6 @@ void RicNewSummaryPlotFeature::onActionTriggered(bool isChecked)
 void RicNewSummaryPlotFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setText("New Summary Plot");
-    actionToSetup->setIcon(QIcon(":/SummaryPlot16x16.png"));
+    actionToSetup->setIcon(QIcon(":/SummaryPlotLight16x16.png"));
 }
 

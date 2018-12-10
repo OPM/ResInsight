@@ -50,7 +50,7 @@ RimObservedData::RimObservedData()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RimObservedData::caseName()
+QString RimObservedData::caseName() const
 {
     QFileInfo caseFileName(this->summaryHeaderFilename());
 
@@ -107,19 +107,6 @@ void RimObservedData::updateMetaData()
 QString RimObservedData::customWellName() const
 {
     if (m_useCustomIdentifier() && m_summaryCategory() == RifEclipseSummaryAddress::SUMMARY_WELL)
-    {
-        return m_identifierName();
-    }
-
-    return "";
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-QString RimObservedData::customWellGroupName() const
-{
-    if (m_useCustomIdentifier() && m_summaryCategory() == RifEclipseSummaryAddress::SUMMARY_WELL_GROUP)
     {
         return m_identifierName();
     }

@@ -40,25 +40,14 @@
 /// The returned CellIds is one less than the number of centerline points,
 /// and are describing the lines between the points, starting with the first line
 //--------------------------------------------------------------------------------------------------
-void RigSimulationWellCenterLineCalculator::calculateWellPipeStaticCenterline(RimSimWellInView* rimWell, 
-                                                                        std::vector< std::vector <cvf::Vec3d> >& pipeBranchesCLCoords, 
-                                                                        std::vector< std::vector <RigWellResultPoint> >& pipeBranchesCellIds) 
-{
-    calculateWellPipeDynamicCenterline(rimWell, -1, pipeBranchesCLCoords, pipeBranchesCellIds);
-}
-
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RigSimulationWellCenterLineCalculator::calculateWellPipeDynamicCenterline(const RimSimWellInView* rimWell, 
-                                                                               int timeStepIndex, 
-                                                                               std::vector< std::vector <cvf::Vec3d> >& pipeBranchesCLCoords, 
-                                                                               std::vector< std::vector <RigWellResultPoint> >& pipeBranchesCellIds)
+void RigSimulationWellCenterLineCalculator::calculateWellPipeStaticCenterline(
+    RimSimWellInView*                             rimWell,
+    std::vector<std::vector<cvf::Vec3d>>&         pipeBranchesCLCoords,
+    std::vector<std::vector<RigWellResultPoint>>& pipeBranchesCellIds)
 {
     CVF_ASSERT(rimWell);
 
-    const RigSimWellData*  simWellData = rimWell->simWellData();
+    const RigSimWellData* simWellData = rimWell->simWellData();
 
     RimEclipseView* eclipseView;
     rimWell->firstAncestorOrThisOfType(eclipseView);
@@ -66,16 +55,17 @@ void RigSimulationWellCenterLineCalculator::calculateWellPipeDynamicCenterline(c
     CVF_ASSERT(eclipseView);
 
     RigEclipseCaseData* eclipseCaseData      = eclipseView->eclipseCase()->eclipseCaseData();
-    bool isAutoDetectBranches = eclipseView->wellCollection()->isAutoDetectingBranches();
+    bool                isAutoDetectBranches = eclipseView->wellCollection()->isAutoDetectingBranches();
 
-    bool useAllCellCenters  = rimWell->isUsingCellCenterForPipe();
+    bool useAllCellCenters = rimWell->isUsingCellCenterForPipe();
+    int  timeStepIndex     = -1;
 
     calculateWellPipeCenterlineFromWellFrame(eclipseCaseData,
                                              simWellData,
                                              timeStepIndex,
                                              isAutoDetectBranches,
                                              useAllCellCenters,
-                                             pipeBranchesCLCoords, 
+                                             pipeBranchesCLCoords,
                                              pipeBranchesCellIds);
 }
 
@@ -140,7 +130,7 @@ void RigSimulationWellCenterLineCalculator::calculateWellPipeCenterlineFromWellF
     cvf::Vec3d whIntermediate = whStartPos;
     whIntermediate.z() = (whStartPos.z() + whCell.center().z()) / 2.0;
 
-    const RigWellResultPoint* prevWellResPoint = NULL;
+    const RigWellResultPoint* prevWellResPoint = nullptr;
 
     // CVF_ASSERT(isMultiSegmentWell ||  resBranches.size() <= 1); // TODO : Consider to set isMultiSegmentWell = true;
 
@@ -158,7 +148,7 @@ void RigSimulationWellCenterLineCalculator::calculateWellPipeCenterlineFromWellF
         const RigWellResultBranch&  branch = resBranches[brIdx];
         if ( !hasAnyValidDataCells(branch) ) continue;
 
-        prevWellResPoint = NULL;
+        prevWellResPoint = nullptr;
 
         // Find the start the MSW well-branch centerline. Normal wells are started "once" at wellhead in the code above 
 
@@ -438,27 +428,6 @@ void RigSimulationWellCenterLineCalculator::addCellCenterPoints(const RigEclipse
         pipeBranchesCLCoords[brIdx] = branchClPointsWithCellCenters;
     }
 }
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-bool RigSimulationWellCenterLineCalculator::hasAnyResultCells(const std::vector<RigWellResultBranch> &resBranches)
-{
-    bool hasResultCells = false;
-    if ( resBranches.size() )
-    {
-        for ( size_t i = 0 ; i < resBranches.size(); ++i )
-        {
-            if ( resBranches[i].m_branchResultPoints.size() != 0 )
-            {
-                hasResultCells = true;
-                break;
-            }
-        }
-    }
-    return hasResultCells;
-}
-
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -764,7 +733,7 @@ private:
 
             if ( wellCell.isInvalid() ) continue;
 
-            const caf::SizeTArray8& cellIndices = wellCell.cornerIndices();
+            const std::array<size_t, 8>& cellIndices = wellCell.cornerIndices();
 
             cvf::BoundingBox& cellBB = m_cellBoundingBoxes[cIdx];
             cellBB.add(nodes[cellIndices[0]]);

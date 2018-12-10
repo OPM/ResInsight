@@ -29,7 +29,7 @@
 /// 
 //--------------------------------------------------------------------------------------------------
 RicGeoMechPropertyFilterNewExec::RicGeoMechPropertyFilterNewExec(RimGeoMechPropertyFilterCollection* propertyFilterCollection)
-    : CmdExecuteCommand(NULL)
+    : CmdExecuteCommand(nullptr)
 {
     assert(propertyFilterCollection);
     m_propertyFilterCollection = propertyFilterCollection;

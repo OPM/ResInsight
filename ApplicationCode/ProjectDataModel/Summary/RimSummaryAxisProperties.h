@@ -61,6 +61,8 @@ public:
     bool                 showDescription() const;
     bool                 showAcronym() const;
     bool                 showUnitText() const;
+    bool                 isAutoZoom() const;
+    void                 setAutoZoom(bool enableAutoZoom);
 
     caf::PdmField<QString>                             customTitle;
     caf::PdmField<int>                                 titleFontSize;
@@ -78,14 +80,14 @@ public:
     bool isActive() const;
 
 protected:
-    virtual void                 initAfterRead() override;
-    virtual caf::PdmFieldHandle* userDescriptionField() override;
-    virtual caf::PdmFieldHandle* objectToggleField() override;
-    virtual void                 fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue,
+    void                 initAfterRead() override;
+    caf::PdmFieldHandle* userDescriptionField() override;
+    caf::PdmFieldHandle* objectToggleField() override;
+    void                 fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue,
                                                   const QVariant& newValue) override;
-    virtual void                 defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    void                 defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
 
-    virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions,
+    QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions,
                                                                 bool*                      useOptionsOnly) override;
 
 private:
@@ -98,6 +100,7 @@ private:
     caf::PdmField<bool> m_displayShortName;
     caf::PdmField<bool> m_displayLongName;
     caf::PdmField<bool> m_displayUnitText;
+    caf::PdmField<bool> m_isAutoZoom;
 
     caf::PdmField<QString> m_name;
     QwtPlot::Axis          m_axis;

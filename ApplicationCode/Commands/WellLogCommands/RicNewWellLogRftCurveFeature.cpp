@@ -28,7 +28,7 @@
 
 #include "RigWellLogCurveData.h"
 
-#include "RiuMainPlotWindow.h"
+#include "RiuPlotMainWindow.h"
 
 #include "RicNewWellLogPlotFeatureImpl.h"
 #include "RicWellLogPlotCurveFeatureImpl.h"
@@ -36,6 +36,8 @@
 
 #include <QAction>
 #include <QString>
+
+#include "cafSelectionManager.h"
 
 #include <vector>
 
@@ -48,7 +50,7 @@ CAF_CMD_SOURCE_INIT(RicNewWellLogRftCurveFeature, "RicNewWellLogRftCurveFeature"
 bool RicNewWellLogRftCurveFeature::isCommandEnabled()
 {
     if (RicWellLogPlotCurveFeatureImpl::parentWellRftPlot()) return false;
-    if (RicWellLogTools::selectedWellLogPlotTrack() != nullptr)
+    if (caf::SelectionManager::instance()->selectedItemOfType<RimWellLogTrack>() != nullptr)
     {
         return true;
     }
@@ -69,7 +71,7 @@ bool RicNewWellLogRftCurveFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicNewWellLogRftCurveFeature::onActionTriggered(bool isChecked)
 {
-    RimWellLogTrack* wellLogPlotTrack = RicWellLogTools::selectedWellLogPlotTrack();
+    RimWellLogTrack* wellLogPlotTrack = caf::SelectionManager::instance()->selectedItemOfType<RimWellLogTrack>();
     if (wellLogPlotTrack)
     {
         int branchIdx;
@@ -81,13 +83,13 @@ void RicNewWellLogRftCurveFeature::onActionTriggered(bool isChecked)
         RimSimWellInView* simWell = RicWellLogTools::selectedSimulationWell(&branchIndex);
         if (simWell)
         {
-            RimWellLogTrack* wellLogPlotTrack = RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack();
-            RimWellLogRftCurve* plotCurve = RicWellLogTools::addRftCurve(wellLogPlotTrack, simWell);
+            RimWellLogTrack* newWellLogPlotTrack = RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack();
+            RimWellLogRftCurve* plotCurve = RicWellLogTools::addRftCurve(newWellLogPlotTrack, simWell);
 
             plotCurve->loadDataAndUpdate(true);
 
             RimWellLogPlot* plot = nullptr;
-            wellLogPlotTrack->firstAncestorOrThisOfType(plot);
+            newWellLogPlotTrack->firstAncestorOrThisOfType(plot);
             if (plot && plotCurve->curveData())
             {
                 plot->setDepthUnit(plotCurve->curveData()->depthUnit());

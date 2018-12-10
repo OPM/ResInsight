@@ -1,7 +1,8 @@
-cmake_minimum_required( VERSION 2.8.12 )
+cmake_minimum_required( VERSION 2.8.12 ) # If you are creating Python wrappers for Windows, the actual version requirement is 3.4
 project( ERT C CXX )
 
 include(GNUInstallDirs)
+include(TestBigEndian)
 
 if(POLICY CMP0042)
   cmake_policy(SET CMP0042 OLD)
@@ -45,15 +46,14 @@ endif()
 option( BUILD_TESTS         "Should the tests be built"                               OFF)
 option( BUILD_APPLICATIONS  "Should we build small utility applications"              OFF)
 option( BUILD_ECL_SUMMARY   "Build the commandline application ecl_summary"           OFF)
-option( BUILD_NEXUS         "Build support for the Nexus simulator"                   ON)
 option( BUILD_PYTHON        "Run py_compile on the python wrappers"                   OFF)
+option( ENABLE_PYTHON       "Build and install the Python wrappers"                   OFF)
 option( BUILD_SHARED_LIBS   "Build shared libraries"                                  ON )
 option( ERT_USE_OPENMP      "Use OpenMP"                                              OFF )
 option( RST_DOC             "Build RST documentation"                                 OFF)
 option( ERT_BUILD_CXX       "Build some CXX wrappers"                                 ON)
 option( USE_RPATH           "Don't strip RPATH from libraries and binaries"           OFF)
 option( INSTALL_ERT_LEGACY  "Add ert legacy wrappers"                                 OFF)
-
 
 set(STATOIL_TESTDATA_ROOT "" CACHE PATH  "Root to Statoil internal testdata")
 if (EXISTS ${STATOIL_TESTDATA_ROOT})
@@ -70,6 +70,11 @@ if (EXISTS ${STATOIL_TESTDATA_ROOT})
   set(_geopath ${_statoil_test_data}/Geometry)
 endif()
 
+
+if (BUILD_PYTHON)
+  set(ENABLE_PYTHON ON)
+  message(WARNING "The option 'BUILD_PYTHON' is deprecated - use ENABLE_PYTHON.")
+endif()
 
 # output libs to some lib/ path for testing
 set(LIBRARY_OUTPUT_PATH ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR})
@@ -111,7 +116,7 @@ endif()
 # Treat warnings as errors if not on Windows
 if (NOT ERT_WINDOWS)
    set( CMAKE_C_FLAGS   "${CMAKE_C_FLAGS} -std=gnu99 -Wall -Wno-unknown-pragmas ")
-   set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall " )
+   set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wno-unknown-pragmas -Wno-unused-result -Wno-unused-parameter" )
 endif()
 
 if (MSVC)
@@ -176,18 +181,6 @@ if(M_LIBRARY)
     set(m m)
 endif ()
 
-find_package(BLAS)
-if (BLAS_FOUND)
-    set(blas "${BLAS_LIBRARIES}")
-endif ()
-
-set(ERT_HAVE_LAPACK OFF)
-find_package(LAPACK)
-if (LAPACK_FOUND)
-    set(ERT_HAVE_LAPACK ON)
-    list(APPEND lapack ${LAPACK_LIBRARIES} ${LAPACK_LINKER_FLAGS})
-endif()
-
 find_package(ZLIB)
 if (ZLIB_FOUND)
     set(ERT_HAVE_ZLIB ON)
@@ -207,6 +200,8 @@ include(CheckIncludeFile)
 include(CheckSymbolExists)
 include(CheckTypeSize)
 
+check_function_exists( access HAVE_POSIX_ACCESS)
+check_function_exists( _access HAVE_WINDOWS__ACCESS)
 check_function_exists( chdir HAVE_POSIX_CHDIR )
 check_function_exists( _chdir HAVE_WINDOWS_CHDIR )
 check_function_exists( chmod HAVE_CHMOD )
@@ -228,14 +223,10 @@ check_function_exists( mkdir HAVE_POSIX_MKDIR)
 check_function_exists( _mkdir HAVE_WINDOWS_MKDIR)
 check_function_exists( opendir ERT_HAVE_OPENDIR )
 check_function_exists( posix_spawn ERT_HAVE_SPAWN )
-check_function_exists( pthread_timedjoin_np HAVE_TIMEDJOIN)
-check_function_exists( pthread_yield HAVE_YIELD)
-check_function_exists( pthread_yield_np HAVE_YIELD_NP)
 check_function_exists( readlinkat ERT_HAVE_READLINKAT )
 check_function_exists( realpath HAVE_REALPATH )
 check_function_exists( regexec ERT_HAVE_REGEXP )
 check_function_exists( round HAVE_ROUND )
-check_function_exists( setenv HAVE_POSIX_SETENV )
 check_function_exists( symlink ERT_HAVE_SYMLINK )
 check_function_exists( timegm HAVE_TIMEGM )
 check_function_exists( usleep HAVE__USLEEP )
@@ -249,10 +240,7 @@ check_include_file(execinfo.h HAVE_EXECINFO)
 check_include_file(getopt.h   ERT_HAVE_GETOPT)
 check_include_file(unistd.h   ERT_HAVE_UNISTD)
 
-# Portability checks; look for htons function
-check_include_file("netinet/in.h" HAVE_NETINET_IN_H)
-check_include_file("arpa/inet.h"  HAVE_ARPA_INET_H)
-check_include_file("winsock2.h"   HAVE_WINSOCK2_H)
+test_big_endian(BIG_ENDIAN)
 
 check_type_size(time_t SIZE_OF_TIME_T)
 if (${SIZE_OF_TIME_T} EQUAL 8)
@@ -269,6 +257,13 @@ try_compile( HAVE_SIGBUS  ${CMAKE_BINARY_DIR} ${PROJECT_SOURCE_DIR}/cmake/Tests/
 try_compile( HAVE_PID_T   ${CMAKE_BINARY_DIR} ${PROJECT_SOURCE_DIR}/cmake/Tests/test_pid_t.c )
 try_compile( HAVE_MODE_T  ${CMAKE_BINARY_DIR} ${PROJECT_SOURCE_DIR}/cmake/Tests/test_mode_t.c )
 try_compile( ERT_HAVE_ISFINITE ${CMAKE_BINARY_DIR} ${PROJECT_SOURCE_DIR}/cmake/Tests/test_isfinite.c)
+
+if (ERT_HAVE_READLINKAT)
+  try_compile( ERT_HAVE_READLINKAT_DECLARATION
+    ${CMAKE_BINARY_DIR}
+    ${PROJECT_SOURCE_DIR}/cmake/Tests/test_have_readlinkat_decl.c
+    )
+endif()
 
 set( BUILD_CXX ON )
 try_compile( HAVE_CXX_SHARED_PTR ${CMAKE_BINARY_DIR} ${PROJECT_SOURCE_DIR}/cmake/Tests/test_shared_ptr.cpp )
@@ -287,10 +282,6 @@ if (ERT_WINDOWS)
     endif()
 endif()
 
-find_program(PING_PATH NAMES ping)
-if (PING_PATH)
-    set(ERT_HAVE_PING ON)
-endif()
 
 find_package(Git)
 if(GIT_FOUND)
@@ -328,36 +319,34 @@ if (MSVC)
    add_definitions( -D__func__="\\"????\\"")
 endif()
 
-if (ERT_WINDOWS)
-    message(WARNING "Python is not supported on Windows")
-    set( BUILD_PYTHON OFF )
-endif ()
-
 if (ERT_LINUX)
    add_definitions( -DHAVE_PROC )
 endif()
 
+add_subdirectory( external/catch2 )
 add_subdirectory( lib )
 add_subdirectory( applications )
+add_subdirectory( bin )
 
-
-if (BUILD_PYTHON)
-   if (ERT_WINDOWS)
-      message(WARNING "Python is not supported on Windows")
-      set( BUILD_PYTHON OFF )
-   else()
-      # If finding the Python interpreter and required packages
-      # fails in the python/CMakeLists.txt file the BUILD_PYTHON
-      # will be set to OFF.
-      add_subdirectory( python )
-
-      if(RST_DOC)
-         add_subdirectory( docs )
-      endif()
-   endif()
+if (ENABLE_PYTHON AND ERT_WINDOWS)
+    if ((NOT MSVC) OR (MSVC_VERSION LESS 1900))
+      message(FATAL_ERROR "The Python wrappers require Visual Studio 2015 or newer")
+    endif()
 endif()
 
-if (BUILD_PYTHON)
+if (ENABLE_PYTHON)
+    # If finding the Python interpreter and required packages
+    # fails in the python/CMakeLists.txt file the ENABLE_PYTHON
+    # will be set to OFF.
+    add_subdirectory( python )
+
+    if(RST_DOC)
+       add_subdirectory( docs )
+    endif()
+
+endif()
+
+if (ENABLE_PYTHON)
    if (NOT ${BUILD_SHARED_LIBS})
       message(FATAL_ERROR "The Python wrappers require shared libraries")
    endif()

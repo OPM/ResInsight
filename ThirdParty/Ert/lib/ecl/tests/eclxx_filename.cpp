@@ -16,7 +16,7 @@
    for more details.
 */
 
-#include <ert/util/test_util.h>
+#include <ert/util/test_util.hpp>
 #include <ert/ecl/EclFilename.hpp>
 
 

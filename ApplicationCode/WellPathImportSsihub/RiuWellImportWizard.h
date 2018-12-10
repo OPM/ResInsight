@@ -57,7 +57,7 @@ class AuthenticationPage : public QWizardPage
     Q_OBJECT
 
 public:
-    AuthenticationPage(const QString& webServiceAddress, QWidget *parent = 0);
+    AuthenticationPage(const QString& webServiceAddress, QWidget *parent = nullptr);
 
     virtual void initializePage();
 };
@@ -71,7 +71,7 @@ class FieldSelectionPage : public QWizardPage
     Q_OBJECT
 
 public:
-    FieldSelectionPage(RimWellPathImport* wellPathImport, QWidget* parent = 0);
+    FieldSelectionPage(RimWellPathImport* wellPathImport, QWidget* parent = nullptr);
     ~FieldSelectionPage();
 
     virtual void initializePage();
@@ -127,7 +127,7 @@ class WellSelectionPage : public QWizardPage
     Q_OBJECT
 
 public:
-    WellSelectionPage(RimWellPathImport* wellPathImport, QWidget* parent = 0);
+    WellSelectionPage(RimWellPathImport* wellPathImport, QWidget* parent = nullptr);
     ~WellSelectionPage();
 
     virtual void initializePage();
@@ -153,7 +153,7 @@ class WellSummaryPage : public QWizardPage
     Q_OBJECT
 
 public:
-    WellSummaryPage(RimWellPathImport* wellPathImport, QWidget* parent = 0);
+    WellSummaryPage(RimWellPathImport* wellPathImport, QWidget* parent = nullptr);
 
     virtual void initializePage();
 
@@ -182,7 +182,7 @@ public:
     enum DownloadState{ DOWNLOAD_FIELDS, DOWNLOAD_WELLS, DOWNLOAD_WELL_PATH, DOWNLOAD_UNDEFINED};
 
 public:
-    RiuWellImportWizard(const QString& webServiceAddress, const QString& downloadFolder, RimWellPathImport* wellPathImportObject, QWidget *parent = 0);
+    RiuWellImportWizard(const QString& webServiceAddress, const QString& downloadFolder, RimWellPathImport* wellPathImportObject, QWidget *parent = nullptr);
     ~RiuWellImportWizard();
 
     void        setCredentials(const QString& username, const QString& password);

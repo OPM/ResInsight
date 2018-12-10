@@ -68,9 +68,6 @@ public:
     static std::vector<RimWellLogFile*>             wellLogFilesContainingPressure(const QString& wellPathNameOrSimWellName);
     static RimWellLogFileChannel*                   getPressureChannelFromWellFile(const RimWellLogFile* wellLogFile);
     static RimWellPath*                             wellPathFromWellLogFile(const RimWellLogFile* wellLogFile);
-    static std::set<QDateTime>                      timeStepsFromRftCase(RimEclipseResultCase* rftCase, const QString& simWellName);
-    static std::set<QDateTime>                      timeStepsFromGridCase(RimEclipseCase* gridCase);
-    static QDateTime                                timeStepFromWellLogFile(RimWellLogFile* wellLogFile);
     static std::map<QDateTime, std::set<RifDataSourceForRftPlt>> timeStepsMapFromGridCase(RimEclipseCase* gridCase);
     static RiaRftPltCurveDefinition                 curveDefFromCurve(const RimWellLogCurve* curve);
 
@@ -86,10 +83,16 @@ public:
     static std::vector<RimEclipseResultCase*>               rftCasesForWell(const QString& simWellName);
     static QString                                  simWellName(const QString& wellPathNameOrSimWellName);
 
+    static std::map<QDateTime, std::set<RifDataSourceForRftPlt>>
+                                                    calculateRelevantTimeStepsFromCases(const QString&                             wellPathNameOrSimWellName,
+                                                                                        const std::vector<RifDataSourceForRftPlt>& selSources,
+                                                                                        const std::set<RifEclipseRftAddress::RftWellLogChannelType>& interestingRFTResults);
+
     static void                                     calculateValueOptionsForTimeSteps(const QString& wellPathNameOrSimWellName, 
                                                                                       const std::vector<RifDataSourceForRftPlt>& selSources, 
                                                                                       const std::set<RifEclipseRftAddress::RftWellLogChannelType>& interestingRFTResults,
                                                                                       QList<caf::PdmOptionItemInfo>& options);
+
     static std::set < RiaRftPltCurveDefinition >    curveDefsFromTimesteps(const QString& simWellName, 
                                                                            const std::vector<QDateTime>& selectedTimeStepVector, 
                                                                            bool firstReportTimeStepIsValid, 

@@ -32,9 +32,11 @@
 // #include "RivWellPathSourceInfo.h"
 // #include "RivWellPipeSourceInfo.h"
 
+class RimGridView;
 class RimEclipseView;
 class RimGeoMechView;
 class RimSimWellInView;
+class Rim2dIntersectionView;
 class RimWellPath;
 class RiuSelectionChangedHandler;
 class RiuSelectionItem;
@@ -109,7 +111,8 @@ public:
         GEOMECH_SELECTION_OBJECT,
         WELLPATH_SELECTION_OBJECT,
         SIMWELL_SELECTION_OBJECT,
-        GENERAL_SELECTION_OBJECT
+        GENERAL_SELECTION_OBJECT,
+        INTERSECTION_SELECTION_OBJECT
     };
 
 public:
@@ -128,12 +131,17 @@ public:
 class RiuEclipseSelectionItem : public RiuSelectionItem
 {
 public:
-    explicit RiuEclipseSelectionItem(RimEclipseView* view, size_t gridIndex, size_t cellIndex, size_t nncIndex,
-                                     cvf::Color3f color, cvf::StructGridInterface::FaceType face, const cvf::Vec3d& localIntersectionPoint);
+    explicit RiuEclipseSelectionItem(RimEclipseView* view,
+                                     size_t gridIndex,
+                                     size_t cellIndex,
+                                     size_t nncIndex,
+                                     cvf::Color3f color,
+                                     cvf::StructGridInterface::FaceType face,
+                                     const cvf::Vec3d& localIntersectionPointInDisplay);
     
-    virtual ~RiuEclipseSelectionItem() {};
+    ~RiuEclipseSelectionItem() override {};
 
-    virtual RiuSelectionType type() const
+    RiuSelectionType type() const override
     {
         return ECLIPSE_SELECTION_OBJECT;
     }
@@ -145,7 +153,7 @@ public:
     size_t m_nncIndex;
     cvf::Color3f m_color;
     cvf::StructGridInterface::FaceType m_face;
-    cvf::Vec3d m_localIntersectionPoint;
+    cvf::Vec3d m_localIntersectionPointInDisplay;
 };
 
 
@@ -162,18 +170,18 @@ public:
                                      size_t cellIndex, 
                                      cvf::Color3f color, 
                                      int elementFace, 
-                                     const cvf::Vec3d& localIntersectionPoint);
+                                     const cvf::Vec3d& localIntersectionPointInDisplay);
 
     explicit RiuGeoMechSelectionItem(RimGeoMechView* view,
                                      size_t gridIndex,
                                      size_t cellIndex,
                                      cvf::Color3f color,
                                      int elementFace,
-                                     const cvf::Vec3d& localIntersectionPoint,
+                                     const cvf::Vec3d& localIntersectionPointInDisplay,
                                      const std::array<cvf::Vec3f, 3>& intersectionTriangle );
-    virtual ~RiuGeoMechSelectionItem() {};
+    ~RiuGeoMechSelectionItem() override {};
 
-    virtual RiuSelectionType type() const
+    RiuSelectionType type() const override
     {
         return GEOMECH_SELECTION_OBJECT;
     }
@@ -186,7 +194,36 @@ public:
     int m_elementFace;
     bool m_hasIntersectionTriangle;
     std::array<cvf::Vec3f, 3> m_intersectionTriangle;
-    cvf::Vec3d m_localIntersectionPoint;
+    cvf::Vec3d m_localIntersectionPointInDisplay;
+};
+
+
+//==================================================================================================
+//
+// 
+//
+//==================================================================================================
+class Riu2dIntersectionSelectionItem : public RiuSelectionItem
+{
+public:
+    explicit Riu2dIntersectionSelectionItem(Rim2dIntersectionView* view, RiuSelectionItem *selItem);
+
+    ~Riu2dIntersectionSelectionItem() override;
+
+    RiuSelectionType type() const override
+    {
+        return INTERSECTION_SELECTION_OBJECT;
+    }
+
+public:
+    caf::PdmPointer<Rim2dIntersectionView> view() const;
+    RiuEclipseSelectionItem* eclipseSelectionItem() const;
+    RiuGeoMechSelectionItem* geoMechSelectionItem() const;
+
+private:
+    caf::PdmPointer<Rim2dIntersectionView> m_view;
+    RiuEclipseSelectionItem* m_eclipseSelItem;
+    RiuGeoMechSelectionItem* m_geoMechSelItem;
 };
 
 
@@ -199,12 +236,12 @@ class RiuWellPathSelectionItem : public RiuSelectionItem
 {
 public:
     explicit RiuWellPathSelectionItem(const RivWellPathSourceInfo* wellPathSourceInfo,
-                                      const cvf::Vec3d& currentPickPositionInDomainCoords,
+                                      const cvf::Vec3d& pipeCenterLineIntersectionInDomainCoords,
                                       double measuredDepth);
 
-    virtual ~RiuWellPathSelectionItem() {};
+    ~RiuWellPathSelectionItem() override {};
 
-    virtual RiuSelectionType type() const
+    RiuSelectionType type() const override
     {
         return WELLPATH_SELECTION_OBJECT;
     }
@@ -228,9 +265,9 @@ public:
     explicit RiuSimWellSelectionItem(RimSimWellInView* simwell, cvf::Vec3d domainCoord, size_t branchIndex);
 
 
-    virtual ~RiuSimWellSelectionItem() {};
+    ~RiuSimWellSelectionItem() override {};
 
-    virtual RiuSelectionType type() const
+    RiuSelectionType type() const override
     {
         return SIMWELL_SELECTION_OBJECT;
     }
@@ -252,9 +289,9 @@ class RiuGeneralSelectionItem : public RiuSelectionItem
 public:
     RiuGeneralSelectionItem(caf::PdmObject* object);
 
-    virtual ~RiuGeneralSelectionItem() {};
+    ~RiuGeneralSelectionItem() override {};
 
-    virtual RiuSelectionType type() const
+    RiuSelectionType type() const override
     {
         return GENERAL_SELECTION_OBJECT;
     }

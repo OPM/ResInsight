@@ -77,14 +77,14 @@ class CmdFieldChangeExec : public CmdExecuteCommand
 {
 public:
     explicit CmdFieldChangeExec(NotificationCenter* notificationCenter);
-    virtual ~CmdFieldChangeExec();
+    ~CmdFieldChangeExec() override;
 
 
     CmdFieldChangeExecData* commandData();
 
-    virtual QString name();
-    virtual void redo();
-    virtual void undo();
+    QString name() override;
+    void redo() override;
+    void undo() override;
 
 private:
     void readFieldValueFromValidXmlDocument(QXmlStreamReader& xmlStream, PdmXmlFieldHandle* xmlFieldHandle);

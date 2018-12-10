@@ -4,7 +4,7 @@
 #include "cvfPlane.h"
 #include <math.h>
 
-
+#include <algorithm>
 
 namespace caf {
 
@@ -31,10 +31,16 @@ HexGridIntersectionTools::ClipVx::ClipVx()
 /// \param normalizedDistFromA Returns the normalized (0..1) position from a to b of the intersection point. 
 ///                            Will return values along the infinite line defined by the a-b direcion, 
 ///                            and HUGE_VAL if plane and line are parallel. 
+/// \param epsilon      Tolerance margin for accepting the position being within (0..1)
 ///
 /// \return True if line segment intersects the plane
 //--------------------------------------------------------------------------------------------------
-bool HexGridIntersectionTools::planeLineIntersect(const cvf::Plane& plane, const cvf::Vec3d& a, const cvf::Vec3d& b, cvf::Vec3d* intersection, double* normalizedDistFromA)
+bool HexGridIntersectionTools::planeLineIntersect(const cvf::Plane& plane,
+                                                  const cvf::Vec3d& a,
+                                                  const cvf::Vec3d& b,
+                                                  cvf::Vec3d*       intersection,
+                                                  double*           normalizedDistFromA,
+                                                  double            epsilon)
 {
     // From Real-Time Collision Detection by Christer Eriscon, published by Morgen Kaufmann Publishers, (c) 2005 Elsevier Inc
 
@@ -53,7 +59,7 @@ bool HexGridIntersectionTools::planeLineIntersect(const cvf::Plane& plane, const
     (*intersection) = a + interpolationParameter * ab;
     (*normalizedDistFromA) = interpolationParameter;
 
-    return (interpolationParameter >= 0.0 && interpolationParameter <= 1.0);
+    return (interpolationParameter >= -epsilon && interpolationParameter <= 1.0 + epsilon);
 }
 
 
@@ -66,7 +72,8 @@ bool HexGridIntersectionTools::planeLineIntersect(const cvf::Plane& plane, const
 
 // The permutations except for the trivial cases where all vertices are in front or behind plane:
 //
-// Single vertex on positive side of plane => isMostVxesOnPositiveSide = false                              
+//
+// 1. Single vertex on positive side of plane => isMostVxesOnPositiveSide = false                              
 //
 //  +\   /\3               /\3   /+          /\3        .
 //    \ /  \              /  \  /       +   /  \   +    .
@@ -75,7 +82,8 @@ bool HexGridIntersectionTools::planeLineIntersect(const cvf::Plane& plane, const
 //  1/___\1___\2      1/____2/__\2      1/________\2    .
 //       +\                 /+
 //
-// Two vertices vertex on positive side of plane => isMostVxesOnPositiveSide = true
+//
+// 2. Two vertices vertex on positive side of plane => isMostVxesOnPositiveSide = true
 //
 //     \+  /\3               /\3  +/        /\3         .   
 //      \ /  \              /  \  /        /  \         .  
@@ -83,6 +91,20 @@ bool HexGridIntersectionTools::planeLineIntersect(const cvf::Plane& plane, const
 //      / \    \          /     /\     + /      \ +     .
 //    1/___\1___\2      1/____2/__\2   1/________\2     .        
 //          \+               +/                       
+//
+// 3. The special cases of touching one vertex, either exactly or "close enough"
+//    in finite precision. These occur for both 2. and 3 and in any rotation.
+// 
+//    a) Should not be counted      b) May need a tolerance margin to intersect
+//       as intersecting:              both 1->3 and 2->3 as it is theoretically required to:
+//                                   3
+//        \        /\               /|\
+//         \      /  \             / | \
+//          \    /    \           /  |  \
+//           \  /      \         /   |   \
+//            \/________\       /____|____\
+//             \               1     |     2
+
 //--------------------------------------------------------------------------------------------------
 
 bool HexGridIntersectionTools::planeTriangleIntersection(const cvf::Plane& plane,
@@ -92,10 +114,23 @@ bool HexGridIntersectionTools::planeTriangleIntersection(const cvf::Plane& plane
                                                          ClipVx* newVx1, ClipVx* newVx2,
                                                          bool * isMostVxesOnPositiveSide)
 {
-    int onPosSide[3];
-    onPosSide[0] = plane.distanceSquared(p1) >= 0;
-    onPosSide[1] = plane.distanceSquared(p2) >= 0;
-    onPosSide[2] = plane.distanceSquared(p3) >= 0;
+    const double nonDimensionalTolerance = 1.0e-8;
+
+    double sqrSignedDistances[3];
+    sqrSignedDistances[0] = plane.distanceSquared(p1);
+    sqrSignedDistances[1] = plane.distanceSquared(p2);
+    sqrSignedDistances[2] = plane.distanceSquared(p3);
+
+    double maxSqrAbsDistance = std::max(std::abs(sqrSignedDistances[0]), 
+                                        std::max(std::abs(sqrSignedDistances[1]), 
+                                                 std::abs(sqrSignedDistances[2])));
+
+    const double sqrDistanceTolerance = nonDimensionalTolerance * maxSqrAbsDistance;
+
+    int onPosSide[3];    
+    onPosSide[0] = sqrSignedDistances[0] >= 0;
+    onPosSide[1] = sqrSignedDistances[1] >= 0;
+    onPosSide[2] = sqrSignedDistances[2] >= 0;
 
     const int numPositiveVertices = onPosSide[0] + onPosSide[1] + onPosSide[2];
 
@@ -122,44 +157,57 @@ bool HexGridIntersectionTools::planeTriangleIntersection(const cvf::Plane& plane
         if (onPosSide[0]) topVx = 1;
         if (onPosSide[1]) topVx = 2;
         if (onPosSide[2]) topVx = 3;
+
+        // Case 3a: Two negative distances and the last is within tolerance of zero.
+        if (sqrSignedDistances[topVx - 1] < sqrDistanceTolerance)
+        {
+            return false;
+        }
     }
     else if (numPositiveVertices == 2)
     {
         if (!onPosSide[0]) topVx = 1;
         if (!onPosSide[1]) topVx = 2;
         if (!onPosSide[2]) topVx = 3;
+
+        // Case 3a: Two positive distances and the last is within tolerance of zero.
+        if (sqrSignedDistances[topVx - 1] > -sqrDistanceTolerance)
+        {
+            return false;
+        }
     }
     else
     {
         CVF_ASSERT(false);
     }
 
-    bool ok1, ok2;
+    bool ok1 = false;
+    bool ok2 = false;
+
     if (topVx == 1)
     {
-        ok1 = planeLineIntersect(plane, p1, p2, &((*newVx1).vx), &((*newVx1).normDistFromEdgeVx1));
+        ok1 = planeLineIntersect(plane, p1, p2, &((*newVx1).vx), &((*newVx1).normDistFromEdgeVx1), nonDimensionalTolerance);
         (*newVx1).clippedEdgeVx1Id = p1Id;
         (*newVx1).clippedEdgeVx2Id = p2Id;
-        ok2 = planeLineIntersect(plane, p1, p3, &((*newVx2).vx), &((*newVx2).normDistFromEdgeVx1));
+        ok2 = planeLineIntersect(plane, p1, p3, &((*newVx2).vx), &((*newVx2).normDistFromEdgeVx1), nonDimensionalTolerance);
         (*newVx2).clippedEdgeVx1Id = p1Id;
         (*newVx2).clippedEdgeVx2Id = p3Id;
-        CVF_TIGHT_ASSERT(ok1 && ok2);
     }
     else if (topVx == 2)
     {
-        ok1 = planeLineIntersect(plane, p2, p3, &((*newVx1).vx), &((*newVx1).normDistFromEdgeVx1));
+        ok1 = planeLineIntersect(plane, p2, p3, &((*newVx1).vx), &((*newVx1).normDistFromEdgeVx1), nonDimensionalTolerance);
         (*newVx1).clippedEdgeVx1Id = p2Id;
         (*newVx1).clippedEdgeVx2Id = p3Id;
-        ok2 = planeLineIntersect(plane, p2, p1, &((*newVx2).vx), &((*newVx2).normDistFromEdgeVx1));
+        ok2 = planeLineIntersect(plane, p2, p1, &((*newVx2).vx), &((*newVx2).normDistFromEdgeVx1), nonDimensionalTolerance);
         (*newVx2).clippedEdgeVx1Id = p2Id;
         (*newVx2).clippedEdgeVx2Id = p1Id;
     }
     else if (topVx == 3)
     {
-        ok1 = planeLineIntersect(plane, p3, p1, &((*newVx1).vx), &((*newVx1).normDistFromEdgeVx1));
+        ok1 = planeLineIntersect(plane, p3, p1, &((*newVx1).vx), &((*newVx1).normDistFromEdgeVx1), nonDimensionalTolerance);
         (*newVx1).clippedEdgeVx1Id = p3Id;
         (*newVx1).clippedEdgeVx2Id = p1Id;
-        ok2 = planeLineIntersect(plane, p3, p2, &((*newVx2).vx), &((*newVx2).normDistFromEdgeVx1));
+        ok2 = planeLineIntersect(plane, p3, p2, &((*newVx2).vx), &((*newVx2).normDistFromEdgeVx1), nonDimensionalTolerance);
         (*newVx2).clippedEdgeVx1Id = p3Id;
         (*newVx2).clippedEdgeVx2Id = p2Id;
     }
@@ -202,16 +250,19 @@ bool HexGridIntersectionTools::planeTriangleIntersection(const cvf::Plane& plane
 //
 // Clips the supplied triangles into new triangles returned in clippedTriangleVxes.
 // New vertices have set isVxIdsNative = false and their vxIds is indices into triangleVxes
-// The isTriangleEdgeCellContour bits refer to the edge after the corresponding triangle vertex.
+// The cellFaceForEachTriangleEdge refer to the edge after the corresponding triangle vertex.
+// This method will keep the faces provided, while added edges is marked with no face = 6
 //--------------------------------------------------------------------------------------------------
 
 void HexGridIntersectionTools::clipTrianglesBetweenTwoParallelPlanes(const std::vector<ClipVx>& triangleVxes,
-                                                                     const std::vector<bool>&   isTriangleEdgeCellContour,
+                                                                     const std::vector<int>&    cellFaceForEachTriangleEdge,
                                                                      const cvf::Plane&          p1Plane, 
                                                                      const cvf::Plane&          p2Plane,
                                                                      std::vector<ClipVx>*       clippedTriangleVxes,
-                                                                     std::vector<bool>*         isClippedTriEdgeCellContour)
+                                                                     std::vector<int>*          cellFaceForEachClippedTriangleEdge)
 {
+    #define HT_NO_FACE 6
+
     size_t triangleCount = triangleVxes.size() / 3;
 
     for (size_t tIdx = 0; tIdx < triangleCount; ++tIdx)
@@ -270,9 +321,9 @@ void HexGridIntersectionTools::clipTrianglesBetweenTwoParallelPlanes(const std::
             clippedTriangleVxes->push_back(triangleVxes[triVxIdx + 1]);
             clippedTriangleVxes->push_back(triangleVxes[triVxIdx + 2]);
 
-            isClippedTriEdgeCellContour->push_back(isTriangleEdgeCellContour[triVxIdx + 0]);
-            isClippedTriEdgeCellContour->push_back(isTriangleEdgeCellContour[triVxIdx + 1]);
-            isClippedTriEdgeCellContour->push_back(isTriangleEdgeCellContour[triVxIdx + 2]);
+            cellFaceForEachClippedTriangleEdge->push_back(cellFaceForEachTriangleEdge[triVxIdx + 0]);
+            cellFaceForEachClippedTriangleEdge->push_back(cellFaceForEachTriangleEdge[triVxIdx + 1]);
+            cellFaceForEachClippedTriangleEdge->push_back(cellFaceForEachTriangleEdge[triVxIdx + 2]);
 
             continue;
         }
@@ -288,13 +339,13 @@ void HexGridIntersectionTools::clipTrianglesBetweenTwoParallelPlanes(const std::
             clippedTriangleVxes->push_back(triangleVxes[newVx2OnP1.clippedEdgeVx2Id]);
             clippedTriangleVxes->push_back(newVx2OnP1);
 
-            isClippedTriEdgeCellContour->push_back(false);
-            isClippedTriEdgeCellContour->push_back(isTriangleEdgeCellContour[newVx1OnP1.clippedEdgeVx1Id]);
-            isClippedTriEdgeCellContour->push_back(false);
+            cellFaceForEachClippedTriangleEdge->push_back(HT_NO_FACE);
+            cellFaceForEachClippedTriangleEdge->push_back(cellFaceForEachTriangleEdge[newVx1OnP1.clippedEdgeVx1Id]);
+            cellFaceForEachClippedTriangleEdge->push_back(HT_NO_FACE);
 
-            isClippedTriEdgeCellContour->push_back(isTriangleEdgeCellContour[newVx1OnP1.clippedEdgeVx2Id]);
-            isClippedTriEdgeCellContour->push_back(isTriangleEdgeCellContour[newVx2OnP1.clippedEdgeVx2Id]);
-            isClippedTriEdgeCellContour->push_back(false);
+            cellFaceForEachClippedTriangleEdge->push_back(cellFaceForEachTriangleEdge[newVx1OnP1.clippedEdgeVx2Id]);
+            cellFaceForEachClippedTriangleEdge->push_back(cellFaceForEachTriangleEdge[newVx2OnP1.clippedEdgeVx2Id]);
+            cellFaceForEachClippedTriangleEdge->push_back(HT_NO_FACE);
 
             continue;
         }
@@ -310,13 +361,13 @@ void HexGridIntersectionTools::clipTrianglesBetweenTwoParallelPlanes(const std::
             clippedTriangleVxes->push_back(triangleVxes[newVx1OnP2.clippedEdgeVx2Id]);
             clippedTriangleVxes->push_back(triangleVxes[newVx2OnP2.clippedEdgeVx2Id]);
 
-            isClippedTriEdgeCellContour->push_back(false);
-            isClippedTriEdgeCellContour->push_back(false);
-            isClippedTriEdgeCellContour->push_back(isTriangleEdgeCellContour[newVx2OnP2.clippedEdgeVx2Id]);
+            cellFaceForEachClippedTriangleEdge->push_back(HT_NO_FACE);
+            cellFaceForEachClippedTriangleEdge->push_back(HT_NO_FACE);
+            cellFaceForEachClippedTriangleEdge->push_back(cellFaceForEachTriangleEdge[newVx2OnP2.clippedEdgeVx2Id]);
 
-            isClippedTriEdgeCellContour->push_back(isTriangleEdgeCellContour[newVx1OnP2.clippedEdgeVx1Id]);
-            isClippedTriEdgeCellContour->push_back(isTriangleEdgeCellContour[newVx1OnP2.clippedEdgeVx2Id]);
-            isClippedTriEdgeCellContour->push_back(false);
+            cellFaceForEachClippedTriangleEdge->push_back(cellFaceForEachTriangleEdge[newVx1OnP2.clippedEdgeVx1Id]);
+            cellFaceForEachClippedTriangleEdge->push_back(cellFaceForEachTriangleEdge[newVx1OnP2.clippedEdgeVx2Id]);
+            cellFaceForEachClippedTriangleEdge->push_back(HT_NO_FACE);
 
             continue;
         }
@@ -328,9 +379,9 @@ void HexGridIntersectionTools::clipTrianglesBetweenTwoParallelPlanes(const std::
             clippedTriangleVxes->push_back(newVx2OnP1);
             clippedTriangleVxes->push_back(triangleVxes[newVx1OnP1.clippedEdgeVx1Id]);
 
-            isClippedTriEdgeCellContour->push_back(false);
-            isClippedTriEdgeCellContour->push_back(isTriangleEdgeCellContour[newVx2OnP1.clippedEdgeVx2Id]);
-            isClippedTriEdgeCellContour->push_back(isTriangleEdgeCellContour[newVx1OnP1.clippedEdgeVx1Id]);
+            cellFaceForEachClippedTriangleEdge->push_back(HT_NO_FACE);
+            cellFaceForEachClippedTriangleEdge->push_back(cellFaceForEachTriangleEdge[newVx2OnP1.clippedEdgeVx2Id]);
+            cellFaceForEachClippedTriangleEdge->push_back(cellFaceForEachTriangleEdge[newVx1OnP1.clippedEdgeVx1Id]);
 
             continue;
         }
@@ -342,9 +393,9 @@ void HexGridIntersectionTools::clipTrianglesBetweenTwoParallelPlanes(const std::
             clippedTriangleVxes->push_back(newVx2OnP2);
             clippedTriangleVxes->push_back(triangleVxes[newVx1OnP2.clippedEdgeVx1Id]);
 
-            isClippedTriEdgeCellContour->push_back(false);
-            isClippedTriEdgeCellContour->push_back(isTriangleEdgeCellContour[newVx2OnP2.clippedEdgeVx2Id]);
-            isClippedTriEdgeCellContour->push_back(isTriangleEdgeCellContour[newVx1OnP2.clippedEdgeVx1Id]);
+            cellFaceForEachClippedTriangleEdge->push_back(HT_NO_FACE);
+            cellFaceForEachClippedTriangleEdge->push_back(cellFaceForEachTriangleEdge[newVx2OnP2.clippedEdgeVx2Id]);
+            cellFaceForEachClippedTriangleEdge->push_back(cellFaceForEachTriangleEdge[newVx1OnP2.clippedEdgeVx1Id]);
 
             continue;
         }
@@ -368,17 +419,17 @@ void HexGridIntersectionTools::clipTrianglesBetweenTwoParallelPlanes(const std::
                 clippedTriangleVxes->push_back(newVx1OnP2);
                 clippedTriangleVxes->push_back(triangleVxes[newVx2OnP1.clippedEdgeVx2Id]);
 
-                isClippedTriEdgeCellContour->push_back(false);
-                isClippedTriEdgeCellContour->push_back(isTriangleEdgeCellContour[newVx1OnP1.clippedEdgeVx1Id]);
-                isClippedTriEdgeCellContour->push_back(false);
+                cellFaceForEachClippedTriangleEdge->push_back(HT_NO_FACE);
+                cellFaceForEachClippedTriangleEdge->push_back(cellFaceForEachTriangleEdge[newVx1OnP1.clippedEdgeVx1Id]);
+                cellFaceForEachClippedTriangleEdge->push_back(HT_NO_FACE);
 
-                isClippedTriEdgeCellContour->push_back(false);
-                isClippedTriEdgeCellContour->push_back(false);
-                isClippedTriEdgeCellContour->push_back(false);
+                cellFaceForEachClippedTriangleEdge->push_back(HT_NO_FACE);
+                cellFaceForEachClippedTriangleEdge->push_back(HT_NO_FACE);
+                cellFaceForEachClippedTriangleEdge->push_back(HT_NO_FACE);
 
-                isClippedTriEdgeCellContour->push_back(false);
-                isClippedTriEdgeCellContour->push_back(isTriangleEdgeCellContour[newVx1OnP2.clippedEdgeVx1Id]);
-                isClippedTriEdgeCellContour->push_back(isTriangleEdgeCellContour[newVx2OnP1.clippedEdgeVx2Id]);
+                cellFaceForEachClippedTriangleEdge->push_back(HT_NO_FACE);
+                cellFaceForEachClippedTriangleEdge->push_back(cellFaceForEachTriangleEdge[newVx1OnP2.clippedEdgeVx1Id]);
+                cellFaceForEachClippedTriangleEdge->push_back(cellFaceForEachTriangleEdge[newVx2OnP1.clippedEdgeVx2Id]);
             }
             else
             {
@@ -387,17 +438,17 @@ void HexGridIntersectionTools::clipTrianglesBetweenTwoParallelPlanes(const std::
                 clippedTriangleVxes->push_back(newVx1OnP1);
                 clippedTriangleVxes->push_back(triangleVxes[newVx2OnP2.clippedEdgeVx2Id]);
 
-                isClippedTriEdgeCellContour->push_back(false);
-                isClippedTriEdgeCellContour->push_back(false);
-                isClippedTriEdgeCellContour->push_back(false);
+                cellFaceForEachClippedTriangleEdge->push_back(HT_NO_FACE);
+                cellFaceForEachClippedTriangleEdge->push_back(HT_NO_FACE);
+                cellFaceForEachClippedTriangleEdge->push_back(HT_NO_FACE);
 
-                isClippedTriEdgeCellContour->push_back(false);
-                isClippedTriEdgeCellContour->push_back(isTriangleEdgeCellContour[newVx1OnP2.clippedEdgeVx1Id]);
-                isClippedTriEdgeCellContour->push_back(false);
+                cellFaceForEachClippedTriangleEdge->push_back(HT_NO_FACE);
+                cellFaceForEachClippedTriangleEdge->push_back(cellFaceForEachTriangleEdge[newVx1OnP2.clippedEdgeVx1Id]);
+                cellFaceForEachClippedTriangleEdge->push_back(HT_NO_FACE);
 
-                isClippedTriEdgeCellContour->push_back(false);
-                isClippedTriEdgeCellContour->push_back(isTriangleEdgeCellContour[newVx1OnP1.clippedEdgeVx1Id]);
-                isClippedTriEdgeCellContour->push_back(isTriangleEdgeCellContour[newVx2OnP2.clippedEdgeVx2Id]);
+                cellFaceForEachClippedTriangleEdge->push_back(HT_NO_FACE);
+                cellFaceForEachClippedTriangleEdge->push_back(cellFaceForEachTriangleEdge[newVx1OnP1.clippedEdgeVx1Id]);
+                cellFaceForEachClippedTriangleEdge->push_back(cellFaceForEachTriangleEdge[newVx2OnP2.clippedEdgeVx2Id]);
             }
 
             continue;
@@ -414,13 +465,13 @@ void HexGridIntersectionTools::clipTrianglesBetweenTwoParallelPlanes(const std::
             clippedTriangleVxes->push_back(newVx2OnP2);
             clippedTriangleVxes->push_back(newVx2OnP1);
 
-            isClippedTriEdgeCellContour->push_back(isTriangleEdgeCellContour[newVx1OnP1.clippedEdgeVx1Id]);
-            isClippedTriEdgeCellContour->push_back(false);
-            isClippedTriEdgeCellContour->push_back(false);
+            cellFaceForEachClippedTriangleEdge->push_back(cellFaceForEachTriangleEdge[newVx1OnP1.clippedEdgeVx1Id]);
+            cellFaceForEachClippedTriangleEdge->push_back(HT_NO_FACE);
+            cellFaceForEachClippedTriangleEdge->push_back(HT_NO_FACE);
 
-            isClippedTriEdgeCellContour->push_back(false);
-            isClippedTriEdgeCellContour->push_back(isTriangleEdgeCellContour[newVx2OnP2.clippedEdgeVx2Id]);
-            isClippedTriEdgeCellContour->push_back(false);
+            cellFaceForEachClippedTriangleEdge->push_back(HT_NO_FACE);
+            cellFaceForEachClippedTriangleEdge->push_back(cellFaceForEachTriangleEdge[newVx2OnP2.clippedEdgeVx2Id]);
+            cellFaceForEachClippedTriangleEdge->push_back(HT_NO_FACE);
 
             continue;
         }
@@ -436,13 +487,13 @@ void HexGridIntersectionTools::clipTrianglesBetweenTwoParallelPlanes(const std::
             clippedTriangleVxes->push_back(newVx1OnP2);
             clippedTriangleVxes->push_back(newVx1OnP1);
 
-            isClippedTriEdgeCellContour->push_back(isTriangleEdgeCellContour[newVx2OnP1.clippedEdgeVx2Id]);
-            isClippedTriEdgeCellContour->push_back(false);
-            isClippedTriEdgeCellContour->push_back(false);
+            cellFaceForEachClippedTriangleEdge->push_back(cellFaceForEachTriangleEdge[newVx2OnP1.clippedEdgeVx2Id]);
+            cellFaceForEachClippedTriangleEdge->push_back(HT_NO_FACE);
+            cellFaceForEachClippedTriangleEdge->push_back(HT_NO_FACE);
 
-            isClippedTriEdgeCellContour->push_back(false);
-            isClippedTriEdgeCellContour->push_back(isTriangleEdgeCellContour[newVx1OnP2.clippedEdgeVx1Id]);
-            isClippedTriEdgeCellContour->push_back(false);
+            cellFaceForEachClippedTriangleEdge->push_back(HT_NO_FACE);
+            cellFaceForEachClippedTriangleEdge->push_back(cellFaceForEachTriangleEdge[newVx1OnP2.clippedEdgeVx1Id]);
+            cellFaceForEachClippedTriangleEdge->push_back(HT_NO_FACE);
 
             continue;
         }
@@ -500,17 +551,33 @@ cvf::Vec3d HexGridIntersectionTools::planeLineIntersectionForMC(const cvf::Plane
 }
 
 //--------------------------------------------------------------------------------------------------
+/// Based on description and implementation from Paul Bourke:
 /// 
+///   http://paulbourke.net/geometry/polygonise/
+///
+/// Note that the element is turned inside-out compared to what we use elsewhere in caf/ResInsight
+/// So the winding of all the sides are opposite.
+///      4-----4------5                   
+///     /|           /|         k         POS_I = 0
+///    7 8          5 9         |         NEG_I = 1
+///   /  |         /  |         |         POS_J = 2
+///  7------6-----6   |         |         NEG_J = 3
+///  |   0-----0--|---1         *------i  POS_K = 4   
+/// 11  /        10  /         /          NEG_K = 5
+///  | 3          | 1         /           NO_FACE = 6
+///  |/           |/         j        
+///  3------2-----2                     
+///
+// The cellFaceForEachTriangleEdge refer to the edge after the corresponding triangle vertex.
 //--------------------------------------------------------------------------------------------------
 int HexGridIntersectionTools::planeHexIntersectionMC(const cvf::Plane& plane,
-    const cvf::Vec3d cell[8],
-    const size_t hexCornersIds[8],
-    std::vector<ClipVx>* triangleVxes,
-    std::vector<bool>* isTriEdgeCellContour)
+                                                     const cvf::Vec3d cell[8],
+                                                     const size_t hexCornersIds[8],
+                                                     std::vector<ClipVx>* triangleVxes,
+                                                     std::vector<int>* cellFaceForEachTriangleEdge)
 {
 
-    // Based on description and implementation from Paul Bourke:
-    //   http://local.wasp.uwa.edu.au/~pbourke/geometry/polygonise/
+
 
     static const cvf::uint cubeIdxToCutEdgeBitfield[256] =
     {
@@ -862,23 +929,66 @@ int HexGridIntersectionTools::planeHexIntersectionMC(const cvf::Plane& plane,
 
     const int* triangleIndicesToCubeEdges = cubeIdxToTriangleIndices[cubeIndex];
     cvf::uint triangleVxIdx = 0;
+
     int cubeEdgeIdx = triangleIndicesToCubeEdges[triangleVxIdx];
-
-
     while (cubeEdgeIdx != -1)
     {
         ClipVx cvx;
-        cvx.vx = edgeIntersections[cubeEdgeIdx];
+        cvx.vx                  = edgeIntersections[cubeEdgeIdx];
         cvx.normDistFromEdgeVx1 = normDistAlongEdge[cubeEdgeIdx];
-        cvx.clippedEdgeVx1Id = hexCornersIds[edgeTable[cubeEdgeIdx][0]];
-        cvx.clippedEdgeVx2Id = hexCornersIds[edgeTable[cubeEdgeIdx][1]];
+        cvx.clippedEdgeVx1Id    = hexCornersIds[edgeTable[cubeEdgeIdx][0]];
+        cvx.clippedEdgeVx2Id    = hexCornersIds[edgeTable[cubeEdgeIdx][1]];
 
         (*triangleVxes).push_back(cvx);
         ++triangleVxIdx;
+
         cubeEdgeIdx = triangleIndicesToCubeEdges[triangleVxIdx];
     }
 
     cvf::uint triangleCount = triangleVxIdx / 3;
+
+    static const int edgeEdgeCutsToCellFace[12][12] = {
+       // 0  1  2  3  4  5  6  7  8  9 10 11 
+        { 6, 5, 5, 5, 3, 6, 6, 6, 3, 3, 6, 6 }, // 0
+        { 5, 6, 5, 5, 6, 0, 6, 6, 6, 0, 0, 6 }, // 1      POS_I = 0
+        { 5, 5, 6, 5, 6, 6, 2, 6, 6, 6, 2, 2 }, // 2      NEG_I = 1
+        { 5, 5, 5, 6, 6, 6, 6, 1, 1, 6, 6, 1 }, // 3      POS_J = 2
+        { 3, 6, 6, 6, 6, 4, 4, 4, 3, 3, 6, 6 }, // 4      NEG_J = 3
+        { 6, 0, 6, 6, 4, 6, 4, 4, 6, 0, 0, 6 }, // 5      POS_K = 4   
+        { 6, 6, 2, 6, 4, 4, 6, 4, 6, 6, 2, 2 }, // 6      NEG_K = 5
+        { 6, 6, 6, 1, 4, 4, 4, 6, 1, 6, 6, 1 }, // 7      NO_FACE = 6
+        { 3, 6, 6, 1, 3, 6, 6, 1, 6, 3, 6, 1 }, // 8
+        { 3, 0, 6, 6, 3, 0, 6, 6, 3, 6, 0, 6 }, // 9
+        { 6, 0, 2, 6, 6, 0, 2, 6, 6, 0, 6, 2 }, // 10
+        { 6, 6, 2, 1, 6, 6, 2, 1, 1, 6, 2, 6 }  // 11
+    };
+
+    
+    (*cellFaceForEachTriangleEdge).clear();
+    (*cellFaceForEachTriangleEdge).resize(triangleVxIdx, 6);
+
+    for (cvf::uint tIdx = 0; tIdx < triangleCount; ++tIdx)
+    {
+        cvf::uint triVxIdx = 3 * tIdx;
+
+        int cubeEdgeIdx1 = triangleIndicesToCubeEdges[triVxIdx];
+        int cubeEdgeIdx2 = triangleIndicesToCubeEdges[triVxIdx + 1];
+        int cubeEdgeIdx3 = triangleIndicesToCubeEdges[triVxIdx + 2];
+
+        (*cellFaceForEachTriangleEdge)[triVxIdx + 0] = edgeEdgeCutsToCellFace[cubeEdgeIdx1][cubeEdgeIdx2];
+        (*cellFaceForEachTriangleEdge)[triVxIdx + 1] = edgeEdgeCutsToCellFace[cubeEdgeIdx2][cubeEdgeIdx3];
+        (*cellFaceForEachTriangleEdge)[triVxIdx + 2] = edgeEdgeCutsToCellFace[cubeEdgeIdx3][cubeEdgeIdx1];
+    }
+
+
+#if 0
+    // Calculate what triangle edges are representing the cut of a cell face
+    // Do this by counting the times two specific cube edges are used for a triangle edge.
+    // Internal edges will have a count of 2, while external edges only 1
+
+    (*isTriEdgeCellContour).clear();
+    (*isTriEdgeCellContour).resize(triangleVxIdx);
+ 
 
     int triangleEdgeCount[12][12] = {
             { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
@@ -918,11 +1028,14 @@ int HexGridIntersectionTools::planeHexIntersectionMC(const cvf::Plane& plane,
         int cubeEdgeIdx2 = triangleIndicesToCubeEdges[triVxIdx + 1];
         int cubeEdgeIdx3 = triangleIndicesToCubeEdges[triVxIdx + 2];
 
+        // We have a contour if the count is exactly 1.
+
         (*isTriEdgeCellContour)[triVxIdx + 0] = (1 == (cubeEdgeIdx1 < cubeEdgeIdx2 ? triangleEdgeCount[cubeEdgeIdx1][cubeEdgeIdx2] : triangleEdgeCount[cubeEdgeIdx2][cubeEdgeIdx1]));
         (*isTriEdgeCellContour)[triVxIdx + 1] = (1 == (cubeEdgeIdx2 < cubeEdgeIdx3 ? triangleEdgeCount[cubeEdgeIdx2][cubeEdgeIdx3] : triangleEdgeCount[cubeEdgeIdx3][cubeEdgeIdx2]));
         (*isTriEdgeCellContour)[triVxIdx + 2] = (1 == (cubeEdgeIdx3 < cubeEdgeIdx1 ? triangleEdgeCount[cubeEdgeIdx3][cubeEdgeIdx1] : triangleEdgeCount[cubeEdgeIdx1][cubeEdgeIdx3]));
     }
 
+#endif
     return triangleCount;
 }
 

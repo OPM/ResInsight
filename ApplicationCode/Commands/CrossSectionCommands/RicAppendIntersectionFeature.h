@@ -33,11 +33,11 @@ class RicAppendIntersectionFeatureCmd : public caf::CmdExecuteCommand
 {
 public:
     explicit RicAppendIntersectionFeatureCmd(RimIntersectionCollection* intersectionCollection);
-    virtual ~RicAppendIntersectionFeatureCmd();
+    ~RicAppendIntersectionFeatureCmd() override;
 
-    virtual QString name();
-    virtual void redo();
-    virtual void undo();
+    QString name() override;
+    void redo() override;
+    void undo() override;
 
 private:
     caf::PdmPointer<RimIntersectionCollection> m_intersectionCollection;
@@ -54,9 +54,9 @@ class RicAppendIntersectionFeature : public caf::CmdFeature
 
 protected:
     // Overrides
-    virtual bool isCommandEnabled();
-    virtual void onActionTriggered( bool isChecked );
-    virtual void setupActionLook( QAction* actionToSetup );
+    bool isCommandEnabled() override;
+    void onActionTriggered( bool isChecked ) override;
+    void setupActionLook( QAction* actionToSetup ) override;
 };
 
 

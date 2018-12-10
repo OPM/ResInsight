@@ -25,7 +25,7 @@
 #include <opm/utility/ECLWellSolution.hpp>
 #include <opm/utility/ECLResultData.hpp>
 #include <opm/utility/ECLUnitHandling.hpp>
-#include <opm/parser/eclipse/Units/Units.hpp>
+#include <opm/utility/imported/Units.hpp>
 #include <ert/ecl/ecl_kw_magic.h>
 #include <ert/ecl_well/well_const.h>
 #include <cmath>
@@ -217,6 +217,7 @@ namespace Opm
         for (int well = 0; well < ih.nwell; ++well) {
             // Skip if total rate below threshold (for wells that are
             // shut or stopped for example).
+            using namespace ImportedOpm;
             const double well_reservoir_inflow_rate = -unit::convert::from(xwel[well * ih.nxwel + XWEL_RESV_INDEX], qr_unit);
             if (std::fabs(well_reservoir_inflow_rate) < rate_threshold_) {
                 continue;

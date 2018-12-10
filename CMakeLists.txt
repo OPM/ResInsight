@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 2.8)
+cmake_minimum_required (VERSION 2.8.12)
 
 include (CheckCSourceCompiles)
 project (ResInsight)
@@ -17,7 +17,7 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 elseif (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
     add_definitions(-DCVF_OSX)
 elseif(MSVC)
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP /std:c++14")
 endif()
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
@@ -278,30 +278,19 @@ list(APPEND THIRD_PARTY_LIBRARIES
 )
 
 ################################################################################
-# Prototype feature Fractures
+# Eigen
 ################################################################################
-option (RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_FRACTURES "Enable prototype feature Fractures" ON)
-mark_as_advanced(FORCE RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_FRACTURES)
+include_directories(SYSTEM ThirdParty/Eigen-Subset)
 
-if (RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_FRACTURES)
+################################################################################
+# clipper
+################################################################################
 
-    ################################################################################
-    # Eigen
-    ################################################################################
-    include_directories(SYSTEM ThirdParty/Eigen-Subset)
+add_subdirectory(ThirdParty/clipper)
 
-    ################################################################################
-    # clipper
-    ################################################################################
-
-    add_subdirectory(ThirdParty/clipper)
-
-    list(APPEND THIRD_PARTY_LIBRARIES
-        clipper
-    )
-
-endif() # RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_FRACTURES
-
+list(APPEND THIRD_PARTY_LIBRARIES
+    clipper
+)
 
 ################################################################################
 # Thirdparty libraries are put in ThirdParty solution folder
@@ -341,14 +330,6 @@ add_subdirectory(${VIZ_MODULES_FOLDER_NAME}/LibGeometry)
 add_subdirectory(${VIZ_MODULES_FOLDER_NAME}/LibRender)
 add_subdirectory(${VIZ_MODULES_FOLDER_NAME}/LibViewing)
 add_subdirectory(${VIZ_MODULES_FOLDER_NAME}/LibGuiQt)
-
-include_directories(
-    ${LibCore_SOURCE_DIR}
-    ${LibGeometry_SOURCE_DIR}
-    ${LibRender_SOURCE_DIR}
-    ${LibViewing_SOURCE_DIR}
-    ${LibGuiQt_SOURCE_DIR}
-)
 
 list(APPEND VIZ_FWK_LIBRARIES
     LibGuiQt
@@ -460,7 +441,7 @@ if(RESINSIGHT_BUILD_DOCUMENTATION)
   configure_file(Doxyfile.in 
                  ${PROJECT_BINARY_DIR}/Doxyfile  @ONLY IMMEDIATE)
   #-- Add a custom target to run Doxygen when ever the project is built
-  add_custom_target (Docs ALL 
+  add_custom_target (Docs 
   					COMMAND ${DOXYGEN_EXECUTABLE} ${PROJECT_BINARY_DIR}/Doxyfile
   					SOURCES ${PROJECT_BINARY_DIR}/Doxyfile)
   # IF you do NOT want the documentation to be generated EVERY time you build the project

@@ -27,7 +27,7 @@
 #include "RimEclipseView.h"
 #include "RimMultiSnapshotDefinition.h"
 #include "RimProject.h"
-#include "RimView.h"
+#include "Rim3dView.h"
 
 #include "RiuTools.h"
 
@@ -72,7 +72,7 @@ RiuExportMultipleSnapshotsWidget::RiuExportMultipleSnapshotsWidget(QWidget* pare
 
     connect(m_pdmTableView->tableView(), SIGNAL(customContextMenuRequested(QPoint)), SLOT(customMenuRequested(QPoint)));
 
-    m_pdmTableView->setListField(&(project->multiSnapshotDefinitions()));
+    m_pdmTableView->setChildArrayField(&(project->multiSnapshotDefinitions()));
 
     QHeaderView* verticalHeader = m_pdmTableView->tableView()->verticalHeader();
     verticalHeader->setResizeMode(QHeaderView::Interactive);
@@ -126,7 +126,7 @@ RiuExportMultipleSnapshotsWidget::RiuExportMultipleSnapshotsWidget(QWidget* pare
 //--------------------------------------------------------------------------------------------------
 RiuExportMultipleSnapshotsWidget::~RiuExportMultipleSnapshotsWidget()
 {
-    m_pdmTableView->setListField(nullptr);
+    m_pdmTableView->setChildArrayField(nullptr);
 
     caf::SelectionManager::instance()->setActiveChildArrayFieldHandle(nullptr);
 }
@@ -138,7 +138,7 @@ void RiuExportMultipleSnapshotsWidget::addSnapshotItemFromActiveView()
 {
     if (!m_rimProject) return;
 
-    RimView* activeView = RiaApplication::instance()->activeReservoirView();
+    Rim3dView* activeView = RiaApplication::instance()->activeReservoirView();
     if (activeView)
     {
         RimMultiSnapshotDefinition* multiSnapshot = new RimMultiSnapshotDefinition();
@@ -147,8 +147,8 @@ void RiuExportMultipleSnapshotsWidget::addSnapshotItemFromActiveView()
         RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>(activeView);
         if (eclipseView)
         {
-            multiSnapshot->eclipseResultType = eclipseView->cellResult->resultType();
-            multiSnapshot->selectedEclipseResults.v().push_back(eclipseView->cellResult->resultVariable());
+            multiSnapshot->eclipseResultType = eclipseView->cellResult()->resultType();
+            multiSnapshot->selectedEclipseResults.v().push_back(eclipseView->cellResult()->resultVariable());
 
         }
         multiSnapshot->timeStepStart = activeView->currentTimeStep();

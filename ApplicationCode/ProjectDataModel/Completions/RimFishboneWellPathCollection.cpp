@@ -22,13 +22,13 @@
 #include "RimFishboneWellPath.h"
 #include "RimFishbonesCollection.h"
 #include "RimProject.h"
-#include "RimView.h"
+#include "Rim3dView.h"
 
 #include "RigWellPath.h"
 
 #include "RifWellPathImporter.h"
 
-#include "RiuMainWindow.h"
+#include "Riu3DMainWindowTools.h"
 
 
 CAF_PDM_SOURCE_INIT(RimFishboneWellPathCollection, "WellPathCompletionCollection");
@@ -90,7 +90,7 @@ void RimFishboneWellPathCollection::fieldChangedByUi(const caf::PdmFieldHandle* 
 {
     RimProject* proj;
     this->firstAncestorOrThisOfTypeAsserted(proj);
-    proj->createDisplayModelAndRedrawAllViews();
+    proj->scheduleCreateDisplayModelAndRedrawAllViews();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -133,11 +133,11 @@ void RimFishboneWellPathCollection::appendCompletion(RimFishboneWellPath* comple
     m_wellPaths.push_back(completion);
 
     updateConnectedEditors();
-    RiuMainWindow::instance()->selectAsCurrentItem(completion);
+    Riu3DMainWindowTools::selectAsCurrentItem(completion);
 
     uiCapability()->setUiHidden(!m_wellPaths.empty());
 
-    RimProject* project = NULL;
+    RimProject* project = nullptr;
     firstAncestorOrThisOfTypeAsserted(project);
     if (project)
     {

@@ -74,7 +74,7 @@ class CmdFeature : public QObject
     Q_OBJECT
 public:
     CmdFeature();
-    virtual ~CmdFeature();
+    ~CmdFeature() override;
 
     QAction*        action();
     QAction*        actionWithCustomText(const QString& customText);

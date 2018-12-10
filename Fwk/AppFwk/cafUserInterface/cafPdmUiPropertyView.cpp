@@ -98,7 +98,7 @@ PdmUiPropertyView::PdmUiPropertyView(QWidget* parent, Qt::WindowFlags f)
     dummy->setContentsMargins(0,0,0,0);
     dummy->addWidget(scrollArea);
 
-    m_currentObjectView = NULL;
+    m_currentObjectView = nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -123,7 +123,7 @@ void PdmUiPropertyView::setUiConfigurationName(QString uiConfigName)
         {
             PdmObjectHandle* object = m_currentObjectView->pdmObject();
             delete m_currentObjectView;
-            m_currentObjectView = NULL;
+            m_currentObjectView = nullptr;
             this->showProperties(object);
         }
     }
@@ -163,7 +163,7 @@ void PdmUiPropertyView::showProperties( PdmObjectHandle* object)
         {
             this->m_placeHolderLayout->removeWidget(m_currentObjectView->widget());
             delete m_currentObjectView;
-            m_currentObjectView = NULL;
+            m_currentObjectView = nullptr;
         }
 
         if (!m_currentObjectView)
@@ -192,7 +192,7 @@ void PdmUiPropertyView::showProperties( PdmObjectHandle* object)
 //--------------------------------------------------------------------------------------------------
 PdmObjectHandle* PdmUiPropertyView::currentObject()
 {
-    if (!m_currentObjectView) return NULL;
+    if (!m_currentObjectView) return nullptr;
     return m_currentObjectView->pdmObject();
 }
 

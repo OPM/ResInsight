@@ -27,7 +27,7 @@
 #include "cafPdmPtrArrayField.h"
 
 class RimCase;
-class RimView;
+class Rim3dView;
 
 //==================================================================================================
 ///  
@@ -38,11 +38,11 @@ class RimMultiSnapshotDefinition : public caf::PdmObject
     CAF_PDM_HEADER_INIT;
 public:
     RimMultiSnapshotDefinition();
-    virtual ~RimMultiSnapshotDefinition();
+    ~RimMultiSnapshotDefinition() override;
 
     caf::PdmField<bool>      isActive;
 
-    caf::PdmPtrField<RimView*>  view;
+    caf::PdmPtrField<Rim3dView*>  view;
 
     caf::PdmField< caf::AppEnum< RiaDefines::ResultCatType > >  eclipseResultType;
     caf::PdmField< std::vector<QString> >                       selectedEclipseResults;
@@ -65,14 +65,14 @@ public:
     caf::PdmPtrArrayField<RimCase*>  additionalCases;
 
 protected:
-    virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
 
 private:
-    virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
+    QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
 
     void getTimeStepStrings(QList<caf::PdmOptionItemInfo> &options);
     
-    virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
 
     QList<caf::PdmOptionItemInfo> toOptionList(const QStringList& varList);
 };

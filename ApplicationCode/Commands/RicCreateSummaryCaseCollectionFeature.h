@@ -22,6 +22,9 @@
 
 #include <vector>
 
+class RimSummaryCase;
+class RimSummaryCaseCollection;
+
 //==================================================================================================
 /// 
 //==================================================================================================
@@ -29,8 +32,10 @@ class RicCreateSummaryCaseCollectionFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
 
+    static RimSummaryCaseCollection* groupSummaryCases(std::vector<RimSummaryCase*> cases, const QString& groupName, bool isEnsemble = false);
+
 private:
-    virtual bool isCommandEnabled() override;
-    virtual void onActionTriggered(bool isChecked) override;
-    virtual void setupActionLook(QAction* actionToSetup) override;
+    bool isCommandEnabled() override;
+    void onActionTriggered(bool isChecked) override;
+    void setupActionLook(QAction* actionToSetup) override;
 };

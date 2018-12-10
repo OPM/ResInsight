@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include "RicViewerEventInterface.h"
+#include "RicPickEventHandler.h"
 
 #include "cafCmdExecuteCommand.h"
 #include "cafPdmPointer.h"
@@ -33,11 +33,11 @@ class RicNewAzimuthDipIntersectionFeatureCmd : public caf::CmdExecuteCommand
 {
 public:
     explicit RicNewAzimuthDipIntersectionFeatureCmd(RimIntersectionCollection* intersectionCollection);
-    virtual ~RicNewAzimuthDipIntersectionFeatureCmd();
+    ~RicNewAzimuthDipIntersectionFeatureCmd() override;
 
-    virtual QString name() override;
-    virtual void redo() override;
-    virtual void undo() override;
+    QString name() override;
+    void redo() override;
+    void undo() override;
 
 private:
     caf::PdmPointer<RimIntersectionCollection> m_intersectionCollection;
@@ -56,9 +56,9 @@ public:
     RicNewAzimuthDipIntersectionFeature();
 
 protected:
-    virtual bool isCommandEnabled() override;
-    virtual void onActionTriggered( bool isChecked ) override;
-    virtual void setupActionLook( QAction* actionToSetup ) override;
+    bool isCommandEnabled() override;
+    void onActionTriggered( bool isChecked ) override;
+    void setupActionLook( QAction* actionToSetup ) override;
 };
 
 

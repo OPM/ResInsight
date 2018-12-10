@@ -21,52 +21,85 @@
 
 #include "RimCheckableNamedObject.h"
 #include "Rim3dPropertiesInterface.h"
+#include "RimWellPathComponentInterface.h"
 
 #include "RiaEclipseUnitTools.h"
 
 #include "cafPdmField.h"
+#include "cafPdmChildArrayField.h"
 #include "cafPdmObject.h"
 
 #include <QDate>
 
+class RimWellPathValve;
+
 //==================================================================================================
 ///  
 //==================================================================================================
-class RimPerforationInterval : public RimCheckableNamedObject, public Rim3dPropertiesInterface
+class RimPerforationInterval : public RimCheckableNamedObject,
+                               public Rim3dPropertiesInterface,
+                               public RimWellPathComponentInterface
 {
     CAF_PDM_HEADER_INIT;
+
 public:
 
     RimPerforationInterval();
-    virtual ~RimPerforationInterval();
+    ~RimPerforationInterval() override;
 
     void                                setStartAndEndMD(double startMD, double endMD);
-    void                                setStartOfHistory();
-    void                                setDate(const QDate& date);
+
+    void                                enableCustomStartDate(bool enable);
+    void                                setCustomStartDate(const QDate& date);
+
+    void                                enableCustomEndDate(bool enable);
+    void                                setCustomEndDate(const QDate& date);
+
     void                                setDiameter(double diameter);
     void                                setSkinFactor(double skinFactor);
-    double                              startMD() const { return m_startMD(); }
-    double                              endMD() const { return m_endMD(); }
     double                              diameter(RiaEclipseUnitTools::UnitSystem unitSystem) const;
-    double                              skinFactor() const { return m_skinFactor(); }
+    double                              skinFactor() const;
 
     bool                                isActiveOnDate(const QDateTime& date) const;
 
-    virtual cvf::BoundingBox            boundingBoxInDomainCoords() override;
+    cvf::BoundingBox                    boundingBoxInDomainCoords() const override;
 
     void                                setUnitSystemSpecificDefaults();
 
+    void                                addValve(RimWellPathValve* valve);
+    std::vector<RimWellPathValve*>      valves() const;
+
+    // RimWellPathCompletionInterface overrides
+    bool                                isEnabled() const override;
+    RiaDefines::WellPathComponentType   componentType() const override;
+    QString                             componentLabel() const override;
+    QString                             componentTypeLabel() const override;
+    cvf::Color3f                        defaultComponentColor() const override;
+    double                              startMD() const override;
+    double                              endMD() const override;
+
 protected:
-    virtual void                        defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
-    virtual void                        fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
-    virtual void                        defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
-    virtual void                        defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override;
+    void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    void defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
+    void defineEditorAttribute(const caf::PdmFieldHandle* field,
+                               QString                    uiConfigName,
+                               caf::PdmUiEditorAttribute* attribute) override;
+    void initAfterRead() override;
 
 private:
     caf::PdmField< double >             m_startMD;
     caf::PdmField< double >             m_endMD;
     caf::PdmField< double >             m_diameter;
     caf::PdmField< double >             m_skinFactor;
-    caf::PdmField< bool >               m_startOfHistory;
-    caf::PdmField< QDateTime >          m_date;
+
+    caf::PdmField< bool >               m_useCustomStartDate;
+    caf::PdmField< QDateTime >          m_startDate;
+
+    caf::PdmField< bool >               m_useCustomEndDate;
+    caf::PdmField< QDateTime >          m_endDate;
+
+    caf::PdmChildArrayField<RimWellPathValve*> m_valves;
+
+    caf::PdmField< bool >               m_startOfHistory_OBSOLETE;
 };

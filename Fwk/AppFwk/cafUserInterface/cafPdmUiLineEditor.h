@@ -58,12 +58,14 @@ class PdmUiLineEditorAttribute : public PdmUiEditorAttribute
 public:
     PdmUiLineEditorAttribute()
     {
+        avoidSendingEnterEventToParentWidget = false;
         useRangeValidator = false;
         minValue = 0;
         maxValue = 0;
     }
 
 public:
+    bool avoidSendingEnterEventToParentWidget;
     bool useRangeValidator;
     int minValue;
     int maxValue;
@@ -97,6 +99,17 @@ public:
     QString m_displayString;
 };
 
+class PdmUiLineEdit : public QLineEdit
+{
+    Q_OBJECT
+public:
+    PdmUiLineEdit(QWidget* parent);
+    void setAvoidSendingEnterEventToParentWidget(bool avoidSendingEnter);
+protected:
+    void keyPressEvent(QKeyEvent* event) override;
+private:
+    bool m_avoidSendingEnterEvent;
+};
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -108,22 +121,23 @@ class PdmUiLineEditor : public PdmUiFieldEditorHandle
 
 public:
     PdmUiLineEditor()          {} 
-    virtual ~PdmUiLineEditor() {} 
+    ~PdmUiLineEditor() override {} 
 
 protected:
-    virtual QWidget*    createEditorWidget(QWidget * parent);
-    virtual QWidget*    createLabelWidget(QWidget * parent);
-    virtual void        configureAndUpdateUi(const QString& uiConfigName);
+    QWidget*    createEditorWidget(QWidget * parent) override;
+    QWidget*    createLabelWidget(QWidget * parent) override;
+    void        configureAndUpdateUi(const QString& uiConfigName) override;
+    QMargins    calculateLabelContentMargins() const override;
 
 protected slots:
-    void                slotEditingFinished();
+    void        slotEditingFinished();
 
 private:
-    bool                isMultipleFieldsWithSameKeywordSelected(PdmFieldHandle* editorField) const;
+    bool        isMultipleFieldsWithSameKeywordSelected(PdmFieldHandle* editorField) const;
 
 private:
-    QPointer<QLineEdit> m_lineEdit;
-    QPointer<QLabel>    m_label;
+    QPointer<PdmUiLineEdit> m_lineEdit;
+    QPointer<QLabel>        m_label;
 
 };
 

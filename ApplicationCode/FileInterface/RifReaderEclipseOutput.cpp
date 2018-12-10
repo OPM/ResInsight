@@ -51,6 +51,7 @@
 #include "ert/ecl/ecl_nnc_data.h"
 
 #include <QDateTime>
+#include <QFileInfo>
 
 #include <cmath> // Needed for HUGE_VAL on Linux
 #include <iostream>
@@ -174,7 +175,7 @@ bool transferGridCellData(RigMainGrid* mainGrid, RigActiveCellInfo* activeCellIn
 
         // Sub grid in cell
         const ecl_grid_type* subGrid = ecl_grid_get_cell_lgr1(localEclGrid, gridLocalCellIndex);
-        if (subGrid != NULL)
+        if (subGrid != nullptr)
         {
             int subGridId = ecl_grid_get_lgr_nr(subGrid);
             CVF_ASSERT(subGridId > 0);
@@ -208,10 +209,10 @@ RifReaderEclipseOutput::RifReaderEclipseOutput()
     m_fileName.clear();
     m_filesWithSameBaseName.clear();
 
-    m_eclipseCase = NULL;
+    m_eclipseCase = nullptr;
 
-    m_ecl_init_file = NULL;
-    m_dynamicResultsAccess = NULL;
+    m_ecl_init_file = nullptr;
+    m_dynamicResultsAccess = nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -223,7 +224,7 @@ RifReaderEclipseOutput::~RifReaderEclipseOutput()
     {
         ecl_file_close(m_ecl_init_file);
     }
-    m_ecl_init_file = NULL;
+    m_ecl_init_file = nullptr;
 
     if (m_dynamicResultsAccess.notNull())
     {
@@ -361,6 +362,14 @@ bool RifReaderEclipseOutput::open(const QString& fileName, RigEclipseCaseData* e
 
     progInfo.setProgressDescription("Reading Grid");
 
+    if (!RifEclipseOutputFileTools::isValidEclipseFileName(fileName))
+    {
+        QString errorMessage = QFileInfo(fileName).fileName() + QString(" is not a valid Eclipse file name.\n"
+            "Please make sure the file does not contain a mix of upper and lower case letters.");
+        RiaLogging::error(errorMessage);
+        return false;
+    }
+
     // Get set of files
     QStringList fileSet;
     if (!RifEclipseOutputFileTools::findSiblingFilesWithSameBaseName(fileName, &fileSet)) return false;
@@ -373,9 +382,18 @@ bool RifReaderEclipseOutput::open(const QString& fileName, RigEclipseCaseData* e
     // Keep the set of files of interest
     m_filesWithSameBaseName = fileSet;
 
+    openInitFile();
+
     // Read geometry
     // Todo: Needs to check existence of file before calling ert, else it will abort
-    ecl_grid_type * mainEclGrid = ecl_grid_alloc( RiaStringEncodingTools::toNativeEncoded(fileName).data() );
+    ecl_grid_type* mainEclGrid = createMainGrid();
+    if (!mainEclGrid)
+    {
+        QString errorMessage = QString(" Failed to create a main grid from file\n%1").arg(m_fileName);
+        RiaLogging::error(errorMessage);
+
+        return false;
+    }
 
     progInfo.incrementProgress();
 
@@ -405,7 +423,7 @@ bool RifReaderEclipseOutput::open(const QString& fileName, RigEclipseCaseData* e
     // Build results meta data
     progInfo.setProgressDescription("Reading Result index");
     progInfo.setNextProgressIncrement(25);
-    buildMetaData();
+    buildMetaData(mainEclGrid);
     progInfo.incrementProgress();
 
     if (isNNCsEnabled())
@@ -801,7 +819,7 @@ bool RifReaderEclipseOutput::readActiveCellInfo()
 //--------------------------------------------------------------------------------------------------
 /// Build meta data - get states and results info
 //--------------------------------------------------------------------------------------------------
-void RifReaderEclipseOutput::buildMetaData()
+void RifReaderEclipseOutput::buildMetaData(ecl_grid_type* grid)
 {
     CVF_ASSERT(m_eclipseCase);
     CVF_ASSERT(m_filesWithSameBaseName.size() > 0);
@@ -854,28 +872,45 @@ void RifReaderEclipseOutput::buildMetaData()
                 fractureModelResults->setTimeStepInfos(resIndex, timeStepInfos);
             }
         }
-
-        // Default units type is METRIC
-        RiaEclipseUnitTools::UnitSystem unitsType = RiaEclipseUnitTools::UNITS_METRIC;
-        {
-            int unitsTypeValue = m_dynamicResultsAccess->readUnitsType();
-            if (unitsTypeValue == 2)
-            {
-                unitsType = RiaEclipseUnitTools::UNITS_FIELD;
-            }
-            else if (unitsTypeValue == 3)
-            {
-                unitsType = RiaEclipseUnitTools::UNITS_LAB;
-            }
-        }
-
-        m_eclipseCase->setUnitsType(unitsType);
     }
 
     progInfo.incrementProgress();
 
     openInitFile();
-    
+
+    // Unit system
+    {
+        // Default units type is METRIC
+        RiaEclipseUnitTools::UnitSystem unitsType = RiaEclipseUnitTools::UNITS_METRIC;
+        int unitsTypeValue;
+
+        if (m_dynamicResultsAccess.notNull())
+        {
+            unitsTypeValue = m_dynamicResultsAccess->readUnitsType();
+        }
+        else
+        {
+            if (m_ecl_init_file)
+            {
+                unitsTypeValue = RifEclipseOutputFileTools::readUnitsType(m_ecl_init_file);
+            }
+            else
+            {
+                unitsTypeValue = ecl_grid_get_unit_system(grid);
+            }
+        }
+
+        if (unitsTypeValue == 2)
+        {
+            unitsType = RiaEclipseUnitTools::UNITS_FIELD;
+        }
+        else if (unitsTypeValue == 3)
+        {
+            unitsType = RiaEclipseUnitTools::UNITS_LAB;
+        }
+        m_eclipseCase->setUnitsType(unitsType);
+    }
+
     progInfo.incrementProgress();
 
     if (m_ecl_init_file)
@@ -1034,7 +1069,7 @@ bool RifReaderEclipseOutput::dynamicResult(const QString& result, RiaDefines::Po
         size_t indexOnFile = timeStepIndexOnFile(stepIndex);
 
         std::vector<double> fileValues;
-        if (!m_dynamicResultsAccess->results(result, indexOnFile, m_eclipseCase->mainGrid()->gridCount(), &fileValues))
+        if (!m_dynamicResultsAccess->results(result, indexOnFile, m_eclipseCase->mainGrid()->gridCountOnFile(), &fileValues))
         {
             return false;
         }
@@ -1149,7 +1184,7 @@ RigWellResultPoint RifReaderEclipseOutput::createWellResultPoint(const RigGridBa
     double oilRate   = well_conn_get_oil_rate(ert_connection) ;
     double gasRate   = well_conn_get_gas_rate(ert_connection);
     double waterRate = well_conn_get_water_rate(ert_connection);
-
+    double connectionFactor = well_conn_get_connection_factor(ert_connection);
  
     RigWellResultPoint resultPoint;
 
@@ -1167,6 +1202,8 @@ RigWellResultPoint RifReaderEclipseOutput::createWellResultPoint(const RigGridBa
         resultPoint.m_waterRate = waterRate;
  
         resultPoint.m_gasRate   =   RiaEclipseUnitTools::convertSurfaceGasFlowRateToOilEquivalents(m_eclipseCase->unitsType(), gasRate);
+
+        resultPoint.m_connectionFactor = connectionFactor;
     }
 
     return resultPoint;
@@ -1321,7 +1358,7 @@ class WellResultPointHasSubCellConnectionCalculator
 public:
     explicit WellResultPointHasSubCellConnectionCalculator(const RigMainGrid* mainGrid, well_state_type* ert_well_state): m_mainGrid(mainGrid) 
     {
-        int lastGridNr = static_cast<int>(m_mainGrid->gridCount()) - 1;
+        int lastGridNr = static_cast<int>(m_mainGrid->gridCountOnFile()) - 1;
 
         for ( int gridNr = lastGridNr; gridNr >= 0; --gridNr )
         {
@@ -1376,8 +1413,6 @@ private:
     void insertTheParentCells( size_t gridIndex, size_t gridCellIndex )
     {
         if (gridCellIndex == cvf::UNDEFINED_SIZE_T) return;
-
-        size_t reservoirCellIdx =  m_mainGrid->reservoirCellIndexByGridAndGridLocalCellIndex(gridIndex, gridCellIndex);
 
         // Traverse parent gridcells, and add them to the map
 
@@ -1634,7 +1669,7 @@ void RifReaderEclipseOutput::readWellCells(const ecl_grid_type* mainEclGrid, boo
 
                         if (well_segment_get_outlet_id(segment) == -1)
                         {
-                            segment = NULL;
+                            segment = nullptr;
                         }
                         else
                         {
@@ -1696,11 +1731,11 @@ void RifReaderEclipseOutput::readWellCells(const ecl_grid_type* mainEclGrid, boo
                             accLengthFromLastConnection += well_segment_get_length(outletSegment);
                             segmentIdBelow = well_segment_get_id(outletSegment);
 
-                            const well_segment_type* aboveOutletSegment = NULL;
+                            const well_segment_type* aboveOutletSegment = nullptr;
 
                             if (well_segment_get_outlet_id(outletSegment) == -1)
                             {
-                                aboveOutletSegment = NULL;
+                                aboveOutletSegment = nullptr;
                             }
                             else
                             {
@@ -1740,7 +1775,7 @@ void RifReaderEclipseOutput::readWellCells(const ecl_grid_type* mainEclGrid, boo
 
                                 if (well_segment_get_outlet_id(aboveOutletSegment) == -1)
                                 {
-                                    aboveOutletSegment = NULL;
+                                    aboveOutletSegment = nullptr;
                                 }
                                 else
                                 {
@@ -2159,6 +2194,36 @@ bool RifReaderEclipseOutput::isEclipseAndSoursimTimeStepsEqual(const QDateTime& 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+ecl_grid_type* RifReaderEclipseOutput::createMainGrid() const
+{
+    ecl_grid_type* mainEclGrid = nullptr;
+
+    {
+        if (m_ecl_init_file && RifEclipseOutputFileTools::isExportedFromIntersect(m_ecl_init_file))
+        {
+            ecl_kw_type* actnumFromPorv = RifEclipseOutputFileTools::createActnumFromPorv(m_ecl_init_file);
+            if (actnumFromPorv)
+            {
+                int* actnum_values = ecl_kw_get_int_ptr(actnumFromPorv);
+
+                mainEclGrid = ecl_grid_alloc_ext_actnum(RiaStringEncodingTools::toNativeEncoded(m_fileName).data(), actnum_values);
+
+                ecl_kw_free(actnumFromPorv);
+            }
+        }
+
+        if (!mainEclGrid)
+        {
+            mainEclGrid = ecl_grid_alloc(RiaStringEncodingTools::toNativeEncoded(m_fileName).data());
+        }
+    }
+
+    return mainEclGrid;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RifReaderEclipseOutput::extractResultValuesBasedOnPorosityModel(RiaDefines::PorosityModelType matrixOrFracture, std::vector<double>* destinationResultValues, const std::vector<double>& sourceResultValues)
 {
     if (sourceResultValues.size() == 0) return;
@@ -2177,6 +2242,8 @@ void RifReaderEclipseOutput::extractResultValuesBasedOnPorosityModel(RiaDefines:
 
         for (size_t i = 0; i < m_eclipseCase->mainGrid()->gridCount(); i++)
         {
+            if(m_eclipseCase->mainGrid()->gridByIndex(i)->isTempGrid()) continue;
+
             size_t matrixActiveCellCount = 0;
             size_t fractureActiveCellCount = 0;
            

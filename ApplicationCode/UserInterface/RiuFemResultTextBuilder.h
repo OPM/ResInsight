@@ -30,6 +30,7 @@ class RigGeoMechCaseData;
 class RimEclipseCellColors;
 class RimGeoMechResultDefinition;
 class RimGeoMechView;
+class Rim2dIntersectionView;
 
 namespace cvf {
     class Part;
@@ -44,8 +45,9 @@ class RiuFemResultTextBuilder
 public:
     RiuFemResultTextBuilder(RimGeoMechView* reservoirView, int gridIndex, int cellIndex, int timeStepIndex);
     void setFace(int face);
-    void setIntersectionPoint(cvf::Vec3d intersectionPoint);
+    void setIntersectionPointInDisplay(cvf::Vec3d intersectionPointInDisplay);
     void setIntersectionTriangle(const std::array<cvf::Vec3f, 3>& triangle);
+    void set2dIntersectionView(Rim2dIntersectionView* intersectionView);
 
     QString mainResultText();
 
@@ -63,6 +65,7 @@ private:
 
 private:
     caf::PdmPointer<RimGeoMechView> m_reservoirView;
+    caf::PdmPointer<Rim2dIntersectionView> m_2dIntersectionView;
 
     int m_gridIndex;
     int m_cellIndex;
@@ -72,5 +75,5 @@ private:
     bool m_isIntersectionTriangleSet; 
     std::array<cvf::Vec3f, 3> m_intersectionTriangle;
 
-    cvf::Vec3d m_intersectionPoint;
+    cvf::Vec3d m_intersectionPointInDisplay;
 };

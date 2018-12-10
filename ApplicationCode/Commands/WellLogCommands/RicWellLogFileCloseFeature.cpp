@@ -60,7 +60,7 @@ void RicWellLogFileCloseFeature::onActionTriggered(bool isChecked)
         RimWellPath* parentWellPath;
         wellLogFile->firstAncestorOrThisOfType(parentWellPath);
 
-        if (parentWellPath != nullptr)
+        if (parentWellPath)
         {
             std::set<RimViewWindow*> referringPlots = referringWellLogPlots(wellLogFile);
             parentWellPath->deleteWellLogFile(wellLogFile);
@@ -69,8 +69,9 @@ void RicWellLogFileCloseFeature::onActionTriggered(bool isChecked)
             {
                 plot->loadDataAndUpdate();
             }
+
+            parentWellPath->updateConnectedEditors();
         }
-        parentWellPath->updateConnectedEditors();
     }
 
     caf::PdmUiObjectEditorHandle::updateUiAllObjectEditors();

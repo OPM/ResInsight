@@ -42,9 +42,10 @@ public:
     virtual ~RifGeoMechReaderInterface();
 
     virtual bool                                             openFile(const std::string& fileName, std::string* errorMessage) = 0;
-
+    virtual bool                                             isOpen() const = 0;
     virtual bool                                             readFemParts(RigFemPartCollection* geoMechCase) = 0;
-    virtual std::vector<std::string>                         stepNames() const = 0;
+    virtual std::vector<std::string>                         allStepNames() const = 0;
+    virtual std::vector<std::string>                         filteredStepNames() const = 0;
     virtual std::vector<double>                              frameTimes(int stepIndex) const = 0;
   
     virtual std::vector<std::string>                         elementSetNames(int partIndex) = 0;
@@ -60,5 +61,9 @@ public:
     virtual void                                             readElementNodeField(const std::string& fieldName, int partIndex, int stepIndex, int frameIndex, std::vector<std::vector<float>*>* resultValues) = 0;
     virtual void                                             readIntegrationPointField(const std::string& fieldName, int partIndex, int stepIndex, int frameIndex, std::vector<std::vector<float>*>* resultValues) = 0;
 
+    void                                                     setTimeStepFilter(const std::vector<size_t>& fileTimeStepIndices);
+    bool                                                     isTimeStepIncludedByFilter(int timeStepIndex) const;
+    int                                                      timeStepIndexOnFile(int timeStepIndex) const;
 private:
+    std::vector<int>                                         m_fileTimeStepIndices;
 };

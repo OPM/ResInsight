@@ -22,6 +22,7 @@
 class RiuSelectionItem;
 class RiuEclipseSelectionItem;
 class RiuGeoMechSelectionItem;
+class Riu2dIntersectionSelectionItem;
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -40,6 +41,7 @@ private:
     void addCurveFromSelectionItem(const RiuSelectionItem* itemAdded) const;
     void addCurveFromSelectionItem(const RiuEclipseSelectionItem* selectionItem) const;
     void addCurveFromSelectionItem(const RiuGeoMechSelectionItem* selectionItem) const;
+    void addCurveFromSelectionItem(const Riu2dIntersectionSelectionItem* selectionItem) const;
 
     void scheduleUpdateForAllVisibleViews() const;
     void updateResultInfo(const RiuSelectionItem* itemAdded) const;

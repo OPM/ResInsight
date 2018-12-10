@@ -39,18 +39,18 @@ class RiuExpressionContextMenuManager : public QObject
      static const std::map<QString, std::set<QString>> MENU_MAP;
 
 public:
-	RiuExpressionContextMenuManager() { }
+    RiuExpressionContextMenuManager() { }
 
-	void attachTextEdit(QTextEdit* textEdit);
+    void attachTextEdit(QTextEdit* textEdit);
 
 public slots:
-	void slotMenuItems(QPoint point);
+    void slotMenuItems(QPoint point);
 
 private slots:
-	void slotShowText();
+    void slotShowText();
 
 private:
-	QPointer<QTextEdit>                         m_textEdit;
-	int                                         m_textPosition;
+    QPointer<QTextEdit>                         m_textEdit;
+    int                                         m_textPosition;
     std::map<QString, std::unique_ptr<QAction>> m_actionCache;
 };

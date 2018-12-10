@@ -36,11 +36,13 @@
 
 #include "cafPdmUiDefaultObjectEditor.h"
 
+#include "cafFilePath.h"
 #include "cafPdmField.h"
 #include "cafPdmProxyValueField.h"
 #include "cafPdmUiCheckBoxEditor.h"
 #include "cafPdmUiDateEditor.h"
 #include "cafPdmUiFieldEditorHandle.h"
+#include "cafPdmUiFilePathEditor.h"
 #include "cafPdmUiLineEditor.h"
 #include "cafPdmUiListEditor.h"
 
@@ -63,6 +65,8 @@ CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR(PdmUiListEditor, std::vector<QString>);
 CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR(PdmUiListEditor, std::vector<int>);
 CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR(PdmUiListEditor, std::vector<unsigned int>);
 CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR(PdmUiListEditor, std::vector<float>);
+
+CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR(PdmUiFilePathEditor, FilePath);
 
 
 //--------------------------------------------------------------------------------------------------
@@ -97,11 +101,11 @@ QWidget* PdmUiDefaultObjectEditor::createWidget(QWidget* parent)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void PdmUiDefaultObjectEditor::recursivelyConfigureAndUpdateTopLevelUiItems(const std::vector<PdmUiItem*>& topLevelUiItems, const QString& uiConfigName)
+void PdmUiDefaultObjectEditor::recursivelyConfigureAndUpdateTopLevelUiOrdering(const PdmUiOrdering& topLevelUiOrdering, const QString& uiConfigName)
 {
     CAF_ASSERT(this->widget());
 
-    recursivelyConfigureAndUpdateUiItemsInGridLayoutColumn(topLevelUiItems, this->widget(), uiConfigName);
+    recursivelyConfigureAndUpdateUiOrderingInGridLayoutColumn(topLevelUiOrdering, this->widget(), uiConfigName);
 }
 
 } // end namespace caf

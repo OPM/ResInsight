@@ -34,7 +34,7 @@ class RicSummaryCurveCalculatorDialog : public QDialog
 
 public:
     RicSummaryCurveCalculatorDialog(QWidget* parent);
-    ~RicSummaryCurveCalculatorDialog();
+    ~RicSummaryCurveCalculatorDialog() override;
 
     void setCalculationAndUpdateUi(RimSummaryCalculation* calculation);
 

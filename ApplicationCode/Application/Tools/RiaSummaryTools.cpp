@@ -22,8 +22,10 @@
 
 #include "RifEclipseSummaryAddress.h"
 
+#include "RimOilField.h"
 #include "RimMainPlotCollection.h"
 #include "RimProject.h"
+#include "RimSummaryCaseMainCollection.h"
 #include "RimSummaryCrossPlot.h"
 #include "RimSummaryCurve.h"
 #include "RimSummaryPlot.h"
@@ -43,6 +45,17 @@ RimSummaryPlotCollection* RiaSummaryTools::summaryPlotCollection()
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimSummaryCaseMainCollection* RiaSummaryTools::summaryCaseMainCollection()
+{
+    RimProject* project = RiaApplication::instance()->project();
+    RimSummaryCaseMainCollection* summaryCaseMainCollection = project->activeOilField()->summaryCaseMainCollection();
+    CVF_ASSERT(summaryCaseMainCollection);
+    return summaryCaseMainCollection;
+}
+
+//--------------------------------------------------------------------------------------------------
 /// Update the summary curves referencing this curve, as the curve is identified by the name
 //--------------------------------------------------------------------------------------------------
 void RiaSummaryTools::notifyCalculatedCurveNameHasChanged(const QString& previousCurveName, const QString& currentCurveName)
@@ -58,7 +71,7 @@ void RiaSummaryTools::notifyCalculatedCurveNameHasChanged(const QString& previou
             {
                 if (adr.quantityName() == previousCurveName.toStdString())
                 {
-                    RifEclipseSummaryAddress updatedAdr = RifEclipseSummaryAddress::calculatedCurveAddress(currentCurveName.toStdString());
+                    RifEclipseSummaryAddress updatedAdr = RifEclipseSummaryAddress::calculatedAddress(currentCurveName.toStdString());
                     curve->setSummaryAddressY(updatedAdr);
                 }
             }

@@ -54,24 +54,27 @@ public:
     void        setKeyword(const QString& keyword);
     QString     keyword() const;
 
-    virtual bool isUiGroup();
+    bool        isUiGroup() const override;
 
     /// Set this group to be collapsed by default. When the user expands the group, the default no longer has any effect. 
-    void         setCollapsedByDefault(bool doCollapse); 
+    void        setCollapsedByDefault(bool doCollapse); 
     /// Forcifully set the collapsed state of the group, overriding the previous user actions and the default
-    void         setCollapsed(bool doCollapse);
+    void        setCollapsed(bool doCollapse);
+    void        setEnableFrame(bool enableFrame);
 
     // Pdm internal methods
-    bool         isExpandedByDefault()    const; 
-    bool         hasForcedExpandedState() const; 
-    bool         forcedExpandedState()    const;
+    bool        isExpandedByDefault()    const; 
+    bool        hasForcedExpandedState() const; 
+    bool        forcedExpandedState()    const;
+    bool        enableFrame() const;
 
 private:
-    bool         m_isCollapsedByDefault;
-    bool         m_hasForcedExpandedState;
-    bool         m_forcedCollapseState;
-
-    QString     m_keyword;
+    bool    m_isCollapsedByDefault;
+    bool    m_hasForcedExpandedState;
+    bool    m_forcedCollapseState;
+    bool    m_enableFrame;
+    
+    QString m_keyword;
 };
 
 

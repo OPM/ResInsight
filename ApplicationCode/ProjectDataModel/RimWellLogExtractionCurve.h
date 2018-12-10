@@ -21,14 +21,17 @@
 
 #include "RimWellLogCurve.h"
 
+#include "RigFemResultAddress.h"
+
 #include "cafPdmPtrField.h"
 #include "cafPdmChildField.h"
 
+class RigGeoMechWellLogExtractor;
 class RigWellPath;
 class RimCase;
 class RimEclipseResultDefinition;
 class RimGeoMechResultDefinition;
-class RimView;
+class Rim3dView;
 class RimWellPath;
 
 //==================================================================================================
@@ -40,7 +43,7 @@ class RimWellLogExtractionCurve : public RimWellLogCurve
     CAF_PDM_HEADER_INIT;
 public:
     RimWellLogExtractionCurve();
-    virtual ~RimWellLogExtractionCurve();
+    ~RimWellLogExtractionCurve() override;
     
     enum TrajectoryType { WELL_PATH, SIMULATION_WELL};
 
@@ -52,11 +55,14 @@ public:
     void            setCase(RimCase* rimCase);
     RimCase*        rimCase() const;
 
-    void            setPropertiesFromView(RimView* view);
+    void            setPropertiesFromView(Rim3dView* view);
 
-    virtual QString wellName() const;
-    virtual QString wellLogChannelName() const;
-    virtual QString wellDate() const;
+    TrajectoryType  trajectoryType() const;
+    QString wellName() const override;
+    QString wellLogChannelName() const override;
+    QString wellDate() const override;
+    int             branchIndex() const;
+    bool            branchDetection() const;
 
     bool            isEclipseCurve() const;
     QString         caseName() const;
@@ -66,24 +72,30 @@ public:
     void            setCurrentTimeStep(int timeStep);
 
     void            setEclipseResultVariable(const QString& resVarname);
+    void            setGeoMechResultAddress(const RigFemResultAddress& resAddr);
 
+    void            setTrajectoryType(TrajectoryType trajectoryType);
+    void            setWellName(QString wellName);
+    void            setBranchDetection(bool branchDetection);
+    void            setBranchIndex(int index);
+
+    static void     findAndLoadWbsParametersFromLasFiles(const RimWellPath* wellPath, RigGeoMechWellLogExtractor* geomExtractor);
 protected:
-    virtual QString                                createCurveAutoName();
-    virtual void                                   onLoadDataAndUpdate(bool updateParentPlot);
+    QString                                createCurveAutoName() override;
+    void                                   onLoadDataAndUpdate(bool updateParentPlot) override;
 
-    virtual void                                   fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
-    virtual void                                   defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
-    virtual void                                   defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "");
-    virtual QList<caf::PdmOptionItemInfo>          calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly);
-    virtual void                                   initAfterRead();
+    void                                   fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    void                                   defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    void                                   defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
+    QList<caf::PdmOptionItemInfo>          calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
+    void                                   initAfterRead() override;
 
 private:
     void                                           setLogScaleFromSelectedResult();
     void                                           clampTimestep();
     void                                           clampBranchIndex();
-    std::set<QString>                              findSortedWellNames();
+    std::set<QString>                              sortedSimWellNames();
     void                                           clearGeneratedSimWellPaths();
-    std::vector<const RigWellPath*>                simulationWellBranches() const;
 
 private:
     caf::PdmPtrField<RimCase*>                      m_case;

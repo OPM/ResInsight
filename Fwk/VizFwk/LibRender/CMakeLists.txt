@@ -18,8 +18,6 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 endif()
 
 
-include_directories(../LibCore)
-include_directories(../LibGeometry)
 include_directories(glew)
 
 
@@ -178,3 +176,15 @@ cvfViewport.cpp
 
 add_library(${PROJECT_NAME} ${CEE_HEADER_FILES} ${CEE_SOURCE_FILES})
 
+target_include_directories(${PROJECT_NAME}
+  PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+target_link_libraries ( ${PROJECT_NAME}
+    LibCore
+    LibGeometry
+)
+
+set(PROJECT_FILES ${CEE_HEADER_FILES} ${CEE_SOURCE_FILES})
+source_group("" FILES ${PROJECT_FILES})

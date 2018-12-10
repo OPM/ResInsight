@@ -52,11 +52,14 @@ class PdmUiCheckBoxDelegate : public QStyledItemDelegate
     Q_OBJECT
 
 public:
-    explicit PdmUiCheckBoxDelegate( QObject* pParent = 0 );
-    virtual ~PdmUiCheckBoxDelegate();
+    explicit PdmUiCheckBoxDelegate( QObject* pParent = nullptr );
+    ~PdmUiCheckBoxDelegate() override;
 
-    virtual void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const;
-    virtual bool editorEvent(QEvent *event, QAbstractItemModel *model, const QStyleOptionViewItem &option, const QModelIndex &index);
+    void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const override;
+    bool editorEvent(QEvent *event, QAbstractItemModel *model, const QStyleOptionViewItem &option, const QModelIndex &index) override;
+
+    QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const override;
+
 };
 
 

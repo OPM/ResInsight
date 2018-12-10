@@ -30,14 +30,16 @@ public:
     explicit RigFemPartGrid(const RigFemPart* femPart);
     virtual ~RigFemPartGrid();
 
-    virtual bool        ijkFromCellIndex(size_t cellIndex, size_t* i, size_t* j, size_t* k) const;
-    virtual size_t      cellIndexFromIJK(size_t i, size_t j, size_t k) const;
+    bool        ijkFromCellIndex(size_t cellIndex, size_t* i, size_t* j, size_t* k) const override;
+    size_t      cellIndexFromIJK(size_t i, size_t j, size_t k) const override;
 
-    virtual size_t      gridPointCountI() const;
-    virtual size_t      gridPointCountJ() const;
-    virtual size_t      gridPointCountK() const;
+    size_t      gridPointCountI() const override;
+    size_t      gridPointCountJ() const override;
+    size_t      gridPointCountK() const override;
  
     cvf::Vec3i          findMainIJKFaces(int elementIndex) const;
+    
+    std::pair<cvf::Vec3st, cvf::Vec3st> reservoirIJKBoundingBox() const;
 
  private:
     void                generateStructGridData();
@@ -50,18 +52,18 @@ public:
     cvf::Vec3st         m_elmentIJKCounts;
 
 private: // Unused, Not implemented
-    virtual bool        isCellValid(size_t i, size_t j, size_t k) const;
-    virtual cvf::Vec3d  minCoordinate() const;
-    virtual cvf::Vec3d  maxCoordinate() const;
-    virtual bool        cellIJKNeighbor(size_t i, size_t j, size_t k, FaceType face, size_t* neighborCellIndex) const;
+    bool        isCellValid(size_t i, size_t j, size_t k) const override;
+    cvf::Vec3d  minCoordinate() const override;
+    cvf::Vec3d  maxCoordinate() const override;
+    bool        cellIJKNeighbor(size_t i, size_t j, size_t k, FaceType face, size_t* neighborCellIndex) const override;
 
 
-    virtual bool        cellIJKFromCoordinate(const cvf::Vec3d& coord, size_t* i, size_t* j, size_t* k) const;
+    bool        cellIJKFromCoordinate(const cvf::Vec3d& coord, size_t* i, size_t* j, size_t* k) const override;
     virtual void        cellCornerVertices(size_t cellIndex, cvf::Vec3d vertices[8]) const;
-    virtual cvf::Vec3d  cellCentroid(size_t cellIndex) const;
-    virtual void        cellMinMaxCordinates(size_t cellIndex, cvf::Vec3d* minCoordinate, cvf::Vec3d* maxCoordinate) const;
-    virtual size_t      gridPointIndexFromIJK(size_t i, size_t j, size_t k) const;
-    virtual cvf::Vec3d  gridPointCoordinate(size_t i, size_t j, size_t k) const;
+    cvf::Vec3d  cellCentroid(size_t cellIndex) const override;
+    void        cellMinMaxCordinates(size_t cellIndex, cvf::Vec3d* minCoordinate, cvf::Vec3d* maxCoordinate) const override;
+    size_t      gridPointIndexFromIJK(size_t i, size_t j, size_t k) const override;
+    cvf::Vec3d  gridPointCoordinate(size_t i, size_t j, size_t k) const override;
 
     class IJKArray
     {
@@ -93,7 +95,7 @@ private: // Unused, Not implemented
     };
 
     IJKArray m_elmIdxPrIJK; 
-
+    std::pair<cvf::Vec3st, cvf::Vec3st> m_reservoirIJKBoundingBox;
 };
 
 

@@ -52,6 +52,7 @@ public:
     void setProgressDescription(const QString& description);
     void setProgress(size_t progressValue);
     void incrementProgress();
+    void incrementProgressAndUpdateNextStep(size_t nextStepSize, const QString& nextDescription);
     void setNextProgressIncrement(size_t nextStepSize);
 
 };

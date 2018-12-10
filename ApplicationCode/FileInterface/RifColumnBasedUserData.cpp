@@ -163,7 +163,7 @@ void RifColumnBasedUserData::buildTimeStepsAndMappings()
             {
                 RifEclipseSummaryAddress sumAddress = ci.summaryAddress;
 
-                m_allResultAddresses.push_back(sumAddress);
+                m_allResultAddresses.insert(sumAddress);
 
                 m_mapFromAddressToTimeStepIndex[sumAddress] = m_timeSteps.size() - 1;
                 m_mapFromAddressToResultIndex[sumAddress] = std::make_pair(tableIndex, columIndex);

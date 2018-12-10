@@ -6,7 +6,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RicfComputeCaseGroupStatistics.h
 ${CMAKE_CURRENT_LIST_DIR}/RicfExportMsw.h
 ${CMAKE_CURRENT_LIST_DIR}/RicfExportMultiCaseSnapshots.h
 ${CMAKE_CURRENT_LIST_DIR}/RicfExportProperty.h
-${CMAKE_CURRENT_LIST_DIR}/RicfExportSimWellCompletions.h
+${CMAKE_CURRENT_LIST_DIR}/RicfExportSimWellFractureCompletions.h
 ${CMAKE_CURRENT_LIST_DIR}/RicfExportSnapshots.h
 ${CMAKE_CURRENT_LIST_DIR}/RicfExportWellPathCompletions.h
 ${CMAKE_CURRENT_LIST_DIR}/RicfLoadCase.h
@@ -18,6 +18,15 @@ ${CMAKE_CURRENT_LIST_DIR}/RicfSetExportFolder.h
 ${CMAKE_CURRENT_LIST_DIR}/RicfSetMainWindowSize.h
 ${CMAKE_CURRENT_LIST_DIR}/RicfSetStartDir.h
 ${CMAKE_CURRENT_LIST_DIR}/RicfSetTimeStep.h
+${CMAKE_CURRENT_LIST_DIR}/RicfScaleFractureTemplate.h
+${CMAKE_CURRENT_LIST_DIR}/RicfSetFractureContainment.h
+${CMAKE_CURRENT_LIST_DIR}/RicfCreateMultipleFractures.h
+${CMAKE_CURRENT_LIST_DIR}/RicfExportWellPaths.h
+${CMAKE_CURRENT_LIST_DIR}/RicfExportVisibleCells.h
+${CMAKE_CURRENT_LIST_DIR}/RicfExportPropertyInViews.h
+${CMAKE_CURRENT_LIST_DIR}/RicfExportLgrForCompletions.h
+${CMAKE_CURRENT_LIST_DIR}/RicfCreateLgrForCompletions.h
+${CMAKE_CURRENT_LIST_DIR}/RicfApplicationTools.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -27,7 +36,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RicfComputeCaseGroupStatistics.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicfExportMsw.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicfExportMultiCaseSnapshots.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicfExportProperty.cpp
-${CMAKE_CURRENT_LIST_DIR}/RicfExportSimWellCompletions.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicfExportSimWellFractureCompletions.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicfExportSnapshots.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicfExportWellPathCompletions.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicfLoadCase.cpp
@@ -39,6 +48,15 @@ ${CMAKE_CURRENT_LIST_DIR}/RicfSetExportFolder.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicfSetMainWindowSize.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicfSetStartDir.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicfSetTimeStep.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicfScaleFractureTemplate.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicfSetFractureContainment.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicfCreateMultipleFractures.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicfExportWellPaths.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicfExportVisibleCells.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicfExportPropertyInViews.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicfExportLgrForCompletions.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicfCreateLgrForCompletions.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicfApplicationTools.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

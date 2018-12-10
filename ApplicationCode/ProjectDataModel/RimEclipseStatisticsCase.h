@@ -20,8 +20,9 @@
 
 #pragma once
 
-#include "RimEclipseCase.h"
 #include "RiaDefines.h"
+
+#include "RimEclipseCase.h"
 
 #include "cvfBase.h"
 #include "cvfObject.h"
@@ -30,12 +31,11 @@
 #include "cafAppEnum.h"
 #include "cvfCollection.h"
 
-
-class RimIdenticalGridCaseGroup;
-class RimEclipseResultDefinition;
-class RimEclipseStatisticsCaseCollection;
 class RigMainGrid;
 class RigSimWellData;
+class RimEclipseResultDefinition;
+class RimEclipseStatisticsCaseCollection;
+class RimIdenticalGridCaseGroup;
 
 
 //==================================================================================================
@@ -49,7 +49,7 @@ class RimEclipseStatisticsCase : public RimEclipseCase
 
 public:
     RimEclipseStatisticsCase();
-    virtual ~RimEclipseStatisticsCase();
+    ~RimEclipseStatisticsCase() override;
 
     void setMainGrid(RigMainGrid* mainGrid);
 
@@ -60,10 +60,10 @@ public:
 
     void updateConnectedEditorsAndReservoirViews();
 
-    virtual bool openEclipseGridFile();
-    virtual void reloadEclipseGridFile();
+    bool openEclipseGridFile() override;
+    void reloadEclipseGridFile() override;
 
-    RimCaseCollection* parentStatisticsCaseCollection();
+    RimCaseCollection* parentStatisticsCaseCollection() const;
 
     enum PercentileCalcType
     {
@@ -73,16 +73,15 @@ public:
     };
 
     caf::PdmField< bool >                                          m_calculateEditCommand;
-    virtual void  updateFilePathsFromProjectPath(const QString& projectPath, const QString& oldProjectPath){}
+    void  updateFilePathsFromProjectPath(const QString& projectPath, const QString& oldProjectPath) override{}
 
     void populateResultSelectionAfterLoadingGrid();
  
 private:
     void scheduleACTIVEGeometryRegenOnReservoirViews();
 
-    RimIdenticalGridCaseGroup* caseGroup();
-
-    void getSourceCases(std::vector<RimEclipseCase*>& sourceCases);
+    RimIdenticalGridCaseGroup* caseGroup() const;
+    std::vector<RimEclipseCase*> getSourceCases() const;
 
     void populateResultSelection();
 
@@ -90,17 +89,15 @@ private:
     void updateSelectionSummaryLabel();
     void updatePercentileUiVisibility();
 
-
     void setWellResultsAndUpdateViews(const cvf::Collection<RigSimWellData>& sourceCaseSimWellData);
 
-    // Pdm system overrides
-    virtual void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) ;
-    virtual QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly );
-    virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
+    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override ;
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly ) override;
+    void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
 
-    virtual void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute * attribute );
-    // Fields
+    void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute * attribute ) override;
 
+private:
     caf::PdmField< caf::AppEnum< RiaDefines::ResultCatType > >      m_resultType;
     caf::PdmField< caf::AppEnum< RiaDefines::PorosityModelType > >  m_porosityModel;
 

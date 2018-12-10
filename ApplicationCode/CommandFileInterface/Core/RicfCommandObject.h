@@ -35,7 +35,7 @@ class RicfCommandObject : public caf::PdmObject, public RicfObjectCapability
 {
 public:
     RicfCommandObject();
-    ~RicfCommandObject();
+    ~RicfCommandObject() override;
 
     virtual void execute() = 0;
 };

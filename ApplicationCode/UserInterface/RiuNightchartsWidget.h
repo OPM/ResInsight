@@ -19,7 +19,7 @@
 #pragma once
 
 
-#include "nightcharts/nightcharts.h"
+#include "nightcharts.h"
 
 #include "cafPdmPointer.h"
 
@@ -31,7 +31,7 @@ class RiuNightchartsWidget : public QWidget
 {
     Q_OBJECT
 public:
-    explicit RiuNightchartsWidget(QWidget* parent = 0);
+    explicit RiuNightchartsWidget(QWidget* parent = nullptr);
 
     void addItem(const QString& name, const QColor& color, float value);
     void setType(Nightcharts::type type);
@@ -41,10 +41,10 @@ public:
     void clear();
 
 
-    virtual QSize sizeHint() const override;
+    QSize sizeHint() const override;
 
 protected:
-    virtual void paintEvent(QPaintEvent* e);
+    void paintEvent(QPaintEvent* e) override;
 
 private:
     void updateSizePolicy();

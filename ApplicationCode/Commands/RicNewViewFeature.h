@@ -25,7 +25,7 @@ class RimEclipseCase;
 class RimEclipseView;
 class RimGeoMechCase;
 class RimGeoMechView;
-class RimView;
+class Rim3dView;
 
 //==================================================================================================
 /// 
@@ -39,12 +39,12 @@ public:
 
 protected:
     // Overrides
-    virtual bool isCommandEnabled();
-    virtual void onActionTriggered( bool isChecked );
-    virtual void setupActionLook( QAction* actionToSetup );
+    bool isCommandEnabled() override;
+    void onActionTriggered( bool isChecked ) override;
+    void setupActionLook( QAction* actionToSetup ) override;
 
 private:
-    static RimView*        createReservoirView(RimEclipseCase* eclipseCase, RimGeoMechCase* geomCase);
+    static Rim3dView*        createReservoirView(RimEclipseCase* eclipseCase, RimGeoMechCase* geomCase);
 
     static RimEclipseCase* selectedEclipseCase();
     static RimGeoMechCase* selectedGeoMechCase();

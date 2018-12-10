@@ -96,7 +96,7 @@ void WidgetLayoutTest::setUpInitialConfigurationA()
     m_mainLayout->addWidget(m_widget2);
 
     delete m_widget3;
-    m_widget3 = NULL;
+    m_widget3 = nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

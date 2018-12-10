@@ -55,7 +55,7 @@ std::string removeCommonStart(const std::string& mask, const std::string& filena
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiaImageCompareReporter::generateHTMLReport(const std::string& fileName)
+void RiaImageCompareReporter::generateHTMLReport(const std::string& fileName, const std::string& diff2htmlHeaderText)
 {
     if (m_directorySets.size() == 0) return;
 
@@ -70,16 +70,18 @@ void RiaImageCompareReporter::generateHTMLReport(const std::string& fileName)
 
     html += "<html>\n";
     html += "<head>\n";
-    html += "<title>Regression-Test Report</title>\n";
 
     if (m_showInteractiveDiff)
     {
         html += cssString();
     }
 
+    html += diff2htmlHeaderText;
+
     html += "</head>\n";
     html += "\n";
     html += "<body>\n";
+    html += "<title>Regression-Test Report</title>\n";
     html += "\n";
 
     for (size_t dsIdx = 0; dsIdx < m_directorySets.size(); ++dsIdx)
@@ -177,36 +179,36 @@ std::string RiaImageCompareReporter::cssString() const
 
     html += "";
     html += ".image-slider {";
-	    html += "position:relative;";
-	    html += "display: inline-block;";
-	    html += "line-height: 0;";
+        html += "position:relative;";
+        html += "display: inline-block;";
+        html += "line-height: 0;";
     html += "}";
 
     html += ".image-slider > div {";
-	    html += "position: absolute;";
-	    html += "top: 0; bottom: 0; left: 0;";
-	    html += "width: 25px;";
-	    html += "max-width: 100%;";
-	    html += "overflow: hidden;";
-	    html += "resize: horizontal;";
+        html += "position: absolute;";
+        html += "top: 0; bottom: 0; left: 0;";
+        html += "width: 25px;";
+        html += "max-width: 100%;";
+        html += "overflow: hidden;";
+        html += "resize: horizontal;";
     html += "}";
 
     html += ".image-slider > div:before {";
-	    html += "content: '';";
-	    html += "position: absolute;";
-	    html += "right: 0; bottom: 0;";
-	    html += "width: 23px; height: 23px;";
-	    html += "padding: 5px;";
-	    html += "background: linear-gradient(-45deg, gray 50%, transparent 0);";
-	    html += "background-clip: content-box;";
-	    html += "cursor: ew-resize;";
-	    html += "-webkit-filter: drop-shadow(0 0 6px black);";
-	    html += "filter: drop-shadow(0 0 6px black);";
+        html += "content: '';";
+        html += "position: absolute;";
+        html += "right: 0; bottom: 0;";
+        html += "width: 23px; height: 23px;";
+        html += "padding: 5px;";
+        html += "background: linear-gradient(-45deg, gray 50%, transparent 0);";
+        html += "background-clip: content-box;";
+        html += "cursor: ew-resize;";
+        html += "-webkit-filter: drop-shadow(0 0 6px black);";
+        html += "filter: drop-shadow(0 0 6px black);";
     html += "}";
 
     html += ".image-slider img {";
-	    html += "user-select: none;";
-	    html += "max-width: 1000px;";
+        html += "user-select: none;";
+        html += "max-width: 1000px;";
     html += "}";
 
     html += "</style>";

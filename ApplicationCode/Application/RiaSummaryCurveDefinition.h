@@ -26,6 +26,7 @@
 #include <vector>
 
 class RimSummaryCase;
+class RimSummaryCaseCollection;
 
 //==================================================================================================
 /// 
@@ -33,10 +34,15 @@ class RimSummaryCase;
 class RiaSummaryCurveDefinition
 {
 public:
-    explicit RiaSummaryCurveDefinition(RimSummaryCase* summaryCase, const RifEclipseSummaryAddress& summaryAddress);
+    RiaSummaryCurveDefinition();
+    explicit RiaSummaryCurveDefinition(RimSummaryCase* summaryCase,
+                                       const RifEclipseSummaryAddress& summaryAddress,
+                                       RimSummaryCaseCollection* ensemble = nullptr);
 
     RimSummaryCase*                 summaryCase() const;
     const RifEclipseSummaryAddress& summaryAddress() const;
+    RimSummaryCaseCollection*       ensemble() const;
+    bool                            isEnsembleCurve() const;
 
     bool operator < (const RiaSummaryCurveDefinition& other) const;
 
@@ -46,10 +52,12 @@ public:
 
     QString                             curveDefinitionText() const;
 
-    static QString                      curveDefinitionText(RimSummaryCase* summaryCase, const RifEclipseSummaryAddress& summaryAddress);
+    static QString                      curveDefinitionText(const QString& caseName, const RifEclipseSummaryAddress& summaryAddress);
 
 private:
 
 private:
-    std::pair<RimSummaryCase*, RifEclipseSummaryAddress> m_curveDefinition;
+    RimSummaryCase*                                         m_summaryCase;
+    RifEclipseSummaryAddress                                m_summaryAddress;
+    RimSummaryCaseCollection*                               m_ensemble;
 };

@@ -1,27 +1,27 @@
 /*
-   Copyright (C) 2011  Statoil ASA, Norway. 
-    
-   The file 'atomic.h' is part of ERT - Ensemble based Reservoir Tool. 
-    
-   ERT is free software: you can redistribute it and/or modify 
-   it under the terms of the GNU General Public License as published by 
-   the Free Software Foundation, either version 3 of the License, or 
-   (at your option) any later version. 
-    
-   ERT is distributed in the hope that it will be useful, but WITHOUT ANY 
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or 
-   FITNESS FOR A PARTICULAR PURPOSE.   
-    
-   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
-   for more details. 
+   Copyright (C) 2011  Statoil ASA, Norway.
+
+   The file 'atomic.h' is part of ERT - Ensemble based Reservoir Tool.
+
+   ERT is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   ERT is distributed in the hope that it will be useful, but WITHOUT ANY
+   WARRANTY; without even the implied warranty of MERCHANTABILITY or
+   FITNESS FOR A PARTICULAR PURPOSE.
+
+   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+   for more details.
 */
 
-/* 
+/*
    This whole file was something I found on the internet - it was
    posted as beeing in the public domain. The essential functions
    __sync_add_and_fetch() and do on are (as I understand it) built in
    gcc functions. Only available in reasonably new gcc versions
-   (4.1???).  
+   (4.1???).
 */
 
 #ifndef _ATOMIC_H

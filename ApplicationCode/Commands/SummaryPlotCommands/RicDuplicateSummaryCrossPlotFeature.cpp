@@ -70,6 +70,6 @@ void RicDuplicateSummaryCrossPlotFeature::onActionTriggered(bool isChecked)
 void RicDuplicateSummaryCrossPlotFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setText("Duplicate Summary Cross Plot");
-    actionToSetup->setIcon(QIcon(":/SummaryPlot16x16.png"));
+    actionToSetup->setIcon(QIcon(":/SummaryXPlotLight16x16.png"));
 }
 

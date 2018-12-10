@@ -31,11 +31,11 @@ class RicSaveEclipseResultAsInputPropertyExec : public caf::CmdExecuteCommand
 {
 public:
     explicit RicSaveEclipseResultAsInputPropertyExec(RimEclipseCellColors* cellColors);
-    virtual ~RicSaveEclipseResultAsInputPropertyExec();
+    ~RicSaveEclipseResultAsInputPropertyExec() override;
 
-    virtual QString name();
-    virtual void redo();
-    virtual void undo();
+    QString name() override;
+    void redo() override;
+    void undo() override;
 
 private:
     caf::PdmPointer<RimEclipseCellColors> m_cellColors;

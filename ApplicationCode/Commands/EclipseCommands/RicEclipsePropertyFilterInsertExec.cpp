@@ -31,7 +31,7 @@
 /// 
 //--------------------------------------------------------------------------------------------------
 RicEclipsePropertyFilterInsertExec::RicEclipsePropertyFilterInsertExec(RimEclipsePropertyFilter* propertyFilter)
-    : CmdExecuteCommand(NULL)
+    : CmdExecuteCommand(nullptr)
 {
     CVF_ASSERT(propertyFilter);
     m_propertyFilter = propertyFilter;

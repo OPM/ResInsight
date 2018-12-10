@@ -45,7 +45,12 @@ struct RigWellLogExtractionTools
 
 struct RigMDCellIdxEnterLeaveKey
 {
-    RigMDCellIdxEnterLeaveKey(double md, size_t cellIdx, bool entering): measuredDepth(md), hexIndex(cellIdx), isEnteringCell(entering){}
+    RigMDCellIdxEnterLeaveKey(double md, size_t cellIdx, bool entering)
+        : measuredDepth(md)
+        , hexIndex(cellIdx)
+        , isEnteringCell(entering)
+    {
+    }
 
     double measuredDepth;
     size_t hexIndex;
@@ -85,7 +90,12 @@ struct RigMDCellIdxEnterLeaveKey
 
 struct RigMDEnterLeaveCellIdxKey
 {
-    RigMDEnterLeaveCellIdxKey(double md, bool entering, size_t cellIdx ): measuredDepth(md), hexIndex(cellIdx), isEnteringCell(entering){}
+    RigMDEnterLeaveCellIdxKey(double md, bool entering, size_t cellIdx)
+        : measuredDepth(md)
+        , isEnteringCell(entering)
+        , hexIndex(cellIdx)
+    {
+    }
 
     double measuredDepth;
     bool   isEnteringCell; // As opposed to leaving.

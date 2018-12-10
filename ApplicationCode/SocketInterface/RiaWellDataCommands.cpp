@@ -42,7 +42,7 @@ class RiaGetWellNames : public RiaSocketCommand
 public:
     static QString commandName () { return QString("GetWellNames"); }
 
-    virtual bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>&  args, QDataStream& socketStream)
+    bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>&  args, QDataStream& socketStream) override
     {
         int caseId = args[1].toInt();
         RimEclipseCase* rimCase = server->findReservoir(caseId);
@@ -94,7 +94,7 @@ class RiaGetWellStatus : public RiaSocketCommand
 public:
     static QString commandName () { return QString("GetWellStatus"); }
 
-    virtual bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>&  args, QDataStream& socketStream)
+    bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>&  args, QDataStream& socketStream) override
     {
         int caseId          = args[1].toInt();
         QString wellName    = args[2];
@@ -232,7 +232,7 @@ class RiaGetWellCells : public RiaSocketCommand
 public:
     static QString commandName () { return QString("GetWellCells"); }
 
-    virtual bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>&  args, QDataStream& socketStream)
+    bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>&  args, QDataStream& socketStream) override
     {
         int caseId          = args[1].toInt();
         QString wellName    = args[2];

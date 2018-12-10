@@ -31,7 +31,8 @@
 #include "RimObservedEclipseUserData.h"
 #include "RimSummaryObservedDataFile.h"
 
-#include "RiuMainPlotWindow.h"
+#include "RiuPlotMainWindowTools.h"
+#include "RiuPlotMainWindow.h"
 
 #include "cafUtils.h"
 #include "cafPdmSettings.h"
@@ -74,14 +75,6 @@ void RimObservedDataCollection::removeObservedData(RimObservedData* observedData
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimObservedDataCollection::addObservedData(RimObservedData* observedData)
-{
-    m_observedDataArray.push_back(observedData);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 std::vector<RimSummaryCase*> RimObservedDataCollection::allObservedData()
 {
     std::vector<RimSummaryCase*> allObservedData;
@@ -111,6 +104,21 @@ bool RimObservedDataCollection::fileExists(const QString& fileName, QString* err
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void updateNewSummaryObjectCreated(caf::PdmObject* object)
+{
+    RiuPlotMainWindowTools::showPlotMainWindow();
+    RiuPlotMainWindowTools::selectAsCurrentItem(object);
+    RiuPlotMainWindowTools::setExpanded(object);
+
+    caf::PdmUiObjectEditorHandle::updateUiAllObjectEditors();
+
+    RiuPlotMainWindow* mpw = RiaApplication::instance()->mainPlotWindow();
+    if (mpw) mpw->updateSummaryPlotToolBar();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 RimObservedData* RimObservedDataCollection::createAndAddRsmObservedDataFromFile(const QString& fileName, QString* errorText /*= nullptr*/)
 {
     if (!fileExists(fileName, errorText)) return nullptr;
@@ -130,15 +138,10 @@ RimObservedData* RimObservedDataCollection::createAndAddRsmObservedDataFromFile(
         errorText->append(observedData->errorMessagesFromReader());
     }
 
-    RiuMainPlotWindow* mainPlotWindow = RiaApplication::instance()->getOrCreateAndShowMainPlotWindow();
-    if (mainPlotWindow)
-    {
-        mainPlotWindow->selectAsCurrentItem(observedData);
-        mainPlotWindow->setExpanded(observedData);
-    }
+    updateNewSummaryObjectCreated(observedData);
 
     this->updateConnectedEditors();
-    caf::PdmUiObjectEditorHandle::updateUiAllObjectEditors();
+
     return observedData;
 }
 
@@ -161,10 +164,13 @@ RimObservedData* RimObservedDataCollection::createAndAddCvsObservedDataFromFile(
     }
     parseOptions->setUiModeImport(fileName);
 
-    caf::PdmUiPropertyViewDialog propertyDialog(NULL, parseOptions, "CSV Import Options", "");
-    if (propertyDialog.exec() != QDialog::Accepted)
+    if (parseOptions->uiModeImport() != RicPasteAsciiDataToSummaryPlotFeatureUi::UI_MODE_SILENT)
     {
-        return nullptr;
+        caf::PdmUiPropertyViewDialog propertyDialog(nullptr, parseOptions, "CSV Import Options", "");
+        if (propertyDialog.exec() != QDialog::Accepted)
+        {
+            return nullptr;
+        }
     }
 
     caf::PdmSettings::writeFieldsToApplicationStore(parseOptions);
@@ -192,14 +198,9 @@ RimObservedData* RimObservedDataCollection::createAndAddCvsObservedDataFromFile(
         return nullptr;
     }
 
-    RiuMainPlotWindow* mainPlotWindow = RiaApplication::instance()->getOrCreateAndShowMainPlotWindow();
-    if (mainPlotWindow)
-    {
-        mainPlotWindow->selectAsCurrentItem(userData);
-        mainPlotWindow->setExpanded(userData);
-    }
+    updateNewSummaryObjectCreated(observedData);
 
     this->updateConnectedEditors();
-    caf::PdmUiObjectEditorHandle::updateUiAllObjectEditors();
+
     return observedData;
 }

@@ -24,6 +24,22 @@
 namespace cvf
 {
 
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+template<typename DataType>
+DataType GeometryTools::interpolateQuad(const cvf::Vec3d& v1, DataType s1,
+                                        const cvf::Vec3d& v2, DataType s2,
+                                        const cvf::Vec3d& v3, DataType s3,
+                                        const cvf::Vec3d& v4, DataType s4,
+                                        const cvf::Vec3d& point)
+{
+    cvf::Vec4d bc = barycentricCoords(v1, v2, v3, v4, point);
+
+    return s1 * bc[0] + s2 * bc[1] + s3 * bc[2] + s4 * bc[3];
+}
+
 //--------------------------------------------------------------------------------------------------
 /// Inserts the vertex into the polygon if it fits along one of the edges within the tolerance.
 /// The method returns true if it was inserted, or if it was already in the polygon, or if it was 
@@ -142,7 +158,7 @@ bool GeometryTools::isPointTouchingIndexedPolygon(  const cvf::Vec3d& polygonNor
     int yBelowVx1 = 0;
 
     const double* vtx0;
-    const double* vtx1 = NULL;
+    const double* vtx1 = nullptr;
 
     double dv0;
 

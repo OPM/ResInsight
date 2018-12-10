@@ -21,6 +21,7 @@
 
 #include "RiaApplication.h"
 #include "RiaEclipseUnitTools.h"
+#include "RiaQDateTimeTools.h"
 #include "RiaSimWellBranchTools.h"
 
 #include "RifEclipseRftAddress.h"
@@ -43,7 +44,7 @@
 #include "RimWellPath.h"
 #include "RimWellPlotTools.h"
 
-#include "RiuLineSegmentQwtPlotCurve.h"
+#include "RiuQwtPlotCurve.h"
 #include "RiuWellLogTrack.h"
 
 #include "cafPdmObject.h"
@@ -335,9 +336,13 @@ void RimWellLogRftCurve::onLoadDataAndUpdate(bool updateParentPlot)
 
         m_qwtPlotCurve->setLineSegmentStartStopIndices(m_curveData->polylineStartStopIndices());
 
-        if ( updateParentPlot && m_parentQwtPlot)
+        if (updateParentPlot)
         {
             updateZoomInParentPlot();
+        }
+
+        if (m_parentQwtPlot)
+        {
             m_parentQwtPlot->replot();
         }
     }
@@ -426,7 +431,9 @@ QList<caf::PdmOptionItemInfo> RimWellLogRftCurve::calculateValueOptions(const ca
             std::vector<QDateTime> timeStamps = reader->availableTimeSteps(m_wellName, m_wellLogChannelName());
             for (const QDateTime& dt : timeStamps)
             {
-                options.push_back(caf::PdmOptionItemInfo(dt.toString(dateFormat), dt));
+                QString dateString = RiaQDateTimeTools::toStringUsingApplicationLocale(dt, dateFormat);
+
+                options.push_back(caf::PdmOptionItemInfo(dateString, dt));
             }
         }
 
@@ -705,7 +712,7 @@ std::vector<double> RimWellLogRftCurve::measuredDepthValues()
 
     if (!eclExtractor) return measuredDepthForCells;
 
-    std::vector<double> measuredDepthForIntersections = eclExtractor->measuredDepth();
+    std::vector<double> measuredDepthForIntersections = eclExtractor->cellIntersectionMDs();
     
     if (measuredDepthForIntersections.empty())
     {

@@ -21,6 +21,7 @@
 #pragma once
 
 #include "RiaDefines.h"
+#include "RiaEclipseUnitTools.h"
 
 #include "cafPdmChildArrayField.h"
 #include "cafPdmChildField.h"
@@ -47,7 +48,10 @@ class RimObservedData;
 class RimOilField;
 class RimScriptCollection;
 class RimSummaryCase;
-class RimView;
+class RimSummaryCaseCollection;
+class RimSummaryCaseMainCollection;
+class Rim3dView;
+class RimGridView;
 class RimViewLinker;
 class RimViewLinkerCollection;
 class RimWellPath;
@@ -74,7 +78,7 @@ class RimProject : public caf::PdmDocument
 
 public:
     RimProject(void);
-    virtual ~RimProject(void);
+    ~RimProject(void) override;
 
     caf::PdmChildArrayField<RimOilField*>               oilFields;
     caf::PdmChildField<RimScriptCollection*>            scriptCollection;
@@ -97,23 +101,26 @@ public:
     bool            isProjectFileVersionEqualOrOlderThan(const QString& otherProjectFileVersion) const;
     void            close();
 
-    void            setProjectFileNameAndUpdateDependencies(const QString& fileName);
+    void setProjectFileNameAndUpdateDependencies(const QString& projectFileName);
 
     void            assignCaseIdToCase(RimCase* reservoirCase);
     void            assignIdToCaseGroup(RimIdenticalGridCaseGroup* caseGroup);
 
-    void            allCases(std::vector<RimCase*>& cases);
+    void            allCases(std::vector<RimCase*>& cases) const;
 
     std::vector<RimSummaryCase*>    allSummaryCases() const;
-    
-    void            allNotLinkedViews(std::vector<RimView*>& views);
-    void            allVisibleViews(std::vector<RimView*>& views);
+    std::vector<RimSummaryCaseCollection*> summaryGroups() const;
+    RimSummaryCaseMainCollection*   firstSummaryCaseMainCollection() const;
 
-    void            createDisplayModelAndRedrawAllViews(); 
+    void            allVisibleViews(std::vector<Rim3dView*>& views);
+    void            allVisibleGridViews(std::vector<RimGridView*>& views);
+    void            allNotLinkedViews(std::vector<RimGridView*>& views);
+
+    void            scheduleCreateDisplayModelAndRedrawAllViews();
 
     void            computeUtmAreaOfInterest();
 
-    void                allOilFields(std::vector<RimOilField*>& oilFields) const;
+    void            allOilFields(std::vector<RimOilField*>& allOilFields) const;
     RimOilField*        activeOilField();
     const RimOilField*  activeOilField() const;
 
@@ -128,6 +135,8 @@ public:
     RimDialogData*              dialogData() const;
 
     std::vector<RimEclipseCase*>    eclipseCases() const;
+    RimEclipseCase*                 eclipseCaseFromGridFileName(const QString& gridFileName) const;
+
     std::vector<QString>            simulationWellNames() const;
 
     RimWellPath*                    wellPathFromSimWellName(const QString& simWellName, int branchIndex = -1);
@@ -136,18 +145,22 @@ public:
 
     std::vector<RimGeoMechCase*>    geoMechCases() const;
 
-#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
     std::vector<RimFractureTemplateCollection*> allFractureTemplateCollections() const;
     std::vector<RimFractureTemplate*> allFractureTemplates() const;
-#endif // USE_PROTOTYPE_FEATURE_FRACTURES
+
+    RiaEclipseUnitTools::UnitSystemType commonUnitSystemForAllCases() const;
 
 protected:
     // Overridden methods
     void            initScriptDirectories();
-    virtual void    initAfterRead();
-    virtual void    setupBeforeSave();
+    void    initAfterRead() override;
+    void    setupBeforeSave() override;
 
-    virtual void    defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "");
+    void    defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
+
+private:
+    template <typename T>
+    void fieldsByType(caf::PdmObjectHandle* object, std::vector<T*>& typedFields);
 
 private:
     caf::PdmField<QString>  m_projectFileVersionString;
@@ -164,3 +177,39 @@ private:
     caf::PdmChildArrayField<RimEclipseCase*>            casesObsolete; // obsolete
     caf::PdmChildArrayField<RimIdenticalGridCaseGroup*> caseGroupsObsolete; // obsolete
 };
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+template <typename T>
+void RimProject::fieldsByType(caf::PdmObjectHandle* object, std::vector<T*>& typedFields)
+{
+    if (!object) return;
+
+    std::vector<caf::PdmFieldHandle*> allFieldsInObject;
+    object->fields(allFieldsInObject);
+
+    std::vector<caf::PdmObjectHandle*> children;
+
+    for (const auto& field : allFieldsInObject)
+    {
+        caf::PdmField<T>* typedField = dynamic_cast<caf::PdmField<T>*>(field);
+        if (typedField) typedFields.push_back(&typedField->v());
+
+        caf::PdmField< std::vector<T> >* typedFieldInVector = dynamic_cast<caf::PdmField< std::vector<T> >*>(field);
+        if (typedFieldInVector)
+        {
+            for (T& typedFieldFromVector : typedFieldInVector->v())
+            {
+                typedFields.push_back(&typedFieldFromVector);
+            }
+        }
+
+        field->childObjects(&children);
+    }
+
+    for (const auto& child : children)
+    {
+        fieldsByType(child, typedFields);
+    }
+}

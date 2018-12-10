@@ -1,4 +1,4 @@
-/////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2015-     Statoil ASA
 //  Copyright (C) 2015-     Ceetron Solutions AS
@@ -25,8 +25,10 @@
 #include "RimWellLogTrack.h"
 #include "RimWellLogCurve.h"
 
-#include "RiuMainPlotWindow.h"
+#include "RiuPlotMainWindowTools.h"
 #include "RiuQwtCurvePointTracker.h"
+
+#include "RiuQwtLinearScaleEngine.h"
 
 #include "qwt_legend.h"
 #include "qwt_plot_curve.h"
@@ -35,7 +37,6 @@
 #include "qwt_plot_marker.h"
 #include "qwt_plot_picker.h"
 #include "qwt_scale_draw.h"
-#include "qwt_scale_engine.h"
 #include "qwt_symbol.h"
 #include "qwt_text.h"
 
@@ -89,7 +90,7 @@ void RiuWellLogTrack::setDefaults()
     axisScaleEngine(QwtPlot::xTop)->setAttribute(QwtScaleEngine::Floating, true);
     axisScaleEngine(QwtPlot::yLeft)->setAttribute(QwtScaleEngine::Floating, true);
     setAxisScale(QwtPlot::yLeft, 1000, 0);
-    setAxisScale(QwtPlot::xTop, -10, 100);
+    setXRange(0, 100);
 
 }
 
@@ -105,10 +106,9 @@ void RiuWellLogTrack::setDepthZoom(double minDepth, double maxDepth)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuWellLogTrack::setXRange(double min, double max)
+void RiuWellLogTrack::setXRange(double min, double max, QwtPlot::Axis axis)
 {
-    setAxisScale(QwtPlot::xTop, min, max);
-    setAxisScale(QwtPlot::xBottom, min, max);
+    setAxisScale(axis, min, max);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -117,8 +117,11 @@ void RiuWellLogTrack::setXRange(double min, double max)
 void RiuWellLogTrack::setDepthTitle(const QString& title)
 {
     QwtText axisTitleY = axisTitle(QwtPlot::yLeft);
-    axisTitleY.setText(title);
-    setAxisTitle(QwtPlot::yLeft, axisTitleY);
+    if (title != axisTitleY.text())
+    {
+        axisTitleY.setText(title);
+        setAxisTitle(QwtPlot::yLeft, axisTitleY);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -128,7 +131,10 @@ void RiuWellLogTrack::setXTitle(const QString& title)
 {
     QwtText axisTitleX = axisTitle(QwtPlot::xTop);
     axisTitleX.setText(title);
-    setAxisTitle(QwtPlot::xTop, axisTitleX);
+    if (title != axisTitleX.text())
+    {
+        setAxisTitle(QwtPlot::xTop, axisTitleX);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -196,7 +202,7 @@ bool RiuWellLogTrack::eventFilter(QObject* watched, QEvent* event)
 //--------------------------------------------------------------------------------------------------
 void RiuWellLogTrack::selectClosestCurve(const QPoint& pos)
 {
-    QwtPlotCurve* closestCurve = NULL;
+    QwtPlotCurve* closestCurve = nullptr;
     double distMin = DBL_MAX;
 
     const QwtPlotItemList& itmList = itemList();
@@ -220,13 +226,15 @@ void RiuWellLogTrack::selectClosestCurve(const QPoint& pos)
         RimWellLogCurve* selectedCurve = m_plotTrackDefinition->curveDefinitionFromCurve(closestCurve);
         if (selectedCurve)
         {
-            RiaApplication::instance()->getOrCreateAndShowMainPlotWindow()->selectAsCurrentItem(selectedCurve);
+            RiuPlotMainWindowTools::showPlotMainWindow();
+            RiuPlotMainWindowTools::selectAsCurrentItem(selectedCurve);
 
             return;
         }
     }
 
-    RiaApplication::instance()->getOrCreateAndShowMainPlotWindow()->selectAsCurrentItem(m_plotTrackDefinition);
+    RiuPlotMainWindowTools::showPlotMainWindow();
+    RiuPlotMainWindowTools::selectAsCurrentItem(m_plotTrackDefinition);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -257,5 +265,113 @@ bool RiuWellLogTrack::isRimTrackVisible()
     }
    
    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuWellLogTrack::enableDepthAxisLabelsAndTitle(bool enable)
+{
+    this->axisScaleDraw(QwtPlot::yLeft)->enableComponent(QwtAbstractScaleDraw::Ticks, enable);
+    this->axisScaleDraw(QwtPlot::yLeft)->enableComponent(QwtAbstractScaleDraw::Labels, enable);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RiuWellLogTrack::widthScaleFactor() const
+{
+    if (m_plotTrackDefinition)
+    {
+        return m_plotTrackDefinition->widthScaleFactor();
+    }
+    return 1;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuWellLogTrack::enableXGridLines(bool majorGridLines, bool minorGridLines)
+{
+    QwtPlotItemList plotItems = this->itemList(QwtPlotItem::Rtti_PlotGrid);
+    for (QwtPlotItem* plotItem : plotItems)
+    {
+        QwtPlotGrid* grid = static_cast<QwtPlotGrid*>(plotItem);
+        grid->setXAxis(QwtPlot::xTop);
+        grid->enableX(majorGridLines);
+        grid->enableXMin(minorGridLines);
+        grid->setMajorPen(Qt::lightGray, 1.0, Qt::SolidLine);
+        grid->setMinorPen(Qt::lightGray, 1.0, Qt::DashLine);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuWellLogTrack::enableDepthGridLines(bool majorGridLines, bool minorGridLines)
+{
+    QwtPlotItemList plotItems = this->itemList(QwtPlotItem::Rtti_PlotGrid);
+    for (QwtPlotItem* plotItem : plotItems)
+    {
+        QwtPlotGrid* grid = static_cast<QwtPlotGrid*>(plotItem);
+        grid->setYAxis(QwtPlot::yLeft);
+        grid->enableY(majorGridLines);
+        grid->enableYMin(minorGridLines);
+        grid->setMajorPen(Qt::lightGray, 1.0, Qt::SolidLine);
+        grid->setMinorPen(Qt::lightGray, 1.0, Qt::DashLine);
+    }
+
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuWellLogTrack::setMajorAndMinorTickIntervals(double majorTickInterval, double minorTickInterval)
+{
+    RiuQwtLinearScaleEngine* scaleEngine = dynamic_cast<RiuQwtLinearScaleEngine*>(this->axisScaleEngine(QwtPlot::xTop));
+    if (scaleEngine)
+    {
+        QwtInterval currentRange = this->axisInterval(QwtPlot::xTop);
+        QwtScaleDiv scaleDiv = scaleEngine->divideScaleWithExplicitIntervals(currentRange.minValue(), currentRange.maxValue(), majorTickInterval, minorTickInterval);
+    
+        this->setAxisScaleDiv(QwtPlot::xTop, scaleDiv);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuWellLogTrack::setAutoTickIntervalCounts(int maxMajorTickIntervalCount, int maxMinorTickIntervalCount)
+{
+    this->setAxisMaxMajor(QwtPlot::xTop, maxMajorTickIntervalCount);
+    this->setAxisMaxMinor(QwtPlot::xTop, maxMinorTickIntervalCount);
+	// Reapply axis limits to force Qwt to use the tick settings.
+    QwtInterval currentRange = this->axisInterval(QwtPlot::xTop);
+    this->setXRange(currentRange.minValue(), currentRange.maxValue());
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RiuWellLogTrack::getCurrentMajorTickInterval() const
+{
+    QwtScaleDiv scaleDiv = this->axisScaleDiv(QwtPlot::xTop);
+    QList<double> majorTicks = scaleDiv.ticks(QwtScaleDiv::MajorTick);
+    if (majorTicks.size() < 2) return 0.0;
+
+    return majorTicks.at(1) - majorTicks.at(0);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RiuWellLogTrack::getCurrentMinorTickInterval() const
+{
+    QwtScaleDiv scaleDiv = this->axisScaleDiv(QwtPlot::xTop);
+    QList<double> minorTicks = scaleDiv.ticks(QwtScaleDiv::MinorTick);
+    if (minorTicks.size() < 2) return 0.0;
+
+    return minorTicks.at(1) - minorTicks.at(0);
+
 }
 

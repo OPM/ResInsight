@@ -40,6 +40,7 @@ namespace caf
         addItem(RifEclipseSummaryAddress::SUMMARY_BLOCK_LGR, "SUMMARY_BLOCK_LGR", "Lgr-Block");
         addItem(RifEclipseSummaryAddress::SUMMARY_CALCULATED, "SUMMARY_CALCULATED", "Calculated");
         addItem(RifEclipseSummaryAddress::SUMMARY_IMPORTED, "SUMMARY_IMPORTED", "Imported");
+        addItem(RifEclipseSummaryAddress::SUMMARY_ENSEMBLE_STATISTICS, "SUMMARY_ENSEMBLE_STATISTICS", "Ensemble Statistics");
         setDefault(RifEclipseSummaryAddress::SUMMARY_FIELD);
     }
 
@@ -67,6 +68,7 @@ RimSummaryAddress::RimSummaryAddress()
     CAF_PDM_InitFieldNoDefault(&m_cellJ,             "SummaryCellJ",        "J", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_cellK,             "SummaryCellK",        "K", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_aquiferNumber,     "SummaryAquifer",      "Aquifer", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_isErrorResult,     "IsErrorResult",       "Is Error Result", "", "", "");
 
     m_category = RifEclipseSummaryAddress::SUMMARY_INVALID;
     m_regionNumber = -1;
@@ -76,6 +78,7 @@ RimSummaryAddress::RimSummaryAddress()
     m_cellJ = -1;
     m_cellK = -1;
     m_aquiferNumber = -1;
+    m_isErrorResult = false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -100,6 +103,7 @@ void RimSummaryAddress::setAddress(const RifEclipseSummaryAddress& addr)
     m_wellSegmentNumber             = addr.wellSegmentNumber();
     m_lgrName                       = addr.lgrName().c_str();
     m_aquiferNumber                 = addr.aquiferNumber();
+    m_isErrorResult                 = addr.isErrorResult();
 
     m_cellI = addr.cellI(); m_cellJ = addr.cellJ(); m_cellK = addr.cellK();
 }
@@ -118,6 +122,7 @@ RifEclipseSummaryAddress RimSummaryAddress::address()
                                      m_wellSegmentNumber(),
                                      m_lgrName().toStdString(),
                                      m_cellI(), m_cellJ(), m_cellK(),
-                                     m_aquiferNumber);
+                                     m_aquiferNumber,
+                                     m_isErrorResult);
 }
 

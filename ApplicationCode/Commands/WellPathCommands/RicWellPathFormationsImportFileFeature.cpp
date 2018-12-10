@@ -26,7 +26,7 @@
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 
-#include "RiuMainWindow.h"
+#include "Riu3DMainWindowTools.h"
 
 #include <QAction>
 #include <QFileDialog>
@@ -50,7 +50,7 @@ void RicWellPathFormationsImportFileFeature::onActionTriggered(bool isChecked)
     RiaApplication* app = RiaApplication::instance();
     QString         defaultDir = app->lastUsedDialogDirectory("WELLPATHFORMATIONS_DIR");
     QStringList     wellPathFormationsFilePaths =
-        QFileDialog::getOpenFileNames(RiuMainWindow::instance(), "Import Well Picks", defaultDir,
+        QFileDialog::getOpenFileNames(Riu3DMainWindowTools::mainWindowWidget(), "Import Well Picks", defaultDir,
                                       "Well Picks (*.csv);;All Files (*.*)");
 
     if (wellPathFormationsFilePaths.size() < 1)
@@ -65,7 +65,7 @@ void RicWellPathFormationsImportFileFeature::onActionTriggered(bool isChecked)
 
     if (project)
     {
-        project->createDisplayModelAndRedrawAllViews();
+        project->scheduleCreateDisplayModelAndRedrawAllViews();
         if (project->mainPlotCollection())
         {
             project->mainPlotCollection->updatePlotsWithFormations();
@@ -80,7 +80,7 @@ void RicWellPathFormationsImportFileFeature::onActionTriggered(bool isChecked)
             RimWellPath* wellPath = oilField->wellPathCollection->mostRecentlyUpdatedWellPath();
             if (wellPath)
             {
-                RiuMainWindow::instance()->selectAsCurrentItem(wellPath);
+                Riu3DMainWindowTools::selectAsCurrentItem(wellPath);
             }
         }
     }

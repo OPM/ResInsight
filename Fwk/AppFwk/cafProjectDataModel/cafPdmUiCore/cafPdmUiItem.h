@@ -56,12 +56,12 @@ class PdmUiItemInfo
 {
 public:  
     PdmUiItemInfo()
-        : m_editorTypeName(""), m_isHidden(-1), m_isTreeChildrenHidden(-1), m_isReadOnly(-1), m_labelAlignment(LEFT)
+        : m_editorTypeName(""), m_isHidden(-1), m_isTreeChildrenHidden(-1), m_isReadOnly(-1), m_labelAlignment(LEFT), m_isCustomContextMenuEnabled(-1)
     {}
 
     PdmUiItemInfo(const QString& uiName, QIcon icon = QIcon(), QString toolTip = "", QString whatsThis = "", QString extraDebugText = "")
         : m_uiName(uiName), m_icon(icon), m_toolTip(toolTip), m_whatsThis(whatsThis), m_extraDebugText(extraDebugText),
-          m_editorTypeName(""), m_isHidden(false), m_isTreeChildrenHidden(false), m_isReadOnly(false), m_labelAlignment(LEFT)
+          m_editorTypeName(""), m_isHidden(false), m_isTreeChildrenHidden(false), m_isReadOnly(false), m_labelAlignment(LEFT), m_isCustomContextMenuEnabled(false)
     { }
 
     enum LabelPosType { LEFT, TOP, HIDDEN };
@@ -69,15 +69,17 @@ public:
 private: 
     friend class PdmUiItem;
     QString         m_uiName;
+    QIcon           m_icon;
+    QColor          m_contentTextColor;     ///< Color of a fields value text. Invalid by default. An Invalid color is not used.
     QString         m_toolTip;
-    QString         m_extraDebugText;
     QString         m_whatsThis;
-    QIcon           m_icon;         
+    QString         m_extraDebugText;
     QString         m_editorTypeName;       ///< Use this exact type of editor to edit this UiItem
     int             m_isHidden;             ///< UiItem should be hidden. -1 means not set
     int             m_isTreeChildrenHidden; ///< Children of UiItem should be hidden. -1 means not set
     int             m_isReadOnly;           ///< UiItem should be insensitive, or read only. -1 means not set.
     LabelPosType    m_labelAlignment;
+    int             m_isCustomContextMenuEnabled;
 };
 
 //==================================================================================================
@@ -191,52 +193,58 @@ bool PdmOptionItemInfo::findValues(const QList<PdmOptionItemInfo>& optionList, Q
 class PdmUiItem
 {
 public:
-    PdmUiItem() : m_staticItemInfo(NULL)                                                   { }
+    PdmUiItem();
     virtual ~PdmUiItem();
 
     PdmUiItem(const PdmUiItem&) = delete;
     PdmUiItem&       operator=(const PdmUiItem&) = delete;
 
-    const QString    uiName(QString uiConfigName = "")      const;
-    void             setUiName(const QString& uiName, QString uiConfigName = "")           { m_configItemInfos[uiConfigName].m_uiName = uiName; } 
+    const QString    uiName(const QString& uiConfigName = "") const;
+    void             setUiName(const QString& uiName, const QString& uiConfigName = ""); 
 
-    const QIcon      uiIcon(QString uiConfigName = "")      const;
-    void             setUiIcon(const QIcon& uiIcon, QString uiConfigName = "")             { m_configItemInfos[uiConfigName].m_icon = uiIcon; } 
+    const QIcon      uiIcon(const QString& uiConfigName = "") const;
+    void             setUiIcon(const QIcon& uiIcon, const QString& uiConfigName = ""); 
 
-    const QString    uiToolTip(QString uiConfigName = "")   const;
-    void             setUiToolTip(const QString& uiToolTip, QString uiConfigName = "")     { m_configItemInfos[uiConfigName].m_toolTip = uiToolTip; } 
+    const QColor     uiContentTextColor(const QString& uiConfigName = "") const;
+    void             setUiContentTextColor(const QColor& uiIcon, const QString& uiConfigName = ""); 
 
-    const QString    uiWhatsThis(QString uiConfigName = "") const;
-    void             setUiWhatsThis(const QString& uiWhatsThis, QString uiConfigName = "") { m_configItemInfos[uiConfigName].m_whatsThis = uiWhatsThis; } 
+    const QString    uiToolTip(const QString& uiConfigName = "") const;
+    void             setUiToolTip(const QString& uiToolTip, const QString& uiConfigName = ""); 
 
-    bool             isUiHidden(QString uiConfigName = "") const;
-    void             setUiHidden(bool isHidden, QString uiConfigName = "")                 { m_configItemInfos[uiConfigName].m_isHidden = isHidden; } 
+    const QString    uiWhatsThis(const QString& uiConfigName = "") const;
+    void             setUiWhatsThis(const QString& uiWhatsThis, const QString& uiConfigName = ""); 
 
-    bool             isUiTreeHidden(QString uiConfigName = "") const;
-    void             setUiTreeHidden(bool isHidden, QString uiConfigName = "")              { m_configItemInfos[uiConfigName].m_isHidden = isHidden; }
+    bool             isUiHidden(const QString& uiConfigName = "") const;
+    void             setUiHidden(bool isHidden, const QString& uiConfigName = ""); 
 
-    bool             isUiTreeChildrenHidden(QString uiConfigName = "") const;
-    void             setUiTreeChildrenHidden(bool isTreeChildrenHidden, QString uiConfigName = "")     { m_configItemInfos[uiConfigName].m_isTreeChildrenHidden = isTreeChildrenHidden; } 
+    bool             isUiTreeHidden(const QString& uiConfigName = "") const;
+    void             setUiTreeHidden(bool isHidden, const QString& uiConfigName = "");
 
-    bool             isUiReadOnly(QString uiConfigName = "") const;
-    void             setUiReadOnly(bool isReadOnly, QString uiConfigName = "")             { m_configItemInfos[uiConfigName].m_isReadOnly = isReadOnly; } 
+    bool             isUiTreeChildrenHidden(const QString& uiConfigName = "") const;
+    void             setUiTreeChildrenHidden(bool isTreeChildrenHidden, const QString& uiConfigName = ""); 
+
+    bool             isUiReadOnly(const QString& uiConfigName = "") const;
+    void             setUiReadOnly(bool isReadOnly, const QString& uiConfigName = ""); 
    
     PdmUiItemInfo::LabelPosType  
-                     uiLabelPosition(QString uiConfigName = "") const;
-    void             setUiLabelPosition(PdmUiItemInfo::LabelPosType alignment, QString uiConfigName = "") { m_configItemInfos[uiConfigName].m_labelAlignment = alignment; } 
+                     uiLabelPosition(const QString& uiConfigName = "") const;
+    void             setUiLabelPosition(PdmUiItemInfo::LabelPosType alignment, const QString& uiConfigName = ""); 
+
+    bool             isCustomContextMenuEnabled(const QString& uiConfigName = "") const;
+    void             setCustomContextMenuEnabled(bool enableCustomContextMenu, const QString& uiConfigName = ""); 
 
     QString          uiEditorTypeName(const QString& uiConfigName) const;
-    void             setUiEditorTypeName(const QString& editorTypeName, QString uiConfigName = "") { m_configItemInfos[uiConfigName].m_editorTypeName = editorTypeName; }
+    void             setUiEditorTypeName(const QString& editorTypeName, const QString& uiConfigName = "");
 
-    virtual bool     isUiGroup()                                                           { return false; }
+    virtual bool     isUiGroup() const;
 
     /// Intended to be called when fields in an object has been changed
-    void             updateConnectedEditors();
+    void             updateConnectedEditors() const;
 
     /// Intended to be called when an object has been created or deleted
-    void             updateAllRequiredEditors();
+    void             updateAllRequiredEditors() const;
 
-    void             updateUiIconFromState(bool isActive,  QString uiConfigName = "");
+    void             updateUiIconFromState(bool isActive,  const QString& uiConfigName = "");
 
     std::vector<PdmUiEditorHandle*>
                     connectedEditors() const;
@@ -251,17 +259,17 @@ public: // Pdm-Private only
     /// Consider as PRIVATE to the PdmSystem
     //==================================================================================================
 
-    void              setUiItemInfo(PdmUiItemInfo* itemInfo)            { m_staticItemInfo = itemInfo; }
+    void              setUiItemInfo(PdmUiItemInfo* itemInfo);
 
-    void              removeFieldEditor(PdmUiEditorHandle* fieldView)   { m_editors.erase(fieldView); }
-    void              addFieldEditor(PdmUiEditorHandle* fieldView)      { m_editors.insert(fieldView); }
+    void              removeFieldEditor(PdmUiEditorHandle* fieldView);
+    void              addFieldEditor(PdmUiEditorHandle* fieldView);
 
 protected:
     std::set<PdmUiEditorHandle*>        m_editors;
 
 private:
     const PdmUiItemInfo*                defaultInfo() const;
-    const PdmUiItemInfo*                configInfo(QString uiConfigName) const;
+    const PdmUiItemInfo*                configInfo(const QString& uiConfigName) const;
 
     PdmUiItemInfo*                      m_staticItemInfo;
     std::map< QString, PdmUiItemInfo >  m_configItemInfos; 

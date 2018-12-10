@@ -42,7 +42,7 @@ class RifReaderEclipseRft : public cvf::Object
 {
 public:
     RifReaderEclipseRft(const QString& fileName);
-    ~RifReaderEclipseRft();
+    ~RifReaderEclipseRft() override;
 
     const std::vector<RifEclipseRftAddress>&                    eclipseRftAddresses();
     void                                                        values(const RifEclipseRftAddress& rftAddress, std::vector<double>* values);

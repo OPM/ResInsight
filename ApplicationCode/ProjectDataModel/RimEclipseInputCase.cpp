@@ -20,6 +20,7 @@
 
 #include "RimEclipseInputCase.h"
 
+#include "RiaFieldHandleTools.h"
 #include "RiaPreferences.h"
 
 #include "RifEclipseInputFileTools.h"
@@ -39,6 +40,7 @@
 #include "RimReservoirCellResultsStorage.h"
 #include "RimTools.h"
 
+#include "cafPdmUiTreeOrdering.h"
 #include "cafProgressInfo.h"
 
 #include <QFileInfo>
@@ -66,8 +68,7 @@ RimEclipseInputCase::RimEclipseInputCase()
 
     CAF_PDM_InitFieldNoDefault(&m_additionalFilenames_OBSOLETE, "AdditionalFileNames", "Additional Files", "", "" ,"");
     m_additionalFilenames_OBSOLETE.uiCapability()->setUiReadOnly(true);
-    m_additionalFilenames_OBSOLETE.uiCapability()->setUiHidden(true);
-    m_additionalFilenames_OBSOLETE.xmlCapability()->setIOWritable(false);
+    RiaFieldhandleTools::disableWriteAndSetFieldHidden(&m_additionalFilenames_OBSOLETE);
 }
 
 
@@ -103,7 +104,7 @@ bool RimEclipseInputCase::openDataFileSet(const QStringList& fileNames)
         return true;
     }
 
-    if (this->eclipseCaseData() == NULL) 
+    if (this->eclipseCaseData() == nullptr) 
     {
         this->setReservoirData(new RigEclipseCaseData(this));
     }
@@ -124,7 +125,7 @@ bool RimEclipseInputCase::openDataFileSet(const QStringList& fileNames)
 
                 this->caseUserDescription = caseName;
 
-                this->eclipseCaseData()->mainGrid()->setFlipAxis(flipXAxis, flipYAxis);
+                this->eclipseCaseData()->mainGrid()->setFlipAxis(m_flipXAxis, m_flipYAxis);
 
                 computeCachedData();
 
@@ -181,7 +182,7 @@ bool RimEclipseInputCase::openDataFileSet(const QStringList& fileNames)
 bool RimEclipseInputCase::openEclipseGridFile()
 {
     // Early exit if reservoir data is created
-    if (this->eclipseCaseData() == NULL)
+    if (this->eclipseCaseData() == nullptr)
     {
         cvf::ref<RifReaderInterface> readerInterface;
 
@@ -208,19 +209,20 @@ bool RimEclipseInputCase::openEclipseGridFile()
         results(RiaDefines::MATRIX_MODEL)->setReaderInterface(readerInterface.p());
         results(RiaDefines::FRACTURE_MODEL)->setReaderInterface(readerInterface.p());
 
-        this->eclipseCaseData()->mainGrid()->setFlipAxis(flipXAxis, flipYAxis);
+        this->eclipseCaseData()->mainGrid()->setFlipAxis(m_flipXAxis, m_flipYAxis);
         
         computeCachedData();
         loadAndSyncronizeInputProperties();
     }
 
-    
     RiaApplication* app = RiaApplication::instance();
     if (app->preferences()->autocomputeDepthRelatedProperties)
     {
         results(RiaDefines::MATRIX_MODEL)->computeDepthRelatedResults();
         results(RiaDefines::FRACTURE_MODEL)->computeDepthRelatedResults();
     }
+
+    results(RiaDefines::MATRIX_MODEL)->computeCellVolumes();
 
     return true;
  }
@@ -311,7 +313,7 @@ void RimEclipseInputCase::loadAndSyncronizeInputProperties()
         progInfo.setProgress(static_cast<int>(progress +  inputPropCount));
         // Check if there are more known property keywords left on file. If it is, read them and create inputProperty objects
 
-        for (const QString fileKeyword : fileKeywordSet)
+        for (const QString& fileKeyword : fileKeywordSet)
         {
             {
                 QString resultName = this->eclipseCaseData()->results(RiaDefines::MATRIX_MODEL)->makeResultNameUnique(fileKeyword);
@@ -337,6 +339,14 @@ void RimEclipseInputCase::loadAndSyncronizeInputProperties()
             m_inputPropertyCollection->inputProperties[i]->resolvedState = RimEclipseInputProperty::FILE_MISSING;
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimEclipseInputPropertyCollection* RimEclipseInputCase::inputPropertyCollection()
+{
+    return m_inputPropertyCollection();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -397,9 +407,19 @@ void RimEclipseInputCase::defineUiOrdering(QString uiConfigName, caf::PdmUiOrder
 
     auto group = uiOrdering.addNewGroup("Case Options");
     group->add(&activeFormationNames);
-    group->add(&flipXAxis);
-    group->add(&flipYAxis);
+    group->add(&m_flipXAxis);
+    group->add(&m_flipYAxis);
 
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimEclipseInputCase::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/)
+{
+    uiTreeOrdering.add(&m_inputPropertyCollection);
+
+    RimEclipseCase::defineUiTreeOrdering(uiTreeOrdering, uiConfigName);
 }
 
 //--------------------------------------------------------------------------------------------------

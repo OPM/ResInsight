@@ -132,7 +132,7 @@ public:
 
         try
         {
-            m_eclSaturationFunc.reset(new Opm::ECLSaturationFunc(*m_eclGraph, initData, true, Opm::ECLSaturationFunc::InvalidEPBehaviour::IgnorePoint));
+            m_eclSaturationFunc.reset(new Opm::ECLSaturationFunc(*m_eclGraph, initData));
         }
         catch (...)
         {
@@ -269,10 +269,10 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate(size_t timeStepI
         QString gridFileName = m_eclipseCase->gridFileName();
         if ( !RifEclipseOutputFileTools::findSiblingFilesWithSameBaseName(gridFileName, &m_filesWithSameBaseName) ) return result;
 
-        QString restartFileName = RifEclipseOutputFileTools::firstFileNameOfType(m_filesWithSameBaseName, ECL_UNIFIED_RESTART_FILE);
-        if ( !restartFileName.isEmpty() )
+        QString firstRestartFileName = RifEclipseOutputFileTools::firstFileNameOfType(m_filesWithSameBaseName, ECL_UNIFIED_RESTART_FILE);
+        if ( !firstRestartFileName.isEmpty() )
         {
-            m_opmFlowDiagStaticData->m_unifiedRestartData.reset(new Opm::ECLRestartData(Opm::ECLRestartData(restartFileName.toStdString())));
+            m_opmFlowDiagStaticData->m_unifiedRestartData.reset(new Opm::ECLRestartData(Opm::ECLRestartData(firstRestartFileName.toStdString())));
             m_opmFlowDiagStaticData->m_hasUnifiedRestartFile = true;
         }
         else
@@ -291,7 +291,7 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate(size_t timeStepI
             restartFileNames.sort(); // To make sure they are sorted in increasing *.X000N order. Hack. Should probably be actual time stored on file.
             m_opmFlowDiagStaticData->m_hasUnifiedRestartFile = false;
 
-            for (auto restartFileName : restartFileNames)
+            for (const auto& restartFileName : restartFileNames)
             {
                 m_opmFlowDiagStaticData->m_singleRestartDataTimeSteps.push_back(Opm::ECLRestartData(restartFileName.toStdString()));
             }
@@ -480,7 +480,7 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate(size_t timeStepI
                 }
 
                
-                #pragma omp critical
+                #pragma omp critical(critical_section_RigFlowDiagSolverInterface_calculate)
                 {
                     result.setInjProdWellPairFlux(uiInjectorTracerName,
                                                   uiProducerTracerName,
@@ -511,15 +511,16 @@ bool RigFlowDiagSolverInterface::ensureStaticDataObjectInstanceCreated()
         if (initFileName.empty()) return false;
 
         const RigEclipseCaseData* eclipseCaseData = m_eclipseCase->eclipseCaseData();
-
-        if (eclipseCaseData->hasFractureResults())
+        if (eclipseCaseData)
         {
-            return false;
-        }
+            if (eclipseCaseData->hasFractureResults())
+            {
+                return false;
+            }
 
-        RiaEclipseUnitTools::UnitSystem caseUnitSystem = eclipseCaseData ? eclipseCaseData->unitsType() : RiaEclipseUnitTools::UNITS_UNKNOWN;
-        
-        m_opmFlowDiagStaticData = new RigOpmFlowDiagStaticData(gridFileName.toStdString(), initFileName, caseUnitSystem);
+            RiaEclipseUnitTools::UnitSystem caseUnitSystem = eclipseCaseData->unitsType();
+            m_opmFlowDiagStaticData = new RigOpmFlowDiagStaticData(gridFileName.toStdString(), initFileName, caseUnitSystem);
+        }
     }
 
     return m_opmFlowDiagStaticData.notNull() ? true : false;
@@ -672,11 +673,16 @@ std::vector<RigFlowDiagSolverInterface::RelPermCurve> RigFlowDiagSolverInterface
 
     // Calculate and return curves both with and without endpoint scaling and tag them accordingly
     // Must use two calls to achieve this
-    const std::array<RelPermCurve::EpsMode, 2> epsModeArr = { RelPermCurve::EPS_ON , RelPermCurve::EPS_OFF };
+        const std::array<RelPermCurve::EpsMode, 2> epsModeArr = { {RelPermCurve::EPS_ON , RelPermCurve::EPS_OFF} };
     for (RelPermCurve::EpsMode epsMode : epsModeArr)
     {
         const bool useEps = epsMode == RelPermCurve::EPS_ON ? true : false;
-        std::vector<Opm::FlowDiagnostics::Graph> graphArr = m_opmFlowDiagStaticData->m_eclSaturationFunc->getSatFuncCurve(satFuncRequests, static_cast<int>(activeCellIndex), useEps);
+
+        Opm::ECLSaturationFunc::SatFuncScaling scaling;
+        if (!useEps) {
+            scaling.enable = static_cast<unsigned char>(0);
+        }
+        std::vector<Opm::FlowDiagnostics::Graph> graphArr = m_opmFlowDiagStaticData->m_eclSaturationFunc->getSatFuncCurve(satFuncRequests, static_cast<int>(activeCellIndex), scaling);
         for (size_t i = 0; i < graphArr.size(); i++)
         {
             const RelPermCurve::Ident curveIdent = curveIdentNameArr[i].first;

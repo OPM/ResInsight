@@ -36,10 +36,9 @@ class RifEclipseSummaryTools
 {
 public:
     static void                     findSummaryHeaderFile(const QString& inputFile, QString* headerFile, bool* isFormatted);
-    static QStringList              findSummaryDataFiles(const QString& caseFile);
+    static QString                  findGridCaseFileFromSummaryHeaderFile(const QString& summaryHeaderFile);
 
     static void                     findSummaryFiles(const QString& inputFile, QString* headerFile, QStringList* dataFiles);
-    static bool                     hasSummaryFiles(const QString& gridFileName);
     static void                     dumpMetaData(RifSummaryReaderInterface* readerEclipseSummary);
 
 private:

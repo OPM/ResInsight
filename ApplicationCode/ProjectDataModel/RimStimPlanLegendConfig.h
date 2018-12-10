@@ -24,7 +24,7 @@
 #include "cafPdmChildField.h"
 
 
-class RimLegendConfig;
+class RimRegularLegendConfig;
 
 //==================================================================================================
 ///  
@@ -36,20 +36,20 @@ class RimStimPlanLegendConfig : public caf::PdmObject
 
 public:
     RimStimPlanLegendConfig();
-    virtual ~RimStimPlanLegendConfig();
+    ~RimStimPlanLegendConfig() override;
 
     QString name() const;
     void setName(const QString& name);
 
 
-    virtual caf::PdmFieldHandle* userDescriptionField() override;
+    caf::PdmFieldHandle* userDescriptionField() override;
 
 protected:
-    virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
-    virtual void defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
+    void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    void defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
 
 private:
     caf::PdmField<QString>               m_name;
-    caf::PdmChildField<RimLegendConfig*> m_legend;
+    caf::PdmChildField<RimRegularLegendConfig*> m_legend;
 
 };

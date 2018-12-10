@@ -28,7 +28,7 @@
 #include "RicSnapshotViewToFileFeature.h"
 #include "RicSnapshotFilenameGenerator.h"
 
-#include "RiuMainPlotWindow.h"
+#include "RiuPlotMainWindowTools.h"
 
 #include "cafUtils.h"
 
@@ -50,7 +50,7 @@ void RicSnapshotAllPlotsToFileFeature::saveAllPlots()
 {
     RiaApplication* app = RiaApplication::instance();
 
-    RiuMainPlotWindow* mainPlotWindow = app->mainPlotWindow();
+    RiuPlotMainWindow* mainPlotWindow = app->mainPlotWindow();
     if (!mainPlotWindow) return;
 
     RimProject* proj = app->project();
@@ -68,7 +68,7 @@ void RicSnapshotAllPlotsToFileFeature::saveAllPlots()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicSnapshotAllPlotsToFileFeature::exportSnapshotOfAllPlotsIntoFolder(QString snapshotFolderName)
+void RicSnapshotAllPlotsToFileFeature::exportSnapshotOfAllPlotsIntoFolder(const QString& snapshotFolderName, const QString& prefix)
 {
     RiaApplication* app = RiaApplication::instance();
 
@@ -91,6 +91,11 @@ void RicSnapshotAllPlotsToFileFeature::exportSnapshotOfAllPlotsIntoFolder(QStrin
         if (viewWindow->isMdiWindow() && viewWindow->viewWidget())
         {
             QString fileName = RicSnapshotFilenameGenerator::generateSnapshotFileName(viewWindow);
+            if (!prefix.isEmpty())
+            {
+                fileName = prefix + fileName;
+            }
+
             fileName.replace(" ", "_");
 
             QString absoluteFileName = caf::Utils::constructFullFileName(absSnapshotPath, fileName, ".png");
@@ -123,11 +128,7 @@ void RicSnapshotAllPlotsToFileFeature::onActionTriggered(bool isChecked)
 
     if (currentActiveWidget)
     {
-        RiuMainPlotWindow* mainPlotWindow = RiaApplication::instance()->mainPlotWindow();
-        if (mainPlotWindow)
-        {
-            mainPlotWindow->setActiveViewer(currentActiveWidget);
-        }
+        RiuPlotMainWindowTools::setActiveViewer(currentActiveWidget);
     }
 }
 

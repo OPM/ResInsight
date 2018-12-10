@@ -26,6 +26,7 @@
 
 class RimEclipseCase;
 class RifReaderEclipseSummary;
+class RimFileSummaryCase;
 
 //==================================================================================================
 //
@@ -38,18 +39,21 @@ class RimGridSummaryCase : public RimSummaryCase
     CAF_PDM_HEADER_INIT;
 public:
     RimGridSummaryCase();
-    virtual ~RimGridSummaryCase();
+    ~RimGridSummaryCase() override;
 
     void                            setAssociatedEclipseCase(RimEclipseCase* eclipseCase);
     RimEclipseCase*                 associatedEclipseCase();
 
-    virtual QString                 summaryHeaderFilename() const override;
-    virtual QString                 caseName() override;
-    virtual void                    updateFilePathsFromProjectPath(const QString& newProjectPath, const QString& oldProjectPath) override;
+    QString                 summaryHeaderFilename() const override;
+    QString                 caseName() const override;
+    void                    updateFilePathsFromProjectPath(const QString& newProjectPath, const QString& oldProjectPath) override;
 
-    virtual void                    createSummaryReaderInterface() override;
-    virtual RifSummaryReaderInterface* summaryReader() override;
+    void                    createSummaryReaderInterface() override;
+    RifSummaryReaderInterface* summaryReader() override;
 
+    void                            setIncludeRestartFiles(bool includeRestartFiles);
+
+    RimFileSummaryCase*             createFileSummaryCaseCopy();
 private:
     QString                         eclipseGridFileName() const;
 
@@ -59,4 +63,5 @@ private:
     caf::PdmProxyValueField<QString>    m_eclipseGridFileName;
 
     cvf::ref<RifReaderEclipseSummary>   m_summaryFileReader;
+    caf::PdmField<bool>                 m_includeRestartFiles;
 };

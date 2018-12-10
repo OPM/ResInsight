@@ -20,18 +20,19 @@
 
 #include "RiaApplication.h"
 #include "RiaLogging.h"
+#include "RiaViewRedrawScheduler.h"
 
 #include "RimMainPlotCollection.h"
 #include "RimProject.h"
 #include "RimViewWindow.h"
-#include "RimView.h"
+#include "RimGridView.h"
 #include "RimCase.h"
 #include "Rim3dOverlayInfoConfig.h"
 
 #include "RicSnapshotViewToFileFeature.h"
 #include "RicSnapshotFilenameGenerator.h"
 
-#include "RiuMainWindow.h"
+#include "Riu3DMainWindowTools.h"
 #include "RiuViewer.h"
 
 #include "RigFemResultPosEnum.h"
@@ -69,11 +70,8 @@ void RicSnapshotAllViewsToFileFeature::saveAllViews()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicSnapshotAllViewsToFileFeature::exportSnapshotOfAllViewsIntoFolder(QString snapshotFolderName)
+void RicSnapshotAllViewsToFileFeature::exportSnapshotOfAllViewsIntoFolder(const QString& snapshotFolderName, const QString& prefix)
 {
-    RiuMainWindow* mainWnd = RiuMainWindow::instance();
-    if (!mainWnd) return;
-
     RimProject* project = RiaApplication::instance()->project();
 
     if (project == nullptr) return;
@@ -96,35 +94,44 @@ void RicSnapshotAllViewsToFileFeature::exportSnapshotOfAllViewsIntoFolder(QStrin
         RimCase* cas = projectCases[i];
         if (!cas) continue;
 
-        std::vector<RimView*> views = cas->views();
+        std::vector<Rim3dView*> views = cas->views();
 
         for (size_t j = 0; j < views.size(); j++)
         {
-            RimView* riv = views[j];
+            Rim3dView* riv = views[j];
 
             if (riv && riv->viewer())
             {
                 RiaApplication::instance()->setActiveReservoirView(riv);
 
                 RiuViewer* viewer = riv->viewer();
-                mainWnd->setActiveViewer(viewer->layoutWidget());
+                Riu3DMainWindowTools::setActiveViewer(viewer->layoutWidget());
 
-                RiaApplication::instance()->clearViewsScheduledForUpdate();
+                RiaViewRedrawScheduler::instance()->clearViewsScheduledForUpdate();
 
                 //riv->updateCurrentTimeStepAndRedraw();
                 riv->createDisplayModelAndRedraw();
                 viewer->repaint();
 
                 QString fileName = RicSnapshotFilenameGenerator::generateSnapshotFileName(riv);
+                if (!prefix.isEmpty())
+                {
+                    fileName = prefix + fileName;
+                }
 
                 QString absoluteFileName = caf::Utils::constructFullFileName(absSnapshotPath, fileName, ".png");
                 
                 RicSnapshotViewToFileFeature::saveSnapshotAs(absoluteFileName, riv);
 
                 // Statistics dialog
-                QImage img = riv->overlayInfoConfig()->statisticsDialogScreenShotImage();
-                absoluteFileName = caf::Utils::constructFullFileName(absSnapshotPath, fileName + "_Statistics", ".png");
-                RicSnapshotViewToFileFeature::saveSnapshotAs(absoluteFileName, img);
+
+                RimGridView* rigv = dynamic_cast<RimGridView*>(riv);
+                if ( rigv )
+                {
+                    QImage img = rigv->overlayInfoConfig()->statisticsDialogScreenShotImage();
+                    absoluteFileName = caf::Utils::constructFullFileName(absSnapshotPath, fileName + "_Statistics", ".png");
+                    RicSnapshotViewToFileFeature::saveSnapshotAs(absoluteFileName, img);
+                }
             }
         }
     }
@@ -153,11 +160,7 @@ void RicSnapshotAllViewsToFileFeature::onActionTriggered(bool isChecked)
 
     if (currentActiveWidget)
     {
-        RiuMainWindow* mainWindow = RiuMainWindow::instance();
-        if (mainWindow)
-        {
-            mainWindow->setActiveViewer(currentActiveWidget);
-        }
+        Riu3DMainWindowTools::setActiveViewer(currentActiveWidget);
     }
 }
 

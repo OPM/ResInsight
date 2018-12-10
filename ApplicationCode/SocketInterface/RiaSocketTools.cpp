@@ -49,7 +49,7 @@
 //--------------------------------------------------------------------------------------------------
 RimEclipseCase* RiaSocketTools::findCaseFromArgs(RiaSocketServer* server, const QList<QByteArray>& args)
 {
-    RimEclipseCase* rimCase = NULL;
+    RimEclipseCase* rimCase = nullptr;
     int caseId = -1;
 
     if (args.size() > 1)
@@ -58,7 +58,7 @@ RimEclipseCase* RiaSocketTools::findCaseFromArgs(RiaSocketServer* server, const 
     }
     rimCase = server->findReservoir(caseId);
 
-    if (rimCase == NULL)
+    if (rimCase == nullptr)
     {
         // TODO: Display error message a different place to avoid socket comm to be halted.
         //server->errorMessageDialog()->showMessage(RiaSocketServer::tr("ResInsight SocketServer: \n") + RiaSocketServer::tr("Could not find the Case with CaseId : \"%1\"").arg(caseId));
@@ -79,7 +79,7 @@ void RiaSocketTools::getCaseInfoFromCase(RimCase* rimCase, qint64& caseId, QStri
     caseName = rimCase->caseUserDescription;
 
     RimEclipseCase* eclCase = dynamic_cast<RimEclipseCase*> (rimCase);
-    RimCaseCollection* caseCollection = NULL;
+    RimCaseCollection* caseCollection = nullptr;
     if (eclCase)
     {
         caseCollection = eclCase->parentCaseCollection();

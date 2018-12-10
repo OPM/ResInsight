@@ -37,7 +37,7 @@
 
 #pragma once
 
-#include "cafPdmUiWidgetBasedObjectEditor.h"
+#include "cafPdmUiFormLayoutObjectEditor.h"
 
 #include <QPointer>
 
@@ -55,17 +55,17 @@ class PdmUiGroup;
 //==================================================================================================
 /// The default editor for PdmObjects. Manages the field editors in a grid layout vertically
 //==================================================================================================
-class PdmUiDefaultObjectEditor : public PdmUiWidgetBasedObjectEditor
+class PdmUiDefaultObjectEditor : public PdmUiFormLayoutObjectEditor
 {
     Q_OBJECT
 public:
     PdmUiDefaultObjectEditor();
-    ~PdmUiDefaultObjectEditor();
+    ~PdmUiDefaultObjectEditor() override;
 
 private:
-    virtual QWidget* createWidget(QWidget* parent) override;
-    virtual void     recursivelyConfigureAndUpdateTopLevelUiItems(const std::vector<PdmUiItem*>& topLevelUiItems,
-                                                                  const QString& uiConfigName) override;
+    QWidget* createWidget(QWidget* parent) override;
+    void     recursivelyConfigureAndUpdateTopLevelUiOrdering(const PdmUiOrdering& topLevelUiItems,
+                                                                     const QString& uiConfigName) override;
 
 };
 

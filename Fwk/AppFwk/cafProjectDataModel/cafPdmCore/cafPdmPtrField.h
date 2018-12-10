@@ -3,7 +3,7 @@
 #include "cafAssert.h"
 #include "cafPdmPointer.h"
 
-#include "cafPdmFieldHandle.h"
+#include "cafPdmValueField.h"
 
 namespace caf
 {
@@ -21,7 +21,7 @@ template< typename T> class PdmFieldXmlCap;
 //==================================================================================================
 
 template<typename DataType>
-class PdmPtrField : public PdmFieldHandle
+class PdmPtrField : public PdmValueField
 {
 public:
     PdmPtrField()
@@ -31,7 +31,7 @@ public:
 };
 
 template<typename DataType >
-class PdmPtrField <DataType*> : public PdmFieldHandle
+class PdmPtrField <DataType*> : public PdmValueField
 {
     typedef DataType* DataTypePtr;
 public:
@@ -50,6 +50,11 @@ public:
 
     DataType*                   value() const                               { return m_fieldValue;  }
     void                        setValue(const DataTypePtr& fieldValue);    
+
+    // QVariant access
+    virtual QVariant            toQVariant() const override;
+    virtual void                setFromQVariant(const QVariant& variant) override;
+    virtual bool                isReadOnly() const override { return false; }
 
     // Access operators
 
@@ -80,6 +85,3 @@ private:
 } // End of namespace caf
 
 #include "cafPdmPtrField.inl"
-
-#include <QMetaType>
-Q_DECLARE_METATYPE(caf::PdmPointer<caf::PdmObjectHandle>);

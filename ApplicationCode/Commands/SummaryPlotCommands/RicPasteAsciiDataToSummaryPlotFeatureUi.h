@@ -38,7 +38,7 @@
 class AsciiDataParseOptions
 {
 public:
-    AsciiDataParseOptions() : useCustomDateTimeFormat(false) { }
+    AsciiDataParseOptions() : useCustomDateTimeFormat(false), assumeNumericDataColumns(false) { }
 
     QString                 plotTitle;
     QString                 curvePrefix;
@@ -48,12 +48,15 @@ public:
     bool                    useCustomDateTimeFormat;
     QString                 dateFormat;
     QString                 timeFormat;
+    QString                 fallbackDateTimeFormat;
     QString                 dateTimeFormat;
     QString                 cellSeparator;
     QString                 timeSeriesColumnName;
 
-    RimPlotCurve::LineStyleEnum   curveLineStyle;
-    RimPlotCurve::PointSymbolEnum curveSymbol;
+    bool                    assumeNumericDataColumns;
+
+    RiuQwtPlotCurve::LineStyleEnum   curveLineStyle;
+    RiuQwtSymbol::PointSymbolEnum curveSymbol;
     float                         curveSymbolSkipDistance;
 };
 
@@ -70,7 +73,8 @@ public:
     {
         UI_MODE_NONE,
         UI_MODE_IMPORT,
-        UI_MODE_PASTE
+        UI_MODE_PASTE,
+        UI_MODE_SILENT
     };
 
     enum DecimalSeparator
@@ -97,6 +101,7 @@ public:
 
     enum TimeFormat
     {
+        TIME_NONE,
         TIME_HHMM,
         TIME_HHMMSS,
         TIME_HHMMSSZZZ,
@@ -119,14 +124,15 @@ public:
     void    setUiModeImport(const QString& fileName);
     void    setUiModePasteText(const QString& text);
 
+    UiMode  uiModeImport() const;
     const AsciiDataParseOptions    parseOptions() const;
     void    createNewPlot();
 
 protected:
-    virtual void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
-    virtual QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
-    virtual void                            defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override;
-    virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
+    void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
+    void                            defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override;
+    void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
 
 private:
     void    initialize(RifCsvUserDataParser* parser);
@@ -144,8 +150,8 @@ private:
     caf::PdmField<CellSeparatorEnum>                            m_cellSeparator;
     caf::PdmField<QString>                                      m_timeSeriesColumnName;
 
-    caf::PdmField<caf::AppEnum<RimPlotCurve::LineStyleEnum>>    m_curveLineStyle;
-    caf::PdmField<caf::AppEnum<RimPlotCurve::PointSymbolEnum>>  m_curveSymbol;
+    caf::PdmField<caf::AppEnum<RiuQwtPlotCurve::LineStyleEnum>>    m_curveLineStyle;
+    caf::PdmField<caf::AppEnum<RiuQwtSymbol::PointSymbolEnum>>  m_curveSymbol;
     caf::PdmField<float>                                        m_curveSymbolSkipDistance;
 
     bool                                                        m_createNewPlot;

@@ -21,7 +21,7 @@
 #include "RimCellRangeFilterCollection.h"
 
 #include "RimCellRangeFilter.h"
-#include "RimView.h"
+#include "Rim3dView.h"
 #include "RimViewController.h"
 #include "RimViewLinker.h"
 
@@ -70,25 +70,47 @@ void RimCellRangeFilterCollection::compoundCellRangeFilter(cvf::CellRangeFilter*
         {
             if (rangeFilter->filterMode == RimCellFilter::INCLUDE)
             {
-                cellRangeFilter->addCellIncludeRange(
-                    rangeFilter->startIndexI - 1,
-                    rangeFilter->startIndexJ - 1,
-                    rangeFilter->startIndexK - 1,
-                    rangeFilter->startIndexI - 1 + rangeFilter->cellCountI,
-                    rangeFilter->startIndexJ - 1 + rangeFilter->cellCountJ,
-                    rangeFilter->startIndexK - 1 + rangeFilter->cellCountK,
-                    rangeFilter->propagateToSubGrids());
+                if (rangeFilter->useIndividualCellIndices())
+                {
+                    for (const auto& cellIndex : rangeFilter->individualCellIndices())
+                    {
+                        cellRangeFilter->addCellInclude(
+                            cellIndex.x() - 1 , cellIndex.y() - 1, cellIndex.z() - 1, rangeFilter->propagateToSubGrids());
+                    }
+                }
+                else
+                {
+                    cellRangeFilter->addCellIncludeRange(
+                        rangeFilter->startIndexI - 1,
+                        rangeFilter->startIndexJ - 1,
+                        rangeFilter->startIndexK - 1,
+                        rangeFilter->startIndexI - 1 + rangeFilter->cellCountI,
+                        rangeFilter->startIndexJ - 1 + rangeFilter->cellCountJ,
+                        rangeFilter->startIndexK - 1 + rangeFilter->cellCountK,
+                        rangeFilter->propagateToSubGrids());
+                }
             }
             else
             {
-                cellRangeFilter->addCellExcludeRange(
-                    rangeFilter->startIndexI - 1,
-                    rangeFilter->startIndexJ - 1,
-                    rangeFilter->startIndexK - 1,
-                    rangeFilter->startIndexI - 1 + rangeFilter->cellCountI,
-                    rangeFilter->startIndexJ - 1 + rangeFilter->cellCountJ,
-                    rangeFilter->startIndexK - 1 + rangeFilter->cellCountK, 
-                    rangeFilter->propagateToSubGrids());
+                if (rangeFilter->useIndividualCellIndices())
+                {
+                    for (const auto& cellIndex : rangeFilter->individualCellIndices())
+                    {
+                        cellRangeFilter->addCellExclude(
+                            cellIndex.x() - 1, cellIndex.y() - 1, cellIndex.z() - 1, rangeFilter->propagateToSubGrids());
+                    }
+                }
+                else
+                {
+                    cellRangeFilter->addCellExcludeRange(
+                        rangeFilter->startIndexI - 1,
+                        rangeFilter->startIndexJ - 1,
+                        rangeFilter->startIndexK - 1,
+                        rangeFilter->startIndexI - 1 + rangeFilter->cellCountI,
+                        rangeFilter->startIndexJ - 1 + rangeFilter->cellCountJ,
+                        rangeFilter->startIndexK - 1 + rangeFilter->cellCountK, 
+                        rangeFilter->propagateToSubGrids());
+                }
             }
         }
     }
@@ -102,7 +124,7 @@ void RimCellRangeFilterCollection::fieldChangedByUi(const caf::PdmFieldHandle* c
     updateIconState();
     uiCapability()->updateConnectedEditors();
     
-    updateDisplayModeNotifyManagedViews(NULL);
+    updateDisplayModeNotifyManagedViews(nullptr);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -110,7 +132,7 @@ void RimCellRangeFilterCollection::fieldChangedByUi(const caf::PdmFieldHandle* c
 //--------------------------------------------------------------------------------------------------
 void RimCellRangeFilterCollection::updateDisplayModeNotifyManagedViews(RimCellRangeFilter* changedRangeFilter)
 {
-    RimView* view = NULL;
+    Rim3dView* view = nullptr;
     firstAncestorOrThisOfType(view);
     if (!view) return;
 
@@ -173,9 +195,9 @@ bool RimCellRangeFilterCollection::hasActiveIncludeFilters() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimView* RimCellRangeFilterCollection::baseView() const
+Rim3dView* RimCellRangeFilterCollection::baseView() const
 {
-    RimView* rimView = NULL;
+    Rim3dView* rimView = nullptr;
     firstAncestorOrThisOfType(rimView);
 
     return rimView;

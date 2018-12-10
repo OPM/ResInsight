@@ -41,7 +41,7 @@ class RimScriptCollection : public caf::PdmObject
     CAF_PDM_HEADER_INIT;
 public:
     RimScriptCollection();
-    virtual ~RimScriptCollection();
+    ~RimScriptCollection() override;
 
 public: // Pdm Fields
     caf::PdmField<QString>                        directory;
@@ -55,8 +55,8 @@ public: // Methods
     RimScriptCollection*                        findScriptCollection(const QString& path);
 
 // Overrides from PdmObject
-    virtual void                                fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
+    void                                fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
 
 protected:
-    virtual void                                defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute );
+    void                                defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
 };

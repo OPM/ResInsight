@@ -100,3 +100,10 @@ cvfVector4.cpp
 
 add_library(${PROJECT_NAME} ${CEE_HEADER_FILES} ${CEE_SOURCE_FILES})
 
+target_include_directories(${PROJECT_NAME}
+  PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+set(PROJECT_FILES ${CEE_HEADER_FILES} ${CEE_SOURCE_FILES})
+source_group("" FILES ${PROJECT_FILES})

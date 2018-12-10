@@ -64,12 +64,9 @@ void RicExportFaultsFeature::onActionTriggered(bool isChecked)
 
     if (selectedFaults.size() == 0) return;
 
-    RiaApplication* app = RiaApplication::instance();
+    QString defaultDir = RiaApplication::instance()->lastUsedDialogDirectoryWithFallbackToProjectFolder("FAULTS");
 
-    QString projectFolder = app->currentProjectPath();
-    QString defaultDir = RiaApplication::instance()->lastUsedDialogDirectoryWithFallback("FAULTS", projectFolder);
-
-    QString selectedDir = QFileDialog::getExistingDirectory(NULL, tr("Select Directory"), defaultDir);
+    QString selectedDir = QFileDialog::getExistingDirectory(nullptr, tr("Select Directory"), defaultDir);
 
     if (selectedDir.isNull()) {
         // Stop if folder selection was cancelled.
@@ -81,20 +78,22 @@ void RicExportFaultsFeature::onActionTriggered(bool isChecked)
         RimEclipseCase* eclCase = nullptr;
         rimFault->firstAncestorOrThisOfType(eclCase);
 
-        QString caseName;
+        if (eclCase)
+        {
+            QString caseName = eclCase->caseUserDescription();
 
-        if (eclCase) caseName = eclCase->caseUserDescription();
+            QString faultName = rimFault->name();
+            if (faultName == RiaDefines::undefinedGridFaultName()) faultName = "UNDEF";
+            if (faultName == RiaDefines::undefinedGridFaultWithInactiveName()) faultName = "UNDEF_IA";
 
-        QString faultName = rimFault->name();
-        if ( faultName == RiaDefines::undefinedGridFaultName() ) faultName = "UNDEF";
-        if ( faultName == RiaDefines::undefinedGridFaultWithInactiveName() ) faultName = "UNDEF_IA";
+            QString baseFilename = "Fault_" + faultName + "_" + caseName;
+            baseFilename         = caf::Utils::makeValidFileBasename(baseFilename);
 
-        QString baseFilename = "Fault_" + faultName + "_" + caseName;
-        baseFilename = caf::Utils::makeValidFileBasename(baseFilename);
+            QString completeFilename = selectedDir + "/" + baseFilename + ".grdecl";
 
-        QString completeFilename = selectedDir + "/" + baseFilename + ".grdecl";
-
-        RicExportFaultsFeature::saveFault(completeFilename, eclCase->eclipseCaseData()->mainGrid(),  rimFault->faultGeometry()->faultFaces(), faultName);
+            RicExportFaultsFeature::saveFault(
+                completeFilename, eclCase->eclipseCaseData()->mainGrid(), rimFault->faultGeometry()->faultFaces(), faultName);
+        }
     }
 
 
@@ -189,7 +188,7 @@ void RicExportFaultsFeature::saveFault(QString completeFilename, const RigMainGr
 {
     QFile exportFile(completeFilename);
     
-    if (!exportFile.open(QIODevice::WriteOnly) )
+    if (!exportFile.open(QIODevice::WriteOnly | QIODevice::Text) )
     {
         RiaLogging::error("Could not open the file : " + completeFilename);
     }

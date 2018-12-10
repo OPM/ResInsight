@@ -22,20 +22,21 @@
 
 #include "RiaApplication.h"
 #include "RiaColorTables.h"
+#include "RiaFieldHandleTools.h"
 #include "RiaPreferences.h"
 
 #include "RigEclipseCaseData.h"
 #include "RigSimWellData.h"
 
+#include "RimContourMapView.h"
 #include "RimEclipseCase.h"
+#include "RimEclipseResultCase.h"
 #include "RimEclipseView.h"
+#include "RimIntersectionCollection.h"
 #include "RimProject.h"
+#include "RimSimWellFractureCollection.h"
 #include "RimSimWellInView.h"
 #include "RimWellAllocationPlot.h"
-#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
-#include "RimSimWellFracture.h"
-#include "RimSimWellFractureCollection.h"
-#endif // USE_PROTOTYPE_FEATURE_FRACTURES
 
 #include "RiuMainWindow.h"
 
@@ -43,7 +44,6 @@
 
 #include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiCheckBoxTristateEditor.h"
-#include "RimEclipseResultCase.h"
 
 
 namespace caf
@@ -129,20 +129,16 @@ RimSimWellInViewCollection::RimSimWellInViewCollection()
     CAF_PDM_InitFieldNoDefault(&m_showWellSpheres,     "ShowWellSpheres",           "Spheres", "", "", "");
 
     m_showWellHead.uiCapability()->setUiEditorTypeName(caf::PdmUiCheckBoxTristateEditor::uiEditorTypeName());
-    m_showWellHead.xmlCapability()->setIOReadable(false);
-    m_showWellHead.xmlCapability()->setIOWritable(false);
+    m_showWellHead.xmlCapability()->disableIO();
 
     m_showWellLabel.uiCapability()->setUiEditorTypeName(caf::PdmUiCheckBoxTristateEditor::uiEditorTypeName());
-    m_showWellLabel.xmlCapability()->setIOReadable(false);
-    m_showWellLabel.xmlCapability()->setIOWritable(false);
+    m_showWellLabel.xmlCapability()->disableIO();
 
     m_showWellPipe.uiCapability()->setUiEditorTypeName(caf::PdmUiCheckBoxTristateEditor::uiEditorTypeName());
-    m_showWellPipe.xmlCapability()->setIOReadable(false);
-    m_showWellPipe.xmlCapability()->setIOWritable(false);
+    m_showWellPipe.xmlCapability()->disableIO();
 
     m_showWellSpheres.uiCapability()->setUiEditorTypeName(caf::PdmUiCheckBoxTristateEditor::uiEditorTypeName());
-    m_showWellSpheres.xmlCapability()->setIOReadable(false);
-    m_showWellSpheres.xmlCapability()->setIOWritable(false);
+    m_showWellSpheres.xmlCapability()->disableIO();
 
     // Scaling
     CAF_PDM_InitField(&wellHeadScaleFactor, "WellHeadScale",            1.0,    "Well Head Scale", "", "", "");
@@ -170,8 +166,7 @@ RimSimWellInViewCollection::RimSimWellInViewCollection()
 
     CAF_PDM_InitFieldNoDefault(&m_showWellCells,       "ShowWellCellsTristate", "Show Well Cells", "", "", "");
     m_showWellCells.uiCapability()->setUiEditorTypeName(caf::PdmUiCheckBoxTristateEditor::uiEditorTypeName());
-    m_showWellCells.xmlCapability()->setIOReadable(false);
-    m_showWellCells.xmlCapability()->setIOWritable(false);
+    m_showWellCells.xmlCapability()->disableIO();
 
     CAF_PDM_InitField(&wellCellFenceType,   "DefaultWellFenceDirection", WellFenceEnum(K_DIRECTION), "Well Fence Direction", "", "", "");
 
@@ -184,32 +179,24 @@ RimSimWellInViewCollection::RimSimWellInViewCollection()
 
     CAF_PDM_InitFieldNoDefault(&m_showWellCellFence, "ShowWellCellFenceTristate", "Show Well Cell Fence", "", "", "");
     m_showWellCellFence.uiCapability()->setUiEditorTypeName(caf::PdmUiCheckBoxTristateEditor::uiEditorTypeName());
-    m_showWellCellFence.xmlCapability()->setIOReadable(false);
-    m_showWellCellFence.xmlCapability()->setIOWritable(false);
+    m_showWellCellFence.xmlCapability()->disableIO();
 
     CAF_PDM_InitField(&obsoleteField_wellPipeVisibility,  "GlobalWellPipeVisibility", WellVisibilityEnum(PIPES_INDIVIDUALLY), "Global well pipe visibility",  "", "", "");
-    obsoleteField_wellPipeVisibility.uiCapability()->setUiHidden(true);
-    obsoleteField_wellPipeVisibility.xmlCapability()->setIOWritable(false);
+    RiaFieldhandleTools::disableWriteAndSetFieldHidden(&obsoleteField_wellPipeVisibility);
     
     CAF_PDM_InitField(&obsoleteField_wellCellsToRangeFilterMode,  "GlobalWellCellVisibility", WellCellsRangeFilterEnum(RANGE_ADD_INDIVIDUAL),  "Add cells to range filter", "", "", "");
-    obsoleteField_wellCellsToRangeFilterMode.uiCapability()->setUiHidden(true);
-    obsoleteField_wellCellsToRangeFilterMode.xmlCapability()->setIOWritable(false);
+    RiaFieldhandleTools::disableWriteAndSetFieldHidden(&obsoleteField_wellCellsToRangeFilterMode);
 
     CAF_PDM_InitField(&obsoleteField_showWellHead,              "ShowWellHead",     true, "Show Well Head", "", "", "");
     CAF_PDM_InitField(&obsoleteField_showWellLabel,             "ShowWellLabel",    true, "Show Well Label", "", "", "");
     CAF_PDM_InitField(&obsoleteField_showWellCellFence,         "ShowWellFences",   false,  "Show Well Cell Fence", "", "", "");
+    RiaFieldhandleTools::disableWriteAndSetFieldHidden(&obsoleteField_showWellHead);
+    RiaFieldhandleTools::disableWriteAndSetFieldHidden(&obsoleteField_showWellLabel);
+    RiaFieldhandleTools::disableWriteAndSetFieldHidden(&obsoleteField_showWellCellFence);
 
     CAF_PDM_InitField(&m_showWellCommunicationLines,         "ShowWellCommunicationLines",   false,  "Communication Lines", "", "", "");
 
-    obsoleteField_showWellHead.uiCapability()->setUiHidden(true);
-    obsoleteField_showWellLabel.uiCapability()->setUiHidden(true);
-    obsoleteField_showWellCellFence.uiCapability()->setUiHidden(true);
-
-    obsoleteField_showWellHead.xmlCapability()->setIOWritable(false);
-    obsoleteField_showWellLabel.xmlCapability()->setIOWritable(false);
-    obsoleteField_showWellCellFence.xmlCapability()->setIOWritable(false);
-
-    m_reservoirView = NULL;
+    m_reservoirView = nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -266,7 +253,7 @@ RimSimWellInView* RimSimWellInViewCollection::findWell(QString name)
             return this->wells()[i];
         }
     }
-    return NULL;
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -321,7 +308,7 @@ void RimSimWellInViewCollection::fieldChangedByUi(const caf::PdmFieldHandle* cha
     {
         this->updateUiIconFromToggleField();
 
-        RimView* view;
+        Rim3dView* view;
         firstAncestorOrThisOfType(view);
         if (view)
         {
@@ -417,6 +404,8 @@ void RimSimWellInViewCollection::fieldChangedByUi(const caf::PdmFieldHandle* cha
         {
             m_reservoirView->scheduleSimWellGeometryRegen();
             m_reservoirView->scheduleCreateDisplayModelAndRedraw();
+
+            for (RimSimWellInView* w : wells) w->schedule2dIntersectionViewUpdate();
         }
         else if (&showWellsIntersectingVisibleCells == changedField)
         {
@@ -462,18 +451,19 @@ void RimSimWellInViewCollection::fieldChangedByUi(const caf::PdmFieldHandle* cha
         if (m_reservoirView) m_reservoirView->scheduleCreateDisplayModelAndRedraw();
     }
 
-#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
-    if (&wellPipeCoordType == changedField)
+    if (&wellPipeCoordType == changedField || &isAutoDetectingBranches == changedField)
     {
+        if (m_reservoirView)
+        {
+            m_reservoirView->crossSectionCollection()->recomputeSimWellBranchData();
+        }
+
         for (RimSimWellInView* w : wells)
         {
-            for (RimSimWellFracture* frac : w->simwellFractureCollection()->simwellFractures())
-            {
-                frac->recomputeWellCenterlineCoordinates();
-            }
+            w->simwellFractureCollection()->recomputeSimWellCenterlines();
+
         }
     }
-#endif // USE_PROTOTYPE_FEATURE_FRACTURES
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -529,18 +519,26 @@ void RimSimWellInViewCollection::defineUiOrdering(QString uiConfigName, caf::Pdm
 {
     updateStateForVisibilityCheckboxes();
 
+    bool isContourMap = dynamic_cast<const RimContourMapView*>(m_reservoirView) != nullptr;
+
     caf::PdmUiGroup* appearanceGroup = uiOrdering.addNewGroup("Visibility");
-    appearanceGroup->add(&showWellsIntersectingVisibleCells);
+    if (!isContourMap)
+    {
+        appearanceGroup->add(&showWellsIntersectingVisibleCells);
+    }
     appearanceGroup->add(&m_showWellLabel);
     appearanceGroup->add(&m_showWellHead);
     appearanceGroup->add(&m_showWellPipe);
     appearanceGroup->add(&m_showWellSpheres);
     appearanceGroup->add(&m_showWellCommunicationLines);
     
-    caf::PdmUiGroup* filterGroup = uiOrdering.addNewGroup("Well Cells and Fence");
-    filterGroup->add(&m_showWellCells);
-    filterGroup->add(&m_showWellCellFence);
-    filterGroup->add(&wellCellFenceType);
+    if (!isContourMap)
+    {
+        caf::PdmUiGroup* filterGroup = uiOrdering.addNewGroup("Well Cells and Fence");
+        filterGroup->add(&m_showWellCells);
+        filterGroup->add(&m_showWellCellFence);
+        filterGroup->add(&wellCellFenceType);
+    }
 
     caf::PdmUiGroup* sizeScalingGroup = uiOrdering.addNewGroup("Size Scaling");
     sizeScalingGroup->add(&wellHeadScaleFactor);
@@ -559,10 +557,13 @@ void RimSimWellInViewCollection::defineUiOrdering(QString uiConfigName, caf::Pdm
     wellPipeGroup->add(&wellPipeCoordType);
     wellPipeGroup->add(&isAutoDetectingBranches);
 
-    caf::PdmUiGroup* advancedGroup = uiOrdering.addNewGroup("Advanced");
-    advancedGroup->setCollapsedByDefault(true);
-    advancedGroup->add(&wellCellTransparencyLevel);
-    advancedGroup->add(&wellHeadPosition);
+    if (!isContourMap)
+    {
+        caf::PdmUiGroup* advancedGroup = uiOrdering.addNewGroup("Advanced");
+        advancedGroup->setCollapsedByDefault(true);
+        advancedGroup->add(&wellCellTransparencyLevel);
+        advancedGroup->add(&wellHeadPosition);
+    }
 
     RimEclipseResultCase* ownerCase = nullptr; 
     firstAncestorOrThisOfType(ownerCase);
@@ -573,6 +574,8 @@ void RimSimWellInViewCollection::defineUiOrdering(QString uiConfigName, caf::Pdm
 
     m_showWellCellFence.uiCapability()->setUiReadOnly(!showWellCells());
     wellCellFenceType.uiCapability()->setUiReadOnly(!showWellCells());
+
+    uiOrdering.skipRemainingFields(true);
 }
 
 //--------------------------------------------------------------------------------------------------

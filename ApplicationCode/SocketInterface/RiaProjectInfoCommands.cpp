@@ -76,7 +76,7 @@ class RiaGetCurrentCase : public RiaSocketCommand
 {
 public:
     static QString commandName () { return QString("GetCurrentCase"); }
-    virtual bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>&  args, QDataStream& socketStream)
+    bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>&  args, QDataStream& socketStream) override
     {
         qint64  caseId = server->currentCaseId();
         QString caseName;
@@ -119,7 +119,7 @@ class RiaGetSelectedCases: public RiaSocketCommand
 public:
     static QString commandName () { return QString("GetSelectedCases"); }
 
-    virtual bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>&  args, QDataStream& socketStream)
+    bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>&  args, QDataStream& socketStream) override
     {
         {
             std::vector<RimCase*> cases;
@@ -168,10 +168,10 @@ class RiaGetCaseGroups : public RiaSocketCommand
 {
 public:
     static QString commandName () { return QString("GetCaseGroups"); }
-    virtual bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>&  args, QDataStream& socketStream)
+    bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>&  args, QDataStream& socketStream) override
     {
         RimProject* proj = RiaApplication::instance()->project();
-        RimEclipseCaseCollection* analysisModels = (proj && proj->activeOilField()) ? proj->activeOilField()->analysisModels() : NULL;
+        RimEclipseCaseCollection* analysisModels = (proj && proj->activeOilField()) ? proj->activeOilField()->analysisModels() : nullptr;
         if (analysisModels)
         {
             std::vector<QString> groupNames;
@@ -226,7 +226,7 @@ class RiaGetCases : public RiaSocketCommand
 public:
     static QString commandName () { return QString("GetCases"); }
 
-    virtual bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>&  args, QDataStream& socketStream)
+    bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>&  args, QDataStream& socketStream) override
     {
         int argCaseGroupId = -1;
 
@@ -236,7 +236,7 @@ public:
         }
 
         RimProject* proj = RiaApplication::instance()->project();
-        RimEclipseCaseCollection* analysisModels = (proj && proj->activeOilField()) ? proj->activeOilField()->analysisModels() : NULL;
+        RimEclipseCaseCollection* analysisModels = (proj && proj->activeOilField()) ? proj->activeOilField()->analysisModels() : nullptr;
         if (analysisModels)
         {
 
@@ -247,7 +247,7 @@ public:
             }
             else
             {
-                RimIdenticalGridCaseGroup* caseGroup = NULL;
+                RimIdenticalGridCaseGroup* caseGroup = nullptr;
                 for (size_t i = 0; i < analysisModels->caseGroups().size(); i++)
                 {
                     RimIdenticalGridCaseGroup* cg = analysisModels->caseGroups()[i];

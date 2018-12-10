@@ -39,7 +39,7 @@ CAF_PDM_SOURCE_INIT(RimObservedEclipseUserData, "RimObservedEclipseUserData");
 //--------------------------------------------------------------------------------------------------
 RimObservedEclipseUserData::RimObservedEclipseUserData()
 {
-    CAF_PDM_InitObject("Observed RSMSPEC Column Based Data File", ":/Default.png", "", "");
+    CAF_PDM_InitObject("Observed RSMSPEC Column Based Data File", ":/ObservedRSMDataFile16x16.png", "", "");
     m_summaryHeaderFilename.uiCapability()->setUiName("File");
 }
 

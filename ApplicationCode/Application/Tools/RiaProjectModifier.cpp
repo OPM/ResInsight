@@ -23,6 +23,7 @@
 #include "RimEclipseCaseCollection.h"
 #include "RimEclipseInputCase.h"
 #include "RimEclipseResultCase.h"
+#include "RimGeoMechCase.h"
 #include "RimIdenticalGridCaseGroup.h"
 #include "RimOilField.h"
 #include "RimProject.h"
@@ -125,7 +126,7 @@ void RiaProjectModifier::replaceSourceCases(RimProject* project)
 {
     for (RimOilField* oilField : project->oilFields())
     {
-        RimEclipseCaseCollection* analysisModels = oilField ? oilField->analysisModels() : NULL;
+        RimEclipseCaseCollection* analysisModels = oilField ? oilField->analysisModels() : nullptr;
         if (analysisModels)
         {
             for (RimIdenticalGridCaseGroup* caseGroup : analysisModels->caseGroups)
@@ -170,8 +171,9 @@ void RiaProjectModifier::replaceCase(RimProject* project)
     
     for (RimCase* rimCase : allCases)
     {
-        RimEclipseResultCase* resultCase = dynamic_cast<RimEclipseResultCase*>(rimCase);
-        if (resultCase)
+        RimEclipseResultCase* eclipseResultCase = dynamic_cast<RimEclipseResultCase*>(rimCase);
+        RimGeoMechCase*       geomechCase       = dynamic_cast<RimGeoMechCase*>(rimCase);
+        if (eclipseResultCase || geomechCase)
         {
             for (auto item : m_caseIdToGridFileNameMap)
             {
@@ -181,11 +183,19 @@ void RiaProjectModifier::replaceCase(RimProject* project)
                     caseIdToReplace = firstCaseId(project);
                 }
 
-                if (caseIdToReplace == resultCase->caseId())
+                if (caseIdToReplace == rimCase->caseId())
                 {
                     QString replaceFileName = item.second;
-                    resultCase->setGridFileName(replaceFileName);
-                    resultCase->caseUserDescription = caseNameFromGridFileName(replaceFileName);
+                    if (eclipseResultCase)
+                    {
+                        eclipseResultCase->setGridFileName(replaceFileName);
+                        eclipseResultCase->caseUserDescription = caseNameFromGridFileName(replaceFileName);
+                    }
+                    else if (geomechCase)
+                    {
+                        geomechCase->setFileName(replaceFileName);
+                        geomechCase->caseUserDescription = caseNameFromGridFileName(replaceFileName);
+                    }
                 }
             }
         }
@@ -280,7 +290,7 @@ int RiaProjectModifier::firstGroupId(RimProject* project)
     for (size_t oilFieldIdx = 0; oilFieldIdx < project->oilFields().size(); oilFieldIdx++)
     {
         RimOilField* oilField = project->oilFields[oilFieldIdx];
-        RimEclipseCaseCollection* analysisModels = oilField ? oilField->analysisModels() : NULL;
+        RimEclipseCaseCollection* analysisModels = oilField ? oilField->analysisModels() : nullptr;
         if (analysisModels)
         {
             if (analysisModels->caseGroups.size() > 0)

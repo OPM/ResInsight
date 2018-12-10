@@ -28,7 +28,7 @@ CAF_PDM_SOURCE_INIT(RimSummaryPlotCollection, "SummaryPlotCollection");
 //--------------------------------------------------------------------------------------------------
 RimSummaryPlotCollection::RimSummaryPlotCollection()
 {
-    CAF_PDM_InitObject("Summary Plots", ":/SummaryPlots16x16.png", "", "");
+    CAF_PDM_InitObject("Summary Plots", ":/SummaryPlotsLight16x16.png", "", "");
 
     CAF_PDM_InitFieldNoDefault(&summaryPlots, "SummaryPlots", "Summary Plots",  "", "", "");
     summaryPlots.uiCapability()->setUiHidden(true);
@@ -48,6 +48,8 @@ RimSummaryPlotCollection::~RimSummaryPlotCollection()
 RimSummaryPlot* RimSummaryPlotCollection::createSummaryPlotWithAutoTitle()
 {
     RimSummaryPlot* plot = new RimSummaryPlot();
+    plot->setAsPlotMdiWindow();
+
     plot->enableAutoPlotTitle(true);
     summaryPlots.push_back(plot);
 
@@ -60,6 +62,8 @@ RimSummaryPlot* RimSummaryPlotCollection::createSummaryPlotWithAutoTitle()
 RimSummaryPlot* RimSummaryPlotCollection::createNamedSummaryPlot(const QString& name)
 {
     RimSummaryPlot* plot = new RimSummaryPlot();
+    plot->setAsPlotMdiWindow();
+
     summaryPlots.push_back(plot);
     plot->setDescription(name);
 

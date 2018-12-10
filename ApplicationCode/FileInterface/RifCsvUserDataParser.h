@@ -40,17 +40,22 @@ class AsciiDataParseOptions;
 class RifCsvUserDataParser
 {
 public:
+    enum CsvLayout { ColumnBased, LineBased };
+
+public:
     RifCsvUserDataParser(QString* errorText = nullptr);
     virtual ~RifCsvUserDataParser();
 
     bool                parse(const AsciiDataParseOptions& parseOptions);
     const TableData&    tableData() const;
 
-    const Column*   columnInfo(size_t columnIndex) const;
-    const Column*   dateTimeColumn() const;
+    const Column*       columnInfo(size_t columnIndex) const;
+    const Column*       dateTimeColumn() const;
 
     bool                parseColumnInfo(const AsciiDataParseOptions& parseOptions);
     QString             previewText(int lineCount, const AsciiDataParseOptions& parseOptions);
+
+    CsvLayout           determineCsvLayout();
 
     QString             tryDetermineCellSeparator();
     QString             tryDetermineDecimalSeparator(const QString& cellSeparator);
@@ -59,14 +64,16 @@ public:
 
 protected:
     virtual QTextStream* openDataStream() = 0;
-    virtual void         closeDataStream() = 0;
+    virtual void         closeDataStream() = 0; 
 
 private:
+    std::vector<int>    parseLineBasedHeader(QStringList headerCols);
+
     bool                parseColumnInfo(QTextStream* dataStream,
                                         const AsciiDataParseOptions& parseOptions,
                                         std::vector<Column>* columnInfoList);
-    bool                parseData(const AsciiDataParseOptions& parseOptions);
-    static QStringList  splitLineAndTrim(const QString& line, const QString& separator);
+    bool                parseColumnBasedData(const AsciiDataParseOptions& parseOptions);
+    bool                parseLineBasedData();
     static QDateTime    tryParseDateTime(const std::string& colData, const QString& format);
 
 private:
@@ -81,11 +88,11 @@ class RifCsvUserDataFileParser : public RifCsvUserDataParser
 {
 public:
     RifCsvUserDataFileParser(const QString& fileName, QString* errorText = nullptr);
-    virtual ~RifCsvUserDataFileParser();
+    ~RifCsvUserDataFileParser() override;
 
 protected:
-    virtual QTextStream* openDataStream() override;
-    virtual void         closeDataStream() override;
+    QTextStream* openDataStream() override;
+    void         closeDataStream() override;
 
 private:
     bool                openFile();
@@ -105,11 +112,11 @@ class RifCsvUserDataPastedTextParser : public RifCsvUserDataParser
 {
 public:
     RifCsvUserDataPastedTextParser(const QString& text, QString* errorText = nullptr);
-    virtual ~RifCsvUserDataPastedTextParser();
+    ~RifCsvUserDataPastedTextParser() override;
 
 protected:
-    virtual QTextStream* openDataStream() override;
-    virtual void         closeDataStream() override;
+    QTextStream* openDataStream() override;
+    void         closeDataStream() override;
 
 private:
     QString                 m_text;

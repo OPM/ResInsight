@@ -34,11 +34,11 @@ class RicNewWellPathIntersectionFeatureCmd : public caf::CmdExecuteCommand
 {
 public:
     RicNewWellPathIntersectionFeatureCmd(RimIntersectionCollection* intersectionCollection, RimWellPath* wellPath);
-    virtual ~RicNewWellPathIntersectionFeatureCmd();
+    ~RicNewWellPathIntersectionFeatureCmd() override;
 
-    virtual QString name();
-    virtual void redo();
-    virtual void undo();
+    QString name() override;
+    void redo() override;
+    void undo() override;
 
 private:
     caf::PdmPointer<RimIntersectionCollection> m_intersectionCollection;
@@ -59,9 +59,9 @@ public:
 
 protected:
     // Overrides
-    virtual bool isCommandEnabled();
-    virtual void onActionTriggered( bool isChecked );
-    virtual void setupActionLook( QAction* actionToSetup );
+    bool isCommandEnabled() override;
+    void onActionTriggered( bool isChecked ) override;
+    void setupActionLook( QAction* actionToSetup ) override;
 };
 
 

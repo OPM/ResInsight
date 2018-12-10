@@ -29,7 +29,7 @@
 #include "RimSummaryPlot.h"
 #include "RimSummaryPlotSourceStepping.h"
 
-#include "RiuLineSegmentQwtPlotCurve.h"
+#include "RiuQwtPlotCurve.h"
 #include "RiuSummaryQwtPlot.h"
 
 #include "cafPdmUiTreeViewEditor.h"
@@ -105,12 +105,7 @@ void RimSummaryCurveCollection::loadDataAndUpdate(bool updateParentPlot)
     {
         RimSummaryPlot* parentPlot;
         firstAncestorOrThisOfTypeAsserted(parentPlot);
-        if ( parentPlot->qwtPlot() )
-        {
-            parentPlot->qwtPlot()->updateLegend();
-            parentPlot->updateAxes();
-            parentPlot->updateZoomInQwt();
-        }
+        parentPlot->updateAll();
     }
 }
 
@@ -139,6 +134,17 @@ void RimSummaryCurveCollection::detachQwtCurves()
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCurveCollection::reattachQwtCurves()
+{
+    for (RimSummaryCurve* curve : m_curves)
+    {
+        curve->reattachQwtCurve();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 RimSummaryCurve* RimSummaryCurveCollection::findRimCurveFromQwtCurve(const QwtPlotCurve* qwtCurve) const
@@ -151,7 +157,7 @@ RimSummaryCurve* RimSummaryCurveCollection::findRimCurveFromQwtCurve(const QwtPl
         }
     }
 
-    return NULL;
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -173,6 +179,7 @@ void RimSummaryCurveCollection::deleteCurve(RimSummaryCurve* curve)
     if (curve)
     {
         m_curves.removeChildObject(curve);
+        curve->markCachedDataForPurge();
         delete curve;
     }
 }
@@ -183,24 +190,6 @@ void RimSummaryCurveCollection::deleteCurve(RimSummaryCurve* curve)
 std::vector<RimSummaryCurve*> RimSummaryCurveCollection::curves() const
 {
     return m_curves.childObjects();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-std::vector<RimSummaryCurve*> RimSummaryCurveCollection::visibleCurves() const
-{
-    std::vector<RimSummaryCurve*> visible;
-
-    for (auto c : m_curves)
-    {
-        if (c->isCurveVisible())
-        {
-            visible.push_back(c);
-        }
-    }
-
-    return visible;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -249,6 +238,8 @@ void RimSummaryCurveCollection::updateCaseNameHasChanged()
 
     RimSummaryPlot* parentPlot;
     firstAncestorOrThisOfTypeAsserted(parentPlot);
+
+    parentPlot->updatePlotTitle();
     if (parentPlot->qwtPlot()) parentPlot->qwtPlot()->updateLegend();
 }
 
@@ -385,7 +376,7 @@ void RimSummaryCurveCollection::defineUiOrdering(QString uiConfigName, caf::PdmU
     }
     else
     {
-        auto group = uiOrdering.addNewGroup("Plot Source Stepping");
+        auto group = uiOrdering.addNewGroup("Data Source");
 
         m_ySourceStepping()->uiOrdering(uiConfigName, *group);
     }

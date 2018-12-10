@@ -19,6 +19,8 @@
 
 #include "RimWellLogFileChannel.h"
 
+#include "RiaFieldHandleTools.h"
+
 #include <QString>
 
 
@@ -32,8 +34,7 @@ RimWellLogFileChannel::RimWellLogFileChannel()
     CAF_PDM_InitObject("Well Log File Channel", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_name, "Name", "",  "", "", "");
-    m_name.uiCapability()->setUiHidden(true);
-    m_name.xmlCapability()->setIOWritable(false);
+    RiaFieldhandleTools::disableWriteAndSetFieldHidden(&m_name);
 }
 
 //--------------------------------------------------------------------------------------------------

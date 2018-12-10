@@ -143,6 +143,7 @@ QString Utils::makeValidFileBasename(const QString& fileBasenameCandidate)
     cleanBasename.replace("|", "_");
     cleanBasename.replace("?", "_");
     cleanBasename.replace("*", "_");
+    cleanBasename.replace("\n", "_");
 
 
     cleanBasename.replace(QRegExp("_+"), "_");
@@ -170,7 +171,7 @@ QString Utils::indentString(int numSpacesToIndent, const QString& str)
 bool Utils::getSaveDirectoryAndCheckOverwriteFiles(const QString& defaultDir, std::vector<QString> fileNames, QString* saveDir)
 {
     bool overWriteFiles = false;
-    (*saveDir) = QFileDialog::getExistingDirectory(NULL, "Select save directory", defaultDir);
+    (*saveDir) = QFileDialog::getExistingDirectory(nullptr, "Select save directory", defaultDir);
 
     std::vector<QString> filesToOverwrite;
     for (QString fileName : fileNames)
@@ -278,6 +279,41 @@ bool Utils::isStringMatch(const QString& filterString, const QString& value)
 
     QRegExp searcher(filterString, Qt::CaseInsensitive, QRegExp::WildcardUnix);
     return searcher.exactMatch(value);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool Utils::removeDirectoryAndFilesRecursively(const QString& dirName)
+{
+    bool result = true;
+    QDir dir(dirName);
+
+    if (dir.exists())
+    {
+        QFileInfoList fileInfoList =
+            dir.entryInfoList(QDir::NoDotAndDotDot | QDir::System | QDir::Hidden | QDir::AllDirs | QDir::Files, QDir::DirsFirst);
+        for (const auto& fileInfo : fileInfoList)
+        {
+            if (fileInfo.isDir())
+            {
+                result = removeDirectoryAndFilesRecursively(fileInfo.absoluteFilePath());
+            }
+            else
+            {
+                result = QFile::remove(fileInfo.absoluteFilePath());
+            }
+
+            if (!result)
+            {
+                return result;
+            }
+        }
+
+        result = QDir().rmdir(dirName);
+    }
+
+    return result;
 }
 
 } // namespace caf

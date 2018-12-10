@@ -24,7 +24,7 @@
 #include "cafPdmChildField.h"
 #include "cafPdmField.h"
 
-class RimLegendConfig;
+class RimRegularLegendConfig;
 
 
 //==================================================================================================
@@ -37,12 +37,12 @@ class RimGeoMechCellColors : public RimGeoMechResultDefinition
 
 public:
     RimGeoMechCellColors(void);
-    virtual ~RimGeoMechCellColors(void);
+    ~RimGeoMechCellColors(void) override;
 
-    caf::PdmChildField<RimLegendConfig*> legendConfig;
+    caf::PdmChildField<RimRegularLegendConfig*> legendConfig;
 
     void            updateIconState();
-    virtual void    initAfterRead() override;
+    void    initAfterRead() override;
 
 protected:
     void updateLegendCategorySettings() override; 

@@ -29,10 +29,10 @@
 
 RigGridBase::RigGridBase(RigMainGrid* mainGrid):
     m_gridPointDimensions(0,0,0),
-    m_mainGrid(mainGrid),
-    m_indexToStartOfCells(0)
+    m_indexToStartOfCells(0),
+    m_mainGrid(mainGrid)
 {
-    if (mainGrid == NULL)
+    if (mainGrid == nullptr)
     {
         m_gridIndex = 0;
         m_gridId    = 0;
@@ -154,7 +154,7 @@ void RigGridBase::initSubCellsMainGridCellIndex()
 //--------------------------------------------------------------------------------------------------
 void RigGridBase::cellCornerVertices(size_t cellIndex, cvf::Vec3d vertices[8]) const
 {
-    const caf::SizeTArray8& indices = cell(cellIndex).cornerIndices();
+    const std::array<size_t, 8>& indices = cell(cellIndex).cornerIndices();
     
     vertices[0].set(m_mainGrid->nodes()[indices[0]]);
     vertices[1].set(m_mainGrid->nodes()[indices[1]]);
@@ -379,7 +379,7 @@ size_t RigGridBase::reservoirCellIndex(size_t gridLocalCellIndex) const
 //--------------------------------------------------------------------------------------------------
 size_t RigGridBase::addCoarseningBox(size_t i1, size_t i2, size_t j1, size_t j2, size_t k1, size_t k2)
 {
-    caf::SizeTArray6 box;
+    std::array<size_t, 6> box;
     box[0] = i1;
     box[1] = i2;
     box[2] = j1;
@@ -419,7 +419,7 @@ void RigGridBase::coarseningBox(size_t coarseningBoxIndex, size_t* i1, size_t* i
 
     CVF_ASSERT(i1 && i2 && j1 && j2 && k1 && k2);
 
-    caf::SizeTArray6 box = m_coarseningBoxInfo[coarseningBoxIndex];
+    const std::array<size_t, 6>& box = m_coarseningBoxInfo[coarseningBoxIndex];
     *i1 = box[0];
     *i2 = box[1];
     *j1 = box[2];
@@ -493,7 +493,7 @@ bool RigGridCellFaceVisibilityFilter::isFaceVisible(size_t i, size_t j, size_t k
     }
 
     // If the neighbour cell is invisible, we need to draw the face
-    if ((cellVisibility != NULL) && !(*cellVisibility)[neighborCellIndex])
+    if ((cellVisibility != nullptr) && !(*cellVisibility)[neighborCellIndex])
     {
         return true;
     }

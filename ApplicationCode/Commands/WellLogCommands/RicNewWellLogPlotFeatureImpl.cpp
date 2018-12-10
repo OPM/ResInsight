@@ -29,23 +29,37 @@
 
 #include "cvfAssert.h"
 
+#include <QString>
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimWellLogPlot* RicNewWellLogPlotFeatureImpl::createWellLogPlot()
+RimWellLogPlot* RicNewWellLogPlotFeatureImpl::createWellLogPlot(bool showAfterCreation, const QString& plotDescription)
 {
     RimWellLogPlotCollection* wellLogPlotColl = wellLogPlotCollection();
     CVF_ASSERT(wellLogPlotColl);
 
+    // Make sure the summary plot window is created
+    RiaApplication::instance()->getOrCreateMainPlotWindow();
+
     RimWellLogPlot* plot = new RimWellLogPlot();
     plot->setAsPlotMdiWindow();
+    
     wellLogPlotColl->wellLogPlots().push_back(plot);
 
-    // Make sure the summary plot window is created and visible
-    RiaApplication::instance()->getOrCreateAndShowMainPlotWindow();
+    if (!plotDescription.isEmpty())
+    {
+        plot->setDescription(plotDescription);
+    }
+    else
+    {
+        plot->setDescription(QString("Well Log Plot %1").arg(wellLogPlotCollection()->wellLogPlots.size()));
+    }
 
-    plot->setDescription(QString("Well Log Plot %1").arg(wellLogPlotCollection()->wellLogPlots.size()));
+    if (showAfterCreation)
+    {
+        RiaApplication::instance()->getOrCreateAndShowMainPlotWindow();
+    }
 
     return plot;
 }
@@ -53,19 +67,43 @@ RimWellLogPlot* RicNewWellLogPlotFeatureImpl::createWellLogPlot()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimWellLogTrack* RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack()
+RimWellLogTrack* RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack(bool updateAfter, const QString& trackDescription, RimWellLogPlot* existingPlot)
 {
-    RimWellLogPlot* plot = createWellLogPlot();
+    RimWellLogPlot* plot = existingPlot;
+    if (plot == nullptr)
+    {
+        plot = createWellLogPlot();
+    }
 
     RimWellLogTrack* plotTrack = new RimWellLogTrack();
     plot->addTrack(plotTrack);
-    plotTrack->setDescription(QString("Track %1").arg(plot->trackCount()));
+    if (!trackDescription.isEmpty())
+    {
+        plotTrack->setDescription(trackDescription);
+    }
+    else
+    {
+        plotTrack->setDescription(QString("Track %1").arg(plot->trackCount()));
+    }
 
-    plot->loadDataAndUpdate();
-    plot->updateConnectedEditors();
-    RiaApplication::instance()->project()->updateConnectedEditors();
+    if (updateAfter)
+    {
+        updateAfterCreation(plot);
+    }
 
     return plotTrack;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicNewWellLogPlotFeatureImpl::updateAfterCreation(RimWellLogPlot* plot)
+{
+    CVF_ASSERT(plot);
+    plot->loadDataAndUpdate();
+    plot->updateDepthZoom();
+    plot->updateConnectedEditors();
+    RiaApplication::instance()->project()->updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------

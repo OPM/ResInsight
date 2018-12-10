@@ -17,13 +17,15 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
+#include "RifEclipseSummaryAddress.h"
+#include "RiuQwtSymbol.h"
+#include "RiuQwtPlotCurve.h"
+
 #include "cafPdmField.h"
 #include "cafPdmFieldCvfColor.h"    
 #include "cafPdmObject.h"
 
 #include <QPointer>
-
-class RiuLineSegmentQwtPlotCurve;
 
 class QwtPlot;
 class QwtPlotCurve;
@@ -36,62 +38,45 @@ class RimPlotCurve : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 public:
-    enum LineStyleEnum
-    {
-        STYLE_NONE,
-        STYLE_SOLID,
-        STYLE_DASH,
-        STYLE_DOT,
-        STYLE_DASH_DOT
-    };
-
-    enum PointSymbolEnum
-    {
-        SYMBOL_NONE,
-        SYMBOL_ELLIPSE,
-        SYMBOL_RECT,
-        SYMBOL_DIAMOND,
-        SYMBOL_TRIANGLE,
-        SYMBOL_CROSS,
-        SYMBOL_XCROSS
-    };
-
-    enum CurveInterpolationEnum
-    {
-        INTERPOLATION_POINT_TO_POINT,
-        INTERPOLATION_STEP_LEFT,
-    };
-
-    typedef caf::AppEnum<CurveInterpolationEnum> CurveInterpolation;
+    typedef caf::AppEnum<RiuQwtPlotCurve::CurveInterpolationEnum> CurveInterpolation;
+    typedef caf::AppEnum<RiuQwtPlotCurve::LineStyleEnum> LineStyle;
+    typedef caf::AppEnum<RiuQwtSymbol::PointSymbolEnum> PointSymbol;
 
 public:
     RimPlotCurve();
-    virtual ~RimPlotCurve();
+    ~RimPlotCurve() override;
 
     void                            loadDataAndUpdate(bool updateParentPlot);
+
+    virtual bool                    xValueRange(double* minimumValue, double* maximumValue) const;
+    virtual bool                    yValueRange(double* minimumValue, double* maximumValue) const;
 
     void                            setParentQwtPlotAndReplot(QwtPlot* plot);
     void                            setParentQwtPlotNoReplot(QwtPlot* plot);
     void                            detachQwtCurve();
+    void                            reattachQwtCurve();
     QwtPlotCurve*                   qwtPlotCurve() const;
 
     void                            setColor(const cvf::Color3f& color);
     cvf::Color3f                    color() const { return m_curveColor; }
-    void                            setLineStyle(LineStyleEnum lineStyle);
-    void                            setSymbol(PointSymbolEnum symbolStyle);
-    PointSymbolEnum                 symbol();
-    void                            setSymbolSkipDinstance(float distance);
+    void                            setLineStyle(RiuQwtPlotCurve::LineStyleEnum lineStyle);
+    void                            setSymbol(RiuQwtSymbol::PointSymbolEnum symbolStyle);
+    RiuQwtSymbol::PointSymbolEnum   symbol();
+    void                            setSymbolSkipDistance(float distance);
+    void                            setSymbolLabel(const QString& label);
+    void                            setSymbolSize(int sizeInPixels);
     void                            setLineThickness(int thickness);
     void                            resetAppearance();
 
     bool                            isCurveVisible() const;
     void                            setCurveVisiblity(bool visible);
 
-    void                            updateCurveNameAndUpdatePlotLegend();
+    void                            updateCurveNameAndUpdatePlotLegendAndTitle();
     void                            updateCurveNameNoLegendUpdate();
 
     QString                         curveName() const { return m_curveName; }
-
+    virtual QString                 curveExportDescription(const RifEclipseSummaryAddress& address = RifEclipseSummaryAddress()) const { return m_curveName; }
+    void                            setCustomName(const QString& customName);
     void                            updateCurveVisibility(bool updateParentPlot);
     void                            updateLegendEntryVisibilityAndPlotLegend();
     void                            updateLegendEntryVisibilityNoPlotUpdate();
@@ -100,45 +85,51 @@ public:
 
     void                            setZOrder(double z);
 
+    virtual void                    updateCurveAppearance();
+    bool                            isCrossPlotCurve() const;
+
 protected:
 
     virtual QString                 createCurveAutoName() = 0;
     virtual void                    updateZoomInParentPlot() = 0;
     virtual void                    onLoadDataAndUpdate(bool updateParentPlot) = 0;
-
-    void                            updateCurvePresentation(bool updatePlotLegend);
-    virtual void                    updateCurveAppearance();
+    void                    initAfterRead() override;
+    void                            updateCurvePresentation(bool updatePlotLegendAndTitle);
 
     void                            updateOptionSensitivity();
-
+    void                            updatePlotTitle();
+    virtual void                    updateLegendsInPlot();
 protected:
 
     // Overridden PDM methods
-    virtual void                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
-    virtual caf::PdmFieldHandle*    objectToggleField();
-    virtual caf::PdmFieldHandle*    userDescriptionField();
-    virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly);
+    void                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    caf::PdmFieldHandle*    objectToggleField() override;
+    caf::PdmFieldHandle*    userDescriptionField() override;
+    QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
     void                            appearanceUiOrdering(caf::PdmUiOrdering& uiOrdering);
     void                            curveNameUiOrdering(caf::PdmUiOrdering& uiOrdering);
 
 protected:
-    QPointer<QwtPlot>               m_parentQwtPlot;
-    RiuLineSegmentQwtPlotCurve*     m_qwtPlotCurve;
+    QPointer<QwtPlot>                 m_parentQwtPlot;
+    RiuQwtPlotCurve*                  m_qwtPlotCurve;
 
-    caf::PdmField<bool>             m_showCurve;
-    caf::PdmField<QString>          m_curveName;
-    caf::PdmField<QString>          m_customCurveName;
-    caf::PdmField<bool>             m_showLegend;
+    caf::PdmField<bool>               m_showCurve;
+    caf::PdmField<QString>            m_curveName;
+    caf::PdmField<QString>            m_customCurveName;
+    caf::PdmField<bool>               m_showLegend;
+    QString                           m_symbolLabel;
+    caf::PdmField<int>                m_symbolSize;
 
-    caf::PdmField<bool>             m_isUsingAutoName;
-    caf::PdmField<cvf::Color3f>     m_curveColor;
-    caf::PdmField<int>              m_curveThickness;
-    caf::PdmField<float>            m_symbolSkipPixelDistance;
+    caf::PdmField<bool>               m_isUsingAutoName;
+    caf::PdmField<cvf::Color3f>       m_curveColor;
+    caf::PdmField<int>                m_curveThickness;
+    caf::PdmField<float>              m_symbolSkipPixelDistance;
+    caf::PdmField<bool>               m_showErrorBars;
 
-
-    caf::PdmField< caf::AppEnum< PointSymbolEnum > > m_pointSymbol;
-    caf::PdmField< caf::AppEnum< LineStyleEnum > >   m_lineStyle;
-    caf::PdmField< CurveInterpolation >              m_curveInterpolation;
+    caf::PdmField<PointSymbol>        m_pointSymbol;
+    caf::PdmField<LineStyle>          m_lineStyle;
+    caf::PdmField<CurveInterpolation> m_curveInterpolation;
+    RiuQwtSymbol::LabelPosition       m_symbolLabelPosition;
 };
 
 

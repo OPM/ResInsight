@@ -13,7 +13,7 @@ def getPRList( api_token, pr1, pr2):
     sys.stderr.write("Downloading PR: ")
     while True:
         url = url_fmt % pr
-        response = requests.get( url , {"access_token" : api_token})
+        response = requests.get( url , params = {"access_token" : api_token})
         for i in range(prev_len):
             sys.stdout.write("\b")
 
@@ -38,11 +38,14 @@ def printPRList( pr_list , fileH):
         title = pr["title"]
         body = pr["body"]
         nr = pr["number"]
+        url = "https://github.com/Statoil/libecl/pull/{}/".format(nr)
 
         try:
-            fileH.write( "[%d] *%s*\n\n" % (nr , title))
+            title = str(title)
         except UnicodeEncodeError:
-            fileH.write(" [%d] : UnicodeError")
+            title = "UnicodeError"
+
+        fileH.write( "[`{nr} <{url}>`] : {title}".format(nr = nr, url=url, title = title))
 
         try:
             fileH.write( "%s\n\n\n" % body )
@@ -63,7 +66,7 @@ def main():
     filename = "/tmp/relnotes-%d-%d" % (pr1 , pr2)
     printPRList( pr_list , open(filename , "w"))
 
-    print "Have created file: %s which can be a starting point for release notes" % filename
+    print "\nHave created file: %s which can be a starting point for release notes" % filename
 
 
 

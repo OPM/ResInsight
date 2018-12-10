@@ -21,6 +21,107 @@
 #include "RigCellGeometryTools.h"
 #include "RigMainGrid.h"
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+TEST(RigCellGeometryTools, calculateCellVolumeTest)
+{
+    cvf::BoundingBox bbox(cvf::Vec3d(1.0, -2.0, 5.0), cvf::Vec3d(500.0, 3.0, 1500.0));
+    cvf::Vec3d extent = bbox.extent();
+    double bboxVolume = extent.x() * extent.y() * extent.z();
+
+    std::array<cvf::Vec3d, 8> cornerVertices;
+    bbox.cornerVertices(cornerVertices.data());    
+
+    // This is a cuboid. The result should be exact
+    EXPECT_DOUBLE_EQ(bboxVolume, RigCellGeometryTools::calculateCellVolume(cornerVertices));
+
+    // Distort it by adding a tetrahedron to the volume
+    cornerVertices[1].x() += bbox.extent().x() / 3.0;
+    cornerVertices[2].x() += bbox.extent().x() / 3.0;
+
+    double extraVolume = 0.5 * extent.z() * bbox.extent().x() / 3.0 * extent.y();
+    
+    EXPECT_DOUBLE_EQ(bboxVolume + extraVolume, RigCellGeometryTools::calculateCellVolume(cornerVertices));
+
+    // The overlap with the original bounding box should just yield the original bounding box
+    cvf::BoundingBox overlapBoundingBox;
+    std::array<cvf::Vec3d, 8> overlapVertices = RigCellGeometryTools::estimateHexOverlapWithBoundingBox(cornerVertices, bbox, &overlapBoundingBox);
+
+    EXPECT_DOUBLE_EQ(bboxVolume, RigCellGeometryTools::calculateCellVolume(overlapVertices));
+
+    cvf::Vec3d overlapExtent = overlapBoundingBox.extent();
+    double overlapBBoxVolume = overlapExtent.x() * overlapExtent.y() * overlapExtent.z();
+    EXPECT_DOUBLE_EQ(bboxVolume, overlapBBoxVolume);
+    
+    // Shift bounding box by half the original extent in x-direction.
+    // It should now contain the full tetrahedron + half the original bounding box
+    std::array<cvf::Vec3d, 8> tetrahedronBoxVertices;
+    bbox.cornerVertices(tetrahedronBoxVertices.data());
+    cvf::BoundingBox tetrahedronBBox;
+    for (cvf::Vec3d& corner : tetrahedronBoxVertices)
+    {
+        corner.x() += 0.5 * bbox.extent().x();
+        tetrahedronBBox.add(corner);
+    }
+    overlapVertices = RigCellGeometryTools::estimateHexOverlapWithBoundingBox(cornerVertices, tetrahedronBBox, &overlapBoundingBox);
+
+    EXPECT_DOUBLE_EQ(bboxVolume * 0.5 + extraVolume, RigCellGeometryTools::calculateCellVolume(overlapVertices));
+
+    // Shift it the rest of the original extent in x-direction.
+    // The bounding box should now contain only the tetrahedron.
+    tetrahedronBBox = cvf::BoundingBox();
+    for (cvf::Vec3d& corner : tetrahedronBoxVertices)
+    {
+        corner.x() += 0.5 * bbox.extent().x();
+        tetrahedronBBox.add(corner);
+    }
+    overlapVertices = RigCellGeometryTools::estimateHexOverlapWithBoundingBox(cornerVertices, tetrahedronBBox, &overlapBoundingBox);
+
+    EXPECT_DOUBLE_EQ(extraVolume, RigCellGeometryTools::calculateCellVolume(overlapVertices));
+
+    // Expand original bounding box to be much larger than the hex
+    bbox.expand(2000);
+    overlapVertices = RigCellGeometryTools::estimateHexOverlapWithBoundingBox(cornerVertices, bbox, &overlapBoundingBox);
+    EXPECT_DOUBLE_EQ(bboxVolume + extraVolume, RigCellGeometryTools::calculateCellVolume(overlapVertices));    
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+TEST(RigCellGeometryTools, calculateCellVolumeTest2)
+{
+    cvf::BoundingBox bbox(cvf::Vec3d(0.0, 0.0, 0.0), cvf::Vec3d(100.0, 100.0, 100.0));
+    std::array<cvf::Vec3d, 8> cornerVertices;
+    bbox.cornerVertices(cornerVertices.data());
+
+    cornerVertices[5].z() = cornerVertices[1].z();
+    cornerVertices[6].z() = cornerVertices[2].z();
+
+    double totalCellVolume = 0.5 * 100.0 * 100.0 * 100.0;
+    EXPECT_DOUBLE_EQ(totalCellVolume, RigCellGeometryTools::calculateCellVolume(cornerVertices));
+    cvf::BoundingBox innerBBox(cvf::Vec3d(25.0, 25.0, -10.0), cvf::Vec3d(75.0, 75.0, 110.0));
+
+    double expectedOverlap = 50 * 50 * 25 + 0.5 * 50 * 50 * 50;
+
+    cvf::BoundingBox overlapBoundingBox;
+    std::array<cvf::Vec3d, 8> overlapVertices = RigCellGeometryTools::estimateHexOverlapWithBoundingBox(cornerVertices, innerBBox, &overlapBoundingBox);
+    EXPECT_DOUBLE_EQ(expectedOverlap, RigCellGeometryTools::calculateCellVolume(overlapVertices));
+
+    cvf::BoundingBox smallerInnerBBox(cvf::Vec3d(25.0, 25.0, -10.0), cvf::Vec3d(75.0, 75.0, 25.0));
+    overlapVertices = RigCellGeometryTools::estimateHexOverlapWithBoundingBox(cornerVertices, smallerInnerBBox, &overlapBoundingBox);
+    EXPECT_DOUBLE_EQ(50 * 50 * 25, RigCellGeometryTools::calculateCellVolume(overlapVertices));
+
+    cvf::BoundingBox smallerBBox(cvf::Vec3d(50.0, 50.0, 0.0), cvf::Vec3d(100.0, 100.0, 100.0));
+    overlapVertices = RigCellGeometryTools::estimateHexOverlapWithBoundingBox(cornerVertices, smallerBBox, &overlapBoundingBox);
+    double tipVolume = 50 * 50 * 50 * 0.5;
+    EXPECT_DOUBLE_EQ(tipVolume, RigCellGeometryTools::calculateCellVolume(overlapVertices));
+
+    cvf::BoundingBox smallerBBox2(cvf::Vec3d(0.0, 0.0, 0.0), cvf::Vec3d(50.0, 50.0, 100.0));
+    overlapVertices = RigCellGeometryTools::estimateHexOverlapWithBoundingBox(cornerVertices, smallerBBox2, &overlapBoundingBox);
+    double expectedVolume = (totalCellVolume - 2*tipVolume) * 0.5;
+    EXPECT_DOUBLE_EQ(expectedVolume, RigCellGeometryTools::calculateCellVolume(overlapVertices));
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -142,7 +243,6 @@ TEST(RigCellGeometryTools, findCellAverageZTest)
 
 }
 
-#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -296,7 +396,7 @@ TEST(RigCellGeometryTools, polylinePolygonIntersectionTest2)
 }
 
 
-#include "RigWellPathStimplanIntersector.h"
+#include "Completions/RigWellPathStimplanIntersector.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -414,4 +514,3 @@ TEST(RigWellPathStimplanIntersector, intersection)
 
 }
 
-#endif // USE_PROTOTYPE_FEATURE_FRACTURES

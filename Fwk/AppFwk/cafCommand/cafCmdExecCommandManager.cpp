@@ -57,7 +57,7 @@ public:
         setText(m_executeCommand->name());
     }
 
-    ~UndoRedoWrapper()
+    ~UndoRedoWrapper() override
     {
         delete m_executeCommand;
     }
@@ -65,7 +65,7 @@ public:
     //--------------------------------------------------------------------------------------------------
     /// 
     //--------------------------------------------------------------------------------------------------
-    virtual void undo()
+    void undo() override
     {
         m_executeCommand->undo();
     }
@@ -73,7 +73,7 @@ public:
     //--------------------------------------------------------------------------------------------------
     /// 
     //--------------------------------------------------------------------------------------------------
-    virtual void redo()
+    void redo() override
     {
         m_executeCommand->redo();
     }
@@ -92,7 +92,7 @@ namespace caf
 //--------------------------------------------------------------------------------------------------
 CmdExecCommandManager::CmdExecCommandManager()
 {
-    m_commandFeatureInterface = NULL;
+    m_commandFeatureInterface = nullptr;
     
     m_undoStack = new QUndoStack();
 }
@@ -124,7 +124,7 @@ void CmdExecCommandManager::activateCommandSystem()
 //--------------------------------------------------------------------------------------------------
 void CmdExecCommandManager::deactivateCommandSystem()
 {
-    PdmUiCommandSystemProxy::instance()->setCommandInterface(NULL);
+    PdmUiCommandSystemProxy::instance()->setCommandInterface(nullptr);
 }
 
 //--------------------------------------------------------------------------------------------------

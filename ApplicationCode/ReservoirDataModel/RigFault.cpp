@@ -2,35 +2,34 @@
 //
 //  Copyright (C) Statoil ASA
 //  Copyright (C) Ceetron Solutions AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RigFault.h"
+
 #include "RigMainGrid.h"
 
 cvf::ref<RigFaultsPrCellAccumulator> RigFault::m_faultsPrCellAcc;
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RigFault::RigFault()
-{
-}
+RigFault::RigFault() {}
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RigFault::addCellRangeForFace(cvf::StructGridInterface::FaceType face, const cvf::CellRange& cellRange)
 {
@@ -41,7 +40,7 @@ void RigFault::addCellRangeForFace(cvf::StructGridInterface::FaceType face, cons
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RigFault::setName(const QString& name)
 {
@@ -49,7 +48,7 @@ void RigFault::setName(const QString& name)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString RigFault::name() const
 {
@@ -57,7 +56,7 @@ QString RigFault::name() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 std::vector<RigFault::FaultFace>& RigFault::faultFaces()
 {
@@ -65,7 +64,7 @@ std::vector<RigFault::FaultFace>& RigFault::faultFaces()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 const std::vector<RigFault::FaultFace>& RigFault::faultFaces() const
 {
@@ -73,7 +72,23 @@ const std::vector<RigFault::FaultFace>& RigFault::faultFaces() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<size_t>& RigFault::connectionIndices()
+{
+    return m_connectionIndices;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const std::vector<size_t>& RigFault::connectionIndices() const
+{
+    return m_connectionIndices;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
 //--------------------------------------------------------------------------------------------------
 void RigFault::computeFaultFacesFromCellRanges(const RigMainGrid* mainGrid)
 {
@@ -87,10 +102,8 @@ void RigFault::computeFaultFacesFromCellRanges(const RigMainGrid* mainGrid)
 
         const std::vector<cvf::CellRange>& cellRanges = m_cellRangesForFaces[faceType];
 
-        for (size_t i = 0; i < cellRanges.size(); i++)
+        for (const cvf::CellRange& cellRange : cellRanges)
         {
-            const cvf::CellRange& cellRange = cellRanges[i];
-
             cvf::Vec3st min, max;
             cellRange.range(min, max);
 
@@ -116,20 +129,20 @@ void RigFault::computeFaultFacesFromCellRanges(const RigMainGrid* mainGrid)
                         }
 
                         // Do not need to compute global grid cell index as for a maingrid localIndex == globalIndex
-                        //size_t reservoirCellIndex = grid->reservoirCellIndex(gridLocalCellIndex);
+                        // size_t reservoirCellIndex = grid->reservoirCellIndex(gridLocalCellIndex);
 
                         size_t ni, nj, nk;
                         mainGrid->neighborIJKAtCellFace(i, j, k, faceEnum, &ni, &nj, &nk);
                         if (ni < mainGrid->cellCountI() && nj < mainGrid->cellCountJ() && nk < mainGrid->cellCountK())
                         {
                             size_t gridLocalCellIndex = mainGrid->cellIndexFromIJK(i, j, k);
-                            size_t oppositeCellIndex = mainGrid->cellIndexFromIJK(ni, nj, nk);
+                            size_t oppositeCellIndex  = mainGrid->cellIndexFromIJK(ni, nj, nk);
 
                             m_faultFaces.push_back(FaultFace(gridLocalCellIndex, faceEnum, oppositeCellIndex));
                         }
                         else
                         {
-                            //cvf::Trace::show("Warning: Undefined Fault neighbor detected.");
+                            // cvf::Trace::show("Warning: Undefined Fault neighbor detected.");
                         }
                     }
                 }
@@ -138,18 +151,18 @@ void RigFault::computeFaultFacesFromCellRanges(const RigMainGrid* mainGrid)
     }
 }
 
-
-void  RigFault::accumulateFaultsPrCell(RigFaultsPrCellAccumulator* faultsPrCellAcc, int faultIdx)
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigFault::accumulateFaultsPrCell(RigFaultsPrCellAccumulator* faultsPrCellAcc, int faultIdx)
 {
-
-    for (size_t ffIdx = 0; ffIdx < m_faultFaces.size(); ++ffIdx)
+    for (const FaultFace& ff : m_faultFaces)
     {
-        const FaultFace& ff = m_faultFaces[ffIdx];
-
-        // Could detect overlapping faults here .... if (faultsPrCellAcc->faultIdx(ff.m_nativeReservoirCellIndex, ff.m_nativeFace) >= 0)
+        // Could detect overlapping faults here .... if (faultsPrCellAcc->faultIdx(ff.m_nativeReservoirCellIndex, ff.m_nativeFace)
+        // >= 0)
 
         faultsPrCellAcc->setFaultIdx(ff.m_nativeReservoirCellIndex, ff.m_nativeFace, faultIdx);
-        faultsPrCellAcc->setFaultIdx(ff.m_oppositeReservoirCellIndex, cvf::StructGridInterface::oppositeFace(ff.m_nativeFace), faultIdx);
-
+        faultsPrCellAcc->setFaultIdx(
+            ff.m_oppositeReservoirCellIndex, cvf::StructGridInterface::oppositeFace(ff.m_nativeFace), faultIdx);
     }
 }

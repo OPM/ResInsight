@@ -32,13 +32,13 @@ class RicSnapshotAllPlotsToFileFeature : public caf::CmdFeature
 public:
     static void saveAllPlots();
 
-    static void exportSnapshotOfAllPlotsIntoFolder(QString snapshotFolderName);
+    static void exportSnapshotOfAllPlotsIntoFolder(const QString& snapshotFolderName, const QString& prefix = "");
 
 protected:
     // Overrides
-    virtual bool isCommandEnabled() override;
-    virtual void onActionTriggered(bool isChecked) override;
-    virtual void setupActionLook(QAction* actionToSetup) override;
+    bool isCommandEnabled() override;
+    void onActionTriggered(bool isChecked) override;
+    void setupActionLook(QAction* actionToSetup) override;
 };
 
 

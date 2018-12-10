@@ -34,7 +34,7 @@ class RicfExportMsw : public RicfCommandObject
 public:
     RicfExportMsw();
 
-    virtual void execute() override;
+    void execute() override;
 
 private:
     caf::PdmField<int>     m_caseId;

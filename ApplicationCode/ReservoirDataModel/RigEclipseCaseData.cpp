@@ -30,6 +30,7 @@
 #include "RigSimWellData.h"
 #include "RigSimulationWellCenterLineCalculator.h"
 #include "RigSimulationWellCoordsAndMD.h"
+#include "RigVirtualPerforationTransmissibilities.h"
 #include "RigWellPath.h"
 
 #include "RimFlowPlotCollection.h"
@@ -148,6 +149,30 @@ RigGridBase* RigEclipseCaseData::grid(size_t index)
 {
     CVF_ASSERT(m_mainGrid.notNull());
     return m_mainGrid->gridByIndex(index);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const RigGridBase* RigEclipseCaseData::grid(const QString& gridName) const
+{
+    if (m_mainGrid.isNull())
+    {
+        return nullptr;
+    }
+
+    if (gridName.isEmpty())
+    {
+        return m_mainGrid.p();
+    }
+
+    size_t i;
+    for (i = 0; i < m_mainGrid->gridCount(); i++)
+    {
+        const RigGridBase* grid = m_mainGrid->gridByIndex(i);
+        if (QString::fromStdString(grid->gridName()) == gridName) return grid;
+    }
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -474,7 +499,7 @@ bool RigEclipseCaseData::hasSimulationWell(const QString& simWellName) const
 //--------------------------------------------------------------------------------------------------
 std::vector<const RigWellPath*> RigEclipseCaseData::simulationWellBranches(const QString& simWellName,
                                                                            bool           includeAllCellCenters,
-                                                                           bool           useAutoDetectionOfBranches)
+                                                                           bool           useAutoDetectionOfBranches) const
 {
     std::vector<const RigWellPath*> branches;
 
@@ -517,6 +542,22 @@ std::vector<const RigWellPath*> RigEclipseCaseData::simulationWellBranches(const
     }
 
     return branches;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigEclipseCaseData::setVirtualPerforationTransmissibilities(RigVirtualPerforationTransmissibilities* virtualPerforationTransmissibilities)
+{
+    m_virtualPerforationTransmissibilities = virtualPerforationTransmissibilities;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const RigVirtualPerforationTransmissibilities* RigEclipseCaseData::virtualPerforationTransmissibilities() const
+{
+    return m_virtualPerforationTransmissibilities.p();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -609,17 +650,15 @@ void RigEclipseCaseData::computeActiveCellsGeometryBoundingBox()
         }
         else
         {
+            std::array<cvf::Vec3d, 8> hexCorners;
             for (size_t i = 0; i < m_mainGrid->cellCount(); i++)
             {
                 if (activeInfos[acIdx]->isActive(i))
                 {
-                    const RigCell& c = m_mainGrid->globalCellArray()[i];
-                    const caf::SizeTArray8& indices = c.cornerIndices();
-
-                    size_t idx;
-                    for (idx = 0; idx < 8; idx++)
+                    m_mainGrid->cellCornerVertices(i, hexCorners.data());
+                    for (const auto& corner : hexCorners)
                     {
-                        bb.add(m_mainGrid->nodes()[indices[idx]]);
+                        bb.add(corner);
                     }
                 }
             }

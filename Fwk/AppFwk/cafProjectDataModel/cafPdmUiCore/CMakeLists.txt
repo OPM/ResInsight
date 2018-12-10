@@ -7,10 +7,17 @@ find_package ( Qt4 COMPONENTS QtCore QtGui )
 include (${QT_USE_FILE})
 
 include_directories (
-	
-    ${cafPdmCore_SOURCE_DIR}
     ..
 )
+
+# These headers need to go through Qt's MOC compiler
+set( QOBJECT_HEADERS    
+    cafPdmUiFieldEditorHandle.h
+)
+
+if ( NOT CMAKE_AUTOMOC )
+    qt4_wrap_cpp( MOC_FILES_CPP ${QOBJECT_HEADERS} )
+endif()
 
 set( PROJECT_FILES
 
@@ -46,11 +53,27 @@ set( PROJECT_FILES
 
     cafSelectionManager.cpp
     cafSelectionManager.h
+    cafSelectionChangedReceiver.h
+    cafSelectionChangedReceiver.cpp
     cafSelectionManagerTools.h
 )
 
 add_library( ${PROJECT_NAME}
 	${PROJECT_FILES}
+	${MOC_FILES_CPP}
 )
+
+target_link_libraries ( ${PROJECT_NAME}
+    cafPdmCore
+)
+
+target_include_directories(${PROJECT_NAME}
+  PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+if (MSVC) 
+    set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "/W4 /wd4100 /wd4127")
+endif()
 
 source_group("" FILES ${PROJECT_FILES})

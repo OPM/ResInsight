@@ -27,7 +27,7 @@
 #include "cafPdmPtrField.h"
 
 class RimTernaryLegendConfig;
-class RimLegendConfig;
+class RimRegularLegendConfig;
 
 //==================================================================================================
 ///  
@@ -38,39 +38,43 @@ class RimEclipseCellColors : public RimEclipseResultDefinition
     CAF_PDM_HEADER_INIT;
 public:
     RimEclipseCellColors();
-    virtual ~RimEclipseCellColors();
+    ~RimEclipseCellColors() override;
 
     void                                        setReservoirView(RimEclipseView* ownerReservoirView);
     RimEclipseView*                             reservoirView();
 
-    void                                        updateLegendData(size_t timestep);
-    RimLegendConfig*                            legendConfig();
-    caf::PdmChildField<RimTernaryLegendConfig*> ternaryLegendConfig;
+    void                                        updateLegendData(size_t timestep, 
+                                                                 RimRegularLegendConfig* legendConfig = nullptr,
+                                                                 RimTernaryLegendConfig* ternaryLegendConfig = nullptr);
+    
+    RimRegularLegendConfig*                            legendConfig();
+    RimTernaryLegendConfig*                            ternaryLegendConfig();
 
-    virtual void                                setResultVariable(const QString& resultName);
+    void                                setResultVariable(const QString& resultName) override;
     
     void                                        updateIconState();
 
-    virtual void                                updateLegendCategorySettings() override;
+    void                                updateLegendCategorySettings() override;
 
 protected:
     // Overridden methods
-    virtual void                                fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
-    virtual void                                defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
+    void                                fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    void                                defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
 
     friend class RimEclipseFaultColors;
     friend class RimCellEdgeColors;
-    virtual void                                initAfterRead();
+    void                                initAfterRead() override;
 
 private:
     void                                        changeLegendConfig(QString resultVarNameOfNewLegend);
 
-    caf::PdmChildArrayField<RimLegendConfig*>   m_legendConfigData;
-    caf::PdmPtrField<RimLegendConfig*>          m_legendConfigPtrField;
+    caf::PdmChildArrayField<RimRegularLegendConfig*>   m_legendConfigData;
+    caf::PdmPtrField<RimRegularLegendConfig*>          m_legendConfigPtrField;
+    caf::PdmChildField<RimTernaryLegendConfig*>        m_ternaryLegendConfig;
 
-    caf::PdmPointer<RimEclipseView>             m_reservoirView;
+    caf::PdmPointer<RimEclipseView>                    m_reservoirView;
 
     // Obsolete   
-    caf::PdmChildField<RimLegendConfig*>        obsoleteField_legendConfig;
+    caf::PdmChildField<RimRegularLegendConfig*>        obsoleteField_legendConfig;
 };
 

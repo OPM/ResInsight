@@ -44,8 +44,8 @@ class RiuResultQwtPlot : public QwtPlot
     Q_OBJECT
 
 public:
-    explicit RiuResultQwtPlot(QWidget* parent = NULL);
-    virtual ~RiuResultQwtPlot();
+    explicit RiuResultQwtPlot(QWidget* parent = nullptr);
+    ~RiuResultQwtPlot() override;
 
     void addCurve(const RimCase* rimCase,
                   const QString& curveName,
@@ -61,9 +61,9 @@ public:
     void deleteAllCurves();
 
 protected:
-    virtual QSize sizeHint() const;
-    virtual QSize minimumSizeHint() const;
-    virtual void contextMenuEvent(QContextMenuEvent *) override;
+    QSize sizeHint() const override;
+    QSize minimumSizeHint() const override;
+    void contextMenuEvent(QContextMenuEvent *) override;
 
 private:
     void setDefaults();

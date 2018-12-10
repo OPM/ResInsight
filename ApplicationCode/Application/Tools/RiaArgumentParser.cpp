@@ -18,16 +18,17 @@
 
 #include "RiaArgumentParser.h"
 
-#include "RiaProjectModifier.h"
 #include "RiaApplication.h"
-#include "RiaPreferences.h"
-#include "RiaImportEclipseCaseTools.h"
 #include "RiaBaseDefs.h"
+#include "RiaImportEclipseCaseTools.h"
+#include "RiaPreferences.h"
+#include "RiaProjectModifier.h"
+#include "RiaRegressionTestRunner.h"
 
 #include "RimProject.h"
 
 #include "RiuMainWindow.h"
-#include "RiuMainPlotWindow.h"
+#include "RiuPlotMainWindow.h"
 
 #include "RicfMessages.h"
 #include "RicfCommandFileExecutor.h"
@@ -70,6 +71,7 @@ bool RiaArgumentParser::parseArguments()
     progOpt.registerOption("regressiontest",            "<folder>",                         "System command", cvf::ProgramOptions::SINGLE_VALUE);
     progOpt.registerOption("updateregressiontestbase",  "<folder>",                         "System command", cvf::ProgramOptions::SINGLE_VALUE);
     progOpt.registerOption("unittest",                  "",                                 "System command");
+    progOpt.registerOption("ignoreArgs",                "",                                 "Ignore all arguments. Mostly for testing purposes");
 
     progOpt.setOptionPrefix(cvf::ProgramOptions::DOUBLE_DASH);
 
@@ -104,11 +106,17 @@ bool RiaArgumentParser::parseArguments()
 
     // Handling of the actual command line options
     // --------------------------------------------------------
+
+    if (cvf::Option o = progOpt.option("ignoreArgs"))
+    {
+        return true;
+    }
+
     if (cvf::Option o = progOpt.option("regressiontest"))
     {
         CVF_ASSERT(o.valueCount() == 1);
         QString regressionTestPath = cvfqt::Utils::toQString(o.value(0));
-        RiaApplication::instance()->executeRegressionTests(regressionTestPath);
+        RiaRegressionTestRunner::instance()->executeRegressionTests(regressionTestPath, QStringList());
         return false;
     }
 
@@ -116,7 +124,7 @@ bool RiaArgumentParser::parseArguments()
     {
         CVF_ASSERT(o.valueCount() == 1);
         QString regressionTestPath = cvfqt::Utils::toQString(o.value(0));
-        RiaApplication::instance()->updateRegressionTest(regressionTestPath);
+        RiaRegressionTestRunner::instance()->updateRegressionTest(regressionTestPath);
         return false;
     }
 
@@ -264,21 +272,21 @@ bool RiaArgumentParser::parseArguments()
             if (caf::Utils::fileExists(caseName) &&
                 (fileExtension == "EGRID" || fileExtension == "GRID"))
             {
-                RiaImportEclipseCaseTools::openEclipseCaseFromFile(caseName);
+                RiaImportEclipseCaseTools::openEclipseCasesFromFile(QStringList({ caseName }), nullptr, true);
             }
             else
             {
                 QString caseFileNameWithExt = caseName + ".EGRID";
                 if (caf::Utils::fileExists(caseFileNameWithExt))
                 {
-                    RiaImportEclipseCaseTools::openEclipseCaseFromFile(caseFileNameWithExt);
+                    RiaImportEclipseCaseTools::openEclipseCasesFromFile(QStringList({ caseFileNameWithExt }), nullptr, true);
                 }
                 else
                 {
                     caseFileNameWithExt = caseName + ".GRID";
                     if (caf::Utils::fileExists(caseFileNameWithExt))
                     {
-                        RiaImportEclipseCaseTools::openEclipseCaseFromFile(caseFileNameWithExt);
+                        RiaImportEclipseCaseTools::openEclipseCasesFromFile(QStringList({ caseFileNameWithExt }), nullptr, true);
                     }
                 }
             }

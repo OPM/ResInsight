@@ -31,6 +31,7 @@ class RifGeoMechReaderInterface;
 class RigFemPartCollection;
 class RigFemScalarResultFrames;
 class RigFemPartResultsCollection;
+class RifElementPropertyReader;
 
 class RigGeoMechCaseData: public cvf::Object
 {
@@ -38,8 +39,9 @@ public:
     explicit RigGeoMechCaseData(const std::string& fileName);
     ~RigGeoMechCaseData();
 
-    bool                                 openAndReadFemParts(std::string* errorMessage);
-
+    bool                                 open(std::string* errorMessage);
+    bool                                 readTimeSteps(std::string* errorMessage, std::vector<std::string>* stepNames);
+    bool                                 readFemParts(std::string* errorMessage, const std::vector<size_t>& timeStepFilter = std::vector<size_t>());
     RigFemPartCollection*                femParts();
     const RigFemPartCollection*          femParts() const;
 
@@ -47,8 +49,9 @@ public:
     const RigFemPartResultsCollection*   femPartResults() const;
 
 private:
-    std::string                          m_geoMechCaseFileName;
-    cvf::ref<RigFemPartCollection>        m_femParts;
-    cvf::ref<RigFemPartResultsCollection> m_femPartResultsColl;
-    cvf::ref<RifGeoMechReaderInterface>  m_readerInterface;
+    std::string                                  m_geoMechCaseFileName;
+    cvf::ref<RigFemPartCollection>               m_femParts;
+    cvf::ref<RigFemPartResultsCollection>        m_femPartResultsColl;
+    cvf::ref<RifGeoMechReaderInterface>          m_readerInterface;
+    cvf::ref<RifElementPropertyReader>           m_elementPropertyReader;
 };

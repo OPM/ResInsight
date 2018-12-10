@@ -27,16 +27,17 @@
 
 #include "RigWellLogCurveData.h"
 
+#include "Rim3dView.h"
 #include "RimProject.h"
 #include "RimSimWellInView.h"
-#include "RimView.h"
+#include "RimSimWellInViewCollection.h"
 #include "RimWellLogExtractionCurve.h"
 #include "RimWellLogPlot.h"
 #include "RimWellLogTrack.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 
-#include "RiuMainPlotWindow.h"
+#include "RiuPlotMainWindow.h"
 #include "RiuSelectionManager.h"
 
 #include "cafSelectionManager.h"
@@ -44,7 +45,6 @@
 #include <QAction>
 
 #include <vector>
-#include "RimSimWellInViewCollection.h"
 
 
 CAF_CMD_SOURCE_INIT(RicNewWellLogCurveExtractionFeature, "RicNewWellLogCurveExtractionFeature");
@@ -57,7 +57,7 @@ bool RicNewWellLogCurveExtractionFeature::isCommandEnabled()
     if (RicWellLogPlotCurveFeatureImpl::parentWellAllocationPlot()) return false;
     if (RicWellLogPlotCurveFeatureImpl::parentWellRftPlot()) return false;
     int branchIndex;
-    return (RicWellLogTools::selectedWellLogPlotTrack() != nullptr || RicWellLogTools::selectedWellPath() != nullptr || RicWellLogTools::selectedSimulationWell(&branchIndex) != nullptr) && caseAvailable();
+    return (caf::SelectionManager::instance()->selectedItemOfType<RimWellLogTrack>() != nullptr || caf::SelectionManager::instance()->selectedItemOfType<RimWellPath>() != nullptr || RicWellLogTools::selectedSimulationWell(&branchIndex) != nullptr) && caseAvailable();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -67,14 +67,14 @@ void RicNewWellLogCurveExtractionFeature::onActionTriggered(bool isChecked)
 {
     if (RicWellLogPlotCurveFeatureImpl::parentWellAllocationPlot()) return;
 
-    RimWellLogTrack* wellLogPlotTrack = RicWellLogTools::selectedWellLogPlotTrack();
+    RimWellLogTrack* wellLogPlotTrack = caf::SelectionManager::instance()->selectedItemOfType<RimWellLogTrack>();
     if (wellLogPlotTrack)
     {
         RicWellLogTools::addExtractionCurve(wellLogPlotTrack, nullptr, nullptr, nullptr, -1, true);
     }
     else
     {
-        RimWellPath* wellPath = RicWellLogTools::selectedWellPath();
+        RimWellPath* wellPath = caf::SelectionManager::instance()->selectedItemOfType<RimWellPath>();
         int branchIndex = -1;
         RimSimWellInView* simWell = RicWellLogTools::selectedSimulationWell(&branchIndex);
 
@@ -88,16 +88,16 @@ void RicNewWellLogCurveExtractionFeature::onActionTriggered(bool isChecked)
 
         if (wellPath || simWell)
         {
-            RimWellLogTrack* wellLogPlotTrack = RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack();
+            RimWellLogTrack* newWellLogPlotTrack = RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack();
 
             RimWellLogExtractionCurve* plotCurve =
-                RicWellLogTools::addExtractionCurve(wellLogPlotTrack, RiaApplication::instance()->activeReservoirView(), wellPath,
+                RicWellLogTools::addExtractionCurve(newWellLogPlotTrack, RiaApplication::instance()->activeReservoirView(), wellPath,
                                                     simWell, branchIndex, useBranchDetection);
 
             plotCurve->loadDataAndUpdate(true);
 
             RimWellLogPlot* plot = nullptr;
-            wellLogPlotTrack->firstAncestorOrThisOfType(plot);
+            newWellLogPlotTrack->firstAncestorOrThisOfType(plot);
             if (plot && plotCurve->curveData())
             {
                 plot->setDepthUnit(plotCurve->curveData()->depthUnit());
@@ -125,5 +125,5 @@ bool RicNewWellLogCurveExtractionFeature::caseAvailable()
     std::vector<RimCase*> cases;
     RiaApplication::instance()->project()->allCases(cases);
 
-    return cases.size() > 0;
+    return !cases.empty();
 }

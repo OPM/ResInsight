@@ -47,7 +47,7 @@ RimEclipseView* RicSelectOrCreateViewFeatureImpl::showViewSelection(RimEclipseRe
         featureUi.setCase(resultCase);
     }
 
-    caf::PdmUiPropertyViewDialog propertyDialog(NULL, &featureUi, dialogTitle, "");
+    caf::PdmUiPropertyViewDialog propertyDialog(nullptr, &featureUi, dialogTitle, "");
     propertyDialog.resize(QSize(400, 200));
 
     if (propertyDialog.exec() != QDialog::Accepted) return nullptr;
@@ -56,7 +56,7 @@ RimEclipseView* RicSelectOrCreateViewFeatureImpl::showViewSelection(RimEclipseRe
     if (featureUi.createNewView())
     {
         RimEclipseView* createdView = resultCase->createAndAddReservoirView();
-        createdView->name = featureUi.newViewName();
+        createdView->setName(featureUi.newViewName());
 
         // Must be run before buildViewItems, as wells are created in this function
         createdView->loadDataAndUpdate();

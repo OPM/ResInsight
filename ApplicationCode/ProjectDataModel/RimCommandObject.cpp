@@ -67,8 +67,7 @@ RimCommandExecuteScript::RimCommandExecuteScript()
     
     
     CAF_PDM_InitField(&execute,         "Execute",      true, "Execute", "", "", "");
-    execute.xmlCapability()->setIOWritable(false);
-    execute.xmlCapability()->setIOReadable(false);
+    execute.xmlCapability()->disableIO();
     execute.uiCapability()->setUiEditorTypeName(caf::PdmUiPushButtonEditor::uiEditorTypeName());
     execute.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
 }
@@ -278,14 +277,14 @@ void RimCommandIssueFieldChanged::childObjects(caf::PdmObject* pdmObject, std::v
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-caf::PdmObjectHandle* RimCommandIssueFieldChanged::findObjectByName(caf::PdmObjectHandle* pdmObject, const QString& objectName)
+caf::PdmObjectHandle* RimCommandIssueFieldChanged::findObjectByName(caf::PdmObjectHandle* pdmObject, const QString& name)
 {
     std::vector<caf::PdmFieldHandle*> fields;
     pdmObject->fields(fields);
 
     caf::PdmUiObjectHandle* uiObjectHandle = uiObj(pdmObject);
 
-    if (uiObjectHandle && uiObjectHandle->uiName() == objectName)
+    if (uiObjectHandle && uiObjectHandle->uiName() == name)
     {
         return pdmObject;
     }
@@ -299,7 +298,7 @@ caf::PdmObjectHandle* RimCommandIssueFieldChanged::findObjectByName(caf::PdmObje
 
             for (size_t cIdx = 0; cIdx < children.size(); cIdx++)
             {
-                PdmObjectHandle* candidateObj = findObjectByName(children[cIdx], objectName);
+                PdmObjectHandle* candidateObj = findObjectByName(children[cIdx], name);
                 if (candidateObj)
                 {
                     return candidateObj;
@@ -308,7 +307,7 @@ caf::PdmObjectHandle* RimCommandIssueFieldChanged::findObjectByName(caf::PdmObje
         }
     }
 
-    return NULL;
+    return nullptr;
 }
 
 
@@ -328,7 +327,7 @@ caf::PdmFieldHandle* RimCommandIssueFieldChanged::findFieldByKeyword(caf::PdmObj
         }
     }
 
-    return NULL;
+    return nullptr;
 }
 
 

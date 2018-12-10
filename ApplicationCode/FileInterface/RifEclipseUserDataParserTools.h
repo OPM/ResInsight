@@ -60,7 +60,7 @@ public:
     size_t                          itemCount() const;
 
 public:
-    static Column createColumnInfoFromRsmData(const std::string& quantity, const std::string& unit, const RifEclipseSummaryAddress& adr);
+    static Column createColumnInfoFromRsmData(const std::string& quantity, const std::string& unit, const RifEclipseSummaryAddress& addr);
     static Column createColumnInfoFromCsvData(const RifEclipseSummaryAddress& addr, const std::string& unit);
 
     RifEclipseSummaryAddress                        summaryAddress;
@@ -71,7 +71,10 @@ public:
     // Data containers
     std::vector<double>                             values;
     std::vector<std::string >                       textValues;
-    std::vector<QDateTime>                          dateTimeValues;
+    //std::vector<QDateTime>                          dateTimeValues;
+    std::vector<time_t>                             dateTimeValues;
+
+    std::vector<QDateTime>      qDateTimeValues() const;
 };
 
 
@@ -89,8 +92,17 @@ public:
               const std::vector<Column>& columnInfos)
         : m_origin(origin),
         m_startDate(startDate),
+        m_dateTimeColumnIndex(-1),
         m_columnInfos(columnInfos)
     {
+        for (size_t i = 0; i < columnInfos.size(); i++)
+        {
+            if (columnInfos[i].dataType == Column::DATETIME)
+            {
+                m_dateTimeColumnIndex = (int)i;
+                break;
+            }
+        }
     }
 
     std::string origin() const
@@ -113,11 +125,13 @@ public:
         return m_columnInfos;
     }
 
+    int       dateTimeColumnIndex() const;
     QDateTime findFirstDate() const;
 
 private:
     std::string             m_origin;
     std::string             m_startDate;
+    int                     m_dateTimeColumnIndex;
 
     std::vector<Column> m_columnInfos;
 };
@@ -131,9 +145,7 @@ public:
     static bool                                         isLineSkippable(const std::string& line);
     static bool                                         isAComment(const std::string& word);
     static std::vector<std::string>                     splitLineAndRemoveComments(const std::string& line);
-    static RifEclipseSummaryAddress::SummaryVarCategory identifyCategory(const std::string& word);
     static std::vector<double>                          splitLineToDoubles(const std::string& line);
-    static size_t                                       findFirstNonEmptyEntryIndex(std::vector<std::string>& list);
     static bool                                         keywordParser(const std::string& line, std::string& origin, std::string& dateFormat, std::string& startDate);
     static bool                                         isANumber(const std::string& line);
     static std::vector<std::string>                     headerReader(std::stringstream& streamData, std::string& line);
@@ -148,11 +160,10 @@ public:
     // Fixed width functions
 
     static bool                                         isFixedWidthHeader(const std::string& lines);
-    static bool                                         hasCompleteDataForAllHeaderColumns(const std::string& lines);
-    static std::vector<Column>                      columnInfoForFixedColumnWidth(std::stringstream& streamData);
+    static std::vector<Column>                          columnInfoForFixedColumnWidth(std::stringstream& streamData);
     static std::vector<std::string>                     findValidHeaderLines(std::stringstream& streamData);
     static std::vector<std::vector<std::string>>        splitIntoColumnHeaders(const std::vector<std::string>& headerLines);
-    static std::vector<Column>                      columnInfoFromColumnHeaders(const std::vector<std::vector<std::string>>& columnData);
+    static std::vector<Column>                          columnInfoFromColumnHeaders(const std::vector<std::vector<std::string>>& columnData);
     static std::vector<size_t>                          columnIndexForWords(const std::string& line);
 
     static std::vector<TableData>                       mergeEqualTimeSteps(const std::vector<TableData>& tables);

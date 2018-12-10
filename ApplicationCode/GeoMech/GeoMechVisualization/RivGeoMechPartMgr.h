@@ -19,6 +19,7 @@
 
 #pragma once
 
+#include "cvfBase.h"
 #include "cvfArray.h"
 #include "cvfCollection.h"
 
@@ -45,7 +46,7 @@ class RivGeoMechPartMgr: public cvf::Object
 {
 public:
     RivGeoMechPartMgr();
-    ~RivGeoMechPartMgr();
+    ~RivGeoMechPartMgr() override;
 
     int    initializedFemPartCount() { return static_cast<int>(m_femPartPartMgrs.size());}
     void   clearAndSetReservoir(const RigGeoMechCaseData* geoMechCase);
@@ -61,6 +62,7 @@ public:
     void   appendGridPartsToModel(cvf::ModelBasicList* model, const std::vector<size_t>& partIndices);
     void   appendGridPartsToModel(cvf::ModelBasicList* model);
 
+    const cvf::Collection<RivFemPartPartMgr> femPartMgrs() const;
 private:
 
     cvf::Collection<RivFemPartPartMgr>  m_femPartPartMgrs;

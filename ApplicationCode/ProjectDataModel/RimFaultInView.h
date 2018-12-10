@@ -40,16 +40,16 @@ class RimFaultInView : public caf::PdmObject
 public:
 
     RimFaultInView();
-    virtual ~RimFaultInView();
+    ~RimFaultInView() override;
 
     void                                setFaultGeometry(const RigFault* faultGeometry);
     const RigFault*                     faultGeometry() const;
     
-    virtual caf::PdmFieldHandle*        userDescriptionField();
-    virtual caf::PdmFieldHandle*        objectToggleField();
+    caf::PdmFieldHandle*        userDescriptionField() override;
+    caf::PdmFieldHandle*        objectToggleField() override;
 
-    virtual void                        fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
-    virtual void                        initAfterRead();
+    void                        fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    void                        initAfterRead() override;
 
     caf::PdmField<bool>                 showFault;
 

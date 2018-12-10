@@ -198,12 +198,19 @@ public:
         CAF_PDM_XML_InitField(&m_position,  "Position");
         CAF_PDM_XML_InitField(&m_dir,       "Dir");
         CAF_PDM_XML_InitField(&m_up,        "Up");
-   }
+   
+        CAF_PDM_XML_InitField(&m_singleFilePath,    "m_singleFilePath");
+        CAF_PDM_XML_InitField(&m_multipleFilePath,  "m_multipleFilePath");
+    }
 
     caf::PdmDataValueField<double>               m_position;
     caf::PdmDataValueField<double>               m_dir;
     caf::PdmDataValueField<double>               m_up;
     caf::PdmProxyValueField<double>          m_proxyDouble;
+
+    caf::PdmDataValueField<caf::FilePath>               m_singleFilePath;
+    caf::PdmDataValueField<std::vector<caf::FilePath>>  m_multipleFilePath;
+
 
     void setDoubleMember(const double& d) { m_doubleMember = d; std::cout << "setDoubleMember" << std::endl; }
     double doubleMember() const { std::cout << "doubleMember" << std::endl; return m_doubleMember; }
@@ -349,6 +356,37 @@ TEST(BaseTest, QXMLStreamTest)
         tt = inputStream.readNext();
         std::cout << inputStream.name().toString().toStdString() << std::endl;
     }
-
-
 }
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+TEST(BaseTest, FilePathSerializing)
+{
+    SimpleObj* s1 = new SimpleObj;
+
+    QString newVal = "path with space";
+    s1->m_multipleFilePath.v().push_back(newVal);
+    s1->m_multipleFilePath.v().push_back(newVal);
+
+    s1->m_singleFilePath = newVal;
+
+    QString serializedString = s1->writeObjectToXmlString();
+
+    {
+        SimpleObj* ihd1 = new SimpleObj;
+
+        QXmlStreamReader xmlStream(serializedString);
+
+        ihd1->readObjectFromXmlString(serializedString, caf::PdmDefaultObjectFactory::instance());
+
+        EXPECT_EQ(2, ihd1->m_multipleFilePath.v().size());
+        EXPECT_EQ(newVal.toStdString(), ihd1->m_singleFilePath().path().toStdString());
+    
+        delete ihd1;
+    }
+
+    delete s1;
+}
+

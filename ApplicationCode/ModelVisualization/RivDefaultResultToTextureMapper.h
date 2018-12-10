@@ -35,7 +35,7 @@ class RivDefaultResultToTextureMapper : public RivResultToTextureMapper
 public:
     using RivResultToTextureMapper::RivResultToTextureMapper;
 
-    cvf::Vec2f getTexCoord(double resultValue, size_t cellIndex) const
+    cvf::Vec2f getTexCoord(double resultValue, size_t cellIndex) const override
     {
         cvf::Vec2f texCoord(0,0);
 

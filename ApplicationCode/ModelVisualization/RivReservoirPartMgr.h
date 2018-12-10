@@ -20,6 +20,8 @@
 
 #pragma once
 
+#include "RivCellSetEnum.h"
+
 #include "cvfBase.h"
 #include "cvfArray.h"
 #include "cvfCollection.h"
@@ -32,6 +34,7 @@ namespace cvf
 
 class RimEclipseCellColors;
 class RimCellEdgeColors;
+class RimEclipseCase;
 class RigEclipseCaseData;
 class RimEclipseView;
 class RivReservoirFaultsPartMgr;
@@ -47,7 +50,7 @@ class RivGridPartMgr;
 class RivReservoirPartMgr: public cvf::Object
 {
 public:
-    void   clearAndSetReservoir(const RigEclipseCaseData* eclipseCase, RimEclipseView* reservoirView);
+    void   clearAndSetReservoir(RivCellSetEnum cellSetType, RimEclipseCase* eclipseCase, RimEclipseView* reservoirView);
     void   setTransform(cvf::Transform* scaleTransform);
     void   setCellVisibility(size_t gridIndex, cvf::UByteArray* cellVisibilities );
     
@@ -72,8 +75,10 @@ public:
         RimCellEdgeColors* cellEdgeResultColors);
     void   appendFaultPartsToModel(cvf::ModelBasicList* model);
     void   appendFaultLabelPartsToModel(cvf::ModelBasicList* model);
-private:
 
+private:
     cvf::Collection<RivGridPartMgr>     m_allGrids; // Main grid and all LGR's 
     cvf::ref<RivReservoirFaultsPartMgr> m_faultsPartMgr;
+
+    RivCellSetEnum                      m_cellSetType;
 };

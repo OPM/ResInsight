@@ -23,7 +23,7 @@
 #include "RiaSummaryCurveDefinition.h"
 #include "RiaSummaryTools.h"
 
-#include "RigTimeHistoryCurveMerger.h"
+#include "RiaTimeHistoryCurveMerger.h"
 
 #include "RimProject.h"
 #include "RimSummaryAddress.h"
@@ -240,7 +240,7 @@ bool RimSummaryCalculation::calculate()
 {
     QString leftHandSideVariableName = RimSummaryCalculation::findLeftHandSide(m_expression);
 
-    RigTimeHistoryCurveMerger timeHistoryCurveMerger;
+    RiaTimeHistoryCurveMerger timeHistoryCurveMerger;
 
     for (size_t i = 0; i < m_variables.size(); i++)
     {
@@ -260,7 +260,6 @@ bool RimSummaryCalculation::calculate()
             return false;
         }
 
-        RimSummaryAddress* sumAdr = v->summaryAddress();
         RiaSummaryCurveDefinition curveDef(v->summaryCase(), v->summaryAddress()->address());
 
         std::vector<double> curveValues;

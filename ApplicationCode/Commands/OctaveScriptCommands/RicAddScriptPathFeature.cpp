@@ -26,7 +26,7 @@
 #include "RicScriptFeatureImpl.h"
 
 #include "RimScriptCollection.h"
-#include "RiuMainWindow.h"
+#include "Riu3DMainWindowTools.h"
 
 #include "cvfAssert.h"
 
@@ -49,7 +49,7 @@ bool RicAddScriptPathFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicAddScriptPathFeature::onActionTriggered(bool isChecked)
 {
-    QString selectedFolder = QFileDialog::getExistingDirectory(RiuMainWindow::instance(), "Select script folder");
+    QString selectedFolder = QFileDialog::getExistingDirectory(Riu3DMainWindowTools::mainWindowWidget(), "Select script folder");
     if (!selectedFolder.isEmpty())
     {
         QString filePathString = RiaApplication::instance()->preferences()->scriptDirectories();

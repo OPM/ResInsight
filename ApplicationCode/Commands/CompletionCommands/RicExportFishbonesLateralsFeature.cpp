@@ -21,6 +21,11 @@
 #include "RiaApplication.h"
 #include "RiaLogging.h"
 
+#include "ExportCommands/RicExportSelectedWellPathsFeature.h"
+#include "ExportCommands/RicExportWellPathsUi.h"
+
+#include "RigWellPath.h"
+
 #include "RimFishbonesCollection.h"
 #include "RimFishbonesMultipleSubs.h"
 #include "RimWellPath.h"
@@ -31,7 +36,6 @@
 #include "cvfAssert.h"
 
 #include <QAction>
-#include <QFileDialog>
 
 CAF_CMD_SOURCE_INIT(RicExportFishbonesLateralsFeature, "RicExportFishbonesLateralsFeature");
 
@@ -40,6 +44,8 @@ CAF_CMD_SOURCE_INIT(RicExportFishbonesLateralsFeature, "RicExportFishbonesLatera
 //--------------------------------------------------------------------------------------------------
 void RicExportFishbonesLateralsFeature::onActionTriggered(bool isChecked)
 {
+    using EXP = RicExportSelectedWellPathsFeature;
+
     RimFishbonesCollection* fishbonesCollection = selectedFishbonesCollection();
     CVF_ASSERT(fishbonesCollection);
 
@@ -48,81 +54,62 @@ void RicExportFishbonesLateralsFeature::onActionTriggered(bool isChecked)
     CVF_ASSERT(wellPath);
 
     RiaApplication* app = RiaApplication::instance();
-    QString projectFolder = app->currentProjectPath();
 
-    QString defaultDir = app->lastUsedDialogDirectoryWithFallback("WELL_PATH_EXPORT_DIR", projectFolder);
+    QString defaultDir = app->lastUsedDialogDirectoryWithFallbackToProjectFolder("WELL_PATH_EXPORT_DIR");
+    auto fileName = caf::Utils::makeValidFileBasename(wellPath->name()) + "_laterals.dev";
 
-    QString defaultFileName = defaultDir + "/" + caf::Utils::makeValidFileBasename((wellPath->name())) + "_laterals.dev";
-    QString completeFilename = QFileDialog::getSaveFileName(nullptr, "Select File for Well Path Data Export", defaultFileName, "Well Path Text File(*.dev);;All files(*.*)");
-    if (completeFilename.isEmpty()) return;
-
-    RiaLogging::info("Starting export of Fishbones well path laterals to : " + completeFilename);
-
-    QFile exportFile(completeFilename);
-    if (!exportFile.open(QIODevice::WriteOnly))
+    auto dialogData = EXP::openDialog();
+    if (dialogData)
     {
-        RiaLogging::error("Could not open the file :\n" + completeFilename);
-        return;
-    }
-
-
-    // See RifWellPathAsciiFileReader::readAllWellData for reading of dev files
-    //
-    // http://resinsight.org/docs/wellpaths/
-    // Export format
-    //
-    // WELLNAME: <well name>_<fishbone name>_Sub<sub index>_Lat<lateral index>
-    //
-    // for each coordinate along lateral, export
-    // x y TVD MD 
-    // separate laterals using -999 on a single line
-
-    QTextStream stream(&exportFile);
-    for (RimFishbonesMultipleSubs* fishbone : fishbonesCollection->fishbonesSubs())
-    {
-        if (!fishbone->isActive()) continue;
-
-        const QString fishboneName = fishbone->generatedName();
-
-        for (auto& sub : fishbone->installedLateralIndices())
+        auto folder = dialogData->exportFolder();
+        auto mdStepSize = dialogData->mdStepSize();
+        if (folder.isEmpty())
         {
-            for (size_t lateralIndex : sub.lateralIndices)
+            return;
+        }
+
+        auto exportFile = EXP::openFileForExport(folder, fileName);
+        auto stream = EXP::createOutputFileStream(*exportFile);
+
+        for (RimFishbonesMultipleSubs* fishbone : wellPath->fishbonesCollection()->activeFishbonesSubs())
+        {
+            const QString fishboneName = fishbone->generatedName();
+    
+            for (auto& sub : fishbone->installedLateralIndices())
             {
-                std::vector<std::pair<cvf::Vec3d, double>> coordsAndMD = fishbone->coordsAndMDForLateral(sub.subIndex, lateralIndex);
-
-                // Pad with "0" to get a total of two characters defining the sub index text
-                QString subIndexText = QString("%1").arg(sub.subIndex, 2, 10, QChar('0'));
-
-                QString lateralNameCandidate = QString("%1_%2_Sub%3_Lat%4").arg(wellPath->name()).arg(fishboneName).arg(subIndexText).arg(lateralIndex);
-                QString lateralName = caf::Utils::makeValidFileBasename(lateralNameCandidate);
-
-                stream << "WELLNAME: " << lateralName << endl;
-
-                for (auto coordMD : coordsAndMD)
+                for (size_t lateralIndex : sub.lateralIndices)
                 {
-                    int numberOfDecimals = 2;
+                    std::vector<std::pair<cvf::Vec3d, double>> coordsAndMD = fishbone->coordsAndMDForLateral(sub.subIndex, lateralIndex);
+    
+                    std::vector<cvf::Vec3d> lateralCoords;
+                    std::vector<double>     lateralMDs;
 
-                    // Export X and Y unchanged, invert sign of Z to get TVD, export MD unchanged
-                    stream << formatNumber(coordMD.first.x(), numberOfDecimals);
-                    stream << " " << formatNumber(coordMD.first.y(), numberOfDecimals);
-                    stream << " " << formatNumber(-coordMD.first.z(), numberOfDecimals);
-                    stream << " " << formatNumber(coordMD.second, numberOfDecimals) << endl;
+                    lateralCoords.reserve(coordsAndMD.size());
+                    lateralMDs.reserve(coordsAndMD.size());
+
+                    for (auto& coordMD : coordsAndMD)
+                    {
+                        lateralCoords.push_back(coordMD.first);
+                        lateralMDs.push_back(coordMD.second);
+                    }
+
+                    RigWellPath geometry;
+                    geometry.m_wellPathPoints = lateralCoords;
+                    geometry.m_measuredDepths = lateralMDs;
+
+                    // Pad with "0" to get a total of two characters defining the sub index text
+                    QString subIndexText = QString("%1").arg(sub.subIndex, 2, 10, QChar('0'));
+                    QString lateralName = QString("%1_%2_Sub%3_Lat%4").arg(wellPath->name()).arg(fishboneName).arg(subIndexText).arg(lateralIndex);
+    
+                    EXP::writeWellPathGeometryToStream(*stream, wellPath, lateralName, mdStepSize);
                 }
-                stream << -999 << endl << endl;
-
             }
         }
+
+        exportFile->close();
     }
 
-    RiaLogging::info("Completed export of Fishbones well path laterals to : " + completeFilename);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-QString RicExportFishbonesLateralsFeature::formatNumber(double val, int numberOfDecimals)
-{
-    return QString("%1").arg(val, 0, 'f', numberOfDecimals);
+    RiaLogging::info("Completed export of Fishbones well path laterals to : " + fileName);
 }
 
 //--------------------------------------------------------------------------------------------------

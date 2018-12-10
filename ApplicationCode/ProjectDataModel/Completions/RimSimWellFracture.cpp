@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2016-     Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -29,14 +29,13 @@
 #include "RimProject.h"
 #include "RimSimWellInView.h"
 
+#include "RigWellPath.h"
 #include "cafPdmUiDoubleSliderEditor.h"
-
-
 
 CAF_PDM_SOURCE_INIT(RimSimWellFracture, "SimWellFracture");
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimSimWellFracture::RimSimWellFracture(void)
 {
@@ -54,18 +53,16 @@ RimSimWellFracture::RimSimWellFracture(void)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RimSimWellFracture::~RimSimWellFracture()
-{
-}
- 
+RimSimWellFracture::~RimSimWellFracture() {}
+
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimSimWellFracture::setClosestWellCoord(cvf::Vec3d& position, size_t branchIndex)
 {
-    updateBranchGeometry();
+    computeSimWellBranchesIfRequired();
 
     double location = m_branchCenterLines[branchIndex].locationAlongWellCoords(position);
 
@@ -76,77 +73,105 @@ void RimSimWellFracture::setClosestWellCoord(cvf::Vec3d& position, size_t branch
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimSimWellFracture::updateAzimuthBasedOnWellAzimuthAngle()
 {
-    updateBranchGeometry();
-    
+    computeSimWellBranchesIfRequired();
+
     if (!fractureTemplate()) return;
-    if (fractureTemplate()->orientationType == RimFractureTemplate::ALONG_WELL_PATH 
-        || fractureTemplate()->orientationType == RimFractureTemplate::TRANSVERSE_WELL_PATH)
+
+    if (fractureTemplate()->orientationType() == RimFractureTemplate::ALONG_WELL_PATH ||
+        fractureTemplate()->orientationType() == RimFractureTemplate::TRANSVERSE_WELL_PATH)
     {
         double simWellAzimuth = wellAzimuthAtFracturePosition();
 
-        if (fractureTemplate()->orientationType == RimFractureTemplate::ALONG_WELL_PATH )
+        if (fractureTemplate()->orientationType() == RimFractureTemplate::ALONG_WELL_PATH)
         {
-            azimuth = simWellAzimuth;
+            m_azimuth = simWellAzimuth;
         }
-        else if (fractureTemplate()->orientationType == RimFractureTemplate::TRANSVERSE_WELL_PATH)
+        else if (fractureTemplate()->orientationType() == RimFractureTemplate::TRANSVERSE_WELL_PATH)
         {
-            if (simWellAzimuth + 90 < 360) azimuth = simWellAzimuth + 90;
-            else azimuth = simWellAzimuth - 90;
+            if (simWellAzimuth + 90 < 360)
+                m_azimuth = simWellAzimuth + 90;
+            else
+                m_azimuth = simWellAzimuth - 90;
         }
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 double RimSimWellFracture::wellAzimuthAtFracturePosition() const
 {
     double simWellAzimuth = m_branchCenterLines[m_branchIndex].simWellAzimuthAngle(fracturePosition());
     if (simWellAzimuth < 0) simWellAzimuth += 360;
-    
+
     return simWellAzimuth;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 double RimSimWellFracture::wellDipAtFracturePosition()
 {
-    updateBranchGeometry();
+    computeSimWellBranchesIfRequired();
     double simWellDip = m_branchCenterLines[m_branchIndex].simWellDipAngle(fracturePosition());
     return simWellDip;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimSimWellFracture::loadDataAndUpdate()
 {
-    setBranchGeometry();
+    computeSimWellBranchCenterLines();
     updateFracturePositionFromLocation();
     updateAzimuthBasedOnWellAzimuthAngle();
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RimSimWellFracture::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+std::vector<cvf::Vec3d> RimSimWellFracture::perforationLengthCenterLineCoords() const
+{
+    std::vector<cvf::Vec3d> coords;
+
+    if (!m_branchCenterLines.empty() && m_branchIndex < static_cast<int>(m_branchCenterLines.size()))
+    {
+        RigWellPath wellPathGeometry;
+
+        wellPathGeometry.m_wellPathPoints = m_branchCenterLines[m_branchIndex].wellPathPoints();
+        wellPathGeometry.m_measuredDepths = m_branchCenterLines[m_branchIndex].measuredDepths();
+
+        double startMd = m_location - perforationLength() / 2.0;
+        double endMd   = m_location + perforationLength() / 2.0;
+
+        coords = wellPathGeometry.clippedPointSubset(startMd, endMd).first;
+    }
+
+    return coords;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSimWellFracture::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
+                                          const QVariant&            oldValue,
+                                          const QVariant&            newValue)
 {
     RimFracture::fieldChangedByUi(changedField, oldValue, newValue);
 
-    if (   changedField == &m_location
-        || changedField == &m_branchIndex
-        )
+    if (changedField == &m_location || changedField == &m_branchIndex)
     {
         updateFracturePositionFromLocation();
 
         RimFractureTemplate::FracOrientationEnum orientation;
-        if (fractureTemplate()) orientation = fractureTemplate()->orientationType();
-        else orientation = RimFractureTemplate::AZIMUTH;
+        if (fractureTemplate())
+            orientation = fractureTemplate()->orientationType();
+        else
+            orientation = RimFractureTemplate::AZIMUTH;
 
         if (orientation != RimFractureTemplate::AZIMUTH)
         {
@@ -160,21 +185,21 @@ void RimSimWellFracture::fieldChangedByUi(const caf::PdmFieldHandle* changedFiel
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimSimWellFracture::recomputeWellCenterlineCoordinates()
 {
     m_branchCenterLines.clear();
 
-    updateBranchGeometry();
+    computeSimWellBranchesIfRequired();
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimSimWellFracture::updateFracturePositionFromLocation()
 {
-    updateBranchGeometry();
+    computeSimWellBranchesIfRequired();
 
     if (m_branchCenterLines.size() > 0)
     {
@@ -184,37 +209,36 @@ void RimSimWellFracture::updateFracturePositionFromLocation()
 
         RimProject* proj;
         this->firstAncestorOrThisOfType(proj);
-        if (proj) proj->createDisplayModelAndRedrawAllViews();
+        if (proj) proj->scheduleCreateDisplayModelAndRedrawAllViews();
     }
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimSimWellFracture::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
     RimFracture::defineUiOrdering(uiConfigName, uiOrdering);
 
     uiOrdering.add(nameField());
+    uiOrdering.add(&m_fractureTemplate);
 
     caf::PdmUiGroup* locationGroup = uiOrdering.addNewGroup("Location / Orientation");
     locationGroup->add(&m_location);
     locationGroup->add(&m_branchIndex);
-    locationGroup->add(&azimuth);
+    locationGroup->add(&m_azimuth);
     locationGroup->add(&m_uiWellPathAzimuth);
     locationGroup->add(&m_uiWellFractureAzimuthDiff);
     locationGroup->add(&m_wellFractureAzimuthAngleWarning);
-    locationGroup->add(&dip);
-    locationGroup->add(&tilt);
+    locationGroup->add(&m_dip);
+    locationGroup->add(&m_tilt);
 
     caf::PdmUiGroup* propertyGroup = uiOrdering.addNewGroup("Properties");
     propertyGroup->add(&m_fractureUnit);
-    propertyGroup->add(&m_fractureTemplate);
-    propertyGroup->add(&stimPlanTimeIndexToPlot);
-    propertyGroup->add(&perforationLength);
-    propertyGroup->add(&perforationEfficiency);
-    propertyGroup->add(&wellDiameter);
+    propertyGroup->add(&m_stimPlanTimeIndexToPlot);
+    propertyGroup->add(&m_perforationLength);
+    propertyGroup->add(&m_perforationEfficiency);
+    propertyGroup->add(&m_wellDiameter);
 
     caf::PdmUiGroup* fractureCenterGroup = uiOrdering.addNewGroup("Fracture Center Info");
     fractureCenterGroup->add(&m_uiAnchorPosition);
@@ -222,9 +246,11 @@ void RimSimWellFracture::defineUiOrdering(QString uiConfigName, caf::PdmUiOrderi
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RimSimWellFracture::defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute * attribute)
+void RimSimWellFracture::defineEditorAttribute(const caf::PdmFieldHandle* field,
+                                               QString                    uiConfigName,
+                                               caf::PdmUiEditorAttribute* attribute)
 {
     RimFracture::defineEditorAttribute(field, uiConfigName, attribute);
 
@@ -234,14 +260,14 @@ void RimSimWellFracture::defineEditorAttribute(const caf::PdmFieldHandle* field,
 
         if (myAttr)
         {
-            updateBranchGeometry();
+            computeSimWellBranchesIfRequired();
 
             if (m_branchCenterLines.size() > 0)
             {
                 const RigSimulationWellCoordsAndMD& pointAndMd = m_branchCenterLines[m_branchIndex];
 
-                myAttr->m_minimum = pointAndMd.measuredDepths().front();
-                myAttr->m_maximum = pointAndMd.measuredDepths().back();
+                myAttr->m_minimum         = pointAndMd.measuredDepths().front();
+                myAttr->m_maximum         = pointAndMd.measuredDepths().back();
                 myAttr->m_sliderTickCount = pointAndMd.measuredDepths().back();
             }
         }
@@ -249,9 +275,10 @@ void RimSimWellFracture::defineEditorAttribute(const caf::PdmFieldHandle* field,
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RimSimWellFracture::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly)
+QList<caf::PdmOptionItemInfo> RimSimWellFracture::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions,
+                                                                        bool*                      useOptionsOnly)
 {
     QList<caf::PdmOptionItemInfo> options = RimFracture::calculateValueOptions(fieldNeedingOptions, useOptionsOnly);
 
@@ -259,7 +286,7 @@ QList<caf::PdmOptionItemInfo> RimSimWellFracture::calculateValueOptions(const ca
     {
         if (m_branchCenterLines.size() == 0)
         {
-            updateBranchGeometry();
+            computeSimWellBranchesIfRequired();
         }
 
         if (m_branchCenterLines.size() > 0)
@@ -278,34 +305,34 @@ QList<caf::PdmOptionItemInfo> RimSimWellFracture::calculateValueOptions(const ca
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RigMainGrid* RimSimWellFracture::ownerCaseMainGrid() const
 {
     RimEclipseView* ownerEclView;
     this->firstAncestorOrThisOfType(ownerEclView);
 
-    if (ownerEclView) 
+    if (ownerEclView)
         return ownerEclView->mainGrid();
-    else 
+    else
         return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RimSimWellFracture::updateBranchGeometry()
+void RimSimWellFracture::computeSimWellBranchesIfRequired()
 {
     if (m_branchCenterLines.size() == 0)
     {
-        setBranchGeometry();
+        computeSimWellBranchCenterLines();
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RimSimWellFracture::setBranchGeometry()
+void RimSimWellFracture::computeSimWellBranchCenterLines()
 {
     m_branchCenterLines.clear();
 
@@ -313,11 +340,10 @@ void RimSimWellFracture::setBranchGeometry()
     this->firstAncestorOrThisOfType(rimWell);
     CVF_ASSERT(rimWell);
 
-    std::vector< std::vector <cvf::Vec3d> > pipeBranchesCLCoords;
-    std::vector< std::vector <RigWellResultPoint> > pipeBranchesCellIds;
+    std::vector<std::vector<cvf::Vec3d>>         pipeBranchesCLCoords;
+    std::vector<std::vector<RigWellResultPoint>> pipeBranchesCellIds;
 
-    rimWell->calculateWellPipeStaticCenterLine(pipeBranchesCLCoords, 
-                                               pipeBranchesCellIds);
+    rimWell->calculateWellPipeStaticCenterLine(pipeBranchesCLCoords, pipeBranchesCellIds);
 
     for (const auto& branch : pipeBranchesCLCoords)
     {
@@ -328,17 +354,21 @@ void RimSimWellFracture::setBranchGeometry()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString RimSimWellFracture::createOneBasedIJKText() const
 {
     RigMainGrid* mainGrid = ownerCaseMainGrid();
-    size_t i,j,k;
-    size_t anchorCellIdx = findAnchorEclipseCell(mainGrid);
+    size_t       i, j, k;
+    size_t       anchorCellIdx = mainGrid->findReservoirCellIndexFromPoint(anchorPosition());
+
     if (anchorCellIdx == cvf::UNDEFINED_SIZE_T) return "";
 
-    bool ok = mainGrid->ijkFromCellIndex(anchorCellIdx, &i, &j, &k);
+    size_t             gridLocalCellIdx;
+    const RigGridBase* hostGrid = mainGrid->gridAndGridLocalIdxFromGlobalCellIdx(anchorCellIdx, &gridLocalCellIdx);
+
+    bool ok = hostGrid->ijkFromCellIndex(gridLocalCellIdx, &i, &j, &k);
     if (!ok) return "";
 
-    return QString("[%1, %2, %3]").arg(i + 1).arg(j + 1).arg(k + 1);
+    return QString("Grid %1: [%2, %3, %4]").arg(QString::fromStdString(hostGrid->gridName())).arg(i + 1).arg(j + 1).arg(k + 1);
 }

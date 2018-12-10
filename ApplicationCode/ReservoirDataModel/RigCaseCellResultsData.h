@@ -20,8 +20,6 @@
 
 #pragma once
 
-#include "RifReaderInterface.h"
-
 #include "RiaDefines.h"
 
 #include "cvfCollection.h"
@@ -37,6 +35,7 @@ class RigMainGrid;
 class RigEclipseResultInfo;
 class RigStatisticsDataCache;
 class RigEclipseTimeStepInfo;
+class RigEclipseCaseData;
 
 //==================================================================================================
 /// Class containing the results for the complete number of active cells. Both main grid and LGR's
@@ -50,9 +49,9 @@ public:
     void                                               setHdf5Filename(const QString& hdf5SourSimFilename );
 
     void                                               setMainGrid(RigMainGrid* ownerGrid);
-    void                                               setActiveCellInfo(RigActiveCellInfo* activeCellInfo) { m_activeCellInfo = activeCellInfo;}
-    RigActiveCellInfo*                                 activeCellInfo() { return m_activeCellInfo;}
-    const RigActiveCellInfo*                           activeCellInfo() const { return m_activeCellInfo;}
+    void                                               setActiveCellInfo(RigActiveCellInfo* activeCellInfo);
+    RigActiveCellInfo*                                 activeCellInfo();
+    const RigActiveCellInfo*                           activeCellInfo() const;
 
     // Max and min values of the results
     void                                               recalculateStatistics(size_t scalarResultIndex);
@@ -74,19 +73,17 @@ public:
     // Access meta-information about the results
     size_t                                             resultCount() const;
     size_t                                             timeStepCount(size_t scalarResultIndex) const; 
-    size_t                                             maxTimeStepCount(size_t* scalarResultIndex = NULL) const; 
+    size_t                                             maxTimeStepCount(size_t* scalarResultIndex = nullptr) const; 
     QStringList                                        resultNames(RiaDefines::ResultCatType type) const;
     bool                                               isUsingGlobalActiveIndex(size_t scalarResultIndex) const;
     bool                                               hasFlowDiagUsableFluxes() const;
 
     std::vector<QDateTime>                             allTimeStepDatesFromEclipseReader() const;
     std::vector<QDateTime>                             timeStepDates() const;
-    QDateTime                                          timeStepDate(size_t scalarResultIndex, size_t timeStepIndex) const;
     std::vector<QDateTime>                             timeStepDates(size_t scalarResultIndex) const;
     std::vector<double>                                daysSinceSimulationStart() const;
     std::vector<double>                                daysSinceSimulationStart(size_t scalarResultIndex) const;
     int                                                reportStepNumber(size_t scalarResultIndex, size_t timeStepIndex) const;
-    std::vector<int>                                   reportStepNumbers(size_t scalarResultIndex) const;
     
     std::vector<RigEclipseTimeStepInfo>                timeStepInfos(size_t scalarResultIndex) const;
     void                                               setTimeStepInfos(size_t scalarResultIndex, const std::vector<RigEclipseTimeStepInfo>& timeStepInfos);
@@ -105,10 +102,14 @@ public:
 
     void                                               createPlaceholderResultEntries();
     void                                               computeDepthRelatedResults();
+    void                                               computeCellVolumes();
 
     void                                               clearScalarResult(RiaDefines::ResultCatType type, const QString & resultName);
+    void                                               clearScalarResult(const RigEclipseResultInfo& resultInfo);
     void                                               clearAllResults();
     void                                               freeAllocatedResultsData();
+    bool                                               isResultLoaded(const RigEclipseResultInfo& resultInfo) const;
+
 
     // Access the results data
 
@@ -124,7 +125,7 @@ public:
                                                                                       std::vector<double> &activeCellsResultsTempContainer);
 
 public:
-    const std::vector<RigEclipseResultInfo>&           infoForEachResultIndex() { return m_resultInfos;}
+    const std::vector<RigEclipseResultInfo>&           infoForEachResultIndex();
 
     bool                                               mustBeCalculated(size_t scalarResultIndex) const;
     void                                               setMustBeCalculated(size_t scalarResultIndex);
@@ -154,9 +155,12 @@ private: // from RimReservoirCellResultsStorage
     void                                               computeCompletionTypeForTimeStep(size_t timeStep);
     double                                             darchysValue();
 
+    void                                               computeOilVolumes();
     void                                               computeMobilePV();
 
     bool                                               isDataPresent(size_t scalarResultIndex) const;
+
+    void                                               assignValuesToTemporaryLgrs(const QString& resultName, std::vector<double>& values);
 
     cvf::ref<RifReaderInterface>                       m_readerInterface;
 
@@ -169,5 +173,5 @@ private:
 
     RigMainGrid*                                       m_ownerMainGrid;
     RigEclipseCaseData*                                m_ownerCaseData;
-    RigActiveCellInfo*                                 m_activeCellInfo;
+    RigActiveCellInfo*                                 m_activeCellInfo;    
 };

@@ -34,6 +34,8 @@
 //
 //##################################################################################################
 
+#pragma warning( disable : 4125 )
+
 #include "QMinimizePanel.h"
 
 #include <QApplication>
@@ -42,6 +44,10 @@
 #include <QPixmap>
 #include <QPushButton>
 #include <QResizeEvent>
+#include <QHBoxLayout>
+#include <QVBoxLayout>
+
+#include <algorithm>
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -117,6 +123,7 @@ static const QIcon& expandUpIcon()
 /// 
 //--------------------------------------------------------------------------------------------------
 QMinimizePanel::QMinimizePanel(QWidget* parent/*=0*/)
+    : QWidget(parent)
 {
     this->initialize("");
 }
@@ -125,8 +132,147 @@ QMinimizePanel::QMinimizePanel(QWidget* parent/*=0*/)
 /// 
 //--------------------------------------------------------------------------------------------------
 QMinimizePanel::QMinimizePanel(const QString &title, QWidget* parent/*=0*/)
+    : QWidget(parent)
 {
     this->initialize(title);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QMinimizePanel::~QMinimizePanel()
+{
+
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QFrame* QMinimizePanel::contentFrame()
+{
+    return m_contentFrame;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void QMinimizePanel::setTitle(const QString& title)
+{
+    m_titleLabel->setText(title);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString QMinimizePanel::title() const
+{
+    return m_titleLabel->text();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void QMinimizePanel::enableFrame(bool showFrame)
+{
+    if (showFrame)
+    {
+        m_titleFrame->show();
+        m_titleLabel->show();
+        m_collapseButton->show();
+        m_contentFrame->setFrameStyle(QFrame::StyledPanel | QFrame::Plain);
+        m_contentFrame->setPalette(m_contentPalette);
+        m_contentFrame->setAttribute(Qt::WA_SetPalette, true);
+    }
+    else
+    {
+        m_titleFrame->hide();
+        m_titleLabel->hide();
+        m_collapseButton->hide();
+        m_contentFrame->setFrameStyle(QFrame::NoFrame);
+        if (parentWidget())
+        {
+            m_contentFrame->setPalette(parentWidget()->palette());
+        }
+        m_contentFrame->setAttribute(Qt::WA_SetPalette, false);
+    }
+    QWidget::update();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QSize QMinimizePanel::minimumSizeHint() const
+{
+    return calculateSizeHint(true);    
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QSize QMinimizePanel::sizeHint() const
+{
+    return calculateSizeHint(false);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void QMinimizePanel::setExpanded(bool isExpanded)
+{
+    if (m_contentFrame->isHidden() != isExpanded) return;
+
+    m_contentFrame->setVisible(isExpanded);
+    isExpanded ? m_collapseButton->setIcon(expandUpIcon()) : m_collapseButton->setIcon(expandDownIcon());
+    this->QWidget::updateGeometry();
+    
+    emit expandedChanged(isExpanded);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void QMinimizePanel::toggleExpanded()
+{
+    setExpanded(m_contentFrame->isHidden());
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void QMinimizePanel::resizeEvent(QResizeEvent *resizeEv )
+{
+    QWidget::updateGeometry();
+
+    int width = resizeEv->size().width();
+    int heigth = resizeEv->size().height();
+    int labelHeight = m_titleLabel->sizeHint().height();
+    
+    int titleHeight = labelHeight + 8;
+    int buttonSize = titleHeight - 2;
+
+    int contentHeightOffset = 0;
+    if (!m_titleFrame->isHidden())
+    {
+        m_titleFrame->setGeometry(0, 0, width, titleHeight);
+        m_titleLabel->setGeometry(4, titleHeight - labelHeight - 4, width - 4 - buttonSize - 1, labelHeight);
+        m_collapseButton->setGeometry(width - buttonSize - 1, 1, buttonSize, buttonSize);
+        contentHeightOffset = titleHeight - 1;
+    }
+
+    m_contentFrame->setGeometry(0, contentHeightOffset, width, heigth - contentHeightOffset);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool QMinimizePanel::event(QEvent* event)
+{
+    if (event->type() == QEvent::LayoutRequest)
+    {
+        this->QWidget::updateGeometry();
+    }
+
+   return this->QWidget::event(event);    
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -156,7 +302,7 @@ void QMinimizePanel::initialize(const QString &title)
 
     m_titleLabel->setPalette(titleLabelPalette);
 
-    m_collapseButton = new QPushButton( m_titleFrame);
+    m_collapseButton = new QPushButton(m_titleFrame);
     m_collapseButton->setFlat(true);
     m_collapseButton->setIcon(expandUpIcon());
     m_collapseButton->setDefault(false);
@@ -166,135 +312,40 @@ void QMinimizePanel::initialize(const QString &title)
     m_contentFrame->setFrameStyle(QFrame::StyledPanel | QFrame::Plain);
     m_contentFrame->setAutoFillBackground(true);
 
-    QPalette contentFramePalette = m_contentFrame->palette();
-    contentFramePalette.setBrush(QPalette::Window, QColor(255,250,250,85));
-    m_contentFrame->setPalette(contentFramePalette);
+    m_contentPalette = m_contentFrame->palette();
+    m_contentPalette.setBrush(QPalette::Window, QColor(255, 250, 250, 85));
+    m_contentFrame->setPalette(m_contentPalette);
 
-    connect(m_collapseButton, SIGNAL(clicked()),this, SLOT(toggleExpanded()) );
+    connect(m_collapseButton, SIGNAL(clicked()), this, SLOT(toggleExpanded()));
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-QMinimizePanel::~QMinimizePanel()
-{
-
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void QMinimizePanel::setTitle(const QString& title)
-{
-    m_titleLabel->setText(title);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-QString QMinimizePanel::title() const
-{
-    return m_titleLabel->text();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-QSize QMinimizePanel::sizeHint() const
+QSize QMinimizePanel::calculateSizeHint(bool minimumSizeHint) const
 {
     QSize labelSize = m_titleLabel->sizeHint();
     QSize titleBarHint = labelSize + QSize(4 + labelSize.height() + 8 - 2 + 1, 8);
-
     if (!m_contentFrame->isHidden())
     {
-        QSize titleBarMin(0, labelSize.height() + 8);
-        QSize contentsMin(m_contentFrame->sizeHint());
+        int titleHeight = 0;
+        if (!m_titleFrame->isHidden())
+        {
+            titleHeight = labelSize.height() + 8;
+        }
+
+        QSize titleBarMin(0, titleHeight);
+        QSize contentsMin(minimumSizeHint ? m_contentFrame->minimumSizeHint() : m_contentFrame->sizeHint());
         QSize total = contentsMin.expandedTo(titleBarMin);
         total.rheight() += titleBarMin.height();
-        
+
         return total;
     }
     else
     {
+        // Retain width when collapsing the field
+        QSize contentsMin(minimumSizeHint ? m_contentFrame->minimumSizeHint() : m_contentFrame->sizeHint());
+        titleBarHint.rwidth() = std::max(titleBarHint.width(), contentsMin.width());
         return titleBarHint;
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void QMinimizePanel::setExpanded(bool isExpanded)
-{
-    if (m_contentFrame->isHidden() != isExpanded) return;
-
-    m_contentFrame->setVisible(isExpanded);
-    isExpanded ? m_collapseButton->setIcon(expandUpIcon()) : m_collapseButton->setIcon(expandDownIcon());
-    this->QWidget::updateGeometry();
-    
-    emit expandedChanged(isExpanded);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void QMinimizePanel::toggleExpanded()
-{
-    setExpanded(m_contentFrame->isHidden());
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-QSize QMinimizePanel::minimumSizeHint() const
-{
-    QSize labelSize =  m_titleLabel->sizeHint();
-    QSize titleBarHint = labelSize + QSize(4 + labelSize.height() + 8 - 2 + 1, 8);
-
-    if (!m_contentFrame->isHidden())
-    {
-        QSize titleBarMin(0, labelSize.height() + 8  );
-        QSize contentsMin(m_contentFrame->minimumSizeHint());
-        QSize total = contentsMin.expandedTo(titleBarMin);
-        total.rheight() +=  titleBarMin.height();
-        
-        return total;
-    }
-    else
-    {
-        return titleBarHint;
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void QMinimizePanel::resizeEvent(QResizeEvent *resizeEv )
-{
-    QWidget::updateGeometry();
-
-    int width = resizeEv->size().width();
-    int heigth = resizeEv->size().height();
-    int labelHeight = m_titleLabel->sizeHint().height();
-    int titleHeight = labelHeight + 8;
-
-    int buttonSize = titleHeight - 2;
-
-    m_titleFrame->setGeometry(0,0,width, titleHeight);
-    m_titleLabel->setGeometry( 4, titleHeight - labelHeight - 4, width - 4 - buttonSize - 1, labelHeight);
-    m_collapseButton->setGeometry(width - buttonSize - 1, 1, buttonSize, buttonSize);
-    
-    m_contentFrame->setGeometry(0, titleHeight-1, width, heigth - (titleHeight-1));
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-bool QMinimizePanel::event(QEvent* event)
-{
-    if (event->type() == QEvent::LayoutRequest)
-    {
-        this->QWidget::updateGeometry();
-    }
-
-   return this->QWidget::event(event);    
 }

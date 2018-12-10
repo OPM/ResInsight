@@ -36,7 +36,7 @@
 class RifReaderEclipseSummary;
 class RimSummaryCase;
 class RimSummaryFilter;
-class RiuLineSegmentQwtPlotCurve;
+class RiuQwtPlotCurve;
 class RimAsciiDataCurveAutoName;
 
 //==================================================================================================
@@ -49,7 +49,7 @@ class RimAsciiDataCurve : public RimPlotCurve
 
 public:
     RimAsciiDataCurve();
-    virtual ~RimAsciiDataCurve();
+    ~RimAsciiDataCurve() override;
 
     std::vector<double>                     yValues() const;
     const std::vector<time_t>&              timeSteps() const;
@@ -65,15 +65,15 @@ public:
 protected:
     // RimPlotCurve overrides
 
-    virtual QString                         createCurveAutoName() override;
-    virtual void                            updateZoomInParentPlot() override;
-    virtual void                            onLoadDataAndUpdate(bool updateParentPlot) override;
-    virtual void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    QString                         createCurveAutoName() override;
+    void                            updateZoomInParentPlot() override;
+    void                            onLoadDataAndUpdate(bool updateParentPlot) override;
+    void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
 
 private:
     bool                                    curveData(std::vector<QDateTime>* timeSteps, std::vector<double>* values) const;
 
-    virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
 
 private:
     // Fields

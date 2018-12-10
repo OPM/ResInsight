@@ -53,20 +53,20 @@ PdmUiOrdering::~PdmUiOrdering()
     for (size_t i = 0; i < m_createdGroups.size(); ++i)
     {
         delete m_createdGroups[i];
-        m_createdGroups[i] = NULL;
+        m_createdGroups[i] = nullptr;
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-PdmUiGroup* PdmUiOrdering::addNewGroup(const QString& displayName)
+PdmUiGroup* PdmUiOrdering::addNewGroup(const QString& displayName, LayoutOptions layout)
 {
     PdmUiGroup* group = new PdmUiGroup;
     group->setUiName(displayName);
 
     m_createdGroups.push_back(group);
-    m_ordering.push_back(group);
+    m_ordering.push_back(std::make_pair(group, layout));
 
     return group;
 }
@@ -74,9 +74,9 @@ PdmUiGroup* PdmUiOrdering::addNewGroup(const QString& displayName)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-caf::PdmUiGroup* PdmUiOrdering::addNewGroupWithKeyword(const QString& displayName, const QString& keyword)
+caf::PdmUiGroup* PdmUiOrdering::addNewGroupWithKeyword(const QString& displayName, const QString& keyword, LayoutOptions layout)
 {
-    PdmUiGroup* group = addNewGroup(displayName);
+    PdmUiGroup* group = addNewGroup(displayName, layout);
 
     group->setKeyword(keyword);
 
@@ -86,42 +86,189 @@ caf::PdmUiGroup* PdmUiOrdering::addNewGroupWithKeyword(const QString& displayNam
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool PdmUiOrdering::contains(const PdmUiItem* item) const
+bool PdmUiOrdering::insertBeforeGroup(const QString& groupId, const PdmFieldHandle* field, LayoutOptions layout)
 {
-    for (size_t i = 0; i < m_ordering.size(); ++i)
+   PositionFound pos = findGroupPosition(groupId);
+   if (pos.parent)
+   {
+       pos.parent->insert(pos.indexInParent, field, layout);
+       return true;
+   }  
+   else
+   {
+        return false;
+   }
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool PdmUiOrdering::insertBeforeItem(const PdmUiItem* item, const PdmFieldHandle* field, LayoutOptions layout)
+{
+    PositionFound pos = findItemPosition(item);
+    if (pos.parent)
     {
-        if (m_ordering[i] == item) return true;
-        if (m_ordering[i] && m_ordering[i]->isUiGroup())
-        {
-            if (static_cast<PdmUiGroup*>(m_ordering[i])->contains(item)) return true;
-        }
+        pos.parent->insert(pos.indexInParent, field, layout);
+        return true;
+    }  
+    else
+    {
+        return false;
     }
-    return false;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void PdmUiOrdering::add(const PdmFieldHandle* field)
+caf::PdmUiGroup* PdmUiOrdering::createGroupBeforeGroup(const QString& groupId, const QString& displayName, LayoutOptions layout)
+{
+    return createGroupWithIdBeforeGroup(groupId, displayName, "", layout);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+caf::PdmUiGroup* PdmUiOrdering::createGroupBeforeItem(const PdmUiItem* item, const QString& displayName, LayoutOptions layout)
+{
+    return createGroupWithIdBeforeItem(item, displayName, "", layout);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+caf::PdmUiGroup* PdmUiOrdering::createGroupWithIdBeforeGroup(const QString& groupId, const QString& displayName, const QString& newGroupId, LayoutOptions layout)
+{
+    PositionFound pos = findGroupPosition(groupId);
+    if (pos.parent)
+    {
+        return pos.parent->insertNewGroupWithKeyword(pos.indexInParent, displayName, newGroupId, layout);
+    }
+
+    return nullptr;         
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+caf::PdmUiGroup* PdmUiOrdering::createGroupWithIdBeforeItem(const PdmUiItem* item, const QString& displayName, const QString& newGroupId, LayoutOptions layout)
+{
+    PositionFound pos = findItemPosition(item);
+    if (pos.parent)
+    {
+        return pos.parent->insertNewGroupWithKeyword(pos.indexInParent, displayName, newGroupId, layout);
+    }
+
+    return nullptr;         
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+caf::PdmUiGroup* PdmUiOrdering::findGroup(const QString& groupId) const
+{
+    return findGroupPosition(groupId).group();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+caf::PdmUiGroup* PdmUiOrdering::insertNewGroupWithKeyword(size_t index, 
+                                                          const QString& displayName, 
+                                                          const QString& groupKeyword,
+                                                          LayoutOptions layout)
+{
+    PdmUiGroup* group = new PdmUiGroup;
+    group->setUiName(displayName);
+
+    m_createdGroups.push_back(group);
+
+    m_ordering.insert(m_ordering.begin() + index, std::make_pair(group, layout));  
+
+    group->setKeyword(groupKeyword);
+
+    return group;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool PdmUiOrdering::contains(const PdmUiItem* item) const
+{
+   return this->findItemPosition(item).parent != nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+caf::PdmUiOrdering::PositionFound PdmUiOrdering::findItemPosition(const PdmUiItem* item) const
+{
+    for (size_t i = 0; i < m_ordering.size(); ++i)
+    {
+        if (m_ordering[i].first == item) return { const_cast<PdmUiOrdering*>(this), i};
+        if (m_ordering[i].first && m_ordering[i].first->isUiGroup())
+        {
+            PositionFound result =  static_cast<PdmUiGroup*>(m_ordering[i].first)->findItemPosition(item);
+            if (result.parent ) return result;
+        }
+    }
+    return {nullptr, size_t(-1)};
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+caf::PdmUiOrdering::PositionFound PdmUiOrdering::findGroupPosition(const QString& groupKeyword) const
+{
+    for (size_t i = 0; i < m_ordering.size(); ++i)
+    {
+        if (m_ordering[i].first && m_ordering[i].first->isUiGroup())
+        {
+            if (static_cast<PdmUiGroup*>(m_ordering[i].first)->keyword() == groupKeyword)  return { const_cast<PdmUiOrdering*>(this), i};
+            PositionFound result =  static_cast<PdmUiGroup*>(m_ordering[i].first)->findGroupPosition(groupKeyword);
+            if (result.parent ) return result;
+        }
+    }
+    return {nullptr,  size_t(-1)};
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void PdmUiOrdering::add(const PdmFieldHandle* field, LayoutOptions layout)
 {
     PdmUiFieldHandle* uiItem = const_cast<PdmFieldHandle*>(field)->uiCapability();
     CAF_ASSERT(uiItem);
     CAF_ASSERT(!this->contains(uiItem));
 
-    m_ordering.push_back(uiItem);
+    m_ordering.push_back(std::make_pair(uiItem, layout));
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void PdmUiOrdering::add(const PdmObjectHandle* obj)
+void PdmUiOrdering::add(const PdmObjectHandle* obj, LayoutOptions layout)
 {
     PdmUiObjectHandle* uiItem = uiObj(const_cast<PdmObjectHandle*>(obj));
     CAF_ASSERT(uiItem);
     CAF_ASSERT(!this->contains(uiItem));
-
-    m_ordering.push_back(uiItem);
+    m_ordering.push_back(std::make_pair(uiItem, layout));
+    
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void PdmUiOrdering::insert(size_t index, const PdmFieldHandle* field, LayoutOptions layout)
+{
+    PdmUiFieldHandle* uiItem = const_cast<PdmFieldHandle*>(field)->uiCapability();
+    CAF_ASSERT(uiItem);
+    CAF_ASSERT(!this->contains(uiItem));
+
+    m_ordering.insert(m_ordering.begin() + index, std::make_pair(uiItem, layout));  
+}
+
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -142,9 +289,88 @@ void PdmUiOrdering::skipRemainingFields(bool doSkip /*= true*/)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const std::vector<PdmUiItem*>& PdmUiOrdering::uiItems() const
+const std::vector<PdmUiItem*> PdmUiOrdering::uiItems() const
+{
+    std::vector<PdmUiItem*> justUiItems;
+    justUiItems.reserve(m_ordering.size());
+    for (const FieldAndLayout& itemAndLayout : m_ordering)
+    {
+        justUiItems.push_back(itemAndLayout.first);
+    }
+    return justUiItems;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const std::vector<PdmUiOrdering::FieldAndLayout>& PdmUiOrdering::uiItemsWithLayout() const
 {
     return m_ordering;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int PdmUiOrdering::nrOfColumns() const
+{
+    int maxColumns = 0;
+    int currentRowColumns = 0;
+    for (const FieldAndLayout& itemAndLayout : m_ordering)
+    {
+        int currentColumnSpan = itemAndLayout.second.totalColumnSpan;
+        if (currentColumnSpan == LayoutOptions::MAX_COLUMN_SPAN)
+        {
+            int minimumFieldColumnSpan = 1;
+            int minimumLabelColumnSpan = 0;
+            if (itemAndLayout.first->uiLabelPosition() == PdmUiItemInfo::LEFT)
+            {
+                minimumLabelColumnSpan = 1;
+            }
+            currentColumnSpan = minimumLabelColumnSpan + minimumFieldColumnSpan;
+        }
+
+        if (itemAndLayout.second.newRow)
+        {
+            currentRowColumns = currentColumnSpan;
+        }
+        else
+        {
+            currentRowColumns += currentColumnSpan;
+        }
+        maxColumns = std::max(maxColumns, currentRowColumns);
+    }
+    return maxColumns;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+caf::PdmUiItem* PdmUiOrdering::PositionFound::item()
+{
+    if ( parent ) 
+    {
+        return parent->uiItems()[indexInParent];
+    } 
+    else 
+    {
+        return nullptr;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+caf::PdmUiGroup* PdmUiOrdering::PositionFound::group()
+{
+    PdmUiItem* g = item();
+    if ( g && g->isUiGroup() )
+    {
+        return static_cast<PdmUiGroup*>(g);
+    }
+    else
+    {
+        return nullptr;
+    }
 }
 
 } //End of namespace caf

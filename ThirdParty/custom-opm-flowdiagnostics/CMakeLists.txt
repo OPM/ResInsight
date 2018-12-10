@@ -24,3 +24,8 @@ add_library(${PROJECT_NAME}
 if (MSVC)
     set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "/wd4267")
 endif()
+
+target_include_directories(${PROJECT_NAME}
+  PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}/opm-flowdiagnostics
+)

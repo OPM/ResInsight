@@ -31,7 +31,7 @@
 #include <opm/utility/ECLResultData.hpp>
 #include <opm/utility/ECLUnitHandling.hpp>
 
-#include <opm/parser/eclipse/Units/Units.hpp>
+#include <opm/utility/imported/Units.hpp>
 
 #include <algorithm>
 #include <cassert>
@@ -48,6 +48,13 @@
 #include <ert/ecl/ecl_kw_magic.h>
 
 namespace {
+    std::vector<double>
+    gas_saturation(const ::Opm::ECLGraph&       G,
+                   const ::Opm::ECLRestartData& rstrt)
+    {
+        return G.rawLinearisedCellData<double>(rstrt, "SGAS");
+    }
+
     std::vector<double>
     oil_saturation(const std::vector<double>&   sg,
                    const std::vector<double>&   sw,
@@ -84,6 +91,13 @@ namespace {
         return so;
     }
 
+    std::vector<double>
+    water_saturation(const ::Opm::ECLGraph&       G,
+                     const ::Opm::ECLRestartData& rstrt)
+    {
+        return G.rawLinearisedCellData<double>(rstrt, "SWAT");
+    }
+
     std::vector<int>
     satnumVector(const ::Opm::ECLGraph&        G,
                  const ::Opm::ECLInitFileData& init)
@@ -101,17 +115,17 @@ namespace {
 
     Opm::FlowDiagnostics::Graph
     transformOilCurve(const Opm::FlowDiagnostics::Graph& curve,
-                      const double                       So_offset)
+                      const double                       max2PhaseSatSum)
     {
         auto Sx = std::vector<double>{};  Sx.reserve(curve.first.size());
         {
             const auto& So = curve.first;
 
             std::transform(So.rbegin(), So.rend(), std::back_inserter(Sx),
-                           [So_offset](const double so)
-                           {
-                               return So_offset - so;
-                           });
+                [max2PhaseSatSum](const double so)
+            {
+                return max2PhaseSatSum - so;
+            });
         }
 
         auto y = std::vector<double>{
@@ -120,6 +134,20 @@ namespace {
         };
 
         return { std::move(Sx), std::move(y) };
+    }
+
+    bool enableHorizontalEPS(const Opm::ECLSaturationFunc::SatFuncScaling& scaling)
+    {
+        using T = Opm::ECLSaturationFunc::SatFuncScaling::Type;
+
+        return (scaling.enable & T::Horizontal) != 0;
+    }
+
+    bool enableVerticalSFScaling(const Opm::ECLSaturationFunc::SatFuncScaling& scaling)
+    {
+        using T = Opm::ECLSaturationFunc::SatFuncScaling::Type;
+
+        return (scaling.enable & T::Vertical) != 0;
     }
 } // Anonymous
 
@@ -589,7 +617,7 @@ Gas::Details::unitConverter(const int usys)
     const auto pscale = u->pressure();
 
     auto cvrt_press = [pscale](const double p) {
-        return ::Opm::unit::convert::from(p, pscale);
+        return ::ImportedOpm::unit::convert::from(p, pscale);
     };
 
     return CU {
@@ -680,7 +708,7 @@ Water::Details::unitConverter(const int usys)
     const auto pscale = u->pressure();
 
     auto cvrt_press = [pscale](const double p) {
-        return ::Opm::unit::convert::from(p, pscale);
+        return ::ImportedOpm::unit::convert::from(p, pscale);
     };
 
     return CU {
@@ -701,22 +729,20 @@ public:
     Impl(Impl&& rhs);
     Impl(const Impl& rhs);
 
-    void init(const ECLGraph&          G,
-              const ECLInitFileData&   init,
-              const bool               useEPS,
-              const InvalidEPBehaviour handle_invalid);
+    void init(const ECLGraph&        G,
+              const ECLInitFileData& init);
 
     void setOutputUnits(std::unique_ptr<const ECLUnits::UnitSystem> usys);
 
     std::vector<double>
-    relperm(const ECLGraph&             G,
-            const ECLRestartData&       rstrt,
-            const ECLPhaseIndex         p) const;
+    relperm(const ECLGraph&       G,
+            const ECLRestartData& rstrt,
+            const ECLPhaseIndex   p) const;
 
     std::vector<FlowDiagnostics::Graph>
     getSatFuncCurve(const std::vector<RawCurve>& func,
                     const int                    activeCell,
-                    const bool                   useEPS) const;
+                    const SatFuncScaling&        scaling) const;
 
 private:
     class EPSEvaluator
@@ -738,29 +764,47 @@ private:
             bool wat;
         };
 
-        void define(const ECLGraph&          G,
-                    const ECLInitFileData&   init,
-                    const RawTEP&            ep,
-                    const bool               use3PtScaling,
-                    const ActPh&             active,
-                    const InvalidEPBehaviour handle_invalid)
+        void define(const Impl&            host,
+                    const ECLGraph&        G,
+                    const ECLInitFileData& init,
+                    const RawTEP&          ep,
+                    const bool             use3PtScaling,
+                    const ActPh&           active)
         {
             auto opt = Create::EPSOptions{};
-            opt.use3PtScaling  = use3PtScaling;
-            opt.handle_invalid = handle_invalid;
+            opt.use3PtScaling = use3PtScaling;
 
             if (active.oil) {
-                this->create_oil_eps(G, init, ep, active, opt);
+                this->create_oil_eps(host, G, init, ep, active, opt);
             }
 
             if (active.gas) {
-                this->create_gas_eps(G, init, ep, opt);
+                this->create_gas_eps(host, G, init, ep, opt);
             }
 
             if (active.wat) {
-                this->create_wat_eps(G, init, ep, opt);
+                this->create_wat_eps(host, G, init, ep, opt);
             }
+
+            this->sgl_ = ::Opm::SatFunc::scaledConnateGas  (G, init, ep);
+            this->swl_ = ::Opm::SatFunc::scaledConnateWater(G, init, ep);
         }
+
+        // ---------------------------------------------
+        // ---------- Scaled connate saturations -------
+
+        double scaledConnateGas(const int cell) const
+        {
+            return this->sgl_[cell];
+        }
+
+        double scaledConnateWater(const int cell) const
+        {
+            return this->swl_[cell];
+        }
+
+        // ---------------------------------------------
+        // ---------- End-point scaling ----------------
 
         void scaleKrOG(const ECLRegionMapping& rmap,
                        std::vector<double>&    so) const
@@ -798,6 +842,9 @@ private:
             this->scale(this->wat_.pc, rmap, sw);
         }
 
+        // ---------------------------------------------
+        // ---------- Reverse scaling ------------------
+
         void reverseScaleKrOG(const ECLRegionMapping& rmap,
                               std::vector<double>&    so) const
         {
@@ -834,6 +881,51 @@ private:
             this->reverseScale(this->wat_.pc, rmap, sw);
         }
 
+        // ---------------------------------------------
+        // ---------- Vertical scaling -----------------
+
+        void vertScaleKrOG(const ECLRegionMapping&    rmap,
+                           const std::vector<double>& so,
+                           std::vector<double>&       kr) const
+        {
+            this->vertScale(this->oil_in_og_, rmap, so, kr);
+        }
+
+        void vertScaleKrOW(const ECLRegionMapping&    rmap,
+                           const std::vector<double>& so,
+                           std::vector<double>&       kr) const
+        {
+            this->vertScale(this->oil_in_ow_, rmap, so, kr);
+        }
+
+        void vertScaleKrGas(const ECLRegionMapping&    rmap,
+                            const std::vector<double>& sg,
+                            std::vector<double>&       kr) const
+        {
+            this->vertScale(this->gas_.kr, rmap, sg, kr);
+        }
+
+        void vertScaleKrWat(const ECLRegionMapping&    rmap,
+                            const std::vector<double>& sw,
+                            std::vector<double>&       kr) const
+        {
+            this->vertScale(this->wat_.kr, rmap, sw, kr);
+        }
+
+        void vertScalePcGO(const ECLRegionMapping&    rmap,
+                           const std::vector<double>& sg,
+                           std::vector<double>&       pc) const
+        {
+            this->vertScale(this->gas_.pc, rmap, sg, pc);
+        }
+
+        void vertScalePcOW(const ECLRegionMapping&    rmap,
+                           const std::vector<double>& sw,
+                           std::vector<double>&       pc) const
+        {
+            this->vertScale(this->wat_.pc, rmap, sw, pc);
+        }
+
     private:
         using Create = ::Opm::SatFunc::CreateEPS;
         using FCat   = ::Opm::SatFunc::CreateEPS::FunctionCategory;
@@ -844,8 +936,15 @@ private:
         using EPSEndPts    = ::Opm::SatFunc::EPSEvalInterface::TableEndPoints;
         using EPSEndPtVec  = std::vector<EPSEndPts>;
 
+        using VSInterface = ::Opm::SatFunc::VerticalScalingInterface;
+        using VSFuncVal   = ::Opm::SatFunc::VerticalScalingInterface::FunctionValues;
+        using VSFValVec   = std::vector<VSFuncVal>;
+
         using EPSPtr    = std::unique_ptr<EPSInterface>;
         using EndPtsPtr = std::unique_ptr<EPSEndPtVec>;
+
+        using VScalPtr      = std::unique_ptr<VSInterface>;
+        using VScalFVVecPtr = std::unique_ptr<VSFValVec>;
 
         struct EPS {
             EPS() {}
@@ -859,11 +958,23 @@ private:
                 if (rhs.tep) {
                     this->tep = EndPtsPtr(new EPSEndPtVec(*rhs.tep));
                 }
+
+                if (rhs.vertscaling) {
+                    this->vertscaling = rhs.vertscaling->clone();
+                }
+
+                if (rhs.vertfuncval) {
+                    this->vertfuncval = VScalFVVecPtr {
+                        new VSFValVec(*rhs.vertfuncval)
+                    };
+                }
             }
 
             EPS(EPS&& rhs)
-                : scaling(std::move(rhs.scaling))
-                , tep    (std::move(rhs.tep))
+                : scaling    (std::move(rhs.scaling))
+                , tep        (std::move(rhs.tep))
+                , vertscaling(std::move(rhs.vertscaling))
+                , vertfuncval(std::move(rhs.vertfuncval))
             {}
 
             EPS& operator=(const EPS& rhs)
@@ -876,6 +987,16 @@ private:
                     this->tep = EndPtsPtr(new EPSEndPtVec(*rhs.tep));
                 }
 
+                if (rhs.vertscaling) {
+                    this->vertscaling = rhs.vertscaling->clone();
+                }
+
+                if (rhs.vertfuncval) {
+                    this->vertfuncval = VScalFVVecPtr {
+                        new VSFValVec(*rhs.vertfuncval)
+                    };
+                }
+
                 return *this;
             }
 
@@ -884,11 +1005,17 @@ private:
                 this->scaling = std::move(rhs.scaling);
                 this->tep     = std::move(rhs.tep);
 
+                this->vertscaling = std::move(rhs.vertscaling);
+                this->vertfuncval = std::move(rhs.vertfuncval);
+
                 return *this;
             }
 
             EPSPtr    scaling;
             EndPtsPtr tep;
+
+            VScalPtr      vertscaling;
+            VScalFVVecPtr vertfuncval;
         };
 
         struct FullEPS {
@@ -900,6 +1027,12 @@ private:
         EPS     oil_in_ow_;
         FullEPS gas_;
         FullEPS wat_;
+
+        std::vector<double> sgl_;
+        std::vector<double> swl_;
+
+        // ----------------------------------------------
+        // ------- End-point scaling (engine) -----------
 
         void scale(const EPS&              eps,
                    const ECLRegionMapping& rmap,
@@ -929,9 +1062,12 @@ private:
                 const auto sr =
                     eps.scaling->eval((*eps.tep)[regID - 1], sp);
 
-                this->assignScaledSaturations(rmap, regID, sr, s);
+                this->assignScaledResult(rmap, regID, sr, s);
             }
         }
+
+        // ----------------------------------------------
+        // ------- Reverse end-point scaling (engine) ---
 
         void reverseScale(const EPS&              eps,
                           const ECLRegionMapping& rmap,
@@ -961,9 +1097,53 @@ private:
                 const auto sr =
                     eps.scaling->reverse((*eps.tep)[regID - 1], sp);
 
-                this->assignScaledSaturations(rmap, regID, sr, s);
+                this->assignScaledResult(rmap, regID, sr, s);
             }
         }
+
+        // ----------------------------------------------
+        // ------- Vertical scaling (engine) ------------
+
+        void vertScale(const EPS&                 scalop,
+                       const ECLRegionMapping&    rmap,
+                       const std::vector<double>& s,
+                       std::vector<double>&       sfval) const
+        {
+            assert (rmap.regionSubset().size() == s.size());
+            assert (sfval.size()               == s.size());
+
+            if (! scalop.vertscaling) {
+                // No vertical scaling defined for this curve.  Return
+                // unchanged.
+                return;
+            }
+
+            if (! scalop.vertfuncval) {
+                throw std::logic_error {
+                    "Cannot Perform Vertical Scaling in "
+                    "Absence of Function Value Data"
+                };
+            }
+
+            const auto& fval_table = *scalop.vertfuncval;
+
+            for (const auto& regID : rmap.activeRegions()) {
+                const auto sp =
+                    this->getSaturationPoints(rmap, regID, s);
+
+                // Assume 'regID' is a traditional ECL-style, one-based
+                // region ID (e.g., SATNUM entry).
+                const auto& f = fval_table[regID - 1];
+
+                const auto scaled_fval =
+                    scalop.vertscaling->vertScale(f, sp, sfval);
+
+                this->assignScaledResult(rmap, regID, scaled_fval, sfval);
+            }
+        }
+
+        // ----------------------------------------------
+        // ------- Helpers for engine functions ---------
 
         EPSInterface::SaturationPoints
         getSaturationPoints(const ECLRegionMapping&    rmap,
@@ -988,52 +1168,94 @@ private:
             return sp;
         }
 
-        void
-        assignScaledSaturations(const ECLRegionMapping&    rmap,
+        void assignScaledResult(const ECLRegionMapping&    rmap,
                                 const int                  regID,
-                                const std::vector<double>& sr,
-                                std::vector<double>&       s) const
+                                const std::vector<double>& result,
+                                std::vector<double>&       output) const
         {
-            auto i = static_cast<decltype(sr.size())>(0);
+            auto i = static_cast<decltype(result.size())>(0);
 
             for (const auto& ix : rmap.getRegionIndices(regID)) {
-                s[ix] = sr[i++];
+                output[ix] = result[i++];
             }
         }
 
-        void create_oil_eps(const ECLGraph&        G,
+        // ----------------------------------------------
+        // ---- Constructor functions for scaling ops ---
+
+        void create_oil_eps(const Impl&            host,
+                            const ECLGraph&        G,
                             const ECLInitFileData& init,
                             const RawTEP&          ep,
                             const ActPh&           active,
                             Create::EPSOptions&    opt)
         {
+            assert (host.oil_ != nullptr);
+
             opt.thisPh = PhIdx::Liquid;
             opt.curve  = FCat::Relperm; // Oil EPS only applies to Kr
+
+            using SOil = Oil::KrFunction::SOil;
 
             if (active.gas) {
                 opt.subSys = SSys::OilGas;
 
-                this->oil_in_og_.scaling =
-                    Create::fromECLOutput(G, init, opt);
+                auto& eps = this->oil_in_og_;
 
-                this->oil_in_og_.tep = this->endPoints(ep, opt);
+                eps.scaling = Create::Horizontal::
+                    fromECLOutput(G, init, opt, ep);
+
+                eps.tep = this->endPoints(opt, ep);
+
+                eps.vertfuncval = this->
+                    vertFuncVal(G, init, ep, opt, [&host]
+                        (const int regID, const double sat) -> double
+                    {
+                        const auto ssys = RawCurve::SubSystem::OilGas;
+
+                        return host.oil_->
+                            kro(regID, SOil{ { sat } }, ssys)[0];
+                    });
+
+                eps.vertscaling = Create::Vertical::
+                    fromECLOutput(G, init, opt, ep,
+                                  *eps.vertfuncval);
             }
 
             if (active.wat) {
                 opt.subSys = SSys::OilWater;
 
-                this->oil_in_ow_.scaling =
-                    Create::fromECLOutput(G, init, opt);
+                auto& eps = this->oil_in_ow_;
 
-                this->oil_in_ow_.tep = this->endPoints(ep, opt);
+                eps.scaling = Create::Horizontal::
+                    fromECLOutput(G, init, opt, ep);
+
+                eps.tep = this->endPoints(opt, ep);
+
+                eps.vertfuncval = this->
+                    vertFuncVal(G, init, ep, opt, [&host]
+                        (const int regID, const double sat) -> double
+                    {
+                        const auto ssys = RawCurve::SubSystem::OilWater;
+
+                        return host.oil_->
+                            kro(regID, SOil{ { sat } }, ssys)[0];
+                    });
+
+                eps.vertscaling = Create::Vertical::
+                    fromECLOutput(G, init, opt, ep,
+                                  *eps.vertfuncval);
             }
         }
 
-        void create_gas_eps(const ECLGraph&        G,
+        void create_gas_eps(const Impl&            host,
+                            const ECLGraph&        G,
                             const ECLInitFileData& init,
                             const RawTEP&          ep,
                             Create::EPSOptions&    opt)
         {
+            assert (host.gas_ != nullptr);
+
             opt.thisPh = PhIdx::Vapour;
             opt.subSys = SSys::OilGas;
 
@@ -1041,10 +1263,23 @@ private:
             {
                 opt.curve = FCat::Relperm;
 
-                this->gas_.kr.scaling =
-                    Create::fromECLOutput(G, init, opt);
+                auto& eps = this->gas_.kr;
 
-                this->gas_.kr.tep = this->endPoints(ep, opt);
+                eps.scaling = Create::Horizontal::
+                    fromECLOutput(G, init, opt, ep);
+
+                eps.tep = this->endPoints(opt, ep);
+
+                eps.vertfuncval = this->
+                    vertFuncVal(G, init, ep, opt, [&host]
+                        (const int regID, const double sat) -> double
+                    {
+                        return host.gas_->krg(regID, { sat })[0];
+                    });
+
+                eps.vertscaling = Create::Vertical::
+                    fromECLOutput(G, init, opt, ep,
+                                  *eps.vertfuncval);
             }
 
             // Scaling for Gas/Oil capillary pressure
@@ -1056,21 +1291,37 @@ private:
 
                 opt.curve = FCat::CapPress;
 
-                this->gas_.pc.scaling =
-                    Create::fromECLOutput(G, init, opt);
+                auto& eps = this->gas_.pc;
 
-                this->gas_.pc.tep = this->endPoints(ep, opt);
+                eps.scaling = Create::Horizontal::
+                    fromECLOutput(G, init, opt, ep);
+
+                eps.tep = this->endPoints(opt, ep);
+
+                eps.vertfuncval = this->
+                    vertFuncVal(G, init, ep, opt, [&host]
+                        (const int regID, const double sat) -> double
+                    {
+                        return host.gas_->pcgo(regID, { sat })[0];
+                    });
+
+                eps.vertscaling = Create::Vertical::
+                    fromECLOutput(G, init, opt, ep,
+                                  *eps.vertfuncval);
 
                 // Restore original setting for Alternative scaling option.
                 opt.use3PtScaling = use3Pt;
             }
         }
 
-        void create_wat_eps(const ECLGraph&        G,
+        void create_wat_eps(const Impl&            host,
+                            const ECLGraph&        G,
                             const ECLInitFileData& init,
                             const RawTEP&          ep,
                             Create::EPSOptions&    opt)
         {
+            assert (host.wat_ != nullptr);
+
             opt.thisPh = PhIdx::Aqua;
             opt.subSys = SSys::OilWater;
 
@@ -1078,10 +1329,23 @@ private:
             {
                 opt.curve = FCat::Relperm;
 
-                this->wat_.kr.scaling =
-                    Create::fromECLOutput(G, init, opt);
+                auto& eps = this->wat_.kr;
 
-                this->wat_.kr.tep = this->endPoints(ep, opt);
+                eps.scaling = Create::Horizontal::
+                    fromECLOutput(G, init, opt, ep);
+
+                eps.tep = this->endPoints(opt, ep);
+
+                eps.vertfuncval = this->
+                    vertFuncVal(G, init, ep, opt, [&host]
+                        (const int regID, const double sat) -> double
+                    {
+                        return host.wat_->krw(regID, { sat })[0];
+                    });
+
+                eps.vertscaling = Create::Vertical::
+                    fromECLOutput(G, init, opt, ep,
+                                  *eps.vertfuncval);
             }
 
             // Scaling for Oil/Water capillary pressure
@@ -1093,23 +1357,54 @@ private:
 
                 opt.curve = FCat::CapPress;
 
-                this->wat_.pc.scaling =
-                    Create::fromECLOutput(G, init, opt);
+                auto& eps = this->wat_.pc;
 
-                this->wat_.pc.tep = this->endPoints(ep, opt);
+                eps.scaling = Create::Horizontal::
+                    fromECLOutput(G, init, opt, ep);
+
+                eps.tep = this->endPoints(opt, ep);
+
+                eps.vertfuncval = this->
+                    vertFuncVal(G, init, ep, opt, [&host]
+                        (const int regID, const double sat) -> double
+                    {
+                        return host.wat_->pcow(regID, { sat })[0];
+                    });
+
+                // Special case treatment of PCOW.  Maximum value at minimum S.
+                for (auto& fval : *eps.vertfuncval) {
+                    fval.max.val = std::max(fval.disp.val, fval.max.val);
+                }
+
+                eps.vertscaling = Create::Vertical::
+                    fromECLOutput(G, init, opt, ep,
+                                  *eps.vertfuncval);
 
                 // Restore original setting for Alternative scaling option.
                 opt.use3PtScaling = use3Pt;
             }
-
         }
 
         EndPtsPtr
-        endPoints(const RawTEP& ep, const Create::EPSOptions& opt)
+        endPoints(const Create::EPSOptions& opt,
+                  const RawTEP&             ep)
         {
             return EndPtsPtr {
-                new EPSEndPtVec(Create::unscaledEndPoints(ep, opt))
+                new EPSEndPtVec(Create::Horizontal::unscaledEndPoints(opt, ep))
             };
+        }
+
+        VScalFVVecPtr
+        vertFuncVal(const ECLGraph&                   G,
+                    const ECLInitFileData&            init,
+                    const RawTEP&                     ep,
+                    const Create::EPSOptions&         opt,
+                    std::function<double(int,double)> f)
+        {
+            auto val = Create::Vertical::
+                unscaledFunctionValues(G, init, ep, opt, std::move(f));
+
+            return VScalFVVecPtr { new VSFValVec(std::move(val)) };
         }
     };
 
@@ -1136,76 +1431,75 @@ private:
     void initEPS(const EPSEvaluator::ActPh& active,
                  const bool                 use3PtScaling,
                  const ECLGraph&            G,
-                 const ECLInitFileData&     init,
-                 const InvalidEPBehaviour   handle_invalid);
+                 const ECLInitFileData&     init);
 
     void setNumTables(const ECLPropTableRawData::SizeType ntab);
 
     std::vector<double>
     kro(const ECLGraph&       G,
         const ECLRestartData& rstrt,
-        const bool            useEPS = true) const;
+        const SatFuncScaling& scaling = SatFuncScaling{}) const;
 
     FlowDiagnostics::Graph
     kroCurve(const ECLRegionMapping&    rmap,
              const std::size_t          regID,
              const RawCurve::SubSystem  subsys,
              const std::vector<double>& so,
-             const bool                 useEPS) const;
+             const SatFuncScaling&      scaling) const;
 
     std::vector<double>
     krg(const ECLGraph&       G,
         const ECLRestartData& rstrt,
-        const bool            useEPS = true) const;
+        const SatFuncScaling& scaling = SatFuncScaling{}) const;
 
     FlowDiagnostics::Graph
     krgCurve(const ECLRegionMapping&    rmap,
              const std::size_t          regID,
              const std::vector<double>& sg,
-             const bool                 useEPS) const;
+             const SatFuncScaling&      scaling) const;
 
     FlowDiagnostics::Graph
     pcgoCurve(const ECLRegionMapping&    rmap,
               const std::size_t          regID,
               const std::vector<double>& sg,
-              const bool                 useEPS) const;
+              const SatFuncScaling&      scaling) const;
 
     std::vector<double>
     krw(const ECLGraph&       G,
         const ECLRestartData& rstrt,
-        const bool            useEPS = true) const;
+        const SatFuncScaling& scaling = SatFuncScaling{}) const;
 
     FlowDiagnostics::Graph
     krwCurve(const ECLRegionMapping&    rmap,
              const std::size_t          regID,
              const std::vector<double>& sw,
-             const bool                 useEPS) const;
+             const SatFuncScaling&      scaling) const;
 
     FlowDiagnostics::Graph
     pcowCurve(const ECLRegionMapping&    rmap,
               const std::size_t          regID,
               const std::vector<double>& sw,
-              const bool                 useEPS) const;
+              const SatFuncScaling&      scaling) const;
 
     void scaleKrGasSat(const ECLRegionMapping& rmap,
-                       const bool              useEPS,
+                       const SatFuncScaling&   scaling,
                        std::vector<double>&    sg) const;
 
     void scalePcGasSat(const ECLRegionMapping& rmap,
-                       const bool              useEPS,
+                       const SatFuncScaling&   scaling,
                        std::vector<double>&    sg) const;
 
     void scaleKrOilSat(const ECLRegionMapping& rmap,
-                       const bool              useEPS,
+                       const SatFuncScaling&   scaling,
                        std::vector<double>&    so_g,
                        std::vector<double>&    so_w) const;
 
     void scaleKrWaterSat(const ECLRegionMapping& rmap,
-                         const bool              useEPS,
+                         const SatFuncScaling&   scaling,
                          std::vector<double>&    sw) const;
 
     void scalePcWaterSat(const ECLRegionMapping& rmap,
-                         const bool              useEPS,
+                         const SatFuncScaling&   scaling,
                          std::vector<double>&    sw) const;
 
     void uniqueReverseScaleSat(std::vector<double>& s) const;
@@ -1253,6 +1547,11 @@ private:
             regOp(regID, rmap);
         }
     }
+
+    double max2PSatSum(const RawCurve&       fi,
+                       const std::size_t     regID,
+                       const int             cell,
+                       const SatFuncScaling& scaling) const;
 };
 
 Opm::ECLSaturationFunc::Impl::Impl(const ECLGraph&        G,
@@ -1303,10 +1602,8 @@ Opm::ECLSaturationFunc::Impl::Impl(const Impl& rhs)
 // ---------------------------------------------------------------------
 
 void
-Opm::ECLSaturationFunc::Impl::init(const ECLGraph&          G,
-                                   const ECLInitFileData&   init,
-                                   const bool               useEPS,
-                                   const InvalidEPBehaviour handle_invalid)
+Opm::ECLSaturationFunc::Impl::init(const ECLGraph&        G,
+                                   const ECLInitFileData& init)
 {
     // Extract INTEHEAD from main grid
     const auto& ih   = init.keywordData<int>(INTEHEAD_KW);
@@ -1316,19 +1613,18 @@ Opm::ECLSaturationFunc::Impl::init(const ECLGraph&          G,
 
     this->initRelPermInterp(active, init, ih[INTEHEAD_UNIT_INDEX]);
 
-    if (useEPS) {
-        const auto& lh = init.keywordData<bool>(LOGIHEAD_KW);
+    // Activate saturation function scaling if present in result set.
+    const auto& lh = init.keywordData<bool>(LOGIHEAD_KW);
 
-        const auto haveEPS = static_cast<bool>(
-            lh[LOGIHEAD_ENDPOINT_SCALING_INDEX]);
+    const auto haveEPS = static_cast<bool>(
+        lh[LOGIHEAD_ENDPOINT_SCALING_INDEX]);
 
-        if (haveEPS) {
-            const auto use3PtScaling = static_cast<bool>(
-                lh[LOGIHEAD_ALT_ENDPOINT_SCALING_INDEX]);
+    if (haveEPS) {
+        const auto use3PtScaling = static_cast<bool>(
+            lh[LOGIHEAD_ALT_ENDPOINT_SCALING_INDEX]);
 
-            // Must be called *after* initRelPermInterp().
-            this->initEPS(active, use3PtScaling, G, init, handle_invalid);
-        }
+        // Must be called *after* initRelPermInterp().
+        this->initEPS(active, use3PtScaling, G, init);
     }
 }
 
@@ -1394,14 +1690,15 @@ void Opm::ECLSaturationFunc::
 Impl::initEPS(const EPSEvaluator::ActPh& active,
               const bool                 use3PtScaling,
               const ECLGraph&            G,
-              const ECLInitFileData&     init,
-              const InvalidEPBehaviour   handle_invalid)
+              const ECLInitFileData&     init)
 {
     const auto ep = this->extractRawTableEndPoints(active);
 
     this->eps_.reset(new EPSEvaluator());
 
-    this->eps_->define(G, init, ep, use3PtScaling, active, handle_invalid);
+    if (this->eps_ != nullptr) {
+        this->eps_->define(*this, G, init, ep, use3PtScaling, active);
+    }
 }
 
 void Opm::ECLSaturationFunc::
@@ -1457,7 +1754,7 @@ std::vector<Opm::FlowDiagnostics::Graph>
 Opm::ECLSaturationFunc::Impl::
 getSatFuncCurve(const std::vector<RawCurve>& func,
                 const int                    activeCell,
-                const bool                   useEPS) const
+                const SatFuncScaling&        scaling) const
 {
     using SatPointAssoc = std::pair<
         std::vector<double>,
@@ -1501,9 +1798,9 @@ getSatFuncCurve(const std::vector<RawCurve>& func,
 
             auto crv = (fi.curve == RawCurve::Function::RelPerm)
                 ? this->krwCurve (*wat_assoc.second, regID,
-                                  wat_assoc.first, useEPS)
+                                  wat_assoc.first, scaling)
                 : this->pcowCurve(*wat_assoc.second, regID,
-                                  wat_assoc.first, useEPS);
+                                  wat_assoc.first, scaling);
 
             graph.push_back(std::move(crv));
         }
@@ -1532,13 +1829,15 @@ getSatFuncCurve(const std::vector<RawCurve>& func,
 
             const auto kro =
                 this->kroCurve(*oil_assoc.second, regID,
-                               fi.subsys, oil_assoc.first, useEPS);
+                               fi.subsys, oil_assoc.first, scaling);
 
-            const auto So_off = (fi.subsys == RawCurve::SubSystem::OilGas)
-                ? oil_assoc.first.back() // Sg = Max{So} - So in G/O system
-                : 1.0;                   // Sw = 1.0 - So     in O/W system
+            // Maximum attainable value of "So + S{g,w}" in pertinent
+            // two-phase system in this cell.  Expected to be 1-SWL for G/O
+            // systems and 1-SGL (almost always == 1) for O/W systems.
+            const auto max2PhaseSatSum =
+                this->max2PSatSum(fi, regID, activeCell, scaling);
 
-            graph.push_back(transformOilCurve(kro, So_off));
+            graph.push_back(transformOilCurve(kro, max2PhaseSatSum));
         }
         break;
 
@@ -1568,9 +1867,9 @@ getSatFuncCurve(const std::vector<RawCurve>& func,
 
             auto crv = (fi.curve == RawCurve::Function::RelPerm)
                 ? this->krgCurve (*gas_assoc.second, regID,
-                                  gas_assoc.first, useEPS)
+                                  gas_assoc.first, scaling)
                 : this->pcgoCurve(*gas_assoc.second, regID,
-                                  gas_assoc.first, useEPS);
+                                  gas_assoc.first, scaling);
 
             graph.push_back(std::move(crv));
         }
@@ -1588,7 +1887,7 @@ std::vector<double>
 Opm::ECLSaturationFunc::Impl::
 kro(const ECLGraph&       G,
     const ECLRestartData& rstrt,
-    const bool            useEPS) const
+    const SatFuncScaling& scaling) const
 {
     auto kr = std::vector<double>{};
 
@@ -1596,13 +1895,13 @@ kro(const ECLGraph&       G,
         return kr;
     }
 
-    const auto& sg = G.rawLinearisedCellData<double>(rstrt, "SGAS");
-    const auto& sw = G.rawLinearisedCellData<double>(rstrt, "SWAT");
+    const auto& sg = gas_saturation(G, rstrt);
+    const auto& sw = water_saturation(G, rstrt);
 
     auto so_g = oil_saturation(sg, sw, G, rstrt);
     auto so_w = so_g;
 
-    this->scaleKrOilSat(this->rmap_, useEPS, so_g, so_w);
+    this->scaleKrOilSat(this->rmap_, scaling, so_g, so_w);
 
     // Allocate result.  Member function scatterRegionResult() depends on
     // having an allocated result vector into which to write the values from
@@ -1650,7 +1949,7 @@ kroCurve(const ECLRegionMapping&    rmap,
          const std::size_t          regID,
          const RawCurve::SubSystem  subsys,
          const std::vector<double>& so,
-         const bool                 useEPS) const
+         const SatFuncScaling&      scaling) const
 {
     if (! this->oil_) {
         return FlowDiagnostics::Graph{};
@@ -1658,7 +1957,7 @@ kroCurve(const ECLRegionMapping&    rmap,
 
     auto so_g = so;
     auto so_w = so_g;
-    if (useEPS && this->eps_) {
+    if (enableHorizontalEPS(scaling) && this->eps_) {
         this->eps_->reverseScaleKrOG(rmap, so_g);
         this->eps_->reverseScaleKrOW(rmap, so_w);
 
@@ -1681,7 +1980,7 @@ kroCurve(const ECLRegionMapping&    rmap,
     so_g.resize(so.size(), 1.0);
     so_w.resize(so.size(), 1.0);
 
-    this->scaleKrOilSat(rmap, useEPS, so_g, so_w);
+    this->scaleKrOilSat(rmap, scaling, so_g, so_w);
 
     const auto so_inp = Oil::KrFunction::SOil {
         (subsys == RawCurve::SubSystem::OilGas) ? so_g : so_w
@@ -1689,7 +1988,22 @@ kroCurve(const ECLRegionMapping&    rmap,
 
     // Region ID 'reg' is traditional, ECL-style one-based region ID
     // (SATNUM).  Subtract one to create valid table index.
-    const auto kr = this->oil_->kro(regID - 1, so_inp, subsys);
+    auto kr = this->oil_->kro(regID - 1, so_inp, subsys);
+
+    if (enableVerticalSFScaling(scaling) &&
+        (this->eps_ != nullptr))
+    {
+        auto vkr_eval_sat = abscissas;
+        vkr_eval_sat.resize(so.size(), 1.0);
+
+        // Evaluate vertical scaling in input saturations.
+        if (subsys == RawCurve::SubSystem::OilGas) {
+            this->eps_->vertScaleKrOG(rmap, vkr_eval_sat, kr);
+        }
+        else {
+            this->eps_->vertScaleKrOW(rmap, vkr_eval_sat, kr);
+        }
+    }
 
     // FD::Graph == pair<vector<double>, vector<double>>
     return FlowDiagnostics::Graph {
@@ -1702,7 +2016,7 @@ std::vector<double>
 Opm::ECLSaturationFunc::Impl::
 krg(const ECLGraph&       G,
     const ECLRestartData& rstrt,
-    const bool            useEPS) const
+    const SatFuncScaling& scaling) const
 {
     auto kr = std::vector<double>{};
 
@@ -1710,9 +2024,9 @@ krg(const ECLGraph&       G,
         return kr;
     }
 
-    auto sg = G.rawLinearisedCellData<double>(rstrt, "SGAS");
+    auto sg = gas_saturation(G, rstrt);
 
-    if (useEPS && this->eps_) {
+    if (enableHorizontalEPS(scaling) && this->eps_) {
         this->eps_->scaleKrGas(this->rmap_, sg);
     }
 
@@ -1745,14 +2059,14 @@ Opm::ECLSaturationFunc::Impl::
 krgCurve(const ECLRegionMapping&    rmap,
          const std::size_t          regID,
          const std::vector<double>& sg,
-         const bool                 useEPS) const
+         const SatFuncScaling&      scaling) const
 {
     if (! this->gas_) {
         return FlowDiagnostics::Graph{};
     }
 
     auto sg_inp = sg;
-    if (useEPS && this->eps_) {
+    if (enableHorizontalEPS(scaling) && this->eps_) {
         this->eps_->reverseScaleKrGas(rmap, sg_inp);
         this->uniqueReverseScaleSat(sg_inp);
     }
@@ -1769,11 +2083,21 @@ krgCurve(const ECLRegionMapping&    rmap,
     // Re-expand input arrays to match size requirements of EPS evaluator.
     sg_inp.resize(sg.size(), 1.0);
 
-    this->scaleKrGasSat(rmap, useEPS, sg_inp);
+    this->scaleKrGasSat(rmap, scaling, sg_inp);
 
     // Region ID 'reg' is traditional, ECL-style one-based region ID
     // (SATNUM).  Subtract one to create valid table index.
-    const auto kr = this->gas_->krg(regID - 1, sg_inp);
+    auto kr = this->gas_->krg(regID - 1, sg_inp);
+
+    if (enableVerticalSFScaling(scaling) &&
+        (this->eps_ != nullptr))
+    {
+        auto vkr_eval_sat = abscissas;
+        vkr_eval_sat.resize(sg.size(), 1.0);
+
+        // Evaluate vertical scaling in input saturations.
+        this->eps_->vertScaleKrGas(rmap, vkr_eval_sat, kr);
+    }
 
     // FD::Graph == pair<vector<double>, vector<double>>
     return FlowDiagnostics::Graph {
@@ -1787,14 +2111,14 @@ Opm::ECLSaturationFunc::Impl::
 pcgoCurve(const ECLRegionMapping&    rmap,
           const std::size_t          regID,
           const std::vector<double>& sg,
-          const bool                 useEPS) const
+          const SatFuncScaling&      scaling) const
 {
     if (! this->gas_) {
         return FlowDiagnostics::Graph{};
     }
 
     auto sg_inp = sg;
-    if (useEPS && this->eps_) {
+    if (enableHorizontalEPS(scaling) && this->eps_) {
         this->eps_->reverseScalePcGO(rmap, sg_inp);
         this->uniqueReverseScaleSat(sg_inp);
     }
@@ -1811,11 +2135,21 @@ pcgoCurve(const ECLRegionMapping&    rmap,
     // Re-expand input arrays to match size requirements of EPS evaluator.
     sg_inp.resize(sg.size(), 1.0);
 
-    this->scalePcGasSat(rmap, useEPS, sg_inp);
+    this->scalePcGasSat(rmap, scaling, sg_inp);
 
     // Region ID 'reg' is traditional, ECL-style one-based region ID
     // (SATNUM).  Subtract one to create valid table index.
     auto pc = this->gas_->pcgo(regID - 1, sg_inp);
+
+    if (enableVerticalSFScaling(scaling) &&
+        (this->eps_ != nullptr))
+    {
+        auto pcg_eval_sat = abscissas;
+        pcg_eval_sat.resize(sg.size(), 1.0);
+
+        // Evaluate vertical scaling in input saturations.
+        this->eps_->vertScalePcGO(rmap, pcg_eval_sat, pc);
+    }
 
     if (this->usys_output_ != nullptr) {
         ::Opm::ECLUnits::Convert::Pressure()
@@ -1834,7 +2168,7 @@ std::vector<double>
 Opm::ECLSaturationFunc::Impl::
 krw(const ECLGraph&       G,
     const ECLRestartData& rstrt,
-    const bool            useEPS) const
+    const SatFuncScaling& scaling) const
 {
     auto kr = std::vector<double>{};
 
@@ -1842,9 +2176,9 @@ krw(const ECLGraph&       G,
         return kr;
     }
 
-    auto sw = G.rawLinearisedCellData<double>(rstrt, "SWAT");
+    auto sw = water_saturation(G, rstrt);
 
-    if (useEPS && this->eps_) {
+    if (enableHorizontalEPS(scaling) && this->eps_) {
         this->eps_->scaleKrWat(this->rmap_, sw);
     }
 
@@ -1877,14 +2211,14 @@ Opm::ECLSaturationFunc::Impl::
 krwCurve(const ECLRegionMapping&    rmap,
          const std::size_t          regID,
          const std::vector<double>& sw,
-         const bool                 useEPS) const
+         const SatFuncScaling&      scaling) const
 {
     if (! this->wat_) {
         return FlowDiagnostics::Graph{};
     }
 
     auto sw_inp = sw;
-    if (useEPS && this->eps_) {
+    if (enableHorizontalEPS(scaling) && this->eps_) {
         this->eps_->reverseScaleKrWat(rmap, sw_inp);
         this->uniqueReverseScaleSat(sw_inp);
     }
@@ -1901,11 +2235,21 @@ krwCurve(const ECLRegionMapping&    rmap,
     // Re-expand input arrays to match size requirements of EPS evaluator.
     sw_inp.resize(sw.size(), 1.0);
 
-    this->scaleKrWaterSat(rmap, useEPS, sw_inp);
+    this->scaleKrWaterSat(rmap, scaling, sw_inp);
 
     // Region ID 'reg' is traditional, ECL-style one-based region ID
     // (SATNUM).  Subtract one to create valid table index.
-    const auto kr = this->wat_->krw(regID - 1, sw_inp);
+    auto kr = this->wat_->krw(regID - 1, sw_inp);
+
+    if (enableVerticalSFScaling(scaling) &&
+        (this->eps_ != nullptr))
+    {
+        auto vkr_eval_sat = abscissas;
+        vkr_eval_sat.resize(sw.size(), 1.0);
+
+        // Evaluate vertical scaling in input saturations.
+        this->eps_->vertScaleKrWat(rmap, vkr_eval_sat, kr);
+    }
 
     // FD::Graph == pair<vector<double>, vector<double>>
     return FlowDiagnostics::Graph {
@@ -1919,14 +2263,14 @@ Opm::ECLSaturationFunc::Impl::
 pcowCurve(const ECLRegionMapping&    rmap,
           const std::size_t          regID,
           const std::vector<double>& sw,
-          const bool                 useEPS) const
+          const SatFuncScaling&      scaling) const
 {
     if (! this->wat_) {
         return FlowDiagnostics::Graph{};
     }
 
     auto sw_inp = sw;
-    if (useEPS && this->eps_) {
+    if (enableHorizontalEPS(scaling) && this->eps_) {
         this->eps_->reverseScalePcOW(rmap, sw_inp);
         this->uniqueReverseScaleSat(sw_inp);
     }
@@ -1943,11 +2287,21 @@ pcowCurve(const ECLRegionMapping&    rmap,
     // Re-expand input arrays to match size requirements of EPS evaluator.
     sw_inp.resize(sw.size(), 1.0);
 
-    this->scalePcWaterSat(rmap, useEPS, sw_inp);
+    this->scalePcWaterSat(rmap, scaling, sw_inp);
 
     // Region ID 'reg' is traditional, ECL-style one-based region ID
     // (SATNUM).  Subtract one to create valid table index.
     auto pc = this->wat_->pcow(regID - 1, sw_inp);
+
+    if (enableVerticalSFScaling(scaling) &&
+        (this->eps_ != nullptr))
+    {
+        auto pcw_eval_sat = abscissas;
+        pcw_eval_sat.resize(sw.size(), 1.0);
+
+        // Evaluate vertical scaling in input saturations.
+        this->eps_->vertScalePcOW(rmap, pcw_eval_sat, pc);
+    }
 
     if (this->usys_output_ != nullptr) {
         ::Opm::ECLUnits::Convert::Pressure()
@@ -1965,10 +2319,10 @@ pcowCurve(const ECLRegionMapping&    rmap,
 void
 Opm::ECLSaturationFunc::Impl::
 scaleKrGasSat(const ECLRegionMapping& rmap,
-              const bool              useEPS,
+              const SatFuncScaling&   scaling,
               std::vector<double>&    sg) const
 {
-    if (useEPS && this->eps_) {
+    if (enableHorizontalEPS(scaling) && this->eps_) {
         this->eps_->scaleKrGas(rmap, sg);
     }
 }
@@ -1976,10 +2330,10 @@ scaleKrGasSat(const ECLRegionMapping& rmap,
 void
 Opm::ECLSaturationFunc::Impl::
 scalePcGasSat(const ECLRegionMapping& rmap,
-              const bool              useEPS,
+              const SatFuncScaling&   scaling,
               std::vector<double>&    sg) const
 {
-    if (useEPS && this->eps_) {
+    if (enableHorizontalEPS(scaling) && this->eps_) {
         this->eps_->scalePcGO(rmap, sg);
     }
 }
@@ -1987,11 +2341,11 @@ scalePcGasSat(const ECLRegionMapping& rmap,
 void
 Opm::ECLSaturationFunc::Impl::
 scaleKrOilSat(const ECLRegionMapping& rmap,
-              const bool              useEPS,
+              const SatFuncScaling&   scaling,
               std::vector<double>&    so_g,
               std::vector<double>&    so_w) const
 {
-    if (useEPS && this->eps_) {
+    if (enableHorizontalEPS(scaling) && this->eps_) {
         // Independent scaling of So in O/G and O/W sub-systems of an O/G/W
         // run.  Performs duplicate work in a two-phase case.  Need to take
         // action if this becomes a bottleneck.
@@ -2003,10 +2357,10 @@ scaleKrOilSat(const ECLRegionMapping& rmap,
 void
 Opm::ECLSaturationFunc::Impl::
 scaleKrWaterSat(const ECLRegionMapping& rmap,
-                const bool              useEPS,
+                const SatFuncScaling&   scaling,
                 std::vector<double>&    sg) const
 {
-    if (useEPS && this->eps_) {
+    if (enableHorizontalEPS(scaling) && this->eps_) {
         this->eps_->scaleKrWat(rmap, sg);
     }
 }
@@ -2014,10 +2368,10 @@ scaleKrWaterSat(const ECLRegionMapping& rmap,
 void
 Opm::ECLSaturationFunc::Impl::
 scalePcWaterSat(const ECLRegionMapping& rmap,
-                const bool              useEPS,
+                const SatFuncScaling&   scaling,
                 std::vector<double>&    sg) const
 {
-    if (useEPS && this->eps_) {
+    if (enableHorizontalEPS(scaling) && this->eps_) {
         this->eps_->scalePcOW(rmap, sg);
     }
 }
@@ -2058,6 +2412,12 @@ extractRawTableEndPoints(const EPSEvaluator::ActPh& active) const
         ep.crit.oil_in_water = this->oil_->sowcr();
         ep.smax.oil          = this->oil_->somax();
     }
+    else {
+        ep.conn.oil          = zero;
+        ep.crit.oil_in_gas   = zero;
+        ep.crit.oil_in_water = zero;
+        ep.smax.oil          = zero;
+    }
 
     if (active.gas) {
         ep.conn.gas = this->gas_->sgco();
@@ -2076,24 +2436,80 @@ extractRawTableEndPoints(const EPSEvaluator::ActPh& active) const
         ep.smax.water = this->wat_->swmax();
     }
     else {
-        ep.conn.water = zero;
-        ep.crit.water = zero;
-        ep.smax.water = zero;
+        auto swco = std::vector<double>(zero.size());
+
+        std::transform(std::begin(ep.smax.oil), std::end(ep.smax.oil),
+                       std::begin(ep.conn.gas),
+                       std::begin(swco),
+            [](const double somax, const double sgco)
+        {
+            // Typically 1 - somax.
+            return 1.0 - (somax + sgco);
+        });
+
+        ep.conn.water = swco;
+        ep.crit.water = swco;
+        ep.smax.water = std::move(swco);
     }
 
     return ep;
 }
 
+double
+Opm::ECLSaturationFunc::Impl::
+max2PSatSum(const RawCurve&       fi,
+            const std::size_t     regID,
+            const int             cell,
+            const SatFuncScaling& scaling) const
+{
+    auto smin = 0.0;
+
+    if (fi.subsys == RawCurve::SubSystem::OilGas) {
+        // Max 2p Saturation sum = 1 - SWL
+        if (enableHorizontalEPS(scaling)) {
+            if (this->eps_ != nullptr) {
+                smin = this->eps_->scaledConnateWater(cell);
+            }
+            else {
+                throw std::logic_error {
+                    "Cannot Activate EPS without Backing Object"
+                };
+            }
+        }
+        else {
+            const auto swco = this->wat_->swco();
+            smin = swco[regID - 1];
+        }
+    }
+    else {
+        // Max 2p Saturation sum = 1 - SGL (almost always = 1)
+        if (enableHorizontalEPS(scaling)) {
+            if (this->eps_ != nullptr) {
+                smin = this->eps_->scaledConnateGas(cell);
+            }
+            else {
+                throw std::logic_error {
+                    "Cannot Activate EPS without Backing Object"
+                };
+            }
+        }
+        else {
+            const auto sgco = this->gas_->sgco();
+            smin = sgco[regID - 1];
+        }
+    }
+
+    return 1.0 - smin;
+}
+
 // =====================================================================
 
 Opm::ECLSaturationFunc::
-ECLSaturationFunc(const ECLGraph&          G,
-                  const ECLInitFileData&   init,
-                  const bool               useEPS,
-                  const InvalidEPBehaviour handle_invalid)
+ECLSaturationFunc(const ECLGraph&        G,
+                  const ECLInitFileData& init)
     : pImpl_(new Impl(G, init))
 {
-    this->pImpl_->init(G, init, useEPS, handle_invalid);
+    this->pImpl_->init(G, init);
 }
 
 Opm::ECLSaturationFunc::~ECLSaturationFunc()
@@ -2145,5 +2561,48 @@ getSatFuncCurve(const std::vector<RawCurve>& func,
                 const int                    activeCell,
                 const bool                   useEPS) const
 {
-    return this->pImpl_->getSatFuncCurve(func, activeCell, useEPS);
+    auto scaling = SatFuncScaling{};
+
+    if (! useEPS) {
+        scaling.enable = static_cast<unsigned char>(0);
+    }
+
+    return this->getSatFuncCurve(func, activeCell, scaling);
+}
+
+std::vector<Opm::FlowDiagnostics::Graph>
+Opm::ECLSaturationFunc::
+getSatFuncCurve(const std::vector<RawCurve>& func,
+                const int                    activeCell,
+                const SatFuncScaling&        scaling) const
+{
+    return this->pImpl_->getSatFuncCurve(func, activeCell, scaling);
+}
+
+// =====================================================================
+
+std::vector<double>
+Opm::phaseSaturation(const ECLGraph&       G,
+                     const ECLRestartData& rstrt,
+                     const ECLPhaseIndex   phase)
+{
+    switch (phase) {
+    case ECLPhaseIndex::Aqua:
+        return water_saturation(G, rstrt);
+
+    case ECLPhaseIndex::Liquid: {
+        const auto sg = gas_saturation(G, rstrt);
+        const auto sw = water_saturation(G, rstrt);
+
+        return oil_saturation(sg, sw, G, rstrt);
+    }
+
+    case ECLPhaseIndex::Vapour:
+        return gas_saturation(G, rstrt);
+    }
+
+    throw std::invalid_argument {
+        "Unsupported Phase Index " +
+        std::to_string(static_cast<std::size_t>(phase))
+    };
 }

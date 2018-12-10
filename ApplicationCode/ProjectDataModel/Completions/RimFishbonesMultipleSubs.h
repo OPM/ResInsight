@@ -18,11 +18,12 @@
 
 #pragma once
 
+#include "RiaEclipseUnitTools.h"
+
 #include "RimCheckableNamedObject.h"
 #include "Rim3dPropertiesInterface.h"
 #include "RimFishbonesPipeProperties.h"
-
-#include "RiaEclipseUnitTools.h"
+#include "RimWellPathComponentInterface.h"
 
 #include "cvfBase.h"
 #include "cvfVector3.h"
@@ -37,6 +38,7 @@
 #include <memory>
 
 class RigFisbonesGeometry;
+class RimMultipleValveLocations;
 
 //==================================================================================================
 ///  
@@ -51,7 +53,7 @@ struct SubLateralIndex {
 ///  
 ///  
 //==================================================================================================
-class RimFishbonesMultipleSubs : public caf::PdmObject, public Rim3dPropertiesInterface
+class RimFishbonesMultipleSubs : public caf::PdmObject, public Rim3dPropertiesInterface, public RimWellPathComponentInterface
 {
     CAF_PDM_HEADER_INIT;
 
@@ -60,7 +62,8 @@ public:
     {
         FB_SUB_COUNT_END,
         FB_SUB_SPACING_END,
-        FB_SUB_USER_DEFINED
+        FB_SUB_USER_DEFINED,
+        FB_SUB_UNDEFINED
     };
 
     enum LateralsOrientationType
@@ -71,12 +74,12 @@ public:
 
 public:
     RimFishbonesMultipleSubs();
-    virtual ~RimFishbonesMultipleSubs();
+    ~RimFishbonesMultipleSubs() override;
 
     bool                isActive() const;
     QString             generatedName() const;
 
-    void                setMeasuredDepthAndCount(double measuredDepth, double spacing, int subCount);
+    void                setMeasuredDepthAndCount(double startMD, double spacing, int subCount);
 
     double              measuredDepth(size_t subIndex) const;
     double              rotationAngle(size_t subIndex) const;
@@ -86,12 +89,15 @@ public:
 
     double              tubingDiameter(RiaEclipseUnitTools::UnitSystem unitSystem) const;
     double              holeDiameter(RiaEclipseUnitTools::UnitSystem unitSystem) const { return m_pipeProperties()->holeDiameter(unitSystem); }
+    double              effectiveDiameter(RiaEclipseUnitTools::UnitSystem unitSystem) const;
     double              skinFactor() const { return m_pipeProperties()->skinFactor(); }
     double              openHoleRoughnessFactor(RiaEclipseUnitTools::UnitSystem unitSystem) const;
     double              icdOrificeDiameter(RiaEclipseUnitTools::UnitSystem unitSystem) const;
     double              icdFlowCoefficient() const { return m_icdFlowCoefficient(); }
     size_t              icdCount() const { return m_icdCount(); }
     std::vector<double> lateralLengths() const;
+
+    void                geometryUpdated();
 
     const std::vector<SubLateralIndex>&         installedLateralIndices() const { return m_subLateralIndices; };
     std::vector<cvf::Vec3d>                     coordsForLateral(size_t subIndex, size_t lateralIndex) const;
@@ -101,29 +107,37 @@ public:
     void                                        setUnitSystemSpecificDefaults();
     
     // Override from Rim3dPropertiesInterface
-    virtual cvf::BoundingBox boundingBoxInDomainCoords() override;
+    cvf::BoundingBox boundingBoxInDomainCoords() const override;
+
+    // Overrides from RimWellPathCompletionsInterface
+    bool                              isEnabled() const override;
+    RiaDefines::WellPathComponentType componentType() const override;
+    QString                           componentLabel() const override;
+    QString                           componentTypeLabel() const override;
+    cvf::Color3f                      defaultComponentColor() const override;
+    double                            startMD() const override;
+    double                            endMD() const override;
 
 public:
     caf::PdmField<cvf::Color3f>         fishbonesColor;
 
 protected:
-    virtual void                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
-    virtual caf::PdmFieldHandle*    userDescriptionField() override;
-    virtual caf::PdmFieldHandle*    objectToggleField() override;
-    virtual void                    defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName,
-                                                          caf::PdmUiEditorAttribute* attribute) override;
+    void                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    caf::PdmFieldHandle*    userDescriptionField() override;
+    caf::PdmFieldHandle*    objectToggleField() override;
 
-    virtual void                    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
-    virtual void                    initAfterRead() override;
+    void                    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    void                    initAfterRead() override;
 
 private:
     void                        computeRangesAndLocations();
     void                        computeRotationAngles();
     void                        computeSubLateralIndices();
 
-    static std::vector<double>  locationsFromStartSpacingAndCount(double start, double spacing, size_t count);
     static int                  randomValueFromRange(int min, int max);
-    
+    void                        initialiseObsoleteFields();
+    void                        initValveLocationFromLegacyData();
+
 private:
     caf::PdmField<bool>                 m_isActive;
     caf::PdmProxyValueField<QString>    m_name;
@@ -145,15 +159,8 @@ private:
     caf::PdmField<double>               m_icdOrificeDiameter;
     caf::PdmField<double>               m_icdFlowCoefficient;
 
-    caf::PdmField<caf::AppEnum<LocationType> >    m_subsLocationMode;
-    caf::PdmField<double>               m_rangeStart;
-    caf::PdmField<double>               m_rangeEnd;
-    caf::PdmField<double>               m_rangeSubSpacing;
-    caf::PdmField<int>                  m_rangeSubCount;
-
+    caf::PdmChildField<RimMultipleValveLocations*>           m_valveLocations;
     caf::PdmField<caf::AppEnum<LateralsOrientationType> >    m_subsOrientationMode;
-
-    caf::PdmField<std::vector<double>>  m_locationOfSubs; // Given in measured depth
 
     caf::PdmField<std::vector<double>>  m_installationRotationAngles;
     caf::PdmField<double>               m_fixedInstallationRotationAngle;
@@ -164,4 +171,13 @@ private:
 
     std::unique_ptr<RigFisbonesGeometry>    m_rigFishbonesGeometry;
     std::vector<SubLateralIndex>            m_subLateralIndices;
+
+    // Moved to RimMultipleValveLocations
+    caf::PdmField<caf::AppEnum<LocationType> > m_subsLocationMode_OBSOLETE;
+    caf::PdmField<double>                      m_rangeStart_OBSOLETE;
+    caf::PdmField<double>                      m_rangeEnd_OBSOLETE;
+    caf::PdmField<double>                      m_rangeSubSpacing_OBSOLETE;
+    caf::PdmField<int>                         m_rangeSubCount_OBSOLETE;
+    caf::PdmField<std::vector<double>>         m_locationOfSubs_OBSOLETE; // Given in measured depth
+
 };

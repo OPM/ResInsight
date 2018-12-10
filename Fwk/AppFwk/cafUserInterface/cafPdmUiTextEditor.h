@@ -92,13 +92,13 @@ class TextEdit : public QTextEdit
 {
     Q_OBJECT
 public:
-    explicit TextEdit(QWidget *parent = 0);
+    explicit TextEdit(QWidget *parent = nullptr);
 
-    virtual QSize sizeHint() const override;
+    QSize sizeHint() const override;
     void          setHeightHint(int heightHint);
 
 protected:
-    virtual void focusOutEvent(QFocusEvent *e);
+    void focusOutEvent(QFocusEvent *e) override;
 
 signals: 
     void editingFinished(); 
@@ -118,15 +118,15 @@ class PdmUiTextEditor : public PdmUiFieldEditorHandle
 
 public:
     PdmUiTextEditor()          { m_textMode = PdmUiTextEditorAttribute::PLAIN; } 
-    virtual ~PdmUiTextEditor() {} 
+    ~PdmUiTextEditor() override {} 
 
 protected:
-    virtual QWidget*    createEditorWidget(QWidget * parent);
-    virtual QWidget*    createLabelWidget(QWidget * parent);
-    virtual void        configureAndUpdateUi(const QString& uiConfigName);
+    QWidget*    createEditorWidget(QWidget * parent) override;
+    QWidget*    createLabelWidget(QWidget * parent) override;
+    void        configureAndUpdateUi(const QString& uiConfigName) override;
 
 protected slots:
-    void                slotSetValueToField();
+    void        slotSetValueToField();
 
 private:
     QTextOption::WrapMode   toQTextOptionWrapMode(PdmUiTextEditorAttribute::WrapMode wrapMode);

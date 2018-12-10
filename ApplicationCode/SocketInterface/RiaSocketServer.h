@@ -20,6 +20,8 @@
 
 #pragma once
 
+#include "RiaSocketServerDefines.h"
+
 #include <QObject>
 #include <vector>
 #include <QDataStream>
@@ -34,11 +36,9 @@ class QTimer;
 class RimEclipseCase;
 class RiaSocketCommand;
 
-namespace riOctavePlugin
-{
-    const int qtDataStreamVersion = QDataStream::Qt_4_0;
-}
-
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 class RiaSocketServer : public QObject
 {
     Q_OBJECT
@@ -47,8 +47,8 @@ public:
     enum ReadState {ReadingCommand, ReadingPropertyData};
 
 public:
-    explicit RiaSocketServer(QObject *parent = 0);
-    ~RiaSocketServer();
+    explicit RiaSocketServer(QObject *parent = nullptr);
+    ~RiaSocketServer() override;
 
     unsigned short      serverPort();
     RimEclipseCase*            findReservoir(int caseId);

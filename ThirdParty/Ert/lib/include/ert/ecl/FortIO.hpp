@@ -25,7 +25,7 @@
 #include <memory>
 
 #include <ert/ecl/fortio.h>
-#include <ert/ecl/ecl_endian_flip.h>
+#include <ert/ecl/ecl_endian_flip.hpp>
 
 #include <ert/util/ert_unique_ptr.hpp>
 

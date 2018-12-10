@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2016-     Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -19,19 +19,22 @@
 #include "RimMultiSnapshotDefinition.h"
 
 #include "RiaApplication.h"
+#include "RiaOptionItemFactory.h"
 
 #include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
 #include "RigReservoirGridTools.h"
 
+#include "Rim3dView.h"
 #include "RimCase.h"
 #include "RimEclipseView.h"
 #include "RimProject.h"
 #include "RimReservoirCellResultsStorage.h"
 #include "RimTools.h"
-#include "RimView.h"
 
 #include "cafPdmPointer.h"
+
+// clang-format off
 
 namespace caf
 {
@@ -74,17 +77,18 @@ RimMultiSnapshotDefinition::RimMultiSnapshotDefinition()
     CAF_PDM_InitFieldNoDefault(&additionalCases,        "AdditionalCases",          "Cases", "", "", "");
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RimMultiSnapshotDefinition::~RimMultiSnapshotDefinition()
-{
-}
+// clang-format on
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RimMultiSnapshotDefinition::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly)
+RimMultiSnapshotDefinition::~RimMultiSnapshotDefinition() {}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QList<caf::PdmOptionItemInfo> RimMultiSnapshotDefinition::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions,
+                                                                                bool*                      useOptionsOnly)
 {
     QList<caf::PdmOptionItemInfo> options;
 
@@ -92,30 +96,31 @@ QList<caf::PdmOptionItemInfo> RimMultiSnapshotDefinition::calculateValueOptions(
     {
         options.push_back(caf::PdmOptionItemInfo("None", nullptr));
 
-        std::vector<RimView*> views; 
+        std::vector<Rim3dView*> views;
 
-        RimProject* proj = RiaApplication::instance()->project();
+        RimProject*           proj = RiaApplication::instance()->project();
         std::vector<RimCase*> cases;
         proj->allCases(cases);
 
         for (RimCase* rimCase : cases)
         {
-            for (RimView* rimView : rimCase->views())
+            for (Rim3dView* rimView : rimCase->views())
             {
                 views.push_back(rimView);
             }
         }
 
-        for (RimView* view : views)
+        for (Rim3dView* rim3dView : views)
         {
-            QString caseAndView = view->ownerCase()->caseUserDescription() + " - " + view->name();
-            options.push_back(caf::PdmOptionItemInfo(caseAndView, view));
+            RiaOptionItemFactory::appendOptionItemFromViewNameAndCaseName(rim3dView, &options);
         }
     }
     else if (fieldNeedingOptions == &eclipseResultType)
     {
-        options.push_back(caf::PdmOptionItemInfo(caf::AppEnum<RiaDefines::ResultCatType>(RiaDefines::DYNAMIC_NATIVE).uiText(), RiaDefines::DYNAMIC_NATIVE));
-        options.push_back(caf::PdmOptionItemInfo(caf::AppEnum<RiaDefines::ResultCatType>(RiaDefines::STATIC_NATIVE).uiText(), RiaDefines::STATIC_NATIVE));
+        options.push_back(caf::PdmOptionItemInfo(caf::AppEnum<RiaDefines::ResultCatType>(RiaDefines::DYNAMIC_NATIVE).uiText(),
+                                                 RiaDefines::DYNAMIC_NATIVE));
+        options.push_back(caf::PdmOptionItemInfo(caf::AppEnum<RiaDefines::ResultCatType>(RiaDefines::STATIC_NATIVE).uiText(),
+                                                 RiaDefines::STATIC_NATIVE));
     }
     else if (fieldNeedingOptions == &selectedEclipseResults)
     {
@@ -147,9 +152,9 @@ QList<caf::PdmOptionItemInfo> RimMultiSnapshotDefinition::calculateValueOptions(
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RimMultiSnapshotDefinition::getTimeStepStrings(QList<caf::PdmOptionItemInfo> &options)
+void RimMultiSnapshotDefinition::getTimeStepStrings(QList<caf::PdmOptionItemInfo>& options)
 {
     if (!view()) return;
 
@@ -164,9 +169,11 @@ void RimMultiSnapshotDefinition::getTimeStepStrings(QList<caf::PdmOptionItemInfo
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RimMultiSnapshotDefinition::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+void RimMultiSnapshotDefinition::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
+                                                  const QVariant&            oldValue,
+                                                  const QVariant&            newValue)
 {
     if (changedField == &eclipseResultType)
     {
@@ -174,16 +181,16 @@ void RimMultiSnapshotDefinition::fieldChangedByUi(const caf::PdmFieldHandle* cha
     }
     else if (changedField == &sliceDirection)
     {
-        const cvf::StructGridInterface* mainGrid = nullptr;
-        RigActiveCellInfo* actCellInfo = nullptr;
-       
+        const cvf::StructGridInterface* mainGrid    = nullptr;
+        const RigActiveCellInfo*        actCellInfo = nullptr;
+
         if (view())
         {
             actCellInfo = RigReservoirGridTools::activeCellInfo(view());
 
             RimCase* rimCase = nullptr;
             view()->firstAncestorOrThisOfTypeAsserted(rimCase);
-            
+
             mainGrid = RigReservoirGridTools::mainGrid(rimCase);
         }
 
@@ -219,23 +226,22 @@ void RimMultiSnapshotDefinition::fieldChangedByUi(const caf::PdmFieldHandle* cha
                 maxInt = static_cast<int>(max.z());
                 minInt = static_cast<int>(min.z());
             }
-                
-            startSliceIndex = minInt;
-            endSliceIndex = maxInt;
 
+            startSliceIndex = minInt;
+            endSliceIndex   = maxInt;
         }
-       
+
         startSliceIndex.uiCapability()->updateConnectedEditors();
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo> RimMultiSnapshotDefinition::toOptionList(const QStringList& varList)
 {
     QList<caf::PdmOptionItemInfo> optionList;
-    int i;
+    int                           i;
     for (i = 0; i < varList.size(); ++i)
     {
         optionList.push_back(caf::PdmOptionItemInfo(varList[i], varList[i]));
@@ -244,7 +250,7 @@ QList<caf::PdmOptionItemInfo> RimMultiSnapshotDefinition::toOptionList(const QSt
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimMultiSnapshotDefinition::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
