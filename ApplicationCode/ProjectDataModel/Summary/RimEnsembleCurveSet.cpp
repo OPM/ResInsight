@@ -928,7 +928,7 @@ void RimEnsembleCurveSet::updateEnsembleCurves(const std::vector<RimSummaryCase*
     RimSummaryAddress* addr = m_yValuesCurveVariable();
     if (plot && addr->address().category() != RifEclipseSummaryAddress::SUMMARY_INVALID)
     {
-        if(m_showCurves)
+        if(isCurvesVisible())
         {
             for (auto& sumCase : sumCases)
             {
@@ -974,7 +974,7 @@ void RimEnsembleCurveSet::updateStatisticsCurves(const std::vector<RimSummaryCas
     RimSummaryCaseCollection* group = m_yValuesSummaryGroup();
     RimSummaryAddress* addr = m_yValuesCurveVariable();
 
-    if (m_disableStatisticCurves || !group || addr->address().category() == RifEclipseSummaryAddress::SUMMARY_INVALID) return;
+    if (!isCurvesVisible() || m_disableStatisticCurves || !group || addr->address().category() == RifEclipseSummaryAddress::SUMMARY_INVALID) return;
 
     // Calculate
     {
