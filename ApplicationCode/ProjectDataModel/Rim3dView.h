@@ -140,6 +140,7 @@ public:
     void                                    createHighlightAndGridBoxDisplayModelWithRedraw();
     void                                    updateGridBoxData();
     void                                    updateAnnotationItems();   
+    void                                    updateZScaleLabel();
 
     bool                                    isMasterView() const;
 
@@ -243,5 +244,5 @@ private:
     caf::PdmField<cvf::Vec3d>               m_cameraPointOfInterest;
     caf::PdmField< cvf::Color3f >           m_backgroundColor;
     caf::PdmField<bool>                     m_showGridBox;
-
+    caf::PdmField<bool>                     m_showZScaleLabel;
 };

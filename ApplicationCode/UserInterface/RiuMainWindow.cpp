@@ -115,7 +115,6 @@ RiuMainWindow* RiuMainWindow::sm_mainWindowInstance = nullptr;
 //--------------------------------------------------------------------------------------------------
 RiuMainWindow::RiuMainWindow()
     : m_pdmRoot(nullptr),
-    m_mainViewer(nullptr),
     m_relPermPlotPanel(nullptr),
     m_pvtPlotPanel(nullptr),
     m_mohrsCirclePlot(nullptr),

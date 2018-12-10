@@ -146,11 +146,19 @@ RiuViewer::RiuViewer(const QGLFormat& format, QWidget* parent)
     m_versionInfoLabel->setAlignment(Qt::AlignRight);
     m_versionInfoLabel->setText(QString("%1 v%2").arg(RI_APPLICATION_NAME, RiaApplication::getVersionStringApp(false)));
     
+    // Z scale label
+    m_zScaleLabel = new QLabel();
+    m_zScaleLabel->setFrameShape(QFrame::NoFrame);
+    m_zScaleLabel->setAlignment(Qt::AlignLeft);
+    m_zScaleLabel->setText(QString("Z: "));
+    m_showZScaleLabel = true;
+
     QPalette versionInfoPalette = p;
     QColor versionInfoLabelColor = p.color(QPalette::Window);
     versionInfoLabelColor.setAlpha(0);
     versionInfoPalette.setColor(QPalette::Window, versionInfoLabelColor);
     m_versionInfoLabel->setPalette(versionInfoPalette);
+    m_zScaleLabel->setPalette(versionInfoPalette);
 
     // Animation progress bar
     m_animationProgress = new QProgressBar();
@@ -181,6 +189,7 @@ RiuViewer::RiuViewer(const QGLFormat& format, QWidget* parent)
         m_versionInfoLabel->setFont(regTestFont);
         m_animationProgress->setFont(regTestFont);
         m_histogramWidget->setFont(regTestFont);
+        m_zScaleLabel->setFont(regTestFont);
     }
 
     // When a context menu is created in the viewer is, and the action triggered is displaying a dialog,
@@ -437,6 +446,15 @@ void RiuViewer::paintOverlayItems(QPainter* painter)
         m_versionInfoLabel->render(painter, pos);
     }
 
+    if (m_showZScaleLabel) // Z scale Label
+    {
+        QSize  size(m_zScaleLabel->sizeHint().width(), m_zScaleLabel->sizeHint().height());
+        QPoint pos(margin + edgeAxisFrameBorderWidth,
+                   margin + edgeAxisFrameBorderHeight);
+        m_zScaleLabel->resize(size.width(), size.height());
+        m_zScaleLabel->render(painter, pos);
+    }
+
     if (!m_cursorPositionDomainCoords.isUndefined())
     {
         if (mainCamera())
@@ -467,6 +485,22 @@ void RiuViewer::paintOverlayItems(QPainter* painter)
 void RiuViewer::setInfoText(QString text)
 {
     m_infoLabel->setText(text);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuViewer::showZScaleLabel(bool enable)
+{
+    m_showZScaleLabel = enable;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuViewer::setZScale(int scale)
+{
+    m_zScaleLabel->setText(QString("Z: %1").arg(scale));
 }
 
 //--------------------------------------------------------------------------------------------------

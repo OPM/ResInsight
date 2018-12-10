@@ -82,6 +82,10 @@ public:
 
     void            showInfoText(bool enable);
     void            setInfoText(QString text);
+
+    void            showZScaleLabel(bool enable);
+    void            setZScale(int scale);
+
     void            showHistogram(bool enable);
     void            setHistogram(double min, double max, const std::vector<size_t>& histogram);
     void            setHistogramPercentiles(double pmin, double pmax, double mean);
@@ -151,6 +155,9 @@ private:
 
     QLabel*         m_versionInfoLabel;
     bool            m_showInfoText; 
+
+    QLabel*         m_zScaleLabel;
+    bool            m_showZScaleLabel;
 
     QProgressBar*   m_animationProgress;
     bool            m_showAnimProgress; 

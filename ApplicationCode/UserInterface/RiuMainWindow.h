@@ -47,7 +47,6 @@ class RiuMessagePanel;
 class RiuProcessMonitor;
 class RiuResultInfoPanel;
 class RiuResultQwtPlot;
-class RiuViewer;
 class RiuRelativePermeabilityPlotPanel;
 class RiuPvtPlotPanel;
 class RiuMohrsCirclePlot;
@@ -176,7 +175,6 @@ private:
     caf::AnimationToolBar* m_animationToolBar;
 
     QMdiArea*           m_mdiArea;
-    RiuViewer*          m_mainViewer;
     RiuResultInfoPanel* m_resultInfoPanel;
     RiuProcessMonitor*  m_processMonitor;
     QPointer<RiuMessagePanel>               m_messagePanel;

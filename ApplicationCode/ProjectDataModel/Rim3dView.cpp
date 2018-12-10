@@ -123,6 +123,8 @@ Rim3dView::Rim3dView(void)
 
     CAF_PDM_InitField(&m_disableLighting, "DisableLighting", false, "Disable Results Lighting", "", "Disable light model for scalar result colors", "");
 
+    CAF_PDM_InitField(&m_showZScaleLabel, "ShowZScale", true, "Show Z Scale Label", "", "", "");
+
     m_crossSectionVizModel = new cvf::ModelBasicList;
     m_crossSectionVizModel->setName("CrossSectionModel");
 
@@ -194,6 +196,7 @@ QWidget* Rim3dView::createViewWidget(QWidget* mainWindowParent)
     this->axisLabels(&xLabel, &yLabel, &zLabel);
     m_viewer->setAxisLabels(xLabel, yLabel, zLabel);
 
+    updateZScaleLabel();
     return m_viewer->layoutWidget();
 }
 
@@ -265,6 +268,7 @@ void Rim3dView::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrd
     
     viewGroup->add(&m_name);
     viewGroup->add(&m_backgroundColor);
+    viewGroup->add(&m_showZScaleLabel);
     viewGroup->add(&m_showGridBox);
     viewGroup->add(&isPerspectiveView);
     viewGroup->add(&m_disableLighting);
@@ -574,7 +578,7 @@ void Rim3dView::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const 
 
             m_viewer->update();
 
-
+            updateZScaleLabel();
         }
 
         RiuMainWindow::instance()->updateScaleValue();
@@ -635,6 +639,11 @@ void Rim3dView::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const 
         {
             m_viewer->animationControl()->setTimeout(maximumFrameRate != 0 ? 1000/maximumFrameRate : std::numeric_limits<int>::max());
         }
+    }
+    else if (changedField == &m_showZScaleLabel)
+    {
+        m_viewer->showZScaleLabel(m_showZScaleLabel());
+        m_viewer->update();
     }
 }
 
@@ -750,6 +759,16 @@ void Rim3dView::updateAnnotationItems()
     {
         m_viewer->updateAnnotationItems();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void Rim3dView::updateZScaleLabel()
+{
+    // Update Z scale label
+    int scale = static_cast<int>(scaleZ());
+    m_viewer->setZScale(scale);
 }
 
 //--------------------------------------------------------------------------------------------------
