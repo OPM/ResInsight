@@ -689,29 +689,55 @@ void RicWellPathExportMswCompletionsImpl::generateWsegAicdTable(RifEclipseDataTa
             {
                 if (!foundValve)
                 {
+                    std::vector<QString> columnDescriptions =
+                    {
+                        "Well Name", "Segment Number", "Segment Number", "Strength of AICD",
+                        "Length of AICD", "Density of Calibration Fluid", "Viscosity of Calibration Fluid",
+                        "Critical water in liquid fraction for emulsions viscosity model",
+                        "Emulsion viscosity transition region",
+                        "Max ratio of emulsion viscosity to continuous phase viscosity",
+                        "Flow scaling factor method",
+                        "Maximum flowrate for AICD device",
+                        "Volume flow rate exponent, x",
+                        "Viscosity function exponent, y",
+                        "Device OPEN/SHUT",
+                        "Exponent of the oil flowing fraction in the density mixture calculation",
+                        "Exponent of the water flowing fraction in the density mixture calculation",
+                        "Exponent of the gas flowing fraction in the density mixture calculation",
+                        "Exponent of the oil flowing fraction in the density viscosity calculation",
+                        "Exponent of the water flowing fraction in the density viscosity calculation",
+                        "Exponent of the gas flowing fraction in the density viscosity calculation"
+                    };
+                    
                     formatter.keyword("WSEGAICD");
+                    formatter.comment("Column Overview:");
+                    for (int i = 0; i < columnDescriptions.size(); ++i)
+                    {
+                        formatter.comment(QString("%1: %2").arg(i + 1, 2, 10, QChar('0')).arg(columnDescriptions[i]));
+                    }
+
                     std::vector<RifEclipseOutputTableColumn> header = {
-                        RifEclipseOutputTableColumn("Wl"),
-                        RifEclipseOutputTableColumn("S1"),
-                        RifEclipseOutputTableColumn("S2"),
-                        RifEclipseOutputTableColumn("St"),
-                        RifEclipseOutputTableColumn("Ln"),
-                        RifEclipseOutputTableColumn("Rho"),
-                        RifEclipseOutputTableColumn("Mu"),
-                        RifEclipseOutputTableColumn("#8"),
-                        RifEclipseOutputTableColumn("#9"),
-                        RifEclipseOutputTableColumn("#10"),
-                        RifEclipseOutputTableColumn("#11"),
-                        RifEclipseOutputTableColumn("x"),
-                        RifEclipseOutputTableColumn("y"),
-                        RifEclipseOutputTableColumn("O/C"),
-                        RifEclipseOutputTableColumn("#15"),
-                        RifEclipseOutputTableColumn("#16"),
-                        RifEclipseOutputTableColumn("#17"),
-                        RifEclipseOutputTableColumn("#18"),
-                        RifEclipseOutputTableColumn("#19"),
-                        RifEclipseOutputTableColumn("#20"),
-                        RifEclipseOutputTableColumn("#21"),
+                        RifEclipseOutputTableColumn("01"),
+                        RifEclipseOutputTableColumn("02"),
+                        RifEclipseOutputTableColumn("03"),
+                        RifEclipseOutputTableColumn("04"),
+                        RifEclipseOutputTableColumn("05"),
+                        RifEclipseOutputTableColumn("06"),
+                        RifEclipseOutputTableColumn("07"),
+                        RifEclipseOutputTableColumn("08"),
+                        RifEclipseOutputTableColumn("09"),
+                        RifEclipseOutputTableColumn("10"),
+                        RifEclipseOutputTableColumn("11"),
+                        RifEclipseOutputTableColumn("12"),
+                        RifEclipseOutputTableColumn("13"),
+                        RifEclipseOutputTableColumn("14"),
+                        RifEclipseOutputTableColumn("15"),
+                        RifEclipseOutputTableColumn("16"),
+                        RifEclipseOutputTableColumn("17"),
+                        RifEclipseOutputTableColumn("18"),
+                        RifEclipseOutputTableColumn("19"),
+                        RifEclipseOutputTableColumn("20"),
+                        RifEclipseOutputTableColumn("21"),
                     };
                     formatter.header(header);
 
