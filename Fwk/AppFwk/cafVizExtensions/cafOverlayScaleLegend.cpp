@@ -204,10 +204,11 @@ void OverlayScaleLegend::setupHorizontalTextDrawer(TextDrawer* textDrawer, const
     float lastVisibleTextX = 0.0;
 
     size_t numTicks = layout->ticks.size();
+    size_t numMajorTicks = std::count_if(layout->ticks.begin(), layout->ticks.end(), [](const LayoutInfo::Tick& t) {return t.isMajor; });
     size_t it;
     for (it = 0; it < numTicks; it++)
     {
-        if(numTicks > 4 && !layout->ticks[it].isMajor) continue;
+        if(/*numMajorTicks > 4 && */!layout->ticks[it].isMajor) continue;
 
         double tickValue = layout->ticks[it].domainValue;
         String valueString;
@@ -646,14 +647,21 @@ void OverlayScaleLegend::layoutInfo(LayoutInfo* layout)
         bool finished = false;
         for (size_t i = 0; i < numTicks; i++)
         {
-            for (size_t j = 0; j < 2; j++)
+            size_t intermediateTickCount = i == 0 ? 9 : 1;
+
+            // Add one extra tick per domain tick
+            for (size_t j = 0; j < intermediateTickCount + 1; j++)
             {
-                double tickInDomain = m_ticksInDomain[i] + ((double)j * tickSpacingInDomain / 2.0);
+                double tickInDomain = m_ticksInDomain[i] + ((double)j * tickSpacingInDomain / (double)(intermediateTickCount + 1));
                 double tickInDisplay = tickInDomain * currentScale;
 
                 if (tickInDisplay < layout->axisLength)
                 {
-                    layout->ticks.emplace_back(LayoutInfo::Tick(tickInDisplay, tickInDomain, j == 0));
+                    bool isCenterTick = (j == (intermediateTickCount + 1) / 2);
+                    bool isMajorTick = j == 0 || isCenterTick;
+                    layout->ticks.emplace_back(LayoutInfo::Tick(tickInDisplay, tickInDomain, isMajorTick));
+
+                    if (i == 0 && isCenterTick) break;
                 }
                 else
                 {
