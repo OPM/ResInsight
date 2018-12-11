@@ -69,7 +69,6 @@ bool RicContourMapPickEventHandler::handlePickEvent(const Ric3DPickEvent& eventO
                 QString curveText;
                 curveText += QString("%1\n").arg(view->createAutoName());
                 curveText += QString("Picked Point X, Y: %1, %2\n").arg(pickedPoint.x(), 5, 'f', 0).arg(pickedPoint.y(), 5, 'f', 0);
-                curveText += QString("Picked Cell I, J: %1, %2\n").arg(pickedCell.x()).arg(pickedCell.y());
                 curveText += QString("Result Type: %1\n").arg(contourMap->resultDescriptionText());
                 curveText += QString("Aggregated Value: %1\n").arg(valueAtPoint);
 
