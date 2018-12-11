@@ -269,7 +269,7 @@ void RicWellPathExportMswCompletionsImpl::generateWelsegsTable(RifEclipseDataTab
         };
         formatter.header(header);
 
-        formatter.add(exportInfo.wellPath()->name());
+        formatter.add(exportInfo.wellPath()->completions()->wellNameForExport());
         formatter.add(startTVD);
         formatter.add(startMD);
         formatter.addValueOrDefaultMarker(exportInfo.topWellBoreVolume(), RicMswExportInfo::defaultDoubleValue());
@@ -595,7 +595,7 @@ void RicWellPathExportMswCompletionsImpl::generateCompsegHeader(RifEclipseDataTa
     {
         std::vector<RifEclipseOutputTableColumn> header = {RifEclipseOutputTableColumn("Name")};
         formatter.header(header);
-        formatter.add(exportInfo.wellPath()->name());
+        formatter.add(exportInfo.wellPath()->completions()->wellNameForExport());
         formatter.rowCompleted();
     }
 
@@ -659,7 +659,7 @@ void RicWellPathExportMswCompletionsImpl::generateWsegvalvTable(RifEclipseDataTa
                         {
                             formatter.comment(icd->label());
                         }
-                        formatter.add(exportInfo.wellPath()->name());
+                        formatter.add(exportInfo.wellPath()->completions()->wellNameForExport());
                         formatter.add(icd->subSegments().front()->segmentNumber());
                         formatter.add(icd->flowCoefficient());
                         formatter.add(QString("%1").arg(icd->area(), 8, 'g', 4));
@@ -725,7 +725,7 @@ void RicWellPathExportMswCompletionsImpl::generateWsegAicdTable(RifEclipseDataTa
                     {
                         CVF_ASSERT(aicd->subSegments().size() == 1u);
                         formatter.comment(aicd->label());
-                        formatter.add(exportInfo.wellPath()->name()); // 1
+                        formatter.add(exportInfo.wellPath()->completions()->wellNameForExport()); // 1
                         formatter.add(aicd->subSegments().front()->segmentNumber());
                         formatter.add(aicd->subSegments().front()->segmentNumber());
                         
