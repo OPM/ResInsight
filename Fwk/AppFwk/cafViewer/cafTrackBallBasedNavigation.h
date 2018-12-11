@@ -37,6 +37,8 @@
 
 #include "cafNavigationPolicy.h"
 
+#include <QDateTime>
+
 namespace cvf {
     class ManipulatorTrackball;
     class Ray;
@@ -68,6 +70,8 @@ protected:
     virtual void                        setView( const cvf::Vec3d& alongDirection, const cvf::Vec3d& upDirection );
     virtual cvf::Vec3d                  pointOfInterest(); 
     virtual void                        setPointOfInterest(cvf::Vec3d poi);
+    void                                updatePointOfInterestDuringZoomIfNecessary(int zoomX, int zoomY);
+    void                                forcePointOfInterestUpdateDuringNextWheelZoom();
 
     // Track ball navigation specific
     void                                initializeRotationCenter();
@@ -92,8 +96,14 @@ protected:
     bool                                isRotationEnabled() { return m_isRotationEnabled; }
 
 private:
+    void                                updateWheelZoomPosition(int zoomX, int zoomY);
+    bool                                shouldRaytraceForNewPoiDuringWheelZoom(int zoomX, int zoomY) const;
+
+private:
     bool                                m_consumeEvents;
     bool                                m_isRotationEnabled;
+    int                                 m_lastWheelZoomPosX;
+    int                                 m_lastWheelZoomPosY;
 };
 
 } // End namespace caf

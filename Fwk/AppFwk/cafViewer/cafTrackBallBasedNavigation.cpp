@@ -45,6 +45,7 @@
 #include "cvfRay.h"
 #include "cvfManipulatorTrackball.h"
 
+#include <QDebug>
 #include <QInputEvent>
 
 #include <cmath>
@@ -59,6 +60,8 @@ caf::TrackBallBasedNavigation::TrackBallBasedNavigation() :
     m_isZooming(false),
     m_lastPosX(0),
     m_lastPosY(0),
+    m_lastWheelZoomPosX(-1),
+    m_lastWheelZoomPosY(-1),
     m_consumeEvents(false)
 {
 
@@ -86,6 +89,8 @@ void caf::TrackBallBasedNavigation::init()
     m_isZooming = false;
     m_lastPosX = 0;
     m_lastPosY = 0;
+    m_lastWheelZoomPosX = -1;
+    m_lastWheelZoomPosY = -1;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -149,7 +154,39 @@ void caf::TrackBallBasedNavigation::setPointOfInterest(cvf::Vec3d poi)
     m_trackball->setRotationPoint(poi);
     m_isRotCenterInitialized = true;
     m_viewer->updateParallelProjectionCameraPosFromPointOfInterestMove(m_pointOfInterest);
+}
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void caf::TrackBallBasedNavigation::updatePointOfInterestDuringZoomIfNecessary(int zoomX, int zoomY)
+{
+    bool                   hitSomething = false;
+    cvf::HitItemCollection hic;
+    if (shouldRaytraceForNewPoiDuringWheelZoom(zoomX, zoomY))
+    {
+        hitSomething = m_viewer->rayPick(zoomX, zoomY, &hic);
+        updateWheelZoomPosition(zoomX, zoomY);
+    }
+
+    if (hitSomething)
+    {
+        cvf::Vec3d pointOfInterest = hic.firstItem()->intersectionPoint();
+        this->setPointOfInterest(pointOfInterest);
+    }
+    else
+    {
+        initializeRotationCenter();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void caf::TrackBallBasedNavigation::forcePointOfInterestUpdateDuringNextWheelZoom()
+{
+    m_lastWheelZoomPosX = -1;
+    m_lastWheelZoomPosY = -1;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -229,4 +266,34 @@ cvf::ref<cvf::Ray> caf::TrackBallBasedNavigation::createZoomRay(int cvfXPos, int
     }
 
     return ray;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void caf::TrackBallBasedNavigation::updateWheelZoomPosition(int zoomX, int zoomY)
+{
+    m_lastWheelZoomPosX = zoomX;
+    m_lastWheelZoomPosY = zoomY;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool caf::TrackBallBasedNavigation::shouldRaytraceForNewPoiDuringWheelZoom(int zoomX, int zoomY) const
+{
+    // Raytrace if the last zoom position isn't set
+    if (m_lastWheelZoomPosX == -1 || m_lastWheelZoomPosY == -1)
+    {
+        return true;
+    }
+    int diffX = zoomX - m_lastWheelZoomPosX;
+    int diffY = zoomY - m_lastWheelZoomPosY;
+
+    const int pixelThreshold = 5;
+    if (diffX * diffX + diffY * diffY > pixelThreshold * pixelThreshold)
+    {
+        return true;
+    }
+    return false;
 }

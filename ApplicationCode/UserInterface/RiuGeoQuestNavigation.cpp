@@ -89,6 +89,7 @@ bool RiuGeoQuestNavigation::handleInputEvent(QInputEvent* inputEvent)
                     isEventHandled = true;
                 }
             }
+            forcePointOfInterestUpdateDuringNextWheelZoom();
         }
         break;
     case QEvent::MouseButtonRelease: 
@@ -144,11 +145,12 @@ bool RiuGeoQuestNavigation::handleInputEvent(QInputEvent* inputEvent)
         {
             if (inputEvent->modifiers() == Qt::NoModifier)
             {
-                initializeRotationCenter();
+                QWheelEvent* we = static_cast<QWheelEvent*>(inputEvent);
+
+                updatePointOfInterestDuringZoomIfNecessary(we->x(), we->y());
+
                 if (m_isRotCenterInitialized)
                 {
-                    QWheelEvent* we = static_cast<QWheelEvent*>(inputEvent);
-
                     int translatedMousePosX, translatedMousePosY;
                     cvfEventPos(we->x(), we->y(), &translatedMousePosX, &translatedMousePosY);
 

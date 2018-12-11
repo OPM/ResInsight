@@ -42,6 +42,7 @@
 #include "cvfRay.h"
 #include "cvfManipulatorTrackball.h"
 
+#include <QDebug>
 #include <QInputEvent>
 #include "cvfTrace.h"
 
@@ -68,6 +69,7 @@ bool caf::CeetronPlusNavigation::handleInputEvent(QInputEvent* inputEvent)
 {
     if (! inputEvent) return false;
     bool isEventHandled = false;
+
     switch (inputEvent->type())
     {
     case QEvent::MouseButtonPress:
@@ -123,6 +125,7 @@ bool caf::CeetronPlusNavigation::handleInputEvent(QInputEvent* inputEvent)
                     m_isZooming = true;
                 }
             }
+            forcePointOfInterestUpdateDuringNextWheelZoom();
         }
         break;
     case QEvent::MouseButtonRelease: 
@@ -147,6 +150,7 @@ bool caf::CeetronPlusNavigation::handleInputEvent(QInputEvent* inputEvent)
                     m_hasMovedMouseDuringNavigation = false;
                 }
             }
+            forcePointOfInterestUpdateDuringNextWheelZoom();
         }
         break;
     case QEvent::MouseMove:
@@ -186,11 +190,12 @@ bool caf::CeetronPlusNavigation::handleInputEvent(QInputEvent* inputEvent)
         {
             if (inputEvent->modifiers() == Qt::NoModifier)
             {
-                initializeRotationCenter();
+                QWheelEvent* we = static_cast<QWheelEvent*>(inputEvent);
+
+                updatePointOfInterestDuringZoomIfNecessary(we->x(), we->y());
+
                 if (m_isRotCenterInitialized)
                 {
-                    QWheelEvent* we = static_cast<QWheelEvent*> ( inputEvent);
-
                     int translatedMousePosX, translatedMousePosY;
                     cvfEventPos(we->x(), we->y(), &translatedMousePosX, &translatedMousePosY);
 
