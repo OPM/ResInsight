@@ -65,8 +65,10 @@ private:
     void defineEditorAttribute(const caf::PdmFieldHandle* field,
                                QString                    uiConfigName,
                                caf::PdmUiEditorAttribute* attribute) override;
+    caf::PdmFieldHandle* userDescriptionField() override;
 
 private:
+    caf::PdmField<QString>                      m_name;
     caf::PdmField<bool>                         m_enablePicking;
     caf::PdmChildArrayField<RimPolylineTarget*> m_targets;
     RicPolylineTargetsPickEventHandler*         m_pickTargetsEventHandler;

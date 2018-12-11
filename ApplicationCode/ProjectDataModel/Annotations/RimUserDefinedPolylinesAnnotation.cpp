@@ -62,6 +62,8 @@ RimUserDefinedPolylinesAnnotation::RimUserDefinedPolylinesAnnotation()
 {
     CAF_PDM_InitObject("PolyLines Annotation", ":/PolylinesFromFile16x16.png", "", "");
 
+    CAF_PDM_InitField(&m_name, "Name", QString("User Defined Polyline"), "Name", "", "", "");
+
     CAF_PDM_InitField(&m_enablePicking, "EnablePicking", false, "", "", "", "");
     caf::PdmUiPushButtonEditor::configureEditorForField(&m_enablePicking);
     m_enablePicking.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::LabelPosType::HIDDEN);
@@ -223,6 +225,7 @@ void RimUserDefinedPolylinesAnnotation::enablePicking(bool enable)
 //--------------------------------------------------------------------------------------------------
 void RimUserDefinedPolylinesAnnotation::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
+    uiOrdering.add(&m_name);
     uiOrdering.add(&m_targets);
     uiOrdering.add(&m_enablePicking);
 
@@ -308,4 +311,12 @@ void RimUserDefinedPolylinesAnnotation::defineEditorAttribute(const caf::PdmFiel
             }
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+caf::PdmFieldHandle* RimUserDefinedPolylinesAnnotation::userDescriptionField()
+{
+    return &m_name;
 }
