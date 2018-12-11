@@ -1296,16 +1296,29 @@ int RiaApplication::launchUnitTests()
 #ifdef USE_UNIT_TESTS
     cvf::Assert::setReportMode(cvf::Assert::CONSOLE);
 
-    int argc = QCoreApplication::argc();
-    testing::InitGoogleTest(&argc, QCoreApplication::argv());
+    int argc = QCoreApplication::arguments().size();
+    QStringList arguments = QCoreApplication::arguments();
+    std::vector<std::string> argumentsStd;
+    for (QString qstring : arguments)
+    {
+        argumentsStd.push_back(qstring.toStdString());
+    }
+    std::vector<char*> argv;
+    for (std::string& string : argumentsStd)
+    {
+        argv.push_back(&string.front());
+    }
+
+    testing::InitGoogleTest(&argc, argv.data());
 
     // Use this macro in main() to run all tests.  It returns 0 if all
     // tests are successful, or 1 otherwise.
     //
     // RUN_ALL_TESTS() should be invoked after the command line has been
     // parsed by InitGoogleTest().
-
+    
     return RUN_ALL_TESTS();
+
 #else
     return -1;
 #endif
