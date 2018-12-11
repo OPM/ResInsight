@@ -1150,6 +1150,8 @@ void RiuViewerCommands::handleTextPicking(int winPosX, int winPosY, cvf::HitItem
     int translatedMousePosY = m_viewer->height() - winPosY;
 
     Scene* scene = m_viewer->currentScene();
+    if (!scene) return;
+
     Collection<Part> partCollection;
     scene->allParts(&partCollection);
 
