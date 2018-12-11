@@ -82,6 +82,14 @@ void RicCreateTextAnnotationFeature::setupActionLook(QAction* actionToSetup)
 //--------------------------------------------------------------------------------------------------
 RimAnnotationCollectionBase* RicCreateTextAnnotationFeature::annotationCollectionBase() const
 {
-    auto selObjs = caf::selectedObjectsByTypeStrict<RimAnnotationCollectionBase*>();
-    return selObjs.size() == 1 ? selObjs.front() : nullptr;
+    auto selColls = caf::selectedObjectsByTypeStrict<RimAnnotationCollectionBase*>();
+    if (selColls.size() == 1) return selColls.front();
+
+    RimAnnotationCollectionBase* coll;
+    auto selGroupColl = caf::selectedObjectsByTypeStrict<RimAnnotationGroupCollection*>();
+    if (selGroupColl.size() == 1)
+    {
+        selGroupColl.front()->firstAncestorOrThisOfType(coll);
+    }
+    return coll;
 }
