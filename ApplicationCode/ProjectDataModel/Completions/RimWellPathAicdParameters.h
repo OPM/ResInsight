@@ -31,8 +31,7 @@ enum AICDParameters
     AICD_VOL_FLOW_EXP,
     AICD_VISOSITY_FUNC_EXP,
     AICD_NUM_REQ_PARAMS,
-    AICD_LENGTH = AICD_NUM_REQ_PARAMS,
-    AICD_CRITICAL_WATER_IN_LIQUID_FRAC,
+    AICD_CRITICAL_WATER_IN_LIQUID_FRAC = AICD_NUM_REQ_PARAMS,
     AICD_EMULSION_VISC_TRANS_REGION,
     AICD_MAX_RATIO_EMULSION_VISC,
     AICD_MAX_FLOW_RATE,
@@ -55,6 +54,7 @@ public:
 
     bool isOpen() const;
     std::array<double, AICD_NUM_PARAMS> doubleValues() const;
+
 protected:
     void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
     void defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override;

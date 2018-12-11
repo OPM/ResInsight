@@ -693,20 +693,20 @@ void RicWellPathExportMswCompletionsImpl::generateWsegAicdTable(RifEclipseDataTa
                 {
                     formatter.keyword("WSEGAICD");
                     std::vector<RifEclipseOutputTableColumn> header = {
-                        RifEclipseOutputTableColumn("Well"),
-                        RifEclipseOutputTableColumn("Seg1"),
-                        RifEclipseOutputTableColumn("Seg2"),
-                        RifEclipseOutputTableColumn("str"),
-                        RifEclipseOutputTableColumn("len"),
-                        RifEclipseOutputTableColumn("rho"),
-                        RifEclipseOutputTableColumn("mu"),
+                        RifEclipseOutputTableColumn("Wl"),
+                        RifEclipseOutputTableColumn("S1"),
+                        RifEclipseOutputTableColumn("S2"),
+                        RifEclipseOutputTableColumn("St"),
+                        RifEclipseOutputTableColumn("Ln"),
+                        RifEclipseOutputTableColumn("Rho"),
+                        RifEclipseOutputTableColumn("Mu"),
                         RifEclipseOutputTableColumn("#8"),
                         RifEclipseOutputTableColumn("#9"),
                         RifEclipseOutputTableColumn("#10"),
                         RifEclipseOutputTableColumn("#11"),
                         RifEclipseOutputTableColumn("x"),
                         RifEclipseOutputTableColumn("y"),
-                        RifEclipseOutputTableColumn("o"),
+                        RifEclipseOutputTableColumn("O/C"),
                         RifEclipseOutputTableColumn("#15"),
                         RifEclipseOutputTableColumn("#16"),
                         RifEclipseOutputTableColumn("#17"),
@@ -731,7 +731,7 @@ void RicWellPathExportMswCompletionsImpl::generateWsegAicdTable(RifEclipseDataTa
                         
                         std::array<double, AICD_NUM_PARAMS> values = aicd->values();
                         formatter.add(values[AICD_STRENGTH]);
-                        formatter.add(values[AICD_LENGTH]); // 5
+                        formatter.add(aicd->length()); // 5
                         formatter.add(values[AICD_DENSITY_CALIB_FLUID]);
                         formatter.add(values[AICD_VISCOSITY_CALIB_FLUID]);
                         formatter.addValueOrDefaultMarker(values[AICD_CRITICAL_WATER_IN_LIQUID_FRAC], RicMswExportInfo::defaultDoubleValue());
@@ -1099,11 +1099,15 @@ void RicWellPathExportMswCompletionsImpl::assignSuperValveCompletions(
 
         for (const RimPerforationInterval* interval : perforationIntervals)
         {
+            if (!interval->isChecked()) continue;
+
             std::vector<const RimWellPathValve*> perforationValves;
             interval->descendantsIncludingThisOfType(perforationValves);
 
             for (const RimWellPathValve* valve : perforationValves)
             {
+                if (!valve->isChecked()) continue;
+
                 bool isAicd = valve->componentType() == RiaDefines::AICD;
                 for (size_t nSubValve = 0u; nSubValve < valve->valveLocations().size(); ++nSubValve)
                 {
@@ -1207,11 +1211,15 @@ void RicWellPathExportMswCompletionsImpl::assignValveContributionsToSuperValves(
 
         for (const RimPerforationInterval* interval : perforationIntervals)
         {
+            if (!interval->isChecked()) continue;
+
             std::vector<const RimWellPathValve*> perforationValves;
             interval->descendantsIncludingThisOfType(perforationValves);
 
             for (const RimWellPathValve* valve : perforationValves)
             {
+                if (!valve->isChecked()) continue;
+
                 for (size_t nSubValve = 0u; nSubValve < valve->valveSegments().size(); ++nSubValve)
                 {
                     std::pair<double, double> valveSegment       = valve->valveSegments()[nSubValve];
@@ -1222,7 +1230,7 @@ void RicWellPathExportMswCompletionsImpl::assignValveContributionsToSuperValves(
 
                     if (overlap > 0.0 && accumulator)
                     {
-                        if (accumulator->accumulateValveParameters(valve, overlap / valveSegmentLength))
+                        if (accumulator->accumulateValveParameters(valve, nSubValve, overlap / valveSegmentLength))
                         {
                             assignedRegularValves[superValve].insert(std::make_pair(valve, nSubValve));
                         }

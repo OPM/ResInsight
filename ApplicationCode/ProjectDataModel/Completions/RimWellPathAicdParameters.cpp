@@ -17,7 +17,9 @@
 /////////////////////////////////////////////////////////////////////////////////
 #include "RimWellPathAicdParameters.h"
 
+#include "RimPerforationInterval.h"
 #include "RimWellPath.h"
+#include "RimWellPathValve.h"
 
 #include "cafPdmUiDoubleValueEditor.h"
 #include "cafPdmUiGroup.h"
@@ -70,7 +72,6 @@ RimWellPathAicdParameters::RimWellPathAicdParameters()
     CAF_PDM_InitFieldNoDefault(&m_aicdParameterFields[AICD_VOL_FLOW_EXP], "VolumeFlowRateExponent", "Volume Flow Rate Exponent", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_aicdParameterFields[AICD_VISOSITY_FUNC_EXP], "ViscosityFunctionExponent", "Viscosity Function Exponent", "", "", "");
     
-    CAF_PDM_InitField(&m_aicdParameterFields[AICD_LENGTH], "LengthAICD", QString("12.0"), "Length of AICD", "", "", "");
     CAF_PDM_InitField(&m_aicdParameterFields[AICD_CRITICAL_WATER_IN_LIQUID_FRAC], "CriticalWaterLiquidFractionEmul", QString("1*"), "Critical Water in Liquid Fraction for emulsions", "", "", "");
     CAF_PDM_InitField(&m_aicdParameterFields[AICD_EMULSION_VISC_TRANS_REGION], "ViscosityTransitionRegionEmul", QString("1*"), "Emulsion Viscosity Transition Region", "", "", "");
     CAF_PDM_InitField(&m_aicdParameterFields[AICD_MAX_RATIO_EMULSION_VISC], "MaxRatioOfEmulsionVisc", QString("1*"), "Max Ratio of Emulsion to Continuous Viscosity", "", "", "");
@@ -161,7 +162,7 @@ void RimWellPathAicdParameters::defineUiOrdering(QString uiConfigName, caf::PdmU
     }
     
     caf::PdmUiGroup* additionalGroup = uiOrdering.addNewGroup("Additional Parameters");
-    for (int i = (int)AICD_LENGTH; i < (int)AICD_NUM_PARAMS; ++i)
+    for (int i = (int)AICD_NUM_REQ_PARAMS; i < (int)AICD_NUM_PARAMS; ++i)
     {
         additionalGroup->add(&m_aicdParameterFields[(AICDParameters) i]);
     }
@@ -211,13 +212,11 @@ void RimWellPathAicdParameters::setUnitLabels()
     if (isMetric())
     {
         m_aicdParameterFields[AICD_DENSITY_CALIB_FLUID].uiCapability()->setUiName("Calibration Fluid Density (kg / m ^ 3)");
-        m_aicdParameterFields[AICD_LENGTH].uiCapability()->setUiName("Length of AICD (m)");
         m_aicdParameterFields[AICD_MAX_FLOW_RATE].uiCapability()->setUiName("Max Flow Rate for AICD Device(m ^ 3 / day)");
     }
     else
     {
         m_aicdParameterFields[AICD_DENSITY_CALIB_FLUID].uiCapability()->setUiName("Calibration Fluid Density (lb / ft ^3)");
-        m_aicdParameterFields[AICD_LENGTH].uiCapability()->setUiName("Length of AICD (ft)");
         m_aicdParameterFields[AICD_MAX_FLOW_RATE].uiCapability()->setUiName("Max Flow Rate for AICD Device(ft ^ 3 / day)");
     }
 }

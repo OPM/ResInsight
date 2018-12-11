@@ -21,6 +21,7 @@
 
 #include "RicMswCompletions.h"
 
+#include "RimPerforationInterval.h"
 #include "RimWellPathValve.h"
 
 //--------------------------------------------------------------------------------------------------
@@ -35,7 +36,7 @@ RicMswICDAccumulator::RicMswICDAccumulator(RiaEclipseUnitTools::UnitSystem unitS
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicMswICDAccumulator::accumulateValveParameters(const RimWellPathValve* wellPathValve, double contributionFraction)
+bool RicMswICDAccumulator::accumulateValveParameters(const RimWellPathValve* wellPathValve, size_t subValve, double contributionFraction)
 {
     CVF_ASSERT(wellPathValve);
     if (wellPathValve->componentType() == RiaDefines::ICV || wellPathValve->componentType() == RiaDefines::ICD)
@@ -75,7 +76,7 @@ RicMswAICDAccumulator::RicMswAICDAccumulator(RiaEclipseUnitTools::UnitSystem uni
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicMswAICDAccumulator::accumulateValveParameters(const RimWellPathValve* wellPathValve, double contributionFraction)
+bool RicMswAICDAccumulator::accumulateValveParameters(const RimWellPathValve* wellPathValve, size_t subValve, double contributionFraction)
 {
     CVF_ASSERT(wellPathValve);
     if (wellPathValve->componentType() == RiaDefines::AICD)
@@ -93,6 +94,18 @@ bool RicMswAICDAccumulator::accumulateValveParameters(const RimWellPathValve* we
                     m_meanCalculators[i].addValueAndWeight(values[i], contributionFraction);
                 }
             }
+            std::pair<double, double> valveSegment = wellPathValve->valveSegments()[subValve];
+            double valveSegmentLength = std::fabs(valveSegment.second - valveSegment.first);
+            const RimPerforationInterval* perfInterval = nullptr;
+            wellPathValve->firstAncestorOrThisOfTypeAsserted(perfInterval);
+            double perfIntervalLength = std::fabs(perfInterval->endMD() - perfInterval->startMD());
+            double lengthFraction = 1.0;
+            if (perfIntervalLength > 1.0e-8)
+            {
+                lengthFraction = valveSegmentLength / perfIntervalLength;
+            }
+
+            m_lengthCalculator.addValueAndWeight(lengthFraction, contributionFraction);
         }
         return true;
     }
@@ -123,6 +136,10 @@ void RicMswAICDAccumulator::applyToSuperValve(std::shared_ptr<RicMswValve> valve
         }
         aicd->setIsValid(m_valid);
         aicd->setIsOpen(m_deviceOpen);
+        if (m_lengthCalculator.validAggregatedWeight())
+        {
+            aicd->setLength(m_lengthCalculator.weightedMean());
+        }
         aicd->values() = values;
     }    
 }
