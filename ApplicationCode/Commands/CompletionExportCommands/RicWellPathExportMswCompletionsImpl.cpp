@@ -274,7 +274,7 @@ void RicWellPathExportMswCompletionsImpl::generateWelsegsTable(RifEclipseDataTab
         formatter.add(startMD);
         formatter.addValueOrDefaultMarker(exportInfo.topWellBoreVolume(), RicMswExportInfo::defaultDoubleValue());
         formatter.add(exportInfo.lengthAndDepthText());
-        formatter.add(exportInfo.pressureDropText());
+        formatter.add(QString("'%1'").arg(exportInfo.pressureDropText()));
 
         formatter.rowCompleted();
     }
