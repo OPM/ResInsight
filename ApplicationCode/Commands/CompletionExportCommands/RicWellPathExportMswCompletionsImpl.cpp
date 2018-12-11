@@ -84,92 +84,88 @@ public:
 //--------------------------------------------------------------------------------------------------
 void RicWellPathExportMswCompletionsImpl::exportWellSegmentsForAllCompletions(const RicExportCompletionDataSettingsUi& exportSettings,
                                                                               const std::vector<RimWellPath*>&         wellPaths)
-{
-    if (exportSettings.includeFractures())
+{   
+    std::shared_ptr<QFile> unifiedExportFile;
+    if (exportSettings.fileSplit() == RicExportCompletionDataSettingsUi::UNIFIED_FILE)
     {
-        bool anyActiveFractures = false;
+        QString unifiedFileName = QString("UnifiedCompletions_MSW_%1").arg(exportSettings.caseToApply->caseUserDescription());
+        unifiedExportFile = RicWellPathExportCompletionsFileTools::openFileForExport(exportSettings.folder, unifiedFileName);
+    }
 
-        for (const auto& wellPath : wellPaths)
+    for (const auto& wellPath : wellPaths)
+    {
+        std::shared_ptr<QFile> unifiedWellPathFile;
+
+        bool exportFractures = exportSettings.includeFractures() && !wellPath->fractureCollection()->activeFractures().empty();
+        bool exportPerforations =
+            exportSettings.includePerforations() && !wellPath->perforationIntervalCollection()->activePerforations().empty();
+        bool exportFishbones = exportSettings.includeFishbones() && !wellPath->fishbonesCollection()->activeFishbonesSubs().empty();
+        bool exportAnyCompletion = exportFractures || exportPerforations || exportFishbones;
+        if (exportAnyCompletion && exportSettings.fileSplit() == RicExportCompletionDataSettingsUi::SPLIT_ON_WELL_AND_COMPLETION_TYPE && !unifiedWellPathFile)
         {
-            if (!wellPath->fractureCollection()->activeFractures().empty())
-            {
-                anyActiveFractures = true;
-            }
+            QString wellFileName =
+                QString("%1_UnifiedCompletions_MSW_%2")
+                .arg(wellPath->completions()->wellNameForExport(), exportSettings.caseToApply->caseUserDescription());
+            unifiedWellPathFile = RicWellPathExportCompletionsFileTools::openFileForExport(exportSettings.folder, wellFileName);
         }
 
-        if (anyActiveFractures)
+        if (exportFractures)
         {
-            QString fileName = QString("%1-Fracture-Welsegs").arg(exportSettings.caseToApply->caseUserDescription());
-            std::shared_ptr<QFile> exportFile =
-                RicWellPathExportCompletionsFileTools::openFileForExport(exportSettings.folder, fileName);
-
-            for (const auto wellPath : wellPaths)
+            std::shared_ptr<QFile> fractureExportFile;
+            if (unifiedExportFile)
+                fractureExportFile = unifiedExportFile;
+            else if (unifiedWellPathFile)
+                fractureExportFile = unifiedWellPathFile;
+            else
             {
-                auto fractures = wellPath->fractureCollection()->activeFractures();
-                if (!fractures.empty())
-                {
-                    exportWellSegmentsForFractures(exportSettings.caseToApply, exportFile, wellPath, fractures);
-                }
+                QString fileName =
+                    QString("%1_Fracture_MSW_%2")
+                    .arg(wellPath->completions()->wellNameForExport(), exportSettings.caseToApply->caseUserDescription());
+                fractureExportFile = RicWellPathExportCompletionsFileTools::openFileForExport(exportSettings.folder, fileName);
             }
-            exportFile->close();
+            exportWellSegmentsForFractures(exportSettings.caseToApply, fractureExportFile, wellPath, wellPath->fractureCollection()->activeFractures());
+        }
+
+        if (exportPerforations)
+        {
+            std::shared_ptr<QFile> perforationsExportFile;
+            if (unifiedExportFile)
+                perforationsExportFile = unifiedExportFile;
+            else if (unifiedWellPathFile)
+                perforationsExportFile = unifiedWellPathFile;
+            else
+            {
+                QString fileName =
+                    QString("%1_Perforations_MSW_%2")
+                    .arg(wellPath->completions()->wellNameForExport(), exportSettings.caseToApply->caseUserDescription());
+                perforationsExportFile = RicWellPathExportCompletionsFileTools::openFileForExport(exportSettings.folder, fileName);
+            }
+            exportWellSegmentsForPerforations(
+                exportSettings.caseToApply, perforationsExportFile, wellPath, exportSettings.timeStep, wellPath->perforationIntervalCollection()->activePerforations());
+        }
+
+        if (exportFishbones)
+        {
+            std::shared_ptr<QFile> fishbonesExportFile;
+            if (unifiedExportFile)
+                fishbonesExportFile = unifiedExportFile;
+            else if (unifiedWellPathFile)
+                fishbonesExportFile = unifiedWellPathFile;
+            else
+            {
+                QString fileName =
+                    QString("%1_Perforations_MSW_%2")
+                    .arg(wellPath->completions()->wellNameForExport(), exportSettings.caseToApply->caseUserDescription());
+                fishbonesExportFile =
+                    RicWellPathExportCompletionsFileTools::openFileForExport(exportSettings.folder, fileName);
+            }
+            exportWellSegmentsForFishbones(exportSettings.caseToApply,
+                fishbonesExportFile,
+                wellPath,
+                wellPath->fishbonesCollection()->activeFishbonesSubs());
         }
     }
 
-    if (exportSettings.includeFishbones())
-    {
-        bool anyFishbones = false;
-
-        for (const auto& wellPath : wellPaths)
-        {
-            if (!wellPath->fishbonesCollection()->activeFishbonesSubs().empty())
-            {
-                anyFishbones = true;
-            }
-        }
-
-        if (anyFishbones)
-        {
-            QString fileName = QString("%1-Fishbone-Welsegs").arg(exportSettings.caseToApply->caseUserDescription());
-            std::shared_ptr<QFile> exportFile =
-                RicWellPathExportCompletionsFileTools::openFileForExport(exportSettings.folder, fileName);
-
-            for (const auto wellPath : wellPaths)
-            {
-                auto fishbones = wellPath->fishbonesCollection()->activeFishbonesSubs();
-                if (!fishbones.empty())
-                {
-                    exportWellSegmentsForFishbones(exportSettings.caseToApply, exportFile, wellPath, fishbones);
-                }
-            }
-
-            exportFile->close();
-        }
-    }
-
-    if (exportSettings.includePerforations())
-    {
-        bool anyPerforations = false;
-        for (const auto& wellPath : wellPaths)
-        {
-            if (!wellPath->perforationIntervalCollection()->activePerforations().empty())
-            {
-                anyPerforations = true;
-            }
-        }
-        if (anyPerforations)
-        {
-            QString fileName = QString("%1-Perforation-Welsegs").arg(exportSettings.caseToApply->caseUserDescription());
-            std::shared_ptr<QFile> exportFile =
-                RicWellPathExportCompletionsFileTools::openFileForExport(exportSettings.folder, fileName);
-
-            for (const auto wellPath : wellPaths)
-            {
-                auto perforations = wellPath->perforationIntervalCollection()->activePerforations();
-                exportWellSegmentsForPerforations(exportSettings.caseToApply, exportFile, wellPath, exportSettings.timeStep, perforations);
-            }
-            exportFile->close();
-        }
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

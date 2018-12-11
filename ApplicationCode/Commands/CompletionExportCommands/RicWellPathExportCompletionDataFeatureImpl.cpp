@@ -303,7 +303,7 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions(const std::ve
                     }
                 }
 
-                QString fileName = QString("%1_unifiedCompletions_%2").arg(wellPath->name()).arg(eclipseCaseName);
+                QString fileName = QString("%1_UnifiedCompletions_%2").arg(wellPath->completions()->wellNameForExport()).arg(eclipseCaseName);
                 sortAndExportCompletionsToFile(exportSettings.caseToApply,
                                                exportSettings.folder,
                                                fileName,
@@ -344,7 +344,7 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions(const std::ve
                         if (completionType == RigCompletionData::FRACTURE) completionTypeText = "Fracture";
                         if (completionType == RigCompletionData::PERFORATION) completionTypeText = "Perforation";
 
-                        QString fileName = QString("%1_%2_%3").arg(wellPath->name()).arg(completionTypeText).arg(eclipseCaseName);
+                        QString fileName = QString("%1_%2_%3").arg(wellPath->completions()->wellNameForExport()).arg(completionTypeText).arg(eclipseCaseName);
                         if (completionType == RigCompletionData::FRACTURE)
                         {
                             std::vector<RicWellPathFractureReportItem> reportItemsForWell;
