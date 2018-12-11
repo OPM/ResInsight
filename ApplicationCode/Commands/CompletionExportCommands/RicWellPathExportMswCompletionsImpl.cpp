@@ -681,6 +681,8 @@ void RicWellPathExportMswCompletionsImpl::generateWsegvalvTable(RifEclipseDataTa
 void RicWellPathExportMswCompletionsImpl::generateWsegAicdTable(RifEclipseDataTableFormatter& formatter,
                                                                 const RicMswExportInfo&       exportInfo)
 {
+    int existingColSpacing = formatter.columnSpacing();
+    formatter.setColumnSpacing(1);
     bool foundValve = false;
 
     for (std::shared_ptr<RicMswSegment> location : exportInfo.wellSegmentLocations())
@@ -758,6 +760,7 @@ void RicWellPathExportMswCompletionsImpl::generateWsegAicdTable(RifEclipseDataTa
     {
         formatter.tableCompleted();
     }
+    formatter.setColumnSpacing(existingColSpacing);
 }
 
 //--------------------------------------------------------------------------------------------------

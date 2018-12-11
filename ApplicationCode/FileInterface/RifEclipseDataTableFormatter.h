@@ -108,6 +108,7 @@ public:
     RifEclipseDataTableFormatter(QTextStream& out);
     virtual ~RifEclipseDataTableFormatter();
 
+    int  columnSpacing() const;
     void setColumnSpacing(int spacing);
     void setTableRowPrependText(const QString& text);
     void setTableRowLineAppendText(const QString& text);

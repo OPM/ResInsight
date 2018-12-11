@@ -44,6 +44,14 @@ RifEclipseDataTableFormatter::~RifEclipseDataTableFormatter()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+int RifEclipseDataTableFormatter::columnSpacing() const
+{
+    return m_colSpacing;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RifEclipseDataTableFormatter::setColumnSpacing(int spacing)
 {
     m_colSpacing = spacing;
