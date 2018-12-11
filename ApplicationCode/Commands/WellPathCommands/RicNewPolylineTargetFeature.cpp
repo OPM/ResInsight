@@ -19,10 +19,17 @@
 
 CAF_CMD_SOURCE_INIT(RicNewPolylineTargetFeature, "RicNewPolylineTargetFeature");
 
+#include "RiaApplication.h"
+
+#include "RimProject.h"
+#include "RimGridView.h"
+#include "RimCase.h"
 #include "RimUserDefinedPolylinesAnnotation.h"
 #include "RimPolylineTarget.h"
 #include "cafSelectionManager.h"
 #include <QAction>
+
+#include "cvfBoundingBox.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -71,7 +78,10 @@ void RicNewPolylineTargetFeature::onActionTriggered(bool isChecked)
         if (!afterBeforePair.first && afterBeforePair.second)
         {
             newPos = afterBeforePair.second->targetPointXYZ();
-            newPos.z() = -newPos.z();
+
+            // Small displacement to separate the targets
+            newPos.x() -= 50;
+            newPos.y() -= 50;
         } 
         else if (afterBeforePair.first && afterBeforePair.second)
         {
@@ -114,7 +124,18 @@ void RicNewPolylineTargetFeature::onActionTriggered(bool isChecked)
 
         if ( targetCount == 0 )
         {
-            polylineDef->appendTarget();
+            auto defaultPos = cvf::Vec3d::ZERO;
+
+            // Set decent position
+            std::vector<RimGridView*> gridViews;
+            RiaApplication::instance()->project()->allVisibleGridViews(gridViews);
+            if (!gridViews.empty())
+            {
+                auto minPos = gridViews.front()->ownerCase()->allCellsBoundingBox().min();
+                defaultPos = minPos;
+            }
+
+            polylineDef->appendTarget(defaultPos);
         }
         else
         {

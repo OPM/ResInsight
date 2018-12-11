@@ -62,7 +62,7 @@ RicPolylineTarget3dEditor::~RicPolylineTarget3dEditor()
     RimPolylineTarget* oldTarget = dynamic_cast<RimPolylineTarget*>(this->pdmObject());
     if (oldTarget)
     {
-        oldTarget->m_targetPoint.uiCapability()->removeFieldEditor(this);
+        oldTarget->targetPointUiCapability()->removeFieldEditor(this);
     }
 
     delete m_manipulator;
@@ -85,7 +85,7 @@ void RicPolylineTarget3dEditor::configureAndUpdateUi(const QString& uiConfigName
     RimUserDefinedPolylinesAnnotation* polylineDef;
     target->firstAncestorOrThisOfTypeAsserted(polylineDef);
 
-    target->m_targetPoint.uiCapability()->addFieldEditor(this);
+    target->targetPointUiCapability()->addFieldEditor(this);
 
     if (m_manipulator.isNull())
     {
@@ -131,7 +131,7 @@ void RicPolylineTarget3dEditor::cleanupBeforeSettingPdmObject()
     RimPolylineTarget* oldTarget = dynamic_cast<RimPolylineTarget*>(this->pdmObject());
     if (oldTarget)
     {
-        oldTarget->m_targetPoint.uiCapability()->removeFieldEditor(this);
+        oldTarget->targetPointUiCapability()->removeFieldEditor(this);
     }
 }
 
@@ -161,7 +161,7 @@ void RicPolylineTarget3dEditor::slotUpdated(const cvf::Vec3d& origin, const cvf:
     QVariant originVariant = caf::PdmValueFieldSpecialization < cvf::Vec3d >::convert(domainOrigin);
 
     target->enableFullUpdate(false);
-    caf::PdmUiCommandSystemProxy::instance()->setUiValueToField(target->m_targetPoint.uiCapability(), originVariant);
+    caf::PdmUiCommandSystemProxy::instance()->setUiValueToField(target->targetPointUiCapability(), originVariant);
     target->enableFullUpdate(true);
 }
 

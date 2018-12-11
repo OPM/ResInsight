@@ -36,9 +36,11 @@ public:
     bool isEnabled() const;
 
     void setAsPointTargetXYD(const cvf::Vec3d& point);
-    void setAsPointXYZAndTangentTarget(const cvf::Vec3d& point, double azimuth, double inclination);
+    void setAsPointXYZ(const cvf::Vec3d& point);
 
     cvf::Vec3d     targetPointXYZ() const;
+    caf::PdmUiFieldHandle* targetPointUiCapability();
+    void                   enableFullUpdate(bool enable);
 
 private:
     QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
@@ -46,11 +48,9 @@ private:
     void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
 
 private:
-    friend class RicPolylineTarget3dEditor;
-    void                                         enableFullUpdate(bool enable);
     bool                                         m_isFullUpdateEnabled;
     caf::PdmField<bool>                          m_isEnabled;
-    caf::PdmField<cvf::Vec3d>                    m_targetPoint;
+    caf::PdmField<cvf::Vec3d>                    m_targetPointXyd;
 
 };
 

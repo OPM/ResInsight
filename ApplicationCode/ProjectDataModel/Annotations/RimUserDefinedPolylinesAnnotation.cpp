@@ -29,6 +29,8 @@
 
 #include "RiuViewerCommands.h"
 
+#include "cvfBoundingBox.h"
+
 #include "cafPdmUiTableViewEditor.h"
 #include "cafCmdFeatureMenuBuilder.h"
 #include "cafPdmUiPushButtonEditor.h"
@@ -58,7 +60,7 @@ CAF_PDM_SOURCE_INIT(RimUserDefinedPolylinesAnnotation, "UserDefinedPolylinesAnno
 RimUserDefinedPolylinesAnnotation::RimUserDefinedPolylinesAnnotation()
     : m_pickTargetsEventHandler(new RicPolylineTargetsPickEventHandler(this))
 {
-    CAF_PDM_InitObject("PolyLines Annotation", ":/WellCollection.png", "", "");
+    CAF_PDM_InitObject("PolyLines Annotation", ":/PolylinesFromFile16x16.png", "", "");
 
     CAF_PDM_InitField(&m_enablePicking, "EnablePicking", false, "", "", "", "");
     caf::PdmUiPushButtonEditor::configureEditorForField(&m_enablePicking);
@@ -119,24 +121,25 @@ bool RimUserDefinedPolylinesAnnotation::isEmpty()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimUserDefinedPolylinesAnnotation::appendTarget()
+void RimUserDefinedPolylinesAnnotation::appendTarget(const cvf::Vec3d& defaultPos)
 {
-    RimPolylineTarget* wellPathTarget = nullptr;
+    RimPolylineTarget* target = nullptr;
 
     auto targets = m_targets.childObjects();
     if (targets.empty())
     {
-        wellPathTarget = new RimPolylineTarget();
+        target = new RimPolylineTarget();
+        target->setAsPointXYZ(defaultPos);
     }
     else
     {
-        wellPathTarget = dynamic_cast<RimPolylineTarget*>(
+        target = dynamic_cast<RimPolylineTarget*>(
             targets.back()->xmlCapability()->copyByXmlSerialization(caf::PdmDefaultObjectFactory::instance()));
     }
 
-    if (wellPathTarget)
+    if (target)
     {
-        m_targets.push_back(wellPathTarget);
+        m_targets.push_back(target);
     }
 }
 

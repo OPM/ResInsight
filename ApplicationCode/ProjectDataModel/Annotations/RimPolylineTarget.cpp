@@ -15,8 +15,7 @@ RimPolylineTarget::RimPolylineTarget()
 {
     
     CAF_PDM_InitField(&m_isEnabled, "IsEnabled", true, "", "", "", "");
-    //m_targetType.uiCapability()->setUiHidden(true);
-    CAF_PDM_InitFieldNoDefault(&m_targetPoint, "TargetPoint", "Point", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_targetPointXyd, "TargetPointXyd", "Point", "", "", "");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -40,17 +39,15 @@ bool RimPolylineTarget::isEnabled() const
 //--------------------------------------------------------------------------------------------------
 void RimPolylineTarget::setAsPointTargetXYD(const cvf::Vec3d& point)
 {
-    m_targetPoint = point; 
+    m_targetPointXyd = point; 
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimPolylineTarget::setAsPointXYZAndTangentTarget(const cvf::Vec3d& point,
-                                                      double azimuth,
-                                                      double inclination)
+void RimPolylineTarget::setAsPointXYZ(const cvf::Vec3d& point)
 {
-    m_targetPoint = cvf::Vec3d(point.x(), point.y(), -point.z());
+    m_targetPointXyd = cvf::Vec3d(point.x(), point.y(), -point.z());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -58,9 +55,17 @@ void RimPolylineTarget::setAsPointXYZAndTangentTarget(const cvf::Vec3d& point,
 //--------------------------------------------------------------------------------------------------
 cvf::Vec3d RimPolylineTarget::targetPointXYZ() const
 {
-    cvf::Vec3d xyzPoint(m_targetPoint());
+    cvf::Vec3d xyzPoint(m_targetPointXyd());
     xyzPoint.z() = -xyzPoint.z();
     return xyzPoint;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+caf::PdmUiFieldHandle* RimPolylineTarget::targetPointUiCapability()
+{
+    return m_targetPointXyd.uiCapability();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -95,5 +100,5 @@ void RimPolylineTarget::fieldChangedByUi(const caf::PdmFieldHandle* changedField
 //--------------------------------------------------------------------------------------------------
 void RimPolylineTarget::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
-    m_targetPoint.uiCapability()->setUiReadOnly(m_isEnabled());
+    m_targetPointXyd.uiCapability()->setUiReadOnly(m_isEnabled());
 }

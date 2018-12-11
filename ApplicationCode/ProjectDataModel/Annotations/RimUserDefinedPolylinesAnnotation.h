@@ -45,7 +45,7 @@ public:
     std::vector<RimPolylineTarget*> activeTargets() const;
     virtual bool isEmpty() override;
 
-    void appendTarget();
+    void appendTarget(const cvf::Vec3d& defaultPos = cvf::Vec3d::ZERO);
     void insertTarget(const RimPolylineTarget* targetToInsertBefore, RimPolylineTarget* targetToInsert);
     void deleteTarget(RimPolylineTarget* targetTodelete);
 
