@@ -24,12 +24,12 @@
 ///
 ///
 //==================================================================================================
-class RimContourMapNameConfig : public RimNameConfig
+class RimViewNameConfig : public RimNameConfig
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimContourMapNameConfig(const RimNameConfigHolderInterface* configHolder = nullptr);
+    RimViewNameConfig(const RimNameConfigHolderInterface* configHolder = nullptr);
 
     bool                     addCaseName() const;
     bool                     addAggregationType() const;

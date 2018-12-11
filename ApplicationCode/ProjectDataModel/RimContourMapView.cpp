@@ -25,7 +25,7 @@
 #include "RimAnnotationInViewCollection.h"
 #include "RimCase.h"
 #include "RimCellRangeFilterCollection.h"
-#include "RimContourMapNameConfig.h"
+#include "RimViewNameConfig.h"
 #include "RimContourMapProjection.h"
 #include "RimEclipseCellColors.h"
 #include "RimEclipseFaultColors.h"
@@ -62,7 +62,7 @@ RimContourMapView::RimContourMapView()
     setFaultVisParameters();
 
     CAF_PDM_InitFieldNoDefault(&m_nameConfig, "NameConfig", "", "", "", "");
-    m_nameConfig = new RimContourMapNameConfig(this);
+    m_nameConfig = new RimViewNameConfig(this);
 
     m_contourMapProjectionPartMgr = new RivContourMapProjectionPartMgr(contourMapProjection(), this);
 

@@ -21,7 +21,7 @@
 #include "RimEclipseView.h"
 #include "RimNameConfig.h"
 
-class RimContourMapNameConfig;
+class RimViewNameConfig;
 class RimScaleLegendConfig;
 class RivContourMapProjectionPartMgr;
 
@@ -61,6 +61,6 @@ private:
     caf::PdmChildField<RimContourMapProjection*> m_contourMapProjection;
     caf::PdmField<bool>                          m_showAxisLines;
     caf::PdmField<bool>                          m_showScaleLegend;
-    caf::PdmChildField<RimContourMapNameConfig*> m_nameConfig;
+    caf::PdmChildField<RimViewNameConfig*>       m_nameConfig;
 };
 

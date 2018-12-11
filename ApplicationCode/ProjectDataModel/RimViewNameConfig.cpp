@@ -16,19 +16,19 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimContourMapNameConfig.h"
+#include "RimViewNameConfig.h"
 
 //==================================================================================================
 ///  
 ///  
 //==================================================================================================
 
-CAF_PDM_SOURCE_INIT(RimContourMapNameConfig, "RimContourMapNameConfig");
+CAF_PDM_SOURCE_INIT(RimViewNameConfig, "RimViewNameConfig");
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimContourMapNameConfig::RimContourMapNameConfig(const RimNameConfigHolderInterface* configHolder)
+RimViewNameConfig::RimViewNameConfig(const RimNameConfigHolderInterface* configHolder)
     : RimNameConfig(configHolder)
 {
     CAF_PDM_InitObject("Contour Map Name Generator", "", "", "");
@@ -44,7 +44,7 @@ RimContourMapNameConfig::RimContourMapNameConfig(const RimNameConfigHolderInterf
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimContourMapNameConfig::addCaseName() const
+bool RimViewNameConfig::addCaseName() const
 {
     return m_addCaseName();
 }
@@ -52,7 +52,7 @@ bool RimContourMapNameConfig::addCaseName() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimContourMapNameConfig::addAggregationType() const
+bool RimViewNameConfig::addAggregationType() const
 {
     return m_addAggregationType();
 }
@@ -60,7 +60,7 @@ bool RimContourMapNameConfig::addAggregationType() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimContourMapNameConfig::addProperty() const
+bool RimViewNameConfig::addProperty() const
 {
     return m_addProperty();
 }
@@ -68,7 +68,7 @@ bool RimContourMapNameConfig::addProperty() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimContourMapNameConfig::addSampleSpacing() const
+bool RimViewNameConfig::addSampleSpacing() const
 {
     return m_addSampleSpacing();
 }
@@ -76,7 +76,7 @@ bool RimContourMapNameConfig::addSampleSpacing() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimContourMapNameConfig::enableAllAutoNameTags(bool enable)
+void RimViewNameConfig::enableAllAutoNameTags(bool enable)
 {
     m_addCaseName        = enable;
     m_addAggregationType = enable;
@@ -87,7 +87,7 @@ void RimContourMapNameConfig::enableAllAutoNameTags(bool enable)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimContourMapNameConfig::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+void RimViewNameConfig::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
     RimNameConfig::defineUiOrdering(uiConfigName, uiOrdering);
     uiOrdering.add(&m_addCaseName);
