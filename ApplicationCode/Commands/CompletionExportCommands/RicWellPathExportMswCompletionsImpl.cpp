@@ -711,7 +711,7 @@ void RicWellPathExportMswCompletionsImpl::generateWsegAicdTable(RifEclipseDataTa
                     
                     formatter.keyword("WSEGAICD");
                     formatter.comment("Column Overview:");
-                    for (int i = 0; i < columnDescriptions.size(); ++i)
+                    for (size_t i = 0; i < columnDescriptions.size(); ++i)
                     {
                         formatter.comment(QString("%1: %2").arg(i + 1, 2, 10, QChar('0')).arg(columnDescriptions[i]));
                     }
