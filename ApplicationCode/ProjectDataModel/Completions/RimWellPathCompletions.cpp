@@ -231,6 +231,7 @@ void RimWellPathCompletions::setUnitSystemSpecificDefaults()
 {
     m_fishbonesCollection->setUnitSystemSpecificDefaults();
     m_fractureCollection->setUnitSystemSpecificDefaults();
+    m_perforationCollection->setUnitSystemSpecificDefaults();
 }
 
 //--------------------------------------------------------------------------------------------------
