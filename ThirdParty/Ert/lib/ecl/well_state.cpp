@@ -406,29 +406,31 @@ static void well_state_add_connections__( well_state_type * well_state ,
                                           int well_nr ) {
 
   ecl_rsthead_type  * header   = ecl_rsthead_alloc( rst_view , -1);
-  const ecl_kw_type * icon_kw  = ecl_file_view_iget_named_kw( rst_view , ICON_KW   , 0);
   const ecl_kw_type * iwel_kw  = ecl_file_view_iget_named_kw( rst_view , IWEL_KW   , 0);
 
 
   well_state_add_wellhead( well_state , header , iwel_kw , well_nr , grid_name , grid_nr );
 
-  if (!well_state_has_grid_connections( well_state , grid_name ))
-    hash_insert_hash_owned_ref( well_state->connections , grid_name, well_conn_collection_alloc( ) , well_conn_collection_free__ );
+  if (ecl_file_view_has_kw(rst_view, ICON_KW)) {
+    const ecl_kw_type * icon_kw  = ecl_file_view_iget_named_kw( rst_view , ICON_KW   , 0);
+    if (!well_state_has_grid_connections( well_state , grid_name ))
+      hash_insert_hash_owned_ref( well_state->connections , grid_name, well_conn_collection_alloc( ) , well_conn_collection_free__ );
 
-  {
-    ecl_kw_type * scon_kw = NULL;
-    if (ecl_file_view_has_kw( rst_view , SCON_KW))
-      scon_kw = ecl_file_view_iget_named_kw( rst_view , SCON_KW , 0);
+    {
+      ecl_kw_type * scon_kw = NULL;
+      if (ecl_file_view_has_kw( rst_view , SCON_KW))
+        scon_kw = ecl_file_view_iget_named_kw( rst_view , SCON_KW , 0);
 
-    ecl_kw_type * xcon_kw = NULL;
-    if (ecl_file_view_has_kw( rst_view , XCON_KW)) {
-      xcon_kw = ecl_file_view_iget_named_kw(rst_view, XCON_KW, 0);
+      ecl_kw_type * xcon_kw = NULL;
+      if (ecl_file_view_has_kw( rst_view , XCON_KW)) {
+        xcon_kw = ecl_file_view_iget_named_kw(rst_view, XCON_KW, 0);
+      }
+
+      well_conn_collection_type * wellcc = (well_conn_collection_type*)hash_get( well_state->connections , grid_name );
+      well_conn_collection_load_from_kw( wellcc , iwel_kw , icon_kw , scon_kw, xcon_kw , well_nr , header );
     }
-
-    well_conn_collection_type * wellcc = (well_conn_collection_type*)hash_get( well_state->connections , grid_name );
-    well_conn_collection_load_from_kw( wellcc , iwel_kw , icon_kw , scon_kw, xcon_kw , well_nr , header );
+    ecl_rsthead_free( header );
   }
-  ecl_rsthead_free( header );
 }
 
 
