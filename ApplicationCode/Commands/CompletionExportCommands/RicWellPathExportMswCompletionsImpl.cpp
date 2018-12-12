@@ -154,7 +154,7 @@ void RicWellPathExportMswCompletionsImpl::exportWellSegmentsForAllCompletions(co
             else
             {
                 QString fileName =
-                    QString("%1_Perforations_MSW_%2")
+                    QString("%1_Fishbones_MSW_%2")
                     .arg(wellPath->completions()->wellNameForExport(), exportSettings.caseToApply->caseUserDescription());
                 fishbonesExportFile =
                     RicWellPathExportCompletionsFileTools::openFileForExport(exportSettings.folder, fileName);
