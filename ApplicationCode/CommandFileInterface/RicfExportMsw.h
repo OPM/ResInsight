@@ -20,6 +20,8 @@
 
 #include "RicfCommandObject.h"
 
+#include "CompletionExportCommands/RicExportCompletionDataSettingsUi.h"
+
 #include "cafPdmField.h"
 
 //==================================================================================================
@@ -42,4 +44,5 @@ private:
     caf::PdmField<bool>    m_includePerforations;
     caf::PdmField<bool>    m_includeFishbones;
     caf::PdmField<bool>    m_includeFractures;
+    caf::PdmField<RicExportCompletionDataSettingsUi::ExportSplitType>     m_fileSplit;
 };

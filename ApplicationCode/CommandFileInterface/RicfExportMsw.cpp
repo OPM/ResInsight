@@ -48,6 +48,7 @@ RicfExportMsw::RicfExportMsw()
     RICF_InitField(&m_includePerforations, "includePerforations", true, "Include Perforations", "", "", "");
     RICF_InitField(&m_includeFishbones,    "includeFishbones", true, "Include Fishbones", "", "", "");
     RICF_InitField(&m_includeFractures,    "includeFractures", true, "Include Fractures", "", "", "");
+    RICF_InitField(&m_fileSplit, "fileSplit", RicExportCompletionDataSettingsUi::ExportSplitType(), "File Split", "", "", "");
 
 }
 
@@ -76,7 +77,8 @@ void RicfExportMsw::execute()
     exportSettings.folder = exportFolder;
     exportSettings.includePerforations = m_includePerforations;
     exportSettings.includeFishbones = m_includeFishbones;
-    exportSettings.includeFractures = m_includeFractures;    
+    exportSettings.includeFractures = m_includeFractures;
+    exportSettings.fileSplit = m_fileSplit;
 
     RimWellPath* wellPath = RiaApplication::instance()->project()->wellPathByName(m_wellPathName);
     if (!wellPath)
