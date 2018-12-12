@@ -230,6 +230,9 @@ void RicSummaryCurveCreator::fieldChangedByUi(const caf::PdmFieldHandle* changed
 
         caf::PdmField<bool>* field = dynamic_cast<caf::PdmField<bool>*>(m_targetPlot->uiCapability()->objectToggleField());
         field->setValueWithFieldChanged(true);
+
+        RiuPlotMainWindow* mainPlotWindow = RiaApplication::instance()->mainPlotWindow();
+        mainPlotWindow->updateSummaryPlotToolBar();
     }
     else if (changedField == &m_useAutoAppearanceAssignment && m_useAutoAppearanceAssignment)
     {
