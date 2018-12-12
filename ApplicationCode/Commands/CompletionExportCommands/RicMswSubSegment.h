@@ -52,13 +52,15 @@ class RicMswSubSegment
 {
 public:
     RicMswSubSegment(double startMD,
-                     double deltaMD,
+                     double endMD,
                      double startTVD,
-                     double deltaTVD);
+                     double endTVD);
 
     double            startMD() const;
+    double            endMD() const;
     double            deltaMD() const;
     double            startTVD() const;
+    double            endTVD() const;
     double            deltaTVD() const;
 
     int               segmentNumber() const;
@@ -74,9 +76,9 @@ public:
 
 private:
     double      m_startMD;
-    double      m_deltaMD;
+    double      m_endMD;
     double      m_startTVD;
-    double      m_deltaTVD;
+    double      m_endTVD;
     int         m_segmentNumber;
     int         m_attachedSegmentNumber;
 

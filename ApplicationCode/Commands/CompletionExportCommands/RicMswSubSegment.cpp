@@ -67,11 +67,11 @@ const cvf::Vec3d& RicMswSubSegmentCellIntersection::lengthsInCell() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicMswSubSegment::RicMswSubSegment(double startMD, double deltaMD, double startTVD, double deltaTVD)
+RicMswSubSegment::RicMswSubSegment(double startMD, double endMD, double startTVD, double endTVD)
     : m_startMD(startMD)
-    , m_deltaMD(deltaMD)
+    , m_endMD(endMD)
     , m_startTVD(startTVD)
-    , m_deltaTVD(deltaTVD)
+    , m_endTVD(endTVD)
     , m_segmentNumber(-1)
     , m_attachedSegmentNumber(-1)
 {
@@ -88,9 +88,17 @@ double RicMswSubSegment::startMD() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+double RicMswSubSegment::endMD() const
+{
+    return m_endMD;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 double RicMswSubSegment::deltaMD() const
 {
-    return m_deltaMD;
+    return m_endMD - m_startMD;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -104,9 +112,17 @@ double RicMswSubSegment::startTVD() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+double RicMswSubSegment::endTVD() const
+{
+    return m_endTVD;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 double RicMswSubSegment::deltaTVD() const
 {
-    return m_deltaTVD;
+    return m_endTVD - m_startTVD;
 }
 
 //--------------------------------------------------------------------------------------------------

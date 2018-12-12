@@ -134,9 +134,11 @@ private:
                                                                            RimEclipseCase*               eclipseCase);
 
     static void assignPerforationIntersections(const std::vector<RigCompletionData>& completionData,
-                                               std::shared_ptr<RicMswCompletion>     perforationCompletion,
-                                               const SubSegmentIntersectionInfo&     cellIntInfo,
-                                               bool*                                 foundSubGridIntersections);
+                                               std::shared_ptr<RicMswCompletion> perforationCompletion,
+                                               const SubSegmentIntersectionInfo& cellIntInfo,
+                                               double overlapStart,
+                                               double overlapEnd,
+                                               bool* foundSubGridIntersections);
 
     static void assignBranchAndSegmentNumbers(const RimEclipseCase*          caseToApply,
                                               std::shared_ptr<RicMswSegment> location,
