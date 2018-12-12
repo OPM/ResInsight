@@ -101,7 +101,7 @@ void RicWellPathExportMswCompletionsImpl::exportWellSegmentsForAllCompletions(co
             exportSettings.includePerforations() && !wellPath->perforationIntervalCollection()->activePerforations().empty();
         bool exportFishbones = exportSettings.includeFishbones() && !wellPath->fishbonesCollection()->activeFishbonesSubs().empty();
         bool exportAnyCompletion = exportFractures || exportPerforations || exportFishbones;
-        if (exportAnyCompletion && exportSettings.fileSplit() == RicExportCompletionDataSettingsUi::SPLIT_ON_WELL_AND_COMPLETION_TYPE && !unifiedWellPathFile)
+        if (exportAnyCompletion && exportSettings.fileSplit() == RicExportCompletionDataSettingsUi::SPLIT_ON_WELL && !unifiedWellPathFile)
         {
             QString wellFileName =
                 QString("%1_UnifiedCompletions_MSW_%2")
