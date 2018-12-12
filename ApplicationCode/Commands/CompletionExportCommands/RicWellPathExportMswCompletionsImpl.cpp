@@ -136,7 +136,7 @@ void RicWellPathExportMswCompletionsImpl::exportWellSegmentsForAllCompletions(co
             else
             {
                 QString fileName =
-                    QString("%1_Perforations_MSW_%2")
+                    QString("%1_Perforation_MSW_%2")
                     .arg(wellPath->completions()->wellNameForExport(), exportSettings.caseToApply->caseUserDescription());
                 perforationsExportFile = RicWellPathExportCompletionsFileTools::openFileForExport(exportSettings.folder, fileName);
             }
@@ -679,6 +679,9 @@ void RicWellPathExportMswCompletionsImpl::generateWsegAicdTable(RifEclipseDataTa
 {
     int existingColSpacing = formatter.columnSpacing();
     formatter.setColumnSpacing(1);
+    QString existingPrependText = formatter.tableRowPrependText();
+    formatter.setTableRowPrependText("");
+
     bool foundValve = false;
 
     for (std::shared_ptr<RicMswSegment> location : exportInfo.wellSegmentLocations())
@@ -716,29 +719,14 @@ void RicWellPathExportMswCompletionsImpl::generateWsegAicdTable(RifEclipseDataTa
                         formatter.comment(QString("%1: %2").arg(i + 1, 2, 10, QChar('0')).arg(columnDescriptions[i]));
                     }
 
-                    std::vector<RifEclipseOutputTableColumn> header = {
-                        RifEclipseOutputTableColumn("01"),
-                        RifEclipseOutputTableColumn("02"),
-                        RifEclipseOutputTableColumn("03"),
-                        RifEclipseOutputTableColumn("04"),
-                        RifEclipseOutputTableColumn("05"),
-                        RifEclipseOutputTableColumn("06"),
-                        RifEclipseOutputTableColumn("07"),
-                        RifEclipseOutputTableColumn("08"),
-                        RifEclipseOutputTableColumn("09"),
-                        RifEclipseOutputTableColumn("10"),
-                        RifEclipseOutputTableColumn("11"),
-                        RifEclipseOutputTableColumn("12"),
-                        RifEclipseOutputTableColumn("13"),
-                        RifEclipseOutputTableColumn("14"),
-                        RifEclipseOutputTableColumn("15"),
-                        RifEclipseOutputTableColumn("16"),
-                        RifEclipseOutputTableColumn("17"),
-                        RifEclipseOutputTableColumn("18"),
-                        RifEclipseOutputTableColumn("19"),
-                        RifEclipseOutputTableColumn("20"),
-                        RifEclipseOutputTableColumn("21"),
-                    };
+                    std::vector<RifEclipseOutputTableColumn> header;
+                    for (size_t i = 1; i <= 21; ++i)
+                    {
+                        QString cName = QString("%1").arg(i, 2, 10, QChar('0'));
+                        RifEclipseOutputTableColumn col(cName,
+                            RifEclipseOutputTableDoubleFormatting(RifEclipseOutputTableDoubleFormat::RIF_CONSISE), RIGHT);
+                        header.push_back(col);
+                    }
                     formatter.header(header);
 
                     foundValve = true;
@@ -783,6 +771,7 @@ void RicWellPathExportMswCompletionsImpl::generateWsegAicdTable(RifEclipseDataTa
         formatter.tableCompleted();
     }
     formatter.setColumnSpacing(existingColSpacing);
+    formatter.setTableRowPrependText(existingPrependText);
 }
 
 //--------------------------------------------------------------------------------------------------

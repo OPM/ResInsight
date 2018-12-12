@@ -60,6 +60,14 @@ void RifEclipseDataTableFormatter::setColumnSpacing(int spacing)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString RifEclipseDataTableFormatter::tableRowPrependText() const
+{
+    return m_tableRowPrependText;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RifEclipseDataTableFormatter::setTableRowPrependText(const QString& text)
 {
     m_tableRowPrependText = text;
@@ -88,10 +96,14 @@ void RifEclipseDataTableFormatter::outputBuffer()
 {
     if (!m_columns.empty() && !isAllHeadersEmpty(m_columns))
     {
-        m_out << m_commentPrefix << " ";
-        for (RifEclipseOutputTableColumn& column : m_columns)
+        for (size_t i = 0u; i < m_columns.size(); ++i)
         {
-            m_out << formatColumn(column.title, column);
+            QString colTitle = m_columns[i].title;
+            if (i == 0u)
+            {
+                colTitle = m_commentPrefix + " " + colTitle;
+            }
+            m_out << formatColumn(colTitle, i);
         }
         m_out << "\n";
     }
@@ -112,7 +124,7 @@ void RifEclipseDataTableFormatter::outputBuffer()
 
             for (size_t i = 0; i < line.data.size(); ++i)
             {
-                m_out << formatColumn(line.data[i], m_columns[i]);
+                m_out << formatColumn(line.data[i], i);
             }
 
             m_out << (line.appendTextSet ? line.appendText : m_tableRowAppendText) << "\n";
@@ -234,9 +246,15 @@ RifEclipseDataTableFormatter& RifEclipseDataTableFormatter::header(const std::ve
 {
     outputBuffer();
     m_columns = header;
-    for (RifEclipseOutputTableColumn& column : m_columns)
+
+    for (size_t colNumber = 0u; colNumber < m_columns.size(); ++colNumber)
     {
-        column.width = measure(column.title);
+        QString colTitle = m_columns[colNumber].title;
+        if (colNumber == 0u)
+        {
+            colTitle = m_commentPrefix + " " + colTitle;
+        }
+        m_columns[colNumber].width = measure(colTitle);
     }
     return *this;
 }
@@ -425,9 +443,9 @@ int RifEclipseDataTableFormatter::tableWidth() const
 {
     int characterCount = 0;
 
-    for (const auto& col : m_columns)
+    for (size_t i = 0u; i < m_columns.size(); ++i)
     {
-        characterCount += formatColumn(" ", col).size();
+        characterCount += formatColumn(" ", i).size();
     }
 
     return characterCount;
@@ -444,6 +462,8 @@ QString RifEclipseDataTableFormatter::format(double num, RifEclipseOutputTableDo
             return QString("%1").arg(num, 0, 'f', doubleFormat.width);
         case RifEclipseOutputTableDoubleFormat::RIF_SCIENTIFIC:
             return QString("%1").arg(num, 0, 'E');
+        case RifEclipseOutputTableDoubleFormat::RIF_CONSISE:
+            return QString("%1").arg(num, doubleFormat.width, 'g');
         default:
             return QString("%1");
     }
@@ -468,14 +488,18 @@ QString RifEclipseDataTableFormatter::format(size_t num)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RifEclipseDataTableFormatter::formatColumn(const QString str, RifEclipseOutputTableColumn column) const
+QString RifEclipseDataTableFormatter::formatColumn(const QString str, size_t columnIndex) const
 {
+    const RifEclipseOutputTableColumn& column = m_columns[columnIndex];
+    
     if (column.alignment == LEFT)
     {
-        return str.leftJustified(column.width + m_colSpacing, ' ');
+        int colSpacing = (columnIndex == m_columns.size() - 1) ? 0 : m_colSpacing;
+        return str.leftJustified(column.width + colSpacing, ' ');
     }
     else
     {
-        return str.rightJustified(column.width + m_colSpacing, ' ');
+        int colSpacing = (columnIndex == 0) ? 0 : m_colSpacing;
+        return str.rightJustified(column.width + colSpacing, ' ');
     }
 }

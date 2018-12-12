@@ -49,6 +49,7 @@ enum RifEclipseOutputTableDoubleFormat
 {
     RIF_SCIENTIFIC,
     RIF_FLOAT,
+    RIF_CONSISE
 };
 
 //==================================================================================================
@@ -110,6 +111,7 @@ public:
 
     int  columnSpacing() const;
     void setColumnSpacing(int spacing);
+    QString tableRowPrependText() const;
     void setTableRowPrependText(const QString& text);
     void setTableRowLineAppendText(const QString& text);
     void setCommentPrefix(const QString& commentPrefix);
@@ -142,7 +144,7 @@ private:
     QString format(double num, RifEclipseOutputTableDoubleFormatting doubleFormat);
     QString format(int num);
     QString format(size_t num);
-    QString formatColumn(const QString str, RifEclipseOutputTableColumn column) const;
+    QString formatColumn(const QString str, size_t columnIndex) const;
 
     void outputBuffer();
     void outputComment(RifEclipseOutputTableLine& comment);
