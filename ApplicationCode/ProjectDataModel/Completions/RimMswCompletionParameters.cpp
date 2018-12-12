@@ -30,7 +30,7 @@ namespace caf {
         addItem(RimMswCompletionParameters::HYDROSTATIC, "H--", "Hydrostatic");
         addItem(RimMswCompletionParameters::HYDROSTATIC_FRICTION, "HF-", "Hydrostatic + Friction");
         addItem(RimMswCompletionParameters::HYDROSTATIC_FRICTION_ACCELERATION, "HFA", "Hydrostatic + Friction + Acceleration");
-        setDefault(RimMswCompletionParameters::HYDROSTATIC);
+        setDefault(RimMswCompletionParameters::HYDROSTATIC_FRICTION);
     }
 
     template<>
