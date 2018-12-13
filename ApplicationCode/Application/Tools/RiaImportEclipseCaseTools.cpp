@@ -30,12 +30,12 @@
 #include "RigGridManager.h"
 
 #include "RimCaseCollection.h"
+#include "RimCompletionTemplateCollection.h"
 #include "RimEclipseCaseCollection.h"
 #include "RimEclipseCellColors.h"
 #include "RimEclipseResultCase.h"
 #include "RimEclipseView.h"
 #include "RimFileSummaryCase.h"
-#include "RimFractureTemplateCollection.h"
 #include "RimGridSummaryCase.h"
 #include "RimIdenticalGridCaseGroup.h"
 #include "RimMainPlotCollection.h"
@@ -159,7 +159,7 @@ bool RiaImportEclipseCaseTools::openEclipseCasesFromFile(const QStringList& file
         RiaLogging::error(errorMessage);
     }
 
-    project->activeOilField()->fractureDefinitionCollection()->setDefaultUnitSystemBasedOnLoadedCases();
+    project->activeOilField()->completionTemplateCollection()->setDefaultUnitSystemBasedOnLoadedCases();
 
     RiuPlotMainWindowTools::refreshToolbars();
 

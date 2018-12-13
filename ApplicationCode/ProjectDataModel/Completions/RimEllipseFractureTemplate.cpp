@@ -394,7 +394,7 @@ void RimEllipseFractureTemplate::convertToUnitSystem(RiaEclipseUnitTools::UnitSy
 {
     if (m_fractureTemplateUnit() == neededUnit) return;
 
-    setFractureTemplateUnit(neededUnit);
+    setUnitSystem(neededUnit);
     RimFractureTemplate::convertToUnitSystem(neededUnit);
 
     if (neededUnit == RiaEclipseUnitTools::UNITS_FIELD)

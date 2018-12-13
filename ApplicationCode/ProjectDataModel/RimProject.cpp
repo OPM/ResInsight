@@ -38,6 +38,7 @@
 #include "RimCase.h"
 #include "RimCaseCollection.h"
 #include "RimCommandObject.h"
+#include "RimCompletionTemplateCollection.h"
 #include "RimContextCommandBuilder.h"
 #include "RimDialogData.h"
 #include "RimEclipseCase.h"
@@ -46,6 +47,8 @@
 #include "RimFormationNamesCollection.h"
 #include "RimFractureTemplate.h"
 #include "RimFractureTemplateCollection.h"
+#include "RimValveTemplate.h"
+#include "RimValveTemplateCollection.h"
 #include "RimGeoMechCase.h"
 #include "RimGeoMechModels.h"
 #include "RimGridSummaryCase.h"
@@ -1096,6 +1099,38 @@ std::vector<RimFractureTemplate*> RimProject::allFractureTemplates() const
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimValveTemplateCollection*> RimProject::allValveTemplateCollections() const
+{
+    std::vector<RimValveTemplateCollection*> templColls;
+    std::vector<RimOilField*>                rimOilFields;
+
+    allOilFields(rimOilFields);
+    for (RimOilField* oilField : rimOilFields)
+    {
+        templColls.push_back(oilField->valveTemplateCollection());
+    }
+    return templColls;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimValveTemplate*> RimProject::allValveTemplates() const
+{
+    std::vector<RimValveTemplate*> templates;
+    for (RimValveTemplateCollection* templColl : allValveTemplateCollections())
+    {
+        for (RimValveTemplate* templ : templColl->valveTemplates())
+        {
+            templates.push_back(templ);
+        }
+    }
+    return templates;
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 RiaEclipseUnitTools::UnitSystemType RimProject::commonUnitSystemForAllCases() const
@@ -1208,7 +1243,7 @@ void RimProject::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QS
             if (oilField->geoMechModels())                  uiTreeOrdering.add(oilField->geoMechModels());
             if (oilField->wellPathCollection())             uiTreeOrdering.add(oilField->wellPathCollection());
             if (oilField->formationNamesCollection())       uiTreeOrdering.add(oilField->formationNamesCollection());
-            if (oilField->fractureDefinitionCollection())   uiTreeOrdering.add(oilField->fractureDefinitionCollection());
+            if (oilField->completionTemplateCollection())   uiTreeOrdering.add(oilField->completionTemplateCollection());
             if (oilField->annotationCollection())           uiTreeOrdering.add(oilField->annotationCollection());
         }
 

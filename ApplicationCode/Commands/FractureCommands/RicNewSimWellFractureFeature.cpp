@@ -92,7 +92,7 @@ void RicNewSimWellFractureFeature::onActionTriggered(bool isChecked)
         fracture->setFractureUnit(unitSet);
     }
 
-    RimFractureTemplate* fracDef = oilfield->fractureDefinitionCollection->firstFractureOfUnit(unitSet);
+    RimFractureTemplate* fracDef = oilfield->fractureDefinitionCollection()->firstFractureOfUnit(unitSet);
     fracture->setFractureTemplate(fracDef);
 
     fracture->updateFracturePositionFromLocation();

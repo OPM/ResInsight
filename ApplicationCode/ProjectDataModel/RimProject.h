@@ -61,6 +61,9 @@ class RimWellPath;
 class RimWellPathImport;
 class RimFractureTemplateCollection;
 class RimFractureTemplate;
+class RimValveTemplateCollection;
+class RimValveTemplate;
+class RimCompletionTemplateCollection;
 
 namespace caf
 {
@@ -152,7 +155,10 @@ public:
     std::vector<RimGeoMechCase*>    geoMechCases() const;
 
     std::vector<RimFractureTemplateCollection*> allFractureTemplateCollections() const;
-    std::vector<RimFractureTemplate*> allFractureTemplates() const;
+    std::vector<RimFractureTemplate*>           allFractureTemplates() const;
+
+    std::vector<RimValveTemplateCollection*> allValveTemplateCollections() const;
+    std::vector<RimValveTemplate*>           allValveTemplates() const;
 
     RiaEclipseUnitTools::UnitSystemType commonUnitSystemForAllCases() const;
 

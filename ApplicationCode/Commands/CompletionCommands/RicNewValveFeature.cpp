@@ -3,6 +3,7 @@
 
 #include "RiaApplication.h"
 #include "RimPerforationInterval.h"
+#include "RimProject.h"
 #include "RimWellPathValve.h"
 #include "RimWellPathCollection.h"
 
@@ -18,7 +19,7 @@ CAF_CMD_SOURCE_INIT(RicNewValveFeature, "RicNewValveFeature");
 bool RicNewValveFeature::isCommandEnabled()
 {
     const RimPerforationInterval* perfInterval = caf::SelectionManager::instance()->selectedItemOfType<RimPerforationInterval>();
-    return perfInterval != nullptr && RiaApplication::enableDevelopmentFeatures();
+    return perfInterval != nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -30,6 +31,19 @@ void RicNewValveFeature::onActionTriggered(bool isChecked)
     if (perfInterval)
     {
         RimWellPathValve* valve = new RimWellPathValve;
+
+        RimProject* project = nullptr;
+        perfInterval->firstAncestorOrThisOfTypeAsserted(project);
+
+        std::vector<RimWellPathValve*> existingValves = perfInterval->valves();
+        valve->setName(QString("Valve #%1").arg(existingValves.size() + 1));
+
+        std::vector<RimValveTemplate*> allValveTemplates = project->allValveTemplates();
+        if (!allValveTemplates.empty())
+        {
+            valve->setValveTemplate(allValveTemplates.front());
+        }
+
         perfInterval->addValve(valve);
         valve->setMeasuredDepthAndCount(perfInterval->startMD(), perfInterval->endMD() - perfInterval->startMD(), 1);
 

@@ -515,7 +515,7 @@ cvf::Color3f RiaColorTables::undefinedCellColor()
 //--------------------------------------------------------------------------------------------------
 RiaColorTables::WellPathComponentColors RiaColorTables::wellPathComponentColors()
 {
-    return {{RiaDefines::WELL_PATH, cvf::Color3::CEETRON},            
+    return {{RiaDefines::WELL_PATH, cvf::Color3::CEETRON},
             {RiaDefines::PERFORATION_INTERVAL, cvf::Color3::DARK_MAGENTA},
             {RiaDefines::FISHBONES, cvf::Color3::DARK_GREEN},
             {RiaDefines::FRACTURE, cvf::Color3::CRIMSON},
@@ -524,7 +524,8 @@ RiaColorTables::WellPathComponentColors RiaColorTables::wellPathComponentColors(
             {RiaDefines::ICV, cvf::Color3::ORCHID},
             {RiaDefines::CASING, cvf::Color3::SEA_GREEN},
             {RiaDefines::LINER, cvf::Color3::OLIVE},
-            {RiaDefines::PACKER, cvf::Color3::GRAY}};
+            {RiaDefines::PACKER, cvf::Color3::GRAY},
+            {RiaDefines::UNDEFINED_COMPONENT, cvf::Color3::MAGENTA}};
 }
 
 //--------------------------------------------------------------------------------------------------

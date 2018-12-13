@@ -56,6 +56,7 @@ public:
     std::array<double, AICD_NUM_PARAMS> doubleValues() const;
 
 protected:
+
     void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
     void defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override;
 

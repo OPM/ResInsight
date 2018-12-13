@@ -70,5 +70,5 @@ private:
     bool m_valid;
     bool m_deviceOpen;
     std::array<RiaWeightedMeanCalculator<double>, AICD_NUM_PARAMS> m_meanCalculators;
-    RiaWeightedMeanCalculator<double>                              m_lengthCalculator;
+    double                                                         m_accumulatedLength;
 };

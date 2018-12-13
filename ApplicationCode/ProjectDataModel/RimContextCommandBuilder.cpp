@@ -100,6 +100,8 @@
 #include "RimWellPathFracture.h"
 #include "RimWellPathFractureCollection.h"
 #include "RimModeledWellPath.h"
+#include "RimValveTemplate.h"
+#include "RimValveTemplateCollection.h"
 
 #include "RiuMainWindow.h"
 
@@ -650,6 +652,10 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         else if (dynamic_cast<RimSimWellFracture*>(uiItem))
         {
             menuBuilder << "RicNewSimWellFractureFeature";
+        }
+        else if (dynamic_cast<RimValveTemplateCollection*>(uiItem))
+        {
+            menuBuilder << "RicNewValveTemplateFeature";
         }
         else if (dynamic_cast<RimFractureTemplateCollection*>(uiItem))
         {

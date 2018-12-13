@@ -89,7 +89,7 @@ void RicNewWellPathFractureFeature::addFracture(RimWellPath* wellPath, double me
     auto unitSet = wellPath->unitSystem();
     fracture->setFractureUnit(unitSet);
 
-    RimFractureTemplate* fracDef = oilfield->fractureDefinitionCollection->firstFractureOfUnit(unitSet);
+    RimFractureTemplate* fracDef = oilfield->fractureDefinitionCollection()->firstFractureOfUnit(unitSet);
     fracture->setFractureTemplate(fracDef);
 
     wellPath->updateConnectedEditors();

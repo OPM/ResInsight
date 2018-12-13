@@ -153,7 +153,7 @@ public:
     virtual std::vector<std::pair<QString, QString>> uiResultNamesWithUnit() const = 0;
 
     void                            setName(const QString& name);
-    void                            setFractureTemplateUnit(RiaEclipseUnitTools::UnitSystemType unitSystem);
+    void                            setUnitSystem(RiaEclipseUnitTools::UnitSystemType unitSystem);
     void                            setDefaultWellDiameterFromUnit();
 
     bool                            isNonDarcyFlowEnabled() const;

@@ -55,7 +55,8 @@ namespace RiaDefines
         // Well path construction features
         CASING,
         LINER,
-        PACKER
+        PACKER,
+        UNDEFINED_COMPONENT
     };
 
     bool isPerCellFaceResult(const QString& resultName);

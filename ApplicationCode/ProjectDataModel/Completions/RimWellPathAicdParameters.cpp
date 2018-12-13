@@ -154,19 +154,23 @@ std::array<double, AICD_NUM_PARAMS> RimWellPathAicdParameters::doubleValues() co
 //--------------------------------------------------------------------------------------------------
 void RimWellPathAicdParameters::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
-    caf::PdmUiGroup* requiredGroup = uiOrdering.addNewGroup("Required Parameters");
-    requiredGroup->add(&m_deviceOpen);
+    bool readOnly = uiConfigName == QString("InsideValve");
+
+    uiOrdering.add(&m_deviceOpen);
+    m_deviceOpen.uiCapability()->setUiReadOnly(readOnly);
     for (int i = 0; i < (int)AICD_NUM_REQ_PARAMS; ++i)
     {
-        requiredGroup->add(&m_aicdParameterFields[(AICDParameters) i]);
+        uiOrdering.add(&m_aicdParameterFields[(AICDParameters) i]);
+        m_aicdParameterFields[(AICDParameters) i].uiCapability()->setUiReadOnly(readOnly);
     }
     
     caf::PdmUiGroup* additionalGroup = uiOrdering.addNewGroup("Additional Parameters");
     for (int i = (int)AICD_NUM_REQ_PARAMS; i < (int)AICD_NUM_PARAMS; ++i)
     {
         additionalGroup->add(&m_aicdParameterFields[(AICDParameters) i]);
+        m_aicdParameterFields[(AICDParameters)i].uiCapability()->setUiReadOnly(readOnly);
     }
-    additionalGroup->setCollapsedByDefault(true);
+    additionalGroup->setCollapsedByDefault(true);   
 }
 
 //--------------------------------------------------------------------------------------------------

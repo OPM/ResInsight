@@ -72,6 +72,7 @@ namespace caf
         addItem(RiaDefines::CASING, "CASING", "Casing");
         addItem(RiaDefines::LINER, "LINER", "Liner");
         addItem(RiaDefines::PACKER, "PACKER", "Packer");
+        addItem(RiaDefines::UNDEFINED_COMPONENT, "UNDEFINED", "Undefined Component");
         setDefault(RiaDefines::WELL_PATH);
     }
 }

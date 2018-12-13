@@ -22,12 +22,14 @@
 #include "RimCheckableNamedObject.h"
 #include "RimWellPathAicdParameters.h"
 #include "RimWellPathComponentInterface.h"
+#include "RimValveTemplate.h"
 
 #include "cafPdmObject.h"
 
 #include "cafAppEnum.h"
 #include "cafPdmChildField.h"
 #include "cafPdmField.h"
+#include "cafPdmPtrField.h"
 
 #include <QList>
 #include <QString>
@@ -38,9 +40,7 @@ class RimWellPath;
 class RimWellPathValve : public RimCheckableNamedObject, public RimWellPathComponentInterface
 {
     CAF_PDM_HEADER_INIT;
-public:
-    typedef caf::AppEnum<RiaDefines::WellPathComponentType> CompletionTypeEnum;
-
+public:    
     RimWellPathValve();
     ~RimWellPathValve() override;
 
@@ -50,8 +50,8 @@ public:
     std::vector<double>        valveLocations() const;
     double                     orificeDiameter(RiaEclipseUnitTools::UnitSystem unitSystem) const;
     double                     flowCoefficient() const;
-    void                       setUnitSpecificDefaults();
-
+    void                       setValveTemplate(RimValveTemplate* valveTemplate);
+    void                       applyValveLabelAndIcon();
     const RimWellPathAicdParameters* aicdParameters() const;
 
     static double convertOrificeDiameter(double                          orificeDiameterUi,
@@ -70,6 +70,7 @@ public:
     double                            startMD() const override;
     double                            endMD() const override;
        
+    void                              templateUpdated();
 private:
     QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
     void                          fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
@@ -78,15 +79,11 @@ private:
     void                          defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
 
 private:
-    caf::PdmField<CompletionTypeEnum>              m_type;
+    caf::PdmPtrField<RimValveTemplate*>            m_valveTemplate;
     caf::PdmField<double>                          m_measuredDepth;
     caf::PdmChildField<RimMultipleValveLocations*> m_multipleValveLocations;
 
-    // ICD and ICVs only
-    caf::PdmField<double>                          m_orificeDiameter;
-    caf::PdmField<double>                          m_flowCoefficient;
 
-    caf::PdmChildField<RimWellPathAicdParameters*> m_aicdParameters;
 };
 
 

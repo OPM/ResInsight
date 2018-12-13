@@ -138,7 +138,7 @@ QList<caf::PdmOptionItemInfo>
     if (fieldNeedingOptions == &m_fractureTemplate)
     {
         RimOilField* oilField = proj->activeOilField();
-        if (oilField && oilField->fractureDefinitionCollection)
+        if (oilField && oilField->fractureDefinitionCollection())
         {
             RimFractureTemplateCollection* fracDefColl = oilField->fractureDefinitionCollection();
 

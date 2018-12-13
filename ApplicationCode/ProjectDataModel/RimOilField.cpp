@@ -21,9 +21,11 @@
 #include "RimOilField.h"
 
 #include "RimAnnotationCollection.h"
+#include "RimCompletionTemplateCollection.h"
 #include "RimEclipseCaseCollection.h"
 #include "RimFormationNamesCollection.h"
 #include "RimFractureTemplateCollection.h"
+#include "RimValveTemplateCollection.h"
 #include "RimGeoMechModels.h"
 #include "RimObservedData.h"
 #include "RimObservedDataCollection.h"
@@ -44,7 +46,7 @@ RimOilField::RimOilField(void)
     CAF_PDM_InitFieldNoDefault(&geoMechModels, "GeoMechModels", "Geo Mech Models", ":/GridModels.png", "", "");
     CAF_PDM_InitFieldNoDefault(&wellPathCollection, "WellPathCollection", "Well Paths", ":/WellCollection.png", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&fractureDefinitionCollection, "FractureDefinitionCollection", "Defenition of Fractures", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&completionTemplateCollection, "CompletionTemplateCollection", "", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&summaryCaseMainCollection,"SummaryCaseCollection","Summary Cases",":/GridModels.png","","");
     CAF_PDM_InitFieldNoDefault(&formationNamesCollection,"FormationNamesCollection","Formations","","","");
@@ -52,13 +54,19 @@ RimOilField::RimOilField(void)
 
     CAF_PDM_InitFieldNoDefault(&annotationCollection, "AnnotationCollection", "Annotations", "", "", "");
 
-    fractureDefinitionCollection = new RimFractureTemplateCollection();
+    CAF_PDM_InitFieldNoDefault(
+        &m_fractureTemplateCollection_OBSOLETE, "FractureDefinitionCollection", "Defenition of Fractures", "", "", "");
+    
+    completionTemplateCollection = new RimCompletionTemplateCollection;
     analysisModels = new RimEclipseCaseCollection();
     wellPathCollection = new RimWellPathCollection();
     summaryCaseMainCollection = new RimSummaryCaseMainCollection();
     observedDataCollection = new RimObservedDataCollection();
     formationNamesCollection = new RimFormationNamesCollection();
     annotationCollection = new RimAnnotationCollection();
+
+    m_fractureTemplateCollection_OBSOLETE = new RimFractureTemplateCollection;
+    m_fractureTemplateCollection_OBSOLETE.xmlCapability()->setIOWritable(false);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -66,15 +74,38 @@ RimOilField::RimOilField(void)
 //--------------------------------------------------------------------------------------------------
 RimOilField::~RimOilField(void)
 {
-    if (wellPathCollection()) delete wellPathCollection();
+}
 
-    if (fractureDefinitionCollection()) delete fractureDefinitionCollection();
-    if (geoMechModels()) delete geoMechModels();
-    if (analysisModels()) delete analysisModels();
-    if (summaryCaseMainCollection()) delete summaryCaseMainCollection();
-    if (formationNamesCollection()) delete formationNamesCollection();
-    if (observedDataCollection()) delete observedDataCollection();
-    if (annotationCollection()) delete annotationCollection();
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimFractureTemplateCollection* RimOilField::fractureDefinitionCollection()
+{
+    return completionTemplateCollection()->fractureTemplateCollection();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const RimFractureTemplateCollection* RimOilField::fractureDefinitionCollection() const
+{
+    return completionTemplateCollection()->fractureTemplateCollection();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimValveTemplateCollection* RimOilField::valveTemplateCollection()
+{
+    return completionTemplateCollection()->valveTemplateCollection();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const RimValveTemplateCollection* RimOilField::valveTemplateCollection() const
+{
+    return completionTemplateCollection()->valveTemplateCollection();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -143,5 +174,18 @@ QString RimOilField::uniqueShortNameForCase(RimSummaryCase* summaryCase)
     }
 
     return shortName;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimOilField::initAfterRead()
+{
+    RimFractureTemplateCollection* fractureTemplateCollection = m_fractureTemplateCollection_OBSOLETE.value();
+    if (!fractureTemplateCollection->fractureTemplates().empty())
+    {
+        m_fractureTemplateCollection_OBSOLETE.removeChildObject(fractureTemplateCollection);
+        completionTemplateCollection->setFractureTemplateCollection(fractureTemplateCollection);
+    }
 }
 

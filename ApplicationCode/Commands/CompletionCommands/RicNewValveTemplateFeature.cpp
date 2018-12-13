@@ -16,13 +16,13 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicNewEllipseFractureTemplateFeature.h"
+#include "RicNewValveTemplateFeature.h"
 
 #include "RiaApplication.h"
 
 #include "RimEclipseView.h"
-#include "RimEllipseFractureTemplate.h"
-#include "RimFractureTemplateCollection.h"
+#include "RimValveTemplate.h"
+#include "RimValveTemplateCollection.h"
 #include "RimOilField.h"
 #include "RimProject.h"
 
@@ -34,15 +34,15 @@
 
 #include <QAction>
 
-CAF_CMD_SOURCE_INIT(RicNewEllipseFractureTemplateFeature, "RicNewEllipseFractureTemplateFeature");
+CAF_CMD_SOURCE_INIT(RicNewValveTemplateFeature, "RicNewValveTemplateFeature");
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicNewEllipseFractureTemplateFeature::selectFractureTemplateAndUpdate(RimFractureTemplateCollection* templateCollection,
-                                                                           RimFractureTemplate*           fractureTemplate)
+void RicNewValveTemplateFeature::selectValveTemplateAndUpdate(RimValveTemplateCollection* templateCollection,
+                                                              RimValveTemplate*           valveTemplate)
 {
-    fractureTemplate->loadDataAndUpdate();
+    valveTemplate->loadDataAndUpdate();
 
     templateCollection->updateConnectedEditors();
 
@@ -59,13 +59,13 @@ void RicNewEllipseFractureTemplateFeature::selectFractureTemplateAndUpdate(RimFr
         }
     }
 
-    Riu3DMainWindowTools::selectAsCurrentItem(fractureTemplate);
+    Riu3DMainWindowTools::selectAsCurrentItem(valveTemplate);
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicNewEllipseFractureTemplateFeature::onActionTriggered(bool isChecked)
+void RicNewValveTemplateFeature::onActionTriggered(bool isChecked)
 {
     RimProject* project = RiaApplication::instance()->project();
     CVF_ASSERT(project);
@@ -73,34 +73,34 @@ void RicNewEllipseFractureTemplateFeature::onActionTriggered(bool isChecked)
     RimOilField* oilfield = project->activeOilField();
     if (oilfield == nullptr) return;
 
-    RimFractureTemplateCollection* fracDefColl = oilfield->fractureDefinitionCollection();
+    RimValveTemplateCollection* valveTemplateColl = oilfield->valveTemplateCollection();
 
-    if (fracDefColl)
+    if (valveTemplateColl)
     {
-        RimEllipseFractureTemplate* ellipseFractureTemplate = new RimEllipseFractureTemplate();
+        RimValveTemplate* valveTemplate = new RimValveTemplate();
+        QString userLabel = QString("Valve Template #%1").arg(valveTemplateColl->valveTemplates().size() + 1);
+        valveTemplate->setUserLabel(userLabel);
+        valveTemplateColl->addValveTemplate(valveTemplate);
+        valveTemplate->setUnitSystem(valveTemplateColl->defaultUnitSystemType());
+        valveTemplate->setDefaultValuesFromUnits();
 
-        fracDefColl->addFractureTemplate(ellipseFractureTemplate);
-        ellipseFractureTemplate->setName("Ellipse Fracture Template");
-        ellipseFractureTemplate->setUnitSystem(fracDefColl->defaultUnitSystemType());
-        ellipseFractureTemplate->setDefaultValuesFromUnit();
-
-        selectFractureTemplateAndUpdate(fracDefColl, ellipseFractureTemplate);
+        selectValveTemplateAndUpdate(valveTemplateColl, valveTemplate);
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicNewEllipseFractureTemplateFeature::setupActionLook(QAction* actionToSetup)
+void RicNewValveTemplateFeature::setupActionLook(QAction* actionToSetup)
 {
-    actionToSetup->setIcon(QIcon(":/FractureTemplate16x16.png"));
-    actionToSetup->setText("New Ellipse Fracture Template");
+    actionToSetup->setIcon(QIcon(":/ICDValve16x16.png"));
+    actionToSetup->setText("New Valve Template");
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicNewEllipseFractureTemplateFeature::isCommandEnabled()
+bool RicNewValveTemplateFeature::isCommandEnabled()
 {
     return true;
 }
