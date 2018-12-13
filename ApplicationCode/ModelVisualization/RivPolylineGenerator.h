@@ -35,8 +35,8 @@ namespace cvf
 class RivPolylineGenerator : public cvf::Object
 {
 public:
-    static cvf::ref<cvf::DrawableGeo> createLineAlongPolylineDrawable(const std::vector<cvf::Vec3d>& polyLine);
-    static cvf::ref<cvf::DrawableGeo> createLineAlongPolylineDrawable(const std::vector<std::vector<cvf::Vec3d>>& polyLines);
+    static cvf::ref<cvf::DrawableGeo> createLineAlongPolylineDrawable(const std::vector<cvf::Vec3d>& polyLine, bool closeLine = false);
+    static cvf::ref<cvf::DrawableGeo> createLineAlongPolylineDrawable(const std::vector<std::vector<cvf::Vec3d>>& polyLines, bool closeLine = false);
 
     static cvf::ref<cvf::DrawableGeo> createPointsFromPolylineDrawable(const std::vector<cvf::Vec3d>& polyLine);
     static cvf::ref<cvf::DrawableGeo> createPointsFromPolylineDrawable(const std::vector<std::vector<cvf::Vec3d>>& polyLines);

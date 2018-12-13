@@ -41,4 +41,9 @@ public:
 
     virtual cvf::ref<RigPolyLinesData> polyLinesData() = 0;
     virtual bool isEmpty() = 0;
+
+    bool         closePolyline() const;
+
+protected:
+    caf::PdmField<bool>   m_closePolyline;
 };

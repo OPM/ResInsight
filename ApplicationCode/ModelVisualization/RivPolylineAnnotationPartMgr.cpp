@@ -79,7 +79,7 @@ void RivPolylineAnnotationPartMgr::buildPolylineAnnotationParts(const caf::Displ
         auto linesInDomain = getPolylinesPointsInDomain(collection->snapAnnotations(), collection->annotationPlaneZ());
         auto linesInDisplay = transformPolylinesPointsToDisplay(linesInDomain, displayXf);
 
-        cvf::ref<cvf::DrawableGeo> drawableGeo = RivPolylineGenerator::createLineAlongPolylineDrawable(linesInDisplay);
+        cvf::ref<cvf::DrawableGeo> drawableGeo = RivPolylineGenerator::createLineAlongPolylineDrawable(linesInDisplay, rimAnnotation->closePolyline());
         cvf::ref<cvf::Part> part = new cvf::Part;
         part->setName("RivPolylineAnnotationPartMgr");
         part->setDrawable(drawableGeo.p());

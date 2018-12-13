@@ -35,6 +35,7 @@ RimPolylinesAnnotation::RimPolylinesAnnotation()
 {
     CAF_PDM_InitObject("PolylineAnnotation", ":/WellCollection.png", "", "");
 
+    CAF_PDM_InitField(&m_closePolyline, "ClosePolyline", false, "Close Polyline", "", "", "");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -43,5 +44,13 @@ RimPolylinesAnnotation::RimPolylinesAnnotation()
 RimPolylinesAnnotation::~RimPolylinesAnnotation()
 {
 
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimPolylinesAnnotation::closePolyline() const
+{
+    return m_closePolyline;
 }
 

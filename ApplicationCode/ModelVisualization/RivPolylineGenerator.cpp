@@ -26,18 +26,18 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::ref<cvf::DrawableGeo> RivPolylineGenerator::createLineAlongPolylineDrawable(const std::vector<cvf::Vec3d>& polyLine)
+cvf::ref<cvf::DrawableGeo> RivPolylineGenerator::createLineAlongPolylineDrawable(const std::vector<cvf::Vec3d>& polyLine, bool closeLine)
 {
     std::vector<std::vector<cvf::Vec3d>> polyLines;
     polyLines.push_back(polyLine);
-    return createLineAlongPolylineDrawable(polyLines);
+    return createLineAlongPolylineDrawable(polyLines, closeLine);
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 cvf::ref<cvf::DrawableGeo>
-    RivPolylineGenerator::createLineAlongPolylineDrawable(const std::vector<std::vector<cvf::Vec3d>>& polyLines)
+    RivPolylineGenerator::createLineAlongPolylineDrawable(const std::vector<std::vector<cvf::Vec3d>>& polyLines, bool closeLine)
 {
     std::vector<cvf::uint>  lineIndices;
     std::vector<cvf::Vec3f> vertices;
@@ -56,6 +56,12 @@ cvf::ref<cvf::DrawableGeo>
                 lineIndices.push_back(static_cast<cvf::uint>(verticesCount + i));
                 lineIndices.push_back(static_cast<cvf::uint>(verticesCount + i + 1));
             }
+        }
+
+        if (closeLine && vertices.front() != vertices.back())
+        {
+            lineIndices.push_back(static_cast<cvf::uint>(verticesCount + polyLine.size() - 1));
+            lineIndices.push_back(static_cast<cvf::uint>(verticesCount));
         }
     }
 

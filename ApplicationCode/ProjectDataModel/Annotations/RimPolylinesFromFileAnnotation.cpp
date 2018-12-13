@@ -178,6 +178,8 @@ void RimPolylinesFromFileAnnotation::setDescriptionFromFileName()
 void RimPolylinesFromFileAnnotation::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
     uiOrdering.add(&m_polyLinesFileName);
+    uiOrdering.add(&m_closePolyline);
+
     auto appearanceGroup = uiOrdering.addNewGroup("Line Appearance");
     appearance()->uiOrdering(uiConfigName, *appearanceGroup);
 

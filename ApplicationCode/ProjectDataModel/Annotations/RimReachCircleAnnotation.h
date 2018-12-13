@@ -56,6 +56,7 @@ class RimReachCircleAnnotation : public RimLineBasedAnnotation
 
 public:
     RimReachCircleAnnotation();
+    ~RimReachCircleAnnotation() override {}
 
     Vec3d           centerPoint() const;
     double          radius() const;
