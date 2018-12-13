@@ -384,7 +384,7 @@ const RigVirtualPerforationTransmissibilities* RimEclipseCase::computeAndGetVirt
                     {
                         for (const auto& r : wellResultBranch.m_branchResultPoints)
                         {
-                            if (r.isValid())
+                            if (r.isCell())
                             {
                                 RigCompletionData compData(
                                     wellRes->m_wellName,
