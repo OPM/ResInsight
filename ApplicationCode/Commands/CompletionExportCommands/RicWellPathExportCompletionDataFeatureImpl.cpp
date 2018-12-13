@@ -992,11 +992,6 @@ RigCompletionData
 {
     CVF_ASSERT(!completions.empty());
 
-    if (completions.size() == 1)
-    {
-        return completions[0];
-    }
-
     const RigCompletionData& firstCompletion = completions[0];
 
     const QString&                    wellName       = firstCompletion.wellName();
