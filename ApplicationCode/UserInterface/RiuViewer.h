@@ -83,6 +83,7 @@ public:
     void            showInfoText(bool enable);
     void            setInfoText(QString text);
 
+    void            hideZScaleCheckbox(bool hide);
     void            showZScaleLabel(bool enable);
     void            setZScale(int scale);
 
@@ -158,6 +159,7 @@ private:
 
     QLabel*         m_zScaleLabel;
     bool            m_showZScaleLabel;
+    bool            m_hideZScaleCheckbox;
 
     QProgressBar*   m_animationProgress;
     bool            m_showAnimProgress; 

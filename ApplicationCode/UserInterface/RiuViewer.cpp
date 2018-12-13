@@ -152,6 +152,7 @@ RiuViewer::RiuViewer(const QGLFormat& format, QWidget* parent)
     m_zScaleLabel->setAlignment(Qt::AlignLeft);
     m_zScaleLabel->setText(QString("Z: "));
     m_showZScaleLabel = true;
+    m_hideZScaleCheckbox = false;
 
     QPalette versionInfoPalette = p;
     QColor versionInfoLabelColor = p.color(QPalette::Window);
@@ -485,6 +486,14 @@ void RiuViewer::paintOverlayItems(QPainter* painter)
 void RiuViewer::setInfoText(QString text)
 {
     m_infoLabel->setText(text);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuViewer::hideZScaleCheckbox(bool hide)
+{
+    m_hideZScaleCheckbox = hide;
 }
 
 //--------------------------------------------------------------------------------------------------

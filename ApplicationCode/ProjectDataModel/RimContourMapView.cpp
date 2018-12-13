@@ -388,3 +388,18 @@ std::set<RivCellSetEnum> RimContourMapView::allVisibleFaultGeometryTypes() const
     }
     return faultGeoTypes;
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QWidget* RimContourMapView::createViewWidget(QWidget* mainWindowParent)
+{
+    auto widget = Rim3dView::createViewWidget(mainWindowParent);
+
+    if (viewer())
+    {
+        viewer()->showZScaleLabel(false);
+        viewer()->hideZScaleCheckbox(true);
+    }
+    return widget;
+}

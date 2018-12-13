@@ -218,11 +218,11 @@ protected:
     void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
     void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
     virtual void                    updateViewWidgetAfterCreation() override; 
-    
+    QWidget*                        createViewWidget(QWidget* mainWindowParent) override;
+
 private:
     // Overridden ViewWindow methods:
 
-    QWidget*                        createViewWidget(QWidget* mainWindowParent) override; 
     void                            updateMdiWindowTitle() override;
     void                            deleteViewWidget() override;
     QWidget*                        viewWidget() override;

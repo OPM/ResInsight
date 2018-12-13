@@ -54,6 +54,8 @@ protected:
 
     virtual std::set<RivCellSetEnum> allVisibleFaultGeometryTypes() const override;
     
+    QWidget* createViewWidget(QWidget* mainWindowParent) override;
+
 private:
     cvf::ref<RivContourMapProjectionPartMgr>     m_contourMapProjectionPartMgr;
     caf::PdmChildField<RimContourMapProjection*> m_contourMapProjection;
