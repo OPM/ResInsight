@@ -67,6 +67,8 @@ public:
 
     void                                    handleKeyPressEvent(QKeyEvent* keyEvent);
 
+    void                                    setCurveAsTopZWithinCategory(RimSummaryCurve* curve);
+
 private:
     caf::PdmFieldHandle*                    objectToggleField() override;
     void                            defineObjectEditorAttribute(QString uiConfigName, 
