@@ -142,6 +142,9 @@ RimSummaryCurve::RimSummaryCurve()
 
     m_curveNameConfig = new RimSummaryCurveAutoName;
 
+    CAF_PDM_InitField(&m_isTopZWithinCategory, "isTopZWithinCategory", false, "", "", "", "");
+    m_isTopZWithinCategory.uiCapability()->setUiHidden(true);
+
     m_symbolSkipPixelDistance = 10.0f;
     m_curveThickness = 2;
 }
@@ -670,25 +673,34 @@ void RimSummaryCurve::setZIndexFromCurveInfo()
     auto sumAddr = summaryAddressY();
     auto sumCase = summaryCaseY();
 
+    double zOrder = 0.0;
+
     if (sumCase && sumAddr.isValid())
     {
         if (sumCase->isObservedData())
         {
-            setZOrder(RiuQwtPlotCurve::Z_SINGLE_CURVE_OBSERVED);
+            zOrder = RiuQwtPlotCurve::Z_SINGLE_CURVE_OBSERVED;
         }
         else if (sumAddr.category() == RifEclipseSummaryAddress::SUMMARY_ENSEMBLE_STATISTICS)
         {
-            setZOrder(RiuQwtPlotCurve::Z_ENSEMBLE_STAT_CURVE);
+            zOrder = RiuQwtPlotCurve::Z_ENSEMBLE_STAT_CURVE;
         }
         else if (sumCase->ensemble())
         {
-            setZOrder(RiuQwtPlotCurve::Z_ENSEMBLE_CURVE);
+            zOrder = RiuQwtPlotCurve::Z_ENSEMBLE_CURVE;
         }
         else
         {
-            setZOrder(RiuQwtPlotCurve::Z_SINGLE_CURVE_NON_OBSERVED);
+            zOrder = RiuQwtPlotCurve::Z_SINGLE_CURVE_NON_OBSERVED;
         }
     }
+
+    if (m_isTopZWithinCategory)
+    {
+        zOrder += 1.0;
+    }
+
+    setZOrder(zOrder);
 }
  
 //--------------------------------------------------------------------------------------------------
@@ -781,6 +793,14 @@ void RimSummaryCurve::markCachedDataForPurge()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimSummaryCurve::setAsTopZWithinCategory(bool enable)
+{
+    m_isTopZWithinCategory = enable;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimSummaryCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
     this->RimPlotCurve::fieldChangedByUi(changedField, oldValue, newValue);
@@ -816,6 +836,11 @@ void RimSummaryCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
 
         RiuPlotMainWindow* mainPlotWindow = RiaApplication::instance()->mainPlotWindow();
         mainPlotWindow->updateSummaryPlotToolBar();
+
+        if (m_showCurve() == true)
+        {
+            plot->summaryCurveCollection()->setCurveAsTopZWithinCategory(this);
+        }
     }
     else if (changedField == &m_plotAxis)
     {

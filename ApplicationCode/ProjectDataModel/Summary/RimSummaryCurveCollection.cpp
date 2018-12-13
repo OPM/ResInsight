@@ -338,6 +338,26 @@ void RimSummaryCurveCollection::handleKeyPressEvent(QKeyEvent* keyEvent)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimSummaryCurveCollection::setCurveAsTopZWithinCategory(RimSummaryCurve* curve)
+{
+    for (const auto& c : m_curves)
+    {
+        if (c == curve)
+        {
+            c->setAsTopZWithinCategory(true);
+        }
+        else
+        {
+            c->setAsTopZWithinCategory(false);
+        }
+
+        c->setZIndexFromCurveInfo();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimSummaryCurveCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
     if (changedField == &m_showCurves)

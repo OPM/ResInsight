@@ -80,6 +80,9 @@ public:
     void                                    forceUpdateCurveAppearanceFromCaseType();
 
     void                                    markCachedDataForPurge();
+    
+    void                                    setAsTopZWithinCategory(bool enable);
+    void                                    setZIndexFromCurveInfo();
 
 protected:
     // RimPlotCurve overrides
@@ -106,7 +109,6 @@ private:
     static void                             appendOptionItemsForSummaryAddresses(QList<caf::PdmOptionItemInfo>* options,
                                                                                  RimSummaryCase* summaryCase,
                                                                                  RimSummaryFilter* summaryFilter);
-    void                            setZIndexFromCurveInfo();
 
 private:
     // Y values
@@ -127,4 +129,5 @@ private:
 
     caf::PdmChildField<RimSummaryCurveAutoName*>        m_curveNameConfig;
     caf::PdmField<caf::AppEnum< RiaDefines::PlotAxis>>  m_plotAxis;
+    caf::PdmField<bool>                     m_isTopZWithinCategory;
 };
