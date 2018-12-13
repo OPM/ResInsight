@@ -28,6 +28,7 @@
 #include "AnnotationCommands/RicTextAnnotation3dEditor.h"
 
 #include "cafPdmUiTextEditor.h"
+#include "cafPdmUiTreeOrdering.h"
 
 CAF_PDM_SOURCE_INIT(RimTextAnnotation, "RimTextAnnotation");
 
@@ -40,7 +41,6 @@ RimTextAnnotation::RimTextAnnotation()
     CAF_PDM_InitObject("TextAnnotation", ":/TextAnnotation16x16.png", "", "");
     this->setUi3dEditorTypeName(RicTextAnnotation3dEditor::uiEditorTypeName());
 
-
     CAF_PDM_InitField(&m_anchorPointXyd, "AnchorPointXyd", Vec3d::ZERO, "Anchor Point", "", "", "");
     CAF_PDM_InitField(&m_labelPointXyd, "LabelPointXyd", Vec3d::ZERO, "Label Point", "", "", "");
     CAF_PDM_InitField(&m_text, "Text", QString("(New text)"), "Text", "", "", "");
@@ -51,6 +51,8 @@ RimTextAnnotation::RimTextAnnotation()
 
     CAF_PDM_InitFieldNoDefault(&m_textAppearance, "TextAppearance", "Text Appearance", "", "", "");
     m_textAppearance = new RimAnnotationTextAppearance();
+    m_textAppearance.uiCapability()->setUiTreeHidden(true);
+    m_textAppearance.uiCapability()->setUiTreeChildrenHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&m_nameProxy, "NameProxy", "Name Proxy", "", "", "");
     m_nameProxy.registerGetMethod(this, &RimTextAnnotation::extractNameFromText);
