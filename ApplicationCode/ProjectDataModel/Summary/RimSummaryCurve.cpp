@@ -164,7 +164,6 @@ void RimSummaryCurve::setSummaryCaseY(RimSummaryCase* sumCase)
     }
 
     m_yValuesSummaryCase = sumCase;
-    setZIndexFromCurveInfo();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -212,7 +211,6 @@ void RimSummaryCurve::setSummaryAddressY(const RifEclipseSummaryAddress& address
     }
 
     m_yValuesCurveVariable->setAddress(address);
-    setZIndexFromCurveInfo();
 
     m_yValuesSummaryFilter->updateFromAddress(address);
 
@@ -451,6 +449,8 @@ void RimSummaryCurve::onLoadDataAndUpdate(bool updateParentPlot)
     m_xValuesUiFilterResultSelection = m_xValuesCurveVariable->address();
 
     updateConnectedEditors();
+
+    setZIndexFromCurveInfo();
 
     if (isCurveVisible())
     {
