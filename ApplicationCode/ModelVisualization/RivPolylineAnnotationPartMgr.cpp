@@ -144,22 +144,11 @@ void RivPolylineAnnotationPartMgr::buildPolylineAnnotationParts(const caf::Displ
             cvf::GeometryUtils::createSphere(sphereRadius, 15, 15, &builder);
             vectorDrawable->setGlyph(builder.trianglesUShort().p(), builder.vertices().p());
 
-
-
-            //cvf::ref<cvf::DrawableGeo> drawableGeo = RivPolylineGenerator::createPointsFromPolylineDrawable(linesInDisplay);
             cvf::ref<cvf::Part> part = new cvf::Part;
             part->setName("RivPolylineAnnotationPartMgr");
-            //part->setDrawable(drawableGeo.p());
             part->setDrawable(vectorDrawable.p());
 
-            //caf::MeshEffectGenerator effgen(lineColor);
-            //effgen.setLineWidth(lineThickness);
-            //if (isDashedLine) effgen.setLineStipple(true);
-            //cvf::ref<cvf::Effect> eff = effgen.generateCachedEffect();
-
             part->setEffect(new cvf::Effect());
-
-            //part->setEffect(eff.p());
             part->setPriority(RivPartPriority::PartType::MeshLines);
 
             cvf::ref<RivPolylinesAnnotationSourceInfo> sourceInfo = new RivPolylinesAnnotationSourceInfo(rimAnnotation);
