@@ -19,7 +19,6 @@
 #pragma once
 
 #include "RimAnnotationLineAppearance.h"
-#include "RimLineBasedAnnotation.h"
 
 #include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"

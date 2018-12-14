@@ -17,21 +17,22 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
-#include "RimLineBasedAnnotation.h"
-
+#include "cafPdmChildField.h"
 #include "cafPdmField.h"
+#include "cafPdmObject.h"
 
 // Include to make Pdm work for cvf::Color
 #include "cvfBase.h"
 #include "cvfObject.h"
 
 class RigPolyLinesData;
+class RimPolylineAppearance;
 
 //==================================================================================================
 ///
 ///
 //==================================================================================================
-class RimPolylinesAnnotation : public RimLineBasedAnnotation
+class RimPolylinesAnnotation : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 
@@ -42,8 +43,24 @@ public:
     virtual cvf::ref<RigPolyLinesData> polyLinesData() = 0;
     virtual bool isEmpty() = 0;
 
+    bool         isActive();
+    bool         isVisible();
+
     bool         closePolyline() const;
+    bool         showLines() const;
+    bool         showSpheres() const;
+
+    RimPolylineAppearance* appearance() const;
 
 protected:
+    virtual caf::PdmFieldHandle* objectToggleField() override;
+
+protected:
+    caf::PdmField<bool>   m_isActive;
+
     caf::PdmField<bool>   m_closePolyline;
+    caf::PdmField<bool>   m_showLines;
+    caf::PdmField<bool>   m_showSpheres;
+
+    caf::PdmChildField<RimPolylineAppearance*> m_appearance;
 };

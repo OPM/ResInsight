@@ -70,5 +70,6 @@ private:
 
     caf::PdmPointer<Rim3dView>                      m_rimView;
     caf::PdmPointer<RimPolylinesAnnotationInView>   m_rimAnnotationInView;
-    cvf::ref<cvf::Part>                             m_part;
+    cvf::ref<cvf::Part>                             m_linePart;
+    cvf::ref<cvf::Part>                             m_spherePart;
 };

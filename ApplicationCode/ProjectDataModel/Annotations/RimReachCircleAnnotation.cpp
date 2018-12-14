@@ -19,6 +19,7 @@
 #include "RimReachCircleAnnotation.h"
 
 #include "RimAnnotationInViewCollection.h"
+#include "RimAnnotationLineAppearance.h"
 #include "RimGridView.h"
 #include "RimProject.h"
 #include "RimAnnotationCollection.h"
@@ -34,9 +35,37 @@ RimReachCircleAnnotation::RimReachCircleAnnotation()
 {
     CAF_PDM_InitObject("CircleAnnotation", ":/ReachCircle16x16.png", "", "");
 
+    CAF_PDM_InitField(&m_isActive, "IsActive", true, "Is Active", "", "", "");
+    m_isActive.uiCapability()->setUiHidden(true);
+
     CAF_PDM_InitField(&m_centerPointXyd, "CenterPointXyd", Vec3d::ZERO, "Center Point", "", "", "");
     CAF_PDM_InitField(&m_radius, "Radius", 0.0, "Radius", "", "", "");
     CAF_PDM_InitField(&m_name, "Name", QString("Circle Annotation"), "Name", "", "", "");
+
+    CAF_PDM_InitFieldNoDefault(&m_appearance, "Appearance", "Appearance", "", "", "");
+
+    m_appearance = new RimReachCircleLineAppearance();
+    m_appearance.uiCapability()->setUiTreeHidden(true);
+    m_appearance.uiCapability()->setUiTreeChildrenHidden(true);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimReachCircleAnnotation::isActive()
+{
+    return m_isActive();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimReachCircleAnnotation::isVisible()
+{
+    RimAnnotationCollectionBase* coll;
+    firstAncestorOrThisOfType(coll);
+
+    return coll && coll->isActive() && m_isActive;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -68,13 +97,21 @@ QString RimReachCircleAnnotation::name() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RimReachCircleLineAppearance* RimReachCircleAnnotation::appearance() const
+{
+    return m_appearance;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimReachCircleAnnotation::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
     uiOrdering.add(&m_name);
     uiOrdering.add(&m_centerPointXyd);
     uiOrdering.add(&m_radius);
 
-    auto appearanceGroup = uiOrdering.addNewGroup("Line Appearance");
+    auto appearanceGroup = uiOrdering.addNewGroup("Appearance");
     appearance()->uiOrdering(uiConfigName, *appearanceGroup);
 
     uiOrdering.skipRemainingFields(true);
@@ -99,5 +136,13 @@ void RimReachCircleAnnotation::fieldChangedByUi(const caf::PdmFieldHandle* chang
 caf::PdmFieldHandle* RimReachCircleAnnotation::userDescriptionField()
 {
     return &m_name;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+caf::PdmFieldHandle* RimReachCircleAnnotation::objectToggleField()
+{
+    return &m_isActive;
 }
 

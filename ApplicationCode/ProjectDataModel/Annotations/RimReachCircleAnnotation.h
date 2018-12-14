@@ -18,9 +18,6 @@
 
 #pragma once
 
-#include "RimAnnotationLineAppearance.h"
-#include "RimLineBasedAnnotation.h"
-
 #include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
@@ -32,6 +29,7 @@
 #include "cafPdmFieldCvfColor.h"    
 #include "cafPdmChildField.h"
 #include "cafPdmFieldCvfVec3d.h"
+#include "cafPdmObject.h"
 
 #include "cvfObject.h"
 #include "cvfVector3.h"
@@ -40,13 +38,13 @@
 
 class QString;
 class RimGridView;
-
+class RimReachCircleLineAppearance;
 
 //==================================================================================================
 ///
 ///
 //==================================================================================================
-class RimReachCircleAnnotation : public RimLineBasedAnnotation
+class RimReachCircleAnnotation : public caf::PdmObject
 {
     friend class RimReachCircleAnnotationInView;
 
@@ -58,17 +56,25 @@ public:
     RimReachCircleAnnotation();
     ~RimReachCircleAnnotation() override {}
 
+    bool            isActive();
+    bool            isVisible();
+
     Vec3d           centerPoint() const;
     double          radius() const;
     QString         name() const;
+    RimReachCircleLineAppearance* appearance() const;
 
 protected:
     void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
     void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
     caf::PdmFieldHandle* userDescriptionField() override;
+    virtual caf::PdmFieldHandle* objectToggleField() override;
 
 private:
+    caf::PdmField<bool>     m_isActive;
+
     caf::PdmField<Vec3d>    m_centerPointXyd;
     caf::PdmField<double>   m_radius;
     caf::PdmField<QString>  m_name;
+    caf::PdmChildField<RimReachCircleLineAppearance*> m_appearance;
 };

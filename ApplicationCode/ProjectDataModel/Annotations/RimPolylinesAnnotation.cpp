@@ -24,6 +24,8 @@
 #include "RimTools.h"
 #include "QFile"
 #include "RimAnnotationCollection.h"
+#include "RimAnnotationLineAppearance.h"
+
 #include "QFileInfo"
 
 CAF_PDM_ABSTRACT_SOURCE_INIT(RimPolylinesAnnotation, "RimPolylinesAnnotation");
@@ -35,7 +37,19 @@ RimPolylinesAnnotation::RimPolylinesAnnotation()
 {
     CAF_PDM_InitObject("PolylineAnnotation", ":/WellCollection.png", "", "");
 
+    CAF_PDM_InitField(&m_isActive, "IsActive", true, "Is Active", "", "", "");
+    m_isActive.uiCapability()->setUiHidden(true);
+
     CAF_PDM_InitField(&m_closePolyline, "ClosePolyline", false, "Close Polyline", "", "", "");
+    CAF_PDM_InitField(&m_showLines, "ShowLines", true, "Show Lines", "", "", "");
+    CAF_PDM_InitField(&m_showSpheres, "ShowSpheres", false, "Show Spheres", "", "", "");
+
+    CAF_PDM_InitFieldNoDefault(&m_appearance, "Appearance", "Appearance", "", "", "");
+
+    m_appearance = new RimPolylineAppearance();
+    m_appearance.uiCapability()->setUiTreeHidden(true);
+    m_appearance.uiCapability()->setUiTreeChildrenHidden(true);
+
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -49,8 +63,59 @@ RimPolylinesAnnotation::~RimPolylinesAnnotation()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RimPolylinesAnnotation::isActive()
+{
+    return m_isActive();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimPolylinesAnnotation::isVisible()
+{
+    RimAnnotationCollectionBase* coll;
+    firstAncestorOrThisOfType(coll);
+
+    return coll && coll->isActive() && m_isActive;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RimPolylinesAnnotation::closePolyline() const
 {
     return m_closePolyline;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimPolylinesAnnotation::showLines() const
+{
+    return m_showLines;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimPolylinesAnnotation::showSpheres() const
+{
+    return m_showSpheres;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimPolylineAppearance* RimPolylinesAnnotation::appearance() const
+{
+    return m_appearance;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+caf::PdmFieldHandle* RimPolylinesAnnotation::objectToggleField()
+{
+    return &m_isActive;
 }
 

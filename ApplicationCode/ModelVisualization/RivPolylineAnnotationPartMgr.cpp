@@ -18,6 +18,7 @@
 
 #include "RivPolylineAnnotationPartMgr.h"
 
+#include "RiaApplication.h"
 #include "RiaBoundingBoxTools.h"
 
 #include "Rim3dView.h"
@@ -42,6 +43,9 @@
 #include "cvfPart.h"
 #include "cvfTransform.h"
 #include "cafDisplayCoordTransform.h"
+#include "cvfGeometryBuilderTriangles.h"
+#include "cvfGeometryUtils.h"
+#include "cvfDrawableVectors.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -79,23 +83,90 @@ void RivPolylineAnnotationPartMgr::buildPolylineAnnotationParts(const caf::Displ
         auto linesInDomain = getPolylinesPointsInDomain(collection->snapAnnotations(), collection->annotationPlaneZ());
         auto linesInDisplay = transformPolylinesPointsToDisplay(linesInDomain, displayXf);
 
-        cvf::ref<cvf::DrawableGeo> drawableGeo = RivPolylineGenerator::createLineAlongPolylineDrawable(linesInDisplay, rimAnnotation->closePolyline());
-        cvf::ref<cvf::Part> part = new cvf::Part;
-        part->setName("RivPolylineAnnotationPartMgr");
-        part->setDrawable(drawableGeo.p());
+        // Line part
+        if(rimAnnotation->showLines())
+        {
+            cvf::ref<cvf::DrawableGeo> drawableGeo = RivPolylineGenerator::createLineAlongPolylineDrawable(linesInDisplay, rimAnnotation->closePolyline());
+            cvf::ref<cvf::Part> part = new cvf::Part;
+            part->setName("RivPolylineAnnotationPartMgr");
+            part->setDrawable(drawableGeo.p());
 
-        caf::MeshEffectGenerator effgen(lineColor);
-        effgen.setLineWidth(lineThickness);
-        if (isDashedLine) effgen.setLineStipple(true);
-        cvf::ref<cvf::Effect> eff = effgen.generateCachedEffect();
+            caf::MeshEffectGenerator effgen(lineColor);
+            effgen.setLineWidth(lineThickness);
+            if (isDashedLine) effgen.setLineStipple(true);
+            cvf::ref<cvf::Effect> eff = effgen.generateCachedEffect();
 
-        part->setEffect(eff.p());
-        part->setPriority(RivPartPriority::PartType::MeshLines);  
+            part->setEffect(eff.p());
+            part->setPriority(RivPartPriority::PartType::MeshLines);
 
-        cvf::ref<RivPolylinesAnnotationSourceInfo> sourceInfo = new RivPolylinesAnnotationSourceInfo(rimAnnotation);
-        part->setSourceInfo(sourceInfo.p());
+            cvf::ref<RivPolylinesAnnotationSourceInfo> sourceInfo = new RivPolylinesAnnotationSourceInfo(rimAnnotation);
+            part->setSourceInfo(sourceInfo.p());
 
-        m_part = part;
+            m_linePart = part;
+        }
+
+        // Sphere part
+        if(rimAnnotation->showSpheres())
+        {
+            auto sphereColor = rimAnnotation->appearance()->sphereColor();
+            int sphereRadius = rimAnnotation->appearance()->sphereRadius();
+
+            cvf::ref<cvf::Vec3fArray> vertices = new cvf::Vec3fArray;
+            cvf::ref<cvf::Vec3fArray> vecRes   = new cvf::Vec3fArray;
+            cvf::ref<cvf::Color3fArray> colors = new cvf::Color3fArray;
+            vertices->reserve(linesInDisplay.front().size());
+            vecRes->reserve(linesInDisplay.front().size());
+            colors->reserve(linesInDisplay.front().size());
+
+            for (const auto& v : linesInDisplay.front())
+            {
+                vertices->add(cvf::Vec3f(v));
+                vecRes->add(cvf::Vec3f::X_AXIS);
+                colors->add(sphereColor);
+            }
+
+            cvf::ref<cvf::DrawableVectors> vectorDrawable;
+            if (RiaApplication::instance()->useShaders())
+            {
+                // NOTE: Drawable vectors must be rendered using shaders when the rest of the application is rendered using
+                // shaders Drawing vectors using fixed function when rest of the application uses shaders causes visual artifacts
+                vectorDrawable = new cvf::DrawableVectors("u_transformationMatrix", "u_color");
+            }
+            else
+            {
+                vectorDrawable = new cvf::DrawableVectors();
+            }
+
+            vectorDrawable->setVectors(vertices.p(), vecRes.p());
+            vectorDrawable->setColors(colors.p());
+
+            cvf::GeometryBuilderTriangles builder;
+            cvf::GeometryUtils::createSphere(sphereRadius, 15, 15, &builder);
+            vectorDrawable->setGlyph(builder.trianglesUShort().p(), builder.vertices().p());
+
+
+
+            //cvf::ref<cvf::DrawableGeo> drawableGeo = RivPolylineGenerator::createPointsFromPolylineDrawable(linesInDisplay);
+            cvf::ref<cvf::Part> part = new cvf::Part;
+            part->setName("RivPolylineAnnotationPartMgr");
+            //part->setDrawable(drawableGeo.p());
+            part->setDrawable(vectorDrawable.p());
+
+            //caf::MeshEffectGenerator effgen(lineColor);
+            //effgen.setLineWidth(lineThickness);
+            //if (isDashedLine) effgen.setLineStipple(true);
+            //cvf::ref<cvf::Effect> eff = effgen.generateCachedEffect();
+
+            part->setEffect(new cvf::Effect());
+
+            //part->setEffect(eff.p());
+            part->setPriority(RivPartPriority::PartType::MeshLines);
+
+            cvf::ref<RivPolylinesAnnotationSourceInfo> sourceInfo = new RivPolylinesAnnotationSourceInfo(rimAnnotation);
+            part->setSourceInfo(sourceInfo.p());
+
+            m_spherePart = part;
+        }
     }
 }
 
@@ -168,7 +239,8 @@ bool RivPolylineAnnotationPartMgr::isPolylinesInBoundingBox(const cvf::BoundingB
 //--------------------------------------------------------------------------------------------------
 void RivPolylineAnnotationPartMgr::clearAllGeometry()
 {
-    m_part = nullptr;
+    m_linePart = nullptr;
+    m_spherePart = nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -198,9 +270,14 @@ void RivPolylineAnnotationPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelB
 
     buildPolylineAnnotationParts(displayXf);
 
-    if ( m_part.notNull() )
+    if ( m_linePart.notNull() )
     {
-        model->addPart(m_part.p());
+        model->addPart(m_linePart.p());
+    }
+
+    if (m_spherePart.notNull())
+    {
+        model->addPart(m_spherePart.p());
     }
 }
 

@@ -60,3 +60,38 @@ private:
 
 };
 
+
+//==================================================================================================
+///
+///
+//==================================================================================================
+class RimReachCircleLineAppearance : public RimAnnotationLineAppearance
+{
+
+};
+
+
+//==================================================================================================
+///
+///
+//==================================================================================================
+class RimPolylineAppearance : public RimAnnotationLineAppearance
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    RimPolylineAppearance();
+
+    void            setSphereColor(const cvf::Color3f& color);
+    cvf::Color3f    sphereColor() const;
+    void            setSphereRadius(int radius);
+    int             sphereRadius() const;
+
+protected:
+    void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+
+private:
+    caf::PdmField<cvf::Color3f>     m_sphereColor;
+    caf::PdmField<int>              m_sphereRadius;
+};

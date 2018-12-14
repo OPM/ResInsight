@@ -40,10 +40,10 @@ CAF_PDM_SOURCE_INIT(RimAnnotationLineAppearance, "RimAnnotationLineAppearance");
 //--------------------------------------------------------------------------------------------------
 RimAnnotationLineAppearance::RimAnnotationLineAppearance()
 {
-    CAF_PDM_InitObject("TextAnnotation", ":/WellCollection.png", "", "");
+    CAF_PDM_InitObject("AnnotationLineAppearance", ":/WellCollection.png", "", "");
 
-    CAF_PDM_InitField(&m_color,     "Color",     cvf::Color3f(cvf::Color3f::BLACK),  "Color", "", "", "");
-    CAF_PDM_InitField(&m_thickness, "Thickness", 2,                                  "Thickness", "", "", "");
+    CAF_PDM_InitField(&m_color,     "Color",     cvf::Color3f(cvf::Color3f::BLACK),  "Line Color", "", "", "");
+    CAF_PDM_InitField(&m_thickness, "Thickness", 2,                                  "Line Thickness", "", "", "");
 
     // Stippling not yet supported. Needs new stuff in VizFwk
     CAF_PDM_InitField(&m_style,     "Style",     LineStyle(),                        "Style", "", "", "");
@@ -106,4 +106,72 @@ void RimAnnotationLineAppearance::fieldChangedByUi(const caf::PdmFieldHandle* ch
     RimAnnotationCollection* annColl = nullptr;
     this->firstAncestorOrThisOfTypeAsserted(annColl);
     annColl->scheduleRedrawOfRelevantViews(); 
+}
+
+CAF_PDM_SOURCE_INIT(RimPolylineAppearance, "RimPolylineAppearance");
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimPolylineAppearance::RimPolylineAppearance()
+{
+    CAF_PDM_InitObject("PolylineAppearance", ":/WellCollection.png", "", "");
+
+    CAF_PDM_InitField(&m_sphereColor, "SphereColor", cvf::Color3f(cvf::Color3f::BLACK), "Sphere Color", "", "", "");
+    CAF_PDM_InitField(&m_sphereRadius, "SphereRadius", 15, "Sphere Radius", "", "", "");
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPolylineAppearance::setSphereColor(const cvf::Color3f& color)
+{
+    m_sphereColor = color;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+cvf::Color3f RimPolylineAppearance::sphereColor() const
+{
+    return m_sphereColor();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPolylineAppearance::setSphereRadius(int radius)
+{
+    m_sphereRadius = radius;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RimPolylineAppearance::sphereRadius() const
+{
+    return m_sphereRadius();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPolylineAppearance::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+{
+    RimAnnotationLineAppearance::defineUiOrdering(uiConfigName, uiOrdering);
+
+    uiOrdering.add(&m_sphereColor);
+    uiOrdering.add(&m_sphereRadius);
+
+    uiOrdering.skipRemainingFields(true);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPolylineAppearance::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
+                                             const QVariant&            oldValue,
+                                             const QVariant&            newValue)
+{
+    RimAnnotationLineAppearance::fieldChangedByUi(changedField, oldValue, newValue);
 }

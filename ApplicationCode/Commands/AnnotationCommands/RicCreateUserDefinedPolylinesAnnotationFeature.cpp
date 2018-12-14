@@ -27,6 +27,7 @@
 #include "RimAnnotationCollection.h"
 #include "RimAnnotationGroupCollection.h"
 #include "RimAnnotationInViewCollection.h"
+#include "RimAnnotationLineAppearance.h"
 #include "RimProject.h"
 #include "RimOilField.h"
 
@@ -63,6 +64,7 @@ void RicCreateUserDefinedPolylinesAnnotationFeature::onActionTriggered(bool isCh
         auto newAnnotation = new RimUserDefinedPolylinesAnnotation();
         auto newColor      = RiaColorTables::categoryPaletteColors().cycledColor3f(coll->lineBasedAnnotationsCount());
         newAnnotation->appearance()->setColor(newColor);
+        newAnnotation->appearance()->setSphereColor(newColor);
         newAnnotation->enablePicking(true);
         coll->addAnnotation(newAnnotation);
         coll->updateConnectedEditors();

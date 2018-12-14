@@ -10,7 +10,6 @@ ${CMAKE_CURRENT_LIST_DIR}/RimTextAnnotation.h
 ${CMAKE_CURRENT_LIST_DIR}/RimAnnotationInViewCollection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimAnnotationLineAppearance.h
 ${CMAKE_CURRENT_LIST_DIR}/RimAnnotationTextAppearance.h
-${CMAKE_CURRENT_LIST_DIR}/RimLineBasedAnnotation.h
 ${CMAKE_CURRENT_LIST_DIR}/RimPolylinesFromFileAnnotationInView.h
 ${CMAKE_CURRENT_LIST_DIR}/RimUserDefinedPolylinesAnnotationInView.h
 ${CMAKE_CURRENT_LIST_DIR}/RimPolylinesAnnotationInView.h
@@ -31,7 +30,6 @@ ${CMAKE_CURRENT_LIST_DIR}/RimTextAnnotation.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimAnnotationInViewCollection.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimAnnotationLineAppearance.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimAnnotationTextAppearance.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimLineBasedAnnotation.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimPolylinesFromFileAnnotationInView.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimUserDefinedPolylinesAnnotationInView.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimPolylinesAnnotationInView.cpp

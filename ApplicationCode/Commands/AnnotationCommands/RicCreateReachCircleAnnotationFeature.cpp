@@ -27,6 +27,7 @@
 #include "RimAnnotationCollection.h"
 #include "RimAnnotationGroupCollection.h"
 #include "RimAnnotationInViewCollection.h"
+#include "RimAnnotationLineAppearance.h"
 #include "RimProject.h"
 #include "RimOilField.h"
 

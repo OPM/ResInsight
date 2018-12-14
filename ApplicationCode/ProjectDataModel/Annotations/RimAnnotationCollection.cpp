@@ -26,6 +26,7 @@
 #include "RimReachCircleAnnotation.h"
 #include "RimPolylinesFromFileAnnotation.h"
 #include "RimUserDefinedPolylinesAnnotation.h"
+#include "RimAnnotationLineAppearance.h"
 
 #include "RimProject.h"
 #include "RimGridView.h"

@@ -230,7 +230,10 @@ void RimUserDefinedPolylinesAnnotation::defineUiOrdering(QString uiConfigName, c
     uiOrdering.add(&m_enablePicking);
     uiOrdering.add(&m_closePolyline);
 
-    auto appearanceGroup = uiOrdering.addNewGroup("Line Appearance");
+    uiOrdering.add(&m_showLines);
+    uiOrdering.add(&m_showSpheres);
+
+    auto appearanceGroup = uiOrdering.addNewGroup("Appearance");
     appearance()->uiOrdering(uiConfigName, *appearanceGroup);
 
     uiOrdering.skipRemainingFields(true);

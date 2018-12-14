@@ -54,7 +54,8 @@
 #include "RimWellRftPlot.h"
 #include "RimWellPathValve.h"
 #include "RimTextAnnotation.h"
-#include "RimLineBasedAnnotation.h"
+#include "RimReachCircleAnnotation.h"
+#include "RimPolylinesAnnotation.h"
 #include "RimEllipseFractureTemplate.h"
 #include "RimSimWellFracture.h"
 #include "RimSimWellFractureCollection.h"
@@ -127,7 +128,8 @@ bool isDeletable(caf::PdmUiItem* uiItem)
     if (dynamic_cast<RimDerivedEnsembleCaseCollection*>(uiItem)) return true;
     if (dynamic_cast<RimWellPathValve*>(uiItem))                 return true;
     if (dynamic_cast<RimTextAnnotation*>(uiItem))                return true;
-    if (dynamic_cast<RimLineBasedAnnotation*>(uiItem))           return true;
+    if (dynamic_cast<RimReachCircleAnnotation*>(uiItem))         return true;
+    if (dynamic_cast<RimPolylinesAnnotation*>(uiItem))           return true;
     return false;    
 }
 
