@@ -39,6 +39,9 @@ public:
     static bool         containsAlphabetic(const std::string& s);
     static bool         startsWithAlphabetic(const std::string& s);
 
+    static bool         endsWith(const std::string& mainStr, const std::string& toMatch);
+
+
     static std::vector<std::string> splitStringBySpace(const std::string& s);
 
 private:
