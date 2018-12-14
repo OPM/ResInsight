@@ -1000,6 +1000,10 @@ void RimSummaryPlot::deleteCurves(const std::vector<RimSummaryCurve*>& curves)
             }
         }
     }
+
+
+    RiuPlotMainWindowTools::refreshToolbars();
+
     updateCaseNameHasChanged();
 }
 

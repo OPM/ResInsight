@@ -505,8 +505,9 @@ void RiuPlotMainWindow::updateSummaryPlotToolBar()
         if (!m_summaryPlotToolBarEditor->isEditorDataValid(toolBarFields))
         {
             m_summaryPlotToolBarEditor->setFields(toolBarFields);
-            m_summaryPlotToolBarEditor->updateUi();
         }
+
+        m_summaryPlotToolBarEditor->updateUi();
 
         m_summaryPlotToolBarEditor->show();
     }
