@@ -150,11 +150,10 @@ RimContourMapView* RicNewContourMapViewFeature::create2dContourMapFrom3dView(Rim
 
     contourMap->setEclipseCase(eclipseCase);
     contourMap->setBackgroundColor(cvf::Color3f(1.0f, 1.0f, 0.98f)); // Ignore original view background
+    contourMap->setDefaultCustomName();
 
     caf::PdmDocument::updateUiIconStateRecursively(contourMap);
 
-    size_t i = eclipseCase->contourMapCollection()->views().size();
-    contourMap->setName(QString("Contour Map %1").arg(i + 1));
     eclipseCase->contourMapCollection()->push_back(contourMap);
 
     contourMap->syncronizeLocalAnnotationsFromGlobal();

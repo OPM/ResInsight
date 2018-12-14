@@ -30,6 +30,7 @@
 #include "RimSimWellInView.h"
 #include "RimTernaryLegendConfig.h"
 #include "RimWellPath.h"
+#include "RimViewNameConfig.h"
 
 #include "RiuMainWindow.h"
 #include "RiuViewer.h"
@@ -41,6 +42,7 @@
 #include "RivWellPathPartMgr.h"
 
 #include "cafDisplayCoordTransform.h"
+#include "cafPdmUiTreeOrdering.h"
 
 #include "cvfModelBasicList.h"
 #include "cvfTransform.h"
@@ -81,6 +83,11 @@ Rim2dIntersectionView::Rim2dIntersectionView(void)
     CAF_PDM_InitField(&m_showDefiningPoints, "ShowDefiningPoints", true, "Show Points", "", "", "");
     CAF_PDM_InitField(&m_showAxisLines, "ShowAxisLines", false, "Show Axis Lines", "", "", "");
 
+    CAF_PDM_InitFieldNoDefault(&m_nameProxy, "NameProxy", "Name", "", "", "");
+    m_nameProxy.xmlCapability()->disableIO();
+    m_nameProxy.registerGetMethod(this, &Rim2dIntersectionView::getName);
+    m_nameProxy.registerSetMethod(this, &Rim2dIntersectionView::setName);
+
     m_showWindow = false;
     m_scaleTransform = new cvf::Transform();
     m_intersectionVizModel = new cvf::ModelBasicList;
@@ -91,6 +98,11 @@ Rim2dIntersectionView::Rim2dIntersectionView(void)
 
     disableGridBoxField();
     disablePerspectiveProjectionField();
+
+    nameConfig()->hideCaseNameField(true);
+    nameConfig()->hideAggregationTypeField(true);
+    nameConfig()->hidePropertyField(true);
+    nameConfig()->hideSampleSpacingField(true);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -427,6 +439,30 @@ int Rim2dIntersectionView::timeStepCount()
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString Rim2dIntersectionView::createAutoName() const
+{
+    return nameConfig()->customName();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString Rim2dIntersectionView::getName() const
+{
+    return nameConfig()->customName();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void Rim2dIntersectionView::setName(const QString& name)
+{
+    nameConfig()->setCustomName(name);
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 bool Rim2dIntersectionView::isWindowVisible()
@@ -758,6 +794,8 @@ void Rim2dIntersectionView::fieldChangedByUi(const caf::PdmFieldHandle* changedF
 //--------------------------------------------------------------------------------------------------
 void Rim2dIntersectionView::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
+    uiOrdering.add(&m_nameProxy);
+
     Rim3dView::defineUiOrdering(uiConfigName, uiOrdering);
     caf::PdmUiGroup* viewGroup = uiOrdering.findGroup("ViewGroup");
     if (viewGroup)
@@ -772,4 +810,12 @@ void Rim2dIntersectionView::defineUiOrdering(QString uiConfigName, caf::PdmUiOrd
         caf::PdmUiGroup* plGroup = uiOrdering.addNewGroup("Defining Points");
         plGroup->add(&m_showDefiningPoints);
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void Rim2dIntersectionView::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/)
+{
+    uiTreeOrdering.skipRemainingChildren(true);
 }

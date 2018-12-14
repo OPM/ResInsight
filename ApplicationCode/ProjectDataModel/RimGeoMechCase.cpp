@@ -167,8 +167,6 @@ void RimGeoMechCase::reloadDataAndUpdate()
 RimGeoMechView* RimGeoMechCase::createAndAddReservoirView()
 {
     RimGeoMechView* gmv = new RimGeoMechView();
-    size_t i = geoMechViews().size();
-    gmv->setName(QString("View %1").arg(i + 1));
     
     gmv->setGeoMechCase(this);
 

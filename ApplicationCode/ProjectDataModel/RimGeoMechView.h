@@ -68,7 +68,7 @@ public:
     RimCase*                                    ownerCase() const override;
 
     caf::PdmChildField<RimGeoMechCellColors*>           cellResult;
-    RimGeoMechResultDefinition*                         cellResultResultDefinition();
+    RimGeoMechResultDefinition*                         cellResultResultDefinition() const;
 
     const RimPropertyFilterCollection*          propertyFilterCollection() const override;
 
@@ -102,12 +102,15 @@ public:
     void                                                convertCameraPositionFromOldProjectFiles();
 
 protected:
+    void                                        defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
     void                                        defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
     void                                        onLoadDataAndUpdate() override;
 
     void                                        createPartCollectionFromSelection(cvf::Collection<cvf::Part>* parts) override;
 
 private:
+    QString                                     createAutoName() const override;
+
     void                                        createDisplayModel() override;
     void                                        updateScaleTransform() override;
 

@@ -30,15 +30,25 @@ CAF_PDM_SOURCE_INIT(RimViewNameConfig, "RimViewNameConfig");
 //--------------------------------------------------------------------------------------------------
 RimViewNameConfig::RimViewNameConfig(const RimNameConfigHolderInterface* configHolder)
     : RimNameConfig(configHolder)
+    , m_hideAggregationTypeField(false)
+    , m_hideSampleSpacingField(false)
 {
-    CAF_PDM_InitObject("Contour Map Name Generator", "", "", "");
+    CAF_PDM_InitObject("View Name Generator", "", "", "");
 
     CAF_PDM_InitField(&m_addCaseName, "AddCaseName", true, "Add Case Name", "", "", "");
     CAF_PDM_InitField(&m_addAggregationType, "AddAggregationType", true, "Add Aggregation Type", "", "", "");
     CAF_PDM_InitField(&m_addProperty, "AddProperty", true, "Add Property Type", "", "", "");
     CAF_PDM_InitField(&m_addSampleSpacing, "AddSampleSpacing", false, "Add Sample Spacing", "", "", "");
 
-    m_customName = "Contour Map";
+    m_customName = "";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimViewNameConfig::setAddCaseName(bool add)
+{
+    m_addCaseName = add;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -52,6 +62,14 @@ bool RimViewNameConfig::addCaseName() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimViewNameConfig::setAddAggregationType(bool add)
+{
+    m_addAggregationType = add;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RimViewNameConfig::addAggregationType() const
 {
     return m_addAggregationType();
@@ -60,9 +78,25 @@ bool RimViewNameConfig::addAggregationType() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimViewNameConfig::setAddProperty(bool add)
+{
+    m_addProperty = add;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RimViewNameConfig::addProperty() const
 {
     return m_addProperty();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimViewNameConfig::setAddSampleSpacing(bool add)
+{
+    m_addSampleSpacing = add;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -87,11 +121,43 @@ void RimViewNameConfig::enableAllAutoNameTags(bool enable)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimViewNameConfig::hideCaseNameField(bool hide)
+{
+    m_hideCaseNameField = hide;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimViewNameConfig::hideAggregationTypeField(bool hide)
+{
+    m_hideAggregationTypeField = hide;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimViewNameConfig::hidePropertyField(bool hide)
+{
+    m_hidePropertyField = hide;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimViewNameConfig::hideSampleSpacingField(bool hide)
+{
+    m_hideSampleSpacingField = hide;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimViewNameConfig::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
     RimNameConfig::defineUiOrdering(uiConfigName, uiOrdering);
-    uiOrdering.add(&m_addCaseName);
-    uiOrdering.add(&m_addAggregationType);
-    uiOrdering.add(&m_addProperty);
-    uiOrdering.add(&m_addSampleSpacing);
+    if(!m_hideCaseNameField)        uiOrdering.add(&m_addCaseName);
+    if(!m_hideAggregationTypeField) uiOrdering.add(&m_addAggregationType);
+    if(!m_hidePropertyField)        uiOrdering.add(&m_addProperty);
+    if(!m_hideSampleSpacingField)   uiOrdering.add(&m_addSampleSpacing);
 }

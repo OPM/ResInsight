@@ -31,12 +31,21 @@ class RimViewNameConfig : public RimNameConfig
 public:
     RimViewNameConfig(const RimNameConfigHolderInterface* configHolder = nullptr);
 
+    void                     setAddCaseName(bool add);
     bool                     addCaseName() const;
+    void                     setAddAggregationType(bool add);
     bool                     addAggregationType() const;
+    void                     setAddProperty(bool add);
     bool                     addProperty() const;
+    void                     setAddSampleSpacing(bool add);
     bool                     addSampleSpacing() const;
 
     void                     enableAllAutoNameTags(bool enable) override;
+
+    void                     hideCaseNameField(bool hide);
+    void                     hideAggregationTypeField(bool hide);
+    void                     hidePropertyField(bool hide);
+    void                     hideSampleSpacingField(bool hide);
 
 protected:
     void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
@@ -46,6 +55,11 @@ private:
     caf::PdmField<bool>              m_addAggregationType;
     caf::PdmField<bool>              m_addProperty;
     caf::PdmField<bool>              m_addSampleSpacing;
+
+    bool                             m_hideCaseNameField;
+    bool                             m_hideAggregationTypeField;
+    bool                             m_hidePropertyField;
+    bool                             m_hideSampleSpacingField;
 };
 
 

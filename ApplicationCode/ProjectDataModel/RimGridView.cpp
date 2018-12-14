@@ -30,6 +30,7 @@
 #include "RimViewController.h"
 #include "RimViewLinker.h"
 #include "RimViewLinkerCollection.h"
+#include "RimViewNameConfig.h"
 
 #include "Riu3DMainWindowTools.h"
 
@@ -68,7 +69,6 @@ RimGridView::RimGridView()
     m_overlayInfoConfig = new Rim3dOverlayInfoConfig();
     m_overlayInfoConfig->setReservoirView(this);
     m_overlayInfoConfig.uiCapability()->setUiHidden(true);
-
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -305,7 +305,7 @@ void RimGridView::updateViewFollowingRangeFilterUpdates()
 //--------------------------------------------------------------------------------------------------
 void RimGridView::initAfterRead()
 {
-    RimViewWindow::initAfterRead();
+    Rim3dView::initAfterRead();
 
     RimProject* proj = nullptr;
     firstAncestorOrThisOfType(proj);

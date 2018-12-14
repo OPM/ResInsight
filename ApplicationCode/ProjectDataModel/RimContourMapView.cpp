@@ -61,8 +61,7 @@ RimContourMapView::RimContourMapView()
     m_gridCollection->setActive(false); // This is also not added to the tree view, so cannot be enabled.
     setFaultVisParameters();
 
-    CAF_PDM_InitFieldNoDefault(&m_nameConfig, "NameConfig", "", "", "", "");
-    m_nameConfig = new RimViewNameConfig(this);
+    setDefaultCustomName();
 
     m_contourMapProjectionPartMgr = new RivContourMapProjectionPartMgr(contourMapProjection(), this);
 
@@ -84,9 +83,9 @@ QString RimContourMapView::createAutoName() const
 {
     QStringList autoName;
 
-    if (!m_nameConfig->customName().isEmpty())
+    if (!nameConfig()->customName().isEmpty())
     {
-        autoName.push_back(m_nameConfig->customName());
+        autoName.push_back(nameConfig()->customName());
     }
 
     QStringList generatedAutoTags;
@@ -94,22 +93,22 @@ QString RimContourMapView::createAutoName() const
     RimCase* ownerCase = nullptr;
     this->firstAncestorOrThisOfTypeAsserted(ownerCase);
 
-    if (m_nameConfig->addCaseName())
+    if (nameConfig()->addCaseName())
     {
         generatedAutoTags.push_back(ownerCase->caseUserDescription());
     }
 
-    if (m_nameConfig->addAggregationType())
+    if (nameConfig()->addAggregationType())
     {
         generatedAutoTags.push_back(contourMapProjection()->resultAggregationText());
     }
 
-    if (m_nameConfig->addProperty() && !contourMapProjection()->isColumnResult())
+    if (nameConfig()->addProperty() && !contourMapProjection()->isColumnResult())
     {
         generatedAutoTags.push_back(cellResult()->resultVariable());
     }
 
-    if (m_nameConfig->addSampleSpacing())
+    if (nameConfig()->addSampleSpacing())
     {
         generatedAutoTags.push_back(QString("%1").arg(contourMapProjection()->sampleSpacingFactor(), 3, 'f', 2));
     }
@@ -119,6 +118,18 @@ QString RimContourMapView::createAutoName() const
         autoName.push_back(generatedAutoTags.join(", "));
     }
     return autoName.join(": ");
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimContourMapView::setDefaultCustomName()
+{
+    nameConfig()->setCustomName("Contour Map");
+    nameConfig()->hideCaseNameField(false);
+    nameConfig()->hideAggregationTypeField(false);
+    nameConfig()->hidePropertyField(false);
+    nameConfig()->hideSampleSpacingField(false);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -166,7 +177,7 @@ void RimContourMapView::defineUiOrdering(QString uiConfigName, caf::PdmUiOrderin
     viewGroup->add(&m_showScaleLegend);
 
     caf::PdmUiGroup* nameGroup = uiOrdering.addNewGroup("Contour Map Name");
-    m_nameConfig->uiOrdering(uiConfigName, *nameGroup);
+    nameConfig()->uiOrdering(uiConfigName, *nameGroup);
 
     uiOrdering.skipRemainingFields(true);
 }
@@ -372,7 +383,7 @@ void RimContourMapView::fieldChangedByUi(const caf::PdmFieldHandle* changedField
 //--------------------------------------------------------------------------------------------------
 caf::PdmFieldHandle* RimContourMapView::userDescriptionField()
 {
-    return m_nameConfig()->nameField();
+    return nameConfig()->nameField();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -38,7 +38,7 @@ RimNameConfig::RimNameConfig(const RimNameConfigHolderInterface* configHolder /*
 
     CAF_PDM_InitField(&m_isUsingAutoName_OBSOLETE, "IsUsingAutoName", true, "Add Automatic Name Tags", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_customName, "CustomCurveName", "Custom Name Part", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&m_autoName, "AutoCurveName", "Full Curve Name", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_autoName, "AutoCurveName", "Full Name", "", "", "");
     m_isUsingAutoName_OBSOLETE.xmlCapability()->setIOWritable(false);
     m_autoName.registerGetMethod(this, &RimNameConfig::autoName);
     m_autoName.xmlCapability()->disableIO();

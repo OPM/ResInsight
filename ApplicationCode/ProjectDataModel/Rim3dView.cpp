@@ -34,6 +34,7 @@
 #include "RimViewController.h"
 #include "RimViewLinker.h"
 #include "RimWellPathCollection.h"
+#include "RimViewNameConfig.h"
 
 #include "RivAnnotationsPartMgr.h"
 #include "RivWellPathsPartMgr.h"
@@ -89,8 +90,11 @@ Rim3dView::Rim3dView(void)
     RiaPreferences* preferences = app->preferences();
     CVF_ASSERT(preferences);
 
+    CAF_PDM_InitFieldNoDefault(&m_nameConfig, "NameConfig", "", "", "", "");
+    m_nameConfig = new RimViewNameConfig(this);
 
-    CAF_PDM_InitField(&m_name, "UserDescription", QString(""), "Name", "", "", "");
+    CAF_PDM_InitField(&m_name_OBSOLETE, "UserDescription", QString(""), "Name", "", "", "");
+    m_name_OBSOLETE.xmlCapability()->setIOWritable(false);
 
     CAF_PDM_InitField(&m_cameraPosition, "CameraPosition", cvf::Mat4d::IDENTITY, "", "", "", "");
     m_cameraPosition.uiCapability()->setUiHidden(true);
@@ -167,7 +171,7 @@ RiuViewer* Rim3dView::viewer() const
 //--------------------------------------------------------------------------------------------------
 void Rim3dView::setName(const QString& name)
 {
-    m_name = name;
+    m_nameConfig->setCustomName(name);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -175,7 +179,7 @@ void Rim3dView::setName(const QString& name)
 //--------------------------------------------------------------------------------------------------
 QString Rim3dView::name() const
 {
-    return m_name;
+    return m_nameConfig->customName();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -226,6 +230,23 @@ void Rim3dView::updateViewWidgetAfterCreation()
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void Rim3dView::initAfterRead()
+{
+    RimViewWindow::initAfterRead();
+
+    if (!m_name_OBSOLETE().isEmpty())
+    {
+        nameConfig()->setCustomName(m_name_OBSOLETE());
+        nameConfig()->setAddCaseName(false);
+        nameConfig()->setAddAggregationType(false);
+        nameConfig()->setAddProperty(false);
+        nameConfig()->setAddSampleSpacing(false);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void Rim3dView::updateMdiWindowTitle()
@@ -235,11 +256,11 @@ void Rim3dView::updateMdiWindowTitle()
         QString windowTitle;
         if (ownerCase())
         {
-            windowTitle = QString("%1 - %2").arg(ownerCase()->caseUserDescription()).arg(m_name);
+            windowTitle = QString("%1 - %2").arg(ownerCase()->caseUserDescription()).arg(name());
         }
         else
         {
-            windowTitle = m_name;
+            windowTitle = name();
         }
 
         m_viewer->layoutWidget()->setWindowTitle(windowTitle);
@@ -266,7 +287,7 @@ void Rim3dView::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrd
 {
     caf::PdmUiGroup* viewGroup = uiOrdering.addNewGroupWithKeyword("Viewer", "ViewGroup");
     
-    viewGroup->add(&m_name);
+    //viewGroup->add(m_nameConfig->nameField());
     viewGroup->add(&m_backgroundColor);
     viewGroup->add(&m_showZScaleLabel);
     viewGroup->add(&m_showGridBox);
@@ -277,6 +298,8 @@ void Rim3dView::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrd
     gridGroup->add(&scaleZ);
     gridGroup->add(&meshMode);
     gridGroup->add(&surfaceMode);
+
+    uiOrdering.skipRemainingFields(true);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -536,6 +559,14 @@ bool Rim3dView::isLightingDisabled() const
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+caf::PdmFieldHandle* Rim3dView::userDescriptionField()
+{
+    return m_nameConfig->nameField();
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void Rim3dView::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
@@ -600,7 +631,7 @@ void Rim3dView::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const 
         RiuMainWindow::instance()->refreshDrawStyleActions();
         RiuMainWindow::instance()->refreshAnimationActions();
     }
-    else if (changedField == &m_name)
+    else if (changedField == m_nameConfig->nameField())
     {
         updateMdiWindowTitle();
 
@@ -948,6 +979,14 @@ cvf::Mat4d Rim3dView::cameraPosition() const
 cvf::Vec3d Rim3dView::cameraPointOfInterest() const
 {
     return m_cameraPointOfInterest();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimViewNameConfig* Rim3dView::nameConfig() const
+{
+    return m_nameConfig();
 }
 
 //--------------------------------------------------------------------------------------------------

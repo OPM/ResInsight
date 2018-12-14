@@ -19,6 +19,7 @@
 #pragma once
 
 #include "RiuViewerToViewInterface.h"
+#include "RimNameConfig.h"
 #include "RimViewWindow.h"
 
 #include "RivCellSetEnum.h"
@@ -43,6 +44,7 @@ class RimWellPathCollection;
 class RiuViewer;
 class RivAnnotationsPartMgr;
 class RivWellPathsPartMgr; 
+class RimViewNameConfig;
 
 namespace cvf
 {
@@ -76,7 +78,7 @@ enum PartRenderMaskEnum
 ///  
 ///  
 //==================================================================================================
-class Rim3dView : public RimViewWindow, public RiuViewerToViewInterface
+class Rim3dView : public RimViewWindow, public RiuViewerToViewInterface, public RimNameConfigHolderInterface
 {
     CAF_PDM_HEADER_INIT;
 public:
@@ -158,7 +160,7 @@ protected:
     void                                    enablePerspectiveProjectionField();
     cvf::Mat4d                              cameraPosition() const;
     cvf::Vec3d                              cameraPointOfInterest() const;
-
+    RimViewNameConfig*                      nameConfig() const;
 
     RimWellPathCollection*                  wellPathCollection() const;
     bool                                    hasVisibleTimeStepDependent3dWellLogCurves() const;
@@ -212,13 +214,14 @@ private:
 
     void                            setupBeforeSave() override;
 protected:
-    caf::PdmFieldHandle*            userDescriptionField() override { return &m_name; }
+    caf::PdmFieldHandle*            userDescriptionField() override;
     caf::PdmFieldHandle*            backgroundColorField() { return &m_backgroundColor; }
 
     void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
     void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
     virtual void                    updateViewWidgetAfterCreation() override; 
     QWidget*                        createViewWidget(QWidget* mainWindowParent) override;
+    void                            initAfterRead() override;
 
 private:
     // Overridden ViewWindow methods:
@@ -238,7 +241,8 @@ private:
     void                            appendAnnotationsToModel();
 
 private:
-    caf::PdmField<QString>                  m_name;
+    caf::PdmField<QString>                  m_name_OBSOLETE;
+    caf::PdmChildField<RimViewNameConfig*>  m_nameConfig;
     caf::PdmField<bool>                     m_disableLighting;
     caf::PdmField<cvf::Mat4d>               m_cameraPosition;
     caf::PdmField<cvf::Vec3d>               m_cameraPointOfInterest;

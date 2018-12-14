@@ -149,6 +149,7 @@ protected:
     virtual void                            defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     virtual void                            defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
     virtual void                            onLoadDataAndUpdate() override;
+    caf::PdmFieldHandle*                    userDescriptionField() override;
 
     void                                    createPartCollectionFromSelection(cvf::Collection<cvf::Part>* parts) override;
     bool                                    showActiveCellsOnly() override;
@@ -161,6 +162,8 @@ protected:
     virtual std::set<RivCellSetEnum>        allVisibleFaultGeometryTypes() const;
 
 private:
+    QString                                         createAutoName() const override;
+
     void                                            updateDisplayModelVisibility() override;
 
     std::vector<size_t>                             indicesToVisibleGrids() const;

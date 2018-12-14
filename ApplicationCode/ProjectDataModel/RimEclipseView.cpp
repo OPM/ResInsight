@@ -66,6 +66,7 @@
 #include "RimViewLinker.h"
 #include "RimVirtualPerforationResults.h"
 #include "RimWellPathCollection.h"
+#include "RimViewNameConfig.h"
 
 #include "RiuMainWindow.h"
 #include "Riu3dSelectionManager.h"
@@ -168,6 +169,12 @@ RimEclipseView::RimEclipseView()
     m_reservoirGridPartManager = new RivReservoirViewPartMgr(this);
     m_simWellsPartManager = new RivReservoirSimWellsPartMgr(this);
     m_eclipseCase = nullptr;
+
+    nameConfig()->setCustomName("3D View");
+    nameConfig()->hideCaseNameField(false);
+    nameConfig()->hideAggregationTypeField(true);
+    nameConfig()->hidePropertyField(false);
+    nameConfig()->hideSampleSpacingField(true);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -871,6 +878,14 @@ void RimEclipseView::onLoadDataAndUpdate()
 
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+caf::PdmFieldHandle* RimEclipseView::userDescriptionField()
+{
+    return nameConfig()->nameField();
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void RimEclipseView::initAfterRead()
@@ -952,6 +967,40 @@ cvf::Color4f RimEclipseView::colorFromCellCategory(RivCellSetEnum geometryType) 
     }
 
     return color;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimEclipseView::createAutoName() const
+{
+    QStringList autoName;
+
+    if (!nameConfig()->customName().isEmpty())
+    {
+        autoName.push_back(nameConfig()->customName());
+    }
+
+    QStringList generatedAutoTags;
+
+    RimCase* ownerCase = nullptr;
+    this->firstAncestorOrThisOfTypeAsserted(ownerCase);
+
+    if (nameConfig()->addCaseName())
+    {
+        generatedAutoTags.push_back(ownerCase->caseUserDescription());
+    }
+
+    if (nameConfig()->addProperty())
+    {
+        generatedAutoTags.push_back(cellResult()->resultVariable());
+    }
+
+    if (!generatedAutoTags.empty())
+    {
+        autoName.push_back(generatedAutoTags.join(", "));
+    }
+    return autoName.join(": ");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1516,6 +1565,11 @@ void RimEclipseView::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
     caf::PdmUiGroup* cellGroup = uiOrdering.addNewGroup("Cell Visibility");
     cellGroup->add(&m_showInactiveCells);
     cellGroup->add(&m_showInvalidCells);
+
+    caf::PdmUiGroup* nameGroup = uiOrdering.addNewGroup("View Name");
+    nameConfig()->uiOrdering(uiConfigName, *nameGroup);
+
+    uiOrdering.skipRemainingFields(true);
 }
 
 //--------------------------------------------------------------------------------------------------

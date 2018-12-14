@@ -25,7 +25,7 @@ class RimViewNameConfig;
 class RimScaleLegendConfig;
 class RivContourMapProjectionPartMgr;
 
-class RimContourMapView : public RimEclipseView, public RimNameConfigHolderInterface
+class RimContourMapView : public RimEclipseView
 {
     CAF_PDM_HEADER_INIT;
 public:
@@ -33,6 +33,7 @@ public:
     RimContourMapProjection*                     contourMapProjection() const;
 
     QString createAutoName() const override;
+    void    setDefaultCustomName();
 
 protected:
     void initAfterRead() override;
@@ -61,6 +62,5 @@ private:
     caf::PdmChildField<RimContourMapProjection*> m_contourMapProjection;
     caf::PdmField<bool>                          m_showAxisLines;
     caf::PdmField<bool>                          m_showScaleLegend;
-    caf::PdmChildField<RimViewNameConfig*>       m_nameConfig;
 };
 
