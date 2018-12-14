@@ -1139,12 +1139,12 @@ void RicWellPathExportMswCompletionsImpl::assignSuperValveCompletions(
 
                         if (isAicd)
                         {
-                            superAICD.reset(new RicMswPerforationAICD(valveLabel));
+                            superAICD = std::make_shared<RicMswPerforationAICD>(valveLabel);
                             superAICD->addSubSegment(subSegment);
                         }
                         else
                         {
-                            superICD.reset(new RicMswPerforationICD(valveLabel));
+                            superICD = std::make_shared<RicMswPerforationICD>(valveLabel);
                             superICD->addSubSegment(subSegment);
                         }
                     }
@@ -1152,14 +1152,14 @@ void RicWellPathExportMswCompletionsImpl::assignSuperValveCompletions(
                     {
                         QString valveLabel = QString("%1 #%2").arg("Combined Valve for segment").arg(nMainSegment + 2);
                         std::shared_ptr<RicMswSubSegment> subSegment(new RicMswSubSegment(overlapStart, overlapStart + 0.1, 0.0, 0.0));
-                        superICD.reset(new RicMswPerforationICD(valveLabel));
+                        superICD = std::make_shared<RicMswPerforationICD>(valveLabel);
                         superICD->addSubSegment(subSegment);
                     }
                     else if (overlap > 0.0 && (isAicd && !superAICD))
                     {
                         QString valveLabel = QString("%1 #%2").arg("Combined Valve for segment").arg(nMainSegment + 2);
                         std::shared_ptr<RicMswSubSegment> subSegment(new RicMswSubSegment(overlapStart, overlapStart + 0.1, 0.0, 0.0));
-                        superAICD.reset(new RicMswPerforationAICD(valveLabel));
+                        superAICD = std::make_shared<RicMswPerforationAICD>(valveLabel);
                         superAICD->addSubSegment(subSegment);
                     }
 
@@ -1216,11 +1216,11 @@ void RicWellPathExportMswCompletionsImpl::assignValveContributionsToSuperValves(
         std::shared_ptr<RicMswValveAccumulator> accumulator;
         if (std::dynamic_pointer_cast<const RicMswPerforationICD>(superValve))
         {
-            accumulator.reset(new RicMswICDAccumulator(unitSystem));
+            accumulator = std::make_shared<RicMswICDAccumulator>(unitSystem);
         }
         else if (std::dynamic_pointer_cast<const RicMswPerforationAICD>(superValve))
         {
-            accumulator.reset(new RicMswAICDAccumulator(unitSystem));
+            accumulator = std::make_shared<RicMswAICDAccumulator>(unitSystem);
         }
 
         for (const RimPerforationInterval* interval : perforationIntervals)
@@ -1260,7 +1260,7 @@ void RicWellPathExportMswCompletionsImpl::assignValveContributionsToSuperValves(
 
     for (auto regularValvePair : assignedRegularValves)
     {
-        if (regularValvePair.second.size())
+        if (!regularValvePair.second.empty())
         {
             QStringList valveLabels;
             for (std::pair<const RimWellPathValve*, size_t> regularValve : regularValvePair.second)
@@ -1610,9 +1610,8 @@ std::vector<SubSegmentIntersectionInfo> SubSegmentIntersectionInfo::spiltInterse
 
     if (!pathGeometry) return out;
 
-    for (size_t i = 0; i < intersections.size(); i++)
+    for (const auto& intersection : intersections)
     {
-        const auto& intersection = intersections[i];
         double      segLen       = intersection.endMD - intersection.startMD;
         int         segCount     = (int)std::trunc(segLen / maxSegmentLength) + 1;
 
@@ -1621,12 +1620,12 @@ std::vector<SubSegmentIntersectionInfo> SubSegmentIntersectionInfo::spiltInterse
 
         if (segCount == 1)
         {
-            out.push_back(SubSegmentIntersectionInfo(intersection.globCellIndex,
-                                                     -intersection.startPoint.z(),
-                                                     -intersection.endPoint.z(),
-                                                     intersection.startMD,
-                                                     intersection.endMD,
-                                                     intersection.intersectionLengthsInCellCS));
+            out.emplace_back(intersection.globCellIndex,
+                             -intersection.startPoint.z(),
+                             -intersection.endPoint.z(),
+                              intersection.startMD,
+                              intersection.endMD,
+                              intersection.intersectionLengthsInCellCS);
         }
         else
         {
@@ -1640,12 +1639,12 @@ std::vector<SubSegmentIntersectionInfo> SubSegmentIntersectionInfo::spiltInterse
                 currEndMd  = currStartMd + effectiveMaxSegLen;
 
                 cvf::Vec3d segEndPoint = pathGeometry->interpolatedPointAlongWellPath(currEndMd);
-                out.push_back(SubSegmentIntersectionInfo(intersection.globCellIndex,
-                                                         lastTvd,
-                                                         lasti ? -intersection.endPoint.z() : -segEndPoint.z(),
-                                                         currStartMd,
-                                                         lasti ? intersection.endMD : currEndMd,
-                                                         intersection.intersectionLengthsInCellCS / segCount));
+                out.emplace_back(intersection.globCellIndex,
+                                 lastTvd,
+                                 lasti ? -intersection.endPoint.z() : -segEndPoint.z(),
+                                 currStartMd,
+                                 lasti ? intersection.endMD : currEndMd,
+                                 intersection.intersectionLengthsInCellCS / segCount);
 
                 currStartMd = currEndMd;
                 lastTvd     = -segEndPoint.z();

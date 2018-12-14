@@ -41,6 +41,7 @@ public:
 public:
     RimMultipleValveLocations();
 
+    void                       perforationIntervalUpdated();
     double                     measuredDepth(size_t valveIndex) const;
     double                     rangeStart() const;
     double                     rangeEnd() const;
@@ -62,8 +63,8 @@ protected:
 private:
     int rangeCountFromSpacing() const;
     double minimumSpacingMeters() const;
-    double rangeMin() const;
-    double rangeMax() const;
+    double perforationStartMD() const;
+    double perforationEndMD() const;
     static std::vector<double>  locationsFromStartSpacingAndCount(double start, double spacing, size_t count);
 
 private:

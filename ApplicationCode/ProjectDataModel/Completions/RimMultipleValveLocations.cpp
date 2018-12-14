@@ -70,6 +70,21 @@ RimMultipleValveLocations::RimMultipleValveLocations()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimMultipleValveLocations::perforationIntervalUpdated()
+{
+    double existingRangeStart = m_rangeStart();
+    double existingRangeEnd = m_rangeEnd();
+    m_rangeStart = cvf::Math::clamp(m_rangeStart(), perforationStartMD(), perforationEndMD());
+    m_rangeEnd   = cvf::Math::clamp(m_rangeEnd(), perforationStartMD(), perforationEndMD());
+    if (existingRangeStart != m_rangeStart() || existingRangeEnd != m_rangeEnd())
+    {
+        computeRangesAndLocations();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 double RimMultipleValveLocations::measuredDepth(size_t valveIndex) const
 {
     CVF_ASSERT(valveIndex < m_locationOfValves().size());
@@ -295,8 +310,8 @@ void RimMultipleValveLocations::fieldChangedByUi(const caf::PdmFieldHandle* chan
         changedField == &m_rangeValveSpacing)
     {
         recomputeLocations = true;
-        m_rangeStart = cvf::Math::clamp(m_rangeStart(), rangeMin(), rangeMax());
-        m_rangeEnd   = cvf::Math::clamp(m_rangeEnd(),   rangeMin(), rangeMax());
+        m_rangeStart = cvf::Math::clamp(m_rangeStart(), perforationStartMD(), perforationEndMD());
+        m_rangeEnd   = cvf::Math::clamp(m_rangeEnd(),   perforationStartMD(), perforationEndMD());
     }
 
     if (changedField == &m_rangeValveSpacing)
@@ -376,7 +391,7 @@ double RimMultipleValveLocations::minimumSpacingMeters() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RimMultipleValveLocations::rangeMin() const
+double RimMultipleValveLocations::perforationStartMD() const
 {
     const RimPerforationInterval* perfInterval = nullptr;
     this->firstAncestorOrThisOfType(perfInterval);
@@ -391,7 +406,7 @@ double RimMultipleValveLocations::rangeMin() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RimMultipleValveLocations::rangeMax() const
+double RimMultipleValveLocations::perforationEndMD() const
 {
     const RimPerforationInterval* perfInterval = nullptr;
     this->firstAncestorOrThisOfType(perfInterval);

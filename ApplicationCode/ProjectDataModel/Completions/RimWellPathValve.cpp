@@ -72,6 +72,25 @@ RimWellPathValve::~RimWellPathValve()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimWellPathValve::perforationIntervalUpdated()
+{
+    if (m_type() == RiaDefines::ICV)
+    {
+        const RimPerforationInterval* perfInterval = nullptr;
+        this->firstAncestorOrThisOfType(perfInterval);
+        double startMD = perfInterval->startMD();
+        double endMD   = perfInterval->endMD();
+        m_measuredDepth = cvf::Math::clamp(m_measuredDepth(), startMD, endMD);
+    }
+    else
+    {
+        m_multipleValveLocations->perforationIntervalUpdated();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimWellPathValve::setMeasuredDepthAndCount(double startMD, double spacing, int valveCount)
 {
     m_measuredDepth = startMD;
@@ -436,19 +455,22 @@ void RimWellPathValve::defineEditorAttribute(const caf::PdmFieldHandle* field, Q
 //--------------------------------------------------------------------------------------------------
 void RimWellPathValve::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/)
 {
-    QString fullName = componentLabel() + QString(" %1").arg(m_measuredDepth());
-    this->setName(fullName);
-
-    if ( m_type() == RiaDefines::ICD )
-    {
-        this->setUiIcon(QIcon(":/ICDValve16x16.png"));
-    } 
-    else if ( m_type() == RiaDefines::ICV )
+    if ( m_type() == RiaDefines::ICV )
     {
         this->setUiIcon(QIcon(":/ICVValve16x16.png"));
+        QString fullName = QString("%1: %2").arg(componentLabel()).arg(m_measuredDepth());
+        this->setName(fullName);
+    } 
+    else if ( m_type() == RiaDefines::ICD )
+    {
+        this->setUiIcon(QIcon(":/ICDValve16x16.png"));
+        QString fullName = QString("%1: %2 - %3").arg(componentLabel()).arg(m_multipleValveLocations->rangeStart()).arg(m_multipleValveLocations->rangeEnd());
+        this->setName(fullName);
     } 
     else if ( m_type() == RiaDefines::AICD )
     {
         this->setUiIcon(QIcon(":/AICDValve16x16.png"));
+        QString fullName = QString("%1: %2 - %3").arg(componentLabel()).arg(m_multipleValveLocations->rangeStart()).arg(m_multipleValveLocations->rangeEnd());
+        this->setName(fullName);
     }
 }

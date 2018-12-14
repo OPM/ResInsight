@@ -44,6 +44,7 @@ public:
     RimWellPathValve();
     ~RimWellPathValve() override;
 
+    void                       perforationIntervalUpdated();
     void                       setMeasuredDepthAndCount(double startMD, double spacing, int valveCount);
     void                       multipleValveGeometryUpdated();
     std::vector<double>        valveLocations() const;
