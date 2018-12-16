@@ -218,19 +218,7 @@ void RimPlotCurve::setCustomName(const QString& customName)
 //--------------------------------------------------------------------------------------------------
 void RimPlotCurve::updateCurveVisibility(bool updateParentPlot)
 {
-    bool isVisibleInPossibleParent = true;
-    
-    {
-        RimSummaryCurveCollection* summaryCurveCollection = nullptr;
-        this->firstAncestorOrThisOfType(summaryCurveCollection);
-        if (summaryCurveCollection) isVisibleInPossibleParent = summaryCurveCollection->isCurvesVisible();
-
-        RimEnsembleCurveSet* ensembleCurveSet = nullptr;
-        firstAncestorOrThisOfType(ensembleCurveSet);
-        if (ensembleCurveSet) isVisibleInPossibleParent = ensembleCurveSet->isCurvesVisible();
-    }
-
-    if (m_showCurve() && m_parentQwtPlot && isVisibleInPossibleParent)
+    if (canCurveBeAttached())
     {
         m_qwtPlotCurve->attach(m_parentQwtPlot);
     }
@@ -282,7 +270,7 @@ void RimPlotCurve::updateCurvePresentation(bool updatePlotLegendAndTitle)
 void RimPlotCurve::setParentQwtPlotAndReplot(QwtPlot* plot)
 {
     m_parentQwtPlot = plot;
-    if (m_showCurve && m_parentQwtPlot)
+    if (canCurveBeAttached())
     {
         m_qwtPlotCurve->attach(m_parentQwtPlot);
         m_parentQwtPlot->replot();
@@ -295,7 +283,7 @@ void RimPlotCurve::setParentQwtPlotAndReplot(QwtPlot* plot)
 void RimPlotCurve::setParentQwtPlotNoReplot(QwtPlot* plot)
 {
     m_parentQwtPlot = plot;
-    if (m_showCurve && m_parentQwtPlot)
+    if (canCurveBeAttached())
     {
         m_qwtPlotCurve->attach(m_parentQwtPlot);
     }
@@ -331,7 +319,7 @@ void RimPlotCurve::detachQwtCurve()
 void RimPlotCurve::reattachQwtCurve()
 {
     detachQwtCurve();
-    if (m_parentQwtPlot && m_showCurve)
+    if (canCurveBeAttached())
     {
         m_qwtPlotCurve->attach(m_parentQwtPlot);
     }
@@ -452,6 +440,36 @@ void RimPlotCurve::curveNameUiOrdering(caf::PdmUiOrdering& uiOrdering)
 {
     uiOrdering.add(&m_isUsingAutoName);
     uiOrdering.add(&m_curveName);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimPlotCurve::canCurveBeAttached() const
+{
+    if (!m_parentQwtPlot)
+    {
+        return false;
+    }
+
+    if (!m_showCurve())
+    {
+        return false;
+    }
+
+    bool isVisibleInPossibleParent = true;
+
+    {
+        RimSummaryCurveCollection* summaryCurveCollection = nullptr;
+        this->firstAncestorOrThisOfType(summaryCurveCollection);
+        if (summaryCurveCollection) isVisibleInPossibleParent = summaryCurveCollection->isCurvesVisible();
+
+        RimEnsembleCurveSet* ensembleCurveSet = nullptr;
+        firstAncestorOrThisOfType(ensembleCurveSet);
+        if (ensembleCurveSet) isVisibleInPossibleParent = ensembleCurveSet->isCurvesVisible();
+    }
+
+    return isVisibleInPossibleParent;
 }
 
 //--------------------------------------------------------------------------------------------------
