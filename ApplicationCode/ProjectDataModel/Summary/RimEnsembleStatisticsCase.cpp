@@ -147,6 +147,8 @@ void RimEnsembleStatisticsCase::calculate(const std::vector<RimSummaryCase*> sum
             std::vector<double> values;
             reader->values(inputAddress, &values);
 
+            if (timeSteps.size() != values.size()) continue;
+
             RiaTimeHistoryCurveResampler resampler;
             resampler.setCurveData(values, timeSteps);
             if (inputAddress.hasAccumulatedData()) resampler.resampleAndComputePeriodEndValues(DateTimePeriod::DAY);
