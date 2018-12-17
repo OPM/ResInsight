@@ -690,6 +690,12 @@ void RicWellPathExportMswCompletionsImpl::generateWsegAicdTable(RifEclipseDataTa
         {
             if (completion->completionType() == RigCompletionData::PERFORATION_AICD)
             {
+                std::shared_ptr<RicMswPerforationAICD> aicd = std::static_pointer_cast<RicMswPerforationAICD>(completion);
+                if (!aicd->isValid())
+                {
+                    RiaLogging::error(QString("Export AICD Valve (%1): Valve is invalid. At least one required template parameter is not set.").arg(aicd->label()));
+                }
+
                 if (!foundValve)
                 {
                     std::vector<QString> columnDescriptions =
@@ -731,37 +737,34 @@ void RicWellPathExportMswCompletionsImpl::generateWsegAicdTable(RifEclipseDataTa
 
                     foundValve = true;
                 }
+                if (!aicd->subSegments().empty())
                 {
-                    std::shared_ptr<RicMswPerforationAICD> aicd = std::static_pointer_cast<RicMswPerforationAICD>(completion);
-                    if (!aicd->subSegments().empty())
-                    {
-                        CVF_ASSERT(aicd->subSegments().size() == 1u);
-                        formatter.comment(aicd->label());
-                        formatter.add(exportInfo.wellPath()->completions()->wellNameForExport()); // 1
-                        formatter.add(aicd->subSegments().front()->segmentNumber());
-                        formatter.add(aicd->subSegments().front()->segmentNumber());
+                    CVF_ASSERT(aicd->subSegments().size() == 1u);
+                    formatter.comment(aicd->label());
+                    formatter.add(exportInfo.wellPath()->completions()->wellNameForExport()); // 1
+                    formatter.add(aicd->subSegments().front()->segmentNumber());
+                    formatter.add(aicd->subSegments().front()->segmentNumber());
                         
-                        std::array<double, AICD_NUM_PARAMS> values = aicd->values();
-                        formatter.add(values[AICD_STRENGTH]);
-                        formatter.add(aicd->length()); // 5
-                        formatter.add(values[AICD_DENSITY_CALIB_FLUID]);
-                        formatter.add(values[AICD_VISCOSITY_CALIB_FLUID]);
-                        formatter.addValueOrDefaultMarker(values[AICD_CRITICAL_WATER_IN_LIQUID_FRAC], RicMswExportInfo::defaultDoubleValue());
-                        formatter.addValueOrDefaultMarker(values[AICD_EMULSION_VISC_TRANS_REGION], RicMswExportInfo::defaultDoubleValue());
-                        formatter.addValueOrDefaultMarker(values[AICD_MAX_RATIO_EMULSION_VISC], RicMswExportInfo::defaultDoubleValue()); // 10
-                        formatter.add(1);
-                        formatter.addValueOrDefaultMarker(values[AICD_MAX_FLOW_RATE], RicMswExportInfo::defaultDoubleValue());
-                        formatter.add(values[AICD_VOL_FLOW_EXP]);
-                        formatter.add(values[AICD_VISOSITY_FUNC_EXP]);
-                        formatter.add(aicd->isOpen() ? "OPEN" : "SHUT"); // 15
-                        formatter.addValueOrDefaultMarker(values[AICD_EXP_OIL_FRAC_DENSITY], RicMswExportInfo::defaultDoubleValue());
-                        formatter.addValueOrDefaultMarker(values[AICD_EXP_WATER_FRAC_DENSITY], RicMswExportInfo::defaultDoubleValue());
-                        formatter.addValueOrDefaultMarker(values[AICD_EXP_GAS_FRAC_DENSITY], RicMswExportInfo::defaultDoubleValue());
-                        formatter.addValueOrDefaultMarker(values[AICD_EXP_OIL_FRAC_VISCOSITY], RicMswExportInfo::defaultDoubleValue());
-                        formatter.addValueOrDefaultMarker(values[AICD_EXP_WATER_FRAC_VISCOSITY], RicMswExportInfo::defaultDoubleValue()); // 20
-                        formatter.addValueOrDefaultMarker(values[AICD_EXP_GAS_FRAC_VISCOSITY], RicMswExportInfo::defaultDoubleValue());
-                        formatter.rowCompleted();
-                    }
+                    std::array<double, AICD_NUM_PARAMS> values = aicd->values();
+                    formatter.add(values[AICD_STRENGTH]);
+                    formatter.add(aicd->length()); // 5
+                    formatter.add(values[AICD_DENSITY_CALIB_FLUID]);
+                    formatter.add(values[AICD_VISCOSITY_CALIB_FLUID]);
+                    formatter.addValueOrDefaultMarker(values[AICD_CRITICAL_WATER_IN_LIQUID_FRAC], RicMswExportInfo::defaultDoubleValue());
+                    formatter.addValueOrDefaultMarker(values[AICD_EMULSION_VISC_TRANS_REGION], RicMswExportInfo::defaultDoubleValue());
+                    formatter.addValueOrDefaultMarker(values[AICD_MAX_RATIO_EMULSION_VISC], RicMswExportInfo::defaultDoubleValue()); // 10
+                    formatter.add(1);
+                    formatter.addValueOrDefaultMarker(values[AICD_MAX_FLOW_RATE], RicMswExportInfo::defaultDoubleValue());
+                    formatter.add(values[AICD_VOL_FLOW_EXP]);
+                    formatter.add(values[AICD_VISOSITY_FUNC_EXP]);
+                    formatter.add(aicd->isOpen() ? "OPEN" : "SHUT"); // 15
+                    formatter.addValueOrDefaultMarker(values[AICD_EXP_OIL_FRAC_DENSITY], RicMswExportInfo::defaultDoubleValue());
+                    formatter.addValueOrDefaultMarker(values[AICD_EXP_WATER_FRAC_DENSITY], RicMswExportInfo::defaultDoubleValue());
+                    formatter.addValueOrDefaultMarker(values[AICD_EXP_GAS_FRAC_DENSITY], RicMswExportInfo::defaultDoubleValue());
+                    formatter.addValueOrDefaultMarker(values[AICD_EXP_OIL_FRAC_VISCOSITY], RicMswExportInfo::defaultDoubleValue());
+                    formatter.addValueOrDefaultMarker(values[AICD_EXP_WATER_FRAC_VISCOSITY], RicMswExportInfo::defaultDoubleValue()); // 20
+                    formatter.addValueOrDefaultMarker(values[AICD_EXP_GAS_FRAC_VISCOSITY], RicMswExportInfo::defaultDoubleValue());
+                    formatter.rowCompleted();
                 }
             }
         }
