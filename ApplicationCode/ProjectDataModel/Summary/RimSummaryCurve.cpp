@@ -568,6 +568,28 @@ void RimSummaryCurve::updateLegendsInPlot()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimSummaryCurve::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/)
+{
+    RimPlotCurve::defineUiTreeOrdering(uiTreeOrdering, uiConfigName);
+
+    // Reset dynamic icon
+    this->setUiIcon(QIcon());
+    // Get static one
+    QIcon icon = this->uiIcon();
+
+    RimSummaryCurveCollection* coll = nullptr;
+    this->firstAncestorOrThisOfType(coll);
+    if (coll && coll->curveForSourceStepping() == this)
+    {
+        icon = QIcon(":/updownarrow.png");
+    }
+
+    this->setUiIcon(icon);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimSummaryCurve::defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute)
 {
     if (&m_yPushButtonSelectSummaryAddress == field ||

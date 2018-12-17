@@ -660,6 +660,20 @@ void RimEnsembleCurveSet::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrd
     }
 
     uiTreeOrdering.skipRemainingChildren(true);
+
+    // Reset dynamic icon
+    this->setUiIcon(QIcon());
+    // Get static one
+    QIcon icon = this->uiIcon();
+
+    RimEnsembleCurveSetCollection* coll = nullptr;
+    this->firstAncestorOrThisOfType(coll);
+    if (coll && coll->curveSetForSourceStepping() == this)
+    {
+        icon = QIcon(":/updownarrow.png");
+    }
+
+    this->setUiIcon(icon);
 }
 
 //--------------------------------------------------------------------------------------------------
