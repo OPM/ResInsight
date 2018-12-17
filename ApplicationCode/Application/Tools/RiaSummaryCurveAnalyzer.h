@@ -42,6 +42,11 @@ public:
     void clear();
 
     std::set<std::string> quantities() const;
+    std::set<std::string> quantityNamesWithHistory() const;
+    std::set<std::string> quantityNamesNoHistory() const;
+    
+    std::string quantityNameForTitle() const;
+
     std::set<std::string> wellNames() const;
     std::set<std::string> wellGroupNames() const;
     std::set<int>         regionNumbers() const;
@@ -54,10 +59,16 @@ public:
                                                                       RifEclipseSummaryAddress::SummaryVarCategory category);
 
 private:
+    void assignCategoryToQuantities() const;
+    void computeQuantityNamesWithHistory() const;
+
     void analyzeSingleAddress(const RifEclipseSummaryAddress& address);
 
 private:
     std::set<std::string> m_quantities;
+    mutable std::set<std::string> m_quantitiesWithMatchingHistory;
+    mutable std::set<std::string> m_quantitiesNoMatchingHistory;
+    
     std::set<std::string> m_wellNames;
     std::set<std::string> m_wellGroupNames;
     std::set<int>         m_regionNumbers;
