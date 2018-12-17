@@ -56,6 +56,7 @@ public:
     void                                    deleteCurve(RimSummaryCurve* curve);
 
     std::vector<RimSummaryCurve*>           curves() const;
+    std::vector<RimSummaryCurve*>           curvesForSourceStepping() const;
 
     void                                    deleteCurvesAssosiatedWithCase(RimSummaryCase* summaryCase);
     void                                    deleteAllCurves();
@@ -68,6 +69,9 @@ public:
     void                                    handleKeyPressEvent(QKeyEvent* keyEvent);
 
     void                                    setCurveAsTopZWithinCategory(RimSummaryCurve* curve);
+    
+    void                                    setCurveForSourceStepping(RimSummaryCurve* curve);
+    RimSummaryCurve*                        curveForSourceStepping() const;
 
 private:
     caf::PdmFieldHandle*                    objectToggleField() override;
@@ -88,5 +92,6 @@ private:
     caf::PdmChildField<RimSummaryPlotSourceStepping*>   m_unionSourceStepping;
 
     caf::PdmPointer<RimSummaryCurve>                    m_currentSummaryCurve;
+    caf::PdmPointer<RimSummaryCurve>                    m_curveForSourceStepping;
 };
 
