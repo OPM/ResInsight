@@ -22,6 +22,7 @@
 #include "RiaBaseDefs.h"
 #include "RiaPreferences.h"
 
+#include "RimEnsembleCurveSetCollection.h"
 #include "RimProject.h"
 #include "RimSummaryCurveCollection.h"
 #include "RimSummaryPlot.h"
@@ -43,6 +44,7 @@
 #include "cafPdmUiToolBarEditor.h"
 #include "cafPdmUiTreeView.h"
 #include "cafQTreeViewStateSerializer.h"
+#include "cafSelectionManager.h"
 
 #include <QCloseEvent>
 #include <QDockWidget>
@@ -500,8 +502,25 @@ void RiuPlotMainWindow::updateSummaryPlotToolBar()
     if (summaryPlot)
     {
         std::vector<caf::PdmFieldHandle*> toolBarFields;
-        toolBarFields = summaryPlot->summaryCurveCollection()->fieldsToShowInToolbar();
-    
+
+        RimEnsembleCurveSetCollection* ensembleCurveSetColl = nullptr;
+
+        caf::PdmObjectHandle* selectedObj =
+            dynamic_cast<caf::PdmObjectHandle*>(caf::SelectionManager::instance()->selectedItem());
+        if (selectedObj)
+        {
+            selectedObj->firstAncestorOrThisOfType(ensembleCurveSetColl);
+        }
+
+        if (ensembleCurveSetColl)
+        {
+            toolBarFields = ensembleCurveSetColl->fieldsToShowInToolbar();
+        }
+        else
+        {
+            toolBarFields = summaryPlot->summaryCurveCollection()->fieldsToShowInToolbar();
+        }
+
         if (!m_summaryPlotToolBarEditor->isEditorDataValid(toolBarFields))
         {
             m_summaryPlotToolBarEditor->setFields(toolBarFields);
