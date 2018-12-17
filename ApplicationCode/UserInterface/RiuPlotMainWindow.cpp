@@ -713,6 +713,16 @@ void RiuPlotMainWindow::selectedObjectsChanged()
 
     m_pdmUiPropertyView->showProperties(firstSelectedObject);
 
+    if (firstSelectedObject)
+    {
+        RimSummaryPlot* summaryPlot = nullptr;
+        firstSelectedObject->firstAncestorOrThisOfType(summaryPlot);
+        if (summaryPlot)
+        {
+            updateSummaryPlotToolBar();
+        }
+    }
+
     if (uiItems.size() == 1 && m_allowActiveViewChangeFromSelection)
     {
         // Find the reservoir view or the Plot that the selected item is within
