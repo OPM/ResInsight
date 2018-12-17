@@ -31,7 +31,9 @@
 #include <set>
 
 class RimSummaryCase;
+class RimSummaryCurve;
 class RifSummaryReaderInterface;
+class RimSummaryCaseCollection;
 
 //==================================================================================================
 ///
@@ -55,6 +57,9 @@ public:
 
     void applyNextCase();
     void applyPrevCase();
+
+    void applyNextEnsemble();
+    void applyPrevEnsemble();
 
     void applyNextQuantity();
     void applyPrevQuantity();
@@ -83,6 +88,7 @@ private:
     std::set<RifEclipseSummaryAddress> addressesCurveCollection() const;
     std::set<RimSummaryCase*>          summaryCasesCurveCollection() const;
     std::vector<caf::PdmFieldHandle*>  computeVisibleFieldsAndSetFieldVisibility();
+    std::set<RimSummaryCaseCollection*> ensembleCollection() const;
 
     bool isXAxisStepping() const;
     bool isYAxisStepping() const;
@@ -91,8 +97,19 @@ private:
 
     void modifyCurrentIndex(caf::PdmValueField* valueField, int indexOffset);
 
+    static void
+        updateCurveYAddressIfMatching(const std::string& oldQuantity, const std::string& newQuantity, RimSummaryCurve* curve);
+
+    static void
+        updateCurveXAddressIfMatching(const std::string& oldQuantity, const std::string& newQuantity, RimSummaryCurve* curve);
+
+    static bool
+        updateAddressIfMatching(const std::string& oldQuantity, const std::string& newQuantity, RifEclipseSummaryAddress& adr);
+
 private:
     caf::PdmPtrField<RimSummaryCase*> m_summaryCase;
+    caf::PdmPtrField<RimSummaryCaseCollection*> m_ensemble;
+
     caf::PdmField<QString>            m_wellName;
     caf::PdmField<QString>            m_wellGroupName;
     caf::PdmField<int>                m_region;
