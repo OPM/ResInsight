@@ -507,7 +507,15 @@ WellFractureIntersectionData RimStimPlanFractureTemplate::wellFractureIntersecti
 
                         if (fractureGlobalCellIndex < betaFactorResultValues.size())
                         {
-                            betaFactorCalc.addValueAndWeight(betaFactorResultValues[fractureGlobalCellIndex], intersectionLength);
+                            double nativeBetaFactor = betaFactorResultValues[fractureGlobalCellIndex];
+
+                            // Guard against zero beta values, as these values will set the geometric mean to zero
+                            // Consider using the conductivity threshold instead of a local beta threshold
+                            const double threshold = 1e-6;
+                            if (fabs(nativeBetaFactor) > threshold)
+                            {
+                                betaFactorCalc.addValueAndWeight(nativeBetaFactor, intersectionLength);
+                            }
                         }
                     }
                     if (conductivityCalc.validAggregatedWeight())
