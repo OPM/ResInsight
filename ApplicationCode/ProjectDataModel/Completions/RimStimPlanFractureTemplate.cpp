@@ -461,7 +461,6 @@ WellFractureIntersectionData RimStimPlanFractureTemplate::wellFractureIntersecti
                 double weightedConductivity     = 0.0;
                 double weightedWidth            = 0.0;
                 double weightedBetaFactorOnFile = 0.0;
-                double conversionFactorForBeta  = 1.0;
 
                 {
                     std::vector<double> widthResultValues;
@@ -483,20 +482,6 @@ WellFractureIntersectionData RimStimPlanFractureTemplate::wellFractureIntersecti
                         auto nameUnit          = betaFactorParameterNameAndUnit();
                         betaFactorResultValues = m_stimPlanFractureDefinitionData->fractureGridResults(
                             nameUnit.first, nameUnit.second, m_activeTimeStepIndex);
-
-                        QString trimmedUnit = nameUnit.second.trimmed().toLower();
-                        if (trimmedUnit == "/m")
-                        {
-                            conversionFactorForBeta = 1.01325E+08;
-                        }
-                        else if (trimmedUnit == "/cm")
-                        {
-                            conversionFactorForBeta = 1.01325E+06;
-                        }
-                        else if (trimmedUnit == "/ft")
-                        {
-                            conversionFactorForBeta = 3.088386E+07;
-                        }
                     }
 
                     RiaWeightedMeanCalculator<double>  widthCalc;
@@ -545,7 +530,9 @@ WellFractureIntersectionData RimStimPlanFractureTemplate::wellFractureIntersecti
                     values.m_width        = weightedWidth;
                     values.m_conductivity = weightedConductivity;
 
-                    double betaFactorForcheimer          = weightedBetaFactorOnFile / conversionFactorForBeta;
+                    double conversionFactorForBeta = conversionFactorForBetaValues();
+                    double betaFactorForcheimer    = weightedBetaFactorOnFile / conversionFactorForBeta;
+
                     values.m_betaFactorInForcheimerUnits = betaFactorForcheimer;
                 }
 
@@ -561,24 +548,42 @@ WellFractureIntersectionData RimStimPlanFractureTemplate::wellFractureIntersecti
             double conductivity   = wellCell.getConductivityValue();
             values.m_conductivity = conductivity;
 
-            auto nameUnit = widthParameterNameAndUnit();
-            if (!nameUnit.first.isEmpty())
             {
-                double widthInRequiredUnit = HUGE_VAL;
+                auto nameUnit = widthParameterNameAndUnit();
+                if (!nameUnit.first.isEmpty())
                 {
-                    auto resultValues = fractureGridResultsForUnitSystem(
-                        nameUnit.first, nameUnit.second, m_activeTimeStepIndex, fractureTemplateUnit());
-
-                    if (wellCellIndex < resultValues.size())
+                    double widthInRequiredUnit = HUGE_VAL;
                     {
-                        widthInRequiredUnit = resultValues[wellCellIndex];
+                        auto resultValues = fractureGridResultsForUnitSystem(
+                            nameUnit.first, nameUnit.second, m_activeTimeStepIndex, fractureTemplateUnit());
+
+                        if (wellCellIndex < resultValues.size())
+                        {
+                            widthInRequiredUnit = resultValues[wellCellIndex];
+                        }
+                    }
+
+                    if (widthInRequiredUnit != HUGE_VAL && fabs(widthInRequiredUnit) > 1e-20)
+                    {
+                        values.m_width        = widthInRequiredUnit;
+                        values.m_permeability = RigTransmissibilityEquations::permeability(conductivity, widthInRequiredUnit);
                     }
                 }
+            }
 
-                if (widthInRequiredUnit != HUGE_VAL && fabs(widthInRequiredUnit) > 1e-20)
+            {
+                auto                nameUnit = betaFactorParameterNameAndUnit();
+                std::vector<double> betaFactorResultValues =
+                    m_stimPlanFractureDefinitionData->fractureGridResults(nameUnit.first, nameUnit.second, m_activeTimeStepIndex);
+
+                if (wellCellIndex < betaFactorResultValues.size())
                 {
-                    values.m_width        = widthInRequiredUnit;
-                    values.m_permeability = RigTransmissibilityEquations::permeability(conductivity, widthInRequiredUnit);
+                    double nativeBetaValue = betaFactorResultValues[wellCellIndex];
+
+                    double conversionFactorForBeta = conversionFactorForBetaValues();
+                    double betaFactorForcheimer    = nativeBetaValue / conversionFactorForBeta;
+
+                    values.m_betaFactorInForcheimerUnits = betaFactorForcheimer;
                 }
             }
         }
@@ -666,6 +671,32 @@ bool RimStimPlanFractureTemplate::isBetaFactorAvailableOnFile() const
     auto nameAndUnit = betaFactorParameterNameAndUnit();
 
     return !nameAndUnit.first.isEmpty();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimStimPlanFractureTemplate::conversionFactorForBetaValues() const
+{
+    auto nameUnit = betaFactorParameterNameAndUnit();
+
+    double conversionFactorForBeta = 1.0;
+
+    QString trimmedUnit = nameUnit.second.trimmed().toLower();
+    if (trimmedUnit == "/m")
+    {
+        conversionFactorForBeta = 1.01325E+08;
+    }
+    else if (trimmedUnit == "/cm")
+    {
+        conversionFactorForBeta = 1.01325E+06;
+    }
+    else if (trimmedUnit == "/ft")
+    {
+        conversionFactorForBeta = 3.088386E+07;
+    }
+
+    return conversionFactorForBeta;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -114,6 +114,8 @@ private:
     std::pair<QString, QString>             betaFactorParameterNameAndUnit() const;
     bool                                    isBetaFactorAvailableOnFile() const override;
 
+    double                                  conversionFactorForBetaValues() const;
+
 private:
     caf::PdmField<int>                      m_activeTimeStepIndex;
     caf::PdmField<QString>                  m_conductivityResultNameOnFile;
