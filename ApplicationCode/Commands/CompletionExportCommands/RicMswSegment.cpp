@@ -226,6 +226,21 @@ void RicMswSegment::addCompletion(std::shared_ptr<RicMswCompletion> completion)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RicMswSegment::removeCompletion(std::shared_ptr<RicMswCompletion> completion)
+{
+    for (auto it = m_completions.begin(); it != m_completions.end(); ++it)
+    {
+        if ((*it) == completion)
+        {
+            m_completions.erase(it);
+            break;
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RicMswSegment::setSourcePdmObject(const caf::PdmObject* object)
 {
     m_sourcePdmObject = const_cast<caf::PdmObject*>(object);
@@ -246,5 +261,4 @@ bool RicMswSegment::operator<(const RicMswSegment& rhs) const
 {
     return startMD() < rhs.startMD();
 }
-
 

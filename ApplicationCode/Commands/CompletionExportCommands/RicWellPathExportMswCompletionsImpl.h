@@ -107,14 +107,19 @@ private:
                                                    RimEclipseCase*                                   eclipseCase,
                                                    bool*                                             foundSubGridIntersections);
 
-    static void assignSuperValveCompletions(std::vector<std::shared_ptr<RicMswSegment>>&      mainBoreSegments,
-                                            const std::vector<const RimPerforationInterval*>& perforationIntervals);
+    static void createValveCompletions(std::vector<std::shared_ptr<RicMswSegment>>& mainBoreSegments,
+                                            const std::vector<const RimPerforationInterval*>& perforationIntervals,
+                                            RiaEclipseUnitTools::UnitSystem unitSystem);
 
-    static void assignValveContributionsToSuperValves(const std::vector<std::shared_ptr<RicMswSegment>>& mainBoreSegments,
+    static void assignValveContributionsToSuperICDsOrAICDs(const std::vector<std::shared_ptr<RicMswSegment>>& mainBoreSegments,
                                                       const std::vector<const RimPerforationInterval*>&  perforationIntervals,
                                                       RiaEclipseUnitTools::UnitSystem                    unitSystem);
 
-    static void moveIntersectionsToSuperValves(MainBoreSegments mainBoreSegments);
+    static void moveIntersectionsToICVs(const std::vector<std::shared_ptr<RicMswSegment>>& mainBoreSegments,
+                                        const std::vector<const RimPerforationInterval*>&  perforationIntervals,
+                                        RiaEclipseUnitTools::UnitSystem                    unitSystem);
+
+    static void moveIntersectionsToSuperICDsOrAICDs(MainBoreSegments mainBoreSegments);
 
     static void assignFishbonesLateralIntersections(const RimEclipseCase*           caseToApply,
                                                     const RimFishbonesMultipleSubs* fishbonesSubs,

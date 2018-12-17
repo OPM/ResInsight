@@ -97,43 +97,60 @@ public:
 class RicMswValve : public RicMswCompletion
 {
 public:
-    RicMswValve(const QString& label, size_t index = cvf::UNDEFINED_SIZE_T, int branchNumber = cvf::UNDEFINED_INT);
+    RicMswValve(const QString& label, const RimWellPathValve* wellPathValve);
+
     virtual ~RicMswValve() {}
+
+    const RimWellPathValve* wellPathValve() const;
+
+private:
+    const RimWellPathValve* m_wellPathValve;
 };
 
 //==================================================================================================
 ///
 //==================================================================================================
-class RicMswICD : public RicMswValve
+class RicMswWsegValve : public RicMswValve
 {
 public:
-    RicMswICD(const QString& label, size_t index = cvf::UNDEFINED_SIZE_T, int branchNumber = cvf::UNDEFINED_INT);
+    RicMswWsegValve(const QString& label, const RimWellPathValve* wellPathValve);
+
     double flowCoefficient() const;
     double area() const;
     void   setFlowCoefficient(double icdFlowCoefficient);
     void   setArea(double icdArea);
 private:
-    double m_flowCoefficient;
-    double m_area;
+    double                  m_flowCoefficient;
+    double                  m_area;
 };
 
 //==================================================================================================
 ///
 //==================================================================================================
-class RicMswFishbonesICD : public RicMswICD
+class RicMswFishbonesICD : public RicMswWsegValve
 {
 public:
-    RicMswFishbonesICD(const QString& label, size_t index = cvf::UNDEFINED_SIZE_T, int branchNumber = cvf::UNDEFINED_INT);
+    RicMswFishbonesICD(const QString& label, const RimWellPathValve* wellPathValve);
     RigCompletionData::CompletionType completionType() const override;
 };
 
 //==================================================================================================
 ///
 //==================================================================================================
-class RicMswPerforationICD : public RicMswICD
+class RicMswPerforationICD : public RicMswWsegValve
 {
 public:
-    RicMswPerforationICD(const QString& label, size_t index = cvf::UNDEFINED_SIZE_T, int branchNumber = cvf::UNDEFINED_INT);
+    RicMswPerforationICD(const QString& label, const RimWellPathValve* wellPathValve);
+    RigCompletionData::CompletionType completionType() const override;
+};
+
+//==================================================================================================
+///
+//==================================================================================================
+class RicMswPerforationICV : public RicMswWsegValve
+{
+public:
+    RicMswPerforationICV(const QString& label, const RimWellPathValve* wellPathValve);
     RigCompletionData::CompletionType completionType() const override;
 };
 
@@ -143,7 +160,7 @@ public:
 class RicMswPerforationAICD : public RicMswValve
 {
 public:
-    RicMswPerforationAICD(const QString& label, size_t index = cvf::UNDEFINED_SIZE_T, int branchNumber = cvf::UNDEFINED_INT);
+    RicMswPerforationAICD(const QString& label, const RimWellPathValve* wellPathValve);
     RigCompletionData::CompletionType completionType() const override;
 
     bool   isValid() const;

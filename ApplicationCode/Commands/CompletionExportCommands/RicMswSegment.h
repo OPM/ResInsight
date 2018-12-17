@@ -64,6 +64,7 @@ public:
     void setSkinFactor(double skinFactor);
     void setSegmentNumber(int segmentNumber);
     void addCompletion(std::shared_ptr<RicMswCompletion> completion);
+    void removeCompletion(std::shared_ptr<RicMswCompletion> completion);
 
     void setSourcePdmObject(const caf::PdmObject* object);
     const caf::PdmObject* sourcePdmObject() const;

@@ -56,7 +56,7 @@ bool RicMswICDAccumulator::accumulateValveParameters(const RimWellPathValve* wel
 //--------------------------------------------------------------------------------------------------
 void RicMswICDAccumulator::applyToSuperValve(std::shared_ptr<RicMswValve> valve)
 {
-    std::shared_ptr<RicMswICD> icd = std::dynamic_pointer_cast<RicMswICD>(valve);
+    std::shared_ptr<RicMswWsegValve> icd = std::dynamic_pointer_cast<RicMswWsegValve>(valve);
     CVF_ASSERT(icd);
     icd->setArea(m_areaSum);
     if (m_coefficientCalculator.validAggregatedWeight())
