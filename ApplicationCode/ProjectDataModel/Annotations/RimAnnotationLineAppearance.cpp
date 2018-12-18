@@ -19,6 +19,29 @@
 #include "RimAnnotationLineAppearance.h"
 #include "RimAnnotationCollection.h"
 
+#include "RiaStdStringTools.h"
+
+#include "QValidator.h"
+
+#include "cafPdmUiLineEditor.h"
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+class ThicknessValidator : public QValidator
+{
+public:
+    State validate(QString &input, int &pos) const override
+    {
+        if (input.isEmpty()) return State::Intermediate;
+
+        int val = RiaStdStringTools::toInt(input.toStdString());
+        if (val > 0 && val < 8) return State::Acceptable;
+        else return State::Invalid;
+    }
+};
+
+    
 namespace caf
 {
 template<>
@@ -106,6 +129,23 @@ void RimAnnotationLineAppearance::fieldChangedByUi(const caf::PdmFieldHandle* ch
     RimAnnotationCollection* annColl = nullptr;
     this->firstAncestorOrThisOfTypeAsserted(annColl);
     annColl->scheduleRedrawOfRelevantViews(); 
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimAnnotationLineAppearance::defineEditorAttribute(const caf::PdmFieldHandle* field,
+                                                        QString                    uiConfigName,
+                                                        caf::PdmUiEditorAttribute* attribute)
+{
+    if (field == &m_thickness)
+    {
+        auto myAttr = dynamic_cast<caf::PdmUiLineEditorAttribute*>(attribute);
+        if (myAttr)
+        {
+            myAttr->validator = new ThicknessValidator();
+        }
+    }
 }
 
 CAF_PDM_SOURCE_INIT(RimPolylineAppearance, "RimPolylineAppearance");
