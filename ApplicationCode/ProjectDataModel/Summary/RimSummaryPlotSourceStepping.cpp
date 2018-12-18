@@ -37,6 +37,7 @@
 
 #include "RiuPlotMainWindow.h"
 
+#include "RiaStdStringTools.h"
 #include "cafPdmUiComboBoxEditor.h"
 #include "cafPdmUiItem.h"
 #include "cafPdmUiListEditor.h"
@@ -370,7 +371,7 @@ void RimSummaryPlotSourceStepping::fieldChangedByUi(const caf::PdmFieldHandle* c
         {
             caf::PdmPointer<caf::PdmObjectHandle> variantHandle = oldValue.value<caf::PdmPointer<caf::PdmObjectHandle>>();
             RimSummaryCase*                       previousCase  = dynamic_cast<RimSummaryCase*>(variantHandle.p());
-            
+
             for (auto curve : curves)
             {
                 if (isYAxisStepping())
@@ -430,23 +431,15 @@ void RimSummaryPlotSourceStepping::fieldChangedByUi(const caf::PdmFieldHandle* c
             if (isYAxisStepping())
             {
                 RifEclipseSummaryAddress adr = curve->summaryAddressY();
-                if (RifEclipseSummaryAddress::isDependentOnWellName(adr))
-                {
-                    adr.setWellName(m_wellName().toStdString());
-
-                    curve->setSummaryAddressY(adr);
-                }
+                updateAddressIfMatching(oldValue, newValue, RifEclipseSummaryAddress::SUMMARY_WELL, &adr);
+                curve->setSummaryAddressY(adr);
             }
 
             if (isXAxisStepping())
             {
                 RifEclipseSummaryAddress adr = curve->summaryAddressX();
-                if (RifEclipseSummaryAddress::isDependentOnWellName(adr))
-                {
-                    adr.setWellName(m_wellName().toStdString());
-
-                    curve->setSummaryAddressX(adr);
-                }
+                updateAddressIfMatching(oldValue, newValue, RifEclipseSummaryAddress::SUMMARY_WELL, &adr);
+                curve->setSummaryAddressX(adr);
             }
         }
 
@@ -455,11 +448,8 @@ void RimSummaryPlotSourceStepping::fieldChangedByUi(const caf::PdmFieldHandle* c
             for (auto curveSet : ensembleCurveColl->curveSets())
             {
                 auto adr = curveSet->summaryAddress();
-                if (RifEclipseSummaryAddress::isDependentOnWellName(adr))
-                {
-                    adr.setWellName(m_wellName().toStdString());
-                    curveSet->setSummaryAddress(adr);
-                }
+                updateAddressIfMatching(oldValue, newValue, RifEclipseSummaryAddress::SUMMARY_WELL, &adr);
+                curveSet->setSummaryAddress(adr);
             }
         }
 
@@ -472,36 +462,25 @@ void RimSummaryPlotSourceStepping::fieldChangedByUi(const caf::PdmFieldHandle* c
             if (isYAxisStepping())
             {
                 RifEclipseSummaryAddress adr = curve->summaryAddressY();
-                if (adr.category() == RifEclipseSummaryAddress::SUMMARY_REGION)
-                {
-                    adr.setRegion(m_region());
-
-                    curve->setSummaryAddressY(adr);
-                }
+                updateAddressIfMatching(oldValue, newValue, RifEclipseSummaryAddress::SUMMARY_REGION, &adr);
+                curve->setSummaryAddressY(adr);
             }
 
             if (isXAxisStepping())
             {
                 RifEclipseSummaryAddress adr = curve->summaryAddressX();
-                if (adr.category() == RifEclipseSummaryAddress::SUMMARY_REGION)
-                {
-                    adr.setRegion(m_region());
-
-                    curve->setSummaryAddressX(adr);
-                }
+                updateAddressIfMatching(oldValue, newValue, RifEclipseSummaryAddress::SUMMARY_REGION, &adr);
+                curve->setSummaryAddressX(adr);
             }
+        }
 
-            if (ensembleCurveColl)
+        if (ensembleCurveColl)
+        {
+            for (auto curveSet : ensembleCurveColl->curveSets())
             {
-                for (auto curveSet : ensembleCurveColl->curveSets())
-                {
-                    auto adr = curveSet->summaryAddress();
-                    if (adr.category() == RifEclipseSummaryAddress::SUMMARY_REGION)
-                    {
-                        adr.setRegion(m_region());
-                        curveSet->setSummaryAddress(adr);
-                    }
-                }
+                auto adr = curveSet->summaryAddress();
+                updateAddressIfMatching(oldValue, newValue, RifEclipseSummaryAddress::SUMMARY_REGION, &adr);
+                curveSet->setSummaryAddress(adr);
             }
         }
 
@@ -513,12 +492,16 @@ void RimSummaryPlotSourceStepping::fieldChangedByUi(const caf::PdmFieldHandle* c
         {
             if (isYAxisStepping())
             {
-                updateCurveYAddressIfMatching(oldValueString, newValueString, curve);
+                auto adr = curve->summaryAddressY();
+                updateHistoryAndSummaryQuantityIfMatching(oldValue, newValue, &adr);
+                curve->setSummaryAddressY(adr);
             }
 
             if (isXAxisStepping())
             {
-                updateCurveXAddressIfMatching(oldValueString, newValueString, curve);
+                auto adr = curve->summaryAddressX();
+                updateHistoryAndSummaryQuantityIfMatching(oldValue, newValue, &adr);
+                curve->setSummaryAddressX(adr);
             }
         }
 
@@ -527,7 +510,7 @@ void RimSummaryPlotSourceStepping::fieldChangedByUi(const caf::PdmFieldHandle* c
             for (auto curveSet : ensembleCurveColl->curveSets())
             {
                 auto adr = curveSet->summaryAddress();
-                updateAddressIfMatching(oldValueString, newValueString, adr);
+                updateHistoryAndSummaryQuantityIfMatching(oldValue, newValue, &adr);
                 curveSet->setSummaryAddress(adr);
             }
         }
@@ -541,23 +524,15 @@ void RimSummaryPlotSourceStepping::fieldChangedByUi(const caf::PdmFieldHandle* c
             if (isYAxisStepping())
             {
                 RifEclipseSummaryAddress adr = curve->summaryAddressY();
-                if (adr.category() == RifEclipseSummaryAddress::SUMMARY_WELL_GROUP)
-                {
-                    adr.setWellGroupName(m_wellGroupName().toStdString());
-
-                    curve->setSummaryAddressY(adr);
-                }
+                updateAddressIfMatching(oldValue, newValue, RifEclipseSummaryAddress::SUMMARY_WELL_GROUP, &adr);
+                curve->setSummaryAddressY(adr);
             }
 
             if (isXAxisStepping())
             {
                 RifEclipseSummaryAddress adr = curve->summaryAddressX();
-                if (adr.category() == RifEclipseSummaryAddress::SUMMARY_WELL_GROUP)
-                {
-                    adr.setWellGroupName(m_wellGroupName().toStdString());
-
-                    curve->setSummaryAddressX(adr);
-                }
+                updateAddressIfMatching(oldValue, newValue, RifEclipseSummaryAddress::SUMMARY_WELL_GROUP, &adr);
+                curve->setSummaryAddressX(adr);
             }
         }
 
@@ -566,11 +541,8 @@ void RimSummaryPlotSourceStepping::fieldChangedByUi(const caf::PdmFieldHandle* c
             for (auto curveSet : ensembleCurveColl->curveSets())
             {
                 auto adr = curveSet->summaryAddress();
-                if (adr.category() == RifEclipseSummaryAddress::SUMMARY_WELL_GROUP)
-                {
-                    adr.setWellGroupName(m_wellGroupName().toStdString());
-                    curveSet->setSummaryAddress(adr);
-                }
+                updateAddressIfMatching(oldValue, newValue, RifEclipseSummaryAddress::SUMMARY_WELL_GROUP, &adr);
+                curveSet->setSummaryAddress(adr);
             }
         }
 
@@ -927,73 +899,101 @@ void RimSummaryPlotSourceStepping::modifyCurrentIndex(caf::PdmValueField* valueF
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryPlotSourceStepping::updateCurveYAddressIfMatching(const std::string& oldQuantity,
-                                                                 const std::string& newQuantity,
-                                                                 RimSummaryCurve*   curve)
+bool RimSummaryPlotSourceStepping::updateAddressIfMatching(const QVariant&                              oldValue,
+                                                           const QVariant&                              newValue,
+                                                           RifEclipseSummaryAddress::SummaryVarCategory category,
+                                                           RifEclipseSummaryAddress*                    adr)
 {
-    if (!curve) return;
+    if (!adr) return false;
 
-    auto curveAdr = curve->summaryAddressY();
-
-    if (curveAdr.quantityName() == oldQuantity)
+    if (category == RifEclipseSummaryAddress::SUMMARY_REGION)
     {
-        curveAdr.setQuantityName(newQuantity);
-        curve->setSummaryAddressY(curveAdr);
+        int oldInt = oldValue.toInt();
+        int newInt = newValue.toInt();
+
+        if (adr->regionNumber() == oldInt)
+        {
+            adr->setRegion(newInt);
+
+            return true;
+        }
+    }
+    else if (category == RifEclipseSummaryAddress::SUMMARY_WELL_GROUP)
+    {
+        std::string oldString = oldValue.toString().toStdString();
+        std::string newString = newValue.toString().toStdString();
+
+        if (adr->wellGroupName() == oldString)
+        {
+            adr->setWellGroupName(newString);
+
+            return true;
+        }
+    }
+    else if (RifEclipseSummaryAddress::isDependentOnWellName(category))
+    {
+        std::string oldString = oldValue.toString().toStdString();
+        std::string newString = newValue.toString().toStdString();
+
+        if (adr->wellName() == oldString)
+        {
+            adr->setWellName(newString);
+
+            return true;
+        }
     }
 
-    if (curveAdr.quantityName() == (oldQuantity + "H"))
-    {
-        curveAdr.setQuantityName(newQuantity + "H");
-        curve->setSummaryAddressY(curveAdr);
-    }
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryPlotSourceStepping::updateCurveXAddressIfMatching(const std::string& oldQuantity,
-                                                                 const std::string& newQuantity,
-                                                                 RimSummaryCurve*   curve)
+bool RimSummaryPlotSourceStepping::updateHistoryAndSummaryQuantityIfMatching(const QVariant&           oldValue,
+                                                                             const QVariant&           newValue,
+                                                                             RifEclipseSummaryAddress* adr)
 {
-    if (!curve) return;
+    if (!adr) return false;
 
-    auto curveAdr = curve->summaryAddressX();
+    std::string oldString = oldValue.toString().toStdString();
+    std::string newString = newValue.toString().toStdString();
 
-    if (curveAdr.quantityName() == oldQuantity)
+    if (adr->quantityName() == oldString)
     {
-        curveAdr.setQuantityName(newQuantity);
-        curve->setSummaryAddressX(curveAdr);
-    }
-
-    if (curveAdr.quantityName() == (oldQuantity + "H"))
-    {
-        curveAdr.setQuantityName(newQuantity + "H");
-        curve->setSummaryAddressX(curveAdr);
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimSummaryPlotSourceStepping::updateAddressIfMatching(const std::string&        oldQuantity,
-                                                           const std::string&        newQuantity,
-                                                           RifEclipseSummaryAddress& curveAdr)
-{
-    if (curveAdr.quantityName() == oldQuantity)
-    {
-        curveAdr.setQuantityName(newQuantity);
+        adr->setQuantityName(newString);
 
         return true;
     }
 
-    if (curveAdr.quantityName() == (oldQuantity + "H"))
+    std::string correspondingOldString = correspondingHistorySummaryCurveName(oldString);
+    std::string correspondingNewString = correspondingHistorySummaryCurveName(newString);
+
+    if (adr->quantityName() == correspondingOldString)
     {
-        curveAdr.setQuantityName(newQuantity + "H");
+        adr->setQuantityName(correspondingNewString);
 
         return true;
     }
 
     return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::string RimSummaryPlotSourceStepping::correspondingHistorySummaryCurveName(const std::string& curveName)
+{
+    static std::string historyIdentifier = "H";
+
+    if (RiaStdStringTools::endsWith(curveName, historyIdentifier))
+    {
+        std::string candidate = curveName.substr(0, curveName.size() - 1);
+        return candidate;
+    }
+    else
+    {
+        return curveName + historyIdentifier;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

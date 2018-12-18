@@ -97,14 +97,16 @@ private:
 
     void modifyCurrentIndex(caf::PdmValueField* valueField, int indexOffset);
 
-    static void
-        updateCurveYAddressIfMatching(const std::string& oldQuantity, const std::string& newQuantity, RimSummaryCurve* curve);
+    static bool updateAddressIfMatching(const QVariant&                              oldValue,
+                                        const QVariant&                              newValue,
+                                        RifEclipseSummaryAddress::SummaryVarCategory category,
+                                        RifEclipseSummaryAddress*                    adr);
 
-    static void
-        updateCurveXAddressIfMatching(const std::string& oldQuantity, const std::string& newQuantity, RimSummaryCurve* curve);
+    static bool updateHistoryAndSummaryQuantityIfMatching(const QVariant&           oldValue,
+                                                          const QVariant&           newValue,
+                                                          RifEclipseSummaryAddress* adr);
 
-    static bool
-        updateAddressIfMatching(const std::string& oldQuantity, const std::string& newQuantity, RifEclipseSummaryAddress& adr);
+    static std::string correspondingHistorySummaryCurveName(const std::string& curveName);
 
 private:
     caf::PdmPtrField<RimSummaryCase*> m_summaryCase;
