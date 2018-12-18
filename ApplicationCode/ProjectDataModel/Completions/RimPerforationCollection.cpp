@@ -35,6 +35,18 @@
 #include "Riu3DMainWindowTools.h"
 
 
+namespace caf
+{
+template<>
+void RimPerforationCollection::ReferenceMDEnum::setUp()
+{
+    addItem(RimPerforationCollection::AUTO_REFERENCE_MD, "GridIntersectionRefMD", "Grid Entry Point");
+    addItem(RimPerforationCollection::MANUAL_REFERENCE_MD, "ManualRefMD", "User Defined");
+    setDefault(RimPerforationCollection::AUTO_REFERENCE_MD);
+}
+} // namespace caf
+
+
 CAF_PDM_SOURCE_INIT(RimPerforationCollection, "PerforationCollection");
 
 //--------------------------------------------------------------------------------------------------
@@ -91,35 +103,6 @@ const RimNonDarcyPerforationParameters* RimPerforationCollection::nonDarcyParame
 void RimPerforationCollection::setUnitSystemSpecificDefaults()
 {
     m_mswParameters->setUnitSystemSpecificDefaults();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimPerforationCollection::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
-{
-    caf::PdmUiGroup* mswGroup = uiOrdering.addNewGroup("Multi Segment Well Options");
-    m_mswParameters->uiOrdering(uiConfigName, *mswGroup);
-
-    m_nonDarcyParameters->uiOrdering(uiConfigName, uiOrdering);
-    uiOrdering.skipRemainingFields(true);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimPerforationCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
-{
-    RimProject* proj;
-    this->firstAncestorOrThisOfTypeAsserted(proj);
-    if (changedField == &m_isChecked)
-    {
-        proj->reloadCompletionTypeResultsInAllViews();
-    }
-    else
-    {
-        proj->scheduleCreateDisplayModelAndRedrawAllViews();
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -203,3 +186,32 @@ std::vector<const RimPerforationInterval*> RimPerforationCollection::activePerfo
     return myActivePerforations;
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPerforationCollection::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+{
+    caf::PdmUiGroup* mswGroup = uiOrdering.addNewGroup("Multi Segment Well Options");
+    m_mswParameters->uiOrdering(uiConfigName, *mswGroup);
+    m_nonDarcyParameters->uiOrdering(uiConfigName, uiOrdering);
+    uiOrdering.skipRemainingFields(true);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPerforationCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
+                                                const QVariant&            oldValue,
+                                                const QVariant&            newValue)
+{
+    RimProject* proj;
+    this->firstAncestorOrThisOfTypeAsserted(proj);
+    if (changedField == &m_isChecked)
+    {
+        proj->reloadCompletionTypeResultsInAllViews();
+    }
+    else
+    {
+        proj->scheduleCreateDisplayModelAndRedrawAllViews();
+    }
+}

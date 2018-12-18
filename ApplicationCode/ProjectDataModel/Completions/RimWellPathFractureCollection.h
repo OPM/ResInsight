@@ -38,14 +38,6 @@ class RimWellPathFractureCollection : public RimCheckableNamedObject
 {
      CAF_PDM_HEADER_INIT;
 public:
-    enum ReferenceMDType
-    {
-        AUTO_REFERENCE_MD = 0,
-        MANUAL_REFERENCE_MD
-    };
-
-    typedef caf::AppEnum<ReferenceMDType> ReferenceMDEnum;
-
     RimWellPathFractureCollection(void);
     ~RimWellPathFractureCollection(void) override;
     
@@ -53,8 +45,6 @@ public:
     void                              addFracture(RimWellPathFracture* fracture);
     void                              deleteFractures();
     void                              setUnitSystemSpecificDefaults();
-    ReferenceMDType                   referenceMDType() const;
-    double                            manualReferenceMD() const;
     
     std::vector<RimWellPathFracture*> allFractures() const;
     std::vector<RimWellPathFracture*> activeFractures() const;
@@ -62,10 +52,13 @@ public:
 private:
     void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
     void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    void initAfterRead() override;
 
 private:
     caf::PdmChildArrayField<RimWellPathFracture*>   m_fractures;
-    caf::PdmField<ReferenceMDEnum>                  m_refMDType;
-    caf::PdmField<double>                           m_refMD;
     caf::PdmChildField<RimMswCompletionParameters*> m_mswParameters;
+
+    caf::PdmField<int>    m_refMDType_OBSOLETE;
+    caf::PdmField<double> m_refMD_OBSOLETE;
+
 };

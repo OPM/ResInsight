@@ -923,9 +923,9 @@ RicMswExportInfo
         SubSegmentIntersectionInfo::spiltIntersectionSegmentsToMaxLength(wellPathGeometry, intersections, maxSegmentLength);
 
     double initialMD = 0.0;
-    if (wellPath->fractureCollection()->referenceMDType() == RimWellPathFractureCollection::MANUAL_REFERENCE_MD)
+    if (wellPath->fractureCollection()->mswParameters()->referenceMDType() == RimMswCompletionParameters::MANUAL_REFERENCE_MD)
     {
-        initialMD = wellPath->fractureCollection()->manualReferenceMD();
+        initialMD = wellPath->fractureCollection()->mswParameters()->manualReferenceMD();
     }
     else
     {
@@ -1030,12 +1030,19 @@ RicMswExportInfo RicWellPathExportMswCompletionsImpl::generatePerforationsMswExp
         SubSegmentIntersectionInfo::spiltIntersectionSegmentsToMaxLength(wellPathGeometry, intersections, maxSegmentLength);
 
     double initialMD = 0.0;
-    for (WellPathCellIntersectionInfo intersection : intersections)
+    if (wellPath->perforationIntervalCollection()->mswParameters()->referenceMDType() == RimMswCompletionParameters::MANUAL_REFERENCE_MD)
     {
-        if (activeCellInfo->isActive(intersection.globCellIndex))
+        initialMD = wellPath->perforationIntervalCollection()->mswParameters()->manualReferenceMD();
+    }
+    else
+    {
+        for (WellPathCellIntersectionInfo intersection : intersections)
         {
-            initialMD = intersection.startMD;
-            break;
+            if (activeCellInfo->isActive(intersection.globCellIndex))
+            {
+                initialMD = intersection.startMD;
+                break;
+            }
         }
     }
 

@@ -40,6 +40,13 @@ class RimPerforationCollection : public RimCheckableNamedObject
     CAF_PDM_HEADER_INIT;
 
 public:
+    enum ReferenceMDType
+    {
+        AUTO_REFERENCE_MD = 0,
+        MANUAL_REFERENCE_MD
+    };
+    typedef caf::AppEnum<ReferenceMDType> ReferenceMDEnum;
+
     RimPerforationCollection();
     ~RimPerforationCollection() override;
 
@@ -48,7 +55,7 @@ public:
     void                                       setUnitSystemSpecificDefaults();
     void                                       appendPerforation(RimPerforationInterval* perforation);
     std::vector<const RimPerforationInterval*> perforations() const;
-    std::vector<const RimPerforationInterval*> activePerforations() const;
+    std::vector<const RimPerforationInterval*> activePerforations() const;    
 
 private:
     void                                       defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
