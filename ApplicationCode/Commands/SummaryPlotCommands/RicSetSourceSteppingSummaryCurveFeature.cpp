@@ -94,5 +94,5 @@ void RicSetSourceSteppingSummaryCurveFeature::onActionTriggered(bool isChecked)
 void RicSetSourceSteppingSummaryCurveFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setText("Set as Source Stepping Curve");
-    actionToSetup->setIcon(QIcon(":/updownarrow.png"));
+    actionToSetup->setIcon(QIcon(":/StepUpDown16x16.png"));
 }

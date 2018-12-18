@@ -670,7 +670,12 @@ void RimEnsembleCurveSet::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrd
     this->firstAncestorOrThisOfType(coll);
     if (coll && coll->curveSetForSourceStepping() == this)
     {
-        icon = QIcon(":/updownarrow.png");
+        QPixmap combined = icon.pixmap(16, 16);
+        QPainter painter(&combined);
+        QPixmap updownpixmap(":/StepUpDownCorner16x16.png");
+        painter.drawPixmap(0,0,updownpixmap);
+
+        icon = QIcon(combined);
     }
 
     this->setUiIcon(icon);
