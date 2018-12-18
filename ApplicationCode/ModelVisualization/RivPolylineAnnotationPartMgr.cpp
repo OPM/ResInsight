@@ -27,7 +27,9 @@
 #include "RimPolylinesAnnotationInView.h"
 #include "RimAnnotationInViewCollection.h"
 #include "RimAnnotationLineAppearance.h"
+#include "RimEclipseView.h"
 
+#include "RigMainGrid.h"
 #include "RigPolyLinesData.h"
 
 #include "RivPolylineGenerator.h"
@@ -109,20 +111,26 @@ void RivPolylineAnnotationPartMgr::buildPolylineAnnotationParts(const caf::Displ
         if(rimAnnotation->showSpheres())
         {
             auto sphereColor = rimAnnotation->appearance()->sphereColor();
-            int sphereRadius = rimAnnotation->appearance()->sphereRadius();
+            double sphereRadiusFactor = rimAnnotation->appearance()->sphereRadiusFactor();
 
             cvf::ref<cvf::Vec3fArray> vertices = new cvf::Vec3fArray;
             cvf::ref<cvf::Vec3fArray> vecRes   = new cvf::Vec3fArray;
             cvf::ref<cvf::Color3fArray> colors = new cvf::Color3fArray;
-            vertices->reserve(linesInDisplay.front().size());
-            vecRes->reserve(linesInDisplay.front().size());
-            colors->reserve(linesInDisplay.front().size());
 
-            for (const auto& v : linesInDisplay.front())
+            size_t pointCount = 0;
+            for (const auto& line : linesInDisplay) pointCount += line.size();
+            vertices->reserve(pointCount);
+            vecRes->reserve(pointCount);
+            colors->reserve(pointCount);
+
+            for (const auto& line : linesInDisplay)
             {
-                vertices->add(cvf::Vec3f(v));
-                vecRes->add(cvf::Vec3f::X_AXIS);
-                colors->add(sphereColor);
+                for (const auto& v : line)
+                {
+                    vertices->add(cvf::Vec3f(v));
+                    vecRes->add(cvf::Vec3f::X_AXIS);
+                    colors->add(sphereColor);
+                }
             }
 
             cvf::ref<cvf::DrawableVectors> vectorDrawable;
@@ -141,7 +149,15 @@ void RivPolylineAnnotationPartMgr::buildPolylineAnnotationParts(const caf::Displ
             vectorDrawable->setColors(colors.p());
 
             cvf::GeometryBuilderTriangles builder;
-            cvf::GeometryUtils::createSphere(sphereRadius, 15, 15, &builder);
+            double cellRadius = 15.0;
+            auto eclipseView = dynamic_cast<RimEclipseView*>(m_rimView.p());
+            if (eclipseView)
+            {
+                double characteristicCellSize = eclipseView->mainGrid()->characteristicIJCellSize();
+                cellRadius             = sphereRadiusFactor * characteristicCellSize;
+            }
+
+            cvf::GeometryUtils::createSphere(cellRadius, 15, 15, &builder);
             vectorDrawable->setGlyph(builder.trianglesUShort().p(), builder.vertices().p());
 
             cvf::ref<cvf::Part> part = new cvf::Part;

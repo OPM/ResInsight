@@ -177,10 +177,16 @@ void RimPolylinesFromFileAnnotation::setDescriptionFromFileName()
 //--------------------------------------------------------------------------------------------------
 void RimPolylinesFromFileAnnotation::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
-    uiOrdering.add(&m_polyLinesFileName);
-    uiOrdering.add(&m_closePolyline);
+    appearance()->setLineFieldsHidden(!m_showLines());
+    appearance()->setSphereFieldsHidden(!m_showSpheres());
 
-    auto appearanceGroup = uiOrdering.addNewGroup("Line Appearance");
+    uiOrdering.add(&m_polyLinesFileName);
+
+    auto appearanceGroup = uiOrdering.addNewGroup("Appearance");
+    appearanceGroup->add(&m_closePolyline);
+    appearanceGroup->add(&m_showLines);
+    appearanceGroup->add(&m_showSpheres);
+
     appearance()->uiOrdering(uiConfigName, *appearanceGroup);
 
     uiOrdering.skipRemainingFields(true);
@@ -203,6 +209,14 @@ void RimPolylinesFromFileAnnotation::fieldChangedByUi(const caf::PdmFieldHandle*
                                   + "\n\t" + errorMessage;
             QMessageBox::warning(nullptr, "Import Polylines", totalError);
         }
+    }
+    else if (changedField == &m_showLines)
+    {
+        appearance()->setLineFieldsHidden(!m_showLines());
+    }
+    else if (changedField == &m_showSpheres)
+    {
+        appearance()->setSphereFieldsHidden(!m_showSpheres());
     }
 
     RimAnnotationCollection* annColl = nullptr;

@@ -225,15 +225,18 @@ void RimUserDefinedPolylinesAnnotation::enablePicking(bool enable)
 //--------------------------------------------------------------------------------------------------
 void RimUserDefinedPolylinesAnnotation::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
+    appearance()->setLineFieldsHidden(!m_showLines);
+    appearance()->setSphereFieldsHidden(!m_showSpheres);
+
     uiOrdering.add(&m_name);
     uiOrdering.add(&m_targets);
     uiOrdering.add(&m_enablePicking);
-    uiOrdering.add(&m_closePolyline);
-
-    uiOrdering.add(&m_showLines);
-    uiOrdering.add(&m_showSpheres);
 
     auto appearanceGroup = uiOrdering.addNewGroup("Appearance");
+    appearanceGroup->add(&m_closePolyline);
+    appearanceGroup->add(&m_showLines);
+    appearanceGroup->add(&m_showSpheres);
+
     appearance()->uiOrdering(uiConfigName, *appearanceGroup);
 
     uiOrdering.skipRemainingFields(true);
@@ -257,6 +260,14 @@ void RimUserDefinedPolylinesAnnotation::fieldChangedByUi(const caf::PdmFieldHand
     if (changedField == &m_enablePicking)
     {
         enablePicking(m_enablePicking);
+    }
+    else if (changedField == &m_showLines)
+    {
+        appearance()->setLineFieldsHidden(!m_showLines());
+    }
+    else if (changedField == &m_showSpheres)
+    {
+        appearance()->setSphereFieldsHidden(!m_showSpheres());
     }
 
     updateVisualization();

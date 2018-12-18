@@ -44,6 +44,9 @@ public:
 
 public:
     RimAnnotationLineAppearance();
+
+    void setLineFieldsHidden(bool hidden);
+
     void                setColor(const cvf::Color3f& newColor);
     cvf::Color3f        color() const;
     bool                isDashed() const;
@@ -57,6 +60,7 @@ protected:
                                caf::PdmUiEditorAttribute* attribute) override;
 
 private:
+    caf::PdmField<bool>             m_lineFieldsHidden;
     caf::PdmField<cvf::Color3f>     m_color;
     caf::PdmField<LineStyle>        m_style;
     caf::PdmField<int>              m_thickness;
@@ -85,16 +89,19 @@ class RimPolylineAppearance : public RimAnnotationLineAppearance
 public:
     RimPolylineAppearance();
 
+    void            setSphereFieldsHidden(bool hidden);
+
     void            setSphereColor(const cvf::Color3f& color);
     cvf::Color3f    sphereColor() const;
-    void            setSphereRadius(int radius);
-    int             sphereRadius() const;
+    void            setSphereRadiusFactor(double factor);
+    double          sphereRadiusFactor() const;
 
 protected:
     void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
     void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
 
 private:
+    caf::PdmField<bool>             m_sphereFieldsHidden;
     caf::PdmField<cvf::Color3f>     m_sphereColor;
-    caf::PdmField<int>              m_sphereRadius;
+    caf::PdmField<double>           m_sphereRadiusFactor;
 };

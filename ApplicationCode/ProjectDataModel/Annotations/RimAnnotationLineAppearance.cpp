@@ -65,6 +65,7 @@ RimAnnotationLineAppearance::RimAnnotationLineAppearance()
 {
     CAF_PDM_InitObject("AnnotationLineAppearance", ":/WellCollection.png", "", "");
 
+    CAF_PDM_InitField(&m_lineFieldsHidden, "LineFieldsHidden", false, "Line Fields Hidden", "", "", "");
     CAF_PDM_InitField(&m_color,     "Color",     cvf::Color3f(cvf::Color3f::BLACK),  "Line Color", "", "", "");
     CAF_PDM_InitField(&m_thickness, "Thickness", 2,                                  "Line Thickness", "", "", "");
 
@@ -73,6 +74,15 @@ RimAnnotationLineAppearance::RimAnnotationLineAppearance()
     m_style.uiCapability()->setUiHidden(true);
     m_style.xmlCapability()->disableIO();
 
+    m_lineFieldsHidden.uiCapability()->setUiHidden(true);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimAnnotationLineAppearance::setLineFieldsHidden(bool hidden)
+{
+    m_lineFieldsHidden = hidden;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -112,9 +122,12 @@ int RimAnnotationLineAppearance::thickness() const
 //--------------------------------------------------------------------------------------------------
 void RimAnnotationLineAppearance::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
-    uiOrdering.add(&m_color);
-    uiOrdering.add(&m_style);
-    uiOrdering.add(&m_thickness);
+    if (!m_lineFieldsHidden())
+    {
+        uiOrdering.add(&m_color);
+        uiOrdering.add(&m_style);
+        uiOrdering.add(&m_thickness);
+    }
 
     uiOrdering.skipRemainingFields(true);
 }
@@ -157,8 +170,19 @@ RimPolylineAppearance::RimPolylineAppearance()
 {
     CAF_PDM_InitObject("PolylineAppearance", ":/WellCollection.png", "", "");
 
+    CAF_PDM_InitField(&m_sphereFieldsHidden, "SphereFieldsHidden", false, "Sphere Fields Hidden", "", "", "");
     CAF_PDM_InitField(&m_sphereColor, "SphereColor", cvf::Color3f(cvf::Color3f::BLACK), "Sphere Color", "", "", "");
-    CAF_PDM_InitField(&m_sphereRadius, "SphereRadius", 15, "Sphere Radius", "", "", "");
+    CAF_PDM_InitField(&m_sphereRadiusFactor, "SphereRadiusFactor", 0.1, "Sphere Radius Factor", "", "", "");
+
+    m_sphereFieldsHidden.uiCapability()->setUiHidden(true);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPolylineAppearance::setSphereFieldsHidden(bool hidden)
+{
+    m_sphereFieldsHidden = hidden;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -180,17 +204,17 @@ cvf::Color3f RimPolylineAppearance::sphereColor() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPolylineAppearance::setSphereRadius(int radius)
+void RimPolylineAppearance::setSphereRadiusFactor(double factor)
 {
-    m_sphereRadius = radius;
+    m_sphereRadiusFactor = factor;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int RimPolylineAppearance::sphereRadius() const
+double RimPolylineAppearance::sphereRadiusFactor() const
 {
-    return m_sphereRadius();
+    return m_sphereRadiusFactor();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -200,8 +224,11 @@ void RimPolylineAppearance::defineUiOrdering(QString uiConfigName, caf::PdmUiOrd
 {
     RimAnnotationLineAppearance::defineUiOrdering(uiConfigName, uiOrdering);
 
-    uiOrdering.add(&m_sphereColor);
-    uiOrdering.add(&m_sphereRadius);
+    if (!m_sphereFieldsHidden)
+    {
+        uiOrdering.add(&m_sphereColor);
+        uiOrdering.add(&m_sphereRadiusFactor);
+    }
 
     uiOrdering.skipRemainingFields(true);
 }

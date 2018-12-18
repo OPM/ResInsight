@@ -58,9 +58,9 @@ protected:
 protected:
     caf::PdmField<bool>   m_isActive;
 
-    caf::PdmField<bool>   m_closePolyline;
-    caf::PdmField<bool>   m_showLines;
-    caf::PdmField<bool>   m_showSpheres;
+    caf::PdmField<bool> m_closePolyline;
+    caf::PdmField<bool> m_showLines;
+    caf::PdmField<bool> m_showSpheres;
 
     caf::PdmChildField<RimPolylineAppearance*> m_appearance;
 };
