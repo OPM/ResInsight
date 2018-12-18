@@ -368,18 +368,27 @@ void RimSummaryPlotSourceStepping::fieldChangedByUi(const caf::PdmFieldHandle* c
     {
         if (m_summaryCase())
         {
+            caf::PdmPointer<caf::PdmObjectHandle> variantHandle = oldValue.value<caf::PdmPointer<caf::PdmObjectHandle>>();
+            RimSummaryCase*                       previousCase  = dynamic_cast<RimSummaryCase*>(variantHandle.p());
+            
             for (auto curve : curves)
             {
                 if (isYAxisStepping())
                 {
-                    bool doSetAppearance = curve->summaryCaseY()->isObservedData() != m_summaryCase->isObservedData();
-                    curve->setSummaryCaseY(m_summaryCase);
-                    if (doSetAppearance) curve->forceUpdateCurveAppearanceFromCaseType();
+                    if (previousCase == curve->summaryCaseY())
+                    {
+                        bool doSetAppearance = curve->summaryCaseY()->isObservedData() != m_summaryCase->isObservedData();
+                        curve->setSummaryCaseY(m_summaryCase);
+                        if (doSetAppearance) curve->forceUpdateCurveAppearanceFromCaseType();
+                    }
                 }
 
                 if (isXAxisStepping())
                 {
-                    curve->setSummaryCaseX(m_summaryCase);
+                    if (previousCase == curve->summaryCaseX())
+                    {
+                        curve->setSummaryCaseX(m_summaryCase);
+                    }
                 }
             }
 
@@ -395,9 +404,15 @@ void RimSummaryPlotSourceStepping::fieldChangedByUi(const caf::PdmFieldHandle* c
     {
         if (m_ensemble() && ensembleCurveColl)
         {
-            for (auto curve : ensembleCurveColl->curveSets())
+            caf::PdmPointer<caf::PdmObjectHandle> variantHandle      = oldValue.value<caf::PdmPointer<caf::PdmObjectHandle>>();
+            RimSummaryCaseCollection*             previousCollection = dynamic_cast<RimSummaryCaseCollection*>(variantHandle.p());
+
+            for (auto curveSet : ensembleCurveColl->curveSets())
             {
-                curve->setSummaryCaseCollection(m_ensemble);
+                if (curveSet->summaryCaseCollection() == previousCollection)
+                {
+                    curveSet->setSummaryCaseCollection(m_ensemble);
+                }
             }
 
             triggerLoadDataAndUpdate = true;
@@ -674,7 +689,7 @@ std::set<RifEclipseSummaryAddress> RimSummaryPlotSourceStepping::addressesCurveC
 
     if (curveCollection)
     {
-        auto curves = curveCollection->curvesForSourceStepping();
+        auto curves = curveCollection->curvesForSourceStepping(m_sourceSteppingType);
         for (auto c : curves)
         {
             if (isYAxisStepping())
@@ -715,7 +730,7 @@ std::set<RimSummaryCase*> RimSummaryPlotSourceStepping::summaryCasesCurveCollect
 
     if (!curveCollection) return sumCases;
 
-    auto curves = curveCollection->curves();
+    auto curves = curveCollection->curvesForSourceStepping(m_sourceSteppingType);
     for (auto c : curves)
     {
         if (isYAxisStepping())

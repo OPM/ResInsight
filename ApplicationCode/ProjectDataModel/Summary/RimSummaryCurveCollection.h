@@ -19,6 +19,8 @@
 
 #pragma once
 
+#include "RimSummaryPlotSourceStepping.h"
+
 #include "cafPdmChildArrayField.h"
 #include "cafPdmChildField.h"
 #include "cafPdmField.h"
@@ -29,7 +31,6 @@ class QwtPlot;
 class QwtPlotCurve;
 class RimSummaryCase;
 class RimSummaryCurve;
-class RimSummaryPlotSourceStepping;
 class QKeyEvent;
 
 //==================================================================================================
@@ -56,7 +57,7 @@ public:
     void                                    deleteCurve(RimSummaryCurve* curve);
 
     std::vector<RimSummaryCurve*>           curves() const;
-    std::vector<RimSummaryCurve*>           curvesForSourceStepping() const;
+    std::vector<RimSummaryCurve*>           curvesForSourceStepping(RimSummaryPlotSourceStepping::SourceSteppingType steppingType) const;
 
     void                                    deleteCurvesAssosiatedWithCase(RimSummaryCase* summaryCase);
     void                                    deleteAllCurves();

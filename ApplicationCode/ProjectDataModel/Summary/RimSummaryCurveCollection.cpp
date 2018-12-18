@@ -196,7 +196,7 @@ std::vector<RimSummaryCurve*> RimSummaryCurveCollection::curves() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<RimSummaryCurve*> RimSummaryCurveCollection::curvesForSourceStepping() const
+std::vector<RimSummaryCurve*> RimSummaryCurveCollection::curvesForSourceStepping(RimSummaryPlotSourceStepping::SourceSteppingType steppingType) const
 {
     std::vector<RimSummaryCurve*> stepCurves;
 
@@ -209,7 +209,16 @@ std::vector<RimSummaryCurve*> RimSummaryCurveCollection::curvesForSourceStepping
 
             const std::string historyIdentifier = "H";
 
-            std::string quantity = m_curveForSourceStepping->summaryAddressY().quantityName();
+            std::string quantity;
+
+            if (steppingType == RimSummaryPlotSourceStepping::X_AXIS)
+            {
+                quantity = m_curveForSourceStepping->summaryAddressX().quantityName();
+            }
+            else if (steppingType == RimSummaryPlotSourceStepping::Y_AXIS)
+            {
+                quantity = m_curveForSourceStepping->summaryAddressY().quantityName();
+            }
 
             std::string candidateName;
             if (RiaStdStringTools::endsWith(quantity, historyIdentifier))
@@ -223,9 +232,21 @@ std::vector<RimSummaryCurve*> RimSummaryCurveCollection::curvesForSourceStepping
 
             for (const auto& c : curves())
             {
-                if (c->summaryAddressY().quantityName() == candidateName)
+                if (steppingType == RimSummaryPlotSourceStepping::X_AXIS)
                 {
-                    stepCurves.push_back(c);
+                    if (c->summaryCaseX() == m_curveForSourceStepping->summaryCaseX() &&
+                        c->summaryAddressX().quantityName() == candidateName)
+                    {
+                        stepCurves.push_back(c);
+                    }
+                }
+                else if (steppingType == RimSummaryPlotSourceStepping::Y_AXIS)
+                {
+                    if (c->summaryCaseY() == m_curveForSourceStepping->summaryCaseY() &&
+                        c->summaryAddressY().quantityName() == candidateName)
+                    {
+                        stepCurves.push_back(c);
+                    }
                 }
             }
         }
