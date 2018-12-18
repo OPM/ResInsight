@@ -68,14 +68,14 @@ struct RifEclipseOutputTableLine
 //==================================================================================================
 struct RifEclipseOutputTableDoubleFormatting
 {
-    RifEclipseOutputTableDoubleFormatting(RifEclipseOutputTableDoubleFormat format = RIF_FLOAT, int width = 5)
+    RifEclipseOutputTableDoubleFormatting(RifEclipseOutputTableDoubleFormat format = RIF_FLOAT, int precision = 5)
         : format(format)
-        , width(width)
+        , precision(precision)
     {
     }
 
     RifEclipseOutputTableDoubleFormat format;
-    int                               width;
+    int                               precision;
 };
 
 //==================================================================================================
@@ -107,6 +107,8 @@ class RifEclipseDataTableFormatter
 {
 public:
     RifEclipseDataTableFormatter(QTextStream& out);
+    RifEclipseDataTableFormatter(const RifEclipseDataTableFormatter& rhs);
+
     virtual ~RifEclipseDataTableFormatter();
 
     int  columnSpacing() const;
@@ -133,13 +135,15 @@ public:
 
     static void                   addValueTable(QTextStream& stream, const QString& keyword, size_t columns, const std::vector<double>& values);
 
+
 private:
     int measure(const QString str);
     int measure(double num, RifEclipseOutputTableDoubleFormatting doubleFormat);
     int measure(int num);
     int measure(size_t num);
 
-    int tableWidth() const;
+    int        tableWidth() const;
+    static int maxEclipseRowWidth();
 
     QString format(double num, RifEclipseOutputTableDoubleFormatting doubleFormat);
     QString format(int num);

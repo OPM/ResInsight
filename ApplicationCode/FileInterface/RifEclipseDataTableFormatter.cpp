@@ -35,6 +35,18 @@ RifEclipseDataTableFormatter::RifEclipseDataTableFormatter(QTextStream& out)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RifEclipseDataTableFormatter::RifEclipseDataTableFormatter(const RifEclipseDataTableFormatter& rhs)
+    : m_out(rhs.m_out)
+    , m_colSpacing(rhs.m_colSpacing)
+    , m_tableRowPrependText(rhs.m_tableRowPrependText)
+    , m_tableRowAppendText(rhs.m_tableRowAppendText)
+    , m_commentPrefix(rhs.m_commentPrefix)
+{
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RifEclipseDataTableFormatter::~RifEclipseDataTableFormatter()
 {
     CVF_ASSERT(m_buffer.empty());
@@ -96,14 +108,10 @@ void RifEclipseDataTableFormatter::outputBuffer()
 {
     if (!m_columns.empty() && !isAllHeadersEmpty(m_columns))
     {
+        m_out << m_commentPrefix << " ";
         for (size_t i = 0u; i < m_columns.size(); ++i)
-        {
-            QString colTitle = m_columns[i].title;
-            if (i == 0u)
-            {
-                colTitle = m_commentPrefix + " " + colTitle;
-            }
-            m_out << formatColumn(colTitle, i);
+        {       
+            m_out << formatColumn(m_columns[i].title, i);
         }
         m_out << "\n";
     }
@@ -120,14 +128,26 @@ void RifEclipseDataTableFormatter::outputBuffer()
         }
         else if (line.lineType == CONTENTS)
         {
-            m_out << m_tableRowPrependText;
+            QString lineText = m_tableRowPrependText;
+            QString appendText = (line.appendTextSet ? line.appendText : m_tableRowAppendText) + "\n";
 
             for (size_t i = 0; i < line.data.size(); ++i)
             {
-                m_out << formatColumn(line.data[i], i);
+                QString column = formatColumn(line.data[i], i);
+                QString newLineText = lineText + column;
+                if (i == line.data.size() - 1)
+                {
+                    newLineText += appendText;
+                }
+                if (newLineText.length() > maxEclipseRowWidth())
+                {
+                    m_out << lineText << "\n";
+                    lineText = m_tableRowPrependText;
+                }
+                lineText += column;
             }
 
-            m_out << (line.appendTextSet ? line.appendText : m_tableRowAppendText) << "\n";
+            m_out << lineText << appendText;
         }
     }
     m_columns.clear();
@@ -249,12 +269,7 @@ RifEclipseDataTableFormatter& RifEclipseDataTableFormatter::header(const std::ve
 
     for (size_t colNumber = 0u; colNumber < m_columns.size(); ++colNumber)
     {
-        QString colTitle = m_columns[colNumber].title;
-        if (colNumber == 0u)
-        {
-            colTitle = m_commentPrefix + " " + colTitle;
-        }
-        m_columns[colNumber].width = measure(colTitle);
+        m_columns[colNumber].width = measure(m_columns[colNumber].title);
     }
     return *this;
 }
@@ -454,16 +469,24 @@ int RifEclipseDataTableFormatter::tableWidth() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+int RifEclipseDataTableFormatter::maxEclipseRowWidth()
+{
+    return 132;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString RifEclipseDataTableFormatter::format(double num, RifEclipseOutputTableDoubleFormatting doubleFormat)
 {
     switch (doubleFormat.format)
     {
         case RifEclipseOutputTableDoubleFormat::RIF_FLOAT:
-            return QString("%1").arg(num, 0, 'f', doubleFormat.width);
+            return QString("%1").arg(num, 0, 'f', doubleFormat.precision);
         case RifEclipseOutputTableDoubleFormat::RIF_SCIENTIFIC:
             return QString("%1").arg(num, 0, 'E');
         case RifEclipseOutputTableDoubleFormat::RIF_CONSISE:
-            return QString("%1").arg(num, doubleFormat.width, 'g');
+            return QString::number(num, 'g', doubleFormat.precision);
         default:
             return QString("%1");
     }
