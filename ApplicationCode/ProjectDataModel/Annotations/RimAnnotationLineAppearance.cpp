@@ -21,7 +21,7 @@
 
 #include "RiaStdStringTools.h"
 
-#include "QValidator.h"
+#include <QValidator>
 
 #include "cafPdmUiLineEditor.h"
 
