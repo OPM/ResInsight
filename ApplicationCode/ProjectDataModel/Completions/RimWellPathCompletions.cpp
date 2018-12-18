@@ -32,8 +32,10 @@
 
 #include "cvfAssert.h"
 
+#include "cafPdmUiLineEditor.h"
 #include "cafPdmUiTreeOrdering.h"
 
+#include <QRegExpValidator>
 #include <cmath>
 
 //--------------------------------------------------------------------------------------------------
@@ -79,6 +81,7 @@ RimWellPathCompletions::RimWellPathCompletions()
     m_fractureCollection.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitField(&m_wellNameForExport, "WellNameForExport", QString(), "Well Name for Completion Export", "", "", "");
+    m_wellNameForExport.uiCapability()->setUiEditorTypeName(caf::PdmUiLineEditor::uiEditorTypeName());
 
     CAF_PDM_InitField(&m_wellGroupName, "WellGroupNameForExport", QString(), "Well Group Name for Completion Export", "", "", "");
 
@@ -279,6 +282,23 @@ void RimWellPathCompletions::fieldChangedByUi(const caf::PdmFieldHandle* changed
                 m_referenceDepth = text.replace(',', '.');
             }
         }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellPathCompletions::defineEditorAttribute(const caf::PdmFieldHandle* field,
+                                                   QString                    uiConfigName,
+                                                   caf::PdmUiEditorAttribute* attribute)
+{
+    caf::PdmUiLineEditorAttribute* lineEditorAttr = dynamic_cast<caf::PdmUiLineEditorAttribute*>(attribute);
+    if (field == &m_wellNameForExport && lineEditorAttr)
+    {
+        QRegExp rx("[\\w\\-\\_]{1,8}");
+        QRegExpValidator* validator = new QRegExpValidator(nullptr);
+        validator->setRegExp(rx);
+        lineEditorAttr->validator = validator;
     }
 }
 
