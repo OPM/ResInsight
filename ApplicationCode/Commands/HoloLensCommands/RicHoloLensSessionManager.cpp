@@ -50,7 +50,7 @@ RicHoloLensSessionManager* RicHoloLensSessionManager::instance()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicHoloLensSessionManager::createSession(const QString& serverUrl, const QString& sessionName, const QString& /*sessionPinCode*/)
+bool RicHoloLensSessionManager::createSession(const QString& serverUrl, const QString& sessionName, const QString& sessionPinCode)
 {
     if (m_session)
     {
@@ -58,8 +58,8 @@ bool RicHoloLensSessionManager::createSession(const QString& serverUrl, const QS
         return false;
     }
 
-    RiaLogging::info(QString("Creating HoloLens session: '%1', server url: %2").arg(sessionName).arg(serverUrl));
-    m_session = RicHoloLensSession::createSession(serverUrl, sessionName);
+    RiaLogging::info(QString("Creating HoloLens session: '%1' with pin code: %2, server url: %3").arg(sessionName).arg(sessionPinCode).arg(serverUrl));
+    m_session = RicHoloLensSession::createSession(serverUrl, sessionName, sessionPinCode.toLatin1(), this);
 
     refreshToolbarState();
 
@@ -96,11 +96,14 @@ void RicHoloLensSessionManager::terminateSession()
     }
 
     RiaLogging::info("Terminating HoloLens session");
+    
+    RicHoloLensSession* sessionToDelete = m_session;
     m_session->destroySession();
-    m_session->deleteLater();
     m_session = nullptr;
 
     refreshToolbarState();
+
+    m_session->deleteLater();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -123,5 +126,21 @@ void RicHoloLensSessionManager::refreshToolbarState()
     commandIds << "RicHoloLensTerminateSessionFeature";
 
     caf::CmdFeatureManager::instance()->refreshEnabledState(commandIds);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicHoloLensSessionManager::handleSessionNotification(const RicHoloLensSession* session, Notification notification)
+{
+    if (notification == RicHoloLensSessionObserver::CreateSessionFailed)
+    {
+        if (m_session && m_session == session)
+        terminateSession();
+    }
+    else
+    {
+        refreshToolbarState();
+    }
 }
 

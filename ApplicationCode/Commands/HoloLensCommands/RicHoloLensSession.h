@@ -18,6 +18,7 @@
 
 #pragma once
 
+#include "RicHoloLensSessionObserver.h"
 #include "RicHoloLensRestClient.h"
 
 #include "VdePacketDirectory.h"
@@ -30,7 +31,6 @@
 class RimGridView;
 
 
-
 //==================================================================================================
 //
 //
@@ -41,7 +41,7 @@ class RicHoloLensSession : public QObject, private RicHoloLensRestResponseHandle
 public:
     ~RicHoloLensSession();
 
-    static RicHoloLensSession*  createSession(const QString& serverUrl, const QString& sessionName);
+    static RicHoloLensSession*  createSession(const QString& serverUrl, const QString& sessionName, const QByteArray& sessionPinCode, RicHoloLensSessionObserver* sessionObserver);
     static RicHoloLensSession*  createDummyFileBackedSession();
     void                        destroySession();
 
@@ -53,8 +53,11 @@ private:
     RicHoloLensSession();
 
     virtual void    handleSuccessfulCreateSession() override;
-    virtual void    handleSuccessfulSendMetaData(int metaDataSequenceNumber) override;
+    virtual void    handleFailedCreateSession() override;
+    virtual void    handleSuccessfulSendMetaData(int metaDataSequenceNumber, const QByteArray& jsonServerResponseString) override;
     virtual void    handleError(const QString& errMsg, const QString& url, const QString& serverData) override;
+
+    void            notifyObserver(RicHoloLensSessionObserver::Notification notification);
 
 private:
     bool                            m_isSessionValid;
@@ -64,8 +67,7 @@ private:
     std::vector<int>                m_lastExtractionAllReferencedPacketIdsArr;
     VdePacketDirectory              m_packetDirectory;
 
+    RicHoloLensSessionObserver*     m_sessionObserver;
+
     bool                            m_dbgEnableFileExport;
 };
-
-
-

@@ -18,38 +18,26 @@
 
 #pragma once
 
-#include "RicHoloLensSessionObserver.h"
-
-#include <QPointer>
-
 class RicHoloLensSession;
 
 
+
 //==================================================================================================
 //
-//
+// 
 //
 //==================================================================================================
-class RicHoloLensSessionManager : private RicHoloLensSessionObserver
+class RicHoloLensSessionObserver
 {
 public:
-    static RicHoloLensSessionManager* instance();
+    enum Notification
+    {
+        CreateSessionSucceeded,
+        CreateSessionFailed,
+        GeneralError
+    };
 
-    bool                createSession(const QString& serverUrl, const QString& sessionName, const QString& sessionPinCode);
-    bool                createDummyFileBackedSession();
-    void                terminateSession();
-
-    RicHoloLensSession* session();
-
-    static void         refreshToolbarState();
-
-private:
-    virtual void        handleSessionNotification(const RicHoloLensSession* session, Notification notification) override;
-
-private:
-    RicHoloLensSessionManager();
-
-private:
-    QPointer<RicHoloLensSession>  m_session;
+public:
+    virtual ~RicHoloLensSessionObserver() {}
+    virtual void handleSessionNotification(const RicHoloLensSession* session, Notification notification) = 0;
 };
-

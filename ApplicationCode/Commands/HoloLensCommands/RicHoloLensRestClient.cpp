@@ -23,6 +23,13 @@
 
 #include <QNetworkRequest>
 #include <QSslConfiguration>
+#include <QDateTime>
+
+// For getting time stamps for round-trip timing
+#if defined (__linux__)
+#include <sys/time.h>
+#include <ctime>
+#endif
 
 
 #ifndef QT_NO_OPENSSL
@@ -59,7 +66,7 @@ void RicHoloLensRestClient::clearResponseHandler()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicHoloLensRestClient::createSession()
+void RicHoloLensRestClient::createSession(const QByteArray& sessionPinCode)
 {
     const QString url = m_serverUrl + "/sessions/create/" + m_sessionName;
     cvf::Trace::show("createSession: POST on url: %s", url.toLatin1().constData());
@@ -67,6 +74,7 @@ void RicHoloLensRestClient::createSession()
     QNetworkRequest request(url);
     //request.setHeader(QNetworkRequest::ContentTypeHeader, QVariant("application/octet-stream"));
     request.setHeader(QNetworkRequest::ContentTypeHeader, QVariant("application/x-www-form-urlencoded"));
+    request.setRawHeader("PinCode", sessionPinCode);
 
 #ifdef EXPERIMENTAL_SSL_SUPPORT
     // NOTE !!!
@@ -106,8 +114,21 @@ void RicHoloLensRestClient::slotCreateSessionFinished()
     if (detectAndHandleErrorReply("createSession", reply))
     {
         reply->deleteLater();
+
+        m_responseHandler->handleFailedCreateSession();
+
         return;
     }
+
+    const QByteArray serverData = reply->readAll();
+    //cvf::Trace::show("  serverResponse: %s", serverData.constData());
+
+    // Currently we get the bearer token back in the response wholesale
+    // The format we get is typically: "Bearer <the token>"
+    // For example: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"
+    // Presumably the format of the response will change, but for now just strip away the starting "Bearer " string and consider the rest as the actual token
+    m_bearerToken = serverData;
+    m_bearerToken.replace("Bearer ", "");
 
     reply->deleteLater();
 
@@ -129,6 +150,7 @@ void RicHoloLensRestClient::deleteSession()
     QNetworkRequest request(url);
     //request.setHeader(QNetworkRequest::ContentTypeHeader, QVariant("application/octet-stream"));
     request.setHeader(QNetworkRequest::ContentTypeHeader, QVariant("application/x-www-form-urlencoded"));
+    addBearerAuthenticationHeaderToRequest(&request);
 
     QNetworkReply* reply = m_accessManager.deleteResource(request);
     connect(reply, SIGNAL(finished()), SLOT(slotDeleteSessionFinished()));
@@ -168,13 +190,17 @@ void RicHoloLensRestClient::sendMetaData(int metaDataSequenceNumber, const QStri
     const QString url = m_serverUrl + "/sessions/" + m_sessionName + "/metadata";
     cvf::Trace::show("sendMetaData (metaDataSequenceNumber=%d): POST on url: %s", metaDataSequenceNumber, url.toLatin1().constData());
 
+    const qint64 sendStartTimeStamp_ms = getCurrentTimeStamp_ms();
+
     QNetworkRequest request(url);
     request.setHeader(QNetworkRequest::ContentTypeHeader, QVariant("application/json"));
+    addBearerAuthenticationHeaderToRequest(&request);
 
     const QByteArray jsonByteArr = jsonMetaDataString.toLatin1();
 
     QNetworkReply* reply = m_accessManager.post(request, jsonByteArr);
-    reply->setProperty("metaDataSequenceNumber", QVariant(metaDataSequenceNumber));
+    reply->setProperty("holo_metaDataSequenceNumber", QVariant(metaDataSequenceNumber));
+    reply->setProperty("holo_sendStartTimeStamp_ms", QVariant(sendStartTimeStamp_ms));
 
     connect(reply, SIGNAL(finished()), SLOT(slotSendMetaDataFinished()));
 
@@ -202,19 +228,32 @@ void RicHoloLensRestClient::slotSendMetaDataFinished()
 
     int metaDataSequenceNumber = -1;
     {
-        QVariant var = reply->property("metaDataSequenceNumber");
+        QVariant var = reply->property("holo_metaDataSequenceNumber");
         if (var.type() == QVariant::Int)
         {
             metaDataSequenceNumber = var.toInt();
         }
     }
 
+    double elapsedTime_s = -1;
+    {
+        QVariant var = reply->property("holo_sendStartTimeStamp_ms");
+        if (var.type() == QVariant::LongLong)
+        {
+            const qint64 startTimeStamp_ms = var.toLongLong();
+            elapsedTime_s = (getCurrentTimeStamp_ms() - startTimeStamp_ms)/1000.0;
+        }
+    }
+
+    const QByteArray serverData = reply->readAll();
+    //cvf::Trace::show("  serverResponse: %s", serverData.constData());
+
     reply->deleteLater();
 
-    cvf::Trace::show("sendMetaData (metaDataSequenceNumber=%d) OK", metaDataSequenceNumber);
+    cvf::Trace::show("sendMetaData (metaDataSequenceNumber=%d) OK, elapsedTime=%.2fs", metaDataSequenceNumber, elapsedTime_s);
     if (m_responseHandler)
     {
-        m_responseHandler->handleSuccessfulSendMetaData(metaDataSequenceNumber);
+        m_responseHandler->handleSuccessfulSendMetaData(metaDataSequenceNumber, serverData);
     }
 }
 
@@ -226,11 +265,19 @@ void RicHoloLensRestClient::sendBinaryData(const QByteArray& binaryDataArr)
     const QString url = m_serverUrl + "/sessions/" + m_sessionName + "/data";
     cvf::Trace::show("sendBinaryData: POST on url: %s", url.toLatin1().constData());
 
+    const qint64 sendStartTimeStamp_ms = getCurrentTimeStamp_ms();
+
     QNetworkRequest request(url);
     request.setHeader(QNetworkRequest::ContentTypeHeader, QVariant("application/octet-stream"));
+    addBearerAuthenticationHeaderToRequest(&request);
 
     QNetworkReply* reply = m_accessManager.post(request, binaryDataArr);
+    reply->setProperty("holo_sendStartTimeStamp_ms", QVariant(sendStartTimeStamp_ms));
+
     connect(reply, SIGNAL(finished()), SLOT(slotSendBinaryDataFinished()));
+
+    // Debugging!
+    connect(reply, SIGNAL(uploadProgress(qint64, qint64)), SLOT(slotDbgUploadProgress(qint64, qint64)));
 
 #ifdef EXPERIMENTAL_SSL_SUPPORT
     connect(reply, SIGNAL(sslErrors(const QList<QSslError>&)), SLOT(slotSslErrors(const QList<QSslError>&)));
@@ -254,9 +301,50 @@ void RicHoloLensRestClient::slotSendBinaryDataFinished()
         return;
     }
 
+    double elapsedTime_s = -1;
+    {
+        QVariant var = reply->property("holo_sendStartTimeStamp_ms");
+        if (var.type() == QVariant::LongLong)
+        {
+            const qint64 startTimeStamp_ms = var.toLongLong();
+            elapsedTime_s = (getCurrentTimeStamp_ms() - startTimeStamp_ms)/1000.0;
+        }
+    }
+
     reply->deleteLater();
 
-    cvf::Trace::show("sendBinaryData OK");
+    cvf::Trace::show("sendBinaryData OK, elapsedTime=%.2fs", elapsedTime_s);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicHoloLensRestClient::slotDbgUploadProgress(qint64 bytesSent, qint64 bytesTotal)
+{
+    static int sl_lastPct = -1;
+    int pct = 0;
+    if (bytesTotal > 0)
+    {
+        pct = static_cast<int>(100*(bytesSent/static_cast<double>(bytesTotal)));
+    }
+
+    if (pct % 10 == 0 && pct != sl_lastPct)
+    {
+        double elapsedTime_s = -1;
+        QNetworkReply* reply = dynamic_cast<QNetworkReply*>(sender());
+        if (reply)
+        {
+            QVariant var = reply->property("holo_sendStartTimeStamp_ms");
+            if (var.type() == QVariant::LongLong)
+            {
+                const qint64 startTimeStamp_ms = var.toLongLong();
+                elapsedTime_s = (getCurrentTimeStamp_ms() - startTimeStamp_ms)/1000.0;
+            }
+        }
+
+        cvf::Trace::show("Sending progress: %3d%%, %.2f/%.2fMB (elapsedTime=%.2fs)", pct, bytesSent/(1024.0*1024.0), bytesTotal/(1024.0*1024.0), elapsedTime_s);
+        sl_lastPct = pct;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -271,6 +359,16 @@ void RicHoloLensRestClient::slotSslErrors(const QList<QSslError>& errors)
         cvf::Trace::show("  %s", errors[i].errorString().toLatin1().constData());
     }
 #endif
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicHoloLensRestClient::addBearerAuthenticationHeaderToRequest(QNetworkRequest* request) const
+{
+    CVF_ASSERT(request);
+
+    request->setRawHeader("Authorization", "Bearer " + m_bearerToken);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -357,4 +455,24 @@ QString RicHoloLensRestClient::networkErrorCodeAsString(QNetworkReply::NetworkEr
 
     return "UnknownErrorCode";
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+qint64 RicHoloLensRestClient::getCurrentTimeStamp_ms()
+{
+#if QT_VERSION >= 0x040700
+    const qint64 timeStamp_ms = QDateTime::currentMSecsSinceEpoch();
+    return timeStamp_ms;
+#elif defined(__linux__)
+    struct timespec ts;
+    if (clock_gettime(CLOCK_MONOTONIC, &ts) == 0)
+    {
+        return static_cast<qint64>(ts.tv_sec*1000 + ts.tv_nsec/1000000);
+    }
+#endif
+
+    return 0;
+}
+
 

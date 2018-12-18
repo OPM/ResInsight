@@ -10,6 +10,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RicHoloLensRestClient.h
 ${CMAKE_CURRENT_LIST_DIR}/RicHoloLensServerSettings.h
 ${CMAKE_CURRENT_LIST_DIR}/RicHoloLensCreateSessionUi.h
 ${CMAKE_CURRENT_LIST_DIR}/RicHoloLensSession.h
+${CMAKE_CURRENT_LIST_DIR}/RicHoloLensSessionObserver.h
 ${CMAKE_CURRENT_LIST_DIR}/RicHoloLensSessionManager.h
 ${CMAKE_CURRENT_LIST_DIR}/RicHoloLensCreateDummyFileBackedSessionFeature.h
 
