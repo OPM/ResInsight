@@ -174,29 +174,31 @@ cvf::ref<cvf::DrawableGeo> RivContourMapProjectionPartMgr::createProjectionMapDr
 //--------------------------------------------------------------------------------------------------
 std::vector<cvf::ref<cvf::DrawableGeo>> RivContourMapProjectionPartMgr::createContourPolygons(const caf::DisplayCoordTransform* displayCoordTransform) const
 {
-    RimContourMapProjection::ContourPolygons contourPolygons = m_contourMapProjection->generateContourPolygons(displayCoordTransform);
+    RimContourMapProjection::ClosedContourPolygons contourPolygons = m_contourMapProjection->generateContourPolygons(displayCoordTransform);
 
     std::vector<cvf::ref<cvf::DrawableGeo>> contourDrawables;
-    contourDrawables.reserve(contourPolygons.size());
     for (size_t i = 0; i < contourPolygons.size(); ++i)
     {
-        cvf::ref<cvf::Vec3fArray> vertexArray = contourPolygons[i];
-        std::vector<cvf::uint> indices;
-        indices.reserve(contourPolygons[i]->size());
-        for (cvf::uint j = 0; j < contourPolygons[i]->size(); ++j)
+        for (size_t j = 0; j < contourPolygons[i].size(); ++j)
         {
-            indices.push_back(j);
+            cvf::ref<cvf::Vec3fArray> vertexArray = contourPolygons[i][j];
+            std::vector<cvf::uint> indices;
+            indices.reserve(contourPolygons[i][j]->size());
+            for (cvf::uint k = 0; k < contourPolygons[i][j]->size(); ++k)
+            {
+                indices.push_back(k);
+            }
+
+            cvf::ref<cvf::PrimitiveSetIndexedUInt> indexedUInt = new cvf::PrimitiveSetIndexedUInt(cvf::PrimitiveType::PT_LINES);
+            cvf::ref<cvf::UIntArray>               indexArray = new cvf::UIntArray(indices);
+            indexedUInt->setIndices(indexArray.p());
+
+            cvf::ref<cvf::DrawableGeo> geo = new cvf::DrawableGeo;
+
+            geo->addPrimitiveSet(indexedUInt.p());
+            geo->setVertexArray(vertexArray.p());
+            contourDrawables.push_back(geo);
         }
-
-        cvf::ref<cvf::PrimitiveSetIndexedUInt> indexedUInt = new cvf::PrimitiveSetIndexedUInt(cvf::PrimitiveType::PT_LINES);
-        cvf::ref<cvf::UIntArray>               indexArray = new cvf::UIntArray(indices);
-        indexedUInt->setIndices(indexArray.p());
-
-        cvf::ref<cvf::DrawableGeo> geo = new cvf::DrawableGeo;
-
-        geo->addPrimitiveSet(indexedUInt.p());
-        geo->setVertexArray(vertexArray.p());
-        contourDrawables.push_back(geo);
     }
     return contourDrawables;
 }

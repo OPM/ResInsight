@@ -60,13 +60,13 @@ public:
         RESULTS_HC_COLUMN
     };
     typedef caf::AppEnum<ResultAggregationEnum> ResultAggregation;
-    typedef std::vector<cvf::ref<cvf::Vec3fArray>> ContourPolygons;
+    typedef std::vector<std::vector<cvf::ref<cvf::Vec3fArray>>> ClosedContourPolygons;
 
     RimContourMapProjection();
     ~RimContourMapProjection() override;
 
     void                        generateVertices(cvf::Vec3fArray* vertices, const caf::DisplayCoordTransform* displayCoordTransform);    
-    ContourPolygons             generateContourPolygons(const caf::DisplayCoordTransform* displayCoordTransform);
+    ClosedContourPolygons       generateContourPolygons(const caf::DisplayCoordTransform* displayCoordTransform);
     cvf::ref<cvf::Vec3fArray>   generatePickPointPolygon(const caf::DisplayCoordTransform* displayCoordTransform);
     void                        generateResults();
 
