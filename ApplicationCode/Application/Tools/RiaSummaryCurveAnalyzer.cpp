@@ -76,7 +76,7 @@ std::set<std::string> RiaSummaryCurveAnalyzer::quantityNamesWithHistory() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::set<std::string> RiaSummaryCurveAnalyzer::quantityNamesNoHistory() const 
+std::set<std::string> RiaSummaryCurveAnalyzer::quantityNamesNoHistory() const
 {
     assignCategoryToQuantities();
 
@@ -241,31 +241,23 @@ void RiaSummaryCurveAnalyzer::computeQuantityNamesWithHistory() const
 
     for (const auto& s : m_quantities)
     {
-        if (RiaStdStringTools::endsWith(s, historyIdentifier))
-        {
-            std::string summaryCurveName = s.substr(0, s.size() - 1);
+        std::string correspondingHistoryCurve = correspondingHistorySummaryCurveName(s);
 
-            if (m_quantities.find(summaryCurveName) != m_quantities.end())
+        if (m_quantities.find(correspondingHistoryCurve) != m_quantities.end())
+        {
+            // Insert the curve name without H
+            if (RiaStdStringTools::endsWith(s, historyIdentifier))
             {
-                m_quantitiesWithMatchingHistory.insert(summaryCurveName);
+                m_quantitiesWithMatchingHistory.insert(correspondingHistoryCurve);
             }
             else
             {
-                m_quantitiesNoMatchingHistory.insert(summaryCurveName);
+                m_quantitiesWithMatchingHistory.insert(s);
             }
         }
         else
         {
-            std::string historySummaryCurveName = s + historyIdentifier;
-
-            if (m_quantities.find(historySummaryCurveName) != m_quantities.end())
-            {
-                m_quantitiesWithMatchingHistory.insert(s);
-            }
-            else
-            {
-                m_quantitiesNoMatchingHistory.insert(s);
-            }
+            m_quantitiesNoMatchingHistory.insert(s);
         }
     }
 }
