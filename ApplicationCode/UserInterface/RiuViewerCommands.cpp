@@ -27,6 +27,7 @@
 #include "RicGeoMechPropertyFilterNewExec.h"
 #include "RicPickEventHandler.h"
 #include "RicContourMapPickEventHandler.h"
+#include "MeasurementCommands/RicMeasurementPickEventHandler.h"
 #include "WellLogCommands/Ric3dWellLogCurvePickEventHandler.h"
 #include "WellPathCommands/RicIntersectionPickEventHandler.h"
 #include "WellPathCommands/RicWellPathPickEventHandler.h"

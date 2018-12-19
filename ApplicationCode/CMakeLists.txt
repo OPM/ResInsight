@@ -45,6 +45,7 @@ include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/Commands/EclipseCommands
     ${CMAKE_CURRENT_SOURCE_DIR}/FileInterface
     ${CMAKE_CURRENT_SOURCE_DIR}/SocketInterface
+    ${CMAKE_CURRENT_SOURCE_DIR}/Measurement
     ${CMAKE_CURRENT_SOURCE_DIR}/ModelVisualization
     ${CMAKE_CURRENT_SOURCE_DIR}/ModelVisualization/GridBox
     ${CMAKE_CURRENT_SOURCE_DIR}/ModelVisualization/Intersections
@@ -56,6 +57,7 @@ include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/Annotations
     ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/Completions
     ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/Flow
+    ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/Measurement
     ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/Summary
     
     ${CMAKE_CURRENT_SOURCE_DIR}/ResultStatisticsCache
@@ -109,6 +111,7 @@ list( APPEND REFERENCED_CMAKE_FILES
     ProjectDataModel/Flow/CMakeLists_files.cmake
     ProjectDataModel/Annotations/CMakeLists_files.cmake
     ProjectDataModel/Completions/CMakeLists_files.cmake
+    ProjectDataModel/Measurement/CMakeLists_files.cmake
     
     GeoMech/GeoMechVisualization/CMakeLists_files.cmake
     
@@ -132,6 +135,7 @@ list( APPEND REFERENCED_CMAKE_FILES
     Commands/HoloLensCommands/CMakeLists_files.cmake
     Commands/IntersectionBoxCommands/CMakeLists_files.cmake
     Commands/IntersectionViewCommands/CMakeLists_files.cmake
+    Commands/MeasurementCommands/CMakeLists_files.cmake
     Commands/OctaveScriptCommands/CMakeLists_files.cmake
     Commands/OperationsUsingObjReferences/CMakeLists_files.cmake
     Commands/SummaryPlotCommands/CMakeLists_files.cmake

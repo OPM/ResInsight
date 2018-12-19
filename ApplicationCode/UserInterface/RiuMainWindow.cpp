@@ -75,6 +75,7 @@
 #include "cafUtils.h"
 
 #include "ExportCommands/RicSnapshotAllViewsToFileFeature.h"
+#include "MeasurementCommands/RicToggleMeasurementModeFeature.h"
 #include "SummaryPlotCommands/RicEditSummaryPlotFeature.h"
 #include "SummaryPlotCommands/RicShowSummaryCurveCalculatorFeature.h"
 
@@ -597,6 +598,11 @@ void RiuMainWindow::createToolBars()
         m_holoLensToolBar->addAction(cmdFeatureMgr->action("RicHoloLensExportToSharingServerFeature"));
     }
 
+    {
+        QToolBar* measToolBar = addToolBar(tr("Measurement"));
+        measToolBar->addAction(cmdFeatureMgr->action("RicToggleMeasurementModeFeature"));
+    }
+
     RiaApplication* app = RiaApplication::instance();
     if (app->preferences()->showTestToolbar())
     {
@@ -869,6 +875,15 @@ void RiuMainWindow::slotRefreshViewActions()
                << "RicViewZoomAllFeature";
 
     caf::CmdFeatureManager::instance()->refreshEnabledState(commandIds);
+
+
+    caf::CmdFeatureManager* cmdFeatureMgr = caf::CmdFeatureManager::instance();
+    auto feature = dynamic_cast<RicToggleMeasurementModeFeature*>(
+        cmdFeatureMgr->getCommandFeature("RicToggleMeasurementModeFeature"));
+    if (feature)
+    {
+        feature->refreshActionLook();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

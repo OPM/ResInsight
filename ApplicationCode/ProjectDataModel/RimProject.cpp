@@ -55,6 +55,7 @@
 #include "RimGridView.h"
 #include "RimIdenticalGridCaseGroup.h"
 #include "RimMainPlotCollection.h"
+#include "RimMeasurement.h"
 #include "RimMultiSnapshotDefinition.h"
 #include "RimObservedDataCollection.h"
 #include "RimOilField.h"
@@ -1161,6 +1162,14 @@ RiaEclipseUnitTools::UnitSystemType RimProject::commonUnitSystemForAllCases() co
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimMeasurement* RimProject::measurement() const
+{
+    return activeOilField()->measurement;
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void RimProject::reloadCompletionTypeResultsForEclipseCase(RimEclipseCase* eclipseCase)
@@ -1245,6 +1254,7 @@ void RimProject::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QS
             if (oilField->formationNamesCollection())       uiTreeOrdering.add(oilField->formationNamesCollection());
             if (oilField->completionTemplateCollection())   uiTreeOrdering.add(oilField->completionTemplateCollection());
             if (oilField->annotationCollection())           uiTreeOrdering.add(oilField->annotationCollection());
+            if (oilField->measurement())                    uiTreeOrdering.add(oilField->measurement());
         }
 
         uiTreeOrdering.add(scriptCollection());
