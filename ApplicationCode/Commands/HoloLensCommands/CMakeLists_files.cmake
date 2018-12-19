@@ -15,6 +15,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RicHoloLensSessionManager.h
 ${CMAKE_CURRENT_LIST_DIR}/RicHoloLensCreateDummyFileBackedSessionFeature.h
 
 ${CMAKE_CURRENT_LIST_DIR}/VdeArrayDataPacket.h
+${CMAKE_CURRENT_LIST_DIR}/VdeCachingHashedIdFactory.h
 ${CMAKE_CURRENT_LIST_DIR}/VdeExportPart.h
 ${CMAKE_CURRENT_LIST_DIR}/VdeFileExporter.h
 ${CMAKE_CURRENT_LIST_DIR}/VdePacketDirectory.h
@@ -36,6 +37,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RicHoloLensSessionManager.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicHoloLensCreateDummyFileBackedSessionFeature.cpp
 
 ${CMAKE_CURRENT_LIST_DIR}/VdeArrayDataPacket.cpp
+${CMAKE_CURRENT_LIST_DIR}/VdeCachingHashedIdFactory.cpp
 ${CMAKE_CURRENT_LIST_DIR}/VdeExportPart.cpp
 ${CMAKE_CURRENT_LIST_DIR}/VdeFileExporter.cpp
 ${CMAKE_CURRENT_LIST_DIR}/VdePacketDirectory.cpp

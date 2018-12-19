@@ -25,9 +25,12 @@
 
 #include <QString>
 
+#include <memory>
+
 class VdeArrayDataPacket;
 class VdePacketDirectory;
 class VdeExportPart;
+class VdeCachingHashedIdFactory;
 
 class RimGridView;
 
@@ -62,7 +65,7 @@ struct VdeMesh
 
 //==================================================================================================
 //
-//
+// The set of array IDs that are needed for a mesh
 //
 //==================================================================================================
 struct VdeMeshArrayIds
@@ -89,17 +92,17 @@ struct VdeMeshArrayIds
 class VdeVizDataExtractor
 {
 public:
-    VdeVizDataExtractor(const RimGridView& view);
+    VdeVizDataExtractor(const RimGridView& view, VdeCachingHashedIdFactory* cachingIdFactory);
 
     void    extractViewContents(QString* modelMetaJsonStr, std::vector<int>* allReferencedArrayIds, VdePacketDirectory* packetDirectory);
 
 private:
-    static std::vector<VdeMesh> buildMeshArray(const std::vector<VdeExportPart>& exportPartsArr);
-    static bool                 extractMeshFromExportPart(const VdeExportPart& exportPart, VdeMesh* mesh);
-    static QString              createModelMetaJsonString(const std::vector<VdeMesh>& meshArr, const std::vector<VdeMeshArrayIds>& meshContentIdsArr);
-    static void                 debugComparePackets(const VdeArrayDataPacket& packetA, const VdeArrayDataPacket& packetB);
+    static std::vector<std::unique_ptr<VdeMesh> >   buildMeshArray(const std::vector<VdeExportPart>& exportPartsArr);
+    static std::unique_ptr<VdeMesh>                 createMeshFromExportPart(const VdeExportPart& exportPart);
+    static QString                                  createModelMetaJsonString(const std::vector<std::unique_ptr<VdeMesh> >& meshArr, const std::vector<VdeMeshArrayIds>& meshContentIdsArr);
+    static void                                     debugComparePackets(const VdeArrayDataPacket& packetA, const VdeArrayDataPacket& packetB);
 
 private:
-    const RimGridView&  m_view;
-
+    const RimGridView&          m_view;
+    VdeCachingHashedIdFactory*  m_cachingIdFactory;
 };

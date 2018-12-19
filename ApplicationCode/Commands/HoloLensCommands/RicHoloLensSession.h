@@ -22,6 +22,7 @@
 #include "RicHoloLensRestClient.h"
 
 #include "VdePacketDirectory.h"
+#include "VdeCachingHashedIdFactory.h"
 
 #include <QString>
 #include <QPointer>
@@ -57,6 +58,8 @@ private:
     virtual void    handleSuccessfulSendMetaData(int metaDataSequenceNumber, const QByteArray& jsonServerResponseString) override;
     virtual void    handleError(const QString& errMsg, const QString& url, const QString& serverData) override;
 
+    static bool     parseJsonIntegerArray(const QByteArray& jsonString, std::vector<int>* integerArr);
+
     void            notifyObserver(RicHoloLensSessionObserver::Notification notification);
 
 private:
@@ -65,6 +68,7 @@ private:
 
     int                             m_lastExtractionMetaDataSequenceNumber;
     std::vector<int>                m_lastExtractionAllReferencedPacketIdsArr;
+    VdeCachingHashedIdFactory       m_cachingIdFactory;
     VdePacketDirectory              m_packetDirectory;
 
     RicHoloLensSessionObserver*     m_sessionObserver;

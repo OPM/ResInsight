@@ -21,6 +21,7 @@
 #include <cstddef>
 #include <vector>
 #include <string>
+#include <memory>
 
 
 //==================================================================================================
@@ -42,26 +43,26 @@ public:
 public:
     VdeArrayDataPacket();
 
-    bool                        isValid() const;
-    int                         arrayId() const;
+    bool                                        isValid() const;
+    int                                         arrayId() const;
 
-    ElementType                 elementType() const;
-    size_t                      elementSize() const;
-    size_t                      elementCount() const;
-    const char*                 arrayData() const;
+    ElementType                                 elementType() const;
+    size_t                                      elementSize() const;
+    size_t                                      elementCount() const;
+    const char*                                 arrayData() const;
 
-    unsigned short              imageWidth() const;
-    unsigned short              imageHeight() const;
-    unsigned char               imageComponentCount() const;
+    unsigned short                              imageWidth() const;
+    unsigned short                              imageHeight() const;
+    unsigned char                               imageComponentCount() const;
 
-    size_t                      fullPacketSize() const;
-    const char*                 fullPacketRawPtr() const;
+    size_t                                      fullPacketSize() const;
+    const char*                                 fullPacketRawPtr() const;
 
-    static VdeArrayDataPacket   fromFloat32Arr(int arrayId, const float* srcArr, size_t srcArrElementCount);
-    static VdeArrayDataPacket   fromUint32Arr(int arrayId, const unsigned int* srcArr, size_t srcArrElementCount);
-    static VdeArrayDataPacket   fromUint8ImageRGBArr(int arrayId, unsigned short imageWidth, unsigned short imageHeight, const unsigned char* srcArr, size_t srcArrElementCount);
+    static std::unique_ptr<VdeArrayDataPacket>  fromFloat32Arr(int arrayId, const float* srcArr, size_t srcArrElementCount);
+    static std::unique_ptr<VdeArrayDataPacket>  fromUint32Arr(int arrayId, const unsigned int* srcArr, size_t srcArrElementCount);
+    static std::unique_ptr<VdeArrayDataPacket>  fromUint8ImageRGBArr(int arrayId, unsigned short imageWidth, unsigned short imageHeight, const unsigned char* srcArr, size_t srcArrElementCount);
 
-    static VdeArrayDataPacket   fromRawPacketBuffer(const char* rawPacketBuffer, size_t bufferSize, std::string* errString);
+    static VdeArrayDataPacket                   fromRawPacketBuffer(const char* rawPacketBuffer, size_t bufferSize, std::string* errString);
 
 private:
     bool            assign(int arrayId, ElementType elementType, size_t elementCount, unsigned short imageWidth, unsigned short imageHeight, unsigned char imageCompCount, const char* arrayDataPtr, size_t arrayDataSizeInBytes);

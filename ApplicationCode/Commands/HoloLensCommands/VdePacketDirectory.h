@@ -36,9 +36,11 @@ class VdePacketDirectory
 public:
     VdePacketDirectory();
 
-    void                        addPacket(const VdeArrayDataPacket& packet);
+    void                        addPacket(std::unique_ptr<VdeArrayDataPacket> packet);
     const VdeArrayDataPacket*   lookupPacket(int arrayId) const;
+
     void                        clear();
+    void                        pruneUnreferencedPackets(const std::vector<int>& packetIdsInUseArr);
 
     bool                        getPacketsAsCombinedBuffer(const std::vector<int>& packetIdsToGet, QByteArray* combinedPacketArr) const;
 
