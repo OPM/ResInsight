@@ -80,6 +80,14 @@ QString RifEclipseDataTableFormatter::tableRowPrependText() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString RifEclipseDataTableFormatter::tableRowAppendText() const
+{
+    return m_tableRowAppendText;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RifEclipseDataTableFormatter::setTableRowPrependText(const QString& text)
 {
     m_tableRowPrependText = text;
@@ -91,6 +99,14 @@ void RifEclipseDataTableFormatter::setTableRowPrependText(const QString& text)
 void RifEclipseDataTableFormatter::setTableRowLineAppendText(const QString& text)
 {
     m_tableRowAppendText = text;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RifEclipseDataTableFormatter::commentPrefix() const
+{
+    return m_commentPrefix;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -456,12 +472,13 @@ int RifEclipseDataTableFormatter::measure(size_t num)
 //--------------------------------------------------------------------------------------------------
 int RifEclipseDataTableFormatter::tableWidth() const
 {
-    int characterCount = 0;
+    int characterCount = m_tableRowPrependText.length();
 
     for (size_t i = 0u; i < m_columns.size(); ++i)
     {
         characterCount += formatColumn(" ", i).size();
     }
+    characterCount += m_tableRowAppendText.length();
 
     return characterCount;
 }

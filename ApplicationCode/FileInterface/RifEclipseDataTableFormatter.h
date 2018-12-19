@@ -114,8 +114,10 @@ public:
     int  columnSpacing() const;
     void setColumnSpacing(int spacing);
     QString tableRowPrependText() const;
+    QString tableRowAppendText() const;
     void setTableRowPrependText(const QString& text);
     void setTableRowLineAppendText(const QString& text);
+    QString commentPrefix() const;
     void setCommentPrefix(const QString& commentPrefix);
 
     RifEclipseDataTableFormatter& keyword(const QString& keyword);
@@ -135,15 +137,14 @@ public:
 
     static void                   addValueTable(QTextStream& stream, const QString& keyword, size_t columns, const std::vector<double>& values);
 
+    int tableWidth() const;
+    static int maxEclipseRowWidth();
 
 private:
     int measure(const QString str);
     int measure(double num, RifEclipseOutputTableDoubleFormatting doubleFormat);
     int measure(int num);
     int measure(size_t num);
-
-    int        tableWidth() const;
-    static int maxEclipseRowWidth();
 
     QString format(double num, RifEclipseOutputTableDoubleFormatting doubleFormat);
     QString format(int num);
