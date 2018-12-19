@@ -52,9 +52,6 @@ public:
     void                    setTimeStepsFromFile(const std::vector<std::pair<QString, QDateTime>>& timeSteps);
     std::vector<size_t>     filteredTimeSteps() const;
     bool                    updateFilteredTimeStepsFromUi();
-
-    void                    reset();
-
 private:
     std::vector<std::pair<QString, QDateTime>>  allTimeSteps() const;
     std::vector<int>        filteredTimeStepIndicesFromUi() const;
