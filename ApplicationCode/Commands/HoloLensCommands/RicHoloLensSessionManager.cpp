@@ -103,7 +103,7 @@ void RicHoloLensSessionManager::terminateSession()
 
     refreshToolbarState();
 
-    m_session->deleteLater();
+    sessionToDelete->deleteLater();
 }
 
 //--------------------------------------------------------------------------------------------------
