@@ -57,7 +57,7 @@ public:
     bool                        hasCompletions() const;
 
     void                        setUnitSystemSpecificDefaults();
-
+    static QRegExp              wellNameForExportRegExp();
 protected:
     void                        defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName) override;
     void                        fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;

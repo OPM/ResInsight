@@ -238,6 +238,15 @@ void RimWellPathCompletions::setUnitSystemSpecificDefaults()
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QRegExp RimWellPathCompletions::wellNameForExportRegExp()
+{
+    QRegExp rx("[\\w\\-\\_]{1,8}");
+    return rx;
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void RimWellPathCompletions::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName)
@@ -295,9 +304,8 @@ void RimWellPathCompletions::defineEditorAttribute(const caf::PdmFieldHandle* fi
     caf::PdmUiLineEditorAttribute* lineEditorAttr = dynamic_cast<caf::PdmUiLineEditorAttribute*>(attribute);
     if (field == &m_wellNameForExport && lineEditorAttr)
     {
-        QRegExp rx("[\\w\\-\\_]{1,8}");
         QRegExpValidator* validator = new QRegExpValidator(nullptr);
-        validator->setRegExp(rx);
+        validator->setRegExp(wellNameForExportRegExp());
         lineEditorAttr->validator = validator;
     }
 }
