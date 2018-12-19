@@ -58,6 +58,8 @@ public:
     static std::vector<RifEclipseSummaryAddress> addressesForCategory(const std::set<RifEclipseSummaryAddress>& addresses,
                                                                       RifEclipseSummaryAddress::SummaryVarCategory category);
 
+    static std::string correspondingHistorySummaryCurveName(const std::string& curveName);
+
 private:
     void assignCategoryToQuantities() const;
     void computeQuantityNamesWithHistory() const;

@@ -965,8 +965,8 @@ bool RimSummaryPlotSourceStepping::updateHistoryAndSummaryQuantityIfMatching(con
         return true;
     }
 
-    std::string correspondingOldString = correspondingHistorySummaryCurveName(oldString);
-    std::string correspondingNewString = correspondingHistorySummaryCurveName(newString);
+    std::string correspondingOldString = RiaSummaryCurveAnalyzer::correspondingHistorySummaryCurveName(oldString);
+    std::string correspondingNewString = RiaSummaryCurveAnalyzer::correspondingHistorySummaryCurveName(newString);
 
     if (adr->quantityName() == correspondingOldString)
     {
@@ -976,24 +976,6 @@ bool RimSummaryPlotSourceStepping::updateHistoryAndSummaryQuantityIfMatching(con
     }
 
     return false;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::string RimSummaryPlotSourceStepping::correspondingHistorySummaryCurveName(const std::string& curveName)
-{
-    static std::string historyIdentifier = "H";
-
-    if (RiaStdStringTools::endsWith(curveName, historyIdentifier))
-    {
-        std::string candidate = curveName.substr(0, curveName.size() - 1);
-        return candidate;
-    }
-    else
-    {
-        return curveName + historyIdentifier;
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

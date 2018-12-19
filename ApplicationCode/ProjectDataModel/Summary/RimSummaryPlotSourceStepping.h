@@ -106,8 +106,6 @@ private:
                                                           const QVariant&           newValue,
                                                           RifEclipseSummaryAddress* adr);
 
-    static std::string correspondingHistorySummaryCurveName(const std::string& curveName);
-
 private:
     caf::PdmPtrField<RimSummaryCase*> m_summaryCase;
     caf::PdmPtrField<RimSummaryCaseCollection*> m_ensemble;

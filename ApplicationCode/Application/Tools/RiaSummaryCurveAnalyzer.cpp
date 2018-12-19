@@ -188,6 +188,24 @@ std::vector<RifEclipseSummaryAddress>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::string RiaSummaryCurveAnalyzer::correspondingHistorySummaryCurveName(const std::string& curveName)
+{
+    static std::string historyIdentifier = "H";
+
+    if (RiaStdStringTools::endsWith(curveName, historyIdentifier))
+    {
+        std::string candidate = curveName.substr(0, curveName.size() - 1);
+        return candidate;
+    }
+    else
+    {
+        return curveName + historyIdentifier;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiaSummaryCurveAnalyzer::clear()
 {
     m_quantities.clear();
