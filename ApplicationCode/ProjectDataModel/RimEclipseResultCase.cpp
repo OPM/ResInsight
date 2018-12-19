@@ -242,6 +242,7 @@ void RimEclipseResultCase::reloadEclipseGridFile()
 {
     m_gridAndWellDataIsReadFromFile = false;
     m_activeCellInfoIsReadFromFile = false;
+    m_timeStepFilter->reset();
     setReservoirData(nullptr);
     openReserviorCase();
 }
