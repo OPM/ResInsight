@@ -97,6 +97,7 @@ RimFishbonesMultipleSubs::RimFishbonesMultipleSubs()
     initialiseObsoleteFields();
     CAF_PDM_InitFieldNoDefault(&m_valveLocations, "ValveLocations", "Valve Locations", "", "", "");
     m_valveLocations = new RimMultipleValveLocations();
+    m_valveLocations->findField("RangeValveCount")->uiCapability()->setUiName("Number of Subs");
     m_valveLocations.uiCapability()->setUiHidden(true);
     m_valveLocations.uiCapability()->setUiTreeChildrenHidden(true);
 
