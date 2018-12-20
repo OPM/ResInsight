@@ -106,6 +106,8 @@ private:
                                                           const QVariant&           newValue,
                                                           RifEclipseSummaryAddress* adr);
 
+    static std::vector<RimSummaryCase*> summaryCasesForSourceStepping();
+
 private:
     caf::PdmPtrField<RimSummaryCase*> m_summaryCase;
     caf::PdmPtrField<RimSummaryCaseCollection*> m_ensemble;

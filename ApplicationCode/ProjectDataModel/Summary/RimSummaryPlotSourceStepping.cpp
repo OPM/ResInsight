@@ -183,17 +183,17 @@ void RimSummaryPlotSourceStepping::defineUiOrdering(QString uiConfigName, caf::P
 QList<caf::PdmOptionItemInfo> RimSummaryPlotSourceStepping::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions,
                                                                                   bool*                      useOptionsOnly)
 {
+    QList<caf::PdmOptionItemInfo> options;
+
     if (fieldNeedingOptions == &m_placeholderForLabel)
     {
-        return QList<caf::PdmOptionItemInfo>();
+        options;
     }
 
     if (fieldNeedingOptions == &m_summaryCase)
     {
-        QList<caf::PdmOptionItemInfo> options;
-
-        RimProject* proj = RiaApplication::instance()->project();
-        for (auto sumCase : proj->allSummaryCases())
+        auto summaryCases = RimSummaryPlotSourceStepping::summaryCasesForSourceStepping();
+        for (auto sumCase : summaryCases)
         {
             options.append(caf::PdmOptionItemInfo(sumCase->caseName(), sumCase));
         }
@@ -202,8 +202,6 @@ QList<caf::PdmOptionItemInfo> RimSummaryPlotSourceStepping::calculateValueOption
     }
     else if (fieldNeedingOptions == &m_ensemble)
     {
-        QList<caf::PdmOptionItemInfo> options;
-
         RimProject* proj = RiaApplication::instance()->project();
         for (auto ensemble : proj->summaryGroups())
         {
@@ -215,8 +213,6 @@ QList<caf::PdmOptionItemInfo> RimSummaryPlotSourceStepping::calculateValueOption
 
         return options;
     }
-
-    QList<caf::PdmOptionItemInfo> options;
 
     std::vector<RifSummaryReaderInterface*> readers = summaryReadersForCurves();
     if (!readers.empty())
@@ -976,6 +972,30 @@ bool RimSummaryPlotSourceStepping::updateHistoryAndSummaryQuantityIfMatching(con
     }
 
     return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimSummaryCase*> RimSummaryPlotSourceStepping::summaryCasesForSourceStepping()
+{
+    std::vector<RimSummaryCase*> cases;
+
+    RimProject* proj = RiaApplication::instance()->project();
+    for (auto sumCase : proj->allSummaryCases())
+    {
+        if (sumCase->isObservedData()) continue;
+
+        RimSummaryCaseCollection* sumCaseColl = nullptr;
+        sumCase->firstAncestorOrThisOfType(sumCaseColl);
+
+        if (sumCaseColl && sumCaseColl->isEnsemble()) continue;
+        ;
+
+        cases.push_back(sumCase);
+    }
+
+    return cases;
 }
 
 //--------------------------------------------------------------------------------------------------
