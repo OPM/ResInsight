@@ -93,6 +93,44 @@ std::vector<cvf::Vec3d> RimMeasurement::pointsInDomain() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString RimMeasurement::label() const
+{
+    auto lengths = calculateLenghts();
+    return QString("Total length: \t%1\nLast length: \t%2\nTotal horizontal length: \t%3\nLast horizontal length: \t%4")
+        .arg(lengths.totalLength)
+        .arg(lengths.lastSegmentLength)
+        .arg(lengths.totalHorizontalLength)
+        .arg(lengths.lastSegmentHorisontalLength);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimMeasurement::Lengths RimMeasurement::calculateLenghts() const
+{
+    Lengths lengths;
+
+    for (size_t p = 1; p < m_pointsInDomain.size(); p++)
+    {
+        const auto& p0 = m_pointsInDomain[p - 1];
+        const auto& p1 = m_pointsInDomain[p];
+
+        lengths.lastSegmentLength = (p1 - p0).length();
+
+        const auto& p1_horiz = cvf::Vec3d(p1.x(), p1.y(), p0.z());
+
+        lengths.lastSegmentHorisontalLength = (p1_horiz - p0).length();
+
+        lengths.totalLength += lengths.lastSegmentLength;
+        lengths.totalHorizontalLength += lengths.lastSegmentHorisontalLength;
+    }
+
+    return lengths;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimMeasurement::updateView() const
 {
     auto view = RiaApplication::instance()->activeReservoirView();

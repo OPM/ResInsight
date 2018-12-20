@@ -48,34 +48,15 @@ bool RicMeasurementPickEventHandler::handlePickEvent(const Ric3DPickEvent& event
 
     if (measurement && measurement->isInMeasurementMode())
     {
-        {
-            Rim3dView* rimView = RiaApplication::instance()->activeReservoirView();
+        Rim3dView* rimView = RiaApplication::instance()->activeReservoirView();
 
-            cvf::ref<caf::DisplayCoordTransform> transForm = rimView->displayCoordTransform();
-            cvf::Vec3d domainCoord = transForm->transformToDomainCoord(eventObject.m_pickItemInfos.front().globalPickedPoint());
+        cvf::ref<caf::DisplayCoordTransform> transForm = rimView->displayCoordTransform();
+        cvf::Vec3d domainCoord = transForm->transformToDomainCoord(eventObject.m_pickItemInfos.front().globalPickedPoint());
 
-            //if (intersection->inputPolyLineFromViewerEnabled())
-            {
-                measurement->addPointInDomain(domainCoord);
+        measurement->addPointInDomain(domainCoord);
 
-                // Further Ui processing is stopped when true is returned
-                return true;
-            }
-            //else if (intersection->inputExtrusionPointsFromViewerEnabled())
-            //{
-            //    intersection->appendPointToExtrusionDirection(domainCoord);
-
-            //    // Further Ui processing is stopped when true is returned
-            //    return true;
-            //}
-            //else if (intersection->inputTwoAzimuthPointsFromViewerEnabled())
-            //{
-            //    intersection->appendPointToAzimuthLine(domainCoord);
-
-            //    // Further Ui processing is stopped when true is returned
-            //    return true;
-            //}
-        }
+        // Further Ui processing is stopped when true is returned
+        return true;
     }
 
     return false;

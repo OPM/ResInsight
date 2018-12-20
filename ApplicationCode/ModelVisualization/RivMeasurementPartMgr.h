@@ -56,7 +56,6 @@ public:
 
     void clearGeometryCache();
 
-
 private:
     void buildPolyLineParts(const caf::DisplayCoordTransform* displayCoordTransform);
 
@@ -69,4 +68,5 @@ private:
     caf::PdmPointer<RimMeasurement> m_measurement;
     cvf::ref<cvf::Part>             m_linePart;
     cvf::ref<cvf::Part>             m_pointPart;
+    cvf::ref<cvf::Part>             m_labelPart;
 };

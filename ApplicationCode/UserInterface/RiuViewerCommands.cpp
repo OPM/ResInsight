@@ -107,7 +107,7 @@
 #include "cvfRay.h"
 #include "RimTextAnnotation.h"
 
-
+#include "QDebug"
 
 //==================================================================================================
 //
@@ -528,6 +528,14 @@ void RiuViewerCommands::handlePickAction(int winPosX, int winPosY, Qt::KeyboardM
     {
         cvf::HitItemCollection hitItems;
         m_viewer->rayPick(winPosX, winPosY, &hitItems);
+
+        qDebug() << "Click: >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>" << endl;
+        for (size_t i = 0; i < hitItems.count(); i++)
+        {
+            const auto& item = hitItems.item(i);
+            qDebug() << "  Pt: " << QString("%1, %2, %3").arg(item->intersectionPoint().x()).arg(item->intersectionPoint().y()).arg(item->intersectionPoint().z());
+        }
+        qDebug() << "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<";
 
         // Do specialized text pick, since vizfwk does not hit text
         handleTextPicking(winPosX, winPosY, &hitItems);

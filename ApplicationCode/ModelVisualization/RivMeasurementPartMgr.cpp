@@ -24,6 +24,9 @@
 
 #include "RiaApplication.h"
 #include "RiaBoundingBoxTools.h"
+#include "RiaColorTools.h"
+#include "RiaFontCache.h"
+#include "RiaPreferences.h"
 
 #include "Rim3dView.h"
 #include "RimAnnotationInViewCollection.h"
@@ -41,9 +44,11 @@
 #include <cvfModelBasicList.h>
 #include <cvfPart.h>
 #include <cvfDrawableGeo.h>
+#include <cvfDrawableText.h>
 #include "cvfRenderStateDepth.h"
 #include "cvfRenderStatePoint.h"
 #include "cvfBoundingBox.h"
+#include "cvfqtUtils.h"
 
 #include "cafEffectGenerator.h"
 #include "cafDisplayCoordTransform.h"
@@ -93,6 +98,11 @@ void RivMeasurementPartMgr::appendGeometryPartsToModel(cvf::ModelBasicList*     
     {
         model->addPart(m_pointPart.p());
     }
+
+    if (m_labelPart.notNull())
+    {
+        model->addPart(m_labelPart.p());
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -111,25 +121,17 @@ void RivMeasurementPartMgr::buildPolyLineParts(const caf::DisplayCoordTransform*
 {
     auto pointsInDisplay = transformPolylinesPointsToDisplay(m_measurement->pointsInDomain(), displayCoordTransform);
 
-    // Highlight line
+    // Measurement lines
     {
         cvf::ref<cvf::DrawableGeo> polylineGeo = RivPolylineGenerator::createLineAlongPolylineDrawable(pointsInDisplay);
         if (polylineGeo.notNull())
         {
-            //if (useBufferObjects)
-            //{
-            //    polylineGeo->setRenderMode(cvf::DrawableGeo::BUFFER_OBJECT);
-            //}
-
             cvf::ref<cvf::Part> part = new cvf::Part;
             part->setName("Cross Section Polyline");
             part->setDrawable(polylineGeo.p());
 
             part->updateBoundingBox();
             part->setPriority(RivPartPriority::PartType::Highlight);
-
-            // Always show this part, also when mesh is turned off
-            // part->setEnableMask(meshFaultBit);
 
             cvf::ref<cvf::Effect>    eff;
             caf::MeshEffectGenerator lineEffGen(cvf::Color3::MAGENTA);
@@ -145,23 +147,16 @@ void RivMeasurementPartMgr::buildPolyLineParts(const caf::DisplayCoordTransform*
         }
     }
 
+    // Measurement points
     cvf::ref<cvf::DrawableGeo> polylinePointsGeo = RivPolylineGenerator::createPointsFromPolylineDrawable(pointsInDisplay);
     if (polylinePointsGeo.notNull())
     {
-        //if (useBufferObjects)
-        //{
-        //    polylinePointsGeo->setRenderMode(cvf::DrawableGeo::BUFFER_OBJECT);
-        //}
-
         cvf::ref<cvf::Part> part = new cvf::Part;
         part->setName("Cross Section Polyline");
         part->setDrawable(polylinePointsGeo.p());
 
         part->updateBoundingBox();
         part->setPriority(RivPartPriority::PartType::Highlight);
-
-        // Always show this part, also when mesh is turned off
-        // part->setEnableMask(meshFaultBit);
 
         cvf::ref<cvf::Effect>    eff;
         caf::MeshEffectGenerator lineEffGen(cvf::Color3::MAGENTA);
@@ -178,6 +173,42 @@ void RivMeasurementPartMgr::buildPolyLineParts(const caf::DisplayCoordTransform*
         part->setEffect(eff.p());
 
         m_pointPart = part;
+    }
+
+    // Text label
+    if(pointsInDisplay.size() > 1)
+    {
+        auto fontSize = RiaFontCache::FONT_SIZE_8;
+        auto backgroundColor = RiaApplication::instance()->preferences()->defaultViewerBackgroundColor;
+        auto fontColor = cvf::Color3f::BLACK;
+        QString text = m_measurement->label();
+        auto labelPosition = pointsInDisplay.back();
+
+        auto font = RiaFontCache::getFont(fontSize);
+        cvf::ref<cvf::DrawableText> drawableText = new cvf::DrawableText;
+        drawableText->setFont(font.p());
+        drawableText->setCheckPosVisible(false);
+        drawableText->setDrawBorder(true);
+        drawableText->setDrawBackground(true);
+        drawableText->setVerticalAlignment(cvf::TextDrawer::BASELINE);
+        drawableText->setBackgroundColor(backgroundColor);
+        drawableText->setBorderColor(RiaColorTools::computeOffsetColor(backgroundColor, 0.3f));
+        drawableText->setTextColor(fontColor);
+
+        cvf::String cvfString = cvfqt::Utils::toString(text);
+
+        cvf::Vec3f textCoord(labelPosition);
+        drawableText->addText(cvfString, textCoord);
+
+        cvf::ref<cvf::Part> part = new cvf::Part;
+        part->setName("RivMeasurementPartMgr: " + cvfString);
+        part->setDrawable(drawableText.p());
+
+        cvf::ref<cvf::Effect> eff = new cvf::Effect();
+        part->setEffect(eff.p());
+        part->setPriority(RivPartPriority::PartType::Text);
+
+        m_labelPart = part;
     }
 }
 

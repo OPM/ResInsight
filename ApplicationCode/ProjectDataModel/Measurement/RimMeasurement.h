@@ -33,6 +33,23 @@ class RimMeasurement : public caf::PdmObject
     using Vec3d = cvf::Vec3d;
 
 public:
+    class Lengths
+    {
+    public:
+        Lengths()
+            : totalLength(0),
+            lastSegmentLength(0),
+            totalHorizontalLength(0),
+            lastSegmentHorisontalLength(0),
+            area(0) {}
+
+        double totalLength;
+        double lastSegmentLength;
+        double totalHorizontalLength;
+        double lastSegmentHorisontalLength;
+        double area;
+    };
+
     RimMeasurement();
     ~RimMeasurement() override;
 
@@ -42,7 +59,12 @@ public:
     void                addPointInDomain(const Vec3d& pointInDomain);
     std::vector<Vec3d>  pointsInDomain() const;
 
+    QString             label() const;
+
 private:
+    Lengths             calculateLenghts() const;
+
+
     void                updateView() const;
 
     bool                m_isInMeasurementMode;
