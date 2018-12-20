@@ -399,6 +399,24 @@ set_property(TARGET
 	PROPERTY FOLDER "AppFwk"
 )
 
+option (RESINSIGHT_INCLUDE_APPFWK_TESTS "Enable AppFwk Tests" OFF)
+if (RESINSIGHT_INCLUDE_APPFWK_TESTS)
+    # Unit Tests
+    add_subdirectory(Fwk/AppFwk/cafProjectDataModel/cafProjectDataModel_UnitTests)
+    set_property(TARGET cafProjectDataModel_UnitTests PROPERTY FOLDER "AppFwkTests")
+
+    add_subdirectory(Fwk/AppFwk/cafProjectDataModel/cafPdmCore/cafPdmCore_UnitTests)
+    set_property(TARGET cafPdmCore_UnitTests PROPERTY FOLDER "AppFwkTests")
+
+    add_subdirectory(Fwk/AppFwk/cafProjectDataModel/cafPdmXml/cafPdmXml_UnitTests)
+    set_property(TARGET cafPdmXml_UnitTests PROPERTY FOLDER "AppFwkTests")
+
+    # Executables
+    add_subdirectory(Fwk/AppFwk/cafTests/cafTestApplication)
+    set_property(TARGET cafTestApplication PROPERTY FOLDER "AppFwkTests")
+endif()
+
+
 
 ################################################################################
 # Installation settings
