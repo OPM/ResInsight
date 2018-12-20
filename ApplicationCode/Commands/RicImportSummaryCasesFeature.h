@@ -43,7 +43,7 @@ public:
     static void addSummaryCases(const std::vector<RimSummaryCase*> cases);
     static void addCasesToGroupIfRelevant(const std::vector<RimSummaryCase*> cases);
 
-    static QStringList runRecursiveSummaryCaseFileSearchDialog(const QString& dialogTitle);
+    static QStringList runRecursiveSummaryCaseFileSearchDialog(const QString& dialogTitle, const QString& pathCacheName);
 
 protected:
     // Overrides

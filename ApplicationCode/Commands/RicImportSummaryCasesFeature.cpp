@@ -70,7 +70,8 @@ bool RicImportSummaryCasesFeature::isCommandEnabled()
 void RicImportSummaryCasesFeature::onActionTriggered(bool isChecked)
 {
     RiaApplication* app   = RiaApplication::instance();
-    QStringList fileNames = runRecursiveSummaryCaseFileSearchDialog("Import Summary Cases");
+    QString pathCacheName = "INPUT_FILES";
+    QStringList fileNames = runRecursiveSummaryCaseFileSearchDialog("Import Summary Cases", pathCacheName);
     
     std::vector<RimSummaryCase*> cases;
     if (!fileNames.isEmpty()) createSummaryCasesFromFiles(fileNames, &cases);
@@ -217,10 +218,11 @@ void RicImportSummaryCasesFeature::addCasesToGroupIfRelevant(const std::vector<R
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QStringList RicImportSummaryCasesFeature::runRecursiveSummaryCaseFileSearchDialog(const QString& dialogTitle)
+QStringList RicImportSummaryCasesFeature::runRecursiveSummaryCaseFileSearchDialog(const QString& dialogTitle,
+                                                                                  const QString& pathCacheName)
 {
     RiaApplication* app = RiaApplication::instance();
-    QString defaultDir = app->lastUsedDialogDirectory("INPUT_FILES");
+    QString defaultDir = app->lastUsedDialogDirectory(pathCacheName);
 
     RicFileHierarchyDialogResult result = RicFileHierarchyDialog::runRecursiveSearchDialog(nullptr, 
                                                                                            dialogTitle, 
@@ -236,7 +238,7 @@ QStringList RicImportSummaryCasesFeature::runRecursiveSummaryCaseFileSearchDialo
     if (!result.ok) return QStringList();
 
     // Remember the path to next time
-    app->setLastUsedDialogDirectory("INPUT_FILES", QFileInfo(result.rootDir).absoluteFilePath());
+    app->setLastUsedDialogDirectory(pathCacheName, QFileInfo(result.rootDir).absoluteFilePath());
 
     return result.files;
 }
