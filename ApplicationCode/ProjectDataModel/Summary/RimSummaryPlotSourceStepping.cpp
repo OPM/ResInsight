@@ -54,6 +54,15 @@ RimSummaryPlotSourceStepping::RimSummaryPlotSourceStepping()
     CAF_PDM_InitObject("Summary Curves Modifier", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_summaryCase,      "CurveCase",    "Case", "", "", "");
+
+    CAF_PDM_InitField(&m_includeEnsembleCasesForCaseStepping,
+                      "IncludeEnsembleCasesForCaseStepping",
+                      false,
+                      "Allow Stepping on Ensemble cases",
+                      "",
+                      "",
+                      "");
+
     CAF_PDM_InitFieldNoDefault(&m_wellName,         "WellName",     "Well Name", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_wellGroupName,    "GroupName",    "Group Name", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_region,           "Region",       "Region", "", "", "");
@@ -185,12 +194,15 @@ QList<caf::PdmOptionItemInfo> RimSummaryPlotSourceStepping::calculateValueOption
 {
     QList<caf::PdmOptionItemInfo> options;
 
-    if (fieldNeedingOptions == &m_placeholderForLabel)
+    if (fieldNeedingOptions == &m_includeEnsembleCasesForCaseStepping)
+    {
+        return caf::PdmObject::calculateValueOptions(fieldNeedingOptions, useOptionsOnly);
+    }
+    else if (fieldNeedingOptions == &m_placeholderForLabel)
     {
         options;
     }
-
-    if (fieldNeedingOptions == &m_summaryCase)
+    else if (fieldNeedingOptions == &m_summaryCase)
     {
         auto summaryCases = RimSummaryPlotSourceStepping::summaryCasesForSourceStepping();
         for (auto sumCase : summaryCases)
@@ -355,6 +367,25 @@ void RimSummaryPlotSourceStepping::fieldChangedByUi(const caf::PdmFieldHandle* c
 
     RimEnsembleCurveSetCollection* ensembleCurveColl = nullptr;
     this->firstAncestorOrThisOfType(ensembleCurveColl);
+
+    if (changedField == &m_includeEnsembleCasesForCaseStepping)
+    {
+        if (curveCollection)
+        {
+            curveCollection->updateConnectedEditors();
+        }
+
+        if (ensembleCurveColl)
+        {
+            ensembleCurveColl->updateConnectedEditors();
+        }
+
+        RiuPlotMainWindow* mainPlotWindow = RiaApplication::instance()->getOrCreateMainPlotWindow();
+        bool forceUpdateOfFieldsInToolbar = true;
+        mainPlotWindow->updateSummaryPlotToolBar(forceUpdateOfFieldsInToolbar);
+
+        return;
+    }
 
     bool triggerLoadDataAndUpdate = false;
 
@@ -721,6 +752,7 @@ std::set<RimSummaryCase*> RimSummaryPlotSourceStepping::summaryCasesCurveCollect
 std::vector<caf::PdmFieldHandle*> RimSummaryPlotSourceStepping::computeVisibleFieldsAndSetFieldVisibility()
 {
     m_summaryCase.uiCapability()->setUiHidden(true);
+    m_includeEnsembleCasesForCaseStepping.uiCapability()->setUiHidden(true);
     m_wellName.uiCapability()->setUiHidden(true);
     m_wellGroupName.uiCapability()->setUiHidden(true);
     m_region.uiCapability()->setUiHidden(true);
@@ -740,6 +772,8 @@ std::vector<caf::PdmFieldHandle*> RimSummaryPlotSourceStepping::computeVisibleFi
             m_summaryCase.uiCapability()->setUiHidden(false);
 
             fields.push_back(&m_summaryCase);
+
+            m_includeEnsembleCasesForCaseStepping.uiCapability()->setUiHidden(false);
         }
     }
 
@@ -989,10 +1023,17 @@ std::vector<RimSummaryCase*> RimSummaryPlotSourceStepping::summaryCasesForSource
         RimSummaryCaseCollection* sumCaseColl = nullptr;
         sumCase->firstAncestorOrThisOfType(sumCaseColl);
 
-        if (sumCaseColl && sumCaseColl->isEnsemble()) continue;
-        ;
-
-        cases.push_back(sumCase);
+        if (sumCaseColl && sumCaseColl->isEnsemble())
+        {
+            if (m_includeEnsembleCasesForCaseStepping())
+            {
+                cases.push_back(sumCase);
+            }
+        }
+        else
+        {
+            cases.push_back(sumCase);
+        }
     }
 
     return cases;

@@ -496,7 +496,7 @@ void RiuPlotMainWindow::updateWellLogPlotToolBar()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuPlotMainWindow::updateSummaryPlotToolBar()
+void RiuPlotMainWindow::updateSummaryPlotToolBar(bool forceUpdateUi)
 {
     RimSummaryPlot* summaryPlot = dynamic_cast<RimSummaryPlot*>(m_activePlotViewWindow.p());
     if (summaryPlot)
@@ -524,6 +524,10 @@ void RiuPlotMainWindow::updateSummaryPlotToolBar()
         if (!m_summaryPlotToolBarEditor->isEditorDataValid(toolBarFields))
         {
             m_summaryPlotToolBarEditor->setFields(toolBarFields);
+            m_summaryPlotToolBarEditor->updateUi();
+        }
+        else if (forceUpdateUi)
+        {
             m_summaryPlotToolBarEditor->updateUi();
         }
 

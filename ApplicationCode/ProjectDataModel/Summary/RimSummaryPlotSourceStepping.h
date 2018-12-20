@@ -106,7 +106,7 @@ private:
                                                           const QVariant&           newValue,
                                                           RifEclipseSummaryAddress* adr);
 
-    static std::vector<RimSummaryCase*> summaryCasesForSourceStepping();
+    std::vector<RimSummaryCase*> summaryCasesForSourceStepping();
 
 private:
     caf::PdmPtrField<RimSummaryCase*> m_summaryCase;
@@ -117,6 +117,9 @@ private:
     caf::PdmField<int>                m_region;
     caf::PdmField<QString>            m_quantity;
     caf::PdmField<QString>            m_placeholderForLabel;
+    
+    caf::PdmField<bool>               m_includeEnsembleCasesForCaseStepping;
+
     SourceSteppingType                m_sourceSteppingType;
 
     std::pair<RifSummaryReaderInterface*, RiaSummaryCurveAnalyzer> m_curveAnalyzerForReader;
