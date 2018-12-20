@@ -24,6 +24,7 @@
 #include "RimEclipseResultDefinition.h"
 #include "RimProject.h"
 #include "RimRegularLegendConfig.h"
+#include "RimTextAnnotation.h"
 
 #include "cafContourLines.h"
 #include "cafPdmUiDoubleSliderEditor.h"
@@ -84,6 +85,7 @@ RimContourMapProjection::RimContourMapProjection()
     m_weightingResult.uiCapability()->setUiTreeChildrenHidden(true);
     m_weightingResult = new RimEclipseResultDefinition;
     m_weightingResult->findField("MResultType")->uiCapability()->setUiName("Result Type");
+
     setName("Map Projection");
     nameField()->uiCapability()->setUiReadOnly(true);
 
@@ -102,11 +104,10 @@ RimContourMapProjection::~RimContourMapProjection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimContourMapProjection::generateVertices(cvf::Vec3fArray* vertices, const caf::DisplayCoordTransform* displayCoordTransform)
+std::vector<cvf::Vec3d> RimContourMapProjection::generateVertices()
 {
-    CVF_ASSERT(vertices);
     size_t nVertices = numberOfVertices();
-    vertices->resize(nVertices);
+    std::vector<cvf::Vec3d> vertices(nVertices, cvf::Vec3d::ZERO);
 
 #pragma omp parallel for
     for (int index = 0; index < static_cast<int>(nVertices); ++index)
@@ -117,10 +118,10 @@ void RimContourMapProjection::generateVertices(cvf::Vec3fArray* vertices, const 
         globalPos.x() -= m_sampleSpacing * 0.5;
         globalPos.y() -= m_sampleSpacing * 0.5;
 
-        cvf::Vec3d globalVertexPos(globalPos, m_fullBoundingBox.min().z() - 1.0);
-        cvf::Vec3f displayVertexPos(displayCoordTransform->transformToDisplayCoord(globalVertexPos));
-        (*vertices)[index] = displayVertexPos;
+        cvf::Vec3d globalVertexPos(globalPos, m_fullBoundingBox.min().z());
+        vertices[index] = globalVertexPos;
     }
+    return vertices;
 }
 
 
@@ -128,9 +129,10 @@ void RimContourMapProjection::generateVertices(cvf::Vec3fArray* vertices, const 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimContourMapProjection::ClosedContourPolygons RimContourMapProjection::generateContourPolygons(const caf::DisplayCoordTransform* displayCoordTransform)
+void RimContourMapProjection::generateContourPolygons()
 {    
-    ClosedContourPolygons contourPolygons;
+    std::vector<ContourPolygons> contourPolygons;
+
     if (minValue() != std::numeric_limits<double>::infinity() &&
         maxValue() != -std::numeric_limits<double>::infinity() &&
         std::fabs(maxValue() - minValue()) > 1.0e-8)
@@ -157,12 +159,11 @@ RimContourMapProjection::ClosedContourPolygons RimContourMapProjection::generate
                 {
                     for (size_t j = 0; j < closedContourLines[i].size(); ++j)
                     {
-                        cvf::ref<cvf::Vec3fArray> contourPolygon = new cvf::Vec3fArray(closedContourLines[i][j].size());
+                        ContourPolygon contourPolygon; contourPolygon.reserve(closedContourLines[i][j].size());
                         for (size_t k = 0; k < closedContourLines[i][j].size(); ++k)
                         {
                             cvf::Vec3d contourPoint3d = cvf::Vec3d(closedContourLines[i][j][k], m_fullBoundingBox.min().z());
-                            cvf::Vec3d displayPoint3d = displayCoordTransform->transformToDisplayCoord(contourPoint3d);
-                            (*contourPolygon)[k] = cvf::Vec3f(displayPoint3d);
+                            contourPolygon.push_back(contourPoint3d);
                         }
                         contourPolygons[i].push_back(contourPolygon);
                     }
@@ -170,21 +171,21 @@ RimContourMapProjection::ClosedContourPolygons RimContourMapProjection::generate
             }
         }
     }
-    return contourPolygons;
+    m_contourPolygons = contourPolygons;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::ref<cvf::Vec3fArray>
-RimContourMapProjection::generatePickPointPolygon(const caf::DisplayCoordTransform* displayCoordTransform)
+std::vector<cvf::Vec3d>
+RimContourMapProjection::generatePickPointPolygon()
 {
-    cvf::ref<cvf::Vec3fArray> pickPolygon;
+    std::vector<cvf::Vec3d> points;
+
     if (!m_pickPoint.isUndefined())
     {
         double zPos = m_fullBoundingBox.min().z();
 
-        std::vector<cvf::Vec3d> points;
         {
             cvf::Vec2d gridorigin(m_fullBoundingBox.min().x(), m_fullBoundingBox.min().y());
 
@@ -209,16 +210,8 @@ RimContourMapProjection::generatePickPointPolygon(const caf::DisplayCoordTransfo
             points.push_back(cvf::Vec3d(m_pickPoint - cvf::Vec2d(0.0, 0.5 * m_sampleSpacing), zPos));
             points.push_back(cvf::Vec3d(m_pickPoint + cvf::Vec2d(0.0, 0.5 * m_sampleSpacing), zPos));
         }
-
-        pickPolygon = new cvf::Vec3fArray(points.size());
-
-        for (size_t i = 0; i < points.size(); ++i)
-        {
-            cvf::Vec3d displayPoint = displayCoordTransform->transformToDisplayCoord(points[i]);
-            (*pickPolygon)[i] = cvf::Vec3f(displayPoint);
-        }
     }
-    return pickPolygon;
+    return points;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -283,6 +276,14 @@ void RimContourMapProjection::generateResults()
             }
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const std::vector<RimContourMapProjection::ContourPolygons>& RimContourMapProjection::contourPolygons() const
+{
+    return m_contourPolygons;
 }
 
 //--------------------------------------------------------------------------------------------------

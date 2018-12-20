@@ -153,8 +153,17 @@ cvf::ref<cvf::Vec2fArray> RivContourMapProjectionPartMgr::createTextureCoords() 
 //--------------------------------------------------------------------------------------------------
 cvf::ref<cvf::DrawableGeo> RivContourMapProjectionPartMgr::createProjectionMapDrawable(const caf::DisplayCoordTransform* displayCoordTransform) const
 {
-    cvf::ref<cvf::Vec3fArray> vertexArray = new cvf::Vec3fArray;
-    m_contourMapProjection->generateVertices(vertexArray.p(), displayCoordTransform);
+    std::vector<cvf::Vec3d> vertices = m_contourMapProjection->generateVertices();
+    if (vertices.empty()) return nullptr;
+
+    cvf::ref<cvf::Vec3fArray> vertexArray = new cvf::Vec3fArray(vertices.size());
+
+    for (size_t i = 0; i < vertices.size(); ++i)
+    {
+        cvf::Vec3f displayVertexPos (displayCoordTransform->transformToDisplayCoord(vertices[i]));
+        (*vertexArray)[i] = displayVertexPos;
+    }
+
     cvf::Vec2ui patchSize = m_contourMapProjection->numberOfVerticesIJ();
 
     // Surface
@@ -174,17 +183,26 @@ cvf::ref<cvf::DrawableGeo> RivContourMapProjectionPartMgr::createProjectionMapDr
 //--------------------------------------------------------------------------------------------------
 std::vector<cvf::ref<cvf::DrawableGeo>> RivContourMapProjectionPartMgr::createContourPolygons(const caf::DisplayCoordTransform* displayCoordTransform) const
 {
-    RimContourMapProjection::ClosedContourPolygons contourPolygons = m_contourMapProjection->generateContourPolygons(displayCoordTransform);
+    m_contourMapProjection->generateContourPolygons();
+    const std::vector<RimContourMapProjection::ContourPolygons>& contourPolygons = m_contourMapProjection->contourPolygons();
 
     std::vector<cvf::ref<cvf::DrawableGeo>> contourDrawables;
     for (size_t i = 0; i < contourPolygons.size(); ++i)
     {
         for (size_t j = 0; j < contourPolygons[i].size(); ++j)
         {
-            cvf::ref<cvf::Vec3fArray> vertexArray = contourPolygons[i][j];
+            if (contourPolygons[i][j].empty()) continue;
+
+            cvf::ref<cvf::Vec3fArray> vertexArray = new cvf::Vec3fArray(contourPolygons[i][j].size());
+            for (size_t v = 0; v < contourPolygons[i][j].size(); ++v)
+            {
+                cvf::Vec3f displayVertex(displayCoordTransform->transformToDisplayCoord(contourPolygons[i][j][v]));
+                (*vertexArray)[v] = displayVertex;
+            }
+
             std::vector<cvf::uint> indices;
-            indices.reserve(contourPolygons[i][j]->size());
-            for (cvf::uint k = 0; k < contourPolygons[i][j]->size(); ++k)
+            indices.reserve(vertexArray->size());
+            for (cvf::uint k = 0; k < vertexArray->size(); ++k)
             {
                 indices.push_back(k);
             }
@@ -209,14 +227,25 @@ std::vector<cvf::ref<cvf::DrawableGeo>> RivContourMapProjectionPartMgr::createCo
 cvf::ref<cvf::DrawableGeo>
     RivContourMapProjectionPartMgr::createPickPointVisDrawable(const caf::DisplayCoordTransform* displayCoordTransform) const
 {
-    cvf::ref<cvf::DrawableGeo> geo = nullptr;
+    std::vector<cvf::Vec3d> pickPointPolygon = m_contourMapProjection->generatePickPointPolygon();
+    if (pickPointPolygon.empty())
+    {
+        return nullptr;
+    }
+    cvf::ref<cvf::Vec3fArray> vertexArray = new cvf::Vec3fArray(pickPointPolygon.size());
 
-    cvf::ref<cvf::Vec3fArray> pickPointPolygon = m_contourMapProjection->generatePickPointPolygon(displayCoordTransform);
-    if (pickPointPolygon.notNull() && pickPointPolygon->size() > 0u)
+    for (size_t i = 0; i < pickPointPolygon.size(); ++i)
+    {
+        cvf::Vec3f displayPoint(displayCoordTransform->transformToDisplayCoord(pickPointPolygon[i]));
+        (*vertexArray)[i] = displayPoint;
+    }
+
+    cvf::ref<cvf::DrawableGeo> geo = nullptr;
+    if (vertexArray->size() > 0u)
     {
         std::vector<cvf::uint>    indices;
-        indices.reserve(pickPointPolygon->size());
-        for (cvf::uint j = 0; j < pickPointPolygon->size(); ++j)
+        indices.reserve(vertexArray->size());
+        for (cvf::uint j = 0; j < vertexArray->size(); ++j)
         {
             indices.push_back(j);
         }
@@ -228,7 +257,7 @@ cvf::ref<cvf::DrawableGeo>
         geo = new cvf::DrawableGeo;
 
         geo->addPrimitiveSet(indexedUInt.p());
-        geo->setVertexArray(pickPointPolygon.p());
+        geo->setVertexArray(vertexArray.p());
     }
     return geo;
 }
