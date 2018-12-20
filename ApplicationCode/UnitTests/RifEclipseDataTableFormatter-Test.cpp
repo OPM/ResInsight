@@ -110,11 +110,11 @@ TEST(RifEclipseDataTableFormatter, LongLine)
     
     formatter.rowCompleted();
     formatter.tableCompleted();
-    std::cout << tableText.toStdString() << std::endl;
 
     QStringList tableLines = tableText.split(QRegExp("[\r\n]"), QString::SkipEmptyParts);
     for (QString line : tableLines)
     {
+        std::cout << QString("Line: \"%1\"").arg(line).toStdString() << std::endl;
         if (!line.startsWith(formatter.commentPrefix()))
         {
             EXPECT_LE(line.length(), RifEclipseDataTableFormatter::maxEclipseRowWidth());
@@ -141,8 +141,8 @@ TEST(RifEclipseDataTableFormatter, LongLine132)
     };
 
     formatter.header(header);
-    QString fiftyCharacterWellName = "01234567890";
-    formatter.add(fiftyCharacterWellName);
+    QString tenCharacterWellName = "0123456789";
+    formatter.add(tenCharacterWellName);
     for (int i = 0; i < 7; ++i)
     {
         formatter.add(std::numeric_limits<int>::max()); // 10 characters
@@ -157,11 +157,11 @@ TEST(RifEclipseDataTableFormatter, LongLine132)
 
     formatter.rowCompleted();
     formatter.tableCompleted();
-    std::cout << tableText.toStdString() << std::endl;
 
     QStringList tableLines = tableText.split(QRegExp("[\r\n]"), QString::SkipEmptyParts);
     for (QString line : tableLines)
     {
+        std::cout << QString("Line: \"%1\"").arg(line).toStdString() << std::endl;
         if (line.startsWith("0"))
         {
             EXPECT_EQ(line.length(), RifEclipseDataTableFormatter::maxEclipseRowWidth());            
@@ -188,7 +188,7 @@ TEST(RifEclipseDataTableFormatter, LongLine133)
     };
 
     formatter.header(header);
-    QString fiftyCharacterWellName = "01234567890";
+    QString fiftyCharacterWellName = "0123456789";
     formatter.add(fiftyCharacterWellName);
     for (int i = 0; i < 7; ++i)
     {
@@ -204,11 +204,11 @@ TEST(RifEclipseDataTableFormatter, LongLine133)
 
     formatter.rowCompleted();
     formatter.tableCompleted();
-    std::cout << tableText.toStdString() << std::endl;
 
     QStringList tableLines = tableText.split(QRegExp("[\r\n]"), QString::SkipEmptyParts);
     for (QString line : tableLines)
     {
+        std::cout << QString("Line: \"%1\"").arg(line).toStdString() << std::endl;
         if (line.startsWith("0"))
         {
             EXPECT_LE(line.length(), RifEclipseDataTableFormatter::maxEclipseRowWidth());

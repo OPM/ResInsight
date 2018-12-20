@@ -145,7 +145,7 @@ void RifEclipseDataTableFormatter::outputBuffer()
         else if (line.lineType == CONTENTS)
         {
             QString lineText = m_tableRowPrependText;
-            QString appendText = (line.appendTextSet ? line.appendText : m_tableRowAppendText) + "\n";
+            QString appendText = (line.appendTextSet ? line.appendText : m_tableRowAppendText);
 
             for (size_t i = 0; i < line.data.size(); ++i)
             {
@@ -163,7 +163,7 @@ void RifEclipseDataTableFormatter::outputBuffer()
                 lineText += column;
             }
 
-            m_out << lineText << appendText;
+            m_out << lineText << appendText << "\n";
         }
     }
     m_columns.clear();
