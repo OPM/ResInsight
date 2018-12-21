@@ -204,14 +204,6 @@ cvf::Color3f RimPolylineAppearance::sphereColor() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPolylineAppearance::setSphereRadiusFactor(double factor)
-{
-    m_sphereRadiusFactor = factor;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 double RimPolylineAppearance::sphereRadiusFactor() const
 {
     return m_sphereRadiusFactor();

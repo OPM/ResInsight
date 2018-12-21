@@ -93,7 +93,6 @@ public:
 
     void            setSphereColor(const cvf::Color3f& color);
     cvf::Color3f    sphereColor() const;
-    void            setSphereRadiusFactor(double factor);
     double          sphereRadiusFactor() const;
 
 protected:
