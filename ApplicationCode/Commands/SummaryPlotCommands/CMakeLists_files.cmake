@@ -36,6 +36,10 @@ ${CMAKE_CURRENT_LIST_DIR}/RicNewSummaryEnsembleCurveSetFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicPasteEnsembleCurveSetFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicNewEnsembleCurveFilterFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicNewDerivedEnsembleFeature.h
+${CMAKE_CURRENT_LIST_DIR}/RicClearSourceSteppingSummaryCurveFeature.h
+${CMAKE_CURRENT_LIST_DIR}/RicSetSourceSteppingSummaryCurveFeature.h
+${CMAKE_CURRENT_LIST_DIR}/RicClearSourceSteppingEnsembleCurveSetFeature.h
+${CMAKE_CURRENT_LIST_DIR}/RicSetSourceSteppingEnsembleCurveSetFeature.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -75,6 +79,10 @@ ${CMAKE_CURRENT_LIST_DIR}/RicNewSummaryEnsembleCurveSetFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicPasteEnsembleCurveSetFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicNewEnsembleCurveFilterFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicNewDerivedEnsembleFeature.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicClearSourceSteppingSummaryCurveFeature.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicSetSourceSteppingSummaryCurveFeature.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicClearSourceSteppingEnsembleCurveSetFeature.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicSetSourceSteppingEnsembleCurveSetFeature.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

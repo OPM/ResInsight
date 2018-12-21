@@ -116,9 +116,12 @@ RicFileHierarchyDialog::RicFileHierarchyDialog(QWidget* parent)
     m_effectiveFilter->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
     m_fileListLabel->setText("Files found");
     m_fileListLabel->setVisible(false);
+    
     m_fileList->setSelectionMode(QAbstractItemView::ExtendedSelection);
     m_fileList->setVisible(false);
     m_fileList->setContextMenuPolicy(Qt::CustomContextMenu);
+    m_fileList->setSortingEnabled(true);
+    
     m_browseButton->setText("...");
     m_browseButton->setFixedWidth(25);
     m_findOrCancelButton->setText(FIND_BUTTON_FIND_TEXT);

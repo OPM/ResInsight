@@ -660,6 +660,25 @@ void RimEnsembleCurveSet::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrd
     }
 
     uiTreeOrdering.skipRemainingChildren(true);
+
+    // Reset dynamic icon
+    this->setUiIcon(QIcon());
+    // Get static one
+    QIcon icon = this->uiIcon();
+
+    RimEnsembleCurveSetCollection* coll = nullptr;
+    this->firstAncestorOrThisOfType(coll);
+    if (coll && coll->curveSetForSourceStepping() == this)
+    {
+        QPixmap combined = icon.pixmap(16, 16);
+        QPainter painter(&combined);
+        QPixmap updownpixmap(":/StepUpDownCorner16x16.png");
+        painter.drawPixmap(0,0,updownpixmap);
+
+        icon = QIcon(combined);
+    }
+
+    this->setUiIcon(icon);
 }
 
 //--------------------------------------------------------------------------------------------------

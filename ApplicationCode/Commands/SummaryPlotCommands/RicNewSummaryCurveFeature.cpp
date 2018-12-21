@@ -19,6 +19,7 @@
 #include "RicNewSummaryCurveFeature.h"
 
 #include "RiaApplication.h"
+#include "RiaColorTables.h"
 
 #include "RimMainPlotCollection.h"
 #include "RimOilField.h"
@@ -30,8 +31,6 @@
 #include "RimSummaryPlotCollection.h"
 
 #include "RiuPlotMainWindow.h"
-
-#include "WellLogCommands/RicWellLogPlotCurveFeatureImpl.h"
 
 #include "cafSelectionManager.h"
 
@@ -62,7 +61,9 @@ void RicNewSummaryCurveFeature::onActionTriggered(bool isChecked)
     if (plot)
     {
         RimSummaryCurve* newCurve = new RimSummaryCurve();
-        cvf::Color3f curveColor = RicWellLogPlotCurveFeatureImpl::curveColorFromTable(plot->curveCount());
+        
+        // Use same counting as RicNewSummaryEnsembleCurveSetFeature::onActionTriggered
+        cvf::Color3f curveColor = RiaColorTables::summaryCurveDefaultPaletteColors().cycledColor3f(plot->singleColorCurveCount());
         newCurve->setColor(curveColor);
 
         plot->addCurveAndUpdate(newCurve);

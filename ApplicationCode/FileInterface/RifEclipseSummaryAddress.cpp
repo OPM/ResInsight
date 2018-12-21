@@ -520,14 +520,14 @@ RifEclipseSummaryAddress RifEclipseSummaryAddress::ensembleStatisticsAddress(con
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RifEclipseSummaryAddress::isDependentOnWellName(const RifEclipseSummaryAddress& address)
+bool RifEclipseSummaryAddress::isDependentOnWellName(SummaryVarCategory category)
 {
     // clang-format off
-    if (address.category() == SUMMARY_WELL ||
-        address.category() == SUMMARY_WELL_COMPLETION ||
-        address.category() == SUMMARY_WELL_COMPLETION_LGR || 
-        address.category() == SUMMARY_WELL_LGR ||
-        address.category() == SUMMARY_WELL_SEGMENT)
+    if (category == SUMMARY_WELL ||
+        category == SUMMARY_WELL_COMPLETION ||
+        category == SUMMARY_WELL_COMPLETION_LGR ||
+        category == SUMMARY_WELL_LGR ||
+        category == SUMMARY_WELL_SEGMENT)
     {
         return true;
     }

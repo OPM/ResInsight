@@ -132,6 +132,8 @@ public:
     void                                            updatePlotInfoLabel();
 
     bool                                            containsResamplableCurves() const;
+
+    size_t                                          singleColorCurveCount() const;
     // RimViewWindow overrides
 public:
     QWidget*                                createViewWidget(QWidget* mainWindowParent) override; 
