@@ -97,7 +97,6 @@ public:
     CompletionInfo(RigCompletionData::CompletionType type, const QString& name)
         : type(type)
         , name(name)
-        , wellPathName(wellPathName)
     {
     }
     RigCompletionData::CompletionType type;
