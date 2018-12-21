@@ -281,14 +281,15 @@ std::vector<caf::ContourLines::ClosedPolygons> caf::ContourLines::create(const s
                         closedPolygonDeque.push_back(closedPolygonDeque.front());
                     }
 
-                    // Make sure it is counter clockwise
-                    double sum = 0.0;
+                    // Make sure it is counter clockwise. Use Shoelace formula to calculate signed area.
+                    // https://en.wikipedia.org/wiki/Shoelace_formula
+                    double signedArea = 0.0;
                     for (size_t j = 0; j < closedPolygonDeque.size() - 1; ++j)
                     {
-                        sum += (closedPolygonDeque[j + 1].x() - closedPolygonDeque[j].x()) *
-                               (closedPolygonDeque[j + 1].y() + closedPolygonDeque[j].y());
+                        signedArea += (closedPolygonDeque[j + 1].x() - closedPolygonDeque[j].x()) *
+                                      (closedPolygonDeque[j + 1].y() + closedPolygonDeque[j].y());
                     }
-                    if (sum < 0.0)
+                    if (signedArea < 0.0)
                     {
                         closedPolygonsPerLevel[i].emplace_back(closedPolygonDeque.rbegin(), closedPolygonDeque.rend());
                     }
