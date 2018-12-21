@@ -170,6 +170,13 @@ void PdmUiToolBarEditor::configureAndUpdateUi(const QString& uiConfigName)
                 fieldEditor->updateUi(uiConfigName);
             }
         }
+        else
+        {
+            if (it->second)
+            {
+                it->second->updateUi(uiConfigName);
+            }
+        }
     }
 
     CAF_ASSERT(m_fields.size() == m_fieldViews.size());

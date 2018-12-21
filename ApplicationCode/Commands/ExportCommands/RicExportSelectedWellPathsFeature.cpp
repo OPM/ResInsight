@@ -75,6 +75,33 @@ void RicExportSelectedWellPathsFeature::writeWellPathGeometryToStream(QTextStrea
     auto wellPathGeom = wellPath->wellPathGeometry();
     if (!wellPathGeom) return;
 
+    bool useMdRkb = false;
+    double rkb = 0.0;
+    {
+        const RimModeledWellPath* modeledWellPath = dynamic_cast<const RimModeledWellPath*>(wellPath);
+        if (modeledWellPath)
+        {
+            useMdRkb = true;
+            rkb = modeledWellPath->geometryDefinition()->mdrkbAtFirstTarget();
+        }
+    }
+
+    writeWellPathGeometryToStream(stream, wellPathGeom, exportName, mdStepSize, useMdRkb, rkb, writeProjectInfo);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicExportSelectedWellPathsFeature::writeWellPathGeometryToStream(QTextStream&       stream,
+                                                                      const RigWellPath* wellPathGeom,
+                                                                      const QString&     exportName,
+                                                                      double             mdStepSize,
+                                                                      bool               useMdRkb,
+                                                                      double             rkbOffset,
+                                                                      bool               writeProjectInfo)
+{
+    if (!wellPathGeom) return;
+
     double currMd = wellPathGeom->measureDepths().front() - mdStepSize;
     double endMd = wellPathGeom->measureDepths().back();
 
@@ -88,27 +115,16 @@ void RicExportSelectedWellPathsFeature::writeWellPathGeometryToStream(QTextStrea
         stream << endl;
     }
 
-    bool useMdRkb = false;
-    double rkb = 0.0;
-    {
-        const RimModeledWellPath* modeledWellPath = dynamic_cast<const RimModeledWellPath*>(wellPath);
-        if (modeledWellPath)
-        {
-            useMdRkb = true;
-            rkb = modeledWellPath->geometryDefinition()->mdrkbAtFirstTarget();
-        }
-    }
-
     stream << "WELLNAME: '" << caf::Utils::makeValidFileBasename(exportName) << "'" << endl;
 
     auto numberFormat = RifEclipseOutputTableDoubleFormatting(RIF_FLOAT, 2);
     formatter.header(
-    {
-        {"X", numberFormat, RIGHT},
-        {"Y", numberFormat, RIGHT},
-        {"TVDMSL", numberFormat, RIGHT},
-        {useMdRkb ? "MDRKB" : "MDMSL", numberFormat, RIGHT}
-    });
+        {
+            {"X", numberFormat, RIGHT},
+            {"Y", numberFormat, RIGHT},
+            {"TVDMSL", numberFormat, RIGHT},
+            {useMdRkb ? "MDRKB" : "MDMSL", numberFormat, RIGHT}
+        });
 
     while (currMd < endMd)
     {
@@ -122,7 +138,7 @@ void RicExportSelectedWellPathsFeature::writeWellPathGeometryToStream(QTextStrea
         formatter.add(pt.x());
         formatter.add(pt.y());
         formatter.add(tvd);
-        formatter.add(currMd + rkb);
+        formatter.add(currMd + rkbOffset);
         formatter.rowCompleted("");
     }
     formatter.tableCompleted("", false);

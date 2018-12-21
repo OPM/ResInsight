@@ -41,6 +41,46 @@ std::map<QString, uint64_t> readProcessBytesLinux()
     }
     return quantities;
 }
+
+//--------------------------------------------------------------------------------------------------
+/// Read bytes of memory of different types for system from /proc/meminfo
+/// See: http://man7.org/linux/man-pages/man5/proc.5.html
+//--------------------------------------------------------------------------------------------------
+std::map<QString, uint64_t> readMemInfoLinuxMiB()
+{
+    std::map<QString, uint64_t> quantities;
+    uint64_t                    conversionToMiB = 1024;
+    QFile                       procMemInfo("/proc/meminfo");
+
+    if (procMemInfo.open(QIODevice::ReadOnly | QIODevice::Text))
+    {
+        char   buf[1024];
+        qint64 lineLength = 0;
+        while (lineLength != -1)
+        {
+            lineLength = procMemInfo.readLine(buf, sizeof(buf));
+            if (lineLength > 0)
+            {
+                QString     line  = QString::fromLatin1(buf, lineLength);
+                QStringList words = line.split(QRegExp(":*\\s+"), QString::SkipEmptyParts);
+                if (words.size() > 1)
+                {
+                    bool ok    = true;
+                    unsigned long long value = words[1].toULongLong(&ok);
+                    if (ok)
+                    {
+                        quantities[words[0]] = value / conversionToMiB;
+                    }
+                    else
+                    {
+                        quantities[words[0]] = 0u;
+                    }
+                }
+            }
+        }
+    }
+    return quantities;
+}
 #endif
 //--------------------------------------------------------------------------------------------------
 ///
@@ -93,7 +133,8 @@ uint64_t caf::MemoryInspector::getTotalVirtualMemoryMiB()
     long long totalVirtualMem = memInfo.totalram;
     totalVirtualMem += memInfo.totalswap;
     totalVirtualMem *= memInfo.mem_unit;
-    return totalVirtualMem / MIB_DIV;
+    uint64_t totalVirtualMemMiB = totalVirtualMem / MIB_DIV;
+    return totalVirtualMemMiB;
 #else
     return 0u;
 #endif
@@ -137,8 +178,12 @@ uint64_t caf::MemoryInspector::getAvailableVirtualMemoryMiB()
     sysinfo(&memInfo);
     long long availVirtualMem = memInfo.freeram;
     availVirtualMem += memInfo.freeswap;
+    availVirtualMem += memInfo.bufferram;
     availVirtualMem *= memInfo.mem_unit;
-    return availVirtualMem / MIB_DIV;
+    uint64_t virtualMemoryWithoutCachedMiB = availVirtualMem / MIB_DIV;
+    uint64_t cachedMemMiB = readMemInfoLinuxMiB()["Cached"];
+    uint64_t totalFreeVirtualMemoryMiB = virtualMemoryWithoutCachedMiB + cachedMemMiB;
+    return totalFreeVirtualMemoryMiB;
 #else
     return 0u;
 #endif

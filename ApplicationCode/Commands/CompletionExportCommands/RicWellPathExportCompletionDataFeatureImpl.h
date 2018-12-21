@@ -290,4 +290,5 @@ private:
 
     static void                           exportCarfinForTemporaryLgrs(const RimEclipseCase* sourceCase, const QString& folder);
 
+    static bool                           isCompletionWellPathEqual(const RigCompletionData& completion, const RimWellPath* wellPath);
 };

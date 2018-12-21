@@ -22,6 +22,7 @@
 #include "RiaBaseDefs.h"
 #include "RiaPreferences.h"
 
+#include "RimEnsembleCurveSetCollection.h"
 #include "RimProject.h"
 #include "RimSummaryCurveCollection.h"
 #include "RimSummaryPlot.h"
@@ -43,6 +44,7 @@
 #include "cafPdmUiToolBarEditor.h"
 #include "cafPdmUiTreeView.h"
 #include "cafQTreeViewStateSerializer.h"
+#include "cafSelectionManager.h"
 
 #include <QCloseEvent>
 #include <QDockWidget>
@@ -494,17 +496,38 @@ void RiuPlotMainWindow::updateWellLogPlotToolBar()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuPlotMainWindow::updateSummaryPlotToolBar()
+void RiuPlotMainWindow::updateSummaryPlotToolBar(bool forceUpdateUi)
 {
     RimSummaryPlot* summaryPlot = dynamic_cast<RimSummaryPlot*>(m_activePlotViewWindow.p());
     if (summaryPlot)
     {
         std::vector<caf::PdmFieldHandle*> toolBarFields;
-        toolBarFields = summaryPlot->summaryCurveCollection()->fieldsToShowInToolbar();
-    
+
+        RimEnsembleCurveSetCollection* ensembleCurveSetColl = nullptr;
+
+        caf::PdmObjectHandle* selectedObj =
+            dynamic_cast<caf::PdmObjectHandle*>(caf::SelectionManager::instance()->selectedItem());
+        if (selectedObj)
+        {
+            selectedObj->firstAncestorOrThisOfType(ensembleCurveSetColl);
+        }
+
+        if (ensembleCurveSetColl)
+        {
+            toolBarFields = ensembleCurveSetColl->fieldsToShowInToolbar();
+        }
+        else
+        {
+            toolBarFields = summaryPlot->summaryCurveCollection()->fieldsToShowInToolbar();
+        }
+
         if (!m_summaryPlotToolBarEditor->isEditorDataValid(toolBarFields))
         {
             m_summaryPlotToolBarEditor->setFields(toolBarFields);
+            m_summaryPlotToolBarEditor->updateUi();
+        }
+        else if (forceUpdateUi)
+        {
             m_summaryPlotToolBarEditor->updateUi();
         }
 
@@ -692,6 +715,16 @@ void RiuPlotMainWindow::selectedObjectsChanged()
     }
 
     m_pdmUiPropertyView->showProperties(firstSelectedObject);
+
+    if (firstSelectedObject)
+    {
+        RimSummaryPlot* summaryPlot = nullptr;
+        firstSelectedObject->firstAncestorOrThisOfType(summaryPlot);
+        if (summaryPlot)
+        {
+            updateSummaryPlotToolBar();
+        }
+    }
 
     if (uiItems.size() == 1 && m_allowActiveViewChangeFromSelection)
     {

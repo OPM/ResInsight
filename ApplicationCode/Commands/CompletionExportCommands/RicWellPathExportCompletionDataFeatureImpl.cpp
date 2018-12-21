@@ -328,7 +328,7 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions(const std::ve
                 std::vector<RigCompletionData> completionsForWell;
                 for (const auto& completion : completions)
                 {
-                    if (completion.wellName() == wellPath->completions()->wellNameForExport())
+                    if (RicWellPathExportCompletionDataFeatureImpl::isCompletionWellPathEqual(completion, wellPath))
                     {
                         completionsForWell.push_back(completion);
                     }
@@ -369,10 +369,12 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions(const std::ve
                     std::vector<RigCompletionData> completionsForWell;
                     for (const auto& completion : completions)
                     {
-                        if (completion.wellName() == wellPath->completions()->wellNameForExport() &&
-                            completionType == completion.completionType())
+                        if (completionType == completion.completionType())
                         {
-                            completionsForWell.push_back(completion);
+                            if (RicWellPathExportCompletionDataFeatureImpl::isCompletionWellPathEqual(completion, wellPath))
+                            {
+                                completionsForWell.push_back(completion);
+                            }
                         }
                     }
 
@@ -616,7 +618,7 @@ void RicWellPathExportCompletionDataFeatureImpl::generateWelsegsTable(RifEclipse
         formatter.add(startMD);
         formatter.addValueOrDefaultMarker(exportInfo.topWellBoreVolume(), RicMswExportInfo::defaultDoubleValue());
         formatter.add(exportInfo.lengthAndDepthText());
-        formatter.add(exportInfo.pressureDropText());
+        formatter.add(QString("'%1'").arg(exportInfo.pressureDropText()));
 
         formatter.rowCompleted();
     }
@@ -998,6 +1000,7 @@ RigCompletionData
 
     RigCompletionData resultCompletion(wellName, cellIndexIJK, firstCompletion.firstOrderingValue());
     resultCompletion.setSecondOrderingValue(firstCompletion.secondOrderingValue());
+    resultCompletion.setSourcePdmObject(firstCompletion.sourcePdmObject());
 
     bool anyNonDarcyFlowPresent = false;
     for (const auto& c : completions)
@@ -1125,7 +1128,9 @@ QFilePtr RicWellPathExportCompletionDataFeatureImpl::openFileForExport(const QSt
         }
     }
 
-    QString  filePath = exportFolder.filePath(fileName);
+    QString validFileName = caf::Utils::makeValidFileBasename(fileName);
+
+    QString  filePath = exportFolder.filePath(validFileName);
     QFilePtr exportFile(new QFile(filePath));
     if (!exportFile->open(QIODevice::WriteOnly | QIODevice::Text))
     {
@@ -2667,6 +2672,23 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCarfinForTemporaryLgrs(co
     {
         RicExportLgrFeature::exportLgrs(folder, lgrInfoForWell.first, lgrInfoForWell.second);
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RicWellPathExportCompletionDataFeatureImpl::isCompletionWellPathEqual(const RigCompletionData& completion,
+                                                                           const RimWellPath*       wellPath)
+{
+    if (!wellPath) return false;
+
+    RimWellPath* parentWellPath = nullptr;
+    if (completion.sourcePdmObject())
+    {
+        completion.sourcePdmObject()->firstAncestorOrThisOfType(parentWellPath);
+    }
+
+    return (parentWellPath == wellPath);
 }
 
 //--------------------------------------------------------------------------------------------------

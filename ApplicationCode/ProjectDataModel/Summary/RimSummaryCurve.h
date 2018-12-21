@@ -80,6 +80,9 @@ public:
     void                                    forceUpdateCurveAppearanceFromCaseType();
 
     void                                    markCachedDataForPurge();
+    
+    void                                    setAsTopZWithinCategory(bool enable);
+    void                                    setZIndexFromCurveInfo();
 
 protected:
     // RimPlotCurve overrides
@@ -89,6 +92,9 @@ protected:
 
 
     void                            updateLegendsInPlot() override;
+
+
+    void                            defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
 
 private:
     RifSummaryReaderInterface*              valuesSummaryReaderX() const;
@@ -126,4 +132,5 @@ private:
 
     caf::PdmChildField<RimSummaryCurveAutoName*>        m_curveNameConfig;
     caf::PdmField<caf::AppEnum< RiaDefines::PlotAxis>>  m_plotAxis;
+    caf::PdmField<bool>                     m_isTopZWithinCategory;
 };

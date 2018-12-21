@@ -374,9 +374,9 @@ void RicExportLgrFeature::writeLgrs(QTextStream& stream, const std::vector<LgrIn
             formatter.addOneBasedCellIndex(lgrInfo.mainGridEndCell.j());
             formatter.addOneBasedCellIndex(lgrInfo.mainGridStartCell.k());
             formatter.addOneBasedCellIndex(lgrInfo.mainGridEndCell.k());
-            formatter.add(lgrInfo.sizesPerMainGridCell().i());
-            formatter.add(lgrInfo.sizesPerMainGridCell().j());
-            formatter.add(lgrInfo.sizesPerMainGridCell().k());
+            formatter.add(lgrInfo.sizes.i());
+            formatter.add(lgrInfo.sizes.j());
+            formatter.add(lgrInfo.sizes.k());
             formatter.rowCompleted();
             formatter.tableCompleted("", false);
         }

@@ -51,11 +51,20 @@ class RicExportSelectedWellPathsFeature : public caf::CmdFeature
     static RicExportWellPathsUi* openDialog();
     static QFilePtr openFileForExport(const QString& folderName, const QString& fileName);
     static QTextStreamPtr createOutputFileStream(QFile& file);
+    
     static void writeWellPathGeometryToStream(QTextStream& stream,
                                               const RimWellPath* wellPath,
                                               const QString& exportName,
                                               double mdStepSize,
                                               bool writeProjectInfo = true);
+
+    static void writeWellPathGeometryToStream(QTextStream&       stream,
+                                              const RigWellPath* wellPath,
+                                              const QString&     exportName,
+                                              double             mdStepSize,
+                                              bool               useMdRkb,
+                                              double             rkbOffset,
+                                              bool               writeProjectInfo);
 
 private:
     bool isCommandEnabled() override;

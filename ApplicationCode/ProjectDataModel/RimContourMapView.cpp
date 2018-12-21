@@ -214,10 +214,7 @@ void RimContourMapView::updateGeometry()
 
     appendPickPointVisToModel();
 
-    if (m_overlayInfoConfig->isActive())
-    {
-        m_overlayInfoConfig()->update3DInfo();
-    }
+     m_overlayInfoConfig()->update3DInfo();
 }
 
 //--------------------------------------------------------------------------------------------------

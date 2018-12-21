@@ -781,9 +781,13 @@ bool RimContourMapProjection::hasResultInCell(uint i, uint j) const
 //--------------------------------------------------------------------------------------------------
 double RimContourMapProjection::calculateValueInCell(uint i, uint j) const
 {
-    if (!isColumnResult() && view()->cellResult()->scalarResultIndex() == cvf::UNDEFINED_SIZE_T)
+    if (!isColumnResult())        
     {
-        return 0.0; // Special case of NONE-result. Show 0 all over to ensure we see something.
+        if (!view()->cellResult()->isFlowDiagOrInjectionFlooding() &&
+            view()->cellResult()->scalarResultIndex() == cvf::UNDEFINED_SIZE_T)
+        {
+            return 0.0; // Special case of NONE-result. Show 0 all over to ensure we see something.
+        }
     }
     const std::vector<std::pair<size_t, double>>& matchingCells = cellsAtIJ(i, j);
     if (!matchingCells.empty())

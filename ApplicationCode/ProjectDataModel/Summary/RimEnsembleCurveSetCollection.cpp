@@ -20,6 +20,7 @@
 
 #include "RiaApplication.h"
 #include "RiaColorTables.h"
+#include "RiaStdStringTools.h"
 
 #include "RifReaderEclipseSummary.h"
 
@@ -50,6 +51,13 @@ RimEnsembleCurveSetCollection::RimEnsembleCurveSetCollection()
 
     CAF_PDM_InitField(&m_showCurves, "IsActive", true, "Show Curves", "", "", "");
     m_showCurves.uiCapability()->setUiHidden(true);
+
+    CAF_PDM_InitFieldNoDefault(&m_ySourceStepping, "YSourceStepping", "", "", "", "");
+    m_ySourceStepping = new RimSummaryPlotSourceStepping;
+    m_ySourceStepping->setSourceSteppingType(RimSummaryPlotSourceStepping::Y_AXIS);
+    m_ySourceStepping.uiCapability()->setUiHidden(true);
+    m_ySourceStepping.uiCapability()->setUiTreeChildrenHidden(true);
+    m_ySourceStepping.xmlCapability()->disableIO();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -194,6 +202,80 @@ size_t RimEnsembleCurveSetCollection::curveSetCount() const
 }
 
 //--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<caf::PdmFieldHandle*> RimEnsembleCurveSetCollection::fieldsToShowInToolbar()
+{
+    if (m_ySourceStepping)
+    {
+        return m_ySourceStepping->fieldsToShowInToolbar();
+    }
+    
+    return std::vector<caf::PdmFieldHandle*>();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimEnsembleCurveSetCollection::setCurveSetForSourceStepping(RimEnsembleCurveSet* curveSet)
+{
+    m_curveSetForSourceStepping = curveSet;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimEnsembleCurveSet* RimEnsembleCurveSetCollection::curveSetForSourceStepping() const
+{
+    return m_curveSetForSourceStepping;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<RimEnsembleCurveSet*> RimEnsembleCurveSetCollection::curveSetsForSourceStepping() const
+{
+    std::vector<RimEnsembleCurveSet*> steppingCurveSets;
+
+    if (m_curveSetForSourceStepping)
+    {
+        steppingCurveSets.push_back(m_curveSetForSourceStepping);
+
+        {
+            // Add corresponding history/summary curve with or without H
+
+            const std::string historyIdentifier = "H";
+
+            std::string quantity = m_curveSetForSourceStepping->summaryAddress().quantityName();
+
+            std::string candidateName;
+            if (RiaStdStringTools::endsWith(quantity, historyIdentifier))
+            {
+                candidateName = quantity.substr(0, quantity.size() - 1);
+            }
+            else
+            {
+                candidateName = quantity + historyIdentifier;
+            }
+
+            for (const auto& c : curveSets())
+            {
+                if (c->summaryAddress().quantityName() == candidateName)
+                {
+                    steppingCurveSets.push_back(c);
+                }
+            }
+        }
+    }
+    else
+    {
+        steppingCurveSets = curveSets();
+    }
+
+    return steppingCurveSets;
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleCurveSetCollection::deleteAllCurveSets()
@@ -226,6 +308,16 @@ void RimEnsembleCurveSetCollection::fieldChangedByUi(const caf::PdmFieldHandle* 
         this->firstAncestorOrThisOfTypeAsserted(summaryPlot);
         summaryPlot->updateConnectedEditors();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimEnsembleCurveSetCollection::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+{
+    auto group = uiOrdering.addNewGroup("Data Source");
+
+    m_ySourceStepping()->uiOrdering(uiConfigName, *group);
 }
 
 //--------------------------------------------------------------------------------------------------

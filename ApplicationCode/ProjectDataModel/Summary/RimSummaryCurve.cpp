@@ -142,6 +142,9 @@ RimSummaryCurve::RimSummaryCurve()
 
     m_curveNameConfig = new RimSummaryCurveAutoName;
 
+    CAF_PDM_InitField(&m_isTopZWithinCategory, "isTopZWithinCategory", false, "", "", "", "");
+    m_isTopZWithinCategory.uiCapability()->setUiHidden(true);
+
     m_symbolSkipPixelDistance = 10.0f;
     m_curveThickness = 2;
 }
@@ -450,6 +453,8 @@ void RimSummaryCurve::onLoadDataAndUpdate(bool updateParentPlot)
 
     updateConnectedEditors();
 
+    setZIndexFromCurveInfo();
+
     if (isCurveVisible())
     {
         std::vector<double> curveValuesY = this->valuesY();
@@ -563,6 +568,33 @@ void RimSummaryCurve::updateLegendsInPlot()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimSummaryCurve::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/)
+{
+    RimPlotCurve::defineUiTreeOrdering(uiTreeOrdering, uiConfigName);
+
+    // Reset dynamic icon
+    this->setUiIcon(QIcon());
+    // Get static one
+    QIcon icon = this->uiIcon();
+
+    RimSummaryCurveCollection* coll = nullptr;
+    this->firstAncestorOrThisOfType(coll);
+    if (coll && coll->curveForSourceStepping() == this)
+    {
+        QPixmap combined = icon.pixmap(16, 16);
+        QPainter painter(&combined);
+        QPixmap updownpixmap(":/StepUpDownCorner16x16.png");
+        painter.drawPixmap(0,0,updownpixmap);
+
+        icon = QIcon(combined);
+    }
+
+    this->setUiIcon(icon);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimSummaryCurve::defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute)
 {
     if (&m_yPushButtonSelectSummaryAddress == field ||
@@ -661,6 +693,44 @@ void RimSummaryCurve::appendOptionItemsForSummaryAddresses(QList<caf::PdmOptionI
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCurve::setZIndexFromCurveInfo()
+{
+    auto sumAddr = summaryAddressY();
+    auto sumCase = summaryCaseY();
+
+    double zOrder = 0.0;
+
+    if (sumCase && sumAddr.isValid())
+    {
+        if (sumCase->isObservedData())
+        {
+            zOrder = RiuQwtPlotCurve::Z_SINGLE_CURVE_OBSERVED;
+        }
+        else if (sumAddr.category() == RifEclipseSummaryAddress::SUMMARY_ENSEMBLE_STATISTICS)
+        {
+            zOrder = RiuQwtPlotCurve::Z_ENSEMBLE_STAT_CURVE;
+        }
+        else if (sumCase->ensemble())
+        {
+            zOrder = RiuQwtPlotCurve::Z_ENSEMBLE_CURVE;
+        }
+        else
+        {
+            zOrder = RiuQwtPlotCurve::Z_SINGLE_CURVE_NON_OBSERVED;
+        }
+    }
+
+    if (m_isTopZWithinCategory)
+    {
+        zOrder += 1.0;
+    }
+
+    setZOrder(zOrder);
+}
+ 
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCurve::updateQwtPlotAxis()
@@ -750,6 +820,14 @@ void RimSummaryCurve::markCachedDataForPurge()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimSummaryCurve::setAsTopZWithinCategory(bool enable)
+{
+    m_isTopZWithinCategory = enable;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimSummaryCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
     this->RimPlotCurve::fieldChangedByUi(changedField, oldValue, newValue);
@@ -785,6 +863,11 @@ void RimSummaryCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
 
         RiuPlotMainWindow* mainPlotWindow = RiaApplication::instance()->mainPlotWindow();
         mainPlotWindow->updateSummaryPlotToolBar();
+
+        if (m_showCurve() == true)
+        {
+            plot->summaryCurveCollection()->setCurveAsTopZWithinCategory(this);
+        }
     }
     else if (changedField == &m_plotAxis)
     {

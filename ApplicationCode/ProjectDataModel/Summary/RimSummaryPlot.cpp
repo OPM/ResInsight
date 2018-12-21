@@ -552,6 +552,22 @@ bool RimSummaryPlot::containsResamplableCurves() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+size_t RimSummaryPlot::singleColorCurveCount() const
+{
+    auto allCurveSets = ensembleCurveSetCollection()->curveSets();
+    size_t colorIndex = std::count_if(allCurveSets.begin(), allCurveSets.end(), [](RimEnsembleCurveSet* curveSet)
+    {
+        return curveSet->colorMode() == RimEnsembleCurveSet::SINGLE_COLOR;
+    });
+
+    colorIndex += curveCount();
+
+    return colorIndex;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::updateAxis(RiaDefines::PlotAxis plotAxis)
 {
     if (!m_qwtPlot) return;
@@ -1000,6 +1016,10 @@ void RimSummaryPlot::deleteCurves(const std::vector<RimSummaryCurve*>& curves)
             }
         }
     }
+
+
+    RiuPlotMainWindowTools::refreshToolbars();
+
     updateCaseNameHasChanged();
 }
 

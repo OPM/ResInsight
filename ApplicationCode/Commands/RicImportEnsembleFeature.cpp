@@ -63,7 +63,8 @@ bool RicImportEnsembleFeature::isCommandEnabled()
 void RicImportEnsembleFeature::onActionTriggered(bool isChecked)
 {
     RiaApplication* app   = RiaApplication::instance();
-    QStringList fileNames = RicImportSummaryCasesFeature::runRecursiveSummaryCaseFileSearchDialog("Import Ensemble");
+    QString pathCacheName = "ENSEMBLE_FILES";
+    QStringList fileNames = RicImportSummaryCasesFeature::runRecursiveSummaryCaseFileSearchDialog("Import Ensemble", pathCacheName);
     
     if (fileNames.isEmpty()) return;
 

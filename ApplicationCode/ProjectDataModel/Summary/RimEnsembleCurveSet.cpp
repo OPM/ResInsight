@@ -660,6 +660,25 @@ void RimEnsembleCurveSet::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrd
     }
 
     uiTreeOrdering.skipRemainingChildren(true);
+
+    // Reset dynamic icon
+    this->setUiIcon(QIcon());
+    // Get static one
+    QIcon icon = this->uiIcon();
+
+    RimEnsembleCurveSetCollection* coll = nullptr;
+    this->firstAncestorOrThisOfType(coll);
+    if (coll && coll->curveSetForSourceStepping() == this)
+    {
+        QPixmap combined = icon.pixmap(16, 16);
+        QPainter painter(&combined);
+        QPixmap updownpixmap(":/StepUpDownCorner16x16.png");
+        painter.drawPixmap(0,0,updownpixmap);
+
+        icon = QIcon(combined);
+    }
+
+    this->setUiIcon(icon);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1028,7 +1047,6 @@ void RimEnsembleCurveSet::updateStatisticsCurves(const std::vector<RimSummaryCas
         curve->setSummaryCaseY(m_ensembleStatCase.get());
         curve->setSummaryAddressY(address);
         curve->setLeftOrRightAxisY(m_plotAxis());
-        curve->setZOrder(1000);
 
         curve->updateCurveVisibility(false);
         curve->loadDataAndUpdate(false);

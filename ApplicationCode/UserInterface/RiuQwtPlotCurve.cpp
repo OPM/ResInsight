@@ -55,6 +55,7 @@ RiuQwtPlotCurve::RiuQwtPlotCurve(const QString &title)
     m_errorBars->setStyle(QwtPlotIntervalCurve::CurveStyle::NoCurve);
     m_errorBars->setSymbol(new QwtIntervalSymbol(QwtIntervalSymbol::Bar));
     m_errorBars->setItemAttribute(QwtPlotItem::Legend, false);
+    m_errorBars->setZ(Z_ERROR_BARS);
 
     m_showErrorBars = true;
     m_attachedToPlot = nullptr;

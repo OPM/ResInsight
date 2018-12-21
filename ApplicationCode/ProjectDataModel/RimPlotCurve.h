@@ -109,6 +109,9 @@ protected:
     void                            appearanceUiOrdering(caf::PdmUiOrdering& uiOrdering);
     void                            curveNameUiOrdering(caf::PdmUiOrdering& uiOrdering);
 
+private:
+    bool                            canCurveBeAttached() const;
+
 protected:
     QPointer<QwtPlot>                 m_parentQwtPlot;
     RiuQwtPlotCurve*                  m_qwtPlotCurve;
