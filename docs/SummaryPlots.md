@@ -211,26 +211,6 @@ The user can control the curve name used in the plot legend by using these optio
 
 Copy and Paste of selections of Summary Plots and Curves, is possible using the Project Tree Context menu and standard keyboard shortcuts (CTRL-C/CTRL-V).
 
-## Summary Source Stepping
-Summary Source Stepping is a function which lets the user step through multiple vectors in one click. This function is available from both the toolbar and the **Summary Curves** property editor under a **Summary Plot** item in the **Main Plot Window Project Tree**.
-
-The toolbar version may look like this
-
-![]({{site.baseurl}}/images/SummarySourceSteppingToolbar.png)
-
-and the property editor version may looks like this
-
-![]({{site.baseurl}}/images/SummarySourceSteppingPropertyEditor.png)
-
-In some cases some of the stepping components are hidden, depending on the set of summary curves currently visible. When ResInsight decides which stepping component to display, all visible curves in the current plot are taken into account. If, for instance, all curves display data from the same well, the well stepping component is displayed. This policy applies to the following source dimensions:
-- Cases
-- Wells
-- Well groups
-- Regions
-- Vectors/Summaries
-
-When one of the **next buttons** are clicked, all curves are changed to display data for the next item for the clicked source dimension. Example: The user clicks the **next well button**. Then the well source for all curves in the current plot are changed to display data for the next well.
-
 ## Recursive summary file import
 When using the standard file selection dialog, the user is limited to select files in one directory only. If the interesting files are distributed over multiple directories, the dialog has to be opened once for each directory. The recursive file selection dialog is created to circumvent this limitation. This dialog is able to search a directory tree for files matching a specified pattern.
 

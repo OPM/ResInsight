@@ -21,6 +21,8 @@ Ensembles are plotted in the summary plot the same way as ordinary summary curve
 - **Single color** Use the same color for all curves in a curve set
 - **By Ensemble Parameter** One ensemble parameter is selected to control coloring. The ensemble parameter value for each case is used to pick a color in a color range. In this case a color legend appears.
 
+Stepping of data source for ensemble curves is described in [Summary Plot Source Stepping]({{site.baseurl}}/docs/summaryplotsourcestepping)
+
 ### Statistics curves
 If the number of curves in a curve set is sufficient, ResInsight will calculate statistics for the curve set. The following statistics curves may be displayed:
 - **P10** -- 10% of the curves in the curve set are above this curve

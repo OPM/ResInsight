@@ -39,6 +39,7 @@
 - title: Plot Window
   docs:
   - summaryplots
+  - summaryplotsourcestepping
   - summaryploteditor
   - summarycrossplots
   - ensembleplotting
