@@ -50,6 +50,7 @@ RiuWellPathComponentPlotItem::RiuWellPathComponentPlotItem(const RimWellPath* we
     , m_componentType(RiaDefines::WELL_PATH)
     , m_columnOffset(0.0)
     , m_depthType(RimWellLogPlot::MEASURED_DEPTH)
+    , m_maxColumnOffset(0.0)
     , m_showLabel(false)
 {
     CVF_ASSERT(wellPath);
@@ -68,6 +69,7 @@ RiuWellPathComponentPlotItem::RiuWellPathComponentPlotItem(const RimWellPath* we
     : m_wellPath(wellPath)
     , m_columnOffset(0.0)
     , m_depthType(RimWellLogPlot::MEASURED_DEPTH)
+    , m_maxColumnOffset(0.0)
     , m_showLabel(false)
 {
     CVF_ASSERT(wellPath && component);
