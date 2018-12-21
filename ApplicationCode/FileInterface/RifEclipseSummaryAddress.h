@@ -144,7 +144,7 @@ public:
     static RifEclipseSummaryAddress importedAddress(const std::string& quantityName);
     static RifEclipseSummaryAddress ensembleStatisticsAddress(const std::string& quantityName, const std::string& dataQuantityName);
 
-    static bool isDependentOnWellName(const RifEclipseSummaryAddress& address);
+    static bool isDependentOnWellName(SummaryVarCategory category);
 
     // Access methods
 

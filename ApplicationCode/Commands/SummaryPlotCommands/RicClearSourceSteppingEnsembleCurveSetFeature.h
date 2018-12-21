@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2018     Statoil ASA
+//  Copyright (C) 2018-     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -18,35 +18,24 @@
 
 #pragma once
 
-#include "VdeArrayDataPacket.h"
+#include "cafCmdFeature.h"
 
-#include <QByteArray>
-
-#include <map>
-#include <memory>
-
+class RimSummaryPlot;
 
 //==================================================================================================
-//
-//
-//
+///
 //==================================================================================================
-class VdePacketDirectory
+class RicClearSourceSteppingEnsembleCurveSetFeature : public caf::CmdFeature
 {
+    CAF_CMD_HEADER_INIT;
+
 public:
-    VdePacketDirectory();
+    static void clearAllSourceSteppingInSummaryPlot(const RimSummaryPlot* summaryPlot);
 
-    void                        addPacket(std::unique_ptr<VdeArrayDataPacket> packet);
-    const VdeArrayDataPacket*   lookupPacket(int arrayId) const;
+protected:
+    bool isCommandEnabled() override;
+    void onActionTriggered(bool isChecked) override;
 
-    void                        clear();
-    void                        pruneUnreferencedPackets(const std::vector<int>& packetIdsInUseArr);
 
-    bool                        getPacketsAsCombinedBuffer(const std::vector<int>& packetIdsToGet, QByteArray* combinedPacketArr) const;
-
-private:
-    typedef std::map<int, std::unique_ptr<VdeArrayDataPacket>>  IdToPacketMap_T;
-    
-    IdToPacketMap_T   m_idToPacketMap;
+    void setupActionLook(QAction* actionToSetup) override;
 };
-

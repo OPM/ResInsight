@@ -17,6 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RiaSummaryCurveAnalyzer.h"
+#include "RiaStdStringTools.h"
 
 #include "RiaSummaryCurveDefinition.h"
 
@@ -60,6 +61,44 @@ void RiaSummaryCurveAnalyzer::appendAdresses(const std::set<RifEclipseSummaryAdd
 std::set<std::string> RiaSummaryCurveAnalyzer::quantities() const
 {
     return m_quantities;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::set<std::string> RiaSummaryCurveAnalyzer::quantityNamesWithHistory() const
+{
+    assignCategoryToQuantities();
+
+    return m_quantitiesWithMatchingHistory;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::set<std::string> RiaSummaryCurveAnalyzer::quantityNamesNoHistory() const
+{
+    assignCategoryToQuantities();
+
+    return m_quantitiesNoMatchingHistory;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::string RiaSummaryCurveAnalyzer::quantityNameForTitle() const
+{
+    if (quantityNamesWithHistory().size() == 1 && quantityNamesNoHistory().empty())
+    {
+        return *quantityNamesWithHistory().begin();
+    }
+
+    if (quantityNamesNoHistory().size() == 1 && quantityNamesWithHistory().empty())
+    {
+        return *quantityNamesNoHistory().begin();
+    }
+
+    return std::string();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -130,7 +169,7 @@ std::vector<QString> RiaSummaryCurveAnalyzer::identifierTexts(RifEclipseSummaryA
 ///
 //--------------------------------------------------------------------------------------------------
 std::vector<RifEclipseSummaryAddress>
-    RiaSummaryCurveAnalyzer::addressesForCategory(const std::set<RifEclipseSummaryAddress>& addresses,
+    RiaSummaryCurveAnalyzer::addressesForCategory(const std::set<RifEclipseSummaryAddress>&    addresses,
                                                   RifEclipseSummaryAddress::SummaryVarCategory category)
 {
     std::vector<RifEclipseSummaryAddress> filteredAddresses;
@@ -149,6 +188,24 @@ std::vector<RifEclipseSummaryAddress>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::string RiaSummaryCurveAnalyzer::correspondingHistorySummaryCurveName(const std::string& curveName)
+{
+    static std::string historyIdentifier = "H";
+
+    if (RiaStdStringTools::endsWith(curveName, historyIdentifier))
+    {
+        std::string candidate = curveName.substr(0, curveName.size() - 1);
+        return candidate;
+    }
+    else
+    {
+        return curveName + historyIdentifier;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiaSummaryCurveAnalyzer::clear()
 {
     m_quantities.clear();
@@ -156,6 +213,53 @@ void RiaSummaryCurveAnalyzer::clear()
     m_wellGroupNames.clear();
     m_regionNumbers.clear();
     m_categories.clear();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaSummaryCurveAnalyzer::assignCategoryToQuantities() const
+{
+    if (!m_quantities.empty())
+    {
+        if (m_quantitiesWithMatchingHistory.empty() && m_quantitiesNoMatchingHistory.empty())
+        {
+            computeQuantityNamesWithHistory();
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaSummaryCurveAnalyzer::computeQuantityNamesWithHistory() const
+{
+    m_quantitiesNoMatchingHistory.clear();
+    m_quantitiesWithMatchingHistory.clear();
+
+    const std::string historyIdentifier("H");
+
+    for (const auto& s : m_quantities)
+    {
+        std::string correspondingHistoryCurve = correspondingHistorySummaryCurveName(s);
+
+        if (m_quantities.find(correspondingHistoryCurve) != m_quantities.end())
+        {
+            // Insert the curve name without H
+            if (RiaStdStringTools::endsWith(s, historyIdentifier))
+            {
+                m_quantitiesWithMatchingHistory.insert(correspondingHistoryCurve);
+            }
+            else
+            {
+                m_quantitiesWithMatchingHistory.insert(s);
+            }
+        }
+        else
+        {
+            m_quantitiesNoMatchingHistory.insert(s);
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

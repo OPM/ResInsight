@@ -36,7 +36,7 @@ namespace caf {
     template<>
     void AppEnum<RimMultipleValveLocations::LocationType>::setUp()
     {
-        addItem(RimMultipleValveLocations::VALVE_COUNT, "VALVE_COUNT", "Start/End/Number of Valves");
+        addItem(RimMultipleValveLocations::VALVE_COUNT, "VALVE_COUNT", "Start/End/Number");
         addItem(RimMultipleValveLocations::VALVE_SPACING, "VALVE_SPACING", "Start/End/Spacing");
         addItem(RimMultipleValveLocations::VALVE_CUSTOM, "VALVE_CUSTOM", "User Specification");
         setDefault(RimMultipleValveLocations::VALVE_COUNT);

@@ -486,11 +486,15 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         {
             menuBuilder << "RicPasteSummaryCurveFeature";
             menuBuilder << "RicPasteSummaryCrossPlotCurveFeature";
+
             menuBuilder << "Separator";
             menuBuilder << "RicNewSummaryCurveFeature";
             menuBuilder << "RicDuplicateSummaryCurveFeature";
             menuBuilder << "RicNewSummaryCrossPlotCurveFeature";
             menuBuilder << "RicDuplicateSummaryCrossPlotCurveFeature";
+            menuBuilder << "Separator";
+            menuBuilder << "RicSetSourceSteppingSummaryCurveFeature";
+            menuBuilder << "RicClearSourceSteppingSummaryCurveFeature";
             menuBuilder << "Separator";
             menuBuilder << "RicCopyReferencesToClipboardFeature";
             menuBuilder << "Separator";
@@ -513,6 +517,9 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         else if (dynamic_cast<RimEnsembleCurveSet*>(uiItem))
         {
             menuBuilder << "RicNewSummaryEnsembleCurveSetFeature";
+            menuBuilder << "Separator";
+            menuBuilder << "RicSetSourceSteppingEnsembleCurveSetFeature";
+            menuBuilder << "RicClearSourceSteppingEnsembleCurveSetFeature";
         }
         else if (dynamic_cast<RimEnsembleCurveFilterCollection*>(uiItem))
         {

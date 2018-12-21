@@ -22,7 +22,9 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "cafContourLines.h"
+
 #include <algorithm>
+#include <list>
 
 const int caf::ContourLines::s_castab[3][3][3] =
 {
@@ -204,6 +206,104 @@ void caf::ContourLines::create(const std::vector<double>& dataXY, const std::vec
             } /* k - contour */
         } /* i */
     } /* j */
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<caf::ContourLines::ClosedPolygons> caf::ContourLines::create(const std::vector<double>& dataXY,
+    const std::vector<double>& xPositions,
+    const std::vector<double>& yPositions,
+    const std::vector<double>& contourLevels)
+{
+    const double eps = 1.0e-4;
+    std::vector<std::vector<cvf::Vec2d>> contourLineSegments;
+    caf::ContourLines::create(dataXY, xPositions, yPositions, contourLevels, &contourLineSegments);
+
+    std::vector<ClosedPolygons> closedPolygonsPerLevel(contourLevels.size());
+
+    for (size_t i = 0; i < contourLevels.size(); ++i)
+    {
+        size_t nPoints = contourLineSegments[i].size();
+        size_t nSegments = nPoints / 2;
+        if (nSegments >= 3u) // Need at least three segments for a closed polygon
+        {
+            std::list<std::pair<cvf::Vec2d, cvf::Vec2d>> unorderedSegments;
+            for (size_t j = 0; j < contourLineSegments[i].size(); j += 2)
+            {
+                unorderedSegments.push_back(std::make_pair(contourLineSegments[i][j], contourLineSegments[i][j + 1]));
+            }
+
+            std::deque<cvf::Vec2d> closedPolygonDeque;
+            while (!unorderedSegments.empty())
+            {                
+                bool expandedPolygon = false;
+                for (auto listIt = unorderedSegments.begin(); listIt != unorderedSegments.end(); ++listIt)
+                {
+                    if (closedPolygonDeque.empty() || listIt->first == closedPolygonDeque.back())
+                    {
+                        closedPolygonDeque.push_back(listIt->first);
+                        closedPolygonDeque.push_back(listIt->second);
+                        unorderedSegments.erase(listIt);
+                        expandedPolygon = true;
+                        break;
+                    }
+                    else if (listIt->second == closedPolygonDeque.back())
+                    {
+                        closedPolygonDeque.push_back(listIt->second);
+                        closedPolygonDeque.push_back(listIt->first);
+                        unorderedSegments.erase(listIt);
+                        expandedPolygon = true;
+                        break;
+                    }
+                    else if (listIt->first == closedPolygonDeque.front())
+                    {
+                        closedPolygonDeque.push_front(listIt->first);
+                        closedPolygonDeque.push_front(listIt->second);
+                        unorderedSegments.erase(listIt);
+                        expandedPolygon = true;
+                        break;
+                    }
+                    else if (listIt->second == closedPolygonDeque.front())
+                    {
+                        closedPolygonDeque.push_front(listIt->second);
+                        closedPolygonDeque.push_front(listIt->first);
+                        unorderedSegments.erase(listIt);
+                        expandedPolygon = true;
+                        break;
+                    }
+                }
+                if (!expandedPolygon || unorderedSegments.empty())
+                {
+                    if (closedPolygonDeque.back() != closedPolygonDeque.front())
+                    {
+                        closedPolygonDeque.push_back(closedPolygonDeque.back());
+                        closedPolygonDeque.push_back(closedPolygonDeque.front());
+                    }
+
+                    // Make sure it is counter clockwise. Use Shoelace formula to calculate signed area.
+                    // https://en.wikipedia.org/wiki/Shoelace_formula
+                    double signedArea = 0.0;
+                    for (size_t j = 0; j < closedPolygonDeque.size() - 1; ++j)
+                    {
+                        signedArea += (closedPolygonDeque[j + 1].x() - closedPolygonDeque[j].x()) *
+                                      (closedPolygonDeque[j + 1].y() + closedPolygonDeque[j].y());
+                    }
+                    if (signedArea < 0.0)
+                    {
+                        closedPolygonsPerLevel[i].emplace_back(closedPolygonDeque.rbegin(), closedPolygonDeque.rend());
+                    }
+                    else
+                    {
+                        closedPolygonsPerLevel[i].emplace_back(closedPolygonDeque.begin(), closedPolygonDeque.end());
+                    }
+
+                    closedPolygonDeque.clear();
+                }
+            }
+        }
+    }
+    return closedPolygonsPerLevel;
 }
 
 //--------------------------------------------------------------------------------------------------

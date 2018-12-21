@@ -29,6 +29,7 @@
 
 #include "cvfBoundingBox.h"
 #include "cvfGeometryBuilderFaceList.h"
+#include "cvfString.h"
 #include "cvfVector2.h"
 
 class RigMainGrid;
@@ -45,6 +46,12 @@ class RimContourMapProjection : public RimCheckableNamedObject
 {
     CAF_PDM_HEADER_INIT;
 public:
+    struct ContourPolygon
+    {
+        std::vector<cvf::Vec3d> vertices;
+        cvf::String label;
+    };
+
     enum ResultAggregationEnum
     {
         RESULTS_TOP_VALUE,
@@ -60,49 +67,52 @@ public:
         RESULTS_HC_COLUMN
     };
     typedef caf::AppEnum<ResultAggregationEnum> ResultAggregation;
-    typedef std::vector<cvf::ref<cvf::Vec3fArray>> ContourPolygons;
+    typedef std::vector<ContourPolygon> ContourPolygons;
 
     RimContourMapProjection();
     ~RimContourMapProjection() override;
 
-    void                        generateVertices(cvf::Vec3fArray* vertices, const caf::DisplayCoordTransform* displayCoordTransform);    
-    ContourPolygons             generateContourPolygons(const caf::DisplayCoordTransform* displayCoordTransform);
-    cvf::ref<cvf::Vec3fArray>   generatePickPointPolygon(const caf::DisplayCoordTransform* displayCoordTransform);
-    void                        generateResults();
+    std::vector<cvf::Vec3d>      generateVertices();
+    void                         generateContourPolygons();
+    std::vector<cvf::Vec3d>      generatePickPointPolygon();
+    void                         generateResults();
 
-    ResultAggregation           resultAggregation() const;
-    double                      sampleSpacing() const;
-    double                      sampleSpacingFactor() const;
-    bool                        showContourLines() const;
+    const std::vector<ContourPolygons>& contourPolygons() const;
 
-    QString                     resultAggregationText() const;
-    QString                     resultDescriptionText() const;
-    QString                     weightingParameter() const;
+    ResultAggregation            resultAggregation() const;
+    double                       sampleSpacing() const;
+    double                       sampleSpacingFactor() const;
+    bool                         showContourLines() const;
+    bool                         showContourLabels() const;
 
-    double                      maxValue() const;
-    double                      minValue() const;
-    double                      meanValue() const;
-    double                      sumAllValues() const;
+    QString                      resultAggregationText() const;
+    QString                      resultDescriptionText() const;
+    QString                      weightingParameter() const;
 
-    cvf::Vec2ui                 numberOfElementsIJ() const;
-    cvf::Vec2ui                 numberOfVerticesIJ() const;
+    double                       maxValue() const;
+    double                       minValue() const;
+    double                       meanValue() const;
+    double                       sumAllValues() const;
 
-    bool                        isColumnResult() const;
+    cvf::Vec2ui                  numberOfElementsIJ() const;
+    cvf::Vec2ui                  numberOfVerticesIJ() const;
 
-    double                      valueAtVertex(uint i, uint j) const;
-    bool                        hasResultAtVertex(uint i, uint j) const;
+    bool                         isColumnResult() const;
 
-    RimRegularLegendConfig*     legendConfig() const;
-    void                        updateLegend();
+    double                       valueAtVertex(uint i, uint j) const;
+    bool                         hasResultAtVertex(uint i, uint j) const;
 
-    uint                        numberOfCells() const;
-    uint                        numberOfValidCells() const;
-    size_t                      numberOfVertices() const;
+    RimRegularLegendConfig*      legendConfig() const;
+    void                         updateLegend();
 
-    void                        updatedWeightingResult();
+    uint                         numberOfCells() const;
+    uint                         numberOfValidCells() const;
+    size_t                       numberOfVertices() const;
 
-    bool                        checkForMapIntersection(const cvf::Vec3d& localPoint3d, cvf::Vec2d* contourMapPoint, cvf::Vec2ui* contourMapCell, double* valueAtPoint) const;
-    void                        setPickPoint(cvf::Vec2d pickedPoint);
+    void                         updatedWeightingResult();
+
+    bool                         checkForMapIntersection(const cvf::Vec3d& localPoint3d, cvf::Vec2d* contourMapPoint, cvf::Vec2ui* contourMapCell, double* valueAtPoint) const;
+    void                         setPickPoint(cvf::Vec2d pickedPoint);
 
 protected:
     void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
@@ -159,8 +169,10 @@ protected:
     caf::PdmField<double>                               m_relativeSampleSpacing;
     caf::PdmField<ResultAggregation>                    m_resultAggregation;
     caf::PdmField<bool>                                 m_showContourLines;
+    caf::PdmField<bool>                                 m_showContourLabels;
     caf::PdmField<bool>                                 m_weightByParameter;
     caf::PdmChildField<RimEclipseResultDefinition*>     m_weightingResult;
+
     cvf::ref<cvf::UByteArray>                           m_cellGridIdxVisibility;
 
     std::vector<double>                                 m_aggregatedResults;
@@ -177,4 +189,5 @@ protected:
     cvf::Vec2ui                                         m_mapSize;
     cvf::BoundingBox                                    m_fullBoundingBox;
     double                                              m_sampleSpacing;
+    std::vector<ContourPolygons>                        m_contourPolygons;
 };

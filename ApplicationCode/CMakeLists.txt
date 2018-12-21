@@ -399,12 +399,19 @@ if(RESINSIGHT_ENABLE_COTIRE)
         ModelVisualization/Intersections/RivIntersectionGeometryGenerator.cpp
 
         # exclude file using Eigen
-        ReservoirDataModel/RigTransmissibilityCondenser.cpp
-        ReservoirDataModel/RigEclipseToStimPlanCellTransmissibilityCalculator.cpp
         ReservoirDataModel/RigCellGeometryTools.cpp
+        ReservoirDataModel/Completions/RigTransmissibilityCondenser.cpp
+        ReservoirDataModel/Completions/RigEclipseToStimPlanCellTransmissibilityCalculator.cpp
+        ReservoirDataModel/Completions/RigEclipseToStimPlanCalculator.cpp
 
         # exclude file using SolveSpace
-        Application/Tools/RiaSCurveCalculator.cpp
+        Application/Tools/WellPathTools/RiaSCurveCalculator.cpp
+
+        # QT 5
+        qrc_cafAnimControl.cpp
+        qrc_ResInsight.cpp
+        ProjectDataModel/RimContourMapView.cpp
+        Commands/CompletionExportCommands/RicExportFractureCompletionsImpl.cpp
     )
 
     foreach (fileToExclude ${COTIRE_EXCLUDE_FILES})

@@ -93,6 +93,9 @@ protected:
 
     void                            updateLegendsInPlot() override;
 
+
+    void                            defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
+
 private:
     RifSummaryReaderInterface*              valuesSummaryReaderX() const;
     RifSummaryReaderInterface*              valuesSummaryReaderY() const;

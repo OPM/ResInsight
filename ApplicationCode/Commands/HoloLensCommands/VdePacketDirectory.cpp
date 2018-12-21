@@ -18,6 +18,7 @@
 
 #include "VdePacketDirectory.h"
 
+#include <algorithm>
 
 
 //==================================================================================================
@@ -36,10 +37,10 @@ VdePacketDirectory::VdePacketDirectory()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void VdePacketDirectory::addPacket(const VdeArrayDataPacket& packet)
+void VdePacketDirectory::addPacket(std::unique_ptr<VdeArrayDataPacket> packet)
 {
-    const int id = packet.arrayId();
-    m_idToPacketMap[id] = std::unique_ptr<VdeArrayDataPacket>(new VdeArrayDataPacket(packet));
+    const int id = packet->arrayId();
+    m_idToPacketMap[id] = std::move(packet);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -62,6 +63,29 @@ const VdeArrayDataPacket* VdePacketDirectory::lookupPacket(int arrayId) const
 void VdePacketDirectory::clear()
 {
     m_idToPacketMap.clear();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void VdePacketDirectory::pruneUnreferencedPackets(const std::vector<int>& packetIdsInUseArr)
+{
+    std::vector<int> sortedPacketsIdsInUse(packetIdsInUseArr);
+    std::sort(sortedPacketsIdsInUse.begin(), sortedPacketsIdsInUse.end());
+
+    IdToPacketMap_T::const_iterator it = m_idToPacketMap.cbegin();
+    while (it != m_idToPacketMap.cend()) 
+    {
+        const int packetId = it->first;
+        if (!std::binary_search(sortedPacketsIdsInUse.begin(), sortedPacketsIdsInUse.end(), packetId))
+        {
+            it = m_idToPacketMap.erase(it);
+        }
+        else
+        {
+            ++it;
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

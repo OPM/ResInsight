@@ -24,6 +24,7 @@
 #include "RimEclipseResultDefinition.h"
 #include "RimProject.h"
 #include "RimRegularLegendConfig.h"
+#include "RimTextAnnotation.h"
 
 #include "cafContourLines.h"
 #include "cafPdmUiDoubleSliderEditor.h"
@@ -77,6 +78,7 @@ RimContourMapProjection::RimContourMapProjection()
     CAF_PDM_InitFieldNoDefault(&m_resultAggregation, "ResultAggregation", "Result Aggregation", "", "", "");
 
     CAF_PDM_InitField(&m_showContourLines, "ContourLines", true, "Show Contour Lines", "", "", "");
+    CAF_PDM_InitField(&m_showContourLabels, "ContourLabels", false, "Show Contour Labels", "", "", "");
 
     CAF_PDM_InitField(&m_weightByParameter, "WeightByParameter", false, "Weight by Result Parameter", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_weightingResult, "WeightingResult", "", "", "", "");
@@ -84,6 +86,7 @@ RimContourMapProjection::RimContourMapProjection()
     m_weightingResult.uiCapability()->setUiTreeChildrenHidden(true);
     m_weightingResult = new RimEclipseResultDefinition;
     m_weightingResult->findField("MResultType")->uiCapability()->setUiName("Result Type");
+
     setName("Map Projection");
     nameField()->uiCapability()->setUiReadOnly(true);
 
@@ -102,11 +105,10 @@ RimContourMapProjection::~RimContourMapProjection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimContourMapProjection::generateVertices(cvf::Vec3fArray* vertices, const caf::DisplayCoordTransform* displayCoordTransform)
+std::vector<cvf::Vec3d> RimContourMapProjection::generateVertices()
 {
-    CVF_ASSERT(vertices);
     size_t nVertices = numberOfVertices();
-    vertices->resize(nVertices);
+    std::vector<cvf::Vec3d> vertices(nVertices, cvf::Vec3d::ZERO);
 
 #pragma omp parallel for
     for (int index = 0; index < static_cast<int>(nVertices); ++index)
@@ -117,10 +119,10 @@ void RimContourMapProjection::generateVertices(cvf::Vec3fArray* vertices, const 
         globalPos.x() -= m_sampleSpacing * 0.5;
         globalPos.y() -= m_sampleSpacing * 0.5;
 
-        cvf::Vec3d globalVertexPos(globalPos, m_fullBoundingBox.min().z() - 1.0);
-        cvf::Vec3f displayVertexPos(displayCoordTransform->transformToDisplayCoord(globalVertexPos));
-        (*vertices)[index] = displayVertexPos;
+        cvf::Vec3d globalVertexPos(globalPos, m_fullBoundingBox.min().z());
+        vertices[index] = globalVertexPos;
     }
+    return vertices;
 }
 
 
@@ -128,9 +130,10 @@ void RimContourMapProjection::generateVertices(cvf::Vec3fArray* vertices, const 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimContourMapProjection::ContourPolygons RimContourMapProjection::generateContourPolygons(const caf::DisplayCoordTransform* displayCoordTransform)
+void RimContourMapProjection::generateContourPolygons()
 {    
-    std::vector<cvf::ref<cvf::Vec3fArray>> contourPolygons;
+    std::vector<ContourPolygons> contourPolygons;
+
     if (minValue() != std::numeric_limits<double>::infinity() &&
         maxValue() != -std::numeric_limits<double>::infinity() &&
         std::fabs(maxValue() - minValue()) > 1.0e-8)
@@ -142,49 +145,51 @@ RimContourMapProjection::ContourPolygons RimContourMapProjection::generateContou
             int nContourLevels = static_cast<int>(contourLevels.size());
             if (nContourLevels > 2)
             {
+                std::vector<double> fudgedContourLevels = contourLevels;
                 if (legendConfig()->mappingMode() == RimRegularLegendConfig::LINEAR_CONTINUOUS || legendConfig()->mappingMode() == RimRegularLegendConfig::LINEAR_DISCRETE)
                 {
                     // Slight fudge to avoid very jagged contour lines at the very edge
                     // Shift the contour levels inwards.
-                    contourLevels[0] += (contourLevels[1] - contourLevels[0]) * 0.1;
-                    contourLevels[nContourLevels - 1] -= (contourLevels[nContourLevels - 1] - contourLevels[nContourLevels - 2]) * 0.1;
+                    fudgedContourLevels[0] += (contourLevels[1] - contourLevels[0]) * 0.1;
+                    fudgedContourLevels[nContourLevels - 1] -= (contourLevels[nContourLevels - 1] - contourLevels[nContourLevels - 2]) * 0.1;
                 }
-                std::vector<std::vector<cvf::Vec2d>> contourLines;
-                caf::ContourLines::create(m_aggregatedVertexResults, xVertexPositions(), yVertexPositions(), contourLevels, &contourLines);
+                std::vector<caf::ContourLines::ClosedPolygons> closedContourLines =
+                    caf::ContourLines::create(m_aggregatedVertexResults, xVertexPositions(), yVertexPositions(), fudgedContourLevels);
 
-                contourPolygons.reserve(contourLines.size());
-                for (size_t i = 0; i < contourLines.size(); ++i)
+                contourPolygons.resize(closedContourLines.size());
+                for (size_t i = 0; i < closedContourLines.size(); ++i)
                 {
-                    if (!contourLines[i].empty())
+                    for (size_t j = 0; j < closedContourLines[i].size(); ++j)
                     {
-                        cvf::ref<cvf::Vec3fArray> contourPolygon = new cvf::Vec3fArray(contourLines[i].size());
-                        for (size_t j = 0; j < contourLines[i].size(); ++j)
+                        ContourPolygon contourPolygon;
+                        contourPolygon.label = cvf::String(contourLevels[i]);
+                        contourPolygon.vertices.reserve(closedContourLines[i][j].size());
+                        for (size_t k = 0; k < closedContourLines[i][j].size(); ++k)
                         {
-                            cvf::Vec3d contourPoint3d = cvf::Vec3d(contourLines[i][j], m_fullBoundingBox.min().z());
-                            cvf::Vec3d displayPoint3d = displayCoordTransform->transformToDisplayCoord(contourPoint3d);
-                            (*contourPolygon)[j] = cvf::Vec3f(displayPoint3d);
+                            cvf::Vec3d contourPoint3d = cvf::Vec3d(closedContourLines[i][j][k], m_fullBoundingBox.min().z());
+                            contourPolygon.vertices.push_back(contourPoint3d);
                         }
-                        contourPolygons.push_back(contourPolygon);
+                        contourPolygons[i].push_back(contourPolygon);
                     }
                 }
             }
         }
     }
-    return contourPolygons;
+    m_contourPolygons = contourPolygons;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::ref<cvf::Vec3fArray>
-RimContourMapProjection::generatePickPointPolygon(const caf::DisplayCoordTransform* displayCoordTransform)
+std::vector<cvf::Vec3d>
+RimContourMapProjection::generatePickPointPolygon()
 {
-    cvf::ref<cvf::Vec3fArray> pickPolygon;
+    std::vector<cvf::Vec3d> points;
+
     if (!m_pickPoint.isUndefined())
     {
         double zPos = m_fullBoundingBox.min().z();
 
-        std::vector<cvf::Vec3d> points;
         {
             cvf::Vec2d gridorigin(m_fullBoundingBox.min().x(), m_fullBoundingBox.min().y());
 
@@ -209,16 +214,8 @@ RimContourMapProjection::generatePickPointPolygon(const caf::DisplayCoordTransfo
             points.push_back(cvf::Vec3d(m_pickPoint - cvf::Vec2d(0.0, 0.5 * m_sampleSpacing), zPos));
             points.push_back(cvf::Vec3d(m_pickPoint + cvf::Vec2d(0.0, 0.5 * m_sampleSpacing), zPos));
         }
-
-        pickPolygon = new cvf::Vec3fArray(points.size());
-
-        for (size_t i = 0; i < points.size(); ++i)
-        {
-            cvf::Vec3d displayPoint = displayCoordTransform->transformToDisplayCoord(points[i]);
-            (*pickPolygon)[i] = cvf::Vec3f(displayPoint);
-        }
     }
-    return pickPolygon;
+    return points;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -288,6 +285,14 @@ void RimContourMapProjection::generateResults()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+const std::vector<RimContourMapProjection::ContourPolygons>& RimContourMapProjection::contourPolygons() const
+{
+    return m_contourPolygons;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RimContourMapProjection::ResultAggregation RimContourMapProjection::resultAggregation() const
 {
     return m_resultAggregation();
@@ -315,6 +320,14 @@ double RimContourMapProjection::sampleSpacingFactor() const
 bool RimContourMapProjection::showContourLines() const
 {
     return m_showContourLines();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimContourMapProjection::showContourLabels() const
+{
+    return m_showContourLines() && m_showContourLabels();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -659,6 +672,8 @@ void RimContourMapProjection::defineUiOrdering(QString uiConfigName, caf::PdmUiO
     caf::PdmUiGroup* mainGroup = uiOrdering.addNewGroup("Projection Settings");
     mainGroup->add(&m_relativeSampleSpacing);
     mainGroup->add(&m_showContourLines);
+    mainGroup->add(&m_showContourLabels);
+    m_showContourLabels.uiCapability()->setUiReadOnly(!m_showContourLines());
     mainGroup->add(&m_resultAggregation);
 
     caf::PdmUiGroup* weightingGroup = uiOrdering.addNewGroup("Mean Weighting Options");
@@ -1314,6 +1329,7 @@ void RimContourMapProjection::updateGridInformation()
     m_mainGrid        = eclipseCase()->eclipseCaseData()->mainGrid();
     m_sampleSpacing   = m_relativeSampleSpacing * m_mainGrid->characteristicIJCellSize();
     m_fullBoundingBox = eclipseCase()->activeCellsBoundingBox();
+    m_fullBoundingBox.expand(m_sampleSpacing * 2.0);
     m_mapSize         = calculateMapSize();
 
     // Re-jig max point to be an exact multiple of cell size

@@ -81,7 +81,7 @@ public:
     void                addToTemporaryWidgets(QWidget* widget);
 
     void                updateWellLogPlotToolBar();
-    void                updateSummaryPlotToolBar();
+    void                updateSummaryPlotToolBar(bool forceUpdateUi = false);
 
 protected:
     void                closeEvent(QCloseEvent* event) override;

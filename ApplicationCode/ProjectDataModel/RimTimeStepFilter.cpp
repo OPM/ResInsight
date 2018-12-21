@@ -182,21 +182,6 @@ bool RimTimeStepFilter::updateFilteredTimeStepsFromUi()
 }
 
 //--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimTimeStepFilter::reset()
-{
-    m_filterType = TS_ALL;
-    m_filteredTimeSteps.v().clear();
-    m_filteredTimeStepsUi.v().clear();
-    m_firstTimeStep = 0;
-    m_lastTimeStep = 0;
-    m_interval = 1;
-    m_dateFormat = QString("yyyy-MM-dd");
-    m_timeStepNamesFromFile.v().clear();
-}
-
-//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void RimTimeStepFilter::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)

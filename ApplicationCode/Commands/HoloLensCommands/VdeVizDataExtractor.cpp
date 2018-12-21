@@ -19,6 +19,7 @@
 #include "VdeVizDataExtractor.h"
 #include "VdeArrayDataPacket.h"
 #include "VdePacketDirectory.h"
+#include "VdeCachingHashedIdFactory.h"
 
 #include "RicHoloLensExportImpl.h"
 
@@ -29,6 +30,8 @@
 #include "cvfDrawableGeo.h"
 #include "cvfPrimitiveSet.h"
 #include "cvfTransform.h"
+#include "cvfAssert.h"
+#include "cvfTimer.h"
 #include "cvfTrace.h"
 
 
@@ -43,9 +46,11 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-VdeVizDataExtractor::VdeVizDataExtractor(const RimGridView& view)
- :  m_view(view)
+VdeVizDataExtractor::VdeVizDataExtractor(const RimGridView& view, VdeCachingHashedIdFactory* cachingIdFactory)
+    : m_view(view),
+    m_cachingIdFactory(cachingIdFactory)
 {
+    CVF_ASSERT(m_cachingIdFactory);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -53,84 +58,110 @@ VdeVizDataExtractor::VdeVizDataExtractor(const RimGridView& view)
 //--------------------------------------------------------------------------------------------------
 void VdeVizDataExtractor::extractViewContents(QString* modelMetaJsonStr, std::vector<int>* allReferencedArrayIds, VdePacketDirectory* packetDirectory)
 {
+    cvf::Timer tim;
+
     // First extract the parts (cvfPart + info) to be exported from from the ResInsight view
     const std::vector<VdeExportPart> exportPartsArr = RicHoloLensExportImpl::partsForExport(m_view);
 
     // Convert this to an array of export ready meshes
-    const std::vector<VdeMesh> meshArr = buildMeshArray(exportPartsArr);
+    const std::vector<std::unique_ptr<VdeMesh> > meshArr = buildMeshArray(exportPartsArr);
+    const int buildMeshes_ms = static_cast<int>(tim.lapTime()*1000);
+
+
     const size_t meshCount = meshArr.size();
-    cvf::Trace::show("Extracting %d meshes", meshCount);
+    cvf::Trace::show("Analyzing and generating array packet data for %d meshes", meshCount);
 
-    std::vector<VdeMeshArrayIds> meshArrayIdsArr;
-
+    std::vector<VdeMeshArrayIds> allMeshesArrayIdsArr;
     size_t totNumPrimitives = 0;
-    int nextArrayId = 0;
     for (size_t i = 0; i < meshCount; i++)
     {
-        const VdeMesh& mesh = meshArr[i];
+        const VdeMesh* mesh = meshArr[i].get();
 
-        const size_t primCount = mesh.connArr.size()/mesh.verticesPerPrimitive;
+        const size_t primCount = mesh->connArr.size()/mesh->verticesPerPrimitive;
         totNumPrimitives += primCount;
-        cvf::Trace::show("  %2d:  primCount=%d  meshSourceObjName='%s'", i, primCount, mesh.meshSourceObjName.toLatin1().constData());
+        cvf::Trace::show("  mesh %2d:  primCount=%d  vertsPerPrim=%d  meshSourceObjName='%s'  meshSourceObjType='%s'", i, primCount, mesh->verticesPerPrimitive, mesh->meshSourceObjName.toLatin1().constData(), mesh->meshSourceObjTypeStr.toLatin1().constData());
 
-        VdeMeshArrayIds meshArrayIds;
+        VdeMeshArrayIds arrayIdsThisMesh;
 
         {
-            cvf::Trace::show("    exporting vertices");
-            meshArrayIds.vertexArrId = nextArrayId++;
-            const float* floatArr = reinterpret_cast<const float*>(mesh.vertexArr->ptr());
-            VdeArrayDataPacket dataPacket = VdeArrayDataPacket::fromFloat32Arr(meshArrayIds.vertexArrId, floatArr, 3*mesh.vertexArr->size());
-            packetDirectory->addPacket(dataPacket);
+            const float* floatArr = reinterpret_cast<const float*>(mesh->vertexArr->ptr());
+            const size_t arrElementCount = 3*mesh->vertexArr->size();
+            arrayIdsThisMesh.vertexArrId = m_cachingIdFactory->getOrCreateIdForFloatArr(VdeCachingHashedIdFactory::VertexArr, floatArr, arrElementCount);
 
-            // Debug testing of decoding
-            debugComparePackets(dataPacket, VdeArrayDataPacket::fromRawPacketBuffer(dataPacket.fullPacketRawPtr(), dataPacket.fullPacketSize(), nullptr));
-        }
-        {
-            cvf::Trace::show("    exporting connectivities");
-            meshArrayIds.connArrId = nextArrayId++;
-            const unsigned int* uintArr = mesh.connArr.data();
-            VdeArrayDataPacket dataPacket = VdeArrayDataPacket::fromUint32Arr(meshArrayIds.connArrId, uintArr, mesh.connArr.size());
-            packetDirectory->addPacket(dataPacket);
-            
-            // Debug testing of decoding
-            debugComparePackets(dataPacket, VdeArrayDataPacket::fromRawPacketBuffer(dataPacket.fullPacketRawPtr(), dataPacket.fullPacketSize(), nullptr));
-        }
-
-        if (mesh.texCoordArr.notNull() && mesh.texImage.notNull())
-        {
+            if (!packetDirectory->lookupPacket(arrayIdsThisMesh.vertexArrId))
             {
-                cvf::Trace::show("    exporting texture coords");
-                meshArrayIds.texCoordsArrId = nextArrayId++;
-                const float* floatArr = reinterpret_cast<const float*>(mesh.texCoordArr->ptr());
-                VdeArrayDataPacket dataPacket = VdeArrayDataPacket::fromFloat32Arr(meshArrayIds.texCoordsArrId, floatArr, 2*mesh.texCoordArr->size());
-                packetDirectory->addPacket(dataPacket);
+                cvf::Trace::show("    generating vertices, arrayId=%d", arrayIdsThisMesh.vertexArrId);
+                std::unique_ptr<VdeArrayDataPacket> dataPacket = VdeArrayDataPacket::fromFloat32Arr(arrayIdsThisMesh.vertexArrId, floatArr, arrElementCount);
 
                 // Debug testing of decoding
-                debugComparePackets(dataPacket, VdeArrayDataPacket::fromRawPacketBuffer(dataPacket.fullPacketRawPtr(), dataPacket.fullPacketSize(), nullptr));
+                //debugComparePackets(*dataPacket, VdeArrayDataPacket::fromRawPacketBuffer(dataPacket->fullPacketRawPtr(), dataPacket->fullPacketSize(), nullptr));
+
+                packetDirectory->addPacket(std::move(dataPacket));
             }
+        }
+        {
+            const unsigned int* uintArr = mesh->connArr.data();
+            const size_t arrElementCount = mesh->connArr.size();
+            arrayIdsThisMesh.connArrId = m_cachingIdFactory->getOrCreateIdForUint32Arr(VdeCachingHashedIdFactory::ConnArr, uintArr, arrElementCount);
+
+            if (!packetDirectory->lookupPacket(arrayIdsThisMesh.connArrId))
             {
-                cvf::Trace::show("    exporting texture image");
-                meshArrayIds.texImageArrId = nextArrayId++;
-                cvf::ref<cvf::UByteArray> byteArr = mesh.texImage->toRgb();
-                VdeArrayDataPacket dataPacket = VdeArrayDataPacket::fromUint8ImageRGBArr(meshArrayIds.texImageArrId, mesh.texImage->width(), mesh.texImage->height(), byteArr->ptr(), byteArr->size());
-                packetDirectory->addPacket(dataPacket);
+                cvf::Trace::show("    generating connectivities, arrayId=%d", arrayIdsThisMesh.connArrId);
+                std::unique_ptr<VdeArrayDataPacket> dataPacket = VdeArrayDataPacket::fromUint32Arr(arrayIdsThisMesh.connArrId, uintArr, arrElementCount);
 
                 // Debug testing of decoding
-                debugComparePackets(dataPacket, VdeArrayDataPacket::fromRawPacketBuffer(dataPacket.fullPacketRawPtr(), dataPacket.fullPacketSize(), nullptr));
+                //debugComparePackets(*dataPacket, VdeArrayDataPacket::fromRawPacketBuffer(dataPacket->fullPacketRawPtr(), dataPacket->fullPacketSize(), nullptr));
+
+                packetDirectory->addPacket(std::move(dataPacket));
             }
         }
 
-        meshArrayIdsArr.push_back(meshArrayIds);
+        if (mesh->texCoordArr.notNull() && mesh->texImage.notNull())
+        {
+            {
+                const float* floatArr = reinterpret_cast<const float*>(mesh->texCoordArr->ptr());
+                const size_t arrElementCount = 2*mesh->texCoordArr->size();
+                arrayIdsThisMesh.texCoordsArrId = m_cachingIdFactory->getOrCreateIdForFloatArr(VdeCachingHashedIdFactory::TexCoordsArr, floatArr, arrElementCount);
+
+                if (!packetDirectory->lookupPacket(arrayIdsThisMesh.texCoordsArrId))
+                {
+                    cvf::Trace::show("    generating texture coords, arrayId=%d", arrayIdsThisMesh.texCoordsArrId);
+                    std::unique_ptr<VdeArrayDataPacket> dataPacket = VdeArrayDataPacket::fromFloat32Arr(arrayIdsThisMesh.texCoordsArrId, floatArr, arrElementCount);
+
+                    // Debug testing of decoding
+                    //debugComparePackets(*dataPacket, VdeArrayDataPacket::fromRawPacketBuffer(dataPacket->fullPacketRawPtr(), dataPacket->fullPacketSize(), nullptr));
+
+                    packetDirectory->addPacket(std::move(dataPacket));
+                }
+            }
+            {
+                cvf::ref<cvf::UByteArray> byteArr = mesh->texImage->toRgb();
+                arrayIdsThisMesh.texImageArrId = m_cachingIdFactory->getOrCreateIdForUint8Arr(VdeCachingHashedIdFactory::TexImage, byteArr->ptr(), byteArr->size());
+
+                if (!packetDirectory->lookupPacket(arrayIdsThisMesh.texImageArrId))
+                {
+                    cvf::Trace::show("    generating texture image, arrayId=%d", arrayIdsThisMesh.texImageArrId);
+                    std::unique_ptr<VdeArrayDataPacket> dataPacket = VdeArrayDataPacket::fromUint8ImageRGBArr(arrayIdsThisMesh.texImageArrId, mesh->texImage->width(), mesh->texImage->height(), byteArr->ptr(), byteArr->size());
+
+                    // Debug testing of decoding
+                    //debugComparePackets(*dataPacket, VdeArrayDataPacket::fromRawPacketBuffer(dataPacket->fullPacketRawPtr(), dataPacket->fullPacketSize(), nullptr));
+
+                    packetDirectory->addPacket(std::move(dataPacket));
+                }
+            }
+        }
+
+        allMeshesArrayIdsArr.push_back(arrayIdsThisMesh);
     }
 
-    cvf::Trace::show("Total number of primitives extracted: %d", totNumPrimitives);
+    const int fillPacketDir_ms = static_cast<int>(tim.lapTime()*1000);
 
 
-    *modelMetaJsonStr = createModelMetaJsonString(meshArr, meshArrayIdsArr);
+    *modelMetaJsonStr = createModelMetaJsonString(meshArr, allMeshesArrayIdsArr);
 
     // Find all unique packet array IDs referenced 
     std::set<int> referencedIdsSet;
-    for (const VdeMeshArrayIds& meshArrayIds : meshArrayIdsArr)
+    for (const VdeMeshArrayIds& meshArrayIds : allMeshesArrayIdsArr)
     {
         if (meshArrayIds.vertexArrId != -1)     referencedIdsSet.insert(meshArrayIds.vertexArrId);
         if (meshArrayIds.connArrId != -1)       referencedIdsSet.insert(meshArrayIds.connArrId);
@@ -139,20 +170,24 @@ void VdeVizDataExtractor::extractViewContents(QString* modelMetaJsonStr, std::ve
     }
 
     allReferencedArrayIds->assign(referencedIdsSet.begin(), referencedIdsSet.end());
+
+    RiaLogging::debug(QString("HoloLens: Extracted %1 meshes (total of %2 primitives) in %3ms  (buildMeshes=%4ms, fillPacketDir=%5ms)").arg(meshCount).arg(totNumPrimitives).arg(static_cast<int>(tim.time()*1000)).arg(buildMeshes_ms).arg(fillPacketDir_ms));
+
+    //cvf::Trace::show("Total number of primitives extracted: %d in %dms", totNumPrimitives, static_cast<int>(tim.time()*1000));
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<VdeMesh> VdeVizDataExtractor::buildMeshArray(const std::vector<VdeExportPart>& exportPartsArr)
+std::vector<std::unique_ptr<VdeMesh> > VdeVizDataExtractor::buildMeshArray(const std::vector<VdeExportPart>& exportPartsArr)
 {
-    std::vector<VdeMesh> meshArr;
+    std::vector<std::unique_ptr<VdeMesh> > meshArr;
     for (const VdeExportPart& exportPart : exportPartsArr)
     {
-        VdeMesh mesh;
-        if (extractMeshFromExportPart(exportPart, &mesh))
+        std::unique_ptr<VdeMesh> mesh = createMeshFromExportPart(exportPart);
+        if (mesh)
         {
-            meshArr.push_back(mesh);
+            meshArr.push_back(std::move(mesh));
         }
     }
 
@@ -162,26 +197,28 @@ std::vector<VdeMesh> VdeVizDataExtractor::buildMeshArray(const std::vector<VdeEx
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool VdeVizDataExtractor::extractMeshFromExportPart(const VdeExportPart& exportPart, VdeMesh* mesh)
+std::unique_ptr<VdeMesh> VdeVizDataExtractor::createMeshFromExportPart(const VdeExportPart& exportPart)
 {
+    //cvf::Timer tim;
+
     const cvf::Part* cvfPart = exportPart.part();
     const cvf::DrawableGeo* geo = dynamic_cast<const cvf::DrawableGeo*>(cvfPart ? cvfPart->drawable() : nullptr);
     if (!geo)
     {
-        return false;
+        return nullptr;
     }
 
     if (geo->primitiveSetCount() != 1)
     {
         RiaLogging::debug("Only geometries with exactly one primitive set is supported");
-        return false;
+        return nullptr;
     }
 
     const cvf::Vec3fArray* vertexArr = geo->vertexArray();
     const cvf::PrimitiveSet* primSet = geo->primitiveSet(0);
     if (!vertexArr || !primSet || primSet->faceCount() == 0)
     {
-        return false;
+        return nullptr;
     }
 
 
@@ -190,23 +227,24 @@ bool VdeVizDataExtractor::extractMeshFromExportPart(const VdeExportPart& exportP
     if (primType != cvf::PT_TRIANGLES && primType != cvf::PT_LINES)
     {
         RiaLogging::debug(QString("Currently only triangle and line primitive sets are supported (saw primitive type: %1)").arg(primType));
-        return false;
+        return nullptr;
     }
 
     const int vertsPerPrimitive = (primType == cvf::PT_TRIANGLES) ? 3 : 2;
-    
+
+    std::unique_ptr<VdeMesh> mesh(new VdeMesh);
     mesh->verticesPerPrimitive = vertsPerPrimitive;
 
     // Possibly transform the vertices
     if (cvfPart->transform())
     {
-        const size_t vertexCount = vertexArr->size();
-        cvf::ref<cvf::Vec3fArray> transVertexArr = new cvf::Vec3fArray(vertexArr->size());
+        const cvf::Mat4f m = cvf::Mat4f(cvfPart->transform()->worldTransform());
 
-        cvf::Mat4f m = cvf::Mat4f(cvfPart->transform()->worldTransform());
+        cvf::ref<cvf::Vec3fArray> transVertexArr = new cvf::Vec3fArray(*vertexArr);
+        const size_t vertexCount = transVertexArr->size();
         for (size_t i = 0; i < vertexCount; i++)
         {
-            transVertexArr->set(i, vertexArr->get(i).getTransformedPoint(m));
+            transVertexArr->ptr(i)->transformPoint(m);
         }
 
         mesh->vertexArr = transVertexArr.p();
@@ -216,12 +254,15 @@ bool VdeVizDataExtractor::extractMeshFromExportPart(const VdeExportPart& exportP
         mesh->vertexArr = vertexArr;
     }
 
+
     // Fetch connectivities
     // Using getFaceIndices() allows us to access strips and fans in the same way as triangles
     // Note that HoloLens visualization wants triangles in clockwise order so we try and fix the winding
-    // This point might be moot if the HoloLens visualization always has to use two-sideded lighting to get good results
-    cvf::UIntArray faceConn;
+    // This point might be moot if the HoloLens visualization always has to use two-sided lighting to get good results
     const size_t faceCount = primSet->faceCount();
+    mesh->connArr.reserve(faceCount*vertsPerPrimitive);
+
+    cvf::UIntArray faceConn;
     for (size_t iface = 0; iface < faceCount; iface++)
     {
         primSet->getFaceIndices(iface, &faceConn);
@@ -259,26 +300,28 @@ bool VdeVizDataExtractor::extractMeshFromExportPart(const VdeExportPart& exportP
     mesh->color = exportPart.color();
     mesh->opacity = exportPart.opacity();
 
-    return true;
+    //cvf::Trace::show("createMeshFromExportPart(): numFaces=%d, time=%dms", faceCount, static_cast<int>(tim.time()*1000));
+
+    return mesh;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString VdeVizDataExtractor::createModelMetaJsonString(const std::vector<VdeMesh>& meshArr, const std::vector<VdeMeshArrayIds>& meshContentIdsArr)
+QString VdeVizDataExtractor::createModelMetaJsonString(const std::vector<std::unique_ptr<VdeMesh> >& meshArr, const std::vector<VdeMeshArrayIds>& meshContentIdsArr)
 {
     QVariantList jsonMeshMetaList;
 
     for (size_t i = 0; i < meshArr.size(); i++)
     {
-        const VdeMesh& mesh = meshArr[i];
+        const VdeMesh* mesh = meshArr[i].get();
         const VdeMeshArrayIds& meshIds = meshContentIdsArr[i];
 
         QMap<QString, QVariant> jsonMeshMeta;
-        jsonMeshMeta["meshSourceObjType"] = mesh.meshSourceObjTypeStr;
-        jsonMeshMeta["meshSourceObjName"] = mesh.meshSourceObjName;
+        jsonMeshMeta["meshSourceObjType"] = mesh->meshSourceObjTypeStr;
+        jsonMeshMeta["meshSourceObjName"] = mesh->meshSourceObjName;
 
-        jsonMeshMeta["verticesPerPrimitive"] = mesh.verticesPerPrimitive;
+        jsonMeshMeta["verticesPerPrimitive"] = mesh->verticesPerPrimitive;
         jsonMeshMeta["vertexArrId"] = meshIds.vertexArrId;
         jsonMeshMeta["connArrId"] = meshIds.connArrId;
 
@@ -290,14 +333,14 @@ QString VdeVizDataExtractor::createModelMetaJsonString(const std::vector<VdeMesh
         else
         {
             QMap<QString, QVariant> jsonColor;
-            jsonColor["r"] = mesh.color.r();
-            jsonColor["g"] = mesh.color.g();
-            jsonColor["b"] = mesh.color.b();
+            jsonColor["r"] = mesh->color.r();
+            jsonColor["g"] = mesh->color.g();
+            jsonColor["b"] = mesh->color.b();
 
             jsonMeshMeta["color"] = jsonColor;
         }
 
-        jsonMeshMeta["opacity"] = mesh.opacity;
+        jsonMeshMeta["opacity"] = mesh->opacity;
 
         jsonMeshMetaList.push_back(jsonMeshMeta);
     }

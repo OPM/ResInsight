@@ -25,6 +25,7 @@
 
 #include "cvfBase.h"
 #include "cvfVector2.h"
+#include <deque>
 #include <vector>
 
 namespace caf
@@ -32,12 +33,20 @@ namespace caf
 class ContourLines
 {
 public:
+    typedef std::vector<cvf::Vec2d> ClosedPolygon;
+    typedef std::vector<ClosedPolygon> ClosedPolygons;
+
+    static std::vector<ClosedPolygons> create(const std::vector<double>&            dataXY,
+                                              const std::vector<double>&            xPositions,
+                                              const std::vector<double>&            yPositions,
+                                              const std::vector<double>&            contourLevels);
+    
+private:
     static void create(const std::vector<double>& dataXY,
                        const std::vector<double>& xPositions,
                        const std::vector<double>& yPositions,
                        const std::vector<double>& contourLevels,
                        std::vector<std::vector<cvf::Vec2d>>* polygons);
-private:
     static double contourRange(const std::vector<double>& contourLevels);
     static double invalidValue(const std::vector<double>& contourLevels);
     static double saneValue(int index, const std::vector<double>& dataXY, const std::vector<double>& contourLevels);

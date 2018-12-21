@@ -25,6 +25,8 @@
 #include "cafPdmObject.h"
 
 class RimEnsembleCurveSet;
+class RimSummaryPlotSourceStepping;
+class RimSummaryCurve;
 class QwtPlot;
 class QwtPlotCurve;
 
@@ -55,9 +57,16 @@ public:
     std::vector<RimEnsembleCurveSet*>       curveSets() const;
     size_t                                  curveSetCount() const;
 
+
     void                                    deleteAllCurveSets();
 
     void                                    setCurrentSummaryCurveSet(RimEnsembleCurveSet* curveSet);
+    
+    // Functions related to source stepping
+    std::vector<caf::PdmFieldHandle*>       fieldsToShowInToolbar();
+    void                                    setCurveSetForSourceStepping(RimEnsembleCurveSet* curve);
+    RimEnsembleCurveSet*                    curveSetForSourceStepping() const;
+    std::vector<RimEnsembleCurveSet*>       curveSetsForSourceStepping() const;
 
 private:
     caf::PdmFieldHandle*                    objectToggleField() override;
@@ -65,10 +74,15 @@ private:
     void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField,
                                                              const QVariant& oldValue, const QVariant& newValue) override;
 
+    void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+
 private:
     caf::PdmField<bool>                             m_showCurves;
     caf::PdmChildArrayField<RimEnsembleCurveSet*>   m_curveSets;
 
+    caf::PdmChildField<RimSummaryPlotSourceStepping*>   m_ySourceStepping;
+
     caf::PdmPointer<RimEnsembleCurveSet>            m_currentEnsembleCurveSet;
+    caf::PdmPointer<RimEnsembleCurveSet>            m_curveSetForSourceStepping;
 };
 

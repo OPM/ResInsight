@@ -19,6 +19,7 @@
 #include "RimSummaryCurveCollection.h"
 
 #include "RiaApplication.h"
+#include "RiaStdStringTools.h"
 
 #include "RifReaderEclipseSummary.h"
 
@@ -195,6 +196,72 @@ std::vector<RimSummaryCurve*> RimSummaryCurveCollection::curves() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+std::vector<RimSummaryCurve*> RimSummaryCurveCollection::curvesForSourceStepping(RimSummaryPlotSourceStepping::SourceSteppingType steppingType) const
+{
+    std::vector<RimSummaryCurve*> stepCurves;
+
+    if (m_curveForSourceStepping)
+    {
+        stepCurves.push_back(m_curveForSourceStepping);
+
+        {
+            // Add corresponding history/summary curve with or without H
+
+            const std::string historyIdentifier = "H";
+
+            std::string quantity;
+
+            if (steppingType == RimSummaryPlotSourceStepping::X_AXIS)
+            {
+                quantity = m_curveForSourceStepping->summaryAddressX().quantityName();
+            }
+            else if (steppingType == RimSummaryPlotSourceStepping::Y_AXIS)
+            {
+                quantity = m_curveForSourceStepping->summaryAddressY().quantityName();
+            }
+
+            std::string candidateName;
+            if (RiaStdStringTools::endsWith(quantity, historyIdentifier))
+            {
+                candidateName = quantity.substr(0, quantity.size() - 1);
+            }
+            else
+            {
+                candidateName = quantity + historyIdentifier;
+            }
+
+            for (const auto& c : curves())
+            {
+                if (steppingType == RimSummaryPlotSourceStepping::X_AXIS)
+                {
+                    if (c->summaryCaseX() == m_curveForSourceStepping->summaryCaseX() &&
+                        c->summaryAddressX().quantityName() == candidateName)
+                    {
+                        stepCurves.push_back(c);
+                    }
+                }
+                else if (steppingType == RimSummaryPlotSourceStepping::Y_AXIS)
+                {
+                    if (c->summaryCaseY() == m_curveForSourceStepping->summaryCaseY() &&
+                        c->summaryAddressY().quantityName() == candidateName)
+                    {
+                        stepCurves.push_back(c);
+                    }
+                }
+            }
+        }
+    }
+    else
+    {
+        stepCurves = curves();
+    }
+
+    return stepCurves;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimSummaryCurveCollection::deleteCurvesAssosiatedWithCase(RimSummaryCase* summaryCase)
 {
     std::vector<RimSummaryCurve*> summaryCurvesToDelete;
@@ -353,6 +420,22 @@ void RimSummaryCurveCollection::setCurveAsTopZWithinCategory(RimSummaryCurve* cu
 
         c->setZIndexFromCurveInfo();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCurveCollection::setCurveForSourceStepping(RimSummaryCurve* curve)
+{
+    m_curveForSourceStepping = curve;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimSummaryCurve* RimSummaryCurveCollection::curveForSourceStepping() const
+{
+    return m_curveForSourceStepping;
 }
 
 //--------------------------------------------------------------------------------------------------
