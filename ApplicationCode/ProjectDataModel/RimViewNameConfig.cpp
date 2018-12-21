@@ -19,18 +19,20 @@
 #include "RimViewNameConfig.h"
 
 //==================================================================================================
-///  
-///  
+///
+///
 //==================================================================================================
 
 CAF_PDM_SOURCE_INIT(RimViewNameConfig, "RimViewNameConfig");
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimViewNameConfig::RimViewNameConfig(const RimNameConfigHolderInterface* configHolder)
     : RimNameConfig(configHolder)
+    , m_hideCaseNameField(false)
     , m_hideAggregationTypeField(false)
+    , m_hidePropertyField(false)
     , m_hideSampleSpacingField(false)
 {
     CAF_PDM_InitObject("View Name Generator", "", "", "");
@@ -156,8 +158,8 @@ void RimViewNameConfig::hideSampleSpacingField(bool hide)
 void RimViewNameConfig::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
     RimNameConfig::defineUiOrdering(uiConfigName, uiOrdering);
-    if(!m_hideCaseNameField)        uiOrdering.add(&m_addCaseName);
-    if(!m_hideAggregationTypeField) uiOrdering.add(&m_addAggregationType);
-    if(!m_hidePropertyField)        uiOrdering.add(&m_addProperty);
-    if(!m_hideSampleSpacingField)   uiOrdering.add(&m_addSampleSpacing);
+    if (!m_hideCaseNameField) uiOrdering.add(&m_addCaseName);
+    if (!m_hideAggregationTypeField) uiOrdering.add(&m_addAggregationType);
+    if (!m_hidePropertyField) uiOrdering.add(&m_addProperty);
+    if (!m_hideSampleSpacingField) uiOrdering.add(&m_addSampleSpacing);
 }
