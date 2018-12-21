@@ -281,8 +281,11 @@ void RimWellAllocationPlot::updateFromWell()
                                 wfCalculator->tracerFlowPrPseudoLength(tracerName, brIdx));
                 }
 
-                addStackedCurve(tracerName, depthValues, *accFlow, plotTrack);
-                //TODO: THIs is the data to be plotted...
+                if (accFlow)
+                {
+                    addStackedCurve(tracerName, depthValues, *accFlow, plotTrack);
+                    // TODO: THIs is the data to be plotted...
+                }
             }
         }
 
