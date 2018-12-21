@@ -31,7 +31,7 @@ TEST(RimWellPathCompletions, WellNameRegExpValidator)
     QString emptyString = "";
 
     QRegExp rx = RimWellPathCompletions::wellNameForExportRegExp();
-    QRegExpValidator validator;
+    QRegExpValidator validator (nullptr);
     validator.setRegExp(rx);
 
     for (QString validName : validNames)
