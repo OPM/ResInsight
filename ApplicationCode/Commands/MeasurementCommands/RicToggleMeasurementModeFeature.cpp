@@ -20,8 +20,12 @@
 
 #include "RiaApplication.h"
 
+#include "Rim3dView.h"
 #include "RimProject.h"
 #include "RimMeasurement.h"
+
+#include "RiuMeasurementViewEventFilter.h"
+#include "RiuViewer.h"
 
 #include "cafPdmUiPropertyViewDialog.h"
 #include "cafSelectionManager.h"
@@ -56,6 +60,16 @@ void RicToggleMeasurementModeFeature::onActionTriggered(bool isChecked)
     auto meas = measurement();
     meas->setMeasurementMode(!meas->isInMeasurementMode());
     refreshActionLook();
+
+    auto* view = activeView();
+    if (meas->isInMeasurementMode())
+    {
+        view->viewer()->installEventFilter(eventFilter(this));
+    }
+    else
+    {
+        view->viewer()->removeEventFilter(eventFilter(this));
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -87,4 +101,13 @@ Rim3dView* RicToggleMeasurementModeFeature::activeView() const
 {
     auto view = RiaApplication::instance()->activeReservoirView();
     return view;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiuMeasurementViewEventFilter* RicToggleMeasurementModeFeature::eventFilter(QObject* parent)
+{
+    static auto* filter = new RiuMeasurementViewEventFilter(parent);
+    return filter;
 }

@@ -59,6 +59,8 @@ public:
     void                addPointInDomain(const Vec3d& pointInDomain);
     std::vector<Vec3d>  pointsInDomain() const;
 
+    void                removeAllPoints();
+
     QString             label() const;
 
 private:

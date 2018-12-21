@@ -112,6 +112,7 @@ void RivMeasurementPartMgr::clearGeometryCache()
 {
     m_linePart = nullptr;
     m_pointPart = nullptr;
+    m_labelPart = nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -59,9 +59,7 @@ void RimMeasurement::setMeasurementMode(bool measurementMode)
     else
     {
         RiuViewerCommands::removePickEventHandlerIfActive(RicMeasurementPickEventHandler::instance());
-
-        m_pointsInDomain.clear();
-        updateView();
+        removeAllPoints();
     }
 }
 
@@ -88,6 +86,15 @@ void RimMeasurement::addPointInDomain(const Vec3d& pointInDomain)
 std::vector<cvf::Vec3d> RimMeasurement::pointsInDomain() const
 {
     return m_pointsInDomain;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimMeasurement::removeAllPoints()
+{
+    m_pointsInDomain.clear();
+    updateView();
 }
 
 //--------------------------------------------------------------------------------------------------

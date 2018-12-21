@@ -22,6 +22,9 @@
 
 class RimMeasurement;
 class Rim3dView;
+class QObject;
+class RiuMeasurementViewEventFilter;
+
 
 //==================================================================================================
 /// 
@@ -42,4 +45,6 @@ protected:
 private:
     RimMeasurement* measurement() const;
     Rim3dView* activeView() const;
+
+    static RiuMeasurementViewEventFilter* eventFilter(QObject* parent);
 };
