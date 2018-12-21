@@ -81,13 +81,33 @@ cvf::Color3f RiaColorTools::brightContrastColor()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::Color3f RiaColorTools::constrastColor(cvf::Color3f backgroundColor)
+cvf::Color3f RiaColorTools::darkContrastColorSofter()
+{
+    return cvf::Color3f::fromByteColor(30, 30, 30);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+cvf::Color3f RiaColorTools::brightContrastColorSofter()
+{
+    return cvf::Color3f::fromByteColor(200, 200, 200);
+}
+
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+cvf::Color3f RiaColorTools::constrastColor(cvf::Color3f backgroundColor, bool softerContrast)
 {
     if (isBrightnessAboveThreshold(backgroundColor))
     {
+        if (softerContrast)
+            return darkContrastColorSofter();
         return darkContrastColor();
     }
-
+    if (softerContrast)
+        return brightContrastColorSofter();
     return brightContrastColor();
 }
 

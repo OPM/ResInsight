@@ -62,7 +62,7 @@ void RivContourMapProjectionPartMgr::appendProjectionToModel(cvf::ModelBasicList
             std::vector<cvf::ref<cvf::Drawable>> contourDrawables = contourDrawablesForAllLevels[i];
 
             cvf::Color3f                         backgroundColor(mapper->mapToColor(tickValues[i]));
-            cvf::Color3f                         lineColor = RiaColorTools::constrastColor(backgroundColor);
+            cvf::Color3f                         lineColor = RiaColorTools::constrastColor(backgroundColor, true);
 
             for (cvf::ref<cvf::Drawable> contourDrawable : contourDrawables)
             {
@@ -175,7 +175,7 @@ cvf::ref<cvf::DrawableText> RivContourMapProjectionPartMgr::createTextLabel(cons
     cvf::ref<cvf::DrawableText> labelDrawable = new cvf::DrawableText();
     labelDrawable->setFont(font.p());
     labelDrawable->setCheckPosVisible(true);
-    labelDrawable->setUseDepthBuffer(false);
+    labelDrawable->setUseDepthBuffer(true);
     labelDrawable->setDrawBorder(true);
     labelDrawable->setDrawBackground(true);
     labelDrawable->setBackgroundColor(backgroundColor);
