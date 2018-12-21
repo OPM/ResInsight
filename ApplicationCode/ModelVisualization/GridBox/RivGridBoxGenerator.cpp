@@ -741,7 +741,7 @@ cvf::Vec3f RivGridBoxGenerator::cornerDirection(FaceType face1, FaceType face2)
 void RivGridBoxGenerator::updateFromBackgroundColor(const cvf::Color3f& backgroundColor)
 {
     m_gridColor = RiaColorTools::computeOffsetColor(backgroundColor, 0.3f);
-    m_gridLegendColor = RiaColorTools::constrastColor(backgroundColor);
+    m_gridLegendColor = RiaColorTools::contrastColor(backgroundColor);
 }
 
 //--------------------------------------------------------------------------------------------------

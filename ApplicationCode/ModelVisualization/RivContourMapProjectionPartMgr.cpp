@@ -62,7 +62,7 @@ void RivContourMapProjectionPartMgr::appendProjectionToModel(cvf::ModelBasicList
             std::vector<cvf::ref<cvf::Drawable>> contourDrawables = contourDrawablesForAllLevels[i];
 
             cvf::Color3f                         backgroundColor(mapper->mapToColor(tickValues[i]));
-            cvf::Color3f                         lineColor = RiaColorTools::constrastColor(backgroundColor, true);
+            cvf::Color3f                         lineColor = RiaColorTools::contrastColor(backgroundColor, true);
 
             for (cvf::ref<cvf::Drawable> contourDrawable : contourDrawables)
             {
@@ -234,7 +234,7 @@ std::vector<std::vector<cvf::ref<cvf::Drawable>>> RivContourMapProjectionPartMgr
         std::vector<cvf::ref<cvf::Drawable>> contourDrawables;
 
         cvf::Color3f backgroundColor(mapper->mapToColor(tickValues[i]));
-        cvf::Color3f textColor = RiaColorTools::constrastColor(backgroundColor);
+        cvf::Color3f textColor = RiaColorTools::contrastColor(backgroundColor);
 
         for (size_t j = 0; j < contourPolygons[i].size(); ++j)
         {

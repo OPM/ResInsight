@@ -101,7 +101,7 @@ cvf::Color3f RiaColorTools::brightContrastColorSofter()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::Color3f RiaColorTools::constrastColor(cvf::Color3f backgroundColor, bool softerContrast)
+cvf::Color3f RiaColorTools::contrastColor(cvf::Color3f backgroundColor, bool softerContrast)
 {
     if (isBrightnessAboveThreshold(backgroundColor))
     {

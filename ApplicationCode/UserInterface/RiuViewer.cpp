@@ -1106,7 +1106,7 @@ cvf::Color3f RiuViewer::computeContrastColor() const
 
     if (m_rimView.notNull())
     {
-        contrastColor = RiaColorTools::constrastColor(m_rimView->backgroundColor());
+        contrastColor = RiaColorTools::contrastColor(m_rimView->backgroundColor());
     }
     
     return contrastColor;

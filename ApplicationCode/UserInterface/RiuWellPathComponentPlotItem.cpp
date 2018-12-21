@@ -306,7 +306,7 @@ QwtPlotItem* RiuWellPathComponentPlotItem::createMarker(double posX, double dept
     QColor         textColor = RiaColorTools::toQColor(baseColor.toColor3f(), 1.0);
     if (contrastTextColor)
     {
-        textColor = RiaColorTools::toQColor(RiaColorTools::constrastColor(baseColor.toColor3f()));
+        textColor = RiaColorTools::toQColor(RiaColorTools::contrastColor(baseColor.toColor3f()));
     }
     QwtPlotMarker* marker = new QwtPlotMarker(label);
     RiuQwtSymbol*  symbol = new RiuQwtSymbol(symbolType, "", RiuQwtSymbol::LabelRightOfSymbol);
