@@ -78,6 +78,7 @@ RimContourMapProjection::RimContourMapProjection()
     CAF_PDM_InitFieldNoDefault(&m_resultAggregation, "ResultAggregation", "Result Aggregation", "", "", "");
 
     CAF_PDM_InitField(&m_showContourLines, "ContourLines", true, "Show Contour Lines", "", "", "");
+    CAF_PDM_InitField(&m_showContourLabels, "ContourLabels", false, "Show Contour Labels", "", "", "");
 
     CAF_PDM_InitField(&m_weightByParameter, "WeightByParameter", false, "Weight by Result Parameter", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_weightingResult, "WeightingResult", "", "", "", "");
@@ -144,26 +145,29 @@ void RimContourMapProjection::generateContourPolygons()
             int nContourLevels = static_cast<int>(contourLevels.size());
             if (nContourLevels > 2)
             {
+                std::vector<double> fudgedContourLevels = contourLevels;
                 if (legendConfig()->mappingMode() == RimRegularLegendConfig::LINEAR_CONTINUOUS || legendConfig()->mappingMode() == RimRegularLegendConfig::LINEAR_DISCRETE)
                 {
                     // Slight fudge to avoid very jagged contour lines at the very edge
                     // Shift the contour levels inwards.
-                    contourLevels[0] += (contourLevels[1] - contourLevels[0]) * 0.1;
-                    contourLevels[nContourLevels - 1] -= (contourLevels[nContourLevels - 1] - contourLevels[nContourLevels - 2]) * 0.1;
+                    fudgedContourLevels[0] += (contourLevels[1] - contourLevels[0]) * 0.1;
+                    fudgedContourLevels[nContourLevels - 1] -= (contourLevels[nContourLevels - 1] - contourLevels[nContourLevels - 2]) * 0.1;
                 }
                 std::vector<caf::ContourLines::ClosedPolygons> closedContourLines =
-                    caf::ContourLines::create(m_aggregatedVertexResults, xVertexPositions(), yVertexPositions(), contourLevels);
+                    caf::ContourLines::create(m_aggregatedVertexResults, xVertexPositions(), yVertexPositions(), fudgedContourLevels);
 
                 contourPolygons.resize(closedContourLines.size());
                 for (size_t i = 0; i < closedContourLines.size(); ++i)
                 {
                     for (size_t j = 0; j < closedContourLines[i].size(); ++j)
                     {
-                        ContourPolygon contourPolygon; contourPolygon.reserve(closedContourLines[i][j].size());
+                        ContourPolygon contourPolygon;
+                        contourPolygon.label = cvf::String(contourLevels[i]);
+                        contourPolygon.vertices.reserve(closedContourLines[i][j].size());
                         for (size_t k = 0; k < closedContourLines[i][j].size(); ++k)
                         {
                             cvf::Vec3d contourPoint3d = cvf::Vec3d(closedContourLines[i][j][k], m_fullBoundingBox.min().z());
-                            contourPolygon.push_back(contourPoint3d);
+                            contourPolygon.vertices.push_back(contourPoint3d);
                         }
                         contourPolygons[i].push_back(contourPolygon);
                     }
@@ -316,6 +320,14 @@ double RimContourMapProjection::sampleSpacingFactor() const
 bool RimContourMapProjection::showContourLines() const
 {
     return m_showContourLines();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimContourMapProjection::showContourLabels() const
+{
+    return m_showContourLines() && m_showContourLabels();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -660,6 +672,8 @@ void RimContourMapProjection::defineUiOrdering(QString uiConfigName, caf::PdmUiO
     caf::PdmUiGroup* mainGroup = uiOrdering.addNewGroup("Projection Settings");
     mainGroup->add(&m_relativeSampleSpacing);
     mainGroup->add(&m_showContourLines);
+    mainGroup->add(&m_showContourLabels);
+    m_showContourLabels.uiCapability()->setUiReadOnly(!m_showContourLines());
     mainGroup->add(&m_resultAggregation);
 
     caf::PdmUiGroup* weightingGroup = uiOrdering.addNewGroup("Mean Weighting Options");

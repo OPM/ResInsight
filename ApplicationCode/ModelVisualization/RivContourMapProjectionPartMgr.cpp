@@ -1,5 +1,7 @@
 #include "RivContourMapProjectionPartMgr.h"
 
+#include "RiaColorTools.h"
+#include "RiaFontCache.h"
 #include "RiaWeightedMeanCalculator.h"
 #include "RivMeshLinesSourceInfo.h"
 #include "RivScalarMapperUtils.h"
@@ -9,11 +11,13 @@
 
 #include "cafEffectGenerator.h"
 
+#include "cvfDrawableText.h"
 #include "cvfGeometryBuilderFaceList.h"
 #include "cvfGeometryUtils.h"
 #include "cvfMeshEdgeExtractor.h"
 #include "cvfPart.h"
 #include "cvfPrimitiveSetIndexedUInt.h"
+#include "cvfScalarMapper.h"
 
 #include <cmath>
 
@@ -48,8 +52,8 @@ void RivContourMapProjectionPartMgr::appendProjectionToModel(cvf::ModelBasicList
 
     if (m_contourMapProjection->showContourLines())
     {
-        std::vector<cvf::ref<cvf::DrawableGeo>> contourDrawables = createContourPolygons(displayCoordTransform);
-        for (cvf::ref<cvf::DrawableGeo> contourDrawable : contourDrawables)
+        std::vector<cvf::ref<cvf::Drawable>> contourDrawables = createContourPolygons(displayCoordTransform);
+        for (cvf::ref<cvf::Drawable> contourDrawable : contourDrawables)
         {
             if (contourDrawable.notNull() && contourDrawable->boundingBox().isValid())
             {
@@ -151,6 +155,27 @@ cvf::ref<cvf::Vec2fArray> RivContourMapProjectionPartMgr::createTextureCoords() 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+cvf::ref<cvf::DrawableText> RivContourMapProjectionPartMgr::createTextLabel(const cvf::Color3f& backgroundColor)
+{
+    auto font = RiaFontCache::getFont(RiaFontCache::FONT_SIZE_8);
+
+    cvf::ref<cvf::DrawableText> labelDrawable = new cvf::DrawableText();
+    labelDrawable->setFont(font.p());
+    labelDrawable->setCheckPosVisible(true);
+    labelDrawable->setUseDepthBuffer(false);
+    labelDrawable->setDrawBorder(true);
+    labelDrawable->setDrawBackground(true);
+    labelDrawable->setBackgroundColor(backgroundColor);
+    labelDrawable->setVerticalAlignment(cvf::TextDrawer::BASELINE);
+    cvf::Color3f textColor = RiaColorTools::constrastColor(backgroundColor);
+    labelDrawable->setTextColor(textColor);
+
+    return labelDrawable;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 cvf::ref<cvf::DrawableGeo> RivContourMapProjectionPartMgr::createProjectionMapDrawable(const caf::DisplayCoordTransform* displayCoordTransform) const
 {
     std::vector<cvf::Vec3d> vertices = m_contourMapProjection->generateVertices();
@@ -181,23 +206,55 @@ cvf::ref<cvf::DrawableGeo> RivContourMapProjectionPartMgr::createProjectionMapDr
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<cvf::ref<cvf::DrawableGeo>> RivContourMapProjectionPartMgr::createContourPolygons(const caf::DisplayCoordTransform* displayCoordTransform) const
+std::vector<cvf::ref<cvf::Drawable>> RivContourMapProjectionPartMgr::createContourPolygons(const caf::DisplayCoordTransform* displayCoordTransform) const
 {
     m_contourMapProjection->generateContourPolygons();
     const std::vector<RimContourMapProjection::ContourPolygons>& contourPolygons = m_contourMapProjection->contourPolygons();
 
-    std::vector<cvf::ref<cvf::DrawableGeo>> contourDrawables;
-    for (size_t i = 0; i < contourPolygons.size(); ++i)
+    const cvf::ScalarMapper* mapper = m_contourMapProjection->legendConfig()->scalarMapper();
+    std::vector<double> tickValues;
+    mapper->majorTickValues(&tickValues);
+
+    std::vector<cvf::ref<cvf::Drawable>> contourDrawables;
+    std::vector<cvf::ref<cvf::Drawable>> labelDrawables;
+    for (int64_t i = (int64_t) contourPolygons.size() - 1; i > 0; --i)
     {
+        cvf::Color3f backgroundColor(mapper->mapToColor(tickValues[i]));
+
         for (size_t j = 0; j < contourPolygons[i].size(); ++j)
         {
-            if (contourPolygons[i][j].empty()) continue;
+            if (contourPolygons[i][j].vertices.empty()) continue;
 
-            cvf::ref<cvf::Vec3fArray> vertexArray = new cvf::Vec3fArray(contourPolygons[i][j].size());
-            for (size_t v = 0; v < contourPolygons[i][j].size(); ++v)
+            size_t nVertices = contourPolygons[i][j].vertices.size();
+            size_t nLabels = m_contourMapProjection->showContourLabels() ? std::max((size_t)1, nVertices / 150u) : 0u;
+            for (size_t l = 0; l < nLabels; ++l)
             {
-                cvf::Vec3f displayVertex(displayCoordTransform->transformToDisplayCoord(contourPolygons[i][j][v]));
-                (*vertexArray)[v] = displayVertex;
+                cvf::ref<cvf::DrawableText> label = createTextLabel(backgroundColor);
+                cvf::Vec3f labelVertex(displayCoordTransform->transformToDisplayCoord(contourPolygons[i][j].vertices[(nVertices * l) / nLabels]));
+                labelVertex.z() += 3.0f;
+                label->addText(contourPolygons[i][j].label, labelVertex);
+                bool overlaps = false;
+                cvf::BoundingBox bbox = label->boundingBox();
+                for (cvf::ref<cvf::Drawable> existingLabel : labelDrawables)
+                {
+                    if (existingLabel->boundingBox().intersects(bbox))
+                    {
+                        overlaps = true;
+                        break;
+                    }
+                }
+                if (!overlaps)
+                {
+                    labelDrawables.push_back(label);
+                }
+            }
+            cvf::ref<cvf::Vec3fArray> vertexArray = new cvf::Vec3fArray(nVertices);
+            for (size_t v = 0; v < nVertices; v += 2)
+            {
+                cvf::Vec3d displayVertex1 = displayCoordTransform->transformToDisplayCoord(contourPolygons[i][j].vertices[v]);
+                cvf::Vec3d displayVertex2 = displayCoordTransform->transformToDisplayCoord(contourPolygons[i][j].vertices[v + 1]);
+                (*vertexArray)[v]     = cvf::Vec3f(displayVertex1);
+                (*vertexArray)[v + 1] = cvf::Vec3f(displayVertex2);
             }
 
             std::vector<cvf::uint> indices;
@@ -218,6 +275,11 @@ std::vector<cvf::ref<cvf::DrawableGeo>> RivContourMapProjectionPartMgr::createCo
             contourDrawables.push_back(geo);
         }
     }
+    for (cvf::ref<cvf::Drawable> labelDrawable : labelDrawables)
+    {
+        contourDrawables.push_back(labelDrawable);
+    }
+
     return contourDrawables;
 }
 

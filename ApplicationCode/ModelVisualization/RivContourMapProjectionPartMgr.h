@@ -23,6 +23,7 @@
 
 #include "cvfBase.h"
 #include "cvfDrawableGeo.h"
+#include "cvfDrawableText.h"
 #include "cvfModelBasicList.h"
 #include "cvfObject.h"
 
@@ -42,11 +43,12 @@ public:
     cvf::ref<cvf::Vec2fArray> createTextureCoords() const;
 
 private:
+    static cvf::ref<cvf::DrawableText> createTextLabel(const cvf::Color3f& backgroundColor);
     cvf::ref<cvf::DrawableGeo>              createProjectionMapDrawable(const caf::DisplayCoordTransform* displayCoordTransform) const;
-    std::vector<cvf::ref<cvf::DrawableGeo>> createContourPolygons(const caf::DisplayCoordTransform* displayCoordTransform) const;
+    std::vector<cvf::ref<cvf::Drawable>>    createContourPolygons(const caf::DisplayCoordTransform* displayCoordTransform) const;
     cvf::ref<cvf::DrawableGeo>              createPickPointVisDrawable(const caf::DisplayCoordTransform* displayCoordTransform) const;
 private:
-    caf::PdmPointer<RimContourMapProjection>    m_contourMapProjection;
-    caf::PdmPointer<RimContourMapView> m_parentContourMap;
+    caf::PdmPointer<RimContourMapProjection>  m_contourMapProjection;
+    caf::PdmPointer<RimContourMapView>        m_parentContourMap;
 };
 

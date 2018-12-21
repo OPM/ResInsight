@@ -29,6 +29,7 @@
 
 #include "cvfBoundingBox.h"
 #include "cvfGeometryBuilderFaceList.h"
+#include "cvfString.h"
 #include "cvfVector2.h"
 
 class RigMainGrid;
@@ -45,6 +46,12 @@ class RimContourMapProjection : public RimCheckableNamedObject
 {
     CAF_PDM_HEADER_INIT;
 public:
+    struct ContourPolygon
+    {
+        std::vector<cvf::Vec3d> vertices;
+        cvf::String label;
+    };
+
     enum ResultAggregationEnum
     {
         RESULTS_TOP_VALUE,
@@ -60,7 +67,6 @@ public:
         RESULTS_HC_COLUMN
     };
     typedef caf::AppEnum<ResultAggregationEnum> ResultAggregation;
-    typedef std::vector<cvf::Vec3d> ContourPolygon;
     typedef std::vector<ContourPolygon> ContourPolygons;
 
     RimContourMapProjection();
@@ -77,6 +83,7 @@ public:
     double                       sampleSpacing() const;
     double                       sampleSpacingFactor() const;
     bool                         showContourLines() const;
+    bool                         showContourLabels() const;
 
     QString                      resultAggregationText() const;
     QString                      resultDescriptionText() const;
@@ -162,6 +169,7 @@ protected:
     caf::PdmField<double>                               m_relativeSampleSpacing;
     caf::PdmField<ResultAggregation>                    m_resultAggregation;
     caf::PdmField<bool>                                 m_showContourLines;
+    caf::PdmField<bool>                                 m_showContourLabels;
     caf::PdmField<bool>                                 m_weightByParameter;
     caf::PdmChildField<RimEclipseResultDefinition*>     m_weightingResult;
 
