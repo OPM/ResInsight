@@ -18,8 +18,11 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RiaColorTools.h"
+
 #include "cvfMath.h"
+
 #include <algorithm>
+#include <cmath>
 
 //--------------------------------------------------------------------------------------------------
 /// Uses W3.org relative luminance calculation taking into account the different luminance of the different colors
