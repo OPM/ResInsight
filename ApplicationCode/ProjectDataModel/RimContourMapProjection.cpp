@@ -584,15 +584,15 @@ bool RimContourMapProjection::checkForMapIntersection(const cvf::Vec3d& localPoi
 {
     CVF_TIGHT_ASSERT(contourMapPoint);
     CVF_TIGHT_ASSERT(valueAtPoint);
-    cvf::Vec3d localPos3d(localPoint3d.x(), localPoint3d.y(), 0.0);
+    cvf::Vec3d localPos3d(localPoint3d.x() + m_sampleSpacing, localPoint3d.y() + m_sampleSpacing, 0.0);
     cvf::Vec2d localPos2d(localPos3d.x(), localPos3d.y());
     cvf::Vec2ui pickedCell = ijFromLocalPos(localPos2d);
     *contourMapCell = pickedCell;
-    
-    if (true || hasResultInCell(pickedCell.x(), pickedCell.y()))
+
     {
         cvf::Vec2d gridorigin(m_fullBoundingBox.min().x(), m_fullBoundingBox.min().y());
-        cvf::Vec2d cellCenter = globalCellCenterPosition(pickedCell.x(), pickedCell.y()) - gridorigin;
+        cvf::Vec2d globalCellCenter = globalCellCenterPosition(pickedCell.x(), pickedCell.y());
+        cvf::Vec2d cellCenter = globalCellCenter - gridorigin;
         std::array <cvf::Vec3d, 4> x;
         x[0] = cvf::Vec3d(cellCenter + cvf::Vec2d(-m_sampleSpacing * 0.5, -m_sampleSpacing * 0.5), 0.0);
         x[1] = cvf::Vec3d(cellCenter + cvf::Vec2d(m_sampleSpacing*0.5, -m_sampleSpacing * 0.5), 0.0);
