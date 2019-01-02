@@ -23,7 +23,6 @@ option(USE_COMMAND_FRAMEWORK "Use Caf Command Framework" ON)
 set (MOC_HEADER_FILES 
 	MainWindow.h 
     WidgetLayoutTest.h
-    ManyGroups.h
     CustomObjectEditor.h
     MenuItemProducer.h
 )
