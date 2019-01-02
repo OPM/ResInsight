@@ -625,73 +625,80 @@ void RiuViewer::updateLegendLayout()
     int         edgeAxisBorderWidth  = m_showWindowEdgeAxes ? m_windowEdgeAxisOverlay->frameBorderWidth() : 0;
     int         edgeAxisBorderHeight = m_showWindowEdgeAxes ? m_windowEdgeAxisOverlay->frameBorderHeight() : 0;
 
-    int xPos = border + edgeAxisBorderWidth;
-    int yPos = border + edgeAxisBorderHeight;
-
-    std::vector<caf::TitledOverlayFrame*> standardHeightLegends;
-
-    // Place the legends needing the full height, and sort out the standard height legends
-
-    for (cvf::ref<caf::TitledOverlayFrame> legend : m_visibleLegends)
     {
-        cvf::Vec2ui prefSize = legend->preferredSize();
-        if (prefSize.y() > maxFreeLegendHeight)
+        int xPos = border + edgeAxisBorderWidth;
+        int yPos = border + edgeAxisBorderHeight;
+
+        std::vector<caf::TitledOverlayFrame*> standardHeightLegends;
+
+        // Place the legends needing the full height, and sort out the standard height legends
+
+        for (cvf::ref<caf::TitledOverlayFrame> legend : m_visibleLegends)
         {
-            int legendWidth = prefSize.x();
-            legend->setLayoutFixedPosition(cvf::Vec2i(xPos, yPos));
-            legend->setRenderSize(cvf::Vec2ui(legendWidth, viewPortHeight - 2 * border - 2 * edgeAxisBorderHeight));
-            xPos += legendWidth + border;
-        }
-        else
-        {
-            standardHeightLegends.push_back(legend.p());
-        }
-    }
-
-    // Place the rest of the legends in columns that fits within the screen height
-
-    int                                   maxColumnWidht = 0;
-    std::vector<caf::TitledOverlayFrame*> columnLegends;
-
-    for (caf::TitledOverlayFrame* legend : standardHeightLegends)
-    {
-        cvf::Vec2ui prefSize = legend->preferredSize();
-
-        // Check if we need a new column
-        if ((yPos + (int)prefSize.y() + border) > viewPortHeight)
-        {
-            xPos += border + maxColumnWidht;
-            yPos = border + edgeAxisBorderHeight;
-
-            // Set same width to all legends in the column
-            for (caf::TitledOverlayFrame* columnLegend : columnLegends)
+            cvf::Vec2ui prefSize = legend->preferredSize();
+            if (prefSize.y() > maxFreeLegendHeight)
             {
-                columnLegend->setRenderSize(cvf::Vec2ui(maxColumnWidht, columnLegend->renderSize().y()));
+                int legendWidth = prefSize.x();
+                legend->setLayoutFixedPosition(cvf::Vec2i(xPos, yPos));
+                legend->setRenderSize(cvf::Vec2ui(legendWidth, viewPortHeight - 2 * border - 2 * edgeAxisBorderHeight));
+                xPos += legendWidth + border;
             }
-            maxColumnWidht = 0;
-            columnLegends.clear();
+            else
+            {
+                standardHeightLegends.push_back(legend.p());
+            }
         }
 
-        legend->setLayoutFixedPosition(cvf::Vec2i(xPos, yPos));
-        legend->setRenderSize(cvf::Vec2ui(prefSize.x(), prefSize.y()));
-        columnLegends.push_back(legend);
+        // Place the rest of the legends in columns that fits within the screen height
 
-        yPos += legend->renderSize().y() + border;
-        maxColumnWidht = std::max(maxColumnWidht, (int)prefSize.x());
+        int                                   maxColumnWidht = 0;
+        std::vector<caf::TitledOverlayFrame*> columnLegends;
+
+        for (caf::TitledOverlayFrame* legend : standardHeightLegends)
+        {
+            cvf::Vec2ui prefSize = legend->preferredSize();
+
+            // Check if we need a new column
+            if ((yPos + (int)prefSize.y() + border) > viewPortHeight)
+            {
+                xPos += border + maxColumnWidht;
+                yPos = border + edgeAxisBorderHeight;
+
+                // Set same width to all legends in the column
+                for (caf::TitledOverlayFrame* columnLegend : columnLegends)
+                {
+                    columnLegend->setRenderSize(cvf::Vec2ui(maxColumnWidht, columnLegend->renderSize().y()));
+                }
+                maxColumnWidht = 0;
+                columnLegends.clear();
+            }
+
+            legend->setLayoutFixedPosition(cvf::Vec2i(xPos, yPos));
+            legend->setRenderSize(cvf::Vec2ui(prefSize.x(), prefSize.y()));
+            columnLegends.push_back(legend);
+
+            yPos += legend->renderSize().y() + border;
+            maxColumnWidht = std::max(maxColumnWidht, (int)prefSize.x());
+        }
+
+        // Set same width to all legends in the last column
+
+        for (caf::TitledOverlayFrame* legend : columnLegends)
+        {
+            legend->setRenderSize(cvf::Vec2ui(maxColumnWidht, legend->renderSize().y()));
+        }
     }
 
-    // Set same width to all legends in the last column
-
-    for (caf::TitledOverlayFrame* legend : columnLegends)
     {
-        legend->setRenderSize(cvf::Vec2ui(maxColumnWidht, legend->renderSize().y()));
-    }
+        int  margin           = 5;
+        auto scaleLegendSize  = m_scaleLegend->renderSize();
+        auto otherItemsHeight = m_versionInfoLabel->sizeHint().height();
 
-    int  margin           = 5;
-    auto scaleLegendSize  = m_scaleLegend->renderSize();
-    auto otherItemsHeight = m_versionInfoLabel->size().height();
-    m_scaleLegend->setLayoutFixedPosition({width() - (int)scaleLegendSize.x() - margin - edgeAxisBorderWidth,
-                                           margin + edgeAxisBorderHeight + margin + otherItemsHeight});
+        const int xPos = width() - (int)scaleLegendSize.x() - margin - edgeAxisBorderWidth;
+        const int yPos = margin + edgeAxisBorderHeight + margin + otherItemsHeight;
+
+        m_scaleLegend->setLayoutFixedPosition({xPos, yPos});
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -908,7 +915,10 @@ void RiuViewer::showEdgeTickMarksXY(bool enable, bool showAxisLines)
         m_windowEdgeAxisOverlay->setShowAxisLines(showAxisLines);
         m_mainRendering->addOverlayItem(m_windowEdgeAxisOverlay.p());
     }
+
     m_showWindowEdgeAxes = enable;
+
+    updateLegendLayout();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -925,7 +935,10 @@ void RiuViewer::showEdgeTickMarksXZ(bool enable, bool showAxisLines)
         m_windowEdgeAxisOverlay->setShowAxisLines(showAxisLines);
         m_mainRendering->addOverlayItem(m_windowEdgeAxisOverlay.p());
     }
+
     m_showWindowEdgeAxes = enable;
+
+    updateLegendLayout();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1039,6 +1052,8 @@ void RiuViewer::showScaleLegend(bool show)
     {
         m_mainRendering->removeOverlayItem(m_scaleLegend.p());
     }
+
+    updateLegendLayout();
 }
 
 //--------------------------------------------------------------------------------------------------
