@@ -104,7 +104,7 @@ double GeometryTools::getAngle(const cvf::Vec3d& positiveNormalAxis, const cvf::
     bool isOk = false;
     cvf::Vec3d v1N = v1.getNormalized(&isOk);
     if (!isOk) return 0;
-    cvf::Vec3d v2N = v2.getNormalized();
+    cvf::Vec3d v2N = v2.getNormalized(&isOk);
     if (!isOk) return 0;
 
     double cosAng = v1N * v2N;

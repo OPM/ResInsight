@@ -18,8 +18,11 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RiaColorTools.h"
+
 #include "cvfMath.h"
+
 #include <algorithm>
+#include <cmath>
 
 //--------------------------------------------------------------------------------------------------
 /// Uses W3.org relative luminance calculation taking into account the different luminance of the different colors
@@ -98,7 +101,7 @@ cvf::Color3f RiaColorTools::brightContrastColorSofter()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::Color3f RiaColorTools::constrastColor(cvf::Color3f backgroundColor, bool softerContrast)
+cvf::Color3f RiaColorTools::contrastColor(cvf::Color3f backgroundColor, bool softerContrast)
 {
     if (isBrightnessAboveThreshold(backgroundColor))
     {

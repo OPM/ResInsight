@@ -178,12 +178,7 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
 
     if (pickItemInfos.size())
     {
-        cvf::Vec3d globalIntersectionPoint(cvf::Vec3d::ZERO);
-
-        if ( pickItemInfos.size() )
-        {
-            globalIntersectionPoint = pickItemInfos[0].globalPickedPoint();
-        }
+        cvf::Vec3d globalIntersectionPoint = pickItemInfos[0].globalPickedPoint();
 
         for (const auto& pickItem : pickItemInfos)
         {

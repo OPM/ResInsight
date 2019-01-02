@@ -58,9 +58,6 @@ public:
     void applyNextCase();
     void applyPrevCase();
 
-    void applyNextEnsemble();
-    void applyPrevEnsemble();
-
     void applyNextQuantity();
     void applyPrevQuantity();
 

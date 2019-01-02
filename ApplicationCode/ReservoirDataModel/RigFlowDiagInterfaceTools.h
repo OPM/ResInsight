@@ -110,7 +110,7 @@ namespace RigFlowDiagInterfaceTools {
     {
         auto satfunc = Opm::ECLSaturationFunc(G, init);
 
-        Opm::ECLFluxCalc calc(G, init, 9.80665, true);
+        Opm::ECLFluxCalc calc(G, init, 9.80665);
 
         auto getFlux = [&calc, &rstrt]
         (const Opm::ECLPhaseIndex p)

@@ -45,11 +45,9 @@ void RicImportGeoMechCaseFeature::onActionTriggered(bool isChecked)
     if (fileNames.size()) defaultDir = QFileInfo(fileNames.last()).absolutePath();
     app->setLastUsedDialogDirectory("GEOMECH_MODEL", defaultDir);
 
-    for (int i = 0; i < fileNames.size(); i++)
+    for (const auto& fileName : fileNames)
     {
-        QString fileName = fileNames[i];
-
-        if (!fileNames.isEmpty())
+        if (!fileName.isEmpty())
         {
             if (app->openOdbCaseFromFile(fileName))
             {

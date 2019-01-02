@@ -38,7 +38,7 @@ public:
     static cvf::Color3f brightContrastColor();
     static cvf::Color3f darkContrastColorSofter();
     static cvf::Color3f brightContrastColorSofter();
-    static cvf::Color3f constrastColor(cvf::Color3f backgroundColor, bool softerContrast = false);
+    static cvf::Color3f contrastColor(cvf::Color3f backgroundColor, bool softerContrast = false);
     static QColor       toQColor(cvf::Color3f color, float alpha = 1.0f);
     static QColor       toQColor(cvf::Color4f color);
     static float        contrastRatio(cvf::Color3f color1, cvf::Color3f color2);

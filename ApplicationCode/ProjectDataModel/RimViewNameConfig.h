@@ -29,7 +29,7 @@ class RimViewNameConfig : public RimNameConfig
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimViewNameConfig(const RimNameConfigHolderInterface* configHolder = nullptr);
+    explicit RimViewNameConfig(const RimNameConfigHolderInterface* configHolder = nullptr);
 
     void                     setAddCaseName(bool add);
     bool                     addCaseName() const;

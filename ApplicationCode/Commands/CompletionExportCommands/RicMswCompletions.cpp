@@ -246,9 +246,11 @@ RigCompletionData::CompletionType RicMswPerforationICV::completionType() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicMswPerforationAICD::RicMswPerforationAICD(const QString&          label,
-                                             const RimWellPathValve* wellPathValve)
+RicMswPerforationAICD::RicMswPerforationAICD(const QString& label, const RimWellPathValve* wellPathValve)
     : RicMswValve(label, wellPathValve)
+    , m_valid(false)
+    , m_deviceOpen(false)
+    , m_length(0.0)
 {
 }
 

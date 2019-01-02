@@ -79,7 +79,6 @@ private:
     double                          m_endTVD;
     double                          m_effectiveDiameter;
     double                          m_holeDiameter;
-    double                          m_linerDiameter;
     double                          m_openHoleRoughnessFactor;
     double                          m_skinFactor;
 

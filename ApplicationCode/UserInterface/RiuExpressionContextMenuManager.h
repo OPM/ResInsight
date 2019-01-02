@@ -39,7 +39,10 @@ class RiuExpressionContextMenuManager : public QObject
      static const std::map<QString, std::set<QString>> MENU_MAP;
 
 public:
-    RiuExpressionContextMenuManager() { }
+    RiuExpressionContextMenuManager()
+        : m_textPosition(0)
+    {
+    }
 
     void attachTextEdit(QTextEdit* textEdit);
 

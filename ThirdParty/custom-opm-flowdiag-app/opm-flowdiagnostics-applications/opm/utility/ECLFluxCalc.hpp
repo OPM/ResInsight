@@ -56,8 +56,7 @@ namespace Opm
         ///    result set.
         ECLFluxCalc(const ECLGraph&        graph,
                     const ECLInitFileData& init,
-                    const double           grav,
-                    const bool             useEPS);
+                    const double           grav);
 
         /// Retrive phase flux on all connections defined by \code
         /// graph.neighbours() \endcode.

@@ -38,7 +38,12 @@
 class AsciiDataParseOptions
 {
 public:
-    AsciiDataParseOptions() : useCustomDateTimeFormat(false), assumeNumericDataColumns(false) { }
+    AsciiDataParseOptions()
+        : useCustomDateTimeFormat(false)
+        , assumeNumericDataColumns(false)
+        , curveSymbolSkipDistance(0.0f)
+    {
+    }
 
     QString                 plotTitle;
     QString                 curvePrefix;

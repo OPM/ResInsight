@@ -152,11 +152,11 @@ void RimWellRftPlot::applyCurveAppearance(RimWellLogCurve* newCurve)
     static size_t defaultColorTableIndex  = 0;
     static size_t defaultSymbolTableIndex = 0;
 
-    cvf::Color3f                  currentColor;
-    RiuQwtSymbol::PointSymbolEnum currentSymbol      = symbolTable.front();
-    RiuQwtPlotCurve::LineStyleEnum   currentLineStyle   = RiuQwtPlotCurve::STYLE_SOLID;
-    bool                          isCurrentColorSet  = false;
-    bool                          isCurrentSymbolSet = false;
+    cvf::Color3f                   currentColor;
+    RiuQwtSymbol::PointSymbolEnum  currentSymbol      = symbolTable.front();
+    RiuQwtPlotCurve::LineStyleEnum currentLineStyle   = RiuQwtPlotCurve::STYLE_SOLID;
+    bool                           isCurrentColorSet  = false;
+    bool                           isCurrentSymbolSet = false;
 
     std::set<cvf::Color3f>                  assignedColors;
     std::set<RiuQwtSymbol::PointSymbolEnum> assignedSymbols;
@@ -686,13 +686,13 @@ void RimWellRftPlot::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
 
     if (changedField == &m_wellPathNameOrSimWellName)
     {
-        if (changedField == &m_wellPathNameOrSimWellName)
-        {
-            m_branchIndex = 0;
-        }
+        m_branchIndex = 0;
 
         RimWellLogTrack* const plotTrack = m_wellLogPlot->trackByIndex(0);
-        plotTrack->deleteAllCurves();
+        if (plotTrack)
+        {
+            plotTrack->deleteAllCurves();
+        }
 
         updateEditorsFromCurves();
         updateFormationsOnPlot();

@@ -105,22 +105,6 @@ void RimSummaryPlotSourceStepping::applyPrevCase()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryPlotSourceStepping::applyNextEnsemble()
-{
-    modifyCurrentIndex(&m_ensemble, 1);
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimSummaryPlotSourceStepping::applyPrevEnsemble()
-{
-    modifyCurrentIndex(&m_ensemble, -1);
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimSummaryPlotSourceStepping::applyNextQuantity()
 {
     if (!m_quantity.uiCapability()->isUiHidden())
@@ -388,9 +372,6 @@ void RimSummaryPlotSourceStepping::fieldChangedByUi(const caf::PdmFieldHandle* c
     }
 
     bool triggerLoadDataAndUpdate = false;
-
-    std::string oldValueString = oldValue.toString().toStdString();
-    std::string newValueString = newValue.toString().toStdString();
 
     if (changedField == &m_summaryCase)
     {
