@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2017-     Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -20,10 +20,10 @@
 
 #include "RiaApplication.h"
 
-#include "RimProject.h"
+#include "Rim3dView.h"
 #include "RimIntersection.h"
 #include "RimMeasurement.h"
-#include "Rim3dView.h"
+#include "RimProject.h"
 
 #include "cafDisplayCoordTransform.h"
 #include "cafSelectionManager.h"
@@ -31,7 +31,7 @@
 #include <vector>
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RicMeasurementPickEventHandler* RicMeasurementPickEventHandler::instance()
 {
@@ -40,11 +40,11 @@ RicMeasurementPickEventHandler* RicMeasurementPickEventHandler::instance()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicMeasurementPickEventHandler::handlePickEvent(const Ric3DPickEvent& eventObject)
 {
-    auto measurement  = RiaApplication::instance()->project()->measurement();
+    auto measurement = RiaApplication::instance()->project()->measurement();
 
     if (measurement && measurement->isInMeasurementMode())
     {
@@ -52,6 +52,16 @@ bool RicMeasurementPickEventHandler::handlePickEvent(const Ric3DPickEvent& event
 
         cvf::ref<caf::DisplayCoordTransform> transForm = rimView->displayCoordTransform();
         cvf::Vec3d domainCoord = transForm->transformToDomainCoord(eventObject.m_pickItemInfos.front().globalPickedPoint());
+
+        bool isControlButtonDown = QApplication::keyboardModifiers() & Qt::ControlModifier;
+
+        if (!isControlButtonDown)
+        {
+            if (measurement->pointsInDomain().size() > 1)
+            {
+                measurement->removeAllPoints();
+            }
+        }
 
         measurement->addPointInDomain(domainCoord);
 
@@ -65,8 +75,4 @@ bool RicMeasurementPickEventHandler::handlePickEvent(const Ric3DPickEvent& event
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicMeasurementPickEventHandler::notifyUnregistered()
-{
-
-}
-
+void RicMeasurementPickEventHandler::notifyUnregistered() {}
