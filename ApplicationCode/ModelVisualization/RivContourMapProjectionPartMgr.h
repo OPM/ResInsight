@@ -40,11 +40,11 @@ public:
     void appendPickPointVisToModel(cvf::ModelBasicList* model,
                                    const caf::DisplayCoordTransform* displayCoordTransform) const;
 
-    cvf::ref<cvf::Vec2fArray> createTextureCoords() const;
+    cvf::ref<cvf::Vec2fArray> createTextureCoords(const std::vector<double>& values) const;
 
 private:
     static cvf::ref<cvf::DrawableText>                   createTextLabel(const cvf::Color3f& textColor, const cvf::Color3f& backgroundColor);
-    cvf::ref<cvf::DrawableGeo>                           createProjectionMapDrawable(const caf::DisplayCoordTransform* displayCoordTransform) const;
+    cvf::ref<cvf::Part>                                  createProjectionMapPart(const caf::DisplayCoordTransform* displayCoordTransform) const;
     std::vector<std::vector<cvf::ref<cvf::Drawable>>>    createContourPolygons(const caf::DisplayCoordTransform* displayCoordTransform) const;
     cvf::ref<cvf::DrawableGeo>                           createPickPointVisDrawable(const caf::DisplayCoordTransform* displayCoordTransform) const;
 private:

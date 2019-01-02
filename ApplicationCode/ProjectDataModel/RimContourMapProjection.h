@@ -49,7 +49,7 @@ public:
     struct ContourPolygon
     {
         std::vector<cvf::Vec3d> vertices;
-        cvf::String label;
+        double value;
     };
 
     enum ResultAggregationEnum
@@ -72,7 +72,8 @@ public:
     RimContourMapProjection();
     ~RimContourMapProjection() override;
 
-    std::vector<cvf::Vec3d>      generateVertices();
+    std::vector<cvf::Vec4d>      generateTriangles() const;
+    std::vector<cvf::Vec3d>      generateVertices() const;
     void                         generateContourPolygons();
     std::vector<cvf::Vec3d>      generatePickPointPolygon();
     void                         generateResults();
@@ -112,9 +113,11 @@ public:
     void                         updatedWeightingResult();
 
     bool                         checkForMapIntersection(const cvf::Vec3d& localPoint3d, cvf::Vec2d* contourMapPoint, double* valueAtPoint) const;
-    void                         setPickPoint(cvf::Vec2d pickedPoint);
+    void                         setPickPoint(cvf::Vec2d globalPickPoint);
+    cvf::Vec3d                   origin3d() const;
 
 protected:
+    void   smoothPolygonLoops(ContourPolygons* contourPolygons);
     double interpolateValue(const cvf::Vec2d& gridPosition2d) const;
 
     void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
@@ -155,7 +158,8 @@ private:
     cvf::Vec2ui                     ijFromVertexIndex(size_t gridIndex) const;
     cvf::Vec2ui                     ijFromCellIndex(size_t mapIndex) const;
     cvf::Vec2ui                     ijFromLocalPos(const cvf::Vec2d& localPos2d) const;
-    cvf::Vec2d                      globalCellCenterPosition(uint i, uint j) const;
+    cvf::Vec2d                      cellCenterPosition(uint i, uint j) const;
+    cvf::Vec2d                      origin2d() const;
 
     std::vector<double>             xVertexPositions() const;
     std::vector<double>             yVertexPositions() const;
@@ -166,6 +170,8 @@ private:
 
     RimEclipseResultCase*           eclipseCase() const;
     RimContourMapView*              view() const;
+
+    double                          gridEdgeOffset() const;
 
 protected:
     caf::PdmField<double>                               m_relativeSampleSpacing;

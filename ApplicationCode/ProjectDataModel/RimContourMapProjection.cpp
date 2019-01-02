@@ -33,10 +33,12 @@
 #include "cvfArray.h"
 #include "cvfCellRange.h"
 #include "cvfGeometryTools.h"
+#include "cvfGeometryUtils.h"
 #include "cvfScalarMapper.h"
 #include "cvfStructGridGeometryGenerator.h"
 
 #include <algorithm>
+#include <omp.h>
 
 namespace caf
 {
@@ -105,7 +107,139 @@ RimContourMapProjection::~RimContourMapProjection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<cvf::Vec3d> RimContourMapProjection::generateVertices()
+std::vector<cvf::Vec4d> RimContourMapProjection::generateTriangles() const
+{
+    std::vector<cvf::Vec3d> vertices = generateVertices();
+
+    cvf::Vec2ui patchSize = numberOfVerticesIJ();
+    cvf::ref<cvf::UIntArray> faceList = new cvf::UIntArray;
+    cvf::GeometryUtils::tesselatePatchAsTriangles(patchSize.x(), patchSize.y(), 0u, true, faceList.p());
+
+    std::vector<double> contourLevels;
+    if (legendConfig()->mappingMode() != RimRegularLegendConfig::CATEGORY_INTEGER)
+    {
+        legendConfig()->scalarMapper()->majorTickValues(&contourLevels);     
+    }
+
+    std::vector<std::vector<cvf::Vec4d>> threadTriangles(omp_get_max_threads());
+    
+#pragma omp parallel
+    {
+        int myThread = omp_get_thread_num();
+        threadTriangles[myThread].reserve(faceList->size() / omp_get_num_threads());
+
+#pragma omp for
+        for (int64_t i = 0; i < (int64_t) faceList->size(); i += 3)
+        {
+            std::vector<cvf::Vec3d> triangle(3);
+            std::vector<cvf::Vec4d> triangleWithValues(3);
+            bool allValuesAboveLevelOneTreshold = true;
+            RiaWeightedMeanCalculator<double> meanValueCalc;
+            for (size_t n = 0; n < 3; ++n)
+            {
+                uint vn = (*faceList)[i + n];
+                double value = m_aggregatedVertexResults[vn];
+                triangle[n] = vertices[vn];
+                triangleWithValues[n] = cvf::Vec4d(vertices[vn], value);
+                if (value == std::numeric_limits<double>::infinity())
+                {
+                    allValuesAboveLevelOneTreshold = false;
+                }
+                else
+                {
+                    if (contourLevels.size() >= 2u && value < contourLevels[1])
+                    {
+                        allValuesAboveLevelOneTreshold = false;
+                    }
+                    meanValueCalc.addValueAndWeight(value, 1.0);
+                }
+            }
+
+            if (allValuesAboveLevelOneTreshold || m_contourPolygons.empty())
+            {
+                // Triangle is completely within the threshold. Include it.
+                threadTriangles[myThread].insert(threadTriangles[myThread].end(), triangleWithValues.begin(), triangleWithValues.end());
+                continue;
+            }
+
+            double triangleMeanValue = std::numeric_limits<double>::infinity();
+
+            if (meanValueCalc.validAggregatedWeight())
+            {
+                triangleMeanValue = meanValueCalc.weightedMean();
+            }
+
+            for (size_t j = 0; j < m_contourPolygons.front().size(); ++j)
+            {
+                const std::vector<cvf::Vec3d>& contourLine = m_contourPolygons.front()[j].vertices;
+                std::vector<std::vector<cvf::Vec3d>> clippedPolygons = RigCellGeometryTools::intersectPolygons(triangle, contourLine);
+
+                std::vector<cvf::Vec4d> clippedTriangles;
+                for (std::vector<cvf::Vec3d>& clippedPolygon : clippedPolygons)
+                {
+                    std::vector<std::vector<cvf::Vec3d>> polygonTriangles;
+                    if (clippedPolygon.size() == 3u)
+                    {
+                        polygonTriangles.push_back(clippedPolygon);
+                    }
+                    else
+                    {
+                        cvf::Vec3d baryCenter = cvf::Vec3d::ZERO;
+                        for (size_t v = 0; v < clippedPolygon.size(); ++v)
+                        {
+                            cvf::Vec3d& clippedVertex = clippedPolygon[v];
+                            baryCenter += clippedVertex;
+                        }
+                        baryCenter /= clippedPolygon.size();
+                        for (size_t v = 0; v < clippedPolygon.size(); ++v)
+                        {
+                            std::vector<cvf::Vec3d> clippedTriangle;
+                            if (v == clippedPolygon.size() - 1)
+                            {
+                                clippedTriangle = { clippedPolygon[v], clippedPolygon[0], baryCenter };
+                            }
+                            else
+                            {
+                                clippedTriangle = { clippedPolygon[v], clippedPolygon[v + 1], baryCenter };
+                            }
+                            polygonTriangles.push_back(clippedTriangle);
+                        }
+                    }
+                    for (const std::vector<cvf::Vec3d>& polygonTriangle: polygonTriangles)
+                    {
+                        for (const cvf::Vec3d& localVertex : polygonTriangle)
+                        {
+                            double value = triangleMeanValue;
+                            for (size_t n = 0; n < 3; ++n)
+                            {
+                                if ((triangle[n] - localVertex).length() < m_sampleSpacing * 0.01 && triangleWithValues[n].w() != std::numeric_limits<double>::infinity())
+                                {
+                                    value = triangleWithValues[n].w();
+                                    break;
+                                }
+                            }
+                            cvf::Vec4d globalVertex(localVertex, value);
+                            clippedTriangles.push_back(globalVertex);
+                        }
+                    }
+                }
+                threadTriangles[myThread].insert(threadTriangles[myThread].end(), clippedTriangles.begin(), clippedTriangles.end());
+            }
+        }
+    }
+    std::vector<cvf::Vec4d> finalTriangles;
+    for (size_t i = 0; i < threadTriangles.size(); ++i)
+    {
+        finalTriangles.insert(finalTriangles.end(), threadTriangles[i].begin(), threadTriangles[i].end());
+    }
+
+    return finalTriangles;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<cvf::Vec3d> RimContourMapProjection::generateVertices() const
 {
     size_t nVertices = numberOfVertices();
     std::vector<cvf::Vec3d> vertices(nVertices, cvf::Vec3d::ZERO);
@@ -114,13 +248,13 @@ std::vector<cvf::Vec3d> RimContourMapProjection::generateVertices()
     for (int index = 0; index < static_cast<int>(nVertices); ++index)
     {
         cvf::Vec2ui ij = ijFromVertexIndex(index);
-        cvf::Vec2d globalPos = globalCellCenterPosition(ij.x(), ij.y());
+        cvf::Vec2d mapPos = cellCenterPosition(ij.x(), ij.y());
         // Shift away from sample point to vertex
-        globalPos.x() -= m_sampleSpacing * 0.5;
-        globalPos.y() -= m_sampleSpacing * 0.5;
+        mapPos.x() -= m_sampleSpacing * 0.5;
+        mapPos.y() -= m_sampleSpacing * 0.5;
 
-        cvf::Vec3d globalVertexPos(globalPos, m_fullBoundingBox.min().z());
-        vertices[index] = globalVertexPos;
+        cvf::Vec3d vertexPos(mapPos, 0.0);
+        vertices[index] = vertexPos;
     }
     return vertices;
 }
@@ -145,33 +279,29 @@ void RimContourMapProjection::generateContourPolygons()
             int nContourLevels = static_cast<int>(contourLevels.size());
             if (nContourLevels > 2)
             {
-                std::vector<double> fudgedContourLevels = contourLevels;
-                if (legendConfig()->mappingMode() == RimRegularLegendConfig::LINEAR_CONTINUOUS || legendConfig()->mappingMode() == RimRegularLegendConfig::LINEAR_DISCRETE)
-                {
-                    // Slight fudge to avoid very jagged contour lines at the very edge
-                    // Shift the contour levels inwards.
-                    fudgedContourLevels[0] += (contourLevels[1] - contourLevels[0]) * 0.1;
-                    fudgedContourLevels[nContourLevels - 1] -= (contourLevels[nContourLevels - 1] - contourLevels[nContourLevels - 2]) * 0.1;
-                }
                 std::vector<caf::ContourLines::ClosedPolygons> closedContourLines =
-                    caf::ContourLines::create(m_aggregatedVertexResults, xVertexPositions(), yVertexPositions(), fudgedContourLevels);
+                    caf::ContourLines::create(m_aggregatedVertexResults, xVertexPositions(), yVertexPositions(), contourLevels);
 
                 contourPolygons.resize(closedContourLines.size());
+
                 for (size_t i = 0; i < closedContourLines.size(); ++i)
                 {
                     for (size_t j = 0; j < closedContourLines[i].size(); ++j)
                     {
                         ContourPolygon contourPolygon;
-                        contourPolygon.label = cvf::String(contourLevels[i]);
-                        contourPolygon.vertices.reserve(closedContourLines[i][j].size());
-                        for (size_t k = 0; k < closedContourLines[i][j].size(); ++k)
+                        contourPolygon.value = contourLevels[i];
+                        contourPolygon.vertices.reserve(closedContourLines[i][j].size() / 2);
+                        
+                        for (size_t k = 0; k < closedContourLines[i][j].size(); k += 2)
                         {
-                            cvf::Vec3d contourPoint3d = cvf::Vec3d(closedContourLines[i][j][k], m_fullBoundingBox.min().z());
+                            cvf::Vec3d contourPoint3d = cvf::Vec3d(closedContourLines[i][j][k], 0.0);
                             contourPolygon.vertices.push_back(contourPoint3d);
                         }
                         contourPolygons[i].push_back(contourPolygon);
                     }
                 }
+
+                smoothPolygonLoops(&contourPolygons[0]);
             }
         }
     }
@@ -188,31 +318,25 @@ RimContourMapProjection::generatePickPointPolygon()
 
     if (!m_pickPoint.isUndefined())
     {
-        double zPos = m_fullBoundingBox.min().z();
-
         {
-            cvf::Vec2d gridorigin(m_fullBoundingBox.min().x(), m_fullBoundingBox.min().y());
-
-            cvf::Vec2d localPickPoint = m_pickPoint - gridorigin;
-
             cvf::Vec2d  cellDiagonal(m_sampleSpacing*0.5, m_sampleSpacing*0.5);
-            cvf::Vec2ui pickedCell = ijFromLocalPos(localPickPoint);
-            cvf::Vec2d  cellCenter = globalCellCenterPosition(pickedCell.x(), pickedCell.y());
+            cvf::Vec2ui pickedCell = ijFromLocalPos(m_pickPoint);
+            cvf::Vec2d  cellCenter = cellCenterPosition(pickedCell.x(), pickedCell.y());
             cvf::Vec2d  cellCorner = cellCenter - cellDiagonal;
 #ifndef NDEBUG
-            points.push_back(cvf::Vec3d(cellCorner, zPos));
-            points.push_back(cvf::Vec3d(cellCorner + cvf::Vec2d(m_sampleSpacing, 0.0), zPos));
-            points.push_back(cvf::Vec3d(cellCorner + cvf::Vec2d(m_sampleSpacing, 0.0), zPos));
-            points.push_back(cvf::Vec3d(cellCorner + cvf::Vec2d(m_sampleSpacing, m_sampleSpacing), zPos));
-            points.push_back(cvf::Vec3d(cellCorner + cvf::Vec2d(m_sampleSpacing, m_sampleSpacing), zPos));
-            points.push_back(cvf::Vec3d(cellCorner + cvf::Vec2d(0.0, m_sampleSpacing), zPos));
-            points.push_back(cvf::Vec3d(cellCorner + cvf::Vec2d(0.0, m_sampleSpacing), zPos));
-            points.push_back(cvf::Vec3d(cellCorner, zPos));            
+            points.push_back(cvf::Vec3d(cellCorner, 0.0));
+            points.push_back(cvf::Vec3d(cellCorner + cvf::Vec2d(m_sampleSpacing, 0.0), 0.0));
+            points.push_back(cvf::Vec3d(cellCorner + cvf::Vec2d(m_sampleSpacing, 0.0), 0.0));
+            points.push_back(cvf::Vec3d(cellCorner + cvf::Vec2d(m_sampleSpacing, m_sampleSpacing), 0.0));
+            points.push_back(cvf::Vec3d(cellCorner + cvf::Vec2d(m_sampleSpacing, m_sampleSpacing), 0.0));
+            points.push_back(cvf::Vec3d(cellCorner + cvf::Vec2d(0.0, m_sampleSpacing), 0.0));
+            points.push_back(cvf::Vec3d(cellCorner + cvf::Vec2d(0.0, m_sampleSpacing), 0.0));
+            points.push_back(cvf::Vec3d(cellCorner, 0.0));            
 #endif
-            points.push_back(cvf::Vec3d(m_pickPoint - cvf::Vec2d(0.5 * m_sampleSpacing, 0.0), zPos));
-            points.push_back(cvf::Vec3d(m_pickPoint + cvf::Vec2d(0.5 * m_sampleSpacing, 0.0), zPos));
-            points.push_back(cvf::Vec3d(m_pickPoint - cvf::Vec2d(0.0, 0.5 * m_sampleSpacing), zPos));
-            points.push_back(cvf::Vec3d(m_pickPoint + cvf::Vec2d(0.0, 0.5 * m_sampleSpacing), zPos));
+            points.push_back(cvf::Vec3d(m_pickPoint - cvf::Vec2d(0.5 * m_sampleSpacing, 0.0), 0.0));
+            points.push_back(cvf::Vec3d(m_pickPoint + cvf::Vec2d(0.5 * m_sampleSpacing, 0.0), 0.0));
+            points.push_back(cvf::Vec3d(m_pickPoint - cvf::Vec2d(0.0, 0.5 * m_sampleSpacing), 0.0));
+            points.push_back(cvf::Vec3d(m_pickPoint + cvf::Vec2d(0.0, 0.5 * m_sampleSpacing), 0.0));
         }
     }
     return points;
@@ -585,7 +709,7 @@ bool RimContourMapProjection::checkForMapIntersection(const cvf::Vec3d& localPoi
     CVF_TIGHT_ASSERT(contourMapPoint);
     CVF_TIGHT_ASSERT(valueAtPoint);
 
-    cvf::Vec3d localPos3d(localPoint3d.x() + m_sampleSpacing, localPoint3d.y() + m_sampleSpacing, 0.0);
+    cvf::Vec3d localPos3d(localPoint3d.x() + gridEdgeOffset(), localPoint3d.y() + gridEdgeOffset(), 0.0);
     cvf::Vec2d gridPos2d(localPos3d.x(), localPos3d.y());
     cvf::Vec2d gridorigin(m_fullBoundingBox.min().x(), m_fullBoundingBox.min().y());
 
@@ -603,13 +727,59 @@ bool RimContourMapProjection::checkForMapIntersection(const cvf::Vec3d& localPoi
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimContourMapProjection::smoothPolygonLoops(ContourPolygons* contourPolygons)
+{
+    CVF_ASSERT(contourPolygons);
+    for (size_t i = 0; i < contourPolygons->size(); ++i)
+    {
+        ContourPolygon& polygon = contourPolygons->at(i);
+        for (size_t n = 0; n < 50; ++n)
+        {
+            std::vector<cvf::Vec3d> newVertices;
+            newVertices.resize(polygon.vertices.size());
+            double maxChange = 0.0;
+            for (size_t j = 0; j < polygon.vertices.size(); ++j)
+            {
+                cvf::Vec3d vm1 = polygon.vertices.back();
+                cvf::Vec3d v = polygon.vertices[j];
+                cvf::Vec3d vp1 = polygon.vertices.front();
+                if (j > 0u)
+                {
+                    vm1 = polygon.vertices[j - 1];
+                }
+                if (j < polygon.vertices.size() - 1)
+                {
+                    vp1 = polygon.vertices[j + 1];
+                }
+                // Only expand.
+                cvf::Vec3d modifiedVertex = 0.5 * (v + 0.5 * (vm1 + vp1));
+                cvf::Vec3d delta = (modifiedVertex - v).getNormalized();
+                cvf::Vec3d tangent3d = vp1 - vm1;
+                cvf::Vec2d tangent2d(tangent3d.x(), tangent3d.y());
+                cvf::Vec3d norm3d (tangent2d.getNormalized().perpendicularVector());
+                if (delta * norm3d > 0)
+                {
+                    // Normal is always inwards facing so a positive dot product means inward movement
+                    // Favour expansion rather than contraction by only contracting by half the amount
+                    modifiedVertex = v + 0.5 *delta;
+                }
+                newVertices[j] = modifiedVertex;
+                maxChange      = std::max(maxChange, (modifiedVertex - v).length());
+            }
+            polygon.vertices.swap(newVertices);
+            if (maxChange < m_sampleSpacing * 1.0e-2)
+                break;
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 double RimContourMapProjection::interpolateValue(const cvf::Vec2d& gridPos2d) const
 {
-    cvf::Vec2d gridorigin(m_fullBoundingBox.min().x(), m_fullBoundingBox.min().y());
-
     cvf::Vec2ui cellContainingPoint = ijFromLocalPos(gridPos2d);
-    cvf::Vec2d  globalCellCenter    = globalCellCenterPosition(cellContainingPoint.x(), cellContainingPoint.y());
-    cvf::Vec2d  cellCenter          = globalCellCenter - gridorigin;
+    cvf::Vec2d  cellCenter          = cellCenterPosition(cellContainingPoint.x(), cellContainingPoint.y());
 
     std::array<cvf::Vec3d, 4> x;
     x[0]                         = cvf::Vec3d(cellCenter + cvf::Vec2d(-m_sampleSpacing * 0.5, -m_sampleSpacing * 0.5), 0.0);
@@ -631,7 +801,7 @@ double RimContourMapProjection::interpolateValue(const cvf::Vec2d& gridPos2d) co
         double vertexValue = valueAtVertex(v[i].x(), v[i].y());
         if (vertexValue == std::numeric_limits<double>::infinity())
         {
-            return std::numeric_limits<double>::infinity();
+            return vertexValue;
         }
         value += baryCentricCoords[i] * vertexValue;
     }
@@ -641,9 +811,17 @@ double RimContourMapProjection::interpolateValue(const cvf::Vec2d& gridPos2d) co
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimContourMapProjection::setPickPoint(cvf::Vec2d pickedPoint)
+void RimContourMapProjection::setPickPoint(cvf::Vec2d globalPickPoint)
 {
-    m_pickPoint = pickedPoint;
+    m_pickPoint = globalPickPoint - origin2d();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+cvf::Vec3d RimContourMapProjection::origin3d() const
+{
+    return m_fullBoundingBox.min();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -765,7 +943,7 @@ void RimContourMapProjection::generateGridMapping()
         {
             cvf::Vec2ui ij = ijFromCellIndex(index);
 
-            cvf::Vec2d globalPos            = globalCellCenterPosition(ij.x(), ij.y());
+            cvf::Vec2d globalPos = cellCenterPosition(ij.x(), ij.y()) + origin2d();
             m_projected3dGridIndices[index] = visibleCellsAndLengthInCellFrom2dPoint(globalPos, weightingResultValues);
         }
     }
@@ -776,7 +954,7 @@ void RimContourMapProjection::generateGridMapping()
         {
             cvf::Vec2ui ij = ijFromCellIndex(index);
 
-            cvf::Vec2d globalPos            = globalCellCenterPosition(ij.x(), ij.y());
+            cvf::Vec2d globalPos = cellCenterPosition(ij.x(), ij.y()) + origin2d();
             m_projected3dGridIndices[index] = visibleCellsAndOverlapVolumeFrom2dPoint(globalPos, weightingResultValues);
         }
     }
@@ -1275,14 +1453,20 @@ cvf::Vec2ui RimContourMapProjection::ijFromLocalPos(const cvf::Vec2d& localPos2d
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::Vec2d RimContourMapProjection::globalCellCenterPosition(uint i, uint j) const
+cvf::Vec2d RimContourMapProjection::cellCenterPosition(uint i, uint j) const
 {
     cvf::Vec3d gridExtent = m_fullBoundingBox.extent();
-    cvf::Vec2d origin(m_fullBoundingBox.min().x(), m_fullBoundingBox.min().y());
-
-    cvf::Vec2d cellCorner = origin + cvf::Vec2d((i * gridExtent.x()) / (m_mapSize.x()), (j * gridExtent.y()) / (m_mapSize.y()));
+    cvf::Vec2d cellCorner = cvf::Vec2d((i * gridExtent.x()) / (m_mapSize.x()), (j * gridExtent.y()) / (m_mapSize.y()));
 
     return cellCorner + cvf::Vec2d(m_sampleSpacing * 0.5, m_sampleSpacing * 0.5);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+cvf::Vec2d RimContourMapProjection::origin2d() const
+{
+    return cvf::Vec2d(m_fullBoundingBox.min().x(), m_fullBoundingBox.min().y());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1291,14 +1475,13 @@ cvf::Vec2d RimContourMapProjection::globalCellCenterPosition(uint i, uint j) con
 std::vector<double> RimContourMapProjection::xVertexPositions() const
 {
     double gridExtent = m_fullBoundingBox.extent().x();
-    double origin     = m_fullBoundingBox.min().x();
 
     cvf::Vec2ui         gridSize = numberOfVerticesIJ();
     std::vector<double> positions;
     positions.reserve(gridSize.x());
     for (uint i = 0; i < gridSize.x(); ++i)
     {
-        positions.push_back(origin + (i * gridExtent) / (gridSize.x() - 1));
+        positions.push_back((i * gridExtent) / (gridSize.x() - 1));
     }
 
     return positions;
@@ -1310,14 +1493,13 @@ std::vector<double> RimContourMapProjection::xVertexPositions() const
 std::vector<double> RimContourMapProjection::yVertexPositions() const
 {
     double gridExtent = m_fullBoundingBox.extent().y();
-    double origin     = m_fullBoundingBox.min().y();
 
     cvf::Vec2ui         gridSize = numberOfVerticesIJ();
     std::vector<double> positions;
     positions.reserve(gridSize.y());
     for (uint j = 0; j < gridSize.y(); ++j)
     {
-        positions.push_back(origin + (j * gridExtent) / (gridSize.y() - 1));
+        positions.push_back((j * gridExtent) / (gridSize.y() - 1));
     }
 
     return positions;
@@ -1347,7 +1529,7 @@ void RimContourMapProjection::updateGridInformation()
     m_mainGrid        = eclipseCase()->eclipseCaseData()->mainGrid();
     m_sampleSpacing   = m_relativeSampleSpacing * m_mainGrid->characteristicIJCellSize();
     m_fullBoundingBox = eclipseCase()->activeCellsBoundingBox();
-    m_fullBoundingBox.expand(m_sampleSpacing * 2.0);
+    m_fullBoundingBox.expand(gridEdgeOffset() * 2.0);
     m_mapSize         = calculateMapSize();
 
     // Re-jig max point to be an exact multiple of cell size
@@ -1389,4 +1571,12 @@ RimContourMapView* RimContourMapProjection::view() const
     RimContourMapView* view = nullptr;
     firstAncestorOrThisOfTypeAsserted(view);
     return view;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimContourMapProjection::gridEdgeOffset() const
+{
+    return m_sampleSpacing * 2.0;
 }

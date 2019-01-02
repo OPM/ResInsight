@@ -69,7 +69,9 @@ void caf::ContourLines::create(const std::vector<double>& dataXY, const std::vec
             temp2 = std::max(saneValue(gridIndex1d(i + 1, j, nx), dataXY, contourLevels),
                              saneValue(gridIndex1d(i + 1, j + 1, nx), dataXY, contourLevels));
             double dmax  = std::max(temp1, temp2);
-            if (dmax < contourLevels[0] || dmin > contourLevels[nContourLevels - 1])
+            // Using dmax <= contourLevels[0] as a deviation from Bourke because it empirically
+            // Reduces gridding artifacts in our code.
+            if (dmax <= contourLevels[0] || dmin > contourLevels[nContourLevels - 1])
                 continue;
 
             for (int k = 0; k < nContourLevels; k++)
