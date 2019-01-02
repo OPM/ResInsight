@@ -580,44 +580,62 @@ void RimContourMapProjection::updatedWeightingResult()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimContourMapProjection::checkForMapIntersection(const cvf::Vec3d& localPoint3d, cvf::Vec2d* contourMapPoint, cvf::Vec2ui* contourMapCell, double* valueAtPoint) const
+bool RimContourMapProjection::checkForMapIntersection(const cvf::Vec3d& localPoint3d, cvf::Vec2d* contourMapPoint, double* valueAtPoint) const
 {
     CVF_TIGHT_ASSERT(contourMapPoint);
     CVF_TIGHT_ASSERT(valueAtPoint);
+
     cvf::Vec3d localPos3d(localPoint3d.x() + m_sampleSpacing, localPoint3d.y() + m_sampleSpacing, 0.0);
-    cvf::Vec2d localPos2d(localPos3d.x(), localPos3d.y());
-    cvf::Vec2ui pickedCell = ijFromLocalPos(localPos2d);
-    *contourMapCell = pickedCell;
+    cvf::Vec2d gridPos2d(localPos3d.x(), localPos3d.y());
+    cvf::Vec2d gridorigin(m_fullBoundingBox.min().x(), m_fullBoundingBox.min().y());
 
+    double value = interpolateValue(gridPos2d);
+    if (value != std::numeric_limits<double>::infinity())
     {
-        cvf::Vec2d gridorigin(m_fullBoundingBox.min().x(), m_fullBoundingBox.min().y());
-        cvf::Vec2d globalCellCenter = globalCellCenterPosition(pickedCell.x(), pickedCell.y());
-        cvf::Vec2d cellCenter = globalCellCenter - gridorigin;
-        std::array <cvf::Vec3d, 4> x;
-        x[0] = cvf::Vec3d(cellCenter + cvf::Vec2d(-m_sampleSpacing * 0.5, -m_sampleSpacing * 0.5), 0.0);
-        x[1] = cvf::Vec3d(cellCenter + cvf::Vec2d(m_sampleSpacing*0.5, -m_sampleSpacing * 0.5), 0.0);
-        x[2] = cvf::Vec3d(cellCenter + cvf::Vec2d(m_sampleSpacing*0.5, m_sampleSpacing * 0.5), 0.0);
-        x[3] = cvf::Vec3d(cellCenter + cvf::Vec2d(-m_sampleSpacing * 0.5, m_sampleSpacing * 0.5), 0.0);
-        cvf::Vec4d baryCentricCoords = cvf::GeometryTools::barycentricCoords(x[0], x[1], x[2], x[3], localPos3d);
-
-        std::array<cvf::Vec2ui, 4> v;
-        v[0] = pickedCell;
-        v[1] = cvf::Vec2ui(pickedCell.x() + 1u, pickedCell.y());
-        v[2] = cvf::Vec2ui(pickedCell.x() + 1u, pickedCell.y() + 1u);
-        v[3] = cvf::Vec2ui(pickedCell.x(), pickedCell.y() + 1u);
-
-        double value = 0.0;
-        for (int i = 0; i < 4; ++i)
-        {
-            value += baryCentricCoords[i] * valueAtVertex(v[i].x(), v[i].y());
-        }
-
         *valueAtPoint = value;
-        *contourMapPoint = localPos2d + gridorigin;
+        *contourMapPoint = gridPos2d + gridorigin;
 
         return true;
     }
     return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimContourMapProjection::interpolateValue(const cvf::Vec2d& gridPos2d) const
+{
+    cvf::Vec2d gridorigin(m_fullBoundingBox.min().x(), m_fullBoundingBox.min().y());
+
+    cvf::Vec2ui cellContainingPoint = ijFromLocalPos(gridPos2d);
+    cvf::Vec2d  globalCellCenter    = globalCellCenterPosition(cellContainingPoint.x(), cellContainingPoint.y());
+    cvf::Vec2d  cellCenter          = globalCellCenter - gridorigin;
+
+    std::array<cvf::Vec3d, 4> x;
+    x[0]                         = cvf::Vec3d(cellCenter + cvf::Vec2d(-m_sampleSpacing * 0.5, -m_sampleSpacing * 0.5), 0.0);
+    x[1]                         = cvf::Vec3d(cellCenter + cvf::Vec2d(m_sampleSpacing * 0.5, -m_sampleSpacing * 0.5), 0.0);
+    x[2]                         = cvf::Vec3d(cellCenter + cvf::Vec2d(m_sampleSpacing * 0.5, m_sampleSpacing * 0.5), 0.0);
+    x[3]                         = cvf::Vec3d(cellCenter + cvf::Vec2d(-m_sampleSpacing * 0.5, m_sampleSpacing * 0.5), 0.0);
+
+    cvf::Vec4d baryCentricCoords = cvf::GeometryTools::barycentricCoords(x[0], x[1], x[2], x[3], cvf::Vec3d(gridPos2d, 0.0));
+
+    std::array<cvf::Vec2ui, 4> v;
+    v[0] = cellContainingPoint;
+    v[1] = cvf::Vec2ui(cellContainingPoint.x() + 1u, cellContainingPoint.y());
+    v[2] = cvf::Vec2ui(cellContainingPoint.x() + 1u, cellContainingPoint.y() + 1u);
+    v[3] = cvf::Vec2ui(cellContainingPoint.x(), cellContainingPoint.y() + 1u);
+
+    double value = 0.0;
+    for (int i = 0; i < 4; ++i)
+    {
+        double vertexValue = valueAtVertex(v[i].x(), v[i].y());
+        if (vertexValue == std::numeric_limits<double>::infinity())
+        {
+            return std::numeric_limits<double>::infinity();
+        }
+        value += baryCentricCoords[i] * vertexValue;
+    }
+    return value;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -62,9 +62,8 @@ bool RicContourMapPickEventHandler::handlePickEvent(const Ric3DPickEvent& eventO
             contourMap->firstAncestorOrThisOfTypeAsserted(view);
 
             cvf::Vec2d pickedPoint;
-            cvf::Vec2ui pickedCell;
             double valueAtPoint = 0.0;
-            if (contourMap->checkForMapIntersection(firstPickedItem.globalPickedPoint(), &pickedPoint, &pickedCell, &valueAtPoint))
+            if (contourMap->checkForMapIntersection(firstPickedItem.globalPickedPoint(), &pickedPoint, &valueAtPoint))
             {
                 QString curveText;
                 curveText += QString("%1\n").arg(view->createAutoName());

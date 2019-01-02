@@ -111,10 +111,12 @@ public:
 
     void                         updatedWeightingResult();
 
-    bool                         checkForMapIntersection(const cvf::Vec3d& localPoint3d, cvf::Vec2d* contourMapPoint, cvf::Vec2ui* contourMapCell, double* valueAtPoint) const;
+    bool                         checkForMapIntersection(const cvf::Vec3d& localPoint3d, cvf::Vec2d* contourMapPoint, double* valueAtPoint) const;
     void                         setPickPoint(cvf::Vec2d pickedPoint);
 
 protected:
+    double interpolateValue(const cvf::Vec2d& gridPosition2d) const;
+
     void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
     void defineEditorAttribute(const caf::PdmFieldHandle* field,
                                QString                    uiConfigName,
