@@ -442,6 +442,7 @@ if (MSVC)
 			add_custom_command(TARGET ResInsight POST_BUILD
 				COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:${qtlib}> $<TARGET_FILE_DIR:ResInsight>
     		)
+        	list(APPEND RI_DLL_FILENAMES $<TARGET_FILE:${qtlib}>)
 		endforeach(qtlib)
 	else()
  		set (QTLIBLIST QtCore4 QtCored4 QtGui4 QtGuid4 QtOpenGl4 QtOpenGld4 QtNetwork4 QtNetworkd4 QtScript4 QtScriptd4 QtScriptTools4 QtScriptToolsd4)
