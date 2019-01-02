@@ -1154,18 +1154,15 @@ void RiuViewerCommands::handleTextPicking(int winPosX, int winPosY, cvf::HitItem
 
     for (size_t pIdx = 0; pIdx < partCollection.size(); ++pIdx)
     {
-        if (partCollection[pIdx]->priority() ==  RivPartPriority::PartType::Text) // Just trying to avoid dyncasting all drawables
+        DrawableText* textDrawable = dynamic_cast<DrawableText*>(partCollection[pIdx]->drawable());
+        if (textDrawable)
         {
-            DrawableText* textDrawable = dynamic_cast<DrawableText*> (partCollection[pIdx]->drawable());
-            if (textDrawable)
+            cvf::Vec3d ppoint;
+            if (textDrawable->rayIntersect(*ray, *(m_viewer->mainCamera()), &ppoint))
             {
-                cvf::Vec3d ppoint; 
-                if (textDrawable->rayIntersect(*ray, *( m_viewer->mainCamera()), &ppoint))
-                {
-                    cvf::ref<HitItem> hitItem = new HitItem(0, ppoint);
-                    hitItem->setPart(partCollection[pIdx].p());
-                    hitItems->add(hitItem.p());
-                }
+                cvf::ref<HitItem> hitItem = new HitItem(0, ppoint);
+                hitItem->setPart(partCollection[pIdx].p());
+                hitItems->add(hitItem.p());
             }
         }
     }
