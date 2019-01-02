@@ -62,6 +62,7 @@
 #include "RimStimPlanFractureTemplate.h"
 #include "RimViewController.h"
 #include "RimWellPath.h"
+#include "RimTextAnnotation.h"
 
 #include "RiuMainWindow.h"
 #include "RiuResultTextBuilder.h"
@@ -81,6 +82,7 @@
 #include "RivWellConnectionSourceInfo.h"
 #include "RivWellFracturePartMgr.h"
 #include "RivWellPathSourceInfo.h"
+#include "RivPartPriority.h"
 
 #include "cafCmdExecCommandManager.h"
 #include "cafCmdFeatureManager.h"
@@ -95,19 +97,16 @@
 #include "cvfOverlayAxisCross.h"
 #include "cvfPart.h"
 #include "cvfTransform.h"
+#include "cvfScene.h"
+#include "cvfDrawableText.h"
+#include "cvfRay.h"
 
 #include <QMenu>
 #include <QMouseEvent>
 #include <QStatusBar>
 
 #include <array>
-#include "cvfScene.h"
-#include "RivPartPriority.h"
-#include "cvfDrawableText.h"
-#include "cvfRay.h"
-#include "RimTextAnnotation.h"
 
-#include "QDebug"
 
 //==================================================================================================
 //
@@ -523,14 +522,6 @@ void RiuViewerCommands::handlePickAction(int winPosX, int winPosY, Qt::KeyboardM
     {
         cvf::HitItemCollection hitItems;
         m_viewer->rayPick(winPosX, winPosY, &hitItems);
-
-        qDebug() << "Click: >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>" << endl;
-        for (size_t i = 0; i < hitItems.count(); i++)
-        {
-            const auto& item = hitItems.item(i);
-            qDebug() << "  Pt: " << QString("%1, %2, %3").arg(item->intersectionPoint().x()).arg(item->intersectionPoint().y()).arg(item->intersectionPoint().z());
-        }
-        qDebug() << "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<";
 
         // Do specialized text pick, since vizfwk does not hit text
         handleTextPicking(winPosX, winPosY, &hitItems);
